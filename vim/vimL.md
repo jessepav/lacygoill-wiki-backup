@@ -1,566 +1,3 @@
-# Which condition must a variable name satisfy to store a funcref?
-
-It must begin with an uppercase character.
-
-        let g:width = function(exists('*strchars') ? 'strchars' : 'strlen')
-        echo g:width('hello')
-        E704: Funcref variable name must start with a capital: width~
-
-        let g:Width = function(exists('*strchars') ? 'strchars' : 'strlen')
-        echo g:Width('hello')
-        5~
-
-Unless it's local to something else than a function:
-
-        let t:width = function(exists('*strchars') ? 'strchars' : 'strlen')
-        echo t:width('hello')
-        5~
-
-        unlet! g:Width
-        fu! Width(string) abort
-            let l:width = function(exists('*strchars') ? 'strchars' : 'strlen')
-            return l:width(a:string)
-        endfu
-        echo Width('hello')
-        E704: Funcref variable name must start with a capital: l:width~
-
-## Why?
-
-To avoid a conflict with a builtin function.
-
-## ?
-
-        let s:width = function(exists('*strchars') ? 'strchars' : 'strlen')
-
-Stocke dans la variable `s:width` une  funcref se référant à la fonction système
-`strchars()` si elle existe, ou à `strlen()` autrement.
-Illustre que  `function()` peut  aussi retourner une  funcref pour  une fonction
-système.
-
-## ?
-
-    fu! Func(i, j)
-        return a:i + a:j
-    endfu
-    let list = [function('Func')]
-    echo list[0](3, 4)
-    7~
-
-            Stocke une funcref dans une liste.
-
-            Dans  n'importe  quelle commande  invoquant  une  fonction, on  peut
-            remplacer le  nom de cette  dernière par  une funcref se  référant à
-            elle, ou par une expression dont la valeur est une funcref.
-            Ici, puisque  `list[0]` est  une expression dont  la valeur  est une
-            funcref  se  référant  à  `Func()`, on  peut  remplacer  `Func`  par
-            `list[0]`.
-
-            IOW, on peut remplacer le nom d'une fonction par le nom d'un endroit
-            où se trouve sa funcref.
-
-
-    fu! Func() dict
-        return len(self.data)
-    endfu
-    let mydict = {'data': [0, 1, 2, 3], 'len': function('Func')}
-    echo mydict.len()
-               │
-               └ clé `len` du dico `mydict`; rien à voir avec la fonction système `len()`
-
-    4~
-
-            Stocke une funcref dans un dictionnaire.
-            On dit que le dictionnaire `mydict` est lié à la fonction `Func`.
-
-
-                                     NOTE:
-
-            La syntaxe `mydict.len()` n'est pas fondamentalement nouvelle:
-
-                    • FR()
-
-                    • funcs[0]()
-
-                    • mydict.len()
-
-            On peut toujours remplacer le nom d'une fonction par une funcref qui
-            se réfère à  elle, ou une expression dont la  valeur est une funcref
-            se référant à elle.
-
-            Ce qui est  ici nouveau, c'est que la fonction  peut accéder au dico
-            qui lui est associé via la variable locale `self`, à condition qu'on
-            lui ait donné l'attribut `dict`.
-
-            Sans `dict`,  pas de `self`, mais  tout le reste du  code fonctionne
-            sans `dict`.
-
-
-                                     NOTE:
-
-            `len()` est l'équivalent d'une méthode en OOP.
-            Rappel:  en OOP, un objet est un couple code + données.
-
-
-    let adict = {'data': [0, 1, 2, 3]}
-    fu! adict.len()
-        return len(self.data)
-    endfu
-    echo adict.len()
-    4~
-
-            Idem que précédemment, sauf que cette fois on n'a pas eu besoin de:
-
-                    • donner un nom propre à la fonction implémentant la méthode
-
-                    • lui donner l'attribut `dict`
-
-                    • ajouter une funcref dans le dico
-
-            On a pu se passer de ces  3 étapes en suivant le schéma suivant pour
-            construire le nom de la fonction:
-
-                    dico.clé
-
-            Qd on  définit `fu! adict.len()`, Vim ajoute  automatiquement la clé
-            `len` à `adict`, avec pour valeur une funcref faisant référence à la
-            fonction courante.
-            La fonction est dite “numérotée“  / “anonyme“, car techniquement Vim
-            lui donne pour nom un simple nombre.
-
-            Si `adict` contient déjà une clé `len`, sa valeur est écrasée.
-
-            `adict.len()` est automatiquement supprimée  dès qu'il ne reste plus
-            aucune funcref qui s'y réfère. (update: what does it mean?)
-
-
-                                               NOTE:
-
-            `adict.len()` est du sucre syntaxique, pour ne pas avoir à donner de
-            nom propre  à la fonction, ni  d'attribut `dict`, et ne  pas avoir à
-            manuellement ajouter une funcref au dico.
-
-
-                                               NOTE:
-
-            Déboguer une fonction anonyme est difficile.
-            En  particulier, notre  commande `:WTF`,  ne peut  pas nous  montrer
-            l'emplacement d'une erreur s'étant produite dans une telle fonction.
-            Il vaut donc mieux éviter ce sucre syntaxique.
-
-            Pour + d'infos:
-
-                https://github.com/LucHermitte/lh-vim-lib/blob/master/doc/OO.md
-
-
-    let adict = {'data': [0, 1, 2, 3]}
-    fu! adict.len()
-        return len(self.data)
-    endfu
-    let bdict = {'data': [0, 1], 'blen': function(adict.len)}
-    echo bdict.blen()
-    2~
-
-            On peut  se référer à  la fonction `adict.len()`  (qui techniquement
-            est une  fonction numérotée) via  une funcref, comme  pour n'importe
-            quelle fonction.
-            Elle n'a pas de statut à part.
-
-            Pk `2` et pas `4` comme tout à l'heure?
-
-                    echo bdict.blen()
-                  ⇔ echo adict.len()
-                  ⇔ echo len(self.data)
-                             │
-                             └ sauf que cette fois `self` ne contient pas `adict` mais `bdict`
-                                                                           │            │
-                                                                           │            └ taille 2
-                                                                           └ taille 4
-
-           Ça peut paraître  étrange puisque c'est `adict`, et  non pas `bdict`,
-           qui est associé à `adict.len()`.
-
-           Théorie:
-           `bdict.blen()` est une fonction dictionnaire, comme `adict.len()`.
-           `bdict` lui est donc associé; qd elle  est invoquée Vim lui passe via
-           `bdict` la variable `self`.
-
-           Le code  final est celui  de `adict.len()`, mais le  dictionnaire qui
-           lui est  associé est `bdict`;  Vim ne le  remplace pas plus  tard par
-           `adict`.
-
-
-            Remarque:
-
-            Comme pour  toute fonction dictionnaire,  Vim ajoute une  funcref se
-            référant à elle dans le dico:
-
-                    echo bdict
-                    {~
-                                                        ┌ fonction “7”~
-                                                        │~
-                      'data': [0, 1], 'blen': function('7',~
-                      \                                {'data': [0, 1, 2, 3], 'len': function('7')})~
-                                                        ├──────────────────────────────────────────┘~
-                                                        └ associée à ce dictionnaire~
-                    }~
-
-            On remarque que `function()`  accepte un dictionnaire comme argument
-            optionnel.
-            Qd elle en reçoit un, elle l'associe à la fonction.
-
-
-    fu! Hello()
-        echo 'hello'
-    endfu
-
-    fu! World()
-        echo 'world'
-    endfu
-
-    let FR = function('Hello')
-    call FR()
-    hello~
-
-    let FR = function('World')
-    call FR()
-    world~
-
-            On peut invoquer une fonction en remplaçant son nom par une funcref,
-            ou une expression dont l'évaluation est une funcref.
-            Ici, on remplace le nom de fonction `Func` par la variable `FR` dont
-            l'évaluation est une funcref:
-
-                    call Func()  →  call FR()
-
-
-    fu! Func(i,j)
-        return a:i + a:j
-    endfu
-    let FR   = function('Func')
-    let list = [3, 4]
-    echo call(FR, list)
-    7~
-
-            `call()` permet de passer une liste d'arguments à une funcref. Équivaut à :
-
-                    echo FR(3, 4)
-
-            Toutefois, cette 2e  syntaxe n'est utilisable que si  on déballe les
-            éléments de la liste, pas si on les laisse dedans:
-
-                    echo call(FR, list)    ✔
-                    echo FR(list)          ✘
-                    E119: Not enough arguments for function: Func~
-
-
-                                               NOTE:
-
-            On peut  aussi utiliser `call()`  pour passer une  liste d'arguments
-            directement à une fonction:
-
-                    fu! Func(...)
-                        let sum = 0
-                        for i in a:000
-                            let sum += i
-                        endfor
-                        return sum
-                    endfu
-
-                    echo call('Func', [1, 2])
-                    3~
-                    echo call('Func', [1, 2, 3])
-                    6~
-
-            Utile pour  passer à  une fonction un  ensemble d'arguments  dont la
-            taille n'est pas connue à l'avance.
-
-
-    fu! Func()                  ┊ "
-        return 'foo'            ┊ "
-    endfu                       ┊ "
-                                ┊
-    let FR = function('Func')   ┊   let FR = funcref('Func')
-                                ┊
-    fu! Func()                  ┊ "
-        return 'bar'            ┊ "
-    endfu                       ┊ "
-                                ┊
-    echo FR()                   ┊ "
-                                ┊
-    bar                         ┊ foo~
-
-
-            Si on crée une funcref, et qu'on change la définition de la fonction
-            à laquelle elle se réfère, la funcref se réfère désormais:
-
-                    • à la nouvelle définition, si elle a été créée par `function()`
-
-                    • à la définition originelle, si elle a été créée par `funcref()`
-
-            IOW, la funcref produite par:
-
-                    • `function('Func')` cherche `Func` via son nom (la
-                      définition associée peut changer)
-
-                    • `funcref('Func')`  cherche `Func` via sa référence (i.e.
-                      adresse mémoire)
-
-
-    fu {42}
-
-            Affiche le code de la fonction numérotée 42.
-            Utile en cas d'erreur.
-
-
-    :echo type(function('system')) == type('')
-    0~
-
-            Confirme que la  sortie de `function()` qui s'affiche  à l'écran est
-            bien une référence et non une chaîne.
-            Une funcref est un type de donnée à part entière.
-
-            Pour obtenir  le nom  d'une funcref  sous forme  de chaîne,  il faut
-            utiliser `string()`:
-
-                    string(FR)
-
-
-    fu! Func()
-        return 42
-    endfu
-    let Func = function('Func')
-
-                    ✘  E705: Variable name conflicts with existing function: Func
-
-            On ne  peut pas ré-utiliser  le nom  d'une fonction pour  nommer une
-            variable contenant une funcref se référant à elle.
-
-
-                                               NOTE:
-
-            En revanche, on  peut ré-utiliser le nom d'une  fonction pour nommer
-            une clé de dico dont la valeur est une funcref se référant à elle:
-
-                    fu! Func()
-                        return 42
-                    endfu
-                    let mydict = {'data': [0, 1], 'Func': function('Func')}
-                    echo mydict.Func()
-                    42~
-
-## ?
-
-    fu! Describe(i, j, object)
-        echo (a:i + a:j).' '.a:object
-    endfu
-    let Description = function('Describe', [1, 2])
-    call Description('piggies')
-    3 piggies~
-
-            `function()` peut lier une liste d'arguments à une fonction.
-            On dit que le résultat est un “partiel“.
-
-            Sans partiel, les 2 dernières lignes du code se ré-écriraient comme ceci:
-
-                    let Description = function('Describe')
-                    call Describe(1, 2, 'piggies')
-
-
-                                               NOTE:
-
-            Un partiel est une funcref particulière:
-
-                    echo type(Description) == type(function('tr'))
-                    1~
-
-
-                                               NOTE:
-
-            Vim passe les arguments inclus dans la définition d'un partiel avant
-            ceux qu'on peut passer au moment de l'invocation:
-
-                    1 et 2  avant  'piggies'
-
-
-                                               NOTE:
-
-            D'où vient le terme “partiel“ ?
-
-            En  informatique, une  application de  fonction partielle  décrit le
-            processus qui consiste à fixer  un sous-ensemble des arguments d'une
-            fonction en les  liant à des valeurs  prédéterminées, produisant une
-            autre fonction, d'arité inférieure.
-
-                    https://en.wikipedia.org/wiki/Partial_application
-
-            Pour rappel, en mathématiques, l'arité  d'une fonction est le nombre
-            d'arguments qu'elle requiert.
-
-            Exemple:
-
-                    f:           x,y  →  x/y
-                    partial(f):    y  →  1/y
-
-            En fixant/liant le 1er argument de la fonction `f` à la valeur 1, on
-            obtient la fonction inverse.
-
-            Il est possible  que le terme fut choisi car  une fonction partielle
-            est obtenue en ne fournissant à  une autre fonction qu'une partie de
-            ses arguments.
-
-
-    fu! Describe() dict
-        echo 'here are some ' . self.name
-    endfu
-    let object      = { 'name': 'fruits' }
-    let Description = function('Describe', object)
-    call Description()
-    here are some fruits~
-
-            `function()` peut aussi lier un dico à une fonction.
-            Ici, on lie le dico `object` à la fonction `Describe()`.
-            Le résultat est stocké dans le partiel `Description`.
-
-            Pour que la  fonction puisse y accéder, elle  doit porter l'attribut
-            `dict`.
-            Elle peut alors se référer au dico via sa variable locale `self`.
-
-
-    fu! Describe(count, adj) dict
-        echo a:count.' '.a:adj.' '. self.name
-    endfu
-    let object      = { 'name': 'piggies' }
-    let Description = function('Describe', [ 3 ], object)
-    call Description('little')
-    3 little piggies~
-
-            Illustre  qu'on  peut lier  à  une  fonction  à  la fois  une  liste
-            d'arguments et un dico.
-
-
-                                               NOTE:
-
-            Le dico d'un partiel ne fait pas partie de la liste des arguments.
-            Il s'agit de 2 ensembles totalement séparés.
-
-
-                                               NOTE:
-
-            San partiel, l'exemple précédent se ré-écrirait de la façon suivante:
-
-                    let object = { 'name': 'piggies' }
-                    fu! object.Describe(count, adj)
-                        echo a:count.' '.a:adj.' '. self.name
-                    endfu
-                    call object.Describe(3, 'little')
-
-
-    fu! Describe(i, j, object)
-        echo (a:i + a:j).' '.a:object
-    endfu
-    let Desc    = function('Describe', [ 1 ])
-    let NewDesc = function(Desc, [ 2 ])
-                           │
-                           └─ partiel
-
-    call NewDesc('piggies')
-    3 piggies~
-
-            Montre que  le nom du  1er argument  donné à `function()`  n'est pas
-            forcément celui d'une fonction.
-            Ce  peut  être celui  d'une  funcref  ou  d'un partiel  (comme  dans
-            l'affectation de `NewDesc`).
-
-            Montre aussi  qu'on peut  imbriquer des  appels à  `function()` pour
-            ajouter progressivement des arguments à un partiel.
-            Ils sont ajoutés les uns à la suite des autres.
-
-            Ici, le 1er appel à `function()` ajoute `1` à la liste des arguments
-            du partiel:
-
-                    [] + [ 1 ]
-
-            Et, le 2e appel lui ajoute `2`:
-
-                    [ 1 ] + [ 2 ]
-
-            On pourrait continuer:
-
-                    [ 1, 2 ] + [ 3 ]
-
-
-                                               NOTE:
-
-            La dernière commande équivaut à :
-
-                    call Describe(1, 2, 'piggies')
-
-
-    fu! Func() dict
-        echo self.name
-    endfu
-
-    let FR            = function('Func')
-    let mydict        = { 'name': 'foo' }
-    let mydict.myfunc = FR
-
-    call mydict.myfunc()
-    foo~
-
-            Un partiel n'est pas le seul moyen de lier une fonction à un dico.
-            On peut aussi le faire en affectant sa funcref à une clé du dico.
-            Ici,  `FR()` reçoit  `mydict`  via  `self` qd  on  accède  à la  clé
-            `myfunc`.
-
-
-    fu! Func() dict
-        echo self.name
-    endfu
-
-    let FR                = function('Func')
-    let mydict            = { 'name': 'foo' }
-    let mydict.myfunc     = FR
-    let other_dict        = { 'name': 'bar' }
-    let other_dict.myfunc = mydict.myfunc
-
-    call other_dict.myfunc()
-    bar~
-
-            Si on duplique la fonction `mydict.myfunc` en `other_dict.myfunc`:
-
-                    let other_dict.myfunc = mydict.myfunc
-
-            ... en ayant  au préalable associé à cette dernière  clé de dico une
-            funcref:
-
-                    let mydict.myfunc = FR
-
-            ... la copie est liée au nouveau dico, pas à l'original.
-            C'est pourquoi elle reçoit `other_dict`  via `self`, et elle affiche
-            `bar`, au lieu de `foo`.
-
-
-    fu! Func() dict
-        echo self.name
-    endfu
-
-    let FR                = function('Func')
-    let mydict            = { 'name': 'foo' }
-    let mydict.myfunc     = function(FR, mydict)
-    let other_dict        = { 'name': 'bar' }
-    let other_dict.myfunc = mydict.myfunc
-
-    call other_dict.myfunc()
-    foo~
-
-            En revanche, si on la duplique  en l'ayant définie comme un partiel,
-            qu'on utilise pour EXPLICITEMENT lier la fonction au dico:
-
-                    let mydict.myfunc = function(FR, mydict)
-
-            ... la copie reste liée à l'ancien dico.
-
-###
 # Pasting text
 ## What are the pros of using `:put =` over `append()` or `setline()`?
 
@@ -724,7 +161,7 @@ Mais au bout du compte ils sont transmis aux pgm sous la forme d'un ou plusieurs
 octets pour lequel la notation hexadécimale est la plus adapatée.
 
 La  commande  'xxd  -p'  permet d'afficher  la  représentation  hexadécimale  de
-certains caractères de contrôle (entrée, tab, escape, flèches…).
+certains caractères de contrôle (entrée, tab, escape, flèches...).
 Pour ce faire taper le caractère de contrôle suivi de la touche entrée et ne pas
 tenir compte du 0a à la fin, il correspond à un CR.
 Pex, quand on appuie sur la flèche du bas, la commande retourne : 1b5b420a.
@@ -821,11 +258,11 @@ notation ^[ pour escape.
         On ne peut pas se passer du dot dans:
 
                     • une sous-expression au sein d'une expression conditionnelle utilisant l'opérateur ternaire ?:
-                    • une chaîne passée directement en argument à une fonction (map(), system(), …)
+                    • une chaîne passée directement en argument à une fonction (map(), system(), ...)
                     • une affectation de valeur à une variable
                     • le registre expression
                     • la commande :return
-                    • …
+                    • ...
 
                             :echo &list ? 'foo' 'bar' : 'baz'    ✘
                             :echo system('ls' '-l')              ✘
@@ -881,7 +318,7 @@ notation ^[ pour escape.
 
             affiche    foo    bar
 
-            eval() évalue la double chaîne '" … "' en simple chaîne " … ", à l'intérieur de laquelle
+            eval() évalue la double chaîne '" ... "' en simple chaîne " ... ", à l'intérieur de laquelle
             les caractères spéciaux peuvent être traduits.
 
 ## Indexage
@@ -1064,7 +501,7 @@ Une expression peut être :
 
                     exe "nno cd :echo ".42."\r"    ✔
 
-            … mais pas de dico en chaîne.
+            ... mais pas de dico en chaîne.
 
             Il faut donc convertir soi-même le dico en chaîne via `string()`.
 
@@ -1081,8 +518,8 @@ Une expression peut être :
             Utile qd on veut itérer sur les clés/valeurs d'un dico.
 
             La construction de base avec for est:    for var in list
-            Cette autre construction:                for [var1, var2, …] in listlist
-            … est en fait une variante de la 1e, qui n'est possible que lorsque list est composée exclusivement
+            Cette autre construction:                for [var1, var2, ...] in listlist
+            ... est en fait une variante de la 1e, qui n'est possible que lorsque list est composée exclusivement
             de listes ayant toutes la même dimension.
 
 
@@ -1116,7 +553,7 @@ Une expression peut être :
 
                     let words = split(join(getline(1, '$'), "\n"), '\W\+')
 
-            … qui est encore + rapide.
+            ... qui est encore + rapide.
 
             En revanche, le principe sur lequel repose cette commande nécessite qu'on puisse facilement
             décrire l'inverse du pattern recherché.
@@ -1127,8 +564,8 @@ Une expression peut être :
             Existe-t-il un moyen simple d'inverser un pattern arbitraire (ex: foobar)?
             J'ai tenté:     foobar\zs\_.\{-}\zefoobar\|^\_.\{-}\zefoobar\|\_.*foobar\zs\_.\{-}$
 
-            … dans:        :echo split(join(getline(1, '$'), "\n"), 'reverse pattern')
-            … ça semble marcher sauf pour le dernier foobar (dernière branche dans le pattern inversé).
+            ... dans:        :echo split(join(getline(1, '$'), "\n"), 'reverse pattern')
+            ... ça semble marcher sauf pour le dernier foobar (dernière branche dans le pattern inversé).
             J'ai aussi tenté:
 
                            :echo split(join(getline(1, '$'), "\n"), '\v((foobar)@!\_.){-1,}')
@@ -1147,13 +584,13 @@ Une expression peut être :
 
                     let matchline = search('\w\+', 'cW')
 
-            … qui est juste au-dessus.
+            ... qui est juste au-dessus.
 
             Puis, elle le fait en se basant sur:
 
                     let matchline = search('\w\+', 'W')
 
-            … qui, certes, se situe après :while au sein de la fonction, mais est bien exécutée AVANT
+            ... qui, certes, se situe après :while au sein de la fonction, mais est bien exécutée AVANT
             le prochain retour vers :while.
             Donc, c'est un peu comme si ce 2e let se situait juste avant :while (JUSTE avant car il n'y
             a rien entre ce :let et :endwhile, et que :endwhile signifie retour vers :while).
@@ -1226,11 +663,11 @@ Une expression peut être :
 
             L'affectation prend en charge le cas où s:myflag n'a pas encore de valeur.
             s:myflag peut être utilisée comme un flag booléen permettant d'exécuter alternativement
-            2 actions différentes A, B, A, B… (toggle)
+            2 actions différentes A, B, A, B... (toggle)
 
             Utile pex, pour (dés)activer la mise en surbrillance d'un pattern via :match.
 
-                    let s:myflag = …
+                    let s:myflag = ...
                     if s:myflag
                         match /pattern/
                     else
@@ -1291,14 +728,14 @@ Une expression peut être :
 
                     :echo [1,2,3][-1:0]
 
-            … ne retourne pas [1,2,3] mais [].
+            ... ne retourne pas [1,2,3] mais [].
 
             En effet, on ne peut pas revenir en arrière qd on indexe (ici du dernier jusqu'au 1er).
             En revanche:
 
                     :echo ['foo','bar','baz'][-2:2]
 
-            … retourne ['bar','baz'], car l'item d'index 2 ('baz') est bien après celui d'index -2 ('bar').
+            ... retourne ['bar','baz'], car l'item d'index 2 ('baz') est bien après celui d'index -2 ('bar').
 
             À retenir: on ne peut pas revenir en arrière qd on indexe une liste ou une chaîne.
 
@@ -1391,7 +828,7 @@ Une expression peut être :
                             cd
                             42~
 
-            … ce qui explique pourquoi le nombre n'a pas muté.
+            ... ce qui explique pourquoi le nombre n'a pas muté.
             Globalement, Vim se comporte comme awk.
 
 
@@ -1531,9 +968,9 @@ Ex:
                 if s:myvar == 0
                     return
                 endif
-                …
+                ...
                 main code
-                …
+                ...
             endfu
 
 On peut aller + loin en ajoutant à la fin du script définissant la fonction 3 commandes pour éteindre
@@ -1821,13 +1258,13 @@ semble.
     ┌──────────────┬────────────────────────┐
     │ getline(123) │ dont l'adresse est 123 │
     ├──────────────┼────────────────────────┤
-    │ …('$')       │ à la fin du buffer     │
+    │ ...('$')     │ à la fin du buffer     │
     ├──────────────┼────────────────────────┤
-    │ …("'a")      │ portant la marque a    │
+    │ ...("'a")    │ portant la marque a    │
     ├──────────────┼────────────────────────┤
-    │ …('w0')      │ en haut de la fenêtre  │
+    │ ...('w0')    │ en haut de la fenêtre  │
     ├──────────────┼────────────────────────┤
-    │ …('w$')      │ en bas de la fenêtre   │
+    │ ...('w$')    │ en bas de la fenêtre   │
     └──────────────┴────────────────────────┘
 
     getline(1, '$')
@@ -1850,11 +1287,11 @@ semble.
     ┌───────────┬───────────────────────┐
     │ line('$') │ en bas du buffer      │
     ├───────────┼───────────────────────┤
-    │ …("'a")   │ portant la marque a   │
+    │ ...("'a") │ portant la marque a   │
     ├───────────┼───────────────────────┤
-    │ …('w0')   │ en haut de la fenêtre │
+    │ ...('w0') │ en haut de la fenêtre │
     ├───────────┼───────────────────────┤
-    │ …('w$')   │ en bas de la fenêtre  │
+    │ ...('w$') │ en bas de la fenêtre  │
     └───────────┴───────────────────────┘
 
     line2byte(42)
@@ -1870,7 +1307,7 @@ semble.
             Cette expression est utile pour vérifier qu'un buffer est vide de contenu:
 
                     if line2byte(line('$')+1) <= 2
-                    …
+                    ...
 
             Pk `line('$')+1` et pas `line('$')` tout court?
             Parce que `line2byte(line('$'))` retournerait le poids en octets depuis le début du buffer
@@ -1990,13 +1427,13 @@ semble.
 
 
 Similitude entre toutes les fonctions manipulant des chaînes / listes, et acceptant en argument
-des index (d'octets, de caractères, d'items, …):
+des index (d'octets, de caractères, d'items, ...):
 
     • un index négatif est:
 
               - interprété comme 0 pour une chaîne
 
-              - utilisé pour indexer depuis la fin en commençant à compter à partir de -1 (-2, -3, …)
+              - utilisé pour indexer depuis la fin en commençant à compter à partir de -1 (-2, -3, ...)
                 pour une liste
 
 Similitudes et différences entre `match()` et `matchstr()`:
@@ -2108,7 +1545,7 @@ Différences entre `match()` et `count()`:
     echo matchlist('abcd', '\v(.(.))(.)')
     ['abc', 'ab', 'b', 'c', '', '', '', '', '', '']~
 
-            `matchlist()` retourne des sous-expressions, équivalentes à  \0, \1, …, \9
+            `matchlist()` retourne des sous-expressions, équivalentes à  \0, \1, ..., \9
             au sein de la chaîne de remplacement de la commande :substitute
 
                     \0 = 'abc'
@@ -2189,7 +1626,7 @@ Différences entre `match()` et `count()`:
 
             `matchstrpos()` indexe un octet en commençant à compter à partir de 0.
             Idem pour toutes les fonctions acceptant en argument des index d'octets (ou de caractères),
-            comme `match()`, `strcharpart()`, ….
+            comme `match()`, `strcharpart()`, ....
             Idem qd on extrait un caractère d'une chaîne via un index:
 
                     echo matchstrpos('abcdef', 'd')
@@ -2411,7 +1848,7 @@ mais à obtenir une chaîne à passer à la fonction expand().
 
 Vim ne développe pas <cword> pour :echo. Normal, elle attend une expression et <cword> n'en est pas une.
 
-Mais pk Vim développe <cword> pour :grep? D'après l'aide :grep attend des [arguments]…
+Mais pk Vim développe <cword> pour :grep? D'après l'aide :grep attend des [arguments]...
 
 Update:
 D'après `:h :grep`:
@@ -2455,21 +1892,21 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
             un chemin vers un fichier existant.
 
 
-    ┌─────────────────┬────────────────────────────────────────────────────────────────────────┐
-    │ expand('%')     │ chemin vers le vers fichier courant, relatif au cwd                    │
-    ├─────────────────┼────────────────────────────────────────────────────────────────────────┤
-    │ …('%:t')        │ nom du fichier courant (tail of path)                                  │
-    ├─────────────────┼────────────────────────────────────────────────────────────────────────┤
-    │ …('<cfile>:t')  │ nom du fichier sous le curseur                                         │
-    ├─────────────────┼────────────────────────────────────────────────────────────────────────┤
-    │ …('%:p:h')      │ chemin vers le dossier du fichier courant                              │
-    ├─────────────────┼────────────────────────────────────────────────────────────────────────┤
-    │ …('%:h:t')      │ chemin vers le dossier parent du fichier courant (la queue de la tête) │
-    └─────────────────┴────────────────────────────────────────────────────────────────────────┘
+    ┌──────────────────┬────────────────────────────────────────────────────────────────────────┐
+    │ expand('%')      │ chemin vers le vers fichier courant, relatif au cwd                    │
+    ├──────────────────┼────────────────────────────────────────────────────────────────────────┤
+    │ ...('%:t')       │ nom du fichier courant (tail of path)                                  │
+    ├──────────────────┼────────────────────────────────────────────────────────────────────────┤
+    │ ...('<cfile>:t') │ nom du fichier sous le curseur                                         │
+    ├──────────────────┼────────────────────────────────────────────────────────────────────────┤
+    │ ...('%:p:h')     │ chemin vers le dossier du fichier courant                              │
+    ├──────────────────┼────────────────────────────────────────────────────────────────────────┤
+    │ ...('%:h:t')     │ chemin vers le dossier parent du fichier courant (la queue de la tête) │
+    └──────────────────┴────────────────────────────────────────────────────────────────────────┘
 
 
-    ┌─ développe un éventuel tilde ($HOME) à l'intérieur du précédent développement
-    │      ┌─ développe <cfile>
+    ┌ développe un éventuel tilde ($HOME) à l'intérieur du précédent développement
+    │      ┌ développe <cfile>
     │      │
     expand(expand('<cfile>'))
     glob('<cfile>')
@@ -2607,7 +2044,7 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
     let uk2fr = {'one': 'un', 'two': 'deux', 'three': 'trois',}
 
             exemple de définition d'un dictionnaire
-            La forme générique étant: {<key> : <value>, …}
+            La forme générique étant: {<key> : <value>, ...}
 
 
     let mydict['key'] = 'value'
@@ -2921,29 +2358,34 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
 ## Expression lambda / closure
 
-    { args -> expr }
+    {args -> expr}
 
-            Il s'agit d'une expression lambda, qui crée une nouvelle fonction numérotée retournant
-            l'évaluation d'une expression. Elle diffère d'une fonction régulière de 2 façons:
+Il  s'agit d'une  expression lambda,  qui crée  une nouvelle  fonction numérotée
+retournant l'évaluation d'une expression.
+Elle diffère d'une fonction régulière de 2 façons:
 
-                    • Le corps de l'expression lambda est une expression et non une séquence de
-                      commandes Ex.
+   • Le corps de l'expression lambda est une expression et non une séquence de
+     commandes Ex.
 
-                    • Les arguments ne sont pas dans le scope `a:`.
+   • Les arguments ne sont pas dans le scope `a:`.
 
-                            let F = { arg1, arg2 -> arg1 + arg2 }
-                            echo F(1, 2)
-                            3~
+---
 
+    let F = {arg1, arg2 -> arg1 + arg2}
+    echo F(1,2)
+    3~
+
+---
 
     fu! A()
         return 'i am A'
     endfu
     fu! B()
-        let A = { -> 42 }
+        let A = {-> 42}
         return A()
     endfu
-    echo B()                ✘ E705: Variable name conflicts with existing function: A
+    echo B()
+    E705: Variable name conflicts with existing function: A~
 
     fu! A()
         return 'i am A'
@@ -2952,250 +2394,242 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
         let l:A = { -> 42 }
         return l:A()
     endfu
-    echo B()                ✔
+    echo B()
+    42~
 
-            Qd on se trouve à l'intérieur  d'une fonction, et qu'on doit stocker
-            une expression  lambda, ou une  funcref, dans une variable,  il faut
-            toujours lui donner le scope `l:`.
-            En effet, le  nom doit commencer par une majuscule,  ce qui pourrait
-            provoquer un conflit entre avec une fonction publique de même nom.
+Qd  on  se trouve  à  l'intérieur  d'une fonction,  et  qu'on  doit stocker  une
+expression  lambda, ou  une funcref,  dans une  variable, il  faut toujours  lui
+donner le scope `l:`.
+En effet, le nom doit commencer par  une majuscule, ce qui pourrait provoquer un
+conflit entre avec une fonction publique de même nom.
 
+---
 
     let F = { -> 'hello'.42 }
     echo F()
     hello42~
 
-            Une expression lambda peut ne pas avoir d'arguments.
+Une expression lambda peut ne pas avoir d'arguments.
 
+---
 
     {'<lambda>42'}
 
-            Le nom de la fonction numérotée créée par une expression lambda suit ce schéma.
-            En cas d'erreur au sein de cette dernière, on pourra donc exécuter:
+Le nom de la fonction numérotée créée par une expression lambda suit ce schéma.
+En cas d'erreur au sein de cette dernière, on pourra donc exécuter:
 
-                    fu {'<lambda>42'}
+    fu {'<lambda>42'}
 
-            … pour lire son code:
+... pour lire son code:
 
-                    let F = { -> 'hello'.[42] }
+                    let F = {-> 'hello'.[42]}
                     echo F()
                     E15: Invalid expression: <lambda>15    ✘~
 
+---
 
-                          ┌─ Index
-                          │ ┌─ Value
-                          │ │
-    echo map([1, 2, 3], { i,v -> v + 1 })
+    echo map([1, 2, 3], {i,v -> v + 1})
     [2, 3, 4]~
 
-    echo sort([3,7,2,1,4], { a, b -> a - b })
+    echo sort([3,7,2,1,4], {a,b -> a - b})
     [1, 2, 3, 4, 7]~
 
-            On  peut, entre  autres, utiliser  des expressions  lambda comme  2e
-            argument de `filter()`, `map()` et `sort()`.
+On peut,  entre autres,  utiliser des  expressions lambda  comme 2e  argument de
+`filter()`, `map()` et `sort()`.
 
+---
 
-                                   ┌ lambda
-                                   │                                                    ┌ dico
-                                   │                                                    │
-    let timer = timer_start(500, { -> execute("echo 'Handler called'", '') }, { 'repeat': 3 })
-
+    let timer = timer_start(500, {-> execute("echo 'Handler called'", '')}, {'repeat': 3})
     Handler called~
     Handler called~
     Handler called~
 
-            Les expressions lambda sont aussi utiles pour des timers, canaux, jobs.
+Les expressions lambda sont aussi utiles pour des timers, canaux, jobs.
+
+---
+
+Si un timer est  exécuté au moment où on se trouve sur  la ligne de commande, le
+curseur peut temporairement quitter cette dernière et s'afficher dans le buffer.
+
+    nno <expr> cd Func()
+    fu! Func()
+        let my_timer = timer_start(2000, { -> execute('sleep 1', '') })
+        return ''
+    endfu
+
+Taper `cd`, puis écrire qch sur la ligne de commande et attendre.
+
+---
+
+    ✘
+    call timer_start(0, {-> execute('call FuncA() | call FuncB()')})
+    ✔
+    call timer_start(0, {-> FuncA() + FuncB()})
+
+    ✘
+    call timer_start(0, {-> execute('if expr | call Func() | endif')})
+    ✔
+    call timer_start(0, {-> expr ? Func() : 0})
+    ✔✔
+    call timer_start(0, {-> expr && Func()})
+
+    ✘
+    call timer_start(0, {-> execute('if expr | call FuncA() | endif | call FuncB()})
+    ✔
+    call timer_start(0, {-> (expr ? FuncA() : 0) + FuncB()})
+    ✔✔
+    call timer_start(0, {-> (expr && FuncA()) + FuncB()})
+
+On  n'a  pratiquement  jamais  besoin d'utiliser  `execute()`  et  `:call`  pour
+exécuter une fonction via un lambda.
+
+`:call` est nécessaire sur la ligne de  commande car Vim s'attend à exécuter une
+commande.
+`:call` n'est pas toujours nécessaire dans un lambda, car Vim s'attend à évaluer
+une expression, et une fonction EST un type d'expression.
+
+---
+
+Qd  on exécute  une fonction  via  un lambda,  sa  valeur de  sortie n'a  aucune
+importance.
+
+---
+
+N'utilise `||` et `&&` comme connecteur  logique que lorsque c'est nécessaire et
+qu'ils correspondent réellement à ce que tu veux faire.
+Autrement, préfère un opérateur plus simple tq `+`:
+
+                           exécute 2 fonctions
+    ┌────────────────────┬─────────────────────────────────────────┐
+    │ FuncA() && FuncB() │ à condition que la 1e ait réussi        │
+    ├────────────────────┼─────────────────────────────────────────┤
+    │ FuncA() || FuncB() │ à condition que la 1e ait échoué        │
+    ├────────────────────┼─────────────────────────────────────────┤
+    │ FuncA() + FuncB()  │ peu importe que la 1e ait réussi ou non │
+    └────────────────────┴─────────────────────────────────────────┘
+
+---
+
+        expr && FuncA() + FuncB()
+    ⇔
+        exécute `FuncA` ET `FuncB` à condition que `expr` soit vraie
 
 
-                                               NOTE:
-
-            Si un timer est exécuté au moment où on se trouve sur la ligne de commande, il est possible
-            que la position du curseur soit altérée:
-
-                    nno <expr> cd Func()
-                    fu! Func()
-                        let my_timer = timer_start(2000, { -> execute('sleep 1', '') })
-                        return ''
-                    endfu
-
-            Taper `cd`, puis écrire qch sur la ligne de commande et attendre.
-
-            Le pb ne se produit pas qd le timer est exécuté alors qu'on est en mode normal.
+        (expr && FuncA()) + FuncB()
+    ⇔
+        exécute `FuncA` à condition que `expr` soit vraie, PUIS `FuncB`
 
 
-    call timer_start(0, { -> FuncA() + FuncB() })                           ✔
-    call timer_start(0, { -> execute('call FuncA() | call FuncB()') })      ✘
+Cette différence découle du fait que l'opérateur `+` a priorité sur `&&`.
 
-    call timer_start(0, { -> expr && Func() })                              ✔✔
-    call timer_start(0, { -> expr ? Func() : 0 })                           ✔
-    call timer_start(0, { -> execute('if expr | call Func() | endif') })    ✘
+Confirmation via:
 
-    call timer_start(0, { -> (expr && FuncA()) + FuncB() })                               ✔✔
-    call timer_start(0, { -> (expr ? FuncA() : 0) + FuncB() })                            ✔
-    call timer_start(0, { -> execute('if expr | call FuncA() | endif | call FuncB() })    ✘
+    echo 0 && 1 + 1
+    0~
 
-            On n'a pratiquement jamais  besoin d'utiliser `execute()` et `:call`
-            pour exécuter une fonction via un lambda.
+    echo (0 && 1) + 1
+    1~
 
-            `:call` est nécessaire  sur la ligne de commande car  Vim s'attend à
-            exécuter une commande.
-            `:call`  n'est  pas toujours  nécessaire  dans  un lambda,  car  Vim
-            s'attend  à évaluer  une expression,  et  une fonction  EST un  type
-            d'expression.
+---
 
+    echo map(range(65, 90), {x -> nr2char(x)})
+    [ 'A', 'B', ... ]          attendu~
+    [ '', '^A', '^B', ... ]    obtenu~
 
-                                               NOTE:
+Pk n'obtient-on pas la liste des lettres majuscules ?
+Car  qd  le 2e  argument  de  `map()` est  une  funcref,  `map()` lui  envoit  2
+arguments:
 
-            Qd on  exécute une fonction via  un lambda, sa valeur  de sortie n'a
-            aucune importance.
+   1. l'index (pour une liste) ou la clé (pour un dico) de l'item courant
+   2. la valeur de l'item courant
 
+`map()` utilise ensuite la fonction associée  à la funcref pour remplacer chaque
+item de la liste.
 
-                                               NOTE:
+Donc, dans l'exemple précédent, pour remplacer les nbs 65 à 90, `map()` envoit à
+`nr2char()` les valeurs suivantes:
 
-            N'utilise `||`  et `&&` comme  connecteur logique que  lorsque c'est
-            nécessaire  et qu'ils  correspondent  réellement à  ce  que tu  veux
-            faire.
-            Autrement, préfère un opérateur plus simple tq `+`:
+   • nr2char(0, 65)
+   • nr2char(1, 66)
+     ...
+   • nr2char(25, 90)
 
-                                           exécute 2 fonctions
-                    ┌────────────────────┬─────────────────────────────────────────┐
-                    │ FuncA() && FuncB() │ à condition que la 1e ait réussi        │
-                    ├────────────────────┼─────────────────────────────────────────┤
-                    │ FuncA() || FuncB() │ à condition que la 1e ait échoué        │
-                    ├────────────────────┼─────────────────────────────────────────┤
-                    │ FuncA() + FuncB()  │ peu importe que la 1e ait réussi ou non │
-                    └────────────────────┴─────────────────────────────────────────┘
+Or, pour `nr2char()`, le 2e argument est un simple flag:
 
+   • 0 signifie qu'on veut utiliser l'encodage courant
 
-                                               NOTE:
+   • 1 l'encodage utf-8
 
-                expr && FuncA() + FuncB()
-            ⇔
-                exécute `FuncA` ET `FuncB` à condition que `expr` soit vraie
+`65` ... `90` sont interprétés comme un `1`.
 
+De plus, `nr2char()` ne reçoit pas les bons codepoints:
 
-                (expr && FuncA()) + FuncB()
-            ⇔
-                exécute `FuncA` à condition que `expr` soit vraie, PUIS `FuncB`
+    65 ... 90  ✔ ce qu'ell devrait recevoir
+    0  ... 25  ✘ ce qu'elle reçoit
 
+Solution:
 
-                Cette différence découle du fait que l'opérateur `+` a priorité sur `&&`.
+    map(range(65,90), {i,v -> nr2char(v)})
+                       ^^
 
+Conclusion:
 
-                Confirmation via:
-
-                        echo 0 && 1 + 1
-                        0~
-
-                        echo (0 && 1) + 1
-                        1~
-
-
-    echo map(range(65, 90), { x -> nr2char(x) })
-    [ 'A', 'B', … ]          attendu~
-    [ '', '^A', '^B', … ]    obtenu~
-
-            Pk n'obtient-on pas la liste des lettres majuscules ?
-            Car qd le 2e argument de `map()` est une funcref, `map()` lui envoit 2 arguments:
-
-                    1. l'index (pour une liste) ou la clé (pour un dico) de l'item courant
-                    2. la valeur de l'item courant
-
-            `map()` utilise ensuite la fonction associée à la funcref pour remplacer chaque item de la liste.
-
-            Donc, dans l'exemple précédent, pour remplacer les nbs 65 à 90, `map()` envoit à `nr2char()`
-            les valeurs suivantes:
-
-                    • nr2char(0, 65)
-                    • nr2char(1, 66)
-                      …
-                    • nr2char(25, 90)
-
-            Or, pour `nr2char()`, le 2e argument est un simple flag:
-
-                    • 0 signifie qu'on veut utiliser l'encodage courant
-
-                    • 1 l'encodage utf-8
-
-            `65` … `90` sont interprétés comme un `1`.
-
-            De plus, `nr2char()` ne reçoit pas les bons codepoints:
-
-                    65 … 90  ✔ ce qu'ell devrait recevoir
-                    0  … 25  ✘ ce qu'elle reçoit
-
-            Solution:
-
-                    map(range(65,90), { i,v -> nr2char(v) })
-                                        │ │
-                                        │ └─ value
-                                        └─ index
-
-            Conclusion:
-
-            Pour  pouvoir se  référer  à  un argument  reçu  par une  expression
-            lambda, il faut correctement tous les déclarer.
-            Donc, qd  une fonction  accepte une  expression lambda  en argument,
-            toujours regarder quels arguments elle envoit à cette dernière.
-            Ici, `map()` n'en envoit pas 1 (`x`), mais 2 (`k`, `v`).
+Pour pouvoir se  référer à un argument  reçu par une expression  lambda, il faut
+correctement tous les déclarer.
+Donc,  qd une  fonction  accepte  une expression  lambda  en argument,  toujours
+regarder quels arguments elle envoit à cette dernière.
+Ici, `map()` n'en envoit pas 1 (`x`), mais 2 (`i`, `v`).
 
 
     fu! Foo(arg)
         let i = 3
-        return { x -> x + i - a:arg }
+        return {x -> x + i - a:arg}
     endfu
     let Bar = Foo(4)
     echo Bar(6)
     5~
 
-        L'expression lambda utilise dans son calcul les variables `i` et `a:arg`.
+L'expression lambda utilise dans son calcul les variables `i` et `a:arg`.
 
-        `i`  appartient  à  la  portée  locale à  `Foo()`,  tandis  que  `a:arg`
-        appartient à celle des arguments de `Foo()`.
-        L'expression  lambda ne  se plaint  pas que  les variables  ne sont  pas
-        définies :
+`i` appartient  à la portée  locale à `Foo()`,  tandis que `a:arg`  appartient à
+celle des arguments de `Foo()`.
+L'expression lambda ne se plaint pas que les variables ne sont pas définies :
 
-                E121: Undefined variable: i
-                E121: Undefined variable: a:arg
+    E121: Undefined variable: i~
+    E121: Undefined variable: a:arg~
 
-        … car  elle a la  particularité de pouvoir  accéder aux variables  de la
-        portée extérieur.
-        On parle de “closure“ (clôture).
+... car elle  a la particularité de  pouvoir accéder aux variables  de la portée
+extérieur; on parle de “closure“ (clôture).
 
 
     fu! Foo()
         let x = 0
-
         fu! Bar() closure
-            let x += 1       ← pas d'erreur, grâce à `closure`
+            let x += 1 " pas d'erreur, grâce à `closure`
             return x
         endfu
-
         return funcref('Bar')
     endfu
 
     let F = Foo()
     echo F()
-                1
+    1~
     echo F()
-                2
+    2~
     echo F()
-                3
+    3~
 
-            L'incrémentation  de `x` au sein de `Bar()` ne soulève pas d'erreur:
+L'incrémentation  de `x` au sein de `Bar()` ne soulève pas d'erreur:
 
-                    E121: Undefined variable: x
+    E121: Undefined variable: x~
 
-            … car `Bar()` porte l'attribut `closure` qui lui permet d'accéder aux variables de la portée
-            extérieure (`Foo()`).
+...  car  `Bar()`  porte  l'attribut  `closure` qui  lui  permet  d'accéder  aux
+variables de la portée extérieure (`Foo()`).
 
-
-                                               NOTE:
-
-            La sortie de `F()` est incrémentée à chaque appel.
-            Ceci  prouve  qu'une  fonction  portant  l'attribut  `closure`  peut
-            continuer à  se référer  à la portée  d'une fonction  extérieur même
-            après qu'elle ait terminé son exécution.
+La sortie de `F()` est incrémentée à chaque appel.
+Ceci prouve  qu'une fonction  portant l'attribut `closure`  peut continuer  à se
+référer à la portée d'une fonction  extérieur même après qu'elle ait terminé son
+exécution.
 
 ## Fenêtres / Onglets
 
@@ -3318,7 +2752,7 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
     let view = winsaveview()
 
-            sauvegarde l'état de la fenêtre (position du curseur, de la fenêtre…) dans la variable `view`
+            sauvegarde l'état de la fenêtre (position du curseur, de la fenêtre...) dans la variable `view`
 
             winsaveview() retourne un dictionnaire
 
@@ -3334,7 +2768,7 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
             Autrement, la position de la ligne courante au sein de la fenêtre est perdue, car Vim
             la positionne au centre de cette dernière peu importe sa position d'origine
-            (en haut/bas de la fenêtre …).
+            (en haut/bas de la fenêtre ...).
 
             Le pb vient du fait que winsaveview() ne sauvegarde pas les informations relatives au pliage.
 
@@ -3446,7 +2880,7 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
                     :echo fnamemodify('UnexistingFile', ':p')
 
-            … marche même si `UnexistingFile` n'existe pas.
+            ... marche même si `UnexistingFile` n'existe pas.
 
 
     echo fnamemodify('/foo/bar/baz/', ':t')
@@ -3523,9 +2957,9 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
             Qd on veut protéger des caractères spéciaux:
 
-                    • de Vim,             il faut utiliser `fnameescape(…)`
-                    • du shell,           "                `shelleescape(…)`
-                    • du shell ET de Vim, "                `shellescape(…, 1)`
+                    • de Vim,             il faut utiliser `fnameescape(...)`
+                    • du shell,           "                `shelleescape(...)`
+                    • du shell ET de Vim, "                `shellescape(..., 1)`
 
                                                NOTE:
 
@@ -3536,8 +2970,8 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
 
     :let @" = 'foo;ls'     | exe 'grep! '.shellescape(@",1).' .'
-    :let @" = "that's"     | …
-    :let @" = 'foo%bar'    | …
+    :let @" = "that's"     | ...
+    :let @" = 'foo%bar'    | ...
 
             Même si `:grep` est une commande Vim, qd on lui passe une chaîne pouvant contenir
             des caractères spéciaux, il faut utiliser `shellescape()`, et PAS `fnameescape()`.
@@ -3733,9 +3167,9 @@ devoir remplacer toute la liste.
             Pex, si on a une liste contenant un ensemble de mots, et qu'on souhaite construire un dico
             de fréquences:
 
-                    {mot1: freq1, mot2: freq2, …}
+                    {mot1: freq1, mot2: freq2, ...}
 
-            … il est très INefficace d'utiliser `count()`.
+            ... il est très INefficace d'utiliser `count()`.
 
             En effet, pour ce faire, il faudrait appeler `count()` pour chaque mot présent dans la liste.
             Chaque `count()` testerait tous les mots de la liste pour vérifier s'il matche le mot dont
@@ -3776,7 +3210,7 @@ devoir remplacer toute la liste.
 
 
     if index([val1, val2, val3], var) >= 0
-    if var == val1 || var == val2 || var == val3 …
+    if var == val1 || var == val2 || var == val3 ...
 
             Test si la valeur de `var` est présente dans une liste de valeur.
 
@@ -3826,7 +3260,7 @@ devoir remplacer toute la liste.
 
             Ceci implique que si on modifie un item de sublist à l'intérieur de list2, pex comme ceci:
                 let list2[0][0] = new_value
-            … on modifie par la même occasion list1, car list1[0] et list2[0] partagent une même référence.
+            ... on modifie par la même occasion list1, car list1[0] et list2[0] partagent une même référence.
 
     let list2 = deepcopy(list1)
 
@@ -3911,7 +3345,7 @@ devoir remplacer toute la liste.
             Qd le 2e argument est une chaine vide, maparg() cherche un {rhs} pour le mode normal,
             visuel et operator-pending.
             S'il existe 2 mappings utilisant C-l comme {lhs}, un global et un buffer-local, c'est le {rhs}
-            du buffer-local qui est retourné. Même chose qd on demande un dictionnaire (maparg(…, 0, 1)).
+            du buffer-local qui est retourné. Même chose qd on demande un dictionnaire (maparg(..., 0, 1)).
 
 
     maparg('<C-L>', 'v', 0, 1)
@@ -3978,7 +3412,7 @@ printf() est une fonction utile pour manipuler une chaîne au sein de laquelle o
     • convertir un code ascii décimal en le caractère lui correspondant
 
 
-    printf({fmt}, {expr1} …)
+    printf({fmt}, {expr1} ...)
 
             {fmt} est une chaîne pouvant contenir des items '%'.
             Pour chaque item utilisé (sauf '%%'), il faut fournir à printf() une expression correspondante.
@@ -4083,7 +3517,7 @@ printf() est une fonction utile pour manipuler une chaîne au sein de laquelle o
 
             Si `field-width` > poids en octets de la valeur convertie (ou nb de cellules),
             un padding d'espaces est ajouté à gauche.
-            Si `field-width` < …, la valeur n'est PAS tronquée pour autant.
+            Si `field-width` < ..., la valeur n'est PAS tronquée pour autant.
 
             À la place d'un nb, on peut donner à `field-width` une valeur spéciale '*'.
             Dans ce cas, il faudra passer à printf() 2 arguments au lieu d'un.
@@ -4144,7 +3578,7 @@ printf() est une fonction utile pour manipuler une chaîne au sein de laquelle o
             Un pour la précision de l'item, et un pour son contenu.
 
 
-                                 ┌─ fonctionne car …
+                                 ┌─ fonctionne car ...
                                  │
     ┌──────────────────────────┬────────────────────────────────────────────────────────────┐
     │ echo printf('%s',  123)  │ le nb 123 a été initialement converti en la chaîne '123'   │
