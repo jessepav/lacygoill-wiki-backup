@@ -1,0 +1,34 @@
+\documentclass{article}
+%            ┌ we define the macro `\TUG`:{{{
+%            │
+%            │         whenever  we write  `\TUG` in  the document,  LaTeX will
+%            │         replace it  with the text  passed as an argument  in the
+%            │         output
+%            │}}}
+\newcommand{\TUG}{TeX Users Group}
+\begin{document}
+\section{The \TUG}
+The \TUG\ is an organization for people who are interested in
+\TeX\ or \LaTeX.
+\end{document}
+
+
+% alternative: {{{1
+
+%@ \documentclass{article}
+%                   ┌ we can apply a style to the text
+%                   │ even if it's inside the definition of a macro
+%                   │
+%@ \newcommand{\TUG}{\textsc{TeX Users Group}}
+%@ \begin{document}
+%             ┌ The heading will probably not contain small caps in the output.{{{
+%             │
+%             │ We're trying to print a font with small caps,
+%             │ because of `\textsc`, AND bold because of `\section`.
+%             │
+%             │ Fonts with small caps + bold/italic are rare.
+%             │}}}
+%@ \section{The \TUG}
+%@ The \TUG\ is an organization for people who are interested in
+%@ \TeX\ or \LaTeX.
+%@ \end{document}

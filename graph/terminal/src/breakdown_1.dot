@@ -1,0 +1,21 @@
+digraph D {
+    rankdir = LR;
+    node [shape=box];
+    edge [dir=both]
+    Physical_line [label="Physical\nline"]
+    Terminal -> Physical_line -> UART;
+
+    node [shape=ellipse];
+
+    UART_driver [label="UART\ndriver"];
+    Line_discipline [label="Line\ndiscipline"];
+    TTY_driver [label="TTY\ndriver"];
+    UART_driver -> Line_discipline -> TTY_driver;
+
+    UART -> UART_driver;
+
+    User_process_1 [label="User\nprocess"];
+    User_process_2 [label="User\nprocess"];
+    User_process_3 [label="User\nprocess"];
+    TTY_driver -> {User_process_1, User_process_2, User_process_3};
+}

@@ -1,0 +1,24 @@
+%@ \documentclass{article}
+%                     ┌ number of arguments that we want to use in `\mystyle`
+%                     │
+%                     │           ┌ will be replaced by the first argument provided to `\mystyle`
+%                     │          ┌┤
+%@ \newcommand{\mystyle}[1]{\textbf{#1}}
+%@ \begin{document}
+%@ \mystyle{Grouping} by curly braces limits the
+%@ \mystyle{scope} of \mystyle{declarations}.
+%@ \end{document}
+
+
+
+\documentclass{article}
+%                     ┌ number of arguments that we want to use in `\mystyle`{{{
+%                     │
+%                     │           ┌ will be replaced by the first argument provided to `\mystyle`
+%                     │          ┌┤}}}
+\newcommand{\mystyle}[1]{\textbf{#1}}
+\usepackage[utf8]{inputenc}
+\begin{document}
+\mystyle{Grouper} avec des accolades limite la
+\mystyle{portée} des \mystyle{déclarations}.
+\end{document}

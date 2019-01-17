@@ -1,0 +1,41 @@
+digraph tmux_client_server {
+    rankdir=LR;
+
+    subgraph cluster_legend {
+        label="legend";
+        a -> b[dir="both", label="client-server", style="dotted"];
+        c -> d[label="parent-child"];
+    }
+
+    subgraph cluster_local {
+        label="local pc";
+        edge[arrowsize="0.5", color="red"];
+        terminal[color="blue"];
+        local_shell[label="local\nshell", color="red"];
+        terminal -> local_shell[weight=5];
+    }
+
+    subgraph cluster_remote {
+        label="remote server";
+        rank="same";
+        edge[arrowsize="0.5", color="red"];
+
+        remote_shell[label="remote\nshell", color="red"];
+        local_shell -> remote_shell[dir="both", label="ssh\nconnection", style="dotted"];
+        tmux_client[label="tmux client", color="red"];
+        tmux_server[label="tmux server", color="red"];
+        tmux_client -> tmux_server[dir="both", label="exchange requests\nand responses", minlen="3", style="dotted", weight=5];
+        remote_shell -> tmux_client;
+        edge[color="black"];
+        node[color="blue"];
+        shell3[label="shell 3"];
+        shell2[label="shell 2"];
+        shell1[label="shell 1"];
+        edge[color="blue", arrowsize="0.5"];
+        tmux_server -> {shell1,shell2,shell3};
+        node[color="black"];
+        edge[color="black", dir="forward", arrowsize="0.5"];
+        systemd -> remote_shell;
+        systemd -> tmux_server[weight=20];
+    }
+}

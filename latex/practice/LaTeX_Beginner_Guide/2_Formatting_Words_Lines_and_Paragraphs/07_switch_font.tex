@@ -1,0 +1,19 @@
+\documentclass{article}
+\begin{document}
+% Why changing the font within a `\section` command is sub-optimal?{{{
+%
+% The section number  is typeset with serifs, which doesn't  match the remaining
+% sans-serif  heading. The better  way is  to declare  the font  of the  section
+% headings ONCE for the complete document.
+%}}}
+\section{\sffamily\LaTeX\ resources on the internet}
+% Why don't we write `\rmfamily`?{{{
+%
+% We don't need  `\rmfamily` to restore the serif font,  because `\sffamily` was
+% used inside  an argument  passed to  a command;  its scope  is limited  to the
+% argument.
+%}}}
+The best place for downloading LaTeX related software is CTAN.\\
+The Comprehensive Tex Archive Network.\\
+Its address is \ttfamily http://www.ctan.org \rmfamily
+\end{document}

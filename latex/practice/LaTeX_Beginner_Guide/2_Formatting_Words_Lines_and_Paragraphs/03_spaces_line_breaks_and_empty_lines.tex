@@ -1,0 +1,27 @@
+\documentclass[a4paper,11pt]{article}
+\begin{document}
+\title{Example 3}
+\author{My name}
+\date{January 5, 2011}
+\maketitle
+\section{What's this?}
+% Though we've  inserted some  spaces, the  distances between  the words  in the
+% output will remain the same.
+% Also, a single line break has the same effect as a single space.
+This        is   our
+second document.
+% A blank line denotes a paragraph break.
+% Multiple blank lines are treated as one. Like for spaces.
+
+It contains two paragraphs. The first line of a paragraph will be
+indented, but not when it follows a heading.
+% Why does LaTeX indents the first line of a paragraph?{{{
+%
+%     Opening  paragraphs should  be "flush  left"  because "the  function of  a
+%     paragraph indent is to mark a pause, setting the paragraph apart from what
+%     precedes it. If a paragraph is preceded  by a title or subhead, the indent
+%     is superfluous and can therefore be omitted".
+%
+% https://writing.stackexchange.com/a/3155/30162
+%}}}
+\end{document}

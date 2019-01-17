@@ -1,0 +1,29 @@
+\documentclass{article}
+% We load the `xspace` package to use it in the definition of our `\TUG` macro.
+\usepackage{xspace}
+%                                         ┌ the `\xspace` command will make sure a space after the macro{{{
+%                                         │ is always printed, and not interpreted as a separation
+%                                         │ between the command and the following text
+%                                         │}}}
+\newcommand{\TUG}{\textsc{TeX Users Group}\xspace}
+\begin{document}
+\section{The \TUG}
+%       ┌ notice we don't need to add a backslash to protect the space in the output;{{{
+%       │ this is due to `\xspace` having been added in the definition of our macro
+%       │}}}
+The \TUG is an organization for people who are interested in
+\TeX\ or \LaTeX.
+\end{document}
+
+
+
+%@ \documentclass{article}
+%@ \usepackage{xspace}
+%                         ┌ now, we replace the text “TeX” with its logo
+%                         │
+%@ \newcommand{\TUG}{\textsc{\TeX\ Users Group}\xspace}
+%@ \begin{document}
+%@ \section{The \TUG}
+%@ The \TUG is an organization for people who are interested in
+%@ \TeX\ or \LaTeX.
+%@ \end{document}

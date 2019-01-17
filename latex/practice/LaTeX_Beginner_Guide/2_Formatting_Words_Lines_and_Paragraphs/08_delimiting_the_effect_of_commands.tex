@@ -1,0 +1,16 @@
+\documentclass{article}
+\begin{document}
+% begin a group to limit the scope of the \sffamily declaration
+% v
+{\sffamily
+Text can be {\em emphasized}.
+
+Besides being {\itshape italic}, words could be {\bfseries bold},
+{\slshape slanted} or typeset in {\scshape Small Caps}.
+
+Such commands can be {\itshape\bfseries nested}.}
+%                                                 ^
+%                                                 end the group for the \sffamily declaration
+
+{\em See how {\em emphasizing} looks when nested.}
+\end{document}
