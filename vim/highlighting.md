@@ -530,6 +530,46 @@ You can't use color codes beyond `8` in a console.
 So  maybe Vim  defines  a normal  terminal  as  a terminal  with  a limited  (!=
 non-existant) palette.
 
+## ?
+
+If we do:
+
+    :colo elflord
+    :colo seoul256
+
+The `Identifier` HG becomes bold.
+As a result, variable names in VimL are bold.
+It has nothing to do with our colorscheme customizations.
+It has nothing to do with seoul256.
+
+I think it has to do with `$VIMRUNTIME/syntax/syncolor.vim:37`.
+
+We can get back a normal `Identifier` HG, by reloading seoul256:
+
+    :colo elflord
+    :colo seoul256
+    :colo seoul256
+
+Understand what happens.
+
+## ?
+
+Document that it  seems that the special  color value `bg` is  only available if
+the Normal HG has its `ctermbg` attribute set.
+It's probably  the same thing  for `fg`: the Normal  HG must have  its `ctermfg`
+attribute set.
+
+Make sure it's true.
+
+MWE:
+
+    :colo elflord
+    :hi EndOfBuffer ctermfg=bg
+    E420: BG color unknown ~
+
+It doesn't matter whether you start Vim or gVim.
+It seems only `ctermbg` matters, not `guibg` (weird...).
+
 ## 'bg'
 
 What's the effect of setting `'background'`?
