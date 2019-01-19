@@ -154,6 +154,7 @@ and testing.
         │
         └ don't show me the output in the shell
 
+##
 ## Does `:make` alter the output of the shell command?
 
 Yes. It replaces all NUL characters with SOH (Start Of Heading: 0x01).
@@ -174,6 +175,45 @@ filename as an option of the compiler command if it begins with a hyphen.
 For example, if your file is named `-a`,  you don't want the shell to parse `-a`
 as an optional argument, but as a positional one.
 
+##
+## Do I need to protect the characters which are special on
+### Vim's command-line?
+
+No:
+
+    :sp +put\ ='hello\ world!' /tmp/some_str\%nge_name.md
+    :set mp=pandoc\ -o\ %:p:r.pdf\ %:p | 4verb make
+    ✔
+
+### the shell's command-line?
+
+Yes:
+
+    :sp +put\ ='hello\ world!' /tmp/some\ strange\|name.md
+    :set mp=pandoc\ -o\ %:p:r.pdf\ %:p | 4verb make
+    Calling shell to execute: "pandoc -o /tmp/some strange|name.pdf /tmp/some strange|name.md  2>&1| tee /tmp/vBQggd1/5"~
+    ✘
+    zsh:1: command not found: name.pdf~
+    pandoc: strange: openBinaryFile: does not exist (No such file or directory)~
+    zsh:1: command not found: name.md~
+
+
+                             vv         vv
+    :set mp=pandoc\ -o\ %:p:r:S.pdf\ %:p:S | 4verb make
+    Calling shell to execute: "pandoc -o '/tmp/some strange|name'.pdf '/tmp/some strange|name.md'  2>&1| tee /tmp/vBQggd1/9"~
+    ✔
+
+##
+## Do I need to use `--` after the optional arguments of my shell command?
+
+Prefer using `:p`.
+
+`--` is useful when one of your filepaths begins with a hyphen.
+But if you expand all the filepaths with `:p`, they will be absolute.
+And an absolute filepath can *not* begin  with a hyphen; it always begins with a
+slash.
+
+##
 ##
 # 'errorformat'
 ## What's the purpose of this option?

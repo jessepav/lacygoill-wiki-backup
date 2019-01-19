@@ -2338,6 +2338,37 @@ cluster will contain nothing.
 
 See `~/.vim/plugged/vim-markdown/autoload/markdown.vim` for an example.
 
+## ?
+
+All our markdown syntax code around urls is a mess.
+Here are the current existing syntax groups:
+
+markdownAutomaticLink  <http://example.com/>
+markdownId
+markdownIdDeclaration
+markdownIdDelimiter
+markdownLink
+markdownLinkDelimiter
+markdownLinkRefTitle
+markdownLinkText
+markdownLinkTextDelimiter
+markdownUrl
+markdownUrlDelimiter  <foo:bar>
+markdownUrlTitleDelimiter
+
+
+Document that there's a difference between:
+
+    <http://example.com/>
+
+And:
+
+    http://example.com/
+
+When you compile a document containing the first text with pandoc, the resulting
+pdf  contains an  interactive link  which  you can  open after  pressing `F`  in
+zathura; the second text does *not* produce an interactive link.
+
 ##
 # Reference
 

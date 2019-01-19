@@ -2358,6 +2358,14 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
 ## Expression lambda / closure
 
+Document the fact that when you save  a lambda or funcref inside a function, you
+should always  use the scope  `l:`, otherwise there could  be a conflict  with a
+public custom function.
+
+Review this section, and add `l:` whenever it makes sense.
+
+---
+
     {args -> expr}
 
 Il  s'agit d'une  expression lambda,  qui crée  une nouvelle  fonction numérotée

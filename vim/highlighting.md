@@ -572,6 +572,7 @@ Document this:
 
         https://speakerdeck.com/cocopon/creating-your-lovely-color-scheme
         http://vimcasts.org/episodes/creating-colorschemes-for-vim/
+        https://gist.github.com/romainl/5cd2f4ec222805f49eca
 
 ---
 

@@ -1,74 +1,3 @@
-# Which condition must a variable name satisfy to store a funcref?
-
-It must begin with an uppercase character.
-
-    let g:width = function(exists('*strchars') ? 'strchars' : 'strlen')
-    echo g:width('hello')
-    E704: Funcref variable name must start with a capital: width~
-
-    let g:Width = function(exists('*strchars') ? 'strchars' : 'strlen')
-    echo g:Width('hello')
-    5~
-
-Unless it's local to something else than a function:
-
-    let t:width = function(exists('*strchars') ? 'strchars' : 'strlen')
-    echo t:width('hello')
-    5~
-
-    unlet! g:Width
-    fu! Width(string) abort
-        let l:width = function(exists('*strchars') ? 'strchars' : 'strlen')
-        return l:width(a:string)
-    endfu
-    echo Width('hello')
-    E704: Funcref variable name must start with a capital: l:width~
-
-## Why?
-
-To avoid a conflict with a builtin function.
-
-##
-# I save a funcref in a global variable, then define a function whose name (!= code) is identical to the variable:
-
-    let g:Width = function('toupper')
-    fu! Width(string) abort
-        let l:width = function(exists('*strchars') ? 'strchars' : 'strlen')
-        return l:width(a:string)
-    endfu
-
-## What will be the output of `Width('hello')`?
-
-The first definition (funcref) seems to win:
-
-    echo Width('hello')
-    HELLO~
-
----
-
-But the definition of the function is weird:
-
-    fu Width
-                vvvvvvvvvvvvvvv
-       function toupper(string) abort~
-    1          let l:width = function(exists('*strchars') ? 'strchars' : 'strlen')~
-    2          return l:width(a:string)~
-       endfunction~
-
-## Could I have reversed the order of the saving and the definition?
-
-No.
-
-    fu! Width(string) abort
-        let l:width = function(exists('*strchars') ? 'strchars' : 'strlen')
-        return l:width(a:string)
-    endfu
-    let g:Width = function('toupper')
-    E705: Variable name conflicts with existing function: g:Width~
-
-It seems that `:let` is careful about avoiding conflicts, but not `:fu`.
-
-##
 # What's the signature of `function()`?
 
     function({name} [, {arglist}] [, {dict}])
@@ -80,19 +9,18 @@ Note that it's *not*:
     function({name} [, {arglist} [, {dict}]])
 
 IOW, `function()` is an **overloaded** function which has a different semantics,
-depending on the types of its arguments.
+depending on the *types* of its arguments.
 
-When the second argument is a list, the produced funcref is automatically passed
-the latter as  arguments; but when it's  a dictionary, the function  is bound to
-it.
+When the  second argument is  a list, the  function is automatically  passed the
+latter as arguments; but when it's a dictionary, the function is bound to it.
 
 So, if you need to bind a function to a dictionary, you don't need to do:
 
-    let Fr = function('Func', [], dict)
+    let Fn = function('Func', [], dict)
                               ^^
 You can simply do:
 
-    let Fr = function('Func', dict)
+    let Fn = function('Func', dict)
 
 ---
 
@@ -106,9 +34,9 @@ the type of its arguments.
 
 > The functions must differ either by the arity or types of their parameters
 
-Source: https://en.wikipedia.org/wiki/Function_overloading
+Source: [Function overloading][1]
 
-# What's the limitation imposed to `funcref()`, but not `function()`?
+# What's the limitation imposed to `funcref()`, but not to `function()`?
 
 `funcref()`  can  not  be  passed  the  name  of  a  builtin  function;  only  a
 user-defined function:
@@ -117,9 +45,86 @@ user-defined function:
     E700: Unknown function: strlen~
 
 ##
-# When calling a function F, can I replace its name with an expression whose value is a funcref of F?
+# Which condition must a variable name satisfy to store a funcref?
 
-Yes:
+It must begin with an uppercase character.
+
+          ✘
+          v
+    let g:length = function(exists('*strchars') ? 'strchars' : 'strlen')
+    echo g:length('hello')
+    E704: Funcref variable name must start with a capital: g:length~
+
+          ✔
+          v
+    let g:Length = function(exists('*strchars') ? 'strchars' : 'strlen')
+    echo g:Length('hello')
+    5~
+
+Unless it's local:
+
+    let t:length = function(exists('*strchars') ? 'strchars' : 'strlen')
+    echo t:length('hello')
+    5~
+
+But not if it's local to a function:
+
+    unlet! g:Length
+    fu! Length(string) abort
+        let l:length = function(exists('*strchars') ? 'strchars' : 'strlen')
+        return l:length(a:string)
+    endfu
+    echo Length('hello')
+    E704: Funcref variable name must start with a capital: l:length~
+
+## Why?
+
+To avoid a conflict with a builtin function.
+
+##
+# I save a funcref in a global variable, then define a function whose name is identical to the variable:
+
+    let g:Length = function('toupper')
+    fu! Length(string) abort
+        let l:Length = function(exists('*strchars') ? 'strchars' : 'strlen')
+        return l:Length(a:string)
+    endfu
+
+## What will be the output of `Length('hello')`?
+
+The first definition (funcref) seems to win:
+
+    echo Length('hello')
+    HELLO~
+
+---
+
+But the definition of the function is weird:
+
+    fu Length
+                vvvvvvvvvvvvvvv
+       function toupper(string) abort~
+    1          let l:Length = function(exists('*strchars') ? 'strchars' : 'strlen')~
+    2          return l:Length(a:string)~
+       endfunction~
+
+## Could I have reversed the order of the saving and the definition?
+
+No.
+
+    fu! Length(string) abort
+        let l:Length = function(exists('*strchars') ? 'strchars' : 'strlen')
+        return l:Length(a:string)
+    endfu
+    let g:Length = function('toupper')
+    E705: Variable name conflicts with existing function: g:Length~
+
+It seems that `:let` is careful about avoiding conflicts, but not `:fu`.
+
+##
+# When calling a function, with what can I replace its name?
+
+Any expression whose value is a funcref.
 
     fu! Func(i,j)
         return a:i + a:j
@@ -127,6 +132,9 @@ Yes:
     let list = [function('Func')]
     echo list[0](1, 2)
     3~
+
+Here, `list[0]` is an expression whose value is a funcref of `Func()`.
+So, when calling `Func()`, we can replace the name `Func` with `list[0]`
 
 ##
 # What does it mean for a function to be bound to a dictionary?
@@ -145,7 +153,7 @@ The resulting funcref binds the function to the dictionary.
     fu! Func() dict
         return 'my name is: '.self['name']
     endfu
-    let Fr = function('Func', adict)
+    let Fn = function('Func', adict)
                               ^^^^^
 
     " the dictionary was not modified
@@ -153,7 +161,7 @@ The resulting funcref binds the function to the dictionary.
     {'name': 'toto'}~
 
     " `Func()` is able to access the dictionary
-    echo Fr()
+    echo Fn()
     my name is: toto~
 
 ### modifying the dictionary, and giving a proper name to the function?
@@ -415,42 +423,42 @@ Qd elle en reçoit un, elle l'associe à la fonction.
         echo 'world'
     endfu
 
-    let FR = function('Hello')
-    call FR()
+    let Fn = function('Hello')
+    call Fn()
     hello~
 
-    let FR = function('World')
-    call FR()
+    let Fn = function('World')
+    call Fn()
     world~
 
 On peut  invoquer une  fonction en remplaçant  son nom par  une funcref,  ou une
 expression dont l'évaluation est une funcref.
-Ici,  on  remplace  le  nom  de  fonction  `Func`  par  la  variable  `FR`  dont
+Ici,  on  remplace  le  nom  de  fonction  `Func`  par  la  variable  `Fn`  dont
 l'évaluation est une funcref:
 
-    call Func()  →  call FR()
+    call Func()  →  call Fn()
 
 ---
 
     fu! Func(i,j)
         return a:i + a:j
     endfu
-    let FR = function('Func')
+    let Fn = function('Func')
     let list = [3, 4]
-    echo call(FR, list)
+    echo call(Fn, list)
     7~
 
 `call()` permet de passer une liste d'arguments à une funcref.
 Équivaut à :
 
-    echo FR(3, 4)
+    echo Fn(3, 4)
 
 Toutefois, cette 2e  syntaxe n'est utilisable que si on  déballe les éléments de
 la liste, pas si on les laisse dedans:
 
-    echo call(FR, list)
+    echo call(Fn, list)
     ✔
-    echo FR(list)
+    echo Fn(list)
     ✘ E119: Not enough arguments for function: Func~
 
 ---
@@ -480,13 +488,13 @@ pas connue à l'avance.
         return 'foo'            ┊ "
     endfu                       ┊ "
                                 ┊
-    let FR = function('Func')   ┊   let FR = funcref('Func')
+    let Fn = function('Func')   ┊   let Fn = funcref('Func')
                                 ┊
     fu! Func()                  ┊ "
         return 'bar'            ┊ "
     endfu                       ┊ "
                                 ┊
-    echo FR()                   ┊ "
+    echo Fn()                   ┊ "
                                 ┊
     bar                         ┊ foo~
 
@@ -518,7 +526,7 @@ Une funcref est un type de donnée à part entière.
 Pour  obtenir le  nom  d'une funcref  sous  forme de  chaîne,  il faut  utiliser
 `string()`:
 
-    string(FR)
+    string(Fn)
 
 ---
 
@@ -683,9 +691,9 @@ La dernière commande équivaut à :
         echo self.name
     endfu
 
-    let FR = function('Func')
+    let Fn = function('Func')
     let mydict = {'name': 'foo'}
-    let mydict.myfunc = FR
+    let mydict.myfunc = Fn
 
     call mydict.myfunc()
     foo~
@@ -700,9 +708,9 @@ Ici, `Func()` reçoit `mydict` via `self` qd on accède à la clé `myfunc`.
         echo self.name
     endfu
 
-    let FR                = function('Func')
+    let Fn                = function('Func')
     let mydict            = {'name': 'foo'}
-    let mydict.myfunc     = FR
+    let mydict.myfunc     = Fn
     let other_dict        = {'name': 'bar'}
     let other_dict.myfunc = mydict.myfunc
 
@@ -715,7 +723,7 @@ Si on duplique la fonction `mydict.myfunc` en `other_dict.myfunc`:
 
 ... en ayant au préalable associé à cette dernière clé de dico une funcref:
 
-    let mydict.myfunc = FR
+    let mydict.myfunc = Fn
 
 ... la copie est liée au nouveau dico, pas à l'original.
 C'est pourquoi  elle reçoit `other_dict` via  `self`, et elle affiche  `bar`, au
@@ -727,19 +735,19 @@ lieu de `foo`.
         echo self.name
     endfu
 
-    let FR                = function('Func')
+    let Fn                = function('Func')
     let mydict            = {'name': 'foo'}
-    let mydict.myfunc     = function(FR, mydict)
+    let mydict.myfunc     = function(Fn, mydict)
     let other_dict        = {'name': 'bar'}
     let other_dict.myfunc = mydict.myfunc
 
     call other_dict.myfunc()
     foo~
 
-En  revanche, si  on la  duplique  en l'ayant  définie comme  un partiel,  qu'on
-utilise pour EXPLICITEMENT lier la fonction au dico:
+En revanche, si on la duplique en l'ayant au préalable définie comme un partiel,
+qu'on utilise pour EXPLICITEMENT lier la fonction au dico:
 
-    let mydict.myfunc = function(FR, mydict)
+    let mydict.myfunc = function(Fn, mydict)
 
 ... la copie reste liée à l'ancien dico.
 
@@ -752,3 +760,7 @@ Read:
    • :h `Funcref`
    • :h `Partial`
 
+##
+# Reference
+
+[1]: https://en.wikipedia.org/wiki/Function_overloading
