@@ -1,5 +1,22 @@
 # ?
 
+Document that  `+` is a special  character on Vim's command-line,  like `%`, but
+only at the beginning of a filepath, and only when passed to a command accepting
+the optional `+cmd` argument.
+
+Example:
+
+    ✘
+    :e +foo
+
+    ✔
+    :e \+foo
+
+    ✔
+    :e foo+bar
+
+# ?
+
 What must follow `**` in a file pattern? (2 possibilities)
 
         • nothing
