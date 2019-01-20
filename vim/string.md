@@ -70,6 +70,23 @@ If you use `silent!`, the error messages won't be included in the output.
 `0`
 
 ##
+# I have a string and a pattern.  How to get the list of substrings matching the capturing groups?
+
+Use `matchlist()`:
+
+    echo matchlist(str, pat)
+
+---
+
+    echo matchlist('abcd', '\v(.(.))(.)')
+    ['abc', 'ab', 'b', 'c', '', '', '', '', '', '']~
+      │      │     │    │
+      │      │     │    └ \3
+      │      │     └ \2
+      │      └ \1
+      └ \0
+
+##
 ##
 ##
 # ?
@@ -103,13 +120,6 @@ Si elles retournent:
 
    • `0`   ça signifie que  la sous-chaîne a été trouvée au tout début
    • `-1`  ça signifie que  la sous-chaîne est absente
-
-# ?
-
-    echo match(['one', 'two', 'four', 'three'], 't..', 2)
-    3~
-
-Index du 2e item dans la liste matchant `t..`.
 
 # ?
 
@@ -192,19 +202,6 @@ Différences entre `match()` et `count()`:
     3~
     echo stridx('foo:bar:baz', ':', 3 + 1)
     7~
-
-# ?
-
-    echo matchlist('abcd', '\v(.(.))(.)')
-    ['abc', 'ab', 'b', 'c', '', '', '', '', '', '']~
-
-`matchlist()` retourne des sous-expressions, équivalentes à `\0`, `\1`, ..., `\9`
-au sein de la chaîne de remplacement de la commande `:s`.
-
-    \0 = 'abc'
-    \1 = 'ab'
-    \2 = 'b'
-    \3 = 'c'
 
 # ?
 
