@@ -33,6 +33,24 @@ Example:
     1~
 
 ###
+## How to get the number of occurrences of a value in a list?
+
+Use `count()`:
+
+    let list = split('hello', '\zs')
+    echo count(list, 'l')
+    2~
+
+The `l` character is present twice in `['h', 'e', 'l', 'l', 'o']`.
+
+##
+## What's the output of `echo [4] == ['4']`?
+
+`0`
+
+Vim does no coercition when comparing lists.
+
+##
 ## What is slicing?
 
 The process of getting a sublist by appending a list with a range of indexes:
@@ -86,6 +104,35 @@ Use an assignment: in the lhs, use slicing; in the rhs use, a list of values.
     [1, 'a', 'b', 4]~
 
 ###
+## How to add an item in front of a list?
+
+Use `insert()`:
+
+    let list = [1, 2]
+    echo insert(list, 'a')
+    ['a', 1, 2]~
+
+## How to add an item at the end of a list?
+
+Use `add()`:
+
+    let list = [1, 2]
+    call add(list, 3)
+    echo list
+    [1, 2, 3]~
+
+Note that `add()` operates in-place.
+
+### Can this be used to concatenate lists?
+
+No.
+
+    let list = [1, 2]
+    call add(list, [3, 4])
+    echo list
+    [1, 2, [3, 4]]~
+
+##
 ## How to concatenate lists?  (2)
 
     let list = [1, 2, 3]
@@ -120,6 +167,25 @@ But not the second one:
     echo extend(alist, blist)
     echo blist
     [3, 4]~
+
+###
+## How to rotate the items of a list to the left?
+
+Use a combination of  `add()` and `remove()`, to move the first  item to the end
+of the list.
+
+    let a = range(1, 4)
+
+    call add(a, remove(a, 0))
+    echo a
+
+### to the right?
+
+Use a  combination of `insert()`  and `remove()`, to move  the last item  to the
+beginning of the list.
+
+    call insert(a, remove(a, -1), 0)
+    echo a
 
 ###
 ## Without altering the rest of a list, how to
@@ -173,8 +239,8 @@ use the `.=` operator.
 ↣
     [1, 1, 1]~
 
-Note
-
+Note that the list name changed inside the function (`counts` → `list`).
+But it doesn't matter: `counts` has still mutated.
 ↢
 
 ### 3:
@@ -211,308 +277,296 @@ non-scalar values are passed by reference.
    2. an array is passed by reference
 
 ##
-##
+## Which list is unable to mutate?
+
+`a:000` can't mutate:
+
+    fu! Func(...) abort
+        return map(a:000, 'v:val+1')
+    endfu
+    echo Func(1, 2, 3)
+    E742: Cannot change value of map() argument~
+
 ##
 # ?
 
-À l'intérieur de la fonction, le nom donné à la liste n'a pas d'importance.
-Pex,  ici,  on  l'appelle  `list`  dans la  fonction  `Increment()`  alors  qu'à
-l'extérieur de cette dernière, elle s'appelle `counts`.
-IOW, la mutation n'est pas affectée  par la différence de noms entre l'intérieur
-et l'extérieur de la fonction.
+    echo insert(list, item, idx)
 
----
+Ajoute `item` à `list` en index:
 
-On peut faire  muter une liste passée directement en  argument, mais pas `a:000`
-qui est une liste construite par Vim:
+   • `idx`        s'il est positif ou nul
+   • `idx` - 1    s'il est négatif
 
-        fu! Func(...) abort
-            " ✘
-            call map(a:000, 'v:val+1')
-            echo a:000
-        endfu
-        call Func(1, 2, 3)
-        E742: Cannot change value of map() argument~
+L'index peut aller jusqu'à `len(list)`, mais pas au-delà.
+Pex, si la longueur de `list` est 4, on peut écrire:
+
+        let list = [1, 2, 3, 4]
+        echo insert(list, 5, 4)
+        [1, 2, 3, 4, 5]    ✔~
+
+... mais pas:
+
+        echo insert(list, 5, 5)    ✘
 
 # ?
-
-Pour vimscript, les listes sont des objets mutables.
-On peut modifier un item d'une liste sans devoir remplacer toute la liste.
-
-
-    add(list, item)
-
-            ajoute item à list (opération in-place)
-            l'item peut être un nb, une chaîne, une liste, un dictionnaire
-
-            retourne la liste qui résulte de l'opération
-
-                                               NOTE:
-
-            Si l'item est une liste, il est ajouté en tant que simple item de list (pas de concaténation).
-            Ex:
-                    :let alist = ['one']
-                    :call add(alist, ['two', 'three'])
-                    :echo alist
-                    ['one', ['two', 'three']]
-
-
-             ┌ Array
-             │
-    call add(a, remove(a, 0))
-    call insert(a, remove(a, -1), 0)
-
-            Effectue une rotation sur les éléments de `a`, in-place:
-
-                    • vers la gauche
-                    • vers la droite
-
-            Utile entre autres pour remplacer un pattern avec différentes chaînes:
-
-                    %s/pat/foo/
-                    %s/pat/bar/
-                    %s/pat/baz/
-
-                    let a = ['foo', 'bar', 'baz']
-                    %s/pat/\=add(a, remove(a, 0))[-1]/
-
-            Si la liste  ne contient que 2 éléments, on  peut simplifier le code
-            en utilisant seulement la fonction `reverse()`:
-
-                    let a = ['bar', 'foo']
-                    %s/pat/\=reverse(a)[0]/
-
-
-    count(list, value)
-
-            Retourne le nb de fois que `value` est présent dans `list`.
-            Fonctionne aussi avec:
-
-                    • un dico    ; dans ce cas ce sont les valeurs et non les clés qui sont inspectées
-                    • une chaîne ; dans ce cas ce sont les caractères de cette dernière qui sont inspectés
-
-                                               NOTE:
-
-            Utiliser `count()` à répétition peut être une source d'inefficacité.
-
-            Pex, si on a une liste contenant un ensemble de mots, et qu'on souhaite construire un dico
-            de fréquences:
-
-                    {mot1: freq1, mot2: freq2, ...}
-
-            ... il est très INefficace d'utiliser `count()`.
-
-            En effet, pour ce faire, il faudrait appeler `count()` pour chaque mot présent dans la liste.
-            Chaque `count()` testerait tous les mots de la liste pour vérifier s'il matche le mot dont
-            on souhaite la fréquence.
-            Avec une liste de 100 mots, dont 10 uniques, il faudrait appeler `count()` 10 fois, et
-            chaque appel testerait 100 mots, soit 1000 tests en tout.
-
-            Il est bcp plus efficace de tester chaque mot dans la liste une seule fois
-            (100 opérations au lieu de 1000):
-
-                    let freq = {}
-                    for word in list
-                        let freq[word] = get(freq, word, 0) + 1
-                    endfor
-
-            `word` est un nom de variable, on ne peut donc pas utiliser la syntaxe `freq.word`
-            En effet, Vim chercherait la valeur associée à la clé dont le nom est 'word'.
-            Il n'évaluerait pas la variable `word`.
-            Il faut donc utiliser l'autre syntaxe:
-
-                    freq[word]
-
-            On n'a pas besoin d'initialiser le dictionnaire avec les mots uniques présents dans `list`.
-            Ils seront progressivement ajoutés au sein de la boucle.
-            En effet, qd on affecte une valeur à une clé inexistante, Vim l'ajoute automatiquement au dico.
-
-            En revanche, on ne peut pas simplement écrire:
-
-                    let freq[word] = freq[word] + 1
-
-            En effet, qd la boucle rencontrera un mot pour la 1e fois, la valeur `freq[word]`
-            n'existera pas encore.
-            Ceci posera un pb pour la partie droite de l'affectation.
-            La solution consiste à utiliser `get()` pour donner la valeur par défaut 0 lorsque ce
-            cas se produit:
-
-                    let freq[word] = get(freq, word, 0) + 1
-
-
-    if index([val1, val2, val3], var) >= 0
-    if var == val1 || var == val2 || var == val3 ...
-
-            Test si la valeur de `var` est présente dans une liste de valeur.
-
-
-    echo [4] == ["4"]
-
-            retourne 0, la comparaison de listes est plus stricte que la comparaison de chaînes
-            Vim ne fait pas de coercition pour les listes
-
-
-    insert(list, 'a')
-
-            ajoute l'item 'a' au début de `list` (index 0)
-
-
-    insert(list, item, idx)
-
-            ajoute `item` à `list` en index:
-
-                    • `idx`        s'il est positif ou nul
-                    • `idx` - 1    s'il est négatif
-
-            L'index peut aller jusqu'à `len(list)`, mais pas au-delà.
-            Pex, si la longueur de `list` est 4, on peut écrire:
-
-                    let list = [1, 2, 3, 4]
-                    echo insert(list, 5, 4)
-                    [1, 2, 3, 4, 5]    ✔~
-
-            ... mais pas:
-
-                    echo insert(list, 5, 5)    ✘
 
     let list2 = copy(list1)
 
-            affecte à list2 une copie superficielle (shallow) de list1
+Affecte à `list2` une copie superficielle (shallow) de `list1`.
 
-            Utile pour pouvoir manipuler une copie d'une liste sans modifier l'originale.
-            Ex ici: http://vi.stackexchange.com/a/7428/6960
-            En effet, taper: let list2 = list1 ne duplique pas la donnée contenue dans list1 ;
-            list2 et list1 partagent une même référence.
-            Ceci implique que si on modifie plus tard list2, list1 est elle-aussi modifiée.
+Utile pour pouvoir manipuler une copie d'une liste sans modifier l'originale.
+Ex ici:
 
-            Si un des items de list1 est lui-même une liste, appelons-la sublist et donnons-lui l'index 0,
-            son contenu n'est pas dupliqué dans list2, malgré l'utilisation de copy().
-            Ce qui est dupliqué dans list2, c'est la référence vers sublist.
+<http://vi.stackexchange.com/a/7428/6960>
 
-            Ceci implique que si on modifie un item de sublist à l'intérieur de list2, pex comme ceci:
-                let list2[0][0] = new_value
-            ... on modifie par la même occasion list1, car list1[0] et list2[0] partagent une même référence.
+En effet:
 
-    let list2 = deepcopy(list1)
+    let list2 = list1
 
-            affecte à list2 une copie profonde (deep) de list1
+ne duplique  pas la donnée contenue  dans `list1`; `list2` et  `list1` partagent
+une même référence.
+Ceci  implique que  si  on modifie  plus tard  `list2`,  `list1` est  elle-aussi
+modifiée.
 
-            Contrairement à la fonction copy(), si un des items de list1 est une liste (appelons-la sublist),
-            deepcopy() ne duplique pas la référence vers sublist mais bien la donnée sublist elle-même.
+Si  un des  items de  `list1`  est lui-même  une liste,  appelons-la sublist  et
+donnons-lui l'index  `0`, son  contenu n'est pas  dupliqué dans  `list2`, malgré
+l'utilisation de `copy()`.
+Ce qui est dupliqué dans `list2`, c'est la référence vers sublist.
 
-    extend(alist, blist, idx)
+Ceci implique que si on modifie un item de sublist à l'intérieur de `list2`, pex
+comme ceci:
 
-            intègre blist dans alist, de telle façon que le 1er item de blist y a pour index idx
+    let list2[0][0] = new_value
 
-
-    index(list, item)
-
-            retourne l'index de item au sein de list (-1 s'il n'est pas dedans)
-
-    range(2, 9, 3)
-
-            retourne [2, 5, 8]
-
-            Cette commande illustre la syntaxe générale de range(): range(début, fin, pas)
-
-    range(2, -2, -1)
-
-            retourne [2, 1, 0, -1, -2]
-
-
-    remove(list, 3)                     unlet list[3]
-    remove(list, 3, -1)                 unlet list[3:]
-    remove(list, index(list, 'foo'))
-
-            supprime de list l'item:
-
-                    • d'index 3
-                    • d'index 3 jusqu'au dernier
-                    • 'foo'
-
-            remove() retourne l'item supprimé, ou une liste des items (s'ils sont plusieurs)
-
-
-    repeat([0], 4)    map(range(4), 0)
-
-            retourne [0, 0, 0, 0]
-            repeat() permet de répéter des chaînes et des listes
-
-    echo map(range(3), 'map(range(2), 0)')
-
-            retourne    [[0, 0], [0, 0], [0, 0]]
-
-            une imbrication de map() permet d'initialiser une liste de listes (matrice)
+...  on modifie  par  la même  occasion `list1`,  car  `list1[0]` et  `list2[0]`
+partagent une même référence.
 
 # ?
 
-Dictionaries
+    let list2 = deepcopy(list1)
 
-    extend(adict, bdict, 'keep')
+Affecte à `list2` une copie profonde (deep) de `list1`.
 
-            ajoute toutes les entrées de bdict à adict
+Contrairement à la fonction  `copy()`, si un des items de  `list1` est une liste
+(appelons-la sublist),  `deepcopy()` ne duplique  pas la référence  vers sublist
+mais bien la donnée sublist elle-même.
 
-            Le 3e argument optionnel indique à extend() ce qu'il faut faire lorsqu'une entrée de bdict contient
-            une clé déjà présente dans adict:
+# ?
 
-                'keep'     conserver l'entrée de adict
-                'force'    la remplacer par celle de bdict (valeur par défaut si le 3e argument est omis)
-                'error'    produire un message d'erreur
+    echo extend(alist, blist, idx)
 
-                                               NOTE:
+Intègre blist dans `alist`,  de telle façon que le 1er item de  `blist` y a pour
+index `idx`.
 
-            extend() n'est nécessaire que pour fusionner 2 dicos.
-            Pour ajouter une nouvelle entrée, un :let mydict.key = 'value' suffit.
+# ?
 
+    echo index(list, item)
 
-    filter(mydict, 'v:key =~ "^foo"')
+Retourne l'index de item au sein de `list` (`-1` s'il n'est pas dedans).
 
-            retourne le dictionnaire mydict après lui avoir supprimé tous les items dont la clé
-            ne commence pas par foo
+# ?
 
+               ┌ start
+               │  ┌ end
+               │  │  ┌ step
+               │  │  │
+    echo range(2, 9, 3)
+    [2, 5, 8]~
 
-    get(mydic, 'key', -1)
+# ?
 
-            retourne la valeur de l'item dont la clé est 'key' dans mydic, et -1 s'il n'existe pas
+    echo range(2, -2, -1)
+    [2, 1, 0, -1, -2]~
 
+# ?
 
-    has_key(mydict, 'foo')
+Remove the item whose index is `3`:
 
-            retourne 1 si la clé 'foo' est présente dans mydict, 0 autrement
+    unlet list[3]
+    echo list
 
+    call remove(list, 3)
+    echo list
+
+Remove the items whose indexes are greater than `3`:
+
+    unlet list[3:]
+    echo list
+
+    call remove(list, 3, -1)
+    echo list
+
+Remove the items `foo`:
+
+    call remove(list, index(list, 'foo'))
+    echo list
+
+`remove()` returns whatever was removed.
+
+# ?
+
+    echo repeat([0], 4)
+    echo map(range(4), 0)
+    [0, 0, 0, 0]~
+
+`repeat()` permet de répéter des chaînes et des listes.
+
+# ?
+
+    echo map(range(3), 'map(range(2), 0)')
+    [[0, 0], [0, 0], [0, 0]]~
+
+Une imbrication de `map()` permet d'initialiser une liste de listes (matrice).
+
+##
+##
+##
+# Dictionaries
+## How to get the number of occurrences of a value in a dictionary?
+
+    let dict = {'a': 1, 'b': 2, 'c': 3}
+    echo count(dict, 3)
+    1~
+
+The value `3` is present once in the the dictionary.
+
+##
+## I have a list of words.  What's the most efficient way to build a dictionary of words frequencies?
+
+Iterate over the words of the list, to build the dictionary.
+
+        let list = ['one', 'two', 'two', 'three', 'three', 'three']
+        let freq = {}
+        for word in list
+            let freq[word] = get(freq, word, 0) + 1
+        endfor
+        echo freq
+        {'one': 1, 'two': 2, 'three': 3}~
+
+Note that you can't write:
+
+        let freq[word] = freq[word] + 1
+
+Because when  the loop will  encounter `word` for  the first time,  `freq` won't
+have any key yet  for it; so `freq[word]` won't exist which  will raise an error
+in the rhs of the assignment.
+
+---
+
+Don't use `count()`; it would be less effecient:
+
+        fu! Func()
+            let words = []
+            %s/\<\k\+\>/\=add(words, submatch(0))/gn
+            let freq = {}
+            for word in uniq(sort(copy(words)))
+                let freq[word] = count(words, word)
+            endfor
+            echo freq
+        endfu
+        10Time sil call Func()
+
+        fu! Func()
+            let words = []
+            %s/\<\k\+\>/\=add(words, submatch(0))/gn
+            let freq = {}
+            for word in words
+                let freq[word] = get(freq, word, 0) + 1
+            endfor
+            echo freq
+        endfu
+        10Time sil call Func()
+
+Indeed, assuming your list contains 10  unique words, you would invoke `count()`
+10 times.
+And  assuming  you have  100  words  in total,  each  time,  it would  make  100
+comparisons  to  get  the  number  of  occurrences  of  the  word:  that's  1000
+comparisons in total.
+
+##
+##
+##
+# ?
+
+    echo extend(adict, bdict, 'keep')
+
+Ajoute toutes les entrées de `bdict` à `adict`.
+
+Le 3e  argument optionnel indique  à `extend()`  ce qu'il faut  faire lorsqu'une
+entrée de `bdict` contient une clé déjà présente dans `adict`:
+
+    ┌─────────┬──────────────────────────────────────────────────────────────────────────────────┐
+    │ 'keep'  │ conserver l'entrée de `adict`                                                    │
+    ├─────────┼──────────────────────────────────────────────────────────────────────────────────┤
+    │ 'force' │ la remplacer par celle de `bdict` (valeur par défaut si le 3e argument est omis) │
+    ├─────────┼──────────────────────────────────────────────────────────────────────────────────┤
+    │ 'error' │ produire un message d'erreur                                                     │
+    └─────────┴──────────────────────────────────────────────────────────────────────────────────┘
+
+`extend()` n'est nécessaire que pour fusionner 2 dicos.
+Pour ajouter une nouvelle entrée, un `let dict.key = 'value'` suffit.
+
+# ?
+
+    let dict = {'ab': 1, 'cd': 2, 'abcd': 3}
+    echo filter(dict, {k,v -> k =~# '^a'})
+    {'abcd': 3, 'ab': 1}~
+
+Retourne le dictionnaire après lui avoir supprimé  tous les items dont la clé ne
+commence pas par `a`.
+
+# ?
+
+    echo get(dict, 'key', -1)
+
+Retourne la  valeur de l'item dont  la clé est  `key` dans `dict`, et  `-1` s'il
+n'existe pas.
+
+# ?
+
+    echo has_key(dict, 'foo')
+
+Retourne `1` si la clé `foo` est présente dans dict, `0` autrement.
+
+# ?
 
     let uk2fr = {'one': 'un', 'two': 'deux', 'three': 'trois',}
 
-            exemple de définition d'un dictionnaire
-            La forme générique étant: {<key> : <value>, ...}
+Exemple de définition d'un dictionnaire.
+La forme générique étant:
 
+    {<key> : <value>, ...}
 
-    let mydict['key'] = 'value'
-    let mydict.key = 'value'
+# ?
 
-            assigne à la clé 'key' de mydict la valeur 'value'
-            Si aucune entrée n'utilise la clé 'key', elle est créée.
+    let dict['key'] = 'value'
+    let dict.key = 'value'
 
+Assigne à la clé `key` de dict la valeur `value`.
+Si aucune entrée n'utilise la clé `key`, elle est créée.
 
-    mydict['foo']
-    mydict.foo
+# ?
 
-            retourne la valeur associée à la clé 'foo' du dictionnaire mydict
+    dict['foo']
+    dict.foo
 
-            La 1e syntaxe autorise l'utilisation d'une plus grande variété de caractères
-            (en + de ascii, chiffres et _).
-            De plus, elle permet l'évaluation automatique d'une variable stockant une clé:
+Retourne la valeur associée à la clé `foo` du dictionnaire `dict`.
 
-                mydict[myvar] ✔
-                mydict.myvar ✘
+La 1e syntaxe autorise l'utilisation d'une plus grande variété de caractères (en
+plus de ascii, chiffres et `_`).
+De plus, elle permet l'évaluation automatique d'une variable stockant une clé:
 
+    dict[myvar] ✔
+    dict.myvar ✘
 
-    unlet mydict.key
-    remove(mydict, key)
+# ?
 
-            Supprime l'entrée de `mydict` contenant la clé `key`.
+    unlet dict.key
+    echo remove(dict, key)
 
-            `remove()` retourne l'entrée supprimée qu'on peut ainsi capturer dans une variable:
+Supprime l'entrée de `dict` contenant la clé `key`.
 
-                    let myvar = remove(mydict, key)
+`remove()` retourne l'entrée supprimée qu'on peut ainsi capturer dans une variable:
+
+    let myvar = remove(dict, key)
 

@@ -1,4 +1,18 @@
     ~
+Replace one pattern out of two with `foo`, and the other with `bar`:
+
+    let a = ['bar', 'foo']
+    %s/pat/\=reverse(a)[0]/
+
+Replace one pattern out  of two with `foo`, another with  `bar`, and yet another
+with `baz`:
+
+    let a = ['foo', 'bar', 'baz']
+    %s/pat/\=add(a, remove(a, 0))[-1]/
+
+These commands work because `reverse()`, `add()` and `remove()` operate in-place.
+
+---
 
             Utilisé  dans un  pattern,  chaîne de  remplacement,  ou une  simple
             recherche,  est développé  en la  chaîne de  remplacement qui  a été

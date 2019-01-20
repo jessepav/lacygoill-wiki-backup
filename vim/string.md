@@ -1,3 +1,13 @@
+# How to get the number of occurrences of a character in a string?
+
+Use `count()`:
+
+    let str = 'hello'
+    echo count(str, 'l')
+    2~
+
+The `l` character is present twice in the string `hello`.
+
 # How to make Vim translate special sequences such as `\<tab>` or `\x26` in a literal string?
 
 Concatenate double quotes at the beginning and end of the string.
@@ -750,7 +760,7 @@ Dans un test, 0 est considéré comme faux et tout autre entier relatif comme vr
 ##
 ##
 ##
-## printf()
+# printf()
 
 `printf()` est une fonction utile pour  manipuler une chaîne au sein de laquelle
 on veut:

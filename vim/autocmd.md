@@ -1,3 +1,104 @@
+# Which pitfall should I avoid when installing a fire-once autocmd?
+
+If a command fails before the removal of the autocmd, the latter may not be performed.
+
+Try to prefix every command before with `:silent!`.
+
+If you have to remove it from inside  a function, do it as early as possible, or
+use a `:try` conditional  and a `:finally` clause to make  sure the autocmd will
+be removed.
+Otherwise, `abort` may prevent your `:au!` command from being processed.
+
+Alternatively, you could  use a second dedicated autocmd, right  after the first
+one.
+But this would create  duplicate code, and every time you would  add a new event
+to the first autocmd, you would have to do the same to the second one.
+If you forget to do it, the autocmd may sometimes not be removed.
+
+---
+
+MWE:
+
+    $ cat <<'EOF' >/tmp/vimrc
+    fu! FuncA() abort
+        abcd
+    endfu
+    fu! FuncB() abort
+        abcd
+    endfu
+    augroup test_sth
+        au!
+        au BufWinEnter * "
+    augroup END
+    call FuncA() | call FuncB() | au! test_sth
+    EOF
+
+    $ vim -Nu /tmp/vimrc
+    :au test_sth
+    test_sth  BufWinEnter~
+        *         "~
+
+Solution1:
+
+    au BufWinEnter * call FuncA() | call FuncB()
+    au BufWinEnter * au! test_sth
+
+Solution2:
+
+    sil! call FuncA() | sil! call FuncB() | au! test_sth
+
+Other MWE:
+
+    augroup test_sth
+        au!
+        au BufWinEnter * "
+    augroup END
+    fu! Func() abort
+        abcd
+        au! test_sth
+        aug! test_sth
+    endfu
+    call Func()
+    au test_sth
+    test_sth  BufWinEnter~
+        *         "~
+
+Solution1:
+
+    augroup test_sth
+        au!
+        au BufWinEnter * "
+    augroup END
+    fu! Func() abort
+        au! test_sth
+        aug! test_sth
+        abcd
+    endfu
+    call Func()
+    au test_sth
+    test_sth  BufWinEnter~
+        *         "~
+
+Solution2:
+
+    augroup test_sth
+        au!
+        au BufWinEnter * "
+    augroup END
+    fu! Func() abort
+        try
+            abcd
+        finally
+            au! test_sth
+            aug! test_sth
+        endtry
+    endfu
+    call Func()
+    au test_sth
+    test_sth  BufWinEnter~
+        *         "~
+
+##
 # When several autocmds listen to the same event, in which does Vim run them?
 
 In the order they were installed.
