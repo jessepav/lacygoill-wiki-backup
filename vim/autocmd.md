@@ -2,15 +2,13 @@
 
 If a command fails before the removal of the autocmd, the latter may not be performed.
 
-Try to prefix every command before with `:silent!`.
+Try to prefix every previous command with `:silent!`.
 
-If you have to remove it from inside  a function, do it as early as possible, or
-use a `:try` conditional  and a `:finally` clause to make  sure the autocmd will
-be removed.
+If you  have to clear your  fire-once autocmd from  inside a function, do  it as
+early as possible, or use a `:try` conditional and a `:finally` clause.
 Otherwise, `abort` may prevent your `:au!` command from being processed.
 
-Alternatively, you could  use a second dedicated autocmd, right  after the first
-one.
+Alternatively, you could use a second dedicated autocmd, right after the first one.
 But this would create  duplicate code, and every time you would  add a new event
 to the first autocmd, you would have to do the same to the second one.
 If you forget to do it, the autocmd may sometimes not be removed.

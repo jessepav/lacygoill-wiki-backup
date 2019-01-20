@@ -6,21 +6,20 @@ Liste partielle de plugins tirant avantage des fonctionnalités de Neovim:
 
 ## AdvancedSorters
 
-        The built-in :sort command is powerful, but it still is line-based.
-        It doesn't take into account folded lines, nor can it sort entire blocks
-        like function definitions, paragraphs, etc.
-        But often, one needs to sort exactly such areas as single entities, i.e.
-        without changing the line order within them.
-        A  workaround in  Vim  is  condensing each  block  into  a single  line,
-        performing the sorting, and then expanding again.
-        External, more powerful sort commands could be used, too.
+The built-in `:sort` command is powerful, but it still is line-based.
+It doesn't take  into account folded lines,  nor can it sort  entire blocks like
+function definitions, paragraphs, etc. But often, one needs to sort exactly such
+areas as single entities, i.e. without changing the line order within them.
+A workaround in Vim is condensing each  block into a single line, performing the
+sorting, and then expanding again.
+External, more powerful sort commands could be used, too.
 
-        This  plugin  implements  this  workaround and  encapsulates  the  three
-        separate steps in one handy command.
+This plugin implements this workaround and encapsulates the three separate steps
+in one handy command.
 
-        While :sort  has several  flags for  sorting on  various numbers,  and a
-        /{pattern}/  can be  specified  to skip  or sort  on,  it doesn't  allow
-        arbitrary (Vimscript) expressions.
+While  `:sort`  has  several  flags  for  sorting  on  various  numbers,  and  a
+/{pattern}/ can  be specified  to skip  or sort on,  it doesn't  allow arbitrary
+(Vimscript) expressions.
 
         This plugin  offers extension commands  that evaluate an  expression per
         line, put  that number in  front of the line,  do a numerical  sort, and
@@ -229,7 +228,6 @@ Liste partielle de plugins tirant avantage des fonctionnalités de Neovim:
         https://github.com/tweekmonster/braceless.vim
 
                                    2183 sloc
-
 
 ## browserlink
 
@@ -1819,7 +1817,7 @@ See also:
 
             https://github.com/majutsushi/tagbar
 
-                                   3477 sloc
+                                   4788 sloc
 
 ## targets
 

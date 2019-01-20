@@ -1,8 +1,8 @@
 # Configuration
 ## Which options control the shell program started by `:grep` and `:make`?
 
-        'grepprg' / 'gp'
-        'makeprg' / 'mp'
+    'grepprg' / 'gp'
+    'makeprg' / 'mp'
 
 ## Inside the values of these options, how to refer to the arguments passed to `:grep` and `:make` at runtime?
 
@@ -18,126 +18,141 @@ You can use several `$*` if needed.
 All the other commands rely on `'efm'`.
 
 ##
-## Which option must I set to change how the output of a shell command executed by `system()` or `:!` is redirected?
+## An option can be set to change how Vim redirects the output of a shell command.
+### What's this option for a shell command executed by
+#### `system()` or `:!`?
 
-        'shellredir' / 'srr'
+    'shellredir' / 'srr'
 
-## Which option (O) must I set to change how the output of a shell command executed by :make/:grep is redirected?
+#### `:make` or `:grep`?
 
-        'shellpipe'
+    'shellpipe'
 
-## How to refer to the temporary file in the value assigned to (O)?
+##
+### How to refer to the temporary file in the value assigned to these options?
 
 Use the `%s` token.
 
 If you don't use `%s`, it's appended automatically at the end.
 
-## On which option does the default value of (O) depend?
+### On which option does the default value of these options depend?
 
-The second path component of 'shell':
+The second path component of `'shell'`:
 
-        ┌───────────────────────────────┬───────────────────────┐
-        │ 2nd path component of 'shell' │ default value of 'sp' │
-        ├───────────────────────────────┼───────────────────────┤
-        │ ∅                             │ | tee                 │
-        ├───────────────────────────────┼───────────────────────┤
-        │ csh                           │ |& tee                │
-        │ tcsh                          │                       │
-        ├───────────────────────────────┼───────────────────────┤
-        │ bash                          │ 2>&1| tee             │
-        │ ksh                           │                       │
-        │ mksh                          │                       │
-        │ pdksh                         │                       │
-        │ sh                            │                       │
-        │ zsh                           │                       │
-        └───────────────────────────────┴───────────────────────┘
+    ┌───────────────────────────────┬───────────────────────┐
+    │ 2nd path component of 'shell' │ default value of 'sp' │
+    ├───────────────────────────────┼───────────────────────┤
+    │ ∅                             │ | tee                 │
+    ├───────────────────────────────┼───────────────────────┤
+    │ csh                           │ |& tee                │
+    │ tcsh                          │                       │
+    ├───────────────────────────────┼───────────────────────┤
+    │ bash                          │ 2>&1| tee             │
+    │ ksh                           │                       │
+    │ mksh                          │                       │
+    │ pdksh                         │                       │
+    │ sh                            │                       │
+    │ zsh                           │                       │
+    └───────────────────────────────┴───────────────────────┘
 
 Notice that if  you use bash or zsh,  the errors will also be  redirected in the
 temporary file thanks to the presence of `2>&1` in `'sp'`.
 
-## I want to set 'mp' so that `:make` writes to the tempfile itself. How to prevent 'sp' from redirecting anything?
+###
+### How to prevent 'sp' from redirecting anything?
 
 Set `'sp'` to an empty string.
+
+#### When is it useful to do that?
+
+When  you want  `:make` to  write to  the tempfile  itself, and  you set  `'mp'`
+accordingly.
 
 ##
 ## How to change the location of the temporary file created to redirect the output of a shell command?
 
 Configure:
 
-        ┌─────────────┬────────────────────────┐
-        │ option      │ affects these commands │
-        ├─────────────┼────────────────────────┤
-        │ 'makeef'    │ :make                  │
-        │             │ :grep                  │
-        ├─────────────┼────────────────────────┤
-        │ 'errorfile' │ $ vim -q               │
-        │             │                        │
-        │             │ :cgetexpr (& friends)  │
-        └─────────────┴────────────────────────┘
+    ┌─────────────┬────────────────────────┐
+    │ option      │ affects these commands │
+    ├─────────────┼────────────────────────┤
+    │ 'makeef'    │ :make                  │
+    │             │ :grep                  │
+    ├─────────────┼────────────────────────┤
+    │ 'errorfile' │ $ vim -q               │
+    │             │                        │
+    │             │ :cgetexpr (& friends)  │
+    └─────────────┴────────────────────────┘
 
 ## What's the default value of 'errorfile'?
 
-        errors.err
+    errors.err
 
 ## What's the value of 'errorfile' if I populate a qfl by parsing the contents of a file?
 
-The path to the latter, relative to the working directory.
+The path to the latter.
 
 Examples:
 
-        $ grep -RHIinos pat /etc | vim -q /dev/stdin
-        :echo &ef
-        /dev/stdin~
+    $ grep -RHIinos pat /etc | vim -q /dev/stdin
+    :echo &ef
+    /dev/stdin~
 
-        $ grep -RHIinos pat /etc >/tmp/my_error_file ; vim -q /tmp/my_error_file
-        :echo &ef
-        /tmp/my_error_file~
+    $ grep -RHIinos pat /etc >/tmp/my_error_file ; vim -q /tmp/my_error_file
+    :echo &ef
+    /tmp/my_error_file~
 
-        $ vim -q <(shell cmd)
-        :echo &ef
-        /proc/self/fd/123~
+    $ vim -q <(shell cmd)
+    :echo &ef
+    /proc/self/fd/123~
+
+    $ vim
+    :cd /tmp
+    :cfile my_error_file
+    :echo &ef
+    my_error_file~
 
 ##
 # Properties of a qf entry
 ## What are the five properties of a qf entry related to its location?
 
-        • bufnr
-        • col
-        • vcol
-        • lnum
-        • pattern
+   • bufnr
+   • col
+   • vcol
+   • lnum
+   • pattern
 
 ## What are its five other properties?
 
-        • module
-        • nr
-        • text
-        • type
-        • valid
+   • module
+   • nr
+   • text
+   • type
+   • valid
 
 ## What property of a qf entry can I set, but not get?
 
-        'filename'
+    'filename'
 
 You can set it:
 
-        :call setqflist([{'filename': $VIMRUNTIME.'/filetype.vim', 'valid': 1}])
-        :cw
+    :call setqflist([{'filename': $VIMRUNTIME.'/filetype.vim', 'valid': 1}])
+    :cw
 
 But not get it:
 
-        :echo keys(getqflist()[0])
-        ['lnum', 'bufnr', 'col', 'pattern', 'valid', 'vcol', 'nr', 'type', 'module', 'text']~
-          no 'filename' key~
+    :echo keys(getqflist()[0])
+    ['lnum', 'bufnr', 'col', 'pattern', 'valid', 'vcol', 'nr', 'type', 'module', 'text']~
+      no 'filename' key~
 
 ## What's the only property that a qf entry in Neovim currently misses, compared to Vim?
 
-        'module'
+    'module'
 
 ##
 ## What's the 'module'  property of a qf entry?
 
-The original  purpose of the 'module'  property is to replace  the possible long
+The original purpose of the `'module'`  property is to replace the possible long
 filepath of an entry with the much-shorter  name of a module, for which there is
 an equivalence (i.e. only one filename matches this module name and vice versa).
 
@@ -153,7 +168,7 @@ The file name is still used when jumping to the file.
 > This might  be helpful for  other languages where  there is a  clear mapping
 > between file system and **module name space** (Haskell, Python, NodeJs, etc).
 
-https://github.com/vim/vim/pull/1757#issuecomment-325200776
+<https://github.com/vim/vim/pull/1757#issuecomment-325200776>
 
 ## What's the 'pattern' property of a qf entry?
 
@@ -169,52 +184,52 @@ For more info, read:    `:h errorformat-multi-line`
 # Properties of a qfl
 ## What are the nine properties of a qfl?
 
-        • changedtick
-        • context
+   • changedtick
+   • context
 
-        • id
-        • nr
-        • idx
+   • id
+   • nr
+   • idx
 
-        • items    (qfl entries)
-        • size
-        • title
-        • winid    (id of the qf window if opened)
+   • items    (qfl entries)
+   • size
+   • title
+   • winid    (id of the qf window if opened)
 
 
 You can ask any of them via:
 
-        :echo getqflist({'key': 0})
+    :echo getqflist({'key': 0})
 
 Example, to get the size of the current qfl:
 
-        :echo getqflist({'size': 0})
+    :echo getqflist({'size': 0})
 
 ## What are the three pseudo-properties of a qfl that I can ask, but not get?
 
-        • all     (all of the properties of the qfl)
-        • efm
-        • lines
+   • all     (all of the properties of the qfl)
+   • efm
+   • lines
 
 You can ask for `'all'`:
 
-        :echo getqflist({'all': 0})
+    :echo getqflist({'all': 0})
 
 But you won't get the key `'all'` in the dictionary output.
 
 ## What are the five qfl properties I can ask, but not set?
 
-        • all
-        • changedtick
-        • idx
-        • size
-        • winid
+   • all
+   • changedtick
+   • idx
+   • size
+   • winid
 
 ## What are the three properties that a qfl in Neovim currently misses, compared to Vim?
 
-        • changedtick
-        • idx
-        • size
+   • changedtick
+   • idx
+   • size
 
 ##
 ## What's the 'context' property of a qfl?
@@ -223,7 +238,7 @@ It allows you to bind an arbitrary data (string, list, dictionary, ...) to a qfl
 
 Usage example:
 
-        call setqflist([], 'a', {'id': 3, 'context': ['foo', 'bar', 'baz']})
+    call setqflist([], 'a', {'id': 3, 'context': ['foo', 'bar', 'baz']})
 
 This command binds the list `['foo', 'bar', 'baz']` to the qfl whose identifier is 3.
 
@@ -291,8 +306,8 @@ and its unique identifier.
 
 If you need to target a qfl according to:
 
-        • its contents, use its id (because it never changes)
-        • its position in the stack, use its nr
+   • its contents, use its id (because it never changes)
+   • its position in the stack, use its nr
 
 ## How to refer to the last qfl in the stack?
 
@@ -301,41 +316,41 @@ Assign the value `'$'` to its `'nr'` property.
 ##
 ## How to get the identifier of the third qfl in the stack?
 
-        :echo get(getqflist({'nr':3, 'id':0}), 'id', 0)
-                                          ^
-                                          do NOT give `1`
+    :echo getqflist({'nr':3, 'id':0}).id
+                                  ^
+                                  do NOT give `1`
 
-                                          If you do, you probably won't get any valid info, because
-                                          there's no qfl whose id and position in the stack are 1 and 3:
+                                  If you do, you probably won't get any valid info, because
+                                  there's no qfl whose id and position in the stack are 1 and 3:
 
-                                              :echo get(getqflist({'nr':3, 'id':1}), 'id', 0)
-                                              {'nr': 0, 'id': 0} ✘~
+                                      :echo getqflist({'nr':3, 'id':1}).id
+                                      {'nr': 0, 'id': 0} ✘~
 
 ## How to get the position in the stack of the qfl whose identifier is `3`?
 
-        :echo get(getqflist({'nr':0, 'id':3}), 'nr', 0)
+    :echo getqflist({'nr':0, 'id':3}).nr
 
 Here, the purpose of `'nr':0` is not to describe the qfl in which we're interested;
 it's to force `getqflist()` to include the `'nr'` key in the output dictionary.
 
 ## How to get the entries of the first qfl in the stack?
 
-        :echo getqflist({'nr': 1, 'items': 0})
+    :echo getqflist({'nr': 1, 'items': 0})
 
 ## How to get the size of the third qfl in the stack?   The size of the stack?
 
 Size of the third qfl:
 
-        :echo get(getqflist({'nr': 3, 'size': 1}), 'size', 0)
+    :echo getqflist({'nr': 3, 'size': 1}).size
 
 Size of the qf stack:
 
-        :echo get(getqflist({'nr': '$'}), 'nr', 0)
+    :echo getqflist({'nr': '$'}).nr
 
 ##
 ## How to check whether the qfl whose ID is 123 exists?
 
-        if getqflist({'id':123}).id == 123
+    if getqflist({'id':123}).id == 123
 
 No need  of `get()`; the output  of `getqflist()` should always  contain an `id`
 key regardless of the existence of a qfl whose `id` is 123.
@@ -355,15 +370,15 @@ time it inspected the qfl.
 
 It can inspect the `'changedtick'` property:
 
-        " populate a qfl
-        let last_change = get(getqflist({'changedtick':0}), 'changedtick', 0)
-        ...
+    " populate a qfl
+    let last_change = getqflist({'changedtick':0}).changedtick
+    ...
 
-        let new_change = get(getqflist({'changedtick':0}), 'changedtick', 0)
-        if new_change != last_change
-            return
-        endif
-        ...
+    let new_change = getqflist({'changedtick':0})changedtick
+    if new_change != last_change
+        return
+    endif
+    ...
 
 
 Don't use `b:changedtick`;  the latter tracks the number of  times the qf buffer
@@ -373,10 +388,10 @@ has been modified. The qf buffer is NOT the qfl (data structure).
 # Populate a qfl from Vim
 ## What are the three commands similar to `:grep`?
 
-        :grepadd
+    :grepadd
 
-        :lgrep
-        :lgrepadd
+    :lgrep
+    :lgrepadd
 
 The commands beginning with `l` populate the loclist instead of the qfl.
 The ones finishing  with `add` APPEND the matches to  the existing list, instead
@@ -399,35 +414,35 @@ This family of commands contains 18 members (2 x 3 x 3).
 
 Their name can be broken down in 3 parts:
 
-        A + B + C
-        │   │   │
-        │   │   └ end
-        │   └ middle
-        └ beginning
+    A + B + C
+    │   │   │
+    │   │   └ end
+    │   └ middle
+    └ beginning
 
 They can:
 
-        ┌──────────────────────┬─────────┐
-        │ populate the qfl     │ A = 'c' │
-        ├──────────────────────┼─────────┤
-        │ populate the loclist │ A = 'l' │
-        └──────────────────────┴─────────┘
+    ┌──────────────────────┬─────────┐
+    │ populate the qfl     │ A = 'c' │
+    ├──────────────────────┼─────────┤
+    │ populate the loclist │ A = 'l' │
+    └──────────────────────┴─────────┘
 
-        ┌──────────────────────────────────────┬───────────┐
-        │ JUMP to the first entry              │ B = ''    │
-        ├──────────────────────────────────────┼───────────┤
-        │ NOT jump and REPLACE the list        │ B = 'get' │
-        ├──────────────────────────────────────┼───────────┤
-        │ NOT jump and ADD entries to the list │ B = 'add' │
-        └──────────────────────────────────────┴───────────┘
+    ┌──────────────────────────────────────┬───────────┐
+    │ JUMP to the first entry              │ B = ''    │
+    ├──────────────────────────────────────┼───────────┤
+    │ NOT jump and REPLACE the list        │ B = 'get' │
+    ├──────────────────────────────────────┼───────────┤
+    │ NOT jump and ADD entries to the list │ B = 'add' │
+    └──────────────────────────────────────┴───────────┘
 
-        ┌───────────────────────┬──────────────┐
-        │ read a Vim expression │ C = 'expr'   │
-        ├───────────────────────┼──────────────┤
-        │ read a file           │ C = 'file'   │
-        ├───────────────────────┼──────────────┤
-        │ read a buffer         │ C = 'buffer' │
-        └───────────────────────┴──────────────┘
+    ┌───────────────────────┬──────────────┐
+    │ read a Vim expression │ C = 'expr'   │
+    ├───────────────────────┼──────────────┤
+    │ read a file           │ C = 'file'   │
+    ├───────────────────────┼──────────────┤
+    │ read a buffer         │ C = 'buffer' │
+    └───────────────────────┴──────────────┘
 
 ## What type of argument does each of these commands expect?
 
@@ -435,9 +450,9 @@ It depends on the middle part of its name.
 
 If it's:
 
-        • 'expr'    the command expects an expression
-        • 'file'    "                   a file name
-        • 'buffer'  "                   a buffer number
+    • 'expr'    the command expects an expression
+    • 'file'    "                   a file name
+    • 'buffer'  "                   a buffer number
 
 ##
 ## What are the seven steps occurring when I execute `:make`?
@@ -449,13 +464,13 @@ If it's:
 3. Vim creates a temporary error file
 
 4. Vim passes to the shell  `'shell'` the program `'mp'` + the optional
-   arguments passed to `:make`.
+arguments passed to `:make`.
 
-   The output of `'mp'` is redirected into the error file via `'shellpipe'`.
+The output of `'mp'` is redirected into the error file via `'shellpipe'`.
 
 5. Vim parses the error file via 'efm' to populate the qfl.
 
-           :h error-file-format
+       :h error-file-format
 
 6. Vim executes the autocmds listening to `QuickFixCmdPost`
 
@@ -463,19 +478,19 @@ If it's:
 
 ## What command is similar to `:make`?
 
-        :lmake
+    :lmake
 
 ##
 ## How to look for `pat` in the buffer 1-10?
 
-        :cexpr []
-        :sil! noa 1,10bufdo [l]vimgrepadd /pat/gj %
-            │ │
-            │ └ see # Issues
-            │
-            └ if the pattern is absent from a buffer, it will raise an error,
-              which could prevent `:bufdo` from finishing visiting the next buffers
-              inside the range
+    :cexpr []
+    :sil! noa 1,10bufdo [l]vimgrepadd /pat/gj %
+        │ │
+        │ └ see # Issues
+        │
+        └ if the pattern is absent from a buffer, it will raise an error,
+          which could prevent `:bufdo` from finishing visiting the next buffers
+          inside the range
 
 
 To search in all the buffers, remove the range in front of `:bufdo`.
@@ -486,21 +501,21 @@ complete way.
 
 ## How to look for `pat` in ALL (any depth) `.c` and `.h` files of `:pwd`?
 
-        :[l]vim /pat/gj **/*.[ch]
-                     ││
-                     │└ don't jump to the first entry
-                     │
-                     └ if there're several occurrences on the same line, get all of them
+    :[l]vim /pat/gj **/*.[ch]
+                 ││
+                 │└ don't jump to the first entry
+                 │
+                 └ if there're several occurrences on the same line, get all of them
 
 ## How to look for `pat` in the subdirectories ending with `.d/` inside `/etc/apt`?
 
-                               ┌ no need to escape the dot;
-                               │ in a FILE pattern:
-                               │
-                               │     • dot is not interpreted as a meta character
-                               │     • `?` matches any single character
-                               │
-        :[l]vim /pat/gj /etc/**.d
+                           ┌ no need to escape the dot;
+                           │ in a FILE pattern:
+                           │
+                           │     • dot is not interpreted as a meta character
+                           │     • `?` matches any single character
+                           │
+    :[l]vim /pat/gj /etc/**.d
 
 
 `:[l]vim` expects file names, not directory names.
@@ -508,21 +523,21 @@ And yet, here, `/etc/**.d` matches directories, not files.
 This probably  shows that, when necessary,  Vim automatically appends `/*`  to a
 pattern:
 
-        :[l]vim /pat/gj /etc/**.d
+    :[l]vim /pat/gj /etc/**.d
 
-                    ⇔
+                ⇔
 
-        :[l]vim /pat/gj /etc/**.d/*
-                                 ^^
+    :[l]vim /pat/gj /etc/**.d/*
+                             ^^
 
 ## How to look for `pat` in all the files of `:pwd`, changed in the last hour?
 
-                                                ┌  backtick expansion:
-                                                │  expanded into the output of `$ find ...`
-                        ┌───────────────────────┤
-        :[l]vim /pat/gj `find . -type f -cmin -60`
-                              │
-                              └ matches the output of `:pwd`, NOT `$PWD`
+                                            ┌  backtick expansion:
+                                            │  expanded into the output of `$ find ...`
+                    ┌───────────────────────┤
+    :[l]vim /pat/gj `find . -type f -cmin -60`
+                          │
+                          └ matches the output of `:pwd`, NOT `$PWD`
 
 Whenever you  want to look  for a pattern  in a set of  files which can  only be
 defined by a shell command, use a backtick expansion.
@@ -532,35 +547,35 @@ About `$ find`:
 
 There are six options similar to `-cmin`.
 
-        -amin
-        -atime
-        -mmin
-        -mtime
-        -cmin
-        -ctime
+    -amin
+    -atime
+    -mmin
+    -mtime
+    -cmin
+    -ctime
 
 The `a`, `m` and `c` prefixes stand for “access”, “modification”, and “change”.
 
 A file is:
 
- - accessed as soon as the user or a process opens it
- - modified as soon as its contents is altered
- - changed  as soon as its contents or its file attributes are altered
+- accessed as soon as the user or a process opens it
+- modified as soon as its contents is altered
+- changed  as soon as its contents or its file attributes are altered
 
 When an option ends with the suffix:
 
-        • min     the following number is interpreted as a duration in minutes
-        • time    the "                                                days
+    • min     the following number is interpreted as a duration in minutes
+    • time    the "                                                days
 
 ##
 ## How to parse all the lines containing `pat` in the current buffer to populate the qfl?
 
-        :cexpr []
+    :cexpr []
 
 
-         ┌ see # Issues
-         │
-        :noa g/pat/.caddbuffer
+     ┌ see # Issues
+     │
+    :noa g/pat/.caddbuffer
 
 
 It should work if the lines can be parsed by at least one format in `'efm'`.
@@ -568,16 +583,16 @@ It should work if the lines can be parsed by at least one format in `'efm'`.
 But if they don't, you'll need to transform them so that they can be parsed.
 For example, assuming your lines look like this:
 
-        /path/to/some/file@line number@message
+    /path/to/some/file@line number@message
 
 And you want them to be parsable by the format `'%f:%l:%m'`, you could try:
 
-        :noa g/pat/caddexpr substitute(getline('.'), '@', ':', 'g')
+    :noa g/pat/caddexpr substitute(getline('.'), '@', ':', 'g')
 
 ## How to parse the output of a shell command and get a qfl, without modifying the qf stack?
 
-        echo getqflist({ 'lines': systemlist('# shell cmd'),
-        \                'efm':   '{format}'})
+    echo getqflist({ 'lines': systemlist('# shell cmd'),
+    \                'efm':   '{format}'})
 
 
 When  you pass  the optional  dictionary `{'lines':  ...}` to  `getqflist()`, it
@@ -586,10 +601,10 @@ The value associated to this key is a list of sub-dictionaries.
 
 Each of them contains some information about an entry in the qfl:
 
-        • line
-        • column
-        • text
-        • ...
+    • line
+    • column
+    • text
+    • ...
 
 For Vim to  parse the output of  the shell command, it needs  to create unlisted
 buffers to read the files where there's at least one entry.
@@ -602,12 +617,12 @@ Without the `'efm'` key, Vim will use the `'efm'` option.
 ##
 ## How to populate the qfl with a grep-like shell command different than `&grepprg`?
 
-        :cgetexpr system('grep-like cmd')
+    :cgetexpr system('grep-like cmd')
 
 ## How to populate a valid qfl with `$ find /etc -name '*conf'` without altering the 'efm' option?
 
-        let qfl = getqflist({ 'lines': systemlist('find /etc/ -name "*.conf"'),
-        \                     'efm':   '%f'})
+        let qfl = getqflist({'lines': systemlist('find /etc/ -name "*.conf"'),
+            \                'efm':   '%f'})
         call setqflist(get(qfl, 'items', []))
         cw
 
@@ -1351,21 +1366,69 @@ Example 2:
 ##
 #
 # TODO
-# Document that you can set the current entry in the qfl via `setqflist()` and the `'idx'` property.
+# ?
+
+Try to remove `get()` whenever you can.
+You've used it too much in the past to access the value of a qfl property.
+
+Search for `\C\<get(` in this file and in all our notes/plugins/...
+
+You  may find  a lot  of matches,  but don't  worry (`:Cfilter  -other_plugins`)
+removes a lot of them.
+
+# ?
+
+We've  made  a   fundamental  mistake  in  the  past,  every   time  we've  used
+`setqflist()` or `setloclist()`.
+
+MWE:
+
+    :CFreeStack
+    :exe 'helpg vim' | exe 'helpg fast' | exe 'helpg unix' | exe 'helpg text' | exe 'helpg editor'
+    :col 3
+    :chi
+    :call setqflist([], ' ')
+    :chi
+
+When you invoke `setqflist()`, all the qfl after the current one are removed.
+That's why `vim-asyncmake` sets the `nr` property to `$`:
+
+    call setqflist([], ' ', {'nr': '$',
+    ...
+
+---
+
+The same issue exists whenever we've executed `:make`, `:grep`, `:vimgrep`, ...
+
+Before executing any of  those commands, you should make sure  you're at the top
+of the stack:
+
+    :let stack_size = getqflist({'nr': '$'}).nr
+    :let current_qfl = getqflist({'nr': 0}).nr
+    :exe (stack_size - current_qfl).'cnewer'
+
+Maybe you should  use a library function (`lg#...()`), which  would take care of
+all those kind of details, and would  set the qfl without altering the stack too
+much.
+
+    :Vim :[cl]\%(add\|get\)\=\%(expr\|file\|buffer\)\|l\=make\|l\=vim\%[grep]\%(add\)\=\>.*/[^/]*/[gj]\{1,2}:gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
+    :Cfilter! -tmp -commented -other_plugins
+
+# Document that you can set the current entry in the qfl via `setqflist()` and the 'idx' property.
 
 https://github.com/vim/vim/pull/3701
 
 # Talk about the 'filewinid' property of a location window.
 
 See `:h getloclist()`.
-See also one of our TO_DO in:
+See also one of our TO DO in:
 
         ~/.vim/plugged/vim-lg-lib/autoload/lg/window.vim
 
 'filewinid' can  help simplify the  code which  is responsible for  focusing the
 window associated to the current location window when we press `z[`.
 
-## If I remove `tee`  from `'sp'`, the output of the shell  command is still echoed...
+## If I remove `tee`  from 'sp', the output of the shell  command is still echoed...
 to the screen, when I execute `:grep! pat /etc`. Why?
 
 Update:
@@ -1517,6 +1580,7 @@ Also, maybe we should integrate `:CGrepBuffer` into the cycle `C-g c`.
 Remove `:PA` and `:PQ` once you've finished studying all these commands.
 
 ## Why does `:4verbose cexpr system('')` corrupts the display?
+
 The statusline position moves when we move the cursor.
 
 Update:
@@ -1526,6 +1590,15 @@ See this:
         :lh \<mess\%[ed]\>
 
 Make a summary of those circumstances, and document it.
+
+Update:
+
+To reproduce the issue, you need to do that:
+
+    $ vim -Nu NONE +'set laststatus=2' +'helpg vim'
+    :q
+    :4verb cexpr system('')
+    " insert some text, and watch the status line
 
 ## Suppose we have 5 qfl, why does this command remove the fourth and fifth qfl? ...
 
