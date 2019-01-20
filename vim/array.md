@@ -55,8 +55,18 @@ with a space; otherwise, Vim may wrongly interpret it as a scope.
 `-3` = third item from the end
 ...
 
-###
-## How to get the first item in `list` which matches `pat`?
+##
+## What's the output of `echo [4] == ['4']`?
+
+`0`
+
+### What can you infer from this result?
+
+Vim does no coercition when comparing lists.
+
+##
+## Getting info
+### How to get the first item in `list` which matches `pat`?
 
     echo matchstr(list, pat)
 
@@ -65,7 +75,7 @@ with a space; otherwise, Vim may wrongly interpret it as a scope.
     echo matchstr(['foo', 'bar', 'baz'], '^b')
     bar~
 
-## How to get the index of the first item in `list` which matches `pat`?
+### How to get the index of the first item in `list` which matches `pat`?
 
     echo match(list, pat)
 
@@ -74,8 +84,7 @@ with a space; otherwise, Vim may wrongly interpret it as a scope.
     echo match(['foo', 'bar', 'baz'], '^b')
     1~
 
-###
-## How to get the number of occurrences of a value in a list?
+### How to get the number of occurrences of a value in a list?
 
 Use `count()`:
 
@@ -90,32 +99,8 @@ Use `count()`:
 The `l` character is present twice in `['h', 'e', 'l', 'l', 'o']`.
 
 ##
-## What's the output of `echo [4] == ['4']`?
-
-`0`
-
-### What can you infer from this result?
-
-Vim does no coercition when comparing lists.
-
-##
-## How to get the list of numbers
-### multiple of `5` from `20` up to `40`?
-
-               ┌ start
-               │   ┌ end
-               │   │   ┌ step
-               │   │   │
-    echo range(20, 40, 5)
-    [20, 25, 30, 35, 40]~
-
-### from `2` to `-2`, in decreasing order?
-
-    echo range(2, -2, -1)
-    [2, 1, 0, -1, -2]~
-
-##
-## How to initialize a list of length `5`, all items being `0`?
+## Initializing
+### How to initialize a list of length `5`, all items being `0`?
 
 Use `map()` + `range()`:
 
@@ -127,12 +112,28 @@ Or `repeat()`:
     echo repeat([0], 5)
     [0, 0, 0, 0, 0]~
 
-## How to initialize a table whose size is `4` rows times `3` columns, all items being `0`?
+### How to initialize a table whose size is `4` rows times `3` columns, all items being `0`?
 
 Use `map()` + `range()`:
 
     echo map(range(4), 'map(range(3), 0)')
     [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]~
+
+##
+### How to get the list of numbers
+#### multiple of `5` from `20` up to `40`?
+
+               ┌ start
+               │   ┌ end
+               │   │   ┌ step
+               │   │   │
+    echo range(20, 40, 5)
+    [20, 25, 30, 35, 40]~
+
+#### from `2` to `-2`, in decreasing order?
+
+    echo range(2, -2, -1)
+    [2, 1, 0, -1, -2]~
 
 ##
 ## Removing
@@ -535,6 +536,22 @@ It allows the usage of:
         dict[var]
 
 ##
+## Getting info
+### How to get the number of occurrences of a value in a dictionary?
+
+Use `count()`:
+
+    echo count(dict, val)
+
+---
+
+    let dict = {'a': 1, 'b': 2, 'c': 3}
+    echo count(dict, 3)
+    1~
+
+The value `3` is present once in the the dictionary.
+
+##
 ## Adding
 ### How to add all the items of a dictionary to another dictionary?
 
@@ -636,21 +653,6 @@ Use `filter()` and a condition inspecting the key (`k`):
     {'abcd': 3, 'ab': 1}~
 
 Here, you removed all the items whose keys didn't begin with `a`.
-
-###
-## How to get the number of occurrences of a value in a dictionary?
-
-Use `count()`:
-
-    echo count(dict, val)
-
----
-
-    let dict = {'a': 1, 'b': 2, 'c': 3}
-    echo count(dict, 3)
-    1~
-
-The value `3` is present once in the the dictionary.
 
 ##
 ## I have a list of words.  What's the most efficient way to build a dictionary of words frequencies?
