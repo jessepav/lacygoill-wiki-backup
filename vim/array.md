@@ -6,7 +6,7 @@ A non-scalar data: a list or a dictionary.
 # Lists
 ## How is a negative index argument interpreted by a function handling a list?
 
-The argument is used to retrieve an item from the end of the list.
+The argument is used to target an item from the end of the list.
 
 `-1` = last item
 `-2` = second item from the end
@@ -18,7 +18,7 @@ The argument is used to retrieve an item from the end of the list.
 
     echo matchstr(list, pat)
 
-Example:
+---
 
     echo matchstr(['foo', 'bar', 'baz'], '^b')
     bar~
@@ -27,7 +27,7 @@ Example:
 
     echo match(list, pat)
 
-Example:
+---
 
     echo match(['foo', 'bar', 'baz'], '^b')
     1~
@@ -49,6 +49,41 @@ The `l` character is present twice in `['h', 'e', 'l', 'l', 'o']`.
 `0`
 
 Vim does no coercition when comparing lists.
+
+##
+## How to get the list of numbers multiple of `5` from `20` up to `40`?
+
+               ┌ start
+               │   ┌ end
+               │   │   ┌ step
+               │   │   │
+    echo range(20, 40, 5)
+    [20, 25, 30, 35, 40]~
+
+## How to get the list of numbers from `2` to `-2`, in decreasing order?
+
+    echo range(2, -2, -1)
+    [2, 1, 0, -1, -2]~
+
+##
+## How to initialize a list of length `5`, all items being `0`?
+
+Use `map()` + `range()`:
+
+    echo map(range(5), 0)
+    [0, 0, 0, 0, 0]~
+
+Or `repeat()`:
+
+    echo repeat([0], 5)
+    [0, 0, 0, 0, 0]~
+
+## How to initialize a table whose size is `4` rows times `3` columns, all items being `0`?
+
+Use `map()` + `range()`:
+
+    echo map(range(4), 'map(range(3), 0)')
+    [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]~
 
 ##
 ## What is slicing?
@@ -104,15 +139,66 @@ Use an assignment: in the lhs, use slicing; in the rhs use, a list of values.
     [1, 'a', 'b', 4]~
 
 ###
-## How to add an item in front of a list?
+## Removing
+### How to remove the item `garbage` from `list`?  (2)
 
-Use `insert()`:
+Use `:unlet` or `remove()`:
 
-    let list = [1, 2]
-    echo insert(list, 'a')
-    ['a', 1, 2]~
+    unlet list[idx]
 
-## How to add an item at the end of a list?
+    call remove(list, idx)
+
+---
+
+    let list = ['a', 'garbage', 'b']
+    unlet list[1]
+    echo list
+    ['a', 'b']~
+
+    let list = ['a', 'garbage', 'b']
+    call remove(list, 1)
+    echo list
+    ['a', 'b']~
+
+### How to remove all the items from `list` beyond the index `2`?  (2)
+
+    unlet list[2:]
+
+    call remove(list, 2, -1)
+
+---
+
+    let list = ['a', 'b', 'foo', 'bar', 'baz']
+    unlet list[2:]
+    echo list
+    ['a', 'b']~
+
+    let list = ['a', 'b', 'foo', 'bar', 'baz']
+    call remove(list, 2, -1)
+    echo list
+    ['a', 'b']~
+
+### How to remove the item `garbage` from a list, not knowing its position?
+
+Use `index()` + `remove()`:
+
+    call remove(list, index(list, 'garbage'))
+
+---
+
+    let list = ['a', 'garbage', 'b']
+    call remove(list, index(list, 'garbage'))
+    echo list
+    ['a', 'b']~
+
+### What's the output of `remove()`?
+
+Whatever was removed.
+
+##
+## Adding
+### How to add an item
+#### at the end of a list?
 
 Use `add()`:
 
@@ -123,7 +209,7 @@ Use `add()`:
 
 Note that `add()` operates in-place.
 
-### Can this be used to concatenate lists?
+##### Can this be used to concatenate lists?
 
 No.
 
@@ -132,8 +218,44 @@ No.
     echo list
     [1, 2, [3, 4]]~
 
-##
-## How to concatenate lists?  (2)
+###
+#### in front of a list?
+
+Use `insert()` and no index (third optional argument):
+
+    let list = [1, 2]
+    echo insert(list, 'a')
+    ['a', 1, 2]~
+
+#### in the middle of a list?
+
+Use `insert()` and  the index of the item  after which you want your  item to be
+inserted:
+
+    let list = ['a', 'c']
+    echo insert(list, 'b', 1)
+    ['a', 'b', 'c']~
+
+#### before the last item of a list?
+
+Use `insert()` and the index `-1`:
+
+    let list = ['a', 'b', 'd']
+    echo insert(list, 'c', -1)
+    ['a', 'b', 'c', 'd']~
+
+---
+
+Note that `-1` doesn't mean “right after the last item”, but “right *before* the
+last item”.
+
+More generally, `insert()` interprets:
+
+   • a positive index as: right *after* the index
+   • a negative index as: right *before* the index
+
+###
+### How to concatenate lists?  (2)
 
     let list = [1, 2, 3]
     echo list + [4, 5]
@@ -143,7 +265,7 @@ No.
     echo extend(list, [4, 5])
     [1, 2, 3, 4, 5]~
 
-### What's the difference between the 2 methods?
+#### What's the difference between the 2 methods?
 
 The `+` operator doesn't alter any existing list:
 
@@ -168,8 +290,22 @@ But not the second one:
     echo blist
     [3, 4]~
 
-###
-## How to rotate the items of a list to the left?
+####
+### How to insert some list inside another list, at an arbitrary position?
+
+Use `extend()`:
+
+    let alist = ['a', 'd']
+    let blist = ['b', 'c']
+    echo extend(alist, blist, 1)
+    ['a', 'b', 'c', 'd']~
+
+The third argument  is the index of  the item in the first  list, *before* which
+you want the items of the second list to be inserted.
+
+##
+## Transforming
+### How to rotate the items of a list to the left?
 
 Use a combination of  `add()` and `remove()`, to move the first  item to the end
 of the list.
@@ -179,7 +315,7 @@ of the list.
     call add(a, remove(a, 0))
     echo a
 
-### to the right?
+#### to the right?
 
 Use a  combination of `insert()`  and `remove()`, to move  the last item  to the
 beginning of the list.
@@ -187,9 +323,9 @@ beginning of the list.
     call insert(a, remove(a, -1), 0)
     echo a
 
-###
-## Without altering the rest of a list, how to
-### increase a number item?
+####
+### Without altering the rest of a list, how to
+#### increase a number item?
 
 Use an assignment: in the lhs, use the index of the item you want to change; and
 use the `+=` operator.
@@ -201,7 +337,7 @@ use the `+=` operator.
 
 This works because a list is a mutable object.
 
-### concatenate a string to a string item?
+#### concatenate a string to a string item?
 
 Use an assignment: in the lhs, use the index of the item you want to change; and
 use the `.=` operator.
@@ -211,9 +347,10 @@ use the `.=` operator.
     echo list
     ['a', 'b_x', 'c']~
 
-##
-## What's the output of the last command in these snippets?
-### 1:
+###
+### Mutation
+#### What's the output of the last command in these snippets?
+##### 1:
 
     fu! Increment(list, i)
         let a:list[a:i] += 1
@@ -224,7 +361,7 @@ use the `.=` operator.
 
 ↣ [0, 0, 1] ↢
 
-### 2:
+##### 2:
 
     fu! Increment(list, i)
         let a:list[a:i] += 1
@@ -243,7 +380,7 @@ Note that the list name changed inside the function (`counts` → `list`).
 But it doesn't matter: `counts` has still mutated.
 ↢
 
-### 3:
+##### 3:
 
     fu! Func()
         let list = [1, 2, 3]
@@ -259,8 +396,8 @@ But it doesn't matter: `counts` has still mutated.
 
 ↣ 42 ↢
 
-###
-### How do you explain these results?
+#####
+##### How do you explain these results?
 
 The lists have mutated because Vim passes arrays by reference, not by value.
 `Increment()`  received a  reference  of `list`  in the  first  snippet, and  of
@@ -271,13 +408,67 @@ The number has not been altered because Vim passes scalars by value.
 It  seems  that  Vim behaves  like  awk:  scalars  are  passed by  value,  while
 non-scalar values are passed by reference.
 
-### What are the two properties of arrays, without which these results would not be possible?
+##### What are the two properties of arrays, without which these results would not be possible?
 
    1. an array is mutable
    2. an array is passed by reference
 
-##
-## Which list is unable to mutate?
+####
+#### Does `let blist = alist` create a copy of `alist`?
+
+No.
+
+`blist` and `alist` share the same reference.
+Any change you perform on `blist` will affect `alist`.
+
+    let alist = [1, 2]
+    let blist = alist
+    let blist[1] += 1
+    echo alist
+    [1, 3]~
+
+#### How to make a copy?
+
+If the items of the list are scalars, use `copy()`:
+
+    let alist = [1, 2]
+    let blist = copy(alist)
+    let blist[1] += 1
+    echo alist
+    [1, 2]~
+
+If the items of the list are non-scalars, use `deepcopy()`:
+
+    let alist = [1, [2,3]]
+    let blist = copy(alist)
+    let blist[1][1] += 1
+    echo alist
+    [1, [2, 4]]~
+    ✘
+
+    let alist = [1, {'n': 2}]
+    let blist = copy(alist)
+    let blist[1].n += 1
+    echo alist
+    [1, {'n': 3}]~
+    ✘
+
+    let alist = [1, [2,3]]
+    let blist = deepcopy(alist)
+    let blist[1][1] += 1
+    echo alist
+    [1, [2, 3]]~
+    ✔
+
+    let alist = [1, {'n': 2}]
+    let blist = deepcopy(alist)
+    let blist[1].n += 1
+    echo alist
+    [1, {'n': 2}]~
+    ✔
+
+####
+#### Which list is unable to mutate?
 
 `a:000` can't mutate:
 
@@ -287,142 +478,103 @@ non-scalar values are passed by reference.
     echo Func(1, 2, 3)
     E742: Cannot change value of map() argument~
 
-##
-# ?
-
-    echo insert(list, item, idx)
-
-Ajoute `item` à `list` en index:
-
-   • `idx`        s'il est positif ou nul
-   • `idx` - 1    s'il est négatif
-
-L'index peut aller jusqu'à `len(list)`, mais pas au-delà.
-Pex, si la longueur de `list` est 4, on peut écrire:
-
-        let list = [1, 2, 3, 4]
-        echo insert(list, 5, 4)
-        [1, 2, 3, 4, 5]    ✔~
-
-... mais pas:
-
-        echo insert(list, 5, 5)    ✘
-
-# ?
-
-    let list2 = copy(list1)
-
-Affecte à `list2` une copie superficielle (shallow) de `list1`.
-
-Utile pour pouvoir manipuler une copie d'une liste sans modifier l'originale.
-Ex ici:
-
-<http://vi.stackexchange.com/a/7428/6960>
-
-En effet:
-
-    let list2 = list1
-
-ne duplique  pas la donnée contenue  dans `list1`; `list2` et  `list1` partagent
-une même référence.
-Ceci  implique que  si  on modifie  plus tard  `list2`,  `list1` est  elle-aussi
-modifiée.
-
-Si  un des  items de  `list1`  est lui-même  une liste,  appelons-la sublist  et
-donnons-lui l'index  `0`, son  contenu n'est pas  dupliqué dans  `list2`, malgré
-l'utilisation de `copy()`.
-Ce qui est dupliqué dans `list2`, c'est la référence vers sublist.
-
-Ceci implique que si on modifie un item de sublist à l'intérieur de `list2`, pex
-comme ceci:
-
-    let list2[0][0] = new_value
-
-...  on modifie  par  la même  occasion `list1`,  car  `list1[0]` et  `list2[0]`
-partagent une même référence.
-
-# ?
-
-    let list2 = deepcopy(list1)
-
-Affecte à `list2` une copie profonde (deep) de `list1`.
-
-Contrairement à la fonction  `copy()`, si un des items de  `list1` est une liste
-(appelons-la sublist),  `deepcopy()` ne duplique  pas la référence  vers sublist
-mais bien la donnée sublist elle-même.
-
-# ?
-
-    echo extend(alist, blist, idx)
-
-Intègre blist dans `alist`,  de telle façon que le 1er item de  `blist` y a pour
-index `idx`.
-
-# ?
-
-    echo index(list, item)
-
-Retourne l'index de item au sein de `list` (`-1` s'il n'est pas dedans).
-
-# ?
-
-               ┌ start
-               │  ┌ end
-               │  │  ┌ step
-               │  │  │
-    echo range(2, 9, 3)
-    [2, 5, 8]~
-
-# ?
-
-    echo range(2, -2, -1)
-    [2, 1, 0, -1, -2]~
-
-# ?
-
-Remove the item whose index is `3`:
-
-    unlet list[3]
-    echo list
-
-    call remove(list, 3)
-    echo list
-
-Remove the items whose indexes are greater than `3`:
-
-    unlet list[3:]
-    echo list
-
-    call remove(list, 3, -1)
-    echo list
-
-Remove the items `foo`:
-
-    call remove(list, index(list, 'foo'))
-    echo list
-
-`remove()` returns whatever was removed.
-
-# ?
-
-    echo repeat([0], 4)
-    echo map(range(4), 0)
-    [0, 0, 0, 0]~
-
-`repeat()` permet de répéter des chaînes et des listes.
-
-# ?
-
-    echo map(range(3), 'map(range(2), 0)')
-    [[0, 0], [0, 0], [0, 0]]~
-
-Une imbrication de `map()` permet d'initialiser une liste de listes (matrice).
-
-##
-##
-##
+###
 # Dictionaries
+## What are the benefits of the syntax `dict['key']` over `dict.key`?
+
+It allows the usage of:
+
+   • more characters
+
+   • a key whose name is the evaluation a variable
+
+        ✘
+        dict.var
+
+        ✔
+        dict[var]
+
+##
+## Adding
+### How to add all the items of a dictionary to another dictionary?
+
+Use `extend()`:
+
+    let adict = {'one': 1, 'two': 2}
+    let bdict = {'three': 3, 'four': 4}
+    echo extend(adict, bdict)
+    {'four': 4, 'one': 1, 'two': 2, 'three': 3}~
+
+### In case of conflict between two keys with different values, how to
+#### keep the value of the first dictionary?
+
+Use the optional third argument `keep`:
+
+    let adict = {'one': 1, 'two': 2}
+    let bdict = {'one': 4, 'three': 3}
+    echo extend(adict, bdict, 'keep')
+    {'one': 1, 'two': 2, 'three': 3}~
+
+#### raise an error?
+
+Use the optional third argument `error`:
+
+    let adict = {'one': 1, 'two': 2}
+    let bdict = {'one': 4, 'three': 3}
+    echo extend(adict, bdict, 'error')
+    E737: Key already exists: one~
+
+##
+## Removing
+### How to remove an item from a dictionary knowing its key?  (2)
+
+Use `:unlet` or `remove()`:
+
+    let dict = {'one': 1, 'two': 2}
+    unlet dict.two
+    echo dict
+    {'one': 1}~
+
+    let dict = {'one': 1, 'two': 2}
+    call remove(dict, 'two')
+    echo dict
+    {'one': 1}~
+
+### What is the output of `remove()`?
+
+The *value* (!= item) of the removed key.
+
+    let dict = {'one': 1, 'two': 2}
+    let var = remove(dict, 'two')
+    echo var
+    2~
+
+##
+### How to remove all the items of a dictionary, based on a condition on
+#### its values?
+
+Use `filter()` and a condition inspecting the value (`v`):
+
+    let dict = {'ab': 1, 'cd': 2, 'abcd': 3}
+    echo filter(dict, {k,v -> v > 1})
+    {'abcd': 3, 'cd': 2}~
+
+Here, you removed all the items whose values were not greater than `1`.
+
+#### its keys?
+
+Use `filter()` and a condition inspecting the key (`k`):
+
+    let dict = {'ab': 1, 'cd': 2, 'abcd': 3}
+    echo filter(dict, {k,v -> k =~# '^a'})
+    {'abcd': 3, 'ab': 1}~
+
+Here, you removed all the items whose keys didn't begin with `a`.
+
+###
 ## How to get the number of occurrences of a value in a dictionary?
+
+Use `count()`:
 
     let dict = {'a': 1, 'b': 2, 'c': 3}
     echo count(dict, 3)
@@ -482,91 +634,4 @@ Indeed, assuming your list contains 10  unique words, you would invoke `count()`
 And  assuming  you have  100  words  in total,  each  time,  it would  make  100
 comparisons  to  get  the  number  of  occurrences  of  the  word:  that's  1000
 comparisons in total.
-
-##
-##
-##
-# ?
-
-    echo extend(adict, bdict, 'keep')
-
-Ajoute toutes les entrées de `bdict` à `adict`.
-
-Le 3e  argument optionnel indique  à `extend()`  ce qu'il faut  faire lorsqu'une
-entrée de `bdict` contient une clé déjà présente dans `adict`:
-
-    ┌─────────┬──────────────────────────────────────────────────────────────────────────────────┐
-    │ 'keep'  │ conserver l'entrée de `adict`                                                    │
-    ├─────────┼──────────────────────────────────────────────────────────────────────────────────┤
-    │ 'force' │ la remplacer par celle de `bdict` (valeur par défaut si le 3e argument est omis) │
-    ├─────────┼──────────────────────────────────────────────────────────────────────────────────┤
-    │ 'error' │ produire un message d'erreur                                                     │
-    └─────────┴──────────────────────────────────────────────────────────────────────────────────┘
-
-`extend()` n'est nécessaire que pour fusionner 2 dicos.
-Pour ajouter une nouvelle entrée, un `let dict.key = 'value'` suffit.
-
-# ?
-
-    let dict = {'ab': 1, 'cd': 2, 'abcd': 3}
-    echo filter(dict, {k,v -> k =~# '^a'})
-    {'abcd': 3, 'ab': 1}~
-
-Retourne le dictionnaire après lui avoir supprimé  tous les items dont la clé ne
-commence pas par `a`.
-
-# ?
-
-    echo get(dict, 'key', -1)
-
-Retourne la  valeur de l'item dont  la clé est  `key` dans `dict`, et  `-1` s'il
-n'existe pas.
-
-# ?
-
-    echo has_key(dict, 'foo')
-
-Retourne `1` si la clé `foo` est présente dans dict, `0` autrement.
-
-# ?
-
-    let uk2fr = {'one': 'un', 'two': 'deux', 'three': 'trois',}
-
-Exemple de définition d'un dictionnaire.
-La forme générique étant:
-
-    {<key> : <value>, ...}
-
-# ?
-
-    let dict['key'] = 'value'
-    let dict.key = 'value'
-
-Assigne à la clé `key` de dict la valeur `value`.
-Si aucune entrée n'utilise la clé `key`, elle est créée.
-
-# ?
-
-    dict['foo']
-    dict.foo
-
-Retourne la valeur associée à la clé `foo` du dictionnaire `dict`.
-
-La 1e syntaxe autorise l'utilisation d'une plus grande variété de caractères (en
-plus de ascii, chiffres et `_`).
-De plus, elle permet l'évaluation automatique d'une variable stockant une clé:
-
-    dict[myvar] ✔
-    dict.myvar ✘
-
-# ?
-
-    unlet dict.key
-    echo remove(dict, key)
-
-Supprime l'entrée de `dict` contenant la clé `key`.
-
-`remove()` retourne l'entrée supprimée qu'on peut ainsi capturer dans une variable:
-
-    let myvar = remove(dict, key)
 

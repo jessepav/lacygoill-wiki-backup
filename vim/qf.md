@@ -1368,6 +1368,11 @@ Example 2:
 # TODO
 # ?
 
+Install a `!j` mapping which would open an interactive window, in which we could
+see all the running jobs, and stop them.
+
+# ?
+
 Try to remove `get()` whenever you can.
 You've used it too much in the past to access the value of a qfl property.
 
