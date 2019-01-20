@@ -4,88 +4,6 @@ A non-scalar data: a list or a dictionary.
 
 ##
 # Lists
-## How is a negative index argument interpreted by a function handling a list?
-
-The argument is used to target an item from the end of the list.
-
-`-1` = last item
-`-2` = second item from the end
-`-3` = third item from the end
-...
-
-###
-## How to get the first item in `list` which matches `pat`?
-
-    echo matchstr(list, pat)
-
----
-
-    echo matchstr(['foo', 'bar', 'baz'], '^b')
-    bar~
-
-## How to get the index of the first item in `list` which matches `pat`?
-
-    echo match(list, pat)
-
----
-
-    echo match(['foo', 'bar', 'baz'], '^b')
-    1~
-
-###
-## How to get the number of occurrences of a value in a list?
-
-Use `count()`:
-
-    let list = split('hello', '\zs')
-    echo count(list, 'l')
-    2~
-
-The `l` character is present twice in `['h', 'e', 'l', 'l', 'o']`.
-
-##
-## What's the output of `echo [4] == ['4']`?
-
-`0`
-
-Vim does no coercition when comparing lists.
-
-##
-## How to get the list of numbers multiple of `5` from `20` up to `40`?
-
-               ┌ start
-               │   ┌ end
-               │   │   ┌ step
-               │   │   │
-    echo range(20, 40, 5)
-    [20, 25, 30, 35, 40]~
-
-## How to get the list of numbers from `2` to `-2`, in decreasing order?
-
-    echo range(2, -2, -1)
-    [2, 1, 0, -1, -2]~
-
-##
-## How to initialize a list of length `5`, all items being `0`?
-
-Use `map()` + `range()`:
-
-    echo map(range(5), 0)
-    [0, 0, 0, 0, 0]~
-
-Or `repeat()`:
-
-    echo repeat([0], 5)
-    [0, 0, 0, 0, 0]~
-
-## How to initialize a table whose size is `4` rows times `3` columns, all items being `0`?
-
-Use `map()` + `range()`:
-
-    echo map(range(4), 'map(range(3), 0)')
-    [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]~
-
-##
 ## What is slicing?
 
 The process of getting a sublist by appending a list with a range of indexes:
@@ -93,7 +11,7 @@ The process of getting a sublist by appending a list with a range of indexes:
     echo range(1,5)[1:-2]
     [2, 3, 4]~
 
-## On which condition does slicing work as expected?  (2)
+### On which condition does it work as expected?  (2)
 
 The indexes in the range describe two items.
 The first item must come *before* the second one.
@@ -129,16 +47,94 @@ with a space; otherwise, Vim may wrongly interpret it as a scope.
     echo range(1,3)[s : e]
     [1, 2, 3]~
 
-## How to change the value of a range of consecutive items in a list in a single statement?
+###
+## How is a negative index argument interpreted by a function handling a list?
 
-Use an assignment: in the lhs, use slicing; in the rhs use, a list of values.
-
-    let list = range(1,4)
-    let list[1:2] = ['a', 'b']
-    echo list
-    [1, 'a', 'b', 4]~
+`-1` = last item
+`-2` = second item from the end
+`-3` = third item from the end
+...
 
 ###
+## How to get the first item in `list` which matches `pat`?
+
+    echo matchstr(list, pat)
+
+---
+
+    echo matchstr(['foo', 'bar', 'baz'], '^b')
+    bar~
+
+## How to get the index of the first item in `list` which matches `pat`?
+
+    echo match(list, pat)
+
+---
+
+    echo match(['foo', 'bar', 'baz'], '^b')
+    1~
+
+###
+## How to get the number of occurrences of a value in a list?
+
+Use `count()`:
+
+    echo count(list, val)
+
+---
+
+    let list = split('hello', '\zs')
+    echo count(list, 'l')
+    2~
+
+The `l` character is present twice in `['h', 'e', 'l', 'l', 'o']`.
+
+##
+## What's the output of `echo [4] == ['4']`?
+
+`0`
+
+### What can you infer from this result?
+
+Vim does no coercition when comparing lists.
+
+##
+## How to get the list of numbers
+### multiple of `5` from `20` up to `40`?
+
+               ┌ start
+               │   ┌ end
+               │   │   ┌ step
+               │   │   │
+    echo range(20, 40, 5)
+    [20, 25, 30, 35, 40]~
+
+### from `2` to `-2`, in decreasing order?
+
+    echo range(2, -2, -1)
+    [2, 1, 0, -1, -2]~
+
+##
+## How to initialize a list of length `5`, all items being `0`?
+
+Use `map()` + `range()`:
+
+    echo map(range(5), 0)
+    [0, 0, 0, 0, 0]~
+
+Or `repeat()`:
+
+    echo repeat([0], 5)
+    [0, 0, 0, 0, 0]~
+
+## How to initialize a table whose size is `4` rows times `3` columns, all items being `0`?
+
+Use `map()` + `range()`:
+
+    echo map(range(4), 'map(range(3), 0)')
+    [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]~
+
+##
 ## Removing
 ### How to remove the item `garbage` from `list`?  (2)
 
@@ -198,30 +194,13 @@ Whatever was removed.
 ##
 ## Adding
 ### How to add an item
-#### at the end of a list?
-
-Use `add()`:
-
-    let list = [1, 2]
-    call add(list, 3)
-    echo list
-    [1, 2, 3]~
-
-Note that `add()` operates in-place.
-
-##### Can this be used to concatenate lists?
-
-No.
-
-    let list = [1, 2]
-    call add(list, [3, 4])
-    echo list
-    [1, 2, [3, 4]]~
-
-###
 #### in front of a list?
 
-Use `insert()` and no index (third optional argument):
+Use `insert()`:
+
+    echo insert(list, item)
+
+---
 
     let list = [1, 2]
     echo insert(list, 'a')
@@ -232,13 +211,19 @@ Use `insert()` and no index (third optional argument):
 Use `insert()` and  the index of the item  after which you want your  item to be
 inserted:
 
+    echo insert(list, item, idx)
+
+---
+
     let list = ['a', 'c']
     echo insert(list, 'b', 1)
     ['a', 'b', 'c']~
 
 #### before the last item of a list?
 
-Use `insert()` and the index `-1`:
+    echo insert(list, item, -1)
+
+---
 
     let list = ['a', 'b', 'd']
     echo insert(list, 'c', -1)
@@ -253,6 +238,30 @@ More generally, `insert()` interprets:
 
    • a positive index as: right *after* the index
    • a negative index as: right *before* the index
+
+#### at the end of a list?
+
+Use `add()`:
+
+    echo add(list, item)
+
+---
+
+    let list = ['a', 'b']
+    call add(list, 'c')
+    echo list
+    ['a', 'b', 'c']~
+
+Note that `add()` operates in-place.
+
+##### Can this be used to concatenate lists?
+
+No.
+
+    let list = [1, 2]
+    call add(list, [3, 4])
+    echo list
+    [1, 2, [3, 4]]~
 
 ###
 ### How to concatenate lists?  (2)
@@ -293,59 +302,91 @@ But not the second one:
 ####
 ### How to insert some list inside another list, at an arbitrary position?
 
-Use `extend()`:
+Use `extend()`,  and provide the  index of the item  in the first  list *before*
+which you want the items of the second list to be inserted.
+
+    call extend(alist, blist, idx)
+
+---
 
     let alist = ['a', 'd']
     let blist = ['b', 'c']
     echo extend(alist, blist, 1)
     ['a', 'b', 'c', 'd']~
 
-The third argument  is the index of  the item in the first  list, *before* which
-you want the items of the second list to be inserted.
-
 ##
 ## Transforming
+### How to change the value of a range of consecutive items in a list, with a single statement?
+
+Use an assignment: in the lhs, use slicing; in the rhs, use a list of values.
+
+    let list[i:j] = [val1, val2, ...]
+
+---
+
+    let list = ['a', 'x', 'y', 'd']
+    let list[1:2] = ['b', 'c']
+    echo list
+    ['a', 'b', 'c', 'd']~
+
+###
 ### How to rotate the items of a list to the left?
 
 Use a combination of  `add()` and `remove()`, to move the first  item to the end
-of the list.
+of the list:
 
-    let a = range(1, 4)
+    call add(list, remove(list, 0))
 
-    call add(a, remove(a, 0))
-    echo a
+---
+
+    let list = range(1, 4)
+
+    call add(list, remove(list, 0))
+    echo list
 
 #### to the right?
 
 Use a  combination of `insert()`  and `remove()`, to move  the last item  to the
-beginning of the list.
+beginning of the list:
 
-    call insert(a, remove(a, -1), 0)
-    echo a
+    call insert(list, remove(list, -1), 0)
+
+---
+
+    let list = range(1, 4)
+
+    call insert(list, remove(list, -1), 0)
+    echo list
 
 ####
 ### Without altering the rest of a list, how to
 #### increase a number item?
 
 Use an assignment: in the lhs, use the index of the item you want to change; and
-use the `+=` operator.
+use the `+=` operator:
+
+    let list[idx] += n
+
+---
 
     let list = [1, 2, 3]
     let list[2] += 99
     echo list
     [1, 2, 102]~
 
-This works because a list is a mutable object.
-
 #### concatenate a string to a string item?
 
 Use an assignment: in the lhs, use the index of the item you want to change; and
 use the `.=` operator.
 
-    let list = ['a', 'b', 'c']
-    let list[1] .= '_x'
+    let list[idx] .= str
+
+---
+
+    let list = ['ab', 'c']
+    let list[1] .= 'd'
     echo list
-    ['a', 'b_x', 'c']~
+    ['ab', 'cd']~
 
 ###
 ### Mutation
@@ -408,10 +449,9 @@ The number has not been altered because Vim passes scalars by value.
 It  seems  that  Vim behaves  like  awk:  scalars  are  passed by  value,  while
 non-scalar values are passed by reference.
 
-##### What are the two properties of arrays, without which these results would not be possible?
+##### What's the property of arrays without which these results would not be possible?
 
-   1. an array is mutable
-   2. an array is passed by reference
+An array is mutable.
 
 ####
 #### Does `let blist = alist` create a copy of `alist`?
@@ -500,6 +540,10 @@ It allows the usage of:
 
 Use `extend()`:
 
+    call extend(adict, bdict)
+
+---
+
     let adict = {'one': 1, 'two': 2}
     let bdict = {'three': 3, 'four': 4}
     echo extend(adict, bdict)
@@ -510,6 +554,10 @@ Use `extend()`:
 
 Use the optional third argument `keep`:
 
+    echo extend(adict, bdict, 'keep')
+
+---
+
     let adict = {'one': 1, 'two': 2}
     let bdict = {'one': 4, 'three': 3}
     echo extend(adict, bdict, 'keep')
@@ -518,6 +566,10 @@ Use the optional third argument `keep`:
 #### raise an error?
 
 Use the optional third argument `error`:
+
+    echo extend(adict, bdict, 'error')
+
+---
 
     let adict = {'one': 1, 'two': 2}
     let bdict = {'one': 4, 'three': 3}
@@ -529,6 +581,12 @@ Use the optional third argument `error`:
 ### How to remove an item from a dictionary knowing its key?  (2)
 
 Use `:unlet` or `remove()`:
+
+    unlet dict.key
+
+    call remove(dict, 'key')
+
+---
 
     let dict = {'one': 1, 'two': 2}
     unlet dict.two
@@ -555,6 +613,10 @@ The *value* (!= item) of the removed key.
 
 Use `filter()` and a condition inspecting the value (`v`):
 
+    call filter(dict, {k,v -> cond(v)})
+
+---
+
     let dict = {'ab': 1, 'cd': 2, 'abcd': 3}
     echo filter(dict, {k,v -> v > 1})
     {'abcd': 3, 'cd': 2}~
@@ -564,6 +626,10 @@ Here, you removed all the items whose values were not greater than `1`.
 #### its keys?
 
 Use `filter()` and a condition inspecting the key (`k`):
+
+    call filter(dict, {k,v -> cond(k)})
+
+---
 
     let dict = {'ab': 1, 'cd': 2, 'abcd': 3}
     echo filter(dict, {k,v -> k =~# '^a'})
@@ -575,6 +641,10 @@ Here, you removed all the items whose keys didn't begin with `a`.
 ## How to get the number of occurrences of a value in a dictionary?
 
 Use `count()`:
+
+    echo count(dict, val)
+
+---
 
     let dict = {'a': 1, 'b': 2, 'c': 3}
     echo count(dict, 3)
