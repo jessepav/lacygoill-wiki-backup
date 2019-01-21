@@ -288,7 +288,7 @@ Note that it works with lists and dictionaries as well:
 
 ### What happens if the string contains overlapping occurrences of the substring?
 
-`count()` only considers *non* overlapping occurrences:
+`count()` only considers *non* overlapping occurrences.
 
     echo count('aaa', 'aa')
     1~
@@ -731,102 +731,102 @@ l'intérieur de laquelle les caractères spéciaux peuvent être traduits.
     echo 'foobar'[-2:]
     ar~
 
-            L'octet d'index 3 dans la chaîne 'foobar'.
-            Les octets depuis celui d'index -2 jusqu'au dernier dans 'foobar'.
+L'octet d'index `3` dans la chaîne `foobar`.
+Les octets depuis celui d'index `-2` jusqu'au dernier dans `foobar`.
 
-            On remarque une différence dans la manière d'indexer entre un nb positif et négatif:
+On remarque  une différence  dans la  manière d'indexer entre  un nb  positif et
+négatif:
 
-                    • on commencer à compter à partir de 0 pour un index positif
-                    • on commencer à compter à partir de -1 pour un index négatif
+   • on commencer à compter à partir de 0 pour un index positif
+   • on commencer à compter à partir de -1 pour un index négatif
 
+---
 
     echo 'foobar'[:2]
     foo~
+
     echo 'foobar'[3:]
     bar~
+
     echo 'foobarbaz'[3:5]
     bar~
 
-            Syntaxe similaire à python (on parle de slicing).
+Syntaxe similaire à python (on parle de slicing).
 
 
     echo 'foobar'[-1]
     ∅~
+
     echo 'foobar'[-1:-1]
     r~
 
-            Contrairement aux listes, on ne peut pas  utiliser un simple index négatif pour obtenir
-            un caractère d'une chaîne.
-
-            En revanche on peut bien utiliser des index négatifs qd on fait du slicing.
+Contrairement aux listes,  on ne peut pas utiliser un  simple index négatif pour
+obtenir un caractère  d'une chaîne; en revanche on peut  bien utiliser des index
+négatifs qd on fait du slicing.
 
 
     echo 'fooébar'[3]
     <c3>~
 
-            'fooébar'[3] ne retourne pas le caractère d'index 3, mais l'octet d'index 3.
-
-            Illustre qu'on indexe pas une chaîne avec des n° de caractères mais d'octets.
+`'fooébar'[3]` n'est pas évalué en le caractère d'index 3, mais l'octet d'index 3.
+Illustre qu'on indexe pas une chaîne avec des n° de caractères mais d'octets.
 
 
     getline('.')[col('.')-1]
 
-            Caractère après le curseur.
+Caractère sous le curseur.
+S'il est multi-octets, on obtient seulement son 1er octet.
 
-            S'il est multi-octets, on obtient seulement son 1er octet.
+Qd on utilise `col('.')` pour se référer  au caractère qui suit le curseur dans un
+index de chaîne, il faut lui enlever 1.
 
-            Qd on  utilise col('.')  pour se  référer au  caractère qui  suit le
-            curseur dans un index de chaîne, il faut lui enlever 1.
-
-            En effet,  col('.') rajoute  toujours 1  au poids  de la  chaîne qui
-            précède le curseur (sans doute car 0 est réservé pour une erreur).
+En effet,  `col('.')` rajoute toujours  1 au poids de  la chaîne qui  précède le
+curseur (sans doute car 0 est réservé pour une erreur).
 
 # Coercition
 
 Dans une comparaison, une chaîne est automatiquement évaluée en:
 
-    • 0            si elle commence par une lettre
-    • un entier    si elle commence par un entier ou un flottant
-                   dans le cas d'un flottant, seule la partie entière est retenue
-
+   • 0            si elle commence par une lettre
+   • un entier    si elle commence par un entier ou un flottant
+     dans le cas d'un flottant, seule la partie entière est retenue
 
 La même chose se passe dans un calcul :
 
-    • echo 'hello'   + 10        10
-    • echo 'hello10' + 10        10
+   • echo 'hello'   + 10        10
+   • echo 'hello10' + 10        10
 
-    • echo '10hello' + 10        20
-    • echo '10.10'   + 10        20
+   • echo '10hello' + 10        20
+   • echo '10.10'   + 10        20
 
+---
 
 Dans une concaténation de chaînes :
 
     echo 10 . 'foo'
+    10foo~
 
-            affiche '10foo'    ; le nb 10 est converti en chaîne '10'
+Le nb 10 est converti en chaîne `10`.
 
     echo 10.10 . 'foo'
+    E806: using Float as a String~
 
-            provoque l'erreur 'E806: using Float as a String' car un nb flottant ne peut être converti
-            en chaîne
+Un nb flottant ne peut être converti en chaîne.
 
+---
 
 Avec des dicos:
 
     echo {1: 'one'}
+    {'1': 'one'}~
 
-            retourne {'1': 'one'}
-            le nb 1 a été automatiquement converti en la chaîne '1' car la clé d'un dico ne peut être qu'une chaîne
+Le nb 1 a été automatiquement converti en  la chaîne `'1'` car la clé d'un dico ne
+peut être qu'une chaîne.
 
     echo {'1': 'one'}[1]
+    one~
 
-            retourne '1'
-            fonctionne car le nb 1 a été automatiquement converti en la chaîne '1'
-
-
-En programmation, ce phénomène se nomme conversion de type / coercition.
-
-Dans un test, 0 est considéré comme faux et tout autre entier relatif comme vrai.
+Fonctionne car le nb `1` a été automatiquement converti en la chaîne `'1'`.
 
 ##
 ##
@@ -1033,6 +1033,7 @@ lieu d'un nb.
 Et à nouveau, dans ce cas, il faudra fournir 2 arguments au lieu d'un.
 Un pour la précision de l'item, et un pour son contenu.
 
+---
 
                                  ┌─ fonctionne car ...
                                  │
