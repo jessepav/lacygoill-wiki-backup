@@ -87,172 +87,254 @@ Use `matchlist()`:
       └ \0
 
 ##
-##
-##
-# ?
+# How to get the byte index position of
+## a literal text inside a string?
 
-Similitudes et différences entre `match()` et `matchstr()`:
+Use `stridx()`:
 
-   • elles acceptent 1 ou 2 arguments optionnels (`start`, `count`):
+    echo stridx(str, substr)
 
-       - `start` = où commencer à chercher
+---
 
-       * index d'item pour une liste
-
-       * index du 1er octet à partir duquel chercher pour une chaîne
-
-       - `count` = cherche le `count`-ième match
-
-   • `match()`    retourne un index (d'octet au sein d'une chaîne, d'item au sein d'une liste)
-     `matchstr()` "        une sous-chaîne
-
-# ?
-
-    echo match('Starting point', 'start')
-    0~
     echo stridx('Starting point', 'start')
     -1~
 
-Qd on leur passe une chaîne  en 1er argument, `match()` et `stridx()` retournent
-l'index de l'octet précédant la sous-chaîne passée en 2e argument.
+`start` was not found.
 
-Si elles retournent:
+### and ignore the first `n` bytes?
 
-   • `0`   ça signifie que  la sous-chaîne a été trouvée au tout début
-   • `-1`  ça signifie que  la sous-chaîne est absente
+Use the optional third argument, `{start}`:
 
-# ?
+    echo stridx(substr, str, start)
+
+---
+
+    echo stridx('abc abc', 'b')
+    1~
+
+    echo stridx('abc abc', 'b', 2)
+    5~
+
+##
+## a text described by a regex inside a string?
+
+Use `match()`:
+
+    echo match(str, pat)
+
+---
+
+    echo match('Starting point', '\cstart')
+    0~
+
+`start` was found at the very beginning.
+
+### and ignore the first `n` bytes?
+
+Use the optional third argument:
+
+    echo match(str, pat, n-1)
+
+---
 
     echo match('testing', 't', 2)
     3~
 
-Retourne `3`  (et non pas  `0`) car le 3e  argument optionnel indique  ici qu'il
-faut commencer à chercher à partir du 2e octet.
-
-# ?
-
-                                    ┌ cherche à partir de l'octet d'index 1 (le deuxième_)
-                                    │  ┌ cherche la 2e occurrence
-                                    │  │
-    echo match('testing this', 't', 1, 2)
-    8~
-
-# ?
-
-    echo matchstr('testing', 'ing', 5)
-    ''~
-
-Return an  empty string  because `ing`  can't be found  in `testing`  beyond the
-fifth byte.
+Here, we ignore the first 3 bytes (index 0, 1 and 2).
 
 ##
+# How to get a substring matching a pattern
+## starting `{start}` bytes after the start of the original string?
+
+Use the third optional argument of `matchstr()`:
+
+    echo matchstr(str, pat, start)
+
+---
+
+    echo matchstr('-a -b -c', '-.', 3)
+    -b~
+
+Here, we start the search 3 bytes after the beginning of the string:
+
+    -a -b -c
+       ^
+       the search start here
+
+### and only the `{count}` occurrence of a match?
+
+Use the fourth optional argument: `{count}`:
+
+    echo matchstr(str, pat, start, count)
+
+---
+
+    echo matchstr('-a -b -c -d', '-.', 3, 2)
+    -c~
+
+Here, the  first match  is `-b`, but  we ask  for the second  match, so  `-c` is
+returned.
+
 ##
+# How to get the first item in a list matching a pattern?
+
+Use `matchstr()`:
+
+    echo matchstr(list, pat)
+
+---
+
+    echo matchstr(['_', '-a'], '-')
+    -a~
+
+Note that you get the whole item, not just the part matching the pattern.
+
+## starting from the item of index `{start}`?
+
+    echo matchstr(list, pat, start)
+
+---
+
+    echo matchstr(['-a', '_', '-b'], '-', 1)
+    -b~
+
+### and only the `{count}`-th item matching the pattern?
+
+    echo matchstr(list, pat, start, count)
+
+---
+
+    echo matchstr(['-a', '_', '-b', '-c'], '-', 1, 2)
+    -c~
+
 ##
-# ?
+## Instead of the index, how could I have got the item?
 
-Différences entre `match()` et `stridx()`:
+Replace `matchstr()` with `match()`:
 
-   • `match()`  peut travailler sur une liste de chaînes
-     `stridx()` uniquement sur une chaîne
+    echo match(list, pat)
+    echo match(list, pat, start)
+    echo match(list, pat, start, count)
 
-   • `match()`  cherche un pattern
-     `stridx()` "       une chaîne littérale
+---
 
-   • `match()`  et `stridx()` acceptent un 3e argument optionnel {start}
-      mais seule `match()` accepte un 4e argument optionnel {count}
+    echo match(['_', '-a'], '-')
+    1~
 
-   • `match()`  respecte `'ignorecase'` (sauf si on utilise `\c` ou `\C`), mais pas `'smartcase'`
-     `stridx()` est toujours sensible à la casse
+    echo match(['-a', '_', '-b'], '-', 1)
+    2~
 
-`match()`  respecte `'ignorecase'` (sauf si on utilise `\c` ou `\C`), mais pas `'smartcase'`
-
-# ?
-
-Différences entre `match()` et `count()`:
-
-   • `count()` peut travailler sur une chaîne ou une liste de chaînes (comme
-     `match()`), mais aussi sur (les valeurs d')un dictionnaire
-
-   • `count()` cherche  une chaîne littérale (==#)
-     `match()` "        un pattern           (=~#)
-
-     que ce soit au sein d'une chaîne ou d'une liste de chaînes
-
-   • `count()` retourne des nombres d'occurrences
-     `match()` des index d'octets ou d'items
-
-   • `count()` respecte toujours la casse sauf si on lui passe un 3e argument optionnel non-nul
-     `match()` respect 'ic'
-
-   • pour `count()` 2 occurrences d'un pattern au sein d'une chaîne ne peuvent pas avoir de partie commune
-     pour `match()` elles peuvent, ce qui fait une différence pour le 4e argument optionnel
-
-   • pour `count()` les arguments optionnels sont 'ic' puis {start}
-     pour `match()` ce sont {start} puis {count}
-
-# ?
-
-    echo match('An Example', 'Example')
-    echo stridx('An Example', 'Example')
+    echo match(['-a', '_', '-b', '-c'], '-', 1, 2)
     3~
 
-# ?
-
-    echo stridx('foo:bar:baz', ':')
-    3~
-    echo stridx('foo:bar:baz', ':', 3 + 1)
-    7~
-
-# ?
+##
+# How to get the character under the cursor and the next two?
 
     echo matchstr(getline('.'), '\%'.col('.').'c...')
 
-Les 3 caractères après le curseur.
+`\%123c` means that the byte index of the next character is `123`.
+`col('.')` returns the byte index of the character under the cursor.
 
-`col('.')` retourne l'index du 1er octet du caractère suivant le curseur.
-Donc, si le curseur  est juste avant le caractère dont le 1er  octet est le 10e,
-le pattern recherché est `\%10c...`.
+##
+# What's the only option which alters the behavior of `match()` and `matchstr()`?
 
-`\%10c` est un atome  de largeur nulle / une ancre qui indique  que le 1er octet
-du caractère suivant a pour index `10`.
-Si aucun des 9 premiers caractères n'est  multi-octets, ça revient à dire que le
-caractère suivant a pour index `10`.
+`'ignorecase'`
 
-`.` peut être n'importe quel caractère.
-En supposant qu'il n'y a pas  de caractère multi-octets, `\%10c...` matchera les
-caractères occupant les colonnes `10`, `11`, `12` sur la ligne.
+Which is why you should use `\c` or `\C` in your pattern, to avoid any influence
+from the current environment.
 
-# ?
+##
+# How to get the number of times
+## a substring appears in a string?
 
-Try to avoid `virtcol('.')`. It's not reliable.
+    echo count(str, substr)
 
-You could be tempted to write this:
+---
 
-    strcharpart(getline('.'), virtcol('.') - 1, 3)
+    echo count('-a -b -c', '-')
+    3~
 
-But sometimes it would not work.
+### Can it work with a regex?
 
-To illustrate, write this sentence in `/tmp/file`:
+No.
 
-    they would be useful if they were here
+    echo count('-a -b -c', '-.')
+    0~
 
-Then, start Vim like this:
+### How to ignore the case?
 
-    $ vim -Nu NONE +'norm! 13l' +'lefta 20vs | setl wrap lbr' /tmp/file
-    :echo strcharpart(getline('.'), virtcol('.') - 1, 3)
-    l SPC i~
+Pass a non-zero value as a third optional argument:
 
-You probably expected `SPC u s`.
-The reason for this difference is explained in our notes about `virtcol()`.
+    echo count(str, val, 1)
+                         ^
 
-Basically, if  there is a  column where no real  character resides in  the file,
-between  2 other  columns where  there ARE  real characters,  the column  in the
-middle is NOT ignored.
+---
 
-Although, I guess it's ok to use `virtcol()` when you're sure your lines are NOT
-wrapped.
+    echo count('abA', 'a')
+    1~
 
-# ?
+    echo count('abA', 'a', 1)
+    2~
+
+---
+
+Note that it works with lists and dictionaries as well:
+
+    echo count(['a', 'b', 'A'], 'a', 1)
+    2~
+
+    echo count({'one': 'a', 'two': 'b', 'three': 'A'}, 'a', 1)
+    2~
+
+### What happens if the string contains overlapping occurrences of the substring?
+
+`count()` only considers *non* overlapping occurrences:
+
+    echo count('aaa', 'aa')
+    1~
+
+    echo count('aaaa', 'aa')
+    2~
+
+##
+## an item appears in a list?
+
+    echo count(list, item)
+
+---
+
+    echo count([1, 123, 123], 123)
+    2~
+
+### counting from `{start}` items after the beginning of the list?
+
+Use the fourth optional argument:
+
+    echo count(list, item, 0, start)
+
+---
+
+    echo count(['a', 'a', 'a'], 'a', 0)
+    3~
+
+    echo count(['a', 'a', 'a'], 'a', 0, 1)
+    2~
+
+##
+## a value appears in a dictionary?
+
+    echo count(dict, val)
+
+---
+
+    echo count({'a': 1, 'b': 123, 'c': 123}, 123)
+    2~
+
+##
+##
+##
+# `matchstrpos()`
+## ?
 
     echo matchstrpos('testing', 'ing')
     ['ing', 4, 7]~
@@ -261,7 +343,7 @@ wrapped.
 `4` est l'index de l'octet précédant le match.
 `7` est l'index du dernier octet au sein du match.
 
-# ?
+## ?
 
 `matchstrpos()` indexe un octet en commençant à compter à partir de 0.
 Idem pour toutes  les fonctions acceptant en argument des  index d'octets (ou de
@@ -280,14 +362,14 @@ l'index de l'octet qui le suit, elle commence à compter à partir de `1`.
 De même, dans  un pattern de regex,  qd l'atome `\%123c` exprime  la position de
 l'octet suivant, il commence à compter à partir de `1`.
 
-# ?
+## ?
 
     echo matchstrpos('testing', 'ing', 5)
     ['', -1, -1]~
 
 Il n'y a pas de match au delà du 4e octet.
 
-# ?
+## ?
 
     echo matchstrpos([1, '__x'], '\a')
     ['x', 1, 2, 3]~
@@ -297,46 +379,76 @@ Il n'y a pas de match au delà du 4e octet.
 `2` est l'index de l'octet précédant le match.
 `3` est l'index du dernier octet au sein du match.
 
+##
+# `strpart()` and `strcharpart()`
+## ?
+
+    echo strcharpart('résumé', 2, 1)
+    s~
+    echo strpart('résumé', 2, 1)
+    <a9>~
+
+Retourne une sous-chaîne de string, commençant après:
+
+   • le 2e caractère et de longueur max 1
+   • le 2e octet     et de poids    max 1
+
+## ?
+
+    :echo strcharpart('abcdefg', -2, 4)
+    ab~
+
+caractère d'index -2 = '' (car n'existe pas)
+caractère d'index -1 = ''
+caractère d'index 0  = 'a'
+caractère d'index 1  = 'b'
+
+On remarque  que `strcharpart()`  n'interprète pas les  index négatifs  comme le
+fait Vim qd on indexe directement une chaîne:
+
+    echo strcharpart('abc', -1, 1)
+    ∅~
+    echo 'abc'[-1:-1]
+    'c'~
+
+## ?
+
+    :echo strcharpart('abcdefg', 5, 4)
+    fg~
+
+`4` est trop grand, mais les caractères qui n'existent pas sont considérés comme
+une chaîne vide.
+
+## ?
+
+    :echo strcharpart('abcdefg', 3)
+    defg~
+
+
+Sans longueur max, `strcharpart()` va jusqu'à la fin de la chaîne.
+
+##
 # ?
 
-    echo nr2char(123)
-
-Retourne le caractère n°123 dans  l'encodage défini par `'encoding'` (utf-8 chez
-moi).
+Document `:h matchend()` and `:h matchstrpos()`.
+And maybe `:h str*(`.
 
 # ?
 
-    ┌──────────────────────────────┬─────────────────────────────────────────────────────────────────┐
-    │ split('foobarbaz', 'bar')    │ ['foo', 'baz']                                                  │
-    ├──────────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ split('fooBARbaz', '\cbar')  │ ['foo', 'baz']                                                  │
-    │                              │                                                                 │
-    │                              │ La recherche du pattern est insensible à la casse grâce à `\c`. │
-    │                              │ La valeur de 'ignorecase' est ignorée.                          │
-    ├──────────────────────────────┼─────────────────────────────────────────────────────────────────┤
-    │ split('foobarbaz', 'bar\zs') │ ['foobar', 'baz']                                               │
-    │                              │                                                                 │
-    │                              │ On cherche 'bar' mais on ne retient qu'à partir de ce qui suit. │
-    │                              │ Et comme après on n'écrit rien après , rien n'est supprimé.     │
-    ├──────────────────────────────┼──────────────────────────────────────────────────────────────────┤
-    │ split('foobarbaz', '\zebar') │ ['foo', 'barbaz']                                                │
-    ├──────────────────────────────┼──────────────────────────────────────────────────────────────────┤
-    │ split(':a:b:c', ':', 1)      │ ['', 'a', 'b', 'c']                                              │
-    │                              │                                                                  │
-    │                              │ Le nb 1 passé en 3e argument demande à split() de conserver le   │
-    │                              │ le 1er et dernier item s'ils sont vides.                         │
-    │                              │                                                                  │
-    │                              │ Une chaîne vide en 1er / dernier item signifie que le séparateur │
-    │                              │ était présent au tout début / à la fin de la chaîne passée en    │
-    │                              │ 1er argument à split().                                          │
-    │                              │                                                                  │
-    │                              │ Ça peut être utile pour reconstituer la chaîne d'origine:        │
-    │                              │                                                                  │
-    │                              │ join(split(':a:b:c', ':'), ':')       →    'a:b:c'     ✘         │
-    │                              │ join(split(':a:b:c', ':', 1), ':')    →    ':a:b:c'    ✔         │
-    ├──────────────────────────────┼──────────────────────────────────────────────────────────────────┤
-    │ split(getline('.'), '\W\+')  │ la liste des MOTS de la ligne courante                           │
-    └──────────────────────────────┴──────────────────────────────────────────────────────────────────┘
+    echo strdisplaywidth("\t", col('.')-1)
+
+Retourne le  nb de  cellules qu'occuperait  un caractère  tab s'il  était inséré
+après le curseur.
+
+# ?
+
+    echo tr('hello there', 'ht', 'HT')
+    Hello THere~
+    echo tr('<blob>', '<>', '{}')
+    {blob}~
+
+`tr()` permet de réaliser plusieurs substitutions en un seul appel de fonction.
+Elle TRaduit les caractères d'une chaîne en ceux d'une autre chaîne.
 
 # ?
 
@@ -375,81 +487,67 @@ Sans ce 2e argument, elle utilise la base 10 par défaut.
 
 # ?
 
-    echo strdisplaywidth("\t", col('.')-1)
+Try to avoid `virtcol('.')`. It's not reliable.
 
-Retourne le  nb de  cellules qu'occuperait  un caractère  tab s'il  était inséré
-après le curseur.
+You could be tempted to write this:
 
-# ?
+    strcharpart(getline('.'), virtcol('.') - 1, 3)
 
-    echo strlen('exposé')
-    7~
-    echo strchars('exposé')
-    6~
+But sometimes it would not work.
 
-Retourne la longueur  en octets / caractères de la  chaîne `exposé` (`7` octets;
-`6` caractères).
+To illustrate, write this sentence in `/tmp/file`:
 
-# ?
+    they would be useful if they were here
 
-    echo strcharpart('résumé', 2, 1)
-    s~
-    echo strpart('résumé', 2, 1)
-    <a9>~
+Then, start Vim like this:
 
-Retourne une sous-chaîne de string, commençant après:
+    $ vim -Nu NONE +'norm! 13l' +'lefta 20vs | setl wrap lbr' /tmp/file
+    :echo strcharpart(getline('.'), virtcol('.') - 1, 3)
+    l SPC i~
 
-   • le 2e caractère et de longueur max 1
-   • le 2e octet     et de poids    max 1
+You probably expected `SPC u s`.
+The reason for this difference is explained in our notes about `virtcol()`.
 
-# ?
+Basically, if  there is a  column where no real  character resides in  the file,
+between  2 other  columns where  there ARE  real characters,  the column  in the
+middle is NOT ignored.
 
-    :echo strcharpart('abcdefg', -2, 4)
-    ab~
-
-caractère d'index -2 = '' (car n'existe pas)
-caractère d'index -1 = ''
-caractère d'index 0  = 'a'
-caractère d'index 1  = 'b'
-
-On remarque  que `strcharpart()`  n'interprète pas les  index négatifs  comme le
-fait Vim qd on indexe directement une chaîne:
-
-    echo strcharpart('abc', -1, 1)
-    ∅~
-    echo 'abc'[-1:-1]
-    'c'~
+Although, I guess it's ok to use `virtcol()` when you're sure your lines are NOT
+wrapped.
 
 # ?
 
-    :echo strcharpart('abcdefg', 5, 4)
-    fg~
-
-`4` est trop grand, mais les caractères qui n'existent pas sont considérés comme
-une chaîne vide.
-
-# ?
-
-    :echo strcharpart('abcdefg', 3)
-    defg~
-
-
-Sans longueur max, `strcharpart()` va jusqu'à la fin de la chaîne.
-
-# ?
-
-    echo tr('hello there', 'ht', 'HT')
-    Hello THere~
-    echo tr('<blob>', '<>', '{}')
-    {blob}~
-
-`tr()` permet de réaliser plusieurs substitutions en un seul appel de fonction.
-Elle TRaduit les caractères d'une chaîne en ceux d'une autre chaîne.
-
-# ?
-
-Document `:h matchend()` and `:h matchstrpos()`.
-And maybe `:h str*(`.
+    ┌──────────────────────────────┬─────────────────────────────────────────────────────────────────┐
+    │ split('foobarbaz', 'bar')    │ ['foo', 'baz']                                                  │
+    ├──────────────────────────────┼─────────────────────────────────────────────────────────────────┤
+    │ split('fooBARbaz', '\cbar')  │ ['foo', 'baz']                                                  │
+    │                              │                                                                 │
+    │                              │ La recherche du pattern est insensible à la casse grâce à `\c`. │
+    │                              │ La valeur de 'ignorecase' est ignorée.                          │
+    ├──────────────────────────────┼─────────────────────────────────────────────────────────────────┤
+    │ split('foobarbaz', 'bar\zs') │ ['foobar', 'baz']                                               │
+    │                              │                                                                 │
+    │                              │ On cherche 'bar' mais on ne retient qu'à partir de ce qui suit. │
+    │                              │ Et comme après on n'écrit rien après , rien n'est supprimé.     │
+    ├──────────────────────────────┼──────────────────────────────────────────────────────────────────┤
+    │ split('foobarbaz', '\zebar') │ ['foo', 'barbaz']                                                │
+    ├──────────────────────────────┼──────────────────────────────────────────────────────────────────┤
+    │ split(':a:b:c', ':', 1)      │ ['', 'a', 'b', 'c']                                              │
+    │                              │                                                                  │
+    │                              │ Le nb 1 passé en 3e argument demande à split() de conserver le   │
+    │                              │ le 1er et dernier item s'ils sont vides.                         │
+    │                              │                                                                  │
+    │                              │ Une chaîne vide en 1er / dernier item signifie que le séparateur │
+    │                              │ était présent au tout début / à la fin de la chaîne passée en    │
+    │                              │ 1er argument à split().                                          │
+    │                              │                                                                  │
+    │                              │ Ça peut être utile pour reconstituer la chaîne d'origine:        │
+    │                              │                                                                  │
+    │                              │ join(split(':a:b:c', ':'), ':')       →    'a:b:c'     ✘         │
+    │                              │ join(split(':a:b:c', ':', 1), ':')    →    ':a:b:c'    ✔         │
+    ├──────────────────────────────┼──────────────────────────────────────────────────────────────────┤
+    │ split(getline('.'), '\W\+')  │ la liste des MOTS de la ligne courante                           │
+    └──────────────────────────────┴──────────────────────────────────────────────────────────────────┘
 
 ##
 ##
@@ -473,8 +571,8 @@ Elle permet également de produire de nouveaux caractères de contrôle et dépa
 la limite de 33.
 
 Certains caractères de contrôles ne  disposent pas d'une notation abrégée (comme
-`\n`, `\r`, `\t`), pex `C-r`.
-Pour les représenter dans une chaine, on a 3 possibilités:
+`\n`, `\r`,  `\t`), pex  `C-r`; pour  les représenter  dans une  chaine, on  a 3
+possibilités:
 
    • les insérer littéralement, ex: C-v C-r
 
@@ -508,11 +606,11 @@ What's the caret notation of the delete character?
 ^?
 
 Don't confuse the delete character with the delete key.
-https://en.wikipedia.org/wiki/Delete_character
+<https://en.wikipedia.org/wiki/Delete_character>
 
 
-newline est un terme générique désignant n'importe quel caractère ou ensemble de caractères utilisés
-pour représenter une nouvelle ligne, ce qui inclut:
+newline est un terme générique désignant n'importe quel caractère ou ensemble de
+caractères utilisés pour représenter une nouvelle ligne, ce qui inclut:
 
         CR LF    Windows
         LF       Unix
@@ -536,119 +634,95 @@ notation ^[ pour escape.
 
 ## echo[mnhl]
 
-    " ✘
-        echo 'hello'   " some comment
-    " ✔
-        echo 'hello' | " some comment
+    echo 'hello'   " some comment
+    E114: Missing quote: " some comment~
 
-            `:echo[m]` sees a double quote as part of its argument.
-            Therefore, you can't append a comment like you could with other commands:
 
-                    :y_ " hello
+    echo 'hello' | " some comment
+    hello~
 
-            You need  a bar to explicitly  tell `:echo[m]` that what  follows is
-            NOT part of its argument.
+`:echo[m]` sees a double quote as part of its argument.
+Therefore, you can't append a comment like you could with other commands:
 
-            See `:h :comment`.
+    :y_ " hello
+
+You need a  bar to explicitly tell  `:echo[m]` that what follows is  NOT part of
+its argument; see `:h :comment`.
 
 
     echo "foobar\rqux"
+    quxbar~
+
     echom "foobar\rqux"
+    foobar^Mqux~
 
-            affiche 'quxbar', 'foobar^Mqux'
+`:echo` interprète sans doute  le CR comme un retour à la  ligne (sans en ouvrir
+une nouvelle), il affiche  donc `foobar`, puis revient au début  de la ligne, et
+affiche `qux`; résultat: `quxbar`.
 
-            :echo interprète sans doute le CR comme un retour à la ligne (sans en ouvrir une nouvelle),
-            il affiche donc 'foobar', puis revient au début de la ligne, et affiche 'qux'.
-            Résultat: 'quxbar'
-
-            :echom n'interprète jamais rien, comme d'habitude.
+`:echom` n'interprète jamais rien, comme d'habitude.
 
 
     echon 'foo' 'bar'
+    foobar~
+
     echon 'foo' | echon 'bar'
+    foobar~
 
-            affiche le message 'foobar' dans les 2 cas
+    :echo 'foo' 'bar'
+    foo bar~
 
-                    :echo 'foo' 'bar'          →    'foo bar'
-                    :echo 'foo' | echo 'bar    →    foo
-                                                    bar
+    :echo 'foo' | echo 'bar'
+    foo~
+    bar~
 
-            Contrairement à :echo, :echon n'ajoute aucun espace ou newline après une chaîne.
+Contrairement à  `:echo`, `:echon`  n'ajoute aucun espace  ou newline  après une
+chaîne.
 
 
     echom 'that''s enough'
+    that's enough~
 
-            affiche:    that's enough
-
-            Ceci illustre la seule exception à la règle qui veut que les single quotes empêchent
-            toute traduction. Une séquence de 2 ' s'affiche sous la forme d'une seul '.
-
-
-        On ne peut pas se passer du dot dans:
-
-                    • une sous-expression au sein d'une expression conditionnelle utilisant l'opérateur ternaire ?:
-                    • une chaîne passée directement en argument à une fonction (map(), system(), ...)
-                    • une affectation de valeur à une variable
-                    • le registre expression
-                    • la commande :return
-                    • ...
-
-                            :echo &list ? 'foo' 'bar' : 'baz'    ✘
-                            :echo system('ls' '-l')              ✘
-                            :let myvar = 'foo' 'bar'             ✘
-                            :<C-R>= 'foo' 'bar'                  ✘
-
-            Il semble également nécessaire d'utiliser dot qd une expression est une fonction
-            locale à un script appelée depuis un mapping (sauf si elle se trouve en 1ère). Ex:
-
-                    nno <key>    :echo 'hello' <SID>my_func()<cr>    ✘    E121: Undefined variable: SNR
-                    fu! s:my_func()
-                        return 'world'
-                    endfu
-
-                    nno <key>    :echo <SID>my_func() 'hello'<cr>    ✔    affiche 'world hello'
-                    fu! s:my_func()
-                        return 'world'
-                    endfu
+Ceci illustre  la seule  exception à  la règle  qui veut  que les  single quotes
+empêchent toute traduction; une séquence de  2 `'` s'affiche sous la forme d'une
+seul `'`.
 
 
     echo "foo \x{code} bar"
 
-            afficher le message "foo bar" en insérant au milieu un caractère représenté via une notation
-            utilisant son point de code en hexa (jusqu'à 2 chiffres) et les caractères spéciaux \x (:h string)
+Afficher le message `foo bar` en  insérant au milieu un caractère représenté via
+une notation  utilisant son point  de code en hexa  (jusqu'à 2 chiffres)  et les
+caractères spéciaux `\x` (`:h string`).
 
 
     echo "foo \u{code} bar"
 
-            idem mais en fournissant un point de code hexa en 4 chiffres
+Idem mais en fournissant un point de code hexa en 4 chiffres.
 
-                                               NOTE:
-
-            Les caractères spéciaux \d et \o ne peuvent pas être utilisées dans une simple chaîne
-            pour représenter un caractère à partir de son point de code en décimal ou en octal.
-            Uniquement \x, \u, \U.
+Les caractères  spéciaux `\d`  et `\o`  ne peuvent pas  être utilisées  dans une
+simple chaîne  pour représenter un  caractère à partir de  son point de  code en
+décimal ou en octal; uniquement `\x`, `\u`, `\U`.
 
 
     echoe[rr] "This script just failed!"
 
-            Echo en rouge un message d'erreur, logué dans l'historique des messages.
-            Si utilisé dans un script / fonction, le n° de sa ligne sera ajouté.
+Echo en rouge un message d'erreur, logué dans l'historique des messages.
+Si utilisé dans un script / fonction, le n° de sa ligne sera ajouté.
 
 
     echo '"foo \<tab> bar"'
+    "foo \<tab> bar"~
 
-            affiche    "foo \<tab> bar"
-
-            Le caractère tab n'est pas traduit, car les single quotes empêchent toute traduction.
-            Les doubles quotes à l'intérieur n'y changent rien car les single quotes sont plus à l'extérieur
-            et ont donc la priorité.
+Le  caractère tab  n'est  pas traduit,  car les  single  quotes empêchent  toute
+traduction.
+Les doubles  quotes à l'intérieur n'y  changent rien car les  single quotes sont
+plus à l'extérieur et ont donc la priorité.
 
     :echo eval('"foo \<tab> bar"')
+    foo 	 bar~
 
-            affiche    foo    bar
-
-            eval() évalue la double chaîne '" ... "' en simple chaîne " ... ", à l'intérieur de laquelle
-            les caractères spéciaux peuvent être traduits.
+`eval()` évalue  la double  chaîne `'"  ... "'` en  simple chaîne  `" ...  "`, à
+l'intérieur de laquelle les caractères spéciaux peuvent être traduits.
 
 ## Indexage
 

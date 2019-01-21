@@ -13,8 +13,8 @@ The process of getting a sublist by appending a list with a range of indexes:
 
 ### On which condition does it work as expected?  (2)
 
-The indexes in the range describe two items.
-The first item must come *before* the second one.
+The first index must describe an item  which comes *before* the one described by
+the second index.
 
     echo range(1,5)[-1:0]
     []~
@@ -86,8 +86,6 @@ Vim does no coercition when comparing lists.
 
 ### How to get the number of occurrences of a value in a list?
 
-Use `count()`:
-
     echo count(list, val)
 
 ---
@@ -139,7 +137,7 @@ Use `map()` + `range()`:
 ## Removing
 ### How to remove the item `garbage` from `list`?  (2)
 
-Use `:unlet` or `remove()`:
+`idx` being the index of `garbage`, use `:unlet` or `remove()`:
 
     unlet list[idx]
 
