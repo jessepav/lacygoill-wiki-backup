@@ -703,6 +703,10 @@ semble.
             Then, start Vim like this:
 
                     $ vim -Nu NONE +'norm! 13l' +'lefta 20vs | setl wrap lbr' /tmp/file
+                    :echo strcharpart(getline('.'), virtcol('.') - 1, 3)
+                    l SPC i~
+
+            You probably expected `SPC u s`.
 
             Here's what should be displayed:
 
@@ -727,6 +731,10 @@ semble.
             `virtcol('.')` doesn't  make the difference between  a screen column
             where there is a real character, and one where there is none.
             It includes all of them.
+
+            IOW, if  there is a  column where no  real character resides  in the
+            file, between 2 other columns where there *are* real characters, the
+            column in the middle is *not* ignored.
 
             For this reason,  you should prefer `col()` which  is not influenced
             by any option which may change how the text of a file is displayed:
@@ -758,15 +766,6 @@ semble.
 
                             Du début de la ligne jusqu'au curseur, il y a 5 octets (dans 'fooé', 'é' en pèse 2),
                             l'octet suivant est donc le 6e.
-
-
-                                               NOTE:
-
-            col('.') et virtcol('.') ne retournent pas toujours le même nombre.
-            En  particulier, si  certains caractères  précédant le  curseur sont
-            encodés sur plusieurs octets.
-            `virtcol('.')`  est  également   influencée  par  certaines  options
-            ('wrap', 'linebreak', ...), contrairement à `col('.')`.
 
 
     col('$')
