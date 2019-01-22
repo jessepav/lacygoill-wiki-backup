@@ -514,12 +514,18 @@ the current window is too small.
 
 You need to make sure they're removed.
 
+It seems the issue is specific to `:hi`:
+
+    https://www.reddit.com/r/vim/comments/aikx7g/utility_function_to_extendoverride_highlight/eep49gk/
+
+Still, maybe there are other commands which behave like that.
+
 Make sure we haven't made this kind of mistake elsewhere:
 
     Vim /\C\s\<execute(/gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
 
-Also, should we remove the newline, or replace them with spaces?
-If we remove them, is it enough, or does Vim still add an extra space?
+Also, should we remove the newline, or replace it  with a space?
+If we remove it, is it enough, or does Vim still add an extra space?
 
 When you know what to do, review what we did in:
 

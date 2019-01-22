@@ -139,7 +139,7 @@ the first character after `Z` in the ascii table, which is `[`.
 
     ^?
 
-#### Which key emits it?
+### Which key emits it?
 
 The backspace key.
 
