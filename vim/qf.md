@@ -1421,7 +1421,7 @@ much.
 
 # Document that you can set the current entry in the qfl via `setqflist()` and the 'idx' property.
 
-https://github.com/vim/vim/pull/3701
+<https://github.com/vim/vim/pull/3701>
 
 # Talk about the 'filewinid' property of a location window.
 
@@ -1581,7 +1581,7 @@ Simplify this MWE, so that it doesn't refer to any custom configuration.
 
 ## What's the difference between `:CGrep`, `:PQ`, `|g`?
 
-Also, maybe we should integrate `:CGrepBuffer` into the cycle `C-g c`.
+Also, maybe we should integrate `:CGrepBuffer` into a cycle `C-g .`.
 Remove `:PA` and `:PQ` once you've finished studying all these commands.
 
 ## Why does `:4verbose cexpr system('')` corrupts the display?

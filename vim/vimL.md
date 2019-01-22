@@ -135,16 +135,16 @@ standard error of the WHOLE pipeline:
 
 Une expression peut être :
 
-        • un nb
-        • une chaîne
-        • un dictionnaire
-        • une variable
-        • une variable d'environnement     préfixe $
-        • une option                       préfixe &
-        • un registre                      préfixe @
-        • une expression conditionnelle    a ? b : c
-        • la sortie d'une fonction
-        • le résultat d'une opération entre 2 expressions (+, -, *, /, %, .)
+   • un nb
+   • une chaîne
+   • un dictionnaire
+   • une variable
+   • une variable d'environnement     préfixe $
+   • une option                       préfixe &
+   • un registre                      préfixe @
+   • une expression conditionnelle    a ? b : c
+   • la sortie d'une fonction
+   • le résultat d'une opération entre 2 expressions (+, -, *, /, %, .)
 
 
         :let myvar42 = 'hello'
@@ -210,7 +210,6 @@ Une expression peut être :
             ... mais pas de dico en chaîne.
 
             Il faut donc convertir soi-même le dico en chaîne via `string()`.
-
 
 # For / While
 
@@ -691,12 +690,12 @@ semble.
 
     virtcol('.')
 
-            Number of  the screen column  occupied by the character  right after
-            the cursor.
+            Number of the last screen column occupied by the character under the
+            cursor.
 
                                      NOTE:
 
-            The value of this expression can sometimes seem surprising.
+            The value of this expression can sometimes be surprising.
             Write this sentence in `/tmp/file`:
 
                     they would be useful if they were here
@@ -719,8 +718,7 @@ semble.
 
                     set ve=all
 
-            And move your cursor on the last screen column, then evaluate `virtcol('.')`.
-            You'll get `20`.
+            And press `g$`, then evaluate `virtcol('.')`; you'll get `20`.
             Maybe  `virtcol('.')` should  evaluate to  `14` when  the cursor  is
             right  before the  space, but  as soon  as you  move the  cursor one
             character forward again  to reach the beginning of  the second line,
@@ -742,8 +740,6 @@ semble.
 
             Although, I guess it's ok to use  it when you're sure your lines are
             NOT wrapped.
-
-
 
     col('.')
 
@@ -1152,10 +1148,6 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
             teste si Vim tourne en gui
 
             la liste des fonctionnalités supportées par Vim est lisible via: :h feature-list
-
-    iconv(string, 'latin1', 'utf-8')
-
-            la chaîne string étant encodée en latin1, retourne cette même chaîne encodée en utf-8
 
 
     confirm('Are you sure?', "&yes\n&no\n&quit", 2)
@@ -2326,130 +2318,4 @@ exécution.
 
             le 1er argument de setpos() détermine de quel objet la fonction va définir la position:
             le curseur = . ou une marque = 'x
-
-## Registres
-
-    getreg('a')
-
-            retourne le contenu du registre @a sous la forme d'une chaîne
-
-    getreg('a', 1, 1)
-
-            retourne le contenu du registre @a sous la forme d'une liste, dont chaque item correspond
-            à une ligne du registre; \n sert de séparateur
-
-            Le 2e argument est facultatif et ignoré sauf pour le registre expression ('=').
-
-            Le 3e argument est facultatif et détermine si le retour sera une chaîne ou une liste.
-
-    getreg('=', 1)
-
-            retourne la dernière expression passée au registre @= avant son évaluation
-            si on veut l'évaluation, il faut remplacer le 2e argument par 0
-
-    getregtype('a')
-
-            retourne le type du registre a:
-
-                'v'    ou 'c'         characterwise
-                'V'    ou 'l'         linewise
-                '10' ou 'b10'       blockwise (10 étant la largeur du bloc)
-
-            Le type d'un registre détermine de quelle façon il sera collé dans un buffer.
-
-            On peut appeler getregtype() sans lui passer d'argument,
-            dans ce cas elle retourne le type du registre en cours d'utilisation par un opérateur (v:register).
-
-    setreg('a', string)
-
-            écrit la chaîne string dans le registre @a
-
-    setreg(v:register, @*)
-
-            écrit le contenu du registre sélection dans le registre en cours d'utilisation par un opérateur
-            la fonction setreg() retourne 0 en cas de succès, un autre nb autrement
-
-    setreg('*', @%, 'av')
-
-            ajoute (flag 'a' dans le 3e argument) le nom du buffer courant au contenu du registre sélection
-            et attribue le type characterwise à ce dernier (flag 'v' dans le 3e argument)
-
-    setreg('a', "1\n2\n3", 'b5')
-
-            stocke la chaîne "1\n2\n3" dans le registre @a et lui attribue le type par bloc avec une largeur 5
-            si on ne précise pas la largeur du bloc, elle est égale automatiquement au nb de caractères
-            sur la plus longue des lignes
-
-    setreg('a', ['foo', 'bar', 'baz'])
-
-            stocke dans le registre 'a' les chaînes 'foo', 'bar' et 'baz' sur 3 lignes différentes
-            le type du registre 'a' est automatiquement 'V'
-
-    setreg('+', '', 'aV')
-
-            fait passer le type du registre @+ à linewise
-
-            Le flag 'a' indique qu'il faut ajouter la valeur à l'ancien contenu du registre @+
-            (au lieu de l'écraser), et comme la valeur est '' le contenu de @+ n'est pas modifié
-            (mais son type oui).
-
-            Ceci est une astuce illustrant comment changer le type d'un registre, car il n'existe
-            pas de fonction setregtype().
-
-## Temps
-
-    localtime()
-
-            retourne l'heure locale en nb de secondes depuis l'epoch (date: 0h UTC 01/01/1970)
-
-
-    getftime('file')
-
-            retourne la date de la dernière modification de file en nb de secondes depuis l'epoch
-            si file ne peut pas être trouvé, -1 est retourné
-
-
-    reltime()
-
-            retourne l'heure courante sous la forme d'une liste de 2 items
-            1er = nb de secondes depuis l'epoch; 2e nb = partie décimale en millionièmes de secondes
-
-    reltime([10, 100000], [15, 300000])
-
-            retourne [5, 200000]    15.3 - 10.1 = 5.2
-
-            reltime() permet de calculer le temps qui s'est écoulé entre 2 dates enregistrées à des moments
-            différents (dans des variables) via reltime()
-
-    reltimestr(reltime([10, 100000], [15, 300000]))
-
-            retourne la chaîne '5.200000'
-
-            reltimestr() permet de convertir la sortie de reltime() en une chaîne
-
-
-    strftime('%F')
-    strftime('%c')    strftime('%d %b %Y')
-
-    strftime('%X')
-    strftime('%H:%M')
-    strftime('%T')
-
-            retourne:
-
-                    • la date du jour    sans l'heure       équivaut à `%Y-%m-%d`
-                    • la date du jour    avec l'heure,      système horaire sur 12 heures
-
-                    • l'heure            avec les secondes, système 12 heures
-                    • "                  sans les secondes, système 24 heures
-                    • "                  avec les secondes, système 24 heures
-
-            En l'absence de 2e argument, strftime() utilise l'heure/date du moment.
-
-            Pour la liste complète des formats supportés par `strftime()`, lire `$ man strftime`.
-
-
-    strftime('%c', getftime('file'))
-
-            retourne la date de dernière modification de file (format lisible par un humain)
 

@@ -66,6 +66,59 @@ Vim does no coercition when comparing lists.
 
 ##
 ## Getting info
+### How to get the number of occurrences of a value in
+#### a dictionary?
+
+    echo count(dict, val)
+
+---
+
+    echo count({'a': 1, 'b': 123, 'c': 123}, 123)
+    2~
+
+####
+#### a list?
+
+    echo count(list, val)
+
+---
+
+    echo count(['a', 'b', 'a'], 'a')
+    2~
+
+##### ignoring the case?
+
+Use the third optional argument:
+
+    echo count(list, item, 1)
+
+---
+
+    echo count(['a', 'b', 'A'], 'a', 1)
+    2~
+
+---
+
+It works with dictionaries as well:
+
+    echo count({'one': 'a', 'two': 'b', 'three': 'A'}, 'a', 1)
+    2~
+
+##### counting from `{start}` items after the beginning of the list?
+
+Use the fourth optional argument:
+
+    echo count(list, item, 0, start)
+
+---
+
+    echo count(['a', 'a', 'a'], 'a', 0)
+    3~
+
+    echo count(['a', 'a', 'a'], 'a', 0, 1)
+    2~
+
+###
 ### How to get the first item in `list` which matches `pat`?
 
     echo matchstr(list, pat)
@@ -75,28 +128,64 @@ Vim does no coercition when comparing lists.
     echo matchstr(['foo', 'bar', 'baz'], '^b')
     bar~
 
-### How to get the index of the first item in `list` which matches `pat`?
+Note that you get the whole item, not just the part matching the pattern.
+
+#### starting from the item of index `{start}`?
+
+    echo matchstr(list, pat, start)
+
+---
+
+    echo matchstr(['-a', '_', '-b'], '-', 1)
+    -b~
+
+##### and only the `{count}`-th item matching the pattern?
+
+    echo matchstr(list, pat, start, count)
+
+---
+
+    echo matchstr(['-a', '_', '-b', '-c'], '-', 1, 2)
+    -c~
+
+####
+#### Instead of the item, how could I have got its index?
+
+Replace `matchstr()` with `match()`:
 
     echo match(list, pat)
+    echo match(list, pat, start)
+    echo match(list, pat, start, count)
 
 ---
 
-    echo match(['foo', 'bar', 'baz'], '^b')
+    echo match(['_', '-a'], '-')
     1~
 
-### How to get the number of occurrences of a value in a list?
+    echo match(['-a', '_', '-b'], '-', 1)
+    2~
 
-    echo count(list, val)
+    echo match(['-a', '_', '-b', '-c'], '-', 1, 2)
+    3~
+
+###
+### How to get the byte index of the start and end of a match in the first matching item of a list?
+
+Use `matchstrpos()`:
+
+    echo matchstrpos(list, pat)
 
 ---
 
-    let list = split('hello', '\zs')
-    echo count(list, 'l')
-    2~
+    echo matchstrpos(['_', '__x'], '\a')
+    ['x', 1, 2, 3]~
+      │   │  │  │
+      │   │  │  └ byte index of the end of the match +1
+      │   │  └ byte index of the start of the match inside the item
+      │   └ index of the item
+      └ match (`matchstr()` would have returned the whole item)
 
-The `l` character is present twice in `['h', 'e', 'l', 'l', 'o']`.
-
-##
+###
 ## Initializing
 ### How to initialize a list of length `5`, all items being `0`?
 

@@ -1,3 +1,73 @@
+# ?
+
+    getreg('a')
+
+            retourne le contenu du registre @a sous la forme d'une chaîne
+
+    getreg('a', 1, 1)
+
+            retourne le contenu du registre @a sous la forme d'une liste, dont chaque item correspond
+            à une ligne du registre; \n sert de séparateur
+
+            Le 2e argument est facultatif et ignoré sauf pour le registre expression ('=').
+
+            Le 3e argument est facultatif et détermine si le retour sera une chaîne ou une liste.
+
+    getreg('=', 1)
+
+            retourne la dernière expression passée au registre @= avant son évaluation
+            si on veut l'évaluation, il faut remplacer le 2e argument par 0
+
+    getregtype('a')
+
+            retourne le type du registre a:
+
+                'v'    ou 'c'         characterwise
+                'V'    ou 'l'         linewise
+                '10' ou 'b10'       blockwise (10 étant la largeur du bloc)
+
+            Le type d'un registre détermine de quelle façon il sera collé dans un buffer.
+
+            On peut appeler getregtype() sans lui passer d'argument,
+            dans ce cas elle retourne le type du registre en cours d'utilisation par un opérateur (v:register).
+
+    setreg('a', string)
+
+            écrit la chaîne string dans le registre @a
+
+    setreg(v:register, @*)
+
+            écrit le contenu du registre sélection dans le registre en cours d'utilisation par un opérateur
+            la fonction setreg() retourne 0 en cas de succès, un autre nb autrement
+
+    setreg('*', @%, 'av')
+
+            ajoute (flag 'a' dans le 3e argument) le nom du buffer courant au contenu du registre sélection
+            et attribue le type characterwise à ce dernier (flag 'v' dans le 3e argument)
+
+    setreg('a', "1\n2\n3", 'b5')
+
+            stocke la chaîne "1\n2\n3" dans le registre @a et lui attribue le type par bloc avec une largeur 5
+            si on ne précise pas la largeur du bloc, elle est égale automatiquement au nb de caractères
+            sur la plus longue des lignes
+
+    setreg('a', ['foo', 'bar', 'baz'])
+
+            stocke dans le registre 'a' les chaînes 'foo', 'bar' et 'baz' sur 3 lignes différentes
+            le type du registre 'a' est automatiquement 'V'
+
+    setreg('+', '', 'aV')
+
+            fait passer le type du registre @+ à linewise
+
+            Le flag 'a' indique qu'il faut ajouter la valeur à l'ancien contenu du registre @+
+            (au lieu de l'écraser), et comme la valeur est '' le contenu de @+ n'est pas modifié
+            (mais son type oui).
+
+            Ceci est une astuce illustrant comment changer le type d'un registre, car il n'existe
+            pas de fonction setregtype().
+
+##
 # Noms
 
     ""         registre unnamed

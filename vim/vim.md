@@ -3,9 +3,9 @@
 In insert mode, a character is between 2 characters.
 In normal mode, a character is *on* a character.
 
-But while in  normal there are `n`  possible characters on which  the cursor may
-be, in insert mode there are `n+1`  possible positions for the cursor (“posts vs
-fences”).
+But while in normal  mode there are `n` possible characters  on which the cursor
+may be, in insert mode there are `n+1` possible positions for the cursor (“posts
+vs fences”).
 
 When you  switch to insert  mode from  normal mode, the  cursor has to  choose a
 location between 2 characters.
@@ -14,13 +14,13 @@ was in normal mode: this makes it look like it moves half a character backward.
 
 ---
 
-But why does the cursor moves one character backward when I press `Esc i` while?
+But why does the cursor moves one character backward when I press `i Esc`?
 
-Often, you're typing at the end of the line, and there `Esc` can only go left.
+Often, you're typing at the end of the line, and there, `Esc` can only go left.
 So the general behavior is the most common behavior.
 
-        https://unix.stackexchange.com/a/11405/289772
-        https://www.reddit.com/r/vim/comments/a9zzv5/last_character_end_of_file/ecnwnln/
+    https://unix.stackexchange.com/a/11405/289772
+    https://www.reddit.com/r/vim/comments/a9zzv5/last_character_end_of_file/ecnwnln/
 
 ##
 ##

@@ -721,7 +721,7 @@ Quelques ancres/atomes ordinaires de largeur nulle (:h /zero-width) :
 
             Try to avoid `\%v` as much as possible, and use `\%c` instead.
             How `\%123v` is interpreted may be influenced by some options.
-            See our notes about `virtcol()` for more info.
+            See `./vimL.md` for more info.
 
             Although, I guess  it's ok to use `\%v` when  you're sure your lines
             are NOT wrapped.
@@ -736,6 +736,13 @@ Quelques ancres/atomes ordinaires de largeur nulle (:h /zero-width) :
 
             \%>56c et \%<56c signifient que l'index de l'octet suivant doit être
             strictement supérieur / inférieur à 56.
+
+                                     NOTE:
+
+            `\%123c` commence à indexer à partir de 1, et non de 0, comme `col()`.
+
+                    /\%0c
+                    E486: Pattern not found: \%0c~
 
 
     \%42v.
