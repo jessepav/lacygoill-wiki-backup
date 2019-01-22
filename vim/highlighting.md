@@ -509,6 +509,26 @@ For more info, see:
 # TODO
 ## ?
 
+Document the fact that `execute('hi ...')` can contain newlines, if the width of
+the current window is too small.
+
+You need to make sure they're removed.
+
+Make sure we haven't made this kind of mistake elsewhere:
+
+    Vim /\C\s\<execute(/gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
+
+Also, should we remove the newline, or replace them with spaces?
+If we remove them, is it enough, or does Vim still add an extra space?
+
+When you know what to do, review what we did in:
+
+    ~/.vim/autoload/colorscheme.vim
+    /colorscheme#customize(
+    /hi Underlined
+
+## ?
+
 Document the fact that for a HG, the only relevant attributes are:
 
    • `gui`, `guifg` and `guibg` (in GUI)

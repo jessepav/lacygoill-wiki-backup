@@ -841,6 +841,373 @@ surrounding quotes removed and the special characters translated.
     echo strtrans("a\nb")
     a^@b~
 
+### How to convert an ascii codepoint into its corresponding character?  (2)
+
+Use `nr2char()` or `printf()` + `%c`.
+
+    echo printf('this char is %c', 97)
+    this char is a~
+
+    echo 'this char is '.nr2char(97)
+    this char is a~
+
+##
+## Formatting with `printf()`
+### What's its signature?
+
+    printf({fmt}, {expr1}, ...)
+                           │
+                           └ up to 18 expressions
+
+###
+### What are its 3 main usages?
+
+It can be used to transform a string:
+
+   • by truncating a substring or a float
+
+   • adding a padding of spaces or `0`s
+
+   • convert a number from a base into another
+
+### Which number conversions can it perform?
+
+The input base can be octal (`0123`), decimal (`123`), or hexadecimal (`0x123`).
+The output base can be octal (`%o`), decimal (`%d`), or hexadecimal (`%x`, `%X`).
+
+This makes 6 possible conversions (`3*3 - 3`):
+
+    echo printf('%o', 123)
+    173~
+    echo printf('%o', 0x123)
+    443~
+
+    echo printf('%d', 0123)
+    83~
+    echo printf('%d', 0x123)
+    291~
+
+    echo printf('%x', 0123)
+    53~
+    echo printf('%X', 123)
+    7B~
+
+#### `str2nr()` can also convert numbers from one base to another.  How is it different?  (3)
+
+   • `str2nr()` can only do 3 conversions, all towards decimal:
+
+        " bin → dec
+        echo str2nr('101010', 2)
+        42~
+
+        " oct → dec
+        echo str2nr('123', 8)
+        83~
+
+        " hex → dec
+        echo str2nr('123', 16)
+        291~
+
+   • `str2nr()` is the only one which can convert binary to decimal.
+
+   • `printf()`  interprets  a  number  differently depending  on  whether  it's
+     prefixed by `0` or `0x`.
+
+     `str2nr()` doesn't care about the prefix; it cares about its second argument.
+
+###
+### What's the purpose of a `%` character?
+
+It starts a conversion specification, which ends  with a type (such as `d` for a
+decimal number or `s` for a string).
+
+### What's the purpose of a `%` item?
+
+It formats the corresponding expression.
+The first  `%` item formats  the first expression,  the second item  formats the
+second expression...
+
+`printf()` returns  `{fmt}` where each item  has been replaced by  the formatted
+expression.
+
+#### What's its syntax?
+
+`%` expects one mandatory argument (the conversion specifier, aka type).
+And it accepts up to three optional arguments:
+
+   • flags
+   • field-width
+   • precision
+
+The arguments must follow this order:
+
+    %  [flags]  [field-width]  [.precision]  type
+
+###
+### How do these items format an expression?
+#### `%f`
+
+As a float:
+
+    echo printf('%f', 123)
+    123.000000~
+
+##### How does it format `123.456`?
+
+Without `.precision`, it considers that the precision is `6`, so here, it adds 3
+trailing zeros:
+
+    echo printf('%f', 123.456000)
+    123.456000~
+
+#####
+#### `%e`
+
+As a float written in scientific notation:
+
+    echo printf('%e', 123.456)
+    1.234560e+02~
+
+#### `%E`
+
+Same thing as `%e`, but the exponent is `E` instead of `e`:
+
+    echo printf('%E', 123.456)
+    1.234560E+02~
+
+####
+#### `%g`
+
+As a float, either like `%f` or like `%e`.
+
+Like `%f`, if the number verifies:
+
+    10^-3 <= n < 10^7
+
+Like `%e` otherwise.
+
+##### How does it format `123.456000`?
+
+Contrary to `%f`, the superfluous zeros are removed.
+
+    echo printf('%g', 123.456000)
+    123.456~
+
+    echo printf('%g', 123.000)
+    123.0~
+        │
+        └ this zero is not superfluous, because it characterizes a float;
+          without, the number would become an integer
+
+####
+#### `%G`
+
+Like `%g`, but uses `E` instead of `e` in scientific notation.
+
+###
+### ?
+
+    %s
+
+Chaîne alignée à droite.
+`field-width` et `.precision` sont interprétés comme des nb d'octets.
+
+La chaîne  n'a besoin d'être  alignée que si  `field-width` est supérieur  au nb
+d'octets qu'elle pèse.
+
+---
+
+    %S
+
+Idem mais `field-width` et `precision` sont interprétés comme des nb de cellules.
+
+La chaîne n'a besoin d'être alignée que  si `field-width` est supérieur au nb de
+cellules qu'elle occupe.
+
+### ?
+
+    flags
+
+Une suite d'un ou plusieurs caractères.
+
+---
+
+    #
+
+N'a d'effet qu'avec les types `o`, `x` et `X`.
+
+A pour effet d'ajouter en préfixe `0`, `0x` ou `0X`:
+
+    echo printf('%#o', 123)
+    0173~
+    echo printf('%#x', 123)
+    0x7b~
+    echo printf('%#X', 123)
+    0X7B~
+
+Permet d'exprimer explicitement la base dans laquelle est écrite le nb.
+
+---
+
+    0
+
+Padding de zéros au lieu d'espaces.
+Ne fonctionne que lorsque le padding est à gauche.
+Un padding à droite ne peut être constitué que d'espaces.
+
+---
+
+    -
+
+Alignement à gauche et non à droite.
+
+---
+
+    +
+
+Préfixe un `+` devant un nb positif:
+
+    echo printf('%+d', 123)
+    +123~
+    echo printf('%+.2f', 12.34)
+    +12.34~
+
+---
+
+    ' '
+
+Préfixe un espace devant un nb positif:
+
+    echo printf('% d', 123)
+    ' 123'~
+    echo printf('%+ .2f', 12.34)
+    '+12.34'~
+
+`+` a la priorité sur espace.
+
+### ?
+
+    field-width
+
+`field-width` est un  entier positif spécifiant le poids en  octets de la valeur
+convertie.
+Sauf pour l'item `%S` où il correspond à une largeur en nb de cellules.
+
+Si `field-width` > poids  en octets de la valeur convertie  (ou nb de cellules),
+un padding d'espaces est ajouté à gauche.
+Si `field-width` < ..., la valeur n'est *pas* tronquée pour autant.
+
+À la place d'un nb, on peut donner à `field-width` une valeur spéciale `*`.
+Dans ce cas, il faudra passer à `printf()` 2 arguments au lieu d'un.
+Le 1er correspondant au poids/largeur du champ, le 2e à l'expression à formater.
+Ex:
+
+    echo printf('%d: %*s', nr, width, line)
+
+On a bien 2 items (`%d` et `%s`), mais 3 arguments en plus de la chaîne:
+
+   • `nr`     est l'expression formatée selon %d
+   • `width`  est le poids du champ dans lequel doit s'afficher `line`
+   • `line`   est l'expression formatée selon %*s
+
+`*` est utile lorsqu'on  a besoin d'une largeur de champ  dynamique, et est plus
+lisible qu'une concaténation de chaînes:
+
+    let prec = 9
+
+    ✔
+    echo printf('%'.prec.'f', 1/3.0)
+    ✔✔
+    echo printf('%*f', prec, 1/3.0)
+
+### ?
+
+    .precision
+
+`precision`  est un  nb  interprété  de façon  différente  selon  le type  qu'il
+affecte:
+
+   • d, o, x et X     minimum de chiffres à afficher      avec padding (0/espace) si besoin
+   • s                maximum d'octets à afficher         troncation si besoin
+   • S                maximum de caractères à afficher    "
+   • f, e, E, g, G    nb de chiffres après la virgule     "
+
+Les différences d'interprétation sont logiques:  on souhaite souvent tronquer un
+flottant, mais pas un entier.
+
+Ceci  étant, pour  obtenir un  padding de  `0` avec  un entier,  il paraît  plus
+logique d'utiliser un `field-width` et le flag `0`:
+
+    echo printf('%06d', 123)
+
+plutôt que
+
+    echo printf('%.6d', 123)
+
+Ainsi, on  peut considérer  que field-width  et .precision  ont des  usages bien
+distincts:
+
+    field-width = padding
+    .precision  = troncation
+
+Si on utilise le  flag `.precision` mais sans lui donner  de valeur (ex: `%.s`),
+il est considéré comme valant `0` (=troncation max).
+
+Si on n'utilise pas du tout le  flag `.precision` (ex: `%f`), il est malgré tout
+considéré comme valant `6` pour un flottant  de type `f` ou `e`/`E`, et `1` pour
+un flottant de type `g`/`G`.
+
+Tout comme  pour `field-width`, on  peut donner à  `precision` la valeur  `*` au
+lieu d'un nb.
+Et à nouveau, dans ce cas, il faudra fournir 2 arguments au lieu d'un.
+Un pour la précision de l'item, et un pour son contenu.
+
+### ?
+
+                                 ┌─ fonctionne car ...
+                                 │
+    ┌──────────────────────────┬────────────────────────────────────────────────────────────┐
+    │ echo printf('%s',  123)  │ le nb 123 a été initialement converti en la chaîne '123'   │
+    │     → '123'              │                                                            │
+    ├──────────────────────────┼────────────────────────────────────────────────────────────┤
+    │ echo printf('%d', '123') │ la chaîne 123 a été initialement convertie en le nb 123    │
+    │     → '123'              │                                                            │
+    ├──────────────────────────┼────────────────────────────────────────────────────────────┤
+    │ echo printf('%f',  123)  │ le nb 123 a été initialement converti en le flottant 123.0 │
+    │     → '123.000000'       │                                                            │
+    └──────────────────────────┴────────────────────────────────────────────────────────────┘
+
+`printf()` peut, lorsque c'est nécessaire, convertir un argument d'un type donné
+en un autre.
+Les seules types de conversions automatiques possibles sont:
+
+   • nb    ↔    chaîne
+   • nb    →    flottant
+
+### ?
+
+    echo printf('%.f', 123.456)
+    123~
+
+Qd la précision vaut 0 (`.` = `.0`), la partie décimale d'un flottant est omise:
+
+    %.f    ⇔    %.0f
+
+### ?
+
+    echo printf('%6d', 123)
+       123~
+    echo printf('%06d', 123)
+    000123~
+
+    echo printf('%.s', 'foobar')
+    ''~
+
+En l'absence de précision, elle est considérée comme nulle, et précision nulle =
+troncation max:
+
+    %.s    ⇔    %.0s
+
 ##
 # Issues
 ## `:echo 'hello' " some comment` raises `E114`!
@@ -886,268 +1253,4 @@ middle is *not* ignored.
 
 Although, I guess it's ok to use `virtcol()` when you're sure your lines are *not*
 wrapped.
-
-# printf()
-
-`printf()` est une fonction utile pour  manipuler une chaîne au sein de laquelle
-on veut:
-
-   • tronquer une sous-chaîne ou un flottant
-   • ajouter un padding d'espaces ou de zéros
-   • convertir un nb décimal en hexa ou en base 8
-   • convertir un code ascii décimal en le caractère lui correspondant
-
----
-
-    printf({fmt}, {expr1} ...)
-
-`{fmt}` est une chaîne pouvant contenir des items `%`.
-Pour chaque item utilisé (sauf `%%`), il faut fournir à `printf()` une
-expression correspondante.
-
-`printf()`  retourne la  chaîne  `{fmt}` où  les items  sont  remplacés par  les
-expressions.
-Les items servent à formater les expressions: on parle d'interpolation.
-On ne peut pas utiliser plus de 18 expressions.
-
-Le  formatage  est décrit  par  une  spécification  de  conversion qui  suit  le
-caractère `%`.
-Il  attend 1  argument obligatoire  (spécificateur  de conversion  aka type)  et
-accepte  jusqu'à 3  arguments  optionnels (flags,  field-width, precision)  dans
-l'ordre suivant:
-
-    %  [flags]  [field-width]  [.precision]  type
-
----
-
-    type
-
-Il s'agit d'un caractère spécifiant le type de conversion à appliquer.
-
-    ┌───┬───────────────────────────────────────────────────────────────────────────────────────────────┐
-    │ s │ chaîne alignée à droite                                                                       │
-    │   │ `field-width` et `.precision` sont interprétés comme des nb d'octets                          │
-    │   │                                                                                               │
-    │   │ La chaîne n'a besoin d'être alignée que si `field-width` est supérieur                        │
-    │   │ au nb d'octets qu'elle pèse.                                                                  │
-    ├───┼───────────────────────────────────────────────────────────────────────────────────────────────┤
-    │ S │ idem mais `field-width` et `precision` sont interprétés comme des nb de cellules              │
-    │   │                                                                                               │
-    │   │ La chaîne n'a besoin d'être alignée que si `field-width` est supérieur                        │
-    │   │ au nb de cellules qu'elle occupe.                                                             │
-    ├───┼───────────────────────────────────────────────────────────────────────────────────────────────┤
-    │ c │ caractère à partir de son code ascii                                                          │
-    ├───┼───────────────────────────────────────────────────────────────────────────────────────────────┤
-    │ d │ nb entier décimal/en base 10                                                                  │
-    ├───┼───────────────────────────────────────────────────────────────────────────────────────────────┤
-    │ x │ nb hexa                  caractères minuscules                                                │
-    │ X │ nb hexa                  caractères maj                                                       │
-    ├───┼───────────────────────────────────────────────────────────────────────────────────────────────┤
-    │ o │ nb octal                                                                                      │
-    ├───┼───────────────────────────────────────────────────────────────────────────────────────────────┤
-    │ f │ nb flottant                                                                                   │
-    │ e │ nb flottant; notation scientifique:      1.234560e+02                                         │
-    │ E │ idem, mais en remplaçant l'exposant 'e' par 'E'                                               │
-    ├───┼───────────────────────────────────────────────────────────────────────────────────────────────┤
-    │ g │ nb flottant;                                                                                  │
-    │   │ équivalent à f si le nb est compris entre 10^-3 (inclus) et 10^7 (exclus), e autrement        │
-    │   │                                                                                               │
-    │   │ En l'absence de précision, les zéros superflus (ex: 123.456000) sont supprimés                │
-    │   │ (contrairement à f).                                                                          │
-    │   │ Un zéro juste après la virgule (123.0) n'est pas superflu, car il caractérise                 │
-    │   │ le flottant, et le différencie d'un nb entier.                                                │
-    │   │                                                                                               │
-    │ G │ idem, mais équivaut à E qd le nb est compris entre 10^-3 et 10^7                              │
-    ├───┼───────────────────────────────────────────────────────────────────────────────────────────────┤
-    │ % │ '%%' est converti en '%' (aucun argument à fournir)                                           │
-    └───┴───────────────────────────────────────────────────────────────────────────────────────────────┘
-
----
-
-    flags
-
-Une suite d'un ou plusieurs caractères.
-
-    #
-
-N'a d'effet qu'avec les types `o`, `x` et `X`.
-
-A pour effet d'ajouter en préfixe `0`, `0x` ou `0X`:
-
-    echo printf('%#o', 123)
-    0173~
-    echo printf('%#x', 123)
-    0x7b~
-    echo printf('%#X', 123)
-    0X7B~
-
-Permet d'exprimer explicitement la base dans laquelle est écrite le nb.
-
-    0
-
-Padding de zéros au lieu d'espaces.
-Ne fonctionne que lorsque le padding est à gauche.
-Un padding à droite ne peut être constitué que d'espaces.
-
-    -
-
-Alignement à gauche et non à droite.
-
-    +
-
-Préfixe un `+` devant un nb positif:
-
-    echo printf('%+d', 123)
-    +123~
-    echo printf('%+.2f', 12.34)
-    +12.34~
-
-    ' '
-
-Préfixe un espace devant un nb positif:
-
-    echo printf('% d', 123)
-    ' 123'~
-    echo printf('%+ .2f', 12.34)
-    '+12.34'~
-
-`+` a la priorité sur espace.
-
----
-
-    field-width
-
-`field-width` est un  entier positif spécifiant le poids en  octets de la valeur
-convertie.
-Sauf pour l'item `%S` où il correspond à une largeur en nb de cellules.
-
-Si `field-width` > poids  en octets de la valeur convertie  (ou nb de cellules),
-un padding d'espaces est ajouté à gauche.
-Si `field-width` < ..., la valeur n'est *pas* tronquée pour autant.
-
-À la place d'un nb, on peut donner à `field-width` une valeur spéciale `*`.
-Dans ce cas, il faudra passer à `printf()` 2 arguments au lieu d'un.
-Le 1er correspondant au poids/largeur du champ, le 2e à l'expression à formater.
-Ex:
-
-    echo printf('%d: %*s', nr, width, line)
-
-On a bien 2 items (`%d` et `%s`), mais 3 arguments en plus de la chaîne:
-
-   • `nr`     est l'expression formatée selon %d
-   • `width`  est le poids du champ dans lequel doit s'afficher `line`
-   • `line`   est l'expression formatée selon %*s
-
-`*` est utile lorsqu'on  a besoin d'une largeur de champ  dynamique, et est plus
-lisible qu'une concaténation de chaînes:
-
-    let prec = 9
-
-    ✔
-    echo printf('%'.prec.'f', 1/3.0)
-    ✔✔
-    echo printf('%*f', prec, 1/3.0)
-
----
-
-    .precision
-
-`precision`  est un  nb  interprété  de façon  différente  selon  le type  qu'il
-affecte:
-
-   • d, o, x et X     minimum de chiffres à afficher      avec padding (0/espace) si besoin
-   • s                maximum d'octets à afficher         troncation si besoin
-   • S                maximum de caractères à afficher    "
-   • f, e, E, g, G    nb de chiffres après la virgule     "
-
-Les différences d'interprétation sont logiques:  on souhaite souvent tronquer un
-flottant, mais pas un entier.
-
-Ceci  étant, pour  obtenir un  padding de  `0` avec  un entier,  il paraît  plus
-logique d'utiliser un `field-width` et le flag `0`:
-
-    echo printf('%06d', 123)
-
-plutôt que
-
-    echo printf('%.6d', 123)
-
-Ainsi, on  peut considérer  que field-width  et .precision  ont des  usages bien
-distincts:
-
-    field-width = padding
-    .precision  = troncation
-
-Si on utilise le  flag `.precision` mais sans lui donner  de valeur (ex: `%.s`),
-il est considéré comme valant `0` (=troncation max).
-
-Si on n'utilise pas du tout le  flag `.precision` (ex: `%f`), il est malgré tout
-considéré comme valant `6` pour un flottant  de type `f` ou `e`/`E`, et `1` pour
-un flottant de type `g`/`G`.
-
-Tout comme  pour `field-width`, on  peut donner à  `precision` la valeur  `*` au
-lieu d'un nb.
-Et à nouveau, dans ce cas, il faudra fournir 2 arguments au lieu d'un.
-Un pour la précision de l'item, et un pour son contenu.
-
----
-
-                                 ┌─ fonctionne car ...
-                                 │
-    ┌──────────────────────────┬────────────────────────────────────────────────────────────┐
-    │ echo printf('%s',  123)  │ le nb 123 a été initialement converti en la chaîne '123'   │
-    │     → '123'              │                                                            │
-    ├──────────────────────────┼────────────────────────────────────────────────────────────┤
-    │ echo printf('%d', '123') │ la chaîne 123 a été initialement convertie en le nb 123    │
-    │     → '123'              │                                                            │
-    ├──────────────────────────┼────────────────────────────────────────────────────────────┤
-    │ echo printf('%f',  123)  │ le nb 123 a été initialement converti en le flottant 123.0 │
-    │     → '123.000000'       │                                                            │
-    └──────────────────────────┴────────────────────────────────────────────────────────────┘
-
-`printf()` peut, lorsque c'est nécessaire, convertir un argument d'un type donné
-en un autre.
-Les seules types de conversions automatiques possibles sont:
-
-   • nb    ↔    chaîne
-   • nb    →    flottant
-
----
-
-    echo printf('this char is %c', 97)
-    this char is a~
-
-`%c` permet  d'insérer au sein  d'une chaîne un caractère  à partir de  son code
-ascii.
-
-
-    echo printf('%f', 123.456)
-    123.456000~
-
-En l'absence de  précision explicite, printf() considère qu'elle  vaut `6`, d'où
-les 6 chiffres après la virgule ici.
-
----
-
-    echo printf('%.f', 123.456)
-    123~
-
-Qd la précision vaut 0 (`.` = `.0`), la partie décimale d'un flottant est omise:
-
-    %.f    ⇔    %.0f
-
----
-
-    echo printf('%6d', 123)
-       123~
-    echo printf('%06d', 123)
-    000123~
-
-    echo printf('%.s', 'foobar')
-    ''~
-
-En l'absence de précision, elle est considérée comme nulle, et précision nulle =
-troncation max:
-
-    %.s    ⇔    %.0s
 
