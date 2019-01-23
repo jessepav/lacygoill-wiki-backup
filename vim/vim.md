@@ -297,11 +297,11 @@ Pour copier le texte sur lequel elle doit agir, la fonction utilisera les comman
                     - abréviations (cnorea)
                     - mappings (cmap), …
 
-    :5,10norm .
+    :5,10norm! .
 
-            répéter la dernière édition sur les lignes 5 à 10
-            + généralement, on peut passer n'importe quelle rangée (visuelle pex *) et ainsi répéter une édition
-            sur un groupe de lignes
+            Répéter la dernière édition sur les lignes 5 à 10.
+            Plus généralement, on peut  passer n'importe quelle rangée (visuelle
+            pex `*`) et ainsi répéter une édition sur un groupe de lignes
 
 
     :m+1
@@ -547,20 +547,25 @@ courante.
 
     ]p    [p
 
-            colle le texte sous/au-dessus de la ligne courante en respectant son niveau d'indentation
+            colle le texte sous/au-dessus de la ligne courante en respectant son
+            niveau d'indentation
 
-            ex: On coupe un bloc de texte avec différentes lignes indentées qui ont différents
-            niveaux d'indentation.
+            ex: On coupe un bloc de  texte avec différentes lignes indentées qui
+            ont différents niveaux d'indentation.
 
-            La 1e ligne du bloc (et donc toutes les suivantes) est indentée par un caractère tab inutile.
-            On place son curseur sur une ligne sur laquelle le niveau d'indentation est nul.
+            La 1e ligne du bloc (et  donc toutes les suivantes) est indentée par
+            un caractère tab inutile.
+            On  place  son  curseur  sur   une  ligne  sur  laquelle  le  niveau
+            d'indentation est nul.
             Une ligne vide a un niveau d'indentation nul.
-            En collant avec ce raccourci, la 1e ligne du bloc reçoit un nouveau niveau d'indentation identique
-            à celle qui précède, donc nul ici, et les autres reçoivent un niveau d'indentation égal à
-            leur ancien niveau - 1.
+            En collant avec ce raccourci, la  1e ligne du bloc reçoit un nouveau
+            niveau d'indentation identique à celle qui précède, donc nul ici, et
+            les  autres reçoivent  un niveau  d'indentation égal  à leur  ancien
+            niveau - 1.
 
-            Résultat: on colle bien le bloc sans changer les différences de niveau d'indentation entre les
-            lignes du bloc, mais on supprime bien au passage un niveau pour chaque ligne.
+            Résultat:  on colle  bien le  bloc sans  changer les  différences de
+            niveau d'indentation entre les lignes du bloc, mais on supprime bien
+            au passage un niveau pour chaque ligne.
 
     >p    >P
 
@@ -701,25 +706,29 @@ courante.
 
             importe le texte présent à l'adresse url
 
-    :r !date^@-j    :.read !date ^@ .-1join
+    :r !date^@-j
+    :.read !date ^@ .-1join
 
             insère sous la ligne courante la date et l'heure (:.read !date), puis (^@) réalise
             une fusion de lignes (join)
             à partir de la ligne précédant la ligne courante (.-1)
             -j   →   -1join   →   .-1join
 
-    :r !echo $RANDOM    :put =system('echo $RANDOM')
+    :r !echo $RANDOM
+    :put =system('echo $RANDOM')
 
             coller un nb aléatoire
 
             Illustre les 2 méthodes possibles pour coller la sortie d'une commande shell.
 
-    :r !python foo.py    :put =system('python foo.py')
+    :r !python foo.py
+    :put =system('python foo.py')
 
             coller la sortie du script python foo.py
 
 
-    :23 read fname    :23r fname
+    :23 read fname
+    :23r fname
 
             insère le contenu du fichier fname sous la ligne 23
 
@@ -948,13 +957,13 @@ courante.
 
 La correction orthographique dépend de la valeur de l'option spelllang.
 Quand celle-ci vaut 'en', ça implique que si un mot est juste dans une région de
-la langue anglaise (en_gb = anglais britannique, en_us = anglais américain) mais
-pas dans une autre, il ne sera pas corrigé.
+la langue anglaise (`en_gb` =  anglais britannique, `en_us` = anglais américain)
+mais pas dans une autre, il ne sera pas corrigé.
 
 Quand l'orthographe  d'un mot  est mauvais  dans une région  d'une langue  (ex :
-color dans  en_gb) mais juste  dans une autre région  de cette même  langue (ex:
-color dans en_us), et que la  correction orthographique est activée (set spell),
-il  n'est pas  colorisé et  souligné  dans la  même  couleur que  les mots  faux
+color dans `en_gb`) mais  juste dans une autre région de  cette même langue (ex:
+color  dans `en_us`),  et  que  la correction  orthographique  est activée  (set
+spell), il n'est pas colorisé et souligné dans la même couleur que les mots faux
 (rouge…) mais dans une autre couleur (vert, bleu…).
 
 ## Couper / Changer
@@ -1117,7 +1126,7 @@ il  n'est pas  colorisé et  souligné  dans la  même  couleur que  les mots  f
 ## Filtrer
 
 Infographie résumant les différents types d'interaction possibles entre Vim et un programme externe:
-https://4.bp.blogspot.com/-MhHrs8Q-S_A/UJpAuI_mOZI/AAAAAAAAAZ0/aJrXwjlvoYs/s1600/vim_pipes.png
+<https://4.bp.blogspot.com/-MhHrs8Q-S_A/UJpAuI_mOZI/AAAAAAAAAZ0/aJrXwjlvoYs/s1600/vim_pipes.png>
 
 
     !{motion}{filter}
@@ -1328,18 +1337,6 @@ https://4.bp.blogspot.com/-MhHrs8Q-S_A/UJpAuI_mOZI/AAAAAAAAAZ0/aJrXwjlvoYs/s1600
 
             v:char est utile si la fonction est évaluée automatiquement (formatage automatique,
             celui qui hard wrap une ligne dépassant &tw).
-
-    gqq
-
-            formate la ligne courante
-
-    gqip    gwip
-
-            formate le paragraphe courant
-
-    gggqG    gggwG
-
-            formate tout le buffer
 
 ## Fusionner
 
@@ -1601,34 +1598,18 @@ Le type de fichiers doit être correctement configuré pour qu'une auto-indentat
             Attention, il ne faut pas utiliser les flèches de direction pendant l'insertion de foo,
             autrement après l'insertion ne sera pas multipliée.
 
-    gI
-
-            insérer depuis la 1e colonne de la ligne
-
-    I    A
-
-            En mode visuel par bloc insérer du texte sur chaque ligne avant le début / après la fin du bloc.
-            On peut aussi sélectionner visuellement une suite de lignes, puis taper :norm! I<foo>
-            ou :norm! A<foo>
-
-
-    foo=1 bar=2 baz=3    →    foo = 1 bar = 2 baz = 3
-
-                f= cl SPC=SPC ; . .
-
-            Insérer un padding (espace) avant et après le prochain caractère = sur la ligne,
-            puis répéter l'opération pour les caractères suivants.
-
 
     C-x C-a
 
             Insérer le contenu du registre . (qui contient le texte inséré lors de la dernière édition).
 
-            Par défaut c'est C-a tout court, mais on a remap ce dernier au déplacement sur le 1er
-            caractère non whitespace sur la ligne, dans le cadre des raccourcis readline, il a fallu
-            trouvé un autre mapping custom.
+            Par  défaut c'est  C-a tout  court, mais  on a  remap ce  dernier au
+            déplacement sur le  1er caractère non whitespace sur  la ligne, dans
+            le cadre des raccourcis readline, il a fallu trouvé un autre mapping
+            custom.
 
-    C-@    C-SPC
+    C-@
+    C-SPC
 
             insérer le contenu du registre . et revenir au mode normal
 
@@ -1638,16 +1619,6 @@ Le type de fichiers doit être correctement configuré pour qu'une auto-indentat
 
             passe dans un sous mode du mode insertion dans lequel on peut scroller via C-e / C-y
 
-    C-r={expr}
-
-            entrer dans le registre expression pour insèrer l'évaluation de {expr}
-            {expr} peut être n'importe quelle expression Vim
-            (un registre @x, une variable var, une chaîne, une liste…)
-
-    C-r= C-r"
-
-            entrer dans le registre expression, y coller le contenu du registre par défaut l'évaluer
-            et coller le résultat dans le texte
 
     C-r C-r a
 
@@ -1926,7 +1897,6 @@ Le type de fichiers doit être correctement configuré pour qu'une auto-indentat
             En utilisant, `\n` à la place de `\u`, on ajouterait un tiret de plus à la fin:
 
                     -a-b-c-d-e-f-g-h-i-j-k-l-m-
-
 
 ## Rechercher
 
@@ -2254,14 +2224,6 @@ des LF (aucun effet donc).
             dessous / dessus (même colonnes).
 
 
-    Vr=
-
-            Remplacer tous les caractères de la ligne par le symbole =
-
-            Plus  généralement  on  peut  remplacer  tous  les  caractères  de  n'importe  quelle
-            sélection visuelle par le caractère `x` via `rx`.
-
-
     R C-r 0
 
             Remplacer les prochains caractères par le contenu du registre copie.
@@ -2292,10 +2254,13 @@ des LF (aucun effet donc).
 
                                                NOTE:
 
-            Dans ce mode, au lieu de remplacer des caractères du fichier, on remplace des cellules,
-            de sorte que l'affichage des caractères qui suivent ne soit pas modifié. Ils n'ont pas l'air de bouger.
+            Dans ce  mode, au lieu  de remplacer  des caractères du  fichier, on
+            remplace des cellules,  de sorte que l'affichage  des caractères qui
+            suivent ne soit pas modifié.
+            Ils n'ont pas l'air de bouger.
 
-            On peut voir une différence par rapport au mode remplacement (R), qd on remplace un caractère par un:
+            On peut voir une différence par rapport au mode remplacement (R), qd
+            on remplace un caractère par un:
 
                 - tab     gR peut remplacer plusieurs caractères (au lieu d'un seul en mode remplacement);
                           Il en remplace autant qu'il occuperait de cellules si on en insérait un.
@@ -2361,7 +2326,6 @@ des LF (aucun effet donc).
             viw         sélectionne le 1er 'foo'
             p           colle 'bar'                                 car @" = 'bar'
 
-
 ## Sélectionner
 
 :h visual-repeat
@@ -2410,22 +2374,10 @@ complexe.  Il y a plusieurs choses étranges avec ce genre d'objets:
                      mais seulement jusqu'à 3 avec i.
 
 
-
-    gv
-
-            restaurer la dernière sélection visuelle
-            pratique quand on fait des modifications en mode visuel par bloc
-
     g C-v
 
             le dernier texte édité (mapping custom)
 
-    o
-            en mode visuel, alterner la position du curseur entre 2 coins opposés
-
-    O
-
-            en mode visuel, alterner la position du curseur entre 2 coins consécutifs
 
     C-g
 
@@ -2441,12 +2393,13 @@ complexe.  Il y a plusieurs choses étranges avec ce genre d'objets:
 
 
 
-Dans toutes les commandes qui suivent l'opérateur v pourrait être remplacé par c, d ou y pour agir
-sur le texte sélectionné.
+Dans toutes les  commandes qui suivent l'opérateur v pourrait  être remplacé par
+c, d ou y pour agir sur le texte sélectionné.
 
-De plus, si on remplace v par V, quels que soient les objets, on sélectionne tjrs des lignes entières.
-Pex, V{backtick}a sélectionne tout le texte situé entre la ligne courante et la ligne de la marque a
-(les 2 lignes incluses).
+De plus,  si on remplace v  par V, quels  que soient les objets,  on sélectionne
+tjrs des lignes entières.
+Pex, V{backtick}a sélectionne tout le texte  situé entre la ligne courante et la
+ligne de la marque a (les 2 lignes incluses).
 
 
     v%
@@ -2468,10 +2421,6 @@ Pex, V{backtick}a sélectionne tout le texte situé entre la ligne courante et l
 
             targets.vim serait sans doute meilleur, car il crée des objets distincts pour ces 3 symboles,
             qui en + acceptent un count.
-
-    vil
-
-            la ligne courante (custom); utile avec l'opérateur custom Y pour copier des lignes en mode append
 
 
     va`    va'    va"
@@ -2528,11 +2477,6 @@ Pex, V{backtick}a sélectionne tout le texte situé entre la ligne courante et l
                 ―――――      va` ou vi[
                ―――――――     va[
 
-    v/foo
-
-            du curseur jusqu'à une occurrence du mot foo
-            on peut aussi naviguer entre les différentes occurrences (n / N), la sélection se met alors à jour
-
     C-v /foo
 
             rectangle de texte dont le curseur et le f du prochain pattern foo sont des coins opposés
@@ -2540,10 +2484,6 @@ Pex, V{backtick}a sélectionne tout le texte situé entre la ligne courante et l
     v3/foo/e+1
 
             du curseur jusqu'au caractère suivant la fin de la 3e prochaine occurrence de foo
-
-    v?foo
-
-            du curseur jusqu'à la précédente occurrence de foo
 
     viw/C-r C-w
 
@@ -2904,15 +2844,18 @@ par la suite.
     :/begin/+1;/end/-1 d
     999@:
 
-            Supprime toutes les lignes à l'intérieur des blocs commençant par une ligne contenant 'begin'
-            et se terminant par une ligne contenant 'end'.
+            Supprime toutes  les lignes à  l'intérieur des blocs  commençant par
+            une ligne contenant 'begin' et  se terminant par une ligne contenant
+            'end'.
 
             On pourrait remplacer :d par n'importe quelle commande Ex.
             Illustre comment agir sur des blocs de lignes bien déterminés/délimités.
 
-            Dans la 1e solution, il est important de séparer les 2 bornes par ; et non ,
-            En effet, on cherche la ligne contenant 'end' après la ligne où se trouve le prochain 'begin',
-            et non pas après celle où se trouve le curseur actuellement.
+            Dans la  1e solution, il est  important de séparer les  2 bornes par
+            `;` et non `,`.
+            En effet, on  cherche la ligne contenant 'end' après  la ligne où se
+            trouve le prochain  'begin', et non pas après celle  où se trouve le
+            curseur actuellement.
 
             La 2e solution s'appuie sur la logique suivante:
             si on est à l'extérieur d'un bloc, le prochain début de bloc se situe avant la prochaine fin de bloc
@@ -2945,27 +2888,14 @@ par la suite.
             Dans la 2e solution, si on voulait inclure les lignes 'begin' et 'end', il faudrait ajouter
             le flag 'c' à la recherche de 'begin', et le retirer à la recherche de 'end'.
 
-    SPC dd
-
-            supprime la ligne sans les leading/trailing whitespace
-
-    d'a
-
-            supprime les lignes entre celle où se trouve le curseur et celle où se trouve la marque a
-
-    d`a
-
-            supprime du curseur jusqu'au caractère sous la marque a
 
     /foo d C-v ``
 
-            supprime un rectangle de texte dont le curseur et le f du prochain pattern foo sont des coins opposés
-            Le saut vers /foo ajoute une entrée dans la jumplist (marque ') correspondant à la position
-            actuelle du curseur. On peut y retourner via ``.
-
-    dj
-
-            supprime la ligne courante et celle qui suit
+            Supprime un rectangle  de texte dont le curseur et  le f du prochain
+            pattern foo sont des coins opposés.
+            Le saut  vers /foo  ajoute une  entrée dans  la jumplist  (marque ')
+            correspondant à la position actuelle du curseur.
+            On peut y retourner via ``.
 
     dvj
 
@@ -2979,10 +2909,6 @@ par la suite.
             Pourtant,  dvj supprime  depuis le  caractère  sous le  curseur  et non  depuis le  1er
             caractère de la ligne courante, car on a suffixé l'opérateur d avec v.
 
-
-    d C-v j
-
-            supprime le caractère où se trouve le curseur et celui sur la même colonne sur la ligne suivante
 
     d C-v `a
 
@@ -3006,29 +2932,6 @@ par la suite.
                 p      remplacer le tout par l'intérieur
 
             On peut aussi utiliser l'opérateur ds fourni par le plugin vim-surround:    dsb
-
-    D
-
-            supprime depuis le curseur jusqu'à la fin de la ligne
-
-    C-v l 4j x .
-
-            supprimer un bloc de texte de dimension 5 (lignes) x 2 (colonnes)
-            La suppression est répétable via la commande dot qui mémorise les dimensions du bloc.
-            Le collage de ce même bloc (p) est également répétable via la commande dot.
-
-    C-w
-
-            en mode insertion / commande, supprime le dernier mot tapé
-
-    C-u
-
-            en mode ligne de commande supprime entre le curseur et le début de la ligne
-            en mode insertion, supprime successivement:
-
-                1. le texte qu'on vient d'insérer (très utile)
-                2. du curseur jusqu'au 1er non whitespace
-                3. du curseur jusqu'au début de la ligne
 
 ## Types de mouvements
 
@@ -3104,7 +3007,6 @@ F{char} d'exclusif à inclusif.
 #
 # Listes De Fichiers / Navigation
 ## Buffer list
-
 ### Mouvements dans un buffer
 
     "_yiw
@@ -3142,14 +3044,6 @@ F{char} d'exclusif à inclusif.
             la ligne du fichier.
 
 
-    g;    g,
-
-            Reculer / avancer dans la changelist (endroits où on a modifié du texte).
-            Ces commandes acceptent un count.
-
-            La changelist est locale au buffer, contrairement à la jumplist qui est locale à la fenêtre.
-
-
     g'x    g`x
 
             Se rendre au début de la ligne de la marque x (quelle qu'elle soit) ou précisément sur
@@ -3170,29 +3064,6 @@ F{char} d'exclusif à inclusif.
             opérateurs du même type que f : F, t, T
             Pk écrit-on 5fx et non pas f5x ? Parce que fx est un objet.
             Le nb se place dc naturellement devant lui et non au milieu, comme on écrit 5w pour désigner 5 mots.
-
-    %
-
-            prochaine parenthèse, crochet, accolade ouverte / fermée si le curseur n'est pas sur
-            l'un de ces symboles
-            alterne entre les 2 si le curseur est déjà sur l'un d'eux
-
-                                               NOTE:
-
-            généralement, si on est en A positionne le curseur en B:
-
-                    A = intérieur des symboles              →    B = symbole ouvrant
-                    A = extérieur des symboles, et avant    →    B = symbole fermant
-
-                                               NOTE:
-
-            Bugue qd on l'utilise pour la 2e fois dans un fichier markdown.
-            Appuyer sur C-c pour interrompre s:Match_wrapper().
-            Le bug vient du plugin $VIMRUNTIME/macros/matchit.vim
-            Un patch est dispo ici: https://groups.google.com/forum/#!topic/vim_dev/wT28u7JLhUk
-            En gros, faut déplacer une ligne:
-
-                    :/let s:last_words = match_words/m/let s:all = substitute/-
 
 
     5_
@@ -3267,10 +3138,6 @@ F{char} d'exclusif à inclusif.
 
             faire avancer / reculer la fenêtre d'une ligne
 
-    C-f    C-b
-
-            faire avancer / reculer l'écran d'une page
-
     0    $
 
             début (colonne 0) / fin (dernière colonne) de ligne
@@ -3337,10 +3204,10 @@ F{char} d'exclusif à inclusif.
 
 Quelques propriétés concernant une marque:
 
-        - elle n'est supprimée que si on supprime sa ligne
-        - elle est restaurée si on annule la suppression de sa ligne
-        - sa coordonnée ligne peut changer si on supprime/ajoute des lignes avant elle
-        - sa coordonnée colonne ne change pas, même si on ajoute/supprime du texte avant elle
+   - elle n'est supprimée que si on supprime sa ligne
+   - elle est restaurée si on annule la suppression de sa ligne
+   - sa coordonnée ligne peut changer si on supprime/ajoute des lignes avant elle
+   - sa coordonnée colonne ne change pas, même si on ajoute/supprime du texte avant elle
 
 On peut se rendre à une marque de 4 façons différentes, en la préfixant avec:
 
@@ -3466,9 +3333,6 @@ On peut se rendre à une marque de 4 façons différentes, en la préfixant avec
 
             wordcount() retourne la même information que g C-g mais sous la forme d'un dico.
 
-    :bd!
-            décharger le buffer courant même s'il contient des modifications non sauvegardées
-
     :bd foo bar
 
             décharger les buffers foo et bar; supporte la complétion
@@ -3499,14 +3363,6 @@ On peut se rendre à une marque de 4 façons différentes, en la préfixant avec
             annuler toutes les modification apportées aux buffers de la buffer list
             depuis leur dernière sauvegarde
 
-    :e
-
-            recharger le buffer à partir du fichier; utile si le fichier a été modifié en-dehors de Vim
-
-    :e!
-
-            remplacer le buffer par son fichier
-            restaurer le buffer tq il était lors de la dernière sauvegarde
 
     :enew    :new    :vnew    :tabe
 
