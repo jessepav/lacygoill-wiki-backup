@@ -532,9 +532,9 @@ pattern:
 
 ## How to look for `pat` in all the files of `:pwd`, changed in the last hour?
 
-                                            ┌  backtick expansion:
-                                            │  expanded into the output of `$ find ...`
-                    ┌───────────────────────┤
+                    ┌ backtick expansion:
+                    │ expanded into the output of `$ find ...`
+                    ├────────────────────────┐
     :[l]vim /pat/gj `find . -type f -cmin -60`
                           │
                           └ matches the output of `:pwd`, NOT `$PWD`
@@ -915,39 +915,39 @@ Useful after navigating in the file or other files.
 
 ## What are the other six motions you can perform in a qfl?   How to perform them?
 
-        ┌─────────────────────────────────┬────────────────┬────────────────┐
-        │             purpose             │   Ex command   │ normal command │
-        ├─────────────────────────────────┼────────────────┼────────────────┤
-        │ previous entry                  │ cprevious      │ [q             │
-        │                                 │ lprevious      │ [l             │
-        ├─────────────────────────────────┼────────────────┼────────────────┤
-        │ next entry                      │ cnext          │ ]q             │
-        │                                 │ lnext          │ ]l             │
-        ├─────────────────────────────────┼────────────────┼────────────────┤
-        │ first entry                     │ cfirst         │ [Q             │
-        │                                 │ lfirst         │ [L             │
-        ├─────────────────────────────────┼────────────────┼────────────────┤
-        │ last entry                      │ clast          │ ]Q             │
-        │                                 │ llast          │ ]L             │
-        ├─────────────────────────────────┼────────────────┼────────────────┤
-        │ last entry in the previous file │ cpfile         │ [ C-q          │
-        │                                 │ lpfile         │ [ C-l          │
-        ├─────────────────────────────────┼────────────────┼────────────────┤
-        │ first entry in the next file    │ cnfile         │ ] C-q          │
-        │                                 │ lnfile         │ ] C-l          │
-        └─────────────────────────────────┴────────────────┴────────────────┘
+    ┌─────────────────────────────────┬────────────────┬────────────────┐
+    │             purpose             │   Ex command   │ normal command │
+    ├─────────────────────────────────┼────────────────┼────────────────┤
+    │ previous entry                  │ cprevious      │ [q             │
+    │                                 │ lprevious      │ [l             │
+    ├─────────────────────────────────┼────────────────┼────────────────┤
+    │ next entry                      │ cnext          │ ]q             │
+    │                                 │ lnext          │ ]l             │
+    ├─────────────────────────────────┼────────────────┼────────────────┤
+    │ first entry                     │ cfirst         │ [Q             │
+    │                                 │ lfirst         │ [L             │
+    ├─────────────────────────────────┼────────────────┼────────────────┤
+    │ last entry                      │ clast          │ ]Q             │
+    │                                 │ llast          │ ]L             │
+    ├─────────────────────────────────┼────────────────┼────────────────┤
+    │ last entry in the previous file │ cpfile         │ [ C-q          │
+    │                                 │ lpfile         │ [ C-l          │
+    ├─────────────────────────────────┼────────────────┼────────────────┤
+    │ first entry in the next file    │ cnfile         │ ] C-q          │
+    │                                 │ lnfile         │ ] C-l          │
+    └─────────────────────────────────┴────────────────┴────────────────┘
 
 ## What are the two motions you can perform in the qf stack?   How to perform them?
 
-        ┌──────────┬────────────┬────────────────┐
-        │ purpose  │ Ex command │ normal command │
-        ├──────────┼────────────┼────────────────┤
-        │ previous │ colder     │ <q             │
-        │          │ lolder     │ <l             │
-        ├──────────┼────────────┼────────────────┤
-        │ next     │ cnewer     │ >q             │
-        │          │ lnewer     │ >l             │
-        └──────────┴────────────┴────────────────┘
+    ┌──────────┬────────────┬────────────────┐
+    │ purpose  │ Ex command │ normal command │
+    ├──────────┼────────────┼────────────────┤
+    │ previous │ colder     │ <q             │
+    │          │ lolder     │ <l             │
+    ├──────────┼────────────┼────────────────┤
+    │ next     │ cnewer     │ >q             │
+    │          │ lnewer     │ >l             │
+    └──────────┴────────────┴────────────────┘
 
 ## How to prevent Vim from jumping to the first entry, when I execute a command to populate the qfl?
 
@@ -988,15 +988,15 @@ Example:
 # Operate on the entries of a qfl
 ## What are the four actions I can pass to `setqflist()` in its second argument?
 
-        ┌────────┬─────────────────────────────┐
-        │ 'a'    │ append the items to the qfl │
-        ├────────┼─────────────────────────────┤
-        │ 'f'    │ free the qf stack           │
-        ├────────┼─────────────────────────────┤
-        │ 'r'    │ replace the qfl             │
-        ├────────┼─────────────────────────────┤
-        │ ' '/'' │ create a new qfl            │
-        └────────┴─────────────────────────────┘
+    ┌────────┬─────────────────────────────┐
+    │ 'a'    │ append the items to the qfl │
+    ├────────┼─────────────────────────────┤
+    │ 'f'    │ free the qf stack           │
+    ├────────┼─────────────────────────────┤
+    │ 'r'    │ replace the qfl             │
+    ├────────┼─────────────────────────────┤
+    │ ' '/'' │ create a new qfl            │
+    └────────┴─────────────────────────────┘
 
 ## How to modify the qfl (data structure) by directly editing the qf buffer?
 
@@ -1100,15 +1100,15 @@ command may raise an error, prefix the whole command with `silent!`:
 
 ## How does `:cdo` interpret a range?   What about `:cfdo`?   `:cgetbuffer`?  `:bufdo`?
 
-        ┌─────────────┬─────────────────────────────────────────────┐
-        │ :cdo        │ positions of the ENTRIES in the qfl         │
-        ├─────────────┼─────────────────────────────────────────────┤
-        │ :cfdo       │ positions of the FILES in the qfl           │
-        ├─────────────┼─────────────────────────────────────────────┤
-        │ :cgetbuffer │ addresses of the LINES in the buffer        │
-        ├─────────────┼─────────────────────────────────────────────┤
-        │ :bufdo      │ positions of the BUFFERS in the buffer list │
-        └─────────────┴─────────────────────────────────────────────┘
+    ┌─────────────┬─────────────────────────────────────────────┐
+    │ :cdo        │ positions of the ENTRIES in the qfl         │
+    ├─────────────┼─────────────────────────────────────────────┤
+    │ :cfdo       │ positions of the FILES in the qfl           │
+    ├─────────────┼─────────────────────────────────────────────┤
+    │ :cgetbuffer │ addresses of the LINES in the buffer        │
+    ├─────────────┼─────────────────────────────────────────────┤
+    │ :bufdo      │ positions of the BUFFERS in the buffer list │
+    └─────────────┴─────────────────────────────────────────────┘
 
 ## How to shorten the filepath displayed in the qf window to the filename?
 
