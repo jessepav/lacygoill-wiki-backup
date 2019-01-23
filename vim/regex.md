@@ -412,8 +412,8 @@ The solution is to include a whitespace in the negated character class:
             Un concat et un lookaround permettent d'ajouter une description concernant des choses
             différentes:
 
-                    • ce qui se trouve à l'intérieur du match via un concat
-                    • "                  l'extérieur "               lookaround
+                    - ce qui se trouve à l'intérieur du match via un concat
+                    - "                  l'extérieur "               lookaround
 
             Dans le cas présent, on peut utiliser un lookbehind à la place du concat, uniquement
             car la description supplémentaire dont on a besoin, concerne du texte situé à l'extérieur
@@ -454,8 +454,8 @@ Pour décrire un backslash littéral, il faut donc toujours écrire un double ba
 En mode \V tous les symboles sont interprétés littéralement à l'exception du backslash.
 Les quantificateurs sont traités:
 
-    • littéralement en mode \V, \m et dans une collection ([…])
-    • spécialement  en mode \v
+    - littéralement en mode \V, \m et dans une collection ([…])
+    - spécialement  en mode \v
 
 Dans une  collection, on ne  peut trouver  que des caractères  littéraux. Raison pour  laquelle un
 quantificateur perd automatiquement son sens spécial dans  une collection, peu importe le mode dans
@@ -488,10 +488,10 @@ Quelques ancres/atomes ordinaires de largeur nulle (:h /zero-width) :
 
             Début/Fin de ligne qd il se trouve:
 
-                • au début/à la fin du pattern
-                • "                 d'une branche ( juste après un \| )
-                • "                 d'un groupe ( juste après un \( / avant un \) )
-                • juste après/avant un \n
+                - au début/à la fin du pattern
+                - "                 d'une branche ( juste après un \| )
+                - "                 d'un groupe ( juste après un \( / avant un \) )
+                - juste après/avant un \n
 
             Autrement, matche le caractère ^/$.
 
@@ -875,13 +875,13 @@ Quelques classes (:h /character-classes) :
 
             \k et \w sont différents pour 3 raisons:
 
-                    • \k contient par défaut les caractères accentués; pas \w En
+                    - \k contient par défaut les caractères accentués; pas \w En
                       effet, 'isk' contient par défaut la valeur @ dont la
                       signification est donnée par :h 'isf
 
-                    • \k peut être entièrement configuré via l'option 'isk'; pas \w
+                    - \k peut être entièrement configuré via l'option 'isk'; pas \w
 
-                    • \k est utilisé par certaines commandes en mode normal (w) et insertion (C-x C-…); pas \w
+                    - \k est utilisé par certaines commandes en mode normal (w) et insertion (C-x C-…); pas \w
 
     \w    \W
 
@@ -899,9 +899,9 @@ Quelques classes (:h /character-classes) :
 
             transforme le pattern à l'intérieur en sous-expression à laquelle on peut:
 
-                • appliquer un multi
-                • ajouter une ancre avant ou après
-                • se référer plus tard (\0, \1, … \9; submatch(0), submatch(1), …)
+                - appliquer un multi
+                - ajouter une ancre avant ou après
+                - se référer plus tard (\0, \1, … \9; submatch(0), submatch(1), …)
 
                                                NOTE:
 
@@ -941,10 +941,10 @@ Quelques classes (:h /character-classes) :
 
             Dans une collection, le positionnement des caractères `-` et `^` a un sens.
 
-                    • au début de la collection     ^ inverse cette dernière
-                    • au milieu ou à la fin         ^ est l'accent circonflexe
-                    • entre 2 lettres ou chiffres   - décrit une rangée de caractères
-                    • ailleurs                      - décrit un tiret
+                    - au début de la collection     ^ inverse cette dernière
+                    - au milieu ou à la fin         ^ est l'accent circonflexe
+                    - entre 2 lettres ou chiffres   - décrit une rangée de caractères
+                    - ailleurs                      - décrit un tiret
 
             Pour être sûr qu'un tiret soit interprété littéralement dans une collection,
             il vaut mieux le placer au début.
@@ -971,11 +971,11 @@ Quelques classes (:h /character-classes) :
 
             Voici un résumé expliquant comment représenter l'espace insécable suivant le contexte:
 
-                    • "\u00a0"    dans une chaîne non littérale
+                    - "\u00a0"    dans une chaîne non littérale
 
-                    • [\u00a0]    dans une collection au sein d'un pattern
+                    - [\u00a0]    dans une collection au sein d'un pattern
 
-                    • \%u00a0     partout ailleurs dans un pattern
+                    - \%u00a0     partout ailleurs dans un pattern
 
             Il n'y a que dans un pattern que `%` est nécessaire.
             Il sert à distinguer certaines classes (\d \o \x \u \U) de caractères définis par
@@ -1031,14 +1031,14 @@ Quelques classes (:h /character-classes) :
 
             Plus généralement, on peut représenter un caractère à partir de son point de code via les atomes:
 
-                    • \%d    valeur en décimal    autant de chiffres que nécessaire
+                    - \%d    valeur en décimal    autant de chiffres que nécessaire
 
-                    • \%o    valeur en octal      jusqu'à 3 chiffres, le max étant 377
+                    - \%o    valeur en octal      jusqu'à 3 chiffres, le max étant 377
                                                   377₈ = 255₁₀
 
-                    • \%x    valeur en hexa       jusqu'à 2 chiffres
-                    • \%u    "                            4 chiffres
-                    • \%U    "                            8 chiffres
+                    - \%x    valeur en hexa       jusqu'à 2 chiffres
+                    - \%u    "                            4 chiffres
+                    - \%U    "                            8 chiffres
 
             Attention, il vaut mieux fournir un max de chiffres, quitte à ajouter des leading 0.
             Autrement, les caractères suivants pourraient être interprétés comme faisant partie du
@@ -1066,16 +1066,16 @@ Quelques classes (:h /character-classes) :
 
             Il existe d'autres classes similaires:
 
-                        • [:blank:]        espace ou tab horizontal
-                        • [:cntrl:]        caractères de contrôle (inclue un tab, bizarre …)
-                        • [:digit:]        \d
-                        • [:graph:]        caractères ascii sauf espace
-                        • [:lower:]        \l
-                        • [:print:]        caractères affichables
-                        • [:punct:]        caractères de ponctuation
-                        • [:space:]        whitespace (dépend de ce que Vim considère comme un whitespace)
-                        • [:upper:]        \u
-                        • [:xdigit:]       \x
+                        - [:blank:]        espace ou tab horizontal
+                        - [:cntrl:]        caractères de contrôle (inclue un tab, bizarre …)
+                        - [:digit:]        \d
+                        - [:graph:]        caractères ascii sauf espace
+                        - [:lower:]        \l
+                        - [:print:]        caractères affichables
+                        - [:punct:]        caractères de ponctuation
+                        - [:space:]        whitespace (dépend de ce que Vim considère comme un whitespace)
+                        - [:upper:]        \u
+                        - [:xdigit:]       \x
 
             Elles sont similaires par leur forme ([:{word}:]), et par leur utilisation (uniquement
             au sein d'une collection).
@@ -1089,12 +1089,12 @@ Quelques classes (:h /character-classes) :
 
             En effet, un nom de fichier unix peut contenir un:
 
-                    • tiret
-                    • point
-                    • slash
-                    • caractère alphanumérique
-                    • underscore
-                    • tilde
+                    - tiret
+                    - point
+                    - slash
+                    - caractère alphanumérique
+                    - underscore
+                    - tilde
 
             [:alnum:] est la classe des caractères alphanumériques.
 
@@ -1176,8 +1176,8 @@ Morale de l'histoire:    ne jamais mettre de newline dans une capture à laquell
             Why do I need the anchor `^`?
             Without, on a line containing `pat`, you would have 2 matches:
 
-                    • one from the beginning of the line until `pat`
-                    • one from after `pat` until the end of the line
+                    - one from the beginning of the line until `pat`
+                    - one from after `pat` until the end of the line
 
             You don't want the second match. So, add the anchor to get rid of it.
 
@@ -1190,9 +1190,9 @@ Morale de l'histoire:    ne jamais mettre de newline dans une capture à laquell
 
             Have a look at:
 
-                    • the book “Mastering Regular Expressions”
-                    • Chapter “4. The Mechanics of Expression Processing”
-                    • Section “Is Alternation Greedy?” (page 198)
+                    - the book “Mastering Regular Expressions”
+                    - Chapter “4. The Mechanics of Expression Processing”
+                    - Section “Is Alternation Greedy?” (page 198)
 
             Some of them  process all alternations and use the  one matching the
             most text.

@@ -223,13 +223,13 @@ global one.
 
             Ajoute le buffer courant à la fin de l'arglist.
 
-                    • après l'argument courant
+                    - après l'argument courant
 
                             Ex:  si  on  a  5 buffers  dans  l'arglist,  et  que
                             l'argument courant est le 3e, le buffer courant sera
                             ajouté en 4e position
 
-                    • à la fin de l'arglist
+                    - à la fin de l'arglist
 
 
                                                NOTE:

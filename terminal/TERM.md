@@ -41,8 +41,8 @@ description of a given terminal.
 
 When a terminal type is marked with:
 
-   • `*`, it means a conflicting entry is present in another db
-   • `+`, it means an equivalent entry is present in another db
+   - `*`, it means a conflicting entry is present in another db
+   - `+`, it means an equivalent entry is present in another db
 
 ##
 # How to get the long name of

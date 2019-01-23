@@ -64,10 +64,10 @@ Voici les options permettant de configurer le pliage dans un fichier ou de mani�
 
 Toutes les options sont locales à la fenêtre, sauf:
 
-        • 'debug'
-        • 'foldclose'
-        • 'foldopen'
-        • 'foldlevelstart'
+        - 'debug'
+        - 'foldclose'
+        - 'foldopen'
+        - 'foldlevelstart'
 
 
 Par défaut, 'fdm' = manual, ce qui implique 2 choses:
@@ -102,15 +102,15 @@ des 2. Leur niveau d'indentation est ignoré, d'où le nom de l'option.
 
 Qd on utilise la méthode 'expr', voici les règles à retenir:
 
-    • chaque ligne du buffer a un niveau de pliage, positif ou nul
+    - chaque ligne du buffer a un niveau de pliage, positif ou nul
 
-    • l'expression donnée comme valeur à 'fde' est évaluée dans le contexte:
+    - l'expression donnée comme valeur à 'fde' est évaluée dans le contexte:
 
             - du buffer courant
             - la fenêtre courante
             - la ligne dont l'addresse est `v:lnum`
 
-    • l'évaluation de cette expression détermine le niveau de chaque ligne;
+    - l'évaluation de cette expression détermine le niveau de chaque ligne;
       elle peut prendre pour valeur:
 
         ┌───────────────┬────────────────────────────────────────────────────────────────────────┐
@@ -128,9 +128,9 @@ Qd on utilise la méthode 'expr', voici les règles à retenir:
         │ 's1', 's2', … │ et utiliser le résultat pour la ligne courante                         │
         └───────────────┴────────────────────────────────────────────────────────────────────────┘
 
-    • qd une ligne a le même niveau que la suivante, toutes 2 sont rangées dans un même pli
+    - qd une ligne a le même niveau que la suivante, toutes 2 sont rangées dans un même pli
 
-    • qd une ligne a un niveau supérieur à la précédente, elle débute un nouveau pli; ex:
+    - qd une ligne a un niveau supérieur à la précédente, elle débute un nouveau pli; ex:
 
                     a
                         b
@@ -143,7 +143,7 @@ Qd on utilise la méthode 'expr', voici les règles à retenir:
             corollaire:
             il n'est pas nécessaire de lui donner pour niveau '>N', 'N'suffit
 
-    • qd une ligne a un niveau supérieur à la suivante, elle termine le pli courant; ex:
+    - qd une ligne a un niveau supérieur à la suivante, elle termine le pli courant; ex:
 
                     a
                         b
@@ -156,7 +156,7 @@ Qd on utilise la méthode 'expr', voici les règles à retenir:
             corollaire:
             il n'est pas nécessaire de lui donner pour niveau '<N', 'N'suffit
 
-    • qd une ligne a un niveau N, toutes les lignes suivantes de niveau supérieur sont incluses dans
+    - qd une ligne a un niveau N, toutes les lignes suivantes de niveau supérieur sont incluses dans
       le même pli (jusqu'à atteindre une ligne de niveau inférieur)
 
 
@@ -181,8 +181,8 @@ en particulier en mode insertion (pour une solution voir plugin `FastFold`).
 
             Toggle:
 
-                    • le pli courant
-                    • le pli courant et tous ses parents / enfants
+                    - le pli courant
+                    - le pli courant et tous ses parents / enfants
 
             N'affecte pas 'fdl'.
 
@@ -192,8 +192,8 @@ en particulier en mode insertion (pour une solution voir plugin `FastFold`).
 
             Ferme:
 
-                    • le pli courant s'il est ouvert ou son parent s'il est fermé
-                    • tous les plis dans lequel se trouve le curseur
+                    - le pli courant s'il est ouvert ou son parent s'il est fermé
+                    - tous les plis dans lequel se trouve le curseur
 
             En répétant `zc`, on peut  fermer toute une hiérarchie de plis.
             `za` se contenterait d'ouvrir / fermer le même pli.
@@ -207,9 +207,9 @@ en particulier en mode insertion (pour une solution voir plugin `FastFold`).
 
             Supprime:
 
-                    • le pli contenant la ligne où se trouve le curseur
-                    • tous les plis contenant la ligne où se trouve le curseur
-                    • tous les plis du buffer (Eliminate)
+                    - le pli contenant la ligne où se trouve le curseur
+                    - tous les plis contenant la ligne où se trouve le curseur
+                    - tous les plis du buffer (Eliminate)
 
             Ne fonctionne que si la méthode de pliage est `manual` ou `marker`.
 
@@ -219,8 +219,8 @@ en particulier en mode insertion (pour une solution voir plugin `FastFold`).
 
             Plie:
 
-                    • le paragraphe
-                    • le texte entre les accolades
+                    - le paragraphe
+                    - le texte entre les accolades
 
 
     zn
@@ -229,9 +229,9 @@ en particulier en mode insertion (pour une solution voir plugin `FastFold`).
 
             Modifie l'option 'foldenable':
 
-                    • désactivaction
-                    • activation
-                    • toggling
+                    - désactivaction
+                    - activation
+                    - toggling
 
             'fen' est très utile pour temporairement désactiver les plis avant de déplacer une/des ligne(s),
             via `:move`. En effet, un bug introduit dans le patch 7.4.700 a pour effet de fermer le pli
@@ -253,10 +253,10 @@ en particulier en mode insertion (pour une solution voir plugin `FastFold`).
 
             Ce sont des mappings custom; par défaut Vim utilise:
 
-                    • zj
-                    • zk
-                    • [z
-                    • ]z
+                    - zj
+                    - zk
+                    - [z
+                    - ]z
 
 
     zm
@@ -264,8 +264,8 @@ en particulier en mode insertion (pour une solution voir plugin `FastFold`).
 
             Altère la valeur de l'option 'foldlevel', en la:
 
-                    • décrémentant d'un
-                    • faisant passer à 0
+                    - décrémentant d'un
+                    - faisant passer à 0
 
             Les plis dont le niveau est supérieur à `&l:fdl` sont fermés.
             Donc, `zm` ferme un peu plus de plis, tandis que `zM` les ferme tous.
@@ -276,8 +276,8 @@ en particulier en mode insertion (pour une solution voir plugin `FastFold`).
 
             Altère la valeur de l'option 'foldlevel', en:
 
-                    • l'incrémentant d'un
-                    • la faisant passer à `niveau de plis max`
+                    - l'incrémentant d'un
+                    - la faisant passer à `niveau de plis max`
 
             `zr` ouvre un peu plus de plis, tandis que `zR` les ouvre tous.
 
@@ -287,8 +287,8 @@ en particulier en mode insertion (pour une solution voir plugin `FastFold`).
 
             Ouvre:
 
-                    • un pli           dans lequel se trouve le curseur
-                    • tous les plis    "
+                    - un pli           dans lequel se trouve le curseur
+                    - tous les plis    "
 
             Si le curseur se trouve dans une imbrication de plis, `zo` n'ouvre que le pli fermé
             le plus haut dans la hiérarchie. `zO` ouvre toute la hiérarchie.
@@ -301,9 +301,9 @@ en particulier en mode insertion (pour une solution voir plugin `FastFold`).
 
             Révèle la position du curseur, en:
 
-                    • ouvrant des plis.
+                    - ouvrant des plis.
 
-                    • ouvrant un minimum de plis et fermant un maximum de plis.
+                    - ouvrant un minimum de plis et fermant un maximum de plis.
                       Mapping perso (`zMzv`).
 
             N'affecte pas 'fdl'.
@@ -327,20 +327,20 @@ en particulier en mode insertion (pour une solution voir plugin `FastFold`).
 
             La valeur de cette option est modifiée par:
 
-                    • zm
-                    • zM
-                    • zr
-                    • zR
+                    - zm
+                    - zM
+                    - zr
+                    - zR
 
             Mais pas par:
 
-                    • za
-                    • zA
-                    • zc
-                    • zC
-                    • zo
-                    • zO
-                    • zv
+                    - za
+                    - zA
+                    - zc
+                    - zC
+                    - zo
+                    - zO
+                    - zv
 
             Une commande normale qui altère simplement l'état d'un pli (ouvert/fermé) ne change pas 'fdl'.
             Seule les commandes qui altèrent l'ensemble des plis affectent 'fdl'.

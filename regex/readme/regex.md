@@ -30,10 +30,10 @@ Ex:
 
                 Let's call:
 
-                        • `t`  the (possible) text after `foo`
-                        • `T`  the set of all possible texts
-                        • `T₁` "                                 containing `bar`
-                        • `T₂` "                             NOT containing `bar`
+                        - `t`  the (possible) text after `foo`
+                        - `T`  the set of all possible texts
+                        - `T₁` "                                 containing `bar`
+                        - `T₂` "                             NOT containing `bar`
 
                         T = T₁ ∪ T₂
 

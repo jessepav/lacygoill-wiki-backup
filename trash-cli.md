@@ -40,9 +40,9 @@ The `gvfs` acronym probably means Gnome Virtual FileSystem.
 
 The main difference between:
 
-        • `gvfs-ls`   vs  `ls`,
-        • `gvfs-cat`  vs  `cat`,
-        • `gvfs-cp`   vs  `cp`
+        - `gvfs-ls`   vs  `ls`,
+        - `gvfs-cat`  vs  `cat`,
+        - `gvfs-cp`   vs  `cp`
         ...
 
 Is that `gvfs-xyz` can also work on remote locations.

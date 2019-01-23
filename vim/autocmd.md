@@ -250,9 +250,9 @@ because `filetype.vim` was still displayed in a window.
 
             Attention, ne pas utiliser `:doautoall` pour:
 
-                    • supprimer un buffer
-                    • charger un autre buffer
-                    • changer le contenu d'un buffer
+                    - supprimer un buffer
+                    - charger un autre buffer
+                    - changer le contenu d'un buffer
 
             Le résultat serait imprévisible.
             `:doautoall` est destinée à exécuter des autocmds qui configurent des options,
@@ -361,9 +361,9 @@ Exemples d'évènements :
 
             On peut quitter le buffer courant en:
 
-                • passant le focus à une autre fenêtre ne l'affichant pas,
-                • affichant un autre buffer dans la fenêtre (:e another_buffer),
-                • le déchargeant via :bd (ce qui a pour effet de fermer toutes les fenêtres l'affichant)
+                - passant le focus à une autre fenêtre ne l'affichant pas,
+                - affichant un autre buffer dans la fenêtre (:e another_buffer),
+                - le déchargeant via :bd (ce qui a pour effet de fermer toutes les fenêtres l'affichant)
 
             L'évènement n'est pas déclenché si le buffer est le dernier affiché et qu'on quitte Vim.
             Utiliser probablement VimLeave(Pre) dans ce cas.
@@ -553,8 +553,8 @@ Au sein de la commande exécutée par une autocmd, on peut utiliser certains car
     expand('<amatch>')    match obtenu dans la comparaison par rapport au pattern
                           (what is matched against the autocmd pattern)
                           Qd le pattern est comparé à un nom de fichier:
-                                                                        • <amatch> est un chemin absolu
-                                                                        • expand('<afile>') == expand('<amatch>:.')
+                                                                        - <amatch> est un chemin absolu
+                                                                        - expand('<afile>') == expand('<amatch>:.')
 
 En fait, on peut utiliser ces caractères spéciaux même au sein d'une fonction appelée par une autocmd.
 Ex:

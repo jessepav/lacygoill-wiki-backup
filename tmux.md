@@ -73,8 +73,8 @@ First, one for the client:
                   │
                   └ our initial shell, provided by:
 
-                        • the `login` process in console
-                        • a terminal emulator in X
+                        - the `login` process in console
+                        - a terminal emulator in X
 
 … then another for the server:
 
@@ -82,11 +82,11 @@ First, one for the client:
 
 Both (chain of) processes are started by:
 
-    • the init process in console:
+    - the init process in console:
 
             systemd
 
-    • the display manager in X:
+    - the display manager in X:
 
             systemd───lightdm───lightdm───upstart
 
@@ -104,8 +104,8 @@ output of the same `pstree` command.
 They communicate via a socket, which  by default is called `default`. The latter
 is created in the directory `tmux-{UID}` inside:
 
-    • $TMUX_TMPDIR if the latter set
-    • /tmp otherwise
+    - $TMUX_TMPDIR if the latter set
+    - /tmp otherwise
 
 
 
@@ -303,9 +303,9 @@ Voici qques argument qu'on peut passer à Tmux au démarrage.
 
             Their names follow the scheme:
 
-                    • tmux-client-{PID_c}.log
-                    • tmux-server-{PID_s}.log
-                    • tmux-out-{PID_s}.log (only with `-vv`)
+                    - tmux-client-{PID_c}.log
+                    - tmux-server-{PID_s}.log
+                    - tmux-out-{PID_s}.log (only with `-vv`)
 
             Where `{PID_c}` and `{PID_s}` are the process ID of the client/server.
 
@@ -499,9 +499,9 @@ Un flag peut être on, off ou omis. Dans une affectation, si un flag est omis, l
 
             À la place de `show-options -w`, on peut aussi utiliser:
 
-                    • showw
-                    • show -w
-                    • show-window-options
+                    - showw
+                    - show -w
+                    - show-window-options
 
 
     Donne la valeur `val` à l'option `opt`, cette dernière étant une option:
@@ -522,9 +522,9 @@ Un flag peut être on, off ou omis. Dans une affectation, si un flag est omis, l
 
             À la place de `set-option -w`, on peut aussi utiliser:
 
-                    • setw
-                    • set -w
-                    • set-window-option
+                    - setw
+                    - set -w
+                    - set-window-option
 
 
     show-options -gv opt
@@ -533,8 +533,8 @@ Un flag peut être on, off ou omis. Dans une affectation, si un flag est omis, l
 
             Montre qu'on peut limiter la sortie de `show-options` de 2 façons:
 
-                    • flag `-v`      supprime les noms des options
-                    • argument `opt` supprime toutes les options différentes de `opt`
+                    - flag `-v`      supprime les noms des options
+                    - argument `opt` supprime toutes les options différentes de `opt`
 
 
     set-option -g  status-left 'foo'
@@ -1424,14 +1424,14 @@ Pour qu'il fonctionne correctement, il ne faut pas que `~/.tmux.conf` contienne 
 
             Passer en mode visuel, et chercher le prochain:
 
-                    • chemin (relatifs / absolus) vers un nom de fichier
-                    • nom de fichier, après un git status
-                    • nombre (mnémotechnique: d = digit)
-                    • url
-                    • @ipv4
-                    • sha1 (utile après un git log)
-                    • occurrence de `string`
-                    • "              `pattern` suivi d'un nb à 1 ou plusieurs chiffres
+                    - chemin (relatifs / absolus) vers un nom de fichier
+                    - nom de fichier, après un git status
+                    - nombre (mnémotechnique: d = digit)
+                    - url
+                    - @ipv4
+                    - sha1 (utile après un git log)
+                    - occurrence de `string`
+                    - "              `pattern` suivi d'un nb à 1 ou plusieurs chiffres
 
             S'il y a d'autres occurrences, on peut naviguer entre elles via `n` et `N`.
 
@@ -3468,10 +3468,10 @@ Voici les variables tmux qu'on peut évaluer:
 
              Sur la ligne de commande on peut utiliser la plupart des raccourcis readline habituels:
 
-                    • C-a, C-e, C-b, C-f, M-b, M-f    mouvements
-                    • C-w, C-u, C-k                   suppression
-                    • C-p/Up, C-n/Down, Tab           complétion
-                    • C-t                             transposition
+                    - C-a, C-e, C-b, C-f, M-b, M-f    mouvements
+                    - C-w, C-u, C-k                   suppression
+                    - C-p/Up, C-n/Down, Tab           complétion
+                    - C-t                             transposition
 
             On peut également taper C-y pour insérer le contenu du dernier buffer tmux.
 

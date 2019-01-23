@@ -2,8 +2,8 @@
 
             2 paquets sont nécessaires pour installer le client desktop:
 
-                    • jitsi_x.xx.xxxx-x_amd64.deb
-                    • jitsi-archive-keyring_x.x.x_all.deb
+                    - jitsi_x.xx.xxxx-x_amd64.deb
+                    - jitsi-archive-keyring_x.x.x_all.deb
 
             Atm, on peut les trouver à ces url:
 

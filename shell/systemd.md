@@ -120,11 +120,11 @@ This is the implied default.
 
 It must configure the userland, i.e.:
 
-        • implement the filesystems that are required for system operation
+        - implement the filesystems that are required for system operation
 
-        • configure the network
+        - configure the network
 
-        • launch the services that run in the background,
+        - launch the services that run in the background,
           including those that enable users to log into the system
 
 ## Why is the old sysvinit system not well suited to a modern Linux distribution?
@@ -1180,8 +1180,8 @@ resume the session quickly.
 
 IOW, it's supposed to take the best of the 2 concepts:
 
-        • resilience (hibernate)
-        • quickness (suspend)
+        - resilience (hibernate)
+        - quickness (suspend)
 
 ##
 ## How to shut down the system at 12:34?
@@ -1437,23 +1437,23 @@ and basic set of options is described in systemd.unit(5).
 
 Units may be:
 
-        • "active"
+        - "active"
 
           started, bound, plugged in, ..., depending on the unit type
 
-        • "inactive"
+        - "inactive"
 
           stopped, unbound, unplugged, ...
 
-        • "activating"
+        - "activating"
 
           in the process of being activated
 
-        • "deactivating"
+        - "deactivating"
 
           in the process of being deactivated
 
-        • "failed"
+        - "failed"
 
           the  service  is inactive  because  it  failed  in some  way;  process
           returned error code on exit, or crashed, or an operation timed out
@@ -1706,9 +1706,9 @@ Members of the "wheel" group can often perform administrative tasks.
 
 When outputting  to a  tty, lines  are colored according  to priority:
 
-        • lines of level ERROR and higher are colored red
-        • lines of level NOTICE and higher are highlighted
-        • other lines are displayed normally
+        - lines of level ERROR and higher are colored red
+        - lines of level NOTICE and higher are highlighted
+        - other lines are displayed normally
 
 ## some useful commands
 

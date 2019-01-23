@@ -100,9 +100,9 @@ Example:
 
 If you want to reset:
 
-   • all attributes use '\e[0m'
+   - all attributes use '\e[0m'
 
-   • just one attribute, not all of them, add 20 to its code.
+   - just one attribute, not all of them, add 20 to its code.
 
      Example:
 
@@ -259,8 +259,8 @@ The OSC sequences finish with ST (BEL can also be used in xterm).
 
  Useful to test whether we can send sequences to:
 
-   • change the color of the text / background
-   • set some styles (bold, italic, underlined)
+   - change the color of the text / background
+   - set some styles (bold, italic, underlined)
 
 # How to test whether the terminal supports any sequence?
 

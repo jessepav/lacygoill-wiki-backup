@@ -84,10 +84,10 @@ Do not read and execute `~/.bashrc` if the shell is interactive.
 
 Do not read either of these:
 
-        • /etc/profile
-        • ~/.bash_profile
-        • ~/.bash_login
-        • ~/.profile
+        - /etc/profile
+        - ~/.bash_profile
+        - ~/.bash_login
+        - ~/.profile
 
 By default, bash reads these files when it is invoked as a login shell.
 
@@ -290,10 +290,10 @@ Words that have a special meaning to the shell.
 
 It must satisfy these 2 conditions:
 
-        • be unquoted
+        - be unquoted
           (i.e. not any of these: \word, 'word', "word")
 
-        • be the first word of a simple command,
+        - be the first word of a simple command,
           or the `in` word used in a `case` or `for` command
 
 ##
@@ -2848,43 +2848,43 @@ the program, followed by the command arguments, if any.
 
 The shell has an execution environment, which consists of the following:
 
-       • open  files  inherited  by  the  shell at invocation, as modified by redirections supplied to the exec
+       - open  files  inherited  by  the  shell at invocation, as modified by redirections supplied to the exec
               builtin
 
-       • the current working directory as set by cd, pushd, or popd, or inherited by the shell at invocation
+       - the current working directory as set by cd, pushd, or popd, or inherited by the shell at invocation
 
-       • the file creation mode mask as set by umask or inherited from the shell's parent
+       - the file creation mode mask as set by umask or inherited from the shell's parent
 
-       • current traps set by trap
+       - current traps set by trap
 
-       • shell parameters that are set by variable assignment or with set or inherited from the shell's  parent
+       - shell parameters that are set by variable assignment or with set or inherited from the shell's  parent
               in the environment
 
-       • shell functions defined during execution or inherited from the shell's parent in the environment
+       - shell functions defined during execution or inherited from the shell's parent in the environment
 
-       • options enabled at invocation (either by default or with command-line arguments) or by set
+       - options enabled at invocation (either by default or with command-line arguments) or by set
 
-       • options enabled by shopt
+       - options enabled by shopt
 
-       • shell aliases defined with alias
+       - shell aliases defined with alias
 
-       • various process IDs, including those of background jobs, the value of $$, and the value of PPID
+       - various process IDs, including those of background jobs, the value of $$, and the value of PPID
 
 When a simple command other than a  builtin or shell function is to be executed,
 it  is  invoked  in  a  separate execution  environment  that  consists  of  the
 following.
 Unless otherwise noted, the values are inherited from the shell.
 
-       • the shell's open files, plus any modifications and additions specified by redirections to the command
+       - the shell's open files, plus any modifications and additions specified by redirections to the command
 
-       • the current working directory
+       - the current working directory
 
-       • the file creation mode mask
+       - the file creation mode mask
 
-       • shell variables and functions marked for export, along with variables exported for the command, passed
+       - shell variables and functions marked for export, along with variables exported for the command, passed
               in the environment
 
-       • traps caught by the shell are reset to the values inherited from the shell's parent, and traps ignored
+       - traps caught by the shell are reset to the values inherited from the shell's parent, and traps ignored
               by the shell are ignored
 
 A  command  invoked in  this  separate  environment  cannot affect  the  shell's
@@ -5583,11 +5583,11 @@ newsgroup `gnu.bash.bug`.
 
 ALL bug reports should include:
 
-       • The version number of bash
-       • The hardware and operating system
-       • The compiler used to compile
-       • A description of the bug behaviour
-       • A short script or recipe to reproduce the bug
+       - The version number of bash
+       - The hardware and operating system
+       - The compiler used to compile
+       - A description of the bug behaviour
+       - A short script or recipe to reproduce the bug
 
 `bashbug`  inserts the  first three  items  automatically into  the template  it
 provides for filing a bug report.

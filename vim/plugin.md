@@ -149,21 +149,21 @@ While  `:sort`  has  several  flags  for  sorting  on  various  numbers,  and  a
             This plugin takes the  advantage of new apis in Vim 8 (and  NeoVim) to enable you to
             run shell commands in background and read output in the quickfix window in realtime:
 
-                • Easy to use, just start your background command by :AsyncRun
+                - Easy to use, just start your background command by :AsyncRun
                   Just like old '!' cmd.
 
-                • Command is done in the background, no need to wait for the entire process to finish.
+                - Command is done in the background, no need to wait for the entire process to finish.
 
-                • Output are displayed in the quickfix window, errors are matched with errorformat.
+                - Output are displayed in the quickfix window, errors are matched with errorformat.
 
-                • You can explore the error output immediately or keep working in vim while executing.
+                - You can explore the error output immediately or keep working in vim while executing.
 
-                • Ring the bell or play a sound to notify you job finished while you're focusing
+                - Ring the bell or play a sound to notify you job finished while you're focusing
                   on editing.
 
-                • Fast and lightweight, just a single self-contained asyncrun.vim source file.
+                - Fast and lightweight, just a single self-contained asyncrun.vim source file.
 
-                • Provide corresponding user experience in Vim, neovim, gvim and macvim.
+                - Provide corresponding user experience in Vim, neovim, gvim and macvim.
 
                 https://github.com/skywind3000/asyncrun.vim/
 
@@ -178,10 +178,10 @@ While  `:sort`  has  several  flags  for  sorting  on  various  numbers,  and  a
         asyncomplete.vim deliberately does not contain any  sources. Please use one of the following
         sources or create your own.
 
-                • Buffer     via asyncomplete-buffer.vim
-                • Vim Syntax via asyncomplete-necosyntax.vim
-                • Vim        via asyncomplete-necovim.vim
-                • UltiSnips  via asyncomplete-ultisnips.vim
+                - Buffer     via asyncomplete-buffer.vim
+                - Vim Syntax via asyncomplete-necosyntax.vim
+                - Vim        via asyncomplete-necovim.vim
+                - UltiSnips  via asyncomplete-ultisnips.vim
 
         https://github.com/prabirshrestha/asyncomplete.vim
 
@@ -251,10 +251,10 @@ While  `:sort`  has  several  flags  for  sorting  on  various  numbers,  and  a
 
         Ideas of mappings (make motion repeatable with ; ,):
 
-                • \w    next       beginning of Word
-                • \b    previous   "
-                • \e    next       end of Word
-                • \ge   previous   "
+                - \w    next       beginning of Word
+                - \b    previous   "
+                - \e    next       end of Word
+                - \ge   previous   "
 
         Adapt the plugin to support snake case also. That is `\w` should move the cursor to the next
         uppercase character OR underscore. Same things for other mappings.
@@ -370,9 +370,9 @@ While  `:sort`  has  several  flags  for  sorting  on  various  numbers,  and  a
 
             VIM colon and semicolon insertion bliss
 
-            https://github.com/zhamlin/tiler.vim
+            https://github.com/lfilho/cosco.vim
 
-                                              226 sloc
+                                              450 sloc
 
 ## csv
 
@@ -429,15 +429,15 @@ While  `:sort`  has  several  flags  for  sorting  on  various  numbers,  and  a
 
             Features
 
-                • Search and display result in a user-friendly view with adjustable context.
+                - Search and display result in a user-friendly view with adjustable context.
 
-                • Edit mode which is incredible useful when you are doing refactoring. (Inspired by vim-ags)
+                - Edit mode which is incredible useful when you are doing refactoring. (Inspired by vim-ags)
 
-                • Preview mode for fast exploring.
+                - Preview mode for fast exploring.
 
-                • View location results in a quickfix window.
+                - View location results in a quickfix window.
 
-                • Various options for customized search, view and edit.
+                - Various options for customized search, view and edit.
 
             https://github.com/dyng/ctrlsf.vim
 
@@ -448,22 +448,22 @@ While  `:sort`  has  several  flags  for  sorting  on  various  numbers,  and  a
 DB is a  Vim plugin for interacting  with databases. It's a more  modern take on
 dbext.vim, improving on it on the following ways:
 
-    • Connections are specified with a single URL, rather than prompting you for
+    - Connections are specified with a single URL, rather than prompting you for
       14 separate variables
 
-    • All interaction is through invoking :DB, not 53 different commands and 35
+    - All interaction is through invoking :DB, not 53 different commands and 35
       different maps (omitting many of the more esoteric features, of course)
 
-    • Supports a modern array of backends, including NoSQL databases:
+    - Supports a modern array of backends, including NoSQL databases:
 
-            • MongoDB
-            • MySQL
-            • PostgreSQL
-            • Redis
-            • Sqlite
-            • Your own easily implemented adapter
+            - MongoDB
+            - MySQL
+            - PostgreSQL
+            - Redis
+            - Sqlite
+            - Your own easily implemented adapter
 
-    • Easily configurable based on a project  directory (as seen in rails.vim,
+    - Easily configurable based on a project  directory (as seen in rails.vim,
       for example), rather than just globally or in a per-file modeline
 
         https://github.com/tpope/vim-dadbod
@@ -579,10 +579,10 @@ format and adhere to defined styles.
             With this plug-in, the folds in the  currently edited buffer are updated by an automatic
             fold method only when:
 
-                    • saving the buffer
-                    • closing or opening folds (zo, za, zc, etc...)
-                    • moving or operating fold-wise (zj,zk,[z,]z)
-                    • typing zuz in normal mode
+                    - saving the buffer
+                    - closing or opening folds (zo, za, zc, etc...)
+                    - moving or operating fold-wise (zj,zk,[z,]z)
+                    - typing zuz in normal mode
 
             … and are kept as is otherwise (by keeping the fold method set to manual).
 
@@ -881,11 +881,11 @@ This plugin makes searching in files easier than ever!
 
             Check out these must have mappings for working with JSON in Vim:
 
-                • aj provides a text  object for the outermost JSON object,
+                - aj provides a text  object for the outermost JSON object,
                   array, string, number, or keyword.
-                • gqaj "pretty  prints" (wraps/indents/sorts  keys/otherwise
+                - gqaj "pretty  prints" (wraps/indents/sorts  keys/otherwise
                   cleans  up) the JSON construct  under the cursor.
-                • gwaj takes the JSON  object on the  clipboard and extends it
+                - gwaj takes the JSON  object on the  clipboard and extends it
                   into the JSON object under the cursor.
 
             There  are  also  ij  variants that  target  innermost  rather  than
@@ -965,12 +965,12 @@ This plugin makes searching in files easier than ever!
             This plugin is  meant for VimL programmers. It  knows how to jump to  the definitions of
             script-local and autoload variables or functions:
 
-                    • s:var
-                    • s:func()
-                    • <sid>func()
-                    • autoload#foo#var
-                    • autoload#foo#func()
-                    • 'autoload#foo#func'
+                    - s:var
+                    - s:func()
+                    - <sid>func()
+                    - autoload#foo#var
+                    - autoload#foo#func()
+                    - 'autoload#foo#func'
 
             https://github.com/mhinz/vim-lookup
 
@@ -1087,9 +1087,9 @@ This plugin makes searching in files easier than ever!
 
             `quickhl.vim` support highlight for:
 
-                    • manual keywords
-                    • tag in ctags generated file
-                    • automatically higlight word under cursor(<cword>)
+                    - manual keywords
+                    - tag in ctags generated file
+                    - automatically higlight word under cursor(<cword>)
 
             https://github.com/t9md/vim-quickhl
 
@@ -1298,9 +1298,9 @@ Alternative:
 
         vim-pandoc's goals are:
 
-                • to provide advanced integration with pandoc
-                • a comfortable document writing environment
-                • great configurability
+                - to provide advanced integration with pandoc
+                - a comfortable document writing environment
+                - great configurability
 
         https://github.com/vim-pandoc/vim-pandoc
 
@@ -1404,30 +1404,30 @@ functionality.
 
             Global features (available from any window)
 
-                • quickfix buffers are hidden from :ls and buffer navigation
+                - quickfix buffers are hidden from :ls and buffer navigation
 
-                • optional mappings for :cnext, :cprevious, :lnext, :lprevious that wrap around
+                - optional mappings for :cnext, :cprevious, :lnext, :lprevious that wrap around
                   the beginning and end of the list
 
-                • optional mapping for jumping to and from the location/quickfix window,
-                • optional mappings for toggling location/quickfix windows
+                - optional mapping for jumping to and from the location/quickfix window,
+                - optional mappings for toggling location/quickfix windows
 
-                • open the location/quickfix window automatically after :make, :grep, :lvimgrep and
+                - open the location/quickfix window automatically after :make, :grep, :lvimgrep and
                   friends if there are valid locations/errors
 
-                • quit Vim if the last window is a location/quickfix window
-                • close the location window automatically when quitting parent window
+                - quit Vim if the last window is a location/quickfix window
+                - close the location window automatically when quitting parent window
 
             Local features (available only in location/quickfix windows)
 
-                • disable soft-wrapping
-                • disable relative numbers
-                • optional Ack.vim-inspired mappings
-                • filter and restore the current list
-                • perform commands on each line in the current list
-                • perform commands on each file in the current list
-                • jump to next group of entries belonging to same file (“file grouping“)
-                • save and load named lists
+                - disable soft-wrapping
+                - disable relative numbers
+                - optional Ack.vim-inspired mappings
+                - filter and restore the current list
+                - perform commands on each line in the current list
+                - perform commands on each file in the current list
+                - jump to next group of entries belonging to same file (“file grouping“)
+                - save and load named lists
 
 ## qf-layout
 
@@ -1454,9 +1454,9 @@ functionality.
 
             quickhl.vim support highlight for
 
-                • manual keywords
-                • tag in ctags generated file
-                • automatically higlight word under cursor(<cword>).
+                - manual keywords
+                - tag in ctags generated file
+                - automatically higlight word under cursor(<cword>).
 
             https://github.com/t9md/vim-quickhl
 
@@ -1641,8 +1641,8 @@ functionality.
             Switching between a single-line statement and a multi-line one.
             Offers the following default keybindings, which can be customized:
 
-                    • gS to split a one-liner into multiple lines
-                    • gJ (with the cursor on the first line of a block) to join a block into
+                    - gS to split a one-liner into multiple lines
+                    - gJ (with the cursor on the first line of a block) to join a block into
                       a single-line statement
 
             https://github.com/AndrewRadev/splitjoin.vim
@@ -1896,10 +1896,10 @@ See also:
 
             Features
 
-                • multiple layouts
-                • can increase or decrease master window count on the fly
-                • support for popups e.g. nerdtree, tagbar, quickfix, etc
-                • each tab has its own settings
+                - multiple layouts
+                - can increase or decrease master window count on the fly
+                - support for popups e.g. nerdtree, tagbar, quickfix, etc
+                - each tab has its own settings
 
             https://github.com/zhamlin/tiler.vim
 
@@ -2022,9 +2022,9 @@ syntax highlighting!
             From a very single vim buffer, you can  perform main git operations in few key press. To
             name a few:
 
-                • Visualize all diffs in your git repository.
-                • Stage file, hunks or even just parts of a hunk using a single key press.
-                • Write or amend your commit message and commit in the same buffer.
+                - Visualize all diffs in your git repository.
+                - Stage file, hunks or even just parts of a hunk using a single key press.
+                - Write or amend your commit message and commit in the same buffer.
 
             https://github.com/jreybert/vimagit
 
@@ -2225,9 +2225,9 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
 
             Ouvre le dossier parent du fichier courant dans:
 
-                    • la fenêtre courante
-                    • un split horizontal
-                    • un "     vertical
+                    - la fenêtre courante
+                    - un split horizontal
+                    - un "     vertical
 
             Fonctionnent peu importe le type du buffer, Dirvish ou non.
             Ce sont les seuls mapping globaux.
@@ -2270,10 +2270,10 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
 
             Charge le fichier sous le curseur dans:
 
-                    • un split horizontal
-                    • "        vertical
-                    • un onglet
-                    • la fenêtre précédente (la dernière ayant eu le focus)
+                    - un split horizontal
+                    - "        vertical
+                    - un onglet
+                    - la fenêtre précédente (la dernière ayant eu le focus)
 
             Avec `o`, `a`, et `t` le focus reste dans la fenêtre Dirvish.
             Avec tous les autres, le focus passe dans la nouvelle fenêtre ouverte.
@@ -2295,9 +2295,9 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
 
             Charge les fichiers sélectionnés visuellement:
 
-                    • en tache de fond; seul le dernier est affiché dans la fenêtre courante
-                    • dans des splits horizontaux
-                    • dans des "        verticaux
+                    - en tache de fond; seul le dernier est affiché dans la fenêtre courante
+                    - dans des splits horizontaux
+                    - dans des "        verticaux
 
 
     :cd %
@@ -2321,8 +2321,8 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
 
             Elle attend 2 arguments, dont les valeurs peuvent être:
 
-                    • cmd    'edit', 'split', 'vsplit', 'tabedit'
-                    • bg     0, 1                                Mnémotechnique = background
+                    - cmd    'edit', 'split', 'vsplit', 'tabedit'
+                    - bg     0, 1                                Mnémotechnique = background
 
             Si:
                     bg = 0           les buffers sont toujours chargés et affichés dans une fenêtre
@@ -2347,11 +2347,11 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
 
             Ouvre Dirvish au niveau du:
 
-                    • dossier de travail
+                    - dossier de travail
 
-                    • dossier parent du fichier courant
+                    - dossier parent du fichier courant
 
-                    • dossier parent de {path}, si {path} est un fichier
+                    - dossier parent de {path}, si {path} est un fichier
                       ou
                       {path} lui même,          si {path} est un dossier
 
@@ -2381,9 +2381,9 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
 
             Après que la commande shell ait été exécutée:
 
-                    • avec `:!%`, on reste dans le buffer shell.
+                    - avec `:!%`, on reste dans le buffer shell.
 
-                    • avec `Z!`, on retourne dans le buffer Dirvish.
+                    - avec `Z!`, on retourne dans le buffer Dirvish.
 
             Si on pense qu'on aura besoin d'exécuter une commande shell similaire à celle qu'on va exécuter,
             on utilisera plutôt `:!%`, autrement `Z!`.
@@ -2491,10 +2491,10 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
             La dimension s'exprime selon un pourcentage de la hauteur ou largeur du terminal.
             La position peut être:
 
-                    • down
-                    • up
-                    • left
-                    • right
+                    - down
+                    - up
+                    - left
+                    - right
 
 
     :Ag          [PATTERN]
@@ -2503,9 +2503,9 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
 
             Cherche resp. dans:
 
-                    • le contenu des fichiers du working directory
-                    • les lignes du buffer courant
-                    • les lignes des buffers de la buffer list
+                    - le contenu des fichiers du working directory
+                    - les lignes du buffer courant
+                    - les lignes des buffers de la buffer list
 
                                                NOTE:
 
@@ -2531,9 +2531,9 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
 
             Cherche resp. dans:
 
-                    • les noms des buffers
-                    • "            fichiers du working directory
-                    • "            "        de la bdd de `$ locate`
+                    - les noms des buffers
+                    - "            fichiers du working directory
+                    - "            "        de la bdd de `$ locate`
 
 
     :BCommits
@@ -2543,10 +2543,10 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
 
             Cherche resp. dans:
 
-                    • les commits ayant modifié le fichier courant (1)
-                    • les commits du working directory (2)
-                    • les noms des fichiers du repo (2)
-                    • les noms des fichiers du repo ayant été changés depuis le dernier commit (2)
+                    - les commits ayant modifié le fichier courant (1)
+                    - les commits du working directory (2)
+                    - les noms des fichiers du repo (2)
+                    - les noms des fichiers du repo ayant été changés depuis le dernier commit (2)
 
             (1) Ne fonctionne que si le fichier est versionné
             (2) "                    le working directory est à l'intérieur d'un repo Git
@@ -2566,16 +2566,16 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
             Les flags ’A’ et ’M’ devant les noms de fichiers signifient que ces derniers
             contiennent des changements resp. à commit, ou non indexés:
 
-                    • changes to be committed
-                    • changes not staged for commit
+                    - changes to be committed
+                    - changes not staged for commit
 
                                                NOTE:
 
             Pour les commits, fzf cherche spécifiquement dans 3 choses:
 
-                    • la fin du sha1
-                    • le message
-                    • la date
+                    - la fin du sha1
+                    - le message
+                    - la date
 
 
             GFiles [OPTS]   | Git files (git ls-files)
@@ -2588,9 +2588,9 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
 
             Cherche resp. dans:
 
-                    • l'historique des fichiers récemment ouverts (v:oldfiles) + les buffers
-                    • "                commandes Ex
-                    • "                recherches
+                    - l'historique des fichiers récemment ouverts (v:oldfiles) + les buffers
+                    - "                commandes Ex
+                    - "                recherches
 
             J'ai remap les 2 dernières à C-R C-R, et la 1ère à SPC fr.
 
@@ -2601,9 +2601,9 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
 
             Cherche resp. dans:
 
-                    • les tags du buffer courant
-                    • "        de l'aide
-                    • "        du projet
+                    - les tags du buffer courant
+                    - "        de l'aide
+                    - "        du projet
 
             Le fichier de tags du projet correspond à la 1e entrée de `tagfiles()`.
             Cette dernière correspond au développement de &tags.
@@ -2619,13 +2619,13 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
 
             Cherche resp. dans:
 
-                    • les colorschemes
-                    • les commandes Vim
-                    • les types de fichiers
-                    • les marques (globales + locales)
-                    • les mappings en mode normal
-                    • les tab triggers des snippets contenant le texte devant le curseur
-                    • les fenêtres
+                    - les colorschemes
+                    - les commandes Vim
+                    - les types de fichiers
+                    - les marques (globales + locales)
+                    - les mappings en mode normal
+                    - les tab triggers des snippets contenant le texte devant le curseur
+                    - les fenêtres
 
 
     :FzfFiles!
@@ -2944,35 +2944,35 @@ Quelle différence entre les 2 ?
 
 La 1e variable:
 
-        • N'est pas définie par défaut
+        - N'est pas définie par défaut
 
-        • Attend comme valeur une chaîne contenant un chemin absolu vers un dossier.
+        - Attend comme valeur une chaîne contenant un chemin absolu vers un dossier.
           Le dernier composant du chemin ne doit pas être 'snippets'.
           En effet, qd UltiSnips entre dans un dossier portant le nom 'snippets', il considère
           que les fichiers qui s'y trouvent utilisent le format SnipMate (différent du format UltiSnips).
 
-        • Est utile pour configurer le chemin vers notre dossier de snippets privé.
+        - Est utile pour configurer le chemin vers notre dossier de snippets privé.
           Ex:
 
                 let g:UltiSnipsSnippetDir = '~/.vim/UltiSnips/'
 
-        • Est le 1er dossier dans lequel UltiSnips cherche le fichier de snippets à éditer
+        - Est le 1er dossier dans lequel UltiSnips cherche le fichier de snippets à éditer
           qd on tape :USE
 
 
 La 2e variable:
 
-        • Vaut ['UltiSnips'] par défaut.
+        - Vaut ['UltiSnips'] par défaut.
 
-        • Attend comme valeur une liste de chemins relatifs ou absolus.
+        - Attend comme valeur une liste de chemins relatifs ou absolus.
           Si le chemin est relatif, UltiSnips cherchera à compléter le chemin via tous les dossiers
           du &rtp.
 
-        • Est utile pour pouvoir utiliser immédiatement des snippets tiers, tq:
+        - Est utile pour pouvoir utiliser immédiatement des snippets tiers, tq:
 
                 https://github.com/honza/vim-snippets
 
-        • Si on lui affecte un seul élément correspondant à un chemin absolu, alors UltiSnips ne
+        - Si on lui affecte un seul élément correspondant à un chemin absolu, alors UltiSnips ne
           cherchera pas de snippets dans `&rtp` ce qui peut améliorer les performances.
 
 
@@ -2980,14 +2980,14 @@ La 2e variable:
 plusieurs possibles. Tous dépendent du type de fichiers courant.
 Pex, si le buffer courant est de type vim, UltiSnips cherchera dans un fichier nommé:
 
-        • vim.snippets
+        - vim.snippets
 
-        • vim_foo.snippets
-        • vim/foo
-        • vim/foo.snippets
+        - vim_foo.snippets
+        - vim/foo
+        - vim/foo.snippets
 
-        • all.snippets
-        • all/foo.snippets
+        - all.snippets
+        - all/foo.snippets
 
 UltiSnips considère `all` comme une sorte de type de fichiers universel.
 `all.snippets` est utile pour définir des snippets indépendant du type de fichiers,
@@ -3108,16 +3108,16 @@ comme pex l'insertion d'une date.
 Dans un fichier où des snippets sont définis, on peut faire commencer une ligne par un mot-clé pour
 exécuter une directive. Parmi ces mots-clés, on trouve:
 
-            • extends
-            • priority
-            • clearsnippets
-            • snippet
-            • endsnippet
+            - extends
+            - priority
+            - clearsnippets
+            - snippet
+            - endsnippet
 
-            • context
-            • pre_expand
-            • post_expand
-            • post_jump
+            - context
+            - pre_expand
+            - post_expand
+            - post_jump
 
 
     extends perl, ruby
@@ -3252,11 +3252,11 @@ exécuter une directive. Parmi ces mots-clés, on trouve:
 
             Ici il s'agit d'une simple chaîne de caractères, mais on pourrait aussi utiliser:
 
-                    • une interpolation d'une commande shell/VimL/python… entre des backticks. Ex:
+                    - une interpolation d'une commande shell/VimL/python… entre des backticks. Ex:
 
                             ${1:`date`}
 
-                    • autre tabstop
+                    - autre tabstop
 
             Qd notre curseur est positionné sur un tabstop doté d'un placeholder, ce dernier
             est sélectionné visuellement, et on se trouve en mode 'select'.
@@ -3292,8 +3292,8 @@ exécuter une directive. Parmi ces mots-clés, on trouve:
             Sans lui, si on supprime le 2e tabstop, le 3e n'est pas automatiquement supprimé.
             Plus généralement, un tabstop est automatiquement supprimé ssi:
 
-                • il est inclus dans le placeholder d'un autre tabstop
-                • il est suivi d'un texte qcq à l'intérieur du placeholder
+                - il est inclus dans le placeholder d'un autre tabstop
+                - il est suivi d'un texte qcq à l'intérieur du placeholder
 
                     snippet a
                     foo ${1:bar $2}($3)
@@ -3402,8 +3402,8 @@ exécuter une directive. Parmi ces mots-clés, on trouve:
             Il reçoit lui-même en valeur par défaut `MyCmd`.
             Ainsi qd on appuiera sur Tab, `${VISUAL}` sera développé en:
 
-                    • `MyCmd` depuis le mode insertion
-                    • la dernière sélection visuelle depuis le mode visuel
+                    - `MyCmd` depuis le mode insertion
+                    - la dernière sélection visuelle depuis le mode visuel
 
 
                                                NOTE:
@@ -3503,9 +3503,9 @@ On peut également effectuer une substitution au sein du tabstop miroir.
 
             Ce qui signifie que si le texte inséré dans le tabstop d'origine commence par un:
 
-                    • `a`, le miroir commencera par `foo`
-                    • `b`, "                        `bar`
-                    • ni `a`, ni `b`, le miroir sera vide
+                    - `a`, le miroir commencera par `foo`
+                    - `b`, "                        `bar`
+                    - ni `a`, ni `b`, le miroir sera vide
 
 
                                                NOTE:
@@ -3524,9 +3524,9 @@ On peut également effectuer une substitution au sein du tabstop miroir.
 
             Si le texte inséré dans le tabstop d'origine commence par un:
 
-                    • `a`, le miroir commencera par `fooqux`
-                    • `b`, "                        `barbaz`
-                    • ni `a`, ni `b`, le miroir commencera par `barqux`
+                    - `a`, le miroir commencera par `fooqux`
+                    - `b`, "                        `barbaz`
+                    - ni `a`, ni `b`, le miroir commencera par `barqux`
 
             Illustre  qu'un miroir  peut  être aussi  intelligent qu'on  veut;  i.e. être  capable
             d'effectuer autant de substitutions que nécessaire, et choisir la bonne en fonction
@@ -3557,9 +3557,9 @@ On peut également effectuer une substitution au sein du tabstop miroir.
             De plus, UltiSnips configure automatiquement certains objets et variables python, valables
             au sein du bloc de code:
 
-                    • snip.rv    = variable 'return value'; sa valeur sera interpolée au sein du document
+                    - snip.rv    = variable 'return value'; sa valeur sera interpolée au sein du document
 
-                    • t          = liste dont les éléments contiennent le texte inséré dans les
+                    - t          = liste dont les éléments contiennent le texte inséré dans les
                                    différents tabstops; ex:    t[1] = $1, t[2] = $2
 
             Ici, `float()` est une fonction python, et non Vim.
@@ -3618,10 +3618,10 @@ un caractère spécial. Par exemple, le digraphe de `✔` est `xv`.
 
             De même:
 
-                    • :UnicodeName n name   →  HEAVY CHECK MARK
-                    • "            h html      &#x2714;
-                    • "            r regex     \%u2714
-                    • "            v value     10004
+                    - :UnicodeName n name   →  HEAVY CHECK MARK
+                    - "            h html      &#x2714;
+                    - "            r regex     \%u2714
+                    - "            v value     10004
 
 
     :verb Digraphs!
@@ -3659,9 +3659,9 @@ un caractère spécial. Par exemple, le digraphe de `✔` est `xv`.
 
             Affiche tous les caractères dont:
 
-                    • la valeur décimale est 42
-                    • "         hexa     est 42
-                    • le nom match pattern
+                    - la valeur décimale est 42
+                    - "         hexa     est 42
+                    - le nom match pattern
 
             La recherche est insensible à la casse.
 
@@ -3748,28 +3748,28 @@ un caractère spécial. Par exemple, le digraphe de `✔` est `xv`.
             Retourne une liste de dico.
             Chaque dico contient un ensemble d'infos concernant {match}:
 
-                    • 'name'    nom
+                    - 'name'    nom
 
-                    • 'glyph'   glyphe
+                    - 'glyph'   glyphe
 
-                    • 'dec'     valeur décimale du codepoint
+                    - 'dec'     valeur décimale du codepoint
 
-                    • 'hex'     valeur hexa du codepoint
+                    - 'hex'     valeur hexa du codepoint
 
-                    • 'dig'     digraphe;
+                    - 'dig'     digraphe;
                                 s'ils en existent plusieurs pour un même caractère, ils seront
                                 séparés par des espaces; cette clé est optionnelle
 
-                    • 'html'    entité HTML
+                    - 'html'    entité HTML
 
             {match} peut être:
 
-                    • une regex                               comparée au nom du caractère
+                    - une regex                               comparée au nom du caractère
                                                               sans tenir compte de la casse
 
-                    • un nb décimal                           comparé au code du caractère
+                    - un nb décimal                           comparé au code du caractère
 
-                    • un nb hexa préfixé par '0x', ou 'U+'    "
+                    - un nb hexa préfixé par '0x', ou 'U+'    "
 
 
     unicode#Digraph({string})
@@ -3842,8 +3842,8 @@ En mode interactif, pour appliquer une règle d'alignement, il faudra frapper la
 
             On peut alterner entre:
 
-                    • les modes interactifs avec/sans prévisualisation via C-P
-                    • différents type d'alignements (gauche, droite, centré) via Enter
+                    - les modes interactifs avec/sans prévisualisation via C-P
+                    - différents type d'alignements (gauche, droite, centré) via Enter
 
             Par défaut, le plugin aligne autour de la 1e occurrence du délimiteur sur chaque ligne.
             On peut choisir une/d'autre(s) occurrence(s) en préfixant le délimiteur:
@@ -4110,9 +4110,9 @@ Plusieurs syntaxes sont possibles suivant la façon dont on souhaite charger un 
 
             Une valeur est généralement une chaîne. Elle peut aussi être:
 
-                    • une liste de chaînes pour les options 'on' et 'for'
-                    • une funcref          "                'do'
-                    • un  nb (obligatoire) "                'frozen'
+                    - une liste de chaînes pour les options 'on' et 'for'
+                    - une funcref          "                'do'
+                    - un  nb (obligatoire) "                'frozen'
 
 
     Plug 'vim-stacktrace', { 'on': 'WTF' }
@@ -4241,17 +4241,17 @@ Plusieurs syntaxes sont possibles suivant la façon dont on souhaite charger un 
 
             La valeur de l'option 'do' peut être une:
 
-                    • chaîne:     'Shell_cmd'
-                    • chaîne:     ':Vim_cmd'    vim-plug reconnaît le préfixe `:` comme une cmd Vim
-                    • funcref:    'MyFunc'
+                    - chaîne:     'Shell_cmd'
+                    - chaîne:     ':Vim_cmd'    vim-plug reconnaît le préfixe `:` comme une cmd Vim
+                    - funcref:    'MyFunc'
 
             Une funcref permet d'exécuter des commandes plus complexes.
             Si on en utilise une, vim-plug lui passe automatiquement en argument un dico contenant
             3 clés:
 
-                    • name:      nom du plugin
-                    • status:    'installed', 'updated', ou 'unchanged'
-                    • force:     flag activé (valeur 1) qd on utilise `:PlugInstall!` ou `:PlugUpdate!`
+                    - name:      nom du plugin
+                    - status:    'installed', 'updated', ou 'unchanged'
+                    - force:     flag activé (valeur 1) qd on utilise `:PlugInstall!` ou `:PlugUpdate!`
 
                     fu! BuildYCM(info) abort
 

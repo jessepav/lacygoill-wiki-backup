@@ -238,9 +238,9 @@ onglets via des mappings (gt / gT).
 
             Le nb de fenêtres / onglets pouvant être ouverts est limité par N et par:
 
-                    • 'winheight'     pour des fenêtres horizontales
-                    • 'winwidth'      "                 verticales (:vert)
-                    • 'tabpagemax'    "        onglets (:tab)
+                    - 'winheight'     pour des fenêtres horizontales
+                    - 'winwidth'      "                 verticales (:vert)
+                    - 'tabpagemax'    "        onglets (:tab)
 
             Par défaut, 'winheight' vaut 1, 'winwidth' 20 et 'tabpagemax' 10.
 
@@ -289,12 +289,12 @@ On  peut changer  ces  positions par  défaut en  activant  les options  globale
 On peut également changer ces  positions temporairement, le temps d'exécuter une
 commande créant un viewport, via certains modificateurs de commande:
 
-    • :abo[veleft], :lefta[bove]
-    • :bel[owright], :rightb[elow]
-    • :to[pleft]
-    • :bo[tright]
-    • :vert[ical]
-    • :tab
+    - :abo[veleft], :lefta[bove]
+    - :bel[owright], :rightb[elow]
+    - :to[pleft]
+    - :bo[tright]
+    - :vert[ical]
+    - :tab
 
 Qd  :abo/:lefta est  suivi d'une  commande  Ex qui  split horizontalement,  elle
 demande à cette dernière de le créer en haut.
@@ -368,13 +368,13 @@ Pk 10? Chacune illustre l'utilisation d'un modificateur différent:
 
             Les différences entre :sb et :sp sont les suivantes:
 
-                • :sp dispose d'un homologue en mode vertical (:vsp), pas :sb
+                - :sp dispose d'un homologue en mode vertical (:vsp), pas :sb
                   Il n'existe pas de commande :vsb, il faut écrire:    :vert sb
 
-                • si le buffer est déjà affiché dans une fenêtre / onglet, :sb lui donne le focus au lieu
+                - si le buffer est déjà affiché dans une fenêtre / onglet, :sb lui donne le focus au lieu
                   d'ouvrir “bêtement“ une 2e fenêtre (pour peu qu'on ait bien configuré l'option 'swb')
 
-                • :sb accepte un n° de buffer en argument, pas :sp
+                - :sb accepte un n° de buffer en argument, pas :sp
                   :sp 42 n'ouvrirait pas le buffer listé de numéro 42, mais un nouveau buffer dont le nom serait 42
 
     :vert sb foo    :vert sb 42

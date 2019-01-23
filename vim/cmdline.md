@@ -19,14 +19,14 @@ Example:
 
 What must follow `**` in a file pattern? (2 possibilities)
 
-        • nothing
-        • a slash
+        - nothing
+        - a slash
 
 Dans un file pattern `'**'` ne peut être utilisé que:
 
-        • à la fin
-        • en étant suivi d'un slash
-        • en étant suivi d'un nombre puis d'un slash
+        - à la fin
+        - en étant suivi d'un slash
+        - en étant suivi d'un nombre puis d'un slash
 
           n'importe quoi ✘
 
@@ -124,12 +124,12 @@ findfile({name} [, {path} [, {count}]])
 
     '**' is more sophisticated:
 
-        • It ONLY matches directories
+        - It ONLY matches directories
 
-        • It matches up to 30 directories deep by default, so you can use it to
+        - It matches up to 30 directories deep by default, so you can use it to
           search an entire directory tree
 
-        • The maximum number of levels matched can be given by appending
+        - The maximum number of levels matched can be given by appending
           a number to '**'.
 
             Thus '/usr/**2' can match:
@@ -150,7 +150,7 @@ findfile({name} [, {path} [, {count}]])
         The system  also has  a limit on  the path length,  usually 256  or 1024
         bytes.
 
-        • '**' can only be at the end of the path or be followed by a path
+        - '**' can only be at the end of the path or be followed by a path
           separator or by a number and a path separator.
 
     You can combine '*' and '**' in any order:
@@ -230,9 +230,9 @@ findfile({name} [, {path} [, {count}]])
     ┌────────────┬────────────────────────────────────────────────────────────────────────────────────┐
     │            │ au sein du pager de Vim avancer / reculer:                                         │
     │            │                                                                                    │
-    │ j        k │     • d'une ligne                                                                  │
-    │ d        u │     • d'un écran                                                                   │
-    │ Space    b │     • d'une page                                                                   │
+    │ j        k │     - d'une ligne                                                                  │
+    │ d        u │     - d'un écran                                                                   │
+    │ Space    b │     - d'une page                                                                   │
     ├────────────┼────────────────────────────────────────────────────────────────────────────────────┤
     │ C-x C-a    │ développe le caractère spécial (glob, %, ...) précédant le curseur                 │
     ├────────────┼────────────────────────────────────────────────────────────────────────────────────┤

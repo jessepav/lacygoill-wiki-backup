@@ -693,9 +693,9 @@ Rediriger tout ce qui est tapé au clavier (jusqu'au tag EOF) en entrée à cmd.
 
 Les données tapées subissent 2 développements et une substitution:
 
-        • parameter expansion
-        • arithmetic expansion
-        • command substitution
+        - parameter expansion
+        - arithmetic expansion
+        - command substitution
 
 On peut le vérifier en tapant la commande: `cat <<EOF`.
 Puis en tapant $PATH au sein des données.

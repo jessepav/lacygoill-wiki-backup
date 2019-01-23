@@ -6,10 +6,10 @@
 
             It provides customizable features, all built to get a certain look:
 
-                    • journal article
-                    • letter
-                    • presentation
-                    • poster
+                    - journal article
+                    - letter
+                    - presentation
+                    - poster
                     ...
 
             You can choose a class via the `\documentclass` command.
@@ -35,8 +35,8 @@
 
             A part of the document between a pair of 2 consecutive commands:
 
-                    • \begin{xxx}
-                    • \end{xxx}
+                    - \begin{xxx}
+                    - \end{xxx}
 
 # g
 

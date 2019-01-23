@@ -195,9 +195,9 @@ trace output for that widget to be saved to a file.
 This is used by the standard function for completing filenames, `_files`.
 If the style is unset, up to three tags are offered:
 
-        • globbed-files
-        • directories
-        • all-files
+        - globbed-files
+        - directories
+        - all-files
 
 depending on the types of files expected by the caller of `_files`.
 `globbed-files`  and `directories`  are  normally offered  together  to make  it

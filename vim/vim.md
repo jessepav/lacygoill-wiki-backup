@@ -156,10 +156,10 @@ Après avoir quitté Vim, on se retrouve  dans `less`, le contenu du fichier aya
 
 Un opérateur (c, d, y, g@ …) est:
 
-    • une commande normale appelant une fonction qui agit sur le texte encadré
+    - une commande normale appelant une fonction qui agit sur le texte encadré
       par les “change marks”
 
-    • une commande normale appelée depuis le mode visuel et agissant sur le
+    - une commande normale appelée depuis le mode visuel et agissant sur le
       texte encadré par les “visual marks”
 
 En mode normal, il attend un mouvement ou un text-object pour pouvoir placer les
@@ -282,8 +282,8 @@ Pour copier le texte sur lequel elle doit agir, la fonction utilisera les comman
             revue les 90 occurrences restantes.
             Comment annuler la commande globale suspendue?
 
-                    • écrire le buffer, puis le recharger
-                    • taper C-c C-c puis :vi
+                    - écrire le buffer, puis le recharger
+                    - taper C-c C-c puis :vi
 
                                                NOTE:
 
@@ -292,10 +292,10 @@ Pour copier le texte sur lequel elle doit agir, la fonction utilisera les comman
             gQ nous fait entrer dans un mode similaire, mais contrairement à Q, il conserve tout ce qu'on
             peut utiliser sur la ligne de commande traditionnelle:
 
-                    • complétion via Tab
-                    • navigation sur la ligne de commande (C-e pour aller à la fin de la ligne…)
-                    • abréviations (cnorea)
-                    • mappings (cmap), …
+                    - complétion via Tab
+                    - navigation sur la ligne de commande (C-e pour aller à la fin de la ligne…)
+                    - abréviations (cnorea)
+                    - mappings (cmap), …
 
     :5,10norm .
 
@@ -371,9 +371,9 @@ Pour copier le texte sur lequel elle doit agir, la fonction utilisera les comman
 
             changer la casse:
 
-                    • du caractère sous le curseur ou de la sélection visuelle
-                    • de la ligne
-                    • des caractères couverts par {motion}
+                    - du caractère sous le curseur ou de la sélection visuelle
+                    - de la ligne
+                    - des caractères couverts par {motion}
 
             ~ ne se comporte comme un opérateur que si l'option 'tildeop' est activée ou en mode visuel.
             Autrement, ~ est une forme abrégée de g~l.
@@ -389,7 +389,7 @@ Pour copier le texte sur lequel elle doit agir, la fonction utilisera les comman
 
             Ceci illustre 2 conventions respectées par les opérateurs:
 
-                    • qd on répète 2 fois un opérateur, il agit sur toute la ligne. Ex:
+                    - qd on répète 2 fois un opérateur, il agit sur toute la ligne. Ex:
 
                             cc
                             dd
@@ -400,7 +400,7 @@ Pour copier le texte sur lequel elle doit agir, la fonction utilisera les comman
                             >>
                             <<
 
-                    • qd l'opérateur est composé de 2 caractères, on peut se contenter de répéter
+                    - qd l'opérateur est composé de 2 caractères, on peut se contenter de répéter
                       son dernier caractère:
 
                             g~~
@@ -531,8 +531,8 @@ En mode normal, on peut coller du texte de 5 façons différentes (les 3 derniè
     ]p    [p    respecte le niveau d'indentation de la ligne courante
                 contrairement aux autres méthodes, ici le préfixe ] / [ contient 2 informations:
 
-                    • l'action: coller en respectant le niveau d'indentation
-                    • le lieu:  ] = en-dessous, [ = au-dessus
+                    - l'action: coller en respectant le niveau d'indentation
+                    - le lieu:  ] = en-dessous, [ = au-dessus
 
                 Le p n'est nécessaire que pour rendre ces 2 mappings cohérents avec les autres,
                 et pour éviter un pb de timeout ([[, ]], …).
@@ -581,10 +581,10 @@ courante.
 
             Si le registre par défaut contient un texte:
 
-                    • characterwise,    le coller avant le curseur / après le caractère suivant le curseur
+                    - characterwise,    le coller avant le curseur / après le caractère suivant le curseur
                                         et positionner le curseur SUR le DERNIER caractère collé
 
-                    • linewise,         le coller avant / après la ligne courante
+                    - linewise,         le coller avant / après la ligne courante
                                         et positionner le curseur SUR le 1ER caractère collé
 
                                                NOTE:
@@ -613,14 +613,14 @@ courante.
 
             L'itération:
 
-                • est annulée dès qu'on utilise p / P
+                - est annulée dès qu'on utilise p / P
 
                   Pex dès qu'on tape p ou "aP on colle le registre unnamed / a,
                   et par la suite, la commande dot recolle le registre unnamed / a (et non plus 1…9).
 
-                • s'arrête une fois arrivé au registre 9 (pas de boucle)
+                - s'arrête une fois arrivé au registre 9 (pas de boucle)
 
-                • est réinitialisée dès qu'on réutilise un registre numéroté
+                - est réinitialisée dès qu'on réutilise un registre numéroté
 
             On peut commencer à itérer depuis n'importe quel registre numéroté (pas forcément le 1) sauf 0.
 
@@ -1035,8 +1035,8 @@ il  n'est pas  colorisé et  souligné  dans la  même  couleur que  les mots  f
 
             Inverser l'ordre de tri des lignes:
 
-                    • du buffer (toutes)
-                    • 11 à 20
+                    - du buffer (toutes)
+                    - 11 à 20
 
 
     :g/^/exe 'm -'.(line('.')%4 ? line('.')%4 : 4)
@@ -1072,8 +1072,8 @@ il  n'est pas  colorisé et  souligné  dans la  même  couleur que  les mots  f
 
             Combinée avec une commande globale, m0 et m$ sont utiles pour déplacer des lignes matchant un pattern:
 
-                • au début du buffer (en inversant leur ordre relatif)
-                • à la fin du buffer (en conservant leur ordre relatif)
+                - au début du buffer (en inversant leur ordre relatif)
+                - à la fin du buffer (en conservant leur ordre relatif)
 
     :4m7
 
@@ -1281,8 +1281,8 @@ https://4.bp.blogspot.com/-MhHrs8Q-S_A/UJpAuI_mOZI/AAAAAAAAAZ0/aJrXwjlvoYs/s1600
 
             Le formatage introduit automatiquement un retour à la ligne, dès qu'une ligne atteint:
 
-                • &tw si != 0
-                • min(largeur de la fenêtre, 79), si &tw = 0
+                - &tw si != 0
+                - min(largeur de la fenêtre, 79), si &tw = 0
 
             Utilise la fonction de formatage interne à Vim, dont le comportement peut être modifié via l'option
             'formatoptions' / 'fo'.
@@ -1295,9 +1295,9 @@ https://4.bp.blogspot.com/-MhHrs8Q-S_A/UJpAuI_mOZI/AAAAAAAAAZ0/aJrXwjlvoYs/s1600
 
             Différences entre les opérateurs gq et gw:
 
-            • gq déplace le curseur sur la dernière ligne formatée, gw le laisse à sa place
+            - gq déplace le curseur sur la dernière ligne formatée, gw le laisse à sa place
 
-            • gq appelle par ordre de priorité:
+            - gq appelle par ordre de priorité:
 
                   1. la fonction custom définie par l'option locale au buffer    'fex' / 'formatexpr'
                   2. le pgm externe défini par l'option GLOBALE                   'fp' / 'formatprg'
@@ -1305,9 +1305,9 @@ https://4.bp.blogspot.com/-MhHrs8Q-S_A/UJpAuI_mOZI/AAAAAAAAAZ0/aJrXwjlvoYs/s1600
 
             Vim peuple automatiquement 3 variables qu'on peut utiliser dans une fonction custom ('fex') :
 
-                    • v:lnum     adresse de la 1e ligne à formater
-                    • v:count    nb de lignes à formater
-                    • v:char     caractère qui va être inséré qd la fonction est évaluée (formatage automatique)
+                    - v:lnum     adresse de la 1e ligne à formater
+                    - v:count    nb de lignes à formater
+                    - v:char     caractère qui va être inséré qd la fonction est évaluée (formatage automatique)
 
             v:lnum et v:count sont utiles qd la fonction est appelée manuellement via gq.
             Grâce à elles, on pourra pex définir les variables start et end comme ceci:
@@ -1416,10 +1416,10 @@ En effet, l'insertion d'un tab signifie qu'on souhaite que le texte qui suit ait
 (nb de cellules précédentes; sortie de indent('.')) le plus petit multiple de &ts possible.
 Pex, si on a la ligne 'abcde', un tab inséré après:
 
-    • a       occupe    3 cellules    de sorte que 'bcde'    ait un niveau d'indentation de 4
-    • ab         "      2     "       "            'cde'     "
-    • abc        "      1     "       "            'de'      "
-    • abcd       "      4     "       "            'e'       ait un niveau d'indentation de 8
+    - a       occupe    3 cellules    de sorte que 'bcde'    ait un niveau d'indentation de 4
+    - ab         "      2     "       "            'cde'     "
+    - abc        "      1     "       "            'de'      "
+    - abcd       "      4     "       "            'e'       ait un niveau d'indentation de 8
                                                              4 ne serait pas possible car il y a déjà
                                                              'abcd' + le tab = 5 caractères qui précèdent
 
@@ -1500,9 +1500,9 @@ Le type de fichiers doit être correctement configuré pour qu'une auto-indentat
             changer (copier le niveau de la ligne précédente).
             Pour écrire une telle fonction, certaines fonctions systèmes peuvent s'avérer utiles:
 
-                    • indent()
-                    • prevnonblank()
-                    • searchpair()    ou    searchpairpos()
+                    - indent()
+                    - prevnonblank()
+                    - searchpair()    ou    searchpairpos()
 
             Si 'indentexpr' est non-vide, les touches qui provoquent une réindentation en mode insertion
             sont définies par l'option locale au buffer 'indentkeys' / 'indk' dont la valeur suit le format
@@ -1655,8 +1655,8 @@ Le type de fichiers doit être correctement configuré pour qu'une auto-indentat
 
             Ex: si @a contient 'ab^Hc' :
 
-                • C-r a        insère    'ac'
-                • C-r C-r a    insère    'ab^Hc'
+                - C-r a        insère    'ac'
+                - C-r C-r a    insère    'ab^Hc'
 
             À l'issue de l'insertion, @. = @a, car Vim remplace C-r a par @a
             Si on n'avait pas inséré @a littéralement, @. = C-r a
@@ -1682,12 +1682,12 @@ Le type de fichiers doit être correctement configuré pour qu'une auto-indentat
 
             On a 3 méthodes d'insertion de registres:
 
-                    • C-r        double remplacement:
+                    - C-r        double remplacement:
                                  caractères de contrôle au sein du registre +
                                  contenu du registre au sein du registre dot
 
-                    • C-r C-r    simple remplacement (registre dot)
-                    • C-r C-o    aucun remplacement
+                    - C-r C-r    simple remplacement (registre dot)
+                    - C-r C-o    aucun remplacement
 
     ciw    C-r C-o "    C-r C-o "    w .    w .
 
@@ -1720,9 +1720,9 @@ Le type de fichiers doit être correctement configuré pour qu'une auto-indentat
 
             insérer un caractère à partir de son point de code:
 
-                • décimal en 3 chiffres, il ne peut dépasser 255
-                • hexa    en 2 chiffres, "                   FF     FF₁₆ = 255₁₀
-                • octal   en 3 chiffres, "                   377    377₈ = 255₁₀
+                - décimal en 3 chiffres, il ne peut dépasser 255
+                - hexa    en 2 chiffres, "                   FF     FF₁₆ = 255₁₀
+                - octal   en 3 chiffres, "                   377    377₈ = 255₁₀
 
     C-v  u  {hexa code point: 4 digits}
     C-v  U  {hexa code point: 8 digits}
@@ -1974,9 +1974,9 @@ des LF (aucun effet donc).
 
                                                NOTE:
 
-            • Accepte un count (3* cherche la 3e occurrence du mot sous le curseur)
+            - Accepte un count (3* cherche la 3e occurrence du mot sous le curseur)
 
-            • Le registre recherche est peuplé par ordre de priorité avec:
+            - Le registre recherche est peuplé par ordre de priorité avec:
 
                     1. le mot ('isk') sous le curseur
                     2. le prochain mot après le curseur
@@ -1986,7 +1986,7 @@ des LF (aucun effet donc).
                     3. la séquence de caractères non whitespace sous le curseur
                     4. la prochaine séquence de caractères non whitespace après le curseur
 
-            • Le déplacement ajoute la position initiale dans la jumplist.
+            - Le déplacement ajoute la position initiale dans la jumplist.
 
               S'il n'y a qu'une seule occurrence  et que le curseur se trouve au
               milieu du mot, il est automatiquement déplacé sur le 1er caractère
@@ -2092,9 +2092,9 @@ des LF (aucun effet donc).
 
             Toutes ces commandes:
 
-                    • ajoutent les ancres `\<` et `\>`
+                    - ajoutent les ancres `\<` et `\>`
 
-                    • incluent les lignes commentées dans leur recherche ssi on leur passe un count:
+                    - incluent les lignes commentées dans leur recherche ssi on leur passe un count:
 
                             [i      ignore     les lignes commentées
                           1 [i    n'ignore pas "
@@ -2104,7 +2104,7 @@ des LF (aucun effet donc).
                             [I      cherchent dans les lignes commentées malgré l'absence de count
                             ]I
 
-                    • cherchent bien la Ne ligne contenant le mot sous le curseur, pas sa Ne occurrence
+                    - cherchent bien la Ne ligne contenant le mot sous le curseur, pas sa Ne occurrence
 
                             Pex, si on tape `3 [i`, dans le fichier:
 
@@ -2219,9 +2219,9 @@ des LF (aucun effet donc).
 
             Cherche `pattern` au sein des lignes 5 à 10 du fichier courant et des fichiers include puis:
 
-                    • saute   vers la 3e ligne où il y a match, dans la fenêtre courante
-                    • "                                       , dans un split
-                    • affiche      "                          , dans la fenêtre preview
+                    - saute   vers la 3e ligne où il y a match, dans la fenêtre courante
+                    - "                                       , dans un split
+                    - affiche      "                          , dans la fenêtre preview
 
                                                NOTE:
 
@@ -2233,12 +2233,12 @@ des LF (aucun effet donc).
             `:ij` et  `:isp` offrent plus  de flexibilité que leurs  cousines
             `[C-i` et `C-w i`, car elles permettent de:
 
-                    • limiter la recherche à une rangée
+                    - limiter la recherche à une rangée
 
-                    • inclure ou exclure les commentaires de la recherche, via le bang,
+                    - inclure ou exclure les commentaires de la recherche, via le bang,
                       indépendamment du fait qu'on leur ait passé un count ou pas
 
-                    • réaliser une recherche unbounded (en mettant des slashs autour du pattern)
+                    - réaliser une recherche unbounded (en mettant des slashs autour du pattern)
 
 ## Remplacer
 
@@ -2297,7 +2297,7 @@ des LF (aucun effet donc).
 
             On peut voir une différence par rapport au mode remplacement (R), qd on remplace un caractère par un:
 
-                • tab     gR peut remplacer plusieurs caractères (au lieu d'un seul en mode remplacement);
+                - tab     gR peut remplacer plusieurs caractères (au lieu d'un seul en mode remplacement);
                           Il en remplace autant qu'il occuperait de cellules si on en insérait un.
 
                           De même, qd on remplace un tab par un autre caractère, ce dernier ne remplace
@@ -2307,17 +2307,17 @@ des LF (aucun effet donc).
 
                           Un BS révèle le(s) caractère(s) remplacé(s).
 
-                • CR      tous les caractères qui suivent sur la ligne sont supprimés,
+                - CR      tous les caractères qui suivent sur la ligne sont supprimés,
                           et le curseur passe sur le 1er non whitespace de la ligne suivante
 
                           Plusieurs BS révèlent le(s) caractère(s) remplacé(s).
 
-                • C-t     Le niveau d'indentation de la ligne augmente comme d'habitude,
+                - C-t     Le niveau d'indentation de la ligne augmente comme d'habitude,
                           mais les caractères suivants ne semblent pas bouger.
 
                           C-d révèle les caractères remplacés.
 
-                • C-d     Le niveau d'indentation de la ligne diminue comme d'habitude,
+                - C-d     Le niveau d'indentation de la ligne diminue comme d'habitude,
                           mais les caractères suivants ne semblent pas bouger.
                           Pour ce faire Vim double les caractères précédant le curseur.
 
@@ -2390,20 +2390,20 @@ Car _depuis le mode visuel, dot perd de l'information_ (ip → 5 lignes).
 Qd on répète un objet via un count, qu'ajoute-t-on ?
 Il semble que ça dépende des limites de l'objet:
 
-            • caractères non connus à l'avance                  →    prochain objet              ex: d2aw
-            • une paire de (groupe de) caractères différents    →    objet incluant              ex: y2ab
-            • une paire de caractères identiques                →    n'ajoute rien (sauf pour l'opérateur visuel)
+            - caractères non connus à l'avance                  →    prochain objet              ex: d2aw
+            - une paire de (groupe de) caractères différents    →    objet incluant              ex: y2ab
+            - une paire de caractères identiques                →    n'ajoute rien (sauf pour l'opérateur visuel)
 
 La répétition en  mode visuel d'un objet  dont les limites sont des  caractères identiques semble
 complexe.  Il y a plusieurs choses étranges avec ce genre d'objets:
 
-        • vi'        si le curseur ne se trouve pas entre 2 quotes, sélectionne le prochain texte sur
+        - vi'        si le curseur ne se trouve pas entre 2 quotes, sélectionne le prochain texte sur
                      la ligne entre quotes;
                      mais si le curseur ne se trouve pas entre 2 parenthèses, vib ne sélectionne rien
 
-        • vi'i'i'    ne sélectionne pas le même texte que v3i'
+        - vi'i'i'    ne sélectionne pas le même texte que v3i'
 
-        • v4i'       ne sélectionne rien de plus que v3i'
+        - v4i'       ne sélectionne rien de plus que v3i'
                      mais v4a' peut sélectionner plus de texte que v3a'
 
                      Il semble qu'on puisse utiliser un count aussi grand qu'on veut avec l'adverbe a,
@@ -2634,12 +2634,12 @@ Pex, V{backtick}a sélectionne tout le texte situé entre la ligne courante et l
             On peut aussi considérer gn et gN comme des mappings systèmes.
             Si le curseur se trouve:
 
-                • en-dehors d'un match:                   v//e<cr>o//<cr>    ⇔    gn
+                - en-dehors d'un match:                   v//e<cr>o//<cr>    ⇔    gn
                                                           v??<cr>o??e<cr>    ⇔    gN
 
-                • sur le 1er caractère d'un match:        v//e<cr>
-                • sur le dernier caractère d'un match:    v??<cr>
-                • au milieu d'un match:                   v//e<cr>o??<cr>
+                - sur le 1er caractère d'un match:        v//e<cr>
+                - sur le dernier caractère d'un match:    v??<cr>
+                - au milieu d'un match:                   v//e<cr>o??<cr>
 
             Comment tester si le curseur est à l'intérieur d'un match ou à l'extérieur ?
             Si la prochaine fin de match se situe avant le prochain début de match, on est à l'extérieur.
@@ -2776,8 +2776,8 @@ par la suite.
             Comment ça marche ?
             Si le curseur se trouve sur une ligne vide au sein d'un ensemble:
 
-                    • `vip` ne sélectionne rien
-                    • `yip`, `dip`, `cip`, … opère sur toutes les lignes vides
+                    - `vip` ne sélectionne rien
+                    - `yip`, `dip`, `cip`, … opère sur toutes les lignes vides
 
             Donc, ici, `dip` supprimerait toutes les lignes vides.
             Mais l'opérateur `d` a été modifié par `v`, et comme `ip` est un objet linewise,
@@ -3041,8 +3041,8 @@ de voir ce qu'on sélectionne avant d'agir dessus.  Toutefois, il présente 2 in
 
 Un mouvement peut être:
 
-    • characterwise s'il peut déplacer le curseur au sein d'une même ligne
-    • linewise s'il déplace le curseur entre des lignes
+    - characterwise s'il peut déplacer le curseur au sein d'une même ligne
+    - linewise s'il déplace le curseur entre des lignes
 
 Un texte copié, coupé ou supprimé via un mouvement linewise sera collé sous (p) / au-dessus de (P)
 la ligne du curseur (car getregtype('"') = V).
@@ -3052,13 +3052,13 @@ est une colonne passant par le curseur (car getregtype('"') = ^V).
 
     Remarques:
 
-    • un mouvement qui déplace le curseur entre plusieurs lignes est généralement linewise (mais y'a des exceptions)
+    - un mouvement qui déplace le curseur entre plusieurs lignes est généralement linewise (mais y'a des exceptions)
 
-    • { et } (déplacements par paragraphes) sont characterwise.
+    - { et } (déplacements par paragraphes) sont characterwise.
       d} supprime depuis le caractère sous le curseur jusqu'à la fin du paragraphe.
       S'il était linewise, d} supprimerait depuis le 1er caractère de la ligne courante.
 
-    • Un mouvement vers une marque précédée d'un backtick est characterwise.
+    - Un mouvement vers une marque précédée d'un backtick est characterwise.
       Un mouvement vers une marque précédée d'une apostrophe est linewise.
 
 
@@ -3067,17 +3067,17 @@ départ et d'arrivée).
 
 Un mouvement characterwise peut être inclusif ou exclusif:
 
-    • inclusif signifie que lorsqu'il est précédé d'un opérateur ce dernier agit sur le caractère
+    - inclusif signifie que lorsqu'il est précédé d'un opérateur ce dernier agit sur le caractère
       de départ et d'arrivée
 
-    • exclusif signifie que lorsqu'il est précédé d'un opérateur ce dernier n'agit pas sur le dernier
+    - exclusif signifie que lorsqu'il est précédé d'un opérateur ce dernier n'agit pas sur le dernier
       caractère: celui le + proche de la fin du buffer;
       ça peut être le caractère de départ ou celui d'arrivée suivant le sens du mouvement
 
       Exemples de mouvements characterwise exclusifs:
 
-            • F    cFx = coupe jusqu'au précédent caractère x mais pas le caractère sous le curseur
-            • w    yw  = copie jusqu'au début du prochain mot mais ne copie pas le 1er caractère de ce dernier
+            - F    cFx = coupe jusqu'au précédent caractère x mais pas le caractère sous le curseur
+            - w    yw  = copie jusqu'au début du prochain mot mais ne copie pas le 1er caractère de ce dernier
 
 
 On peut forcer un mouvement à devenir characterwise, linewise ou blockwise, le temps d'une opération.
@@ -3337,17 +3337,17 @@ F{char} d'exclusif à inclusif.
 
 Quelques propriétés concernant une marque:
 
-        • elle n'est supprimée que si on supprime sa ligne
-        • elle est restaurée si on annule la suppression de sa ligne
-        • sa coordonnée ligne peut changer si on supprime/ajoute des lignes avant elle
-        • sa coordonnée colonne ne change pas, même si on ajoute/supprime du texte avant elle
+        - elle n'est supprimée que si on supprime sa ligne
+        - elle est restaurée si on annule la suppression de sa ligne
+        - sa coordonnée ligne peut changer si on supprime/ajoute des lignes avant elle
+        - sa coordonnée colonne ne change pas, même si on ajoute/supprime du texte avant elle
 
 On peut se rendre à une marque de 4 façons différentes, en la préfixant avec:
 
-        • `    endroit exact
-        • '    1er caractère non whitespace sur la ligne où se trouve la marque
-        • g`   comme ` mais sans poser la marque ' sur la ligne courante avant le déplacement
-        • g'   comme ' mais "
+        - `    endroit exact
+        - '    1er caractère non whitespace sur la ligne où se trouve la marque
+        - g`   comme ` mais sans poser la marque ' sur la ligne courante avant le déplacement
+        - g'   comme ' mais "
 
 
     :$    :'a    :'a+2
@@ -3392,9 +3392,9 @@ On peut se rendre à une marque de 4 façons différentes, en la préfixant avec
             Vim considère `` comme un saut.
             Donc `` a 2 effets:
 
-                    • il nous ramène à l'endroit correspondant à la dernière entrée de la jumplist
+                    - il nous ramène à l'endroit correspondant à la dernière entrée de la jumplist
 
-                    • il ajoute la position de départ à la jumplist (là où se trouvait le curseur avant le saut)
+                    - il ajoute la position de départ à la jumplist (là où se trouvait le curseur avant le saut)
                       L'endroit où on se trouve qd on appuie sur `` devient donc la nouvelle dernière
                       entrée de la jumplist.
 
@@ -3512,10 +3512,10 @@ On peut se rendre à une marque de 4 façons différentes, en la préfixant avec
 
             éditer un nouveau buffer sans nom dans:
 
-                    • la fenêtre courante
-                    • un viewport horizontal
-                    • "        vertical
-                    • un nouvel onglet
+                    - la fenêtre courante
+                    - un viewport horizontal
+                    - "        vertical
+                    - un nouvel onglet
 
             Pour le sauvegarder taper    :sav[eas] foo, ou taper les commandes précédentes en leur
             donnant comme nom de fichier foo (puis :w comme d'hab).
@@ -3527,8 +3527,8 @@ On peut se rendre à une marque de 4 façons différentes, en la préfixant avec
 
             Ceci a pour effet de:
 
-                • créer un nouveau buffer dont le contenu est le même que l'ancien
-                • faire passer l'ancien buffer en buffer alternatif, non listé et non modifié
+                - créer un nouveau buffer dont le contenu est le même que l'ancien
+                - faire passer l'ancien buffer en buffer alternatif, non listé et non modifié
                   (sauf s'il n'avait pas de nom)
 
             Si on modifie le nouveau buffer et qu'on l'écrit, le contenu de l'ancien buffer
@@ -3536,8 +3536,8 @@ On peut se rendre à une marque de 4 façons différentes, en la préfixant avec
 
             Si on recharge le nouveau buffer, on obtient au choix:
 
-                • un buffer vide si son nom ne correspond à aucun fichier existant dans le dossier de travail
-                • le buffer correspondant à un fichier s'ils ont le même nom
+                - un buffer vide si son nom ne correspond à aucun fichier existant dans le dossier de travail
+                - le buffer correspondant à un fichier s'ils ont le même nom
 
             Attention: bien vérifier que le nom qu'on choisit n'est pas déjà pris par un buffer existant.
             Autrement erreur. Pour ce faire:
@@ -3548,9 +3548,9 @@ On peut se rendre à une marque de 4 façons différentes, en la préfixant avec
 
             Si on:
 
-                    • définit une commande utilisant `:file`, dont le nom est composé exclusivement de majuscules
-                    • tape toute ou partie de son nom en minuscules sur la ligne de commandes
-                    • appuie sur Tab afin de développer et/ou faire passer son nom en maj avant de l'exécuter
+                    - définit une commande utilisant `:file`, dont le nom est composé exclusivement de majuscules
+                    - tape toute ou partie de son nom en minuscules sur la ligne de commandes
+                    - appuie sur Tab afin de développer et/ou faire passer son nom en maj avant de l'exécuter
 
             Ex:
 
@@ -3746,28 +3746,28 @@ Ouvre dirvish pour laisser l'utilisateur choisir un fichier:
 
             Cherche le fichier foo dans un dossier de l'option 'path' et l'édite dans:
 
-                    • la fenêtre courante
-                    • un viewport horizontal
-                    • un viewport vertcical
-                    • un nouvel onglet
+                    - la fenêtre courante
+                    - un viewport horizontal
+                    - un viewport vertcical
+                    - un nouvel onglet
 
 
     SPC eF / eS / eV / eT
 
             Chercher un fichier à partir du dossier du fichier courant et l'éditer dans:
 
-                    • la fenêtre courante
-                    • un viewport horizontal
-                    • un viewport vertical
-                    • un nouvel onglet
+                    - la fenêtre courante
+                    - un viewport horizontal
+                    - un viewport vertical
+                    - un nouvel onglet
 
             `:find` échoue qd il existe plusieurs fichiers correspondant à l'argument qu'on lui a passé.
             Dans ce cas, on peut:
 
-                    • réduire le développement à 1 seul match, en ajoutant un mot-clé présent
+                    - réduire le développement à 1 seul match, en ajoutant un mot-clé présent
                       dans le nom fu fichiers qui nous intéresse
 
-                    • appuyer sur Tab pour que Vim nous laisse choisir le match qui nous intéresse
+                    - appuyer sur Tab pour que Vim nous laisse choisir le match qui nous intéresse
                       dans le wildmenu
 
 
@@ -3776,10 +3776,10 @@ Ouvre dirvish pour laisser l'utilisateur choisir un fichier:
 
             Chercher un fichier à partir du dossier de travail et l'éditer dans:
 
-                    • la fenêtre courante
-                    • un viewport horizontal
-                    • un viewport vertical
-                    • un nouvel onglet
+                    - la fenêtre courante
+                    - un viewport horizontal
+                    - un viewport vertical
+                    - un nouvel onglet
 
             Mnémotechnique: le  dossier de  travail est  plus important que  le dossier  du fichier
             courant,  donc  on lui  donne  les  raccourcis  demandant  le moins  d'efforts  (lettres
@@ -3831,8 +3831,8 @@ via un pgm tq ctags:    $ ctags -R .    cmd shell qui scanne récursivement le d
 
 On peut se rendre à la définition d'un tag, on peut utiliser:
 
-    • la commande Ex :tag {ident}    peu importe où se trouve le curseur
-    • la commande normale C-]        le curseur doit se trouver sur l'{ident} désiré
+    - la commande Ex :tag {ident}    peu importe où se trouve le curseur
+    - la commande normale C-]        le curseur doit se trouver sur l'{ident} désiré
 
 À chaque fois qu'on saute vers une définition, son {ident} est poussé au sommet de la tag stack.
 En revanche, s'il y a plusieurs matchs possibles pour un {ident} donné, ils viennent peupler la tag match list.

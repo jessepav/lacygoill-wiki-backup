@@ -146,8 +146,8 @@ Con: more verbose
 
 IP addresses can change without notice:
 
-        • the administrator running the server may decide to use a different machine
-        • the route through which it connects to the rest of the Internet may change
+        - the administrator running the server may decide to use a different machine
+        - the route through which it connects to the rest of the Internet may change
 
 ##
 # Issues
@@ -202,12 +202,12 @@ responding.
 
 The cause may be:
 
-        • a slow network connection
+        - a slow network connection
 
-        • a heavy load on the server machine
+        - a heavy load on the server machine
           (which delays the PING on its way to you)
 
-        • a heavy load on your machine
+        - a heavy load on your machine
           (which prevents the reply from reaching the server before the timeout)
 
 ---

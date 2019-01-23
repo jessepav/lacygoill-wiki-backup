@@ -5,8 +5,8 @@ It sets the `'errorformat'` and `'makeprg'` options.
 
 `:make` will use:
 
-        • 'makeprg'     to determine which shell command to execute
-        • 'errorformat' to determine how to parse the output
+        - 'makeprg'     to determine which shell command to execute
+        - 'errorformat' to determine how to parse the output
 
 ##
 ## Where can I find examples of code for a compiler plugin?
@@ -17,10 +17,10 @@ It sets the `'errorformat'` and `'makeprg'` options.
 
 In:
 
-    • ~/.vim/after/compiler
+    - ~/.vim/after/compiler
         to overrule some settings of the default compilers in `$VIMRUNTIME/compiler/`
 
-    • ~/.vim/compiler
+    - ~/.vim/compiler
         to bypass the default compilers entirely
 
 The bypassing  works ONLY if you  assign a value to  `current_compiler`, because
@@ -94,8 +94,8 @@ Probably to prevent a guard from stopping the sourcing in step 3.
 
 2. define the `:CompilerSet` user command, which will set options with:
 
-        • :setlocal  if  :compiler   was NOT followed by a bang
-        • :set       if  :compiler   WAS     "
+        - :setlocal  if  :compiler   was NOT followed by a bang
+        - :set       if  :compiler   WAS     "
 
 3. execute:
 
@@ -239,9 +239,9 @@ Each entry in `'efm'` is a scanf-like string that describes the format.
 
 They all refer to the same thing, but in different contexts:
 
-        • it's an ENTRY from the point of view of 'efm' as a whole
-        • it's an error FORMAT string when it's used to parse the line, and extract some info
-        • it's a PATTERN when it's matched against a compiler's output line
+        - it's an ENTRY from the point of view of 'efm' as a whole
+        - it's an error FORMAT string when it's used to parse the line, and extract some info
+        - it's a PATTERN when it's matched against a compiler's output line
 
 ##
 ## Can I build 'efm' progressively?
@@ -453,8 +453,8 @@ before the atom you want to repeat, not after.
 
 Yes:
 
-        • do NOT escape the following atom with a percent
-        • do NOT use it to repeat a literal character (with no special meaning)
+        - do NOT escape the following atom with a percent
+        - do NOT use it to repeat a literal character (with no special meaning)
 
 For example, all of these items are wrong:
 
@@ -510,11 +510,11 @@ Vim will use the whole line to append to the message.
 
 `%-` has a different effect depending on the uppercase item it's combined with:
 
-        • with [AEIW G OPQ], the whole line is ignored
+        - with [AEIW G OPQ], the whole line is ignored
 
           the line doesn't even create an entry in the qfl
 
-        • with [CZ], nothing changes
+        - with [CZ], nothing changes
 
           it's as if you had used `%C`, `%Z`
 
@@ -618,8 +618,8 @@ This field is used to locate the error line.
 To  make the  search as  accurate as  possible, Vim  adds (to  the text  used to
 convert `%s`):
 
-        • the anchors '^' and  '$'
-        • the '\V' atom as a prefix
+        - the anchors '^' and  '$'
+        - the '\V' atom as a prefix
 
 Which gives:
 
@@ -1067,9 +1067,9 @@ the regex engine, will each remove one level of backslash.
 This explosion of backslashes is due to the fact that a backslash is special for
 every context:
 
-        • the parsing of `:set ...`  (used to escape some special characters)
-        • the parsing of 'efm'       (")
-        • the regex engine           (")
+        - the parsing of `:set ...`  (used to escape some special characters)
+        - the parsing of 'efm'       (")
+        - the regex engine           (")
 
 The more  contexts (`n`)  a token  is special in,  the more  backslashes (`2^n`)
 you'll need to match it literally.
@@ -1451,9 +1451,9 @@ Also, note that the format using `%-G` is useful to ignore the 1st line:
 
 Without `%-G`, this line would not be matched by any format:
 
-        • the 1st format describes the continuation of a multi-line message  (Traceback... is not ✘)
-        • the 2nd format describes the beginning of a multi-line message     (" ✘ )
-        • the 3rd format describes the end of a multi-line message           (" ✘ )
+        - the 1st format describes the continuation of a multi-line message  (Traceback... is not ✘)
+        - the 2nd format describes the beginning of a multi-line message     (" ✘ )
+        - the 3rd format describes the end of a multi-line message           (" ✘ )
 
 So,  Vim would  use the  last format  to  parse this  line, which  would give  a
 non-interactive entry in the qfl.
@@ -1570,8 +1570,8 @@ Here's what happens depending on the value we give to `'efm'`:
         " ✘  [A-Z] will be wrongly interpreted as a collection
           It's wrong because:
 
-                • it's inconsistent with how Vim interprets `\[` in `:set`
-                • for `[` to get a special meaning, it should be prefixed with `%` (or %*)
+                - it's inconsistent with how Vim interprets `\[` in `:set`
+                - for `[` to get a special meaning, it should be prefixed with `%` (or %*)
 
 ---
 

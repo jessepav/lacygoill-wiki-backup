@@ -101,11 +101,11 @@ Try to find and set a capability in the description of the outer terminal.
 
 In particular, in `$ tmux info`, check:
 
-   • bold
-   • sitm     italic
-   • smul     underline
-   • smxx     strikethrough
-   • setaf    change definition of ANSI color
+   - bold
+   - sitm     italic
+   - smul     underline
+   - smxx     strikethrough
+   - setaf    change definition of ANSI color
 
 ... and see whether they are set or followed by `[missing]`.
 If one of them is followed by  `[missing]`, the sequence will probably not work,

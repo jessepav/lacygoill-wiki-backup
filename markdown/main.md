@@ -6,9 +6,9 @@ format, then convert it to structurally valid XHTML (or HTML).
 
 Thus, “Markdown” is two things:
 
-        • a plain text formatting syntax
+        - a plain text formatting syntax
 
-        • a software tool, written in Perl, that converts the plain text
+        - a software tool, written in Perl, that converts the plain text
           formatting to HTML.
 
 See the Syntax page for details pertaining to Markdown's formatting syntax.

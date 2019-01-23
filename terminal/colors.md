@@ -58,10 +58,10 @@ An orange pumpkin that you see printed in a newspaper is not necessarily created
 by spraying orange ink on the paper.
 Rather, 2 inks may be sprayed onto the paper:
 
-   • yellow ink
+   - yellow ink
    to absorb blue light (from the white light beam), and a little green and red
 
-   • magenta ink
+   - magenta ink
    to absorb green light, and a little blue and red
 
 ... leaving only orange to be reflected back.
@@ -69,13 +69,13 @@ Rather, 2 inks may be sprayed onto the paper:
 The most effective subtractive color system is cyan-magenta-yellow (CMY) because
 it's the opposite of red-green-blue:
 
-   • Cyan     is the opposite of red    and is halfway between green and blue
+   - Cyan     is the opposite of red    and is halfway between green and blue
      (water vs fire)
 
-   • Magenta  is the opposite of green  and is halfway between blue  and red
+   - Magenta  is the opposite of green  and is halfway between blue  and red
      (evil vs nature)
 
-   • Yellow   is the opposite of blue   and is halfway between red   and green
+   - Yellow   is the opposite of blue   and is halfway between red   and green
      (day vs night)
 
 This is  why most  printed images contain  a grid of  little cyan,  magenta, and
@@ -93,8 +93,8 @@ of barycenter).
 
 For example, if you mix:
 
-   • twice as much yellow as magenta ink
-   • twice as much red    as green   light source
+   - twice as much yellow as magenta ink
+   - twice as much red    as green   light source
 
 You get orange.
 
@@ -141,20 +141,20 @@ Yes.
 
 The 256 colors can be broken down into 3 categories:
 
-   • 16  ANSI colors
-   • 216 colors from a built-in palette
-   • 24  shades of grey (greyscale from black to white)
+   - 16  ANSI colors
+   - 216 colors from a built-in palette
+   - 24  shades of grey (greyscale from black to white)
 
 ## Which colors are chosen for the 16 ANSI ones?
 
-   • black
-   • red
-   • green
-   • yellow
-   • blue
-   • magenta
-   • cyan
-   • white
+   - black
+   - red
+   - green
+   - yellow
+   - blue
+   - magenta
+   - cyan
+   - white
 
 + the same 8 colors but brighter/more intense.
 
@@ -255,12 +255,12 @@ But in some terminals, you can tweak the palette via:
 
 Yes, most terminals allow you to choose the colors of some elements of their UI:
 
-   • text foreground
-   • terminal background
-   • cursor
-   • tab activity
-   • text selection
-   • bold text
+   - text foreground
+   - terminal background
+   - cursor
+   - tab activity
+   - text selection
+   - bold text
    ...
 
 The colors used for these don't belong to the palette.
@@ -292,8 +292,8 @@ of `ctermfg` and `ctermbg`.
 
 Vim supports true color in the terminal, if:
 
-   • the terminal supports true color
-   • `'tgc'` is set
+   - the terminal supports true color
+   - `'tgc'` is set
 
 Sometimes setting  `'tgc'` is  not enough and  one has to  set the  `'t_8f'` and
 `'t_8b'` options explicitly.
@@ -321,15 +321,15 @@ nicm thinks that this syntax is silly:
 
 Nvim supports true color in the terminal, if:
 
-   • the terminal supports true color
-   • 'termguicolors' is set
-   • the 'setrgbf' and 'setrgbb' terminfo extensions are correctly set
+   - the terminal supports true color
+   - 'termguicolors' is set
+   - the 'setrgbf' and 'setrgbb' terminfo extensions are correctly set
 
 Nvim adds constructed  'setrgbf' and 'setrgbb' capabilities in  the terminfo db,
 if they're missing and:
 
-   • the 'Tc' terminfo extension IS set (in the external db)
-   • the 'Tc' terminfo extension is NOT set, but $TERM is:
+   - the 'Tc' terminfo extension IS set (in the external db)
+   - the 'Tc' terminfo extension is NOT set, but $TERM is:
 
    - 'rxvt'
    - 'linux'
@@ -435,13 +435,13 @@ The latest release of urxvt (9.22):
 Shell code to test the true color capability of the terminal.
 You should see either:
 
-   • characters randomly|non- colored,
+   - characters randomly|non- colored,
      (the terminal doesn't support true color)
 
-   • a discontinuous rainbow of colors, from red to blue
+   - a discontinuous rainbow of colors, from red to blue
      (the terminal partially supports true color)
 
-   • a continuous rainbow of colors
+   - a continuous rainbow of colors
      (the terminal fully supports true color)
 
 You can use this code in a custom shell function `truecolor()`.

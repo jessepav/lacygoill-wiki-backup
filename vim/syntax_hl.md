@@ -392,13 +392,13 @@ If it's case-INsensitive, like `Pascal`, use:
 # :syn match
 ## What are the four arguments which can't be passed to `:syn match`?
 
-   • `concealends`
+   - `concealends`
 
-   • `matchgroup`
+   - `matchgroup`
 
-   • `oneline`
+   - `oneline`
 
-   • `start`/`skip`/`end`
+   - `start`/`skip`/`end`
 
 The only one which is not obvious is `oneline`.
 The others refer to concepts which are specific to a region.
@@ -763,24 +763,24 @@ The solution is, again, to define the containing region with the `keepend` argum
 
 When a contained item consumes (even partially) the end of its containing region:
 
-   • only the containing region is extended
+   - only the containing region is extended
 
-   • the extended part of the containing region is *completely* highlighted by
+   - the extended part of the containing region is *completely* highlighted by
      the latter
 
-   • Vim only needs to find a text matching the end pattern of the containing
+   - Vim only needs to find a text matching the end pattern of the containing
      region
 
 When a contained region has no end inside the containing region:
 
-   • both the containing region *and* the contained region are extended
+   - both the containing region *and* the contained region are extended
 
-   • the extended part of the containing region is highlighted by the contained
+   - the extended part of the containing region is highlighted by the contained
      region
 
     At least until Vim finds an end for the contained region.
 
-   • Vim needs to find *two* texts matching the end pattern of the containing
+   - Vim needs to find *two* texts matching the end pattern of the containing
      region, and of the contained region
 
 #### Consider the following syntax plugin, and the following text:
@@ -891,9 +891,9 @@ And `containedin=A` does *not* mean:
 
 An item B can start in another A, *iff* either one of these is true:
 
-   • A has `contains=B`
+   - A has `contains=B`
 
-   • B has `containedin=A`
+   - B has `containedin=A`
 
 ###
 ### Must a contained item end in the latter?
@@ -952,8 +952,8 @@ Even if  the contained item  consumes the text matching  the end pattern  of the
 containing region.
 The latter will:
 
-   • be extended if it wasn't defined with `keepend`
-   • won't be extended it it was defined with `keepend`
+   - be extended if it wasn't defined with `keepend`
+   - won't be extended it it was defined with `keepend`
 
 In the latter case, the contained match will be truncated.
 In both cases, the contained item is *fully* inside the containing one.
@@ -1074,9 +1074,9 @@ match at the toplevel.
 
 By writing the statement of the containing item *after* the one of the contained item:
 
-   • you don't have to remember this peculiarity
+   - you don't have to remember this peculiarity
 
-   • your contained item still has the possibility to match at the toplevel
+   - your contained item still has the possibility to match at the toplevel
 
 ##
 ## transparent
@@ -2123,10 +2123,10 @@ the `end` match from a region.
 
 Document the arguments:
 
-   • display
-   • excludenl
-   • extend
-   • fold
+   - display
+   - excludenl
+   - extend
+   - fold
 
 ## ?
 
@@ -2183,10 +2183,10 @@ Document `:h synconcealed()`.
 
 When I'm trying the previous statement, and make some modification:
 
-   • reload the buffer
-   • add/remove an argument
-   • focus another buffer and get back
-   • temporarily switch to a region with `:syn region` then get back to `:syn match`
+   - reload the buffer
+   - add/remove an argument
+   - focus another buffer and get back
+   - temporarily switch to a region with `:syn region` then get back to `:syn match`
 
 the highlighting is broken in some locations.
 And `synstack()` doesn't report anything in some other locations even though the

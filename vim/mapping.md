@@ -154,9 +154,9 @@ Read this:
 
 Useful to better understand the distinction between a:
 
-        • terminal keycode
-        • Vim keycode
-        • (mapped) key sequence
+        - terminal keycode
+        - Vim keycode
+        - (mapped) key sequence
 
 Hint:
 
@@ -421,8 +421,8 @@ Use it to pass `v:count1`.
 
 In the previous code, replace:
 
-        • `:nmap` with `:xmap`
-        • `:nnoremap` with `:noremap`
+        - `:nmap` with `:xmap`
+        - `:nnoremap` with `:noremap`
                              ^
                              != nnoremap
 
@@ -438,8 +438,8 @@ But it remaps the dot command only in normal mode, not in visual mode.
 
 As a result, your 2nd mapping (<plug> → ...) need to cover both modes:
 
-        • visual    when you'll press the `{lhs}` initially
-        • normal    when you'll press `.`
+        - visual    when you'll press the `{lhs}` initially
+        - normal    when you'll press `.`
 
 ---
 
@@ -460,9 +460,9 @@ Such an operator can be useful to make a custom command repeatable.
 If you're implementing a non-pseudo operator, use `g@_`.
 For a pseudo-operator, use `g@l`, unless:
 
-        • it needs to refer to the change marks
+        - it needs to refer to the change marks
           and
-        • it doesn't care about the column position of the cursor
+        - it doesn't care about the column position of the cursor
 
 ---
 
@@ -606,19 +606,19 @@ trigger InsertLeave.
 
                                                NOTE:
 
-            • À la place de MyFunc(), on peut écrire directement une expression.
+            - À la place de MyFunc(), on peut écrire directement une expression.
 
-            • Si on écrit directement une expression, il faut:
+            - Si on écrit directement une expression, il faut:
 
                 * encadrer avec des quotes ce qu'on veut voir taper
                 * laisser tel quel ce qu'on veut voir évaluer
 
-            • Si à la place de MyFunc(), on écrit une expression conditionnelle utilisant l'opérateur
+            - Si à la place de MyFunc(), on écrit une expression conditionnelle utilisant l'opérateur
               conditionnel `?:`,
               et qu'on veut que le {lhs} ne produise rien lorsque le test réussit/échoue il faut utiliser
               la chaine vide '', ex:    test ? val : ''
 
-            • :nnoremap ne développe le {rhs} qu'une seule fois, au moment où le fichier qui définit
+            - :nnoremap ne développe le {rhs} qu'une seule fois, au moment où le fichier qui définit
               le mapping est sourcé.
               Après ça, :nnoremap ne joue plus aucun rôle, c'est Vim qui exécute et évalue le rhs d'un mapping.
               Cela implique que si la sortie de MyFunc() contient des caractères de contrôle,
@@ -724,9 +724,9 @@ trigger InsertLeave.
 
             <expr> est + puissant pour 2 raisons:
 
-                • il permet de remplacer toute ou partie de la ligne de commande (C-\ e seulement tout)
+                - il permet de remplacer toute ou partie de la ligne de commande (C-\ e seulement tout)
 
-                • il permet de simuler des frappes au clavier et donc d'effectuer des actions sur la
+                - il permet de simuler des frappes au clavier et donc d'effectuer des actions sur la
                   ligne de commande contrairement à `C-\ e` qui ne peut qu'insérer des caractères
 
             Ex: on peut demander  à appuyer sur la touche '<Up>' pour  rappeler le précédent item
@@ -757,16 +757,16 @@ trigger InsertLeave.
 
             La 1e syntaxe est la meilleure car:
 
-              • développement que lorsque l'abréviation est seule (pas à la fin d'un mot)
-              • développement qu'après un trigger (caractère non keyword, pex espace ou C-])
+              - développement que lorsque l'abréviation est seule (pas à la fin d'un mot)
+              - développement qu'après un trigger (caractère non keyword, pex espace ou C-])
 
             La 2e syntaxe est bien mais plus verbeuse.
 
             La 3e syntaxe n'est pas bonne car:
 
-              • elle n'est pas développée à la fin d'un mot
-              • on perd le trigger C-]
-              • l'espace doit être tapé avant le timeout; avec une abréviation, pas de timeout.
+              - elle n'est pas développée à la fin d'un mot
+              - on perd le trigger C-]
+              - l'espace doit être tapé avant le timeout; avec une abréviation, pas de timeout.
 
             La 4e syntaxe est  la pire car le développement est effectué  n'importe où (en début
             de mot, à la fin, au milieu ...).
@@ -779,12 +779,12 @@ trigger InsertLeave.
             Esthétiquement, voir des ':', "\r" fait moche (et rend le code un peu plus long).
             Préférer:
 
-                • <C-r>=                    pour insérer l'évaluation d'une expression
+                - <C-r>=                    pour insérer l'évaluation d'une expression
 
-                • exe test ? cmd1 : cmd2    pour évaluer et exécuter une expression dont le résultat
+                - exe test ? cmd1 : cmd2    pour évaluer et exécuter une expression dont le résultat
                                             est une commande Ex
 
-                • <C-\>e                    pour remplacer la ligne de commande par l'évaluation d'une expression
+                - <C-\>e                    pour remplacer la ligne de commande par l'évaluation d'une expression
 
             Exception: qd la commande Ex appelle un input(), et que d'autres commandes suivent,
             <expr> empêche ce dernier de consommer les caractères de ces dernières.
@@ -816,12 +816,12 @@ trigger InsertLeave.
             Pour mieux comprendre, revenons à `<plug>(...)`.
             Pk utiliser ce genre de mapping? Il peut y avoir plusieurs raisons:
 
-                    • fournit une abstraction simple, et facile à manipuler
+                    - fournit une abstraction simple, et facile à manipuler
 
-                    • utile pour exécuter une fonction via `feedkeys()`
+                    - utile pour exécuter une fonction via `feedkeys()`
                       (ex: vim-repeat)
 
-                    • permet d'appeler une fonction locale à un script depuis un autre script
+                    - permet d'appeler une fonction locale à un script depuis un autre script
                       (<plug>(...) est une forme d'interface publique)
 
             Mais `<plug>(...)`  peut poser  un pb. Si  on doit  passer un  argument à  la fonction,
@@ -851,9 +851,9 @@ trigger InsertLeave.
             C'est ce genre de mécanisme que vim-surround utilise dans un mapping tq `ds(`.
             Le plugin installe un mapping qui:
 
-                    • utilise `ds` comme `lhs`
-                    • demande à l'utilisateur de fournir un caractère (via `getchar()`)
-                    • appelle une fonction en lui passant ce caractère
+                    - utilise `ds` comme `lhs`
+                    - demande à l'utilisateur de fournir un caractère (via `getchar()`)
+                    - appelle une fonction en lui passant ce caractère
 
 
                                                NOTE:
@@ -957,34 +957,34 @@ Mais on doit écrire une ligne de code supplémentaire, et on perd en lisibilit�
 
             Avantage `<unique>`:
 
-                    • peu verbeux
+                    - peu verbeux
 
             Inconvénient `<unique>`:
 
-                    • soulève E227 en cas de conflit
+                    - soulève E227 en cas de conflit
 
             Avantages `mapcheck()`:
 
-                    • vérifie  non seulement que le lhs n'est pas utilisé,
+                    - vérifie  non seulement que le lhs n'est pas utilisé,
                       mais en plus qu'il ne provoquera pas de lag
 
-                    • `if empty(mapcheck())|...|endif`  ne soulève aucun message d'erreur
+                    - `if empty(mapcheck())|...|endif`  ne soulève aucun message d'erreur
                       car le mapping n'est pas installé en cas de conflit
 
             Inconvénients `mapcheck()`:
 
-                    • verbeux
+                    - verbeux
 
-                    • lent (car il faut une invocation de fonction par mapping)
+                    - lent (car il faut une invocation de fonction par mapping)
 
             Conseils:
 
-                    • n'utiliser aucun des 2 dans `vimrc`, les ftplugins, et plus généralement
+                    - n'utiliser aucun des 2 dans `vimrc`, les ftplugins, et plus généralement
                       pour tout mapping local à un buffer
 
-                    • utiliser `<unique>` dans nos plugins privés
+                    - utiliser `<unique>` dans nos plugins privés
 
-                    • utiliser `mapcheck()` dans nos plugins publics
+                    - utiliser `mapcheck()` dans nos plugins publics
 
 # Commandes
 
@@ -994,9 +994,9 @@ Mais on doit écrire une ligne de code supplémentaire, et on perd en lisibilit�
 
             Juste devant le champ {rhs}, on peut parfois voir un symbole:
 
-                    • *    non récursif
-                    • @    local au buffer
-                    • &    récursif uniquement au sein du script (attribut <script>)
+                    - *    non récursif
+                    - @    local au buffer
+                    - &    récursif uniquement au sein du script (attribut <script>)
 
     :nmap ,
 
@@ -1089,9 +1089,9 @@ Pex, il ne faut pas remap Tab en mode normal, sinon C-i n'avancera plus dans la 
             Quel intérêt de “casser“ un mapping en deux comme cela ?
             Pour le moment, j'en vois 3:
 
-                    • simplification
-                    • normalisation
-                    • répétition
+                    - simplification
+                    - normalisation
+                    - répétition
 
             La simplification permet à l'utilisateur de manipuler un {rhs} au nom plus évocateur,
             et de masquer la complexité de la fonctionnalité (≈ abstraction):
@@ -1151,15 +1151,15 @@ Qd l'auteur d'un plugin dispose d'une fonctionnalité dont il pourrait faire pro
 via un mapping, s'il veut déranger l'utilisateur un minimum, il y a 3 conditions qu'il pourrait vérifier
 avant de l'installer:
 
-    • l'utilisateur a donné son accord
+    - l'utilisateur a donné son accord
 
        Généralement, les auteurs de plugin choisissent un système en opt-out
        (les mapping sont installés par défaut).
        Et ils désactivent les mappings qd la valeur d'une variable globale ad hoc est différente de 0.
 
-    • le mapping ne remplacera aucun mapping préexistant, ni n'introduira du lag
+    - le mapping ne remplacera aucun mapping préexistant, ni n'introduira du lag
 
-    • l'utilisateur n'a pas déjà map la fonctionnalité à une touche
+    - l'utilisateur n'a pas déjà map la fonctionnalité à une touche
 
 
 Exemple d'installation d'un mapping vérifiant ces 3 conditions:
@@ -1192,10 +1192,10 @@ Ex:    nno    <key>      :TW<cr>          :TW étant une commande custom qui sup
 Si la commande Ex n'accepte pas de rangée, il faut inclure dans le {rhs} de son mapping, le keycode <c-u>.
 Si la commande Ex est :call, 2 possibilités:
 
-   • la fonction appelée gère elle-même un possible count (v:count1):
+   - la fonction appelée gère elle-même un possible count (v:count1):
      on ajoute <c-u>
 
-   • la fonction appelée ne gère pas un possible count:
+   - la fonction appelée ne gère pas un possible count:
      on n'ajoute pas <c-u> pour que la fonction soit appelée v:count1 fois
 
 
@@ -1590,10 +1590,10 @@ Whenever we mention a text-object, a motion is a valid replacement.
             L'utilisation de l'opérateur visuel (v ou V) altère les marques '<, '>.
             On peut le vérifier avec le plugin vim-exchange:
 
-                    • sélectionner un texte visuellement
-                    • taper cxiw   sur un mot en-dehors du texte sélectionné visuellement
-                    • taper .      sur un autre mot tjs en-dehors
-                    • taper gv     pour faire apparaître la sélection visuelle
+                    - sélectionner un texte visuellement
+                    - taper cxiw   sur un mot en-dehors du texte sélectionné visuellement
+                    - taper .      sur un autre mot tjs en-dehors
+                    - taper gv     pour faire apparaître la sélection visuelle
 
             Le texte sélectionné visuellement n'est plus celui d'origine mais le dernier mot sur lequel
             l'opérateur cx a agit.
@@ -1811,17 +1811,17 @@ Voici qques exemples, ainsi qu'une description de leur traitement par Vim.
 
             Toutefois, il y a 3 exceptions qui empêchent un développement infini:
 
-                • la répétition a lieu dans un mode différent
+                - la répétition a lieu dans un mode différent
 
                     nmap cd acd
                             │
                             └─ fait passer en mode insertion, mais le mapping travaille en mode normal
 
-                • la répétition se produit au début du rhs
+                - la répétition se produit au début du rhs
 
                     nmap ge geb
 
-                • la répétition est le préfixe d'un autre mapping
+                - la répétition est le préfixe d'un autre mapping
 
                     nmap ge   y#geb
                     nno  geb  <nop>
@@ -1862,7 +1862,7 @@ Voici qques exemples, ainsi qu'une description de leur traitement par Vim.
 
             Concernant les flags de feedkeys():
 
-                    • i : qu'on l'utilise ou pas, les touches seront écrites dans le typeahead buffer
+                    - i : qu'on l'utilise ou pas, les touches seront écrites dans le typeahead buffer
                           après celles retournées par Func()
 
                           En effet, les touches qui ont invoquées Func(), `cd`, sont déjà écrites
@@ -1870,9 +1870,9 @@ Voici qques exemples, ainsi qu'une description de leur traitement par Vim.
                           de les remplacer. feedkeys() ne peut donc rien écrire avant les touches
                           retournées par Func().
 
-                    • n : pas possible, car on a besoin que `(plug>(...)` soit développé
+                    - n : pas possible, car on a besoin que `(plug>(...)` soit développé
 
-                    • t : utile qd les touches contiennent des commandes manipulant des plis, l'undo
+                    - t : utile qd les touches contiennent des commandes manipulant des plis, l'undo
                           tree, le wildmenu ...
 
 

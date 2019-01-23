@@ -1,20 +1,20 @@
 # Where to find documentation for a program?
 
-   • $ man pgm
+   - $ man pgm
 
-   • amazon book
+   - amazon book
 
-   • wiki (github, gitlab, ...)
+   - wiki (github, gitlab, ...)
 
-   • faq (often included in the github wiki)
+   - faq (often included in the github wiki)
 
-   • configuration files
+   - configuration files
 
            $ git clone <url> && cd <dir> && find -type f -name '*.conf'
 
        e.g. `mpv`, `ranger`, ...
 
-   • official website
+   - official website
 
        e.g. https://weechat.org/doc/
 
@@ -65,9 +65,9 @@ maximal à nos facultés de réflexions d'ordre supérieures.
 
 Le système limbique contient entre autres:
 
-   • le [thalamus][2]
-   • l'[amygdale cérébrale][3]
-   • l'[hippocampe][4]
+   - le [thalamus][2]
+   - l'[amygdale cérébrale][3]
+   - l'[hippocampe][4]
 
 Le  thalamus  contrôle   la  destination  où  les   informations  qu'on  perçoit
 (visuelles, auditives, kinesthésiques)  sont envoyées dans le  cerveau pour être
@@ -146,16 +146,16 @@ simplifier le code.
 
 Dans chaque fichier:
 
-   • Déplacer un  commentaire au-dessus de  la définition d'une fonction  sous
+   - Déplacer un  commentaire au-dessus de  la définition d'une fonction  sous
      son nom  (pour qu'il soit à  l'intérieur).  Utiliser `]a` et  `]m` pour
      passer d'un  fichier à un autre,  et d'une fonction à une autre.
 
-   • Ajouter un marqueur de pliage `{{{1|2|…` après chaque définition de
+   - Ajouter un marqueur de pliage `{{{1|2|…` après chaque définition de
      fonction.
 
-   • Utiliser `:RefDots`, `:RefIf`, `:RefQuotes`, `:RefVval` à chaque fois que c'est possible.
+   - Utiliser `:RefDots`, `:RefIf`, `:RefQuotes`, `:RefVval` à chaque fois que c'est possible.
 
-   • Si un nom de fonction utilise la casse `camelCase` ou `MixedCase`, le
+   - Si un nom de fonction utilise la casse `camelCase` ou `MixedCase`, le
      forcer à utiliser `snake_case`:
 
        - *                   peupler le registre recherche avec le nom de la fonction
@@ -500,9 +500,9 @@ Je me confronte aux autres.
 
        - supprimant le "bruit", càd des infos:
 
-       • redondantes
-       • pas ou peu intéressantes
-       • expliquées par des règles déduites dans l'étape 3
+       - redondantes
+       - pas ou peu intéressantes
+       - expliquées par des règles déduites dans l'étape 3
 
        - factorisant le + possible
 
@@ -525,25 +525,25 @@ write some code to show the snippets available in the current buffer.
 
         Implicit questions:
 
-   • Where should I display the info (horizontal/vertical split, tabpage)?
-   • Should I use syntax highlighting?
-   • If so, how to implement it (syntax plugin vs `matchadd()`) and which colors should I use?
-   • Should I use a preview window?
-   • Which buffer-local options should I set?
-   • Which buffer-local mappings should I install?
+   - Where should I display the info (horizontal/vertical split, tabpage)?
+   - Should I use syntax highlighting?
+   - If so, how to implement it (syntax plugin vs `matchadd()`) and which colors should I use?
+   - Should I use a preview window?
+   - Which buffer-local options should I set?
+   - Which buffer-local mappings should I install?
    ...
 
 
 Without a design, you'll:
 
-   • lose time answering those questions over and over again
+   - lose time answering those questions over and over again
 
-   • forget to answer some of them
+   - forget to answer some of them
 
-   • create an inconsistent environment
+   - create an inconsistent environment
      (because every time, you'll solve the problem in a slightly different way)
 
-   • have a hard time to refactor and improve your solutions
+   - have a hard time to refactor and improve your solutions
      (because they'll all be slightly different)
 
 ##

@@ -164,11 +164,11 @@ The char "/" can be replaced by any char (one or more identical chars).
 
 Matching groups can be used in "replace":
 
-  • ${re:0} to ${re:99}: ${re:0} is the whole match, ${re:1} to ${re:99} are groups captured
+  - ${re:0} to ${re:99}: ${re:0} is the whole match, ${re:1} to ${re:99} are groups captured
 
-  • ${re:+}: the last match (with highest number)
+  - ${re:+}: the last match (with highest number)
 
-  • ${hide:c,${re:N}}: match "N" with all chars replaced by "c" (example: ${hide:*,${re:2}} is the group #2 with all
+  - ${hide:c,${re:N}}: match "N" with all chars replaced by "c" (example: ${hide:*,${re:2}} is the group #2 with all
     chars replaced by *).
 
 Example: use bold for words between "*":
@@ -199,11 +199,11 @@ Example: default beep trigger uses this command to make a beep (BEL):
 
 Data received in callbacks are stored in hashtables (pointers and strings) and can be used in following options:
 
-  • conditions
+  - conditions
 
-  • regex
+  - regex
 
-  • command
+  - command
 
 The content of hashtables depend on the hook type.
 
@@ -431,17 +431,17 @@ You can automatically save configuration files (\*.conf), for example each hour:
 
 Arguments for the timer hook are:
 
-  • 3600000: 3600 * 1000 milliseconds, the callback is called each hour
+  - 3600000: 3600 * 1000 milliseconds, the callback is called each hour
 
-  • 0: alignment on second (not aligned here)
+  - 0: alignment on second (not aligned here)
 
-  • 0: max number of calls (0 = no end for the timer)
+  - 0: max number of calls (0 = no end for the timer)
 
 The command /mute /save will silently save configuration files (nothing displayed on core buffer).
 
 # Commands
 
-  • trigger: manage triggers, the Swiss Army knife for WeeChat
+  - trigger: manage triggers, the Swiss Army knife for WeeChat
 
 /trigger  list|listfull|listdefault
           add|addoff|addreplace <name> <hook> ["<arguments>" ["<conditions>" ["<regex>" ["<command>" ["<return_code>" ["<post_action>"]]]]]]
@@ -535,7 +535,7 @@ trigger /trigger set       Trigger options.
 
 Options:
 
-  • trigger.color.flag_command
+  - trigger.color.flag_command
 
       □ description: text color for command flag (in /trigger list)
 
@@ -547,7 +547,7 @@ Options:
 
       □ default value: lightgreen
 
-  • trigger.color.flag_conditions
+  - trigger.color.flag_conditions
 
       □ description: text color for conditions flag (in /trigger list)
 
@@ -559,7 +559,7 @@ Options:
 
       □ default value: yellow
 
-  • trigger.color.flag_post_action
+  - trigger.color.flag_post_action
 
       □ description: text color for post action flag (in /trigger list)
 
@@ -571,7 +571,7 @@ Options:
 
       □ default value: lightblue
 
-  • trigger.color.flag_regex
+  - trigger.color.flag_regex
 
       □ description: text color for regex flag (in /trigger list)
 
@@ -583,7 +583,7 @@ Options:
 
       □ default value: lightcyan
 
-  • trigger.color.flag_return_code
+  - trigger.color.flag_return_code
 
       □ description: text color for return code flag (in /trigger list)
 
@@ -595,7 +595,7 @@ Options:
 
       □ default value: lightmagenta
 
-  • trigger.color.regex
+  - trigger.color.regex
 
       □ description: text color for regular expressions
 
@@ -607,7 +607,7 @@ Options:
 
       □ default value: white
 
-  • trigger.color.replace
+  - trigger.color.replace
 
       □ description: text color for replacement text (for regular expressions)
 
@@ -619,7 +619,7 @@ Options:
 
       □ default value: cyan
 
-  • trigger.color.trigger
+  - trigger.color.trigger
 
       □ description: text color for trigger name
 
@@ -631,7 +631,7 @@ Options:
 
       □ default value: green
 
-  • trigger.color.trigger_disabled
+  - trigger.color.trigger_disabled
 
       □ description: text color for disabled trigger name
 
@@ -643,7 +643,7 @@ Options:
 
       □ default value: red
 
-  • trigger.look.enabled
+  - trigger.look.enabled
 
       □ description: enable trigger support
 
@@ -653,7 +653,7 @@ Options:
 
       □ default value: on
 
-  • trigger.look.monitor_strip_colors
+  - trigger.look.monitor_strip_colors
 
       □ description: strip colors in hashtable values displayed on monitor buffer
 

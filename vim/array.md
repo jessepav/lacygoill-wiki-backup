@@ -324,8 +324,8 @@ last item”.
 
 More generally, `insert()` interprets:
 
-   • a positive index as: right *after* the index
-   • a negative index as: right *before* the index
+   - a positive index as: right *after* the index
+   - a negative index as: right *before* the index
 
 #### at the end of a list?
 
@@ -612,9 +612,9 @@ If the items of the list are non-scalars, use `deepcopy()`:
 
 It allows the usage of:
 
-   • more characters
+   - more characters
 
-   • a key whose name is the evaluation a variable
+   - a key whose name is the evaluation a variable
 
         ✘
         dict.var

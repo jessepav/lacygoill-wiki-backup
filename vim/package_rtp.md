@@ -14,7 +14,7 @@ A directory containing one or more plugins.
 
 ## What are the advantages of a package over normal plugins?
 
-        • A package can be downloaded as:
+        - A package can be downloaded as:
 
                   - an archive
                   - a git repository
@@ -25,9 +25,9 @@ A directory containing one or more plugins.
           In both cases, the package files are not mixed with files of other plugins.
           As a result, a package is easier to update and remove.
 
-        • A package can contain multiple plugins that depend on each other.
+        - A package can contain multiple plugins that depend on each other.
 
-        • A package can be loaded on-demand with `:packadd`.
+        - A package can be loaded on-demand with `:packadd`.
           A plugin is always loaded.
 
 ## How to install a package from an archive in `/tmp/archive.zip`?
@@ -76,8 +76,8 @@ You can check this like so:
         :echo &rtp
         should contain `~/.vim/pack/my_pack/start/foo`, because:~
 
-            • `~/.vim` is in 'pp'~
-            • `pack/mypack/start/foo` matches `pack/*/start/*`~
+            - `~/.vim` is in 'pp'~
+            - `pack/mypack/start/foo` matches `pack/*/start/*`~
 
 
 Then, it loads all the plugins in `'rtp'`.
@@ -111,9 +111,9 @@ They need to call the same function, and you decide to move the latter in a libr
 Now suppose that when Vim finds a plugin in `pack/*/start/`, it loads it immediately.
 Here's what would happen:
 
-        • Vim finds `pack/foo/start/one/plugin/one.vim`, and sources it immediately
+        - Vim finds `pack/foo/start/one/plugin/one.vim`, and sources it immediately
 
-        • Vim executes `call lib#func()`
+        - Vim executes `call lib#func()`
 
 This would  cause an  error, because the  library would NOT  have been  added to
 `'rtp'` and Vim would NOT find the definition of `lib#func()`.
@@ -133,9 +133,9 @@ Reset `'loadplugins'` in the vimrc.
 
 Or, start Vim with any of these command-line arguments:
 
-        • -u NONE
-        • --clean
-        • --noplugin
+        * -u NONE
+        * --clean
+        * --noplugin
 
 ## Which command does Vim execute to load plugins at startup?
 

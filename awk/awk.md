@@ -16,9 +16,9 @@ partageant un glyphe identique.
 
 Il existe 3 méthodes pour aligner la sortie d'awk:
 
-        • utiliser `printf` en donnant une largeur de champ suffisante pour chaque colonne
-        • pipe la sortie d'awk vers `column`
-        • jouer sur les variables FS et/ou OFS
+        - utiliser `printf` en donnant une largeur de champ suffisante pour chaque colonne
+        - pipe la sortie d'awk vers `column`
+        - jouer sur les variables FS et/ou OFS
 
 
     BEGIN {      OFS = "\t" }
@@ -26,8 +26,8 @@ Il existe 3 méthodes pour aligner la sortie d'awk:
 
             Préserve l'alignement des champs de l'input qd ils sont séparés par des:
 
-                    • espaces
-                    • tabs
+                    - espaces
+                    - tabs
 
             En effet, modifier  un champ peut changer sa largeur,  et donc faire
             perdre l'alignement d'une colonne. En  ajoutant un tab après chaque
@@ -188,9 +188,9 @@ booléen.
 
             Les syntaxes de `printf` sont similaires à `print`, à ceci près que:
 
-                    • il faut ajouter l'argument `fmt` (chaîne format)
+                    - il faut ajouter l'argument `fmt` (chaîne format)
 
-                    • `printf` ne remplace RIEN: ni FS → OFS entre
+                    - `printf` ne remplace RIEN: ni FS → OFS entre
                       2 expressions, ni RS → ORS à la fin
 
                        Il faut donc en tenir compte. Pex, si on veut un newline à la fin,
@@ -242,8 +242,8 @@ booléen.
 
             Affiche le contenu des champs 1 et 2 en les séparant par:
 
-                    • OFS
-                    • rien
+                    - OFS
+                    - rien
 
             Illustre  que l'opérateur  de  concaténation (implicite)  n'ajoute
             rien entre les expressions.
@@ -259,8 +259,8 @@ booléen.
 
             Ne pas confondre NF avec `$NF`. L'évaluation de l'expression:
 
-                    •  NF  est  l'INDEX     du dernier champ
-                    • $NF  est  le CONTENU  du dernier champ
+                    -  NF  est  l'INDEX     du dernier champ
+                    - $NF  est  le CONTENU  du dernier champ
 
 
     print NR, $0
@@ -273,8 +273,8 @@ booléen.
 
             Qd awk traite le record matchant le pattern:
 
-                    • BEGIN, NR vaut 0
-                    • END,   NR vaut l'index du dernier record
+                    - BEGIN, NR vaut 0
+                    - END,   NR vaut l'index du dernier record
 
             Arrivé  à END,  NR n'est  pas  incrémenté.  IOW,  si un  fichier
             contient 5 lignes, NR vaut 5 sur la dernière ligne, et encore 5 sur
@@ -305,9 +305,9 @@ booléen.
             Affiche tous les records en inversant les 2 premiers champs.
             Le résultat est obtenu en 3 étapes:
 
-                    • sauvegarde temporaire du 2e champ dans la variable `temp`
-                    • duplication du champ 1 dans le champ 2
-                    • restauration du champ 2 dans le champ 1 via `temp`
+                    - sauvegarde temporaire du 2e champ dans la variable `temp`
+                    - duplication du champ 1 dans le champ 2
+                    - restauration du champ 2 dans le champ 1 via `temp`
 
 
                                      NOTE:
@@ -321,8 +321,8 @@ booléen.
 
             On remarque qu'on peut utiliser $1 et $2 à la fois comme:
 
-                    • valeur (expression)    normal
-                    • nom de variable        surprise!
+                    - valeur (expression)    normal
+                    - nom de variable        surprise!
 
             Il  semble qu'en  awk comme  en  VimL (mais  pas  en bash),  il y  a
             symétrie entre le lhs et le rhs d'une affectation.
@@ -418,8 +418,8 @@ booléen.
             Dans du code  awk, qd c'est possible (pas de  chiffres inexistant en
             base 8/16), un nombre commençant par:
 
-                    • 0           est interprété comme un nombre octal
-                    • 0x (et 0X?) est interprété comme un nombre hexadécimal
+                    - 0           est interprété comme un nombre octal
+                    - 0x (et 0X?) est interprété comme un nombre hexadécimal
 
             En revanche,  dans l'input, les nombres  sont toujours interprétés
             comme  décimaux, sauf  si  awk a  été lancé  avec  le flag  `-n`
@@ -735,9 +735,9 @@ booléen.
 On peut  séparer les  opérateurs en  3 catégories, en  fonction des  types de
 données sur lesquels ils peuvent travailler:
 
-        • nombre
-        • chaîne
-        • chaîne et nombre
+        - nombre
+        - chaîne
+        - chaîne et nombre
 
 Pour chacune de ces catégories, une coercition peut avoir lieue:
 
@@ -806,20 +806,20 @@ Pour chacune de ces catégories, une coercition peut avoir lieue:
 
             Rappel, pour Vim:
 
-                    • :echo 'string'   + 10
+                    - :echo 'string'   + 10
                       10~
-                    • :echo 'string10' + 10
+                    - :echo 'string10' + 10
                       10~
 
-                    • :echo '10string' + 10
+                    - :echo '10string' + 10
                       20~
 
             Exception (chaîne commençant par un flottant):
 
-                    • Vim    :echo '10.10' + 10
+                    - Vim    :echo '10.10' + 10
                              20~
 
-                    • awk    print 10 + $2
+                    - awk    print 10 + $2
                              si le 2e champ est la chaîne '10.10string', awk affiche `20.1`, et non pas `20`~
 
 
@@ -863,13 +863,13 @@ Pour chacune de ces catégories, une coercition peut avoir lieue:
 
             Compare le contenu des champs 1 et 2, en les traitant comme des:
 
-                    • nombres ou chaînes, en fonction du type de contenu stocké
+                    - nombres ou chaînes, en fonction du type de contenu stocké
                       dans $1 et $2: comparaison numérique si les 2 champs sont
                       des nombres, comparaison de chaînes autrement
 
-                    • nombres
+                    - nombres
 
-                    • chaînes
+                    - chaînes
 
 
                                      NOTE:
@@ -999,11 +999,11 @@ Pour chacune de ces catégories, une coercition peut avoir lieue:
             Si plusieurs  déclarations doivent être exécutées  après un des
             mot-clés suivants:
 
-                    • if
-                    • else if
-                    • else
-                    • while
-                    • for
+                    - if
+                    - else if
+                    - else
+                    - while
+                    - for
 
             … il faut les encadrer avec des accolades.
             Autrement,  s'il n'y  en a  qu'une, pas  besoin d'accolades.
@@ -1122,8 +1122,8 @@ Pour chacune de ces catégories, une coercition peut avoir lieue:
 
             Au sein d'une:
 
-                    • boucle `for`, `while` ou `do`,  elle permet de sortir de cette dernière
-                    • imbrication de boucles,         "                        la boucle intérieur
+                    - boucle `for`, `while` ou `do`,  elle permet de sortir de cette dernière
+                    - imbrication de boucles,         "                        la boucle intérieur
 
             Les nombres préfixés d'un astérisque sont ceux que `break` nous faisait manquer.
 
@@ -1202,17 +1202,17 @@ Pour chacune de ces catégories, une coercition peut avoir lieue:
             Arrête le traitement du record courant, ignore les couples pattern-action suivants,
             et passe:
 
-                    • au prochain record du fichier courant
-                    • au 1er      record du prochain fichier de l'input
+                    - au prochain record du fichier courant
+                    - au 1er      record du prochain fichier de l'input
 
 
                                      NOTE:
 
             Qd `nextfile` est utilisé, certaines variables sont mises à jour:
 
-                    • FILENAME
-                    • ARGIND
-                    • FNR  →  1
+                    - FILENAME
+                    - ARGIND
+                    - FNR  →  1
 
 
                                      NOTE:
@@ -1316,10 +1316,10 @@ pouvant être ouverts à un instant T.
 
 `getline` permet, à tout moment, de lire un nouveau record depuis:
 
-        • l'input d'origine (celle passée à awk au moment où on l'a invoqué)
-        • un fichier
-        • un pipe
-        • le clavier
+        - l'input d'origine (celle passée à awk au moment où on l'a invoqué)
+        - un fichier
+        - un pipe
+        - le clavier
 
 
 Valeurs retournées par `getline`:
@@ -1329,9 +1329,9 @@ Valeurs retournées par `getline`:
         │    │                                                                         │
         │ 0  │ est arrivée à la fin:                                                   │
         │    │                                                                         │
-        │    │     • de l'input d'origine                                              │
-        │    │     • du fichier                                                        │
-        │    │     • de l'output du pipe                                               │
+        │    │     - de l'input d'origine                                              │
+        │    │     - du fichier                                                        │
+        │    │     - de l'output du pipe                                               │
         │    │                                                                         │
         │ -1 │ a rencontré une erreur                                                  │
         └────┴─────────────────────────────────────────────────────────────────────────┘
@@ -1593,9 +1593,9 @@ Dans le tableau qui précède:
 
             Affiche un nombre aléatoire dans [0, 1[, en utilisant comme graine:
 
-                    • 1
-                    • l'epoch:    date +%s
-                    • 42
+                    - 1
+                    - l'epoch:    date +%s
+                    - 42
 
 
                                      NOTE:
@@ -1611,8 +1611,8 @@ Dans le tableau qui précède:
 
             `srand(42)` et `srand()` ont 2 effets:
 
-                    • donne à la graine la valeur `42` / epoch
-                    • retourne la précédente valeur de la graine
+                    - donne à la graine la valeur `42` / epoch
+                    - retourne la précédente valeur de la graine
 
 
     split("banana", array, "na")
@@ -1876,8 +1876,8 @@ Dans le tableau qui précède:
 
             Exécute `pgm` sur `<input>` en utilisant:
 
-                    • le double-point comme séparateur de champs
-                    • le tab          comme séparateur de records
+                    - le double-point comme séparateur de champs
+                    - le tab          comme séparateur de records
 
             La syntaxe `-v var=val` permet de configurer n'importe quelle variable avant l'exécution
             d'un programme awk. `-F<fs>` ne permet de configurer que FS.
@@ -1900,9 +1900,9 @@ Dans le tableau qui précède:
 
             Demande à awk d'exécuter:
 
-                    • `action`                        sur les lignes de `file` matchant `pattern`
-                    • `action1`, `action2`, …         "
-                    • `statement1`, `statement2`, …
+                    - `action`                        sur les lignes de `file` matchant `pattern`
+                    - `action1`, `action2`, …         "
+                    - `statement1`, `statement2`, …
 
             La partie entre single quotes est un pgm awk complet.
 
@@ -1911,9 +1911,9 @@ Dans le tableau qui précède:
 
             Dans un fichier awk, on sépare via un newline:
 
-                    • 2 actions consécutives                  devant agir sur un même pattern
+                    - 2 actions consécutives                  devant agir sur un même pattern
 
-                    • 2 couples pattern / action consécutifs  devant agir sur l'input
+                    - 2 couples pattern / action consécutifs  devant agir sur l'input
 
             Sur la ligne de commandes, on peut remplacer les newlines par des points-virgules.
 
@@ -2019,8 +2019,8 @@ Dans le tableau qui précède:
             Illustre que dans un pgm awk, on peut omettre le pattern ou l'action, et que dans ces cas,
             par défaut:
 
-                    • l'action est `print $0`
-                    • le pattern matche tous les records
+                    - l'action est `print $0`
+                    - le pattern matche tous les records
 
 
                                      NOTE:
@@ -2092,8 +2092,8 @@ Pour ce faire, il doit être placé après :
 
             Décomposer son code sur plusieurs lignes permet de :
 
-                    • mieux le documenter
-                    • gagner en lisibilité
+                    - mieux le documenter
+                    - gagner en lisibilité
 
 
 On peut décomposer une action `if`, `for`, `while` en plaçant un newline:
@@ -2175,9 +2175,9 @@ Il existe 5 petits ensembles d'opérateurs:
 
             Il existe 3 types d'opérateurs qui font exception à cette règle:
 
-                    • affectation
-                    • conditionnel
-                    • exponentiel
+                    - affectation
+                    - conditionnel
+                    - exponentiel
 
             Ces derniers sont associatifs à droite. Ex:
 
@@ -2252,8 +2252,8 @@ Il existe 5 petits ensembles d'opérateurs:
 
             Toute expression évaluée en:
 
-                    • 0                    est considérée comme fausse
-                    • un nombre non nul    est considérée comme vraie
+                    - 0                    est considérée comme fausse
+                    - un nombre non nul    est considérée comme vraie
 
 
     a[++i]
@@ -2263,10 +2263,10 @@ Il existe 5 petits ensembles d'opérateurs:
 
             Incrémente:
 
-                    • `i` puis cherche le i-ième élément de `a`
-                    • l'élément de `a` d'indice 1
-                    • `n` puis l'affecte à `i`
-                    • `i` tant qu'il est strictement inférieur à 5 (1 → 4)
+                    - `i` puis cherche le i-ième élément de `a`
+                    - l'élément de `a` d'indice 1
+                    - `n` puis l'affecte à `i`
+                    - `i` tant qu'il est strictement inférieur à 5 (1 → 4)
 
             Illustre que `++` et `--` peuvent être utilisés dans des expressions utilisant d'autres
             opérateurs.
@@ -2297,8 +2297,8 @@ Il existe 5 petits ensembles d'opérateurs:
 
             `++` doit être traité:
 
-                    • avant l'autre opérateur ou print qd il est en préfixe
-                    • après "                                       suffixe
+                    - avant l'autre opérateur ou print qd il est en préfixe
+                    - après "                                       suffixe
 
             Tout ceci est valable pour `--` également.
 
@@ -2334,11 +2334,11 @@ Il existe 5 petits ensembles d'opérateurs:
 
 Un pattern peut être:
 
-        • BEGIN, END, BEGINFILE, ENDFILE
+        - BEGIN, END, BEGINFILE, ENDFILE
 
-        • une expression, régulière (/pattern/) ou non
+        - une expression, régulière (/pattern/) ou non
 
-        • une rangée        expr1,expr2
+        - une rangée        expr1,expr2
                             /pattern1/,/pattern2/
 
 Qd le pattern est une expression, il y a match si son évaluation est un nombre non nul, ou une chaîne non vide.
@@ -2444,21 +2444,21 @@ Qd le pattern est une expression, il y a match si son évaluation est un nombre 
             Illustre qu'on peut décomposer un pattern de regex complexe via une concaténation de chaînes.
             Fonctionne pour 2 raisons:
 
-                    • le rhs de l'opérateur `~` peut être une expression
-                    • une concaténation de chaînes est une expression
+                    - le rhs de l'opérateur `~` peut être une expression
+                    - une concaténation de chaînes est une expression
 
 
                                      NOTE:
 
             Dans une regex, il faut échapper les métacaractères:
 
-                    • une seule fois, si la regex est du type /pattern/
-                    • deux fois,      si "                    "pattern"
+                    - une seule fois, si la regex est du type /pattern/
+                    - deux fois,      si "                    "pattern"
 
             Par exemple, pour matcher un point, on écrira au choix:
 
-                    • /\./
-                    • "\\."
+                    - /\./
+                    - "\\."
 
 
     $2 >= 4 || $3 >= 20
@@ -2506,9 +2506,9 @@ Qd le pattern est une expression, il y a match si son évaluation est un nombre 
                                                       └───────┘
             Si aucun record ne matche:
 
-                    • `pattern1`, la rangée est vide
+                    - `pattern1`, la rangée est vide
 
-                    • `pattern2`, la rangée inclut tous les records depuis celui où `pattern1` a été
+                    - `pattern2`, la rangée inclut tous les records depuis celui où `pattern1` a été
                                   trouvé pour la dernière fois, jusqu'à la fin du fichier
 
                                      NOTE:
@@ -2532,8 +2532,8 @@ Qd le pattern est une expression, il y a match si son évaluation est un nombre 
             Les 2 pgms ne sont pas équivalents.
             Lorsqu'un record satisfait les 2 conditions, il est affiché:
 
-                    • 2   fois par le 1er pgm
-                    • une fois par le 2e  pgm
+                    - 2   fois par le 1er pgm
+                    - une fois par le 2e  pgm
 
             En effet, le 1er pgm contient 2 déclarations constituées chacune d'un pattern et d'une action,
             tandis que le 2e programme ne contient qu'une seule déclaration.
@@ -2544,9 +2544,9 @@ Qd le pattern est une expression, il y a match si son évaluation est un nombre 
 
 Il existe 3 types de variables:
 
-        • définie par l'utilisateur (ex: myvar)
-        • interne                   (ex: ARGV)
-        • variable de champ         (ex: $1)
+        - définie par l'utilisateur (ex: myvar)
+        - interne                   (ex: ARGV)
+        - variable de champ         (ex: $1)
 
 Le nom d'une variable utilisateur ne peut contenir que des lettres, chiffres et underscores.
 Elle ne doit pas commencer par un chiffre.
@@ -2620,10 +2620,10 @@ les valeurs suivantes:
     │ IGNORECASE  │ Par défaut, toutes les opérations manipulant des chaînes sont sensibles          │
     │             │ à la casse:                                                                      │
     │             │                                                                                  │
-    │             │            • comparaisons de chaînes (==, !=, <, >, <=, >=) et de regex (~, !~)  │
-    │             │            • division en champs                                                  │
-    │             │            • séparation des champs                                               │
-    │             │            • gsub(), index(), match(), split(), …                                │
+    │             │            - comparaisons de chaînes (==, !=, <, >, <=, >=) et de regex (~, !~)  │
+    │             │            - division en champs                                                  │
+    │             │            - séparation des champs                                               │
+    │             │            - gsub(), index(), match(), split(), …                                │
     │             │                                                                                  │
     │             │ Mais si on donne une valeur non nulle à cette IGNORECASE, elles deviennent       │
     │             │ insensibles.                                                                     │
@@ -2638,8 +2638,8 @@ les valeurs suivantes:
     ├─────────────┼──────────────────────────────────────────────────────────────────────────────────┤
     │ OFMT        │ format à respecter qd:                                                           │
     │ CONVFMT     │                                                                                  │
-    │             │     • un nb est affiché sans conversion en chaîne:    print 1.23456789           │
-    │             │     • un nb est converti en chaîne:                   print 1.23456789 ""        │
+    │             │     - un nb est affiché sans conversion en chaîne:    print 1.23456789           │
+    │             │     - un nb est converti en chaîne:                   print 1.23456789 ""        │
     │             │                                                                                  │
     │             │ Valeur par défaut: "%.6g"                                                        │
     ├─────────────┼──────────────────────────────────────────────────────────────────────────────────┤
@@ -2866,9 +2866,9 @@ les valeurs suivantes:
 
             Plus généralement, qd awk divise un record, il génère un champ vide:
 
-                    • s'il rencontre 2 délimiteurs consécutifs
-                    • si le début du record commence par un délimiteur
-                    • si la fin du record se termine par un délimiteur
+                    - s'il rencontre 2 délimiteurs consécutifs
+                    - si le début du record commence par un délimiteur
+                    - si la fin du record se termine par un délimiteur
 
 
             Exception:
@@ -2942,8 +2942,8 @@ les valeurs suivantes:
 
             Pour rappel, on accède à une variable en:
 
-                    • écriture qd elle se trouve dans le côté gauche de l'affectation
-                    • lecture  "                              droit  "
+                    - écriture qd elle se trouve dans le côté gauche de l'affectation
+                    - lecture  "                              droit  "
 
 
     !$1
@@ -3018,8 +3018,8 @@ les valeurs suivantes:
 
             Il existe 2 types de constantes:
 
-                    • chaîne
-                    • numérique
+                    - chaîne
+                    - numérique
 
 
                                      NOTE:
@@ -3043,13 +3043,13 @@ les valeurs suivantes:
 
             Une constante numérique peut s'écrire de 3 façons différentes:
 
-                    • entier:                     1  ou  +1
+                    - entier:                     1  ou  +1
                                                          -1
 
-                    • flottant:                   1.2  ou  +1.2
+                    - flottant:                   1.2  ou  +1.2
                                                            -1.2
 
-                    • notation ≈ scientifique:    1.2e3  ou  1.2E3  ou 1.2e+3  ou  1.2E+3
+                    - notation ≈ scientifique:    1.2e3  ou  1.2E3  ou 1.2e+3  ou  1.2E+3
                                                                        1.2e-3  ou  1.2E-3
 
             awk  stocke tous  les nombres  commes des  flottants, donc  pour lui
@@ -3078,17 +3078,17 @@ les valeurs suivantes:
 
             Un expression est une combinaison d'une ou plusieurs:
 
-                    • array
-                    • constante
-                    • invocation de fonction
-                    • opérateur
-                    • variable
+                    - array
+                    - constante
+                    - invocation de fonction
+                    - opérateur
+                    - variable
 
             … qu'un langage de programmation:
 
-                    • interprète (en respectant des règles de précédences et d'association)
-                    • calcule
-                    • à partir du résultat, produit une nouvelle valeur d'un type donné
+                    - interprète (en respectant des règles de précédences et d'association)
+                    - calcule
+                    - à partir du résultat, produit une nouvelle valeur d'un type donné
                       (numérique, chaîne, logique - vrai / faux, fonction, nouvelle expression …)
 
             En mathématiques, ce procédé est appelé "évaluation".
@@ -3232,9 +3232,9 @@ les valeurs suivantes:
 
             Quelques catégories de structures de contrôle:
 
-                    • les alternatives (if, if–else,  switch, …)
-                    • les boucles  (while, do–while, for, …)
-                    • les constructions de gestion  d'exceptions (try–catch,  …)
+                    - les alternatives (if, if–else,  switch, …)
+                    - les boucles  (while, do–while, for, …)
+                    - les constructions de gestion  d'exceptions (try–catch,  …)
 
 
     sucre syntaxique
@@ -3243,9 +3243,9 @@ les valeurs suivantes:
             syntaxique“,  à  condition  qu'elle remplisse  les  2  conditions
             suivantes:
 
-                    • elle simplifie la lecture/écriture d'une autre construction syntaxique
+                    - elle simplifie la lecture/écriture d'une autre construction syntaxique
 
-                    • sa suppression ne ferait pas perdre d'expressivité, ou de
+                    - sa suppression ne ferait pas perdre d'expressivité, ou de
                       fonctionnalité au langage de programmation
 
 
@@ -3261,9 +3261,9 @@ les valeurs suivantes:
             array,  il faut  généralement  invoquer une  fonction système  à
             laquelle on passera 2 arguments. Notons-les pex:
 
-                    • la fonction:                                              get_array()
-                    • le 1er argument, l'array:                                 Array
-                    • le 2e  argument, un indice sous la forme d'un vecteur:    vector(i,j)
+                    - la fonction:                                              get_array()
+                    - le 1er argument, l'array:                                 Array
+                    - le 2e  argument, un indice sous la forme d'un vecteur:    vector(i,j)
 
                     get_array(Array, vector(i,j))    →    Array[i,j]
                     │                                     │
@@ -3274,10 +3274,10 @@ les valeurs suivantes:
             revient généralement à invoquer une fonction à laquelle on passe
             3 arguments:
 
-                    • set_array()
-                    • Array
-                    • vector(i,j)
-                    • value
+                    - set_array()
+                    - Array
+                    - vector(i,j)
+                    - value
 
                     set_array(Array, vector(i,j), value)    →    Array[i,j] = value
                     │                                            │

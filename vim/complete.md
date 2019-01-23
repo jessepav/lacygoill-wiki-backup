@@ -43,10 +43,10 @@ Also integrate some comments from `vim-completion`.
 Le comportement d'une complétion est géré par l'option 'completeopt'.
 Celle-ci peut prendre une série de valeurs. Les plus importantes sont:
 
-        • 'noinsert'    la 1e entrée n'est pas automatiquement insérée,
+        - 'noinsert'    la 1e entrée n'est pas automatiquement insérée,
                         mais elle peut être automatiquement sélectionnée
 
-        • 'noselect'    elle n'est ni insérée, ni sélectionnée
+        - 'noselect'    elle n'est ni insérée, ni sélectionnée
 
 
 Le contenu  du menu  est mis à  jour dynamiquement après  un C-h  (backspace) ou
@@ -54,9 +54,9 @@ l'insertion d'un nouveau caractère.
 Sauf si une entrée a déjà été automatiquement insérée.
 C'est le cas lorsque:
 
-        • on tape C-n ou C-p
+        - on tape C-n ou C-p
 
-        • 'cot' ne contient ni 'noinsert', ni 'noselect'
+        - 'cot' ne contient ni 'noinsert', ni 'noselect'
           Vim insère alors automatiquement la 1e entrée du menu
 
 Dans les 2 cas, l'insertion d'une entrée met fin à la mise à jour dynamique du menu.
@@ -128,9 +128,9 @@ Voici qques raccourcis permettant d'entrer dans un mode de complétion:
 
             Si on se trouve à la fin d'une ligne, on peut directement compléter la suivante :
 
-                    • en une seule invocation si on vient juste de compléter la ligne courante
+                    - en une seule invocation si on vient juste de compléter la ligne courante
 
-                    • en 2 invocations autrement (càd qu'on a tapé la ligne manuellement)
+                    - en 2 invocations autrement (càd qu'on a tapé la ligne manuellement)
                       la 1e invocation repropose juste la ligne courante
 
             En   fait,  ce   chord  se   souvient  des   complétions  similaires
@@ -224,8 +224,8 @@ Voici qques raccourcis permettant d'entrer dans un mode de complétion:
             Vim  appelle la  fonction 2  fois consécutivement  en lui  passant à
             chaque fois 2 arguments:
 
-                    • 1, ''
-                    • 0, 'texte à compléter'
+                    - 1, ''
+                    - 0, 'texte à compléter'
 
             Au  sein  de  la  fonction,  par convention,  on  peut  appeler  ces
             arguments `findstart` et `base`.
@@ -249,13 +249,13 @@ Voici qques raccourcis permettant d'entrer dans un mode de complétion:
 
             On peut trouver le début du texte à compléter de 2 façons:
 
-            • via `searchpos()`
+            - via `searchpos()`
 
               Ex: pour compléter du curseur jusqu'au précédent double quote:
 
                      return searchpos('"', 'bcnW', line('.'))[1] - 1
 
-            • une boucle `while`
+            - une boucle `while`
 
               Ex: pour compléter du curseur jusqu'au précédent caractère absent de la classe `\k`:
 

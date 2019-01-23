@@ -244,8 +244,8 @@ However, be CONSISTENT.
 
 If the argument of your command may:
 
-   • contain a bar
-   • and be used in another context
+   - contain a bar
+   - and be used in another context
 
 Make sure that the bar will be parsed the same way in both contexts.
 
@@ -390,11 +390,11 @@ Here's the full list of possible values:
 
 If you need to:
 
-        • pass non-scalar data like lists or dictionaries, use `<args>`
+        - pass non-scalar data like lists or dictionaries, use `<args>`
 
-        • pass a list of strings, use `<f-args>`
+        - pass a list of strings, use `<f-args>`
 
-        • parse the arguments according to arbitrary rules, use `<q-args>`
+        - parse the arguments according to arbitrary rules, use `<q-args>`
           (for example extract the value after a `-option`)
 
 ### Do I need to quote strings passed to my command with `<args>`?  `<f-args>`?  `<q-args>`?
@@ -711,17 +711,17 @@ arglist, or bufferlist, or qflist, ...
 
 If you use your command interactively and you're about to execute:
 
-   • `:windo` or `:tabdo`, make sure you're in the last window/tabpage
+   - `:windo` or `:tabdo`, make sure you're in the last window/tabpage
 
-   • `:argdo`, `:bufdo`, `:cdo`, ... make sure you're in the last buffer of the
+   - `:argdo`, `:bufdo`, `:cdo`, ... make sure you're in the last buffer of the
      bufferlist/arglist/qflist ...
 
 If you use your command in a script, and you're about to execute:
 
-   • `:windo` or `:tabdo`, save/restore the current window and tabpage,
+   - `:windo` or `:tabdo`, save/restore the current window and tabpage,
      using `win_getid()`/`win_gotoid()`
 
-   • `:argdo`, `:bufdo`, `:cdo`, ... save/restore the current buffer using
+   - `:argdo`, `:bufdo`, `:cdo`, ... save/restore the current buffer using
      `bufnr('')` and `:b {bufnr}`
 
 ---
@@ -812,9 +812,9 @@ Make some tests:
 
 It seems to depend on various things:
 
-        • the current working directory
-        • the attribute (`-complete=file`, `-complete=file_in_path`, `-complete=custom,...`)
-        • the filename modifier
+        - the current working directory
+        - the attribute (`-complete=file`, `-complete=file_in_path`, `-complete=custom,...`)
+        - the filename modifier
 
 Also, it seems  that some Tab-expansions don't work if  the result doesn't match
 an existing file.
@@ -848,8 +848,8 @@ https://2.bp.blogspot.com/-TKrpj9ZOb_8/Ty8Z6uGef1I/AAAAAAAAASQ/5pEwFwtONkU/s1600
 
 L'absence de rangée peut être interprétée par une commande de 2 façons:
 
-        • tout le buffer    %    1,$    C'est le cas de :g, :goto, :hardcopy, :retab, :w
-        • ligne courante    .    .,.    Les autres...
+        - tout le buffer    %    1,$    C'est le cas de :g, :goto, :hardcopy, :retab, :w
+        - ligne courante    .    .,.    Les autres...
 
 
 Lorsqu'une rangée est inversée (a,b avec a > b), Vim demande s'il peut la remettre dans l'ordre:
@@ -1010,8 +1010,8 @@ Voici qques exemples de spécificateurs de lignes:
 
             Qd on chaîne plusieurs patterns, le registre recherche finit par être peuplé avec:
 
-                    • le dernier pattern s'ils sont tous trouvés
-                    • le 1er des patterns non trouvés autrement
+                    - le dernier pattern s'ils sont tous trouvés
+                    - le 1er des patterns non trouvés autrement
 
             Pex, si 'Preface' est trouvée, le registre recherche est peuplé avec '3e point',
             autrement avec 'Preface'.
@@ -1108,23 +1108,23 @@ Des tags ayant un thème commun commencent par un même préfixe:
 
 Petit rappel de vocabulaire:
 
-    • on _évalue_       une expression (demande sa valeur)
+    - on _évalue_       une expression (demande sa valeur)
 
-    • on _remplace_     du texte par un autre
+    - on _remplace_     du texte par un autre
                         :s, :retab, :%!{filter}, ...
 
-    • on _convertit_    une donnée d'un certain type dans un autre;
+    - on _convertit_    une donnée d'un certain type dans un autre;
                         un fichier utilisant un format ou un encodage donné dans un autre
                         (odt → pdf; latin1 → utf-8)
 
-    • on _développe_    un {lhs} de mapping/abréviation,
+    - on _développe_    un {lhs} de mapping/abréviation,
                         une séquence d'échappement de commande (<bang>, <line1>, ...),
                         des caractères spéciaux sur la ligne de commande    :h cmdline-special,
                         une variables d'environnement,
                         une commandes shell                                 :h backtick-expansion,
                         un glob
 
-    • on _traduit_      un caractère ou un groupe de caractères en un autre
+    - on _traduit_      un caractère ou un groupe de caractères en un autre
                         un count en rangée (ex:    5: → :.,.+4)
 
                         Le résultat d'une traduction est tjrs le même.
@@ -1135,7 +1135,7 @@ Petit rappel de vocabulaire:
 
                                 :e %:t    le développement de %:t dépend du nom du buffer courant
 
-    • on _interprète_   un caractère ou un groupe de caractères pour déterminer quel comportement adopter
+    - on _interprète_   un caractère ou un groupe de caractères pour déterminer quel comportement adopter
 
                         Une  cmd, une fonction, le  parser de Vim, ou  + généralement n'importe
                         quel bout de code peut interpréter certains caractères.
@@ -1147,11 +1147,11 @@ Petit rappel de vocabulaire:
                         :s interprète \= au début de la chaîne de remplacement comme le début d'une expression;
                         elle évalue donc cette expression avant de remplacer le pattern.
 
-    • on _appelle_      une fonction
+    - on _appelle_      une fonction
 
-    • on _exécute_      une commande Ex
+    - on _exécute_      une commande Ex
 
-    • on _invoque_      du code informatique (la méthode n'est pas précisée par le terme)
+    - on _invoque_      du code informatique (la méthode n'est pas précisée par le terme)
 
 
 L'aide de Vim ne parle pas d'interpolation, mais plutôt de développement.
@@ -1370,12 +1370,12 @@ Les commandes qui permettent de lire/écrire/sauvegarder acceptent l'argument ++
 Les commandes qui permettent de naviguer au sein de la buffer list acceptent l'argument +cmd.
 Les commandes qui permettent de:
 
-        • charger un buffer       :[arg|tab]edit  :[s]argument  :[v]new
+        - charger un buffer       :[arg|tab]edit  :[s]argument  :[v]new
                                   :[s|tab]find
 
-        • agir sur l'arglist
+        - agir sur l'arglist
 
-        • splittent               :[v]split
+        - splittent               :[v]split
 
 ... acceptent les arguments ++opt et +cmd.
 
@@ -1442,12 +1442,12 @@ un viewport horizontal.
 
 La signification de N varie. Le plus souvent il décrit:
 
-        • un index absolu (de buffer dans la buffer list/arglist):
+        - un index absolu (de buffer dans la buffer list/arglist):
 
                 :3[s]buffer
                 :4[s]argument
 
-        • un index relatif
+        - un index relatif
           avec les commandes utilisant le suffixe `next` ou `previous`. Ex:
 
                 :3[s]bnext
@@ -1459,7 +1459,7 @@ La signification de N varie. Le plus souvent il décrit:
                 :3sbmodified    3ième prochain buffer modifié
                 :4argedit       ajout du buffer courant dans l'arglist après la 4-ième entrée
 
-        • une hauteur/largeur de fenêtre,
+        - une hauteur/largeur de fenêtre,
           avec les commandes qui de base splittent (:[v]new, :[v]split)
 
 Il a la même signification pour :tabedit/:tabnew et :tabfind.
@@ -1486,10 +1486,10 @@ Avec :find et ses dérivées, sa signification est inconsistante:
 
 Un bang est parfois nécessaire pour permettre à une des commandes précédentes de:
 
-        • abandonner un buffer modifié
-        • écrire un buffer modifier dans un fichier RO (:write [file], :wq/:x
+        - abandonner un buffer modifié
+        - écrire un buffer modifier dans un fichier RO (:write [file], :wq/:x
           [file], :wqall)
-        • écraser un fichier existant (:wnext file, :saveas file)
+        - écraser un fichier existant (:wnext file, :saveas file)
 
 # Commandes système
 
@@ -1517,11 +1517,11 @@ précédant le curseur (custom).
             Pour passer un !, %, # au  shell, il faut les échapper, car ils sont
             développés en:
 
-                    • %    le nom du buffer  courant
-                    • #    "                 alternatif
-                    • #1   "                 n°1
-                    • #2   "                 n°2
-                    • !    "                 la dernière commande shell
+                    - %    le nom du buffer  courant
+                    - #    "                 alternatif
+                    - #1   "                 n°1
+                    - #2   "                 n°2
+                    - !    "                 la dernière commande shell
 
                                      NOTE:
 
@@ -1680,9 +1680,9 @@ précédant le curseur (custom).
 
             Plus généralement, `:keepj` préserve la:
 
-                    • marque ''    jumplist
-                    • marque '.    changelist
-                    • marque '^
+                    - marque ''    jumplist
+                    - marque '.    changelist
+                    - marque '^
 
             Pour rappel, les  marques '', '., '^ correspondent à  la position du
             curseur lors du dernier saut, dernière édition, dernière insertion.
@@ -1724,13 +1724,13 @@ précédant le curseur (custom).
 
             Depuis une fonction ou une autocmd:
 
-                    • `noh`          ne fonctionne pas
+                    - `noh`          ne fonctionne pas
                                      car le registre recherche est automatiquement restauré
 
-                    • `set nohls`    désactive la mise en surbrillance quelle que soit la valeur
+                    - `set nohls`    désactive la mise en surbrillance quelle que soit la valeur
                                      de &hls et v:hlsearch
 
-                    • `set hls`      active la mise en surbrillance ssi &hls = 0
+                    - `set hls`      active la mise en surbrillance ssi &hls = 0
 
 
     :norm[al] {commands}
@@ -1904,8 +1904,8 @@ précédant le curseur (custom).
 
             Met la session en pause, et:
 
-                    • lance un nouveau shell enfant de Vim
-                    • restaure le shell parent de Vim
+                    - lance un nouveau shell enfant de Vim
+                    - restaure le shell parent de Vim
 
 
     :sil[ent][!] {cmd}
@@ -2004,10 +2004,10 @@ ne peuvent donc être utilisées).
 
             Concernant `:echoerr`:
 
-                    • avantage:        efface le nom de la commande qui vient d'être exécutée
+                    - avantage:        efface le nom de la commande qui vient d'être exécutée
                                        qd elle a réussi (echoerr '')
 
-                    • inconvénient:    impossible d'utiliser la commande au sein d'une fonction,
+                    - inconvénient:    impossible d'utiliser la commande au sein d'une fonction,
                                        à moins d'utiliser `:silent!` ;
                                        car `:echoerr` produit une erreur reconnue comme valide
 
@@ -2054,17 +2054,17 @@ ne peuvent donc être utilisées).
 
             Si on utilise `customlist` la fonction doit:
 
-                    • retourner une liste, et non une chaîne contenant des
+                    - retourner une liste, et non une chaîne contenant des
                       candidats séparés par des newlines
-                    • filtrer les candidats
+                    - filtrer les candidats
 
             Si  le   filtrage  qui  nous   intéresse  consiste  à   comparer  le
             début  de chaque  candidat  à `a:arglead`,  il  vaut mieux  utiliser
             `-complete=custom`: plus lisible, moins verbeux, plus performant.
             En effet, avec cet attribut, Vim effectue un filtrage automatique:
 
-                • le début de chaque candidat est comparé avec `a:arglead`
-                • la comparaison respecte 'ignorecase' et 'smartcase'
+                - le début de chaque candidat est comparé avec `a:arglead`
+                - la comparaison respecte 'ignorecase' et 'smartcase'
 
 ##
 # Reference

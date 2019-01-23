@@ -29,19 +29,19 @@ Although, we could also read the examples in `man systemd.unit`.
 Document why using `xkbcomp` is better than `xmodmap`.
 With xmodmap:
 
-        • we lose the custom layout whenever we enter then leave a console
+        - we lose the custom layout whenever we enter then leave a console
 
-        • we lose the custom layout when we suspend-resume a session / terminate
+        - we lose the custom layout when we suspend-resume a session / terminate
           the X server (M-C-del)
 
-        • Xorg consumes a lot of cpu after we leave a console
+        - Xorg consumes a lot of cpu after we leave a console
 
-        • the  result seems  to  be  affected by  whether  we  tick “Use  system
+        - the  result seems  to  be  affected by  whether  we  tick “Use  system
           defaults” in GUI, and which variant we choose (which is important when
           we want to make AltGr + SPC generate an underscore)
           (note that we should rely on the cli only, not on the GUI, nor on a DE)
 
-        • we need to delay the invocation of xmodmap by an arbitrary amount of
+        - we need to delay the invocation of xmodmap by an arbitrary amount of
           time (a few seconds) which feels brittle/unreliable
 
           Indeed, a few seconds after the OS has started (in a VM between 7s and
@@ -223,6 +223,35 @@ pressed to validate the command (Enter vs C-m).
 
 ##
 ##
+##
+# How to customize the console keyboard layout?
+
+        $ cat <<'EOF' | sudo tee -a /etc/systemd/system/getty@.service.d/keyboard-layout.conf
+[Service]
+ExecStartPre=/usr/bin/loadkeys /home/user/.config/keyboard/vc.conf
+EOF
+
+---
+
+`vc.conf` should contain your customizations, such as:
+
+        altgr keycode 3 = less
+        ...
+        alt keycode 36 = Scroll_Forward
+        ...
+        keymaps 0-2,4,6,8,12
+        keycode 58 = Control
+        ...
+
+Use `dumpkeys`  to read the current  layout and `showkey`  to get the code  of a
+key.
+Read `man 5 keymaps` for the syntax of the file.
+
+---
+
+If you tweak  `vc.conf`, you can apply the changes  immediately, by pressing C-d
+then re-logging.
+
 ##
 # Where can I find a list of all the possible options that I can pass to `setxkbmap`?
 
@@ -894,8 +923,8 @@ customizer directement au niveau du firmware.
 
 Procédure pour remap CapsLock à Control avec:
 
-        • xmodmap
-        • setxkbmap
+        - xmodmap
+        - setxkbmap
 
 ##
 # Utilities

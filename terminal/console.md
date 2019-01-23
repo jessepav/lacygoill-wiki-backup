@@ -26,10 +26,10 @@ It sets the minimal priority of the questions we want to be asked.
 Here we choose the priority `low`.
 The possible priorities are:
 
-        • low
-        • medium
-        • high
-        • critical
+        - low
+        - medium
+        - high
+        - critical
 
 You can find them by typing:
 
@@ -149,35 +149,6 @@ Use tmux.
 Otherwise, I think you would need to recompile the kernel to set some option:
 
         https://superuser.com/a/281876/913143
-
-##
-# How to customize the keyboard layout?
-
-        $ cat <<'EOF' | sudo tee -a /etc/systemd/system/getty@.service.d/keyboard-layout.conf
-[Service]
-ExecStartPre=/usr/bin/loadkeys /home/user/.config/keyboard/vc.conf
-EOF
-
----
-
-`vc.conf` should contain your customizations, such as:
-
-        altgr keycode 3 = less
-        ...
-        alt keycode 36 = Scroll_Forward
-        ...
-        keymaps 0-2,4,6,8,12
-        keycode 58 = Control
-        ...
-
-Use `dumpkeys`  to read the current  layout and `showkey`  to get the code  of a
-key.
-Read `man 5 keymaps` for the syntax of the file.
-
----
-
-If you tweak  `vc.conf`, you can apply the changes  immediately, by pressing C-d
-then re-logging.
 
 ##
 # How to turn on the Numlock key by default?

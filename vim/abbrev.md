@@ -17,11 +17,11 @@
 
 It must be either:
 
-   • a whitespace
-   • a beginning of line (yes, it's not a real character then...)
-   • outside 'isk' and the abbreviation is full-id
-   • in 'isk' and the abbreviation is end-id
-   • anything, but the abbreviation is written right after entering insert mode
+   - a whitespace
+   - a beginning of line (yes, it's not a real character then...)
+   - outside 'isk' and the abbreviation is full-id
+   - in 'isk' and the abbreviation is end-id
+   - anything, but the abbreviation is written right after entering insert mode
 
 # Which condition must the character AFTER an abbreviation satisfy, for the abbreviation to be expanded?
 
@@ -61,8 +61,8 @@ For more info, see `:helpgrep Eatchar`.
 What does the `0` argument passed to `getchar()` mean?
 It prevents `getchar()` from waiting for a character in the typeahead buffer:
 
-   • if there's one, it consumes it
-   • if there's none, it bails out
+   - if there's one, it consumes it
+   - if there's none, it bails out
 
 Is it necessary here?
 Probably not.

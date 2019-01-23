@@ -200,24 +200,24 @@ Usually, with the structure, the text is much easier to understand.
 Look at `:h try-conditionals`, just below the big example.
 Here are the invariants that you can find there:
 
-   • When no exception is thrown during execution of the try block
+   - When no exception is thrown during execution of the try block
 
-   • When an exception occurs during execution of the try block
+   - When an exception occurs during execution of the try block
 
-   • When an exception that does not match any of the patterns specified by the ":catch"
+   - When an exception that does not match any of the patterns specified by the ":catch"
      commands is thrown in the try block
 
-   • When during execution of a catch clause another exception is thrown
+   - When during execution of a catch clause another exception is thrown
 
-   • When during execution of the finally clause (if present) an exception is thrown
+   - When during execution of the finally clause (if present) an exception is thrown
 
 And here's the structure you can extract:
 
-   • no exception in try block
-   • exception in try block
-   • uncaught exception in try block
-   • exception in catch clause
-   • exception in finally clause
+   - no exception in try block
+   - exception in try block
+   - uncaught exception in try block
+   - exception in catch clause
+   - exception in finally clause
 
 ## Too long sentence
 ### Bring connected parts closer

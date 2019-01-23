@@ -12,8 +12,7 @@ Any character or set of characters used to represent a new line:
 
 `'ignorecase'`
 
-Which is why  you should always use `\c`  or `\C` in your pattern,  to avoid any
-influence from the current environment.
+If your pattern may be influenced by it, use `\c` or `\C`.
 
 ##
 # Coercion
@@ -51,8 +50,7 @@ Its integer part.
     echo '12.34hello' + 5
     17~
 
-###
-## How to convert a string into a float?
+##### how to fix this broken coercion?
 
 Use `str2float()`:
 
@@ -66,6 +64,7 @@ Use `str2float()`:
     echo str2float('1.2foo') + 3
     4.2~
 
+##
 ## Can I use a number as a key in a dictionary?
 
 Yes.
@@ -100,7 +99,8 @@ To fix this, use `str2nr()`:
 `str2nr()` takes  a string containing  a number as  input, and converts  it into
 decimal.
 
-It accepts a second optional argument which stands for the input base.
+It accepts a second optional argument which stands for the input base (which can
+be 2, 8, 10 or 16).
 Without it, `str2nr()` assumes that your input number is decimal; which explains
 the output of:
 
@@ -109,10 +109,11 @@ the output of:
 
 ### When should I be conscious of it?
 
-Whenever you perform a substitution, and you use `submatch()` in the replacement
-part to refer to a capturing group matching a number.
-
+Whenever you work on user data.
 User data is unpredictable; you have to assume a decimal number may begin with `0`.
+
+As an example, when you perform a  substitution, and you use `submatch()` in the
+replacement part to refer to a capturing group matching a number.
 
 ####
 # Special notations
@@ -125,7 +126,7 @@ Heading) is `^A`.
 
 The null is a special control character whose codepoint is `0`.
 To go  on using the same  scheme, it has been  decided to represent it  with the
-letter which comes before `A` in the ascii table, which is `@`.
+character which comes before `A` in the ascii table; that is `@`.
 
 ### escape `^[`?
 
@@ -139,12 +140,55 @@ the first character after `Z` in the ascii table, which is `[`.
 
     ^?
 
-### Which key emits it?
+### Which key produces it?
 
 The backspace key.
 
 Don't confuse the delete character with the delete key.
 <https://en.wikipedia.org/wiki/Delete_character>
+
+---
+
+Although, according to `:h Linux-backspace`, this is wrong:
+
+> Note about Linux: By default the backspace key
+> produces CTRL-?, which is wrong.  You can fix it by
+> putting this line in your rc.local:
+
+>         echo "keycode 14 = BackSpace" | loadkeys
+
+The backspace key should emit the backspace character.
+
+See also: <http://tldp.org/HOWTO/Keyboard-and-Console-HOWTO-5.html>
+
+> Why doesn't the Backspace key generate BackSpace by default?
+>
+> (i) Because the VT100 had a Delete key above the Enter key.
+>
+> (ii) Because Linus decided so.
+
+You could fix that at the OS level, by using `loadkeys` in the console and `xkb`
+in Xorg; but I'm not sure it's worth it, and I don't know whether there would be
+undesired side-effects.
+
+Btw, for the console, you would have to write in `~/.config/keyboard/vc.conf`:
+
+    # It seems the case is important.
+    # If you write `backspace`, the console login doesn't start.
+    keycode 14 = BackSpace
+
+For Xorg, I've tried to write in `~/.config/xkb/symbols/programming`:
+
+    key <BKSP> { [ BackSpace ] };
+
+But the backspace key still produces `^?`.
+The statement is correct: if you replace `BackSpace` with `eacute`, for example,
+the backspace key produces `é`.
+The issue is that the `BackSpace` keysym produces `^?`.
+
+I don't know which keysym I should write.
+In a console, I've tried `$ dumpkeys /tmp/dumpkeys`, and looked at its contents.
+The only relevant keysym seems `BackSpace`...
 
 ##
 ## Which escape sequences can I use to encode an arbitrary character?  (3)
@@ -198,6 +242,10 @@ Use `:echon`:
     echon 'foo' | echon 'bar'
     foobar~
 
+---
+
+In contrast, `:echo` would add a space or a newline:
+
     :echo 'foo' 'bar'
     foo bar~
 
@@ -223,13 +271,14 @@ Or index the string directly:
 
 ---
 
+Those methods are unreliable to get  the `n`-th *character* of a string, because
+the latter may contain multibyte characters:
+
     echo strpart('résumé', 2, 1)
     <a9>~
 
     echo 'aéb'[1]
     <c3>~
-
----
 
 `str[n-1]` is not evaluated into the character of index `n-1`, but the *byte* of
 index `n-1`.
@@ -242,9 +291,13 @@ representation of the first byte of `é`:
     $ xxd -p -l2 <<<'é'
     c3a9~
 
-### character of a string?  (2)
+### character of a string?  (3)
 
-Use `strcharpart()`:
+Use `matchstr()`:
+
+    echo matchstr(str, '.\{n-1}\zs.')
+
+Or `strcharpart()`:
 
     echo strcharpart(str, n-1, 1)
                           ├─┘  │
@@ -259,9 +312,8 @@ Or `strgetchar()` + `nr2char()`:
 
 ---
 
+    echo matchstr('résumé', '..\zs.')
     echo strcharpart('résumé', 2, 1)
-    s~
-
     echo nr2char(strgetchar('résumé', 2))
     s~
 
@@ -276,8 +328,8 @@ Without `{len}`, `strcharpart()` goes until the end.
 
 ---
 
-    echo strcharpart('abcde', 1)
-    bcde~
+    echo strcharpart('abcde', 2)
+    cde~
 
 ###
 ## What's the evaluation of `getline('.')[col('.')]`?
@@ -298,7 +350,7 @@ probably because `0` is already used for an error:
 The same is true for `\%123c`.
 To match the first character on a line, you must use `\%1c.` and not `\%0c.`.
 
-#### Why can't the expression be tweaked to get it?
+### Why can't the expression be tweaked to get it?
 
 Because it could be a multibyte character.
 
@@ -315,7 +367,7 @@ And execute:
     echo getline('.')[col('.')-1]
     <c3>~
 
-#### How to get it then?
+### How to get it then?
 
 Use `matchstr()`, `col('.')` and `\%123c`:
 
@@ -333,8 +385,8 @@ Use `matchstr()`, `col('.')` and `\%123c`:
 
 #### `strcharpart()`?
 
-A  negative index  is  *not* replaced  by  `0`,  but since  there  can't be  any
-character with a negative index in a string, it produces empty strings.
+A negative index is *not* replaced by  `0`, but since there is no character with
+a negative index in a string, it produces an empty string.
 
     echo strcharpart(str, -i, j)
     ⇔
@@ -348,10 +400,10 @@ character with a negative index in a string, it produces empty strings.
     echo strcharpart('abcd', -2, 4)
     ab~
 
-   • character of index -2 = ''
-   • character of index -1 = ''
-   • character of index 0  = 'a'
-   • character of index 1  = 'b'
+   - character of index -2 = ''
+   - character of index -1 = ''
+   - character of index 0  = 'a'
+   - character of index 1  = 'b'
 
 ###
 ### What's the evaluation of
@@ -363,6 +415,8 @@ An empty string.
 
 An empty string.
 
+When you do a slicing, the first index must be lower than the second one.
+
 #### `str[-i:-j]` with `0 < j < i`?
 
 The last bytes of the string.
@@ -373,7 +427,7 @@ The last bytes of the string.
 ##
 # Getting info
 ## How to get a substring matching a pattern
-### starting `{start}` bytes after the beginning of the original string?
+### the search starting `{start}` bytes after the beginning of the original string?
 
 Use the third optional argument of `matchstr()`:
 
@@ -398,7 +452,7 @@ Use the fourth optional argument: `{count}`:
 
 ---
 
-    echo matchstr('-a -b -c -d', '-.', 3, 2)
+    echo matchstr('-a -b -c', '-.', 3, 2)
     -c~
 
 Here, the  first match  is `-b`, but  we ask  for the second  match, so  `-c` is
@@ -414,7 +468,7 @@ returned.
 
 ---
 
-    echo match('-a -b -c', '-.', 2, 2)
+    echo match('-a -b -c', '-.', 3, 2)
     6~
 
 Here, we ignore the first 3 bytes (index 0, 1 and 2), and the first match (`-b`).
@@ -491,7 +545,11 @@ Use the optional third argument, `{start}`:
 
     echo strridx(substr, str, start)
 
----
+#### its last but one occurrence?
+
+Use `strridx()` twice.
+The first time to get the position of the last occurrence.
+The second time, you can use this info to ignore the the last occurrence.
 
     let str = 'a:b:c:d'
     let colon_last = strridx(str, ':')
@@ -584,7 +642,7 @@ composing character:
 
     echo strwidth(char)
 
-### What if this number changes depending on where the character is put on the current line?
+### What if this number can change depending on where the character is put on the current line?
 
     echo strdisplaywidth(char, col)
 
@@ -614,6 +672,47 @@ Use `matchlist()`:
       │      │     └ \2
       │      └ \1
       └ \0
+
+##
+# execute()
+## Does the second argument of `execute()` has an influence
+### on its output?
+
+Most of the time, no.
+
+However, there's one exception.
+If you use `silent!`, the error messages won't be included in the output.
+
+    echo execute('abcd', 'silent!') is# ''
+    1~
+
+### during the evaluation of the first argument?
+
+Yes.
+It can be used to allow or prevent Vim from printing any message:
+
+    :call execute('echom "hello"', '')
+    hello~
+
+    :call execute('echom "hello"', 'silent')
+    :call execute('echom "hello"', 'silent!')
+    ∅~
+
+##
+## How to make it execute several commands, without any bar?
+
+Pass it a list of commands:
+
+    echo execute([cmd1, cmd2, ...])
+
+---
+
+    echo execute(['echo "foo"', 'echo "bar"'])
+
+###
+## How to eliminate the newline at the beginning of `execute('ls')`?
+
+    echo execute('ls')[1:]
 
 ##
 # Time
@@ -722,41 +821,6 @@ When provided, `reltime()` computes the time passed between `{start}` and `{end}
     Tue 22 Jan 2019 04:18:26 PM CET~
 
 ##
-# execute()
-## Does the second argument of `execute()` has an influence on
-### the evaluation of the first argument?
-
-Yes.
-It can be used to prevent Vim from printing any message:
-
-    :call execute('echom "hello"')
-    ∅~
-    :call execute('echom "hello"', 'silent')
-    ∅~
-    :call execute('echom "hello"', 'silent!')
-    ∅~
-
-    :echo execute('echo "hello"')
-    :echo execute('echo "hello"', 'silent')
-    :echo execute('echo "hello"', 'silent!')
-    hello~
-
-### the output of `execute()`?
-
-Most of the time, no.
-
-However, there's one exception.
-If you use `silent!`, the error messages won't be included in the output.
-
-    echo execute('abcd', 'silent!') is# ''
-    1~
-
-###
-## How to eliminate the newline at the beginning of `execute('ls')`?
-
-    echo execute('ls')[1:]
-
-##
 # Transforming
 ## Splitting
 ### How to get the list of words on the line?
@@ -832,7 +896,7 @@ For example, if it was `&ft`, it would return `markdown`.
 Here, it  finds `"string"`, whose  evaluation is the  same string, but  with the
 surrounding quotes removed and the special characters translated.
 
-### How to translate all unprintable characters in a string?
+### How to translate all unprintable characters in a string, into printable characters?
 
     echo strtrans(str)
 
@@ -864,11 +928,11 @@ Use `nr2char()` or `printf()` + `%c`.
 
 It can be used to transform a string:
 
-   • by truncating a substring or a float
+   - by truncating a substring or a float
 
-   • adding a padding of spaces or `0`s
+   - by adding a padding of spaces or zeros
 
-   • convert a number from a base into another
+   - by converting a number from a base into another
 
 ###
 ### Which number conversions can it perform?
@@ -912,7 +976,7 @@ This makes 12 possible conversions (`4*4 - 4`):
 
 #### `str2nr()` can also convert numbers from one base to another.  How is it different?  (2)
 
-   • `str2nr()` can only do 3 conversions, all towards decimal:
+   - `str2nr()` can only do 3 conversions, all towards decimal:
 
         " bin → dec
         echo str2nr('101010', 2)
@@ -926,7 +990,7 @@ This makes 12 possible conversions (`4*4 - 4`):
         echo str2nr('123', 16)
         291~
 
-   • `printf()`  interprets  a  number  differently depending  on  whether  it's
+   - `printf()`  interprets  a  number  differently depending  on  whether  it's
      prefixed by `0` or `0x`.
 
      `str2nr()` doesn't care about the prefix; it cares about its second argument.
@@ -936,10 +1000,11 @@ This makes 12 possible conversions (`4*4 - 4`):
 
 Yes.
 
-When necessary, it can perform 3 conversions:
+When necessary, it can perform 4 conversions:
 
    - integer   ↔   string
    - integer   →   float
+   - float     →   string
 
 ---
 
@@ -954,6 +1019,10 @@ When necessary, it can perform 3 conversions:
     " the integer `123` is initially coerced into the float `123.0`
     echo printf('%f',  123)
     123.000000~
+
+    " the float `123.456` is initially coerced into the string `'123.456'`
+    echo printf('%s',  123.456)
+    123.456~
 
 ###
 ### What's the purpose of a `%` character?
@@ -975,9 +1044,9 @@ form of its associated expression.
 `%` expects one mandatory argument (the conversion specifier, aka type).
 And it accepts up to three optional arguments:
 
-   • flags
-   • field-width
-   • precision
+   - flags
+   - field-width
+   - precision
 
 The arguments must follow this order:
 
@@ -1043,10 +1112,7 @@ Like `%g`, but uses `E` instead of `e` in scientific notation.
 ### What's the effect of these flags?
 #### `-`?
 
-When the value of the expression  is shorter than `field-width`, by default it's
-aligned on the right.
-
-With `-`, it's aligned on the left.
+Move the padding, if any, to the right (instead of the left).
 
 #### `0`?
 
@@ -1116,8 +1182,7 @@ Exception:
 
 #### How is it useful?
 
-When you want to add  a padding of spaces on the left or  right, or a padding of
-zeros on the left.
+To add a padding.
 
 ####
 #### How to assign it a variable value?
@@ -1224,8 +1289,8 @@ But a single trailing zero is kept if necessary to prevent a float from becoming
 For a string, it means that it's made empty (total truncation).
 For a float, it means that it becomes an integer.
 
-    echo printf('%.s', 'foobar')
-    ∅~
+    echo printf('%.s', 'foobar') is# ''
+    1~
 
     echo printf('%.f', 123.456)
     123~

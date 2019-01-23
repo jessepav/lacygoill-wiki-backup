@@ -31,12 +31,12 @@
 
 ## Which files does `newsboat` read for its config and data?
 
-        • $HOME/.config/newsboat/config
-        • $HOME/.config/newsboat/urls
-        • $HOME/.local/share/newsboat/cache.db
-        • $HOME/.local/share/newsboat/history.cmdline
-        • $HOME/.local/share/newsboat/history.search
-        • $HOME/.local/share/newsboat/queue
+        - $HOME/.config/newsboat/config
+        - $HOME/.config/newsboat/urls
+        - $HOME/.local/share/newsboat/cache.db
+        - $HOME/.local/share/newsboat/history.cmdline
+        - $HOME/.local/share/newsboat/history.search
+        - $HOME/.local/share/newsboat/queue
 
 #
 # First steps
@@ -183,16 +183,16 @@ To disable search history saving, simply set the history-limit to 0.
         dialog.
         Available dialogs are:
 
-                • 'all' (default  if none is specified),
-                • 'article'
-                • 'articlelist'
-                • 'feedlist'
-                • 'filebrowser'
-                • 'filterselection'
-                • 'help'
-                • 'podbeuter'
-                • 'tagselection'
-                • 'urlview'
+                - 'all' (default  if none is specified),
+                - 'article'
+                - 'articlelist'
+                - 'feedlist'
+                - 'filebrowser'
+                - 'filterselection'
+                - 'help'
+                - 'podbeuter'
+                - 'tagselection'
+                - 'urlview'
 
 Example:
 

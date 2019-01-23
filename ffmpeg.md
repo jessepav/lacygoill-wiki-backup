@@ -141,10 +141,10 @@ copy` argument passed to `ffmpeg`.
 
             Un fichier peut contenir plusieurs types de flux:
 
-                    • vidéo
-                    • audio
-                    • sous-titres
-                    • pièce-jointe
+                    - vidéo
+                    - audio
+                    - sous-titres
+                    - pièce-jointe
 
             … et plusieurs flux d'un même type.
             Pour indiquer à un filtre sur quel flux il doit opérer, il faut donc utiliser un spécificateur de flux.
@@ -154,8 +154,8 @@ copy` argument passed to `ffmpeg`.
 
             Pour plus d'infos sur:
 
-                    • les filtres applicables à un flux, lire `man ffmpeg-filters`
-                    • le filtre `scaler` en particulier, lire `man ffmpeg-scaler`
+                    - les filtres applicables à un flux, lire `man ffmpeg-filters`
+                    - le filtre `scaler` en particulier, lire `man ffmpeg-scaler`
 
 
     -gifflags -transdiff

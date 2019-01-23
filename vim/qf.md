@@ -116,19 +116,19 @@ Examples:
 # Properties of a qf entry
 ## What are the five properties of a qf entry related to its location?
 
-   • bufnr
-   • col
-   • vcol
-   • lnum
-   • pattern
+   - bufnr
+   - col
+   - vcol
+   - lnum
+   - pattern
 
 ## What are its five other properties?
 
-   • module
-   • nr
-   • text
-   • type
-   • valid
+   - module
+   - nr
+   - text
+   - type
+   - valid
 
 ## What property of a qf entry can I set, but not get?
 
@@ -184,17 +184,17 @@ For more info, read:    `:h errorformat-multi-line`
 # Properties of a qfl
 ## What are the nine properties of a qfl?
 
-   • changedtick
-   • context
+   - changedtick
+   - context
 
-   • id
-   • nr
-   • idx
+   - id
+   - nr
+   - idx
 
-   • items    (qfl entries)
-   • size
-   • title
-   • winid    (id of the qf window if opened)
+   - items    (qfl entries)
+   - size
+   - title
+   - winid    (id of the qf window if opened)
 
 
 You can ask any of them via:
@@ -207,9 +207,9 @@ Example, to get the size of the current qfl:
 
 ## What are the three pseudo-properties of a qfl that I can ask, but not get?
 
-   • all     (all of the properties of the qfl)
-   • efm
-   • lines
+   - all     (all of the properties of the qfl)
+   - efm
+   - lines
 
 You can ask for `'all'`:
 
@@ -219,17 +219,17 @@ But you won't get the key `'all'` in the dictionary output.
 
 ## What are the five qfl properties I can ask, but not set?
 
-   • all
-   • changedtick
-   • idx
-   • size
-   • winid
+   - all
+   - changedtick
+   - idx
+   - size
+   - winid
 
 ## What are the three properties that a qfl in Neovim currently misses, compared to Vim?
 
-   • changedtick
-   • idx
-   • size
+   - changedtick
+   - idx
+   - size
 
 ##
 ## What's the 'context' property of a qfl?
@@ -306,8 +306,8 @@ and its unique identifier.
 
 If you need to target a qfl according to:
 
-   • its contents, use its id (because it never changes)
-   • its position in the stack, use its nr
+   - its contents, use its id (because it never changes)
+   - its position in the stack, use its nr
 
 ## How to refer to the last qfl in the stack?
 
@@ -450,9 +450,9 @@ It depends on the middle part of its name.
 
 If it's:
 
-    • 'expr'    the command expects an expression
-    • 'file'    "                   a file name
-    • 'buffer'  "                   a buffer number
+    - 'expr'    the command expects an expression
+    - 'file'    "                   a file name
+    - 'buffer'  "                   a buffer number
 
 ##
 ## What are the seven steps occurring when I execute `:make`?
@@ -512,8 +512,8 @@ complete way.
                            ┌ no need to escape the dot;
                            │ in a FILE pattern:
                            │
-                           │     • dot is not interpreted as a meta character
-                           │     • `?` matches any single character
+                           │     - dot is not interpreted as a meta character
+                           │     - `?` matches any single character
                            │
     :[l]vim /pat/gj /etc/**.d
 
@@ -564,8 +564,8 @@ A file is:
 
 When an option ends with the suffix:
 
-    • min     the following number is interpreted as a duration in minutes
-    • time    the "                                                days
+    - min     the following number is interpreted as a duration in minutes
+    - time    the "                                                days
 
 ##
 ## How to parse all the lines containing `pat` in the current buffer to populate the qfl?
@@ -601,10 +601,10 @@ The value associated to this key is a list of sub-dictionaries.
 
 Each of them contains some information about an entry in the qfl:
 
-    • line
-    • column
-    • text
-    • ...
+    - line
+    - column
+    - text
+    - ...
 
 For Vim to  parse the output of  the shell command, it needs  to create unlisted
 buffers to read the files where there's at least one entry.
@@ -884,9 +884,9 @@ should be opened, you can rely on the latter via `:doautocmd`:
 
 You can't use `c*` because some commands populating the qfl don't begin with `c`:
 
-        • make
-        • vimgrep[add]
-        • grep[add]
+        - make
+        - vimgrep[add]
+        - grep[add]
 
 ##
 # Navigate in a qfl
@@ -1013,13 +1013,13 @@ adding something like this in `~/.vim/after/ftplugin/qf.vim`:
 
 From there, here's the procedure you need to follow:
 
-        • make the qf buffer temporarily modifiable
+        - make the qf buffer temporarily modifiable
 
-        • edit the buffer
+        - edit the buffer
 
-        • update the qfl using `:cgetbuffer`
+        - update the qfl using `:cgetbuffer`
 
-        • make the qf buffer unmodifiable, and unmodified
+        - make the qf buffer unmodifiable, and unmodified
 
 Relevant help section:
 
@@ -1044,10 +1044,10 @@ Relevant help section:
 
 This will yank in the register `a`, the line of the first entry in:
 
-        • the first  file of the qfl
-        • the second file of the qfl
+        - the first  file of the qfl
+        - the second file of the qfl
         ...
-        • the tenth  file in the qfl
+        - the tenth  file in the qfl
 
 This works because  `:cfdo` moves the cursor on  the first entry
 of each file in the qfl.
@@ -1131,10 +1131,10 @@ Without `'items'`, you would need two:
 
 Because:
 
-        • `call setqflist(list, 'r')` replaces the items in the qfl, but ALSO
+        - `call setqflist(list, 'r')` replaces the items in the qfl, but ALSO
           its title
 
-        • `setqflist()` ignores  the first  argument, when  you provide  the
+        - `setqflist()` ignores  the first  argument, when  you provide  the
           third optional one; so you can't replace both the items and the title
           of a qfl at the same time, with:
 
@@ -1190,8 +1190,8 @@ Otherwise:
 
 The second solution is more reliable:
 
-        • you don't need to be in the qf window
-        • it persists even after closing and re-opening the qf window
+        - you don't need to be in the qf window
+        - it persists even after closing and re-opening the qf window
 
 ## How to get all the info about all the opened qf windows in the current Vim session?
 
@@ -1502,10 +1502,10 @@ The last command is wrong; `:copen` is not a valid command to populate a qfl.
 However, it doesn't matter.
 We can use it to communicate some info to the autocmd opening the qf window:
 
-        • do we  want to open the  window unconditionally, or on  the condition
+        - do we  want to open the  window unconditionally, or on  the condition
           it contains at least one valid error?
 
-        • do we want to open the qf window or the location window?
+        - do we want to open the qf window or the location window?
 
 Document somewhere  the fact that  the pattern used  in a `:do`  command doesn't
 have to be valid. It can be (ab)used to pass arbitrary info.

@@ -146,9 +146,9 @@ Suggestion de Gotbletu.
     │        │         Vim                                                                          │
     │        │         CR                                                                           │
     ├────────┼──────────────────────────────────────────────────────────────────────────────────────┤
-    │ Enter  │ • saisir du texte dans un champ                                                      │
-    │        │ • cliquer sur un bouton                                                              │
-    │        │ • suivre un lien                                                                     │
+    │ Enter  │ - saisir du texte dans un champ                                                      │
+    │        │ - cliquer sur un bouton                                                              │
+    │        │ - suivre un lien                                                                     │
     ├────────┼──────────────────────────────────────────────────────────────────────────────────────┤
     │ [  ]   │ naviguer entre éléments interactfis                                                  │
     ├────────┼──────────────────────────────────────────────────────────────────────────────────────┤

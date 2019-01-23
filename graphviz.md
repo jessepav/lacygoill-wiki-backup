@@ -68,9 +68,9 @@
             The graph must be directed from left to right.
             Other possible values:
 
-                    • BT     bottom -> top
-                    • RL     right  -> left
-                    • TB     top    -> bottom
+                    - BT     bottom -> top
+                    - RL     right  -> left
+                    - TB     top    -> bottom
 
     nodesep = 1.0
 
@@ -120,8 +120,8 @@ Here are some common attributes:
 
             In a directed graph:
 
-                    • reverse the direction of an arrow
-                    • add an arrow in the other direction
+                    - reverse the direction of an arrow
+                    - add an arrow in the other direction
 
 
     fontcolor
@@ -140,8 +140,8 @@ Here are some common attributes:
 
             Set the label of:
 
-                    • the node `node_a` to 'stuff'
-                    • the edge from `node_a` towards `node_b`, to 'action'
+                    - the node `node_a` to 'stuff'
+                    - the edge from `node_a` towards `node_b`, to 'action'
 
             With the 1st line, we'll refer to the node with the id `node_a`.
             But in the graph, it will be named `bar`.
@@ -267,16 +267,16 @@ Here are some common attributes:
 
             In the DOT language, you write the connections in:
 
-                    • a graph   with  --
-                    • a digraph with  ->
+                    - a graph   with  --
+                    - a digraph with  ->
 
 
     edge operator
 
             Operator which creates an edge between 2 nodes:
 
-                    • ->  (directed graph)
-                    • --  (undirected graph)
+                    * ->  (directed graph)
+                    * --  (undirected graph)
 
 
     subgraph

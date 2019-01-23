@@ -150,9 +150,9 @@ Note that by default, there's no way to just source one plugin.
 Either you start Vim  with `-Nu NONE` and no plugin is sourced,  or you start it
 with `-Nu NORC`, and all the plugins in these directories are sourced:
 
-   • ~/.vim/plugin/
-   • $VIMRUNTIME/plugin/
-   • ~/.vim/after/plugin/
+   - ~/.vim/plugin/
+   - $VIMRUNTIME/plugin/
+   - ~/.vim/after/plugin/
 
 A guard such as:
 
@@ -181,12 +181,12 @@ Which is why we always also use this guard:
 
 They've been sourced by either:
 
-        • an autocmd
+        - an autocmd
 
-        • an element of interface (mapping, command, ...)
+        - an element of interface (mapping, command, ...)
           which triggered the sourcing of an autoloaded script
 
-        • a filetype/syntax/indent plugin for a buffer
+        - a filetype/syntax/indent plugin for a buffer
                                    ^^^^^^
                                    Yes,  I  know,  the question  mentions  files
                                    which are  NOT plugins, but  filetype plugins
@@ -217,8 +217,8 @@ Use the `-V` argument:
 
 Technically, this command sets two options:
 
-    • &vbs = 2
-    • &vfile = /tmp/log
+    - &vbs = 2
+    - &vfile = /tmp/log
 
 ## How to increase Vim's verbosity level during the execution of a single Ex command?
 
@@ -437,9 +437,9 @@ If you want to include the commands inside functions, you must use a bang:
 
 ### What's the difference between `--cmd` and `-c`/`+`?
 
-    • `--cmd` execute a command BEFORE the vimrc is sourced.
+    - `--cmd` execute a command BEFORE the vimrc is sourced.
 
-    • `-c`    execute a command AFTER the first file is read
+    - `-c`    execute a command AFTER the first file is read
               which includes its autocmds and its modelines
 
 `+` is a synonym of `-c`.
@@ -650,8 +650,8 @@ No. One is enough:
 
                                ┌ useless, because a single star can match two things at the same time:
                                │
-                               │       • the path to a directory
-                               │       • a part of a filename
+                               │       - the path to a directory
+                               │       - a part of a filename
                               ┌┤
         :{breakadd|prof} file */*foo.vim
 
@@ -690,9 +690,9 @@ first wildcard.
 Yes, this is (almost) the same answer as the previous one.
 The point is, when some interface is wrong:
 
-        • it contains an incorrect value
-        • it should exist, but it does not
-        • it shouldn't exist, but it does
+        - it contains an incorrect value
+        - it should exist, but it does not
+        - it shouldn't exist, but it does
 
 And you don't know why that is the  case, a verbose log will tell you everything
 Vim did, and why.
@@ -807,10 +807,10 @@ The header (lines 1-4) gives the time for the whole function.
 The `Total` time is the time passed while the function was executing.
 The `Self` time is the `Total` time reduced by time spent in:
 
-        • other user defined functions
-        • sourced scripts
-        • executed autocommands
-        • external (shell) commands
+        - other user defined functions
+        - sourced scripts
+        - executed autocommands
+        - external (shell) commands
 
 Lines 7-11 show the time spent in each executed line.
 Lines that are not executed do not count.
@@ -827,31 +827,31 @@ Thus how long you take to respond to the input() prompt is irrelevant.
 Profiling should give a good indication of where time is spent, but keep in mind
 there are various things that may clobber the results:
 
-        • The accuracy of the time measured depends on the gettimeofday() system
+        - The accuracy of the time measured depends on the gettimeofday() system
           function.  It may only be as accurate as 1/100 second, even though the times
           are displayed in micro seconds.
 
-        • Real elapsed time is measured, if other processes are busy they may cause
+        - Real elapsed time is measured, if other processes are busy they may cause
           delays at unpredictable moments.  You may want to run the profiling several
           times and use the lowest results.
 
-        • If you have several commands in one line you only get one time.  Split the
+        - If you have several commands in one line you only get one time.  Split the
           line to see the time for the individual commands.
 
-        • The time of the lines added up is mostly less than the time of the whole
+        - The time of the lines added up is mostly less than the time of the whole
           function.  There is some overhead in between.
 
-        • Functions that are deleted before Vim exits will not produce profiling
+        - Functions that are deleted before Vim exits will not produce profiling
           information.  You can check the `v:profiling` variable if needed:
 
                 if !v:profiling
                     delfunc MyFunc
                 endif
 
-        • Profiling may give weird results on multi-processor systems, when sleep
+        - Profiling may give weird results on multi-processor systems, when sleep
           mode kicks in or the processor frequency is reduced to save power.
 
-        • The `self` time is wrong when a function is used recursively.
+        - The `self` time is wrong when a function is used recursively.
 
 # profiling
 
@@ -892,8 +892,8 @@ there are various things that may clobber the results:
             Illustre comment on peut tester un  script et générer un rapport, en
             une seule commande shell, en combinant les arguments:
 
-                    • --cmd    pour profiler le script
-                    • -c       pour tester   "
+                    * --cmd    pour profiler le script
+                    * -c       pour tester   "
 
             Dans cet exemple, on cherche à  voir quelle commande de notre plugin
             `vim-search` prend le plus de temps qd on cherche une regex complexe
@@ -932,10 +932,10 @@ there are various things that may clobber the results:
                     ├───────┼─────────────────────────────────────────────────────────────────────┤
                     │ self  │ temps total pris par les commandes de la fonction, en dehors de(s): │
                     │       │                                                                     │
-                    │       │         • invocations de fonctions utilisateurs externes            │
-                    │       │         • scripts sourcés                                           │
-                    │       │         • autocmds                                                  │
-                    │       │         • commandes shell externes                                  │
+                    │       │         - invocations de fonctions utilisateurs externes            │
+                    │       │         - scripts sourcés                                           │
+                    │       │         - autocmds                                                  │
+                    │       │         - commandes shell externes                                  │
                     └───────┴─────────────────────────────────────────────────────────────────────┘
 
             L'info à laquelle  accorder le plus d'importance n'est  pas le temps
@@ -1133,9 +1133,9 @@ When [lnum] is omitted, the first breakpoint in the function or file is deleted.
 The  {name} must  be exactly  the same  as what  was typed  for the  `:breakadd`
 command:
 
-        • explorer
-        • *explorer.vim
-        • *explorer*
+        - explorer
+        - *explorer.vim
+        - *explorer*
 
 ... are different.
 
@@ -1178,8 +1178,8 @@ If no path is specified the current directory is used.
 Note that functions are first loaded and later executed.
 When they are:
 
-        • loaded,   the 'file' breakpoints are checked
-        • executed, the 'func' breakpoints are checked
+        - loaded,   the 'file' breakpoints are checked
+        - executed, the 'func' breakpoints are checked
 
 ## Examples
 
@@ -1298,18 +1298,18 @@ Additionally, these commands can be used:
 
 About the additional commands in debug mode:
 
-• There is no command-line completion for them, you get the completion for the
+- There is no command-line completion for them, you get the completion for the
   normal Ex commands only.
 
-• You can shorten them, up to a single character, unless more than one command
+- You can shorten them, up to a single character, unless more than one command
   starts with the same letter.
   `f` stands for `finish`, use `fr` for `frame`.
 
-• Hitting <CR> will repeat the previous one.
+- Hitting <CR> will repeat the previous one.
   When doing  another command, this  is reset (because  it's not clear  what you
   want to repeat).
 
-• When you want to use the Ex command with the same name, prepend a colon:
+- When you want to use the Ex command with the same name, prepend a colon:
   `:cont`, `:next`, `:finish` (or shorter).
 
 The backtrace shows the hierarchy of function calls, e.g.:
@@ -1478,16 +1478,16 @@ There is no way to see the command at the current line yet.
 
         About the additional commands in debug mode:
 
-                • There is no command-line completion for them, you get the completion for the
+                - There is no command-line completion for them, you get the completion for the
                   normal Ex commands only.
 
-                • You can shorten them, up to a single character, unless more than one command
+                - You can shorten them, up to a single character, unless more than one command
                   starts with the same letter.  `f` stands for `finish`, use `fr` for `frame`.
 
-                • Hitting <CR> will repeat the previous one.  When doing another command, this
+                - Hitting <CR> will repeat the previous one.  When doing another command, this
                   is reset (because it's not clear what you want to repeat).
 
-                • When you want to use the Ex command with the same name, prepend a colon:
+                - When you want to use the Ex command with the same name, prepend a colon:
                   `:cont`, `:next`, `:finish` (or shorter).
 
         The backtrace shows the hierarchy of function calls, e.g.:

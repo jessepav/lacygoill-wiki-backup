@@ -198,14 +198,14 @@ These  orphaned processes  waste server  resources and  can potentially  leave a
 server starved for resources.
 However, there are several solutions to the orphan process problem:
 
-    • Extermination is the  most commonly used technique; in this  case the
+    - Extermination is the  most commonly used technique; in this  case the
       orphan is killed.
 
-    • Reincarnation is  a technique in  which machines periodically try  to
+    - Reincarnation is  a technique in  which machines periodically try  to
       locate the parents  of any remote  computations; at which point  orphaned
       processes are killed.
 
-    • Expiration is a technique where each process is allotted a certain amount
+    - Expiration is a technique where each process is allotted a certain amount
       of time to finish before being killed. If need be a  process may "ask" for
       more time to  finish before the allotted time expires.
 
@@ -299,9 +299,9 @@ lequel on veut qu'il affiche les infos.
 
 Ça peut servir à:
 
-        • choisir les infos qui nous intéresse
-        • renommer l'intitulé d'une colonne d'info donnée
-        • changer sa largeur
+        - choisir les infos qui nous intéresse
+        - renommer l'intitulé d'une colonne d'info donnée
+        - changer sa largeur
 
 Elle accepte comme valeur une liste de mots-clés séparés par des virgules.
 Les  mots-clés  utilisables  sont  décrits  dans  la  section  “STANDARD  FORMAT
@@ -485,40 +485,40 @@ The common method for a process to  become a daemon, when the process is started
 from the  command-line  or from a  startup script  such as an  init script  or a
 SystemStarter script, involves:
 
-    • Optionally removing unnecessary variables from environment.
+    - Optionally removing unnecessary variables from environment.
 
-    • Executing as a background task by  forking and exiting (in the parent
+    - Executing as a background task by  forking and exiting (in the parent
       "half" of the fork). This  allows daemon's  parent (shell  or  startup
       process)  to receive  exit notification and continue its normal execution.
 
-    • Dissociating from  the controlling tty
+    - Dissociating from  the controlling tty
 
-    • Creating a new session  and becoming the session leader of that session.
+    - Creating a new session  and becoming the session leader of that session.
 
-    • Becoming a process group leader.
+    - Becoming a process group leader.
       These  three  steps  are  usually  accomplished  by  a  single  operation,
       setsid().
 
-    • If  the daemon  wants  to  ensure that  it  won't  acquire a  new
+    - If  the daemon  wants  to  ensure that  it  won't  acquire a  new
       controlling  tty even  by  accident  (which happens  when  a session
       leader without a controlling tty opens a free tty), it may fork and exit
       again. This means  that it is no  longer a session  leader in the new
       session, and can't acquire a controlling tty.
 
-    • Setting the root directory (/) as  the current working directory so that
+    - Setting the root directory (/) as  the current working directory so that
       the process does  not keep any directory  in use that  may be on
       a  mounted file system (allowing it to be unmounted).
 
-    • Changing the umask to 0 to allow open(), creat(), and other operating
+    - Changing the umask to 0 to allow open(), creat(), and other operating
       system calls to provide their  own permission masks and not to  depend on
       the umask of the caller
 
-    • Closing all inherited files  at the time of execution that are left open
+    - Closing all inherited files  at the time of execution that are left open
       by the  parent process, including file descriptors 0,  1 and 2 for the
       standard streams (stdin, stdout and stderr). Required files will be opened
       later.
 
-    • Using a logfile, the console, or /dev/null as stdin, stdout, and stderr
+    - Using a logfile, the console, or /dev/null as stdin, stdout, and stderr
 
 If the process is  started by a super-server daemon, such  as inetd, launchd, or
 systemd, the  super-server daemon will  perform those functions for  the process
@@ -609,11 +609,11 @@ de nvim.
 Une frame est un ensemble de données associées à un appel de fonction.
 Elle contient:
 
-        • les arguments passés à la fonction
+        - les arguments passés à la fonction
 
-        • ses variables locales
+        - ses variables locales
 
-        • son adresse d'exécution (≈ à quelle ligne de la fonction l'exécution
+        - son adresse d'exécution (≈ à quelle ligne de la fonction l'exécution
           se trouve ?)
 
 On parle  de “stack frame“, car  une fonction peut  en appeler une autre,  et le
@@ -887,9 +887,9 @@ the state of one of its child changes.
 
 A state change is considered to be:
 
-        • the child terminated
-        • the child was stopped by a signal
-        • the child was resumed by a signal
+        - the child terminated
+        - the child was stopped by a signal
+        - the child was resumed by a signal
 
 For more info, see:
 
@@ -1177,9 +1177,9 @@ the latter.
 Since  system calls  and  signals  are events  that  happen  at the  user/kernel
 interface, a close examination of this boundary is very useful for:
 
-        • bug isolation
-        • sanity checking
-        • capture race conditions
+        - bug isolation
+        - sanity checking
+        - capture race conditions
 
 It's also useful  to solve an issue with  a program for which the  source is not
 readily available, since you don't need to recompile it in order to trace it.
@@ -1293,8 +1293,8 @@ Try to understand why they take so much time...
 
 The process may use another similar system call:
 
-        • openat
-        • creat
+        - openat
+        - creat
 
 See `$ man 2 open`.
 

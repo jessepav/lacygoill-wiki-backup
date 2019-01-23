@@ -34,10 +34,10 @@ So, `a` is the best notation.
 
 Also, `a` provide 2 benefits (`b` provide them too):
 
-   • the difference between the upper and lower bound is equal to the size of
+   - the difference between the upper and lower bound is equal to the size of
      the sequence
 
-   • if 2 subsequences A and B are “adjacent” (A ∩ B = ∅ and A ∪ B = sequence),
+   - if 2 subsequences A and B are “adjacent” (A ∩ B = ∅ and A ∪ B = sequence),
      the upper bound of A is equal to the lower bound of B
 
 Source:
@@ -70,27 +70,27 @@ not 1.
 Du fait,  que nos vies  sont limités en temps  et en espace  (contraintes), nous
 rencontrons tous un ensemble de pbs :
 
-   • que devons-nous faire / laisser tomber ?
+   - que devons-nous faire / laisser tomber ?
 
-   • quel degré de désordre devrions-nous adopter / quel degré d'ordre est
+   - quel degré de désordre devrions-nous adopter / quel degré d'ordre est
      excessif ?
 
-   • quel équilibre entre nouvelles expériences (voyager...) et expériences
+   - quel équilibre entre nouvelles expériences (voyager...) et expériences
      favorites (aller au ciné...) produit la vie la plus épanouissante
      (explore/exploit) ?
 
 Les informaticiens se sont attaqués et ont souvent résolus des problèmes équivalents :
 
-   • comment un processeur devrait allouer son 'attention' pour exécuter toutes
+   - comment un processeur devrait allouer son 'attention' pour exécuter toutes
      les tâches demandées par l'utilisateur ?
 
-   • qd devrait-il passer à une autre tâche ?
+   - qd devrait-il passer à une autre tâche ?
 
-   • combien de tâches devrait-il prendre en charge ?
+   - combien de tâches devrait-il prendre en charge ?
 
-   • quelle est la meilleure façon d'utiliser ses ressources en mémoire limitées
+   - quelle est la meilleure façon d'utiliser ses ressources en mémoire limitées
 
-   • devrait-il accumuler encore un peu plus d'infos ou agir immédiatement avec
+   - devrait-il accumuler encore un peu plus d'infos ou agir immédiatement avec
      ce qu'il a déjà
 
 
@@ -415,11 +415,11 @@ Note B somewhere, but stay focused on A.
 You may switch to B later, if A is too hard.
 Everything is possible:
 
-   • solving A may fix B
+   - solving A may fix B
 
-   • solving B may fix A
+   - solving B may fix A
 
-   • A and B may have nothing in common
+   - A and B may have nothing in common
 
 Writing the hypotheses is important because it  helps you focus on one idea at a
 time, and find  good experiments (modifications of the MWE)  which will make you
@@ -436,10 +436,10 @@ Hypotheses help you find the most interesting ones quicker.
 
 Si on n'explique pas clairement:
 
-   • ce qu'on  veut, on risque de perdre  du temps à développer un  code qui ne
+   - ce qu'on  veut, on risque de perdre  du temps à développer un  code qui ne
      correspond pas totalement à nos attentes
 
-   • ce qu'on sait, on risque de développer un code “faible“, pour lequel le pb
+   - ce qu'on sait, on risque de développer un code “faible“, pour lequel le pb
      sera beaucoup plus complexe qu'il ne pourrait l'être
 
      Toute information pertinente dans le cadre de la résolution d'un pb devrait
@@ -506,17 +506,17 @@ appeler une fonction.
 Appelons cette dernière `main()`.
 Elle doit être le plus lisible possible:
 
-   • pour chaque tâche qu'elle réalise, pas trop de lignes, et pas trop de
+   - pour chaque tâche qu'elle réalise, pas trop de lignes, et pas trop de
      complexité
 
-   • pour chaque tâche qu'elle réalise, un commentaire expliquant ce qu'on fait
+   - pour chaque tâche qu'elle réalise, un commentaire expliquant ce qu'on fait
      ou pourquoi on le fait
 
      On préfèrera expliquer le “pourquoi” plutôt que le “quoi”.
      Exception: si  la tâche correspond  exactement à l'objectif de  la fonction
      principale, on devra expliquer le “quoi”.
 
-   • si elle doit exécuter une tâche complexe, l'encapsuler dans une
+   - si elle doit exécuter une tâche complexe, l'encapsuler dans une
      sous-fonction au nom évocateur
 
 ## Récursion
@@ -548,10 +548,10 @@ Qd on doit résoudre un problème impliquant un nombre variable de données, uti
 
             Et pour rappel:
 
-                   • 1 et 'one'  n'ont pas le même type
+                   - 1 et 'one'  n'ont pas le même type
                                  (nombre vs chaîne)
 
-                   • [1,2] et ['one', 'two']  n'ont pas la même structure
+                   - [1,2] et ['one', 'two']  n'ont pas la même structure
                                               (liste de nombres vs liste de chaînes)
 
            Remarque2:
@@ -627,9 +627,9 @@ Pex, raccourcis identiques d'un pgm à l'autre pour des fonctions similaires.
 se demander si elle a un lien direct avec l'objectif de A.
 Si la réponse est non, l'appeler depuis:
 
-   • la fonction principale
+   - la fonction principale
 
-   • une nouvelle fonction utilitaire elle-même appelée depuis la fonction
+   - une nouvelle fonction utilitaire elle-même appelée depuis la fonction
      principale
 
 ## Simplifier la complexité
@@ -654,8 +654,8 @@ En effet, certains arrangements de valeurs peuvent être impossibles.
 Pex,  dans   notre  plugin   `vim-session`,  2  paramètres   peuvent  influencer
 l'indicateur dans la statusline:
 
-        • le chargement d'une session  (a eu lieu ou pas)
-        • le tracking d'une session    (a lieu ou pas)
+        - le chargement d'une session  (a eu lieu ou pas)
+        - le tracking d'une session    (a lieu ou pas)
 
 Chacun de ces paramètres peut avoir 2 valeurs `on`, `off`.
 On pourrait donc penser que E = 4.
@@ -671,9 +671,9 @@ Comment accélérer la résolution d'un pb complexe ?
 
 Le transformer en:
 
-   • le décomposant en pbs plus simples (le faire péter)
-   • cherchant un pb équivalent qui, lui, est plus simple
-   • cherchant un pb plus fondamental (*)
+   - le décomposant en pbs plus simples (le faire péter)
+   - cherchant un pb équivalent qui, lui, est plus simple
+   - cherchant un pb plus fondamental (*)
 
 (\*) En  effet, un pb  complexe peut être la  conséquence d'un pb  plus général,
 qui, lui, est plus simple.
@@ -730,12 +730,12 @@ the command-line (<kbd>C-g v</kbd> in Vim)...
 Contrary to an  abstraction, an exposition will constantly show  you the details
 of what you're about to execute; therefore, it will:
 
-   • help you remember the commands
+   - help you remember the commands
 
-   • give you a better understanding of what's important to focus on
+   - give you a better understanding of what's important to focus on
      (especially with tabstops/placeholders)
 
-   • give you more control
+   - give you more control
 
 ## Too many degrees of freedom
 

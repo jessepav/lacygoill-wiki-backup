@@ -3,10 +3,10 @@
 
 Yes. Each of these directories can be a db:
 
-   • $HOME/.terminfo
-   • /etc/terminfo
-   • /usr/lib/terminfo
-   • /usr/share/terminfo
+   - $HOME/.terminfo
+   - /etc/terminfo
+   - /usr/lib/terminfo
+   - /usr/share/terminfo
 
 ## How to view all the entries in all the db?
 
@@ -86,9 +86,9 @@ Source: `:h terminfo` in Neovim.
 
 View the description of:
 
-   • the current terminal ($TERM)
-   • `tmux-256color`
-   • the unknown terminal
+   - the current terminal ($TERM)
+   - `tmux-256color`
+   - the unknown terminal
 
 ### How to configure it?
 
@@ -213,12 +213,12 @@ In the terminfo db, the last field must be followed by a comma.
 
 By convention:
 
-    • the first field lists the alias names for the terminal
+    - the first field lists the alias names for the terminal
 
-    • the first alias in the first field is the canonical name of the terminal
+    - the first alias in the first field is the canonical name of the terminal
       the last alias in the first field is a long description of the terminal
 
-    • the next fields specify the terminal capabilities
+    - the next fields specify the terminal capabilities
 
 ## How does a field (other than the first) begin?
 

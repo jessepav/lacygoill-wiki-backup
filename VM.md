@@ -171,11 +171,11 @@ nic), which are well-suited.
 
 ### What are the 3 files/directories created/modified after the previous command?
 
-        • ~/VB/ubuntu/ is created (VM directory)
+        - ~/VB/ubuntu/ is created (VM directory)
 
-        • ~/VB/ubuntu/ubuntu.vbox is created (VM config)
+        - ~/VB/ubuntu/ubuntu.vbox is created (VM config)
 
-        • ~/.config/VirtualBox/VirtualBox.xml is modified (VB config)
+        - ~/.config/VirtualBox/VirtualBox.xml is modified (VB config)
            an entry is added for the new VM
 
 ### What's the effect of the `--register` option of the `createvm` subcommand?
@@ -255,8 +255,8 @@ It seems that an IDE controller can have 2 devices per port (master and slave).
 
 Usually, one of these:
 
-        • dvddrive
-        • hdd
+        - dvddrive
+        - hdd
 
 ### Which values can take `--medium`?
 
@@ -565,8 +565,8 @@ Step 1:
 
 Make sure that the following boxes are ticked:
 
-        • Enable USB Controller
-        • Enable USB 2.0 (EHCI) Controller
+        - Enable USB Controller
+        - Enable USB 2.0 (EHCI) Controller
 
 Step 2:
 

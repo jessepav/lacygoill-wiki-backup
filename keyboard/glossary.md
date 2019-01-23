@@ -8,8 +8,8 @@ The latter translates the scancode into a keycode.
 
 You can  see which keycode is  produced by any key  via the utility:
 
-        • xev for X11
-        • showkey for the console
+        - xev for X11
+        - showkey for the console
 
 ## keysym
 
@@ -51,10 +51,10 @@ Table maintained by the X server, which translates the keycodes into keysyms.
 # m
 ## (logical) modifiers
 
-    • shift
-    • lock
-    • control
-    • mod1..5
+    - shift
+    - lock
+    - control
+    - mod1..5
 
 ## modifier map
 

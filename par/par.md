@@ -73,10 +73,10 @@ have to be escaped or quoted to prevent your shell from interpreting them.
 
 To learn how to use par, read quickly the sections:
 
-        • Description
-        • Terminology
-        • Options
-        • Environment
+        - Description
+        - Terminology
+        - Options
+        - Environment
 
 Then read  carefully the  Examples section,  referring back  to the  Options and
 Terminology sections as needed.
@@ -84,10 +84,10 @@ Terminology sections as needed.
 For the "power user", a full understanding of par will require multiple readings
 of the sections:
 
-        • Terminology
-        • Options
-        • Details
-        • Examples
+        - Terminology
+        - Options
+        - Details
+        - Examples
 
 ##
 # Glossary
@@ -159,9 +159,9 @@ of the sections:
 
             A member of the set of characters defined by:
 
-                    • $PARBODY     and/or the  B  option
-                    • $PARPROTECT  and/or the  P  option
-                    • $PARQUOTE    and/or the  Q  option
+                    - $PARBODY     and/or the  B  option
+                    - $PARPROTECT  and/or the  P  option
+                    - $PARQUOTE    and/or the  Q  option
 
 
     terminal character
@@ -414,10 +414,10 @@ dependencies).
 
             `op` is:
 
-                    • a single character
-                    • =
-                    • +
-                    • -
+                    * a single character
+                    * =
+                    * +
+                    * -
 
             `string` is a string using charset syntax.
 

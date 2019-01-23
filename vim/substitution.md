@@ -21,9 +21,9 @@ These commands work because `reverse()`, `add()` and `remove()` operate in-place
 
     & a plusieurs significations suivant le champ où il se trouve:
 
-                    • dans un pattern \& relie 2 concats
-                    • dans une chaîne de remplacement, & est développé en le pattern matché
-                    • dans les flags, & est développé en les flags utilisés lors de la dernière substitution
+                    - dans un pattern \& relie 2 concats
+                    - dans une chaîne de remplacement, & est développé en le pattern matché
+                    - dans les flags, & est développé en les flags utilisés lors de la dernière substitution
                       (it must be first flag)
 
 
@@ -185,16 +185,16 @@ These commands work because `reverse()`, `add()` and `remove()` operate in-place
             L'astuce consiste à réaliser que pour pouvoir trier des blocs de ligne, il faut les fusionner.
             Concrètement, ici, on:
 
-                • fusionne temporairement les blocs sur une seule ligne, en séparant les anciennes
+                - fusionne temporairement les blocs sur une seule ligne, en séparant les anciennes
                   lignes par un caractère dont sait qu'il est absent de ces dernières
 
                   Un caractère de contrôle tq ^A fera l'affaire généralement.
 
-                • trie les lignes restantes
+                - trie les lignes restantes
 
                   Les autres ne gênent plus car elles ont été fusionnées.
 
-                • casse les lignes triées pour retrouver les blocs d'origine
+                - casse les lignes triées pour retrouver les blocs d'origine
 
                   C'est là que ^A est utile, il indique à :s où elle doit réinsérer des newlines.
 
@@ -454,16 +454,16 @@ These commands work because `reverse()`, `add()` and `remove()` operate in-place
 
                                                NOTE:
 
-            • fonctionne même si foo et bar sont sur des lignes différentes
+            - fonctionne même si foo et bar sont sur des lignes différentes
               (grâce à \_. qui inclue un newline)
 
-            • cette commande illustre le fait que l'expression de substitution
+            - cette commande illustre le fait que l'expression de substitution
               peut aussi être une liste en effet, readfile() retourne une liste
               :h sub-replace-expression explique que lorsque cela se produit,
               les items de la liste sont automatiquement fusionnés et séparés
               des newlines
 
-            • on appelle insert() pour ajouter une chaîne vide à la liste
+            - on appelle insert() pour ajouter une chaîne vide à la liste
               readfile(…) de sorte que lorsque la fusion ait lieue, un newline
               soit ajouté au tout début et que le texte de remplacement débute
               sur une nouvelle ligne. Pas obligé mais peut être utile.

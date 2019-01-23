@@ -104,9 +104,9 @@ Faire sauter le DRM nécessite les programmes Calibre, DeDRM Tools (version modi
 
             Écrire les sous-titres dans un fichier:
 
-                    • ceux dont la langue a été sélectionnée par `--sub-lang`
-                    • ceux générés automatiquement par YouTube
-                    • tous les sous-titres dispo
+                    - ceux dont la langue a été sélectionnée par `--sub-lang`
+                    - ceux générés automatiquement par YouTube
+                    - tous les sous-titres dispo
 
 
     --list-subs

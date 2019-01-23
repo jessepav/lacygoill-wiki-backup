@@ -337,9 +337,9 @@ Its name, its value and its attributes (e.g. readonly).
 
 ## What are the 3 types of value you can assign to a parameter?
 
-        • scalar (e.g. string, integer, float)
-        • array (list indexed by integers)
-        • associative array (unordered set of (key, value) pairs indexed by strings)
+        - scalar (e.g. string, integer, float)
+        - array (list indexed by integers)
+        - associative array (unordered set of (key, value) pairs indexed by strings)
 
 ##
 # Getting info
@@ -371,11 +371,11 @@ This string consists of keywords separated by hyphens (`-`).
 
 The  first keyword  in the  string describes  the main  type:
 
-        • `array`
-        • `association`
-        • `float`
-        • `integer`
-        • `scalar`
+        - `array`
+        - `association`
+        - `float`
+        - `integer`
+        - `scalar`
 
 The other keywords describe the type in more detail:
 
@@ -505,12 +505,12 @@ All its elements in zsh.
 This is a zsh option.
 If you set it:
 
-    • array elements are numbered from zero
+    - array elements are numbered from zero
 
-    • an array parameter without subscript refers to the first element instead
+    - an array parameter without subscript refers to the first element instead
       of the whole array
 
-    • braces are required to delimit a subscript:
+    - braces are required to delimit a subscript:
 
             # ✘
             $path[2]
@@ -518,7 +518,7 @@ If you set it:
             # ✔
             ${path[2]}
 
-    • braces are required to apply modifiers to any parameter:
+    - braces are required to apply modifiers to any parameter:
 
             # ✘
             $PWD:h
@@ -533,8 +533,8 @@ around the parameter name most of the time.
 
 The shell considers the expansion of:
 
-        • `$arr[@]` as SEVERAL words; as many as there are elements in the array
-        • `$arr[*]` as a SINGLE word containing all the elements
+        - `$arr[@]` as SEVERAL words; as many as there are elements in the array
+        - `$arr[*]` as a SINGLE word containing all the elements
 
 ## What's the meaning of the `-U` attribute?  (2)
 
@@ -706,14 +706,14 @@ In zsh, yes.
 
 In bash, yes, but:
 
-      • only the last index in the range will be used
+      - only the last index in the range will be used
 
             $ arr=( a b c )
             $ arr[1,2]=d
             $ echo ${arr[@]}
             a b d~
 
-      • you can't assign a list to (an) array member(s):
+      - you can't assign a list to (an) array member(s):
 
             $ arr=( a b c )
             $ arr[1]=( B )

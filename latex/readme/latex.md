@@ -183,8 +183,8 @@ pass to `\mymacro`:
 
 The name of the new command, using:
 
-   • lowercase and/or uppercase letters
-   • a single non-letter symbol
+   - lowercase and/or uppercase letters
+   - a single non-letter symbol
 
 The new command must not be already defined and its name is not allowed to begin
 with `end`.
@@ -249,8 +249,8 @@ Example:
 
 `\xspace` inserts a space depending on the following character:
 
-   • if it's a normal letter, `\xspace` will  insert a space
-   • if it matches  [.,!?]    `\xspace` won't insert a space
+   - if it's a normal letter, `\xspace` will  insert a space
+   - if it matches  [.,!?]    `\xspace` won't insert a space
 
 ##
 # Declarations
@@ -261,11 +261,11 @@ a command, a group or an environment.
 
 The scope of a declaration begins from where it's placed until:
 
-   • the end of the command argument    in which it's used
-   • the end of the group               "
-   • the end of the environment         "
+   - the end of the command argument    in which it's used
+   - the end of the group               "
+   - the end of the environment         "
 
-   • the next conflicting declaration if there's one
+   - the next conflicting declaration if there's one
 
 Example:
 
@@ -307,9 +307,9 @@ Yes:
 # Fonts
 ## What are the main families of fonts?
 
-   • serif / roman
-   • sans-serif
-   • monospaced / typewriter
+   - serif / roman
+   - sans-serif
+   - monospaced / typewriter
 
 ## Which usage are the serif/roman fonts good for?
 
@@ -365,16 +365,16 @@ italic.
 
 Use one of these declarations:
 
-   • \tiny
-   • \scriptsize
-   • \footnotesize
-   • \small
-   • \normalsize
-   • \large
-   • \Large
-   • \LARGE
-   • \huge
-   • \Huge
+   - \tiny
+   - \scriptsize
+   - \footnotesize
+   - \small
+   - \normalsize
+   - \large
+   - \Large
+   - \LARGE
+   - \huge
+   - \Huge
 
 ## Do \tiny & friends always produce the same font size?
 
@@ -504,9 +504,9 @@ Use the `\bigskip` command.
 
 These information must have been defined before via the commands:
 
-   • \author
-   • \title
-   • \date
+   - \author
+   - \title
+   - \date
 
 To be used in the preamble.
 
@@ -522,13 +522,13 @@ Yes.
 
 Some characters need to be escaped:
 
-   • #
-   • $
-   • %
-   • &
-   • _
-   • {
-   • }
+   - #
+   - $
+   - %
+   - &
+   - _
+   - {
+   - }
 
 Technically,  we don't  really escape  them, we  execute special  commands whose
 single purpose is to print a character.

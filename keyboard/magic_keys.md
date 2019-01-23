@@ -204,9 +204,9 @@ So, for example, the value 176 used in Ubuntu is the result of the sum:
 
 It means that by default, Ubuntu allows:
 
-        • reboot/poweroff
-        • remount read-only
-        • sync command
+        - reboot/poweroff
+        - remount read-only
+        - sync command
 
 Why is it called a bitmask?
 Because you  can check whether  a given function  is allowed, by  converting its
@@ -408,12 +408,12 @@ Try again, but this time replace the Alt key with the AltGr key.
 
 Otherwise, the keyboard is probably the issue:
 
-        • On laptops, the `Fn` key may need to be pressed to use the magic `SysRq` key.
+        - On laptops, the `Fn` key may need to be pressed to use the magic `SysRq` key.
 
-        • Some keyboards have  `SysRq` on another key than `PrtSc`,  which must
+        - Some keyboards have  `SysRq` on another key than `PrtSc`,  which must
           be pressed with a function key. For example, it could be `Fn+End`.
 
-        • Some keyboards  don't like 4  keys to be pressed  at the same  time,
+        - Some keyboards  don't like 4  keys to be pressed  at the same  time,
           and stop being a keyboard until you release some.
 
 For more info, see:

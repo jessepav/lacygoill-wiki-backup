@@ -35,8 +35,8 @@ After `$VIMRUNTIME`, Neovim includes:
 
 In case you didn't notice:
 
-        • those are the same directories, in reverse order, and with the `after/` suffix
-        • `$XDG_CONFIG_DIRS` is a SET of directories; same thing for `$XDG_DATA_DIRS`
+        - those are the same directories, in reverse order, and with the `after/` suffix
+        - `$XDG_CONFIG_DIRS` is a SET of directories; same thing for `$XDG_DATA_DIRS`
                           ^
                           plural
 
@@ -99,11 +99,11 @@ Example:
 
 It adds 2 new FAMILIES (one directory per third-party plugin) of directories:
 
-        • ~/.vim/plugged/{plugin}
+        - ~/.vim/plugged/{plugin}
 
           just after `~/.vim`
 
-        • ~/.vim/plugged/{plugin}/after
+        - ~/.vim/plugged/{plugin}/after
 
           just before `~/.vim/after`
 
@@ -143,8 +143,8 @@ Anyway, this is due to those lines in `~/.config/nvim/init.vim`:
 
 If you remove them, `vim-plug` will correctly add:
 
-        • `~/.config/nvim`       before the third-party plugins
-        • `~/.config/nvim/after` after  the third-party plugins
+        - `~/.config/nvim`       before the third-party plugins
+        - `~/.config/nvim/after` after  the third-party plugins
 
 ##
 ## Where does Vim look for a colorscheme when I execute `:colo {colorscheme}`?
@@ -176,8 +176,8 @@ subdirectories of the rtp.
 OTOH, `:helptags` is not that smart.
 It expects as an argument either:
 
-    • a full path to the documentation file
-    • a path relative to the cwd
+    - a full path to the documentation file
+    - a path relative to the cwd
 
 But it does not look in the rtp.
 
@@ -638,17 +638,17 @@ by a default filetype plugin, they need to be sourced after.
 ## Acting
 ### Where can I put my C filetype plugin?
 
-        • dir/ftplugin/c.vim
-        • dir/ftplugin/c_*.vim
-        • dir/ftplugin/c/*.vim
+        - dir/ftplugin/c.vim
+        - dir/ftplugin/c_*.vim
+        - dir/ftplugin/c/*.vim
 
 `dir/` must be present in 'rtp'.
 `*` can be any sequence of characters.
 
 ### Where can I put my C syntax plugin?
 
-   • dir/syntax/c.vim
-   • dir/syntax/c/*.vim
+   - dir/syntax/c.vim
+   - dir/syntax/c/*.vim
 
 ---
 
@@ -708,9 +708,9 @@ The others, if any, are just minor tweaks, which are not meant to be guarded.
 Anyway, you can't write a guard  in `potion/folding.vim`, because it would NEVER
 be sourced since either:
 
-        • `ftplugin/potion.vim` WILL have been sourced and set `b:did_ftplugin`
+        - `ftplugin/potion.vim` WILL have been sourced and set `b:did_ftplugin`
 
-        • `ftplugin/potion.vim` will NOT have been sourced,
+        - `ftplugin/potion.vim` will NOT have been sourced,
           because a previous filetype plugin in the rtp will already have been sourced,
           and the latter will have set `b:did_ftplugin`
 

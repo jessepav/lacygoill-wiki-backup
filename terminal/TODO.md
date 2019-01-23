@@ -83,9 +83,9 @@ Document how we can get the number of colors supported by the terminal.
 
 To determine whether the terminal supports:
 
-   • more than 256 colors, you can run our custom script `$ truecolor`
-   • 256 colors, you can run our custom script `$ palette`
-   • a given color, you could try:
+   - more than 256 colors, you can run our custom script `$ truecolor`
+   - 256 colors, you can run our custom script `$ palette`
+   - a given color, you could try:
 
             $ printf '\e]4;%d;?\a' 123 | if read -d $'\a' -s -t 1; then echo 'color 123 is supported'; fi
 
@@ -184,8 +184,8 @@ control. In a  naïve system, the  UART driver  would then deliver  the incoming
 bytes directly to some application process. But  such an approach would lack the
 following features:
 
-        • line editing
-        • session management
+        - line editing
+        - session management
 
 Line editing.
 
@@ -209,14 +209,14 @@ echoing and  automatic conversion between carriage  returns and linefeeds.
 
 Session management.
 
-    • The user  probably wants  to run several  programs simultaneously,  and
+    - The user  probably wants  to run several  programs simultaneously,  and
       interact with them one at a time.
-    • If a program goes into an endless loop,  the user may want to kill it or
+    - If a program goes into an endless loop,  the user may want to kill it or
       suspend it.
-    • Programs that are started in the background should be able to execute
+    - Programs that are started in the background should be able to execute
       until they try to write to the terminal, at which point they should be
       suspended.
-    • User input should be directed to the foreground program only.
+    - User input should be directed to the foreground program only.
 
 The operating system implements all these features in the TTY driver.
 
@@ -226,9 +226,9 @@ kernel interrupt handler. The line discipline is likewise a passive entity.
 
 The combination of a:
 
-    • UART driver
-    • line discipline instance
-    • TTY driver
+    - UART driver
+    - line discipline instance
+    - TTY driver
 
 may be referred to as a TTY (device).
 

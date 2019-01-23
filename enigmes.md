@@ -10,8 +10,8 @@
 
             Une interrogation:
 
-                    • totale est une question qui porte sur l'ensemble d'une phrase
-                    • partielle est une question qui porte sur une partie d'une phrase
+                    - totale est une question qui porte sur l'ensemble d'une phrase
+                    - partielle est une question qui porte sur une partie d'une phrase
 
             On ne peut répondre à une question totale que par oui ou par non.
 
@@ -149,9 +149,9 @@ En fonction de la relation entre leurs réponses, quelle information L. N. Corne
 
         On s'aperçoit que:
 
-                • A et B donneront tjrs la même réponse
-                • si A et B sont identiques, ils répondront "oui"
-                • si A et B sont différents, ils répondront "non"
+                - A et B donneront tjrs la même réponse
+                - si A et B sont identiques, ils répondront "oui"
+                - si A et B sont différents, ils répondront "non"
 
 
 ## un guide de Lem qui laisse perplexe
@@ -187,8 +187,8 @@ Qui est votre guide, A ou B ?
 
 Les habitants de Lem se distinguent par leur:
 
-        • statut      (domestique vs chevalier)
-        • rang social (riche vs pauvre)
+        - statut      (domestique vs chevalier)
+        - rang social (riche vs pauvre)
 
 La ville de Lem se décompose donc en 4 catégories d'habitants:
 
@@ -205,9 +205,9 @@ distinctif.
 
 Vous êtes:
 
-        • une fille domestique et riche
-        • une fille qui souhaite épouser un garçon bien précis
-        • tous les 2, vous êtes des habitants de Lem
+        - une fille domestique et riche
+        - une fille qui souhaite épouser un garçon bien précis
+        - tous les 2, vous êtes des habitants de Lem
 
 La famille du garçon veut qu'il épouse une riche domestique.
 Vous trouvez le moyen d'organiser une rencontre avec la famille pendant 1 minute.
@@ -235,8 +235,8 @@ Quelle phrase pouvez-vous prononcer qui les convaincrait que vous êtes une rich
         L'enseignement à retirer de cette énigme est qu'un ensemble de propositions connectées
         par l'opérateur logique ET est:
 
-                • faux ssi UNE SEULE des propositions est  fausse
-                • vrai ssi TOUTES    les propositions sont vraies
+                - faux ssi UNE SEULE des propositions est  fausse
+                - vrai ssi TOUTES    les propositions sont vraies
 
         Ainsi, même si vous êtes bien une domestique, et que vous devez donc mentir, vous pouvez
         malgré tout dire une vérité ("je suis une domestique"), à condition de l'accompangner d'un
@@ -388,8 +388,8 @@ et qu'il pourrait prononcer peu importe son statut ?
         La condition 2. implique que le client doit parler de son innocence ou de sa culpabilité.
         En effet, il n'existe que 2 moyens de prouver son innocence:
 
-                • parler de son innocence/culpabilité
-                • dire qu'on est un ordinaire
+                - parler de son innocence/culpabilité
+                - dire qu'on est un ordinaire
 
         On ne connaît pas le statut de notre client, il se peut donc qu'il s'agisse d'un chevalier.
         Et un chevalier ne peut pas mentir en disant qu'il est un ordinaire.
@@ -404,12 +404,12 @@ et qu'il pourrait prononcer peu importe son statut ?
         Cette phrase peut être prononcée par n'importe quel client, peu importe son statut.
         De plus, on peut en déduire que notre client est innocent qu'il soit un:
 
-                • ordinaire   car on sait que le coupable n'est pas un ordinaire
+                - ordinaire   car on sait que le coupable n'est pas un ordinaire
 
-                • chevalier   car il dit la vérité et qu'il ne peut pas être un coupable domestique.
+                - chevalier   car il dit la vérité et qu'il ne peut pas être un coupable domestique.
                                 Il est donc un innocent chevalier.
 
-                • domestique  car il ment, il n'est donc ni un innocent chevalier (évident),
+                - domestique  car il ment, il n'est donc ni un innocent chevalier (évident),
                                 ni un coupable domestique. Il est donc un innocent domestique.
 
 
@@ -426,9 +426,9 @@ Quelle phrase pouvez-vous prononcer pour devenir candidat à l'élection ?
 
         La phrase doit être:
 
-                • un mensonge             pour un chevalier
-                • une vérité              pour un domestique
-                • de véracité inconnue    pour un ordinaire
+                - un mensonge             pour un chevalier
+                - une vérité              pour un domestique
+                - de véracité inconnue    pour un ordinaire
 
 
         Donc, pour la même raison que dans l'énigme ’avocat’, il est probable que la phrase contienne
@@ -877,21 +877,21 @@ logicien L. N. Cornelius.
 Dans le livre, Cornelius fournit un certain nb d'infos à propos des habitants de
 Blurona:
 
-        • personne ne connaît la couleur de ses propres yeux (pas de miroir)
+        - personne ne connaît la couleur de ses propres yeux (pas de miroir)
 
-        • il est interdit de parler de la couleur des yeux des habitants
+        - il est interdit de parler de la couleur des yeux des habitants
 
-        • si un habitant découvre la couleur de ses propres yeux, il doit
+        - si un habitant découvre la couleur de ses propres yeux, il doit
           quitter l'île à bord d'un bateau qui part chaque jour à midi
 
-        • chaque jour, chaque habitant doit rencontrer tous les autres habitants
+        - chaque jour, chaque habitant doit rencontrer tous les autres habitants
 
-        • chaque habitant est un parfait logicien:
+        - chaque habitant est un parfait logicien:
 
             un parfait  logicien est  qn qui déduira  immédiatement tout  ce qui
             peut être déduit de n'importe quelle situation donnée
 
-        • chaque habitant connaît toutes les infos du livre de Cornelius, et
+        - chaque habitant connaît toutes les infos du livre de Cornelius, et
           sait que tous les autres habitants connaîssent eux-aussi ces infos
 
 
@@ -1194,8 +1194,8 @@ A a plus de valeur que B, qui elle-même a plus de valeur que C.
 
 La règle du jeu est que si vous me donnez une affirmation qui est:
 
-        • vraie,  je vous donnerai A ou B
-        • fausse, "                C
+        - vraie,  je vous donnerai A ou B
+        - fausse, "                C
 
 Quelle affirmation pourriez-vous prononcer qui m'obligerait à vous donner A ?
 
@@ -1214,8 +1214,8 @@ Quelle affirmation pourriez-vous prononcer qui m'obligerait à vous donner A ?
 J'ajoute un 4e prix, D dont la valeur est égale à celle de C.
 La règle du jeu est que si vous me donnez une affirmation qui est:
 
-        • vraie,  je vous donnerai A ou B
-        • fausse, "                C ou D
+        - vraie,  je vous donnerai A ou B
+        - fausse, "                C ou D
 
 Quelle affirmation pourriez-vous prononcer qui m'obligerait à vous donner C ?
 
@@ -1327,13 +1327,13 @@ Quelle question pourriez-vous lui poser ?
 
         Supposons qu'on pose la question à Arthur.
 
-                • Si Arthur dit la vérité, il répondra non.
-                • Si Arthur ment, il répondra non.
+                - Si Arthur dit la vérité, il répondra non.
+                - Si Arthur ment, il répondra non.
 
         Supposons qu'on pose la question au frère d'Arthur.
 
-                • Si le frère dit la vérité, il répondra oui.
-                • Si le frère ment, il répondra oui.
+                - Si le frère dit la vérité, il répondra oui.
+                - Si le frère ment, il répondra oui.
 
         Conclusion:
 
@@ -1453,15 +1453,15 @@ Quelle question d'au plus 4 mots pourriez-vous lui poser pour savoir s'il s'agit
 
                 Si la soeur que vous rencontrez est:
 
-                        • Teresa, elle répondra oui
-                        • Lenore, "             non
+                        - Teresa, elle répondra oui
+                        - Lenore, "             non
 
         Supposons que vous soyez marié à Lenore (qui ment tjrs).
 
                 Si la soeur que vous rencontrez est:
 
-                        • Teresa, elle répondra non
-                        • Lenore, "             oui
+                        - Teresa, elle répondra non
+                        - Lenore, "             oui
 
 
         Conclusion:
@@ -1481,15 +1481,15 @@ Quelle question d'au plus 3 mots vous pourriez poser à la personne en face de v
 
                 Si la soeur que vous rencontrez est:
 
-                        • Teresa, elle répondra oui
-                        • Lenore, "             oui
+                        - Teresa, elle répondra oui
+                        - Lenore, "             oui
 
         Supposons que vous soyez marié à Lenore.
 
                 Si la soeur que vous rencontrez est:
 
-                        • Teresa, elle répondra non
-                        • Lenore, "             non
+                        - Teresa, elle répondra non
+                        - Lenore, "             non
 
         Conclusion:
         La réponse à la question varie en fonction du prénom de votre femme.
@@ -1604,10 +1604,10 @@ Ces règles conduisent-elles à un paradoxe ?
 
         Or d'après (E6):
 
-                • si Arturo se rase lui-même, alors il rase aussi Roberto, et Roberto se rase lui-même,
+                - si Arturo se rase lui-même, alors il rase aussi Roberto, et Roberto se rase lui-même,
                   mais pas Arturo
 
-                • si Arturo ne se rase pas lui-même, alors il ne rase pas non plus Roberto, et Roberto rase
+                - si Arturo ne se rase pas lui-même, alors il ne rase pas non plus Roberto, et Roberto rase
                   seulement Arturo (pas lui-même).
 
                   En effet:

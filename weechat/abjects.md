@@ -197,36 +197,36 @@ You can also get the schedule for the other days:
 # List packs
 ## What are the 27 sections I can search through?
 
-        • android
-        • apps
+        - android
+        - apps
 
-        • console
-        • games
-        • nds
-        • ps3
-        • psp
-        • wii
-        • xbox
+        - console
+        - games
+        - nds
+        - ps3
+        - psp
+        - wii
+        - xbox
 
-        • ebook
-        • latest
-        • music
+        - ebook
+        - latest
+        - music
 
-        • bluray
-        • classic    (old known movies)
-        • german
-        • hd
-        • hdtv
-        • movies
-        • mvid
-        • pack
-        • sd
-        • sdtv
-        • tv
-        • x264
-        • xvid
-        • xxx
-        • web
+        - bluray
+        - classic    (old known movies)
+        - german
+        - hd
+        - hdtv
+        - movies
+        - mvid
+        - pack
+        - sd
+        - sdtv
+        - tv
+        - x264
+        - xvid
+        - xxx
+        - web
 
 ## How to list the packs of a given section?   The most downloaded ones during the last hour?
 
@@ -237,16 +237,16 @@ You can also get the schedule for the other days:
 ##
 ## What are the 10 genres of videos I can dl?
 
-        • action
-        • adventure
-        • comedy
-        • crime
-        • drama
-        • mystery
-        • romance
-        • sci-fi
-        • sport
-        • thriller
+        - action
+        - adventure
+        - comedy
+        - crime
+        - drama
+        - mystery
+        - romance
+        - sci-fi
+        - sport
+        - thriller
 
 ## How to list the videos of a given genre?
 
@@ -261,24 +261,24 @@ Examples:
 ##
 ## What are the 18 genres of music I can dl?
 
-        • alternative
-        • ambient
-        • bass
-        • black
-        • dance
-        • funk
-        • hardcore
-        • hip-hop
-        • house
-        • indie
-        • jazz
-        • metal
-        • pop
-        • punk
-        • rap
-        • reggae
-        • rock
-        • techno
+        - alternative
+        - ambient
+        - bass
+        - black
+        - dance
+        - funk
+        - hardcore
+        - hip-hop
+        - house
+        - indie
+        - jazz
+        - metal
+        - pop
+        - punk
+        - rap
+        - reggae
+        - rock
+        - techno
 
 ## How to list house, pop, rock mp3s?
 
@@ -325,12 +325,12 @@ The general syntax of the `!topdl` command is:
 
 Will display:
 
-        • current number of gets
-        • pack size
-        • name of the pack
-        • xdcc command to download it
-        • queuesize
-        • average userspeed
+        - current number of gets
+        - pack size
+        - name of the pack
+        - xdcc command to download it
+        - queuesize
+        - average userspeed
 
 ##
 ## How to list retail movies (dvd, bluray, ...)?
@@ -584,9 +584,9 @@ Here's what the help says:
 
 > To start a download via SSL, you will need:
 >
->         • KVIrc (4.3.1 or higher)
->         • our SSL-cert/keyfile
->         • to use XDCC SSEND instead of XDCC SEND
+>         - KVIrc (4.3.1 or higher)
+>         - our SSL-cert/keyfile
+>         - to use XDCC SSEND instead of XDCC SEND
 >
 > You can get kvirc from here:
 >

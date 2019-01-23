@@ -37,13 +37,13 @@ No.
 
 There are already default commands for that:
 
-        • gf
-        • gF
-        • C-w f
-        • C-w F
-        • C-w gf
-        • C-w gF
-        • C-w T
+        - gf
+        - gF
+        - C-w f
+        - C-w F
+        - C-w gf
+        - C-w gF
+        - C-w T
 
 You should rely on default commands as much as possible (consistency, synergy, ...).
 When they're improved (by you, a  plugin, Vim's developers), you'll benefit from

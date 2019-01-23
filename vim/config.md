@@ -1,10 +1,10 @@
 # Types of options
 ## What are the four types of scope that an option can have?
 
-        • global          (233 options have this type atm: /^'.*\n\s*global$)
-        • buffer-local    (57)
-        • window-local    (37)
-        • global-local    (21)
+        - global          (233 options have this type atm: /^'.*\n\s*global$)
+        - buffer-local    (57)
+        - window-local    (37)
+        - global-local    (21)
 
 ##
 ## Do all options have a local value?
@@ -43,10 +43,10 @@ Yes.
 
 *In a given window*, a window-local option has:
 
-        • a global value, to initialize its local value in all buffers being
+        - a global value, to initialize its local value in all buffers being
           displayed there
 
-        • a value local to any given buffer displayed in this window
+        - a value local to any given buffer displayed in this window
 
 The global value  of a window-local option  is *not* global to  *all* buffers in
 *all* windows; it's global to *all* buffers in a *given* window.
@@ -167,12 +167,12 @@ But, it's also applied in all buffers where the local value has been removed.
 ##
 ## What are the six `'*prg'` options?
 
-   • 'cscopeprg'
-   • 'equalprg'
-   • 'formatprg'
-   • 'grepprg'
-   • 'keywordprg'
-   • 'makeprg'
+   - 'cscopeprg'
+   - 'equalprg'
+   - 'formatprg'
+   - 'grepprg'
+   - 'keywordprg'
+   - 'makeprg'
 
 ##
 # Getting information
@@ -280,8 +280,8 @@ local value to see it.
 
 All window-local options have two values:
 
-        • one is local  to the buffer CURRENTLY displayed in the window
-        • one is global to any buffer which WILL BE displayed in the window
+        - one is local  to the buffer CURRENTLY displayed in the window
+        - one is global to any buffer which WILL BE displayed in the window
 
 `:setg nu` sets the global value of `'nu'` to `1`.
 
@@ -444,8 +444,8 @@ This is useful, for example, when the value contains a url:
 
 In this example, when we want to include in the value:
 
-   • a space, we need one backslash
-   • a backslash, we need two backslashes
+   - a space, we need one backslash
+   - a backslash, we need two backslashes
 
 We must escape the characters `?` and `&` to prevent the shell from interpreting
 them.
@@ -478,18 +478,18 @@ provided it's prefixed with a colon.
 Liste des dossiers dans lesquels  chercher lorsqu'on utilise certaines commandes
 ou fonctions, tq:
 
-        • gf, gF
-        • :find, :sfind, :tabfind
-        • fnamemodify()
-        • C-r C-p (sur la ligne de commande)
-        • commande custom portant l'attribut `-complete=file_in_path`
+        - gf, gF
+        - :find, :sfind, :tabfind
+        - fnamemodify()
+        - C-r C-p (sur la ligne de commande)
+        - commande custom portant l'attribut `-complete=file_in_path`
 
 ... auxquelles on passe en argument  des chemins de fichiers relatifs; i.e.: qui
 ne débutent pas par:
 
-                    •   /
-                    •  ./
-                    • ../
+                    -   /
+                    -  ./
+                    - ../
 
 Les valeurs de `path` peuvent être des chemins relatifs ou absolus.
 
@@ -506,16 +506,16 @@ commandes `:cd` et `:lcd`.
 
 Pour Vim:
 
-        • chemin absolu     chemin commençant par /    ./    ../
-        • chemin relatif    tous les autres
+        - chemin absolu     chemin commençant par /    ./    ../
+        - chemin relatif    tous les autres
 
                             aka, tout ce qui n'a pas de racine explicite:    /
                                                             OU implicite:    ./    ../
 
 Pour bash:
 
-        • chemin absolu     chemin commençant par /
-        • chemin relatif    tous les autres
+        - chemin absolu     chemin commençant par /
+        - chemin relatif    tous les autres
 
 Qd on passe un chemin relatif à `:[l]cd`, elle doit chercher à le compléter, car
 il n'a aucune racine (ni explicite, ni implicite).
@@ -611,11 +611,11 @@ Ajoute un item à la status line.
 
 Ils servent à formater l'affichage de l'item:
 
-       • {minwid}     largeur minimale en colonnes
+       * {minwid}     largeur minimale en colonnes
 
-       • .{maxwid}    largeur maximale en colonnes
+       * .{maxwid}    largeur maximale en colonnes
 
-       • -            justification vers la gauche (utile seulement
+       * -            justification vers la gauche (utile seulement
                       qd {minwid} > longueur de l'item)
 
 Par défaut, qd {minwid} > longueur de l'item, l'item est justifié vers la droite
@@ -626,12 +626,12 @@ un nb), en faisant précéder {minwid} d'un 0.
 
 `{item}` peut être entre autres:
 
-        • une expression (ex: MyFunc())
-        • f    chemin relatif vers le fichier courant
-        • l    n° de la ligne courante
-        • n    n° du buffer
-        • p    %age de lignes lues
-        • v    n° de la colonne virtuelle
+        - une expression (ex: MyFunc())
+        - f    chemin relatif vers le fichier courant
+        - l    n° de la ligne courante
+        - n    n° du buffer
+        - p    %age de lignes lues
+        - v    n° de la colonne virtuelle
 
 
         set stl+=\ %.20f
@@ -729,10 +729,10 @@ Définit l'intégralité de la status line comme étant la sortie de `MyFunc()`.
 
 Si on veut intégrer dans sa status line :
 
-        • le n° du buffer
-        • le chemin vers son fichier
-        • le n° de la ligne courante
-        • le symbole '+' si le buffer est modifié
+        - le n° du buffer
+        - le chemin vers son fichier
+        - le n° de la ligne courante
+        - le symbole '+' si le buffer est modifié
 
 ... il faudra écrire dans `MyFunc()` qch comme:
 
@@ -812,11 +812,11 @@ espaces, les pipes et les ", pour leur faire perdre leur caractère syntaxique.
 
 En effet, `:set` interprète:
 
-        • un espace          comme un séparateur entre 2 options
+        - un espace          comme un séparateur entre 2 options
 
-        • un pipe            comme une terminaison de commande
+        - un pipe            comme une terminaison de commande
 
-        • un double quote    comme le début d'un commentaire (tout ce qui suit
+        - un double quote    comme le début d'un commentaire (tout ce qui suit
                              est ignoré)
 
 
@@ -840,25 +840,25 @@ Pex, si `op1` et `op2` sont des options dont les valeurs sont des booléens:
 
 D'un point de vue théorique:
 
-    • le dictionnaire est un modèle de calcul mathématique appelé fsm
+    - le dictionnaire est un modèle de calcul mathématique appelé fsm
       (finite-state machine)
 
-    • les clés sont les états de la machine
+    - les clés sont les états de la machine
 
-    • les valeurs sont les évènements déclencheurs de transitions entre 2 états
+    - les valeurs sont les évènements déclencheurs de transitions entre 2 états
 
 
                                      NOTE:
 
 On peut représenter un état de la machine via une chaîne contenant:
 
-        • les valeurs des options qui la définissent
+        - les valeurs des options qui la définissent
 
           On peut l'obtenir, pex, via join():
 
                 join([&op1, ...], ',')
 
-        • un nb
+        - un nb
 
           Si les options sont  des booléens et que leurs valeurs  sont donc 0 ou
           1, on peut l'obtenir directement:
@@ -1008,16 +1008,16 @@ Lire :h special-buffers
 On peut accéder à l'ensemble des options regroupées par thèmes via :opt[ions].
 Depuis la fenêtre qui s'ouvre, on peut appuyer sur CR, le curseur étant sur:
 
-    • une ligne numérotée de l'index ('1 important', '2 moving around', ...),
+    - une ligne numérotée de l'index ('1 important', '2 moving around', ...),
       pour se rendre au paragraphe contenant l'ensemble des options concernées
 
-    • le titre numéroté d'un paragraphe ou la ligne vide juste en-dessous, pour
+    - le titre numéroté d'un paragraphe ou la ligne vide juste en-dessous, pour
       revenir à l'index
 
-    • une ligne contenant un nom d'option à l'intérieur d'un paragraphe, pour
+    - une ligne contenant un nom d'option à l'intérieur d'un paragraphe, pour
       ouvrir une fenêtre d'aide décrivant l'option concernée
 
-    • une ligne contenant la commande :set, soit pour toggle une option de type
+    - une ligne contenant la commande :set, soit pour toggle une option de type
       booléen, soit pour exécuter la commande après qu'on l'ait éditée
 
 Si on modifie  la valeur d'une option  depuis la ligne de  commande (sans passer
@@ -1213,13 +1213,13 @@ Réciproquement, elle permet de changer la largeur du terminal depuis Vim.
 
 Influence de `'tw'` et `'wm'` qd on écrit des lignes:
 
-   • &l:tw = &l:wm = 0   ||   &l:fo ne contient pas 'c' (comment line) / 't' (code/text line)
+   - &l:tw = &l:wm = 0   ||   &l:fo ne contient pas 'c' (comment line) / 't' (code/text line)
      elles ne sont pas wrappées
 
-   • &l:tw = 0 && &l:wm != 0   &&   &l:fo contient 'c' / 't'
+   - &l:tw = 0 && &l:wm != 0   &&   &l:fo contient 'c' / 't'
      elles sont wrappées dès que leur longueur dépasse    winwidth(0) - &l:wm
 
-   • &l:tw  != 0   &&   &l:fo contient 'c' / 't'
+   - &l:tw  != 0   &&   &l:fo contient 'c' / 't'
     elles sont wrappées dès que leur longueur dépasse &l:tw
 
 
@@ -1227,10 +1227,10 @@ Influence de `'tw'` et `'wm'` qd on écrit des lignes:
 
 Influence de `'tw'` et `'wm'` qd on formate des lignes (via gq/gw):
 
-   • &l:tw != 0
+   - &l:tw != 0
      elles sont  wrappées au-delà  de &l:tw  caractères (peu importe la valeur de 'fo')
 
-   • &l:tw = 0
+   - &l:tw = 0
      les lignes sont wrappées qd leur longueur dépasse:
 
        - winwidth(0) - &l:wm,     si &l:wm != 0

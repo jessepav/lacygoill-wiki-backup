@@ -203,11 +203,11 @@ Example:
 
 This time, you didn't have to:
 
-   • include a funcref in the dictionary
+   - include a funcref in the dictionary
 
-   • give a proper name to the function
+   - give a proper name to the function
 
-   • give it the `dict` attribute
+   - give it the `dict` attribute
 
 `dictionary.key()` is syntaxic sugar.
 
@@ -502,16 +502,16 @@ pas connue à l'avance.
 Si on crée une funcref, et qu'on  change la définition de la fonction à laquelle
 elle se réfère, la funcref se réfère désormais:
 
-   • à la nouvelle définition, si elle a été créée par `function()`
+   - à la nouvelle définition, si elle a été créée par `function()`
 
-   • à la définition originelle, si elle a été créée par `funcref()`
+   - à la définition originelle, si elle a été créée par `funcref()`
 
 IOW, la funcref produite par:
 
-   • `function('Func')` cherche `Func` via son nom (la
+   - `function('Func')` cherche `Func` via son nom (la
      définition associée peut changer)
 
-   • `funcref('Func')`  cherche `Func` via sa référence (i.e.
+   - `funcref('Func')`  cherche `Func` via sa référence (i.e.
      adresse mémoire)
 
 ---
@@ -755,10 +755,10 @@ qu'on utilise pour EXPLICITEMENT lier la fonction au dico:
 
 Read:
 
-   • :h `function()`
-   • :h `funcref()`
-   • :h `Funcref`
-   • :h `Partial`
+   - :h `function()`
+   - :h `funcref()`
+   - :h `Funcref`
+   - :h `Partial`
 
 ##
 # Reference

@@ -38,12 +38,12 @@ Run `os.exit()`.
 
             Liste des programmes scriptables via Lua. Entre autres:
 
-                    • conky
-                    • mpv
-                    • nmap
-                    • openwrt
-                    • weechat
-                    • wireshark
+                    - conky
+                    - mpv
+                    - nmap
+                    - openwrt
+                    - weechat
+                    - wireshark
 
 
     https://www.reddit.com/r/lua/
@@ -123,10 +123,10 @@ Run `os.exit()`.
 
             This package provides portable functions and variables to manipulate the file system:
 
-                    • Manipulating filenames : functions for manipulating filenames
-                    • Directory functions : functions for listing and manipulating directories
-                    • Directory paths : paths to well known directories
-                    • Miscellaneous : uncategorized functions
+                    - Manipulating filenames : functions for manipulating filenames
+                    - Directory functions : functions for listing and manipulating directories
+                    - Directory paths : paths to well known directories
+                    - Miscellaneous : uncategorized functions
 
             (probablement installable via luarocks)
 
@@ -150,18 +150,18 @@ Run `os.exit()`.
 
             Feature highlights
 
-                    • Full-featured event loop backed by epoll, kqueue, IOCP, event ports
-                    • Asynchronous TCP and UDP sockets
-                    • Asynchronous DNS resolution
-                    • Asynchronous file and file system operations
-                    • File system events
-                    • ANSI escape code controlled TTY
-                    • IPC with socket sharing, using Unix domain sockets or named pipes (Windows)
-                    • Child processes
-                    • Thread pool
-                    • Signal handling
-                    • High resolution clock
-                    • Threading and synchronization primitives
+                    - Full-featured event loop backed by epoll, kqueue, IOCP, event ports
+                    - Asynchronous TCP and UDP sockets
+                    - Asynchronous DNS resolution
+                    - Asynchronous file and file system operations
+                    - File system events
+                    - ANSI escape code controlled TTY
+                    - IPC with socket sharing, using Unix domain sockets or named pipes (Windows)
+                    - Child processes
+                    - Thread pool
+                    - Signal handling
+                    - High resolution clock
+                    - Threading and synchronization primitives
 
             http://docs.libuv.org/en/v1.x/
 

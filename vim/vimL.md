@@ -12,17 +12,17 @@ from which you want to paste every block, to avoid that they overlap.
 
 ## What are the cons of using `:put =`?
 
-   • the cursor moves
+   - the cursor moves
    (which may be undesirable when you only have one paste to do)
 
-   • it's not silent
+   - it's not silent
    (you have to prefix it with `:silent`)
 
-   • you have to escape double quotes
+   - you have to escape double quotes
 
-   • it doesn't delete the initial empty line in a new buffer
+   - it doesn't delete the initial empty line in a new buffer
 
-   • it pollutes the expression register
+   - it pollutes the expression register
 
 ## When should I use `append()`?
 
@@ -33,8 +33,8 @@ When you need to INSERT a single block of text in an EXISTING buffer.
 When you need to REPLACE a set of lines in an existing buffer.
 Or, when you need to ADD new lines in:
 
-   • a new buffer
-   • at the end of an existing buffer, whose last line is empty
+   - a new buffer
+   - at the end of an existing buffer, whose last line is empty
 
 ###
 ## What can `setline()` do that `append()` can't?
@@ -135,16 +135,16 @@ standard error of the WHOLE pipeline:
 
 Une expression peut être :
 
-   • un nb
-   • une chaîne
-   • un dictionnaire
-   • une variable
-   • une variable d'environnement     préfixe $
-   • une option                       préfixe &
-   • un registre                      préfixe @
-   • une expression conditionnelle    a ? b : c
-   • la sortie d'une fonction
-   • le résultat d'une opération entre 2 expressions (+, -, *, /, %, .)
+   - un nb
+   - une chaîne
+   - un dictionnaire
+   - une variable
+   - une variable d'environnement     préfixe $
+   - une option                       préfixe &
+   - un registre                      préfixe @
+   - une expression conditionnelle    a ? b : c
+   - la sortie d'une fonction
+   - le résultat d'une opération entre 2 expressions (+, -, *, /, %, .)
 
 
         :let myvar42 = 'hello'
@@ -337,9 +337,9 @@ Une expression peut être :
 
             Il est probable que pour Vim une donnée soit décomposée en 3 parties (comme dans un fs):
 
-                • son nom (associé à une référence dans une sorte d'annuaire)
-                • une référence (pointant vers l'adresse mémoire de la donnée)
-                • la donnée elle-même
+                - son nom (associé à une référence dans une sorte d'annuaire)
+                - une référence (pointant vers l'adresse mémoire de la donnée)
+                - la donnée elle-même
 
             Il  ne faut  pas  croire que  dans  la commande  qui  précède, on  a
             dupliqué la donnée stockée dans list1.
@@ -537,9 +537,9 @@ utilisées au sein de la fonction. Ex:
 
 Pour mieux comprendre, on pourrait tout aussi bien réécrire le code précédent en remplaçant:
 
-    • a:0 >= 1         exists('a:1')
-    • a:0 >= 2    →    exists('a:2')
-    • a:0 >= 3         exists('a:3')
+    - a:0 >= 1         exists('a:1')
+    - a:0 >= 2    →    exists('a:2')
+    - a:0 >= 3         exists('a:3')
 
 Une méthode plus élégante consiste à utiliser get() en lui passant en argument entre autres la liste
 des arguments optionnels a:000 :
@@ -558,8 +558,8 @@ Seulement, [var1], [var1, var2] et [var1, var2, var3].
 IOW, seulement un sous-ensemble continu qui débute par var1.
 Pex on ne pourrait pas modifier:
 
-    • [var1, var3] car il n'est pas continu; il manque var2
-    • [var2, var3] car bien que continu il ne commence pas par var1
+    - [var1, var3] car il n'est pas continu; il manque var2
+    - [var2, var3] car bien que continu il ne commence pas par var1
 
 De ce fait, qd on écrit MyFunc() il faut veiller à affecter a:1 à la variable la
 plus susceptible d'être modifiée.
@@ -739,11 +739,11 @@ semble.
             For this reason,  you should prefer `col()` which  is not influenced
             by any option which may change how the text of a file is displayed:
 
-                    • breakat
-                    • breakindent
-                    • linebreak
-                    • showbreak
-                    • wrap
+                    - breakat
+                    - breakindent
+                    - linebreak
+                    - showbreak
+                    - wrap
                     ...
 
             Although, I guess it's ok to use  it when you're sure your lines are
@@ -753,8 +753,8 @@ semble.
 
             Byte index du caractère après le curseur, ou dit autrement:
 
-                    • l'index du 1er octet du caractère qui suit le curseur
-                    • le poids de la chaîne allant du début de la ligne jusqu'au curseur, +1
+                    - l'index du 1er octet du caractère qui suit le curseur
+                    - le poids de la chaîne allant du début de la ligne jusqu'au curseur, +1
 
                       Pk +1?
                       Sans doute car `0` est réservé pour une erreur.
@@ -811,9 +811,9 @@ semble.
             On peut aussi utiliser les fonctions getbufline() et readfile() pour récupérer les lignes
             d'un buffer/ fichier. Chaque fonction est utile dans un contexte différent:
 
-                    • getline()       buffer courant
-                    • getbufline()    buffer autre que le courant
-                    • readfile()      fichier non chargé dans un buffer
+                    - getline()       buffer courant
+                    - getbufline()    buffer autre que le courant
+                    - readfile()      fichier non chargé dans un buffer
 
             Pour un buffer déchargé, getbufline() retourne une liste vide [] peu importe son contenu réel.
 
@@ -879,14 +879,14 @@ semble.
 
 Les wildcards suivants sont développés automatiquement dans les noms de fichier (:h wildcard):
 
-    • ?       un caractère
+    - ?       un caractère
 
-    • *       n'importe quelle chaîne de caractères (le point EXCLU!)
+    - *       n'importe quelle chaîne de caractères (le point EXCLU!)
 
-    • **      n'importe quel chemin (le point INCLUS!)
+    - **      n'importe quel chemin (le point INCLUS!)
               en l'absence de préfixe, vers un fichier du cwd ou l'un de ses sous-dossiers
 
-    • [abc]   le caractère 'a', 'b' ou 'c'
+    - [abc]   le caractère 'a', 'b' ou 'c'
 
 
     echo glob('%:t')        ✘
@@ -959,10 +959,10 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
             expand() et glob() ne sont pas limités à des fichiers, elles peuvent développer:
 
-                    • des caractères spéciaux (:h cmdline-special)
-                    • des commandes shell
-                    • des globs
-                    • des variables d'environnement
+                    - des caractères spéciaux (:h cmdline-special)
+                    - des commandes shell
+                    - des globs
+                    - des variables d'environnement
 
             La seule restriction s'impose à glob(), qui rejette toute valeur ne correspondant pas à
             un chemin vers un fichier existant.
@@ -1043,13 +1043,13 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
             Quelles différences? :
 
-                • glob() ne retourne que des noms de fichier existants.
+                - glob() ne retourne que des noms de fichier existants.
                   Elle filtre tout ce qui n'est pas exactement un nom de fichier exact.
                   Les messages d'erreurs sont donc supprimés.
 
-                • expand() retourne la sortie brute du shell (erreurs incluses)
+                - expand() retourne la sortie brute du shell (erreurs incluses)
 
-                • system() aussi, mais ajoute un newline à la fin, ce qui fait qu'on a une ligne vide
+                - system() aussi, mais ajoute un newline à la fin, ce qui fait qu'on a une ligne vide
                   en bas du pager
 
 
@@ -1070,8 +1070,8 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
             Plus généralement, globpath() attend 2 arguments, tous 2 des expressions évaluées en chaînes:
 
-                    • la 1e doit stocker des chemins séparés par des virgules
-                    • la 2e un chemin relatif vers un fichier, incluant éventuellement des wildcards
+                    - la 1e doit stocker des chemins séparés par des virgules
+                    - la 2e un chemin relatif vers un fichier, incluant éventuellement des wildcards
 
 
     substitute(glob2regpat(&wig), ',', '\\|', 'g')
@@ -1097,15 +1097,15 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
             Le 1er argument précise à partir d'où l'item choisi sera inséré sur la ligne.
             On pourrait lui donner comme valeur:
 
-                    • col('.')
+                    - col('.')
 
                             ne remplace rien; insertion à partir du curseur
 
-                    • col('.') - 3
+                    - col('.') - 3
 
                             remplace les 3 derniers caractères
 
-                    • col('.') - len(matchstr(getline('.')[:col('.')-2], '\S\+'))
+                    - col('.') - len(matchstr(getline('.')[:col('.')-2], '\S\+'))
 
                             remplace le texte devant le curseur;
                             le texte étant défini comme une séquence de non-whitespace
@@ -1135,11 +1135,11 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
             Teste l'existence de:
 
-                • d'une fonction du nom de `myfunc`
+                - d'une fonction du nom de `myfunc`
 
-                • de la commande Ex `:cmd`
+                - de la commande Ex `:cmd`
 
-                • d'une autocmd dans l'augroup `current_word` surveillant l'évènement `CursorHold`
+                - d'une autocmd dans l'augroup `current_word` surveillant l'évènement `CursorHold`
 
 
     if has('gui_running')
@@ -1222,8 +1222,8 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
             Ne fonctionne que lorsqu'on édite la ligne de commande:
 
-                    • en y insérant l'évaluation d'une expression via C-r
-                    • en la remplaçant entièrement par l'évaluation d'une expression via C-\ e
+                    - en y insérant l'évaluation d'une expression via C-r
+                    - en la remplaçant entièrement par l'évaluation d'une expression via C-\ e
 
             Je n'ai pas réussi à l'utiliser directement au sein du (pseudo?) registre expression
             dans lequel on entre qd on tape C-r ou C-\ e.
@@ -1231,10 +1231,10 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
             Qd on évalue une fonction custom:
 
-                • via C-\ e, setcmdpos() permet de positionner le curseur sur la nouvelle ligne de
+                - via C-\ e, setcmdpos() permet de positionner le curseur sur la nouvelle ligne de
                   commande, l'ancienne étant remplacée par l'évaluation
 
-                • via  C-r, setcmdpos()  permet  de positionner  le curseur  sur  l'ancienne ligne  de
+                - via  C-r, setcmdpos()  permet  de positionner  le curseur  sur  l'ancienne ligne  de
                   commande (qui n'est  pas remplacée), avant que l'évaluation ne soit insérée là où se
                   trouve le curseur
 
@@ -1248,9 +1248,9 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
             Si on  veut déplacer le  curseur sur  la ligne de  commande après que  les caractères
             retournés par la fonction custom aient été insérés, il faut utiliser soit:
 
-                    • setcmdpos() au sein de la fonction custom
+                    - setcmdpos() au sein de la fonction custom
 
-                    • des <left>, <right> après que la fonction custom ait été évaluée; pex au sein d'un mapping:
+                    - des <left>, <right> après que la fonction custom ait été évaluée; pex au sein d'un mapping:
 
                             cno <f8> <c-\>e MyFunc()<cr><left><left>
 
@@ -1265,9 +1265,9 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
             La position du curseur via `setcmdpos()` n'est pas établie au même moment selon qu'on
             utilise `C-r =`  ou  `C-\ e` / `C-r C-r =`:
 
-                    • C-r =        après avoir évalué l'expression, MAIS AVANT de l'insérer
+                    - C-r =        après avoir évalué l'expression, MAIS AVANT de l'insérer
 
-                    • C-r C-r =    après avoir évalué l'expression
+                    - C-r C-r =    après avoir évalué l'expression
                       C-\ e
 
 
@@ -1345,9 +1345,9 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
             retourne le nom:
 
-                    • du 1er tag                         matchant pattern
-                    • du fichier contenant le 1er tag    "
-                    • des noms de tous les tags          "
+                    - du 1er tag                         matchant pattern
+                    - du fichier contenant le 1er tag    "
+                    - des noms de tous les tags          "
 
     visualmode()
 
@@ -1374,10 +1374,10 @@ Il  s'agit d'une  expression lambda,  qui crée  une nouvelle  fonction numérot
 retournant l'évaluation d'une expression.
 Elle diffère d'une fonction régulière de 2 façons:
 
-   • Le corps de l'expression lambda est une expression et non une séquence de
+   - Le corps de l'expression lambda est une expression et non une séquence de
      commandes Ex.
 
-   • Les arguments ne sont pas dans le scope `a:`.
+   - Les arguments ne sont pas dans le scope `a:`.
 
 ---
 
@@ -1559,16 +1559,16 @@ item de la liste.
 Donc, dans l'exemple précédent, pour remplacer les nbs 65 à 90, `map()` envoit à
 `nr2char()` les valeurs suivantes:
 
-   • nr2char(0, 65)
-   • nr2char(1, 66)
+   - nr2char(0, 65)
+   - nr2char(1, 66)
      ...
-   • nr2char(25, 90)
+   - nr2char(25, 90)
 
 Or, pour `nr2char()`, le 2e argument est un simple flag:
 
-   • 0 signifie qu'on veut utiliser l'encodage courant
+   - 0 signifie qu'on veut utiliser l'encodage courant
 
-   • 1 l'encodage utf-8
+   - 1 l'encodage utf-8
 
 `65` ... `90` sont interprétés comme un `1`.
 
@@ -1667,10 +1667,10 @@ exécution.
 
             Retourne le n° de la 1e fenêtre dans l'onglet courant qui affiche:
 
-                    • le buffer courant
-                    • l'alternate buffer
-                    • le dernier buffer listé
-                    • le buffer n° 3
+                    - le buffer courant
+                    - l'alternate buffer
+                    - le dernier buffer listé
+                    - le buffer n° 3
 
             Si le buffer n'existe pas ou n'est affiché dans aucune fenêtre de l'onglet courant,
             -1 est retourné.
@@ -1694,9 +1694,9 @@ exécution.
 
             Retourne l'id de la:
 
-                    • fenêtre courante
-                    • 2e fenêtre de l'onglet courant
-                    • 3e fenêtre du 4e onglet
+                    - fenêtre courante
+                    - 2e fenêtre de l'onglet courant
+                    - 3e fenêtre du 4e onglet
 
             L'id d'une fenêtre est absolu, contrairement à son n° (donné par `winnr()`) qui lui est
             local à l'onglet.
@@ -1723,9 +1723,9 @@ exécution.
 
             retourne le n° de:
 
-                    • la fenêtre courante
-                    • la dernière fenêtre visitée
-                    • la dernière fenêtre de l'onglet courant
+                    - la fenêtre courante
+                    - la dernière fenêtre visitée
+                    - la dernière fenêtre de l'onglet courant
 
             Le n° est local à l'onglet.
 
@@ -1740,8 +1740,8 @@ exécution.
 
             Enfin, `winnr() != bufwinnr('%')`, car:
 
-                    • winnr()    = n° de la fenêtre courante
-                    • bufwinnr() = n° de la 1e fenêtre affichant le buffer courant
+                    - winnr()    = n° de la fenêtre courante
+                    - bufwinnr() = n° de la 1e fenêtre affichant le buffer courant
 
                                      TODO:
 
@@ -1932,9 +1932,9 @@ exécution.
 
             Retourne une liste dont les items sont des lignes du fichier `/tmp/foo`:
 
-                    • toutes
-                    • les 10 premières
-                    • les 10 dernières
+                    - toutes
+                    - les 10 premières
+                    - les 10 dernières
 
 
     let words = split(join(readfile('/tmp/foo'), "\n"), '\W\+')
@@ -1967,9 +1967,9 @@ exécution.
 
             Qd on veut protéger des caractères spéciaux:
 
-                    • de Vim,             il faut utiliser `fnameescape(...)`
-                    • du shell,           "                `shelleescape(...)`
-                    • du shell ET de Vim, "                `shellescape(..., 1)`
+                    - de Vim,             il faut utiliser `fnameescape(...)`
+                    - du shell,           "                `shelleescape(...)`
+                    - du shell ET de Vim, "                `shellescape(..., 1)`
 
                                                NOTE:
 
@@ -2024,10 +2024,10 @@ exécution.
                     :call system({expr})
 
 
-            • system() permet de capturer la sortie du shell dans une variable ou de la passer
+            - system() permet de capturer la sortie du shell dans une variable ou de la passer
               à une autre commande Vim
 
-            • system() ne lance pas de terminal, elle passe la commande shell directement à un processus
+            - system() ne lance pas de terminal, elle passe la commande shell directement à un processus
               shell;    :!exe    lance un émulateur de terminal au sein duquel tourne un shell
 
               Ceci peut avoir son importance si on a besoin d'interagir avec la commande shell.
@@ -2087,9 +2087,9 @@ exécution.
 
             supprimer de l'historique de recherche:
 
-                    • toutes les entrées
-                    • la dernière entrée
-                    • toutes les entrées commençant par a et finissant par b
+                    - toutes les entrées
+                    - la dernière entrée
+                    - toutes les entrées commençant par a et finissant par b
 
     histget('/', 5)    histget('/')
 
@@ -2097,10 +2097,10 @@ exécution.
 
                                                NOTE:
 
-            • on peut fournir un n° d'index absolu (nb positif), ou relatif par rapport à la fin
+            - on peut fournir un n° d'index absolu (nb positif), ou relatif par rapport à la fin
               (nb négatif, -1 = dernière entrée)
 
-            • l'index absolu d'une entrée dans l'historique de recherche ne correspond pas forcément
+            - l'index absolu d'une entrée dans l'historique de recherche ne correspond pas forcément
               au n° de la ligne sur laquelle il est présent dans la fenêtre qui pop via q/
 
     histnr('/')

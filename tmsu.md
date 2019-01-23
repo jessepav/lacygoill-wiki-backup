@@ -27,8 +27,8 @@ Interface for Rapidly Tagging Many Small Files
 
             Indiquer:
 
-                    • au shell  où se trouve le binaire `go` + nos scripts `go`
-                    • à `go`    où se trouve notre espace de travail
+                    - au shell  où se trouve le binaire `go` + nos scripts `go`
+                    - à `go`    où se trouve notre espace de travail
                                 (nécessaire pour que `go get` fonctionne et sache où dl des fichiers)
 
 
@@ -86,7 +86,7 @@ via leurs tags. Les tags sont stockés dans une bdd sqlite.
 
 ## Tour
 
-• The [Quick Tour][1] gives you an overview of TMSU usage.
+- The [Quick Tour][1] gives you an overview of TMSU usage.
 
     tmsu init
 
@@ -105,8 +105,8 @@ via leurs tags. Les tags sont stockés dans une bdd sqlite.
 
             Applique les tags `music`, `epic` et `mp3` à:
 
-                    • `file.mp3`
-                    • tous les fichiers mp3 du cwd
+                    - `file.mp3`
+                    - tous les fichiers mp3 du cwd
 
 
     Liste les fichiers portant le(s) tag(s):
@@ -189,23 +189,23 @@ You can also get help on a particular subcommand:
 
 See also:
 
-• [Frequently Asked Questions][2]
-• [Troubleshooting][3]
-• [Tricks and Tips][4]
+- [Frequently Asked Questions][2]
+- [Troubleshooting][3]
+- [Tricks and Tips][4]
 
 ### Concepts
 
-• [Virtual Filesystem][5]: how to mount and use the virtual filesystem.
-• [Handling Directories][6]: options for tagging directories and their contents.
-• [Repairing the Database][7]: repairing the database after files are added, modified, moved and deleted.
-• [Switching Databases][8]: working with multiple TMSU databases.
-• [Fingerprint Algorithms][9]: changing the fingerprint algorithm.
-• [Settings][10]: configuring TMSU's behaviour.
+- [Virtual Filesystem][5]: how to mount and use the virtual filesystem.
+- [Handling Directories][6]: options for tagging directories and their contents.
+- [Repairing the Database][7]: repairing the database after files are added, modified, moved and deleted.
+- [Switching Databases][8]: working with multiple TMSU databases.
+- [Fingerprint Algorithms][9]: changing the fingerprint algorithm.
+- [Settings][10]: configuring TMSU's behaviour.
 
 ### Technical Details
 
-• [Database Schema][11]: the TMSU Sqlite3 database schema.
-• [Tag and Value Names][12]: supported and illegal names.
+- [Database Schema][11]: the TMSU Sqlite3 database schema.
+- [Tag and Value Names][12]: supported and illegal names.
 
 # Repairing
 
@@ -360,9 +360,9 @@ Either log it in the [issue tracker](//github.com/oniony/TMSU/issues) or email t
 
 You should also look at:
 
-  • [Tagsistant](http://tagsistant.net/)
-  • [TagFS](https://code.google.com/p/tagfilesystem/)
-  • [Dantalian](http://dantalian.readthedocs.org/)
+  - [Tagsistant](http://tagsistant.net/)
+  - [TagFS](https://code.google.com/p/tagfilesystem/)
+  - [Dantalian](http://dantalian.readthedocs.org/)
 
 ## Functionality
 ### Why does TMSU not detect file moves and renames?
@@ -400,9 +400,9 @@ Excluding multiple tags is easiest with parentheses and the `or` operator:
 
 At this time probably not. Help with creating these would be very much appreciated.
 
-• Arch Linux [package is available](https://aur.archlinux.org/packages/tmsu/) in the AUR.
-• Ubuntu [stable](https://launchpad.net/%7Etmsu/+archive/ubuntu/ppa) and [daily](https://launchpad.net/%7Etmsu/+archive/ubuntu/daily) PPAs are available for Ubuntu 16.04.1+.
-• Gentoo `emerge sys-fs/tmsu`.
+- Arch Linux [package is available](https://aur.archlinux.org/packages/tmsu/) in the AUR.
+- Ubuntu [stable](https://launchpad.net/%7Etmsu/+archive/ubuntu/ppa) and [daily](https://launchpad.net/%7Etmsu/+archive/ubuntu/daily) PPAs are available for Ubuntu 16.04.1+.
+- Gentoo `emerge sys-fs/tmsu`.
 
 ### Is completion available for my shell?
 
@@ -469,8 +469,8 @@ different files generating the same fingerprint is statistically extremely unlik
 
 TMSU uses the saved file fingerprints for two purposes:
 
-  • Database repairs
-  • Duplicate file identification
+  - Database repairs
+  - Duplicate file identification
 
 TMSU  can find  the new  path of  moved and  rename  files by  finding the  new path  with the  same
 fingerprint. Duplicate files  can be identified within  the database as having  the same fingerprint
@@ -484,13 +484,13 @@ range of uses.
 
 Several different file algorithms are supported:
 
-  • none
-  • SHA256
-  • MD5
-  • SHA1
-  • dynamic:SHA256
-  • dynamic:MD5
-  • dynamic:SHA1
+  - none
+  - SHA256
+  - MD5
+  - SHA1
+  - dynamic:SHA256
+  - dynamic:MD5
+  - dynamic:SHA1
 
 SHA1, SHA256  and MD5 are  well known cryptographic  hash functions, all  of which are  adequate for
 uniquely  identifying tagged  files.  MD5 is  known  to  be compromised  and  SHA1 is  theoretically
@@ -508,16 +508,16 @@ TMSU to be able to identify them properly as moved then use one of the non-dynam
 
 Use the following as a guide to which algorithm you should use:
 
-  • If you do not care about being able to repair moved files or detect
+  - If you do not care about being able to repair moved files or detect
     duplicates then `none` will give the very best performance.
 
-  • For optimum performance whilst maintaining the ability to repair moved
+  - For optimum performance whilst maintaining the ability to repair moved
     files and detect duplicates, choose `dynamic:MD5`.
 
-  • For maximum compatibility with other tooling choose `SHA256`. Although this
+  - For maximum compatibility with other tooling choose `SHA256`. Although this
     may perform badly with larger files, especially on a remote filesystem.
 
-  • `dynamic:SHA256` is the default because this provides acceptable
+  - `dynamic:SHA256` is the default because this provides acceptable
     performance, compatibility with other tooling (except on large files) and
     avoids performance problems with large files or on remote filesystems.
 
@@ -544,10 +544,10 @@ As of  TMSU v0.7.0, it is  possible to separately configure  the algorithm used 
 Usually there is no benefit of doing so, but for people using Git Annex or other similar tools there
 are options available to use the target file's name instead of its digest.
 
-  • `none`
-  • `follow`
-  • `targetName`
-  • `targetNameNoExt`
+  - `none`
+  - `follow`
+  - `targetName`
+  - `targetNameNoExt`
 
 The `follow` option, which is the default, uses  the fingerprint of the target file/directory as per
 the configured file/directory fingerprint algorithm, respectively.
@@ -594,11 +594,11 @@ If you  tag just the  directory entry TMSU  does not  fingerprint the files  in 
 cannot report  duplicate files.  Whilst file  entries will not  be shown  in the  virtual filesystem
 directly, it is still possible to navigate to the files via the directory symbolic link.
 
-• Quicker to tag
-• Smaller database
-• No duplicate file detection
-• Slower to list tagged files
-• Files not shown in the virtual filesystem (but are still accessible)
+- Quicker to tag
+- Smaller database
+- No duplicate file detection
+- Slower to list tagged files
+- Files not shown in the virtual filesystem (but are still accessible)
 
 ## Tagging a Directory and its Contents
 
@@ -614,11 +614,11 @@ Tagging the directory recursively adds every file from that directory to the dat
 
 In addition, because the files are in the database it means they are shown directly in the virtual filesystem, though this may clutter the tag directories. TMSU is also able to identify duplicate files as a fingerprint of each file is taken when it is added.
 
-• Slower to tag
-• Larger database
-• Duplicate files detected
-• Quicker to list tagged files
-• Files shown in the virtual filesystem
+- Slower to tag
+- Larger database
+- Duplicate files detected
+- Quicker to list tagged files
+- Files shown in the virtual filesystem
 
 # Settings
 ## Settings
@@ -648,23 +648,23 @@ See [Fingerprint Algorithms](Fingerprint Algorithms).
 
 Permitted values:
 
-  • `none`
-  • `SHA256`
-  • `MD5`
-  • `SHA1`
-  • `dynamic:SHA256` (default)
-  • `dynamic:MD5`
-  • `dynamic:SHA1`
-  • `symlinkTargetName`
-  • `symlinkTargetNameNoExt`
+  - `none`
+  - `SHA256`
+  - `MD5`
+  - `SHA1`
+  - `dynamic:SHA256` (default)
+  - `dynamic:MD5`
+  - `dynamic:SHA1`
+  - `symlinkTargetName`
+  - `symlinkTargetNameNoExt`
 
 `directoryFingerprintAlgorithm`: the fingerprint algorithm TMSU uses to identify directories by their contents.
 
 Permitted values:
 
-  • `none`
-  • `dynamic:sumSizes`
-  • `sumSizes`
+  - `none`
+  - `dynamic:sumSizes`
+  - `sumSizes`
 
 *Note: directory fingerprinting is a work in progress. Whilst fingerprints can be calculated for directories they cannot currently identified when moved by 'repair'.*
 
@@ -674,8 +674,8 @@ Permitted values:
 
 Permitted values:
 
-  • `yes` (default)
-  • `no`
+  - `yes` (default)
+  - `no`
 
 When set to `no`, new tags must be created manually using `tmsu tag --create tagname`.
 
@@ -685,8 +685,8 @@ When set to `no`, new tags must be created manually using `tmsu tag --create tag
 
 Permitted values:
 
-  • `yes` (default)
-  • `no`
+  - `yes` (default)
+  - `no`
 
 When set to `no` it is not possible to create new tag values.
 # Switching-Databases
@@ -845,22 +845,22 @@ current rule: please see the page history for restrictions applicable to earlier
 
 A legal tag name consists of one or more characters from the following Unicode categories:
 
-        • Letter (L*)
-        • Number (N*)
-        • Punctuation (P*)
-        • Symbol (S*)
-        • Space (Z*)
+        - Letter (L*)
+        - Number (N*)
+        - Punctuation (P*)
+        - Symbol (S*)
+        - Space (Z*)
 
 Examples of valid tag names:
 
-        • banana
-        • 123
-        • 6all00n
-        • under_scored
-        • high-fun
-        • !@%&
-        • 日本語
-        • in space
+        - banana
+        - 123
+        - 6all00n
+        - under_scored
+        - high-fun
+        - !@%&
+        - 日本語
+        - in space
 
 ### Illegal Tag Names
 
@@ -871,8 +871,8 @@ The following names are not allowed:
 
 The following characters are not allowed anywhere within a tag name:
 
-        • Slash (/)
-        • Backslash (\\)
+        - Slash (/)
+        - Backslash (\\)
 
 The slash and backslash character is illegal as it clashes with the path separator character on many
 operating systems. Likewise '.'  and '..' are illegal as these could not  be used as directory names
@@ -982,9 +982,9 @@ makes use of recursive queries that were only supported from version 3.8.3.
 
 This either indicates that you have a corrupt library on your system or that a 32-bit process is trying to load a 64-bit shared library.
 
-• Check the files reported are not corrupt.
-• Check the settings at `/etc/ld.so.config` do not override where the linker looks for shared libraries.
-• Likewise check the contents of the `LD_LIBRARY_PATH` environment variable.
+- Check the files reported are not corrupt.
+- Check the settings at `/etc/ld.so.config` do not override where the linker looks for shared libraries.
+- Likewise check the contents of the `LD_LIBRARY_PATH` environment variable.
 
 ### `Parser stack overflow` when querying the files
 
@@ -992,10 +992,10 @@ This is a Sqlite3 error that indicates that the SQL parser has built up a stack 
 
 If you *do* hit this problem, it is possible to use a bigger stack by changing value in the Sqlite3 source code:
 
-• Edit `$GOPATH/src/github.com/mattn/go-sqlite3/sqlite3.c`
-• Search for the line `#define YYSTACKDEPTH 100` and change the `100` to a larger number.
-• Recompile go-sqlite3 by running `go install github.com/mattn/go-sqlite3`
-• Recompile and reinstall TMSU by running `make && sudo make install` from the TMSU source directory.
+- Edit `$GOPATH/src/github.com/mattn/go-sqlite3/sqlite3.c`
+- Search for the line `#define YYSTACKDEPTH 100` and change the `100` to a larger number.
+- Recompile go-sqlite3 by running `go install github.com/mattn/go-sqlite3`
+- Recompile and reinstall TMSU by running `make && sudo make install` from the TMSU source directory.
 
 # Virtual-Filesystem
 ## Overview
@@ -1075,8 +1075,8 @@ both `mp3` and this further tag (e.g. `rock`) applied:
 It's possible to perform a limited set of tag management operations via the
 virtual filesystem itself:
 
-    • Create new tags
-    • Remove tags from a file
+    - Create new tags
+    - Remove tags from a file
 
 ### Create New Tags
 

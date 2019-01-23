@@ -57,10 +57,10 @@ And it gives you control over the relative priority between the matches.
 
 Each item in the list is a dictionary with 4 keys:
 
-   • `group`
-   • `pattern`
-   • `priority`
-   • `id`
+   - `group`
+   - `pattern`
+   - `priority`
+   - `id`
 
 Contrary to `matcharg()`  which is limited to the id  `1` to `3`, `getmatches()`
 can give information about *all* the matches.
@@ -171,9 +171,9 @@ I think the help forgot them.
 
 ## What are the two types of highlight groups among the ones used for all syntax languages?
 
-   • the preferred groups (prefixed by a `*` at `:h group-name`)
+   - the preferred groups (prefixed by a `*` at `:h group-name`)
 
-   • the minor groups
+   - the minor groups
 
 ### Where and how are they set?
 
@@ -219,8 +219,8 @@ But it  doesn't reinstall  the latter  because it  has no  way of  knowing their
 existence.
 It can only know about the HGs documented at:
 
-   • `:h group-name`
-   • `:h highlight-groups`
+   - `:h group-name`
+   - `:h highlight-groups`
 
 ---
 
@@ -317,11 +317,11 @@ The values that you pass to those arguments *are* the attributes.
 
 Yes, on the condition that:
 
-   • `'tgc'` is set
+   - `'tgc'` is set
 
-   • the terminal supports true colors
+   - the terminal supports true colors
 
-   • Vim and Tmux are properly configured to support true colors:
+   - Vim and Tmux are properly configured to support true colors:
    see `:h xterm-true-color`, and `$ man tmux` + `/Tc`
 
 ### What are the 6 most common attributes which can be given to a HG via `[c]term` and `gui`?
@@ -329,12 +329,12 @@ Yes, on the condition that:
 The  `term`, `cterm`,  and `gui`  arguments accept  this non-exhaustive  list of
 values (attributes):
 
-   • bold
-   • underline
-   • reverse
-   • italic
-   • standout
-   • NONE
+   - bold
+   - underline
+   - reverse
+   - italic
+   - standout
+   - NONE
 
 ### What happens if I use `cterm=reverse`?
 
@@ -537,9 +537,9 @@ When you know what to do, review what we did in:
 
 Document the fact that for a HG, the only relevant attributes are:
 
-   • `gui`, `guifg` and `guibg` (in GUI)
-   • `cterm`, `guifg` and `guibg` (in a truecolor terminal)
-   • `term`, `cterm`, `ctermfg` and `ctermbg` (in a terminal)
+   - `gui`, `guifg` and `guibg` (in GUI)
+   - `cterm`, `guifg` and `guibg` (in a truecolor terminal)
+   - `term`, `cterm`, `ctermfg` and `ctermbg` (in a terminal)
 
 Btw, the style `term` is used in console:
 
@@ -716,9 +716,9 @@ and run:
 
 Returns the id of:
 
-   • the HG `NonText`
+   - the HG `NonText`
 
-   • the HG highlighting the character after the cursor or the syntax item after
+   - the HG highlighting the character after the cursor or the syntax item after
      the cursor
 
 L'ID d'un élément syntaxique est identique à celui du HG qui le colorise.
@@ -758,8 +758,8 @@ s'assurer que les liens sont suivis.
 
 Retourne:
 
-   • la couleur du HG Comment (valeur de l'attribut `fg`)
-   • le nom de l'élément syntaxique sous le curseur
+   - la couleur du HG Comment (valeur de l'attribut `fg`)
+   - le nom de l'élément syntaxique sous le curseur
 
 `synIDattr()` permet d'obtenir la valeur de n'importe quel attribut d'un HG.
 

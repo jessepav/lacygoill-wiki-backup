@@ -23,10 +23,10 @@ For any  markup that is  not covered by Markdown's  syntax, you simply  use HTML
 itself.
 The only restrictions are that block-level HTML elements, like:
 
-        • <div>
-        • <table>
-        • <pre>
-        • <p>
+        - <div>
+        - <table>
+        - <pre>
+        - <p>
 
 ... must be separated from surrounding content by blank lines, and the start and
 end tags of the block should not be indented with tabs or spaces.
@@ -51,9 +51,9 @@ So, you can't use Markdown-style *emphasis* inside an HTML block.
 
 Span-level HTML tags, like:
 
-        • <span>
-        • <cite>
-        • <del>
+        - <span>
+        - <cite>
+        - <del>
 
 ... can be used anywhere in a Markdown paragraph, list item, or header.
 If you want, you can even use  HTML tags instead of Markdown formatting; e.g. if
@@ -514,12 +514,12 @@ by itself:
 
 That is:
 
-  • Square brackets containing the link identifier (optionally indented from the
+  - Square brackets containing the link identifier (optionally indented from the
     left margin using up to three spaces);
-  • followed by a colon;
-  • followed by one or more spaces (or tabs);
-  • followed by the URL for the link;
-  • optionally followed by a title attribute for the link, enclosed in double or
+  - followed by a colon;
+  - followed by one or more spaces (or tabs);
+  - followed by the URL for the link;
+  - optionally followed by a title attribute for the link, enclosed in double or
     single quotes, or enclosed in parentheses.
 
 The following three link definitions are equivalent:
@@ -733,12 +733,12 @@ Inline image syntax looks like this:
 
 That is:
 
-  • An exclamation mark: !
+  - An exclamation mark: !
 
-  • followed by a set of square brackets, containing the alt attribute text for
+  - followed by a set of square brackets, containing the alt attribute text for
     the image
 
-  • followed by a set of parentheses, containing the URL or path to the image,
+  - followed by a set of parentheses, containing the URL or path to the image,
     and an optional title attribute enclosed in double or single quotes.
 
 Reference-style image syntax looks like this:

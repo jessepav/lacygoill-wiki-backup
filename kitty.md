@@ -136,16 +136,16 @@ If you have more issues, read this:
 
 I think we should get rid of `urxvt`:
 
-        • I don't want to learn perl to customize the terminal
-        • there's no easy way to report bug
-        • it doesn't seem to support ligature
-        • I can't fix the weird bug with some math symbols which are not rendered
+        - I don't want to learn perl to customize the terminal
+        - there's no easy way to report bug
+        - it doesn't seem to support ligature
+        - I can't fix the weird bug with some math symbols which are not rendered
 
 [Kitty](https://github.com/kovidgoyal/kitty) seems a better/more modern/more powerful alternative:
 
-        • we could customize it with python
-        • it supports ligatures
-        • it supports truecolors (not a watered-down version like urxvt)
+        - we could customize it with python
+        - it supports ligatures
+        - it supports truecolors (not a watered-down version like urxvt)
 
 However, the compilation is tricky at the moment:
 

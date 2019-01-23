@@ -9,9 +9,9 @@
 
 Without argument, `/whois` will target:
 
-        • your own nick if the current buffer belongs to a network/channel
+        - your own nick if the current buffer belongs to a network/channel
 
-        • the remote nick if the current buffer is a private one
+        - the remote nick if the current buffer is a private one
           (discussion between 2 people)
 
 ##

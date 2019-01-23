@@ -74,8 +74,8 @@
 
                Ce registre a 2 propriétés:
 
-                   • il pointe vers le dernier registre modifié
-                   • il est utilisé par défaut par les commandes qui collent du texte:    p = ""p
+                   - il pointe vers le dernier registre modifié
+                   - il est utilisé par défaut par les commandes qui collent du texte:    p = ""p
 
                La 1e propriété est non modifiable, la 2e oui (via 'clipboard').
 
@@ -103,9 +103,9 @@
 
                Le contenu de ce registre détermine:
 
-                        • les mots entre lesquels on navigue via n/N
-                        • le texte mis en surbrillance qd 'hlsearch' est activée
-                        • le texte sur lequel on opère via gn (dgn, cgn, …)
+                        - les mots entre lesquels on navigue via n/N
+                        - le texte mis en surbrillance qd 'hlsearch' est activée
+                        - le texte sur lequel on opère via gn (dgn, cgn, …)
 
                Il  faut  distinguer  ce  registre   de  la  dernière  entrée  de
                l'historique consultable via q/.
@@ -192,9 +192,9 @@
                Pour  évaluer une  expression  écrite sur  la  ligne courante  du
                buffer, on peut taper:
 
-                   • pour la lire:       _y$    →    :echo eval(@")
-                   • pour l'exécuter:    _y$    →    @=@"
-                   • pour l'insérer:                 C-r =@"
+                   - pour la lire:       _y$    →    :echo eval(@")
+                   - pour l'exécuter:    _y$    →    @=@"
+                   - pour l'insérer:                 C-r =@"
 
                    yy copierait le newline qui soulèverait une erreur, raison pour laquelle on utilise _y$.
 
@@ -216,8 +216,8 @@
                variable interne stockant le nom du registre en cours d'utilisation par un opérateur
                Elle vaut:
 
-                   • " si aucun registre n'est en cours d'utilisation
-                   • + si &clipboard commence par unnamedplus
+                   - " si aucun registre n'est en cours d'utilisation
+                   - + si &clipboard commence par unnamedplus
 
 # Utilisation
 
@@ -265,10 +265,10 @@ On peut  avoir besoin  d'opérer une  transformation sur 2  lignes au  lieu d'un
 seule.
 Dans ce cas, on peut:
 
-    • les sélectionner visuellement, juste avant l'enregistrement, de sorte
+    - les sélectionner visuellement, juste avant l'enregistrement, de sorte
       qu'elles correspondent aux frontières de la sélection
 
-    • dupliquer les marques visuelles, juste après le début de l'enregistrement,
+    - dupliquer les marques visuelles, juste après le début de l'enregistrement,
       pour ne pas les perdre si on doit sélectionner qch au cours de
       l'enregistrement:    mt o mb    (t = top, b = bottom)
 
@@ -382,8 +382,8 @@ empêcher :norm de consommer (taper) le reste de la commande (|endif).
 
             Stocker dans le registre `d`, la concaténation:
 
-                    • des registres a, b et c
-                    • du registre d et de la sortie de `MyFunc()`
+                    - des registres a, b et c
+                    - du registre d et de la sortie de `MyFunc()`
 
                                                NOTE:
 

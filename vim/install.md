@@ -223,9 +223,9 @@ Procédure décrite dans `:h 90.1`.
                             Si on utilise le serveur graphique X11, lors de la configuration, Vim
                             cherchera par ordre de priorité, les fichiers de la librairie graphique:
 
-                                    • GTK+ 2/GTK+ 3
-                                    • Motif
-                                    • Athena
+                                    - GTK+ 2/GTK+ 3
+                                    - Motif
+                                    - Athena
 
                             Si GTK+ 2 et GTK+ 3 sont installés, GTK+ 2 sera choisi en priorité, à moins qu'on
                             demande explicitement GTK+ 3 via l'option `--enable-gui=gtk3`.
@@ -361,10 +361,10 @@ Procédure décrite dans `:h 90.1`.
 
             On pourra aussi changer la valeur des entrées 0, 1 et 11:
 
-                    • 0 (Maintainer: donner son email)
-                    • 1 (Summary: VIM compiled from source)
-                    • 2 (Name: myvim)
-                    • 11 (Provides: editor)
+                    - 0 (Maintainer: donner son email)
+                    - 1 (Summary: VIM compiled from source)
+                    - 2 (Name: myvim)
+                    - 11 (Provides: editor)
 
             Il est important de ne pas utiliser le nom `vim` pour notre paquet, si on souhaite installer
             et utiliser en parallèle le paquet `vim` des repos officiels.

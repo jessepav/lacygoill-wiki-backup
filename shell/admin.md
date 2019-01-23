@@ -50,11 +50,11 @@ Sources:
 
 Il existe d'autres outils facilitant la compilation d'un pgm:
 
-        • auto-apt (installe automatiquement les dépendances manquantes à une compilation):
+        - auto-apt (installe automatiquement les dépendances manquantes à une compilation):
 
                 https://help.ubuntu.com/community/AutoApt
 
-        • autodeb (script expérimental qui fait le travail de checkinstall et auto-apt en même temps):
+        - autodeb (script expérimental qui fait le travail de checkinstall et auto-apt en même temps):
 
                 https://wiki.ubuntu.com/AutoDeb
 
@@ -100,9 +100,9 @@ Comment savoir quel serveur de clés utiliser ?
 
 `<keyserver url>` peut être:
 
-        • keys.gnupg.net
-        • keyserver.ubuntu.com
-        • ... (autres possible ?)
+        - keys.gnupg.net
+        - keyserver.ubuntu.com
+        - ... (autres possible ?)
 
 ---
 
@@ -345,10 +345,10 @@ Install `arc-theme`:
 
 During the installation:
 
-        • use `arc-theme` for the name of the package
+        - use `arc-theme` for the name of the package
           (to avoid a conflict with `arc` which is a package to create archives)
 
-        • give a version number
+        - give a version number
 
 Once installed, the theme is in `/usr/share/themes/`.
 
@@ -429,12 +429,12 @@ Source:
 `atool` est un outil permettant de manipuler divers types d'archives, via une syntaxe cohérente.
 Il s'agit d'un wrapper autour des commandes:
 
-            • acat
-            • adiff
-            • als
-            • apack
-            • arepack
-            • aunpack
+            - acat
+            - adiff
+            - als
+            - apack
+            - arepack
+            - aunpack
 
 Ces commandes dépendent elles-mêmes de programmes tiers, dont certains peuvent ne pas être installés par défaut.
 Pex, pour .rar, il faut installer le paquet `rar` ($ api rar).
@@ -2503,8 +2503,8 @@ choosing.
 
 Maybe something alters your configuration after the file has been processed:
 
-        • delay the processing of the file (`sleep 1s`)
-        • move the line(s) at the end of the file
+        - delay the processing of the file (`sleep 1s`)
+        - move the line(s) at the end of the file
 
 ---
 
@@ -2653,14 +2653,14 @@ What is a bitmask and a mask?
 
 Lire toute la documentation de:
 
-        • fasd
-        • fzf
-        • ifne
-        • ranger
-        • rofi
-        • strace
-        • xsel (`xsel <file`:  écrit file dans le presse-papier)
-        • utilitaires fournis par le paquet moreutils
+        - fasd
+        - fzf
+        - ifne
+        - ranger
+        - rofi
+        - strace
+        - xsel (`xsel <file`:  écrit file dans le presse-papier)
+        - utilitaires fournis par le paquet moreutils
 
 
 
@@ -2668,9 +2668,9 @@ Lire toute la documentation de:
 
             Alternative à fzf:
 
-                    • a l'air plus configurable
-                    • plus puissant au niveau des regex
-                    • moins de documentation? less battery included? moins bonne synergie avec Vim?
+                    - a l'air plus configurable
+                    - plus puissant au niveau des regex
+                    - moins de documentation? less battery included? moins bonne synergie avec Vim?
 
 
     https://www.booleanworld.com/guide-linux-top-command/

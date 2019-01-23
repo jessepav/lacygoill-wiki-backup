@@ -126,9 +126,9 @@ You can use a prefix of its name, or a substring that appears in its command-lin
 
 Here, we start 3 jobs, and kill:
 
-        • the second one, by referring to its prefix 'sl'
-        • the first one, by referring to its substring 'foo'
-        • the third one, by referring to its substring 'bar'
+        - the second one, by referring to its prefix 'sl'
+        - the first one, by referring to its substring 'foo'
+        - the third one, by referring to its substring 'bar'
 
 ##
 ## What's a background job?
@@ -154,10 +154,10 @@ single shell command as one entity.
 
 ## Which features does it provide?
 
-        • starting a job in the background (&)
-        • sending an already running job into the background (C-z + bg)
-        • bringing a background job into the foreground (fg)
-        • suspending, resuming or terminating jobs (C-z, bg, C-c)
+        - starting a job in the background (&)
+        - sending an already running job into the background (C-z + bg)
+        - bringing a background job into the foreground (fg)
+        - suspending, resuming or terminating jobs (C-z, bg, C-c)
 
 ##
 ## How to prevent a background job from writing to the terminal?
@@ -340,16 +340,16 @@ Equivalent to `bg %123`.
 
 To circumvent the shell's hangup handling:
 
-        • use nohup
+        - use nohup
 
           to tell the child process to ignore SIGHUP
 
-        • use disown
+        - use disown
 
           to remove  the job from  the job table, which  tells the shell  to not
           send SIGHUP once the session ends
 
-        • use a terminal multiplexer like tmux
+        - use a terminal multiplexer like tmux
 
           so that the job is a child of the tmux server
 

@@ -8,9 +8,9 @@ The url should now be in your system clipboard (and printed on the command-line)
 
 This requires the plugins:
 
-   • vim-fugitive
-   • vim-rhubarb
-   • netrw
+   - vim-fugitive
+   - vim-rhubarb
+   - netrw
 
 ##
 # gitignore
@@ -19,12 +19,12 @@ This requires the plugins:
 
 With the following order of precedence, from highest to lowest:
 
-   • from  a `.gitignore` file in the same directory  as the path, or in any
+   - from  a `.gitignore` file in the same directory  as the path, or in any
      parent directory, up to the toplevel of the working tree
 
-   • from `.git/info/exclude`
+   - from `.git/info/exclude`
 
-   • from `~/.cvsignore`
+   - from `~/.cvsignore`
 
 ### How to decide where to put a gitignore pattern?
 
@@ -67,11 +67,11 @@ No, it's relative to the location of the `.gitignore` file.
 
 ### Which wildcards can a pattern contain?
 
-   • `*` matches anything except `/`
+   - `*` matches anything except `/`
 
-   • `?` matches any one character except `/`
+   - `?` matches any one character except `/`
 
-   • `[]` matches one character in a selected range
+   - `[]` matches one character in a selected range
 
 For more info, see:
 
@@ -221,13 +221,13 @@ File can be:
 
 Removing the file from the index means one of two things:
 
-        • if `$ git status -s` prints:
+        - if `$ git status -s` prints:
 
                 A  file
 
         it disappears from the index
 
-        • otherwise, `$ git status -s` prints:
+        - otherwise, `$ git status -s` prints:
 
                 D  file
 
@@ -240,9 +240,9 @@ from the repo.
 
 It works only if the file has NOT been modified compared to:
 
-        • the version from the tip of the branch (last commit of current branch)
+        - the version from the tip of the branch (last commit of current branch)
 
-        • the version from the index
+        - the version from the index
           (you can ignore this condition if the file is not staged)
 
 ---
@@ -460,8 +460,8 @@ Github doesn't provide signatures, but is easier to find the latest release.
               │
               │┌ decompress
               ││                           ┌ assume that:
-              ││                           │     • the next argument is a detached signature
-              ││                           │     • the next one is the signed data
+              ││                           │     - the next argument is a detached signature
+              ││                           │     - the next one is the signed data
               ││                           │
               ││                           │ verify the signed data using the signature
               ││                           │
@@ -895,8 +895,8 @@ The new version B will overwrite the existing version A inside the index.
 
 The status of files in:
 
-        • the index
-        • the working directory
+        - the index
+        - the working directory
 
 ### What does it mean to read a
 #### `M` in the left column?
@@ -958,8 +958,8 @@ Configuration post-installation de Git.
 
 Définition du:
 
-        • fichiers à ignorer dans tous les repos (utile pour les fichiers tags)
-        • programme à invoquer qd on exécute `git mergetool`
+        - fichiers à ignorer dans tous les repos (utile pour les fichiers tags)
+        - programme à invoquer qd on exécute `git mergetool`
 
 ---
 
@@ -1008,9 +1008,9 @@ Définit `~/.cvsignore` comme étant une sorte de fichier `.gitignore` global.
 
 Tous les patterns qu'il contient seront ignorés quel que soit le repo.
 
-        • *~           emacs
-        • .*.swp       vim
-        • .DS_Store    Mac OS X
+        - *~           emacs
+        - .*.swp       vim
+        - .DS_Store    Mac OS X
 
 Git  ne considèrera  jamais un  fichier dont  le nom  correspond à  l'un de  ces
 patterns,  comme non  suivi (untracked),  et ne  tentera jamais  de l'ajouter  à
@@ -1040,21 +1040,21 @@ voir au sein du repo.
 
 À l'intérieur des patterns, on peut utiliser les métacaractères suivant:
 
-        • !        ne pas ignorer le pattern qui suit, même si une règle précédente l'exige
+        - !        ne pas ignorer le pattern qui suit, même si une règle précédente l'exige
 
-        • *        n'importe quelle suite de caractères
+        - *        n'importe quelle suite de caractères
 
-        • **       n'importe quelle arborescence de dossiers ; ex:
+        - **       n'importe quelle arborescence de dossiers ; ex:
 
                        a/**/z  matchera  a/z, a/b/z, a/b/c/z, ...
 
-        • ?        n'importe quel caractère
+        - ?        n'importe quel caractère
 
-        • [abc]    collection de caractères (ici, a, b, ou c)
+        - [abc]    collection de caractères (ici, a, b, ou c)
 
-        • [0-9]    rangée de caractères (ici, chiffre de 0 à 9)
+        - [0-9]    rangée de caractères (ici, chiffre de 0 à 9)
 
-        • /        en début de pattern: oblige ce dernier à être matché à la RACINE
+        - /        en début de pattern: oblige ce dernier à être matché à la RACINE
                                         du dossier courant
                    en fin   de pattern: traite ce dernier comme un dossier, dont le CONTENU
                                         doit être ignoré
@@ -1158,10 +1158,10 @@ Il ne faut pas donner trop de sens à “mauvais“ et “bon“.
 Si on veut chercher à savoir quel  commit a conféré à notre projet une propriété
 qui nous intéresse, on pourra utiliser:
 
-        • `$ git bisect bad`
+        - `$ git bisect bad`
           pour désigner un état du projet dans lequel il dispose de la propriété
 
-        • `$ git bisect good`
+        - `$ git bisect good`
           pour désigner un état dans lequel il ne l'a pas
 
 Si la propriété qui nous intéresse est  un bug, alors “mauvais“ et “bon“ peuvent
@@ -1210,11 +1210,11 @@ qd le projet est bon, ou une valeur non-nulle autrement.
 
 Annote les lignes 12 à 34 de `file` avec les infos suivantes:
 
-        • le sha1 partiel du dernier commit l'ayant modifiée
+        - le sha1 partiel du dernier commit l'ayant modifiée
 
-        • qui l'a écrite
+        - qui l'a écrite
 
-        • quand
+        - quand
 
 L'option `-L` est facultative.
 Sans elle, on obtient la même sortie que `:Gblame`.
@@ -1352,8 +1352,8 @@ Retourne l'url du dépôt central, stockée dans `.git/config`.
 
 Affiche les différences entre le working tree et:
 
-        • le dernier commit
-        • l'index
+        - le dernier commit
+        - l'index
 
 
         $ git init
@@ -1627,10 +1627,10 @@ Mastering issues (10 min read)
 
 Pour obtenir un permalink vers une suite de lignes de code d'un repo:
 
-        • clic-gauche sur la 1e ligne
-        • Shift-clic-gauche sur la dernière ligne
-        • (optionnel) taper `S-Esc` pour désactiver temporairement Vimperator
-        • taper `y`
+        - clic-gauche sur la 1e ligne
+        - Shift-clic-gauche sur la dernière ligne
+        - (optionnel) taper `S-Esc` pour désactiver temporairement Vimperator
+        - taper `y`
 
 
         créer un repo sur github (sans readme, license, .cvsignore)
@@ -1703,23 +1703,23 @@ Un  _tree_ est  la représentation  du contenu  d'un dossier  à un  instant don
 
 Chaque entrée correspond à un fichier / dossier et contient 4 infos :
 
-        • droits
-        • type (blob ou tree)
-        • chemin vers le fichier (ou dossier)
+        - droits
+        - type (blob ou tree)
+        - chemin vers le fichier (ou dossier)
 
-        • sha1 du fichier (ou du tree représentant le dossier dans le cas où le
+        - sha1 du fichier (ou du tree représentant le dossier dans le cas où le
           chemin mène à un dossier) qui sert de pointeur
 
 Un _commit_ est un fichier contenant un ensemble d'infos, dont les 5 suivantes:
 
-        • un message
-        • une date
-        • un auteur
+        - un message
+        - une date
+        - un auteur
 
-        • le sha1 du tree sur lequel le commit pointe (l'arborescence du
+        - le sha1 du tree sur lequel le commit pointe (l'arborescence du
           snapshot de fichiers qu'il représente)
 
-        • le sha1 du commit parent (celui qui précède dans l'historique)
+        - le sha1 du commit parent (celui qui précède dans l'historique)
 
 L'index (binaire `.git/index`) est un tree  spécial; il représente le contenu du
 prochain snapshot.
@@ -1729,9 +1729,9 @@ Quand on fait un:
 
 ... Git ajoute à l'index une entrée contenant entre autres:
 
-        • les droits du fichier
-        • son chemin d'accès (pour savoir où le recréer si besoin)
-        • son sha1 (pour pouvoir le retrouver dans ses objets)
+        - les droits du fichier
+        - son chemin d'accès (pour savoir où le recréer si besoin)
+        - son sha1 (pour pouvoir le retrouver dans ses objets)
 
 Quand on fait un `git checkout`, Git met à jour l'index pour qu'il représente le
 contenu du nouveau working directory.
@@ -1783,14 +1783,14 @@ L'ensemble des commits constitue l'historique du projet.
 
 Pour Git, un fichier peut être dans 4 états :
 
-        • untracked    le fichier est nouveau     `git add` pour que le fichier soit tracké et indexé
+        - untracked    le fichier est nouveau     `git add` pour que le fichier soit tracké et indexé
                                                   par la même occasion
 
-        • unstaged     il n'est pas nouveau mais modifié et non indexé (`git add` pour que ça change)
+        - unstaged     il n'est pas nouveau mais modifié et non indexé (`git add` pour que ça change)
 
-        • staged       il est indexé mais pas commited (`git commit` ")
+        - staged       il est indexé mais pas commited (`git commit` ")
 
-        • unchanged    il est dans le dépôt et n'a pas changé depuis qu'il y est
+        - unchanged    il est dans le dépôt et n'a pas changé depuis qu'il y est
 
 Dans un projet Git, le workflow se  décompose en 3 étapes : modification d'un ou
 plusieurs  fichiers  / dossiers,  indexation  (staging)  de certaines  nouvelles

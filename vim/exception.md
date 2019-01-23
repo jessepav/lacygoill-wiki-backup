@@ -1,9 +1,9 @@
 # Try conditional structure
 ## What are the three circumstances in which Vim throws an exception?
 
-        • when an error occurs
-        • when we interrupt the processing of a function
-        • when we execute `:throw`
+        - when an error occurs
+        - when we interrupt the processing of a function
+        - when we execute `:throw`
 
 ## What are the three components into which you can break a try conditional?
 
@@ -61,8 +61,8 @@ It works whether the error occurs inside or outside a try conditional.
 The execution skips the remaining commands of the block.
 It immediately jumps to:
 
-        • the catch clause matching the error message, if there's such a clause
-        • the finally clause otherwise
+        - the catch clause matching the error message, if there's such a clause
+        - the finally clause otherwise
 
 ## What happens when an exception is thrown inside a catch clause? (to the execution and to the exception)
 
@@ -206,10 +206,10 @@ In all of them. The finally clause is ALWAYS executed.
 Even when the try  block or a catch clause includes a  statement which makes the
 execution jump like:
 
-        • break
-        • continue
-        • finish
-        • return
+        - break
+        - continue
+        - finish
+        - return
 
 ↢
 
@@ -408,10 +408,10 @@ changed, the latter will remain in an inconsistent state.
 
 A finally clause allows you to make sure they're restored no matter what happens:
 
-        • normal control flow
-        • error
-        • an explicit ':throw'
-        • interrupt
+        - normal control flow
+        - error
+        - an explicit ':throw'
+        - interrupt
 
 ## Why should I be careful when catching all exceptions with `:catch /.*/`?
 
@@ -1352,8 +1352,8 @@ This code displays
 
             Vim écrit la plus récente exception et l'endroit où elle s'est produite dans:
 
-                    • v:exception
-                    • v:throwpoint
+                    - v:exception
+                    - v:throwpoint
 
             On  pourra  utiliser  ces  informations après  `:catch`  pour  gérer
             l'erreur nous-mêmes,  et pex l'afficher  à notre façon  en formatant
@@ -1433,12 +1433,12 @@ This code displays
             whenever the part between the  matching `:try` and the ':finally' is
             left by:
 
-                    • falling through to the ':finally'
-                    • continue
-                    • break
-                    • finish
-                    • return
-                    • error / interrupt / exception (:throw)
+                    - falling through to the ':finally'
+                    - continue
+                    - break
+                    - finish
+                    - return
+                    - error / interrupt / exception (:throw)
 
 
             try                              for i in range(1,3)

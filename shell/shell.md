@@ -46,11 +46,11 @@ https://unix.stackexchange.com/a/70370/289772
 
 To execute:
 
-   • ( list )
-   • a job
-   • a command substitution
-   • a process substitution
-   • a simple command in a pipeline
+   - ( list )
+   - a job
+   - a command substitution
+   - a process substitution
+   - a simple command in a pipeline
 
 You can confirm that a job is executed in a subshell with these commands:
 
@@ -78,9 +78,9 @@ Because after the last command, it won't be needed anymore.
 The difference  between an interactive shell  which ALWAYS fork, and  a subshell
 which SOMETIMES doesn't fork, is:
 
-        • the interactive shell doesn't know when it won't be needed anymore
+        - the interactive shell doesn't know when it won't be needed anymore
 
-        • the subshell knows exactly the entire set of commands it will have to
+        - the subshell knows exactly the entire set of commands it will have to
           execute during its lifetime
 
 MWE:
@@ -164,8 +164,8 @@ Or to be able to modify the shell itself (e.g. `alias`, `cd`).
 
 `alias` and `cd` affect the current shell, by:
 
-        • telling it to expand a word into an arbitrary command
-        • changing its current directory
+        - telling it to expand a word into an arbitrary command
+        - changing its current directory
 
 If `alias` and `cd` were not built-in, and instead external programs, they would
 be run in child processes of the current shell.
@@ -408,13 +408,13 @@ It depends on the OS.
 
 For Ubuntu, have a look at:
 
-        • /etc/login.defs
-        • /etc/environment
+        - /etc/login.defs
+        - /etc/environment
 
 For more info, see:
 
-        • $ man login
-        • http://unix.stackexchange.com/a/228167
+        - $ man login
+        - http://unix.stackexchange.com/a/228167
 
 ##
 ## When a program needs to start a shell, how does it decide which one to use?
@@ -749,9 +749,9 @@ A soft link is a NEW FILE, pointing to an existing file.
 
 A soft link can:
 
-        • point to a directory (a hard link can't refer to a directory)
-        • cross filesystem boundaries
-        • cross partitions
+        - point to a directory (a hard link can't refer to a directory)
+        - cross filesystem boundaries
+        - cross partitions
 
 ##
 ## What happens to the contents of a file, if I delete it after creating a HARD link referring to it?
@@ -938,8 +938,8 @@ If you want `ls` to dereference, you need to pass the symlink as a parameter:
 
             Le script écrit sur sa sortie d'erreur:
 
-                    • son code (entrée standard), au fur et à mesure qu'il le lit
-                    • chaque commande (précédée d'un signe `+`), avant de l'exécuter
+                    - son code (entrée standard), au fur et à mesure qu'il le lit
+                    - chaque commande (précédée d'un signe `+`), avant de l'exécuter
 
             On remarque qu'un script lit intégralement son code avant de commencer son exécution.
 
@@ -958,9 +958,9 @@ If you want `ls` to dereference, you need to pass the symlink as a parameter:
 
             Dans `/var/log/syslog`, logue:
 
-                    • MSG, en incluant le pid du processus `logger`
-                    • idem mais en l'écrivant aussi sur la sortie d'erreur
-                    • le contenu de FILE
+                    - MSG, en incluant le pid du processus `logger`
+                    - idem mais en l'écrivant aussi sur la sortie d'erreur
+                    - le contenu de FILE
 
             `logger`  est  une  commande   shell  permettant  d'enregistrer  des
             messages dans le log système.
@@ -1005,8 +1005,8 @@ If you want `ls` to dereference, you need to pass the symlink as a parameter:
 
             Les valeurs de `facility` et `level` spécifient resp.:
 
-                    • le type du pgm qui logue le message
-                    • son importance
+                    - le type du pgm qui logue le message
+                    - son importance
 
             Par défaut, les messages enregistrés par `logger` reçoivent la priorité `user.notice`.
 
@@ -1029,8 +1029,8 @@ If you want `ls` to dereference, you need to pass the symlink as a parameter:
 
             ... a 2 effets:
 
-                    • retourne un fd vers lequel on peut rediriger un flux de données
-                    • connecte l'entrée de `some-command` à ce fd
+                    - retourne un fd vers lequel on peut rediriger un flux de données
+                    - connecte l'entrée de `some-command` à ce fd
 
 
                             exec 1> FD 2>&1
@@ -1047,8 +1047,8 @@ If you want `ls` to dereference, you need to pass the symlink as a parameter:
 
             ... `logger` écrit tout ce qui est écrit sur son entrée standard:
 
-                    • dans `/var/log/syslog` en taguant (`-t`) chaque message avec le nom du script courant
-                    • sur sa sortie standard (`-s`)
+                    - dans `/var/log/syslog` en taguant (`-t`) chaque message avec le nom du script courant
+                    - sur sa sortie standard (`-s`)
 
         TODO:
 
@@ -1434,8 +1434,8 @@ If you want `ls` to dereference, you need to pass the symlink as a parameter:
             On n'utilise pas tout à fait la même chose pour faire référence au nom d'une variable
             ou à sa valeur:
 
-                    • `myvar`  = nom
-                    • `$myvar` = valeur
+                    - `myvar`  = nom
+                    - `$myvar` = valeur
 
             En Vimscript, cette distinction n'existe pas:
 
@@ -1551,10 +1551,10 @@ If you want `ls` to dereference, you need to pass the symlink as a parameter:
 Il s'agit d'un plugin colorisant les tokens de la ligne de commande en fonction de leur sens.
 Pex:
 
-        • rouge pour une commande invalide
-        • vert  pour une commande valide
-        • jaune pour une chaîne
-        • bleu  pour un glob qualifier
+        - rouge pour une commande invalide
+        - vert  pour une commande valide
+        - jaune pour une chaîne
+        - bleu  pour un glob qualifier
 
 Le plugin est constitué de “highlighters“, qu'on peut activer individuellement:
 
@@ -1596,13 +1596,13 @@ Avec ce plugin, la coloration syntaxique est configurée via 3 arrays:
 
             Configure l'apparence des:
 
-                    • noms de fonction
+                    - noms de fonction
                       nécessite l'activation du highlighter `main`
 
-                    • parenthèses imbriquées (3e niveau d'imbrication)
+                    - parenthèses imbriquées (3e niveau d'imbrication)
                       nécessite l'activation du highlighter `brackets`
 
-                    • commandes commençant par `rm -rf *`
+                    - commandes commençant par `rm -rf *`
                       nécessite l'activation du highlighter `pattern`
 
                       Contrairement aux autres affectations, on utilise `+=` et non `=` pour éviter
@@ -1618,9 +1618,9 @@ Avec ce plugin, la coloration syntaxique est configurée via 3 arrays:
 
             `zle_highlight` est intéressante pour 2 raisons:
 
-                    • elle permet de configurer la coloration syntaxique intégrée à zsh par défaut
+                    - elle permet de configurer la coloration syntaxique intégrée à zsh par défaut
 
-                    • la syntaxe des valeurs qu'elle accepte est identique à celles qu'on peut donner à
+                    - la syntaxe des valeurs qu'elle accepte est identique à celles qu'on peut donner à
                       `ZSH_HIGHLIGHT_STYLES`
                       cette syntaxe est décrite dans `man zshzle`,  section `CHARACTER HIGHLIGHTING`
 
@@ -1898,9 +1898,9 @@ La création d'un highlighter, foo, se fait en 5 étapes:
        C'est elle qui réalise la coloration syntaxique, en appelant `_zsh_highlight_add_highlight`
        et en lui passant 3 arguments:
 
-                • début de la région à coloriser
-                • fin de la région
-                • style (via une clé de `ZSH_HIGHLIGHT_STYLES`)
+                - début de la région à coloriser
+                - fin de la région
+                - style (via une clé de `ZSH_HIGHLIGHT_STYLES`)
 
        Le highlighting doit être défini au sein de notre script, et en dehors de toute fonction,
        via la syntaxe suivante:
@@ -1958,22 +1958,22 @@ La création d'un highlighter, foo, se fait en 5 étapes:
 
 La localisation permet à un administrateur et aux utilisateurs d'un système de choisir, entre autres:
 
-        • l'ordre lexicographique
+        - l'ordre lexicographique
 
-        • le symbole pour la devise
+        - le symbole pour la devise
 
-        • le fuseau horaire (timezone)
+        - le fuseau horaire (timezone)
 
-        • l'ensemble des caractères supportés
+        - l'ensemble des caractères supportés
 
-        • le caractère décimal (ex: 1.23)
-                                     • ^
-        • le séparateur entre milliers (ex: 1,000,000)
+        - le caractère décimal (ex: 1.23)
+                                     - ^
+        - le séparateur entre milliers (ex: 1,000,000)
 
-        • la langue utilisée par les programmes
+        - la langue utilisée par les programmes
           notamment pour afficher leurs messages d'erreurs
 
-        • le nom des mois de l'année et des jours de la semaine
+        - le nom des mois de l'année et des jours de la semaine
 
 
 La localisation (abrégée en `l10n`) s'oppose à l'internationalisation (`i18n`).
@@ -2267,12 +2267,12 @@ Après avoir sourcé ces fichiers, qd on se déconnecte de la session courante:
             Explication des marques `<D>` et  `<Z>`, ainsi que de l'option `-J`;
             dans zsh, par défaut:
 
-                    • l'option `AUTO_LIST` est activée dans tous les modes
+                    - l'option `AUTO_LIST` est activée dans tous les modes
                       d'émulation:
 
                             zsh, ksh, sh, csh
 
-                    • l'option `AUTO_CD` est désactivée dans tous les modes
+                    - l'option `AUTO_CD` est désactivée dans tous les modes
                       d'émulation (car pas de marque), et peut être activée qd
                       on lance un shell via l'option `-J`, ou bien désactivée
                       via `+J`
@@ -2280,7 +2280,7 @@ Après avoir sourcé ces fichiers, qd on se déconnecte de la session courante:
                             zsh -J
                             zsh +J
 
-                    • l'option `HUP` est activée uniquement en mode `zsh`
+                    - l'option `HUP` est activée uniquement en mode `zsh`
 
 
     KSH_OPTION_PRINT  ⇔  KSHOPTIONPRINT
@@ -2289,9 +2289,9 @@ Après avoir sourcé ces fichiers, qd on se déconnecte de la session courante:
             on veut, sans doute pour permettre de gagner en lisibilité.
             Leur forme normalisée:
 
-                    • ne contient pas d'underscores  dans la sortie de `[un]setopt`
+                    - ne contient pas d'underscores  dans la sortie de `[un]setopt`
 
-                    • contient des underscores       dans le manuel
+                    - contient des underscores       dans le manuel
 
 
     LOCAL_OPTIONS <K>
@@ -2350,8 +2350,8 @@ diverses.
 
 Grouper des commandes permet de:
 
-        • s'assurer qu'elles sont exécutées dans le même environnement
-        • appliquer une même redirection à chacune d'elles (pas besoin de se répéter)
+        - s'assurer qu'elles sont exécutées dans le même environnement
+        - appliquer une même redirection à chacune d'elles (pas besoin de se répéter)
 
 #### Case
 
@@ -2792,9 +2792,9 @@ Un développement d'historique est réalisé en 3 étapes:
 
 2 composants consécutifs d'un développement d'historique:
 
-    • désignateur d'évènement
-    • désignateur de mots
-    • modificateurs
+    - désignateur d'évènement
+    - désignateur de mots
+    - modificateurs
 
 ... doivent être  séparés par un `:`.
 `:` peut être  omis entre un désignateur d'évènement et  un désignateur de mots,
@@ -2914,8 +2914,8 @@ si ce dernier commence par un des caractères suivants: `^$*`
 
             `x` et `q` sont des modificateurs ayant pour effet de quoter:
 
-                    • chaque mot; les mots étant séparés par des espaces ou des newlines
-                    • l'ensemble des arguments (bash) ou chaque argument (zsh)
+                    - chaque mot; les mots étant séparés par des espaces ou des newlines
+                    - l'ensemble des arguments (bash) ou chaque argument (zsh)
 
 
                                      NOTE:
@@ -2988,11 +2988,11 @@ si ce dernier commence par un des caractères suivants: `^$*`
 
             Modificateur remplaçant la 1e occurrence:
 
-                    • de `old` par `new`
+                    - de `old` par `new`
 
-                    • de `old` par `very_old`
+                    - de `old` par `very_old`
 
-                    • du dernier pattern remplacé par `new`
+                    - du dernier pattern remplacé par `new`
 
                       S'il n'y a jamais eu de substitution (ou pas mémorisée tout du moins),
                       le shell utilisera la dernière chaîne recherchée via `!?string?`.
@@ -3035,9 +3035,9 @@ Entre autres:    space Tab \n * $ ( ) !
 Pour empêcher le shell d'interpréter un caractère de ce type, il faut le quoter.
 Pour ce faire, on peut utiliser 3 syntaxes:
 
-        • l'encadrer avec des single quotes
-        • "                   double "
-        • le préfixer avec un backslash
+        - l'encadrer avec des single quotes
+        - "                   double "
+        - le préfixer avec un backslash
 
 Les single/double quotes permettent de protéger une zone de texte entière, tandis que le backslash
 permet une approche plus granulaire.
@@ -3054,11 +3054,11 @@ permet une approche plus granulaire.
             Les double quotes ne sont pas aussi strictes que les single quotes.
             Ils autorisent le développement de:
 
-                    • commande:        "$(cmd)"
+                    - commande:        "$(cmd)"
 
-                    • variable:        "$myvar"
+                    - variable:        "$myvar"
 
-                    • l'historique:    "!!"
+                    - l'historique:    "!!"
 
 
     myvar="foo
@@ -3104,8 +3104,8 @@ permet une approche plus granulaire.
 
             Au passage, on remarque la présence du prompt secondaire:
 
-                    • >         dans bash
-                    • quote>    dans zsh (`dquote>` pour un double quote)
+                    - >         dans bash
+                    - quote>    dans zsh (`dquote>` pour un double quote)
 
 
     echo $'foo\nbar'
@@ -3259,9 +3259,9 @@ https://www.emacswiki.org/emacs/EmacsNewbieKeyReference
 
             Affiche les:
 
-                    • raccourcis associés à des fonctions
-                    • "                         macros
-                    • variables / options
+                    - raccourcis associés à des fonctions
+                    - "                         macros
+                    - variables / options
 
             Qd on utilise des flags minuscules, la sortie est formatée de sorte qu'elle peut être
             utilisée pour réinstaller les raccourcis.
@@ -3291,11 +3291,11 @@ https://www.emacswiki.org/emacs/EmacsNewbieKeyReference
 
             On peut utiliser cette commande dans:
 
-                    • une session bash pour une utilisation temporaire
+                    - une session bash pour une utilisation temporaire
 
-                    • son ~/.bash_aliases pour un effet permanent dans bash
+                    - son ~/.bash_aliases pour un effet permanent dans bash
 
-                    • son ~/.inputrc:
+                    - son ~/.inputrc:
 
                             "\C-x\C-u":  undo
 
@@ -3603,18 +3603,18 @@ Le 1er  mot est  interprété comme le  nom d'une commande,  les autres  comme d
 arguments (options, noms de fichiers).
 Le shell appelle alors une fonction dans la famille `exec`:
 
-        • execl()
-        • execv()
-        • execle()
-        • execve()
-        • execlp()
-        • execvp()
+        - execl()
+        - execv()
+        - execle()
+        - execve()
+        - execlp()
+        - execvp()
 
 Il lui passe 3 infos:
 
-        • le nom d'un binaire ou d'un script        qui
-        • une array d'arguments (chaînes)           quoi
-        • une array de variables d'environnement    comment
+        - le nom d'un binaire ou d'un script        qui
+        - une array d'arguments (chaînes)           quoi
+        - une array de variables d'environnement    comment
 
 Pour + d'infos:
 
@@ -3637,8 +3637,8 @@ les arguments passés.
             Il existe donc 2 types de  splitting qui peuvent se produire sur une
             même ligne de commande:
 
-                    • le FIELD splitting divise une chaîne issues d'un développement
-                    • le WORD splitting qui divise la ligne de commande qui en résulte
+                    - le FIELD splitting divise une chaîne issues d'un développement
+                    - le WORD splitting qui divise la ligne de commande qui en résulte
 
             Contrairement au  word splitting  qui utilise  tjrs une  séquence de
             whitespace syntaxique  pour délimiter  les mots, le  field splitting
@@ -3818,9 +3818,9 @@ les arguments passés.
 
             Développe le glob qualifier en tous les:
 
-                    • fichiers
-                    • dossiers
-                    • liens symboliques
+                    - fichiers
+                    - dossiers
+                    - liens symboliques
 
             ... du dossier courant.
 

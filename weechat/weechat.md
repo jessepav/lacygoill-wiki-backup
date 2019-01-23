@@ -28,8 +28,8 @@ Web interface:
 
 Pro:
 
-        • access weechat from any device with a browser
-        • images, videos, and other content are embedded
+        - access weechat from any device with a browser
+        - images, videos, and other content are embedded
 
 ---
 
@@ -94,9 +94,9 @@ Alternatively, you could install the `urlserver.py` script to shorten long urls:
 
 Although, I'm concerned about the security:
 
-        • you have to trust the script author
-        • you have to trust to secure the http server embedded into the script
-        • urls are obfuscated, you can't have a look at them and see whether they're suspicious
+        - you have to trust the script author
+        - you have to trust to secure the http server embedded into the script
+        - urls are obfuscated, you can't have a look at them and see whether they're suspicious
 
 # How to toggle the filter in the current buffer?
 
@@ -266,9 +266,9 @@ NickServ permet d'enregistrer un pseudo dans une bdd afin d'empêcher les autres
 
         {buffers}, {tags}, et {regex} permettent de limiter la portée d'un filtre selon:
 
-                • le nom du buffer où on se trouve
-                • le tag que porte le message
-                • le contenu du message
+                - le nom du buffer où on se trouve
+                - le tag que porte le message
+                - le contenu du message
 
         {buffers}  et  {tags}  sont  des  listes de  valeurs  séparées  par  des
         virgules.
@@ -277,13 +277,13 @@ NickServ permet d'enregistrer un pseudo dans une bdd afin d'empêcher les autres
 
         {regex} doit:
 
-                • utiliser \t pour séparer le préfixe du message dans ce cas
+                - utiliser \t pour séparer le préfixe du message dans ce cas
                   2 regexes sont créées (à gauche pour le préfixe, à droite pour
                   le message)
 
-                • échapper les caractères spéciaux tq le pipe (et !)
-                • utiliser ! au début pour inverser la regex
-                • utiliser (?-i) au début pour devenir insensible à la casse
+                - échapper les caractères spéciaux tq le pipe (et !)
+                - utiliser ! au début pour inverser la regex
+                - utiliser (?-i) au début pour devenir insensible à la casse
 
 
     /filter add irc_smart * irc_smart_filter *

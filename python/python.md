@@ -267,9 +267,9 @@ You may need  to install another python  or `.deb` package to  satisfy a missing
 dependency.
 Use commands such as:
 
-        • pip install
-        • apt-file search
-        • aptitude install
+        - pip install
+        - apt-file search
+        - aptitude install
 
 ##
 ## What's the effect of `python[3] -m` before a `pip` command?
