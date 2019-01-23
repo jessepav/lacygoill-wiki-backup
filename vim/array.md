@@ -459,11 +459,11 @@ beginning of the list:
     echo list
 
 ####
-### Without altering the rest of a list, how to
-#### increase a number item?
+### How to increment a number item?
 
-Use an assignment: in the lhs, use the index of the item you want to change; and
-use the `+=` operator:
+Use an assignment.
+In the  lhs, use  the index of  the item you  want to  change; and use  the `+=`
+operator:
 
     let list[idx] += n
 
@@ -474,10 +474,11 @@ use the `+=` operator:
     echo list
     [1, 2, 102]~
 
-#### concatenate a string to a string item?
+### How to concatenate a string to a string item?
 
-Use an assignment: in the lhs, use the index of the item you want to change; and
-use the `.=` operator.
+Use an assignment.
+In the  lhs, use  the index of  the item you  want to  change; and use  the `.=`
+operator.
 
     let list[idx] .= str
 
@@ -544,7 +545,8 @@ The lists have mutated because Vim passes arrays by reference, not by value.
 `Increment()`  received a  reference  of `list`  in the  first  snippet, and  of
 `counts` in the second one.
 
-The number has not been altered because Vim passes scalars by value.
+In the third snippet, the number has not been altered because Vim passes scalars
+by value.
 
 It  seems  that  Vim behaves  like  awk:  scalars  are  passed by  value,  while
 non-scalar values are passed by reference.
@@ -567,7 +569,7 @@ Any change you perform on `blist` will affect `alist`.
     echo alist
     [1, 3]~
 
-#### How to make a copy?
+##### How to make a copy of `alist`?
 
 If the items of the list are scalars, use `copy()`:
 
@@ -580,32 +582,16 @@ If the items of the list are scalars, use `copy()`:
 If the items of the list are non-scalars, use `deepcopy()`:
 
     let alist = [1, [2,3]]
-    let blist = copy(alist)
-    let blist[1][1] += 1
-    echo alist
-    [1, [2, 4]]~
-    ✘
-
-    let alist = [1, {'n': 2}]
-    let blist = copy(alist)
-    let blist[1].n += 1
-    echo alist
-    [1, {'n': 3}]~
-    ✘
-
-    let alist = [1, [2,3]]
     let blist = deepcopy(alist)
     let blist[1][1] += 1
     echo alist
     [1, [2, 3]]~
-    ✔
 
     let alist = [1, {'n': 2}]
     let blist = deepcopy(alist)
     let blist[1].n += 1
     echo alist
     [1, {'n': 2}]~
-    ✔
 
 ####
 #### Which list is unable to mutate?
@@ -766,8 +752,9 @@ Iterate over the words of the list, to build the dictionary.
         echo freq
         {'one': 1, 'two': 2, 'three': 3}~
 
-Note that you can't write:
+Note that you can't write one of these statements:
 
+        let freq[word] += 1
         let freq[word] = freq[word] + 1
 
 Because when  the loop will  encounter `word` for  the first time,  `freq` won't
