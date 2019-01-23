@@ -1,3 +1,20 @@
+# Priority
+
+outlaw
+swapit
+sandwich
+ultisnips
+tbone
+dispatch
+easy-align
+fzf.vim
+codi
+apathy
+projectionist
+vimtex
+autoformat
+
+##
 # Futurs plugins
 
 Liste partielle de plugins tirant avantage des fonctionnalités de Neovim:
@@ -489,7 +506,6 @@ dbext.vim, improving on it on the following ways:
             https://github.com/idanarye/vim-vebugger
             https://github.com/joonty/vdebug
 
-
 ## diffconflicts
 
             https://github.com/whiteinge/diffconflicts
@@ -554,8 +570,8 @@ format and adhere to defined styles.
 
 ## expand-region
 
-            vim-expand-region is a Vim plugin that allows you to visually select increasingly larger
-            regions of text using the same key combination.
+            vim-expand-region is a Vim plugin that allows you to visually select
+            increasingly larger regions of text using the same key combination.
 
             https://github.com/terryma/vim-expand-region
 
@@ -902,6 +918,7 @@ This plugin makes searching in files easier than ever!
             https://github.com/sk1418/Join
 
                                     140 sloc
+
 ## kronos
 
             A simple task and time manager for vim.

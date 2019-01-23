@@ -11,7 +11,7 @@ The process of getting a sublist by appending a list with a range of indexes:
     echo range(1,5)[1:-2]
     [2, 3, 4]~
 
-### On which condition does it work as expected?  (2)
+### On which conditions does it work as expected?  (2)
 
 The first index must describe an item  which comes *before* the one described by
 the second index.
@@ -34,16 +34,15 @@ because the item of index `-2` (`b`) comes before the item of index `2` (`c`).
 If the  first index is a  variable, you may need  to separate it from  the colon
 with a space; otherwise, Vim may wrongly interpret it as a scope.
 
+    let [s, e] = [0, 2]
+
     echo range(1,3)[s:e]
     E121: Undefined variable: s:e~
 
-    let [s, e] = [0, 2]
     echo range(1,3)[s: e]
     E731: using Dictionary as a String~
 
-    let [s, e] = [0, 2]
     echo range(1,3)[s :e]
-    [1, 2, 3]~
     echo range(1,3)[s : e]
     [1, 2, 3]~
 
@@ -62,7 +61,7 @@ with a space; otherwise, Vim may wrongly interpret it as a scope.
 
 ### What can you infer from this result?
 
-Vim does no coercition when comparing lists.
+Vim does no coercion when comparing lists.
 
 ##
 ## Getting info
@@ -112,7 +111,7 @@ Use the fourth optional argument:
 
 ---
 
-    echo count(['a', 'a', 'a'], 'a', 0)
+    echo count(['a', 'a', 'a'], 'a')
     3~
 
     echo count(['a', 'a', 'a'], 'a', 0, 1)
@@ -191,6 +190,8 @@ Use `matchstrpos()`:
 
 Use `map()` + `range()`:
 
+                       ┌ a number is allowed (in addition to a string)
+                       │
     echo map(range(5), 0)
     [0, 0, 0, 0, 0]~
 
@@ -224,7 +225,7 @@ Use `map()` + `range()`:
 
 ##
 ## Removing
-### How to remove the item `garbage` from `list`?  (2)
+### How to remove the item `garbage` from `list`, knowing its index?  (2)
 
 `idx` being the index of `garbage`, use `:unlet` or `remove()`:
 
@@ -262,16 +263,23 @@ Use `map()` + `range()`:
     echo list
     ['a', 'b']~
 
-### How to remove the item `garbage` from a list, not knowing its position?
+### How to remove the item `garbage` from a list, not knowing its index?  (2)
 
 Use `index()` + `remove()`:
 
     call remove(list, index(list, 'garbage'))
 
+    unlet list[index(list, 'garbage')]
+
 ---
 
     let list = ['a', 'garbage', 'b']
     call remove(list, index(list, 'garbage'))
+    echo list
+    ['a', 'b']~
+
+    let list = ['a', 'garbage', 'b']
+    unlet list[index(list, 'garbage')]
     echo list
     ['a', 'b']~
 
@@ -296,7 +304,7 @@ Use `insert()`:
 
 #### in the middle of a list?
 
-Use `insert()` and  the index of the item  after which you want your  item to be
+Use `insert()` and the index of the item *before* which you want your item to be
 inserted:
 
     echo insert(list, item, idx)
@@ -317,16 +325,6 @@ inserted:
     echo insert(list, 'c', -1)
     ['a', 'b', 'c', 'd']~
 
----
-
-Note that `-1` doesn't mean “right after the last item”, but “right *before* the
-last item”.
-
-More generally, `insert()` interprets:
-
-   - a positive index as: right *after* the index
-   - a negative index as: right *before* the index
-
 #### at the end of a list?
 
 Use `add()`:
@@ -342,9 +340,10 @@ Use `add()`:
 
 Note that `add()` operates in-place.
 
-##### Can this be used to concatenate lists?
+##### Why can't this be used to concatenate lists?
 
-No.
+If you pass a second  list as an argument, it will be added  as a single item in
+the first list.
 
     let list = [1, 2]
     call add(list, [3, 4])
@@ -353,6 +352,16 @@ No.
 
 ###
 ### How to concatenate lists?  (2)
+
+Use the `+` operator or `extend()`.
+
+    echo list1 + list2
+
+    echo extend(list1, list2)
+     │
+     └ the output of `extend()` is `list1` after being extended
+
+---
 
     let list = [1, 2, 3]
     echo list + [4, 5]
@@ -366,24 +375,27 @@ No.
 
 The `+` operator doesn't alter any existing list:
 
-    let list = [1, 2, 3]
-    echo list + [4, 5]
+    let list = [1, 2]
+    echo list + [3, 4]
+    [1, 2, 3, 4]~
     echo list
-    [1, 2, 3]~
+    [1, 2]~
 
 While `extend()`  operates in-place, and  alters the  first list it  receives as
 argument:
 
-    let list = [1, 2, 3]
-    echo extend(list, [4, 5])
+    let list = [1, 2]
+    echo extend(list, [3, 4])
+    [1, 2, 3, 4]~
     echo list
-    [1, 2, 3, 4, 5]~
+    [1, 2, 3, 4]~
 
 But not the second one:
 
     let alist = [1, 2]
     let blist = [3, 4]
     echo extend(alist, blist)
+    [1, 2, 3, 4]~
     echo blist
     [3, 4]~
 
