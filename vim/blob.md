@@ -121,7 +121,7 @@ Use `copy()` or `[:]`:
 
 ##
 # Transforming
-## How to concatenate two blobs?  (2)
+## How to concatenate two blobs?
 
 Use the `+` or `+=` operator:
 
@@ -138,24 +138,6 @@ Use the `+` or `+=` operator:
     let blob += 0z6677
     echo blob
     0z00112233.6677~
-
----
-
-You can also use `add()`:
-
-    let blob = 0z00112233
-    call add(blob, printf('%d', 0x44))
-    echo blob
-    0z00112233.44~
-
-But it only works when the second blob contains a single byte.
-
-If you try to add a blob with several bytes, only the last one is used:
-
-    let blob = 0z00112233
-    call add(blob, printf('%d', 0x445566))
-    echo blob
-    0z00112233.66~
 
 ## How to change the value of a range of consecutive bytes in a blob, with a single statement?
 
@@ -183,11 +165,33 @@ Use `remove()`:
     echo blob
     0z0011~
 
+## How to add a byte at the end of a blob?
+
+Use `add()`:
+
+    call add(blob, printf('%d', 0x123))
+
+---
+
+    let blob = 0z00112233
+    call add(blob, printf('%d', 0x44))
+    echo blob
+    0z00112233.44~
+
+---
+
+If you try to add several bytes, only the last one is used:
+
+    let blob = 0z00112233
+    call add(blob, printf('%d', 0x445566))
+    echo blob
+    0z00112233.66~
+
 ## How to insert a byte in a blob?
 
 Use `insert()`:
 
-    call insert(blob, 0x12)
+    call insert(blob, 0x123)
 
 ---
 
@@ -195,6 +199,14 @@ Use `insert()`:
     call insert(blob, 0xaa, 1)
     echo blob
     0z00AA1122.33~
+
+---
+
+If you try to insert several bytes, it raises `E475`:
+
+    let blob = 0z00112233
+    call insert(blob, 0x4455, 1)
+    E475: Invalid argument: 17493~
 
 ##
 ##
