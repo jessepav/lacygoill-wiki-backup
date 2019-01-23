@@ -187,6 +187,12 @@ If you try to add several bytes, only the last one is used:
     echo blob
     0z00112233.66~
 
+Rationale:
+
+A blob behaves like a list.
+You can't  use `add()`  to concatenate  lists, so you  can't use  it concatenate
+blobs either.
+
 ## How to insert a byte in a blob?
 
 Use `insert()`:
