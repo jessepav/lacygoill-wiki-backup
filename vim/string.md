@@ -190,6 +190,15 @@ I don't know which keysym I should write.
 In a console, I've tried `$ dumpkeys /tmp/dumpkeys`, and looked at its contents.
 The only relevant keysym seems `BackSpace`...
 
+It seems we should write:
+
+    key <BKSP> { [ Delete ] };
+    key <DELE> { [ BackSpace ] };
+
+To reverse the keysyms produced by the backspace and delete key.
+But in practice, it breaks the backspace key.
+The shell probably needs to be configured too...
+
 ##
 ## Which escape sequences can I use to encode an arbitrary character?  (3)
 
