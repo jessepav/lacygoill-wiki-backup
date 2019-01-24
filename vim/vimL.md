@@ -1,3 +1,17 @@
+# vim-vint
+## How to install it?
+
+    $ git clone https://github.com/Kuniwak/vint
+    $ cd !$:t
+    $ python3 -m pip install --user --upgrade .
+
+    $ cd ..
+
+    $ git clone https://github.com/pypa/setuptools_scm
+    $ cd !$:t
+    $ python3 -m pip install --user --upgrade .
+
+##
 # Pasting text
 ## What are the pros of using `:put =` over `append()` or `setline()`?
 

@@ -48,9 +48,18 @@ Use `readfile()` and the second optional argument `{type}` set to `B`:
 Use its index inside square brackets after its name:
 
     let blob = 0z00112233
-    let byte0 = blob[0]           " get the first byte: 0x00
-    let byte2 = blob[2]           " get the third byte: 0x22
-    let byte_last = blob[-1]      " get the last byte: 0x33
+
+    let byte0 = blob[0]
+    echo byte0
+    0~
+
+    let byte2 = blob[2]
+    echo byte2
+    34~
+
+    let byte_last = blob[-1]
+    echo byte_last
+    51~
 
 ### it doesn't match the original byte!
 
@@ -100,7 +109,17 @@ Specify the first and last index, separated by a colon in square brackets:
 You can omit  the first index to start  from 0, omit the last index  to go until
 the end, or omit both to get a copy of the blob.
 
-##
+## How to iterate over the bytes of a blob?
+
+Simply use a `:for` loop:
+
+    let blob = 0zFF00ED015DAF
+    let bytes_list = []
+    for byte in blob
+        let bytes_list += [byte]
+    endfor
+    echo bytes_list
+
 ## How to get a copy of a blob, with a different reference?  (2)
 
 Use `copy()` or `[:]`:
