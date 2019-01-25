@@ -1,5 +1,23 @@
 # ?
 
+When I do:
+
+    :cd ~/.vim
+    fin * C-d
+
+Some filepaths are absolute, others are relative.
+Some contain only a filename, other contain several path components.
+
+Explain those discrepancies.
+
+Theory: Vim adds  as many path  components as it  needs to remove  any ambiguity
+between 2 suggestions.
+Sometimes, there's no ambiguity, so it justs suggests a filename.
+Sometimes, there *is* an ambiguity, but it just needs to add one or more parent directories.
+Sometimes, there *is* an ambiguity, and it needs to use the full filepath.
+
+# ?
+
 Document that  `+` is a special  character on Vim's command-line,  like `%`, but
 only at the beginning of a filepath, and only when passed to a command accepting
 the optional `+cmd` argument.

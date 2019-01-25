@@ -619,13 +619,13 @@ format and adhere to defined styles.
 
 ## fetch
 
-            https://github.com/kopischke/vim-fetch
+    https://github.com/kopischke/vim-fetch
 
-            vim-fetch enables Vim to process line and column jump specifications
-            in file paths as found in stack traces and similar output.
-            When asked to  open such a file,  in- or outside Vim or  via gF, Vim
-            with  vim-fetch will  jump to  the  specified line  (and column,  if
-            given) instead of displaying an empty, new file.
+vim-fetch enables  Vim to process  line and  column jump specifications  in file
+paths as found in stack traces and similar output.
+When  asked to  open such  a file,  in- or  outside Vim  or via  `gF`, Vim  with
+vim-fetch will  jump to  the specified  line (and column,  if given)  instead of
+displaying an empty, new file.
 
                                     218 sloc
 
@@ -1712,6 +1712,17 @@ functionality.
             https://github.com/kopischke/vim-stay
 
                                               283 sloc
+
+## subversive
+
+Subversive provides  two new operator  motions to make  it very easy  to perform
+quick substitutions.
+It contains no default  mappings and will have no effect until  you add your own
+maps to it.
+
+                                    234 sloc
+
+https://github.com/svermeulen/vim-subversive
 
 ## swapit
 
