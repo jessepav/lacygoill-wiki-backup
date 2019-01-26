@@ -51,3 +51,21 @@ The latter is installed by `fzf` itself.
         execute 'normal! a'.snip."\<c-r>=UltiSnips#ExpandSnippet()\<cr>"
     endfunction
 
+# ?
+
+When you install fzf, it comes with a Vim plugin (!= fzf.vim):
+
+    ~/.fzf/plugin/fzf.vim
+
+The latter  contains 2 public functions  which are used in  `fzf.vim` to install
+custom Vim commands/mappings:
+
+    fzf#run()
+    fzf#wrap()
+
+Those are  the only functions  you need  to understand how  to use, in  order to
+install your own Vim commands/mappings.
+
+There's one additional public function `fzf#shellescape()`, but it's useless.
+It's just a wrapper around `shellescape()` which also supports Windows.
+
