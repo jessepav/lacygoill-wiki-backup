@@ -431,21 +431,21 @@ To be used in the preamble.
 
 ## How to apply a style to some text?
 
-        ┌────────────┬───────────┬─────────────┐
-        │ style      │ command   │ declaration │
-        ├────────────┼───────────┼─────────────┤
-        │ bold-faced │ \textbf{} │ \bfseries   │
-        │ medium     │ \textmd{} │ \mdseries   │
-        ├────────────┼───────────┼─────────────┤
-        │ italics    │ \textit{} │ \itshape    │
-        │ upright    │ \textup{} │ \upshape    │
-        ├────────────┼───────────┼─────────────┤
-        │ slanted    │ \textsl{} │ \slshape    │
-        ├────────────┼───────────┼─────────────┤
-        │ small caps │ \textsc{} │ \scshape    │
-        ├────────────┼───────────┼─────────────┤
-        │ emphasized │ \emph{}   │ \em         │
-        └────────────┴───────────┴─────────────┘
+    ┌────────────┬───────────┬─────────────┐
+    │ style      │ command   │ declaration │
+    ├────────────┼───────────┼─────────────┤
+    │ bold-faced │ \textbf{} │ \bfseries   │
+    │ medium     │ \textmd{} │ \mdseries   │
+    ├────────────┼───────────┼─────────────┤
+    │ italics    │ \textit{} │ \itshape    │
+    │ upright    │ \textup{} │ \upshape    │
+    ├────────────┼───────────┼─────────────┤
+    │ slanted    │ \textsl{} │ \slshape    │
+    ├────────────┼───────────┼─────────────┤
+    │ small caps │ \textsc{} │ \scshape    │
+    ├────────────┼───────────┼─────────────┤
+    │ emphasized │ \emph{}   │ \em         │
+    └────────────┴───────────┴─────────────┘
 
 `\mdseries`  cancels  `\bfseries`
 `\upshape`   cancels  `\itshape`
