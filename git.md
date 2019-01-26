@@ -1,3 +1,20 @@
+# How to get all the changes introduced by a commit?
+
+    $ git diff COMMIT~ COMMIT
+
+Source: <https://stackoverflow.com/a/17563740/9780968>
+
+---
+
+This is useful when you're looking for  the first commit which has added a given
+line of code in a project, but you don't understand its purpose.
+
+Note the commit hash and use the previous command.
+You will see all the changes introduced by the commit, in *all* the files of the
+project, not just the one file where the line of code was added.
+It gives you more context, and may help you better understand the purpose of the
+change.
+
 # How to get a url selecting a range of lines in a file hosted on GitHub?
 
         1. open your file in Vim

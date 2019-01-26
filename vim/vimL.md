@@ -106,6 +106,29 @@ It will create 5 new lines, so that  it can replace their empty contents.
 Useful  if you  want to  parse the  command-line to  install some  configuration
 depending on the flags which were passed to Vim on the shell's command-line.
 
+## How to get the path to a parent of a given directory?
+
+Use `fnamemodify()`, and `:p:h:h` if the directory exists, `:p:h` otherwise.
+
+    echo fnamemodify($HOME . '/.vim', ':p:h:h')
+    /home/user~
+
+    echo fnamemodify($HOME . '/.vam', ':p:h')
+    /home/user~
+
+---
+
+You need two `:h`  in the first case, because `:p` adds a  trailing slash to the
+path if the directory exists.
+
+    echo fnamemodify($HOME . '/.vim', ':p')
+    /home/user/.vim/~
+    echo fnamemodify($HOME . '/.vam', ':p')
+    /home/user/.vam~
+
+This has an effect on the `:h` modifier, because the latter considers a trailing
+slash as a (empty) path component.
+
 ## Why should I prefix any call to `system[list]()` with `:silent`?
 
 When vim is running, the terminal is in “raw” mode: it sends a character as soon
