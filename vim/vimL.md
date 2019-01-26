@@ -157,8 +157,10 @@ directory exists.
 
     echo fnamemodify($HOME . '/.vim', ':p')
     /home/user/.vim/~
+                   ^
     echo fnamemodify($HOME . '/.vam', ':p')
     /home/user/.vam~
+                   ^
 
 This has an effect on the `:h` modifier, because the latter considers a trailing
 slash as a (empty) path component.
