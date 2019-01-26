@@ -746,6 +746,29 @@ not what `:windo` does.
 ##
 # TODO
 
+Document  that if  you  install a  custom  command which  relies  on the  syntax
+highlighting, it needs to run this statement:
+
+    let &ei = '' | do Syntax
+
+Otherwise, it may not work when you use it via `:argdo`, `:bufdo`.
+
+Also, this custom command should *not* do something wrong if there's no syntax.
+IOW, if it finds no syntax item under the cursor, the code should bail out.
+
+Right now, we have 2 such commands:
+
+    FixWrongHeaders
+    LinkInline2Ref
+
+They don't seem to do anything wrong if there's no syntax.
+Make  sure  you don't  have  other  such  commands  which behave  badly  without
+highlighting:
+
+    :Vim /\m\C\<synstack(/gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
+
+---
+
 Understand what's the use case of the [new][2] `-addr=other`, and the undocumented `-addr=quickfix`.
 
 See:
