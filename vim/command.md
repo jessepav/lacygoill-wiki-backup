@@ -744,7 +744,16 @@ So, if you tried to use the  previous alternative to emulate `:windo`, you would
 not what `:windo` does.
 
 ##
-# TODO
+# ?
+
+Document that, in practice, you don't need to combine `:update` and `:argdo`:
+
+    :argdo SomeCommand | update
+                       ^^^^^^^^
+
+Our `vim-save` plugin automatically updates a buffer on BufLeave.
+
+# ?
 
 Document  that if  you  install a  custom  command which  relies  on the  syntax
 highlighting, it needs to run this statement:
@@ -767,7 +776,7 @@ highlighting:
 
     :Vim /\m\C\<synstack(/gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
 
----
+# ?
 
 Understand what's the use case of the [new][2] `-addr=other`, and the undocumented `-addr=quickfix`.
 
@@ -802,14 +811,14 @@ See:
 If you replace `-count` with `-range` in the previous snippets, I don't think it
 makes a difference.
 
----
+# ?
 
 To read:
     :h sign-support
     https://vi.stackexchange.com/questions/15846/is-there-a-way-to-quickly-jump-to-signs
     https://gist.github.com/BoltsJ/5942ecac7f0b0e9811749ef6e19d2176
 
----
+# ?
 
 Read this:
         https://www.reddit.com/r/vim/comments/5mx8jq/is_there_a_way_to_get_vimeunuchs_rename_command/
@@ -835,9 +844,9 @@ Make some tests:
 
 It seems to depend on various things:
 
-        - the current working directory
-        - the attribute (`-complete=file`, `-complete=file_in_path`, `-complete=custom,...`)
-        - the filename modifier
+   - the current working directory
+   - the attribute (`-complete=file`, `-complete=file_in_path`, `-complete=custom,...`)
+   - the filename modifier
 
 Also, it seems  that some Tab-expansions don't work if  the result doesn't match
 an existing file.
