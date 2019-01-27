@@ -1831,6 +1831,70 @@ Clearly this may be extended to other languages.
 # TODO
 ## ?
 
+Document that a cluster may have the same name than a group.
+There seems to be no conflict.
+Maybe because a cluster name is always prefixed by `@`.
+
+## ?
+
+Document that you should never use `contains=TOP`.
+It breaks  the syntax  highlighting when the  syntax plugin is  used to  embed a
+language inside another.
+
+See here for a solution:
+<https://github.com/derekwyatt/vim-scala/pull/59>
+<https://github.com/vim-pandoc/vim-pandoc-syntax/issues/54>
+
+---
+
+Document that you can't clear a syntax group in `~/.vim/after/syntax/x.vim` when
+the syntax plugin is sourced by `:syn include`.
+
+MWE:
+
+    $ echo 'syn clear zshBrackets' >>~/.vim/after/syntax/zsh.vim
+
+    $ cat <<'EOF' >/tmp/md.md
+    ```zsh
+    func() {
+      local var="123"
+    }
+      local var="123"
+    ```
+    EOF
+
+    $ vim -Nu NONE \
+      +'syntax on' \
+      +'let g:markdown_fenced_languages=["zsh"]' \
+      +'breakadd file */syntax/zsh.vim' \
+      +'breakadd file */syntax/zsh/*.vim' \
+      /tmp/md.md
+    :e
+    >f
+    >n
+    >syn list zshBrackets
+
+The output of the last command should be empty, but it's not.
+
+Theory: maybe the syntax group is locked while the cluster is defined...
+
+Solution:
+Clear (then customize if you want) the syntax group from an autocmd listening to `Syntax`.
+
+    augroup syntax_fix_embedding
+        au!
+        au Syntax markdown call s:fix_embedding()
+    augroup END
+
+    fu! s:fix_embedding() abort
+        if execute('syn list @markdownEmbedzsh', 'silent!') !~# 'markdownEmbedzsh'
+            return
+        endif
+        syn clear zshBrackets
+    endfu
+
+## ?
+
 Whenever you've used a positive lookaround  at the beginning/end of an item, try
 to use an offset instead.
 It may improve the performance.
