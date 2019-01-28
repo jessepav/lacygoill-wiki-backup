@@ -48,7 +48,6 @@ Dans un file pattern `'**'` ne peut être utilisé que:
 
           n'importe quoi ✘
 
-
 # ?
 
 `**` peut être utilisé dans 2 contextes différents.
