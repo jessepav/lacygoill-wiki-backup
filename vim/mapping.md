@@ -1,5 +1,33 @@
 # ?
 
+`C-j` (or a NUL) and `C-m` don't make a string end prematurely:
+
+    echo "foo \<c-j> bar"
+    foo ~
+     bar~
+
+Neither in an `<expr>` mapping:
+
+    fu! Func(str)
+        return ''
+    endfu
+    nno <expr> cd Func('foo <c-j> bar')
+    norm cd
+
+However, they *can* in a regular mapping:
+
+    fu! Func(str)
+        echo a:str
+    endfu
+    nno cd :call Func('foo <c-j> bar')<cr>
+    norm cd
+    E115: Missing quote: 'foo ~
+
+This is  probably because  the keys  in the rhs  are processed  as if  they were
+pressed manually; and when `C-j` or `C-m` is pressed, it ends the command.
+
+# ?
+
 :h index           key sequences mapped by default
 :h key-notation    notation for keys
 

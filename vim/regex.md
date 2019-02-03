@@ -1402,6 +1402,16 @@ Morale de l'histoire:    ne jamais mettre de newline dans une capture à laquell
 
             Pratique pour simuler `\K+`. `\K` n'existe pas.
 
+            Update: If you have 8.1.0862, you can now use:
+
+               - [:keyword:]
+               - [:ident:]
+               - [:fname:]
+
+            `[:keyword:]` can be used to construct the complement of `\k`:
+
+                [^[:keyword:]]
+
 
 Étant donné la ligne suivante:    FooBar baz QuxNorf
 

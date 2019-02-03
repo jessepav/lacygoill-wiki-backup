@@ -574,6 +574,7 @@ format and adhere to defined styles.
             increasingly larger regions of text using the same key combination.
 
             https://github.com/terryma/vim-expand-region
+            https://github.com/landock/vim-expand-region
 
                                     226 sloc
 
