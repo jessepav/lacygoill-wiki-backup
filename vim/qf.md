@@ -1366,12 +1366,12 @@ Example 2:
 ##
 #
 # TODO
-# ?
+## ?
 
 Install a `!j` mapping which would open an interactive window, in which we could
 see all the running jobs, and stop them.
 
-# ?
+## ?
 
 Try to remove `get()` whenever you can.
 You've used it too much in the past to access the value of a qfl property.
@@ -1381,7 +1381,7 @@ Search for `\C\<get(` in this file and in all our notes/plugins/...
 You  may find  a lot  of matches,  but don't  worry (`:Cfilter  -other_plugins`)
 removes a lot of them.
 
-# ?
+## ?
 
 We've  made  a   fundamental  mistake  in  the  past,  every   time  we've  used
 `setqflist()` or `setloclist()`.
@@ -1419,11 +1419,11 @@ much.
     :Vim :[cl]\%(add\|get\)\=\%(expr\|file\|buffer\)\|l\=make\|l\=vim\%[grep]\%(add\)\=\>.*/[^/]*/[gj]\{1,2}:gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
     :Cfilter! -tmp -commented -other_plugins
 
-# Document that you can set the current entry in the qfl via `setqflist()` and the 'idx' property.
+## Document that you can set the current entry in the qfl via `setqflist()` and the 'idx' property.
 
 <https://github.com/vim/vim/pull/3701>
 
-# Talk about the 'filewinid' property of a location window.
+## Talk about the 'filewinid' property of a location window.
 
 See `:h getloclist()`.
 See also one of our TO DO in:
@@ -1604,10 +1604,6 @@ To reproduce the issue, you need to do that:
     :q
     :4verb cexpr system('')
     " insert some text, and watch the status line
-
-## Suppose we have 5 qfl, why does this command remove the fourth and fifth qfl? ...
-
-        call setqflist([], ' ', {'nr' : '3', 'lines' : systemlist('grep -RHIinos pat *')})
 
 ## What's the purpose of 'items'?
 

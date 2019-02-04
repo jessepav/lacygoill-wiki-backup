@@ -15,9 +15,7 @@ A  plugin using  these commands  to update  the qfl  can interfere  with another
 plugin.
 
 To avoid these issues, `getqflist()` and `setqflist()` can be used to operate on
-a specific list in the stack, using its unique id.
-
-The identifier of a quickfix list can be obtained using:
+a specific list in the stack, using its unique id which can be obtained with:
 
     let qfid = getqflist({'id' : 0}).id
 
@@ -59,7 +57,7 @@ command output and update a qfl:
 
         let qfid = getqflist({'id' : 0}).id
 
-   3. Start a command in the background using job_start()
+   3. Start a command in the background using `job_start()`
 
    4. In the job callback function, check if the quickfix list is still present:
 
