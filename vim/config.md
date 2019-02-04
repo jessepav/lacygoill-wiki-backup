@@ -239,6 +239,11 @@ That's why `:setl ul<` and `:set ul<` seem to have no effect.
 They do have an effect (the same as  for `'ar'`), but you need to assign another
 local value to see it.
 
+##
+## How to print the list of options whose name contains `break`?
+
+    :h '*break C-d
+
 ###
 # Setting options
 ## What are the six commands you can use to set an option?
