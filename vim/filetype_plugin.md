@@ -176,10 +176,10 @@ subdirectories of the rtp.
 OTOH, `:helptags` is not that smart.
 It expects as an argument either:
 
-    - a full path to the documentation file
-    - a path relative to the cwd
+   - a full path to the documentation file
+   - a path relative to the cwd
 
-But it does not look in the rtp.
+But it does *not* look in the rtp.
 
 ## Can I add the same path twice to the rtp?
 

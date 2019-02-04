@@ -5,44 +5,54 @@ Un tag est un identifiant qui apparaît dans un fichier `tags`.
 Il  s'agit d'une  sorte  d'étiquette  permettant de  se  rendre  (sauter) à  une
 définition donnée.
 Pex, dans un pgm C, chaque nom de fonction peut être utilisé comme un tag.
-Pour  que les  commandes tq  :tag puissent  trouver la  définition d'un  tag, le
-fichier `tags`  doit avoir été généré  via un pgm tq  ctags:
+Pour que  les commandes tq  `:tag` puissent trouver  la définition d'un  tag, le
+fichier `tags` doit avoir été généré via un pgm tq ctags:
 
     $ ctags -R  .
 
 Commande shell qui scanne récursivement le dossier de travail.
 
-On peut se rendre à la définition d'un tag, on peut utiliser:
+Pour se rendre à la définition d'un tag, on peut utiliser:
 
-   - la commande Ex :tag {ident}    peu importe où se trouve le curseur
-   - la commande normale C-]        le curseur doit se trouver sur l'{ident} désiré
+   - `:tag {ident}`    peu importe où se trouve le curseur
+   - `C-]`             le curseur doit se trouver sur l'identifiant désiré
 
-À  chaque fois  qu'on saute  vers une  définition, son  `{ident}` est  poussé au
-sommet de la tag stack.
-En revanche,  s'il y a plusieurs  matchs possibles pour un  `{ident}` donné, ils
-viennent peupler la tag match list.
+À chaque fois qu'on saute vers une définition, son id est poussé au sommet de la
+tag stack.
+En revanche, s'il y a plusieurs matchs  possibles pour un id donné, ils viennent
+peupler la tag match list.
 On  peut naviguer  au sein  de cette  dernière via  les commandes  `:tprevious`,
 `:tnext`, `:tfirst`, `:tlast`.
+
+---
 
     :tags
 
 Afficher la tag stack.
+
+---
 
     [t
     ]t
 
 Se rendre au précédent / prochain item de la tag match list (mappings custom).
 
+---
+
     [T
     ]T
 
 Se rendre au 1er / dernier item de la tag match list.
+
+---
 
     C-]
     :tag [ident]
 
 Se rendre à la  définition du tag sous le curseur ce qui  ajoute un `{ident}` au
 sommet de la tag stack.
+
+---
 
     C-t
     :pop
@@ -72,11 +82,15 @@ définition est forcément plus ancienne.
 Dans ce  cas, c'est donc  <kbd>C-o</kbd> qu'il faut  utiliser pour revenir  à la
 définition d'un tag.
 
+---
+
     g C-]
     :tjump [ident]
 
 Affiche la liste des  tags matchant l'`{ident}` sous le curseur ou  se rend à la
 définition du tag s'il n'y a qu'un seul match.
+
+---
 
     g]
     :tselect [ident]
