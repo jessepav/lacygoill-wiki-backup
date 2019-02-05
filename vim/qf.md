@@ -1378,7 +1378,7 @@ You've used it too much in the past to access the value of a qfl property.
 
 Search for `\C\<get(` in this file and in all our notes/plugins/...
 
-You  may find  a lot  of matches,  but don't  worry (`:Cfilter  -other_plugins`)
+You  may find  a lot  of matches,  but don't  worry (`:Cfilter!  -other_plugins`)
 removes a lot of them.
 
 ## ?
