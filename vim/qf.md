@@ -1368,6 +1368,32 @@ Example 2:
 # TODO
 ## ?
 
+Document that  the result of `:vimgrep`  is influenced by `'isk'`  (and probably
+`'isf'`, `'isi'`, ...), if the pattern contains sth like `\k` or `\<`, `\>`.
+Indeed, if  `:vimgrep` searches  inside a  file which is  currently loaded  in a
+buffer, it uses the buffer-local value of `'isk'`.
+
+    :sp /tmp/file
+    :call append('.', ['foo', 'bar', 'foo#bar'])
+    :vim /\<bar/gj %
+    /tmp/file  |3 col 1  | bar~
+    /tmp/file  |4 col 5  | foo#bar~
+
+    :setl isk+=#
+    :vim /\<bar/gj %
+    /tmp/file  |3 col 1  | bar~
+
+The previous command shows that `:vim` is influenced by the local value of `'isk'`.
+
+    :bd
+    :vim /\<bar/gj /tmp/file
+    /tmp/file  |3 col 1  | bar~
+    /tmp/file  |4 col 5  | foo#bar~
+
+But *not* if the buffer where the search is performed is unloaded.
+
+## ?
+
 Install a `!j` mapping which would open an interactive window, in which we could
 see all the running jobs, and stop them.
 
