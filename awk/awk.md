@@ -1,5 +1,112 @@
 On s'est arrêté à la page 84 du pdf / 72 du livre.
 
+# Why do I have to surround an action with curly braces?
+
+Because you can omit the pattern or the action.
+And if you do omit one of them,  awk must be able to tell whether your statement
+contains only a pattern  or an action; the curly braces tell  awk that you wrote
+an action.
+
+# Can a string be surrounded by single quotes?
+
+No, it's a syntax error.
+
+    $ cat <<'EOF' >/tmp/file
+    foo
+    bar
+    baz
+    EOF
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    { printf '%d', 1 }
+    #        ^  ^
+    #        ✘  ✘
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/file
+    awk: /tmp/awk.awk:1: { printf '%d', 1 }~
+    awk: /tmp/awk.awk:1:          ^ invalid char ''' in expression~
+    awk: /tmp/awk.awk:1: { printf '%d', 1 }~
+    awk: /tmp/awk.awk:1:          ^ syntax error~
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    { printf "%s", 'word' }
+    #              ^    ^
+    #              ✘    ✘
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/file
+    awk: /tmp/awk.awk:1: { printf "%s", 'word' }~
+    awk: /tmp/awk.awk:1:                ^ invalid char ''' in expression~
+    awk: /tmp/awk.awk:1: { printf "%s", 'word' }~
+    awk: /tmp/awk.awk:1:                ^ syntax error~
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    { printf "%s ", "word" }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/file
+    word word word ~
+
+# Can a string contains single quotes?
+
+Yes, as many as you want.
+
+    $ cat <<'EOF' >/tmp/file
+    foo
+    bar
+    baz
+    EOF
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    { printf "%s   ", "a'''b" }
+    #                   ^^^
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/file
+    a'''b   a'''b   a'''b   ~
+
+# What are the three possible representations for a number?
+
+Integer:
+
+   * 1
+   * +1
+   * -1
+
+Decimal:
+
+   * 1.2
+   * +1.2
+   * -1.2
+
+Scientific Notation:
+
+   * 1.2e3
+   * 1.2E3
+   * 1.2e+3
+   * 1.2E+3
+   * 1.2e-3
+   * 1.2E-3
+
+# How does awk store any number?
+
+As a float (the precision of which is machine dependent).
+
+    $ awk '$1 == $2' <<<'123 123.0'
+    123 123.0~
+
+    $ awk '$1 == $2' <<<'123.0 1.23e2'
+    123.0 1.23e2~
+
+The fact that awk prints back the input  line means that the test `$1 == $2` has
+succeeded.
+Which means  that the first  and second fields are  identical, and that  the two
+numbers are equal.
+
+##
+##
+##
 # I have a the following file:
 
     $ cat <<'EOF' >/tmp/emp.data
@@ -17,7 +124,8 @@ The three columns contain:
    - their pay rate in dollars per hour
    - the number of hours they've worked so far
 
-## How to print the names of the employees which have worked more than 0 hours, and their total pay?
+## How to print
+### the names of the employees which have worked more than 0 hours, and their total pay?
 
     $ awk '$3 > 0 { print $1, $2 * $3 }' /tmp/emp.data
            ├────┘         ├┘  ├─────┘
@@ -32,11 +140,31 @@ The three columns contain:
     Mary 121~
     Susie 76.5~
 
-## How to print the names of the employees which have *not* worked?
+### the names of the employees which have *not* worked?
 
     $ awk '$3 == 0 { print $1 }' /tmp/emp.data
     Beth~
     Dan~
+
+### the lines containing the names of the employees which have *not* worked?
+
+    $ awk '$3 == 0' /tmp/emp.data
+    Beth    4.00   0~
+    Dan     3.75   0~
+
+This shows that you can omit the action in a pattern-action statement.
+
+### the names of all the employees?
+
+    $ awk '{ print $1 }' /tmp/emp.data
+    Beth~
+    Dan~
+    Kathy~
+    Mark~
+    Mary~
+    Susie~
+
+This shows that you can omit the pattern in a pattern-action statement.
 
 ##
 ##
@@ -79,7 +207,7 @@ Avec la 2e commande précédente, awk ne  supprimera que les tabs (car FS = "\t"
 qu'il remplacera par des tabs (car OFS = "\t").
 
 
-    $ awk … | column -t [-s:]
+    $ awk ... | column -t [-s:]
 
             Aligne  les  colonnes de  texte  de  la sortie  d'awk. Par  défaut,
             l'espace  est utilisé  comme séparateur  entre 2  champs (`-s:`  =
@@ -92,7 +220,7 @@ qu'il remplacera par des tabs (car OFS = "\t").
                                      NOTE:
 
             L'avantage par  rapport aux  déclarations awk  précédentes (BEGIN
-            …),  est qu'on  n'a pas  besoin de  se soucier  de savoir  comment
+            ...),  est qu'on  n'a pas  besoin de  se soucier  de savoir  comment
             l'input d'awk était alignée, ni même si elle était alignée.
 
 ## Auto-indentation
@@ -170,7 +298,7 @@ booléen.
                     1.23456789 > 1.234 ✔
                     1.23       > 1.234 ✘
 
-            … mais AVANT d'afficher le résultat:
+            ... mais AVANT d'afficher le résultat:
 
                     print (var - 1.234)
                     0.00 (au lieu de 0.00056789)~
@@ -182,37 +310,37 @@ booléen.
 
     Syntaxes des fonctions `print()`, `close()` et `system()`:
 
-    ┌────────────────────────┬─────────────────────────────────────────────────────────┐
-    │ print e1, e2, …        │ concatène les valeurs des expressions                   │
-    │                        │ en incluant OFS entre elles et ORS à la fin,            │
-    │                        │ puis écrit le résultat sur la sortie standard du shell  │
-    ├────────────────────────┼─────────────────────────────────────────────────────────┤
-    │ print e1, e2, … >expr  │ écrit dans le fichier dont le nom est la valeur chaîne  │
-    │                        │ de `expr`                                               │
-    │                        │                                                         │
-    │ print e1, e2, … >>expr │ mode append                                             │
-    ├────────────────────────┼─────────────────────────────────────────────────────────┤
-    │ print e1, e2, … | expr │ écrit sur l'entrée standard de la commande shell        │
-    │                        │ stockée dans la valeur chaîne de `expr`                 │
-    ├────────────────────────┼─────────────────────────────────────────────────────────┤
-    │ system(expr)           │ exécute la commande shell stockée dans `expr`           │
-    │                        │ et affiche sa sortie                                    │
-    │                        │                                                         │
-    │                        │ retourne son code de sortie                             │
-    ├────────────────────────┼─────────────────────────────────────────────────────────┤
-    │ close(expr)            │ la valeur de`expr` doit être une chaîne dont le contenu │
-    │                        │ est un chemin vers un fichier ou une commande shell,    │
-    │                        │ ayant servi dans une redirection (>, |)                 │
-    └────────────────────────┴─────────────────────────────────────────────────────────┘
+    ┌──────────────────────────┬─────────────────────────────────────────────────────────┐
+    │ print e1, e2, ...        │ concatène les valeurs des expressions                   │
+    │                          │ en incluant OFS entre elles et ORS à la fin,            │
+    │                          │ puis écrit le résultat sur la sortie standard du shell  │
+    ├──────────────────────────┼─────────────────────────────────────────────────────────┤
+    │ print e1, e2, ... >expr  │ écrit dans le fichier dont le nom est la valeur chaîne  │
+    │                          │ de `expr`                                               │
+    │                          │                                                         │
+    │ print e1, e2, ... >>expr │ mode append                                             │
+    ├──────────────────────────┼─────────────────────────────────────────────────────────┤
+    │ print e1, e2, ... | expr │ écrit sur l'entrée standard de la commande shell        │
+    │                          │ stockée dans la valeur chaîne de `expr`                 │
+    ├──────────────────────────┼─────────────────────────────────────────────────────────┤
+    │ system(expr)             │ exécute la commande shell stockée dans `expr`           │
+    │                          │ et affiche sa sortie                                    │
+    │                          │                                                         │
+    │                          │ retourne son code de sortie                             │
+    ├──────────────────────────┼─────────────────────────────────────────────────────────┤
+    │ close(expr)              │ la valeur de`expr` doit être une chaîne dont le contenu │
+    │                          │ est un chemin vers un fichier ou une commande shell,    │
+    │                          │ ayant servi dans une redirection (>, |)                 │
+    └──────────────────────────┴─────────────────────────────────────────────────────────┘
 
-    ┌───────────────────────────────┐
-    │ printf(fmt, e1, e2, …)        │
-    ├───────────────────────────────┤
-    │ printf(fmt, e1, e2, …) >expr  │
-    │ printf(fmt, e1, e2, …) >>expr │
-    ├───────────────────────────────┤
-    │ printf(fmt, e1, e2, …) | expr │
-    └───────────────────────────────┘
+    ┌─────────────────────────────────┐
+    │ printf(fmt, e1, e2, ...)        │
+    ├─────────────────────────────────┤
+    │ printf(fmt, e1, e2, ...) >expr  │
+    │ printf(fmt, e1, e2, ...) >>expr │
+    ├─────────────────────────────────┤
+    │ printf(fmt, e1, e2, ...) | expr │
+    └─────────────────────────────────┘
 
             Les syntaxes de `printf` sont similaires à `print`, à ceci près que:
 
@@ -414,7 +542,7 @@ booléen.
             shell.
 
 ##
-# CALCUL
+# Calcul
 
     print (031 < 30)
     1~
@@ -560,25 +688,29 @@ booléen.
             https://www.gnu.org/software/gawk/manual/html_node/Exact-Arithmetic.html#Exact-Arithmetic
 
 ##
-# DEBUGGING
+# Debugging
 
     https://www.gnu.org/software/gawk/manual/html_node/Debugger.html
 
 ##
-# SYNTAXE
+# Syntaxe
 ## Action
 
-    pattern { action }    pattern {
-                              action
-                          }
+    pattern { action }
 
-            2 exemples d'un fichier contenant un pgm awk.
+    pattern {
+        action
+    }
 
-            L'accolade  ouverte  doit tjrs  être  sur  la  même ligne  que  le
-            pattern.   En effet,  sans lui,  awk lirait  la ligne  `pattern`, ce
-            qu'il interpréterait comme:
+2 exemples d'un fichier contenant un pgm awk.
 
-                    pattern    ⇔    pattern { print $0 }
+L'accolade ouverte doit tjrs être sur la même ligne que le pattern.
+En  effet, sans  lui, awk  lirait la  ligne `pattern`,  ce qu'il  interpréterait
+comme:
+
+    pattern
+    ⇔
+    pattern { print $0 }
 
 ## Arrays
 
@@ -703,8 +835,8 @@ booléen.
             crochets).
 
 
-    if ("Africa" in pop) …        ✔
-    if (pop["Africa"] != "") …    ✘
+    if ("Africa" in pop) ...        ✔
+    if (pop["Africa"] != "") ...    ✘
 
             Ces 2 `if` testent si l'indice "Africa" est présent dans l'array `pop`.
 
@@ -733,7 +865,7 @@ booléen.
 
                     split(i, x, SUBSEP)
 
-            … les composants sont stockées dans l'array `x`.
+            ... les composants sont stockées dans l'array `x`.
 
 
                                      NOTE:
@@ -1033,7 +1165,7 @@ Pour chacune de ces catégories, une coercition peut avoir lieue:
                     - while
                     - for
 
-            … il faut les encadrer avec des accolades.
+            ... il faut les encadrer avec des accolades.
             Autrement,  s'il n'y  en a  qu'une, pas  besoin d'accolades.
 
             C'est  logique, car  awk, contrairement  à Python,  n'accorde aucun
@@ -1459,7 +1591,7 @@ l'aiguille des minutes d'un cran (!). Mais seule `next` repositionne l'aiguille 
                     getline <expr
                     getline var <expr
 
-            … `expr` peut être "-". Et que "-" désigne le clavier.
+            ... `expr` peut être "-". Et que "-" désigne le clavier.
 
 
     "whoami" | getline        "whoami" | getline me
@@ -1564,7 +1696,7 @@ Fonctions opérant sur des chaînes:
     │                        │ `t` n'est pas modifiée                                                      │
     │                        │                                                                             │
     │                        │ au sein de la chaîne de remplacement `s`, on peut utiliser                  │
-    │                        │ les métaséquences `\0`, `\1`, …, `\9`                                       │
+    │                        │ les métaséquences `\0`, `\1`, ..., `\9`                                     │
     │                        │                                                                             │
     │                        │ `\0` = `&` = tout le texte matché                                           │
     │                        │                                                                             │
@@ -1696,7 +1828,7 @@ Dans le tableau qui précède:
 
             Si `expr` est présente, ce doit être un scalaire, pas une array.
             Pour simuler un `return array`, on pourra peupler une variable globale avec l'array
-            qu'on veut retourner:    array = …
+            qu'on veut retourner:    array = ...
 
 
                                      NOTE:
@@ -1712,7 +1844,7 @@ Dans le tableau qui précède:
 
                 function myfunc (parameter-list)    ✔
 
-            … mais pas qd on l'appelle ensuite:
+            ... mais pas qd on l'appelle ensuite:
 
                 myfunc (parameter-list)    ✘
 
@@ -1824,10 +1956,9 @@ Dans le tableau qui précède:
 
             Équivalent VimL:
 
-                    :echo New_feature(…)
+                    :echo New_feature(...)
 
-            … = des valeurs identiques aux records
-
+            ... = des valeurs identiques aux records
 
 ## Ligne de commande
 
@@ -1838,7 +1969,7 @@ Dans le tableau qui précède:
                                           │             │
                                           │  awk '      │─ chmod +x myscript
                                           │  pgm        │
-                                          │  …          │
+                                          │  ...        │
                                           │  ' "$@"     │
                                           └─────────────┘
 
@@ -1860,7 +1991,7 @@ Dans le tableau qui précède:
                                      NOTE:
 
             Il est important de quoter $@, pour empêcher bash de réaliser un word splitting après
-            le développement ($@ → $1 $2 …):
+            le développement ($@ → $1 $2 ...):
 
                     ./myscript a b 'c d'
 
@@ -1922,15 +2053,15 @@ Dans le tableau qui précède:
                     awk -f progfile f1 var=val f2
 
 
-    awk 'pattern { action }'              file
-    awk 'pattern { action1; action2; … }' file
-    awk 'statement1; statement2; …'       file
+    awk 'pattern { action }'                file
+    awk 'pattern { action1; action2; ... }' file
+    awk 'statement1; statement2; ..'        file
 
             Demande à awk d'exécuter:
 
                     - `action`                        sur les lignes de `file` matchant `pattern`
-                    - `action1`, `action2`, …         "
-                    - `statement1`, `statement2`, …
+                    - `action1`, `action2`, ...       "
+                    - `statement1`, `statement2`, ...
 
             La partie entre single quotes est un pgm awk complet.
 
@@ -2165,7 +2296,7 @@ Il existe 5 petits ensembles d'opérateurs:
         │ conditionnel             │ ?:        │
         └──────────────────────────┴───────────┘
 
-… et 6 grands:
+... et 6 grands:
 
         ┌───────────────────────────────┬──────────────────────┐
         │           ensemble            │       éléments       │
@@ -2544,7 +2675,7 @@ Qd le pattern est une expression, il y a match si son évaluation est un nombre 
 
                     $0 ~ /pattern1/,$0 ~ /pattern2/
 
-            … qui est un cas particulier de:
+            ... qui est un cas particulier de:
 
                     expr1,expr2
 
@@ -2650,7 +2781,7 @@ les valeurs suivantes:
     │             │            - comparaisons de chaînes (==, !=, <, >, <=, >=) et de regex (~, !~)  │
     │             │            - division en champs                                                  │
     │             │            - séparation des champs                                               │
-    │             │            - gsub(), index(), match(), split(), …                                │
+    │             │            - gsub(), index(), match(), split(), ...                              │
     │             │                                                                                  │
     │             │ Mais si on donne une valeur non nulle à cette IGNORECASE, elles deviennent       │
     │             │ insensibles.                                                                     │
@@ -2779,7 +2910,7 @@ les valeurs suivantes:
             { print NR }
 
             Ce code modifie l'index du 5e record, en lui donnant pour valeur 10.
-            Les records suivants auront donc pour index 11, 12, … au lieu de 6, 7, …
+            Les records suivants auront donc pour index 11, 12, ... au lieu de 6, 7, ...
 
             Illustre qu'on peut accéder en écriture à certaines variables internes, dont NR et FS.
             Exception:
@@ -2965,7 +3096,7 @@ les valeurs suivantes:
 
             Plus généralement, une même  expression nous permet d'accéder à
             la fois en  lecture et en écriture à certaines  variables ($1, NR,
-            …). Certaines, pas toutes. On ne peut pas modifier FILENAME.
+            ...). Certaines, pas toutes. On ne peut pas modifier FILENAME.
 
             Pour rappel, on accède à une variable en:
 
@@ -3038,287 +3169,3 @@ les valeurs suivantes:
             Dans cet exemple, le pipe à la fin de chaque ligne est un OFS qui sépare l'avant-dernier
             champ `show.` / `things.` du dernier champ vide.
 
-##
-# VOCA
-
-    constante
-
-            Il existe 2 types de constantes:
-
-                    - chaîne
-                    - numérique
-
-
-                                     NOTE:
-
-            Une chaîne doit toujours être encadrée par des double quotes (pas de single):
-
-                    printf '%s ', 'hello'       ✘
-                    printf "%s ", "hello"       ✔
-                    printf "%s ", "hel'''lo"    ✔
-
-            Autrement, ça provoque une erreur de syntaxe:
-
-                    invalid char ''' in expression
-                    syntax error
-
-            En revanche, une chaîne peut contenir autant de single quotes qu'on veut.
-            IOW, on peut utiliser un single quote au sein d'une chaîne, mais pas autour.
-
-
-                                     NOTE:
-
-            Une constante numérique peut s'écrire de 3 façons différentes:
-
-                    - entier:                     1  ou  +1
-                                                         -1
-
-                    - flottant:                   1.2  ou  +1.2
-                                                           -1.2
-
-                    - notation ≈ scientifique:    1.2e3  ou  1.2E3  ou 1.2e+3  ou  1.2E+3
-                                                                       1.2e-3  ou  1.2E-3
-
-            awk  stocke tous  les nombres  commes des  flottants, donc  pour lui
-            `123` = `123.0` = `1.23e2`.
-
-
-                                     NOTE:
-
-            Si  on  n'est pas  sûr  que  l'écriture  d'un  nb soit  soit  bien
-            interprétée comme un nb, on peut utiliser la commande suivante:
-
-                    awk '$1 == $2 { print }'
-
-            …  puis saisir  notre écriture  incertaine (ex: `1.2e3`),  et une
-            autre écriture  dont on est  sûr (ex: `1200`). Si la  ligne saisie
-            est réaffichée par awk, ça signifie  que le 1er champ est bien un
-            nb.
-
-
-    déclaration
-
-            Couple `pattern { action }`, ou commande à l'intérieur d'une action.
-
-
-    expression
-
-            Un expression est une combinaison d'une ou plusieurs:
-
-                    - array
-                    - constante
-                    - invocation de fonction
-                    - opérateur
-                    - variable
-
-            … qu'un langage de programmation:
-
-                    - interprète (en respectant des règles de précédences et d'association)
-                    - calcule
-                    - à partir du résultat, produit une nouvelle valeur d'un type donné
-                      (numérique, chaîne, logique - vrai / faux, fonction, nouvelle expression …)
-
-            En mathématiques, ce procédé est appelé "évaluation".
-
-
-    expression régulière
-
-            Une  expression régulière  est  une  combinaison d'opérateurs  et
-            de  métacaractères   encadrée  par  une  paire   de  délimiteurs
-            (typiquement /).
-
-            On peut aussi utiliser une chaîne comme regex, mais dans ce cas les
-            métacaractères doivent  être doublement échappés car  le parser
-            d'awk retire automatiquement un  backslash présent dans une chaîne
-            pour  changer le  sens  du caractère  suivant (métacaractère  ↔
-            caractère littéral).
-
-            IOW,  pour  alterner  entre  le   sens  spécial  /  littéral  d'un
-            caractère, il faut  2 backslashs dans une chaîne: un  pour awk, et
-            un pour le moteur de regex.
-
-            L'avantage d'utiliser  une chaîne  plutôt qu'une regex,  est qu'on
-            peut  décomposer le  pattern en  plusieurs sous-chaînes  stockées
-            dans des variables aux noms évocateurs.
-
-            Il  faudra   ensuite  concaténer   leurs  valeurs   pour  retrouver
-            le  pattern  global.   Une  décomposition  judicieuse  augmente  la
-            lisibilité d'une regex complexe, et facilite sa maintenance.
-
-
-    flot de contrôle / flot d'exécution / control flow
-
-            Ordre dans lequel les instructions d'un programme impératif sont exécutées.
-
-            La   manipulation   explicite   du   flot  de   contrôle   par   le
-            programmeur, grâce  aux structures de contrôle,  est la principale
-            caractéristique   des   langages   de   programmation   impératifs
-            vis-à-vis des autres paradigmes de programmation.
-
-
-    graphe de flot de contrôle
-
-            Ensemble de tous les flots de contrôle possibles d'un programme.
-
-
-    input
-
-            Ensemble des données traitées par le pgm awk.
-
-
-    ┌─────────────────────────────┬──────────────────────────────┐
-    │ opérateur de comparaison    │ relationnel + correspondance │
-    ├─────────────────────────────┼──────────────────────────────┤
-    │ opérateur relationnel       │ ==  !=  <  >  <=  >=         │
-    ├─────────────────────────────┼──────────────────────────────┤
-    │ opérateur de correspondance │ !   !~                       │
-    └─────────────────────────────┴──────────────────────────────┘
-
-
-    opérateur unaire / binaire
-
-            Opérateur associant une valeur à 1/2 opérande(s). Ex:
-
-                    + est un opérateur arithmétique BINAIRE:    1 + 2    →    3
-                    ? est un opérateur de regex UNAIRE:         r?       →   'r' ou ''
-
-
-    passage par valeur / référence
-
-            Qd une  fonction est appelée, et  qu'un de ses paramètres  est une
-            variable  définie précédemment,  on  dit qu'on  lui “passe  une
-            variable“. Ex:
-
-                    function calculateBirthYear(int yourAge) {
-                        return CURRENT_YEAR - yourAge;
-                    }
-
-                    int myAge = 24;
-                    calculateBirthYear(myAge);
-
-            Dans cet exemple,  à la fin, la variable  `myAge` est “passée”
-            à  `calculateBirthYear()` pour  calculer mon  année de  naissance.
-            Mais  `myAge` peut  être  passée de  2  façons différentes:  par
-            valeur ou par référence.
-
-            ┌───────────────┬────────────────────────────────────────────────────────────────────────┐
-            │ par valeur    │ une copie de `myAge` est créée (`yourAge`), puis passée à la fonction  │
-            │               │                                                                        │
-            │               │ si la fonction modifie la copie, l'originale (`myAge`) n'est pas       │
-            │               │ affectée                                                               │
-            ├───────────────┼────────────────────────────────────────────────────────────────────────┤
-            │ par référence │ l'adresse mémoire de `myAge` (sa référence) est passée à la fonction   │
-            │               │                                                                        │
-            │               │ si la fonction modifie `yourAge`, l'originale (`myAge`) est elle-aussi │
-            │               │ modifiée                                                               │
-            └───────────────┴────────────────────────────────────────────────────────────────────────┘
-
-
-    record / enregistrement
-
-            awk divise automatiquement l'input en records.
-            Par défaut, il le fait en considérant les newlines comme séparateurs.
-
-
-    séquence d'échappement
-
-            Une chaîne peut contenir les séquences d'échappement suivantes:
-
-                   ┌─────┬─────────────────────────────────┐
-                   │ \b  │ backspace                       │
-                   ├─────┼─────────────────────────────────┤
-                   │ \f  │ form feed                       │
-                   │     │                                 │
-                   │     │ force l'imprimante à éjecter    │
-                   │     │ la page courante, et à continuer│
-                   │     │ d'imprimer sur une nouvelle page│
-                   ├─────┼─────────────────────────────────┤
-                   │ \n  │ line feed                       │
-                   ├─────┼─────────────────────────────────┤
-                   │ \r  │ carriage return                 │
-                   │     │                                 │
-                   │     │ repositionne le curseur         │
-                   │     │ au début de la ligne courante   │
-                   ├─────┼─────────────────────────────────┤
-                   │ \t  │ tab                             │
-                   ├─────┼─────────────────────────────────┤
-                   │\123 │ caractère dont le code          │
-                   │     │ octal est `123`                 │
-                   ├─────┼─────────────────────────────────┤
-                   │ \\  │ backslash littéral              │
-                   ├─────┼─────────────────────────────────┤
-                   │ \"  │ double quote littéral           │
-                   └─────┴─────────────────────────────────┘
-
-
-    structure de contrôle
-
-            Une structure  de contrôle  est une instruction  particulière d'un
-            langage  de  programmation impératif  pouvant  dévier  le flot  de
-            contrôle d'un programme.
-
-            Quelques catégories de structures de contrôle:
-
-                    - les alternatives (if, if–else,  switch, …)
-                    - les boucles  (while, do–while, for, …)
-                    - les constructions de gestion  d'exceptions (try–catch,  …)
-
-
-    sucre syntaxique
-
-            Une   construction    syntaxique   est   qualifiée    de   “sucre
-            syntaxique“,  à  condition  qu'elle remplisse  les  2  conditions
-            suivantes:
-
-                    - elle simplifie la lecture/écriture d'une autre construction syntaxique
-
-                    - sa suppression ne ferait pas perdre d'expressivité, ou de
-                      fonctionnalité au langage de programmation
-
-
-            Exemple:
-
-            `printf "fmt", expr-list` est  probablement du sucre syntaxique pour
-            `printf("fmt", expr-list)`.
-
-
-            Autre exemple:
-
-            Dans un  langage de programmation,  pour obtenir un  élément d'une
-            array,  il faut  généralement  invoquer une  fonction système  à
-            laquelle on passera 2 arguments. Notons-les pex:
-
-                    - la fonction:                                              get_array()
-                    - le 1er argument, l'array:                                 Array
-                    - le 2e  argument, un indice sous la forme d'un vecteur:    vector(i,j)
-
-                    get_array(Array, vector(i,j))    →    Array[i,j]
-                    │                                     │
-                    │                                     └─ sucre syntaxique
-                    └─ écriture fondamentale
-
-            De la  même façon, donner une  valeur à un élément  d'une array
-            revient généralement à invoquer une fonction à laquelle on passe
-            3 arguments:
-
-                    - set_array()
-                    - Array
-                    - vector(i,j)
-                    - value
-
-                    set_array(Array, vector(i,j), value)    →    Array[i,j] = value
-                    │                                            │
-                    │                                            └─ sucre syntaxique
-                    └─ écriture fondamentale
-
-
-            Les   processeurs   du   langage   (interpréteur,   préprocesseur,
-            compilateur …) se  chargent de développer du  sucre syntaxique en
-            constructions fondamentales, avant  de traiter le code:  on parle de
-            “désucrage“ (“desugaring“).
-
-
-    valeur
-
-            Une valeur est une expression qu'aucune évaluation ne peut réduire
-            à une forme plus simple.
