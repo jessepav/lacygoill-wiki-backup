@@ -1,27 +1,43 @@
 On s'est arrêté à la page 84 du pdf / 72 du livre.
 
+# ?
+
+Document `#!/usr/bin/awk -f` as a third way of running awk code?
+
+---
+
+Write a `|c` mapping to lint awk (using `--lint`)?
+
 # Command-line
-## How to run an awk program from a file?  (2)
+## How to run an awk program from a file?  (3)
 
 Use the `-f` (fetch) option:
 
-    $ awk -f progfile file
+    $ awk -f progfile input_file
           ├─────────┘
           └ `progfile` must contain your awk program
 
-Or use a shell script:
+Use a shell script:
 
     $ cat <<'EOF' >~/bin/sh.sh
     #!/bin/bash
     awk '
-    pgm
     ...
     ' "$@"
     EOF
 
     $ chmod +x ~/bin/sh.sh
 
-    $ sh.sh file
+    $ sh.sh input_file
+
+Use an awk script:
+
+    $ cat <<'EOF' >~/bin/awk.awk
+    #!/usr/bin/awk -f
+    ...
+    EOF
+
+    $ awk.awk input_file
 
 ---
 
@@ -46,10 +62,18 @@ a word splitting after the expansion (`$@` → `$1 $2 ...`):
     file~
     2~
 
-### What's the pro/con of each syntax?
+### Which version should I choose?
 
-Pro: the shell script doesn't require for you to remember the `-f` option.
-Con: you can't include a comment containing a single quote inside the shell script
+Use an awk script.
+
+It's better than `$ awk -f`, because  you don't have to remember the `-f` option
+every time you need to run your script.
+
+It's better than a shell script, because with the latter, all the code is inside
+a string, which prevents the awk code from being correctly syntax highlighted.
+
+Besides, in  a shell  script, you  can't include a  comment containing  a single
+quote:
 
     awk '
     BEGIN {
