@@ -4,8 +4,17 @@ On s'est arrêté à la page 84 du pdf / 72 du livre.
 ## Why do I have to surround
 ### an awk program with single quotes?
 
-To protect characters like `$` from being interpreted by the shell.
 To be able to write code on several lines.
+
+To protect special characters from being interpreted by the shell.
+Like `$` and `SPC` (any shell), or `{` and `}` (only in zsh).
+
+    $ awk '$3 == 0 { print $1 }' /tmp/emp.data
+
+Without  the single  quotes,  you  would have  to  manually  quote each  special
+character:
+
+    $ awk \$3\ ==\ 0\ \{\ print\ \$1\ \} /tmp/emp.data
 
 ### an action with curly braces?
 
@@ -190,6 +199,14 @@ Example:
     $ awk '$1 ~ /x/'
 
 Anything you type will be printed back if it contains an `x` character.
+
+## When is the interactive mode useful?
+
+When you need to test a piece of code.
+
+   1. write the code
+   2. write some arbitrary input
+   3. watch the output
 
 ## How to exit?
 
@@ -2006,229 +2023,202 @@ Dans le tableau qui précède:
 
 ## Ligne de commande
 
-    awk -f progfile <input files>        ./myscript
-                                               │
-                                          ┌─────────────┐
-                                          │ #!/bin/bash │
-                                          │             │
-                                          │  awk '      │─ chmod +x myscript
-                                          │  pgm        │
-                                          │  ...        │
-                                          │  ' "$@"     │
-                                          └─────────────┘
+    $ awk -f progfile <input files>
 
 
-            Il s'agit de 2 syntaxes possibles pour exécuter un programme awk.
+    $ cat <<'EOF' >/tmp/myscript
+    #!/bin/bash
+    awk '
+    pgm
+    ...
+    ' "$@"
+    EOF
 
-            Dans  la 1e  syntaxe, l'option  `-f` demande  à awk  d'aller chercher  (’fetch’) le
-            programme à partir du fichier ’progfile’.
+    $ chmod +x /tmp/myscript
 
-            Dans la  2e syntaxe, $@  est un  paramètre spécial du  shell qui est  développé en
-            l'ensemble des paramètres positionnels:
+    $ /tmp/myscript
 
-                    "$1" "$2" "..."
+Il s'agit de 2 syntaxes possibles pour exécuter un programme awk.
 
-            Cette dernière permet de se créer une commande shell, en plaçant le script dans son $PATH,
-            et évite de devoir taper `awk -f`.
+Dans la  1e syntaxe, l'option `-f`  demande à awk d'aller  chercher (’fetch’) le
+programme à partir du fichier ’progfile’.
 
+Dans la 2e syntaxe, `$@` est un  paramètre spécial du shell qui est développé en
+l'ensemble des paramètres positionnels:
 
-                                     NOTE:
+        "$1" "$2" "..."
 
-            Il est important de quoter $@, pour empêcher bash de réaliser un word splitting après
-            le développement ($@ → $1 $2 ...):
+Cette dernière permet de se créer une  commande shell, en plaçant le script dans
+son `$PATH`, et évite de devoir taper `awk -f`.
 
-                    ./myscript a b 'c d'
+---
 
-                  ┌─────────────────┐              ┌─────────────────┐
-                  │ #!/bin/bash     │              │ #!/bin/bash     │
-                  │                 │              │                 │
-                  │ awk '           │     a        │ awk '           │     a
-                  │ BEGIN {         │  →  b        │ BEGIN {         │  →  b
-                  │ for (i in ARGV) │     c        │ for (i in ARGV) │     c d
-                  │   print ARGV[i] │     d        │   print ARGV[i] │
-                  │ }               │              │ }               │
-                  │ ' $@            │              │ ' "$@"          │
-                  └─────────────────┘              └─────────────────┘
+Il  est  important de  quoter  `$@`,  pour empêcher  bash  de  réaliser un  word
+splitting après le développement (`$@` → `$1 $2 ...`):
 
+    ./myscript a b 'c d'
 
-                                     NOTE:
+    ┌─────────────────┐              ┌─────────────────┐
+    │ #!/bin/bash     │              │ #!/bin/bash     │
+    │                 │              │                 │
+    │ awk '           │     a        │ awk '           │     a
+    │ BEGIN {         │  →  b        │ BEGIN {         │  →  b
+    │ for (i in ARGV) │     c        │ for (i in ARGV) │     c d
+    │   print ARGV[i] │     d        │   print ARGV[i] │
+    │ }               │              │ }               │
+    │ ' $@            │              │ ' "$@"          │
+    └─────────────────┘              └─────────────────┘
 
-            Attention, si on inclut un commentaire dans le programme via une des ces syntaxes,
-            il ne faut surtout pas qu'il contienne un single quote:
+---
 
-                    awk '
-                    BEGIN {
-                    for (i in ARGV)
-                      print ARGV[i]
-                    # Here's some comment    ✘ le single quote met prématurément fin au programme
-                    }
-                    ' "$@"
+Attention,  si on  inclut  un commentaire  dans  le programme  via  une des  ces
+syntaxes, il ne faut surtout pas qu'il contienne un single quote:
 
+    awk '
+    BEGIN {
+    for (i in ARGV)
+      print ARGV[i]
+    # Here's some comment    ✘ le single quote met prématurément fin au programme
+    }
+    ' "$@"
 
-    awk --lint -f progfile <input>
-    awk -t    -f  progfile <input>
+---
 
-            `--lint` et `-t` (`--old-lint`) fournissent des avertissements à propos des constructions
-            non portables vers la version (unix) d'awk originelle.
+    $ awk --lint -f progfile <input>
+    $ awk -t    -f  progfile <input>
 
-            `--lint` fournit également des avertissements pour des constructions douteuses.
+`--lint`  et `-t`  (`--old-lint`) fournissent  des avertissements  à propos  des
+constructions non portables vers la version (unix) d'awk originelle.
 
+`--lint` fournit également des avertissements pour des constructions douteuses.
 
-    awk -F: 'pgm' <input>
-    awk -v RS='\t' 'pgm' <input>
+---
 
-            Exécute `pgm` sur `<input>` en utilisant:
+    $ awk -F: 'pgm' <input>
+    $ awk -v RS='\t' 'pgm' <input>
 
-                    - le double-point comme séparateur de champs
-                    - le tab          comme séparateur de records
+Exécute `pgm` sur `<input>` en utilisant:
 
-            La syntaxe `-v var=val` permet de configurer n'importe quelle variable avant l'exécution
-            d'un programme awk. `-F<fs>` ne permet de configurer que FS.
+   - le double-point comme séparateur de champs
+   - le tab          comme séparateur de records
 
+La syntaxe  `-v var=val`  permet de configurer  n'importe quelle  variable avant
+l'exécution d'un programme awk.
+`-F<fs>` ne permet de configurer que FS.
 
-    awk -f progfile f1 FS=: f2
+---
 
-            Traite le fichier `f1` avec FS ayant sa valeur par défaut (" "), puis traite `f2`
-            avec FS ayant pour valeur `:`.
+    $ awk -f progfile f1 FS=: f2
 
-            Plus généralement, on peut configurer une variable juste avant le traitement d'un fichier
-            arbitraire, via la syntaxe:
+Traite le  fichier `f1` avec FS  ayant sa valeur  par défaut (" "),  puis traite
+`f2` avec FS ayant pour valeur `:`.
 
-                    awk -f progfile f1 var=val f2
+Plus généralement,  on peut  configurer une variable  juste avant  le traitement
+d'un fichier arbitraire, via la syntaxe:
 
+    $ awk -f progfile f1 var=val f2
 
-    awk 'pattern { action }'                file
-    awk 'pattern { action1; action2; ... }' file
-    awk 'statement1; statement2; ..'        file
+---
 
-            Demande à awk d'exécuter:
+    $ awk 'pattern { action }'                file
+    $ awk 'pattern { action1; action2; ... }' file
+    $ awk 'statement1; statement2; ..'        file
 
-                    - `action`                        sur les lignes de `file` matchant `pattern`
-                    - `action1`, `action2`, ...       "
-                    - `statement1`, `statement2`, ...
+Demande à awk d'exécuter:
 
-            La partie entre single quotes est un pgm awk complet.
+   - `action`                      sur les lignes de `file` matchant `pattern`
+   - `action1`, `action2`, ...       "
+   - `statement1`, `statement2`, ...
 
+La partie entre single quotes est un pgm awk complet.
 
-                                     NOTE:
+---
 
-            Dans un fichier awk, on sépare via un newline:
+Dans un fichier awk, on sépare via un newline:
 
-                    - 2 actions consécutives                  devant agir sur un même pattern
+   - 2 actions consécutives                  devant agir sur un même pattern
 
-                    - 2 couples pattern / action consécutifs  devant agir sur l'input
+   - 2 couples pattern / action consécutifs  devant agir sur l'input
 
-            Sur la ligne de commandes, on peut remplacer les newlines par des points-virgules.
+Sur la ligne de commandes, on peut remplacer les newlines par des points-virgules.
 
+---
 
-                                     NOTE:
+    $ awk '$1 ~ $2'
 
-            Une erreur fréquente consiste à oublier les quotes autour du pgm awk.
-            Bien penser à TJRS QUOTER un pgm awk.
+Permet de tester une regex, en écrivant du texte dans le 1er champ, et une regex
+dans le 2e.
 
-            Ils sont nécessaires pour empêcher le shell d'interpréter certains caractères spéciaux,
-            et pour écrire un pgm sur plusieurs lignes.
-            Sans eux, il faudrait échapper de nombreux caractères (` `, `$`, `{`, `}`).
-            Ex:
+Si la ligne  écrite est réaffichée par  awk, ça signifie que la  regex match une
+sous-chaîne du texte écrit dans le 1er champ.
 
-                    awk '$3 == 0 { print $1 }'         emp.data
-            →       awk \$3\ ==\ 0\ \{\ print\ \$1\ \} emp.data
+Ne fonctionne que si le texte ne contient pas d'espace, ni de tab.
+Autrement, il faut choisir un séparateur qui est absent du texte.
+Ex:
 
+    $ awk -F: '$1 ~ $2'
+    hello world:\w+\s\w+
+      hello world:\w+\s\w+    ✔
 
-    awk '$1 ~ $2'
+                ┌ l'espace au sein du 2e champ est pris en compte dans la regex
+                │
+    hello world: \w+\s\w+
+            ∅                 ✘
 
-            Permet de tester une regex, en écrivant du texte dans le 1er champ, et une regex dans le 2e.
+---
 
-            Si la ligne écrite est réaffichée par awk, ça signifie que la regex match une sous-chaîne
-            du texte écrit dans le 1er champ.
+    $ awk '{ print $1 }; /M/ { print $2 }' /tmp/emp.data
+    Beth~
+    Dan~
+    Kathy~
+    Mark~
+    5.00~
+    Mary~
+    5.50~
+    Susie~
 
-            Ne fonctionne que si le texte ne contient pas d'espace, ni de tab.
-            Autrement, il faut choisir un séparateur qui est absent du texte. Ex:
+Dans cet exemple, la sortie de awk mélange des prénoms et des nombres.
+À chaque fois qu'un record est traité, son premier champ est affiché.
+Son 2e champ l'est aussi, mais uniquement si le record contient le caractère M.
 
-                    awk -F: '$1 ~ $2'
+Illustre qu'awk n'itère qu'une seule fois sur les records.
+Pour  chacun  d'eux, il  exécute  toutes  les déclarations  pattern-action  pour
+lesquelles le pattern matche.
 
-                        hello world:\w+\s\w+
-                          hello world:\w+\s\w+    ✔
+IOW,  awk  itère  d'abord  sur  les   records,  et  seulement  ensuite  sur  les
+déclarations pattern-action.
 
-                                    ┌─ l'espace au sein du 2e champ est pris en compte dans la regex
-                                    │
-                        hello world: \w+\s\w+
-                                ∅                 ✘
+---
 
+    $ awk 'statement' file1 file2
 
-    awk '{ print $1 }; /M/ { print $2 }' emp.data
+Traite  les fichiers  `file1`  et  `file2` en  exécutant  le  code contenu  dans
+`statement`; illustre que l'input n'est pas limité à un fichier.
 
-        Beth    4.00    0          Beth
-        Dan     3.75    0          Dan
-        Kathy   4.00    10    →    Kathy
-        Mark    5.00    20         Mark
-        Mary    5.50    22         5.00
-        Susie   4.25    18         Mary
-                                   5.50
-                                   Susie
+---
 
-            Dans cet exemple, la sortie de awk mélange  des prénoms et des nombres. À chaque fois
-            qu'un record est traité, son premier champ est affiché. Son 2e champ l'est aussi, mais
-            uniquement si le record contient le caractère M.
+    $ awk '$3 == 0'      file
+    $ awk '{ print $1 }' file
 
-            Illustre qu'awk n'itère qu'une seule fois sur les records.
-            Pour chacun d'eux, il exécute toutes les déclarations pattern-action pour lesquelles
-            le pattern matche.
+Affiche les records dont le 3e champ est nul.
+Affiche le 1er champ de toutes les lignes.
 
-            IOW, awk itère d'abord sur les records, et seulement ensuite sur
-            les déclarations pattern-action.
+Illustre que  dans un pgm awk,  on peut omettre  le pattern ou l'action,  et que
+dans ces cas, par défaut:
 
+   - l'action est `print $0`
+   - le pattern matche tous les records
 
-    awk 'statement' file1 file2
+---
 
-            Traite les fichiers `file1` et `file2` en exécutant le code contenu dans `statement`.
-            Illustre que l'input n'est pas limité à un fichier.
+Il n'existe pas de champ `0`, `$0` correspond à une ligne entière.
 
+---
 
-    awk '$3 == 0 { print $1 }'
-
-                                Beth    4.00    0
-                              > Beth
-                                Dan     3.75    0
-                              > Dan
-                                Kathy   3.75    10
-                                Kathy   3.75    0
-                              > Kathy
-
-            L'absence d'input (noms de fichiers) lance awk en mode interactif.
-
-            Les lignes indiquées par un signe `>` sont les réponses de awk.
-
-            Le mode interactif est pratique pour expérimenter:
-
-                    1. écrire le pgm
-                    2. saisir les données
-                    3. observer les réponses
-
-
-    awk '$3 == 0'      file
-    awk '{ print $1 }' file
-
-            Affiche les records dont le 3e champ est nul.
-            Affiche le 1er champ de toutes les lignes.
-
-            Illustre que dans un pgm awk, on peut omettre le pattern ou l'action, et que dans ces cas,
-            par défaut:
-
-                    - l'action est `print $0`
-                    - le pattern matche tous les records
-
-
-                                     NOTE:
-
-            Il n'existe pas de champ 0, $0 correspond à une ligne entière.
-
-
-                                     NOTE:
-
-            Puisque dans un pgm awk, on peut omettre à la fois le pattern et l'action, il a fallu
-            trouver un moyen de les distinguer. Les accolades jouent ce rôle. Elles encadrent l'action
-            et ce faisant évite toute confusion avec le pattern.
+Puisque dans un pgm awk, on peut omettre  à la fois le pattern et l'action, il a
+fallu trouver un moyen de les distinguer.
+Les accolades jouent ce rôle.
+Elles encadrent l'action et ce faisant évite toute confusion avec le pattern.
 
 ## Terminaisons de commande
 
