@@ -1,54 +1,82 @@
 On s'est arrêté à la page 84 du pdf / 72 du livre.
 
+# I have a the following file:
+
+    $ cat <<'EOF' >/tmp/emp.data
+    Beth    4.00   0
+    Dan     3.75   0
+    Kathy   4.00   10
+    Mark    5.00   20
+    Mary    5.50   22
+    Susie   4.25   18
+    EOF
+
+The three columns contain:
+
+   - the name of employees
+   - their pay rate in dollars per hour
+   - the number of hours they've worked so far
+
+## How to print the names of the employees which have worked more than 0 hours, and their total pay?
+
+    $ awk '$3 > 0 { print $1, $2 * $3 }' /tmp/emp.data
+           ├────┘         ├┘  ├─────┘
+           │              │   └ print their pay
+           │              │
+           │              └ print their names
+           │
+           └ only consider the employees which have worked
+
+    Kathy 40~
+    Mark 100~
+    Mary 121~
+    Susie 76.5~
+
+## How to print the names of the employees which have *not* worked?
+
+    $ awk '$3 == 0 { print $1 }' /tmp/emp.data
+    Beth~
+    Dan~
+
+##
+##
+##
 # AFFICHAGE
 ## Alignement
 
-Pour rappel, le  nombre de cellules occupées  par un tab varie. Pex,  si un tab
-occupe 4 cellules par défaut, que le  curseur se trouve après 2 caractères en
-début de ligne, et qu'on appuie sur tab, ce dernier occupera 2 cellules au lieu
-de 4. En effet,  le but d'un tab et d'incrémenter  le niveau d'indentation vers
-l'entier supérieur le plus proche.
-
-Pour cette raison, un tab peut occuper 4, 3, 2, ou 1 cellule(s). Il ne faut donc
-pas  nécessairement interpréter  une cellule  vide comme  un espace,  ça peut
-être un  tab. Ou bien  un espace  insécable, ou  un autre  caractère exotique
-partageant un glyphe identique.
-
 Il existe 3 méthodes pour aligner la sortie d'awk:
 
-        - utiliser `printf` en donnant une largeur de champ suffisante pour chaque colonne
-        - pipe la sortie d'awk vers `column`
-        - jouer sur les variables FS et/ou OFS
+   - utiliser `printf` en donnant une largeur de champ suffisante pour chaque colonne
+   - pipe la sortie d'awk vers `column`
+   - jouer sur les variables FS et/ou OFS
 
 
     BEGIN {      OFS = "\t" }
     BEGIN { FS = OFS = "\t" }
 
-            Préserve l'alignement des champs de l'input qd ils sont séparés par des:
+Préserve l'alignement des champs de l'input qd ils sont séparés par des:
 
-                    - espaces
-                    - tabs
+   - espaces
+   - tabs
 
-            En effet, modifier  un champ peut changer sa largeur,  et donc faire
-            perdre l'alignement d'une colonne. En  ajoutant un tab après chaque
-            champ, on restaure l'alignement.
+En  effet, modifier  un champ  peut  changer sa  largeur, et  donc faire  perdre
+l'alignement d'une colonne.
+En ajoutant un tab après chaque champ, on restaure l'alignement.
 
 
-            Explication:
+Explication:
 
-            Qd on  ne modifie  pas le  contenu d'un record,  awk le  produit tel
-            quel. En revanche, si  on modifie directement le  contenu d'un champ
-            dont l'index est  non nul, awk effectue le remplacement  FS → OFS,
-            sur son record.
+Qd on ne modifie pas le contenu d'un record, awk le produit tel quel.
+En revanche,  si on modifie directement  le contenu d'un champ  dont l'index est
+non nul, awk effectue le remplacement FS → OFS, sur son record.
 
-            En clair, par défaut, awk remplace chaque séquence d'espaces et de
-            tabs  par  un espace.   Si  on  a  utilisé  des tabs  pour  aligner
-            des  colonnes  au  sein  d'un texte,  ce  remplacement  peut  ruiner
-            l'alignement.
+En clair, par défaut,  awk remplace chaque séquence d'espaces et  de tabs par un
+espace.
+Si  on a  utilisé des  tabs pour  aligner des  colonnes au  sein d'un  texte, ce
+remplacement peut ruiner l'alignement.
 
-            Ainsi, avec la  2e commande précédente, awk ne  supprimera que les
-            tabs  (car FS  = "\t"),  qu'il remplacera  par des  tabs (car  OFS =
-            "\t").
+Avec la 2e commande précédente, awk ne  supprimera que les tabs (car FS = "\t"),
+qu'il remplacera par des tabs (car OFS = "\t").
 
 
     $ awk … | column -t [-s:]
@@ -399,13 +427,13 @@ booléen.
 
                     031₈ < 30₁₀    ✔
                     │
-                    └── 031₈ = 1 + 3*8 = 25
+                    └ 031₈ = 1 + 3*8 = 25
 
             Le 2e test échoue car `0310` est interprété comme un nombre octal:
 
                     0310₈ < 30₁₀    ✘
                     │
-                    └── 0310₈ = 0 + 8 + 3*8*8 = 200
+                    └ 0310₈ = 0 + 8 + 3*8*8 = 200
 
             Le  3e test  échoue car  `0318`  est interprété  comme un  nombre
             décimal.  En  effet, même s'il commence  par un zéro, il  ne peut
@@ -2118,7 +2146,6 @@ On peut décomposer une action `if`, `for`, `while` en plaçant un newline:
     │ par conséquent, `s2` serait exécutée           │                               │
     │ peu importe la valeur de `e`                   │                               │
     └────────────────────────────────────────────────┴───────────────────────────────┘
-
 
 ## Opérateurs
 
