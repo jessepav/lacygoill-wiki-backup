@@ -1,5 +1,65 @@
 On s'est arrêté à la page 84 du pdf / 72 du livre.
 
+# Command-line
+## How to run an awk program from a file?  (2)
+
+Use the `-f` (fetch) option:
+
+    $ awk -f progfile file
+          ├─────────┘
+          └ `progfile` must contain your awk program
+
+Or use a shell script:
+
+    $ cat <<'EOF' >~/bin/sh.sh
+    #!/bin/bash
+    awk '
+    pgm
+    ...
+    ' "$@"
+    EOF
+
+    $ chmod +x ~/bin/sh.sh
+
+    $ sh.sh file
+
+---
+
+In the shell script, you need to quote `$@` to prevent the shell from performing
+a word splitting after the expansion (`$@` → `$1 $2 ...`):
+
+    $ cat <<'EOF' >/tmp/sh.sh
+    #!/bin/bash
+    awk '
+    BEGIN {
+    for (i in ARGV)
+      print ARGV[i]
+    }
+    ' $@
+    EOF
+
+    $ chmod +x /tmp/sh.sh
+
+    $ /tmp/sh.sh file1 'file 2'
+    awk~
+    file1~
+    file~
+    2~
+
+### What's the pro/con of each syntax?
+
+Pro: the shell script doesn't require for you to remember the `-f` option.
+Con: you can't include a comment containing a single quote inside the shell script
+
+    awk '
+    BEGIN {
+    for (i in ARGV)
+      print ARGV[i]
+    # Here's some comment    ✘ the single quote ends prematurely the program
+    }
+    ' "$@"
+
+##
 # Syntax
 ## Why do I have to surround
 ### an awk program with single quotes?
@@ -124,9 +184,7 @@ Which means  that the first  and second fields are  identical, and that  the two
 numbers are equal.
 
 ##
-##
-##
-# I have a the following file:
+# I have the following file:
 
     $ cat <<'EOF' >/tmp/emp.data
     Beth    4.00   0
@@ -165,13 +223,14 @@ The three columns contain:
     Beth~
     Dan~
 
-### the lines containing the names of the employees which have *not* worked?
+### the *lines* containing the names of the employees which have not worked?
 
     $ awk '$3 == 0' /tmp/emp.data
     Beth    4.00   0~
     Dan     3.75   0~
 
 This shows that you can omit the action in a pattern-action statement.
+The default action is `print $0`.
 
 ### the names of all the employees?
 
@@ -184,6 +243,7 @@ This shows that you can omit the action in a pattern-action statement.
     Susie~
 
 This shows that you can omit the pattern in a pattern-action statement.
+The default pattern matches all the records.
 
 ##
 # How to start awk interactively?
@@ -211,6 +271,8 @@ When you need to test a piece of code.
 ## How to exit?
 
 Press <kbd>C-d</kbd>.
+
+This sends the end-of-file signal to the awk foreground process.
 
 ##
 ##
@@ -684,10 +746,10 @@ booléen.
             Affiche le plus grand nombre de la 1e colonne.
 
 
-    awk 'BEGIN { print (1.2 == 1.1 + 0.1 ) }'
+    $ awk 'BEGIN { print (1.2 == 1.1 + 0.1 ) }'
     0    ✘~
 
-    awk 'BEGIN { x = 1.2 - 1.1 - 0.1 ; print (x < 0.001 && x > 0 || x > -0.001 && x < 0) }'
+    $ awk 'BEGIN { x = 1.2 - 1.1 - 0.1 ; print (x < 0.001 && x > 0 || x > -0.001 && x < 0) }'
     1    ✔~
 
             Il  se peut  que 2  expressions arithmétiques  diffèrent pour  awk
@@ -713,10 +775,10 @@ booléen.
             rapport à une précision arbitraire.
 
 
-    awk '1e50 == 1.0e50 { print 1 }' <<< ''
+    $ awk '1e50 == 1.0e50 { print 1 }' <<< ''
     1    ✔~
 
-    awk '1e500 == 1.0e500 { print 1 }' <<< ''
+    $ awk '1e500 == 1.0e500 { print 1 }' <<< ''
     1    ✘~
 
             Le problème peut venir de nombres trop grands, pex:
@@ -941,9 +1003,9 @@ comme:
 On peut  séparer les  opérateurs en  3 catégories, en  fonction des  types de
 données sur lesquels ils peuvent travailler:
 
-        - nombre
-        - chaîne
-        - chaîne et nombre
+   - nombre
+   - chaîne
+   - chaîne et nombre
 
 Pour chacune de ces catégories, une coercition peut avoir lieue:
 
@@ -985,15 +1047,15 @@ Pour chacune de ces catégories, une coercition peut avoir lieue:
             Awk  doit  alors choisir  quelle  coercition  réaliser: il  choisit
             toujours de convertir le nombre en chaîne. Contrairement à Vim:
 
-                                                              ┌─ awk parse cet input comme un nb, pas une chaîne
-                                                              │
-                    awk '$1 == "089" { print "match!" }' <<< "89"
+                                                                ┌ awk parse cet input comme un nb, pas une chaîne
+                                                                │
+                    $ awk '$1 == "089" { print "match!" }' <<< "89"
                     ∅~
 
-                    awk '$1 == "089" { print "match!" }' <<< "089"
+                    $ awk '$1 == "089" { print "match!" }' <<< "089"
                     match!~
 
-                    echo "89" == 089
+                    :echo "89" == 089
                     1~
 
             En cas d'ambiguïté, awk donne la priorité aux chaînes, Vim aux nombres.
@@ -1163,20 +1225,19 @@ Pour chacune de ces catégories, une coercition peut avoir lieue:
 
                 $1 < 0 { print "abs($1) = " -$1 }      ✘
                                             │
-                                            └─ l'opérateur `-` voit une chaîne et un nb,
-                                               donc il convertit la chaîne en nb
+                                            └ l'opérateur `-` voit une chaîne et un nb,
+                                              donc il convertit la chaîne en nb
 
                 $1 < 0 { print "abs($1) = " (-$1) }    ✔
                                            │ │
-                                           │ └─ l'opérateur `-` voit juste un nb
-                                           └─ l'opérateur de concaténation voit une chaîne et un nb
-                                              donc il convertit le nb en chaîne
-                                              Dans l'ordre, le parser d'awk traite:    () > - > concaténation
+                                           │ └ l'opérateur `-` voit juste un nb
+                                           └ l'opérateur de concaténation voit une chaîne et un nb
+                                             donc il convertit le nb en chaîne
+                                             Dans l'ordre, le parser d'awk traite:    () > - > concaténation
 
                 $1 < 0 { print "abs($1) = ", -$1 }     ✔
                          │
-                         └─ affiche une chaîne puis un nb
-
+                         └ affiche une chaîne puis un nb
 
 ## Structure de contrôle
 ### if
@@ -1510,7 +1571,7 @@ Ce code fait 3 choses:
 
    1. écrit le contenu de l'array `a` sur l'entrée de la commande shell:
 
-          sort -nr >/tmp/file
+          $ sort -nr >/tmp/file
 
    2. ferme le pipe
 
@@ -2023,67 +2084,6 @@ Dans le tableau qui précède:
 
 ## Ligne de commande
 
-    $ awk -f progfile <input files>
-
-
-    $ cat <<'EOF' >/tmp/myscript
-    #!/bin/bash
-    awk '
-    pgm
-    ...
-    ' "$@"
-    EOF
-
-    $ chmod +x /tmp/myscript
-
-    $ /tmp/myscript
-
-Il s'agit de 2 syntaxes possibles pour exécuter un programme awk.
-
-Dans la  1e syntaxe, l'option `-f`  demande à awk d'aller  chercher (’fetch’) le
-programme à partir du fichier ’progfile’.
-
-Dans la 2e syntaxe, `$@` est un  paramètre spécial du shell qui est développé en
-l'ensemble des paramètres positionnels:
-
-        "$1" "$2" "..."
-
-Cette dernière permet de se créer une  commande shell, en plaçant le script dans
-son `$PATH`, et évite de devoir taper `awk -f`.
-
----
-
-Il  est  important de  quoter  `$@`,  pour empêcher  bash  de  réaliser un  word
-splitting après le développement (`$@` → `$1 $2 ...`):
-
-    ./myscript a b 'c d'
-
-    ┌─────────────────┐              ┌─────────────────┐
-    │ #!/bin/bash     │              │ #!/bin/bash     │
-    │                 │              │                 │
-    │ awk '           │     a        │ awk '           │     a
-    │ BEGIN {         │  →  b        │ BEGIN {         │  →  b
-    │ for (i in ARGV) │     c        │ for (i in ARGV) │     c d
-    │   print ARGV[i] │     d        │   print ARGV[i] │
-    │ }               │              │ }               │
-    │ ' $@            │              │ ' "$@"          │
-    └─────────────────┘              └─────────────────┘
-
----
-
-Attention,  si on  inclut  un commentaire  dans  le programme  via  une des  ces
-syntaxes, il ne faut surtout pas qu'il contienne un single quote:
-
-    awk '
-    BEGIN {
-    for (i in ARGV)
-      print ARGV[i]
-    # Here's some comment    ✘ le single quote met prématurément fin au programme
-    }
-    ' "$@"
-
----
-
     $ awk --lint -f progfile <input>
     $ awk -t    -f  progfile <input>
 
@@ -2103,8 +2103,7 @@ Exécute `pgm` sur `<input>` en utilisant:
    - le tab          comme séparateur de records
 
 La syntaxe  `-v var=val`  permet de configurer  n'importe quelle  variable avant
-l'exécution d'un programme awk.
-`-F<fs>` ne permet de configurer que FS.
+l'exécution d'un programme awk; `-F<fs>` ne permet de configurer que FS.
 
 ---
 
@@ -2122,7 +2121,7 @@ d'un fichier arbitraire, via la syntaxe:
 
     $ awk 'pattern { action }'                file
     $ awk 'pattern { action1; action2; ... }' file
-    $ awk 'statement1; statement2; ..'        file
+    $ awk 'statement1; statement2; ...'       file
 
 Demande à awk d'exécuter:
 
@@ -2212,13 +2211,6 @@ dans ces cas, par défaut:
 ---
 
 Il n'existe pas de champ `0`, `$0` correspond à une ligne entière.
-
----
-
-Puisque dans un pgm awk, on peut omettre  à la fois le pattern et l'action, il a
-fallu trouver un moyen de les distinguer.
-Les accolades jouent ce rôle.
-Elles encadrent l'action et ce faisant évite toute confusion avec le pattern.
 
 ## Terminaisons de commande
 
@@ -2345,11 +2337,11 @@ Il existe 5 petits ensembles d'opérateurs:
 
                         Ordre de priorité:  () > [] > ?*+ > ∅ > |
                                             │    │    │     │
-                                            │    │    │     │   └── alternation
-                                            │    │    │     └── concaténation
-                                            │    │    └── répétition
-                                            │    └── collection
-                                            └── groupage + capture
+                                            │    │    │     │   └ alternation
+                                            │    │    │     └ concaténation
+                                            │    │    └ répétition
+                                            │    └ collection
+                                            └ groupage + capture
 
 
     7-4+2    =    (7-4)+2
@@ -2375,10 +2367,10 @@ Il existe 5 petits ensembles d'opérateurs:
 
                     var1 = var2 = val    ⇔    var1 = (var2 = val)
                                                    │       │
-                                                   │       └─ expression retournant `val`,
-                                                   │           et affectant `val` à `var2`
+                                                   │       └ expression retournant `val`,
+                                                   │         et affectant `val` à `var2`
                                                    │
-                                                   └─ expression retournant `val`, et affectant `val` à `var1`
+                                                   └ expression retournant `val`, et affectant `val` à `var1`
 
 
     ab?
@@ -2729,20 +2721,20 @@ Qd le pattern est une expression, il y a match si son évaluation est un nombre 
 
 Il existe 3 types de variables:
 
-        - définie par l'utilisateur (ex: myvar)
-        - interne                   (ex: ARGV)
-        - variable de champ         (ex: $1)
+   - définie par l'utilisateur (ex: myvar)
+   - interne                   (ex: ARGV)
+   - variable de champ         (ex: $1)
 
-Le nom d'une variable utilisateur ne peut contenir que des lettres, chiffres et underscores.
-Elle ne doit pas commencer par un chiffre.
+Le nom d'une variable utilisateur ne  peut contenir que des lettres, chiffres et
+underscores; elle ne doit pas commencer par un chiffre.
 Le nom d'une variable interne n'utilise que des lettres majuscules.
 
-La valeur d'une variable est une chaîne ou  une constante numérique. Par défaut, une variable non
-initialisée vaut  "", ce qui  implique qu'il  n'y a jamais  besoin d'initialiser une  variable avec
-les valeurs suivantes:
+La valeur d'une variable est une chaîne ou une constante numérique.
+Par défaut, une  variable non initialisée vaut  "", ce qui implique  qu'il n'y a
+jamais besoin d'initialiser une variable avec les valeurs suivantes:
 
-        myvar = ""    ✘ fonctionne mais inutile
-        myvar = 0     ✘ idem, car "" peut être convertie en 0 (`print i + 1` affiche 1)
+    myvar = ""    ✘ fonctionne mais inutile
+    myvar = 0     ✘ idem, car "" peut être convertie en 0 (`print i + 1` affiche 1)
 
 ### Internes
 #### Tableau récapitulatif
