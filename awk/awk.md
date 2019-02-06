@@ -1,13 +1,5 @@
 On s'est arrêté à la page 84 du pdf / 72 du livre.
 
-# ?
-
-Document `#!/usr/bin/awk -f` as a third way of running awk code?
-
----
-
-Write a `|c` mapping to lint awk (using `--lint`)?
-
 # Command-line
 ## How to run an awk program from a file?  (3)
 
@@ -36,6 +28,8 @@ Use an awk script:
     #!/usr/bin/awk -f
     ...
     EOF
+
+    $ chmod +x ~/bin/awk.awk
 
     $ awk.awk input_file
 
@@ -3211,4 +3205,9 @@ jamais besoin d'initialiser une variable avec les valeurs suivantes:
 
             Dans cet exemple, le pipe à la fin de chaque ligne est un OFS qui sépare l'avant-dernier
             champ `show.` / `things.` du dernier champ vide.
+
+##
+# TODO
+
+Write a `|c` mapping to lint the current awk script (using `--lint`).
 
