@@ -1,13 +1,22 @@
 On s'est arrêté à la page 84 du pdf / 72 du livre.
 
-# Why do I have to surround an action with curly braces?
+# Syntax
+## Why do I have to surround
+### an awk program with single quotes?
+
+To protect characters like `$` from being interpreted by the shell.
+To be able to write code on several lines.
+
+### an action with curly braces?
 
 Because you can omit the pattern or the action.
 And if you do omit one of them,  awk must be able to tell whether your statement
 contains only a pattern  or an action; the curly braces tell  awk that you wrote
 an action.
 
-# Can a string be surrounded by single quotes?
+###
+## Can a string
+### be surrounded by single quotes?
 
 No, it's a syntax error.
 
@@ -48,7 +57,7 @@ No, it's a syntax error.
     $ awk -f /tmp/awk.awk /tmp/file
     word word word ~
 
-# Can a string contains single quotes?
+### contains single quotes?
 
 Yes, as many as you want.
 
@@ -66,7 +75,8 @@ Yes, as many as you want.
     $ awk -f /tmp/awk.awk /tmp/file
     a'''b   a'''b   a'''b   ~
 
-# What are the three possible representations for a number?
+###
+## What are the three possible representations for a number?
 
 Integer:
 
@@ -89,7 +99,7 @@ Scientific Notation:
    * 1.2e-3
    * 1.2E-3
 
-# How does awk store any number?
+## How does awk store any number?
 
 As a float (the precision of which is machine dependent).
 
@@ -167,9 +177,28 @@ This shows that you can omit the action in a pattern-action statement.
 This shows that you can omit the pattern in a pattern-action statement.
 
 ##
+# How to start awk interactively?
+
+Don't provide an input:
+
+    $ rawk '...'
+      │
+      └ custom shell alias expanding to `rlwrap awk`
+
+Example:
+
+    $ awk '$1 ~ /x/'
+
+Anything you type will be printed back if it contains an `x` character.
+
+## How to exit?
+
+Press <kbd>C-d</kbd>.
+
 ##
 ##
-# AFFICHAGE
+##
+# Affichage
 ## Alignement
 
 Il existe 3 méthodes pour aligner la sortie d'awk:
@@ -1404,28 +1433,30 @@ Pour chacune de ces catégories, une coercition peut avoir lieue:
         break
     }
 
-            L'expression `e` est comparée à `value`.
-            Si la comparaison réussit, awk exécute `statements1`.
+L'expression `e` est comparée à `value`.
+Si la comparaison réussit, awk exécute `statements1`.
 
-            Autrement, il compare `e` à l'expression régulière `regex`, et exécute `statements2`
-            en cas de succès.
+Autrement,  il  compare  `e`  à   l'expression  régulière  `regex`,  et  exécute
+`statements2` en cas de succès.
 
-            Autrement, il exécute `statements3`.
+Autrement, il exécute `statements3`.
 
-            La déclaration `default` est facultative.
+La déclaration `default` est facultative.
 
-            En l'absence de déclarations `break`, awk continue de traiter le bloc `switch`.
-            IOW, sans `break`, awk exécute autant de déclarations qu'il y a de comparaisons qui réussissent.
-            Si on veut qu'il n'en exécute qu'une (la 1e qui réussit), il faut inclure des `break` pour
-            sortir du `switch`.
+En l'absence de déclarations `break`, awk continue de traiter le bloc `switch`.
+IOW, sans `break`, awk exécute autant  de déclarations qu'il y a de comparaisons
+qui réussissent.
+Si on veut  qu'il n'en exécute qu'une  (la 1e qui réussit), il  faut inclure des
+`break` pour sortir du `switch`.
 
 ## Fonctions
 ### close
 
-La fonction `close()` permet de fermer des fichiers et pipes ouverts (i.e. auxquels le processus awk
-accède en lecture). Ça peut être nécessaire entre autres car l'OS possède une limite concernant
-le nb  de fd  (file descriptors) ouverts  simultanément, ce qui  limite le  nb de fichiers  / pipes
-pouvant être ouverts à un instant T.
+La  fonction `close()`  permet de  fermer des  fichiers et  pipes ouverts  (i.e.
+auxquels le processus awk accède en lecture).
+Ça peut être  nécessaire entre autres car l'OS possède  une limite concernant le
+nb  de fd  (file descriptors)  ouverts  simultanément, ce  qui limite  le nb  de
+fichiers / pipes pouvant être ouverts à un instant T.
 
 
     BEGIN {
@@ -1439,13 +1470,14 @@ pouvant être ouverts à un instant T.
         print var
     }
 
-            Affiche l'heure et la date du jour, dort 3s, puis réaffiche l'heure.
+ Affiche l'heure et la date du jour, dort 3s, puis réaffiche l'heure.
 
-            Sans l'instruction `close("date")` qui ferme le précédent pipe `"date" | getline var`,
-            la 2e commande shell `date` n'aurait pas été exécutée, et `print` aurait réaffiché
-            exactement la même heure.
+ Sans  l'instruction  `close("date")` qui  ferme  le  précédent pipe  `"date"  |
+ getline var`, la 2e commande shell `date` n'aurait pas été exécutée, et `print`
+ aurait réaffiché exactement la même heure.
 
-            Illustre qu'il faut fermer un pipe, si on veut pouvoir le réutiliser plusieurs fois.
+ Illustre qu'il faut fermer un pipe,  si on veut pouvoir le réutiliser plusieurs
+ fois.
 
 
     END {
@@ -1457,63 +1489,66 @@ pouvant être ouverts à un instant T.
         while ((getline <"/tmp/file") > 0) print
     }
 
-            Ce code fait 3 choses:
+Ce code fait 3 choses:
 
-                    1. écrit le contenu de l'array `a` sur l'entrée de la commande shell:
+   1. écrit le contenu de l'array `a` sur l'entrée de la commande shell:
 
-                           sort -nr >/tmp/file
+          sort -nr >/tmp/file
 
-                    2. ferme le pipe
+   2. ferme le pipe
 
-                    3. lit et affiche le contenu de `/tmp/file`
+   3. lit et affiche le contenu de `/tmp/file`
 
-            Pour  que la  1e  étape se  termine,  et que  le fichier  `/tmp/file`  soit écrit,  la
-            fermeture du pipe via  `close()` dans la 2e étape est  nécessaire. Sans `close()`, awk
-            ne fermerait le pipe que lorsque son processus se terminerait, pas avant.
-
+Pour que la  1e étape se termine,  et que le fichier `/tmp/file`  soit écrit, la
+fermeture du pipe via `close()` dans la 2e étape est nécessaire.
+Sans  `close()`,  awk  ne  fermerait  le  pipe  que  lorsque  son  processus  se
+terminerait, pas avant.
 
 ### getline
 
 `getline` permet, à tout moment, de lire un nouveau record depuis:
 
-        - l'input d'origine (celle passée à awk au moment où on l'a invoqué)
-        - un fichier
-        - un pipe
-        - le clavier
+   - l'input d'origine (celle passée à awk au moment où on l'a invoqué)
+   - un fichier
+   - un pipe
+   - le clavier
 
 
 Valeurs retournées par `getline`:
 
-        ┌────┬─────────────────────────────────────────────────────────────────────────┐
-        │ 1  │ a pu lire un record                                                     │
-        │    │                                                                         │
-        │ 0  │ est arrivée à la fin:                                                   │
-        │    │                                                                         │
-        │    │     - de l'input d'origine                                              │
-        │    │     - du fichier                                                        │
-        │    │     - de l'output du pipe                                               │
-        │    │                                                                         │
-        │ -1 │ a rencontré une erreur                                                  │
-        └────┴─────────────────────────────────────────────────────────────────────────┘
+    ┌────┬─────────────────────────────────────────────────────────────────────────┐
+    │ 1  │ a pu lire un record                                                     │
+    │    │                                                                         │
+    ├────┼─────────────────────────────────────────────────────────────────────────┤
+    │ 0  │ est arrivée à la fin:                                                   │
+    │    │                                                                         │
+    │    │     - de l'input d'origine                                              │
+    │    │     - du fichier                                                        │
+    │    │     - de l'output du pipe                                               │
+    ├────┼─────────────────────────────────────────────────────────────────────────┤
+    │ -1 │ a rencontré une erreur                                                  │
+    └────┴─────────────────────────────────────────────────────────────────────────┘
 
-Le code de  sortie de `getline` est utile  pour lire et opérer sur l'intégralité  d'une source de
-texte contenant plusieurs records.  Pour ce faire, on utilise la structure  de contrôle `while`, et
-on s'assure qu'elle  est > 0 (pour éviter de  rester piégé dans une boucle infinie  si le fichier
-n'est pas lisible).
+Le code de sortie  de `getline` est utile pour lire  et opérer sur l'intégralité
+d'une source de texte contenant plusieurs records.
+Pour  ce faire,  on utilise  la structure  de contrôle  `while`, et  on s'assure
+qu'elle est  > 0  (pour éviter  de rester piégé  dans une  boucle infinie  si le
+fichier n'est pas lisible).
 
-        ┌───────────────────────────────┬─────────────────────────────────────────────────────────────┐
-        │ while (getline > 0)           │ Exécute la déclaration `s`, tant qu'il reste des records    │
-        │     s                         │ à traiter dans l'input                                      │
-        ├───────────────────────────────┼─────────────────────────────────────────────────────────────┤
-        │ while ((getline <expr) > 0)   │ tant qu'il reste des records dans le fichier dont le chemin │
-        │     s                         │ est la valeur chaîne de `expr`                              │
-        ├───────────────────────────────┼─────────────────────────────────────────────────────────────┤
-        │ while (("cmd" | getline) > 0) │ tant qu'il reste des records dans la sortie de "cmd"        │
-        │     s                         │                                                             │
-        └───────────────────────────────┴─────────────────────────────────────────────────────────────┘
+    ┌───────────────────────────────┬─────────────────────────────────────────────────────────────┐
+    │ while (getline > 0)           │ Exécute la déclaration `s`, tant qu'il reste des records    │
+    │     s                         │ à traiter dans l'input                                      │
+    ├───────────────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ while ((getline <expr) > 0)   │ tant qu'il reste des records dans le fichier dont le chemin │
+    │     s                         │ est la valeur chaîne de `expr`                              │
+    ├───────────────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ while (("cmd" | getline) > 0) │ tant qu'il reste des records dans la sortie de "cmd"        │
+    │     s                         │                                                             │
+    └───────────────────────────────┴─────────────────────────────────────────────────────────────┘
 
 
-Bien que ce soit une fonction, sa syntaxe se rapproche plus de celle d'une déclaration:
+Bien que  ce soit  une fonction,  sa syntaxe  se rapproche  plus de  celle d'une
+déclaration:
 
         getline()    ✘
         getline      ✔
@@ -1528,78 +1563,87 @@ Bien que ce soit une fonction, sa syntaxe se rapproche plus de celle d'une décl
                              d'origine: on redirige l'entrée de `getline` vers la valeur d'une expression.
 
 
-Une fois `getline` exécutée, en fonction de la syntaxe utilisée, awk peuple certaines variables internes:
+Une fois  `getline` exécutée,  en fonction  de la  syntaxe utilisée,  awk peuple
+certaines variables internes:
 
-        ┌─────────────────────┬────────────────────────┬──────────────────────────┐
-        │ syntaxe awk         │ variables mises à jour │ syntaxe VimL équivalente │
-        ├─────────────────────┼────────────────────────┼──────────────────────────┤
-        │ getline             │      $0, NF, NR, FNR   │                          │
-        │                     │                        │                          │
-        │ getline var         │ var        , NR, FNR   │ let var = getline()      │
-        ├─────────────────────┼────────────────────────┼──────────────────────────┤
-        │ getline <expr       │      $0, NF            │ getline(expr)            │
-        │ "cmd" | getline     │      $0, NF            │ getline(system('cmd'))   │
-        │                     │                        │                          │
-        │ getline var <expr   │ var                    │ let var = getline(expr)  │
-        │ "cmd" | getline var │ var                    │ let var = system('cmd')  │
-        └─────────────────────┴────────────────────────┴──────────────────────────┘
+    ┌─────────────────────┬────────────────────────┬──────────────────────────┐
+    │ syntaxe awk         │ variables mises à jour │ syntaxe VimL équivalente │
+    ├─────────────────────┼────────────────────────┼──────────────────────────┤
+    │ getline             │      $0, NF, NR, FNR   │                          │
+    │                     │                        │                          │
+    │ getline var         │ var        , NR, FNR   │ let var = getline()      │
+    ├─────────────────────┼────────────────────────┼──────────────────────────┤
+    │ getline <expr       │      $0, NF            │ getline(expr)            │
+    │ "cmd" | getline     │      $0, NF            │ getline(system('cmd'))   │
+    │                     │                        │                          │
+    │ getline var <expr   │ var                    │ let var = getline(expr)  │
+    │ "cmd" | getline var │ var                    │ let var = system('cmd')  │
+    └─────────────────────┴────────────────────────┴──────────────────────────┘
 
-Qd on utilise  une syntaxe peuplant $0, awk  divise le nouveau record en champs,  auxquels on peut
-accéder via $i. Dans ce cas, l'ancien record (celui qu'awk était en train de traiter) n'est plus
+Qd on utilise une syntaxe peuplant `$0`, awk divise le nouveau record en champs,
+auxquels on peut accéder via `$i`.
+Dans ce cas, l'ancien record (celui qu'awk était en train de traiter) n'est plus
 dispo.
 
 On remarque 2 choses:
 
-    1. Les syntaxes stockant dans une variable le nouveau record lu, ne mettent pas à jour $0, ni
-    $i. Ça  paraît logique:  si on  le stocke  dans une variable,  c'est sans  doute car  on est
-    intéressé par son ensemble et non certains de ses champs.
+   1. Les syntaxes stockant dans une variable le nouveau record lu, ne mettent
+      pas à jour `$0`, ni `$i`. Ça  paraît logique:  si on  le stocke  dans une
+      variable,  c'est sans  doute car  on est intéressé par son ensemble et non
+      certains de ses champs.
 
-    En plus, ça permet de préserver les informations du record courant. Si cette syntaxe mettait
-    à jour $0 et $i, on aurait aucune syntaxe nous permettant d'utiliser `getline` tout en continuant
-    de manipuler le record courant.
+      En plus, ça permet de préserver les informations du record courant.
+      Si cette  syntaxe mettait à  jour `$0` et  `$i`, on aurait  aucune syntaxe
+      nous permettant  d'utiliser `getline` tout  en continuant de  manipuler le
+      record courant.
 
-    2. Les syntaxes qui lisent  depuis un fichier ou un pipe ne mettent pas  à jour NR, ni FNR.
-    Ça paraît logique:  si NR et FNR était  incrémenté, awk sauterait un record  au sein de
-    l'input d'origine.
+   2. Les syntaxes qui lisent  depuis un fichier ou un pipe ne mettent pas
+      à jour NR, ni FNR. Ça paraît logique:  si NR et FNR était  incrémenté, awk
+      sauterait un record  au sein de l'input d'origine.
 
-`getline` est pratique qd on a du mal à décrire le record sur lequel on veut agir, mais qu'on peut
-facilement décrire celui qui le précède.
+`getline` est  pratique qd on a  du mal à décrire  le record sur lequel  on veut
+agir, mais qu'on peut facilement décrire celui qui le précède.
 
 
-Tout comme `next`, `getline` peut provoquer la  lecture du prochain record.  La différence vient du
-fait  que `next`  repositionne l'exécution  au début  du programme,  pas `getline`. IOW,  une fois
-`getline` exécutée,  awk ne compare  pas le nouveau record  aux patterns des  précédents couples
-pattern-action qu'il a déjà traité.
+Tout comme `next`, `getline` peut provoquer la lecture du prochain record.
+La différence  vient du  fait que  `next` repositionne  l'exécution au  début du
+programme, pas `getline`.
+IOW,  une fois  `getline` exécutée,  awk ne  compare pas  le nouveau  record aux
+patterns des précédents couples pattern-action qu'il a déjà traité.
 
 Analogie pour mieux comprendre:
 
-Sur un  chronomètre, l'aiguille des  minutes représente la  boucle principale d'un  programme awk,
-celle qui traite les  records de l'input. L'aiguille des secondes  représente la boucle secondaire,
-celle  qui  traite  les couples  pattern-action  du  programme.  `next`  et `getline`  font  avancer
-l'aiguille des minutes d'un cran (!). Mais seule `next` repositionne l'aiguille des secondes sur 12h.
+Sur un chronomètre, l'aiguille des  minutes représente la boucle principale d'un
+programme awk, celle qui traite les records de l'input.
+L'aiguille des  secondes représente la  boucle secondaire, celle qui  traite les
+couples pattern-action du programme.
+`next` et `getline` font avancer l'aiguille des minutes d'un cran (!).
+Mais seule `next` repositionne l'aiguille des secondes sur 12h.
 
-(!) `getline` ne fait  pas avancer l'aiguille des minutes si elle lit un fichier ou un pipe.
+(!) `getline` ne fait pas avancer l'aiguille  des minutes si elle lit un fichier
+ou un pipe.
 
 
     print "Enter your name: "
     getline var <"-"
 
-            Demande à l'utilisateur de taper son nom, et stocke la réponse dans `var`.
+Demande à l'utilisateur de taper son nom, et stocke la réponse dans `var`.
 
-            Illustre que dans les syntaxes:
+Illustre que dans les syntaxes:
 
-                    getline <expr
-                    getline var <expr
+    getline <expr
+    getline var <expr
 
-            ... `expr` peut être "-". Et que "-" désigne le clavier.
+... `expr` peut être "-". Et que "-" désigne le clavier.
 
 
     "whoami" | getline        "whoami" | getline me
     print                     print me
 
-            Affiche `username` (ex: toto), dans les 2 cas.
+Affiche `username` (ex: toto), dans les 2 cas.
 
-            Mais la sortie de la commande shell `whoami` peuple $0 uniquement dans le 1er exemple.
+Mais la sortie  de la commande shell  `whoami` peuple $0 uniquement  dans le 1er
+exemple.
 
 ### Internes
 
@@ -2112,13 +2156,6 @@ Dans le tableau qui précède:
                                 ∅                 ✘
 
 
-                                     NOTE:
-
-            Pour pouvoir utiliser les raccourcis readline, passer par `rlwrap`:
-
-                    rlwrap awk '$1 ~ $2'
-
-
     awk '{ print $1 }; /M/ { print $2 }' emp.data
 
         Beth    4.00    0          Beth
@@ -2552,7 +2589,7 @@ Qd le pattern est une expression, il y a match si son évaluation est un nombre 
     │ $0 ~ /pat/      │ `pat` décrit une sous-chaîne du record                            │
     │      /pat/      │ on dit que le pattern “matche“ le record                          │
     │                 │                                                                   │
-    │ $0 ~ expr       │ `expr`, décrit une sous-chaîne du record                          │
+    │ $0 ~ expr       │ `expr` décrit une sous-chaîne du record                           │
     │                 │                                                                   │
     │                 │ la valeur de `expr` est interprétée comme une pat, et,            │
     │                 │ si besoin convertie en chaîne                                     │
