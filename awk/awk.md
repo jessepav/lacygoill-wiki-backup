@@ -5,7 +5,7 @@ On s'est arrêté à la page 84 du pdf / 72 du livre.
 
 Use the `-f` (fetch) option:
 
-    $ awk -f progfile input_file
+    $ awk -f progfile input_files ...
           ├─────────┘
           └ `progfile` must contain your awk program
 
@@ -20,7 +20,7 @@ Use a shell script:
 
     $ chmod +x ~/bin/sh.sh
 
-    $ sh.sh input_file
+    $ sh.sh input_files ...
 
 Use an awk script:
 
@@ -31,12 +31,12 @@ Use an awk script:
 
     $ chmod +x ~/bin/awk.awk
 
-    $ awk.awk input_file
+    $ awk.awk input_files ...
 
 The  shebang  tells  the  shell  how  to  run  the  script,  so  when  it  reads
 `#!/usr/bin/awk -f`, it runs the script with the command:
 
-    /usr/bin/awk -f /path/to/script.awk
+    /usr/bin/awk -f /path/to/script.awk input_files ...
 
 ---
 
@@ -83,8 +83,8 @@ Besides, in a shell script, your code can't include a single quote:
 
 ##
 # Syntax
-## Why do I have to surround
-### an awk program with single quotes?
+## Why do I have to
+### surround an awk program with single quotes?
 
 To be able to write code on several lines.
 
@@ -98,12 +98,36 @@ character:
 
     $ awk \$3\ ==\ 0\ \{\ print\ \$1\ \} /tmp/emp.data
 
-### an action with curly braces?
+### surround an action with curly braces?
 
 Because you can omit the pattern or the action.
 And if you *do* omit one of them,  awk must be able to tell whether your statement
 contains only a pattern  or an action; the curly braces tell  awk that you wrote
 an action.
+
+### write the opening curly bracket of an action on the same line as the pattern?
+
+Without a  curly bracket,  awk would  automatically assume  that the  pattern is
+bound to the default action `{ print }`:
+
+    pattern
+    ⇔
+    pattern { print }
+
+So, you can write either of these:
+
+    pattern { action }
+
+    pattern {
+        action
+    }
+
+But *not* this:
+
+    pattern
+    {
+        action
+    }
 
 ###
 ## Can a string
@@ -268,7 +292,7 @@ The three columns contain:
     Dan     3.75   0~
 
 This shows that you can omit the action in a pattern-action statement.
-The default action is `print $0`.
+The default action is `print`.
 
 ### the names of all the employees?
 
@@ -549,6 +573,7 @@ opérateur relationnel.
 
 Affiche la chaîne vide suivie de ORS (newline par défaut).
 
+---
 
     { print $0 }
     { print }
@@ -858,24 +883,6 @@ Le problème peut venir de nombres trop grands, pex:
 
 ##
 # Syntaxe
-## Action
-
-    pattern { action }
-
-    pattern {
-        action
-    }
-
-2 exemples d'un fichier contenant un pgm awk.
-
-L'accolade ouverte doit tjrs être sur la même ligne que le pattern.
-En  effet, sans  lui, awk  lirait la  ligne `pattern`,  ce qu'il  interpréterait
-comme:
-
-    pattern
-    ⇔
-    pattern { print $0 }
-
 ## Arrays
 
     array
@@ -2236,24 +2243,6 @@ déclarations pattern-action.
 Traite  les fichiers  `file1`  et  `file2` en  exécutant  le  code contenu  dans
 `statement`; illustre que l'input n'est pas limité à un fichier.
 
----
-
-    $ awk '$3 == 0'      file
-    $ awk '{ print $1 }' file
-
-Affiche les records dont le 3e champ est nul.
-Affiche le 1er champ de toutes les lignes.
-
-Illustre que  dans un pgm awk,  on peut omettre  le pattern ou l'action,  et que
-dans ces cas, par défaut:
-
-   - l'action est `print $0`
-   - le pattern matche tous les records
-
----
-
-Il n'existe pas de champ `0`, `$0` correspond à une ligne entière.
-
 ## Terminaisons de commande
 
     statement1                       ⇔    statement1; statement2
@@ -2774,7 +2763,7 @@ Lorsqu'un record satisfait les 2 conditions, il est affiché:
 
 En effet, le 1er pgm contient 2 déclarations constituées chacune d'un pattern et
 d'une action, tandis que le 2e programme ne contient qu'une seule déclaration.
-Ici, les actions sont implicites (`{ print $0 }`).
+Ici, les actions sont implicites (`{ print }`).
 
 ##
 ## Variables
@@ -3171,7 +3160,7 @@ numérique (`3z`).
 
 ---
 
-    $2 = ""; print $0
+    $2 = ""; print
 
 Affiche les records en effaçant le 2e champ.
 
