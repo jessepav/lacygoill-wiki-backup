@@ -1,5 +1,114 @@
 On s'est arrêté à la page 84 du pdf / 72 du livre.
 
+# ?
+
+How to get the number of fields on a record?
+
+Use the built-in variable `NF`:
+
+    { print NF }
+
+---
+
+What's the difference between `NF` and `$NF`?
+
+`NF` is evaluated into the *index* of the last field.
+`$NF` is evaluated into the *contents* of the last field.
+
+---
+
+How to get the contents of the last but one field?
+
+    { print $(NF-1) }
+
+`NF-1` is an expression evaluated into the  index of the last but one field, and
+`$` is an operator converting a field index into a field contents.
+
+---
+
+You  need to  surround  the  expression with  parentheses,  otherwise `$`  would
+consider that `NF` is its operand, instead of `NF-1`.
+
+    $ cat <<'EOF' >/tmp/file
+    11 22 33
+    44 55 66
+    77 88 99
+    EOF
+
+    $ awk '{ print $(NF-1) }' /tmp/file
+    22~
+    55~
+    88~
+
+    $ awk '{ print $NF-1 }' /tmp/file
+    32~
+    65~
+    98~
+
+Note that  if one of  the field  began with a  non-digit character, it  would be
+automatically coerced  into the number  `0`; and  so `$NF-1` would  be evaluated
+into `-1`.
+
+---
+
+How to print the records, reversing the order of their fields?
+
+    $ cat <<'EOF' >/tmp/file
+    3 2 1
+    6 5 4
+    9 8 7
+    EOF
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    {
+        for (i = NF; i > 0; i--)
+            printf "%s ", $i
+        print ""
+    }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/file
+    1 2 3 ~
+    4 5 6 ~
+    7 8 9 ~
+
+The purpose of `print ""` is to add a newline at the end of a record.
+
+---
+
+    $(NF + 1) = "just after last field"
+    $42       = "way  after last field"
+
+On peut se référer à un champ non existant, comme ici `$(NF + 1)` ou `$42`.
+
+Dans ce cas, awk l'ajoutera aux champs pré-existants du record.
+S'il y a un  gap entre le nouveau champ à créer (ex: `42`),  et le dernier champ
+pré-existant (ex: `5`), awk créera autant de champs vides que nécessaire.
+
+Comme  on   transforme  un  champ   dont  l'index   est  non  nul,   awk  divise
+automatiquement les records en champs, et effectue le remplacement `FS → OFS`.
+Donc, avant chaque champ ajouté, il ajoutera aussi un OFS.
+
+Ex:
+
+    $ cat <<'EOF' >/tmp/file
+    This_old_house_is_a_great_show.
+    I_like_old_things.
+    EOF
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    BEGIN { FS = "_"; OFS = "|" }
+    { $(NF + 1) = ""; print }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/file
+    This|old|house|is|a|great|show.|~
+    I|like|old|things.|~
+
+Dans  cet exemple,  le pipe  à la  fin de  chaque ligne  est un  OFS qui  sépare
+l'avant-dernier champ `show.` / `things.` du dernier champ vide.
+
+##
 # Command-line
 ## How to run an awk program from a file?  (3)
 
@@ -82,6 +191,36 @@ Besides, in a shell script, your code can't include a single quote:
     ' "$@"
 
 ##
+# How to start awk interactively?
+
+Don't provide an input:
+
+    $ rawk '...'
+      │
+      └ custom shell alias expanding to `rlwrap awk`
+
+Example:
+
+    $ awk '$1 ~ /x/'
+
+Anything you type will be printed back if it contains an `x` character.
+
+## When is the interactive mode useful?
+
+When you need to test a piece of code.
+
+   1. write the code
+   2. write some arbitrary input
+   3. watch the output
+   4. repeat steps 2 and 3 as many times as you want
+
+## How to exit?
+
+Press <kbd>C-d</kbd>.
+
+This sends the end-of-file signal to the awk foreground process.
+
+##
 # Syntax
 ## Why do I have to
 ### surround an awk program with single quotes?
@@ -130,6 +269,26 @@ But *not* this:
     }
 
 ###
+## If I omit
+### a pattern, which one is used?
+
+A pattern matching all the records, such as:
+
+    1
+
+`1` is a true condition no matter the record, because it's a non-zero number.
+
+Example:
+
+    $ awk '1' /tmp/emp.data
+
+This will output the file as is.
+
+### an action, which one is used?
+
+    { print }
+
+##
 ## Can a string
 ### be surrounded by single quotes?
 
@@ -229,6 +388,14 @@ succeeded; which means that the first  and second fields are identical, and that
 the two numbers are considered to be equal.
 
 ##
+## How can `{ print $0 }` be simplified?
+
+    { print }
+
+---
+
+By default, `print` uses `$0` as an argument; so you can omit `$0`.
+
 ## How can the following assignment be simplified?
 
     test = var == 123 ? 1 : 0
@@ -244,6 +411,25 @@ otherwise; as such, it can be used (alone) in the rhs of an assignment.
 
     $ awk 'BEGIN { var = 123 ; test = var == 123; print test }'
     1~
+
+##
+## How to refer to a field whose index is stored in a variable?
+
+Use the `$var` syntax.
+
+    $ cat <<'EOF' >/tmp/file
+    THE quick brown
+    fox JUMPS over
+    the lazy DOG
+    EOF
+
+    $ awk '{ var += 1; print $var }' /tmp/file
+    THE~
+    JUMPS~
+    DOG~
+
+This command prints the  first, second and third field of  the first, second and
+third record.
 
 ##
 # I have the following file:
@@ -291,9 +477,6 @@ The three columns contain:
     Beth    4.00   0~
     Dan     3.75   0~
 
-This shows that you can omit the action in a pattern-action statement.
-The default action is `print`.
-
 ### the names of all the employees?
 
     $ awk '{ print $1 }' /tmp/emp.data
@@ -303,39 +486,6 @@ The default action is `print`.
     Mark~
     Mary~
     Susie~
-
-This shows that you can omit the pattern in a pattern-action statement.
-The default pattern matches all the records.
-
-##
-# How to start awk interactively?
-
-Don't provide an input:
-
-    $ rawk '...'
-      │
-      └ custom shell alias expanding to `rlwrap awk`
-
-Example:
-
-    $ awk '$1 ~ /x/'
-
-Anything you type will be printed back if it contains an `x` character.
-
-## When is the interactive mode useful?
-
-When you need to test a piece of code.
-
-   1. write the code
-   2. write some arbitrary input
-   3. watch the output
-   4. repeat steps 2 and 3 as many times as you want
-
-## How to exit?
-
-Press <kbd>C-d</kbd>.
-
-This sends the end-of-file signal to the awk foreground process.
 
 ##
 ##
@@ -575,22 +725,6 @@ Affiche la chaîne vide suivie de ORS (newline par défaut).
 
 ---
 
-    { print $0 }
-    { print }
-    1
-
-Affiche le record courant.
-
-Par défaut, `print` prend $0 comme argument, on peut donc omettre $0.
-
-`1` est un pattern vrai peu importe le record traité, car c'est un nb non nul.
-Par défaut, qd  on passe un pattern  sans action à awk, il  considère qu'il faut
-afficher le record courant (`print $0`).
-
-On peut utiliser ces 2 faits pour utiliser `1` comme un raccourci de `print $0`.
-
----
-
     print $1, $2
     print $1  $2
 
@@ -604,27 +738,12 @@ expressions.
 
 ---
 
-    print NF, $1, $NF
-
-Pour chaque record, affiche:
-
-   1. son nombre de champs
-   2. le 1er champ
-   3. le dernier champ
-
-Ne pas confondre NF avec `$NF`.
-L'évaluation de l'expression:
-
-   -  NF  est  l'INDEX     du dernier champ
-   - $NF  est  le CONTENU  du dernier champ
-
----
-
     print NR, $0
 
 Affiche l'index et le contenu du record courant au sein de l'input.
 Permet de numéroter les lignes d'un fichier.
 
+---
 
 Qd awk traite le record matchant le pattern:
 
@@ -643,6 +762,7 @@ IOW, si un fichier contient 5 lignes, NR vaut 5 sur la dernière ligne, et encor
 Affiche tous les noms des employés sur une même ligne.
 Montre comment convertir une colonne en ligne.
 
+---
 
 Une suite d'expressions dans  le rhs d'une affectation n'a pas  de sens, awk les
 concatène donc en une seule expression.
@@ -650,8 +770,8 @@ Il  a le  droit  de le  faire  car l'opérateur  de  concaténation est  implici
 (contrairement à VimL où il est explicite `.`).
 
 Au passage, si l'une des expressions  est un nb, il est automatiquement converti
-en chaîne.
-Logique puisque l'opérateur de concaténation ne travaille que sur des chaînes.
+en chaîne; c'est  logique puisque l'opérateur de concaténation  ne travaille que
+sur des chaînes.
 
 ---
 
@@ -671,7 +791,7 @@ Pex, pour un input ayant 3 champs:
     { printf "%s %s %s\n", $2, $1, $3}
 
 
-On remarque qu'on peut utiliser $1 et $2 à la fois comme:
+On remarque qu'on peut utiliser `$1` et `$2` à la fois comme:
 
    - valeur (expression)    normal
    - nom de variable        surprise!
@@ -679,6 +799,7 @@ On remarque qu'on peut utiliser $1 et $2 à la fois comme:
 Il semble qu'en awk  comme en VimL (mais pas en bash), il  y a symétrie entre le
 lhs et le rhs d'une affectation.
 
+---
 
     printf "total pay for %-8s is $%6.2f\n", $1, $2*$3
     total pay for Beth     is $  0.00~
@@ -691,7 +812,7 @@ lhs et le rhs d'une affectation.
 On peut utiliser la commande `printf` pour formater un record.
 
 Ici, on  utilise les items  `%-8s` et `%6.2f` pour  insérer le nom  des employés
-($1), et leur salaire ($2*$3) dans la chaîne principale.
+(`$1`), et leur salaire (`$2*$3`) dans la chaîne principale.
 
 Rappel:
 
@@ -1392,21 +1513,6 @@ Dans la boucle `for`, on pourrait remplacer `i++` par `i += 1`.
 
 ---
 
-    for (i = NF; i > 0; i--)
-        printf "%s ", $i
-    print ""
-
-Affiche les records en inversant l'ordre de leurs champs.
-
-La déclaration `print ""` ne fait PAS / ne doit PAS faire partie de la boucle.
-
-En effet,  si on  la mettait  dans la  boucle, awk  ajouterait un  newline après
-chaque champ.
-C'est pas ce qu'on veut.
-On veut seulement en ajouter un à la fin d'un record.
-
----
-
     END {                                       11           11
         for (i = 1; i <=3; i++)                 12           12
             for (j = 1; j <=3; j++) {      →    21    ≠    * 13
@@ -1452,8 +1558,8 @@ Les déclarations `break` et `continue` fonctionnent comme leurs homonymes Vim.
         ;
     if (i < NF) print
 
-Affiche tous les  records dont un des  champs est vide Illustre  l'utilité de la
-déclaration vide `;`.
+Affiche tous les records dont un des champs est vide.
+Illustre l'utilité de la déclaration vide `;`.
 
 Explication: La boucle  incrémente `i` tant que  le champ de même  index est non
 vide.
@@ -2434,7 +2540,7 @@ Retourne le reste dans la division euclidienne de x par y.
     i++    ++i
     j--    --j
 
-Incrémente `i` et décrémente`j`.
+Incrémente `i` et décrémente `j`.
 
 Illustre que les opérateurs `++` et `--`  peuvent être utilisés en préfixe ou en
 suffixe.
@@ -3184,66 +3290,6 @@ Pour rappel, on accède à une variable en:
     ($1)++
 
 Inverse (au sens logique) / Incrémente la valeur du 1er champ.
-
----
-
-    $(NF-1)
-
-Retourne le contenu de l'avant-dernier champ.
-
-`NF-1` est  une expression évaluée en  l'index de l'avant-dernier champ,  et `$`
-est un opérateur produisant le contenu d'un champ à partir de son index.
-
-
-Il faut entourer  l'expression `NF-1` de parenthèses pour que  l'opérande de `$`
-soit bien `NF-1` et non pas NF:
-
-        $(NF-1) → contenu de l'avant-dernier champ
-
-          $NF-1 → contenu du dernier champ - 1
-
-                  Si le dernier champ est une chaîne commençant par une lettre,
-                  elle sera automatiquement convertie en `0`, et `$NF-1` sera
-                  évaluée en `-1`.
-
----
-
-    $(NF + 1) = "just after last field"
-    $42       = "way  after last field"
-
-On peut se référer à un champ non existant, comme ici `$(NF + 1)` ou `$42`.
-
-Dans ce cas, awk l'ajoutera aux champs pré-existants du record.
-S'il y a un  gap entre le nouveau champ à créer (ex: `42`),  et le dernier champ
-pré-existant (ex: `5`), awk créera autant de champs vides que nécessaire.
-
-Comme  on   transforme  un  champ   dont  l'index   est  non  nul,   awk  divise
-automatiquement les records en champs, et effectue le remplacement `FS → OFS`.
-Donc, avant chaque champ ajouté, il ajoutera aussi un OFS.
-
-Ex:
-
-    ┌───────────────────────────────┐    ┌─────────────────────────────────┐
-    │ BEGIN { FS = "_"; OFS = "|" } │    │ This_old_house_is_a_great_show. │
-    │ {                             │    │ I_like_old_things.              │
-    │     $(NF + 1) = ""            │    └─────────────────────────────────┘
-    │     print                     │      ^
-    │ }                             │      │
-    └───────────────────────────────┘      │
-                                ^          │
-                                │          │
-                       ┌─────────────────────────┐
-                       │ awk -f pgm.awk   data   │
-                       └─────────────────────────┘
-                                     |
-                                     v
-                   ┌──────────────────────────────────┐
-                   │ This|new|house|is|a|great|show.| │
-                   │ I|like|new|things.|              │
-                   └──────────────────────────────────┘
-
-Dans  cet exemple,  le pipe  à la  fin de  chaque ligne  est un  OFS qui  sépare
-l'avant-dernier champ `show.` / `things.` du dernier champ vide.
 
 ##
 # TODO
