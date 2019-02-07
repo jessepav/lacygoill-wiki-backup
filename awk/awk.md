@@ -106,7 +106,7 @@ Ex:
     I|like|old|things.|~
 
 Dans  cet exemple,  le pipe  à la  fin de  chaque ligne  est un  OFS qui  sépare
-l'avant-dernier champ `show.` / `things.` du dernier champ vide.
+l'avant-dernier champ (`show.` / `things.`) du dernier champ vide.
 
 ##
 # Command-line
@@ -488,6 +488,20 @@ The three columns contain:
     Susie~
 
 ##
+# printing
+## How to print a newline?
+### at the end of an output record?
+
+    print ""
+
+The reason  why you can omit  `\n` is because, at  the end of an  output record,
+`print`  automatically adds  the contents  of `ORS`,  whose default  value is  a
+newline.
+
+### anywhere?
+
+    printf("\n")
+
 ##
 ##
 # Affichage
@@ -716,12 +730,6 @@ de redirection:
 
 Avec les parenthèses, `>` ne "voit" pas `print`, et est donc interprété comme un
 opérateur relationnel.
-
----
-
-    print ""
-
-Affiche la chaîne vide suivie de ORS (newline par défaut).
 
 ---
 

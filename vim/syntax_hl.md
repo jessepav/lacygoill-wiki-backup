@@ -1831,6 +1831,10 @@ Clearly this may be extended to other languages.
 # TODO
 ## ?
 
+Document `:h :syn-spell` and `:h spell-syntax`.
+
+## ?
+
 Document that a cluster may have the same name than a group.
 There seems to be no conflict.
 Maybe because a cluster name is always prefixed by `@`.
