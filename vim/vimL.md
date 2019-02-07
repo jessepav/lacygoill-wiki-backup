@@ -99,6 +99,24 @@ It will create 5 new lines, so that  it can replace their empty contents.
 
 ##
 # Miscellaneous
+## How can the following assignment be simplified?
+
+    let test = var == 123 ? 1 : 0
+↣
+    let test = var == 123
+↢
+
+### Why is it possible?
+
+A  comparison  is an  expression,  whose  value is  `1`  when  it succeeds,  `0`
+otherwise; as such, it can be used (alone) in the rhs of an assignment.
+
+    let var = 123
+    let test = var == 123
+    echo test
+    1~
+
+##
 ## How to get the command with which Vim was started?
 
         :echo system('ps -o command= -p '.getpid())

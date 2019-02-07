@@ -205,6 +205,23 @@ succeeded; which means that the first  and second fields are identical, and that
 the two numbers are considered to be equal.
 
 ##
+## How can the following assignment be simplified?
+
+    test = var == 123 ? 1 : 0
+
+↣
+    test = var == 123
+↢
+
+### Why is it possible?
+
+A  comparison  is an  expression,  whose  value is  `1`  when  it succeeds,  `0`
+otherwise; as such, it can be used (alone) in the rhs of an assignment.
+
+    $ awk 'BEGIN { var = 123 ; test = var == 123; print test }'
+    1~
+
+##
 # I have the following file:
 
     $ cat <<'EOF' >/tmp/emp.data
@@ -1252,6 +1269,7 @@ Explication:
     │
     └ affiche une chaîne puis un nb
 
+##
 ## Structure de contrôle
 ### if
 
@@ -1533,6 +1551,7 @@ qui réussissent.
 Si on veut  qu'il n'en exécute qu'une  (la 1e qui réussit), il  faut inclure des
 `break` pour sortir du `switch`.
 
+##
 ## Fonctions
 ### close
 
@@ -2104,6 +2123,7 @@ souhaite, avant de l'intégrer dans notre programme.
 
 ... = des valeurs identiques aux records
 
+##
 ## Ligne de commande
 
     $ awk --lint -f progfile <input>
@@ -2756,6 +2776,7 @@ En effet, le 1er pgm contient 2 déclarations constituées chacune d'un pattern 
 d'une action, tandis que le 2e programme ne contient qu'une seule déclaration.
 Ici, les actions sont implicites (`{ print $0 }`).
 
+##
 ## Variables
 ### Validité des noms / valeurs
 
