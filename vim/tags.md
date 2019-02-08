@@ -126,6 +126,21 @@ https://github.com/universal-ctags/ctags/blob/master/docs/autotools.rst
 
 Works also from visual mode, using the visual selection as the tag name.
 
+# How to move forward in the tag stack?
+
+Execute `:tag`.
+
+From below `:h :pop`:
+
+> :[count]ta[g][!]      Jump to [count] newer entry in tag stack (default 1).
+
+---
+
+Note that there's a bug atm, which  prevents `:tag` from moving to the right tag
+after `:tselect` or `:tjump`, then `:pop`.
+
+<https://www.reddit.com/r/vim/comments/ao4y3k/for_those_who_use_tags_how_do_you_jump_forward_in/?ref=share&ref_source=link>
+
 # ?
 
 Read `:h preview-window`, `:h tags-and-searches`, `:h usr_29`.

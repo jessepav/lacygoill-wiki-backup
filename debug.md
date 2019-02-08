@@ -71,6 +71,6 @@ Automating a problem makes it happen more  quickly, and allows you to focus your
 attention on the exact conditions in which  it happens; in turn, this allows you
 to better understand the cause of the problem.
 
-Amplifying a subtle problem whose origin is hard to locate exactly makes it more
-obvious.
+Amplifying a  subtle problem, whose origin  is hard to locate  exactly, makes it
+more obvious.
 

@@ -343,11 +343,11 @@ existent déjà; n'ajoute pas d'incohérence.
 
 Exemple:
 
-        :mksession file
-        échoue car `:mksession` refuse d'écraser un fichier existant~
+    :mksession file
+    échoue car `:mksession` refuse d'écraser un fichier existant~
 
-        :STrack file
-        échoue car on copie le comportement de `:mksession`~
+    :STrack file
+    échoue car on copie le comportement de `:mksession`~
 
 ---
 
@@ -480,7 +480,7 @@ De plus, ça rend sans doute le code moins lisible.
 
 A program always reads a main configuration file.
 For example, Vim reads `~/.vim/vimrc`.
-But a progam can also read optional configuration files.
+But a program can also read optional configuration files.
 For example, Vim can also read `~/.vim/after/plugin/*.vim`.
 
 Those can interfere when you debug some issue.
@@ -502,9 +502,8 @@ It will help you debug your issues faster.
 > Écrire une fonction `main()` la plus lisible possible.
 
 Généralement,  un  élément d'interface  (commande,  mapping,  ...) commence  par
-appeler une fonction.
-Appelons cette dernière `main()`.
-Elle doit être le plus lisible possible:
+appeler une fonction;  appelons cette dernière `main()`; elle doit  être le plus
+lisible possible:
 
    - pour chaque tâche qu'elle réalise, pas trop de lignes, et pas trop de
      complexité
@@ -637,8 +636,7 @@ Si la réponse est non, l'appeler depuis:
 Comment gérer un environnement complexe influencé par plusieurs degrés de liberté ?
 
 L'état de l'environnement dans lequel un  algo doit travailler peut être modifié
-par plusieurs paramètres.
-On parle de degrés de liberté.
+par plusieurs paramètres; on parle de degrés de liberté.
 
 Chaque paramètre (pᵢ) peut prendre plusieurs (eᵢ) valeurs.
 Le nombre total  d'états possibles de l'environnement, E, est  inférieur ou égal
