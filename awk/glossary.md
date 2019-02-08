@@ -1,164 +1,27 @@
 # c
-
-    constant
+## constant
 
 There are 2 kinds of constants:
 
    - string
    - numerical
 
-# e
+## control flow
 
-    expression
+Order  in which  individual statements,  instructions  or function  calls of  an
+imperative program are executed or evaluated.
 
-Un expression est une combinaison d'une ou plusieurs:
+The emphasis  on explicit control  flow distinguishes an  imperative programming
+language from a declarative programming language.
 
-   - array
-   - constante
-   - invocation de fonction
-   - opérateur
-   - variable
+Within  an  imperative programming  language,  a  control  flow statement  is  a
+statement, the execution of which results in  a choice being made as to which of
+two or more paths to follow.
 
-... qu'un langage de programmation:
-
-   - interprète (en respectant des règles de précédences et d'association)
-   - calcule
-   - à partir du résultat, produit une nouvelle valeur d'un type donné
-     (numérique, chaîne, logique - vrai / faux, fonction, nouvelle expression ...)
-
-En mathématiques, ce procédé est appelé "évaluation".
-
----
-
-    regular expression
-
-Une expression régulière  est une combinaison d'opérateurs  et de métacaractères
-encadrée par une paire de délimiteurs (typiquement /).
-
-On  peut  aussi  utiliser  une  chaîne   comme  regex,  mais  dans  ce  cas  les
-métacaractères  doivent être  doublement  échappés car  le  parser d'awk  retire
-automatiquement un  backslash présent dans  une chaîne  pour changer le  sens du
-caractère suivant (métacaractère ↔ caractère littéral).
-
-IOW, pour alterner  entre le sens spécial  / littéral d'un caractère,  il faut 2
-backslashs dans une chaîne: un pour awk, et un pour le moteur de regex.
-
-L'avantage d'utiliser une chaîne plutôt  qu'une regex, est qu'on peut décomposer
-le  pattern en  plusieurs  sous-chaînes  stockées dans  des  variables aux  noms
-évocateurs.
-
-Il faudra ensuite concaténer leurs valeurs pour retrouver le pattern global.
-Une décomposition  judicieuse augmente  la lisibilité  d'une regex  complexe, et
-facilite sa maintenance.
-
-# f
-
-    control flow
-
-Ordre dans lequel les instructions d'un programme impératif sont exécutées.
-
-La manipulation  explicite du  flot de  contrôle par  le programmeur,  grâce aux
-structures  de  contrôle, est  la  principale  caractéristique des  langages  de
-programmation impératifs vis-à-vis des autres paradigmes de programmation.
-
-
-    graphe de flot de contrôle
-
-Ensemble de tous les flots de contrôle possibles d'un programme.
-
-
-    input
-
-Ensemble des données traitées par le pgm awk.
-
-
-    ┌─────────────────────────────┬──────────────────────────────┐
-    │ opérateur de comparaison    │ relationnel + correspondance │
-    ├─────────────────────────────┼──────────────────────────────┤
-    │ opérateur relationnel       │ ==  !=  <  >  <=  >=         │
-    ├─────────────────────────────┼──────────────────────────────┤
-    │ opérateur de correspondance │ !   !~                       │
-    └─────────────────────────────┴──────────────────────────────┘
-
-
-    opérateur unaire / binaire
-
-Opérateur associant une valeur à 1/2 opérande(s).
-Ex:
-
-    + est un opérateur arithmétique BINAIRE:    1 + 2    →    3
-    ? est un opérateur de regex UNAIRE:         r?       →   'r' ou ''
-
-
-    passage par valeur / référence
-
-Qd une fonction est appelée, et qu'un de ses paramètres est une variable définie
-précédemment, on dit qu'on lui “passe une variable“.
-Ex:
-
-    function calculateBirthYear(int yourAge) {
-        return CURRENT_YEAR - yourAge;
-    }
-
-    int myAge = 24;
-    calculateBirthYear(myAge);
-
-Dans   cet  exemple,   à   la  fin,   la  variable   `myAge`   est  “passée”   à
-`calculateBirthYear()` pour calculer mon année de naissance.
-Mais  `myAge` peut  être  passée de  2  façons différentes:  par  valeur ou  par
-référence.
-
-    ┌───────────────┬────────────────────────────────────────────────────────────────────────┐
-    │ par valeur    │ une copie de `myAge` est créée (`yourAge`), puis passée à la fonction  │
-    │               │                                                                        │
-    │               │ si la fonction modifie la copie, l'originale (`myAge`) n'est pas       │
-    │               │ affectée                                                               │
-    ├───────────────┼────────────────────────────────────────────────────────────────────────┤
-    │ par référence │ l'adresse mémoire de `myAge` (sa référence) est passée à la fonction   │
-    │               │                                                                        │
-    │               │ si la fonction modifie `yourAge`, l'originale (`myAge`) est elle-aussi │
-    │               │ modifiée                                                               │
-    └───────────────┴────────────────────────────────────────────────────────────────────────┘
-
-
-    record / enregistrement
-
-awk divise automatiquement l'input en records.
-Par défaut, il le fait en considérant les newlines comme séparateurs.
-
-
-    séquence d'échappement
-
-Une chaîne peut contenir les séquences d'échappement suivantes:
-
-    ┌─────┬─────────────────────────────────┐
-    │ \b  │ backspace                       │
-    ├─────┼─────────────────────────────────┤
-    │ \f  │ form feed                       │
-    │     │                                 │
-    │     │ force l'imprimante à éjecter    │
-    │     │ la page courante, et à continuer│
-    │     │ d'imprimer sur une nouvelle page│
-    ├─────┼─────────────────────────────────┤
-    │ \n  │ line feed                       │
-    ├─────┼─────────────────────────────────┤
-    │ \r  │ carriage return                 │
-    │     │                                 │
-    │     │ repositionne le curseur         │
-    │     │ au début de la ligne courante   │
-    ├─────┼─────────────────────────────────┤
-    │ \t  │ tab                             │
-    ├─────┼─────────────────────────────────┤
-    │\123 │ caractère dont le code          │
-    │     │ octal est `123`                 │
-    ├─────┼─────────────────────────────────┤
-    │ \\  │ backslash littéral              │
-    ├─────┼─────────────────────────────────┤
-    │ \"  │ double quote littéral           │
-    └─────┴─────────────────────────────────┘
-
+## ?
 
     structure de contrôle
+    control structure
 
 Une  structure de  contrôle est  une  instruction particulière  d'un langage  de
 programmation impératif pouvant dévier le flot de contrôle d'un programme.
@@ -169,9 +32,122 @@ Quelques catégories de structures de contrôle:
    - les boucles  (while, do–while, for, ...)
    - les constructions de gestion  d'exceptions (try–catch,  ...)
 
----
+## ?
 
-    sucre syntaxique
+    control flow graph
+
+<https://en.wikipedia.org/wiki/Control_flow_graph>
+
+Ensemble de tous les flots de contrôle possibles d'un programme.
+
+##
+# e
+## escape sequence
+
+A string can contain the following escape sequences:
+
+    ┌───────┬──────────────────────────────────┐
+    │  \b   │ backspace                        │
+    ├───────┼──────────────────────────────────┤
+    │  \f   │ form feed                        │
+    │       │                                  │
+    │       │ ask the printer to eject         │
+    │       │ the current page, and continue   │
+    │       │ printing on a new page           │
+    ├───────┼──────────────────────────────────┤
+    │  \n   │ line feed                        │
+    ├───────┼──────────────────────────────────┤
+    │  \r   │ carriage return                  │
+    │       │                                  │
+    │       │ position the cursor at the       │
+    │       │ beginning of the current line    │
+    ├───────┼──────────────────────────────────┤
+    │  \t   │ tab                              │
+    ├───────┼──────────────────────────────────┤
+    │ \123  │ character whose octal code       │
+    │       │ is `123`                         │
+    ├───────┼──────────────────────────────────┤
+    │ \x123 │ character whose hexadecimal code │
+    │       │ is `123`                         │
+    ├───────┼──────────────────────────────────┤
+    │  \\   │ literal backslash                │
+    ├───────┼──────────────────────────────────┤
+    │  \"   │ literal double quote             │
+    └───────┴──────────────────────────────────┘
+
+## expression
+
+A combination of one or more:
+
+   - arrays
+   - constants
+   - functions
+   - operators
+   - variables
+
+... which a programming language (such as awk):
+
+   1. interprets (according to its particular rules of precedence and of association)
+   2. computes
+   3. from the result, produces a new value of a given type
+      (numerical, string, logical - true / false, function, ...)
+
+In mathematics, this process is called “evaluation”.
+
+##
+# i
+## input
+
+Set of all data processed by awk.
+
+##
+# o
+## ?
+
+    ┌─────────────────────────────┬──────────────────────────────┐
+    │ opérateur de comparaison    │ relationnel + correspondance │
+    ├─────────────────────────────┼──────────────────────────────┤
+    │ opérateur relationnel       │ ==  !=  <  >  <=  >=         │
+    ├─────────────────────────────┼──────────────────────────────┤
+    │ opérateur de correspondance │ !   !~                       │
+    └─────────────────────────────┴──────────────────────────────┘
+
+## ?
+
+    opérateur unaire / binaire
+
+Opérateur associant une valeur à 1/2 opérande(s).
+
+Ex:
+
+    + est un opérateur arithmétique BINAIRE:    1 + 2    →    3
+    ? est un opérateur de regex UNAIRE:         r?       →   'r' ou ''
+
+##
+# r
+## record
+
+Awk splits automatically the input into records.
+By default, it considers a newline as a separator between 2 consecutive records.
+
+## regular expression
+
+It can be either:
+
+   - a combination of operators and metacharacters surrounded by a pair of
+     delimiters (typically `/`)
+
+   - a string
+
+##
+# s
+## statement
+
+This can be a `pattern { action }`, or a command inside an action.
+
+## ?
+
+    syntactic sugar
 
 Une construction  syntaxique est  qualifiée de  “sucre syntaxique“,  à condition
 qu'elle remplisse les 2 conditions suivantes:
@@ -188,7 +164,7 @@ Exemple:
 `printf("fmt", expr-list)`.
 
 
-Autre exemple:
+Autre Exemple:
 
 Dans un langage  de programmation, pour obtenir un élément  d'une array, il faut
 généralement invoquer une fonction système à laquelle on passera 2 arguments.
@@ -220,15 +196,42 @@ Les  processeurs du  langage (interpréteur,  préprocesseur, compilateur  ...) 
 chargent de développer du sucre syntaxique en constructions fondamentales, avant
 de traiter le code: on parle de “désucrage“ (“desugaring“).
 
-# s
-
-    statement
-
-This can be a `pattern { action }`, or a command inside an action.
-
+##
 # v
-
-    value
+## value
 
 A value is an expression whose evaluation can not be reduced to a simpler form.
+
+## ?
+
+    passage par valeur / référence
+
+Qd une fonction est appelée, et qu'un de ses paramètres est une variable définie
+précédemment, on dit qu'on lui “passe une variable“.
+
+Ex:
+
+    function calculateBirthYear(int yourAge) {
+        return CURRENT_YEAR - yourAge;
+    }
+
+    int myAge = 24;
+    calculateBirthYear(myAge);
+
+Dans   cet  exemple,   à   la  fin,   la  variable   `myAge`   est  “passée”   à
+`calculateBirthYear()` pour calculer mon année de naissance.
+Mais  `myAge` peut  être  passée de  2  façons différentes:  par  valeur ou  par
+référence.
+
+    ┌───────────────┬────────────────────────────────────────────────────────────────────────┐
+    │ par valeur    │ une copie de `myAge` est créée (`yourAge`), puis passée à la fonction  │
+    │               │                                                                        │
+    │               │ si la fonction modifie la copie, l'originale (`myAge`) n'est pas       │
+    │               │ affectée                                                               │
+    ├───────────────┼────────────────────────────────────────────────────────────────────────┤
+    │ par référence │ l'adresse mémoire de `myAge` (sa référence) est passée à la fonction   │
+    │               │                                                                        │
+    │               │ si la fonction modifie `yourAge`, l'originale (`myAge`) est elle-aussi │
+    │               │ modifiée                                                               │
+    └───────────────┴────────────────────────────────────────────────────────────────────────┘
 

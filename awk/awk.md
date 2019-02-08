@@ -82,7 +82,7 @@ Besides, in a shell script, your code can't include a single quote:
     ' "$@"
 
 ##
-# How to start awk interactively?
+## How to start awk interactively?
 
 Don't provide an input:
 
@@ -96,7 +96,7 @@ Example:
 
 Anything you type will be printed back if it contains an `x` character.
 
-## When is the interactive mode useful?
+### When is the interactive mode useful?
 
 When you need to test a piece of code.
 
@@ -105,7 +105,7 @@ When you need to test a piece of code.
    3. watch the output
    4. repeat steps 2 and 3 as many times as you want
 
-## How to exit?
+### How to exit?
 
 Press <kbd>C-d</kbd>.
 
@@ -323,7 +323,7 @@ This command prints the  first, second and third field of  the first, second and
 third record.
 
 ##
-# built-in variables
+# Built-In Variables
 ## How to get the number of fields on a record?
 
 Use the built-in variable `NF`:
@@ -368,7 +368,7 @@ automatically coerced  into the number  `0`; and  so `$NF-1` would  be evaluated
 into `-1`.
 
 ##
-# printing
+# Printing
 ## How to print a newline?
 ### at the end of an output record?
 
@@ -405,6 +405,72 @@ newline.
     7 8 9 ~
 
 The purpose of `print ""` is to add a newline at the end of a record.
+
+##
+# Modifying Fields
+## How to add a new field to a record?
+
+Refer to the field whose index is `NF + 1`.
+Assign to it the desired contents
+
+    $ cat <<'EOF' >/tmp/file
+    This_old_house_is_a_great_show.
+    I_like_old_things.
+    EOF
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    BEGIN { FS = "_"; OFS = "|" }
+    { $(NF + 1) = ""; print }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/file
+    This|old|house|is|a|great|show.|~
+    I|like|old|things.|~
+                      ^
+                      separates the previous field (`things.`)
+                      from the new last empty field
+
+## What's the side effect of a field modification?
+
+Awk automatically splits  the record into fields to access  the field to modify,
+then replaces every `FS` with `OFS` to create the output record.
+
+## What happens if I assign a value to a non-existent field (index bigger than the last one)?
+
+Awk will create as many empty fields as necessary to allow this new field to exist.
+
+Ex:
+
+    $ cat <<'EOF' >/tmp/file
+    This_old_house_is_a_great_show.
+    I_like_old_things.
+    EOF
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    BEGIN { FS = "_"; OFS = "|" }
+    { $(NF + 3) = ""; print }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/file
+    This|old|house|is|a|great|show.|||~
+    I|like|old|things.|||~
+                      ^^^
+                      there are 3 new empty fields at the end
+
+##
+# Regex
+## Which common pitfall should I avoid when using a string as a regex?
+
+You need  to double the  backslash for every escape  sequence which you  want to
+send to the regex engine.
+
+## What's the benefit of using a string as a regex (`"regex"`), rather than `/regex/`?
+
+You can  break it down into  several substrings, and  join them back to  get the
+final regex.
+
+By  saving the  substrings in  variables with  telling names,  you increase  the
+readibility and maintainability of your code.
 
 ##
 # I have the following file:
@@ -461,57 +527,6 @@ The three columns contain:
     Mark~
     Mary~
     Susie~
-
-##
-# Misc.
-## How to add a new field to a record?
-
-Refer to the field whose index is `NF + 1`.
-Assign to it the desired contents
-
-    $ cat <<'EOF' >/tmp/file
-    This_old_house_is_a_great_show.
-    I_like_old_things.
-    EOF
-
-    $ cat <<'EOF' >/tmp/awk.awk
-    BEGIN { FS = "_"; OFS = "|" }
-    { $(NF + 1) = ""; print }
-    EOF
-
-    $ awk -f /tmp/awk.awk /tmp/file
-    This|old|house|is|a|great|show.|~
-    I|like|old|things.|~
-                      ^
-                      separates the previous field (`things.`)
-                      from the new last empty field
-
-## What's the side effect of a field modification?
-
-Awk automatically splits  the record into fields to access  the field to modify,
-then replaces every `FS` with `OFS` to create the output record.
-
-## What happens if I refer to a non-existing field (index bigger than the last one)?
-
-Awk will add as many empty fields as necessary to allow this new field to exist.
-
-Ex:
-
-    $ cat <<'EOF' >/tmp/file
-    This_old_house_is_a_great_show.
-    I_like_old_things.
-    EOF
-
-    $ cat <<'EOF' >/tmp/awk.awk
-    BEGIN { FS = "_"; OFS = "|" }
-    { $(NF + 3) = ""; print }
-    EOF
-
-    $ awk -f /tmp/awk.awk /tmp/file
-    This|old|house|is|a|great|show.|||~
-    I|like|old|things.|||~
-                      ^^^
-                      there are 3 new empty fields at the end
 
 ##
 ##
