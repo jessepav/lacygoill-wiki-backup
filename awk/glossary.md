@@ -102,26 +102,38 @@ Set of all data processed by awk.
 
 ##
 # o
-## ?
+## unary operator
 
-    ┌─────────────────────────────┬──────────────────────────────┐
-    │ opérateur de comparaison    │ relationnel + correspondance │
-    ├─────────────────────────────┼──────────────────────────────┤
-    │ opérateur relationnel       │ ==  !=  <  >  <=  >=         │
-    ├─────────────────────────────┼──────────────────────────────┤
-    │ opérateur de correspondance │ !   !~                       │
-    └─────────────────────────────┴──────────────────────────────┘
+Operator associating a value to 1 operand.
 
-## ?
+As an  example, `?` is a  unary regex operator,  and the regex `r?`  matches the
+text `r` or an empty text.
 
-    opérateur unaire / binaire
+## binary operator
 
-Opérateur associant une valeur à 1/2 opérande(s).
+Operator associating a value to 2 operands.
 
-Ex:
+As an example, `+`  is a binary arithmetic operator, and the  expression `1 + 2`
+produces the number `3`.
 
-    + est un opérateur arithmétique BINAIRE:    1 + 2    →    3
-    ? est un opérateur de regex UNAIRE:         r?       →   'r' ou ''
+##
+## matching operator
+
+   - `~`
+   - `!~`
+
+## relational operator
+
+   - `==`
+   - `!=`
+   - `<`
+   - `>`
+   - `<=`
+   - `>=`
+
+## comparison operator
+
+Relational or matching operator.
 
 ##
 # r
@@ -201,37 +213,4 @@ de traiter le code: on parle de “désucrage“ (“desugaring“).
 ## value
 
 A value is an expression whose evaluation can not be reduced to a simpler form.
-
-## ?
-
-    passage par valeur / référence
-
-Qd une fonction est appelée, et qu'un de ses paramètres est une variable définie
-précédemment, on dit qu'on lui “passe une variable“.
-
-Ex:
-
-    function calculateBirthYear(int yourAge) {
-        return CURRENT_YEAR - yourAge;
-    }
-
-    int myAge = 24;
-    calculateBirthYear(myAge);
-
-Dans   cet  exemple,   à   la  fin,   la  variable   `myAge`   est  “passée”   à
-`calculateBirthYear()` pour calculer mon année de naissance.
-Mais  `myAge` peut  être  passée de  2  façons différentes:  par  valeur ou  par
-référence.
-
-    ┌───────────────┬────────────────────────────────────────────────────────────────────────┐
-    │ par valeur    │ une copie de `myAge` est créée (`yourAge`), puis passée à la fonction  │
-    │               │                                                                        │
-    │               │ si la fonction modifie la copie, l'originale (`myAge`) n'est pas       │
-    │               │ affectée                                                               │
-    ├───────────────┼────────────────────────────────────────────────────────────────────────┤
-    │ par référence │ l'adresse mémoire de `myAge` (sa référence) est passée à la fonction   │
-    │               │                                                                        │
-    │               │ si la fonction modifie `yourAge`, l'originale (`myAge`) est elle-aussi │
-    │               │ modifiée                                                               │
-    └───────────────┴────────────────────────────────────────────────────────────────────────┘
 
