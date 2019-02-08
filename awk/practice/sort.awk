@@ -1,29 +1,27 @@
 #!/usr/bin/awk -f
 
-# input:  pairs of item and quantity
-# output: accumulate the total quantity for each item,
+# Input:  pairs of item and quantity{{{
+#
+#     mandarine 90~
+#     pomme     90~
+#     banane    34~
+#     kiwi      78~
+#     fraise    12~
+#     pomme     34~
+#     banane    56~
+#     mandarine 78~
+#     kiwi      56~
+#     fraise    12~
+#}}}
+# Output: accumulate the total quantity for each item,{{{
 # and print the result after sorting it alphabetically
-#
-# input example:
-#
-#     mandarine 90
-#     pomme     90
-#     banane    34
-#     kiwi      78
-#     fraise    12
-#     pomme     34
-#     banane    56
-#     mandarine 78
-#     kiwi      56
-#     fraise    12
-
-# desired output:
 #
 #     banane    90~
 #     fraise    24~
 #     kiwi      134~
 #     mandarine 168~
 #     pomme     124~
+#}}}
 
 { total[$1] += $2 }
 

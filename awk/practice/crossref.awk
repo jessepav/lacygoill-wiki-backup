@@ -26,9 +26,9 @@
 # There are 3 kind of lines in the output.
 # The ones which have:
 #
-#     - 1 field  contain filenames
-#     - 2 fields contain a flag and a function name
-#     - 3 fields contain the same thing + an address in memory
+#    - 1 field  contain filenames
+#    - 2 fields contain a flag and a function name
+#    - 3 fields contain the same thing + an address in memory
 #
 # This output describes the functions which are undefined (U flag) and defined
 # (T flag) in each file scanned. To use it and create a full cross-referencing

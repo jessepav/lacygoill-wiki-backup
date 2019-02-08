@@ -1,23 +1,21 @@
 #!/usr/bin/awk -f
 
-# input:  a column of non-negative numbers
-# output: each number and its percentage of the total
+# Input:  a column of non-negative numbers{{{
 #
-# input example:
+#     12~
+#     34~
+#     56~
+#     78~
+#     90~
+#}}}
+# Output: each number and its percentage of the total{{{
 #
-#         12
-#         34
-#         56
-#         78
-#         90
-#
-# output example:
-#
-#         12.00      4.4  %
-#         34.00      12.6 %
-#         56.00      20.7 %
-#         78.00      28.9 %
-#         90.00      33.3 %
+#     12.00      4.4  %~
+#     34.00      12.6 %~
+#     56.00      20.7 %~
+#     78.00      28.9 %~
+#     90.00      33.3 %~
+#}}}
 
 {
     sum += $1

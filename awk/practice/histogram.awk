@@ -13,8 +13,8 @@
 # Exemple de phrase utilisant “décile“:
 #     Le 3e décile vaut 42.  (?)
 #}}}
-# input:  a column of numbers, all between 0 and 100 {{{
-# output: histogram of deciles
+# Input:  a column of numbers, all between 0 and 100
+# Output: histogram of deciles {{{
 
 # The numbers must be grouped inside 11 buckets:    0 - 9, 10 - 19, … , 100
 # The amount of numbers inside a bucket is a decile.
@@ -30,7 +30,9 @@
 #     30 - 39:  ******
 #}}}
 # We need to count how many numbers are inside a bucket. {{{
+#
 # What variables must we increment to count them?
+#
 # 11 variables are too much to manage: to store the amount of numbers
 # in each bucket, an array `x` is better. Naive implementation:
 #
@@ -142,9 +144,9 @@ function rep(n,   s) {
 
 # Add support for a variable width of buckets.
 
-# input:  a number interpreted as the desired number of buckets
+# Input:  a number interpreted as the desired number of buckets
 #         + same as before (numbers between 0 and 100)
-# output: same as before (histogram)
+# Output: same as before (histogram)
 
 #     BEGIN {
 #         # get the desired number of buckets
@@ -195,8 +197,8 @@ function rep(n,   s) {
 
 # Add support for any input numbers (the biggest is not necessarily 100 anymore)
 
-# input:  numbers between 0 and N
-# output: same as before (histogram)
+# Input:  numbers between 0 and N
+# Output: same as before (histogram)
 
 
 #     BEGIN {

@@ -10,22 +10,22 @@
 #     │ ┌ 30 = day
 #     │ │ ┌ 42 = year
 #     │ │ │
-#     013042 mary's birthday
-#     032772 mark's birthday
-#     052470 anniversary
-#     061209 mother's birthday
-#     110175 elizabeth's birthday
+#     013042 mary's birthday~
+#     032772 mark's birthday~
+#     052470 anniversary~
+#     061209 mother's birthday~
+#     110175 elizabeth's birthday~
 #
 # output example:
 #
-#     423001 mary's birthday
-#     722703 mark's birthday
-#     702405 anniversary
-#     091206 mother's birthday
-#     750111 elizabeth's birthday
+#     423001 mary's birthday~
+#     722703 mark's birthday~
+#     702405 anniversary~
+#     091206 mother's birthday~
+#     750111 elizabeth's birthday~
 
 #     { $1 = substr($1, 5, 2) substr($1, 3, 2) substr($1, 1, 2) ; print }
-#
+
 # Exo 2: {{{1
 #
 # input:  dates written as “year month day“.
@@ -33,11 +33,11 @@
 #
 # Input example:
 #
-#     2017 5  18
-#     1949 2  15
-#     1992 9  24
-#     2008 5  30
-#     2011 11 4
+#     2017 5  18~
+#     1949 2  15~
+#     1992 9  24~
+#     2008 5  30~
+#     2011 11 4~
 #
 # Output example:
 #
@@ -62,6 +62,7 @@
 # ⇔ (P1)  ∧  ¬(P2)                         *1
 # ⇔ 4|y   ∧  ¬(100|y  ∧  ¬(400|y))
 # ⇔ 4|y   ∧  (¬100|y  ∨  400|y)
+# ⇔ (4|y  ∧  ¬100|y)  ∨  (4|y  ∧  400|y)
 #
 # *1: “except if“
 # =  “but it's not enough, sth else must also be false“
@@ -69,13 +70,8 @@
 #
 # Summary:
 #
-# A year is a leap year, iff, it's divisible by 4 but not by 100:
-#
-#       2020
-#
-# or it's divisible by 4 and by 400:
-#
-#       2000
+# A year is a leap year, iff, it's  divisible by 4 but not by 100 (e.g. `2020`),
+# or it's divisible by 4 and by 400 (e.g. `2000`).
 
 
 { printf("%-10s %20s\n", $0, how_many_days($1, $2, $3)) }

@@ -38,8 +38,9 @@
 #     }
 
 # sum3 - print column sums (discard strings) {{{1
-# input:  rows of integers and strings
-# output: sums of numeric columns
+#
+# Input:  rows of integers and strings
+# Output: sums of numeric columns
 #
 # assumes every line has same layout:
 #   if a field is numeric on the first line, assumes that all fields in the same

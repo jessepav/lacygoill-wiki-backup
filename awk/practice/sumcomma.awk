@@ -15,8 +15,8 @@
 
 # Part 2 {{{1
 #
-# input:  a number per line
-# output: the input  number followed by its formatted version  (i.e. with commas
+# Input:  a number per line
+# Output: the input  number followed by its formatted version  (i.e. with commas
 # and two decimal places)
 
 # This program  formats numbers  with commas  and two  digits after  the decimal

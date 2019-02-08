@@ -761,6 +761,7 @@ qu'après son évaluation.
 Les syntaxes de `printf` sont similaires à `print`, à ceci près que:
 
    - il faut ajouter l'argument `fmt` (chaîne format)
+     ce qui donne à `printf` plus de puissance
 
    - `printf` ne remplace RIEN: ni FS → OFS entre 2 expressions, ni RS → ORS
      à la fin
@@ -1739,8 +1740,8 @@ fichiers / pipes pouvant être ouverts à un instant T.
 
 Affiche l'heure et la date du jour, dort 3s, puis réaffiche l'heure.
 
-Sans l'instruction `close("date")` qui ferme le précédent pipe `"date" | getline
-var`, la 2e  commande shell `date` n'aurait pas été  exécutée, et `print` aurait
+Sans l'instruction `close("date")` qui ferme le précédent pipe `"date" | getline var`,
+la  2e commande  shell  `date`  n'aurait pas  été  exécutée,  et `print`  aurait
 réaffiché exactement la même heure.
 
 Illustre qu'il faut  fermer un pipe, si on veut  pouvoir le réutiliser plusieurs
