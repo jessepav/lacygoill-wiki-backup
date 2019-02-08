@@ -323,6 +323,221 @@ This command prints the  first, second and third field of  the first, second and
 third record.
 
 ##
+# Pattern
+## ?
+
+What are the three kind of patterns?
+
+A special keyword:
+
+   - BEGIN
+   - END
+
+   - BEGINFILE
+   - ENDFILE
+
+An expression, regular (`/pat/`) or not.
+
+A range:
+
+    expr1,expr2
+
+---  
+
+Qd le pattern est  une expression, il y a match si son  évaluation est un nombre
+non nul, ou une chaîne non vide.
+
+## ?
+
+    BEGIN
+    END
+
+Sélectionne le record imaginaire précédant le 1er      record de l'input.
+"                                suivant   le dernier  "
+
+Permet d'exécuter une action avant / après que l'input ait été traité.
+
+Ces  patterns spéciaux  sont les  seuls  pour lesquels  on ne  peut pas  omettre
+l'action.
+De plus, on ne peut pas les combiner avec d'autres patterns.
+
+Ex:
+
+    /Susie/,END    ✘
+
+## ?
+
+`BEGINFILE`  fonctionne de  manière  similaire, sauf  qu'il  sélectionne le  1er
+record imaginaire précédant le 1er record de *chaque fichier* de l'input.
+
+Même chose pour `ENDFILE` (après le dernier record de chaque fichier de l'input).
+
+## ?
+
+    Sélectionne les records tq:
+
+    ┌─────────────────┬───────────────────────────────────────────────────────────────────┐
+    │ $3 == 0         │ le 3e champ est nul                                               │
+    │                 │                                                                   │
+    │ $2 >= 5         │ le 2e est supérieur à 5                                           │
+    │                 │                                                                   │
+    │ $2 * $3 > 50    │ le produit des champs 2 et 3 est > 50                             │
+    │                 │                                                                   │
+    │ NF != 3         │ le nb de champs est différent de 3                                │
+    │                 │                                                                   │
+    │ NR == 10        │ l'index du record est 10                                          │
+    │                 │                                                                   │
+    │ $0 >= "M"       │ le record est rangé après le caractère M                          │
+    │                 │                                                                   │
+    │ $1 == "Susie"   │ le 1er champ est "Susie"                                          │
+    ├─────────────────┼───────────────────────────────────────────────────────────────────┤
+    │ expr ~ /pat/    │ `pat` décrit une sous-chaîne de `expr`                            │
+    │                 │ la valeur de `expr` étant une chaîne, ou un nb converti en chaîne │
+    │                 │                                                                   │
+    │ expr !~ /pat/   │ `pat` ne décrit aucune sous-chaîne de `expr` (aucun match)        │
+    │                 │                                                                   │
+    │ $0 ~ /pat/      │ `pat` décrit une sous-chaîne du record                            │
+    │      /pat/      │ on dit que le pattern “matche“ le record                          │
+    │                 │                                                                   │
+    │ $0 ~ expr       │ `expr` décrit une sous-chaîne du record                           │
+    │                 │                                                                   │
+    │                 │ la valeur de `expr` est interprétée comme une pat, et,            │
+    │                 │ si besoin convertie en chaîne                                     │
+    └─────────────────┴───────────────────────────────────────────────────────────────────┘
+
+Les dernières syntaxes sont toutes des cas particuliers de la syntaxe générale:
+
+    expr ~ expr
+
+## ?
+
+Le rhs de `~` est toujours interprété comme une pat, et le lhs comme un pattern.
+Ça implique que:
+
+    "Hello" ~ "Hel.o"    ✔ il y a match, car `.` est interprété comme un métacaractère
+    "Hel.o" ~ "Hello"    ✘ pas de match, car `.` est interprété littéralement
+
+---
+
+On peut abréger `$0 ~ /pat/` en `/pat/`, mais pas `$0 ~ expr` en `expr`.
+
+## ?
+
+    /pat1/ && !/pat2/
+
+Sélectionne les records décrit ou `pat1` matche mais pas `pat2`.
+
+Illustre  qu'on peut  combiner des  expressions régulières  avec des  opérateurs
+logiques (ici &&).
+Montre aussi qu'on peut abréger `$0 !~ /pat/` en `!/pat/`.
+
+## ?
+
+    BEGIN {
+        sign     = "[-+]?"
+        decimal  = "[0-9]+[.]?[0-9]*"
+        fraction = "[.][0-9]+"
+        exponent = "[eE]" sign "[0-9]+"
+        number   = "^" sign "(" decimal "|" fraction ")(" exponent ")?$"
+    }
+
+    $1 ~ number
+
+Affiche  les records  dont le  1er  champ est  un nombre  entier (123),  décimal
+(1.23),  ou  une  fraction   (.123),  accompagné  éventuellement  d'un  exposant
+(123e456).
+
+Illustre  qu'on   peut  décomposer  un   pattern  de  regex  complexe   via  une
+concaténation de chaînes.
+Fonctionne pour 2 raisons:
+
+   - le rhs de l'opérateur `~` peut être une expression
+   - une concaténation de chaînes est une expression
+
+## ?
+
+    $2 >= 4 || $3 >= 20
+    !($2 < 4 && $3 < 20)
+
+Sélectionne les records tq le 2e champ est supérieur à 4 OU le 3e à 20.
+
+
+    (1)    (A ou B) est vraie,  ssi (A ou B)         n'est pas fausse.
+    (2)    (A ou B) est fausse, ssi (non A ET non B) est vraie.
+
+    (1) ∧ (2)    ⇒    (A ou B) est vraie, ssi (non A ET non B) est fausse.
+
+## ?
+
+    expr1,expr2
+
+Sélectionne les records qui se situent entre  un record où `expr1` est vraie, et
+le suivant où `expr2` est vraie.
+
+Ex:
+
+    FNR == 1, FNR == 5
+    ⇔
+    FNR <= 5
+
+## ?
+
+    /pattern1/,/pattern2/
+
+Sélectionne tous  les records qui  se situent qq  part entre un  record matchant
+`pattern1` (notons le R1), et le prochain record après R1 matchant `pattern2`.
+
+On  parle de  “rangée“, et  comme pour  une rangée  dont les  adresses sont  des
+patterns dans  une commande Ex Vim,  elle peut matcher plusieurs  successions de
+records distinctes.
+
+Ex:
+
+                                      ┌───────┐
+    awk '/foo/,/bar/ { print }' file ─│ foo   │
+                                      │ word1 │
+            foo                       │ bar   │
+            word1                     │       │
+            bar                       │ one   │
+            foo                       │ two   │
+            word2                     │       │
+            bar                       │ foo   │
+                                      │ word2 │
+                                      │ bar   │
+                                      └───────┘
+
+Si aucun record ne matche:
+
+   - `pattern1`, la rangée est vide
+
+   - `pattern2`, la rangée inclut tous les records depuis celui où `pattern1` a été
+     trouvé pour la dernière fois, jusqu'à la fin du fichier
+
+Il s'agit d'une forme abrégée de:
+
+    $0 ~ /pattern1/,$0 ~ /pattern2/
+
+... qui est un cas particulier de:
+
+    expr1,expr2
+
+## Why are the following patterns different?
+
+    # 1.
+    $2 >= 4 || $3 >= 20
+
+    # 2.
+    $2 >= 4
+    $3 >= 20
+
+↣
+The two snippets don't contain the same number of statements.
+
+When a record satisfies both conditions, it's printed once in the first snippet,
+but twice in the second one.
+↢
+
+##
 # Built-In Variables
 ## How to get the number of fields on a record?
 
@@ -2653,8 +2868,8 @@ suffixe.
 
 En effet:
 
-        `expr1` FAUX ⇒ `expr1 && expr2` FAUX (peu importe la valeur de vérité de
-        `expr2`) `expr3` VRAI ⇒ `expr3 || expr4` VRAI (" `expr4`)
+        `expr1` FAUX ⇒ `expr1 && expr2` FAUX (peu importe la valeur de vérité de `expr2`)
+        `expr3` VRAI ⇒ `expr3 || expr4` VRAI (" `expr4`)
 
 
 L'évaluation d'une  expression logique se fait  de la gauche vers  la droite, et
@@ -2748,212 +2963,6 @@ Affecte:
    - le nombre `42` aux variables utilisateurs `a`  et `b`
 
 Illustre qu'on peut réaliser plusieurs affectations en une seule ligne.
-
-## Pattern
-
-Un pattern peut être:
-
-   - BEGIN, END, BEGINFILE, ENDFILE
-
-   - une expression, régulière (/pattern/) ou non
-
-   - une rangée        expr1,expr2
-                       /pattern1/,/pattern2/
-
-Qd le pattern est  une expression, il y a match si son  évaluation est un nombre
-non nul, ou une chaîne non vide.
-
----
-
-    BEGIN
-    END
-
-Sélectionne le record imaginaire précédant le 1er      record de l'input.
-"                                suivant   le dernier  "
-
-Permet d'exécuter une action avant / après que l'input ait été traité.
-
-
-Ces  patterns spéciaux  sont les  seuls  pour lesquels  on ne  peut pas  omettre
-l'action.
-De plus, on ne peut pas les combiner avec d'autres patterns.
-Ex:
-
-                    /Susie/,END    ✘
-
-
-BEGINFILE fonctionne de manière similaire,  sauf qu'il sélectionne le 1er record
-imaginaire précédant le 1er record de CHAQUE FICHIER de l'input.
-
-Même chose pour ENDFILE (après le dernier record de chaque fichier de l'input).
-
----
-
-    Sélectionne les records tq:
-
-    ┌─────────────────┬───────────────────────────────────────────────────────────────────┐
-    │ $3 == 0         │ le 3e champ est nul                                               │
-    │                 │                                                                   │
-    │ $2 >= 5         │ le 2e est supérieur à 5                                           │
-    │                 │                                                                   │
-    │ $2 * $3 > 50    │ le produit des champs 2 et 3 est > 50                             │
-    │                 │                                                                   │
-    │ NF != 3         │ le nb de champs est différent de 3                                │
-    │                 │                                                                   │
-    │ NR == 10        │ l'index du record est 10                                          │
-    │                 │                                                                   │
-    │ $0 >= "M"       │ le record est rangé après le caractère M                          │
-    │                 │                                                                   │
-    │ $1 == "Susie"   │ le 1er champ est "Susie"                                          │
-    ├─────────────────┼───────────────────────────────────────────────────────────────────┤
-    │ expr ~ /pat/    │ `pat` décrit une sous-chaîne de `expr`                            │
-    │                 │ la valeur de `expr` étant une chaîne, ou un nb converti en chaîne │
-    │                 │                                                                   │
-    │ expr !~ /pat/   │ `pat` ne décrit aucune sous-chaîne de `expr` (aucun match)        │
-    │                 │                                                                   │
-    │ $0 ~ /pat/      │ `pat` décrit une sous-chaîne du record                            │
-    │      /pat/      │ on dit que le pattern “matche“ le record                          │
-    │                 │                                                                   │
-    │ $0 ~ expr       │ `expr` décrit une sous-chaîne du record                           │
-    │                 │                                                                   │
-    │                 │ la valeur de `expr` est interprétée comme une pat, et,            │
-    │                 │ si besoin convertie en chaîne                                     │
-    └─────────────────┴───────────────────────────────────────────────────────────────────┘
-
-
-Les dernières syntaxes sont toutes des cas particuliers de la syntaxe générale:
-
-    expr ~ expr
-
-
-Le rhs de `~` est toujours interprété comme une pat, et le lhs comme un pattern.
-Ça implique que:
-
-    "Hello" ~ "Hel.o"    ✔ il y a match, car `.` est interprété comme un métacaractère
-    "Hel.o" ~ "Hello"    ✘ pas de match, car `.` est interprété littéralement
-
-
-On peut abréger `$0 ~ /pat/` en `/pat/`, mais pas `$0 ~ expr` en `expr`.
-
----
-
-    /pat1/ && !/pat2/
-
-Sélectionne les records décrit ou `pat1` matche mais pas `pat2`.
-
-Illustre  qu'on peut  combiner des  expressions régulières  avec des  opérateurs
-logiques (ici &&).
-Montre aussi qu'on peut abréger `$0 !~ /pat/` en `!/pat/`.
-
----
-
-    BEGIN {
-        sign     = "[-+]?"
-        decimal  = "[0-9]+[.]?[0-9]*"
-        fraction = "[.][0-9]+"
-        exponent = "[eE]" sign "[0-9]+"
-        number   = "^" sign "(" decimal "|" fraction ")(" exponent ")?$"
-    }
-
-    $1 ~ number
-
-Affiche  les records  dont le  1er  champ est  un nombre  entier (123),  décimal
-(1.23),  ou  une  fraction   (.123),  accompagné  éventuellement  d'un  exposant
-(123e456).
-
-Illustre  qu'on   peut  décomposer  un   pattern  de  regex  complexe   via  une
-concaténation de chaînes.
-Fonctionne pour 2 raisons:
-
-   - le rhs de l'opérateur `~` peut être une expression
-   - une concaténation de chaînes est une expression
-
----
-
-    $2 >= 4 || $3 >= 20
-    !($2 < 4 && $3 < 20)
-
-Sélectionne les records tq le 2e champ est supérieur à 4 OU le 3e à 20.
-
-
-    (1)    (A ou B) est vraie,  ssi (A ou B)         n'est pas fausse.
-    (2)    (A ou B) est fausse, ssi (non A ET non B) est vraie.
-
-    (1) ∧ (2)    ⇒    (A ou B) est vraie, ssi (non A ET non B) est fausse.
-
----
-
-    expr1,expr2
-
-Sélectionne les records qui se situent entre  un record où `expr1` est vraie, et
-le suivant où `expr2` est vraie.
-Ex:
-
-    FNR == 1, FNR == 5    ⇔    FNR <= 5
-
----
-
-    /pattern1/,/pattern2/
-
-Sélectionne tous  les records qui  se situent qq  part entre un  record matchant
-`pattern1` (notons le R1), et le prochain record après R1 matchant `pattern2`.
-
-On  parle de  “rangée“, et  comme pour  une rangée  dont les  adresses sont  des
-patterns dans  une commande Ex Vim,  elle peut matcher plusieurs  successions de
-records distinctes.
-
-Ex:
-
-                                      ┌───────┐
-    awk '/foo/,/bar/ { print }' file ─│ foo   │
-                                      │ word1 │
-            foo                       │ bar   │
-            word1                     │       │
-            bar                       │ one   │
-            foo                       │ two   │
-            word2                     │       │
-            bar                       │ foo   │
-                                      │ word2 │
-                                      │ bar   │
-                                      └───────┘
-
-Si aucun record ne matche:
-
-   - `pattern1`, la rangée est vide
-
-   - `pattern2`, la rangée inclut tous les records depuis celui où `pattern1` a été
-     trouvé pour la dernière fois, jusqu'à la fin du fichier
-
-Il s'agit d'une forme abrégée de:
-
-    $0 ~ /pattern1/,$0 ~ /pattern2/
-
-... qui est un cas particulier de:
-
-    expr1,expr2
-
----
-
-    $ cat progfile
-
-            $2 >= 4
-            $3 >= 20
-
-    $ awk -f progfile
-
-    !=
-
-    $ awk '$2 >= 4 || $3 >= 20'
-
-Les 2 pgms ne sont pas équivalents.
-Lorsqu'un record satisfait les 2 conditions, il est affiché:
-
-   - 2   fois par le 1er pgm
-   - une fois par le 2e  pgm
-
-En effet, le 1er pgm contient 2 déclarations constituées chacune d'un pattern et
-d'une action, tandis que le 2e programme ne contient qu'une seule déclaration.
-Ici, les actions sont implicites (`{ print }`).
 
 ##
 ## Variables
