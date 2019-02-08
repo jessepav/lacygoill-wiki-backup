@@ -1,114 +1,5 @@
 On s'est arrêté à la page 84 du pdf / 72 du livre.
 
-# ?
-
-How to get the number of fields on a record?
-
-Use the built-in variable `NF`:
-
-    { print NF }
-
----
-
-What's the difference between `NF` and `$NF`?
-
-`NF` is evaluated into the *index* of the last field.
-`$NF` is evaluated into the *contents* of the last field.
-
----
-
-How to get the contents of the last but one field?
-
-    { print $(NF-1) }
-
-`NF-1` is an expression evaluated into the  index of the last but one field, and
-`$` is an operator converting a field index into a field contents.
-
----
-
-You  need to  surround  the  expression with  parentheses,  otherwise `$`  would
-consider that `NF` is its operand, instead of `NF-1`.
-
-    $ cat <<'EOF' >/tmp/file
-    11 22 33
-    44 55 66
-    77 88 99
-    EOF
-
-    $ awk '{ print $(NF-1) }' /tmp/file
-    22~
-    55~
-    88~
-
-    $ awk '{ print $NF-1 }' /tmp/file
-    32~
-    65~
-    98~
-
-Note that  if one of  the field  began with a  non-digit character, it  would be
-automatically coerced  into the number  `0`; and  so `$NF-1` would  be evaluated
-into `-1`.
-
----
-
-How to print the records, reversing the order of their fields?
-
-    $ cat <<'EOF' >/tmp/file
-    3 2 1
-    6 5 4
-    9 8 7
-    EOF
-
-    $ cat <<'EOF' >/tmp/awk.awk
-    {
-        for (i = NF; i > 0; i--)
-            printf "%s ", $i
-        print ""
-    }
-    EOF
-
-    $ awk -f /tmp/awk.awk /tmp/file
-    1 2 3 ~
-    4 5 6 ~
-    7 8 9 ~
-
-The purpose of `print ""` is to add a newline at the end of a record.
-
----
-
-    $(NF + 1) = "just after last field"
-    $42       = "way  after last field"
-
-On peut se référer à un champ non existant, comme ici `$(NF + 1)` ou `$42`.
-
-Dans ce cas, awk l'ajoutera aux champs pré-existants du record.
-S'il y a un  gap entre le nouveau champ à créer (ex: `42`),  et le dernier champ
-pré-existant (ex: `5`), awk créera autant de champs vides que nécessaire.
-
-Comme  on   transforme  un  champ   dont  l'index   est  non  nul,   awk  divise
-automatiquement les records en champs, et effectue le remplacement `FS → OFS`.
-Donc, avant chaque champ ajouté, il ajoutera aussi un OFS.
-
-Ex:
-
-    $ cat <<'EOF' >/tmp/file
-    This_old_house_is_a_great_show.
-    I_like_old_things.
-    EOF
-
-    $ cat <<'EOF' >/tmp/awk.awk
-    BEGIN { FS = "_"; OFS = "|" }
-    { $(NF + 1) = ""; print }
-    EOF
-
-    $ awk -f /tmp/awk.awk /tmp/file
-    This|old|house|is|a|great|show.|~
-    I|like|old|things.|~
-
-Dans  cet exemple,  le pipe  à la  fin de  chaque ligne  est un  OFS qui  sépare
-l'avant-dernier champ (`show.` / `things.`) du dernier champ vide.
-
-##
 # Command-line
 ## How to run an awk program from a file?  (3)
 
@@ -432,6 +323,90 @@ This command prints the  first, second and third field of  the first, second and
 third record.
 
 ##
+# built-in variables
+## How to get the number of fields on a record?
+
+Use the built-in variable `NF`:
+
+    { print NF }
+
+## What's the difference between `NF` and `$NF`?
+
+`NF` is evaluated into the *index* of the last field.
+`$NF` is evaluated into the *contents* of the last field.
+
+## How to get the contents of the last but one field?
+
+    { print $(NF-1) }
+
+`NF-1` is an expression evaluated into the  index of the last but one field, and
+`$` is an operator converting a field index into a field contents.
+
+---
+
+You  need to  surround  the  expression with  parentheses,  otherwise `$`  would
+consider that `NF` is its operand, instead of `NF-1`.
+
+    $ cat <<'EOF' >/tmp/file
+    11 22 33
+    44 55 66
+    77 88 99
+    EOF
+
+    $ awk '{ print $(NF-1) }' /tmp/file
+    22~
+    55~
+    88~
+
+    $ awk '{ print $NF-1 }' /tmp/file
+    32~
+    65~
+    98~
+
+Note that  if one of  the field  began with a  non-digit character, it  would be
+automatically coerced  into the number  `0`; and  so `$NF-1` would  be evaluated
+into `-1`.
+
+##
+# printing
+## How to print a newline?
+### at the end of an output record?
+
+    print ""
+
+The reason  why you can omit  `\n` is because, at  the end of an  output record,
+`print`  automatically adds  the contents  of `ORS`,  whose default  value is  a
+newline.
+
+### anywhere?
+
+    printf("\n")
+
+##
+## How to print the input records, reversing the order of their fields?
+
+    $ cat <<'EOF' >/tmp/file
+    3 2 1
+    6 5 4
+    9 8 7
+    EOF
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    {
+        for (i = NF; i > 0; i--)
+            printf "%s ", $i
+        print ""
+    }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/file
+    1 2 3 ~
+    4 5 6 ~
+    7 8 9 ~
+
+The purpose of `print ""` is to add a newline at the end of a record.
+
+##
 # I have the following file:
 
     $ cat <<'EOF' >/tmp/emp.data
@@ -488,20 +463,57 @@ The three columns contain:
     Susie~
 
 ##
-# printing
-## How to print a newline?
-### at the end of an output record?
+# Misc.
+## How to add a new field to a record?
 
-    print ""
+Refer to the field whose index is `NF + 1`.
+Assign to it the desired contents
 
-The reason  why you can omit  `\n` is because, at  the end of an  output record,
-`print`  automatically adds  the contents  of `ORS`,  whose default  value is  a
-newline.
+    $ cat <<'EOF' >/tmp/file
+    This_old_house_is_a_great_show.
+    I_like_old_things.
+    EOF
 
-### anywhere?
+    $ cat <<'EOF' >/tmp/awk.awk
+    BEGIN { FS = "_"; OFS = "|" }
+    { $(NF + 1) = ""; print }
+    EOF
 
-    printf("\n")
+    $ awk -f /tmp/awk.awk /tmp/file
+    This|old|house|is|a|great|show.|~
+    I|like|old|things.|~
+                      ^
+                      separates the previous field (`things.`)
+                      from the new last empty field
 
+## What's the side effect of a field modification?
+
+Awk automatically splits  the record into fields to access  the field to modify,
+then replaces every `FS` with `OFS` to create the output record.
+
+## What happens if I refer to a non-existing field (index bigger than the last one)?
+
+Awk will add as many empty fields as necessary to allow this new field to exist.
+
+Ex:
+
+    $ cat <<'EOF' >/tmp/file
+    This_old_house_is_a_great_show.
+    I_like_old_things.
+    EOF
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    BEGIN { FS = "_"; OFS = "|" }
+    { $(NF + 3) = ""; print }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/file
+    This|old|house|is|a|great|show.|||~
+    I|like|old|things.|||~
+                      ^^^
+                      there are 3 new empty fields at the end
+
+##
 ##
 ##
 # Affichage
@@ -3125,7 +3137,7 @@ On constate qu'awk a effectué le remplacement `FS → OFS` sur le 1er record, m
 pas sur le 2e.
 Pk?
 Car la  1e déclaration  n'a pas  besoin de  diviser le  record pour  extraire un
-champ, elle travaille sur $0.
+champ, elle travaille sur `$0`.
 Et la 2e échoue.
 Donc, aucune des déclarations ne divise le 2e record.
 
