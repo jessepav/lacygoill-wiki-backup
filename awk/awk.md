@@ -555,6 +555,18 @@ Use the `NR` variable:
     total pay for Mary is 121~
     total pay for Susie is 76.5~
 
+##### same thing, but aligning the names and the pays?
+
+To get more control over the formatting, you would need `printf`:
+
+    $ awk '{ printf "total pay for %-8s is %6.2f\n", $1, $2 * $3 }' /tmp/emp.data
+    total pay for Beth     is   0.00~
+    total pay for Dan      is   0.00~
+    total pay for Kathy    is  40.00~
+    total pay for Mark     is 100.00~
+    total pay for Mary     is 121.00~
+    total pay for Susie    is  76.50~
+
 ##
 ##
 ##
@@ -1788,7 +1800,6 @@ Valeurs retournées par `getline`:
 
     ┌────┬─────────────────────────────────────────────────────────────────────────┐
     │ 1  │ a pu lire un record                                                     │
-    │    │                                                                         │
     ├────┼─────────────────────────────────────────────────────────────────────────┤
     │ 0  │ est arrivée à la fin:                                                   │
     │    │                                                                         │
@@ -2410,25 +2421,25 @@ Traite  les fichiers  `file1`  et  `file2` en  exécutant  le  code contenu  dan
                                              action2
                                          }
 
-On peut terminer une déclaration pattern-action  ou une action via un newline ou
-un point-virgule.
+On peut *terminer*  une déclaration pattern-action ou une action  via un newline
+ou un point-virgule.
 
 On utilisera plutôt un  newline dans un fichier awk, et  un point-virgule sur la
 ligne de commande.
 
-Un newline peut aussi servir à décomposer une expression ou une déclaration sur plusieurs lignes.
-Pour ce faire, il doit être placé après :
+Un newline  peut aussi servir à  *décomposer* une expression ou  une déclaration
+sur plusieurs lignes; pour ce faire, il doit être placé après :
 
     ┌───────────────────────┬───────────┐
-    │ un opérateur logique  │ 1 &&      │
-    │                       │ 2         │
-    │                       │           │
+    │ une virgule suivant   │ print $1, │
+    │ un argument           │       $2  │
+    ├───────────────────────┼───────────┤
     │ un backslash          │ print \   │
     │ positionné où on veut │       $1, │
     │                       │       $2  │
-    │                       │           │
-    │ une virgule suivant   │ print $1, │
-    │ un argument           │       $2  │
+    ├───────────────────────┼───────────┤
+    │ un opérateur logique  │ 1 &&      │
+    │                       │ 2         │
     └───────────────────────┴───────────┘
 
 ---
@@ -2442,9 +2453,8 @@ Pour ce faire, il doit être placé après :
         )
 
 Dans  cet exemple,  on décompose  une action  `printf()` en  utilisant plusieurs
-newlines.
-Certains sont positionnés après un backslash,  d'autres après un argument et une
-virgule.
+newlines;  certains  sont positionnés  après  un  backslash, d'autres  après  un
+argument et une virgule.
 
 ---
 
@@ -3330,6 +3340,220 @@ Pour rappel, on accède à une variable en:
     ($1)++
 
 Inverse (au sens logique) / Incrémente la valeur du 1er champ.
+
+##
+# Exercises
+
+Print the total number of input lines.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    END { print NR }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print the tenth input line.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    NR == 10
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+No need to write `{ print }`. It's the default action.
+
+---
+
+Print the last field of every input line.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    { print $NF }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print the last field of the last input line.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+        { last_field = $NF }
+    END { print last_field }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print every input line with more than four fields.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    NF > 4
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print every input line in which the last field is more than `4`.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    $NF > 4
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print the total number of fields in all input lines.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+        { total += NF }
+    END { print total }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print the total number of lines that contain `Beth`.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    /Beth/ { total += 1 }
+    END    { print total }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print the largest first  field and the line that contains  it (assumes some `$1`
+is positive).
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    $1 > max { max = $1 ; line = $0 }
+    END      { print max, line }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print every line that has at least one field.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    NF >= 1
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print every line longer than 80 characters.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    length($0) > 80
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print the number of fields in every line followed by the line itself.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    { print NF, $0}
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print the first two fields, in opposite order, of every line.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    { print $2, $1 }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Exchange the first two fields of every line and then print the line.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    { temp = $1; $1 = $2; $2 = temp; print }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print every line with the first field replaced by the line number.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    { $1 = NR; print }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print every line after erasing the second field.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    { $2 = ""; print }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print in reverse order the fields of every line.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    {
+        for (i = 1; i <= $NF; i++) {
+            printf("%s ", $i)
+        }
+        print ""
+    }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print the sums of the fields of every line.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    { sum = 0; for (i = 1; i <= NF; i++) sum += $i; print sum }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Add up all fields in all lines and print the sum.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+        { for (i = 1; i <= NF; i++) sum += $i }
+    END { print sum }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+---
+
+Print every line after replacing each field with its absolute value.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    { for (i = 1; i <= NF; i++) if ($i < 0) $i = -$i; print }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
 
 ##
 # TODO
