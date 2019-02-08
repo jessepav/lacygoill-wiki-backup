@@ -6,12 +6,27 @@
     foo ~
      bar~
 
-Neither in an `<expr>` mapping:
+In an `<expr>` mapping, it depends:
 
+    " ✔
     fu! Func(str)
         return ''
     endfu
     nno <expr> cd Func('foo <c-j> bar')
+    norm cd
+
+    " ✔
+    fu! Func(str)
+        return ''
+    endfu
+    nno <expr> cd ':call ' . Func('foo <c-j> bar')
+    norm cd
+
+    " ✘
+    fu! Func(str)
+        return a:str
+    endfu
+    nno <expr> cd ':call ' . Func('foo <c-j> bar')
     norm cd
 
 However, they *can* in a regular mapping:
@@ -23,8 +38,9 @@ However, they *can* in a regular mapping:
     norm cd
     E115: Missing quote: 'foo ~
 
-This is  probably because  the keys  in the rhs  are processed  as if  they were
-pressed manually; and when `C-j` or `C-m` is pressed, it ends the command.
+This  is probably  because  the keys  in  the  rhs are  processed  while on  the
+command-line; and on  the command-line, when `C-j` or `C-m`  is pressed, it ends
+the command.
 
 # ?
 
