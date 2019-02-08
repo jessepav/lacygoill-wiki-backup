@@ -1773,12 +1773,12 @@ fichiers / pipes pouvant être ouverts à un instant T.
 
     $ cat <<'EOF' >/tmp/awk.awk
     BEGIN {
-        "date" | getline var
-        print var
+        "date" | getline var1
+        print var1
         system("sleep 3")
         close("date")
-        "date" | getline var
-        print var
+        "date" | getline var2
+        print var2
     }
     EOF
 
@@ -1787,8 +1787,8 @@ fichiers / pipes pouvant être ouverts à un instant T.
 Affiche l'heure et la date du jour, dort 3s, puis réaffiche l'heure.
 
 Sans l'instruction `close("date")` qui ferme le précédent pipe `"date" | getline var`,
-la  2e commande  shell  `date`  n'aurait pas  été  exécutée,  et `print`  aurait
-réaffiché exactement la même heure.
+la  2e commande  shell `date`  n'aurait pas  été exécutée,  et `print`  n'aurait
+affiché qu'une seule date.
 
 Illustre qu'il faut  fermer un pipe, si on veut  pouvoir le réutiliser plusieurs
 fois.
