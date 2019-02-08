@@ -817,6 +817,7 @@ To read:
     :h sign-support
     https://vi.stackexchange.com/questions/15846/is-there-a-way-to-quickly-jump-to-signs
     https://gist.github.com/BoltsJ/5942ecac7f0b0e9811749ef6e19d2176
+    https://github.com/tpope/vim-scriptease/pull/23
 
 # ?
 
