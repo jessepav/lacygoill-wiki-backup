@@ -568,6 +568,43 @@ To get more control over the formatting, you would need `printf`:
     total pay for Susie    is  76.50~
 
 ##
+## How to print and sort the names of the employees in reverse order?
+
+Write the names on a pipe connected to the `sort` command:
+
+    $ awk '{ print $1 | "sort -r" }' /tmp/emp.data
+    Susie~
+    Mary~
+    Mark~
+    Kathy~
+    Dan~
+    Beth~
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
+It seems that a pipe inside an action  is not connected to a single execution of
+a  command (here  `print $1`),  but  to all  possible executions;  i.e. to  each
+execution of the command which is run whenever a matching record is found.
+
+awk probably closes the pipe only after the last record has been processed.
+
+---
+
+Instead of using a built-in pipe, you could also have used an external one:
+
+    $ awk '{ print $1 }' /tmp/emp.data | sort -r
+
+## How to sort the lines according to the total pay?
+
+    $ awk '{ printf("%6.2f  %s\n", $2 * $3, $0) | "sort -n" }' /tmp/emp.data
+      0.00  Beth    4.00   0~
+      0.00  Dan     3.75   0~
+     40.00  Kathy   4.00   10~
+     76.50  Susie   4.25   18~
+    100.00  Mark    5.00   20~
+    121.00  Mary    5.50   22~
+
+##
 ##
 ##
 # Affichage
@@ -903,12 +940,7 @@ d'aligner les colonnes des expressions suivantes.
 Trie le contenu de l'array `a` dans `/tmp/file`.
 
 Illustre qu'on  peut écrire  toute une  boucle d'instructions  sur un  pipe, pas
-seulement une simple instruction.
-C'est possible car awk n'exécute pas la  commande shell tant qu'on n'a pas fermé
-le pipe nous-mêmes.
-
-awk  ne ferme  jamais un  pipe lui-même,  sauf  à la  fin, qd  son processus  se
-termine, et qu'il y est obligé.
+seulement une simple instruction; similaire au shell.
 
 ---
 
@@ -1739,16 +1771,18 @@ fichiers / pipes pouvant être ouverts à un instant T.
 
 ---
 
+    $ cat <<'EOF' >/tmp/awk.awk
     BEGIN {
         "date" | getline var
         print var
-
         system("sleep 3")
         close("date")
-
         "date" | getline var
         print var
     }
+    EOF
+
+    $ awk -f /tmp/awk.awk
 
 Affiche l'heure et la date du jour, dort 3s, puis réaffiche l'heure.
 
