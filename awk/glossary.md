@@ -14,6 +14,8 @@ imperative program are executed or evaluated.
 The emphasis  on explicit control  flow distinguishes an  imperative programming
 language from a declarative programming language.
 
+<https://en.wikipedia.org/wiki/Control_flow>
+
 ## control flow graph
 
 Representation,  using graph  notation, of  all  paths that  might be  traversed
