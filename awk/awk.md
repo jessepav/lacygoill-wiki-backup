@@ -383,30 +383,6 @@ newline.
     printf("\n")
 
 ##
-## How to print the input records, reversing the order of their fields?
-
-    $ cat <<'EOF' >/tmp/file
-    3 2 1
-    6 5 4
-    9 8 7
-    EOF
-
-    $ cat <<'EOF' >/tmp/awk.awk
-    {
-        for (i = NF; i > 0; i--)
-            printf "%s ", $i
-        print ""
-    }
-    EOF
-
-    $ awk -f /tmp/awk.awk /tmp/file
-    1 2 3 ~
-    4 5 6 ~
-    7 8 9 ~
-
-The purpose of `print ""` is to add a newline at the end of a record.
-
-##
 # Modifying Fields
 ## How to add a new field to a record?
 
@@ -457,12 +433,40 @@ Ex:
                       ^^^
                       there are 3 new empty fields at the end
 
+## How to print the input records, reversing the order of their fields?
+
+    $ cat <<'EOF' >/tmp/file
+    3 2 1
+    6 5 4
+    9 8 7
+    EOF
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    {
+        for (i = NF; i > 0; i--)
+            printf "%s ", $i
+        print ""
+    }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/file
+    1 2 3 ~
+    4 5 6 ~
+    7 8 9 ~
+
+The purpose of `print ""` is to add a newline at the end of a record.
+
 ##
 # Regex
 ## Which common pitfall should I avoid when using a string as a regex?
 
 You need  to double the  backslash for every escape  sequence which you  want to
 send to the regex engine.
+
+For example, to describe a literal dot, you can write either of these:
+
+   - `/\./`
+   - `"\\."`
 
 ## What's the benefit of using a string as a regex (`"regex"`), rather than `/regex/`?
 
@@ -491,21 +495,6 @@ The three columns contain:
    - the number of hours they've worked so far
 
 ## How to print
-### the names of the employees which have worked more than 0 hours, and their total pay?
-
-    $ awk '$3 > 0 { print $1, $2 * $3 }' /tmp/emp.data
-           ├────┘         ├┘  ├─────┘
-           │              │   └ print their pay
-           │              │
-           │              └ print their names
-           │
-           └ only consider the employees which have worked
-
-    Kathy 40~
-    Mark 100~
-    Mary 121~
-    Susie 76.5~
-
 ### the names of the employees which have *not* worked?
 
     $ awk '$3 == 0 { print $1 }' /tmp/emp.data
@@ -527,6 +516,44 @@ The three columns contain:
     Mark~
     Mary~
     Susie~
+
+### the lines prefixed with increasing numbers?
+
+Use the `NR` variable:
+
+    $ awk '{ print NR, $0 }' /tmp/emp.data
+    1 Beth    4.00   0~
+    2 Dan     3.75   0~
+    3 Kathy   4.00   10~
+    4 Mark    5.00   20~
+    5 Mary    5.50   22~
+    6 Susie   4.25   18~
+
+###
+### the names of the employees which have worked more than 0 hours, and their total pay?
+
+    $ awk '$3 > 0 { print $1, $2 * $3 }' /tmp/emp.data
+           ├────┘         ├┘  ├─────┘
+           │              │   └ print their pay
+           │              │
+           │              └ print their names
+           │
+           └ only consider the employees which have worked
+
+    Kathy 40~
+    Mark 100~
+    Mary 121~
+    Susie 76.5~
+
+#### same thing, but adding the text `total pay for` before the name, and `is` before the pay?
+
+    $ awk '{ print "total pay for", $1, "is", $2 * $3 }' /tmp/emp.data
+    total pay for Beth is 0~
+    total pay for Dan is 0~
+    total pay for Kathy is 40~
+    total pay for Mark is 100~
+    total pay for Mary is 121~
+    total pay for Susie is 76.5~
 
 ##
 ##
@@ -770,13 +797,6 @@ Affiche le contenu des champs 1 et 2 en les séparant par:
 
 Illustre que  l'opérateur de concaténation  (implicite) n'ajoute rien  entre les
 expressions.
-
----
-
-    print NR, $0
-
-Affiche l'index et le contenu du record courant au sein de l'input.
-Permet de numéroter les lignes d'un fichier.
 
 ---
 
@@ -1031,11 +1051,6 @@ Le problème peut venir de nombres trop grands, pex:
     D'où vient cette différence non nulle ???
 
 <https://www.gnu.org/software/gawk/manual/html_node/Exact-Arithmetic.html#Exact-Arithmetic>
-
-##
-# Debugging
-
-<https://www.gnu.org/software/gawk/manual/html_node/Debugger.html>
 
 ##
 # Syntaxe
@@ -2808,17 +2823,6 @@ Fonctionne pour 2 raisons:
    - le rhs de l'opérateur `~` peut être une expression
    - une concaténation de chaînes est une expression
 
-
-Dans une regex, il faut échapper les métacaractères:
-
-   - une seule fois, si la regex est du type /pattern/
-   - deux fois,      si "                    "pattern"
-
-Par exemple, pour matcher un point, on écrira au choix:
-
-    - /\./
-    - "\\."
-
 ---
 
     $2 >= 4 || $3 >= 20
@@ -3330,4 +3334,8 @@ Inverse (au sens logique) / Incrémente la valeur du 1er champ.
 # TODO
 
 Write a `|c` mapping to lint the current awk script (using `--lint`).
+
+---
+
+<https://www.gnu.org/software/gawk/manual/html_node/Debugger.html>
 
