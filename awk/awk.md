@@ -328,19 +328,19 @@ third record.
 
 What are the three kind of patterns?
 
-A special keyword:
+   - A special keyword:
 
-   - BEGIN
-   - END
+      * `BEGIN`
+      * `END`
 
-   - BEGINFILE
-   - ENDFILE
+      * `BEGINFILE`
+      * `ENDFILE`
 
-An expression, regular (`/pat/`) or not.
+   - An expression, regular (`/pat/`) or not.
 
-A range:
+   - A range:
 
-    expr1,expr2
+        expr1,expr2
 
 ---  
 
@@ -538,7 +538,27 @@ but twice in the second one.
 ↢
 
 ##
-# Built-In Variables
+# Regex
+## Which common pitfall should I avoid when using a string as a regex?
+
+You need  to double the  backslash for every escape  sequence which you  want to
+send to the regex engine.
+
+For example, to describe a literal dot, you can write either of these:
+
+   - `/\./`
+   - `"\\."`
+
+## What's the benefit of using a string as a regex (`"regex"`), rather than `/regex/`?
+
+You can  break it down into  several substrings, and  join them back to  get the
+final regex.
+
+By  saving the  substrings in  variables with  telling names,  you increase  the
+readibility and maintainability of your code.
+
+##
+# Modifying Fields
 ## How to get the number of fields on a record?
 
 Use the built-in variable `NF`:
@@ -583,22 +603,6 @@ automatically coerced  into the number  `0`; and  so `$NF-1` would  be evaluated
 into `-1`.
 
 ##
-# Printing
-## How to print a newline?
-### at the end of an output record?
-
-    print ""
-
-The reason  why you can omit  `\n` is because, at  the end of an  output record,
-`print`  automatically adds  the contents  of `ORS`,  whose default  value is  a
-newline.
-
-### anywhere?
-
-    printf("\n")
-
-##
-# Modifying Fields
 ## How to add a new field to a record?
 
 Refer to the field whose index is `NF + 1`.
@@ -672,24 +676,19 @@ Ex:
 The purpose of `print ""` is to add a newline at the end of a record.
 
 ##
-# Regex
-## Which common pitfall should I avoid when using a string as a regex?
+# Printing
+## How to print a newline?
+### at the end of an output record?
 
-You need  to double the  backslash for every escape  sequence which you  want to
-send to the regex engine.
+    print ""
 
-For example, to describe a literal dot, you can write either of these:
+The reason  why you can omit  `\n` is because, at  the end of an  output record,
+`print`  automatically adds  the contents  of `ORS`,  whose default  value is  a
+newline.
 
-   - `/\./`
-   - `"\\."`
+### anywhere?
 
-## What's the benefit of using a string as a regex (`"regex"`), rather than `/regex/`?
-
-You can  break it down into  several substrings, and  join them back to  get the
-final regex.
-
-By  saving the  substrings in  variables with  telling names,  you increase  the
-readibility and maintainability of your code.
+    printf("\n")
 
 ##
 # I have the following file:
