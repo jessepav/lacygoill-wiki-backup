@@ -14,31 +14,24 @@ imperative program are executed or evaluated.
 The emphasis  on explicit control  flow distinguishes an  imperative programming
 language from a declarative programming language.
 
+## control flow graph
+
+Representation,  using graph  notation, of  all  paths that  might be  traversed
+through a program during its execution.
+
+<https://en.wikipedia.org/wiki/Control_flow_graph>
+
+## control flow statement
+
 Within  an  imperative programming  language,  a  control  flow statement  is  a
 statement, the execution of which results in  a choice being made as to which of
 two or more paths to follow.
 
-## ?
+Here are a few categories of control flow statements:
 
-    structure de contrôle
-    control structure
-
-Une  structure de  contrôle est  une  instruction particulière  d'un langage  de
-programmation impératif pouvant dévier le flot de contrôle d'un programme.
-
-Quelques catégories de structures de contrôle:
-
-   - les alternatives (if, if–else,  switch, ...)
-   - les boucles  (while, do–while, for, ...)
-   - les constructions de gestion  d'exceptions (try–catch,  ...)
-
-## ?
-
-    control flow graph
-
-<https://en.wikipedia.org/wiki/Control_flow_graph>
-
-Ensemble de tous les flots de contrôle possibles d'un programme.
+   - alternatives (if, if–else,  switch, ...)
+   - loops (while, do–while, for, ...)
+   - exception handling constructions (try–catch,  ...)
 
 ##
 # e
@@ -157,56 +150,46 @@ It can be either:
 
 This can be a `pattern { action }`, or a command inside an action.
 
-## ?
+## syntactic sugar
 
-    syntactic sugar
+A construction can be considered “syntactic sugar” iff:
 
-Une construction  syntaxique est  qualifiée de  “sucre syntaxique“,  à condition
-qu'elle remplisse les 2 conditions suivantes:
+   - it simplifies the reading/writing of another syntactic construction
 
-   - elle simplifie la lecture/écriture d'une autre construction syntaxique
-
-   - sa suppression ne ferait pas perdre d'expressivité, ou de fonctionnalité au
-     langage de programmation
+   - its removal wouldn't make the language less expressive, nor would it remove
+     any feature of the language
 
 
-Exemple:
+Example1:
 
-`printf   "fmt",  expr-list`   est   probablement  du   sucre  syntaxique   pour
-`printf("fmt", expr-list)`.
+    printf  "fmt",  expr-list
+
+is probably syntactic sugar for:
+
+    printf("fmt", expr-list)
 
 
-Autre Exemple:
+Example2:
 
-Dans un langage  de programmation, pour obtenir un élément  d'une array, il faut
-généralement invoquer une fonction système à laquelle on passera 2 arguments.
-Notons-les pex:
+    my_array[1,2]
 
-   - la fonction:                                              get_array()
-   - le 1er argument, l'array:                                 Array
-   - le 2e  argument, un indice sous la forme d'un vecteur:    vector(i,j)
+is probably syntactic sugar for sth like:
 
-        get_array(Array, vector(i,j))    →    Array[i,j]
-        │                                     │
-        │                                     └ sucre syntaxique
-        └ écriture fondamentale
+    get_array(my_array, vector(1,2))
 
-De  la  même  façon,  donner  une  valeur  à  un  élément  d'une  array  revient
-généralement à invoquer une fonction à laquelle on passe 3 arguments:
+And similarly:
 
-   - set_array()
-   - Array
-   - vector(i,j)
-   - value
+    my_array[1,2] = 345
 
-        set_array(Array, vector(i,j), value)    →    Array[i,j] = value
-        │                                            │
-        │                                            └ sucre syntaxique
-        └ écriture fondamentale
+is probably syntactic sugar for sth like:
 
-Les  processeurs du  langage (interpréteur,  préprocesseur, compilateur  ...) se
-chargent de développer du sucre syntaxique en constructions fondamentales, avant
-de traiter le code: on parle de “désucrage“ (“desugaring“).
+    set_array(my_array, vector(1,2), 345)
+
+---
+
+The processors of the language (interpreter, preprocessor, compiler, ...) expand
+syntactic sugar into more fundamental constructions, before processing the code.
+This process is called “desugaring”.
 
 ##
 # v
