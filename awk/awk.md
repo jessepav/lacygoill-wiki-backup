@@ -324,9 +324,7 @@ third record.
 
 ##
 # Pattern
-## ?
-
-What are the three kind of patterns?
+## What are the three kind of patterns?
 
    - A special keyword:
 
@@ -342,35 +340,122 @@ What are the three kind of patterns?
 
         expr1,expr2
 
----  
+### When does each of them match?
 
-Qd le pattern est  une expression, il y a match si son  évaluation est un nombre
-non nul, ou une chaîne non vide.
+`BEGIN` matches before the first record.
+`END` matches after the last record.
+
+`BEGINFILE` matches before the first record of every file in the input.
+`ENDFILE` matches after the last record of every file in the input.
+
+An expression matches if it evaluates to a non-zero number or a non-empty string.
+
+A range matches a set of consecutive records.
+The first record in the range is a record matched by the first expression.
+The last record in the range is the next record matched by the second expression.
+
+##
+## How can the range `FNR == 1, FNR == 5` be simplified?
+
+    FNR <= 5
+
+## What's the output of the next command?
+
+    $ cat <<'EOF' >/tmp/file
+    foo
+    A
+    bar
+    XXX
+    foo
+    B
+    bar
+    EOF
+
+    $ awk '/foo/,/bar/ { print }' /tmp/file
+↣
+    foo
+    A
+    bar
+    foo
+    B
+    bar
+
+Contrary to a range in Vim, a range in awk can match several sets of lines.
+↢
 
 ## ?
 
-    BEGIN
-    END
+    /pat1/,/pat2/
 
-Sélectionne le record imaginaire précédant le 1er      record de l'input.
-"                                suivant   le dernier  "
+Sélectionne tous  les records qui  se situent qq  part entre un  record matchant
+`pat1` (notons le R1), et le prochain record après R1 matchant `pat2`.
 
-Permet d'exécuter une action avant / après que l'input ait été traité.
+On  parle de  “rangée“, et  comme pour  une rangée  dont les  adresses sont  des
+patterns dans  une commande Ex Vim,  elle peut matcher plusieurs  successions de
+records distinctes.
 
-Ces  patterns spéciaux  sont les  seuls  pour lesquels  on ne  peut pas  omettre
-l'action.
-De plus, on ne peut pas les combiner avec d'autres patterns.
+---
 
-Ex:
+Si aucun record ne matche:
 
-    /Susie/,END    ✘
+   - `pat1`, la rangée est vide
+
+   - `pat2`, la rangée inclut tous les records depuis celui où `pat1` a été
+     trouvé pour la dernière fois, jusqu'à la fin du fichier
+
+Il s'agit d'une forme abrégée de:
+
+    $0 ~ /pat1/,$0 ~ /pat2/
+
+... qui est un cas particulier de:
+
+    expr1,expr2
 
 ## ?
 
-`BEGINFILE`  fonctionne de  manière  similaire, sauf  qu'il  sélectionne le  1er
-record imaginaire précédant le 1er record de *chaque fichier* de l'input.
+What can't I do with `BEGIN` and `END`, but can with other patterns?  (2)
 
-Même chose pour `ENDFILE` (après le dernier record de chaque fichier de l'input).
+You can't omit the associated action.
+You can't combine them with another pattern inside a range:
+
+MWE:
+
+    $ awk '/Susie/,END' /tmp/file
+    awk: cmd. line:1: /Susie/,END~
+    awk: cmd. line:1:         ^ syntax error~
+    awk: cmd. line:1: END blocks must have an action part~
+
+## ?
+
+How is a dot interpreted in the left operand of `~`?  In the right operand?
+
+Resp. as a string and as a pattern.
+
+    $ cat <<'EOF' >/tmp/file
+    match!
+    EOF
+
+    # match because `.` is interpreted as a metacharacter
+    $ awk '"Hello" ~ "Hel.o" { print }' /tmp/file
+    match!~
+
+    # no match, because `.` is interpreted literally
+    $ awk '"Hel.o" ~ "Hello" { print }' /tmp/file
+    ∅~
+
+---
+
+How can `$0 ~ /pat/` be abbreviated?
+
+    /pat/
+
+How can `$0 !~ /pat/` be abbreviated?
+
+    !/pat/
+
+How can `$0 ~ expr` be abbreviated?
+
+It can't.
 
 ## ?
 
@@ -411,25 +496,11 @@ Les dernières syntaxes sont toutes des cas particuliers de la syntaxe général
 
 ## ?
 
-Le rhs de `~` est toujours interprété comme une pat, et le lhs comme un pattern.
-Ça implique que:
-
-    "Hello" ~ "Hel.o"    ✔ il y a match, car `.` est interprété comme un métacaractère
-    "Hel.o" ~ "Hello"    ✘ pas de match, car `.` est interprété littéralement
-
----
-
-On peut abréger `$0 ~ /pat/` en `/pat/`, mais pas `$0 ~ expr` en `expr`.
-
-## ?
-
     /pat1/ && !/pat2/
 
-Sélectionne les records décrit ou `pat1` matche mais pas `pat2`.
+Select the records matched by `pat1` and not by `pat2`.
 
-Illustre  qu'on peut  combiner des  expressions régulières  avec des  opérateurs
-logiques (ici &&).
-Montre aussi qu'on peut abréger `$0 !~ /pat/` en `!/pat/`.
+This shows that you can combine regexes with logical operators, here `&&`.
 
 ## ?
 
@@ -449,6 +520,7 @@ Affiche  les records  dont le  1er  champ est  un nombre  entier (123),  décima
 
 Illustre  qu'on   peut  décomposer  un   pattern  de  regex  complexe   via  une
 concaténation de chaînes.
+
 Fonctionne pour 2 raisons:
 
    - le rhs de l'opérateur `~` peut être une expression
@@ -466,60 +538,6 @@ Sélectionne les records tq le 2e champ est supérieur à 4 OU le 3e à 20.
     (2)    (A ou B) est fausse, ssi (non A ET non B) est vraie.
 
     (1) ∧ (2)    ⇒    (A ou B) est vraie, ssi (non A ET non B) est fausse.
-
-## ?
-
-    expr1,expr2
-
-Sélectionne les records qui se situent entre  un record où `expr1` est vraie, et
-le suivant où `expr2` est vraie.
-
-Ex:
-
-    FNR == 1, FNR == 5
-    ⇔
-    FNR <= 5
-
-## ?
-
-    /pattern1/,/pattern2/
-
-Sélectionne tous  les records qui  se situent qq  part entre un  record matchant
-`pattern1` (notons le R1), et le prochain record après R1 matchant `pattern2`.
-
-On  parle de  “rangée“, et  comme pour  une rangée  dont les  adresses sont  des
-patterns dans  une commande Ex Vim,  elle peut matcher plusieurs  successions de
-records distinctes.
-
-Ex:
-
-                                      ┌───────┐
-    awk '/foo/,/bar/ { print }' file ─│ foo   │
-                                      │ word1 │
-            foo                       │ bar   │
-            word1                     │       │
-            bar                       │ one   │
-            foo                       │ two   │
-            word2                     │       │
-            bar                       │ foo   │
-                                      │ word2 │
-                                      │ bar   │
-                                      └───────┘
-
-Si aucun record ne matche:
-
-   - `pattern1`, la rangée est vide
-
-   - `pattern2`, la rangée inclut tous les records depuis celui où `pattern1` a été
-     trouvé pour la dernière fois, jusqu'à la fin du fichier
-
-Il s'agit d'une forme abrégée de:
-
-    $0 ~ /pattern1/,$0 ~ /pattern2/
-
-... qui est un cas particulier de:
-
-    expr1,expr2
 
 ## Why are the following patterns different?
 
@@ -2390,9 +2408,8 @@ qu'elle ne retourne pas de chaîne vide  si le séparateur est présent au débu
 Remplace toutes les occurrences de "people" par "people are people".
 
 Illustre  que, comme  dans Vim,  le métacaractère  `&` permet  de se  référer au
-pattern matché.
-Et, comme  dans Vim, on  peut lui  faire perdre son  sens spécial en  le quotant
-(`\&`).
+pattern matché; et comme dans Vim, on peut lui faire perdre son sens spécial en
+le quotant (`\&`).
 
 On peut aussi utiliser `\0`.
 
