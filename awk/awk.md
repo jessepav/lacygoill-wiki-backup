@@ -890,24 +890,6 @@ L'avantage par rapport  aux déclarations awk précédentes (BEGIN  ...), est qu
 n'a pas besoin de  se soucier de savoir comment l'input  d'awk était alignée, ni
 même si elle était alignée.
 
-## Auto-indentation
-
-L'auto-indentation fournie  par l'opérateur `=`  de Vim repose sur  la fonction
-`GetAwkIndent()`, elle-même configurée par l'option `indentexpr`.
-
-Par    défaut,     elle    est    définie    dans     le    filetype    plugin
-`$VIMRUNTIME/indent/awk.vim`.  Mais, son indentation est souvent fausse. On peut
-dl une meilleure version sur vim.org:
-
-        http://www.vim.org/scripts/script.php?script_id=4372
-
-Une  fois   le  plugin  téléchargé,  il   ne  reste  qu'à  le   placer  dans
-`~/.vim/after/indent/`.
-
-Atm, le code inclut une  documentation sommaire expliquant comment configurer le
-plugin.  La configuration  repose sur un ensemble de variables  globales de type
-booléen.
-
 ## Précision numérique
 
     END {
