@@ -61,6 +61,25 @@ This is because awk passes scalars by value, and arrays by reference.
 
 ## ?
 
+What's the default scope of a variable created in a function?
+
+Global.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    END { myfunc(); print var }
+    function myfunc() {
+        var = "hello"
+    }
+    EOF
+
+    $ awk -f /tmp/awk.awk
+    hello~
+
+If the `var` assignment was local to `myfunc()`, `print var` would print an empty string.
+
+
+---
+
     $ cat <<'EOF' >/tmp/awk.awk
     BEGIN {
         a[1] = "one"
