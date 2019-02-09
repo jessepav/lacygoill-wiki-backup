@@ -1,5 +1,155 @@
 On s'est arrêté à la page 84 du pdf / 72 du livre.
 
+# initialisation
+## ?
+
+How to save all records inside a list?
+
+    a[NR] = $0
+
+---
+
+    $ cat <<'EOF' >/tmp/file
+    foo
+    bar
+    baz
+    EOF
+
+    $ cat <<'EOF' >/tmp/awk.awk
+        { a[NR] = $0 }
+    END { print a[2] }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/file
+    bar~
+
+## ?
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    function myfunc(a) {
+        a = a 42
+    }
+    BEGIN {
+        a = "foo"
+        myfunc(a)
+    }
+    END { print a }
+    EOF
+
+    $ awk -f /tmp/awk.awk
+    foo~
+
+`myfunc()` n'a pas modifié  la variable globale `a` qu'on lui  a passée et qu'on
+avait initialisée dans une déclaration `BEGIN`.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    function myfunc(b) {
+        b[1] = b[1] 42
+    }
+    BEGIN {
+        b[1] = "foo"
+        myfunc(b)
+    }
+    END { print b[1] }
+    EOF
+
+    $ awk -f /tmp/awk.awk
+    foo42~
+
+Cette fois,  `myfunc()` *a*  modifié le  1er élément  de l'array  `b`, lui-aussi
+initialisé dans une déclaration `BEGIN`.
+
+Illustre qu'awk passe les scalaires par valeur, et les arrays par référence.
+
+## ?
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    function myfunc() {
+        string = "hello"
+    }
+    BEGIN {
+        myfunc()
+    }
+    END { print string }
+    EOF
+
+    $ awk -f /tmp/awk.awk
+    hello~
+
+L'appel  à `myfunc()`  dans la  déclaration  `BEGIN`, crée  la variable  globale
+`string` en lui donnant pour valeur `"hello"`.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    function myfunc(string) {
+        string = "hello"
+    }
+    BEGIN {
+        myfunc()
+    }
+    END { print string }
+    EOF
+
+    $ awk -f /tmp/awk.awk
+    ∅~
+
+Cette fois, ce même appel ne crée aucune variable globale.
+
+Pk?
+
+Dans le  1er snippet `myfunc()` est  définie avec le paramètre  `string`, ce qui
+implique qu'au sein de la fonction, `string` est une variable locale.
+En revanche, dans le 2e snippet,  `myfunc()` n'est définie avec aucun paramètre,
+ce qui implique qu'au sein de la fonction, `string` est une variable globale.
+
+
+La différence par rapport à VimL vient du code du 1er snippet.
+En VimL, qd on crée une variable dans une fonction, par défaut elle est locale.
+En awk, elle est globale.
+
+De plus,  en VimL,  une fonction se  plaint si on  l'appelle en  lui fournissant
+moins d'arguments que le nb de paramètres dans sa définition.
+En awk, aucun pb: les variables sont automatiquement initialisées à `""`.
+
+## ?
+
+                        ┌ surplus d'espaces conventionnels:
+                        │ à gauche paramètres "réelles", à droite variables locales
+                        │
+    function reverse(x,   temp) {
+        temp = x[1]
+        x[1] = x[2]
+        x[2] = temp
+    }
+
+    BEGIN {
+        a[1] = "hello"
+        a[2] = "world"
+        reverse(a)
+    }
+    END { print a[1], a[2], print temp }
+    "world hello"~
+
+La fonction custom `reverse()` inverse les 2 premiers éléments d'une array.
+Pour ce faire, elle utilise la variable temporaire `temp`.
+Après avoir appelé `reverse()`, aucune variable globale `temp` n'a été créée.
+
+Illustre  le mécanisme  à  utiliser pour  fournir des  variables  locales à  une
+fonction:
+
+qd on définit une fonction à laquelle  on veut fournir des variables locales, il
+faut déclarer leurs noms (ex: `temp`) dans la liste de ses paramètres.
+Généralement,  on  les  déclare  à  la fin,  après  les  paramètres  qu'on  veut
+réellement lui passer (ex: `a`).
+
+Par la  suite, qd on appelle  la fonction, on  peut lui passer des  valeurs pour
+initialiser ces variables locales, ou bien les omettre.
+Si on les omet, awk les initialise en leur donnant pour valeur `""`.
+
+
+On remarque que, par convention, on  sépare les variables locales des paramètres
+“réels” avec plusieurs espaces.
+
+##
 # Command-line
 ## How to run an awk program from a file?  (3)
 
@@ -304,6 +454,31 @@ As such, it can be used (alone) in the rhs of an assignment.
     1~
 
 ##
+## What happens if I refer to
+### a non-existent variable?
+
+Awk automatically initializes it with the value `""`.
+If the variable is used in an arithmetic computation, it's then coerced
+into `0`.
+
+### a non-existent array element?
+
+Awk automatically initializes it with the value `""`.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    END { print a[2] }
+    EOF
+
+    $ awk -f /tmp/awk.awk
+    ''~
+
+In contrast, in VimL, you would first need to declare the array with the right size:
+
+    let a = repeat([''], 3)
+    echo a[2]
+    ''~
+
+##
 ## How to refer to a field whose index is stored in a variable?
 
 Use the `$` operator in `$var`.
@@ -449,7 +624,7 @@ Resp. as a string and as a pattern.
     match!~
 
     $ awk '"Hel.o" ~ "Hello"' /tmp/file
-    ∅~
+    ''~
 
 ##
 ## What's the output of the next command?
@@ -886,7 +1061,7 @@ utiliser le double-point à la place)
 
 Commande pratique si awk a transformé du texte et perdu l'alignement des champs.
 
-L'avantage par rapport  aux déclarations awk précédentes (BEGIN  ...), est qu'on
+L'avantage par rapport aux déclarations awk précédentes (`BEGIN` ...), est qu'on
 n'a pas besoin de  se soucier de savoir comment l'input  d'awk était alignée, ni
 même si elle était alignée.
 
@@ -1331,25 +1506,6 @@ pas simplement les éléments.
 
 ---
 
-    a[NR] = $0
-
-Sauvegarde le contenu des records dans l'array `a`.
-
-
-On remarque qu'on  n'a pas besoin d'initialiser une array  avant de lui affecter
-un élément.
-On n'a pas non plus besoin de s'assurer qu'elle a une dimension suffisante.
-Comme pour  une variable, le  simple fait de  mentionner un élément  d'une array
-suffit à l'initialiser avec pour valeur "".
-
-Pour  faire qch  de similaire  en VimL,  il faudrait  d'abord déclarer  la liste
-`lines` avec une taille suffisante:
-
-    let lines = repeat([0], NF)
-    [0, 0, ...]~
-
----
-
     array[$1] = $2
 
 Crée une array dont  les indices sont les éléments de la  1e colonne de l'input,
@@ -1502,7 +1658,7 @@ convertir le nombre en chaîne.
 Contrairement à Vim:
 
     $ awk '$1 == "089" { print "match!" }' <<< "89"
-    ∅~
+    ''~
 
     $ awk '$1 == "089" { print "match!" }' <<< "089"
     match!~
@@ -1515,7 +1671,7 @@ En cas d'ambiguïté, awk donne la priorité aux chaînes, Vim aux nombres.
 ---
 
     $ awk '$1 == 042 { print "match!" }' <<< "042"
-    ∅~
+    ''~
 
     $ awk '$1 == 142 { print "match!" }' <<< "142"
     match!~
@@ -1907,7 +2063,7 @@ Qd `nextfile` est utilisé, certaines variables sont mises à jour:
    - FNR  →  1
 
 
-`next` provoque une erreur s'il est utilisé dans la déclaration BEGIN ou END.
+`next` provoque une erreur s'il est utilisé dans la déclaration `BEGIN` ou `END`.
 Idem pour `nextfile`.
 
 ---
@@ -2412,103 +2568,6 @@ On peut séparer `myfunc` de la parenthèse ouverte, dans sa définition:
 
 ---
 
-    function myfunc(a) {             function myfunc(b) {
-        a = a 42                         b[1] = b[1] 42
-    }                                }
-
-    BEGIN {                          BEGIN {
-        a = "foo"                        b[1] = "foo"
-        myfunc(a)                        myfunc(b)
-    }                                }
-    END { print a }                  END { print b[1] }
-          │                                │
-          └ affiche "foo"                  └ affiche "foo42"
-
-
-Les 2 codes appellent une fonction similaire `myfunc()`.
-Celui de gauche affiche "foo", celui de droite "foo42".
-
-À gauche, `myfunc()` n'a pas modifié la  variable globale `a` qu'on lui a passée
-et qu'on avait initialisée dans une déclaration BEGIN.
-En revanche, à droite,  elle a modifié le 1er élément  de l'array `b`, lui-aussi
-initialisé dans une déclaration BEGIN.
-
-Illustre qu'awk passe les SCALAIRES par valeur, et les ARRAYS par référence.
-
----
-
-    function myfunc() {             function myfunc(string) {
-        string = "hello"                string = "hello"
-    }                               }
-
-    BEGIN {                         BEGIN {
-        myfunc()                        myfunc()
-    }                               }
-    END { print string }            END { print string }
-          │                               │
-          └ affiche "hello"               └ n'affiche rien
-
-À  gauche, l'appel  à `myfunc()`  dans la  déclaration BEGIN,  crée la  variable
-globale `string` en lui donnant pour valeur "hello".
-À droite, ce même appel ne crée aucune variable globale.
-
-Pk?
-
-Car à droite `myfunc()` est définie  avec le paramètre `string`, ce qui implique
-qu'au sein de la fonction, `string` est une variable locale.
-En revanche,  à gauche, `myfunc()`  n'est définie  avec aucun paramètre,  ce qui
-implique qu'au sein de la fonction, `string` est une variable globale.
-
-
-La différence par rapport à VimL vient du code de gauche.
-En VimL, qd on crée une variable dans une fonction, par défaut elle est locale.
-En awk, elle est globale.
-
-De plus,  en VimL,  une fonction se  plaint si on  l'appelle en  lui fournissant
-moins d'arguments que le nb de paramètres dans sa définition.
-En awk, aucun pb: les variables sont automatiquement initialisées à "".
-
----
-
-                        ┌ surplus d'espaces conventionnels:
-                        │ à gauche paramètres "réelles", à droite variables locales
-                        │
-    function reverse(x,   temp) {
-        temp = x[1]
-        x[1] = x[2]
-        x[2] = temp
-    }
-
-    BEGIN {
-        a[1] = "hello"
-        a[2] = "world"
-        reverse(a)
-    }
-    END { print a[1], a[2], print temp }
-    "world hello"~
-
-La fonction custom `reverse()` inverse les 2 premiers éléments d'une array.
-Pour ce faire, elle utilise la variable temporaire `temp`.
-Après avoir appelé `reverse()`, aucune variable globale `temp` n'a été créée.
-
-Illustre  le mécanisme  à  utiliser pour  fournir des  variables  locales à  une
-fonction:
-
-qd on définit une fonction à laquelle  on veut fournir des variables locales, il
-faut déclarer leurs noms (ex: `temp`) dans la liste de ses paramètres.
-Généralement,  on  les  déclare  à  la fin,  après  les  paramètres  qu'on  veut
-réellement lui passer (ex: `a`).
-
-Par la  suite, qd on appelle  la fonction, on  peut lui passer des  valeurs pour
-initialiser ces variables locales, ou bien les omettre.
-Si on les omet, awk les initialise en leur donnant pour valeur "".
-
-
-On remarque que, par convention, on  sépare les variables locales des paramètres
-"réels" avec plusieurs espaces.
-
----
-
     { printf("%-10s %20s\n", $0, new_feature($0)) }
 
 Illustre  comment  développer  une  nouvelle fonctionnalité  pour  un  programme
@@ -2944,25 +3003,6 @@ Illustre qu'on peut réaliser plusieurs affectations en une seule ligne.
 
 ##
 ## Variables
-### Validité des noms / valeurs
-
-Il existe 3 types de variables:
-
-   - définie par l'utilisateur (ex: myvar)
-   - interne                   (ex: ARGV)
-   - variable de champ         (ex: $1)
-
-Le nom d'une variable utilisateur ne  peut contenir que des lettres, chiffres et
-underscores; elle ne doit pas commencer par un chiffre.
-Le nom d'une variable interne n'utilise que des lettres majuscules.
-
-La valeur d'une variable est une chaîne ou une constante numérique.
-Par défaut, une  variable non initialisée vaut  "", ce qui implique  qu'il n'y a
-jamais besoin d'initialiser une variable avec les valeurs suivantes:
-
-    myvar = ""    ✘ fonctionne mais inutile
-    myvar = 0     ✘ idem, car "" peut être convertie en 0 (`print i + 1` affiche 1)
-
 ### Internes
 #### Tableau récapitulatif
 
@@ -3109,11 +3149,11 @@ ARGV, il faut aussi incrémenter ARGC.
 
 Supprime le 2e fichier de l'input.
 
-Qd awk  rencontre une chaîne  vide dans ARGV, il  passe au prochain  élément, et
+Qd awk rencontre une  chaîne vide dans `ARGV`, il passe  au prochain élément, et
 continue jusqu'au `(ARGC-1)`ième.
 
-Illustre qu'en changeant le contenu de  ARGV dans une déclaration BEGIN, on peut
-modifier l'input.
+Illustre qu'en changeant  le contenu de `ARGV` dans une  déclaration `BEGIN`, on
+peut modifier l'input.
 
 ---
 
@@ -3153,7 +3193,7 @@ Modifier FS n'affecte pas la définition des champs du record courant, uniquemen
 ceux des records qui suivent.
 
 Si on veut modifier  la définition des champs de tous les  records, y compris le
-1er, il faut donc modifier FS via le pattern BEGIN.
+1er, il faut donc modifier `FS` via le pattern `BEGIN`.
 
 ---
 
@@ -3163,9 +3203,9 @@ Si on veut modifier  la définition des champs de tous les  records, y compris l
 Ce code modifie l'index du 5e record, en lui donnant pour valeur 10.
 Les records suivants auront donc pour index 11, 12, ... au lieu de 6, 7, ...
 
-Illustre qu'on peut accéder en écriture  à certaines variables internes, dont NR
-et FS.
-Exception: FILENAME n'est pas accessible en écriture.
+Illustre qu'on  peut accéder  en écriture à  certaines variables  internes, dont
+`NR` et `FS`.
+Exception: `FILENAME` n'est pas accessible en écriture.
 
 ---
 
