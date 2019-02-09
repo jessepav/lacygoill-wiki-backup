@@ -324,9 +324,9 @@ third record.
 
 ##
 # Pattern
-## What are the three kind of patterns?
+## What are the five kind of patterns?
 
-   - A special keyword:
+   - a special keyword:
 
       * `BEGIN`
       * `END`
@@ -334,11 +334,29 @@ third record.
       * `BEGINFILE`
       * `ENDFILE`
 
-   - An expression, regular (`/pat/`) or not.
+   - an expression:
 
-   - A range:
+      * scalar (`123`, `"string"`)
+      * arithmetic `1 + 2`
+      * relational `1 < 2`
 
-        expr1,expr2
+      * variable
+      * string concatenation
+      * conditional `test ? val1 : val2`
+      * function call whose output is a scalar
+
+   - a (regex) matching expression:
+
+      * `expr  ~ /pat/`
+      * `expr !~ "pat"`
+
+   - a compound expression which combines previous expressions
+     with `&&`, `||`, `!`, `()`
+
+   - a range:
+
+      *  expr1 , expr2
+      * /pat1/ , /pat2/
 
 ### When does each of them match?
 
@@ -349,16 +367,91 @@ third record.
 `ENDFILE` matches after the last record of every file in the input.
 
 An expression matches if it evaluates to a non-zero number or a non-empty string.
+Note that a relational, matching or  compound expression always evaluates to `0`
+or `1` depending on whether it's true.
 
 A range matches a set of consecutive records.
-The first record in the range is a record matched by the first expression.
-The last record in the range is the next record matched by the second expression.
+The first  record in the  range is any record  matched by the  first expression,
+let's call it `R1`.
+The last record in the range is the next record after `R1` matched by the second
+expression.
 
 ##
-## How can the range `FNR == 1, FNR == 5` be simplified?
+## What can't I do with `BEGIN` and `END`, but can with other patterns?  (2)
 
-    FNR <= 5
+You can't omit the associated action.
+You can't combine them with another pattern inside a range:
 
+MWE:
+
+    $ awk '/Susie/,END' /tmp/file
+    awk: cmd. line:1: /Susie/,END~
+    awk: cmd. line:1:         ^ syntax error~
+    awk: cmd. line:1: END blocks must have an action part~
+
+##
+## These expressions are syntactic sugar for what?
+### `/pat/`
+
+    $0 ~ /pat/
+
+... which is a particular case of:
+
+    (regular) expr
+
+### `!/pat/`
+
+    $0 !~ /pat/
+
+### `/pat1/,/pat2/`
+
+    $0 ~ /pat1/,$0 ~ /pat2/
+
+... which is a particular case of:
+
+    expr1,expr2
+
+##
+## How to select the records
+### matching `pat1` and not `pat2`?
+
+    /pat1/ && !/pat2/
+
+This shows that you can combine regexes with logical operators.
+
+### whose first character comes after `e`?
+
+Use the pattern `$0 >= "e"`.
+
+    $ cat <<'EOF' >/tmp/file
+    gh
+    ef
+    cd
+    ij
+    ab
+    EOF
+
+    $ awk '$0 >= "e"' /tmp/file
+    gh~
+    ef~
+    ij~
+
+##
+## How is a dot interpreted in the left operand of `~`?  In the right operand?
+
+Resp. as a string and as a pattern.
+
+    $ cat <<'EOF' >/tmp/file
+    match!
+    EOF
+
+    $ awk '"Hello" ~ "Hel.o"' /tmp/file
+    match!~
+
+    $ awk '"Hel.o" ~ "Hello"' /tmp/file
+    ∅~
+
+##
 ## What's the output of the next command?
 
     $ cat <<'EOF' >/tmp/file
@@ -371,7 +464,7 @@ The last record in the range is the next record matched by the second expression
     bar
     EOF
 
-    $ awk '/foo/,/bar/ { print }' /tmp/file
+    $ awk '/foo/,/bar/' /tmp/file
 ↣
     foo
     A
@@ -380,171 +473,33 @@ The last record in the range is the next record matched by the second expression
     B
     bar
 
-Contrary to a range in Vim, a range in awk can match several sets of lines.
+Contrary to a range in Vim, a range in awk can match *several* sets of lines.
+This is because awk iterates over *all* the records of the input.
+Similarly, when you pass  a simple pattern to awk, it  doesn't stop acting after
+the first occurrence; it goes on until the end of the input.
 ↢
 
-## ?
+## What happens to a range if a record matches the first expression (`R1`), but no record matches the second one?
 
-    /pat1/,/pat2/
-
-Sélectionne tous  les records qui  se situent qq  part entre un  record matchant
-`pat1` (notons le R1), et le prochain record après R1 matchant `pat2`.
-
-On  parle de  “rangée“, et  comme pour  une rangée  dont les  adresses sont  des
-patterns dans  une commande Ex Vim,  elle peut matcher plusieurs  successions de
-records distinctes.
-
----
-
-Si aucun record ne matche:
-
-   - `pat1`, la rangée est vide
-
-   - `pat2`, la rangée inclut tous les records depuis celui où `pat1` a été
-     trouvé pour la dernière fois, jusqu'à la fin du fichier
-
-Il s'agit d'une forme abrégée de:
-
-    $0 ~ /pat1/,$0 ~ /pat2/
-
-... qui est un cas particulier de:
-
-    expr1,expr2
-
-## ?
-
-What can't I do with `BEGIN` and `END`, but can with other patterns?  (2)
-
-You can't omit the associated action.
-You can't combine them with another pattern inside a range:
-
-MWE:
-
-    $ awk '/Susie/,END' /tmp/file
-    awk: cmd. line:1: /Susie/,END~
-    awk: cmd. line:1:         ^ syntax error~
-    awk: cmd. line:1: END blocks must have an action part~
-
-## ?
-
-How is a dot interpreted in the left operand of `~`?  In the right operand?
-
-Resp. as a string and as a pattern.
+The range includes all the records from `R1` until the end of the input.
 
     $ cat <<'EOF' >/tmp/file
-    match!
+    one
+    two
+    three
+    four
     EOF
 
-    # match because `.` is interpreted as a metacharacter
-    $ awk '"Hello" ~ "Hel.o" { print }' /tmp/file
-    match!~
+    $ awk '/two/,/five/' /tmp/file
+    two~
+    three~
+    four~
 
-    # no match, because `.` is interpreted literally
-    $ awk '"Hel.o" ~ "Hello" { print }' /tmp/file
-    ∅~
-
----
-
-How can `$0 ~ /pat/` be abbreviated?
-
-    /pat/
-
-How can `$0 !~ /pat/` be abbreviated?
-
-    !/pat/
-
-How can `$0 ~ expr` be abbreviated?
-
-It can't.
-
-## ?
-
-    Sélectionne les records tq:
-
-    ┌─────────────────┬───────────────────────────────────────────────────────────────────┐
-    │ $3 == 0         │ le 3e champ est nul                                               │
-    │                 │                                                                   │
-    │ $2 >= 5         │ le 2e est supérieur à 5                                           │
-    │                 │                                                                   │
-    │ $2 * $3 > 50    │ le produit des champs 2 et 3 est > 50                             │
-    │                 │                                                                   │
-    │ NF != 3         │ le nb de champs est différent de 3                                │
-    │                 │                                                                   │
-    │ NR == 10        │ l'index du record est 10                                          │
-    │                 │                                                                   │
-    │ $0 >= "M"       │ le record est rangé après le caractère M                          │
-    │                 │                                                                   │
-    │ $1 == "Susie"   │ le 1er champ est "Susie"                                          │
-    ├─────────────────┼───────────────────────────────────────────────────────────────────┤
-    │ expr ~ /pat/    │ `pat` décrit une sous-chaîne de `expr`                            │
-    │                 │ la valeur de `expr` étant une chaîne, ou un nb converti en chaîne │
-    │                 │                                                                   │
-    │ expr !~ /pat/   │ `pat` ne décrit aucune sous-chaîne de `expr` (aucun match)        │
-    │                 │                                                                   │
-    │ $0 ~ /pat/      │ `pat` décrit une sous-chaîne du record                            │
-    │      /pat/      │ on dit que le pattern “matche“ le record                          │
-    │                 │                                                                   │
-    │ $0 ~ expr       │ `expr` décrit une sous-chaîne du record                           │
-    │                 │                                                                   │
-    │                 │ la valeur de `expr` est interprétée comme une pat, et,            │
-    │                 │ si besoin convertie en chaîne                                     │
-    └─────────────────┴───────────────────────────────────────────────────────────────────┘
-
-Les dernières syntaxes sont toutes des cas particuliers de la syntaxe générale:
-
-    expr ~ expr
-
-## ?
-
-    /pat1/ && !/pat2/
-
-Select the records matched by `pat1` and not by `pat2`.
-
-This shows that you can combine regexes with logical operators, here `&&`.
-
-## ?
-
-    BEGIN {
-        sign     = "[-+]?"
-        decimal  = "[0-9]+[.]?[0-9]*"
-        fraction = "[.][0-9]+"
-        exponent = "[eE]" sign "[0-9]+"
-        number   = "^" sign "(" decimal "|" fraction ")(" exponent ")?$"
-    }
-
-    $1 ~ number
-
-Affiche  les records  dont le  1er  champ est  un nombre  entier (123),  décimal
-(1.23),  ou  une  fraction   (.123),  accompagné  éventuellement  d'un  exposant
-(123e456).
-
-Illustre  qu'on   peut  décomposer  un   pattern  de  regex  complexe   via  une
-concaténation de chaînes.
-
-Fonctionne pour 2 raisons:
-
-   - le rhs de l'opérateur `~` peut être une expression
-   - une concaténation de chaînes est une expression
-
-## ?
-
-    $2 >= 4 || $3 >= 20
-    !($2 < 4 && $3 < 20)
-
-Sélectionne les records tq le 2e champ est supérieur à 4 OU le 3e à 20.
-
-
-    (1)    (A ou B) est vraie,  ssi (A ou B)         n'est pas fausse.
-    (2)    (A ou B) est fausse, ssi (non A ET non B) est vraie.
-
-    (1) ∧ (2)    ⇒    (A ou B) est vraie, ssi (non A ET non B) est fausse.
-
+##
 ## Why are the following patterns different?
 
-    # 1.
     $2 >= 4 || $3 >= 20
 
-    # 2.
     $2 >= 4
     $3 >= 20
 
@@ -574,6 +529,20 @@ final regex.
 
 By  saving the  substrings in  variables with  telling names,  you increase  the
 readibility and maintainability of your code.
+
+Example:
+
+    BEGIN {
+        sign     = "[-+]?"
+        decimal  = "[0-9]+[.]?[0-9]*"
+        fraction = "[.][0-9]+"
+        exponent = "[eE]" sign "[0-9]+"
+        number   = "^" sign "(" decimal "|" fraction ")(" exponent ")?$"
+    }
+
+    $1 ~ number
+
+This code prints the records where the first field is a number.
 
 ##
 # Modifying Fields
@@ -1350,8 +1319,8 @@ Analogie entre informatique et maths:
     │                                         │           │
     │ liste ou dictionnaire                   │           │
     │ │        │                              │           │
-    │ │        └─ les index sont des chaînes  │           │
-    │ └─ les index sont des nbs               │           │
+    │ │        └ les index sont des chaînes   │           │
+    │ └ les index sont des nbs                │           │
     ├─────────────────────────────────────────┼───────────┤
     │ array indexée par 2 indices             │ matrice   │
     ├─────────────────────────────────────────┼───────────┤
@@ -1438,8 +1407,8 @@ Teste si `a[i]` / `a[i,j]` existe et si c'est le cas, affiche sa valeur.
 chaînes).
 
 
-`i in a` est  une expression retournant `1` si l'array  `a` contient `un élément
-d'indice `i`, 0` autrement.
+`i in a`  est une expression retournant  `1` si l'array `a`  contient un élément
+d'indice `i`, `0` autrement.
 
 
 Dans une expression utilisant l'opérateur `in`, un indice multi-dimensionnel est
@@ -1456,6 +1425,7 @@ Le 2e  `if` ajoute  automatiquement à  `pop` l'élément  d'indice "Africa"  et
 valeur "".
 Ce n'est pas le cas du 1er `if`, dont la syntaxe est sans doute à préférer.
 
+---
 
     delete a
     delete a[42]
@@ -1487,7 +1457,7 @@ Toutefois, en VimL et contrairement à awk, on ne peut pas itérer directement s
 les clés d'un dictionnaire, à moins de passer par la fonction `items()`:
 
     for i in items(mydic)
-    echo i[0]
+        echo i[0]
     endfor
 
 Résumé:
@@ -1510,13 +1480,19 @@ données sur lesquels ils peuvent travailler:
 Pour chacune de ces catégories, une coercition peut avoir lieue:
 
     ┌───────────┬────────────────────┬──────────────────┬─────────────────┐
-    │ opérateur │  opérandes valides │ opérande utilisé │   coercition    │
+    │ opérateur │  opérande attendu  │ opérande reçu    │   coercition    │
     ├───────────┼────────────────────┼──────────────────┼─────────────────┤
-    │     +     │      nombres       │      chaîne      │ chaîne → nombre │
-    │           │                    │                  │                 │
-    │ implicite │      chaînes       │      nombre      │ nombre → chaîne │
-    │           │                    │                  │                 │
-    │     <     │ chaînes et nombres │ chaîne et nombre │ nombre → chaîne │
+    │   +-*/%^  │      nombre        │      chaîne      │ chaîne → nombre │
+    ├───────────┼────────────────────┼──────────────────┼─────────────────┤
+    │   concat  │      chaîne        │      nombre      │ nombre → chaîne │
+    ├───────────┼────────────────────┼──────────────────┼─────────────────┤
+    │    ~ !~   │      chaîne        │      nombre      │ nombre → chaîne │
+    ├───────────┼────────────────────┼──────────────────┼─────────────────┤
+    │ ==  !=    │      chaîne        │      nombre      │ nombre → chaîne │
+    │ < > >= <= │                    │                  │                 │
+    ├───────────┼────────────────────┼──────────────────┼─────────────────┤
+    │ ==  !=    │      nombre        │      chaîne      │ nombre → chaîne │
+    │ < > >= <= │                    │                  │                 │
     └───────────┴────────────────────┴──────────────────┴─────────────────┘
 
 Ex1:
@@ -1526,7 +1502,7 @@ Ex1:
 Dans cet exemple, si  le 1er champ est un nb, il sera  converti en chaîne, et si
 le 2e champ est une chaîne, elle sera convertie en nb.
 
-    Ex2:
+Ex2:
 
     $4 == "Asia"
 
@@ -1544,8 +1520,6 @@ Awk  doit alors  choisir  quelle  coercition réaliser:  il  choisit toujours  d
 convertir le nombre en chaîne.
 Contrairement à Vim:
 
-    ┌ awk parse cet input comme un nb, pas une chaîne
-    │
     $ awk '$1 == "089" { print "match!" }' <<< "89"
     ∅~
 
@@ -1557,11 +1531,20 @@ Contrairement à Vim:
 
 En cas d'ambiguïté, awk donne la priorité aux chaînes, Vim aux nombres.
 
+---
 
-Attention à ne pas faire de tests avec `042` au lieu de `089`.
-Dans  du  code (!=  input),  awk  interprète `042`  comme  un  nb octal  ce  qui
-fausserait nos tests.
+    $ awk '$1 == 042 { print "match!" }' <<< "042"
+    ∅~
 
+    $ awk '$1 == 142 { print "match!" }' <<< "142"
+    match!~
+
+    $ awk '$1 == 0428 { print "match!" }' <<< "0428"
+    match!~
+
+Dans du code (!= input), awk interprète `042` comme un nb octal.
+
+---
 
 Qd awk doit convertir une chaîne en nb, il le fait comme Vim.
 
@@ -1644,8 +1627,8 @@ Elle inverse  le 1er champ  numérique s'il est non  nul, autrement elle  vaut l
 chaîne "undefined".
 
 
-Pourquoi `$1+0` et pas simplement $1 ?
-Pour forcer la coercition de $1 en nb, au cas où ce serait une chaîne.
+Pourquoi `$1+0` et pas simplement `$1` ?
+Pour forcer la coercition de `$1` en nb, au cas où ce serait une chaîne.
 
 Explication:
 
@@ -1687,9 +1670,7 @@ les chiffres donc "a" > "2".
 
 Illustre qu'un  opérateur relationnel  d'infériorité ou de  supériorité, opérant
 sur  des chaînes,  teste l'ordre  alphabétique  dans lequel  les opérandes  sont
-rangés.
-L'ordre dépend de la machine.
-
+rangés; l'ordre dépend de la machine.
 
 Montre aussi qu'une expression incluant un opérateur relationnel retourne tjrs 1
 ou 0, selon que la relation est vraie ou fausse.
