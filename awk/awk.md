@@ -279,9 +279,9 @@ succeeded; which means that the first  and second fields are identical, and that
 the two numbers are considered to be equal.
 
 ##
-## How can `{ print $0 }` be simplified?
+## How can `print $0` be simplified?
 
-    { print }
+    print
 
 ---
 
@@ -297,8 +297,8 @@ By default, `print` uses `$0` as an argument; so you can omit `$0`.
 
 ### Why is it possible?
 
-A  comparison  is an  expression,  whose  value is  `1`  when  it succeeds,  `0`
-otherwise; as such, it can be used (alone) in the rhs of an assignment.
+A comparison is an expression, whose value is `1` when true, `0` otherwise.
+As such, it can be used (alone) in the rhs of an assignment.
 
     $ awk 'BEGIN { var = 123 ; test = var == 123; print test }'
     1~
@@ -306,7 +306,7 @@ otherwise; as such, it can be used (alone) in the rhs of an assignment.
 ##
 ## How to refer to a field whose index is stored in a variable?
 
-Use the `$var` syntax.
+Use the `$` operator in `$var`.
 
     $ cat <<'EOF' >/tmp/file
     THE quick brown
@@ -511,18 +511,7 @@ but twice in the second one.
 ↢
 
 ##
-# Regex
-## Which common pitfall should I avoid when using a string as a regex?
-
-You need  to double the  backslash for every escape  sequence which you  want to
-send to the regex engine.
-
-For example, to describe a literal dot, you can write either of these:
-
-   - `/\./`
-   - `"\\."`
-
-## What's the benefit of using a string as a regex (`"regex"`), rather than `/regex/`?
+## What's the benefit of using `"pat"` rather than `/pat/`?
 
 You can  break it down into  several substrings, and  join them back to  get the
 final regex.
@@ -543,6 +532,16 @@ Example:
     $1 ~ number
 
 This code prints the records where the first field is a number.
+
+## Which common pitfall should I avoid when using `"pat"`?
+
+You need  to double the  backslash for every escape  sequence which you  want to
+send to the regex engine.
+
+For example, to describe a literal dot, you can write either of these:
+
+   - `/\./`
+   - `"\\."`
 
 ##
 # Modifying Fields
