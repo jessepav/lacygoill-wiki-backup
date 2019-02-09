@@ -1,70 +1,67 @@
 # c
+## class
 
-    class
+Fundamental template on which a document is based.
 
-            Fundamental template on which a document is based.
+It provides customizable features, all built to get a certain look:
 
-            It provides customizable features, all built to get a certain look:
+   - journal article
+   - letter
+   - presentation
+   - poster
+   ...
 
-                    - journal article
-                    - letter
-                    - presentation
-                    - poster
-                    ...
+You can choose a class via the `\documentclass` command.
 
-            You can choose a class via the `\documentclass` command.
+## command
 
+Word prefixed by a backslash.
 
-    command
+They can  be used to  specify the class and  to state document  properties (like
+'title', 'author', 'date').
 
-            Word prefixed by a backslash.
-
-            They  can  be used  to  specify  the  class  and to  state  document
-            properties (like 'title', 'author', 'date').
-
+##
 # d
+## declaration
 
-    declaration
+ A command which doesn't produce any output, but affect the following text.
 
-             A  command  which  doesn't  produce  any  output,  but  affect  the
-             following text.
-
+##
 # e
+## environment
 
-    environment
+A part of the document between a pair of 2 consecutive commands:
 
-            A part of the document between a pair of 2 consecutive commands:
+   - \begin{xxx}
+   - \end{xxx}
 
-                    - \begin{xxx}
-                    - \end{xxx}
-
+##
 # g
+## group
 
-    group
+A pair of curly braces, which limits the scope of declarations inside.
 
-            A pair of curly braces, which limits the scope of declarations inside.
-
+##
 # m
+## macro
 
-    macro
+A custom command.
 
-            A custom command.
-
+##
 # p
+## preamble
 
-    preamble
+Part of  the document where  we choose the  class, specify properties,  and make
+document-wide definitions.
 
-            Part of the document where  we choose the class, specify properties,
-            and make document-wide definitions.
+It  ends just  before the  `\begin{document}` command,  and doesn't  produce any
+output.
 
-            It ends just before the `\begin{document}` command, and doesn't produce
-            any output.
-
+##
 # s
+## serifs
 
-    serifs
-
-            Small decorative details at the end of a letter's stroke.
-            It's supposed  to improve readability  by leading the  reader's eyes
-            along the line.
+Small decorative details at the end of a letter's stroke.
+It's supposed  to improve  readability by  leading the  reader's eyes  along the
+line.
 

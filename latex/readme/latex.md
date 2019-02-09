@@ -349,17 +349,17 @@ italic.
 
 ## How to change the font family of some text?
 
-        ┌──────────────┬───────────────┬─────────────┐
-        │ font         │ command       │ declaration │
-        ├──────────────┼───────────────┼─────────────┤
-        │ roman        │ \textrm{}     │ \rmfamily   │
-        ├──────────────┼───────────────┼─────────────┤
-        │ sans-serif   │ \textsf{}     │ \sffamily   │
-        ├──────────────┼───────────────┼─────────────┤
-        │ typewriter   │ \texttt{}     │ \ttfamily   │
-        ├──────────────┼───────────────┼─────────────┤
-        │ default font │ \textnormal{} │ \normalfont │
-        └──────────────┴───────────────┴─────────────┘
+    ┌──────────────┬───────────────┬─────────────┐
+    │ font         │ command       │ declaration │
+    ├──────────────┼───────────────┼─────────────┤
+    │ roman        │ \textrm{}     │ \rmfamily   │
+    ├──────────────┼───────────────┼─────────────┤
+    │ sans-serif   │ \textsf{}     │ \sffamily   │
+    ├──────────────┼───────────────┼─────────────┤
+    │ typewriter   │ \texttt{}     │ \ttfamily   │
+    ├──────────────┼───────────────┼─────────────┤
+    │ default font │ \textnormal{} │ \normalfont │
+    └──────────────┴───────────────┴─────────────┘
 
 ## How to change the size of the text?
 

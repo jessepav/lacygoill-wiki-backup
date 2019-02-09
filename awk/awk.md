@@ -26,40 +26,80 @@ How to save all records inside a list?
 ## ?
 
     $ cat <<'EOF' >/tmp/awk.awk
-    function myfunc(a) {
-        a = a 42
-    }
     BEGIN {
         a = "foo"
         myfunc(a)
     }
     END { print a }
+    function myfunc(a) {
+        a = a 42
+    }
     EOF
 
     $ awk -f /tmp/awk.awk
     foo~
 
-`myfunc()` n'a pas modifié  la variable globale `a` qu'on lui  a passée et qu'on
-avait initialisée dans une déclaration `BEGIN`.
+`myfunc()` has not modified the global variable `a`.
 
     $ cat <<'EOF' >/tmp/awk.awk
-    function myfunc(b) {
-        b[1] = b[1] 42
-    }
     BEGIN {
         b[1] = "foo"
         myfunc(b)
     }
     END { print b[1] }
+    function myfunc(b) {
+        b[1] = b[1] 42
+    }
     EOF
 
     $ awk -f /tmp/awk.awk
     foo42~
 
-Cette fois,  `myfunc()` *a*  modifié le  1er élément  de l'array  `b`, lui-aussi
-initialisé dans une déclaration `BEGIN`.
+`myfunc()` *has* modified the first element of `b`.
 
-Illustre qu'awk passe les scalaires par valeur, et les arrays par référence.
+This is because awk passes scalars by value, and arrays by reference.
+
+## ?
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    BEGIN {
+        a[1] = "one"
+        a[2] = "two"
+        reverse(a)
+    }
+    END { print a[1], temp, a[2] }
+    function reverse(x,   temp) {
+        temp = x[1]
+        x[1] = x[2]
+        x[2] = temp
+    }
+    EOF
+
+    $ awk -f /tmp/awk.awk
+    two  one~
+
+La fonction custom `reverse()` inverse les 2 premiers éléments d'une array.
+Pour ce faire, elle utilise la variable temporaire `temp`.
+Après avoir appelé `reverse()`, aucune variable globale `temp` n'a été créée.
+
+Illustre  le mécanisme  à  utiliser pour  fournir des  variables  locales à  une
+fonction:
+
+qd on  définit une  fonction qui  doit utiliser des  variables locales,  il faut
+déclarer leurs noms (ex: `temp`) dans la liste de ses paramètres.
+Généralement,  on les  déclare à  la fin,  après les  paramètres qu'on  doit lui
+passer (ex: `a`).
+
+Par la  suite, qd on appelle  la fonction, on  peut lui passer des  valeurs pour
+initialiser ces variables locales, ou bien les omettre.
+Si on les omet, awk les initialise en leur donnant pour valeur `""`.
+
+
+On remarque que, par convention, on  sépare les variables locales des paramètres
+obligatoires avec plusieurs espaces:
+
+    function reverse(x,   temp) {
+                       ^^^
 
 ## ?
 
@@ -90,7 +130,7 @@ L'appel  à `myfunc()`  dans la  déclaration  `BEGIN`, crée  la variable  glob
     EOF
 
     $ awk -f /tmp/awk.awk
-    ∅~
+    ''~
 
 Cette fois, ce même appel ne crée aucune variable globale.
 
@@ -101,7 +141,6 @@ implique qu'au sein de la fonction, `string` est une variable locale.
 En revanche, dans le 2e snippet,  `myfunc()` n'est définie avec aucun paramètre,
 ce qui implique qu'au sein de la fonction, `string` est une variable globale.
 
-
 La différence par rapport à VimL vient du code du 1er snippet.
 En VimL, qd on crée une variable dans une fonction, par défaut elle est locale.
 En awk, elle est globale.
@@ -109,45 +148,6 @@ En awk, elle est globale.
 De plus,  en VimL,  une fonction se  plaint si on  l'appelle en  lui fournissant
 moins d'arguments que le nb de paramètres dans sa définition.
 En awk, aucun pb: les variables sont automatiquement initialisées à `""`.
-
-## ?
-
-                        ┌ surplus d'espaces conventionnels:
-                        │ à gauche paramètres "réelles", à droite variables locales
-                        │
-    function reverse(x,   temp) {
-        temp = x[1]
-        x[1] = x[2]
-        x[2] = temp
-    }
-
-    BEGIN {
-        a[1] = "hello"
-        a[2] = "world"
-        reverse(a)
-    }
-    END { print a[1], a[2], print temp }
-    "world hello"~
-
-La fonction custom `reverse()` inverse les 2 premiers éléments d'une array.
-Pour ce faire, elle utilise la variable temporaire `temp`.
-Après avoir appelé `reverse()`, aucune variable globale `temp` n'a été créée.
-
-Illustre  le mécanisme  à  utiliser pour  fournir des  variables  locales à  une
-fonction:
-
-qd on définit une fonction à laquelle  on veut fournir des variables locales, il
-faut déclarer leurs noms (ex: `temp`) dans la liste de ses paramètres.
-Généralement,  on  les  déclare  à  la fin,  après  les  paramètres  qu'on  veut
-réellement lui passer (ex: `a`).
-
-Par la  suite, qd on appelle  la fonction, on  peut lui passer des  valeurs pour
-initialiser ces variables locales, ou bien les omettre.
-Si on les omet, awk les initialise en leur donnant pour valeur `""`.
-
-
-On remarque que, par convention, on  sépare les variables locales des paramètres
-“réels” avec plusieurs espaces.
 
 ##
 # Command-line
