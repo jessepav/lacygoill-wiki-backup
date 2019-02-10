@@ -131,7 +131,7 @@ character:
 ### surround an action with curly braces?
 
 Because you can omit the pattern or the action.
-And if you *do* omit one of them,  awk must be able to tell whether your statement
+And if  you *do* omit one  of them, awk must  be able to tell  whether your rule
 contains only a pattern  or an action; the curly braces tell  awk that you wrote
 an action.
 
@@ -389,7 +389,7 @@ third record.
 `BEGINFILE` matches before the first record of every file in the input.
 `ENDFILE` matches after the last record of every file in the input.
 
-An expression matches if it evaluates to a non-zero number or a non-empty string.
+An expression matches if it evaluates to a non-zero number or a non-null string.
 Note that a relational, matching or  compound expression always evaluates to `0`
 or `1` depending on whether it's true.
 
@@ -527,7 +527,7 @@ The range includes all the records from `R1` until the end of the input.
     $3 >= 20
 
 ↣
-The two snippets don't contain the same number of statements.
+The two snippets don't contain the same number of rules.
 
 When a record satisfies both conditions, it's printed once in the first snippet,
 but twice in the second one.
@@ -856,20 +856,20 @@ Use `NR` to uniquely index them in an array.
     Dan     3.75   0~
 
 ##
-# Built-In Variables
+# Built-in Variables
 ## What's the value of `NR` in
-### a `BEGIN` statement?
+### a `BEGIN` rule?
 
 0
 
-### a statement matching the last record?
+### a rule matching the last record?
 
 The index of the last record.
 
-E.g., if  the input  contains `123`  records, in a  statement matching  the last
-record, the value of `NR` is `123`.
+E.g., if the input  contains `123` records, in a rule  matching the last record,
+the value of `NR` is `123`.
 
-### an `END` statement?
+### an `END` rule?
 
 Again, the index of the last record.
 
@@ -904,7 +904,7 @@ Global.
     $ awk -f /tmp/awk.awk /dev/null
     hello~
 
-If the `var` assignment was local to `myfunc()`, `print var` would print an empty string.
+If the `var` assignment was local to `myfunc()`, `print var` would print a null string.
 
 ## How to make a variable local to a function?
 
@@ -930,7 +930,7 @@ Include it inside the parameters of the function signature.
 The purpose of `reverse()` is to reverse  the order of the first two elements of
 an array; to do so, it needs a temporary variable `temp`.
 
-Inside the function, `temp` contains `"one"`, but outside it's empty.
+Inside the function, `temp` contains `"one"`, but outside it contains a null string.
 By including it  inside the parameters of the function  signature, we've made it
 local to the function.
 
@@ -1078,9 +1078,9 @@ utiliser le double-point à la place)
 
 Commande pratique si awk a transformé du texte et perdu l'alignement des champs.
 
-L'avantage par rapport aux déclarations awk précédentes (`BEGIN` ...), est qu'on
-n'a pas besoin de  se soucier de savoir comment l'input  d'awk était alignée, ni
-même si elle était alignée.
+L'avantage par rapport  aux règles awk précédentes (`BEGIN` ...),  est qu'on n'a
+pas besoin de se soucier de savoir  comment l'input d'awk était alignée, ni même
+si elle était alignée.
 
 ## Précision numérique
 
@@ -1828,7 +1828,7 @@ ou 0, selon que la relation est vraie ou fausse.
 L'objectif, ici, est  d'afficher la chaîne "abs($1) = "  puis l'opposé numérique
 du 1er champ.
 
-La 1e déclaration pattern-action échoue, les 2 suivantes réussissent.
+La 1e règle pattern-action échoue, les 2 suivantes réussissent.
 Illustre que l'opérateur `-` peut provoquer une coercition indésirable.
 
 Explication:
@@ -2005,7 +2005,7 @@ Dans la boucle `for`, on pourrait remplacer `i++` par `i += 1`.
                                                              32
                                                            * 33
 
-Illustre le fonctionnement de la déclaration `break`.
+Illustre le fonctionnement de la commande `break`.
 
 Au sein d'une:
 
@@ -2026,13 +2026,13 @@ Les nombres préfixés d'un astérisque sont ceux que `break` nous faisait manqu
                                                            32
                                                            33
 
-Illustre le fonctionnement de la déclaration `continue`.
+Illustre le fonctionnement de la commande `continue`.
 
 Au sein d'une boucle `for`, `while` ou `do`, elle permet de passer directement à
 la prochaine itération de cette dernière.
 
 
-Les déclarations `break` et `continue` fonctionnent comme leurs homonymes Vim.
+Les commandes `break` et `continue` fonctionnent comme leurs homonymes Vim.
 
 ---
 
@@ -2096,11 +2096,11 @@ En revanche, une boucle `do` l'exécutera une fois, car `do` vient avant `while`
     exit
     exit 123
 
-Se rendre directement à la déclaration `END`.
+Se rendre directement à la règle `END`.
 Idem, en retournant 123 comme code de sortie du programme awk.
 
-Si `exit` est  utilisé au sein de  la déclaration `END`, on  quitte le programme
-awk, sans terminer de traiter les actions `END`.
+Si `exit`  est utilisé au sein  de la règle  `END`, on quitte le  programme awk,
+sans terminer de traiter les actions `END`.
 
 ---
 
@@ -2121,7 +2121,7 @@ Qd `nextfile` est utilisé, certaines variables sont mises à jour:
    - `FNR`  →  1
 
 
-`next` provoque une erreur s'il est utilisé dans la déclaration `BEGIN` ou `END`.
+`next` provoque une erreur s'il est utilisé dans la règle `BEGIN` ou `END`.
 Idem pour `nextfile`.
 
 ---
@@ -2159,9 +2159,9 @@ Autrement,  il  compare  `e`  à   l'expression  régulière  `regex`,  et  exé
 
 Autrement, il exécute `statements3`.
 
-La déclaration `default` est facultative.
+La commande `default` est facultative.
 
-En l'absence de déclarations `break`, awk continue de traiter le bloc `switch`.
+En l'absence de commandes `break`, awk continue de traiter le bloc `switch`.
 IOW, sans `break`, awk exécute autant  de déclarations qu'il y a de comparaisons
 qui réussissent.
 Si on veut  qu'il n'en exécute qu'une  (la 1e qui réussit), il  faut inclure des
@@ -2272,7 +2272,7 @@ fichier n'est pas lisible).
 ---
 
 Bien que  ce soit  une fonction,  sa syntaxe  se rapproche  plus de  celle d'une
-déclaration:
+commande:
 
     getline()    ✘
     getline      ✔
@@ -2281,50 +2281,59 @@ déclaration:
     getline var        ✔
 
     getline(expr)      ✘
-    getline <expr      ✔ Le symbole de redirection est nécessaire pour qu'il n'y ait pas de confusion
-                         avec la syntaxe `getline var`. On peut aussi expliquer le choix de ce symbole
-                         par le fait qu'on change l'argument par défaut de `getline`, à savoir l'input
-                         d'origine: on redirige l'entrée de `getline` vers la valeur d'une expression.
+    getline <expr      ✔
+
+Le symbole de redirection `<` est nécessaire pour qu'il n'y ait pas de confusion
+avec la syntaxe `getline var`.
+On  peut aussi  expliquer  le choix  de  ce  symbole par  le  fait qu'on  change
+l'argument  par défaut  de `getline`,  à savoir  l'input d'origine:  on redirige
+l'entrée de `getline` vers la valeur d'une expression.
 
 ---
 
-Une fois  `getline` exécutée,  en fonction  de la  syntaxe utilisée,  awk peuple
-certaines variables internes:
+How do I access a record read by `getline`?
 
-    ┌─────────────────────┬────────────────────────┬──────────────────────────────────┐
-    │ syntaxe awk         │ variables mises à jour │ syntaxe VimL équivalente         │
-    ├─────────────────────┼────────────────────────┼──────────────────────────────────┤
-    │ getline             │      $0, NF, NR, FNR   │                                  │
-    │                     │                        │                                  │
-    │ getline var         │ var        , NR, FNR   │ let var = getline(line('.') + 1) │
-    ├─────────────────────┼────────────────────────┼──────────────────────────────────┤
-    │ getline <expr       │      $0, NF            │ getline(expr)                    │
-    │ "cmd" | getline     │      $0, NF            │ getline(system('cmd'))           │
-    │                     │                        │                                  │
-    │ getline var <expr   │ var                    │ let var = getline(expr)          │
-    │ "cmd" | getline var │ var                    │ let var = system('cmd')          │
-    └─────────────────────┴────────────────────────┴──────────────────────────────────┘
+If you provided the name of a variable as an argument, use this variable.
+Otherwise, use `$0`.
 
-Qd on utilise une syntaxe peuplant `$0`, awk divise le nouveau record en champs,
-auxquels on peut accéder via `$i`.
-Dans ce cas, l'ancien record (celui qu'awk était en train de traiter) n'est plus
-dispo.
+Note that when `getline` updates `$0`, it also updates `$i` (fields contents) and `NF`.
 
-On remarque 2 choses:
+---
 
-   1. Les syntaxes stockant dans une variable le nouveau record lu, ne mettent
-      pas à jour `$0`, ni `$i`. Ça  paraît logique:  si on  le stocke  dans une
-      variable,  c'est sans  doute car  on est intéressé par son ensemble et non
-      certains de ses champs.
+When does `getline` update `NR` and `FNR`?
 
-      En plus, ça permet de préserver les informations du record courant.
-      Si cette  syntaxe mettait à  jour `$0` et  `$i`, on aurait  aucune syntaxe
-      nous permettant  d'utiliser `getline` tout  en continuant de  manipuler le
-      record courant.
+Only when you use it to read a record from the input.
 
-   2. Les syntaxes qui lisent  depuis un fichier ou un pipe ne mettent pas
-      à jour NR, ni FNR. Ça paraît logique:  si NR et FNR était  incrémenté, awk
-      sauterait un record  au sein de l'input d'origine.
+If you try to read a record from a new file (`getline <"file"`), or from a shell
+command (`"cmd" | getline`), `NR` and `FNR` are *not* udpated.
+
+---
+
+When doesn't `getline` update any built-in variable?
+
+When you  read a record  from outside the input  (shell command, file),  and you
+save it in a variable.
+
+    $ cat <<'EOF' >/tmp/file
+    a
+    b c
+    d e f
+    EOF
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    /a/ { "whoami" | getline var ; print $0, NF, NR }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/file
+    a 1 1~
+
+Here, even though we've invoked `getline`:
+
+   - `$0` was not changed to `b c`
+   - `NF` was not changed to `2`
+   - `NR` was not changed to `2`
+
+---
 
 `getline` est  pratique qd on a  du mal à décrire  le record sur lequel  on veut
 agir, mais qu'on peut facilement décrire celui qui le précède.
@@ -2336,18 +2345,6 @@ La différence  vient du  fait que  `next` repositionne  l'exécution au  début
 programme, pas `getline`.
 IOW,  une fois  `getline` exécutée,  awk ne  compare pas  le nouveau  record aux
 patterns des précédents couples pattern-action qu'il a déjà traité.
-
-Analogie pour mieux comprendre:
-
-Sur un chronomètre, l'aiguille des  minutes représente la boucle principale d'un
-programme awk, celle qui traite les records de l'input.
-L'aiguille des  secondes représente la  boucle secondaire, celle qui  traite les
-couples pattern-action du programme.
-`next` et `getline` font avancer l'aiguille des minutes d'un cran (!).
-Mais seule `next` repositionne l'aiguille des secondes sur 12h.
-
-(!) `getline` ne fait pas avancer l'aiguille  des minutes si elle lit un fichier
-ou un pipe.
 
 ---
 
@@ -2361,16 +2358,19 @@ Illustre que dans les syntaxes:
     getline <expr
     getline var <expr
 
-... `expr` peut être "-". Et que "-" désigne le clavier.
+... `expr` peut être `"-"`; et que `"-"` désigne le clavier.
 
 ---
 
-    "whoami" | getline      "whoami" | getline me
-    print                   print me
+    "whoami" | getline
+    print
+
+    "whoami" | getline me
+    print me
 
 Affiche `username` (ex: toto), dans les 2 cas.
 
-Mais la sortie  de la commande shell  `whoami` peuple $0 uniquement  dans le 1er
+Mais la sortie de la commande shell  `whoami` peuple `$0` uniquement dans le 1er
 exemple.
 
 ### Internes
@@ -2610,9 +2610,9 @@ Pour simuler  un `return  array`, on  pourra peupler  une variable  globale avec
 l'array qu'on veut retourner: array = ...
 
 
-La  définition d'une  fonction doit  se  faire à  l'extérieur d'une  déclaration
+La  définition  d'une   fonction  doit  se  faire  à   l'extérieur  d'une  règle
 pattern-action.
-C'est  logique, car  définir une  fonction dans  une déclaration  pattern-action
+C'est  logique,  car   définir  une  fonction  dans   une  règle  pattern-action
 impliquerait qu'elle n'est pas dispo tant que le pattern n'a pas été matché.
 
 
@@ -2631,7 +2631,7 @@ On peut séparer `myfunc` de la parenthèse ouverte, dans sa définition:
 Illustre  comment  développer  une  nouvelle fonctionnalité  pour  un  programme
 existant.
 
-Cette déclaration affiche pour chaque record, le champ d'origine, et une version
+Cette action  affiche pour  chaque record,  le champ  d'origine, et  une version
 modifiée par `new_feature()`.
 On  peut  ainsi  facilement  voir  si `new_feature()`  fonctionne  comme  on  le
 souhaite, avant de l'intégrer dans notre programme.
@@ -2682,13 +2682,13 @@ d'un fichier arbitraire, via la syntaxe:
 
     $ awk 'pattern { action }'                file
     $ awk 'pattern { action1; action2; ... }' file
-    $ awk 'statement1; statement2; ...'       file
+    $ awk 'rule1; rule2; ...'                 file
 
 Demande à awk d'exécuter:
 
    - `action`                      sur les lignes de `file` matchant `pattern`
    - `action1`, `action2`, ...       "
-   - `statement1`, `statement2`, ...
+   - `rule1`, `rule2`, ...
 
 La partie entre single quotes est un pgm awk complet.
 
@@ -2742,27 +2742,28 @@ Dans cet exemple, la sortie de awk mélange des prénoms et des nombres.
 Son 2e champ l'est aussi, mais uniquement si le record contient le caractère M.
 
 Illustre qu'awk n'itère qu'une seule fois sur les records.
-Pour  chacun  d'eux, il  exécute  toutes  les déclarations  pattern-action  pour
-lesquelles le pattern matche.
+Pour chacun d'eux,  il exécute toutes les règles  pattern-action pour lesquelles
+le pattern matche.
 
-IOW,  awk  itère  d'abord  sur  les   records,  et  seulement  ensuite  sur  les
-déclarations pattern-action.
+IOW, awk  itère d'abord  sur les  records, et seulement  ensuite sur  les règles
+pattern-action.
 
 ---
 
-    $ awk 'statement' file1 file2
+    $ awk 'rule' file1 file2
 
-Traite  les fichiers  `file1`  et  `file2` en  exécutant  le  code contenu  dans
-`statement`; illustre que l'input n'est pas limité à un fichier.
+Traite les fichiers `file1` et `file2` en exécutant le code contenu dans `rule`;
+illustre que l'input n'est pas limité à un fichier.
 
 ## Terminaisons de commande
 
-    statement1
-    statement2
+    rule1
+    rule2
 
     ⇔
 
-    statement1; statement2
+    rule1; rule2
+
 
     pattern { action1; action2 }
 
@@ -2773,8 +2774,8 @@ Traite  les fichiers  `file1`  et  `file2` en  exécutant  le  code contenu  dan
         action2
     }
 
-On peut *terminer*  une déclaration pattern-action ou une action  via un newline
-ou un point-virgule.
+On peut *terminer* une  règle pattern-action ou une action via  un newline ou un
+point-virgule.
 
 On utilisera plutôt un  newline dans un fichier awk, et  un point-virgule sur la
 ligne de commande.
@@ -2815,11 +2816,11 @@ argument et une virgule.
               $1,    # middle of action
               $2,    # "
               $3,    # after action
-    }                # after statement
+    }                # after rule
 
 On peut commenter n'importe quelle fin de ligne.
-Qu'il s'agisse  de la fin d'une  déclaration pattern-action, d'une action  ou au
-sein même d'une action.
+Qu'il s'agisse  de la fin  d'une règle pattern-action,  d'une action ou  au sein
+même d'une action.
 
 Décomposer son code sur plusieurs lignes permet de :
 
@@ -3218,8 +3219,8 @@ Supprime le 2e fichier de l'input.
 Qd awk rencontre une  chaîne vide dans `ARGV`, il passe  au prochain élément, et
 continue jusqu'au `(ARGC-1)`ième.
 
-Illustre qu'en changeant  le contenu de `ARGV` dans une  déclaration `BEGIN`, on
-peut modifier l'input.
+Illustre qu'en  changeant le contenu de  `ARGV` dans une règle  `BEGIN`, on peut
+modifier l'input.
 
 ---
 
@@ -3266,8 +3267,21 @@ Si on veut modifier  la définition des champs de tous les  records, y compris l
     NR == 5 { NR = 10 }
             { print NR }
 
-Ce code modifie l'index du 5e record, en lui donnant pour valeur 10.
+La première règle modifie l'index du 5e record, en lui donnant pour valeur 10.
 Les records suivants auront donc pour index 11, 12, ... au lieu de 6, 7, ...
+
+    $ cat <<'EOF' >/tmp/file
+    a
+    b
+    c
+    EOF
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    /a/ { NR += 2 }
+        { print $0, NR }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/file
 
 Illustre qu'on  peut accéder  en écriture à  certaines variables  internes, dont
 `NR` et `FS`.
@@ -3323,8 +3337,8 @@ décrivant un point littéral.
 Plus généralement, les valeurs de `FS` et `RS` sont interprétées comme des regex
 si elles contiennent plusieurs caractères, autrement littéralement:
 
-                    FS = "\\."    ⇔    FS = "."
-                    RS = "\\."    ⇔    RS = "."
+    FS = "\\."    ⇔    FS = "."
+    RS = "\\."    ⇔    RS = "."
 
 Les valeurs de `OFS` et `ORS` sont toujours littérales.
 
@@ -3346,8 +3360,8 @@ awk  considère  qu'il  y  a  un  “record  terminator“  (`RT`)  entre  2  re
 consécutifs, mais aussi après le dernier record.
 `RT` est décrit par le caractère / la regex contenu(e) dans `RS`.
 
-Sur le dernier record d'un input, `RT` = "" peu importe la valeur de `RS`.
-Awk remplace le dernier `RT` ("") par `ORS`.
+Sur le dernier record d'un input, `RT = ""` peu importe la valeur de `RS`.
+Awk remplace le dernier `RT` (`""`) par `ORS`.
 
 FIXME:
 
@@ -3388,15 +3402,15 @@ Plus généralement, qd awk divise un record, il génère un champ vide:
 
 Exception:
 
-Qd `FS` = " ", awk ignore les espaces et tabs au début et à la fin d'un record.
-" " n'est pas un simple espace, c'est une valeur spéciale pour `FS`.
+Qd `FS = " "`, awk ignore les espaces et tabs au début et à la fin d'un record.
+`" "` n'est pas un simple espace, c'est une valeur spéciale pour `FS`.
 
 ---
 
     BEGIN { RS = "" }
 
-"" est une valeur spéciale pour `RS`.
-awk semble l'interpréter comme "\n+".
+`""` est une valeur spéciale pour `RS`.
+awk semble l'interpréter comme `"\n+"`.
 
 IOW, l'input  est divisée  en records  uniquement au  niveau d'une  ou plusieurs
 lignes vides (sans whitespace).
@@ -3447,8 +3461,8 @@ numérique (`3z`).
 
 Affiche les records en effaçant le 2e champ.
 
-Illustre qu'on  peut se servir  de la variable  `$<nb>` pour changer  le contenu
-d'un champ.
+Illustre qu'on peut se  servir de la variable `$i` pour  changer le contenu d'un
+champ.
 
 
 Plus  généralement, une  même  expression nous  permet d'accéder  à  la fois  en

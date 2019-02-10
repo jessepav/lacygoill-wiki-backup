@@ -160,6 +160,10 @@ It can be either:
 
    - a string
 
+## rule
+
+A pattern followed by an action.
+
 ##
 # s
 ## statement
