@@ -3241,11 +3241,11 @@ lire son entrée standard.
 Malheureusement,  tout argument  suivant  les options  est  interprété comme  un
 fichier, et redirige l'input d'awk vers lui.
 Pour résoudre  ce problème,  on peut remplacer  `ARGV[1]` qui  initialement vaut
-`42` par la valeur spéciale "-".
+`42` par la valeur spéciale `"-"`.
 
 
 Si awk ne  reçoit aucun fichier en  argument, dit autrement si  `ARGV` n'a qu'un
-seul élément (`ARGC` = 1, `ARGV[0]`  = 'awk'), il lit automatiquement son entrée
+seul élément (`ARGC = 1`, `ARGV[0]  = 'awk'`), il lit automatiquement son entrée
 standard, qui est connectée soit au clavier soit à un pipe.
 
 #### `FS`, `RS`, `OFS`, `ORS`, `NR`
@@ -3387,8 +3387,8 @@ Affiche 6, car awk considère qu'il y a 6 champs.
 
     ::foo:bar:baz:
 
-En plus de 'foo', 'bar' et 'baz', awk divise le début du record '::' en 2 champs
-vides, et la fin ':' en un champ vide.
+En plus de `foo`, `bar` et `baz`, awk divise le début du record `::` en 2 champs
+vides, et la fin `:` en un champ vide.
 
 Plus généralement, qd awk divise un record, il génère un champ vide:
 
@@ -3431,18 +3431,19 @@ Ex:
 
 ### Fields
 
-    awk 'END { print ($1 < $2) }' <<< "31 30"
+    $ awk 'END { print ($1 < $2) }' <<< "31 30"
     0~
-    awk 'END { print ($1 < $2) }' <<< "31 3z"
+
+    $ awk 'END { print ($1 < $2) }' <<< "31 3z"
     1~
 
 Ces 2 commandes  illustrent que lorsqu'un champ est numérique,  awk affecte à la
 variable correspondante une valeur numérique et une valeur chaîne.
 
-En effet,  dans la 1ère  commande, le  test est négatif,  ce qui prouve  que les
-valeurs de $1 et $2 étaient des nombres, et pas des chaînes.
-Dans la  2e commande, le test  est positif, ce  qui prouve que, cette  fois, les
-valeurs sont des chaînes.
+En effet, dans la  1ère commande, le test échoue, ce qui  prouve que les valeurs
+de `$1` et `$2` étaient des nombres, et pas des chaînes.
+Dans la 2e commande, le test réussit, ce qui prouve que, cette fois, les valeurs
+sont des chaînes.
 
 Qd l'opérateur de comparaison travaille sur  des opérandes dont au moins une des
 valeurs est numérique, il fait une comparaison numérique (commande 1).
