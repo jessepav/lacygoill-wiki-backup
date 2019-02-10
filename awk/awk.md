@@ -361,6 +361,9 @@ When this other statement includes an expression.
 For awk, an  assignment is an expression  – with the side-effect  of assigning a
 value to a variable.
 
+Theory:  a statement  containing  only  an assignment  or  function  – both  are
+expressions – is syntactic sugar for a command which evaluates the expression.
+
 ##
 # Pattern
 ## What are the five kind of patterns?
@@ -756,12 +759,6 @@ The three columns contain:
 
 gawk preserves the value of `$0` from the last record for use in an END rule.
 Some other implementations of awk do not.
-
-### the names of the employees which have *not* worked?
-
-    $ awk '$3 == 0 { print $1 }' /tmp/emp.data
-    Beth~
-    Dan~
 
 ### the *lines* containing the names of the employees which have not worked?
 
@@ -1899,7 +1896,7 @@ Explication:
     └ affiche une chaîne puis un nb
 
 ##
-## Structure de contrôle
+## Control (flow) statements
 ### if
 
     if (e1)
@@ -2093,8 +2090,7 @@ Affiche tous les records dont un des champs est vide.
 Illustre l'utilité de la déclaration vide `;`.
 
 Explication: La boucle  incrémente `i` tant que  le champ de même  index est non
-vide.
-Elle ne fait rien d'autre, car elle ne contient que la déclaration vide.
+vide; elle ne fait rien d'autre, car elle ne contient que la déclaration vide.
 
 Une fois  sorti de la boucle,  `if` compare `i` à  `NF`: si `i` est  plus petit,
 `print` affiche le record.
