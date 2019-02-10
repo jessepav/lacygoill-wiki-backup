@@ -88,7 +88,7 @@ than:
 
         /foo\/bar
 
-# Can `.\{-}` always replace a negated collection?
+# Can `.\{-}` always replace the complement of a collection?
 
 No.
 
@@ -240,9 +240,9 @@ The regex will be affected by the buffer-local values of some options:
 
 Which may have unexpected results.
 
-## Are there any pitfalls I should be aware of when using a negated character class?
+## Are there any pitfalls I should be aware of when using the complement of a character class?
 
-Is your negated character class preceded by an atom and a quantifier?
+Is your complement preceded by an atom and a quantifier?
 If so, make sure your character class includes the atom.
 
 ---
@@ -266,7 +266,7 @@ So you try this regex:
 
 Now it matches `xyz` on the first line (✔), but also `bxyz` on the second line (✘).
 This is because the engine backtracked.
-The solution is to include a whitespace in the negated character class:
+The solution is to include a whitespace in the complement of your collection:
 
         a\+\s\+\zs[^b \t]\S\+
 

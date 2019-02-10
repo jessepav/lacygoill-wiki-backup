@@ -1,113 +1,5 @@
 On s'est arrêté à la page 84 du pdf / 72 du livre.
 
-# initialisation
-## ?
-
-How to save all records inside a list?
-
-    a[NR] = $0
-
----
-
-    $ cat <<'EOF' >/tmp/file
-    foo
-    bar
-    baz
-    EOF
-
-    $ cat <<'EOF' >/tmp/awk.awk
-        { a[NR] = $0 }
-    END { print a[2] }
-    EOF
-
-    $ awk -f /tmp/awk.awk /tmp/file
-    bar~
-
-## ?
-
-    $ cat <<'EOF' >/tmp/awk.awk
-    BEGIN {
-        a = "foo"
-        myfunc(a)
-    }
-    END { print a }
-    function myfunc(a) {
-        a = a 42
-    }
-    EOF
-
-    $ awk -f /tmp/awk.awk
-    foo~
-
-`myfunc()` has not modified the global variable `a`.
-
-    $ cat <<'EOF' >/tmp/awk.awk
-    BEGIN {
-        b[1] = "foo"
-        myfunc(b)
-    }
-    END { print b[1] }
-    function myfunc(b) {
-        b[1] = b[1] 42
-    }
-    EOF
-
-    $ awk -f /tmp/awk.awk
-    foo42~
-
-`myfunc()` *has* modified the first element of `b`.
-
-This is because awk passes scalars by value, and arrays by reference.
-
-## ?
-
-    $ cat <<'EOF' >/tmp/awk.awk
-    function myfunc() {
-        string = "hello"
-    }
-    BEGIN {
-        myfunc()
-    }
-    END { print string }
-    EOF
-
-    $ awk -f /tmp/awk.awk
-    hello~
-
-L'appel  à `myfunc()`  dans la  déclaration  `BEGIN`, crée  la variable  globale
-`string` en lui donnant pour valeur `"hello"`.
-
-    $ cat <<'EOF' >/tmp/awk.awk
-    function myfunc(string) {
-        string = "hello"
-    }
-    BEGIN {
-        myfunc()
-    }
-    END { print string }
-    EOF
-
-    $ awk -f /tmp/awk.awk
-    ''~
-
-Cette fois, ce même appel ne crée aucune variable globale.
-
-Pk?
-
-Dans le  1er snippet `myfunc()` est  définie avec le paramètre  `string`, ce qui
-implique qu'au sein de la fonction, `string` est une variable locale.
-En revanche, dans le 2e snippet,  `myfunc()` n'est définie avec aucun paramètre,
-ce qui implique qu'au sein de la fonction, `string` est une variable globale.
-
-La différence par rapport à VimL vient du code du 1er snippet.
-En VimL, qd on crée une variable dans une fonction, par défaut elle est locale.
-En awk, elle est globale.
-
-De plus,  en VimL,  une fonction se  plaint si on  l'appelle en  lui fournissant
-moins d'arguments que le nb de paramètres dans sa définition.
-En awk, aucun pb: les variables sont automatiquement initialisées à `""`.
-
-##
 # Command-line
 ## How to run an awk program from a file?  (3)
 
@@ -293,23 +185,19 @@ This will output the file as is.
 
 No, it's a syntax error.
 
-    $ cat <<'EOF' >/tmp/file
-    foo
-    bar
-    baz
-    EOF
-
     $ cat <<'EOF' >/tmp/awk.awk
     { printf '%d', 1 }
     #        ^  ^
     #        ✘  ✘
     EOF
 
-    $ awk -f /tmp/awk.awk /tmp/file
+    $ awk -f /tmp/awk.awk /dev/null
     awk: /tmp/awk.awk:1: { printf '%d', 1 }~
     awk: /tmp/awk.awk:1:          ^ invalid char ''' in expression~
     awk: /tmp/awk.awk:1: { printf '%d', 1 }~
     awk: /tmp/awk.awk:1:          ^ syntax error~
+
+---
 
     $ cat <<'EOF' >/tmp/awk.awk
     { printf "%s", 'word' }
@@ -317,18 +205,20 @@ No, it's a syntax error.
     #              ✘    ✘
     EOF
 
-    $ awk -f /tmp/awk.awk /tmp/file
+    $ awk -f /tmp/awk.awk /dev/null
     awk: /tmp/awk.awk:1: { printf "%s", 'word' }~
     awk: /tmp/awk.awk:1:                ^ invalid char ''' in expression~
     awk: /tmp/awk.awk:1: { printf "%s", 'word' }~
     awk: /tmp/awk.awk:1:                ^ syntax error~
 
+---
+
     $ cat <<'EOF' >/tmp/awk.awk
-    { printf "%s ", "word" }
+    END { printf "%s ", "word" }
     EOF
 
-    $ awk -f /tmp/awk.awk /tmp/file
-    word word word ~
+    $ awk -f /tmp/awk.awk /dev/null
+    word~
 
 ### contains single quotes?
 
@@ -427,7 +317,7 @@ Awk automatically initializes it with the value `""`.
     END { print a[2] }
     EOF
 
-    $ awk -f /tmp/awk.awk
+    $ awk -f /tmp/awk.awk /dev/null
     ''~
 
 In contrast, in VimL, you would first need to declare the array with the right size:
@@ -937,6 +827,22 @@ Instead of using a built-in pipe, you could also have used an external one:
     100.00  Mark    5.00   20~
     121.00  Mary    5.50   22~
 
+## How to save all records inside a list?
+
+Use `NR` to uniquely index them in the array.
+
+    a[NR] = $0
+
+---
+
+    $ cat <<'EOF' >/tmp/awk.awk
+        { a[NR] = $0 }
+    END { print a[2] }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+    Dan     3.75   0~
+
 ##
 # Functions
 ## What happens if I call a function with less values than parameters in its signature?
@@ -950,11 +856,11 @@ The missing parameters are initialized with `""`.
     }
     EOF
 
-    $ awk -f /tmp/awk.awk
+    $ awk -f /tmp/awk.awk /dev/null
     ''~
 
 ##
-## What's the default scope of a variable created in a function?
+## What's the scope of a variable created in a function whose signature contains no parameter?
 
 Global.
 
@@ -965,7 +871,7 @@ Global.
     }
     EOF
 
-    $ awk -f /tmp/awk.awk
+    $ awk -f /tmp/awk.awk /dev/null
     hello~
 
 If the `var` assignment was local to `myfunc()`, `print var` would print an empty string.
@@ -988,7 +894,7 @@ Include it inside the parameters of the function signature.
     }
     EOF
 
-    $ awk -f /tmp/awk.awk
+    $ awk -f /tmp/awk.awk /dev/null
     ''~
 
 The purpose of `reverse()` is to reverse  the order of the first two elements of
@@ -1016,6 +922,49 @@ Separate the two groups with several spaces (3 typically).
     function reverse(x,   temp) {
                        ^^^
                        multi-space separation between the two groups of parameters
+
+##
+## What are the outputs of the next snippets?
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    END {
+        a = "foo"
+        myfunc(a)
+        print a
+    }
+    function myfunc(a) {
+        a = a 42
+    }
+    EOF
+
+    $ awk -f /tmp/awk.awk /dev/null
+↣
+    foo
+
+`myfunc()` has not modified the global variable `a`.
+↢
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    END {
+        b[1] = "foo"
+        myfunc(b)
+        print b[1]
+    }
+    function myfunc(b) {
+        b[1] = b[1] 42
+    }
+    EOF
+
+    $ awk -f /tmp/awk.awk /dev/null
+↣
+    foo42
+
+`myfunc()` *has* modified the first element of `b`.
+↢
+
+### Why are they different?
+
+Awk passes scalars by value, and arrays by reference.
 
 ##
 ##
@@ -2223,7 +2172,7 @@ fichiers / pipes pouvant être ouverts à un instant T.
     }
     EOF
 
-    $ awk -f /tmp/awk.awk
+    $ awk -f /tmp/awk.awk /dev/null
 
 Affiche l'heure et la date du jour, dort 3s, puis réaffiche l'heure.
 
@@ -3227,7 +3176,7 @@ Illustre qu'on peut réaliser plusieurs affectations en une seule ligne.
           └─────────────────────────────┘
                │
                v
-    awk -f progfile
+    awk -f progfile /dev/null
 
 Affiche les champs 2, 4 et 6 de `/etc/passwd`.
 
@@ -3505,8 +3454,4 @@ Inverse (au sens logique) / Incrémente la valeur du 1er champ.
 # TODO
 
 Write a `|c` mapping to lint the current awk script (using `--lint`).
-
----
-
-<https://www.gnu.org/software/gawk/manual/html_node/Debugger.html>
 
