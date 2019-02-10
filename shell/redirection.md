@@ -863,7 +863,7 @@ Yes.
     $ ls
     file1 file2 file3~
 
-    $ ls >/file && cat file
+    $ ls >file && cat file
     file~
       file1~
       file2~

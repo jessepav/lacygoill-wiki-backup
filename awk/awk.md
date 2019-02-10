@@ -917,7 +917,7 @@ Include it inside the parameters of the function signature.
         reverse(a)
     }
     END { print temp }
-    function reverse(x,   temp) {
+    function reverse(x,    temp) {
         temp = x[1]
         x[1] = x[2]
         x[2] = temp
@@ -944,13 +944,13 @@ to reverse.
 Group the  mandatory parameters  at the  start of the  parameters list,  and the
 optional local parameters at the end.
 
-Separate the two groups with several spaces (3 typically).
+Separate the two groups with several spaces.
 
                      ┌ mandatory parameters
-                     │    ┌ optional parameters
-                     │    ├──┐
-    function reverse(x,   temp) {
-                       ^^^
+                     │     ┌ optional parameters
+                     │     ├──┐
+    function reverse(x,    temp) {
+                       ^^^^
                        multi-space separation between the two groups of parameters
 
 ##
@@ -1869,12 +1869,10 @@ Explication:
     if (e1) {
         s1
         s2
-    }
-    else if (e2) {
+    } else if (e2) {
         s3
         s4
-    }
-    else {
+    } else {
         s5
         s6
     }
@@ -2293,19 +2291,19 @@ déclaration:
 Une fois  `getline` exécutée,  en fonction  de la  syntaxe utilisée,  awk peuple
 certaines variables internes:
 
-    ┌─────────────────────┬────────────────────────┬──────────────────────────┐
-    │ syntaxe awk         │ variables mises à jour │ syntaxe VimL équivalente │
-    ├─────────────────────┼────────────────────────┼──────────────────────────┤
-    │ getline             │      $0, NF, NR, FNR   │                          │
-    │                     │                        │                          │
-    │ getline var         │ var        , NR, FNR   │ let var = getline()      │
-    ├─────────────────────┼────────────────────────┼──────────────────────────┤
-    │ getline <expr       │      $0, NF            │ getline(expr)            │
-    │ "cmd" | getline     │      $0, NF            │ getline(system('cmd'))   │
-    │                     │                        │                          │
-    │ getline var <expr   │ var                    │ let var = getline(expr)  │
-    │ "cmd" | getline var │ var                    │ let var = system('cmd')  │
-    └─────────────────────┴────────────────────────┴──────────────────────────┘
+    ┌─────────────────────┬────────────────────────┬──────────────────────────────────┐
+    │ syntaxe awk         │ variables mises à jour │ syntaxe VimL équivalente         │
+    ├─────────────────────┼────────────────────────┼──────────────────────────────────┤
+    │ getline             │      $0, NF, NR, FNR   │                                  │
+    │                     │                        │                                  │
+    │ getline var         │ var        , NR, FNR   │ let var = getline(line('.') + 1) │
+    ├─────────────────────┼────────────────────────┼──────────────────────────────────┤
+    │ getline <expr       │      $0, NF            │ getline(expr)                    │
+    │ "cmd" | getline     │      $0, NF            │ getline(system('cmd'))           │
+    │                     │                        │                                  │
+    │ getline var <expr   │ var                    │ let var = getline(expr)          │
+    │ "cmd" | getline var │ var                    │ let var = system('cmd')          │
+    └─────────────────────┴────────────────────────┴──────────────────────────────────┘
 
 Qd on utilise une syntaxe peuplant `$0`, awk divise le nouveau record en champs,
 auxquels on peut accéder via `$i`.
@@ -2367,8 +2365,8 @@ Illustre que dans les syntaxes:
 
 ---
 
-    "whoami" | getline        "whoami" | getline me
-    print                     print me
+    "whoami" | getline      "whoami" | getline me
+    print                   print me
 
 Affiche `username` (ex: toto), dans les 2 cas.
 
@@ -2845,9 +2843,9 @@ On peut décomposer une action `if`, `for`, `while` en plaçant un newline:
     │ des accolades                                  │ if (e) {                      │
     │                                                │     s1                        │
     │ sans les accolades, le newline après `s1`      │     s2                        │
-    │ serait interprété comme la fin du bloc `if`    │ }                             │
-    │ au lieu de la fin de `s1`                      │ else                          │
-    │                                                │     s3                        │
+    │ serait interprété comme la fin du bloc `if`    │ } else                        │
+    │ au lieu de la fin de `s1`                      │     s3                        │
+    │                                                │                               │
     │ par conséquent, `s2` serait exécutée           │                               │
     │ peu importe la valeur de `e`                   │                               │
     └────────────────────────────────────────────────┴───────────────────────────────┘
@@ -3474,4 +3472,42 @@ Inverse (au sens logique) / Incrémente la valeur du 1er champ.
 # TODO
 
 Write a `|c` mapping to lint the current awk script (using `--lint`).
+
+---
+
+Read:
+<https://github.com/soimort/translate-shell/wiki/AWK-Style-Guide>
+<https://softwareengineering.stackexchange.com/questions/157407/best-practice-on-if-return#comment300476_157407>
+
+Usually, there's a difference between these snippets:
+
+    if cond1
+        do sth
+    if cond2
+        do sth else
+
+    if cond1
+        do sth
+    elseif cond2
+        do sth else
+
+The difference happens when `cond1` and `cond2` are true simultaneously.
+In this  case, the  first snippet  executes both actions,  while the  second one
+executes only one action.
+
+But this difference disappears when the action is a `return` statement.
+In this case, the first snippet executes only one action, like the second snippet.
+So, there's no need of an `else` after a `return`:
+
+    if cond1
+        return sth
+    elseif cond2
+        return sth else
+
+    ⇔
+
+    if cond1
+        return sth
+    if cond2
+        return sth else
 
