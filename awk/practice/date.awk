@@ -86,13 +86,13 @@ function how_many_days(y, m, d,   a, n, i) {
     # add leap days for past years
     for (i = 1900; i < y; ++i) {
         if (is_leap(i))
-            n += 1
+            n++
     }
 
     # add leap day for current year, if the date is beyond march or if it's the
     # 29th February
     if (is_leap(y) && (m > 2 || (m == 2 && d == 29) )) {
-        n += 1
+        n++
     }
 
     # add days from the last year

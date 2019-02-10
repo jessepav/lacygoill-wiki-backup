@@ -337,7 +337,7 @@ Use the `$` operator in `$var`.
     the lazy DOG
     EOF
 
-    $ awk '{ var += 1; print $var }' /tmp/file
+    $ awk '{ var++; print $var }' /tmp/file
     THE~
     JUMPS~
     DOG~
@@ -730,6 +730,14 @@ The three columns contain:
    - the number of hours they've worked so far
 
 ## How to print
+### the last line?
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    END { print $0 }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
 ### the names of the employees which have *not* worked?
 
     $ awk '$3 == 0 { print $1 }' /tmp/emp.data
@@ -1976,7 +1984,7 @@ Illustre qu'un `else` est toujours associé au `if` à sa gauche le plus proche.
     i = 1
       while (i <= 5) {
           s
-          i += 1
+          i++
       }
 
 Boucle itérant sur les valeurs de la variable `i`, qui vont de 1 à 5.
@@ -3189,7 +3197,7 @@ Illustre qu'on peut réaliser plusieurs affectations en une seule ligne.
           │ BEGIN {                     │
           │     FS      = ":"           │
           │     ARGV[1] = "/etc/passwd" │
-          │     ARGC   += 1             │
+          │     ARGC++                  │
           │ }                           │
           │ { print $2, $4, $6 }        │
           └─────────────────────────────┘
@@ -3199,7 +3207,7 @@ Illustre qu'on peut réaliser plusieurs affectations en une seule ligne.
 
 Affiche les champs 2, 4 et 6 de `/etc/passwd`.
 
-La déclaration `ARGC += 1` est nécessaire.
+La déclaration `ARGC++` est nécessaire.
 Sans elle, awk n'ajouterait pas `/etc/passwd` à son input.
 En effet, il lit les éléments de `ARGV` uniquement jusqu'à l'index `ARGC - 1`.
 Or, ici, `ARGC`  = 1, donc `ARGC -  1 = 0` et  awk ne lit que le  1er élément de
