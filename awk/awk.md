@@ -346,6 +346,22 @@ This command prints the  first, second and third field of  the first, second and
 third record.
 
 ##
+## When can an assignment be merged with another statement?
+
+When this other statement includes an expression.
+
+    $ awk 'END { print (n = 2) + 1, n }' /dev/null
+    3 2~
+
+    $ awk 'END { if ((n = length($1)) > 2) print "has", n, "characters" }' <<<'hello'
+    has 5 characters~
+
+### How is it possible?
+
+For awk, an  assignment is an expression  – with the side-effect  of assigning a
+value to a variable.
+
+##
 # Pattern
 ## What are the five kind of patterns?
 
@@ -407,7 +423,7 @@ You can't combine them with another pattern inside a range:
 
 MWE:
 
-    $ awk '/Susie/,END' /tmp/file
+    $ awk '/Susie/,END' /dev/null
     awk: cmd. line:1: /Susie/,END~
     awk: cmd. line:1:         ^ syntax error~
     awk: cmd. line:1: END blocks must have an action part~
@@ -738,6 +754,9 @@ The three columns contain:
 
     $ awk -f /tmp/awk.awk /tmp/emp.data
 
+gawk preserves the value of `$0` from the last record for use in an END rule.
+Some other implementations of awk do not.
+
 ### the names of the employees which have *not* worked?
 
     $ awk '$3 == 0 { print $1 }' /tmp/emp.data
@@ -1003,6 +1022,28 @@ Separate the two groups with several spaces.
 ### Why are they different?
 
 Awk passes scalars by value, and arrays by reference.
+
+##
+## How to get the number of characters in
+### a string?
+
+Use the `length()` function:
+
+    length(s)
+
+---
+
+    $ awk 'END { print length($1) }' <<<'a bc'
+    1~
+
+### the current record?
+
+Use `length()`, but without any argument.
+
+---
+
+    $ awk 'END { print length() }' <<<'a bc'
+    4~
 
 ##
 ##
@@ -2408,9 +2449,6 @@ Fonctions arithmétiques:
 Fonctions opérant sur des chaînes:
 
     ┌────────────────────────┬─────────────────────────────────────────────────────────────────────────────┐
-    │ length(s)              │ retourne le nb de caractères au sein de `s`                                 │
-    │                        │ sans `s`, `length()` retourne la longueur du record courant                 │
-    ├────────────────────────┼─────────────────────────────────────────────────────────────────────────────┤
     │ length(a)              │ retourne le nb d'éléments dans l'array `a`                                  │
     ├────────────────────────┼─────────────────────────────────────────────────────────────────────────────┤
     │ sprintf(fmt,expr-list) │ retourne les expressions `expr-list` formatées selon `fmt`                  │
@@ -3052,17 +3090,6 @@ Tout ceci est valable pour `--` également.
 Calcule la  sous-array de `a`  dont tous  les éléments contiennent  exactement 3
 caractères, ainsi que sa taille `n`.
 L'array obtenue est `b`.
-
----
-
-    if ((n = length($1)) > 0) print
-
-Affecte à la variable `n` la longueur du 1er champ, et en même temps teste si ce
-dernier est non vide.
-
-Illustre  que `var  = expr`  est une  expression dont  la valeur  est la  valeur
-affectée à la variable.
-Ici l'expression `n = length($1)` a pour valeur `length($1)`.
 
 ---
 
