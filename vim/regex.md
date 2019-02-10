@@ -1,3 +1,26 @@
+# What's the regex to find all sequences of two or more uppercase characters *not* followed by a comma?
+
+    \%(\u\{2,}\)\@>,\@!
+                ^^^
+
+---
+
+Against this text:
+
+    ABC,
+    DEF
+    GHI,
+    JKL
+
+The regex will find `DEF` and `JKL`.
+
+---
+
+This shows how the atom `\@>` can be useful.
+Here, without it, we would find `AB`, `DEF`, `GH` and `JKL`.
+`\@>` allows us to prevent the backtracking in `\{2,}`.
+
+##
 # When I use `\@<=` or `\@<!`, how far does the engine backtrack?
 
 Up to the beginning of the previous line.
@@ -224,26 +247,27 @@ because it needs to take the buffer settings into account.
 But if the command has to operate on  some text which is NOT tied to any buffer,
 and your regex includes one of these atoms:
 
-        \<
-        \>
-        \f
-        \i
-        \k
-        \p
+    \<
+    \>
+    \f
+    \i
+    \k
+    \p
 
 The regex will be affected by the buffer-local values of some options:
 
-        'isfname'
-        'isident'
-        'iskeyword'
-        'isprint'
+   - `'isfname'`
+   - `'isident'`
+   - `'iskeyword'`
+   - `'isprint'`
 
 Which may have unexpected results.
 
 ## Are there any pitfalls I should be aware of when using the complement of a character class?
 
 Is your complement preceded by an atom and a quantifier?
-If so, make sure your character class includes the atom.
+If so,  make sure your character  class includes the  atom, or use `\@>`  on the
+previous atom.
 
 ---
 
@@ -251,24 +275,28 @@ Example:
 
 you have this text:
 
-        aaa   xyz
-        aaa   bxyz
+    aaa   xyz
+    aaa   bxyz
 
 You want to match the next sequence of non whitespace after `aaa` on the first line.
 So you try this regex:
 
-        a\+\s\+\zs\S\+
+    a\+\s\+\zs\S\+
 
 It matches `xyz` on the first line (✔), but also on the second line (✘).
 So you try this regex:
 
-        a\+\s\+\zs[^b]\S\+
+    a\+\s\+\zs[^b]\S\+
 
 Now it matches `xyz` on the first line (✔), but also `bxyz` on the second line (✘).
 This is because the engine backtracked.
 The solution is to include a whitespace in the complement of your collection:
 
-        a\+\s\+\zs[^b \t]\S\+
+    a\+\s\+\zs[^b \t]\S\+
+
+You could also use `\@>` to prevent the backtracking:
+
+    a\+\%(\s\+\)\@>\zs[^b]\S\+
 
 ##
 ##

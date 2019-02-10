@@ -534,7 +534,9 @@ but twice in the second one.
 ↢
 
 ##
-## What's the benefit of using `"pat"` rather than `/pat/`?
+## What are the pro/con of using `"pat"` rather than `/pat/`?
+
+Pro:
 
 You can  break it down into  several substrings, and  join them back to  get the
 final regex.
@@ -555,6 +557,16 @@ Example:
     $1 ~ number
 
 This code prints the records where the first field is a number.
+
+---
+
+Con:
+
+It is more efficient to use regex constants.
+Awk can note  that you have supplied a  regex and store it internally  in a form
+that makes pattern matching more efficient.
+When  using a  string constant,  awk  must first  convert the  string into  this
+internal form and then perform the pattern matching.
 
 ## Which common pitfall should I avoid when using `"pat"`?
 
@@ -829,7 +841,7 @@ Instead of using a built-in pipe, you could also have used an external one:
 
 ## How to save all records inside a list?
 
-Use `NR` to uniquely index them in the array.
+Use `NR` to uniquely index them in an array.
 
     a[NR] = $0
 
@@ -842,6 +854,24 @@ Use `NR` to uniquely index them in the array.
 
     $ awk -f /tmp/awk.awk /tmp/emp.data
     Dan     3.75   0~
+
+##
+# Built-In Variables
+## What's the value of `NR` in
+### a `BEGIN` statement?
+
+0
+
+### a statement matching the last record?
+
+The index of the last record.
+
+E.g., if  the input  contains `123`  records, in a  statement matching  the last
+record, the value of `NR` is `123`.
+
+### an `END` statement?
+
+Again, the index of the last record.
 
 ##
 # Functions
@@ -975,7 +1005,7 @@ Awk passes scalars by value, and arrays by reference.
 Il existe 3 méthodes pour aligner la sortie d'awk:
 
    - utiliser `printf` en donnant une largeur de champ suffisante pour chaque colonne
-   - jouer sur les variables FS et/ou OFS
+   - jouer sur les variables `FS` et/ou `OFS`
    - pipe la sortie d'awk vers `column`
 
 
@@ -996,15 +1026,15 @@ Explication:
 
 Qd on ne modifie pas le contenu d'un record, awk le produit tel quel.
 En revanche,  si on modifie directement  le contenu d'un champ  dont l'index est
-non nul, awk effectue le remplacement FS → OFS, sur son record.
+non nul, awk effectue le remplacement `FS` → `OFS`, sur son record.
 
 En clair, par défaut,  awk remplace chaque séquence d'espaces et  de tabs par un
 espace.
 Si  on a  utilisé des  tabs pour  aligner des  colonnes au  sein d'un  texte, ce
 remplacement peut ruiner l'alignement.
 
-Avec la 2e commande précédente, awk ne  supprimera que les tabs (car FS = "\t"),
-qu'il remplacera par des tabs (car OFS = "\t").
+Avec la  2e commande  précédente, awk  ne supprimera  que les  tabs (car  `FS` =
+"\t"), qu'il remplacera par des tabs (car `OFS` = "\t").
 
 Update: Playing with `FS` and `OFS` doesn't  seem reliable enough if you've used
 several tabs to align some fields.
@@ -1060,10 +1090,10 @@ même si elle était alignée.
         print 1E2 ""               # idem
     }
 
-Qd un  flottant est affiché,  il est formaté selon  le template défini  par OFMT
-(pas de coercition nb → chaîne) ou CONVFMT (coercition).
-Mais qd un entier est affiché, il  reste entier, peu importe les valeurs de OFMT
-et CONVFMT.
+Qd un flottant est  affiché, il est formaté selon le  template défini par `OFMT`
+(pas de coercition nb → chaîne) ou `CONVFMT` (coercition).
+Mais qd  un entier  est affiché,  il reste  entier, peu  importe les  valeurs de
+`OFMT` et `CONVFMT`.
 
 
     END { printf "%.6g", 12E-2 }
@@ -1074,7 +1104,7 @@ et CONVFMT.
 Il  semble  que les  spécificateurs  de  conversion  `%e`,  `%f`, et  `%g`  sont
 identiques entre les fonctions `printf()` de Vim et awk, à deux exceptions près.
 
-Le `%g` du  `printf()` d'awk supprime les 0 non  significatifs, ET il interprète
+Le `%g` du `printf()` d'awk supprime les 0 non significatifs, *et* il interprète
 la précision comme le nb de chiffres significatifs.
 
 Celui de Vim ne supprime pas les 0 non significatifs, et interprète la précision
@@ -1102,12 +1132,12 @@ d'abord `print`, puis redirigerait la sortie le fichier `1.234 `.
 
 
 L'expression `var > 1.234` retourne `1`  (réussite), ce qui signifie que `var` a
-été formatée APRÈS l'évaluation de `var > 1.234`:
+été formatée *après* l'évaluation de `var > 1.234`:
 
     1.23456789 > 1.234 ✔
     1.23       > 1.234 ✘
 
-... mais AVANT d'afficher le résultat:
+... mais *avant* d'afficher le résultat:
 
     print (var - 1.234)
     0.00 (au lieu de 0.00056789)~
@@ -1156,8 +1186,9 @@ Les syntaxes de `printf` sont similaires à `print`, à ceci près que:
    - il faut ajouter l'argument `fmt` (chaîne format)
      ce qui donne à `printf` plus de puissance
 
-   - `printf` ne remplace RIEN: ni FS → OFS entre 2 expressions, ni RS → ORS
-     à la fin
+   - `printf` ne remplace *rien*:
+     ni `FS` → `OFS` entre 2 expressions,
+     ni `RS` → `ORS` à la fin
 
 Il faut donc en tenir compte.
 Pex, si on veut un newline à la fin, il faut l'inclure dans `fmt`:
@@ -1186,22 +1217,11 @@ opérateur relationnel.
 
 Affiche le contenu des champs 1 et 2 en les séparant par:
 
-   - OFS
+   - `OFS`
    - rien
 
 Illustre que  l'opérateur de concaténation  (implicite) n'ajoute rien  entre les
 expressions.
-
----
-
-Qd awk traite le record matchant le pattern:
-
-   - BEGIN, NR vaut 0
-   - END,   NR vaut l'index du dernier record
-
-Arrivé à END, NR n'est pas incrémenté.
-IOW, si un fichier contient 5 lignes, NR vaut 5 sur la dernière ligne, et encore
-5 sur la ligne END.
 
 ---
 
@@ -1488,7 +1508,7 @@ Elle n'a pas besoin de mémoriser les associations 'indice élément'.
 
 En revanche, dans une array pouvant être indexée par des chaînes, il n'y a aucun
 ordre sur lequel s'appuyer.
-Il faut donc  que les ASSOCIATIONS 'indice - élément'  soient mémorisées, et non
+Il faut donc que les *associations* 'indice - élément' soient mémorisées, et non
 pas simplement les éléments.
 
 ---
@@ -1513,7 +1533,7 @@ Affecte "hello, world\n" à l'élément de `array` indexé par la chaîne:
 
 Illustre  qu'awk  supporte  les  arrays multi-dimensionnelles,  et  que  lorsque
 l'indice est une liste d'expressions,  ces dernières sont converties en chaînes,
-et  concaténées en  utilisant le  contenu de  la variable  interne SUBSEP  comme
+et concaténées  en utilisant le  contenu de  la variable interne  `SUBSEP` comme
 séparateur.
 
 ---
@@ -1566,7 +1586,7 @@ Affiche tous les éléments de l'array `a`.
 
 Si l'array  est multi-dimensionnelle, et qu'à  l'intérieur de la boucle  on veut
 accéder  à  chaque  composant  de  l'indice `i`  séparément,  on  peut  utiliser
-`split()` et SUBSEP:
+`split()` et `SUBSEP`:
 
     split(i, x, SUBSEP)
 
@@ -1638,7 +1658,7 @@ Awk  est  cool,  et  il  convertira  si  besoin  un  nombre  en  une  chaîne  e
 réciproquement.
 
 Mais un pb se  pose qd on passe un nombre et une  chaîne à un opérateur binaire,
-ET qu'il peut travailler à la fois sur des nombres et des chaînes.
+*et* qu'il peut travailler à la fois sur des nombres et des chaînes.
 
 Awk  doit alors  choisir  quelle  coercition réaliser:  il  choisit toujours  de
 convertir le nombre en chaîne.
@@ -1788,7 +1808,7 @@ ou des chaînes.
 
 Retournent resp. 1 (vrai) et 0 (faux).
 
-Car 12 est  converti en "12" ET  sur ma machine, les lettres  sont rangées après
+Car 12 est converti en "12" *et*  sur ma machine, les lettres sont rangées après
 les chiffres donc "a" > "2".
 
 
@@ -2029,12 +2049,12 @@ Explication: La boucle  incrémente `i` tant que  le champ de même  index est n
 vide.
 Elle ne fait rien d'autre, car elle ne contient que la déclaration vide.
 
-Une fois  sorti de  la boucle, `if`  compare `i`  à NF: si  `i` est  plus petit,
+Une fois  sorti de la boucle,  `if` compare `i` à  `NF`: si `i` est  plus petit,
 `print` affiche le record.
 
 
 Un champ vide n'est pas un champ rempli d'espaces.
-Un champ vide correspond à 2 FS consécutifs (pex 2 Tabs).
+Un champ vide correspond à 2 `FS` consécutifs (pex 2 Tabs).
 
 ### while
 
@@ -2078,11 +2098,11 @@ En revanche, une boucle `do` l'exécutera une fois, car `do` vient avant `while`
     exit
     exit 123
 
-Se rendre directement à la déclaration END.
+Se rendre directement à la déclaration `END`.
 Idem, en retournant 123 comme code de sortie du programme awk.
 
-Si `exit` est utilisé au sein de la déclaration END, on quitte le programme awk,
-sans terminer de traiter les actions END.
+Si `exit` est  utilisé au sein de  la déclaration `END`, on  quitte le programme
+awk, sans terminer de traiter les actions `END`.
 
 ---
 
@@ -2098,9 +2118,9 @@ suivants, et passe:
 
 Qd `nextfile` est utilisé, certaines variables sont mises à jour:
 
-   - FILENAME
-   - ARGIND
-   - FNR  →  1
+   - `FILENAME`
+   - `ARGIND`
+   - `FNR`  →  1
 
 
 `next` provoque une erreur s'il est utilisé dans la déclaration `BEGIN` ou `END`.
@@ -2646,14 +2666,14 @@ Exécute `pgm` sur `<input>` en utilisant:
    - le tab          comme séparateur de records
 
 La syntaxe  `-v var=val`  permet de configurer  n'importe quelle  variable avant
-l'exécution d'un programme awk; `-F<fs>` ne permet de configurer que FS.
+l'exécution d'un programme awk; `-F<fs>` ne permet de configurer que `FS`.
 
 ---
 
     $ awk -f progfile f1 FS=: f2
 
-Traite le  fichier `f1` avec FS  ayant sa valeur  par défaut (" "),  puis traite
-`f2` avec FS ayant pour valeur `:`.
+Traite le fichier `f1`  avec `FS` ayant sa valeur par défaut  (" "), puis traite
+`f2` avec `FS` ayant pour valeur `:`.
 
 Plus généralement,  on peut  configurer une variable  juste avant  le traitement
 d'un fichier arbitraire, via la syntaxe:
@@ -3044,7 +3064,7 @@ Ici l'expression `n = length($1)` a pour valeur `length($1)`.
 
 Affecte:
 
-   - la chaîne "\t" aux variables internes     FS et OFS
+   - la chaîne "\t" aux variables internes     `FS` et `OFS`
    - le nombre `42` aux variables utilisateurs `a`  et `b`
 
 Illustre qu'on peut réaliser plusieurs affectations en une seule ligne.
@@ -3164,7 +3184,7 @@ Illustre qu'on peut réaliser plusieurs affectations en une seule ligne.
     │             │ raison pour laquelle il a été choisi.                                            │
     └─────────────┴──────────────────────────────────────────────────────────────────────────────────┘
 
-#### ARGC, ARGV
+#### `ARGC`, `ARGV`
 
           ┌─────────────────────────────┐
           │ BEGIN {                     │
@@ -3182,12 +3202,12 @@ Affiche les champs 2, 4 et 6 de `/etc/passwd`.
 
 La déclaration `ARGC += 1` est nécessaire.
 Sans elle, awk n'ajouterait pas `/etc/passwd` à son input.
-En effet, il lit les éléments de ARGV uniquement jusqu'à l'index `ARGC - 1`.
-Or, ici, ARGC = 1, donc `ARGC - 1 =  0` et awk ne lit que le 1er élément de ARGV
-('awk').
+En effet, il lit les éléments de `ARGV` uniquement jusqu'à l'index `ARGC - 1`.
+Or, ici, `ARGC`  = 1, donc `ARGC -  1 = 0` et  awk ne lit que le  1er élément de
+`ARGV` ('awk').
 
 Illustre que  pour accroître l'input,  il ne suffit  pas d'ajouter un  élément à
-ARGV, il faut aussi incrémenter ARGC.
+`ARGV`, il faut aussi incrémenter `ARGC`.
 
 ---
 
@@ -3225,19 +3245,19 @@ Pour résoudre  ce problème,  on peut remplacer  `ARGV[1]` qui  initialement va
 `42` par la valeur spéciale "-".
 
 
-Si awk ne reçoit aucun fichier en argument, dit autrement si ARGV n'a qu'un seul
-élément (ARGC = 1, ARGV[0] = 'awk'), il lit automatiquement son entrée standard,
-qui est connectée soit au clavier soit à un pipe.
+Si awk ne  reçoit aucun fichier en  argument, dit autrement si  `ARGV` n'a qu'un
+seul élément (`ARGC` = 1, `ARGV[0]`  = 'awk'), il lit automatiquement son entrée
+standard, qui est connectée soit au clavier soit à un pipe.
 
-#### FS, RS, OFS, ORS, NR
+#### `FS`, `RS`, `OFS`, `ORS`, `NR`
 
     BEGIN { FS = "\t" }
           { print $1 }
 
-Modifie la  valeur de FS pour  tous les records,  en lui donnant pour  valeur un
+Modifie la  valeur de `FS` pour  tous les records,  en lui donnant pour  valeur un
 tab.
 
-Modifier FS n'affecte pas la définition des champs du record courant, uniquement
+Modifier `FS` n'affecte pas la définition des champs du record courant, uniquement
 ceux des records qui suivent.
 
 Si on veut modifier  la définition des champs de tous les  records, y compris le
@@ -3300,15 +3320,15 @@ Donc, aucune des déclarations ne divise le 2e record.
                                                          └──────────────────────────────────┘
 
 
-Dans  cet  exemple, la  valeur  de  FS est  interprétée  comme  une regex  "\\."
+Dans  cet exemple,  la valeur  de  `FS` est  interprétée comme  une regex  "\\."
 décrivant un point littéral.
-Plus généralement, les valeurs de FS et  RS sont interprétées comme des regex si
-elles contiennent plusieurs caractères, autrement littéralement:
+Plus généralement, les valeurs de `FS` et `RS` sont interprétées comme des regex
+si elles contiennent plusieurs caractères, autrement littéralement:
 
                     FS = "\\."    ⇔    FS = "."
                     RS = "\\."    ⇔    RS = "."
 
-Les valeurs de OFS et ORS sont toujours littérales.
+Les valeurs de `OFS` et `ORS` sont toujours littérales.
 
 ---
 
@@ -3320,21 +3340,21 @@ Effectue la transformation suivante:
     I_like_old_things.    →    I|like|old|things.
     |
 
-Illustre que le remplacement de RS par ORS est automatique et inconditionnel.
+Illustre que le remplacement de `RS` par `ORS` est automatique et inconditionnel.
 
 
 On remarque un pipe sous le I, sur une 2e ligne.
-awk considère qu'il y a un “record terminator“ (RT) entre 2 records consécutifs,
-mais aussi après le dernier record.
-RT est décrit par le caractère / la regex contenu(e) dans RS.
+awk  considère  qu'il  y  a  un  “record  terminator“  (`RT`)  entre  2  records
+consécutifs, mais aussi après le dernier record.
+`RT` est décrit par le caractère / la regex contenu(e) dans `RS`.
 
-Sur le dernier record d'un input, RT = "" peu importe la valeur de RS.
-awk remplace le dernier RT ("") par ORS.
+Sur le dernier record d'un input, `RT` = "" peu importe la valeur de `RS`.
+Awk remplace le dernier `RT` ("") par `ORS`.
 
 FIXME:
 
 Par contre,  pourquoi awk  semble ajouter  un newline  après le  dernier record,
-alors que ORS n'en contient pas:
+alors que `ORS` n'en contient pas:
 
     I|like|old|things.    vs   I|like|old|things.|
     |
@@ -3370,14 +3390,14 @@ Plus généralement, qd awk divise un record, il génère un champ vide:
 
 Exception:
 
-Qd FS = " ", awk ignore les espaces et tabs au début et à la fin d'un record.
-" " n'est pas un simple espace, c'est une valeur spéciale pour FS.
+Qd `FS` = " ", awk ignore les espaces et tabs au début et à la fin d'un record.
+" " n'est pas un simple espace, c'est une valeur spéciale pour `FS`.
 
 ---
 
     BEGIN { RS = "" }
 
-"" est une valeur spéciale pour RS.
+"" est une valeur spéciale pour `RS`.
 awk semble l'interpréter comme "\n+".
 
 IOW, l'input  est divisée  en records  uniquement au  niveau d'une  ou plusieurs
@@ -3434,9 +3454,9 @@ d'un champ.
 
 
 Plus  généralement, une  même  expression nous  permet d'accéder  à  la fois  en
-lecture et en écriture à certaines variables ($1, NR, ...).
+lecture et en écriture à certaines variables (`$1`, `NR`, ...).
 Certaines, pas toutes.
-On ne peut pas modifier FILENAME.
+On ne peut pas modifier `FILENAME`.
 
 Pour rappel, on accède à une variable en:
 

@@ -36,6 +36,20 @@ Here are a few categories of control flow statements:
    - exception handling constructions (try–catch,  ...)
 
 ##
+# d
+## dynamic regex
+
+A regex can be computed by:
+
+   1. evaluating an expression, converted to a string if necessary
+   2. using the contents of the evaluated string
+
+A regex computed in this way is called a dynamic regex.
+
+In contrast, a string of characters between  slashes, used as a regex, is called
+a *regex constant*.
+
+##
 # e
 ## escape sequence
 
