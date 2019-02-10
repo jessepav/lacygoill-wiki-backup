@@ -3264,11 +3264,9 @@ Si on veut modifier  la définition des champs de tous les  records, y compris l
 
 ---
 
-    NR == 5 { NR = 10 }
-            { print NR }
+Can I change the index of a record?
 
-La première règle modifie l'index du 5e record, en lui donnant pour valeur 10.
-Les records suivants auront donc pour index 11, 12, ... au lieu de 6, 7, ...
+Yes, `NR` is writable.
 
     $ cat <<'EOF' >/tmp/file
     a
@@ -3282,10 +3280,9 @@ Les records suivants auront donc pour index 11, 12, ... au lieu de 6, 7, ...
     EOF
 
     $ awk -f /tmp/awk.awk /tmp/file
-
-Illustre qu'on  peut accéder  en écriture à  certaines variables  internes, dont
-`NR` et `FS`.
-Exception: `FILENAME` n'est pas accessible en écriture.
+    a 3~
+    b 4~
+    c 5~
 
 ---
 
@@ -3467,8 +3464,7 @@ champ.
 
 Plus  généralement, une  même  expression nous  permet d'accéder  à  la fois  en
 lecture et en écriture à certaines variables (`$1`, `NR`, ...).
-Certaines, pas toutes.
-On ne peut pas modifier `FILENAME`.
+Certaines, pas toutes; on ne peut pas modifier `FILENAME`.
 
 Pour rappel, on accède à une variable en:
 
