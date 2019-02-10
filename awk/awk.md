@@ -61,67 +61,6 @@ This is because awk passes scalars by value, and arrays by reference.
 
 ## ?
 
-What's the default scope of a variable created in a function?
-
-Global.
-
-    $ cat <<'EOF' >/tmp/awk.awk
-    END { myfunc(); print var }
-    function myfunc() {
-        var = "hello"
-    }
-    EOF
-
-    $ awk -f /tmp/awk.awk
-    hello~
-
-If the `var` assignment was local to `myfunc()`, `print var` would print an empty string.
-
-
----
-
-    $ cat <<'EOF' >/tmp/awk.awk
-    BEGIN {
-        a[1] = "one"
-        a[2] = "two"
-        reverse(a)
-    }
-    END { print a[1], temp, a[2] }
-    function reverse(x,   temp) {
-        temp = x[1]
-        x[1] = x[2]
-        x[2] = temp
-    }
-    EOF
-
-    $ awk -f /tmp/awk.awk
-    two  one~
-
-La fonction custom `reverse()` inverse les 2 premiers éléments d'une array.
-Pour ce faire, elle utilise la variable temporaire `temp`.
-Après avoir appelé `reverse()`, aucune variable globale `temp` n'a été créée.
-
-Illustre  le mécanisme  à  utiliser pour  fournir des  variables  locales à  une
-fonction:
-
-qd on  définit une  fonction qui  doit utiliser des  variables locales,  il faut
-déclarer leurs noms (ex: `temp`) dans la liste de ses paramètres.
-Généralement,  on les  déclare à  la fin,  après les  paramètres qu'on  doit lui
-passer (ex: `a`).
-
-Par la  suite, qd on appelle  la fonction, on  peut lui passer des  valeurs pour
-initialiser ces variables locales, ou bien les omettre.
-Si on les omet, awk les initialise en leur donnant pour valeur `""`.
-
-
-On remarque que, par convention, on  sépare les variables locales des paramètres
-obligatoires avec plusieurs espaces:
-
-    function reverse(x,   temp) {
-                       ^^^
-
-## ?
-
     $ cat <<'EOF' >/tmp/awk.awk
     function myfunc() {
         string = "hello"
@@ -316,7 +255,7 @@ bound to the default action `{ print }`:
 So, you can write either of these:
 
     pattern { action }
-
+    ⇔
     pattern {
         action
     }
@@ -997,6 +936,86 @@ Instead of using a built-in pipe, you could also have used an external one:
      76.50  Susie   4.25   18~
     100.00  Mark    5.00   20~
     121.00  Mary    5.50   22~
+
+##
+# Functions
+## What happens if I call a function with less values than parameters in its signature?
+
+The missing parameters are initialized with `""`.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    END { myfunc() }
+    function myfunc(a) {
+        print a
+    }
+    EOF
+
+    $ awk -f /tmp/awk.awk
+    ''~
+
+##
+## What's the default scope of a variable created in a function?
+
+Global.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    END { myfunc(); print var }
+    function myfunc() {
+        var = "hello"
+    }
+    EOF
+
+    $ awk -f /tmp/awk.awk
+    hello~
+
+If the `var` assignment was local to `myfunc()`, `print var` would print an empty string.
+
+## How to make a variable local to a function?
+
+Include it inside the parameters of the function signature.
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    BEGIN {
+        a[1] = "one"
+        a[2] = "two"
+        reverse(a)
+    }
+    END { print temp }
+    function reverse(x,   temp) {
+        temp = x[1]
+        x[1] = x[2]
+        x[2] = temp
+    }
+    EOF
+
+    $ awk -f /tmp/awk.awk
+    ''~
+
+The purpose of `reverse()` is to reverse  the order of the first two elements of
+an array; to do so, it needs a temporary variable `temp`.
+
+Inside the function, `temp` contains `"one"`, but outside it's empty.
+By including it  inside the parameters of the function  signature, we've made it
+local to the function.
+
+Note  that, since  there's no  need to  pass a  value to  initialize `temp`,  in
+effect, `temp` is an optional parameter of `reverse()`.
+In contrast, `x` is mandatory; you need to tell `reverse()` which array you want
+to reverse.
+
+### What are the two common conventions to follow when doing so?
+
+Group the  mandatory parameters  at the  start of the  parameters list,  and the
+optional local parameters at the end.
+
+Separate the two groups with several spaces (3 typically).
+
+                     ┌ mandatory parameters
+                     │    ┌ optional parameters
+                     │    ├──┐
+    function reverse(x,   temp) {
+                       ^^^
+                       multi-space separation between the two groups of parameters
 
 ##
 ##
@@ -1865,26 +1884,37 @@ Explication:
 ## Structure de contrôle
 ### if
 
-    if (e1)           ⇔    if (e1) s1; else if (e2) s2; else s3
+    if (e1)
         s1
     else if (e2)
         s2
     else
         s3
 
+    ⇔
 
-    if (e1) {         ⇔    if (e1)      { s1; s2 }
-        s1                 else if (e2) { s3; s4 }
-        s2                 else         { s5; s6 }
+    if (e1) s1; else if (e2) s2; else s3
+
+---
+
+    if (e1) {
+        s1
+        s2
     }
     else if (e2) {
-        s1
-        s2
+        s3
+        s4
     }
     else {
-        s1
-        s2
+        s5
+        s6
     }
+
+    ⇔
+
+    if (e1)      { s1; s2 }
+    else if (e2) { s3; s4 }
+    else         { s5; s6 }
 
 Si plusieurs déclarations doivent être exécutées après un des mot-clés suivants:
 
@@ -1902,14 +1932,24 @@ l'indentation.
 Il a donc besoin d'un mécanisme pour savoir  si `s2` fait partie de la boucle ou
 non :
 
-    for (e)           for (e)
-    s1       ⇔    s1         s2 est hors de la boucle (awk se fiche de l'indentation)
-    s2                s2
+    for (e)
+    s1
+    s2
+
+    ⇔
+
+        for (e)
+    s1
+        s2
+
+`s2` est hors de la boucle (awk se fiche de l'indentation).
 
     for (e) {
     s1
-    s2                       s2 est dans la boucle (grâce aux accolades)
+    s2
     }
+
+`s2` est dans la boucle (grâce aux accolades)
 
 
 Exception: pas  besoin d'accolades, si  les déclarations sont contenues  dans un
@@ -1939,12 +1979,18 @@ Illustre qu'un `else` est toujours associé au `if` à sa gauche le plus proche.
     for (var in array)
         s
 
+---
 
-    for (e1; e2; e3)    ⇔    e1 ; while (e2) { s; e3 }
-        s                    │           │        │
-                             │           │        └ transformation
-                             │           └ condition
-                             └ initialisation
+    for (e1; e2; e3)
+        s
+
+    ⇔
+
+    e1 ; while (e2) { s; e3 }
+    │           │        │
+    │           │        └ transformation
+    │           └ condition
+    └ initialisation
 
 ---
 
@@ -1955,11 +2001,16 @@ Illustre qu'un `else` est toujours associé au `if` à sa gauche le plus proche.
 
 ---
 
-    for (i = 1; i <= 5; i++)        i = 1
-        s                             while (i <= 5) {
-                                          s
-                                          i += 1
-                                      }
+    for (i = 1; i <= 5; i++)
+
+    ⇔
+
+    s
+    i = 1
+      while (i <= 5) {
+          s
+          i += 1
+      }
 
 Boucle itérant sur les valeurs de la variable `i`, qui vont de 1 à 5.
 
@@ -2038,16 +2089,37 @@ Un champ vide correspond à 2 FS consécutifs (pex 2 Tabs).
 
 ### while
 
-    while (e)      ⇔    while (e) s    ⇔    do          ⇔    do s; while (e)
-        s                                       s
-                                            while (e)
+    while (e)
+        s
+
+    ⇔
+
+    while (e) s
+
+    ⇔
+
+    do
+        s
+    while (e)
+
+    ⇔
+
+    do s; while (e)
 
 ---
 
-    while (e) {    ⇔    while (e) { s1; s2 }            ⇔    do { s1; s2 } while (e)
+    while (e) {
         s1
         s2
     }
+
+    ⇔
+
+    while (e) { s1; s2 }
+
+    ⇔
+
+    do { s1; s2 } while (e)
 
 Si `e` est fausse dès le début, une boucle `while` n'exécutera jamais `s`.
 En revanche, une boucle `do` l'exécutera une fois, car `do` vient avant `while`.
@@ -2718,13 +2790,21 @@ Traite  les fichiers  `file1`  et  `file2` en  exécutant  le  code contenu  dan
 
 ## Terminaisons de commande
 
-    statement1                       ⇔    statement1; statement2
+    statement1
     statement2
 
-    pattern { action1; action2 }    ⇔    pattern {
-                                             action1
-                                             action2
-                                         }
+    ⇔
+
+    statement1; statement2
+
+    pattern { action1; action2 }
+
+    ⇔
+
+    pattern {
+        action1
+        action2
+    }
 
 On peut *terminer*  une déclaration pattern-action ou une action  via un newline
 ou un point-virgule.
