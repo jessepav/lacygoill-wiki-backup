@@ -2637,14 +2637,18 @@ Remove the cache (e.g. `rm ~/.zcompdump`).
 
 
     https://github.com/jhawthorn/fzy
-    https://github.com/sharkdp/fd     https://mike.place/2017/fzf-fd/
 
-            Alternative to fzf and find.
+            Alternative to fzf.
+
+    https://github.com/sharkdp/fd
+    https://mike.place/2017/fzf-fd/
+
+            Alternative to `$ find`.
 
 
-https://www.reddit.com/r/linux/comments/21rm3o/what_is_a_useful_linux_tool_that_you_use_that/
-https://www.reddit.com/r/linux/comments/mi80x/give_me_that_one_command_you_wish_you_knew_years/
-https://www.reddit.com/r/linux/comments/389mnk/what_are_your_favourite_not_well_known_cli/
+<https://www.reddit.com/r/linux/comments/21rm3o/what_is_a_useful_linux_tool_that_you_use_that/>
+<https://www.reddit.com/r/linux/comments/mi80x/give_me_that_one_command_you_wish_you_knew_years/>
+<https://www.reddit.com/r/linux/comments/389mnk/what_are_your_favourite_not_well_known_cli/>
 
 
 What is a bitmask and a mask?
