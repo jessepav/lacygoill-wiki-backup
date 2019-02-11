@@ -1,5 +1,7 @@
 On s'est arrêté à la page 84 du pdf / 72 du livre.
 
+    $ awk -f /tmp/awk.awk /tmp/emp.data
+
 # Command-line
 ## How to run an awk program from a file?  (3)
 
@@ -816,7 +818,7 @@ Use the `NR` variable:
 
 ##### same thing, but aligning the names and the pays?
 
-To get more control over the formatting, you would need `printf`:
+To get more control over the formatting, you need `printf`:
 
     $ awk '{ printf "total pay for %-8s is %6.2f\n", $1, $2 * $3 }' /tmp/emp.data
     total pay for Beth     is   0.00~
@@ -2082,7 +2084,7 @@ Les commandes `break` et `continue` fonctionnent comme leurs homonymes Vim.
 
 ---
 
-    for (i = 1; i <= NF && $i != ""; ++i)
+    for (i = 1; i <= NF && $i != ""; i++)
         ;
     if (i < NF) print
 
