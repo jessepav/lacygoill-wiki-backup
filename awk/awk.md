@@ -1,7 +1,5 @@
 On s'est arrêté à la page 84 du pdf / 72 du livre.
 
-    $ awk -f /tmp/awk.awk /tmp/emp.data
-
 # Command-line
 ## How to run an awk program from a file?  (3)
 
