@@ -30,10 +30,10 @@ number `y` as reported by `ffprobe`:
 
 ## How to get the original title of a video file (before we renamed it)?  (2)
 
-        $ ffprobe <file> |& grep title
-                         ├┘
-                         └ bashism ⇔ `2>&1 |`
-                           works in zsh too
+    $ ffprobe <file> |& grep title
+                     ├┘
+                     └ bashism ⇔ `2>&1 |`
+                       works in zsh too
 
 I think the reason  why you need to redirect the standard error  to the pipe, is
 because `ffprobe` uses its standard error for its output.
