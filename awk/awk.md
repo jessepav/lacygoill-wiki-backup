@@ -2895,49 +2895,43 @@ On peut décomposer une action `if`, `for`, `while` en plaçant un newline:
 
 ## Opérateurs
 
-Il existe 5 petits ensembles d'opérateurs:
+When  operators of  equal precedence  are used  together, the  leftmost operator
+groups  first,  except  for  the  assignment,  conditional,  and  exponentiation
+operators, which group in the opposite order (right to left).
 
-    ┌──────────────────────────┬───────────┐
-    │         ensemble         │ éléments  │
-    ├──────────────────────────┼───────────┤
-    │ groupage                 │ ()        │    Le groupage permet de donner la priorité à une opération
-    │                          │           │    arbitraire.
-    │ champs                   │ $         │
-    │                          │           │
-    │ concaténation            │ implicite │
-    │                          │           │
-    │ appartenance à une array │ in        │
-    │                          │           │
-    │ conditionnel             │ ?:        │
-    └──────────────────────────┴───────────┘
+---
 
-... et 6 grands:
+Operators in order of highest to lowest precedence:
 
-    ┌───────────────────────────────┬──────────────────────┐
-    │           ensemble            │       éléments       │
-    ├───────────────────────────────┼──────────────────────┤
-    │ incrémentation/décrémentation │ ++ --                │
-    │                               │                      │
-    │ arithmétique                  │ + - * / % ^          │
-    │                               │                      │
-    │ comparaison                   │ < <= == != >= > ~ !~ │
-    │                               │                      │
-    │ logique                       │ ! && ||              │── Ordre de priorité:    ! > && > ||
-    │                               │                      │
-    │ affectation                   │ = += -= *= /= %= ^=  │
-    │                               │                      │
-    │ expression régulière          │ ()  []  ?*+  ∅  |    │
-    └───────────────────────────────┴──────────────────────┘
-                                                |
-                                                |
+    ()                         Grouping
+    $ Field                    Reference
+    ++ --                      Increment, decrement
+    ^                          Exponentiation
+    +-!                        Unary plus, minus, logical “not.”
 
-                        Ordre de priorité:  () > [] > ?*+ > ∅ > |
-                                            │    │    │     │
-                                            │    │    │     │   └ alternation
-                                            │    │    │     └ concaténation
-                                            │    │    └ répétition
-                                            │    └ collection
-                                            └ groupage + capture
+    */%                        Multiplication, division, remainder
+    +-                         Addition, subtraction
+    ∅                          String concatenation
+    < <= == != > >= >> | |&    Relational and redirection
+    ~ !~                       Matching, nonmatching
+
+    in                         Array membership
+    &&                         Logical “and.”
+    ||                         Logical “or.”
+    ?:                         Conditional
+    = += -= *= /= %= ^=        Assignment
+
+Grouping allows you to give the priority to an arbitrary operator.
+
+---
+
+Regex operator precedence order:
+
+    ()     grouping + capture
+    []     collection
+    ?*+    repetition
+    ∅      concatenation
+    |      alternation
 
 ---
 
@@ -2978,7 +2972,7 @@ Matche 'a' ou 'ab', car on répète (`?`) puis on concatène.
 Matche 'ab' ou '' , car on concatène puis on répète
 
 
-Dans une  expression régulière ou  non, pour donner  la priorité à  un opérateur
+Dans une expression – régulière ou non  – pour donner la priorité à un opérateur
 arbitraire, il faut utiliser des parenthèses (opérateur de groupage).
 
 
