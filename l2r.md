@@ -3,39 +3,39 @@
 
 1. Look at the title page and the preface.
 
-    Read each quickly.
-    Note especially  the subtitles or other  indications of the scope  or aim of
-    the book or of the author's special angle on his subject.
-    Before completing this step you should have a good idea of the subject, and,
-    you may pause for a moment to  place the book in the appropriate category in
-    your mind.
-    What pigeonhole that already contains other books does this one belong in?
+Read each quickly.
+Note especially the  subtitles or other indications  of the scope or  aim of the
+book or of the author's special angle on his subject.
+Before completing this step you should have a good idea of the subject, and, you
+may pause  for a moment to  place the book  in the appropriate category  in your
+mind.
+What pigeonhole that already contains other books does this one belong in?
 
 2. Study the table of contents to obtain a general sense of the book's
    structure; use it as you would a road map before taking a trip.
 
-   It  used  to be  a  common  practice,  especially  in expository  works,  but
-   sometimes even  in novels and poems,  to write very full  tables of contents,
-   with the chapters or parts broken  down into many subtitles indicative of the
-   topics covered.
-   Such summaries are no longer common,  although occasionally you do still come
-   across an **analytical** table of contents.
+It used to  be a common practice, especially in  expository works, but sometimes
+even  in novels  and poems,  to write  very full  tables of  contents, with  the
+chapters  or parts  broken down  into many  subtitles indicative  of the  topics
+covered.
+Such summaries  are no longer  common, although  occasionally you do  still come
+across an **analytical** table of contents.
 
 3. Check the index if the book has one.
 
-   Make a  quick estimate of  the range  of topics covered  and of the  kinds of
-   books and authors referred to.
-   When you  see terms listed that  seem crucial, look  up at least some  of the
-   passages cited.
-   The passages  you read may  contain the  crux - the  point on which  the book
-   hinges - or the new departure which attitude.
+Make a quick estimate  of the range of topics covered and of  the kinds of books
+and authors referred to.
+When  you see  terms listed  that seem  crucial, look  up at  least some  of the
+passages cited.
+The passages you read may contain the crux  – the point on which the book hinges
+– or the new departure which attitude.
 
 4. Read the publisher's blurb.
 
-   It is not uncommon for authors to  try to summarize as accurately as they can
-   the main points in their book.
-   And if the blurb doesn't say anything  important, maybe the book does not say
-   anything of importance either.
+It is not uncommon for authors to try to summarize as accurately as they can the
+main points in their book.
+And if  the blurb doesn't  say anything important, maybe  the book does  not say
+anything of importance either.
 
 
 Upon completing these  first four steps you may already  have enough information
@@ -47,16 +47,16 @@ If you do not do so, you are now ready to skim the book, properly speaking.
 
 5. Look now at the chapters that seem to be pivotal to its argument.
 
-   If these chapters have summary statements  in their opening or closing pages,
-   as they often do, read these statements carefully.
+If these chapters have summary statements  in their opening or closing pages, as
+they often do, read these statements carefully.
 
 6. Turn the pages, reading a paragraph or two, sometimes several pages in
    sequence, never more than that.
 
-   Always look for signs of the main contention.
-   Read the last two or three pages at the end of the book.
-   Few authors are  able to resist the  temptation to sum up what  they think is
-   new and important about their work in these pages.
+Always look for signs of the main contention.
+Read the last two or three pages at the end of the book.
+Few authors are able  to resist the temptation to sum up what  they think is new
+and important about their work in these pages.
 
 ## Superficial Reading
 
@@ -68,8 +68,8 @@ In most cases, you will not be able to puzzle the thing out by sticking to it.
 You will have a much better chance  of understanding it on a second reading, but
 that requires you to have read the book at least once.
 
-What you understand by reading the book through  to the end - even if it is only
-fifty percent or less - will help  you when you make the additional effort later
+What you understand by reading the book through  to the end – even if it is only
+fifty percent or less – will help  you when you make the additional effort later
 to go back to the places you passed by on your first reading.
 
 Most of us were taught to pay attention to the things we did not understand.
@@ -153,17 +153,17 @@ to answer them is seldom given.
 # Misc
 ## Purpose of this section
 
-        1. note some text you find difficult to understand
+   1. note some text you find difficult to understand
 
-        2. study it until you understand it
+   2. study it until you understand it
 
-        3. note what are its characteristics:
+   3. note what are its characteristics:
 
-                What is different  about it, that none of  your existing methods
-                helped you to understand it quickly?
+       What is different  about it, that none of  your existing methods
+       helped you to understand it quickly?
 
-        4. find a method to understand quickly all texts sharing the same
-           characteristics
+   4. find a method to understand quickly all texts sharing the same
+      characteristics
 
 Note that you shouldn't reverse the order  of the second and third step, because
 in practice,  understanding the characterestics of  a difficult text is  part of
@@ -171,31 +171,29 @@ the process of understanding it entirely.
 
 This 4-point method is a meta-method.
 That is a method to find a method to solve a problem: here, understanding a text
-quickly.
-Review it from time to time to improve it (if possible).
+quickly; review it from time to time to improve it (if possible).
 
 You could make the following generalisation:
 
-        1. note a source of frustration
+   1. note a source of frustration
 
-        2. find a solution to make it disappear
+   2. find a solution to make it disappear
 
-        3. note what characterize the frustration
+   3. note what characterizes the frustration
 
-        4. find a method to  make disappear quickly all frustrations sharing the
-           same characteristics
+   4. find a method to  make disappear quickly all frustrations sharing the same
+      characteristics
 
-                             vvvv
-This generalisation is NOT a meta-meta-method: it's still a meta-method.
-However, it applies to more problems than simply understanding difficult sentences.
+This generalisation is *not* a *meta*-meta-method: it's still a meta-method.
+However,  it  applies  to  more problems  than  simply  understanding  difficult
+sentences.
 
 ## Invariants
 
 When faced with a long text, try  to find invariants, that is propositions which
 are repeated, or which look almost the same (vary little).
 From those  invariants, you can easily  extract the structure on  which the text
-relies.
-Usually, with the structure, the text is much easier to understand.
+relies; usually, with this structure, the text is much easier to understand.
 
 Look at `:h try-conditionals`, just below the big example.
 Here are the invariants that you can find there:
@@ -224,6 +222,7 @@ And here's the structure you can extract:
 
 A  long sentence  is  often  too difficult  to  understand,  when two  logically
 connected parts are separated by a long text.
+
 From `:h try-conditionals`:
 
 >    When  a ":break"  or  ":continue"  for a  ":while"  loop enclosing  the
@@ -245,7 +244,7 @@ But they are separated by:
 >    conditional or when a ":return" or ":finish"
 
 Don't waste your time reading this kind of sentence over and over again.
-Reformulate it immediately to make the logical parts DIRECTLY connected.
+Reformulate it immediately to make the logical parts *directly* connected.
 Example:
 
 >    When a `:break`  [1] is encountered in the finally  clause, the rest of
@@ -284,7 +283,7 @@ of items:
 >    [1]  or `:continue`  for  a  `:while` loop  enclosing  the complete  try
 >    conditional or when a `:return` or `:finish` ...
 >
->    [2] or an earlier ‘bcfr’ from  the try block or a catch clause
+>    [2] or an earlier BCFR from  the try block or a catch clause
 
 Here, we've replaced:
 
@@ -292,7 +291,7 @@ Here, we've replaced:
 
 With:
 
-        ‘bcfr’
+        BCFR
 
 It works really well when this list of items is often repeated in the text.
 Use  some quotation  marks around  the  acronym to  make  it stand  out, and  to

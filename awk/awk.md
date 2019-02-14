@@ -2895,9 +2895,44 @@ On peut décomposer une action `if`, `for`, `while` en plaçant un newline:
 
 ## Opérateurs
 
-When  operators of  equal precedence  are used  together, the  leftmost operator
-groups  first,  except  for  the  assignment,  conditional,  and  exponentiation
-operators, which group in the opposite order (right to left).
+How do consecutive operators of equal precedence group?
+
+The leftmost operator groups first,  except for the assignment, conditional, and
+exponentiation operators, which group in the opposite order (right to left).
+
+    $ awk 'END { print 2^3^4 }' /dev/null
+    2417851639229258349412352~
+
+Here, we can see that:
+
+    2 ^ 3 ^ 4
+    ⇔
+    2 ^ (3 ^ 4)
+    ⇔
+    2 ^ 81
+
+If the `^` operator grouped from left to right:
+
+    2 ^ 3 ^ 4
+    ⇔
+    (2 ^ 3) ^ 4
+    ⇔
+    8 ^ 4
+    ⇔
+    4096
+
+---
+
+L'associativité  à  droite  des  opérateurs  d'affectation  permet  le  chaînage
+d'affectations:
+
+    var1 = var2 = val    ⇔    var1 = (var2 = val)
+    │       │
+    │       └ expression retournant `val`,
+    │         et affectant `val` à `var2`
+    │
+    └ expression retournant `val`, et affectant `val` à `var1`
+
 
 ---
 
@@ -2907,17 +2942,17 @@ Operators in order of highest to lowest precedence:
     $ Field                    Reference
     ++ --                      Increment, decrement
     ^                          Exponentiation
-    +-!                        Unary plus, minus, logical “not.”
+    !+-                        Logical “not”, unary plus, unary minus
 
     */%                        Multiplication, division, remainder
     +-                         Addition, subtraction
-    ∅                          String concatenation
+    ∅                          Concatenation of strings
     < <= == != > >= >> | |&    Relational and redirection
-    ~ !~                       Matching, nonmatching
+    ~ !~                       Regex (non)matching
 
     in                         Array membership
-    &&                         Logical “and.”
-    ||                         Logical “or.”
+    &&                         Logical “and”
+    ||                         Logical “or”
     ?:                         Conditional
     = += -= *= /= %= ^=        Assignment
 
@@ -2951,17 +2986,6 @@ Ces derniers sont associatifs à droite.
 Ex:
 
     2^3^4    =    2^(3^4)
-
-
-L'associativité  à  droite  des  opérateurs  d'affectation  permet  le  chaînage
-d'affectations:
-
-    var1 = var2 = val    ⇔    var1 = (var2 = val)
-    │       │
-    │       └ expression retournant `val`,
-    │         et affectant `val` à `var2`
-    │
-    └ expression retournant `val`, et affectant `val` à `var1`
 
 ---
 
@@ -3008,8 +3032,8 @@ suffixe.
 
 En effet:
 
-        `expr1` FAUX ⇒ `expr1 && expr2` FAUX (peu importe la valeur de vérité de `expr2`)
-        `expr3` VRAI ⇒ `expr3 || expr4` VRAI (" `expr4`)
+   - `expr1` FAUX ⇒ `expr1 && expr2` FAUX (peu importe la valeur de vérité de `expr2`)
+   - `expr3` VRAI ⇒ `expr3 || expr4` VRAI (" `expr4`)
 
 
 L'évaluation d'une  expression logique se fait  de la gauche vers  la droite, et
