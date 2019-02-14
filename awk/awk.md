@@ -1044,16 +1044,18 @@ Use `length()`, but without any argument.
 
 ##
 # Operators
-## How do consecutive operators of equal precedence group?
+## How are consecutive operators of equal precedence grouped?
 
-The leftmost operator groups first:
+Most operators are *left*-associative:
 
     7-4+2
     ⇔
     (7-4)+2
+     ├─┘
+     └ 7 and 4 are grouped first (not 4 and 2)
 
-except  for the  assignment,  conditional, and  exponentiation operators,  which
-group in the opposite order (right to left).
+except for the assignment, conditional,  and exponentiation operators, which are
+*right*-associative.
 
 Example:
 
@@ -1068,7 +1070,7 @@ Here, we can see that:
     ⇔
     2 ^ 81
 
-If the `^` operator grouped from left to right:
+If `^` was left-associative:
 
     2 ^ 3 ^ 4
     ⇔
@@ -1085,29 +1087,29 @@ The priority of an arbitrary operator.
 ##
 ## Which mnemonic device can I use to remember the operators in decreasing order of precedence?
 
-GRIEL MACRR ALLCA
+GRIEL MACRR ALLTA
 
 ### What are they?
 
-    ┌─────────────────────────┬────────────────────────────────────────┐
-    │ ()                      │ Grouping                               │
-    │ $ Field                 │ Reference                              │
-    │ ++ --                   │ Increment, decrement                   │
-    │ ^                       │ Exponentiation                         │
-    │ !+-                     │ Logical “not”, unary plus, unary minus │
-    │                         │                                        │
-    │ */%                     │ Multiplication, division, remainder    │
-    │ +-                      │ Addition, subtraction                  │
-    │                         │ Concatenation                          │
-    │ < <= == != > >= >> | |& │ Relational and redirection             │
-    │ ~ !~                    │ Regex (non)matching                    │
-    │                         │                                        │
-    │ in                      │ Array membership                       │
-    │ &&                      │ Logical “and”                          │
-    │ ||                      │ Logical “or”                           │
-    │ ?:                      │ Conditional                            │
-    │ = += -= *= /= %= ^=     │ Assignment                             │
-    └─────────────────────────┴────────────────────────────────────────┘
+    ┌─────────────────────────┬──────────────────────────────────────────────┐
+    │ ()                      │ Grouping                                     │
+    │ $ Field                 │ Reference                                    │
+    │ ++ --                   │ Increment, decrement                         │
+    │ ^                       │ Exponentiation                               │
+    │ !+-                     │ Logical “not”, unary plus, unary minus       │
+    │                         │                                              │
+    │ */%                     │ Multiplication, division, modulo (remainder) │
+    │ +-                      │ Addition, subtraction                        │
+    │                         │ Concatenation                                │
+    │ < <= == != > >= >> | |& │ Relational and redirection                   │
+    │ ~ !~                    │ Regex (non)matching                          │
+    │                         │                                              │
+    │ in                      │ Array membership                             │
+    │ &&                      │ Logical “and”                                │
+    │ ||                      │ Logical “or”                                 │
+    │ ?:                      │ Ternary conditional                          │
+    │ = += -= *= /= %= ^=     │ Assignment                                   │
+    └─────────────────────────┴──────────────────────────────────────────────┘
 
 ## Which mnemonic device can I use to remember the regex operators in decreasing order of precedence?
 
@@ -1128,18 +1130,24 @@ GCRCA
     └─────┴────────────────────┘
 
 ##
-## ?
+## How to simplify multiple assignments, all of which have the same rhs?
 
-What does grouping
-L'associativité  à  droite  des  opérateurs  d'affectation  permet  le  chaînage
-d'affectations:
+    var1 = val
+    var2 = val
 
-    var1 = var2 = val    ⇔    var1 = (var2 = val)
-    │       │
-    │       └ expression retournant `val`,
-    │         et affectant `val` à `var2`
-    │
-    └ expression retournant `val`, et affectant `val` à `var1`
+    ⇔
+
+           ┌ expression returning `val`, and assigning it to `var2`
+           ├────────┐
+    var1 = var2 = val
+    ├───────────────┘
+    └ expression returning `val`, and assigning it to `var1`
+
+This works, because the assignment operator is *right*-associative:
+
+    var1 = var2 = val
+    ⇔
+    var1 = (var2 = val)
 
 ##
 ##
