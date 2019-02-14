@@ -188,15 +188,15 @@ This generalisation is *not* a *meta*-meta-method: it's still a meta-method.
 However,  it  applies  to  more problems  than  simply  understanding  difficult
 sentences.
 
-## Invariants
+## Repeatitions
 
-When faced with a long text, try  to find invariants, that is propositions which
+When faced with a long text, try to find repetitions, that is propositions which
 are repeated, or which look almost the same (vary little).
-From those  invariants, you can easily  extract the structure on  which the text
+From those repetitions,  you can easily extract the structure  on which the text
 relies; usually, with this structure, the text is much easier to understand.
 
 Look at `:h try-conditionals`, just below the big example.
-Here are the invariants that you can find there:
+Here are the repetitions that you can find there:
 
    - When no exception is thrown during execution of the try block
 
@@ -361,10 +361,10 @@ Thus, it would be better to reformulate it in one of the following ways:
 
         (1)
 
-                                        vvvv
+>                                         vvvvv
 >     the system menu is loaded, and only later, the gvimrc is sourced,
 >     which is too late to disable the menu
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         (2)
 
