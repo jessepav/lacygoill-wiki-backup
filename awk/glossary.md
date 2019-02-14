@@ -1,3 +1,47 @@
+# a
+## associativity
+
+Property of  an operator which determines  how operators of the  same precedence
+are grouped in the absence of parentheses.
+If an operand is both preceded and followed by operators (for example, `^ 3 ^`),
+and those operators have equal precedence, then the operand may be used as input
+to two different operations.
+The choice  of which operations  to apply the operand  to, is determined  by the
+*associativity* of the operators.
+
+### What type of associativity can an operator have?
+
+Operators may be:
+
+   - associative       (the operations can be grouped arbitrarily)
+   - left-associative  (the operations are grouped from the left)
+   - right-associative (the operations are grouped from the right)
+
+   - non-associative
+     (operations cannot be chained,
+     often because the output type is incompatible with the input types)
+
+The associativity and precedence of an operator is a part of the definition of a
+programming language;  different languages may have  different associativity and
+precedence for the same type of operator.
+
+### Why must operators with the same precedence have the same associativity?
+
+To prevent  cases where operands would  be associated with two  operators, or no
+operator at all.
+
+---
+
+Suppose that `/` was right-associative, while `*` was still left-associative.
+In which order should the operators in this expression be processed?
+
+    1 * 2 / 3
+
+There would be ambiguity.
+That's why `*` and `/` which have  the same precedence, can *not* have different
+associativities.
+
+##
 # c
 ## constant
 
