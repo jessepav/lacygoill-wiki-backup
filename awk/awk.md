@@ -1087,7 +1087,7 @@ The priority of an arbitrary operator.
 ##
 ## Which mnemonic device can I use to remember the operators in decreasing order of precedence?
 
-GRIEL MACRR ALLTA
+GRI ELMACR RAL LTA
 
 ### What are they?
 
@@ -1095,17 +1095,18 @@ GRIEL MACRR ALLTA
     │ ()                      │ Grouping                                     │
     │ $ Field                 │ Reference                                    │
     │ ++ --                   │ Increment, decrement                         │
+    │                         │                                              │
     │ ^                       │ Exponentiation                               │
     │ !+-                     │ Logical “not”, unary plus, unary minus       │
-    │                         │                                              │
     │ */%                     │ Multiplication, division, modulo (remainder) │
     │ +-                      │ Addition, subtraction                        │
     │                         │ Concatenation                                │
     │ < <= == != > >= >> | |& │ Relational and redirection                   │
-    │ ~ !~                    │ Regex (non)matching                          │
     │                         │                                              │
+    │ ~ !~                    │ Regex (non)matching                          │
     │ in                      │ Array membership                             │
     │ &&                      │ Logical “and”                                │
+    │                         │                                              │
     │ ||                      │ Logical “or”                                 │
     │ ?:                      │ Ternary conditional                          │
     │ = += -= *= /= %= ^=     │ Assignment                                   │
@@ -1113,21 +1114,27 @@ GRIEL MACRR ALLTA
 
 ## Which mnemonic device can I use to remember the regex operators in decreasing order of precedence?
 
-GCRCA
+GQPSC ANCA EB E
 
 ### What are they?
 
-    ┌─────┬────────────────────┐
-    │ ()  │ Grouping + capture │
-    ├─────┼────────────────────┤
-    │ []  │ Collection         │
-    ├─────┼────────────────────┤
-    │ ?*+ │ Repetition         │
-    ├─────┼────────────────────┤
-    │     │ Concatenation      │
-    ├─────┼────────────────────┤
-    │ |   │ Alternation        │
-    └─────┴────────────────────┘
+    ┌────────┬─────────────────────────┐
+    │ ()     │ Grouping + capture      │
+    │ ?      │ Question mark           │
+    │ +      │ Plus                    │
+    │ *      │ Star                    │
+    │        │ Concatenation           │
+    │        │                         │
+    │ |      │ Alternation             │
+    │ [^abc] │ Negated character class │
+    │ [abc]  │ Character class         │
+    │ .      │ Any character           │
+    │        │                         │
+    │ $      │ End of string           │
+    │ ^      │ Beginning of string     │
+    │        │                         │
+    │ \c     │ Escape sequence         │
+    └────────┴─────────────────────────┘
 
 ##
 ## How to simplify multiple assignments, all of which have the same rhs?
