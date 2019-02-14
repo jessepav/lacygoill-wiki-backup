@@ -83,8 +83,8 @@ instead of helping it.
 
 ## On Reading Speeds
 
-A good speed reading course should therefore teach you to read at many different
-speeds, not just one speed that is faster than anything you can manage now.
+A good speed reading  course should teach you to read  at many different speeds,
+not just one speed that is faster than anything you can manage now.
 It should enable you to vary your  rate of reading in accordance with the nature
 and complexity of the material.
 
@@ -188,7 +188,7 @@ This generalisation is *not* a *meta*-meta-method: it's still a meta-method.
 However,  it  applies  to  more problems  than  simply  understanding  difficult
 sentences.
 
-## Repeatitions
+## Repetitions
 
 When faced with a long text, try to find repetitions, that is propositions which
 are repeated, or which look almost the same (vary little).

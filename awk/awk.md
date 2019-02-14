@@ -1043,6 +1043,104 @@ Use `length()`, but without any argument.
     4~
 
 ##
+# Operators
+## How do consecutive operators of equal precedence group?
+
+The leftmost operator groups first:
+
+    7-4+2
+    ⇔
+    (7-4)+2
+
+except  for the  assignment,  conditional, and  exponentiation operators,  which
+group in the opposite order (right to left).
+
+Example:
+
+    $ awk 'END { print 2^3^4 }' /dev/null
+    2417851639229258349412352~
+
+Here, we can see that:
+
+    2 ^ 3 ^ 4
+    ⇔
+    2 ^ (3 ^ 4)
+    ⇔
+    2 ^ 81
+
+If the `^` operator grouped from left to right:
+
+    2 ^ 3 ^ 4
+    ⇔
+    (2 ^ 3) ^ 4
+    ⇔
+    8 ^ 4
+    ⇔
+    4096
+
+## What does grouping allow me to change?
+
+The priority of an arbitrary operator.
+
+##
+## Which mnemonic device can I use to remember the operators in decreasing order of precedence?
+
+GRIEL MACRR ALLCA
+
+### What are they?
+
+    ┌─────────────────────────┬────────────────────────────────────────┐
+    │ ()                      │ Grouping                               │
+    │ $ Field                 │ Reference                              │
+    │ ++ --                   │ Increment, decrement                   │
+    │ ^                       │ Exponentiation                         │
+    │ !+-                     │ Logical “not”, unary plus, unary minus │
+    │                         │                                        │
+    │ */%                     │ Multiplication, division, remainder    │
+    │ +-                      │ Addition, subtraction                  │
+    │                         │ Concatenation                          │
+    │ < <= == != > >= >> | |& │ Relational and redirection             │
+    │ ~ !~                    │ Regex (non)matching                    │
+    │                         │                                        │
+    │ in                      │ Array membership                       │
+    │ &&                      │ Logical “and”                          │
+    │ ||                      │ Logical “or”                           │
+    │ ?:                      │ Conditional                            │
+    │ = += -= *= /= %= ^=     │ Assignment                             │
+    └─────────────────────────┴────────────────────────────────────────┘
+
+## Which mnemonic device can I use to remember the regex operators in decreasing order of precedence?
+
+GCRCA
+
+### What are they?
+
+    ┌─────┬────────────────────┐
+    │ ()  │ Grouping + capture │
+    ├─────┼────────────────────┤
+    │ []  │ Collection         │
+    ├─────┼────────────────────┤
+    │ ?*+ │ Repetition         │
+    ├─────┼────────────────────┤
+    │     │ Concatenation      │
+    ├─────┼────────────────────┤
+    │ |   │ Alternation        │
+    └─────┴────────────────────┘
+
+##
+## ?
+
+What does grouping
+L'associativité  à  droite  des  opérateurs  d'affectation  permet  le  chaînage
+d'affectations:
+
+    var1 = var2 = val    ⇔    var1 = (var2 = val)
+    │       │
+    │       └ expression retournant `val`,
+    │         et affectant `val` à `var2`
+    │
+    └ expression retournant `val`, et affectant `val` à `var1`
+
 ##
 ##
 # Affichage
@@ -2894,100 +2992,6 @@ On peut décomposer une action `if`, `for`, `while` en plaçant un newline:
     └────────────────────────────────────────────────┴───────────────────────────────┘
 
 ## Opérateurs
-
-How do consecutive operators of equal precedence group?
-
-The leftmost operator groups first,  except for the assignment, conditional, and
-exponentiation operators, which group in the opposite order (right to left).
-
-    $ awk 'END { print 2^3^4 }' /dev/null
-    2417851639229258349412352~
-
-Here, we can see that:
-
-    2 ^ 3 ^ 4
-    ⇔
-    2 ^ (3 ^ 4)
-    ⇔
-    2 ^ 81
-
-If the `^` operator grouped from left to right:
-
-    2 ^ 3 ^ 4
-    ⇔
-    (2 ^ 3) ^ 4
-    ⇔
-    8 ^ 4
-    ⇔
-    4096
-
----
-
-L'associativité  à  droite  des  opérateurs  d'affectation  permet  le  chaînage
-d'affectations:
-
-    var1 = var2 = val    ⇔    var1 = (var2 = val)
-    │       │
-    │       └ expression retournant `val`,
-    │         et affectant `val` à `var2`
-    │
-    └ expression retournant `val`, et affectant `val` à `var1`
-
-
----
-
-Operators in order of highest to lowest precedence:
-
-    ()                         Grouping
-    $ Field                    Reference
-    ++ --                      Increment, decrement
-    ^                          Exponentiation
-    !+-                        Logical “not”, unary plus, unary minus
-
-    */%                        Multiplication, division, remainder
-    +-                         Addition, subtraction
-    ∅                          Concatenation of strings
-    < <= == != > >= >> | |&    Relational and redirection
-    ~ !~                       Regex (non)matching
-
-    in                         Array membership
-    &&                         Logical “and”
-    ||                         Logical “or”
-    ?:                         Conditional
-    = += -= *= /= %= ^=        Assignment
-
-Grouping allows you to give the priority to an arbitrary operator.
-
----
-
-Regex operator precedence order:
-
-    ()     grouping + capture
-    []     collection
-    ?*+    repetition
-    ∅      concatenation
-    |      alternation
-
----
-
-    7-4+2    =    (7-4)+2
-
-Tous les  opérateurs sont associatifs  à gauche,  ce qui signifie  que lorsqu'il
-faut évaluer une expression contenant 2 opérateurs de même priorité, l'opérateur
-de gauche est traité en premier.
-
-Il existe 3 types d'opérateurs qui font exception à cette règle:
-
-   - affectation
-   - conditionnel
-   - exponentiel
-
-Ces derniers sont associatifs à droite.
-Ex:
-
-    2^3^4    =    2^(3^4)
-
----
 
     ab?
     (ab)?
