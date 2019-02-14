@@ -100,29 +100,29 @@ difficult and should be read very slowly.
 
 ## Fixations and Regressions
 
-Films of eye movements show that the eyes of young or untrained readers "fixate"
+Films of eye movements  show that the eyes of young  or untrained readers fixate
 as many as five or six times in the course of each line that is read.
 The eye is blind while it moves; it can only see when it stops.
 Thus single words or  at the most two-word or three-word  phrases are being read
 at a time, in jumps across the line.
 Even worse than that,  the eyes of incompetent readers regress  as often as once
-every  two or  three  lines -  that  is,  they return  to  phrases or  sentences
+every  two or  three  lines –  that  is,  they return  to  phrases or  sentences
 previously read.
 
 All of these habits are wasteful and cut down reading speed.
-They are wasteful because the mind, unlike the eye, does not need to "read" only
-a word or short phrase at a time.
-The mind can  grasp a sentence or even  a paragraph at a "glance" -  if only the
-eyes will provide it with the information it needs.
+They are wasteful because the mind, unlike the eye, does not need to read only a
+word or short phrase at a time.
+The mind can grasp a sentence or even a paragraph at a glance – if only the eyes
+will provide it with the information it needs.
 Thus,  to increase  your reading  speed,  your primary  task is  to correct  the
 fixations and regressions.
 Once it is done, you'll  be able to read as fast as your  mind will let you, not
 as slow as your eyes make you.
 
 To break eye fixations, place your thumb and first two fingers together.
-Sweep this "pointer" across  a line, a little faster than  it is comfortable for
-your eyes to move (so as to use it as a timer).
-Force yourself to keep up with your hand.
+Sweep this pointer across  a line, a little faster than  it is comfortable for
+your eyes to move (so  as to use it as a timer); force  yourself to keep up with
+your hand.
 You will very soon be able to read the words as you follow your hand.
 Keep practicing  this, and keep increasing  the speed at which  your hand moves,
 and before you know it you will have doubled or trebled your reading speed.
@@ -143,8 +143,8 @@ when that is properly understood.
 Comprehension  involves  much more  than  merely  being  able to  answer  simple
 questions of fact about a text.
 This  limited kind  of comprehension,  in fact,  is nothing  but the  elementary
-ability to  answer the question  about a  book or other  reading material: "What
-does it say?".
+ability to  answer the question  about a  book or other  reading material: “What
+does it say?”.
 The many further questions that, when correctly answered, imply higher levels of
 comprehension are seldom asked in speed  reading courses, and instruction in how
 to answer them is seldom given.
@@ -217,6 +217,7 @@ And here's the structure you can extract:
    - exception in catch clause
    - exception in finally clause
 
+##
 ## Too long sentence
 ### Bring connected parts closer
 
@@ -287,16 +288,17 @@ of items:
 
 Here, we've replaced:
 
-        ":break", ":continue", ":return",  or ":finish"
+>    ":break", ":continue", ":return",  or ":finish"
 
 With:
 
-        BCFR
+>    BCFR
 
 It works really well when this list of items is often repeated in the text.
 Use  some quotation  marks around  the  acronym to  make  it stand  out, and  to
 indicate it's not an existing word.
 
+##
 ## Missing implicit info
 ### Reorder events in chronological order
 
@@ -362,21 +364,21 @@ Thus, it would be better to reformulate it in one of the following ways:
                                         vvvv
 >     the system menu is loaded, and only later, the gvimrc is sourced,
 >     which is too late to disable the menu
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         (2)
 
->       the gvimrc is sourced after the menu  has been loaded, so it can't be
->       used to disable the latter
+>     the gvimrc is sourced after the menu  has been loaded, so it can't be
+>     used to disable the latter
 
 Even if the last reformulation mentions the events in a non-chronological order,
 it's still easier to understand than the original one.
 Indeed, after having understood the original sentence, thanks to the first reformulation,
 you should have understood its real purpose; something was implicit:
 
->       you can't use gvimrc to disable the menu because it's sourced too late
+>     you can't use gvimrc to disable the menu because it's sourced too late
 
 In the last reformulation, this idea isn't implicit anymore but explicit:
 
->       ... so it can't be used to disable the latter
+>     ... so it can't be used to disable the latter
 
