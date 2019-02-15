@@ -1,14 +1,15 @@
 # How to
-## Get the list of processes opening the shared library `/lib/x86_64-linux-gnu/libcrypto.so.1.0.0`?
+## Get the list of processes opening
+### the shared library `/lib/x86_64-linux-gnu/libcrypto.so.1.0.0`?
 
-        $ lsof /lib/x86_64-linux-gnu/libcrypto.so.1.0.0
+    $ lsof /lib/x86_64-linux-gnu/libcrypto.so.1.0.0
 
 Useful if you've updated a library and you want all running processes to use the new one.
 To do so, you need to know which running processes are still opening the old one.
 
-## Get the list of processes opening files in `~/.vim`
+### files in `~/.vim`
 
-        $ lsof ~/.vim/**/*
+    $ lsof ~/.vim/**/*
 
 Note that the expansion of `**/*` is done by the shell prior to invoking `lsof`.
 Also, `**`, which here is understood as a recursive wildcard, is not interpreted
@@ -16,97 +17,98 @@ as such by all shells.
 It depends on the shell and its configuration.
 For example, bash needs this setting:
 
-        shopt -s globstar
+    shopt -s globstar
 
 ##
-## Get the list of files opened by the single Vim process?
+## Get the list of
+### files opened by the single Vim process?
 
-        $ lsof -p $(pidof vim)
-                    ├───────┘
-                    └ make sure you only have one Vim process running
+    $ lsof -p $(pidof vim)
+                ├───────┘
+                └ make sure you only have one Vim process running
 
-## Get the list of files opened by the (many) firefox processes?
+### files opened by all the firefox processes?
 
-        $ lsof -p $(pidof firefox | tr ' ' ',')
+    $ lsof -p $(pidof firefox | tr ' ' ',')
 
-## Get the list of file descriptors created for the Vim process?
+### file descriptors created for the Vim process?
 
-        $ ls [-l] /proc/$(pidof vim)/fd
-               │
-               └ to see what file they point to
+    $ ls [-l] /proc/$(pidof vim)/fd
+           │
+           └ to see what file they point to
 
-## Get the list of files opened for the root user?
+### files opened for the root user?
 
-        $ lsof -u root
+    $ lsof -u root
 
 ##
-## Get the list of opened sockets?
+### opened sockets?
 
-        $ lsof -i
+    $ lsof -i
 
-## Get the list of opened Unix domain sockets?
+### opened Unix domain sockets?
 
-        $ lsof -i -U
+    $ lsof -i -U
 
-## Get the list of sockets listening on port 6667?
+### sockets listening on port 6667?
 
-        $ lsof -i :6667
-                  │
-                  └ port specification leader
+    $ lsof -i :6667
+              │
+              └ port specification leader
 
-## Get the list of sockets connected to the ipv4 1.2.3.4?  to the ipv6 2001:41d0:...?
+### sockets connected to the ipv4 1.2.3.4?  to the ipv6 2001:41d0:...?
 
-                  ┌ host specification leader
-                  │
-        $ lsof -i @1.2.3.4
-        $ lsof -i '@[2001:41d0:...]'
-                  │
-                  └ to prevent zsh from interpreting the brackets as a collection:
+              ┌ host specification leader
+              │
+    $ lsof -i @1.2.3.4
+    $ lsof -i '@[2001:41d0:...]'
+              │
+              └ to prevent zsh from interpreting the brackets as a collection:
 
-                      % echo [1]
-                       zsh: no matches found: [1]~
-                       (zsh tried to find a file named 1)~
+                  % echo [1]
+                   zsh: no matches found: [1]~
+                   (zsh tried to find a file named 1)~
 
-## Get the list of sockets using the tcp protocol?  the udp protocol?
+### sockets using the tcp protocol?  the udp protocol?
 
-        $ lsof -i tcp
-        $ lsof -i udp
+    $ lsof -i tcp
+    $ lsof -i udp
 
-## Get the list of ipv4 sockets opened by the process whose pid is `1234`?
+### ipv4 sockets opened by the process whose pid is `1234`?
 
-                    ┌ AND the list selection options
-                    ├┐
-        $ lsof -i 4 -a -p 1234
-               ├──┘    ├─────┘
-               │       └ list selection 2
-               │
-               └ list selection 1
+                ┌ AND the list selection options
+                ├┐
+    $ lsof -i 4 -a -p 1234
+           ├──┘    ├─────┘
+           │       └ list selection 2
+           │
+           └ list selection 1
 
 ###
 ## Get the path to the binary from which the Vim process was started?
 
-        $ lsof -p $(pidof vim) | grep txt
-                                      │
-                                      └ program text (code and data)
+    $ lsof -p $(pidof vim) | grep txt
+                                  │
+                                  └ program text (code and data)
 
 Or simpler:
 
-        $ type vim
+    $ type vim
 
 ## Get the paths to the shared libraries used by the Vim process?
 
-        $ lsof -p $(pidof vim) | grep -E '\.so'
+    $ lsof -p $(pidof vim) | grep -E '\.so'
 
 ## Get the paths to the logfiles used by the WeeChat process?
 
-        $ lsof -p $(pidof weechat) | grep log
+    $ lsof -p $(pidof weechat) | grep log
 
 ##
-## Get the pid, and only the pid, of the process opening 'some_file'?
+## Get the pid, and only the pid, of the process opening `some_file`?
 
-        $ lsof -t some_file
-                │
-                └ terse output with pid only and no header/warning
+    $ lsof -t some_file
+            │
+            └ terse output with pid only and no header/warning
 
 Useful when you need to unmount a  partition, but you can't because some process
 is still accessing a file in it.
@@ -122,40 +124,41 @@ Look for the line where the `FD` column has the `txt` value.
 In the last column.
 
 ##
-## What's the meaning of the numbers `0`, `1`, `2` which sometimes are printed in the FD column?
+## What's the meaning of
+### the numbers `0`, `1`, `2` which sometimes are printed in the FD column?
 
-        0 = stdin
-        1 = stdout
-        2 = stderr
+    0 = stdin
+    1 = stdout
+    2 = stderr
 
-## What's the meaning of the letter right afterwards?
+### the letter right afterwards?
 
 It's the mode in which the file is opened.
 
-## What's the meaning of 'r', 'w' and 'u'?
+### 'r', 'w' and 'u'?
 
-        r = read
-        w = write
-        u = read + write
+    r = read
+    w = write
+    u = read + write
 
-## What's the meaning of `DIR`, `REG`, `CHR`, `unix` in the `TYPE` column?
+### `DIR`, `REG`, `CHR`, `unix` in the `TYPE` column?
 
 It represents the type of the opened file:
 
-          ┌──────┬────────────────────────┐
-          │ DIR  │ directory              │
-          ├──────┼────────────────────────┤
-          │ REG  │ regular file           │
-          ├──────┼────────────────────────┤
-          │ CHR  │ character special file │
-          ├──────┼────────────────────────┤
-          │ unix │ UNIX domain socket     │
-          └──────┴────────────────────────┘
+    ┌──────┬────────────────────────┐
+    │ DIR  │ directory              │
+    ├──────┼────────────────────────┤
+    │ REG  │ regular file           │
+    ├──────┼────────────────────────┤
+    │ CHR  │ character special file │
+    ├──────┼────────────────────────┤
+    │ unix │ UNIX domain socket     │
+    └──────┴────────────────────────┘
 
 For more info, see:
 
-        $ man lsof
-        > OUTPUT
+    $ man lsof
+    /OUTPUT
 
 ##
 ## What's a socket?
@@ -167,16 +170,16 @@ received from the network can be read from the socket.
 
 Analogy:
 
-        machine/host = house
-        data         = mail
-        socket       = mailbox
-                       attached to the house,
-                       and where you can put your outgoing mail as well as receive mail
+    machine/host = house
+    data         = mail
+    socket       = mailbox
+                   attached to the house,
+                   and where you can put your outgoing mail as well as receive mail
 
-Source:
-        https://unix.stackexchange.com/a/193665/289772
-        https://unix.stackexchange.com/a/16323/289772
-        https://unix.stackexchange.com/a/193824/289772
+Sources:
+<https://unix.stackexchange.com/a/193665/289772>
+<https://unix.stackexchange.com/a/16323/289772>
+<https://unix.stackexchange.com/a/193824/289772>
 
 ## What's a Unix domain socket?
 
@@ -210,7 +213,7 @@ The socket is a means of **two way** communication.
 # Misc
 ## What's the meaning of the characters in the name of the command 'lsof'?
 
-        LiSt Open Files
+LiSt Open Files.
 
 ##
 ## Why doesn't `lsof ~/.vim/vimrc` output anything?
@@ -218,10 +221,9 @@ The socket is a means of **two way** communication.
 Vim isn't actually holding the `vimrc` open.
 It's reading it into a swapfile and then holding that file open.
 
-Source:
-    https://unix.stackexchange.com/a/65504/289772
+Source: <https://unix.stackexchange.com/a/65504/289772>
 
-Although, if 'swf' is unset, it doesn't hold any file open, which probably means
-that Vim only cares  about the buffer, and opens the  file only temporarily when
-you write it with `:w` or read it with `:r`.
+Although, if  `'swf'` is unset,  it doesn't hold  any file open,  which probably
+means that Vim only cares about the  buffer, and opens the file only temporarily
+when you write it with `:w` or read it with `:r`.
 

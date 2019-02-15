@@ -1112,7 +1112,7 @@ GRI ELMACR RAL LTA
     │ = += -= *= /= %= ^=     │ Assignment                                   │
     └─────────────────────────┴──────────────────────────────────────────────┘
 
-## Which mnemonic device can I use to remember the regex operators in decreasing order of precedence?
+## Which mnemonic device can I use to remember the *regex* operators in decreasing order of precedence?
 
 GQPSC ANCA EB E
 
