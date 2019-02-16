@@ -653,17 +653,16 @@ composing character:
 
 ### What if this number can change depending on where the character is put on the current line?
 
-    echo strdisplaywidth(char, col)
+    echo strdisplaywidth(char, virtcol)
 
 ---
 
 This is useful for a tab:
 
-    echo strdisplaywidth("\t", col('.')-1)
-                                       ├┘
-                                       └ Probably for the same reason we need to remove 1 in:
-
-                                             getline('.')[col('.')-1]
+    echo strdisplaywidth("\t", virtcol('.'))
+                               │
+                               └ the cursor needs to be positioned on the character
+                                 just *before* the tab
 
 ##
 ## I have a string and a pattern.  How to get the list of substrings matching the capturing groups?

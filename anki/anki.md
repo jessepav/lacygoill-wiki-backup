@@ -1,5 +1,31 @@
 # ?
 
+Each type  of note can have  one or more card  types; when you add  a note, Anki
+will create one card for each card type.
+Each card type has two templates, one for the question and one for the answer.
+In  the above  French  example, we  wanted  the recognition  card  to look  like
+this:
+
+    Q:  Bonjour
+    A:  Hello
+        Page #12
+
+To do  this, we  can set  the question and  answer templates  to:
+
+    Q:  {{French}}
+    A:  {{English}}<br>
+        Page  #{{Page}}
+
+By surrounding a  field name in double  curly brackets, we tell  Anki to replace
+that section with the actual information in the field.
+Anything not surrounded by curly brackets remains the same on each card.
+(For instance, we  don’t have to type  “Page #” into the Page  field when adding
+material – it’s added automatically to every  card.) <br> is a special code that
+tells Anki to move to the next line; more details are available in the templates
+section.
+
+# ?
+
 Anki allows you to create different types of notes for different material.
 Each type of note has its own set of fields and card types.
 It’s a  good idea to  create a  separate note type  for each broad  topic you’re
@@ -60,32 +86,6 @@ other.
 You can  also change the  note type of some  notes after you’ve  already created
 them.
 
-# ?
-
-Each type  of note can have  one or more card  types; when you add  a note, Anki
-will create one card for each card type.
-Each card type has two templates, one for the question and one for the answer.
-In  the above  French  example, we  wanted  the recognition  card  to look  like
-this:
-
-    Q:  Bonjour
-    A:  Hello
-        Page #12
-
-To do  this, we  can set  the question and  answer templates  to:
-
-    Q:  {{French}}
-    A:  {{English}}<br>
-        Page  #{{Page}}
-
-By surrounding a  field name in double  curly brackets, we tell  Anki to replace
-that section with the actual information in the field.
-Anything not surrounded by curly brackets remains the same on each card.
-(For instance, we  don’t have to type  “Page #” into the Page  field when adding
-material – it’s added automatically to every  card.) <br> is a special code that
-tells Anki to move to the next line; more details are available in the templates
-section.
-
 ##
 # How to install the most recent version of anki?
 
@@ -106,9 +106,9 @@ Rename it like so:
 You can also drag and drop `bar` inside `foo` from the deck list.
 But in general, the drag and drop is less accurate.
 
----
+## What does this feature allow me to do?
 
-This feature allows you to organize decks into a tree.
+Organizing decks into a tree of arbitrarily nested subdecks.
 
 ##
 # Which cards will be shown, if I select the deck
@@ -137,3 +137,7 @@ That's because it doesn't contain any card, and you have created other decks.
 
 Update anki.
 
+##
+# TODO
+
+Read this: <https://www.juliensobczak.com/write/2016/12/26/anki-scripting.html>
