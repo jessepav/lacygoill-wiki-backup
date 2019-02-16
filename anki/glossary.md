@@ -9,7 +9,7 @@ A card type is made of 3 sections:
 
    - a template for the front of the card
    - a template for the back of the card
-   - a styling section to customize the appearance of both faces of the card
+   - a styling section to customize the appearance of both faces of all cards
 
 ## collection
 
@@ -34,6 +34,10 @@ A type of information used to create a note.
 
 A set of related pieces of information necessary to create one or several cards.
 
+## note type
+
+Set of fields and card types.
+
 ##
 # p
 ## parent deck
@@ -53,10 +57,4 @@ Example:
 
 A deck that has  been nested under another deck (that is, that  has at least one
 “::” in its name).
-
-##
-# t
-## type of note
-
-Set of fields and card types.
 

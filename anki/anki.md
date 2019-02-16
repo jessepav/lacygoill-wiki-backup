@@ -1,41 +1,5 @@
 # ?
 
-When you  create a new  collection, Anki  automatically adds some  standard note
-types to it.
-These note types are provided to make Anki easier for new users, but in the long
-run it’s  recommended you  define your own  note types for  the content  you are
-learning.
-The standard note types are as follows:
-
-    Basic
-
-Has Front and Back fields, and will create one card.
-Text you enter in Front will appear on the front of the card, and text you enter
-in Back will appear on the back of the card.
-
-    Basic (and reversed card)
-
-Like  Basic, but creates two  cards for the  text you
-enter: one from front→back and one from back→front.
-
-    Basic  (optional reversed  card)
-
-This is a front→back card, and optionally a back→front card.
-To do this,  it has a third field  called “Add Reverse.”  If you  enter any text
-into that field, a reverse card will be created.
-More information about this is available in the Cards and Templates section.
-
-    Cloze
-
-A note type which makes it easy to select text and turn it into a cloze deletion
-(e.g.,  “Man landed on the moon in […]” → “Man landed on the moon in 1969”).
-More information is available in the cloze deletion section.
-
-To add your own note types and modify  existing ones, you can use Tools → Manage
-Note Types from the main Anki window.
-
----
-
     Note
 
 Notes and note types are common to  your whole collection rather than limited to
@@ -49,9 +13,9 @@ other.
 
 ##
 # Deck
-## I can't see the default deck in the deck list!
+## Why can't I see the default deck in the deck list?
 
-That's because it doesn't contain any card, and you have created other decks.
+Probably because it doesn't contain any card, and you have created other decks.
 
 ##
 ## How to install the most recent version of Anki?
@@ -94,13 +58,37 @@ In the default deck.
 
 ##
 # Note
+## What are the 4 standard note types which comes with Anki by default?
+
+    Basic
+
+Has `Front` and `Back` fields, and will create one card.
+Text you  enter in `Front` will  appear on the front  of the card, and  text you
+enter in `Back` will appear on the back of the card.
+
+    Basic (and reversed card)
+
+Like  `Basic`,  but  creates *two*  cards  for  the  text  you enter:  one  from
+front→back and one from back→front.
+
+    Basic  (optional reversed  card)
+
+This is a front→back card, and optionally a back→front card.
+To do this, it has a third field called “Add Reverse”.
+If you enter any text into that field, a reverse card will be created.
+
+    Cloze
+
+This makes it easy to select text and turn it into a cloze deletion (e.g.,  “Man
+landed on the moon in […]” → “Man landed on the moon in 1969”).
+
 ## Why is it a good idea to create a separate note type for each broad topic I'm studying?
 
 To prevent Anki from detecting false duplicates.
 Indeed, when  Anki checks for  duplicates, it only  compares other notes  of the
 same type.
 
-Suppose that you use the same type of note to learn French, and capital cities.
+Suppose that you use the same note type to learn French, and capital cities.
 In  your french  deck, you  have  a note  whose  first field  contains the  word
 “Orange”, and which generate cards for your french deck.
 Now you want  to create another note,  whose first field also  contains the word
@@ -117,17 +105,41 @@ Click on the buttons:
    - `Change Note Type...` – in the contextual menu (or press `C-S-m`)
    - `New note type:`
 
+## How to create a new note type?
+
+Press <kbd>C-S-n</kbd>, or click the buttons:
+
+   - Tools
+   - Manage Note Types
+
+Then, click the buttons:
+
+   - Add
+   - Manage Note Types
+
+Select an existing note type; it will serve as a base for cloning.
+Finally, give it a name.
+
+---
+
+From the `Manage Note Types` window, your new note type can be:
+
+   - renamed (`Rename`)
+   - deleted (`Delete`)
+   - given new fields (`Fields...`)
+   - given new card types (`Cards...`)
+
 ##
 ## How to make Anki generate several cards from a given note?
 
-Add a new card type to the currently used type of note.
+Add a new card type to the currently used note type.
 
 Press <kbd>C-l</kbd> or click on the  `Cards...` button, then click on `Options`
 and finally `Add Card Type...`.
 
 Repeat the process as many times as desired.
 
-## My type of note has 2 card types.
+## My note type has 2 card types.
 ### I've just used it to generate 2 cards.  Why does Anki only make me review one of them?
 
 They're considered siblings, and so Anki has buried the second card until another day.
