@@ -1,5 +1,3 @@
-On s'est arrêté à la page 84 du pdf / 72 du livre.
-
 # Command-line
 ## How to run an awk program from a file?  (3)
 
@@ -40,8 +38,8 @@ The  shebang  tells  the  shell  how  to  run  the  script,  so  when  it  reads
 
 ---
 
-In the shell script, you need to quote `$@` to prevent the shell from performing
-a word splitting after the expansion (`$@` → `$1 $2 ...`):
+In the shell script, you need to quote  `$@` to prevent the shell from using the
+split+glob operator after the expansion (`$@` → `$1 $2 ...`):
 
     $ cat <<'EOF' >/tmp/sh.sh
     #!/bin/bash
@@ -61,17 +59,20 @@ a word splitting after the expansion (`$@` → `$1 $2 ...`):
     file~
     2~
 
+### What's the benefit of `awk -f progfile` compared to the other ways?
+
+`progfile` doesn't need to be executable (no `$ chmod +x` required).
+
 ### Which version should I choose?
 
 Use an awk script.
 
-It's better than `$ awk -f`, because  you don't have to remember the `-f` option
-every time you need to run your script.
+It's better than `$ awk -f`, because you  don't have to type `awk -f` every time
+you need to run your script.
 
 It's better than a shell script, because with the latter, all the code is inside
 a string, which prevents the awk code from being correctly syntax highlighted.
-
-Besides, in a shell script, your code can't include a single quote:
+Besides, your code couldn't easily include a single quote:
 
     awk '
     BEGIN {
@@ -94,11 +95,12 @@ Example:
 
     $ awk '$1 ~ /x/'
 
-Anything you type will be printed back if it contains an `x` character.
+Anything you type will be printed back if it contains the character `x`.
 
 ### When is the interactive mode useful?
 
-When you need to test a piece of code.
+When you need to test a simple piece of code, and see how it reacts to different
+inputs:
 
    1. write the code
    2. write some arbitrary input
@@ -110,6 +112,25 @@ When you need to test a piece of code.
 Press <kbd>C-d</kbd>.
 
 This sends the end-of-file signal to the awk foreground process.
+
+##
+## I'm writing some example and don't need any real input.  What should I write for the input?
+
+`<<<''` or `/dev/null`.
+
+### When?  Why?
+
+You always need it, otherwise awk would start in interactive mode.
+
+But you don't need  it if the code contains an error; awk  won't wait for you to
+type some input, and will raise the error immediately.
+You also don't need it if the code contains only the pattern `BEGIN`:
+
+    # the shell prompt reappears immediately
+    $ awk 'BEGIN { print }'
+
+    # awk stays in interactive mode
+    $ awk 'END { print }'
 
 ##
 # Syntax
@@ -124,7 +145,7 @@ Like `$` and `SPC` (any shell), or `{` and `}` (only in zsh).
     $ awk '$3 == 0 { print $1 }' /tmp/emp.data
 
 Without  the single  quotes,  you  would have  to  manually  quote each  special
-character:
+character, which is error-prone:
 
     $ awk \$3\ ==\ 0\ \{\ print\ \$1\ \} /tmp/emp.data
 
@@ -180,36 +201,36 @@ This will output the file as is.
     { print }
 
 ##
-## Can a string
+## In an awk program, can a string
 ### be surrounded by single quotes?
 
 No, it's a syntax error.
 
     $ cat <<'EOF' >/tmp/awk.awk
-    { printf '%d', 1 }
-    #        ^  ^
-    #        ✘  ✘
+    END { printf '%d', 1 }
+    #            ^  ^
+    #            ✘  ✘
     EOF
 
-    $ awk -f /tmp/awk.awk /dev/null
-    awk: /tmp/awk.awk:1: { printf '%d', 1 }~
-    awk: /tmp/awk.awk:1:          ^ invalid char ''' in expression~
-    awk: /tmp/awk.awk:1: { printf '%d', 1 }~
-    awk: /tmp/awk.awk:1:          ^ syntax error~
+    $ awk -f /tmp/awk.awk <<<''
+    awk: /tmp/awk.awk:1: END { printf '%d', 1 }~
+    awk: /tmp/awk.awk:1:              ^ invalid char ''' in expression~
+    awk: /tmp/awk.awk:1: END { printf '%d', 1 }~
+    awk: /tmp/awk.awk:1:              ^ syntax error~
 
 ---
 
     $ cat <<'EOF' >/tmp/awk.awk
-    { printf "%s", 'word' }
-    #              ^    ^
-    #              ✘    ✘
+    END { printf "%s", 'word' }
+    #                  ^    ^
+    #                  ✘    ✘
     EOF
 
-    $ awk -f /tmp/awk.awk /dev/null
-    awk: /tmp/awk.awk:1: { printf "%s", 'word' }~
-    awk: /tmp/awk.awk:1:                ^ invalid char ''' in expression~
-    awk: /tmp/awk.awk:1: { printf "%s", 'word' }~
-    awk: /tmp/awk.awk:1:                ^ syntax error~
+    $ awk -f /tmp/awk.awk <<<''
+    awk: /tmp/awk.awk:1: END { printf "%s", 'word' }~
+    awk: /tmp/awk.awk:1:                    ^ invalid char ''' in expression~
+    awk: /tmp/awk.awk:1: END { printf "%s", 'word' }~
+    awk: /tmp/awk.awk:1:                    ^ syntax error~
 
 ---
 
@@ -217,7 +238,7 @@ No, it's a syntax error.
     END { printf "%s ", "word" }
     EOF
 
-    $ awk -f /tmp/awk.awk /dev/null
+    $ awk -f /tmp/awk.awk <<<''
     word~
 
 ### contains single quotes?
@@ -239,29 +260,6 @@ Yes, as many as you want.
     a'''b   a'''b   a'''b   ~
 
 ###
-## What are the three possible representations for a number?
-
-Integer:
-
-   * 1
-   * +1
-   * -1
-
-Decimal:
-
-   * 1.2
-   * +1.2
-   * -1.2
-
-Scientific Notation:
-
-   * 1.2e3
-   * 1.2E3
-   * 1.2e+3
-   * 1.2E+3
-   * 1.2e-3
-   * 1.2E-3
-
 ## How does awk store any number?
 
 As a float (the precision of which is machine dependent).
@@ -298,32 +296,33 @@ By default, `print` uses `$0` as an argument; so you can omit `$0`.
 A comparison is an expression, whose value is `1` when true, `0` otherwise.
 As such, it can be used (alone) in the rhs of an assignment.
 
-    $ awk 'BEGIN { var = 123 ; test = var == 123; print test }'
+    $ awk 'END { var = 123 ; test = var == 123; print test }' <<<''
     1~
 
 ##
-## What happens if I refer to
-### a non-existent variable?
+## What happens if I refer to a non-existent
+### variable?
 
 Awk automatically initializes it with the value `""`.
 If the variable is used in an arithmetic computation, it's then coerced
 into `0`.
 
-### a non-existent array element?
+### array element?
 
-Awk automatically initializes it with the value `""`.
+Awk automatically adds the necessary key in the array and associates it to the value `""`.
 
     $ cat <<'EOF' >/tmp/awk.awk
     END { print a[2] }
     EOF
 
-    $ awk -f /tmp/awk.awk /dev/null
+    $ awk -f /tmp/awk.awk <<<''
     ''~
 
-In contrast, in VimL, you would first need to declare the array with the right size:
+In contrast,  in VimL,  you would first  need to  add the key  in the  array, or
+declare the array with the right size if it's a list:
 
-    let a = repeat([''], 3)
-    echo a[2]
+    :let a = repeat([''], 3)
+    :echo a[2]
     ''~
 
 ##
@@ -350,7 +349,7 @@ third record.
 
 When this other statement includes an expression.
 
-    $ awk 'END { print (n = 2) + 1, n }' /dev/null
+    $ awk 'END { print (n = 2) + 1, n }' <<<''
     3 2~
 
     $ awk 'END { if ((n = length($1)) > 2) print "has", n, "characters" }' <<<'hello'
@@ -426,7 +425,7 @@ You can't combine them with another pattern inside a range:
 
 MWE:
 
-    $ awk '/Susie/,END' /dev/null
+    $ awk '/Susie/,END' <<<''
     awk: cmd. line:1: /Susie/,END~
     awk: cmd. line:1:         ^ syntax error~
     awk: cmd. line:1: END blocks must have an action part~
@@ -596,6 +595,31 @@ For example, to describe a literal dot, you can write either of these:
 
    - `/\./`
    - `"\\."`
+
+##
+## I'm trying to write a pattern matching any number
+### What are the three possible representations it should take into account?
+
+Integer:
+
+   * 1
+   * +1
+   * -1
+
+Decimal:
+
+   * 1.2
+   * +1.2
+   * -1.2
+
+Scientific Notation:
+
+   * 1.2e3
+   * 1.2E3
+   * 1.2e+3
+   * 1.2E+3
+   * 1.2e-3
+   * 1.2E-3
 
 ##
 # Modifying Fields
@@ -910,7 +934,7 @@ The missing parameters are initialized with `""`.
     }
     EOF
 
-    $ awk -f /tmp/awk.awk /dev/null
+    $ awk -f /tmp/awk.awk <<<''
     ''~
 
 ##
@@ -925,7 +949,7 @@ Global.
     }
     EOF
 
-    $ awk -f /tmp/awk.awk /dev/null
+    $ awk -f /tmp/awk.awk <<<''
     hello~
 
 If the `var` assignment was local to `myfunc()`, `print var` would print a null string.
@@ -948,7 +972,7 @@ Include it inside the parameters of the function signature.
     }
     EOF
 
-    $ awk -f /tmp/awk.awk /dev/null
+    $ awk -f /tmp/awk.awk <<<''
     ''~
 
 The purpose of `reverse()` is to reverse  the order of the first two elements of
@@ -991,7 +1015,7 @@ Separate the two groups with several spaces.
     }
     EOF
 
-    $ awk -f /tmp/awk.awk /dev/null
+    $ awk -f /tmp/awk.awk <<<''
 ↣
     foo
 
@@ -1009,7 +1033,7 @@ Separate the two groups with several spaces.
     }
     EOF
 
-    $ awk -f /tmp/awk.awk /dev/null
+    $ awk -f /tmp/awk.awk <<<''
 ↣
     foo42
 
@@ -1059,7 +1083,7 @@ except for the assignment, conditional,  and exponentiation operators, which are
 
 Example:
 
-    $ awk 'END { print 2^3^4 }' /dev/null
+    $ awk 'END { print 2^3^4 }' <<<''
     2417851639229258349412352~
 
 Here, we can see that:
@@ -1570,10 +1594,10 @@ Arrondit le nb décimal positif `x` à l'entier le plus proche.
 Affiche le plus grand nombre de la 1e colonne.
 
 
-    $ awk 'BEGIN { print (1.2 == 1.1 + 0.1 ) }'
+    $ awk 'END { print (1.2 == 1.1 + 0.1 ) }' <<<''
     0    ✘~
 
-    $ awk 'BEGIN { x = 1.2 - 1.1 - 0.1 ; print (x < 0.001 && x > 0 || x > -0.001 && x < 0) }'
+    $ awk 'END { x = 1.2 - 1.1 - 0.1 ; print (x < 0.001 && x > 0 || x > -0.001 && x < 0) }' <<<''
     1    ✔~
 
 Il se  peut que 2  expressions arithmétiques  diffèrent pour awk  alors qu'elles
@@ -2348,7 +2372,7 @@ fichiers / pipes pouvant être ouverts à un instant T.
     }
     EOF
 
-    $ awk -f /tmp/awk.awk /dev/null
+    $ awk -f /tmp/awk.awk <<<''
 
 Affiche l'heure et la date du jour, dort 3s, puis réaffiche l'heure.
 
@@ -3263,7 +3287,7 @@ Illustre qu'on peut réaliser plusieurs affectations en une seule ligne.
           └─────────────────────────────┘
                │
                v
-    awk -f progfile /dev/null
+    $ awk -f progfile <<<''
 
 Affiche les champs 2, 4 et 6 de `/etc/passwd`.
 
@@ -3589,4 +3613,9 @@ So, there's no need of an `else` after a `return`:
         return sth
     if cond2
         return sth else
+
+---
+
+The first time we read our first awk book,  we stopped at the page 84 of the pdf
+(72 in the original book).
 
