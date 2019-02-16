@@ -281,7 +281,7 @@ Or index the string directly:
 ---
 
 Those methods are unreliable to get  the `n`-th *character* of a string, because
-the latter may contain multibyte characters:
+the latter may contain multi-byte characters:
 
     echo strpart('résumé', 2, 1)
     <a9>~
@@ -344,7 +344,7 @@ Without `{len}`, `strcharpart()` goes until the end.
 ## What's the evaluation of `getline('.')[col('.')]`?
 
 The character right *after* the cursor.
-If the  latter is multibyte,  then, the expression  evaluates to its  first byte
+If the  latter is multi-byte, then,  the expression evaluates to  its first byte
 instead.
 
 ### Why is it not the character under the cursor?
@@ -361,7 +361,7 @@ To match the first character on a line, you must use `\%1c.` and not `\%0c.`.
 
 ### Why can't the expression be tweaked to get it?
 
-Because it could be a multibyte character.
+Because it could be a multi-byte character.
 
 So you can't know how much you must remove from `col('.')`.
 

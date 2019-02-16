@@ -1299,7 +1299,7 @@ We assign the value `250` to `'smc'` which should be more than enough for any li
 
 An example of this issue occurs when you draw a wide table.
 
-If you use multibyte characters to draw a table, an edge line will have a big weight.
+If you use multi-byte characters to draw a table, an edge line will have a big weight.
 It may exceed `&smc`, and make the line highlighted as a comment instead of a table.
 
 ## My syntax item has a negative impact on Vim's performance!
