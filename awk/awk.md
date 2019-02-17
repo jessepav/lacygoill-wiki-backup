@@ -37,7 +37,7 @@ Don't forget to use  an epoch which is higher than the one  used in your default
 repository; otherwise, your gawk package may be removed after a system update.
 
 Change the  value of `11: Provides`, so  that it includes `awk`,  in addition of
-`gawk`: `awk,  gawk`; otherwise, the scripts  relying on the `awk`  command will
+`gawk`: `gawk,awk`;  otherwise, the  scripts relying on  the `awk`  command will
 fail, because they won't find it.
 This will make `checkinstall` create the following symlink:
 
