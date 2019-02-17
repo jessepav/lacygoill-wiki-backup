@@ -1,124 +1,3 @@
-# ?
-## How to put several rules on the same line?
-
-Separate them with semicolons.
-
-    rule1; rule2
-
-How to put several statements in an action on the same line?
-
-Separate them with semicolons.
-
-    pattern { action1; action2 }
-
-##
-## Where can I break a statement or an expression (S) with a newline
-### (S) not being a control flow statement?  (3)
-
-After an argument and a comma:
-
-    print $1,
-          $2
-
-After a logical operator:
-
-    1 &&
-    2
-
-After an arbitrarily placed backslash:
-
-    print \
-          $1,
-          $2
-
----
-
-All these kinds of locations can be mixed in a single statement:
-
-    printf(\
-        "%10s %6s %5s   %s",
-        "COUNTRY",
-        "AREA",
-        "POP",
-        "CONTINENT\n\n"\
-        )
-
-Here, some newlines are placed after a backslash, others after an argument and a comma.
-
-### (S) being a control flow statement?  (3)
-
-After  `(condition)` or  `(initialization; condition;  increment)` in  a control
-flow statement:
-
-    if (e) s
-
-    ⇔
-
-    if (e)
-        s
-
-after the `else` or `else if` keyword:
-
-    if (e) s1; else s2
-
-    ⇔
-
-    if (e) s1
-    else s2
-
-    ⇔
-
-    if (e)
-        s1
-    else
-        s2
-
-before the `else`  or `else if` keyword,  and after each statement  in the body,
-provided that they're surrounded by curly braces (to form a compound statement):
-
-    if (e) { s1; s2 } else s3
-
-    ⇔
-
-    if (e) {
-        s1
-        s2
-    } else
-        s3
-
-    ⇔
-
-    if (e) {
-        s1
-        s2
-    }
-    else
-        s3
-
-##
-## When do I need to put a semicolon between an `if` and `else` statement?
-
-When the body of the `if` is not a compound statement:
-
-## ?
-
-    {
-        print \
-              $1,    # middle of action
-              $2,    # "
-              $3,    # after action
-    }                # after rule
-
-On peut commenter n'importe quelle fin de ligne.
-Qu'il s'agisse  de la fin  d'une règle pattern-action,  d'une action ou  au sein
-même d'une action.
-
-Décomposer son code sur plusieurs lignes permet de :
-
-   - mieux le documenter
-   - gagner en lisibilité
-
-##
 # Command-line
 ## How to run an awk program from a file?  (3)
 
@@ -489,6 +368,124 @@ So, an assignment is both an expression *and* a statement at the same time?
 Theory: An assignment or a function is just an expression, not a statement.
 However, they can be written alone on a line; in this case, it's syntactic sugar
 for a command which evaluates the expression.
+
+##
+## How to put several rules on the same line?
+
+Separate them with semicolons.
+
+    rule1; rule2
+
+How to put several statements in an action on the same line?
+
+Separate them with semicolons.
+
+    pattern { action1; action2 }
+
+##
+## Where can I break a single statement (or expression) (S) with a newline
+### (S) not being a control flow statement?  (3)
+
+After a logical operator:
+
+    1 &&
+    2
+
+After an argument and a comma:
+
+    print $1,
+          $2
+
+After an arbitrarily placed backslash:
+
+    print \
+          $1,
+          $2
+
+---
+
+All these kinds of locations can be mixed in a single statement:
+
+    printf(\
+        "%10s %6s %5s   %s",
+        "COUNTRY",
+        "AREA",
+        "POP",
+        "CONTINENT\n\n"\
+        )
+
+Here, some newlines are placed after a backslash, others after an argument and a comma.
+
+### (S) being a control flow statement?  (3)
+
+After `(condition)` or `(initialization; condition; increment)`:
+
+    if (e) s
+
+    ⇔
+
+    if (e)
+        s
+
+After the `else` or `else if` keyword:
+
+    if (e) s1; else s2
+
+    ⇔
+
+    if (e) s1
+    else s2
+
+    ⇔
+
+    if (e)
+        s1
+    else
+        s2
+
+After each  statement in  the body,  provided that  they're surrounded  by curly
+braces (to form a compound statement):
+
+    if (e) { s1; s2 } else s3
+
+    ⇔
+
+    if (e) {
+        s1
+        s2
+    } else
+        s3
+
+##
+## When do I need to put a semicolon between an `if` and `else` statement?
+
+When you put the `else` statement on a line of the `if` statement:
+
+    if (e) s1; else s2
+
+    if (e)
+        s1; else s2
+
+But you don't need a semicolon, if the body of `if` is a compound statement:
+
+    if (e) {
+        s1
+        s2
+    } else
+        s3
+
+## How can I increase the readibility of a `print` statement with several arguments?  (2)
+
+Break it down on several lines, and comment each one:
+
+    {
+        print \
+              $1,    # middle of action
+              $2,    # "
+              $3,    # after action
+    }                # after rule
+
+This shows that you can comment any end of line.
 
 ##
 # Pattern
