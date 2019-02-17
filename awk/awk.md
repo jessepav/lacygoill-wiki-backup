@@ -24,7 +24,6 @@ For more information, read the file `README.git`.
 
 Including the patch number.
 
-
 ### Install
 
     $ sudo checkinstall
@@ -47,7 +46,6 @@ This will make `checkinstall` create the following symlink:
 
 ##
 ## How to install the latest stable release of gawk?
-
 ### Download it from:
 
 <https://ftp.gnu.org/gnu/gawk/>
