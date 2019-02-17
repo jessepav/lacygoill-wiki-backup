@@ -1,8 +1,8 @@
 # a
-## associativity
+## associativity (operator)
 
 Property of  an operator which determines  how operators of the  same precedence
-are grouped in the absence of parentheses.
+are grouped (with their operands) in the absence of parentheses.
 If an operand is both preceded and followed by operators (for example, `^ 3 ^`),
 and those operators have equal precedence, then the operand may be used as input
 to two different operations.
@@ -33,11 +33,11 @@ operator at all.
 ---
 
 Suppose that `/` was right-associative, while `*` was still left-associative.
-In which order should the operators in this expression be processed?
+In which order should the operators in this expression be grouped?
 
     1 * 2 / 3
 
-There would be ambiguity.
+There would be an ambiguity.
 That's why `*` and `/` which have  the same precedence, can *not* have different
 associativities.
 
@@ -219,12 +219,8 @@ By default, it considers a newline as a separator between 2 consecutive records.
 
 ## regular expression
 
-It can be either:
-
-   - a combination of operators and metacharacters surrounded by a pair of
-     delimiters (typically `/`)
-
-   - a string
+A combination of operators and metacharacters, which can be surrounded by either
+slashes or double quotes.
 
 ## rule
 

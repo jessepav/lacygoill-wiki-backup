@@ -1106,7 +1106,7 @@ If `^` was left-associative:
 
 ## What does grouping allow me to change?
 
-The priority of an arbitrary operator.
+The precedence of an arbitrary operator.
 
 ##
 ## Which mnemonic device can I use to remember the operators in decreasing order of precedence?
@@ -1160,6 +1160,9 @@ GQPSC ANCA EB E
     │ \c     │ Escape sequence         │
     └────────┴─────────────────────────┘
 
+The order was found in the book `The AWK Programming Language`, appendix A, page
+191 of the book.
+
 ##
 ## How to simplify multiple assignments, all of which have the same rhs?
 
@@ -1168,13 +1171,19 @@ GQPSC ANCA EB E
 
     ⇔
 
+    var1 = var2 = val
+
+### Why does this work?
+
+Because an assignment is an expression:
+
            ┌ expression returning `val`, and assigning it to `var2`
            ├────────┐
     var1 = var2 = val
     ├───────────────┘
     └ expression returning `val`, and assigning it to `var1`
 
-This works, because the assignment operator is *right*-associative:
+and because the assignment operator is *right*-associative:
 
     var1 = var2 = val
     ⇔
