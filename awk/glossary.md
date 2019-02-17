@@ -189,6 +189,28 @@ produces the number `3`.
 Relational or matching operator.
 
 ##
+## output record
+
+Output from an entire print statement.
+
+> The output from an entire print statement is called an output record.
+> Each print statement outputs one output record, and then outputs a string called
+> the output record separator (or ORS).
+> The initial value of ORS is the string "\n" (i.e., a newline character).
+> Thus, each print statement normally makes a separate line.
+
+Source: A User’s Guide for GNU Awk Edition 4.2
+
+---
+
+Does that mean  that the notion of  an output record is  fundamentally linked to
+the `print` statement?
+
+Yes, and there's nothing weird about that.
+Awk doesn't print anything on its output  by default; you have to use `print` or
+`printf` for awk to have an output.
+
+##
 # r
 ## record
 

@@ -360,8 +360,14 @@ When this other statement includes an expression.
 For awk, an  assignment is an expression  – with the side-effect  of assigning a
 value to a variable.
 
-Theory:  a statement  containing  only  an assignment  or  function  – both  are
-expressions – is syntactic sugar for a command which evaluates the expression.
+---
+
+Wait a minute...
+So, an assignment is both an expression *and* a statement at the same time?
+
+Theory: An assignment or a function is just an expression, not a statement.
+However, they can be written alone on a line; in this case, it's syntactic sugar
+for a command which evaluates the expression.
 
 ##
 # Pattern
@@ -375,16 +381,7 @@ expressions – is syntactic sugar for a command which evaluates the expression.
       * `BEGINFILE`
       * `ENDFILE`
 
-   - an expression:
-
-      * scalar (`123`, `"string"`)
-      * arithmetic `1 + 2`
-      * relational `1 < 2`
-
-      * variable
-      * string concatenation
-      * conditional `test ? val1 : val2`
-      * function call whose output is a scalar
+   - an expression whose value is a scalar (number or string)
 
    - a (regex) matching expression:
 
@@ -460,9 +457,9 @@ MWE:
 
 This shows that you can combine regexes with logical operators.
 
-### whose first character comes after `e`?
+### whose first character is `e` or comes after `e`?
 
-Use the pattern `$0 >= "e"`.
+Use the pattern `$0 > "e"`.
 
     $ cat <<'EOF' >/tmp/file
     gh
@@ -472,24 +469,23 @@ Use the pattern `$0 >= "e"`.
     ab
     EOF
 
-    $ awk '$0 >= "e"' /tmp/file
+    $ awk '$0 > "e"' /tmp/file
     gh~
     ef~
     ij~
 
+We didn't  need `>=` (in place  of `>`) because `eX`  – no matter what  `X` is –
+always come after `e`.
+
 ##
 ## How is a dot interpreted in the left operand of `~`?  In the right operand?
 
-Resp. as a string and as a pattern.
+Resp. as a literal dot and as a metacharacter.
 
-    $ cat <<'EOF' >/tmp/file
-    match!
-    EOF
-
-    $ awk '"Hello" ~ "Hel.o"' /tmp/file
+    $ awk '"Hello" ~ "Hel.o"' <<<'match!'
     match!~
 
-    $ awk '"Hel.o" ~ "Hello"' /tmp/file
+    $ awk '"Hel.o" ~ "Hello"' <<<'match!'
     ''~
 
 ##
@@ -586,15 +582,8 @@ that makes pattern matching more efficient.
 When  using a  string constant,  awk  must first  convert the  string into  this
 internal form and then perform the pattern matching.
 
-## Which common pitfall should I avoid when using `"pat"`?
-
-You need  to double the  backslash for every escape  sequence which you  want to
-send to the regex engine.
-
-For example, to describe a literal dot, you can write either of these:
-
-   - `/\./`
-   - `"\\."`
+Also, with `"pat"`,  you need to double the backslash  for every escape sequence
+which you want to send to the regex engine.
 
 ##
 ## I'm trying to write a pattern matching any number
@@ -644,7 +633,8 @@ Use the built-in variable `NF`:
 ---
 
 You  need to  surround  the  expression with  parentheses,  otherwise `$`  would
-consider that `NF` is its operand, instead of `NF-1`.
+consider  that  `NF` is  its  operand,  instead of  `NF-1`  (`$`  has a  greater
+precedence than `-`).
 
     $ cat <<'EOF' >/tmp/file
     11 22 33
@@ -662,15 +652,23 @@ consider that `NF` is its operand, instead of `NF-1`.
     65~
     98~
 
-Note that  if one of  the field  began with a  non-digit character, it  would be
-automatically coerced  into the number  `0`; and  so `$NF-1` would  be evaluated
+Note that if one  of the last fields began with a  non-digit character, it would
+be automatically coerced into the number  `0`; and so `$NF-1` would be evaluated
 into `-1`.
 
 ##
 ## How to add a new field to a record?
 
-Refer to the field whose index is `NF + 1`.
-Assign to it the desired contents
+Refer  to the  field whose  index is  `NF +  1`, and  assign to  it the  desired
+contents.
+
+    $ awk '{ $(NF + 1) = "baz"; print }' <<<'foo bar'
+    foo bar baz~
+
+## What's the side effect of a field modification?
+
+Awk automatically splits  the record into fields to access  the field to modify,
+then replaces every `FS` with `OFS` to create the output record.
 
     $ cat <<'EOF' >/tmp/file
     This_old_house_is_a_great_show.
@@ -688,11 +686,6 @@ Assign to it the desired contents
                       ^
                       separates the previous field (`things.`)
                       from the new last empty field
-
-## What's the side effect of a field modification?
-
-Awk automatically splits  the record into fields to access  the field to modify,
-then replaces every `FS` with `OFS` to create the output record.
 
 ## What happens if I assign a value to a non-existent field (index bigger than the last one)?
 
@@ -741,7 +734,7 @@ The purpose of `print ""` is to add a newline at the end of a record.
 
 ##
 # Printing
-## How to print a newline?
+## How to print a newline
 ### at the end of an output record?
 
     print ""
@@ -749,6 +742,10 @@ The purpose of `print ""` is to add a newline at the end of a record.
 The reason  why you can omit  `\n` is because, at  the end of an  output record,
 `print`  automatically adds  the contents  of `ORS`,  whose default  value is  a
 newline.
+
+> print expr-list      Print expressions.  Each expression is  separated
+>                      by the value of OFS.  **The output record is termi‐**
+>                      **nated with the value of ORS.**
 
 ### anywhere?
 
@@ -783,6 +780,15 @@ The three columns contain:
 
 gawk preserves the value of `$0` from the last record for use in an END rule.
 Some other implementations of awk do not.
+
+Alternatively, you could write:
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    END { last = $0 }
+    END { print last }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/emp.data
 
 ### the *lines* containing the names of the employees which have not worked?
 
@@ -830,9 +836,7 @@ Use the `NR` variable:
 
 #### same thing, but adding the text `total pay for` before the name, and `is` before the pay?
 
-    $ awk '{ print "total pay for", $1, "is", $2 * $3 }' /tmp/emp.data
-    total pay for Beth is 0~
-    total pay for Dan is 0~
+    $ awk '$3 > 0 { print "total pay for", $1, "is", $2 * $3 }' /tmp/emp.data
     total pay for Kathy is 40~
     total pay for Mark is 100~
     total pay for Mary is 121~
@@ -842,9 +846,7 @@ Use the `NR` variable:
 
 To get more control over the formatting, you need `printf`:
 
-    $ awk '{ printf "total pay for %-8s is %6.2f\n", $1, $2 * $3 }' /tmp/emp.data
-    total pay for Beth     is   0.00~
-    total pay for Dan      is   0.00~
+    $ awk '$3 > 0 { printf "total pay for %-8s is %6.2f\n", $1, $2 * $3 }' /tmp/emp.data
     total pay for Kathy    is  40.00~
     total pay for Mark     is 100.00~
     total pay for Mary     is 121.00~
@@ -863,11 +865,9 @@ Write the names on a pipe connected to the `sort` command:
     Dan~
     Beth~
 
-    $ awk -f /tmp/awk.awk /tmp/emp.data
-
-It seems that a pipe inside an action  is not connected to a single execution of
-a  command (here  `print $1`),  but  to all  possible executions;  i.e. to  each
-execution of the command which is run whenever a matching record is found.
+It seems that the rhs of a pipe  inside an action is not processed like the lhs.
+The lhs is executed once for each record matching the pattern.
+The rhs is executed once for the whole input.
 
 awk probably closes the pipe only after the last record has been processed.
 
