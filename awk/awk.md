@@ -376,11 +376,11 @@ Separate them with semicolons.
 
     rule1; rule2
 
-How to put several statements in an action on the same line?
+## How to put several statements in an action on the same line?
 
 Separate them with semicolons.
 
-    pattern { action1; action2 }
+    pattern { statement1; statement2 }
 
 ##
 ## Where can I break a single statement (or expression) (S) with a newline
@@ -481,11 +481,10 @@ Break it down on several lines, and comment each one:
     {
         print \
               $1,    # middle of action
-              $2,    # "
-              $3,    # after action
+              $2     # after action
     }                # after rule
 
-This shows that you can comment any end of line.
+This shows that you can comment *any* end of line.
 
 ##
 # Pattern
@@ -870,7 +869,7 @@ newline.
     printf("\n")
 
 ##
-# I have the following file:
+## I have the following file:
 
     $ cat <<'EOF' >/tmp/emp.data
     Beth    4.00   0
@@ -887,8 +886,8 @@ The three columns contain:
    - their pay rate in dollars per hour
    - the number of hours they've worked so far
 
-## How to print
-### the last line?
+### How to print
+#### the last line?
 
     $ cat <<'EOF' >/tmp/awk.awk
     END { print $0 }
@@ -908,13 +907,13 @@ Alternatively, you could write:
 
     $ awk -f /tmp/awk.awk /tmp/emp.data
 
-### the *lines* containing the names of the employees which have not worked?
+#### the *lines* containing the names of the employees which have not worked?
 
     $ awk '$3 == 0' /tmp/emp.data
     Beth    4.00   0~
     Dan     3.75   0~
 
-### the names of all the employees?
+#### the names of all the employees?
 
     $ awk '{ print $1 }' /tmp/emp.data
     Beth~
@@ -924,7 +923,7 @@ Alternatively, you could write:
     Mary~
     Susie~
 
-### the lines prefixed with increasing numbers?
+#### the lines prefixed with increasing numbers?
 
 Use the `NR` variable:
 
@@ -936,8 +935,8 @@ Use the `NR` variable:
     5 Mary    5.50   22~
     6 Susie   4.25   18~
 
-###
-### the names of the employees which have worked more than 0 hours, and their total pay?
+####
+#### the names of the employees which have worked more than 0 hours, and their total pay?
 
     $ awk '$3 > 0 { print $1, $2 * $3 }' /tmp/emp.data
            ├────┘         ├┘  ├─────┘
@@ -952,7 +951,7 @@ Use the `NR` variable:
     Mary 121~
     Susie 76.5~
 
-#### same thing, but adding the text `total pay for` before the name, and `is` before the pay?
+##### same thing, but adding the text `total pay for` before the name, and `is` before the pay?
 
     $ awk '$3 > 0 { print "total pay for", $1, "is", $2 * $3 }' /tmp/emp.data
     total pay for Kathy is 40~
@@ -960,7 +959,7 @@ Use the `NR` variable:
     total pay for Mary is 121~
     total pay for Susie is 76.5~
 
-##### same thing, but aligning the names and the pays?
+###### same thing, but aligning the names and the pays?
 
 To get more control over the formatting, you need `printf`:
 
@@ -970,8 +969,8 @@ To get more control over the formatting, you need `printf`:
     total pay for Mary     is 121.00~
     total pay for Susie    is  76.50~
 
-##
-## How to print and sort the names of the employees in reverse order?
+###
+### How to print and sort the names of the employees in reverse order?
 
 Write the names on a pipe connected to the `sort` command:
 
@@ -995,7 +994,7 @@ Instead of using a built-in pipe, you could also have used an external one:
 
     $ awk '{ print $1 }' /tmp/emp.data | sort -r
 
-## How to sort the lines according to the total pay?
+### How to sort the lines according to the total pay?
 
     $ awk '{ printf("%6.2f  %s\n", $2 * $3, $0) | "sort -n" }' /tmp/emp.data
       0.00  Beth    4.00   0~
@@ -1005,7 +1004,7 @@ Instead of using a built-in pipe, you could also have used an external one:
     100.00  Mark    5.00   20~
     121.00  Mary    5.50   22~
 
-## How to save all records inside a list?
+### How to save all records inside a list?
 
 Use `NR` to uniquely index them in an array.
 
@@ -1020,6 +1019,90 @@ Use `NR` to uniquely index them in an array.
 
     $ awk -f /tmp/awk.awk /tmp/emp.data
     Dan     3.75   0~
+
+##
+## I have the following file, and the following code:
+
+    $ cat <<'EOF' >/tmp/countries
+    USSR	8649	275	Asia
+    Canada	3852	25	North America
+    China	3705	1032	Asia
+    USA	3615	237	North America
+    Brazil	3286	134	South America
+    India	1267	746	Asia
+    Mexico	762	78	North America
+    France	211	55	Europe
+    Japan	144	120	Asia
+    Germany	96	61	Europe
+    England	94	56	Europe
+    EOF
+
+    $ cat <<'EOF' >/tmp/awk.awk
+    BEGIN {
+        FS = "\t"
+        printf("%10s %6s %5s   %s\n\n", "COUNTRY", "AREA", "POP", "CONTINENT")
+    }
+    {
+        TotalArea += $2
+        TotalPop += $3
+        printf("%10s %6d %5d   %s\n", $1, $2, $3, $4)
+    }
+    END { printf("\n%10s %6d %5d\n", "TOTAL", TotalArea, TotalPop) }
+    EOF
+
+    $ awk -f /tmp/awk.awk /tmp/countries
+    COUNTRY   AREA   POP   CONTINENT~
+
+       USSR   8649   275   Asia~
+     Canada   3852    25   North America~
+      China   3705  1032   Asia~
+        USA   3615   237   North America~
+     Brazil   3286   134   South America~
+      India   1267   746   Asia~
+     Mexico    762    78   North America~
+     France    211    55   Europe~
+      Japan    144   120   Asia~
+    Germany     96    61   Europe~
+    England     94    56   Europe~
+
+      TOTAL  25681  2819~
+
+### Why do the `printf` statements use `%10s`, `%6d`, `%5d` and `%s` with these particular widths?
+
+The code  wants to  separate the  headings with  the same  number of  spaces; it
+chooses 3.
+
+The `COUNTRY`  heading contains 7 characters,  and the code decides  to not only
+put 3 spaces between 2 headings, but also before the first heading.
+
+    7+3 = 10
+
+That's where the `%10s` come from.
+
+The `AREA` heading contains `4` characters:
+
+    4 + 3 - 1 = 6
+          ├─┘
+          └ there's already a space between the first `%s` and `%d` items
+
+That's where the `%6d` come from.
+
+The `POP` heading contains `3` characters:
+
+    3 + 3 - 1 = 5
+
+That's where the `%5d` come from.
+
+The `CONTINENT` heading is  the last one, so we don't need to  make sure each of
+its fields ends in the same column, and so there's no need to give it any width.
+That's why the last `%s` has no width.
+
+---
+
+Note that the code  works because there's no field whose  length is greater than
+the chosen item width.
+For example, if there was a country  whose area occupied more than 6 characters,
+the alignment would be broken.
 
 ##
 # Built-in Variables
@@ -1951,10 +2034,10 @@ Pour chacune de ces catégories, une coercition peut avoir lieue:
 
 Ex1:
 
-    print $1, 100 * $2
+    print $1 $2, $3 + 123
 
-Dans cet exemple, si  le 1er champ est un nb, il sera  converti en chaîne, et si
-le 2e champ est une chaîne, elle sera convertie en nb.
+Dans cet exemple, si  le premier champ est un nb, il sera  converti en chaîne, et si
+le 3e champ est une chaîne, elle sera convertie en nb.
 
 Ex2:
 
@@ -2435,14 +2518,14 @@ Idem pour `nextfile`.
 
 ---
 
-    pattern { action1; next}
-            { action2 }
+    pattern { statement1; next}
+            { statement2 }
 
-Exécute `action1`  sur les  records où  `pattern` matche,  et `action2`  sur les
-autres.
+Exécute `statement1`  sur les records  où `pattern` matche, et  `statement2` sur
+les autres.
 
-Grâce à `next`,  on évite l'exécution de `action2` sur  les records où `pattern`
-ne matche pas.
+Grâce  à  `next`, on  évite  l'exécution  de  `statement2`  sur les  records  où
+`pattern` ne matche pas.
 
 ### switch
 
@@ -2986,14 +3069,14 @@ d'un fichier arbitraire, via la syntaxe:
 
 ---
 
-    $ awk 'pattern { action }'                file
-    $ awk 'pattern { action1; action2; ... }' file
-    $ awk 'rule1; rule2; ...'                 file
+    $ awk 'pattern { action }'                      file
+    $ awk 'pattern { statement1; statement2; ... }' file
+    $ awk 'rule1; rule2; ...'                       file
 
 Demande à awk d'exécuter:
 
-   - `action`                      sur les lignes de `file` matchant `pattern`
-   - `action1`, `action2`, ...       "
+   - `action`                            sur les lignes de `file` matchant `pattern`
+   - `statement1`, `statement2`, ...       "
    - `rule1`, `rule2`, ...
 
 La partie entre single quotes est un pgm awk complet.
@@ -3619,7 +3702,7 @@ executes only one action.
 
 But this difference disappears when the action is a `return` statement.
 In this case, the first snippet executes only one action, like the second snippet.
-So, there's no need of an `else` after a `return`:
+So, there's no need for an `else` after a `return`:
 
     if cond1
         return sth
