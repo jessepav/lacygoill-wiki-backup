@@ -1,3 +1,114 @@
+document that a newline is also ignored after the keyword `do` (see gawk book)
+
+# Install
+## How to install the latest version of gawk?
+### Clone the repo
+
+    $ git clone git://git.savannah.gnu.org/gawk.git
+
+### Clean a possible previous compilation
+
+    $ make distclean
+
+### Configure, compile and check the compilation
+
+    $ ./bootstrap.sh && ./configure && make && make check
+
+For more information, read the file `README.git`.
+
+### Note the version
+
+    $ git describe --tags
+    gawk-4.2.1-722-g7081~
+         ^^^^^^^^^
+
+Including the patch number.
+
+
+### Install
+
+    $ sudo checkinstall
+
+Use the previously noted version to fill in the version (`3: Version`):
+
+    9:4.2.1-722~
+    ^^
+
+Don't forget to use  an epoch which is higher than the one  used in your default
+repository; otherwise, your gawk package may be removed after a system update.
+
+Change the  value of `11: Provides`, so  that it includes `awk`,  in addition of
+`gawk`: `awk,  gawk`; otherwise, the scripts  relying on the `awk`  command will
+fail, because they won't find it.
+This will make `checkinstall` create the following symlink:
+
+    $ ls -l /usr/local/bin/awk
+    lrwxrwxrwx 1 root root 4 Feb 17 19:30 /usr/local/bin/awk -> gawk
+
+##
+## How to install the latest stable release of gawk?
+
+### Download it from:
+
+<https://ftp.gnu.org/gnu/gawk/>
+
+### Check its authenticity
+
+Download the associated signature, and run `$ gpg` to check it:
+
+    $ gpg gawk-4.2.1.tar.xz.sig
+
+If the output contains:
+
+    gpg: Can't check signature: No public key
+
+Note the ID of the public key which was used to sign the archive:
+
+    gpg: assuming signed data in `gawk-4.2.1.tar.xz'
+    gpg: Signature made Sun 25 Feb 2018 08:03:55 PM CET using RSA key ID 937EC0D2
+                                                                         ^^^^^^^^
+
+Then, import it:
+
+    $ gpg --keyserver hkp://keys.gnupg.net --recv-keys 937EC0D2
+
+If the command fails, try another keyserver:
+
+    $ gpg --keyserver x-hkp://pool.sks-keyservers.net --recv-keys 937EC0D2
+
+In the end, the output should look like this:
+
+    $ gpg --keyserver x-hkp://pool.sks-keyservers.net --recv-keys 937EC0D2
+    gpg: requesting key 937EC0D2 from hkp server pool.sks-keyservers.net
+    gpg: key 937EC0D2: public key "Arnold Robbins <arnold@skeeve.com>" imported
+    gpg: Total number processed: 1
+    gpg:               imported: 1  (RSA: 1)
+
+Re-run `$ gpg`:
+
+    $ gpg gawk-4.2.1.tar.xz.sig
+
+The output should now contain something like:
+
+    gpg: Good signature from "Arnold Robbins <arnold@skeeve.com>"
+
+### Extract the archive and cd into the project
+
+    $ xt gawk-4.2.1.tar.xz
+
+### Configure
+
+    $ sh ./configure
+
+### Compile
+
+    $ make
+
+### Install
+
+    $ sudo checkinstall
+
+##
 # Command-line
 ## How to run an awk program from a file?  (3)
 
@@ -384,14 +495,23 @@ Separate them with semicolons.
 
 ##
 ## Where can I break a single statement (or expression) (S) with a newline
-### (S) not being a control flow statement?  (3)
+### (S) not being a control flow statement?  (4)
 
 After a logical operator:
 
     1 &&
     2
 
-After an argument and a comma:
+    3 ||
+    4
+
+After `?` or `:`:
+
+    1 ?
+    2 :
+    3
+
+After a comma:
 
     print $1,
           $2

@@ -1,8 +1,11 @@
 # How to start WeeChat without my custom config?
 
-        $ weechat -d /tmp/.weechat
-                   │
-                   └ --dir
+    $ weechat -d /tmp/.weechat
+               │
+               └ --dir
+
+TODO:  document the  new `-t`  command-line  option, which  creates a  temporary
+WeeChat home directory and deletes it on exit.
 
 # WeeChat just crashed. What should I do to help the developers fix the bug?
 

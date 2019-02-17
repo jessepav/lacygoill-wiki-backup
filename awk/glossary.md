@@ -46,10 +46,11 @@ associativities.
 # c
 ## constant
 
-There are 2 kinds of constants:
+There are 3 kinds of constants:
 
    - string
-   - numerical
+   - numeric
+   - regex (`/pat/`)
 
 ## control flow
 
