@@ -1,3 +1,124 @@
+# ?
+## How to put several rules on the same line?
+
+Separate them with semicolons.
+
+    rule1; rule2
+
+How to put several statements in an action on the same line?
+
+Separate them with semicolons.
+
+    pattern { action1; action2 }
+
+##
+## Where can I break a statement or an expression (S) with a newline
+### (S) not being a control flow statement?  (3)
+
+After an argument and a comma:
+
+    print $1,
+          $2
+
+After a logical operator:
+
+    1 &&
+    2
+
+After an arbitrarily placed backslash:
+
+    print \
+          $1,
+          $2
+
+---
+
+All these kinds of locations can be mixed in a single statement:
+
+    printf(\
+        "%10s %6s %5s   %s",
+        "COUNTRY",
+        "AREA",
+        "POP",
+        "CONTINENT\n\n"\
+        )
+
+Here, some newlines are placed after a backslash, others after an argument and a comma.
+
+### (S) being a control flow statement?  (3)
+
+After  `(condition)` or  `(initialization; condition;  increment)` in  a control
+flow statement:
+
+    if (e) s
+
+    ⇔
+
+    if (e)
+        s
+
+after the `else` or `else if` keyword:
+
+    if (e) s1; else s2
+
+    ⇔
+
+    if (e) s1
+    else s2
+
+    ⇔
+
+    if (e)
+        s1
+    else
+        s2
+
+before the `else`  or `else if` keyword,  and after each statement  in the body,
+provided that they're surrounded by curly braces (to form a compound statement):
+
+    if (e) { s1; s2 } else s3
+
+    ⇔
+
+    if (e) {
+        s1
+        s2
+    } else
+        s3
+
+    ⇔
+
+    if (e) {
+        s1
+        s2
+    }
+    else
+        s3
+
+##
+## When do I need to put a semicolon between an `if` and `else` statement?
+
+When the body of the `if` is not a compound statement:
+
+## ?
+
+    {
+        print \
+              $1,    # middle of action
+              $2,    # "
+              $3,    # after action
+    }                # after rule
+
+On peut commenter n'importe quelle fin de ligne.
+Qu'il s'agisse  de la fin  d'une règle pattern-action,  d'une action ou  au sein
+même d'une action.
+
+Décomposer son code sur plusieurs lignes permet de :
+
+   - mieux le documenter
+   - gagner en lisibilité
+
+##
 # Command-line
 ## How to run an awk program from a file?  (3)
 
@@ -1804,7 +1925,7 @@ Résumé:
     │ awk  │ for i in array:     `i` itère sur les INDICES de `array`          │
     └──────┴───────────────────────────────────────────────────────────────────┘
 
-## Coercition
+## Coercion
 
 On peut  séparer les  opérateurs en  3 catégories, en  fonction des  types de
 données sur lesquels ils peuvent travailler:
@@ -2359,7 +2480,7 @@ Si on veut  qu'il n'en exécute qu'une  (la 1e qui réussit), il  faut inclure d
 `break` pour sortir du `switch`.
 
 ##
-## Fonctions
+## Functions
 ### close
 
 La  fonction `close()`  permet de  fermer des  fichiers et  pipes ouverts  (i.e.
@@ -2564,7 +2685,7 @@ Affiche `username` (ex: toto), dans les 2 cas.
 Mais la sortie de la commande shell  `whoami` peuple `$0` uniquement dans le 1er
 exemple.
 
-### Internes
+### built-in
 
 Fonctions arithmétiques:
 
@@ -2777,7 +2898,7 @@ le quotant (`\&`).
 
 On peut aussi utiliser `\0`.
 
-### Utilisateur
+### user-defined
 
     function myfunc(parameter-list) {
         statements
@@ -2943,102 +3064,6 @@ pattern-action.
 Traite les fichiers `file1` et `file2` en exécutant le code contenu dans `rule`;
 illustre que l'input n'est pas limité à un fichier.
 
-## Terminaisons de commande
-
-    rule1
-    rule2
-
-    ⇔
-
-    rule1; rule2
-
-
-    pattern { action1; action2 }
-
-    ⇔
-
-    pattern {
-        action1
-        action2
-    }
-
-On peut *terminer* une  règle pattern-action ou une action via  un newline ou un
-point-virgule.
-
-On utilisera plutôt un  newline dans un fichier awk, et  un point-virgule sur la
-ligne de commande.
-
-Un newline  peut aussi servir à  *décomposer* une expression ou  une déclaration
-sur plusieurs lignes; pour ce faire, il doit être placé après :
-
-    ┌───────────────────────┬───────────┐
-    │ une virgule suivant   │ print $1, │
-    │ un argument           │       $2  │
-    ├───────────────────────┼───────────┤
-    │ un backslash          │ print \   │
-    │ positionné où on veut │       $1, │
-    │                       │       $2  │
-    ├───────────────────────┼───────────┤
-    │ un opérateur logique  │ 1 &&      │
-    │                       │ 2         │
-    └───────────────────────┴───────────┘
-
----
-
-    printf(\
-        "%10s %6s %5s   %s",
-        "COUNTRY",
-        "AREA",
-        "POP",
-        "CONTINENT\n\n"\
-        )
-
-Dans  cet exemple,  on décompose  une action  `printf()` en  utilisant plusieurs
-newlines;  certains  sont positionnés  après  un  backslash, d'autres  après  un
-argument et une virgule.
-
----
-
-    {
-        print \
-              $1,    # middle of action
-              $2,    # "
-              $3,    # after action
-    }                # after rule
-
-On peut commenter n'importe quelle fin de ligne.
-Qu'il s'agisse  de la fin  d'une règle pattern-action,  d'une action ou  au sein
-même d'une action.
-
-Décomposer son code sur plusieurs lignes permet de :
-
-   - mieux le documenter
-   - gagner en lisibilité
-
-
-On peut décomposer une action `if`, `for`, `while` en plaçant un newline:
-
-    ┌────────────────────────────────────────────────┬───────────────────────────────┐
-    │ après son expression `(e)`                     │ if (e) s            ⇔  if (e) │
-    │                                                │                            s  │
-    ├────────────────────────────────────────────────┼───────────────────────────────┤
-    │ après ou avant le mot-clé `else` ou `else if`  │ if (e) s1; else s2  ⇔  if (e) │
-    │                                                │                            s1 │
-    │                                                │                        else   │
-    │                                                │                            s2 │
-    ├────────────────────────────────────────────────┼───────────────────────────────┤
-    │ après chacune de ses déclarations (`s1`, `s2`) │ if (e) { s1; s2 } else s3     │
-    │ à condition qu'elles soint encadrées par       │             ⇔                 │
-    │ des accolades                                  │ if (e) {                      │
-    │                                                │     s1                        │
-    │ sans les accolades, le newline après `s1`      │     s2                        │
-    │ serait interprété comme la fin du bloc `if`    │ } else                        │
-    │ au lieu de la fin de `s1`                      │     s3                        │
-    │                                                │                               │
-    │ par conséquent, `s2` serait exécutée           │                               │
-    │ peu importe la valeur de `e`                   │                               │
-    └────────────────────────────────────────────────┴───────────────────────────────┘
-
 ## Opérateurs
 
     ab?
@@ -3156,18 +3181,6 @@ Tout ceci est valable pour `--` également.
 Calcule la  sous-array de `a`  dont tous  les éléments contiennent  exactement 3
 caractères, ainsi que sa taille `n`.
 L'array obtenue est `b`.
-
----
-
-    FS = OFS = "\t"
-    a = b = 42
-
-Affecte:
-
-   - la chaîne "\t" aux variables internes     `FS` et `OFS`
-   - le nombre `42` aux variables utilisateurs `a`  et `b`
-
-Illustre qu'on peut réaliser plusieurs affectations en une seule ligne.
 
 ##
 ## Variables

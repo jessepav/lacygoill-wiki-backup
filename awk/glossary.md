@@ -3,6 +3,7 @@
 
 Property of  an operator which determines  how operators of the  same precedence
 are grouped (with their operands) in the absence of parentheses.
+
 If an operand is both preceded and followed by operators (for example, `^ 3 ^`),
 and those operators have equal precedence, then the operand may be used as input
 to two different operations.
@@ -54,9 +55,6 @@ There are 2 kinds of constants:
 
 Order  in which  individual statements,  instructions  or function  calls of  an
 imperative program are executed or evaluated.
-
-The emphasis  on explicit control  flow distinguishes an  imperative programming
-language from a declarative programming language.
 
 <https://en.wikipedia.org/wiki/Control_flow>
 
@@ -172,10 +170,14 @@ produces the number `3`.
 ##
 ## matching operator
 
+Operator performing a regex comparison:
+
    - `~`
    - `!~`
 
 ## relational operator
+
+Operator performing a numeric or lexicographic comparison:
 
    - `==`
    - `!=`
