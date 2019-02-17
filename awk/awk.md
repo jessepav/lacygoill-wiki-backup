@@ -1,4 +1,17 @@
-document that a newline is also ignored after the keyword `do` (see gawk book)
+<https://www.mpfr.org/mpfr-current/#download>
+
+    $ gpg mpfr-4.0.2.tar.xz.asc
+    gpg: assuming signed data in `mpfr-4.0.2.tar.xz'
+    gpg: Signature made Thu 31 Jan 2019 09:44:59 PM CET using DSA key ID 98C3739D
+    gpg: Can't check signature: public key not found
+
+    $ gpg --keyserver x-hkp://pool.sks-keyservers.net --recv-keys 98C3739D
+    gpg: requesting key 98C3739D from hkp server pool.sks-keyservers.net
+    gpg: key 98C3739D: public key "Vincent Lefevre <vincent@vinc17.net>" imported
+    gpg: key 98C3739D: public key "Vincent Lefevre <vincent@vinc17.net>" imported
+    gpg: no ultimately trusted keys found
+    gpg: Total number processed: 2
+    gpg:               imported: 2  (RSA: 1)
 
 # Install
 ## How to install the latest version of gawk?
@@ -12,9 +25,14 @@ document that a newline is also ignored after the keyword `do` (see gawk book)
 
 ### Configure, compile and check the compilation
 
-    $ ./bootstrap.sh && ./configure && make && make check
+    # `--enable-mpfr` allows you to use the `-M` command-line option
+    $ ./bootstrap.sh &&
+      ./configure --enable-mpfr &&
+      make &&
+      make check
 
-For more information, read the file `README.git`.
+For more  information, read the  `README.git` file (and maybe  the `./configure`
+file for some obscure configuration option).
 
 ### Note the version
 
@@ -37,7 +55,7 @@ Don't forget to use  an epoch which is higher than the one  used in your default
 repository; otherwise, your gawk package may be removed after a system update.
 
 Change the  value of `11: Provides`, so  that it includes `awk`,  in addition of
-`gawk`: `gawk,awk`;  otherwise, the  scripts relying on  the `awk`  command will
+`gawk`: `awk,gawk`;  otherwise, the  scripts relying on  the `awk`  command will
 fail, because they won't find it.
 This will make `checkinstall` create the following symlink:
 
@@ -1970,6 +1988,19 @@ Le problème peut venir de nombres trop grands, pex:
     retourne -1.38778e-16, mais devrait retourner 0~
     D'où vient cette différence non nulle ???
 
+    On a le même problème dans Vim!
+    :echo 1.2 - 1.1 - 0.1
+    -1.387779e-16~
+
+    Autre problème:
+    :echo 1.3 - 1.1 - 0.1 == 0.1
+    0~
+
+    Bottom line:
+    Don't make a float comparison in VimL, nor in awk.
+
+    Read the gawk user manual, chapter 15 to understand what's going on.
+
 <https://www.gnu.org/software/gawk/manual/html_node/Exact-Arithmetic.html#Exact-Arithmetic>
 
 ##
@@ -3836,6 +3867,14 @@ So, there's no need for an `else` after a `return`:
 
 ---
 
+Read the sections  6.3.2.1, 6.3.2.2, 6.3.2.3 in the gawk  user manual, to better
+understand how gawk handles the coercion with relational operators.
+
+---
+
+Document that a newline is also ignored after the keyword `do` (see gawk book).
+
+---
+
 The first time we read our first awk book,  we stopped at the page 84 of the pdf
 (72 in the original book).
-
