@@ -158,10 +158,10 @@ A program is executed in a process running in the computer's memory.
 
 A process stores some information about the program it's executing:
 
-        - PID
-        - state (running, stopped, ...)
-        - cwd
-        - environment variables
+   - PID
+   - state (running, stopped, ...)
+   - cwd
+   - environment variables
 
 ## program
 
