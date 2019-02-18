@@ -66,16 +66,16 @@ Each alternative has a priority associated with it.
 When a link group  is in automatic mode, the alternatives  pointed to by members
 of the group will be those which have the highest priority.
 
-When using the --config option, update-alternatives will list all of the choices
-for the link group of which given name is the master alternative name.
-The current choice is marked with a ‘*’.
+When  using the  `--config` option,  update-alternatives  will list  all of  the
+choices for the link group of which given name is the master alternative name.
+The current choice is marked with a `*`.
 You will then be prompted for your choice regarding this link group.
 Depending on the choice made, the link group might no longer be in auto mode.
-You will need to use the --auto option  in order to return to the automatic mode
-(or you can rerun --config and select the entry marked as automatic).
+You will  need to use the  `--auto` option in  order to return to  the automatic
+mode (or you can rerun `--config` and select the entry marked as automatic).
 
-If you want to configure non-interactively  you can use the --set option instead
-(see below).
+If  you want  to  configure non-interactively  you can  use  the `--set`  option
+instead (see below).
 
 Different packages providing the same file need to do so cooperatively.
 In other words,  the usage of update-alternatives is mandatory  for all involved
@@ -136,24 +136,24 @@ group.
 When a link group  is in manual mode, the alternatives system  will not make any
 changes to the system administrator's settings.
 
+##
 # Commands
-
-    --install link name path priority [--slave link name path]...
+## --install link name path priority [--slave link name path]...
 
 Add a group of alternatives to the system.
-link is the generic name for the master link, name is the name of its symlink in
-the alternatives directory, and path is the alternative being introduced for the
-master link.
-The  arguments  after  --slave  are  the  generic  name,  symlink  name  in  the
+`link`  is the  generic name  for the  master link,  `name` is  the name  of its
+symlink  in the  alternatives directory,  and  `path` is  the alternative  being
+introduced for the master link.
+The  arguments  after `--slave`  are  the  generic  name,  symlink name  in  the
 alternatives directory and the alternative path for a slave link.
-Zero  or  more  --slave  options,  each followed  by  three  arguments,  may  be
+Zero  or more  `--slave`  options,  each followed  by  three  arguments, may  be
 specified.
 Note that the master alternative must exist or the call will fail.
-However  if  a   slave  alternative  doesn't  exist,   the  corresponding  slave
+However,  if  a  slave  alternative   doesn't  exist,  the  corresponding  slave
 alternative  link  will  simply  not  be installed  (a  warning  will  still  be
 displayed).
 If some real file is installed where an alternative link has to be installed, it
-is kept unless --force is used.
+is kept unless `--force` is used.
 
 If the  alternative name specified  exists already in the  alternatives system's
 records, the information supplied will be added as a new set of alternatives for
@@ -164,43 +164,45 @@ If the group is in automatic mode, and the newly added alternatives' priority is
 higher than any  other installed alternatives for this group,  the symlinks will
 be updated to point to the newly added alternatives.
 
-    --set name path
+## --set name path
 
-Set the program path as alternative for name.
-This is equivalent to --config but is non-interactive and thus scriptable.
+Set the program `path` as alternative for `name`.
+This is equivalent to `--config` but is non-interactive and thus scriptable.
 
-    --remove name path
+## --remove name path
 
 Remove an alternative and all of its associated slave links.
-name is a name  in the alternatives directory, and path  is an absolute filename
-to which name could be linked.
-If name  is indeed  linked to  path, name will  be updated  to point  to another
+`name`  is a  name in  the  alternatives directory,  and `path`  is an  absolute
+filename to which `name` could be linked.
+If `name`  is indeed linked to  `path`, it will  be updated to point  to another
 appropriate  alternative (and  the  group is  put back  in  automatic mode),  or
 removed if there is no such alternative left.
 Associated slave links will be updated or removed, correspondingly.
-If the link  is not currently pointing  to path, no links are  changed; only the
+If the link  is not currently pointing  to `path`, no links are  changed; only the
 information about the alternative is removed.
 
-    --remove-all name
+## --remove-all name
 
 Remove all alternatives and all of their associated slave links.
 name is a name in the alternatives directory.
 
-    --all  Call --config on all alternatives. It can be  usefully  combined
+## --all
 
-with  --skip-auto  to  review  and  configure all  alternatives  which  are  not
-configured in automatic mode.
+Call `--config` on all alternatives.
+It  can be  usefully combined  with `--skip-auto`  to review  and configure  all
+alternatives which are not configured in automatic mode.
 Broken alternatives are also displayed.
-Thus  a  simple  way to  fix  all  broken  alternatives  is  to call  yes  ''  |
-update-alternatives --force --all.
+Thus a simple way to fix all broken alternatives is to call:
 
-    --auto name
+    $ yes '' | update-alternatives --force --all
+
+## --auto name
 
 Switch the link group behind the alternative for name to automatic mode.
 In the process,  the master symlink and  its slaves are updated to  point to the
 highest priority installed alternatives.
 
-    --display name
+## --display name
 
 Display information about the link group.
 Information displayed includes the group's mode (auto or manual), the master and
@@ -208,7 +210,7 @@ slave links, which  alternative the master link currently points  to, what other
 alternatives are available (and their corresponding slave alternatives), and the
 highest priority alternative currently installed.
 
-    --get-selections
+## --get-selections
 
 List all  master alternative names  (those controlling  a link group)  and their
 status (since version 1.15.0).
@@ -217,63 +219,63 @@ The first field  is the alternative name,  the second one is  the status (either
 auto or manual), and the last one contains the current choice in the alternative
 (beware: it's a filename and thus might contain spaces).
 
-    --set-selections
+## --set-selections
 
 Read configuration of alternatives on standard  input in the format generated by
---get-selections and reconfigure them accordingly (since version 1.15.0).
+`--get-selections` and reconfigure them accordingly (since version 1.15.0).
 
-    --query name
+## --query name
 
-Display information about  the link group like --display does,  but in a machine
+Display information about the link group like `--display` does, but in a machine
 parseable way (since version 1.15.0, see section QUERY FORMAT below).
 
-    --list name
+## --list name
 
 Display all targets of the link group.
 
-    --config name
+## --config name
 
 Show available alternatives for a link group and allow the user to interactively
 select which one to use.
 The link group is updated.
 
-    --help
-
-Show the usage message and exit.
-
-    --version
-
-Show the version and exit.
-
+##
 # Options
+## --altdir directory
 
-       --altdir directory
-              Specifies the alternatives directory, when this is to be differ‐
-              ent from the default.
+Specifies the  alternatives directory,  when this  is to  be different  from the
+default.
 
-       --admindir directory
-              Specifies  the administrative directory, when this is to be dif‐
-              ferent from the default.
+## --admindir directory
 
-       --log file
-              Specifies the log file (since version 1.15.0), when this  is  to
-              be different from the default (/var/log/alternatives.log).
+Specifies the  administrative directory, when this  is to be different  from the
+default.
 
-       --force
-              Allow  replacing  or  dropping  any  real file that is installed
-              where an alternative link has to be installed or removed.
+## --log file
 
-       --skip-auto
-              Skip configuration prompt for alternatives  which  are  properly
-              configured  in automatic mode. This option is only relevant with
-              --config or --all.
+Specifies the log file (since version 1.15.0), when this is to be different from
+the default (/var/log/alternatives.log).
 
-       --verbose
-              Generate more comments about what is being done.
+## --force
 
-       --quiet
-              Don't generate any comments unless errors occur.
+Allow replacing or dropping any real file that is installed where an alternative
+link has to be installed or removed.
 
+## --skip-auto
+
+Skip  configuration prompt  for alternatives  which are  properly configured  in
+automatic mode.
+This option is only relevant with `--config` or `--all`.
+
+## --verbose
+
+Generate more comments about what is being done.
+
+## --quiet
+
+Don't generate any comments unless errors occur.
+
+##
 # Exit Status
 
        0      The requested action was successfully performed.
@@ -284,120 +286,137 @@ Show the version and exit.
 # Environment
 
        DPKG_ADMINDIR
-              If set and the --admindir option has not been specified, it will
-              be used as the base administrative directory.
 
+If set and  the `--admindir` option has  not been specified, it will  be used as
+the base administrative directory.
+
+##
 # Files
+## /etc/alternatives/
 
-       /etc/alternatives/
-              The default alternatives directory.  Can be  overridden  by  the
-              --altdir option.
+The default alternatives directory.
+Can be overridden by the `--altdir` option.
 
-       /var/lib/dpkg/alternatives/
-              The  default administration directory.  Can be overridden by the
-              --admindir option.
+## /var/lib/dpkg/alternatives/
 
+The default administration directory.
+Can be overridden by the `--admindir` option.
+
+##
 # Query Format
 
-       The --query format is using an RFC822-like flat format. It's made of  n
-       +  1  blocks  where  n  is  the number of alternatives available in the
-       queried link group. The first block contains the following fields:
+The `--query` format is using an RFC822-like flat format.
+It's made of `n + 1` blocks where `n` is the number of alternatives available in
+the queried link group.
+The first block contains the following fields:
 
-       Name: name
-              The alternative name in the alternative directory.
+    Name: name
 
-       Link: link
-              The generic name of the alternative.
+The alternative name in the alternative directory.
 
-       Slaves: list-of-slaves
-              When this field is present, the next lines hold all slave  links
-              associated  to  the master link of the alternative. There is one
-              slave per line. Each line contains one space, the  generic  name
-              of  the  slave  alternative,  another space, and the path to the
-              slave link.
+    Link: link
 
-       Status: status
-              The status of the alternative (auto or manual).
+The generic name of the alternative.
 
-       Best: best-choice
-              The path of the  best  alternative  for  this  link  group.  Not
-              present if there is no alternatives available.
+    Slaves: list-of-slaves
 
-       Value: currently-selected-alternative
-              The path of the currently selected alternative. It can also take
-              the magic value none. It is used if the link doesn't exist.
+When this field  is present, the next  lines hold all slave  links associated to
+the master link of the alternative.
+There is one slave per line.
+Each line contains one space, the generic name of the slave alternative, another
+space, and the path to the slave link.
 
-       The other blocks describe the available  alternatives  in  the  queried
-       link group:
+    Status: status
 
-       Alternative: path-of-this-alternative
-              Path to this block's alternative.
+The status of the alternative (auto or manual).
 
-       Priority: priority-value
-              Value of the priority of this alternative.
+    Best: best-choice
 
-       Slaves: list-of-slaves
-              When this field is present, the next lines hold all slave alter‐
-              natives associated to the master link of the alternative.  There
-              is one slave per line. Each line contains one space, the generic
-              name of the slave alternative, another space, and  the  path  to
-              the slave alternative.
+The path of the best alternative for this link group.
+Not present if there is no alternatives available.
 
-       Example
-              $ update-alternatives --query editor
-              Name: editor
-              Link: /usr/bin/editor
-              Slaves:
-               editor.1.gz /usr/share/man/man1/editor.1.gz
-               editor.fr.1.gz /usr/share/man/fr/man1/editor.1.gz
-               editor.it.1.gz /usr/share/man/it/man1/editor.1.gz
-               editor.pl.1.gz /usr/share/man/pl/man1/editor.1.gz
-               editor.ru.1.gz /usr/share/man/ru/man1/editor.1.gz
-              Status: auto
-              Best: /usr/bin/vim.basic
-              Value: /usr/bin/vim.basic
+    Value: currently-selected-alternative
 
-              Alternative: /bin/ed
-              Priority: -100
-              Slaves:
-               editor.1.gz /usr/share/man/man1/ed.1.gz
+The path of the currently selected alternative.
+It can also take the magic value none.
+It is used if the link doesn't exist.
 
-              Alternative: /usr/bin/vim.basic
-              Priority: 50
-              Slaves:
-               editor.1.gz /usr/share/man/man1/vim.1.gz
-               editor.fr.1.gz /usr/share/man/fr/man1/vim.1.gz
-               editor.it.1.gz /usr/share/man/it/man1/vim.1.gz
-               editor.pl.1.gz /usr/share/man/pl/man1/vim.1.gz
-               editor.ru.1.gz /usr/share/man/ru/man1/vim.1.gz
+The other blocks describe the available alternatives in the queried link group:
 
+    Alternative: path-of-this-alternative
+
+Path to this block's alternative.
+
+    Priority: priority-value
+
+Value of the priority of this alternative.
+
+    Slaves: list-of-slaves
+
+When  this  field  is  present,  the next  lines  hold  all  slave  alternatives
+associated to the master link of the alternative.
+There is one slave per line.
+Each line contains one space, the generic name of the slave alternative, another
+space, and the path to the slave alternative.
+
+Example:
+
+      $ update-alternatives --query editor
+      Name: editor~
+      Link: /usr/bin/editor~
+      Slaves:~
+       editor.1.gz /usr/share/man/man1/editor.1.gz~
+       editor.fr.1.gz /usr/share/man/fr/man1/editor.1.gz~
+       editor.it.1.gz /usr/share/man/it/man1/editor.1.gz~
+       editor.pl.1.gz /usr/share/man/pl/man1/editor.1.gz~
+       editor.ru.1.gz /usr/share/man/ru/man1/editor.1.gz~
+      Status: auto~
+      Best: /usr/bin/vim.basic~
+      Value: /usr/bin/vim.basic~
+
+      Alternative: /bin/ed~
+      Priority: -100~
+      Slaves:~
+       editor.1.gz /usr/share/man/man1/ed.1.gz~
+
+      Alternative: /usr/bin/vim.basic~
+      Priority: 50~
+      Slaves:~
+       editor.1.gz /usr/share/man/man1/vim.1.gz~
+       editor.fr.1.gz /usr/share/man/fr/man1/vim.1.gz~
+       editor.it.1.gz /usr/share/man/it/man1/vim.1.gz~
+       editor.pl.1.gz /usr/share/man/pl/man1/vim.1.gz~
+       editor.ru.1.gz /usr/share/man/ru/man1/vim.1.gz~
+
+##
 # Diagnostics
 
-       With  --verbose  update-alternatives  chatters  incessantly  about  its
-       activities  on  its  standard  output  channel.   If  problems   occur,
-       update-alternatives  outputs error messages on its standard error chan‐
-       nel and returns an exit status of 2.  These diagnostics should be self-
-       explanatory; if you do not find them so, please report this as a bug.
+With `--verbose`  update-alternatives chatters incessantly about  its activities
+on its standard output channel.
+If problems  occur, update-alternatives outputs  error messages on  its standard
+error channel and returns an exit status of 2.
+These diagnostics should be selfexplanatory; if  you do not find them so, please
+report this as a bug.
 
 # Examples
 
-       There  are several packages which provide a text editor compatible with
-       vi, for example nvi and vim. Which one is used  is  controlled  by  the
-       link  group  vi,  which  includes  links for the program itself and the
-       associated manpage.
+There are several  packages which provide a text editor  compatible with vi, for
+example nvi and vim.
+Which one is used  is controlled by the link group vi,  which includes links for
+the program itself and the associated manpage.
 
-       To display the available packages which provide vi and the current set‐
-       ting for it, use the --display action:
+To display the  available packages which provide vi and  the current setting for
+it, use the `--display` action:
 
-              update-alternatives --display vi
+    $ update-alternatives --display vi
 
-       To  choose a particular vi implementation, use this command as root and
-       then select a number from the list:
+To choose  a particular  vi implementation,  use this command  as root  and then
+select a number from the list:
 
-              update-alternatives --config vi
+    $ update-alternatives --config vi
 
-       To go back to having the vi  implementation  chosen  automatically,  do
-       this as root:
+To go  back to  having the  vi implementation chosen  automatically, do  this as
+root:
 
-              update-alternatives --auto vi
+    $ update-alternatives --auto vi
 
