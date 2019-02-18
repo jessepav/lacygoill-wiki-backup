@@ -1,3 +1,123 @@
+# ?
+
+Some definitions
+
+`$ man update-alternatives` talks about `master` and `slave` links.
+Example:
+
+    $ update-alternatives --query awk
+    Name: awk~
+    Link: /usr/bin/awk~
+    Slaves:~
+     awk.1.gz /usr/share/man/man1/awk.1.gz~
+     nawk /usr/bin/nawk~
+     nawk.1.gz /usr/share/man/man1/nawk.1.gz~
+    Status: manual~
+    Best: /usr/local/bin/gawk~
+    Value: /usr/local/bin/gawk~
+
+    ...~
+
+    Alternative: /usr/local/bin/gawk~
+    Priority: 60~
+    Slaves:~
+     awk.1.gz /usr/local/share/man/man1/gawk.1.gz~
+
+The master link of the group is:
+
+    /usr/bin/awk → /etc/alternatives/awk
+
+According to the `Value:` field, it currently points to `/usr/local/bin/gawk`.
+
+One slave link is:
+
+    /usr/share/man/man1/awk.1.gz → /etc/alternatives/awk.1.gz
+
+According to the `Slaves:` field of the `/usr/local/bin/gawk` alternative,
+it currently points to `/usr/local/share/man/man1/gawk.1.gz`.
+
+Usually the slave links are for manpages.
+
+The master link determine how the slaves will be configured.
+
+Also, a master link and its slaves make up a *link group*.
+
+# ?
+
+Some useful commands
+
+    $ update-alternatives --install /usr/bin/editor editor /usr/local/bin/vim 1
+
+Add the  alternative `/usr/local/bin/vim`  to the group  whose master  link is
+`/usr/bin/editor → /etc/alternatives/editor`, with the priority 1.
+
+---
+
+    $ update-alternatives --remove editor /usr/local/bin/vim
+
+Remove the alternative `/usr/local/bin/vim` from the group `editor`.
+If the link group contains slave links (usually for manpages), they're updated
+or removed.
+
+---
+
+    $ update-alternatives --set editor /usr/local/bin/vim
+
+Configure `/usr/local/bin/vim` to be *the* alternative providing `editor`.
+
+---
+
+    $ update-alternatives --config editor
+
+Configure the group editor interactively.
+
+---
+
+    $ update-alternatives --auto editor
+
+Reconfigure  the  group  `editor`  so  that,  from  now  on,  it  will  always
+automatically use the alternative with the highest priority.
+
+---
+
+    $ update-alternatives --query editor
+    $ update-alternatives --display editor
+
+Display  information about  the group  of alternatives  whose generic  name is
+`editor`. Useful to check which alternative provides `/usr/bin/editor`.
+
+    $ update-alternatives --get-selections
+
+Show:
+
+   - each group of alternatives
+   - the alternative they use
+   - in which mode they are (manual / auto)
+
+##
+##
+##
+# Why does `update-alternatives` use two symlinks between a generic name and an alternative (instead of just one)?
+
+        /usr/bin/editor
+        → /etc/alternatives/editor
+        → /usr/local/bin/vim
+
+It allows the  OS to confine the changes  of the sysadmin to `/etc`,  which is a
+good thing according to the FHS.
+IOW, it creates a convenient centralised point of config.
+
+# How to review all alternatives which are not configured in automatic mode?
+
+    $ update-alternatives --all --skip-auto
+
+# How to try and fix all broken alternatives?
+
+    $ yes '' | update-alternatives --all --force
+
+##
+##
+##
 # Name
 
 update-alternatives - maintain symbolic links determining default commands
@@ -24,17 +144,17 @@ interchangeable functionality.
 The alternatives  system and the  system administrator together  determine which
 actual file is referenced by this generic name.
 For example,  if the  text editors ed(1)  and nvi(1) are  both installed  on the
-system, the alternatives  system will cause the generic  name /usr/bin/editor to
-refer to /usr/bin/nvi by default.
-The system administrator can override this  and cause it to refer to /usr/bin/ed
-instead,  and  the  alternatives  system  will  not  alter  this  setting  until
-explicitly requested to do so.
+system, the alternatives system will cause the generic name `/usr/bin/editor` to
+refer to `/usr/bin/nvi` by default.
+The  system  administrator   can  override  this  and  cause  it   to  refer  to
+`/usr/bin/ed` instead, and  the alternatives system will not  alter this setting
+until explicitly requested to do so.
 
 The generic name is not a direct symbolic link to the selected alternative.
-Instead, it is a symbolic link to a name in the alternatives directory, which in
-turn is a symbolic link to the actual file referenced.
+Instead, it is a symbolic link to  a name in `/etc/alternatives/`, which in turn
+is a symbolic link to the actual file referenced.
 This is done  so that the system administrator's changes  can be confined within
-the `/etc/` directory: the FHS (q.v.) gives reasons why this is a Good Thing.
+the `/etc/` directory, which according to the FHS is a “Good Thing”.
 
 When each package providing a file with a particular functionality is installed,
 changed or  removed, update-alternatives is  called to update  information about
@@ -44,8 +164,8 @@ update-alternatives is  usually called  from the  postinst (configure)  or prerm
 
 It is often useful for a number of alternatives to be synchronized, so that they
 are changed as a  group; for example, when several versions  of the vi(1) editor
-are  installed,  the  man  page referenced  by  /usr/share/man/man1/vi.1  should
-correspond to the executable referenced by /usr/bin/vi.
+are  installed, the  man  page referenced  by `/usr/share/man/man1/vi.1`  should
+correspond to the executable referenced by `/usr/bin/vi`.
 update-alternatives handles  this by means of  master and slave links;  when the
 master is changed, any associated slaves are changed too.
 A master link and its associated slaves make up a link group.
@@ -75,7 +195,7 @@ You will  need to use the  `--auto` option in  order to return to  the automatic
 mode (or you can rerun `--config` and select the entry marked as automatic).
 
 If  you want  to  configure non-interactively  you can  use  the `--set`  option
-instead (see below).
+instead.
 
 Different packages providing the same file need to do so cooperatively.
 In other words,  the usage of update-alternatives is mandatory  for all involved
@@ -91,21 +211,17 @@ terms will help to explain its operation.
 
 ## generic name (or alternative link)
 
-A name, like /usr/bin/editor, which refers,  via the alternatives system, to one
-of a number of files of similar function.
+A name,  like `/usr/bin/editor`, which  refers, via the alternatives  system, to
+one of a number of files of similar function.
 
 ## alternative name
 
-The name of a symbolic link in the alternatives directory.
+The name of a symbolic link in `/etc/alternatives/`.
 
-## alternative (or alternative path)
+## alternative (path)
 
 The name of a specific file in  the filesystem, which may be made accessible via
 a generic name using the alternatives system.
-
-## alternatives directory
-
-The `/etc/alternatives/` directory containing the symlinks.
 
 ## administrative directory
 
@@ -143,10 +259,10 @@ changes to the system administrator's settings.
 
 Add a group of alternatives to the system.
 `link`  is the  generic name  for the  master link,  `name` is  the name  of its
-symlink  in the  alternatives directory,  and  `path` is  the alternative  being
-introduced for the master link.
-The  arguments  after `--slave`  are  the  generic  name,  symlink name  in  the
-alternatives directory and the alternative path for a slave link.
+symlink in `/etc/alternatives/`, and `path`  is the alternative being introduced
+for the master link.
+The  arguments   after  `--slave`  are   the  generic  name,  symlink   name  in
+`/etc/alternatives/` and the alternative for a slave link.
 Zero  or more  `--slave`  options,  each followed  by  three  arguments, may  be
 specified.
 Note that the master alternative must exist or the call will fail.
@@ -165,6 +281,18 @@ If the group is in automatic mode, and the newly added alternatives' priority is
 higher than any  other installed alternatives for this group,  the symlinks will
 be updated to point to the newly added alternatives.
 
+Example:
+
+    update-alternatives --install /usr/bin/"${name}" "${name}" /usr/local/bin/vim 60
+                                  ├────────────────┘ ├───────┘ ├────────────────┘ ├┘
+                                  │                  │         │                  └ priority
+                                  │                  │         └ path to alternative
+                                  │                  │
+                                  │                  └ name of the alternative (again, symlink)
+                                  │                    in `/etc/alternatives`
+                                  │
+                                  └ generic name (symlink)
+
 ## --set name path
 
 Set the program `path` as alternative for `name`.
@@ -173,29 +301,19 @@ This is equivalent to `--config` but is non-interactive and thus scriptable.
 ## --remove name path
 
 Remove an alternative and all of its associated slave links.
-`name`  is a  name in  the  alternatives directory,  and `path`  is an  absolute
-filename to which `name` could be linked.
+`name` is a name in `/etc/alternatives/`,  and `path` is an absolute filename to
+which `name` could be linked.
 If `name`  is indeed linked to  `path`, it will  be updated to point  to another
 appropriate  alternative (and  the  group is  put back  in  automatic mode),  or
 removed if there is no such alternative left.
 Associated slave links will be updated or removed, correspondingly.
-If the link  is not currently pointing  to `path`, no links are  changed; only the
+If the link is not currently pointing  to `path`, no links are changed; only the
 information about the alternative is removed.
 
 ## --remove-all name
 
 Remove all alternatives and all of their associated slave links.
-name is a name in the alternatives directory.
-
-## --all
-
-Call `--config` on all alternatives.
-It  can be  usefully combined  with `--skip-auto`  to review  and configure  all
-alternatives which are not configured in automatic mode.
-Broken alternatives are also displayed.
-Thus a simple way to fix all broken alternatives is to call:
-
-    $ yes '' | update-alternatives --force --all
+name is a name in `/etc/alternatives/`.
 
 ## --auto name
 
@@ -214,7 +332,7 @@ highest priority alternative currently installed.
 ## --get-selections
 
 List all  master alternative names  (those controlling  a link group)  and their
-status (since version 1.15.0).
+status.
 Each line contains up to 3 fields (separated by one or more spaces).
 The first field  is the alternative name,  the second one is  the status (either
 auto or manual), and the last one contains the current choice in the alternative
@@ -223,16 +341,16 @@ auto or manual), and the last one contains the current choice in the alternative
 ## --set-selections
 
 Read configuration of alternatives on standard  input in the format generated by
-`--get-selections` and reconfigure them accordingly (since version 1.15.0).
+`--get-selections` and reconfigure them accordingly.
 
 ## --query name
 
 Display information about the link group like `--display` does, but in a machine
-parseable way (since version 1.15.0, see section QUERY FORMAT below).
+parseable way.
 
 ## --list name
 
-Display all targets of the link group.
+Display the list of paths to the alternatives of the link group.
 
 ## --config name
 
@@ -242,42 +360,19 @@ The link group is updated.
 
 ##
 # Options
-## --altdir directory
-
-Specifies the  alternatives directory,  when this  is to  be different  from the
-default.
-
 ## --log file
 
-Specifies the log file (since version 1.15.0), when this is to be different from
-the default (`/var/log/alternatives.log`).
+Specifies  the  log  file  when  this  is  to  be  different  from  the  default
+(`/var/log/alternatives.log`).
 
 ## --force
 
 Allow replacing or dropping any real file that is installed where an alternative
 link has to be installed or removed.
 
-## --skip-auto
-
-Skip  configuration prompt  for alternatives  which are  properly configured  in
-automatic mode.
-This option is only relevant with `--config` or `--all`.
-
 ## --verbose
 
 Generate more comments about what is being done.
-
-## --quiet
-
-Don't generate any comments unless errors occur.
-
-##
-# Exit Status
-
-       0      The requested action was successfully performed.
-
-       2      Problems were encountered whilst parsing  the  command  line  or
-              performing the action.
 
 ##
 # Query Format
@@ -364,15 +459,10 @@ Example:
        editor.pl.1.gz /usr/share/man/pl/man1/vim.1.gz~
        editor.ru.1.gz /usr/share/man/ru/man1/vim.1.gz~
 
-##
 # Diagnostics
 
 With `--verbose`, update-alternatives chatters  incessantly about its activities
 on its standard output channel.
-If a problem occurs, update-alternatives  outputs error messages on its standard
-error channel and returns an exit status of 2.
-These diagnostics should be self-explanatory; if you do not find them so, please
-report this as a bug.
 
 # Examples
 

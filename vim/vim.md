@@ -27,6 +27,24 @@ So the general behavior is the most common behavior.
 ##
 # Démarrage
 
+Several commands can start Vim. How to detect which one is responsible for the current Vim process?
+
+    :echo v:progname
+
+Example:
+
+    $ vimdiff ~/.bashrc ~/.zshrc
+    :echo v:progname
+    vimdiff~
+
+---
+
+Several Vim binaries can be installed. How to detect which one is responsible for the current Vim process?
+
+    :echo v:progpath
+
+---
+
         $ less file
 
 Affiche le contenu de file dans le pager `less`.
