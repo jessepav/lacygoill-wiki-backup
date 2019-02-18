@@ -34,7 +34,7 @@ The generic name is not a direct symbolic link to the selected alternative.
 Instead, it is a symbolic link to a name in the alternatives directory, which in
 turn is a symbolic link to the actual file referenced.
 This is done  so that the system administrator's changes  can be confined within
-the /etc directory: the FHS (q.v.) gives reasons why this is a Good Thing.
+the `/etc/` directory: the FHS (q.v.) gives reasons why this is a Good Thing.
 
 When each package providing a file with a particular functionality is installed,
 changed or  removed, update-alternatives is  called to update  information about
@@ -83,55 +83,56 @@ packages in such case.
 It is not possible  to override some file in a package that  does not employ the
 update-alternatives mechanism.
 
+##
 # Terminology
 
 Since the  activities of update-alternatives  are quite involved,  some specific
 terms will help to explain its operation.
 
-    generic name (or alternative link)
+## generic name (or alternative link)
 
 A name, like /usr/bin/editor, which refers,  via the alternatives system, to one
 of a number of files of similar function.
 
-    alternative name
+## alternative name
 
 The name of a symbolic link in the alternatives directory.
 
-    alternative (or alternative path)
+## alternative (or alternative path)
 
 The name of a specific file in  the filesystem, which may be made accessible via
 a generic name using the alternatives system.
 
-    alternatives directory
+## alternatives directory
 
-A directory, by default /etc/alternatives, containing the symlinks.
+The `/etc/alternatives/` directory containing the symlinks.
 
-    administrative directory
+## administrative directory
 
-A     directory,    by     default    /var/lib/dpkg/alternatives,     containing
-update-alternatives' state information.
+The `/var/lib/dpkg/alternatives/` directory, which contains update-alternatives'
+state information.
 
-    link group
+## link group
 
 A set of related symlinks, intended to be updated as a group.
 
-    master link
+## master link
 
 The alternative link in a link group which determines how the other links in the
 group are configured.
 
-    slave link
+## slave link
 
 An alternative link  in a link group  which is controlled by the  setting of the
 master link.
 
-    automatic mode
+## automatic mode
 
 When a link group is in automatic mode, the alternatives system ensures that the
 links in the group point to the highest priority alternative appropriate for the
 group.
 
-    manual mode
+## manual mode
 
 When a link group  is in manual mode, the alternatives system  will not make any
 changes to the system administrator's settings.
@@ -246,15 +247,10 @@ The link group is updated.
 Specifies the  alternatives directory,  when this  is to  be different  from the
 default.
 
-## --admindir directory
-
-Specifies the  administrative directory, when this  is to be different  from the
-default.
-
 ## --log file
 
 Specifies the log file (since version 1.15.0), when this is to be different from
-the default (/var/log/alternatives.log).
+the default (`/var/log/alternatives.log`).
 
 ## --force
 
@@ -283,31 +279,11 @@ Don't generate any comments unless errors occur.
        2      Problems were encountered whilst parsing  the  command  line  or
               performing the action.
 
-# Environment
-
-       DPKG_ADMINDIR
-
-If set and  the `--admindir` option has  not been specified, it will  be used as
-the base administrative directory.
-
-##
-# Files
-## /etc/alternatives/
-
-The default alternatives directory.
-Can be overridden by the `--altdir` option.
-
-## /var/lib/dpkg/alternatives/
-
-The default administration directory.
-Can be overridden by the `--admindir` option.
-
 ##
 # Query Format
 
-The `--query` format is using an RFC822-like flat format.
-It's made of `n + 1` blocks where `n` is the number of alternatives available in
-the queried link group.
+The `--query`  format is  made of  `n +  1` blocks  where `n`  is the  number of
+alternatives available in the queried link group.
 The first block contains the following fields:
 
     Name: name
@@ -391,11 +367,11 @@ Example:
 ##
 # Diagnostics
 
-With `--verbose`  update-alternatives chatters incessantly about  its activities
+With `--verbose`, update-alternatives chatters  incessantly about its activities
 on its standard output channel.
-If problems  occur, update-alternatives outputs  error messages on  its standard
+If a problem occurs, update-alternatives  outputs error messages on its standard
 error channel and returns an exit status of 2.
-These diagnostics should be selfexplanatory; if  you do not find them so, please
+These diagnostics should be self-explanatory; if you do not find them so, please
 report this as a bug.
 
 # Examples
