@@ -19,6 +19,22 @@
 For more  information, read the  `README.git` file (and maybe  the `./configure`
 file for some obscure configuration option).
 
+Also, have a look at how the Ubuntu devs compile the gawk package:
+<https://launchpad.net/ubuntu/+source/gawk>
+
+click on the button below `Latest upload:`:
+<https://launchpad.net/ubuntu/+source/gawk/1:4.2.1+dfsg-1build1>
+
+click on the `amd64` button in the section `Builds`:
+<https://launchpad.net/ubuntu/+source/gawk/1:4.2.1+dfsg-1build1/+build/16316647>
+
+click on the `buildlog` button:
+<https://launchpadlibrarian.net/407977665/buildlog_ubuntu-disco-amd64.gawk_1%3A4.2.1+dfsg-1build1_BUILDING.txt.gz>
+
+You can even grep the buildlog directly from the shell:
+
+    $ curl -s <build_log_url> | gunzip - | grep ./configure
+
 ### Note the version
 
     $ git describe --tags
@@ -39,35 +55,23 @@ Use the previously noted version to fill in the version (`3: Version`):
 Don't forget to use  an epoch which is higher than the one  used in your default
 repository; otherwise, your gawk package may be removed after a system update.
 
-Change the  value of `11: Provides`, so  that it includes `awk`,  in addition of
-`gawk`: `awk,gawk`;  otherwise, the  scripts relying on  the `awk`  command will
-fail, because they won't find it.
-This will make `checkinstall` create the following symlink:
-
-    $ ls -l /usr/local/bin/awk
-    lrwxrwxrwx 1 root root 4 Feb 17 19:30 /usr/local/bin/awk -> gawk
-
 ---
 
-TODO: I'm not sure `,gawk` is used, because:
+TODO: you may lose the ability to run the `awk` command (`gawk` will work though).
+If that happens, you'll have to play with `update-alternatives`.
+Try this (untested):
 
-    $ aptitude show gawk
-    ...~
-    Provides: awk~
-    ...~
+    # in an interactive usage
+    $ sudo update-alternatives --config awk
 
-If we reverse the order: `gawk,awk`, the awk command is not found anymore:
+    # in a script
+    $ sudo update-alternatives --install /usr/bin/awk awk /usr/local/bin/gawk 60
+    $ sudo update-alternatives --set awk /usr/local/bin/gawk
 
-    $ type awk
-    awk not found~
+To make `$ man awk` open the `gawk` manpage, you'll also have to install a slave:
 
-Which causes an issue for any script relying on it.
-
-If  we still  reverse the  order (`gawk,awk`)  *and* remove  the `--enable-mpfr`
-option during the configuration, the issue is fixed.
-Which is weird...
-Even  weirder, it  seems that  `-M`  still works,  even though  it shouldn't  be
-supported without `--enable-mpfr`.
+    $ sudo update-alternatives --install /usr/bin/awk awk /usr/local/bin/gawk 60 \
+    --slave /usr/share/man/man1/awk.1.gz awk.1.gz /usr/local/share/man/man1/gawk.1.gz
 
 ##
 ## How to install the latest stable release of gawk?
@@ -3697,29 +3701,47 @@ Les valeurs de `OFS` et `ORS` sont toujours littérales.
 Effectue la transformation suivante:
 
     I_like_old_things.    →    I|like|old|things.
-    |
+                               |
 
 Illustre que le remplacement de `RS` par `ORS` est automatique et inconditionnel.
 
 
-On remarque un pipe sous le I, sur une 2e ligne.
+On remarque un pipe sous le `I`, sur une 2e ligne.
 awk  considère  qu'il  y  a  un  “record  terminator“  (`RT`)  entre  2  records
 consécutifs, mais aussi après le dernier record.
+
+From the gawk user manual, `4.1.1 Record Splitting with Standard awk`, page 63:
+
+> Reaching the end of  an input file terminates the current  input record, even if
+> the last character in the file is not the character in RS.
+
 `RT` est décrit par le caractère / la regex contenu(e) dans `RS`.
 
 Sur le dernier record d'un input, `RT = ""` peu importe la valeur de `RS`.
 Awk remplace le dernier `RT` (`""`) par `ORS`.
 
-FIXME:
-
 Par contre,  pourquoi awk  semble ajouter  un newline  après le  dernier record,
-alors que `ORS` n'en contient pas:
+alors que `ORS` n'en contient pas?
 
-    I|like|old|things.    vs   I|like|old|things.|
+    I|like|old|things.
     |
 
-Peut-être car il y a toujours un newline à la fin d'un fichier / ou de la sortie
-d'une commande shell.
+    vs
+
+    I|like|old|things.|
+
+Car il y  a toujours un newline  à la fin d'un  fichier / ou de  la sortie d'une
+commande shell.
+
+    $ echo '' >/tmp/file
+    $ xxd -p /tmp/file
+    0a~
+
+    $ echo '' | xxd -p
+    0a~
+
+Donc, sur le dernier  record de l'input ou d'un fichier,  ce newline fait partie
+du record, et awk ajoute `ORS` *après*.
 
 ---
 
