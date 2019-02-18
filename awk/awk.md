@@ -1,18 +1,3 @@
-<https://www.mpfr.org/mpfr-current/#download>
-
-    $ gpg mpfr-4.0.2.tar.xz.asc
-    gpg: assuming signed data in `mpfr-4.0.2.tar.xz'
-    gpg: Signature made Thu 31 Jan 2019 09:44:59 PM CET using DSA key ID 98C3739D
-    gpg: Can't check signature: public key not found
-
-    $ gpg --keyserver x-hkp://pool.sks-keyservers.net --recv-keys 98C3739D
-    gpg: requesting key 98C3739D from hkp server pool.sks-keyservers.net
-    gpg: key 98C3739D: public key "Vincent Lefevre <vincent@vinc17.net>" imported
-    gpg: key 98C3739D: public key "Vincent Lefevre <vincent@vinc17.net>" imported
-    gpg: no ultimately trusted keys found
-    gpg: Total number processed: 2
-    gpg:               imported: 2  (RSA: 1)
-
 # Install
 ## How to install the latest version of gawk?
 ### Clone the repo
@@ -61,6 +46,28 @@ This will make `checkinstall` create the following symlink:
 
     $ ls -l /usr/local/bin/awk
     lrwxrwxrwx 1 root root 4 Feb 17 19:30 /usr/local/bin/awk -> gawk
+
+---
+
+TODO: I'm not sure `,gawk` is used, because:
+
+    $ aptitude show gawk
+    ...~
+    Provides: awk~
+    ...~
+
+If we reverse the order: `gawk,awk`, the awk command is not found anymore:
+
+    $ type awk
+    awk not found~
+
+Which causes an issue for any script relying on it.
+
+If  we still  reverse the  order (`gawk,awk`)  *and* remove  the `--enable-mpfr`
+option during the configuration, the issue is fixed.
+Which is weird...
+Even  weirder, it  seems that  `-M`  still works,  even though  it shouldn't  be
+supported without `--enable-mpfr`.
 
 ##
 ## How to install the latest stable release of gawk?
