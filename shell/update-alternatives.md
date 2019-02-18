@@ -25,20 +25,20 @@ Example:
 
 The master link of the group is:
 
-    /usr/bin/awk → /etc/alternatives/awk
+    /usr/bin/awk
 
 According to the `Value:` field, it currently points to `/usr/local/bin/gawk`.
 
 One slave link is:
 
-    /usr/share/man/man1/awk.1.gz → /etc/alternatives/awk.1.gz
+    /usr/share/man/man1/awk.1.gz
 
 According to the `Slaves:` field of the `/usr/local/bin/gawk` alternative,
 it currently points to `/usr/local/share/man/man1/gawk.1.gz`.
 
 Usually the slave links are for manpages.
 
-The master link determine how the slaves will be configured.
+The master link determines how the slaves will be configured.
 
 Also, a master link and its slaves make up a *link group*.
 
@@ -48,8 +48,8 @@ Some useful commands
 
     $ update-alternatives --install /usr/bin/editor editor /usr/local/bin/vim 1
 
-Add the  alternative `/usr/local/bin/vim`  to the group  whose master  link is
-`/usr/bin/editor → /etc/alternatives/editor`, with the priority 1.
+Add  the alternative  `/usr/local/bin/vim` to  the  group whose  master link  is
+`/usr/bin/editor`, with the priority 1.
 
 ---
 
@@ -100,7 +100,7 @@ Show:
 ##
 # What's the purpose of update-alternatives?
 
-To maintain symbolic links determining default commands.
+It maintains symbolic links which determine default commands.
 
 ##
 # Why does `update-alternatives` use two symlinks between a generic name and an alternative (instead of just one)?
@@ -295,13 +295,13 @@ Zero  or more  `--slave`  options,  each followed  by  three  arguments, may  be
 specified.
 Note that the master alternative must exist or the call will fail.
 However, if a  slave alternative doesn't exist, the  corresponding slave generic
-name will simply not be installed (a warning will still be displayed).
+name will simply not be installed.
 If some real file  is installed where a generic name has to  be installed, it is
 kept unless `--force` is used.
 
 If the  alternative name specified  exists already in the  alternatives system's
 records, the information supplied will be added as a new set of alternatives for
-the group.
+the group (one master and possibly one or several slaves).
 Otherwise,  a  new  group, set  to  automatic  mode,  will  be added  with  this
 information.
 If the group is in automatic mode, and the newly added alternatives' priority is
@@ -310,15 +310,15 @@ be updated to point to the newly added alternatives.
 
 Example:
 
-    update-alternatives --install /usr/bin/"${name}" "${name}" /usr/local/bin/vim 60
-                                  ├────────────────┘ ├───────┘ ├────────────────┘ ├┘
-                                  │                  │         │                  └ priority
-                                  │                  │         └ path to alternative
-                                  │                  │
-                                  │                  └ name of the alternative (again, symlink)
-                                  │                    in `/etc/alternatives`
-                                  │
-                                  └ generic name (symlink)
+    $ update-alternatives --install /usr/bin/"${name}" "${name}" /usr/local/bin/vim 60
+                                    ├────────────────┘ ├───────┘ ├────────────────┘ ├┘
+                                    │                  │         │                  └ priority
+                                    │                  │         └ path to alternative
+                                    │                  │
+                                    │                  └ name of the alternative (again, symlink)
+                                    │                    in `/etc/alternatives`
+                                    │
+                                    └ generic name (symlink)
 
 ## --set name path
 
@@ -350,11 +350,13 @@ highest priority installed alternatives.
 
 ## --display name
 
-Display information about the link group.
-Information displayed includes the group's mode (auto or manual), the master and
-slave links, which  alternative the master link currently points  to, what other
-alternatives are available (and their corresponding slave alternatives), and the
-highest priority alternative currently installed.
+Display information about the link group:
+
+   - the group's mode (auto or manual)
+   - the master and slave links
+   - which alternative the master link currently points to
+   - what other alternatives are available (and their corresponding slave alternatives)
+   - the highest priority alternative currently installed
 
 ## --get-selections
 
