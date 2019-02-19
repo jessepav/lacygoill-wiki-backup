@@ -20,7 +20,7 @@
 
 # How to write good documentation?
 
-    https://writing.stackexchange.com/a/34138/30109
+<https://writing.stackexchange.com/a/34138/30109>
 
 # Accelerated learning techniques
 
@@ -500,14 +500,75 @@ Je me confronte aux autres.
 
        - supprimant le "bruit", càd des infos:
 
-       - redondantes
-       - pas ou peu intéressantes
-       - expliquées par des règles déduites dans l'étape 3
+       * redondantes
+       * pas ou peu intéressantes
+       * expliquées par des règles déduites dans l'étape 3
 
        - factorisant le + possible
 
    3. Déduire des règles. Puis revenir à l'étape 2. Répéter jusqu'à ce qu'il n'y
       ait plus qu'un minimum d'infos et un max de règles.
+
+---
+
+Notes can be confusing because of its terminology.
+A good example is the manpage for `update-alternatives`.
+It refers to 3 related concepts with different words:
+
+   - generic name, alternative link
+   - alternative name
+   - alternative, alternative path
+
+`generic name` is confusing because it's completely different than all the other words.
+`alternative` is confusing  because whenever you read it, you  wonder whether it
+means “alternative path”, or an alternative as a whole (link, name, path).
+
+If the documentation uses different terminologies, edit it to make it more consistent.
+Always use the same word to refer to the same concept.
+Choose the word which is used the most often in the official documentation.
+
+Exception:
+
+If  the most  used word  is confusing  in itself  (e.g. generic  name), and  the
+subject you're  studying is has a  very limited area of  application, and you're
+not  going to  study it  for a  long time,  then it's  ok to  use another  word,
+provided it's still used somewhere in the documentation.
+
+So,  in the  previous example,  it's  ok to  use “alternative  link” instead  of
+“generic name”.
+
+---
+
+If the documentation is still confusing, that's probably because it lacks some info.
+
+How to gain more info?
+Use  the info  you have  noted  to do  sth  practical; for  anything related  to
+computer science, it means running commands.
+
+This implies that you should remove any note which can't be used in practice.
+After using the info, study the effects of what you did to gather more info.
+
+For example, in computer science, running commands is useful because you can see
+whether  files were  created,  how many,  where,  ... or  you  can run  commands
+verbosely and read a logfile...
+
+However, you'll likely need to re-run  the same commands many times, with slight
+changes, to get a better understanding of the documentation.
+This implies two things:
+
+   1. For every group of commands you run, you need to find the opposite
+      commands which will undo all their effects. You need it so that the second
+      time you run your commands, their effects won't be affected by the
+      previous run.
+
+      Example: the opposite of `update-alternatives --install ...` is
+      `update-alternatives --remove all ...`.
+
+   2. You need to write a temporary script to avoid having to run the same long
+      commands over and over. With it,  all you'll have to  do is edit a  script
+      to add your  change and re-run it. It's much quicker to change a word in
+      a command, then to retype several long commands just for one little
+      change.
 
 # Design
 

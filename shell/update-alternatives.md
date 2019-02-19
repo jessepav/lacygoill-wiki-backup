@@ -1,53 +1,60 @@
 # ?
 
-    # the alternative path must exist, hence why we use `/usr/bin/make` in this example;
-    # otherwise the command would fail
-    $ sudo update-alternatives --install /usr/local/bin/ab cd /usr/bin/make 123 \
-        --slave /usr/local/bin/ef gh /usr/bin/nmap \
-        --slave /usr/local/bin/ij kl /usr/bin/open
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
+        --slave /usr/local/bin/BB ff /usr/bin/nmap \
+        --slave /usr/local/bin/CC gg /usr/bin/open
 
-    $ sudo update-alternatives --install /usr/local/bin/ab cd /usr/bin/ping 456 \
-        --slave /usr/local/bin/ef gh /usr/bin/qmv \
-        --slave /usr/local/bin/ij kl /usr/bin/rar
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/paste 456 \
+        --slave /usr/local/bin/BB ff /usr/bin/qmv \
+        --slave /usr/local/bin/CC gg /usr/bin/rar
 
-    $ update-alternatives --query cd
-    Name: cd~
-    Link: /usr/local/bin/ab~
+    $ sudo update-alternatives --set ee /usr/bin/make
+
+    $ update-alternatives --query ee
+    Name: ee~
+    Link: /usr/local/bin/AA~
     Slaves:~
-     gh /usr/local/bin/ef~
-     kl /usr/local/bin/ij~
-    Status: auto~
-    Best: /usr/bin/ping~
-    Value: /usr/bin/ping~
+     ff /usr/local/bin/BB~
+     gg /usr/local/bin/CC~
+    Status: manual~
+    Best: /usr/bin/paste~
+    Value: /usr/bin/make~
 
     Alternative: /usr/bin/make~
     Priority: 123~
     Slaves:~
-     gh /usr/bin/nmap~
-     kl /usr/bin/open~
+     ff /usr/bin/nmap~
+     gg /usr/bin/open~
 
-    Alternative: /usr/bin/ping~
+    Alternative: /usr/bin/paste~
     Priority: 456~
     Slaves:~
-     gh /usr/bin/qmv~
-     kl /usr/bin/rar~
+     ff /usr/bin/qmv~
+     gg /usr/bin/rar~
 
 This shows how you should read the output of `update-alternatives --query`.
 For the master alternative:
 
-   1. `Link`: generic name
+   1. `Link`: alternative link
    2. `Name`: alternative name
    3. `Value`: alternative path
 
 As an example, here, it gives:
 
-   1. `/usr/local/bin/foo`
-   2. `bar`
-   3. `/usr/bin/ping`
+   1. `/usr/local/bin/AA`
+   2. `ee`
+   3. `/usr/bin/paste`
+
+Which perfectly matches the links managed by `update-alternatives`:
+
+    $ ls -l /usr/local/bin/AA
+    lrwxrwxrwx 1 root root ... /usr/local/bin/AA -> /etc/alternatives/ee~
+    $ ls -l /etc/alternatives/ee
+    lrwxrwxrwx 1 root root ... /etc/alternatives/ee -> /usr/bin/paste~
 
 For a slave alternative:
 
-   1. `Slaves` (first block): slave alternative name + slave generic name
+   1. `Slaves` (first block): name and link of the slave alternative
 
    2. `Value`: master alternative name
       (you need it to find the right block where the)
@@ -58,19 +65,16 @@ For a slave alternative:
 
 As an example, here, it could give:
 
-   1. `/usr/local/bin/baz`, `qux` (`/etc/alternatives/qux`)
-   2. `/usr/bin/ping`
+   1. `/usr/local/bin/BB`, `ff`
+   2. `/usr/bin/make` (master to find the right slave)
    3. `/usr/bin/nmap`
 
----
+Which, again, perfectly matches the links managed by `update-alternatives`:
 
-    $ sudo update-alternatives --remove cd /usr/bin/make
-    $ sudo update-alternatives --remove cd /usr/bin/ping
-
-    # you could achieve the same manually by removing:
-        /usr/local/bin/{ab,ef,ij}
-        /etc/alternatives/{cd,gh,kl}
-        /var/lib/dpkg/alternatives/{cd,gh,kl}
+    $ ls -l /usr/local/bin/BB
+    lrwxrwxrwx 1 root root ... /usr/local/bin/BB -> /etc/alternatives/ff~
+    $ ls -l /etc/alternatives/ff
+    lrwxrwxrwx 1 root root ... /etc/alternatives/ff -> /usr/bin/nmap~
 
 # ?
 
@@ -178,7 +182,7 @@ Show:
 It maintains symbolic links which determine default commands.
 
 ##
-# Why does `update-alternatives` use two symlinks between a generic name and an alternative (instead of just one)?
+# Why does `update-alternatives` use two symlinks between the link and path of an alternative (instead of one)?
 
     /usr/bin/editor
     → /etc/alternatives/editor
@@ -216,6 +220,90 @@ Unfortunately, both look the same: they all start with two hyphens.
     $ yes '' | update-alternatives --force --all
 
 ##
+# How to add an alternative to a group link?
+
+    $ sudo update-alternatives --install <link>  <name>  <path>  <priority>
+
+If the group doesn't exist, it's created.
+
+Example:
+
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
+        --slave /usr/local/bin/BB ff /usr/bin/nmap \
+        --slave /usr/local/bin/CC gg /usr/bin/open
+
+    $ ls -l /usr/local/bin/AA /etc/alternatives/ee
+    lrwxrwxrwx 1 root root ... /etc/alternatives/ee -> /usr/bin/make~
+    lrwxrwxrwx 1 root root ... /usr/local/bin/AA -> /etc/alternatives/ee~
+
+# Which condition must be satisfied for `update-alternatives --install` to succeed?
+
+The path of the alternative must exist, otherwise the command will fail:
+
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/not_a_binary 123
+    update-alternatives: error: alternative path /usr/bin/not_a_binary doesn't exist~
+
+The link and the name of the alternative don't have to exist:
+
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123
+    update-alternatives: using /usr/bin/make to provide /usr/local/bin/AA (ee) in auto mode~
+
+# How to remove a specific alternative from a group link?
+
+    $ sudo update-alternatives --remove <name>  <path>
+
+Example:
+
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/paste 456
+
+    $ update-alternatives --query ee
+    Name: ee~
+    Link: /usr/local/bin/AA~
+    Status: auto~
+    Best: /usr/bin/paste~
+    Value: /usr/bin/paste~
+
+    Alternative: /usr/bin/make~
+    Priority: 123~
+
+    Alternative: /usr/bin/paste~
+    Priority: 456~
+
+    $ sudo update-alternatives --remove ee /usr/bin/make
+    $ update-alternatives --query ee
+    Name: ee~
+    Link: /usr/local/bin/AA~
+    Status: auto~
+    Best: /usr/bin/paste~
+    Value: /usr/bin/paste~
+
+    Alternative: /usr/bin/paste~
+    Priority: 456~
+
+# How to remove a group link?
+
+    $ sudo update-alternatives --remove-all <name>
+
+Example:
+
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
+        --slave /usr/local/bin/BB ff /usr/bin/nmap \
+        --slave /usr/local/bin/CC gg /usr/bin/open
+
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/paste 456 \
+        --slave /usr/local/bin/BB ff /usr/bin/qmv \
+        --slave /usr/local/bin/CC gg /usr/bin/rar
+
+    $ sudo update-alternatives --remove-all ee
+
+The last command should have the same effect as:
+
+    $ rm /usr/local/bin/{AA,BB,CC}
+    $ rm /etc/alternatives/{ee,ff,gg}
+    $ rm /var/lib/dpkg/alternatives/ee
+
+##
 ##
 ##
 # Description
@@ -231,18 +319,18 @@ editor, if desired, but  makes it difficult for a program to  make a good choice
 for an editor to invoke if the user has not specified a particular preference.
 
 Debian's alternatives system aims to solve this problem.
-A  generic   name  in  the   filesystem  is   shared  by  all   files  providing
+An  alternative  link  in  the  filesystem is  shared  by  all  files  providing
 interchangeable functionality.
 The alternatives  system and the  system administrator together  determine which
-actual file is referenced by this generic name.
-For example,  if the  text editors ed(1)  and nvi(1) are  both installed  on the
-system, the alternatives system will cause the generic name `/usr/bin/editor` to
-refer to `/usr/bin/nvi` by default.
+actual file is referenced by this alternative link.
+For  example,  if  the  text  editors   ed(1)  and  nvi(1)  are  both  installed
+on  the  system,  the  alternatives  system  will  cause  the  alternative  link
+`/usr/bin/editor` to refer to `/usr/bin/nvi` by default.
 The  system  administrator   can  override  this  and  cause  it   to  refer  to
 `/usr/bin/ed` instead, and  the alternatives system will not  alter this setting
 until explicitly requested to do so.
 
-The generic name is not a direct symbolic link to the selected alternative.
+The alternative link is not a direct symbolic link to the selected alternative.
 Instead, it is a symbolic link to  a name in `/etc/alternatives/`, which in turn
 is a symbolic link to the actual file referenced.
 This is done  so that the system administrator's changes  can be confined within
@@ -301,23 +389,23 @@ update-alternatives mechanism.
 Since the  activities of update-alternatives  are quite involved,  some specific
 terms will help to explain its operation.
 
-## generic name
+## alternative link
 
 A name,  like `/usr/bin/editor`, which  refers, via the alternatives  system, to
 one of a number of files of similar function.
 
-In `$ man update-alternatives`, sometimes, it's also called “alternative link”.
+In `$ man update-alternatives`, it's also called “generic name”.
 
 ## alternative name
 
 The name of a symbolic link in `/etc/alternatives/`.
 
-## alternative
+## alternative path
 
 The name of a specific file in  the filesystem, which may be made accessible via
-a generic name using the alternatives system.
+an alternative link using the alternatives system.
 
-In `$ man update-alternatives`, sometimes, it's also called “alternative path”.
+In `$ man update-alternatives`, it's also simply called “alternative”.
 
 ## link group
 
@@ -325,13 +413,13 @@ A set of related symlinks, intended to be updated as a group.
 
 ## master link
 
-The generic  name in a link  group which determines  how the other links  in the
+The alternative link in a link group which determines how the other links in the
 group are configured.
 
 ## slave link
 
-A generic name in a link group which  is controlled by the setting of the master
-link.
+An alternative link  in a link group  which is controlled by the  setting of the
+master link.
 
 ## automatic mode
 
@@ -353,26 +441,26 @@ Specifies  the  log  file  when  this  is  to  be  different  from  the  default
 
 ## --force
 
-Allow replacing or dropping any real file that is installed where a generic name
-has to be installed or removed.
+Allow replacing or dropping any real file that is installed where an alternative
+link has to be installed or removed.
 
 ##
 # Commands
 ## --install link name path priority [--slave link name path]...
 
 Add a group of alternatives to the system.
-`link`  is the  generic name  for the  master link,  `name` is  the name  of its
+`link` is the  alternative link for the  master link, `name` is the  name of its
 symlink in `/etc/alternatives/`, and `path`  is the alternative being introduced
 for the master link.
-The  arguments   after  `--slave`  are   the  generic  name,  symlink   name  in
-`/etc/alternatives/` and the alternative for a slave link.
+The  arguments  after  `--slave`  are  the  link,  name  and  path  of  a  slave
+alternative.
 Zero  or more  `--slave`  options,  each followed  by  three  arguments, may  be
 specified.
 Note that the master alternative must exist or the call will fail.
-However, if a  slave alternative doesn't exist, the  corresponding slave generic
-name will simply not be installed.
-If some real file  is installed where a generic name has to  be installed, it is
-kept unless `--force` is used.
+However,  if  a  slave  alternative   doesn't  exist,  the  corresponding  slave
+alternative link will simply not be installed.
+If some real file is installed where an alternative link has to be installed, it
+is kept unless `--force` is used.
 
 If the  alternative name specified  exists already in the  alternatives system's
 records, the information supplied will be added as a new set of alternatives for
@@ -382,18 +470,6 @@ information.
 If the group is in automatic mode, and the newly added alternatives' priority is
 higher than any  other installed alternatives for this group,  the symlinks will
 be updated to point to the newly added alternatives.
-
-Example:
-
-    $ update-alternatives --install /usr/bin/"${name}" "${name}" /usr/local/bin/vim 60
-                                    ├────────────────┘ ├───────┘ ├────────────────┘ ├┘
-                                    │                  │         │                  └ priority
-                                    │                  │         └ path to alternative
-                                    │                  │
-                                    │                  └ name of the alternative (again, symlink)
-                                    │                    in `/etc/alternatives`
-                                    │
-                                    └ generic name (symlink)
 
 ## --set name path
 
@@ -494,15 +570,15 @@ The alternative name in `/etc/alternatives/`.
 
     Link: link
 
-The generic name of the alternative.
+The link of the alternative.
 
     Slaves: list-of-slaves
 
 When this field  is present, the next  lines hold all slave  links associated to
 the master link of the alternative.
 There is one slave per line.
-Each line contains one space, the generic name of the slave alternative, another
-space, and the path to the slave link.
+Each line contains one space, the  link of the slave alternative, another space,
+and the path to the slave link.
 
     Status: status
 
@@ -533,8 +609,8 @@ Value of the priority of this alternative.
 When  this  field  is  present,  the next  lines  hold  all  slave  alternatives
 associated to the master link of the alternative.
 There is one slave per line.
-Each line contains one space, the generic name of the slave alternative, another
-space, and the path to the slave alternative.
+Each line contains one space, the  link of the slave alternative, another space,
+and the path to the slave alternative.
 
 Example:
 

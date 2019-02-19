@@ -57,21 +57,14 @@ repository; otherwise, your gawk package may be removed after a system update.
 
 ---
 
-TODO: you may lose the ability to run the `awk` command (`gawk` will work though).
-If that happens, you'll have to play with `update-alternatives`.
-Try this (untested):
-
-    # in an interactive usage
-    $ sudo update-alternatives --config awk
-
-    # in a script
-    $ sudo update-alternatives --install /usr/bin/awk awk /usr/local/bin/gawk 60
-    $ sudo update-alternatives --set awk /usr/local/bin/gawk
-
-To make `$ man awk` open the `gawk` manpage, you'll also have to install a slave:
+You may lose the ability to run the `awk` command (`gawk` will work though).
+If that happens, you'll have to play with `update-alternatives`:
 
     $ sudo update-alternatives --install /usr/bin/awk awk /usr/local/bin/gawk 60 \
-    --slave /usr/share/man/man1/awk.1.gz awk.1.gz /usr/local/share/man/man1/gawk.1.gz
+      --slave /usr/share/man/man1/awk.1.gz awk.1.gz /usr/local/share/man/man1/gawk.1.gz
+    $ sudo update-alternatives --set awk /usr/local/bin/gawk
+
+The `--slave` is there so that `$ man awk` opens the `gawk` manpage.
 
 ##
 ## How to install the latest stable release of gawk?
