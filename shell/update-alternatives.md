@@ -148,66 +148,7 @@ If the master  gets linked to this  path, the slaves are associated  to the path
 
 # ?
 
-Some definitions
-
-`$ man update-alternatives` talks about `master` and `slave` links.
-Example:
-
-    $ update-alternatives --query awk
-    Name: awk~
-    Link: /usr/bin/awk~
-    Slaves:~
-     awk.1.gz /usr/share/man/man1/awk.1.gz~
-     nawk /usr/bin/nawk~
-     nawk.1.gz /usr/share/man/man1/nawk.1.gz~
-    Status: manual~
-    Best: /usr/local/bin/gawk~
-    Value: /usr/local/bin/gawk~
-
-    ...~
-
-    Alternative: /usr/local/bin/gawk~
-    Priority: 60~
-    Slaves:~
-     awk.1.gz /usr/local/share/man/man1/gawk.1.gz~
-
-The master of the link group is:
-
-    /usr/bin/awk
-
-According to the `Value:` field, it currently points to `/usr/local/bin/gawk`.
-
-One slave link is:
-
-    /usr/share/man/man1/awk.1.gz
-
-According to the `Slaves:` field of the `/usr/local/bin/gawk` alternative,
-it currently points to `/usr/local/share/man/man1/gawk.1.gz`.
-
-Usually the slave links are for manpages.
-
-The master link determines how the slaves will be configured.
-
-Also, a master link and its slaves make up a *link group*.
-
-# ?
-
 Some useful commands
-
-    $ update-alternatives --install /usr/bin/editor editor /usr/local/bin/vim 1
-
-Add  the alternative  `/usr/local/bin/vim` to  the  link group  whose master  is
-`/usr/bin/editor`, with the priority 1.
-
----
-
-    $ update-alternatives --remove editor /usr/local/bin/vim
-
-Remove the alternative `/usr/local/bin/vim` from the group `editor`.
-If the link group contains slave links (usually for manpages), they're updated
-or removed.
-
----
 
     $ update-alternatives --set editor /usr/local/bin/vim
 
@@ -234,16 +175,6 @@ automatically use the alternative path with the highest priority.
 Display  information  about the  link  group  `editor`;  useful to  check  which
 alternative path provides `/usr/bin/editor`.
 
----
-
-    $ update-alternatives --get-selections
-
-Show:
-
-   - each alternative name
-   - in which mode they are (manual / auto)
-   - the alternative path they're linked to
-
 ##
 ##
 ##
@@ -262,7 +193,7 @@ It allows the  OS to confine the changes  of the sysadmin to `/etc`,  which is a
 good thing according to the FHS.
 IOW, it creates a convenient centralised point of config.
 
-# Where does update-alternatives store its state information (everything about the alternatives)?
+# Where does update-alternatives store its state information, used in the output of `--query`/`--display`?
 
 In files inside the `/var/lib/dpkg/alternatives/` directory.
 
@@ -274,14 +205,14 @@ In files inside the `/var/lib/dpkg/alternatives/` directory.
    * `--skip-auto`
    * `--verbose`
 
-# Is there a specific order to respect for the options and the commands?
+# What's the specific order to respect for the options and the commands?
 
-Yes,  according to  the synopsis  in  `$ man  update-alternatives`, the  options
-should come before the command.
+According to  the synopsis  in `$ man  update-alternatives`, the  options should
+come before the command.
 Unfortunately, both look the same: they all start with two hyphens.
 
 ##
-# How to review all alternatives which are not configured in automatic mode?
+# How to review all link groups which are not configured in automatic mode?
 
     $ update-alternatives --skip-auto --all
 
@@ -290,7 +221,7 @@ Unfortunately, both look the same: they all start with two hyphens.
     $ yes '' | update-alternatives --force --all
 
 ##
-# How to add an alternative to a group link?
+# How to add an alternative path to the list of candidates that a master alternative can be linked to?
 
     $ sudo update-alternatives --install <link>  <name>  <path>  <priority>
 
@@ -318,7 +249,8 @@ The link and the name of the alternative don't have to exist:
     $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123
     update-alternatives: using /usr/bin/make to provide /usr/local/bin/AA (ee) in auto mode~
 
-# How to remove a specific alternative from a group link?
+##
+# How to remove a path candidate for a master alternative?
 
     $ sudo update-alternatives --remove <name>  <path>
 
@@ -351,7 +283,14 @@ Example:
     Alternative: /usr/bin/paste~
     Priority: 456~
 
-# How to remove a group link?
+## What happens to the associated slave links?
+
+They're updated or removed.
+
+A slave link is updated if its name is associated to the new selected path.
+Removed otherwise.
+
+# How to remove all path candidates for a master alternative?
 
     $ sudo update-alternatives --remove-all <name>
 
@@ -479,7 +418,8 @@ In `$ man update-alternatives`, it's also simply called “alternative”.
 
 ## link group
 
-A set of related symlinks, intended to be updated as a group.
+A set of related symlinks (master link + associated slave links), intended to be
+updated as a group.
 
 ## master link
 
@@ -621,8 +561,8 @@ List all master names (those controlling a link group) and their status.
 
 Each line contains up to 3 fields (separated by one or more spaces).
 The first field  is the alternative name,  the second one is  the status (either
-auto or manual), and the last one contains the current choice in the alternative
-(beware: it's a filename and thus might contain spaces).
+auto  or  manual),  and  the  last  one contains  the  current  choice  for  the
+alternative path.
 
 ## --set-selections
 
@@ -660,7 +600,7 @@ The link of the alternative.
     Slaves: list-of-slaves
 
 When this field is  present, the next lines hold all the names  and links of the
-slaves associated to the master of the group link.
+slaves associated to the master of the link group.
 There is one slave per line.
 Each line contains one space, the name of the slave, another space, and the link
 of the slave.
@@ -694,7 +634,7 @@ Current priority of this path.
     Slaves: list-of-slaves
 
 When this field is  present, the next lines hold all the names  and paths of the
-slaves associated to the master of the group link.
+slaves associated to the master of the link group.
 There is one slave per line.
 Each line contains one space, the name of the slave, another space, and the path
 of the slave.
