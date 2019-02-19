@@ -1,12 +1,11 @@
 # ?
 
     $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
-        --slave /usr/local/bin/BB ff /usr/bin/nmap \
-        --slave /usr/local/bin/CC gg /usr/bin/open
+        --slave /usr/local/bin/BB ff /usr/bin/nmap
 
     $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/paste 456 \
-        --slave /usr/local/bin/BB ff /usr/bin/qmv \
-        --slave /usr/local/bin/CC gg /usr/bin/rar
+        --slave /usr/local/bin/CC gg /usr/bin/qmv \
+        --slave /usr/local/bin/DD hh /usr/bin/rar
 
     $ sudo update-alternatives --set ee /usr/bin/make
 
@@ -33,7 +32,7 @@
      gg /usr/bin/rar~
 
 This shows how you should read the output of `update-alternatives --query`.
-For the master alternative:
+For the master:
 
    1. `Link`: alternative link
    2. `Name`: alternative name
@@ -52,16 +51,15 @@ Which perfectly matches the links managed by `update-alternatives`:
     $ ls -l /etc/alternatives/ee
     lrwxrwxrwx 1 root root ... /etc/alternatives/ee -> /usr/bin/paste~
 
-For a slave alternative:
+For a slave:
 
-   1. `Slaves` (first block): name and link of the slave alternative
+   1. `Slaves` (first block): name and link of the slave
 
-   2. `Value`: master alternative name
+   2. `Value`: master name
       (you need it to find the right block where the)
 
-   3. `Slaves` (block of master alternative):
-      line beginning with the slave alternative name:
-      slave alternative path
+   3. `Slaves` (block of the master):
+      line beginning with the slave name: slave path
 
 As an example, here, it could give:
 
@@ -101,7 +99,7 @@ Example:
     Slaves:~
      awk.1.gz /usr/local/share/man/man1/gawk.1.gz~
 
-The master link of the group is:
+The master of the link group is:
 
     /usr/bin/awk
 
@@ -126,7 +124,7 @@ Some useful commands
 
     $ update-alternatives --install /usr/bin/editor editor /usr/local/bin/vim 1
 
-Add  the alternative  `/usr/local/bin/vim` to  the  group whose  master link  is
+Add  the alternative  `/usr/local/bin/vim` to  the  link group  whose master  is
 `/usr/bin/editor`, with the priority 1.
 
 ---
@@ -147,22 +145,22 @@ Configure `/usr/local/bin/vim` to be *the* alternative providing `editor`.
 
     $ update-alternatives --config editor
 
-Configure the group editor interactively.
+Configure the link group `editor` interactively.
 
 ---
 
     $ update-alternatives --auto editor
 
-Reconfigure  the  group  `editor`  so  that,  from  now  on,  it  will  always
-automatically use the alternative with the highest priority.
+Reconfigure  the link  group  `editor` so  that,  from now  on,  it will  always
+automatically use the alternative path with the highest priority.
 
 ---
 
     $ update-alternatives --display editor
     $ update-alternatives --query editor
 
-Display information  about the group  of alternatives whose alternative  name is
-`editor`; useful to check which alternative provides `/usr/bin/editor`.
+Display  information  about the  link  group  `editor`;  useful to  check  which
+alternative path provides `/usr/bin/editor`.
 
 ---
 
@@ -170,9 +168,9 @@ Display information  about the group  of alternatives whose alternative  name is
 
 Show:
 
-   - each group of alternatives
-   - the alternative they use
+   - each alternative name
    - in which mode they are (manual / auto)
+   - the alternative path they're linked to
 
 ##
 ##
@@ -367,7 +365,7 @@ When a link group  is in automatic mode, the alternatives  pointed to by members
 of the group will be those which have the highest priority.
 
 When  using the  `--config` option,  update-alternatives  will list  all of  the
-choices for the link group of which given name is the master alternative name.
+choices for the link group of which given name is the master name.
 The current choice is marked with a `*`.
 You will then be prompted for your choice regarding this link group.
 Depending on the choice made, the link group might no longer be in auto mode.
@@ -424,8 +422,7 @@ master link.
 ## automatic mode
 
 When a link group is in automatic mode, the alternatives system ensures that the
-links in the group point to the highest priority alternative appropriate for the
-group.
+links in the group point to the alternative path with the highest priority.
 
 ## manual mode
 
@@ -449,16 +446,11 @@ link has to be installed or removed.
 ## --install link name path priority [--slave link name path]...
 
 Add a group of alternatives to the system.
-`link` is the  alternative link for the  master link, `name` is the  name of its
-symlink in `/etc/alternatives/`, and `path`  is the alternative being introduced
-for the master link.
-The  arguments  after  `--slave`  are  the  link,  name  and  path  of  a  slave
-alternative.
 Zero  or more  `--slave`  options,  each followed  by  three  arguments, may  be
 specified.
-Note that the master alternative must exist or the call will fail.
-However,  if  a  slave  alternative   doesn't  exist,  the  corresponding  slave
-alternative link will simply not be installed.
+Note that the path of the master alternative must exist or the call will fail.
+However, if  the path of  a slave  alternative doesn't exist,  the corresponding
+slave link will simply not be installed.
 If some real file is installed where an alternative link has to be installed, it
 is kept unless `--force` is used.
 
@@ -478,9 +470,31 @@ This is equivalent to `--config` but is non-interactive and thus scriptable.
 
 ## --remove name path
 
-Remove an alternative and all of its associated slave links.
+Remove  a candidate  path  for the  master alternative  and  all the  associated
+slaves.
 `name` is a name in `/etc/alternatives/`,  and `path` is an absolute filename to
 which `name` could be linked.
+
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
+        --slave /usr/local/bin/BB ff /usr/bin/nmap
+
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/paste 456 \
+        --slave /usr/local/bin/CC gg /usr/bin/qmv \
+        --slave /usr/local/bin/DD hh /usr/bin/rar
+
+    $ ls -l /usr/local/bin/{CC,DD} /etc/alternatives/{gg,hh}
+    lrwxrwxrwx 1 root root ... /etc/alternatives/gg -> /usr/bin/qmv~
+    lrwxrwxrwx 1 root root ... /etc/alternatives/hh -> /usr/bin/rar~
+    lrwxrwxrwx 1 root root ... /usr/local/bin/CC -> /etc/alternatives/gg~
+    lrwxrwxrwx 1 root root ... /usr/local/bin/DD -> /etc/alternatives/hh~
+
+    $ sudo update-alternatives --remove ee /usr/bin/paste
+    $ ls -l /usr/local/bin/{CC,DD} /etc/alternatives/{gg,hh}
+    ls: cannot access '/usr/local/bin/CC': No such file or directory~
+    ls: cannot access '/usr/local/bin/DD': No such file or directory~
+    ls: cannot access '/etc/alternatives/gg': No such file or directory~
+    ls: cannot access '/etc/alternatives/hh': No such file or directory~
+
 If `name`  is indeed linked to  `path`, it will  be updated to point  to another
 appropriate  alternative (and  the  group is  put back  in  automatic mode),  or
 removed if there is no such alternative left.
@@ -512,11 +526,11 @@ Display information about the link group:
         link editor is /usr/bin/editor~
         slave editor.1.gz is /usr/share/man/man1/editor.1.gz~
 
-   - which alternative the master link currently points to
+   - which path the master link currently points to
 
         link currently points to /usr/local/bin/vim~
 
-   - what other alternatives are available (and their corresponding slave alternatives)
+   - what other paths are available (and their corresponding slaves)
 
         /bin/ed - priority -100~
           slave editor.1.gz: /usr/share/man/man1/ed.1.gz~
@@ -531,8 +545,7 @@ Display information about the link group:
 
 ## --get-selections
 
-List all  master alternative names  (those controlling  a link group)  and their
-status.
+List all master names (those controlling a link group) and their status.
 
 Each line contains up to 3 fields (separated by one or more spaces).
 The first field  is the alternative name,  the second one is  the status (either
@@ -566,7 +579,7 @@ The first block contains the following fields:
 
     Name: name
 
-The alternative name in `/etc/alternatives/`.
+The name of the alternative.
 
     Link: link
 
@@ -574,11 +587,11 @@ The link of the alternative.
 
     Slaves: list-of-slaves
 
-When this field  is present, the next  lines hold all slave  links associated to
-the master link of the alternative.
+When this field is  present, the next lines hold all the names  and links of the
+slaves associated to the master of the group link.
 There is one slave per line.
-Each line contains one space, the  link of the slave alternative, another space,
-and the path to the slave link.
+Each line contains one space, the name of the slave, another space, and the link
+of the slave.
 
     Status: status
 
@@ -591,26 +604,28 @@ Not present if no alternatives are available.
 
     Value: currently-selected-alternative
 
-The path of the currently selected alternative.
+The currently selected path for the master alternative.
 It can also take the magic value none; used if the link doesn't exist.
 
-The other blocks describe the available alternatives in the queried link group:
+
+
+The other blocks describe the available paths in the queried link group:
 
     Alternative: path-of-this-alternative
 
-Path to this block's alternative.
+Path which can be selected for the alternative.
 
     Priority: priority-value
 
-Value of the priority of this alternative.
+Current priority of this path.
 
     Slaves: list-of-slaves
 
-When  this  field  is  present,  the next  lines  hold  all  slave  alternatives
-associated to the master link of the alternative.
+When this field is  present, the next lines hold all the names  and paths of the
+slaves associated to the master of the group link.
 There is one slave per line.
-Each line contains one space, the  link of the slave alternative, another space,
-and the path to the slave alternative.
+Each line contains one space, the name of the slave, another space, and the path
+of the slave.
 
 Example:
 
