@@ -1,5 +1,79 @@
 # ?
 
+    # the alternative path must exist, hence why we use `/usr/bin/make` in this example;
+    # otherwise the command would fail
+    $ sudo update-alternatives --install /usr/local/bin/ab cd /usr/bin/make 123 \
+        --slave /usr/local/bin/ef gh /usr/bin/nmap \
+        --slave /usr/local/bin/ij kl /usr/bin/open
+
+    $ sudo update-alternatives --install /usr/local/bin/ab cd /usr/bin/ping 456 \
+        --slave /usr/local/bin/ef gh /usr/bin/qmv \
+        --slave /usr/local/bin/ij kl /usr/bin/rar
+
+    $ update-alternatives --query cd
+    Name: cd~
+    Link: /usr/local/bin/ab~
+    Slaves:~
+     gh /usr/local/bin/ef~
+     kl /usr/local/bin/ij~
+    Status: auto~
+    Best: /usr/bin/ping~
+    Value: /usr/bin/ping~
+
+    Alternative: /usr/bin/make~
+    Priority: 123~
+    Slaves:~
+     gh /usr/bin/nmap~
+     kl /usr/bin/open~
+
+    Alternative: /usr/bin/ping~
+    Priority: 456~
+    Slaves:~
+     gh /usr/bin/qmv~
+     kl /usr/bin/rar~
+
+This shows how you should read the output of `update-alternatives --query`.
+For the master alternative:
+
+   1. `Link`: generic name
+   2. `Name`: alternative name
+   3. `Value`: alternative path
+
+As an example, here, it gives:
+
+   1. `/usr/local/bin/foo`
+   2. `bar`
+   3. `/usr/bin/ping`
+
+For a slave alternative:
+
+   1. `Slaves` (first block): slave alternative name + slave generic name
+
+   2. `Value`: master alternative name
+      (you need it to find the right block where the)
+
+   3. `Slaves` (block of master alternative):
+      line beginning with the slave alternative name:
+      slave alternative path
+
+As an example, here, it could give:
+
+   1. `/usr/local/bin/baz`, `qux` (`/etc/alternatives/qux`)
+   2. `/usr/bin/ping`
+   3. `/usr/bin/nmap`
+
+---
+
+    $ sudo update-alternatives --remove cd /usr/bin/make
+    $ sudo update-alternatives --remove cd /usr/bin/ping
+
+    # you could achieve the same manually by removing:
+        /usr/local/bin/{ab,ef,ij}
+        /etc/alternatives/{cd,gh,kl}
+        /var/lib/dpkg/alternatives/{cd,gh,kl}
+
+# ?
+
 Some definitions
 
 `$ man update-alternatives` talks about `master` and `slave` links.
@@ -80,6 +154,7 @@ automatically use the alternative with the highest priority.
 
 ---
 
+    $ update-alternatives --display editor
     $ update-alternatives --query editor
 
 Display information  about the group  of alternatives whose alternative  name is
@@ -353,10 +428,30 @@ highest priority installed alternatives.
 Display information about the link group:
 
    - the group's mode (auto or manual)
+
+        editor - manual mode~
+
    - the master and slave links
+
+        link editor is /usr/bin/editor~
+        slave editor.1.gz is /usr/share/man/man1/editor.1.gz~
+
    - which alternative the master link currently points to
+
+        link currently points to /usr/local/bin/vim~
+
    - what other alternatives are available (and their corresponding slave alternatives)
+
+        /bin/ed - priority -100~
+          slave editor.1.gz: /usr/share/man/man1/ed.1.gz~
+        /bin/nano - priority 40~
+          slave editor.1.gz: /usr/share/man/man1/nano.1.gz~
+        /usr/local/bin/vim - priority 60~
+          slave editor.1.gz: /usr/local/share/man/man1/nvim.1.gz~
+
    - the highest priority alternative currently installed
+
+        link best version is /usr/local/bin/vim~
 
 ## --get-selections
 
@@ -411,18 +506,17 @@ space, and the path to the slave link.
 
     Status: status
 
-The status of the alternative (auto or manual).
+The status of the link group (auto or manual).
 
     Best: best-choice
 
 The path of the best alternative for this link group.
-Not present if there is no alternatives available.
+Not present if no alternatives are available.
 
     Value: currently-selected-alternative
 
 The path of the currently selected alternative.
-It can also take the magic value none.
-It is used if the link doesn't exist.
+It can also take the magic value none; used if the link doesn't exist.
 
 The other blocks describe the available alternatives in the queried link group:
 
