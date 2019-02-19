@@ -1,5 +1,24 @@
 # ?
 
+    #!/bin/bash
+
+    sudo update-alternatives --remove-all ee
+
+    sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
+      --slave /usr/local/bin/BB ff /usr/bin/nmap
+
+    sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/paste 456 \
+      --slave /usr/local/bin/CC gg /usr/bin/qmv \
+      --slave /usr/local/bin/DD hh /usr/bin/rar
+
+    sudo update-alternatives --set ee /usr/bin/make
+
+    update-alternatives --query ee
+
+    ls -l /usr/local/bin/{CC,DD} /etc/alternatives/{gg,hh}
+
+# ?
+
     $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
         --slave /usr/local/bin/BB ff /usr/bin/nmap
 
@@ -15,6 +34,7 @@
     Slaves:~
      ff /usr/local/bin/BB~
      gg /usr/local/bin/CC~
+     hh /usr/local/bin/DD~
     Status: manual~
     Best: /usr/bin/paste~
     Value: /usr/bin/make~
@@ -23,13 +43,12 @@
     Priority: 123~
     Slaves:~
      ff /usr/bin/nmap~
-     gg /usr/bin/open~
 
     Alternative: /usr/bin/paste~
     Priority: 456~
     Slaves:~
-     ff /usr/bin/qmv~
-     gg /usr/bin/rar~
+     gg /usr/bin/qmv~
+     hh /usr/bin/rar~
 
 This shows how you should read the output of `update-alternatives --query`.
 For the master:
@@ -42,14 +61,14 @@ As an example, here, it gives:
 
    1. `/usr/local/bin/AA`
    2. `ee`
-   3. `/usr/bin/paste`
+   3. `/usr/bin/make`
 
 Which perfectly matches the links managed by `update-alternatives`:
 
     $ ls -l /usr/local/bin/AA
     lrwxrwxrwx 1 root root ... /usr/local/bin/AA -> /etc/alternatives/ee~
     $ ls -l /etc/alternatives/ee
-    lrwxrwxrwx 1 root root ... /etc/alternatives/ee -> /usr/bin/paste~
+    lrwxrwxrwx 1 root root ... /etc/alternatives/ee -> /usr/bin/make~
 
 For a slave:
 
@@ -73,6 +92,59 @@ Which, again, perfectly matches the links managed by `update-alternatives`:
     lrwxrwxrwx 1 root root ... /usr/local/bin/BB -> /etc/alternatives/ff~
     $ ls -l /etc/alternatives/ff
     lrwxrwxrwx 1 root root ... /etc/alternatives/ff -> /usr/bin/nmap~
+
+---
+
+You shouldn't  read a  `Slaves:` section  the same  way when  it's in  the first
+block, and when it's in another block.
+
+In the first block, you should read the rhs *before* the lhs.
+The next line, for example,  means that the alternative link `/usr/local/bin/BB`
+points to the alternative name `/etc/alternatives/ff`:
+
+    ff /usr/local/bin/BB~
+
+In the other blocks, you should read the rhs *after* the lhs.
+So this  line means that  the alternative name `/etc/alternatives/ff`  points to
+the alternative path `/usr/bin/nmap`:
+
+    ff /usr/bin/nmap~
+
+---
+
+Note that some slaves displayed in the first block should *not* be listed, because:
+
+   - they're not associated to the current master path
+
+   - they've been removed when we selected `/usr/bin/make`:
+
+        $ ls -l /usr/local/bin/{CC,DD} /etc/alternatives/{gg,hh}
+        ls: cannot access '/usr/local/bin/CC': No such file or directory~
+        ls: cannot access '/usr/local/bin/DD': No such file or directory~
+        ls: cannot access '/etc/alternatives/gg': No such file or directory~
+        ls: cannot access '/etc/alternatives/hh': No such file or directory~
+
+---
+
+Usually in  practice, each path  candidate for the  master is associated  to the
+same slaves; so, most of the time, you will probably run something like this:
+
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
+        --slave /usr/local/bin/BB ff /usr/bin/nmap
+        --slave /usr/local/bin/CC gg /usr/bin/ping
+
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/paste 456 \
+        --slave /usr/local/bin/BB ff /usr/bin/qmv
+        --slave /usr/local/bin/CC gg /usr/bin/rar
+
+Same number  of slaves (here  `2`), same slave  links (`/usr/local/bin/{BB,CC}`)
+and same slave names (`ff` and `gg`).
+
+---
+
+Initially, slaves are associated to a path.
+If the master  gets linked to this  path, the slaves are associated  to the path
+*and* to the master.
 
 # ?
 
@@ -470,7 +542,7 @@ This is equivalent to `--config` but is non-interactive and thus scriptable.
 
 ## --remove name path
 
-Remove  a candidate  path  for the  master alternative  and  all the  associated
+Remove  a path  candidate  for the  master alternative  and  all the  associated
 slaves.
 `name` is a name in `/etc/alternatives/`,  and `path` is an absolute filename to
 which `name` could be linked.
