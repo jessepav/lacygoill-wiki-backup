@@ -142,9 +142,21 @@ and same slave names (`ff` and `gg`).
 
 ---
 
-Initially, slaves are associated to a path.
-If the master  gets linked to this  path, the slaves are associated  to the path
-*and* to the master.
+slaves are associated to an arbitrary path.
+For example, the slave `/usr/share/man/man1/nano.1.gz` is associated to `/bin/nano`.
+
+Their  links and  names  are created  in  the filesystem  only  when the  master
+alternative is linked to this path.
+Otherwise, they don't exist outside update-alternatives' state information
+(`/var/lib/dpkg/alternatives/*`).
+
+So,  `/usr/share/man/man1/editor.1.gz`  and `/etc/alternatives/editor.1.gz`  are
+created only when `/usr/bin/editor` is linked to `/bin/nano`.
+
+In reality, `/usr/share/man/man1/editor.1.gz` and `/etc/alternatives/editor.1.gz`
+exist even when `/usr/bin/editor` is not  linked to `/bin/nano`, because all the
+other path  candidates for the master  alternatives are associated to  the slave
+`editor.1.gz`.
 
 # ?
 
