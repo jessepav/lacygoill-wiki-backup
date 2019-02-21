@@ -2153,6 +2153,13 @@ syntax highlighting!
 
                                     182 sloc
 
+## which-key
+
+vim-which-key is vim port of emacs-which-key that displays available keybindings
+in popup.
+
+<https://github.com/liuchengxu/vim-which-key>:606 sloc
+
 ## wildfire
 
             Smart selection of the closest text object

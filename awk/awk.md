@@ -3900,3 +3900,20 @@ Document that a newline is also ignored after the keyword `do` (see gawk book).
 
 The first time we read our first awk book,  we stopped at the page 84 of the pdf
 (72 in the original book).
+
+---
+
+Explain the concept of collating element.
+
+<https://unix.stackexchange.com/questions/254811/what-does-ch-mean-in-a-regex>
+
+In the  answer, to test  one of  the mentioned command,  you need to  generate a
+czech locale (there's none by default):
+
+    $ sudo locale-gen cs_CZ.UTF-8
+
+After that, you'll be able to run:
+
+    $ echo cho | LC_ALL=cs_CZ.UTF-8 grep '^[h-i]o'
+    cho~
+

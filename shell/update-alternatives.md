@@ -1,201 +1,39 @@
 # ?
 
-    #!/bin/bash
+--config name
 
-    sudo update-alternatives --remove-all ee
-
-    sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
-      --slave /usr/local/bin/BB ff /usr/bin/nmap
-
-    sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/paste 456 \
-      --slave /usr/local/bin/CC gg /usr/bin/qmv \
-      --slave /usr/local/bin/DD hh /usr/bin/rar
-
-    sudo update-alternatives --set ee /usr/bin/make
-
-    update-alternatives --query ee
-
-    ls -l /usr/local/bin/{CC,DD} /etc/alternatives/{gg,hh}
-
-# ?
-
-    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
-        --slave /usr/local/bin/BB ff /usr/bin/nmap
-
-    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/paste 456 \
-        --slave /usr/local/bin/CC gg /usr/bin/qmv \
-        --slave /usr/local/bin/DD hh /usr/bin/rar
-
-    $ sudo update-alternatives --set ee /usr/bin/make
-
-    $ update-alternatives --query ee
-    Name: ee~
-    Link: /usr/local/bin/AA~
-    Slaves:~
-     ff /usr/local/bin/BB~
-     gg /usr/local/bin/CC~
-     hh /usr/local/bin/DD~
-    Status: manual~
-    Best: /usr/bin/paste~
-    Value: /usr/bin/make~
-
-    Alternative: /usr/bin/make~
-    Priority: 123~
-    Slaves:~
-     ff /usr/bin/nmap~
-
-    Alternative: /usr/bin/paste~
-    Priority: 456~
-    Slaves:~
-     gg /usr/bin/qmv~
-     hh /usr/bin/rar~
-
-This shows how you should read the output of `update-alternatives --query`.
-For the master:
-
-   1. `Link`: alternative link
-   2. `Name`: alternative name
-   3. `Value`: alternative path
-
-As an example, here, it gives:
-
-   1. `/usr/local/bin/AA`
-   2. `ee`
-   3. `/usr/bin/make`
-
-Which perfectly matches the links managed by `update-alternatives`:
-
-    $ ls -l /usr/local/bin/AA
-    lrwxrwxrwx 1 root root ... /usr/local/bin/AA -> /etc/alternatives/ee~
-    $ ls -l /etc/alternatives/ee
-    lrwxrwxrwx 1 root root ... /etc/alternatives/ee -> /usr/bin/make~
-
-For a slave:
-
-   1. `Slaves` (first block): name and link of the slave
-
-   2. `Value`: master name
-      (you need it to find the right block where the)
-
-   3. `Slaves` (block of the master):
-      line beginning with the slave name: slave path
-
-As an example, here, it could give:
-
-   1. `/usr/local/bin/BB`, `ff`
-   2. `/usr/bin/make` (master to find the right slave)
-   3. `/usr/bin/nmap`
-
-Which, again, perfectly matches the links managed by `update-alternatives`:
-
-    $ ls -l /usr/local/bin/BB
-    lrwxrwxrwx 1 root root ... /usr/local/bin/BB -> /etc/alternatives/ff~
-    $ ls -l /etc/alternatives/ff
-    lrwxrwxrwx 1 root root ... /etc/alternatives/ff -> /usr/bin/nmap~
+Show available alternatives for a link group and allow the user to interactively
+select which one to use; the link group is updated.
 
 ---
 
-You shouldn't  read a  `Slaves:` section  the same  way when  it's in  the first
-block, and when it's in another block.
+When  using the  `--config` option,  update-alternatives  will list  all of  the
+choices for the link group of which given name is the master name.
+The current choice is marked with a `*`.
+You will then be prompted for your choice regarding this link group.
+Depending on the choice made, the link group might no longer be in auto mode.
+You will  need to use the  `--auto` option in  order to return to  the automatic
+mode (or you can rerun `--config` and select the entry marked as automatic).
 
-In the first block, you should read the rhs *before* the lhs.
-The next line, for example,  means that the alternative link `/usr/local/bin/BB`
-points to the alternative name `/etc/alternatives/ff`:
+If  you want  to  configure non-interactively  you can  use  the `--set`  option
+instead.
 
-    ff /usr/local/bin/BB~
-
-In the other blocks, you should read the rhs *after* the lhs.
-So this  line means that  the alternative name `/etc/alternatives/ff`  points to
-the alternative path `/usr/bin/nmap`:
-
-    ff /usr/bin/nmap~
-
----
-
-Note that some slaves displayed in the first block should *not* be listed, because:
-
-   - they're not associated to the current master path
-
-   - they've been removed when we selected `/usr/bin/make`:
-
-        $ ls -l /usr/local/bin/{CC,DD} /etc/alternatives/{gg,hh}
-        ls: cannot access '/usr/local/bin/CC': No such file or directory~
-        ls: cannot access '/usr/local/bin/DD': No such file or directory~
-        ls: cannot access '/etc/alternatives/gg': No such file or directory~
-        ls: cannot access '/etc/alternatives/hh': No such file or directory~
-
----
-
-Usually in  practice, each path  candidate for the  master is associated  to the
-same slaves; so, most of the time, you will probably run something like this:
-
-    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
-        --slave /usr/local/bin/BB ff /usr/bin/nmap
-        --slave /usr/local/bin/CC gg /usr/bin/ping
-
-    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/paste 456 \
-        --slave /usr/local/bin/BB ff /usr/bin/qmv
-        --slave /usr/local/bin/CC gg /usr/bin/rar
-
-Same number  of slaves (here  `2`), same slave  links (`/usr/local/bin/{BB,CC}`)
-and same slave names (`ff` and `gg`).
-
----
-
-slaves are associated to an arbitrary path.
-For example, the slave `/usr/share/man/man1/nano.1.gz` is associated to `/bin/nano`.
-
-Their  links and  names  are created  in  the filesystem  only  when the  master
-alternative is linked to this path.
-Otherwise, they don't exist outside update-alternatives' state information
-(`/var/lib/dpkg/alternatives/*`).
-
-So,  `/usr/share/man/man1/editor.1.gz`  and `/etc/alternatives/editor.1.gz`  are
-created only when `/usr/bin/editor` is linked to `/bin/nano`.
-
-In reality, `/usr/share/man/man1/editor.1.gz` and `/etc/alternatives/editor.1.gz`
-exist even when `/usr/bin/editor` is not  linked to `/bin/nano`, because all the
-other path  candidates for the master  alternatives are associated to  the slave
-`editor.1.gz`.
-
-# ?
-
-Some useful commands
-
-    $ update-alternatives --set editor /usr/local/bin/vim
-
-Configure `/usr/local/bin/vim` to be *the* alternative providing `editor`.
-
----
-
-    $ update-alternatives --config editor
-
-Configure the link group `editor` interactively.
-
----
-
-    $ update-alternatives --auto editor
-
-Reconfigure  the link  group  `editor` so  that,  from now  on,  it will  always
-automatically use the alternative path with the highest priority.
-
----
-
-    $ update-alternatives --display editor
-    $ update-alternatives --query editor
-
-Display  information  about the  link  group  `editor`;  useful to  check  which
-alternative path provides `/usr/bin/editor`.
-
-##
-##
 ##
 # What's the purpose of update-alternatives?
 
 It maintains symbolic links which determine default commands.
 
+---
+
+It is possible for several programs  fulfilling the same or similar functions to
+be installed on the system.
+If another program needs to invoke these functions, it has to make a good choice
+between all of them.
+
+update-alternatives aims to solve this problem.
+
 ##
-# Why does `update-alternatives` use two symlinks between the link and path of an alternative (instead of one)?
+# Why does update-alternatives use two symlinks between the link and path of an alternative (instead of one)?
 
     /usr/bin/editor
     → /etc/alternatives/editor
@@ -205,35 +43,37 @@ It allows the  OS to confine the changes  of the sysadmin to `/etc`,  which is a
 good thing according to the FHS.
 IOW, it creates a convenient centralised point of config.
 
-# Where does update-alternatives store its state information, used in the output of `--query`/`--display`?
+# Where does update-alternatives store its state information?
 
 In files inside the `/var/lib/dpkg/alternatives/` directory.
 
 ##
-# What are the four most interesting options?
-
-   * `--log`
-   * `--force`
-   * `--skip-auto`
-   * `--verbose`
-
-# What's the specific order to respect for the options and the commands?
+# What's the specific order to respect when I pass options and a subcommand to update-alternatives?
 
 According to  the synopsis  in `$ man  update-alternatives`, the  options should
-come before the command.
+come before the subcommand.
 Unfortunately, both look the same: they all start with two hyphens.
 
+`--slave` is an option of the subcommand `--install`; as such, it comes after.
+
 ##
-# How to review all link groups which are not configured in automatic mode?
+# How to review all link groups?
+
+    $ update-alternatives --all
+
+## Only the ones which are configured in manual mode?
 
     $ update-alternatives --skip-auto --all
 
 # How to try and fix all broken alternatives?
 
     $ yes '' | update-alternatives --force --all
+                                     │
+                                     └ Allow replacing or dropping any real file that is installed where an
+                                       alternative link has to be installed or removed.
 
 ##
-# How to add an alternative path to the list of candidates that a master alternative can be linked to?
+# How to add an alternative path to the list of choices that a master alternative can be linked to?
 
     $ sudo update-alternatives --install <link>  <name>  <path>  <priority>
 
@@ -241,28 +81,78 @@ If the group doesn't exist, it's created.
 
 Example:
 
-    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
-        --slave /usr/local/bin/BB ff /usr/bin/nmap \
-        --slave /usr/local/bin/CC gg /usr/bin/open
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123
 
     $ ls -l /usr/local/bin/AA /etc/alternatives/ee
     lrwxrwxrwx 1 root root ... /etc/alternatives/ee -> /usr/bin/make~
     lrwxrwxrwx 1 root root ... /usr/local/bin/AA -> /etc/alternatives/ee~
 
+## How to associate slave alternatives to this path?
+
+Use the `--slave` option of the `--install` subcommand:
+
+    $ sudo update-alternatives --install <link> <name> <path> <priority> \
+        --slave <link> <name> <path> ...
+
+You can specify one or more `--slave` options, each followed by three arguments.
+
 # Which condition must be satisfied for `update-alternatives --install` to succeed?
 
-The path of the alternative must exist, otherwise the command will fail:
+The path of the master alternative must exist, otherwise the command will fail:
 
     $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/not_a_binary 123
     update-alternatives: error: alternative path /usr/bin/not_a_binary doesn't exist~
 
-The link and the name of the alternative don't have to exist:
+OTOH, its link and name don't have to exist:
 
     $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123
     update-alternatives: using /usr/bin/make to provide /usr/local/bin/AA (ee) in auto mode~
 
+---
+
+If  the path  of  a slave  alternative  doesn't exist,  the  command will  still
+succeed, but the corresponding slave link won't be installed.
+
+     sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
+        --slave /usr/local/bin/BB ff /usr/bin/not_a_binary
+    update-alternatives: using /usr/bin/make to provide /usr/local/bin/AA (ee) in auto mode~
+    update-alternatives: warning: skip creation of /usr/local/bin/BB because associated file /usr/bin/not_a_binary (of link group ee) doesn't exist~
+
+## ?
+
+If some real file is installed where an alternative link has to be installed, it
+is kept unless `--force` is used.
+
+If the  alternative name specified  exists already in the  alternatives system's
+records, the information supplied will be added as a new set of alternatives for
+the group (one master and possibly one or several slaves).
+Otherwise,  a  new  group, set  to  automatic  mode,  will  be added  with  this
+information.
+If the group is in automatic mode, and the newly added alternatives' priority is
+higher than any  other installed alternatives for this group,  the symlinks will
+be updated to point to the newly added alternatives.
+
+# ?
+
+What happens if I try to install a new alternative
+using a link which is already present in update-alternatives state info?
+
+It fails:
+
+    $ sudo update-alternatives --install /usr/local/bin/AA xx /usr/bin/a2ping 789
+      update-alternatives: error: alternative link /usr/local/bin/AA is already managed by ee
+
+using a name which is already present in update-alternatives state info?
+
+The old link is removed, and the new one is installed:
+
+    $ sudo update-alternatives --install /usr/local/bin/XX ee /usr/bin/a2ping 789
+    update-alternatives: renaming ee link from /usr/local/bin/AA to /usr/local/bin/XX
+    $ ls -l /usr/local/bin/AA
+    ls: cannot access '/usr/local/bin/AA': No such file or directory
+
 ##
-# How to remove a path candidate for a master alternative?
+# How to remove a path choice for a master alternative?
 
     $ sudo update-alternatives --remove <name>  <path>
 
@@ -302,7 +192,7 @@ They're updated or removed.
 A slave link is updated if its name is associated to the new selected path.
 Removed otherwise.
 
-# How to remove all path candidates for a master alternative?
+# How to remove all path choice for a master alternative?
 
     $ sudo update-alternatives --remove-all <name>
 
@@ -325,21 +215,241 @@ The last command should have the same effect as:
     $ rm /var/lib/dpkg/alternatives/ee
 
 ##
+# How to make `update-alternatives` verbose?
+
+Use the `--verbose` option:
+
+    $ update-alternatives --verbose ...
+
+# How to print all choices for the master alternative path of the link group `editor`?
+
+Use the `--list` subcommand:
+
+    $ update-alternatives --list editor
+
+# How to print the available packages which provide `editor` and the current setting for it?  (2)
+
+Use the `--display` or `--query` subcommands:
+
+    $ update-alternatives --display editor
+    $ update-alternatives --query editor
+
+## What's the difference between the 2 methods?
+
+The output of `--display` is human-readable.
+The output of `--query` is machine-parseable.
+
+##
+# I've installed a master alternative with 2 choices for the path, and some slave alternatives:
+
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
+        --slave /usr/local/bin/BB ff /usr/bin/nmap
+
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/paste 456 \
+        --slave /usr/local/bin/CC gg /usr/bin/qmv \
+        --slave /usr/local/bin/DD hh /usr/bin/rar
+
+    $ sudo update-alternatives --set ee /usr/bin/make
+
+## Here's the output of `update-alternatives --display`:
+
+    $ update-alternatives --display ee
+    ee - manual mode~
+      link best version is /usr/bin/paste~
+      link currently points to /usr/bin/make~
+      link ee is /usr/local/bin/AA~
+      slave ff is /usr/local/bin/BB~
+      slave gg is /usr/local/bin/CC~
+      slave hh is /usr/local/bin/DD~
+    /usr/bin/make - priority 123~
+      slave ff: /usr/bin/nmap~
+    /usr/bin/paste - priority 456~
+      slave gg: /usr/bin/qmv~
+      slave hh: /usr/bin/rar~
+
+### What's its general structure?
+
+It's divided into indented blocks; here, there are 3 of them.
+
+The first block always describes the master alternative.
+
+The other blocks always describe the available  paths in the link group, and the
+slaves associated to each of them.
+
+#### How to read the first block?
+
+For the master alternative, the third and fourth lines are the most important ones:
+
+      link currently points to /usr/bin/make~
+      link ee is /usr/local/bin/AA~
+
+This tells you that:
+
+   - the *link* of the master alternative is `/usr/local/bin/AA`
+   - the *name* of the master alternative is `ee`
+   - the *path* of the master alternative is `/usr/bin/make`
+
+Which perfectly matches the links managed by update-alternatives:
+
+    $ ls -l /usr/local/bin/AA
+    lrwxrwxrwx 1 root root ... /usr/local/bin/AA -> /etc/alternatives/ee~
+    $ ls -l /etc/alternatives/ee
+    lrwxrwxrwx 1 root root ... /etc/alternatives/ee -> /usr/bin/make~
+
+#### How to read the other blocks?
+
+For a  slave alternative, the  two lines beginning  with `slave <name>`  – where
+`<name>` is the name of the alternative – are the most important ones:
+
+    slave ff is /usr/local/bin/BB~
+    slave ff: /usr/bin/nmap~
+
+This tells you that:
+
+   - the *link* of the slave alternative is `/usr/local/bin/BB`
+   - the *name* of the slave alternative is `ff`
+   - the *path* of the slave alternative is `/usr/bin/nmap`
+
+Which, again, perfectly matches the links managed by update-alternatives:
+
+    $ ls -l /usr/local/bin/BB
+    lrwxrwxrwx 1 root root ... /usr/local/bin/BB -> /etc/alternatives/ff~
+    $ ls -l /etc/alternatives/ff
+    lrwxrwxrwx 1 root root ... /etc/alternatives/ff -> /usr/bin/nmap~
+
+## Why are the slaves `gg` and `hh` present in the first block, even though they're not used?
+
+Their links need to be remembered in case they get used in the future.
+
+## What happens to the slave `ff` if I choose `/usr/bin/paste` as the master alternative path?
+
+Its path will be updated.
+Its link and name will be removed.
+
+    $ sudo update-alternatives --set ee /usr/bin/make
+    $ ls -l /usr/local/bin/BB /etc/alternatives/ff
+    ls: cannot access '/usr/local/bin/BB': No such file or directory~
+    ls: cannot access '/etc/alternatives/ff': No such file or directory~
+
+## On which condition are the link and name of a slave removed when I change the path of a master alternative?
+
+No slave associated to  the new master alternative path must  have the same link
+and name.
+
+Consider this:
+
+    $ update-alternatives --query editor
+    Name: editor~
+    Link: /usr/bin/editor~
+    Slaves:~
+     editor.1.gz /usr/share/man/man1/editor.1.gz~
+     editor.fr.1.gz /usr/share/man/fr/man1/editor.1.gz~
+     editor.it.1.gz /usr/share/man/it/man1/editor.1.gz~
+     editor.pl.1.gz /usr/share/man/pl/man1/editor.1.gz~
+     editor.ru.1.gz /usr/share/man/ru/man1/editor.1.gz~
+    Status: auto~
+    Best: /usr/bin/vim.basic~
+    Value: /usr/bin/vim.basic~
+
+    Alternative: /bin/ed~
+    Priority: -100~
+    Slaves:~
+     editor.1.gz /usr/share/man/man1/ed.1.gz~
+
+    Alternative: /usr/bin/vim.basic~
+    Priority: 50~
+    Slaves:~
+     editor.1.gz /usr/share/man/man1/vim.1.gz~
+     editor.fr.1.gz /usr/share/man/fr/man1/vim.1.gz~
+     editor.it.1.gz /usr/share/man/it/man1/vim.1.gz~
+     editor.pl.1.gz /usr/share/man/pl/man1/vim.1.gz~
+     editor.ru.1.gz /usr/share/man/ru/man1/vim.1.gz~
+
+If you choose `/bin/ed` instead of `/usr/bin/vim.basic`, these files will be removed:
+
+   - `/usr/share/man/{fr,it,pl,ru}/man1/editor.1.gz`
+   - `/etc/alternatives/editor.{fr,it,pl,ru}.1.gz`
+
+But these ones will be kept, and their target will be updated:
+
+   - `/usr/share/man/man1/editor.1.gz`
+   - `/etc/alternatives/editor.1.gz`
+
+##
+# How to configure the alternative `editor` interactively?
+
+    $ update-alternatives --config editor
+
+# How to reset its path non-interactively?
+
+Use the `--set` subcommand:
+
+    $ sudo update-alternatives --set <alternative name> /new/path
+
+Example:
+
+    $ update-alternatives --set editor /usr/local/bin/vim
+
+##
+# What does it mean for a link group to be in automatic mode?
+
+In automatic  mode, a link group  will always automatically use  the alternative
+path with the highest priority.
+
+# How to make the link group behind the alternative for `editor` switch to automatic mode?
+
+    $ update-alternatives --auto editor
+
+In the process, the  links of the master alternative and  its slaves are updated
+to point to the highest priority installed alternatives.
+
+##
+# Where does update-alternatives write its activity?
+
+    /var/log/alternatives.log
+
+Unless you use the `--log` option:
+
+    $ update-alternatives --log /tmp/log ...
+
+# How to print the list of all the names of master alternatives, and how they are currently configured?
+
+    $ update-alternatives --get-selections
+
+Each line contains 3 fields:
+
+   1. alternative name
+   2. status (either auto or manual)
+   3. current choice for the alternative path
+
+# How to save this list, then restore the configuration of all the alternatives according to this list?
+
+Use the `--get-selections` and `--set-selections` subcommands:
+
+    $ update-alternatives --get-selections >file
+    $ sudo update-alternatives --set-selections <file
+
+Usage example:
+
+    $ update-alternatives --get-selections >/tmp/config
+
+    $ sudo update-alternatives --set awk /usr/bin/mawk
+    $ sudo update-alternatives --set editor /bin/nano
+    $ update-alternatives --get-selections | grep 'awk\|^editor'
+    awk                            manual   /usr/bin/mawk~
+    editor                         manual   /bin/nano~
+
+    $ sudo update-alternatives --set-selections </tmp/config
+    $ update-alternatives --get-selections | grep 'awk\|^editor'
+    awk                            manual   /usr/local/bin/gawk~
+    editor                         manual   /usr/local/bin/vim~
+
+##
+##
 ##
 ##
 # Description
 
-update-alternatives creates,  removes, maintains and displays  information about
-the symbolic links comprising the Debian alternatives system.
-
-It is possible for several programs  fulfilling the same or similar functions to
-be installed on a single system at the same time.
-For example, many systems have several text editors installed at once.
-This gives  choice to the users  of a system,  allowing each to use  a different
-editor, if desired, but  makes it difficult for a program to  make a good choice
-for an editor to invoke if the user has not specified a particular preference.
-
-Debian's alternatives system aims to solve this problem.
 An  alternative  link  in  the  filesystem is  shared  by  all  files  providing
 interchangeable functionality.
 The alternatives  system and the  system administrator together  determine which
@@ -386,17 +496,6 @@ link's group, and the group will automatically be switched to manual mode.
 Each alternative has a priority associated with it.
 When a link group  is in automatic mode, the alternatives  pointed to by members
 of the group will be those which have the highest priority.
-
-When  using the  `--config` option,  update-alternatives  will list  all of  the
-choices for the link group of which given name is the master name.
-The current choice is marked with a `*`.
-You will then be prompted for your choice regarding this link group.
-Depending on the choice made, the link group might no longer be in auto mode.
-You will  need to use the  `--auto` option in  order to return to  the automatic
-mode (or you can rerun `--config` and select the entry marked as automatic).
-
-If  you want  to  configure non-interactively  you can  use  the `--set`  option
-instead.
 
 Different packages providing the same file need to do so cooperatively.
 In other words,  the usage of update-alternatives is mandatory  for all involved
@@ -454,48 +553,10 @@ When a link group  is in manual mode, the alternatives system  will not make any
 changes to the system administrator's settings.
 
 ##
-# Options
-## --log file
-
-Specifies  the  log  file  when  this  is  to  be  different  from  the  default
-(`/var/log/alternatives.log`).
-
-## --force
-
-Allow replacing or dropping any real file that is installed where an alternative
-link has to be installed or removed.
-
-##
 # Commands
-## --install link name path priority [--slave link name path]...
-
-Add a group of alternatives to the system.
-Zero  or more  `--slave`  options,  each followed  by  three  arguments, may  be
-specified.
-Note that the path of the master alternative must exist or the call will fail.
-However, if  the path of  a slave  alternative doesn't exist,  the corresponding
-slave link will simply not be installed.
-If some real file is installed where an alternative link has to be installed, it
-is kept unless `--force` is used.
-
-If the  alternative name specified  exists already in the  alternatives system's
-records, the information supplied will be added as a new set of alternatives for
-the group (one master and possibly one or several slaves).
-Otherwise,  a  new  group, set  to  automatic  mode,  will  be added  with  this
-information.
-If the group is in automatic mode, and the newly added alternatives' priority is
-higher than any  other installed alternatives for this group,  the symlinks will
-be updated to point to the newly added alternatives.
-
-## --set name path
-
-Set the program `path` as alternative for `name`.
-This is equivalent to `--config` but is non-interactive and thus scriptable.
-
 ## --remove name path
 
-Remove  a path  candidate  for the  master alternative  and  all the  associated
-slaves.
+Remove a path choice for the master alternative and all the associated slaves.
 `name` is a name in `/etc/alternatives/`,  and `path` is an absolute filename to
 which `name` could be linked.
 
@@ -530,69 +591,6 @@ information about the alternative is removed.
 
 Remove all alternatives and all of their associated slave links.
 `name` is a name in `/etc/alternatives/`.
-
-## --auto name
-
-Switch the link group behind the alternative for `name` to automatic mode.
-In the process,  the master symlink and  its slaves are updated to  point to the
-highest priority installed alternatives.
-
-## --display name
-
-Display information about the link group:
-
-   - the group's mode (auto or manual)
-
-        editor - manual mode~
-
-   - the master and slave links
-
-        link editor is /usr/bin/editor~
-        slave editor.1.gz is /usr/share/man/man1/editor.1.gz~
-
-   - which path the master link currently points to
-
-        link currently points to /usr/local/bin/vim~
-
-   - what other paths are available (and their corresponding slaves)
-
-        /bin/ed - priority -100~
-          slave editor.1.gz: /usr/share/man/man1/ed.1.gz~
-        /bin/nano - priority 40~
-          slave editor.1.gz: /usr/share/man/man1/nano.1.gz~
-        /usr/local/bin/vim - priority 60~
-          slave editor.1.gz: /usr/local/share/man/man1/nvim.1.gz~
-
-   - the highest priority alternative currently installed
-
-        link best version is /usr/local/bin/vim~
-
-## --get-selections
-
-List all master names (those controlling a link group) and their status.
-
-Each line contains up to 3 fields (separated by one or more spaces).
-The first field  is the alternative name,  the second one is  the status (either
-auto  or  manual),  and  the  last  one contains  the  current  choice  for  the
-alternative path.
-
-## --set-selections
-
-Read configuration of alternatives on standard  input in the format generated by
-`--get-selections` and reconfigure them accordingly.
-
-## --query name
-
-Display information about the link group in a machine parseable way.
-
-## --list name
-
-Display the list of paths to the alternatives of the link group.
-
-## --config name
-
-Show available alternatives for a link group and allow the user to interactively
-select which one to use; the link group is updated.
 
 ##
 # Query Format
@@ -650,55 +648,3 @@ slaves associated to the master of the link group.
 There is one slave per line.
 Each line contains one space, the name of the slave, another space, and the path
 of the slave.
-
-Example:
-
-    $ update-alternatives --query editor
-    Name: editor~
-    Link: /usr/bin/editor~
-    Slaves:~
-     editor.1.gz /usr/share/man/man1/editor.1.gz~
-     editor.fr.1.gz /usr/share/man/fr/man1/editor.1.gz~
-     editor.it.1.gz /usr/share/man/it/man1/editor.1.gz~
-     editor.pl.1.gz /usr/share/man/pl/man1/editor.1.gz~
-     editor.ru.1.gz /usr/share/man/ru/man1/editor.1.gz~
-    Status: auto~
-    Best: /usr/bin/vim.basic~
-    Value: /usr/bin/vim.basic~
-
-    Alternative: /bin/ed~
-    Priority: -100~
-    Slaves:~
-     editor.1.gz /usr/share/man/man1/ed.1.gz~
-
-    Alternative: /usr/bin/vim.basic~
-    Priority: 50~
-    Slaves:~
-     editor.1.gz /usr/share/man/man1/vim.1.gz~
-     editor.fr.1.gz /usr/share/man/fr/man1/vim.1.gz~
-     editor.it.1.gz /usr/share/man/it/man1/vim.1.gz~
-     editor.pl.1.gz /usr/share/man/pl/man1/vim.1.gz~
-     editor.ru.1.gz /usr/share/man/ru/man1/vim.1.gz~
-
-# Examples
-
-There are several  packages which provide a text editor  compatible with vi, for
-example nvi and vim.
-Which one is used  is controlled by the link group vi,  which includes links for
-the program itself and the associated manpage.
-
-To display the  available packages which provide vi and  the current setting for
-it, use the `--query` action:
-
-    $ update-alternatives --query vi
-
-To choose  a particular  vi implementation,  use this command  as root  and then
-select a number from the list:
-
-    $ update-alternatives --config vi
-
-To go  back to  having the  vi implementation chosen  automatically, do  this as
-root:
-
-    $ update-alternatives --auto vi
-
