@@ -8,126 +8,136 @@ A number: no.
 # How to install python?
 ## Download
 
-Go to the python download page:
+Go to the python download page: <https://www.python.org/downloads/release>
 
-        https://www.python.org/downloads/release
+If you can't access the url, use our custom zsh shell function `tor`.
 
 The latest release should be suggested in a button.
 Atm it's `3.7.0`.
 Don't click on the main button, instead click on the link which gives you access
-to various installer formats:
-
-        https://www.python.org/downloads/release/python-370/
+to various installer formats: <https://www.python.org/downloads/release/python-370/>
 
 Download the tarball of  the installer, and its signature stored  in a PGP ASCII
 Armored File:
-
-        https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz
-        https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz.asc
+<https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz>
+<https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz.asc>
 
 ## Check the authenticity of the installer
 
 Import the release manager public keys via the public key file:
 
-        $ curl https://www.python.org/static/files/pubkeys.txt | gpg --import -
+    $ curl https://www.python.org/static/files/pubkeys.txt | gpg --import -
 
+If you  can't download  `pubkeys.txt` with  `$ curl`, use  our custom  zsh shell
+function `tor`; visit the url, right-click, `Save Page As...`.
 
 Or grab the individual keys directly from the keyserver network:
 
-        $ gpg --keyserver x-hkp://pool.sks-keyservers.net --recv-keys 6A45C816 36580288 7D9DC8D2 18ADD4FF A4135B38 A74B06BF EA5BBD71 E6DF025C AA65421D 6F5E1540 F73C700D 487034E5
-                          │
-                          └ You can find keyservers addresses here:
+    $ gpg --keyserver x-hkp://pool.sks-keyservers.net --recv-keys 6A45C816 36580288 7D9DC8D2 18ADD4FF A4135B38 A74B06BF EA5BBD71 E6DF025C AA65421D 6F5E1540 F73C700D 487034E5
+                      │
+                      └ You can find keyservers addresses here:
 
-                                https://sks-keyservers.net/
+                            https://sks-keyservers.net/
 
 
 Check the authenticity of the installer's tarball:
 
-        $ gpg --verify Python-3.6.5.tgz.asc
+    $ gpg --verify Python-3.6.5.tgz.asc
 
 You should read a message containing the text “Good signature from ...”:
 
-        $ gpg --verify Python-3.6.5.tgz.asc
-          gpg: assuming signed data in `Python-3.6.5.tgz'
-          gpg: Signature made Wed 28 Mar 2018 12:28:12 PM CEST using RSA key ID AA65421D
-          gpg: Good signature from "Ned Deily (Python release signing key) <nad@python.org>"
-          gpg:                 aka "Ned Deily <nad@baybryj.net>"
-          gpg:                 aka "keybase.io/nad <nad@keybase.io>"
-          gpg:                 aka "Ned Deily (Python release signing key) <nad@acm.org>"
-          gpg: WARNING: This key is not certified with a trusted signature!
-          gpg:          There is no indication that the signature belongs to the owner.
-          Primary key fingerprint: 0D96 DF4D 4110 E5C4 3FBF  B17F 2D34 7EA6 AA65 421D
+    $ gpg --verify Python-3.6.5.tgz.asc
+      gpg: assuming signed data in `Python-3.6.5.tgz'
+      gpg: Signature made Wed 28 Mar 2018 12:28:12 PM CEST using RSA key ID AA65421D
+      gpg: Good signature from "Ned Deily (Python release signing key) <nad@python.org>"
+      gpg:                 aka "Ned Deily <nad@baybryj.net>"
+      gpg:                 aka "keybase.io/nad <nad@keybase.io>"
+      gpg:                 aka "Ned Deily (Python release signing key) <nad@acm.org>"
+      gpg: WARNING: This key is not certified with a trusted signature!
+      gpg:          There is no indication that the signature belongs to the owner.
+      Primary key fingerprint: 0D96 DF4D 4110 E5C4 3FBF  B17F 2D34 7EA6 AA65 421D
 
 The warning  comes probably from  the fact  that you haven't  signed/trusted the
 release manager public keys with your own.
 
 ## Extract the contents of the tarball
 
-        $ xt Python-3.6.5.tgz
+    $ xt Python-3.6.5.tgz
+
+Don't extract the archive under `/run`; otherwise, the compilation will probably
+fail because of a lack of space.
+
+    /usr/bin/ld: final link failed: No space left on device
+    collect2: error: ld returned 1 exit status
+    Makefile:731: recipe for target 'Programs/_testembed' failed
+    make: *** [Programs/_testembed] Error 1
+
+Check how much space you have on the partition where you extract with `\df -h` or `dfc`.
+
+<https://stackoverflow.com/a/31493804/9780968>
+<https://unix.stackexchange.com/a/16158/289772>
 
 ## Dependencies
 
-                                      ┌ for `checkinstall` to succeed later;
-                                      │ otherwise: `ModuleNotFoundError: No module named '_ctypes'`
-                                      │
-        $ aptitude install libssl-dev libffi-dev
+                                  ┌ for `checkinstall` to succeed later;
+                                  │ otherwise: `ModuleNotFoundError: No module named '_ctypes'`
+                                  │
+    $ aptitude install libssl-dev libffi-dev
 
 `libssl-dev` seems  important, otherwise, when,  later, you'll try to  install a
 package with `pip`, you may fail:
 
-        $ python3 -m pip install --user requests
-        pip is configured  with locations that require  TLS/SSL, however the~
-        ssl module in Python is not available.~
+    $ python3 -m pip install --user requests
+    pip is configured  with locations that require  TLS/SSL, however the~
+    ssl module in Python is not available.~
 
-        ...~
+    ...~
 
-        Could not find a version that satisfies the requirement requests (from versions: )~
-        No matching distribution found for requests~
+    Could not find a version that satisfies the requirement requests (from versions: )~
+    No matching distribution found for requests~
 
-        Could not  fetch URL https://pypi.python.org/simple/requests/:~
+    Could not  fetch URL https://pypi.python.org/simple/requests/:~
 
-        There was a problem confirming the ssl certificate:~
-        HTTPSConnectionPool(host='pypi.python.org', port=443):~
-        Max  retries   exceeded  with  url:  /simple/requests/   (Caused  by~
-        SSLError("Can't connect to  HTTPS URL because the SSL  module is not~
-        available.",)) - skipping.~
+    There was a problem confirming the ssl certificate:~
+    HTTPSConnectionPool(host='pypi.python.org', port=443):~
+    Max  retries   exceeded  with  url:  /simple/requests/   (Caused  by~
+    SSLError("Can't connect to  HTTPS URL because the SSL  module is not~
+    available.",)) - skipping.~
 
-See also:
-
-        https://stackoverflow.com/a/41601137/9780968
+See also: <https://stackoverflow.com/a/41601137/9780968>
 
 ## Configure
 
 Read the instructions for the compilation:
 
-        $ vim README.rst
+    $ vim README.rst
 
 Read the configuration flags:
 
-        $ ./configure --help
+    $ ./configure --help
 
 Configure:
 
-        $ ./configure --enable-optimizations --with-lto --with-ensurepip=install
-                        │                                 │
-                        │                                 └ otherwise, later, you won't be able to execute
-                        │                                   `pythonx.y -m pip ...`
-                        │
-                        └ Warning: it increases the compilation time (a lot),
-                          and the resources consumed:
+    $ ./configure --enable-optimizations --with-lto --with-ensurepip=install
+                    │                                 │
+                    │                                 └ otherwise, later, you won't be able to execute
+                    │                                   `pythonx.y -m pip ...`
+                    │
+                    └ Warning: it increases the compilation time (a lot),
+                      and the resources consumed:
 
-                              https://github.com/docker-library/python/issues/160
+                          https://github.com/docker-library/python/issues/160
 
 ## Compile
 
-        $ make profile-opt
-               │
-               └ only relevant if you used the `--enable-optimizations` flag
-                 during the configuration
+    $ make profile-opt
+           │
+           └ only relevant if you used the `--enable-optimizations` flag
+             during the configuration
 
 ## Test
 
-        $ make test
+    $ make test
 
 You   probably   don't   need   to   start   the   tests   if   you   used   the
 `--enable-optimizations` flag, because  the latter will cause `$  make` to start
@@ -155,30 +165,35 @@ Use `$ apt-file search` to search for a missing dependency:
 
 ## Install
 
-        $ sudo rlwrap checkinstall --pkgname mypython -y
+    $ sudo checkinstall --pkgname python3
+                                        ^
 
-You must use  the `--pkgname` option to avoid the  installed package being named
-“python”.
+---
 
-It could  break future  updates of the  OS (because many  programs rely  on some
-version of the python package, and only work with some old version).
+Immediately after  the install, try  to update your  system, and see  whether an
+error occurs.
 
-If by accident, you install the package using the name “python”, downgrade it:
+If  the upgrade  fails, it's  probably because  you named  the package  `python`
+instead of `python3`.
+This will shadow the default python2  package, and because many programs rely on
+it, they all get broken.
 
-        # find the old (and more compatible) version
-        $ apt-cache policy python
+To fix this issue, downgrade your `python` package:
 
-        # downgrade the python package
-        $ sudo apt-get install python=<package-version-number>
-                                       │
-                                       └ Ex:   2.7.12-1~16.04
+    # find the old (and more compatible) version
+    $ apt-cache policy python
+
+    # downgrade the python package
+    $ sudo apt-get install python=<package-version-number>
+                                   │
+                                   └ Ex:   2.7.12-1~16.04
 
 Now, you  need to re-execute  `checkinstall`, because your compiled  package has
 been removed in the process.
 
 ## Clean
 
-        $ make clean && make distclean
+    $ make clean && make distclean
 
 ##
 # Interpreter
