@@ -96,6 +96,12 @@ Use the `--slave` option of the `--install` subcommand:
 
 You can specify one or more `--slave` options, each followed by three arguments.
 
+Example:
+
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
+        --slave /usr/local/bin/BB ff /usr/bin/nmap \
+        --slave /usr/local/bin/CC gg /usr/bin/open
+
 # Which condition must be satisfied for `update-alternatives --install` to succeed?
 
 The path of the master alternative must exist, otherwise the command will fail:
@@ -113,15 +119,40 @@ OTOH, its link and name don't have to exist:
 If  the path  of  a slave  alternative  doesn't exist,  the  command will  still
 succeed, but the corresponding slave link won't be installed.
 
-     sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
+    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
         --slave /usr/local/bin/BB ff /usr/bin/not_a_binary
     update-alternatives: using /usr/bin/make to provide /usr/local/bin/AA (ee) in auto mode~
     update-alternatives: warning: skip creation of /usr/local/bin/BB because associated file /usr/bin/not_a_binary (of link group ee) doesn't exist~
 
-## ?
+# How to overwrite a file already located where I want an alternative link to be installed?
 
-If some real file is installed where an alternative link has to be installed, it
-is kept unless `--force` is used.
+Use the `--force` option.
+
+Example without `--force`:
+
+    $ echo 'hello' | sudo tee /usr/local/bin/file
+    $ sudo update-alternatives --install /usr/local/bin/file ee /usr/bin/make 123
+    update-alternatives: using /usr/bin/make to provide /usr/local/bin/file (ee) in auto mode~
+    update-alternatives: warning: not replacing /usr/local/bin/file with a link~
+    $ ls -l /usr/local/bin/file
+    -rw-r--r-- 1 root root ... /usr/local/bin/file~
+
+Example using `--force`:
+
+    $ sudo update-alternatives --remove-all ee
+    $ echo 'hello' | sudo tee /usr/local/bin/file
+                               vvvvvvv
+    $ sudo update-alternatives --force --install /usr/local/bin/file ee /usr/bin/make 123
+    update-alternatives: using /usr/bin/make to provide /usr/local/bin/file (ee) in auto mode~
+    $ ls -l /usr/local/bin/file
+    lrwxrwxrwx 1 root root ... /usr/local/bin/file -> /etc/alternatives/ee~
+
+---
+
+Note that the alternative is partially installed, even without `--force`.
+But since the link is not installed, it won't work as expected.
+
+# ?
 
 If the  alternative name specified  exists already in the  alternatives system's
 records, the information supplied will be added as a new set of alternatives for
