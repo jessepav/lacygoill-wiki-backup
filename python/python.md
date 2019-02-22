@@ -163,34 +163,42 @@ Use `$ apt-file search` to search for a missing dependency:
         $ apt-file search test_gdb
         ...
 
+##
 ## Install
 
-    $ sudo checkinstall --pkgname python3
-                                        ^
-
----
+    $ sudo checkinstall --pkgname mypython
+                                  ^^
 
 Immediately after  the install, try  to update your  system, and see  whether an
 error occurs.
 
-If  the upgrade  fails, it's  probably because  you named  the package  `python`
-instead of `python3`.
-This will shadow the default python2  package, and because many programs rely on
-it, they all get broken.
+### Why not naming the package `python`?
 
-To fix this issue, downgrade your `python` package:
+This would shadow the default python2 package, and because many programs rely on
+it, they'll all get broken.
+
+### Why not naming the package `python3`?
+
+Some programs rely on a specific (and older) version of `python3`.
+They would get broken by a new version.
+
+### I have installed the package and named it `python(3)` by accident!
+
+Downgrade your `python(3)` package:
 
     # find the old (and more compatible) version
-    $ apt-cache policy python
+    $ apt-cache policy python(3)
 
     # downgrade the python package
-    $ sudo apt-get install python=<package-version-number>
-                                   │
-                                   └ Ex:   2.7.12-1~16.04
+    $ sudo apt-get install python(3)=<package-version-number>
+                                     │
+                                     └ Ex:   2.7.12-1~16.04
+                                             3.5.1-3
 
 Now, you  need to re-execute  `checkinstall`, because your compiled  package has
 been removed in the process.
 
+##
 ## Clean
 
     $ make clean && make distclean
