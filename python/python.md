@@ -224,7 +224,7 @@ been removed in the process.
     python3 is /usr/bin/python3~
     python3 is /bin/python3~
 
-### What's the absolute path of the interpreter which will be run when I invoke `$ python3`?
+### In the previous output, what's the absolute path of the interpreter which will be run when I invoke `$ python3`?
 
     /usr/local/bin/python3
 
