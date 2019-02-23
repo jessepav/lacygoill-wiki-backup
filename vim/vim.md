@@ -875,6 +875,11 @@ courante.
             duplique le buffer courant 1024 fois (2^10)
             Plus généralement, on peut répéter une commande arbitraire 2^N fois, via:    :1,Ng/^/cmd
 
+            Also, `$` is a line specifier used in a range.
+            So, this command shows that you  can use any line specifier (like an
+            arbitrary mark `'m`) as the argument of `:t`.
+            Same thing for `:m`.
+
     :g/foo/ mark a | t$ | 'a s/foo/bar/
 
             dupliquer toutes les lignes contenant foo à la fin du fichier, et substituer foo par

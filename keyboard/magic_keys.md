@@ -398,9 +398,7 @@ AZERTY keyboard).
 So, press `M-SysRq-,`.
                    ^
 
-For more info, see:
-
-        https://en.wikipedia.org/wiki/Magic_SysRq_key#Commands
+For more info, see: <https://en.wikipedia.org/wiki/Magic_SysRq_key#Commands>
 
 ## I've pressed `M-SysRq-<command key>`.  It doesn't work!
 
