@@ -523,6 +523,12 @@ dbext.vim, improving on it on the following ways:
             Alternative:
             On Neovim see `:h hl-NormalNC`.
 
+## dirdiff
+
+Vim plugin to diff all the files in two directories.
+
+<https://github.com/will133/vim-dirdiff/issues>:655 sloc
+
 ## dirvish-git
 
         Git support for dirvish.vim

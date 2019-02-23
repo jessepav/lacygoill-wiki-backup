@@ -1,4 +1,4 @@
-## Can a variable name begin with an underscore?   A number?
+# Can a variable name begin with an underscore?   A number?
 
 An underscore: yes.
 A number: no.
@@ -17,8 +17,7 @@ Atm it's `3.7.0`.
 Don't click on the main button, instead click on the link which gives you access
 to various installer formats: <https://www.python.org/downloads/release/python-370/>
 
-Download the tarball of  the installer, and its signature stored  in a PGP ASCII
-Armored File:
+Download the tarball of the installer, and its signature stored in a PGP ASCII Armored File:
 <https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz>
 <https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz.asc>
 
@@ -57,8 +56,21 @@ You should read a message containing the text “Good signature from ...”:
       gpg:          There is no indication that the signature belongs to the owner.
       Primary key fingerprint: 0D96 DF4D 4110 E5C4 3FBF  B17F 2D34 7EA6 AA65 421D
 
-The warning  comes probably from  the fact  that you haven't  signed/trusted the
-release manager public keys with your own.
+To get rid of the warning:
+
+    $ gpg --edit-key AA65421D
+    gpg> trust
+        1 = I don't know or won't say~
+        2 = I do NOT trust~
+        3 = I trust marginally~
+        4 = I trust fully~
+        5 = I trust ultimately~
+        m = back to the main menu~
+    Your decision? 5
+
+See:
+<https://serverfault.com/a/569923>
+<https://security.stackexchange.com/a/69089>
 
 ## Extract the contents of the tarball
 
@@ -205,6 +217,32 @@ been removed in the process.
 
 ##
 # Interpreter
+## How to see the list of all the interpreters installed on my machine?
+
+    $ type -a python3
+    python3 is /usr/local/bin/python3~
+    python3 is /usr/bin/python3~
+    python3 is /bin/python3~
+
+The list is in decreasing order of priority.
+
+The first  line contains the  path to  the binary which  is called when  you run
+`python3` without `.X`.
+Note that here, a compiled interpreter was installed in `/usr/local/bin`, and it
+has priority  over the default  one –  in `/usr/bin` –  because `/usr/local/bin`
+comes before `/usr/bin` in `$PATH`.
+
+## I have two versions of the `python3` interpreter.  The default in `/usr/bin` and one compiled in `/usr/local/bin`.
+### Which one is called by `python3`?
+
+The one whose directory of installation is the nearest of the beginning of `$PATH`.
+Here, it's `/usr/local/bin`.
+
+### When I run `$ python3`, why does Ubuntu run my compiled version, instead of the default one?
+
+Because `/usr/local/bin` comes before `/usr/bin` in `$PATH`.
+
+##
 ## How to print “Hello world!”?
 
         >>> print("Hello world!")
