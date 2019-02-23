@@ -224,23 +224,15 @@ been removed in the process.
     python3 is /usr/bin/python3~
     python3 is /bin/python3~
 
-The list is in decreasing order of priority.
+### What's the absolute path of the interpreter which will be run when I invoke `$ python3`?
 
-The first  line contains the  path to  the binary which  is called when  you run
-`python3` without `.X`.
-Note that here, a compiled interpreter was installed in `/usr/local/bin`, and it
-has priority  over the default  one –  in `/usr/bin` –  because `/usr/local/bin`
-comes before `/usr/bin` in `$PATH`.
+    /usr/local/bin/python3
 
-## I have two versions of the `python3` interpreter.  The default in `/usr/bin` and one compiled in `/usr/local/bin`.
-### Which one is called by `python3`?
+### Which environment variable is responsible for this path having the biggest priority?
 
-The one whose directory of installation is the nearest of the beginning of `$PATH`.
-Here, it's `/usr/local/bin`.
+    $PATH
 
-### When I run `$ python3`, why does Ubuntu run my compiled version, instead of the default one?
-
-Because `/usr/local/bin` comes before `/usr/bin` in `$PATH`.
+`/usr/local/bin` comes before `/usr/bin`.
 
 ##
 ## How to print “Hello world!”?

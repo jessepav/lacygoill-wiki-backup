@@ -1,3 +1,10 @@
+# How to uninstall ranger?
+
+If you used `pip`, then run:
+
+    $ python3 -m pip uninstall ranger-fm
+
+##
 # AIDE
 
     :help → m                                       dans ranger
