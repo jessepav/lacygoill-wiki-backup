@@ -323,6 +323,18 @@ Example:
 
     $ update-alternatives --set editor /usr/local/bin/vim
 
+###
+## How to make the link group `editor` switch to automatic mode?
+
+    $ update-alternatives --auto editor
+
+In the process, the  links of the master alternative is updated  to point to the
+alternative path choice with the highest priority; the slaves are also updated.
+
+---
+
+You could also rerun `--config` and select the entry marked as automatic.
+
 ##
 ## How to review all link groups?
 
@@ -531,16 +543,4 @@ Example using `--force`:
 
 Note that the alternative is partially installed, even without `--force`.
 But since the link is not installed, it won't work as expected.
-
-###
-## How to make the link group `editor` switch to automatic mode?
-
-    $ update-alternatives --auto editor
-
-In the process, the  links of the master alternative is updated  to point to the
-alternative path choice with the highest priority; the slaves are also updated.
-
----
-
-You could also rerun `--config` and select the entry marked as automatic.
 
