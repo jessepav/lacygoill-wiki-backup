@@ -21,27 +21,32 @@ instead.
 ##
 # What's the purpose of update-alternatives?
 
-It maintains symbolic links which determine default commands.
-
----
-
 It is possible for several programs  fulfilling the same or similar functions to
 be installed on the system.
 If another program needs to invoke these functions, it has to make a good choice
-between all of them.
+between all of these similar programs.
 
 update-alternatives aims to solve this problem.
 
 ##
 # Why does update-alternatives use two symlinks between the link and path of an alternative (instead of one)?
 
-    /usr/bin/editor
-    → /etc/alternatives/editor
-    → /usr/local/bin/vim
+    /usr/bin/editor          → /etc/alternatives/editor
+    /etc/alternatives/editor → /usr/local/bin/vim
 
 It allows the  OS to confine the changes  of the sysadmin to `/etc`,  which is a
 good thing according to the FHS.
 IOW, it creates a convenient centralised point of config.
+
+Indeed, once you've installed a group link, the first symlink doesn't change anymore:
+
+    /usr/bin/editor → /etc/alternatives/editor
+
+Only the second one can:
+
+    /etc/alternatives/editor → /usr/local/bin/vim
+    /etc/alternatives/editor → /usr/local/bin/emacs
+    ...
 
 # Where does update-alternatives store its state information?
 
@@ -63,14 +68,14 @@ Unfortunately, both look the same: they all start with two hyphens.
 
 ## Only the ones which are configured in manual mode?
 
-    $ update-alternatives --skip-auto --all
+    $ update-alternatives --all --skip-auto
 
 # How to try and fix all broken alternatives?
 
     $ yes '' | update-alternatives --force --all
                                      │
-                                     └ Allow replacing or dropping any real file that is installed where an
-                                       alternative link has to be installed or removed.
+                                     └ Allow replacing or dropping any real file that is installed
+                                       where an alternative link has to be installed or removed.
 
 ##
 # How to add an alternative path to the list of choices that a master alternative can be linked to?
@@ -92,7 +97,8 @@ Example:
 Use the `--slave` option of the `--install` subcommand:
 
     $ sudo update-alternatives --install <link> <name> <path> <priority> \
-        --slave <link> <name> <path> ...
+        --slave <link> <name> <path> \
+        --slave ...
 
 You can specify one or more `--slave` options, each followed by three arguments.
 
@@ -111,7 +117,7 @@ The path of the master alternative must exist, otherwise the command will fail:
 
 OTOH, its link and name don't have to exist:
 
-    $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123
+    $ sudo update-alternatives --install /usr/local/bin/not_a_binary not_a_name /usr/bin/make 123
     update-alternatives: using /usr/bin/make to provide /usr/local/bin/AA (ee) in auto mode~
 
 ---
@@ -124,7 +130,7 @@ succeed, but the corresponding slave link won't be installed.
     update-alternatives: using /usr/bin/make to provide /usr/local/bin/AA (ee) in auto mode~
     update-alternatives: warning: skip creation of /usr/local/bin/BB because associated file /usr/bin/not_a_binary (of link group ee) doesn't exist~
 
-# How to overwrite a file already located where I want an alternative link to be installed?
+# How to overwrite a file located where I want an alternative link to be installed?
 
 Use the `--force` option.
 
@@ -165,22 +171,22 @@ be updated to point to the newly added alternatives.
 
 # ?
 
-What happens if I try to install a new alternative
-using a link which is already present in update-alternatives state info?
+What happens if I try to install a new alternative using a link which is already
+present in update-alternatives state info?
 
 It fails:
 
     $ sudo update-alternatives --install /usr/local/bin/AA xx /usr/bin/a2ping 789
-      update-alternatives: error: alternative link /usr/local/bin/AA is already managed by ee
+    update-alternatives: error: alternative link /usr/local/bin/AA is already managed by ee~
 
 using a name which is already present in update-alternatives state info?
 
 The old link is removed, and the new one is installed:
 
     $ sudo update-alternatives --install /usr/local/bin/XX ee /usr/bin/a2ping 789
-    update-alternatives: renaming ee link from /usr/local/bin/AA to /usr/local/bin/XX
+    update-alternatives: renaming ee link from /usr/local/bin/AA to /usr/local/bin/XX~
     $ ls -l /usr/local/bin/AA
-    ls: cannot access '/usr/local/bin/AA': No such file or directory
+    ls: cannot access '/usr/local/bin/AA': No such file or directory~
 
 ##
 # How to remove a path choice for a master alternative?
@@ -192,38 +198,34 @@ Example:
     $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123
     $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/paste 456
 
-    $ update-alternatives --query ee
-    Name: ee~
-    Link: /usr/local/bin/AA~
-    Status: auto~
-    Best: /usr/bin/paste~
-    Value: /usr/bin/paste~
-
-    Alternative: /usr/bin/make~
-    Priority: 123~
-
-    Alternative: /usr/bin/paste~
-    Priority: 456~
+    $ update-alternatives --display ee
+    ee - auto mode~
+      link best version is /usr/bin/paste~
+      link currently points to /usr/bin/paste~
+      link ee is /usr/local/bin/AA~
+    /usr/bin/make - priority 123~
+    /usr/bin/paste - priority 456~
 
     $ sudo update-alternatives --remove ee /usr/bin/make
-    $ update-alternatives --query ee
-    Name: ee~
-    Link: /usr/local/bin/AA~
-    Status: auto~
-    Best: /usr/bin/paste~
-    Value: /usr/bin/paste~
-
-    Alternative: /usr/bin/paste~
-    Priority: 456~
+    $ update-alternatives --display ee
+    ee - auto mode~
+      link best version is /usr/bin/paste~
+      link currently points to /usr/bin/paste~
+      link ee is /usr/local/bin/AA~
+    /usr/bin/paste - priority 456~
 
 ## What happens to the associated slave links?
 
 They're updated or removed.
 
-A slave link is updated if its name is associated to the new selected path.
-Removed otherwise.
+A slave link is updated if:
 
-# How to remove all path choice for a master alternative?
+   - the removed pach choice was used by the master alternative
+   - its name is associated to the new selected path
+
+Otherwise it's removed.
+
+# How to remove all path choices for a master alternative?
 
     $ sudo update-alternatives --remove-all <name>
 
@@ -258,7 +260,7 @@ Use the `--list` subcommand:
 
     $ update-alternatives --list editor
 
-# How to print the available packages which provide `editor` and the current setting for it?  (2)
+# How to print the available programs which provide `editor`, and the one currently used?  (2)
 
 Use the `--display` or `--query` subcommands:
 
@@ -354,7 +356,6 @@ Their links need to be remembered in case they get used in the future.
 
 ## What happens to the slave `ff` if I choose `/usr/bin/paste` as the master alternative path?
 
-Its path will be updated.
 Its link and name will be removed.
 
     $ sudo update-alternatives --set ee /usr/bin/make
@@ -396,26 +397,29 @@ Consider this:
      editor.pl.1.gz /usr/share/man/pl/man1/vim.1.gz~
      editor.ru.1.gz /usr/share/man/ru/man1/vim.1.gz~
 
-If you choose `/bin/ed` instead of `/usr/bin/vim.basic`, these files will be removed:
+If you choose `/bin/ed` instead of `/usr/bin/vim.basic`, the slaves `editor.{fr,it,pl,ru}`
+will be removed, because the new master path has no such slaves:
 
-   - `/usr/share/man/{fr,it,pl,ru}/man1/editor.1.gz`
-   - `/etc/alternatives/editor.{fr,it,pl,ru}.1.gz`
+    $ rm /usr/share/man/{fr,it,pl,ru}/man1/editor.1.gz \
+         /etc/alternatives/editor.{fr,it,pl,ru}.1.gz
 
-But these ones will be kept, and their target will be updated:
+But the slave `editor.1.gz` will be kept; only its path will be updated:
 
-   - `/usr/share/man/man1/editor.1.gz`
-   - `/etc/alternatives/editor.1.gz`
+    /usr/share/man/man1/editor.1.gz → /etc/alternatives/editor.1.gz
+    /etc/alternatives/editor.1.gz   → /usr/share/man/man1/vim.1.gz
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                      new path
 
 ##
 # How to configure the alternative `editor` interactively?
 
     $ update-alternatives --config editor
 
-# How to reset its path non-interactively?
+## How to reset its path non-interactively?
 
 Use the `--set` subcommand:
 
-    $ sudo update-alternatives --set <alternative name> /new/path
+    $ sudo update-alternatives --set editor /new/path
 
 Example:
 
@@ -424,8 +428,8 @@ Example:
 ##
 # What does it mean for a link group to be in automatic mode?
 
-In automatic  mode, a link group  will always automatically use  the alternative
-path with the highest priority.
+In automatic  mode, the  master path will  always be the  path with  the highest
+priority.
 
 # How to make the link group behind the alternative for `editor` switch to automatic mode?
 
@@ -462,15 +466,18 @@ Use the `--get-selections` and `--set-selections` subcommands:
 
 Usage example:
 
-    $ update-alternatives --get-selections >/tmp/config
+    # save update-alternatives' state info
+    $ update-alternatives --get-selections >/tmp/state_info
 
+    # temporarily modify state info
     $ sudo update-alternatives --set awk /usr/bin/mawk
     $ sudo update-alternatives --set editor /bin/nano
     $ update-alternatives --get-selections | grep 'awk\|^editor'
     awk                            manual   /usr/bin/mawk~
     editor                         manual   /bin/nano~
 
-    $ sudo update-alternatives --set-selections </tmp/config
+    # restore state info
+    $ sudo update-alternatives --set-selections </tmp/state_info
     $ update-alternatives --get-selections | grep 'awk\|^editor'
     awk                            manual   /usr/local/bin/gawk~
     editor                         manual   /usr/local/bin/vim~

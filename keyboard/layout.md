@@ -226,22 +226,22 @@ pressed to validate the command (Enter vs C-m).
 ##
 # How to customize the console keyboard layout?
 
-        $ cat <<'EOF' | sudo tee -a /etc/systemd/system/getty@.service.d/keyboard-layout.conf
-[Service]
-ExecStartPre=/usr/bin/loadkeys /home/user/.config/keyboard/vc.conf
-EOF
+    $ cat <<'EOF' | sudo tee -a /etc/systemd/system/getty@.service.d/keyboard-layout.conf
+    [Service]
+    ExecStartPre=/usr/bin/loadkeys /home/user/.config/keyboard/vc.conf
+    EOF
 
 ---
 
 `vc.conf` should contain your customizations, such as:
 
-        altgr keycode 3 = less
-        ...
-        alt keycode 36 = Scroll_Forward
-        ...
-        keymaps 0-2,4,6,8,12
-        keycode 58 = Control
-        ...
+    altgr keycode 3 = less
+    ...
+    alt keycode 36 = Scroll_Forward
+    ...
+    keymaps 0-2,4,6,8,12
+    keycode 58 = Control
+    ...
 
 Use `dumpkeys`  to read the current  layout and `showkey`  to get the code  of a
 key.
