@@ -1,3 +1,243 @@
+# ?
+
+Coercion
+
+On peut  séparer les  opérateurs en  3 catégories, en  fonction des  types de
+données sur lesquels ils peuvent travailler:
+
+   - nombre
+   - chaîne
+   - chaîne et nombre
+
+Pour chacune de ces catégories, une coercition peut avoir lieue:
+
+    ┌───────────┬────────────────────┬──────────────────┬─────────────────┐
+    │ opérateur │  opérande attendu  │ opérande reçu    │   coercition    │
+    ├───────────┼────────────────────┼──────────────────┼─────────────────┤
+    │   +-*/%^  │      nombre        │      chaîne      │ chaîne → nombre │
+    ├───────────┼────────────────────┼──────────────────┼─────────────────┤
+    │   concat  │      chaîne        │      nombre      │ nombre → chaîne │
+    ├───────────┼────────────────────┼──────────────────┼─────────────────┤
+    │    ~ !~   │      chaîne        │      nombre      │ nombre → chaîne │
+    ├───────────┼────────────────────┼──────────────────┼─────────────────┤
+    │ ==  !=    │      chaîne        │      nombre      │ nombre → chaîne │
+    │ < > >= <= │                    │                  │                 │
+    ├───────────┼────────────────────┼──────────────────┼─────────────────┤
+    │ ==  !=    │      nombre        │      chaîne      │ nombre → chaîne │
+    │ < > >= <= │                    │                  │                 │
+    └───────────┴────────────────────┴──────────────────┴─────────────────┘
+
+Ex1:
+
+    print $1 $2, $3 + 123
+
+Dans cet exemple, si  le premier champ est un nb, il sera  converti en chaîne, et si
+le 3e champ est une chaîne, elle sera convertie en nb.
+
+Ex2:
+
+    $4 == "Asia"
+
+Dans cet autre exemple, si le 4e champ est un nb, il sera converti en chaîne.
+
+Conclusion:
+
+Awk  est  cool,  et  il  convertira  si  besoin  un  nombre  en  une  chaîne  et
+réciproquement.
+
+Mais un pb se  pose qd on passe un nombre et une  chaîne à un opérateur binaire,
+*et* qu'il peut travailler à la fois sur des nombres et des chaînes.
+
+Awk  doit alors  choisir  quelle  coercition réaliser:  il  choisit toujours  de
+convertir le nombre en chaîne.
+Contrairement à Vim:
+
+    $ awk '$1 == "089" { print "match!" }' <<< "89"
+    ''~
+
+    $ awk '$1 == "089" { print "match!" }' <<< "089"
+    match!~
+
+    :echo "89" == 089
+    1~
+
+En cas d'ambiguïté, awk donne la priorité aux chaînes, Vim aux nombres.
+
+---
+
+    $ awk '$1 == 042 { print "match!" }' <<< "042"
+    ''~
+
+    $ awk '$1 == 142 { print "match!" }' <<< "142"
+    match!~
+
+    $ awk '$1 == 0428 { print "match!" }' <<< "0428"
+    match!~
+
+Dans du code (!= input), awk interprète `042` comme un nb octal.
+
+---
+
+Qd awk doit convertir une chaîne en nb, il le fait comme Vim.
+
+Rappel, pour Vim:
+
+    :echo 'string'   + 10
+    10~
+    :echo 'string10' + 10
+    10~
+    :echo '10string' + 10
+    20~
+
+Exception (chaîne commençant par un flottant):
+
+    " VimL
+    :echo '10.10' + 10
+    20~
+
+    # awk
+    print 10 + $2
+    si le 2e champ est la chaîne '10.10string', awk affiche `20.1`, et non pas `20`~
+
+---
+
+    string + 0
+    number   ""
+
+Force awk à convertir la chaîne `string` en nb et le nb `number` en chaîne.
+
+Pour ce faire, on utilise les opérateurs `+` et implicite (concaténation).
+`+0` et ` ""` sont des idiomes permettant de s'assurer qu'une variable a bien le
+type désiré.
+En jargon anglais, on dit parfois ’cast to int / string’.
+
+
+Il  est particulièrement  important  de  forcer la  conversion  d'une chaîne  en
+nombre, qd elle contient  un nombre qui va être utilisé  comme opérande dans une
+comparaison numérique.
+
+Ex:
+
+    var = substr($1, 1, 3)    ✘        var = substr($1, 1, 3)+0    ✔
+    if (var < 42)                      if (var < 42)
+    print "success!"                   print "success!"
+
+Même si le  1er champ est purement  numérique, on sait que  `var` contiendra une
+chaîne, car c'est ce que `substr()` retourne toujours.
+Ici, `var` contiendra les 3 premiers caractères du 1er champ.
+
+Sans forcer la coercition de `var` en  nombre, `var < 42` comparerait l'ordre de
+chaînes, ce qui n'est probablement pas ce qu'on souhaite en général.
+
+---
+
+    $1     == $2
+    $1 + 0 == $2 + 0
+    $1  "" == $2
+
+Compare le contenu des champs 1 et 2, en les traitant comme des:
+
+   - nombres ou chaînes, en fonction du type de contenu stocké dans $1 et $2:
+     comparaison numérique si les 2 champs sont des nombres, comparaison de
+     chaînes autrement
+
+   - nombres
+
+   - chaînes
+
+
+Dans la 3e comparaison, il n'y a pas  besoin de convertir le 2e champ en chaîne,
+car il  suffit qu'un  seul des  opérandes soit une  chaîne pour  que l'opérateur
+traite les 2 opérandes comme des chaînes.
+
+---
+
+    $1+0 != 0 ? 1/$1 : "undefined"
+
+Exemple d'expression conditionnelle.
+Elle inverse  le 1er champ  numérique s'il est non  nul, autrement elle  vaut la
+chaîne "undefined".
+
+
+Pourquoi `$1+0` et pas simplement `$1` ?
+Pour forcer la coercition de `$1` en nb, au cas où ce serait une chaîne.
+
+Explication:
+
+Supposons qu'on écrive `$1 != 0` et que le 1er champ soit "hello".
+Voici ce qu'il va se passer:
+
+   1. `!=` convertit le nb `0` en chaîne "0" (règle)
+
+   2. `!=` compare "hello" à "0"
+
+   3. la comparaison échoue
+
+   4. awk évalue 1/"hello"
+
+   5. `/` convertit "hello" en `0`
+
+   6. `/` tente de calculer `1/0`    →    erreur
+
+`!=` et `/` sont tous deux des opérateurs binaires et reçoivent une chaîne et un
+nb.
+`!=` convertit un nb en chaîne, mais `/` convertit une chaîne en nb.
+
+Pk ne réalisent-ils pas la même coercition?
+Car `/` ne travaille que sur des nb,  tandis que `!=` peut travailler sur des nb
+ou des chaînes.
+
+---
+
+    print ("11" < 12)
+    1~
+    print ("1a" < 12)
+    0~
+
+Retournent resp. 1 (vrai) et 0 (faux).
+
+Car 12 est converti en "12" *et*  sur ma machine, les lettres sont rangées après
+les chiffres donc "a" > "2".
+
+
+Illustre qu'un  opérateur relationnel  d'infériorité ou de  supériorité, opérant
+sur  des chaînes,  teste l'ordre  alphabétique  dans lequel  les opérandes  sont
+rangés; l'ordre dépend de la machine.
+
+Montre aussi qu'une expression incluant un opérateur relationnel retourne tjrs 1
+ou 0, selon que la relation est vraie ou fausse.
+
+---
+
+    $1 < 0 { print "abs($1) = " -$1 }      ✘
+    $1 < 0 { print "abs($1) = " (-$1) }    ✔
+    $1 < 0 { print "abs($1) = ", -$1 }     ✔
+
+L'objectif, ici, est  d'afficher la chaîne "abs($1) = "  puis l'opposé numérique
+du 1er champ.
+
+La 1e règle pattern-action échoue, les 2 suivantes réussissent.
+Illustre que l'opérateur `-` peut provoquer une coercition indésirable.
+
+Explication:
+
+    $1 < 0 { print "abs($1) = " -$1 }      ✘
+    │
+    └ l'opérateur `-` voit une chaîne et un nb,
+    donc il convertit la chaîne en nb
+
+    $1 < 0 { print "abs($1) = " (-$1) }    ✔
+    │ │
+    │ └ l'opérateur `-` voit juste un nb
+    └ l'opérateur de concaténation voit une chaîne et un nb
+    donc il convertit le nb en chaîne
+    Dans l'ordre, le parser d'awk traite:    () > - > concaténation
+
+    $1 < 0 { print "abs($1) = ", -$1 }     ✔
+    │
+    └ affiche une chaîne puis un nb
+
+##
 # Install
 ## How to install the latest version of gawk?
 ### Clone the repo
@@ -74,7 +314,7 @@ The `--slave` is there so that `$ man awk` opens the `gawk` manpage.
 
 ### Check its authenticity
 
-Download the associated signature, and run `$ gpg` to check it:
+Download the associated signature, and run gpg to check it:
 
     $ gpg gawk-4.2.1.tar.xz.sig
 
@@ -104,7 +344,7 @@ In the end, the output should look like this:
     gpg: Total number processed: 1
     gpg:               imported: 1  (RSA: 1)
 
-Re-run `$ gpg`:
+Re-run gpg:
 
     $ gpg gawk-4.2.1.tar.xz.sig
 
@@ -391,7 +631,30 @@ Yes, as many as you want.
     a'''b   a'''b   a'''b   ~
 
 ###
-## How does awk store any number?
+## What are the three possible forms awk is able to recognize for a number?
+
+Integer:
+
+   * 1
+   * +1
+   * -1
+
+Decimal Fraction:
+
+   * 1.2
+   * +1.2
+   * -1.2
+
+Scientific Notation:
+
+   * 1.2e3
+   * 1.2E3
+   * 1.2e+3
+   * 1.2E+3
+   * 1.2e-3
+   * 1.2E-3
+
+### How does awk store any of them internally?
 
 As a float (the precision of which is machine dependent).
 
@@ -841,31 +1104,6 @@ internal form and then perform the pattern matching.
 
 Also, with `"pat"`,  you need to double the backslash  for every escape sequence
 which you want to send to the regex engine.
-
-##
-## I'm trying to write a pattern matching any number
-### What are the three possible representations it should take into account?
-
-Integer:
-
-   * 1
-   * +1
-   * -1
-
-Decimal:
-
-   * 1.2
-   * +1.2
-   * -1.2
-
-Scientific Notation:
-
-   * 1.2e3
-   * 1.2E3
-   * 1.2e+3
-   * 1.2E+3
-   * 1.2e-3
-   * 1.2E-3
 
 ##
 # Modifying Fields
@@ -1532,6 +1770,7 @@ and because the assignment operator is *right*-associative:
 
 ##
 ##
+##
 # Affichage
 ## Alignement
 
@@ -2157,243 +2396,6 @@ Résumé:
     ├──────┼───────────────────────────────────────────────────────────────────┤
     │ awk  │ for i in array:     `i` itère sur les INDICES de `array`          │
     └──────┴───────────────────────────────────────────────────────────────────┘
-
-## Coercion
-
-On peut  séparer les  opérateurs en  3 catégories, en  fonction des  types de
-données sur lesquels ils peuvent travailler:
-
-   - nombre
-   - chaîne
-   - chaîne et nombre
-
-Pour chacune de ces catégories, une coercition peut avoir lieue:
-
-    ┌───────────┬────────────────────┬──────────────────┬─────────────────┐
-    │ opérateur │  opérande attendu  │ opérande reçu    │   coercition    │
-    ├───────────┼────────────────────┼──────────────────┼─────────────────┤
-    │   +-*/%^  │      nombre        │      chaîne      │ chaîne → nombre │
-    ├───────────┼────────────────────┼──────────────────┼─────────────────┤
-    │   concat  │      chaîne        │      nombre      │ nombre → chaîne │
-    ├───────────┼────────────────────┼──────────────────┼─────────────────┤
-    │    ~ !~   │      chaîne        │      nombre      │ nombre → chaîne │
-    ├───────────┼────────────────────┼──────────────────┼─────────────────┤
-    │ ==  !=    │      chaîne        │      nombre      │ nombre → chaîne │
-    │ < > >= <= │                    │                  │                 │
-    ├───────────┼────────────────────┼──────────────────┼─────────────────┤
-    │ ==  !=    │      nombre        │      chaîne      │ nombre → chaîne │
-    │ < > >= <= │                    │                  │                 │
-    └───────────┴────────────────────┴──────────────────┴─────────────────┘
-
-Ex1:
-
-    print $1 $2, $3 + 123
-
-Dans cet exemple, si  le premier champ est un nb, il sera  converti en chaîne, et si
-le 3e champ est une chaîne, elle sera convertie en nb.
-
-Ex2:
-
-    $4 == "Asia"
-
-Dans cet autre exemple, si le 4e champ est un nb, il sera converti en chaîne.
-
-Conclusion:
-
-Awk  est  cool,  et  il  convertira  si  besoin  un  nombre  en  une  chaîne  et
-réciproquement.
-
-Mais un pb se  pose qd on passe un nombre et une  chaîne à un opérateur binaire,
-*et* qu'il peut travailler à la fois sur des nombres et des chaînes.
-
-Awk  doit alors  choisir  quelle  coercition réaliser:  il  choisit toujours  de
-convertir le nombre en chaîne.
-Contrairement à Vim:
-
-    $ awk '$1 == "089" { print "match!" }' <<< "89"
-    ''~
-
-    $ awk '$1 == "089" { print "match!" }' <<< "089"
-    match!~
-
-    :echo "89" == 089
-    1~
-
-En cas d'ambiguïté, awk donne la priorité aux chaînes, Vim aux nombres.
-
----
-
-    $ awk '$1 == 042 { print "match!" }' <<< "042"
-    ''~
-
-    $ awk '$1 == 142 { print "match!" }' <<< "142"
-    match!~
-
-    $ awk '$1 == 0428 { print "match!" }' <<< "0428"
-    match!~
-
-Dans du code (!= input), awk interprète `042` comme un nb octal.
-
----
-
-Qd awk doit convertir une chaîne en nb, il le fait comme Vim.
-
-Rappel, pour Vim:
-
-    :echo 'string'   + 10
-    10~
-    :echo 'string10' + 10
-    10~
-    :echo '10string' + 10
-    20~
-
-Exception (chaîne commençant par un flottant):
-
-    " VimL
-    :echo '10.10' + 10
-    20~
-
-    # awk
-    print 10 + $2
-    si le 2e champ est la chaîne '10.10string', awk affiche `20.1`, et non pas `20`~
-
----
-
-    string + 0
-    number   ""
-
-Force awk à convertir la chaîne `string` en nb et le nb `number` en chaîne.
-
-Pour ce faire, on utilise les opérateurs `+` et implicite (concaténation).
-`+0` et ` ""` sont des idiomes permettant de s'assurer qu'une variable a bien le
-type désiré.
-En jargon anglais, on dit parfois ’cast to int / string’.
-
-
-Il  est particulièrement  important  de  forcer la  conversion  d'une chaîne  en
-nombre, qd elle contient  un nombre qui va être utilisé  comme opérande dans une
-comparaison numérique.
-
-Ex:
-
-    var = substr($1, 1, 3)    ✘        var = substr($1, 1, 3)+0    ✔
-    if (var < 42)                      if (var < 42)
-    print "success!"                   print "success!"
-
-Même si le  1er champ est purement  numérique, on sait que  `var` contiendra une
-chaîne, car c'est ce que `substr()` retourne toujours.
-Ici, `var` contiendra les 3 premiers caractères du 1er champ.
-
-Sans forcer la coercition de `var` en  nombre, `var < 42` comparerait l'ordre de
-chaînes, ce qui n'est probablement pas ce qu'on souhaite en général.
-
----
-
-    $1     == $2
-    $1 + 0 == $2 + 0
-    $1  "" == $2
-
-Compare le contenu des champs 1 et 2, en les traitant comme des:
-
-   - nombres ou chaînes, en fonction du type de contenu stocké dans $1 et $2:
-     comparaison numérique si les 2 champs sont des nombres, comparaison de
-     chaînes autrement
-
-   - nombres
-
-   - chaînes
-
-
-Dans la 3e comparaison, il n'y a pas  besoin de convertir le 2e champ en chaîne,
-car il  suffit qu'un  seul des  opérandes soit une  chaîne pour  que l'opérateur
-traite les 2 opérandes comme des chaînes.
-
----
-
-    $1+0 != 0 ? 1/$1 : "undefined"
-
-Exemple d'expression conditionnelle.
-Elle inverse  le 1er champ  numérique s'il est non  nul, autrement elle  vaut la
-chaîne "undefined".
-
-
-Pourquoi `$1+0` et pas simplement `$1` ?
-Pour forcer la coercition de `$1` en nb, au cas où ce serait une chaîne.
-
-Explication:
-
-Supposons qu'on écrive `$1 != 0` et que le 1er champ soit "hello".
-Voici ce qu'il va se passer:
-
-   1. `!=` convertit le nb `0` en chaîne "0" (règle)
-
-   2. `!=` compare "hello" à "0"
-
-   3. la comparaison échoue
-
-   4. awk évalue 1/"hello"
-
-   5. `/` convertit "hello" en `0`
-
-   6. `/` tente de calculer `1/0`    →    erreur
-
-`!=` et `/` sont tous deux des opérateurs binaires et reçoivent une chaîne et un
-nb.
-`!=` convertit un nb en chaîne, mais `/` convertit une chaîne en nb.
-
-Pk ne réalisent-ils pas la même coercition?
-Car `/` ne travaille que sur des nb,  tandis que `!=` peut travailler sur des nb
-ou des chaînes.
-
----
-
-    print ("11" < 12)
-    1~
-    print ("1a" < 12)
-    0~
-
-Retournent resp. 1 (vrai) et 0 (faux).
-
-Car 12 est converti en "12" *et*  sur ma machine, les lettres sont rangées après
-les chiffres donc "a" > "2".
-
-
-Illustre qu'un  opérateur relationnel  d'infériorité ou de  supériorité, opérant
-sur  des chaînes,  teste l'ordre  alphabétique  dans lequel  les opérandes  sont
-rangés; l'ordre dépend de la machine.
-
-Montre aussi qu'une expression incluant un opérateur relationnel retourne tjrs 1
-ou 0, selon que la relation est vraie ou fausse.
-
----
-
-    $1 < 0 { print "abs($1) = " -$1 }      ✘
-    $1 < 0 { print "abs($1) = " (-$1) }    ✔
-    $1 < 0 { print "abs($1) = ", -$1 }     ✔
-
-L'objectif, ici, est  d'afficher la chaîne "abs($1) = "  puis l'opposé numérique
-du 1er champ.
-
-La 1e règle pattern-action échoue, les 2 suivantes réussissent.
-Illustre que l'opérateur `-` peut provoquer une coercition indésirable.
-
-Explication:
-
-    $1 < 0 { print "abs($1) = " -$1 }      ✘
-    │
-    └ l'opérateur `-` voit une chaîne et un nb,
-    donc il convertit la chaîne en nb
-
-    $1 < 0 { print "abs($1) = " (-$1) }    ✔
-    │ │
-    │ └ l'opérateur `-` voit juste un nb
-    └ l'opérateur de concaténation voit une chaîne et un nb
-    donc il convertit le nb en chaîne
-    Dans l'ordre, le parser d'awk traite:    () > - > concaténation
-
-    $1 < 0 { print "abs($1) = ", -$1 }     ✔
-    │
-    └ affiche une chaîne puis un nb
 
 ##
 ## Control (flow) statements

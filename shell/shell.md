@@ -756,7 +756,7 @@ A soft link can:
 ##
 ## What happens to the contents of a file, if I delete it after creating a HARD link referring to it?
 
-The contents of the file is still accessible:
+The contents of the file are still accessible:
 
         $ echo 'hello' >file  && \
           ln file hlink       && \
@@ -766,7 +766,7 @@ The contents of the file is still accessible:
 
 ## What happens to the contents of a file, if I delete it after creating a SOFT link referring to it?
 
-The contents of the file is lost:
+The contents of the file are lost:
 
         $ echo 'hello' >file
         $ ln -s file slink

@@ -559,7 +559,7 @@ The `a`, `m` and `c` prefixes stand for “access”, “modification”, and �
 A file is:
 
 - accessed as soon as the user or a process opens it
-- modified as soon as its contents is altered
+- modified as soon as its contents are altered
 - changed  as soon as its contents or its file attributes are altered
 
 When an option ends with the suffix:
