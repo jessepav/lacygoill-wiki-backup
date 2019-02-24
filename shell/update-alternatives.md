@@ -78,13 +78,16 @@ master link.
 
 ## automatic mode
 
-When a link group is in automatic mode, the alternatives system ensures that the
-master link points to the alternative path with the highest priority.
+If  a link  group is  in  automatic mode,  whenever  a package  is installed  or
+removed,  update-alternatives  is  automatically  called  –  from  the  postinst
+(configure) or  prerm (remove and deconfigure)  scripts in Debian packages  – to
+choose the path with the highest priority for the master alternative.
 
 ## manual mode
 
-When a link group  is in manual mode, the alternatives system  will not make any
-changes to the system administrator's settings.
+When a  link group is  in manual mode, the  alternatives system will  retain the
+choice of  the administrator for the  master path, and avoid  changing the links
+(except when something is broken).
 
 ##
 # Getting info
@@ -337,7 +340,7 @@ Example:
     $ update-alternatives --all --skip-auto
 
 ##
-## How to add an alternative path to the list of choices that a master alternative can be linked to?
+## How to add an alternative path to the list of choices that a master alternative can point to?
 
     $ sudo update-alternatives --install <link>  <name>  <path>  <priority>
 
@@ -447,7 +450,7 @@ Otherwise it's removed:
     ls: cannot access '/etc/alternatives/hh': No such file or directory~
     # the slaves `gg` and `hh` don't exist anymore
 
-### What happens if the master name is currently linked to this path?
+### What happens if the master name currently points to this path?
 
 The master name will be either:
 
@@ -541,116 +544,3 @@ alternative path choice with the highest priority; the slaves are also updated.
 
 You could also rerun `--config` and select the entry marked as automatic.
 
-##
-##
-##
-# Description
-
-An  alternative  link  in  the  filesystem is  shared  by  all  files  providing
-interchangeable functionality.
-The alternatives  system and the  system administrator together  determine which
-actual file is referenced by this alternative link.
-For  example,  if  the  text  editors   ed(1)  and  nvi(1)  are  both  installed
-on  the  system,  the  alternatives  system  will  cause  the  alternative  link
-`/usr/bin/editor` to refer to `/usr/bin/nvi` by default.
-The  system  administrator   can  override  this  and  cause  it   to  refer  to
-`/usr/bin/ed` instead, and  the alternatives system will not  alter this setting
-until explicitly requested to do so.
-
-The alternative link is not a direct symbolic link to the selected alternative.
-Instead, it is a symbolic link to  a name in `/etc/alternatives/`, which in turn
-is a symbolic link to the actual file referenced.
-This is done  so that the system administrator's changes  can be confined within
-the `/etc/` directory, which according to the FHS is a “Good Thing”.
-
-When each package providing a file with a particular functionality is installed,
-changed or  removed, update-alternatives is  called to update  information about
-that file in the alternatives system.
-update-alternatives is  usually called  from the  postinst (configure)  or prerm
-(remove and deconfigure) scripts in Debian packages.
-
-It is often useful for a number of alternatives to be synchronized, so that they
-are changed as a  group; for example, when several versions  of the vi(1) editor
-are  installed, the  man  page referenced  by `/usr/share/man/man1/vi.1`  should
-correspond to the executable referenced by `/usr/bin/vi`.
-update-alternatives handles  this by means of  master and slave links;  when the
-master is changed, any associated slaves are changed too.
-A master link and its associated slaves make up a link group.
-
-Each link group is, at any given time, in one of two modes: automatic or manual.
-When a  group is in automatic  mode, the alternatives system  will automatically
-decide, as  packages are installed  and removed, whether  and how to  update the
-links.
-In  manual  mode,  the  alternatives  system  will  retain  the  choice  of  the
-administrator and avoid changing the links (except when something is broken).
-
-Link groups are in automatic mode when they are first introduced to the system.
-If the  system administrator makes  changes to the system's  automatic settings,
-this will  be noticed the  next time update-alternatives  is run on  the changed
-link's group, and the group will automatically be switched to manual mode.
-
-Each alternative has a priority associated with it.
-When a link group  is in automatic mode, the alternatives  pointed to by members
-of the group will be those which have the highest priority.
-
-Different packages providing the same file need to do so cooperatively.
-In other words,  the usage of update-alternatives is mandatory  for all involved
-packages in such case.
-It is not possible  to override some file in a package that  does not employ the
-update-alternatives mechanism.
-
-# Query Format
-
-The `--query`  format is  made of  `n +  1` blocks  where `n`  is the  number of
-alternatives available in the queried link group.
-The first block contains the following fields:
-
-    Name: name
-
-The name of the alternative.
-
-    Link: link
-
-The link of the alternative.
-
-    Slaves: list-of-slaves
-
-When this field is  present, the next lines hold all the names  and links of the
-slaves associated to the master of the link group.
-There is one slave per line.
-Each line contains one space, the name of the slave, another space, and the link
-of the slave.
-
-    Status: status
-
-The status of the link group (auto or manual).
-
-    Best: best-choice
-
-The path of the best alternative for this link group.
-Not present if no alternatives are available.
-
-    Value: currently-selected-alternative
-
-The currently selected path for the master alternative.
-It can also take the magic value none; used if the link doesn't exist.
-
-
-
-The other blocks describe the available paths in the queried link group:
-
-    Alternative: path-of-this-alternative
-
-Path which can be selected for the alternative.
-
-    Priority: priority-value
-
-Current priority of this path.
-
-    Slaves: list-of-slaves
-
-When this field is  present, the next lines hold all the names  and paths of the
-slaves associated to the master of the link group.
-There is one slave per line.
-Each line contains one space, the name of the slave, another space, and the path
-of the slave.
