@@ -1,24 +1,3 @@
-# ?
-
---config name
-
-Show available alternatives for a link group and allow the user to interactively
-select which one to use; the link group is updated.
-
----
-
-When  using the  `--config` option,  update-alternatives  will list  all of  the
-choices for the link group of which given name is the master name.
-The current choice is marked with a `*`.
-You will then be prompted for your choice regarding this link group.
-Depending on the choice made, the link group might no longer be in auto mode.
-You will  need to use the  `--auto` option in  order to return to  the automatic
-mode (or you can rerun `--config` and select the entry marked as automatic).
-
-If  you want  to  configure non-interactively  you can  use  the `--set`  option
-instead.
-
-##
 # What's the purpose of update-alternatives?
 
 It is possible for several programs  fulfilling the same or similar functions to
@@ -82,7 +61,7 @@ Unfortunately, both look the same: they all start with two hyphens.
 
     $ sudo update-alternatives --install <link>  <name>  <path>  <priority>
 
-If the group doesn't exist, it's created.
+If the master link and name don't exist, they're created.
 
 Example:
 
@@ -108,6 +87,27 @@ Example:
         --slave /usr/local/bin/BB ff /usr/bin/nmap \
         --slave /usr/local/bin/CC gg /usr/bin/open
 
+## What happens if I use a link which is already present in update-alternatives state info?
+
+It fails:
+
+    $ sudo update-alternatives --install /usr/local/bin/AA xx /usr/bin/a2ping 789
+    update-alternatives: error: alternative link /usr/local/bin/AA is already managed by ee~
+
+A link can *not* point to a new name.
+
+## What happens if I use a name which is already present in update-alternatives state info?
+
+The old link is removed, and the new one is installed:
+
+    $ sudo update-alternatives --install /usr/local/bin/XX ee /usr/bin/a2ping 789
+    update-alternatives: renaming ee link from /usr/local/bin/AA to /usr/local/bin/XX~
+    $ ls -l /usr/local/bin/AA
+    ls: cannot access '/usr/local/bin/AA': No such file or directory~
+
+A name *can* be targeted by a new link.
+
+##
 # Which condition must be satisfied for `update-alternatives --install` to succeed?
 
 The path of the master alternative must exist, otherwise the command will fail:
@@ -157,36 +157,6 @@ Example using `--force`:
 
 Note that the alternative is partially installed, even without `--force`.
 But since the link is not installed, it won't work as expected.
-
-# ?
-
-If the  alternative name specified  exists already in the  alternatives system's
-records, the information supplied will be added as a new set of alternatives for
-the group (one master and possibly one or several slaves).
-Otherwise,  a  new  group, set  to  automatic  mode,  will  be added  with  this
-information.
-If the group is in automatic mode, and the newly added alternatives' priority is
-higher than any  other installed alternatives for this group,  the symlinks will
-be updated to point to the newly added alternatives.
-
-# ?
-
-What happens if I try to install a new alternative using a link which is already
-present in update-alternatives state info?
-
-It fails:
-
-    $ sudo update-alternatives --install /usr/local/bin/AA xx /usr/bin/a2ping 789
-    update-alternatives: error: alternative link /usr/local/bin/AA is already managed by ee~
-
-using a name which is already present in update-alternatives state info?
-
-The old link is removed, and the new one is installed:
-
-    $ sudo update-alternatives --install /usr/local/bin/XX ee /usr/bin/a2ping 789
-    update-alternatives: renaming ee link from /usr/local/bin/AA to /usr/local/bin/XX~
-    $ ls -l /usr/local/bin/AA
-    ls: cannot access '/usr/local/bin/AA': No such file or directory~
 
 ##
 # How to remove a path choice for a master alternative?
@@ -411,11 +381,14 @@ But the slave `editor.1.gz` will be kept; only its path will be updated:
                                       new path
 
 ##
-# How to configure the alternative `editor` interactively?
+# How to choose the path of the master alternative for the link group `editor`
+## interactively?
+
+Use the `--config` subcommand:
 
     $ update-alternatives --config editor
 
-## How to reset its path non-interactively?
+## non-interactively?
 
 Use the `--set` subcommand:
 
@@ -431,12 +404,16 @@ Example:
 In automatic  mode, the  master path will  always be the  path with  the highest
 priority.
 
-# How to make the link group behind the alternative for `editor` switch to automatic mode?
+# How to make the link group `editor` switch to automatic mode?
 
     $ update-alternatives --auto editor
 
-In the process, the  links of the master alternative and  its slaves are updated
-to point to the highest priority installed alternatives.
+In the process, the  links of the master alternative is updated  to point to the
+alternative path choice with the highest priority; the slaves are also updated.
+
+---
+
+You could also rerun `--config` and select the entry marked as automatic.
 
 ##
 # Where does update-alternatives write its activity?
@@ -569,6 +546,8 @@ In `$ man update-alternatives`, it's also simply called “alternative”.
 
 A set of related symlinks (master link + associated slave links), intended to be
 updated as a group.
+
+Its name is the name of the master alternative.
 
 ## master link
 
