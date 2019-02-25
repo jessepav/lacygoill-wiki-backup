@@ -1001,7 +1001,19 @@ This makes 12 possible conversions (`4*4 - 4`):
    - `printf()`  interprets  a  number  differently depending  on  whether  it's
      prefixed by `0` or `0x`.
 
-     `str2nr()` doesn't care about the prefix; it cares about its second argument.
+     `str2nr()` doesn't care about the prefix; it cares about its second argument:
+
+        " the octal prefix is ignored
+        echo str2nr('0101010')
+        101010~
+
+        " the octal prefix is ignored
+        echo str2nr('0101010', 2)
+        42~
+
+        " the second argument needs to be 8 for the number to be recognized as octal
+        echo str2nr('0101010', 8)
+        33288~
 
 ####
 ### Can it coerce an expression into another type?

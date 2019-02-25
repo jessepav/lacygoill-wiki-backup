@@ -127,6 +127,18 @@ A string can contain the following escape sequences:
     │  \"   │ literal double quote             │
     └───────┴──────────────────────────────────┘
 
+## evaluation
+
+Process through which a programming language (such as awk):
+
+   1. interprets an expression (according to its particular rules of precedence
+      and of association)
+
+   2. computes it
+
+   3. from the result, produces a new value of a given type (numerical, string,
+      logical - true / false, function, ...)
+
 ## expression
 
 A combination of one or more:
@@ -136,15 +148,6 @@ A combination of one or more:
    - functions
    - operators
    - variables
-
-... which a programming language (such as awk):
-
-   1. interprets (according to its particular rules of precedence and of association)
-   2. computes
-   3. from the result, produces a new value of a given type
-      (numerical, string, logical - true / false, function, ...)
-
-In mathematics, this process is called “evaluation”.
 
 ##
 # i

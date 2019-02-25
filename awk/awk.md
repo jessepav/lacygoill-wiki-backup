@@ -1,5 +1,206 @@
 # ?
 
+Talk about the similarities and difference between awk's `strtonum()` and VimL's `str2num()`.
+
+# ?
+
+    # '0x11' is really considered as a string
+    # you really need `strtonum()` to convert a hex number to decimal,
+    # contrary to VimL, where you can also use `printf()`
+    $ awk '{ printf("%x", $1) }' <<<'0x11'
+    0~
+
+# ?
+
+Weird results:
+
+    # expected result
+    $ awk '{ print strtonum($1) }' <<<'0x11'
+    17~
+
+    # I would expect `9`
+    $ awk '{ print strtonum($1) }' <<<'011'
+    11~
+
+May be related to the attribute:
+
+    $ awk '{ print typeof($1) }' <<<'0x11'
+    string~
+
+    $ awk '{ print typeof($1) }' <<<'011'
+    strnum~
+
+Why the difference?
+Why does awk consider `0x11` as a string even though it looks like an hex number,
+and thus should be considered a numeric string with the strnum attribute?
+
+Look here: <http://pubs.opengroup.org/onlinepubs/9699919799/utilities/awk.html>
+And look for “numeric string”.
+
+# ?
+
+    # STRING STRING: string comparison
+    # if 'ab' and 'cd' had been converted into 0, the test would have failed
+    #     $ awk '{ print (strtonum("cd") > strtonum("ab")) }' <<<''
+    #     0
+    $ awk '{ print ("cd" > "ab") }' <<<''
+    1~
+
+    # STRING NUMERIC: string comparison
+    # if 'ab' had been converted into 0, the test would have failed;
+    # it succeeds because digits come before letters in the lexicographical order
+    $ awk '{ print ("ab" > 123) }' <<<''
+    1~
+
+    # STRING STRNUM: string comparison
+    # if 'ab' had been converted into 0, the test would have failed
+    $ awk '{ print ("ab" > $1) }' <<<'123'
+    1~
+
+
+
+    # NUMERIC NUMERIC: numeric comparison
+    # if 089 and 89 had been treated as strings, the test would have failed
+    $ awk '{ print (089 == 89) }' <<<''
+    1~
+
+    # STRNUM STRNUM: numeric comparison
+    # if 089 and 89 had been treated as strings, the test would have failed
+    $ awk '{ print ($1 == $2) }' <<<'089 89'
+    1~
+
+    # NUMERIC STRNUM: numeric comparison
+    # if 089 and 89 had been treated as strings, the test would have failed
+    $ awk '{ print ($1 == 89) }' <<<'089'
+    1~
+
+# ?
+
+What's the output of the next commands:
+
+    $ awk '{ print 0128 }' <<<''
+    ↣ 0 ↢
+
+    $ awk '{ print 0x12g }' <<<''
+    ↣ 18 ↢
+
+    $ awk '{ var = $1; print typeof(var) }' <<<'0123'
+
+An octal number can't contain digits beyond `7`, and so `0128` is evaluated as `0`.
+An hexadecimal number can't contain digits beyond `f`, and so `0128` is evaluated as `0`.
+
+---
+
+    print (031 < 30)
+    1~
+    print (310 < 30)
+    0~
+    print (0318 < 300)
+    0~
+
+Le 1er test réussit car `031` est interprété comme un nombre octal:
+
+    031₈ < 30₁₀    ✔
+    │
+    └ 031₈ = 1 + 3*8 = 25
+
+Le 2e test échoue car `0310` est interprété comme un nombre octal:
+
+    0310₈ < 30₁₀    ✘
+    │
+    └ 0310₈ = 0 + 8 + 3*8*8 = 200
+
+Le 3e test échoue car `0318` est interprété comme un nombre décimal.
+En effet, même s'il  commence par un zéro, il ne peut  pas être interprété comme
+un nombre octal, car il contient le chiffre 8.
+
+
+Dans du code awk,  qd c'est possible (pas de chiffres  inexistant en base 8/16),
+un nombre commençant par:
+
+   - 0           est interprété comme un nombre octal
+   - 0x (et 0X?) est interprété comme un nombre hexadécimal
+
+# ?
+
+How to write an octal or hexadecimal constant
+in a program text?
+
+Prefix it with `0`, `0x` or `0X`:
+
+    $ awk '{ print 0123 }' <<<''
+    83~
+
+    $ awk '{ print 0x123 }' <<<''
+    291~
+
+in the input data?  (2)
+FIXME: this answer is to be reviewed
+
+Prefix  it  with  `0`,  `0x`  or  `0X`,  add `0`  to  it,  and  either  use  the
+`-n`/`--non-decimal-data` option:
+
+    $ awk -n '{ print $1 + 0 }' <<<'0123'
+    83~
+
+Or the `str2num()` function:
+
+    " weird result, probably due to:
+    "    - the field has the `strnum` attribute
+    "    - strtonum() expects the `string` attribute
+    $ awk '{ print strtonum($1) }' <<<'0123'
+    123~
+
+    " expected result
+    " the useless concatenation fixes the previous weird result,
+    " by replacing the `strnum` attribute with the `string` attribute
+    $ awk '{ print strtonum($1 "") }' <<<'0123'
+    83~
+
+---
+
+What's the output of these commands:
+
+    $ awk '{ print 0123 }' <<<''
+    ↣ 83 ↢
+
+    $ awk -n '{ print $1 }' <<<'0123'
+    ↣ 0123 ↢
+
+Why the difference?
+
+`print` treats its arguments as strings.
+Although field  references can  act as  numbers when  necessary, they  are still
+strings, so `print` does not try to treat them numerically.
+
+You need to add zero to a field to force it to be treated as a number:
+>
+    $ awk -n '{ print $1 + 0 }' <<<'0123'
+    83~
+
+---
+
+Can an octal/hexadecimal number be used in a decimal fraction or in scientific notation?
+
+No, you won't get the expected result:
+
+    $ awk '{ print 012.34 }' <<<''
+    12.34~
+
+    $ awk '{ print 0x12.34 }' <<<''
+    18~
+
+    $ awk '{ print 012.34e-1 }' <<<''
+    1.234~
+
+    $ awk '{ print 0x12.34e-1 }' <<<''
+    18~
+
+IOW, the base of a number is *not* orthogonal to its form.
+You can't use a non-decimal base with any form; only with the integer form.
+
+# ?
+
 Coercion
 
 On peut  séparer les  opérateurs en  3 catégories, en  fonction des  types de
@@ -29,16 +230,21 @@ Pour chacune de ces catégories, une coercition peut avoir lieue:
 
 Ex1:
 
-    print $1 $2, $3 + 123
+    $ awk '{ print $1 $2, $3 + 123 }' <<<'123 foo bar'
+    123foo 123~
 
-Dans cet exemple, si  le premier champ est un nb, il sera  converti en chaîne, et si
-le 3e champ est une chaîne, elle sera convertie en nb.
+Dans cet exemple, le premier champ est un  nb converti en chaîne, et le 3e champ
+est une chaîne convertie en nb.
 
 Ex2:
 
-    $4 == "Asia"
+    # Why using `089` instead of `0123`?
+    # To be sure the number is not parsed as octal, and some unexpected
+    # conversion alters the test.
+    $ awk '{ print $1 == "89" }' <<<'089'
+    0~
 
-Dans cet autre exemple, si le 4e champ est un nb, il sera converti en chaîne.
+Dans cet exemple, le 1er champ est un nb converti en chaîne.
 
 Conclusion:
 
@@ -52,10 +258,10 @@ Awk  doit alors  choisir  quelle  coercition réaliser:  il  choisit toujours  d
 convertir le nombre en chaîne.
 Contrairement à Vim:
 
-    $ awk '$1 == "089" { print "match!" }' <<< "89"
+    $ awk '$1 == "089" { print "match!" }' <<<'89'
     ''~
 
-    $ awk '$1 == "089" { print "match!" }' <<< "089"
+    $ awk '$1 == "089" { print "match!" }' <<<'089'
     match!~
 
     :echo "89" == 089
@@ -96,8 +302,8 @@ Exception (chaîne commençant par un flottant):
     20~
 
     # awk
-    print 10 + $2
-    si le 2e champ est la chaîne '10.10string', awk affiche `20.1`, et non pas `20`~
+    $ awk '{ print 10 + $1 }' <<<'10.10string'
+    20.1~
 
 ---
 
@@ -239,6 +445,10 @@ Explication:
 
 ##
 # Install
+## Where is the procedure documented?
+
+    $ vim README.git
+
 ## How to install the latest version of gawk?
 ### Clone the repo
 
@@ -631,7 +841,7 @@ Yes, as many as you want.
     a'''b   a'''b   a'''b   ~
 
 ###
-## What are the three possible forms awk is able to recognize for a number?
+## What are the three possible forms of number that awk is able to recognize?
 
 Integer:
 
@@ -653,6 +863,14 @@ Scientific Notation:
    * 1.2E+3
    * 1.2e-3
    * 1.2E-3
+
+It's  not  the  [normalized][1]  scientific  notation, because  you  can  use  a
+[significand][2] bigger than 10.
+
+    $ awk '{ print $1 + 1 }' <<<'1220e-1'
+    123~
+
+But it's still a scientific notation.
 
 ### How does awk store any of them internally?
 
@@ -1898,9 +2116,9 @@ comme le nb de chiffres après la virgule:
 Il  faut des  parenthèses autour  de  `var >  1.234`  pour éviter  que `>`  soit
 interprété comme une redirection.
 
-Les parenthèses forcent awk à évaluer l'expression `var >`.
-1.234` avant d'exécuter `print Sans elles, awk exécuterait`.
-d'abord `print`, puis redirigerait la sortie le fichier `1.234 `.
+Les  parenthèses  forcent  awk  à  évaluer  l'expression  `var  >  1.234`  avant
+d'exécuter   `print`  Sans   elles,  awk   exécuterait  d'abord   `print`,  puis
+redirigerait la sortie le fichier `1.234`.
 
 
 L'expression `var > 1.234` retourne `1`  (réussite), ce qui signifie que `var` a
@@ -2095,41 +2313,6 @@ on veut écrire sur la sortie d'erreur ou standard du shell.
 ##
 # Calcul
 
-    print (031 < 30)
-    1~
-    print (310 < 30)
-    0~
-    print (0318 < 300)
-    0~
-
-Le 1er test réussit car `031` est interprété comme un nombre octal:
-
-    031₈ < 30₁₀    ✔
-    │
-    └ 031₈ = 1 + 3*8 = 25
-
-Le 2e test échoue car `0310` est interprété comme un nombre octal:
-
-    0310₈ < 30₁₀    ✘
-    │
-    └ 0310₈ = 0 + 8 + 3*8*8 = 200
-
-Le 3e test échoue car `0318` est interprété comme un nombre décimal.
-En effet, même s'il  commence par un zéro, il ne peut  pas être interprété comme
-un nombre octal, car il contient le chiffre 8.
-
-
-Dans du code awk,  qd c'est possible (pas de chiffres  inexistant en base 8/16),
-un nombre commençant par:
-
-   - 0           est interprété comme un nombre octal
-   - 0x (et 0X?) est interprété comme un nombre hexadécimal
-
-En revanche, dans l'input, les nombres sont toujours interprétés comme décimaux,
-sauf si awk a été lancé avec le flag `-n` (--non-decimal-data).
-
----
-
     atan2(0,-1)
     π~
     exp(1)
@@ -2205,7 +2388,7 @@ Au final, on peut obtenir un résultat très loin de celui désiré.
 
 Pour un exemple, lire ce lien qui contient un algo approximant π:
 
-<https://www.gnu.org/software/gawk/manual/html_node/Floating_002dpoint-Programming.html>
+<https://www.gnu.org/software/gawk/manual/html_node/Errors-accumulate.html#Errors-accumulate>
 
 Pour une comparaison entre flottants, la solution consiste à ne pas les comparer
 directement entre  eux, mais plutôt  leur distance  par rapport à  une précision
@@ -3919,3 +4102,10 @@ After that, you'll be able to run:
     $ echo cho | LC_ALL=cs_CZ.UTF-8 grep '^[h-i]o'
     cho~
 
+
+##
+# Reference
+
+
+[1]: https://en.wikipedia.org/wiki/Scientific_notation#Normalized_notation
+[2]: https://en.wikipedia.org/wiki/Significand
