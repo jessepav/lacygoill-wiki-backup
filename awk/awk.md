@@ -1,3 +1,42 @@
+# ?
+
+Weird results:
+
+    # expected result
+    $ awk '{ print strtonum($1) }' <<<'0x11'
+    17~
+
+    # I would expect `9`
+    $ awk '{ print strtonum($1) }' <<<'011'
+    11~
+
+Why the difference?
+Why doesn't `strtonum()` treat `011` as an octal number?
+
+---
+
+May be related to the attribute:
+
+    $ awk '{ print typeof($1) }' <<<'0x11'
+    string~
+
+    $ awk '{ print typeof($1) }' <<<'011'
+    strnum~
+
+Why does awk consider `0x11` as a string even though it looks like an hex number,
+and thus should be considered a numeric string with the strnum attribute?
+
+Look here: <http://pubs.opengroup.org/onlinepubs/9699919799/utilities/awk.html>
+And look for “numeric string”.
+
+Update: <https://unix.stackexchange.com/a/364116/289772>
+
+> To clarify, only  strings that are coming  from a few sources  (here quoting the
+> POSIX spec): [...] are to be considered  a numeric string if their value happens
+> to be numerical  (allowing leading and trailing blanks,  **with variations between**
+> **implementations in support for hex**, octal, inf, nan...).
+
+##
 # Can I use `0x123` and `0123` as hex and octal numbers?  (two cases to distinguish)
 
 Outside a string, yes:
@@ -45,10 +84,14 @@ Page 196 of the user's guide:
 
 > Using the  `strtonum()` function is  not the same as  adding zero to  a string
 > value; the  automatic coercion of  strings to  numbers works only  for decimal
-> data, not  for octal or  hexadecimal; unless you use  the `--non-decimal-data`
-> option, which isn’t recommended.
-> Note  also  that  `strtonum()`  uses  the current  locale’s  decimal  point  for
-> recognizing numbers.
+> data, not  for octal or  hexadecimal.
+
+However, `+ 0` would work with `--non-decimal-data`:
+
+    $ awk -n '{ print $0 + 0 }' <<<'0x123'
+    291~
+
+But this option is not recommended by the user's guide.
 
 # Why does `print strtonum($0)` outputs `123` when `$0` is `0123`?
 
@@ -318,44 +361,6 @@ For more info, see:
 # ?
 
 Talk about the similarities and difference between awk's `strtonum()` and VimL's `str2nr()`.
-
-# ?
-
-Weird results:
-
-    # expected result
-    $ awk '{ print strtonum($1) }' <<<'0x11'
-    17~
-
-    # I would expect `9`
-    $ awk '{ print strtonum($1) }' <<<'011'
-    11~
-
-Why the difference?
-Why doesn't `strtonum()` treat `011` as an octal number?
-
----
-
-May be related to the attribute:
-
-    $ awk '{ print typeof($1) }' <<<'0x11'
-    string~
-
-    $ awk '{ print typeof($1) }' <<<'011'
-    strnum~
-
-Why does awk consider `0x11` as a string even though it looks like an hex number,
-and thus should be considered a numeric string with the strnum attribute?
-
-Look here: <http://pubs.opengroup.org/onlinepubs/9699919799/utilities/awk.html>
-And look for “numeric string”.
-
-Update: <https://unix.stackexchange.com/a/364116/289772>
-
-> To clarify, only  strings that are coming  from a few sources  (here quoting the
-> POSIX spec): [...] are to be considered  a numeric string if their value happens
-> to be numerical  (allowing leading and trailing blanks,  **with variations between**
-> **implementations in support for hex**, octal, inf, nan...).
 
 # ?
 
