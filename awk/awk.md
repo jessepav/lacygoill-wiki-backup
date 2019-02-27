@@ -1,14 +1,323 @@
-# ?
+# Can I use `0x123` and `0123` as hex and octal numbers?  (two cases to distinguish)
 
-Talk about the similarities and difference between awk's `strtonum()` and VimL's `str2num()`.
+Outside a string, yes:
 
-# ?
+    $ awk '{ print 0x123 }' <<<''
+    291~
 
-    # '0x11' is really considered as a string
-    # you really need `strtonum()` to convert a hex number to decimal,
-    # contrary to VimL, where you can also use `printf()`
-    $ awk '{ printf("%x", $1) }' <<<'0x11'
+    $ awk '{ print 0123 == 83 }' <<<''
+    1~
+
+Inside a string, no:
+
+    $ awk '{ print "0x123" + 0 }' <<<''
     0~
+
+    $ awk '{ print "0123" + 0 }' <<<''
+    123~
+
+This differs from VimL:
+
+    :echo "0x123" + 0
+    291~
+
+    :echo "0123" + 0
+    83~
+
+# How to convert a hex or octal number contained in a string into a decimal one?
+
+Use `strtonum()`:
+
+    $ awk '{ print strtonum($0) }' <<<'0x123'
+    291~
+
+---
+
+Note that you can't rely on `+ 0`:
+
+    $ awk '{ print $0 + 0 }' <<<'0x123'
+    0~
+
+    $ awk '{ print $0 + 0 }' <<<'0123'
+    123~
+
+Page 196 of the user's guide:
+
+> Using the  `strtonum()` function is  not the same as  adding zero to  a string
+> value; the  automatic coercion of  strings to  numbers works only  for decimal
+> data, not  for octal or  hexadecimal; unless you use  the `--non-decimal-data`
+> option, which isn’t recommended.
+> Note  also  that  `strtonum()`  uses  the current  locale’s  decimal  point  for
+> recognizing numbers.
+
+# Why does `print strtonum($0)` outputs `123` when `$0` is `0123`?
+
+    $ awk '{ print strtonum($0) }' <<<'0123'
+    123~
+
+Because of two things:
+
+   1. `0123` comes from the input data, and so is given the `strnum` attribute:
+
+        $ awk '{ print typeof($0) }' <<<'0123'
+        strnum~
+
+      As a result, `0123` has two values: a numeric one and a string one.
+
+   2. `strtonum()` is designed to handle both string and number inputs; it looks
+      for numbers first, and when it encounters an input number, returns the
+      latter without transformation.
+
+      <https://unix.stackexchange.com/a/503139/289772>
+
+## How to make `strtonum()` treat `0123` as an octal number then?
+
+Use a dummy string concatenation:
+
+    $ awk '{ print strtonum($0 "") }' <<<'0123'
+    83~
+
+The concatenation will  coerce the numeric string into a  regular string, and so
+`strtonum()` will receive a data with only one value (not two).
+
+##
+# What's the output of the next command?
+
+    $ awk '{ print $1 "" + 0 }' <<<'0123'
+    ↣ 01230 ↢
+
+## Why?
+
+The addition operator has priority over the concatenation.
+And `"" + 0` evaluates to the number `0`.
+Finally, the  concatenation operator expects  strings, so it coerces  the number
+`0` into the string `"0"`, and concatenates it to `$1`.
+
+##
+# In a test, is `"0"` true or false?
+
+It's true:
+
+    $ awk '{ print "0" ? "true" : "false" }' <<<''
+    true~
+
+That's because for awk, *any* non-empty string is true:
+
+    $ awk '{ print "hello" ? "true" : "false" }' <<<''
+    true~
+
+Python behaves like awk, btw:
+
+    $ python3 -c "print('true' if '0' else 'false')"
+    true~
+
+---
+
+In contrast,  in Vim,  the string would  first be coerced  into a  number, which
+makes the result of a test less predictable:
+
+    :echo '0' ? 'true' : 'false'
+    :echo 'hello' ? 'true' : 'false'
+    false~
+
+## What's the output of the next command?
+
+    $ awk '{ print $1 ? "true" : "false" }' <<<'0'
+    ↣ false ↢
+
+### Why?
+
+`"0"` is false because it has the  strnum attribute, and awk first considers its
+numeric value, which is `0`.
+
+##
+# How does the automatic coercion of numeric strings into numbers differ in awk compared to Vim?
+
+In Vim, it:
+
+   - is able to recognize binary/octal/hexadecimal numbers (see `:h octal`)
+
+   - takes care of converting it into decimal
+
+        :echo '0b101' + 0
+        5~
+
+        :echo '0123' + 0
+        83~
+
+        :echo '0x123' + 0
+        291~
+
+In awk, it does no such things:
+
+    $ awk '{ print "0123" + 0 }' <<<''
+    123~
+
+    $ awk '{ print "0x123" + 0 }' <<<''
+    0~
+
+##
+# ?
+
+For which operators may a strnum data need a dummy concatenation or `+ 0`?
+
+    # `!` parses '0' as a number
+    $ awk '{ print !($0) }' <<<'0'
+    1~
+
+    # if you want `!` to parses '0' as a string, you need a dummy concatenation
+    $ awk '{ print !($0 "") }' <<<'0'
+    0~
+
+---
+
+    # contrary to VimL, can't use `printf()` to convert to decimal
+    $ awk '{ printf("%d", "0123") }' <<<''
+    123~
+
+    # contrary to VimL, can't use `printf()` to convert to decimal
+    $ awk '{ printf("%d", "0x123") }' <<<''
+    123~
+
+    # but you can use `printf()` to convert from decimal
+    $ awk '{ printf("%#x", "291") }' <<<''
+    0x123~
+    # same thing in python
+    $ python -c "print('{:#x}'.format(291))"
+
+    $ awk '{ printf("%#o", "83") }' <<<''
+    0123~
+    $ python -c "print('{:#o}'.format(83))"
+    0o123~
+
+# ?
+
+`3` sorts lexicographically after `1`:
+
+    $ awk '{ x = "3.14"; print (x < 12) }' <<<''
+    0~
+
+`CONVFMT` is used whenever a number needs to be coerced into a string:
+
+    $ awk '{ CONVFMT="%.6e"; x = 3.14; print x "" }' <<<''
+    3.140000e+00~
+
+As a result, a comparison with a string may be influenced by `CONVFMT`:
+
+    $ awk '{ x = 3.14; print (x == "3.14") }' <<<''
+    1~
+
+    $ awk '{ CONVFMT = "%.6e"; x = 3.14; print (x == "3.14") }' <<<''
+    0~
+
+# ?
+
+For more info, see page 433 of the gawk user's guide, and:
+<http://gawkextlib.sourceforge.net/>
+<https://sourceforge.net/projects/gawkextlib/files/>
+
+Install gawk shared library:
+
+    $ git clone git://git.code.sf.net/p/gawkextlib/code gawkextlib
+    $ cd ~/GitRepos/gawkextlib/lib
+    $ autoreconf -i && ./configure && make && make check
+
+    $ sudo checkinstall
+
+Name it  `libgawkextlib`, and use  the `README` for  the summary the  version is
+given in `configure.ac` (look for the line `AC_INIT`).
+
+---
+
+Build `tre` which is a dependency of the `aregex` library extension:
+
+    $ cd ~/GitRepos/
+    $ git clone https://github.com/laurikari/tre/
+    $ cd tre
+    $ ./utils/autogen.sh
+
+    $ ./configure && make && make check
+
+If one  of the test fails,  read the logfile;  you probably need to  install the
+locale `en_US ISO-8859-1`.
+On Ubuntu, run: `$ locale-gen en_US`.
+On Debian, edit `/etc/locale.gen` and run `$ sudo locale-gen`.
+
+You don't need to specify `ISO-8859-1`, because that's the default codepage.
+<https://unix.stackexchange.com/a/446762/289772>
+
+You  don't run  the  same command  in  Debian, because  Ubuntu  has tweaked  the
+`locale-gen` utility.
+<https://unix.stackexchange.com/a/38735/289772>
+
+    $ sudo checkinstall
+
+The installation  may fail because  of the  `Requires` field which  is populated
+with `/sbin/ldconfig`.
+Debian  wants  the  name of  a  package,  not  a  path: give  the  package  name
+`libc-bin`.
+
+---
+
+Build the `aregex` library extension.
+Name it `gawk-aregex` instead of just `aregex`.
+
+    $ cd ~/GitRepos/gawkextlib/aregex
+    $ autoreconf -i && ./configure && make && make check
+    $ sudo checkinstall
+
+For more info, see:
+
+    $ man 3am aregex
+
+“am” stands for Awk Module.
+
+---
+
+Similarly install other library extensions in `gawkextlib/`.
+
+    # Exit gawk without running END rules
+    abort
+
+    # test fails atm
+    csv
+
+    # convert errno values to strings and vice versa
+    errno
+
+    # need the `libgd-dev` package
+    # test fails atm
+    gd
+
+    # need the `libhpdf-dev` package
+    # there's no documentation, except for `~/GitRepos/gawkextlib/haru/test/pdftest.awk`
+    haru
+
+    json
+    lmdb
+
+    # add 4 functions to work with multibyte strings
+    mbs
+
+    # test fails atm
+    mpfr
+
+    nl_langinfo
+    pgsql
+    redis
+
+    # enable I/O multiplexing, non-blocking I/O, and signal trapping
+    select
+
+    xml
+
+For more info, see:
+
+    $ man  3am [abort|csv|...]
+
+# ?
+
+Talk about the similarities and difference between awk's `strtonum()` and VimL's `str2nr()`.
 
 # ?
 
@@ -22,6 +331,11 @@ Weird results:
     $ awk '{ print strtonum($1) }' <<<'011'
     11~
 
+Why the difference?
+Why doesn't `strtonum()` treat `011` as an octal number?
+
+---
+
 May be related to the attribute:
 
     $ awk '{ print typeof($1) }' <<<'0x11'
@@ -30,12 +344,18 @@ May be related to the attribute:
     $ awk '{ print typeof($1) }' <<<'011'
     strnum~
 
-Why the difference?
 Why does awk consider `0x11` as a string even though it looks like an hex number,
 and thus should be considered a numeric string with the strnum attribute?
 
 Look here: <http://pubs.opengroup.org/onlinepubs/9699919799/utilities/awk.html>
 And look for “numeric string”.
+
+Update: <https://unix.stackexchange.com/a/364116/289772>
+
+> To clarify, only  strings that are coming  from a few sources  (here quoting the
+> POSIX spec): [...] are to be considered  a numeric string if their value happens
+> to be numerical  (allowing leading and trailing blanks,  **with variations between**
+> **implementations in support for hex**, octal, inf, nan...).
 
 # ?
 
@@ -135,26 +455,15 @@ Prefix it with `0`, `0x` or `0X`:
     291~
 
 in the input data?  (2)
-FIXME: this answer is to be reviewed
 
-Prefix  it  with  `0`,  `0x`  or  `0X`,  add `0`  to  it,  and  either  use  the
-`-n`/`--non-decimal-data` option:
+Use `strtonum()` and a dummy concatenation:
 
-    $ awk -n '{ print $1 + 0 }' <<<'0123'
+    $ awk '{ print strtonum($1 "") }' <<<'0123'
     83~
 
-Or the `str2num()` function:
+Or (not recommended), use `-n/--non-decimal-data`:
 
-    " weird result, probably due to:
-    "    - the field has the `strnum` attribute
-    "    - strtonum() expects the `string` attribute
-    $ awk '{ print strtonum($1) }' <<<'0123'
-    123~
-
-    " expected result
-    " the useless concatenation fixes the previous weird result,
-    " by replacing the `strnum` attribute with the `string` attribute
-    $ awk '{ print strtonum($1 "") }' <<<'0123'
+    $ awk -n '{ print $1 + 0 }' <<<'0123'
     83~
 
 ---
@@ -174,7 +483,7 @@ Although field  references can  act as  numbers when  necessary, they  are still
 strings, so `print` does not try to treat them numerically.
 
 You need to add zero to a field to force it to be treated as a number:
->
+
     $ awk -n '{ print $1 + 0 }' <<<'0123'
     83~
 
@@ -271,13 +580,13 @@ En cas d'ambiguïté, awk donne la priorité aux chaînes, Vim aux nombres.
 
 ---
 
-    $ awk '$1 == 042 { print "match!" }' <<< "042"
+    $ awk '$1 == 042 { print "match!" }' <<<'042'
     ''~
 
-    $ awk '$1 == 142 { print "match!" }' <<< "142"
+    $ awk '$1 == 142 { print "match!" }' <<<'142'
     match!~
 
-    $ awk '$1 == 0428 { print "match!" }' <<< "0428"
+    $ awk '$1 == 0428 { print "match!" }' <<<'0428'
     match!~
 
 Dans du code (!= input), awk interprète `042` comme un nb octal.
@@ -302,7 +611,7 @@ Exception (chaîne commençant par un flottant):
     20~
 
     # awk
-    $ awk '{ print 10 + $1 }' <<<'10.10string'
+    $ awk '{ print 10 + $0 }' <<<'10.10string'
     20.1~
 
 ---
@@ -442,6 +751,12 @@ Explication:
     $1 < 0 { print "abs($1) = ", -$1 }     ✔
     │
     └ affiche une chaîne puis un nb
+
+##
+# What's the difference between an awk program and an awk utility?
+
+An awk program is the code you write in an `.awk` file.
+An awk utility is a binary you run from the command-line (like `/usr/local/bin/gawk`).
 
 ##
 # Install
@@ -788,35 +1103,35 @@ This will output the file as is.
 No, it's a syntax error.
 
     $ cat <<'EOF' >/tmp/awk.awk
-    END { printf '%d', 1 }
-    #            ^  ^
-    #            ✘  ✘
+    { printf '%d', 1 }
+    #        ^  ^
+    #        ✘  ✘
     EOF
 
     $ awk -f /tmp/awk.awk <<<''
-    awk: /tmp/awk.awk:1: END { printf '%d', 1 }~
-    awk: /tmp/awk.awk:1:              ^ invalid char ''' in expression~
-    awk: /tmp/awk.awk:1: END { printf '%d', 1 }~
-    awk: /tmp/awk.awk:1:              ^ syntax error~
+    awk: /tmp/awk.awk:1: { printf '%d', 1 }~
+    awk: /tmp/awk.awk:1:          ^ invalid char ''' in expression~
+    awk: /tmp/awk.awk:1: { printf '%d', 1 }~
+    awk: /tmp/awk.awk:1:          ^ syntax error~
 
 ---
 
     $ cat <<'EOF' >/tmp/awk.awk
-    END { printf "%s", 'word' }
-    #                  ^    ^
-    #                  ✘    ✘
+    { printf "%s", 'word' }
+    #              ^    ^
+    #              ✘    ✘
     EOF
 
     $ awk -f /tmp/awk.awk <<<''
-    awk: /tmp/awk.awk:1: END { printf "%s", 'word' }~
-    awk: /tmp/awk.awk:1:                    ^ invalid char ''' in expression~
-    awk: /tmp/awk.awk:1: END { printf "%s", 'word' }~
-    awk: /tmp/awk.awk:1:                    ^ syntax error~
+    awk: /tmp/awk.awk:1: { printf "%s", 'word' }~
+    awk: /tmp/awk.awk:1:                ^ invalid char ''' in expression~
+    awk: /tmp/awk.awk:1: { printf "%s", 'word' }~
+    awk: /tmp/awk.awk:1:                ^ syntax error~
 
 ---
 
     $ cat <<'EOF' >/tmp/awk.awk
-    END { printf "%s ", "word" }
+    { printf "%s ", "word" }
     EOF
 
     $ awk -f /tmp/awk.awk <<<''
@@ -908,7 +1223,7 @@ By default, `print` uses `$0` as an argument; so you can omit `$0`.
 A comparison is an expression, whose value is `1` when true, `0` otherwise.
 As such, it can be used (alone) in the rhs of an assignment.
 
-    $ awk 'END { var = 123 ; test = var == 123; print test }' <<<''
+    $ awk '{ var = 123 ; test = var == 123; print test }' <<<''
     1~
 
 ##
@@ -924,7 +1239,7 @@ into `0`.
 Awk automatically adds the necessary key in the array and associates it to the value `""`.
 
     $ cat <<'EOF' >/tmp/awk.awk
-    END { print a[2] }
+    { print a[2] }
     EOF
 
     $ awk -f /tmp/awk.awk <<<''
@@ -961,10 +1276,10 @@ third record.
 
 When this other statement includes an expression.
 
-    $ awk 'END { print (n = 2) + 1, n }' <<<''
+    $ awk '{ print (n = 2) + 1, n }' <<<''
     3 2~
 
-    $ awk 'END { if ((n = length($1)) > 2) print "has", n, "characters" }' <<<'hello'
+    $ awk '{ if ((n = length($1)) > 2) print "has", n, "characters" }' <<<'hello'
     has 5 characters~
 
 ### How is it possible?
@@ -1485,19 +1800,16 @@ The three columns contain:
 ### How to print
 #### the last line?
 
-    $ cat <<'EOF' >/tmp/awk.awk
-    END { print $0 }
-    EOF
-
-    $ awk -f /tmp/awk.awk /tmp/emp.data
+    $ awk 'END { print $0 }' /tmp/emp.data
+    Susie   4.25   18~
 
 gawk preserves the value of `$0` from the last record for use in an END rule.
-Some other implementations of awk do not.
 
+Some other implementations of awk do not.
 Alternatively, you could write:
 
     $ cat <<'EOF' >/tmp/awk.awk
-    END { last = $0 }
+        { last = $0 }
     END { print last }
     EOF
 
@@ -1740,7 +2052,7 @@ The missing parameters are initialized with `""`.
 Global.
 
     $ cat <<'EOF' >/tmp/awk.awk
-    END { myfunc(); print var }
+    { myfunc(); print var }
     function myfunc() {
         var = "hello"
     }
@@ -1851,7 +2163,7 @@ Use the `length()` function:
 
 ---
 
-    $ awk 'END { print length($1) }' <<<'a bc'
+    $ awk '{ print length($1) }' <<<'a bc'
     1~
 
 ### the current record?
@@ -1860,7 +2172,7 @@ Use `length()`, but without any argument.
 
 ---
 
-    $ awk 'END { print length() }' <<<'a bc'
+    $ awk '{ print length() }' <<<'a bc'
     4~
 
 ##
@@ -1880,7 +2192,7 @@ except for the assignment, conditional,  and exponentiation operators, which are
 
 Example:
 
-    $ awk 'END { print 2^3^4 }' <<<''
+    $ awk '{ print 2^3^4 }' <<<''
     2417851639229258349412352~
 
 Here, we can see that:
@@ -2074,21 +2386,23 @@ si elle était alignée.
 
 ## Précision numérique
 
-    END {
-        OFMT = CONVFMT = "%.2f"
-        print 1E2                  # affiche 100, et pas 100.00
-        print 1E2 ""               # idem
-    }
+When a float is printed, it's formatted according to the format specifier `OFMT`
+(no coercion number → string) or `CONVFMT` (coercion).
 
-Qd un flottant est  affiché, il est formaté selon le  template défini par `OFMT`
-(pas de coercition nb → chaîne) ou `CONVFMT` (coercition).
-Mais qd  un entier  est affiché,  il reste  entier, peu  importe les  valeurs de
-`OFMT` et `CONVFMT`.
+But when an integer  is printed, it remains an integer, no  matter the values of
+`OFMT` and `CONVFMT`:
+
+    $ awk '{ OFMT = CONVFMT = "%.2f"; print 1E2 }' <<<''
+    100~
+
+    $ awk '{ OFMT = CONVFMT = "%.2f"; print 1E2 "" }' <<<''
+    100~
 
 
-    END { printf "%.6g", 12E-2 }
+
+    { printf "%.6g", 12E-2 }
     0.12~
-    END { printf "%.6g", 123.456789 }
+    { printf "%.6g", 123.456789 }
     123.457~
 
 Il  semble  que les  spécificateurs  de  conversion  `%e`,  `%f`, et  `%g`  sont
@@ -2366,11 +2680,13 @@ Arrondit le nb décimal positif `x` à l'entier le plus proche.
 Affiche le plus grand nombre de la 1e colonne.
 
 
-    $ awk 'END { print (1.2 == 1.1 + 0.1 ) }' <<<''
-    0    ✘~
+    # ✘
+    $ awk '{ print (1.2 == 1.1 + 0.1 ) }' <<<''
+    0
 
-    $ awk 'END { x = 1.2 - 1.1 - 0.1 ; print (x < 0.001 && x > 0 || x > -0.001 && x < 0) }' <<<''
-    1    ✔~
+    # ✔
+    $ awk '{ x = 1.2 - 1.1 - 0.1 ; print (x < 0.001 && x > 0 || x > -0.001 && x < 0) }' <<<''
+    1~
 
 Il se  peut que 2  expressions arithmétiques  diffèrent pour awk  alors qu'elles
 devraient être identiques.
@@ -2396,11 +2712,13 @@ arbitraire.
 
 ---
 
-    $ awk '1e50 == 1.0e50 { print 1 }' <<< ''
-    1    ✔~
+    # ✔
+    $ awk '1e50 == 1.0e50 { print 1 }' <<<''
+    1~
 
-    $ awk '1e500 == 1.0e500 { print 1 }' <<< ''
-    1    ✘~
+    # ✘
+    $ awk '1e500 == 1.0e500 { print 1 }' <<<''
+    1~
 
 Le problème peut venir de nombres trop grands, pex:
 
@@ -2425,7 +2743,7 @@ Le problème peut venir de nombres trop grands, pex:
     Bottom line:
     Don't make a float comparison in VimL, nor in awk.
 
-    Read the gawk user manual, chapter 15 to understand what's going on.
+    Read the gawk user's guide, chapter 15 to understand what's going on.
 
 <https://www.gnu.org/software/gawk/manual/html_node/Exact-Arithmetic.html#Exact-Arithmetic>
 
@@ -3001,8 +3319,7 @@ fichier n'est pas lisible).
 
 ---
 
-Bien que  ce soit  une fonction,  sa syntaxe  se rapproche  plus de  celle d'une
-commande:
+`getline` is a command, not a function (source: `$ man gawk`, gawk user's guide):
 
     getline()    ✘
     getline      ✔
@@ -3888,7 +4205,7 @@ On remarque un pipe sous le `I`, sur une 2e ligne.
 awk  considère  qu'il  y  a  un  “record  terminator“  (`RT`)  entre  2  records
 consécutifs, mais aussi après le dernier record.
 
-From the gawk user manual, `4.1.1 Record Splitting with Standard awk`, page 63:
+From the gawk user's guide, `4.1.1 Record Splitting with Standard awk`, page 63:
 
 > Reaching the end of  an input file terminates the current  input record, even if
 > the last character in the file is not the character in RS.
@@ -3981,10 +4298,10 @@ Ex:
 
 ### Fields
 
-    $ awk 'END { print ($1 < $2) }' <<< "31 30"
+    $ awk '{ print ($1 < $2) }' <<<'31 30'
     0~
 
-    $ awk 'END { print ($1 < $2) }' <<< "31 3z"
+    $ awk '{ print ($1 < $2) }' <<<'31 3z'
     1~
 
 Ces 2 commandes  illustrent que lorsqu'un champ est numérique,  awk affecte à la
@@ -4074,7 +4391,7 @@ So, there's no need for an `else` after a `return`:
 
 ---
 
-Read the sections  6.3.2.1, 6.3.2.2, 6.3.2.3 in the gawk  user manual, to better
+Read the sections 6.3.2.1, 6.3.2.2, 6.3.2.3  in the gawk user's guide, to better
 understand how gawk handles the coercion with relational operators.
 
 ---
@@ -4102,6 +4419,14 @@ After that, you'll be able to run:
     $ echo cho | LC_ALL=cs_CZ.UTF-8 grep '^[h-i]o'
     cho~
 
+---
+
+Read: <http://www.awklang.org/>
+
+Have a look at the links in the sidebar:
+<https://github.com/e36freak/awk-libs>
+<https://github.com/ericpruitt/wcwidth.awk> (Miscellaneous > More AWK libraries...)
+...
 
 ##
 # Reference

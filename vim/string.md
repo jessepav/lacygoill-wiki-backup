@@ -952,7 +952,7 @@ The input and output base can be:
    - decimal (`123`, `%d`)
    - hexadecimal (`0x123`, `%x`, `%X`)
 
-This makes 12 possible conversions (`4*4 - 4`):
+This makes 9 possible conversions (`4*4 - 4 - 3`):
 
     echo printf('%b', 0123)
     1010011~
@@ -968,19 +968,32 @@ This makes 12 possible conversions (`4*4 - 4`):
     echo printf('%o', 0x123)
     443~
 
-    echo printf('%d', 0b1111)
-    15~
-    echo printf('%d', 0123)
-    83~
-    echo printf('%d', 0x123)
-    291~
-
     echo printf('%x', 0b1111)
     f~
     echo printf('%x', 0123)
     53~
     echo printf('%X', 123)
     7B~
+
+Why only 9? Why `-4` and `-3`?
+
+`-4` because there's nothing to convert if the input and output bases are identical.
+`-3` because there's no need of `printf()` for a conversion into decimal:
+
+    echo printf('%d', 0b1111)
+    ⇔
+    echo 0b1111
+    15~
+
+    echo printf('%d', 0123)
+    ⇔
+    echo 0123
+    83~
+
+    echo printf('%d', 0x123)
+    ⇔
+    echo 0x123
+    291~
 
 #### `str2nr()` can also convert numbers from one base to another.  How is it different?  (2)
 

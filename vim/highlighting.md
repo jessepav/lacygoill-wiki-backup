@@ -125,7 +125,7 @@ Add `\c` to make it insensitive.
 
 The HG `Search` wins over a match whose priority is `0`, but loses otherwise.
 
-## How does Vim handle a very complicated pattern passed to `:syn`, `:match`, or `matchadd()`?
+## How does Vim handle a too complex pattern passed to `:syn`, `:match`, or `matchadd()`?
 
 It stops highlighting new matches/text after `'redrawtime'` ms, to avoid hanging.
 
