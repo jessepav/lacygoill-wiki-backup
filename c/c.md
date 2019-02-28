@@ -25,6 +25,53 @@ providing its nonstandard features not supported by C89/C99.
 So, if you want  your C code to works on as many  machines as possible, you need
 to stick to C89/C99.
 
+---
+
+The line:
+
+    #include <stdio.h>
+
+is necessary to include information about C's standard I/O library.
+
+`<stdio.h>` is a **header**.
+A header contains information about some part of the standard library.
+
+---
+
+A  **library function**  belongs to  a library  of functions  supplied with  the
+compiler.
+
+---
+
+**Compound statements** are statements inside curly braces.
+They're common in if statements and loops.
+
+---
+
+To run the code contained in a C source code file, 3 steps are necessary:
+
+Preprocessing.
+The program is given to a **preprocessor**, which obeys commands that begin with
+`#` (known as **directives**).
+A preprocessor  is a bit like  an editor; it can  add things to the  program and
+make modifications.
+
+Compiling.
+The  modified program  now  goes to  a **compiler**,  which  translates it  into
+machine instructions (**object code**).
+
+Linking.
+Finally, a **linker**  combines the object code with any  additional code needed
+to yield a complete executable program.
+This additional code includes library functions (like `printf`) that are used in
+the program.
+
+---
+
+How to compile `pun.c` into `pun`?
+
+    $ gcc -o pun pun.c
+
 ##
 # Programs and answers
 
