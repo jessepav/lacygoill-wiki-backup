@@ -1,22 +1,62 @@
+# How to read “C Programming A Modern Approach”?
 
-    http://viewsourcecode.org/snaptoken/kilo/
+> I use a spiral approach, in  which difficult topics are introduced briefly, then
+> revisited one or more times later in the book with details added each time.
 
-            Welcome! This is an instruction booklet that shows you how to build a text editor in C.
+> Material too advanced or too esoteric to interest the average reader.
+> Questions of this nature are marked with an asterisk (*).
 
-            The text editor is antirez’s kilo, with some  changes. It’s about 1000 lines of C in
-            a single file with no dependencies, and  it implements all the basic features you expect
-            in a minimal editor, as well as syntax highlighting and a search feature.
+> Some  questions in  Q&A  sections  relate directly  to  specific  places in  the
+> chapter; these  places are marked  by a special icon  to signal the  reader that
+> additional information is available.
 
-            This booklet  walks you through  building the editor in  184 steps. Each  step, you’ll
-            add, change, or remove a few lines of  code. Most steps, you’ll be able to observe the
-            changes you made by compiling and running the program immediately afterwards.
+# ?
 
-            I explain each  step along the way, sometimes in  a lot of detail. Feel free  to skim or
-            skip the prose, as the  main point of this is that you are going  to build a text editor
-            from scratch! Anything you  learn along the way is bonus, and  there’s plenty to learn
-            just from typing in the changes to the code and observing the results.
+> Most C  compilers provide  language features and  library functions  that aren't
+> part of the C89 or C99 standards.
+> For portability,  it's best  to avoid using  nonstandard features  and libraries
+> unless they're absolutely necessary.
 
-            See the appendices for more information on  the tutorial itself (including what to do if
-            you get stuck, and where to get help).
+This shows  a fundamental  difference between C  and interpreted  languages like
+Python.
+In Python, there's just one interpreter.
+In C,  the interpreter  is the compiler;  and there are  several of  those, each
+providing its nonstandard features not supported by C89/C99.
+So, if you want  your C code to works on as many  machines as possible, you need
+to stick to C89/C99.
 
-            If you’re ready to begin, then go to chapter 1!
+##
+# Programs and answers
+
+<http://knking.com/books/c2/programs/index.html>
+<http://knking.com/books/c2/answers/index.html>
+<https://github.com/williamgherman/c-solutions>
+
+# TODO
+
+<http://viewsourcecode.org/snaptoken/kilo/>
+
+Welcome!
+This is an instruction booklet that shows you how to build a text editor in C.
+
+The text editor is antirez’s kilo, with some changes.
+It’s  about 1000  lines of  C in  a  single file  with no  dependencies, and  it
+implements all  the basic features  you expect in a  minimal editor, as  well as
+syntax highlighting and a search feature.
+
+This booklet walks you through building the editor in 184 steps.
+Each step, you’ll add, change, or remove a few lines of code.
+Most steps,  you’ll be  able to observe  the changes you  made by  compiling and
+running the program immediately afterwards.
+
+I explain each step along the way, sometimes in a lot of detail.
+Feel free to skim or  skip the prose, as the main point of  this is that you are
+going to build a text editor from scratch!
+Anything you learn along the way is bonus, and there’s plenty to learn just from
+typing in the changes to the code and observing the results.
+
+See the appendices  for more information on the tutorial  itself (including what
+to do if you get stuck, and where to get help).
+
+If you’re ready to begin, then go to chapter 1!
+
