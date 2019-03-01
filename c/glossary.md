@@ -21,6 +21,20 @@ Can mean C89, C99, C11 or C17.
 
 ##
 # b
+## block
+
+A special case of a compound statement, which contains a mix of declarations and
+regular statements.
+
+Example:
+```c
+    if (i > j) {
+        // swap values of i and j
+        int temp = i ;
+        i = j;
+        j = temp;
+    }
+```
 ## bounds-checker
 
 C doesn't require  that array subscripts be checked; a  bounds-checker adds this
@@ -67,6 +81,43 @@ GNU C provides several language features not found in ISO standard C.
 
 A group of statements inside curly braces.
 They're common in `if` statements and loops.
+
+##
+## constant
+
+A value  which is assigned  to a  variable which will  keep it during  the whole
+execution of the program:
+
+    height = 8;
+
+### What's a magic number?
+
+A value whose meaning is hard to understand from the context.
+
+### How is a constant useful compared to a magic number?
+
+It makes the code more readable:
+
+                        ┌ magic number
+                        │
+    if (password_size > 7)
+        ...
+
+                            ┌ constant
+                            │
+    int MAX_PASSWORD_SIZE = 7;
+    if (password_size > MAX_PASSWORD_SIZE)
+        ...
+
+It also helps if the value is used  in several locations, and you want to change
+it in the future.
+Without a constant,  you would have to  find and replace all  occurrences of the
+value, and avoid:
+
+   - forgetting one of the occurrences
+   - replacing an occurrence which was used for a different purpose
+
+<https://stackoverflow.com/questions/47882/what-is-a-magic-number-and-why-is-it-bad#comment3030262_47902>
 
 ##
 # d
