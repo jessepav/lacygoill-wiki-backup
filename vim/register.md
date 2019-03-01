@@ -1,3 +1,23 @@
+# Which pitfalls should I pay attention to when running a macro?
+
+After pressing `o` or `O`, avoid pressing `C-u` to remove all the indentation of
+a line; prefer pressing `Escape` then `i`.
+
+Rationale: you can't always be sure that  the next time you run your macro there
+will be an indentation; it depends from where you open a new line.
+If there's no indentation, `C-u` will remove the current line entirely.
+
+---
+
+Never end your recording with `CR`; press something afterwards like `Escape`.
+
+Rationale: for some reason, Vim adds a `C-j` to a register ending with `CR`:
+
+    let @a = "/pat\r"
+    reg a
+    "a   /pat^M^J
+               ^^
+
 # ?
 
     getreg('a')

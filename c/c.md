@@ -17,13 +17,14 @@
 > For portability,  it's best  to avoid using  nonstandard features  and libraries
 > unless they're absolutely necessary.
 
-This shows  a fundamental  difference between C  and interpreted  languages like
-Python.
-In Python, there's just one interpreter.
-In C,  the interpreter  is the compiler;  and there are  several of  those, each
-providing its nonstandard features not supported by C89/C99.
+Each compiler provides its nonstandard features not supported by C89/C99.
 So, if you want  your C code to works on as many  machines as possible, you need
 to stick to C89/C99.
+
+Besides, this shows that the compiler is  to C what the python interpreter is to
+Python.
+In the  same way  your python3 code  may not work  if you  pass it to  a python2
+interpreter, your C99 code may not work if you compile it with an old compiler.
 
 ---
 
@@ -44,7 +45,7 @@ compiler.
 ---
 
 **Compound statements** are statements inside curly braces.
-They're common in if statements and loops.
+They're common in `if` statements and loops.
 
 ---
 
@@ -71,6 +72,31 @@ the program.
 How to compile `pun.c` into `pun`?
 
     $ gcc -o pun pun.c
+
+---
+
+Since statements can continue over several  lines, it's not always obvious where
+they end.  This  is why C requires  that a statement end with  a semicolon, with
+the exception  of the compound  statement.  Directives,  on the other  hand, are
+normally one line long, and they don't end with a semicolon.
+
+---
+
+The type of a numeric variable  determines the largest and smallest numbers that
+the variable  can store; it  also determines whether  or not digits  are allowed
+after the decimal point.
+
+What's the typical largest value that a variable of type int can store?
+
+    2^31 - 1
+
+MWE:
+
+    # include <math.h>
+    int main(void) {
+        var = pow(2, 31) - 1
+        ???
+    }
 
 ##
 # Programs and answers

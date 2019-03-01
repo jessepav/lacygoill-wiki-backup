@@ -1,13 +1,15 @@
-/* directive to include C's standard I/O library. */
+// directive to include C's standard I/O library.
 #include <stdio.h>
-/*       ├───────┘ */
-/*       └  header */
+//       ├───────┘
+//       └  header
 
-/*┌  the main function returns an integer value */
-/*│      ┌ the main function has no arguments */
-/*│      │ */
+//┌  the main function returns an integer value
+//│      ┌ and it has no arguments
+//│      │
 int main(void) {
     printf("To C, or not to C: that is the question.\n");
-    /* returns 0 as a status code */
+    printf("Brevity is the soul of wit.\n  --Shakespeare\n");
+    // returns 0 as a status code
     return 0;
 }
+
