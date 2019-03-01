@@ -112,8 +112,8 @@ It also determines whether or not digits are allowed after the decimal point.
 
 MWE:
 
-    # include <stdio.h>
-    # include <math.h>
+    #include <stdio.h>
+    #include <math.h>
 
     int main(void) {
         int var = pow(2, 31);
@@ -143,6 +143,94 @@ number that was stored in it.
 If you store `0.1`  in a `float` variable, you may later  find that the variable
 has a value such as `0.09999999999999987`, because of rounding error.
 
+##
+## When must I separate statements and declarations?
+
+In (and only in) C89.
+
+So this will work in C99, but not in C89:
+```c
+    #include <stdio.h>
+
+    int main(void) {
+        int var1 = 123;
+        printf("%d\n", var1);
+
+        int var2 = 456;
+        printf("%d\n", var2);
+
+        return 0;
+    }
+```
+
+While this will work in C89, *and* in C99:
+```c
+    #include <stdio.h>
+
+    int main(void) {
+        int var1 = 123;
+        int var2 = 456;
+
+        printf("%d\n", var1);
+        printf("%d\n", var2);
+
+        return 0;
+    }
+```
+
+---
+
+This is true for functions *and* for blocks:
+```c
+    #include <stdio.h>
+
+    int main(void) {
+        if (1) {
+            int var1 = 123;
+            printf("%d\n", var1);
+
+            int var2 = 456;
+            printf("%d\n", var2);
+        }
+        return 0;
+    }
+```
+```c
+    #include <stdio.h>
+
+    int main(void) {
+        if (1) {
+            int var1 = 123;
+            int var2 = 456;
+
+            printf("%d\n", var1);
+            printf("%d\n", var2);
+        }
+        return 0;
+    }
+```
+## When must my function end with a `return` statement?
+
+In (and only in) C89.
+
+So this will work in C99, but not in C89:
+```c
+    #include <stdio.h>
+
+    int main(void) {
+        printf("Hello world!");
+    }
+```
+
+While this will work in C89, *and* in C99:
+```c
+    #include <stdio.h>
+
+    int main(void) {
+        printf("Hello world!");
+        return 0;
+    }
+```
 ##
 # Resources
 ## Programs and answers
