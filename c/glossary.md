@@ -35,6 +35,31 @@ and ISO/IEC 9899:1990, in 1990.
 
 Version of the C language described in the standard ISO/IEC 9899:1999, in 1999.
 
+<https://en.wikipedia.org/wiki/C99>
+<https://gcc.gnu.org/c99status.html>
+
+## C11
+
+Version of the C language described in the standard ISO/IEC 9899:2011, in 2011.
+
+<https://en.wikipedia.org/wiki/C11_%28C_standard_revision%29>
+<https://gcc.gnu.org/wiki/C11Status>
+
+## C17
+
+Version of the C language described in the standard ISO/IEC 9899:2018, in 2018.
+
+<https://en.wikipedia.org/wiki/C18_(C_standard_revision)>
+
+The  wikipedia page  uses the  term `C18`,  but on  the web,  and on  the latest
+manpage for GCC, `C17` is used more often.
+
+## GNU C
+
+Version of the C language used by GCC by default.
+
+GNU C provides several language features not found in ISO standard C.
+
 ##
 # i
 ## ISO
