@@ -66,34 +66,22 @@ into errors:
                    ^^^^^^^^^^^^^^^^
 
 ##
-# ?
-
-A  **library function**  belongs to  a library  of functions  supplied with  the
-compiler.
-
-# ?
-
-**Compound statements** are statements inside curly braces.
-They're common in `if` statements and loops.
-
-# ?
+# Syntax
+## Why does C require that a statement end with a semicolon?
 
 Since statements can continue over several  lines, it's not always obvious where
 they end.
 
-This is why C requires that a statement end with a semicolon, with the exception
-of the compound statement.
+### When does C make an exception to this rule?
 
-Directives, on the  other hand, are normally  one line long, and  they don't end
-with a semicolon.
+For compound statements, and directives.
 
-# ?
-
-What does `#include <stdio.h>` do?
+##
+## What does `#include <stdio.h>` do?
 
 It tells the preprocessor to include information about C's standard I/O library.
 
-What's the name of `<stdio.h>`?
+### What's the name of `<stdio.h>`?
 
 A header.
 

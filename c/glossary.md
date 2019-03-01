@@ -15,7 +15,9 @@ are tested the same way.
 
 ## ANSI C, ANSI/ISO C, ISO C
 
-Can mean C89 or C99.
+Can mean C89, C99, C11 or C17.
+
+<https://en.wikipedia.org/wiki/ANSI_C>
 
 ##
 # b
@@ -59,6 +61,12 @@ manpage for GCC, `C17` is used more often.
 Version of the C language used by GCC by default.
 
 GNU C provides several language features not found in ISO standard C.
+
+##
+## compound statement
+
+A group of statements inside curly braces.
+They're common in `if` statements and loops.
 
 ##
 # d
