@@ -86,39 +86,27 @@ It tells the preprocessor to include information about C's standard I/O library.
 A header.
 
 ##
-# ?
-
-Why is it better to use the type `int` rather than `float` when declaring a variable?
-
-Arithmetic on `float` numbers may be slower than arithmetic on `int` numbers.
-Most  significantly,  the  value  of  a   `float`  variable  is  often  just  an
-approximation of the number that was stored in it.
-If you store `0.1`  in a `float` variable, you may later  find that the variable
-has a value such as `0.09999999999999987`, thanks to rounding error.
-
-# ?
-
-How to declare a variable?
+## How to declare a variable?
 
 Specify its type then its name:
 
     int height;
     float profit;
 
-How to declare several variables of the same type?
+## How to declare several variables of the same type?
 
 Combine their declarations on a single line:
 
     int height, length, width, volume;
     float profit, loss;
 
-# ?
+##
+## Which influence does the type of a numeric variable have?
 
-The type of a numeric variable  determines the largest and smallest numbers that
-the variable  can store; it  also determines whether  or not digits  are allowed
-after the decimal point.
+It determines the largest and smallest numbers that the variable can store.
+It also determines whether or not digits are allowed after the decimal point.
 
-What's the typical largest value that a variable of type `int` can store?
+## What's the typical largest value that a variable of type `int` can store?
 
     2^31 - 1
 
@@ -143,6 +131,17 @@ Rationale:
 You can use 32 bits  to store an integer, and one of them  is used for the sign,
 which gives you `2^31` numbers.
 But `0` is one of those numbers, so you can go only up to `2^31 - 1`.
+
+## Why is it better to use the type `int` rather than `float` when declaring a numeric variable?
+
+For better performance and accuracy.
+
+Arithmetic on `float` numbers may be slower than arithmetic on `int` numbers.
+
+Also, the  value of  a `float` variable  is often just  an approximation  of the
+number that was stored in it.
+If you store `0.1`  in a `float` variable, you may later  find that the variable
+has a value such as `0.09999999999999987`, because of rounding error.
 
 ##
 # Resources
