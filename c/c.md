@@ -1,48 +1,46 @@
+# What are the three steps which must be done before a source code file can be run?
+
+   1. preprocessing
+   2. compiling
+   3. linking
+
+##
 # Compiling
 ## When do I need to make my code conform to the `c89` standard instead of the `c99` one?
 
 Whenever there's  no compiler,  on the  machine where  you'll compile,  which is
 c99-compliant.
-It's particularly relevant  on old hardware, embedded device,  and IoT (Internet
+It's particularly relevant on old  hardware, embedded systems, and IoT (Internet
 of Things), where the only compiler available may be old and/or closed source.
 
 This shows that the compiler is to C what the python interpreter is to Python.
 In the  same way  your python3 code  may not work  if you  pass it to  a python2
 interpreter, your C99 code may not work if you compile it with an old compiler.
 
-## ?
+##
+## What are C extensions?
 
-To run the code contained in a C source code file, 3 steps are necessary:
+Language features and library functions provided by a compiler, and not found in
+ISO standard C.
 
-Preprocessing.
-The program is given to a **preprocessor**, which obeys commands that begin with
-`#` (known as **directives**).
-A preprocessor  is a bit like  an editor; it can  add things to the  program and
-make modifications.
+### Where can I find information about the C extensions provided by GCC?
 
-Compiling.
-The  modified program  now  goes to  a **compiler**,  which  translates it  into
-machine instructions (**object code**).
+<https://gcc.gnu.org/onlinedocs/gcc/C-Extensions.html#C-Extensions>
 
-Linking.
-Finally, a **linker**  combines the object code with any  additional code needed
-to yield a complete executable program.
-This additional code includes library functions (like `printf`) that are used in
-the program.
+### When and why should I avoid them?
 
-## ?
+Those extensions are specific to a compiler.
+If you're concerned by the portability of your program, you need to stick to C89
+(or maybe C99).
+
+From “C Programming A Modern Approach”, page 7:
 
 > Most C  compilers provide  language features and  library functions  that aren't
 > part of the C89 or C99 standards.
 > For portability,  it's best  to avoid using  nonstandard features  and libraries
 > unless they're absolutely necessary.
 
-Each compiler provides its nonstandard features not supported by C89/C99.
-So, if you want  your C code to works on as many  machines as possible, you need
-to stick to C89/C99.
-
-<https://gcc.gnu.org/onlinedocs/gcc/C-Extensions.html#C-Extensions>
-
+##
 ## How to compile `pun.c` into `pun`?
 
     $ gcc -o pun pun.c
@@ -70,33 +68,47 @@ into errors:
 ##
 # ?
 
-The line:
-
-    #include <stdio.h>
-
-is necessary to include information about C's standard I/O library.
-
-`<stdio.h>` is a **header**.
-A header contains information about some part of the standard library.
-
----
-
 A  **library function**  belongs to  a library  of functions  supplied with  the
 compiler.
 
----
+# ?
 
 **Compound statements** are statements inside curly braces.
 They're common in `if` statements and loops.
 
----
+# ?
 
 Since statements can continue over several  lines, it's not always obvious where
-they end.  This  is why C requires  that a statement end with  a semicolon, with
-the exception  of the compound  statement.  Directives,  on the other  hand, are
-normally one line long, and they don't end with a semicolon.
+they end.
 
----
+This is why C requires that a statement end with a semicolon, with the exception
+of the compound statement.
+
+Directives, on the  other hand, are normally  one line long, and  they don't end
+with a semicolon.
+
+# ?
+
+What does `#include <stdio.h>` do?
+
+It tells the preprocessor to include information about C's standard I/O library.
+
+What's the name of `<stdio.h>`?
+
+A header.
+
+##
+# ?
+
+Why is it better to use the type `int` rather than `float` when declaring a variable?
+
+Arithmetic on `float` numbers may be slower than arithmetic on `int` numbers.
+Most  significantly,  the  value  of  a   `float`  variable  is  often  just  an
+approximation of the number that was stored in it.
+If you store `0.1`  in a `float` variable, you may later  find that the variable
+has a value such as `0.09999999999999987`, thanks to rounding error.
+
+# ?
 
 How to declare a variable?
 
@@ -112,17 +124,7 @@ Combine their declarations on a single line:
     int height, length, width, volume;
     float profit, loss;
 
----
-
-Why is it better to use the type `int` rather than `float` when declaring a variable?
-
-Arithmetic on `float` numbers may be slower than arithmetic on `int` numbers.
-Most  significantly,  the  value  of  a   `float`  variable  is  often  just  an
-approximation of the number that was stored in it.
-If you store `0.1`  in a `float` variable, you may later  find that the variable
-has a value such as `0.09999999999999987`, thanks to rounding error.
-
----
+# ?
 
 The type of a numeric variable  determines the largest and smallest numbers that
 the variable  can store; it  also determines whether  or not digits  are allowed

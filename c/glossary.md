@@ -61,6 +61,18 @@ Version of the C language used by GCC by default.
 GNU C provides several language features not found in ISO standard C.
 
 ##
+# d
+## directive
+
+Statement beginning with `#`, which will be obeyed by the preprocessor.
+
+##
+# h
+## header
+
+It contains information about some part of the standard library.
+
+##
 # i
 ## ISO
 
@@ -84,9 +96,30 @@ written by Brian Kernighan and Dennis Ritchie.
 
 A leak-finder helps locate memory leaks.
 
+## linker
+
+The linker combines the  object code with any additional code  needed to yield a
+complete executable program.
+This additional code includes library functions (like `printf`) that are used in
+the program.
+
 ##
 # m
 ## memory leak
 
 Blocks of memory that are dynamically allocated but never deallocated.
+
+##
+# o
+## object code
+
+Machine instructions obtained after the compiler has translated your source code file.
+
+##
+# p
+## preprocessor
+
+The preprocessor obeys the directives found in a source code file.
+It's  a bit  like an  editor; it  can add  things to  the source  code and  make
+modifications.
 
