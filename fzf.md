@@ -1,3 +1,766 @@
+# Options
+
+Note that most options have the opposite versions with `--no-` prefix.
+
+## Search mode
+### -x, --extended
+
+Extended-search mode.
+Enabled by default.
+You can disable it with `+x` or `--no-extended`.
+
+### -e, --exact
+
+Enable exact-match.
+
+### -i
+
+Case-insensitive match (default: smart-case match).
+
+### +i
+
+Case-sensitive match.
+
+### --literal
+
+Do not normalize latin script letters for matching.
+
+### --algo=TYPE
+
+Fuzzy matching algorithm (default: v2)
+
+   - v2: Optimal scoring algorithm (quality)
+   - v1: Faster but not guaranteed to find the optimal result (performance)
+
+### -n, --nth=N[,..]
+
+Comma-separated list of field index expressions for limiting search scope.
+See Field Index Expression for the details.
+
+### --with-nth=N[,..]
+
+Transform the presentation of each line using field index expressions
+
+### -d, --delimiter=STR
+
+Field delimiter regex for `--nth` and `--with-nth` (default: AWKstyle).
+
+##
+## Search result
+### +s, --no-sort
+
+Do not sort the result.
+
+### --tac  Reverse the order of the input
+
+Example:
+
+    $ history | fzf --tac --no-sort
+
+### --tiebreak=CRI[,..]
+
+Comma-separated list of sort criteria to apply when the scores are tied.
+
+    ┌────────┬─────────────────────────────────────────────────────────────┐
+    │ length │ Prefers line with shorter length                            │
+    ├────────┼─────────────────────────────────────────────────────────────┤
+    │ begin  │ Prefers line with matched substring closer to the beginning │
+    ├────────┼─────────────────────────────────────────────────────────────┤
+    │ end    │ Prefers line with matched substring closer to the end       │
+    ├────────┼─────────────────────────────────────────────────────────────┤
+    │ index  │ Prefers line that appeared earlier in the input stream      │
+    └────────┴─────────────────────────────────────────────────────────────┘
+
+   - Each criterion should appear only once in the list
+   - index is only allowed at the end of the list
+   - index is implicitly appended to the list when not specified
+   - Default is length (or equivalently length,index)
+   - If end is found in the list, fzf will scan each line backwards
+
+##
+## Interface
+### -m, --multi
+
+Enable multi-select with tab/shift-tab.
+
+### +m, --no-multi
+
+Disable multi-select.
+
+### --no-mouse
+
+Disable mouse.
+
+### --bind=KEYBINDS
+
+Comma-separated list of custom key bindings.
+See Key Bindings for the details.
+
+### --cycle
+
+Enable cyclic scroll.
+
+### --no-hscroll
+
+Disable horizontal scroll.
+
+### --hscroll-off=COL
+
+Number  of screen  columns to  keep to  the right  of the  highlighted substring
+(default: 10).
+Setting it to a  large value will cause the text to be  positioned on the center
+of the screen.
+
+### --filepath-word
+
+Make word-wise movements and actions respect path separators.
+The following actions are affected:
+
+   - backward-kill-word
+   - backward-word
+   - forward-word
+   - kill-word
+
+### --jump-labels=CHARS
+
+Label characters for `jump` and `jump-accept`.
+
+##
+## Layout
+
+### --height=HEIGHT[%]
+
+Display fzf window below  the cursor with the given height  instead of using the
+full screen.
+
+### --min-height=HEIGHT
+
+Minimum height when `--height` is given in percent (default: 10).
+Ignored when `--height` is not specified.
+
+### --layout=LAYOUT
+
+Choose the layout (default: default)
+
+    ┌──────────────┬───────────────────────────────────────────────────────────┐
+    │ default      │ Display from the bottom of the screen                     │
+    ├──────────────┼───────────────────────────────────────────────────────────┤
+    │ reverse      │ Display from the top of the screen                        │
+    ├──────────────┼───────────────────────────────────────────────────────────┤
+    │ reverse-list │ Display from the top of the screen, prompt at  the bottom │
+    └──────────────┴───────────────────────────────────────────────────────────┘
+
+### --reverse
+
+A synonym for `--layout=reverse`.
+
+### --border
+
+Draw border above and below the finder.
+
+### --margin=MARGIN
+
+Comma-separated expression for margins around the finder.
+
+    ┌─────────┬──────────────────────────────────────────────┐
+    │ TRBL    │ Same margin for top, right, bottom, and left │
+    ├─────────┼──────────────────────────────────────────────┤
+    │ TB,RL   │ Vertical, horizontal margin                  │
+    ├─────────┼──────────────────────────────────────────────┤
+    │ T,RL,B  │ Top, horizontal, bottom margin               │
+    ├─────────┼──────────────────────────────────────────────┤
+    │ T,R,B,L │ Top, right, bottom, left margin              │
+    └─────────┴──────────────────────────────────────────────┘
+
+Each part  can be  given in  absolute number  or in  percentage relative  to the
+terminal size with % suffix.
+
+Examples:
+
+    $ fzf --margin 10%
+
+    $ fzf --margin 1,5%
+
+### --inline-info
+
+Display finder info inline with the query.
+
+### --prompt=STR
+
+Input prompt (default: `> `).
+
+### --header=STR
+
+The given string will be printed as the sticky header.
+The lines  are displayed  in the given  order from top  to bottom  regardless of
+`--layout` option, and are not affected by `--with-nth`.
+ANSI color codes are processed even when `--ansi` is not set.
+
+### --header-lines=N
+
+The first N lines of the input are treated as the sticky header.
+When `--with-nth`  is set, the lines  are transformed just like  the other lines
+that follow.
+
+##
+## Display
+
+### --ansi Enable processing of ANSI color codes
+
+### --tabstop=SPACES
+
+Number of spaces for a tab character (default: 8)
+
+### --color=[BASE_SCHEME][,COLOR:ANSI]
+
+Color configuration.
+The name of the base color scheme is followed by custom color mappings.
+Ansi color code of -1 denotes terminal default foreground/background color.
+You can also specify 24-bit color in #rrggbb format.
+
+    $ fzf --color=bg+:24
+
+    $ fzf --color=light,fg:232,bg:255,bg+:116,info:27
+
+#### BASE SCHEME:
+
+Default: dark on 256-color terminal, otherwise 16.
+
+    ┌───────┬───────────────────────────────────────────┐
+    │ dark  │ Color scheme for dark 256-color terminal  │
+    ├───────┼───────────────────────────────────────────┤
+    │ light │ Color scheme for light 256-color terminal │
+    ├───────┼───────────────────────────────────────────┤
+    │ 16    │ Color scheme for 16-color terminal        │
+    ├───────┼───────────────────────────────────────────┤
+    │ bw    │ No colors                                 │
+    └───────┴───────────────────────────────────────────┘
+
+#### COLOR:
+
+    ┌─────────┬────────────────────────────────────────────────────────────────────┐
+    │ fg      │ Text                                                               │
+    ├─────────┼────────────────────────────────────────────────────────────────────┤
+    │ bg      │ Background                                                         │
+    ├─────────┼────────────────────────────────────────────────────────────────────┤
+    │ hl      │ Highlighted substrings                                             │
+    ├─────────┼────────────────────────────────────────────────────────────────────┤
+    │ fg+     │ Text (current line)                                                │
+    ├─────────┼────────────────────────────────────────────────────────────────────┤
+    │ bg+     │ Background (current line)                                          │
+    ├─────────┼────────────────────────────────────────────────────────────────────┤
+    │ hl+     │ Highlighted substrings (current line)                              │
+    ├─────────┼────────────────────────────────────────────────────────────────────┤
+    │ info    │ Info                                                               │
+    ├─────────┼────────────────────────────────────────────────────────────────────┤
+    │ border  │ Border of the preview window and horizontal  separators (--border) │
+    ├─────────┼────────────────────────────────────────────────────────────────────┤
+    │ prompt  │ Prompt                                                             │
+    ├─────────┼────────────────────────────────────────────────────────────────────┤
+    │ pointer │ Pointer to the current line                                        │
+    ├─────────┼────────────────────────────────────────────────────────────────────┤
+    │ marker  │ Multi-select marker                                                │
+    ├─────────┼────────────────────────────────────────────────────────────────────┤
+    │ spinner │ Streaming input indicator                                          │
+    ├─────────┼────────────────────────────────────────────────────────────────────┤
+    │ header  │ Header                                                             │
+    └─────────┴────────────────────────────────────────────────────────────────────┘
+
+### --no-bold
+
+Do not use bold text.
+
+### --black
+
+Use black background.
+
+##
+## History
+### --history=HISTORY_FILE
+
+Load search history from the specified file and update the file on completion.
+When enabled, <kbd>C-n</kbd> and <kbd>C-p</kbd> are automatically remapped to `next-history` and
+`previous-history`.
+
+### --history-size=N
+
+Maximum number of entries in the history file (default: 1000).
+The file  is automatically truncated  when the number  of the lines  exceeds the
+value.
+
+##
+## Preview
+### --preview=COMMAND
+
+Execute the  given command for  the current line and  display the result  on the
+preview window.
+`{}` in  the command is  the placeholder that  is replaced to  the single-quoted
+string of the current line.
+To transform the replacement string, specify field index expressions between the
+braces (See Field Index Expression for the details).
+
+    $ fzf --preview='head -$LINES {}'
+
+    $ ls -l | fzf  --preview="echo  user={3}  when={-4..-2};  cat {-1}" --header-lines=1
+
+fzf overrides `$LINES`  and `$COLUMNS` so that they represent  the exact size of
+the preview window.
+
+A  placeholder  expression starting  with  `+`  flag  will  be replaced  to  the
+space-separated list of the selected lines  (or the current line if no selection
+was made) individually quoted.
+
+Examples:
+
+    $ fzf --multi --preview='head -10 {+}'
+
+    $ git log --oneline | fzf --multi --preview 'git show {+1}'
+
+When using a field index expression, leading and trailing whitespace is stripped
+from the replacement string.
+To preserve the whitespace, use the `s` flag.
+
+Also, `{q}` is replaced to the current query string.
+
+Note that you can escape a placeholder pattern by prepending a backslash.
+
+Preview window will be updated even when there is no match for the current query
+if any of the placeholder expressions evaluates to a non-empty string.
+
+### --preview-window=[POSITION][:SIZE[%]][:wrap][:hidden]
+
+Determine the layout of the preview window.
+If  the argument  ends with  `:hidden`,  the preview  window will  be hidden  by
+default until toggle-preview action is triggered.
+Long lines are truncated by default.
+Line wrap can be enabled with `:wrap` flag.
+
+If size is  given as 0, preview window  will not be visible, but  fzf will still
+execute the command in the background.
+
+#### POSITION: (default: right)
+
+   - up
+   - down
+   - left
+   - right
+
+Examples:
+
+    $ fzf --preview="head {}" --preview-window=up:30%
+
+    $ fzf --preview="file {}" --preview-window=down:1
+
+##
+## Scripting
+### -q, --query=STR
+
+Start the finder with the given query.
+
+### -1, --select-1
+
+Automatically select the only match.
+
+### -0, --exit-0
+
+Exit immediately when there's no match.
+
+### -f, --filter=STR
+
+Filter mode.
+Do not start interactive finder.
+When used with `--no-sort`, fzf becomes a fuzzy-version of grep.
+
+### --print-query
+
+Print query as the first line.
+
+### --expect=KEY[,..]
+
+Comma-separated list of keys that can be used to complete fzf in addition to the
+default enter key.
+When this option is set, fzf will print the name of the key pressed as the first
+line of its output (or as the second line if `--print-query` is also used).
+The line will be empty if fzf is completed with the default enter key.
+If `--expect` option  is specified multiple times, fzf will  expect the union of
+the keys.
+`--no-expect` will clear the list.
+
+    $ fzf --expect=ctrl-v,ctrl-t,alt-s --expect=f1,f2,~,@
+
+### --read0
+
+Read input delimited by ASCII NUL characters instead of newline characters.
+
+### --print0
+
+Print output delimited by ASCII NUL characters instead of newline characters.
+
+### --no-clear
+
+Do not clear finder interface on exit.
+If fzf was started in full screen mode,  it will not switch back to the original
+screen, so you'll have to manually run tput rmcup to return.
+This option can be used to avoid  flickering of the screen when your application
+needs to start fzf multiple times in order.
+
+### --sync
+
+Synchronous search for multi-staged filtering.
+If specified,  fzf will  launch ncurses  finder only after  the input  stream is
+complete.
+
+    $ fzf --multi | fzf --sync
+
+### --version
+
+Display version information and exit.
+
+##
+# Environment Variables
+## FZF_DEFAULT_COMMAND
+
+Default command to use when input is tty.
+On *nix  systems, fzf runs the  command with `$ sh  -c`, so make sure  that it's
+POSIX-compliant.
+
+## FZF_DEFAULT_OPTS
+
+Default options.
+
+    $ export FZF_DEFAULT_OPTS="--extended --cycle"
+
+##
+# Exit Status
+
+    ┌─────┬─────────────────────────────┐
+    │ 0   │ Normal exit                 │
+    ├─────┼─────────────────────────────┤
+    │ 1   │ No match                    │
+    ├─────┼─────────────────────────────┤
+    │ 2   │ Error                       │
+    ├─────┼─────────────────────────────┤
+    │ 130 │ Interrupted with C-c or Esc │
+    └─────┴─────────────────────────────┘
+
+##
+# Field Index Expression
+
+A  field index  expression  can be  a  non-zero integer  or  a range  expression
+(`[BEGIN]..[END]`).
+`--nth` and `--with-nth` take a comma-separated list of field index expressions.
+
+## Examples
+
+    ┌──────┬─────────────────────────────────────────────────┐
+    │ 1    │ The 1st field                                   │
+    ├──────┼─────────────────────────────────────────────────┤
+    │ 2    │ The 2nd field                                   │
+    ├──────┼─────────────────────────────────────────────────┤
+    │ -1   │ The last field                                  │
+    ├──────┼─────────────────────────────────────────────────┤
+    │ -2   │ The 2nd to last field                           │
+    ├──────┼─────────────────────────────────────────────────┤
+    │ 3..5 │ From the 3rd field to the 5th field             │
+    ├──────┼─────────────────────────────────────────────────┤
+    │ 2..  │ From the 2nd field to the last field            │
+    ├──────┼─────────────────────────────────────────────────┤
+    │ ..-3 │ From the 1st field to the 3rd to the last field │
+    ├──────┼─────────────────────────────────────────────────┤
+    │ ..   │ All the fields                                  │
+    └──────┴─────────────────────────────────────────────────┘
+
+##
+# Extended Search Mode
+
+Unless specified otherwise, fzf will start in "extended-search mode".
+In this mode, you can specify multiple patterns delimited by spaces, such as:
+
+    'wild ^music .mp3$ sbtrkt !rmx
+
+You can prepend a backslash to a space (\ ) to match a literal space character.
+
+## Exact-match (quoted)
+
+A term  that is prefixed  by a single-quote character  (') is interpreted  as an
+"exact-match" (or "non-fuzzy") term.
+fzf will search for the exact occurrences of the string.
+
+## Anchored-match
+
+A term can  be prefixed by `^`,  or suffixed by `$` to  become an anchored-match
+term.
+Then fzf will search for the lines that start with or end with the given string.
+An anchored-match term is also an exact-match term.
+
+## Negation
+
+If a term is  prefixed by `!`, fzf will exclude the lines  that satisfy the term
+from the result.
+In this case, fzf performs exact match by default.
+
+## Exact-match by default
+
+If you don't  prefer fuzzy matching and  do not wish to  "quote" (prefixing with
+`'`) every word, start fzf with `-e` or `--exact` option.
+Note that when `--exact` is set, '-prefix "unquotes" the term.
+
+## OR operator
+
+A single bar character term acts as an OR operator.
+For example,  the following query matches  entries that start with  core and end
+with either go, rb, or py.
+
+    ^core go$ | rb$ | py$
+
+##
+# Key Bindings
+
+You  can customize  key  bindings of  fzf  with `--bind`  option  which takes  a
+comma-separated list of key binding expressions.
+Each key binding expression follows the following format: `Key:Action`.
+
+    $ fzf --bind=ctrl-j:accept,ctrl-k:kill-line
+
+### Available Keys (Synonyms)
+
+    ctrl-[a-z]
+    ctrl-space
+    ctrl-alt-[a-z]
+    alt-[a-z]
+    alt-[0-9]
+    f[1-12]
+    enter       (return ctrl-m)
+    space
+    bspace      (bs)
+    alt-up
+    alt-down
+    alt-left
+    alt-right
+    alt-enter
+    alt-space
+    alt-bspace  (alt-bs)
+    alt-/
+    tab
+    btab        (shift-tab)
+    esc
+    del
+    up
+    down
+    left
+    right
+    home
+    end
+    pgup        (page-up)
+    pgdn        (page-down)
+    shift-up
+    shift-down
+    shift-left
+    shift-right
+    left-click
+    right-click
+    double-click
+    or any single character
+
+Additionally,  a special  event named  change  is available  which is  triggered
+whenever the query string is changed.
+
+    $ fzf --bind change:top
+
+### Action, Default Bindings (Notes)
+
+    ┌──────────────────────┬─────────────────────────────────────────────────────────────┐
+    │ abort                │ C-c  C-g  C-q  esc                                          │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ accept               │ enter   double-click                                        │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ accept-non-empty     │ (same  as accept                                            │
+    │                      │ except that it prevents fzf from exiting without selection) │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ backward-char        │ C-b  left                                                   │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ backward-delete-char │ C-h  bspace                                                 │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ backward-kill-word   │ M-bs                                                        │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ backward-word        │ M-b   S-left                                                │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ beginning-of-line    │ C-a  home                                                   │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ cancel               │ (clears query string if not empty, aborts fzf otherwise)    │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ clear-screen         │ C-l                                                         │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ delete-char          │ del                                                         │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ delete-char/eof      │ C-d                                                         │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ deselect-all         │                                                             │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ down                 │ C-j  C-n  down                                              │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ end-of-line          │ C-e  end                                                    │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ execute(...)         │ (see below for the details)                                 │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ execute-silent(...)  │ (see below for the details)                                 │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ execute-multi(...)   │ (deprecated in favor of {+} expression)                     │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ forward-char         │ C-f  right                                                  │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ forward-word         │ M-f   S-right                                               │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ ignore               │                                                             │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ jump                 │ (EasyMotion-like 2-keystroke movement)                      │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ jump-accept          │ (jump and accept)                                           │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ kill-line            │                                                             │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ kill-word            │ M-d                                                         │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ next-history         │ (C-n on `--history`)                                        │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ page-down            │ pgdn                                                        │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ page-up              │ pgup                                                        │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ half-page-down       │                                                             │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ half-page-up         │                                                             │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ preview-down         │ S-down                                                      │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ preview-up           │ S-up                                                        │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ preview-page-down    │                                                             │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ preview-page-up      │                                                             │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ previous-history     │ (C-p on `--history`)                                        │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ print-query          │ (print query and exit)                                      │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ replace-query        │ (replace query string with the current selection)           │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ select-all           │                                                             │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ toggle               │ (right-click)                                               │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ toggle-all           │                                                             │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ toggle+down          │ C-i  (tab)                                                  │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ toggle-in            │ (--layout=reverse* ? toggle+up : toggle+down)               │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ toggle-out           │ (--layout=reverse* ? toggle+down : toggle+up)               │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ toggle-preview       │                                                             │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ toggle-preview-wrap  │                                                             │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ toggle-sort          │                                                             │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ toggle+up            │ btab    (S-tab)                                             │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ top                  │ (move to the top result)                                    │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ unix-line-discard    │ C-u                                                         │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ unix-word-rubout     │ C-w                                                         │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ up                   │ C-k  C-p  up                                                │
+    ├──────────────────────┼─────────────────────────────────────────────────────────────┤
+    │ yank                 │ C-y                                                         │
+    └──────────────────────┴─────────────────────────────────────────────────────────────┘
+
+Multiple actions can be chained using `+` separator.
+
+    $ fzf --bind 'ctrl-a:select-all+accept'
+
+With `execute(...)` action,  you can execute arbitrary  commands without leaving
+fzf.
+For example, you can turn fzf into a simple file browser by binding enter key to
+less command like follows.
+
+    $ fzf --bind "enter:execute(less {})"
+
+You can use the same placeholder expressions as in `--preview`.
+
+If the command contains parentheses, fzf may fail to parse the expression.
+In that case,  you can use any  of the following alternative  notations to avoid
+parse errors.
+
+    execute[...]
+    execute~...~
+    execute!...!
+    execute@...@
+    execute#...#
+    execute$...$
+    execute%...%
+    execute^...^
+    execute&...&
+    execute*...*
+    execute;...;
+    execute/.../
+    execute|...|
+    execute:...
+
+This is the special form that frees you  from parse errors as it does not expect
+the closing character.
+The catch  is that  it should  be the last  one in  the comma-separated  list of
+key-action pairs.
+
+fzf switches to the alternate screen when executing a command.
+However,  if the  command  is expected  to  complete quickly,  and  you are  not
+interested in  its output, you might  want to use execute-silent  instead, which
+silently executes the command without the switching.
+Note that fzf will not be responsive until the command is complete.
+For asynchronous  execution, start  your command as  a background  process (i.e.
+appending `&`).
+
+##
+##
+##
+# fzf-tmux
+## Synopsis
+
+    fzf-tmux [-u|-d [HEIGHT[%]]] [-l|-r [WIDTH[%]]] [--] [FZF OPTIONS]
+
+## Description
+
+fzf-tmux is a wrapper script for fzf that opens fzf in a tmux split pane.
+It is designed to  work just like fzf except that it does  not take up the whole
+screen.
+You can safely use fzf-tmux instead of  fzf in your scripts as the extra options
+will be silently ignored if you're not on tmux.
+
+## Options
+#### Layout
+
+(default: `-d 50%`)
+
+### -u [height[%]]
+
+Split above (up).
+
+### -d [height[%]]
+
+Split below (down)
+
+### -l [width[%]]
+
+Split left
+
+### -r [width[%]]
+
+Split right
+
+##
+##
+##
 # ?
 
 <https://www.reddit.com/r/vim/comments/6awwk5/configuring_fzf_preview/>
@@ -68,4 +831,54 @@ install your own Vim commands/mappings.
 
 There's one additional public function `fzf#shellescape()`, but it's useless.
 It's just a wrapper around `shellescape()` which also supports Windows.
+
+##
+##
+##
+# Issues
+## Failed to read /dev/tty
+
+<https://github.com/junegunn/fzf/issues/1486>
+<https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1813873>
+
+Wait for a kernel upgrade?
+
+## ?
+
+    spc fr    (:fzhistory)
+    escape
+    :tabnew
+
+A new tab page  is correctly opened, but the focus stay in  the same window, and
+the fzf buffer is replaced with the last visited buffer.
+
+##
+# TODO
+## Create commands to fuzzy search the changelist and other kind of lists
+
+## ?
+
+Use fzf (and/or fzf.vim) to create a mapping which would fuzzy search inside our
+abbreviations (including their {rhs}).
+It would be useful in a case such as this:
+
+> What's the abbreviation which expands into  a command to search a character in
+> the unicode table?
+
+    {fzf mapping} → type keyword `unicode` → look for the right abbreviation
+                                           → `:ucs`
+
+## ?
+
+<http://blog.owen.cymru/fzf-ripgrep-navigate-with-bash-faster-than-ever-before/>
+
+## ?
+
+Atm, `:FzFiles` doesn't search hidden files/directories.
+
+Solution:
+
+    :let $FZF_DEFAULT_COMMAND = 'ag --hidden --ignore .git -g ""'
+
+See also: <https://github.com/junegunn/fzf.vim/issues/226>
 

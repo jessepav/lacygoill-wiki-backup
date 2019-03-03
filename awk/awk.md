@@ -2750,8 +2750,6 @@ Le problème peut venir de nombres trop grands, pex:
 
     Read the gawk user's guide, chapter 15 to understand what's going on.
 
-<https://www.gnu.org/software/gawk/manual/html_node/Exact-Arithmetic.html#Exact-Arithmetic>
-
 ##
 # Syntaxe
 ## Arrays

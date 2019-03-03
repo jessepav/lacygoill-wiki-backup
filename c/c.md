@@ -1,3 +1,68 @@
+# ?
+
+The term floating point refers to the fact that a number's binary point (decimal
+point for a computer)  can “float”; that is, it can  be placed anywhere relative
+to the significant digits of the number.
+This position is indicated as the exponent component.
+
+<https://en.wikipedia.org/wiki/Floating-point_arithmetic>
+
+---
+
+The integer types aren't suitable for all applications.
+Sometimes we'll  need variables  that can  store numbers  with digits  after the
+decimal point, or numbers that are exceedingly large or small.
+Numbers like  these are stored in  floating-point format.
+C provides three floating types, corresponding to different floating-point formats:
+
+    ┌─────────────┬───────────────────────────────────┐
+    │ float       │ Single-precision floating-point   │
+    ├─────────────┼───────────────────────────────────┤
+    │ double      │ Double-precision floating-point   │
+    ├─────────────┼───────────────────────────────────┤
+    │ long double │ Extended-precision floating-point │
+    └─────────────┴───────────────────────────────────┘
+
+`float` is  suitable when  the amount of  precision isn't  critical (calculating
+temperatures to one decimal point, for example).
+`double` provides greater precision – enough for most programs.
+`long double` provides even more precision, but is rarely used.
+
+The C standard doesn't state how much precision the `float`, `double`, and `long double`
+types provide,  since different  computers may  store floating-point  numbers in
+different ways.
+
+Most modern computers follow the specifications in IEEE Standard 754.
+It provides two primary formats  for floating-point numbers:
+single precision (32 bits) and double precision (64 bits).
+Numbers are  stored in a  form of scientific  notation, with each  number having
+three parts: a **sign**, an **exponent**, and a **fraction**.
+The number  of bits reserved  for the exponent  determines how large  (or small)
+numbers  can  be, while  the  number  of bits  in  the  fraction determines  the
+precision.
+In single-precision  format, the  exponent is  8 bits  long, while  the fraction
+occupies 23 bits.
+As a  result, a  single-precision number  has a  maximum value  of approximately
+`3.40 x 10^38`, with a precision of about 6 decimal digits.
+
+The standard doesn't specify the number of bits in these formats, although it requires
+that the single extended type occupy at least 43 bits
+
+---
+
+By default, floating constants are stored as double-precision numbers.
+IOW, when a C  compiler finds the constant `57.0` in a  program, it arranges for
+the number to be stored in memory in the same format as a `double` variable.
+This  rule generally  causes no  problems, since  `double` values  are converted
+automatically to `float` when necessary.
+
+On occasion,  it may  be necessary  to force  the compiler  to store  a floating
+constant in `float` or `long double` format.
+To indicate that only single precision is  desired, put the letter `F` or `f` at
+the end of the constant; for example, `57.0F`.
+To indicate that  a constant should be  stored in `long double`  format, put the
+letter `L` or `l` at the end (`57.0L`).
+
 # What are the three steps which must be done before a source code file can be run?
 
    1. preprocessing
