@@ -1,3 +1,135 @@
+# Terminology
+## Where does the word “bit” come from?
+
+It's an abbreviation for binary digit.
+
+### How can I view it physically?
+
+As a single physical entity in one of two states: on or off.
+
+##
+## How do you call a string of bits?
+
+A bitstring.
+
+## What can a byte represent?
+
+Up to 256 bitstrings, which may be viewed as representing the integers from 0 to
+255, or some characters.
+
+The ASCII  encoding scheme  defines standard  character interpretations  for the
+first 128 of these bitstrings.
+
+##
+## What is a “word”?
+
+4 consecutive bytes of computer storage (i.e. 32 bits).
+
+## What is a “double word”?
+
+8 consecutive bytes (64 bits).
+
+###
+## What's the representation of a number?
+
+The sequence of symbols which expresses this number in a given base.
+
+For example, the representation of seventy one  is `71` in base 10, and `1000111`
+in base 2.
+
+## What's the expansion of a number?
+
+A sum of powers of the base, each  power being multiplied by one of the digit of
+the number:
+
+    (71)₁₀ = 7 × 10 + 1
+             ├────────┘
+             └ expansion of 71 in base 10
+
+    (1000111)₂ = 1 × 64 + 0 × 32 + 0 × 16 + 0 × 8 + 1 × 4 + 1 × 2 + 1 × 1
+                 ├──────────────────────────────────────────────────────┘
+                 └ expansion of 71 in base 2
+
+## What's the difference between a decimal point, a binary point, and a radix point?
+
+They stand for the same thing, but they're used in different contexts.
+
+
+    ┌───────────────┬────────────────────────────────┐
+    │               │ applies to a representation in │
+    ├───────────────┼────────────────────────────────┤
+    │ decimal point │ decimal                        │
+    ├───────────────┼────────────────────────────────┤
+    │ binary point  │ binary                         │
+    ├───────────────┼────────────────────────────────┤
+    │ radix point   │ arbitrary base                 │
+    └───────────────┴────────────────────────────────┘
+
+###
+## How do you qualify the representation of a nonintegral real number
+### which is not finite?
+
+It's said to be “nonterminating”.
+
+### whose symbols after the decimal/binary point repeat periodically?
+
+It's said to be “repeating”.
+
+###
+## Give an example of number whose representation is finite in decimal, but not in binary.
+
+0.1
+
+In decimal, there's only one digit after the decimal point.
+In binary, there's an infinite number of bits after the binary point:
+
+    1/10 = (0.0001100110011...)₂ = 1/16 + 1/32 + 0/64 + 0/128 + 1/256 + 1/512 + 0/1024 + ...
+            ├────────────────┘
+            └ mnemonic: 0.0 then 0011, 0011, ...
+
+###
+## Which property is shared by
+### all rational numbers?
+
+Their representation is always either finite or repeating.
+
+    1/7 = (0.142857142857)₁₀
+             ├────┘├────┘
+             │     └ period 2
+             └ period 1
+
+### all irrational numbers?
+
+Their representation is neither finite nor repeating.
+
+    √2 = (1.414213...)₁₀
+    π  = (3.141592...)₁₀
+    e  = (2.71828182845...)₁₀
+
+##
+## What's “integer overflow”?
+
+Integer overflow occurs  when two positive integers are added  together, and the
+result give an integer greater than or equal to 2^31.
+
+## If the result of an operation involving 32-bit words contains more than 32 bits, how are the excessive bits called?
+
+Overflow bits.
+
+### What happens to them?
+
+They're discarded.
+
+##
+## What's the meaning of the acronym IEEE?
+
+Institute for Electrical and Electronics Enginners.
+
+### How is it pronounced?
+
+“I triple E.”
+
+##
 # Numbers In Math
 ## What does it mean for a set to be “countable”?
 
@@ -227,131 +359,26 @@ We use it today in our division of  the hour into 60 minutes and the minute into
 60 seconds.
 
 ##
-# Where does the word “bit” come from?
-
-It's an abbreviation for binary digit.
-
-## How can I view it physically?
-
-As a single physical entity in one of two states: on or off.
-
-# How do you call a string of bits?
-
-A bitstring.
-
-# What can a byte represent?
-
-Up to 256 bitstrings, which may be viewed as representing the integers from 0 to
-255, or some characters.
-
-The ASCII  encoding scheme  defines standard  character interpretations  for the
-first 128 of these bitstrings.
-
-# What is a “word”?
-
-4 consecutive bytes of computer storage (i.e. 32 bits).
-
-# What is a “double word”?
-
-8 consecutive bytes (64 bits).
-
-##
-# What's the representation of a number?
-
-The sequence of symbols which expresses this number in a given base.
-
-For example, the representation of seventy one  is `71` in base 10, and `1000111`
-in base 2.
-
-# What's the expansion of a number?
-
-A sum of powers of the base, each  power being multiplied by one of the digit of
-the number:
-
-    (71)₁₀ = 7 × 10 + 1
-             ├────────┘
-             └ expansion of 71 in base 10
-
-    (1000111)₂ = 1 × 64 + 0 × 32 + 0 × 16 + 0 × 8 + 1 × 4 + 1 × 2 + 1 × 1
-                 ├──────────────────────────────────────────────────────┘
-                 └ expansion of 71 in base 2
-
-# What's the difference between a decimal point and a binary point?
-
-They stand for the same thing, but they're used in different contexts.
-The decimal  point applies to a  decimal representation, while the  binary point
-applies to a binary representation.
-
-##
-# How do you qualify the representation of a nonintegral real number
-## which is not finite?
-
-It's said to be “nonterminating”.
-
-## whose symbols after the decimal/binary point repeat periodically?
-
-It's said to be “repeating”.
-
-##
-# Give an example of number whose representation is finite in decimal, but not in binary.
-
-0.1
-
-In decimal, there's only one digit after the decimal point.
-In binary, there's an infinite number of bits after the binary point:
-
-    1/10 = (0.0001100110011...)₂ = 1/16 + 1/32 + 0/64 + 0/128 + 1/256 + 1/512 + 0/1024 + ...
-            ├────────────────┘
-            └ mnemonic: 0.0 then 0011, 0011, ...
-
-##
-# Which property is shared by
-## all rational numbers?
-
-Their representation is always either finite or repeating.
-
-    1/7 = (0.142857142857)₁₀
-             ├────┘├────┘
-             │     └ period 2
-             └ period 1
-
-## all irrational numbers?
-
-Their representation is neither finite nor repeating.
-
-    √2 = (1.414213...)₁₀
-    π  = (3.141592...)₁₀
-    e  = (2.71828182845...)₁₀
-
-##
-# Which bitstrings can be abbreviated with
-## the octal symbols 0 through 7?
+# Representations
+## Which bitstrings can be abbreviated with
+### the octal symbols 0 through 7?
 
 Any bitstring  whose length  is 3 (because  `2^3 = 8`),  that is  the bitstrings
 `000` through `111`.
 
-## the hexadecimal symbols 0 through F abbreviate?
+### the hexadecimal symbols 0 through F abbreviate?
 
 Any bitstring  whose length is  4 (because `2^3 =  16`), that is  the bitstrings
 `0000` through `1111`.
 
-##
-# If the result of an operation involving 32-bit words contains more than 32 bits, how are the excessive bits called?
+###
+## What's the binary representation of `2^n`?
 
-Overflow bits.
-
-## What happens to them?
-
-They're discarded.
-
-##
-# What's the binary representation of `2^n`?
-
-A 1 followed by `n` zeros.
+A 1 followed by `n` 0s.
 
 Note that this means that the representation of `2^n` contains `n+1` bits.
 
-# If I know the binary representation of the positive integer `x`, how do I get the representation of `2^32 — x`?
+## If I know the binary representation of the positive integer `x`, how do I get the representation of `2^32 — x`?
 
 Flip all the bits and add 1.
 
@@ -385,12 +412,12 @@ representations are known to you?
     │       └ you know its representation, because it's simple
     └ you know its representation, by hypothesis
 
-So, you're looking for sth which, when added to `x`, gives a 1 followed by 32 zeros.
+So, you're looking for sth which, when added to `x`, gives a 1 followed by 32 0s.
 
-You don't know how to get that, but you know how to get sth close: 32 ones.
+You don't know how to get that, but you know how to get sth close: 32 1s.
 Add the number whose representation is the one of `x` after flipping all the bits.
 
-Now, to get from 32 ones to a one and 32 zeros, all you need is add 1.
+Now, to get from 32 1s to a one and 32 0s, all you need is add 1.
 Similarly, to get from 999 to 1000, all you need is add 1.
 
 ---
@@ -418,12 +445,12 @@ The last  equality tells  us that  the binary  representation of  `2^32 —  x` 
 obtained after flipping  all the bits of `x`  – because of `y` in the  rhs – and
 adding 1.
 
-##
-# How is an integer usually stored?
+###
+## How is an integer usually stored?
 
 With a 32 bit word.
 
-# How is a negative integer usually stored?
+## How is a negative integer usually stored?
 
 Most machines use a representation called 2's complement.
 
@@ -469,13 +496,13 @@ except the one mentioned just above.
 These exceptions may cause  some issues, or just seem awkward,  so it was chosen
 to give only `2^31 — 1` bitstrings to the positive integers.
 
-## Which naive alternative machines could use?
+### Which naive alternative machines could use?
 
 The most obvious idea  is sign-and-modulus: use one of the  32 bits to represent
 the sign, and use  the remaining 31 bits to store the  magnitude of the integer,
 which may then range from 0 to `2^31 — 1`.
 
-### Why don't they use it?  (3)
+#### Why don't they use it?  (3)
 
 The 2's complement method provides three benefits:
 
@@ -517,15 +544,61 @@ The 2's complement method provides three benefits:
 
 <https://stackoverflow.com/a/1125317/9780968>
 
+###
+## What's the binary representation of -1, -10 and -100?
+
+    ┌──────┬──────────┐
+    │ -1   │ 11111111 │
+    ├──────┼──────────┤
+    │ -10  │ 11110110 │
+    ├──────┼──────────┤
+    │ -100 │ 10011100 │
+    └──────┴──────────┘
+
+Proof:
+
+    1
+    ↓     binary representation
+    00000001
+    ↓     flip the bits
+    11111110
+    ↓     add 1
+    11111111
+
+    10
+    ↓
+    00001010
+    ↓
+    11110101
+    ↓
+    11110110
+
+    100
+    ↓
+    01100100
+    ↓
+    10011011
+    ↓
+    10011100
+
+### How can you check these representations?
+
+Compute their expansion, but multiply the leftmost term with -1 instead of 1:
+
+                  v
+    (11111111)₂ = -2^7 + 2^6 + 2^5 + 2^4 + 2^3 + 2^2 + 2^1 + 2^0
+                = -128 + 64 + 32 + 16 + 8 + 4 + 2 + 1
+                = -1
+
+    (11110110)₂ = -2^7 + 2^6 + 2^5 + 2^4 + 2^2 + 2^1
+                = -128 + 64 + 32 + 16 + 4 + 2
+                = -10
+
+    (10011100)₂ = -2^7 + 2^4 + 2^3 + 2^2
+                = -128 + 16 + 8 + 4
+                = -100
+
 ##
-# What's the meaning of the acronym IEEE?
-
-Institute for Electrical and Electronics Enginners.
-
-## How is it pronounced?
-
-“I triple E.”
-
 ##
 # ?
 
