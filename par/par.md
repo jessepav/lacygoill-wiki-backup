@@ -14,29 +14,29 @@ For more info,  on how `par` use the quote  characters, search for
 
 # Synopsis
 
-       par  [ help ]
-            [ version ]
-            [ B op string ]
-            [ P op string ]
-            [ Q op string ]
-            [ h[hang] ]
-            [ p[prefix] ]
-            [ r[repeat] ]
-            [ s[suffix] ]
-            [ T[Tab] ]
-            [ w[width] ]
-            [ b[body] ]
-            [ c[cap] ]
-            [ d[div] ]
-            [ E[Err] ]
-            [ e[expel] ]
-            [ f[fit] ]
-            [ g[guess] ]
-            [ j[just] ]
-            [ l[last] ]
-            [ q[quote] ]
-            [ R[Report] ]
-            [ t[touch] ]
+    par  [ help ]
+         [ version ]
+         [ B op string ]
+         [ P op string ]
+         [ Q op string ]
+         [ h[hang] ]
+         [ p[prefix] ]
+         [ r[repeat] ]
+         [ s[suffix] ]
+         [ T[Tab] ]
+         [ w[width] ]
+         [ b[body] ]
+         [ c[cap] ]
+         [ d[div] ]
+         [ E[Err] ]
+         [ e[expel] ]
+         [ f[fit] ]
+         [ g[guess] ]
+         [ j[just] ]
+         [ l[last] ]
+         [ q[quote] ]
+         [ R[Report] ]
+         [ t[touch] ]
 
 # Description
 
@@ -50,44 +50,45 @@ delimited by indentation (see the boolean option 'd').
 
 Each OP is generated from the corresponding IP as follows:
 
-        1) An optional prefix and/or suffix is removed from each input line.
+   1. An optional prefix and/or suffix is removed from each input line.
 
-        2) The remainder is divided into words (separated by spaces).
+   2. The remainder is divided into words (separated by spaces).
 
-        3) The words are joined into lines to make an eye-pleasing paragraph.
+   3. The words are joined into lines to make an eye-pleasing paragraph.
 
-        4) The prefixes and suffixes are reattached.
+   4. The prefixes and suffixes are reattached.
 
 If there are suffixes,  spaces are inserted before them so that  they all end in
 the same column.
 
 # Quick Start
 
-`par` is  necessarily complex.   For those  who wish to  use it  immediately and
-understand it later, assign `$PARINIT` the following value:
+par is necessarily complex.
+For  those who  wish  to use  it  immediately and  understand  it later,  assign
+`$PARINIT` the following value:
 
-        rTbgqR B=.,?_A_a Q=_s>|
+    rTbgqR B=.,?_A_a Q=_s>|
 
 The spaces,  question mark,  greater-than sign, and  vertical bar  will probably
 have to be escaped or quoted to prevent your shell from interpreting them.
 
 To learn how to use par, read quickly the sections:
 
-        - Description
-        - Terminology
-        - Options
-        - Environment
+   - Description
+   - Terminology
+   - Options
+   - Environment
 
 Then read  carefully the  Examples section,  referring back  to the  Options and
 Terminology sections as needed.
 
-For the "power user", a full understanding of par will require multiple readings
+For the power  user, a full understanding of par  will require multiple readings
 of the sections:
 
-        - Terminology
-        - Options
-        - Details
-        - Examples
+   - Terminology
+   - Options
+   - Details
+   - Examples
 
 ##
 # Glossary
@@ -147,213 +148,189 @@ of the sections:
             Parameters can be assigned values using command-line options.
 
 ## Types of characters
+### alphanumeric character
 
-    alphanumeric character
+    [a-zA-Z0-9]
 
-            [a-zA-Z0-9]
+### body, protective, quote character
 
+A member of the set of characters defined by:
 
-    body        character
-    protective  character
-    quote       character
+   - $PARBODY     and/or the  B  option
+   - $PARPROTECT  and/or the  P  option
+   - $PARQUOTE    and/or the  Q  option
 
-            A member of the set of characters defined by:
+### terminal character
 
-                    - $PARBODY     and/or the  B  option
-                    - $PARPROTECT  and/or the  P  option
-                    - $PARQUOTE    and/or the  Q  option
+    [.?!:]
 
+### white character
 
-    terminal character
+A  character which  changes  the position  of the  next  character, but  doesn't
+display anything:
 
-            [.?!:]
+   - carriage return
+   - formfeed
+   - newline
+   - space
+   - tab
+   - vertical tab
 
-
-    white character
-
-            A character  which changes the  position of the next  character, but
-            doesn't display anything:
-
-                    carriage return
-                    formfeed
-                    newline
-                    space
-                    tab
-                    vertical tab
-
+##
 ## Functions
+### comprelen
 
-    comprelen
+Given a non-empty sequence S of lines, let c be their longest common prefix.
 
-            Given a non-empty sequence S of lines, let c be their longest common
-            prefix.
+If the  parameter body  is 0, place  a divider just  after the  leading non-body
+characters in c (at the beginning if there are none).
 
-            If the parameter  body is 0, place a divider  just after the leading
-            non-body characters in c (at the beginning if there are none).
+If body is 1, place the divider just after the last non-space non-body character
+in c  (at the beginning  if there  is none), then  advance the divider  over any
+immediately following spaces.
 
-            If  body is  1,  place the  divider just  after  the last  non-space
-            non-body character  in c (at the  beginning if there is  none), then
-            advance the divider over any immediately following spaces.
+The comprelen of S is the number of characters preceding the divider.
 
-            The  comprelen  of S  is  the  number  of characters  preceding  the
-            divider.
+### comsuflen
 
+Given a non-empty sequence S of lines, let p be the comprelen of S.
 
-    comsuflen
+Let T  be the set of  lines which result  from stripping the first  p characters
+from each line in S.
 
-            Given a non-empty sequence S of lines, let p be the comprelen of S.
+Let c be the longest common suffix of the lines in T.
 
-            Let T be  the set of lines  which result from stripping  the first p
-            characters from each line in S.
+If body is 0, place a divider just before the trailing non- body characters in c
+(at the end if  there are none), then advance the divider over  all but the last
+of any immediately following spaces.
 
-            Let c be the longest common suffix of the lines in T.
+If  body is  1,  place the  divider  just before  the  first non-space  non-body
+character, then  back up  the divider  over one  immediately preceding  space if
+there is one.
 
-            If body  is 0, place  a divider just  before the trailing  non- body
-            characters in  c (at the  end if there  are none), then  advance the
-            divider over all but the last of any immediately following spaces.
+The comsuflen of S is the number of characters following the divider.
 
-            If body  is 1,  place the  divider just  before the  first non-space
-            non-body character,  then back up  the divider over  one immediately
-            preceding space if there is one.
+### fallback prelen (suflen)
 
-            The  comsuflen  of S  is  the  number  of characters  following  the
-            divider.
+The fallback prelen (suflen)  of an IP is: the comprelen  (comsuflen) of the IP,
+if the IP contains at least two lines;
 
+otherwise, the  comprelen (comsuflen)  of the  block containing  the IP,  if the
+block contains at least two lines;
 
-    fallback prelen (suflen)
+otherwise, the length  of the longer of the prefixes  (suffixes) of the bodiless
+lines just above  and below the block,  if the segment containing  the block has
+any bodiless lines;
 
-            The fallback prelen (suflen) of  an IP is: the comprelen (comsuflen)
-            of the IP, if the IP contains at least two lines;
+otherwise, 0.
 
-            otherwise, the comprelen (comsuflen) of the block containing the IP,
-            if the block contains at least two lines;
+See below for the definitions of block, segment, and bodiless line.
 
-            otherwise, the  length of the  longer of the prefixes  (suffixes) of
-            the bodiless  lines just above and  below the block, if  the segment
-            containing the block has any bodiless lines;
+### augmented fallback prelen
 
-            otherwise, 0.
+Let fp be the fallback prelen of an IP.
 
-            See below for the definitions of block, segment, and bodiless line.
+If the  IP contains more  than one line,  or if quote  is 0, then  the augmented
+fallback prelen of the IP is simply fp.
 
+Otherwise, it  is fp plus the  number of quote characters  immediately following
+the first fp characters of the line.
 
-    augmented fallback prelen
+### quoteprefix
 
-            Let fp be the fallback prelen of an IP.
+The quoteprefix of a line is the longest string of quote characters appearing at
+the beginning of the  line, after this string has been  stripped of any trailing
+spaces.
 
-            If the IP  contains more than one  line, or if quote is  0, then the
-            augmented fallback prelen of the IP is simply fp.
-
-            Otherwise, it is fp plus  the number of quote characters immediately
-            following the first fp characters of the line.
-
-
-    quoteprefix
-
-            The quoteprefix of a line is  the longest string of quote characters
-            appearing at the  beginning of the line, after this  string has been
-            stripped of any trailing spaces.
-
+##
 ## Types of lines
 
-    blank line
+### blank line
 
-            An empty line, or a line whose first character is not protective and
-            which contains only spaces.
+An empty  line, or  a line  whose first  character is  not protective  and which
+contains only spaces.
 
+### protected line
 
-    protected line
+An input line whose first character is protective.
 
-            An input line whose first character is protective.
+### bodiless line
 
+A line which is order k bodiless for some k.
 
-    bodiless line
+### order k bodiless line
 
-            A line which is order k bodiless for some k.
+There is no such thing as an order 0 bodiless line.
 
+Suppose S  is a a  contiguous subsequence of a  segment containing at  least two
+lines, containing no order k-1 bodiless  lines, bounded above and below by order
+k-1 bodiless lines and/or the beginning/end of the segment.
 
-    order k bodiless line
+Let p and s be the comprelen and comsuflen of S.
 
-            There is no such thing as an order 0 bodiless line.
+Any member of S  which, if stripped of its first p and  last s characters, would
+be blank  (or, if the  parameter repeat is non-zero,  would consist of  the same
+character repeated at least repeat times), is order k bodiless.
 
-            Suppose S is  a a contiguous subsequence of a  segment containing at
-            least two  lines, containing  no order  k-1 bodiless  lines, bounded
-            above and below by order k-1 bodiless lines and/or the beginning/end
-            of the segment.
+The first  p characters  of the bodiless  line comprise its  prefix; the  last s
+characters comprise its suffix.
 
-            Let p and s be the comprelen and comsuflen of S.
+The character which repeats in the middle is called its repeat character.
 
-            Any  member of  S which,  if  stripped of  its  first p  and last  s
-            characters, would be blank (or, if the parameter repeat is non-zero,
-            would consist of the same character repeated at least repeat times),
-            is order k bodiless.
+If the middle is empty, the space is taken to be its repeat character.
 
-            The first p characters of the bodiless line comprise its prefix; the
-            last s characters comprise its suffix.
+### vacant line
 
-            The  character which  repeats in  the  middle is  called its  repeat
-            character.
+A bodiless line whose repeat character is the space.
 
-            If  the  middle is  empty,  the  space is  taken  to  be its  repeat
-            character.
+### superfluous line
 
+Only blank and vacant lines may be superfluous.
 
-    vacant line
+If contiguous vacant  lines lie at the  beginning or end of a  segment, they are
+all superfluous.
 
-            A bodiless line whose repeat character is the space.
+But if  they lie  between two non-vacant  lines within a  segment, then  all are
+superfluous except one—the one which contains the fewest non-spaces.
 
+In case of a tie, the first of the tied lines is chosen.
 
-    superfluous line
+Similarly,  if  contiguous blank  lines  lie  outside  of  any segments  at  the
+beginning or end of the input, they are all superfluous.
 
-            Only blank and vacant lines may be superfluous.
+But  if they  lie between  two  segments and/or  protected lines,  then all  are
+superfluous except the first.
 
-            If contiguous vacant lines lie at the beginning or end of a segment,
-            they are all superfluous.
-
-            But if they lie between two  non-vacant lines within a segment, then
-            all are  superfluous except  one—the one  which contains  the fewest
-            non-spaces.
-
-            In case of a tie, the first of the tied lines is chosen.
-
-            Similarly, if contiguous blank lines  lie outside of any segments at
-            the beginning or end of the input, they are all superfluous.
-
-            But if  they lie between  two segments and/or protected  lines, then
-            all are superfluous except the first.
-
+##
 ## Groups of lines
+### segment
 
-    segment
+A  contiguous  sequence  of  input   lines  containing  no  protected  or  blank
+lines,  bounded above  and below  by protected  lines, blank  lines, and/or  the
+beginning/end of the input.
 
-            A  contiguous sequence  of input  lines containing  no protected  or
-            blank  lines, bounded  above  and below  by  protected lines,  blank
-            lines, and/or the beginning/end of the input.
+### block
 
+A  contiguous subsequence  of a  segment containing  no bodiless  lines, bounded
+above and below by bodiless lines and/or the beginning/end of the segment.
 
-    block
-
-            A contiguous subsequence of a  segment containing no bodiless lines,
-            bounded above and  below by bodiless lines  and/or the beginning/end
-            of the segment.
-
+##
 ## Types of words
+### capitalized word
 
-    capitalized word
+If the parameter cap is 0, a capitalized word is one which contains at least one
+alphanumeric character, whose  first alphanumeric character is not  a lower case
+letter.
 
-            If the parameter cap is 0,  a capitalized word is one which contains
-            at  least  one  alphanumeric  character,  whose  first  alphanumeric
-            character is not a lower case letter.
+If cap is 1, every word is considered a capitalized word.
 
-            If cap is 1, every word is considered a capitalized word.
+See the c option in the OPTIONS section.
 
-            See the c option in the OPTIONS section.
+### curious word
 
-    curious word
-
-            A word which contains a terminal  character c such that there are no
-            alphanumeric characters in  the word after c, but there  is at least
-            one alphanumeric character in the word before c.
+A word which contains a terminal character c such that there are no alphanumeric
+characters in the word after c, but there is at least one alphanumeric character
+in the word before c.
 
 ##
 # Options
@@ -361,457 +338,429 @@ of the sections:
 
 Any command-line argument may begin with one minus sign which is ignored.
 
+---
 
 After the 'help', 'version', 'B', 'P',  and 'Q' options, remaining arguments are
 either ignored or consumed by the option.
 Otherwise, more than one option may appear in a single command-line argument.
 
+---
 
 Aside from the options which must be  used alone, all remaining ones are used to
 set values of parameters.
 Values set by command-line options hold for all paragraphs.
 
+---
 
 Any unset parameter is given a default value.
 
+---
 
 Any parameter whose default value depends  on the IP (namely prefix and suffix),
 if left unset, is recomputed separately for each paragraph.
 
+---
 
 If an argument begins with a number, that  number is assumed to belong to 'p' if
 it is 8 or less, and to 'w' otherwise.
 
+---
 
-If the  value of any parameter  is set more than  once, the last value  is used.
+If the value of any parameter is set more than once, the last value is used.
 When unset parameters  are assigned default values, hang and  quote are assigned
 before  prefix, and  fit and  last  are assigned  before touch  (because of  the
 dependencies).
 
+---
 
 `width <= prefix + suffix` is an error.
 
+##
 ## options which must be used alone
+### help
 
-    help
+A usage message is printed on the  output briefly describing the options used by
+par.
 
-            A  usage message  is printed  on the  output briefly  describing the
-            options used by par.
+    No input is read.
+    Causes all remaining arguments to be ignored.
 
-            No input is read.
-            Causes all remaining arguments to be ignored.
+### version
 
+Prints the version of the par program.
 
-    version
+No input is read.
+Causes all remaining arguments to be ignored.
 
-            Prints the version of the par program.
+### B op string
 
-            No input is read.
-            Causes all remaining arguments to be ignored.
+`op` is:
 
+   * a single character
+   * =
+   * +
+   * -
 
-    B op string
+`string` is a string using charset syntax.
 
-            `op` is:
+If `op` is =, the set of body characters is defined by `string`.
 
-                    * a single character
-                    * =
-                    * +
-                    * -
+If `op` is  a + or -,  the characters in `string` are  added/removed to/from the
+existing set of body characters defined by $PARBODY and any previous B options.
 
-            `string` is a string using charset syntax.
+Adding characters that  are already in the set, or  removing characters that are
+not in the set doesn't raise any error.
 
-            If `op` is =, the set of body characters is defined by `string`.
+### P op string, Q op string
 
-            If `op`  is a + or  -, the characters in  `string` are added/removed
-            to/from the existing set of  body characters defined by $PARBODY and
-            any  previous B  options.
+Just like the  B option, except that  it applies to the  set of protective/quote
+characters.
 
-            Adding  characters  that  are  already   in  the  set,  or  removing
-            characters that are not in the set doesn't raise any error.
-
-
-    P op string
-    Q op string
-
-            Just  like the  B  option, except  that  it applies  to  the set  of
-            protective/quote characters.
-
+##
 ## numeric options
 
 These parameters may be set to any unsigned decimal integer less than 10000.
 
-    h[hang]
+### h[hang]
 
-            Mainly affects the default values of prefix and suffix.
+Mainly affects the default values of prefix and suffix.
 
-            Defaults to 0.
+Defaults to 0.
 
-            If the h option is given without a number, the value 1 is inferred.
+If the h option is given without a number, the value 1 is inferred.
 
-            See also the p and s options.
+See also the p and s options.
 
+### p[prefix]
 
-    p[prefix]
+The first  prefix characters of each  line of the  OP are copied from  the first
+prefix characters of the corresponding line of the IP.
 
-            The first prefix  characters of each line of the  OP are copied from
-            the first prefix characters of the corresponding line of the IP.
+If  there are  more  than hang+1  lines  in the  IP, the  default  value is  the
+comprelen of all the lines in the IP except the first hang of them.
 
-            If there are more than hang+1 lines  in the IP, the default value is
-            the comprelen of  all the lines in  the IP except the  first hang of
-            them.
+Otherwise, the default value is the augmented fallback prelen of the IP.
 
-            Otherwise, the default value is the augmented fallback prelen of the
-            IP.
+If the p option is given without a  number, prefix is unset, even if it had been
+set earlier.
 
-            If the p option is given without  a number, prefix is unset, even if
-            it had been set earlier.
+See also the h and q options.
 
-            See also the h and q options.
+### r[repeat]
 
+If repeat  is non-zero,  bodiless lines  have the number  of instances  of their
+repeat characters increased or decreased until the length of the line is width.
 
-    r[repeat]
+The exact value of repeat affects the definition of bodiless line.
 
-            If repeat is  non-zero, bodiless lines have the  number of instances
-            of their repeat  characters increased or decreased  until the length
-            of the line is width.
+Defaults to 0.
 
-            The exact value of repeat affects the definition of bodiless line.
+If the r option is given without a number, the value 3 is inferred.
 
-            Defaults to 0.
+See also the w option.
 
-            If the r option is given without a number, the value 3 is inferred.
+### s[suffix]
 
-            See also the w option.
+The last  suffix characters  of each  line of the  OP are  copied from  the last
+suffix characters of the corresponding line of the IP.
 
+If  there are  more  than hang+1  lines  in the  IP, the  default  value is  the
+comsuflen of all the lines of the IP except the first hang of them.
 
-    s[suffix]
+Otherwise, the default value is the fallback suflen of the IP.
 
-            The last  suffix characters of each  line of the OP  are copied from
-            the last suffix characters of the corresponding line of the IP.
+If the s option is given without a  number, suffix is unset, even if it had been
+set earlier.
 
-            If there are more than hang+1 lines  in the IP, the default value is
-            the comsuflen of  all the lines of  the IP except the  first hang of
-            them.
+See also the h option.
 
-            Otherwise, the default value is the fallback suflen of the IP.
+### T[Tab]
 
-            If the s option is given without  a number, suffix is unset, even if
-            it had been set earlier.
+Tab characters in the input are expanded to spaces, assuming tab stops every Tab
+columns.
 
-            See also the h option.
+Must not be 0.
 
+Defaults to 1.
 
-    T[Tab]
+If the T option is given without a number, the value 8 is inferred.
 
-            Tab characters  in the  input are expanded  to spaces,  assuming tab
-            stops every Tab columns.
+### w[width]
 
-            Must not be 0.
+No line  in the  OP may contain  more than width  characters, not  including the
+trailing newlines.
 
-            Defaults to 1.
+Defaults to 72.
 
-            If the T option is given without a number, the value 8 is inferred.
+If the w option is given without a number, the value 79 is inferred.
 
-
-    w[width]
-
-            No  line in  the  OP may  contain more  than  width characters,  not
-            including the trailing newlines.
-
-            Defaults to 72.
-
-            If the w option is given without a number, the value 79 is inferred.
-
+##
 ## boolean options
 
 All these options may be set to either 0 or 1.
 If the number is absent in the option, the value 1 is inferred.
 
-    b[body]
+### b[body]
 
-            If body is 1, prefixes may not contain any trailing body characters,
-            and suffixes may not contain any leading body characters.
+If  body is  1,  prefixes may  not  contain any  trailing  body characters,  and
+suffixes may not contain any leading body characters.
 
-            Actually, the situation is complicated by space characters.
+Actually, the situation is complicated by space characters.
 
-            See comprelen and comsuflen in the Terminology section.
+See comprelen and comsuflen in the Terminology section.
 
-            If  body is  0,  prefixes  and suffixes  may  not  contain any  body
-            characters at all.
+If body is 0, prefixes and suffixes may not contain any body characters at all.
 
-            Defaults to 0.
+Defaults to 0.
 
+### c[cap]
 
-    c[cap]
+If cap is 1, all words are considered capitalized.
 
-            If cap is 1, all words are considered capitalized.
+This currently affects only the application of the g option.
 
-            This currently affects only the application of the g option.
+Defaults to 0.
 
-            Defaults to 0.
+### d[div]
 
+If div is 0, each block becomes an IP.
 
-    d[div]
+If  div is  1, each  block is  subdivided into  IPs as  follows:  Let  p be  the
+comprelen of the block.
 
-            If div is 0, each block becomes an IP.
+Let a line's status be 1 if its (p+1)st character is a space, 0 otherwise.
 
-            If div is 1, each block is subdivided into IPs as follows:  Let p be
-            the comprelen of the block.
+Every line in the block whose status is the same as the status of the first line
+will begin a new paragraph.
 
-            Let a  line's status  be 1 if  its (p+1)st character  is a  space, 0
-            otherwise.
+Defaults to 0.
 
-            Every line in  the block whose status  is the same as  the status of
-            the first line will begin a new paragraph.
+### E[Err]
 
-            Defaults to 0.
+If Err is 1, messages to the user (caused by the help and version options, or by
+errors) are sent to the error stream instead of the output stream.
 
+Defaults to 0.
 
-    E[Err]
+### e[expel]
 
-            If Err is  1, messages to the  user (caused by the  help and version
-            options, or by  errors) are sent to the error  stream instead of the
-            output stream.
+If expel is 1, superfluous lines are withheld from the output.
 
-            Defaults to 0.
+Defaults to 0.
 
+### f[fit]
 
-    e[expel]
+If fit is 1 and  just is 0, par tries to make the lines in  the OP as nearly the
+same length as possible, even if it means making the OP narrower.
 
-            If expel is 1, superfluous lines are withheld from the output.
+Defaults to 0.
 
-            Defaults to 0.
+See also the j option.
 
+### g[guess]
 
-    f[fit]
+If guess is 1,  then when par is choosing line breaks,  whenever it encounters a
+curious  word followed  by  a capitalized  word,  it takes  one  of two  special
+actions.
 
-            If fit is 1 and just is 0, par  tries to make the lines in the OP as
-            nearly the same  length as possible, even if it  means making the OP
-            narrower.
+If the  two words are  separated by a  single space in  the input, they  will be
+merged into one word with an embedded non-breaking space.
 
-            Defaults to 0.
+If the two words  are separated by more than one space, or  by a line break, par
+will insure that  they are separated by two  spaces, or by a line  break, in the
+output.
 
-            See also the j option.
+Defaults to 0.
 
+### i[invis]
 
-    g[guess]
+If invis is 1, then vacant lines inserted because quote is 1 are invisible;
+that is, they are not output.
 
-            If guess  is 1, then when  par is choosing line  breaks, whenever it
-            encounters a curious  word followed by a capitalized  word, it takes
-            one of two special actions.
+If quote is 0, invis has no effect.
 
-            If the two words are separated by  a single space in the input, they
-            will be merged into one word with an embedded non-breaking space.
+Defaults to 0.
 
-            If the two words are separated by  more than one space, or by a line
-            break, par will insure that they  are separated by two spaces, or by
-            a line break, in the output.
+See also the q option.
 
-            Defaults to 0.
+### j[just]
 
+If just is 1,  par justifies the OP, inserting spaces between  words so that all
+lines in the OP have length width (except the last, if last is 0).
 
-    i[invis]
+Defaults to 0.
 
-            If invis  is 1, then  vacant lines inserted  because quote is  1 are
-            invisible;
+See also the w, l, and f options.
 
-            that is, they are not output.
+### l[last]
 
-            If quote is 0, invis has no effect.
+If last is 1, par tries to make the last line of the OP about the same length as
+the others.
 
-            Defaults to 0.
+Defaults to 0.
 
-            See also the q option.
+### q[quote]
 
+If quote  is 1,  then before  each segment  is scanned  for bodiless  lines, par
+supplies vacant  lines between  different quotation  nesting levels  as follows:
+For each  pair of  adjacent lines in  the segment, (scanned  from the  top down)
+which have different quoteprefixes, one of two actions is taken.
 
-    j[just]
+If invis is 0, and either line  consists entirely of quote characters and spaces
+(or is empty),  that line is truncated  to the longest common prefix  of the two
+lines (both are truncated if both qualify).
 
-            If just is  1, par justifies the OP, inserting  spaces between words
-            so that all lines  in the OP have length width  (except the last, if
-            last is 0).
+Otherwise, a line  consisting of the longest  common prefix of the  two lines is
+inserted between them.
 
-            Defaults to 0.
+quote also affects the default value of prefix.
 
-            See also the w, l, and f options.
+Defaults to 0.
 
+See also the p and i options.
 
-    l[last]
+### R[Report]
 
-            If last is  1, par tries to make  the last line of the  OP about the
-            same length as the others.
+If Report is 1, it is considered an error for an input word to contain more than
+L = (width - prefix - suffix) characters.
 
-            Defaults to 0.
+Otherwise, such words are chopped after each Lth character into shorter words.
 
+Defaults to 0.
 
-    q[quote]
+### t[touch]
 
-            If quote  is 1,  then before  each segment  is scanned  for bodiless
-            lines, par supplies vacant lines between different quotation nesting
-            levels as follows:  For each pair  of adjacent lines in the segment,
-            (scanned from the top down)  which have different quoteprefixes, one
-            of two actions is taken.
+Has no effect if suffix is 0 or just is 1.
 
-            If invis is 0, and either line consists entirely of quote characters
-            and spaces  (or is  empty), that  line is  truncated to  the longest
-            common prefix of the two lines (both are truncated if both qualify).
+Otherwise, if touch is 0, all lines in the OP have length width.
 
-            Otherwise, a line consisting of the longest common prefix of the two
-            lines is inserted between them.
+If touch is 1, the length of the lines is decreased until the suffixes touch the
+body of the OP.
 
-            quote also affects the default value of prefix.
+Defaults to the logical OR of fit and last.
 
-            Defaults to 0.
-
-            See also the p and i options.
-
-
-    R[Report]
-
-            If Report  is 1,  it is  considered an  error for  an input  word to
-            contain more than L = (width - prefix - suffix) characters.
-
-            Otherwise,  such words  are chopped  after each  Lth character  into
-            shorter words.
-
-            Defaults to 0.
-
-
-    t[touch]
-
-            Has no effect if suffix is 0 or just is 1.
-
-            Otherwise, if touch is 0, all lines in the OP have length width.
-
-            If  touch is  1, the  length  of the  lines is  decreased until  the
-            suffixes touch the body of the OP.
-
-            Defaults to the logical OR of fit and last.
-
-            See also the s, j, w, f, and l options.
+See also the s, j, w, f, and l options.
 
 ##
 # Environment
 
-    PARBODY
+Note that `$PARINIT`, together  with the B, P, and Q  options, renders the other
+environment variables unnecessary.
+They are included for backward compatibility.
 
-            Determines the  initial set of  body characters (which are  used for
-            determining comprelens and comsuflens), using charset syntax.
+## PARBODY
 
-            If  PARBODY is  not set,  the set  of body  characters is  initially
-            empty.
+Determines the  initial set of body  characters (which are used  for determining
+comprelens and comsuflens), using charset syntax.
 
+If PARBODY is not set, the set of body characters is initially empty.
 
-    PARINIT
+## PARINIT
 
-            If set,  par will read command-line options from PARINIT  before it
-            reads them from the command-line.
+If set,  par will read  command-line options from  PARINIT before it  reads them
+from the command-line.
 
-            Within  the  value of  PARINIT,  arguments  are separated  by  white
-            characters.
+Within the value of PARINIT, arguments are separated by white characters.
 
-            Determines the  set of protective characters,  using charset syntax.
-            If  PARPROTECT is  not  set,  the set  of  protective characters  is
-            initially empty.
+Determines the set of protective characters, using charset syntax.
+If PARPROTECT is not set, the set of protective characters is initially empty.
 
+## PARQUOTE
 
-    PARQUOTE
+Determines the set of quote characters, using charset syntax.
 
-            Determines the set of quote characters, using charset syntax.
+If PARQUOTE is not set, the set  of quote characters initially contains only the
+greater-than sign (>) and the space.
 
-            If  PARQUOTE is  not  set,  the set  of  quote characters  initially
-            contains only the greater-than sign (>) and the space.
-
-
-Note  that  $PARINIT,  together with  the  B,  P,  and  Q options,  renders  the
-other  environment  variables  unnecessary.   They  are  included  for  backward
-compatibility.
-
+##
 # Details
 
 Lines are terminated by newline characters,  but the newlines are not considered
-to  be  included in  the  lines.   If  the last  character  of  the input  is  a
-non-newline, a newline  will be inferred immediately after it  (but if the input
-is empty,  no newline will be  inferred; the number  of input lines will  be 0).
+to be included in the lines.
+If the last character of the input  is a non-newline, a newline will be inferred
+immediately after it  (but if the input  is empty, no newline  will be inferred;
+the number of input lines will be 0).
 Thus, the input can always be viewed as a sequence of lines.
 
-Protected lines  are copied unchanged from  the input to the  output.  All other
-input lines, as they are read, have  any NUL characters removed, and every white
-character (except newlines)  turned into a space.  Actually,  each tab character
-is turned  into Tab  - (n %  Tab) spaces,  where n is  the number  of characters
-preceding the tab character on the  line (evaluated after earlier tab characters
-have been expanded).
+Protected lines are copied unchanged from the input to the output.
+All other input  lines, as they are  read, have any NUL  characters removed, and
+every white character (except newlines) turned into a space.
+Actually, each tab character  is turned into Tab - (n % Tab)  spaces, where n is
+the number  of characters  preceding the  tab character  on the  line (evaluated
+after earlier tab characters have been expanded).
 
 Blank lines in the input are transformed into empty lines in the output.
 
 If repeat is 0, all bodiless lines  are vacant, and they are all simply stripped
-of trailing spaces before  being output.  If repeat is not  0, only vacant lines
-whose suffixes have length 0 are treated that way; other bodiless lines have the
-number of instances of their repeat  characters increased or decreased until the
-length of the line is width.
+of trailing spaces before being output.
+If repeat is not  0, only vacant lines whose suffixes have  length 0 are treated
+that way;  other bodiless  lines have  the number of  instances of  their repeat
+characters increased or decreased until the length of the line is width.
 
-If expel is 1, superfluous lines are not output.  If quote and invis are both 1,
-there may be invisible lines; they are not output.
+If expel is 1, superfluous lines are not output.
+If  quote and  invis are  both 1,  there may  be invisible  lines; they  are not
+output.
 
 The input  is divided into  segments, which are  divided into blocks,  which are
-divided into IPs.  The exact process depends on the values of quote and div (see
-q and d  in the OPTIONS section).   The remainder of this  section describes the
-process which is applied independently to each IP to construct the corresponding
-OP.
+divided into IPs.
+The exact  process depends on the  values of quote and  div (see q and  d in the
+OPTIONS section).
+The  remainder  of   this  section  describes  the  process   which  is  applied
+independently to each IP to construct the corresponding OP.
 
 After the values of the parameters are determined (see the OPTIONS section), the
 first prefix  characters and the last  suffix characters of each  input line are
-removed and  remembered.  It  is an  error for  any line  to contain  fewer than
-prefix + suffix characters.
+removed and remembered.
+It is an error for any line to contain fewer than prefix + suffix characters.
 
-The remaining text is treated as a  sequence of characters, not lines.  The text
-is broken  into words,  which are  separated by spaces.   That is,  a word  is a
-maximal sub-sequence of  non-spaces.  If guess is 1, some  words might be merged
-(see g in the OPTIONS section).  The first word includes any spaces that precede
-it on the same line.
+The remaining text is treated as a sequence of characters, not lines.
+The text is broken into words, which are separated by spaces.
+That is, a word is a maximal sub-sequence of non-spaces.
+If guess is 1, some words might be merged (see g in the OPTIONS section).
+The first word includes any spaces that precede it on the same line.
 
 Let L = width - prefix - suffix.
 
 If Report  is 0,  some words  may get  chopped up at  this point  (see R  in the
 OPTIONS section).
 
-The words  are reassembled, preserving their  order, into lines.  If  just is 0,
-adjacent words within a line are separated  by a single space, (or sometimes two
-if guess is 1),  and line breaks are chosen so that  the paragraph satisfies the
-following properties:
+The words are reassembled, preserving their order, into lines.
+If just is 0, adjacent words within a  line are separated by a single space, (or
+sometimes two if guess  is 1), and line breaks are chosen  so that the paragraph
+satisfies the following properties:
 
-        1) No line contains more than L characters.
+   1. No line contains more than L characters.
 
-        2) If  fit  is  1, the difference between the lengths of the shortest
-           and longest lines is as small as possible.
+   2. If  fit  is  1, the difference between the lengths of the shortest and
+      longest lines is as small as possible.
 
-        3) The shortest line is as long as possible, subject to properties 1 and
-           2.
+   3. The shortest line is as long as possible, subject to properties 1 and 2.
 
-        4) Let target be L if fit is 0, or the length of the longest line if fit
-           is 1.  The sum of the squares of  the differences between target and
-           the lengths of the lines is as small as possible, subject to
-           properties 1, 2, and 3.
+   4. Let target be L if fit is 0, or the length of the longest line if fit is
+      1.  The sum of the squares of  the differences between target and the
+      lengths of the lines is as small as possible, subject to properties 1, 2,
+      and 3.
 
 If  last is  0, the  last line  does not  count as  a line  for the  purposes of
 properties 2, 3, and 4 above.
 
 If all the words fit on a single line, the properties as worded above don't make
-much sense.  In that case, no line breaks are inserted.
+much sense.
+In that case, no line breaks are inserted.
 
 If  just is  1, adjacent  words within  a line  are separated  by one  space (or
-sometimes two if guess  is 1) plus zero or more extra spaces.   The value of fit
-is disregarded, and  line breaks are chosen so that  the paragraph satisfies the
-following properties:
+sometimes two if guess is 1) plus zero or more extra spaces.
+The  value of  fit  is disregarded,  and  line  breaks are  chosen  so that  the
+paragraph satisfies the following properties:
 
-        1) Every line contains exactly L characters.
+   1. Every line contains exactly L characters.
 
-        2) The largest inter-word gap is as small as possible, subject to
-           property 1.  (An inter-word gap consists only of the extra spaces,
-           not the regular spaces.)
+   2. The largest inter-word gap is as small as possible, subject to property 1.
+      (An inter-word gap consists only of the extra spaces, not the regular
+      spaces.)
 
-        3) The sum of the squares of the lengths of the inter-word gaps is as
-           small as  possible,  subject  to properties 1 and 2.
+   3. The sum of the squares of the lengths of the inter-word gaps is as small
+      as  possible,  subject  to properties 1 and 2.
 
 If  last is  0, the  last line  does not  count as  a line  for the  purposes of
 property 1, and it does not require or contain any extra spaces.
@@ -820,8 +769,8 @@ Extra spaces are distributed as uniformly  as possible among the inter-word gaps
 in each line.
 
 In a justified paragraph, every line must contain at least two words, but that's
-not always possible to accomplish.  If  the paragraph cannot be justified, it is
-considered an error.
+not always possible to accomplish.
+If the paragraph cannot be justified, it is considered an error.
 
 If the number of lines in the resulting paragraph is less than hang, empty lines
 are added at the end to bring the number of lines up to hang.
@@ -831,42 +780,42 @@ If just is 0 and touch is 1, L is changed to be the length of the longest line.
 If suffix  is not 0,  each line is  padded at the end  with spaces to  bring its
 length up to L.
 
-To each line  is prepended prefix characters.   Let n be the number  of lines in
-the IP, let  afp be the augmented fallback  prelen of the IP, and let  fs be the
-fallback suflen of the  IP.  The characters which are prepended  to the ith line
-are chosen as follows:
+To each line is prepended prefix characters.
+Let n be the number of lines in the IP, let afp be the augmented fallback prelen
+of the IP, and let fs be the fallback suflen of the IP.
+The characters which are prepended to the ith line are chosen as follows:
 
-        1) If i <= n, the characters are copied from the ones that were removed
-           from the  beginning  of  the  nth input line.
+   1. If i <= n, the characters are copied from the ones that were removed from
+      the  beginning  of  the  nth input line.
 
-        2) If  i  > n > hang, the characters are copied from the ones that were
-           removed from the beginning of the last input line.
+   2. If  i  > n > hang, the characters are copied from the ones that were
+      removed from the beginning of the last input line.
 
-        3) If i > n and n <= hang, the first min(afp,prefix) of the characters
-           are copied from the ones that were removed from the beginning of the
-           last input line, and the rest are all spaces.
+   3. If i > n and n <= hang, the first min(afp,prefix) of the characters are
+      copied from the ones that were removed from the beginning of the last
+      input line, and the rest are all spaces.
 
-Then  to each  line is  appended suffix  characters.  The  characters which  are
-appended to the ith line are chosen as follows:
+Then to each line is appended suffix characters.
+The characters which are appended to the ith line are chosen as follows:
 
-        1) If i <= n, the characters are copied from the ones that were removed
-           from the end  of  the  nth  input line.
+   1. If i <= n, the characters are copied from the ones that were removed from
+      the end  of  the  nth  input line.
 
-        2) If  i  >  n > hang, the characters are copied from the ones that were
-           removed from the end of the last input line.
+   2. If  i  >  n > hang, the characters are copied from the ones that were
+      removed from the end of the last input line.
 
-        3) If i > n and n <= hang, the first min(fs,suffix) of the characters
-           are copied from the ones that  were removed from the beginning of the
-           last input line, and the rest are all spaces.
+   3. If i > n and n <= hang, the first min(fs,suffix) of the characters are
+      copied from the ones that  were removed from the beginning of the last
+      input line, and the rest are all spaces.
 
 Finally, the lines are printed to the output as the OP.
 
 # Diagnostics
 
-If there are no errors, par returns EXIT_SUCCESS (see <stdlib.h>).
+If there are no errors, par returns `EXIT_SUCCESS` (see <stdlib.h>).
 
 If there is  an error, an error message  will be printed to the  output, and par
-will return EXIT_FAILURE.
+will return `EXIT_FAILURE`.
 
 If the error is local to a  single paragraph, the preceding paragraphs will have
 been output before the error was detected.
@@ -889,528 +838,530 @@ The superiority of  par's dynamic programming algorithm over  a greedy algorithm
 
 Original paragraph (note that each line begins with 8 spaces):
 
-        We the people of the United States,
-        in order to form a more perfect union,
-        establish justice,
-        insure domestic tranquility,
-        provide for the common defense,
-        promote the general welfare,
-        and secure the blessing of liberty
-        to ourselves and our posterity,
-        do ordain and establish the Constitution
-        of the United States of America.
+    We the people of the United States,
+    in order to form a more perfect union,
+    establish justice,
+    insure domestic tranquility,
+    provide for the common defense,
+    promote the general welfare,
+    and secure the blessing of liberty
+    to ourselves and our posterity,
+    do ordain and establish the Constitution
+    of the United States of America.
 
 After a greedy algorithm with width = 39:
 
-        We the people of the United
-        States, in order to form a more
-        perfect union, establish
-        justice, insure domestic
-        tranquility, provide for the
-        common defense, promote the
-        general welfare, and secure the
-        blessing of liberty to
-        ourselves and our posterity, do
-        ordain and establish the
-        Constitution of the United
-        States of America.
+    We the people of the United
+    States, in order to form a more
+    perfect union, establish
+    justice, insure domestic
+    tranquility, provide for the
+    common defense, promote the
+    general welfare, and secure the
+    blessing of liberty to
+    ourselves and our posterity, do
+    ordain and establish the
+    Constitution of the United
+    States of America.
 
-After "par 39":
+After `par 39`:
 
-        We the people of the United
-        States, in order to form a
-        more perfect union, establish
-        justice, insure domestic
-        tranquility, provide for the
-        common defense, promote the
-        general welfare, and secure
-        the blessing of liberty to
-        ourselves and our posterity,
-        do ordain and establish the
-        Constitution of the United
-        States of America.
+    We the people of the United
+    States, in order to form a
+    more perfect union, establish
+    justice, insure domestic
+    tranquility, provide for the
+    common defense, promote the
+    general welfare, and secure
+    the blessing of liberty to
+    ourselves and our posterity,
+    do ordain and establish the
+    Constitution of the United
+    States of America.
 
 The line breaks chosen by par are clearly more eye-pleasing.
 
 The rest of  this section is a series of  before-and-after pictures showing some
-typical uses of par.  In all cases, no environment variables are set.
+typical uses of par.
+In all cases, no environment variables are set.
 
 Before:
 
-        /*   We the people of the United States, */
-        /* in order to form a more perfect union, */
-        /* establish justice, */
-        /* insure domestic tranquility, */
-        /* provide for the common defense, */
-        /* promote the general welfare, */
-        /* and secure the blessing of liberty */
-        /* to ourselves and our posterity, */
-        /* do ordain and establish the Constitution */
-        /* of the United States of America. */
+    /*   We the people of the United States, */
+    /* in order to form a more perfect union, */
+    /* establish justice, */
+    /* insure domestic tranquility, */
+    /* provide for the common defense, */
+    /* promote the general welfare, */
+    /* and secure the blessing of liberty */
+    /* to ourselves and our posterity, */
+    /* do ordain and establish the Constitution */
+    /* of the United States of America. */
 
-After "par 59":
+After `par 59`:
 
-        /*   We the people of the United States, in      */
-        /* order to form a more perfect union, establish */
-        /* justice, insure domestic tranquility, provide */
-        /* for the common defense, promote the general   */
-        /* welfare, and secure the blessing of liberty   */
-        /* to ourselves and our posterity, do ordain     */
-        /* and establish the Constitution of the United  */
-        /* States of America.                            */
+    /*   We the people of the United States, in      */
+    /* order to form a more perfect union, establish */
+    /* justice, insure domestic tranquility, provide */
+    /* for the common defense, promote the general   */
+    /* welfare, and secure the blessing of liberty   */
+    /* to ourselves and our posterity, do ordain     */
+    /* and establish the Constitution of the United  */
+    /* States of America.                            */
 
-Or after "par 59f":
+Or after `par 59f`:
 
-        /*   We the people of the United States,  */
-        /* in order to form a more perfect union, */
-        /* establish justice, insure domestic     */
-        /* tranquility, provide for the common    */
-        /* defense, promote the general welfare,  */
-        /* and secure the blessing of liberty to  */
-        /* ourselves and our posterity, do ordain */
-        /* and establish the Constitution of the  */
-        /* United States of America.              */
+    /*   We the people of the United States,  */
+    /* in order to form a more perfect union, */
+    /* establish justice, insure domestic     */
+    /* tranquility, provide for the common    */
+    /* defense, promote the general welfare,  */
+    /* and secure the blessing of liberty to  */
+    /* ourselves and our posterity, do ordain */
+    /* and establish the Constitution of the  */
+    /* United States of America.              */
 
-Or after "par 59l":
+Or after `par 59l`:
 
-        /*   We the people of the United States, in      */
-        /* order to form a more perfect union, establish */
-        /* justice, insure domestic tranquility,         */
-        /* provide for the common defense, promote       */
-        /* the general welfare, and secure the           */
-        /* blessing of liberty to ourselves and our      */
-        /* posterity, do ordain and establish the        */
-        /* Constitution of the United States of America. */
+    /*   We the people of the United States, in      */
+    /* order to form a more perfect union, establish */
+    /* justice, insure domestic tranquility,         */
+    /* provide for the common defense, promote       */
+    /* the general welfare, and secure the           */
+    /* blessing of liberty to ourselves and our      */
+    /* posterity, do ordain and establish the        */
+    /* Constitution of the United States of America. */
 
-Or after "par 59lf":
+Or after `par 59lf`:
 
-        /*   We the people of the United States,  */
-        /* in order to form a more perfect union, */
-        /* establish justice, insure domestic     */
-        /* tranquility, provide for the common    */
-        /* defense, promote the general welfare,  */
-        /* and secure the blessing of liberty     */
-        /* to ourselves and our posterity, do     */
-        /* ordain and establish the Constitution  */
-        /* of the United States of America.       */
+    /*   We the people of the United States,  */
+    /* in order to form a more perfect union, */
+    /* establish justice, insure domestic     */
+    /* tranquility, provide for the common    */
+    /* defense, promote the general welfare,  */
+    /* and secure the blessing of liberty     */
+    /* to ourselves and our posterity, do     */
+    /* ordain and establish the Constitution  */
+    /* of the United States of America.       */
 
-Or after "par 59lft0":
+Or after `par 59lft0`:
 
-        /*   We the people of the United States,         */
-        /* in order to form a more perfect union,        */
-        /* establish justice, insure domestic            */
-        /* tranquility, provide for the common           */
-        /* defense, promote the general welfare,         */
-        /* and secure the blessing of liberty            */
-        /* to ourselves and our posterity, do            */
-        /* ordain and establish the Constitution         */
-        /* of the United States of America.              */
+    /*   We the people of the United States,         */
+    /* in order to form a more perfect union,        */
+    /* establish justice, insure domestic            */
+    /* tranquility, provide for the common           */
+    /* defense, promote the general welfare,         */
+    /* and secure the blessing of liberty            */
+    /* to ourselves and our posterity, do            */
+    /* ordain and establish the Constitution         */
+    /* of the United States of America.              */
 
-Or after "par 59j":
+Or after `par 59j`:
 
-        /*   We  the people  of  the  United States,  in */
-        /* order to form a more perfect union, establish */
-        /* justice, insure domestic tranquility, provide */
-        /* for the  common defense, promote  the general */
-        /* welfare, and  secure the blessing  of liberty */
-        /* to ourselves and our posterity, do ordain and */
-        /* establish  the  Constitution  of  the  United */
-        /* States of America.                            */
+    /*   We  the people  of  the  United States,  in */
+    /* order to form a more perfect union, establish */
+    /* justice, insure domestic tranquility, provide */
+    /* for the  common defense, promote  the general */
+    /* welfare, and  secure the blessing  of liberty */
+    /* to ourselves and our posterity, do ordain and */
+    /* establish  the  Constitution  of  the  United */
+    /* States of America.                            */
 
-Or after "par 59jl":
+Or after `par 59jl`:
 
-        /*   We  the   people  of  the   United  States, */
-        /* in   order    to   form   a    more   perfect */
-        /* union,  establish  justice,  insure  domestic */
-        /* tranquility, provide for  the common defense, */
-        /* promote  the  general   welfare,  and  secure */
-        /* the  blessing  of  liberty to  ourselves  and */
-        /* our  posterity, do  ordain and  establish the */
-        /* Constitution of the United States of America. */
-
-Before:
-
-        Preamble      We the people of the United States,
-        to the US     in order to form
-        Constitution  a more perfect union,
-                      establish justice,
-                      insure domestic tranquility,
-                      provide for the common defense,
-                      promote the general welfare,
-                      and secure the blessing of liberty
-                      to ourselves and our posterity,
-                      do ordain and establish
-                      the Constitution
-                      of the United States of America.
-
-After "par 52h3":
-
-        Preamble      We the people of the United
-        to the US     States, in order to form a
-        Constitution  more perfect union, establish
-                      justice, insure domestic
-                      tranquility, provide for the
-                      common defense, promote the
-                      general welfare, and secure
-                      the blessing of liberty to
-                      ourselves and our posterity,
-                      do ordain and establish the
-                      Constitution of the United
-                      States of America.
+    /*   We  the   people  of  the   United  States, */
+    /* in   order    to   form   a    more   perfect */
+    /* union,  establish  justice,  insure  domestic */
+    /* tranquility, provide for  the common defense, */
+    /* promote  the  general   welfare,  and  secure */
+    /* the  blessing  of  liberty to  ourselves  and */
+    /* our  posterity, do  ordain and  establish the */
+    /* Constitution of the United States of America. */
 
 Before:
 
-         1  We the people of the United States,
-         2  in order to form a more perfect union,
-         3  establish justice,
-         4  insure domestic tranquility,
-         5  provide for the common defense,
-         6  promote the general welfare,
-         7  and secure the blessing of liberty
-         8  to ourselves and our posterity,
-         9  do ordain and establish the Constitution
-        10  of the United States of America.
+    Preamble      We the people of the United States,
+    to the US     in order to form
+    Constitution  a more perfect union,
+                  establish justice,
+                  insure domestic tranquility,
+                  provide for the common defense,
+                  promote the general welfare,
+                  and secure the blessing of liberty
+                  to ourselves and our posterity,
+                  do ordain and establish
+                  the Constitution
+                  of the United States of America.
 
-After "par 59p12l":
+After `par 52h3`:
 
-        1  We the people of the United States, in order to
-        2  form a more perfect union, establish justice,
-        3  insure domestic tranquility, provide for the
-        4  common defense, promote the general welfare,
-        5  and secure the blessing of liberty to ourselves
-        6  and our posterity, do ordain and establish the
-        7  Constitution of the United States of America.
-
-Before:
-
-        > > We the people
-        > > of the United States,
-        > > in order to form a more perfect union,
-        > > establish justice,
-        > > ensure domestic tranquility,
-        > > provide for the common defense,
-        >
-        > Promote the general welfare,
-        > and secure the blessing of liberty
-        > to ourselves and our posterity,
-        > do ordain and establish
-        > the Constitution of the United States of America.
-
-After "par 52":
-
-        > > We the people of the United States, in
-        > > order to form a more perfect union,
-        > > establish justice, ensure domestic
-        > > tranquility, provide for the common
-        > > defense,
-        >
-        > Promote the general welfare, and secure
-        > the blessing of liberty to ourselves and
-        > our posterity, do ordain and establish
-        > the Constitution of the United States of
-        > America.
+    Preamble      We the people of the United
+    to the US     States, in order to form a
+    Constitution  more perfect union, establish
+                  justice, insure domestic
+                  tranquility, provide for the
+                  common defense, promote the
+                  general welfare, and secure
+                  the blessing of liberty to
+                  ourselves and our posterity,
+                  do ordain and establish the
+                  Constitution of the United
+                  States of America.
 
 Before:
 
-        >   We the people
-        > of the United States,
-        > in order to form a more perfect union,
-        > establish justice,
-        > ensure domestic tranquility,
-        > provide for the common defense,
-        >   Promote the general welfare,
-        > and secure the blessing of liberty
-        > to ourselves and our posterity,
-        > do ordain and establish
-        > the Constitution of the United States of America.
+     1  We the people of the United States,
+     2  in order to form a more perfect union,
+     3  establish justice,
+     4  insure domestic tranquility,
+     5  provide for the common defense,
+     6  promote the general welfare,
+     7  and secure the blessing of liberty
+     8  to ourselves and our posterity,
+     9  do ordain and establish the Constitution
+    10  of the United States of America.
 
-After "par 52d":
+After `par 59p12l`:
 
-        >   We the people of the United States,
-        > in order to form a more perfect union,
-        > establish justice, ensure domestic
-        > tranquility, provide for the common
-        > defense,
-        >   Promote the general welfare, and secure
-        > the blessing of liberty to ourselves and
-        > our posterity, do ordain and establish
-        > the Constitution of the United States of
-        > America.
+    1  We the people of the United States, in order to
+    2  form a more perfect union, establish justice,
+    3  insure domestic tranquility, provide for the
+    4  common defense, promote the general welfare,
+    5  and secure the blessing of liberty to ourselves
+    6  and our posterity, do ordain and establish the
+    7  Constitution of the United States of America.
 
 Before:
 
-        # 1. We the people of the United States.
-        # 2. In order to form a more perfect union.
-        # 3. Establish justice, ensure domestic
-        #    tranquility.
-        # 4. Provide for the common defense
-        # 5. Promote the general welfare.
-        # 6. And secure the blessing of liberty
-        #    to ourselves and our posterity.
-        # 7. Do ordain and establish the Constitution.
-        # 8. Of the United States of America.
+    > > We the people
+    > > of the United States,
+    > > in order to form a more perfect union,
+    > > establish justice,
+    > > ensure domestic tranquility,
+    > > provide for the common defense,
+    >
+    > Promote the general welfare,
+    > and secure the blessing of liberty
+    > to ourselves and our posterity,
+    > do ordain and establish
+    > the Constitution of the United States of America.
 
-After "par 37p13dh":
+After `par 52`:
 
-        # 1. We the people of the
-        #    United States.
-        # 2. In order to form a more
-        #    perfect union.
-        # 3. Establish justice,
-        #    ensure domestic
-        #    tranquility.
-        # 4. Provide for the common
-        #    defense
-        # 5. Promote the general
-        #    welfare.
-        # 6. And secure the blessing
-        #    of liberty to ourselves
-        #    and our posterity.
-        # 7. Do ordain and establish
-        #    the Constitution.
-        # 8. Of the United States of
-        #    America.
+    > > We the people of the United States, in
+    > > order to form a more perfect union,
+    > > establish justice, ensure domestic
+    > > tranquility, provide for the common
+    > > defense,
+    >
+    > Promote the general welfare, and secure
+    > the blessing of liberty to ourselves and
+    > our posterity, do ordain and establish
+    > the Constitution of the United States of
+    > America.
 
 Before:
 
-        /*****************************************/
-        /*   We the people of the United States, */
-        /* in order to form a more perfect union, */
-        /* establish justice, insure domestic    */
-        /* tranquility,                          */
-        /*                                       */
-        /*                                       */
-        /*   [ provide for the common defense, ] */
-        /*   [ promote the general welfare,    ] */
-        /*   [ and secure the blessing of liberty ] */
-        /*   [ to ourselves and our posterity, ] */
-        /*   [                                 ] */
-        /*                                       */
-        /* do ordain and establish the Constitution */
-        /* of the United States of America.       */
-        /******************************************/
+    >   We the people
+    > of the United States,
+    > in order to form a more perfect union,
+    > establish justice,
+    > ensure domestic tranquility,
+    > provide for the common defense,
+    >   Promote the general welfare,
+    > and secure the blessing of liberty
+    > to ourselves and our posterity,
+    > do ordain and establish
+    > the Constitution of the United States of America.
 
-After "par 42r":
+After `par 52d`:
 
-        /********************************/
-        /*   We the people of the       */
-        /* United States, in order to   */
-        /* form a more perfect union,   */
-        /* establish justice, insure    */
-        /* domestic tranquility,        */
-        /*                              */
-        /*                              */
-        /*   [ provide for the common ] */
-        /*   [ defense, promote the   ] */
-        /*   [ general welfare, and   ] */
-        /*   [ secure the blessing of ] */
-        /*   [ liberty to ourselves   ] */
-        /*   [ and our posterity,     ] */
-        /*   [                        ] */
-        /*                              */
-        /* do ordain and establish the  */
-        /* Constitution of the United   */
-        /* States of America.           */
-        /********************************/
-
-Or after "par 42re":
-
-        /********************************/
-        /*   We the people of the       */
-        /* United States, in order to   */
-        /* form a more perfect union,   */
-        /* establish justice, insure    */
-        /* domestic tranquility,        */
-        /*                              */
-        /*   [ provide for the common ] */
-        /*   [ defense, promote the   ] */
-        /*   [ general welfare, and   ] */
-        /*   [ secure the blessing of ] */
-        /*   [ liberty to ourselves   ] */
-        /*   [ and our posterity,     ] */
-        /*                              */
-        /* do ordain and establish the  */
-        /* Constitution of the United   */
-        /* States of America.           */
-        /********************************/
+    >   We the people of the United States,
+    > in order to form a more perfect union,
+    > establish justice, ensure domestic
+    > tranquility, provide for the common
+    > defense,
+    >   Promote the general welfare, and secure
+    > the blessing of liberty to ourselves and
+    > our posterity, do ordain and establish
+    > the Constitution of the United States of
+    > America.
 
 Before:
 
-        Joe Public writes:
-        > Jane Doe writes:
-        > >
-        > >
-        > > I can't find the source for uncompress.
-        > Oh no, not again!!!
-        >
-        >
-        > Isn't there a FAQ for this?
-        >
-        >
-        That wasn't very helpful, Joe. Jane,
-        just make a link from uncompress to compress.
+    # 1. We the people of the United States.
+    # 2. In order to form a more perfect union.
+    # 3. Establish justice, ensure domestic
+    #    tranquility.
+    # 4. Provide for the common defense
+    # 5. Promote the general welfare.
+    # 6. And secure the blessing of liberty
+    #    to ourselves and our posterity.
+    # 7. Do ordain and establish the Constitution.
+    # 8. Of the United States of America.
 
-After "par 40q":
+After `par 37p13dh`:
 
-        Joe Public writes:
-
-        > Jane Doe writes:
-        >
-        >
-        > > I can't find the source for
-        > > uncompress.
-        >
-        > Oh no, not again!!!
-        >
-        >
-        > Isn't there a FAQ for this?
-        >
-
-        That wasn't very helpful, Joe.
-        Jane, just make a link from
-        uncompress to compress.
-
-Or after "par 40qe":
-
-        Joe Public writes:
-
-        > Jane Doe writes:
-        >
-        > > I can't find the source for
-        > > uncompress.
-        >
-        > Oh no, not again!!!
-        >
-        > Isn't there a FAQ for this?
-
-        That wasn't very helpful, Joe.
-        Jane, just make a link from
-        uncompress to compress.
-
-Or after "par 40qi":
-
-        Joe Public writes:
-        > Jane Doe writes:
-        > >
-        > >
-        > > I can't find the source for
-        > > uncompress.
-        > Oh no, not again!!!
-        >
-        >
-        > Isn't there a FAQ for this?
-        >
-        >
-        That wasn't very helpful, Joe.
-        Jane, just make a link from
-        uncompress to compress.
-
-Or after "par 40qie":
-
-        Joe Public writes:
-        > Jane Doe writes:
-        > > I can't find the source for
-        > > uncompress.
-        > Oh no, not again!!!
-        >
-        > Isn't there a FAQ for this?
-        That wasn't very helpful, Joe.
-        Jane, just make a link from
-        uncompress to compress.
+    # 1. We the people of the
+    #    United States.
+    # 2. In order to form a more
+    #    perfect union.
+    # 3. Establish justice,
+    #    ensure domestic
+    #    tranquility.
+    # 4. Provide for the common
+    #    defense
+    # 5. Promote the general
+    #    welfare.
+    # 6. And secure the blessing
+    #    of liberty to ourselves
+    #    and our posterity.
+    # 7. Do ordain and establish
+    #    the Constitution.
+    # 8. Of the United States of
+    #    America.
 
 Before:
 
-        I sure hope there's still room
-        in Dr. Jones' section of archaeology.
-        I've heard he's the bestest.  [sic]
+    /*****************************************/
+    /*   We the people of the United States, */
+    /* in order to form a more perfect union, */
+    /* establish justice, insure domestic    */
+    /* tranquility,                          */
+    /*                                       */
+    /*                                       */
+    /*   [ provide for the common defense, ] */
+    /*   [ promote the general welfare,    ] */
+    /*   [ and secure the blessing of liberty ] */
+    /*   [ to ourselves and our posterity, ] */
+    /*   [                                 ] */
+    /*                                       */
+    /* do ordain and establish the Constitution */
+    /* of the United States of America.       */
+    /******************************************/
 
-After "par 50g":
+After `par 42r`:
 
-        I sure hope there's still room in
-        Dr. Jones' section of archaeology.  I've
-        heard he's the bestest. [sic]
+    /********************************/
+    /*   We the people of the       */
+    /* United States, in order to   */
+    /* form a more perfect union,   */
+    /* establish justice, insure    */
+    /* domestic tranquility,        */
+    /*                              */
+    /*                              */
+    /*   [ provide for the common ] */
+    /*   [ defense, promote the   ] */
+    /*   [ general welfare, and   ] */
+    /*   [ secure the blessing of ] */
+    /*   [ liberty to ourselves   ] */
+    /*   [ and our posterity,     ] */
+    /*   [                        ] */
+    /*                              */
+    /* do ordain and establish the  */
+    /* Constitution of the United   */
+    /* States of America.           */
+    /********************************/
 
-Or after "par 50gc":
+Or after `par 42re`:
 
-        I sure hope there's still room in
-        Dr. Jones' section of archaeology.  I've
-        heard he's the bestest.  [sic]
+    /********************************/
+    /*   We the people of the       */
+    /* United States, in order to   */
+    /* form a more perfect union,   */
+    /* establish justice, insure    */
+    /* domestic tranquility,        */
+    /*                              */
+    /*   [ provide for the common ] */
+    /*   [ defense, promote the   ] */
+    /*   [ general welfare, and   ] */
+    /*   [ secure the blessing of ] */
+    /*   [ liberty to ourselves   ] */
+    /*   [ and our posterity,     ] */
+    /*                              */
+    /* do ordain and establish the  */
+    /* Constitution of the United   */
+    /* States of America.           */
+    /********************************/
 
 Before:
 
-        John writes:
-        : Mary writes:
-        : + Anastasia writes:
-        : + > Hi all!
-        : + Hi Ana!
-        : Hi Ana & Mary!
-        Please unsubscribe me from alt.hello.
+    Joe Public writes:
+    > Jane Doe writes:
+    > >
+    > >
+    > > I can't find the source for uncompress.
+    > Oh no, not again!!!
+    >
+    >
+    > Isn't there a FAQ for this?
+    >
+    >
+    That wasn't very helpful, Joe. Jane,
+    just make a link from uncompress to compress.
 
-After "par Q+:+ q":
+After `par 40q`:
 
-        John writes:
+    Joe Public writes:
 
-        : Mary writes:
-        :
-        : + Anastasia writes:
-        : +
-        : + > Hi all!
-        : +
-        : + Hi Ana!
-        :
-        : Hi Ana & Mary!
+    > Jane Doe writes:
+    >
+    >
+    > > I can't find the source for
+    > > uncompress.
+    >
+    > Oh no, not again!!!
+    >
+    >
+    > Isn't there a FAQ for this?
+    >
 
-        Please unsubscribe me from alt.hello.
+    That wasn't very helpful, Joe.
+    Jane, just make a link from
+    uncompress to compress.
+
+Or after `par 40qe`:
+
+    Joe Public writes:
+
+    > Jane Doe writes:
+    >
+    > > I can't find the source for
+    > > uncompress.
+    >
+    > Oh no, not again!!!
+    >
+    > Isn't there a FAQ for this?
+
+    That wasn't very helpful, Joe.
+    Jane, just make a link from
+    uncompress to compress.
+
+Or after `par 40qi`:
+
+    Joe Public writes:
+    > Jane Doe writes:
+    > >
+    > >
+    > > I can't find the source for
+    > > uncompress.
+    > Oh no, not again!!!
+    >
+    >
+    > Isn't there a FAQ for this?
+    >
+    >
+    That wasn't very helpful, Joe.
+    Jane, just make a link from
+    uncompress to compress.
+
+Or after `par 40qie`:
+
+    Joe Public writes:
+    > Jane Doe writes:
+    > > I can't find the source for
+    > > uncompress.
+    > Oh no, not again!!!
+    >
+    > Isn't there a FAQ for this?
+    That wasn't very helpful, Joe.
+    Jane, just make a link from
+    uncompress to compress.
 
 Before:
 
-        amc> The b option was added primarily to deal with
-        amc> this new style of quotation
-        amc> which became popular after Par 1.41 was released.
-        amc>
-        amc> Par still pays attention to body characters.
-        amc> Par should not mistake "Par" for part of the prefix.
-        amc> Par should not mistake "." for a suffix.
+    I sure hope there's still room
+    in Dr. Jones' section of archaeology.
+    I've heard he's the bestest.  [sic]
 
-    After "par B=._A_a 50bg":
+After `par 50g`:
 
-        amc> The b option was added primarily to
-        amc> deal with this new style of quotation
-        amc> which became popular after Par 1.41
-        amc> was released.
-        amc>
-        amc> Par still pays attention to body
-        amc> characters.  Par should not mistake
-        amc> "Par" for part of the prefix.  Par
-        amc> should not mistake "." for a suffix.
+    I sure hope there's still room in
+    Dr. Jones' section of archaeology.  I've
+    heard he's the bestest. [sic]
+
+Or after `par 50gc`:
+
+    I sure hope there's still room in
+    Dr. Jones' section of archaeology.  I've
+    heard he's the bestest.  [sic]
+
+Before:
+
+    John writes:
+    : Mary writes:
+    : + Anastasia writes:
+    : + > Hi all!
+    : + Hi Ana!
+    : Hi Ana & Mary!
+    Please unsubscribe me from alt.hello.
+
+After `par Q+:+ q`:
+
+    John writes:
+
+    : Mary writes:
+    :
+    : + Anastasia writes:
+    : +
+    : + > Hi all!
+    : +
+    : + Hi Ana!
+    :
+    : Hi Ana & Mary!
+
+    Please unsubscribe me from alt.hello.
+
+Before:
+
+    amc> The b option was added primarily to deal with
+    amc> this new style of quotation
+    amc> which became popular after Par 1.41 was released.
+    amc>
+    amc> Par still pays attention to body characters.
+    amc> Par should not mistake "Par" for part of the prefix.
+    amc> Par should not mistake "." for a suffix.
+
+After `par B=._A_a 50bg`:
+
+    amc> The b option was added primarily to
+    amc> deal with this new style of quotation
+    amc> which became popular after Par 1.41
+    amc> was released.
+    amc>
+    amc> Par still pays attention to body
+    amc> characters.  Par should not mistake
+    amc> "Par" for part of the prefix.  Par
+    amc> should not mistake "." for a suffix.
 
 # Limitations
 
 The guess feature guesses wrong in cases like the following:
 
-        I calc'd the approx.
-        Fermi level to 3 sig. digits.
+    I calc'd the approx.
+    Fermi level to 3 sig. digits.
 
 With guess = 1, par will incorrectly  assume that "approx." ends a sentence.  If
 the input were:
 
-        I calc'd the approx. Fermi
-        level to 3 sig. digits.
+    I calc'd the approx. Fermi
+    level to 3 sig. digits.
 
 then par would refuse  to put a line break between "approx."  and "Fermi" in the
 output, mainly to avoid creating the first situation (in case the paragraph were
 to be fed back through par again).   This non-breaking space policy does come in
 handy for cases like "Mr. Johnson" and "Jan. 1", though.
 
-The guess feature only goes one way.  par can preserve wide sentence breaks in a
-paragraph, or remove  them, but it can't  insert them if they  aren't already in
-the input.
+The guess feature only goes one way.
+par can  preserve wide sentence  breaks in a paragraph,  or remove them,  but it
+can't insert them if they aren't already in the input.
 
 If you use tabs, you may not like the way par handles them.
 It expands them into spaces.
 
 There is currently no way for the length of the output prefix to differ from the
-length of the input  prefix.  Ditto for the suffix.  I  may consider adding this
-capability in a  future release, but right now  I'm not sure how I'd  want it to
-work.
+length of the input prefix.
+Ditto for the suffix.
+I may consider adding this capability in a future release, but right now I'm not
+sure how I'd want it to work.
 

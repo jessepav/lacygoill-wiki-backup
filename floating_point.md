@@ -109,8 +109,8 @@ Their representation is neither finite nor repeating.
 ##
 ## What's “integer overflow”?
 
-Integer overflow occurs  when two positive integers are added  together, and the
-result give an integer greater than or equal to 2^31.
+Integer  overflow  occurs when  two  positive  or  negative integers  are  added
+together, and the result gives an integer `≥ 2^31` or `< -2^31`.
 
 ## If the result of an operation involving 32-bit words contains more than 32 bits, how are the excessive bits called?
 
@@ -395,6 +395,7 @@ Once you flip all the bits, you get:
 And if you add 1, you get:
 
     11111111111111111111111110111001
+                                   ^
 
 which is the representation of `2^32 — 71`.
 
@@ -446,15 +447,16 @@ obtained after flipping  all the bits of `x`  – because of `y` in the  rhs –
 adding 1.
 
 ###
-## How is an integer usually stored?
+## How much memory is usually used to store an integer?
 
 With a 32 bit word.
 
-## How is a negative integer usually stored?
+## Which representation is usually used to store a negative integer?
 
 Most machines use a representation called 2's complement.
 
-A  negative integer  `—x`,  where  `1 ≤  x  ≤ 2^31`,  is  stored  as the  binary
+With this representation, positive integers are stored as usual.
+However, a negative integer `—x`, where `1 ≤  x ≤ 2^31`, is stored as the binary
 representation of the positive integer `2^32 — x`.
 
 For example, the integer -71 is stored as:
@@ -599,6 +601,52 @@ Compute their expansion, but multiply the leftmost term with -1 instead of 1:
                 = -100
 
 ##
+## ?
+
+All computers provide hardware instructions for adding integers.
+If two  positive integers  are added  together, the result  may give  an integer
+greater than or equal to `2^31`.
+In this case, we say that integer overflow occurs.
+One would hope that this leads to an informative error message for the user, but
+whether or  not this happens  depends on  the programming language  and compiler
+being used.
+In some  cases, the overflow  bits may be discarded  and the programmer  must be
+alert to prevent this from happening.
+The same problem may occur if two negative integers are added together, giving a
+negative integer with magnitude greater than `2^31`.
+On the other  hand, although an overflow  bit may arise when  the 2's complement
+bitstrings are added together.
+Consider the operation:
+
+    x + (—y)
+
+where
+
+    0 ≤ x ≤ 2^31 — 1
+    1 ≤ y ≤ 2^31
+
+Clearly, it  is possible  to store the  desired result `x  — y`  without integer
+overflow.
+The result may be positive, negative, or  zero, depending on whether `x > y`, `x = y`,
+or `x < y`.
+
+Now let us see what happens if we add the 2's complement representations for.
+
+## ?
+
+    50 + (-100)
+
+    50:    110010
+    100:  1100100
+
+    -100: 0011100
+
+    50-100:
+           110010
+        + 0011100
+        ---------
+          1001110
+
 ##
 # ?
 
