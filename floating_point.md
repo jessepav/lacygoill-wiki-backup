@@ -250,6 +250,81 @@ world.
 8 consecutive bytes (64 bits).
 
 ##
+# What's the representation of a number?
+
+The sequence of symbols which expresses this number in a given base.
+
+For example, the reresentation of seventy one  is `71` in base 10, and `1000111`
+in base 2.
+
+# What's the expansion of a number?
+
+The sum of powers  of the base, each power being multiplied by  one of the digit
+of the number:
+
+    (71)₁₀ = 7 × 10 + 1
+             ├────────┘
+             └ expansion of 71 in base 10
+
+    (1000111)₂ = 1 × 64 + 0 × 32 + 0 × 16 + 0 × 8 + 1 × 4 + 1 × 2 + 1 × 1
+                 ├──────────────────────────────────────────────────────┘
+                 └ expansion of 71 in base 2
+
+# What's the difference between a decimal point and a binary point?
+
+They stand for the same thing, but they're used in different contexts.
+The decimal point applies to a decimal number, while the binary point applies to
+a binary number.
+
+##
+# How do you qualify the representation of a nonintegral real number
+## which is not finite?
+
+It's said to be “nonterminating”.
+
+## whose numbers after the decimal/binary point repeat periodically?
+
+It's said to be “repeating”.
+
+##
+# Give an example of number whose representation is finite in decimal, but not in binary.
+
+0.1
+
+In decimal, there's only one digit after the decimal point.
+In binary, there's an infinite number of bits after the binary point:
+
+    1/10 = (0.0001100110011...)₂ = 1/16 + 1/32 + 0/64 + 0/128 + 1/256 + 1/512 + 0/1024 + ...
+
+##
+# Which property is shared by
+## all rational numbers?
+
+Their representation is always either finite or repeating.
+
+    1/7 = (0.142857142857)₁₀
+
+## all irrational numbers?
+
+Their representation is neither finite nor repeating.
+
+    √2 = (1.414213...)₁₀
+    π  = (3.141592...)₁₀
+    e  = (2.71828182845...)₁₀
+
+##
+# Which bitstrings can be abbreviated with
+## the octal symbols 0 through 7?
+
+Any bitstring  whose length  is 3 (because  `2^3 = 8`),  that is  the bitstrings
+`000` through `111`.
+
+## the hexadecimal symbols 0 through F abbreviate?
+
+Any bitstring  whose length is  4 (because `2^3 =  16`), that is  the bitstrings
+`0000` through `1111`.
+
+##
 # ?
 
 A rough presentation  of floating-point arithmetic requires only a  few words: a
