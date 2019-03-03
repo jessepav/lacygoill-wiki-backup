@@ -761,6 +761,13 @@ displaying an empty, new file.
 
                                     299 sloc
 
+
+            A lightweight and powerful git branch viewer for vim.
+
+            https://github.com/rbong/vim-flog
+
+                                    860 sloc
+
 ## golden-ratio
 
             When working  with many windows  at the same  time, each window has  a size that  is not

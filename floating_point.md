@@ -1,18 +1,10 @@
-# What's the meaning of the acronym IEEE?
-
-Institute for Electrical and Electronics Enginners.
-
-## How is it pronounced?
-
-“I triple E.”
-
-##
-# What does it mean for a set to be “countable”?
+# Numbers In Math
+## What does it mean for a set to be “countable”?
 
 Intuitively:
 
 You can count/enumerate its  elements from one of them to any  other in a finite
-amount of time.
+amount of time (this definition implies/needs the existence of an order).
 
 The set of real numbers, for example, is UNcountable because you can't enumerate
 all the numbers from 0 to 1 in a finite amount of time.
@@ -24,19 +16,22 @@ numbers.
 More formally:
 
 There exists a one-to-one correspondence between this set and the set of natural
-numbers; IOW, all of its elements can be written in an enumeration:
+numbers; IOW, there exists a method which:
 
-    s₁, s₂, s₃, ...
+   - can enumerate all of its elements
 
-With no infinity in the middle.
+        s₁, s₂, s₃, ...
 
-So, this is an enumeration of the natural numbers:
+   - doesn't contain any infinity  in the middle, so that  you can reach any
+     element  in a finite amount of time
+
+For example, this enumeration of the natural numbers proves that the set is countable:
 
     1 3 2 5 4 7 6 ...
                   ^^^
                   allowed
 
-But not this:
+But not this one:
 
     2 4 6 8 ... 1 3 5 7 ...
             ^^^
@@ -52,8 +47,8 @@ Even more formally:
 <https://en.wikipedia.org/wiki/Countable_set#Definition>
 <https://en.wikipedia.org/wiki/Injective_function>
 
-# How to prove that
-## the set of rational numbers is countable?
+## How to prove that
+### the set of rational numbers is countable?
 
 Imagine them listed in this infinite two-dimensional array:
 
@@ -101,13 +96,13 @@ sum of the numerator and the denominator  of all rationals in any given diagonal
 is constant; and it's increasing by 1  from one diagonal to the next: 2, then 3,
 then 4, then 5, etc.
 
-## the set of real numbers is UNcountable?
+### the set of real numbers is UNcountable?
 
 Use the Cantor's diagonal argument:
 <https://en.wikipedia.org/wiki/Cantor%27s_diagonal_argument>
 
 Let's assume that the set of real numbers is countable.
-It follows that all of its elements can be written as an enumeration:
+It follows that all of its elements can be written as an exhaustive enumeration:
 
     s₁, s₂, s₃, ...
 
@@ -155,14 +150,20 @@ then the fifth decimal of `s₅` plus 1:
 Repeat the process  indefinitely, by extracting the `ᵢ`th decimal  of `sᵢ`, `+1`
 if it's lower than 8, and `-1` if the decimal is 9.
 
-You get  a real  number `s`,  which is different  than all  the numbers  in your
+Now, let's  compare the real  number `s` you've just  built with the  123th real
+number in your enumeration.
+You don't  know what the  latter looks  like, but you  *do* know that  its 123th
+decimal is different than the one of `s`.
+So, `s` is different than the 123th real number.
+For the  same kind  of reason,  `s` is different  than any  real number  in your
 enumeration.
-But since `s` is a real number, it should be somewhere in the enumeration.
+
+But since `s` is a real number, it should be somewhere in the exhaustive enumeration.
 This contradiction  implies that the  original assumption  is false: the  set of
 real numbers is *not* countable.
 
-##
-# Express euler's number as the sum of an infinite series.  (2)
+###
+## Express euler's number as the sum of an infinite series.  (2)
 
     e = Σ(1/n!), n ≥ 0
 
@@ -171,7 +172,8 @@ real numbers is *not* countable.
 Note that any irrational number can be expressed as the sum of an infinitie series.
 
 ##
-# What does the Roman numeric system require?  (3)
+# Numeric Systems
+## What does the Roman numeric system require?  (3)
 
 A different symbol for each power of 10:
 
@@ -192,26 +194,32 @@ and identical symbols:
 
 For example, MDCCCCLXXXV means 1000 + 500 + 400 + 50 + 30 + 5 = 1985.
 
-## What was such a system good for?
+### What was such a system well-suited for?
 
 Easy transcription of numbers to an abacus for calculation.
 
-## What was such a system *not* good for?  (2)
+### What was such a system *not* well-suited for?  (2)
 
-Calculation with pencil and paper.
+Calculation with pencil and paper:
+
+       CXXIII
+    + CCCCLVI
+    ---------
+    = ???????
+
 Representation of large numbers.
 
-##
-# Why is our current numeric system called positional?
+###
+## Why is our current numeric system called positional?
 
-Because the meaning of a number is understood from the position of its symbols.
+The interpretation of a symbol depends on its position.
 
-# What does a positional notation require?
+## What does a positional notation require?
 
-The representation of zero by a symbol.
+The invention of the number 0, and the attribution of a symbol to it.
 Zero is needed, for example, to distinguish 1 from 10.
 
-# What other positional system do you know and use on a daily basis?
+## What other positional numeric system do you know and use on a daily basis?
 
 The base 60 system used by the Babylonians.
 
@@ -225,7 +233,7 @@ It's an abbreviation for binary digit.
 
 ## How can I view it physically?
 
-As a single physical entity which is either on or off.
+As a single physical entity in one of two states: on or off.
 
 # How do you call a string of bits?
 
@@ -237,9 +245,7 @@ Up to 256 bitstrings, which may be viewed as representing the integers from 0 to
 255, or some characters.
 
 The ASCII  encoding scheme  defines standard  character interpretations  for the
-first 128 of these  bitstrings; Unicode is an extension that  defines up to 2^16
-two-byte characters, allowing encoding of virtually all written languages in the
-world.
+first 128 of these bitstrings.
 
 # What is a “word”?
 
@@ -254,13 +260,13 @@ world.
 
 The sequence of symbols which expresses this number in a given base.
 
-For example, the reresentation of seventy one  is `71` in base 10, and `1000111`
+For example, the representation of seventy one  is `71` in base 10, and `1000111`
 in base 2.
 
 # What's the expansion of a number?
 
-The sum of powers  of the base, each power being multiplied by  one of the digit
-of the number:
+A sum of powers of the base, each  power being multiplied by one of the digit of
+the number:
 
     (71)₁₀ = 7 × 10 + 1
              ├────────┘
@@ -273,8 +279,8 @@ of the number:
 # What's the difference between a decimal point and a binary point?
 
 They stand for the same thing, but they're used in different contexts.
-The decimal point applies to a decimal number, while the binary point applies to
-a binary number.
+The decimal  point applies to a  decimal representation, while the  binary point
+applies to a binary representation.
 
 ##
 # How do you qualify the representation of a nonintegral real number
@@ -282,7 +288,7 @@ a binary number.
 
 It's said to be “nonterminating”.
 
-## whose numbers after the decimal/binary point repeat periodically?
+## whose symbols after the decimal/binary point repeat periodically?
 
 It's said to be “repeating”.
 
@@ -295,6 +301,8 @@ In decimal, there's only one digit after the decimal point.
 In binary, there's an infinite number of bits after the binary point:
 
     1/10 = (0.0001100110011...)₂ = 1/16 + 1/32 + 0/64 + 0/128 + 1/256 + 1/512 + 0/1024 + ...
+            ├────────────────┘
+            └ mnemonic: 0.0 then 0011, 0011, ...
 
 ##
 # Which property is shared by
@@ -303,6 +311,9 @@ In binary, there's an infinite number of bits after the binary point:
 Their representation is always either finite or repeating.
 
     1/7 = (0.142857142857)₁₀
+             ├────┘├────┘
+             │     └ period 2
+             └ period 1
 
 ## all irrational numbers?
 
@@ -323,6 +334,197 @@ Any bitstring  whose length  is 3 (because  `2^3 = 8`),  that is  the bitstrings
 
 Any bitstring  whose length is  4 (because `2^3 =  16`), that is  the bitstrings
 `0000` through `1111`.
+
+##
+# If the result of an operation involving 32-bit words contains more than 32 bits, how are the excessive bits called?
+
+Overflow bits.
+
+## What happens to them?
+
+They're discarded.
+
+##
+# What's the binary representation of `2^n`?
+
+A 1 followed by `n` zeros.
+
+Note that this means that the representation of `2^n` contains `n+1` bits.
+
+# If I know the binary representation of the positive integer `x`, how do I get the representation of `2^32 — x`?
+
+Flip all the bits and add 1.
+
+---
+
+For example, the representation of 71 is:
+
+    00000000000000000000000001000111
+
+Once you flip all the bits, you get:
+
+    11111111111111111111111110111000
+
+And if you add 1, you get:
+
+    11111111111111111111111110111001
+
+which is the representation of `2^32 — 71`.
+
+---
+
+Here's an intuitive reasoning to find this method:
+
+You know the representation of `x`, and you're looking for the one of `2^32 — x`.
+Let's call this number `y`.
+Which  relationship  do  you  know  about  `y`,  involving  only  numbers  whose
+representations are known to you?
+
+    x + y = 2^32
+    │       ├──┘
+    │       └ you know its representation, because it's simple
+    └ you know its representation, by hypothesis
+
+So, you're looking for sth which, when added to `x`, gives a 1 followed by 32 zeros.
+
+You don't know how to get that, but you know how to get sth close: 32 ones.
+Add the number whose representation is the one of `x` after flipping all the bits.
+
+Now, to get from 32 ones to a one and 32 zeros, all you need is add 1.
+Similarly, to get from 999 to 1000, all you need is add 1.
+
+---
+
+Proof:
+
+Let's call `y` the representation of `x` after all the bits have been flipped.
+The representation of the sum `x + y` is:
+
+    11111111111111111111111111111111
+
+This matches the expansion:
+
+    2^0 + 2^1 + 2^2 + ... + 2^31
+    =
+    2^32 - 1
+
+Which implies that:
+
+    x + y = 2^32 - 1
+    ⇒
+    2^32 - x = y + 1
+
+The last  equality tells  us that  the binary  representation of  `2^32 —  x` is
+obtained after flipping  all the bits of `x`  – because of `y` in the  rhs – and
+adding 1.
+
+##
+# How is an integer usually stored?
+
+With a 32 bit word.
+
+# How is a negative integer usually stored?
+
+Most machines use a representation called 2's complement.
+
+A  negative integer  `—x`,  where  `1 ≤  x  ≤ 2^31`,  is  stored  as the  binary
+representation of the positive integer `2^32 — x`.
+
+For example, the integer -71 is stored as:
+
+    11111111111111111111111110111001
+
+And the sum of 71 and -71 is:
+
+      ( 00000000000000000000000001000111 )₂
+    + ( 11111111111111111111111110111001 )₂
+    = (100000000000000000000000000000000 )₂
+       ^
+       overflow bit
+
+The bit in the leftmost position of the sum cannot be stored in the 32-bit word,
+and thus is discarded.
+The result is 0, which is exactly what we want for `71 + (-71)`.
+
+<https://en.wikipedia.org/wiki/Two%27s_complement>
+<https://en.wikipedia.org/wiki/Method_of_complements>
+
+---
+
+Why did we choose the range `1 ≤  x  ≤ 2^31` for the negative integers?
+
+Theory: A word can generate `2^32` bitstrings.
+0 consumes one of them, so there're  `2^32 — 1` bitstrings left for the negative
+and positive integers.
+This is not divisible  by two, so we have to choose how  many bitstrings to give
+to the positive integers: either `2^31` or `2^31 — 1`.
+If we give `2^31`, the representations  of all positive integers will begin with
+a 0, except:
+
+    10000000000000000000000000000000
+
+And any  representation beginning  with a  1 will stand  for a  negative number,
+except the one mentioned just above.
+
+These exceptions may cause  some issues, or just seem awkward,  so it was chosen
+to give only `2^31 — 1` bitstrings to the positive integers.
+
+## Which naive alternative machines could use?
+
+The most obvious idea  is sign-and-modulus: use one of the  32 bits to represent
+the sign, and use  the remaining 31 bits to store the  magnitude of the integer,
+which may then range from 0 to `2^31 — 1`.
+
+### Why don't they use it?  (3)
+
+The 2's complement method provides three benefits:
+
+   - the addition of a negative number represented by the sign-and-modulus
+     method is more complicated, because you have to process the first bit
+     specially
+
+   - with the sign-and-modulus method, there are two zeros (+0 and -0)
+
+     Every application will need to take  extra steps to make sure that non-zero
+     values are also not negative zero.
+
+   - extending the width of the register where the negative number is being
+     stored is easier
+
+     Compare:
+
+            1110 (negative two, in four bits, using the 2's complement method)
+        11111110 (negative two, in eight bits, using the 2's complement method)
+
+     To go from `1110`  to `11111110`, all the computer has to  do is repeat the
+     most significant bit: that requires 4 operations.
+
+            1010 (negative two, in four bits, using the sign-and-modulus method)
+        10000010 (negative two, in eight bits, using the sign-and-modulus method)
+
+     This time,  to go from  `1010` to `10000010`,  the computer *first*  has to
+     clear the most  significant bit:
+
+            1010
+            ↓
+            0010
+
+     Then it can  repeat 0, until the last  bit where it puts a 1  for the sign:
+     that requires 5 operations.
+
+     The clearing of  the most significant bit is an  extra operation, for which
+     there's no equivalent in the 2's complement method.
+
+<https://stackoverflow.com/a/1125317/9780968>
+
+##
+# What's the meaning of the acronym IEEE?
+
+Institute for Electrical and Electronics Enginners.
+
+## How is it pronounced?
+
+“I triple E.”
 
 ##
 # ?

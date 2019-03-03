@@ -18,6 +18,8 @@ Rationale: for some reason, Vim adds a `C-j` to a register ending with `CR`:
     "a   /pat^M^J
                ^^
 
+So, if you edit the middle of your recording later, Vim will add an undesirable `C-j`.
+
 # ?
 
     getreg('a')
