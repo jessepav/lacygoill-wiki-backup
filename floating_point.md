@@ -123,14 +123,14 @@ They're discarded.
 ##
 ## What's the meaning of the acronym IEEE?
 
-Institute for Electrical and Electronics Enginners.
+Institute for Electrical and Electronics Engineers.
 
 ### How is it pronounced?
 
 “I triple E.”
 
 ##
-# Numbers In Math
+# A Bit Of Math
 ## What does it mean for a set to be “countable”?
 
 Intuitively:
@@ -301,7 +301,35 @@ real numbers is *not* countable.
 
     e = Σ(1 + 1/n)^n, n ≥ 1
 
-Note that any irrational number can be expressed as the sum of an infinitie series.
+Note that any irrational number can be expressed as the sum of an infinite series.
+
+## What's the value of `1 + a + a^2 + ... + a^n`?
+
+Let's call this sum S.
+
+    (1): a × S =      a + a^2 + a^3 + ... + a^n + a^(n+1)
+    (2):   — S = —1 — a — a^2 — ...       — a^n
+
+    (1) ∧ (2) ⇒   a × S — S = a^(n+1) — 1
+              ⇔ (a — 1) × S = a^(n+1) — 1
+
+              ⇔ S = a^(n+1) — 1
+                    ───────────
+                       a — 1
+
+## What's the value of `a^n + a^(n+1) + ... + a^m`?
+
+Let's call this sum S.
+
+    (1): a × S =        a^(n+1) + a^(n+2) + ... + a^m + a^(m+1)
+    (2):   — S = —a^n — a^(n+1) — ...           — a^m
+
+    (1) ∧ (2) ⇒   a × S — S = a^(m+1) — a^n
+              ⇔ (a — 1) × S = a^(m+1) — a^n
+
+              ⇔ S = a^(m+1) — a^n
+                    ─────────────
+                       a — 1
 
 ##
 # Numeric Systems
@@ -603,6 +631,10 @@ Compute their expansion, but multiply the leftmost term with -1 instead of 1:
 ##
 ## ?
 
+Integrate here our comments from `vim-math` regarding significant digits.
+
+## ?
+
 All computers provide hardware instructions for adding integers.
 If two  positive integers  are added  together, the result  may give  an integer
 greater than or equal to `2^31`.
@@ -630,9 +662,27 @@ overflow.
 The result may be positive, negative, or  zero, depending on whether `x > y`, `x = y`,
 or `x < y`.
 
-Now let us see what happens if we add the 2's complement representations for.
+Now let us see what happens if we add the 2's complement representations for `x`
+and `—y`, i.e., the bitstrings for the non-negative numbers `x` and `2^32 — y`.
+We obtain the bitstring for:
+
+    2^32 + x — y = 2^32 — (y — x)
+
+If `x ≥ y`, the leftmost bit of  the result is an overflow bit, corresponding to
+the power `2^32`, but this bit can  be discarded, giving the correct result `x — y`.
+If `x <  y`, the result fits  in 32 bits with  no overflow bit, and  we have the
+desired  result, since  it  represents the  negative  value `—(y  —  x)` in  2's
+complement.
+
+This demonstrates  an important  property of  2's complement  representation: no
+special hardware is needed for integer subtraction.
+The  addition hardware  can  be used  once  the negative  number  `—y` has  been
+represented using 2's complement.
 
 ## ?
+
+Show the details for the integer sums `50 + (—100)`, `100 + (—50)` and
+`50 + 50`, using an 8-bit format.
 
     50 + (-100)
 
@@ -646,6 +696,176 @@ Now let us see what happens if we add the 2's complement representations for.
         + 0011100
         ---------
           1001110
+
+## ?
+
+Exercise 3.8
+
+What  is  the  largest  floating  point number  in  this  system,  assuming  the
+significand field can store only the bits `b₁...b₂₃` and the exponent is limited
+by `—128 ≤ E ≤ 127`?
+
+      (1.11111111111111111111111)₂ × 2^127
+
+    =  (2^0 + 2^-1 + ... + 2^-23)  × 2^127
+    =  (2^-23 + 2^-22 + ... + 2^0) × 2^127
+
+    =  2^(0+1) — 2^-23  × 2^127
+       ───────────────
+             2 — 1
+
+    =  (2 — 2^-23) × 2^127
+
+    =
+
+    2^128 — 2^104
+
+## ?
+
+Exercise 3.9
+
+What is the smallest positive floating point number in this system?
+
+    (1.00000000000000000000000)₂ × 2^-128
+    =
+    2^-128
+
+## ?
+
+Exercise 3.10
+
+What is the smallest positive **integer** that is not exactly representable as a
+floating point number in this system?
+
+Here are the binary representations of the first eight positive integers:
+
+    ┌───┬──────┐
+    │ 1 │ 1    │
+    ├───┼──────┤
+    │ 2 │ 10   │
+    ├───┼──────┤
+    │ 3 │ 11   │
+    ├───┼──────┤
+    │ 4 │ 100  │
+    ├───┼──────┤
+    │ 5 │ 101  │
+    ├───┼──────┤
+    │ 6 │ 110  │
+    ├───┼──────┤
+    │ 7 │ 111  │
+    ├───┼──────┤
+    │ 8 │ 1000 │
+    └───┴──────┘
+
+Here are the same representations but in floating point:
+
+    ┌───┬─────────────┐
+    │ 1 │ 1.0   × 2^0 │
+    ├───┼─────────────┤
+    │ 2 │ 1.0   × 2^1 │
+    ├───┼─────────────┤
+    │ 3 │ 1.1   × 2^1 │
+    ├───┼─────────────┤
+    │ 4 │ 1.00  × 2^2 │
+    ├───┼─────────────┤
+    │ 5 │ 1.01  × 2^2 │
+    ├───┼─────────────┤
+    │ 6 │ 1.10  × 2^2 │
+    ├───┼─────────────┤
+    │ 7 │ 1.11  × 2^2 │
+    ├───┼─────────────┤
+    │ 8 │ 1.000 × 2^3 │
+    └───┴─────────────┘
+
+Notice that  the exponent always  matches the number  of bits in  the fractional
+part of the significand (except for the  special case), exactly like it would do
+in decimal.
+
+We could go on until this number:
+
+    1.11111111111111111111111 × 2^23
+    =
+    111111111111111111111111
+
+The integer afterwards is:
+
+     111111111111111111111111 + 1
+    =
+    1000000000000000000000000
+
+Its exact floating point representation is:
+
+     1000000000000000000000000
+    =
+    1.000000000000000000000000 × 2^24
+
+The fractional part  of its significand contains  24 bits which is  too much for
+our system, which can only contain 23 bits.
+
+So,  the smallest  positive  integer  that is  not  exactly  representable as  a
+floating point number is 2^24, i.e. 16777216.
+
+---
+
+Another way of finding the solution:
+
+Our system can only express numbers with 24 significant bits.
+So, it can't express exactly any integer with 25 significant bits or more.
+The smallest integer with 25 significant bits is:
+
+    1000000000000000000000000
+    =
+    2^24
+
+## ?
+
+Exercise 3.11
+
+Suppose we change so our system from:
+
+    x = ±S × 2^E, 1 ≤ S < 2
+    S = (b₀.b₁b₂b₃...b₂₃)₂, b₀ = 1
+    -128 ≤ E ≤ 127
+
+to:
+
+    x = ±S × 2^E, 1/2 ≤ S < 1
+    S = (0.b₁b₂b₃...b₂₄)₂, b₁ = 1
+    -128 ≤ E ≤ 127
+
+---
+
+What is the new largest floating point number?
+
+    0.111111111111111111111111 × 2^127
+    =
+    (2^-1 + 2^-2 + ... + 2^-24) × 2^127
+    =
+    (2^-24 + 2^-23 + ... + 2^-1) × 2^127
+    =
+    (2^(-1 + 1) — 2^-24) × 2^127
+    =
+    2^127 — 2^103
+
+---
+
+What is the new smallest positive floating point number?
+
+    0.100000000000000000000000 × 2^-128
+    =
+    1.00000000000000000000000 × 2^-129
+    =
+    2^-129
+
+---
+
+What is the new smallest positive integer that is not exactly representable as a floating point number?
+
+    0.1000000000000000000000000 × 2^25
+    =
+    2^24
+    =
+    16777216
 
 ##
 # ?
