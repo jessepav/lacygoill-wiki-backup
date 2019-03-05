@@ -250,13 +250,9 @@ For example, the start of the enumeration could look like this:
     ┌─────┬───────────────────┐
     │ s1  │ .5032164223981... │
     ├─────┼───────────────────┤
-    │ s2  │ .0782913601120... │
+    │ s2  │ .9999261457682... │
     ├─────┼───────────────────┤
-    │ s3  │ .3111370055629... │
-    ├─────┼───────────────────┤
-    │ s4  │ .9999261457682... │
-    ├─────┼───────────────────┤
-    │ s5  │ .0001042507334... │
+    │ s3  │ .0001042507334... │
     ├─────┼───────────────────┤
     │ ... │ ...               │
     └─────┴───────────────────┘
@@ -266,25 +262,15 @@ Now, let's build an element `s` by selecting the first decimal in `s₁` plus 1:
     5+1 = 6
     s = .6
 
-then the second decimal of `s₂` plus 1:
+then the second decimal of `s₂` minus 1:
 
-    7+1 = 8
+    9-1 = 8
     s = .68
 
 then the third decimal of `s₃` plus 1:
 
-    1 + 1 = 2
-    s = .682
-
-then the fourth decimal of `s₄` minus 1:
-
-    9 - 1 = 8
-    s = .6828
-
-then the fifth decimal of `s₅` plus 1:
-
     0 + 1 = 1
-    s = .68281
+    s = .681
 
 Repeat the process  indefinitely, by extracting the `ᵢ`th decimal  of `sᵢ`, `+1`
 if it's lower than 8, and `-1` if the decimal is 9.
@@ -845,7 +831,7 @@ Compute its expansion as usual, but multiply the leftmost term with -1 instead o
                 = -100
 
 ##
-## Using an 8-bit format, show how the computer calculate
+## Using an 8-bit format, show how the computer calculates
 ### `50 + (—100)`?
 
      50  = (00110010)₂
@@ -899,9 +885,61 @@ Check the result:
          and carry another 1 in the next column
 
 ##
-## How is a computer word stored in fixed point representation?
+## What is the floating-point representation?
 
-It's divided into three fields:
+It  adapts  the concept  of  scientific  notation,  in a  binary  implementation
+context, to the representation of numbers in computer memory, or in stored data.
+
+Scientific notation:
+
+    x = ± S × 10^E
+
+Normalized scientific notation:
+
+    x = ± S × 10^E
+    1 ≤ S < 10
+
+Floating-point representation:
+
+    x = ± S × 2^E
+    1 ≤ S < 2
+
+`S` is called the significand, and `E` the exponent.
+
+### Why is it called “floating”-point?
+
+During the normalization of the representation,  you can imagine that the binary
+point floats to the position immediately after the first non-zero digit.
+
+    x = 123.456
+      = (1111011.0111010010)₂ × 2^0
+      = (1.1110110111010010)₂ × 2^6
+          ^     ^
+          new   old position
+
+---
+
+> The term floating point refers to the  fact that a number's radix point (decimal
+> point, or,  more commonly in computers,  binary point) can "float";  that is, it
+> can be placed anywhere relative to the significant digits of the number.
+
+Source: <https://en.wikipedia.org/wiki/Floating-point_arithmetic>
+
+##
+# Formats
+## What's a computer number format?
+
+The internal representation of numeric values in digital computer.
+
+The encoding between numerical values and bit patterns is chosen for convenience
+of the operation of the computer.
+Different types  of processors  may have  different internal  representations of
+numerical values.
+
+##
+## How is a number stored in the fixed-point format?
+
+Its computer word(s) is/are divided into three fields:
 
    - a 1-bit field for the sign of the number
    - a field of bits for the binary representation of the number before the binary point
@@ -920,58 +958,180 @@ While the number 1/10 would be approximately stored as:
     │ 0 │ 000000000000000 │ 0001100110011001 │
     └───┴─────────────────┴──────────────────┘
 
-### Why is it rarely used?
+### Why is this format rarely used?
 
 It's too limited by the size of the numbers it can store.
-In  the example  given, only  numbers ranging  in size  from (exactly)  2^-16 to
+In the  previous example, only numbers  ranging in size from  (exactly) 2^-16 to
 (slightly less than) 2^15 could be stored.
 This is not adequate for many applications.
 
 ##
-## How is a computer word stored in floating point representation?
+## How is a number stored in a floating-point format?
 
-It's based on the normalized scientific notation.
+Its computer word(s) is/are divided into three fields:
 
-Scientific notation:
+   - a 1-bit field for the sign of the number (0 = positive, 1 = negative)
+   - a field of bits for the binary representation of the exponent
+   - a field of bits for the binary representation of the fractional part
 
-    x = ± S × 10^E
+### What's a floating-point number?
 
-Normalized scientific notation:
+A real number which can be stored *exactly* using its floating-point representation.
 
-    x = ± S × 10^E
-    1 ≤ S < 10
+#### If a real is not a floating-point number, how is it stored?
 
-Floating point notation:
+It's rounded first.
 
-    x = ± S × 2^E
-    1 ≤ S < 2
-
-`S` is called the significand, and `E` the exponent.
-
-### Why is it called “floating” point representation?
-
-When the representation is being computed, you can imagine that the binary point
-floats to the position immediately after the first non-zero digit.
-
-    x = 123.456
-      = (1111011.0111010010)₂ × 2^0
-      = (1.1110110111010010)₂ × 2^6
-          ^     ^
-          new   old position
-
+##
 ### What's the value of the first bit of the binary representation of the significand?
 
-1
+No matter the number, it's always 1.
 
+#### Why is it called a hidden bit?
+
+Because it's not stored since it doesn't need to be.
+
+###
+### What's the name of the bits following the binary point?
+
+The fractional part of the significand.
+
+###
+### What are the names (new and old) of the three main floating-point formats?
+
+    ┌─────────────────────┬────────────────────┐
+    │ IEEE 754-1985 name  │ IEEE 754-2008 name │
+    ├─────────────────────┼────────────────────┤
+    │ single-precision    │ binary32           │
+    ├─────────────────────┼────────────────────┤
+    │ double-precision    │ binary64           │
+    ├─────────────────────┼────────────────────┤
+    │ quadruple-precision │ binary128          │
+    └─────────────────────┴────────────────────┘
+
+#### What are the two differences between them?
+
+The size of the exponent field, and significand field.
+
+###
+### What's the width of the exponent field in the
+#### single-precision floating-point format?
+
+8
+
+#### double-precision floating-point format?
+
+11
+
+#### quadruple-precision floating-point format?
+
+15
+
+###
 ###
 ##
 ##
 # TODO
+## What's the exponent bias?
+
+An integer  number added  to the  exponent of a  floating-point number  when the
+latter must be stored in memory.
+
+<https://en.wikipedia.org/wiki/Exponent_bias>
+
+### Why is it necessary?
+
+Exponents are signed values, but two's complement – the usual representation for
+signed values – would make comparison harder.
+
+### How is it computed?
+
+    2^(k-1) — 1
+
+`k` is the size in bits of  the exponent field; that is 8 (single-precision), 11
+(double-precision) or 15 (quadruple-precision).
+
+Thus, its value is one of:
+
+    2^(8-1) — 1  = 127
+    2^(11-1) — 1 = 2047
+    2^(15-1) — 1 = 32767
+
+### How is it used?
+
+The exponent  is stored as an  unsigned value suitable for  comparison, and when
+being interpreted, it's converted back into an exponent within a signed range by
+subtracting the bias.
+
+---
+
+Here's what the computer would do to compare the exponents `100` and `101`:
+
+    100 + bias = (01100100)₂
+               + (01111111)₂
+               -------------
+                 (11100011)₂
+
+    101 + bias = (01100101)₂
+               + (01111111)₂
+               -------------
+                 (11100100)₂
+
+Both representations are identical until the sixth bit, where the representation
+of 101 contains a 1 while the representation of 100 contains a 0.
+So, the computer would conclude that the exponent 101 is bigger than the exponent 100.
+
+---
+
+Here's what the computer would do to compare the exponents `-100` and `-101`:
+
+    -100 + bias = (10011100)₂
+                + (01111111)₂
+                -------------
+                 (100011011)₂
+
+    -101 + bias = (10011011)₂
+                + (01111111)₂
+                -------------
+                 (100011010)₂
+
+Both representations are identical until  the last bit, where the representation
+of -100 contains a 1 while the representation of -101 contains a 0.
+So,  the computer  would conclude  that  the exponent  -100 is  bigger than  the
+exponent -101.
+
+### What is the range of possible stored values for the exponent of a single-precision floating-point number?
+
+The exponent is stored in the  range `[0,255]`.
+
+#### What about the range of possible interpreted values?
+
+A stored exponent is  interpreted by subtracting the bias – which  is 127 for an
+8-bit exponent – to get an exponent value in the range `[-127,128]`.
+
+The same thing applies to a double-precision / quadruple-precision number:
+
+    ┌─────────────────────┬─────────────┬──────────────┬───────────────────┐
+    │ number format       │ field width │ stored value │ interpreted value │
+    ├─────────────────────┼─────────────┼──────────────┼───────────────────┤
+    │ single-precision    │ 8           │ 0..255       │ -127..128         │
+    ├─────────────────────┼─────────────┼──────────────┼───────────────────┤
+    │ double-precision    │ 11          │ 0..2047      │ -1023..1024       │
+    ├─────────────────────┼─────────────┼──────────────┼───────────────────┤
+    │ quadruple-precision │ 15          │ 0..32767     │ -16383..16384     │
+    └─────────────────────┴─────────────┴──────────────┴───────────────────┘
+
+#### What are the two values which are processed specially?
+
+The stored values full of 0s and  full of 1s (e.g. 0 and 255 in single-precision
+format).
+
+##
 ## ?
 
 Exercise 3.8
 
-What  is  the  largest  floating  point number  in  this  system,  assuming  the
+What  is  the  largest  floating-point  number  in  this  system,  assuming  the
 significand field can store only the bits `b₁...b₂₃` and the exponent is limited
 by `—128 ≤ E ≤ 127`?
 
@@ -994,7 +1154,7 @@ by `—128 ≤ E ≤ 127`?
 
 Exercise 3.9
 
-What is the smallest positive floating point number in this system?
+What is the smallest positive floating-point number in this system?
 
     (1.00000000000000000000000)₂ × 2^-128
     =
@@ -1005,7 +1165,7 @@ What is the smallest positive floating point number in this system?
 Exercise 3.10
 
 What is the smallest positive **integer** that is not exactly representable as a
-floating point number in this system?
+floating-point number in this system?
 
 Here are the binary representations of the first eight positive integers:
 
@@ -1027,7 +1187,7 @@ Here are the binary representations of the first eight positive integers:
     │ 8 │ (1000)₂ │
     └───┴─────────┘
 
-Here are the same representations but in floating point:
+Here are the same representations but in floating-point:
 
     ┌───┬────────────────┐
     │ 1 │ (1.0)₂  × 2^0  │
@@ -1063,7 +1223,7 @@ The integer afterwards is:
     =
     (1000000000000000000000000)₂
 
-Its exact floating point representation is:
+Its exact floating-point representation is:
 
      (1000000000000000000000000)₂
     =
@@ -1073,7 +1233,7 @@ The fractional part  of its significand contains  24 bits which is  too much for
 our system, which can only contain 23 bits.
 
 So,  the smallest  positive  integer  that is  not  exactly  representable as  a
-floating point number is 2^24, i.e. 16777216.
+floating-point number is 2^24, i.e. 16777216.
 
 ---
 
@@ -1107,7 +1267,7 @@ That is, suppose the magnitue of the significand is halved.
 
 ---
 
-What is the new largest floating point number?
+What is the new largest floating-point number?
 
     (0.111111111111111111111111)₂ × 2^127
     =
@@ -1127,7 +1287,7 @@ Notice that it's half the old value:
 
 ---
 
-What is the new smallest positive floating point number?
+What is the new smallest positive floating-point number?
 
     (0.100000000000000000000000)₂ × 2^-128
     =
@@ -1139,7 +1299,7 @@ Notice that it's half the old value:
 
 ---
 
-What is the new smallest positive integer that is not exactly representable as a floating point number?
+What is the new smallest positive integer that is not exactly representable as a floating-point number?
 
     (0.1000000000000000000000000)₂ × 2^25
     =
