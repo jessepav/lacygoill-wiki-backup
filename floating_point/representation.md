@@ -1,538 +1,3 @@
-# Terminology
-## Where does the word “bit” come from?
-
-It's an abbreviation for binary digit.
-
-### How can I view it physically?
-
-As a single physical entity in one of two states: on or off.
-
-##
-## How do you call a string of bits?
-
-A bitstring.
-
-## What can a byte represent?
-
-Up to 256 bitstrings, which may be viewed as representing the integers from 0 to
-255, or some characters.
-
-The ASCII  encoding scheme  defines standard  character interpretations  for the
-first 128 of these bitstrings.
-
-##
-## What is a “word”?
-
-4 consecutive bytes of computer storage (i.e. 32 bits).
-
-## What is a “double word”?
-
-8 consecutive bytes (64 bits).
-
-###
-## What's the representation of a number?
-
-The sequence of symbols which expresses this number in a given base.
-
-For example, the representation of seventy one  is `71` in base 10, and `1000111`
-in base 2.
-
-## What's the expansion of a number?
-
-A sum of powers of the base, each  power being multiplied by one of the digit of
-the number:
-
-    (71)₁₀ = 7 × 10 + 1
-             ├────────┘
-             └ expansion of 71 in base 10
-
-    (1000111)₂ = 1 × 64 + 0 × 32 + 0 × 16 + 0 × 8 + 1 × 4 + 1 × 2 + 1 × 1
-                 ├──────────────────────────────────────────────────────┘
-                 └ expansion of 71 in base 2
-
-## What's the difference between a decimal point, a binary point, and a radix point?
-
-They stand for the same thing, but they're used in different contexts.
-
-
-    ┌───────────────┬────────────────────────────────┐
-    │               │ applies to a representation in │
-    ├───────────────┼────────────────────────────────┤
-    │ decimal point │ decimal                        │
-    ├───────────────┼────────────────────────────────┤
-    │ binary point  │ binary                         │
-    ├───────────────┼────────────────────────────────┤
-    │ radix point   │ arbitrary base                 │
-    └───────────────┴────────────────────────────────┘
-
-###
-## How do you qualify the representation of a nonintegral real number
-### which is not finite?
-
-It's said to be “nonterminating”.
-
-### whose symbols after the decimal/binary point repeat periodically?
-
-It's said to be “repeating”.
-
-###
-## Give an example of number whose representation is finite in decimal, but not in binary.
-
-0.1
-
-In decimal, there's only one digit after the decimal point.
-In binary, there's an infinite number of bits after the binary point:
-
-    1/10 = (0.0001100110011...)₂ = 1/16 + 1/32 + 0/64 + 0/128 + 1/256 + 1/512 + 0/1024 + ...
-            ├────────────────┘
-            └ mnemonic: 0.0 then 0011, 0011, ...
-
-###
-## Which property is shared by
-### all rational numbers?
-
-Their representation is always either finite or repeating.
-
-    1/7 = (0.142857142857)₁₀
-             ├────┘├────┘
-             │     └ period 2
-             └ period 1
-
-### all irrational numbers?
-
-Their representation is neither finite nor repeating.
-
-    √2 = (1.414213...)₁₀
-    π  = (3.141592...)₁₀
-    e  = (2.71828182845...)₁₀
-
-##
-## What's “integer overflow”?
-
-Integer overflow occurs when two positive  or negative integers of the same sign
-are added together, and the result gives an integer `≥ 2^31` or `< -2^31`.
-
-If the integers have different signs, no integer overflow can occur:
-
-    (1):     0 ≤ x ≤ 2^31 — 1
-    (2): —2^31 ≤ y ≤ 0
-
-    (1) ∧ (2) ⇒     —2^31 ≤ x + y ≤ 2^31 — 1
-
-## If the result of an operation involving 32-bit words contains more than 32 bits, how are the excessive bits called?
-
-Overflow bits.
-
-### What happens to them?
-
-They're discarded.
-
-##
-## What's the meaning of the acronym IEEE?
-
-Institute for Electrical and Electronics Engineers.
-
-### How is it pronounced?
-
-“I triple E.”
-
-##
-# A Bit Of Math
-## What does it mean for a set to be “countable”?
-
-Intuitively:
-
-You can count/enumerate its  elements from one of them to any  other in a finite
-amount of time (this definition implies/needs the existence of an order).
-
-The set of real numbers, for example, is UNcountable because you can't enumerate
-all the numbers from 0 to 1 in a finite amount of time.
-There are more  real numbers between 0 and  1, than in the whole  set of natural
-numbers.
-
----
-
-More formally:
-
-There exists a one-to-one correspondence between this set and the set of natural
-numbers; IOW, there exists a method which:
-
-   - can enumerate all of its elements
-
-        s₁, s₂, s₃, ...
-
-   - doesn't contain any infinity  in the middle, so that  you can reach any
-     element  in a finite amount of time
-
-For example, this enumeration of the natural numbers proves that the set is countable:
-
-    1 3 2 5 4 7 6 ...
-                  ^^^
-                  allowed
-
-But not this one:
-
-    2 4 6 8 ... 1 3 5 7 ...
-            ^^^
-            forbidden
-
----
-
-Even more formally:
-
-> A set  S is countable if  there exists an injective  function f from S  to the
-> natural numbers N = {0, 1, 2, 3, ...}.
-
-<https://en.wikipedia.org/wiki/Countable_set#Definition>
-<https://en.wikipedia.org/wiki/Injective_function>
-
-## How to prove that
-### the set of rational numbers is countable?
-
-Imagine them listed in this infinite two-dimensional array:
-
-    ┌─────┬──────┬───────┬───────┬───────┬─────┐
-    │     │ 1    │ 2     │ 3     │ 4     │ ... │
-    ├─────┼──────┼───────┼───────┼───────┼─────┤
-    │ 1   │ ±1/1 │ ± 1/2 │ ± 1/3 │ ± 1/4 │ ... │
-    ├─────┼──────┼───────┼───────┼───────┼─────┤
-    │ 2   │ ±2/1 │ ± 2/2 │ ± 2/3 │ ± 2/4 │ ... │
-    ├─────┼──────┼───────┼───────┼───────┼─────┤
-    │ 3   │ ±3/1 │ ± 3/2 │ ± 3/3 │ ± 3/4 │ ... │
-    ├─────┼──────┼───────┼───────┼───────┼─────┤
-    │ 4   │ ±4/1 │ ± 4/2 │ ± 4/3 │ ± 4/4 │ ... │
-    ├─────┼──────┼───────┼───────┼───────┼─────┤
-    │ ... │ ...  │ ...   │ ...   │ ...   │ ... │
-    └─────┴──────┴───────┴───────┴───────┴─────┘
-
-We need to find an enumeration of all these numbers.
-
-Listing the first line and then the second,  and so on, does not work, since the
-first line  never terminates; you can't  enumerate the numbers between  ±1/1 and
-±2/1 in a finite amount of time.
-
-But if we list them by diagonal:
-
-    ±1/1
-    ±2/1, ±1/2
-    ±3/1, ±2/2, ±1/3
-    ±4/1, ±3/2, ±2/3, ±1/4
-    ...
-
-We get an enumeration.
-
-Indeed, the  table contains all rationals;  so no matter the  rational you think
-of, it must be somewhere in the table.
-
-Besides, in this listing, you can reach  any rational number – including the one
-you think of – in a finite amount  of time, because the diagonals are all finite
-(contrary to the lines and columns).
-
----
-
-To be able to enumerate this list  without looking at the table, notice that the
-sum of the numerator and the denominator  of all rationals in any given diagonal
-is constant; and it's increasing by 1  from one diagonal to the next: 2, then 3,
-then 4, then 5, etc.
-
-### the set of real numbers is UNcountable?
-
-Use the Cantor's diagonal argument:
-<https://en.wikipedia.org/wiki/Cantor%27s_diagonal_argument>
-
-Let's assume that the set of real numbers is countable.
-It follows that all of its elements can be written as an exhaustive enumeration:
-
-    s₁, s₂, s₃, ...
-
-For example, the start of the enumeration could look like this:
-
-    ┌─────┬───────────────────┐
-    │ s1  │ .5032164223981... │
-    ├─────┼───────────────────┤
-    │ s2  │ .9999261457682... │
-    ├─────┼───────────────────┤
-    │ s3  │ .0001042507334... │
-    ├─────┼───────────────────┤
-    │ ... │ ...               │
-    └─────┴───────────────────┘
-
-Now, let's build an element `s` by selecting the first decimal in `s₁` plus 1:
-
-    5+1 = 6
-    s = .6
-
-then the second decimal of `s₂` minus 1:
-
-    9-1 = 8
-    s = .68
-
-then the third decimal of `s₃` plus 1:
-
-    0 + 1 = 1
-    s = .681
-
-Repeat the process  indefinitely, by extracting the `ᵢ`th decimal  of `sᵢ`, `+1`
-if it's lower than 8, and `-1` if the decimal is 9.
-
-Now, let's  compare the real  number `s` you've just  built with the  123th real
-number in your enumeration.
-You don't  know what the  latter looks  like, but you  *do* know that  its 123th
-decimal is different than the one of `s`.
-So, `s` is different than the 123th real number.
-For the  same kind  of reason,  `s` is different  than any  real number  in your
-enumeration.
-
-But since `s` is a real number, it should be somewhere in the exhaustive enumeration.
-This contradiction  implies that the  original assumption  is false: the  set of
-real numbers is *not* countable.
-
-###
-## Express euler's number as the sum of an infinite series.  (2)
-
-    e = Σ(1/n!), n ≥ 0
-
-    e = Σ(1 + 1/n)^n, n ≥ 1
-
-Note that any irrational number can be expressed as the sum of an infinite series.
-
-##
-## What's the value of
-### `1 + a + a^2 + ... + a^n`?
-
-Let's call this sum S.
-
-    (1): a × S =      a + a^2 + a^3 + ... + a^n + a^(n+1)
-    (2):   — S = —1 — a — a^2 — ...       — a^n
-
-    (1) ∧ (2) ⇒   a × S — S = a^(n+1) — 1
-              ⇔ (a — 1) × S = a^(n+1) — 1
-
-              ⇔ S = a^(n+1) — 1
-                    ───────────
-                       a — 1
-
-### `a^n + a^(n+1) + ... + a^m`?
-
-Let's call this sum S.
-
-    (1): a × S =        a^(n+1) + a^(n+2) + ... + a^m + a^(m+1)
-    (2):   — S = —a^n — a^(n+1) — ...           — a^m
-
-    (1) ∧ (2) ⇒   a × S — S = a^(m+1) — a^n
-              ⇔ (a — 1) × S = a^(m+1) — a^n
-
-              ⇔ S = a^(m+1) — a^n
-                    ─────────────
-                       a — 1
-
-##
-## Significant digits
-### What are the four cases to consider when determining the significant digits in a number?
-
-The number can be:
-
-   - a value known to be exact (e.g. π)
-   - a measured quantity
-   - a quantity calculated by an addition/subtraction
-   - a quantity calculated by a multiplication/division
-
-###
-### What does it mean for a digit in a measured quantity to be significant?
-
-It  means  it's necessary  to  express  the  number  within the  uncertainty  of
-measurement.
-
-Ex:
-        ┌ measured quantity
-        ├───────────┐
-        1.230 ± 0.002
-        ├───┘
-        └ 4 significant digits
-
-Here, you need 4 digits to express the quantity within the uncertainty of measurement:
-
-    1.228 ≤ x ≤ 1.232
-
-<http://mathworld.wolfram.com/SignificantDigits.html>
-
-#### When is it *in*significant?
-
-Only 0 can be insignificant, and only in one of two conditions.
-Either it's a leading 0, or:
-
-   - it's a trailing 0
-   - the number has no radix point
-   - we know from the context that the 0 can't be significant
-
-     Example: we've measured the following quantity:
-
-         q = 1300 ± 10
-
-     The first  0 in 1300 is  significant because it's above  the uncertainty of
-     measurement, but not the second 0.
-
----
-
-All other digits are significant:
-
-   - non-zero digits (1-9)
-   - a 0 between two non-zero digits (e.g. 102)
-   - a trailing 0 in a number with a radix point (e.g. 1.230)
-
-<https://en.wikipedia.org/wiki/Significant_figures#Concise_rules>
-
-###
-#### Is one of the 0 significant in 0.01?
-
-No.
-Even the 0 after the decimal point is not significant.
-
-#### In the absence of any context, where's the last significant digit in the measured quantity 1300?
-
-    1300
-      ^
-      significant up to the hundreds
-
-##### How to manually change this position?  (3)
-
-Use an overline, the scientific notation, or a trailing dot.
-
----
-
-Suppose you want to express that 1300 has only 2 significant digits.
-You could write either of these:
-
-    13̅00
-    1.3 × 10^3
-
-For 3 significant digits:
-
-    130̅0
-    1.30 × 10^3
-
-For 4 significant digits:
-
-        ┌ all digits are significant
-        │
-    1300.
-    1300̅
-    1.300 × 10^3
-
-###
-### What are the six types of values known to be exact?
-
-  - integer counts (e.g. the number of oranges in a bag)
-  - definitions of one unit in terms of another (e.g. a minute is 60 seconds)
-  - actual prices asked or offered, and quantities given in requirement
-    specifications
-  - legally defined conversions, such as international currency exchange
-  - scalar operations, such as "tripling" or "halving"
-  - mathematical constants, such as π and e
-
-#### Which influence do they have on the significant digits of a calculated quantity?
-
-None.
-
-You must ignore them.
-
-#### Is the Avogadro's number a value known to be exact?
-
-No, because it's known to us only by measurement.
-
-#### Is the speed of light a value known to be exact?
-
-Yes, because its value is given by its definition.
-
-###
-### How many significant digits should there be in a quantity calculated by a multiplication/division?
-
-As many as the measured quantity with the smallest amount of significant digits.
-
-<https://en.wikipedia.org/wiki/Significant_figures#Arithmetic>
-<https://en.wikipedia.org/wiki/Significance_arithmetic>
-
-### What's the quantity calculated by
-#### `8 × 8`?
-
-    ≈ 6 × 10^1
-
-<https://en.wikipedia.org/wiki/Significance_arithmetic>
-
-#### `8 × 8.0`?
-
-    ≈ 6 × 10^1
-
-#### `8.0 × 8.0`?
-
-    ≈ 6.4 × 10^1
-
-#### `8.02 × 8.02`?
-
-    ≈ 6.43 × 10^2
-
-#### `8 / 2.0`?
-
-    ≈ 4
-
-#### `8.6 / 2.0012`?
-
-    ≈ 4.3
-
-#### `2 × 0.8`?
-
-    ≈ 2
-
-####
-### Where is the last significant digit in a quantity calculated by an addition/subtraction?
-
-In the place  of the least significant  digit in the most  uncertain (i.e. least
-accurate) of the numbers being summed.
-
-### What's the quantity calculated by
-#### `1 + 1.1`?
-
-    ≈ 2
-
-1 and 1.1 are significant resp. up to the ones and tenths place.
-Of  the two,  the  least accurate  is  the ones  place, so  the  result must  be
-significant up to ones place.
-
-#### `1.0 + 1.1`?
-
-    = 2.1
-
-#### `100 + 110`?
-
-    ≈ 200
-
-100 and 110 are significant resp. up to the hundreds place and tens place.
-The result must be significant up to the hundreds place.
-
-#### `100. + 110.`?
-
-    = 210.
-
-#### `1 × 10^2 + 1.1 × 10^2`?
-
-    ≈ 2 × 10^2
-
-`1 × 10^2` and `1.1 × 10^2` are significant resp. up to the hundreds and tens place.
-The result must be significant up to the hundreds place.
-
-#### `1.0 × 10^2 + 111`?
-
-    ≈ 2.1 × 10^2
-
-#### `123.25 + 46.0 + 86.26`?
-
-    ≈ 255.5
-
-#### `100 — 1`?
-
-    ≈ 100
-
-##
 # Number Systems
 ## What does the Roman number system require?  (3)
 
@@ -588,7 +53,7 @@ We use it today in our division of  the hour into 60 minutes and the minute into
 60 seconds.
 
 ##
-# Representations
+# Symbols
 ## Which bitstrings can be abbreviated with
 ### the octal symbols 0 through 7?
 
@@ -601,6 +66,12 @@ Any bitstring  whose length is  4 (because `2^3 =  16`), that is  the bitstrings
 `0000` through `1111`.
 
 ###
+# Negative Integers
+## How much memory is usually used to store an integer?
+
+With a 32-bit computer word.
+
+##
 ## What's the binary representation of `2^n`?
 
 A 1 followed by `n` 0s.
@@ -676,11 +147,7 @@ The last  equality tells  us that  the binary  representation of  `2^32 —  x` 
 obtained after flipping  all the bits of `x`  – because of `y` in the  rhs – and
 adding 1.
 
-###
-## How much memory is usually used to store an integer?
-
-With a 32-bit computer word.
-
+##
 ## Which representation is usually used to store a negative integer?
 
 Most machines use a representation called 2's complement.
@@ -777,7 +244,8 @@ The 2's complement method provides three benefits:
 <https://stackoverflow.com/a/1125317/9780968>
 
 ###
-## What's the binary representation of -1, -10 and -100?
+## Using an 8-bit format
+### what's the binary representation of -1, -10 and -100 in 2's complement?
 
     ┌──────┬──────────┐
     │ -1   │ 11111111 │
@@ -813,7 +281,7 @@ Proof:
     ↓
     10011100
 
-### How to get back the numbers from these representations?
+#### How to get back the numbers from these representations?
 
 Compute its expansion as usual, but multiply the leftmost term with -1 instead of 1:
 
@@ -831,8 +299,8 @@ Compute its expansion as usual, but multiply the leftmost term with -1 instead o
                 = -100
 
 ##
-## Using an 8-bit format, show how the computer calculates
-### `50 + (—100)`?
+### show how the computer calculates
+#### `50 + (—100)`?
 
      50  = (00110010)₂
      100 = (01100100)₂
@@ -852,7 +320,7 @@ Check the result:
       (11001110)₂ = —2^7 + 2^6 + 2^3 + 2^2 + 2^1
                   = —50
 
-### `100 + (—50)`?
+#### `100 + (—50)`?
 
     100 = (01100100)₂
     50  = (00110010)₂
@@ -865,7 +333,7 @@ Check the result:
     ------------
       (00110010)₂
 
-### `50 + 50`?
+#### `50 + 50`?
 
     50 = (00110010)₂
 
@@ -885,26 +353,26 @@ Check the result:
          and carry another 1 in the next column
 
 ##
-## What is the floating-point representation?
+# Floating-point numbers
+## What's the scientific notation of a number `x`?
 
-It  adapts  the concept  of  scientific  notation,  in a  binary  implementation
-context, to the representation of numbers in computer memory, or in stored data.
-
-Scientific notation:
-
-    x = ± S × 10^E
-
-Normalized scientific notation:
-
-    x = ± S × 10^E
-    1 ≤ S < 10
-
-Floating-point representation:
-
-    x = ± S × 2^E
-    1 ≤ S < 2
+    ± S × 10^E
 
 `S` is called the significand, and `E` the exponent.
+
+### What's its normalized form?
+
+    ± S × 10^E
+    1 ≤ S < 10
+
+##
+## What's the floating-point representation?
+
+The usage  of the  concept of  scientific notation,  in a  binary implementation
+context, to represent numbers in computer memory.
+
+    ± S × 2^E
+    1 ≤ S < 2
 
 ### Why is it called “floating”-point?
 
@@ -926,7 +394,6 @@ point floats to the position immediately after the first non-zero digit.
 Source: <https://en.wikipedia.org/wiki/Floating-point_arithmetic>
 
 ##
-# Formats
 ## What's a computer number format?
 
 The internal representation of numeric values in digital computer.
@@ -976,7 +443,8 @@ Its computer word(s) is/are divided into three fields:
 
 ### What's a floating-point number?
 
-A real number which can be stored *exactly* using its floating-point representation.
+A  real number  which can  be stored  *exactly* (no  rounding required)  using a
+floating-point format.
 
 #### If a real is not a floating-point number, how is it stored?
 
@@ -992,9 +460,9 @@ No matter the number, it's always 1.
 Because it's not stored since it doesn't need to be.
 
 ###
-### What's the name of the bits following the binary point?
+### What's the name of the bits following the binary point?  (2)
 
-The fractional part of the significand.
+The fractional part (of the significand), also called the fraction field.
 
 ###
 ### What are the names (new and old) of the three main floating-point formats?
@@ -1028,23 +496,19 @@ The size of the exponent field, and significand field.
 15
 
 ###
-###
-##
-##
-# TODO
-## What's the exponent bias?
+### What's the exponent bias?
 
 An integer  number added  to the  exponent of a  floating-point number  when the
 latter must be stored in memory.
 
 <https://en.wikipedia.org/wiki/Exponent_bias>
 
-### Why is it necessary?
+#### Why is it necessary?
 
 Exponents are signed values, but two's complement – the usual representation for
 signed values – would make comparison harder.
 
-### How is it computed?
+#### How is it computed?
 
     2^(k-1) — 1
 
@@ -1057,7 +521,7 @@ Thus, its value is one of:
     2^(11-1) — 1 = 2047
     2^(15-1) — 1 = 32767
 
-### How is it used?
+#### How is it used?
 
 The exponent  is stored as an  unsigned value suitable for  comparison, and when
 being interpreted, it's converted back into an exponent within a signed range by
@@ -1100,11 +564,11 @@ of -100 contains a 1 while the representation of -101 contains a 0.
 So,  the computer  would conclude  that  the exponent  -100 is  bigger than  the
 exponent -101.
 
-### What is the range of possible stored values for the exponent of a single-precision floating-point number?
+#### What is the range of possible stored values for the exponent of a single-precision floating-point number?
 
-The exponent is stored in the  range `[0,255]`.
+The exponent is stored in the range `[0,255]`.
 
-#### What about the range of possible interpreted values?
+##### What about the range of possible interpreted values?
 
 A stored exponent is  interpreted by subtracting the bias – which  is 127 for an
 8-bit exponent – to get an exponent value in the range `[-127,128]`.
@@ -1121,23 +585,58 @@ The same thing applies to a double-precision / quadruple-precision number:
     │ quadruple-precision │ 15          │ 0..32767     │ -16383..16384     │
     └─────────────────────┴─────────────┴──────────────┴───────────────────┘
 
-#### What are the two values which are processed specially?
+##### What are the two values which are processed specially?
 
 The stored values full of 0s and  full of 1s (e.g. 0 and 255 in single-precision
 format).
 
 ##
-## ?
+### What's the single-precision format floating-point representation for
+#### 11/2?
 
-Exercise 3.8
+    11/2 = (101.1)₂ = (1.011)₂ × 2^2
 
-What  is  the  largest  floating-point  number  in  this  system,  assuming  the
-significand field can store only the bits `b₁...b₂₃` and the exponent is limited
-by `—128 ≤ E ≤ 127`?
+    ┌───┬──────────┬─────────────────────────┐
+    │ 0 │ 10000001 │ 01100000000000000000000 │
+    └───┴──────────┴─────────────────────────┘
+
+Notice that:
+
+   - the exponent is `2+127`
+   - the fraction field doesn't contain the initial `1`; it's hidden.
+
+#### 71?
+
+    71 = (1000111)₂ = (1.000111)₂ × 2^6
+
+    ┌───┬──────────┬─────────────────────────┐
+    │ 0 │ 10000101 │ 00011100000000000000000 │
+    └───┴──────────┴─────────────────────────┘
+
+`10000101` is the stored exponent 133 (127 + 6).
+
+#### 1?
+
+    1 = (1)₂ = (1.0)₂ × 2^0
+
+    ┌───┬──────────┬─────────────────────────┐
+    │ 0 │ 01111111 │ 00000000000000000000000 │
+    └───┴──────────┴─────────────────────────┘
+
+#### 2^71?
+
+    2^71 = (1.0) × 2^71
+
+    ┌───┬──────────┬─────────────────────────┐
+    │ 0 │ 11000110 │ 00000000000000000000000 │
+    └───┴──────────┴─────────────────────────┘
+
+###
+### In single-precision format, what's the
+#### largest floating-point number?
 
       (1.11111111111111111111111)₂ × 2^127
 
-    =  (2^0 + 2^-1 + ... + 2^-23)  × 2^127
     =  (2^-23 + 2^-22 + ... + 2^0) × 2^127
 
     =  2^(0+1) — 2^-23  × 2^127
@@ -1146,107 +645,55 @@ by `—128 ≤ E ≤ 127`?
 
     =  (2 — 2^-23) × 2^127
 
+    =  2^128 — 2^104
+
+Note that we can't use the exponent 128, because it's interpreted specially.
+
+#### smallest positive floating-point number?
+
+    (1.00000000000000000000000)₂ × 2^-126
     =
+    2^-126
 
-    2^128 — 2^104
+Note that we can't use the exponent -127, because it's interpreted specially.
 
-## ?
+#### smallest positive **integer** that is not exactly representable?
 
-Exercise 3.9
+There are two reasons which could explain why an integer is not exactly representable:
 
-What is the smallest positive floating-point number in this system?
+   - the exponent is too big (> 126)
+   - the significand has too many digits (> 23)
 
-    (1.00000000000000000000000)₂ × 2^-128
+Since we're  looking for the  smallest integer, and  the significand has  a much
+lesser impact on the magnitude of a  number compared to the exponent, we need to
+find the smaller integer whose significand contains 24 digits; that is:
+
+    1.000000000000000000000000 × 2^24
     =
-    2^-128
-
-## ?
-
-Exercise 3.10
-
-What is the smallest positive **integer** that is not exactly representable as a
-floating-point number in this system?
-
-Here are the binary representations of the first eight positive integers:
-
-    ┌───┬─────────┐
-    │ 1 │ (1)₂    │
-    ├───┼─────────┤
-    │ 2 │ (10)₂   │
-    ├───┼─────────┤
-    │ 3 │ (11)₂   │
-    ├───┼─────────┤
-    │ 4 │ (100)₂  │
-    ├───┼─────────┤
-    │ 5 │ (101)₂  │
-    ├───┼─────────┤
-    │ 6 │ (110)₂  │
-    ├───┼─────────┤
-    │ 7 │ (111)₂  │
-    ├───┼─────────┤
-    │ 8 │ (1000)₂ │
-    └───┴─────────┘
-
-Here are the same representations but in floating-point:
-
-    ┌───┬────────────────┐
-    │ 1 │ (1.0)₂  × 2^0  │
-    ├───┼────────────────┤
-    │ 2 │ (1.0)₂  × 2^1  │
-    ├───┼────────────────┤
-    │ 3 │ (1.1)₂  × 2^1  │
-    ├───┼────────────────┤
-    │ 4 │ (1.00)₂ × 2^2  │
-    ├───┼────────────────┤
-    │ 5 │ (1.01)₂ × 2^2  │
-    ├───┼────────────────┤
-    │ 6 │ (1.10)₂ × 2^2  │
-    ├───┼────────────────┤
-    │ 7 │ (1.11)₂  × 2^2 │
-    ├───┼────────────────┤
-    │ 8 │ (1.000)₂ × 2^3 │
-    └───┴────────────────┘
-
-Notice that  the exponent always  matches the number  of bits in  the fractional
-part of the significand (except for the  special case), exactly like it would do
-in decimal.
-
-We could go on until this number:
-
-    (1.11111111111111111111111)₂ × 2^23
+    2^24
     =
-    (111111111111111111111111)₂
-
-The integer afterwards is:
-
-     (111111111111111111111111)₂ + 1
-    =
-    (1000000000000000000000000)₂
-
-Its exact floating-point representation is:
-
-     (1000000000000000000000000)₂
-    =
-    (1.000000000000000000000000)₂ × 2^24
-
-The fractional part  of its significand contains  24 bits which is  too much for
-our system, which can only contain 23 bits.
-
-So,  the smallest  positive  integer  that is  not  exactly  representable as  a
-floating-point number is 2^24, i.e. 16777216.
+    16777216
 
 ---
 
-Another way of finding the solution:
+You could think the answer is 2^23, because the latter needs 24 digits (a 1 then 24 0s).
+But you  would be wrong,  because in a floating-point  number, the first  bit is
+hidden; i.e. the computer assumes it's 1.
+So, the computer would only need 23 bits to store the significand of 2^23, and not 24.
 
-Our system can only express numbers with 24 significant bits.
-So, it can't express exactly any integer with 25 significant bits or more.
-The smallest integer with 25 significant bits is:
+##
+# Resources
 
-    (1000000000000000000000000)₂
-    =
-    2^24
+<http://www.cs.nyu.edu/cs/faculty/overton/book/>
 
+Refer to this  page for corrections to  the text, to download  programs from the
+book, and to link to the web  pages mentioned in the bibliography, which will be
+updated as necessary.
+
+###
+##
+##
+# TODO
 ## ?
 
 Exercise 3.11
@@ -1309,7 +756,6 @@ What is the new smallest positive integer that is not exactly representable as a
 
 Notice that it's the same as the old value.
 
-##
 ## ?
 
 All computers provide hardware instructions for adding integers.
@@ -1357,7 +803,6 @@ special hardware is needed for integer subtraction.
 The  addition hardware  can  be used  once  the negative  number  `—y` has  been
 represented using 2's complement.
 
-##
 ## ?
 
 A rough presentation  of floating-point arithmetic requires only a  few words: a
@@ -1404,13 +849,4 @@ where:
 
    - `e` is an integer such that `eₘᵢₙ ≤ e ≤ eₘₐₓ`, called the exponent of the
      representation of `x`
-
-##
-# Resources
-
-<http://www.cs.nyu.edu/cs/faculty/overton/book/>
-
-Refer to this  page for corrections to  the text, to download  programs from the
-book, and to link to the web  pages mentioned in the bibliography, which will be
-updated as necessary.
 
