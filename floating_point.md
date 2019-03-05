@@ -109,8 +109,15 @@ Their representation is neither finite nor repeating.
 ##
 ## What's “integer overflow”?
 
-Integer  overflow  occurs when  two  positive  or  negative integers  are  added
-together, and the result gives an integer `≥ 2^31` or `< -2^31`.
+Integer overflow occurs when two positive  or negative integers of the same sign
+are added together, and the result gives an integer `≥ 2^31` or `< -2^31`.
+
+If the integers have different signs, no integer overflow can occur:
+
+    (1):     0 ≤ x ≤ 2^31 — 1
+    (2): —2^31 ≤ y ≤ 0
+
+    (1) ∧ (2) ⇒     —2^31 ≤ x + y ≤ 2^31 — 1
 
 ## If the result of an operation involving 32-bit words contains more than 32 bits, how are the excessive bits called?
 
@@ -303,7 +310,9 @@ real numbers is *not* countable.
 
 Note that any irrational number can be expressed as the sum of an infinite series.
 
-## What's the value of `1 + a + a^2 + ... + a^n`?
+##
+## What's the value of
+### `1 + a + a^2 + ... + a^n`?
 
 Let's call this sum S.
 
@@ -317,7 +326,7 @@ Let's call this sum S.
                     ───────────
                        a — 1
 
-## What's the value of `a^n + a^(n+1) + ... + a^m`?
+### `a^n + a^(n+1) + ... + a^m`?
 
 Let's call this sum S.
 
@@ -332,8 +341,214 @@ Let's call this sum S.
                        a — 1
 
 ##
-# Numeric Systems
-## What does the Roman numeric system require?  (3)
+## Significant digits
+### What are the four cases to consider when determining the significant digits in a number?
+
+The number can be:
+
+   - a value known to be exact (e.g. π)
+   - a measured quantity
+   - a quantity calculated by an addition/subtraction
+   - a quantity calculated by a multiplication/division
+
+###
+### What does it mean for a digit in a measured quantity to be significant?
+
+It  means  it's necessary  to  express  the  number  within the  uncertainty  of
+measurement.
+
+Ex:
+        ┌ measured quantity
+        ├───────────┐
+        1.230 ± 0.002
+        ├───┘
+        └ 4 significant digits
+
+Here, you need 4 digits to express the quantity within the uncertainty of measurement:
+
+    1.228 ≤ x ≤ 1.232
+
+<http://mathworld.wolfram.com/SignificantDigits.html>
+
+#### When is it *in*significant?
+
+Only 0 can be insignificant, and only in one of two conditions.
+Either it's a leading 0, or:
+
+   - it's a trailing 0
+   - the number has no radix point
+   - we know from the context that the 0 can't be significant
+
+     Example: we've measured the following quantity:
+
+         q = 1300 ± 10
+
+     The first  0 in 1300 is  significant because it's above  the uncertainty of
+     measurement, but not the second 0.
+
+---
+
+All other digits are significant:
+
+   - non-zero digits (1-9)
+   - a 0 between two non-zero digits (e.g. 102)
+   - a trailing 0 in a number with a radix point (e.g. 1.230)
+
+<https://en.wikipedia.org/wiki/Significant_figures#Concise_rules>
+
+###
+#### Is one of the 0 significant in 0.01?
+
+No.
+Even the 0 after the decimal point is not significant.
+
+#### In the absence of any context, where's the last significant digit in the measured quantity 1300?
+
+    1300
+      ^
+      significant up to the hundreds
+
+##### How to manually change this position?  (3)
+
+Use an overline, the scientific notation, or a trailing dot.
+
+---
+
+Suppose you want to express that 1300 has only 2 significant digits.
+You could write either of these:
+
+    13̅00
+    1.3 × 10^3
+
+For 3 significant digits:
+
+    130̅0
+    1.30 × 10^3
+
+For 4 significant digits:
+
+        ┌ all digits are significant
+        │
+    1300.
+    1300̅
+    1.300 × 10^3
+
+###
+### What are the six types of values known to be exact?
+
+  - integer counts (e.g. the number of oranges in a bag)
+  - definitions of one unit in terms of another (e.g. a minute is 60 seconds)
+  - actual prices asked or offered, and quantities given in requirement
+    specifications
+  - legally defined conversions, such as international currency exchange
+  - scalar operations, such as "tripling" or "halving"
+  - mathematical constants, such as π and e
+
+#### Which influence do they have on the significant digits of a calculated quantity?
+
+None.
+
+You must ignore them.
+
+#### Is the Avogadro's number a value known to be exact?
+
+No, because it's known to us only by measurement.
+
+#### Is the speed of light a value known to be exact?
+
+Yes, because its value is given by its definition.
+
+###
+### How many significant digits should there be in a quantity calculated by a multiplication/division?
+
+As many as the measured quantity with the smallest amount of significant digits.
+
+<https://en.wikipedia.org/wiki/Significant_figures#Arithmetic>
+<https://en.wikipedia.org/wiki/Significance_arithmetic>
+
+### What's the quantity calculated by
+#### `8 × 8`?
+
+    ≈ 6 × 10^1
+
+<https://en.wikipedia.org/wiki/Significance_arithmetic>
+
+#### `8 × 8.0`?
+
+    ≈ 6 × 10^1
+
+#### `8.0 × 8.0`?
+
+    ≈ 6.4 × 10^1
+
+#### `8.02 × 8.02`?
+
+    ≈ 6.43 × 10^2
+
+#### `8 / 2.0`?
+
+    ≈ 4
+
+#### `8.6 / 2.0012`?
+
+    ≈ 4.3
+
+#### `2 × 0.8`?
+
+    ≈ 2
+
+####
+### Where is the last significant digit in a quantity calculated by an addition/subtraction?
+
+In the place  of the least significant  digit in the most  uncertain (i.e. least
+accurate) of the numbers being summed.
+
+### What's the quantity calculated by
+#### `1 + 1.1`?
+
+    ≈ 2
+
+1 and 1.1 are significant resp. up to the ones and tenths place.
+Of  the two,  the  least accurate  is  the ones  place, so  the  result must  be
+significant up to ones place.
+
+#### `1.0 + 1.1`?
+
+    = 2.1
+
+#### `100 + 110`?
+
+    ≈ 200
+
+100 and 110 are significant resp. up to the hundreds place and tens place.
+The result must be significant up to the hundreds place.
+
+#### `100. + 110.`?
+
+    = 210.
+
+#### `1 × 10^2 + 1.1 × 10^2`?
+
+    ≈ 2 × 10^2
+
+`1 × 10^2` and `1.1 × 10^2` are significant resp. up to the hundreds and tens place.
+The result must be significant up to the hundreds place.
+
+#### `1.0 × 10^2 + 111`?
+
+    ≈ 2.1 × 10^2
+
+#### `123.25 + 46.0 + 86.26`?
+
+    ≈ 255.5
+
+#### `100 — 1`?
+
+    ≈ 100
+
+##
+# Number Systems
+## What does the Roman number system require?  (3)
 
 A different symbol for each power of 10:
 
@@ -370,7 +585,7 @@ Calculation with pencil and paper:
 Representation of large numbers.
 
 ###
-## Why is our current numeric system called positional?
+## Why is our current number system called positional?
 
 The interpretation of a symbol depends on its position.
 
@@ -379,7 +594,7 @@ The interpretation of a symbol depends on its position.
 The invention of the number 0, and the attribution of a symbol to it.
 Zero is needed, for example, to distinguish 1 from 10.
 
-## What other positional numeric system do you know and use on a daily basis?
+## What other positional number system do you know and use on a daily basis?
 
 The base 60 system used by the Babylonians.
 
@@ -444,7 +659,8 @@ representations are known to you?
 So, you're looking for sth which, when added to `x`, gives a 1 followed by 32 0s.
 
 You don't know how to get that, but you know how to get sth close: 32 1s.
-Add the number whose representation is the one of `x` after flipping all the bits.
+To get the latter, you simply need to add the number whose representation is the
+one of `x` after flipping all the bits.
 
 Now, to get from 32 1s to a one and 32 0s, all you need is add 1.
 Similarly, to get from 999 to 1000, all you need is add 1.
@@ -477,7 +693,7 @@ adding 1.
 ###
 ## How much memory is usually used to store an integer?
 
-With a 32 bit word.
+With a 32-bit computer word.
 
 ## Which representation is usually used to store a negative integer?
 
@@ -499,8 +715,8 @@ And the sum of 71 and -71 is:
        ^
        overflow bit
 
-The bit in the leftmost position of the sum cannot be stored in the 32-bit word,
-and thus is discarded.
+The bit  in the  leftmost position  of the sum  cannot be  stored in  the 32-bit
+computer word, and thus is discarded.
 The result is 0, which is exactly what we want for `71 + (-71)`.
 
 <https://en.wikipedia.org/wiki/Two%27s_complement>
@@ -510,7 +726,7 @@ The result is 0, which is exactly what we want for `71 + (-71)`.
 
 Why did we choose the range `1 ≤  x  ≤ 2^31` for the negative integers?
 
-Theory: A word can generate `2^32` bitstrings.
+Theory: A computer word can generate `2^32` bitstrings.
 0 consumes one of them, so there're  `2^32 — 1` bitstrings left for the negative
 and positive integers.
 This is not divisible  by two, so we have to choose how  many bitstrings to give
@@ -611,9 +827,9 @@ Proof:
     ↓
     10011100
 
-### How can you check these representations?
+### How to get back the numbers from these representations?
 
-Compute their expansion, but multiply the leftmost term with -1 instead of 1:
+Compute its expansion as usual, but multiply the leftmost term with -1 instead of 1:
 
                   v
     (11111111)₂ = -2^7 + 2^6 + 2^5 + 2^4 + 2^3 + 2^2 + 2^1 + 2^0
@@ -629,74 +845,128 @@ Compute their expansion, but multiply the leftmost term with -1 instead of 1:
                 = -100
 
 ##
-## ?
+## Using an 8-bit format, show how the computer calculate
+### `50 + (—100)`?
 
-Integrate here our comments from `vim-math` regarding significant digits.
+     50  = (00110010)₂
+     100 = (01100100)₂
+    -100 = (10011100)₂    after flipping all the bits: 10011011
+                          after adding 1:              10011100
 
-## ?
+    50 + (—100)
+    =
+      (00110010)₂
+    + (10011100)₂
+    ------------
+      (11001110)₂
 
-All computers provide hardware instructions for adding integers.
-If two  positive integers  are added  together, the result  may give  an integer
-greater than or equal to `2^31`.
-In this case, we say that integer overflow occurs.
-One would hope that this leads to an informative error message for the user, but
-whether or  not this happens  depends on  the programming language  and compiler
-being used.
-In some  cases, the overflow  bits may be discarded  and the programmer  must be
-alert to prevent this from happening.
-The same problem may occur if two negative integers are added together, giving a
-negative integer with magnitude greater than `2^31`.
-On the other  hand, although an overflow  bit may arise when  the 2's complement
-bitstrings are added together.
-Consider the operation:
+Check the result:
 
-    x + (—y)
+       v            v
+      (11001110)₂ = —2^7 + 2^6 + 2^3 + 2^2 + 2^1
+                  = —50
 
-where
+### `100 + (—50)`?
 
-    0 ≤ x ≤ 2^31 — 1
-    1 ≤ y ≤ 2^31
+    100 = (01100100)₂
+    50  = (00110010)₂
+    -50 = (11001110)₂
 
-Clearly, it  is possible  to store the  desired result `x  — y`  without integer
-overflow.
-The result may be positive, negative, or  zero, depending on whether `x > y`, `x = y`,
-or `x < y`.
+    100 + (—50)
+    =
+      (01100100)₂
+    + (11001110)₂
+    ------------
+      (00110010)₂
 
-Now let us see what happens if we add the 2's complement representations for `x`
-and `—y`, i.e., the bitstrings for the non-negative numbers `x` and `2^32 — y`.
-We obtain the bitstring for:
+### `50 + 50`?
 
-    2^32 + x — y = 2^32 — (y — x)
+    50 = (00110010)₂
 
-If `x ≥ y`, the leftmost bit of  the result is an overflow bit, corresponding to
-the power `2^32`, but this bit can  be discarded, giving the correct result `x — y`.
-If `x <  y`, the result fits  in 32 bits with  no overflow bit, and  we have the
-desired  result, since  it  represents the  negative  value `—(y  —  x)` in  2's
-complement.
+    50 + 50
+    =
+      (00110010)₂
+    + (00110010)₂
+    ------------
+      (01100100)₂
+         ^
+         the previous column carries a 1 (1 + 1 = 10),
+         so when you reach this one, you have to sum three 1s: 1 + 1 + 1
 
-This demonstrates  an important  property of  2's complement  representation: no
-special hardware is needed for integer subtraction.
-The  addition hardware  can  be used  once  the negative  number  `—y` has  been
-represented using 2's complement.
+                (1 + 1 + 1)₂ = (10 + 1)₂ = (11)₂
 
-## ?
+         you must deal with that sum by writing a 1 in the column
+         and carry another 1 in the next column
 
-Show the details for the integer sums `50 + (—100)`, `100 + (—50)` and
-`50 + 50`, using an 8-bit format.
+##
+## How is a computer word stored in fixed point representation?
 
-    50 + (-100)
+It's divided into three fields:
 
-    50:    110010
-    100:  1100100
+   - a 1-bit field for the sign of the number
+   - a field of bits for the binary representation of the number before the binary point
+   - a field of bits for the binary representation after the binary point
 
-    -100: 0011100
+For example, in a 32-bit word with field  widths of 15 and 16, resp., the number
+11/2 would be stored as:
 
-    50-100:
-           110010
-        + 0011100
-        ---------
-          1001110
+    ┌───┬─────────────────┬──────────────────┐
+    │ 0 │ 000000000000101 │ 1000000000000000 │
+    └───┴─────────────────┴──────────────────┘
 
+While the number 1/10 would be approximately stored as:
+
+    ┌───┬─────────────────┬──────────────────┐
+    │ 0 │ 000000000000000 │ 0001100110011001 │
+    └───┴─────────────────┴──────────────────┘
+
+### Why is it rarely used?
+
+It's too limited by the size of the numbers it can store.
+In  the example  given, only  numbers ranging  in size  from (exactly)  2^-16 to
+(slightly less than) 2^15 could be stored.
+This is not adequate for many applications.
+
+##
+## How is a computer word stored in floating point representation?
+
+It's based on the normalized scientific notation.
+
+Scientific notation:
+
+    x = ± S × 10^E
+
+Normalized scientific notation:
+
+    x = ± S × 10^E
+    1 ≤ S < 10
+
+Floating point notation:
+
+    x = ± S × 2^E
+    1 ≤ S < 2
+
+`S` is called the significand, and `E` the exponent.
+
+### Why is it called “floating” point representation?
+
+When the representation is being computed, you can imagine that the binary point
+floats to the position immediately after the first non-zero digit.
+
+    x = 123.456
+      = (1111011.0111010010)₂ × 2^0
+      = (1.1110110111010010)₂ × 2^6
+          ^     ^
+          new   old position
+
+### What's the value of the first bit of the binary representation of the significand?
+
+1
+
+###
+##
+##
+# TODO
 ## ?
 
 Exercise 3.8
@@ -739,43 +1009,43 @@ floating point number in this system?
 
 Here are the binary representations of the first eight positive integers:
 
-    ┌───┬──────┐
-    │ 1 │ 1    │
-    ├───┼──────┤
-    │ 2 │ 10   │
-    ├───┼──────┤
-    │ 3 │ 11   │
-    ├───┼──────┤
-    │ 4 │ 100  │
-    ├───┼──────┤
-    │ 5 │ 101  │
-    ├───┼──────┤
-    │ 6 │ 110  │
-    ├───┼──────┤
-    │ 7 │ 111  │
-    ├───┼──────┤
-    │ 8 │ 1000 │
-    └───┴──────┘
+    ┌───┬─────────┐
+    │ 1 │ (1)₂    │
+    ├───┼─────────┤
+    │ 2 │ (10)₂   │
+    ├───┼─────────┤
+    │ 3 │ (11)₂   │
+    ├───┼─────────┤
+    │ 4 │ (100)₂  │
+    ├───┼─────────┤
+    │ 5 │ (101)₂  │
+    ├───┼─────────┤
+    │ 6 │ (110)₂  │
+    ├───┼─────────┤
+    │ 7 │ (111)₂  │
+    ├───┼─────────┤
+    │ 8 │ (1000)₂ │
+    └───┴─────────┘
 
 Here are the same representations but in floating point:
 
-    ┌───┬─────────────┐
-    │ 1 │ 1.0   × 2^0 │
-    ├───┼─────────────┤
-    │ 2 │ 1.0   × 2^1 │
-    ├───┼─────────────┤
-    │ 3 │ 1.1   × 2^1 │
-    ├───┼─────────────┤
-    │ 4 │ 1.00  × 2^2 │
-    ├───┼─────────────┤
-    │ 5 │ 1.01  × 2^2 │
-    ├───┼─────────────┤
-    │ 6 │ 1.10  × 2^2 │
-    ├───┼─────────────┤
-    │ 7 │ 1.11  × 2^2 │
-    ├───┼─────────────┤
-    │ 8 │ 1.000 × 2^3 │
-    └───┴─────────────┘
+    ┌───┬────────────────┐
+    │ 1 │ (1.0)₂  × 2^0  │
+    ├───┼────────────────┤
+    │ 2 │ (1.0)₂  × 2^1  │
+    ├───┼────────────────┤
+    │ 3 │ (1.1)₂  × 2^1  │
+    ├───┼────────────────┤
+    │ 4 │ (1.00)₂ × 2^2  │
+    ├───┼────────────────┤
+    │ 5 │ (1.01)₂ × 2^2  │
+    ├───┼────────────────┤
+    │ 6 │ (1.10)₂ × 2^2  │
+    ├───┼────────────────┤
+    │ 7 │ (1.11)₂  × 2^2 │
+    ├───┼────────────────┤
+    │ 8 │ (1.000)₂ × 2^3 │
+    └───┴────────────────┘
 
 Notice that  the exponent always  matches the number  of bits in  the fractional
 part of the significand (except for the  special case), exactly like it would do
@@ -783,21 +1053,21 @@ in decimal.
 
 We could go on until this number:
 
-    1.11111111111111111111111 × 2^23
+    (1.11111111111111111111111)₂ × 2^23
     =
-    111111111111111111111111
+    (111111111111111111111111)₂
 
 The integer afterwards is:
 
-     111111111111111111111111 + 1
+     (111111111111111111111111)₂ + 1
     =
-    1000000000000000000000000
+    (1000000000000000000000000)₂
 
 Its exact floating point representation is:
 
-     1000000000000000000000000
+     (1000000000000000000000000)₂
     =
-    1.000000000000000000000000 × 2^24
+    (1.000000000000000000000000)₂ × 2^24
 
 The fractional part  of its significand contains  24 bits which is  too much for
 our system, which can only contain 23 bits.
@@ -813,7 +1083,7 @@ Our system can only express numbers with 24 significant bits.
 So, it can't express exactly any integer with 25 significant bits or more.
 The smallest integer with 25 significant bits is:
 
-    1000000000000000000000000
+    (1000000000000000000000000)₂
     =
     2^24
 
@@ -821,7 +1091,7 @@ The smallest integer with 25 significant bits is:
 
 Exercise 3.11
 
-Suppose we change so our system from:
+Suppose we change our system from:
 
     x = ±S × 2^E, 1 ≤ S < 2
     S = (b₀.b₁b₂b₃...b₂₃)₂, b₀ = 1
@@ -833,11 +1103,13 @@ to:
     S = (0.b₁b₂b₃...b₂₄)₂, b₁ = 1
     -128 ≤ E ≤ 127
 
+That is, suppose the magnitue of the significand is halved.
+
 ---
 
 What is the new largest floating point number?
 
-    0.111111111111111111111111 × 2^127
+    (0.111111111111111111111111)₂ × 2^127
     =
     (2^-1 + 2^-2 + ... + 2^-24) × 2^127
     =
@@ -847,28 +1119,86 @@ What is the new largest floating point number?
     =
     2^127 — 2^103
 
+Notice that it's half the old value:
+
+    2^127 — 2^103
+
+    = 1/2 × (2^128 — 2^104)
+
 ---
 
 What is the new smallest positive floating point number?
 
-    0.100000000000000000000000 × 2^-128
-    =
-    1.00000000000000000000000 × 2^-129
+    (0.100000000000000000000000)₂ × 2^-128
     =
     2^-129
+
+Notice that it's half the old value:
+
+    2^-129 = 1/2 × 2^-128
 
 ---
 
 What is the new smallest positive integer that is not exactly representable as a floating point number?
 
-    0.1000000000000000000000000 × 2^25
+    (0.1000000000000000000000000)₂ × 2^25
     =
     2^24
     =
     16777216
 
+Notice that it's the same as the old value.
+
 ##
-# ?
+## ?
+
+All computers provide hardware instructions for adding integers.
+If two  positive integers  are added  together, the result  may give  an integer
+greater than or equal to `2^31`.
+In this case, we say that integer overflow occurs.
+One would hope that this leads to an informative error message for the user, but
+whether or  not this happens  depends on  the programming language  and compiler
+being used.
+In some  cases, the overflow  bits may be discarded  and the programmer  must be
+alert to prevent this from happening.
+The same problem may occur if two negative integers are added together, giving a
+negative integer with magnitude greater than `2^31`.
+On  the other  hand, if  two  integers with  opposite sign  are added  together,
+integer overflow cannot  occur, although an overflow bit may  arise when the 2's
+complement bitstrings are added together.
+Consider the operation:
+
+    x + (—y)
+
+where
+
+    0 ≤ x ≤ 2^31 — 1
+    1 ≤ y ≤ 2^31
+
+Clearly, it  is possible  to store the  desired result `x  — y`  without integer
+overflow.
+The result may be positive, negative, or  zero, depending on whether `x > y`, `x = y`,
+or `x < y`.
+
+Now let us see what happens if we add the 2's complement representations for `x`
+and `—y`, i.e., the bitstrings for the non-negative numbers `x` and `2^32 — y`.
+We obtain the bitstring for:
+
+    2^32 + x — y = 2^32 — (y — x)
+
+If `x ≥ y`, the leftmost bit of  the result is an overflow bit, corresponding to
+the power `2^32`, but this bit can  be discarded, giving the correct result `x — y`.
+If `x <  y`, the result fits  in 32 bits with  no overflow bit, and  we have the
+desired  result, since  it  represents the  negative  value `—(y  —  x)` in  2's
+complement.
+
+This demonstrates  an important  property of  2's complement  representation: no
+special hardware is needed for integer subtraction.
+The  addition hardware  can  be used  once  the negative  number  `—y` has  been
+represented using 2's complement.
+
+##
+## ?
 
 A rough presentation  of floating-point arithmetic requires only a  few words: a
 number `x`  is represented in  radix `β`  floating-point arithmetic with  a sign
@@ -913,7 +1243,7 @@ where:
      significand of the representation of `x`
 
    - `e` is an integer such that `eₘᵢₙ ≤ e ≤ eₘₐₓ`, called the exponent of the
-     representation of `x`.
+     representation of `x`
 
 ##
 # Resources
