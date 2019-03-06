@@ -49,16 +49,16 @@ signed values – would make comparison harder.
 
 ### How is it computed?
 
-    2^(k-1) — 1
+    2^(k−1) — 1
 
 `k` is the size in bits of  the exponent field; that is 8 (single-precision), 11
 (double-precision) or 15 (quadruple-precision).
 
 Thus, its value is one of:
 
-    2^(8-1) — 1  = 127
-    2^(11-1) — 1 = 2047
-    2^(15-1) — 1 = 32767
+    2^(8−1) — 1  = 127
+    2^(11−1) — 1 = 2047
+    2^(15−1) — 1 = 32767
 
 ### How is it used?
 
@@ -208,6 +208,40 @@ If the integers have different signs, no integer overflow can occur:
     (1) ∧ (2) ⇒     —2^31 ≤ x + y ≤ 2^31 — 1
 
 ##
+# m
+## machine epsilon
+
+Gap between the number 1 and the next floating-point number.
+
+---
+
+Its value is given by:
+
+    ε = (0.00...01)₂ = 2^(1−p)
+
+Where `p` is the precision of the floating-point system.
+
+---
+
+Any normalized floating-point number with precision `p` can be expressed as:
+
+    x = ±(1.b₁b₂...bₚ₋₂bₚ₋₁)₂ × 2^E
+
+The smallest such `x` that is greater than 1 is:
+
+    (1.00...01)₂ = 1 + 2^(1−p)
+
+The gap between this number and 1 is:
+
+    1 + 2^(1−p) − 1
+    =
+    2^(1−p)
+
+---
+
+Many authors define machine epsilon to be half the gap.
+
+##
 # n
 ## non-terminating
 
@@ -294,6 +328,31 @@ in base 2.
 
     ± S × 10^E
     1 ≤ S < 10
+
+##
+# u
+## ulp
+
+Short for *unit in the last place*.
+
+### What's its value?
+
+It depends on the value of the floating-point number you consider.
+
+For a floating-point number `x` given by:
+
+    x = ±(1.b₁b₂...bₚ₋₂bₚ₋₁)₂ × 2^E
+
+we define:
+
+    ulp(x) = (0.00...01)₂ × 2^E = 2^(1−p) × 2^E = ε × 2^E
+                                                        │
+                                                        └ exponent of `x`
+
+If  `x  >  0`, then  `ulp(x)`  is  the  gap  between  `x` and  the  next  larger
+floating-point number.
+If `x < 0`, `ulp(x)` is the  gap between `x` and the next smaller floating-point
+number (larger in absolute value).
 
 ##
 # w

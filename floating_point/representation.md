@@ -175,13 +175,13 @@ This matches the expansion:
 
     2^0 + 2^1 + 2^2 + ... + 2^31
     =
-    2^32 - 1
+    2^32 − 1
 
 Which implies that:
 
-    x + y = 2^32 - 1
+    x + y = 2^32 − 1
     ⇒
-    2^32 - x = y + 1
+    2^32 − x = y + 1
 
 The last  equality tells  us that  the binary  representation of  `2^32 −  x` is
 obtained after flipping  all the bits of `x`  – because of `y` in the  rhs – and
@@ -193,7 +193,7 @@ adding 1.
 Most machines use a representation called 2's complement.
 
 With this representation, positive integers are stored as usual.
-However, a negative integer `−x`, where `1 ≤  x ≤ 2^31`, is stored as the binary
+However, a negative integer `-x`, where `1 ≤  x ≤ 2^31`, is stored as the binary
 representation of the positive integer `2^32 − x`.
 
 For example, the integer -71 is stored as:
@@ -340,14 +340,14 @@ Compute its expansion as usual, but multiply the leftmost term with -1 instead o
 
 ##
 ### show how the computer calculates
-#### `50 + (−100)`?
+#### `50 + (-100)`?
 
      50  = (00110010)₂
      100 = (01100100)₂
     -100 = (10011100)₂    after flipping all the bits: 10011011
                           after adding 1:              10011100
 
-    50 + (−100)
+    50 + (-100)
     =
       (00110010)₂
     + (10011100)₂
@@ -357,16 +357,16 @@ Compute its expansion as usual, but multiply the leftmost term with -1 instead o
 Check the result:
 
        v            v
-      (11001110)₂ = −2^7 + 2^6 + 2^3 + 2^2 + 2^1
-                  = −50
+      (11001110)₂ = -2^7 + 2^6 + 2^3 + 2^2 + 2^1
+                  = -50
 
-#### `100 + (−50)`?
+#### `100 + (-50)`?
 
     100 = (01100100)₂
     50  = (00110010)₂
     -50 = (11001110)₂
 
-    100 + (−50)
+    100 + (-50)
     =
       (01100100)₂
     + (11001110)₂
@@ -626,36 +626,7 @@ updated as necessary.
 # TODO
 ## ?
 
-Any normalized floating-point number with precision `p` can be expressed as:
-
-    x = ±(1.b₁b₂...bₚ₋₂bₚ₋₁)₂ × 2^E    (1)
-
-The smallest such `x` that is greater than 1 is:
-
-    (1.00...01)₂ = 1 + 2^(1-p)
-
-We give a  special name, *machine epsilon*,  to the gap between  this number and
-the number 1, and we write this as:
-
-    ε = (0.00...01)₂ = 2^(1-p)
-
-*Many authors define machine epsilon to be half the gap.*
-
----
-
-More generally, for a floating-point number `x` given by `(1)`, we define:
-
-    ulp(x) = (0.00...01)₂ × 2^E = 2^(1-p) × 2^E = ε × 2^E
-                                                        │
-                                                        └ exponent of `x`
-
-Ulp is short for *unit in the last place*.
-If  `x  >  0`, then  `ulp(x)`  is  the  gap  between  `x` and  the  next  larger
-floating-point number.
-If `x < 0`, `ulp(x)` is the  gap between `x` and the next smaller floating-point
-number (larger in absolute value).
-
-## ?
+epsilon
 
 Let the precision `p = 24`, so `ε = 2^-23`.
 Determine `ulp(x)` for `x` having the following values:
@@ -699,11 +670,6 @@ Give your answer as a power of 2; do not convert this to decimal.
     1030 = (10000000110)₂ = (1.0000000110)₂ × 2^10
     ulp(1030) = ε × 2^10
               = 2^-13
-
-## ?
-
-When  should  we   have  used  the  term  “floating-point   system”  instead  of
-“floating-point format”?
 
 ## ?
 
@@ -785,7 +751,7 @@ integer overflow cannot  occur, although an overflow bit may  arise when the 2's
 complement bitstrings are added together.
 Consider the operation:
 
-    x + (−y)
+    x + (-y)
 
 where
 
@@ -798,7 +764,7 @@ The result may be positive, negative, or  zero, depending on whether `x > y`, `x
 or `x < y`.
 
 Now let us see what happens if we add the 2's complement representations for `x`
-and `−y`, i.e., the bitstrings for the non-negative numbers `x` and `2^32 − y`.
+and `-y`, i.e., the bitstrings for the non-negative numbers `x` and `2^32 − y`.
 We obtain the bitstring for:
 
     2^32 + x − y = 2^32 − (y − x)
@@ -811,53 +777,6 @@ complement.
 
 This demonstrates  an important  property of  2's complement  representation: no
 special hardware is needed for integer subtraction.
-The  addition hardware  can  be used  once  the negative  number  `−y` has  been
+The  addition hardware  can  be used  once  the negative  number  `-y` has  been
 represented using 2's complement.
-
-## ?
-
-A rough presentation  of floating-point arithmetic requires only a  few words: a
-number `x`  is represented in  radix `β`  floating-point arithmetic with  a sign
-`s`, a significand `m` (mantissa), and an exponent `e`, such that:
-
-    x = s × m × β^e
-
----
-
-A radix-β, precision-p, floating-point number is a number of the form:
-
-    ±m₀.m₁m₂···mₚ₋₁ × β^e
-
-where  the  expnonent  `e`  is  an integer,  and  `m₀.m₁m₂···mₚ₋₁`,  called  the
-significand,  is   represented  in   radix  `β`,   and  verifies   the  relation
-`|m₀.m₁m₂···mₚ₋₁| < β`.
-
----
-
-A floating-point format is characterized by four integers:
-
-   - a radix `β ≥ 2`
-
-   - a precision `p ≥ 2`
-
-     Roughly  speaking,  `p`  is  the  number of  “significant  digits”  of  the
-     representation.
-
-   - two extremal exponents `eₘᵢₙ` and `eₘₐₓ` such that `eₘᵢₙ < eₘₐₓ`
-
-     In all practical cases,  `eₘᵢₙ < 0 < eₘₐₓ`, and  with all formats specified
-     by the IEEE 754 standard, `eₘᵢₙ = 1 − eₘₐₓ`.
-
-A finite floating-point number in such a format is a number `x` for which
-there exists at least one representation (M, e) such that
-
-    x = M · β^(e−p+1)
-
-where:
-
-   - `M` is an integer such that `|M| ≤ β^p − 1`, called the integral
-     significand of the representation of `x`
-
-   - `e` is an integer such that `eₘᵢₙ ≤ e ≤ eₘₐₓ`, called the exponent of the
-     representation of `x`
 
