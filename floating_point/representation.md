@@ -601,13 +601,15 @@ Here's how 0.1 would be stored if its representation was truncated before being 
         ≈ (0.00011001100110011001100)₂
         ≈ (1.10011001100110011000000)₂ × 2^4
                                 ^^^^
-                                padding of 0; not precise
+                                default 0s; not correct here
 
 Here's how 0.1 is stored when its representation is normalized before being truncated:
 
     0.1 = (0.00011001100110011001100...)₂
         ≈ (1.10011001100110011001100...)₂ × 2^4
         ≈ (1.10011001100110011001100)₂ × 2^4
+                                ^^^^
+                                better; more accurate
 
 ###
 # Resources

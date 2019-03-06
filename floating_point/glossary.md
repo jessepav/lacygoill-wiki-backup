@@ -13,8 +13,8 @@ A string of bits.
 # e
 ## expansion (of a number)
 
-A sum of powers of the base, each  power being multiplied by one of the digit of
-the number:
+A sum of powers of the base of the number, each power being multiplied by one of
+the digit of the number:
 
     (71)₁₀ = 7 × 10 + 1
              ├────────┘
@@ -142,9 +142,9 @@ The bits following the binary point in the representation of a floating-point nu
 # h
 ## hidden bit
 
-First bit of the significand of a floating-point number?
+First bit of the significand of a floating-point number.
 
-No matter the number, it's always 1.
+The first bit of a floating-point number is always 1.
 
 ### Why is it called like this?
 
@@ -206,6 +206,11 @@ representation of a number.
     ├───────────────┼────────────────────────────────┤
     │ radix point   │ arbitrary base                 │
     └───────────────┴────────────────────────────────┘
+
+## precision (of a floating-point format)
+
+Number  of   bits  in  the  significand   field  of  the  representation   of  a
+floating-point number, plus one for the hidden bit.
 
 ##
 # r
