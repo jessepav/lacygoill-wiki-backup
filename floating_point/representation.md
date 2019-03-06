@@ -1,3 +1,43 @@
+# What can a byte represent?
+
+Up to 256 bitstrings, which may be viewed as representing the integers from 0 to
+255, or some characters.
+
+The ASCII  encoding scheme  defines standard  character interpretations  for the
+first 128 of these bitstrings.
+
+#
+# Which property is shared by
+## all rational numbers?
+
+Their representation is always either finite or repeating.
+
+    1/7 = (0.142857142857)₁₀
+             ├────┘├────┘
+             │     └ period 2
+             └ period 1
+
+## all irrational numbers?
+
+Their representation is neither finite nor repeating.
+
+    √2 = (1.414213...)₁₀
+    π  = (3.141592...)₁₀
+    e  = (2.71828182845...)₁₀
+
+##
+# Give an example of number whose representation is finite in decimal, but not in binary.
+
+0.1
+
+In decimal, there's only one digit after the decimal point.
+In binary, there's an infinite number of bits after the binary point:
+
+    1/10 = (0.0001100110011...)₂ = 1/16 + 1/32 + 0/64 + 0/128 + 1/256 + 1/512 + 0/1024 + ...
+            ├────────────────┘
+            └ mnemonic: 0.0 then 0011, 0011, ...
+
+##
 # Number Systems
 ## What does the Roman number system require?  (3)
 
@@ -354,56 +394,6 @@ Check the result:
 
 ##
 # Floating-point numbers
-## What's the scientific notation of a number `x`?
-
-    ± S × 10^E
-
-`S` is called the significand, and `E` the exponent.
-
-### What's its normalized form?
-
-    ± S × 10^E
-    1 ≤ S < 10
-
-##
-## What's the floating-point representation?
-
-The usage  of the  concept of  scientific notation,  in a  binary implementation
-context, to represent numbers in computer memory.
-
-    ± S × 2^E
-    1 ≤ S < 2
-
-### Why is it called “floating”-point?
-
-During the normalization of the representation,  you can imagine that the binary
-point floats to the position immediately after the first non-zero digit.
-
-    x = 123.456
-      = (1111011.0111010010)₂ × 2^0
-      = (1.1110110111010010)₂ × 2^6
-          ^     ^
-          new   old position
-
----
-
-> The term floating point refers to the  fact that a number's radix point (decimal
-> point, or,  more commonly in computers,  binary point) can "float";  that is, it
-> can be placed anywhere relative to the significant digits of the number.
-
-Source: <https://en.wikipedia.org/wiki/Floating-point_arithmetic>
-
-##
-## What's a computer number format?
-
-The internal representation of numeric values in digital computer.
-
-The encoding between numerical values and bit patterns is chosen for convenience
-of the operation of the computer.
-Different types  of processors  may have  different internal  representations of
-numerical values.
-
-##
 ## How is a number stored in the fixed-point format?
 
 Its computer word(s) is/are divided into three fields:
@@ -446,26 +436,12 @@ Its computer word(s) is/are divided into three fields:
 A  real number  which can  be stored  *exactly* (no  rounding required)  using a
 floating-point format.
 
-#### If a real is not a floating-point number, how is it stored?
+#### If a real number is not a floating-point number, how is it stored?
 
 It's rounded first.
 
 ##
-### What's the value of the first bit of the binary representation of the significand?
-
-No matter the number, it's always 1.
-
-#### Why is it called a hidden bit?
-
-Because it's not stored since it doesn't need to be.
-
-###
-### What's the name of the bits following the binary point?  (2)
-
-The fractional part (of the significand), also called the fraction field.
-
-###
-### What are the names (new and old) of the three main floating-point formats?
+## What are the names (new and old) of the three main floating-point formats?
 
     ┌─────────────────────┬────────────────────┐
     │ IEEE 754-1985 name  │ IEEE 754-2008 name │
@@ -477,38 +453,38 @@ The fractional part (of the significand), also called the fraction field.
     │ quadruple-precision │ binary128          │
     └─────────────────────┴────────────────────┘
 
-#### What are the two differences between them?
+### What are the two differences between them?
 
 The size of the exponent field, and significand field.
 
-###
-### What's the width of the exponent field in the
-#### single-precision floating-point format?
+##
+## What's the width of the exponent field in the
+### single-precision floating-point format?
 
 8
 
-#### double-precision floating-point format?
+### double-precision floating-point format?
 
 11
 
-#### quadruple-precision floating-point format?
+### quadruple-precision floating-point format?
 
 15
 
-###
-### What's the exponent bias?
+##
+## What's the exponent bias?
 
 An integer  number added  to the  exponent of a  floating-point number  when the
 latter must be stored in memory.
 
 <https://en.wikipedia.org/wiki/Exponent_bias>
 
-#### Why is it necessary?
+### Why is it necessary?
 
 Exponents are signed values, but two's complement – the usual representation for
 signed values – would make comparison harder.
 
-#### How is it computed?
+### How is it computed?
 
     2^(k-1) — 1
 
@@ -521,7 +497,7 @@ Thus, its value is one of:
     2^(11-1) — 1 = 2047
     2^(15-1) — 1 = 32767
 
-#### How is it used?
+### How is it used?
 
 The exponent  is stored as an  unsigned value suitable for  comparison, and when
 being interpreted, it's converted back into an exponent within a signed range by
@@ -564,11 +540,11 @@ of -100 contains a 1 while the representation of -101 contains a 0.
 So,  the computer  would conclude  that  the exponent  -100 is  bigger than  the
 exponent -101.
 
-#### What is the range of possible stored values for the exponent of a single-precision floating-point number?
+### What is the range of possible stored values for the exponent of a single-precision floating-point number?
 
 The exponent is stored in the range `[0,255]`.
 
-##### What about the range of possible interpreted values?
+#### What about the range of possible interpreted values?
 
 A stored exponent is  interpreted by subtracting the bias – which  is 127 for an
 8-bit exponent – to get an exponent value in the range `[-127,128]`.
@@ -585,14 +561,14 @@ The same thing applies to a double-precision / quadruple-precision number:
     │ quadruple-precision │ 15          │ 0..32767     │ -16383..16384     │
     └─────────────────────┴─────────────┴──────────────┴───────────────────┘
 
-##### What are the two values which are processed specially?
+#### What are the two values which are processed specially?
 
 The stored values full of 0s and  full of 1s (e.g. 0 and 255 in single-precision
 format).
 
-##
-### What's the single-precision format floating-point representation for
-#### 11/2?
+#
+## What's the single-precision format floating-point representation for
+### 11/2?
 
     11/2 = (101.1)₂ = (1.011)₂ × 2^2
 
@@ -605,7 +581,7 @@ Notice that:
    - the exponent is `2+127`
    - the fraction field doesn't contain the initial `1`; it's hidden.
 
-#### 71?
+### 71?
 
     71 = (1000111)₂ = (1.000111)₂ × 2^6
 
@@ -615,7 +591,7 @@ Notice that:
 
 `10000101` is the stored exponent 133 (127 + 6).
 
-#### 1?
+### 1?
 
     1 = (1)₂ = (1.0)₂ × 2^0
 
@@ -623,7 +599,7 @@ Notice that:
     │ 0 │ 01111111 │ 00000000000000000000000 │
     └───┴──────────┴─────────────────────────┘
 
-#### 2^71?
+### 2^71?
 
     2^71 = (1.0) × 2^71
 
@@ -631,9 +607,9 @@ Notice that:
     │ 0 │ 11000110 │ 00000000000000000000000 │
     └───┴──────────┴─────────────────────────┘
 
-###
-### In single-precision format, what's the
-#### largest floating-point number?
+##
+## In single-precision format, what's the
+### largest floating-point number?
 
       (1.11111111111111111111111)₂ × 2^127
 
@@ -649,7 +625,7 @@ Notice that:
 
 Note that we can't use the exponent 128, because it's interpreted specially.
 
-#### smallest positive floating-point number?
+### smallest positive floating-point number?
 
     (1.00000000000000000000000)₂ × 2^-126
     =
@@ -657,7 +633,7 @@ Note that we can't use the exponent 128, because it's interpreted specially.
 
 Note that we can't use the exponent -127, because it's interpreted specially.
 
-#### smallest positive **integer** that is not exactly representable?
+### smallest positive **integer** that is not exactly representable?
 
 There are two reasons which could explain why an integer is not exactly representable:
 
@@ -682,6 +658,26 @@ hidden; i.e. the computer assumes it's 1.
 So, the computer would only need 23 bits to store the significand of 2^23, and not 24.
 
 ##
+## A number which is not a floating-point number must be truncated.
+### Why does the computer normalize it before, instead of after?
+
+To get a more precise result.
+
+Here's how 0.1 would be stored if its representation was truncated before being normalized:
+
+    0.1 = (0.00011001100110011001100...)₂
+        ≈ (0.00011001100110011001100)₂
+        ≈ (1.10011001100110011000000)₂ × 2^4
+                                ^^^^
+                                padding of 0; not precise
+
+Here's how 0.1 is stored when its representation is normalized before being truncated:
+
+    0.1 = (0.00011001100110011001100...)₂
+        ≈ (1.10011001100110011001100...)₂ × 2^4
+        ≈ (1.10011001100110011001100)₂ × 2^4
+
+###
 # Resources
 
 <http://www.cs.nyu.edu/cs/faculty/overton/book/>

@@ -1,4 +1,5 @@
-# What does it mean for a set to be “countable”?
+# Set Theory
+## What does it mean for a set to be “countable”?
 
 Intuitively:
 
@@ -46,8 +47,8 @@ Even more formally:
 <https://en.wikipedia.org/wiki/Countable_set#Definition>
 <https://en.wikipedia.org/wiki/Injective_function>
 
-# How to prove that
-## the set of rational numbers is countable?
+## How to prove that
+### the set of rational numbers is countable?
 
 Imagine them listed in this infinite two-dimensional array:
 
@@ -95,7 +96,7 @@ sum of the numerator and the denominator  of all rationals in any given diagonal
 is constant; and it's increasing by 1  from one diagonal to the next: 2, then 3,
 then 4, then 5, etc.
 
-## the set of real numbers is UNcountable?
+### the set of real numbers is UNcountable?
 
 Use the Cantor's diagonal argument:
 <https://en.wikipedia.org/wiki/Cantor%27s_diagonal_argument>
@@ -148,7 +149,8 @@ This contradiction  implies that the  original assumption  is false: the  set of
 real numbers is *not* countable.
 
 ##
-# Express euler's number as the sum of an infinite series.  (2)
+# Formulas
+## Express euler's number as the sum of an infinite series.  (2)
 
     e = Σ(1/n!), n ≥ 0
 
@@ -156,9 +158,9 @@ real numbers is *not* countable.
 
 Note that any irrational number can be expressed as the sum of an infinite series.
 
-#
-# What's the value of
-## `1 + a + a^2 + ... + a^n`?
+##
+## What's the value of
+### `1 + a + a^2 + ... + a^n`?
 
 Let's call this sum S.
 
@@ -172,7 +174,7 @@ Let's call this sum S.
                     ───────────
                        a — 1
 
-## `a^n + a^(n+1) + ... + a^m`?
+### `a^n + a^(n+1) + ... + a^m`?
 
 Let's call this sum S.
 

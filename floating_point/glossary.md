@@ -1,42 +1,17 @@
-# Where does the word “bit” come from?
+# b
+## bit
 
-It's an abbreviation for binary digit.
+Abbreviation for binary digit.
 
-## How can I view it physically?
+You can view it as a single physical entity in one of two states: on or off.
 
-As a single physical entity in one of two states: on or off.
+## bitstring
 
-#
-# How do you call a string of bits?
-
-A bitstring.
-
-# What can a byte represent?
-
-Up to 256 bitstrings, which may be viewed as representing the integers from 0 to
-255, or some characters.
-
-The ASCII  encoding scheme  defines standard  character interpretations  for the
-first 128 of these bitstrings.
-
-#
-# What is a “word”?
-
-4 consecutive bytes of computer storage (i.e. 32 bits).
-
-# What is a “double word”?
-
-8 consecutive bytes (64 bits).
+A string of bits.
 
 ##
-# What's the representation of a number?
-
-The sequence of symbols which expresses this number in a given base.
-
-For example, the representation of seventy one  is `71` in base 10, and `1000111`
-in base 2.
-
-# What's the expansion of a number?
+# e
+## expansion (of a number)
 
 A sum of powers of the base, each  power being multiplied by one of the digit of
 the number:
@@ -49,10 +24,109 @@ the number:
                  ├──────────────────────────────────────────────────────┘
                  └ expansion of 71 in base 2
 
-# What's the difference between a decimal point, a binary point, and a radix point?
+Also used as a synonym for “representation (of a number)”.
 
-They stand for the same thing, but they're used in different contexts.
+##
+# f
+## floating-point (representation)
 
+The usage  of the  concept of  scientific notation,  in a  binary implementation
+context, to represent numbers in computer memory.
+
+    ± S × 2^E
+    1 ≤ S < 2
+
+### Why is it called “floating”-point?
+
+During the normalization of the representation,  you can imagine that the binary
+point floats to the position immediately after the first non-zero digit.
+
+    x = 123.456
+      = (1111011.0111010010)₂ × 2^0
+      = (1.1110110111010010)₂ × 2^6
+          ^     ^
+          new   old position
+
+---
+
+> The term floating point refers to the  fact that a number's radix point (decimal
+> point, or,  more commonly in computers,  binary point) can "float";  that is, it
+> can be placed anywhere relative to the significant digits of the number.
+
+Source: <https://en.wikipedia.org/wiki/Floating-point_arithmetic>
+
+##
+## (computer number) format
+
+The internal representation of numeric values in digital computer.
+
+The encoding between numerical values and bit patterns is chosen for convenience
+of the operation of the computer.
+Different types  of processors  may have  different internal  representations of
+numerical values.
+
+## fractional part (of the significand), fraction field
+
+The bits following the binary point in the representation of a floating-point number.
+
+##
+# h
+## hidden bit
+
+First bit of the significand of a floating-point number?
+
+No matter the number, it's always 1.
+
+### Why is it called like this?
+
+Because it's not stored since it doesn't need to be.
+
+###
+# i
+## IEEE
+
+Institute for Electrical and Electronics Engineers.
+
+Pronounced “I triple E.”
+
+## integer overflow
+
+Integer overflow occurs when two positive  or negative integers of the same sign
+are added together, and the result gives an integer `≥ 2^31` or `< -2^31`.
+
+If the integers have different signs, no integer overflow can occur:
+
+    (1):     0 ≤ x ≤ 2^31 — 1
+    (2): —2^31 ≤ y ≤ 0
+
+    (1) ∧ (2) ⇒     —2^31 ≤ x + y ≤ 2^31 — 1
+
+##
+# n
+## non-terminating
+
+Qualify the representation of a real number which is not finite.
+
+##
+# o
+## overflow bit
+
+Excessive bit  produced when the  size of the result  of an operation  is bigger
+than the operands.
+
+For example, if you  sum two 32-bit words, and the result  contains 33 bits, you
+have an overflow bit.
+
+### How is such a bit processed?
+
+It's discarded.
+
+##
+# p
+## (decimal, binary, radix) point
+
+Separation between the integer part and the fractional part of the
+representation of a number.
 
     ┌───────────────┬────────────────────────────────┐
     │               │ applies to a representation in │
@@ -65,73 +139,39 @@ They stand for the same thing, but they're used in different contexts.
     └───────────────┴────────────────────────────────┘
 
 ##
-# How do you qualify the representation of a nonintegral real number
-## which is not finite?
+# r
+## repeating
 
-It's said to be “nonterminating”.
+Qualify  the   representation  of  a   real  number  whose  symbols   after  the
+decimal/binary point repeat periodically.
 
-## whose symbols after the decimal/binary point repeat periodically?
+## representation (of a number)
 
-It's said to be “repeating”.
+The sequence of symbols which expresses this number in a given base.
 
-##
-# Give an example of number whose representation is finite in decimal, but not in binary.
-
-0.1
-
-In decimal, there's only one digit after the decimal point.
-In binary, there's an infinite number of bits after the binary point:
-
-    1/10 = (0.0001100110011...)₂ = 1/16 + 1/32 + 0/64 + 0/128 + 1/256 + 1/512 + 0/1024 + ...
-            ├────────────────┘
-            └ mnemonic: 0.0 then 0011, 0011, ...
+For example, the representation of seventy one  is `71` in base 10, and `1000111`
+in base 2.
 
 ##
-# Which property is shared by
-## all rational numbers?
+# s
+## scientific notation (of a number `x`)
 
-Their representation is always either finite or repeating.
+    ± S × 10^E
 
-    1/7 = (0.142857142857)₁₀
-             ├────┘├────┘
-             │     └ period 2
-             └ period 1
+`S` is called the significand, and `E` the exponent.
 
-## all irrational numbers?
+### What's its normalized form?
 
-Their representation is neither finite nor repeating.
+    ± S × 10^E
+    1 ≤ S < 10
 
-    √2 = (1.414213...)₁₀
-    π  = (3.141592...)₁₀
-    e  = (2.71828182845...)₁₀
+##
+# w
+## word
 
-#
-# What's “integer overflow”?
+4 consecutive bytes of computer storage (i.e. 32 bits).
 
-Integer overflow occurs when two positive  or negative integers of the same sign
-are added together, and the result gives an integer `≥ 2^31` or `< -2^31`.
+## double word
 
-If the integers have different signs, no integer overflow can occur:
-
-    (1):     0 ≤ x ≤ 2^31 — 1
-    (2): —2^31 ≤ y ≤ 0
-
-    (1) ∧ (2) ⇒     —2^31 ≤ x + y ≤ 2^31 — 1
-
-# If the result of an operation involving 32-bit words contains more than 32 bits, how are the excessive bits called?
-
-Overflow bits.
-
-## What happens to them?
-
-They're discarded.
-
-#
-# What's the meaning of the acronym IEEE?
-
-Institute for Electrical and Electronics Engineers.
-
-## How is it pronounced?
-
-“I triple E.”
+8 consecutive bytes (64 bits).
 
