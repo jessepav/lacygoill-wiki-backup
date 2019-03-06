@@ -655,6 +655,7 @@ To declare a call  by variable array, the declaration of  the array parameter in
 the function definition looks like `*name[]`.
 The call to the function remains the same as call by value arrays.
 
+##
 # Math Library
 
 If bc  is invoked  with the  `-l` option, a  math library  is preloaded  and the
@@ -771,8 +772,15 @@ The following is the definition of the recursive factorial function.
 
 # Readline And Libedit Options
 
-GNU bc can  be compiled (via a  configure option) to use the  GNU readline input
-editor library or the BSD libedit library.
+GNU bc  can be compiled  to use  the GNU readline  input editor library  via the
+configure option `--with-readline`.
+
+Beware,  when  you tab-complete,  the  shell  suggests you  `--without-readline`
+(remove the `out`).
+
+It requires the flex package on ubuntu:
+
+    $ sudo aptitude install flex
 
 This allows the user to do editing of lines before sending them to bc.
 
@@ -797,6 +805,7 @@ BSD libedit libraries.
 
 One can not enable both readline and libedit at the same time.
 
+##
 # Differences
 
 This version of bc was implemented from the POSIX P1003.2/D11 draft and contains
