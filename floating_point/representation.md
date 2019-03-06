@@ -118,7 +118,7 @@ A 1 followed by `n` 0s.
 
 Note that this means that the representation of `2^n` contains `n+1` bits.
 
-## If I know the binary representation of the positive integer `x`, how do I get the representation of `2^32 — x`?
+## If I know the binary representation of the positive integer `x`, how do I get the representation of `2^32 − x`?
 
 Flip all the bits and add 1.
 
@@ -137,13 +137,13 @@ And if you add 1, you get:
     11111111111111111111111110111001
                                    ^
 
-which is the representation of `2^32 — 71`.
+which is the representation of `2^32 − 71`.
 
 ---
 
 Here's an intuitive reasoning to find this method:
 
-You know the representation of `x`, and you're looking for the one of `2^32 — x`.
+You know the representation of `x`, and you're looking for the one of `2^32 − x`.
 Let's call this number `y`.
 Which  relationship  do  you  know  about  `y`,  involving  only  numbers  whose
 representations are known to you?
@@ -183,7 +183,7 @@ Which implies that:
     ⇒
     2^32 - x = y + 1
 
-The last  equality tells  us that  the binary  representation of  `2^32 —  x` is
+The last  equality tells  us that  the binary  representation of  `2^32 −  x` is
 obtained after flipping  all the bits of `x`  – because of `y` in the  rhs – and
 adding 1.
 
@@ -193,8 +193,8 @@ adding 1.
 Most machines use a representation called 2's complement.
 
 With this representation, positive integers are stored as usual.
-However, a negative integer `—x`, where `1 ≤  x ≤ 2^31`, is stored as the binary
-representation of the positive integer `2^32 — x`.
+However, a negative integer `−x`, where `1 ≤  x ≤ 2^31`, is stored as the binary
+representation of the positive integer `2^32 − x`.
 
 For example, the integer -71 is stored as:
 
@@ -220,10 +220,10 @@ The result is 0, which is exactly what we want for `71 + (-71)`.
 Why did we choose the range `1 ≤  x  ≤ 2^31` for the negative integers?
 
 Theory: A computer word can generate `2^32` bitstrings.
-0 consumes one of them, so there're  `2^32 — 1` bitstrings left for the negative
+0 consumes one of them, so there're  `2^32 − 1` bitstrings left for the negative
 and positive integers.
 This is not divisible  by two, so we have to choose how  many bitstrings to give
-to the positive integers: either `2^31` or `2^31 — 1`.
+to the positive integers: either `2^31` or `2^31 − 1`.
 If we give `2^31`, the representations  of all positive integers will begin with
 a 0, except:
 
@@ -233,13 +233,13 @@ And any  representation beginning  with a  1 will stand  for a  negative number,
 except the one mentioned just above.
 
 These exceptions may cause  some issues, or just seem awkward,  so it was chosen
-to give only `2^31 — 1` bitstrings to the positive integers.
+to give only `2^31 − 1` bitstrings to the positive integers.
 
 ### Which naive alternative machines could use?
 
 The most obvious idea  is sign-and-modulus: use one of the  32 bits to represent
 the sign, and use  the remaining 31 bits to store the  magnitude of the integer,
-which may then range from 0 to `2^31 — 1`.
+which may then range from 0 to `2^31 − 1`.
 
 #### Why don't they use it?  (3)
 
@@ -340,14 +340,14 @@ Compute its expansion as usual, but multiply the leftmost term with -1 instead o
 
 ##
 ### show how the computer calculates
-#### `50 + (—100)`?
+#### `50 + (−100)`?
 
      50  = (00110010)₂
      100 = (01100100)₂
     -100 = (10011100)₂    after flipping all the bits: 10011011
                           after adding 1:              10011100
 
-    50 + (—100)
+    50 + (−100)
     =
       (00110010)₂
     + (10011100)₂
@@ -357,16 +357,16 @@ Compute its expansion as usual, but multiply the leftmost term with -1 instead o
 Check the result:
 
        v            v
-      (11001110)₂ = —2^7 + 2^6 + 2^3 + 2^2 + 2^1
-                  = —50
+      (11001110)₂ = −2^7 + 2^6 + 2^3 + 2^2 + 2^1
+                  = −50
 
-#### `100 + (—50)`?
+#### `100 + (−50)`?
 
     100 = (01100100)₂
     50  = (00110010)₂
     -50 = (11001110)₂
 
-    100 + (—50)
+    100 + (−50)
     =
       (01100100)₂
     + (11001110)₂
@@ -547,13 +547,13 @@ Notice that:
 
     =  (2^-23 + 2^-22 + ... + 2^0) × 2^127
 
-    =  2^(0+1) — 2^-23  × 2^127
+    =  2^(0+1) − 2^-23  × 2^127
        ───────────────
-             2 — 1
+             2 − 1
 
-    =  (2 — 2^-23) × 2^127
+    =  (2 − 2^-23) × 2^127
 
-    =  2^128 — 2^104
+    =  2^128 − 2^104
 
 Note that we can't use the exponent 128, because it's interpreted specially.
 
@@ -670,7 +670,7 @@ Determine `ulp(x)` for `x` having the following values:
 
 Give your answer as a power of 2; do not convert this to decimal.
 
-    ε = 2^(1 — 24) = 2^-23
+    ε = 2^(1 − 24) = 2^-23
 
     0.25 = (.01)₂ = (1.0)₂ × 2^-2
     ulp(0.25) = ε × 2^-2
@@ -702,7 +702,7 @@ Give your answer as a power of 2; do not convert this to decimal.
 
 ## ?
 
-When  should  have   we  used  the  term  “floating-point   system”  instead  of
+When  should  we   have  used  the  term  “floating-point   system”  instead  of
 “floating-point format”?
 
 ## ?
@@ -733,15 +733,15 @@ What is the new largest floating-point number?
     =
     (2^-24 + 2^-23 + ... + 2^-1) × 2^127
     =
-    (2^(-1 + 1) — 2^-24) × 2^127
+    (2^(-1 + 1) − 2^-24) × 2^127
     =
-    2^127 — 2^103
+    2^127 − 2^103
 
 Notice that it's half the old value:
 
-    2^127 — 2^103
+    2^127 − 2^103
 
-    = 1/2 × (2^128 — 2^104)
+    = 1/2 × (2^128 − 2^104)
 
 ---
 
@@ -785,33 +785,33 @@ integer overflow cannot  occur, although an overflow bit may  arise when the 2's
 complement bitstrings are added together.
 Consider the operation:
 
-    x + (—y)
+    x + (−y)
 
 where
 
-    0 ≤ x ≤ 2^31 — 1
+    0 ≤ x ≤ 2^31 − 1
     1 ≤ y ≤ 2^31
 
-Clearly, it  is possible  to store the  desired result `x  — y`  without integer
+Clearly, it  is possible  to store the  desired result `x  − y`  without integer
 overflow.
 The result may be positive, negative, or  zero, depending on whether `x > y`, `x = y`,
 or `x < y`.
 
 Now let us see what happens if we add the 2's complement representations for `x`
-and `—y`, i.e., the bitstrings for the non-negative numbers `x` and `2^32 — y`.
+and `−y`, i.e., the bitstrings for the non-negative numbers `x` and `2^32 − y`.
 We obtain the bitstring for:
 
-    2^32 + x — y = 2^32 — (y — x)
+    2^32 + x − y = 2^32 − (y − x)
 
 If `x ≥ y`, the leftmost bit of  the result is an overflow bit, corresponding to
-the power `2^32`, but this bit can  be discarded, giving the correct result `x — y`.
+the power `2^32`, but this bit can  be discarded, giving the correct result `x − y`.
 If `x <  y`, the result fits  in 32 bits with  no overflow bit, and  we have the
-desired  result, since  it  represents the  negative  value `—(y  —  x)` in  2's
+desired  result, since  it  represents the  negative  value `−(y  −  x)` in  2's
 complement.
 
 This demonstrates  an important  property of  2's complement  representation: no
 special hardware is needed for integer subtraction.
-The  addition hardware  can  be used  once  the negative  number  `—y` has  been
+The  addition hardware  can  be used  once  the negative  number  `−y` has  been
 represented using 2's complement.
 
 ## ?

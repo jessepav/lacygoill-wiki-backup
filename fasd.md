@@ -1,34 +1,56 @@
+# How to jump to a directory via fasd from ranger?
 
-Fasd  est un  outil en  cli visant  à augmenter  la productivité.  Il offre  un accès  rapide aux
-fichiers / dossiers, en mémorisant ceux auxquels on accède régulièrement.
+    :j partial_dirname Enter
 
-Quand on ne tape que quelques caractères d'un fichier/dossier/chemin, il essaie de deviner ce qu'on
-souhaite, en  s'appuyant sur  une liste  (~/.fasd) d'éléments  triés par  "frecency" :  mix entre
-frequency / fréquence et recency / date de dernier accès ; https://en.wikipedia.org/wiki/Frecency
+This requires the creation of a custom plugin:
 
-Le  nom fasd  vient  des alias  fournis par  défaut  : f  (fichiers),  a (fichiers  / dossiers),  s
-(show/search/select), d (dossiers).
+    $ cat <<'EOF' >>~/.config/ranger/commands.py
+    class j(Command):
+        """
+        :fasd
 
-Lire aussi:
+        Jump to directory using fasd
+        """
+        def execute(self):
+            import subprocess
+            arg = self.rest(1)
+            if arg:
+                directory = subprocess.check_output(["fasd", "-d"]+arg.split(), universal_newlines=True).strip()
+                self.fm.cd(directory)
+    EOF
 
-    https://github.com/ranger/ranger/wiki/Integration-with-other-programs#fasd
+Source: <https://github.com/ranger/ranger/wiki/Custom-Commands#visit-frequently-used-directories>
 
-            Décrit 'linstallation d'un plugin, permettant à fasd de mémoriser les fichier qu'on ouvre
-            depuis ranger. Sans ce plugin, fasd ne nous proposerait jamais un fichier ouvert depuis
-            ranger.
+# How to make ranger log all the opened files, for fasd?
 
+    $ cat <<'EOF' >~/.config/ranger/plugins/plugin_fasd_log.py
+    import ranger.api
 
-    https://github.com/ranger/ranger/wiki/Commands#visit-frequently-used-directories
+    old_hook_init = ranger.api.hook_init
 
-            Décrit l'installation d'une commande custom permettant de se rendre vers un dossier
-            récent via fasd. Commande à associer à une touche du clavier ?
+    def hook_init(fm):
+        def fasd_add():
+            fm.execute_console("shell fasd --add '" + fm.thisfile.path + "'")
+        fm.signal_bind('execute.before', fasd_add)
+        return old_hook_init(fm)
 
-# INSTALLATION
+    ranger.api.hook_init = hook_init
+    EOF
 
-    git clone https://github.com/clvv/fasd
-    sudo checkinstall
+<https://github.com/ranger/ranger/wiki/Integration-with-other-programs#fasd>
 
-# UTILISATION
+### How is it useful?
+
+Without this plugin, the fasd aliases `o`, `m`, `v`... would never suggest you a
+file opened from ranger.
+
+##
+# Installation
+
+    $ git clone https://github.com/clvv/fasd
+    $ sudo checkinstall
+
+# Utilisation
 
     ┌────────────────────┬──────────────────────────────────────────────────────────────────────────────┐
     │ f                  │ lister les fichiers OU les dossiers frécents (fréquents + récents)           │
@@ -43,7 +65,7 @@ Lire aussi:
     ├────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
     │ f js$              │ lister les fichiers récents dont le nom se terminent par js                  │
     ├────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-    │ z foo              │ se rendre dans le dossier dont le nom matche matche foo                      │
+    │ j foo              │ se rendre dans le dossier dont le nom matche matche foo                      │
     ├────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
     │ v foo              │ ouvrir avec vim le fichier le + frécent qui matche foo                       │
     │ f -e vim foo       │                                                                              │
@@ -64,19 +86,38 @@ Lire aussi:
     ├────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
     │ d,foo Tab          │ auto-compléter le dossier le + frécent contenant foo dans son chemin         │
     ├────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-    │ zz                 │ afficher un menu listant les dossiers les + frécents pour en sélectionner un │
+    │ jj                 │ afficher un menu listant les dossiers les + frécents pour en sélectionner un │
     │                    │ et s'y rendre                                                                │
     └────────────────────┴──────────────────────────────────────────────────────────────────────────────┘
 
-                                     TODO:
+TODO:
 
-Il semble que la syntaxe `,foo Tab`, ait un effet similaire à la fonction `fasd-complete-f`
-(installée par zsh). Par défaut, cette dernière est associée à `c-x c-f`.
+Il  semble que  la syntaxe  `,foo Tab`,  ait un  effet similaire  à la  fonction
+`fasd-complete-f` (installée par zsh).
+Par défaut, cette dernière est associée à `c-x c-f`.
 
 
-                                     FIXME:
+FIXME:
 
-En réalité,  dans les  syntaxes du tableau  précédent, il  semble que `foo`  et `bar`  n'ont pas
-besoin d'être présents dans le nom du  fichier/dossier de façon exacte: leurs caractères peuvent
-être séparés par 2 caractères (configurable via `$_FASD_FUZZY`).
+En réalité, dans les syntaxes du tableau précédent, il semble que `foo` et `bar`
+n'ont pas besoin d'être présents dans le nom du fichier/dossier de façon exacte:
+leurs  caractères  peuvent  être  séparés par  2  caractères  (configurable  via
+`$_FASD_FUZZY`).
 Revoir le tableau pour tenir compte de l'aspect fuzzy du match.
+
+##
+# ?
+
+Once this bug is fixed:
+
+<https://github.com/junegunn/fzf/issues/1486>
+<https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1813873>
+
+Have a look at this:
+
+<https://github.com/andrewferrier/fzf-z>
+
+It installs a command which should let you fuzzy search the output of fasd.
+It's so brief (<100 sloc) that there's no need to install the script.
+Just read and copy the interesting part.
+

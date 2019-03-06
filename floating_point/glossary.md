@@ -1,3 +1,11 @@
+# a
+## arithmetic
+
+Branch of  mathematics that  consists of  the study  of numbers,  especially the
+properties  of  the traditional  operations  on  them —  addition,  subtraction,
+multiplication and division.
+
+##
 # b
 ## bit
 
@@ -97,7 +105,7 @@ exponent -101.
 
 #
 # f
-## floating-point (representation)
+## floating-point representation
 
 The usage  of the  concept of  scientific notation,  in a  binary implementation
 context, to represent numbers in computer memory.
@@ -125,11 +133,40 @@ point floats to the position immediately after the first non-zero digit.
 Source: <https://en.wikipedia.org/wiki/Floating-point_arithmetic>
 
 ##
+## floating-point system
+
+A floating-point system is characterized by four integers:
+
+   - a radix `β ≥ 2`
+
+   - a precision `p ≥ 2`
+
+     Roughly  speaking,  `p`  is  the  number of  “significant  digits”  of  the
+     representation.
+
+   - two extremal exponents `eₘᵢₙ` and `eₘₐₓ` such that `eₘᵢₙ < eₘₐₓ`
+
+     In all practical cases,  `eₘᵢₙ < 0 < eₘₐₓ`, and  with all formats specified
+     by the IEEE 754 standard, `eₘᵢₙ = 1 − eₘₐₓ`.
+
+It allows the representation of finite floating-point numbers `x`, such that:
+
+    x = S × β^e
+
+where:
+
+   - `S` is a real number such that `1 ≤ |S| < β`, called the significand of the
+     representation of `x`
+
+   - `e` is an integer such that `eₘᵢₙ ≤ e ≤ eₘₐₓ`, called the exponent of the
+     representation of `x`
+
+##
 ## (computer number) format
 
 The internal representation of numeric values in digital computer.
 
-The encoding between numerical values and bit patterns is chosen for convenience
+The encoding between  numerical values and bitstrings is  chosen for convenience
 of the operation of the computer.
 Different types  of processors  may have  different internal  representations of
 numerical values.
@@ -229,7 +266,7 @@ representation of a number.
 ## precision (of a floating-point format)
 
 Number  of   bits  in  the  significand   field  of  the  representation   of  a
-floating-point number, plus one for the hidden bit.
+floating-point number, including the hidden bit.
 
 ##
 # r
