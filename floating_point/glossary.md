@@ -176,6 +176,25 @@ If the integers have different signs, no integer overflow can occur:
 
 Qualify the representation of a real number which is not finite.
 
+## numeral system
+
+Writing  system for  expressing numbers;  that is,  a mathematical  notation for
+representing  numbers  of a  given  set,  using digits  or  other  symbols in  a
+consistent manner.
+
+The  same sequence  of  symbols  may represent  different  numbers in  different
+numeral systems.
+For example,  "11" represents the number  eleven in the decimal  numeral system,
+and the number three in the binary numeral system.
+
+The number the numeral represents is called its value.
+
+Numeral systems are sometimes called number systems, but that name is ambiguous,
+as it could  refer to different systems  of numbers, such as the  system of real
+numbers, the system of complex numbers, etc.
+
+<https://en.wikipedia.org/wiki/Numeral_system>
+
 ##
 # o
 ## overflow bit

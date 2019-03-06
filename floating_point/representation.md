@@ -1,4 +1,5 @@
-# What can a byte represent?
+# Symbols
+## What can a byte represent?
 
 Up to 256 bitstrings, which may be viewed as representing the integers from 0 to
 255, or some characters.
@@ -6,9 +7,21 @@ Up to 256 bitstrings, which may be viewed as representing the integers from 0 to
 The ASCII  encoding scheme  defines standard  character interpretations  for the
 first 128 of these bitstrings.
 
-#
-# Which property is shared by
-## all rational numbers?
+##
+## Which bitstrings can be abbreviated with
+### the octal symbols 0 through 7?
+
+Any bitstring  whose length  is 3 (because  `2^3 = 8`),  that is  the bitstrings
+`000` through `111`.
+
+### the hexadecimal symbols 0 through F abbreviate?
+
+Any bitstring  whose length is  4 (because `2^3 =  16`), that is  the bitstrings
+`0000` through `1111`.
+
+##
+## Which property is shared by
+### all rational numbers?
 
 Their representation is always either finite or repeating.
 
@@ -17,7 +30,7 @@ Their representation is always either finite or repeating.
              │     └ period 2
              └ period 1
 
-## all irrational numbers?
+### all irrational numbers?
 
 Their representation is neither finite nor repeating.
 
@@ -25,8 +38,8 @@ Their representation is neither finite nor repeating.
     π  = (3.141592...)₁₀
     e  = (2.71828182845...)₁₀
 
-##
-# Give an example of number whose representation is finite in decimal, but not in binary.
+###
+## Give an example of number whose representation is finite in decimal, but not in binary.
 
 0.1
 
@@ -38,8 +51,8 @@ In binary, there's an infinite number of bits after the binary point:
             └ mnemonic: 0.0 then 0011, 0011, ...
 
 ##
-# Number Systems
-## What does the Roman number system require?  (3)
+# Numeral Systems
+## What does the Roman numeral system require?  (3)
 
 A different symbol for each power of 10:
 
@@ -76,7 +89,7 @@ Calculation with pencil and paper:
 Representation of large numbers.
 
 ###
-## Why is our current number system called positional?
+## Why is our current numeral system called positional?
 
 The interpretation of a symbol depends on its position.
 
@@ -85,7 +98,7 @@ The interpretation of a symbol depends on its position.
 The invention of the number 0, and the attribution of a symbol to it.
 Zero is needed, for example, to distinguish 1 from 10.
 
-## What other positional number system do you know and use on a daily basis?
+## What other positional numeral system do you know and use on a daily basis?
 
 The base 60 system used by the Babylonians.
 
@@ -93,19 +106,6 @@ We use it today in our division of  the hour into 60 minutes and the minute into
 60 seconds.
 
 ##
-# Symbols
-## Which bitstrings can be abbreviated with
-### the octal symbols 0 through 7?
-
-Any bitstring  whose length  is 3 (because  `2^3 = 8`),  that is  the bitstrings
-`000` through `111`.
-
-### the hexadecimal symbols 0 through F abbreviate?
-
-Any bitstring  whose length is  4 (because `2^3 =  16`), that is  the bitstrings
-`0000` through `1111`.
-
-###
 # Negative Integers
 ## How much memory is usually used to store an integer?
 
