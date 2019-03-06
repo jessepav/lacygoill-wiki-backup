@@ -511,7 +511,7 @@ format).
 Notice that:
 
    - the exponent is `2+127`
-   - the fraction field doesn't contain the initial `1`; it's hidden.
+   - the fraction field doesn't contain the initial 1; it's hidden.
 
 ### 71?
 
@@ -612,6 +612,18 @@ Here's how 0.1 is stored when its representation is normalized before being trun
                                 better; more accurate
 
 ###
+## What's the floating-point representation of the number zero?
+
+The number *zero* is special.
+A pattern  of all zeros in  the significand represents the  significand 1.0, not
+0.0, since the bit `b₀` is hidden.
+
+The way the IEEE  standard addresses this difficulty is to  use a special string
+in the exponent field to signal that the number is zero.
+This reduces  by one  the number of  possible exponents E  that are  allowed for
+representing non-zero numbers.
+
+##
 # Resources
 
 <http://www.cs.nyu.edu/cs/faculty/overton/book/>
@@ -625,8 +637,6 @@ updated as necessary.
 ##
 # TODO
 ## ?
-
-epsilon
 
 Let the precision `p = 24`, so `ε = 2^-23`.
 Determine `ulp(x)` for `x` having the following values:
@@ -673,68 +683,6 @@ Give your answer as a power of 2; do not convert this to decimal.
 
 ## ?
 
-Exercise 3.11
-
-Suppose we change our system from:
-
-    x = ±S × 2^E, 1 ≤ S < 2
-    S = (b₀.b₁b₂b₃...b₂₃)₂, b₀ = 1
-    -128 ≤ E ≤ 127
-
-to:
-
-    x = ±S × 2^E, 1/2 ≤ S < 1
-    S = (0.b₁b₂b₃...b₂₄)₂, b₁ = 1
-    -128 ≤ E ≤ 127
-
-That is, suppose the magnitude of the significand is halved.
-
----
-
-What is the new largest floating-point number?
-
-    (0.111111111111111111111111)₂ × 2^127
-    =
-    (2^-1 + 2^-2 + ... + 2^-24) × 2^127
-    =
-    (2^-24 + 2^-23 + ... + 2^-1) × 2^127
-    =
-    (2^(-1 + 1) − 2^-24) × 2^127
-    =
-    2^127 − 2^103
-
-Notice that it's half the old value:
-
-    2^127 − 2^103
-
-    = 1/2 × (2^128 − 2^104)
-
----
-
-What is the new smallest positive floating-point number?
-
-    (0.100000000000000000000000)₂ × 2^-128
-    =
-    2^-129
-
-Notice that it's half the old value:
-
-    2^-129 = 1/2 × 2^-128
-
----
-
-What is the new smallest positive integer that is not exactly representable as a floating-point number?
-
-    (0.1000000000000000000000000)₂ × 2^25
-    =
-    2^24
-    =
-    16777216
-
-Notice that it's the same as the old value.
-
-## ?
-
 All computers provide hardware instructions for adding integers.
 If two  positive integers  are added  together, the result  may give  an integer
 greater than or equal to `2^31`.
@@ -763,17 +711,39 @@ overflow.
 The result may be positive, negative, or  zero, depending on whether `x > y`, `x = y`,
 or `x < y`.
 
-Now let us see what happens if we add the 2's complement representations for `x`
-and `-y`, i.e., the bitstrings for the non-negative numbers `x` and `2^32 − y`.
-We obtain the bitstring for:
+---
 
-    2^32 + x − y = 2^32 − (y − x)
+Prove that when computing `x − y` via the 2's complement representations for `x`
+and `-y`, the result is indeed `x − y`.
 
-If `x ≥ y`, the leftmost bit of  the result is an overflow bit, corresponding to
-the power `2^32`, but this bit can  be discarded, giving the correct result `x − y`.
+
+Case 1, `x ≥ y`:
+
+`x − y` is computed like so:
+
+      x + (2^32 − y)
+    = 2^32 + (x − y)
+
+Since `x ≥ y`, we know that `x − y` is a positive number.
+So, the  leftmost bit  of the result  is an overflow  bit, corresponding  to the
+power `2^32`, but this bit can be discarded, giving the correct result `x − y`.
+
 If `x <  y`, the result fits  in 32 bits with  no overflow bit, and  we have the
 desired  result, since  it  represents the  negative  value `−(y  −  x)` in  2's
 complement.
+
+
+Case 2, `x < y`:
+
+`x − y` is computed like so:
+
+      x + (2^32 − y)
+    = 2^32 − (y − x)
+
+Since `x < y`, we know that `y − x` is a positive number.
+So, the  result fits in 32  bits with no overflow  bit, and we have  the desired
+result, since it represents the negative value `−(y − x)` in 2's complement.
+
 
 This demonstrates  an important  property of  2's complement  representation: no
 special hardware is needed for integer subtraction.

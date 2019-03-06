@@ -213,6 +213,8 @@ If the integers have different signs, no integer overflow can occur:
 
 Gap between the number 1 and the next floating-point number.
 
+<https://en.wikipedia.org/wiki/Machine_epsilon>
+
 ---
 
 Its value is given by:
@@ -333,11 +335,14 @@ in base 2.
 # u
 ## ulp
 
-Short for *unit in the last place*.
+Gap between a floating-point number `x` and:
 
-### What's its value?
+   - the next larger floating-point number, if `x > 0`,
+   - the previous smaller floating-point number, if `x < 0`
 
-It depends on the value of the floating-point number you consider.
+ulp is short for *unit in the last place*.
+
+---
 
 For a floating-point number `x` given by:
 
@@ -345,14 +350,12 @@ For a floating-point number `x` given by:
 
 we define:
 
-    ulp(x) = (0.00...01)₂ × 2^E = 2^(1−p) × 2^E = ε × 2^E
-                                                        │
-                                                        └ exponent of `x`
-
-If  `x  >  0`, then  `ulp(x)`  is  the  gap  between  `x` and  the  next  larger
-floating-point number.
-If `x < 0`, `ulp(x)` is the  gap between `x` and the next smaller floating-point
-number (larger in absolute value).
+    ulp(x) = (0.00...01)₂ × 2^E
+           = 2^(1−p) × 2^E
+           = ε × 2^E
+             │     │
+             │     └ exponent of `x`
+             └ machine epsilon
 
 ##
 # w

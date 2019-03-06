@@ -1,3 +1,57 @@
+# How do you convert the fractional part of a real decimal number into binary?
+
+Multiply it by two.
+If the result is greater than 1, write 1 and remove 1.
+If the result is lower than 1, write 0.
+Repeat.
+
+---
+
+For example, here's how you would convert 0.123 in binary representation:
+
+    .123 × 2 = .246
+    .0...
+
+    .246 × 2 = .492
+    .00...
+
+    .492 × 2 = .984
+    .000...
+
+    .984 × 2 = 1.968
+    .0001...
+
+    .968 × 2 = 1.936
+    .00011...
+
+    .936 × 2 = 1.872
+    .000111...
+
+    .872 × 2 = 1.744
+    .0001111...
+
+    .744 × 2 = 1.488
+    .00011111...
+
+    .488 × 2 = .976
+    .000111110...
+
+    .976 × 2 = 1.952
+    .0001111101...
+
+    .952 × 2 = 1.904
+    .00011111011...
+
+    .904 × 2 = 1.808
+    .000111110111...
+
+    .808 × 2 = 1.616
+    .0001111101111...
+
+    .616 × 2 = 1.232
+    .00011111011111...
+
+##
 # Set Theory
 ## What does it mean for a set to be “countable”?
 
