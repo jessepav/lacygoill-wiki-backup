@@ -394,7 +394,7 @@ Check the result:
 
 ##
 # Floating-point numbers
-## How is a number stored in the fixed-point format?
+## How is a number stored in a fixed-point system?
 
 Its computer word(s) is/are divided into three fields:
 
@@ -415,7 +415,7 @@ While the number 1/10 would be approximately stored as:
     │ 0 │ 000000000000000 │ 0001100110011001 │
     └───┴─────────────────┴──────────────────┘
 
-### Why is this format rarely used?
+### Why is this system rarely used?
 
 It's too limited by the size of the numbers it can store.
 In the  previous example, only numbers  ranging in size from  (exactly) 2^-16 to
@@ -423,7 +423,7 @@ In the  previous example, only numbers  ranging in size from  (exactly) 2^-16 to
 This is not adequate for many applications.
 
 ##
-## How is a number stored in a floating-point format?
+## How is a number stored in a floating-point system?
 
 Its computer word(s) is/are divided into three fields:
 
@@ -570,11 +570,11 @@ Note that we can't use the exponent -127, because it's interpreted specially.
 There are two reasons which could explain why an integer is not exactly representable:
 
    - the exponent is too big (> 126)
-   - the significand has too many digits (> 23)
+   - the significand has too many bits (> 23)
 
 Since we're  looking for the  smallest integer, and  the significand has  a much
 lesser impact on the magnitude of a  number compared to the exponent, we need to
-find the smaller integer whose significand contains 24 digits; that is:
+find the smaller integer whose significand contains 24 bits; that is:
 
     1.000000000000000000000000 × 2^24
     =
@@ -584,7 +584,7 @@ find the smaller integer whose significand contains 24 digits; that is:
 
 ---
 
-You could think the answer is 2^23, because the latter needs 24 digits (a 1 then 24 0s).
+You could think the answer is 2^23, because the latter needs 24 bits (a 1 then 24 0s).
 But you  would be wrong,  because in a floating-point  number, the first  bit is
 hidden; i.e. the computer assumes it's 1.
 So, the computer would only need 23 bits to store the significand of 2^23, and not 24.
@@ -626,6 +626,87 @@ updated as necessary.
 # TODO
 ## ?
 
+Any normalized floating-point number with precision `p` can be expressed as:
+
+    x = ±(1.b₁b₂...bₚ₋₂bₚ₋₁)₂ × 2^E    (1)
+
+The smallest such `x` that is greater than 1 is:
+
+    (1.00...01)₂ = 1 + 2^(1-p)
+
+We give a  special name, *machine epsilon*,  to the gap between  this number and
+the number 1, and we write this as:
+
+    ε = (0.00...01)₂ = 2^(1-p)
+
+*Many authors define machine epsilon to be half the gap.*
+
+---
+
+More generally, for a floating-point number `x` given by `(1)`, we define:
+
+    ulp(x) = (0.00...01)₂ × 2^E = 2^(1-p) × 2^E = ε × 2^E
+                                                        │
+                                                        └ exponent of `x`
+
+Ulp is short for *unit in the last place*.
+If  `x  >  0`, then  `ulp(x)`  is  the  gap  between  `x` and  the  next  larger
+floating-point number.
+If `x < 0`, `ulp(x)` is the  gap between `x` and the next smaller floating-point
+number (larger in absolute value).
+
+## ?
+
+Let the precision `p = 24`, so `ε = 2^-23`.
+Determine `ulp(x)` for `x` having the following values:
+
+   - 0.25
+   - 2
+   - 3
+   - 4
+   - 10
+   - 100
+   - 1030
+
+Give your answer as a power of 2; do not convert this to decimal.
+
+    ε = 2^(1 — 24) = 2^-23
+
+    0.25 = (.01)₂ = (1.0)₂ × 2^-2
+    ulp(0.25) = ε × 2^-2
+              = 2^-25
+
+    2 = (10)₂ = (1.0)₂ × 2^1
+    ulp(2) = ε × 2^1
+           = 2^-22
+
+    3 = (11)₂ = (1.1)₂ × 2^1
+    ulp(3) = ε × 2^1
+           = 2^-22
+
+    4 = (100)₂ = (1.00)₂ × 2^2
+    ulp(4) = ε × 2^2
+           = 2^-21
+
+    10 = (1010)₂ = (1.010)₂ × 2^3
+    ulp(10) = ε × 2^3
+            = 2^-20
+
+    100 = (1100100)₂ = (1.100100)₂ × 2^6
+    ulp(100) = ε × 2^6
+             = 2^-17
+
+    1030 = (10000000110)₂ = (1.0000000110)₂ × 2^10
+    ulp(1030) = ε × 2^10
+              = 2^-13
+
+## ?
+
+When  should  have   we  used  the  term  “floating-point   system”  instead  of
+“floating-point format”?
+
+## ?
+
 Exercise 3.11
 
 Suppose we change our system from:
@@ -640,7 +721,7 @@ to:
     S = (0.b₁b₂b₃...b₂₄)₂, b₁ = 1
     -128 ≤ E ≤ 127
 
-That is, suppose the magnitue of the significand is halved.
+That is, suppose the magnitude of the significand is halved.
 
 ---
 
