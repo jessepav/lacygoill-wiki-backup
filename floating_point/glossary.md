@@ -27,6 +27,75 @@ the number:
 Also used as a synonym for “representation (of a number)”.
 
 ##
+## exponent bias
+
+An integer  number added  to the  exponent of a  floating-point number  when the
+latter must be stored in memory.
+
+<https://en.wikipedia.org/wiki/Exponent_bias>
+
+### Why is it necessary?
+
+Exponents are signed values, but two's complement – the usual representation for
+signed values – would make comparison harder.
+
+### How is it computed?
+
+    2^(k-1) — 1
+
+`k` is the size in bits of  the exponent field; that is 8 (single-precision), 11
+(double-precision) or 15 (quadruple-precision).
+
+Thus, its value is one of:
+
+    2^(8-1) — 1  = 127
+    2^(11-1) — 1 = 2047
+    2^(15-1) — 1 = 32767
+
+### How is it used?
+
+The exponent  is stored as an  unsigned value suitable for  comparison, and when
+being interpreted, it's converted back into an exponent within a signed range by
+subtracting the bias.
+
+---
+
+Here's what the computer would do to compare the exponents `100` and `101`:
+
+    100 + bias = (01100100)₂
+               + (01111111)₂
+               -------------
+                 (11100011)₂
+
+    101 + bias = (01100101)₂
+               + (01111111)₂
+               -------------
+                 (11100100)₂
+
+Both representations are identical until the sixth bit, where the representation
+of 101 contains a 1 while the representation of 100 contains a 0.
+So, the computer would conclude that the exponent 101 is bigger than the exponent 100.
+
+---
+
+Here's what the computer would do to compare the exponents `-100` and `-101`:
+
+    -100 + bias = (10011100)₂
+                + (01111111)₂
+                -------------
+                 (100011011)₂
+
+    -101 + bias = (10011011)₂
+                + (01111111)₂
+                -------------
+                 (100011010)₂
+
+Both representations are identical until  the last bit, where the representation
+of -100 contains a 1 while the representation of -101 contains a 0.
+So,  the computer  would conclude  that  the exponent  -100 is  bigger than  the
+exponent -101.
+
+#
 # f
 ## floating-point (representation)
 

@@ -472,79 +472,11 @@ The size of the exponent field, and significand field.
 15
 
 ##
-## What's the exponent bias?
-
-An integer  number added  to the  exponent of a  floating-point number  when the
-latter must be stored in memory.
-
-<https://en.wikipedia.org/wiki/Exponent_bias>
-
-### Why is it necessary?
-
-Exponents are signed values, but two's complement – the usual representation for
-signed values – would make comparison harder.
-
-### How is it computed?
-
-    2^(k-1) — 1
-
-`k` is the size in bits of  the exponent field; that is 8 (single-precision), 11
-(double-precision) or 15 (quadruple-precision).
-
-Thus, its value is one of:
-
-    2^(8-1) — 1  = 127
-    2^(11-1) — 1 = 2047
-    2^(15-1) — 1 = 32767
-
-### How is it used?
-
-The exponent  is stored as an  unsigned value suitable for  comparison, and when
-being interpreted, it's converted back into an exponent within a signed range by
-subtracting the bias.
-
----
-
-Here's what the computer would do to compare the exponents `100` and `101`:
-
-    100 + bias = (01100100)₂
-               + (01111111)₂
-               -------------
-                 (11100011)₂
-
-    101 + bias = (01100101)₂
-               + (01111111)₂
-               -------------
-                 (11100100)₂
-
-Both representations are identical until the sixth bit, where the representation
-of 101 contains a 1 while the representation of 100 contains a 0.
-So, the computer would conclude that the exponent 101 is bigger than the exponent 100.
-
----
-
-Here's what the computer would do to compare the exponents `-100` and `-101`:
-
-    -100 + bias = (10011100)₂
-                + (01111111)₂
-                -------------
-                 (100011011)₂
-
-    -101 + bias = (10011011)₂
-                + (01111111)₂
-                -------------
-                 (100011010)₂
-
-Both representations are identical until  the last bit, where the representation
-of -100 contains a 1 while the representation of -101 contains a 0.
-So,  the computer  would conclude  that  the exponent  -100 is  bigger than  the
-exponent -101.
-
-### What is the range of possible stored values for the exponent of a single-precision floating-point number?
+## What is the range of possible stored values for the exponent of a single-precision floating-point number?
 
 The exponent is stored in the range `[0,255]`.
 
-#### What about the range of possible interpreted values?
+### What about the range of possible interpreted values?
 
 A stored exponent is  interpreted by subtracting the bias – which  is 127 for an
 8-bit exponent – to get an exponent value in the range `[-127,128]`.
@@ -561,12 +493,12 @@ The same thing applies to a double-precision / quadruple-precision number:
     │ quadruple-precision │ 15          │ 0..32767     │ -16383..16384     │
     └─────────────────────┴─────────────┴──────────────┴───────────────────┘
 
-#### What are the two values which are processed specially?
+### What are the two values which are processed specially?
 
 The stored values full of 0s and  full of 1s (e.g. 0 and 255 in single-precision
 format).
 
-#
+####
 ## What's the single-precision format floating-point representation for
 ### 11/2?
 
