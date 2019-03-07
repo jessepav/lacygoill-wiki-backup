@@ -1,3 +1,17 @@
+
+To test the current value of a replacement variable such as `#{pane_tty}`, run:
+
+    # shell command
+    tmux -S /tmp/tmux-1000/default display -p #{pane_tty}
+
+    # tmux command
+    :display -p #{pane_tty}
+
+    # Vim command
+    :echo system('tmux -S /tmp/tmux-1000/default display -p "#{pane_tty}"')
+
+---
+
         http://man.openbsd.org/OpenBSD-current/man1/tmux.1
 
         https://github.com/tmux/tmux/wiki/FAQ

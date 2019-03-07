@@ -194,6 +194,18 @@ Institute for Electrical and Electronics Engineers.
 
 Pronounced “I triple E.”
 
+## IEEE 854
+
+A second  IEEE floating-point standard  (after IEEE 754),  for radix-independent
+floating-point arithmetic, adopted in 1987.
+
+It was motivated by the existence of decimal, rather than binary, floating-point
+machines,  particularly hand-held  calculators,  and set  requirements for  both
+binary and decimal floating-point arithmetic in a common framework.
+
+The demands for binary arithmetic imposed  by IEEE 854 are consistent with those
+previously established by IEEE 754.
+
 ## integer overflow
 
 Integer overflow occurs when two positive  or negative integers of the same sign
@@ -336,8 +348,11 @@ in base 2.
 
 Gap between a floating-point number `x` and:
 
-   - the next larger floating-point number, if `x > 0`,
+   - the next larger floating-point number, if `x > 0`
+     imagine going from 0 to +∞
+
    - the previous smaller floating-point number, if `x < 0`
+     imagine going from 0 to -∞
 
 ulp is short for *unit in the last place*.
 

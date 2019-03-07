@@ -472,7 +472,7 @@ The size of the exponent field, and significand field.
 15
 
 ##
-## What is the range of possible stored values for the exponent of a single-precision floating-point number?
+## What's the range of possible stored values for the exponent of a single-precision floating-point number?
 
 The exponent is stored in the range `[0,255]`.
 
@@ -624,6 +624,108 @@ This reduces  by one  the number of  possible exponents E  that are  allowed for
 representing non-zero numbers.
 
 ##
+## Assuming the precision of a system is 24, what's `ulp(x)` when `x` is:
+### `0.25`
+
+    ε = 2^(1 − 24) = 2^-23
+
+    0.25 = (.01)₂ = (1.0)₂ × 2^-2
+    ulp(0.25) = ε × 2^-2
+              = 2^-25
+
+### `2`
+
+    2 = (10)₂ = (1.0)₂ × 2^1
+    ulp(2) = ε × 2^1
+           = 2^-22
+
+### `3`
+
+    3 = (11)₂ = (1.1)₂ × 2^1
+    ulp(3) = ε × 2^1
+           = 2^-22
+
+### `4`
+
+    4 = (100)₂ = (1.00)₂ × 2^2
+    ulp(4) = ε × 2^2
+           = 2^-21
+
+### `10`
+
+    10 = (1010)₂ = (1.010)₂ × 2^3
+    ulp(10) = ε × 2^3
+            = 2^-20
+
+### `100`
+
+    100 = (1100100)₂ = (1.100100)₂ × 2^6
+    ulp(100) = ε × 2^6
+             = 2^-17
+
+### `1030`
+
+    1030 = (10000000110)₂ = (1.0000000110)₂ × 2^10
+    ulp(1030) = ε × 2^10
+              = 2^-13
+
+###
+## How many floating-point numbers are there between two consecutive power of 2?
+
+    2^p
+
+`p` being the precision of the floating-point system.
+
+## What's the effect of increasing the size of the significand of a floating-point system by one bit?
+
+It doubles the number of floating-point numbers between two consecutive power of
+2, which makes the system more precise,  because the error between a real number
+that you want to express in this system and its approximation reduces.
+Hence the name “precision”.
+
+---
+
+For  example, if  your significand  has  3 bits  (`1.b₁b₂`), the  floating-point
+numbers between 0 and 4 would be:
+
+    |───────|─|─|─|─|───|───|───|───|───────|───────|───────|───────|
+    0               1               2               3               4
+
+Now, if you  increase the size of  your significand to 4  bits (`1.b₁b₂b₃`), the
+floating-point numbers between 0 and 4 would become:
+
+    |───────|||||||||─|─|─|─|─|─|─|─|───|───|───|───|───|───|───|───|
+    0               1               2               3               4
+
+##
+## Is the significand of a floating-point number interpreted as a binary number or a decimal one?
+
+Binary.
+
+### What about its exponent?
+
+Decimal.
+
+##
+## Cite three *decimal* floating-point formats.
+
+   - decimal32
+   - decimal64
+   - decimal128
+
+### What difference of interpretation is there between a number stored with this format, compared to a binary one?
+
+The significand is interpreted as a decimal number, and the base is assumed to be 10.
+
+In a binary format:
+
+    1.b₁b₂b₃... × 2^E
+
+In a decimal format:
+
+    1.b₁b₂b₃... × 10^E
+
+##
 # Resources
 
 <http://www.cs.nyu.edu/cs/faculty/overton/book/>
@@ -636,51 +738,6 @@ updated as necessary.
 ##
 ##
 # TODO
-## ?
-
-Let the precision `p = 24`, so `ε = 2^-23`.
-Determine `ulp(x)` for `x` having the following values:
-
-   - 0.25
-   - 2
-   - 3
-   - 4
-   - 10
-   - 100
-   - 1030
-
-Give your answer as a power of 2; do not convert this to decimal.
-
-    ε = 2^(1 − 24) = 2^-23
-
-    0.25 = (.01)₂ = (1.0)₂ × 2^-2
-    ulp(0.25) = ε × 2^-2
-              = 2^-25
-
-    2 = (10)₂ = (1.0)₂ × 2^1
-    ulp(2) = ε × 2^1
-           = 2^-22
-
-    3 = (11)₂ = (1.1)₂ × 2^1
-    ulp(3) = ε × 2^1
-           = 2^-22
-
-    4 = (100)₂ = (1.00)₂ × 2^2
-    ulp(4) = ε × 2^2
-           = 2^-21
-
-    10 = (1010)₂ = (1.010)₂ × 2^3
-    ulp(10) = ε × 2^3
-            = 2^-20
-
-    100 = (1100100)₂ = (1.100100)₂ × 2^6
-    ulp(100) = ε × 2^6
-             = 2^-17
-
-    1030 = (10000000110)₂ = (1.0000000110)₂ × 2^10
-    ulp(1030) = ε × 2^10
-              = 2^-13
-
 ## ?
 
 All computers provide hardware instructions for adding integers.
