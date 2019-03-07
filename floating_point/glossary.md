@@ -161,7 +161,6 @@ where:
    - `e` is an integer such that `eₘᵢₙ ≤ e ≤ eₘₐₓ`, called the exponent of the
      representation of `x`
 
-##
 ## (computer number) format
 
 The internal representation of numeric values in digital computer.

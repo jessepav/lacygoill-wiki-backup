@@ -173,7 +173,7 @@ It also determines whether or not digits are allowed after the decimal point.
 
 ## What's the typical largest value that a variable of type `int` can store?
 
-    2^31 - 1
+    2^31 − 1
 
 MWE:
 
@@ -195,7 +195,7 @@ Rationale:
 
 You can use 32 bits  to store an integer, and one of them  is used for the sign,
 which gives you `2^31` numbers.
-But `0` is one of those numbers, so you can go only up to `2^31 - 1`.
+But `0` is one of those numbers, so you can go only up to `2^31 − 1`.
 
 ## Why is it better to use the type `int` rather than `float` when declaring a numeric variable?
 

@@ -252,13 +252,13 @@ Note that `/etc/sysctl.d/99-sysctl.conf` is a symlink to `/etc/sysctl.conf`.
 
 Edit its configuration file:
 
-        /etc/default/grub
+    /etc/default/grub
 
 Then, execute `$ update-grub`.
 
 ## Where can I find the documentation to configure grub?
 
-        :tab new | .!info -f grub -n 'Simple configuration'
+    :tab new | .!info -f grub -n 'Simple configuration'
 
 ## How to make grub remember the entry I've selected the last time I was in its menu?
 
@@ -296,37 +296,37 @@ invoked, but that's not the case here.
 # Package management
 ## How to mark a package so that `aptitude` doesn't update it?  How to undo it?
 
-        $ aptitude hold package
-        $ aptitude unhold package
+    $ aptitude hold package
+    $ aptitude unhold package
 
 ## How to get the limit date beyond which my packages won't be supported anymore?
 
-        $ ubuntu-support-status
+    $ ubuntu-support-status
 
 For more info:
 
-        $ ubuntu-support-status --show-supported
-        $ ubuntu-support-status --show-unsupported
+    $ ubuntu-support-status --show-supported
+    $ ubuntu-support-status --show-unsupported
 
 ## How to get the list of files installed by a package which I haven't installed yet?
 
 If the package is already on your machine:
 
-        $ dpkg -c /path/to/package.deb
-                │
-                └ --contents (list contents of archive)
+    $ dpkg -c /path/to/package.deb
+            │
+            └ --contents (list contents of archive)
 
 Otherwise:
 
-        $ apt-file list package
+    $ apt-file list package
 
 Or:
 
-                    ┌ --download-only (just download it, don't install it)
-                    │
-        $ aptitude -d install package
-        $ cd /var/cache/apt/archives/
-        $ dpkg -c package.deb
+                ┌ --download-only (just download it, don't install it)
+                │
+    $ aptitude -d install package
+    $ cd /var/cache/apt/archives/
+    $ dpkg -c package.deb
 
 ##
 # Appearance
@@ -392,11 +392,9 @@ Alternatively, you can install it from a repo or grab a binary package from here
 
 Copy this file from the old machine to the new one:
 
-        ~/.config/xfce4/terminal/terminalrc
+    ~/.config/xfce4/terminal/terminalrc
 
-Source:
-
-        https://askubuntu.com/a/676452/867754
+Source: <https://askubuntu.com/a/676452/867754>
 
 ##
 ##
@@ -442,18 +440,19 @@ Source:
 `atool` est un outil permettant de manipuler divers types d'archives, via une syntaxe cohérente.
 Il s'agit d'un wrapper autour des commandes:
 
-            - acat
-            - adiff
-            - als
-            - apack
-            - arepack
-            - aunpack
+   - acat
+   - adiff
+   - als
+   - apack
+   - arepack
+   - aunpack
 
-Ces commandes dépendent elles-mêmes de programmes tiers, dont certains peuvent ne pas être installés par défaut.
-Pex, pour .rar, il faut installer le paquet `rar` ($ api rar).
+Ces commandes dépendent  elles-mêmes de programmes tiers,  dont certains peuvent
+ne pas être installés par défaut.
+Pex, pour .rar, il faut installer le paquet `rar`.
 Sans lui, on aura un message d'erreur contenant:
 
-        Can't exec "rar": No such file or directory at /usr/bin/atool line 1869.
+    Can't exec "rar": No such file or directory at /usr/bin/atool line 1869.
 
 `atool` est configuré par `/etc/atool[.conf]` et `~/.atoolrc`. `:Man atool` pour plus d'infos.
 
@@ -511,10 +510,10 @@ contenant plusieurs fichiers.
 
     find ~ -iname '*.conf' -print0 | atool -0 -a arc.tar.gz -0
                            │               │
-                           │               └── lit l'entrée standard en considérant le null caractère
-                           │                   comme le séparateur entre 2 noms de fichiers
+                           │               └ lit l'entrée standard en considérant le null caractère
+                           │                 comme le séparateur entre 2 noms de fichiers
                            │
-                           └── écrit les noms de fichiers en les séparant par un null caractère
+                           └ écrit les noms de fichiers en les séparant par un null caractère
 
             Crée une archive à partir des fichiers trouvés par une commande `find`.
 
@@ -2508,6 +2507,7 @@ choosing.
 
             Traduit une phrase en français vers l'anglais (langue système).
             Idem mais en moins verbeux.
+
 ##
 ##
 ##
