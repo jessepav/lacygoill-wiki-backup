@@ -616,12 +616,32 @@ Here's how 0.1 is stored when its representation is normalized before being trun
 
 The number *zero* is special.
 A pattern  of all zeros in  the significand represents the  significand 1.0, not
-0.0, since the bit `b₀` is hidden.
+0.0, since  the bit  `b₀` is  hidden and  its value  is always  1, so  you can't
+represent 0 without some trick.
 
-The way the IEEE  standard addresses this difficulty is to  use a special string
-in the exponent field to signal that the number is zero.
-This reduces  by one  the number of  possible exponents E  that are  allowed for
-representing non-zero numbers.
+The way  the IEEE standard  addresses this difficulty is  to use a  special zero
+bitstring for the exponent  field, as well as a zero  bitstring for the fraction
+field.
+
+### How is interpreted a number whose exponent field contains only 0s, and significand field contains at least a 1?
+
+As a subnormal.
+
+##
+## Why is it useful for a system to be able to represent ±∞?
+
+It allows the  possibility of dividing a  number by zero and  storing a sensible
+mathematical result, namely ±∞, instead of terminating with an overflow message.
+Although one must be careful about what is meant by such a result.
+
+### How is it stored?
+
+All the bits  of the exponent field are  1, and all the bits  of the significand
+field are 0.
+
+### How is interpreted a number whose exponent field contains only 1s, and significand field contains at least a 1?
+
+NaN: Not A Number.
 
 ##
 ## Assuming the precision of a system is 24, what's `ulp(x)` when `x` is:
