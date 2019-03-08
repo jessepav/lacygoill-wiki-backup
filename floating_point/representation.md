@@ -698,34 +698,6 @@ floating-point numbers between 0 and 4 would become:
     0               1               2               3               4
 
 ##
-## Is the significand of a floating-point number interpreted as a binary number or a decimal one?
-
-Binary.
-
-### What about its exponent?
-
-Decimal.
-
-##
-## Cite three *decimal* floating-point formats.
-
-   - decimal32
-   - decimal64
-   - decimal128
-
-### What difference of interpretation is there between a number stored with this format, compared to a binary one?
-
-The significand is interpreted as a decimal number, and the base is assumed to be 10.
-
-In a binary format:
-
-    1.b₁b₂b₃... × 2^E
-
-In a decimal format:
-
-    1.b₁b₂b₃... × 10^E
-
-##
 # Resources
 
 <http://www.cs.nyu.edu/cs/faculty/overton/book/>
