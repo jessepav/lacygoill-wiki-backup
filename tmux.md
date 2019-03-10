@@ -1,3 +1,4 @@
+# ?
 
 To test the current value of a replacement variable such as `#{pane_tty}`, run:
 
@@ -64,6 +65,29 @@ copy-mode.
 For the moment, the  only solution which I know is to kill  and restart the tmux
 server.
 
+##
+# How to yank
+
+The next three key bindings are provided by the tmux-yank plugin.
+
+## the contents of the current command-line?
+
+Press `prefix + y`.
+
+## the contents of the current working directory?
+
+Press `prefix + Y`.
+
+## the text selected in copy mode, *and* paste it immediately on the command-line where the cursor was?
+
+Press `Y` in copy mode.
+
+### What's the benefit of this, compared to yanking then pasting in two steps?
+
+It doesn't pollute the system clipboard.
+Although, it does add a paste buffer on the stack of tmux paste buffers.
+
+##
 # Theory
 
 Several tmux clients can be attached to the same session.
@@ -75,8 +99,8 @@ When you want to attach a tmux client  to a tmux server, you don't start it from
 the local  machine. The server  AND the  client are always  running on  the same
 machine. The procedure consists in 2 steps:
 
-    1. log in to the remote (for example via ssh)
-    2. start a tmux client to attach it to a running tmux server
+   1. log in to the remote (for example via ssh)
+   2. start a tmux client to attach it to a running tmux server
 
 
 

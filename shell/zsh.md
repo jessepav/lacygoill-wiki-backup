@@ -131,7 +131,7 @@ remaining startup files like:
 
 ## Some commands work fine in bash, but fail in zsh:  “zsh: no matches found: <some pattern>”!
 
-You probably have passed an argument to your command which contains wildchards:
+You probably have passed an argument to your command which contains wildcards:
 
         ?
         *

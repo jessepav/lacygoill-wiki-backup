@@ -836,12 +836,31 @@ It's just a wrapper around `shellescape()` which also supports Windows.
 ##
 ##
 # Issues
-## Failed to read /dev/tty
+## “Failed to read /dev/tty”
+
+It may be due to a regression in the kernel.
+
+Try to update it.
+
+Read these links for more info:
 
 <https://github.com/junegunn/fzf/issues/1486>
 <https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1813873>
+<https://wiki.ubuntu.com/Kernel/LTSEnablementStack>
+<https://wiki.ubuntu.com/Kernel/RollingLTSEnablementStack>
 
-Wait for a kernel upgrade?
+Wait for a kernel upgrade, or try this command:
+
+    $ sudo apt-get install --install-recommends linux-generic-hwe-16.04
+
+The code needs to be adapted to your current Ubuntu version.
+
+---
+
+If  you  also  installed  the  package  `xserver-xorg-hwe-16.04`,  and  you  get
+distracting artifacts, read this:
+
+<http://ubuntuhandbook.org/index.php/2017/02/install-remove-enablement-stacks-ubuntu-16-04/>
 
 ## ?
 
@@ -854,7 +873,22 @@ the fzf buffer is replaced with the last visited buffer.
 
 ##
 # TODO
+## fzf integration is slow!
+
+In  `~/.config/ranger/commands.py`, we  define the  `fzf_select` ranger  command
+which relies on the `$ find` shell command.
+We map it  to `zz`, and the nearer  you're from the root of  the filesystem, the
+slower fzf is.
+Maybe we could make `zz` faster if we used `$ fd` instead.
+Learn the syntax of `$ fd`, and try to adapt the code.
+
 ## Create commands to fuzzy search the changelist and other kind of lists
+
+## To read
+
+<http://blog.owen.cymru/fzf-ripgrep-navigate-with-bash-faster-than-ever-before/>
+<https://bluz71.github.io/2018/11/26/fuzzy-finding-in-bash-with-fzf.html>
+<https://bluz71.github.io/2018/12/04/fuzzy-finding-in-vim-with-fzf.html>
 
 ## ?
 
@@ -867,10 +901,6 @@ It would be useful in a case such as this:
 
     {fzf mapping} → type keyword `unicode` → look for the right abbreviation
                                            → `:ucs`
-
-## ?
-
-<http://blog.owen.cymru/fzf-ripgrep-navigate-with-bash-faster-than-ever-before/>
 
 ## ?
 

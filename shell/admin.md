@@ -2524,6 +2524,12 @@ Maybe something alters your configuration after the file has been processed:
 Maybe your program has cached its config, and use the latter which is stale.
 Remove the cache (e.g. `rm ~/.zcompdump`).
 
+## How to get rid of “Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown:”?
+
+Install the deb package `at-spi2-core`.
+
+For more info, maybe have a look at this: <https://unix.stackexchange.com/a/148779/289772>
+
 ## divers
 
     Restaurer les consoles tty1-6:    sudoedit /etc/default/grub

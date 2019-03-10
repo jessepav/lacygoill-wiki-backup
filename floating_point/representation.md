@@ -493,9 +493,9 @@ The same thing applies to a double-precision / quadruple-precision number:
     │ quadruple-precision │ 15          │ 0..32767     │ -16383..16384     │
     └─────────────────────┴─────────────┴──────────────┴───────────────────┘
 
-### What are the two values which are processed specially?
+### What are the two stored values which are processed specially?
 
-The stored values full of 0s and  full of 1s (e.g. 0 and 255 in single-precision
+The  values full  of 0s  and  full of  1s  (i.e. 0 and  255 in  single-precision
 format).
 
 ####
@@ -730,6 +730,11 @@ updated as necessary.
 ##
 ##
 # TODO
+## ?
+
+Talk  about  the  biased  representation  as  opposed  to  the  sign-and-modulus
+representation, and the 2's complement representation.
+
 ## ?
 
 All computers provide hardware instructions for adding integers.
