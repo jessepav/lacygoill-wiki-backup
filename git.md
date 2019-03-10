@@ -1919,6 +1919,10 @@ références peuvent être déplacées librement.
 ##
 # TODO
 
+Read: <https://chris.beams.io/posts/git-commit/>
+
+---
+
 Read:
 
         $ git help <guide>

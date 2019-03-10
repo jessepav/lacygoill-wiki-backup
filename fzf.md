@@ -1,3 +1,17 @@
+# The preview for some files fails with this message: “highlight: Unknown source file extension...”!
+
+Try to install a more recent version of the highlight package:
+
+    $ sudo aptitude purge highlight highlight-common
+    $ sudo aptitude install libboost1.58-dev liblua5.3-dev
+    $ git clone https://gitlab.com/saalen/highlight.git highlight
+    $ cd highlight
+    $ make
+    $ sudo checkinstall
+
+For more info: <http://www.andre-simon.de/doku/highlight/en/install.php>
+
+##
 # Options
 
 Note that most options have the opposite versions with `--no-` prefix.

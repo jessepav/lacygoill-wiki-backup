@@ -1,3 +1,27 @@
+# ?
+
+Document the `-d` and `--clean` options.
+
+In particular, explain that using `-d` all the time is a bad idea.
+It makes ranger crash as soon as an issue (even non-critical) is found.
+Use it only to get a stack trace before submitting a bug report.
+
+# ?
+
+<http://ranger.nongnu.org/cheatsheet.svg>
+
+# ?
+
+Explain that you the `=` key binding must  be prefix by an octal number (the new
+desired permissions).
+
+From `$ man ranger`:
+
+    <octal>=, +<who><what>, -<who><what>
+                  Change the permissions of the selection.  For example,
+                  "777=" is equivalent to "chmod 777 %s", "+ar" does "chmod
+                  a+r %s", "-ow" does "chmod o-w %s" etc.
+
 # What's a prefix argument?
 
 Suppose you bind a custom command to `<key>`, and you press `123<key>`:
