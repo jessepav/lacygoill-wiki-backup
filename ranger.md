@@ -1,3 +1,8 @@
+# What's a prefix argument?
+
+Suppose you bind a custom command to `<key>`, and you press `123<key>`:
+`123` is a prefix argument.
+
 # How to uninstall ranger?
 
 If you used `pip`, then run:
