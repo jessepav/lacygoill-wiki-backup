@@ -1,27 +1,3 @@
-# ?
-
-Document the `-d` and `--clean` options.
-
-In particular, explain that using `-d` all the time is a bad idea.
-It makes ranger crash as soon as an issue (even non-critical) is found.
-Use it only to get a stack trace before submitting a bug report.
-
-# ?
-
-<http://ranger.nongnu.org/cheatsheet.svg>
-
-# ?
-
-Explain that you the `=` key binding must  be prefix by an octal number (the new
-desired permissions).
-
-From `$ man ranger`:
-
-    <octal>=, +<who><what>, -<who><what>
-                  Change the permissions of the selection.  For example,
-                  "777=" is equivalent to "chmod 777 %s", "+ar" does "chmod
-                  a+r %s", "-ow" does "chmod o-w %s" etc.
-
 # What's a prefix argument?
 
 Suppose you bind a custom command to `<key>`, and you press `123<key>`:
@@ -33,6 +9,52 @@ If you used `pip`, then run:
 
     $ python3 -m pip uninstall ranger-fm
 
+##
+# How to get more information when an error occurs?
+
+Restart ranger in debug mode, by passing it the `-d` or `--debug` option:
+
+    $ ranger -d
+
+Whenever an error occurs, ranger will exit and print a full traceback.
+The  default behavior  is to  merely  print the  name  of the  exception in  the
+statusbar/log and try to keep running.
+
+Do *not* use this option by default, only for debugging purposes.
+Indeed, ranger will crash for any kind  of error, regardless of its severity, to
+dump a stack trace on the terminal.
+
+# How to start ranger with no custom configuration?
+
+Restart ranger in clean mode, by passing it the `-c` or `--clean` option:
+
+    $ ranger -c
+
+ranger will not access  or create any configuration files nor  will it leave any
+traces on your system.
+This  is useful  when  your configuration  is  broken, when  you  want to  avoid
+clutter, etc.
+
+##
+# I'm selecting a file; how to
+## reset its rights to 123?
+
+Press `123=`.
+
+## add the right to execute it for the owner?
+
+Press `+x`.
+
+## remove the right to write it from the others?
+
+Press `-ow`.
+
+## add the right to read it for the group?
+
+Press `+gr`.
+
+##
+##
 ##
 # AIDE
 
@@ -1247,6 +1269,11 @@ Video previews are disabled by default.  To turn them on:
 4. Uncomment the rule in the scope.sh below the line "Image preview for videos, disabled by default:"
 
 Done!
+##
+# TODO
+
+Read: <http://ranger.nongnu.org/cheatsheet.svg>
+
 ##
 # Reference
 
