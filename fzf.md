@@ -1,3 +1,27 @@
+# ?
+
+How to update fzf?
+
+In your vimrc, write:
+
+    :Plug 'junegunn/fzf', {'dir': '~/.fzf', 'do': './install ...'}
+                                            ^^^^^^^^^^^^^^^^^^^^
+                                            this invokes the fzf installer
+                                            whenever there's an update
+
+# ?
+
+How to control what interface fzf installs?
+
+You can tweak the installer command by passing other arguments.
+For example:
+
+    $ ~/.fzf/install --all --no-bash
+
+For more info about the options you can pass to the installer:
+
+    $ ~/.fzf/install --help
+
 # The preview for some files fails with this message: “highlight: Unknown source file extension...”!
 
 Try to install a more recent version of the highlight package:

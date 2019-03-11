@@ -26,7 +26,6 @@
 
             Lance le pgm ’thunar’ et affiche le contenu du dossier ’~/Downloads’.
 
-
 ## key bindings
 
     C-a    C-e

@@ -114,13 +114,6 @@ These are aliases for:
     │                    │ et s'y rendre                                                                │
     └────────────────────┴──────────────────────────────────────────────────────────────────────────────┘
 
-TODO:
-
-Il  semble que  la syntaxe  `,foo Tab`,  ait un  effet similaire  à la  fonction
-`fasd-complete-f` (installée par zsh).
-Par défaut, cette dernière est associée à `c-x c-f`.
-
-
 FIXME:
 
 En réalité, dans les syntaxes du tableau précédent, il semble que `foo` et `bar`
@@ -306,6 +299,8 @@ There   are  also   three  zle   widgets:  `fasd-complete`,   `fasd-complete-f`,
     bindkey '^X^F' fasd-complete-f  # C-x C-f to do fasd-complete-f (only files)
     bindkey '^X^D' fasd-complete-d  # C-x C-d to do fasd-complete-d (only directories)
 
+But I prefer word mode completion to the widgets, so I don't install these key bindings.
+
 Note that `C-x C-d` works only if the command-line is not empty:
 
     # ✔
@@ -317,6 +312,29 @@ If it is, `C-d` will cause the shell to quit.
 
     # ✘
     $ C-x C-d
+
+---
+
+I find word completion with `,`, `f,` and `d,` more convenient than the zle widgets.
+
+Compare:
+
+    $ zathura awk pdf C-x C-f
+
+    $ zathura ,awk,pdf Tab
+
+The widget only suggests candidates based on the query `pdf`.
+`,` can take into account several queries at the same time.
+And it's easier to type.
+
+However, beware:
+
+    $ zathura ,awk Tab
+    $ zathura f,awk Tab
+
+If you have only one query, there may be no word completion from fasd...
+In fact, it depends in which directory you're.
+The result will be different if you're in `~` or in `~/wiki`.
 
 # Backends
 
@@ -434,13 +452,40 @@ obtain a log.
 # Todo
 ## ?
 
-Have a look at this:
+Configure this: <https://github.com/andrewferrier/fzf-z>
+It allows you to fuzzy search the directories logged by fasd.
+To use it, you need to press `C-g`.
 
-<https://github.com/andrewferrier/fzf-z>
+Note that `fzf-z` only deals with directories, not files.
 
-It installs a command which should let you fuzzy search the output of fasd.
-It's so brief (<100 sloc) that there's no need to install the script.
-Just read and copy the interesting part.
+---
+
+This is  interesting: it could  help us  eliminate the function  `fzf_fasd`, and
+maybe even `fzf_locate`.
+
+Pressing a key would feel more natural:
+
+    $ fzf_fasd vim
+
+vs:
+
+    $ vim C-g
+          │
+          └ would call `fasd -f | fzf`
+
+## ?
+
+We  have  several  plugins  which   can  help  us  complete  a  too-long-to-type
+command-line argument:
+
+   - fasd: word mode completion
+
+   - fzf: C-x C-f, C-r C-h, M-j
+
+   - fzf-z: C-g
+
+Document in which circumstances we should use each of them.
+Also `~/.zsh/README.md` may be outdated; review it.
 
 ##
 # Reference

@@ -218,6 +218,95 @@ When `find` processes a     hidden node, `! -name '.?*'` is false, and `find` ev
 print the path of the hidden directory;  but *with* the bang, it doesn't because
 the item evaluates to false.
 
+# ?
+
+The next comments  are extracted from an old shell  function (`fzf_fd`) which is
+now useless, because fzf installs the C-t  key binding which does the same thing
+(but better).
+
+It may be interesting to convert some info into questions.
+
+---
+
+Alternative using `$ find`:
+
+    command="find -L . \( -path '*/\.*' -o -fstype 'dev' -o -fstype 'proc' \) -prune" \
+            + " -o " \
+            + ("-type d" if self.quantifier else "") \
+            + " -print 2>/dev/null | sed 1d | cut -b3-" \
+            + " | fzf -e --preview '{ highlight -O ansi {} || cat {} ;} 2>/dev/null'"
+
+Broken down:
+
+    ┌──────────────────┬──────────────────────────────────────────────────────────┐
+    │ -L               │ follow symlinks                                          │
+    ├──────────────────┼──────────────────────────────────────────────────────────┤
+    │ \( ... \) -prune │ don't descend into the directories matching `...`        │
+    ├──────────────────┼──────────────────────────────────────────────────────────┤
+    │ -o -type f       │ print file paths                                         │
+    ├──────────────────┼──────────────────────────────────────────────────────────┤
+    │ sed 1d           │ remove the first line matching the current directory `.` │
+    ├──────────────────┼──────────────────────────────────────────────────────────┤
+    │ cut -b3-         │ remove the first 2 characters on each line matching `./` │
+    └──────────────────┴──────────────────────────────────────────────────────────┘
+    ┌────────────────┬────────────────────────────┐
+    │ -path '*/\.*'  │ hidden entry               │
+    ├────────────────┼────────────────────────────┤
+    │ -fstype 'dev'  │ entry on a dev filesystem  │
+    ├────────────────┼────────────────────────────┤
+    │ -fstype 'proc' │ entry on a proc filesystem │
+    └────────────────┴────────────────────────────┘
+
+---
+
+What's the purpose of the `-prune`?
+
+Ignore any file/directory which is:
+
+   - on a dev or proc filesystem
+   - hidden; directly (`~/path/to/.hidden_file`), or indirectly (`~/path/.to/hidden_file`)
+
+---
+
+What's the purpose of `-o` in `-o -type f`?
+
+The previous item in the expression is `\(...\) -prune`.
+
+If a file path doesn't match `\(...\)`, we want to print it.
+But  if a  file  path doesn't  match `\(...\)`  then  `\(...\) -prune`  will
+evaluate to false, because:
+
+   1. it's equivalent to `\(...\) -a -prune`
+   2. `\(...\)` is false in this case
+   3. `-prune` is always true
+
+So we need another item which will be evaluated even if the previous one was
+false; hence, we need `-o`.
+
+---
+
+Is it equivalent to the next `$ fd`?
+
+No, but these two are:
+
+    $ fd -t f -L -I . | sort
+    $ find -L . -path '*/\.*' -prune -o -type f -print | cut -b3- | sort
+
+You can check it like so:
+
+    $ cd /etc
+    $ vimdiff =(find -L . -path '*/\.*' -prune -o -type f -print | cut -b3- | sort) =(fd -t f -L -I . | sort)
+
+# ?
+
+Document that using a `.fdignore` should be preferred to `-E` whenever possible.
+
+Why?
+If you  want to be  sure that any  command relying on  `$ fd` ignores  a certain
+pattern, it's going to be tedious/error-prone to edit each of them.
+`.fdignore` is easier, more reliable, and scale better to any number of commands
+you'll add in the future.
+
 ##
 # How to make `locate` print the names of all files whose name ends with ‘Makefile’ or ‘makefile’?
 
