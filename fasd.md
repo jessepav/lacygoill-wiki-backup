@@ -82,8 +82,8 @@ These are aliases for:
     ┌────────────────────┬──────────────────────────────────────────────────────────────────────────────┐
     │ a Do lo            │ lister les fichiers ET les dossiers frécents dont le nom matche `Do` et `lo` │
     │                    │                                                                              │
-    │                    │ `Do` et `lo` doivent être présents dans le nom du fichier ou du dossier      │
-    │                    │ pas ailleurs dans un autre composant de leur chemin                          │
+    │                    │ `Do` peut être présent dans n'importe quel composant du chemin               │
+    │                    │ `lo` doit être dans le dernier composant                                     │
     ├────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
     │ f foo              │ lister les fichiers frécents dont le nom matche foo                          │
     ├────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
@@ -114,19 +114,18 @@ These are aliases for:
     │                    │ et s'y rendre                                                                │
     └────────────────────┴──────────────────────────────────────────────────────────────────────────────┘
 
-FIXME:
-
-En réalité, dans les syntaxes du tableau précédent, il semble que `foo` et `bar`
-n'ont pas besoin d'être présents dans le nom du fichier/dossier de façon exacte:
-leurs  caractères  peuvent  être  séparés par  2  caractères  (configurable  via
-`$_FASD_FUZZY`).
+Dans les commandes du tableau précédent,  `foo` et `bar` n'ont pas besoin d'être
+présents  dans le  nom  du  fichier/dossier de  façon  exacte: leurs  caractères
+peuvent être séparés par 1 ou 2 caractères (configurable via `$_FASD_FUZZY`).
 Revoir le tableau pour tenir compte de l'aspect fuzzy du match.
 
 ##
 # Synopsis
 
     fasd [options] [query ...]
+
     [f|a|s|d|j] [options] [query ...]
+
       options:
 
         -s         list paths with ranks/scores
@@ -135,6 +134,7 @@ Revoir le tableau pour tenir compte de l'aspect fuzzy du match.
         -i         interactive mode
 
         -e <cmd>   set command to execute on the result file
+
         -b <name>  only use <name> backend
         -B <name>  add additional backend <name>
 

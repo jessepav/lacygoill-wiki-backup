@@ -1,3 +1,35 @@
+# ?
+
+How to compile rofi from source?
+
+<https://github.com/DaveDavenport/rofi/blob/next/INSTALL.md>
+
+    $ git clone https://github.com/DaveDavenport/rofi
+    $ cd rofi/
+    $ git submodule update --init
+    $ autoreconf -i
+    $ mkdir build
+    $ cd build
+    $ ../configure
+
+        No package 'xcb-aux' found~
+        No package 'xcb-ewmh' found~
+        No package 'xcb-icccm' found~
+        No package 'xcb-xrm' found~
+        No package 'xcb-xinerama' found~
+
+    $ sudo aptitude install libxcb-util-dev libxcb-ewmh-dev libxcb-icccm4-dev
+
+    $ git clone https://github.com/Airblader/xcb-util-xrm/
+    $ cd xcb-util-xrm
+
+    # ✘ doesn't work atm
+    $ git submodule update --init
+
+    $ ./autogen.sh
+    $ make
+    $ sudo checkinstall
+
 # DMENU
 ## cli
 
