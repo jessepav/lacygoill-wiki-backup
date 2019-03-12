@@ -120,7 +120,41 @@ peuvent être séparés par 1 ou 2 caractères (configurable via `$_FASD_FUZZY`)
 Revoir le tableau pour tenir compte de l'aspect fuzzy du match.
 
 ##
+# How to make fasd assign a score to each file/directory based *only* on
+## the frequency with which we accessed it in the past?
+
+Use the `-r` option:
+
+    $ fasd -r
+
+## the last time we accessed it?
+
+Use the `-t` option:
+
+    $ fasd -t
+
+##
+# How to add or remove a path from fasd's database?
+
+Use resp. the `-A` and `-D` options:
+
+    $ fasd [-A|-D] paths ...
+
+Example:
+
+    $ fasd -A /tmp/dir{1,2}
+    $ fasd | grep 'dir[12]'
+    6          /tmp/dir1~
+    6          /tmp/dir2~
+
+    $ fasd -D /tmp/dir{1,2}
+    $ fasd | grep 'dir[12]'
+    ''~
+
+##
 # Synopsis
+
+What's the difference between the `-a` and `-s` options?
 
     fasd [options] [query ...]
 
@@ -128,8 +162,8 @@ Revoir le tableau pour tenir compte de l'aspect fuzzy du match.
 
       options:
 
-        -s         list paths with ranks/scores
-        -l         list paths without ranks/scores
+        -s         list paths with scores
+        -l         list paths without scores
 
         -i         interactive mode
 
@@ -141,18 +175,12 @@ Revoir le tableau pour tenir compte de l'aspect fuzzy du match.
         -a         match files and directories
         -d         match directories only
         -f         match files only
-        -r         match by rank only
-        -t         match by recent access only
 
         -R         reverse listing order
         -h         show a brief help message
         -[0-9]     select the nth entry
 
-    fasd [-A|-D] [paths ...]
-
-        -A    add paths
-        -D    delete paths
-
+##
 # Description
 
 Fasd keeps  track of files  and directories you have  accessed, so that  you can
