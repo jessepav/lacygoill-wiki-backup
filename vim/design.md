@@ -1,8 +1,19 @@
+# ?
+
 What about the name of the buffer:
 
         'foobar'
         tempname().'foobar'
         'plugin://foobar'
+
+# ?
+
+You should always set the option `'winfixwidth'`.
+
+Without, the width of the window may  change when close/open a window, or simply
+when you change the focused window.
+As an example, if you don't use `'wfw'`  in vim-freekeys, when you get back to a
+regular window, the width of the freekeys window slightly increases by one cell.
 
 # sidebar
 ## Should I use `bh=wipe` or `bh=delete`?
