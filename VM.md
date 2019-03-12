@@ -861,8 +861,8 @@ The issue has already been reported on xcape's bug tracker:
 
 ---
 
-Warning:
-This may make you validate a choice you didn't want.
+Warning: This may make you validate a choice you didn't want.
+
 Example:
 
         $ sudo dpkg-reconfigure keyboard-configuration

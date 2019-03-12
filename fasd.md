@@ -1,83 +1,4 @@
-# How to jump to a directory via fasd from ranger?
-
-Press `zj`; it will populate the command-line with:
-
-    :fasd
-
-Then, enter some part of a directory path and press Enter.
-
----
-
-This requires the creation of a custom command:
-
-    $ cat <<'EOF' >>~/.config/ranger/commands.py
-    class fasd(Command):
-        """
-        :fasd
-
-        Jump to directory using fasd
-        """
-        def execute(self):
-            import subprocess
-            arg = self.rest(1)
-            if arg:
-                directory = subprocess.check_output(["fasd", "-d"]+arg.split(), universal_newlines=True).strip()
-                self.fm.cd(directory)
-    EOF
-
-And mapping it to a key:
-
-    $ cat <<'EOF' >>~/.config/ranger/rc.conf
-    map zj console fasd%space
-    EOF
-
-Source: <https://github.com/ranger/ranger/wiki/Custom-Commands#visit-frequently-used-directories>
-
-# How to make ranger log all the opened files, for fasd?
-
-    $ cat <<'EOF' >~/.config/ranger/plugins/plugin_fasd_log.py
-    import ranger.api
-
-    old_hook_init = ranger.api.hook_init
-
-    def hook_init(fm):
-        def fasd_add():
-            fm.execute_console("shell fasd --add '" + fm.thisfile.path + "'")
-        fm.signal_bind('execute.before', fasd_add)
-        return old_hook_init(fm)
-
-    ranger.api.hook_init = hook_init
-    EOF
-
-<https://github.com/ranger/ranger/wiki/Integration-with-other-programs#fasd>
-
-## How is it useful?
-
-Without this plugin, the fasd aliases `o`, `m`, `v`... would never suggest you a
-file opened from ranger.
-
-##
-# Installation
-
-    $ git clone https://github.com/clvv/fasd
-    $ sudo checkinstall
-
-Use `$ checkinstall` or `$ make` to get the manpage.
-
-# Usage
-## How to list frecent files?  directories?  files+directories?
-
-    $ f
-    $ d
-    $ a
-
-These are aliases for:
-
-    $ fasd -f
-    $ fasd -d
-    $ fasd -a
-
-## ?
+# ?
 
     ┌────────────────────┬──────────────────────────────────────────────────────────────────────────────┐
     │ a Do lo            │ lister les fichiers ET les dossiers frécents dont le nom matche `Do` et `lo` │
@@ -120,21 +41,73 @@ peuvent être séparés par 1 ou 2 caractères (configurable via `$_FASD_FUZZY`)
 Revoir le tableau pour tenir compte de l'aspect fuzzy du match.
 
 ##
-# How to make fasd assign a score to each file/directory based *only* on
-## the frequency with which we accessed it in the past?
+# Installation
 
-Use the `-r` option:
+    $ git clone https://github.com/clvv/fasd
+    $ sudo checkinstall
 
-    $ fasd -r
-
-## the last time we accessed it?
-
-Use the `-t` option:
-
-    $ fasd -t
+Use `$ checkinstall` or `$ make` to get the manpage.
 
 ##
-# How to add or remove a path from fasd's database?
+# Synopsis
+
+    $ fasd [options] [query ...]
+
+    $ [f|a|s|d] [options] [query ...]
+
+    $ j [query ...]
+
+## What does `f` execute? `a`? `s`? `d`?
+
+They are aliases using the fasd command:
+
+    $ type f
+    f is an alias for fasd -f~
+
+    $ type a
+    ... fasd -a~
+
+    $ type s
+    ... fasd -si~
+
+    $ type d
+    ... fasd -d~
+
+## What does `j` execute? `jj`?
+
+They are aliases using the `fasd_cd` shell function:
+
+    $ type j
+    ... fasd_cd -d~
+
+    $ type jj
+    ... fasd_cd -d -i~
+
+    $ type fasd_cd
+    fasd_cd is a shell function from ~/.fasd-init-zsh ~
+
+## Why aren't they using the same command/function?
+
+`fasd` can't implement `j`  nor `jj` because it's an external  program, and as a
+result it can't change the state of the current shell.
+
+So, `j` and `jj` must be implemented by a shell function.
+
+##
+## What's the difference between the option `-a` and `-s`?
+
+I can't find one.
+
+There doesn't seem to be any difference between the `-a` and `-s` options:
+
+   - `-s`   ⇔ `-a`
+   - `-si`  ⇔ `-ai`
+   - `-sid` ⇔ `-aid`
+   - `-sif` ⇔ `-aif`
+
+##
+# Configuration
+## How to add or remove a path from fasd's database?
 
 Use resp. the `-A` and `-D` options:
 
@@ -152,34 +125,160 @@ Example:
     ''~
 
 ##
-# Synopsis
+# Getting info
+## How to get a reminder of all possible options?
 
-What's the difference between the `-a` and `-s` options?
+Use the `-h` option:
 
-    fasd [options] [query ...]
+    $ fasd -h
 
-    [f|a|s|d|j] [options] [query ...]
+##
+## How to list frecent files?  directories?  files+directories?
 
-      options:
+    $ f
+    $ d
+    $ a
 
-        -s         list paths with scores
-        -l         list paths without scores
+## How to list the paths in fasd's database with and without their scores?
 
-        -i         interactive mode
+Use resp. the `-s` and `-l` options:
 
-        -e <cmd>   set command to execute on the result file
+    $ fasd -s
+    $ fasd -l
 
-        -b <name>  only use <name> backend
-        -B <name>  add additional backend <name>
+##
+## How to reverse any listing?
 
-        -a         match files and directories
-        -d         match directories only
-        -f         match files only
+Use the `-R` option:
 
-        -R         reverse listing order
-        -h         show a brief help message
-        -[0-9]     select the nth entry
+    $ fasd -lR
+    $ fasd -fR
+    $ fasd -dR
+    ...
 
+## How to get the nth entry from a listing?
+
+Pass its index as an option:
+
+    $ fasd -123
+
+Note that the indexing start from 1, and from the bottom.
+So to get the last entry, you would use the option `-1`, the last but one entry `-2`, ...
+
+##
+# How to make fasd
+## sort the files/directories based *only* on
+### the last time we accessed them?
+
+Use the `-t` option:
+
+    $ fasd -t
+
+### the frequency with which we accessed them in the past?
+
+Use the `-r` option:
+
+    $ fasd -r
+
+##
+## start in interactive mode?
+
+Use the `-i` option:
+
+    $ fasd -i
+
+Note that  in interactive  mode, each  entry is indexed  by a  positive integer,
+explicitly printed as a prefix.
+You can use this index to select an entry.
+
+## run a command using the chosen path as an argument?
+
+Use the `-e` option:
+
+    $ fasd -e vim
+
+##
+## consider an additional backend?
+
+Use the `-B` option:
+
+    $ fasd -f -B viminfo
+
+## consider only one specific backend?
+
+Use the `-b` option:
+
+    $ fasd -f -b viminfo
+
+##
+# Ranger Integration
+## How to jump to a directory via fasd from ranger?
+
+Press `zj`; it will populate the command-line with:
+
+    :fasd
+
+Then, enter some part of a directory path and press Enter.
+
+---
+
+This requires the creation of a custom command:
+
+    $ cat <<'EOF' >>~/.config/ranger/commands.py
+    class fasd(Command):
+        """
+        :fasd
+
+        Jump to directory using fasd
+        """
+        def execute(self):
+            import subprocess
+            arg = self.rest(1)
+            if arg:
+                directory = subprocess.check_output(["fasd", "-d"]+arg.split(), universal_newlines=True).strip()
+                self.fm.cd(directory)
+    EOF
+
+And mapping it to a key:
+
+    $ cat <<'EOF' >>~/.config/ranger/rc.conf
+    map zj console fasd%space
+    EOF
+
+Source: <https://github.com/ranger/ranger/wiki/Custom-Commands#visit-frequently-used-directories>
+
+## How to make ranger log all the opened files, for fasd?
+
+    $ cat <<'EOF' >~/.config/ranger/plugins/plugin_fasd_log.py
+    import ranger.api
+
+    old_hook_init = ranger.api.hook_init
+
+    def hook_init(fm):
+        def fasd_add():
+            fm.execute_console("shell fasd --add '" + fm.thisfile.path + "'")
+        fm.signal_bind('execute.before', fasd_add)
+        return old_hook_init(fm)
+
+    ranger.api.hook_init = hook_init
+    EOF
+
+<https://github.com/ranger/ranger/wiki/Integration-with-other-programs#fasd>
+
+### How is it useful?
+
+Without this plugin, the fasd aliases `o`, `m`, `v`... would never suggest you a
+file opened from ranger.
+
+##
+# How to debug fasd?
+
+Set `_FASD_SINK` in your `.fasdrc` to obtain a log:
+
+    _FASD_SINK="${HOME}/.fasd.log"
+
+##
+##
 ##
 # Description
 
@@ -427,10 +526,6 @@ Set this to 0 to disable this behavior.
 Which awk to use.
 fasd can detect and use a compatible awk.
 
-## `$_FASD_SINK`
-
-File to log all STDERR to, defaults to "/dev/null".
-
 ## `$_FASD_MAX`
 
 Max total score / weight, defaults to 2000.
@@ -467,14 +562,6 @@ Path to .viminfo file for viminfo backend, defaults to "$HOME/.viminfo"
 
 Path  to XDG  recently-used.xbel  file for  recently-used  backend, defaults  to
 "$HOME/.local/share/recently-used.xbel"
-
-##
-# Debugging
-
-If fasd does not work as expected, you can set `_FASD_SINK` in your `.fasdrc` to
-obtain a log.
-
-    _FASD_SINK="$HOME/.fasd.log"
 
 ##
 # Todo

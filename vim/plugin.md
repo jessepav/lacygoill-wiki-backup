@@ -298,7 +298,7 @@ While  `:sort`  has  several  flags  for  sorting  on  various  numbers,  and  a
 
             https://github.com/lifepillar/vim-cheat40
 
-                                    70 sloc
+                                    78 sloc
 
 ## clam
 
