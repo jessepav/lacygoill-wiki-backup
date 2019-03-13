@@ -6,6 +6,10 @@ Go to `about:config`, and set these options:
     view_source.editor.path     /usr/bin/urxvt
     view_source.editor.args     -e vim
 
+Now, when  you'll right-click and  select `View Page  Source` on a  webpage, the
+source code will be opened in Vim.
+
+##
 # balises
 ## esthétique
 
