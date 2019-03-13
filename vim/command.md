@@ -390,22 +390,23 @@ Here's the full list of possible values:
 
 If you need to:
 
-        - pass non-scalar data like lists or dictionaries, use `<args>`
+   - pass non-scalar data like lists or dictionaries, use `<args>`
 
-        - pass a list of strings, use `<f-args>`
+   - pass a list of strings, use `<f-args>`
 
-        - parse the arguments according to arbitrary rules, use `<q-args>`
-          (for example extract the value after a `-option`)
+   - parse the arguments according to arbitrary rules, use `<q-args>`
+     (for example extract the value after a `-option`)
 
 ### Do I need to quote strings passed to my command with `<args>`?  `<f-args>`?  `<q-args>`?
 
 You only need to quote them with `<args>`.
 
+###
 ### If I use `<args>` to send arguments to a function, do I need to use commas to separate them?
 
 Yes.
 
-### What if I use `<f-args>`?  `<q-args>`?
+#### What if I use `<f-args>`?  `<q-args>`?
 
 `<f-args>` will add commas automatically.
 `<q-args>` will concatenate all arguments into  one big string, so there will be
