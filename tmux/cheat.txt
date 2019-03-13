@@ -4,9 +4,28 @@ About {{{2
   N    Type in Normal mode
   C    Type in Copy mode
 }}}
+Open {{{1
+Open selected url         x            C
+Open selected file path   «C-x»        C
+Search {{{1
+Search selected text      S            C
+Regex search              «pfx» /      N
+# Quit copy mode before another search
+Simple file search        «pfx» «C-f»  N
+Git status files          «pfx» «C-g»  N
+# Works even if a file contains spaces
+SHA-1/SHA-256 hashes      «pfx» «M-h»  N
+# Best used after git log command
+Url search                «pfx» «C-u»  N
+# http, ftp and git urls
+Number search             «pfx» «C-d»  N
+# Mnemonic d, as digit
+IP address search         «pfx» «M-i»  N
 Yank {{{1
 Yank current command-line «pfx» y      N
 Yank path to cwd          «pfx» Y      N
-Yank&paste selected text  Y            C
-# doesn't pollute system clipboard
-# provided by the tmux-yank plugin
+Yank&Paste selected text  Y            C
+# Doesn't pollute system clipboard
+Paste {{{1
+Paste buffer              «pfx» «C-p»  N
+Choose&Paste buffer       «pfx» p      N
