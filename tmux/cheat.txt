@@ -1,0 +1,12 @@
+About {{{2
+  Labels:
+
+  N    Type in Normal mode
+  C    Type in Copy mode
+}}}
+Yank {{{1
+Yank current command-line «pfx» y      N
+Yank path to cwd          «pfx» Y      N
+Yank&paste selected text  Y            C
+# doesn't pollute system clipboard
+# provided by the tmux-yank plugin

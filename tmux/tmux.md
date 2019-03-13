@@ -13,36 +13,47 @@ To test the current value of a replacement variable such as `#{pane_tty}`, run:
 
 ---
 
-        http://man.openbsd.org/OpenBSD-current/man1/tmux.1
+<http://man.openbsd.org/OpenBSD-current/man1/tmux.1>
 
-        https://github.com/tmux/tmux/wiki/FAQ
+<https://github.com/tmux/tmux/wiki/FAQ>
 
-        https://devel.tech/tips/n/tMuXz2lj/the-power-of-tmux-hooks/
+<https://devel.tech/tips/n/tMuXz2lj/the-power-of-tmux-hooks/>
 
-        https://github.com/tmux-plugins/tmux-sensible
+<https://github.com/tmux-plugins/tmux-sensible>
 
-        https://github.com/tmux-plugins/tmux-pain-control
+<https://github.com/tmux-plugins/tmux-pain-control>
 
-        # extended underline style
-        https://github.com/tmux/tmux/commit/bc0e527f32642cc9eb2354d1bdc033ab6beca33b
+extended underline style
+<https://github.com/tmux/tmux/commit/bc0e527f32642cc9eb2354d1bdc033ab6beca33b>
 
-        # Support for windows larger than visible on the attached client.
-        https://github.com/tmux/tmux/commit/646995384d695eed9de1b2363fd2b315ca01785e
+support for windows larger than visible on the attached client
+<https://github.com/tmux/tmux/commit/646995384d695eed9de1b2363fd2b315ca01785e>
 
 ---
 
 Document this:
 
-        $ tmux pipe-pane -t study:2.1 -I "echo 'ls'"
+    $ tmux pipe-pane -t study:2.1 -I "echo 'ls'"
 
 This command  executes `$  ls` in  the first pane  of the  second window  of the
 `study` session.
 The syntax is the following:
 
-        $ tmux pipe-pane -t {session}:{window}.{pane} -I "shell cmd"
+    $ tmux pipe-pane -t {session}:{window}.{pane} -I "shell-cmd"
 
-The output of  the shell command is  written on the standard input  of the shell
-running in the targeted pane.
+`-I` and `-O` specify which of the shell-command output streams are connected to
+the pane.
+
+With `-I`, stdout is connected (so anything `shell-cmd` prints is written to the
+pane as if it was typed).
+
+You can also run:
+
+    $ tmux pipe-pane -t {session}:{window}.{pane} -O "shell cmd"
+
+With  `-O`,  stdin  is  connected  (so  any output  in  the  pane  is  piped  to
+`shell-cmd`).
+Both `-I` and `-O` may be used together.
 
 It could be useful for our re-implementation of `vim-tbone`.
 
@@ -64,28 +75,6 @@ copy-mode.
 
 For the moment, the  only solution which I know is to kill  and restart the tmux
 server.
-
-##
-# How to yank
-
-The next three key bindings are provided by the tmux-yank plugin.
-
-## the contents of the current command-line?
-
-Press `prefix + y`.
-
-## the contents of the current working directory?
-
-Press `prefix + Y`.
-
-## the text selected in copy mode, *and* paste it immediately on the command-line where the cursor was?
-
-Press `Y` in copy mode.
-
-### What's the benefit of this, compared to yanking then pasting in two steps?
-
-It doesn't pollute the system clipboard.
-Although, it does add a paste buffer on the stack of tmux paste buffers.
 
 ##
 # Theory

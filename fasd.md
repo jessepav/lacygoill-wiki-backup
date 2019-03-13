@@ -365,11 +365,11 @@ Here are some examples to get you started:
 
 Fasd has three matching modes: default, case-insensitive, and fuzzy.
 
-For a given set of queries (the set of command-line arguments passed to fasd),
-a path is a match if and only if:
+For a given set of queries (the set of command-line arguments passed to fasd), a
+path is a match iff:
 
-   1. Queries match the path *in order*.
-   2. The last query matches the *last segment* of the path.
+   1. queries match the path *in order*
+   2. the last query matches the *last segment* of the path
 
 If no match is found, fasd will try the same process ignoring case.
 If  still no  match is  found, fasd  will allow  extra characters  to be  placed
@@ -377,22 +377,11 @@ between query characters for fuzzy matching.
 
 Tips:
 
-   - If you want your last query not to match the last segment of the path,
-     append `/` as the last query.
+   - if you want your last query not to match the last segment of the path,
+     append `/` as the last query
 
-   - If you want your last query to match the end of the filename, append `$` to
-     the last query.
-
-# Compatibility
-
-Fasd's basic  functionalities are  POSIX compliant, meaning  that you  should be
-able to use fasd in all POSIX compliant shells.
-Your shell need to  support command substitution in `$PS1` in  order for fasd to
-automatically track your commands and files.
-This  feature is  not  specified by  the POSIX  standard,  but it's  nonetheless
-present in many POSIX compliant shells.
-In  shells  without prompt  command  or  prompt  command substitution  (csh  for
-instance), you can add entries manually with `fasd -A`.
+   - if you want your last query to match the end of the filename, append `$` to
+     the last query
 
 # Tab Completion
 
@@ -600,7 +589,12 @@ command-line argument:
    - fzf-z: C-g
 
 Document in which circumstances we should use each of them.
-Also `~/.zsh/README.md` may be outdated; review it.
+You should distinguish 2 cases: you want to access sth new or sth you've already
+accessed in the past.
+
+---
+
+`~/.zsh/README.md` may be outdated; review it.
 
 ##
 # Reference

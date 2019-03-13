@@ -1,3 +1,11 @@
+# How to view the source code of a webpage in Vim directly from Firefox?
+
+Go to `about:config`, and set these options:
+
+    view_source.editor.external true
+    view_source.editor.path     /usr/bin/urxvt
+    view_source.editor.args     -e vim
+
 # balises
 ## esthétique
 
