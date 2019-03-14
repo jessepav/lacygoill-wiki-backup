@@ -331,6 +331,32 @@ Il  faut s'habituer  à prendre  du  recul dès  que  qch devient  pénible, et 
 demander s'il  n'y a pas qch  d'autre qui mérite davantage  notre attention dans
 l'immédiat.
 
+---
+
+If:
+
+   - you have an issue which you fully understand
+
+   - you think you have a solution, but for some reason it doesn't work
+
+   - after spending quite some time, you still can't find anything wrong with
+     the solution
+
+ask yourself these questions:
+
+   1. What am I trying to do?
+   2. What makes me think it's possible?
+   3. What could explain that my belief is wrong?
+
+Example of answers:
+
+   1. I'm trying to find a condition to prevent my autocmd to install a match
+      (trailing whitespace) in a fzf buffer
+
+   2. when my autocmd is fired, I can detect the filetype of the buffer
+
+   3. the filetype has not been set yet
+
 # Modularisation
 
 Réduire le temps d'accès.

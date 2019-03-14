@@ -1,44 +1,7 @@
-# ?
+# What's the purpose of fasd?
 
-    ┌────────────────────┬──────────────────────────────────────────────────────────────────────────────┐
-    │ a Do lo            │ lister les fichiers ET les dossiers frécents dont le nom matche `Do` et `lo` │
-    │                    │                                                                              │
-    │                    │ `Do` peut être présent dans n'importe quel composant du chemin               │
-    │                    │ `lo` doit être dans le dernier composant                                     │
-    ├────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-    │ f foo              │ lister les fichiers frécents dont le nom matche foo                          │
-    ├────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-    │ f js$              │ lister les fichiers récents dont le nom se terminent par js                  │
-    ├────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-    │ j foo              │ se rendre dans le dossier dont le nom matche matche foo                      │
-    ├────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-    │ v foo              │ ouvrir avec vim le fichier le + frécent qui matche foo                       │
-    │ f -e vim foo       │                                                                              │
-    │                    │                                                                              │
-    │ m foo              │ ouvrir avec mpv le fichier le + frécent qui matche foo                       │
-    │ f -e mpv foo       │                                                                              │
-    │                    │                                                                              │
-    │ o foo              │ ouvrir avec le programme associé par défaut le fichier / dossier             │
-    │ a -e xdg-open foo  │ le + frécent qui match foo                                                   │
-    │                    │                                                                              │
-    │ xdg-open $(sf foo) │ afficher les fichiers frécents qui match foo via un menu interactif,         │
-    │                    │ puis ouvrir le fichier sélectionné                                           │
-    ├────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-    │ ,foo,bar Tab       │ auto-compléter le fichier ou dossier le + frécent qui contient foo et bar    │
-    │                    │ dans son nom                                                                 │
-    │                    │                                                                              │
-    │ f,foo,bar Tab      │ idem mais spécifiquement pour un fichier                                     │
-    ├────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-    │ d,foo Tab          │ auto-compléter le dossier le + frécent contenant foo dans son chemin         │
-    ├────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-    │ jj                 │ afficher un menu listant les dossiers les + frécents pour en sélectionner un │
-    │                    │ et s'y rendre                                                                │
-    └────────────────────┴──────────────────────────────────────────────────────────────────────────────┘
-
-Dans les commandes du tableau précédent,  `foo` et `bar` n'ont pas besoin d'être
-présents  dans le  nom  du  fichier/dossier de  façon  exacte: leurs  caractères
-peuvent être séparés par 1 ou 2 caractères (configurable via `$_FASD_FUZZY`).
-Revoir le tableau pour tenir compte de l'aspect fuzzy du match.
+It  allows  you  to  *quickly  reference*  a file  or  directory  while  on  the
+command-line, provided that you accessed it in the past.
 
 ##
 # Installation
@@ -94,19 +57,102 @@ result it can't change the state of the current shell.
 So, `j` and `jj` must be implemented by a shell function.
 
 ##
-## What's the difference between the option `-a` and `-s`?
+## What is the difference between the options `-a` and `-s`?
 
-I can't find one.
-
-There doesn't seem to be any difference between the `-a` and `-s` options:
+There doesn't seem to be any difference between them:
 
    - `-s`   ⇔ `-a`
    - `-si`  ⇔ `-ai`
    - `-sid` ⇔ `-aid`
    - `-sif` ⇔ `-aif`
 
+## What is `s` the initial of?
+
+`s` refers to `s`how, or `s`earch, or `s`elect.
+
 ##
 # Configuration
+## Where is fasd's configuration file locaed?
+
+    ~/.fasdrc
+
+### Which of the variables it contains can be exported in the shell environment?
+
+None, except `_FASD_RO`.
+
+### Why don't I need to restart a shell after changing the value of a fasd variable?
+
+The file is read on every invocation of a fasd command.
+
+`/etc/fasdrc` is also read.
+
+##
+## Where is fasd's database?
+
+    ~/.fasd
+
+### How can I change its location?
+
+Assign the desired path to `_FASD_DATA` in `~/.fasdrc`.
+
+### How can I limit its size?
+
+Set `_FASD_MAX` appropriately.
+
+Its default value is  2000, which means that the database should  not be able to
+contain more than about 2000 entries.
+
+However, for some  reason, the database seems  to be able to contain  a few more
+entries:
+
+    $ cat <<'EOF' >>~/.fasdrc
+    _FASD_DATA=/tmp/.fasd
+    _FASD_MAX=1
+    EOF
+
+    $ cd /dev
+    $ cd /media
+    $ cd /opt
+    $ cd /var
+
+    # only 3 entries instead of 4
+    $ d
+    5.4        /opt~
+    5.4        /var~
+    9.72       /media~
+
+##
+## How to disable fasd entirely?
+
+Set `_FASD_RO` to any non-empty string in `~/.fasdrc`.
+
+Note that when fasd is disabled, you can't manually add or remove paths from the
+database with `-A` and `-D`.
+
+##
+## How to make fasd ignore
+### the command-line based on a command name?
+
+Set the variable `_FASD_IGNORE` appropriately.
+
+Its default value is `fasd ls echo`.
+
+### the command-line based on a string?
+
+Set the variable `_FASD_BLACKLIST` appropriately.
+
+Its default value is `--help`.
+So any command containing `--help` won't be processed.
+
+### the first word of the command-line?
+
+Set `_FASD_SHIFT` appropriately.
+
+Its default  value is `sudo  busybox`, so any  command beginning with  `sudo` or
+`busybox` will  be shifted; i.e. it  will be processed  as if it began  from the
+following word.
+
+##
 ## How to add or remove a path from fasd's database?
 
 Use resp. the `-A` and `-D` options:
@@ -115,14 +161,116 @@ Use resp. the `-A` and `-D` options:
 
 Example:
 
-    $ fasd -A /tmp/dir{1,2}
-    $ fasd | grep 'dir[12]'
-    6          /tmp/dir1~
-    6          /tmp/dir2~
+    $ mkdir /tmp/.dir{1,2}
+    $ fasd -A /tmp/.dir{1,2}
+    $ fasd | grep '.dir[12]'
+    6          /tmp/.dir1~
+    6          /tmp/.dir2~
 
-    $ fasd -D /tmp/dir{1,2}
-    $ fasd | grep 'dir[12]'
+    $ fasd -D /tmp/.dir{1,2}
+    $ fasd | grep '.dir[12]'
     ''~
+
+Note that the paths must match existing files or directories.
+
+## How to remove all the paths matching `pat` from fasd's database?
+
+Use `` `a | grep pat` `` to get the relevant paths, and feed them to `fasd -D`:
+
+    $ touch /tmp/.pat{1..3}
+    $ fasd -A /tmp/.pat{1..3}
+    $ a | grep pat
+    6          /tmp/.pat1~
+    6          /tmp/.pat2~
+    6          /tmp/.pat3~
+
+    $ fasd -D `a | grep pat`
+    $ a | grep pat
+    ''~
+
+##
+## How to create the alias `x` to run `cmd` on
+### a file opened in the past?
+
+    $ alias x='fasd -f -e cmd'
+
+Or:
+
+    $ alias x='f -e cmd'
+
+### a directory opened in the past?
+
+    $ alias x='fasd -d -e cmd'
+
+Or:
+
+    $ alias x='d -e cmd'
+
+### a file or directory opened in the past?
+
+    $ alias x='fasd -a -e cmd'
+
+Or:
+
+    $ alias x='a -e cmd'
+
+##
+# Backends
+## How to punctually make fasd consider
+### an additional backend?
+
+Use the `-B` option:
+
+    $ fasd -f -B viminfo
+
+### only one specific backend?
+
+Use the `-b` option:
+
+    $ fasd -f -b viminfo
+
+##
+## What are the three additional backends provided by fasd?
+
+   - recently-used: GTK's recently-used file
+
+        ~/.local/share/recently-used.xbel
+
+    The path to this file can be controlled via `_FASD_RECENTLY_USED_XBEL`.
+
+   - current: provides any file or subdirectory in the current working directory
+
+   - viminfo: Vim's editing history
+
+    The path to this file can be controlled via `_FASD_VIMINFO`.
+
+## How can I use one of them by default?
+
+Set the variable `_FASD_BACKENDS` appropriately:
+
+    _FASD_BACKENDS=viminfo
+
+## How can I define my own backend?
+
+Define a shell function in `~/.fasdrc`, and assign its name to `_FASD_BACKENDS`:
+
+    func() {
+        echo '/tmp/.file'
+    }
+    _FASD_BACKENDS=func
+
+## How to use several backends by default?
+
+Concatenate their names by separating them with spaces, and assign the result as
+a string to `_FASD_BACKENDS`.
+
+    funcA() {
+        echo '/tmp/.file1'
+    }
+    funcB() {
+        echo '/tmp/.file2'
+    }
+    _FASD_BACKENDS='funcA funcB'
 
 ##
 # Getting info
@@ -165,9 +313,109 @@ Pass its index as an option:
 Note that the indexing start from 1, and from the bottom.
 So to get the last entry, you would use the option `-1`, the last but one entry `-2`, ...
 
+## How to limit a listing to the entries matching foo?
+
+Pass the query 'foo' to the fasd command:
+
+    $ fasd -l foo
+    $ fasd -s foo
+
+    $ fasd -f foo
+    $ fasd -d foo
+    $ fasd -a foo
+
+##
+## When does fasd limit a listing to only the best match?
+
+When it's being called inside a subshell, *and* it's passed a query:
+
+    $ touch /tmp/.file{1..3}
+    $ fasd -A /tmp/.file{1..3}
+
+    # only passing a query will not limit the listing to the best match
+    $ f file
+    6          /tmp/.file1~
+    6          /tmp/.file2~
+    6          /tmp/.file3~
+
+    # same thing when only using a subshell
+    $ echo `f`
+    ...~
+
+    # finally the listing is limited to the best match
+    $ echo `f file`
+    /tmp/.file3~
+
+    $ fasd -D /tmp/.file{1..3}
+
+This allows you to do things like:
+
+    # move `file` to the most frecent directory matching `www`
+    $ mv file `d www`
+
+    # copy the most frecent file matching `foo` and `bar` into the cwd
+    $ cp `f foo bar` .
+
+    # open a frecent pdf interactively
+    $ xdg-open `sf pdf`
+
+##
+# Queries
+## On which conditions do queries passed to fasd match a path?  (2)
+
+They must match the path *in order*.
+The *last* query must match the *last* component of the path.
+
+### If no match is found, how does fasd re-compare the queries with the path?
+
+It tries the same process, but this time it ignores the case.
+
+### If no match is found, how does fasd re-re-compare the queries with the path?
+
+It tries the same process, but this time it allows extra characters to be placed
+between query characters for fuzzy matching.
+The exact number can be controlled via `_FASD_FUZZY`.
+
+##
+## How to prevent the last query to match the *last* component of a path?
+
+Append `/` to the last query.
+
+    $ mkdir -p /tmp/.foo/bar
+    $ touch /tmp/.foo/bar/baz
+    $ fasd -A /tmp/.foo/bar/baz
+
+    $ f foo bar
+    ''~
+    $ f foo bar/
+    6          /tmp/.foo/bar/baz~
+
+    $ fasd -D /tmp/.foo/bar/baz
+
+Note that the trailing slash does *not* force you to use a full component path.
+So, this would work too:
+
+    $ f foo br/
+    6          /tmp/.foo/bar/baz~
+
+## How to make my last query match the *end* of a path?
+
+Append `$` to the last query.
+
+    $ touch /tmp/.foo{,bar}
+    $ fasd -A /tmp/.foo{,bar}
+
+    $ a foo
+    14.1334    /tmp/.foobar~
+    15         /tmp/.foo~
+    $ a foo$
+    15         /tmp/.foo~
+
+    $ fasd -D /tmp/.foo{,bar}
+
 ##
 # How to make fasd
-## sort the files/directories based *only* on
+## sort the frecent files/directories based *only* on
 ### the last time we accessed them?
 
 Use the `-t` option:
@@ -191,24 +439,123 @@ Note that  in interactive  mode, each  entry is indexed  by a  positive integer,
 explicitly printed as a prefix.
 You can use this index to select an entry.
 
-## run a command using the chosen path as an argument?
+### What's the quickest way to refer to a frecent file interactively?
+
+Use the defaullt `sf` alias.
+The latter expands to `fasd -sid` which is equivalent to:
+
+    fasd -sid
+    ⇔
+    fasd -aid
+    ⇔
+    fasd -id
+
+#### What about a directory?
+
+Use the defaullt `sd` alias.
+
+The latter expands to `fasd -sif` which is equivalent to:
+
+    fasd -sif
+    ⇔
+    fasd -aif
+    ⇔
+    fasd -if
+
+##
+## run a command using the best match as an argument?  (2)
 
 Use the `-e` option:
 
-    $ fasd -e vim
+    $ fasd -e vim pat
+
+Or a subshell:
+
+    $ vim `f pat`
 
 ##
-## consider an additional backend?
+# How to quickly reference
+## a file or directory I have already opened/visited in the past?
 
-Use the `-B` option:
+Use fasd's word mode completion.
 
-    $ fasd -f -B viminfo
+Pressing `Tab`  after `,foo,bar`  will make  fasd suggest  all frecent  files or
+directories matching `foo` and `bar`.
 
-## consider only one specific backend?
+You're limited to only 2 queries, so this won't work:
 
-Use the `-b` option:
+    $ vim f,foo,bar,baz Tab
 
-    $ fasd -f -b viminfo
+You can limit  the suggestions to only  the files or to only  the directories by
+using the `f` or `d` prefix.
+
+    $ vim f,foo,bar Tab
+
+    $ cp file d,foo,bar Tab
+
+---
+
+There   are  also   three  zle   widgets:  `fasd-complete`,   `fasd-complete-f`,
+`fasd-complete-d`, that you can bind to the keys you like:
+
+    bindkey '^X^A' fasd-complete    # C-x C-a to do fasd-complete (files and directories)
+    bindkey '^X^F' fasd-complete-f  # C-x C-f to do fasd-complete-f (only files)
+    bindkey '^X^D' fasd-complete-d  # C-x C-d to do fasd-complete-d (only directories)
+
+But I prefer word mode completion to the widgets, so I don't install these key bindings.
+
+Compare:
+
+    $ zathura awk pdf C-x C-f
+
+    $ zathura ,awk,pdf Tab
+
+The widget only suggests candidates based on the query `pdf`.
+`,` can take into account several queries at the same time.
+And it's easier to type.
+
+---
+
+Note that `C-x C-d` works only if the command-line is not empty:
+
+    # ✔
+    $ ls C-x C-d
+      ^^
+      there needs to be a command
+
+If it is, `C-d` will cause the shell to quit.
+
+    # ✘
+    $ C-x C-d
+
+## a file I have never opened in the past?
+
+Move to an ancestor directory, and press `C-x C-f` (provided by fzf).
+The latter will let you fuzzy search all the files below the cwd.
+
+## a directory I have never visited in the past?
+
+Move to an ancestor directory, and press `M-j` (provided by fzf).
+The latter will let you fuzzy search all the directories below the cwd.
+
+##
+## Which pitfall should I avoid when using fasd's word mode completion?
+
+zsh's path completion may interfere if your query is not specific enough.
+If that happens, try to use a prefix  like `f,` and/or use the extension file as
+a second query.
+
+    $ cd ~/wiki
+    $ o f,awk Tab
+    awk/~
+
+    $ cd
+    $ o f,awk Tab
+    /path/to/gawk.pdf~
+    ...~
+    $ o ,awk,pdf Tab
+    /path/to/gawk.pdf~
+    ...~
 
 ##
 # Ranger Integration
@@ -277,326 +624,3 @@ Set `_FASD_SINK` in your `.fasdrc` to obtain a log:
 
     _FASD_SINK="${HOME}/.fasd.log"
 
-##
-##
-##
-# Description
-
-Fasd keeps  track of files  and directories you have  accessed, so that  you can
-quickly reference them in the command-line.
-
-The name fasd comes from the default suggested aliases `f`(files),
-`a`(files/directories), `s`(show/search/select), `d`(directories).
-
-Fasd ranks files and directories by "frecency", that is, by both "frequency" and
-"recency".
-
----
-
-Fasd keeps track of files and directories you access in your shell and gives you
-quick access to them.
-You can use fasd to reference files or directories by just a few key identifying
-characters.
-You can  use fasd to boost  your command-line productivity by  defining your own
-aliases to launch programs on files or directories.
-Fasd, by  default, provides some basic  aliases, including a shell  function `j`
-that resembles the functionality of `j` and `autojump`.
-
----
-
-If you use your shell to navigate  and launch applications, fasd can help you do
-it more efficiently.
-With fasd, you can open files regardless of which directory you are in.
-Just with  a few key strings,  fasd can find  a "frecent" file or  directory and
-open it with the command you specify.
-Below are some hypothetical situations, where you can type in the command on the
-left and fasd will expand it into the right side.
-
-    v def conf       =>     vim /some/awkward/path/to/type/default.conf
-    j abc            =>     cd /hell/of/a/awkward/path/to/get/to/abcdef
-    m movie          =>     mplayer /whatever/whatever/whatever/awesome_movie.mp4
-    o eng paper      =>     xdg-open /you/dont/remember/where/english_paper.pdf
-    vim `f rc lo`    =>     vim /etc/rc.local
-    vim `f rc conf`  =>     vim /etc/rc.conf
-
-Fasd comes with some useful aliases by default:
-
-```sh
-alias a='fasd -a'        # any
-alias s='fasd -si'       # show / search / select
-alias d='fasd -d'        # directory
-alias f='fasd -f'        # file
-alias sd='fasd -sid'     # interactive directory selection
-alias sf='fasd -sif'     # interactive file selection
-alias j='fasd_cd -d'     # cd, same functionality as j in autojump
-alias jj='fasd_cd -d -i' # cd with interactive selection
-```
-
-Fasd will smartly detect when to display a list of files or just the best match.
-For instance, when you call fasd in a subshell with some search parameters, fasd
-will only return the best match.
-This enables you to do:
-
-    $ mv update.html `d www`
-    $ cp `f mov` .
-
-# Examples
-
-    $ f -i rc$
-    $ vi `f nginx conf`
-    $ cp update.html `d www`
-
-    $ f foo               # list frecent files matching foo
-    $ a foo bar           # list frecent files and directories matching foo and bar
-    $ f js$               # list frecent files that ends in js
-    $ f -e vim nginx conf # run vim on the most frecent file matching nginx and conf
-    $ mplayer `f bar`     # run mplayer on the most frecent file matching bar
-    $ j foo               # cd into the most frecent directory matching foo
-    $ open `sf pdf`       # interactively select a file matching pdf and launch `open`
-
-You should add your own aliases to fully utilize the power of fasd.
-Here are some examples to get you started:
-
-    alias v='f -e vim'      # quick opening files with vim
-    alias m='f -e mplayer'  # quick opening files with mplayer
-    alias o='a -e xdg-open' # quick opening files with xdg-open
-
-# Matching
-
-Fasd has three matching modes: default, case-insensitive, and fuzzy.
-
-For a given set of queries (the set of command-line arguments passed to fasd), a
-path is a match iff:
-
-   1. queries match the path *in order*
-   2. the last query matches the *last segment* of the path
-
-If no match is found, fasd will try the same process ignoring case.
-If  still no  match is  found, fasd  will allow  extra characters  to be  placed
-between query characters for fuzzy matching.
-
-Tips:
-
-   - if you want your last query not to match the last segment of the path,
-     append `/` as the last query
-
-   - if you want your last query to match the end of the filename, append `$` to
-     the last query
-
-# Tab Completion
-
-Fasd  offers two  completion modes,  command mode  completion (implemented  by a
-shell completion  function) and word  mode completion (implemented  by zstyles);
-the latter works only in zsh.
-
-Command mode completion is  triggered when you hit tab on a  fasd command or its
-aliases (like for any other shell command).
-Under this mode your queries can be separated by a space.
-Tip: if  you find that  the completion result  overwrites your queries,  type an
-extra space before you hit tab.
-
-Word mode completion can be triggered on *any* command (not just a fasd one).
-Word completion is  triggered by any command-line argument that  starts with `,`
-(all), `f,` (files), or `d,` (directories),  or that ends with `,,` (all), `,,f`
-(files), or `,,d` (directories).
-
-Examples:
-
-    $ vim ,rc,lo<Tab>
-    $ vim /etc/rc.local
-
-    $ mv index.html d,www<Tab>
-    $ mv index.html /var/www/
-
-There   are  also   three  zle   widgets:  `fasd-complete`,   `fasd-complete-f`,
-`fasd-complete-d`, that you can bind to the keys you like:
-
-    bindkey '^X^A' fasd-complete    # C-x C-a to do fasd-complete (files and directories)
-    bindkey '^X^F' fasd-complete-f  # C-x C-f to do fasd-complete-f (only files)
-    bindkey '^X^D' fasd-complete-d  # C-x C-d to do fasd-complete-d (only directories)
-
-But I prefer word mode completion to the widgets, so I don't install these key bindings.
-
-Note that `C-x C-d` works only if the command-line is not empty:
-
-    # ✔
-    $ ls C-x C-d
-      ^^
-      there needs to be a command
-
-If it is, `C-d` will cause the shell to quit.
-
-    # ✘
-    $ C-x C-d
-
----
-
-I find word completion with `,`, `f,` and `d,` more convenient than the zle widgets.
-
-Compare:
-
-    $ zathura awk pdf C-x C-f
-
-    $ zathura ,awk,pdf Tab
-
-The widget only suggests candidates based on the query `pdf`.
-`,` can take into account several queries at the same time.
-And it's easier to type.
-
-However, beware:
-
-    $ zathura ,awk Tab
-    $ zathura f,awk Tab
-
-If you have only one query, there may be no word completion from fasd...
-In fact, it depends in which directory you're.
-The result will be different if you're in `~` or in `~/wiki`.
-
-# Backends
-
-Fasd can take advantage of different sources of recent / frequent files.
-Most desktop environments (such as OS X  and Gtk) and some editors (such as Vim)
-keep a list of accessed files.
-Fasd can  use them  as additional  backends if  the data  can be  converted into
-fasd's native format.
-Below is a list of available backends.
-
-   - recently-used: GTK's recently-used file
-
-        ~/.local/share/recently-used.xbel
-
-   - current: Provides everything in $PWD (whereever you are executing fasd)
-
-   - viminfo: Vim's editing history, useful if you want to define an alias just
-     for editing things in vim
-
-You can  define your own backend  by declaring a  function by that name  in your
-`.fasdrc`.
-You can set default backend with `_FASD_BACKENDS` variable in your `.fasdrc`.
-
-Fasd can mimic [v][8]'s behavior by this alias:
-
-```sh
-alias v='f -t -e vim -b viminfo'
-```
-#
-# Tweaks
-
-Upon every execution, fasd will source `/etc/fasdrc` and `$HOME/.fasdrc` if they
-are present.
-
-Below are some variables you can set:
-
-## `$_FASD_DATA`
-
-Path to the fasd data file, default "$HOME/.fasd".
-
-## `$_FASD_BLACKLIST`
-
-List of blacklisted strings.
-Commands matching them will not be processed.
-Default is "--help".
-
-## `$_FASD_SHIFT`
-
-List of all commands that needs to be shifted, defaults to "sudo busybox".
-
-## `$_FASD_IGNORE`
-
-List of all commands that will be ignored, defaults to "fasd ls echo".
-
-## `$_FASD_TRACK_PWD`
-
-Fasd defaults to track your "$PWD".
-Set this to 0 to disable this behavior.
-
-## `$_FASD_AWK`
-
-Which awk to use.
-fasd can detect and use a compatible awk.
-
-## `$_FASD_MAX`
-
-Max total score / weight, defaults to 2000.
-
-## `$_FASD_SHELL`
-
-Which shell to execute.
-Some shells will run faster than others.
-fasd runs faster with dash and ksh variants.
-
-## `$_FASD_BACKENDS`
-
-Default backends.
-
-## `$_FASD_RO`
-
-If  set to  any non-empty  string,  fasd will  not  add or  delete entries  from
-database.
-You can set and export this variable from command-line.
-
-## `$_FASD_FUZZY`
-
-Level of "fuzziness" when doing fuzzy matching.
-More  precisely, the  number of  characters that  can be  skipped to  generate a
-match.
-Set to empty or 0 to disable fuzzy matching.
-Default value is 2.
-
-## `$_FASD_VIMINFO`
-
-Path to .viminfo file for viminfo backend, defaults to "$HOME/.viminfo"
-
-## `$_FASD_RECENTLY_USED_XBEL`
-
-Path  to XDG  recently-used.xbel  file for  recently-used  backend, defaults  to
-"$HOME/.local/share/recently-used.xbel"
-
-##
-# Todo
-## ?
-
-Configure this: <https://github.com/andrewferrier/fzf-z>
-It allows you to fuzzy search the directories logged by fasd.
-To use it, you need to press `C-g`.
-
-Note that `fzf-z` only deals with directories, not files.
-
----
-
-This is  interesting: it could  help us  eliminate the function  `fzf_fasd`, and
-maybe even `fzf_locate`.
-
-Pressing a key would feel more natural:
-
-    $ fzf_fasd vim
-
-vs:
-
-    $ vim C-g
-          │
-          └ would call `fasd -f | fzf`
-
-## ?
-
-We  have  several  plugins  which   can  help  us  complete  a  too-long-to-type
-command-line argument:
-
-   - fasd: word mode completion
-
-   - fzf: C-x C-f, C-r C-h, M-j
-
-   - fzf-z: C-g
-
-Document in which circumstances we should use each of them.
-You should distinguish 2 cases: you want to access sth new or sth you've already
-accessed in the past.
-
----
-
-`~/.zsh/README.md` may be outdated; review it.
-
-##
-# Reference
-
-[8]: http://github.com/rupa/v
