@@ -16,19 +16,19 @@
 # What are the most useful sequences?
 ## CSI ? 1004 hl
 
-        ┌──────────────┬────────────────────────────────────┐
-        │ CSI ? 1004 h │ send FocusIn/FocusOut events       │
-        ├──────────────┼────────────────────────────────────┤
-        │ CSI ? 1004 l │ don't send FocusIn/FocusOut events │
-        └──────────────┴────────────────────────────────────┘
+    ┌──────────────┬────────────────────────────────────┐
+    │ CSI ? 1004 h │ send FocusIn/FocusOut events       │
+    ├──────────────┼────────────────────────────────────┤
+    │ CSI ? 1004 l │ don't send FocusIn/FocusOut events │
+    └──────────────┴────────────────────────────────────┘
 
 ## CSI ? 1049 hl
 
-        ┌──────────────┬────────────────────────────────────────────────────────────────┐
-        │ CSI ? 1049 h │ save cursor and use alternate screen buffer, clearing it first │
-        ├──────────────┼────────────────────────────────────────────────────────────────┤
-        │ CSI ? 1049 l │ use normal screen buffer and restore cursor                    │
-        └──────────────┴────────────────────────────────────────────────────────────────┘
+    ┌──────────────┬────────────────────────────────────────────────────────────────┐
+    │ CSI ? 1049 h │ save cursor and use alternate screen buffer, clearing it first │
+    ├──────────────┼────────────────────────────────────────────────────────────────┤
+    │ CSI ? 1049 l │ use normal screen buffer and restore cursor                    │
+    └──────────────┴────────────────────────────────────────────────────────────────┘
 
 Try this:
 
@@ -63,7 +63,6 @@ sent to the terminal, via `echo` or `printf`.
 Same but with blinking.
 
 ## CSI Pm m
-
 ### How is this sequence also called?
 
 SGR, because it invokes the SGR control function:
@@ -308,13 +307,13 @@ terminal is no longer usable.
 
 /usr/share/doc/xterm/ctlseqs.txt.gz    (This file comes from the package `xterm`)
 
-http://invisible-island.net/xterm/ctlseqs/
-http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
-https://vt100.net/docs/vt510-rm/contents.html
-https://en.wikipedia.org/wiki/C0_and_C1_control_codes
+<http://invisible-island.net/xterm/ctlseqs/>
+<http://invisible-island.net/xterm/ctlseqs/ctlseqs.html>
+<https://vt100.net/docs/vt510-rm/contents.html>
+<https://en.wikipedia.org/wiki/C0_and_C1_control_codes>
 
-http://pod.tst.eu/http://cvs.schmorp.de/rxvt-unicode/doc/rxvt.7.pod#Definitions
-http://pod.tst.eu/http://cvs.schmorp.de/rxvt-unicode/doc/rxvt.7.pod#XTerm_Operating_System_Commands
+<http://pod.tst.eu/http://cvs.schmorp.de/rxvt-unicode/doc/rxvt.7.pod#Definitions>
+<http://pod.tst.eu/http://cvs.schmorp.de/rxvt-unicode/doc/rxvt.7.pod#XTerm_Operating_System_Commands>
 
         List of control sequences supported by xterm and urxvt.
 

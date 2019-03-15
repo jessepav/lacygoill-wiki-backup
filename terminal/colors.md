@@ -100,7 +100,7 @@ You get orange.
 
 See here for a better visualization:
 
-        http://wtamu.edu/~cbaird/sq/images/rgb_color_wheel.png
+<http://wtamu.edu/~cbaird/sq/images/rgb_color_wheel.png>
 
 
 TODO:
@@ -108,12 +108,12 @@ TODO:
 Those explanations would be much easier to follow if we had local diagrams.
 Try to reproduce those with tikz:
 
-        http://wtamu.edu/~cbaird/sq/images/rgb_color_wheel.png
-        http://wtamu.edu/~cbaird/sq/images/color_mixing.png
+<http://wtamu.edu/~cbaird/sq/images/rgb_color_wheel.png>
+<http://wtamu.edu/~cbaird/sq/images/color_mixing.png>
 
 ## How to create your own colorscheme / palette?
 
-        https://github.com/thezbyg/gpick/wiki/Guide
+<https://github.com/thezbyg/gpick/wiki/Guide>
 
 Wiki of the gpick program.
 
@@ -126,7 +126,7 @@ hover your cursor over the color in which you're interested, and hit space.
 ## Why do computer screens use red, green, and blue?
 ... and why are red, yellow, and blue the primary colors in painting?
 
-http://wtamu.edu/~cbaird/sq/2015/01/22/why-are-red-yellow-and-blue-the-primary-colors-in-painting-but-computer-screens-use-red-green-and-blue/
+<http://wtamu.edu/~cbaird/sq/2015/01/22/why-are-red-yellow-and-blue-the-primary-colors-in-painting-but-computer-screens-use-red-green-and-blue/>
 
 #
 # 256 Colors
@@ -160,7 +160,7 @@ The 256 colors can be broken down into 3 categories:
 
 ## Why these colors in particular?
 
-        http://wtamu.edu/~cbaird/sq/2015/01/22/why-are-red-yellow-and-blue-the-primary-colors-in-painting-but-computer-screens-use-red-green-and-blue/
+<http://wtamu.edu/~cbaird/sq/2015/01/22/why-are-red-yellow-and-blue-the-primary-colors-in-painting-but-computer-screens-use-red-green-and-blue/>
 
 Black and white are obvious.
 
@@ -180,14 +180,14 @@ They INDEX them with the following formula:
 
         16 + 36 × r + 6 × g + b (0 ≤ r, g, b ≤ 5)
 
-Source: https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
+Source: <https://en.wikipedia.org/wiki/ANSI_escape_code#Colors>
 
 More generally, if you  want to encode n numbers a₁,...,aₙ, with 0  ≤ aᵢ < B, then
 encode it as:
 
         a₁ + a₂B + ⋯ + aₙBₙ₋₁
 
-Source: https://mathoverflow.net/a/69250
+Source: <https://mathoverflow.net/a/69250>
 
 ## Why 216 colors in the palette?
 
@@ -314,8 +314,7 @@ The default values of these options are:
 ... respectively, but they are only set when `$TERM` is `xterm`.
 Btw, don't replace semicolons with colons. It's not widely supported and
 nicm thinks that this syntax is silly:
-
-        https://gist.github.com/XVilka/8346728#gistcomment-2006857
+<https://gist.github.com/XVilka/8346728#gistcomment-2006857>
 
 ## How to enable true color in Neovim?
 
@@ -353,7 +352,7 @@ Each hex  number in this triplet  expresses the intensity of  the red/green/blue
 component of the color and is in the range 00-FF.
 
 The  triplet is  then used  to expand  the printf-like  format specified  in the
-options 't_8f' and 't_8b'.
+options `'t_8f'` and `'t_8b'`.
 Each component is stored  in 1 byte, thus a true color needs  3 bytes or 24 bits
 to be stored.
 
@@ -362,7 +361,7 @@ are popped and converted into signed decimal numbers (`%d`).
 
 The syntax of the sequence can be found here:
 
-        http://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Functions-using-CSI-_-ordered-by-the-final-character_s_
+<http://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Functions-using-CSI-_-ordered-by-the-final-character_s_>
 
 >    CSI Pm m  Character Attributes (SGR).
 >
@@ -385,10 +384,10 @@ intended ones.
 
 It may be due to:
 
->    it uses nearest colour in RGB colour space, with a usual false assumption
->    about orthogonal axes
+> it uses nearest colour in RGB colour space, with a usual false assumption
+> about orthogonal axes
 
-        https://github.com/neovim/neovim/issues/793#issuecomment-48106948
+<https://github.com/neovim/neovim/issues/793#issuecomment-48106948>
 
 What does this mean?
 
@@ -411,12 +410,10 @@ choosing a poor color in its palette.
 Also, true color doesn't work in current urxvt and xfce4-terminal.
 We need to update the programs.
 The latest release of urxvt (9.22):
-
-        http://dist.schmorp.de/rxvt-unicode/Attic/
+<http://dist.schmorp.de/rxvt-unicode/Attic/>
 
 ... is too old (2016-01-23), and predates the patch adding support for true color.
-
-        http://cvs.schmorp.de/rxvt-unicode/src/command.C?revision=1.570&view=markup
+<http://cvs.schmorp.de/rxvt-unicode/src/command.C?revision=1.570&view=markup>
 
 ## How to test whether our current terminal supports true color?
 
@@ -449,6 +446,6 @@ Try `$ truecolor`.
 
 ## Where can I find more info on true color?
 
-https://gist.github.com/XVilka/8346728
-https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
+<https://gist.github.com/XVilka/8346728>
+<https://en.wikipedia.org/wiki/ANSI_escape_code#Colors>
 

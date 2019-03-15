@@ -55,10 +55,9 @@ A bit is just a COMPONENT of a symbol:     it has no meaning (it's like a letter
 
 Control Sequence Introducer:  ESC [
 
-        https://en.wikipedia.org/wiki/C0_and_C1_control_codes
-        https://vt100.net/docs/vt510-rm/chapter4.html#S4.3.3
-        https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-C1-_8-Bit_-Control-Characters
-
+<https://en.wikipedia.org/wiki/C0_and_C1_control_codes>
+<https://vt100.net/docs/vt510-rm/chapter4.html#S4.3.3>
+<https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-C1-_8-Bit_-Control-Characters>
 
 ## capability
 
