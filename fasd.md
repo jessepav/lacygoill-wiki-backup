@@ -327,7 +327,8 @@ Pass the query 'foo' to the fasd command:
 ##
 ## When does fasd limit a listing to only the best match?
 
-When it's being called inside a subshell, *and* it's passed a query:
+When it's being called inside a subshell, *not* interactively, *and* it's passed
+a query:
 
     $ touch /tmp/.file{1..3}
     $ fasd -A /tmp/.file{1..3}
@@ -346,7 +347,15 @@ When it's being called inside a subshell, *and* it's passed a query:
     $ echo `f file`
     /tmp/.file3~
 
+    # but not if fasd is called interactively
+    $ echo `f -i file`
+    6          /tmp/.file1~
+    6          /tmp/.file2~
+    6          /tmp/.file3~
+
     $ fasd -D /tmp/.file{1..3}
+
+---
 
 This allows you to do things like:
 
@@ -355,6 +364,15 @@ This allows you to do things like:
 
     # copy the most frecent file matching `foo` and `bar` into the cwd
     $ cp `f foo bar` .
+
+---
+
+Inside a pipeline, commands are run in subshells (except the last one?), so when
+you run this:
+
+    $ f pdf | fzf
+
+`fasd` is run in a subshell.
 
 ##
 # Queries
