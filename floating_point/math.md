@@ -52,18 +52,37 @@ For example, here's how you would convert 0.123 in binary representation:
     .00011111011111...
 
 ##
+# What's the difference between precision and accuracy, when referring to
+## a set of data points?
+
+Given a set of data points from  repeated measurements of the same quantity, the
+set is said to  be **precise** if the values are close to  each other, while the
+set is said  to be **accurate** if their  average is close to the  true value of
+the quantity being measured.
+
+The two concepts are independent of each  other, so a particular set of data can
+be said to be either accurate, or precise, or both, or neither.
+
+## a calculation?
+
+Accuracy is the nearness of a calculation  to the true value; while precision is
+the resolution of the representation, typically defined by the number of decimal
+or binary digits.
+
+##
+# What's the measurement resolution of a set of measurements?
+
+The smallest change in the underlying physical quantity that produces a response
+in the measurement.
+
+###
 # Set Theory
 ## What does it mean for a set to be “countable”?
 
 Intuitively:
 
-You can count/enumerate its  elements from one of them to any  other in a finite
-amount of time (this definition implies/needs the existence of an order).
-
-The set of real numbers, for example, is UNcountable because you can't enumerate
-all the numbers from 0 to 1 in a finite amount of time.
-There are more  real numbers between 0 and  1, than in the whole  set of natural
-numbers.
+You  can count/enumerate  its elements  in such  a way  that you  can reach  any
+element in a finite amount of time.
 
 ---
 
@@ -221,26 +240,32 @@ Let's call this sum S.
     (1): a × S =      a + a^2 + a^3 + ... + a^n + a^(n+1)
     (2):   — S = —1 — a — a^2 — ...       — a^n
 
-    (1) ∧ (2) ⇒   a × S — S = a^(n+1) — 1
-              ⇔ (a — 1) × S = a^(n+1) — 1
+    (1) ∧ (2)
+    ⇒
+      a × S — S   = a^(n+1) — 1
+    ⇔ (a — 1) × S = a^(n+1) — 1
 
-              ⇔ S = a^(n+1) — 1
-                    ───────────
-                       a — 1
+    ⇔ S = a^(n+1) — 1
+          ───────────
+             a — 1
 
-### `a^n + a^(n+1) + ... + a^m`?
+### `a^m + a^(m+1) + ... + a^n`?
 
 Let's call this sum S.
 
-    (1): a × S =        a^(n+1) + a^(n+2) + ... + a^m + a^(m+1)
-    (2):   — S = —a^n — a^(n+1) — ...           — a^m
+    (1): a × S =        a^(m+1) + a^(m+2) + ... + a^n + a^(n+1)
+    (2):   — S = —a^m — a^(m+1) — ...           — a^n
 
-    (1) ∧ (2) ⇒   a × S — S = a^(m+1) — a^n
-              ⇔ (a — 1) × S = a^(m+1) — a^n
+    (1) ∧ (2)
+    ⇒
+      a × S — S   = a^(n+1) — a^m
+    ⇔ (a — 1) × S = a^(n+1) — a^m
 
-              ⇔ S = a^(m+1) — a^n
-                    ─────────────
-                       a — 1
+    ⇔ S = a^(n+1) — a^m
+          ─────────────
+             a — 1
+
+The previous formula is a special case of this one, with `m = 0`.
 
 #
 # Significant digits
@@ -254,25 +279,7 @@ The number can be:
    - a quantity calculated by a multiplication/division
 
 ##
-## What does it mean for a digit in a measured quantity to be significant?
-
-It  means  it's necessary  to  express  the  number  within the  uncertainty  of
-measurement.
-
-Ex:
-        ┌ measured quantity
-        ├───────────┐
-        1.230 ± 0.002
-        ├───┘
-        └ 4 significant digits
-
-Here, you need 4 digits to express the quantity within the uncertainty of measurement:
-
-    1.228 ≤ x ≤ 1.232
-
-<http://mathworld.wolfram.com/SignificantDigits.html>
-
-### When is it *in*significant?
+## When is a digit *in*significant?
 
 Only 0 can be insignificant, and only in one of two conditions.
 Either it's a leading 0, or:
@@ -298,7 +305,6 @@ All other digits are significant:
 
 <https://en.wikipedia.org/wiki/Significant_figures#Concise_rules>
 
-##
 ### Is one of the 0 significant in 0.01?
 
 No.
@@ -307,8 +313,8 @@ Even the 0 after the decimal point is not significant.
 ### In the absence of any context, where's the last significant digit in the measured quantity 1300?
 
     1300
-      ^
-      significant up to the hundreds
+     ^
+     significant up to the hundreds
 
 #### How to manually change this position?  (3)
 
@@ -336,21 +342,20 @@ For 4 significant digits:
     1.300 × 10^3
 
 ##
-## What are the six types of values known to be exact?
+## When determining the significant digits in a calculation, which numbers should be taken into account?
+
+Only the ones corresponding to measured quantities.
+All the other ones should be considered as values known to be exact and ignored;
+in particular:
 
   - integer counts (e.g. the number of oranges in a bag)
   - definitions of one unit in terms of another (e.g. a minute is 60 seconds)
+  - scalar operations, such as "tripling" or "halving"
+
   - actual prices asked or offered, and quantities given in requirement
     specifications
   - legally defined conversions, such as international currency exchange
-  - scalar operations, such as "tripling" or "halving"
   - mathematical constants, such as π and e
-
-### Which influence do they have on the significant digits of a calculated quantity?
-
-None.
-
-You must ignore them.
 
 ### Is the Avogadro's number a value known to be exact?
 
@@ -359,6 +364,18 @@ No, because it's known to us only by measurement.
 ### Is the speed of light a value known to be exact?
 
 Yes, because its value is given by its definition.
+
+##
+## Why is the normalized scientific notation the best way to represent a quantity?
+
+A trailing 0 can't be ambiguous, because you never need one.
+So, if  you still  write one,  it means it  contributes to  the accuracy  of the
+measurement/calculation.
+
+In contrast, a trailing 0 in an  integer such as `1230` is ambiguous, because we
+don't know why it was written.
+It may be there to get the magnitude  of the quantity right, or to get the right
+precision.
 
 ##
 ## How many significant digits should there be in a quantity calculated by a multiplication/division?
@@ -385,7 +402,7 @@ As many as the measured quantity with the smallest amount of significant digits.
 
 ### `8.02 × 8.02`?
 
-    ≈ 6.43 × 10^2
+    ≈ 6.43 × 10^1
 
 ### `8 / 2.0`?
 
@@ -412,7 +429,7 @@ accurate) of the numbers being summed.
 
 1 and 1.1 are significant resp. up to the ones and tenths place.
 Of  the two,  the  least accurate  is  the ones  place, so  the  result must  be
-significant up to ones place.
+significant up to the ones place.
 
 ### `1.0 + 1.1`?
 
@@ -420,7 +437,7 @@ significant up to ones place.
 
 ### `100 + 110`?
 
-    ≈ 200
+    ≈ 2 × 10^2
 
 100 and 110 are significant resp. up to the hundreds place and tens place.
 The result must be significant up to the hundreds place.
@@ -440,11 +457,14 @@ The result must be significant up to the hundreds place.
 
     ≈ 2.1 × 10^2
 
+`1.0 × 10^2` and `111` are significant resp. up to the tens and ones place.
+The result must be significant up to the tens place.
+
 ### `123.25 + 46.0 + 86.26`?
 
     ≈ 255.5
 
 ### `100 — 1`?
 
-    ≈ 100
+    ≈ 1 × 10^2
 

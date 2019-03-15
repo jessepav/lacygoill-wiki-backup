@@ -15,11 +15,14 @@ Compile the `xutils-dev` dependency (can't be installed from the repo of Ubuntu 
 
     $ git clone https://github.com/Airblader/xcb-util-xrm/
     $ cd xcb-util-xrm
+
     # may not always work, because it tries to connect to some machine;
     # if it doesn't, try again in a few hours
     $ git submodule update --init
+
     # install dependency of `xutils-dev`
     $ sudo aptitude install xutils-dev
+
     $ ./autogen.sh
     $ make
     $ sudo checkinstall
