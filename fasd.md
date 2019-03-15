@@ -66,13 +66,13 @@ There doesn't seem to be any difference between them:
    - `-sid` ⇔ `-aid`
    - `-sif` ⇔ `-aif`
 
-## What is `s` the initial of?
+## Which word(s) is `s` the initial of?
 
 `s` refers to `s`how, or `s`earch, or `s`elect.
 
 ##
 # Configuration
-## Where is fasd's configuration file locaed?
+## Where is fasd's configuration file located?
 
     ~/.fasdrc
 
@@ -232,17 +232,17 @@ Use the `-b` option:
 ##
 ## What are the three additional backends provided by fasd?
 
-   - recently-used: GTK's recently-used file
-
-        ~/.local/share/recently-used.xbel
-
-    The path to this file can be controlled via `_FASD_RECENTLY_USED_XBEL`.
-
    - current: provides any file or subdirectory in the current working directory
 
    - viminfo: Vim's editing history
 
-    The path to this file can be controlled via `_FASD_VIMINFO`.
+     The path to this file can be controlled via `_FASD_VIMINFO`.
+
+   - recently-used: GTK's recently-used file
+
+        ~/.local/share/recently-used.xbel
+
+     The path to this file can be controlled via `_FASD_RECENTLY_USED_XBEL`.
 
 ## How can I use one of them by default?
 
@@ -356,9 +356,6 @@ This allows you to do things like:
     # copy the most frecent file matching `foo` and `bar` into the cwd
     $ cp `f foo bar` .
 
-    # open a frecent pdf interactively
-    $ xdg-open `sf pdf`
-
 ##
 # Queries
 ## On which conditions do queries passed to fasd match a path?  (2)
@@ -377,7 +374,7 @@ between query characters for fuzzy matching.
 The exact number can be controlled via `_FASD_FUZZY`.
 
 ##
-## How to prevent the last query to match the *last* component of a path?
+## How to allow the last query to match any component of a path (except the last one)?
 
 Append `/` to the last query.
 
@@ -398,7 +395,7 @@ So, this would work too:
     $ f foo br/
     6          /tmp/.foo/bar/baz~
 
-## How to make my last query match the *end* of a path?
+## How to make the last query match the *end* of the last component of a path?
 
 Append `$` to the last query.
 
@@ -441,19 +438,7 @@ You can use this index to select an entry.
 
 ### What's the quickest way to refer to a frecent file interactively?
 
-Use the defaullt `sf` alias.
-The latter expands to `fasd -sid` which is equivalent to:
-
-    fasd -sid
-    ⇔
-    fasd -aid
-    ⇔
-    fasd -id
-
-#### What about a directory?
-
-Use the defaullt `sd` alias.
-
+Use the default `sf` alias.
 The latter expands to `fasd -sif` which is equivalent to:
 
     fasd -sif
@@ -462,7 +447,23 @@ The latter expands to `fasd -sif` which is equivalent to:
     ⇔
     fasd -if
 
+#### What about a directory?
+
+Use the defaullt `sd` alias.
+
+The latter expands to `fasd -sid` which is equivalent to:
+
+    fasd -sid
+    ⇔
+    fasd -aid
+    ⇔
+    fasd -id
+
 ##
+## open a frecent pdf chosen interactively?
+
+    $ o `sf pdf`
+
 ## run a command using the best match as an argument?  (2)
 
 Use the `-e` option:
@@ -475,7 +476,7 @@ Or a subshell:
 
 ##
 # How to quickly reference
-## a file or directory I have already opened/visited in the past?
+## a file or directory I have already opened/visited in the past?  (using fasd)
 
 Use fasd's word mode completion.
 
@@ -528,12 +529,12 @@ If it is, `C-d` will cause the shell to quit.
     # ✘
     $ C-x C-d
 
-## a file I have never opened in the past?
+## a file I have never opened in the past?  (*not* using fasd)
 
 Move to an ancestor directory, and press `C-x C-f` (provided by fzf).
 The latter will let you fuzzy search all the files below the cwd.
 
-## a directory I have never visited in the past?
+## a directory I have never visited in the past?  (*not* using fasd)
 
 Move to an ancestor directory, and press `M-j` (provided by fzf).
 The latter will let you fuzzy search all the directories below the cwd.
@@ -561,38 +562,48 @@ a second query.
 # Ranger Integration
 ## How to jump to a directory via fasd from ranger?
 
-Press `zj`; it will populate the command-line with:
-
-    :fasd
-
+Press `3zz`.
 Then, enter some part of a directory path and press Enter.
+
+You can prefix `zz` with any number.
+Without a numerical prefix, you would get file paths mixed with directory paths.
 
 ---
 
 This requires the creation of a custom command:
 
     $ cat <<'EOF' >>~/.config/ranger/commands.py
-    class fasd(Command):
+    class fzf_fasd(Command):
         """
-        :fasd
+        :fzf_fasd
 
-        Jump to directory using fasd
+        Find a frecent file using fzf.
+
+        With a prefix argument find only directories.
         """
         def execute(self):
             import subprocess
-            arg = self.rest(1)
-            if arg:
-                directory = subprocess.check_output(["fasd", "-d"]+arg.split(), universal_newlines=True).strip()
-                self.fm.cd(directory)
+            import os.path
+            command='fasd -lR' \
+                    + (' -d' if self.quantifier else '') \
+                    + " | fzf --no-sort --preview '{ highlight -O ansi {} || cat {} ;} 2>/dev/null'"
+            fzf = self.fm.execute_command(command, universal_newlines=True, stdout=subprocess.PIPE)
+            stdout, stderr = fzf.communicate()
+            if fzf.returncode == 0:
+                fzf_file = os.path.abspath(stdout.rstrip('\n'))
+                if os.path.isdir(fzf_file):
+                    self.fm.cd(fzf_file)
+                else:
+                    self.fm.select_file(fzf_file)
     EOF
 
 And mapping it to a key:
 
     $ cat <<'EOF' >>~/.config/ranger/rc.conf
-    map zj console fasd%space
+    map zz fzf_fasd
     EOF
 
-Source: <https://github.com/ranger/ranger/wiki/Custom-Commands#visit-frequently-used-directories>
+Inspiration: <https://github.com/ranger/ranger/wiki/Custom-Commands#visit-frequently-used-directories>
 
 ## How to make ranger log all the opened files, for fasd?
 
@@ -610,7 +621,7 @@ Source: <https://github.com/ranger/ranger/wiki/Custom-Commands#visit-frequently-
     ranger.api.hook_init = hook_init
     EOF
 
-<https://github.com/ranger/ranger/wiki/Integration-with-other-programs#fasd>
+Source: <https://github.com/ranger/ranger/wiki/Integration-with-other-programs#fasd>
 
 ### How is it useful?
 
