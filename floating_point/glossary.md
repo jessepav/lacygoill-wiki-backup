@@ -17,6 +17,8 @@ You can view it as a single physical entity in one of two states: on or off.
 
 A string of bits.
 
+Sometimes also called bit pattern.
+
 ##
 # e
 ## expansion (of a number)
@@ -74,14 +76,16 @@ Here's what the computer would do to compare the exponents `100` and `101`:
                + (01111111)₂
                -------------
                  (11100011)₂
+                       ^
 
     101 + bias = (01100101)₂
                + (01111111)₂
                -------------
                  (11100100)₂
+                       ^
 
 Both representations are identical until the sixth bit, where the representation
-of 101 contains a 1 while the representation of 100 contains a 0.
+of 100 contains a 0 while the representation of 101 contains a 1.
 So, the computer would conclude that the exponent 101 is bigger than the exponent 100.
 
 ---
@@ -92,11 +96,13 @@ Here's what the computer would do to compare the exponents `-100` and `-101`:
                 + (01111111)₂
                 -------------
                  (100011011)₂
+                          ^
 
     -101 + bias = (10011011)₂
                 + (01111111)₂
                 -------------
                  (100011010)₂
+                          ^
 
 Both representations are identical until  the last bit, where the representation
 of -100 contains a 1 while the representation of -101 contains a 0.
