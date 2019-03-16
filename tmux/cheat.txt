@@ -23,9 +23,13 @@ Number search             «pfx» «C-d»  N
 IP address search         «pfx» «M-i»  N
 Yank {{{1
 Yank current command-line «pfx» y      N
-Yank path to cwd          «pfx» Y      N
+Yank path of cwd          «pfx» Y      N
 Yank&Paste selected text  Y            C
 # Doesn't pollute system clipboard
 Paste {{{1
 Paste buffer              «pfx» «C-p»  N
 Choose&Paste buffer       «pfx» p      N
+Logging {{{1
+Toggle logging            «pfx» G      N
+Log visible text          «pfx» «M-g»  N
+Log all past text         «pfx» «M-G»  N

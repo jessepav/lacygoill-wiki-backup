@@ -23,8 +23,8 @@ Sometimes also called bit pattern.
 # e
 ## expansion (of a number)
 
-A sum of powers of the base of the number, each power being multiplied by one of
-the digit of the number:
+The decomposition of a number into a sum of powers of its base, each power being
+multiplied by one of its digit:
 
     (71)₁₀ = 7 × 10 + 1
              ├────────┘
@@ -113,11 +113,11 @@ exponent -101.
 # f
 ## floating-point representation
 
-The usage  of the  concept of  scientific notation,  in a  binary implementation
-context, to represent numbers in computer memory.
+The usage of the concept of scientific notation to represent numbers in computer
+memory.
 
-    ± S × 2^E
-    1 ≤ S < 2
+    ± S × β^E
+    1 ≤ S < β
 
 ### Why is it called “floating”-point?
 
@@ -185,8 +185,7 @@ The bits following the binary point in the representation of a floating-point nu
 ## hidden bit
 
 First bit of the significand of a floating-point number.
-
-The first bit of a floating-point number is always 1.
+It's always 1.
 
 ### Why is it called like this?
 
@@ -210,7 +209,9 @@ If the integers have different signs, no integer overflow can occur:
     (1):     0 ≤ x ≤ 2^31 — 1
     (2): —2^31 ≤ y ≤ 0
 
-    (1) ∧ (2) ⇒     —2^31 ≤ x + y ≤ 2^31 — 1
+    (1) ∧ (2)
+    ⇒
+    —2^31 ≤ x + y ≤ 2^31 — 1
 
 ##
 # m
@@ -259,17 +260,6 @@ Qualify the representation of a real number which is not finite.
 Writing  system for  expressing numbers;  that is,  a mathematical  notation for
 representing  numbers  of a  given  set,  using digits  or  other  symbols in  a
 consistent manner.
-
-The  same sequence  of  symbols  may represent  different  numbers in  different
-numeral systems.
-For example,  "11" represents the number  eleven in the decimal  numeral system,
-and the number three in the binary numeral system.
-
-The number the numeral represents is called its value.
-
-Numeral systems are sometimes called number systems, but that name is ambiguous,
-as it could  refer to different systems  of numbers, such as the  system of real
-numbers, the system of complex numbers, etc.
 
 <https://en.wikipedia.org/wiki/Numeral_system>
 
@@ -367,11 +357,11 @@ we define:
 
 ##
 # w
-## word
+## (computer) word
 
 4 consecutive bytes of computer storage (i.e. 32 bits).
 
-## double word
+## (computer) double word
 
 8 consecutive bytes (64 bits).
 

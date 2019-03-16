@@ -52,18 +52,18 @@ In binary, there's an infinite number of bits after the binary point:
 
 ##
 # Numeral Systems
-## What does the Roman numeral system require?  (3)
+## On what does the Roman numeral system rely to work?  (3)
 
-A different symbol for each power of 10:
+It uses a different **symbol for each power of 10**:
 
    - X for 10
    - C for 100
    - M for 1000
    - ...
 
-It also requires repetition to indicate how many of each power of 10 is present.
+It also uses **repetition** to indicate how many of each power of 10 is present.
 
-Finally, it requires  additional symbols to abbreviate a group  of 5 consecutive
+Finally, it uses  additional symbols to **abbreviate a group  of 5 consecutive**
 and identical symbols:
 
    - V = IIIII
@@ -159,8 +159,8 @@ You don't know how to get that, but you know how to get sth close: 32 1s.
 To get the latter, you simply need to add the number whose representation is the
 one of `x` after flipping all the bits.
 
-Now, to get from 32 1s to a one and 32 0s, all you need is add 1.
-Similarly, to get from 999 to 1000, all you need is add 1.
+Now, to get from 32 1s to a one and 32 0s, all you need is to add 1.
+Similarly, to get from 999 to 1000, all you need is to add 1.
 
 ---
 
@@ -235,7 +235,7 @@ except the one mentioned just above.
 These exceptions may cause  some issues, or just seem awkward,  so it was chosen
 to give only `2^31 − 1` bitstrings to the positive integers.
 
-### Which naive alternative machines could use?
+### Which naive alternative could machines use?
 
 The most obvious idea  is sign-and-modulus: use one of the  32 bits to represent
 the sign, and use  the remaining 31 bits to store the  magnitude of the integer,

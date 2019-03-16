@@ -160,7 +160,7 @@ Specify its type then its name:
 
 ## How to declare several variables of the same type?
 
-Combine their declarations on a single line:
+Combine their declarations on a single line, and separate their names with commas:
 
     int height, length, width, volume;
     float profit, loss;
@@ -209,7 +209,7 @@ If you store `0.1`  in a `float` variable, you may later  find that the variable
 has a value such as `0.09999999999999987`, because of rounding error.
 
 ##
-## When must I separate statements and declarations?
+## When must I separate statements from declarations?
 
 In (and only in) C89.
 

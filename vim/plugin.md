@@ -1550,6 +1550,13 @@ functionality.
 
                                               181 sloc
 
+## sideways
+
+A Vim  plugin to move  function arguments (and  other delimited-by-something
+items) left and right.
+
+<https://github.com/AndrewRadev/sideways.vim> 2108 sloc
+
 ## signature
 
             vim-signature is a plugin to place, toggle and display marks.
