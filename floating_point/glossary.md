@@ -185,11 +185,15 @@ The bits following the binary point in the representation of a floating-point nu
 ## hidden bit
 
 First bit of the significand of a floating-point number.
-It's always 1.
+
+### What is its value?
+
+0 if the bitstring in the exponent field contains only 0s, 1 otherwise.
 
 ### Why is it called like this?
 
 Because it's not stored since it doesn't need to be.
+You can infer its value from the exponent field.
 
 ###
 # i
@@ -325,6 +329,17 @@ in base 2.
 
     ± S × 10^E
     1 ≤ S < 10
+
+##
+## subnormal
+
+Numbers whose:
+
+   - floating-point representation is not normalized
+   - magnitude of the significand is lower than 1
+   - exponent is `eₘᵢₙ`
+
+They allow a floating-point system to represent number lower than `2^eₘᵢₙ`.
 
 ##
 # u

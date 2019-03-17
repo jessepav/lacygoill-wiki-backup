@@ -402,7 +402,7 @@ Its computer word(s) is/are divided into three fields:
    - a field of bits for the binary representation of the number before the binary point
    - a field of bits for the binary representation after the binary point
 
-For example, in a 32-bit word with field  widths of 15 and 16, resp., the number
+For example, in a  32-bit word with field widths of 15 and  16 resp., the number
 11/2 would be stored as:
 
     ┌───┬─────────────────┬──────────────────┐
@@ -474,7 +474,9 @@ The size of the exponent field, and significand field.
 ##
 ## What's the range of possible stored values for the exponent of a single-precision floating-point number?
 
-The exponent is stored in the range `[0,255]`.
+`[1,254]`
+
+0 and 255 are interpreted specially.
 
 ### What about the range of possible interpreted values?
 
@@ -486,11 +488,11 @@ The same thing applies to a double-precision / quadruple-precision number:
     ┌─────────────────────┬─────────────┬──────────────┬───────────────────┐
     │ number format       │ field width │ stored value │ interpreted value │
     ├─────────────────────┼─────────────┼──────────────┼───────────────────┤
-    │ single-precision    │ 8           │ 0..255       │ -127..128         │
+    │ single-precision    │ 8           │ 1..254       │ -126..127         │
     ├─────────────────────┼─────────────┼──────────────┼───────────────────┤
-    │ double-precision    │ 11          │ 0..2047      │ -1023..1024       │
+    │ double-precision    │ 11          │ 1..2046      │ -1022..1023       │
     ├─────────────────────┼─────────────┼──────────────┼───────────────────┤
-    │ quadruple-precision │ 15          │ 0..32767     │ -16383..16384     │
+    │ quadruple-precision │ 15          │ 1..32766     │ -16382..16383     │
     └─────────────────────┴─────────────┴──────────────┴───────────────────┘
 
 ### What are the two stored values which are processed specially?
@@ -541,8 +543,10 @@ Notice that:
 
 ##
 ## In single-precision format, what's the
-### largest floating-point number?
+### largest number?
 
+                                       ┌ can't use the exponent 128, because it's interpreted specially
+                                       │
       (1.11111111111111111111111)₂ × 2^127
 
     =  (2^-23 + 2^-22 + ... + 2^0) × 2^127
@@ -555,17 +559,27 @@ Notice that:
 
     =  2^128 − 2^104
 
-Note that we can't use the exponent 128, because it's interpreted specially.
+    ≈ 3.4 × 10^38
 
-### smallest positive floating-point number?
+###
+### smallest positive
+#### normalized number?
 
+                                      ┌ can't use the exponent -127, because it's interpreted specially
+                                      │
     (1.00000000000000000000000)₂ × 2^-126
     =
     2^-126
+    ≈
+    1.2 × 10^-38
 
-Note that we can't use the exponent -127, because it's interpreted specially.
+#### subnormal number?
 
-### smallest positive **integer** that is not exactly representable?
+    (0.00000000000000000000001) × 2^-126
+    =
+    2^-149
+
+#### **integer** that is not exactly representable?
 
 There are two reasons which could explain why an integer is not exactly representable:
 
@@ -606,7 +620,7 @@ Here's how 0.1 would be stored if its representation was truncated before being 
 Here's how 0.1 is stored when its representation is normalized before being truncated:
 
     0.1 = (0.00011001100110011001100...)₂
-        ≈ (1.10011001100110011001100...)₂ × 2^4
+        = (1.10011001100110011001100...)₂ × 2^4
         ≈ (1.10011001100110011001100)₂ × 2^4
                                 ^^^^
                                 better; more accurate
@@ -615,8 +629,8 @@ Here's how 0.1 is stored when its representation is normalized before being trun
 ## What's the floating-point representation of the number zero?
 
 The number *zero* is special.
-A pattern  of all zeros in  the significand represents the  significand 1.0, not
-0.0, since  the bit  `b₀` is  hidden and  its value  is always  1, so  you can't
+A pattern of only zeros in the  significand field represents 1.0, not 0.0, since
+the bit  `b₀` is hidden and  its value is always  assumed to be 1,  so you can't
 represent 0 without some trick.
 
 The way  the IEEE standard  addresses this difficulty is  to use a  special zero
@@ -692,7 +706,7 @@ NaN: Not A Number.
 ###
 ## How many floating-point numbers are there between two consecutive power of 2?
 
-    2^p
+    2^(p − 1)
 
 `p` being the precision of the floating-point system.
 
@@ -705,17 +719,23 @@ Hence the name “precision”.
 
 ---
 
-For  example, if  your significand  has  3 bits  (`1.b₁b₂`), the  floating-point
-numbers between 0 and 4 would be:
+For example, if  the precision of the  system is 3 (`1.b₁b₂`),  and the exponent
+can vary between -1 and 2, the representable floating-point numbers would be:
 
     |───────|─|─|─|─|───|───|───|───|───────|───────|───────|───────|
     0               1               2               3               4
 
-Now, if you  increase the size of  your significand to 4  bits (`1.b₁b₂b₃`), the
-floating-point numbers between 0 and 4 would become:
+Here, there are 4 floating-point numbers  between 1 (included) and 2 (excluded),
+and 4 floating-point numbers between 2 (included) and 4 (excluded).
+
+Now,  if  you increase  the  precision  of the  system  to  4 (`1.b₁b₂b₃`),  the
+representable floating-point numbers would become:
 
     |───────|||||||||─|─|─|─|─|─|─|─|───|───|───|───|───|───|───|───|
     0               1               2               3               4
+
+This  time, there  are  8  floating-point numbers  between  1  (included) and  2
+(excluded), and 8 floating-point numbers between 2 (included) and 4 (excluded).
 
 ##
 # Resources

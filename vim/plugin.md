@@ -107,15 +107,6 @@ While  `:sort`  has  several  flags  for  sorting  on  various  numbers,  and  a
 
                                               28 sloc
 
-## AnsiEsc
-
-            Ansi  escape  sequences  concealed,  but  highlighted  as  specified
-            (conceal).
-
-            https://github.com/vim-scripts/AnsiEsc.vim
-
-                                    966 sloc
-
 ## anywhere
 
             Sometimes, you edit text outside  of Vim. These are sad times. Enter
