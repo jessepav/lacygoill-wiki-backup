@@ -1,5 +1,44 @@
 # ?
 
+    :w !python
+
+Make python execute the code in the current buffer.
+The advantage of this  command, compared to `:w | !python %`,  is that you don't
+have to  save the buffer; it  can be a named  but unsaved buffer, or  an unnamed
+one.
+
+---
+
+    :w !python - foo bar baz
+
+Make python execute the code in the current buffer and pass it the arguments `foo`, `bar`, `baz`.
+Found here: <https://www.reddit.com/r/vim/comments/b2h068/til_p_gives_the_current_files_path/eisy9s1/>
+
+Is the `-` really necessary?
+It is for Vim:
+
+    $ echo 'hello' | vim -
+
+But it doesn't seem for python:
+
+    $ echo 'print("hello")' | python
+
+Can python be passed several file arguments?
+If so, does it need `-` to “reconnect” the stdin as a regular file?
+
+Update: Yes, `-` can be useful:
+
+    $ echo 'print("hello")' | python -c 'import sys'
+    ''~
+
+    $ echo 'print("hello")' | python - -c 'import sys'
+    hello~
+
+It seems that some command-line  arguments/options (all of them?) disconnect the
+python command from its stdin.
+
+# ?
+
 When I do:
 
     :cd ~/.vim

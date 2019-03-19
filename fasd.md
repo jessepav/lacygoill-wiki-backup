@@ -392,7 +392,13 @@ between query characters for fuzzy matching.
 The exact number can be controlled via `_FASD_FUZZY`.
 
 ##
-## How to allow the last query to match any component of a path (except the last one)?
+## How to allow a single query to match any component of a path (including the last one)?
+
+Use word mode completion, with an empty second query:
+
+    $ f ,pat, Tab
+
+## How to allow the last query of several to match any component of a path (except the last one)?
 
 Append `/` to the last query.
 
@@ -561,17 +567,30 @@ The latter will let you fuzzy search all the directories below the cwd.
 ## Which pitfall should I avoid when using fasd's word mode completion?
 
 zsh's path completion may interfere if your query is not specific enough.
-If that happens, try to use a prefix  like `f,` and/or use the extension file as
-a second query.
 
-    $ cd ~/wiki
+    # the issue is influenced by your cwd
+    # atm, I can reproduce in `~/wiki/`, but not in `~`
+    $ cd ~/wiki/
+    $ o ,awk, Tab
+    awk/~
+
+    $ cd ~/wiki/
     $ o f,awk Tab
     awk/~
 
-    $ cd
-    $ o f,awk Tab
+If that  happens, use a  prefix like `f,`  and 2 commas,  even if you  only have
+*one* query:
+
+    $ cd ~/wiki/
+    $ o f,awk, Tab
     /path/to/gawk.pdf~
     ...~
+
+---
+
+If you're looking for a second query, and  you're trying to open a file, use its
+extension (if it has one):
+
     $ o ,awk,pdf Tab
     /path/to/gawk.pdf~
     ...~

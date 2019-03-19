@@ -33,3 +33,5 @@ Logging {{{1
 Toggle logging            «pfx» G      N
 Log visible text          «pfx» «M-g»  N
 Log all past text         «pfx» «M-G»  N
+Motion {{{1
+Start of previous prompts «pfx» b      N

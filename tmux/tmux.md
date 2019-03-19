@@ -77,6 +77,285 @@ For the moment, the  only solution which I know is to kill  and restart the tmux
 server.
 
 ##
+##
+##
+# Formats
+
+Certain commands accept the -F flag with a format argument.
+This is a string which controls the output format of the command.
+Replacement   variables   are   enclosed   in  `#{`   and   `}`,   for   example
+`#{session_name}`.
+The possible  variables are listed  in the  table below, or  the name of  a tmux
+option may be used for an option's value.
+Some variables have a  shorter alias such as `#S`; `##` is  replaced by a single
+`#`, `#,` by a `,` and `#}` by a `}`.
+
+Conditionals are available by prefixing with `?` and separating two alternatives
+with  a comma;  if the  specified variable  exists and  is not  zero, the  first
+alternative is chosen, otherwise the second is used.
+For example `#{?session_attached,attached,not attached}` will include the string
+`attached`  if  the  session  is  attached and  the  string  `not  attached`  if
+it  is  unattached,  or  `#{?automatic-rename,yes,no}`  will  include  `yes`  if
+automatic-rename is enabled, or `no` if not.
+Conditionals can be nested arbitrarily.
+Inside a conditional, `,` and `}` must  be escaped as `#,` and `#}`, unless they
+are part of a `#{...}` replacement.
+For example:
+
+    #{?pane_in_mode,#[fg=white#,bg=red],#[fg=red#,bg=white]}#W .
+
+Comparisons may  be expressed by  prefixing two comma-separated  alternatives by
+`==` or `!=` and a colon.
+For  example  `#{==:#{host},myhost}` will  be  replaced  by  `1` if  running  on
+`myhost`, otherwise by `0`.
+An  `m` specifies  an  fnmatch(3) comparison  where the  first  argument is  the
+pattern and the second the string to compare, for example `#{m:*foo*,#{host}}`.
+`||`  and  `&&` evaluate  to  true  if either  or  both  of two  comma-separated
+alternatives are true, for example `#{||:#{pane_in_mode},#{alternate_on}}`.
+A  `C` performs  a search  for an  fnmatch(3) pattern  in the  pane content  and
+evaluates to zero if not found, or a line number if found.
+
+A limit may be  placed on the length of the resultant string  by prefixing it by
+an `=`, a number and a colon.
+Positive numbers count from  the start of the string and  negative from the end,
+so `#{=5:pane_title}`  will include at most  the first 5 characters  of the pane
+title, or `#{=-5:pane_title}` the last 5 characters.
+Prefixing  a  time variable  with  `t:`  will convert  it  to  a string,  so  if
+`#{window_activity}` gives  `1445765102`, `#{t:window_activity}` gives  ‘Sun Oct
+25 09:25:02 2015’.
+The  `b:` and  `d:`  prefixes are  basename(3) and  dirname(3)  of the  variable
+respectively.
+`q:` will escape sh(1) special characters.
+`E:` will expand the format twice,  for example `#{E:status-left}` is the result
+of  expanding the  content of  the status-left  option rather  than the  content
+itself.
+`T:` is like `E:` but also expands strftime(3) specifiers.
+`S:`, `W:` or `P:`  will loop over each  session, window or pane  and insert the
+format once for each.
+For windows and  panes, two comma-separated formats may be  given: the second is
+used for the current window or active pane.
+For example, to get a list of windows formatted like the status line:
+
+    #{W:#{E:window-status-format} ,#{E:window-status-current-format} }
+
+A prefix of the form `s/foo/bar/:` will substitute `foo` with `bar` throughout.
+
+In addition, the  first line of a  shell command's output may  be inserted using
+`#()`.
+For example, `#(uptime)` will insert the system's uptime.
+When constructing  formats, tmux  does not  wait for  `#()` commands  to finish;
+instead,  the previous  result  from running  the  same command  is  used, or  a
+placeholder if the command has not been run before.
+If the command hasn't  exited, the most recent line of output  will be used, but
+the status line will not be updated more than once a second.
+Commands are executed with the tmux  global environment set (see the ENVIRONMENT
+section).
+
+## The following variables are available, where appropriate:
+
+    Variable name          Alias    Replaced with
+    alternate_on                    If pane is in alternate screen
+    alternate_saved_x               Saved cursor X in alternate screen
+    alternate_saved_y               Saved cursor Y in alternate screen
+    buffer_created                  Time buffer created
+    buffer_name                     Name of buffer
+    buffer_sample                   Sample of start of buffer
+    buffer_size                     Size of the specified buffer in bytes
+    client_activity                 Time client last had activity
+    client_created                  Time client created
+    client_control_mode             1 if client is in control mode
+    client_discarded                Bytes discarded when client behind
+    client_height                   Height of client
+    client_key_table                Current key table
+    client_last_session             Name of the client's last session
+    client_name                     Name of client
+    client_pid                      PID of client process
+    client_prefix                   1 if prefix key has been pressed
+    client_readonly                 1 if client is readonly
+    client_session                  Name of the client's session
+    client_termname                 Terminal name of client
+    client_termtype                 Terminal type of client
+    client_tty                      Pseudo terminal of client
+    client_utf8                     1 if client supports utf8
+    client_width                    Width of client
+    client_written                  Bytes written to client
+    command                         Name of command in use, if any
+    command_list_name               Command name if listing commands
+    command_list_alias              Command alias if listing commands
+    command_list_usage              Command usage if listing commands
+    cursor_flag                     Pane cursor flag
+    cursor_x                        Cursor X position in pane
+    cursor_y                        Cursor Y position in pane
+    history_bytes                   Number of bytes in window history
+    history_limit                   Maximum window history lines
+    history_size                    Size of history in lines
+    hook                            Name of running hook, if any
+    hook_pane                       ID of pane where hook was run, if any
+    hook_session                    ID of session where hook was run, if any
+    hook_session_name               Name of session where hook was run, if
+                                 any
+    hook_window                     ID of window where hook was run, if any
+    hook_window_name                Name of window where hook was run, if any
+    host                   #H       Hostname of local host
+    host_short             #h       Hostname of local host (no domain name)
+    insert_flag                     Pane insert flag
+    keypad_cursor_flag              Pane keypad cursor flag
+    keypad_flag                     Pane keypad flag
+    line                            Line number in the list
+    mouse_any_flag                  Pane mouse any flag
+    mouse_button_flag               Pane mouse button flag
+    mouse_standard_flag             Pane mouse standard flag
+    mouse_all_flag                  Pane mouse all flag
+    pane_active                     1 if active pane
+    pane_at_bottom                  1 if pane is at the bottom of window
+    pane_at_left                    1 if pane is at the left of window
+    pane_at_right                   1 if pane is at the right of window
+    pane_at_top                     1 if pane is at the top of window
+    pane_bottom                     Bottom of pane
+    pane_current_command            Current command if available
+    pane_current_path               Current path if available
+    pane_dead                       1 if pane is dead
+    pane_dead_status                Exit status of process in dead pane
+    pane_format                     1 if format is for a pane (not assuming
+                                 the current)
+    pane_height                     Height of pane
+    pane_id                #D       Unique pane ID
+    pane_in_mode                    If pane is in a mode
+    pane_input_off                  If input to pane is disabled
+    pane_index             #P       Index of pane
+    pane_left                       Left of pane
+    pane_mode                       Name of pane mode, if any.
+    pane_pid                        PID of first process in pane
+    pane_pipe                       1 if pane is being piped
+    pane_right                      Right of pane
+    pane_search_string              Last search string in copy mode
+    pane_start_command              Command pane started with
+    pane_synchronized               If pane is synchronized
+    pane_tabs                       Pane tab positions
+    pane_title             #T       Title of pane
+    pane_top                        Top of pane
+    pane_tty                        Pseudo terminal of pane
+    pane_width                      Width of pane
+    pid                             Server PID
+    rectangle_toggle                1 if rectangle selection is activated
+    scroll_region_lower             Bottom of scroll region in pane
+    scroll_region_upper             Top of scroll region in pane
+    scroll_position                 Scroll position in copy mode
+    selection_present               1 if selection started in copy mode
+    session_alerts                  List of window indexes with alerts
+    session_attached                Number of clients session is attached to
+    session_activity                Time of session last activity
+    session_created                 Time session created
+    session_format                  1 if format is for a session (not
+                                 assuming the current)
+    session_last_attached           Time session last attached
+    session_group                   Name of session group
+    session_group_size              Size of session group
+    session_group_list              List of sessions in group
+    session_grouped                 1 if session in a group
+    session_id                      Unique session ID
+    session_many_attached           1 if multiple clients attached
+    session_name           #S       Name of session
+    session_stack                   Window indexes in most recent order
+    session_windows                 Number of windows in session
+    socket_path                     Server socket path
+    start_time                      Server start time
+    version                         Server version
+    window_activity                 Time of window last activity
+    window_activity_flag            1 if window has activity
+    window_active                   1 if window active
+    window_bell_flag                1 if window has bell
+    window_bigger                   1 if window is larger than client
+    window_end_flag                 1 if window has the highest index
+    window_flags           #F       Window flags
+    window_format                   1 if format is for a window (not assuming
+                                 the current)
+    window_height                   Height of window
+    window_id                       Unique window ID
+    window_index           #I       Index of window
+    window_last_flag                1 if window is the last used
+    window_layout                   Window layout description, ignoring
+                                 zoomed window panes
+    window_linked                   1 if window is linked across sessions
+    window_name            #W       Name of window
+    window_offset_x                 X offset into window if larger than
+                                 client
+    window_offset_y                 Y offset into window if larger than
+                                 client
+    window_panes                    Number of panes in window
+    window_silence_flag             1 if window has silence alert
+    window_stack_index              Index in session most recent stack
+    window_start_flag               1 if window has the lowest index
+    window_visible_layout           Window layout description, respecting
+                                 zoomed window panes
+    window_width                    Width of window
+    window_zoomed_flag              1 if window is zoomed
+    wrap_flag                       Pane wrap flag
+
+##
+# Styles
+
+tmux offers various  options to specify the colour and  attributes of aspects of
+the interface, for example status-style for the status line.
+In  addition, embedded  styles  may  be specified  in  format  options, such  as
+status-left-format, by enclosing them in `#[` and `]`.
+
+A style may be the single term `default` to specify the default style (which may
+inherit from another option) or a space separated list of the following:
+
+## fg=colour
+
+Set the foreground colour.
+The colour is one of: black, red,  green, yellow, blue, magenta, cyan, white; if
+supported the  bright variants brightred, brightgreen,  brightyellow; colour0 to
+colour255 from the 256-colour set; default  for the default colour; terminal for
+the terminal default colour; or a hexadecimal RGB string such as `#ffffff`.
+
+## bg=colour
+
+Set the background colour.
+
+## none
+
+Set no attributes (turn off any active attributes).
+
+## bright (or bold), dim, underscore, ...
+
+blink, reverse, hidden, italics, strikethrough, double-underscore,
+curly-underscore, dotted-underscore, dashed-underscore
+
+Set an attribute.
+Any of the attributes may be prefixed with `no` to unset.
+
+## align=left (or noalign), align=centre, align=right
+
+Align text to the left, centre or right of the available space if appropriate.
+
+## list=on, list=focus, list=left-marker, list=right=marker, nolist
+
+Mark the  position of the  various window  list components in  the status-format
+option: list=on marks the start of the  list; list=focus is the part of the list
+that should be kept in focus if the entire list won't fit in the available space
+(typically the current window);  list=left-marker and list=right-marker mark the
+text to be used to mark that text has been trimmed from the left or right of the
+list if there is not enough space.
+
+## range=left, range=right, range=window|X, norange
+
+Mark a range in the status-format option.
+range=left  and  range=right  are  the   text  used  for  the  `StatusLeft`  and
+`StatusRight` mouse keys.
+range=window|X is the range for a window passed to the `Status` mouse key, where
+`X` is a window index.
+
+Examples are:
+
+    fg=yellow,bold,underscore,blink
+    bg=black,fg=default,noreverse
+
+##
+##
+##
 # Theory
 
 Several tmux clients can be attached to the same session.

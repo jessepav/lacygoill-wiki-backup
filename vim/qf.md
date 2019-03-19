@@ -1368,6 +1368,10 @@ Example 2:
 # TODO
 ## ?
 
+Document the `qfbufnr` property.
+
+## ?
+
 Document that  the result of `:vimgrep`  is influenced by `'isk'`  (and probably
 `'isf'`, `'isi'`, ...), if the pattern contains sth like `\k` or `\<`, `\>`.
 Indeed, if  `:vimgrep` searches  inside a  file which is  currently loaded  in a

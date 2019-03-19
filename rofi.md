@@ -73,6 +73,14 @@ combine.
 `-modi` tells  rofi to  *only* show  the combi mode;  without it,  when pressing
 `C-Tab`, rofi would cycle between the combi, window, run and ssh menus.
 
+---
+
+Document:
+
+   - `-kb-row-select` and `-kb-row-tab` command-line options
+   - `-mesg '...'` command-line option
+   - `-i` and `-p '...'` command-line options
+
 # Corrected examples from the manpage (they didn't work originally):
 
                            ┌ for some reason, our manpage has wrong quotes
@@ -82,6 +90,21 @@ combine.
     # the original command used `tty-pipe` and `out2html` which don't exist;
     # note that there're still 2 undesirable entries in the menu
     $ nmcli device | ansifilter -M | rofi -dmenu -markup-rows
+
+# document script mode
+
+<https://github.com/DaveDavenport/rofi/issues/205>
+<https://github.com/DaveDavenport/rofi/issues/63>
+<https://github.com/DaveDavenport/rofi/tree/next/Examples>
+
+    $ rofi -modi "test:/path/to/script.sh" -show test
+
+`script.sh` will be called twice.
+The first time, it will receive no arguments (`[[ -z "$@" ]]`), and will have to
+generate the desired entries of the menu (e.g. bookmarks).
+The second time, it will receive the  entry on which we've pressed Enter (`[[ -n
+"$@" ]]`), and  will have to act upon  it as desired (e.g. open  the bookmark in
+the browser).
 
 # manpage
 
@@ -222,4 +245,16 @@ Supprime:
    - depuis le curseur jusqu'au début de la ligne
    - depuis le curseur jusqu'à la fin de la ligne
    - le mot à gauche du curseur
+
+##
+## ?
+
+This is an old key binding we had in `~/.config/keyboard/xbindkeys.conf`.
+
+    # use the `-b` option to display the menu at the bottom of the screen
+    "dmenu_run -i -fn DejaVuSansMono-20:normal -l 10 -nb '#d0d0d0' -nf '#4e4e4e'"
+      Alt+Control+j
+
+Maybe document how the command worked.
+Could be useful in a script.
 

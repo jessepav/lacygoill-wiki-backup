@@ -1945,11 +1945,15 @@ See also:
 
                                     401 sloc
 
-            Alternative:
+            Alternatives:
 
             https://github.com/mattboehm/vim-accordion
 
-                                              335 sloc
+                                    335 sloc
+
+            https://github.com/paroxayte/vwm.vim
+
+                                    225 sloc
 
 ## tmuxify    tbone    tmux-runner    vimux    slimux
 
@@ -2044,7 +2048,6 @@ See also:
             https://github.com/sodapopcan/vim-twiggy
 
                                    1082 sloc
-
 
 ## vimdade
 
