@@ -1,3 +1,9 @@
+# How to write the quantifier “0 or 1” in the pattern of an autocmd?
+
+    {foo,}bar
+
+This should match `foobar` or just `bar`.
+
 # Which pitfall should I avoid when installing a fire-once autocmd?
 
 If a command fails before the removal of the autocmd, the latter may not be performed.
