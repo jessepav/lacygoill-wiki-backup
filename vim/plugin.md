@@ -144,6 +144,14 @@ While  `:sort`  has  several  flags  for  sorting  on  various  numbers,  and  a
 
                                     312 sloc
 
+
+            Alternative:
+
+            vim-swap
+            https://github.com/machakann/vim-swap
+
+                                   2943 sloc
+
 ## async
 
             Normalize async job control api for vim and neovim.
@@ -1785,11 +1793,11 @@ https://github.com/svermeulen/vim-subversive
                     vim-cycle
                     https://github.com/zef/vim-cycle
 
-                                159 sloc
+                                    159 sloc
 
                     https://github.com/bootleq/vim-cycle
 
-                                627 sloc
+                                    627 sloc
 
 
             switch semble + puissant mais nécessite de bien connaître les regex pour être customisé.

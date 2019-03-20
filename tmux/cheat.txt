@@ -29,9 +29,9 @@ Yank&Paste selected text  Y            C
 Paste {{{1
 Paste buffer              «pfx» «C-p»  N
 Choose&Paste buffer       «pfx» p      N
-Logging {{{1
+Log {{{1
 Toggle logging            «pfx» G      N
 Log visible text          «pfx» «M-g»  N
 Log all past text         «pfx» «M-G»  N
-Motion {{{1
+Move {{{1
 Start of previous prompts «pfx» b      N
