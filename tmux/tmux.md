@@ -1,7 +1,8 @@
 # ?
 
 I don't  know where it's properly  documented but tmux  can assign a value  to a
-variable, then evaluate it at runtime as a shell expression:
+variable,  then evaluate  it  at runtime  as a  shell  expression (cf.  `is_vim`
+variable):
 
 <https://github.com/christoomey/vim-tmux-navigator/commit/bb99607c9e2ecff7542ad371b38ceede0cc2e4cd>
 <https://github.com/christoomey/vim-tmux-navigator/issues/44>
