@@ -31,7 +31,7 @@ Compile the `check` dependency (can't be installed from the repo of Ubuntu 16.04
 
     $ git clone https://github.com/libcheck/check
     $ cd check
-    $ autoreconf --install
+    $ autoreconf -i
     $ ./configure
     $ make
     $ make check

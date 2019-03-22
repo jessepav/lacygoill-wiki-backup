@@ -2047,7 +2047,7 @@ See also:
 
             https://github.com/andymass/vim-tradewinds
 
-                                    152 sloc
+                                    165 sloc
 
 ## twiggy
 
