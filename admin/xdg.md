@@ -1,3 +1,10 @@
+# How to set firefox as the default web browser?
+
+    $ xdg-settings set default-web-browser firefox.desktop
+      ^^^^^^^^^^^^
+      != xdg-mime
+
+##
 # MIME
 ## What's a mimetype?
 
@@ -6,15 +13,10 @@ MIME stands for Multi-purpose Internet Mail Extensions.
 A MIME type is a label used to identify a type of data.
 Programs use it to determine how to handle the data they receive.
 
-## What's `xdg-mime`?
-
-A command-line  tool to query  information about  mimetype handling, and  to add
-descriptions for new mimetypes.
-
 ## When should I change the mimetype of a file?
 
-When double-clicking  on a file,  or using `$  xdg-open`, doesn't open  the file
-with the desired program.
+When you double-click  on a file, or  use `$ xdg-open`, and it  doesn't open the
+file with the desired program.
 
 ## How to get the mimetype of a file?
 
@@ -57,10 +59,6 @@ There may be other files (like `~/.local/share/applications/mimeapps.list`), use
     $ locate -i mimeapps.list
 
 ###
-## How to set firefox as the default web browser?
-
-    $ xdg-settings set default-web-browser firefox.desktop
-
 ## How to set gVim as the default handler for all known text files?
 
     $ find /usr/share/mime/text -iname '*.xml' -execdir basename -s .xml -- '{}' ';' \
