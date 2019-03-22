@@ -66,7 +66,7 @@ There may be other files (like `~/.local/share/applications/mimeapps.list`), use
     $ find /usr/share/mime/text -iname '*.xml' -execdir basename -s .xml -- '{}' ';' \
         | xargs xdg-mime default gvim.desktop
 
-## How to configure the handler to pass arbitrary options to the gVim command?
+### How to configure the handler to pass arbitrary options to the gVim command?
 
 You can use your own `gvim.desktop` in your home:
 
