@@ -214,11 +214,6 @@ trouvé dans un navigateur en GUI (`fzf-sr`) ou en TUI (`fzf-surfraw`).
 ##
 ##
 ##
-# ?
-
-Why does `sr` and `surfraw` have different tab completions?
-They call the same binary...
-
 # Synopsis
 
     $ surfraw elviname [options] search words ...
