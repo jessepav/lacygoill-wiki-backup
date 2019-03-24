@@ -1177,9 +1177,9 @@ the latter.
 Since  system calls  and  signals  are events  that  happen  at the  user/kernel
 interface, a close examination of this boundary is very useful for:
 
-        - bug isolation
-        - sanity checking
-        - capture race conditions
+   - bug isolation
+   - sanity checking
+   - capture race conditions
 
 It's also useful  to solve an issue with  a program for which the  source is not
 readily available, since you don't need to recompile it in order to trace it.

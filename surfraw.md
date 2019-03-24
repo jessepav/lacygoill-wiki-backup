@@ -2,9 +2,9 @@
 
 After studying surfraw, study `locate`.
 It's documented in our pdf about `find`.
-See also `$ man locate`, `$ man updatedb`, `$ man updatedb.conf`.
+Also, see `$ man locate`, `$ man updatedb`, `$ man updatedb.conf`.
 
-Study also `fd`. They complete one another.
+Also, study `fd`. They complete each other.
 `locate` to find anything older than a day, `fd` for the rest.
 
 ---
@@ -13,6 +13,10 @@ To allow `locate` to search inside `/media`:
 
     $ sudo cp updatedb.conf{,.bak}
     $ sudo sed -i 's:/media ::' /etc/updatedb.conf
+
+# ?
+
+How to change the browser opened by surfraw?
 
 ##
 # Installation
@@ -24,87 +28,13 @@ To allow `locate` to search inside `/media`:
     $ make
     $ sudo checkinstall
 
-# Description
+##
+# How to list all the search engines supported by surfraw?
 
-Fast unix command-line interface to WWW
+    $ sr -elvi
 
-Surfraw is the acronym of:
-
-        Shell Users' Revolutionary Front Rage Against the World Wide Web
-
-It provides a fast unix command-line interface to  a variety of popular WWW search engines.
-
-It abstracts the browser away from input.
-Doing so, lets it get on with what it's good at.
-Browsing.
-Interpretation of  linguistic forms is handed  back to the shell,  which is what
-it, and human beings are good at.
-Homepage: <http://surfraw.alioth.debian.org>
-
+##
 # Configuration
-
-Lien utile: <http://surfraw.alioth.debian.org/#configuration>
-
-    ┌────────────────────────┬───────────────────────┐
-    │ Ubuntu man page        │ project documentation │
-    ├────────────────────────┼───────────────────────┤
-    │ /etc/xdg/surfraw/conf  │ /etc/surfraw.conf     │
-    │                        │                       │
-    │ ~/.config/surfraw/conf │ $HOME/.surfraw.conf   │
-    └────────────────────────┴───────────────────────┘
-
-Ces fichiers gèrent la configuration du pgm.
-Ubuntu (et  Debian?) utilise des chemins  de conf différents de  ceux mentionnés
-par la documentation sur le site du projet.
-Je trouve  que le choix  d'Ubuntu / XDG  est plus judicieux  (centralisation des
-fichiers de conf de tous les pgm au sein de ~/.config/).
-
-Pour limiter  nos réglages à notre  compte utilisateur, utiliser les  fichier du
-$HOME.
-S'ils n'existent  pas, les créer  en copiant les  fichiers de conf  système dans
-`/etc/`.
-
----
-
-Attention, la  syntaxe à  utiliser dans  le fichier  de conf  n'est pas  la même
-suivant qu'on édite le fichier système, ou celui dédié à l'utilisateur.
-En effet au sein de `/etc/xdg/surfraw/conf`, on peut lire:
-
-    # WARNING: This file has a different format to that of $HOME/.surfraw.conf!
-    # $HOME/.surfraw.conf entries should always be written sh style:
-    #
-    # 	SURFRAW_text_browser=w3m
-    # etc
-
-Le fichier utilisateur semble devoir utiliser une syntaxe similaire à un script shell.
-
----
-
-    ┌─────────────────────────────┬──────────────────────────┐
-    │ Ubuntu man page             │ project documentation    │
-    ├─────────────────────────────┼──────────────────────────┤
-    │ /etc/xdg/surfraw/bookmarks  │ /etc/surfraw.bookmarks   │
-    │                             │                          │
-    │ ~/.config/surfraw/bookmarks │ $HOME/.surfraw.bookmarks │
-    └─────────────────────────────┴──────────────────────────┘
-
-Ces fichiers mémorisent nos bookmarks.
-
-La syntaxe d'une ligne est la suivante:
-
-    keyword    url    # tag1 tag2 tag3 …
-
-En réalité, tout ce qui suit `url` est ignoré.
-On peut donc écrire du texte arbitraire qu'on utilisera comme s'il s'agissait de
-tags.
-Le dièse permettant de visuellement repérer où finit une url, et où commence les
-tags
-
-Les tags seront utiles qd on cherchera un bookmark via `fzf`.
-
-keyword ne doit pas contenir d'espace.
-
----
 
     ~/.config/surfraw/elvi/
 
@@ -116,33 +46,6 @@ nous intéresse.
 Le  nom du  fichier a  de l'importance,  car c'est  lui qu'il  faudra passer  en
 argument à  `sr`/`surfraw` pour lui indiquer  le moteur de recherche  sur lequel
 chercher un mot-clé.
-
----
-
-    SURFRAW_text_browser=google-chrome
-
-Choisir google-chrome comme le navigateur dans lequel ouvrir les liens.
-À écrire dans ~/.config/surfraw/conf.
-
-On pourrait aussi choisir 'www-browser' ou 'xdg-open' comme valeur.
-
----
-
-    SURFRAW_text_browser=w3m
-    SURFRAW_graphical=no
-
-Cette fois, on choisit un navigateur en TUI.
-
-D'autres variables d'environnement permettant de configurer `surfraw` existent.
-Consulter la section ’CONFIGURATION VARIABLES’ de la page man de `surfraw`.
-
----
-
-    freak    http://torrentfreak.com/
-
-Définir     'freak'    comme     un     mot-clé     correspondant    au     site
-'http://torrentfreak.com'.
-À écrire dans ~/.config/surfraw/bookmarks.
 
 ---
 
@@ -183,33 +86,11 @@ Cherche 'arch linux' sur  google dans un navigateur en GUI (via  `sr`) ou en TUI
 
 ---
 
-    $ sr -elvi
-    $ sr Tab Tab
-
-Liste les moteurs de recherche supportés par défaut.
-La 2e méthode permet de sélectionner le moteur qu'on veut.
-
----
-
     $ sr -browser=google-chrome google kitten
     $ surfraw -browser=w3m google kitten
 
 L'argument  `-browser`  permet  de  configurer temporairement  le  navigateur  à
 utiliser le temps d'une recherche.
-
-Couplé  au  fait  que `sr`  est  un  alias  de  `surfraw`, on  peut  utiliser  2
-navigateurs différents (graphique/TUI) en créant nos propres alias:
-
-    alias sr='sr -browser=google-chrome'
-    alias surfraw='surfraw -browser=w3m'
-
----
-
-    $ fzf-sr
-    $ fzf-surfraw
-
-Fonctions custom permettant  de fuzzy search nos bookmarks, et  d'ouvrir un lien
-trouvé dans un navigateur en GUI (`fzf-sr`) ou en TUI (`fzf-surfraw`).
 
 ##
 ##
@@ -344,159 +225,23 @@ Surfraw gets its configuration from three sources, in order:
 
 3.  $HOME/.config/surfraw/conf
 
-/usr/local/etc/xdg/surfraw.conf and $HOME/.config/surfraw/conf are both
+`/usr/local/etc/xdg/surfraw.conf`  and   `$HOME/.config/surfraw/conf`  are  both
 fragments of bourne‐shell style shell script.
 
-/usr/local/etc/xdg/surfraw.conf  should  use  def  and  defyn to define
-variables.  These functions set variables unless they are  already  set
-by the environment.  defyn is used for boolean configuration variables,
-def for all others. For instance:
+`/usr/local/etc/xdg/surfraw.conf` should use def and defyn to define variables.
+These functions set variables unless they are already set by the environment.
+defyn is used for boolean configuration variables, def for all others.
+For instance:
 
-def     SURFRAW_text_browser /usr/bin/lynx
-defyn   SURFRAW_graphical         no
+    def     SURFRAW_text_browser /usr/bin/lynx
+    defyn   SURFRAW_graphical         no
 
-$HOME/.config/surfraw/conf should use sh‐style entries, eg:
+`$HOME/.config/surfraw/conf` should use sh‐style entries, eg:
 
-SURFRAW_text_browser=/usr/bin/lynx
-SURFRAW_graphical=no
+    SURFRAW_text_browser=/usr/bin/lynx
+    SURFRAW_graphical=no
 
-This is because you want them to override environment variables  uncon‐
-ditionally.
-
-# Configuration Variables
-
-    SURFRAW_global_conf
-
-Location of global configuration file.
-
-Default:
-
-    def SURFRAW_global_conf /usr/local/etc/xdg/surfraw/conf
-
-    SURFRAW_conf
-
-Location of per‐user configuration file.
-
-Default:
-
-    def SURFRAW_conf $HOME/.config/surfraw/conf
-
-    SURFRAW_graphical
-
-Whether to use a graphical browser.
-
-Default:
-
-    defyn SURFRAW_graphical no
-
-    SURFRAW_text_browser
-
-Name/path of text browser executable.  e.g. links, lynx, w3m
-
-Default:
-
-    def SURFRAW_text_browser sensible-browser
-
-    SURFRAW_graphical_browser
-
-Name/path  of  graphical  browser executable.  e.g mozilla, net‐
-scape etc.
-
-Default:
-
-    def SURFRAW_graphical_browser sensible-browser
-
-    SURFRAW_text_browser_args
-
-Text browser arguments, or "none".
-
-Default:
-
-    def SURFRAW_text_browser_args none
-
-    SURFRAW_graphical_browser_args
-
-Graphical browser arguments, or "none".
-
-Default:
-
-    def SURFRAW_graphical_browser_args none
-
-    SURFRAW_graphical_remote
-
-Whether to use "-remote openURL" for graphical browser.
-
-Default:
-
-    defyn SURFRAW_graphical_remote yes
-
-    SURFRAW_new_window
-
-When using SURFRAW_graphical_remote, open a new window?
-
-Default:
-
-    defyn SURFRAW_new_window no
-
-    SURFRAW_screen
-
-Name of screen command to run.
-
-Default:
-
-    def SURFRAW_screen screen
-
-    SURFRAW_new_screen
-
-If surfraw is running under screen(1), start a  new  screen  for
-each text browser invocation?
-
-Default:
-
-    defyn SURFRAW_new_screen no
-
-    SURFRAW_screen_args
-
-Arguments to pass to the SURFRAW_screen command
-
-Default:
-
-    def SURFRAW_screen_args ""
-
-    SURFRAW_quote_args
-
-Whether to "quote" all the arguments.
-
-Default:
-
-    defyn SURFRAW_quote_args no
-
-    SURFRAW_quote_ifs
-
-Whether to re‐quote arguments if they have spaces in, ie so:
-sr google foo "bar baz" bam
-works as expected.
-
-Default:
-
-    defyn SURFRAW_quote_ifs    yes
-
-    SURFRAW_results
-
-Default number of results to return (not supported by all elvi).
-
-Default:
-
-    def SURFRAW_results 30
-
-    SURFRAW_escape_url_args
-
-Whether to escape [% "$%&+,/:;<=>?@[{|}~'] characters in command
-line arguments subsequently used to construct a url.
-
-Default:
-
-    defyn SURFRAW_escape_url_args yes
+This is because you want them to override environment variables unconditionally.
 
 # Files
 
@@ -523,10 +268,6 @@ System wide bookmarks file.
     $HOME/.config/surfraw/bookmarks
 
 Per‐user bookmarks file.
-
-# See Also
-
-<http://alioth.debian.org/projects/surfraw/>
 
 ##
 ##
