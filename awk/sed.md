@@ -1,13 +1,34 @@
-# ?
+# Without any address, which line(s) is/are affected by a sed command, like `s`?
 
-Without `-e`  or `-f` options,  sed uses the  first non-option parameter  as the
-script, and the following non-option parameters as input files.
-If `-e` or `-f` options are used  to specify a script, all non-option parameters
-are taken as input files.
-Options `-e` and `-f`  can be combined, and can appear  multiple times (in which
-case the  final effective  script will  be concatenation  of all  the individual
-scripts).
+*every* line in the input.
 
+Because of  its stream orientation,  sed goes through its  input, one line  at a
+time, such that each  line becomes a temporary current line,  and the command is
+applied to it.
+
+IOW, sed commands are implicitly global.
+
+    # sed command
+    s/pat/rep/
+
+    ⇔
+
+    # Vim command
+    :%/pat/rep/
+
+---
+
+In contrast,  a Vim  Ex command, like  `:s`, applies to  the current  line; i.e.
+wherever the cursor is currently.
+
+# What's the major difference of purpose of an address in a sed command vs in a Vim Ex command?
+
+In Vim, you use  addressing to *expand* the number of lines  that are the object
+of a  command; in  sed, you  use addressing  to *restrict*  the number  of lines
+affected by a command.
+
+##
+##
 ##
 # Installation
 
@@ -22,14 +43,20 @@ Download the archive and its signature, and check it:
 
 Finally, configure, compile and install:
 
-    $ ./configure
+    # Witouth `--prefix`, the binary will be in `/usr/local/bin/sed`.
+    # This may break your scripts, if their shebang refer to `/usr/bin/sed` instead.
+    $ ./configure --prefix=/usr
     $ make
     $ make check
     $ sudo checkinstall
 
-    # you may  need this  if checkinstall  fails to install  the deb  because it
-    # would have to overwrite a file which is present in another package
+If checkinstall fails to install the deb  – because it would have to overwrite a
+file which is present in another package – run:
+
     $ sudo dpkg -i --force-overwrite package.deb
+
+Or,  if the  issue is  with an  `info/dir`  file, try  to move  its location  by
+reconfiguring with `--infodir=/usr/local/share` (use any directory as you see fit).
 
 ---
 
@@ -237,4 +264,14 @@ Replace newlines in multiple lines.
 # Resources
 
 Errata for sed & awk: <https://www.oreilly.com/catalog/errata.csp?isbn=9781565922259>
+
+# ?
+
+Without `-e`  or `-f` options,  sed uses the  first non-option parameter  as the
+script, and the following non-option parameters as input files.
+If `-e` or `-f` options are used  to specify a script, all non-option parameters
+are taken as input files.
+Options `-e` and `-f`  can be combined, and can appear  multiple times (in which
+case the  final effective  script will  be concatenation  of all  the individual
+scripts).
 

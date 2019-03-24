@@ -1919,6 +1919,11 @@ références peuvent être déplacées librement.
 ##
 # TODO
 
+Learn how to use `git-jump`.
+Read `~/bin/README.md`.
+
+---
+
 Read: <https://chris.beams.io/posts/git-commit/>
 
 ---
