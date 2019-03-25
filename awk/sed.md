@@ -24,7 +24,8 @@ file which is present in another package – run:
     $ sudo dpkg -i --force-overwrite package.deb
 
 Or,  if the  issue is  with an  `info/dir`  file, try  to move  its location  by
-reconfiguring with `--infodir=/usr/local/share` (use any directory as you see fit).
+reconfiguring with  `--infodir=/usr/local/share/info` (use any directory  as you
+see fit).
 
 ---
 
@@ -52,14 +53,14 @@ Not because of a dependency issue; because of an error in the source code.
 ##
 # In sed, like in awk, how is the first positional argument interpreted without `-f` option?
 
-As the script code (!= script file) to execute on the input:
+As the script *code* to execute on the input:
 
     $ awk [options] <script code> <input file>
     $ sed [options] <script code> <input file>
 
 ## And with `-f`?
 
-As the script file containing the code to execute on the input:
+As the script *file* containing the code to execute on the input:
 
     $ awk [options] -f <script file> <input file>
     $ sed [options] -f <script file> <input file>
@@ -67,7 +68,7 @@ As the script file containing the code to execute on the input:
 ##
 # Without any address, which line(s) is/are affected by a sed command, like `s`?
 
-*every* line in the input.
+*Every* line in the input.
 
 Because of  its stream orientation,  sed goes through its  input, one line  at a
 time, such that each  line becomes a temporary current line,  and the command is
@@ -200,7 +201,7 @@ To force it to consider each file as a *s*eparate stream, you need `-s`.
 
 Use sed's `-n` option and the `p` flag of the `s` command:
 
-    $ sed -ne 's/pat/rep/e' input_file
+    $ sed -ne 's/pat/rep/p' input_file
           ^^             ^
 
 ##

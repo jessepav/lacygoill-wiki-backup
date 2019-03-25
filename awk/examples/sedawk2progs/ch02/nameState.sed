@@ -1,3 +1,5 @@
+#!/usr/bin/sed -f
+
 s/ CA/, California/
 s/ MA/, Massachusetts/
 s/ OK/, Oklahoma/
