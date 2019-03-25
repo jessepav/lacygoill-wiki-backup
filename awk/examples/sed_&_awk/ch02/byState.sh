@@ -26,6 +26,7 @@
 awk -F, '{ print $4 ", " $0 }' "$@" \
   | sort \
   | awk -F, '$1 == lastState { print "\t" $2 }; $1 != lastState { lastState = $1; print $1; print "\t" $2 }'
+
 # Note that the order of the statements in the last awk program is important.{{{
 #
 # `$1 == lastState ...` must come *before* `$1 != lastState ...`.
@@ -33,4 +34,18 @@ awk -F, '{ print $4 ", " $0 }' "$@" \
 # Indeed, in  the reverse order,  when the first  test succeeds, the  second one
 # always succeeds too.  So, the name of the first person living in a state would
 # always be printed twice.
+#}}}
+# Alternatively, you could have used a single pattern-action statement:{{{
+#
+#     $1 == lastState { print "\t" $2 }
+#     $1 != lastState { lastState = $1; print $1; print "\t" $2 }
+#
+#     ⇔
+#
+#     {
+#         if ($1 == lastState)
+#             { print "\t" $2 }
+#         else
+#             { lastState = $1; print $1; print "\t" $2 }
+#     }
 #}}}

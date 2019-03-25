@@ -4350,13 +4350,52 @@ Pour rappel, on accède à une variable en:
 Inverse (au sens logique) / Incrémente la valeur du 1er champ.
 
 ##
-# TODO
+# Todo
+## idea of infrastructure
 
-Write a `|c` mapping to lint the current awk script (using `--lint`).
+At  the  root of  every  wiki,  you  should have  a  file  which lists  all  the
+examples/exercises.
+For each exercise, there should be a  telling name and a (concealed) path to the
+file (so that you can open it with `ZF`).
 
----
+Also, in  this file  there should  be a  local mapping  (`cop`?) which  starts a
+“preview” mode.
+In this mode,  a preview window should  show the contents of  the exercise whose
+name/path is  under the cursor;  the contents should  be updated as  your cursor
+moves.
 
-Read:
+Use only one file, even if you have exercises coming from several books.
+Divide the file into sections; one per book.
+And maybe  divide those sections  further; one  subsection per chapter,  and one
+subsubsection per subchapter.
+
+Besides, each exercise should be confined in its own directory:
+
+    ~/wiki/<subject>/examples/<book_title>/ch12/ex34/<script_name>
+
+Inside, it should be accompanied by 2 other files: `input` and `output`.
+`input` should contain an example of input on which the example script operates.
+`output` should contain the output of the script when passed `input`.
+
+Install a mapping (`-e`?) to open this file from anywhere in the wiki.
+
+The goal is to  reduce the access time to an info you're  looking for, and which
+you know is somewhere in an exercise you solved in the past.
+
+## Document that `.` can match a newline in awk (but not in sed).
+
+I read this in ‘Sed & Awk’, page 48 of the pdf, table 3.1.
+Make sure it's true.
+
+It's probably because awk can operate on multi-line records.
+
+## Write a `|c` mapping to lint the current awk script (using `--lint`).
+
+
+## In `elseif cond return ...`, the `elseif` is useless.
+
+Read this:
+
 <https://github.com/soimort/translate-shell/wiki/AWK-Style-Guide>
 <https://softwareengineering.stackexchange.com/questions/157407/best-practice-on-if-return#comment300476_157407>
 
@@ -4392,23 +4431,19 @@ So, there's no need for an `else` after a `return`:
     if cond2
         return sth else
 
----
+## Read the sections 6.3.2.1, 6.3.2.2, 6.3.2.3  in the gawk user's guide,
 
-Read the sections 6.3.2.1, 6.3.2.2, 6.3.2.3  in the gawk user's guide, to better
-understand how gawk handles the coercion with relational operators.
+to better understand how gawk handles the coercion with relational operators.
 
----
+## Document that a newline is also ignored after the keyword `do` (see gawk book).
 
-Document that a newline is also ignored after the keyword `do` (see gawk book).
 
----
+## Finish ‘The AWK Programming Language’.
 
 The first time we read our first awk book,  we stopped at the page 84 of the pdf
 (72 in the original book).
 
----
-
-Explain the concept of collating element.
+## Explain the concept of collating element.
 
 <https://unix.stackexchange.com/questions/254811/what-does-ch-mean-in-a-regex>
 
@@ -4422,9 +4457,7 @@ After that, you'll be able to run:
     $ echo cho | LC_ALL=cs_CZ.UTF-8 grep '^[h-i]o'
     cho~
 
----
-
-Read: <http://www.awklang.org/>
+## Read: <http://www.awklang.org/>
 
 Have a look at the links in the sidebar:
 <https://github.com/e36freak/awk-libs>

@@ -43,6 +43,24 @@ That's why `*` and `/` which have  the same precedence, can *not* have different
 associativities.
 
 ##
+# b
+## BRE vs ERE
+
+Basic and Extended Regular Expression.
+
+They are two variations on the syntax of the specified pattern.
+BRE syntax is the default in sed (and similarly in grep).
+
+Use the `-E` option to enable ERE syntax.
+
+In sed,  the only difference  between BRE and  ERE is in  the behavior of  a few
+special characters: `?`, `+`, `()`, `{}`, and `|`.
+With  BRE syntax,  these  characters  do not  have  any  special meaning  unless
+prefixed with a backslash.
+While with ERE  syntax, it's reversed: these characters are  special unless they
+are prefixed with a backslash.
+
+##
 # c
 ## constant
 

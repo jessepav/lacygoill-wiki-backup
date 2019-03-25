@@ -509,7 +509,9 @@ dbext.vim, improving on it on the following ways:
 
             https://github.com/whiteinge/diffconflicts
 
-                                    103 sloc
+                                    133 sloc
+
+Read also: <https://medium.com/prodopsio/solving-git-merge-conflicts-with-vim-c8a8617e3633>
 
 ## diminactive
 
