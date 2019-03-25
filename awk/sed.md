@@ -1,35 +1,3 @@
-# Without any address, which line(s) is/are affected by a sed command, like `s`?
-
-*every* line in the input.
-
-Because of  its stream orientation,  sed goes through its  input, one line  at a
-time, such that each  line becomes a temporary current line,  and the command is
-applied to it.
-
-IOW, sed commands are implicitly global.
-
-    # sed command
-    s/pat/rep/
-
-    ⇔
-
-    # Vim command
-    :%/pat/rep/
-
----
-
-In contrast,  a Vim  Ex command, like  `:s`, applies to  the current  line; i.e.
-wherever the cursor is currently.
-
-# What's the major difference of purpose of an address in a sed command vs in a Vim Ex command?
-
-In Vim, you use  addressing to *expand* the number of lines  that are the object
-of a  command; in  sed, you  use addressing  to *restrict*  the number  of lines
-affected by a command.
-
-##
-##
-##
 # Installation
 
 Go to <https://www.gnu.org/software/sed/>  to find a url to  download the latest
@@ -82,6 +50,83 @@ However, at the moment, this procedure fails at the `make` step.
 Not because of a dependency issue; because of an error in the source code.
 
 ##
+# In sed, like in awk, how is the first positional argument interpreted without `-f` option?
+
+As the script code (!= script file) to execute on the input:
+
+    $ awk [options] <script code> <input file>
+    $ sed [options] <script code> <input file>
+
+## And with `-f`?
+
+As the script file containing the code to execute on the input:
+
+    $ awk [options] -f <script file> <input file>
+    $ sed [options] -f <script file> <input file>
+
+##
+# Without any address, which line(s) is/are affected by a sed command, like `s`?
+
+*every* line in the input.
+
+Because of  its stream orientation,  sed goes through its  input, one line  at a
+time, such that each  line becomes a temporary current line,  and the command is
+applied to it.
+
+IOW, sed commands are implicitly global.
+
+    # sed command
+    s/pat/rep/
+
+    ⇔
+
+    # Vim command
+    :%/pat/rep/
+
+---
+
+In contrast,  a Vim  Ex command, like  `:s`, applies to  the current  line; i.e.
+wherever the cursor is currently.
+
+# What's the major difference of purpose of an address in a sed command vs in a Vim Ex command?
+
+In Vim, you use  addressing to *expand* the number of lines  that are the object
+of a  command; in  sed, you  use addressing  to *restrict*  the number  of lines
+affected by a command.
+
+##
+# When do I need the `-e` option?
+
+Only when you supply more than one instruction on the command-line.
+It tells sed to interpret the next argument as an instruction:
+
+    $ sed -e 'instruction1' -e 'instruction2' input_file
+
+When there is  a single instruction, sed  is able to make  that determination on
+its own:
+
+    $ sed -e 'instruction' input_file
+    ⇔
+    $ sed    'instruction' input_file
+
+# How to specify multiple instructions on the command-line?  (2)
+
+Separate the instructions with a semicolon:
+
+    $ sed 's/pat1/rep1/; s/pat2/rep2/' input_file
+                       ^
+
+Or precede each instruction by `-e`:
+
+    $ sed -e 's/pat1/rep1/' -e 's/pat2/rep2/' input_file
+          ^^                ^^
+
+# How to combine several scripts and/or expressions (`-e`)?
+
+Simply use as many `-f` and/or `-e` options as needed.
+Their concatenation will be the resulting script.
+
+##
 # I have these two files, `file1` and `file2`:
 
     $ cat <<'EOF' >/tmp/file1
@@ -118,6 +163,9 @@ By default  (i.e. without `-n`),  sed prints  all processed input  (except input
 that has been modified/deleted by commands such as `d`).
 To prevent this, you need `-n`.
 
+Note that  this a  fundamental difference  with awk,  which by  default, doesn't
+print anything unless you explicitly use `print(f)`.
+
 ###
 ## How to print the last line of `file1`?
 
@@ -146,6 +194,14 @@ To prevent this, you need `-n`.
 
 sed treats multiple input files as one long stream.
 To force it to consider each file as a *s*eparate stream, you need `-s`.
+
+##
+# How to print only the lines where a substitution was made?
+
+Use sed's `-n` option and the `p` flag of the `s` command:
+
+    $ sed -ne 's/pat/rep/e' input_file
+          ^^             ^
 
 ##
 ##
