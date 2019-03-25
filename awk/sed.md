@@ -51,7 +51,7 @@ However, at the moment, this procedure fails at the `make` step.
 Not because of a dependency issue; because of an error in the source code.
 
 ##
-# In sed, like in awk, how is the first positional argument interpreted without `-f` option?
+# In sed, like in awk, how is the first positional argument interpreted without the `-f` option?
 
 As the script *code* to execute on the input:
 
@@ -89,7 +89,7 @@ IOW, sed commands are implicitly global.
 In contrast,  a Vim  Ex command, like  `:s`, applies to  the current  line; i.e.
 wherever the cursor is currently.
 
-# What's the major difference of purpose of an address in a sed command vs in a Vim Ex command?
+# What's the major difference of purpose of a range in a sed command vs in a Vim Ex command?
 
 In Vim, you use  addressing to *expand* the number of lines  that are the object
 of a  command; in  sed, you  use addressing  to *restrict*  the number  of lines
@@ -122,7 +122,7 @@ Or precede each instruction by `-e`:
     $ sed -e 's/pat1/rep1/' -e 's/pat2/rep2/' input_file
           ^^                ^^
 
-# How to combine several scripts and/or expressions (`-e`)?
+# How to combine several scripts (`-f`) and/or expressions (`-e`)?
 
 Simply use as many `-f` and/or `-e` options as needed.
 Their concatenation will be the resulting script.
@@ -188,8 +188,10 @@ print anything unless you explicitly use `print(f)`.
 ### What's the output of the next command?
 
     $ sed -n '1p ; $p' /tmp/file1 /tmp/file2
+↣
     foo~
     eggs~
+↢
 
 #### Why the difference between the previous command?
 
