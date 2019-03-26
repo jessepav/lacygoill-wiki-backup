@@ -5,12 +5,6 @@
             ChangeLog pour la version 8.0 de Vim.
 
 
-    https://launchpad.net/~pi-rho/+archive/ubuntu/dev
-    https://launchpad.net/~jonathonf/+archive/ubuntu/vim?field.series_filter=
-
-            Adresses de PPAs à partir desquels on peut télécharger une version récente de Vim.
-
-
     $ which vim
     /usr/bin/vim~
 

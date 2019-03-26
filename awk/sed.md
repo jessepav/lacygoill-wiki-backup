@@ -11,12 +11,18 @@ Download the archive and its signature, and check it:
 
 Finally, configure, compile and install:
 
-    # Witouth `--prefix`, the binary will be in `/usr/local/bin/sed`.
-    # This may break your scripts, if their shebang refer to `/usr/bin/sed` instead.
-    $ ./configure --prefix=/usr
+    $ ./configure --prefix=/usr --without-included-regex
     $ make
     $ make check
     $ sudo checkinstall
+
+Without `--prefix`, the binary will be in `/usr/local/bin/sed`.
+This may break your scripts, if their shebang refer to `/usr/bin/sed` instead.
+
+Without `--without-included-regex`, sed doesn't support equivalence classes:
+
+    $ ./sed/sed 's/[[=e=]]/X/g' <<<'a é b e c è'
+    a é b X c è
 
 If checkinstall fails to install the deb  – because it would have to overwrite a
 file which is present in another package – run:
@@ -55,8 +61,20 @@ Not because of a dependency issue; because of an error in the source code.
 
 As the script *code* to execute on the input:
 
-    $ awk [options] <script code> <input file>
-    $ sed [options] <script code> <input file>
+    $ awk [options] <script code> <input file> ...
+    $ sed [options] <script code> <input file> ...
+
+---
+
+Note that the synopsis of grep looks the same:
+
+    $ grep [options] <pattern> <input file> ...
+
+This choice of order between the script/pattern and the input data is due to the
+fact that the latter  is unpredictable; you can't know in  advance what the user
+will operate on (one file, two files, ...).
+If  the  input  came  before  the  script/pattern, there  would  be  no  way  to
+distinguish the latter from the input.
 
 ## And with `-f`?
 
@@ -205,6 +223,98 @@ Use sed's `-n` option and the `p` flag of the `s` command:
 
     $ sed -ne 's/pat/rep/p' input_file
           ^^             ^
+
+##
+# Regex
+## How to enable the ERE syntax?
+
+Use the `-E` option (same thing for grep).
+
+## In which syntax (BRE vs ERE) can I write `\<` and `\>`?
+
+Both.
+
+`\<` and `\>` are not influenced by the syntax of the regex.
+They're  always interpreted  the same  way,  as anchors,  regardless of  whether
+they're backslashed.
+
+## What are the differences between BRE and the magic mode in Vim?
+
+In sed, the equivalent of the Vim's quantifier `\{n,m}` needs two backslashes:
+
+    \{n,m\}
+         ^
+
+But in practice, Vim understands `\{n,m\}` too.
+
+---
+
+In Vim (like in  awk) you can include a closing square  bracket inside a bracket
+expression by escaping it with a backslash:
+bracket expression
+
+    [a\]1]
+
+This regex will match `a` or `]` or `1`.
+
+But it won't work in sed, nor in grep.
+
+##
+## How to include an opening bracket in a bracket expression?
+
+Just write it.
+
+There's no need to backslash it or  put it in a special position, because inside
+a bracket expression, all characters lose their special meaning; except:
+
+   - `-`
+   - `\`
+   - `]`
+   - `^`
+
+### How about a closing bracket?
+
+Make sure the closing bracket is at the start of the expression, and unescaped:
+
+    []ab]
+     ^
+
+This regex will match `]` or `a` or `b`.
+
+---
+
+If the bracket expression is reversed, put it in second position:
+
+    $ sed '[^]ab]' file
+             ^
+
+This regex will match any character which is *not* `]` or `a` or `b`.
+
+---
+
+Note that all of this also applies to grep, gawk and Vim.
+
+###
+## How are the metacharacters `^` and `$` interpreted in the middle of a pattern?
+
+Literally:
+
+    $ sed 's/ ^ /X/' <<<'a ^ b'
+    aXb~
+
+From this point of view, sed is similar to Vim.
+
+---
+
+OTOH, awk interprets `^` and `$` specially even in the middle of a pattern:
+
+    $ awk '/ ^ /' <<<'a ^ b'
+    ''~
+
+To match a literal `^` in an awk pattern, you need to backslash it:
+    ~
+    $ awk '/ \^ /' <<<'a ^ b'
+    a ^ b~
 
 ##
 ##

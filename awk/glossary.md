@@ -44,17 +44,31 @@ associativities.
 
 ##
 # b
+## bracket expression
+
+A regex operator matching  any one of the characters that  are enclosed inside a
+pair of square brackets:
+
+    [aeiou]
+
+In other literature,  you may see a  bracket expression referred to  as either a
+character set, a character class, or a character list.
+In Vim, it's referred to as a collection.
+
 ## BRE vs ERE
 
 Basic and Extended Regular Expression.
 
-They are two variations on the syntax of the specified pattern.
-BRE syntax is the default in sed (and similarly in grep).
+They are two variations on the syntax of a pattern.
 
-Use the `-E` option to enable ERE syntax.
+By default:
 
-In sed,  the only difference  between BRE and  ERE is in  the behavior of  a few
-special characters: `?`, `+`, `()`, `{}`, and `|`.
+   - sed (and grep) uses the BRE syntax
+   - Vim uses a syntax very similar to BRE
+   - Gawk uses a superset of ERE
+
+The only  difference between BRE  and ERE  is in the  behavior of a  few special
+characters: `?`, `+`, `()`, `{}`, and `|`.
 With  BRE syntax,  these  characters  do not  have  any  special meaning  unless
 prefixed with a backslash.
 While with ERE  syntax, it's reversed: these characters are  special unless they
@@ -62,6 +76,110 @@ are prefixed with a backslash.
 
 ##
 # c
+## character class
+
+Named classes of characters which are predefined within bracket expressions.
+
+---
+
+This terminology was defined in a POSIX standard.
+Prior  to  that,  “character  class”  referred to  what  we  call  now  “bracket
+expression”; this old terminology is still used in various documentations.
+
+### `[:alnum:]`
+
+Alphanumeric  characters: `[:alpha:]`  and `[:digit:]`;  in the  ‘C’ locale  and
+ASCII character encoding, this is the same as `[0-9A-Za-z]`.
+
+### `[:alpha:]`
+
+Alphabetic characters: `[:lower:]` and `[:upper:]`; in the ‘C’ locale and
+ASCII character encoding, this is the same as `[A-Za-z]`.
+
+### `[:blank:]`
+
+Blank characters: space and tab.
+
+### `[:cntrl:]`
+
+Control characters.
+In ASCII, these characters have octal codes 000 through 037, and 177 (DEL).
+In other character sets, these are the equivalent characters, if any.
+
+### `[:digit:]`
+
+0 1 2 3 4 5 6 7 8 9
+
+### `[:graph:]`
+
+Graphical characters: `[:alnum:]` and `[:punct:]`.
+
+### `[:lower:]`
+
+Lower-case letters; in the ‘C’ locale  and ASCII character encoding, this is all
+letter a b c d e f g h i j k l m n o p q r s t u v w x y z.
+
+### `[:print:]`
+
+Printable characters: `[:alnum:]`, `[:punct:]`, and space.
+
+### `[:punct:]`
+
+Punctuation characters; in the ‘C’ locale and ASCII character encoding, this is
+! " # $ % & ’ ( ) * + , - . / : ; < = > ? @ [ \ ] ^ _ ‘ { | } ~.
+
+### `[:space:]`
+
+Space characters:  in the ‘C’ locale,  this is tab, newline,  vertical tab, form
+feed, carriage return, and space.
+
+### `[:upper:]`
+
+Upper-case letters: in the ‘C’ locale and  ASCII character encoding, this is A B
+C D E F G H I J K L M N O P Q R S T U V W X Y Z.
+
+### `[:xdigit:]`
+
+Hexadecimal digits: 0 1 2 3 4 5 6 7 8 9 A B C D E F a b c d e f.
+
+###
+## collating symbol
+
+Sequence of characters that should be treated as a unit.
+It consists of the characters bracketed by `[.` and `].`.
+It must appear inside the square brackets of a bracket expression.
+
+---
+
+Example:
+
+When  matching or  sorting string  data  in the  czech locale,  the sequence  of
+characters ‘ch’ must be treated as a single character:
+
+    $ sudo locale-gen cs_CZ.UTF-8
+    $ LC_ALL=cs_CZ.UTF-8 grep '^[[.ch.]]o$' <<<'cho'
+    cho~
+
+It comes after ‘h’ but before ‘i’:
+
+    $ LC_ALL=cs_CZ.UTF-8 grep '^[h-i]o$' <<<'cho'
+    cho~
+
+See here for more info:
+<https://unix.stackexchange.com/questions/254811/what-does-ch-mean-in-a-regex>
+
+---
+
+Here's how the book ‘Sed & Awk’ introduces the concept of collation:
+
+> Additionally, the standard provides for sequences of characters that should be
+> treated as a single unit when matching and collating (sorting) string data.
+> POSIX also changed what had been common terminology.
+> What we've been calling a "character  class" is called a "bracket expression" in
+> the POSIX standard.
+
+Page 56 of the pdf.
+
 ## constant
 
 There are 3 kinds of constants:
@@ -144,6 +262,12 @@ A string can contain the following escape sequences:
     ├───────┼──────────────────────────────────┤
     │  \"   │ literal double quote             │
     └───────┴──────────────────────────────────┘
+
+## equivalence class
+
+Set of characters that should be considered equivalent, such as e and è.
+It consists of a named element from the locale, bracketed by `[=` and `=]`.
+It must appear inside the square brackets of a bracket expression.
 
 ## evaluation
 

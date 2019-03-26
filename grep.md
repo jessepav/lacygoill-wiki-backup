@@ -1,6 +1,51 @@
-La commande grep tient son nom de la façon dont était documentée la commande (Ex) globale (:g) dans l'éditeur de texte ex
-(extended line editor):    :g/re/p = globally (g) print (p) lines containing a regular expression (re)
-:p était la commande Ex servant à imprimer des lignes de texte (:.,+25p = imprimer de la ligne courante jusqu'à la 25e ligne suivante).
+# ?
+
+Document `-c`:
+
+> -c, --count
+>        Suppress  normal output; instead print a count of matching lines
+>        for each input file.  With the -v,  --invert-match  option  (see
+>        below), count non-matching lines.
+
+So, it seems that this is an anti-pattern:
+
+    $ grep pat file | wc -l
+
+Instead, you should run:
+
+    $ grep -c pat file
+
+# ?
+
+Document that the metacharacters `[]` can  be used to express a character class,
+not only in a *grep* pattern, but also in a shell *file* pattern:
+
+    $ touch file{1..5}
+    $ echo 'pat' | tee file{2..4}
+    $ grep pat file[24]
+    file2:pat~
+    file4:pat~
+
+---
+
+Also document  that you can't  include a closing  square bracket in  a character
+class by escaping it.
+You have to put it in first position:
+
+    # ✘
+    $ grep '[a\]b]' file
+
+    # ✔
+    $ grep '[]ab]' file
+             ^
+
+And if the character class is reversed, put it in second position:
+
+    # ✔
+    $ grep '[^]ab]' file
+              ^
+
+# ?
 
     grep -o pattern file        N'afficher que le pattern trouvé, autant de fois qu'il y a de matchs
                                 et à chaque fois sur une ligne différente.
@@ -41,3 +86,4 @@ Add [] to the first letter. Ex: sshd -> [s]shd
 
 Colour in red {bash} and keep all other lines
     ps aux | grep -E --color 'bash|$'
+

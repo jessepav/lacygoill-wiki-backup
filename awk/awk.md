@@ -200,6 +200,33 @@ In awk, it does no such things:
     0~
 
 ##
+# Regex
+## Which syntax (BRE, ERE, ...) can I use in a regex?
+
+Gawk only recognizes a superset of the ERE syntax.
+
+## How are the metacharacters `^` and `$` interpreted in the middle of a pattern?
+
+Specially:
+
+    $ awk '/ ^ /' <<<'a ^ b'
+    ''~
+
+To match a literal `^` in an awk pattern, you need to backslash it:
+    ~
+    $ awk '/ \^ /' <<<'a ^ b'
+    a ^ b~
+
+From this point of view, awk is different than Vim.
+
+---
+
+OTOH, sed interprets `^` and `$` literally even in the middle of a pattern:
+
+    $ sed 's/ ^ /X/' <<<'a ^ b'
+    aXb~
+
+##
 # ?
 
 For which operators may a strnum data need a dummy concatenation or `+ 0`?
@@ -2256,23 +2283,23 @@ GQPSC ANCA EB E
 
 ### What are they?
 
-    ┌────────┬─────────────────────────┐
-    │ ()     │ Grouping + capture      │
-    │ ?      │ Question mark           │
-    │ +      │ Plus                    │
-    │ *      │ Star                    │
-    │        │ Concatenation           │
-    │        │                         │
-    │ |      │ Alternation             │
-    │ [^abc] │ Negated character class │
-    │ [abc]  │ Character class         │
-    │ .      │ Any character           │
-    │        │                         │
-    │ $      │ End of string           │
-    │ ^      │ Beginning of string     │
-    │        │                         │
-    │ \c     │ Escape sequence         │
-    └────────┴─────────────────────────┘
+    ┌────────┬─────────────────────────────────┐
+    │ ()     │ Grouping + capture              │
+    │ ?      │ Question mark                   │
+    │ +      │ Plus                            │
+    │ *      │ Star                            │
+    │        │ Concatenation                   │
+    │        │                                 │
+    │ |      │ Alternation                     │
+    │ [^abc] │ Complemented bracket expression │
+    │ [abc]  │ Bracket Expression              │
+    │ .      │ Any character                   │
+    │        │                                 │
+    │ $      │ End of string                   │
+    │ ^      │ Beginning of string             │
+    │        │                                 │
+    │ \c     │ Escape sequence                 │
+    └────────┴─────────────────────────────────┘
 
 The order was found in the book `The AWK Programming Language`, appendix A, page
 191 of the book.
@@ -4351,7 +4378,7 @@ Inverse (au sens logique) / Incrémente la valeur du 1er champ.
 
 ##
 # Todo
-## idea of infrastructure
+## Idea of infrastructure
 
 At  the  root of  every  wiki,  you  should have  a  file  which lists  all  the
 examples/exercises.
@@ -4442,20 +4469,6 @@ to better understand how gawk handles the coercion with relational operators.
 
 The first time we read our first awk book,  we stopped at the page 84 of the pdf
 (72 in the original book).
-
-## Explain the concept of collating element.
-
-<https://unix.stackexchange.com/questions/254811/what-does-ch-mean-in-a-regex>
-
-In the  answer, to test  one of  the mentioned command,  you need to  generate a
-czech locale (there's none by default):
-
-    $ sudo locale-gen cs_CZ.UTF-8
-
-After that, you'll be able to run:
-
-    $ echo cho | LC_ALL=cs_CZ.UTF-8 grep '^[h-i]o'
-    cho~
 
 ## Read: <http://www.awklang.org/>
 
