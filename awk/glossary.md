@@ -369,6 +369,11 @@ Its contents are dynamic; they change after every statement in the sed script.
 So, a previous command may have an impact on the next one.
 See our pitfall about replacing `three` with `two`, and `two` with `one`.
 
+As soon as all  the commands have been applied to the  pattern space, the latter
+is written on sed's standard output.
+Then,  the next  input line  is copied  in the  pattern space,  and the  process
+repeats itself.
+
 ##
 # r
 ## record

@@ -4378,6 +4378,25 @@ Inverse (au sens logique) / Incrémente la valeur du 1er champ.
 
 ##
 # Todo
+## Study how to write manpages
+
+It's explained in the Appendix A of the "Classic Shell Scripting" book.
+To check the formatting of a manual page, run:
+
+    $ groff -man -Tascii program.man
+
+To install a manpage, move your `program.man` file in `~/share/man/man1/`.
+Optionally, compress it with `gzip` in `~/share/man/cat1/`.
+
+Why does `$ man` look into `~/share/man` even though it's not in `$MANPATH`?
+
+    https://askubuntu.com/a/244810/867754
+    https://askubuntu.com/a/633924/867754
+    man 1 manpath
+    man 5 manpath
+
+Anyway, version control `~/share/man`.
+
 ## Idea of infrastructure
 
 At  the  root of  every  wiki,  you  should have  a  file  which lists  all  the

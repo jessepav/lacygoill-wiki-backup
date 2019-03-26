@@ -201,7 +201,7 @@ print anything unless you explicitly use `print(f)`.
 ##
 ## How to print the first and last line of each of the two files?
 
-    $ sed -ns '1p ; $p' /tmp/file1 /tmp/file2
+    $ sed -ns '1p; $p' /tmp/file1 /tmp/file2
     foo~
     baz~
     spam~
@@ -209,7 +209,7 @@ print anything unless you explicitly use `print(f)`.
 
 ### What's the output of the next command?
 
-    $ sed -n '1p ; $p' /tmp/file1 /tmp/file2
+    $ sed -n '1p; $p' /tmp/file1 /tmp/file2
 ↣
     foo~
     eggs~
@@ -235,6 +235,88 @@ There may be other reasons, but if it  did the reverse, when used in a pipeline,
 the sed command would block all the following commands.
 Indeed,  sed would  have to  wait for  the previous  command to  send *all*  its
 output, before being able to process the second statement of the script.
+
+# What happens if, in the second address of a range, I use a regex which doesn't match any input line?
+
+If the  first address matches a  line, the sed  command will operate on  all the
+lines between this line and the last one.
+
+    $ sed -n '1,/bar/p' <<<$'foo\nbar\nbaz\n'
+    foo~
+    bar~
+
+    $ sed -n '1,/not_found/p' <<<$'foo\nbar\nbaz\n'
+    foo~
+    bar~
+    baz~
+
+This differs from Vim, where the same command would bail out:
+
+    :new
+    :call setline(1, ['foo', 'bar', 'baz'])
+    :1,/not_found/p
+    E486: Pattern not found: not_found~
+
+Explanation:
+
+Contrary to Vim which can see a file  in its entirety, sed has no way of looking
+ahead to determine  if the second match  will be made, because  it iterates over
+the input lines first.
+As soon as  an input line matches  the first address, the command  is applied to
+*all* lines, until another line matches the second address (if any).
+
+##
+# How to reverse the meaning of an address/range?
+
+Prefix it with a bang:
+
+    $ sed -n '/foo/,/bar/p' <<<$'one\nfoo\nbar\ntwo\n'
+    foo~
+    bar~
+                         v
+    $ sed -n '/foo/,/bar/!p' <<<$'one\nfoo\nbar\ntwo\n'
+    one~
+    two~
+
+# How to nest ranges? i.e. How to operate on lines matching a specified range inside another specified range?
+
+Write the first range, then use curly braces to surround the command prefixed by
+the second range.
+
+In the following example, we use this syntax to remove *some* empty lines:
+
+    $ cat <<'EOF' >/tmp/file
+    Here, there can be
+
+    empty lines.
+
+    There should be
+
+    no empty lines
+
+    in this block.
+
+    Here, there can also be
+
+    empty lines.
+    EOF
+
+    $ sed '/^There/,/^in/ {/^$/d}' /tmp/file
+    Here, there can be~
+    ~
+    empty lines.~
+    ~
+    There should be~
+    no empty lines~
+    in this block.~
+    ~
+    Here, there can also be~
+    ~
+    empty lines.~
+
+Note that you could write several commands inside the curly braces.
+They would all  be limited to their  respective range *and* to  the range before
+the curly braces.
 
 ##
 # Regex
@@ -407,7 +489,6 @@ Ces termes sont importants pour comprendre le fonctionnement de base de sed:
    4. il passe à la 2e ligne de `input`, et répète les mêmes opérations jusqu'à
       la fin de `input`
 
-##
 # Commandes
 
     $ sed '' file
@@ -447,46 +528,9 @@ Affiche 2 fois chaque ligne de `file`:
 
 ---
 
-    $ sed -n '1,4p' file
-
-Affiche les 4 premières lignes de `file`.
-
----
-
-    $ sed -n '$i'p foo
-
-Extraire la i-ème ligne de foo
-
----
-
-    $ sed 's/day/night/g' file.txt
-
-Replace all occurrences of "day" with "night" and write to stdout.
-
----
-
-    $ sed -i 's/day/night/g' file.txt
-
-Replace all occurrences of "day" with "night" within file.txt.
-
----
-
-    $ sed 's/day/night/g' <<<'It is daytime'
-    It is nighttime~
-
-Replace all occurrences of "day" with "night" on stdin.
-
----
-
-    $ sed -i -r 's/^\s+//g' file.txt
+    $ sed -i -E 's/^\s+//g' file.txt
 
 Remove leading spaces.
-
----
-
-    $ sed '/^$/d' file.txt
-
-Remove empty lines and print results to stdout.
 
 ---
 
@@ -494,7 +538,6 @@ Remove empty lines and print results to stdout.
 
 Replace newlines in multiple lines.
 
-##
 # Resources
 
 Errata for sed & awk: <https://www.oreilly.com/catalog/errata.csp?isbn=9781565922259>
