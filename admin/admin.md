@@ -344,8 +344,12 @@ Or:
 # Appearance
 ## Where to get information about XFCE?
 
-        https://docs.xfce.org/start
-        https://wiki.xfce.org/faq
+<https://docs.xfce.org/start>
+<https://wiki.xfce.org/faq>
+
+## How to change the cursor theme?
+
+See `~/.icons/README.md`.
 
 ## How to have pretty icons (paper icons, flat-design)?
 

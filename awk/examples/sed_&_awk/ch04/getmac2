@@ -1,5 +1,6 @@
-#! /bin/sh
+#!/bin/bash
 # getmac - read macro definition for $1 from package $2
+
 file=/usr/lib/macros/mmt
 mac="$1"
 case $2 in

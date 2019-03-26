@@ -111,9 +111,7 @@ than:
 
         /foo\/bar
 
-# Can `.\{-}` always replace the complement of a collection?
-
-No.
+# When can I use `.\{-}`  to replace the complement of a collection?
 
 `a.\{-}b` can replace `a[^b]*b`.
 But that's probably the only case.
@@ -143,6 +141,12 @@ This one will:
 
         " ✔
         ([^)]*z[^)]*)
+
+IOW, `.\{-}` can be used to express sth like “the text between the pattern A and
+the *next* B”.
+But, it can't  be used to express sth  like “the text between the  pattern A and
+the *next* B with a pattern C in the middle”.
+For that, you need a complemented bracket expression.
 
 ##
 # Glossary

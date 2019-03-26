@@ -349,11 +349,15 @@ While  `:sort`  has  several  flags  for  sorting  on  various  numbers,  and  a
 
 ## colorizer
 
-            A Vim plugin to colorize all text in the form #rrggbb or #rgb.
+A Vim plugin to colorize all text in the form #rrggbb or #rgb.
 
-            https://github.com/lilydjwg/colorizer
+<https://github.com/lilydjwg/colorizer>:407 sloc
 
-                                    407 sloc
+Alternative:
+<https://github.com/RRethy/vim-hexokinase>:263 sloc
+
+This plugin is interesting to study how to use `nvim_buf_set_virtual_text()` and
+`nvim_buf_clear_namespace()` in Neovim, and the signs in Vim.
 
 ## committia
 

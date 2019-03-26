@@ -359,6 +359,17 @@ Awk doesn't print anything on its output  by default; you have to use `print` or
 `printf` for awk to have an output.
 
 ##
+# p
+## pattern space
+
+Temporary buffer  where a  single line of  input is held  while the  sed editing
+commands are applied.
+
+Its contents are dynamic; they change after every statement in the sed script.
+So, a previous command may have an impact on the next one.
+See our pitfall about replacing `three` with `two`, and `two` with `one`.
+
+##
 # r
 ## record
 

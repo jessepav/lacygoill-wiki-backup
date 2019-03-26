@@ -1310,3 +1310,21 @@ So, to be even more thorough, you can execute:
         $ strace -o log -e trace=open,openat,creat -f cmd
                                                    ^^
 
+##
+# Todo
+## Document how to start a job which doesn't stop when we clos the shell.
+
+I had this alias in the past:
+
+    alias dropbox_restart='killall dropbox; ( "${HOME}/.dropbox-dist/dropboxd" & )'
+
+The reason  why I started  dropbox from  a subshell was  to avoid the  job being
+terminated when we left the shell from which we ran the alias.
+When we start a job from a  subshell, it seems that it's immediately re-parented
+to the session leader (here it was `upstart`).
+
+Make sure it's true.
+Check whether  there're other ways to  start a job which  persists after leaving
+the shell (`nohup`, `&!`, ...).
+Which way is the more reliable?
+

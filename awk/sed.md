@@ -107,11 +107,15 @@ IOW, sed commands are implicitly global.
 In contrast,  a Vim  Ex command, like  `:s`, applies to  the current  line; i.e.
 wherever the cursor is currently.
 
-# What's the major difference of purpose of a range in a sed command vs in a Vim Ex command?
+# What's the main difference between sed commands and Vim Ex commands with the same name (`s`, `d`, ...)?
+
+In Vim, by default, most Ex commands apply only to the current line.
+In sed, by default, commands apply to *all* input lines.
 
 In Vim, you use  addressing to *expand* the number of lines  that are the object
-of a  command; in  sed, you  use addressing  to *restrict*  the number  of lines
-affected by a command.
+of a command.
+In sed,  you use  addressing to  *restrict* the  number of  lines affected  by a
+command.
 
 ##
 # When do I need the `-e` option?
@@ -225,6 +229,14 @@ Use sed's `-n` option and the `p` flag of the `s` command:
           ^^             ^
 
 ##
+# Why does sed iterate over the input lines before iterating over the script statements?
+
+There may be other reasons, but if it  did the reverse, when used in a pipeline,
+the sed command would block all the following commands.
+Indeed,  sed would  have to  wait for  the previous  command to  send *all*  its
+output, before being able to process the second statement of the script.
+
+##
 # Regex
 ## How to enable the ERE syntax?
 
@@ -332,8 +344,42 @@ Save it in a variable:
 
 And use it in your `s` command like so:
 
-    $ sed "s${A}/bar/${A}${A}" <<<'foo /bar/ baz'
+    $ sed "s${A}/bar/${A}${A}" <<<'foo /bar/ baz'
     foo  baz~
+
+## I need to replace `three` with `two` and `two` with `one`.  It fails: the output contains only `one`!
+
+Your input text is `two three two three`, and you want the output `one two one two`.
+
+You try:
+
+    $ sed 's/three/two/g; s/two/one/g' <<<'two three two three'
+    one one one one~
+
+The issue is that after the  first substitution, you can't distinguish between a
+`two` which was there  originally in the input, and a  `two` which have appeared
+as a result of the previous edit.
+And the next substitution command wants  to replace *only* the `two`s which were
+there originally.
+
+Solution:
+
+Reverse the order of the substitutions:
+
+    $ sed 's/two/one/g; s/three/two/g' <<<'two three two three'
+    one two one two~
+
+Remember:
+
+When  some text  is used  in  the pattern  *and*  in the  replacement fields  of
+substitutions, make sure  to run the substitution where the  text appears in the
+pattern field first.
+
+Otherwise, you'll encounter this unexpected chain of substitutions:
+
+    three → two → one
+
+Reversing the order “breaks” the chain.
 
 ##
 ##
