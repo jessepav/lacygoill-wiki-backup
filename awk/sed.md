@@ -317,6 +317,25 @@ To match a literal `^` in an awk pattern, you need to backslash it:
     a ^ b~
 
 ##
+# Pitfalls
+## A pattern input by the user is unpredictable. How to avoid a conflict with the delimiter of a `s` command?
+
+Use a literal ‘C-a’ for the delimiter.
+
+To generate one, use this command:
+
+    $ tr 'x' '\001' <<<'x'
+
+Save it in a variable:
+
+    $ A="$(tr 'x' '\001' <<<'x')"
+
+And use it in your `s` command like so:
+
+    $ sed "s${A}/bar/${A}${A}" <<<'foo /bar/ baz'
+    foo  baz~
+
+##
 ##
 # Voca
 
