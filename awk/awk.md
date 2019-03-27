@@ -4397,6 +4397,9 @@ Why does `$ man` look into `~/share/man` even though it's not in `$MANPATH`?
 
 Anyway, version control `~/share/man`.
 
+Also, if you want to draw table in a manpage, you probably need to read `$ man tbl`.
+For pictures and equations, see also `$ man pic` and `$ man eqn`.
+
 ## Idea of infrastructure
 
 At  the  root of  every  wiki,  you  should have  a  file  which lists  all  the

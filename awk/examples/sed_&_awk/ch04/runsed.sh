@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Purpose: Run a sed script on a set of input files.{{{
+#
+# A backup of each file is made before the script edits it in-place.
+#
+# You can restore a file by running `$ mv file.bak file`.
+#}}}
+# Usage:
+#     $ runsed.sh script.sed file ...
+
 SCRIPT="$1"
 EXT="${SCRIPT##*.}"
 
@@ -19,7 +28,18 @@ for file in "$@"; do
   printf -- 'editing %s: \n' "${file}"
   # `-s file`: True if file exists and has a size greater than zero.
   if [[ -s "${file}" ]]; then
-    # Note the usage of `$$` as a suffix to create a unique temporary file name.
+    # Note the usage of `$$` as a suffix to create a unique temporary file name.{{{
+    #
+    # It's not  really reliable though,  because a file named  `file12345` could
+    # already  exist in  the  directory, in  which case  the  next command  will
+    # overwrite it.
+    #}}}
+    # This command assumes that your script begins with a shebang `/usr/bin/sed -f`.{{{
+    #
+    # If it doesn't, you will have to replace the command with:
+    #
+    #     sed -f "${SCRIPT}" "${file}" >"/tmp/${file}$$"
+    #}}}
     "${SCRIPT}" "${file}" >"/tmp/${file}$$"
     if [[ ! -s "/tmp/${file}$$" ]]; then
       printf -- '  Sed produced an empty file\n'
