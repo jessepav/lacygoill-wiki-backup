@@ -752,7 +752,7 @@ terminal, not in a Vim buffer.
 And if it's long, you may need to scroll back (tmux copy-mode), to see the exact
 shell command which was executed at the beginning.
 
-## I've executed `:4verb cexpr system('grep -RHIinos pat *')`, and I have the same issue!
+## I've executed `:4verb cexpr system('grep -RHIins pat *')`, and I have the same issue!
 
 Press `j` then `k`.
 
@@ -772,7 +772,7 @@ MWE:
             filetype plugin indent on
 
         $ vim -Nu /tmp/vimrc
-        :4verb cexpr system('grep -RHIinos pat *')
+        :4verb cexpr system('grep -RHIins pat *')
 
 #
 #

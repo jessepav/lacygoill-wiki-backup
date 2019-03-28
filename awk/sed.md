@@ -143,6 +143,98 @@ Provide a file extension to `-i`:
 This will create `file.bak` which will contain the original contents of `file`.
 
 ##
+# Regex
+## How to enable the ERE syntax?
+
+Use the `-E` option (same thing for grep).
+
+## In which syntax (BRE vs ERE) can I write `\<` and `\>`?
+
+Both.
+
+`\<` and `\>` are not influenced by the syntax of the regex.
+They're  always interpreted  the same  way,  as anchors,  regardless of  whether
+they're backslashed.
+
+## What are the differences between BRE and the magic mode in Vim?
+
+In sed, the equivalent of the Vim's quantifier `\{n,m}` needs two backslashes:
+
+    \{n,m\}
+         ^
+
+But in practice, Vim understands `\{n,m\}` too.
+
+---
+
+In Vim (like in  awk) you can include a closing square  bracket inside a bracket
+expression by escaping it with a backslash:
+bracket expression
+
+    [a\]1]
+
+This regex will match `a` or `]` or `1`.
+
+But it won't work in sed, nor in grep.
+
+##
+## How to include an opening bracket in a bracket expression?
+
+Just write it.
+
+There's no need to backslash it or  put it in a special position, because inside
+a bracket expression, all characters lose their special meaning; except:
+
+   - `-`
+   - `\`
+   - `]`
+   - `^`
+
+### How about a closing bracket?
+
+Make sure the closing bracket is at the start of the expression, and unescaped:
+
+    []ab]
+     ^
+
+This regex will match `]` or `a` or `b`.
+
+---
+
+If the bracket expression is reversed, put it in second position:
+
+    $ sed '[^]ab]' file
+             ^
+
+This regex will match any character which is *not* `]` or `a` or `b`.
+
+---
+
+Note that all of this also applies to grep, gawk and Vim.
+
+###
+## How are the metacharacters `^` and `$` interpreted in the middle of a pattern?
+
+Literally:
+
+    $ sed 's/ ^ /X/' <<<'a ^ b'
+    aXb~
+
+From this point of view, sed is similar to Vim.
+
+---
+
+OTOH, awk interprets `^` and `$` specially even in the middle of a pattern:
+
+    $ awk '/ ^ /' <<<'a ^ b'
+    ''~
+
+To match a literal `^` in an awk pattern, you need to backslash it:
+    ~
+    $ awk '/ \^ /' <<<'a ^ b'
+    a ^ b~
+
+##
 # Addressing
 ## Without any address, which line(s) is/are affected by a sed command, like `s`?
 
@@ -395,98 +487,6 @@ Use sed's `-n` option and the `p` flag of the `s` command:
           ^^             ^
 
 ##
-# Regex
-## How to enable the ERE syntax?
-
-Use the `-E` option (same thing for grep).
-
-## In which syntax (BRE vs ERE) can I write `\<` and `\>`?
-
-Both.
-
-`\<` and `\>` are not influenced by the syntax of the regex.
-They're  always interpreted  the same  way,  as anchors,  regardless of  whether
-they're backslashed.
-
-## What are the differences between BRE and the magic mode in Vim?
-
-In sed, the equivalent of the Vim's quantifier `\{n,m}` needs two backslashes:
-
-    \{n,m\}
-         ^
-
-But in practice, Vim understands `\{n,m\}` too.
-
----
-
-In Vim (like in  awk) you can include a closing square  bracket inside a bracket
-expression by escaping it with a backslash:
-bracket expression
-
-    [a\]1]
-
-This regex will match `a` or `]` or `1`.
-
-But it won't work in sed, nor in grep.
-
-##
-## How to include an opening bracket in a bracket expression?
-
-Just write it.
-
-There's no need to backslash it or  put it in a special position, because inside
-a bracket expression, all characters lose their special meaning; except:
-
-   - `-`
-   - `\`
-   - `]`
-   - `^`
-
-### How about a closing bracket?
-
-Make sure the closing bracket is at the start of the expression, and unescaped:
-
-    []ab]
-     ^
-
-This regex will match `]` or `a` or `b`.
-
----
-
-If the bracket expression is reversed, put it in second position:
-
-    $ sed '[^]ab]' file
-             ^
-
-This regex will match any character which is *not* `]` or `a` or `b`.
-
----
-
-Note that all of this also applies to grep, gawk and Vim.
-
-###
-## How are the metacharacters `^` and `$` interpreted in the middle of a pattern?
-
-Literally:
-
-    $ sed 's/ ^ /X/' <<<'a ^ b'
-    aXb~
-
-From this point of view, sed is similar to Vim.
-
----
-
-OTOH, awk interprets `^` and `$` specially even in the middle of a pattern:
-
-    $ awk '/ ^ /' <<<'a ^ b'
-    ''~
-
-To match a literal `^` in an awk pattern, you need to backslash it:
-    ~
-    $ awk '/ \^ /' <<<'a ^ b'
-    a ^ b~
-
-##
 # Substitution
 ## What are the five special sequences of characters in the replacement field?
 
@@ -580,6 +580,15 @@ By writing a backslash anywhere in the replacement field:
     c/' <<<'a pat d'
     a b~
     c d~
+
+##
+# Deletion
+## What does `d` do?  (2)
+
+It deletes the pattern space.
+
+It starts the next cycle immediately.
+IOW, the rest of the commands of the script are ignored.
 
 ##
 # Pitfalls

@@ -94,11 +94,11 @@ The path to the latter.
 
 Examples:
 
-    $ grep -RHIinos pat /etc | vim -q /dev/stdin
+    $ grep -RHIins pat /etc | vim -q /dev/stdin
     :echo &ef
     /dev/stdin~
 
-    $ grep -RHIinos pat /etc >/tmp/my_error_file ; vim -q /tmp/my_error_file
+    $ grep -RHIins pat /etc >/tmp/my_error_file ; vim -q /tmp/my_error_file
     :echo &ef
     /tmp/my_error_file~
 
@@ -688,17 +688,16 @@ The qf stack allows you to bind to each pattern a separate qfl.
 ##
 ## How to create a new qfl at the end of the stack?
 
-        call setqflist([], ' ', {'nr' : '$', 'lines' : systemlist('grep -RHIinos pat *')})
+        call setqflist([], ' ', {'nr' : '$', 'lines' : systemlist('grep -RHIins pat *')})
 
 ## What `$ grep` command should I execute to get an output that 'efm' can parse?
 
                    ┌ ignore case
                    │┌ print the number of the lines
                    ││
-                   ││┌ each match on a separate line
-                   │││┌ suppress error messages about nonexistent or unreadable files
-                   ││││
-        $ grep -RHIinos pat *
+                   ││┌ suppress error messages about nonexistent or unreadable files
+                   │││
+        $ grep -RHIins pat *
                 │││
                 ││└ ignore binary files
                 │└ print file names
@@ -710,12 +709,17 @@ format `'%f:%l:%m'` in the default value of `'efm'`.
 
 Otherwise, Vim will populate the qfl only with invalid entries.
 
+---
+
+If there're several matches on a single line, you'll get only one entry.
+If you want as many entries matches, you need to also include the `-o` option.
+However, doing so makes you lose context; you don't get the entire line, but just the match.
+
+---
 
 For a permanent usage, you can configure `'grepprg'` like this:
 
-        set grepprg=grep\ -RHIinos\ $*
-
-[Mnemonic][1] for `-RHIinos`?
+        set grepprg=grep\ -RHIins\ $*
 
 ##
 # Populate a qfl from the shell
@@ -733,19 +737,19 @@ I need to execute `$ exit`.
 
 ## How to look for all the lines matching `pat` in $PWD, and send them to a running Vim server?
 
-                                    ┌ don't use the options `-RHIinos`;
-                                    │ you don't know which program is started by `:grep`;
-                                    │ the options should be passed when setting 'grepprg'
-                                    │
-          $ vim --remote-send ':grep pat *<cr><cr>' --servername {name of the vim server}
-                                               │
-                                               └ bypass “press Enter” prompt
+                              ┌ don't use the options `-RHIins`;
+                              │ you don't know which program is started by `:grep`;
+                              │ the options should be passed when setting 'grepprg'
+                              │
+    $ vim --remote-send ':grep pat *<cr><cr>' --servername {name of the vim server}
+                                         │
+                                         └ bypass “press Enter” prompt
 
 Or:
 
-            $ nv -q 'grep -RHIinos pat *'
-              │
-              └ custom shell function
+    $ nv -q 'grep -RHIins pat *'
+      │
+      └ custom shell function
 
 ##
 # Limit the population of a qfl
@@ -1303,20 +1307,20 @@ You need to escape the bar.
 
 Otherwise, it will be parsed as a separation between two Vim commands:
 
-        :cgetexpr system('grep -RHIinos pat * \| grep -v garbage')
-                                              │
-                                              └ the bar needs to be escaped
+        :cgetexpr system('grep -RHIins pat * \| grep -v garbage')
+                                             │
+                                             └ the bar needs to be escaped
 
 ---
 
 This shouldn't happen because the bar is inside a string.
 Besides, it's inconsistent with other similar commands:
 
-        :echo system('grep -RHIinos pat * | grep -v garbage')
+        :echo system('grep -RHIins pat * | grep -v garbage')
 
         :echo expand('`... | ...`')
 
-        :e `=system('grep -RHIinos pat * | tail -1 | cut -d: -f1')`
+        :e `=system('grep -RHIins pat * | tail -1 | cut -d: -f1')`
 
 ---
 
@@ -1324,9 +1328,9 @@ Note that the issue disappears if `:cexpr` doesn't see the bar directly.
 It  happens, for  example, if  the output  of `system()`  is first  stored in  a
 variable:
 
-                                               no need of escaping the bar
-        " ✔                                    v
-        :let var = system('grep -RHIinos pat * | grep -v garbage')
+                                              no need of escaping the bar
+        " ✔                                   v
+        :let var = system('grep -RHIins pat * | grep -v garbage')
         :cexpr var
 
 ## Why do commands populating the qfl progressively (:vimgrepadd, :caddexpr, ...) sometimes fail?
@@ -1673,7 +1677,3 @@ get back to the previous one.
 Issue:
 You'll need to find an event fired by `:Gpush`, but I can't find one.
 
-##
-# Reference
-
-[1]: https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Diceros_bicornis.jpg/1920px-Diceros_bicornis.jpg

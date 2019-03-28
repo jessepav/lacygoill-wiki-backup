@@ -188,6 +188,7 @@ There are 3 kinds of constants:
    - numeric
    - regex (`/pat/`)
 
+##
 ## control flow
 
 Order  in which  individual statements,  instructions  or function  calls of  an
@@ -213,6 +214,12 @@ Here are a few categories of control flow statements:
    - alternatives (if, if–else,  switch, ...)
    - loops (while, do–while, for, ...)
    - exception handling constructions (try–catch,  ...)
+
+##
+## cycle
+
+Application of all commands in a sed script to an input line in the pattern space.
+There are as many cycles as there are input lines passed to the sed process.
 
 ##
 # d

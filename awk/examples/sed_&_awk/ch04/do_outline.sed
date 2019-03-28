@@ -14,7 +14,7 @@
 #     /usr/bin/sed: couldn't open file n: No such file or directory~
 #
 # Bottom line: The short  form of options must be concatenated  and `-f` must be
-# at the end:
+# at the end.
 #}}}
 
 s/"//g
