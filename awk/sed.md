@@ -1,3 +1,6 @@
+
+    $ sed '' <<<''
+
 # Installation
 
 Go to <https://www.gnu.org/software/sed/>  to find a url to  download the latest
@@ -485,18 +488,20 @@ To match a literal `^` in an awk pattern, you need to backslash it:
 
 ##
 # Substitution
-## What are the six special sequences of characters in the replacement field?
+## What are the five special sequences of characters in the replacement field?
 
     ┌──────────┬─────────────────────────────────────────────────────────────────────────┐
     │ \1 .. \9 │ references to the portion of the match contained between the n-th \( \) │
     ├──────────┼─────────────────────────────────────────────────────────────────────────┤
     │ &        │ reference to the whole match                                            │
     ├──────────┼─────────────────────────────────────────────────────────────────────────┤
-    │ \u       │ turn the next character to uppercase                                    │
-    │ \l       │                            lowercase                                    │
+    │ \l       │ turn the next character to lowercase                                    │
+    │ \u       │                            uppercase                                    │
     ├──────────┼─────────────────────────────────────────────────────────────────────────┤
-    │ \U       │ turn the next characters to uppercase until a \L or \E                  │
-    │ \L       │                             lowercase until a \U or \E                  │
+    │ \L       │ turn the next characterS to lowercase until a \U or \E                  │
+    │ \U       │                             uppercase until a \L or \E                  │
+    ├──────────┼─────────────────────────────────────────────────────────────────────────┤
+    │ \E       │ stop case conversion started by \L or \U                                │
     └──────────┴─────────────────────────────────────────────────────────────────────────┘
 
 ##
@@ -561,6 +566,20 @@ Do the same as before, and add the `g` flag:
 ### What happened?
 
 When sed finds an empty regex, it uses the previous one which matched some text.
+
+##
+## When can a substitution command be broken on multiple lines?
+
+When its replacement field contains a newline.
+
+### How?
+
+By writing a backslash anywhere in the replacement field:
+
+    $ sed 's/pat/b\
+    c/' <<<'a pat d'
+    a b~
+    c d~
 
 ##
 # Pitfalls
