@@ -1146,34 +1146,11 @@ the `BufReadPost` or `BufNew` event:
 
 ## I have an `:echom` in one of my filetype plugin.  No message is printed nor logged!
 
+That's because of `shortmess+=F`.
+
 Use `:unsilent`:
 
         :unsilent echom 'your message'
-
-I think that any command executed by an autocmd listening to `Filetype` or
-`Syntax`, is executed silently.
-
----
-
-The filetype plugins are sourced by this statement in `$VIMRUNTIME/ftplugin.vim:31`:
-
-        exe 'runtime! ftplugin/' . name . '.vim ftplugin/' . name . '_*.vim ftplugin/' . name . '/*.vim'
-
-But the issue is not with `:runtime`.
-`:echom` works just fine from a filetype plugin if you source it manually with `:ru`:
-
-        $ echo 'echom "hello from".expand("<sfile>:p")'>>~/.vim/plugged/potion/ftplugin/potion.vim
-        $ vim
-        :ru ftplugin/potion.vim
-
-The issue comes really from the `Filetype` (and `Syntax`) event:
-
-        " silent
-        au FileType    potion source some_file
-                                     │
-                                     └ file containing an `:echo[m]` statement
-        " not silent
-        au BufWinEnter *      source some_file
 
 ## The default filetype plugin 'foo' sources the filetype plugin 'bar' (with `:ru`).  I don't want that!
 

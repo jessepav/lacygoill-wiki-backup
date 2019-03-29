@@ -111,7 +111,7 @@ Because of two things:
       for numbers first, and when it encounters an input number, returns the
       latter without transformation.
 
-      <https://unix.stackexchange.com/a/503139/289772>
+<https://unix.stackexchange.com/a/503139/289772>
 
 ## How to make `strtonum()` treat `0123` as an octal number then?
 

@@ -41,6 +41,8 @@ From `$ man tmux`, `/FORMATS`:
 
 ---
 
+<https://github.com/tmux/tmux/blob/master/example_tmux.conf>
+
 <http://man.openbsd.org/OpenBSD-current/man1/tmux.1>
 
 <https://github.com/tmux/tmux/wiki/FAQ>
