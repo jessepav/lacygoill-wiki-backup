@@ -28,9 +28,9 @@ In zsh no.
 
 To check yourself execute, in zsh:
 
-        % echo ${dirstack[@]}
-                 ^^^^^^^^
-                 capitalize the name in bash
+    % echo ${dirstack[@]}
+             ^^^^^^^^
+             capitalize the name in bash
 
 ##
 # How to push the cwd onto the stack without the cwd being altered?
