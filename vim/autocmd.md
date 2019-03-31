@@ -780,3 +780,19 @@ le flag `nested` juste avant la commande de A.  Exemple:
             Pratique pour tester des autocmds.
             Vim affiche des messages en temps réel, à chaque fois qu'il exécute une autocmd.
 
+##
+# TODO
+
+Document that you can use a regular pattern, and not just a file pattern, as the
+pattern of an autocmd.
+This allows you to use lookarounds:
+
+From `:h file-pattern`:
+
+> It is possible to use |pattern| items, but they may not work as expected,
+> because of the translation done for the above.
+
+See: <https://vi.stackexchange.com/a/19385/17449>
+
+    au BufNewFile  *\(_spec\)\@<!.rb  0r ~/vim/skeleton.rb
+

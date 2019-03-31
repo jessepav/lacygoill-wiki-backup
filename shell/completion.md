@@ -3,8 +3,6 @@
 Read `From  bash to  zsh` chapters  10, 15, and  maybe 13  (to learn  more about
 autoloadable functions).
 
-~/Dropbox/ebooks/Now/From_Bash_to_Zsh.pdf
-
 # ?
 
 select-prompt
@@ -716,46 +714,41 @@ Press `M-/`.
 
 ## As a command name?  Variable name?  Host name?  User name/named directory?
 
-        M-!
-        M-$
-        M-@
-        M-~
+    M-!
+    M-$
+    M-@
+    M-~
 
 ## Which kinds of command names does `M-!` consider?  In which order?
 
-        1. aliases
-        2. reserved words
-        3. shell functions
-        4. shell builtins
-        5. executable filenames
+   1. aliases
+   2. reserved words
+   3. shell functions
+   4. shell builtins
+   5. executable filenames
 
 ---
 
 If you wonder what's the difference between reserved words and shell builtins:
-
-        https://unix.stackexchange.com/a/267886/289772
+<https://unix.stackexchange.com/a/267886/289772>
 
 A shell builtin is a command, but a reserved word (or keyword) is not a command.
 A keyword can't be a command, because  it provides a construct which can include
 a command, and there can be only one command per “simple command”.
 
-        ┌ keyword
-        │  ┌ command
-        ├┐ ├─┐
-        if \ls >/dev/null; then; echo 'the `ls` command succeeded!'; fi
+    ┌ keyword
+    │  ┌ command
+    ├┐ ├─┐
+    if \ls >/dev/null; then; echo 'the `ls` command succeeded!'; fi
 
 ##
-
-        C-x ~
-        C-x $
-
 ## How to make the shell list command names? variable names? filenames? hostnames? usernames?
 
         C-x !
         C-x $
         C-x /
         C-x @
-        C-x ~
+        C-x ~ 
 
 ---
 
@@ -765,7 +758,7 @@ Note that these widgets don't work by default in zsh:
         M-$    C-x $
         M-/    C-x /
         M-@    C-x @
-        M-~    C-x ~
+        M-~    C-x ~ 
 
 They work  only if you install  some custom key bindings  invoking the functions
 `_bash_complete-word` and `_bash_list-choices`.
@@ -783,15 +776,15 @@ way to get smart completions.
 
 Example:
 
-        % echo C-d
-        suggests filenames~
+    % echo C-d
+    suggests filenames~
 
-        % aptitude C-d
-        suggests subcommands for `aptitude`~
+    % aptitude C-d
+    suggests subcommands for `aptitude`~
 
 ## What's the equivalent in bash?
 
-        Esc =
+    Esc =
 
 ## What's the difference between `b C-x ~` and `~b C-d` in zsh?
 

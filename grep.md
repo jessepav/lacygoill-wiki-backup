@@ -1,5 +1,15 @@
 # ?
 
+Document the fact that grep supports PCRE  (which is much more powerful than BRE
+and ERE), provided that you pass it the option `-P`.
+
+Note that PCRE is not fully compatible with Perl regexes:
+<https://en.wikipedia.org/wiki/Perl_Compatible_Regular_Expressions#Differences_from_Perl>
+
+Read our book about regexes to fully exploit Perl regexes.
+
+# ?
+
 Document `-c`:
 
 > -c, --count

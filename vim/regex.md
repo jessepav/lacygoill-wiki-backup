@@ -267,10 +267,10 @@ The regex will be affected by the buffer-local values of some options:
 
 Which may have unexpected results.
 
-## Are there any pitfalls I should be aware of when using the complement of a character class?
+## Are there any pitfalls I should be aware of when using the complement of a bracket expression?
 
 Is your complement preceded by an atom and a quantifier?
-If so,  make sure your character  class includes the  atom, or use `\@>`  on the
+If so, make sure your bracket expression  includes the atom, or use `\@>` on the
 previous atom.
 
 ---
@@ -496,21 +496,21 @@ lequel le moteur parse la regex.
 
 Quelques quantificateurs (:h /multi) :
 
-        ┌───────────────┬────────────────────────────────┐
-        │ *   ou {-}    │ 0 ou +  (greedy vs non-greedy) │
-        ├───────────────┼────────────────────────────────┤
-        │ +   ou {-1,}  │ 1 ou +  (")                    │
-        ├───────────────┼────────────────────────────────┤
-        │ ? = ou {-,1}  │ 0 ou 1  (")                    │
-        ├───────────────┼────────────────────────────────┤
-        │ {n,m}         │ n à m                          │
-        ├───────────────┼────────────────────────────────┤
-        │ {n}           │ exactement n                   │
-        ├───────────────┼────────────────────────────────┤
-        │ {n,} ou {-n,} │ n ou + (greedy vs non-greedy)  │
-        ├───────────────┼────────────────────────────────┤
-        │ {,m}          │ de 0 jusqu'à m                 │
-        └───────────────┴────────────────────────────────┘
+    ┌───────────────┬────────────────────────────────┐
+    │ *   ou {-}    │ 0 ou +  (greedy vs non-greedy) │
+    ├───────────────┼────────────────────────────────┤
+    │ +   ou {-1,}  │ 1 ou +  (")                    │
+    ├───────────────┼────────────────────────────────┤
+    │ ? = ou {-,1}  │ 0 ou 1  (")                    │
+    ├───────────────┼────────────────────────────────┤
+    │ {n,m}         │ n à m                          │
+    ├───────────────┼────────────────────────────────┤
+    │ {n}           │ exactement n                   │
+    ├───────────────┼────────────────────────────────┤
+    │ {n,} ou {-n,} │ n ou + (greedy vs non-greedy)  │
+    ├───────────────┼────────────────────────────────┤
+    │ {,m}          │ de 0 jusqu'à m                 │
+    └───────────────┴────────────────────────────────┘
 
 Quelques ancres/atomes ordinaires de largeur nulle (:h /zero-width) :
 
@@ -856,11 +856,10 @@ Quelques ancres/atomes ordinaires de largeur nulle (:h /zero-width) :
 
 # Atomes
 
-Une classe de caractères est une  collection de caractères ayant un point commun
-(lettres, chiffres…), regroupés à l'intérieur de crochets [].
+Une classe de caractères est une séquence d'échappement spéciale représentant un
+ensemble de caractères ayant un point commun (lettres, chiffres…).
 
-Un atome  est un  caractère ordinaire,  ou la notation  abrégée d'une  classe de
-caractères, ou une ancre.
+Un atome est un caractère ordinaire, ou une classe de caractères, ou une ancre.
 It's something that you can't break in two parts without changing its meaning.
 For example, you  can break `ab` in  two parts, because looking for  `ab` is the
 same as looking for `a` then for `b`.
@@ -953,7 +952,7 @@ Quelques classes (:h /character-classes) :
 
             Ensemble de caractères (collection).
             N'importe quel caractère présent à l'intérieur des [] comme si on les séparait par des OU.
-            Principe de construction des classes de caractères.
+            Principe de construction des expressions brackets.
 
             :h /collection pour + d'infos.
 
@@ -1091,7 +1090,7 @@ Quelques classes (:h /character-classes) :
             La classe des caractères de contrôle.
 
             Techniquement `[:cntrl:]` est un atome particulier, car il ne peut être utilisé qu'au
-            sein d'une collection.
+            sein d'une expression bracket.
 
             En effet, en-dehors de crochets, `[:cntrl:]` serait interprété comme un des caractères
             suivants:        `:`, `c`, `n`, `t`, `r`, `l`
