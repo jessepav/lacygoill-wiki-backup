@@ -1,4 +1,5 @@
-# What's the regex to find all sequences of two or more uppercase characters *not* followed by a comma?
+# What's the regex to find
+## all sequences of two or more uppercase characters *not* followed by a comma?
 
     \%(\u\{2,}\)\@>,\@!
                 ^^^
@@ -19,6 +20,43 @@ The regex will find `DEF` and `JKL`.
 This shows how the atom `\@>` can be useful.
 Here, without it, we would find `AB`, `DEF`, `GH` and `JKL`.
 `\@>` allows us to prevent the backtracking in `\{2,}`.
+
+## all commas outside a double-quoted string?
+
+    \%(^\%("[^"]*"\|[^"]\)*\)\@<=,
+       │                  │
+       │                  └ will repeat the strings, and the non-string characters
+       │
+       └ necessary; otherwise, the description could start from anywhere,
+         which would be too permissive, and all commas would be matched;
+         if you don't understand, remove it and remove `\@<=`: look at what's matched
+
+You can test the regex against this line:
+
+    0.12 , 0.15 , "this is a string" , "this is a string, with, many, commas,"
+
+The key  idea, is that  you can  uniquely describe a  comma outside a  string by
+expressing  the fact  that it's  preceded by  0 or  more alternation  of strings
+(`"[^"]*"`) and outside-of-strings (`[^"]`).
+This description  won't match  a comma  inside a string,  because there  will be
+half-a-string at the end:
+
+    0.12 , 0.15 , "this is a string" , "this is a string, with, many, commas,"
+                                       ^^^^^^^^^^^^^^^^^
+
+The underlined text is *not* a full  string so it won't be matched by `"[^"]*"`,
+and it's  not an  outside-of-string either,  so it won't  be matched  by `[^"]*`
+either.
+
+---
+
+The regex could be tweaked for parentheses:
+
+    \%(^\%(([^()]*)\|[^()]\)*\)\@<=,
+
+You can test this new regex against this line:
+
+    0.12 , 0.15 , (inside parentheses) , (inside parentheses, with, many, commas,)
 
 ##
 # When I use `\@<=` or `\@<!`, how far does the engine backtrack?

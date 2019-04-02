@@ -58,32 +58,32 @@ Not because of a dependency issue, but because of an error in the source code.
 
 ##
 # Command-line
-## In sed, like in awk and grep, how is the first positional argument interpreted without the `-f` option?
+## In sed, how is the first positional argument interpreted without the `-e`/`-f` options?
 
 As the script *code* to execute on the input:
 
-    $ awk [options] <script code> <input file> ...
-    $ sed [options] <script code> <input file> ...
+    $ sed [options] <pgm text> <input file> ...
 
 ---
 
-Note that the synopsis of grep looks the same:
+Note that the synopsis of awk and grep look the same:
 
+    $ awk [options] <pgm text> <input file> ...
     $ grep [options] <pattern> <input file> ...
 
-This choice of order between the script/pattern and the input data is due to the
-fact that the latter  is unpredictable; you can't know in  advance what the user
-will operate on (one file, two files, ...).
-If  the  input  came  before  the  script/pattern, there  would  be  no  way  to
+This choice of  order between the program/pattern  and the input data  is due to
+the fact that  the latter is unpredictable;  you can't know in  advance what the
+user will operate on (one file, two files, ...).
+If  the  input  came before  the  program/pattern,  there  would  be no  way  to
 distinguish  the  latter from  the  input,  unless you  define  it  as the  last
 argument, which seems to be awkward.
 
-### And with `-f`?
+### And with `-e` or `-f`?
 
 As an input file:
 
-    $ awk [options] -f <script file> <input file>
-    $ sed [options] -f <script file> <input file>
+    $ sed [options] -e <pgm file> <input file>
+    $ sed [options] -f <pgm file> <input file>
                     ├──────────────┘ ├──────────┘
                     │                └ positional argument
                     └ optional argument
@@ -96,7 +96,7 @@ before replacing it with the next input line (`n` command).
 
 ## What can't `-n` suppress?
 
-The printing of the text added by an `a`, `i` or `c` command.
+The printing of the text added by an `a`, `i`, `c`, `r`, `p` command.
 
 ##
 ## When do I need the `-e` option?
@@ -168,35 +168,53 @@ For example, you can't combine `-i` and `-e` like this: `-ie`.
 
 Instead of providing an extension to `-i`, you can provide a path.
 Inside, you must use the special character `*` as a placeholder to represent the
-name of the file.
+input file exactly as provided on the command-line.
 
     $ cat <<'EOF' >/tmp/file
-    foo
-    bar
-    baz
+    a
+    b
+    c
     EOF
 
     $ cd /tmp; mkdir dir 2>/dev/null; \
-      sed -i'dir/*.bak' 's/bar/XXX/' file
+      sed -i'dir/*.bak' 's/b/X/' file
                  ^
                  placeholder which will be expanded into `file`
 
+    $ cat /tmp/file
+    a~
+    X~
+    c~
+
     $ cat /tmp/dir/file.bak
-    foo~
-    bar~
-    baz~
+    a~
+    b~
+    c~
+
+---
+
+`*` can  also be used to  create a backup in  the current directory, but  with a
+given prefix instead of a given extension:
+
+    $ cd /tmp; sed -i'bak_*' 's/b/X/' file
+
+    $ cat /tmp/bak_file
+    a~
+    b~
+    c~
 
 #### Which pitfalls should I avoid?
 
-Do *not* use a full path for `file`:
+Remember that `*` is expanded into whatever input file you passed to sed, *as you wrote it*.
+
+So, this wouldn't work:
 
     $ cd /tmp; mkdir dir 2>/dev/null; \
       sed -i'dir/*.bak' 's/bar/XXX/' /tmp/file
     sed: cannot rename /tmp/file: No such file or directory~
 
-That's because `*` is expanded into whatever argument you wrote for the input file.
-Here, it's a  full path, so `*`  is expanded into `/tmp/file`, and  sed tries to
-create a backup in `dir/tmp/file.bak`, but `dir/tmp/` doesn't exist.
+Here, `*`  is expanded  into `/tmp/file`, and  sed tries to  create a  backup in
+`dir/tmp/file.bak`, but `dir/tmp/` doesn't exist.
 
 ---
 
@@ -211,6 +229,8 @@ long form of the option, `--in-place`.
 ## Which commands can *not* be terminated by a semicolon?
 
 `r`, `w`, `a`, `i`, `c`.
+
+Also, the `w` flag of the `s` command.
 
 ---
 
@@ -313,7 +333,7 @@ This regex will match `]` or `a` or `b`.
 
 ---
 
-If the bracket expression is reversed, put it in second position:
+If you write the complement of a bracket expression, put it in second position:
 
     $ sed '[^]ab]' file
              ^
@@ -333,10 +353,6 @@ Literally:
     aXb~
 
 From this point of view, sed is similar to Vim (but different from awk).
-
-I think that's because sed can only compare a regex to a line.
-And there's no beginning/end of line in the middle of a line.
-So, it wouldn't make sense for sed to interpret `^` and `$` specially.
 
 OTOH, awk *can* compare a regex to multi-line record...
 
@@ -475,21 +491,21 @@ determine whether the current input line matches a range:
    - if it does, go to next line and compare it to the end of the range
      if not, go to next line and compare it to the start of the range
 
-   - continue until the current input line; each time there's a match
+   - continue until the current input line; each time there's a match,
      reverse the comparison (start of range ↔ end of range)
 
-   - upon reaching the current input line, if sed is now comparing the line with
-     the start of the range, and it doesn't match, it's considered to be outside
-     the range; in *all* other cases, it's considered to be inside:
+Upon reaching the current input line, if  sed is now comparing the line with the
+start of  the range,  and it doesn't  match, it's considered  to be  outside the
+range; in *all* other cases, it's considered to be inside:
 
-       + if it's comparing the line with the start of the range and it matches,
-       the line is considered to be the first line in a new range
+   - if it's comparing the line with the start of the range and it matches, the
+     line is considered to be the first line in a new range
 
-       + if it's comparing the line with the end of the range and it matches,
-       the line is considered to be the last line in the current range
+   - if it's comparing the line with the end of the range and it matches, the
+     line is considered to be the last line in the current range
 
-       + if it's comparing the line with the end of the range and it does *not*
-       match, the line is considered to be in the middle of the current range
+   - if it's comparing the line with the end of the range and it does *not*
+     match, the line is considered to be in the middle of the current range
 
 ##
 ### What's the output of the next command?
@@ -641,7 +657,9 @@ Use the special symbol `$`:
 ##
 ## How to print the first and last line of each file in a set of files?
 
-    $ sed -ns '1p; $p' <(printf '%s\n' a b c) <(printf '%s\n' d e f)
+Use the `-s` option:
+
+    $ sed -n -s '1p; $p' <(printf '%s\n' a b c) <(printf '%s\n' d e f)
     a~
     c~
     d~
@@ -681,7 +699,7 @@ Use the `l` command.
 
 70
 
-    $ sed -n 'l; s//Escape/' <<<$'this is a very very very very very very long line with an \e character'
+    $ sed -n 'l' <<<$'this is a very very very very very very long line with an \e character'
     this is a very very very very very very long line with an \033 charac\~
     ter$~
 
@@ -689,14 +707,14 @@ Use the `l` command.
 
 Pass the numerical argument `10` to `l`:
 
-    $ sed -n 'l 10; s//Escape/' <<<$'this is an \e character'
+    $ sed -n 'l 10' <<<$'this is an \e character'
     this is a\~
     n \033 ch\~
     aracter$~
 
 Or use the `-l` shell option:
 
-    $ sed -l10 -n 'l; s//Escape/' <<<$'this is an \e character'
+    $ sed -l10 -n 'l' <<<$'this is an \e character'
     this is a\~
     n \033 ch\~
     aracter$~
@@ -705,8 +723,8 @@ Or use the `-l` shell option:
 
 Pass the value `0` to the `l` command or to the `-l` option:
 
-    $ sed -n 'l0; s//Escape/' <<<$'this is a very very very very very very long line with an \e character'
-    $ sed -l0 -n 'l; s//Escape/' <<<$'this is a very very very very very very long line with an \e character'
+    $ sed -n 'l0' <<<$'this is a very very very very very very long line with an \e character'
+    $ sed -l0 -n 'l' <<<$'this is a very very very very very very long line with an \e character'
     this is a very very very very very very long line with an \033 character$~
 
 ##
@@ -772,8 +790,9 @@ Use the `p` flag:
 
 ### write the pattern space?
 
-Use the `w` flag:
+Use the `w` flag and the path to a file:
 
+                                                  vvvvvvvvvvv
     $ printf '%s\n' 1 a 2 b | sed -n 's/[0-9]/[&]/w /tmp/file'
 
     $ cat file
@@ -795,7 +814,7 @@ Write the index of the occurrence in the flag field of the substitution command:
 
 ### all the occurrences beyond the `n`th occurrence of the pattern?
 
-Do the same as before, and add the `g` flag:
+In the flag field, combine the index `n` with the `g` flag:
 
                  vv
     $ sed 's/a/X/2g' <<<'a a a'
@@ -808,7 +827,8 @@ When its replacement field contains a newline.
 
 ### How?
 
-By prefixing the newline with a backslash to suppress its special meaning.
+By  prefixing the  newline  with a  backslash to  suppress  its special  meaning
+(command termination).
 
     $ sed 's/pat/b\
     c/' <<<'a pat d'
@@ -854,8 +874,8 @@ At the very end of the current cycle:
     appended~
     3~
 
-Notice that 2 is printed before `appended`, because `=` is run before the end of
-the cycle.
+Notice that  the address 2  is printed *before*  `appended`, because `=`  is run
+before the end of the cycle.
 
 ### When is it added if
 #### `a` or `i` is followed by `n`?
@@ -869,9 +889,9 @@ The added text is printed immediately, along the current pattern space.
     bb~
     cc~
 
-Notice that `appended` is printed *before* the line address of the next line.
-It's  printed  right after  `aa`;  both  are printed  because  of  `n` causes  a
-premature end of cycle.
+Notice that `appended` is printed *before* the line address of the next line (2).
+It's printed right  after `aa`; both are printed because  `n` causes a premature
+end of cycle.
 The relative position between `aa` and `appended` has nothing to do with how `n`
 auto-prints the pattern space; it has to do with the chosen command, `a`.
 Had you chosen `i` instead, `appended` would have preceded `aa`.
@@ -890,6 +910,8 @@ The added text is still printed:
 
     $ sed -e '1i inserted' -e 'd' <<<'x'
     inserted~
+
+This further indicates that the added text is not part of the pattern space.
 
 ###
 ### Is it printed if sed was invoked with `-n`?
@@ -925,6 +947,13 @@ The end of the cycle is reached, which auto-prints `bb`.
 
 There's no input line anymore, so there's no other cycle.
 
+---
+
+This shows that `n` desynchronizes the execution from the start of the code.
+Normally, when sed reaches the end of a cycle and start a new one, the execution
+jumps back to the  start of the code; but not when `n`  is executed: instead, it
+stays where it currently is.
+
 ###
 ## How to add *multiple* lines of text before/after an input line?  (2)
 
@@ -950,7 +979,9 @@ text except the last one.
 Prefer the first syntax, because:
 
    - the second one is considered an error by Vim's sed syntax plugin
-   - it's more readable (you clearly see where a line ends)
+
+   - it's more readable:
+     you clearly see where a line ends, and you're not wondering whether `\n` is translated
 
 ## What happens if I prefix the `a` or `i` commands with a range?
 
@@ -1002,7 +1033,7 @@ sed will concatenate the statements by adding newlines.
 
 ---
 
-You can  also use this trick  to separate the `a`,  `i` or `c` command  from the
+This trick  can also be used  to separate the `a`,  `i` or `c` command  from the
 first line of text, when using their  original syntax (the one where the command
 is immediately followed by a backslash):
 
@@ -1029,27 +1060,27 @@ of the newline (command termination).
 
 ### Why wasn't the substitution applied on the third line of the output?
 
-Because the line appended  by `a` is not added to the input  (nor to the pattern
+Because the line  appended by `a` is not  part of the input (nor  of the pattern
 space); it will  simply be output at the  end of the current cycle,  or when the
 next input line is read – with `n` – regardless of the presence of `-n`.
 While `s` operates on the third *input* line.
 
 ---
 
-More generally, addresses refer to input lines, not to the output.
+The same thing would happen if instead of adding text to the output, we removed text:
 
     $ seq 3 | sed -e '2d; 3s/./X/'
     1~
     X~
 
 Here, even though `d` removes a line,  which leaves us with only 2 output lines,
-
 `s` still  performs its substitution  on the third  input line; it  doesn't care
 about the output.
 
 ---
 
-IOW, sed commands may modify the output but have no effect on the input.
+More generally, I  think sed commands may  modify the output but  can't have any
+effect on the input.
 
 Rationale: It makes the code simpler.
 If you had to take into consideration the  change of address of a line caused by
@@ -1070,7 +1101,7 @@ Use the `c` command:
 
 Yes, for the same reason as `a` and `i`.
 
-    $ sed -ne 'c changed' <<<'x'
+    $ sed -n -e 'c changed' <<<'x'
     changed~
 
 ##
@@ -1112,7 +1143,6 @@ Notice that `=` was not run on the second line; otherwise 2 would be in the outp
     3~
 
 ##
-
 ## What happens if I prefix a `c` command with a range?
 
 `c` can operate on a range of lines, like `a` and `i`.
@@ -1139,9 +1169,9 @@ range.
 
 ### Why did `c` repeat its operation several times?
 
-This is a particular case.
-When `c` is inside  curly braces, and the latter is prefixed by  a range, `c` is
-repeated once for every line in the range.
+Probably because the range is processed by the block, not by `c`.
+And a block repeats its commands for each line in its range.
+So, in this case, the particular treatment of a `c` range doesn't apply.
 
 ####
 # Transliteration
@@ -1186,24 +1216,10 @@ Example:
     3~
     4~
 
-### When is it printed exactly?
-
-At the end of the current cycle:
-
-    $ sed -n -e 'r/etc/hostname' -e '=' <<<'x'
-    1~
-    ubuntu~
-
-Or when the next input line is read with `n`:
-
-    $ sed -n -e 'r/etc/hostname' -e 'n; =' <<<$'a\nb'
-    ubuntu~
-    2~
-
 ### How to import it after every line in a range?
 
 Prefix `r` with the appropriate range.
-The file will then be reread and appended after each of the addressed lines.
+The file will then be re-read and appended after each of the addressed lines.
 
     $ seq 5 | sed '2,3r /etc/hostname'
     1~
@@ -1215,11 +1231,37 @@ The file will then be reread and appended after each of the addressed lines.
     5~
 
 ##
+## When is run
+### a read command?
+
+At the end of the current cycle:
+
+    $ sed -n -e 'r /etc/hostname' -e '=' <<<'x'
+    1~
+    ubuntu~
+
+Or when the next input line is read with `n`:
+
+    $ sed -n -e 'r /etc/hostname' -e 'n; =' <<<$'a\nb'
+    ubuntu~
+    2~
+
+### a write command?
+
+Immediately :
+
+    $ sed -e 'w /tmp/file' -e 's/./Y/' <<<'x'
+    Y~
+
+    $ cat /tmp/file
+    x~
+
+##
 ## How to read the standard input, when the sed command has been passed a filename as argument?
 
 Use the special value `/dev/stdin`:
 
-    $ seq 3 | sed 'r/dev/stdin' /etc/hostname
+    $ seq 3 | sed 'r /dev/stdin' /etc/hostname
     ubuntu~
     1~
     2~
@@ -1245,15 +1287,15 @@ Use the `w` command to write any line matching `BUG`:
     4. this line has also a BUG
     EOF
 
-    $ sed -n -e '/BUG/ {s/this line//; w /tmp/bugs' -e '}' /tmp/file
+    $ sed -n -e '/BUG/w /tmp/bugs' /tmp/file
 
     $ cat /tmp/bugs
-    2.  has a BUG~
-    4.  has also a BUG~
+    2. this line has a BUG~
+    4. this line has also a BUG~
 
----
+### How to only extract a certain field?
 
-Note that you're not limited to whole lines, you can also extract a particular field:
+Use a substitution command before `w` to remove all the noise.
 
     $ cat <<'EOF' >/tmp/file
     Adams,     Henrietta  Northeast
@@ -1283,11 +1325,16 @@ Note that you're not limited to whole lines, you can also extract a particular f
     $ cat /tmp/.region.west
     Jeffries,  Jane~
 
+##
 ## How to write a file on the standard error?
 
 Use the special value of filename `/dev/stderr`.
 
-    $ seq 3 | sed -n 'w /dev/stderr' 2>/tmp/err
+    $ seq 3 | sed -n 'w /dev/stderr' >/tmp/out 2>/tmp/err
+
+    $ cat /tmp/out
+    ''~
+
     $ cat /tmp/err
     1~
     2~
@@ -1313,7 +1360,8 @@ When you use `-i`, `p` doesn't write on stdout, but on the file:
 In this case, if you still want to write on stdout, you need `w /dev/stdout`.
 
 ##
-## I use the same file to write the pattern space with the `w` command or the `w` flag of `s`.  What does it contain?
+## I use the same file to write the pattern space with several `w` (command or flag of `s`).
+### What will it contain in the end?
 
 Initially, the file is truncated, so whatever text it contained originally is lost.
 After that, all the written texts will be appended to the file.
@@ -1332,10 +1380,12 @@ After that, all the written texts will be appended to the file.
 ## What does the `n` command do exactly?
 
 It makes sed act as if it had reached the end of the cycle, now.
+However, it doesn't change where the  execution is currently; the latter doesn't
+restart from the start of the code.
 
 `n` causes sed to  auto-print the pattern space, and to print  the text added by
-the commands `a`, `i`, and `c`, now, because that's what happens at the end of a
-cycle.
+the commands `a`, `i`, `c`, and `r`  now, because that's what happens at the end
+of a cycle.
 
 ---
 
@@ -1352,24 +1402,13 @@ won't be applied to B.
 
 ## What happens if there's no input line anymore when `n` or `N` is run?
 
-`n` prints the pattern space.
+`n` causes the pattern space to be auto-printed.
 After that, for  both `n` and `N`, sed exits  immediately without processing the
 rest of the commands.
 
 ---
 
 Proof:
-
-    $ printf '%s\n' a b c | sed -n 'n;='
-    2~
-
-If sed didn't exit, `=` would be processed when `c` is in the pattern space, and
-the output would contain its line address, that is `3`:
-
-    2~
-    3~
-
----
 
     $ printf '%s\n' a b c | sed -n 'N;p'
     a~
@@ -1409,13 +1448,16 @@ When:
      Note that the pattern space is, obviously,  not printed if it has just been
      removed by `c` or `d`, since there's nothing left to print.
 
-   - `n` is run (because it causes a premature end of cycle), and `-n` was not used
+   - `n` is run and `-n` was not used
+     this is because `n` causes a premature end of cycle
 
    - `p` is run, regardless of `-n`
 
 ## What does an empty regex refer to?
 
-It refers to the last matched regex:
+It refers to the last matched regex.
+This is true regardless of where you  use `//`, and regardless of where the last
+regex was used (in a range, in the pattern field of a substitution, ...).
 
                                     vv
     $ seq 11 13 | sed -n -e '/./=; s//X/p'
@@ -1439,17 +1481,16 @@ Here, `//` refers to 1.
 The output contains  only 21, because 12  and 13 have been replaced  with 22 and
 23, none of which contains 1.
 
+Here are other examples:
+
     $ sed '/foo/s//bar/' <<<'foo'
     bar~
-
-Here's another example:
 
                    ┌ hold command
                    │
     $ sed -n '/foo/h; //p' <<<'foo'
     foo~
 
-##
 ##
 # Pitfalls
 ## A pattern input by the user is unpredictable. How to avoid a conflict with the delimiter of a `s` command?
@@ -1501,7 +1542,7 @@ Otherwise, you'll encounter this unexpected chain of substitutions:
 
     three → two → one
 
-Reversing the order “breaks” the chain.
+Reverse the order to “break” the chain.
 
 ## How to pass several options to sed in a shebang?
 
@@ -1519,6 +1560,14 @@ None of these would work:
 
     #!/usr/bin/sed -fn
     /usr/bin/sed: couldn't open file n: No such file or directory~
+
+Maybe the  first command fails because  the shell only splits  the command after
+the path to the  binary; so, it passes the space between `-n`  and `-f` to `sed`
+which doesn't recognize it as a valid option.
+
+The last 2 commands  fail because you can't control where  the shell will insert
+the path to the script; it's always at the very end.
+So, ` -n` and `n` are parsed as the path to a script, which here is not found.
 
 ## I have a script which doesn't output anything, even though I don't invoke it with `-n`.  It should!
 

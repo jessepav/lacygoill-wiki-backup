@@ -29,16 +29,14 @@ is no operator specified between tests, `-a` is assumed.
 
 Without any action, `find` assumes `-print`:
 
-    $ cd ~/wiki
-    $ find . -name algo.md
+    $ cd ~/wiki; find . -name algo.md
     ./algo.md~
 
 ---
 
 Explain this:
 
-    $ cd ~/wiki
-    $ find . -name algo.md -o -name bc.md -print
+    $ cd ~/wiki; find . -name algo.md -o -name bc.md -print
     ./bc.md~
 
     $ find . -name algo.md -print -o -name bc.md
