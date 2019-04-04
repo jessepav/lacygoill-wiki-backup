@@ -111,7 +111,7 @@ Try to reproduce those with tikz:
 <http://wtamu.edu/~cbaird/sq/images/rgb_color_wheel.png>
 <http://wtamu.edu/~cbaird/sq/images/color_mixing.png>
 
-## How to create your own colorscheme / palette?
+## How to create your own color scheme / palette?
 
 <https://github.com/thezbyg/gpick/wiki/Guide>
 

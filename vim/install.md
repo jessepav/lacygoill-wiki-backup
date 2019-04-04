@@ -392,47 +392,45 @@ Source:
 ## How to compile Neovim
 ### documentation
 
-        https://github.com/neovim/neovim/wiki/Building-Neovim
+<https://github.com/neovim/neovim/wiki/Building-Neovim>
 
 ### install dependencies
 
-        $ sudo aptitude install libtool libtool-bin autoconf automake cmake g++ pkg-config unzip
+    $ sudo aptitude install libtool libtool-bin autoconf automake cmake g++ pkg-config unzip
 
-Source:
-
-        https://github.com/neovim/neovim/wiki/Building-Neovim#build-prerequisites
+Source: <https://github.com/neovim/neovim/wiki/Building-Neovim#build-prerequisites>
 
 ### clone and update the Neovim repo
 
-        $ git clone https://github.com/neovim/neovim
+    $ git clone https://github.com/neovim/neovim
 
-        $ git checkout master
+    $ git checkout master
 
-        $ git pull
+    $ git pull
 
 ### clean the repo from the files generated during the previous compilation
 
-        $ make clean && make distclean
-                             │
-                             └ removes, among other things, the `build/` directory
+    $ make clean && make distclean
+                         │
+                         └ removes, among other things, the `build/` directory
 
 ### compile
 
 Use one of these commands:
 
-        $ make
+    $ make
 
-        $ make CMAKE_BUILD_TYPE=Release
+    $ make CMAKE_BUILD_TYPE=Release
 
-        $ make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_EXTRA_FLAGS=-DENABLE_JEMALLOC=OFF
-                                               ├─────────────────────────────────────┘
-                                               └ necessary to be able to use `checkinstall` later
-                                               https://github.com/neovim/neovim/issues/2364#issuecomment-113966180
-                                               https://github.com/serverwentdown/env/commit/a05a31733443fcb0979fecf18f2aa8e9e2722c7c
+    $ make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_EXTRA_FLAGS=-DENABLE_JEMALLOC=OFF
+                                           ├─────────────────────────────────────┘
+                                           └ necessary to be able to use `checkinstall` later
+                                           https://github.com/neovim/neovim/issues/2364#issuecomment-113966180
+                                           https://github.com/serverwentdown/env/commit/a05a31733443fcb0979fecf18f2aa8e9e2722c7c
 
-                                         TODO:
-                                         What do we lose by disabling jemalloc?
-                                         Are we going to suffer from a noticeable performance hit?
+                                     TODO:
+                                     What do we lose by disabling jemalloc?
+                                     Are we going to suffer from a noticeable performance hit?
 
 ---
 
@@ -441,12 +439,12 @@ In that case, re-try a compilation (now or a bit later).
 
 ### check the version of the binary you've just compiled
 
-        $ ./build/bin/nvim --version | grep ^Build
+    $ ./build/bin/nvim --version | grep ^Build
 
 ### test it
 
-        $ LC_ALL=C make test
-        $ make oldtest
+    $ LC_ALL=C make test
+    $ make oldtest
 
 The second command executes the Vim tests.
 They need to be performed in a fullscreen terminal.
@@ -454,46 +452,54 @@ If you use Tmux, run the command in an unsplit window, or in zoomed pane.
 
 ### install it
 
-        $ sudo checkinstall
+    $ sudo checkinstall
 
 If you didn't disable jemalloc during the compilation, the installation may fail.
 In that case, run:
 
-        $ sudo make install
+    $ sudo make install
 
 ### UNinstall it (optional)
 
-        $ sudo rm /usr/local/bin/nvim
+    $ sudo rm /usr/local/bin/nvim
 
-        $ sudo rm -r /usr/local/share/nvim/
+    $ sudo rm -r /usr/local/share/nvim/
+
+### fix man plugin
+
+By default, when you  run `$ man man`, the manpage is not  prettified like it is
+when you run `:Man man` from a Neovim instance (started with `$ nvim`).
+Let's fix that:
+
+    $ cd /usr/local/share/nvim/runtime/autoload/man.vim
+    $ sed -i.bak '/function! man#init_pager()/ {/endfunction/s//do <nomodeline> man BufReadCmd/}' man.vim
 
 ### ?
 
 python integration
 
-        $ python -m pip install --user --upgrade pynvim
+    $ python -m pip install --user --upgrade pynvim
 
-        $ python3 -m pip install --user --upgrade pynvim
+    $ python3 -m pip install --user --upgrade pynvim
 
 ---
 
 At the  moment, the first command  works, but `:CheckHealth` contains  a warning
 message:
 
-        ## Python 2 provider (optional)
-          - INFO: Disabled (g:loaded_python_provider=1).  This might be due to some previous error.
-          - INFO: `g:python_host_prog` is not set.  Searching for python2 in the environment.
-          - INFO: Multiple python2 executables found.  Set `g:python_host_prog` to avoid surprises.
-          - INFO: Executable: /usr/bin/python2
-          - INFO: Other python executable: /bin/python2
-          - INFO: Python version: 2.7.12
-          - INFO: pynvim version: 0.3.1
-          - WARNING: Could not contact PyPI to get latest version.
-          - ERROR: HTTP request failed: error: curl error with https://pypi.python.org/pypi/pynvim/json: 35
+    ## Python 2 provider (optional)~
+      - INFO: Disabled (g:loaded_python_provider=1).  This might be due to some previous error.~
+      - INFO: `g:python_host_prog` is not set.  Searching for python2 in the environment.~
+      - INFO: Multiple python2 executables found.  Set `g:python_host_prog` to avoid surprises.~
+      - INFO: Executable: /usr/bin/python2~
+      - INFO: Other python executable: /bin/python2~
+      - INFO: Python version: 2.7.12~
+      - INFO: pynvim version: 0.3.1~
+      - WARNING: Could not contact PyPI to get latest version.~
+      - ERROR: HTTP request failed: error: curl error with https://pypi.python.org/pypi/pynvim/json: 35~
 
 It's due to a SSL handshaking which fails while `$ curl` tries to download this file:
-
-        https://pypi.python.org/pypi/pynvim/json:
+<https://pypi.python.org/pypi/pynvim/json>.
 
 See `$ man curl`, and search for `35` which is the given code error.
 
@@ -501,39 +507,39 @@ See `$ man curl`, and search for `35` which is the given code error.
 
 At the moment, the second command fails:
 
-        Could not find a version that satisfies the requirement pynvim (from versions: )
-        No matching distribution found for pynvim
+    Could not find a version that satisfies the requirement pynvim (from versions: )~
+    No matching distribution found for pynvim~
 
 Pass the `-vvv` argument to `pip` to get more information.
 
 Also, `:CheckHealth` contains the following messages:
 
-        - INFO: Using: g:python3_host_prog = "/usr/bin/python3"
-        - INFO: Executable: /usr/bin/python3
-        - ERROR: Command error (job=9, exit code 1): `'/usr/bin/python3' -c 'import sys; sys.path.remove(""); import pynvim; print(pynvim.__file__)'` (in '~/wiki/vim')
-        Output: Traceback (most recent call last):  File "<string>", line 1, in <module>ImportError: No module named 'pynvim'
-        Stderr: Traceback (most recent call last):  File "<string>", line 1, in <module>ImportError: No module named 'pynvim'
-        - INFO: Python version: 3.5.2
-        - INFO: pynvim version: unable to load pynvim Python module
-        - ERROR: Importing "neovim" failed.
-        - ADVICE:
-          - Reinstall "pynvim" and optionally "neovim" packages.
-              pip3 uninstall pynvim neovim
-              pip3 install pynvim
-              pip3 install neovim # only if needed by third-party software
-        - ERROR: pynvim is not installed.
-        Error: unable to load pynvim Python module
-        - ADVICE:
-          - Run in shell: pip3 install pynvim
-        - WARNING: Could not contact PyPI to get latest version.
-        - ERROR: HTTP request failed: error: curl error with https://pypi.python.org/pypi/pynvim/json: 35
+    - INFO: Using: g:python3_host_prog = "/usr/bin/python3"~
+    - INFO: Executable: /usr/bin/python3~
+    - ERROR: Command error (job=9, exit code 1): `'/usr/bin/python3' -c 'import sys; sys.path.remove(""); import pynvim; print(pynvim.__file__)'` (in '~/wiki/vim')~
+    Output: Traceback (most recent call last):  File "<string>", line 1, in <module>ImportError: No module named 'pynvim'~
+    Stderr: Traceback (most recent call last):  File "<string>", line 1, in <module>ImportError: No module named 'pynvim'~
+    - INFO: Python version: 3.5.2~
+    - INFO: pynvim version: unable to load pynvim Python module~
+    - ERROR: Importing "neovim" failed.~
+    - ADVICE:~
+      - Reinstall "pynvim" and optionally "neovim" packages.~
+          pip3 uninstall pynvim neovim~
+          pip3 install pynvim~
+          pip3 install neovim # only if needed by third-party software~
+    - ERROR: pynvim is not installed.~
+    Error: unable to load pynvim Python module~
+    - ADVICE:~
+      - Run in shell: pip3 install pynvim~
+    - WARNING: Could not contact PyPI to get latest version.~
+    - ERROR: HTTP request failed: error: curl error with https://pypi.python.org/pypi/pynvim/json: 35~
 
 See `:h provider-python`, and:
 
-        https://github.com/pypa/pip/issues/3776
-        https://github.com/neovim/neovim/issues/3396
-        https://github.com/neovim/neovim/wiki/FAQ
-        https://github.com/zchee/deoplete-jedi/wiki/Setting-up-Python-for-Neovim
+<https://github.com/pypa/pip/issues/3776>
+<https://github.com/neovim/neovim/issues/3396>
+<https://github.com/neovim/neovim/wiki/FAQ>
+<https://github.com/zchee/deoplete-jedi/wiki/Setting-up-Python-for-Neovim>
 
 Update:
 
@@ -545,20 +551,20 @@ Solution:
 Go to `https://pypi.org/` and look for the package `pynvim`.
 Atm, you'll find this url:
 
-        https://pypi.org/project/pynvim/
+<https://pypi.org/project/pynvim/>
 
 Click on `Homepage` and you'll get this url:
 
-        https://github.com/neovim/pynvim
+<https://github.com/neovim/pynvim>
 
 Clone the repo:
 
-        $ git clone https://github.com/neovim/pynvim
+    $ git clone https://github.com/neovim/pynvim
 
 Then install the package manually:
 
-        $ cd pynvim
-        $ python3 -m pip install --user --upgrade .
+    $ cd pynvim
+    $ python3 -m pip install --user --upgrade .
 
 The installation may fail because of a missing dependency, `msgpack`.
 
@@ -567,13 +573,13 @@ The installation may fail because of a missing dependency, `msgpack`.
 
 In that case repeat the process:
 
-        https://pypi.org/project/msgpack/
-        https://github.com/msgpack/msgpack
-        $ git clone https://github.com/msgpack/msgpack
-        $ cd msgpack
-        $ python3 -m pip install --user --upgrade .
-        $ cd ../pynvim
-        $ python3 -m pip install --user --upgrade .
+    https://pypi.org/project/msgpack/
+    https://github.com/msgpack/msgpack
+    $ git clone https://github.com/msgpack/msgpack
+    $ cd msgpack
+    $ python3 -m pip install --user --upgrade .
+    $ cd ../pynvim
+    $ python3 -m pip install --user --upgrade .
 
 Note that we often can't access pypi.org...
 But sometimes we can...
@@ -584,55 +590,53 @@ Or, use a webproxy (like https://proxysite.com/).
 
 Alternatively, maybe you could try to contact another mirror:
 
-        $ python3 -m pip install --user --upgrade -i http://e.pypi.python.org/simple pynvim
-                                                  ├────────────────────────────────┘
-                                                  └ https://stackoverflow.com/a/13878827/9780968
+    $ python3 -m pip install --user --upgrade -i http://e.pypi.python.org/simple pynvim
+                                              ├────────────────────────────────┘
+                                              └ https://stackoverflow.com/a/13878827/9780968
 
 Or, use `$ pip` behind a proxy:
 
-        $ export https_proxy=http://web-proxy.mydomain.com
-        $ python3 -m pip install --user --upgrade pynvim
+    $ export https_proxy=http://web-proxy.mydomain.com
+    $ python3 -m pip install --user --upgrade pynvim
 
-Source:
-
-        https://stackoverflow.com/a/19962913/9780968
+Source: <https://stackoverflow.com/a/19962913/9780968>
 
 ### ?
 
-        ## Ruby provider (optional)
-          - INFO: Ruby: ruby 2.3.1p112 (2016-04-26) [x86_64-linux-gnu]
-          - WARNING: `neovim-ruby-host` not found.
-            - ADVICE:
-              - Run `gem install neovim` to ensure the neovim RubyGem is installed.
-              - Run `gem environment` to ensure the gem bin directory is in $PATH.
-              - If you are using rvm/rbenv/chruby, try "rehashing".
-              - See :help |g:ruby_host_prog| for non-standard gem installations.
+    ## Ruby provider (optional)~
+      - INFO: Ruby: ruby 2.3.1p112 (2016-04-26) [x86_64-linux-gnu]~
+      - WARNING: `neovim-ruby-host` not found.~
+        - ADVICE:~
+          - Run `gem install neovim` to ensure the neovim RubyGem is installed.~
+          - Run `gem environment` to ensure the gem bin directory is in $PATH.~
+          - If you are using rvm/rbenv/chruby, try "rehashing".~
+          - See :help |g:ruby_host_prog| for non-standard gem installations.~
 
-              https://github.com/rubygems/rubygems.org/issues/1760
-              http://www.fastly-debug.com/
+              https://github.com/rubygems/rubygems.org/issues/1760~
+              http://www.fastly-debug.com/~
 
-        ## Node.js provider (optional)
-          - INFO: Node.js: v4.2.6
-          - WARNING: Neovim node.js host does not support v4.2.6
+        ## Node.js provider (optional)~
+          - INFO: Node.js: v4.2.6~
+          - WARNING: Neovim node.js host does not support v4.2.6~
 
-        $ gem install neovim
+    $ gem install neovim
 
-                ERROR:  Could not find a valid gem 'neovim' (>= 0), here is why:
-                          Unable to download data from https://rubygems.org/ - Errno::ECONNRESET: Connection reset by peer - SSL_connect (https://api.rubygems.org/specs.4.8.gz)
+    ERROR:  Could not find a valid gem 'neovim' (>= 0), here is why:~
+              Unable to download data from https://rubygems.org/ - Errno::ECONNRESET: Connection reset by peer - SSL_connect (https://api.rubygems.org/specs.4.8.gz)~
 
 ### ?
 
-        $ sudo update-alternatives --install /usr/bin/vi vi /usr/bin/nvim 60
-        $ sudo update-alternatives --config vi
-        $ sudo update-alternatives --install /usr/bin/vim vim /usr/bin/nvim 60
-        $ sudo update-alternatives --config vim
-        $ sudo update-alternatives --install /usr/bin/editor editor /usr/bin/nvim 60
-        $ sudo update-alternatives --config editor
+    $ sudo update-alternatives --install /usr/bin/vi vi /usr/bin/nvim 60
+    $ sudo update-alternatives --config vi
+    $ sudo update-alternatives --install /usr/bin/vim vim /usr/bin/nvim 60
+    $ sudo update-alternatives --config vim
+    $ sudo update-alternatives --install /usr/bin/editor editor /usr/bin/nvim 60
+    $ sudo update-alternatives --config editor
 
 Use Neovim for some (or all) of the editor alternatives.
 
 ### ?
 
-    https://github.com/mhinz/neovim-remote
-    https://hkupty.github.io/2016/Ditching-TMUX/
+<https://github.com/mhinz/neovim-remote>
+<https://hkupty.github.io/2016/Ditching-TMUX/>
 

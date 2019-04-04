@@ -856,7 +856,7 @@ contenant plusieurs fichiers.
             sortie de `ls++`.
 
             @c est une  array contenant 16 codes  de couleur décimaux pour  configurer les couleurs
-            d'un colorscheme. Exemple de configuration:
+            d'un color scheme. Exemple de configuration:
 
                     elsif($colorscheme eq 'my_colorscheme') {
                       $c[0]  = 237; # ???
@@ -883,7 +883,7 @@ contenant plusieurs fichiers.
                     https://upload.wikimedia.org/wikipedia/commons/1/15/Xterm_256color_chart.svg
 
 
-            `$colorscheme` permet de choisir le colorscheme à utiliser.
+            `$colorscheme` permet de choisir le color scheme à utiliser.
             Exemple de configuration:        $colorscheme = 'mine';
 
             `%ls_colors` est un hash (tableau/dico/array associative?) dont les clés sont des patterns

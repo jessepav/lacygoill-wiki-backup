@@ -147,7 +147,7 @@ If you remove them, `vim-plug` will correctly add:
         - `~/.config/nvim/after` after  the third-party plugins
 
 ##
-## Where does Vim look for a colorscheme when I execute `:colo {colorscheme}`?
+## Where does Vim look for a color scheme when I execute `:colo {colorscheme}`?
 
 In any `colors/` subdirectory of a directory in the rtp.
 
@@ -958,7 +958,7 @@ differently:
 We can see that for `:syntax enable`, the commands use `:hi def` instead of just
 `:hi`.
 The `def` argument prevents that we override an existing HG (set previously by a
-colorscheme).
+color scheme).
 
 ##
 ## Besides syntax highlighting, what other fundamental mechanism is enabled by `:syntax on`?

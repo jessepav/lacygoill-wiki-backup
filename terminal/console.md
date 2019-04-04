@@ -49,7 +49,7 @@ Alternative 2:
 
         $ setfont /usr/share/consolefonts/Lat7-TerminusBold32x16.psf.gz
 
-# How to change the colorscheme?
+# How to change the color scheme?
 
 Try this:
 
@@ -102,7 +102,7 @@ I didn't manage to make this code work...
 
 ---
 
-Note that each program you use may have its own colorscheme:
+Note that each program you use may have its own color scheme:
 ls, zsh-syntax-highlighting, ...
 
 You may need to also tweak them so that the text they print is readable.

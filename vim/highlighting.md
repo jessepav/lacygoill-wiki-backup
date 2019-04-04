@@ -181,7 +181,7 @@ By default, they're set in `$VIMRUNTIME/syntax/syncolor.vim`.
 
 The minor groups are linked to the preferred groups.
 
-However, they both  can be reset in  a colorscheme, and the minor  groups can be
+However, they both  can be reset in  a color scheme, and the minor  groups can be
 set directly (without a link).
 
 For example,  `Function` is  a minor group,  and by default  it's linked  to the
@@ -210,9 +210,9 @@ Yes:
 
 ## Which issue can you face if a syntax plugin author sets the attributes of a HG in their plugin?
 
-When you change the colorscheme, you may lose the highlighting of some text.
+When you change the color scheme, you may lose the highlighting of some text.
 
-That's because a colorscheme executes `:hi clear` at its beginning, to reset all
+That's because a color scheme executes `:hi clear` at its beginning, to reset all
 HGs to their default attributes.
 Doing so, it removes all HGs including the ones set in syntax plugins.
 But it  doesn't reinstall  the latter  because it  has no  way of  knowing their
@@ -469,8 +469,8 @@ configure non-builtin HGs.
 Also, it's deprecated in Neovim.
 
 ##
-# Colorscheme
-## How to run some code before or after a colorscheme has been sourced?
+# Color Scheme
+## How to run some code before or after a color scheme has been sourced?
 
 Install an autocmd listening to:
 
@@ -565,7 +565,7 @@ If we do:
 
 The `Identifier` HG becomes bold.
 As a result, variable names in VimL are bold.
-It has nothing to do with our colorscheme customizations.
+It has nothing to do with our color scheme customizations.
 It has nothing to do with seoul256.
 
 I think it has to do with `$VIMRUNTIME/syntax/syncolor.vim:37`.
@@ -620,19 +620,19 @@ Also, it seems that `syncolor.vim` is automatically resourced...
 
 ---
 
-When  a colorscheme  is already  loaded (i.e.  `g:colors_name` is  set), setting
+When  a color scheme  is already  loaded (i.e.  `g:colors_name` is  set), setting
 `'bg'` will cause it to be reloaded.
-The colorscheme may adjust to the new value of `'bg'`.
+The color scheme may adjust to the new value of `'bg'`.
 Or it may reset `'bg'`.
 First delete `g:colors_name` when needed (for what?  to make Vim behave as if no
-colorscheme was loaded, i.e. only resets the builtin HGs?).
+color scheme was loaded, i.e. only resets the builtin HGs?).
 
         https://vi.stackexchange.com/a/13089/17449
 
 When `'bg'` is set, the default attributes for the HGs will change.
 To use other attributes, place `:hi` commands *after* setting `'bg'`.
 
-## how to write my own colorscheme
+## how to write my own color scheme
 
 Document this:
 
@@ -642,7 +642,7 @@ Document this:
 
 ---
 
-template to create own colorscheme:
+template to create own color scheme:
 
         https://github.com/cocopon/iceberg.vim/blob/master/src/template.vim
 
@@ -683,21 +683,21 @@ To customize an existing one:
 
 ---
 
-For more info about how creating a colorscheme:
+For more info about how creating a color scheme:
 
         $VIMRUNTIME/colors/README.txt:70
 
-In particular, if you can't find a meaningful name for your colorscheme, write:
+In particular, if you can't find a meaningful name for your color scheme, write:
 
         let g:colors_name = expand('<sfile>:t:r')
 
-## how to write a reliable / correct colorscheme
+## how to write a reliable / correct color scheme
 
         https://github.com/lifepillar/vim-colortemplate
 
-## how to test whether my colorscheme contains some common mistakes
+## how to test whether my color scheme contains some common mistakes
 
-Load the file implementing your colorscheme:
+Load the file implementing your color scheme:
 
         :e my_colorscheme.vim
 

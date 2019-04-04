@@ -189,10 +189,10 @@ Try to understand.
 
         $ cp ~/GitRepos/kitty/terminfo/x/xterm-kitty ~/.terminfo/x/
 
-## The background of the terminal bleeds into my Vim colorscheme background!
+## The background of the terminal bleeds into my Vim color scheme background!
 
 In Vim, the background of some lines  may be wrongly erased and painted with the
-background of the terminal colorscheme (instead of the Vim colorscheme).
+background of the terminal color scheme (instead of the Vim color scheme).
 Put this in your vimrc:
 
     let &t_ut = ''
@@ -203,7 +203,7 @@ For more info:
     https://sunaku.github.io/vim-256color-bce.html
     https://sw.kovidgoyal.net/kitty/faq.html#using-a-color-theme-with-a-background-color-does-not-work-well-in-vim
 
-## When I change the lightness of the colorscheme, sometimes, the text in the tabline is underlined!
+## When I change the lightness of the color scheme, sometimes, the text in the tabline is underlined!
 
 Yep, but I haven't tried to understand this issue yet, sorry.
 

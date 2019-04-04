@@ -4,103 +4,52 @@
 
 This should match `foobar` or just `bar`.
 
-# Which pitfall should I avoid when installing a fire-once autocmd?
+# How to write a one-shot autocmd?
 
-If a command fails before the removal of the autocmd, the latter may not be performed.
+Use the `++once` flag.
 
-Try to prefix every previous command with `:silent!`.
+    au {event} {pat} ++once {cmd}
+                     ^^^^^^
 
-If you  have to clear your  fire-once autocmd from  inside a function, do  it as
-early as possible, or use a `:try` conditional and a `:finally` clause.
-Otherwise, `abort` may prevent your `:au!` command from being processed.
+## When should I wrap such an autocmd in an augroup?
 
-Alternatively, you could use a second dedicated autocmd, right after the first one.
-But this would create  duplicate code, and every time you would  add a new event
-to the first autocmd, you would have to do the same to the second one.
-If you forget to do it, the autocmd may sometimes not be removed.
+When you need to be able to remove it from an arbitrary location.
+
+    augroup some_group
+        au!
+        au {event} {pat} ++once {cmd}
+    augroup END
+
+See the `search#nohls()` function in `vim-search` for an example.
 
 ---
 
-MWE:
+Or when you need to remove more than just one autocmd.
+Suppose  you  want to  call  `Func()`  only once,  as  soon  as `CursorHold`  or
+`CmdlineEnter`; you could write:
 
-    $ cat <<'EOF' >/tmp/vimrc
-    fu! FuncA() abort
-        abcd
-    endfu
-    fu! FuncB() abort
-        abcd
-    endfu
-    augroup test_sth
+    augroup some_group
         au!
-        au BufWinEnter * "
+        au CursorHold * call Func()
+        au CmdlineEnter * call Func()
     augroup END
-    call FuncA() | call FuncB() | au! test_sth
-    EOF
-
-    $ vim -Nu /tmp/vimrc
-    :au test_sth
-    test_sth  BufWinEnter~
-        *         "~
-
-Solution1:
-
-    au BufWinEnter * call FuncA() | call FuncB()
-    au BufWinEnter * au! test_sth
-
-Solution2:
-
-    sil! call FuncA() | sil! call FuncB() | au! test_sth
-
-Other MWE:
-
-    augroup test_sth
-        au!
-        au BufWinEnter * "
-    augroup END
-    fu! Func() abort
-        abcd
-        au! test_sth
-        aug! test_sth
+    fu! Func()
+        au! some_group
+        " do sth
     endfu
-    call Func()
-    au test_sth
-    test_sth  BufWinEnter~
-        *         "~
 
-Solution1:
+But you couldn't re-write it like this:
 
-    augroup test_sth
-        au!
-        au BufWinEnter * "
-    augroup END
-    fu! Func() abort
-        au! test_sth
-        aug! test_sth
-        abcd
+    au CursorHold * ++once call Func()
+    au CmdlineEnter * ++once call Func()
+    fu! Func()
+        " do sth
     endfu
-    call Func()
-    au test_sth
-    test_sth  BufWinEnter~
-        *         "~
 
-Solution2:
+Because `Func()` would be called twice, not once.
+Once for each event.
 
-    augroup test_sth
-        au!
-        au BufWinEnter * "
-    augroup END
-    fu! Func() abort
-        try
-            abcd
-        finally
-            au! test_sth
-            aug! test_sth
-        endtry
-    endfu
-    call Func()
-    au test_sth
-    test_sth  BufWinEnter~
-        *         "~
+See the augroup `delay_slow_call` in our vimrc for a real example.
 
 ##
 # When several autocmds listen to the same event, in which does Vim run them?

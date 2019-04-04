@@ -87,7 +87,7 @@ But you  will need to convert  a terminfo description for  `xfce4-terminal` into
 
 The only valid values are `screen`, `tmux` and some variants like `tmux-256color`.
 
-`tmux-256color` is the best value, because it enables modern colorschemes to be
+`tmux-256color` is the best value, because it enables modern color schemes to be
 correctly displayed, as well as italics.
 
 ### How to assign it?

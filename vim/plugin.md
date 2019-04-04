@@ -2683,7 +2683,7 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
 
             Cherche resp. dans:
 
-                    - les colorschemes
+                    - les color schemes
                     - les commandes Vim
                     - les types de fichiers
                     - les marques (globales + locales)
