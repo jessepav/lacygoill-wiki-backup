@@ -33,7 +33,7 @@ file with the desired program.
 
 ### How to set it?
 
-    $ xdg-mime default <app.desktop> mimetype ...
+    $ xdg-mime default <app.desktop> <mimetype> ...
 
     $ xdg-mime default gvim.desktop text/plain text/x-c application/x-shellscript
 
