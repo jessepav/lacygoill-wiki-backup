@@ -1,31 +1,17 @@
-# What are the three main markup systems used for Unix documentation?
-
-   - troff
-   - Texinfo
-   - SGML
-
-# Why should I use groff?
-
-The SGML software toolbox is still pretty deficient and not widely standardized,
-so the best choice for maximum  software document portability is still likely to
-be either groff  or Texinfo markup, and  for manual pages, the format  has to be
-groff, if the man command is to work everywhere.
-
-Ultimately, one would  like to be able to do  reliable automated transformations
-between any pair of markup systems, but that goal remains elusive.
-What you can do today, however, is  write manual pages in a restricted subset of
-groff markup, and have them converted automatically to HTML and Texinfo.
-To do so, you need the packages `man2html` and `man2texi`.
-
-## Where can I find its complete documentation?
+# Where can I find groff's
+## complete documentation?
 
     $ info groff
 
-For a short but complete reference:
+## short but complete reference?
 
     $ man 7 groff
 
 There's another manpage for groff in section 1; don't conflate the two.
+
+## list of the escape sequences for all special glyphs?
+
+    $ man 7 groff_char
 
 ##
 # How to make Vim apply the `nroff` filetype to my `pgm.1` groff source code file?
@@ -38,7 +24,7 @@ Write a dot at the start of one of the first 5 lines, then reload the buffer.
 ## Why should I write a newline after every text sentence?
 
 This  tells  groff  to  use  inter-sentence  spacing,  which  is  important  for
-[proportionally-spaced][4] output formats.
+[proportionally-spaced][1] output formats.
 
 I think you can notice a difference when you convert the document to pdf:
 
@@ -85,6 +71,61 @@ request:
 Use a comment line of equals sign:
 
     .\" ========================================================
+
+##
+# Escape Sequences
+## How to write
+### a hyphen?
+
+    \-
+
+#### Why shouldn't I simply write `-`?
+
+It looks better typeset than the shorter ordinary hyphen does.
+Especially when the code is converted into a pdf.
+
+###
+### two consecutive hyphens?
+
+    \-\^\-
+
+#### What's the thing in the middle?
+
+An escape sequence standing for a 1/12th em space.
+
+It's ignored for TTY output devices (rounded to zero).
+
+##### How is it useful?
+
+It prevents the hyphens from running together in Troff output.
+In Nroff output, the space will disappear.
+
+When the  groff code is  converted into  a pdf, you  can see that  `\^` slightly
+increases the gap between the previous and the next character.
+
+###
+### a literal backslash?
+
+Use the  escape sequence  defined for  this purpose:
+
+    \(rs
+
+Mnemonic: Reverse Slash.
+
+### a literal dot at the start of a line?
+
+Use the escape sequence `\&` representing  a zero-width space, to get the period
+away from the beginning of the line (which is the only place where it is treated
+specially):
+
+    \&.
+
+### an em-dash?
+
+Use the macro `\(em`, which is documented at `$ man 7 man-pages`.
+
+On an ASCII terminal, an em-dash typically  renders as two hyphens, but in other
+typographical contexts it renders as a long dash.
 
 ##
 # Requests
@@ -167,67 +208,19 @@ Here, `foo bar` will be typeset in bold, but not `baz`.
     .B mypgm
     [
     .B \-\^\-help
-    ]
+    ](foo)
 
-We split the `[ --help ]` on 3 lines to prevent `.B` from operating on the brackets.
-
-##
-# Escape Sequences
-## How to write
-### a hyphen?
-
-    \-
-
-#### Why shouldn't I simply write `-`?
-
-It looks better typeset than the shorter ordinary hyphen does.
-
-###
-### two consecutive hyphens?
-
-    \-\^\-
-
-#### What's the thing in the middle?
-
-An escape sequence standing for a 1/12th em space.
-
-Ignored for TTY output devices (rounded to zero).
-
-##### How is it useful?
-
-It prevents the hyphens from running together in Troff output.
-In Nroff output, the space will disappear.
-
-###
-### a literal backslash?
-
-Use the  escape sequence  defined for  this purpose:
-
-    \(rs
-
-### a literal dot at the start of a line?
-
-Use the zero-width non-printing escape sequence `\&` to get the period away from
-the beginning of the line, which is the only place it is treated specially:
-
-    \&.
-
-### an em-dash?
-
-Use the macro `\(em`, which is documented at `$ man 7 man-pages`.
-
-On an ASCII terminal, an em-dash typically  renders as two hyphens, but in other
-typographical contexts it renders as a long dash.
+We split the `mypgm [ --help ]` on 4 lines to prevent `.B` from operating on the brackets.
 
 ##
 # Misc.
 ## Where does the name “roff” come from?
 
-[From the expression “to run off a copy”][1].
+[From the expression “to run off a copy”][2].
 
-[Which means “to quickly print a copy of something”][2].
+[Which means “to quickly print a copy of something”][3].
 
-[“off” is used because the copy comes off the machine][3].
+[“off” is used because the copy comes off the machine][4].
 
 ##
 ##
@@ -359,7 +352,7 @@ For pictures and equations, see also `$ man pic` and `$ man eqn`.
 ##
 # Reference
 
-[1]: https://www.definitions.net/definition/troff
-[2]: https://www.macmillandictionary.com/dictionary/british/run-off
-[3]: https://forum.wordreference.com/threads/make-a-copy-of-and-run-off-a-copy-of.1604451/#post-8065490
-[4]: https://en.wikipedia.org/wiki/Typeface#Proportion
+[1]: https://en.wikipedia.org/wiki/Typeface#Proportion
+[2]: https://www.definitions.net/definition/troff
+[3]: https://www.macmillandictionary.com/dictionary/british/run-off
+[4]: https://forum.wordreference.com/threads/make-a-copy-of-and-run-off-a-copy-of.1604451/#post-8065490

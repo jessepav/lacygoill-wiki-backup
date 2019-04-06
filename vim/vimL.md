@@ -2313,6 +2313,11 @@ exécution.
             │     │ search() skip les matchs précédant le curseur.                              │
             └─────┴─────────────────────────────────────────────────────────────────────────────┘
 
+                                               NOTE:
+
+            Always use the `W` flag when you use `search()` in a while loop.
+            Otherwise, you may end up in an infinite loop.
+
                                                FIXME:
 
             Du coup à quoi sert 'z' ?

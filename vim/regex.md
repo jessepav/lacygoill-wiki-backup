@@ -1,3 +1,47 @@
+# Are `[` and `]` literal or special outside a bracket expression?
+
+Literal.
+
+## What if they're inside?
+
+`[` is always literal inside a bracket expression.
+
+`]` is literal only at the start of a bracket expression, or if it's backslash-escaped.
+Note that the start of a complemented bracket expression is right after `^`.
+
+## Wat's the pattern to describe some random text inside square brackets?
+
+    \[.\{-}]
+
+You don't need to escape the second bracket, because the first one was escaped.
+As a result, `]` can't be interpreted  as the end of a bracket expression, since
+none has started so far.
+
+##
+# How to include a newline in a bracket expression?
+
+Prefix it with `\_`:
+
+    \_[abc]
+
+    ⇔
+
+    [abc\n]
+
+## What if I'm writing a *complemented* bracket expression?
+
+`\_` will still include the newline in the pattern positively.
+
+For example, the  next pattern matches any  character which is not  `a`, `b`, or
+`c`, and it also matches the newline.
+
+    \_[^abc]
+
+    ⇔
+
+    [^abc]\|\n
+
+##
 # What's the regex to find
 ## all sequences of two or more uppercase characters *not* followed by a comma?
 

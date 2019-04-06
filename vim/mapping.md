@@ -1349,15 +1349,49 @@ Quand on définit un mapping perso dont le {rhs} contient plusieurs commandes no
 en le préfixant d'un count, le {rhs} n'est pas intégralement répété, seule sa première commande
 normale l'est.
 
-Pour définir un mapping pour lequel un count répètera l'intégralité des commandes, on peut passer par
-le registre expression, ex:   nnoremap {lhs} @='keystrokes'<cr>
+Pour  définir  un  mapping  pour  lequel un  count  répètera  l'intégralité  des
+commandes, on peut passer par le registre expression, ex:
 
-Cela fonctionne car une macro accepte un count. Pex: 10@q rejoue la macro q 10 fois
-Il faut encadrer les frappes au clavier avec des quotes, car le registre = attend une expression à évaluer.
-Sans les quotes, il va tenter d'évaluer les frappes au clavier comme un nom de variable.
-Si on trouve cette solution trop cryptique, on peut la démystifier un peu en testant en mode normal: @='dd'
+    nnoremap  {lhs} @='keystrokes'<cr>
 
+Cela fonctionne car une macro accepte un count.
+Pex: 10@q rejoue la macro q 10 fois Il faut encadrer les frappes au clavier avec
+des quotes, car le registre = attend une expression à évaluer.
+Sans les quotes, il  va tenter d'évaluer les frappes au clavier  comme un nom de
+variable.
+Si on  trouve cette solution  trop cryptique, on peut  la démystifier un  peu en
+testant en mode normal: @='dd'
 
+Pitfall: This will give lead to unexpected results when you replay a macro with `@@`:
+
+    $ printf 'ab\ncd\nef\ngh\nij\nkl' | vim -Nu NONE +'nno J  @="J"<cr>' -
+    qq A, Esc J q
+    j @q
+    j @@
+
+You should get `ij, kl` in the last line, but instead you'll get `ij kl`.
+
+I think  that's because when  you replay  a macro with  `@@`, the last  macro is
+redefined by `@=`.
+
+You shouldn't need `@=` anyway.
+You can build a mapping which supports a count by using `<expr>`:
+
+    nno <expr> J "m'" . v:count1 . 'J``'
+        ^^^^^^          ^^^^^^^^
+
+And if you were using `@=` for another reason, you can probably replace it with `:exe`:
+
+    nno <buffer><nowait><silent> q <c-w><c-p>@=winnr('#')<cr><c-w>c
+
+    →
+
+    nno <buffer><nowait><silent> q :<c-u>wincmd p <bar> exe winnr('#') . 'wincmd c'<cr>
+                                                        ^^^
+
+This last example is taken from the vim-cheat plugin.
+
+---
 
     nno <key>    m'{do some stuff}``
 

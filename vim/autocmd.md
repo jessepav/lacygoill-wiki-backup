@@ -13,25 +13,30 @@ Use the `++once` flag.
 
 ## When should I wrap such an autocmd in an augroup?
 
-When you need to be able to remove it from an arbitrary location.
+When you need to be able to remove it before the event it's listening to:
 
     augroup some_group
         au!
         au {event} {pat} ++once {cmd}
     augroup END
 
+    if some condition
+        au! some_group
+    endif
+
 See the `search#nohls()` function in `vim-search` for an example.
 
 ---
 
-Or when you need to remove more than just one autocmd.
-Suppose  you  want to  call  `Func()`  only once,  as  soon  as `CursorHold`  or
-`CmdlineEnter`; you could write:
+Or when your command needs to be  fired from two different autocmds (because you
+need two patterns with different meanings or values).
+Suppose you want to call `Func()` only once, as soon as `CursorHold` is fired or
+you enter the Ex command-line `CmdlineEnter`; you could write:
 
     augroup some_group
         au!
         au CursorHold * call Func()
-        au CmdlineEnter * call Func()
+        au CmdlineEnter : call Func()
     augroup END
     fu! Func()
         au! some_group
@@ -41,7 +46,7 @@ Suppose  you  want to  call  `Func()`  only once,  as  soon  as `CursorHold`  or
 But you couldn't re-write it like this:
 
     au CursorHold * ++once call Func()
-    au CmdlineEnter * ++once call Func()
+    au CmdlineEnter : ++once call Func()
     fu! Func()
         " do sth
     endfu

@@ -37,8 +37,8 @@ Text lines represent the parts that is printed.
 The user can define their own formatting commands using the `de` request.
 These commands are called macros, but they are used exactly like requests.
 
-For more info about the `de` request,  run `$ info gtroff`, then search the node
-“gtroff Reference”, then the subnode “Writing Macros”.
+For more info about  the `de` request, run `$ info groff`,  then search the node
+“groff Reference”, then the subnode “Writing Macros”.
 
 ## macro package
 
