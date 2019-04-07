@@ -4480,6 +4480,5 @@ Have a look at the links in the sidebar:
 ##
 # Reference
 
-
 [1]: https://en.wikipedia.org/wiki/Scientific_notation#Normalized_notation
 [2]: https://en.wikipedia.org/wiki/Significand

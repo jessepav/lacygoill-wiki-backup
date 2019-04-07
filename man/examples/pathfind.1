@@ -1,0 +1,150 @@
+.TH MYPGM 1 "today" "1.2.3"
+.\" ========================================================
+.SH NAME
+.B pathfind \(em find files in a directory path
+.\" ========================================================
+.SH SYNOPSIS
+[
+.B \-\^\-all
+]
+[
+.B \-\^\-?
+]
+[
+.B \-\^\-help
+]
+[
+.B \-\^\-version
+]
+.
+.\" Why the next request?{{{
+.\"
+.\" Despite the previous  line breaks, everything so far will  fit on one single
+.\" typeset line.
+.\"
+.\" From `$ info -n 'Implicit Line Breaks' groff`.
+.\"
+.\" > An important concept in 'gtroff' is the "break".  When a break occurs,
+.\" > 'gtroff' outputs the partially filled line (unjustified), and resumes
+.\" > collecting and filling text on the next output line.
+.\"
+.\" But, by experiment, we can find that the nroff ASCII output has a line break
+.\" after  the `--version`  option,  and the  next line  continues  at the  left
+.\" margin.
+.\"
+.\" That is  undesirable: conventionally, a text line should  always start after
+.\" some indentation.
+.\" So we  put in  a conditional statement  that applies only  to nroff,  and is
+.\" ignored by troff.
+.\"}}}
+.\" What's its effect?{{{
+.\"
+.\" The indentation of the next line of text will be increased.
+.\"}}}
+.\"
+.\" What's `.if`?{{{
+.\"
+.\" The equivalent of an `if` statement in other languages.
+.\"
+.\" Synopsis:
+.\"
+.\"     .if EXPR ANYTHING
+.\"
+.\" Evaluate EXPR,  and execute  ANYTHING (the  remainder of  the line)  if EXPR
+.\" evaluates to a value greater than zero (true).
+.\"
+.\" For more info, see `$ info -n if groff`.
+.\"}}}
+.\" ... the following `n`?{{{
+.\"
+.\" An expression that  evaluates to True if the document  is being processed in
+.\" nroff mode (i.e., the `.nroff` command has been issued).
+.\"
+.\" For more info, see `$ info -n 'Operators in Conditionals' groff`.
+.\"}}}
+.\" ... `.ti`?{{{
+.\"
+.\" Synopses:
+.\"
+.\"     .ti  offset
+.\"     .ti +offset
+.\"     .ti -offset
+.\"
+.\" Temporarily indent the next output line by OFFSET.
+.\" If  an increment  or  decrement  value is  specified,  adjust the  temporary
+.\" indentation relative to the value set by the 'in' request.
+.\" The default scaling indicator (measurement unit) is 'm'.
+.\"}}}
+.\" ... `+9n`?{{{
+.\"
+.\" It stands for an incrementation of the indentation by a width of nine 'n' units.
+.\"
+.\" 'n' is half of 'm'.
+.\" And 'm' is equal to the current font size in points, which is
+.\" *approximately* the width of the letter 'm' in the current font.
+.\"
+.\" For more info, see `$ info -n Measurements groff`.
+.\"}}}
+.\" ...... but why 9?{{{
+.\"
+.\" This is the width of the command  name, `$ pathfind`, plus a trailing space,
+.\" in a fixedwidth font (i.e. a font whose characters have all the same width).
+.\"}}}
+.if n .ti +9n
+.
+.\" What would the next request do if I uncommented it?{{{
+.\"
+.\" It would increase the  indentation of the next typeset line  by the width of
+.\" the text `pathfind `.
+.\"}}}
+.\" Why is it commented?{{{
+.\"
+.\" The current synopsis is short enough to  fit on a single typeset line, so we
+.\" don't need it for troff atm.
+.\"}}}
+.\" When will it be needed?{{{
+.\"
+.\" After you  add new  options to  your `$  pathfind` command,  and that,  as a
+.\" result, the synopsis doesn't fit on a single line anymore.
+.\"}}}
+.\" What's a basic unit?{{{
+.\"
+.\" It's a  device dependent measurement,  ranging from  1/75th to 2000th  of an
+.\" inch; it's represented by a 'u'.
+.\"}}}
+.
+.\" What's `t` after `.if`?{{{
+.\"
+.\" An expression that  evaluates to True if the document  is being processed in
+.\" troff mode (i.e., the `.troff` command has been issued).
+.\"}}}
+.\" ... `\w'...'u`?{{{
+.\"
+.\" It's an escape sequence, documented at `$ info -n 'Page Motions' groff`.
+.\" It evaluates to  the width of the  text `pathfind `, the text  being in bold
+.\" except the trailing space.
+.\"
+.\" ---
+.\"
+.\" Synopsis: \w'text'
+.\"
+.\" Return the width of the specified TEXT in basic units.
+.\" This allows  horizontal movement based on  the width of some  arbitrary text
+.\" (e.g. given as an argument to a macro).
+.\"
+.\" For example, if you write in your groff document:
+.\"
+.\"     The length of the string 'abc' is \w'abc'u.
+.\"
+.\" The typeset line will print sth like:
+.\"
+.\"     The length of the string 'abc' is 13880u.
+.\"
+.\" Font changes may occur in TEXT, which don't affect current settings.
+.\"}}}
+.\" ... `\fB` and `\fP`?{{{
+.\"
+.\" Because.
+.\"}}}
+.\"     .if t .ti +\w'\fBpathfind\fP 'u
+

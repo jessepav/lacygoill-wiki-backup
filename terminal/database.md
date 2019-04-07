@@ -62,14 +62,14 @@ It's automatically installed (dependency) when you install
 
 ---
 
-                ┌ (--location) if the page has moved to a different location,
-                │              redo the request on the new place
-                │
-                │┌ write output to a local file named like the remote file we get
-                ││
-        $ curl -LO http://invisible-island.net/datafiles/current/terminfo.src.gz
-        $ gunzip terminfo.src.gz
-        $ tic -x terminfo.src
+            ┌ (--location) if the page has moved to a different location,
+            │              redo the request on the new place
+            │
+            │┌ write output to a local file named like the remote file we get
+            ││
+    $ curl -LO http://invisible-island.net/datafiles/current/terminfo.src.gz
+    $ gunzip terminfo.src.gz
+    $ tic -x terminfo.src
 
 Procedure to build your own terminfo db.
 Run these commands as a regular user.

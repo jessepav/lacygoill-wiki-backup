@@ -14,7 +14,7 @@ There's another manpage for groff in section 1; don't conflate the two.
     $ man 7 groff_char
 
 ##
-# How to make Vim apply the `nroff` filetype to my `pgm.1` groff source code file?
+# How to make Vim apply the `nroff` filetype to my `pgm.1` file?
 
 Write a dot at the start of one of the first 5 lines, then reload the buffer.
 `dist#ft#FTnroff()` in `$VIMRUNTIME/autoload/dist/ft.vim:318` will do the rest.
@@ -31,14 +31,14 @@ I think you can notice a difference when you convert the document to pdf:
     $ groff -man mypgm.1 | zathura -
 
 The spacing  between two sentences  is slightly bigger  in the pdf  when they're
-separated by a newline in the groff source code.
+separated by a newline in the groff document.
 
 ---
 
 It also makes life easier for translators (reading a diff is easier for them and
 you).
 
-## Why can't I indent groff source code nor use spacing to make it more readable?
+## Why can't I use indentation in a groff document nor spacing to make it more readable?
 
 Most groff requests must appear at the beginning of a line, in the form of a dot
 followed by one or two letters or digits.
@@ -46,7 +46,7 @@ Besides, in groff  documents, spaces and blank lines are  significant: two input
 spaces produce (approximately) two output spaces.
 
 ##
-## The source code of my manpage is too dense.  How should I add an empty line to make it more readable?
+## My groff document is too dense.  How should I add an empty line to make it more readable?
 
 Use an undefined request (lone dot).
 
@@ -74,6 +74,44 @@ Use a comment line of equals sign:
 
 ##
 # Escape Sequences
+## Where can an escape occur?
+
+Anywhere in the input to gtroff.
+
+## What are the first two characters of an escape, usually?
+
+A  backslash  then a  single  character,  which  indicates  the function  to  be
+performed.
+
+### If it requires an identifier as a parameter, what are the three possible syntax forms?
+
+   - The next single character is the identifier.
+
+   - If this single character is an opening parenthesis, take the following two
+     characters as the identifier.  Note that there is no closing parenthesis
+     after the identifier.
+
+   - If this single character is an opening bracket, take all characters until
+     a closing bracket as the identifier.
+
+Examples:
+
+    \fB
+    \n(XX
+    \*[TeX]
+
+---
+
+Other escapes may require several arguments and/or some special format.
+In  such cases  the argument  is traditionally  enclosed in  single quotes  (and
+quotes are always used in this manual for the definitions of escape sequences).
+The enclosed text is then processed according to what that escape expects.
+
+Example:
+
+    \l'1.5i\(bu'
+
+##
 ## How to write
 ### a hyphen?
 
@@ -120,12 +158,18 @@ specially):
 
     \&.
 
+###
 ### an em-dash?
 
 Use the macro `\(em`, which is documented at `$ man 7 man-pages`.
 
-On an ASCII terminal, an em-dash typically  renders as two hyphens, but in other
-typographical contexts it renders as a long dash.
+#### How is it rendered on an ASCII terminal?
+
+As two hyphens.
+
+##### In other typographical contexts?
+
+As a long dash.
 
 ##
 # Requests
@@ -208,7 +252,7 @@ Here, `foo bar` will be typeset in bold, but not `baz`.
     .B mypgm
     [
     .B \-\^\-help
-    ](foo)
+    ]
 
 We split the `mypgm [ --help ]` on 4 lines to prevent `.B` from operating on the brackets.
 
@@ -227,6 +271,58 @@ We split the `mypgm [ --help ]` on 4 lines to prevent `.B` from operating on the
 ##
 # ?
 
+Let's understand this request:
+
+    .if t .ti +\w'\fBpathfind\fP\ 'u
+
+---
+
+By experiment, we  find that the nroff  ASCII output has a line  break after the
+--version option, but since we are in paragraph mode, the next line continues at
+the left margin.
+That is  objectionable here, so we  put in a conditional  statement that applies
+only to nroff, and is ignored by troff .
+It uses  the temporary  indentation command  ( .ti  ) with  an argument  of +9n,
+meaning to indent  nine spaces, which is  the width of the command  name, plus a
+trailing space, in a fixedwidth font:
+
+---
+
+The indentation  amount is  more complex  because with  a proportional  font, we
+don't know the width of the command name and one following space.
+The  \w'...'u command  measures  the width  of the  material  inside the  single
+quotes.
+Because  that text  is  set in  a  bold font,  we use  an  inline font  wrapper,
+\fB...\fP, meaning switch to  a bold font, and then switch  back to the previous
+font.
+There are similar font-switching commands for roman ( \fR ), italic ( \fI ), and
+fixed-width ( \fC ) fonts.
+The C stands for Courier, a widely used fixed-width font dating back to the days
+of manual typewriters.
+
+##
+# ?
+
+Document that you  when find a word/expression which you  don't understand in an
+info page, you most  probably can find it in the index of  one of the appendices
+at the bottom.
+
+For example, in `$ info groff`, one can read this after searching for `\.ti`:
+
+> This request causes a break; its value is associated with the
+> current environment (*note Environments::).  The default scaling
+> indicator is 'm'.  A call of 'ti' without an argument is ignored.
+
+What is a “scaling indicator”?
+
+Jump to the bottom of the page, and search backward for `scaling indicator`:
+
+> * scaling indicator:                     Measurements.        (line   6)
+
+Now, you know that the info is at `$ info -n Measurements groff`.
+
+# ?
+
 Some  escape sequences  take arguments  separated by  single quotes,  others are
 regulated by a length encoding introduced  by an open parenthesis or enclosed in
 square brackets.
@@ -237,6 +333,8 @@ The following information/questions stem from reading “Write The Fine Manual�
 
 What's the `an` macro package?
 What does it provide?
+
+See `man 7 man` for more info.
 
 ---
 
@@ -317,8 +415,7 @@ To check the formatting of a manual page, run either of these:
              └ shorthand for `-m man`
                include the macro package `man`
 
-To install a  manpage, move your `program.man` file (containing  the source code
-in groff) in `~/share/man/man1/`.
+To install a manpage, move your `program.man` file in `~/share/man/man1/`.
 Name it following this scheme: `<program>.<section>`:
 
     $ cp program.man ~/share/man/man1/program.1

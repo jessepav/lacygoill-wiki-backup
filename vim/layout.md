@@ -289,12 +289,12 @@ On  peut changer  ces  positions par  défaut en  activant  les options  globale
 On peut également changer ces  positions temporairement, le temps d'exécuter une
 commande créant un viewport, via certains modificateurs de commande:
 
-    - :abo[veleft], :lefta[bove]
-    - :bel[owright], :rightb[elow]
-    - :to[pleft]
-    - :bo[tright]
-    - :vert[ical]
-    - :tab
+   - :abo[veleft], :lefta[bove]
+   - :bel[owright], :rightb[elow]
+   - :to[pleft]
+   - :bo[tright]
+   - :vert[ical]
+   - :tab
 
 Qd  :abo/:lefta est  suivi d'une  commande  Ex qui  split horizontalement,  elle
 demande à cette dernière de le créer en haut.
