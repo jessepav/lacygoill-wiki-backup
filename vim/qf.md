@@ -715,6 +715,14 @@ If there're several matches on a single line, you'll get only one entry.
 If you want as many entries matches, you need to also include the `-o` option.
 However, doing so makes you lose context; you don't get the entire line, but just the match.
 
+Solution: Use ripgrep instead.
+When  you pass  the  option `--vimgrep`  to  `$ rg`,  you get  each  match on  a
+dedicated line, *with* its context.
+
+    $ rg --vimgrep -i -L pat file ...
+
+TODO: Should we replace all our `$ grep` commands with `$ rg` equivalent?
+
 ---
 
 For a permanent usage, you can configure `'grepprg'` like this:
@@ -1370,6 +1378,17 @@ Example 2:
 ##
 #
 # TODO
+## ?
+
+Sometimes, we have stray characters when  we run a custom command populating the
+qf window (like `:CGrep`).
+It's a hard-to-debug issue, because it seems influenced by many factors.
+I suspect it has nothing to do with `system()`, nor with `:cexpr`.
+I  can reproduce  it with  a simple  `:copen`, when  the qf  window takes  a few
+seconds to open.
+
+Find a fix.
+
 ## ?
 
 Document the `qfbufnr` property.

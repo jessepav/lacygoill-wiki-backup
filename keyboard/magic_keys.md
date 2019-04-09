@@ -85,8 +85,7 @@ Ctrl-Alt-Del.
 
 For more info, see:
 
-    $ man systemd
-    /SIGINT
+    $ man systemd /SIGINT
 
 ## Which shell command is it equivalent to?
 
@@ -318,8 +317,7 @@ Alternatively, from a console, press M-C-Del more than 7 times in 2s.
 
 For more information, see:
 
-    $ man systemd
-    /SIGINT
+    $ man systemd /SIGINT
 
 > SIGINT
 >

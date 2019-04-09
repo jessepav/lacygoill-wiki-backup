@@ -76,11 +76,11 @@ Use a comment line of equals sign:
 # Escape Sequences
 ## Where can an escape occur?
 
-Anywhere in the input to gtroff.
+Anywhere in the input to groff.
 
 ## What are the first two characters of an escape, usually?
 
-A  backslash  then a  single  character,  which  indicates  the function  to  be
+A  backslash,  then a  single  character  which  indicates  the function  to  be
 performed.
 
 ### If it requires an identifier as a parameter, what are the three possible syntax forms?
@@ -100,16 +100,17 @@ Examples:
     \n(XX
     \*[TeX]
 
----
+#### What if it requires *several* arguments and/or some special format?
 
-Other escapes may require several arguments and/or some special format.
-In  such cases  the argument  is traditionally  enclosed in  single quotes  (and
-quotes are always used in this manual for the definitions of escape sequences).
-The enclosed text is then processed according to what that escape expects.
+The argument(s) is/are traditionally enclosed in single quotes.
+Then, the enclosed text is processed according to what that escape expects.
 
 Example:
 
-    \l'1.5i\(bu'
+    \w'\fBpathfind\fP 'u
+      ├───────────────┘
+      └ argument to the escape `\w` (see `$ info -n 'Page Motions' groff`)
+        u stands for the basic unit (see `$ info -n Measurements groff`)
 
 ##
 ## How to write
@@ -232,20 +233,28 @@ It should be exactly one line long, without trailing punctuation.
 It takes the form `command — description`.
 
 ###
-## What's the request to typeset some text in a bold fontface?
+# Font
+## How to embolden some text?  (3)
 
-.B
+    abc \f[B]text in bold\f[P] def
 
-### When does its effect stop?
+    .B text in bold
 
-Until the end of the line.
+    .ft B
+    text
+    in bold
+    .ft
 
-For example:
+Note that you can't write your text after `.ft B`; it would be interpreted as an
+argument of `.ft`.
 
-    .B foo bar
-    baz
+### Which syntax should I use?
 
-Here, `foo bar` will be typeset in bold, but not `baz`.
+If the text you want to embolden:
+
+   - is inside a line, use `\f[B]...\f[P]`
+   - is a single line, use `.B ...`
+   - is multiple lines, use `.ft B` and `.ft`
 
 ### How to write `mypgm [ --help ]` with every character in bold, except the brackets?
 
@@ -255,6 +264,13 @@ Here, `foo bar` will be typeset in bold, but not `baz`.
     ]
 
 We split the `mypgm [ --help ]` on 4 lines to prevent `.B` from operating on the brackets.
+
+##
+## What is the escape to typeset some text in a bold fontface?
+
+`\fB` and `\fP`.
+
+Or `\f[B]` and `\f[P]`.
 
 ##
 # Misc.

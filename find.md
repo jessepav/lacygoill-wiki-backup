@@ -93,7 +93,7 @@ An expression can contain any of the following types of primaries:
      It seems actions are a kind of tests, because:
 
        1. they return a true/false value
-       2. `$ man find` says (/NON-BUGS):
+       2. `$ man find /NON-BUGS` says:
 
        > Remember that the  precedence of `-a` is higher than  that of `-o`, and
        > when there is no operator specified between tests, `-a` is assumed.
@@ -110,7 +110,7 @@ An expression can contain any of the following types of primaries:
        An  expression also  contains positional  and global  options (not  to be
        confused with regular options).
        These options seem to be a kind of tests, since they all return true.
-       Read `$ man find`, `/EXPRESSION`.
+       Read `$ man find /EXPRESSION`.
 
    - operators connect the other arguments and affect when and whether they are
      evaluated

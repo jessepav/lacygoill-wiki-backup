@@ -934,8 +934,7 @@ They do NOT stand for how long the processes have been running.
 # Signals
 ## Where can I find more info about the different signals that I can send to a process?
 
-        $ man 7 signal
-        /Standard signals
+        $ man 7 signal /Standard signals
 
 ## What does it mean for a process to “catch” a signal?
 

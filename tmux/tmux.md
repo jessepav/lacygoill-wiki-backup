@@ -35,7 +35,7 @@ To test the current value of a replacement variable such as `#{pane_tty}`, run:
 If you  include `#{C:hello}` in your  tmux status line, the  latter will contain
 the number line where `hello` appears in the current tmux pane.
 
-From `$ man tmux`, `/FORMATS`:
+From `$ man tmux /FORMATS`:
 > A  ‘C’ performs  a search  for an  fnmatch(3) pattern  in the  pane content  and
 > evaluates to zero if not found, or a line number if found.
 
@@ -1601,8 +1601,7 @@ Les liens sont dépourvus de contexte.
 # -----------------------------------------------
 # Raccourcis
 
-    $ man tmux
-    /key bindings
+    $ man tmux /DEFAULT KEY BINDINGS
 
             liste des raccourcis par défaut
 

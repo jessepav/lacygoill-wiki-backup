@@ -1,5 +1,18 @@
 # ?
 
+Document that it seems that only ripgrep  (and ag) can print several matches, on
+a single input line,  on multiple dedicated output lines *with*  the rest of the
+input line.
+
+grep can  do the same thing  with `-o` but it  only prints the matches,  not the
+rest of the line.
+
+Also, only ripgrep (and ag) can print the column position of the match.
+I think that grep can print the byte offset from the start of the file, which is
+entirely different (and not very useful imo).
+
+# ?
+
 Document the fact that grep supports PCRE  (which is much more powerful than BRE
 and ERE), provided that you pass it the option `-P`.
 

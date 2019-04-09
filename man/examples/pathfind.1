@@ -55,14 +55,14 @@
 .\"
 .\" For more info, see `$ info -n if groff`.
 .\"}}}
-.\" ... the following `n`?{{{
+.\"     the following `n`?{{{
 .\"
 .\" An expression that  evaluates to True if the document  is being processed in
 .\" nroff mode (i.e., the `.nroff` command has been issued).
 .\"
 .\" For more info, see `$ info -n 'Operators in Conditionals' groff`.
 .\"}}}
-.\" ... `.ti`?{{{
+.\"     `.ti`?{{{
 .\"
 .\" Synopses:
 .\"
@@ -75,7 +75,7 @@
 .\" indentation relative to the value set by the 'in' request.
 .\" The default scaling indicator (measurement unit) is 'm'.
 .\"}}}
-.\" ... `+9n`?{{{
+.\"     `+9n`?{{{
 .\"
 .\" It stands for an incrementation of the indentation by a width of nine 'n' units.
 .\"
@@ -85,7 +85,7 @@
 .\"
 .\" For more info, see `$ info -n Measurements groff`.
 .\"}}}
-.\" ...... but why 9?{{{
+.\"        but why 9?{{{
 .\"
 .\" This is the width of the command  name, `$ pathfind`, plus a trailing space,
 .\" in a fixedwidth font (i.e. a font whose characters have all the same width).
@@ -118,7 +118,7 @@
 .\" An expression that  evaluates to True if the document  is being processed in
 .\" troff mode (i.e., the `.troff` command has been issued).
 .\"}}}
-.\" ... `\w'...'u`?{{{
+.\"     `\w'...'u`?{{{
 .\"
 .\" It's an escape sequence, documented at `$ info -n 'Page Motions' groff`.
 .\" It evaluates to  the width of the  text `pathfind `, the text  being in bold
@@ -142,9 +142,15 @@
 .\"
 .\" Font changes may occur in TEXT, which don't affect current settings.
 .\"}}}
-.\" ... `\fB` and `\fP`?{{{
+.\"     `\fB` and `\fP`?{{{
 .\"
-.\" Because.
+.\" Because the  text is  set in  a bold font,  we use  an inline  font wrapper,
+.\" `\fB...\fP`;  it switches  to a  bold font,  and then  switches back  to the
+.\" previous font.
+.\"
+.\" There are similar font-switching commands for roman (`\fR`), italic (`\fI`),
+.\" and  fixed-width (`\fC`)  fonts; the  C stands  for Courier,  a widely  used
+.\" fixed-width font dating back to the days of manual type writers.
 .\"}}}
 .\"     .if t .ti +\w'\fBpathfind\fP 'u
 

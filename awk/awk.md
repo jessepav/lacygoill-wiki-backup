@@ -383,7 +383,7 @@ Similarly install other library extensions in `gawkextlib/`.
 
 For more info, see:
 
-    $ man  3am [abort|csv|...]
+    $ man 3am [abort|csv|...]
 
 # ?
 

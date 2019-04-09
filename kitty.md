@@ -199,7 +199,7 @@ Put this in your vimrc:
 
 For more info:
 
-    $ man terminfo (/bce)
+    $ man terminfo /bce
     https://sunaku.github.io/vim-256color-bce.html
     https://sw.kovidgoyal.net/kitty/faq.html#using-a-color-theme-with-a-background-color-does-not-work-well-in-vim
 

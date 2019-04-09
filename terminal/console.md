@@ -261,8 +261,7 @@ For more info:
 
         https://unix.stackexchange.com/a/301402/232487
 
-        $ man mpv
-        /drm
+        $ man mpv /drm
 
 ## an image?
 
