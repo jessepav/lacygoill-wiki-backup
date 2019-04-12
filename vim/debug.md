@@ -673,6 +673,34 @@ first wildcard.
 
 #
 # Issues
+## When I try to debug Neovim, I get an error about an unknown function (e.g. `colorscheme#set()`)!
+
+Make sure you've copied the contents of `~/.config/nvim/init.vim` in addition to
+the one of `~/.vim/vimrc`, inside your `/tmp/vimrc`.
+Obviously, you need  to remove `:source $HOME/.vim/vimrc` if  you already copied
+the contents of `~/.vim/vimrc` in `/tmp/vimrc`.
+
+---
+
+Explanation:
+
+Suppose that you need to debug your vimrc, and you make a copy of `~/.vim/vimrc`
+in `/tmp/vimrc`.
+
+Then, you start Neovim with this custom vimrc, which calls a function in
+`~/.vim/autoload/`, like `colorscheme#set()`.
+
+It will raise `E717`, because Neovim won't find the function:
+
+    $ nvim -Nu /tmp/vimrc
+    Error detected while processing /tmp/vimrc:~
+    line  717:~
+    E117: Unknown function: colorscheme#set~
+    Press ENTER or type command to continue~
+
+This is because `~/.vim` was not added to the rtp by `~/.config/nvim/init.vim`.
+
+##
 ## Some global variable is created, but I don't know which script did it!
 
         $ vim -V15/tmp/log

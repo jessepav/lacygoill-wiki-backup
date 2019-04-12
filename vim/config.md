@@ -222,14 +222,14 @@ The global value could be `0`.
 
 ## What happens when 'undolevels' has the local value -123456?   -1?    0?
 
-        ┌─────────────────┬──────────────────────────────────────────────┐
-        │ &l:ul = -123456 │ the global value is to be used instead       │
-        ├─────────────────┼──────────────────────────────────────────────┤
-        │ &l:ul = -1      │ there's no undo in this buffer               │
-        ├─────────────────┼──────────────────────────────────────────────┤
-        │ &l:ul = 0       │ you can undo only one change,                │
-        │                 │ and if you press `u` a second time, you redo │
-        └─────────────────┴──────────────────────────────────────────────┘
+    ┌─────────────────┬──────────────────────────────────────────────┐
+    │ &l:ul = -123456 │ the global value is to be used instead       │
+    ├─────────────────┼──────────────────────────────────────────────┤
+    │ &l:ul = -1      │ there's no undo in this buffer               │
+    ├─────────────────┼──────────────────────────────────────────────┤
+    │ &l:ul = 0       │ you can undo only one change,                │
+    │                 │ and if you press `u` a second time, you redo │
+    └─────────────────┴──────────────────────────────────────────────┘
 
 ---
 

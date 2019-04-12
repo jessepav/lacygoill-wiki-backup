@@ -73,6 +73,8 @@ command output and update a qfl:
       following calls:
 
         call setqflist([], 'a', {'id' : qfid, 'lines' : cmdoutput, 'efm' : myefm})
+        ^
+        should we add `noa`? (same question for the command below)
 
       or
 

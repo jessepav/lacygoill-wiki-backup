@@ -1617,7 +1617,7 @@ Errata for sed & awk: <https://www.oreilly.com/catalog/errata.csp?isbn=978156592
 
 When you review  your notes, and you find something  you don't understand, write
 an unnamed question right below the current one.
-It's better  to write  there than  in a  `TO_DO`, because  it provides  a better
+It's better to  write it there than  in a `TO_DO`, because it  provides a better
 context.
 You'll  immediately  know  where  the  issue   comes  from,  and  where  to  add
 modifications once you have a better understanding.
