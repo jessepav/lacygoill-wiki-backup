@@ -1099,7 +1099,7 @@ This plugin makes searching in files easier than ever!
 
             https://github.com/igemnace/vim-makery
 
-                                    83 sloc
+                                    152 sloc
 
 ## mark
 

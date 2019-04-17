@@ -1,10 +1,10 @@
 # Types of options
 ## What are the four types of scope that an option can have?
 
-        - global          (233 options have this type atm: /^'.*\n\s*global$)
-        - buffer-local    (57)
-        - window-local    (37)
-        - global-local    (21)
+   - global          (233 options have this type atm: /^'.*\n\s*global$)
+   - buffer-local    (57)
+   - window-local    (37)
+   - global-local    (21)
 
 ##
 ## Do all options have a local value?
@@ -43,10 +43,10 @@ Yes.
 
 *In a given window*, a window-local option has:
 
-        - a global value, to initialize its local value in all buffers being
-          displayed there
+   - a global value, to initialize its local value in all buffers being
+     displayed there
 
-        - a value local to any given buffer displayed in this window
+   - a value local to any given buffer displayed in this window
 
 The global value  of a window-local option  is *not* global to  *all* buffers in
 *all* windows; it's global to *all* buffers in a *given* window.
@@ -57,13 +57,13 @@ IOW,  there's one  global  value per  window,  and one  local  value per  couple
 
 Execute:
 
-        :setl nu
+    :setl nu
 
-        :setg nu?
-            nonumber
+    :setg nu?
+        nonumber
 
-        :setl nu?
-            number
+    :setl nu?
+        number
 
 The last 2 commands have different outputs because `'number'` has a global and a
 local value.
@@ -1193,15 +1193,15 @@ l'émulateur de terminal se donne.
 `:echo &term` ou `:echo $TERM` permet de la lire
 
 
-        ┌────────────────────────┬──────────────┬────────────────────────────────────┐
-        │ 'textwidth'     / 'tw' │ buffer-local │ default: 0                         │
-        ├────────────────────────┼──────────────┼────────────────────────────────────┤
-        │ 'wrapmargin'    / 'wm' │ buffer-local │ default: 0                         │
-        ├────────────────────────┼──────────────┼────────────────────────────────────┤
-        │ 'formatoptions' / 'fo' │ buffer-local │ default: tcq                       │
-        ├────────────────────────┼──────────────┼────────────────────────────────────┤
-        │ 'columns'       / 'co' │ global       │ default: 80 ou largeur du terminal │
-        └────────────────────────┴──────────────┴────────────────────────────────────┘
+    ┌────────────────────────┬──────────────┬────────────────────────────────────┐
+    │ 'textwidth'     / 'tw' │ buffer-local │ default: 0                         │
+    ├────────────────────────┼──────────────┼────────────────────────────────────┤
+    │ 'wrapmargin'    / 'wm' │ buffer-local │ default: 0                         │
+    ├────────────────────────┼──────────────┼────────────────────────────────────┤
+    │ 'formatoptions' / 'fo' │ buffer-local │ default: tcq                       │
+    ├────────────────────────┼──────────────┼────────────────────────────────────┤
+    │ 'columns'       / 'co' │ global       │ default: 80 ou largeur du terminal │
+    └────────────────────────┴──────────────┴────────────────────────────────────┘
 
 Ces  4 options  (en particulier  les 2  premières) contrôlent  la longeur  d'une
 ligne, i.e. qd une ligne est wrappée en dur automatiquement.

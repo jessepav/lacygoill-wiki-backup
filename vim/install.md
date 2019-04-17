@@ -425,12 +425,16 @@ Use one of these commands:
     $ make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_EXTRA_FLAGS=-DENABLE_JEMALLOC=OFF
                                            ├─────────────────────────────────────┘
                                            └ necessary to be able to use `checkinstall` later
-                                           https://github.com/neovim/neovim/issues/2364#issuecomment-113966180
-                                           https://github.com/serverwentdown/env/commit/a05a31733443fcb0979fecf18f2aa8e9e2722c7c
 
-                                     TODO:
-                                     What do we lose by disabling jemalloc?
-                                     Are we going to suffer from a noticeable performance hit?
+<https://github.com/neovim/neovim/issues/2364#issuecomment-113966180>
+<https://github.com/serverwentdown/env/commit/a05a31733443fcb0979fecf18f2aa8e9e2722c7c>
+
+TODO:
+What do we lose by disabling jemalloc?
+Are we going to suffer from a noticeable performance hit?
+I could  be wrong,  but after  reading this  (and because  Neovim is  probably a
+single-threaded process) I don't think so:
+<https://stackoverflow.com/a/1624744/9780968>
 
 ---
 
@@ -468,11 +472,9 @@ In that case, run:
 ### fix man plugin
 
 By default, when you  run `$ man man`, the manpage is not  prettified like it is
-when you run `:Man man` from a Neovim instance (started with `$ nvim`).
-Let's fix that:
+when you run `:Man man` from a Neovim instance; let's fix that:
 
-    $ cd /usr/local/share/nvim/runtime/autoload/man.vim
-    $ sed -i.bak '/function! man#init_pager()/ {/endfunction/s//do <nomodeline> man BufReadCmd/}' man.vim
+    $ sed -i.bak '/function! man#init_pager()/ {/endfunction/s//do <nomodeline> man BufReadCmd/}' /usr/local/share/nvim/runtime/autoload/man.vim
 
 ### ?
 

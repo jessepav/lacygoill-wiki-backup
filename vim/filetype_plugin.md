@@ -923,7 +923,7 @@ always the same:
         :syntax enable
         :syntax on
 
-## Which way is better?
+### Which way is better?
 
         :syntax enable
 
@@ -959,6 +959,13 @@ We can see that for `:syntax enable`, the commands use `:hi def` instead of just
 `:hi`.
 The `def` argument prevents that we override an existing HG (set previously by a
 color scheme).
+
+### Why should it be enabled *after* the filetype plugins?
+
+For `setl fdm=syntax` to  work in a given buffer, the syntax  must not have been
+already sourced.
+
+<https://stackoverflow.com/a/55692963/9780968>
 
 ##
 ## Besides syntax highlighting, what other fundamental mechanism is enabled by `:syntax on`?

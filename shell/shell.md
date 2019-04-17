@@ -3706,7 +3706,7 @@ les arguments passés.
             il faut taper à l'aveugle.
 
 ##
-# TODO
+# Todo
 
     https://unix.stackexchange.com/a/154971/275162
 
@@ -3891,35 +3891,35 @@ Inspiration:
 
         alias g=go
 
-# LIENS
+# Links
 
-https://github.com/alebcay/awesome-shell
-https://github.com/unixorn/awesome-zsh-plugins
+<https://github.com/alebcay/awesome-shell>
+<https://github.com/unixorn/awesome-zsh-plugins>
 
-http://zsh.sourceforge.net/FAQ/
-http://zsh.sourceforge.net/Guide/zshguide.html
+<http://zsh.sourceforge.net/FAQ/>
+<http://zsh.sourceforge.net/Guide/zshguide.html>
 
-https://www.commandlinefu.com/commands/browse/sort-by-votes
+<https://www.commandlinefu.com/commands/browse/sort-by-votes>
 
-http://www.shellscript.sh/
+<http://www.shellscript.sh/>
 
-http://mywiki.wooledge.org/BashPitfalls
-http://mywiki.wooledge.org/BashFAQ
-http://stackoverflow.com/a/10834267 (script inplace)
-http://wiki.bash-hackers.org/scripting/obsolete (diverses syntaxes obsolètes)
-https://google.github.io/styleguide/shell.xml
+<http://mywiki.wooledge.org/BashPitfalls>
+<http://mywiki.wooledge.org/BashFAQ>
+<http://stackoverflow.com/a/10834267 (script inplace)>
+<http://wiki.bash-hackers.org/scripting/obsolete (diverses syntaxes obsolètes)>
+<https://google.github.io/styleguide/shell.xml>
 
-https://grml.org/zsh/
-https://grml.org/zsh/zsh-lovers.pdf
+<https://grml.org/zsh/>
+<https://grml.org/zsh/zsh-lovers.pdf>
 cd /tmp ; wget -O .zshrc http://git.grml.org/f/grml-etc-core/etc/zsh/zshrc
 
-http://www.bash2zsh.com/
-http://www.bash2zsh.com/zsh_refcard/refcard.pdf
+<http://www.bash2zsh.com/>
+<http://www.bash2zsh.com/zsh_refcard/refcard.pdf>
 
-https://www-s.acm.illinois.edu/workshops/zsh/toc.html
+<https://www-s.acm.illinois.edu/workshops/zsh/toc.html>
 
-https://blog.engineyard.com/2014/bats-test-command-line-tools
-https://github.com/sstephenson/bats
-https://fr.wikipedia.org/wiki/Test_unitaire
-https://fr.wikipedia.org/wiki/Test_driven_development
+<https://blog.engineyard.com/2014/bats-test-command-line-tools>
+<https://github.com/sstephenson/bats>
+<https://fr.wikipedia.org/wiki/Test_unitaire>
+<https://fr.wikipedia.org/wiki/Test_driven_development>
 

@@ -509,6 +509,43 @@ For more info, see:
 # TODO
 ## ?
 
+If you set  `'tgc'` in Neovim, you'll notice  that a lot of text  is bold, while
+it's not in Vim, and vice versa.
+
+This  is because  the  gui attribute  is applied  (`gui=bold`),  instead of  the
+`cterm` attribute.
+
+I can reproduce with this minimal vimrc:
+
+    set rtp-=~/.vim
+    set rtp^=~/.vim/plugged/seoul256.vim
+    set rtp^=~/.vim
+
+    let [g:no_plugin, g:no_after_plugin] = [1,1]
+
+    filetype plugin indent on
+    syntax enable
+
+    set termguicolors
+    colo seoul256-light
+
+    hi clear Statement
+    hi Statement ctermfg=66 guifg=#719899
+
+This makes me  think that this is  intended by Neovim devs; and  it makes sense:
+when `'tgc'`  is set,  we tell (Neo)Vim  that the terminal  can support  all the
+styles a gui program could.
+
+To document.
+
+But this begs  the question: why did  Vim choose to apply  the `cterm` attribute
+when `'tgc'` is set?
+
+Answer: it's probably an issue that Vim should fix:
+<https://github.com/vim/vim/issues/1740>
+
+## ?
+
 Document the fact that `execute('hi ...')` can contain newlines, if the width of
 the current window is too small.
 

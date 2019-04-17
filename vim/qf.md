@@ -225,11 +225,12 @@ But you won't get the key `'all'` in the dictionary output.
    - size
    - winid
 
-## What are the three properties that a qfl in Neovim currently misses, compared to Vim?
+## What are the properties that a qfl in Neovim currently misses, compared to Vim?
 
    - changedtick
-   - idx
-   - size
+
+TODO: Aren't there other missing properties?
+Like `qfbufnr`, `filewinid`, `module`, ...
 
 ##
 ## What's the 'context' property of a qfl?
@@ -351,9 +352,6 @@ Size of the qf stack:
 ## How to check whether the qfl whose ID is 123 exists?
 
     if getqflist({'id':123}).id == 123
-
-No need  of `get()`; the output  of `getqflist()` should always  contain an `id`
-key regardless of the existence of a qfl whose `id` is 123.
 
 ## Why is it important for a plugin to be able to detect whether the qfl has been modified?
 
@@ -1433,6 +1431,21 @@ Search for `\C\<get(` in this file and in all our notes/plugins/...
 
 You  may find  a lot  of matches,  but don't  worry (`:Cfilter!  -other_plugins`)
 removes a lot of them.
+
+---
+
+But don't do it now.
+
+In  Neovim,  you  need  `get()`,  because atm  `getqflist()`  returns  an  empty
+dictionary, if there's no quickfix list:
+
+    $ vim -Nu NONE +'echo getqflist({"size": 0})'
+    {'size': 0}~
+    ~
+    $ nvim -Nu NONE +'echo getqflist({"size": 0})'
+    {}~
+
+Wait for Neovim to be more consistent with Vim.
 
 ## ?
 

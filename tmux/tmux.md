@@ -107,6 +107,73 @@ For the moment, the  only solution which I know is to kill  and restart the tmux
 server.
 
 ##
+# Issues
+## Some options which set colors don't work!
+
+Do you use hex color codes, and does your terminal support true colors?
+If the answers are yes and no, then make sure the following line is not run when
+tmux is started from your terminal:
+
+    set -as terminal-overrides ',*-256color:Tc'
+
+Setting `Tc` may prevent other settings to work, like these for example:
+
+    set -gw window-style        'bg=#cacaca'
+    set -gw window-active-style 'bg=#dbd6d1'
+
+This issue is specific to terminals which don't support true colors.
+
+Alternatively, you could:
+
+   - use `colour123` instead of `#ab1234`
+   - use a terminal supporting true colors
+
+---
+
+MWE:
+
+     $ cat <<'EOF' >/tmp/tmux.conf
+
+     set -as terminal-overrides ',*-256color:Tc'
+     set -gw window-style         'bg=#000000'
+     set -gw window-active-style  'bg=#ffffff'
+
+     set -g prefix 'M-space'
+     unbind '"'
+     bind _ splitw -v
+     bind M-space last-pane
+     EOF
+
+     $ tmux -L test -f /tmp/tmux.conf
+
+     pfx _
+     pfx SPC
+
+## My `if-shell` and/or `run-shell` tmux command doesn't work!
+
+Make sure it does not invoke the shell command `[[`.
+
+It would raise an error because tmux runs `/bin/sh`, and not `bash` or `zsh`.
+<https://github.com/tmux/tmux/issues/1603#issuecomment-462955856>
+
+Instead, use the shell command `[` or `test`.
+
+    run '[[ -d $XDG_RUNTIME_DIR/tmux || mkdir $XDG_RUNTIME_DIR/tmux ]]'
+         ^^                                                         ^^
+         ✘
+
+    run '[ -d $XDG_RUNTIME_DIR/tmux || mkdir $XDG_RUNTIME_DIR/tmux ]'
+         ^                                                         ^
+         ✔
+
+    run 'test -d $XDG_RUNTIME_DIR/tmux || mkdir $XDG_RUNTIME_DIR/tmux'
+         ^^^^
+         ✔
+
+##
+##
+##
+##
 # Theory
 
 Several tmux clients can be attached to the same session.

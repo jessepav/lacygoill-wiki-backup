@@ -4477,6 +4477,14 @@ Have a look at the links in the sidebar:
 <https://github.com/ericpruitt/wcwidth.awk> (Miscellaneous > More AWK libraries...)
 ...
 
+## Document namespaces
+
+It's a new feature (gawk 5.0) which I've seen mentioned here:
+<https://lists.gnu.org/archive/html/info-gnu/2019-04/msg00002.html>
+
+I can't find it in the gawk user guide (pdf).
+But it's documented in the manpage.
+
 ##
 # Reference
 
