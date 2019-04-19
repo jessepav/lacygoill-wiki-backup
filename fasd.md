@@ -672,3 +672,12 @@ Set `_FASD_SINK` in your `.fasdrc` to obtain a log:
 
     _FASD_SINK="${HOME}/.fasd.log"
 
+##
+# Issues
+## I keep opening a file but fasd never adds it to its database!
+
+Make sure the name of the file does *not* contain whitespace.
+If it does, replace all whitespace with non-whitespace (like underscores).
+
+Also, don't quote your filename.
+

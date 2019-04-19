@@ -1,115 +1,315 @@
-# ?
+# What is zathura-pdf-mupdf?
+
+A plugin for zathura.
+
+It allows the latter to use MuPDF as a backend.
+
+## Why should I install it?
 
 zathura is *much* faster to read a pdf when it uses MuPDF as a backend:
 <https://askubuntu.com/q/804515/867754>
 
-It also  supports reading  epub, which means  that you don't  need to  convert a
-novel into a pdf before being able to read it in zathura.
+It also consumes a lot less memory (2-4 times less in my limited testing).
 
-This requires to install the `zathura-pdf-mupdf` plugin.
+Finally, it  gives epub support,  which means that you  don't need to  convert a
+novel into a pdf before being able to read it.
 
----
+## How to install it?
 
-On Ubuntu 16.04 use this PPA:
-<https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf>
+Compile a recent version of `libmupdf-dev`:
 
-If you use it to install the plugin, it will pull in `libopenjp2-7` as a dependency,
-and remove `zathura-pdf-poppler` (because they provide the same functionality).
+    $ git clone --recursive git://git.ghostscript.com/mupdf.git
+    $ cd mupdf
+    $ git checkout 1.11-rc1
+    $ git submodule update --init
+    $ sudo aptitude update
+    $ sudo aptitude install libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev mesa-common-dev pkg-config
 
-You don't have to install the PPA, you can simply download the package from here:
-<https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf/+sourcepub/8048474/+listing-archive-extra>
+    $ CFLAGS=-fPIC make HAVE_X11=no HAVE_GLUT=no prefix=/usr/local
+      ├──────────┘
+      └ pass some flags to `$ gcc`, otherwise the compilation of `zathura-pdf-mupdf` will fail,
+        with an error  message recommending you to recompile with those flags.
 
----
+    # Give this description: “development files for the MuPDF viewer”
+    $ sudo checkinstall --pkgversion=1.11 --pkgname=libmupdf-dev
 
-On Ubuntu 18.04, you can try to compile the plugin:
+If  the  compilation   fails  because  of  a  missing  file,   have  a  look  at
+`docs/building.html`, header “Compiling on Linux”  (switch to master if the file
+doesn't exist).
 
-    # for virtual machine only
-    $ sudo systemctl disable --now apt-daily{,-upgrade}.{timer,service}
-    $ sudo apt install git
+Now, you can compile the plugin:
+
     $ git clone https://git.pwmt.org/pwmt/zathura-pdf-mupdf.git
     $ cd zathura-pdf-mupdf
-    $ git checkout 0.3.2
+    $ git checkout 0.3.1
+    $ sudo aptitude install libjbig2dec0-dev libjpeg-dev libopenjp2-7-dev libssl-dev zathura-dev
+    $ sudo make install
 
-    $ sudo aptitude install meson
-    $ meson build
-      meson.build:18:0: ERROR: Pkg-config not found.~
-    $ sudo aptitude install pkg-config
-    $ meson build
-      meson.build:18:0: ERROR: Native dependency 'zathura' not found~
-    $ sudo aptitude install zathura-dev
-      meson.build:18:0: ERROR: Invalid version of dependency, need 'zathura' ['>=0.3.9'] found '0.3.8'.~
+    $ sudo CFLAGS=-fPIC make install
 
-    $ git checkout 0.3.3
-    $ meson build
-      meson.build:18:0: ERROR: Invalid version of dependency, need 'zathura' ['>=0.3.9'] found '0.3.8'.~
+Note that  you can't easily  go beyond  certain versions for  `libmupdf-dev` and
+`zathura-pdf-mupdf`:
 
-    $ git checkout 0.3.2
-    $ meson build
-      Neither directory contains a build file meson.build.~
+    ┌───────┬──────────────┬───────────────────┐
+    │       │ libmupdf-dev │ zathura-pdf-mupdf │
+    ├───────┼──────────────┼───────────────────┤
+    │ 16.04 │     1.11     │       0.3.1       │
+    ├───────┼──────────────┼───────────────────┤
+    │ 18.04 │     1.13     │       0.3.2       │
+    └───────┴──────────────┴───────────────────┘
 
-    $ make install
-      No package 'libcrypto' found~
-      ...~
-      document.c:5:10: fatal error: mupdf/fitz.h: No such file or directory~
-    $ sudo apt install apt-file
-    $ apt-file update
-    $ apt-file search libcrypto
-      ...~
-      libssl-dev~
-      ...~
-    $ apt-file search mupdf/fitz.h
-      libmupdf-dev: /usr/include/mupdf/fitz.h~
-    $ sudo apt install libssl-dev libmupdf-dev
+Otherwise the compilation of the plugin fails.
 
-    $ make install
-      /usr/bin/ld: cannot find -ljbig2dec~
-      /usr/bin/ld: cannot find -lopenjp2~
-      /usr/bin/ld: cannot find -ljpeg~
-    $ apt-file search -x 'lib.*jbig2dec.*dev'
-      libjbig2dec0-dev~
-    $ apt-file search -x 'lib.*openjp2.*dev'
-      libopenjp2-7-dev~
-    $ apt-file search -x 'lib.*jpeg.*dev'
-      libjpeg-dev~
-      ...~
-    $ sudo apt install libjbig2dec0-dev libopenjp2-7-dev libjpeg-dev
+### This is too complex!  Can I use a PPA?
 
-    $ make install
-    pdf build options:~
-    CFLAGS  = -std=c99 -fPIC -pedantic -Wall -Wno-format-zero-length -pthread -I/usr/include/gtk-3.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/gtk-3.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/harfbuzz -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -pthread -I/usr/include/gtk-3.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/gtk-3.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/harfbuzz -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libpng16 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/json-c  -I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -pthread -I/usr/include/gtk-3.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/gtk-3.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/harfbuzz -I/usr/include/pango-1.0 -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libpng16 -I/usr/include/json-c -I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/harfbuzz -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include~
-    LDFLAGS = -fPIC~
-    DFLAGS  = -g~
-    CC      = cc~
-    LD pdf.so~
-    /usr/bin/ld: /usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib/libmupdf.a(draw-device.o): relocation R_X86_64_PC32 against symbol `fz_empty_irect' can not be used when making a shared object; recompile with -fPIC~
-    /usr/bin/ld: final link failed: Bad value~
-    collect2: error: ld returned 1 exit status~
-    Makefile:46: recipe for target 'pdf.so' failed~
-    make: *** [pdf.so] Error 1~
+Yes: <https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf>
 
-The Makefile can be read here: <https://0x0.st/zNkF.txt>
-It's indented with a space to prevent `0x0.st` from handling it as a binary file
-(you wouldn't be able to read it online, only download it).
+    $ sudo add-apt-repository ppa:spvkgn/zathura-mupdf
+    $ sudo aptitude update
+    $ sudo aptitude install zathura-pdf-mupdf
 
-    $ gcc -v
-    Using built-in specs.~
-    COLLECT_GCC=gcc~
-    COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/7/lto-wrapper~
-    OFFLOAD_TARGET_NAMES=nvptx-none~
-    OFFLOAD_TARGET_DEFAULT=1~
-    Target: x86_64-linux-gnu~
-    Configured with: ../src/configure -v --with-pkgversion='Ubuntu 7.3.0-27ubuntu1~18.04' --with-bugurl=file:///usr/share/doc/gcc-7/README.Bugs --enable-languages=c,ada,c++,go,brig,d,fortran,objc,obj-c++ --prefix=/usr --with-gcc-major-version-only --program-suffix=-7 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-libmpx --enable-plugin --enable-default-pie --with-system-zlib --with-target-system-zlib --enable-objc-gc=auto --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu~
-    Thread model: posix~
-    gcc version 7.3.0 (Ubuntu 7.3.0-27ubuntu1~18.04) ~
+It will remove `zathura-pdf-poppler` (because they provide the same functionality).
 
 ---
 
+Alternatively, you can simply download the package from here:
+<https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf/+sourcepub/8048474/+listing-archive-extra>
+And its custom dependency `libmupdf-pic-dev` from here:
+<https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf/+sourcepub/8048472/+listing-archive-extra>
+Click on the file below the section "Package files" with the extension `amd64.deb`.
+
+And install `libmupdf-pic-dev` then `zathura-pdf-mupdf` with `$ dpkg -i`.
+Again, it will purge `zathura-pdf-poppler`:
+
+    ...~
+    dpkg: considering removing zathura-pdf-poppler in favour of zathura-pdf-mupdf ...~
+    dpkg: yes, will remove zathura-pdf-poppler in favour of zathura-pdf-mupdf~
+    ...~
+
+#### It doesn't work on Ubuntu 18.04!
+
+Yes, the previous PPA works only for 16.04.
+
+Try this:
+
+    $ git clone https://git.pwmt.org/pwmt/zathura-pdf-mupdf.git
+    $ cd zathura-pdf-mupdf
+    $ git checkout 0.3.1
+    $ sudo aptitude update
+    $ sudo aptitude install libjbig2dec0-dev libjpeg-dev libopenjp2-7-dev libssl-dev zathura-dev
+    $ wget https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf/+files/libmupdf-pic-dev_1.11+ds1-0ubuntu1ppa1~xenial_amd64.deb
+    $ sudo dpkg -i libmupdf-pic-dev*.deb
+    $ sudo make install
+
+If the link passed to `$ wget` doesn't work, try to find another one from this webpage:
+<https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf/+sourcepub/8048472/+listing-archive-extra>
+
+---
+
+Note that this time, you can only go up to 0.3.1.
+If you compiled libmupdf-dev, you could go up to 0.3.2.
+
+##
+## How to remove it?
+
+Reinstall zathura-pdf-poppler:
+
+    $ sudo aptitude reinstall zathura-pdf-poppler
+
+It will overwrite the `/usr/lib/zathura/pdf.so` from zathura-pdf-mupdf.
+
+##
+## Why should I make zathura the default pdf reader after installing this plugin?
+
 Once the plugin is installed, evince will be the default program to open a pdf.
-This is because the file `zathura-pdf-mupdf.desktop` doesn't exist anymore.
-Solution:
+This is because the file `zathura-pdf-poppler.desktop` doesn't exist anymore.
 
-    $ xdg-mime default zathura-pdf-mupdf.desktop application/pdf
+### How to do it?
 
+    $ xdg-mime default zathura-pdf-mupdf.desktop application/pdf application/epub+zip
+                                                                 ├──────────────────┘
+                                                                 └ handle epubs as well, while we're at it
+
+##
+# Where is zathura's issue tracker?
+
+<https://git.pwmt.org/pwmt/zathura/issues>
+
+##
+##
+##
+# ?
+## ?
+
+    $ apt-src install zathura-pdf-mupdf
+
+    $ apt-src build zathura-pdf-mupdf
+
+## ?
+
+    $ dpkg-source --before-build zathura-pdf-mupdf-0.3.1
+    $ cd zathura-pdf-mupdf-0.3.1
+    $ fakeroot debian/rules clean
+    $ debian/rules build
+    $ fakeroot debian/rules binary
+
+## ?
+
+You can compile zathura-pdf-mupdf after installing those dependencies:
+
+    $ sudo aptitude install libjbig2dec0-dev libmupdf-pic-dev libopenjp2-7-dev
+
+But how do you find those?
+We found them by  installing a PPA + `$ apt-src`,  uncommenting a `deb-src` line
+in the PPA's sources.list, and running:
+
+    $ apt-src update
+    $ apt-src install zathura-pdf-mupdf
+
+How to find them without all of this?
+
+## ?
+
+    $ git clone https://git.pwmt.org/pwmt/zathura-pdf-mupdf.git
+    $ cd zathura-pdf-mupdf
+    $ git checkout 0.3.1
+    $ sudo aptitude install libjbig2dec0-dev libmupdf-pic-dev libopenjp2-7-dev
+    $ sudo make install
+
+Don't use `checkinstall`.
+You could try with:
+
+    $ sudo checkinstall \
+      --maintainer='root@ubuntu' \
+      --pkgname='zathura-pdf-mupdf' \
+      --pkgversion=0.3.1 \
+      --provides='pdf-viewer,zathura-pdf-poppler'
+
+And with this summary: “PDF support (mupdf backend) for zathura”
+
+But the  installation will fail  because the package  tries to overwrite  a file
+installed by another package (`zathura-pdf-poppler`).
+
+You will have to force the installation by running sth like:
+
+    $ sudo dpkg -i --force-overwrite zathura-pdf-mupdf_0.3.1-1_amd64.deb
+
+Then later, if you decide to purge the package, it won't be easy.
+Indeed, zathura needs a plugin to read a pdf; it has to be `zathura-pdf-poppler`
+or `zathura-pdf-mupdf`.
+If you try to purge the latter, apt will first try to reinstall the former.
+This again will cause an issue, because both packages share a same file location
+(`/usr/lib/zathura/pdf.so`),  and apt  can't  overwrite a  file  installed by  a
+package which is currently installed.
+So, you'll have to force the installation of the poppler plugin:
+
+    $ aptitude download zathura-pdf-poppler
+    $ sudo dpkg -i --force-overwrite zathura-pdf-mupdf_0.3.1-1_amd64.deb
+    $ sudo aptitude purge zathura-pdf-mupdf
+
+Besides, the deb package contains only these files:
+
+    /usr/share/doc/zathura-pdf-mupdf/AUTHORS
+    /usr/share/doc/zathura-pdf-mupdf/LICENSE
+    /usr/share/doc/zathura-pdf-mupdf/README
+    /usr/share/applications/zathura-pdf-mupdf.desktop
+    /usr/lib/zathura/pdf.so
+
+And only the last one is useful.
+
+## ?
+
+The mupdf plugin requires the custom dependency libmupdf-pic-dev.
+We need to find out how it was compiled by the PPA.
+
+    $ apt-get source libmupdf-pic-dev
+    $ dpkg-source --before-build mupdf-pic-1.11+ds1
+    $ cd mupdf-pic-1.11+ds1/
+    $ fakeroot debian/rules clean
+    $ cd ..
+    $ dpkg-source -b mupdf-pic-1.11+ds1
+    $ cd mupdf-pic-1.11+ds1/
+    $ debian/rules build
+    $ fakeroot debian/rules binary
+    $ dpkg-genchanges  >../mupdf-pic_1.11+ds1-0ubuntu1ppa1~xenial_amd64.changes
+    $ cd ..
+    $ dpkg-source --after-build mupdf-pic-1.11+ds1
+
+How did you find those commands?
+I studied the output  of `$ dpkg-buildpackage -us -uc`, and  noted all the lines
+which were  indented by exactly one  space (I had  to add some `cd`  commands to
+make the whole process work).
+
+Let's simplify this process so that we don't need any debian-specific command.
+
+    $ apt-get source libmupdf-pic-dev
+    $ cd mupdf-pic-1.11+ds1/
+    $ debian/rules build
+    $ fakeroot debian/rules binary
+
+Let's simplify further:
+
+    $ apt-get source libmupdf-pic-dev
+    $ cd mupdf-pic-1.11+ds1/
+    $ dh build
+    $ fakeroot dh binary
+
+You  can see  what  `dh build`  and  `dh  binary` execute  by  passing them  the
+`--no-act` option; they do a lot!
+
+## ?
+
+    $ apt-src install libmupdf-pic-dev
+    $ apt-src build libmupdf-pic-dev
+
+Interestingly, it seems that the name of a source package is not necessarily the
+same as the name of the binary package produced after compilation.
+For example, when you run `$ apt-get source libmupdf-pic-dev`, apt downloads the
+source package `mupdf-pic`:
+
+    Reading package lists... Done~
+    Picking 'mupdf-pic' as source package instead of 'libmupdf-pic-dev'~
+
+Same thing if you run `$ apt-src install libmupdf-pic-dev`.
+You can check this by reading the `.dsc` file, which contains:
+
+    Source: mupdf-pic~
+    Binary: libmupdf-pic-dev~
+
+In fact, if  you recompile the source package `libmupdf-dev`,  it will produce 3
+binary packages:
+
+   - libmupdf-dev_1.7a-1_amd64.deb
+   - mupdf-tools_1.7a-1_amd64.deb
+   - mupdf_1.7a-1_amd64.deb
+
+Btw, don't run `$ apt-get source` if  you later decide to run `$ apt-src build`;
+it won't necessarily work as expected.
+Indeed, it seems  that apt registers somewhere the location  where you installed
+the source package.
+It doesn't  matter where  you are  when you  run `$  apt-src build`,  the binary
+package will be located where you installed the source package.
+
+Have a look at `debian/control`:
+
+    Build-Depends:
+     debhelper (>= 7.0.50~),
+     dpkg-dev (>= 1.16.1.1~),
+     pkg-config,
+     libfreetype6-dev,
+     libharfbuzz-dev,
+     libjpeg-dev,
+     libjbig2dec-dev,
+     libopenjp2-7-dev,
+     libx11-dev,
+     libxext-dev,
+     zlib1g-dev
+
+All those packages  are not necessarily dependencies (refer to  the INSTALL file
+for that; or some similar documentation).
+But they are installed by `$ apt-get build-dep <source-package>`.
+
+##
 # ?
 
         $ git clone https://github.com/pwmt/zathura

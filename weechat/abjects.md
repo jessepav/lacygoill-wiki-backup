@@ -237,16 +237,16 @@ You can also get the schedule for the other days:
 ##
 ## What are the 10 genres of videos I can dl?
 
-        - action
-        - adventure
-        - comedy
-        - crime
-        - drama
-        - mystery
-        - romance
-        - sci-fi
-        - sport
-        - thriller
+   - action
+   - adventure
+   - comedy
+   - crime
+   - drama
+   - mystery
+   - romance
+   - sci-fi
+   - sport
+   - thriller
 
 ## How to list the videos of a given genre?
 
