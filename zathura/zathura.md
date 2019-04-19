@@ -1,10 +1,47 @@
-# What is zathura-pdf-mupdf?
+# How to make zathura the default reader for pdfs and epubs?
+
+    $ xdg-mime default zathura-pdf-mupdf.desktop application/pdf application/epub+zip
+                                                                 ├──────────────────┘
+                                                                 └ handle epubs as well, while we're at it
+
+# Where is zathura's issue tracker?
+
+<https://git.pwmt.org/pwmt/zathura/issues>
+
+##
+# Plugins
+## How to add support for djvu files?  comic books files?  postscript files?
+
+Install these plugins:
+
+    $ sudo aptitude install zathura-djvu
+    $ sudo aptitude install zathura-cb
+    $ sudo aptitude install zathura-ps
+
+## How to see the paths to all the plugins used by zathura?
+
+    $ zathura --version
+    zathura 0.3.5~
+    (plugin) ps (0.2.3) (/usr/lib/zathura/ps.so)~
+    (plugin) djvu (0.2.5) (/usr/lib/zathura/djvu.so)~
+    (plugin) pdf-mupdf (0.3.1) (/usr/lib/zathura/pdf.so)~
+    (plugin) cb (0.1.5) (/usr/lib/zathura/cb.so)~
+
+Here, you can see that we have 4 plugins, to read:
+
+   - postscript files
+   - djvu files
+   - pdf (and epub) files
+   - comic book files
+
+##
+## What is zathura-pdf-mupdf?
 
 A plugin for zathura.
 
 It allows the latter to use MuPDF as a backend.
 
-## Why should I install it?
+### Why should I install it?
 
 zathura is *much* faster to read a pdf when it uses MuPDF as a backend:
 <https://askubuntu.com/q/804515/867754>
@@ -14,7 +51,7 @@ It also consumes a lot less memory (2-4 times less in my limited testing).
 Finally, it  gives epub support,  which means that you  don't need to  convert a
 novel into a pdf before being able to read it.
 
-## How to install it?
+### How to install it?
 
 Compile a recent version of `libmupdf-dev`:
 
@@ -60,7 +97,7 @@ Note that  you can't easily  go beyond  certain versions for  `libmupdf-dev` and
 
 Otherwise the compilation of the plugin fails.
 
-### This is too complex!  Can I use a PPA?
+#### This is too complex!  Can I use a PPA?
 
 Yes: <https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf>
 
@@ -86,7 +123,7 @@ Again, it will purge `zathura-pdf-poppler`:
     dpkg: yes, will remove zathura-pdf-poppler in favour of zathura-pdf-mupdf~
     ...~
 
-#### It doesn't work on Ubuntu 18.04!
+##### It doesn't work on Ubuntu 18.04!
 
 Yes, the previous PPA works only for 16.04.
 
@@ -109,31 +146,25 @@ If the link passed to `$ wget` doesn't work, try to find another one from this w
 Note that this time, you can only go up to 0.3.1.
 If you compiled libmupdf-dev, you could go up to 0.3.2.
 
-##
-## How to remove it?
+###
+### How to remove it?
 
-Reinstall zathura-pdf-poppler:
+    $ sudo make uninstall
+
+It  will  remove  the  `/usr/lib/zathura/pdf.so`  from  zathura-pdf-poppler,  so
+reinstall the latter:
 
     $ sudo aptitude reinstall zathura-pdf-poppler
 
-It will overwrite the `/usr/lib/zathura/pdf.so` from zathura-pdf-mupdf.
+###
+### It can't read an epub!
 
-##
-## Why should I make zathura the default pdf reader after installing this plugin?
+If you have  installed zathura *after* the plugin, you  may have overwritten the
+`pdf.so` file, in which case your backend is not mupdf but still poppler.
 
-Once the plugin is installed, evince will be the default program to open a pdf.
-This is because the file `zathura-pdf-poppler.desktop` doesn't exist anymore.
+Reinstall the plugin:
 
-### How to do it?
-
-    $ xdg-mime default zathura-pdf-mupdf.desktop application/pdf application/epub+zip
-                                                                 ├──────────────────┘
-                                                                 └ handle epubs as well, while we're at it
-
-##
-# Where is zathura's issue tracker?
-
-<https://git.pwmt.org/pwmt/zathura/issues>
+    $ sudo make install
 
 ##
 ##

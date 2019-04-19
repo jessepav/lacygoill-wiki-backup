@@ -1,0 +1,13 @@
+About {{{2
+  Labels:
+
+  N    Type in Normal or Fullscreen mode
+  I    Type in Index mode
+}}}
+Move around  {{{1
+Move backward in jumplist «C-o»        N
+Move forward in jumplist  «C-i»        N
+Index {{{1
+Open the index            Tab          N
+collapse all entries      H            I
+expand all entries        L            I

@@ -44,18 +44,18 @@ See these links for more info:
 
     $ cd ~/GitRepos/rxvt-unicode/src
 
-    $ patch -b <~/.config/urxvt/00-font-width-fix.patch ; \
-      patch -b <~/.config/urxvt/00-256resources.patch ; \
-      patch -b <~/.config/urxvt/00-line-spacing-fix.patch ; \
-      patch -b <~/.config/urxvt/01_app-defaults.diff ; \
-      patch -b <~/.config/urxvt/02_use_dejavu.diff
+    $ patch -b <~/patches/urxvt/00-font-width-fix.patch ; \
+      patch -b <~/patches/urxvt/00-256resources.patch ; \
+      patch -b <~/patches/urxvt/00-line-spacing-fix.patch ; \
+      patch -b <~/patches/urxvt/01_app-defaults.diff ; \
+      patch -b <~/patches/urxvt/02_use_dejavu.diff
 
     $ cd ../doc
 
-    $ patch -b <~/.config/urxvt/07_rgb_location.diff ; \
-      patch -b <~/.config/urxvt/12_hyphen_minus_sign.diff
+    $ patch -b <~/patches/urxvt/07_rgb_location.diff ; \
+      patch -b <~/patches/urxvt/12_hyphen_minus_sign.diff
 
-    $ patch -b <~/.config/urxvt/11_fix_lexgrog.diff
+    $ patch -b <~/patches/urxvt/11_fix_lexgrog.diff
 
 The last patch raises this error:
 
@@ -91,7 +91,7 @@ If you want to reverse the effect of a patch, use the `-R` option.
 
 Example:
 
-    $ patch -R <~/.config/urxvt/00-font-width-fix.patch
+    $ patch -R <~/patches/urxvt/00-font-width-fix.patch
             ^^
 
 ---
