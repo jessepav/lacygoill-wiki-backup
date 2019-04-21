@@ -49,34 +49,88 @@ Example:
                     move the info file from `/usr/share/info` to `/usr/local/share/info`
 
 ##
-# How to find the configuration options which were used to compile a deb package?
+# debian source packages
+## How to download a debian source package?
 
-In `/etc/apt/sources.list` or in a file in `/etc/apt/sources.list.d/`, uncomment
-the `deb-src` line from which the source code of the package can be downloaded.
+Find in which section the file is located:
 
-Then:
+    $ aptitude show <package> | grep Section
+
+Uncomment the matching `deb-src` line in `/etc/apt/sources.list`.
+
+Update:
 
     $ sudo aptitude update
-    $ mkdir /tmp/dir; cd /tmp/dir
+
+Download the source package:
+
     $ apt-get source <package_name>
+
+This will download the source code in a directory, as well as a few other files:
+
+    vim-7.4.1689~
+    vim_7.4.1689-3ubuntu1.debian.tar.xz~
+    vim_7.4.1689-3ubuntu1.dsc~
+    vim_7.4.1689.orig.tar.gz~
 
 If  `$  apt-cache policy`  reports  several  versions,  you  can target  one  in
 particular with:
 
     $ apt-get source <package_name>=<version>
 
-Example:
+### How to recompile it?
 
-    $ apt-get source rxvt-unicode-256color
+    $ dpkg-buildpackage -us -uc
 
-This will download the source code in a directory, as well as a few other files:
+You must  be in the source  code tree when you  run the command, and  the deb is
+written in the parent directory (where the .dsc file lives), not the current one.
 
-    rxvt-unicode-9.22/~
-    rxvt-unicode_9.22-1ubuntu1~ppa1~x.debian.tar.xz~
-    rxvt-unicode_9.22-1ubuntu1~ppa1~x.dsc~
-    rxvt-unicode_9.22.orig.tar.bz2~
+See the chapter 15 “Creating a Debian Package” in The Debian Administrator's Handbook.
+More specifically the subchapter 15.1.3. “Starting the Rebuild”.
 
-Finally, read the file `debian/rules`:
+#### Should I apply the debian patches first?
+
+No, they've been automatically applied by `$ apt-get source`:
+
+    $ apt-get source vim
+    ...~
+    dpkg-source: info: applying 0001-Detect-the-rst-filetype-using-the-contents-of-the-fi.patch~
+    dpkg-source: info: applying 0002-Support-sourcing-a-vimrc.tiny-when-Vim-is-invoked-as.patch~
+    dpkg-source: info: applying 0003-Add-recognition-of-more-LaTeX-commands-for-tex-filet.patch~
+    dpkg-source: info: applying 0004-Document-Debian-s-decision-to-disable-modelines-by-d.patch~
+    dpkg-source: info: applying 0005-Support-defining-compilation-date-in-SOURCE_DATE_EPO.patch~
+    dpkg-source: info: applying 0006-debsources.vim-Move-trusty-to-unsupported.patch~
+    dpkg-source: info: applying ubuntu-grub-syntax.patch~
+    dpkg-source: info: applying update-upstart-syntax.patch~
+    dpkg-source: info: applying ubuntu-releases.patch~
+
+#### Which package(s) will be compiled by the previous command?
+
+Any package listed in:
+
+    $ grep -i ^binary: *.dsc
+
+##
+## How to find
+### the dependencies of a debian source package?
+
+    $ grep -i build-depends: *.dsc
+                               │
+                               └ Debian Source Control
+
+You can also find the information in the `debian/control` file.
+
+#### Are they all necessary for a compilation?
+
+Not necessarily.
+
+The authoritative  resource on that matter  is the INSTALL file  or some similar
+documentation provided by the project.
+
+####
+### the configuration options which were used to compile a debian source package?
+
+Read the file `debian/rules`:
 
     $ vim rxvt-unicode-9.22/debian/rules
 
@@ -120,7 +174,17 @@ Then, on the button “amd64” in the section “Builds”:
 Finally, on the button “buildlog”:
 <https://launchpadlibrarian.net/418666830/buildlog_ubuntu-disco-amd64.zsh_5.5.1-1ubuntu3_BUILDING.txt.gz>
 
-# I found a PPA.  Why do the names of its packages on the web differ from the packages I install on my system?
+##
+## What happens if I pass the name of a binary package to `$ apt-get source`?
+
+It will be replaced with the source package from which it can be compiled.
+
+    $ apt-get source vim-gtk
+    ...~
+    Reading package lists... Done~
+    Picking 'vim' as source package instead of 'vim-gtk'~
+
+## I found a PPA.  Why do the names of its packages on the web differ from the packages I install on my system?
 
 The package names you see on a page like this:
 <https://launchpad.net/~pi-rho/+archive/ubuntu/dev>

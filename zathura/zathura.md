@@ -52,8 +52,7 @@ Finally, it  gives epub support,  which means that you  don't need to  convert a
 novel into a pdf before being able to read it.
 
 ### How to install it?
-
-Compile a recent version of `libmupdf-dev`:
+#### compile a recent version of `libmupdf-dev`
 
     $ git clone --recursive git://git.ghostscript.com/mupdf.git
     $ cd mupdf
@@ -74,7 +73,7 @@ If  the  compilation   fails  because  of  a  missing  file,   have  a  look  at
 `docs/building.html`, header “Compiling on Linux”  (switch to master if the file
 doesn't exist).
 
-Now, you can compile the plugin:
+#### compile the plugin
 
     $ git clone https://git.pwmt.org/pwmt/zathura-pdf-mupdf.git
     $ cd zathura-pdf-mupdf
@@ -97,6 +96,49 @@ Note that  you can't easily  go beyond  certain versions for  `libmupdf-dev` and
 
 Otherwise the compilation of the plugin fails.
 
+##### Don't use checkinstall!
+
+You could try with:
+
+    $ sudo checkinstall \
+      --maintainer='root@ubuntu' \
+      --pkgname='zathura-pdf-mupdf' \
+      --pkgversion=0.3.1 \
+      --provides='pdf-viewer,zathura-pdf-poppler'
+
+And with this summary: “PDF support (mupdf backend) for zathura”
+
+But the  installation will fail  because the package  tries to overwrite  a file
+installed by another package (`zathura-pdf-poppler`).
+
+You will have to force the installation by running sth like:
+
+    $ sudo dpkg -i --force-overwrite zathura-pdf-mupdf*.deb
+
+Then later, if you decide to purge the package, it won't be easy.
+Indeed, zathura needs a plugin to read a pdf; it has to be `zathura-pdf-poppler`
+or `zathura-pdf-mupdf`.
+If you try to purge the latter, apt will first try to reinstall the former.
+This again will cause an issue, because both packages share a same file location
+(`/usr/lib/zathura/pdf.so`),  and apt  can't  overwrite a  file  installed by  a
+package which is currently installed.
+So, you'll have to force the installation of the poppler plugin:
+
+    $ aptitude download zathura-pdf-poppler
+    $ sudo dpkg -i --force-overwrite zathura-pdf-mupdf*.deb
+    $ sudo aptitude purge zathura-pdf-mupdf
+
+Besides, the deb package would contain only these files:
+
+    /usr/share/doc/zathura-pdf-mupdf/AUTHORS
+    /usr/share/doc/zathura-pdf-mupdf/LICENSE
+    /usr/share/doc/zathura-pdf-mupdf/README
+    /usr/share/applications/zathura-pdf-mupdf.desktop
+    /usr/lib/zathura/pdf.so
+
+And only the last two are useful.
+
+####
 #### This is too complex!  Can I use a PPA?
 
 Yes: <https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf>
@@ -167,344 +209,146 @@ Reinstall the plugin:
     $ sudo make install
 
 ##
-##
-##
-# ?
+# Todo
 ## ?
 
-    $ apt-src install zathura-pdf-mupdf
+These are some notes about our experience in compiling zathura.
 
-    $ apt-src build zathura-pdf-mupdf
-
-## ?
-
-    $ dpkg-source --before-build zathura-pdf-mupdf-0.3.1
-    $ cd zathura-pdf-mupdf-0.3.1
-    $ fakeroot debian/rules clean
-    $ debian/rules build
-    $ fakeroot debian/rules binary
-
-## ?
-
-You can compile zathura-pdf-mupdf after installing those dependencies:
-
-    $ sudo aptitude install libjbig2dec0-dev libmupdf-pic-dev libopenjp2-7-dev
-
-But how do you find those?
-We found them by  installing a PPA + `$ apt-src`,  uncommenting a `deb-src` line
-in the PPA's sources.list, and running:
-
-    $ apt-src update
-    $ apt-src install zathura-pdf-mupdf
-
-How to find them without all of this?
-
-## ?
-
-    $ git clone https://git.pwmt.org/pwmt/zathura-pdf-mupdf.git
-    $ cd zathura-pdf-mupdf
-    $ git checkout 0.3.1
-    $ sudo aptitude install libjbig2dec0-dev libmupdf-pic-dev libopenjp2-7-dev
-    $ sudo make install
-
-Don't use `checkinstall`.
-You could try with:
-
-    $ sudo checkinstall \
-      --maintainer='root@ubuntu' \
-      --pkgname='zathura-pdf-mupdf' \
-      --pkgversion=0.3.1 \
-      --provides='pdf-viewer,zathura-pdf-poppler'
-
-And with this summary: “PDF support (mupdf backend) for zathura”
-
-But the  installation will fail  because the package  tries to overwrite  a file
-installed by another package (`zathura-pdf-poppler`).
-
-You will have to force the installation by running sth like:
-
-    $ sudo dpkg -i --force-overwrite zathura-pdf-mupdf_0.3.1-1_amd64.deb
-
-Then later, if you decide to purge the package, it won't be easy.
-Indeed, zathura needs a plugin to read a pdf; it has to be `zathura-pdf-poppler`
-or `zathura-pdf-mupdf`.
-If you try to purge the latter, apt will first try to reinstall the former.
-This again will cause an issue, because both packages share a same file location
-(`/usr/lib/zathura/pdf.so`),  and apt  can't  overwrite a  file  installed by  a
-package which is currently installed.
-So, you'll have to force the installation of the poppler plugin:
-
-    $ aptitude download zathura-pdf-poppler
-    $ sudo dpkg -i --force-overwrite zathura-pdf-mupdf_0.3.1-1_amd64.deb
-    $ sudo aptitude purge zathura-pdf-mupdf
-
-Besides, the deb package contains only these files:
-
-    /usr/share/doc/zathura-pdf-mupdf/AUTHORS
-    /usr/share/doc/zathura-pdf-mupdf/LICENSE
-    /usr/share/doc/zathura-pdf-mupdf/README
-    /usr/share/applications/zathura-pdf-mupdf.desktop
-    /usr/lib/zathura/pdf.so
-
-And only the last one is useful.
-
-## ?
-
-The mupdf plugin requires the custom dependency libmupdf-pic-dev.
-We need to find out how it was compiled by the PPA.
-
-    $ apt-get source libmupdf-pic-dev
-    $ dpkg-source --before-build mupdf-pic-1.11+ds1
-    $ cd mupdf-pic-1.11+ds1/
-    $ fakeroot debian/rules clean
-    $ cd ..
-    $ dpkg-source -b mupdf-pic-1.11+ds1
-    $ cd mupdf-pic-1.11+ds1/
-    $ debian/rules build
-    $ fakeroot debian/rules binary
-    $ dpkg-genchanges  >../mupdf-pic_1.11+ds1-0ubuntu1ppa1~xenial_amd64.changes
-    $ cd ..
-    $ dpkg-source --after-build mupdf-pic-1.11+ds1
-
-How did you find those commands?
-I studied the output  of `$ dpkg-buildpackage -us -uc`, and  noted all the lines
-which were  indented by exactly one  space (I had  to add some `cd`  commands to
-make the whole process work).
-
-Let's simplify this process so that we don't need any debian-specific command.
-
-    $ apt-get source libmupdf-pic-dev
-    $ cd mupdf-pic-1.11+ds1/
-    $ debian/rules build
-    $ fakeroot debian/rules binary
-
-Let's simplify further:
-
-    $ apt-get source libmupdf-pic-dev
-    $ cd mupdf-pic-1.11+ds1/
-    $ dh build
-    $ fakeroot dh binary
-
-You  can see  what  `dh build`  and  `dh  binary` execute  by  passing them  the
-`--no-act` option; they do a lot!
-
-## ?
-
-    $ apt-src install libmupdf-pic-dev
-    $ apt-src build libmupdf-pic-dev
-
-Interestingly, it seems that the name of a source package is not necessarily the
-same as the name of the binary package produced after compilation.
-For example, when you run `$ apt-get source libmupdf-pic-dev`, apt downloads the
-source package `mupdf-pic`:
-
-    Reading package lists... Done~
-    Picking 'mupdf-pic' as source package instead of 'libmupdf-pic-dev'~
-
-Same thing if you run `$ apt-src install libmupdf-pic-dev`.
-You can check this by reading the `.dsc` file, which contains:
-
-    Source: mupdf-pic~
-    Binary: libmupdf-pic-dev~
-
-In fact, if  you recompile the source package `libmupdf-dev`,  it will produce 3
-binary packages:
-
-   - libmupdf-dev_1.7a-1_amd64.deb
-   - mupdf-tools_1.7a-1_amd64.deb
-   - mupdf_1.7a-1_amd64.deb
-
-Btw, don't run `$ apt-get source` if  you later decide to run `$ apt-src build`;
-it won't necessarily work as expected.
-Indeed, it seems  that apt registers somewhere the location  where you installed
-the source package.
-It doesn't  matter where  you are  when you  run `$  apt-src build`,  the binary
-package will be located where you installed the source package.
-
-Have a look at `debian/control`:
-
-    Build-Depends:
-     debhelper (>= 7.0.50~),
-     dpkg-dev (>= 1.16.1.1~),
-     pkg-config,
-     libfreetype6-dev,
-     libharfbuzz-dev,
-     libjpeg-dev,
-     libjbig2dec-dev,
-     libopenjp2-7-dev,
-     libx11-dev,
-     libxext-dev,
-     zlib1g-dev
-
-All those packages  are not necessarily dependencies (refer to  the INSTALL file
-for that; or some similar documentation).
-But they are installed by `$ apt-get build-dep <source-package>`.
-
-##
-# ?
-
-        $ git clone https://github.com/pwmt/zathura
-        $ meson build
-        $ meson.build:40:0: ERROR: Native dependency 'girara-gtk3' not found
+    $ git clone https://github.com/pwmt/zathura
+    $ meson build
+    meson.build:40:0: ERROR: Native dependency 'girara-gtk3' not found~
 
 ---
 
 https://pwmt.org/projects/girara/
 
-        $ git clone https://git.pwmt.org/pwmt/girara.git
+    $ git clone https://git.pwmt.org/pwmt/girara.git
 
-        $ vim README
+    $ vim README
 
-        Run the following command to build and install girara to your system using
-        meson's ninja backend:
+Run  the following  command to  build and  install girara  to your  system using
+meson's ninja backend:
 
-          meson build
-          cd build
-          ninja
-          ninja install
+    $ meson build
+    $ cd build
+    $ ninja
 
-        meson.build:34:0: ERROR: Invalid version of dependency, need 'glib-2.0' ['>=2.50'] found '2.48.2'.
-
----
-
-        http://www.linuxfromscratch.org/blfs/view/svn/general/glib2.html
-
-        $ wget ftp://ftp.gnome.org/pub/gnome/sources/glib/2.56/glib-2.56.1.tar.xz
-
-        $ aunpack glib-2.56.1.tar.xz
-
-        $ ./configure
-
-        configure: error: Package requirements (libffi >= 3.0.0) were not met:
-
-        No package 'libffi' found
-
-        Consider adjusting the PKG_CONFIG_PATH environment variable if you
-        installed software in a non-standard prefix.
-
-        Alternatively, you may set the environment variables LIBFFI_CFLAGS
-        and LIBFFI_LIBS to avoid the need to call pkg-config.
-        See the pkg-config man page for more details.
+    $ ninja install
+    meson.build:34:0: ERROR: Invalid version of dependency, need 'glib-2.0' ['>=2.50'] found '2.48.2'.~
 
 ---
 
-        $ sudo aptitude install libffi-dev
+<http://www.linuxfromscratch.org/blfs/view/svn/general/glib2.html>
 
-        $ ./configure
+    $ wget ftp://ftp.gnome.org/pub/gnome/sources/glib/2.56/glib-2.56.1.tar.xz
+    $ aunpack glib-2.56.1.tar.xz
 
-        configure: error: *** Could not find libmount
+    $ ./configure
+    configure: error: Package requirements (libffi >= 3.0.0) were not met:~
 
-        $ sudo aptitude install libmount-dev
+    No package 'libffi' found~
 
-        $ ./configure
-            # ✔
+    Consider adjusting the PKG_CONFIG_PATH environment variable if you~
+    installed software in a non-standard prefix.~
 
-        $ make
-            # ✔
+    Alternatively, you may set the environment variables LIBFFI_CFLAGS~
+    and LIBFFI_LIBS to avoid the need to call pkg-config.~
+    See the pkg-config man page for more details.~
 
-        $ sudo checkinstall --pkgname myglib
-            # ✔
+---
+
+    $ sudo aptitude install libffi-dev
+
+    $ ./configure
+    configure: error: *** Could not find libmount~
+
+    $ sudo aptitude install libmount-dev
+    $ ./configure
+    $ make
+    $ sudo checkinstall --pkgname myglib
 
 ---
 
 Get back to girara/:
 
-        $ meson build
-        meson.build:35:0: ERROR: Native dependency 'gtk+-3.0' not found
+    $ meson build
+    meson.build:35:0: ERROR: Native dependency 'gtk+-3.0' not found~
 
 ---
 
-        $ wget http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.30.tar.xz
+    $ wget http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.30.tar.xz
+    $ aunpack gtk+-3.22.30.tar.xz
+    $ ./configure --prefix=/usr/local
+    configure: error: Package requirements (glib-2.0 >= 2.49.4    atk >= 2.15.1    pango >= 1.37.3    cairo >= 1.14.0    cairo-gobject >= 1.14.0    gdk-pixbuf-2.0 >= 2.30.0) were not met:~
+    No package 'pango' found~
 
-        $ aunpack gtk+-3.22.30.tar.xz
-
-        $ ./configure --prefix=/usr/local
-
-        configure: error: Package requirements (glib-2.0 >= 2.49.4    atk >= 2.15.1    pango >= 1.37.3    cairo >= 1.14.0    cairo-gobject >= 1.14.0    gdk-pixbuf-2.0 >= 2.30.0) were not met:
-
-        No package 'pango' found
-
-        $ sudo aptitude install libpango1.0-dev
-
-        $ ./configure --prefix=/usr/local
-            # ✔
-
-        $ make
-            # ✔
-
-        $ sudo checkinstall --pkgname mygtk3
-            # ✔
+    $ sudo aptitude install libpango1.0-dev
+    $ ./configure --prefix=/usr/local
+    $ make
+    $ sudo checkinstall --pkgname mygtk3
 
 ---
 
 Get back to girara/:
 
-        $ meson build
-            Dependency libnotify found: NO
-            Program doxygen found: NO
-            Dependency check found: NO
+    $ meson build
+        Dependency libnotify found: NO~
+        Program doxygen found: NO~
+        Dependency check found: NO~
 
-        $ rm -rf build
-
-        $ sudo aptitude install doxygen libnotify-dev check
-
-        $ meson --prefix=/usr build
-
-        $ cd build
-
-        $ ninja
-
-        $ sudo ninja install
+    $ rm -rf build
+    $ sudo aptitude install doxygen libnotify-dev check
+    $ meson --prefix=/usr build
+    $ cd build
+    $ ninja
+    $ sudo ninja install
 
 ---
 
 Get back to zathura/:
 
-        $ meson build
+    $ meson build
+    Dependency synctex found: NO~
+    Library magic found: NO~
+    Dependency libseccomp found: NO~
+    Program appstream-util found: NO~
+    Program sphinx-build found: NO~
 
-        Dependency synctex found: NO
-        Library magic found: NO
-        Dependency libseccomp found: NO
-        Program appstream-util found: NO
-        Program sphinx-build found: NO
+    doc/meson.build:1:0: ERROR: Program(s) ['sphinx-build'] not found or not executable~
 
-        doc/meson.build:1:0: ERROR: Program(s) ['sphinx-build'] not found or not executable
-
-        $ rm -rf build
-        $ sudo aptitude install libsynctex-dev libmagic-dev libseccomp-dev appstream-util python3-sphinx
-        $ cd build
-        $ ninja
-        $ sudo ninja install
+    $ rm -rf build
+    $ sudo aptitude install libsynctex-dev libmagic-dev libseccomp-dev appstream-util python3-sphinx
+    $ cd build
+    $ ninja
+    $ sudo ninja install
 
 ---
 
 zathura can be started but it can't open a pdf.
 
-        error: could not open plugin directory: /usr/local/lib/x86_64-linux-gnu/zathura
-        error: Unknown file type: 'application/pdf'
+    error: could not open plugin directory: /usr/local/lib/x86_64-linux-gnu/zathura~
+    error: Unknown file type: 'application/pdf'~
 
 We need to install this:
 
-        https://pwmt.org/projects/zathura-pdf-poppler/
+<https://pwmt.org/projects/zathura-pdf-poppler/>
 
-        $ git clone https://git.pwmt.org/pwmt/zathura-pdf-poppler.git
-        $ cd zathura-pdf-poppler
-        $ git checkout --track -b develop origin/develop
-        $ mkdir build
-        $ meson build
+    $ git clone https://git.pwmt.org/pwmt/zathura-pdf-poppler.git
+    $ cd zathura-pdf-poppler
+    $ git checkout --track -b develop origin/develop
+    $ mkdir build
+    $ meson build
+    meson.build:21:0: ERROR: Native dependency 'poppler-glib' not found~
 
-        meson.build:21:0: ERROR: Native dependency 'poppler-glib' not found
+    $ sudo aptitude install libpoppler-glib-dev
+    $ rm -rf build && mkdir build
+    $ meson build
 
-        $ sudo aptitude install libpoppler-glib-dev
-        $ rm -rf build && mkdir build
-        $ meson build
+    $ cd build
+    $ ninja
+    $ sudo ninja install
 
-        $ cd build
-        $ ninja
-        $ sudo ninja install
-
-
-Note that if you want to remove the files installed by `ninja install`, read the
-logfile in `build/meson-logs/install-log.txt`.
+Note that if you  want to remove the files installed by  `$ ninja install`, read
+the logfile in `build/meson-logs/install-log.txt`.
 It will tell you which files have been installed.
 

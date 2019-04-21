@@ -469,13 +469,6 @@ In that case, run:
 
     $ sudo rm -r /usr/local/share/nvim/
 
-### fix man plugin
-
-By default, when you  run `$ man man`, the manpage is not  prettified like it is
-when you run `:Man man` from a Neovim instance; let's fix that:
-
-    $ sed -i.bak '/function! man#init_pager()/ {/endfunction/s//do <nomodeline> man BufReadCmd/}' /usr/local/share/nvim/runtime/autoload/man.vim
-
 ### ?
 
 python integration

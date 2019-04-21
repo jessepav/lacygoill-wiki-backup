@@ -676,8 +676,19 @@ Set `_FASD_SINK` in your `.fasdrc` to obtain a log:
 # Issues
 ## I keep opening a file but fasd never adds it to its database!
 
-Make sure the name of the file does *not* contain whitespace.
+Make sure your path doesn't contain more than 4 slashes.
+Use a relative  path, and switch to a  directory which is nearer to  the file if
+necessary.
+
+Also, make sure the name of the file does *not* contain whitespace.
 If it does, replace all whitespace with non-whitespace (like underscores).
 
-Also, don't quote your filename.
+Finally, don't quote your filename.
+
+---
+
+Alternatively, if  you don't want  to remember all  those rules, just  open your
+file from ranger; the latter uses a plugin which avoids those issues:
+
+    ~/.config/ranger/plugins/plugin_fasd_log.py
 
