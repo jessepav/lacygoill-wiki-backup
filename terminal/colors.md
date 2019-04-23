@@ -156,7 +156,7 @@ The 256 colors can be broken down into 3 categories:
    - cyan
    - white
 
-+ the same 8 colors but brighter/more intense.
+plus the same 8 colors but brighter/more intense.
 
 ## Why these colors in particular?
 
@@ -174,18 +174,18 @@ subtractive color system.
 
 Theory:
 
-The terminal's developers CHOOSE 6 shades of red, 6 of green and 6 of blue.
-They MIX all possible combinations (6×6×6 = 216).
-They INDEX them with the following formula:
+The terminal's developers *choose* 6 shades of red, 6 of green and 6 of blue.
+They *mix* all possible combinations (6×6×6 = 216).
+They *index* them with the following formula:
 
-        16 + 36 × r + 6 × g + b (0 ≤ r, g, b ≤ 5)
+    16 + 36 × r + 6 × g + b (0 ≤ r, g, b ≤ 5)
 
 Source: <https://en.wikipedia.org/wiki/ANSI_escape_code#Colors>
 
 More generally, if you  want to encode n numbers a₁,...,aₙ, with 0  ≤ aᵢ < B, then
 encode it as:
 
-        a₁ + a₂B + ⋯ + aₙBₙ₋₁
+    a₁ + a₂B + ⋯ + aₙBₙ₋₁
 
 Source: <https://mathoverflow.net/a/69250>
 
@@ -193,26 +193,26 @@ Source: <https://mathoverflow.net/a/69250>
 
 This is the biggest cube we can use which fits in 1 byte (256 codes).
 
-        6×6×6 = 216 ✔
-        7×7×7 = 343 ✘
+    6×6×6 = 216 ✔
+    7×7×7 = 343 ✘
 
 ## Why 24 shades of grey?
 
 That's what's left after removing the cube of 216 colors and the 16 ANSI colors:
 
-        256 - 6×6×6 - 16 = 24
+    256 - 6×6×6 - 16 = 24
 
 ## How to change the palette?
 
 Usually, you can tweak  the first 16 ANSI colors via a  menu in the preferences,
 but not the remaining 240 ones.
 
-`urxvt` and `xterm` are exceptions:  they allow you to redefine all colors
-of the palette via `~/.Xresources`.
+`urxvt` and `xterm` are exceptions; they allow you to redefine all colors of the
+palette via `~/.Xresources`.
 
 Also, in some terminals, you can still use the sequence:
 
-        OSC 4 ; c ; spec ST
+    OSC 4 ; c ; spec ST
 
 to change a color of the palette.
 Where `c`  is the index (in  the palette) of the  color you want to  change, and
@@ -220,23 +220,23 @@ Where `c`  is the index (in  the palette) of the  color you want to  change, and
 
 Try this:
 
-        $ palette
+    $ palette
 
 Look at the color 159 (it's cyan).
 
-        $ printf '\e]4;159;yellow\e\\'
+    $ printf '\e]4;159;yellow\e\\'
 
 The  color of  the  characters  displaying `159`  should  immediately change  to
 yellow; if it doesn't, it means the terminal doesn't support the sequence.
 
 ## How to see the colors used in the palette?
 
-        for i in {0..255} ; do
-            printf '\e[48;5;%dm%3d\e[0m ' "$i" "$i"
-            if (( i == 15 )) || (( i > 15 )) && (( (i-15) % 6 == 0 )); then
-                printf '\n';
-            fi
-        done
+    for i in {0..255} ; do
+        printf '\e[48;5;%dm%3d\e[0m ' "$i" "$i"
+        if (( i == 15 )) || (( i > 15 )) && (( (i-15) % 6 == 0 )); then
+            printf '\n';
+        fi
+    done
 
 Generate the 256 color palette used by the terminal.
 You can use this code in a custom shell function `palette()`.
@@ -249,7 +249,7 @@ probably inspired by xterm.
 
 But in some terminals, you can tweak the palette via:
 
-        OSC 4 ; c ; spec ST
+    OSC 4 ; c ; spec ST
 
 ## Does a terminal use colors outside the palette?
 
@@ -264,9 +264,9 @@ Yes, most terminals allow you to choose the colors of some elements of their UI:
    ...
 
 The colors used for these don't belong to the palette.
-They are not meant to be used by  a program to color an ARBITRARY element of its
+They are not meant to be used by  a program to color an *arbitrary* element of its
 UI.
-Their only purpose is to color some FIXED elements of the UI of the terminal.
+Their only purpose is to color some *fixed* elements of the UI of the terminal.
 
 #
 # True Color
@@ -278,7 +278,7 @@ configured by the USER.
 
 OTOH, when a program  uses a true color, it sends  an escape sequence containing
 the exact  quantity of  red, green,  blue to  produce the  color desired  by the
-program DEVELOPER.
+program *developer*.
 
 So, true color gives  total control to the developer of a  program on the colors
 it will use.
@@ -299,17 +299,17 @@ Sometimes setting  `'tgc'` is  not enough and  one has to  set the  `'t_8f'` and
 `'t_8b'` options explicitly.
 The default values of these options are:
 
-        ^[[38;2;%lu;%lu;%lum
-        ^[[48;2;%lu;%lu;%lum
-                 ││
-                 │└ `man 3 printf`:
-                 │
-                 │       The unsigned int argument is converted to unsigned decimal
-                 │
-                 └ `man 3 printf`:
+    ^[[38;2;%lu;%lu;%lum
+    ^[[48;2;%lu;%lu;%lum
+             ││
+             │└ `man 3 printf`:
+             │
+             │       The unsigned int argument is converted to unsigned decimal
+             │
+             └ `man 3 printf`:
 
-                       A following  integer conversion corresponds  to a long  int or
-                       unsigned long int argument
+                   A following  integer conversion corresponds  to a long  int or
+                   unsigned long int argument
 
 ... respectively, but they are only set when `$TERM` is `xterm`.
 Btw, don't replace semicolons with colons. It's not widely supported and
@@ -327,8 +327,8 @@ Nvim supports true color in the terminal, if:
 Nvim adds constructed  'setrgbf' and 'setrgbb' capabilities in  the terminfo db,
 if they're missing and:
 
-   - the 'Tc' terminfo extension IS set (in the external db)
-   - the 'Tc' terminfo extension is NOT set, but $TERM is:
+   - the 'Tc' terminfo extension *is* set (in the external db)
+   - the 'Tc' terminfo extension is *not* set, but $TERM is:
 
    - 'rxvt'
    - 'linux'
@@ -406,43 +406,10 @@ assumes that the axes are orthogonal.
 This is is wrong,  thus xterm fails to find the best  approximation, and ends up
 choosing a poor color in its palette.
 
+---
 
-Also, true color doesn't work in current urxvt and xfce4-terminal.
-We need to update the programs.
-The latest release of urxvt (9.22):
-<http://dist.schmorp.de/rxvt-unicode/Attic/>
-
-... is too old (2016-01-23), and predates the patch adding support for true color.
-<http://cvs.schmorp.de/rxvt-unicode/src/command.C?revision=1.570&view=markup>
-
-## How to test whether our current terminal supports true color?
-
-        for ((i = 0; i <= 79; i++)); do
-          b=$(($i*255/79))
-          g=$((2*$b))
-          r=$((255-$b))
-          if [[ $g -gt 255 ]]; then
-            g=$((2*255 - $g))
-          fi
-          printf '\e[48;2;%d;%d;%dm \e[0m' $r $g $b
-        done
-        printf '\n'
-
-
-Shell code to test the true color capability of the terminal.
-You should see either:
-
-   - characters randomly|non- colored,
-     (the terminal doesn't support true color)
-
-   - a discontinuous rainbow of colors, from red to blue
-     (the terminal partially supports true color)
-
-   - a continuous rainbow of colors
-     (the terminal fully supports true color)
-
-You can use this code in a custom shell function `truecolor()`.
-Try `$ truecolor`.
+Also, for  true color  to work in  urxvt and xfce4-terminal,  you need  a recent
+version of the programs.
 
 ## Where can I find more info on true color?
 

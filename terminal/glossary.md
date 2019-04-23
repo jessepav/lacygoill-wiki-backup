@@ -1,8 +1,8 @@
 # b
 ## bit/baud rate
 
-        bit rate = bits per second
-        baud rate = symbols per second
+    bit rate = bits per second
+    baud rate = symbols per second
 
 In digital  communications, the baud  rate is the  number of symbol  changes, or
 waveform changes, across the transmission medium per time unit.
@@ -14,19 +14,18 @@ The symbol rate is related to the bitrate expressed in bits per second.
 
 For example, if each symbol conveys 5 bits of information, then:
 
-        bitrate = 5 * baud rate
+    bitrate = 5 * baud rate
 
-
-                                     NOTE:
+---
 
 How can a symbol convey several bits?
 Imagine you can communicate with somebody via a deck of 32 cards.
 
-        1 bit  can ONLY express 2  information.
-        2 bits "                4  "
-        3 bits "                8  "
-        4 bits "                16 "
-        5 bits "                32 "
+    1 bit  can ONLY express 2  information.
+    2 bits "                4  "
+    3 bits "                8  "
+    4 bits "                16 "
+    5 bits "                32 "
 
 You need at least 5 bits to encode any card of the deck.
 So, every card conveys 5 bits.
@@ -62,8 +61,7 @@ Control Sequence Introducer:  ESC [
 ## capability
 
 It can refer both  to an actual terminal characteristic (ex:  number of lines on
-the  screen),  and  to  the  termcap  /  terminfo  syntax  for  describing  that
-characteristic.
+the screen), and to the d terminfo syntax for describing that characteristic.
 
 There's no canonical list of capabilities.
 IOW, a  terminal can invent a  non-standard capability, found nowhere  else, for

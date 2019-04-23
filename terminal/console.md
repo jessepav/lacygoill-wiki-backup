@@ -1,16 +1,16 @@
 # How to choose the font?
 
-        $ sudo dpkg-reconfigure -plow console-setup
-                                 │
-                                 └ show all questions (priority low)
+    $ sudo dpkg-reconfigure -plow console-setup
+                             │
+                             └ show all questions (priority low)
 
 `TerminusBold` is a good font, and `16x32` a good size.
 
 Then, for the change to take effect immediately, execute:
 
-        $ setupcon
-          │
-          └ set up the font and the keyboard of the console
+    $ setupcon
+      │
+      └ set up the font and the keyboard of the console
 
 Otherwise, restart the OS.
 
@@ -26,14 +26,14 @@ It sets the minimal priority of the questions we want to be asked.
 Here we choose the priority `low`.
 The possible priorities are:
 
-        - low
-        - medium
-        - high
-        - critical
+   - low
+   - medium
+   - high
+   - critical
 
 You can find them by typing:
 
-        $ dpkg-reconfigure -p Tab
+    $ dpkg-reconfigure -p Tab
 
 For most packages, by default, `dpkg-reconfigure` will choose the low priority.
 
@@ -41,62 +41,61 @@ For most packages, by default, `dpkg-reconfigure` will choose the low priority.
 
 Alternative 1:
 
-        $ sudoedit /etc/default/console-setup
+    $ sudoedit /etc/default/console-setup
 
 ---
 
 Alternative 2:
 
-        $ setfont /usr/share/consolefonts/Lat7-TerminusBold32x16.psf.gz
+    $ setfont /usr/share/consolefonts/Lat7-TerminusBold32x16.psf.gz
 
 # How to change the color scheme?
 
 Try this:
 
-        # https://terminal.sexy (google.light)
-        printf -- '\e]P%d%X' 0  0x1d1f21
-        printf -- '\e]P%d%X' 1  0xcc342b
-        printf -- '\e]P%d%X' 2  0x198844
-        printf -- '\e]P%d%X' 3  0xfba922
-        printf -- '\e]P%d%X' 4  0x3971ed
-        printf -- '\e]P%d%X' 5  0xa36ac7
-        printf -- '\e]P%d%X' 6  0x3971ed
-        printf -- '\e]P%d%X' 7  0xc5c8c6
-        printf -- '\e]P%d%X' 8  0x969896
-        printf -- '\e]P%d%X' 9  0xcc342b
-        printf -- '\e]P%d%X' 10 0x198844
-        printf -- '\e]P%d%X' 11 0xfba922
-        printf -- '\e]P%d%X' 12 0x3971ed
-        printf -- '\e]P%d%X' 13 0xa36ac7
-        printf -- '\e]P%d%X' 14 0x3971ed
-        printf -- '\e]P%d%X' 15 0xffffff
+    # https://terminal.sexy (google.light)
+    printf -- '\e]P%d%X' 0  0x1d1f21
+    printf -- '\e]P%d%X' 1  0xcc342b
+    printf -- '\e]P%d%X' 2  0x198844
+    printf -- '\e]P%d%X' 3  0xfba922
+    printf -- '\e]P%d%X' 4  0x3971ed
+    printf -- '\e]P%d%X' 5  0xa36ac7
+    printf -- '\e]P%d%X' 6  0x3971ed
+    printf -- '\e]P%d%X' 7  0xc5c8c6
+    printf -- '\e]P%d%X' 8  0x969896
+    printf -- '\e]P%d%X' 9  0xcc342b
+    printf -- '\e]P%d%X' 10 0x198844
+    printf -- '\e]P%d%X' 11 0xfba922
+    printf -- '\e]P%d%X' 12 0x3971ed
+    printf -- '\e]P%d%X' 13 0xa36ac7
+    printf -- '\e]P%d%X' 14 0x3971ed
+    printf -- '\e]P%d%X' 15 0xffffff
 
 ---
 
 Alternative:
 
-        _SEDCMD='s/.*\*color\([0-9]\{1,\}\).*#\([0-9a-fA-F]\{6\}\).*/\1 \2/p'
-        for i in $(sed -n "$_SEDCMD" "${HOME}/.Xresources" | awk '$1 < 16 {printf "\\e]P%X%s", $1, $2}'); do
-            echo -en "$i"
-        done
-        clear
+    _SEDCMD='s/.*\*color\([0-9]\{1,\}\).*#\([0-9a-fA-F]\{6\}\).*/\1 \2/p'
+    for i in $(sed -n "$_SEDCMD" "${HOME}/.Xresources" | awk '$1 < 16 {printf "\\e]P%X%s", $1, $2}'); do
+        echo -en "$i"
+    done
+    clear
 
 This script relies on the colors used in `~/.Xresources`.
 
 Source:
-
-        https://wiki.archlinux.org/index.php/Color_output_in_console#Virtual_console
+<https://wiki.archlinux.org/index.php/Color_output_in_console#Virtual_console>
 
 ---
 
 See also:
 
-        http://user.it.uu.se/~embe8573/cols/www/index.html (section ’the Linux VTs’)
-        http://user.it.uu.se/~embe8573/cols/www/COLORS
-        http://user.it.uu.se/~embe8573/cols/run
-        http://user.it.uu.se/~embe8573/cols/set_cols.sed
-        http://user.it.uu.se/~embe8573/cols/color_sets/
-        http://user.it.uu.se/~embe8573/scripts/cols
+<http://user.it.uu.se/~embe8573/cols/www/index.html (section ’the Linux VTs’)>
+<http://user.it.uu.se/~embe8573/cols/www/COLORS>
+<http://user.it.uu.se/~embe8573/cols/run>
+<http://user.it.uu.se/~embe8573/cols/set_cols.sed>
+<http://user.it.uu.se/~embe8573/cols/color_sets/>
+<http://user.it.uu.se/~embe8573/scripts/cols>
 
 I didn't manage to make this code work...
 
@@ -109,31 +108,30 @@ You may need to also tweak them so that the text they print is readable.
 
 # How to make the background color white immediately (before a successful login)?
 
-        $ sudo mkdir -p /etc/systemd/system/getty@.service.d
+    $ sudo mkdir -p /etc/systemd/system/getty@.service.d
 
-        $ cat <<'EOF' | sudo tee -a /etc/systemd/system/getty@.service.d/white-background.conf
-[Service]
-ExecStartPre=/bin/sh -c '/usr/bin/setterm -background white -foreground black -store >/dev/%I'
-ExecStartPre=/bin/sh -c '/usr/bin/clear >/dev/%I'
-EOF
+    $ cat <<'EOF' | sudo tee -a /etc/systemd/system/getty@.service.d/white-background.conf
+    [Service]
+    ExecStartPre=/bin/sh -c '/usr/bin/setterm -background white -foreground black -store >/dev/%I'
+    ExecStartPre=/bin/sh -c '/usr/bin/clear >/dev/%I'
+    EOF
 
 The `setterm` command was found here:
-
-        https://web.archive.org/web/20180303034251/http://www.tuxradar.com/answers/482
+<https://web.archive.org/web/20180303034251/http://www.tuxradar.com/answers/482>
 
 ---
 
 Alternatively,  if your  systemd  version  is recent  enough,  and supports  the
 `StandardOutput` option:
 
-        $ sudo mkdir -p /etc/systemd/system/getty@.service.d
+    $ sudo mkdir -p /etc/systemd/system/getty@.service.d
 
-        $ sudo cat <<'EOF' > /etc/systemd/system/getty@.service.d/white-background.conf
-[Service]
-StandardOutput=file:/dev/%I
-ExecStartPre=/usr/bin/setterm -background white -foreground black -store
-ExecStartPre=/usr/bin/clear
-EOF
+    $ sudo cat <<'EOF' > /etc/systemd/system/getty@.service.d/white-background.conf
+    [Service]
+    StandardOutput=file:/dev/%I
+    ExecStartPre=/usr/bin/setterm -background white -foreground black -store
+    ExecStartPre=/usr/bin/clear
+    EOF
 
 ---
 
@@ -147,41 +145,40 @@ we could  also use `--`,  but `man  setterm` recommends to  use `-` in  a script
 Use tmux.
 
 Otherwise, I think you would need to recompile the kernel to set some option:
-
-        https://superuser.com/a/281876/913143
+<https://superuser.com/a/281876/913143>
 
 ##
 # How to turn on the Numlock key by default?
 
-        $ sudo mkdir -p /etc/systemd/system/getty@.service.d
-        $ cat <<'EOF' | sudo tee -a /etc/systemd/system/getty@.service.d/activate-numlock.conf
-[Service]
-ExecStartPre=/bin/sh -c 'setleds -D +num < /dev/%I'
-EOF
+    $ sudo mkdir -p /etc/systemd/system/getty@.service.d
+    $ cat <<'EOF' | sudo tee -a /etc/systemd/system/getty@.service.d/activate-numlock.conf
+    [Service]
+    ExecStartPre=/bin/sh -c 'setleds -D +num < /dev/%I'
+    EOF
 
-Source: https://wiki.archlinux.org/index.php/Activating_Numlock_on_Bootup#Extending_getty@.service
+Source: <https://wiki.archlinux.org/index.php/Activating_Numlock_on_Bootup#Extending_getty@.service>
 
 ## How does it work?
 
 Whenever you try to log in from a console, systemd starts a service instantiated
 from the template unit:
 
-        /usr/lib/systemd/system/getty@.service
+    /usr/lib/systemd/system/getty@.service
 
 This can be confirmed by looking at the output of:
 
-        $ systemctl status getty@tty1.service
-        Loaded: loaded (/lib/systemd/system/getty@.service ...~
+    $ systemctl status getty@tty1.service
+    Loaded: loaded (/lib/systemd/system/getty@.service ...~
 
 This service starts `agetty` to let you login from a virtual console:
 
-        ExecStart=-/sbin/agetty --noclear %I $TERM
-                   ^^^^^^^^^^^^
+    ExecStart=-/sbin/agetty --noclear %I $TERM
+               ^^^^^^^^^^^^
 
 To turn  the Numlock  key on,  we extend  the configuration  of the  template by
 including the following directive:
 
-        ExecStartPre=/bin/sh -c 'setleds -D +num < /dev/%I'
+    ExecStartPre=/bin/sh -c 'setleds -D +num < /dev/%I'
 
 `ExecStartPre` will execute `/bin/sh -c '...'` before `agetty` is invoked, which
 will invoke `setleds`, which will turn the Numlock key on.
@@ -201,14 +198,13 @@ From `man systemd.service`:
 Yes,  if  you  use   a  recent  enough  version  of  systemd,   you  can  use  a
 `StandardInput` directive:
 
-        [Service]
-        StandardInput=file:/dev/%I
-        ExecStartPre=/usr/bin/setleds -D +num
+    [Service]
+    StandardInput=file:/dev/%I
+    ExecStartPre=/usr/bin/setleds -D +num
 
 For more information about the `StandardInput` option:
-
-        https://github.com/systemd/systemd/pull/7198
-        https://www.freedesktop.org/software/systemd/man/systemd.exec.html
+<https://github.com/systemd/systemd/pull/7198>
+<https://www.freedesktop.org/software/systemd/man/systemd.exec.html>
 
 ## But why a redirection is necessary in the first place?
 
@@ -247,28 +243,27 @@ It also requires that you have exported the environment variables `LESSOPEN` and
 `LESSCLOSE`.
 You can do so by executing, in `~/.zshenv`:
 
-        eval "$(lesspipe)"
+    eval "$(lesspipe)"
 
 ## a video?
 
-        $ mpv -vo drm my_video.mkv
+    $ mpv -vo drm my_video.mkv
 
 `drm` stands for Direct Rendering.
 It seems  to be a  method allowing the  graphics driver to  communicate directly
 with the kernel rather than with Xorg.
 
 For more info:
+<https://unix.stackexchange.com/a/301402/232487>
 
-        https://unix.stackexchange.com/a/301402/232487
-
-        $ man mpv /drm
+    $ man mpv /drm
 
 ## an image?
 
-        $ sudo aptitude install fbi
-        $ sudo adduser user video
+    $ sudo aptitude install fbi
+    $ sudo adduser user video
 
-        $ fbi my_pic.jpg
+    $ fbi my_pic.jpg
 
 ---
 
@@ -280,7 +275,6 @@ So, `fbi` needs to be started by the root user (sudo), or by a user in the video
 group.
 
 For more information about the framebuffer:
-
-        https://en.wikipedia.org/wiki/Framebuffer
-        https://unix.stackexchange.com/search?tab=votes&q=framebuffer
+<https://en.wikipedia.org/wiki/Framebuffer>
+<https://unix.stackexchange.com/search?tab=votes&q=framebuffer>
 

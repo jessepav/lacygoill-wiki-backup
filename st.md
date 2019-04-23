@@ -1,3 +1,16 @@
+# ?
+
+Document the fact that you can make  terminal.sexy export a scheme to st (select
+Simple Terminal).
+
+# ?
+
+Document that you can start st with an arbitrary geometry with the `-g` option.
+For fullscreen, try:
+
+    $ st -g=274x77
+
+##
 # Read the faq
 
 <https://git.suckless.org/st/file/FAQ.html>
@@ -6,10 +19,9 @@
 
 <https://wiki.archlinux.org/index.php/St>
 
-# Watch these youtube videos
+# Watch this video
 
 <https://www.youtube.com/watch?v=9H75enWM22k>
-<https://www.youtube.com/watch?v=s2q89ABrXao>
 
 ##
 # Fix the error messages related to unknown sequences when we start tmux from st.
@@ -34,9 +46,59 @@ from a program (like Vim).
 Is it an issue?
 It probably breaks our `coC` Vim mapping when we switch to a dark colorscheme.
 
-See here for a possible solution:
+See here for a patch which adds support to the OSC12 sequence:
 <https://www.reddit.com/r/unix/comments/8tjcen/how_to_change_the_color_of_the_vim_cursor_in_st/e192px6/>
-<https://lists.suckless.org/dev/1706/31764.html>
+
+    --- st.c.orig       2018-06-25 11:15:17.934818947 +0200
+    +++ st.c    2018-06-25 12:41:28.419547222 +0200
+    @@ -1854,6 +1854,20 @@
+                        if (narg > 1)
+                                xsettitle(strescseq.args[1]);
+                        return;
+    +           case 12:
+    +                   if (narg == 2)
+    +                   {
+    +                           int j = atoi(strescseq.args[1]);
+    +
+    +                           if (j >= 0 && j < ncolors)
+    +                           {
+    +                                   defaultcs = j;
+    +                                   redraw();
+    +                                   return;
+    +                           }
+    +                   }
+    +                   fprintf(stderr, "erresc: invalid OSC 12 use\n");
+    +                   return;
+                case 52:
+                        if (narg > 2) {
+                                char *dec;
+    --- st.h.orig       2018-06-25 11:25:03.116919565 +0200
+    +++ st.h    2018-06-25 12:44:03.547830166 +0200
+    @@ -121,3 +121,5 @@
+     extern unsigned int tabspaces;
+     extern unsigned int defaultfg;
+     extern unsigned int defaultbg;
+    +extern unsigned int defaultcs;
+    +extern unsigned const int ncolors;
+    --- config.def.h    2018-03-20 21:29:59.000000000 +0100
+    +++ config.h        2018-06-25 12:44:24.711323373 +0200
+    @@ -111,6 +111,7 @@
+        "#555555",
+     };
+
+    +unsigned const int ncolors = sizeof(colorname)/sizeof(*colorname);
+
+     /*
+      * Default colors (colorname index)
+    @@ -118,7 +119,7 @@
+      */
+     unsigned int defaultfg = 7;
+     unsigned int defaultbg = 0;
+    -static unsigned int defaultcs = 256;
+    +unsigned int defaultcs = 256;
+     static unsigned int defaultrcs = 257;
+
+     /*
 
 ##
 # Which patches should we apply?
@@ -169,7 +231,17 @@ changed (like the colors for example).
 This patch breaks the Enter key.
 When you press Enter, it inserts `09 5u` on the command-line.
 
+## ?
+
+Image preview is buggy.
+The image often disappears when you move to another file then come back.
+<https://github.com/ranger/ranger/issues/856>
+
+You could try to increase the value of `st.xfps` to 300 or higher:
+<https://github.com/ranger/ranger/issues/759#issuecomment-276355995>
+
 ##
 # Reference
 
 [1]: https://github.com/dcat/st-xresources/issues/3#issue-394957047
+

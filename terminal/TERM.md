@@ -34,7 +34,7 @@ For example, to detect that the terminal is not running a tmux client.
 List primary names  of all terminal types, to which  `$TERM` can legitimately be
 set.
 
-On  top  of those,  you  can  also  set `$TERM`  to  any  alias present  in  the
+In addition  to those,  you can  also set `$TERM`  to any  alias present  in the
 description of a given terminal.
 
 ## What does `*` and `+` mean in the output of the previous command?
@@ -48,13 +48,12 @@ When a terminal type is marked with:
 # How to get the long name of
 ## the current terminal?
 
-        $ tput longname
-
-Note that the current terminal is the one reported by `$TERM`.
+    $ tput longname
 
 ## the terminal type `screen-256color`?
 
-        $ tput -Tscreen-256color longname
+    $ tput -Ttmux-256color longname
+    tmux with 256 colors~
 
 ##
 # Why shouldn't I use a file sourced by the shell to set `$TERM`?
@@ -71,7 +70,7 @@ file, like `~/.Xresources` for `urxvt`.
 
 Unfortunately, such a file doesn't always exist.
 It doesn't for xfce4-terminal.
-You may still be able to configure the latter via:
+You may still be able to configure the latter like this:
 
    1. right-click
    2. preferences entry
@@ -94,7 +93,7 @@ correctly displayed, as well as italics.
 
 Use the `default-terminal` tmux server option:
 
-        set -s default-terminal tmux-256color
+    set -s default-terminal tmux-256color
 
 ###
 ## Which issue can I face if `$TERM` contains `256color` inside tmux?
@@ -127,11 +126,9 @@ Update:
 Maybe we could send a sequence encoding a color above `88`, to determine whether
 the terminal supports 256 color...
 
-        $ printf '\e]4;%d;?\a' 123 | if read -d $'\a' -s -t 1; then echo 'color 123 is supported'; fi
+    $ printf '\e]4;%d;?\a' 123 | if read -d $'\a' -s -t 1; then echo 'color 123 is supported'; fi
 
-Source:
-
-        https://unix.stackexchange.com/a/23789/289772
+Source: https://unix.stackexchange.com/a/23789/289772
 
 ##
 # Remote machine

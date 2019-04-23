@@ -1,8 +1,9 @@
 # ?
 
-The sequence `\e]52;c; text \x07` is described on [this page](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Operating-System-Commands).
+The sequence `\e]52;c; text \x07` is described on [this page][1].
 
-It tells that the function called by the sequence may be disabled using the `allowWindowOps` resource.
+It tells  that the  function called by  the sequence may  be disabled  using the
+`allowWindowOps` resource.
 This is how it's described in `$ man xterm`:
 
 > allowWindowOps (class AllowWindowOps)
@@ -19,24 +20,29 @@ You can enable it by writing in `~/.Xresources`:
 
     xterm.VT100.allowWindowOps:  true
 
-Then, if you start `xterm` and run this command:
+Then, if you start xterm and run this command:
 
     $ printf -- '\e]52;c;%s\x07' $(base64 <<<'hello')
 
 Your clipboard should contain the text `hello`.
 
-However, it seems that `urxvt` doesn't support this resource. At least I couldn't find it in one of its manpages (`$ man -Kw allowWindowOps`).
+However, it seems that urxvt doesn't support this resource.
+At least I couldn't find it in one of its manpages (`$ man -Kw allowWindowOps`).
 
 I tried to include a wildcard in the name resource:
 
     *.allowWindowOps:  true
 
-But the sequence still doesn't work in `urxvt`.
+But the sequence still doesn't work in urxvt.
+Some sequences are only supported if urxvt was compiled with `--enable-frills`.
+See `$ man 7 urxvt /Compile frills`
+My current urxvt was compiled with frills:
 
-Edit:
+    $ urxvt --help 2>&1 | grep frills
+    options: ...,frills,...~
+                 ^^^^^^
 
-It might depend on how your binary was compiled. According to `$ man 7 urxvt`, the `--enable-frills` option enables some non-essential features otherwise disabled, including the OSC escape sequences.
-I'm not sure it would help, but maybe you could try to recompile with `--enable-frills`.
+So the issue doesn't come from there.
 
 # ?
 
@@ -90,14 +96,13 @@ To determine whether the terminal supports:
             $ printf '\e]4;%d;?\a' 123 | if read -d $'\a' -s -t 1; then echo 'color 123 is supported'; fi
 
 Understand how the last command works:
-
-        https://unix.stackexchange.com/a/23789/289772
+<https://unix.stackexchange.com/a/23789/289772>
 
 # ?
 
 Look for all the places where we wrote a raw sequence in our plugins:
 
-        vim /\%(\\033\|\\e\)[[\]P]/gj ~/.vim/**/*.vim ~/.vim/**/vim.snippets ~/.vim/vimrc
+    vim /\%(\\033\|\\e\)[[\]P]/gj ~/.vim/**/*.vim ~/.vim/**/vim.snippets ~/.vim/vimrc
 
 When possible, try to use `tput` instead.
 
@@ -112,44 +117,44 @@ Easier to grep. Fewer matches when we have an issue with a terminal capability.
 
 `infocmp rxvt-unicode-256color` gives weird sequence for `rmcup`:
 
-        \E[r\E[?1049l
+    \E[r\E[?1049l
 
 Should we use it instead of the one we're currently using in `vim-term`?
 
-        \E[?1049l
+    \E[?1049l
 
 # ?
 
 Do this:
 
-        # open a tmux pane
-        $ tput Cs
-        the cursor becomes pink~
+    # open a tmux pane
+    $ tput Cs
+    the cursor becomes pink~
 
-        # get back to Vim, and press `coC` twice:
-        # the cursor becomes black
+    # get back to Vim, and press `coC` twice:
+    # the cursor becomes black
 
-        # get back to the shell tmux pane:
-        # the cursor becomes pink
+    # get back to the shell tmux pane:
+    # the cursor becomes pink
 
-        # get back to Vim, and press `coC` twice:
-        # the cursor becomes black
+    # get back to Vim, and press `coC` twice:
+    # the cursor becomes black
 
-        # open another tmux pane:
-        # the cursor becomes pink
+    # open another tmux pane:
+    # the cursor becomes pink
 
-        # close all tmux panes, except the one where Vim is
-        # get back to Vim, and press `coC` twice:
-        # the cursor becomes black
+    # close all tmux panes, except the one where Vim is
+    # get back to Vim, and press `coC` twice:
+    # the cursor becomes black
 
-        # open another tmux pane:
-        # the cursor stays black
+    # open another tmux pane:
+    # the cursor stays black
 
 # ?
 
 To restore the color of the cursor, you can try this:
 
-        $ tput Cs '#373b41'
+    $ tput Cs '#373b41'
 
 Find a way to make `coC` more reliable.
 
@@ -157,24 +162,22 @@ Find a way to make `coC` more reliable.
 
 Study:
 
-        :lh \cterm\%(info\|cap\) (in Neovim and maybe in Vim)
+    :lh \cterm\%(info\|cap\) (in Neovim and maybe in Vim)
 
 # ?
 
 To read:
-
-        https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda
-        https://github.com/neovim/neovim/issues/6978
-        https://github.com/neovim/neovim/pull/3165
-        https://misc.flogisoft.com/bash/tip_colors_and_formatting
+<https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda>
+<https://github.com/neovim/neovim/issues/6978>
+<https://github.com/neovim/neovim/pull/3165>
+<https://misc.flogisoft.com/bash/tip_colors_and_formatting>
 
 # ?
 
 Finish summarizing this:
+<https://www.linusakesson.net/programming/tty/>
 
-        https://www.linusakesson.net/programming/tty/
-
-   [breakdown 1][1]
+   [breakdown 1][2]
 
 A user  types at a  terminal (a  physical teletype). This terminal  is connected
 through  a  pair  of  wires  to a  UART  (Universal  Asynchronous  Receiver  and
@@ -184,8 +187,8 @@ control. In a  naïve system, the  UART driver  would then deliver  the incoming
 bytes directly to some application process. But  such an approach would lack the
 following features:
 
-        - line editing
-        - session management
+   - line editing
+   - session management
 
 Line editing.
 
@@ -209,14 +212,16 @@ echoing and  automatic conversion between carriage  returns and linefeeds.
 
 Session management.
 
-    - The user  probably wants  to run several  programs simultaneously,  and
-      interact with them one at a time.
-    - If a program goes into an endless loop,  the user may want to kill it or
-      suspend it.
-    - Programs that are started in the background should be able to execute
-      until they try to write to the terminal, at which point they should be
-      suspended.
-    - User input should be directed to the foreground program only.
+   - The user  probably wants  to run several  programs simultaneously,  and
+     interact with them one at a time.
+
+   - If a program goes into an endless loop,  the user may want to kill it or
+     suspend it.
+
+   - Programs that are started in the background should be able to execute until
+     they try to write to the terminal, at which point they should be suspended.
+
+   - User input should be directed to the foreground program only.
 
 The operating system implements all these features in the TTY driver.
 
@@ -226,9 +231,9 @@ kernel interrupt handler. The line discipline is likewise a passive entity.
 
 The combination of a:
 
-    - UART driver
-    - line discipline instance
-    - TTY driver
+   - UART driver
+   - line discipline instance
+   - TTY driver
 
 may be referred to as a TTY (device).
 
@@ -240,7 +245,7 @@ which runs with root privileges.
 
 Let's move on to a typical desktop  system. This is how the Linux console works:
 
-   [breakdown 2][2]
+   [breakdown 2][3]
 
 The TTY  driver and line discipline  behave just like in  the previous examples,
 but there  is no UART  or physical  terminal involved anymore. Instead,  a video
@@ -252,7 +257,7 @@ The console subsystem is somewhat rigid. Things get more flexible (and abstract)
 if we  move the terminal emulation  into userland. This is how  xterm(1) and its
 clones work:
 
-        breakdown 3
+    breakdown 3
 
 To facilitate moving  the terminal emulation into userland,  while still keeping
 the TTY  subsystem (session management  and line discipline) intact,  the pseudo
@@ -265,7 +270,7 @@ Now let's take a step back and see how all of this fits into the process model.
 ##
 # Reference
 
-[1]: $MY_WIKI/graph/terminal/breakdown_1.pdf
-[2]: $MY_WIKI/graph/terminal/breakdown_2.pdf
-[3]: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Operating-System-Commands
 
+[1]: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Operating-System-Commands
+[2]: $MY_WIKI/graph/terminal/breakdown_1.pdf
+[3]: $MY_WIKI/graph/terminal/breakdown_2.pdf

@@ -84,10 +84,10 @@ Do not read and execute `~/.bashrc` if the shell is interactive.
 
 Do not read either of these:
 
-        - /etc/profile
-        - ~/.bash_profile
-        - ~/.bash_login
-        - ~/.profile
+   - `/etc/profile`
+   - `~/.bash_profile`
+   - `~/.bash_login`
+   - `~/.profile`
 
 By default, bash reads these files when it is invoked as a login shell.
 

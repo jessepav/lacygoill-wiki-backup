@@ -408,13 +408,13 @@ It depends on the OS.
 
 For Ubuntu, have a look at:
 
-        - /etc/login.defs
-        - /etc/environment
+   - /etc/login.defs
+   - /etc/environment
 
 For more info, see:
 
-        - $ man login
-        - http://unix.stackexchange.com/a/228167
+   - `$ man login`
+   - http://unix.stackexchange.com/a/228167
 
 ##
 ## When a program needs to start a shell, how does it decide which one to use?

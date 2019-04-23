@@ -1,34 +1,40 @@
-# Terminfo capabilities
-## Basic
+# Basic
 
     ┌──────────┬─────────────────────────────────────────┐
-    │ lines#24 │ screen has 24 lines                     │
-    ├──────────┼─────────────────────────────────────────┤
-    │ cols#80  │ screen has 80 columns                   │
-    ├──────────┼─────────────────────────────────────────┤
     │ am       │ does automatic margins                  │
-    ├──────────┼─────────────────────────────────────────┤
-    │ bel=^G   │ C-g rings the bell                      │
     ├──────────┼─────────────────────────────────────────┤
     │ bw       │ cub1 wraps from column 0 to last column │
     ├──────────┼─────────────────────────────────────────┤
-    │ gn       │ generic device                          │
-    ├──────────┼─────────────────────────────────────────┤
     │ ul       │ can underline                           │
+    ├──────────┼─────────────────────────────────────────┤
+    │ bel=^G   │ the key to ring the bell is C-g         │
+    ├──────────┼─────────────────────────────────────────┤
+    │ cols#80  │ the screen has 80 columns               │
+    ├──────────┼─────────────────────────────────────────┤
+    │ lines#24 │ the screen has 24 lines                 │
     └──────────┴─────────────────────────────────────────┘
 
-`am` means that when the end of  a line is reached, an automatic carriage return
-and line-feed is performed.
+## What does `am` mean?
 
-`bw` = BackWards
+When the end of a line is reached, an automatic carriage return and line-feed is
+performed.
 
-`gn` tells the  program which queries the  db, that it's working  with a generic
-entry, and so if  it's unable to perform a task, it can  ask the user to specify
-what terminal type they are really using.
+## What does `bw` mean?
 
-## Cursor motion
+Theory: when  you move the  cursor back from  column 0, you  end up on  the last
+column of the previous line.
 
-    Absolute:
+Mnemonic: BackWards
+
+##
+# Cursor motion
+## What are the coordinates of "home" for an X terminal?
+
+    (1,1)
+
+##
+## absolute
+
     ┌───────────────────────┬──────────────────────────────────────┐
     │ smcup                 │ sequence to start programs using cup │
     ├───────────────────────┼──────────────────────────────────────┤
@@ -39,17 +45,61 @@ what terminal type they are really using.
 
 `smcup` makes the terminal enter a mode  in which the programs can use the `cup`
 capability (absolute cursor motion).
-In Vim's builtin termcap db, it's called 't_ti', which contains one of the first
-sequence emitted to the terminal.
+In Vim's builtin termcap db, it's called `t_ti`, which contains one of the first
+sequence sent to the terminal.
 
 `rmcup` makes the terminal leave this mode.
-In Vim's builtin termcap db , it's called 't_te', which contains one of the last
-sequence emitted to the terminal.
+In Vim's builtin termcap db , it's called `t_te`, which contains one of the last
+sequence sent to the terminal.
 
-TODO: break `cup` down.
+### What is `cup`?
 
+The cursor motion capabilitiy.
+It describes how to move the cursor directly to a specific location.
 
-    Relative:
+#### How is it different from most other capabilities?
+
+Since the desired location is specified by a program at run time, the capability
+must provide some mechanism for describing arguments.
+The program uses this  description to figure out *what* string  it needs to send
+to move the cursor to the desired location.
+
+So, simple string capabilities tell what string to send, while `cup` – and other
+string capabilities  with arguments – tell  the program *how to  calculate* what
+string to send.
+
+#### Which special character does it rely on?
+
+The "%" escape character.
+
+#### What is the data structure used by a terminal to process a `cup` string?
+
+A stack which is manipulated like a Reverse Polish Notation calculator.
+Arguments or constants are pushed onto  the stack, manipulated and combined, and
+a single final result is output (popped from the stack).
+
+#### Break down this value `\E[%i%p1%d;%p2%dH`.
+
+`\E` is an escape character, while `[`, `;` and `H` are literal characters.
+
+`%i%p1%d` and `%p2%d` encode the coordinates of the new desired cursor location.
+
+`%i` increments the values given by one.
+This is  necessary for X  terminals whose  home is based  on upper left  = (1,1)
+rather than (0,0).
+`%p1` pushes the first parameter onto the stack.
+`%d` pops the  value as a signed  decimal number, and the  number is incremented
+because of `%i`.
+
+`%p2` pushes the second parameter onto the stack.
+`%d` pops the  value as a signed  decimal number, and the  number is incremented
+because of `%i`.
+
+For more info, see page 31 of “Termcap and Terminfo” (40 of the original book).
+
+##
+## relative
+
     ┌───────────┬───────────────────────────────────────────────┐
     │ cbt=\E[Z  │ backtab                                       │
     ├───────────┼───────────────────────────────────────────────┤
@@ -76,7 +126,8 @@ TODO: break `cup` down.
     │ nel=\EE   │ newline (behaves like cr followed by lf)      │
     └───────────┴───────────────────────────────────────────────┘
 
-## Arrow keys
+##
+# Arrow keys
 
     ┌────────────┬─────────────────┐
     │ kcud1=\EOB │ down  arrow key │
@@ -88,18 +139,98 @@ TODO: break `cup` down.
     │ kcuf1=\EOC │ right arrow key │
     └────────────┴─────────────────┘
 
-What's the difference between `kcud1` and `cud1`?
+## What's the difference between `kcuu1` and `cuu1`?
 
-Theory:
+`cuu1` tells a program which string to *send* to move the cursor 1 line up.
 
-`cud1` is used when a program needs to know how to move the cursor 1 line down.
-
-`kcud1` is used when a program needs to  know when the user has pressed the down
-arrow key.
-The latter could  move the cursor 1 line  down, or could be mapped  to some user
+`kcuu1` tells a program which string it will *receive* when the user has pressed
+the up arrow key.
+The latter  could move the  cursor 1 line  up, or could  be mapped to  some user
 custom function.
 
-## Clearing
+---
+
+Read “Termcap and Terminfo”, page 89 (156 of the original book).
+
+I think this excerpt applies to capabilities prefixed by `k`:
+> [...] not listing  a key may cause  serious problems while running  a program if
+> the unlisted key were accidentally hit.
+> The  program will  not be  able to  translate the  sequence into  a recognizable
+> function key  sequence and will  be forced to interpret  the sequence as  if the
+> characters had been typed, which may be disastrous.
+
+> Many of these  capabilities have "twin" capabilities elsewhere  in termcap and
+> terminfo.
+> For example, in  termcap, kC= specifies the  code sent by the  CLEAR SCREEN key,
+> and cl= is the string that programs use to clear the screen.
+> The capabilities in this section describe what is sent when a key is pressed, so
+> that programs know what  special keys are available and to  realize when one has
+> been pressed.
+> The twin capabilities for each of  these keys (described elsewhere in this book)
+> are the  functional capabilities, which  is how  programs learn what  strings to
+> send to produce the desired action.
+
+> Although  in most  cases the  twins will  be identical  twins, there  are a  few
+> reasons and special cases where the twins will not be identical.
+> [...] you might want to [...] use the keys to indicate something other than they
+> say on them (for  example, using the arrow keys for  something other than moving
+> the cursor in application programs).
+> In these cases, your program would turn  off echoing and watch the input for the
+> characters sent by the redefined keys.
+> [...] Thus,  while it is  often redundant to  have twin capabilities,  there are
+> cases when it is useful, and it is historically ingrained.
+
+When the  excerpt uses  the word  “echo”, I think  it refers  to the  fact that,
+often, when you press a non-function key  like `a`, the terminal sends it to the
+program, and then the  program sends it back to the terminal to  write it on the
+screen; in this sense, it echoes the character:
+
+             message: the user has pressed `a`
+             v
+    terminal → editor
+    terminal ← editor
+             ^
+             message: ok, write it as is
+
+## What happens if `kcuu1` is not properly set?
+
+When the user presses the up arrow key, each key in the emitted sequence will be
+processed independently.
+
+As an experiment, run this in Vim:
+
+    :set t_ku=
+
+Then, press the up arrow key in normal mode.
+The `A` character is inserted above the current line.
+This is because, pressing the up arrow  key makes the terminal send the sequence
+`Esc O A`, and  without `'t_ku'` being properly set, Vim  is unable to recognize
+this sequence.
+
+---
+
+But why can't I reproduce this experiment for the shell?
+
+    $ infocmp -x >entry
+    $ vim entry
+    :%s/kcuu1=\zs[^,]*//
+    :x
+    $ tic -x entry
+
+Press the up key: it still correctly recalls the previous command!
+
+I think that's because the shell is not a TUI application.
+This is explained here:
+<https://invisible-island.net/xterm/xterm.faq.html#xterm_arrows>
+
+> Since   termcaps  and   terminfo  descriptions   are  written   for  full-screen
+> applications,  shells and  similar programs  often  rely on  **built-in tables**  of
+> escape sequences which they use instead.
+> Defining keys  in terms of  the termcap/terminfo  entry (e.g., by  capturing the
+> string sent by tputs) is apt to confuse the shell.
+
+##
+# Clearing
 
     ┌────────────────┬─────────────────────────┐
     │ clear=\E[H\E[J │ clear the screen        │
@@ -109,7 +240,7 @@ custom function.
     │ el=\E[K        │ clear to end of line    │
     └────────────────┴─────────────────────────┘
 
-## Adding and deleting
+# Adding and deleting
 
     ┌───────────┬────────────────────┐
     │ dch1=\E[P │ delete 1 character │
@@ -121,9 +252,10 @@ custom function.
     │ il1=\E[L  │ insert 1 line      │
     └───────────┴────────────────────┘
 
-## Styles
+# Styles
 
-    Standout mode:
+Standout mode:
+
     ┌─────────────┬─────────────────────┐
     │ smso=\E[3m  │ start standout mode │
     ├─────────────┼─────────────────────┤
@@ -135,15 +267,17 @@ Memotechnics:
 smso = Starts  Mode StandOut
 rmso = Removes Mode StandOut
 
+---
 
-    Underline mode:
+Underline mode:
+
     ┌─────────────┬──────────────────────┐
     │ smul=\E[4m  │ start underline mode │
     ├─────────────┼──────────────────────┤
     │ rmul=\E[24m │ exit underline mode  │
     └─────────────┴──────────────────────┘
 
-## Function key definitions
+# Function key definitions
 
     ┌──────────┬────────┐
     │ kf1=\EOP │ F1 Key │
@@ -155,175 +289,38 @@ rmso = Removes Mode StandOut
     │ ...      │ ...    │
     └──────────┴────────┘
 
-## What's the meaning of a capability whose description matches 'X key'?
-
-When you read a description such as 'do_X', it answers the question:
-
->     Which sequence must I SEND TO the terminal to use the functionality X?
->                         │
->                         └ the program querying the terminfo db
-
-When you read a description such as 'X key', it answers the question:
-
->     Which sequence will I RECEIVE FROM the terminal if the user presses the key X?
-
-#
-# Termcap capabilities
-## Basic
-
-    ┌───────┬──────────────────────────────────┐
-    │ li#24 │ screen has 24 lines              │
-    ├───────┼──────────────────────────────────┤
-    │ co#80 │ screen has 80 columns            │
-    ├───────┼──────────────────────────────────┤
-    │ am    │ automatic margin                 │
-    ├───────┼──────────────────────────────────┤
-    │ bl=^G │ C-g rings the bell               │
-    ├───────┼──────────────────────────────────┤
-    │ bs    │ C-h performs a backspace         │
-    ├───────┼──────────────────────────────────┤
-    │ bw    │ can backspace to previous line   │
-    ├───────┼──────────────────────────────────┤
-    │ gn    │ generic device                   │
-    ├───────┼──────────────────────────────────┤
-    │ ul    │ can underline but not overstrike │
-    └───────┴──────────────────────────────────┘
-
-## Cursor motion
-
-    Absolute:
-    ┌─────────────┬────────────────────────────┐
-    │ cm=\E=%+ %+ │ sequence for cursor motion │
-    │             │                            │
-    │             │ Esc                        │
-    │             │ =                          │
-    │             │ the desired row            │
-    │             │ a space                    │
-    │             │ the desired column         │
-    └─────────────┴────────────────────────────┘
-
-TODO:
-better break it down; what does `%+` mean?
-
-
-    Relative:
-    ┌────────┬────────────────────────────────────┐
-    │ cr=^M  │ carriage return                    │
-    ├────────┼────────────────────────────────────┤
-    │ nd=^L  │ move cursor 1 char to the right    │
-    ├────────┼────────────────────────────────────┤
-    │ up=^K  │ move cursor up 1 line              │
-    ├────────┼────────────────────────────────────┤
-    │ do=^J  │ move cursor down                   │
-    ├────────┼────────────────────────────────────┤
-    │ ho=^^  │ move cursor home                   │
-    ├────────┼────────────────────────────────────┤
-    │ ta=^I  │ move to the next hardware tab      │
-    ├────────┼────────────────────────────────────┤
-    │ bt=\EI │ move to previous tabstop (backtab) │
-    ├────────┼────────────────────────────────────┤
-    │ sr=\EI │ scroll backwards one line          │
-    └────────┴────────────────────────────────────┘
-
-## Arrow keys
-
-    ┌───────┬─────────────────┐
-    │ kl=^H │ Left arrow Key  │
-    ├───────┼─────────────────┤
-    │ kr=^L │ Right arrow Key │
-    ├───────┼─────────────────┤
-    │ ku=^K │ Up arrow Key    │
-    ├───────┼─────────────────┤
-    │ kd=^J │ Down arrow Key  │
-    ├───────┼─────────────────┤
-    │ kb=^H │ Backspace Key   │
-    ├───────┼─────────────────┤
-    │ kh=^^ │ Home Key        │
-    └───────┴─────────────────┘
-
-## Clearing
-
-    ┌───────────┬───────────────────────────────────────┐
-    │ cd=\EJ    │ clear after cursor to end of screen   │
-    ├───────────┼───────────────────────────────────────┤
-    │ ce=\EK    │ clear to eol                          │
-    ├───────────┼───────────────────────────────────────┤
-    │ cl=\EH\EJ │ clear screen and moves cursor to home │
-    └───────────┴───────────────────────────────────────┘
-
-## Adding and deleting
-
-    ┌────────┬─────────────────────────────┐
-    │ al=\EE │ add 1 line above cursor     │
-    ├────────┼─────────────────────────────┤
-    │ dl=\ER │ delete current line         │
-    ├────────┼─────────────────────────────┤
-    │ ic=\EQ │ insert a single blank space │
-    ├────────┼─────────────────────────────┤
-    │ dc=\EW │ delete character at cursor  │
-    └────────┴─────────────────────────────┘
-
-## Styles
-
-    Standout Mode:
-    ┌─────────┬─────────────────────────────────┐
-    │ so=\EG4 │ start standout mode             │
-    ├─────────┼─────────────────────────────────┤
-    │ se=\EG0 │ end standout mode               │
-    ├─────────┼─────────────────────────────────┤
-    │ sg#1    │ when changing to standout mode, │
-    │         │ 1 additional space is output    │
-    │         │                                 │
-    │         │ Standout Glitch                 │
-    └─────────┴─────────────────────────────────┘
-
-    Underline:
-    ┌─────────┬──────────────────────────────────┐
-    │ us=\EG8 │ start underline mode             │
-    ├─────────┼──────────────────────────────────┤
-    │ ue=\EG0 │ end underline mode               │
-    ├─────────┼──────────────────────────────────┤
-    │ ug#1    │ when changing to underline mode, │
-    │         │ 1 additional space is output     │
-    │         │                                  │
-    │         │ Underline Glitch                 │
-    └─────────┴──────────────────────────────────┘
-
-## Function key definitions
-
-    ┌──────────┬────────┐
-    │ k1=^A@^M │ F1 Key │
-    ├──────────┼────────┤
-    │ k2=^AA^M │ F2 Key │
-    ├──────────┼────────┤
-    │ k3=^AB^M │ F3 Key │
-    ├──────────┼────────┤
-    │ ...      │ ...    │
-    └──────────┴────────┘
-
 #
 # Miscellaneous
 ## What are the different types of terminal capabilities?
 
 There are 3 types of capabilities, depending on the type of values they receive:
 
-    ┌─────────┬───────────────────┬────────────────────┬─────────────────────────────────────────┐
-    │ type    │ example (termcap) │ example (terminfo) │                  meaning                │
-    ├─────────┼───────────────────┼────────────────────┼─────────────────────────────────────────┤
-    │ boolean │ am                │ am                 │ does automatic margins                  │
-    ├─────────┼───────────────────┼────────────────────┼─────────────────────────────────────────┤
-    │ numeric │ co#80             │ cols#80            │ the terminal has 80 columns             │
-    ├─────────┼───────────────────┼────────────────────┼─────────────────────────────────────────┤
-    │ string  │ up=^K             │ cuu1=^K            │ the sequence `C-k` will move the cursor │
-    │         │                   │                    │ up one line                             │
-    └─────────┴───────────────────┴────────────────────┴─────────────────────────────────────────┘
+    ┌─────────┬─────────┬─────────────────────────────────────────┐
+    │ type    │ example │                 meaning                 │
+    ├─────────┼─────────┼─────────────────────────────────────────┤
+    │ boolean │ am      │ does automatic margins                  │
+    ├─────────┼─────────┼─────────────────────────────────────────┤
+    │ numeric │ cols#80 │ the terminal has 80 columns             │
+    ├─────────┼─────────┼─────────────────────────────────────────┤
+    │ string  │ cuu1=^K │ the sequence `C-k` will move the cursor │
+    │         │         │ up one line                             │
+    └─────────┴─────────┴─────────────────────────────────────────┘
 
+### How to infer the type of a capability from its name?
+
+If it contains:
+
+   - `#`, it's a numeric one
+   - `=`, it's a string one
+   - neither `#` nor `=`, it's a boolean one
+
+##
 ## How to insert a control character when you edit an entry of the terminfo db?
 
 Use the caret notation.
 
-Do NOT insert the character literally.
-For example, to  express `C-k`, you must NOT  press `C-v C-k` in Vim.
+Do *not* insert the character literally.
+For example, to express `C-k`, you must *not* press `C-v C-k` in Vim.
 Instead, insert the 2 characters `^` and `K`.
 
 ## How to express common unprintable characters?
@@ -365,17 +362,17 @@ See page 20 in the book `Termcap and Terminfo` (O'Reilly).
 
 ## How to temporarily clear the screen while executing arbitrary code?
 
-        $ tput smcup
-        $ clear
-        # arbitrary code
-        $ tput rmcup
+    $ tput smcup
+    $ clear
+    # arbitrary code
+    $ tput rmcup
 
-The screen is saved with `tput smcup`, then restored with `tput rmcup`.
+The screen is saved with `$ tput smcup`, then restored with `$ tput rmcup`.
 
 Saving/restoring the screen  is not the primary purpose of  `smcup` and `rmcup`;
-it's just a (here useful) side-effect.
+it's just a – here useful – side-effect.
 The purpose of these capabilities is to  make the terminal enter/leave a mode in
 which the programs can use the `cup` capability.
 
-`clear` is used to move the cursor back to home.
+`$ clear` is used to move the cursor back to home.
 

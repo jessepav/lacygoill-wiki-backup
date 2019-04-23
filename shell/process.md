@@ -605,6 +605,17 @@ En  cas   de  crash,  il  vaut   donc  mieux  le  reproduire   avec  la  version
 `RelWithDebInfo` et s'assurer  que la commande `gdb` invoque  bien cette version
 de nvim.
 
+Update: These commands help debugging Nvim. They should be in our Vim wiki.
+Besides, the recommended command to get a backtrace has changed:
+<https://github.com/neovim/neovim/wiki/Development-tips>
+
+Now, it's:
+
+    2>&1 coredumpctl -1 gdb | tee -a bt.txt
+    thread apply all bt full
+
+It doesn't need a core file, but you need to install the package `systemd-coredump`.
+
 
 Une frame est un ensemble de données associées à un appel de fonction.
 Elle contient:

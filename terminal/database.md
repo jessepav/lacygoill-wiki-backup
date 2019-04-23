@@ -10,11 +10,11 @@ Yes. Each of these directories can be a db:
 
 ## How to view all the entries in all the db?
 
-               ┌ look in all terminal databases; not just the 1st one you find
-               │
-               │┌ sort the output according to the names of the terminals
-               ││
-        $ toe -as
+           ┌ look in all terminal databases; not just the 1st one you find
+           │
+           │┌ sort the output according to the names of the terminals
+           ││
+    $ toe -as
 
 Each of the listed directories is a database.
 
@@ -26,13 +26,13 @@ For example, the description for `tmux` is inside the subdirectory `t/`.
 
 ## How to find the db from which our terminal description comes from?
 
-        $ infocmp -x
+    $ infocmp -x
 
 Look at the first line:
 
-        Reconstructed via infocmp from file: /usr/lib/terminfo/s/screen-256color
-                                             └───────────────┤
-                                                             └ directory hierarchy
+    Reconstructed via infocmp from file: /usr/lib/terminfo/s/screen-256color
+                                         ├───────────────┘
+                                         └ directory hierarchy
 
 ## What is the 'unknown' entry?
 
@@ -41,21 +41,21 @@ the real terminal type is unknown.
 
 Here's the info, atm on my machine, for the unknown terminal:
 
-        #   Reconstructed via infocmp from file: /usr/share/terminfo/u/unknown
-        unknown|unknown terminal type,
-                am, gn,
-                cols#80,
-                bel=^G, cr=^M, cud1=^J, ind=^J,
+    #   Reconstructed via infocmp from file: /usr/share/terminfo/u/unknown
+    unknown|unknown terminal type,
+            am, gn,
+            cols#80,
+            bel=^G, cr=^M, cud1=^J, ind=^J,
 
 ## How to install/build a terminfo db?
 
-        $ aptitude install ncurses-base ncurses-term
+    $ sudo aptitude install ncurses-base ncurses-term
 
 Installs terminfo descriptions for terminals.
 
 `ncurses-term` installs a LOT of additional descriptions:
 
-        $ dpkg -L ncurses-term
+    $ dpkg -L ncurses-term
 
 It's automatically installed (dependency) when you install
 `rxvt-unicode-256color`.
@@ -78,11 +78,11 @@ Source: `:h terminfo` in Neovim.
 ##
 ## How to view the description of a terminal?
 
-                   ┌ include information for user-defined capabilities
-                   │
-        $ infocmp -x
-        $ infocmp -x tmux-256color
-        $ infocmp -x unknown
+               ┌ include information for user-defined capabilities
+               │
+    $ infocmp -x
+    $ infocmp -x tmux-256color
+    $ infocmp -x unknown
 
 View the description of:
 
@@ -92,15 +92,17 @@ View the description of:
 
 ### How to configure it?
 
-        $ infocmp -x [termname]
+Edit the description of a terminal:
 
-        # edit the decompiled entry
+    $ infocmp -x [termname] >/tmp/entry
 
-        $ tic -x
-               │
-               └ include unknown capabilities as user-defined
+Edit the decompiled entry.
 
-Edit the description of a terminal.
+Compile the new entry:
+
+    $ tic -x /tmp/entry
+           │
+           └ include unknown capabilities as user-defined
 
 `tic` is the `terminfo` compiler.
 
@@ -112,20 +114,13 @@ description), so  that if your  `$TERM` does not use  the canonical name  of the
 terminal but an alias, the programs will still be able to find its description.
 
 ##
-## Does infocmp sort the capabilities?
+## How does infocmp sort the capabilities?
 
-Yes. According the the type of their value:
+According the the type of their value:
 
    1. boolean
    2. numeric
    3. string
-
-## Does infocmp show the capabilities customized via the tmux option 'terminal-overrides'?
-
-No.
-
-It only shows the default db (external to tmux); not the one internal to tmux.
-Use `$ tmux info` instead.
 
 ## How to deal with a server whose terminfo db is incomplete?
 
@@ -178,15 +173,15 @@ No.
 
 A terminal can have a capability which is absent from its description. Ex:
 
-    infocmp -x xfce
+    $ infocmp -x xfce
     ∅ no smxx capability (strikethrough style)~
 
-    printf '\e[9m   strikethrough  \e[0m\n'
+    $ printf '\e[9m   strikethrough  \e[0m\n'
     ✔ strikes through the text in `xfce4-terminal`~
 
 #
 # Syntax to write an entry
-## How to include a comment in a termcap/terminfo file?
+## How to include a comment in a terminfo file?
 
 Prefix it with `#`.
 
@@ -197,64 +192,53 @@ If an  entry is  written on  several lines of  the file,  they must  be indented
 
 ## Which characters are special? Where must they be used?
 
-Each entry of  the db is separated into fields,  separated with COLONS (termcap)
-or COMMAS (terminfo). The aliases in the first field are separated with BARS.
+Each entry of the db is separated into fields, separated with commas.
+The aliases in the first field are separated with bars.
 
-
-A termcap entry must be defined on a single logical line.
-Therefore, a BACKSLASH is needed to suppress a newline (like in bash/zsh).
-A terminfo entry doesn't need to be on a single line.
-Therefore, a backslash is not needed to suppress a newline.
-
-
-In the terminfo db, the last field must be followed by a comma.
+The last field must be followed by a comma.
 
 ## What's the purpose of the first field? The next ones?
 
 By convention:
 
-    - the first field lists the alias names for the terminal
+   - the first field lists the alias names for the terminal
 
-    - the first alias in the first field is the canonical name of the terminal
-      the last alias in the first field is a long description of the terminal
+   - the first alias in the first field is the canonical name of the terminal
+     the last alias in the first field is a long description of the terminal
 
-    - the next fields specify the terminal capabilities
+   - the next fields specify the terminal capabilities
 
 ## How does a field (other than the first) begin?
 
-With the name of a capability (2-char in termcap; 2-5 char in terminfo).
+With the name of a capability (2-5 char).
 
-## What does an example of termcap/terminfo entry look like?
+## What does an example of terminfo entry look like?
 
-    n9|wy50|WY50| Wyse Technology WY-50:\
-        :bs:am:co#80:li#24:\
-        :up=^K:cl=^Z:ho=^^:nd=^L:cm=\E=%+ %+ :
-  # ^^^^                │
-  # tab                 C-^
-
-        Partial description of a termcap entry.
-
-
-    wy50|WY50| Wyse Technology WY-50,
-        am, cols#80, lines#24, cuu1=^K, clear=^Z,
-        home=^^, cuf1=^L, cup=\E=%p1%'\s'%+%c%p2%'\s'%+%c,
-  # ^^^^                                                 ^
-  # tab                                                  don't forget this last comma!
-
-        Partial description of a terminfo entry.
+      wy50|WY50| Wyse Technology WY-50,
+          am, cols#80, lines#24, cuu1=^K, clear=^Z,
+          home=^^, cuf1=^L, cup=\E=%p1%'\s'%+%c%p2%'\s'%+%c,
+    # ^^^^                                                 ^
+    # tab                                                  don't forget this last comma!
 
 #
-# (Neo)Vim's builtin termcap/terminfo db
+# (Neo)Vim's builtin terminfo db
 ## How to view it?
 
 In Vim:
 
-        :put =execute('set termcap')
+    :put =execute('set termcap')
 
 In Neovim:
 
-        $ nvim -V3/tmp/log file
-        :q
-        $ nvim /tmp/log
-        :sil exe '1,/{{{$/g/^/d_' | /}}}$/,$g/^/d_
+    $ nvim -V3/tmp/log file
+    :q
+    $ nvim /tmp/log
+    :sil exe '1,/{{{$/g/^/d_' | /}}}$/,$g/^/d_
+
+##
+# Pitfalls
+## `$ infocmp` doesn't display the custom capabilities set via the tmux option 'terminal-overrides'!
+
+Those are part of a db internal to tmux.
+To view them, run `$ tmux info`.
 
