@@ -18,6 +18,12 @@
     prof start /tmp/log | prof! func Func | so /tmp/vim.vim
     profd func Func
 
+# How to debug an autocmd which is fired when Vim quits?  (i.e. I don't have the time to read the error message)
+
+Start Vim with `-V15/tmp/log`.
+Then read the log.
+
+##
 # Startup
 ## What are the locations from which Vim sources files when I start it with `$ vim -Nu NORC`?
 

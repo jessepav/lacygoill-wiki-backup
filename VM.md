@@ -693,9 +693,7 @@ This assumes that you have enabled the shortcut M-C-BS, with:
 
 Press Host + F3.
 
-Source:
-
-        https://askubuntu.com/a/49573/867754
+Source: <https://askubuntu.com/a/49573/867754>
 
 ##
 ## How to start the VM?

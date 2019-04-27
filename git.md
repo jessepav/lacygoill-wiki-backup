@@ -1131,24 +1131,24 @@ With a soft link, git would just back up its path.
 # Commandes
 ## bisect / blame
 
-        $ git bisect start
-        $ git bisect bad
-        $ git bisect good v1.0
+    $ git bisect start
+    $ git bisect bad
+    $ git bisect good v1.0
 
 Lance une recherche par dichotomie (“binary search“), en:
 
-        1. lançant `git bisect`
+   1. lançant `git bisect`
 
-        2. indiquant que le commit courant est mauvais
+   2. indiquant que le commit courant est mauvais
 
-        3. indiquant que le commit portant le tag `v1.0` est bon on aurait pu
-           aussi se référer au commit via son sha1 (full ou partiel)
+   3. indiquant que le commit portant le tag `v1.0` est bon on aurait pu aussi
+      se référer au commit via son sha1 (full ou partiel)
 
 Une fois ces 3  commandes tapées, git sait quel est  l'ensemble des commits dans
 lequel se trouve le commit qui a conféré à notre projet le bug:
 
-        Bisecting: 6 revisions left to test after this
-        [ecb6e1bc347ccecc5f9350d878ce677feb13d3b2] error handling on repo
+    Bisecting: 6 revisions left to test after this
+    [ecb6e1bc347ccecc5f9350d878ce677feb13d3b2] error handling on repo
 
 Ici, `git bisect`  nous dit qu'il nous  a positionné sur le commit  au milieu de
 cet ensemble, et  qu'une fois qu'on lui  aura rapporté si ce dernier  est bon ou
@@ -1163,23 +1163,29 @@ Le processus se répète jusqu'à ce que `git bisect` soit capable de dire quel 
 le commit ayant introduit un bug.
 Une fois terminé, il nous reste à exécuter:
 
-        $ git bisect reset
+    $ git bisect reset
 
 ... afin de repositionner HEAD sur le commit où on se trouvait avant d'invoquer `git bisect`.
 
+If you can't test a commit (e.g. a compilation fails), you can skip it:
 
-                         NOTE:
+    $ git bisect skip
+
+But then, git may be unable to find the offending commit.
+It should still narrow down the search to only a few candidates.
+
+---
 
 Il ne faut pas donner trop de sens à “mauvais“ et “bon“.
 
 Si on veut chercher à savoir quel  commit a conféré à notre projet une propriété
 qui nous intéresse, on pourra utiliser:
 
-        - `$ git bisect bad`
-          pour désigner un état du projet dans lequel il dispose de la propriété
+   - `$ git bisect bad`
+     pour désigner un état du projet dans lequel il dispose de la propriété
 
-        - `$ git bisect good`
-          pour désigner un état dans lequel il ne l'a pas
+   - `$ git bisect good`
+     pour désigner un état dans lequel il ne l'a pas
 
 Si la propriété qui nous intéresse est  un bug, alors “mauvais“ et “bon“ peuvent
 être interprétés littéralement.
@@ -1189,22 +1195,34 @@ premier de ces mots doit être ignoré.
 
 C'est pourquoi, il vaut mieux les comprendre de la façon suivante:
 
-        “bad“  → “nouvel état“
-        “good“ → “ancien état“
+    “bad“  → “nouvel état“
+    “good“ → “ancien état“
 
 IOW, à chaque fois  qu'on doit rapporter à git si le projet  est bon ou mauvais,
 il faut se poser la question suivante:
 
-        Suis-je dans le nouvel état ? (bugué, pas bugué, osef)
-            Oui → bad
-            Non → good
+    Suis-je dans le nouvel état ? (bugué, pas bugué, osef)
+        Oui → bad
+        Non → good
 
+TODO: You can use the terms “old” and “new” in your commands.
+You can even use your own terms.
 
-                           ┌─ bad commit
-                           │    ┌─ good commit
-                           │    │
-        $ git bisect start HEAD v1.0
-        $ git bisect run test-error.sh
+See `$ man git-bisect`:
+
+> To support  this more general usage,  the terms "old"  and "new" can be  used in
+> place of "good" and "bad", or you can choose your own terms.
+> See section "Alternate terms" below for more information.
+
+Update the last paragraphs.
+
+---
+
+                       ┌─ bad commit
+                       │    ┌─ good commit
+                       │    │
+    $ git bisect start HEAD v1.0
+    $ git bisect run test-error.sh
 
 Recherche par dichotomie automatique.
 
@@ -1222,6 +1240,7 @@ propriété intéressante.
 On peut remplacer le  script par n'importe quelle commande dont  la sortie est 0
 qd le projet est bon, ou une valeur non-nulle autrement.
 
+---
 
         $ git blame -L 12,34 file
 
@@ -1261,8 +1280,9 @@ La  recherche par  dichotomie et  l'annotation  de fichier  sont des  techniques
 complémentaires pour  trouver l'origine  d'un problème: la  1e permet  permet de
 trouver son commit d'origine, la 2nde son auteur.
 
+---
 
-        $ git blame -C -L 12,24 fileB
+    $ git blame -C -L 12,24 fileB
 
 L'option `-C`  demande à `git  blame` de  vérifier si un  snippet de code  a été
 copié depuis  un autre  fichier (`fileA`)  qui aurait été  modifié dans  un même

@@ -204,7 +204,7 @@ global one.
     │ :args                 │ les chemins stockés dans l'arglist                                   │
     ├───────────────────────┼──────────────────────────────────────────────────────────────────────┤
     │ :argument             │ l'argument courant de l'arglist                                      │
-    │                       │                                                                      │
+    │                       │                                                                      │
     │                       │ utile pour y revenir rapidement après avoir sauté de tag en tag pour │
     │                       │ se renseigner sur un de ses passages                                 │
     ├───────────────────────┼──────────────────────────────────────────────────────────────────────┤

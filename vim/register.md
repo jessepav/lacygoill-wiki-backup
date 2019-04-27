@@ -502,28 +502,24 @@ messages d'erreur via :messages.
 
 ##
 # Issues
-## I can't copy more than 4000 characters in the system clipboard in Neovim!
+## I can't copy more than 4000 characters in the clipboard from Nvim!
 
-Neovim may use `xsel`, which has an issue/
+Nvim may use `xsel`, which has [an issue][1].
 
-        https://github.com/kfish/xsel/issues/13
-
-It has been fixed by this PR:
-
-        https://github.com/kfish/xsel/pull/16
+It has been fixed by [this PR][2].
 
 Update `xsel`, or compile it from source:
 
-        $ git clone https://github.com/kfish/xsel
-        $ cd xsel
-        $ ./autogen.sh
-        $ ./configure.sh
-        $ make
-        $ sudo checkinstall (give a valid version number)
+    $ git clone https://github.com/kfish/xsel
+    $ cd xsel
+    $ ./autogen.sh
+    $ ./configure.sh
+    $ make
+    $ sudo checkinstall (give a valid version number)
 
 ---
 
-Alternatively, configure `g:clipboard` so that Neovim use `xclip` instead of `xsel`.
+Alternatively, configure `g:clipboard` so that Nvim uses `xclip` instead of `xsel`.
 Try something like this:
 
     let g:clipboard = {
@@ -539,15 +535,19 @@ Try something like this:
         \   'cache_enabled': 1,
         \ }
 
-Source:
-    https://vi.stackexchange.com/a/15213/17449
+[Source](https://vi.stackexchange.com/a/15213/17449)
 
-## I've copied a block of text in the system clipboard from Neovim.  Pasted in another Vim instance it gets linewise!
+## I've copied a block of text in the system clipboard from Nvim.  Pasted in another Vim instance it gets linewise!
 
-It seems to be an issue with Neovim.
+It seems to be an issue with Nvim.
 Try to use another clipboard manager (`xclip` instead of `xsel`).
 
-See also this issue (it may be linked ... or not):
+See also [this issue][3] (it may be linked ... or not).
 
-    https://github.com/neovim/neovim/issues/1822
+##
+# Reference
 
+[1]: https://github.com/kfish/xsel/issues/13
+[2]: https://github.com/kfish/xsel/pull/16
+[3]: https://github.com/neovim/neovim/issues/1822
+[4]: https://vi.stackexchange.com/a/19726/17449

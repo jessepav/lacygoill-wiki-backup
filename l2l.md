@@ -264,6 +264,7 @@ Faire apparaître l'info importante dans une phrase vers le début.
 Si on peut pas réduire un concept en qq lignes, il est encore trop tôt.
 Il nous manque des concepts intermédiaires.
 
+##
 # Résoudre un problème
 
 Qd  on émet  une hypothèse  pour expliquer  l'origine d'un  problème, dès  qu'on
@@ -357,6 +358,34 @@ Example of answers:
 
    3. the filetype has not been set yet
 
+## Something new and weird doesn't always have an issue
+
+When you find sth new which seems weird, and you suspect there's a bug, consider
+the possibility that  this new thing is not  weird; it may be the  old thing, to
+which you're comparing it, that is weird.
+
+---
+
+For example, when we  tried the st terminal, we were surprised  by the fact that
+we couldn't paste a text yanked from  Vim into the clipboard (`""yiw`) back into
+the terminal (`C-S-v`), after quitting Vim.
+
+It turns out that this behavior is perfectly normal.
+We thought it  was not normal, because  we were used to a  perl script (`pasta`)
+which has the  side-effect of allowing us  to paste the clipboard  in urxvt even
+after quitting Vim.
+
+What was weird was urxvt, not st.
+
+If you had considered the possibility that maybe urxvt was weird, you would have
+tried to test  other terminals, and you  would have come to  the conclusion that
+urxvt was indeed weird.
+Then, you  would have tested  urxvt without  config, which would  have confirmed
+your conclusion.
+Finally, you would have applied a binary search to your `~/.Xresources` in order
+to find the minimum amount of code to reproduce the weird behavior.
+
+##
 # Modularisation
 
 Réduire le temps d'accès.

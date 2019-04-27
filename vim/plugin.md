@@ -1967,7 +1967,7 @@ See also:
 
             https://github.com/paroxayte/vwm.vim
 
-                                    225 sloc
+                                    538 sloc
 
 ## tmuxify    tbone    tmux-runner    vimux    slimux
 
