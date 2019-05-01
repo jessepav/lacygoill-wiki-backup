@@ -1,3 +1,200 @@
+# How to print
+## all the limits imposed on the resources available to the shell and the processes started by it?
+
+    $ ulimit -a
+
+See `$ man bash /ulimit` for more info.
+
+##
+## the maximum size of a core file created when a process crash?
+
+    $ ulimit -c
+
+By default, this command will probably output 0.
+
+Cette commande  doit être  exécutée dans  un shell  interactif depuis  lequel on
+tente de reproduire le crash d'un programme.
+En effet, par  défaut, la limite est  0, ce qui signifie  qu'aucun fichier n'est
+créé.
+
+### How to remove this limit?
+
+    $ ulimit -c unlimited
+
+##
+## apport
+
+<https://stackoverflow.com/q/2065912/8243465>
+
+Question intéressante: “core dumped - but core file is not in current directory?”
+
+---
+
+    /proc/sys/kernel/core_pattern
+
+Par défaut, un  fichier “core dump“ est  nommé 'core', mais ce  peut être changé
+via un template défini dans `/proc/sys/kernel/core_pattern`.
+Atm, le mien contient:
+
+    |/usr/share/apport/apport %p %s %c %P
+
+Ici, le 1er caractère est un pipe.
+Ça indique  au kernel qu'il ne  doit pas écrire  le “core dump“ dans  un fichier
+mais sur l'entrée standard du programme `apport`.
+
+---
+
+Les items  `%` sont des  spécificateurs automatiquement remplacés  par certaines
+valeurs.
+Pour plus d'infos lire `$ man core`.
+
+---
+
+`apport` vérifie que le  binaire fait partie d'un paquet, et si  c'est le cas il
+génère un rapport qu'il envoit à un bug tracker.
+
+Si le binaire  ne fait pas partie  d'un paquet (pex compilé  en local), `apport`
+simule  ce que  le kernel  aurait fait,  à savoir  écrire le  core dump  dans un
+fichier du CWD du processus.
+
+Si un utilisateur  a besoin du fichier  core pour générer un  backtrace, il faut
+distinguer 3 cas de figure:
+
+   - le binaire fait partie d'un paquet:
+
+    `apport` a généré un rapport dans `/var/crash`
+
+   - le binaire ne fait pas partie d'un paquet, et la taille max d'un fichier
+     core est limitée à 0 blocks (limite par défaut; vérifiable via
+     `ulimit -a | grep core`):
+
+     il n'y a pas de fichier core
+
+   - le binaire ne fait pas partie d'un paquet, et la taille max d'un fichier
+     core n'est pas limitée (ou a une limite suffisamment élevée;
+     `ulimit -c unlimited`):
+
+     `apport` a  écrit le core dump  dans un fichier  du CWD du processus  qui a
+     crashé
+
+En cas  de crash  d'un binaire  faisant partie d'un  paquet, `apport`  génère un
+rapport dans un fichier de ce dossier.
+Pex, s'il s'agit de Vim, il l'écrira dans:
+
+    /var/crash/_usr_bin_vim.gtk.1000.crash
+                                │
+                                └ User ID de l'utilisateur au nom duquel tourne le processus?
+
+Ce rapport contient différentes informations, entre autres un backtrace.
+Ce dernier n'est sans doute pas très utile  si le binaire qui a crashé ne génère
+pas d'infos de déboguage.
+
+---
+
+    /var/log/apport.log.1
+
+Fichier dans lequel le système logue l'activité de `apport`.
+
+Utile qd  on ne  trouve pas où  `apport` a  écrit le core  dump d'un  binaire ne
+faisant pas partie d'un paquet.
+
+## gdb
+
+Si aucun  fichier `core`  n'est créé à  l'issu du crash,  reproduit le  crash en
+ayant lancé le processus via `sudo`.
+
+Et lit le contenu de `/var/log/apport.log`.
+Il se peut qu'il contienne un message d'erreur expliquant pourquoi le `core` n'a
+pas été dumpé, ou bien il peut fournir le chemin vers lequel il a été dumpé.
+
+
+             ┌ quiet: pas de messages d'intro / copyright
+             │
+        gdb -q build/bin/nvim core
+               └─────────────────┤
+                                 └ Lance le  binaire nvim  en spécifiant  un fichier
+                                   `core` pour analyser un précédent crash.
+
+                ┌ exécute automatiquement la commande GDB qui suit (ici `bt`)
+                │
+        gdb -q -ex bt build/bin/nvim core
+                   │
+                   └ affiche le backtrace de  toutes les stack frames (taper `help
+                     bt` dans gdb pour + d'infos)
+
+                                   ┌ appliquer  la commande qui suit  (ici `bt`) à
+                                   │ tous les threads neovim est multi-thread
+                    ┌──────────────┤
+        gdb -q -ex 'thread apply all bt full' build/bin/nvim core
+                                        │
+                                        └ qualificateur qui demande à afficher les
+                                          valeurs des variables locales
+
+
+             ┌ n'exécute aucune commande d'un fichier d'initialisation `.gdbinit`
+             │
+        gdb -n -ex 'thread apply all bt full' -batch nvim core >backtrace.txt
+                                               │
+                                               └ mode batch (!= interactif):
+                                                      exécute les commandes demandées et affiche leur sortie
+                                                      dans le terminal
+                                                 -batch implique `-q`
+
+
+Générer un backtrace à partir d'un fichier “core dump“.
+
+Qd un  processus reçoit certains  signaux, il crashe  et génère un  fichier core
+dump contenant une image de sa mémoire actuelle.
+Cette image peut être utilisée par un debugger tq `gdb` pour inspecter l'état du
+programme au moment où il s'est terminé.
+
+
+Si le  crash concerne un  binaire compilé mais  non installé, il  faut remplacer
+`nvim` par le chemin vers le binaire, typiquement:
+
+        ./build/bin/nvim
+
+
+La version `Release` ne génère pas d'informations de déboguage.
+En  cas   de  crash,  il  vaut   donc  mieux  le  reproduire   avec  la  version
+`RelWithDebInfo` et s'assurer  que la commande `gdb` invoque  bien cette version
+de nvim.
+
+Update: These commands help debugging Nvim. They should be in our Vim wiki.
+Besides, the recommended command to get a backtrace has changed:
+<https://github.com/neovim/neovim/wiki/Development-tips>
+
+Now, it's:
+
+    2>&1 coredumpctl -1 gdb | tee -a bt.txt
+    thread apply all bt full
+
+It doesn't need a core file, but you need to install the package `systemd-coredump`.
+
+
+Une frame est un ensemble de données associées à un appel de fonction.
+Elle contient:
+
+   - les arguments passés à la fonction
+
+   - ses variables locales
+
+   - son adresse d'exécution (≈ à quelle ligne de la fonction l'exécution se
+     trouve ?)
+
+On parle  de “stack frame“, car  une fonction peut  en appeler une autre,  et le
+processus peut se  répéter, formant ainsi une pile sur  laquelle s'ajoute chaque
+nouvelle frame.
+La frame  associée à  la fonction où  l'exécution se trouve,  est dite  “la plus
+profonde“ (innermost).
+
+Ce qui caractérise une stack n'est pas son implémentation (liste ou autre), mais
+son interface: on ne peut que “push“ ou “pop“ un item sur la stack.
+<https://en.wikipedia.org/wiki/Stack_(abstract_data_type)#Implementation>
+
+##
+##
+##
 # ASSIMIL
 ## ?
 
@@ -361,84 +558,6 @@ La sortie de:
 
 Dans le doute, utiliser plusieurs options `-o`.
 
-## apport
-
-        https://stackoverflow.com/q/2065912/8243465
-
-Question intéressante:
-        core dumped - but core file is not in current directory?
-
----
-
-        /proc/sys/kernel/core_pattern
-
-Par défaut, un  fichier “core dump“ est  nommé 'core', mais ce  peut être changé
-via un template défini dans `/proc/sys/kernel/core_pattern`.
-Atm, le mien contient:
-
-            |/usr/share/apport/apport %p %s %c %P
-
-Ici, le 1er caractère est un pipe.
-Ça indique  au kernel qu'il ne  doit pas écrire  le “core dump“ dans  un fichier
-mais sur l'entrée standard du programme `apport`.
-
-
-Les items  `%` sont des  spécificateurs automatiquement remplacés  par certaines
-valeurs.
-Pour plus d'infos lire `man core`.
-
-
-`apport` vérifie que le  binaire fait partie d'un paquet, et si  c'est le cas il
-génère un rapport qu'il envoit à un bug tracker.
-
-Si le binaire  ne fait pas partie  d'un paquet (pex compilé  en local), `apport`
-simule  ce que  le kernel  aurait fait,  à savoir  écrire le  core dump  dans un
-fichier  du  CWD  (variable  d'environnement  `Current  Working  Directory`)  du
-processus.
-
-Si un utilisateur  a besoin du fichier  core pour générer un  backtrace, il faut
-distinguer 3 cas de figure:
-
-        - le binaire fait partie d'un paquet:
-
-                `apport` a généré un rapport dans `/var/crash`
-
-        - le binaire ne fait pas partie d'un paquet, et la taille
-          max d'un fichier core est limitée à 0 blocks (limite par
-          défaut; vérifiable via `ulimit -a | grep core`):
-
-                il n'y a pas de fichier core
-
-        - le binaire ne fait pas partie d'un paquet, et la taille
-          max d'un fichier core n'est pas limitée (ou a une limite
-          suffisamment élevée; `ulimit -c unlimited`):
-
-                `apport`  a  écrit le  core  dump  dans  un  fichier du  CWD  du
-                processus qui a crashé
-
-
-        /var/crash
-
-En cas  de crash  d'un binaire  faisant partie d'un  paquet, `apport`  génère un
-rapport dans un fichier de ce dossier.
-Pex, s'il s'agit de Vim, il l'écrira dans:
-
-        /var/crash/_usr_bin_vim.gtk.1000.crash
-                                    │
-                                    └ User ID de l'utilisateur au nom duquel tourne le processus?
-
-Ce rapport contient différentes informations, entre autres un backtrace.
-Ce dernier n'est sans doute pas très utile  si le binaire qui a crashé ne génère
-pas d'infos de déboguage.
-
-
-        /var/log/apport.log.1
-
-Fichier dans lequel le système logue l'activité de `apport`.
-
-Utile qd  on ne  trouve pas où  `apport` a  écrit le core  dump d'un  binaire ne
-faisant pas partie d'un paquet.
-
 ## Daemon
 
 A daemon is a program that runs as a background process, rather than being under
@@ -524,119 +643,6 @@ If the process is  started by a super-server daemon, such  as inetd, launchd, or
 systemd, the  super-server daemon will  perform those functions for  the process
 (except for old-style  daemons not converted to run under  systemd and specified
 as Type=forking and "multi-threaded" datagram servers under inetd).
-
-## gdb
-
-        ┌ commande intégrée au shell; man bash pour plus d'infos
-        │
-        ulimit -a
-
-Afficher toutes les  limites imposées aux ressources dispo pour  le shell et les
-processus qu'il lance.
-
-
-        ulimit -c unlimited
-
-Débloquer  la  taille  maximale  d'un  fichier core  créé  lors  du  crash  d'un
-programme.
-
-Cette commande  doit être  exécutée dans  un shell  interactif depuis  lequel on
-tente de reproduire le crash d'un programme.
-En effet, par  défaut, la limite est  0, ce qui signifie  qu'aucun fichier n'est
-créé.
-
-Si aucun  fichier `core`  n'est créé à  l'issu du crash,  reproduit le  crash en
-ayant lancé le processus via `sudo`.
-
-Et lit le contenu de `/var/log/apport.log`.
-Il se peut qu'il contienne un message d'erreur expliquant pourquoi le `core` n'a
-pas été dumpé, ou bien il peut fournir le chemin vers lequel il a été dumpé.
-
-
-             ┌ quiet: pas de messages d'intro / copyright
-             │
-        gdb -q build/bin/nvim core
-               └─────────────────┤
-                                 └ Lance le  binaire nvim  en spécifiant  un fichier
-                                   `core` pour analyser un précédent crash.
-
-                ┌ exécute automatiquement la commande GDB qui suit (ici `bt`)
-                │
-        gdb -q -ex bt build/bin/nvim core
-                   │
-                   └ affiche le backtrace de  toutes les stack frames (taper `help
-                     bt` dans gdb pour + d'infos)
-
-                                   ┌ appliquer  la commande qui suit  (ici `bt`) à
-                                   │ tous les threads neovim est multi-thread
-                    ┌──────────────┤
-        gdb -q -ex 'thread apply all bt full' build/bin/nvim core
-                                        │
-                                        └ qualificateur qui demande à afficher les
-                                          valeurs des variables locales
-
-
-             ┌ n'exécute aucune commande d'un fichier d'initialisation `.gdbinit`
-             │
-        gdb -n -ex 'thread apply all bt full' -batch nvim core >backtrace.txt
-                                               │
-                                               └ mode batch (!= interactif):
-                                                      exécute les commandes demandées et affiche leur sortie
-                                                      dans le terminal
-                                                 -batch implique `-q`
-
-
-Générer un backtrace à partir d'un fichier “core dump“.
-
-Qd un  processus reçoit certains  signaux, il crashe  et génère un  fichier core
-dump contenant une image de sa mémoire actuelle.
-Cette image peut être utilisée par un debugger tq `gdb` pour inspecter l'état du
-programme au moment où il s'est terminé.
-
-
-Si le  crash concerne un  binaire compilé mais  non installé, il  faut remplacer
-`nvim` par le chemin vers le binaire, typiquement:
-
-        ./build/bin/nvim
-
-
-La version `Release` ne génère pas d'informations de déboguage.
-En  cas   de  crash,  il  vaut   donc  mieux  le  reproduire   avec  la  version
-`RelWithDebInfo` et s'assurer  que la commande `gdb` invoque  bien cette version
-de nvim.
-
-Update: These commands help debugging Nvim. They should be in our Vim wiki.
-Besides, the recommended command to get a backtrace has changed:
-<https://github.com/neovim/neovim/wiki/Development-tips>
-
-Now, it's:
-
-    2>&1 coredumpctl -1 gdb | tee -a bt.txt
-    thread apply all bt full
-
-It doesn't need a core file, but you need to install the package `systemd-coredump`.
-
-
-Une frame est un ensemble de données associées à un appel de fonction.
-Elle contient:
-
-        - les arguments passés à la fonction
-
-        - ses variables locales
-
-        - son adresse d'exécution (≈ à quelle ligne de la fonction l'exécution
-          se trouve ?)
-
-On parle  de “stack frame“, car  une fonction peut  en appeler une autre,  et le
-processus peut se  répéter, formant ainsi une pile sur  laquelle s'ajoute chaque
-nouvelle frame.
-La frame  associée à  la fonction où  l'exécution se trouve,  est dite  “la plus
-profonde“ (innermost).
-
-Ce qui caractérise une stack n'est pas son implémentation (liste ou autre), mais
-son interface: on ne peut que “push“ ou “pop“ un item sur la stack.
-
-        https://en.wikipedia.org/wiki/Stack_(abstract_data_type)#Implementation
 
 ##
 ##

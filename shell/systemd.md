@@ -177,7 +177,7 @@ Atm, on ubuntu, it's:
 
 ## Where is the default config of systemd?
 
-        /etc/systemd/system.conf
+    /etc/systemd/system.conf
 
 ##
 # Unit

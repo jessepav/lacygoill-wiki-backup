@@ -1,4 +1,3 @@
-    ~
 Replace one pattern out of two with `foo`, and the other with `bar`:
 
     let a = ['bar', 'foo']
@@ -11,6 +10,17 @@ with `baz`:
     %s/pat/\=add(a, remove(a, 0))[-1]/
 
 These commands work because `reverse()`, `add()` and `remove()` operate in-place.
+
+---
+
+Always  escape a  literal  opening  square bracket  in  a substitution  command,
+otherwise the whole command will become the pattern.
+
+E.g.:
+
+    :%s/a[b/rep/
+
+This command doesn't replace `a[b` with `rep`, but `a[b/rep/` with nothing.
 
 ---
 

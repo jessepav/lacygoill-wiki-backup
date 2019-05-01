@@ -744,6 +744,7 @@ directory of the current file before compiling.
 # TODO
 
 https://castel.dev/post/lecture-notes-1/
+https://castel.dev/post/lecture-notes-2/
 
 [texlive-en.pdf](~/texlive/2018/texmf-dist/doc/texlive/texlive-en/texlive-en.pdf)
 

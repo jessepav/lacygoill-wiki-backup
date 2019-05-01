@@ -1261,9 +1261,7 @@ The text could still be highlighted by another item which contains it.
 And the  removal of  `xFoo` could  break other  syntax items  which rely  on its
 existence (via a `containedin=xFoo` argument for example).
 
-For more info, see:
-
-    https://vi.stackexchange.com/a/17445/17449
+For more info, see: <https://vi.stackexchange.com/a/17445/17449>
 
 ## What does `def` mean in `hi def link cComment Comment`?
 

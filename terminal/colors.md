@@ -312,9 +312,11 @@ The default values of these options are:
                    unsigned long int argument
 
 ... respectively, but they are only set when `$TERM` is `xterm`.
-Btw, don't replace semicolons with colons. It's not widely supported and
-nicm thinks that this syntax is silly:
-<https://gist.github.com/XVilka/8346728#gistcomment-2006857>
+
+The syntax with colons which is more compatible but less widely supported.
+
+Interesting comment about the two syntaxes:
+<https://gist.github.com/XVilka/8346728#gistcomment-2008553>
 
 ## How to enable true color in Neovim?
 
