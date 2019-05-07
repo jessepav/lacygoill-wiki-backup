@@ -311,6 +311,7 @@ given terminal:
 Useful when a program  has left either of those in an  unexpected state, and the
 terminal is no longer usable.
 
+##
 # Links
 
 List of control sequences supported by xterm (requires the package `xterm`):

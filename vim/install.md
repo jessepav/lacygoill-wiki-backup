@@ -1,54 +1,9 @@
+# How to get the paths to all the Vim binaries installed on my system?
+
+    $ type -a vim
+
+##
 # Vim
-
-    ftp://ftp.vim.org/pub/vim/patches/8.0/README
-
-            ChangeLog pour la version 8.0 de Vim.
-
-
-    $ which vim
-    /usr/bin/vim~
-
-    ls -l /usr/bin/vim
-    /etc/alternatives/vim~
-
-    ls -l /etc/alternatives/vim
-    /usr/bin/vim.tiny~
-
-    update-alternatives --config vim
-
-            Ces commandes montrent qu'Ubuntu est préinstallé avec le paquet `vim-tiny`.
-            Cette version de Vim  est compilée avec un minimum d'options.
-
-
-    vim.tiny  --version
-    :echo has('python')
-
-            Ces commandes montrent que `vim.tiny` ne supportent  pas le langage de script python. En
-            effet, dans la  sortie de la 1e  commande shell, les options 'python'  et 'python3' sont
-            précédés du symbole -. De même, la sortie de la 2e commande Vim est 0, et non 1.
-
-            Ceci fait qu'on ne peut pas utiliser de plugins nécessitant le support Python avec `vim.tiny`.
-
-
-    sudo aptitude install vim-gtk
-
-            vim-gtk est la version de Vim la plus complète sous Ubuntu.
-            Elle contient le programme en GUI, et une version pour le terminal.
-            Entre autres, elle supporte le copier-coller depuis / vers le presse-papier système,
-            ainsi que Python.
-
-
-    sudo update-alternatives --config vim
-
-            Choisir `vim.gtk` dans les choix proposés.
-
-            Informer le système des alternatives pour qu'il  mette à jour les liens symboliques et
-            que le shell exécute cette version quand on tapera la commande `$ vim`.
-
-    update-alternatives --get-selections | grep vim
-
-            S'assurer que le système des alternatives n'utilise plus `vim.tiny` pour aucune alternative.
-
 
 On peut aussi compiler Vim depuis les sources avec toutes les options désirées.
 Procédure décrite dans `:h 90.1`.
@@ -207,7 +162,7 @@ Procédure décrite dans `:h 90.1`.
 
                     --enable-gui=gtk2
 
-                            Selon l'aide (:h gui-x11-compiling), cette option n'est pas nécessaire
+                            Selon l'aide (`:h gui-x11-compiling`), cette option n'est pas nécessaire
                             car elle est activée par défaut:
 
                                     The GTK+ 2 GUI is built by default. Therefore, you usually don't
@@ -243,10 +198,6 @@ Procédure décrite dans `:h 90.1`.
                                     we  recommend GTK+  3.10  or later  because  of its  substantial
                                     implementation changes in redraw done at that version.
 
-                    --enable-cscope
-
-                            Inclut l'interface cscope. cscope est un pgm décrit dans `:h cscope`.
-
                     --prefix=/usr/local
 
                             Les fichiers seront installés à l'intérieur de `/usr/local`.
@@ -274,10 +225,6 @@ Procédure décrite dans `:h 90.1`.
 
                             C'est pour éviter ce genre de problème qu'il faut toujours installer des programmes
                             compilés dans `/usr/local`.
-
-                    --enable-terminal
-
-                            Inclut le terminal intégré.
 
 
     make
@@ -364,19 +311,7 @@ Procédure décrite dans `:h 90.1`.
             et utiliser en parallèle le paquet `vim` des repos officiels.
             Autrement il y aura conflit, et qd on fera une màj, le paquet des repos supprimera notre paquet.
 
-
-    update-alternatives-vim.sh
-
-            Met à jour le système des alternatives, pour que l'OS utilise notre Vim compilé
-            à chaque fois qu'il a le choix entre plusieurs éditeurs.
-
-
-    dpkg -L vim
-    sudo dpkg -r vim
-
-            Liste les fichiers de Vim installés.
-            Supprime Vim.
-
+##
 # Neovim
 ## How to install Neovim via a PPA?
 
@@ -416,25 +351,15 @@ Source: <https://github.com/neovim/neovim/wiki/Building-Neovim#build-prerequisit
 
 ### compile
 
-Use one of these commands:
-
-    $ make
-
     $ make CMAKE_BUILD_TYPE=Release
+           ├──────────────────────┘
+           └ Full compiler optimisations and no debug information.
+             Expect the best performance from this build type.
+             Often used by package maintainers.
 
-    $ make CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_EXTRA_FLAGS=-DENABLE_JEMALLOC=OFF
-                                           ├─────────────────────────────────────┘
-                                           └ necessary to be able to use `checkinstall` later
-
-<https://github.com/neovim/neovim/issues/2364#issuecomment-113966180>
-<https://github.com/serverwentdown/env/commit/a05a31733443fcb0979fecf18f2aa8e9e2722c7c>
-
-TODO:
-What do we lose by disabling jemalloc?
-Are we going to suffer from a noticeable performance hit?
-I could  be wrong,  but after  reading this  (and because  Neovim is  probably a
-single-threaded process) I don't think so:
-<https://stackoverflow.com/a/1624744/9780968>
+You could also replace `Release` with `RelWithDebInfo`.
+The latter  enables many optimisations and  adds enough debug info  so that when
+nvim ever crashes, you can still get a backtrace.
 
 ---
 
@@ -456,12 +381,28 @@ If you use Tmux, run the command in an unsplit window, or in zoomed pane.
 
 ### install it
 
-    $ sudo checkinstall
+    $ sudo checkinstall --pkgname "nvim" --pkgversion "$(git describe)" --spec /dev/null -y
 
-If you didn't disable jemalloc during the compilation, the installation may fail.
-In that case, run:
+---
 
-    $ sudo make install
+If the installation fails.
+Try to recompile:
+
+<https://github.com/neovim/neovim/issues/2364#issuecomment-113966180>
+<https://github.com/serverwentdown/env/commit/a05a31733443fcb0979fecf18f2aa8e9e2722c7c>
+
+Note that there may be a performance cost if you disable jemalloc, I don't know.
+See here to understand what jemalloc is:
+<https://stackoverflow.com/a/1624744/9780968>
+
+Note that Nvim is multi-threaded:
+<https://github.com/neovim/neovim/wiki/Development-tips/fd1582128edb0130c1d5c828a3a9b55aa9107030>
+
+> `thread apply all bt` may be necessary because **Neovim is multi-threaded**.
+
+Alternatively, you  could try  to pass  an option to  checkinstall, and  make it
+generate a deb without installing it.
+Then, you could try to force its installation with `dpkg` and the right options.
 
 ### UNinstall it (optional)
 

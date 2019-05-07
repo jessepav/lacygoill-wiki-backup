@@ -1032,11 +1032,11 @@ load the appropriate syntax plugins.
 ##
 ## Which steps lead to Vim sourcing a syntax plugin when (re)loading a buffer?  (5)
 
-        1. `BufRead`  is fired
-        2. 'filetype' is set
-        3. `FileType` is fired
-        4. 'syntax'   is set
-        5. `Syntax`   is fired
+   1. `BufRead`  is fired
+   2. 'filetype' is set
+   3. `FileType` is fired
+   4. 'syntax'   is set
+   5. `Syntax`   is fired
 
 When  the last  step occurs,  Vim  sources the  relevant syntax  plugins in  all
 `syntax/` directories of the rtp.

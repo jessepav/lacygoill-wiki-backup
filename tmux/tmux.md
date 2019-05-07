@@ -107,7 +107,137 @@ For the moment, the  only solution which I know is to kill  and restart the tmux
 server.
 
 ##
+##
+##
+# How does tmux parse a semicolon?
+
+As a command termination (like the shell).
+
+---
+
+From `$ man tmux /COMMANDS`:
+
+> Multiple commands may be specified together as part of a command
+> sequence.  Each command should be separated by spaces and a semicolon;
+> commands are executed sequentially from left to right and lines ending
+> with a backslash continue on to the next line, except when escaped by
+> another backslash.  A literal semicolon may be included by escaping it
+> with a backslash (for example, when specifying a command sequence to
+> bind-key).
+
+## When do I need to escape a semicolon?
+
+When you install a key binding whose rhs contains several commands, separated by
+semicolons.
+
+---
+
+If you write:
+
+    bind <key> cmd1 ; cmd2
+
+Tmux will populate its key bindings table with:
+
+    <key> cmd1
+
+Because the semicolon has prematurely terminated `bind`.
+Then, tmux will *immediately* run `cmd2`.
+
+## How many backslashes do I need if I install a tmux key binding from the shell?
+
+Three.
+
+    $ tmux bind <key> cmd1 \\\; cmd2
+                           ^^^
+
+This  is because  the semicolon  is  also special  for the  shell; the  latter
+automatically removes one level of  backslashes; after this removal, tmux will
+correctly receive `\;`.
+
+If you only wrote two backslashes, the shell would reduce them into a single one
+– passed to tmux – and the remaining semicolon would not be escaped.
+So, the shell would try to run `cmd2` itself.
+
+##
+# How can I make the difference between a tmux server and a tmux client in the output of `$ ps`?
+
+Look at the process state codes.
+If you can read `Ss`, it's a server; `S+`, it's a client.
+
+┌───┬────────────────────────────────────────────────────────┐
+│ S │ interruptible sleep (waiting for an event to complete) │
+├───┼────────────────────────────────────────────────────────┤
+│ s │ is a session leader                                    │
+├───┼────────────────────────────────────────────────────────┤
+│ + │ is in the foreground process group                     │
+└───┴────────────────────────────────────────────────────────┘
+
+See `$ man ps /PROCESS STATE CODES`.
+
+---
+
+Alternatively, look at the terminal to which the processes are attached.
+If you can read `?`, it's a server; `pts/123`, it's a client.
+
+# How to delete a tmux buffer interactively?
+
+   1. run `choose-buffer`
+   2. select a tmux buffer
+   3. press `d`
+
+For more info, see:
+
+    $ man tmux /choose-buffer
+
+## Several buffers in one keypress?
+
+Tag the buffers you want to delete by  pressing `t` while your cursor is on each
+of them, then press `D`.
+
+---
+
+Note the difference between `d` and `D`.
+`d` deletes the currently selected buffer.
+`D` deletes all the tagged buffers.
+
+## All buffers?
+
+Press `C-t` to tag all buffers, then `D`.
+
+##
 # Issues
+## `$ tmux -Ltest` doesn't read `~/.tmux.conf`!
+
+Make sure you don't have a running tmux server listening to the socket `test`:
+
+    $ ps aux | grep tmux | grep test
+    user 6771 ... tmux -Ltest -f/dev/null new~
+                              ├─────────┘
+                              └ your custom config can't be read because of this
+
+If there's one, kill it:
+
+    $ kill 6771
+
+---
+
+This issue can happen, even with no  terminal running a tmux client connected to
+this `test` socket.
+
+MWE:
+
+    $ xterm
+    $ tmux -Ltest -f/dev/null new
+    Alt-F4
+    $ ps aux | grep tmux | grep test
+    user ... tmux -Ltest -f/dev/null new~
+
+Alt-F4 kills the client, but not the server.
+The server keeps running in the background.
+
+In contrast, if you  had pressed `C-d` to kill the current  shell, and there was
+no other shell handled by the tmux server, this would have killed the latter.
+
 ## Some options which set colors don't work!
 
 Do you use hex color codes, and does your terminal support true colors?
@@ -170,7 +300,6 @@ Instead, use the shell command `[` or `test`.
          ^^^^
          ✔
 
-##
 ##
 ##
 ##

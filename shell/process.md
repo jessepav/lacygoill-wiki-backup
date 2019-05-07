@@ -11,15 +11,13 @@ See `$ man bash /ulimit` for more info.
     $ ulimit -c
 
 By default, this command will probably output 0.
-
-Cette commande  doit être  exécutée dans  un shell  interactif depuis  lequel on
-tente de reproduire le crash d'un programme.
-En effet, par  défaut, la limite est  0, ce qui signifie  qu'aucun fichier n'est
-créé.
+It means that if a process crashes, and tries to dump a core file, it won't be able to.
 
 ### How to remove this limit?
 
     $ ulimit -c unlimited
+
+The effect of this command doesn't persist beyond the life of the shell where it's run.
 
 ##
 ## apport
@@ -108,37 +106,37 @@ Il se peut qu'il contienne un message d'erreur expliquant pourquoi le `core` n'a
 pas été dumpé, ou bien il peut fournir le chemin vers lequel il a été dumpé.
 
 
-             ┌ quiet: pas de messages d'intro / copyright
-             │
-        gdb -q build/bin/nvim core
-               └─────────────────┤
-                                 └ Lance le  binaire nvim  en spécifiant  un fichier
-                                   `core` pour analyser un précédent crash.
+         ┌ quiet: pas de messages d'intro / copyright
+         │
+    gdb -q build/bin/nvim core
+           └─────────────────┤
+                             └ Lance le  binaire nvim  en spécifiant  un fichier
+                               `core` pour analyser un précédent crash.
 
-                ┌ exécute automatiquement la commande GDB qui suit (ici `bt`)
-                │
-        gdb -q -ex bt build/bin/nvim core
-                   │
-                   └ affiche le backtrace de  toutes les stack frames (taper `help
-                     bt` dans gdb pour + d'infos)
+            ┌ exécute automatiquement la commande GDB qui suit (ici `bt`)
+            │
+    gdb -q -ex bt build/bin/nvim core
+               │
+               └ affiche le backtrace de  toutes les stack frames (taper `help
+                 bt` dans gdb pour + d'infos)
 
-                                   ┌ appliquer  la commande qui suit  (ici `bt`) à
-                                   │ tous les threads neovim est multi-thread
-                    ┌──────────────┤
-        gdb -q -ex 'thread apply all bt full' build/bin/nvim core
-                                        │
-                                        └ qualificateur qui demande à afficher les
-                                          valeurs des variables locales
+                               ┌ appliquer  la commande qui suit  (ici `bt`) à
+                               │ tous les threads neovim est multi-thread
+                ┌──────────────┤
+    gdb -q -ex 'thread apply all bt full' build/bin/nvim core
+                                    │
+                                    └ qualificateur qui demande à afficher les
+                                      valeurs des variables locales
 
 
-             ┌ n'exécute aucune commande d'un fichier d'initialisation `.gdbinit`
-             │
-        gdb -n -ex 'thread apply all bt full' -batch nvim core >backtrace.txt
-                                               │
-                                               └ mode batch (!= interactif):
-                                                      exécute les commandes demandées et affiche leur sortie
-                                                      dans le terminal
-                                                 -batch implique `-q`
+         ┌ n'exécute aucune commande d'un fichier d'initialisation `.gdbinit`
+         │
+    gdb -n -ex 'thread apply all bt full' -batch nvim core >backtrace.txt
+                                           │
+                                           └ mode batch (!= interactif):
+                                                  exécute les commandes demandées et affiche leur sortie
+                                                  dans le terminal
+                                             -batch implique `-q`
 
 
 Générer un backtrace à partir d'un fichier “core dump“.
@@ -152,7 +150,7 @@ programme au moment où il s'est terminé.
 Si le  crash concerne un  binaire compilé mais  non installé, il  faut remplacer
 `nvim` par le chemin vers le binaire, typiquement:
 
-        ./build/bin/nvim
+    ./build/bin/nvim
 
 
 La version `Release` ne génère pas d'informations de déboguage.
@@ -170,6 +168,14 @@ Now, it's:
     thread apply all bt full
 
 It doesn't need a core file, but you need to install the package `systemd-coredump`.
+
+You can find some of these gdb commands by cloning the neovim wiki:
+
+    $ git clone https://github.com/neovim/neovim.wiki
+
+Then, search for ‘gdb’ in the commit logs:
+
+    $ git log --all --source -p -S 'gdb' | vim -
 
 
 Une frame est un ensemble de données associées à un appel de fonction.

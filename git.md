@@ -1937,10 +1937,17 @@ références peuvent être déplacées librement.
         $ man tigmanual
 
 ##
-# TODO
+# Todo
 
 Learn how to use `git-jump`.
 Read `~/bin/README.md`.
+
+---
+
+<https://github.com/so-fancy/diff-so-fancy>
+<https://www.reddit.com/r/vim/comments/bkz81t/vimdiff_nor_nvim_d_are_working_as_an_external/emlntpu/>
+
+<https://www.reddit.com/r/vim/comments/bkz81t/vimdiff_nor_nvim_d_are_working_as_an_external/emkges3/>
 
 ---
 

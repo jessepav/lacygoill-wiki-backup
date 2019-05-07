@@ -308,6 +308,62 @@ extension *un*conditionally:
 
 <https://www.youtube.com/watch?v=9H75enWM22k>
 
+## Prevent `$ make` from compiling the terminfo description into our local database.
+
+I don't trust it.
+I prefer to rely on the one from invisible-island.
+
+    $ curl -LO http://invisible-island.net/datafiles/current/terminfo.src.gz
+    $ gunzip terminfo.src.gz
+    $ tic -sx terminfo.src
+
+Note somewhere that we should remove these lines:
+
+    tic -sx st.info
+    @echo Please see the README file regarding the terminfo entry of st.
+
+... from `~/GitRepos/st/Makefile`.
+
+This should be done automatically (with `$ sed`), so we need to use a script.
+Maybe use `upp.sh`.
+
+---
+
+Why don't you trust this terminfo description?
+
+When you look at the terminfo.src from invisible-island, you can read this:
+
+> Se and Ss are implemented in the source-code, but the terminfo
+> provided with the source is incorrect, since Se/Ss are mis-coded
+> as booleans rather than strings.
+
+...
+
+> The source includes two entries which are not useful here:
+>       st-meta| simpleterm with meta key,
+>       st-meta-256color| simpleterm with meta key and 256 colors,
+> because st's notion of "meta" does not correspond to the terminfo definition.
+> Rather, it acts like xterm - when the meta feature is disabled.
+
+It seems to indicate that the  terminfo description which comes with st's source
+code is  not always correct... Search  for `\C\<st\>` in terminfo.src,  and read
+the few reviews that you find.
+
+---
+
+After reading this: <https://github.com/tmux/tmux/issues/1264>
+I wonder whether we should stick with the terminfo description from st source code.
+
+And if you read this:
+<https://github.com/tmux/tmux/issues/1593#issuecomment-460063051>
+You may, yet again, change your mind:
+> The upstream st (which I've seen more than once comment suggesting as an improvement) also is incorrect.
+
+---
+
+Also, if you write a script to install st, make sure it runs `$ make clean`.
+<https://github.com/tmux/tmux/issues/1264#issuecomment-397909842>
+
 ##
 # Reference
 

@@ -664,6 +664,10 @@ event is disabled.
 It's added to `'eventignore'`.
 This is done to speed up the edition of each buffer.
 
+---
+
+Note that the issue seems to occur only when you have 3 buffers or more (not just 2).
+
 ### What's the other drawback of using `:argdo`, `:bufdo`, `:cdo`, ...?
 
 `:windo` and `:tabdo` may change the focused window.

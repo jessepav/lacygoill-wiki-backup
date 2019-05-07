@@ -630,6 +630,31 @@ where you restore `'opfunc'`.
 ##
 ##
 ##
+# Issues
+## The output of `:ino bc –` followed by `:echo execute('ino bc')` is `i  bc    * ^S`!
+
+It should look like this: `i  bc    * –`.
+
+It may be a bug in Vim.
+
+MWE:
+
+    $ vim -Nu NONE +'ino bc –' +'redir =>var' +'ino bc' +'redir END' +'echo var'
+    i  bc          *~
+    i  bc          * ^S~
+
+    $ vim -Nu NONE +'ino bc –' +'echo execute("ino bc")'
+    i  bc          * ^S~
+
+Also, note how the output of `:ino bc –` is empty; it could be another bug...
+
+The issue is not linked to `execute()`, since we can reproduce with `:redir`.
+I can reproduce the issue with an abbreviation too.
+It's probably somewhat linked to the fact that `–` is a multibyte character.
+
+##
+##
+##
 # Tricks
 
 Use `<C-c>` instead of `<Esc>` in a mapping in insert mode, if you don't want to

@@ -215,7 +215,7 @@ But why can't I reproduce this experiment for the shell?
     $ vim entry
     :%s/kcuu1=\zs[^,]*//
     :x
-    $ tic -x entry
+    $ tic -sx entry
 
 Press the up key: it still correctly recalls the previous command!
 

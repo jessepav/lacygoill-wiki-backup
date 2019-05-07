@@ -129,23 +129,33 @@ hover your cursor over the color in which you're interested, and hit space.
 <http://wtamu.edu/~cbaird/sq/2015/01/22/why-are-red-yellow-and-blue-the-primary-colors-in-painting-but-computer-screens-use-red-green-and-blue/>
 
 #
-# 256 Colors
+# 256 Colors Palette
 ## What characterizes a 256color capable terminal?
 
 It can provide a built-in palette of 256 colors that the programs (like Vim) can
 use to color the text or various elements of their UI.
 
-## Are there different categories of colors?
-
-Yes.
-
-The 256 colors can be broken down into 3 categories:
+##
+## What are the 3 categories of colors in a 256 colors palette?
 
    - 16  ANSI colors
    - 216 colors from a built-in palette
-   - 24  shades of grey (greyscale from black to white)
+   - 24  shades of gray (grayscale from black to white)
 
-## Which colors are chosen for the 16 ANSI ones?
+---
+
+Note that I write “gray” instead of “grey”.
+Both spellings  are correct, but  I prefer the second  one because it's  used in
+american english, and usually we use the latter (color vs colour), so let's stay
+consistent.
+
+If you've got difficulty to remember which spelling is american, remember this:
+
+> E for England, A for America.
+
+<https://english.stackexchange.com/questions/255435/gray-or-grey-which-one-should-i-use/255437#comment558850_255436>
+
+### Which color names are chosen for the first 8 ones?
 
    - black
    - red
@@ -156,9 +166,11 @@ The 256 colors can be broken down into 3 categories:
    - cyan
    - white
 
-plus the same 8 colors but brighter/more intense.
+#### for the next 8 ones?
 
-## Why these colors in particular?
+The same 8 colors but brighter/more intense.
+
+#### Why these colors in particular?
 
 <http://wtamu.edu/~cbaird/sq/2015/01/22/why-are-red-yellow-and-blue-the-primary-colors-in-painting-but-computer-screens-use-red-green-and-blue/>
 
@@ -170,7 +182,8 @@ additive color system.
 cyan, magenta, yellow because they are  the primary colors of the most effective
 subtractive color system.
 
-## How is the palette built?
+###
+### How are the 216 colors in the middle of a palette chosen by default?
 
 Theory:
 
@@ -182,6 +195,8 @@ They *index* them with the following formula:
 
 Source: <https://en.wikipedia.org/wiki/ANSI_escape_code#Colors>
 
+---
+
 More generally, if you  want to encode n numbers a₁,...,aₙ, with 0  ≤ aᵢ < B, then
 encode it as:
 
@@ -189,26 +204,90 @@ encode it as:
 
 Source: <https://mathoverflow.net/a/69250>
 
-## Why 216 colors in the palette?
+#### Why the number 216?
 
 This is the biggest cube we can use which fits in 1 byte (256 codes).
 
     6×6×6 = 216 ✔
     7×7×7 = 343 ✘
 
-## Why 24 shades of grey?
+#### Are they defined with the same hex color codes, from one terminal to the other?
+
+It seems so.
+
+Run `$ palette` in  a terminal, start Gpick, and hover your  cursor over a given
+color; you'll always find the same hex color code.
+It seems to indicate that most (all?)  terminals use the same last 216+24 colors
+in their palette, probably inspired by xterm.
+
+##
+### Why 24 shades of gray?
 
 That's what's left after removing the cube of 216 colors and the 16 ANSI colors:
 
     256 - 6×6×6 - 16 = 24
 
-## How to change the palette?
+#### What scheme is usually followed by the hex color code of any of these?
+
+It follows the scheme `#xyxyxy`, where `x` and `y` are hex digits.
+
+This can  help you to  quickly determine whether an  arbitrary hex color  code –
+found with Gpick  and used to color  some text/UI element – is  in the grayscale
+part of the terminal's palette.
+For example, `#123456` shouldn't be a shade of gray, while `#121212` could be.
+
+##
+## A terminal can use colors outside the palette.  Usually, what do they colorize?
+
+It depends on  the terminal, but, among other things,  they're used to colorize
+some elements of the UI:
+
+   - text foreground
+   - terminal background
+   - cursor
+   - tab activity
+   - text selection
+   - bold text
+   ...
+
+The colors used for these don't belong to the palette.
+They are not meant to be used by a program to color an *arbitrary* element of its UI.
+Their only purpose is to color some *fixed* elements of the UI of the terminal.
+
+##
+## `$ palette`
+### What do the colors in the same column in the output of `$ palette` have in common?
+
+They end with the same digits.
+
+This can  help you to  quickly determine whether an  arbitrary hex color  code –
+found with Gpick and used to color some text/UI element – is in a given column.
+
+For example, if you're looking for `#123456`,  you pick a color in a column, and
+its hex color code  is `#789abc`, there's no need to  compare `#123456` with any
+other color in the column, because `56` doesn't match `bc`.
+
+### What do the colors in the same 6x6 square in the output of `$ palette` have in common?
+
+They start with the same digits.
+
+This can  help you to  quickly determine whether an  arbitrary hex color  code –
+found with Gpick and used to color some text/UI element – is in a given square.
+
+For example, if you're looking for `#123456`,  you pick a color in a square, and
+its hex color code  is `#789abc`, there's no need to  compare `#123456` with any
+other color in the square, because `12` doesn't match `78`.
+
+##
+## How to change a color used in the palette?
 
 Usually, you can tweak  the first 16 ANSI colors via a  menu in the preferences,
 but not the remaining 240 ones.
 
-`urxvt` and `xterm` are exceptions; they allow you to redefine all colors of the
+urxvt and  xterm are exceptions;  they allow you to  redefine all colors  of the
 palette via `~/.Xresources`.
+
+---
 
 Also, in some terminals, you can still use the sequence:
 
@@ -228,45 +307,6 @@ Look at the color 159 (it's cyan).
 
 The  color of  the  characters  displaying `159`  should  immediately change  to
 yellow; if it doesn't, it means the terminal doesn't support the sequence.
-
-## How to see the colors used in the palette?
-
-    for i in {0..255} ; do
-        printf '\e[48;5;%dm%3d\e[0m ' "$i" "$i"
-        if (( i == 15 )) || (( i > 15 )) && (( (i-15) % 6 == 0 )); then
-            printf '\n';
-        fi
-    done
-
-Generate the 256 color palette used by the terminal.
-You can use this code in a custom shell function `palette()`.
-Try `$ palette`.
-
-If you try this code in different terminals, start `gpick` and hover your cursor
-over a given color, you'll always find the same hex code.
-It seems  to indicate that  most (all?) terminals  use the same  default palette
-probably inspired by xterm.
-
-But in some terminals, you can tweak the palette via:
-
-    OSC 4 ; c ; spec ST
-
-## Does a terminal use colors outside the palette?
-
-Yes, most terminals allow you to choose the colors of some elements of their UI:
-
-   - text foreground
-   - terminal background
-   - cursor
-   - tab activity
-   - text selection
-   - bold text
-   ...
-
-The colors used for these don't belong to the palette.
-They are not meant to be used by  a program to color an *arbitrary* element of its
-UI.
-Their only purpose is to color some *fixed* elements of the UI of the terminal.
 
 #
 # True Color
@@ -417,4 +457,52 @@ version of the programs.
 
 <https://gist.github.com/XVilka/8346728>
 <https://en.wikipedia.org/wiki/ANSI_escape_code#Colors>
+
+##
+# Issues
+## Some text is wrongly colored in the terminal!
+### How to find out its hex color code?
+
+Run Gpick and hover your cursor over the text.
+If positioning the cursor accurately is too hard, because the text is too small,
+temporarily configure your terminal to use a much bigger font.
+
+### How to find out which color from the terminal's palette, if any, is used?
+
+Let's assume the color – found with Gpick – is `#ab1234`.
+
+Comparing `#ab1234` to *each* color in the terminal's palette would take too much time.
+But you don't have to.
+
+First, `#ab1234`  is not repeating  the same  2 digits, so  it's not a  shade of
+gray, and you don't have to compare it to the last 24 colors in the palette.
+OTOH, if  your color *was* following  the scheme `#xyxyxy`, then  you would only
+have to compare it to the last 24 colors in the palette.
+
+Next, compare `#ab1234` to each of the first 16 colors (ANSI palette).
+
+If there's no match, then consider the last two digits of `#ab1234`; i.e. `34`.
+Compare them to the last two digits in *any* color of a given column in the palette.
+If it doesn't match, `#ab1234` is not in this column.
+Repeat until you find a color in a column whose last two digits are `34`; if you
+don't find one, `#ab1234` is not in the palette.
+
+If you've found a  color whose last two digits are `34`,  consider the first two
+digits in `#ab1234`, i.e. `ab`.
+Compare them to the first two digits in *any one* color in a square.
+If it doesn't match `ab`, `#ab1234` is not in this square.
+Repeat until you  find a color in a  square whose first two digits  are `ab`; if
+you don't find one, `#ab1234` is not in the palette.
+
+If you've found a  color whose first two digits are `ab`, all  you have to do is
+compare each of the  six colors which are simultaneously in  the `ab` square and
+in the `34` column.
+
+At worst, you have 16 (ANSI colors) + 6 (columns) + 6 (squares) + 6 (lines) = 34
+comparisons to do.
+
+---
+
+Alternatively, use `~/bin/is_it_in_the_palette.sh`, but be aware of the
+limitations of this script; they're documented at the top of the file.
 

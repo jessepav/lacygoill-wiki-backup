@@ -479,6 +479,34 @@ Install an autocmd listening to:
        Colorscheme
 
 ##
+# Terminal Colors
+## How to get the colors used in a terminal buffer?
+
+    :echo term_getansicolors('')
+                             ├┘
+                             └ current terminal buffer
+
+### How to set them at starting time?
+
+Assign 16 hex color codes to the variable `g:terminal_ansi_colors`:
+
+    let g:terminal_ansi_colors = ['#123456', ...]
+
+Note that this is useful only when you  start gVim; or when you start Vim from a
+terminal whose `$TERM` is not `xterm` nor `xterm-256color`, and `'tgc'` is set.
+Otherwise,  Vim should  correctly  use  the 16  ANSI  colors  of the  underlying
+terminal.
+
+Also, you can use a color name as suggested at `:h gui-colors`, instead of a hex
+color  code, but  it would  make Vim  choose the  color in  its builtin/fallback
+palette, which will be ugly/flashy.
+
+##
+### How to change them at runtime?
+
+    :call term_setansicolors('', ['#123456', ...])
+
+##
 # Issues
 ## I've installed a match to conceal some text.  The text in the search register is also concealed!
 

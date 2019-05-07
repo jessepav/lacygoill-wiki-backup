@@ -69,7 +69,7 @@ It's automatically installed (dependency) when you install
             ││
     $ curl -LO http://invisible-island.net/datafiles/current/terminfo.src.gz
     $ gunzip terminfo.src.gz
-    $ tic -x terminfo.src
+    $ tic -sx terminfo.src
 
 Procedure to build your own terminfo db.
 Run these commands as a regular user.
@@ -100,9 +100,13 @@ Edit the decompiled entry.
 
 Compile the new entry:
 
-    $ tic -x /tmp/entry
+    $ tic -sx /tmp/entry
+           ││
+           │└ include unknown capabilities as user-defined 
            │
-           └ include unknown capabilities as user-defined
+           └ summarize the compile by  showing  the  database  location  into
+             which  entries  are written, and the number of entries which are
+             compiled
 
 `tic` is the `terminfo` compiler.
 
@@ -136,11 +140,11 @@ According the the type of their value:
                           │        has no local tty.
                           │
         infocmp -x | ssh -t root@remote-host '
-        cat > "$TERM.info" && tic -x "$TERM.info"'
+        cat > "$TERM.info" && tic -sx "$TERM.info"'
 
     OR
 
-        infocmp -x | ssh root@remote-host 'tic -x -'
+        infocmp -x | ssh root@remote-host 'tic -sx -'
 
 If you log in  to a remote machine, when the programs will  need to send control
 sequences to the terminal  (or the tmux server), they will  look into the remote

@@ -532,7 +532,7 @@ Read also: <https://medium.com/prodopsio/solving-git-merge-conflicts-with-vim-c8
 
 Vim plugin to diff all the files in two directories.
 
-<https://github.com/will133/vim-dirdiff/issues>:655 sloc
+<https://github.com/will133/vim-dirdiff>:655 sloc
 
 ## dirvish-git
 
@@ -721,6 +721,19 @@ displaying an empty, new file.
             https://github.com/srstevenson/vim-picker
 
                                     201 sloc
+
+## git-messenger.vim
+
+Vim and Neovim plugin to reveal the commit messages under the cursor
+
+<https://github.com/rhysd/git-messenger.vim>
+777 sloc
+
+This plugin  would be  really useful  when you  are studying  the codebase  of a
+foreign project.
+Instead of relying on `$ git log` to  search when did a line of code appear, and
+why, you could stay in Vim and  make the commit message – introducing the change
+– be printed in a preview (Vim) / popup (Nvim) window.
 
 ## gitgutter    signify
 

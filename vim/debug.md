@@ -395,15 +395,15 @@ Use sparingly, i.e. only when really needed.
 ## general plugin
 ### What are the five steps necessary to profile a script/function?
 
-        1. set the location of the profile
-        2. set the scripts/functions to profile
-        3. source the scripts/functions
-        4. use the script / invoke the function to use the functionality you want to profile
-        5. quit/restart Vim
+   1. set the location of the profile
+   2. set the scripts/functions to profile
+   3. source the scripts/functions
+   4. use the script / invoke the function to use the functionality you want to profile
+   5. quit/restart Vim
 
 ### How to set the location of the profile?
 
-        :prof start /tmp/profile.log
+    :prof start /tmp/profile.log
 
 Here, the profile will be written in `/tmp/profile.log` once we leave Vim.
 If `/tmp/profile.log` already exists, it will be overwritten.

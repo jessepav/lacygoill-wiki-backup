@@ -308,33 +308,32 @@ inside a file.
 # Pattern
 ## What's the difference between `[[ str == pat ]]` and  `[[ str =~ pat ]]`?
 
-The  `==` operator  allows  you to  use the  metacharacters  documented in  `man
-fnmatch` (fn = filename), i.e. the ones you use in a glob.
+The `==` operator allows you to use the metacharacters documented in
+`$ man fnmatch` (fn = filename), i.e. the ones you use in a glob.
 
 The `=~` operator allows you to use any metacharacter valid in an extended regex.
 
 ## What's the output of `[[ abc =~ b ]]`?  `[[ abc == b ]]`?  `[[ abc == *b* ]]`?
 
-        [[ abc =~ b ]]
-        0, true because 'abc' contains 'b'~
+    [[ abc =~ b ]]
+    0, true because 'abc' contains 'b'~
 
-        [[ abc == b ]]
-        1, false because 'abc' is not 'b'~
+    [[ abc == b ]]
+    1, false because 'abc' is not 'b'~
 
-        [[ abc == *b* ]]
-        0, true because 'abc' contains 'b'~
+    [[ abc == *b* ]]
+    0, true because 'abc' contains 'b'~
 
 Bottom line:
 When you use `==`, the pattern must  describe the entire string, not just a part
 of it.
 
 Source:
-
-        https://unix.stackexchange.com/questions/119493/whats-the-difference-between-and/119495#comment187541_119495
+<https://unix.stackexchange.com/questions/119493/whats-the-difference-between-and/119495#comment187541_119495>
 
 ## How to describe a non-digit in a pattern?
 
-        [^[:digit:]]
+    [^[:digit:]]
 
 ##
 # Debug
