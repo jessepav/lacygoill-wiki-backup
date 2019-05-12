@@ -353,13 +353,13 @@ The values of the arguments `fg` and `bg` are exchanged, in a color terminal.
 When you try to create a link between  2 HGs, and the first one has been defined
 with its own attributes:
 
-        :hi MyGroup ctermbg=green guibg=green
-        :hi link MyGroup Search
-        E414~
+    :hi MyGroup ctermbg=green guibg=green
+    :hi link MyGroup Search
+    E414~
 
-        " ✔
-        :hi! link MyGroup Search
-           ^
+    " ✔
+    :hi! link MyGroup Search
+       ^
 
 ---
 
@@ -371,9 +371,9 @@ This shows that a link has priority over attributes.
 
 You could also have cleared `MyGroup`:
 
-        :hi MyGroup ctermbg=green guibg=green
-        :hi clear MyGroup
-        :hi link MyGroup Search
+    :hi MyGroup ctermbg=green guibg=green
+    :hi clear MyGroup
+    :hi link MyGroup Search
 
 ### My HG has its own attributes and is linked to another HG.  Which attributes is it using?
 

@@ -3394,6 +3394,6 @@ Ouvre dirvish pour laisser l'utilisateur choisir un fichier:
     ├───────────────┼───────────────────────────────────────────────────────────────────────────────────────────┤
     │ `A            │ endroit exact de la marque A                                                              │
     ├───────────────┼───────────────────────────────────────────────────────────────────────────────────────────┤
-    │ `0    …    `9 │ endroit où on se trouvait au moment où la dernière / 9e précédente session s'est terminée │
+    │ `0   ...   `9 │ endroit où on se trouvait au moment où la dernière / 9e précédente session s'est terminée │
     └───────────────┴───────────────────────────────────────────────────────────────────────────────────────────┘
 

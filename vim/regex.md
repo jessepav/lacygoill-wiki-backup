@@ -281,13 +281,13 @@ The first (leftmost) matching branch.
 
 Make sure to temporarily reset the local value of 'isk' to its global value:
 
-        let isk_save = &l:isk
-        try
-            set isk&vim
-            " use your regex
-        finally
-            let &l:isk = isk_save
-        endtry
+    let isk_save = &l:isk
+    try
+        set isk&vim
+        " use your regex
+    finally
+        let &l:isk = isk_save
+    endtry
 
 Do the same for `'isf'`, `'isi'` and `'isp'` if your regex includes `\f`, `\i`, `\p`.
 
@@ -295,30 +295,30 @@ Do the same for `'isf'`, `'isi'` and `'isp'` if your regex includes `\f`, `\i`, 
 
 MWE:
 
-        com! Test call Func()
-        fu! Func() abort
-            let func_name = 'function! Some_name() abort'
-            echo matchstr(func_name, '^\k\+!\=\s\+\zs\k\+')
-        endfu
+    com! Test call Func()
+    fu! Func() abort
+        let func_name = 'function! Some_name() abort'
+        echo matchstr(func_name, '^\k\+!\=\s\+\zs\k\+')
+    endfu
 
-        :Test
-        Some_name~
-          in most buffers (✔ expected)~
+    :Test
+    Some_name~
+      in most buffers (✔ expected)~
 
-        Some_name()~
-          in a help buffer (✘ UNexpected)~
+    Some_name()~
+      in a help buffer (✘ UNexpected)~
 
 
 This happens because but in a help buffer, `'isk'` contains this value:
 
-        !-~
+    !-~
 
 It includes the parentheses:
 
-        :echo map(range(char2nr('!'), char2nr('~')), {i,v -> nr2char(v)})
-        ['!', ..., '(', ')' ..., '~']~
-                    ^    ^
-                    ✘    ✘
+    :echo map(range(char2nr('!'), char2nr('~')), {i,v -> nr2char(v)})
+    ['!', ..., '(', ')' ..., '~']~
+                ^    ^
+                ✘    ✘
 
 Which makes the previous regex fail to match the name of the function.
 The parentheses will be, wrongly, included inside the match.

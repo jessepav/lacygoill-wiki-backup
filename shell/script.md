@@ -1,19 +1,49 @@
+# Why should I avoid including a shell variable inside the format passed to `$ printf`?
+
+The variable  will be  evaluated by  the shell, *before*  `$ printf`  parses the
+format to replace the specifiers such as `%s`.
+So, if the  value contains sth like `%s`,  `$ printf` will parse it  as a format
+specifier, which may be unexpected (i.e. you probably want it to be left alone).
+
+    $ coverage='96%'
+
+    # ✘
+    $ printf "Unit test coverage: $coverage\n"
+    printf: %\n: invalid directive~
+    Unit test coverage: 96%~
+
+    # ✔
+    $ printf "Unit test coverage: %s\n" "$coverage"
+    Unit test coverage: 96%~
+
+For more info, see:
+<https://github.com/koalaman/shellcheck/wiki/SC2059>
+
+## When is it necessary to include one nevertheless?
+
+When the variable contains an escape sequence which you want to be expanded.
+
+### What's the alternative in this case?
+
+You can also use `%b`. See `$ man printf /%b`.
+
+##
 # How to execute all the scripts in a directory?
 
-        $ run-parts /path/to/dir
+    $ run-parts /path/to/dir
 
 # How to do the same, but also print the name of the scripts which produce an output?
 
-        $ run-parts --report /path/to/dir
-                    ^^^^^^^^
+    $ run-parts --report /path/to/dir
+                ^^^^^^^^
 
 The script's name is  printed to whichever of stdout or  stderr the script first
 produces output on.
 
 # My script `sh.sh` is not executed!
 
-        $ run-parts --regex '^[-._0-9a-zA-Z]+$' /path/to/dir
-                                ^
+    $ run-parts --regex '^[-._0-9a-zA-Z]+$' /path/to/dir
+                            ^
 
 By default, `run-parts` doesn't execute scripts whose name contains a dot.
 So you have to use `--regex` to manually include it inside the set of valid characters.
@@ -21,86 +51,85 @@ So you have to use `--regex` to manually include it inside the set of valid char
 ##
 # How to get the number of positional parameters passed to the current script/function?
 
-        echo $#
+    echo $#
 
 # How to get all the positional parameters passed to the current script/function?  (2)
 
-        echo $*
-        "$1 $2 ..."~
+    echo $*
+    "$1 $2 ..."~
 
-        echo $@
-        "$1" "$2" ...~
+    echo $@
+    "$1" "$2" ...~
 
 ##
 # Which status code should my function/script use when the user makes a mistake trying to invoke it?
 
-        ┌────┬───────────────────────────────────────────────────┐
-        │ 64 │ the command is wrong (probably its syntax)        │
-        ├────┼───────────────────────────────────────────────────┤
-        │ 65 │ the input data is wrong (argument of the command) │
-        ├────┼───────────────────────────────────────────────────┤
-        │ 77 │ not enough rights                                 │
-        └────┴───────────────────────────────────────────────────┘
+    ┌────┬───────────────────────────────────────────────────┐
+    │ 64 │ the command is wrong (probably its syntax)        │
+    ├────┼───────────────────────────────────────────────────┤
+    │ 65 │ the input data is wrong (argument of the command) │
+    ├────┼───────────────────────────────────────────────────┤
+    │ 77 │ not enough rights                                 │
+    └────┴───────────────────────────────────────────────────┘
 
 These are just conventions.
 
 For more info, see:
-
-        https://www.freebsd.org/cgi/man.cgi?query=sysexits&apropos=0&sektion=0&manpath=FreeBSD+4.3-RELEASE&format=html
+<https://www.freebsd.org/cgi/man.cgi?query=sysexits&apropos=0&sektion=0&manpath=FreeBSD+4.3-RELEASE&format=html>
 
 # With which statement?
 
 In a function:
 
-        return XYZ
+    return XYZ
 
 In a script:
 
-        exit XYZ
+    exit XYZ
 
 ##
 # How to iterate over the directories in `$PATH`?
 
 In bash:
 
-        for dir in $(tr ':' ' ' <<<"${PATH}"); do
+    for dir in $(tr ':' ' ' <<<"${PATH}"); do
 
 Note that this line is unreliable if a directory name contains a space.
 
 A more reliable way, in zsh, would be:
 
-        for dir in "${path[@]}"; do
-          echo "${dir}"
-        done
+    for dir in "${path[@]}"; do
+      echo "${dir}"
+    done
 
 ##
 # How to write a script, some commands of which require root privileges?
 
 There are 3 issues to solve.
 
-        1. Do you want to just type the name of the script, not its full path?
+   1. Do you want to just type the name of the script, not its full path?
 
 If so, you'll need to move it in a directory in the `$PATH` of the root user.
 
 ---
 
-        2. Do you  want to  elevate the privileges  of the whole  script, or
-           just the commands which need it?
+   2. Do you  want to  elevate the privileges  of the whole  script, or just the
+      commands which need it?
 
 For the whole script, you'll need to start the latter with sudo.
 For the commands, you'll need to prefix them with sudo inside the script.
 
 ---
 
-        3. Do you want to avoid giving the password?
+   3. Do you want to avoid giving the password?
 
 If so, you'll need to add your script/commands in `/etc/sudoers`:
 
-                 % sudo visudo
-             OR
-                 % sudo visudo -f custom_file
-                                  │
-                                  └ some file in `/etc/sudoers.d/`
+     % sudo visudo
+ OR
+     % sudo visudo -f custom_file
+                      │
+                      └ some file in `/etc/sudoers.d/`
 
 Warning:
 
@@ -164,16 +193,16 @@ From `man bash` (`ALIASES`):
 
 MWE:
 
-        % cat <<EOF >> ~/.zshrc
-        alias what_am_i='echo "I am an alias"'
-        func() {
-            what_am_i
-        }
-        EOF
+    % cat <<EOF >> ~/.zshrc
+    alias what_am_i='echo "I am an alias"'
+    func() {
+        what_am_i
+    }
+    EOF
 
-        % source ~/.zshrc
-        % func
-        I am an alias~
+    % source ~/.zshrc
+    % func
+    I am an alias~
 
 Note that the alias must be defined BEFORE the function.
 
@@ -181,8 +210,8 @@ Note that the alias must be defined BEFORE the function.
 
 Use the `builtin` command:
 
-        % builtin alias_name
-          ^^^^^^^
+    % builtin alias_name
+      ^^^^^^^
 
 ##
 # Options

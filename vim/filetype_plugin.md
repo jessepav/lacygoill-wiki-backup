@@ -1139,17 +1139,30 @@ Yes.
 
 ##
 # Issues
-## I've changed the name of file with `:file`, but the syntax highlighting is still wrong!
+## I've set up the filetype of some file in `~/.vim/filetype.vim`.  It's not applied!
 
-For the filetype detection  to work, the name of your buffer  must be set BEFORE
+Check the absolute path of your file from Vim:
+
+    :echo expand('%:p')
+
+If your file, or some parent directory, is a symlink, the output of the previous
+command may differ from the path to the file you passed to `$ vim` or `:e`.
+And it may differ from the path you've written in your autocmd.
+
+Make them match; either eliminate the symlink, or add the output of
+`expand('%:p')` to your autocmd.
+
+## I've set the name of my buffer with `:file`, but the syntax highlighting is still wrong!
+
+For the filetype detection to work, the name of your buffer must be set *before*
 the `BufReadPost` or `BufNew` event:
 
-        " ✘
-        :new
-        :file some_file
+    " ✘
+    :new
+    :file some_file
 
-        " ✔
-        :new some_file
+    " ✔
+    :new some_file
 
 ## I have an `:echom` in one of my filetype plugin.  No message is printed nor logged!
 
@@ -1157,19 +1170,19 @@ That's because of `shortmess+=F`.
 
 Use `:unsilent`:
 
-        :unsilent echom 'your message'
+    :unsilent echom 'your message'
 
 ## The default filetype plugin 'foo' sources the filetype plugin 'bar' (with `:ru`).  I don't want that!
 
 Inside:
 
-        ~/.vim/ftplugin/bar.vim
+    ~/.vim/ftplugin/bar.vim
 
 write:
 
-        if &ft is# 'foo'
-            let b:did_ftplugin = 1
-        endif
+    if &ft is# 'foo'
+        let b:did_ftplugin = 1
+    endif
 
 ---
 

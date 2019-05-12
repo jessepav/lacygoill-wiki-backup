@@ -1242,6 +1242,20 @@ qd le projet est bon, ou une valeur non-nulle autrement.
 
 ---
 
+    $ git bisect visualize
+
+See the currently remaining suspects.
+If you have installed  `gitk`, a GUI window will open  and offer different views
+in a  single screen (otherwise `$  git log` will  be invoked); in gitk,  you can
+navigate between the commits with the arrow keys.
+
+    $ git bisect visualize --oneline
+
+Same thing but much shorter (commit id,  tag, and first line of commit message);
+this time, `$ git log` is invoked no matter what.
+
+---
+
         $ git blame -L 12,34 file
 
 Annote les lignes 12 à 34 de `file` avec les infos suivantes:
@@ -1641,14 +1655,14 @@ Pour supprimer un dépôt (pex un fork devenu inutile):
 Pour link un passage précis dans un bout de code:
 cliquer sur le n° de la 1e ligne, shift clic sur le n° de la dernière ligne, <y>.
 
-        ┌─────────┬─────────────────────────────────────────────────────────────────┐
-        │ <t>     │ permet de filtrer les fichiers d'un dépôt en donnant un mot-clé │
-        ├─────────┼─────────────────────────────────────────────────────────────────┤
-        │ history │ bouton visible quand on lit le contenu d'un fichier             │
-        │         │ (Raw - Blame - History)                                         │
-        │         │ équivalent de `git log` en local,                               │
-        │         │ donne accès à l'historique des commits                          │
-        └─────────┴─────────────────────────────────────────────────────────────────┘
+    ┌─────────┬─────────────────────────────────────────────────────────────────┐
+    │ <t>     │ permet de filtrer les fichiers d'un dépôt en donnant un mot-clé │
+    ├─────────┼─────────────────────────────────────────────────────────────────┤
+    │ history │ bouton visible quand on lit le contenu d'un fichier             │
+    │         │ (Raw - Blame - History)                                         │
+    │         │ équivalent de `git log` en local,                               │
+    │         │ donne accès à l'historique des commits                          │
+    └─────────┴─────────────────────────────────────────────────────────────────┘
 
 On peut commit directement depuis l'un de  ses dépôts github, en modifiant un de
 ses fichiers.

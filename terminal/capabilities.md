@@ -290,6 +290,52 @@ Underline mode:
     └──────────┴────────┘
 
 #
+# Terminfo Extensions
+## What's a terminfo extension?
+
+An extended capability not found in standard terminfo, which was first supported
+in xterm, and later may have been implemented in other terminals.
+
+### How can I list all of them?
+
+    $ infocmp -x xterm+tmux
+    #       Reconstructed via infocmp from file: /home/user/.terminfo/x/xterm+tmux~
+    xterm+tmux|advanced xterm features used in tmux,~
+            Cr=\E]112\007, Cs=\E]12;%p1%s\007,~
+            Ms=\E]52;%p1%s;%p2%s\007, Se=\E[2 q, Ss=\E[%p1%d q,~
+
+Here, you can see 5 capabilities:
+
+   - Cr
+   - Cs
+   - Ms
+   - Se
+   - Ss
+
+##
+## What's `Ms`?
+
+It's a  way for the terminal  to tell the  applications (such as tmux)  how they
+should encode and send  some arbitrary text, if they want  the terminal to store
+it into the clipboard.
+
+### Where can I find more information about it?
+
+    $ curl -LO http://invisible-island.net/datafiles/current/terminfo.src.gz
+    $ gunzip terminfo.src.gz
+    $ vim terminfo.src
+    /\m\C\<Ms\>
+
+### What's its default value?
+
+    Ms=\E]52;%p1%s;%p2%s\007
+
+#### What's the meaning of the two parameters?
+
+   - p1 = the storage unit (clipboard, selection or cut buffer)
+   - p2 = the base64-encoded clipboard content.
+
+##
 # Miscellaneous
 ## What are the different types of terminal capabilities?
 

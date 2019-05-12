@@ -1,5 +1,5 @@
 # Command-line
-## What are the possible special meanings of a bar on the command-line?
+## What are the two possible special meanings of a bar on the command-line?
 
 In a regex, it can be used to express an alternation.
 Outside, it can be used to separate 2 commands.
@@ -12,11 +12,11 @@ Outside, it becomes a REGULAR character.
 It makes  the bar  (and what follows)  included in the  argument of  the current
 command:
 
-        :e abc|def
-        E492: Not an editor command: def    ✘~
+    :e abc|def
+    E492: Not an editor command: def    ✘~
 
-        :e abc\|def
-        edits the file 'abc|def' ✔~
+    :e abc\|def
+    edits the file 'abc|def' ✔~
 
 ##
 ## When does Vim remove a backslash outside of a quoted string?
@@ -83,49 +83,50 @@ command:
 # Custom command
 ## What's the name of everything written after `Test` in `com! Test call Func()`?
 
-        com! Test call Func()
-                  ^^^^^^^^^^^
-                  replacement text
+It's called the replacement text:
+
+    com! Test call Func()
+              ^^^^^^^^^^^
 
 ## How to list the help tags useful to create a custom command?
 
-        :h :command- C-d
+    :h :command- C-d
 
 ##
 ## Attributes
-### How to pass a negative count to a command?
+### What happens if I pass a negative count to a command as a prefix?
 
-Use the `-count` or `-range` attribute, and the `<count>` escape sequence.
+It's allowed, but  the count is not preserved; it's  subtracted from the current
+line address:
 
-        com! -count  Test  echo <count>
-        :-1 Test
-        99~
+    com! -count  Test  echo <count>
+    :-1 Test
+    101~
 
-        com! -range  Test  echo <count>
-        :-1 Test
-        103~
+    com! -range  Test  echo <count>
+    :-1 Test
+    105~
 
-#### Is there any pitfall when using a negative count?
+#### As a suffix?
 
-Yes, you can't pass a negative count AFTER the command.
+If raises `E488`:
 
-        com! -range  Test  echo <count>
-        :Test -123
-        E488: Trailing characters~
+    com! -range Test echo <count>
+    :Test -123
+    E488: Trailing characters~
 
-        com! -count  Test  echo <count>
-        :Test -123
-        E488: Trailing characters~
+    com! -count Test echo <count>
+    :Test -123
+    E488: Trailing characters~
 
-It must be positioned before the command name.
-
+###
 ### How to pass a DEFAULT negative count to a command?
 
 Use `-range=-N`:
 
-        com! -range=-123  Test  echo <count>
-        :Test
-        -123~
+    com! -range=-123 Test echo <count>
+    :Test
+    -123~
 
 Note that `-count` can't pass a default negative count.
 
@@ -140,20 +141,20 @@ command, `<count>` will be replaced by `-1`.
 
 MWE:
 
-        com! -nargs=* -range=0  Test  call Func(<count>)
-        fu! Func(count)
-            if !a:count
-                echo 'the command was executed WITHOUT count'
-            else
-                echo 'the command was executed WITH the count '.a:count
-            endif
-        endfu
+    com! -nargs=* -range=0  Test  call Func(<count>)
+    fu! Func(count)
+        if !a:count
+            echo 'the command was executed WITHOUT count'
+        else
+            echo 'the command was executed WITH the count '.a:count
+        endif
+    endfu
 
-        :Test hello
-        the command was executed WITHOUT count~
+    :Test hello
+    the command was executed WITHOUT count~
 
-        :123Test
-        the command was executed WITH the count 123~
+    :123Test
+    the command was executed WITH the count 123~
 
 ### Why should I avoid `-count=N` and prefer `-range=N` instead?
 
@@ -163,10 +164,10 @@ command-line and the first non-digit of the first argument.
 So, if the first argument can be a number or can begin with a number, the latter
 will be consumed to replace `<count>`:
 
-        com! -count -nargs=+ Test echo printf("count: %s\n<lt>q-args>: %s", <count>, <q-args>)
-        :12Test 34abc
-        count: 34~
-        <q-args>: abc~
+    com! -count -nargs=+ Test echo printf("count: %s\n<lt>q-args>: %s", <count>, <q-args>)
+    :12Test 34abc
+    count: 34~
+    <q-args>: abc~
 
 OTOH, `-range` doesn't allow you to pass  a count after the command name, and so
 is immune to this issue.
@@ -176,16 +177,16 @@ is immune to this issue.
 
 NONE.
 
-        com! -bar -nargs=* Cmd  call Func(<q-args>)
-        fu! Func(...) abort
-            echo join(a:000)
-        endfu
+    com! -bar -nargs=* Cmd  call Func(<q-args>)
+    fu! Func(...) abort
+        echo join(a:000)
+    endfu
 
-        Cmd pat1 \| pat2
-        pat1 | pat2~
+    Cmd pat1 \| pat2
+    pat1 | pat2~
 
-        Cmd pat1 \\| pat2
-        pat1 \| pat2~
+    Cmd pat1 \\| pat2
+    pat1 \| pat2~
 
 To send an unescaped bar to the function, the user would have to escape it.
 And to send an alternation, the user would have to double the backslash.
@@ -194,8 +195,8 @@ This is inconsistent with how regexes are usually written.
 
 And this is way too confusing; consider this:
 
-        pat1 \| pat2
-             ^^
+    pat1 \| pat2
+         ^^
 
 What's this?
 An alternation, or a simple bar?
@@ -217,22 +218,22 @@ Example: `:EasyAlign`
 This command  is not defined with  `-bar` as it  would force the user  to double
 escape a bar to make it an alternation:
 
-        :EasyAlign */XXX\|YYY/
-                   ├─────────┘
-                   └ align around all (*) sequence of 3 X or 3 Y
+    :EasyAlign */XXX\|YYY/
+               ├─────────┘
+               └ align around all (*) sequence of 3 X or 3 Y
 
 For the same reason, these commands have not been given `-bar`:
 
-        :CGrep
-        :CGrepBuffer
-        :Cfilter
-        :Dlist
-        :Ilist
-        :LGrep
-        :LGrepBuffer
-        :LiveEasyAlign
-        :LogiPat
-        :PQ
+    :CGrep
+    :CGrepBuffer
+    :Cfilter
+    :Dlist
+    :Ilist
+    :LGrep
+    :LGrepBuffer
+    :LiveEasyAlign
+    :LogiPat
+    :PQ
 
 ### More generally, to which custom commands should I give `-bar`?
 
@@ -269,11 +270,11 @@ This command copies the current file to another one.
 It mimics `$ cp`.
 The shell interprets a bar as a pipe:
 
-        $ cp foo bar|baz
-        ✘ zsh: command not found: baz~
+    $ cp foo bar|baz
+    ✘ zsh: command not found: baz~
 
-        $ cp foo bar\|baz
-        ✔
+    $ cp foo bar\|baz
+    ✔
 
 Therefore, you should give `-bar` to `:Cp` so that its behavior is consistent
 with `$ cp`.
@@ -281,7 +282,7 @@ with `$ cp`.
 And if you stumble upon a file whose  name contains a bar, you'll need to escape
 it (like with `$ cp`):
 
-        :Cp bar\|baz
+    :Cp bar\|baz
 
 Btw, in case you wonder where the asymmetry comes from, between `:Shdo` which is
 given `-bar`  and `:Cp` which is  not, it comes from  the fact that you  are not
@@ -639,10 +640,10 @@ And to get a boolean option use `split()` and `index()`:
 
 Yes, by prefixing it with a count, you can send the latter to the program stored in `'kp'`.
 
-        set kp=:Test
-        com! -nargs=*  Test  echo <q-args>
-        " press 3K on the word 'hello'
-        3 hello~
+    set kp=:Test
+    com! -nargs=*  Test  echo <q-args>
+    " press 3K on the word 'hello'
+    3 hello~
 
 ##
 # Issues
@@ -650,13 +651,13 @@ Yes, by prefixing it with a count, you can send the latter to the program stored
 
 If you haven't executed `:bufdo e` yet, try this:
 
-        " Warning:
-        " This could dramatically increase the time taken by the command
-        bufdo let &ei = '' | e
+    " Warning:
+    " This could dramatically increase the time taken by the command
+    bufdo let &ei = '' | e
 
 Otherwise:
 
-        bufdo let &ei = '' | do Syntax
+    bufdo let &ei = '' | do Syntax
 
 During  the  execution  of  commands  iterating  over  buffers  (like  `:argdo`,
 `:bufdo`, `:cdo`, ... but not  `:tabdo`, nor `:windo`), the 'Syntax' autocommand
@@ -675,37 +676,37 @@ Note that the issue seems to occur only when you have 3 buffers or more (not jus
 
 Indeed, all the `:...do` commands are equivalent to the following snippets:
 
-        ┌────────┬───────────┐
-        │ :argdo │ :first    │
-        │        │ :{cmd}    │
-        │        │ :next     │
-        │        │ :{cmd}    │
-        │        │ ...       │
-        ├────────┼───────────┼────────┬───────────┐
-        │ :cdo   │ :cfirst   │ :ldo   │ :lfirst   │
-        │        │ :{cmd}    │        │ :{cmd}    │
-        │        │ :cnext    │        │ :lnext    │
-        │        │ :{cmd}    │        │ :{cmd}    │
-        │        │ ...       │        │ ...       │
-        ├────────┼───────────┼────────┼───────────┤
-        │ :cfdo  │ :cfirst   │ :lfdo  │ :lfirst   │
-        │        │ :{cmd}    │        │ :{cmd}    │
-        │        │ :cnfile   │        │ :lnfile   │
-        │        │ :{cmd}    │        │ :{cmd}    │
-        │        │ ...       │        │ ...       │
-        ├────────┼───────────┼────────┴───────────┘
-        │ :tabdo │ :tabfirst │
-        │        │ :{cmd}    │
-        │        │ :tabnext  │
-        │        │ :{cmd}    │
-        │        │ ...       │
-        ├────────┼───────────┤
-        │ :windo │ C-w t     │
-        │        │ :{cmd}    │
-        │        │ C-w w     │
-        │        │ :{cmd}    │
-        │        │ ...       │
-        └────────┴───────────┘
+    ┌────────┬───────────┐
+    │ :argdo │ :first    │
+    │        │ :{cmd}    │
+    │        │ :next     │
+    │        │ :{cmd}    │
+    │        │ ...       │
+    ├────────┼───────────┼────────┬───────────┐
+    │ :cdo   │ :cfirst   │ :ldo   │ :lfirst   │
+    │        │ :{cmd}    │        │ :{cmd}    │
+    │        │ :cnext    │        │ :lnext    │
+    │        │ :{cmd}    │        │ :{cmd}    │
+    │        │ ...       │        │ ...       │
+    ├────────┼───────────┼────────┼───────────┤
+    │ :cfdo  │ :cfirst   │ :lfdo  │ :lfirst   │
+    │        │ :{cmd}    │        │ :{cmd}    │
+    │        │ :cnfile   │        │ :lnfile   │
+    │        │ :{cmd}    │        │ :{cmd}    │
+    │        │ ...       │        │ ...       │
+    ├────────┼───────────┼────────┴───────────┘
+    │ :tabdo │ :tabfirst │
+    │        │ :{cmd}    │
+    │        │ :tabnext  │
+    │        │ :{cmd}    │
+    │        │ ...       │
+    ├────────┼───────────┤
+    │ :windo │ C-w t     │
+    │        │ :{cmd}    │
+    │        │ C-w w     │
+    │        │ :{cmd}    │
+    │        │ ...       │
+    └────────┴───────────┘
 
 Which means that after `:windo` and `:tabdo` has been executed, you'll be in the
 last window or tabpage.
@@ -783,70 +784,78 @@ highlighting:
 
 # ?
 
-Understand what's the use case of the [new][2] `-addr=other`, and the undocumented `-addr=quickfix`.
+Document the [new][2] `-addr=quickfix`.
 
 See:
 
-        https://github.com/vim/vim/issues/3654
-        https://github.com/vim/vim/pull/3653
-        https://github.com/vim/vim/pull/3655
+<https://github.com/vim/vim/issues/3654>
+<https://github.com/vim/vim/pull/3653>
+<https://github.com/vim/vim/pull/3655>
 
-        com! -addr=other -count  Test  echo <count>
-        :-1 Test
-        2147483646~
-        (2^31 - 2)
-        What does this number mean?
+    com! -count -addr=quickfix Test echo <count>
+    :vim /the/j %
+    :-1 Test
+    E16: Invalid range~
+    Why?
+    Because, there's no previous entry in the qfl before the first one.
 
-        com! -addr=quickfix -count  Test  echo <count>
-        :vim /./j %
-        :-1 Test
-        0~
-        What does this number mean?
+    :cnext
+    :-1 Test
+    1~
+    What does this number mean?
+    Answer: it's the index of the previous qf entry
 
-        :cnext
-        :-1 Test
-        1~
-        What does this number mean?
+Replacing `-count` with `-range` doesn't change the results.
 
-        :cnext
-        :-1 Test
-        E16: Invalid range~
-        Why?
+---
 
-If you replace `-count` with `-range` in the previous snippets, I don't think it
-makes a difference.
+Document  the fact  that you  must use  `-addr=other` whenever  you want  to use
+-range for some arbitrary count, not tied to any specific type (line address,
+buffer number, window number, ...).
+
+Before the patch 8.1.1241, you didn't have  to, but this has changed, because by
+default Vim checks whether the count matches the address of an existing line.
+The patch  may have introduced a  regression, but it doesn't  matter, you should
+use `-addr=other`.
+<https://github.com/tpope/vim-scriptease/issues/43>
+
+Atm, Nvim doesn't support `-addr=other`, but it's not an issue because it hasn't
+merged 8.1.1241 either.
+There would be an issue if Nvim merged 8.1.1241 without 8.1.0560 (`-addr=other`).
+I doubt that will happen.
 
 # ?
 
 To read:
-    :h sign-support
-    https://vi.stackexchange.com/questions/15846/is-there-a-way-to-quickly-jump-to-signs
-    https://gist.github.com/BoltsJ/5942ecac7f0b0e9811749ef6e19d2176
-    https://github.com/tpope/vim-scriptease/pull/23
+
+`:h sign-support`
+<https://vi.stackexchange.com/questions/15846/is-there-a-way-to-quickly-jump-to-signs>
+<https://gist.github.com/BoltsJ/5942ecac7f0b0e9811749ef6e19d2176>
+<https://github.com/tpope/vim-scriptease/pull/23>
 
 # ?
 
 Read this:
-        https://www.reddit.com/r/vim/comments/5mx8jq/is_there_a_way_to_get_vimeunuchs_rename_command/
+<https://www.reddit.com/r/vim/comments/5mx8jq/is_there_a_way_to_get_vimeunuchs_rename_command/>
 
 When is `%:{filename-modifier}` expanded after pressing Tab?
 Make some tests:
 
-        com! -nargs=1 -complete=file  Test  echo <q-args>
-        :cd ~/Downloads
-        :Test %:h
-        :Test %:t
-        :Test %:r
-        :Test %:e
+    com! -nargs=1 -complete=file  Test  echo <q-args>
+    :cd ~/Downloads
+    :Test %:h
+    :Test %:t
+    :Test %:r
+    :Test %:e
 
-        com! -nargs=1 -complete=file_in_path  Test  echo <q-args>
-        :cd ~/Downloads
-        :Test %:h
-        :Test %:t
-        :Test %:r
-        :Test %:e
+    com! -nargs=1 -complete=file_in_path  Test  echo <q-args>
+    :cd ~/Downloads
+    :Test %:h
+    :Test %:t
+    :Test %:r
+    :Test %:e
 
-        com! -nargs=1 -complete=file_in_path  Test  echo <q-args>
+    com! -nargs=1 -complete=file_in_path  Test  echo <q-args>
 
 It seems to depend on various things:
 
@@ -858,14 +867,14 @@ Also, it seems  that some Tab-expansions don't work if  the result doesn't match
 an existing file.
 For example:
 
-        $ touch /tmp/new_file
-        $ vim /tmp/new_file
-        :e %Tab
-        ∅~
-        ihello
-        :w
-        :e %Tab
-        /tmp/new_file~
+    $ touch /tmp/new_file
+    $ vim /tmp/new_file
+    :e %Tab
+    ∅~
+    ihello
+    :w
+    :e %Tab
+    /tmp/new_file~
 
 Also, some Tab-expansions  give wrong results, like `%:r`  which often (always?)
 doesn't remove the extension.
@@ -881,7 +890,7 @@ Not with `-complete=custom...`.
 # Rangée
 
 Graphique résumant différentes syntaxes:
-https://2.bp.blogspot.com/-TKrpj9ZOb_8/Ty8Z6uGef1I/AAAAAAAAASQ/5pEwFwtONkU/s1600/vim_ranges_p0.png
+<https://2.bp.blogspot.com/-TKrpj9ZOb_8/Ty8Z6uGef1I/AAAAAAAAASQ/5pEwFwtONkU/s1600/vim_ranges_p0.png>
 
 
 L'absence de rangée peut être interprétée par une commande de 2 façons:
@@ -1076,31 +1085,31 @@ Pex, en haut de `:h pattern.txt`, se trouvent `:h 03.9` et `:h usr_27` .
 
 Des tags ayant un thème commun commencent par un même préfixe:
 
-        ┌─────────────┬──────────────────────────────────────┐
-        │ "           │ registres                            │
-        ├─────────────┼──────────────────────────────────────┤
-        │ -           │ arguments de la commande shell `vim` │
-        ├─────────────┼──────────────────────────────────────┤
-        │ /           │ pattern                              │
-        ├─────────────┼──────────────────────────────────────┤
-        │ :syn-       │ coloration syntaxique                │
-        ├─────────────┼──────────────────────────────────────┤
-        │ >           │ déboguage                            │
-        ├─────────────┼──────────────────────────────────────┤
-        │ ^w_         │ manipulation de fenêtre              │
-        ├─────────────┼──────────────────────────────────────┤
-        │ cpo-        │ flags 'cpo'                          │
-        │ go-         │ flags 'go'                           │
-        ├─────────────┼──────────────────────────────────────┤
-        │ ft-*-indent │ plugin d'indentation                 │
-        │ ft-*-omni   │ omni-complétion                      │
-        │ ft-*-plugin │ ft plugin                            │
-        │ ft-*-syntax │ syntax plugin                        │
-        ├─────────────┼──────────────────────────────────────┤
-        │ hl-         │ highlight group                      │
-        ├─────────────┼──────────────────────────────────────┤
-        │ map[-_]     │ mappings                             │
-        └─────────────┴──────────────────────────────────────┘
+    ┌─────────────┬──────────────────────────────────────┐
+    │ "           │ registres                            │
+    ├─────────────┼──────────────────────────────────────┤
+    │ -           │ arguments de la commande shell `vim` │
+    ├─────────────┼──────────────────────────────────────┤
+    │ /           │ pattern                              │
+    ├─────────────┼──────────────────────────────────────┤
+    │ :syn-       │ coloration syntaxique                │
+    ├─────────────┼──────────────────────────────────────┤
+    │ >           │ déboguage                            │
+    ├─────────────┼──────────────────────────────────────┤
+    │ ^w_         │ manipulation de fenêtre              │
+    ├─────────────┼──────────────────────────────────────┤
+    │ cpo-        │ flags 'cpo'                          │
+    │ go-         │ flags 'go'                           │
+    ├─────────────┼──────────────────────────────────────┤
+    │ ft-*-indent │ plugin d'indentation                 │
+    │ ft-*-omni   │ omni-complétion                      │
+    │ ft-*-plugin │ ft plugin                            │
+    │ ft-*-syntax │ syntax plugin                        │
+    ├─────────────┼──────────────────────────────────────┤
+    │ hl-         │ highlight group                      │
+    ├─────────────┼──────────────────────────────────────┤
+    │ map[-_]     │ mappings                             │
+    └─────────────┴──────────────────────────────────────┘
 
                                      NOTE:
 
@@ -1146,50 +1155,50 @@ Des tags ayant un thème commun commencent par un même préfixe:
 
 Petit rappel de vocabulaire:
 
-    - on _évalue_       une expression (demande sa valeur)
+   - on *évalue*       une expression (demande sa valeur)
 
-    - on _remplace_     du texte par un autre
-                        :s, :retab, :%!{filter}, ...
+   - on *remplace*     du texte par un autre
+                        :s, :retab, :%!{filter}, ...
 
-    - on _convertit_    une donnée d'un certain type dans un autre;
-                        un fichier utilisant un format ou un encodage donné dans un autre
-                        (odt → pdf; latin1 → utf-8)
+   - on *convertit*    une donnée d'un certain type dans un autre;
+                        un fichier utilisant un format ou un encodage donné dans un autre
+                        (odt → pdf; latin1 → utf-8)
 
-    - on _développe_    un {lhs} de mapping/abréviation,
-                        une séquence d'échappement de commande (<bang>, <line1>, ...),
-                        des caractères spéciaux sur la ligne de commande    :h cmdline-special,
-                        une variables d'environnement,
-                        une commandes shell                                 :h backtick-expansion,
-                        un glob
+   - on *développe*    un {lhs} de mapping/abréviation,
+                        une séquence d'échappement de commande (<bang>, <line1>, ...),
+                        des caractères spéciaux sur la ligne de commande    :h cmdline-special,
+                        une variables d'environnement,
+                        une commandes shell                                 :h backtick-expansion,
+                        un glob
 
-    - on _traduit_      un caractère ou un groupe de caractères en un autre
-                        un count en rangée (ex:    5: → :.,.+4)
+   - on *traduit*      un caractère ou un groupe de caractères en un autre
+                        un count en rangée (ex:    5: → :.,.+4)
+    
+                        Le résultat d'une traduction est tjrs le même.
+    
+                                "\<C-w>" = "^W"    peu importe le contexte
 
-                        Le résultat d'une traduction est tjrs le même.
+                        Le résultat d'un développement dépend du contexte:
+    
+                                :e %:t    le développement de %:t dépend du nom du buffer courant
+    
+     on *interprète*   un caractère ou un groupe de caractères pour déterminer quel comportement adopter
 
-                                "\<C-w>" = "^W"    peu importe le contexte
+                        Une  cmd, une fonction, le  parser de Vim, ou  + généralement n'importe
+                        quel bout de code peut interpréter certains caractères.
+    
+                        Ex:  La  plupart des commandes Ex  interprètent la barre
+                        verticale  comme  une  terminaison de  commandes;  elles
+                        s'arrêtent donc à une barre.
+    
+                        :s interprète \= au début de la chaîne de remplacement comme le début d'une expression;
+                        elle évalue donc cette expression avant de remplacer le pattern.
+    
+   - on *appelle*      une fonction
 
-                        Le résultat d'un développement dépend du contexte:
+   - on *exécute*      une commande Ex
 
-                                :e %:t    le développement de %:t dépend du nom du buffer courant
-
-    - on _interprète_   un caractère ou un groupe de caractères pour déterminer quel comportement adopter
-
-                        Une  cmd, une fonction, le  parser de Vim, ou  + généralement n'importe
-                        quel bout de code peut interpréter certains caractères.
-
-                        Ex:  La  plupart des commandes Ex  interprètent la barre
-                        verticale  comme  une  terminaison de  commandes;  elles
-                        s'arrêtent donc à une barre.
-
-                        :s interprète \= au début de la chaîne de remplacement comme le début d'une expression;
-                        elle évalue donc cette expression avant de remplacer le pattern.
-
-    - on _appelle_      une fonction
-
-    - on _exécute_      une commande Ex
-
-    - on _invoque_      du code informatique (la méthode n'est pas précisée par le terme)
+   - on *invoque*      du code informatique (la méthode n'est pas précisée par le terme)
 
 
 L'aide de Vim ne parle pas d'interpolation, mais plutôt de développement.
@@ -1197,8 +1206,7 @@ Toutefois, dans d'autres langages, qd une  commande ou le nom d'une variable est
 automatiquement  remplacée par  sa sortie/valeur,  on parle  plus spécifiquement
 d'interpolation.
 Pour + d'infos:
-
-        https://en.wikipedia.org/wiki/String_interpolation
+<https://en.wikipedia.org/wiki/String_interpolation>
 
 
 
@@ -1213,78 +1221,78 @@ de commande.
 Tab n'en insère  qu'un sur la ligne  de commande, et propose les  autres dans le
 wildmenu.
 
-        ┌──────────────────┬───────────────────────────────────────────┐
-        │ %                │ nom du fichier courant                    │
-        ├──────────────────┼───────────────────────────────────────────┤
-        │ #                │ "              alternatif                 │
-        ├──────────────────┼───────────────────────────────────────────┤
-        │ #1               │ "              n°1                        │
-        ├──────────────────┼───────────────────────────────────────────┤
-        │ #2               │ "              n°2                        │
-        ├──────────────────┼───────────────────────────────────────────┤
-        │ ##               │ noms des fichiers présents dans l'arglist │
-        │                  │                                           │
-        │                  │ :h :_##                                   │
-        ├──────────────────┼───────────────────────────────────────────┤
-        │ *                │ glob                                      │
-        │ **               │                                           │
-        │                  │ ex: !cp /tmp/* ~/Desktop/                 │
-        ├──────────────────┼───────────────────────────────────────────┤
-        │ $                │ ancre                                     │
-        │                  │                                           │
-        │                  │ ex: e /tmp/*m$                            │
-        ├──────────────────┼───────────────────────────────────────────┤
-        │ [abc]            │ collection (a ou b ou c)                  │
-        │                  │                                           │
-        │                  │ répétable:    :n **/[ab]*[cd]             │
-        ├──────────────────┼───────────────────────────────────────────┤
-        │ `find . -type f` │ interpolation                             │
-        │                  │                                           │
-        │                  │ :h backtick-expansion                     │
-        ├──────────────────┼───────────────────────────────────────────┤
-        │ `=tempname()`    │ fichier temporaire généré par la          │
-        │                  │ fonction Vim tempname()                   │
-        │                  │                                           │
-        │                  │ généralisable à toute expression Vim      │
-        │                  │                                           │
-        │                  │ :h `=                                     │
-        │                  │                                           │
-        │                  │ il existe 2 alternatives à cette syntaxe: │
-        │                  │                                           │
-        │                  │     exe 'cmd '.expr                       │
-        │                  │     C-r = expr CR                         │
-        │                  │                                           │
-        │                  │ Toutefois, ces dernières ne changent pas  │
-        │                  │ le sens spécial des caractères:           │
-        │                  │                                           │
-        │                  │     " | % #                               │
-        │                  │                                           │
-        │                  │ ... contrairement à `=                    │
-        └──────────────────┴───────────────────────────────────────────┘
+    ┌──────────────────┬───────────────────────────────────────────┐
+    │ %                │ nom du fichier courant                    │
+    ├──────────────────┼───────────────────────────────────────────┤
+    │ #                │ "              alternatif                 │
+    ├──────────────────┼───────────────────────────────────────────┤
+    │ #1               │ "              n°1                        │
+    ├──────────────────┼───────────────────────────────────────────┤
+    │ #2               │ "              n°2                        │
+    ├──────────────────┼───────────────────────────────────────────┤
+    │ ##               │ noms des fichiers présents dans l'arglist │
+    │                  │                                           │
+    │                  │ :h :_##                                   │
+    ├──────────────────┼───────────────────────────────────────────┤
+    │ *                │ glob                                      │
+    │ **               │                                           │
+    │                  │ ex: !cp /tmp/* ~/Desktop/                 │
+    ├──────────────────┼───────────────────────────────────────────┤
+    │ $                │ ancre                                     │
+    │                  │                                           │
+    │                  │ ex: e /tmp/*m$                            │
+    ├──────────────────┼───────────────────────────────────────────┤
+    │ [abc]            │ collection (a ou b ou c)                  │
+    │                  │                                           │
+    │                  │ répétable:    :n **/[ab]*[cd]             │
+    ├──────────────────┼───────────────────────────────────────────┤
+    │ `find . -type f` │ interpolation                             │
+    │                  │                                           │
+    │                  │ :h backtick-expansion                     │
+    ├──────────────────┼───────────────────────────────────────────┤
+    │ `=tempname()`    │ fichier temporaire généré par la          │
+    │                  │ fonction Vim tempname()                   │
+    │                  │                                           │
+    │                  │ généralisable à toute expression Vim      │
+    │                  │                                           │
+    │                  │ :h `=                                     │
+    │                  │                                           │
+    │                  │ il existe 2 alternatives à cette syntaxe: │
+    │                  │                                           │
+    │                  │     exe 'cmd '.expr                       │
+    │                  │     C-r = expr CR                         │
+    │                  │                                           │
+    │                  │ Toutefois, ces dernières ne changent pas  │
+    │                  │ le sens spécial des caractères:           │
+    │                  │                                           │
+    │                  │     " | % #                               │
+    │                  │                                           │
+    │                  │ ... contrairement à `=                    │
+    └──────────────────┴───────────────────────────────────────────┘
 
 Parmi les commandes Ex après lesquelles on peut écrire ces caractères spéciaux se trouvent:
 
-        :[arg|tab]edit
-        :new
-        :split
-        :read
-        :Foo    à condition qu'elle ait été définie avec l'attribut `-complete=file{_in_path}`
+    :[arg|tab]edit
+    :new
+    :split
+    :read
+    :Foo    à condition qu'elle ait été définie avec l'attribut `-complete=file{_in_path}`
 
 En revanche, on ne peut pas les utiliser après des commandes qui écrivent dans un fichier.
 En effet, dans ce cas on provoquerait l'erreur E139. Pex:
 
-        :w #42    ✘
+    :w #42    ✘
 
 :w #42 demande à écrire le buffer courant dans le fichier dont le nom est celui du buffer 42.
 Ceci n'est pas permis, car on obtiendrait un fichier qui serait alors différent du buffer 42.
 
 On peut modifier le développement de ces caractères spéciaux via des filename-modifiers. Ex:
 
-        :!echo %:h    echo le chemin vers le dossier contenant le fichier courant
+    :!echo %:h    echo le chemin vers le dossier contenant le fichier courant
 
-        :e %:t        édite un buffer de même nom que le fichier courant à l'intérieur du cwd
-                      Pex, si on est en train d'éditer /tmp/foo et que le cwd est /home/user,
-                      cette commande charge le buffer /home/user/foo.
+    :e %:t        édite un buffer de même nom que le fichier courant à l'intérieur du cwd
+                  Pex, si on est en train d'éditer /tmp/foo et que le cwd est /home/user,
+                  cette commande charge le buffer /home/user/foo.
 
 Le développement inclut un backslash devant chaque éventuel espace présent dans le nom d'un fichier.
 
@@ -1524,10 +1532,12 @@ Avec :find et ses dérivées, sa signification est inconsistante:
 
 Un bang est parfois nécessaire pour permettre à une des commandes précédentes de:
 
-        - abandonner un buffer modifié
-        - écrire un buffer modifier dans un fichier RO (:write [file], :wq/:x
-          [file], :wqall)
-        - écraser un fichier existant (:wnext file, :saveas file)
+   - abandonner un buffer modifié
+
+   - écrire un buffer modifier dans un fichier RO (:write [file], :wq/:x
+      [file], :wqall)
+
+   - écraser un fichier existant (:wnext file, :saveas file)
 
 # Commandes système
 
@@ -2004,10 +2014,7 @@ précédant le curseur (custom).
 
 # Commandes utilisateur
 
-Les  noms des  commandes utilisateur  doivent commencer  par une  majuscule pour
-éviter tout conflit avec les commandes système.
-:Next et :X  sont les seules commandes système commençant  par une majuscule (et
-ne peuvent donc être utilisées).
+`:Next` et `:X` sont les seules commandes système commençant par une majuscule.
 
     :com foo
 
