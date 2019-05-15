@@ -2313,24 +2313,29 @@ exécution.
             │     │ search() skip les matchs précédant le curseur.                              │
             └─────┴─────────────────────────────────────────────────────────────────────────────┘
 
-                                               NOTE:
+                                     NOTE:
 
             Always use the `W` flag when you use `search()` in a while loop.
             Otherwise, you may end up in an infinite loop.
 
-                                               FIXME:
+                                     NOTE:
 
-            Du coup à quoi sert 'z' ?
-            Update:
+            What's the use of 'z'?
+            It seems that if we omit it, Vim does the same thing:
 
 >                   When the 'z' flag is not given, searching always starts in
 >                   column zero **and then matches before the cursor are skipped**.
 
-            If the before the cursor are skipped, then why bother searching from
-            column zero.
+            If  the matches  before  the  cursor are  skipped,  then why  bother
+            searching from column zero?
+
+           Answer: The purpose of 'z' is probably to increase performance.
+           Even if searching from column 0, then ignoring the matches before the
+           cursor, gives the same result as  searching from the cursor, it costs
+           more time.
 
 
-                                               NOTE:
+                                     NOTE:
 
             Une commande Ex exécutée depuis le mode visuel nous fait toujours quitter ce dernier.
             On ne peut donc pas directement invoquer `search()` pour étendre la sélection jusqu'à

@@ -507,31 +507,6 @@ palette, which will be ugly/flashy.
     :call term_setansicolors('', ['#123456', ...])
 
 ##
-# Issues
-## I've installed a match to conceal some text.  The text in the search register is also concealed!
-
-Set the priority of your match to `0`.
-
-If the priority is greater, for some reason, any text matching the search register
-is concealed too.
-
-MWE:
-
-        $ echo 'some pattern' | vim --not-a-term -Nu NONE \
-        +'let @/ = "pat"' \
-        +'set hls | setl cocu=nvc cole=1' \
-        +'call matchadd("Conceal", "^.", 1, -1, {"conceal": "x"})' -
-        #                                ^
-        #                                ✘ 0 would fix the issue
-
-The text `pat` is wrongly concealed.
-Only the first character on a line should be.
-
-For more info, see:
-
-        https://github.com/vim/vim/issues/2185
-
-##
 ##
 ##
 # TODO

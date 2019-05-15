@@ -1017,6 +1017,10 @@ there are various things that may clobber the results:
 #
 # TODO
 
+<https://www.dannyadam.com/blog/2019/05/debugging-in-vim/>
+
+---
+
 We've lost time debugging dirvish, because the issue was not in vimrc
 but in filetype plugin. How to avoid it in the future?
 

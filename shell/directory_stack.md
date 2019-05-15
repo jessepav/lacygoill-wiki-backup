@@ -141,41 +141,41 @@ Example:
 
 Copy this function in `~/.zshrc`:
 
-        # pushd function to emulate the old zsh behaviour.
-        # With this function  pushd +/-n just lifts the selected  element to the
-        # top of the stack instead of just cycling the stack.
+    # pushd function to emulate the old zsh behaviour.
+    # With this function  pushd +/-n just lifts the selected  element to the
+    # top of the stack instead of just cycling the stack.
 
-        local puid
-        # if the `pushdignoredups` option is set, assign `1` to `puid`
-        # we save the value now, because we're going to reset all options
-        [[ -o pushdignoredups ]] && puid=1
+    local puid
+    # if the `pushdignoredups` option is set, assign `1` to `puid`
+    # we save the value now, because we're going to reset all options
+    [[ -o pushdignoredups ]] && puid=1
 
-        # reset options to their default values
-        emulate -R zsh
-        # restore all options when the function will return
-        setopt localoptions
+    # reset options to their default values
+    emulate -R zsh
+    # restore all options when the function will return
+    setopt localoptions
 
-              ┌ number of arguments (more readable version of `$#`)
-              │
-              │                     ┌ a plus or minus sign
-              │                     │
-              │                     │   ┌ any number (not limited to a single digit) (man zshexpn)
-              ├──┐                  ├──┐├─┐
-        if [[ ARGC -eq 1 && "$1" == [+-]<-> ]] then
-            # make sure 'pushdignoredups' is set, so that the next
-            # pushd can NOT add the directory `$1` a second time in the stack,
-            # and has to lift it instead
-            setopt pushdignoredups
-            builtin pushd ~$1
-            #             ^
-            #             force the expansion of `+123` into `/path/to/dir`
-            #             to prevent a rotation
-        else
-            # 'pushdignoredups' may have been reset by `emulate -R zsh`,
-            # restore it if needed
-            [[ -n $puid ]] && setopt pushdignoredups
-            builtin pushd "$@"
-        fi
+          ┌ number of arguments (more readable version of `$#`)
+          │
+          │                     ┌ a plus or minus sign
+          │                     │
+          │                     │   ┌ any number (not limited to a single digit) (man zshexpn)
+          ├──┐                  ├──┐├─┐
+    if [[ ARGC -eq 1 && "$1" == [+-]<-> ]] then
+        # make sure 'pushdignoredups' is set, so that the next
+        # pushd can NOT add the directory `$1` a second time in the stack,
+        # and has to lift it instead
+        setopt pushdignoredups
+        builtin pushd ~$1
+        #             ^
+        #             force the expansion of `+123` into `/path/to/dir`
+        #             to prevent a rotation
+    else
+        # 'pushdignoredups' may have been reset by `emulate -R zsh`,
+        # restore it if needed
+        [[ -n $puid ]] && setopt pushdignoredups
+        builtin pushd "$@"
+    fi
 
 Source: <https://github.com/zsh-users/zsh/blob/master/Functions/Example/pushd>
 

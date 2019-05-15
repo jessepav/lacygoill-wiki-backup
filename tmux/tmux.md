@@ -90,7 +90,29 @@ It could be useful for our re-implementation of `vim-tbone`.
 ##
 ##
 ##
-# What is `info` in `$ tmux info`?  I can't find it in the documentation.
+# How can I make the difference between a tmux server and a tmux client in the output of `$ ps`?
+
+Look at the process state codes.
+If you can read `Ss`, it's a server; `S+`, it's a client.
+
+    ┌───┬────────────────────────────────────────────────────────┐
+    │ S │ interruptible sleep (waiting for an event to complete) │
+    ├───┼────────────────────────────────────────────────────────┤
+    │ s │ is a session leader                                    │
+    ├───┼────────────────────────────────────────────────────────┤
+    │ + │ is in the foreground process group                     │
+    └───┴────────────────────────────────────────────────────────┘
+
+See `$ man ps /PROCESS STATE CODES`.
+
+---
+
+Alternatively, look at the terminal to which the processes are attached.
+If you can read `?`, it's a server; `pts/123`, it's a client.
+
+##
+# Syntax
+## What is `info` in `$ tmux info`?  I can't find it in the documentation.
 
 It's an alias for `show-messages -JT`.
 
@@ -100,7 +122,7 @@ It's an alias for `show-messages -JT`.
     ...~
 
 ##
-# How does tmux parse a semicolon?
+## How does tmux parse a semicolon?
 
 As a command termination (like the shell).
 
@@ -116,7 +138,7 @@ From `$ man tmux /COMMANDS`:
 > with a backslash (for example, when specifying a command sequence to
 > bind-key).
 
-## When do I need to escape a semicolon?
+### When do I need to escape a semicolon?
 
 When you install a key binding whose rhs contains several commands, separated by
 semicolons.
@@ -134,7 +156,7 @@ Tmux will populate its key bindings table with:
 Because the semicolon has prematurely terminated `bind`.
 Then, tmux will *immediately* run `cmd2`.
 
-## How many backslashes do I need if I install a tmux key binding from the shell?
+### How many backslashes do I need if I install a tmux key binding from the shell?
 
 Three.
 
@@ -150,27 +172,99 @@ If you only wrote two backslashes, the shell would reduce them into a single one
 So, the shell would try to run `cmd2` itself.
 
 ##
-# How can I make the difference between a tmux server and a tmux client in the output of `$ ps`?
+# Options
+## What happens if I omit `-g` when I set a session or window option in `~/.tmux.conf`?
 
-Look at the process state codes.
-If you can read `Ss`, it's a server; `S+`, it's a client.
+Tmux will complain with one of these error messages:
 
-┌───┬────────────────────────────────────────────────────────┐
-│ S │ interruptible sleep (waiting for an event to complete) │
-├───┼────────────────────────────────────────────────────────┤
-│ s │ is a session leader                                    │
-├───┼────────────────────────────────────────────────────────┤
-│ + │ is in the foreground process group                     │
-└───┴────────────────────────────────────────────────────────┘
+    no current session
+    no current window
 
-See `$ man ps /PROCESS STATE CODES`.
+###
+## Why doesn't `$ tmux show-options mouse` show anything?
+
+Because you're asking for the value local to the current session, and there's none.
+
+OTOH, if you ask for the *global* value, you will have an output:
+
+    $ tmux show-options -g mouse
+    mouse on~
+
+## What happens if I don't provide a value to `$ tmux set-option <boolean option>`?
+
+The option is toggled between on and off.
+
+    $ tmux set-option -g mouse && tmux show-options -g mouse
+    mouse off
+
+    $ tmux set-option -g mouse && tmux show-options -g mouse
+    mouse on
+
+##
+# Environment
+## What does the value of `$TMUX` mean (e.g. `/tmp/tmux-1000/default,31058,2`)?
+
+    /tmp/tmux-1000/default,31058,2
+    ├────────────────────┘ ├───┘ │
+    │                      │     └ the server handles 3 sessions (2+1)
+    │                      └ pid of the tmux server
+    └ path to the server socket
+
+##
+## What's the global environment of the tmux server?
+
+A set of environment  variables which will be passed to  each process started by
+the tmux server (which is typically a shell, but not necessarily).
+
+### How is it initialized?
+
+Tmux copies the environment of the shell from where it's started.
+
+### How to read what it currently contains?
+
+    $ tmux show-options -g
+
+### ?
+
+How to add an environment variable into it?
+
+    $ tmux set-environment -g VAR value
+
+Example:
+
+    $ tmux set-environment -g REPORTTIME 123
 
 ---
 
-Alternatively, look at the terminal to which the processes are attached.
-If you can read `?`, it's a server; `pts/123`, it's a client.
+How to remove it or unset it afterwards?
 
-# How to delete a tmux buffer interactively?
+    $ tmux set-environment -gr VAR value
+    $ tmux set-environment -gu VAR value
+
+---
+
+What's the difference between the two?
+
+---
+
+         When the server is started, tmux copies the environment into the global
+         environment; in addition, each session has a session environment.
+         When  a window  is created,  the  session and  global environments  are
+         merged.
+         If a variable exists in both, the value from the session environment is
+         used.
+         The result is the initial environment passed to the new process.
+
+         The update-environment session option may be used to update the session
+         environment from  the client when  a new session  is created or  an old
+         reattached.
+         tmux also initialises the TMUX  variable with some internal information
+         to allow  commands to be  executed from  inside, and the  TERM variable
+         with the correct terminal setting of ‘screen’.
+
+##
+# Buffers
+## How to delete a tmux buffer interactively?
 
    1. run `choose-buffer`
    2. select a tmux buffer
@@ -180,7 +274,7 @@ For more info, see:
 
     $ man tmux /choose-buffer
 
-## Several buffers in one keypress?
+### Several buffers in one keypress?
 
 Tag the buffers you want to delete by  pressing `t` while your cursor is on each
 of them, then press `D`.
@@ -191,7 +285,7 @@ Note the difference between `d` and `D`.
 `d` deletes the currently selected buffer.
 `D` deletes all the tagged buffers.
 
-## All buffers?
+### All buffers?
 
 Press `C-t` to tag all buffers, then `D`.
 

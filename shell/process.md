@@ -764,12 +764,11 @@ Press:
 ##
 # How to get the environment of the Vim process?  (2)
 
-        $ cat /proc/$(pidof vim)/environ | tr '\0' '\n'
+    $ cat /proc/$(pidof vim)/environ | tr '\0' '\n'
 
 Note that this shows the environment as it was when the process was spawned.
 Any change the process might have made to its environment won't be visible:
-
-        https://serverfault.com/a/79463
+<https://serverfault.com/a/79463>
 
 ---
 
@@ -777,17 +776,17 @@ Alternatively, start `htop`, select the Vim process, and press `e`.
 
 # How to get the list of processes whose name is 'firefox'?
 
-        $ pidof firefox
+    $ pidof firefox
 
 # How to get the list of processes whose name matches the regex `fire*`?
 
-        $ pgrep 'fire*'
+    $ pgrep 'fire*'
 
 # How to get the chain of processes from systemd down to the Vim process?
 
-        $ pstree -s $(pgrep vim)
-                  │
-                  └ show parent processes of the specified process
+    $ pstree -s $(pgrep vim)
+              │
+              └ show parent processes of the specified process
 
 ##
 ##
@@ -814,11 +813,11 @@ programs are terminated when a user “hangs up” the terminal connection.
 
 On our machine, atm, it seems the session leader is `upstart`:
 
-        $ pstree -s -p $(pgrep upstart | head -n1)
-        systemd(1)---lightdm(980)---lightdm(1086)---upstart(1096)...~
-                                                                 │~
-                      all the programs we start during a session ┘~
-                      are children of this `upstart` process~
+    $ pstree -s -p $(pgrep upstart | head -n1)
+    systemd(1)---lightdm(980)---lightdm(1086)---upstart(1096)...~
+                                                             │~
+                  all the programs we start during a session ┘~
+                  are children of this `upstart` process~
 
 If the  session leader  is absent,  the processes  in the  terminal's foreground
 process group are expected to handle hangups.
@@ -1219,82 +1218,82 @@ It's the return value of the system call.
 ##
 ## How to start Vim, and trace all its system calls and received signals?
 
-        $ strace -o log vim
-                 ├────┘
-                 └ write the output in the `log` file
+    $ strace -o log vim
+             ├────┘
+             └ write the output in the `log` file
 
 ---
 
 This kind of command is especially useful with small processes, such as `localectl`:
 
-        $ strace -o log localectl list-keymaps
+    $ strace -o log localectl list-keymaps
 
 Because the log will be short, and it will be easy to find the cause of an issue.
 It's less useful with big processes such as Vim or zsh, but you can still try...
 
 ## How to trace an existing Vim process?
 
-        $ strace -o log -p $(pidof vim)
-                        ^^^^^^^^^^^^^^^
-        $ less +F log
+    $ strace -o log -p $(pidof vim)
+                    ^^^^^^^^^^^^^^^
+    $ less +F log
 
 ##
 ## How to trace a process AND all its children?
 
-        $ strace -o log -f firefox
-                        ^^
+    $ strace -o log -f firefox
+                    ^^
 
 Warning: This can create big files.
 
 ## How to log the system calls of each process in a dedicated file?
 
-        $ strace -o log -ff firefox
-                        ^^^
-                        each process's trace is written to `log.<pid>`
-                        where pid is the pid of the process
+    $ strace -o log -ff firefox
+                    ^^^
+                    each process's trace is written to `log.<pid>`
+                    where pid is the pid of the process
 
 ##
 ## How to make `$ strace` add an absolute timestamp before each system call?
 
-        $ strace -o log -t vim
-                        ^^
+    $ strace -o log -t vim
+                    ^^
 
 ## How about a relative timestamp?
 
-        $ strace -o log -r vim
-                        ^^
+    $ strace -o log -r vim
+                    ^^
 
 ##
 ## How to trace only the system calls accessing files?
 
-        $ strace -o log -e trace=file vim
-                        ^^^^^^^^^^^^^
+    $ strace -o log -e trace=file vim
+                    ^^^^^^^^^^^^^
 
 Useful when a  program fails because it can't find/read  its configuration file,
 but doesn't tell you where it's supposed to be.
 
 ## How to trace only the system call `open()`?
 
-        $ strace -o log -e trace=open vim
-                        ^^^^^^^^^^^^^
+    $ strace -o log -e trace=open vim
+                    ^^^^^^^^^^^^^
 
 ## How to trace only the system calls `open()` and `read()`?
 
-        $ strace -o log -e trace=open,read vim
-                        ^^^^^^^^^^^^^^^^^^
+    $ strace -o log -e trace=open,read vim
+                    ^^^^^^^^^^^^^^^^^^
 
 ##
 ## How to get statistics about the system calls (time, count, number of errors...)?
 
-        $ strace -o log -c vim
-                        ^^
+    $ strace -o log -c vim
+                    ^^
 
 ##
 ## The maximum size of printed strings is 32 bytes!  How to get longer strings?
 
-        $ strace -o log -s64 vim
-                        ├──┘
-                        └ truncate long strings after 64 bytes, instead of 32
+    $ strace -o log -s64 vim
+                    ├──┘
+                    └ truncate long strings after 64 bytes, instead of 32
 
 This is  especially useful for  `write()` system  calls, because they  may write
 long strings of text in files.

@@ -489,7 +489,7 @@ don't find one, `#ab1234` is not in the palette.
 
 If you've found a  color whose last two digits are `34`,  consider the first two
 digits in `#ab1234`, i.e. `ab`.
-Compare them to the first two digits in *any one* color in a square.
+Compare them to the first two digits in *any* color of a square.
 If it doesn't match `ab`, `#ab1234` is not in this square.
 Repeat until you  find a color in a  square whose first two digits  are `ab`; if
 you don't find one, `#ab1234` is not in the palette.

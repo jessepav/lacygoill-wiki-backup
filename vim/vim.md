@@ -1,5 +1,20 @@
 # ?
 
+If you have modified a file from outside Vim, you will lose its undo history.
+For example, assuming `file` is not opened in a Vim instance, if you run:
+
+    $ echo 'hello' >>file
+
+All the undo history of `file` is lost.
+
+You may still recover the undo history, if the file is currently loaded in a Vim buffer,
+and if the buffer contains less than 10000 lines (see `:h 'undoreload'`).
+If that's the case, run `:e!`.
+
+<https://www.reddit.com/r/vim/comments/bnzl43/any_hacks_to_make_vim_read_undofile_when_file_is/enavpuj/>
+
+# ?
+
 In insert mode, a character is between 2 characters.
 In normal mode, a character is *on* a character.
 
@@ -3210,6 +3225,7 @@ On peut se rendre à une marque de 4 façons différentes, en la préfixant avec
 
             :x et par extension :xa ne sauvegarde qu'un buffer modifié, contrairement à :w.
 
+##
 ## Fichiers
 
 Qd on  doit passer un  nom de fichier  en argument à  une commande Ex,  on peut utiliser  un chemin
