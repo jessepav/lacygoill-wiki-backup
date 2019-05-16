@@ -1270,7 +1270,7 @@ Video previews are disabled by default.  To turn them on:
 
 Done!
 ##
-# TODO
+# Todo
 
 Read: <http://ranger.nongnu.org/cheatsheet.svg>
 

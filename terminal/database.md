@@ -153,9 +153,7 @@ The latter may miss the entry for `$TERM`.
 
 This should copy the local entry for the terminal in the db of the remote.
 
-Source:
-
-        https://unix.stackexchange.com/a/67541/275162
+Source: <https://unix.stackexchange.com/a/67541/275162>
 
 ---
 

@@ -4,6 +4,7 @@
 
 This should match `foobar` or just `bar`.
 
+##
 # How to write a one-shot autocmd?
 
 Use the `++once` flag.
@@ -55,6 +56,21 @@ Because `Func()` would be called twice, not once.
 Once for each event.
 
 See the augroup `delay_slow_call` in our vimrc for a real example.
+
+## How many times is the autocmd fired if it listens to several events?
+
+Once per event.
+
+### How to fire it just once, regardless of how many events it listens to?
+
+Use a guard.
+
+    unlet! s:one_shot
+    au Event1,Event2,... * ++once
+        \ if get(s:, 'one_shot', 1)
+        \ |     let s:one_shot = 0
+        \ |     " do sth just once
+        \ | endif
 
 ##
 # When several autocmds listen to the same event, in which does Vim run them?

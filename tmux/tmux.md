@@ -1,95 +1,20 @@
 # ?
 
-I don't  know where it's properly  documented but tmux  can assign a value  to a
-variable,  then evaluate  it  at runtime  as a  shell  expression (cf.  `is_vim`
-variable):
+Document the fact that when you detach  from a tmux session, you should quit all
+Vim instances.
+First, it  doesn't make  sense to  leave an  interactive program  running, while
+you're absent (it needs interaction from your part).
+Second, our  vim-term plugin  may make  Vim send escape  sequences that  the new
+terminal from which we'll re-attach will not understand.
 
-<https://github.com/christoomey/vim-tmux-navigator/commit/bb99607c9e2ecff7542ad371b38ceede0cc2e4cd>
-<https://github.com/christoomey/vim-tmux-navigator/issues/44>
+Also, when you re-attach, you should make sure to start Vim from a new shell, so
+that tmux has a  chance to correctly set `$COLORTERM`; we rely  on the latter to
+detect xfce4-terminal in vim-term.
+If you start from the same shell, `$COLORTERM` is wrong, and Vim sends sequences
+which it shouldn't send, then quit Vim, and close the current shell; you need to
+start a new one, otherwise the terminal would periodically keep printing
+`Esc [ 2 SPC q` (btw, is this a bug?).
 
----
-
-To debug tmux run:
-
-    $ tmux -Ltest kill-server
-    $ strace -ttt -ff -ostrace.out tmux -L test -f /dev/null -vv new
-
-<https://github.com/tmux/tmux/blob/master/CONTRIBUTING>
-<https://github.com/tmux/tmux/issues/1603#issuecomment-462955045>
-
----
-
-To test the current value of a replacement variable such as `#{pane_tty}`, run:
-
-    # shell command
-    tmux -S /tmp/tmux-1000/default display -p #{pane_tty}
-
-    # tmux command
-    :display -p #{pane_tty}
-
-    # Vim command
-    :echo system('tmux -S /tmp/tmux-1000/default display -p "#{pane_tty}"')
-
----
-
-If you  include `#{C:hello}` in your  tmux status line, the  latter will contain
-the number line where `hello` appears in the current tmux pane.
-
-From `$ man tmux /FORMATS`:
-> A  ‘C’ performs  a search  for an  fnmatch(3) pattern  in the  pane content  and
-> evaluates to zero if not found, or a line number if found.
-
----
-
-<https://github.com/tmux/tmux/blob/master/example_tmux.conf>
-
-<http://man.openbsd.org/OpenBSD-current/man1/tmux.1>
-
-<https://github.com/tmux/tmux/wiki/FAQ>
-
-<https://devel.tech/tips/n/tMuXz2lj/the-power-of-tmux-hooks/>
-
-<https://github.com/tmux-plugins/tmux-sensible>
-
-<https://github.com/tmux-plugins/tmux-pain-control>
-
-extended underline style
-<https://github.com/tmux/tmux/commit/bc0e527f32642cc9eb2354d1bdc033ab6beca33b>
-
-support for windows larger than visible on the attached client
-<https://github.com/tmux/tmux/commit/646995384d695eed9de1b2363fd2b315ca01785e>
-
----
-
-Document this:
-
-    $ tmux pipe-pane -t study:2.1 -I "echo 'ls'"
-
-This command  executes `$  ls` in  the first pane  of the  second window  of the
-`study` session.
-The syntax is the following:
-
-    $ tmux pipe-pane -t {session}:{window}.{pane} -I "shell-cmd"
-
-`-I` and `-O` specify which of the shell-command output streams are connected to
-the pane.
-
-With `-I`, stdout is connected (so anything `shell-cmd` prints is written to the
-pane as if it was typed).
-
-You can also run:
-
-    $ tmux pipe-pane -t {session}:{window}.{pane} -O "shell cmd"
-
-With  `-O`,  stdin  is  connected  (so  any output  in  the  pane  is  piped  to
-`shell-cmd`).
-Both `-I` and `-O` may be used together.
-
-It could be useful for our re-implementation of `vim-tbone`.
-
-##
-##
-##
 # How can I make the difference between a tmux server and a tmux client in the output of `$ ps`?
 
 Look at the process state codes.
@@ -195,10 +120,10 @@ OTOH, if you ask for the *global* value, you will have an output:
 The option is toggled between on and off.
 
     $ tmux set-option -g mouse && tmux show-options -g mouse
-    mouse off
+    mouse off~
 
     $ tmux set-option -g mouse && tmux show-options -g mouse
-    mouse on
+    mouse on~
 
 ##
 # Environment
@@ -211,19 +136,41 @@ The option is toggled between on and off.
     └ path to the server socket
 
 ##
-## What's the global environment of the tmux server?
+## What are the global environment of the tmux server, and the environment local to a tmux session?
 
-A set of environment  variables which will be passed to  each process started by
-the tmux server (which is typically a shell, but not necessarily).
+Two sets of  environment variables which will be passed  to each process started
+by the tmux server (which is typically a shell, but not necessarily).
 
-### How is it initialized?
+### How are they initialized?
 
-Tmux copies the environment of the shell from where it's started.
+For the global environment, tmux copies  the environment of the shell from where
+it's started.
 
-### How to read what it currently contains?
+For  the local  environment,  tmux copies  the variables  listed  in the  option
+`'update-environment'`, with  the values they  had in  the shell from  which the
+tmux client was started.
+
+### How to read what they currently contain?
+
+For the global environment:
 
     $ tmux show-options -g
 
+For the local environment:
+
+    $ tmux show-options
+
+#### In the local environment of my session, some variables are prefixed with a minus sign.  What does it mean?
+
+It means that tmux will remove the variables from the environment of any process
+it will start in this session.
+
+##### When does tmux prefix a variable with such a sign?
+
+When it's  listed in  `'update-environment'`, but  is absent  in the  shell from
+which the tmux client was started.
+
+###
 ### ?
 
 How to add an environment variable into it?
@@ -245,22 +192,117 @@ How to remove it or unset it afterwards?
 
 What's the difference between the two?
 
+From `~/GitRepos/tmux/doc-pak/CHANGES`:
+
+> * New flag to set and setw, -u, to unset an option (allowing it to inherit from)
+>   the global options again.
+
+This excerpt doesn't apply to `set-environment` but to `set-option`.
+However, it may still be relevant.
+Maybe `-u`  allows you to  remove a variable  in the session  environment, which
+allows the value of the variable in the global environment to win.
+While `-r` would ... ?
+
+Make some tests.
+
 ---
 
-         When the server is started, tmux copies the environment into the global
-         environment; in addition, each session has a session environment.
-         When  a window  is created,  the  session and  global environments  are
-         merged.
-         If a variable exists in both, the value from the session environment is
-         used.
-         The result is the initial environment passed to the new process.
+To see a difference between `-r` and `-gr`, watch this:
 
-         The update-environment session option may be used to update the session
-         environment from  the client when  a new session  is created or  an old
-         reattached.
-         tmux also initialises the TMUX  variable with some internal information
-         to allow  commands to be  executed from  inside, and the  TERM variable
-         with the correct terminal setting of ‘screen’.
+    # start new terminal
+    $ export foo=bar
+    $ tmux -Ltest new
+    $ tmux setenv -r foo
+    $ tmux splitw
+    $ echo $foo
+    ''~
+    $ S=$(tmux new-session -d -P) && tmux switch-client -t $S
+    $ echo $foo
+    bar~
+
+    # start new terminal
+    $ export foo=bar
+    $ tmux -Ltest new
+    $ tmux setenv -gr foo
+    $ tmux splitw
+    $ echo $foo
+    ''~
+    S=$(tmux new-session -d -P) && tmux switch-client -t $S
+    $ echo $foo
+    ''~
+
+---
+
+Notice that there're 2 groups of variables:
+
+   - the ones which are set in a file sourced by the program you ask tmux to start (e.g. `~/.zshenv`)
+   - the ones which are not set such files
+
+The first group is unaffected by `setenv  [-g] -{u|r}`, because – I think – tmux
+initializes the  environment of  the process  you ask it  to start  *before* the
+latter reads its init file(s), so whatever `$ tmux setenv` does is undone.
+
+Among the latter group, there're 3 subgroups.
+The ones which are in both (e.g. `DISPLAY`, `SSH_AUTH_SOCK`, `WINDOWID`, `XAUTHORITY`).
+The ones which are *not* in the environment local to the session, and *are* in tmux global environment (e.g. `XDG_VTNR`).
+The ones which are in the environment local to the session, and not in tmux global environment (e.g. `KRB5CCNAME`).
+
+    # no effect
+    $ tmux setenv {-u|-gu|-gr} WINDOWID
+
+
+    # no effect
+    $ tmux setenv -u  XDG_VTNR
+
+    # unset in all shells
+    $ tmux setenv -g{u|r} XDG_VTNR
+
+
+    # unset in all shells of the current session
+    $ tmux setenv -gu SSH_AUTH_SOCK \; setenv -u  SSH_AUTH_SOCK
+
+    # no effect
+    $ tmux setenv -gu SSH_AUTH_SOCK \; setenv -g{u|r} SSH_AUTH_SOCK
+
+`setenv -r` unsets  the variable, for all future shells  in the current session,
+no matter the group to which the variable belongs.
+
+---
+
+The  global environment  is copied  from the  shell where  you started  the tmux
+server initially.
+
+The local environment is defined by the value of the `update-environment` option.
+If you want to set the local environment for the current session only, run:
+
+    $ tmux set-option update-environment ...
+
+If you want to set the local environment for all sessions, run:
+
+    $ tmux set-option -g update-environment ...
+                      ^^
+
+Don't be confused by the semantics of `-g` here.
+It doesn't mean that you set the global environment of tmux.
+`update-environment` only sets the environment local to a session.
+`-g` means that you set it for *all* sessions; not just the current one.
+
+---
+
+     When the server is started, tmux copies the environment into the global
+     environment; in addition, each session has a session environment.
+     When  a window  is created,  the  session and  global environments  are
+     merged.
+     If a variable exists in both, the value from the session environment is
+     used.
+     The result is the initial environment passed to the new process.
+
+     The update-environment session option may be used to update the session
+     environment from  the client when  a new session  is created or  an old
+     reattached.
+     tmux also initialises the TMUX  variable with some internal information
+     to allow  commands to be  executed from  inside, and the  TERM variable
+     with the correct terminal setting of ‘screen’.
 
 ##
 # Buffers
@@ -463,10 +505,10 @@ Note that the  server is started after  the first client, so its  pid is bigger,
 which may seem counter-intuitive.
 Also, the relationship between the 2 processes is NOT parent-child.
 It's client-server.
-IOW, they are 2 independent processes. You won't find both of them listed in the
-output of the same `pstree` command.
-They communicate via a socket, which  by default is called `default`. The latter
-is created in the directory `tmux-{UID}` inside:
+IOW, they are 2 independent processes.
+You won't find both of them listed in the output of the same `$ pstree` command.
+They communicate via a socket, which by default is called `default`.
+The latter is created in the directory `tmux-{UID}` inside:
 
     - $TMUX_TMPDIR if the latter set
     - /tmp otherwise
@@ -584,23 +626,6 @@ Voici qques argument qu'on peut passer à Tmux au démarrage.
             Warning:
             The log files  becomes really big, really fast. Enable logging  only for a short
             period of time to debug sth.
-
-# Links
-
-    https://www.reddit.com/r/tmux/comments/5cm2ca/post_you_favourite_tmux_tricks_here/
-
-
-    https://raw.githubusercontent.com/tmux/tmux/master/CHANGES
-
-            Changelog
-
-
-    http://tmuxp.readthedocs.io/en/latest/about.html
-
-            tmuxp helps you manage tmux workspaces.
-
-            tmux users can reload common workspaces from YAML, JSON and dict configurations like
-            tmuxinator and teamocil.
 
 ##
 # Plugins
@@ -730,17 +755,17 @@ Un flag peut être on, off ou omis. Dans une affectation, si un flag est omis, l
 
     Affiche les options :
 
-        ┌──────────────────┬─────────────────────┐
-        │ show-options -s  │ serveur             │
-        ├──────────────────┼─────────────────────┤
-        │ show-options     │ session et locales  │
-        ├──────────────────┼─────────────────────┤
-        │ show-options -g  │ session et globales │
-        ├──────────────────┼─────────────────────┤
-        │ show-options -w  │ fenêtre et locales  │
-        ├──────────────────┼─────────────────────┤
-        │ show-options -gw │ fenêtre et globales │
-        └──────────────────┴─────────────────────┘
+    ┌──────────────────┬─────────────────────┐
+    │ show-options -s  │ serveur             │
+    ├──────────────────┼─────────────────────┤
+    │ show-options     │ session et locales  │
+    ├──────────────────┼─────────────────────┤
+    │ show-options -g  │ session et globales │
+    ├──────────────────┼─────────────────────┤
+    │ show-options -w  │ fenêtre et locales  │
+    ├──────────────────┼─────────────────────┤
+    │ show-options -gw │ fenêtre et globales │
+    └──────────────────┴─────────────────────┘
 
             `show` est un alias de `show-options`.
 
@@ -2224,11 +2249,138 @@ Les liens sont dépourvus de contexte.
 
 ##
 # Todo
+## links to read
 
+<https://www.reddit.com/r/tmux/comments/5cm2ca/post_you_favourite_tmux_tricks_here/>
+<https://raw.githubusercontent.com/tmux/tmux/master/CHANGES>
 <https://medium.freecodecamp.org/tmux-in-practice-series-of-posts-ae34f16cfab0>
 <https://github.com/samoshkin/tmux-config>
 <https://silly-bytes.blogspot.fr/2016/06/seamlessly-vim-tmux-windowmanager_24.html>
+<https://github.com/tmux/tmux/blob/master/example_tmux.conf>
+<http://man.openbsd.org/OpenBSD-current/man1/tmux.1>
+<https://github.com/tmux/tmux/wiki/FAQ>
+<https://devel.tech/tips/n/tMuXz2lj/the-power-of-tmux-hooks/>
+<https://github.com/tmux-plugins/tmux-sensible>
+<https://github.com/tmux-plugins/tmux-pain-control>
 
+extended underline style
+<https://github.com/tmux/tmux/commit/bc0e527f32642cc9eb2354d1bdc033ab6beca33b>
+
+support for windows larger than visible on the attached client
+<https://github.com/tmux/tmux/commit/646995384d695eed9de1b2363fd2b315ca01785e>
+
+support for overline (SGR 53)
+<https://github.com/tmux/tmux/commit/1ee944a19def82cb62abf6ab92c17eb30df77a41>
+
+## here's a way to programmatically get the PID of a process launched by tmux:
+
+    P=$(tmux new -dP -- mycommand); tmux display -pt$P -F '#{pane_pid}'
+                        ^^^^^^^^^
+                        arbitrary command started in a new tmux window
+
+## linking windows
+
+Watch this:
+
+    $ tmux linkw -s . -t 0
+
+It creates a window of index 0, which is linked to the current window.
+I think the command means: link the current window (`-s .`) to a new window of index 0.
+Now, everything you type in one of these 2 windows, is also typed in the other.
+
+It seems that windows can also be linked to sessions.
+To understand what it means you'll need to first understand the concept of “session group”.
+It's described at `$ man tmux /^\s*new-session [`:
+
+> If -t is given, it specifies a session group.  Sessions in the
+> same group share the same set of windows - new windows are linked
+> to all sessions in the group and any windows closed removed from
+> all sessions.  The current and previous window and any session
+> options remain independent and any session in a group may be
+> killed without affecting the others.
+
+## making tmux evaluate shell expression at runtime
+
+I don't  know where it's properly  documented but tmux  can assign a value  to a
+variable,  then evaluate  it  at runtime  as a  shell  expression (cf.  `is_vim`
+variable):
+
+<https://github.com/christoomey/vim-tmux-navigator/commit/bb99607c9e2ecff7542ad371b38ceede0cc2e4cd>
+<https://github.com/christoomey/vim-tmux-navigator/issues/44>
+
+## using `$ strace` to debug tmux
+
+To debug tmux run:
+
+    $ tmux -Ltest kill-server
+    $ strace -ttt -ff -ostrace.out tmux -L test -f /dev/null -vv new
+
+<https://github.com/tmux/tmux/blob/master/CONTRIBUTING>
+<https://github.com/tmux/tmux/issues/1603#issuecomment-462955045>
+
+## evaluating a tmux replacement variable in different contexts
+
+To test the current value of a replacement variable such as `#{pane_tty}`, run:
+
+    # shell command
+    $ tmux -S /tmp/tmux-1000/default display -p #{pane_tty}
+
+    # tmux command
+    :display -p #{pane_tty}
+
+    # Vim command
+    :echo system('tmux -S /tmp/tmux-1000/default display -p "#{pane_tty}"')
+
+## including in the status line the number line where a pattern matches in the current pane
+
+If you  include `#{C:hello}` in your  tmux status line, the  latter will contain
+the number line where `hello` appears in the current tmux pane.
+
+From `$ man tmux /FORMATS`:
+> A  ‘C’ performs  a search  for an  fnmatch(3) pattern  in the  pane content  and
+> evaluates to zero if not found, or a line number if found.
+
+## pipe-pane
+
+Document this:
+
+    $ tmux pipe-pane -t study:2.1 -I "echo 'ls'"
+
+This command  executes `$  ls` in  the first pane  of the  second window  of the
+`study` session; the syntax is the following:
+
+    $ tmux pipe-pane -t {session}:{window}.{pane} -I "shell-cmd"
+
+`-I` and `-O` specify which of the shell-command output streams are connected to
+the pane.
+
+With `-I`, stdout is connected (so anything `shell-cmd` prints is written to the
+pane as if it was typed).
+
+You can also run:
+
+    $ tmux pipe-pane -t {session}:{window}.{pane} -O "shell cmd"
+
+With  `-O`,  stdin  is  connected  (so  any output  in  the  pane  is  piped  to
+`shell-cmd`); both `-I` and `-O` may be used together.
+
+It could be useful for our re-implementation of `vim-tbone`.
+
+## attach-session
+
+From `$ man tmux /^\s*attach-session`
+
+> If run from outside tmux, create a new client in the current terminal and attach
+> it to target-session. If used from inside, switch the current client.
+
+I interpret  the second sentence  as tmux switching  the current session  in the
+current client; the equivalent of pressing `pfx )`.
+Look  at the  description of  the latter;  they use  the same  terminology (i.e.
+“switch”).
+And yet, in  practice, `$ tmux attach-session` inside tmux  fails with “sessions
+should be nested with care, unset $TMUX to force”.
+
+What gives?
 
 ##
 # Reference

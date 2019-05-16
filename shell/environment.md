@@ -178,12 +178,14 @@ It should  be empty, but  it will  still have its  old value, before  you edited
 ### You need to remove the variable from tmux global environment.
 
 If you edit `~/.zshenv`, for the change  to take effect in all the future shells
-handled by  the latter,  you need  to remove  `MY_ENVIRONMENT_HAS_BEEN_SET` from
-tmux global environment, by writing in `~/.tmux.conf`:
+opened from  tmux, you  need to  remove `MY_ENVIRONMENT_HAS_BEEN_SET`  from tmux
+global environment, by writing in `~/.tmux.conf`:
 
     setenv -gr MY_ENVIRONMENT_HAS_BEEN_SET
 
 Otherwise, you would need to restart the tmux server, whenever you edit `~/.zshenv`.
+Indeed, a new shell is initialized  with tmux global environment *before* it can
+read its config files (`~/.zshrc`, `~/.zshenv`, ...).
 
 ### You need to remove the variable from Vim's environment.
 
@@ -237,4 +239,88 @@ At the moment, it looks like this:
         fi
       done
     }
+
+### How does this compare to the guard, performance-wise?
+
+It's not as good, but good enough.
+In particular, make sure to guard any `$ eval` command.
+They seem to have a big impact on performance.
+
+    # ✘
+    eval "$(lesspipe)"
+
+    # ✔
+    if [[ -z "${LESSOPEN}" ]]; then
+      eval "$(lesspipe)"
+    fi
+
+You can measure how much time your `~/.zshenv` takes to be sourced by running:
+
+    $ time zsh -c 'repeat 1000 source ~/.zshenv'
+    zsh -c 'repeat 1000 source ~/.zshenv'  1,80s user 0,30s system 99% cpu 2,099 total~
+                                                                           ^^^^^
+
+Read the `total` field, and divide by 1000.
+Right now, it takes around 2ms, which is good enough for me.
+
+## ?
+
+I've removed  the following from  tmux.conf, because I  think it still  adds 8ms
+every time we open a shell from tmux.
+The original purpose was to prevent  *all* of `.zshenv` from being sourced every
+time a subshell is  started (think of a pipeline), which could add  up to a long
+time.
+
+    # Environment {{{1
+
+    # Why do you remove these variables from tmux global environment?{{{
+    #
+    # In `~/.zshenv`, we don't set them unconditionally, because doing so would have
+    # a too  negative impact on  zsh startup  time; so, we  set them only  when they
+    # aren't empty.
+    # If we let  them in tmux global  environment, they'll be in  the environment of
+    # any shell we  open in tmux, with  non-empty values, before the  shell has read
+    # `~/.zshenv`.
+    #
+    # This means  that if  we decide  to change their  values in  `~/.zshenv`, while
+    # inside tmux, the change won't take effect until we restart the tmux server.
+    # To avoid this issue, we need to remove them from tmux global environment.
+    #}}}
+    setenv -gu LESSOPEN
+    setenv -gu LESSCLOSE
+    setenv -gu LS_COLORS
+
+Btw, I'm not sure whether it should be `-gr` instead of `-gu`...
+
+Document all of this.
+
+---
+
+Also, document how we could manually reset the values of these variables without
+restarting the tmux server.
+Probably sth like:
+
+    $ tmux setenv -gu LESSOPEN
+    $ tmux setenv -ga LESSOPEN new_value
+
+##
+# ?
+
+In tmux.conf, we have this line:
+
+    set -ga update-environment COLORTERM
+
+Because of this, the output of `$ tmux showenv` contains COLORTERM in any pane/window.
+
+But if  we comment out  this line from tmux.conf,  and manually run  the command
+from a tmux session, `$ tmux showenv` doesn't contain COLORTERM.
+Why?
+
+I think that's because you need to first attach a new client to the session.
+When that happens, tmux copies COLORTERM in the environment of the session.
+Same thing when you switch to another session afterwards.
+Make  some tests  to confirm,  and try  to  use `showenv  -t ...`  to check  the
+environment of another session without focusing it.
+Is the environment of the other sessions updated only when we focus them?
+Or are they all updated immediately when we attach a new client?
 

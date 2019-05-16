@@ -346,73 +346,73 @@ move it at the end of `'efm'`, because Vim should use it as a last resort.
 ## Which % items can I use in a format?
 ### % [a-z]
 
-        ┌──────────┬───────────────────────────────────────────────┬────────────────────┐
-        │ % item   │ how it's going to be interpreted              │ what does it match │
-        ├──────────┼───────────────────────────────────────────────┼────────────────────┤
-        │ %f       │ file name                                     │ string             │
-        ├──────────┼───────────────────────────────────────────────┼────────────────────┤
-        │ %l       │ line number                                   │ number             │
-        ├──────────┼───────────────────────────────────────────────┼────────────────────┤
-        │ %c       │ column number                                 │ number             │
-        ├──────────┼───────────────────────────────────────────────┼────────────────────┤
-        │ %v       │ virtual column number                         │ number             │
-        ├──────────┼───────────────────────────────────────────────┼────────────────────┤
-        │ %n       │ error number (for lookup in a documentation)  │ number             │
-        ├──────────┼───────────────────────────────────────────────┼────────────────────┤
-        │ %t       │ error type                                    │ single character   │
-        ├──────────┼───────────────────────────────────────────────┼────────────────────┤
-        │ %m       │ error message                                 │ string             │
-        ├──────────┼───────────────────────────────────────────────┼────────────────────┤
-        │ %o       │ text to display in the filename column        │ string             │
-        │          │                                               │                    │
-        │          │ mnemonic: mOdule                              │                    │
-        ├──────────┼───────────────────────────────────────────────┼────────────────────┤
-        │ %p       │ pointer line                                  │ sequence of:       │
-        │          │                                               │                    │
-        │          │ its length will be used for the column number │ -  .  SPC  Tab     │
-        ├──────────┼───────────────────────────────────────────────┼────────────────────┤
-        │ %r       │ the Rest of a line matched by a format        │ string             │
-        │          │ beginning with the prefix %O, %P or %Q        │                    │
-        ├──────────┼───────────────────────────────────────────────┼────────────────────┤
-        │ %s       │ search text                                   │ string             │
-        └──────────┴───────────────────────────────────────────────┴────────────────────┘
+    ┌──────────┬───────────────────────────────────────────────┬────────────────────┐
+    │ % item   │ how it's going to be interpreted              │ what does it match │
+    ├──────────┼───────────────────────────────────────────────┼────────────────────┤
+    │ %f       │ file name                                     │ string             │
+    ├──────────┼───────────────────────────────────────────────┼────────────────────┤
+    │ %l       │ line number                                   │ number             │
+    ├──────────┼───────────────────────────────────────────────┼────────────────────┤
+    │ %c       │ column number                                 │ number             │
+    ├──────────┼───────────────────────────────────────────────┼────────────────────┤
+    │ %v       │ virtual column number                         │ number             │
+    ├──────────┼───────────────────────────────────────────────┼────────────────────┤
+    │ %n       │ error number (for lookup in a documentation)  │ number             │
+    ├──────────┼───────────────────────────────────────────────┼────────────────────┤
+    │ %t       │ error type                                    │ single character   │
+    ├──────────┼───────────────────────────────────────────────┼────────────────────┤
+    │ %m       │ error message                                 │ string             │
+    ├──────────┼───────────────────────────────────────────────┼────────────────────┤
+    │ %o       │ text to display in the filename column        │ string             │
+    │          │                                               │                    │
+    │          │ mnemonic: mOdule                              │                    │
+    ├──────────┼───────────────────────────────────────────────┼────────────────────┤
+    │ %p       │ pointer line                                  │ sequence of:       │
+    │          │                                               │                    │
+    │          │ its length will be used for the column number │ -  .  SPC  Tab     │
+    ├──────────┼───────────────────────────────────────────────┼────────────────────┤
+    │ %r       │ the Rest of a line matched by a format        │ string             │
+    │          │ beginning with the prefix %O, %P or %Q        │                    │
+    ├──────────┼───────────────────────────────────────────────┼────────────────────┤
+    │ %s       │ search text                                   │ string             │
+    └──────────┴───────────────────────────────────────────────┴────────────────────┘
 
 ### % [A-Z]
 
 You can read the output of programs that produce multi-line messages.
 Possible prefixes are:
 
-        ┌────┬──────────────────────────────────────────────────┐
-        │ %A │ start of a multi-line message (unspecified type) │
-        ├────┼──────────────────────────────────────────────────┤
-        │ %E │ start of a multi-line error message              │
-        ├────┼──────────────────────────────────────────────────┤
-        │ %I │ start of a multi-line informational message      │
-        ├────┼──────────────────────────────────────────────────┤
-        │ %W │ start of a multi-line warning message            │
-        ├────┼──────────────────────────────────────────────────┤
-        │ %C │ continuation of a multi-line message             │
-        ├────┼──────────────────────────────────────────────────┤
-        │ %Z │ end of a multi-line message                      │
-        └────┴──────────────────────────────────────────────────┘
+    ┌────┬──────────────────────────────────────────────────┐
+    │ %A │ start of a multi-line message (unspecified type) │
+    ├────┼──────────────────────────────────────────────────┤
+    │ %E │ start of a multi-line error message              │
+    ├────┼──────────────────────────────────────────────────┤
+    │ %I │ start of a multi-line informational message      │
+    ├────┼──────────────────────────────────────────────────┤
+    │ %W │ start of a multi-line warning message            │
+    ├────┼──────────────────────────────────────────────────┤
+    │ %C │ continuation of a multi-line message             │
+    ├────┼──────────────────────────────────────────────────┤
+    │ %Z │ end of a multi-line message                      │
+    └────┴──────────────────────────────────────────────────┘
 
-        ┌────┬─────────────────────────────────┐
-        │ %D │ 'enter directory' format string │
-        ├────┼─────────────────────────────────┤
-        │ %X │ 'leave directory' format string │
-        └────┴─────────────────────────────────┘
+    ┌────┬─────────────────────────────────┐
+    │ %D │ 'enter directory' format string │
+    ├────┼─────────────────────────────────┤
+    │ %X │ 'leave directory' format string │
+    └────┴─────────────────────────────────┘
 
-        ┌────┬─────────────────┐
-        │ %G │ general message │
-        └────┴─────────────────┘
+    ┌────┬─────────────────┐
+    │ %G │ general message │
+    └────┴─────────────────┘
 
-        ┌────┬────────────────────────────────────────────────────────────┐
-        │ %O │ single-line filename message: overread the matched part    │
-        ├────┼────────────────────────────────────────────────────────────┤
-        │ %P │ single-line filename message: push file %f onto a stack    │
-        ├────┼────────────────────────────────────────────────────────────┤
-        │ %Q │ single-line filename message: pop the last file from stack │
-        └────┴────────────────────────────────────────────────────────────┘
+    ┌────┬────────────────────────────────────────────────────────────┐
+    │ %O │ single-line filename message: overread the matched part    │
+    ├────┼────────────────────────────────────────────────────────────┤
+    │ %P │ single-line filename message: push file %f onto a stack    │
+    ├────┼────────────────────────────────────────────────────────────┤
+    │ %Q │ single-line filename message: pop the last file from stack │
+    └────┴────────────────────────────────────────────────────────────┘
 
 Overread probably means sth like  overlook, i.e. reading without taking anything
 into account.
@@ -422,24 +422,24 @@ into account.
 It's possible to specify (nearly) any Vim regex in a format.
 Meta characters have to be prefixed with `%`:
 
-        ┌────┬──────────────────────────────────────────────────────────┐
-        │ %\ │ a backslash to create an atom                            │
-        │    │                                                          │
-        │    │ It has to be escaped ('%\\') in ':set efm=' definitions. │
-        ├────┼──────────────────────────────────────────────────────────┤
-        │ %. │ any character                                            │
-        ├────┼──────────────────────────────────────────────────────────┤
-        │ %# │ '*' quantifier                                           │
-        ├────┼──────────────────────────────────────────────────────────┤
-        │ %[ │ beginning of a collection []                             │
-        ├────┼──────────────────────────────────────────────────────────┤
-        │ %^ │ The anchor '^', or the negation of a collection.         │
-        │    │                                                          │
-        │    │ Not useful as an anchor:                                 │
-        │    │ Vim automatically prefix a format with it.               │
-        ├────┼──────────────────────────────────────────────────────────┤
-        │ %% │ a percent character                                      │
-        └────┴──────────────────────────────────────────────────────────┘
+    ┌────┬──────────────────────────────────────────────────────────┐
+    │ %\ │ a backslash to create an atom                            │
+    │    │                                                          │
+    │    │ It has to be escaped ('%\\') in ':set efm=' definitions. │
+    ├────┼──────────────────────────────────────────────────────────┤
+    │ %. │ any character                                            │
+    ├────┼──────────────────────────────────────────────────────────┤
+    │ %# │ '*' quantifier                                           │
+    ├────┼──────────────────────────────────────────────────────────┤
+    │ %[ │ beginning of a collection []                             │
+    ├────┼──────────────────────────────────────────────────────────┤
+    │ %^ │ The anchor '^', or the negation of a collection.         │
+    │    │                                                          │
+    │    │ Not useful as an anchor:                                 │
+    │    │ Vim automatically prefix a format with it.               │
+    ├────┼──────────────────────────────────────────────────────────┤
+    │ %% │ a percent character                                      │
+    └────┴──────────────────────────────────────────────────────────┘
 
 ##
 ## What does `%*` mean?
@@ -1472,19 +1472,19 @@ If the qfl doesn't display what you expect, make sure to re-source your script a
 few times before trying to fix it.
 
 
-        $ cat <<'EOF' >/tmp/efm.vim
+    $ cat <<'EOF' >/tmp/efm.vim
 
-        set efm=%f:%s:%m
-        call setqflist([], 'f')
-        cgetexpr ['/tmp/efm.vim:" bar:baz']
-        copen
+    set efm=%f:%s:%m
+    call setqflist([], 'f')
+    cgetexpr ['/tmp/efm.vim:" bar:baz']
+    copen
 
-        " bar baz
-        " bar
-        " foo bar
-        EOF
+    " bar baz
+    " bar
+    " foo bar
+    EOF
 
-        $ vim -S /tmp/efm.vim
+    $ vim -S /tmp/efm.vim
 
 Don't set the  local value of `'efm'`;  the format would be tied  to the current
 buffer which is NOT the set of lines we're going to pass to `:cgetexpr`.
@@ -1493,20 +1493,20 @@ Replace the value assigned to 'efm' with the one you want to test.
 Same thing  for the  compiler's output  lines and  the list  of lines  passed to
 `:cgetexpr`:
 
-        set efm={your value}
-        cgetexpr ['your output lines', ...]
+    set efm={your value}
+    cgetexpr ['your output lines', ...]
 
 ---
 
 Alternative (better suited for multi-lines compiler's outputs):
 
-                         ┌ write the output of a compiler you want to parse
-                         │
-        set mp=cat\ /tmp/log
-        set efm={your value}
-        call setqflist([], 'f')
-        sil make! | redraw!
-        copen
+                     ┌ write the output of a compiler you want to parse
+                     │
+    set mp=cat\ /tmp/log
+    set efm={your value}
+    call setqflist([], 'f')
+    sil make! | redraw!
+    copen
 
 ---
 
