@@ -735,23 +735,68 @@ Instead of relying on `$ git log` to  search when did a line of code appear, and
 why, you could stay in Vim and  make the commit message – introducing the change
 – be printed in a preview (Vim) / popup (Nvim) window.
 
+Alternatively, use `:Gblame` and press O.
+
 ## gitgutter    signify
 
-            A Vim plugin which shows a git diff in the 'gutter' (sign column).
-            It shows whether each line has been added, modified, and where lines have been removed.
+A Vim plugin which shows a git diff in the 'gutter' (sign column).
+It shows whether each  line has been added, modified, and  where lines have been
+removed.
 
-                    https://github.com/airblade/vim-gitgutter
+<https://github.com/airblade/vim-gitgutter>:1466 sloc
 
-                                   1261 sloc
+This article is interesting:
+<https://jakobgm.com/posts/vim/git-integration/>
 
+It  explains that  the plugin  installs key  bindings to  move between  modified
+chunks in a file, which have changed the author workflow for the better.
+In particular,  they claim that  their git history is  much more atomic,  and so
+more useful, because each commit has a clearer purpose:
 
-            Signify (or just Sy) is a quite unobtrusive plugin.
-            It uses signs to indicate added, modified and removed lines based on data of an underlying
-            version control system.
+> Almost all of my commits are now partial commits.
+> My git  history ends  up being  much more  atomic, each  commit having  a clear,
+> singular purpose.
 
-                    https://github.com/mhinz/vim-signify
+> I keep track of remaining work by navigating over remaining code chunks.
+> If I consider a chunk to be completed, I stage it and forget about it.
+> This allows me to easily ignore finished code.
 
-                                    1078 sloc
+> Staging occurs when my cursor is placed on top of the code to be staged.
+> That  way I  know  exactly what  code  goes into  the  staging area,  implicitly
+> enforcing a last-time quality check of the code.
+> No more git add -a or similar blunders  which result in bad code being pushed to
+> a remote repository.
+
+> All my  written content  must now  be version controlled  since this  plugin has
+> become such a crucial part of my mental model of editing text.
+> My work is therefore  mostly backed up to GitHub, while  giving me the necessary
+> tools to revert changes, and so on.
+
+> It is much easier to do “non-linear” experimentation.
+> What  I mean  with this  is that  it enables  you to  safely edit  some code  at
+> location A, then  make some permanent changes over at  B, and finally completely
+> reverse the first change at A without altering location B.
+> This detaches  your changes from  the concept of  time and rather  associates it
+> with source code location instead, which I think is much more useful as a mental
+> model for source code changes.
+
+Although, beware, it could make Vim slow:
+<https://www.reddit.com/r/vim/comments/bqtvk8/tightly_integrating_git_into_vim/eo88srq/>
+In that case, try vim-signifiy instead.
+
+Note that I think it shows how important it is to get better at git.
+Are you sometimes concerned by the amount of comments in our code files?
+Those comments should be inside commit messages.
+And when you wonder why a line is  written like it is, you should use `:Gblame`,
+then press `O` to read the commit message.
+
+---
+
+Signify (or just Sy) is a quite unobtrusive plugin.
+It uses signs to indicate added, modified  and removed lines based on data of an
+underlying version control system.
+
+<https://github.com/mhinz/vim-signify>:1078 sloc
 
 ## gitv
 
@@ -1039,6 +1084,11 @@ This plugin makes searching in files easier than ever!
                 Welcome to the vim-lsp wiki!
 
                 Click here to see the list of server registrations for vim-lsp.
+
+
+        https://github.com/iamcco/vim-language-server
+
+                                   42998 sloc
 
 
         https://github.com/prabirshrestha/vim-lsp/wiki/Servers-Python
@@ -1544,21 +1594,26 @@ functionality.
 
                                     40 sloc
 
-## rhubarb
+## rhubarb   merginal
 
-            If fugitive.vim is the Git, rhubarb.vim is the Hub. Here's the full list of features:
+If fugitive.vim is the Git, rhubarb.vim is the Hub. Here's the full list of features:
 
-                Enables :Gbrowse from fugitive.vim to open GitHub URLs.
+Enables :Gbrowse from fugitive.vim to open GitHub URLs.
 
-                Sets up :Git to use hub if installed rather than git.
+Sets up :Git to use hub if installed rather than git.
 
-                In  commit   messages,  GitHub  issues,   issue  URLs,  and  collaborators   can  be
-                omni-completed (<C-X><C-O>, see :help compl-omni). This makes inserting those Closes
-                #123 remarks slightly easier than copying and pasting from the browser.
+In  commit  messages,  GitHub  issues,  issue URLs,  and  collaborators  can  be
+omni-completed (<C-X><C-O>, see :help compl-omni).
+This makes  inserting those `Closes  #123` remarks slightly easier  than copying
+and pasting from the browser.
 
-            https://github.com/tpope/vim-rhubarb
+<https://github.com/tpope/vim-rhubarb>:247 sloc
 
-                                    247 sloc
+---
+
+Fugitive extension to manage and merge Git branches
+
+<https://github.com/idanarye/vim-merginal>:1201 sloc
 
 ## scratch
 

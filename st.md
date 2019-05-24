@@ -192,15 +192,21 @@ See: <https://stackoverflow.com/questions/17445100/getting-back-old-copy-paste-b
 
 ## I'm trying to preview an image.  It constantly gets erased!
 
-Yeah, I know.
-The image often [disappears][3] when you move to another file then come back.
+So, your issue is that the image  often [disappears][3] when you move to another
+file then come back.
 
-You could try to [increase the value of `st.xfps`][4] to 300 or higher.
-But last time I tried, it didn't help.
+Solution: use [ueberzug][4] instead of w3mimgdisplay to preview an image:
 
-I don't have a proper fix for now.
-In the meantime you can press `C-l`,  maintain the key pressed for a short time,
-then release `l` (but maintain `Ctrl`).
+    $ python3 -m pip install --user ueberzug
+    $ sed -ibak '/set\s\+preview_images_method/s/.*/set preview_images_method ueberzug/' ~/.config/ranger/rc.conf
+
+---
+
+Alternatively, you  could try to [increase the value of `st.xfps`][5]  to 300 or
+higher; but last time I tried, it didn't help.
+
+You  can also  press `C-l`,  maintain the  key pressed  for a  short time,  then
+release `l` (but maintain `Ctrl`).
 The image should be redrawn.
 But for some  reason, as soon as  you release `Ctrl`, the image  is erased again
 (because of xcape which sends an Escape?).
@@ -283,7 +289,7 @@ color is not properly restored.
 We don't really need this, but maybe it could be useful in the future.
 
 See `~/.config/st/patches/99_osc_12.diff` for inspiration.
-And this [reddit thread][5].
+And this [reddit thread][6].
 
 Once  you've implemented  it, update  your tmux.conf  to set  the `Cr`  terminfo
 extension *un*conditionally:
@@ -364,11 +370,21 @@ You may, yet again, change your mind:
 Also, if you write a script to install st, make sure it runs `$ make clean`.
 <https://github.com/tmux/tmux/issues/1264#issuecomment-397909842>
 
+## join the irc `#suckless` channel
+
+It would be useful to gather some useful tips/information organically over time.
+
+<https://suckless.org/community/>
+<https://www.oftc.net/>
+
+This requires that you register your nick on the OFTC network.
+
 ##
 # Reference
 
 [1]: https://terminal.sexy/
 [2]: https://github.com/dcat/st-xresources/issues/3#issue-394957047
 [3]: https://github.com/ranger/ranger/issues/856
-[4]: https://github.com/ranger/ranger/issues/759#issuecomment-276355995
-[5]: https://www.reddit.com/r/unix/comments/8tjcen/how_to_change_the_color_of_the_vim_cursor_in_st/e197b3t/
+[4]: https://github.com/seebye/ueberzug
+[5]: https://github.com/ranger/ranger/issues/759#issuecomment-276355995
+[6]: https://www.reddit.com/r/unix/comments/8tjcen/how_to_change_the_color_of_the_vim_cursor_in_st/e197b3t/

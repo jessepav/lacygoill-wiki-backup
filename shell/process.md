@@ -40,6 +40,9 @@ Ici, le 1er caractère est un pipe.
 Ça indique  au kernel qu'il ne  doit pas écrire  le “core dump“ dans  un fichier
 mais sur l'entrée standard du programme `apport`.
 
+On peut aussi accéder à ce paramètre via `$ sysctl kernel.core_pattern`.
+Et on peut aussi – sans doute – le modifier en passant `-w` à `$ sysctl`.
+
 ---
 
 Les items  `%` sont des  spécificateurs automatiquement remplacés  par certaines
@@ -1050,13 +1053,13 @@ By default, SIGTSTP makes processes stop, and control is returned to the shell.
 ##
 ## Which signals can I use to suspend a job?  What's the difference between them?
 
-        ┌──────────┬───────────────┐
-        │ name     │ kill argument │
-        ├──────────┼───────────────┤
-        │ SIGTSTP  │ -TSTP         │  * Typing SToPped
-        ├──────────┼───────────────┤
-        │ SIGTSTOP │ -STOP         │
-        └──────────┴───────────────┘
+    ┌──────────┬───────────────┐
+    │ name     │ kill argument │
+    ├──────────┼───────────────┤
+    │ SIGTSTP  │ -TSTP         │  * Typing SToPped
+    ├──────────┼───────────────┤
+    │ SIGTSTOP │ -STOP         │
+    └──────────┴───────────────┘
 
 SIGTSTP allows the process  to suspend gracefully (i.e. it can  use some time to
 organize itself), and can be caught or ignored.
@@ -1066,11 +1069,11 @@ leave the process in an unstable state.
 
 ## Which signal can I use to resume a suspended job in the background?
 
-        ┌─────────┬───────────────┐
-        │ name    │ kill argument │
-        ├─────────┼───────────────┤
-        │ SIGCONT │ -CONT         │
-        └─────────┴───────────────┘
+    ┌─────────┬───────────────┐
+    │ name    │ kill argument │
+    ├─────────┼───────────────┤
+    │ SIGCONT │ -CONT         │
+    └─────────┴───────────────┘
 
 ##
 ## How to get the list of all possible signal names?

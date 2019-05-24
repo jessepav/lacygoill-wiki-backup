@@ -257,7 +257,7 @@ If you've compiled it from source, make sure you've used the
 
 Like any other package:
 
-        $ python[3] -m pip install --upgrade --user pip
+    $ python[3] -m pip install --upgrade --user pip
 
 ##
 ## How to list all the python interpreters installed on my machine?
@@ -359,8 +359,7 @@ The output contains:
 ---
 
 Also, look here:
-
-        https://docs.python.org/2/installing/#work-with-multiple-versions-of-python-installed-in-parallel
+<https://docs.python.org/2/installing/#work-with-multiple-versions-of-python-installed-in-parallel>
 
 ##
 # Documentation
@@ -378,10 +377,33 @@ the issue comes from.
 
 Example:
 
-        $ python3 -m pip -vvv install --user requests
-                         ^^^^
+    $ python3 -m pip -vvv install --user requests
+                     ^^^^
+
+---
+
+If you can't install anything with pip, try updating it.
+If you can't even update pip, then try  to install a newer version of the python
+3 interpreter.
+If  you configure  it with  `--with-ensurepip=install`, it  will also  install a
+newer version of the pip package manager.
+
+---
+
+As a last resort, try to use pip via a proxy:
+
+    $ https_proxy=<IP Address>:<Port> python3 -m pip install --user <package>
+
+See here for more info: <https://stackoverflow.com/a/19962913/9780968>
+And here for a list of proxies: <https://www.us-proxy.org/>
+Make sure to choose a proxy supporting http*s*.
 
 ## Why shouldn't I use `$ sudo pip`?
 
-        https://github.com/zchee/deoplete-jedi/wiki/Setting-up-Python-for-Neovim#why-you-shouldnt-use-sudo
+<https://github.com/zchee/deoplete-jedi/wiki/Setting-up-Python-for-Neovim#why-you-shouldnt-use-sudo>
+
+# Todo
+
+Never use print for debugging again:
+<https://github.com/cool-RR/PySnooper>
 

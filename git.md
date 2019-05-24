@@ -1953,6 +1953,17 @@ références peuvent être déplacées librement.
 ##
 # Todo
 
+Read this glossary: <https://gitirc.eu/gitglossary.html>
+This comes from a site associated to the `#git` irc channel on freenode.
+Check out the site for other possible interesting links.
+
+Also, atm, the channel has a public logfile for each day:
+<https://colabti.org/irclogger/irclogger_logs/git>
+So, if you get disconnected, and want to check what you missed when you come back, visit:
+<https://gitirc.eu/log>
+
+---
+
 Learn how to use `git-jump`.
 Read `~/bin/README.md`.
 

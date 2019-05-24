@@ -294,8 +294,8 @@ Install gawk shared library:
 
     $ sudo checkinstall
 
-Name it  `libgawkextlib`, and use  the `README` for  the summary the  version is
-given in `configure.ac` (look for the line `AC_INIT`).
+Name it `libgawkextlib`, and use the `README` for the summary.
+The version is given in `configure.ac` (look for the line `AC_INIT`).
 
 ---
 
@@ -384,6 +384,15 @@ Similarly install other library extensions in `gawkextlib/`.
 For more info, see:
 
     $ man 3am [abort|csv|...]
+
+---
+
+Also, document how to install and use this library:
+<https://github.com/e36freak/awk-libs>
+
+I found it in the topic of the #awk channel on freenode.
+Btw, have  a look  at the other  links of  the topic; some  of them  may contain
+useful information.
 
 # ?
 

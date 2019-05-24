@@ -36,7 +36,7 @@ Selon la théorie du cerveau triunique, on peut décomposer le cerveau en 3 part
     │                   │               │ comportements instinctifs (survie):            │
     │                   │               │ réponse combat-fuite                           │
     ├───────────────────┼───────────────┼────────────────────────────────────────────────┤
-    │ cerveau limbique  │               │ régule les systèmes immunitaire et hormonal    │                                          │
+    │ cerveau limbique  │               │ régule les systèmes immunitaire et hormonal    │
     │                   │               │        la sexualité                            │
     │                   │               │        l'humeur                                │
     │                   │               │        les sentiments et émotions              │
@@ -358,7 +358,7 @@ Example of answers:
 
    3. the filetype has not been set yet
 
-## Something new and weird doesn't always have an issue
+## weird is relative
 
 When you find sth new which seems weird, and you suspect there's a bug, consider
 the possibility that  this new thing is not  weird; it may be the  old thing, to
@@ -450,12 +450,10 @@ règles de base.
 # Concentration
 
 Principe de Pareto:
-
-    https://fr.wikipedia.org/wiki/Principe_de_Pareto
+<https://fr.wikipedia.org/wiki/Principe_de_Pareto>
 
 Mode concentré vs mode diffus:
-
-    http://www.internetactu.net/2015/09/08/apprendre-a-apprendre-14-deux-modes-dapprentissage/
+<http://www.internetactu.net/2015/09/08/apprendre-a-apprendre-14-deux-modes-dapprentissage/>
 
 # Astuces
 
@@ -528,13 +526,9 @@ informations, pas forcément au même endroit.
 C'est peut-être aussi dû au fait que l'information est encore trop complexe pour
 être assimilé, il nous manque des notions importantes.
 
-Condenser  l'information est  utile  pour  retrouver +  rapidement  ce qui  nous
+Condenser l'information  est utile  pour retrouver plus  rapidement ce  qui nous
 intéresse (temps d'accès),  et aussi pour créer des cartes  Anki (qui ont besoin
 de questions / réponses courtes).
-
-    Couleurs
-
-commandes en bleu sortie / résultat des commandes en vert ...
 
 # J'apprends si ...
 

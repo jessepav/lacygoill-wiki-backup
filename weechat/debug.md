@@ -11,12 +11,11 @@ WeeChat home directory and deletes it on exit.
 
 Before going further, try to reproduce the crash with no scripts:
 
-        /script list
-        /script unload <script> ...
+    /script list
+    /script unload <script> ...
 
 If you find out that the crash is due to a script, report it here:
-
-        https://github.com/weechat/scripts/issues
+<https://github.com/weechat/scripts/issues>
 
 ---
 
@@ -25,17 +24,17 @@ Inside  the  shell working  directory,  the  OS has  created  a  file `core`  or
 
 Execute:
 
-        $ gdb /usr/bin/weechat /path/to/core_file
+    $ gdb /usr/bin/weechat /path/to/core_file
 
 Then under `$ gdb`, execute the following commands:
 
-        # write the output of the next commands in a file
-        (gdb) set logging on
+    # write the output of the next commands in a file
+    (gdb) set logging on
 
-        # display a backtrace
-        (gdb) bt full
+    # display a backtrace
+    (gdb) bt full
 
-        (gdb) quit
+    (gdb) quit
 
 The output of these commands should look like this:
 
@@ -69,23 +68,22 @@ You must report the contents of `gdb.txt`  to the developers, and tell them what
 action caused the crash.
 
 To write your report, follow the instructions here:
-
-        https://github.com/weechat/weechat/blob/master/Contributing.adoc
+<https://github.com/weechat/weechat/blob/master/Contributing.adoc>
 
 # How to debug a running WeeChat?
 
-        $ gdb /usr/bin/weechat 12345
-                               │
-                               └ pid of WeeChat
+    $ gdb /usr/bin/weechat 12345
+                           │
+                           └ pid of WeeChat
 
 Then like for a crash, use the gdb command `bt full`:
 
-        (gdb) bt full
+    (gdb) bt full
 
 # How to do a binary search in the config files, to find a problematic line, without affecting the current config?
 
-        $ cp -R ~/.config/weechat/ /tmp/.weechat
-        $ weechat --dir /tmp/.weechat/
+    $ cp -R ~/.config/weechat/ /tmp/.weechat
+    $ weechat --dir /tmp/.weechat/
 
 Now, you  can edit the  files in `/tmp/.weechat/` as  you like; it  won't affect
 your config in `~/.config/weechat/`.

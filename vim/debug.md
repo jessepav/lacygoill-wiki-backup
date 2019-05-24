@@ -401,6 +401,11 @@ Use sparingly, i.e. only when really needed.
    4. use the script / invoke the function to use the functionality you want to profile
    5. quit/restart Vim
 
+---
+
+Yes, you need to source the scripts/functions unless they haven't been sourced yet.
+I.e. you can skip step 3 iff the scripts/functions haven't been sourced before `:prof`.
+
 ### How to set the location of the profile?
 
     :prof start /tmp/profile.log
@@ -443,10 +448,10 @@ If you want to include the commands inside functions, you must use a bang:
 
 ### What's the difference between `--cmd` and `-c`/`+`?
 
-    - `--cmd` execute a command BEFORE the vimrc is sourced.
+   - `--cmd` execute a command BEFORE the vimrc is sourced.
 
-    - `-c`    execute a command AFTER the first file is read
-              which includes its autocmds and its modelines
+   - `-c`    execute a command AFTER the first file is read
+           which includes its autocmds and its modelines
 
 `+` is a synonym of `-c`.
 
@@ -1015,7 +1020,7 @@ there are various things that may clobber the results:
 #
 #
 #
-# TODO
+# Todo
 
 <https://www.dannyadam.com/blog/2019/05/debugging-in-vim/>
 

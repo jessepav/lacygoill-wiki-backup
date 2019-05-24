@@ -1,97 +1,97 @@
 # How to bind the keyword 'foo' to the urls of irc servers?
 
-        /server add foo <url>[,...]
+    /server add foo <url>[,...]
 
 # How to set a boolean option, such as 'ssl', local to a server?   (2)
 
-        /set irc.server.freenode.ssl
-        /server add chat.freenode.net -ssl
+    /set irc.server.freenode.ssl
+    /server add chat.freenode.net -ssl
 
 # How to set a non-boolean option (i.e. 'autojoin') local to a server?   (2)
 
-        /set irc.server.freenode.autojoin "#foo,#bar,#baz"
-        /server add chat.freenode.net -autojoin=#foo,#bar,#baz
+    /set irc.server.freenode.autojoin "#foo,#bar,#baz"
+    /server add chat.freenode.net -autojoin=#foo,#bar,#baz
 
 # How to connect to the network bound to the keyword 'foo' on port 1234?
 
-        /connect foo/1234
+    /connect foo/1234
 
 # How to automatically connect to the network 'foo' when I start WeeChat?
 
-        /set irc.server.foo.autoconnect on
+    /set irc.server.foo.autoconnect on
 
 # How to automatically join `#bar` and `#baz` when I connect to the network 'foo'?
 
-        /set irc.server.foo.autojoin "#bar,#baz"
+    /set irc.server.foo.autojoin "#bar,#baz"
 
 # How to remove the network 'foo' from the list of known networks?
 
-        /server del foo
+    /server del foo
 
 # How to duplicate the network 'freenode' as 'freenode-test'?
 
-        /server copy freenode freenode-test
+    /server copy freenode freenode-test
 
 # How to rename the network 'freenode-test' into 'freenode2'?
 
-        /server rename freenode-test freenode2
+    /server rename freenode-test freenode2
 
 ##
 # What happens when I add the network 'abjects' to the list of known networks?
 
 When you do:
 
-        /server add abjects irc.eu.abjects.net
+    /server add abjects irc.eu.abjects.net
 
 WeeChat creates 41 new options:
 
-        abjects.addresses = "irc.eu.abjects.net"
-        abjects.proxy
-        abjects.ipv6
-        abjects.ssl
-        abjects.ssl_cert
-        abjects.ssl_priorities
-        abjects.ssl_dhkey_size
-        abjects.ssl_fingerprint
-        abjects.ssl_verify
-        abjects.password
-        abjects.capabilities
-        abjects.sasl_mechanism
-        abjects.sasl_username
-        abjects.sasl_password
-        abjects.sasl_key
-        abjects.sasl_timeout
-        abjects.sasl_fail
-        abjects.autoconnect
-        abjects.autoreconnect
-        abjects.autoreconnect_delay
-        abjects.nicks
-        abjects.nicks_alternate
-        abjects.username
-        abjects.realname
-        abjects.local_hostname
-        abjects.usermode
-        abjects.command
-        abjects.command_delay
-        abjects.autojoin
-        abjects.autorejoin
-        abjects.autorejoin_delay
-        abjects.connection_timeout
-        abjects.anti_flood_prio_high
-        abjects.anti_flood_prio_low
-        abjects.away_check
-        abjects.away_check_max_nicks
-        abjects.msg_kick
-        abjects.msg_part
-        abjects.msg_quit
-        abjects.notify
-        abjects.split_msg_max_length
+    abjects.addresses = "irc.eu.abjects.net"
+    abjects.proxy
+    abjects.ipv6
+    abjects.ssl
+    abjects.ssl_cert
+    abjects.ssl_priorities
+    abjects.ssl_dhkey_size
+    abjects.ssl_fingerprint
+    abjects.ssl_verify
+    abjects.password
+    abjects.capabilities
+    abjects.sasl_mechanism
+    abjects.sasl_username
+    abjects.sasl_password
+    abjects.sasl_key
+    abjects.sasl_timeout
+    abjects.sasl_fail
+    abjects.autoconnect
+    abjects.autoreconnect
+    abjects.autoreconnect_delay
+    abjects.nicks
+    abjects.nicks_alternate
+    abjects.username
+    abjects.realname
+    abjects.local_hostname
+    abjects.usermode
+    abjects.command
+    abjects.command_delay
+    abjects.autojoin
+    abjects.autorejoin
+    abjects.autorejoin_delay
+    abjects.connection_timeout
+    abjects.anti_flood_prio_high
+    abjects.anti_flood_prio_low
+    abjects.away_check
+    abjects.away_check_max_nicks
+    abjects.msg_kick
+    abjects.msg_part
+    abjects.msg_quit
+    abjects.notify
+    abjects.split_msg_max_length
 
 Their names are all prefixed by `irc.server.`.
 
 # How to reset the values of all the options local the network 'abjects'?
 
-        /unset -mask irc.server.abjects.*
+    /unset -mask irc.server.abjects.*
 
 Note that WeeChat doesn't remove them.
 They're made empty, but they still exist.
@@ -99,33 +99,33 @@ They're made empty, but they still exist.
 ##
 # How to change the url(s) of the server(s) connecting to the network 'abjects'?
 
-        /set irc.server.abjects.addresses "my.new.url[,...]"
+    /set irc.server.abjects.addresses "my.new.url[,...]"
 
 # How to change the list of nicks for the network 'abjects'?
 
-        /set irc.server.abjects.nicks "my,new,nicks"
+    /set irc.server.abjects.nicks "my,new,nicks"
 
 ##
 # How to list all known networks to which I can connect?
 
-        /server [list]
+    /server [list]
 
 # Assuming the list is “criten,abjects,freenode”, how to reorder it into “freenode,abjects,criten”?
 
 Use the `reorder` subcommand:
 
-        /server reorder freenode,abjects,criten
-                ^^^^^^^
+    /server reorder freenode,abjects,criten
+            ^^^^^^^
 
 # How to print all the values of the options local to the freenode network, in the core buffer?
 
-        /server listfull freenode
+    /server listfull freenode
 
 ---
 
 You could also execute:
 
-        /set irc.server.freenode.*
+    /set irc.server.freenode.*
 
 But it would open a new `fset` buffer.
 
@@ -135,19 +135,19 @@ Con: more verbose
 ##
 # How to focus the buffer of the current network?
 
-        /server jump
+    /server jump
 
 ##
 # How to get statistics about the size of the IRC network?
 
-        /lusers
+    /lusers
 
 # Why is it better to use the canonical name of an IRC server (i.e. `chat.freenode.net`), rather than its IP address?
 
 IP addresses can change without notice:
 
-        - the administrator running the server may decide to use a different machine
-        - the route through which it connects to the rest of the Internet may change
+   - the administrator running the server may decide to use a different machine
+   - the route through which it connects to the rest of the Internet may change
 
 ##
 # Issues
@@ -202,39 +202,38 @@ responding.
 
 The cause may be:
 
-        - a slow network connection
+   - a slow network connection
 
-        - a heavy load on the server machine
-          (which delays the PING on its way to you)
+   - a heavy load on the server machine
+     (which delays the PING on its way to you)
 
-        - a heavy load on your machine
-          (which prevents the reply from reaching the server before the timeout)
+    - a heavy load on your machine
+     (which prevents the reply from reaching the server before the timeout)
 
 ---
 
 Install the package `inetutils-traceroute`, then use the `$ traceroute6` command
 to diagnose the connection between your machine and the server:
 
-        $ traceroute6 chat.freenode.net
+    $ traceroute6 chat.freenode.net
 
 ## The connection fails with the message “timeout”!
 
 Try to connect using only telnet.
 
-        $ telnet chat.freenode.net 6667
+    $ telnet chat.freenode.net 6667
 
 You should see something like:
 
-        :leguin.freenode.net NOTICE * :*** Looking up your hostname...
-        :leguin.freenode.net NOTICE * :*** Checking Ident
-        :leguin.freenode.net NOTICE * :*** Couldn't look up your hostname
+    :leguin.freenode.net NOTICE * :*** Looking up your hostname...~
+    :leguin.freenode.net NOTICE * :*** Checking Ident~
+    :leguin.freenode.net NOTICE * :*** Couldn't look up your hostname~
 
 If that's not the case, weechat is not the issue.
 The irc server is unavailable.
 
 For more info, see:
-
-        https://stackoverflow.com/a/12661281/9780968
+<https://stackoverflow.com/a/12661281/9780968>
 
 ## The connection fails with the message “No more connections” or “Server full”!
 
@@ -319,7 +318,7 @@ canonical host name.
 To check whether your ISP has set up reverse DNS for your IP, execute this shell
 command:
 
-        $ dig +noall +answer -x <your IP>
+    $ dig +noall +answer -x <your IP>
 
 It should contain a hostname.
 If not, ask your ISP to set up reverse DNS for your IP.
@@ -332,7 +331,7 @@ character.
 
 Valid characters for nicknames include the characters in the following set:
 
-        [a-zA-Z0-9\`^-|_[]{}]
+    [a-zA-Z0-9\`^-|_[]{}]
 
 The leading character cannot be a number or dash.
 
@@ -343,9 +342,9 @@ Indeed, IRC is not case-sensitive: so `user` is the same as `UsEr`.
 
 Besides, the following pairs of characters are confused by many servers:
 
-        [ ↔ {
-        ] ↔ }
-        | ↔ \
+    [ ↔ {
+    ] ↔ }
+    | ↔ \
 
 Indeed, IRC  originated in  Scandinavia, and on  a Scandinavian  keyboard, those
 keys correspond to the same keys (with/out the shift modifier).

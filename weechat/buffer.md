@@ -25,3 +25,8 @@ Press `M-1`.
 
         /buffer move 123
 
+##
+# How to make WeeChat scroll so that the first unread line is the first line of the window?
+
+Press `M-u`.
+

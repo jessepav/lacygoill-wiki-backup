@@ -1,53 +1,44 @@
-# To Read
+# How to print some text in italic?
 
-From the less to the most complex:
+Press `C-c i` before the text, and press `C-c o` after it.
 
-        https://weechat.org/files/doc/stable/weechat_quickstart.en.html
-        https://weechat.org/files/doc/stable/weechat_faq.en.html
-        https://guides.fixato.org/setting_up_weechat.html
-        https://github.com/weechat/weechat/wiki
-        https://gist.github.com/pascalpoitras/8406501
+    /this is some C-c i italicized C-c o text
 
-        https://weechat.org/files/doc/stable/weechat_user.en.html
-        https://weechat.org/files/doc/stable/weechat_scripting.en.html
-        https://weechat.org/files/doc/stable/weechat_plugin_api.en.html
-        https://weechat.org/files/doc/stable/weechat_relay_protocol.en.html
-
-Misc:
-
-        https://news.ycombinator.com/item?id=12267254
-        https://aaronparecki.com/2015/08/29/8/why-i-live-in-irc
-        https://botbot.me/how-to-setup-irc-channel/
+You can apply other attributes.
+See here for more info:
+<https://weechat.org/files/doc/stable/weechat_user.en.html#command_line_colors>
 
 ---
 
-Web interface:
+Note that some attributes (which ones?) may not work if the channel has the `+c`
+mode on freenode.
 
-        https://hveem.no/a-modern-IRC-experience
-        https://github.com/glowing-bear/glowing-bear/
+> Strip colour and formatting codes from channel messages.
 
-Pro:
+Source: <https://freenode.net/kb/answer/channelmodes>
 
-        - access weechat from any device with a browser
-        - images, videos, and other content are embedded
+Most channels we visit atm have the `+c` mode, except `#ranger` and `#regex`.
 
 ---
 
-Network-specific rules:
+You can combine attributes:
 
-        https://freenode.net/kb/all
-        https://www.abjects.net/page.php?10
+    /this is some C-c b C-c i bold and italicized C-c o text
 
-# ???
+# How to print the version of my WeeChat in the current channel?
+
+    /v -o
+
+# ?
 
 Configurer un pseudo par défaut.
 
-        /set irc.server_default.nicks        comma,separated,list,of,nicks
-        /set irc.server.[SERVER_NAME].nicks  "
+    /set irc.server_default.nicks        comma,separated,list,of,nicks
+    /set irc.server.[SERVER_NAME].nicks  "
 
 S'identifier automatiquement sur freenode:
 
-        /set irc.server.freenode.command = "/msg NickServ identify {mdp}"
+    /set irc.server.freenode.command = "/msg NickServ identify {mdp}"
 
 C-s C-u         Set unread marker on all windows
 M-a             Next buffer with activity
@@ -106,7 +97,7 @@ Press `M--`.
          use the minus sign on the keypad or the one on the `6` key
 
 ##
-# CONFIGURATION
+# Configuration
 
     /help option    afficher une description de l'option, les valeurs (+le type) qu'elle peut prendre,
                     sa valeur par défaut, et sa valeur actuelle
@@ -146,7 +137,7 @@ iset.pl est un script permettant de modifier la configuration de weechat via une
 
     M-iri       réinitialiser la valeur d'une option
 
-# NICKSERV
+# Nickserv
 
 NickServ permet d'enregistrer un pseudo dans une bdd afin d'empêcher les autres de l'utiliser.
 
@@ -173,7 +164,7 @@ NickServ permet d'enregistrer un pseudo dans une bdd afin d'empêcher les autres
 
             Liste les @ autorisées à utiliser le pseudo courant sans s'authentifier.
 
-# MESSAGES
+# Messages
 
     /buffer clear
 
@@ -207,7 +198,7 @@ NickServ permet d'enregistrer un pseudo dans une bdd afin d'empêcher les autres
 
                     irc.server.foo.realname a la priorité quand on se connecte au serveur foo
 
-# MODES
+# Modes
 
     /mode #chan
     /mode <my nick>
@@ -223,7 +214,7 @@ NickServ permet d'enregistrer un pseudo dans une bdd afin d'empêcher les autres
             Mode invisible = seule une personne connaissant notre pseudo ou présente sur le même chan
             peut nous voir avec un /who.
 
-# FILTRAGE
+# Filtrage
 
     C-r foo
 
@@ -320,14 +311,14 @@ NickServ permet d'enregistrer un pseudo dans une bdd afin d'empêcher les autres
 
         supprime myfilter ou tous les filtres
 
-# NAVIGATION
+# Navigation
 
     [alt + ] pgup / pgdown          scroll vertical du texte par lot de [3] 20 lignes
 
     alt + flèches              naviguer entre les différentes fenêtres (serveurs, canaux, ...)
     alf + <n>               se rendre à la fenêtre <n> (ne pas taper <n> via le pavé numérique)
 
-# LAYOUT
+# Layout
 
     /window splitv                      diviser la fenêtre verticalement
     /window splith                      idem mais horizontalement
@@ -340,7 +331,7 @@ NickServ permet d'enregistrer un pseudo dans une bdd afin d'empêcher les autres
 
     weechat.bar.nicklist.size           option définissant la largeur (en nb de caractères) de la barre des pseudos
 
-# SCRIPT
+# Script
 
 script est un plugin intégré à weechat permettant de gérer ses scripts via la commande /script.
 
@@ -379,7 +370,7 @@ Les noms des scripts peuvent être précédés d'un ou plusieurs flags (statuts)
 
     /foo                lance le script foo
 
-# BUFFERS.PL
+# Buffers.pl
 
 This script is deprecated.
 It has been merged as the `buflist` plugin:
@@ -404,7 +395,7 @@ vim ~/.config/weechat/buffers.conf
     number_char         couleur du point séparant l'index du nom des fenêtres
 
 ##
-# TODO
+# Todo
 ## Should we restore those default key bindings?   (which I've removed)
 
 4 key bindings added or redefined for context "default":
@@ -432,4 +423,44 @@ vim ~/.config/weechat/buffers.conf
         @item(buflist2):button2* => hsignal:buflist_mouse
         @item(buflist3):button1* => hsignal:buflist_mouse
         @item(buflist3):button2* => hsignal:buflist_mouse
+
+## To Read
+
+From the less to the most complex:
+
+<https://weechat.org/files/doc/stable/weechat_quickstart.en.html>
+<https://weechat.org/files/doc/stable/weechat_faq.en.html>
+<https://guides.fixato.org/setting_up_weechat.html>
+<https://github.com/weechat/weechat/wiki>
+<https://gist.github.com/pascalpoitras/8406501>
+
+<https://weechat.org/files/doc/stable/weechat_user.en.html>
+<https://weechat.org/files/doc/stable/weechat_scripting.en.html>
+<https://weechat.org/files/doc/stable/weechat_plugin_api.en.html>
+<https://weechat.org/files/doc/stable/weechat_relay_protocol.en.html>
+
+Misc:
+
+<https://news.ycombinator.com/item?id=12267254>
+<https://aaronparecki.com/2015/08/29/8/why-i-live-in-irc>
+<https://botbot.me/how-to-setup-irc-channel/>
+
+---
+
+Web interface:
+
+<https://hveem.no/a-modern-IRC-experience>
+<https://github.com/glowing-bear/glowing-bear/>
+
+Pro:
+
+   - access weechat from any device with a browser
+   - images, videos, and other content are embedded
+
+---
+
+Network-specific rules:
+
+<https://freenode.net/kb/all>
+<https://www.abjects.net/page.php?10>
 

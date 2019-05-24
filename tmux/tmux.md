@@ -1,20 +1,3 @@
-# ?
-
-Document the fact that when you detach  from a tmux session, you should quit all
-Vim instances.
-First, it  doesn't make  sense to  leave an  interactive program  running, while
-you're absent (it needs interaction from your part).
-Second, our  vim-term plugin  may make  Vim send escape  sequences that  the new
-terminal from which we'll re-attach will not understand.
-
-Also, when you re-attach, you should make sure to start Vim from a new shell, so
-that tmux has a  chance to correctly set `$COLORTERM`; we rely  on the latter to
-detect xfce4-terminal in vim-term.
-If you start from the same shell, `$COLORTERM` is wrong, and Vim sends sequences
-which it shouldn't send, then quit Vim, and close the current shell; you need to
-start a new one, otherwise the terminal would periodically keep printing
-`Esc [ 2 SPC q` (btw, is this a bug?).
-
 # How can I make the difference between a tmux server and a tmux client in the output of `$ ps`?
 
 Look at the process state codes.
@@ -124,185 +107,6 @@ The option is toggled between on and off.
 
     $ tmux set-option -g mouse && tmux show-options -g mouse
     mouse on~
-
-##
-# Environment
-## What does the value of `$TMUX` mean (e.g. `/tmp/tmux-1000/default,31058,2`)?
-
-    /tmp/tmux-1000/default,31058,2
-    ├────────────────────┘ ├───┘ │
-    │                      │     └ the server handles 3 sessions (2+1)
-    │                      └ pid of the tmux server
-    └ path to the server socket
-
-##
-## What are the global environment of the tmux server, and the environment local to a tmux session?
-
-Two sets of  environment variables which will be passed  to each process started
-by the tmux server (which is typically a shell, but not necessarily).
-
-### How are they initialized?
-
-For the global environment, tmux copies  the environment of the shell from where
-it's started.
-
-For  the local  environment,  tmux copies  the variables  listed  in the  option
-`'update-environment'`, with  the values they  had in  the shell from  which the
-tmux client was started.
-
-### How to read what they currently contain?
-
-For the global environment:
-
-    $ tmux show-options -g
-
-For the local environment:
-
-    $ tmux show-options
-
-#### In the local environment of my session, some variables are prefixed with a minus sign.  What does it mean?
-
-It means that tmux will remove the variables from the environment of any process
-it will start in this session.
-
-##### When does tmux prefix a variable with such a sign?
-
-When it's  listed in  `'update-environment'`, but  is absent  in the  shell from
-which the tmux client was started.
-
-###
-### ?
-
-How to add an environment variable into it?
-
-    $ tmux set-environment -g VAR value
-
-Example:
-
-    $ tmux set-environment -g REPORTTIME 123
-
----
-
-How to remove it or unset it afterwards?
-
-    $ tmux set-environment -gr VAR value
-    $ tmux set-environment -gu VAR value
-
----
-
-What's the difference between the two?
-
-From `~/GitRepos/tmux/doc-pak/CHANGES`:
-
-> * New flag to set and setw, -u, to unset an option (allowing it to inherit from)
->   the global options again.
-
-This excerpt doesn't apply to `set-environment` but to `set-option`.
-However, it may still be relevant.
-Maybe `-u`  allows you to  remove a variable  in the session  environment, which
-allows the value of the variable in the global environment to win.
-While `-r` would ... ?
-
-Make some tests.
-
----
-
-To see a difference between `-r` and `-gr`, watch this:
-
-    # start new terminal
-    $ export foo=bar
-    $ tmux -Ltest new
-    $ tmux setenv -r foo
-    $ tmux splitw
-    $ echo $foo
-    ''~
-    $ S=$(tmux new-session -d -P) && tmux switch-client -t $S
-    $ echo $foo
-    bar~
-
-    # start new terminal
-    $ export foo=bar
-    $ tmux -Ltest new
-    $ tmux setenv -gr foo
-    $ tmux splitw
-    $ echo $foo
-    ''~
-    S=$(tmux new-session -d -P) && tmux switch-client -t $S
-    $ echo $foo
-    ''~
-
----
-
-Notice that there're 2 groups of variables:
-
-   - the ones which are set in a file sourced by the program you ask tmux to start (e.g. `~/.zshenv`)
-   - the ones which are not set such files
-
-The first group is unaffected by `setenv  [-g] -{u|r}`, because – I think – tmux
-initializes the  environment of  the process  you ask it  to start  *before* the
-latter reads its init file(s), so whatever `$ tmux setenv` does is undone.
-
-Among the latter group, there're 3 subgroups.
-The ones which are in both (e.g. `DISPLAY`, `SSH_AUTH_SOCK`, `WINDOWID`, `XAUTHORITY`).
-The ones which are *not* in the environment local to the session, and *are* in tmux global environment (e.g. `XDG_VTNR`).
-The ones which are in the environment local to the session, and not in tmux global environment (e.g. `KRB5CCNAME`).
-
-    # no effect
-    $ tmux setenv {-u|-gu|-gr} WINDOWID
-
-
-    # no effect
-    $ tmux setenv -u  XDG_VTNR
-
-    # unset in all shells
-    $ tmux setenv -g{u|r} XDG_VTNR
-
-
-    # unset in all shells of the current session
-    $ tmux setenv -gu SSH_AUTH_SOCK \; setenv -u  SSH_AUTH_SOCK
-
-    # no effect
-    $ tmux setenv -gu SSH_AUTH_SOCK \; setenv -g{u|r} SSH_AUTH_SOCK
-
-`setenv -r` unsets  the variable, for all future shells  in the current session,
-no matter the group to which the variable belongs.
-
----
-
-The  global environment  is copied  from the  shell where  you started  the tmux
-server initially.
-
-The local environment is defined by the value of the `update-environment` option.
-If you want to set the local environment for the current session only, run:
-
-    $ tmux set-option update-environment ...
-
-If you want to set the local environment for all sessions, run:
-
-    $ tmux set-option -g update-environment ...
-                      ^^
-
-Don't be confused by the semantics of `-g` here.
-It doesn't mean that you set the global environment of tmux.
-`update-environment` only sets the environment local to a session.
-`-g` means that you set it for *all* sessions; not just the current one.
-
----
-
-     When the server is started, tmux copies the environment into the global
-     environment; in addition, each session has a session environment.
-     When  a window  is created,  the  session and  global environments  are
-     merged.
-     If a variable exists in both, the value from the session environment is
-     used.
-     The result is the initial environment passed to the new process.
-
-     The update-environment session option may be used to update the session
-     environment from  the client when  a new session  is created or  an old
-     reattached.
-     tmux also initialises the TMUX  variable with some internal information
-     to allow  commands to be  executed from  inside, and the  TERM variable
-     with the correct terminal setting of ‘screen’.
 
 ##
 # Buffers
@@ -488,18 +292,18 @@ First, one for the client:
 
 Both (chain of) processes are started by:
 
-    - the init process in console:
+   - the init process in console:
 
-            systemd
+        systemd
 
-    - the display manager in X:
+   - the display manager in X:
 
-            systemd───lightdm───lightdm───upstart
+        systemd───lightdm───lightdm───upstart
 
 You can check this with the following commands:
 
-    pstree -ps $(pidof tmux|cut -d' ' -f1)
-    pstree -ps $(pidof tmux|cut -d' ' -f2)
+    $ pstree -ps $(pidof tmux|cut -d' ' -f1)
+    $ pstree -ps $(pidof tmux|cut -d' ' -f2)
 
 Note that the  server is started after  the first client, so its  pid is bigger,
 which may seem counter-intuitive.
@@ -510,8 +314,8 @@ You won't find both of them listed in the output of the same `$ pstree` command.
 They communicate via a socket, which by default is called `default`.
 The latter is created in the directory `tmux-{UID}` inside:
 
-    - $TMUX_TMPDIR if the latter set
-    - /tmp otherwise
+   - $TMUX_TMPDIR if the latter set
+   - /tmp otherwise
 
 
 
@@ -1470,38 +1274,6 @@ Les commandes `set-option`, `show-options`, `set-window-option` et `show-window-
             Set status line style. For how to specify style, see the message-command-style option.
 
 
-    update-environment variables
-
-            Configure un ensemble de variables comme devant être copiées dans l'environnement d'une
-            session nouvellement créée, ou préexistante et réattachée (qui viendrait d'où? d'un autre serveur?).
-
-            Les variables doivent être écrites dans une chaîne et séparées par des espaces.
-
-            Si une des variables au sein de la chaîne n'existe pas dans l'environnement global de tmux,
-            au lieu d'être copiée dans l'environnement de la session (impossible dans ce cas),
-            elle est marquée pour être supprimée de l'environnement de la session
-            (à condition qu'elle y existe j'imagine...), à chaque fois qu'on lance un nouveau processus.
-
-            Le résultat est identique à:
-
-                    setenv -r VAR
-
-            ... où $VAR est une variable d'environnement présente au sein de la chaîne 'variables'
-            (elle-même donnée en valeur à l'option `update-environment`), et absente de l'environment
-            global.
-
-
-            Par défaut, la chaîne contient:
-
-                    DISPLAY
-                    SSH_AGENT_PID
-                    SSH_ASKPASS
-                    SSH_AUTH_SOCK
-                    SSH_CONNECTION
-                    WINDOWID
-                    XAUTHORITY
-
-
     visual-activity [on | off]
 
             If on,  display a status  line message when  activity occurs in  a window for  which the
@@ -2248,6 +2020,182 @@ Les liens sont dépourvus de contexte.
             linked.  The -a option kills all but the window given with -t.
 
 ##
+# Debugging
+## When writing a bug report
+### which terminal geometry should I use?
+
+Make sure the terminal has 80 columns, and maybe also 24 lines.
+
+    $ echo $COLUMNS
+    80~
+
+    $ echo $LINES
+    24~
+
+The goal is to reproduce with a “standard” geometry.
+See `:h window-size`:
+
+> If everything fails a default size of 24 lines and 80 columns is assumed.
+
+### why should I reproduce the issue with a binary compiled *without* my custom script?
+
+Your script modifies the tmux version.
+
+When you'll write  your bug report, the log files  may contain information which
+look incompatible with your tmux version.
+
+Besides, nicm  may wrongly think  that you're not using  master, and ask  you to
+reproduce the issue  on master; this kind of  conversation/misunderstanding is a
+waste of time and increases confusion.
+
+#### which related pitfall should I be aware of?
+
+Even if you don't use your script now, you've probably used it recently.
+It has modified `configure.ac` to change the version; so, make sure to run
+`$ git stash` to undo the modifications.
+
+##
+## My backtrace doesn't contain any useful info!
+
+Ok, so you've got sth like this:
+
+    #0  0x0000000000414fe6 in ?? ()
+     No symbol table info available.
+    #1  0x0000000000410787 in ?? ()
+     No symbol table info available.
+    #2  0x0000000000000000 in ?? ()
+     No symbol table info available.
+
+It's probably  because you didn't use  the same tmux binary  when you reproduced
+the crash, and when you run `$ gdb` to extract a backtrace from the core.
+
+Make sure to use the same binary.
+That is, do *not* run that:
+
+    $ ./tmux -Ltest -f/dev/null new
+      ^^^^^^
+
+    $ gdb -n -ex 'thread apply all bt full' -batch tmux core >backtrace.txt
+                                                   ^^^^
+
+In the first command, where you reproduce the crash, you're calling the compiled
+binary in the current directory.
+While  in  the  second  command,   you're  calling  the  installed  tmux  binary
+`/usr/local/bin/tmux`.
+
+Choose one or the other, but don't mix the two.
+
+### It doesn't help!
+
+Do *not* use your custom script to compile tmux:
+
+    # ✘
+    $ sudo ~/bin/upp.sh tmux
+
+Instead, use your zsh snippets (`$ chown`, `$ make`), and `$ git stash`:
+
+    $ sudo chown -R user:user .
+    $ git stash
+    $ make clean; make distclean; sh autogen.sh && ./configure && make
+
+---
+
+Explanation:
+
+Your custom script  modifies the version of the compiled  binary which I suspect
+prevents gdb from working correctly.
+
+    # ✘
+    $ sed -i "/AC_INIT/s/\S\+)/${VERSION})/" configure.ac
+
+You  need  to   run  `$  git  stash`  to  restore   `configure.ac`,  before  the
+modifications  applied by  `$ sed`,  and then  you need  to compile  manually to
+prevent `$ sed` from being recalled.
+
+##
+## Tmux is hanging.  I can't interact with it anymore!
+
+From another terminal, get the pid of the tmux server.
+Or, if you can, run this before reproducing the issue:
+
+    $ tmux display -p '#{pid}'
+
+Then, still from another terminal, run:
+
+             make sure it's the same tmux than the one currently hanging
+             vvvvvvvvvvvvvvvvvvvvv
+    $ gdb -q /path/to/running/tmux PID
+    set logging on
+    bt full
+    quit
+
+The output of `bt full` should be in `gdb.txt`.
+Join it to your bug report.
+
+---
+
+See here to learn more about how to make gdb print to a file instead of stdout:
+<https://stackoverflow.com/a/5941271/9780968>
+
+##
+# Issues
+## Weird sequences are printed on the screen intermittently!
+
+Something  is  probably sending  escape  sequences  (CSI,  OSC, ...)  which  the
+terminal doesn't understand.
+
+It can  happen when  you re-attach to  a running tmux  session from  a different
+terminal than the one where you started it.
+
+For example, atm, we have a Vim plugin – vim-term – which sends `CSI 2 SPC q` to
+the terminal right before exiting.
+And xfce4-terminal, on Ubuntu 16.04, doesn't support this sequence.
+
+Solution: Close the terminal,  and re-attach from another  one which understands
+the sequence.
+
+Alternatively,  make sure  to  close  the program  responsible  for sending  the
+problematic sequence; then close the terminal,  which will kill the tmux client,
+and restart a new one.
+Note that  in the case  of vim-term + xfce4-terminal  + Ubuntu 16.04,  you would
+also need to make sure you start Vim from a new shell, so that tmux has a chance
+to update `$COLORTERM`.
+Indeed, vim-term relies on the latter to detect xfce4-terminal.
+
+---
+
+You can  reproduce an example of  this issue by  running `$ printf '\e[ 2q'` in
+xfce4-terminal on Ubuntu 16.04, and waiting.
+The issue is fixed in more  recent versions of xfce4-terminal; I can't reproduce
+on Ubuntu 18.04 in a VM.
+
+## Tmux is hanging indefinitely after using a process substitution!
+
+So, you've run sth like:
+
+    $ tmux load-buffer <(echo foobar)
+
+Solution: Use `=()` instead of `<()`.
+
+---
+
+Here's what happens.
+
+The shell opens  a file descriptor it  thinks won't be used and  then passes the
+path equivalent of that file descriptor to  the client as an argument, which the
+client then passes to the server.
+
+But that  file descriptor might  already be  in use in  the server, so  when the
+latter opens the fd,  it gets whatever that is, which might  not be suitable for
+reading, so it can block or crash or behaves unexpectedly.
+
+It wouldn't be easy to fix  this issue, without also breaking legitimate devices
+like `/dev/null` or blacklisting some paths (which will depend on the platform).
+
+For more info:
+<https://github.com/tmux/tmux/issues/1755>
+
+##
 # Todo
 ## links to read
 
@@ -2271,6 +2219,10 @@ support for windows larger than visible on the attached client
 
 support for overline (SGR 53)
 <https://github.com/tmux/tmux/commit/1ee944a19def82cb62abf6ab92c17eb30df77a41>
+
+Style to follow when submitting a PR to tmux:
+<https://man.openbsd.org/style.9>
+<https://github.com/tmux/tmux/pull/1743#issuecomment-493450917>
 
 ## here's a way to programmatically get the PID of a process launched by tmux:
 
@@ -2298,15 +2250,6 @@ It's described at `$ man tmux /^\s*new-session [`:
 > all sessions.  The current and previous window and any session
 > options remain independent and any session in a group may be
 > killed without affecting the others.
-
-## making tmux evaluate shell expression at runtime
-
-I don't  know where it's properly  documented but tmux  can assign a value  to a
-variable,  then evaluate  it  at runtime  as a  shell  expression (cf.  `is_vim`
-variable):
-
-<https://github.com/christoomey/vim-tmux-navigator/commit/bb99607c9e2ecff7542ad371b38ceede0cc2e4cd>
-<https://github.com/christoomey/vim-tmux-navigator/issues/44>
 
 ## using `$ strace` to debug tmux
 
@@ -2381,6 +2324,80 @@ And yet, in  practice, `$ tmux attach-session` inside tmux  fails with “sessio
 should be nested with care, unset $TMUX to force”.
 
 What gives?
+
+## double a percent sign when running a shell process for your status line
+
+If you run some shell command for include some info in your status line, e.g.:
+
+    #{?#(cmd1),#(cmd2),}
+
+And if the command contains a percent sign, e.g.:
+
+    $ date +%s
+
+I think you need to double the percent:
+
+    $ date +%%s
+             ^
+
+That's what nicm seemed to suggest once in the #tmux irc channel.
+
+## by default tmux runs a shell process every 15s for the statusline; use `$ sleep` to change that time
+
+    #(while :; do command; sleep 30; done)
+
+In case you wonder why you need a `while` loop, here's nicm's explanation:
+
+> │  guardian │ I'm not sure I undertand why I need to wrap in a while loop
+> │      nicm │ there is no mechanism to make tmux run it at particular times, so you need to run it all
+> │           │ the time and just do your stuff every 30 seconds
+
+---
+
+In  case you  wonder where  the 15s  come from,  it's the  default value  of the
+session option 'status-interval'.
+
+## conditionals `#{?...}`, and similar constructs (`#{||:...}`, `#{m:...}`, ...) can be nested
+
+For example, this will be replaced by 1 if the version of tmux is strictly lower
+than 2.4, 0 otherwise:
+
+    #{||:#{m:[01].*,#{version}},#{m:2.[0123],#{version}}}
+
+<https://github.com/tmux/tmux/issues/1747#issuecomment-494292198>
+
+## prevent some panes from being synchronized
+
+Open the clock in them:
+
+> Not really  the solution,  but any pane  set in a  different mode  (e.g. clock
+> mode, copy mode, showing help) will not respond to key strokes.
+> If you need all but a couple of panes to synchronize, this works pretty well.
+
+<https://stackoverflow.com/questions/12451951/tmux-synchronize-some-but-not-all-panes#comment19620986_12451951>
+
+## syntax of `confirm-before`
+
+It expects a tmux command as last argument (!= shell command):
+
+    $ tmux confirm-before -p "kill-pane #P? (y/n)" kill-pane
+
+and if the command contains several words, you need to quote it:
+
+    $ tmux confirm-before -p "display a message? (y/n)" "display -p 'hello'"
+                                                        ^                  ^
+
+Btw, why does `-p` fail here? `display` should print the message on stdout.
+
+## `respawn-pane` is useful when you have a pane which always runs the same application in the same place
+
+Same thing for `respawn-window`.
+Note that for a pane/window to be respawned, the `remain-on-exit` option needs to be on.
+
+It is  useful, because you  don't have to restore  the geometry, and  because it
+preserve the scrollback buffer.
+
+<https://unix.stackexchange.com/a/512501/289772>
 
 ##
 # Reference

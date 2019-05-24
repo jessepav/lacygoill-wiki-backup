@@ -173,3 +173,10 @@ For more info, see:
           https://superuser.com/a/669674/913143
           https://unix.stackexchange.com/a/271402/289772
 
+##
+# Todo
+
+To read:
+
+> In zsh, how can I dump all configuration?
+<https://unix.stackexchange.com/a/117344/289772>

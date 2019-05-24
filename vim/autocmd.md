@@ -65,12 +65,22 @@ Once per event.
 
 Use a guard.
 
-    unlet! s:one_shot
+    unlet! s:did_shoot
     au Event1,Event2,... * ++once
-        \ if get(s:, 'one_shot', 1)
-        \ |     let s:one_shot = 0
+        \ if !get(s:, 'did_shoot', 0)
+        \ |     let s:did_shoot = 1
         \ |     " do sth just once
         \ | endif
+
+---
+
+Alternatively,  you could  wrap the  autocmd in  an augroup,  and make  it clear
+itself the first time it's fired.
+However, be  aware of  a possible  pitfall: if one  of the  commands run  by the
+autocmd fails,  the rest won't be  processed; this may prevent  the final `:au!`
+command from being run.
+To  avoid this  issue,  you need  to  prefix every  command  before `:au!`  with
+`:silent!`, or use a `:try` conditional to catch possible errors.
 
 ##
 # When several autocmds listen to the same event, in which does Vim run them?
@@ -88,19 +98,19 @@ listening to A.
 
 You must consider 5 autocmds:
 
-        ┌────────────────────────────────────┬──────────────┬──────────────────────────────┐
-        │ installed by                       │ listening to │ action                       │
-        ├────────────────────────────────────┼──────────────┼──────────────────────────────┤
-        │ (1) $VIMRUNTIME/filetype.vim       │ BufReadPost  │ set up 'ft'                  │
-        ├────────────────────────────────────┼──────────────┼──────────────────────────────┤
-        │ (2) $VIMRUNTIME/syntax/syntax.vim  │ FileType     │ set up 'syntax'              │
-        ├────────────────────────────────────┼──────────────┼──────────────────────────────┤
-        │ (3) $VIMRUNTIME/syntax/synload.vim │ Syntax       │ loads syntax highlighting    │
-        ├────────────────────────────────────┼──────────────┼──────────────────────────────┤
-        │ (4) :LogEvents                     │ Syntax       │ log Syntax                   │
-        ├────────────────────────────────────┼──────────────┼──────────────────────────────┤
-        │ (5) :LogEvents                     │ FileType     │ log FileType                 │
-        └────────────────────────────────────┴──────────────┴──────────────────────────────┘
+    ┌────────────────────────────────────┬──────────────┬──────────────────────────────┐
+    │ installed by                       │ listening to │ action                       │
+    ├────────────────────────────────────┼──────────────┼──────────────────────────────┤
+    │ (1) $VIMRUNTIME/filetype.vim       │ BufReadPost  │ set up 'ft'                  │
+    ├────────────────────────────────────┼──────────────┼──────────────────────────────┤
+    │ (2) $VIMRUNTIME/syntax/syntax.vim  │ FileType     │ set up 'syntax'              │
+    ├────────────────────────────────────┼──────────────┼──────────────────────────────┤
+    │ (3) $VIMRUNTIME/syntax/synload.vim │ Syntax       │ loads syntax highlighting    │
+    ├────────────────────────────────────┼──────────────┼──────────────────────────────┤
+    │ (4) :LogEvents                     │ Syntax       │ log Syntax                   │
+    ├────────────────────────────────────┼──────────────┼──────────────────────────────┤
+    │ (5) :LogEvents                     │ FileType     │ log FileType                 │
+    └────────────────────────────────────┴──────────────┴──────────────────────────────┘
 
 When you load a file:
 
@@ -751,7 +761,7 @@ le flag `nested` juste avant la commande de A.  Exemple:
             Vim affiche des messages en temps réel, à chaque fois qu'il exécute une autocmd.
 
 ##
-# TODO
+# Todo
 
 Document that you can use a regular pattern, and not just a file pattern, as the
 pattern of an autocmd.
