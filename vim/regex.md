@@ -1322,6 +1322,26 @@ Morale de l'histoire:    ne jamais mettre de newline dans une capture à laquell
             But their simultaneous highlighting  gives the false impression that
             there's a single match.
 
+            Here's another example; suppose you have this file:
+
+                    $ cat <<'EOF' >/tmp/file
+                    ###
+                    foo
+                    ###
+                    bar
+                    ###
+                    baz
+                    ###
+                    EOF
+
+           And this regex:
+
+                ^###\n.*\n###
+
+           If you look at the highlighting, it really looks like there are only 2 matches.
+           But if you press `n` to jump between all the matches, you'll see that
+           there are 3 of them, not 2.
+
 
     \vfoo.*pat|foo(.*pat)@!.*$
 

@@ -255,6 +255,14 @@ And it doesn't work if you use `meta-ctrl-[A-Z]`
 
 ##
 # Todo
+## we've remapped M-j to `/window scroll_down`; this prevents us from using a whole bunch of default key bindings
+
+Run `/key list`, and search for 'meta-j'.
+Many default key bindings use M-j as a prefix.
+In particular, `M-j 12` lets you jump to the buffer 12.
+Remap all of them, so that they use a different prefix.
+
+## ?
 
 Study the differences between `/set` and `/fset`.
 Whenever we've used  some `/set` commands in our notes,  make sure `/fset` would

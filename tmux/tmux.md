@@ -80,6 +80,20 @@ If you only wrote two backslashes, the shell would reduce them into a single one
 So, the shell would try to run `cmd2` itself.
 
 ##
+# Getting Information
+## How to get the name of the outer terminal?
+
+Use the replacement variable `#{client_termname}`:
+
+    $ tmux display -p '#{client_termname}'
+                    │
+                    └ print output to stdout,
+                      instead of the target-client status line
+
+However, be  aware that this  information is  not always reliable,  because many
+terminals lie about their identity (they pretend to be xterm-256color).
+
+##
 # Options
 ## What happens if I omit `-g` when I set a session or window option in `~/.tmux.conf`?
 
@@ -136,81 +150,223 @@ Note the difference between `d` and `D`.
 Press `C-t` to tag all buffers, then `D`.
 
 ##
-# Issues
-## `$ tmux -Ltest` doesn't read `~/.tmux.conf`!
+# Debugging
+## When writing a bug report
+### which terminal geometry should I use?
 
-Make sure you don't have a running tmux server listening to the socket `test`:
+Make sure the terminal has 80 columns, and maybe also 24 lines.
 
-    $ ps aux | grep tmux | grep test
-    user 6771 ... tmux -Ltest -f/dev/null new~
-                              ├─────────┘
-                              └ your custom config can't be read because of this
+    $ echo $COLUMNS
+    80~
 
-If there's one, kill it:
+    $ echo $LINES
+    24~
 
-    $ kill 6771
+The goal is to reproduce with a “standard” geometry.
+See `:h window-size`:
 
----
+> If everything fails a default size of 24 lines and 80 columns is assumed.
 
-This issue can happen, even with no  terminal running a tmux client connected to
-this `test` socket.
+### why should I reproduce the issue with a binary compiled *without* my custom script?
 
-MWE:
+Your script modifies the tmux version.
 
-    $ xterm
-    $ tmux -Ltest -f/dev/null new
-    Alt-F4
-    $ ps aux | grep tmux | grep test
-    user ... tmux -Ltest -f/dev/null new~
+When you'll write  your bug report, the log files  may contain information which
+look incompatible with your tmux version.
 
-Alt-F4 kills the client, but not the server.
-The server keeps running in the background.
+Besides, nicm  may wrongly think  that you're not using  master, and ask  you to
+reproduce the issue  on master; this kind of  conversation/misunderstanding is a
+waste of time and increases confusion.
 
-In contrast, if you  had pressed `C-d` to kill the current  shell, and there was
-no other shell handled by the tmux server, this would have killed the latter.
+#### which related pitfall should I be aware of?
 
-## Some options which set colors don't work!
-
-Do you use hex color codes, and does your terminal support true colors?
-If the answers are yes and no, then make sure the following line is not run when
-tmux is started from your terminal:
-
-    set -as terminal-overrides ',*-256color:Tc'
-
-Setting `Tc` may prevent other settings to work, like these for example:
-
-    set -gw window-style        'bg=#cacaca'
-    set -gw window-active-style 'bg=#dbd6d1'
-
-This issue is specific to terminals which don't support true colors.
-
-Alternatively, you could:
-
-   - use `colour123` instead of `#ab1234`
-   - use a terminal supporting true colors
-
----
-
-MWE:
-
-     $ cat <<'EOF' >/tmp/tmux.conf
-
-     set -as terminal-overrides ',*-256color:Tc'
-     set -gw window-style         'bg=#000000'
-     set -gw window-active-style  'bg=#ffffff'
-
-     set -g prefix 'M-space'
-     unbind '"'
-     bind _ splitw -v
-     bind M-space last-pane
-     EOF
-
-     $ tmux -L test -f /tmp/tmux.conf
-
-     pfx _
-     pfx SPC
+Even if you don't use your script now, you've probably used it recently.
+It has modified `configure.ac` to change the version; so, make sure to run
+`$ git stash` to undo the modifications.
 
 ##
+## How to get a backtrace?
+
+Make sure to run `$ ulimit -c unlimited` before reproducing the crash.
+After the crash, tmux should have left a core file in the current directory.
+You can extract a backtrace from it by running:
+
+    $ gdb -n -ex 'thread apply all bt full' -batch /path/to/tmux /path/to/core >~/backtrace.txt
+
+### It doesn't contain any useful info!
+
+Ok, so you've got sth like this:
+
+    #0  0x0000000000414fe6 in ?? ()
+     No symbol table info available.
+    #1  0x0000000000410787 in ?? ()
+     No symbol table info available.
+    #2  0x0000000000000000 in ?? ()
+     No symbol table info available.
+
+It's probably  because you didn't use  the same tmux binary  when you reproduced
+the crash, and when you run `$ gdb` to extract a backtrace from the core.
+
+Make sure to use the same binary.
+That is, do *not* run that:
+
+    $ ./tmux -Ltest -f/dev/null new
+      ^^^^^^
+
+    $ gdb -n -ex 'thread apply all bt full' -batch tmux core >backtrace.txt
+                                                   ^^^^
+
+In the first command, where you reproduce the crash, you're calling the compiled
+binary in the current directory.
+While  in  the  second  command,   you're  calling  the  installed  tmux  binary
+`/usr/local/bin/tmux`.
+
+Choose one or the other, but don't mix the two.
+
+### ?
+
+I have had a crash where tmux was started with the command `$ tmux`, and yet the
+next  command seemed  to  not give  enough information  (“No  symbol table  info
+available.”):
+
+    $ gdb -n -ex 'thread apply all bt full' -batch tmux core >backtrace.txt
+                                                   ^^^^
+
+I think I fixed the issue by running:
+
+    $ gdb -n -ex 'thread apply all bt full' -batch ~/GitRepos/tmux/tmux core >backtrace.txt
+                                                   ^^^^^^^^^^^^^^^^^^^^
+
+The next time tmux crashes, check whether  you need to specify the original path
+to the compiled binary in `~/GitRepos/tmux`, when extracting a backtrace.
+
+If we need to do this, then document it.
+
+#### It doesn't help!
+
+Do *not* use your custom script to compile tmux:
+
+    # ✘
+    $ sudo ~/bin/upp.sh tmux
+
+Instead, use your zsh snippets (`$ chown`, `$ make`), and `$ git stash`:
+
+    $ sudo chown -R user:user .
+    $ git stash
+    $ make clean; make distclean; sh autogen.sh && ./configure && make
+
+---
+
+Explanation:
+
+Your custom script  modifies the version of the compiled  binary which I suspect
+prevents gdb from working correctly.
+
+    # ✘
+    $ sed -i "/AC_INIT/s/\S\+)/${VERSION})/" configure.ac
+
+You  need  to   run  `$  git  stash`  to  restore   `configure.ac`,  before  the
+modifications  applied by  `$ sed`,  and then  you need  to compile  manually to
+prevent `$ sed` from being recalled.
+
+#### ?
+
+The previous  information may not be  relevant anymore, because, for  now, we've
+decided to stop editing the version in our script.
+
+If that's the case, remove the previous question.
+Also, see our todo in `~/bin/upp.sh`; the one which deals with the `$ sed` command.
+
+#### ?
+
+Document the  fact that if you  want your backtrace to  contain more information
+(less `<optimized out>`), you need to edit the `Makefile.am` file:
+
+    $ sed -i '/AM_CFLAGS/s/-O2/-O0/' Makefile.am
+                                 ^
+                                 optimization level 0
+
+See `$ man gcc` for more info:
+
+> The output is sensitive to the effects of previous command-line
+> options, so for example it is possible to find out which
+> optimizations are enabled at -O2 by using:
+>
+>         -Q -O2 --help=optimizers
+>
+> Alternatively you can discover which binary optimizations are
+> enabled by -O3 by using:
+>
+>         gcc -c -Q -O3 --help=optimizers > /tmp/O3-opts
+>         gcc -c -Q -O2 --help=optimizers > /tmp/O2-opts
+>         diff /tmp/O2-opts /tmp/O3-opts | grep enabled
+
+---
+
+Note that if you do, it may have an impact on performance.
+Not on memory consumption, nor latency, but on output bandwidth.
+You can test the latter, roughly, with these commands:
+
+    $ yes | head -n 1000000 > two_megs.txt
+    $ time cat two_megs.txt
+
+##
+## Tmux crashes, but it doesn't dump a core file!
+### How to get a backtrace?
+
+    $ gdb -q --args ./tmux -Ltest -f/dev/null new
+    (gdb) set follow-fork-mode child
+    (gdb) run
+    # reproduce the crash
+    (gdb) set logging on
+    (gdb) bt full
+    (gdb) quit
+
+The backtrace should be in `gdb.txt`.
+
+#### I can't run any command in the shell.  What I type is not what is written on the command-line!
+
+Maybe something in your zshrc is interfering.
+Write `return` at its top.
+
+####
+### How to get a trace?
+
+    $ tmux -Ltest kill-server
+    $ strace -ttt -ff -ostrace.out tmux -vv -Ltest -f/dev/null new
+                        ^^^^^^^^^^
+                        output file
+
+<https://github.com/tmux/tmux/blob/master/CONTRIBUTING>
+<https://github.com/tmux/tmux/issues/1603#issuecomment-462955045>
+
+##
+## Tmux is hanging.  I can't interact with it anymore!
+
+From another terminal, get the pid of the tmux server.
+Or, if you can, run this before reproducing the issue:
+
+    $ tmux display -p '#{pid}'
+
+Then, still from another terminal, run:
+
+             make sure it's the same tmux than the one currently hanging
+             vvvvvvvvvvvvvvvvvvvvv
+    $ gdb -q /path/to/running/tmux PID
+    (gdb) set logging on
+    (gdb) bt full
+    (gdb) quit
+
+The output of `bt full` should be in `gdb.txt`.
+Join it to your bug report.
+
+---
+
+See here to learn more about how to make gdb print to a file instead of stdout:
+<https://stackoverflow.com/a/5941271/9780968>
+
+##
+# Issues
 ## My `if-shell` and/or `run-shell` tmux command doesn't work!
 
 Remember that tmux runs your shell command via **sh**, not bash:
@@ -256,6 +412,136 @@ Then redirect the standard error of the shell command to a file:
                                 ^^^^^^^^^^^^
 
 And read the error message written in the file to get more information.
+
+###
+## Weird sequences are printed on the screen intermittently!
+
+Something  is  probably sending  escape  sequences  (CSI,  OSC, ...)  which  the
+terminal doesn't understand.
+
+It can  happen when  you re-attach to  a running tmux  session from  a different
+terminal than the one where you started it.
+
+For example, atm, we have a Vim plugin – vim-term – which sends `CSI 2 SPC q` to
+the terminal right before exiting.
+And xfce4-terminal, on Ubuntu 16.04, doesn't support this sequence.
+
+Solution: Close the terminal,  and re-attach from another  one which understands
+the sequence.
+
+Alternatively,  make sure  to  close  the program  responsible  for sending  the
+problematic sequence; then close the terminal,  which will kill the tmux client,
+and restart a new one.
+Note that  in the case  of vim-term + xfce4-terminal  + Ubuntu 16.04,  you would
+also need to make sure you start Vim from a new shell, so that tmux has a chance
+to update `$COLORTERM`.
+Indeed, vim-term relies on the latter to detect xfce4-terminal.
+
+---
+
+You can  reproduce an example of  this issue by  running `$ printf '\e[ 2q'` in
+xfce4-terminal on Ubuntu 16.04, and waiting.
+The issue is fixed in more  recent versions of xfce4-terminal; I can't reproduce
+on Ubuntu 18.04 in a VM.
+
+## Tmux is hanging indefinitely after using a process substitution!
+
+So, you've run sth like:
+
+    $ tmux load-buffer <(echo foobar)
+
+Solution: Use `=()` instead of `<()`.
+
+---
+
+Here's what happens.
+
+The shell opens  a file descriptor it  thinks won't be used and  then passes the
+path equivalent of that file descriptor to  the client as an argument, which the
+client then passes to the server.
+
+But that  file descriptor might  already be  in use in  the server, so  when the
+latter opens the fd,  it gets whatever that is, which might  not be suitable for
+reading, so it can block or crash or behaves unexpectedly.
+
+It wouldn't be easy to fix  this issue, without also breaking legitimate devices
+like `/dev/null` or blacklisting some paths (which will depend on the platform).
+
+For more info:
+<https://github.com/tmux/tmux/issues/1755>
+
+## `$ tmux -Ltest` doesn't read `~/.tmux.conf`!
+
+Make sure you don't have a running tmux server listening to the socket `test`:
+
+    $ ps aux | grep tmux | grep test
+    user 6771 ... tmux -Ltest -f/dev/null new~
+                              ├─────────┘
+                              └ your custom config can't be read because of this
+
+If there's one, kill it:
+
+    $ kill -9 6771
+
+---
+
+This issue can happen, even with no  terminal running a tmux client connected to
+this `test` socket.
+
+MWE:
+
+    $ xterm
+    $ tmux -Ltest -f/dev/null new
+    Alt-F4
+    $ ps aux | grep tmux | grep test
+    user ... tmux -Ltest -f/dev/null new~
+
+Alt-F4 kills the client, but not the server.
+The server keeps running in the background.
+
+In contrast, if you  had pressed `C-d` to kill the current  shell, and there was
+no other shell handled by the tmux server, this would have killed the latter.
+
+## Some options which set colors don't work!
+
+Do you use hex color codes, and does your terminal support true colors?
+If the answers are yes and no, then make sure the following line is not run when
+tmux is started from your terminal:
+
+    set -as terminal-overrides ',*-256color:Tc'
+
+Setting `Tc` may prevent other settings to work, like these for example:
+
+    set -gw window-style        'bg=#cacaca'
+    set -gw window-active-style 'bg=#dbd6d1'
+
+This issue is specific to terminals which don't support true colors.
+
+Alternatively, you could use:
+
+   - `colour123` instead of `#ab1234`
+   - a terminal supporting true colors
+
+---
+
+MWE:
+
+     $ cat <<'EOF' >/tmp/tmux.conf
+
+     set -as terminal-overrides ',*-256color:Tc'
+     set -gw window-style         'bg=#000000'
+     set -gw window-active-style  'bg=#ffffff'
+
+     set -g prefix 'M-space'
+     unbind '"'
+     bind _ splitw -v
+     bind M-space last-pane
+     EOF
+
+     $ tmux -Ltest -f/tmp/tmux.conf
+
+     pfx _
+     pfx SPC
 
 ##
 ##
@@ -2020,181 +2306,7 @@ Les liens sont dépourvus de contexte.
             linked.  The -a option kills all but the window given with -t.
 
 ##
-# Debugging
-## When writing a bug report
-### which terminal geometry should I use?
-
-Make sure the terminal has 80 columns, and maybe also 24 lines.
-
-    $ echo $COLUMNS
-    80~
-
-    $ echo $LINES
-    24~
-
-The goal is to reproduce with a “standard” geometry.
-See `:h window-size`:
-
-> If everything fails a default size of 24 lines and 80 columns is assumed.
-
-### why should I reproduce the issue with a binary compiled *without* my custom script?
-
-Your script modifies the tmux version.
-
-When you'll write  your bug report, the log files  may contain information which
-look incompatible with your tmux version.
-
-Besides, nicm  may wrongly think  that you're not using  master, and ask  you to
-reproduce the issue  on master; this kind of  conversation/misunderstanding is a
-waste of time and increases confusion.
-
-#### which related pitfall should I be aware of?
-
-Even if you don't use your script now, you've probably used it recently.
-It has modified `configure.ac` to change the version; so, make sure to run
-`$ git stash` to undo the modifications.
-
 ##
-## My backtrace doesn't contain any useful info!
-
-Ok, so you've got sth like this:
-
-    #0  0x0000000000414fe6 in ?? ()
-     No symbol table info available.
-    #1  0x0000000000410787 in ?? ()
-     No symbol table info available.
-    #2  0x0000000000000000 in ?? ()
-     No symbol table info available.
-
-It's probably  because you didn't use  the same tmux binary  when you reproduced
-the crash, and when you run `$ gdb` to extract a backtrace from the core.
-
-Make sure to use the same binary.
-That is, do *not* run that:
-
-    $ ./tmux -Ltest -f/dev/null new
-      ^^^^^^
-
-    $ gdb -n -ex 'thread apply all bt full' -batch tmux core >backtrace.txt
-                                                   ^^^^
-
-In the first command, where you reproduce the crash, you're calling the compiled
-binary in the current directory.
-While  in  the  second  command,   you're  calling  the  installed  tmux  binary
-`/usr/local/bin/tmux`.
-
-Choose one or the other, but don't mix the two.
-
-### It doesn't help!
-
-Do *not* use your custom script to compile tmux:
-
-    # ✘
-    $ sudo ~/bin/upp.sh tmux
-
-Instead, use your zsh snippets (`$ chown`, `$ make`), and `$ git stash`:
-
-    $ sudo chown -R user:user .
-    $ git stash
-    $ make clean; make distclean; sh autogen.sh && ./configure && make
-
----
-
-Explanation:
-
-Your custom script  modifies the version of the compiled  binary which I suspect
-prevents gdb from working correctly.
-
-    # ✘
-    $ sed -i "/AC_INIT/s/\S\+)/${VERSION})/" configure.ac
-
-You  need  to   run  `$  git  stash`  to  restore   `configure.ac`,  before  the
-modifications  applied by  `$ sed`,  and then  you need  to compile  manually to
-prevent `$ sed` from being recalled.
-
-##
-## Tmux is hanging.  I can't interact with it anymore!
-
-From another terminal, get the pid of the tmux server.
-Or, if you can, run this before reproducing the issue:
-
-    $ tmux display -p '#{pid}'
-
-Then, still from another terminal, run:
-
-             make sure it's the same tmux than the one currently hanging
-             vvvvvvvvvvvvvvvvvvvvv
-    $ gdb -q /path/to/running/tmux PID
-    set logging on
-    bt full
-    quit
-
-The output of `bt full` should be in `gdb.txt`.
-Join it to your bug report.
-
----
-
-See here to learn more about how to make gdb print to a file instead of stdout:
-<https://stackoverflow.com/a/5941271/9780968>
-
-##
-# Issues
-## Weird sequences are printed on the screen intermittently!
-
-Something  is  probably sending  escape  sequences  (CSI,  OSC, ...)  which  the
-terminal doesn't understand.
-
-It can  happen when  you re-attach to  a running tmux  session from  a different
-terminal than the one where you started it.
-
-For example, atm, we have a Vim plugin – vim-term – which sends `CSI 2 SPC q` to
-the terminal right before exiting.
-And xfce4-terminal, on Ubuntu 16.04, doesn't support this sequence.
-
-Solution: Close the terminal,  and re-attach from another  one which understands
-the sequence.
-
-Alternatively,  make sure  to  close  the program  responsible  for sending  the
-problematic sequence; then close the terminal,  which will kill the tmux client,
-and restart a new one.
-Note that  in the case  of vim-term + xfce4-terminal  + Ubuntu 16.04,  you would
-also need to make sure you start Vim from a new shell, so that tmux has a chance
-to update `$COLORTERM`.
-Indeed, vim-term relies on the latter to detect xfce4-terminal.
-
----
-
-You can  reproduce an example of  this issue by  running `$ printf '\e[ 2q'` in
-xfce4-terminal on Ubuntu 16.04, and waiting.
-The issue is fixed in more  recent versions of xfce4-terminal; I can't reproduce
-on Ubuntu 18.04 in a VM.
-
-## Tmux is hanging indefinitely after using a process substitution!
-
-So, you've run sth like:
-
-    $ tmux load-buffer <(echo foobar)
-
-Solution: Use `=()` instead of `<()`.
-
----
-
-Here's what happens.
-
-The shell opens  a file descriptor it  thinks won't be used and  then passes the
-path equivalent of that file descriptor to  the client as an argument, which the
-client then passes to the server.
-
-But that  file descriptor might  already be  in use in  the server, so  when the
-latter opens the fd,  it gets whatever that is, which might  not be suitable for
-reading, so it can block or crash or behaves unexpectedly.
-
-It wouldn't be easy to fix  this issue, without also breaking legitimate devices
-like `/dev/null` or blacklisting some paths (which will depend on the platform).
-
-For more info:
-<https://github.com/tmux/tmux/issues/1755>
-
 ##
 # Todo
 ## links to read
@@ -2251,16 +2363,6 @@ It's described at `$ man tmux /^\s*new-session [`:
 > options remain independent and any session in a group may be
 > killed without affecting the others.
 
-## using `$ strace` to debug tmux
-
-To debug tmux run:
-
-    $ tmux -Ltest kill-server
-    $ strace -ttt -ff -ostrace.out tmux -L test -f /dev/null -vv new
-
-<https://github.com/tmux/tmux/blob/master/CONTRIBUTING>
-<https://github.com/tmux/tmux/issues/1603#issuecomment-462955045>
-
 ## evaluating a tmux replacement variable in different contexts
 
 To test the current value of a replacement variable such as `#{pane_tty}`, run:
@@ -2283,16 +2385,17 @@ From `$ man tmux /FORMATS`:
 > A  ‘C’ performs  a search  for an  fnmatch(3) pattern  in the  pane content  and
 > evaluates to zero if not found, or a line number if found.
 
+##
 ## pipe-pane
 
 Document this:
 
-    $ tmux pipe-pane -t study:2.1 -I "echo 'ls'"
+$ tmux pipe-pane -t study:2.1 -I "echo 'ls'"
 
 This command  executes `$  ls` in  the first pane  of the  second window  of the
 `study` session; the syntax is the following:
 
-    $ tmux pipe-pane -t {session}:{window}.{pane} -I "shell-cmd"
+$ tmux pipe-pane -t {session}:{window}.{pane} -I "shell-cmd"
 
 `-I` and `-O` specify which of the shell-command output streams are connected to
 the pane.
@@ -2302,12 +2405,47 @@ pane as if it was typed).
 
 You can also run:
 
-    $ tmux pipe-pane -t {session}:{window}.{pane} -O "shell cmd"
+$ tmux pipe-pane -t {session}:{window}.{pane} -O "shell cmd"
 
 With  `-O`,  stdin  is  connected  (so  any output  in  the  pane  is  piped  to
 `shell-cmd`); both `-I` and `-O` may be used together.
 
 It could be useful for our re-implementation of `vim-tbone`.
+
+### is `pipe-pane` buggy?
+
+Disable your zshrc (`return` at the top).
+Press `pfx :` and run `pipe-pane "exec cat - | ansifilter >>/tmp/log"`.
+The last command comes from:
+<https://github.com/tmux-plugins/tmux-logging/blob/master/scripts/start_logging.sh#L15>
+
+Now, run some shell commands, like `$ ls`, `$ echo 'hello'`, `$ sudo aptitude update`, ...
+The output of `$ echo 'hello'` is *not* logged.  Why?
+If you re-enable all our zshrc, it's correctly logged.  Why?
+There seems  to be a  regular percent sign  (not the special  one we use  in our
+prompt), which is added on a dedicated line after every output.  Why?
+Only the first executed command is logged (I'm not talking about the output; the
+output is usually logged; I'm talking about the executed line).  Why?
+
+Make some tests, with and without our zshrc.
+If `pipe-pane` is buggy, report the bugs.
+
+Once `pipe-pane` is fixed, check out the tmux-logging plugin.
+Right now, it seems to suffer from the same issues described above.
+
+Also,  we  have  moved  the  code sourcing  the  zsh  syntax  highlighting  into
+`~/.zsh/syntax_highlighting.zsh`.
+And we have set a guard to disable the sourcing.
+And  we  have created  a  zsh  snippet to  disable  the  sourcing on  demand  in
+`~/.config/zsh-snippet/main.txt`.
+And we have left a question/answer about it in `~/.config/zsh-snippet/README.md`.
+We did all  of this thinking that the syntax  highlighting badly interfered with
+tmux-logging.
+But was it really the case? Or was it just `pipe-pane` which was broken?
+If it was not the case, do we want to undo everything we did?
+
+##
+## update tmux cheatsheet to make it include tmux-fingers key bindings
 
 ## attach-session
 
@@ -2398,6 +2536,29 @@ It is  useful, because you  don't have to restore  the geometry, and  because it
 preserve the scrollback buffer.
 
 <https://unix.stackexchange.com/a/512501/289772>
+
+## document `-e` option of `copy-mode` command
+
+It makes tmux quit copy mode only when you reach the end of the screen with PgDown and WheelDown.
+And possibly a few others.
+But not when you reach it with `j` or `Down`.
+
+You can make some tests with this minimal tmux.conf:
+
+    set -g mouse on
+    bind -n a copy-mode -e
+
+Then press `pfx a`,  followed by PgDown or WheelDown until you  reach the end of
+the screen; tmux should quit copy mode.
+
+---
+
+If you're looking for a real usage example, see this key binding installed by default:
+
+    bind WheelUpPane if -F -t = "#{mouse_any_flag}" "send -M" "if -Ft= \"#{pane_in_mode}\" \"send -M\" \"copy-mode -et=\""
+
+If you wonder what the `=` sign means here, it's a special token equivalent to `{mouse}`.
+See `$ man tmux /MOUSE SUPPORT /{mouse}`.
 
 ##
 # Reference

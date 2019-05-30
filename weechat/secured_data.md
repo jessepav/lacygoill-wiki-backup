@@ -20,7 +20,7 @@ In:
 
    - command line argument `--run-command`
 
-   - options 'weechat.startup.command_{before|after}_plugins'
+   - options `'weechat.startup.command_{before|after}_plugins'`
 
    - other options that may contain sensitive data;
      see `/help` on the options to check if they are evaluated (i.e. contains "note: content is evaluated")
@@ -162,8 +162,9 @@ Make sure `WEECHAT_PASSPHRASE` is not set:
 Read `/help secure` and `/help sec.crypt.passphrase_file`.
 
 Also, read this:
-<https://weechat.org/blog/post/2013/08/04/Secured-data>
-<https://gist.github.com/pascalpoitras/8406501>
+
+   - <https://weechat.org/blog/post/2013/08/04/Secured-data>
+   - <https://gist.github.com/pascalpoitras/8406501>
 
 The last gist contains the configuration of a user which uses a secured password
 and SASL to get identified on freenode.

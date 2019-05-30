@@ -529,7 +529,7 @@ This improves performance.
 
 Separate the filetype names with dots:
 
-        setf ft1.ft2.ft3...
+    setf ft1.ft2.ft3...
 
 ### How to prevent Vim from assigning a filetype to a file?
 
@@ -667,7 +667,7 @@ Vim doesn't use it when we do `:set syn=foo`:
 ###
 ### How to load all C filetype plugins from a C++ filetype plugin?
 
-        :runtime! ftplugin/c.vim ftplugin/c_*.vim ftplugin/c/*.vim
+    :runtime! ftplugin/c.vim ftplugin/c_*.vim ftplugin/c/*.vim
 
 Useful to avoid having to repeat some common settings (like the folding ones).
 
