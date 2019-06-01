@@ -398,10 +398,14 @@ See here for more info: <https://stackoverflow.com/a/19962913/9780968>
 And here for a list of proxies: <https://www.us-proxy.org/>
 Make sure to choose a proxy supporting http*s*.
 
+This solution works (even for `$ gem`),  but you may need to try several proxies
+before finding one which succeeds in installing a package.
+
 ## Why shouldn't I use `$ sudo pip`?
 
 <https://github.com/zchee/deoplete-jedi/wiki/Setting-up-Python-for-Neovim#why-you-shouldnt-use-sudo>
 
+##
 # Todo
 
 Never use print for debugging again:

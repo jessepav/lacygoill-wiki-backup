@@ -327,11 +327,11 @@ The parentheses will be, wrongly, included inside the match.
 
 Bottom line:
 
-A command whose purpose is to operate on the text of the CURRENT buffer is fine,
-because it needs to take the buffer settings into account.
+A command  whose purpose is to  operate on the  text of the *current*  buffer is
+fine, because it needs to take the buffer settings into account.
 
-But if the command has to operate on  some text which is NOT tied to any buffer,
-and your regex includes one of these atoms:
+But if  the command  has to  operate on  some text  which is  *not* tied  to any
+buffer, and your regex includes one of these atoms:
 
     \<
     \>

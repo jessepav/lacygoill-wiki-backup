@@ -94,35 +94,6 @@ However, be  aware that this  information is  not always reliable,  because many
 terminals lie about their identity (they pretend to be xterm-256color).
 
 ##
-# Options
-## What happens if I omit `-g` when I set a session or window option in `~/.tmux.conf`?
-
-Tmux will complain with one of these error messages:
-
-    no current session
-    no current window
-
-###
-## Why doesn't `$ tmux show-options mouse` show anything?
-
-Because you're asking for the value local to the current session, and there's none.
-
-OTOH, if you ask for the *global* value, you will have an output:
-
-    $ tmux show-options -g mouse
-    mouse on~
-
-## What happens if I don't provide a value to `$ tmux set-option <boolean option>`?
-
-The option is toggled between on and off.
-
-    $ tmux set-option -g mouse && tmux show-options -g mouse
-    mouse off~
-
-    $ tmux set-option -g mouse && tmux show-options -g mouse
-    mouse on~
-
-##
 # Buffers
 ## How to delete a tmux buffer interactively?
 
@@ -154,7 +125,7 @@ Press `C-t` to tag all buffers, then `D`.
 ## When writing a bug report
 ### which terminal geometry should I use?
 
-Make sure the terminal has 80 columns, and maybe also 24 lines.
+Make sure the terminal has 80 columns, and 24 lines.
 
     $ echo $COLUMNS
     80~
@@ -163,7 +134,12 @@ Make sure the terminal has 80 columns, and maybe also 24 lines.
     24~
 
 The goal is to reproduce with a “standard” geometry.
-See `:h window-size`:
+
+See `$ man tmux /^\s*default-size`:
+
+> The default is 80x24.
+
+See also `:h window-size`:
 
 > If everything fails a default size of 24 lines and 80 columns is assumed.
 
@@ -185,106 +161,78 @@ It has modified `configure.ac` to change the version; so, make sure to run
 `$ git stash` to undo the modifications.
 
 ##
-## How to get a backtrace?
+## Crash
+### How to produce an example core file on-demand?
+
+    $ cat <<'EOF' >/tmp/tmux.conf
+    %if #{l:1}
+    set -g status-style fg=cyan,bg='#001040'
+    %elif #{l:1}
+    set -g status-style fg=white,bg='#400040'
+    %else
+    set -g status-style fg=white,bg='#800000'
+    %endif
+    bind ^X last-window
+    EOF
+
+    $ tmux -Ltest -f/tmp/tmux.conf
+
+<https://github.com/tmux/tmux/commit/88ee5a1a00b475fd2b93ef00e71f527fe2e9520e>
+
+###
+### How to get a backtrace?
 
 Make sure to run `$ ulimit -c unlimited` before reproducing the crash.
 After the crash, tmux should have left a core file in the current directory.
 You can extract a backtrace from it by running:
 
-    $ gdb -n -ex 'thread apply all bt full' -batch /path/to/tmux /path/to/core >~/backtrace.txt
+    $ gdb -n -ex 'thread apply all bt full' -batch /path/to/tmux /path/to/core >backtrace.txt
 
-### It doesn't contain any useful info!
+#### It doesn't contain any useful info!
 
-Ok, so you've got sth like this:
+Don't use the installed binary.
+Recompile one with our zsh snippet:
 
-    #0  0x0000000000414fe6 in ?? ()
-     No symbol table info available.
-    #1  0x0000000000410787 in ?? ()
-     No symbol table info available.
-    #2  0x0000000000000000 in ?? ()
-     No symbol table info available.
+    $ git stash; make clean; make distclean; sh autogen.sh && ./configure && make
 
-It's probably  because you didn't use  the same tmux binary  when you reproduced
-the crash, and when you run `$ gdb` to extract a backtrace from the core.
+And use it to extract a backtrace from the core:
 
-Make sure to use the same binary.
-That is, do *not* run that:
-
-    $ ./tmux -Ltest -f/dev/null new
-      ^^^^^^
-
-    $ gdb -n -ex 'thread apply all bt full' -batch tmux core >backtrace.txt
-                                                   ^^^^
-
-In the first command, where you reproduce the crash, you're calling the compiled
-binary in the current directory.
-While  in  the  second  command,   you're  calling  the  installed  tmux  binary
-`/usr/local/bin/tmux`.
-
-Choose one or the other, but don't mix the two.
-
-### ?
-
-I have had a crash where tmux was started with the command `$ tmux`, and yet the
-next  command seemed  to  not give  enough information  (“No  symbol table  info
-available.”):
-
-    $ gdb -n -ex 'thread apply all bt full' -batch tmux core >backtrace.txt
-                                                   ^^^^
-
-I think I fixed the issue by running:
-
-    $ gdb -n -ex 'thread apply all bt full' -batch ~/GitRepos/tmux/tmux core >backtrace.txt
+    $ gdb -n -ex 'thread apply all bt full' -batch ~/GitRepos/tmux/tmux /path/to/core >backtrace.txt
                                                    ^^^^^^^^^^^^^^^^^^^^
-
-The next time tmux crashes, check whether  you need to specify the original path
-to the compiled binary in `~/GitRepos/tmux`, when extracting a backtrace.
-
-If we need to do this, then document it.
-
-#### It doesn't help!
-
-Do *not* use your custom script to compile tmux:
-
-    # ✘
-    $ sudo ~/bin/upp.sh tmux
-
-Instead, use your zsh snippets (`$ chown`, `$ make`), and `$ git stash`:
-
-    $ sudo chown -R user:user .
-    $ git stash
-    $ make clean; make distclean; sh autogen.sh && ./configure && make
 
 ---
 
-Explanation:
+Explanations:
 
-Your custom script  modifies the version of the compiled  binary which I suspect
-prevents gdb from working correctly.
+By  default, checkinstall  strips  the  binary from  all  its  symbols, and  its
+debugging information.
+This greatly  reduces the size  of the binary, but  prevents you from  getting a
+useful backtrace.
 
-    # ✘
-    $ sed -i "/AC_INIT/s/\S\+)/${VERSION})/" configure.ac
+<https://unix.stackexchange.com/questions/2969/what-are-stripped-and-not-stripped-executables-in-unix>
 
-You  need  to   run  `$  git  stash`  to  restore   `configure.ac`,  before  the
-modifications  applied by  `$ sed`,  and then  you need  to compile  manually to
-prevent `$ sed` from being recalled.
+Alternatively, you could pass `--strip=no` to checkinstall.
 
-#### ?
+Besides, for some reason, it seems tmux doesn't include debugging information in
+the binary if you change the version of the program.
+This is why you  need `$ git stash`; to restore `configure.ac`  as it was before
+possible modifications.
 
-The previous  information may not be  relevant anymore, because, for  now, we've
-decided to stop editing the version in our script.
+Btw, don't conflate the *program* version with the *package* version.
+The latter is  set via the `--pgkversion` option passed  to checkinstall, and it
+has no effect on the current issue.
 
-If that's the case, remove the previous question.
-Also, see our todo in `~/bin/upp.sh`; the one which deals with the `$ sed` command.
+##### I need even more info!
 
-#### ?
-
-Document the  fact that if you  want your backtrace to  contain more information
-(less `<optimized out>`), you need to edit the `Makefile.am` file:
+Edit the `Makefile.am` file:
 
     $ sed -i '/AM_CFLAGS/s/-O2/-O0/' Makefile.am
                                  ^
                                  optimization level 0
+
+Use the compiled binary to reproduce the crash, *and* to extract a backtrace from the core.
+
+---
 
 See `$ man gcc` for more info:
 
@@ -303,16 +251,16 @@ See `$ man gcc` for more info:
 
 ---
 
-Note that if you do, it may have an impact on performance.
-Not on memory consumption, nor latency, but on output bandwidth.
-You can test the latter, roughly, with these commands:
+Note that I don't recommend using `-O0`, by default, all the time.
+It has an impact on performance; not  on memory consumption, nor latency, but on
+output bandwidth; you can test the latter, roughly, with these commands:
 
     $ yes | head -n 1000000 > two_megs.txt
     $ time cat two_megs.txt
 
-##
-## Tmux crashes, but it doesn't dump a core file!
-### How to get a backtrace?
+###
+### Tmux crashes, but it doesn't dump a core file!
+#### How to get a backtrace?
 
     $ gdb -q --args ./tmux -Ltest -f/dev/null new
     (gdb) set follow-fork-mode child
@@ -324,13 +272,13 @@ You can test the latter, roughly, with these commands:
 
 The backtrace should be in `gdb.txt`.
 
-#### I can't run any command in the shell.  What I type is not what is written on the command-line!
+##### I can't run any command in the shell.  What I type is not what is written on the command-line!
 
 Maybe something in your zshrc is interfering.
 Write `return` at its top.
 
-####
-### How to get a trace?
+#####
+#### How to get a trace?
 
     $ tmux -Ltest kill-server
     $ strace -ttt -ff -ostrace.out tmux -vv -Ltest -f/dev/null new
@@ -341,7 +289,7 @@ Write `return` at its top.
 <https://github.com/tmux/tmux/issues/1603#issuecomment-462955045>
 
 ##
-## Tmux is hanging.  I can't interact with it anymore!
+## How to debug tmux when it's hanging?
 
 From another terminal, get the pid of the tmux server.
 Or, if you can, run this before reproducing the issue:
@@ -414,6 +362,64 @@ Then redirect the standard error of the shell command to a file:
 And read the error message written in the file to get more information.
 
 ###
+## `$ tmux -Ltest` doesn't read `~/.tmux.conf`!
+
+Make sure you don't have a running tmux server listening to the socket `test`:
+
+    $ ps aux | grep tmux | grep test
+    user 6771 ... tmux -Ltest -f/dev/null new~
+                              ├─────────┘
+                              └ your custom config can't be read because of this
+
+If there's one, kill it:
+
+    $ kill -9 6771
+
+---
+
+This issue can happen, even with no  terminal running a tmux client connected to
+this `test` socket.
+
+MWE:
+
+    $ xterm
+    $ tmux -Ltest -f/dev/null new
+    Alt-F4
+    $ ps aux | grep tmux | grep test
+    user ... tmux -Ltest -f/dev/null new~
+
+Alt-F4 kills the client, but not the server.
+The server keeps running in the background.
+
+In contrast, if you  had pressed `C-d` to kill the current  shell, and there was
+no other shell handled by the tmux server, this would have killed the latter.
+
+## I have a pane running Vim.  `#{pane_current_command}` is not replaced with `vim`!
+
+Are you running Vim in a pipeline?
+
+    $ echo text | vim -
+
+If so, then `#{pane_current_command}` is replaced by `zsh`.
+I doubt it's a bug.
+
+Try to get rid of the pipe.
+For example, you could write `text` in a file, then pass this file to Vim.
+
+    $ echo text >file ; vim file
+
+If you can't easily get rid of the pipe, then use another heuristic to detect Vim.
+For example, if you know that Vim opens an unnamed buffer, you can use:
+
+    #{C:\[No Name\]}
+
+It should be replaced  with a number different than `0`  (the screen line number
+where `[No Name]` matches).
+You can then use `if -F` to react accordingly:
+
+    if -F '#{C:\[No Name\]}' "display 'Vim is running'" "display 'Vim is NOT running'"
+
+##
 ## Weird sequences are printed on the screen intermittently!
 
 Something  is  probably sending  escape  sequences  (CSI,  OSC, ...)  which  the
@@ -469,79 +475,6 @@ like `/dev/null` or blacklisting some paths (which will depend on the platform).
 
 For more info:
 <https://github.com/tmux/tmux/issues/1755>
-
-## `$ tmux -Ltest` doesn't read `~/.tmux.conf`!
-
-Make sure you don't have a running tmux server listening to the socket `test`:
-
-    $ ps aux | grep tmux | grep test
-    user 6771 ... tmux -Ltest -f/dev/null new~
-                              ├─────────┘
-                              └ your custom config can't be read because of this
-
-If there's one, kill it:
-
-    $ kill -9 6771
-
----
-
-This issue can happen, even with no  terminal running a tmux client connected to
-this `test` socket.
-
-MWE:
-
-    $ xterm
-    $ tmux -Ltest -f/dev/null new
-    Alt-F4
-    $ ps aux | grep tmux | grep test
-    user ... tmux -Ltest -f/dev/null new~
-
-Alt-F4 kills the client, but not the server.
-The server keeps running in the background.
-
-In contrast, if you  had pressed `C-d` to kill the current  shell, and there was
-no other shell handled by the tmux server, this would have killed the latter.
-
-## Some options which set colors don't work!
-
-Do you use hex color codes, and does your terminal support true colors?
-If the answers are yes and no, then make sure the following line is not run when
-tmux is started from your terminal:
-
-    set -as terminal-overrides ',*-256color:Tc'
-
-Setting `Tc` may prevent other settings to work, like these for example:
-
-    set -gw window-style        'bg=#cacaca'
-    set -gw window-active-style 'bg=#dbd6d1'
-
-This issue is specific to terminals which don't support true colors.
-
-Alternatively, you could use:
-
-   - `colour123` instead of `#ab1234`
-   - a terminal supporting true colors
-
----
-
-MWE:
-
-     $ cat <<'EOF' >/tmp/tmux.conf
-
-     set -as terminal-overrides ',*-256color:Tc'
-     set -gw window-style         'bg=#000000'
-     set -gw window-active-style  'bg=#ffffff'
-
-     set -g prefix 'M-space'
-     unbind '"'
-     bind _ splitw -v
-     bind M-space last-pane
-     EOF
-
-     $ tmux -Ltest -f/tmp/tmux.conf
-
-     pfx _
-     pfx SPC
 
 ##
 ##
@@ -652,26 +585,6 @@ Voici qques argument qu'on peut passer à Tmux au démarrage.
             Spécifie un chemin de fichier de configuration alternatif.
 
 
-              ┌ don't attach to a running Vim server,
-              │ start a new one, identified by the socket name `test`
-              │ inside the directory /tmp/tmux-{$UID}
-              │
-              │           ┌ don't use any config file
-         ┌────┤ ┌─────────┤
-    tmux -Ltest -f/dev/null
-
-            Useful to debug tmux.
-            Start without any config, and without being interfered by a running server.
-
-            `-L` specifies an arbitrary socket name.
-            If a server is already running, this allows to run a 2nd one simultaneously.
-            Indeed,  a  server  is  identified  by  the  socket  with  which  it
-            communicates with its clients.
-
-            By default, if a tmux server  is already running, the `tmux` command
-            would simply create a new session managed by the existing server.
-
-
     -S socket-path
 
             Spécifie un chemin alternatif vers le socket du serveur.
@@ -705,13 +618,12 @@ Voici qques argument qu'on peut passer à Tmux au démarrage.
 
             ┌ SIGUSR2
             │
-            │   ┌ hint: in the output of `ps -efH|grep tmux`, it's the biggest pid;
+            │   ┌ hint: in the output of `ps aux | grep tmux`, it's the biggest pid;
             │   │       yes the server seems to be started AFTER the first client ...
             │   │
     $ kill -12 {tmux server pid}
 
-            Toggle the  logging of  the activity. However,  when you  enable the
-            logging, it seems to only create the `tmux-server-{PID}.log` file.
+            Toggle the  logging of  the server activity.
 
             Warning:
             The log files  becomes really big, really fast. Enable logging  only for a short
@@ -719,37 +631,7 @@ Voici qques argument qu'on peut passer à Tmux au démarrage.
 
 ##
 # Plugins
-## Installation / Suppression
-
-    set-option -g @plugin 'author/plugin'
-    pfx I
-    pfx U
-
-            Procédure d'installation et de mise à jour d'un plugin Tmux hébergé sur github.
-
-            Les raccourcis `pfx I` et `pfx U` permettent resp. d'installer et de mettre à jour les plugins.
-            Ils sont associés à des scripts shells fournis par TPM (Tmux Plugin Manager):
-
-                    bind-key  -T prefix    I  run-shell ~/.tmux/plugins/tpm/bindings/install_plugins
-                    bind-key  -T prefix    U  run-shell ~/.tmux/plugins/tpm/bindings/update_plugins
-
-
-    pfx M-u
-
-            Raccourci permettant de supprimer un plugin géré par TPM.
-            Toutefois, au préalable, il faut supprimer la ligne du plugin dans `~/.tmux.conf`.
-            Le raccourci est associé à un script shell fourni par TPM:
-
-                    bind-key  -T prefix  M-u  run-shell ~/.tmux/plugins/tpm/bindings/clean_plugins
-
-## Futur
-### fingers
-
-Copy pasting in terminal with vimium/vimperator like hints.
-
-<https://github.com/morantron/tmux-fingers>
-
-### heytmux
+## heytmux
 
 Tmux scripting made easy
 
@@ -768,6 +650,39 @@ blocks of YAML snippets that I can easily select and run with Heytmux in
 my editor.
 
 <https://github.com/junegunn/heytmux>
+
+## tpm
+
+If you use tpm, beware of the following pitfall.
+
+Suppose you want to write a command  after `set -g @plugin '...'`; you obviously
+need to separate both commands with a semicolon.
+But do *not* forget to prefix the semicolon with a space!
+
+    set -g @plugin 'Morantron/tmux-fingers' ; source "$HOME/.tmux/plugins_config/fingers"
+                                           ^
+
+Without, tpm would not source the plugin.
+
+I think that's because tpm parses the contents of `~/.tmux.conf`:
+
+    ~/.tmux/plugins/tpm/tpm:44
+    ~/.tmux/plugins/tpm/scripts/source_plugins.sh:31
+    ~/.tmux/plugins/tpm/scripts/helpers/plugin_functions.sh:37
+    ~/.tmux/plugins/tpm/scripts/helpers/plugin_functions.sh:49
+
+It probably  relies on some  regex, and doesn't  expect a semicolon  to follow
+immediately a `set -g @plugin ...` statement.
+
+To be clear, I don't think it's a tmux issue, it's a tpm issue.
+For example, this works fine:
+
+    $ cat <<'EOF' >/tmp/file
+    display -p 'hello'
+    EOF
+    set -g @option 'value'; source '/tmp/file'
+                          ^
+                          no space before
 
 ##
 # Utilitaires
@@ -807,138 +722,6 @@ depuis un shell hors de la session.
 
 ##
 # Configuration
-## Fichier
-
-Par défaut, tmux charge `/etc/tmux.conf` (s'il existe) puis `~/.tmux.conf`.
-
-Un fichier de configuration tmux n'est rien d'autre qu'une séquence de commandes tmux, qui sont
-exécutées la 1e fois que le serveur est lancé.
-
-La commande `source-file` peut être utilisée pour charger un fichier plus tard.
-
-## Commandes de configuration
-
-On peut configurer l'apparence et le comportement de tmux via 3 catégories d'options:
-
-            - serveur
-            - fenêtre
-            - session
-
-
-Chaque option fenêtre ou session existe en 2 versions, locale ou globale.
-La version locale s'applique uniquement à la fenêtre / session courante.
-La globale à toutes les fenêtres / sessions.
-
-En cas de conflit, la locale a la priorité sur la globale.
-
-Si la locale n'est pas configurée explicitement, elle est héritée de la globale.
-
-
-En plus des options par défaut, un utilisateur peut créer ses propres options dans n'importe quelle
-catégories d'options. Pour ce faire, il doit préfixer leur nom avec ’@’.
-Une option utilisateur accepte comme valeur une chaîne arbitraire.
-
-
-La valeur d'une option peut être un nombre, une chaîne ou un flag.
-Un flag peut être on, off ou omis. Dans une affectation, si un flag est omis, l'option est toggle.
-
-
-    Affiche les options :
-
-    ┌──────────────────┬─────────────────────┐
-    │ show-options -s  │ serveur             │
-    ├──────────────────┼─────────────────────┤
-    │ show-options     │ session et locales  │
-    ├──────────────────┼─────────────────────┤
-    │ show-options -g  │ session et globales │
-    ├──────────────────┼─────────────────────┤
-    │ show-options -w  │ fenêtre et locales  │
-    ├──────────────────┼─────────────────────┤
-    │ show-options -gw │ fenêtre et globales │
-    └──────────────────┴─────────────────────┘
-
-            `show` est un alias de `show-options`.
-
-            À la place de `show-options -w`, on peut aussi utiliser:
-
-                    - showw
-                    - show -w
-                    - show-window-options
-
-
-    Donne la valeur `val` à l'option `opt`, cette dernière étant une option:
-
-        ┌─────────────────────────┬────────────────────┐
-        │ set-option -s   opt val │ serveur            │
-        ├─────────────────────────┼────────────────────┤
-        │ set-option      opt val │ session et locale  │
-        ├─────────────────────────┼────────────────────┤
-        │ set-option -g   opt val │ session et globale │
-        ├─────────────────────────┼────────────────────┤
-        │ set-option -w   opt val │ fenêtre et locale  │
-        ├─────────────────────────┼────────────────────┤
-        │ set-option -gw  opt val │ fenêtre et globale │
-        └─────────────────────────┴────────────────────┘
-
-            `set` est un alias de `set-option`.
-
-            À la place de `set-option -w`, on peut aussi utiliser:
-
-                    - setw
-                    - set -w
-                    - set-window-option
-
-
-    show-options -gv opt
-
-            Affiche la valeur globale de l'option session `opt` sans afficher son nom (flag `-v`).
-
-            Montre qu'on peut limiter la sortie de `show-options` de 2 façons:
-
-                    - flag `-v`      supprime les noms des options
-                    - argument `opt` supprime toutes les options différentes de `opt`
-
-
-    set-option -g  status-left 'foo'
-    set-option -ag status-left 'bar'
-
-            Configure l'option session `status-left` en lui donnant la valeur `foo`.
-            Puis, lui ajoute (append) la valeur `bar`.
-            La valeur finale est donc `foobar`.
-
-            Le flag `-a` permet d'ajouter (append) une chaîne/un style à une option.
-
-
-    set-option -g  status-style 'bg=red'
-    set-option -ag status-style 'fg=blue'
-
-            Configure l'option session `status-style` en lui donnant la valeur `'bg=red'`.
-            `'bg=red'` est un style.
-            Puis, lui ajoute le 2e style `'fg=blue'`.
-
-            Le résultat est un avant-plan bleu et un arrière-plan rouge.
-            Sans le flag `-a`, le résultat serait un avant-plan bleu et un arrière-plan NOIR (valeur par défaut).
-
-
-Les commandes `set-option`, `show-options`, `set-window-option` et `show-window-options` acceptent
-également les arguments suivants:
-
-            ┌───────────────┬─────────────────────────────────────────────────────┐
-            │ -o            │ ne configure pas l'option si elle a déjà une valeur │
-            ├───────────────┼─────────────────────────────────────────────────────┤
-            │ -q            │ supprime un éventuel message d'erreur               │
-            │               │ (option inconnue ou ambigüe)                        │
-            ├───────────────┼─────────────────────────────────────────────────────┤
-            │ -u            │ supprime la valeur locale d'une option,             │
-            │               │ de sorte qu'elle hérite de la globale               │
-            ├───────────────┼─────────────────────────────────────────────────────┤
-            │ -gu           │ supprime la valeur globale d'une option,            │
-            │               │ de sorte qu'elle récupère sa valeur par défaut      │
-            ├───────────────┼─────────────────────────────────────────────────────┤
-            │ -t my_window  │ configure ou affiche une option d'une fenêtre       │
-            │ -t my_session │ ou session arbitraire                               │
-            └───────────────┴─────────────────────────────────────────────────────┘
-
 ## Options serveur
 
     buffer-limit 10
@@ -1603,10 +1386,6 @@ Tous les raccourcis qui suivent doivent être précédés de pfx.
 
             Convertit le pane en fenêtre.
 
-    c
-
-            Crée une nouvelle fenêtre.
-
     *
 
             Affiche les n° des panes.
@@ -1636,12 +1415,6 @@ Tous les raccourcis qui suivent doivent être précédés de pfx.
 
             Ferme le pane / la fenêtre ayant le focus.
 
-
-    HJKL
-
-            Redimensionne le pane dans une des 4 directions principales.
-            On peut aussi utiliser la souris.
-
 ##
 # Copier-Coller
 ## Modes
@@ -1649,11 +1422,6 @@ Tous les raccourcis qui suivent doivent être précédés de pfx.
 Les modes copie et normal de tmux correspondent resp. aux modes normal et commande de vim.
 La différence de terminologie viennent du fait qu'on ne fait pas la même chose en temps normal
 dans vim et dans tmux.
-
-    pfx Space
-
-            passer en mode copie
-
 
     pfx PgUp
 
@@ -1728,41 +1496,6 @@ dans vim et dans tmux.
             Supprime le dernier buffer tmux.
             Écrit le presse-papier système dans un buffer tmux. (custom)
 
-
-tmux-copycat est un plugin fournissant différents raccourcis pour sélectionner du texte plus rapidement.
-https://github.com/tmux-plugins/tmux-copycat
-
-Pour qu'il fonctionne correctement, il ne faut pas que `~/.tmux.conf` contienne la ligne :
-
-        bind -t vi-copy Escape cancel
-
-... associe à escape à la sortie du mode copie. Source:
-
-        https://github.com/tmux-plugins/tmux-copycat/blob/master/docs/limitations.md
-
-
-    pfx C-f
-    pfx C-g
-    pfx C-d
-    pfx C-u
-    pfx M-i
-    pfx M-h
-    pfx /string
-    pfx /pattern[[:digit:]]\\+
-
-            Passer en mode visuel, et chercher le prochain:
-
-                    - chemin (relatifs / absolus) vers un nom de fichier
-                    - nom de fichier, après un git status
-                    - nombre (mnémotechnique: d = digit)
-                    - url
-                    - @ipv4
-                    - sha1 (utile après un git log)
-                    - occurrence de `string`
-                    - "              `pattern` suivi d'un nb à 1 ou plusieurs chiffres
-
-            S'il y a d'autres occurrences, on peut naviguer entre elles via `n` et `N`.
-
 ## Copier avec la souris
 
 Une copie à la souris pose 2 pbs :
@@ -1771,23 +1504,24 @@ Une copie à la souris pose 2 pbs :
 
 Solution : on peut envoyer l'évènement 'copie avec la souris' directement à guake via le raccourci :
 
-        shift + sélection souris + clic-droit + copy
+    shift + sélection souris + clic-droit + copy
 
 2) dans guake via le raccourci précédent, si on a 2 panes adjacents (horizontalement),
 la sélection d'une ligne complète avec la souris, va déborder sur plusieurs panes.
 
 Solution : utiliser le raccourci guake suivant, qui réalise une sélection en bloc :
 
-        ctrl + shift + sélection souris + clic-droit + copy
+    ctrl + shift + sélection souris + clic-droit + copy
 
-Une autre solution consiste à zoomer temporairement le pane dans lequel on veut copier du texte,
-puis utiliser le précédent raccourci (shift + sélection souris).
+Une autre solution consiste à zoomer  temporairement le pane dans lequel on veut
+copier  du  texte, puis  utiliser  le  précédent  raccourci (shift  +  sélection
+souris).
 
-Si on  n'utilise pas guake,  on peut aussi  désactiver temporairement le  mode souris, le  temps de
-copier, puis le réactiver via :
+Si  on n'utilise  pas guake,  on peut  aussi désactiver  temporairement le  mode
+souris, le temps de copier, puis le réactiver via :
 
-        pfx m
-        pfx M
+    pfx m
+    pfx M
 
 ##
 # Ouvrir
@@ -1803,13 +1537,12 @@ copier, puis le réactiver via :
 
 
 Ces raccourcis sont fournis par le plugin tmux-open :
+<https://github.com/tmux-plugins/tmux-open>
 
-        https://github.com/tmux-plugins/tmux-open
+On peut les modifier en écrivant dans ~/.tmux.conf (pex):
 
-On peut les modifier en écrivant dans ~/.tmux.conf (pex) :
-
-        set-option -g @open        'x'
-        set-option -g @open-editor 'C-x'
+    set-option -g @open        'x'
+    set-option -g @open-editor 'C-x'
 
 ## des urls
 
@@ -1988,23 +1721,6 @@ Les liens sont dépourvus de contexte.
 # Commandes
 ## Shell
 
-    $ tmux -V
-
-            Affiche dans quelle version est installée tmux.
-
-
-    pfx    :<cmd>
-    $ tmux <cmd>
-
-            Envoyer <cmd> à tmux en cli (mode script) ou depuis une session (mode interactif).
-
-            Ceci illustre que toutes les commandes tmux peuvent être scriptées simplement en étant
-            préfixées par la commande shell `tmux`. Par exemple:
-
-                    $ tmux new-session -s basic
-                    :      new-session -s basic
-
-
     $ exit
 
             Ferme le shell et son pane ainsi que:
@@ -2065,12 +1781,6 @@ Les liens sont dépourvus de contexte.
             Donne le focus à la fenêtre 3 / 42.
             Si l'index de la fenêtre est composé de plusieurs chiffres, seule la 2e syntaxe est possible.
 
-
-    last-pane
-    pfx pfx
-
-            alterner entre le pane courant et le dernier actif
-
 ## Divers
 
     clock-mode [-t target-pane]
@@ -2095,7 +1805,6 @@ Les liens sont dépourvus de contexte.
             une erreur de syntaxe. Penser à recharger ce dernier avant de taper `pfx ~`.
             En effet, la 1e fois qu'on lance tmux, si des erreurs surviennent et que tmux les affichent,
             il ne semble pas les mémoriser pour autant.
-
 
 ## Sessions
 
@@ -2307,259 +2016,6 @@ Les liens sont dépourvus de contexte.
 
 ##
 ##
-##
-# Todo
-## links to read
-
-<https://www.reddit.com/r/tmux/comments/5cm2ca/post_you_favourite_tmux_tricks_here/>
-<https://raw.githubusercontent.com/tmux/tmux/master/CHANGES>
-<https://medium.freecodecamp.org/tmux-in-practice-series-of-posts-ae34f16cfab0>
-<https://github.com/samoshkin/tmux-config>
-<https://silly-bytes.blogspot.fr/2016/06/seamlessly-vim-tmux-windowmanager_24.html>
-<https://github.com/tmux/tmux/blob/master/example_tmux.conf>
-<http://man.openbsd.org/OpenBSD-current/man1/tmux.1>
-<https://github.com/tmux/tmux/wiki/FAQ>
-<https://devel.tech/tips/n/tMuXz2lj/the-power-of-tmux-hooks/>
-<https://github.com/tmux-plugins/tmux-sensible>
-<https://github.com/tmux-plugins/tmux-pain-control>
-
-extended underline style
-<https://github.com/tmux/tmux/commit/bc0e527f32642cc9eb2354d1bdc033ab6beca33b>
-
-support for windows larger than visible on the attached client
-<https://github.com/tmux/tmux/commit/646995384d695eed9de1b2363fd2b315ca01785e>
-
-support for overline (SGR 53)
-<https://github.com/tmux/tmux/commit/1ee944a19def82cb62abf6ab92c17eb30df77a41>
-
-Style to follow when submitting a PR to tmux:
-<https://man.openbsd.org/style.9>
-<https://github.com/tmux/tmux/pull/1743#issuecomment-493450917>
-
-## here's a way to programmatically get the PID of a process launched by tmux:
-
-    P=$(tmux new -dP -- mycommand); tmux display -pt$P -F '#{pane_pid}'
-                        ^^^^^^^^^
-                        arbitrary command started in a new tmux window
-
-## linking windows
-
-Watch this:
-
-    $ tmux linkw -s . -t 0
-
-It creates a window of index 0, which is linked to the current window.
-I think the command means: link the current window (`-s .`) to a new window of index 0.
-Now, everything you type in one of these 2 windows, is also typed in the other.
-
-It seems that windows can also be linked to sessions.
-To understand what it means you'll need to first understand the concept of “session group”.
-It's described at `$ man tmux /^\s*new-session [`:
-
-> If -t is given, it specifies a session group.  Sessions in the
-> same group share the same set of windows - new windows are linked
-> to all sessions in the group and any windows closed removed from
-> all sessions.  The current and previous window and any session
-> options remain independent and any session in a group may be
-> killed without affecting the others.
-
-## evaluating a tmux replacement variable in different contexts
-
-To test the current value of a replacement variable such as `#{pane_tty}`, run:
-
-    # shell command
-    $ tmux -S /tmp/tmux-1000/default display -p #{pane_tty}
-
-    # tmux command
-    :display -p #{pane_tty}
-
-    # Vim command
-    :echo system('tmux -S /tmp/tmux-1000/default display -p "#{pane_tty}"')
-
-## including in the status line the number line where a pattern matches in the current pane
-
-If you  include `#{C:hello}` in your  tmux status line, the  latter will contain
-the number line where `hello` appears in the current tmux pane.
-
-From `$ man tmux /FORMATS`:
-> A  ‘C’ performs  a search  for an  fnmatch(3) pattern  in the  pane content  and
-> evaluates to zero if not found, or a line number if found.
-
-##
-## pipe-pane
-
-Document this:
-
-$ tmux pipe-pane -t study:2.1 -I "echo 'ls'"
-
-This command  executes `$  ls` in  the first pane  of the  second window  of the
-`study` session; the syntax is the following:
-
-$ tmux pipe-pane -t {session}:{window}.{pane} -I "shell-cmd"
-
-`-I` and `-O` specify which of the shell-command output streams are connected to
-the pane.
-
-With `-I`, stdout is connected (so anything `shell-cmd` prints is written to the
-pane as if it was typed).
-
-You can also run:
-
-$ tmux pipe-pane -t {session}:{window}.{pane} -O "shell cmd"
-
-With  `-O`,  stdin  is  connected  (so  any output  in  the  pane  is  piped  to
-`shell-cmd`); both `-I` and `-O` may be used together.
-
-It could be useful for our re-implementation of `vim-tbone`.
-
-### is `pipe-pane` buggy?
-
-Disable your zshrc (`return` at the top).
-Press `pfx :` and run `pipe-pane "exec cat - | ansifilter >>/tmp/log"`.
-The last command comes from:
-<https://github.com/tmux-plugins/tmux-logging/blob/master/scripts/start_logging.sh#L15>
-
-Now, run some shell commands, like `$ ls`, `$ echo 'hello'`, `$ sudo aptitude update`, ...
-The output of `$ echo 'hello'` is *not* logged.  Why?
-If you re-enable all our zshrc, it's correctly logged.  Why?
-There seems  to be a  regular percent sign  (not the special  one we use  in our
-prompt), which is added on a dedicated line after every output.  Why?
-Only the first executed command is logged (I'm not talking about the output; the
-output is usually logged; I'm talking about the executed line).  Why?
-
-Make some tests, with and without our zshrc.
-If `pipe-pane` is buggy, report the bugs.
-
-Once `pipe-pane` is fixed, check out the tmux-logging plugin.
-Right now, it seems to suffer from the same issues described above.
-
-Also,  we  have  moved  the  code sourcing  the  zsh  syntax  highlighting  into
-`~/.zsh/syntax_highlighting.zsh`.
-And we have set a guard to disable the sourcing.
-And  we  have created  a  zsh  snippet to  disable  the  sourcing on  demand  in
-`~/.config/zsh-snippet/main.txt`.
-And we have left a question/answer about it in `~/.config/zsh-snippet/README.md`.
-We did all  of this thinking that the syntax  highlighting badly interfered with
-tmux-logging.
-But was it really the case? Or was it just `pipe-pane` which was broken?
-If it was not the case, do we want to undo everything we did?
-
-##
-## update tmux cheatsheet to make it include tmux-fingers key bindings
-
-## attach-session
-
-From `$ man tmux /^\s*attach-session`
-
-> If run from outside tmux, create a new client in the current terminal and attach
-> it to target-session. If used from inside, switch the current client.
-
-I interpret  the second sentence  as tmux switching  the current session  in the
-current client; the equivalent of pressing `pfx )`.
-Look  at the  description of  the latter;  they use  the same  terminology (i.e.
-“switch”).
-And yet, in  practice, `$ tmux attach-session` inside tmux  fails with “sessions
-should be nested with care, unset $TMUX to force”.
-
-What gives?
-
-## double a percent sign when running a shell process for your status line
-
-If you run some shell command for include some info in your status line, e.g.:
-
-    #{?#(cmd1),#(cmd2),}
-
-And if the command contains a percent sign, e.g.:
-
-    $ date +%s
-
-I think you need to double the percent:
-
-    $ date +%%s
-             ^
-
-That's what nicm seemed to suggest once in the #tmux irc channel.
-
-## by default tmux runs a shell process every 15s for the statusline; use `$ sleep` to change that time
-
-    #(while :; do command; sleep 30; done)
-
-In case you wonder why you need a `while` loop, here's nicm's explanation:
-
-> │  guardian │ I'm not sure I undertand why I need to wrap in a while loop
-> │      nicm │ there is no mechanism to make tmux run it at particular times, so you need to run it all
-> │           │ the time and just do your stuff every 30 seconds
-
----
-
-In  case you  wonder where  the 15s  come from,  it's the  default value  of the
-session option 'status-interval'.
-
-## conditionals `#{?...}`, and similar constructs (`#{||:...}`, `#{m:...}`, ...) can be nested
-
-For example, this will be replaced by 1 if the version of tmux is strictly lower
-than 2.4, 0 otherwise:
-
-    #{||:#{m:[01].*,#{version}},#{m:2.[0123],#{version}}}
-
-<https://github.com/tmux/tmux/issues/1747#issuecomment-494292198>
-
-## prevent some panes from being synchronized
-
-Open the clock in them:
-
-> Not really  the solution,  but any pane  set in a  different mode  (e.g. clock
-> mode, copy mode, showing help) will not respond to key strokes.
-> If you need all but a couple of panes to synchronize, this works pretty well.
-
-<https://stackoverflow.com/questions/12451951/tmux-synchronize-some-but-not-all-panes#comment19620986_12451951>
-
-## syntax of `confirm-before`
-
-It expects a tmux command as last argument (!= shell command):
-
-    $ tmux confirm-before -p "kill-pane #P? (y/n)" kill-pane
-
-and if the command contains several words, you need to quote it:
-
-    $ tmux confirm-before -p "display a message? (y/n)" "display -p 'hello'"
-                                                        ^                  ^
-
-Btw, why does `-p` fail here? `display` should print the message on stdout.
-
-## `respawn-pane` is useful when you have a pane which always runs the same application in the same place
-
-Same thing for `respawn-window`.
-Note that for a pane/window to be respawned, the `remain-on-exit` option needs to be on.
-
-It is  useful, because you  don't have to restore  the geometry, and  because it
-preserve the scrollback buffer.
-
-<https://unix.stackexchange.com/a/512501/289772>
-
-## document `-e` option of `copy-mode` command
-
-It makes tmux quit copy mode only when you reach the end of the screen with PgDown and WheelDown.
-And possibly a few others.
-But not when you reach it with `j` or `Down`.
-
-You can make some tests with this minimal tmux.conf:
-
-    set -g mouse on
-    bind -n a copy-mode -e
-
-Then press `pfx a`,  followed by PgDown or WheelDown until you  reach the end of
-the screen; tmux should quit copy mode.
-
----
-
-If you're looking for a real usage example, see this key binding installed by default:
-
-    bind WheelUpPane if -F -t = "#{mouse_any_flag}" "send -M" "if -Ft= \"#{pane_in_mode}\" \"send -M\" \"copy-mode -et=\""
-
-If you wonder what the `=` sign means here, it's a special token equivalent to `{mouse}`.
-See `$ man tmux /MOUSE SUPPORT /{mouse}`.
-
 ##
 # Reference
 

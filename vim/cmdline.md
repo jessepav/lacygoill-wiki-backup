@@ -1,3 +1,20 @@
+# How to delete the text until the next line containing `pat`, *linewise*?
+
+Press `d/pat/0`.
+
+It's just a special case of `d/pat/+123`.
+
+## What does `d/pat/3` do?
+
+It deletes the text until the next line containing `pat`, followed by the next 3 lines.
+
+Again, it's just a special case of `d/pat/+123`.
+
+### `d/pat/-3`?
+
+It deletes the text until the third previous line above the next line containing `pat`.
+
+##
 # ?
 
     :w !python
@@ -76,16 +93,16 @@ Example:
 
 What must follow `**` in a file pattern? (2 possibilities)
 
-        - nothing
-        - a slash
+   - nothing
+   - a slash
 
 Dans un file pattern `'**'` ne peut être utilisé que:
 
-        - à la fin
-        - en étant suivi d'un slash
-        - en étant suivi d'un nombre puis d'un slash
+   - à la fin
+   - en étant suivi d'un slash
+   - en étant suivi d'un nombre puis d'un slash
 
-          n'importe quoi ✘
+    n'importe quoi ✘
 
 # ?
 

@@ -1,38 +1,32 @@
 # Animes
 
-        https://animetorrents.me/
-
-# Audiobook
-
-    https://www.youtube.com/watch?v=e8ah2L9-UCQ&t=180s
-
-            The Name of the Wind (Kingkiller Chronicle #1) by Patrick Rothfuss Part 1
+<https://animetorrents.me/>
 
 # Reddit
 
-        https://www.reddit.com/r/Piracy/
-        https://www.reddit.com/r/TPB/
-        https://www.reddit.com/r/megalinks/
-        https://www.reddit.com/r/trackers/
+   - <https://www.reddit.com/r/Piracy/>
+   - <https://www.reddit.com/r/TPB/>
+   - <https://www.reddit.com/r/megalinks/>
+   - <https://www.reddit.com/r/trackers/>
 
 # Ebooks
 
 To read:
 
-https://www.reddit.com/r/Piracy/comments/7q856s/is_there_a_problem_with_library_genesis/
-https://www.reddit.com/r/Scholar/comments/2raea8/libgen_down/
-https://genofond.org/viewtopic.php?p=9000/
-https://ebookee.org
-https://www.reddit.com/r/Piracy/comments/60gbf7/library_genesis_broken/
-https://www.reddit.com/r/Scholar/comments/3bs1rm/meta_the_libgenscihub_thread_howtos_updates_and/
-https://www.reddit.com/r/antilibrary/comments/6ow6tq/antilibrary_faq/
-https://www.reddit.com/r/Piracy/comments/3i9y7n/guide_for_finding_textbooks/
-https://www.reddit.com/r/trackers/comments/hrgmv/tracker_with_pdfsebooks_of_college_textbooks/c1xrq44
+   - <https://www.reddit.com/r/Piracy/comments/7q856s/is_there_a_problem_with_library_genesis/>
+   - <https://www.reddit.com/r/Scholar/comments/2raea8/libgen_down/>
+   - <https://genofond.org/viewtopic.php?p=9000/>
+   - <https://ebookee.org>
+   - <https://www.reddit.com/r/Piracy/comments/60gbf7/library_genesis_broken/>
+   - <https://www.reddit.com/r/Scholar/comments/3bs1rm/meta_the_libgenscihub_thread_howtos_updates_and/>
+   - <https://www.reddit.com/r/antilibrary/comments/6ow6tq/antilibrary_faq/>
+   - <https://www.reddit.com/r/Piracy/comments/3i9y7n/guide_for_finding_textbooks/>
+   - <https://www.reddit.com/r/trackers/comments/hrgmv/tracker_with_pdfsebooks_of_college_textbooks/c1xrq44>
 
 
-    http://gen.lib.rus.ec/
+<http://gen.lib.rus.ec/>
 
-            Cliquer sur le bouton EN en haut à droite pour faire passer la langue de russe à anglais.
+Cliquer sur le bouton EN en haut à droite pour faire passer la langue de russe à anglais.
 
 
     /server irc.irchighway.net
@@ -170,11 +164,10 @@ Faire sauter le DRM nécessite les programmes Calibre, DeDRM Tools (version modi
 ## tpb is unavailable.  What to do?
 
 Try to visit the tor site:
-
-        http://www.uj3wazyk5u4hnvtk.onion/
+<http://www.uj3wazyk5u4hnvtk.onion/>
 
 Then:
 
-        $ cd ~/Downloads/tor/tor-browser_en-US/Browser/
-        $ ./start-tor-browser
+    $ cd ~/Downloads/tor/tor-browser_en-US/Browser/
+    $ ./start-tor-browser
 
