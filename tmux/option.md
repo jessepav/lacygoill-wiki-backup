@@ -1,134 +1,92 @@
-# ?
+# Getting info
+## When asking for the value of an option, must I specify its scope?
 
-Commandes de configuration
+Yes.
 
-Chaque option fenêtre ou session existe en 2 versions, locale ou globale.
-La version locale s'applique uniquement à la fenêtre / session courante.
-La globale à toutes les fenêtres / sessions.
+    $ tmux show mouse
+    ''~
 
-En cas de conflit, la locale a la priorité sur la globale.
+    $ tmux show -g mouse
+    mouse on~
 
-Si la locale n'est pas configurée explicitement, elle est héritée de la globale.
+### Its type?
 
+You can, but you don't need to.
 
-En plus des options par défaut, un utilisateur peut créer ses propres options.
-Pour ce faire, il doit préfixer leur nom avec ’@’.
-Une option utilisateur accepte comme valeur une chaîne arbitraire.
-
-
-La valeur d'une option peut être un booléen, un nombre, une chaîne ou une array.
-Un flag peut être on, off ou omis.
-
-
-    Affiche les options:
-
-    ┌──────────────────┬─────────────────────┐
-    │ show-options -s  │ serveur             │
-    ├──────────────────┼─────────────────────┤
-    │ show-options     │ session et locales  │
-    ├──────────────────┼─────────────────────┤
-    │ show-options -g  │ session et globales │
-    ├──────────────────┼─────────────────────┤
-    │ show-options -w  │ fenêtre et locales  │
-    ├──────────────────┼─────────────────────┤
-    │ show-options -gw │ fenêtre et globales │
-    └──────────────────┴─────────────────────┘
-
-            `show` est un alias de `show-options`.
-
-            À la place de `show-options -w`, on peut aussi utiliser:
-
-                    - showw
-                    - show -w
-                    - show-window-options
-
-
-    Donne la valeur `val` à l'option `opt`, cette dernière étant une option:
-
-    ┌─────────────────────────┬────────────────────┐
-    │ set-option -s   opt val │ serveur            │
-    ├─────────────────────────┼────────────────────┤
-    │ set-option      opt val │ session et locale  │
-    ├─────────────────────────┼────────────────────┤
-    │ set-option -g   opt val │ session et globale │
-    ├─────────────────────────┼────────────────────┤
-    │ set-option -w   opt val │ fenêtre et locale  │
-    ├─────────────────────────┼────────────────────┤
-    │ set-option -gw  opt val │ fenêtre et globale │
-    └─────────────────────────┴────────────────────┘
-
-            `set` est un alias de `set-option`.
-
-            À la place de `set-option -w`, on peut aussi utiliser:
-
-                    - setw
-                    - set -w
-                    - set-window-option
-
-
-    show-options -gv opt
-
-            Affiche la valeur globale de l'option session `opt` sans afficher son nom (flag `-v`).
-
-            Montre qu'on peut limiter la sortie de `show-options` de 2 façons:
-
-                    - flag `-v`      supprime les noms des options
-                    - argument `opt` supprime toutes les options différentes de `opt`
-
-
-    set-option -g  status-left 'foo'
-    set-option -ag status-left 'bar'
-
-            Configure l'option session `status-left` en lui donnant la valeur `foo`.
-            Puis, lui ajoute (append) la valeur `bar`.
-            La valeur finale est donc `foobar`.
-
-            Le flag `-a` permet d'ajouter (append) une chaîne/un style à une option.
-
-
-    set-option -g  status-style 'bg=red'
-    set-option -ag status-style 'fg=blue'
-
-            Configure l'option session `status-style` en lui donnant la valeur `'bg=red'`.
-            `'bg=red'` est un style.
-            Puis, lui ajoute le 2e style `'fg=blue'`.
-
-            Le résultat est un avant-plan bleu et un arrière-plan rouge.
-            Sans le flag `-a`, le résultat serait un avant-plan bleu et un arrière-plan NOIR (valeur par défaut).
-
-
-Les commandes `set-option`, `show-options`, `set-window-option` et `show-window-options`
-acceptent également les arguments suivants:
-
-    ┌───────────────┬─────────────────────────────────────────────────────┐
-    │ -o            │ ne configure pas l'option si elle a déjà une valeur │
-    ├───────────────┼─────────────────────────────────────────────────────┤
-    │ -q            │ supprime un éventuel message d'erreur               │
-    │               │ (option inconnue ou ambigüe)                        │
-    ├───────────────┼─────────────────────────────────────────────────────┤
-    │ -u            │ supprime la valeur locale d'une option,             │
-    │               │ de sorte qu'elle hérite de la globale               │
-    ├───────────────┼─────────────────────────────────────────────────────┤
-    │ -gu           │ supprime la valeur globale d'une option,            │
-    │               │ de sorte qu'elle récupère sa valeur par défaut      │
-    ├───────────────┼─────────────────────────────────────────────────────┤
-    │ -t my_window  │ configure ou affiche une option d'une fenêtre       │
-    │ -t my_session │ ou session arbitraire                               │
-    └───────────────┴─────────────────────────────────────────────────────┘
+Tmux can infer the type of an option from its name, except if it's a user option.
 
 ##
-# Getting info
-## Why doesn't `$ tmux show-options mouse` show anything?
+## How to get the value of the 'clock-mode-colour' option, and *only* its value (i.e. not its name)?
 
-Because you're asking for the value local to the current session, and there's none.
+Use the `-v` flag:
 
-OTOH, if you ask for the *global* value, you will have an output:
-
-    $ tmux show-options -g mouse
-    mouse on~
+                  v
+    $ tmux show -gv clock-mode-colour
+    blue~
 
 ##
 # Setting an option
+## How to make sure tmux uses the global value of an option?
+
+Unset its local value.
+
+    $ tmux set clock-mode-colour green
+    $ tmux clock-mode
+    # the clock is in green
+
+                v
+    $ tmux set -u clock-mode-colour
+    $ tmux clock-mode
+    # the clock is in blue (default global value)
+
+## How to reset an option to its default value?
+
+Unset its global value.
+
+    $ tmux set -g clock-mode-colour red
+    $ tmux clock-mode
+    # the clock is in red
+
+                vv
+    $ tmux set -gu clock-mode-colour
+    $ tmux clock-mode
+    # the clock is in blue
+
+##
+## How to set an option on the condition it hasn't been set yet?
+
+Use the `-o` flag:
+
+    $ tmux set @foo bar
+
+    $ tmux show @foo
+    @foo bar~
+
+    $ tmux set -o @foo qux
+    already set: @foo~
+
+### How to make it quietly?
+
+Use the `-q` flag:
+
+    $ tmux set -qo @foo qux
+    already set: @foo~
+
+##
+## I have 2 windows, and I'm in the first one.  How to set the color of the clock in the second window?
+
+Use the `-t` argument:
+
+    $ tmux set -t2 clock-mode-colour green
+                ^^
+
+## I have 2 sessions, and I'm in the first one.  How to get the value of an option local to the second one?
+
+Again, use the `-t` argument:
+
+    $ tmux show -t2 <option>
+
+##
 ## What happens if I
 ### omit `-g` when I set a session or window option in `~/.tmux.conf`?
 
@@ -137,14 +95,14 @@ Tmux will complain with one of these error messages:
     no current session
     no current window
 
-### don't provide a value to `$ tmux set-option <boolean option>`?
+### don't provide a value to `$ tmux set <boolean option>`?
 
 The option is toggled between on and off.
 
-    $ tmux set-option -g mouse && tmux show-options -g mouse
+    $ tmux set -g mouse && tmux show -g mouse
     mouse off~
 
-    $ tmux set-option -g mouse && tmux show-options -g mouse
+    $ tmux set -g mouse && tmux show -g mouse
     mouse on~
 
 ##
@@ -222,12 +180,12 @@ If there're several settings, group them (possibly  in a file), so that you only
 have 1 guard to write.
 
 ##
-## How to reset the whole value of an array option?
+## How to reset the *whole* value of an array option?
 
 Don't use `-a` nor `[123]`.
 
     $ tmux set user-keys "\e[123"
-    $ tmux show-options user-keys
+    $ tmux show user-keys
     user-keys[0] "\\e[123"~
 
 ##
@@ -294,7 +252,7 @@ this minimal `tmux.conf`.
 No.
 
     $ tmux -Ltest -f/dev/null new
-    $ tmux show-options -s terminal-overrides
+    $ tmux show terminal-overrides
     terminal-overrides[0] "xterm*:XT:Ms=\\E]52;%p1%s;%p2%s\\007:Cs=\\E]12;%p1%s\\007:Cr=\\E]112\\007:Ss=\\E[%p1%d q:Se=\\E[2 q"~
     terminal-overrides[1] "screen*:XT"~
 
@@ -303,6 +261,35 @@ Notice how the Ms, Cs, Cr, Ss, Se capabilities:
    - are on the same line
    - apply to the same terminal type pattern `xterm*`
    - are not separated by commas
+
+##
+# User options
+## Is a user option a window option, a session one, or a server one?
+
+It can be any of them.
+
+    $ tmux set -w @foo bar
+    $ tmux show -w @foo
+    @foo bar~
+
+    $ tmux set @foo bar
+    $ tmux show @foo
+    @foo bar~
+
+    $ tmux set -s @foo bar
+    $ tmux show -s @foo
+    @foo bar~
+
+The concept is orthogonal to the type of the option.
+
+### Which precaution must I take when setting a user option, or asking for its value?
+
+You must specify its type; either with no flag (server), `-w` (window), or `-s` (session).
+
+#### Why?
+
+There's no way for tmux to infer the  type of a user option from its name, since
+the latter can be arbitrarily chosen.
 
 ##
 # Issues

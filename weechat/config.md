@@ -254,6 +254,21 @@ And it doesn't work if you use `meta-ctrl-[A-Z]`
     /key bind meta-ctrl-G /set weechat.bar.title.hidden toggle
 
 ##
+# Aliases
+## How to list all currently installed aliases?
+
+      /alias list
+
+## How to remove an alias?
+
+      /alias del <alias>
+
+## How to install an alias, running two commands?
+
+      /alias add <alias> cmd1 ; cmd2
+                              ^
+
+##
 # Todo
 ## we've remapped M-j to `/window scroll_down`; this prevents us from using a whole bunch of default key bindings
 

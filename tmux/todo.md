@@ -58,13 +58,8 @@ If it was not the case, do we want to undo everything we did?
 
 #
 
-# reimplement/assimilate all short plugins (i.e. all except fingers)
-
-Once done, I think `check_tmux_version_is_correct()` will be useless.
-Consider removing it.
-If you do, integrate its comments in our notes about scripting the shell.
-
-# study these plugins:
+# Plugins
+## study these plugins
 
 Tmux:
 
@@ -77,7 +72,34 @@ Vim:
 
    - <https://github.com/tmux-plugins/vim-tmux>
 
-#
+## reimplement/assimilate tmux-yank and tmux-logging
+
+Once done, I think `check_tmux_version_is_correct()` will be useless.
+Consider removing it.
+If you do, integrate its comments in our notes about scripting the shell.
+
+## tmux-fingers
+### it wrongly renames the current window
+
+This is fixed by the unmerged PR #67:
+<https://github.com/Morantron/tmux-fingers/pull/67/files>
+
+We've merged it locally, but it may break in a future update.
+Try to assimilate the plugin?
+
+### sometimes it fails (maybe because of an error in gawk)
+
+MWE:
+
+    press `pfx ?`
+    press `pfx f`
+    gawk: ~/.tmux/plugins/tmux-fingers/scripts/hinter.awk:139: (FILENAME=- FNR=1) warning: regexp escape sequence `\"' is not a known regexp operator~
+
+##
+        pfx ?
+        pfx f
+        gawk: ~/.tmux/plugins/tmux-fingers/scripts/hinter.awk:139: (FILENAME=- FNR=1) warning: regexp escape sequence `\"' is not a known regexp operator
+
 # links to read
 
 <https://www.reddit.com/r/tmux/comments/5cm2ca/post_you_favourite_tmux_tricks_here/>
@@ -344,6 +366,21 @@ See: https://github.com/tmux/tmux/wiki/Contributing
 The key binding would move a horizontal pane into a vertical one to the right.
 Implement similar  ones with `H`, `J`  and `K`, to gain  consistency between Vim
 and tmux.
+
+# play with `$ echo hello | tmux splitw -dI &`
+
+From `$ man tmux /splitw`:
+
+> An empty shell-command ('') will create a pane with no command
+> running in it.  Output can be sent to such a pane with the
+> display-message command.  The -I flag (if shell-command is not
+> specified or empty) will create an empty pane and forward any
+> output from stdin to it.  For example:
+>
+>         $ make 2>&1|tmux splitw -dI &
+
+Maybe we should use this to get rid of a temporary file in `:LogEvents`.
+Maybe it would simplify the code.
 
 #
 # find a way to

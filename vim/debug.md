@@ -27,18 +27,19 @@ Then read the log.
 # Startup
 ## What are the locations from which Vim sources files when I start it with `$ vim -Nu NORC`?
 
-        1. ~/.vim/plugin/**/*.vim
-        2. $VIMRUNTIME/plugin/**/*.vim
-        3. ~/.vim/after/plugin/**/*.vim
+   1. ~/.vim/plugin/**/*.vim
+   2. $VIMRUNTIME/plugin/**/*.vim
+   3. ~/.vim/after/plugin/**/*.vim
 
-## And if I start it with `$ vim -Nu /tmp/empty_vimrc.vim`?
+### And if I
+#### start it with `$ vim -Nu /tmp/empty_vimrc.vim`?
 
         1. /tmp/empty_vimrc.vim
         2. ~/.vim/plugin/**/*.vim
         3. $VIMRUNTIME/plugin/**/*.vim
         4. ~/.vim/after/plugin/**/*.vim
 
-## And if I write `filetype plugin indent on` in the vimrc?
+#### write `filetype plugin indent on` in the vimrc?
 
 During the sourcing of the vimrc, and before `~/.vim/plugin/`, Vim sources:
 
@@ -46,14 +47,14 @@ During the sourcing of the vimrc, and before `~/.vim/plugin/`, Vim sources:
         2. $VIMRUNTIME/indent.vim
         3. $VIMRUNTIME/syntax/{syntax,synload,syncolor}.vim
 
-## And if I write `colo default` at the end of the vimrc?
+#### write `colo default` at the end of the vimrc?
 
 During the sourcing of the  vimrc, after the filetype/indent/syntax plugins, and
 before `~/.vim/plugin/`, Vim sources:
 
         1. $VIMRUNTIME/colors/default.vim
 
-## And if I add `Plug ...` statements?
+#### add `Plug ...` statements?
 
 Right after `~/.vim/plugin/`, Vim sources the files in `~/.vim/plugged/*/plugin/`.
 
@@ -89,7 +90,7 @@ or
                   │
                   └ nothing except the plugins
 
-## With only the filetype/indent/syntax plugins?
+### With only the filetype/indent/syntax plugins?
 
         $ vim -Nu NONE --cmd 'filetype plugin indent on | syntax enable'
                          │
@@ -103,7 +104,7 @@ This will make Vim source the scripts:
         $VIMRUNTIME/indent.vim
         $VIMRUNTIME/syntax/{syntax,syntax,syncolor}.vim
 
-## With only my local plugins?
+#### my local plugins?
 
         $ vim -Nu NORC
 
@@ -113,7 +114,7 @@ This will make Vim source the plugins in:
         $VIMRUNTIME/plugin/**/*.vim
         ~/.vim/after/plugin/**/*.vim
 
-## With only my local plugins and the filetype/indent/syntax plugins?
+#### my local plugins and the filetype/indent/syntax plugins?
 
         $ vim -Nu NORC --cmd 'filetype plugin indent on | syntax enable'
 
@@ -135,7 +136,7 @@ handled by your plugin manager.
 Note that  you could change  the order of  these 2 blocks  by using `+`  or `-c`
 instead of `--cmd`.
 
-## With only the plugin `vim-foo`?
+#### the plugin `vim-foo`?
 
                    vvvvv         v
     $ vim -Nu NORC --cmd 'set rtp^=/path/to/vim-foo' \
@@ -205,45 +206,47 @@ They've been sourced by either:
 
 ##
 # Verbosity
-## How to increase Vim's verbosity level during Vim's startup?
+## How to increase Vim's verbosity level during
+### Vim's startup?
 
 Use the `-V` argument:
 
         $ vim -V2 file
 
-## How to increase Vim's verbosity level during Vim's startup AND redirect the messages in a file?
+### Vim's startup AND redirect the messages in a file?
 
 Use the `-V` argument:
 
-        $ vim -V2/tmp/messages file
-                 │
-                 └ do NOT add a space,
-                   otherwise Vim will interpret `/tmp/messages` as a regular file to edit,
-                   instead of the file where to redirect all messages
+    $ vim -V2/tmp/messages file
+             │
+             └ do NOT add a space,
+               otherwise Vim will interpret `/tmp/messages` as a regular file to edit,
+               instead of the file where to redirect all messages
 
 Technically, this command sets two options:
 
-    - &vbs = 2
-    - &vfile = /tmp/log
+   - &vbs = 2
+   - &vfile = /tmp/log
 
-## How to increase Vim's verbosity level during the execution of a single Ex command?
+### the execution of a single Ex command?
 
-        :2verb Cmd
+    :2verb Cmd
 
-## How to increase Vim's verbosity level during the execution of several commands separated by bars?
+### the execution of several commands separated by bars?
 
 `:verb` only applies to the command up to the next bar, so this doesn't work:
 
-        :2verb set vbs | set vbs
-        verbose=2  ✔~
-        verbose=0  ✘~
+    :2verb set vbs | set vbs
+    verbose=2  ✔~
+    verbose=0  ✘~
 
 You muse also use `:exe`:
 
-        :2verb exe 'set vbs | set vbs'
-        verbose=2  ✔~
-        verbose=2  ✔~
+    :2verb exe 'set vbs | set vbs'
+    verbose=2  ✔~
+    verbose=2  ✔~
 
+##
 ## What's the maximum verbosity level above which you shouldn't go without redirecting the messages in a file?
 
 8.
@@ -429,6 +432,7 @@ If you want to include the commands inside functions, you must use a bang:
         :prof! file */foo.vim
              ^
 
+###
 ### From Vim, which commands should I execute to profile a script named `search.vim` in the rtp?
 
         :prof  start /tmp/profile.log
@@ -438,7 +442,7 @@ If you want to include the commands inside functions, you must use a bang:
         " use the plugin, and reproduce the slowdown for which you want to know the cause
         " restart Vim
 
-### Same question, but from the shell?
+#### Same question, but from the shell?
 
         $ vim --cmd 'prof  start /tmp/profile.log' \
               --cmd 'prof! file  */autoload/search.vim' \
@@ -446,6 +450,7 @@ If you want to include the commands inside functions, you must use a bang:
               -c    'norm n' \
               -cq
 
+###
 ### What's the difference between `--cmd` and `-c`/`+`?
 
    - `--cmd` execute a command BEFORE the vimrc is sourced.
@@ -485,14 +490,14 @@ Temporarily pause the profiling:
 You can't in Vim.
 But you can in Neovim, using the subcommand `dump`:
 
-        :prof[ile] dump
+    :prof[ile] dump
 
 ### How to make Vim stop the profiling without restarting Vim, and without `:profd`?
 
 You can't in Vim.
 But you can in Neovim, using the subcommand `stop`:
 
-        :prof[ile] stop
+    :prof[ile] stop
 
 ##
 ## syntax plugin
@@ -502,40 +507,40 @@ Disable any feature which may interfere, such as `'cul'`, `'rnu'` and folding.
 
 Then:
 
-        :syntime clear
-        :syntime on
+    :syntime clear
+    :syntime on
 
-        " if the buffer fits on one screen, execute `:redraw!` one or several times;
-        " otherwise scroll from top to bottom of the buffer one or several times
+    " if the buffer fits on one screen, execute `:redraw!` one or several times;
+    " otherwise scroll from top to bottom of the buffer one or several times
 
-        :syntime off
-        :syntime report
+    :syntime off
+    :syntime report
 
 ### How to interpret a syntax plugin's profile?
 
 The columns are:
 
-        ┌─────────┬──────────────────────────────────────────────────────┐
-        │ TOTAL   │ total time in seconds spent on matching this pattern │
-        ├─────────┼──────────────────────────────────────────────────────┤
-        │ COUNT   │ number of times the pattern was searched             │
-        ├─────────┼──────────────────────────────────────────────────────┤
-        │ MATCH   │ number of times the pattern actually matched         │
-        ├─────────┼──────────────────────────────────────────────────────┤
-        │ SLOWEST │ the longest time for one search                      │
-        ├─────────┼──────────────────────────────────────────────────────┤
-        │ AVERAGE │ the average time for one search                      │
-        ├─────────┼──────────────────────────────────────────────────────┤
-        │ NAME    │ name of the syntax item                              │
-        ├─────────┼──────────────────────────────────────────────────────┤
-        │ PATTERN │ the pattern being searched                           │
-        └─────────┴──────────────────────────────────────────────────────┘
+    ┌─────────┬──────────────────────────────────────────────────────┐
+    │ TOTAL   │ total time in seconds spent on matching this pattern │
+    ├─────────┼──────────────────────────────────────────────────────┤
+    │ COUNT   │ number of times the pattern was searched             │
+    ├─────────┼──────────────────────────────────────────────────────┤
+    │ MATCH   │ number of times the pattern actually matched         │
+    ├─────────┼──────────────────────────────────────────────────────┤
+    │ SLOWEST │ the longest time for one search                      │
+    ├─────────┼──────────────────────────────────────────────────────┤
+    │ AVERAGE │ the average time for one search                      │
+    ├─────────┼──────────────────────────────────────────────────────┤
+    │ NAME    │ name of the syntax item                              │
+    ├─────────┼──────────────────────────────────────────────────────┤
+    │ PATTERN │ the pattern being searched                           │
+    └─────────┴──────────────────────────────────────────────────────┘
 
 The lines are sorted by total time.
 
 ### How to reset the counters to zero (to restart a measuring for the current buffer)?
 
-        :syntime clear
+    :syntime clear
 
 ### What should I avoid when using `\@<=` or `\@<!` in a regex?
 
@@ -543,8 +548,8 @@ If you apply  these atoms to a sub-expression containing  a quantifier which can
 match a  variable number of characters  (such as `*`), add  a reasonable maximum
 size to avoid trying at all positions in the current and previous lines:
 
-        \%(foo.*\)\@<=bar       ✘ too slow
-        \%(foo.*\)\@123<=bar    ✔
+    \%(foo.*\)\@<=bar       ✘ too slow
+    \%(foo.*\)\@123<=bar    ✔
 
 ##
 ##
@@ -573,12 +578,13 @@ verbosity level.
 
 ##
 # `:breakadd`  `:profile`  `:runtime`    ‘bpr’
-## Do ‘bpr’ accept ABSOLUTE file paths?
+## Do ‘bpr’ accept
+### ABSOLUTE file paths?
 
 `:breakadd` and `:profile`, yes.
 `:runtime`, no.
 
-## Do ‘bpr’ accept RELATIVE file paths?   If so, how do they complete the path?
+### RELATIVE file paths?   If so, how do they complete the path?
 
 Yes, all of them.
 
@@ -602,17 +608,19 @@ Yes, all of them.
 
 Where dir1, dir2, are in the rtp.
 
-## Do ‘bpr’ accept PATTERNS?   If so, which metacharacters can be used?
+### PATTERNS?   If so, which metacharacters can be used?
 
 Yes, all of them.
 
 You can use the metacharacters listed in `:h file-pattern`.
 
-## In the pattern passed as an argument to `:{breakadd|profile}`, what does `*` match?
+##
+## What does `*` match in the pattern passed as an argument to
+### `:{breakadd|profile}`?
 
 Any string of characters (including a dot).
 
-## In the pattern passed as an argument to `:runtime`, what does `*` match?
+### `:runtime`?
 
 In the last component of the path, a part of the filename:
 
@@ -626,6 +634,7 @@ Before the last component of the path, ONE directory:
         :ru! */*/foo.vim
         could source `plugin/bar/foo.vim`~
 
+##
 ## How do ‘bpr’ interpret `*foo.vim`?   What about `*/foo.vim`?
 
         ┌────────────────────────────────┬─────────────────────────────────────────────────┐
@@ -655,7 +664,8 @@ Before the last component of the path, ONE directory:
         │                                 │ and whose name IS `foo.vim`                     │
         └─────────────────────────────────┴─────────────────────────────────────────────────┘
 
-## Are the two wildcards necessary in `:{breakadd|prof} file */*foo.vim`?
+## Are the two wildcards necessary in
+### `:{breakadd|prof} file */*foo.vim`?
 
 No. One is enough:
 
@@ -670,7 +680,7 @@ No. One is enough:
 
         :{breakadd|prof} file *foo.vim
 
-## Are the two wildcards necessary in `:runtime! */*foo.vim`?
+### `:runtime! */*foo.vim`?
 
 Yes, if you  want to match a file  whose name ends with `foo.vim`,  you need the
 second wildcard.

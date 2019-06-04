@@ -2123,6 +2123,15 @@ See also:
 
                                     165 sloc
 
+## translate-shell.vim
+
+Translate-shell.vim is a plugin for translating text without leaving Vim.
+It provides a window that displays  the translate of word under cursor, selected
+text or you can use "on fly" translation and translate inserted text.
+Also, you can save your translate story to file and import it to Anki.
+
+<https://github.com/echuraev/translate-shell.vim>:906 sloc
+
 ## twiggy
 
             Git branch management for Vim

@@ -80,6 +80,131 @@ If you only wrote two backslashes, the shell would reduce them into a single one
 So, the shell would try to run `cmd2` itself.
 
 ##
+## What's the global value of `@foo`, if I've written in my tmux.conf
+### `set -g @foo "x\yz"`?
+
+    $ tmux show -g @foo
+    xyz~
+
+#### What does this illustrate?
+
+Tmux translates some escape sequences.
+
+And if the character following the backslash is not recognized, it's replaced by
+itself; i.e. the backslash is just removed.
+
+Note that if the next character is special, it loses its special meaning.
+That's what allows you to make a key binding run several commands:
+
+    bind C-g display -p hello \; display -p world
+                              ^^
+
+###
+### `set -g @foo 'x\yz'`?
+
+    $ tmux show -g @foo
+    x\\yz~
+
+#### What does this illustrate?
+
+Tmux doesn't try to translate anything in a single quoted string.
+
+Tmux uses double quoted strings internally.
+
+###
+### `set -g @foo 'x''y'`?
+
+    $ tmux show -g @foo
+    xy~
+
+#### Why?
+
+Tmux interprets `''` as  the end of a string followed by the  beginning of a new
+one; and then it concatenates them.
+
+It behaves just like the shell:
+
+    $ echo 'x''y'
+    xy~
+
+##### What's the consequence of this?
+
+You can't  include a single quote  inside a string surrounded  by single quotes,
+simply by doubling it.
+
+##
+## Which escape sequences does tmux automatically translate?  (6)
+
+    ┌────────────┬───────────────────────────────────────────────┐
+    │ \e         │ escape character                              │
+    ├────────────┼───────────────────────────────────────────────┤
+    │ \r         │ carriage return                               │
+    ├────────────┼───────────────────────────────────────────────┤
+    │ \n         │ newline                                       │
+    ├────────────┼───────────────────────────────────────────────┤
+    │ \t         │ tab                                           │
+    ├────────────┼───────────────────────────────────────────────┤
+    │ \uXXXX     │ unicode codepoint corresponding to `XXXX`     │
+    │ \uXXXXXXXX │                                    `XXXXXXXX` │
+    ├────────────┼───────────────────────────────────────────────┤
+    │ \ooo       │ character of octal value `ooo`                │
+    └────────────┴───────────────────────────────────────────────┘
+
+### On which condition is the translation performed?
+
+The escape sequence must be outside a  string, or inside a double quoted string,
+but not inside a single quoted string.
+
+    set -g @foo a\u00e9b
+    $ tmux show -gv @foo
+    aéb~
+
+    set -g @foo "a\u00e9b"
+    $ tmux show -gv @foo
+    aéb~
+
+    set -g @foo 'a\u00e9b'
+    $ tmux show -gv @foo
+    a\u00e9b~
+
+##
+## What's the output of `$ tmux set -g @foo "a\u00e9b" \; show -gv @foo`?
+
+    a\u00e9b~
+
+### Why is it not `aéb`?
+
+I think that's because the shell parses  the string first (to expand for example
+a possible environment variable or  command substitution), and passes the result
+as a literal string (inside single quotes) to tmux.
+
+---
+
+Btw, don't rely  on `$ echo` to test  how the shell parses a  string; the latter
+command is a shell builtin which processes its argument differently depending on
+the shell used. IOW, it interferes.
+
+    $ bash -c 'echo "a\u00e9b"'
+    a\u00e9b~
+
+    $ sh -c 'echo "a\u00e9b"'
+    a\u00e9b~
+
+    $ zsh -c 'echo "a\u00e9b"'
+    aéb~
+
+Instead, use `$ printf`; it behaves identically across all shells we use:
+
+    $ bash -c 'printf "%s\n" "a\u00e9b"'
+    a\u00e9b~
+
+    $ sh -c 'printf "%s\n" "a\u00e9b"'
+    a\u00e9b~
+
+    $ zsh -c 'printf "%s\n" "a\u00e9b"'
+    a\u00e9b~
+
+##
 # Getting Information
 ## How to get the name of the outer terminal?
 
@@ -122,45 +247,6 @@ Press `C-t` to tag all buffers, then `D`.
 
 ##
 # Debugging
-## When writing a bug report
-### which terminal geometry should I use?
-
-Make sure the terminal has 80 columns, and 24 lines.
-
-    $ echo $COLUMNS
-    80~
-
-    $ echo $LINES
-    24~
-
-The goal is to reproduce with a “standard” geometry.
-
-See `$ man tmux /^\s*default-size`:
-
-> The default is 80x24.
-
-See also `:h window-size`:
-
-> If everything fails a default size of 24 lines and 80 columns is assumed.
-
-### why should I reproduce the issue with a binary compiled *without* my custom script?
-
-Your script modifies the tmux version.
-
-When you'll write  your bug report, the log files  may contain information which
-look incompatible with your tmux version.
-
-Besides, nicm  may wrongly think  that you're not using  master, and ask  you to
-reproduce the issue  on master; this kind of  conversation/misunderstanding is a
-waste of time and increases confusion.
-
-#### which related pitfall should I be aware of?
-
-Even if you don't use your script now, you've probably used it recently.
-It has modified `configure.ac` to change the version; so, make sure to run
-`$ git stash` to undo the modifications.
-
-##
 ## Crash
 ### How to produce an example core file on-demand?
 
@@ -313,6 +399,26 @@ Join it to your bug report.
 See here to learn more about how to make gdb print to a file instead of stdout:
 <https://stackoverflow.com/a/5941271/9780968>
 
+## When writing a bug report, which terminal geometry should I use?
+
+Make sure the terminal has 80 columns, and 24 lines.
+
+    $ echo $COLUMNS
+    80~
+
+    $ echo $LINES
+    24~
+
+The goal is to reproduce with a “standard” geometry.
+
+See `$ man tmux /^\s*default-size`:
+
+> The default is 80x24.
+
+See also `:h window-size`:
+
+> If everything fails a default size of 24 lines and 80 columns is assumed.
+
 ##
 # Issues
 ## My `if-shell` and/or `run-shell` tmux command doesn't work!
@@ -367,13 +473,16 @@ And read the error message written in the file to get more information.
 Make sure you don't have a running tmux server listening to the socket `test`:
 
     $ ps aux | grep tmux | grep test
-    user 6771 ... tmux -Ltest -f/dev/null new~
+    user 6771 ... tmux -Ltest -f/dev/null~
                               ├─────────┘
                               └ your custom config can't be read because of this
 
-If there's one, kill it:
+If there's one, kill it – from inside tmux – with `kill-server`:
 
-    $ kill -9 6771
+    $ tmux kill-server
+
+Don't worry, it won't kill another running tmux server.
+It probably targets the current server by inspecting `$TMUX`.
 
 ---
 
@@ -383,10 +492,10 @@ this `test` socket.
 MWE:
 
     $ xterm
-    $ tmux -Ltest -f/dev/null new
+    $ tmux -Ltest -f/dev/null
     Alt-F4
     $ ps aux | grep tmux | grep test
-    user ... tmux -Ltest -f/dev/null new~
+    user ... tmux -Ltest -f/dev/null~
 
 Alt-F4 kills the client, but not the server.
 The server keeps running in the background.

@@ -360,6 +360,19 @@ of it.
 Source:
 <https://unix.stackexchange.com/questions/119493/whats-the-difference-between-and/119495#comment187541_119495>
 
+## Which operator should I use to check a NON-match (i.e. equivalent of `!~`)?
+
+Use the `!` operator to negate the test.
+
+    [[ ! foo =~ bar ]]
+       ^
+
+##
+## How to include a space in a pattern?  (2)
+
+    [[:blank:]] = [ \t]
+    [[:space:]] = [ \t\n\r\f\v]
+
 ## How to describe a non-digit in a pattern?
 
     [^[:digit:]]
@@ -417,4 +430,41 @@ The mere execution of  a command after the job has finished  will make the shell
 redraw the prompt.
 
 But in practice, you won't know how much time you have to wait.
+
+##
+# Todo
+## `set -e`
+
+Maybe you should document this command.
+It's used when you want your script to stop as soon as an error is raised by a command.
+
+See `$ man bash /SHELL BUILTIN COMMANDS /^\s*set [`.
+
+Although,  the  command is  not  reliable,  and  because  of this,  some  people
+recommend to avoid it:
+<http://mywiki.wooledge.org/BashFAQ/105>
+
+---
+
+`set -e` can  be useful to make a  script stop whenever a function  exits with a
+non-zero status (no matter the nesting level):
+<https://stackoverflow.com/a/9893727/9780968>
+
+Although, there're other ways to achieve the same result:
+
+   - <https://unix.stackexchange.com/a/48550/289772>
+   - <https://stackoverflow.com/a/9894126/9780968>
+
+---
+
+If you use `set -e`, you'll need to systematically pass `-f` to `$ rm`, and `-p` to `$ mkdir`.
+Even if they seem unnecessary.
+This is because they suppress errors.
+
+For  commands which  don't provide  an option  suppressing errors,  you need  to
+temporarily toggle `set -e`:
+
+    set +e
+    problematic_command
+    set -e
 

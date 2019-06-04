@@ -555,10 +555,13 @@ Source: <https://stackoverflow.com/a/19962913/9780968>
           - INFO: Node.js: v4.2.6~
           - WARNING: Neovim node.js host does not support v4.2.6~
 
-    $ gem install neovim
+    $ gem install --user-install neovim
 
     ERROR:  Could not find a valid gem 'neovim' (>= 0), here is why:~
               Unable to download data from https://rubygems.org/ - Errno::ECONNRESET: Connection reset by peer - SSL_connect (https://api.rubygems.org/specs.4.8.gz)~
+
+    # choose a proxy supporting http*s* from here: <https://www.us-proxy.org/>
+    $ https_proxy=<ip>:<port> gem install --user-install neovim
 
 ### ?
 

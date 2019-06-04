@@ -17,15 +17,6 @@ started by the tmux server (which is typically a shell, but not necessarily).
 For the global environment, tmux copies  the environment of the shell from where
 it's started.
 
-It also adds any variable which is assigned a value in `~/.tmux.conf`.
-
-     $ tmux -L test -f <(cat <<'EOF'
-     var=hello
-     EOF
-     )
-     $ tmux showenv -g | grep hello
-     var=hello~
-
 ---
 
 For  the local  environment,  tmux copies  the variables  listed  in the  option
@@ -54,13 +45,30 @@ which the tmux client was started.
 
 ##
 # Adding a variable
-## How to add an environment variable into the global environment?
+## How to add an environment variable into the global environment?  (2)
+
+Use `setenv -g`:
 
     $ tmux setenv -g VAR value
 
 Example:
 
     $ tmux setenv -g REPORTTIME 123
+
+---
+
+Or use `var=val` in a file sourced by tmux:
+
+     $ tmux -L test -f =(cat <<'EOF'
+     var=hello
+     EOF
+     )
+     $ tmux showenv -g | grep hello
+     var=hello~
+
+     $ tmux source =(echo 'var=world')
+     $ tmux showenv -g | grep world
+     var=world~
 
 ##
 # Unsetting a variable
