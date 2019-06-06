@@ -187,8 +187,8 @@ Pousser une copie du repo sur github, et après chaque refactoring, tester le bo
 fonctionnement du plugin via:
 
     $ vim -Nu /tmp/vimrc file
-              └────────┤
-                       └ peuplé via le snippet `vimrc`
+              ├────────┘
+              └ peuplé via le snippet `vimrc`
 
 Commit si tout fonctionne correctement.
 
@@ -629,11 +629,10 @@ in the original problem.
 
 Example:
 
-        Problem:
+    Problem:
+    write some code to show the snippets available in the current buffer.
 
-write some code to show the snippets available in the current buffer.
-
-        Implicit questions:
+Implicit questions:
 
    - Where should I display the info (horizontal/vertical split, tabpage)?
    - Should I use syntax highlighting?

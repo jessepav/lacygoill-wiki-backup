@@ -23,6 +23,26 @@
 Start Vim with `-V15/tmp/log`.
 Then read the log.
 
+# How to write a shell command starting Vim with a minimal vimrc, whose contents is not written in a file?
+
+    $ vim -Nu <(cat <<'EOF'
+    cmd1
+    cmd2
+    ...
+    EOF
+    )
+
+This allows  you to avoid  writing the vimrc  in a file,  which you would  do by
+running 2 commands:
+
+    $ cat <<'EOF' >/tmp/vimrc
+    cmd1
+    cmd2
+    ...
+    EOF
+
+    $ vim -Nu /tmp/vimrc
+
 ##
 # Startup
 ## What are the locations from which Vim sources files when I start it with `$ vim -Nu NORC`?

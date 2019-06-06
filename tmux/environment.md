@@ -7,10 +7,14 @@
     └ path to the server socket
 
 #
-# What are the global environment of the tmux server, and the environment local to a tmux session?
+# What are the global environment of the tmux server, and a session environment?
 
-They are two sets of environment variables  which will be passed to each process
-started by the tmux server (which is typically a shell, but not necessarily).
+They are two  sets of environment variables  which will be merged  and passed to
+each process  started by the  tmux server (which is  typically a shell,  but not
+necessarily).
+
+The global environment applies to all sessions, while a session environment only
+applies to a given tmux session.
 
 ## How are they initialized?
 
@@ -19,7 +23,7 @@ it's started.
 
 ---
 
-For  the local  environment,  tmux copies  the variables  listed  in the  option
+For the  session environment,  tmux copies  the variables  listed in  the option
 `'update-environment'`, with  the values they  had in  the shell from  which the
 tmux client was started.
 
@@ -29,14 +33,14 @@ For the global environment:
 
     $ tmux showenv -g
 
-For the local environment:
+For the session environment:
 
     $ tmux showenv
 
-### In the local environment of my session, some variables are prefixed with a minus sign.  What does it mean?
+### In my current session environment, some variables are prefixed with a minus sign.  What does it mean?
 
-It means that tmux will remove the variables from the environment of any process
-it will start in this session.
+It means that tmux will remove the  variables from the merged environment of any
+process it will start in this session.
 
 #### When does tmux prefix a variable with such a sign?
 
@@ -72,10 +76,10 @@ Or use `var=val` in a file sourced by tmux:
 
 ##
 # Unsetting a variable
-## How to unset a variable in
-### all shells?
+## How to unset a variable from the merged environment passed by tmux to
+### all future shells?
 
-If the variable is only in the environment local to the session:
+If the variable is only in the session environment:
 
     $ tmux setenv -{u|r} VAR
 
@@ -83,31 +87,31 @@ Only in the global environment:
 
     $ tmux setenv -g{u|r} VAR
 
-In both the global and local environments:
+In both the global and session environments:
 
     $ tmux setenv -{u|r} VAR \; setenv -g{u|r} VAR
 
-### all shells of the current session (and only the current session)?
+### all future shells of the current session (and only the current session)?
 
     $ tmux setenv -r VAR
 
-It doesn't matter whether the variable was initially in the environment local to
-the session, the global environment, or both; it will always be removed.
+It doesn't matter whether the variable was initially in the session environment,
+the global environment, or both; it will always be removed.
 
-After running  the command,  tmux adds  the variable  to the  local environment,
+After running  the command, tmux adds  the variable to the  session environment,
 prefixed with a minus sign:
 
     $ tmux showenv | grep VAR
     -VAR~
     ^
 
-This removes the old  value that the variable had in  the local environment, and
+This removes the old value that the variable had in the session environment, and
 indicates to tmux that  when it starts a process, it  should remove the variable
-from the merge between the local and global environments.
+from the merge between the session and global environments.
 
 ---
 
-Alternatively,  if the  variable is  in the  local environment  (and not  in the
+Alternatively, if  the variable is  in the session  environment (and not  in the
 global one):
 
     $ tmux setenv -u VAR
@@ -115,7 +119,7 @@ global one):
 ###
 ## What can `-r` do that `-u` can't?
 
-`-r` can  remove a variable  from the environment of  all shells started  in the
+`-r` can remove a variable from the  environment of all processes started in the
 current session, even if it's in the tmux global environment.
 
     $ tmux setenv -r WINDOWID
@@ -131,65 +135,90 @@ current session, even if it's in the tmux global environment.
     1234~
 
 If a variable  is in the tmux  global environment, `-u` will remove  it from the
-local environment,  but not from  the global one; as  a result, the  shells will
-still be initialized with the variable.
+session environment,  but not from  the global one;  as a result,  the processes
+will still be initialized with the variable.
 `-gu` would remove  the variable from the global environment,  but remember that
-we want to remove it only from the shells of *the current session*.
+we want to remove it only from the processes started in *the current session*.
 
-## `WINDOWID` is in the local and global environment.  What happens if I run `$ tmux setenv -gr WINDOWID`?
+## `WINDOWID` is in the session and global environment.  What happens if I run `$ tmux setenv -gr WINDOWID`?
 
 Nothing.
-`WINDOWID` is still in the local environment of all tmux sessions.
-And a local environment has priority over the global one.
+
+This is because:
+
+   - `WINDOWID` is still in the session environment of any tmux session
+   - a session environment has priority over the global one
 
 ##
 # Updating a variable
 ## automatically
-### When does tmux automatically update the value of `KRB5CCNAME` in the local environment of a session?
+### When does tmux automatically update the value of `KRB5CCNAME` in the environment of a session?  (3)
 
 Whenever you:
 
    - create a new session
 
-   - attach a client to a tmux session
+   - switch to an existing session
+
+   - attach a client to a session
 
 ---
 
-It doesn't matter how you create a new session, its local environment is always updated:
+It doesn't matter how you create a new session, its environment is always updated:
 
     # from outside a tmux session, into a new tmux server
-    $ export KRB5CCNAME=foobar
+    $ export KRB5CCNAME=foo
     $ tmux -Ltest
-    $ echo $KRB5CCNAME
-    foobar~
+    $ tmux showenv | grep KRB5CCNAME
+    KRB5CCNAME=foo~
 
     # from outside a tmux session, into a running tmux server
-    $ export KRB5CCNAME=foobar
+    $ export KRB5CCNAME=foo
     $ tmux new-session -s test
-    $ echo $KRB5CCNAME
-    foobar~
+    $ tmux showenv | grep KRB5CCNAME
+    KRB5CCNAME=foo~
 
     # from inside a tmux session
-    $ export KRB5CCNAME=foobar
-    $ tmux switch-client -t $(tmux new-session -d -P)
-    $ echo $KRB5CCNAME
-    foobar~
+    $ export KRB5CCNAME=foo
+    $ S=$(tmux new-session -d -P)
+    $ tmux showenv -t $S | grep KRB5CCNAME
+    KRB5CCNAME=foo~
 
-#### After it's updated in a session, when is it updated in the other sessions?
+---
 
-When you switch to them; not before.
+In  the   manpage,  the   documentation  about   `'update-environment'`  doesn't
+explicitly mention switching to a session  as a case where a session environment
+is automatically updated – unless you consider switching to another session as a
+special  (?)  case of  attaching  to  a  session –  but  it  is implied  in  the
+documentation about `switch-client`:
+
+> If -E is used, update-environment option will not be applied.
+
+---
+
+After attaching a client  to a session, the other sessions  are updated when you
+switch to them; not before.
 
 You can check this by running `$ tmux showenv -t other_session | grep KRB5CCNAME`.
 The output will still contain the old value of the variable.
 And after you switch to `other_session`, `$ tmux showenv | grep KRB5CCNAME` will
 finally contain the updated value.
 
+#### Which value is used?
+
+The value of `KRB5CCNAME` in the environment of the shell from which
+`new-session`, `switch-client`, `attach-session` has been run.
+
+#### How to prevent this automatic update?
+
+Pass the `-E` flag to `new-session`, `switch-client`, `attach-session`.
+
 ###
 ### How to control which variable is updated like `KRB5CCNAME`?
 
-Add the name of the variable you want to be updated to the option `'update-environment'`:
+Add the name of the variable you want to be updated to the array option `'update-environment'`:
 
-    $ tmux set-option -ga update-environment VAR
+    $ tmux set -ga update-environment VAR
 
 #### Why `-g`?
 
@@ -214,8 +243,9 @@ option:
 
 #### What happens if the variable doesn't exist in the environment of the shell from which I start the tmux client?
 
-It's set to be removed from the session environment (as if `-r` was given to the
-`set-environment` command).
+It's given a special value: `-VAR`.
+It means that  it's set to be  removed from the session environment  (as if `-r`
+was given to the `set-environment` command).
 
 ##
 ## manually

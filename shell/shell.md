@@ -1,3 +1,136 @@
+# Quoting
+## What is the purpose of quoting?
+
+It's used to  remove the special meaning  of certain characters or  words to the
+shell.
+
+## What are the three quoting mechanisms?
+
+The escape character, single quotes, and double quotes.
+
+## What is the escape character?
+
+A non-quoted backslash.
+
+##
+## What is the output of
+### `$ echo "a \z b"`?
+
+    a \z b
+
+`z` is  not a special  character, and inside double  quotes the shell  removes a
+backslash only if the next character is special.
+
+### `$ echo a \z b`?
+
+    a z b
+
+`z` is not a special character to the shell, but the backslash is still removed.
+It seems that the shell removes a backslash no matter the next character when outside quotes.
+
+### `$ echo "a \t b"`?
+
+`t` is not special to the shell, but `$ echo` can translate a few
+backslash-escaped characters, `\t` being one of them.
+
+However, the  precise output of the  command depends on the  shell you're using,
+because `$ echo` is a shell builtin (see `$ type -a echo`):
+
+    $ sh -c 'echo "a \t b"'
+    a 	 b~
+
+    $ bash -c 'echo "a \t b"'
+    a \t b~
+
+    $ zsh -c 'echo "a \t b"'
+    a 	 b~
+
+bash doesn't translate any backslash-escaped  character unless you pass the `-e`
+flag to  `$ echo`; the other  shells do translate a  backslash-escaped character
+when the sequence is recognized.
+
+##
+## When does the shell remove a backslash?
+
+Outside quotes, whenever it's not quoted by another backslash.
+Inside single quotes, never.
+Inside double quotes, whenever it's used to remove the special meaning of the next character.
+
+---
+
+Note that `$ echo` is not the shell; it's a command (external or builtin).
+So, these rules don't apply to determine when a backslash is removed by `$ echo`.
+For  `$  echo`,  what  matters  is whether  it  recognizes  a  backslash-escaped
+character, and possibly whether it was passed the right flag (bash needs `-e`).
+
+### What are the two exceptions?
+
+Outside quotes, a backslash is removed, regardless of the next character.
+
+    $ echo a \z b
+    a z b~
+
+Here, the backslash was removed even though  it didn't alter the meaning of `z`,
+since the latter is not special to the shell.
+
+---
+
+The backslash is not removed in front of `!`, in bash and in sh:
+
+    $ bash
+    $ echo "\!\!"
+    \!\!~
+
+    $ sh
+    $ echo "\!\!"
+    \!\!~
+
+But it is in zsh:
+
+    $ zsh
+    $ echo "\!\!"
+    !!~
+
+##
+## When does the shell remove any unescaped backslash (like Vim in a non-literal string)?
+
+When it's outside quotes:
+
+    $ echo a \z b
+    a z b~
+
+##
+## Which characters retain their special meaning within double quotes?
+
+   - `$`
+   - `` ` ``
+   - `\`
+   - `!`
+
+Note that `\` is special only if followed by either of:
+
+   - `$`
+   - `` ` ``
+   - `\`
+   - `"`
+   - newline
+
+Also, `!` is special only if history expansion is enabled.
+Besides, some characters may inhibit the expansion when they follow immediately.
+See `$ man bash /HISTORY EXPANSION`, and `$ man zshexpn /HISTORY EXPANSION`.
+
+## Which character gets a new special meaning when quoted?
+
+The newline.
+
+Quoting a newline suppresses its original special meaning (which is to terminate
+the input buffer and run it), and gives it a new one (line continuation).
+
+Yes, a line continuation is a  special meaning, because in effect, `\newline` is
+removed from the input stream and ignored.
+
+##
+##
 # How to get the list of shell builtin commands?
 
         $ compgen -b
@@ -13,9 +146,9 @@ the bash `compgen` function:
 ##
 # How to disable a builtin command to use the external command which is its counterpart?
 
-        $ enable -n printf
+    $ enable -n printf
 
-        % disable printf
+    % disable printf
 
 You can check the effect by executing `type printf` before and after the commands.
 
@@ -189,37 +322,36 @@ Not necessarily.
 You must iff the line makes sense on its own.
 If it doesn't make sense without the next one(s), then you don't need a backslash.
 
-        # `echo 1 &&` doesn't make sense, so you don't need a backslash.
-        echo 1 &&
-        echo 2
+    # `echo 1 &&` doesn't make sense, so you don't need a backslash.
+    echo 1 &&
+    echo 2
 
-        # `echo 1 2 3` is valid, so you DO need a backslash.
-        echo 1 2 3 \
-        4
+    # `echo 1 2 3` is valid, so you DO need a backslash.
+    echo 1 2 3 \
+    4
 
-        # `echo 1` is valid, so you DO need a backslash.
-        echo 1 \
-        && echo 2
+    # `echo 1` is valid, so you DO need a backslash.
+    echo 1 \
+    && echo 2
 
-        # As soon as you write `(` to begin an array assignment,
-        # the shell expects `)` to end it.
-        # So, as long as you haven't written `)`, your assignment
-        # is not valid, and you don't need a backslash.
-        % arr=(
-            'one'
-            'two'
-            'three'
-          )
+    # As soon as you write `(` to begin an array assignment,
+    # the shell expects `)` to end it.
+    # So, as long as you haven't written `)`, your assignment
+    # is not valid, and you don't need a backslash.
+    % arr=(
+        'one'
+        'two'
+        'three'
+      )
 
-        % string='hello
-            world'
+    % string='hello
+        world'
 
-        # `ls |` doesn't make sense, so you don't need a backslash
-        % ls |
-          sort
+    # `ls |` doesn't make sense, so you don't need a backslash
+    % ls |
+      sort
 
-See:
-        https://unix.stackexchange.com/a/281310/289772
+See: <https://unix.stackexchange.com/a/281310/289772>
 
 ##
 # How to set a readline variable from an interactive bash session?
@@ -229,18 +361,18 @@ See:
 ##
 # I'm in `/tmp/old/path/to/dir`, how to quickly get to `/tmp/new/path/to/dir`?
 
-        % cd old new
+    % cd old new
 
 Note that the substitution is not very smart.
 It looks for the first `old` in the path, and replaces it with `new`.
 But if it fails, it doesn't try to look further for a possible 2nd `old`.
 So, even though you could expect the following commands to succeed, they will fail:
 
-        % mkdir -p /tmp/old/path/to/old/dir
-        % mkdir -p /tmp/old/path/to/new/dir
-        % cd /tmp/old/path/to/old/dir
-        % cd old new
-        ✘ cd: no such file or directory: /tmp/new/path/to/old/dir~
+    % mkdir -p /tmp/old/path/to/old/dir
+    % mkdir -p /tmp/old/path/to/new/dir
+    % cd /tmp/old/path/to/old/dir
+    % cd old new
+    ✘ cd: no such file or directory: /tmp/new/path/to/old/dir~
 
 ##
 # How to list all entries under the current directory?  all files?  all directories?  all links?
@@ -480,27 +612,27 @@ shell.
 
 Example:
 
-          ┌ you could also use `echo` in zsh, and `echo -e` in bash
-          │
-          │           ┌ necessary for zsh
-          │           │
-        $ printf -- "#\!/bin/bash\necho 'from ~/.local/bin'" >~/.local/bin/sh.sh && \
-          chmod +x ~/.local/bin/sh.sh
+      ┌ you could also use `echo` in zsh, and `echo -e` in bash
+      │
+      │           ┌ necessary for zsh
+      │           │
+    $ printf -- "#\!/bin/bash\necho 'from ~/.local/bin'" >~/.local/bin/sh.sh && \
+      chmod +x ~/.local/bin/sh.sh
 
-        $ sh.sh
-        from ~/.local/bin    ✔~
+    $ sh.sh
+    from ~/.local/bin    ✔~
 
-        $ printf -- "#\!/bin/bash\necho 'from ~/bin'" >~/bin/sh.sh && \
-          chmod +x ~/bin/sh.sh
+    $ printf -- "#\!/bin/bash\necho 'from ~/bin'" >~/bin/sh.sh && \
+      chmod +x ~/bin/sh.sh
 
-        $ sh.sh
-        from ~/.local/bin    ✘~
+    $ sh.sh
+    from ~/.local/bin    ✘~
 
-        $ hash -r && sh.sh
-        from ~/bin     ✔~
+    $ hash -r && sh.sh
+    from ~/bin     ✔~
 
-        # clean up the useless scripts
-        $ rm ~/{,.local/}bin/sh.sh
+    # clean up the useless scripts
+    $ rm ~/{,.local/}bin/sh.sh
 
 This example assumes  that `~/bin` and `~/.local/bin` are both  in your `$PATH`,
 and that `~/bin` comes first.
@@ -599,13 +731,13 @@ In particular, if the `nullglob` option is set, the glob is ignored:
 ##
 ## My command output is a single column of words.  How to format it into a table?
 
-        $ cmd | column
-                │
-                └ included in the `bsdmainutils` package
+    $ cmd | column
+            │
+            └ included in the `bsdmainutils` package
 
 Example:
 
-        $ printf -- '%s\n' word_{1..123} | column
+    $ printf -- '%s\n' word_{1..123} | column
 
 ## What does affect the number of columns in the table?
 
@@ -645,28 +777,28 @@ The next one(s), if any, occupy 8 cells.
 ##
 ## My command output is a whitespace separated list of 12 words.  How to format it into a 3 rows x 4 columns table?
 
-        $ cmd | pr -t -l3 -4
-                │  │  │   │
-                │  │  │   └ -COLUMN, --columns=COLUMN
-                │  │  │
-                │  │  │     Output 4 columns and print them down.
-                │  │  │     Balance number of lines in the columns on each page.
-                │  │  │
-                │  │  └ -l, --length
-                │  │
-                │  │    Set the page length to 3 lines.
-                │  │
-                │  └ -t, --omit-header
-                │
-                │    Omit page headers and trailers.
-                │
-                └ convert text files for printing
+    $ cmd | pr -t -l3 -4
+            │  │  │   │
+            │  │  │   └ -COLUMN, --columns=COLUMN
+            │  │  │
+            │  │  │     Output 4 columns and print them down.
+            │  │  │     Balance number of lines in the columns on each page.
+            │  │  │
+            │  │  └ -l, --length
+            │  │
+            │  │    Set the page length to 3 lines.
+            │  │
+            │  └ -t, --omit-header
+            │
+            │    Omit page headers and trailers.
+            │
+            └ convert text files for printing
 
                   included in the `coreutils` package
 
 Example:
 
-        $ printf -- '%s\n' word_{1..12} | pr -t -l3 -4
+    $ printf -- '%s\n' word_{1..12} | pr -t -l3 -4
 
 ## The columns are filled before the rows.  How to fill the rows first?
 
