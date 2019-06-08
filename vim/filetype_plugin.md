@@ -19,30 +19,29 @@ TLDR:
 
 Before `$VIMRUNTIME`, Neovim includes:
 
-        $XDG_CONFIG_HOME/nvim (user config)
-        $XDG_CONFIG_DIRS/nvim (sysadmin config)
-        $XDG_DATA_HOME/nvim/site (user plugins)
-        $XDG_DATA_DIRS/nvim/site (sysadmin plugins)
+    $XDG_CONFIG_HOME/nvim (user config)
+    $XDG_CONFIG_DIRS/nvim (sysadmin config)
+    $XDG_DATA_HOME/nvim/site (user plugins)
+    $XDG_DATA_DIRS/nvim/site (sysadmin plugins)
 
 After `$VIMRUNTIME`, Neovim includes:
 
-        $XDG_DATA_DIRS/nvim/site/after
-        $XDG_DATA_HOME/nvim/site/after
-        $XDG_CONFIG_DIRS/nvim/after
-        $XDG_CONFIG_HOME/nvim/after
+    $XDG_DATA_DIRS/nvim/site/after
+    $XDG_DATA_HOME/nvim/site/after
+    $XDG_CONFIG_DIRS/nvim/after
+    $XDG_CONFIG_HOME/nvim/after
 
 ---
 
 In case you didn't notice:
 
-        - those are the same directories, in reverse order, and with the `after/` suffix
-        - `$XDG_CONFIG_DIRS` is a SET of directories; same thing for `$XDG_DATA_DIRS`
-                          ^
-                          plural
+   - those are the same directories, in reverse order, and with the `after/` suffix
+   - `$XDG_CONFIG_DIRS` is a SET of directories; same thing for `$XDG_DATA_DIRS`
+                     ^
+                     plural
 
 And in case you wonder what those `$XDG_...` variables are:
-
-        https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+<https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>
 
 ---
 
@@ -50,50 +49,50 @@ More details.
 
 There are 9 sets of directories:
 
-        1. $XDG_CONFIG_HOME/nvim
+   1. $XDG_CONFIG_HOME/nvim
 
 Usually, `$XDG_CONFIG_HOME` is `~/.config`.
 If `$XDG_CONFIG_HOME` is not set, Neovim falls back on `$HOME/.config`.
 
 
-        2. $XDG_CONFIG_DIRS/nvim
+   2. $XDG_CONFIG_DIRS/nvim
 
 `$XDG_CONFIG_DIRS` is an array of directories.
 So this second set contains more than one directories.
 Example:
 
-        /etc/xdg/xdg-xubuntu/nvim
-        /usr/share/upstart/xdg/nvim
-        /etc/xdg/nvim
+    /etc/xdg/xdg-xubuntu/nvim
+    /usr/share/upstart/xdg/nvim
+    /etc/xdg/nvim
 
 
-        3. $XDG_DATA_HOME/nvim/site
+   3. $XDG_DATA_HOME/nvim/site
 
 Usually `$XDG_DATA_HOME` is `~/.local/share`.
 
 
-        4. $XDG_DATA_DIRS/nvim/site
+   4. $XDG_DATA_DIRS/nvim/site
 
 `$XDG_DATA_DIRS` is an array of directories.
 So this fourth set contains more than one directories.
 Example:
 
-        /usr/share/xubuntu/nvim/site
-        /usr/share/xfce4/nvim/site
-        /usr/local/share/nvim/site
-        /usr/share/nvim/site
-        /var/lib/snapd/desktop/nvim/site
+    /usr/share/xubuntu/nvim/site
+    /usr/share/xfce4/nvim/site
+    /usr/local/share/nvim/site
+    /usr/share/nvim/site
+    /var/lib/snapd/desktop/nvim/site
 
 
-        5. $VIMRUNTIME
+   5. $VIMRUNTIME
 
-        6. $XDG_DATA_DIRS/nvim/site/after
+   6. $XDG_DATA_DIRS/nvim/site/after
 
-        7. $XDG_DATA_HOME/nvim/site/after
+   7. $XDG_DATA_HOME/nvim/site/after
 
-        8. $XDG_CONFIG_DIRS/nvim/after
+   8. $XDG_CONFIG_DIRS/nvim/after
 
-        9. $XDG_CONFIG_HOME/nvim/after
+   9. $XDG_CONFIG_HOME/nvim/after
 
 ## Which directories does `vim-plug` add to the rtp?  In which position exactly?
 
@@ -138,13 +137,13 @@ I'm not sure, but it seems to be an error.
 
 Anyway, this is due to those lines in `~/.config/nvim/init.vim`:
 
-        set rtp^=~/.vim
-        set rtp+=~/.vim/after
+    set rtp^=~/.vim
+    set rtp+=~/.vim/after
 
 If you remove them, `vim-plug` will correctly add:
 
-        - `~/.config/nvim`       before the third-party plugins
-        - `~/.config/nvim/after` after  the third-party plugins
+   - `~/.config/nvim`       before the third-party plugins
+   - `~/.config/nvim/after` after  the third-party plugins
 
 ##
 ## Where does Vim look for a color scheme when I execute `:colo {colorscheme}`?
@@ -188,18 +187,18 @@ With `:let`, yes.
 
 MWE:
 
-        $ vim -Nu NONE
-        :set rtp+=/tmp
-        :set rtp^=/tmp
-        :echo &rtp
+    $ vim -Nu NONE
+    :set rtp+=/tmp
+    :set rtp^=/tmp
+    :echo &rtp
 
 The last command includes `/tmp` only once.
 The second `:set` had no effect, because `/tmp` was already somewhere in the rtp.
 
-        $ vim -Nu NONE
-        :set rtp+=/tmp
-        :let &rtp = '/tmp,'.&rtp
-        :echo &rtp
+    $ vim -Nu NONE
+    :set rtp+=/tmp
+    :let &rtp = '/tmp,'.&rtp
+    :echo &rtp
 
 ##
 # Filetype detection
@@ -319,7 +318,7 @@ ALL the autocmds  in the `filetype.vim` files are sourced  BEFORE ANY autocmd in
 
 ### How to get the list of filetype detection scripts located in a `filetype.vim` file?
 
-        :Find! ~/.vim -name 'filetype.vim'
+    :Find! ~/.vim -name 'filetype.vim'
 
 ###
 ## Acting
@@ -365,13 +364,13 @@ Here are all the 8 possible `:filetype` commands:
 
 ### Which file(s) are sourced when I execute `:filetype on`?  `:filetype plugin on`?  `:filetype indent on`?
 
-        ┌─────────────────────┬───────────────────────────┐
-        │ :filetype on        │ $VIMRUNTIME/filetype.vim *│ * = and any `filetype.vim` in the rtp
-        ├─────────────────────┼───────────────────────────┤
-        │ :filetype plugin on │ $VIMRUNTIME/ftplugin.vim  │
-        ├─────────────────────┼───────────────────────────┤
-        │ :filetype indent on │ $VIMRUNTIME/indent.vim    │
-        └─────────────────────┴───────────────────────────┘
+    ┌─────────────────────┬───────────────────────────┐
+    │ :filetype on        │ $VIMRUNTIME/filetype.vim *│ * = and any `filetype.vim` in the rtp
+    ├─────────────────────┼───────────────────────────┤
+    │ :filetype plugin on │ $VIMRUNTIME/ftplugin.vim  │
+    ├─────────────────────┼───────────────────────────┤
+    │ :filetype indent on │ $VIMRUNTIME/indent.vim    │
+    └─────────────────────┴───────────────────────────┘
 
 ### What do they do?
 
@@ -381,16 +380,16 @@ Here are all the 8 possible `:filetype` commands:
 `$VIMRUNTIME/ftplugin.vim` installs 1 autocmd listening to `FileType *`.
 It sources all the files in a directory of the rtp, and whose end of the path matches:
 
-        ftplugin/&ft.vim
-        ftplugin/&ft_*.vim
-        ftplugin/&ft/*.vim
-                 ├─┘
-                 └ the autocmd gets the filetype by expanding `<amatch>`
+    ftplugin/&ft.vim
+    ftplugin/&ft_*.vim
+    ftplugin/&ft/*.vim
+             ├─┘
+             └ the autocmd gets the filetype by expanding `<amatch>`
 
 `$VIMRUNTIME/indent.vim` installs 1 autocmd listening to `FileType *`.
 It sources all the files in a directory of the rtp, and whose end of the path matches:
 
-        indent/&ft.vim
+    indent/&ft.vim
 
 ##
 ### What are all the locations where I can write my filetype detection files?  What's the difference between them?
@@ -404,8 +403,7 @@ If you rely on the name, use `filetype.vim`, otherwise use `scripts.vim`.
 Note that these 3 paths must be relative to any directory in the rtp.
 
 For more info, read `:h ftdetect`, and:
-
-        https://vi.stackexchange.com/a/14339/17449
+<https://vi.stackexchange.com/a/14339/17449>
 
 ### Why should I use `filetype.vim` instead of `ftdetect/`?
 
@@ -454,23 +452,23 @@ This is recommended in `:h 43.2`:
 
 Use an `after/` directory:
 
-                               vvvvv
-        $ cat <<'EOF' >>~/.vim/after/filetype.vim
+                           vvvvv
+    $ cat <<'EOF' >>~/.vim/after/filetype.vim
 
-        augroup filetypedetect
-            au! BufNewFile,BufRead /path/to/dir/* setf sh
-        augroup END
-        EOF
+    augroup filetypedetect
+        au! BufNewFile,BufRead /path/to/dir/* setf sh
+    augroup END
+    EOF
 
 Now, if  your directory contains files  with some extensions, you  can set their
 filetypes in a `filetype.vim` sourced earlier:
 
-        $ cat <<'EOF' >>~/.vim/filetype.vim
+    $ cat <<'EOF' >>~/.vim/filetype.vim
 
-        augroup filetypedetect
-            au! BufNewFile,BufRead /path/to/dir/*.md setf markdown
-        augroup END
-        EOF
+    augroup filetypedetect
+        au! BufNewFile,BufRead /path/to/dir/*.md setf markdown
+    augroup END
+    EOF
 
 ---
 
@@ -513,9 +511,9 @@ effects of the first plugins will be correctly undone.
 ###
 ### Which guard should I write in a `scripts.vim` file?
 
-	if did_filetype()
-	    finish
-	endif
+    if did_filetype()
+        finish
+    endif
 
 #### Why?
 
@@ -537,7 +535,7 @@ Include  a  subpattern   matching  its  extension  in  the   pattern  stored  in
 `g:ft_ignore_pat`.
 The default value of the latter is:
 
-        '\.\(Z\|gz\|bz2\|zip\|tgz\)$'
+    '\.\(Z\|gz\|bz2\|zip\|tgz\)$'
 
 ### How to ask Vim to look at the new contents I've just inserted, to set the filetype of the current buffer?
 
@@ -572,13 +570,13 @@ From `:h 'syntax`:
 
 Use `:runtime`:
 
-        " ✔ in ftplugin/markdown.vim
-        :runtime! ftplugin/html.vim
+    " ✔ in ftplugin/markdown.vim
+    :runtime! ftplugin/html.vim
 
 This approach is more granular than the broad:
 
-        " ✘
-        :setf markdown.html
+    " ✘
+    :setf markdown.html
 
 You can choose exactly which kind of markdown plugin you want to load (ftplugin,
 indent, syntax).
@@ -638,9 +636,9 @@ by a default filetype plugin, they need to be sourced after.
 ## Acting
 ### Where can I put my C filetype plugin?
 
-        - dir/ftplugin/c.vim
-        - dir/ftplugin/c_*.vim
-        - dir/ftplugin/c/*.vim
+   - dir/ftplugin/c.vim
+   - dir/ftplugin/c_*.vim
+   - dir/ftplugin/c/*.vim
 
 `dir/` must be present in 'rtp'.
 `*` can be any sequence of characters.
@@ -662,7 +660,7 @@ Vim doesn't use it when we do `:set syn=foo`:
 
 ### Where can I put my C indent plugin?
 
-        dir/indent/c.vim
+    dir/indent/c.vim
 
 ###
 ### How to load all C filetype plugins from a C++ filetype plugin?
@@ -698,8 +696,8 @@ In the one using the simplest naming scheme.
 
 Example:
 
-        ~/.vim/plugged/potion/ftplugin/potion.vim
-        ~/.vim/plugged/potion/ftplugin/potion/folding.vim
+    ~/.vim/plugged/potion/ftplugin/potion.vim
+    ~/.vim/plugged/potion/ftplugin/potion/folding.vim
 
 Write it only in `ftplugin/potion.vim`.
 
@@ -708,27 +706,27 @@ The others, if any, are just minor tweaks, which are not meant to be guarded.
 Anyway, you can't write a guard  in `potion/folding.vim`, because it would NEVER
 be sourced since either:
 
-        - `ftplugin/potion.vim` WILL have been sourced and set `b:did_ftplugin`
+   - `ftplugin/potion.vim` WILL have been sourced and set `b:did_ftplugin`
 
-        - `ftplugin/potion.vim` will NOT have been sourced,
-          because a previous filetype plugin in the rtp will already have been sourced,
-          and the latter will have set `b:did_ftplugin`
+   - `ftplugin/potion.vim` will NOT have been sourced,
+     because a previous filetype plugin in the rtp will already have been sourced,
+     and the latter will have set `b:did_ftplugin`
 
 ---
 
 What makes you think that we're not meant to write a guard in all the files?
 
-Watch [these lines](https://github.com/tpope/vim-haml/blob/ac1cb44d58747ac70a4077da3796a9f696ee46a9/ftplugin/haml.vim#L19-L20):
+Watch [these lines][1]:
 
-        runtime! ftplugin/html.vim ftplugin/html_*.vim ftplugin/html/*.vim
-        unlet! b:did_ftplugin
+    runtime! ftplugin/html.vim ftplugin/html_*.vim ftplugin/html/*.vim
+    unlet! b:did_ftplugin
 
 Tpope doesn't remove `b:did_ftplugin` after every sourced file, which would have
 given:
 
-        runtime! ftplugin/html.vim   | unlet! b:did_ftplugin
-        runtime! ftplugin/html_*.vim | unlet! b:did_ftplugin
-        runtime! ftplugin/html/*.vim | unlet! b:did_ftplugin
+    runtime! ftplugin/html.vim   | unlet! b:did_ftplugin
+    runtime! ftplugin/html_*.vim | unlet! b:did_ftplugin
+    runtime! ftplugin/html/*.vim | unlet! b:did_ftplugin
 
 In fact, even if he did, it would still be not enough.
 Indeed, `:runtime` is  passed the bang argument, which means  that it can source
@@ -748,14 +746,14 @@ If  you really  wanted  to prevent  `potion/folding.vim` to  be  sourced when  a
 previous  filetype plugin  has been  sourced  in the  rtp, maybe  you could  set
 another variable in `ftplugin/potion.vim`:
 
-        let b:did_my_ftplugin = 1
-                 ^^^^
+    let b:did_my_ftplugin = 1
+             ^^^^
 
 Then, in `potion/folding.vim`, you would check it existence:
 
-        if !exists('b:did_my_ftplugin')
-            finish
-        endif
+    if !exists('b:did_my_ftplugin')
+        finish
+    endif
 
 This would tie the 2 scripts together.
 As a result, if `ftplugin/potion.vim` has not been sourced, `potion/folding.vim`
@@ -763,9 +761,9 @@ would do the same.
 
 You also probably would have to remove `b:did_my_ftplugin` after every `:runtime`:
 
-        runtime! ftplugin/potion.vim   | unlet! b:did_ftplugin b:did_my_ftplugin
-        runtime! ftplugin/potion_*.vim | unlet! b:did_ftplugin b:did_my_ftplugin
-        runtime! ftplugin/potion/*.vim | unlet! b:did_ftplugin b:did_my_ftplugin
+    runtime! ftplugin/potion.vim   | unlet! b:did_ftplugin b:did_my_ftplugin
+    runtime! ftplugin/potion_*.vim | unlet! b:did_ftplugin b:did_my_ftplugin
+    runtime! ftplugin/potion/*.vim | unlet! b:did_ftplugin b:did_my_ftplugin
 
 ###
 ### How to reload the filetype plugins for the current buffer?  (2)
@@ -779,13 +777,13 @@ including the syntax ones.
 
 ### How to reload all filetype/indent/syntax plugins for ALL buffers?
 
-        :doautoall filetypedetect BufReadPost
+    :doautoall filetypedetect BufReadPost
 
 The augroup `filetypedetect` is defined in `$VIMRUNTIME/filetype.vim`.
 
 ### How to reload the filetype plugins for ALL buffers?
 
-        :doautoall filetypeplugin FileType
+    :doautoall filetypeplugin FileType
 
 The augroup `filetypeplugin` is defined in `$VIMRUNTIME/ftplugin.vim`.
 It   contains  only   one  autocmd   which  calls   `s:LoadFTPlugin()`  whenever
@@ -796,8 +794,8 @@ The latter sources all filetype plugins found in the rtp.
 
 Don't use `:bufdo`, it would change the current buffer:
 
-        :bufdo let &ft = &ft  ✘
-        :bufdo e              ✘
+    :bufdo let &ft = &ft  ✘
+    :bufdo e              ✘
 
 And fuck up the syntax highlighting  of most buffers, because the `Syntax` event
 is disabled while `:bufdo` is being executed.
@@ -905,16 +903,16 @@ it can still be undone by ANY indent plugin (default, custom, ...).
 
 No.
 
-        $ vim -Nu NONE --cmd 'filetype plugin indent on'
-        $ vim -Nu NONE --cmd 'filetype indent plugin on'
+    $ vim -Nu NONE --cmd 'filetype plugin indent on'
+    $ vim -Nu NONE --cmd 'filetype indent plugin on'
 
 After starting Vim  with any of these commands, the  output of `:scriptnames` is
 always the same:
 
-        ~/.vim/filetype.vim
-        $VIMRUNTIME/filetype.vim
-        $VIMRUNTIME/ftplugin.vim
-        $VIMRUNTIME/indent.vim
+    ~/.vim/filetype.vim
+    $VIMRUNTIME/filetype.vim
+    $VIMRUNTIME/ftplugin.vim
+    $VIMRUNTIME/indent.vim
 
 ##
 # Syntax plugins
@@ -941,7 +939,7 @@ From `:h syntax_loading`:
 
 Technically, `:syntax on` and `:syntax enable` both source the file:
 
-        $VIMRUNTIME/syntax/syncolor.vim
+    $VIMRUNTIME/syntax/syncolor.vim
 
 The latter execute the custom commands `:SynColor` and `:SynLink`, which,
 depending on the argument passed to `:syn` (`enable` or `on`), are defined
@@ -979,7 +977,7 @@ So, there's no need to execute `:filetype on` after `:syntax on`.
 `:syn enable` sources `$VIMRUNTIME/syntax/syntax.vim`.
 The latter does 5 things:
 
-        1. source $VIMRUNTIME/syntax/nosyntax.vim
+   1. source $VIMRUNTIME/syntax/nosyntax.vim
 
 For  all  buffers,  this  clears  the  existing  syntax  elements,  and  removes
 `b:current_syntax`.
@@ -987,44 +985,44 @@ If this  variable was not  removed, you wouldn't be  able to reload  your syntax
 plugins with `:syn off | syn on`.
 Indeed, a syntax plugin is supposed to begin with:
 
-         if exists('b:current_syntax')
-             finish
-         endif
+     if exists('b:current_syntax')
+         finish
+     endif
 
 ---
 
-        2. source $VIMRUNTIME/syntax/synload.vim
+   2. source $VIMRUNTIME/syntax/synload.vim
 
 This does 2 things:
 
-        a) define some basic HGs (Comment, Statement, ...),
-           by sourcing $VIMRUNTIME/syntax/syncolor.vim
+    a) define some basic HGs (Comment, Statement, ...),
+       by sourcing $VIMRUNTIME/syntax/syncolor.vim
 
-        b) install an autocmd listening to `Syntax *` which sets the syntax elements of buffers
-           by sourcing:
+    b) install an autocmd listening to `Syntax *` which sets the syntax elements of buffers
+       by sourcing:
 
-                :so syntax/{&ft}.vim
-                :so syntax/{&ft}/*.vim
+            :so syntax/{&ft}.vim
+            :so syntax/{&ft}/*.vim
 
 `a)` answers the question “how do we color?“
 `b)` answers the question “what do we color?“
 
 ---
 
-        3. :so $VIMRUNTIME/filetype.vim
+   3. :so $VIMRUNTIME/filetype.vim
 
 Installs filetype detection (autocmds setting 'filetype').
 
 ---
 
-        4. install an autocmd listening to `FileType *` to set the value
-           of 'syntax' whenever 'filetype' is set
+   4. install an autocmd listening to `FileType *` to set the value
+      of 'syntax' whenever 'filetype' is set
 
 ---
 
-        5. execute this autocmd for all buffers by executing:
+   5. execute this autocmd for all buffers by executing:
 
-                doautoall syntaxset FileType
+        doautoall syntaxset FileType
 
 For each  buffer, this will set  'syntax', which will fire  `Syntax`, which will
 load the appropriate syntax plugins.
@@ -1074,27 +1072,27 @@ The user can do  so by sourcing a statement such as `let  b:did_ftplugin = 1` or
 
 Example:
 
-        " user script containing `let b:did_ftplugin = 1`
-        ~/.vim/ftplugin/foo.vim
+    " user script containing `let b:did_ftplugin = 1`
+    ~/.vim/ftplugin/foo.vim
 
-        " this third-party plugin containing a guard `if exists('b:did_ftplugin') ...`
-        " won't be sourced entirely
-        ~/.vim/plugged/vim-foo/ftplugin/foo.vim
+    " this third-party plugin containing a guard `if exists('b:did_ftplugin') ...`
+    " won't be sourced entirely
+    ~/.vim/plugged/vim-foo/ftplugin/foo.vim
 
 It  can also  prevent  2  plugins, with  the  same  purpose (filetype  settings,
 indentation, syntax highlighting), from being sourced for the same buffer.
 
 ## What does a guard look like in a filetype plugin?  In an indent plugin?  In a syntax plugin?
 
-        ┌─────────────────────────────┬───────────────────────────┬───────────────────────────────┐
-        │       filetype plugin       │       indent plugin       │         syntax plugin         │
-        ├─────────────────────────────┼───────────────────────────┼───────────────────────────────┤
-        │ if exists('b:did_ftplugin') │ if exists('b:did_indent') │ if exists('b:current_syntax') │
-        │     finish                  │     finish                │     finish                    │
-        │ endif                       │ endif                     │ endif                         │
-        │ ...                         │ ...                       │ ...                           │
-        │ let b:did_ftplugin = 1      │ let b:did_indent = 1      │ let b:current_syntax = '...'  │
-        └─────────────────────────────┴───────────────────────────┴───────────────────────────────┘
+    ┌─────────────────────────────┬───────────────────────────┬───────────────────────────────┐
+    │       filetype plugin       │       indent plugin       │         syntax plugin         │
+    ├─────────────────────────────┼───────────────────────────┼───────────────────────────────┤
+    │ if exists('b:did_ftplugin') │ if exists('b:did_indent') │ if exists('b:current_syntax') │
+    │     finish                  │     finish                │     finish                    │
+    │ endif                       │ endif                     │ endif                         │
+    │ ...                         │ ...                       │ ...                           │
+    │ let b:did_ftplugin = 1      │ let b:did_indent = 1      │ let b:current_syntax = '...'  │
+    └─────────────────────────────┴───────────────────────────┴───────────────────────────────┘
 
 ##
 ## When should I include a guard in a filetype/indent/syntax plugin?
@@ -1108,10 +1106,10 @@ At the end, before `b:undo_ftplugin`.
 In particular, it should be before the last `:runtime` statement (if any).
 Otherwise, you could face this issue:
 
-        ...
-        let b:did_ftplugin
-        runtime! ftplugin/markdown.vim
-        ...
+    ...
+    let b:did_ftplugin
+    runtime! ftplugin/markdown.vim
+    ...
 
 Here `:runtime` will fail to source the markdown plugin if the latter contains a guard.
 
@@ -1119,19 +1117,19 @@ Here `:runtime` will fail to source the markdown plugin if the latter contains a
 
 And after every `:runtime` command, otherwise you could face this issue:
 
-        runtime! ftplugin/markdown.vim
-        runtime! ftplugin/python.vim
+    runtime! ftplugin/markdown.vim
+    runtime! ftplugin/python.vim
 
 The last `:runtime` may fail, because the previous one may have set `b:did_ftplugin`.
 
 Example of code you could write:
 
-        if exists('b:did_ftplugin')
-            finish
-        endif
-        runtime! ftplugin/markdown.vim | unlet! b:did_ftplugin
-        runtime! ftplugin/python.vim | unlet! b:did_ftplugin
-        let b:did_ftplugin = 1
+    if exists('b:did_ftplugin')
+        finish
+    endif
+    runtime! ftplugin/markdown.vim | unlet! b:did_ftplugin
+    runtime! ftplugin/python.vim | unlet! b:did_ftplugin
+    let b:did_ftplugin = 1
 
 ## Should I do the same for `let b:current_syntax = '...'` and `let b:did_indent = 1`?
 
@@ -1190,3 +1188,8 @@ If we didn't use  our own custom markdown filetype plugin,  this would be useful
 to prevent  `$VIMRUNTIME/ftplugin/markdown.vim` from sourcing the  html filetype
 plugin.
 
+
+##
+# Reference
+
+[1]: https://github.com/tpope/vim-haml/blob/ac1cb44d58747ac70a4077da3796a9f696ee46a9/ftplugin/haml.vim#L19-L20

@@ -80,60 +80,7 @@ If you only wrote two backslashes, the shell would reduce them into a single one
 So, the shell would try to run `cmd2` itself.
 
 ##
-## What's the global value of `@foo`, if I've written in my tmux.conf
-### `set -g @foo "x\yz"`?
-
-    $ tmux show -g @foo
-    xyz~
-
-#### What does this illustrate?
-
-Tmux translates some escape sequences.
-
-And if the character following the backslash is not recognized, it's replaced by
-itself; i.e. the backslash is just removed.
-
-Note that if the next character is special, it loses its special meaning.
-That's what allows you to make a key binding run several commands:
-
-    bind C-g display -p hello \; display -p world
-                              ^^
-
-###
-### `set -g @foo 'x\yz'`?
-
-    $ tmux show -g @foo
-    x\\yz~
-
-#### What does this illustrate?
-
-Tmux doesn't try to translate anything in a single quoted string.
-
-Tmux uses double quoted strings internally.
-
-###
-### `set -g @foo 'x''y'`?
-
-    $ tmux show -g @foo
-    xy~
-
-#### Why?
-
-Tmux interprets `''` as  the end of a string followed by the  beginning of a new
-one; and then it concatenates them.
-
-It behaves just like the shell:
-
-    $ echo 'x''y'
-    xy~
-
-##### What's the consequence of this?
-
-You can't  include a single quote  inside a string surrounded  by single quotes,
-simply by doubling it.
-
-##
-## Which escape sequences does tmux automatically translate?  (6)
+## Which escape sequences does tmux translate?  (6)
 
     ┌────────────┬───────────────────────────────────────────────┐
     │ \e         │ escape character                              │
@@ -150,10 +97,10 @@ simply by doubling it.
     │ \ooo       │ character of octal value `ooo`                │
     └────────────┴───────────────────────────────────────────────┘
 
-### On which condition is the translation performed?
+### On which condition is the translation/expansion performed?
 
-The escape sequence must be outside a  string, or inside a double quoted string,
-but not inside a single quoted string.
+The escape sequence must be outside a  string, or inside a double-quoted string,
+but not inside a single-quoted string.
 
     set -g @foo a\u00e9b
     $ tmux show -gv @foo
@@ -168,41 +115,259 @@ but not inside a single quoted string.
     a\u00e9b~
 
 ##
-## What's the output of `$ tmux set -g @foo "a\u00e9b" \; show -gv @foo`?
+# Quoting
+## When must I avoid single quotes in my tmux.conf?
 
-    a\u00e9b~
-
-### Why is it not `aéb`?
-
-I think that's because the shell parses  the string first (to expand for example
-a possible environment variable or  command substitution), and passes the result
-as a literal string (inside single quotes) to tmux.
+When you need an  environment variable to be expanded, or  an escape sequence to
+be translated.
 
 ---
 
-Btw, don't rely  on `$ echo` to test  how the shell parses a  string; the latter
-command is a shell builtin which processes its argument differently depending on
-the shell used. IOW, it interferes.
+For example, this key binding would not print the name of your editor:
 
-    $ bash -c 'echo "a\u00e9b"'
-    a\u00e9b~
+    bind C-g display '$EDITOR'
 
-    $ sh -c 'echo "a\u00e9b"'
-    a\u00e9b~
+But this one would:
 
-    $ zsh -c 'echo "a\u00e9b"'
-    aéb~
+    bind C-g display "$EDITOR"
 
-Instead, use `$ printf`; it behaves identically across all shells we use:
+And this option would not print some text in green on the right of your status line:
 
-    $ bash -c 'printf "%s\n" "a\u00e9b"'
-    a\u00e9b~
+    export my_color=green
+    set -g status-right '#[bg=$my_color]this should be colored in $my_color'
 
-    $ sh -c 'printf "%s\n" "a\u00e9b"'
-    a\u00e9b~
+But this one would:
 
-    $ zsh -c 'printf "%s\n" "a\u00e9b"'
-    a\u00e9b~
+    my_color=green
+    set -g status-right "#[bg=$my_color]this should be colored in $my_color"
+
+### But if I write `run 'echo $EDITOR'`, tmux outputs `vim`.  Shouldn't the output be empty?
+
+No, because the command is parsed twice.
+Once by tmux, once by a shell.
+
+It's true that  the single quotes prevent tmux from  expanding the variable, but
+they're removed once the command is passed to the shell.
+The latter simply runs `$ echo $EDITOR`; so it's able to perform the expansion.
+
+##
+## In my tmux.conf, should I quote filenames passed to `source-file` with single or double quotes?
+
+With double quotes.
+
+### Why should I do it?  (2)
+
+In case it contains an environment variable whose expansion includes whitespace.
+Even if it doesn't contain one now, it may in the future.
+Besides, it's  a matter of  consistency: it would be  a bit distracting  to read
+filenames which are sometimes quoted, and sometimes not.
+
+---
+
+If a  filename contains  the name  of an option  or command,  the latter  may be
+highlighted as such, instead of being highlighted as a filename.
+
+Quoting a filename makes sure that there won't be any dubious syntax highlighting.
+
+The issue  is not  specific to our  custom syntax plugin;  it can  be reproduced
+with, the default plugin.
+
+##
+## Why can't I use two single quotes to represent a single quote in a single-quoted string?
+
+Tmux interprets `''` as  the end of a string followed by the  beginning of a new
+one; and then it concatenates them.
+
+    $ tmux source =(cat <<'EOF'
+    set @foo 'x''y'
+    EOF
+    ) \; show -v @foo
+    xy~
+
+It behaves just like the shell:
+
+    $ echo 'x''y'
+    xy~
+
+### Then how to include a single quote inside a single-quoted string?
+
+Use `'\''`.
+
+    set @foo 'x'\''y'
+               │├┘│
+               ││ └ start a new string
+               │└ insert a single quote
+               └ end the string
+
+    $ tmux source =(cat <<'EOF'
+    set @foo 'x'\''y'
+    EOF
+    ) \; show -v @foo
+    x'y~
+
+Alternatively, you could use `'"'"'`.
+
+###
+## How to write an escape character?
+
+You need a double-quoted string.
+Inside, write `\e` or `\033`.
+
+    set user-keys[0] "\ex"
+    bind -n User0 display hello
+
+    set user-keys[1] "\033y"
+    bind -n User1 display world
+
+---
+
+In the  value of 'terminal-overrides', you  have to use `\E`  in a single-quoted
+string or `\\E` in a double-quoted string,  because `\E` is the notation used by
+terminfo to denote an escape character.
+
+##
+## backslash
+### How does tmux process backslashes in strings?
+
+In a single-quoted string, they're preserved.
+
+In a  double-quoted string, tmux removes  any backslash which is  not escaped by
+another backslash, just like Vim.
+
+    :display 'a \z b'
+    a \z b~
+
+    :display "a \z b"
+    a z b~
+
+    :display "a \\z b"
+    a \z b~
+
+#### Outside strings?
+
+It  is removed,  and if  the next  character is  special, it  loses its  special
+meaning:
+
+    :display foo\ bar
+    foo bar~
+
+That's also what allows you to make a key binding run several commands:
+
+    bind C-g display -p hello \; display -p world
+                              ^^
+
+###
+### Why is there a difference in the output of `$ tmux display -p "\z"` vs `:display -p "\z"`?
+
+    $ tmux display -p "\z"
+    \z~
+
+    :display -p "\z"
+    z~
+
+The shell parses the first command before tmux.
+It  doesn't remove  the backslash,  because in  a double-quoted  string, `\`  is
+removed only when it's special, i.e.  only when it's followed by some characters
+(like `$`), and `z` is not one of them.
+A shell – probably – only passes  *literal* strings as arguments to a command it
+runs; so  here, zsh  passes the literal  string `'\z'` to  tmux, and  the latter
+doesn't replace anything in a literal string.
+
+OTOH, in the second command, tmux is  the first to parse the command (there's no
+shell this time); and tmux removes one level of backslash, unconditionally.
+
+###
+### What is the output of
+#### `:run "echo foo \; echo bar"`?
+
+    foo
+    bar
+
+---
+
+After tmux parses the command:
+
+    cmd = sh
+    arg = echo foo ; echo bar
+
+After sh parses the command:
+
+    cmd1 = echo
+    arg1 = foo
+
+    cmd2 = echo
+    arg2 = bar
+
+#### `:run "echo foo \\\; echo bar"`?
+
+    foo ; echo bar
+
+---
+
+After tmux parses the command:
+
+    cmd = sh
+    arg = echo foo \; echo bar
+
+After sh parses the command:
+
+    cmd = echo
+    arg = foo ; echo bar
+
+#### `$ tmux run "echo foo \; echo bar"`?
+
+    foo ; echo bar
+
+---
+
+After zsh parses the command:
+
+    cmd = tmux
+    arg = run 'echo foo \; echo bar'
+
+After tmux parses the command:
+
+    cmd = sh
+    arg = echo foo \; echo bar
+
+After sh parses the command:
+
+    cmd = echo
+    arg = foo ; echo bar
+
+Initially,  zsh doesn't  remove  the  backslash because  `;`  is  not a  special
+character to the shell when it's quoted by `"`.
+
+Then,  tmux doesn't  remove  the backslash,  probably because  it  was passed  a
+literal string by zsh.
+
+Finally, sh removes the backslash – which itself has removed the special meaning
+of `;` – and includes `;` in the argument of `$ echo`.
+
+#### `$ tmux run "echo foo \\\; echo bar"`?
+
+    foo \
+    bar
+
+---
+
+After zsh parses the command:
+
+    cmd = tmux
+    arg = 'echo foo \\; echo bar'
+
+After tmux parses the command:
+
+    cmd = sh
+    arg = 'echo foo \\; echo bar'
+
+After sh parses the command:
+
+    cmd1 = echo
+    arg1 = foo \
+
+    cmd2 = echo
+    arg2 = bar
 
 ##
 # Getting Information
@@ -663,7 +828,7 @@ Not  here, because  the tmux  client makes  you interact  with the  child of  an
 entirely different process: the tmux server.
 
 The  communications between the first  shell opened by the  terminal (before
-executing tmux), the tmux client, and the tmux server are all [transparent][1]:
+executing tmux), the tmux client, and the tmux server are all [transparent][2]:
 everything in red in the diagram is not visible.
 
 # Démarrage
@@ -1528,10 +1693,6 @@ Tous les raccourcis qui suivent doivent être précédés de pfx.
 # Copier-Coller
 ## Modes
 
-Les modes copie et normal de tmux correspondent resp. aux modes normal et commande de vim.
-La différence de terminologie viennent du fait qu'on ne fait pas la même chose en temps normal
-dans vim et dans tmux.
-
     pfx PgUp
 
             passer en mode copie et faire un scrollback d'une page en arrière
@@ -1720,11 +1881,6 @@ Les liens sont dépourvus de contexte.
 ##
 # Raccourcis
 
-    $ man tmux /DEFAULT KEY BINDINGS
-
-            liste des raccourcis par défaut
-
-
     bind-key [-nr] [-t mode-table] [-T key-table] key command [arguments]
     bind
 
@@ -1742,44 +1898,9 @@ Les liens sont dépourvus de contexte.
             To view the default bindings and possible commands, see the list-keys command.
 
 
-    list-keys
-    lsk
-
-            Affiche tous les raccourcis claviers.
-
-
     lsk -T prefix
 
             Affiche la table des raccourcis commençant par pfx.
-
-
-    lsk -t vi-choice
-
-            Affiche la table des raccourcis dont le mode est vi-choice.
-
-            Il existe 2 modes différents:
-
-                    - emacs-choice
-                    - vi-choice
-
-            Il s'agit de raccourcis permettant de:
-
-            Mode key bindings are defined in two tables: vi-choice and emacs-choice for keys used
-            when choosing from lists (such as produced by the choose-window command).
-
-                    - sélectionner (menu choose-window pex)
-                    - copie
-                    - édition (ligne de commande; pfx :)
-
-
-            Les flags `-n` et `-r` signifient resp.:
-
-                    - no-prefix;
-                      le raccourci n'a pas besoin du prefix
-
-                    - repeat-time;
-                      une fois le prefix et le raccourci tapés, on dispose d'un bref délai pdt
-                      lequel on peut retaper le raccourci sans le prefix
 
 
     send-keys [-lMRX] [-N repeat-count] [-t target-pane] key ...
@@ -2128,5 +2249,5 @@ Les liens sont dépourvus de contexte.
 ##
 # Reference
 
-[1]: $MY_WIKI/graph/tmux/transparent.pdf
-
+[1]: https://github.com/christoomey/vim-tmux-navigator/blob/master/vim-tmux-navigator.tmux
+[2]: $MY_WIKI/graph/tmux/transparent.pdf

@@ -1,13 +1,5 @@
-# What does the value of `$TMUX` mean (e.g. `/tmp/tmux-1000/default,31058,2`)?
-
-    /tmp/tmux-1000/default,31058,2
-    ├────────────────────┘ ├───┘ │
-    │                      │     └ the server handles 3 sessions (2+1)
-    │                      └ pid of the tmux server
-    └ path to the server socket
-
-#
-# What are the global environment of the tmux server, and a session environment?
+# Concepts
+## What are the global environment of the tmux server, and a session environment?
 
 They are two  sets of environment variables  which will be merged  and passed to
 each process  started by the  tmux server (which is  typically a shell,  but not
@@ -16,7 +8,7 @@ necessarily).
 The global environment applies to all sessions, while a session environment only
 applies to a given tmux session.
 
-## How are they initialized?
+### How are they initialized?
 
 For the global environment, tmux copies  the environment of the shell from where
 it's started.
@@ -27,7 +19,7 @@ For the  session environment,  tmux copies  the variables  listed in  the option
 `'update-environment'`, with  the values they  had in  the shell from  which the
 tmux client was started.
 
-## How to read what they currently contain?
+### How to read what they currently contain?
 
 For the global environment:
 
@@ -37,15 +29,66 @@ For the session environment:
 
     $ tmux showenv
 
-### In my current session environment, some variables are prefixed with a minus sign.  What does it mean?
+#### In my current session environment, some variables are prefixed with a minus sign.  What does it mean?
 
 It means that tmux will remove the  variables from the merged environment of any
 process it will start in this session.
 
-#### When does tmux prefix a variable with such a sign?
+##### When does tmux prefix a variable with such a sign?
 
 When it's  listed in  `'update-environment'`, but  is absent  in the  shell from
 which the tmux client was started.
+
+##
+# Syntax
+## Which variables does tmux expand?  (2)
+
+The ones in the environment of the tmux server process, as well as `~` and `~user`.
+
+See `$ man tmux /PARSING SYNTAX`.
+
+---
+
+Note  that this  doesn't include  the variables  which are  only in  tmux global
+environment, and not in the environment of the process.
+
+Write this in tmux.conf:
+
+    setenv -g myvar hello
+    set -g @foo "$myvar"
+
+Reload it, and run:
+
+    :show -gv @foo
+    ''~
+
+The output  is empty because `$myvar`  was not in the  tmux process environment,
+and so was not expanded.
+
+### In a key binding or hook, does it occur at parse time or at execution time?
+
+At parse time.
+
+Any variable is  expanded at parse time, regardless of  the context (option, key
+binding, hook, ...).
+
+Consider this hook:
+
+    set-hook -ga pane-focus-out "display '$EDITOR'"
+
+If  `$EDITOR`  was  expanded  at  execution time,  tmux  would  print  `$EDITOR`
+literally, because of the single quotes.
+But in practice, it prints `vim`.
+This proves that `$EDITOR` has been expanded earlier, at parse time.
+
+---
+
+Thanks  to this,  if  you  used [vim-tmux-navigator][1],  you  could remove  the
+`is_vim` variable from tmux global environment:
+
+    $ tmux setenv -gu is_vim
+
+The key bindings would still work.
 
 ##
 # Adding a variable
@@ -73,6 +116,16 @@ Or use `var=val` in a file sourced by tmux:
      $ tmux source =(echo 'var=world')
      $ tmux showenv -g | grep world
      var=world~
+
+## What happens if I write `var=val`
+### in my tmux.conf?
+
+The variable `var` is  added to the environment of the  tmux server process, and
+to tmux global environment.
+
+### in `/tmp/file` then run `$ tmux source /tmp/file`?
+
+The variable `var` is only added to tmux global environment.
 
 ##
 # Unsetting a variable
@@ -278,4 +331,84 @@ Because `~/.zshenv` is sourced later.
 has no effect after that.
 So, if tmux starts  a shell, and the latter sources  `~/.zshenv`, then this file
 has the last word on the values of the environment variables it sets.
+
+##
+# Miscellaneous
+## What does the value of `$TMUX` mean (e.g. `/tmp/tmux-1000/default,31058,2`)?
+
+    /tmp/tmux-1000/default,31058,2
+    ├────────────────────┘ ├───┘ │
+    │                      │     └ the server handles 3 sessions (2+1)
+    │                      └ pid of the tmux server
+    └ path to the server socket
+
+#
+## What is the output of the next snippet?
+
+    $ tmux setenv foo bar
+    :display "$foo"
+
+↣ Nothing. ↢
+
+### Why?
+
+When  expanding  an  environment  variable,   tmux  only  considers  the  global
+environment, not the session one.
+
+From `$ man tmux /PARSING SYNTAX`:
+
+> -   Environment variables preceded by $ are replaced with their
+>     value from the **global environment** (see the GLOBAL AND SESSION
+>     ENVIRONMENT section).
+
+##
+## I've run `:set @foo "a$EDITORb"`.  What's the output of `:show -v @foo`?
+
+    a
+
+There's nothing  after `a`, because tmux  tried to expand `EDITORb`;  it doesn't
+exist, and so was replaced with an empty string.
+
+### How to get `avimb`?
+
+                v      v
+    :set @foo a${EDITOR}b
+    :show -v @foo
+
+###
+## Does a non-interactive shell started by `run-shell` or `if-shell` inherit
+### the environment of the tmux server process?
+
+Yes for `run-shell`:
+
+    $ tmux run 'pstree -s -p $$ >/tmp/.out'
+    $ cat /tmp/.out
+    systemd(1)---lightdm(1001)---lightdm(1086)---upstart(1095)---tmux: server(3253)---sh(18687)---pstree(18688)~
+
+And yes for `if-shell`:
+
+    $ tmux source =(cat <<'EOF'
+    if "pstree -s -p $$ >/tmp/.out" ""
+    EOF
+    ) ; cat /tmp/.out
+    systemd(1)---lightdm(954)---lightdm(1098)---upstart(1110)---tmux: server(3750)---sh(27584)---pstree(27585)~
+
+### the global and session environment?
+
+Yes for `run-shell`:
+
+    $ tmux setenv var_session 123 \; setenv -g var_global 456
+    $ tmux run 'env | grep "var_\(session\|global\)"'
+    var_session=123~
+    var_global=456~
+
+And yes for `if-shell`:
+
+    $ tmux setenv var_session 123 \; setenv -g var_global 456
+    $ tmux source =(cat <<'EOF'
+    if "env | grep 'var_\\(session\\|global\\)' >/tmp/.out" ""
+    EOF
+    ) ; cat /tmp/.out
+    var_session=123~
+    var_global=456~
 

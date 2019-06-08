@@ -1,136 +1,3 @@
-# Quoting
-## What is the purpose of quoting?
-
-It's used to  remove the special meaning  of certain characters or  words to the
-shell.
-
-## What are the three quoting mechanisms?
-
-The escape character, single quotes, and double quotes.
-
-## What is the escape character?
-
-A non-quoted backslash.
-
-##
-## What is the output of
-### `$ echo "a \z b"`?
-
-    a \z b
-
-`z` is  not a special  character, and inside double  quotes the shell  removes a
-backslash only if the next character is special.
-
-### `$ echo a \z b`?
-
-    a z b
-
-`z` is not a special character to the shell, but the backslash is still removed.
-It seems that the shell removes a backslash no matter the next character when outside quotes.
-
-### `$ echo "a \t b"`?
-
-`t` is not special to the shell, but `$ echo` can translate a few
-backslash-escaped characters, `\t` being one of them.
-
-However, the  precise output of the  command depends on the  shell you're using,
-because `$ echo` is a shell builtin (see `$ type -a echo`):
-
-    $ sh -c 'echo "a \t b"'
-    a 	 b~
-
-    $ bash -c 'echo "a \t b"'
-    a \t b~
-
-    $ zsh -c 'echo "a \t b"'
-    a 	 b~
-
-bash doesn't translate any backslash-escaped  character unless you pass the `-e`
-flag to  `$ echo`; the other  shells do translate a  backslash-escaped character
-when the sequence is recognized.
-
-##
-## When does the shell remove a backslash?
-
-Outside quotes, whenever it's not quoted by another backslash.
-Inside single quotes, never.
-Inside double quotes, whenever it's used to remove the special meaning of the next character.
-
----
-
-Note that `$ echo` is not the shell; it's a command (external or builtin).
-So, these rules don't apply to determine when a backslash is removed by `$ echo`.
-For  `$  echo`,  what  matters  is whether  it  recognizes  a  backslash-escaped
-character, and possibly whether it was passed the right flag (bash needs `-e`).
-
-### What are the two exceptions?
-
-Outside quotes, a backslash is removed, regardless of the next character.
-
-    $ echo a \z b
-    a z b~
-
-Here, the backslash was removed even though  it didn't alter the meaning of `z`,
-since the latter is not special to the shell.
-
----
-
-The backslash is not removed in front of `!`, in bash and in sh:
-
-    $ bash
-    $ echo "\!\!"
-    \!\!~
-
-    $ sh
-    $ echo "\!\!"
-    \!\!~
-
-But it is in zsh:
-
-    $ zsh
-    $ echo "\!\!"
-    !!~
-
-##
-## When does the shell remove any unescaped backslash (like Vim in a non-literal string)?
-
-When it's outside quotes:
-
-    $ echo a \z b
-    a z b~
-
-##
-## Which characters retain their special meaning within double quotes?
-
-   - `$`
-   - `` ` ``
-   - `\`
-   - `!`
-
-Note that `\` is special only if followed by either of:
-
-   - `$`
-   - `` ` ``
-   - `\`
-   - `"`
-   - newline
-
-Also, `!` is special only if history expansion is enabled.
-Besides, some characters may inhibit the expansion when they follow immediately.
-See `$ man bash /HISTORY EXPANSION`, and `$ man zshexpn /HISTORY EXPANSION`.
-
-## Which character gets a new special meaning when quoted?
-
-The newline.
-
-Quoting a newline suppresses its original special meaning (which is to terminate
-the input buffer and run it), and gives it a new one (line continuation).
-
-Yes, a line continuation is a  special meaning, because in effect, `\newline` is
-removed from the input stream and ignored.
-
-##
-##
 # How to get the list of shell builtin commands?
 
         $ compgen -b
@@ -415,6 +282,164 @@ This is especially useful in a script to avoid repeating oneself:
 
 ##
 ##
+##
+# Quoting
+## What is the purpose of quoting?
+
+It's used to remove the special meaning of certain characters or words to the shell.
+
+### Where can I find more info about it?
+
+    $ man bash /QUOTING
+
+##
+## What are the three quoting mechanisms?
+
+The escape character, single quotes, and double quotes.
+
+### What is the escape character?
+
+A non-quoted backslash.
+
+##
+## Which characters retain their special meaning within double quotes?
+
+   - `$`
+   - `` ` ``
+   - `\`
+   - `!`
+
+Note that `\` is special only if followed by either of:
+
+   - `$`
+   - `` ` ``
+   - `\`
+   - `"`
+   - newline
+
+Also, `!` is special only if history expansion is enabled.
+Besides, some characters may inhibit the expansion when they follow immediately.
+See `$ man bash /HISTORY EXPANSION`, and `$ man zshexpn /HISTORY EXPANSION`.
+
+## Which character gets a new special meaning when quoted?
+
+The newline.
+
+Quoting a newline suppresses its original special meaning (which is to terminate
+the input buffer and run it), and gives it a new one (line continuation).
+
+Yes, a line continuation is a  special meaning, because in effect, `\newline` is
+removed from the input stream and ignored.
+
+##
+## When does the shell remove a backslash?
+
+Outside quotes, always, unless it's quoted by another backslash.
+This is similar to what VimL and tmux do with non-literal strings.
+
+    $ printf '%s' a \z b
+    azb~
+
+    $ printf '%s' a \\z b
+    a\zb~
+
+Inside single quotes, never:
+
+    $ printf '%s' 'a \z b'
+    a \z b~
+
+    $ printf '%s' 'a \\z b'
+    a \\z b~
+
+Inside double quotes, whenever it's used to remove the special meaning of the next character.
+
+    $ printf '%s' "a \$$ b"
+    a $$ b~
+
+    $ printf '%s' "a \z b"
+    a \z b~
+
+### What is the exception?
+
+Inside double quotes, the backslash is not removed in front of `!`, in bash and in sh:
+
+    $ bash
+    $ printf '%s' "\!\!"
+    \!\!~
+
+    $ sh
+    $ printf '%s' "\!\!"
+    \!\!~
+
+Although, it is in zsh:
+
+    $ zsh
+    $ echo '%s' "\!\!"
+    !!~
+
+##
+## Why should I use `$ printf` instead of `$ echo` when testing how the shell processes a string?  (2)
+
+`$   echo`   can  add   an   additional   processing,  which   translates   some
+backslash-escaped  characters  (like `\t`  or  `\u00e9`),  after the  shell  has
+processed the command.
+
+This makes the reasoning  about what the shell really does  more complex than it
+should be.
+
+Besides, `$ echo` is inconsistent across various shells:
+
+    $ bash -c 'echo "a\u00e9b"'
+    a\u00e9b~
+
+    $ sh -c 'echo "a\u00e9b"'
+    a\u00e9b~
+
+    $ zsh -c 'echo "a\u00e9b"'
+    aéb~
+
+OTOH, by default, `$ printf` never translates anything, and is consistent across
+all popular shells:
+
+    $ bash -c 'printf "%s" "a\u00e9b"'
+    a\u00e9b~
+
+    $ sh -c 'printf "%s" "a\u00e9b"'
+    a\u00e9b~
+
+    $ zsh -c 'printf "%s" "a\u00e9b"'
+    a\u00e9b~
+
+---
+
+Note that bash's  `$ echo` can translate some  backslash-escaped characters like
+in zsh, but only if you pass it the `-e` flag.
+
+### Why should I always use a format (like `'%s'`) and not just a string?
+
+Inside a format `$ printf` removes  any backslash considered to be special, like
+the shell does in a double-quoted string.
+
+    $ printf 'a \\z b'
+    a \z b~
+
+    $ printf 'a \t b'
+    a 	 b~
+
+OTOH, if you use a format, the string won't be altered by `$ printf`:
+
+    $ printf '%s' 'a \\z b'
+    a \\z b~
+
+### What happens if I have more arguments than `%` directives?
+
+The format is reused as many times as necessary to consume all the arguments.
+
+From `$ info printf`:
+
+> • The FORMAT argument is reused as necessary to convert all the given
+>   ARGUMENTs.  For example, the command ‘printf %s a b’ outputs ‘ab’.
+
 ##
 # Getting info
 ## How to get the name of the shell I'm using?

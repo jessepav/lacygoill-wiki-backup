@@ -24,8 +24,28 @@ Use the `-v` flag:
     $ tmux show -gv clock-mode-colour
     blue~
 
+## What are the two differences between `show-options` and `show-options -v`?
+
+`show` shows the value of an option and its name, while `show -v` only shows the value.
+
+`show` shows  the value  of an  option as if  it was  stored in  a double-quoted
+string, while `show -v` shows it as if it was stored in a single-quoted string.
+
+    $ tmux set @foo '\z' \; show @foo
+    @foo \\z~
+
+    $ tmux set @foo '\z' \; show -v @foo
+    \z~
+
 ##
 # Setting an option
+## What's the purpose of the global value of an option?
+
+If the local value is not set, it will inherit the global value.
+
+This also applies to hooks, since they are implemented as array options.
+
+##
 ## How to make sure tmux uses the global value of an option?
 
 Unset its local value.
@@ -104,6 +124,35 @@ The option is toggled between on and off.
 
     $ tmux set -g mouse && tmux show -g mouse
     mouse on~
+
+##
+# User options
+## Is a user option a window option, a session one, or a server one?
+
+It can be any of them.
+
+    $ tmux set -w @foo bar
+    $ tmux show -w @foo
+    @foo bar~
+
+    $ tmux set @foo bar
+    $ tmux show @foo
+    @foo bar~
+
+    $ tmux set -s @foo bar
+    $ tmux show -s @foo
+    @foo bar~
+
+The concept is orthogonal to the type of the option.
+
+### Which precaution must I take when setting a user option, or asking for its value?
+
+You must specify its type; either with no flag (server), `-w` (window), or `-s` (session).
+
+#### Why?
+
+There's no way for tmux to infer the  type of a user option from its name, since
+the latter can be arbitrarily chosen.
 
 ##
 # Array options
@@ -263,33 +312,45 @@ Notice how the Ms, Cs, Cr, Ss, Se capabilities:
    - are not separated by commas
 
 ##
-# User options
-## Is a user option a window option, a session one, or a server one?
+## Hooks
+### What is a hook?
 
-It can be any of them.
+The equivalent of an event in Vim.
 
-    $ tmux set -w @foo bar
-    $ tmux show -w @foo
-    @foo bar~
+When a hook is  triggered, tmux runs the commands stored in  an array, in order,
+which can be set via an option with the same name as the hook.
 
-    $ tmux set @foo bar
-    $ tmux show @foo
-    @foo bar~
+### ?
 
-    $ tmux set -s @foo bar
-    $ tmux show -s @foo
-    @foo bar~
+How to install a hook?
 
-The concept is orthogonal to the type of the option.
+Use `set-hook`:
 
-### Which precaution must I take when setting a user option, or asking for its value?
+    set-hook -a
 
-You must specify its type; either with no flag (server), `-w` (window), or `-s` (session).
+`set-hook [-agRu] [-t target-session] hook-name command`
 
-#### Why?
+Without `-R`, sets (or with `-u` unsets) hook `hook-name` to command.
+If `-g` is given, `hook-name` is added to the global list of hooks, otherwise it
+is added to the session hooks (for `target-session` with `-t`).
+`-a` appends to a hook.
+Like options, session hooks inherit from the global ones.
 
-There's no way for tmux to infer the  type of a user option from its name, since
-the latter can be arbitrarily chosen.
+With `-R`, run `hook-name` immediately.
+
+### ?
+
+`show-hooks [-g] [-t target-session]`
+
+Shows the global list of hooks with `-g`, otherwise the session hooks.
+
+---
+
+Do *not* use `show-options -[g]H` to display hooks.
+`-H` doesn't merely display hooks, it *includes* hooks to the output of `show-options`.
+IOW, session and user options are also included.
+
+Prefer `show-hooks`.
 
 ##
 # Issues
@@ -333,4 +394,8 @@ MWE:
 
      pfx _
      pfx SPC
+
+
+##
+# Reference
 

@@ -744,24 +744,24 @@ This is because `~/.vim` was not added to the rtp by `~/.config/nvim/init.vim`.
 ##
 ## Some global variable is created, but I don't know which script did it!
 
-        $ vim -V15/tmp/log
-        :q
-        $ vim /tmp/log
-        /g:your_variable
+    $ vim -V15/tmp/log
+    :q
+    $ vim /tmp/log
+    /g:your_variable
 
 ## I install an Ex command in a plugin, but when I start Vim, it's not there!
 
-        $ vim -V15/tmp/log
-        :q
-        $ vim /tmp/log
-        /YourCommand
+    $ vim -V15/tmp/log
+    :q
+    $ vim /tmp/log
+    /YourCommand
 
 Yes, this is (almost) the same answer as the previous one.
 The point is, when some interface is wrong:
 
-        - it contains an incorrect value
-        - it should exist, but it does not
-        - it shouldn't exist, but it does
+   - it contains an incorrect value
+   - it should exist, but it does not
+   - it shouldn't exist, but it does
 
 And you don't know why that is the  case, a verbose log will tell you everything
 Vim did, and why.
@@ -775,27 +775,27 @@ The script must be sourced AFTER `:prof`.
 So, pay attention to the relative order  in which you execute `:prof` and source
 your script.
 
-        " ✘
-        :ru! autoload/search.vim
-        :prof  start /tmp/profile.log
-        :prof! file */autoload/search.vim
+    " ✘
+    :ru! autoload/search.vim
+    :prof  start /tmp/profile.log
+    :prof! file */autoload/search.vim
 
-        " ✔
-        :prof  start /tmp/profile.log
-        :prof! file */autoload/search.vim
-        :ru! autoload/search.vim
+    " ✔
+    :prof  start /tmp/profile.log
+    :prof! file */autoload/search.vim
+    :ru! autoload/search.vim
 
 ---
 
-        # ✘
-        $ vim -c 'prof  start /tmp/profile.log' \
-              -c 'prof! file  */statusline.vim' \
-              -cq
+    # ✘
+    $ vim -c 'prof  start /tmp/profile.log' \
+          -c 'prof! file  */statusline.vim' \
+          -cq
 
-        # ✔
-        $ vim --cmd 'prof  start /tmp/profile.log' \
-              --cmd 'prof! file  */statusline.vim' \
-              -cq
+    # ✔
+    $ vim --cmd 'prof  start /tmp/profile.log' \
+          --cmd 'prof! file  */statusline.vim' \
+          -cq
 
 If you use `-c`  to execute `:prof`, it will be executed  AFTER the interface of
 your plugins has been sourced, and thus the profiling won't work.
@@ -808,11 +808,11 @@ If `{fname}` already exists, it will be silently overwritten.
 Make sure  to not  mix the name  of the file  where you  want the output  of the
 profiling to be written, with the name of the script you want to profile:
 
-        :prof start script.vim    ✘
-        :prof file foo
+    :prof start script.vim    ✘
+    :prof file foo
 
-        :prof start foo           ✔
-        :prof file script.vim
+    :prof start foo           ✔
+    :prof file script.vim
 
 ## I've executed `:4verb grep! pat .`, but I can't see the exact shell command which was invoked by Vim!
 
@@ -830,18 +830,18 @@ Force a redraw by moving the cursor.
 
 MWE:
 
-        $ mkdir /tmp/test && cd /tmp/test
-        $ echo 'pat' >>file{1..5}
+    $ mkdir /tmp/test && cd /tmp/test
+    $ echo 'pat' >>file{1..5}
 
-        $ cat /tmp/vimrc
-            augroup myquickfix
-                au!
-                au QuickFixCmdPost * cw
-            augroup END
-            filetype plugin indent on
+    $ cat /tmp/vimrc
+        augroup myquickfix
+            au!
+            au QuickFixCmdPost * cw
+        augroup END
+        filetype plugin indent on
 
-        $ vim -Nu /tmp/vimrc
-        :4verb cexpr system('grep -RHIins pat *')
+    $ vim -Nu /tmp/vimrc
+    :4verb cexpr system('grep -RHIins pat *')
 
 #
 #
