@@ -439,3 +439,30 @@ For example,  it explains how to  create your own  custom key table, and  how to
 
 Once you've read it, use your new knowledge to improve our tmux.conf.
 
+# study wait-for
+
+Compare:
+
+    $ time tmux new-window -t fun 'echo foo;sleep 10'
+
+Vs:
+    ~
+    $ time tmux new-window -t fun 'echo foo;sleep 10;tmux wait-for -S fun-neww-done' \; \
+      wait-for fun-neww-done
+
+<https://unix.stackexchange.com/a/137547/289772>
+
+##
+# various typos in manpage
+
+In `$ man tmux /COMMAND PARSING AND EXECUTION`:
+
+     Will execute new-session, new-window, if-shell, the shell command
+     true(1), new-window and kill-session in that order.
+
+This should be:
+
+     Will execute new-session, new-window, if-shell, the shell command
+     true(1), split-window and kill-session in that order.
+              ^^^^^
+

@@ -120,12 +120,12 @@ This is the implied default.
 
 It must configure the userland, i.e.:
 
-        - implement the filesystems that are required for system operation
+   - implement the filesystems that are required for system operation
 
-        - configure the network
+   - configure the network
 
-        - launch the services that run in the background,
-          including those that enable users to log into the system
+   - launch the services that run in the background,
+     including those that enable users to log into the system
 
 ## Why is the old sysvinit system not well suited to a modern Linux distribution?
 
@@ -169,7 +169,7 @@ A and B are started simultaneously.
 
 Atm, on ubuntu, it's:
 
-        /sbin/init splash
+    /sbin/init splash
 
 ## It doesn't contain the word 'systemd'!  Why?
 
@@ -192,71 +192,71 @@ By a configuration file, called “unit file”.
 
 For systemd running in `--system` mode, it's located in:
 
-        ┌──────────────────────────┬──────────────────────────────────────────────────────┐
-        │ /etc/systemd/system/     │ where system-wide user units are placed              │    |
-        │                          │ by the system administrator                          │    |
-        ├──────────────────────────┼──────────────────────────────────────────────────────┤    | decreasing order
-        │ /run/systemd/system/     │ units created at runtime                             │    | of priority
-        ├──────────────────────────┼──────────────────────────────────────────────────────┤    |
-        │ /usr/lib/systemd/system/ │ where units of packages installed system-wide belong │    v
-        └──────────────────────────┴──────────────────────────────────────────────────────┘
+    ┌──────────────────────────┬──────────────────────────────────────────────────────┐
+    │ /etc/systemd/system/     │ where system-wide user units are placed              │    |
+    │                          │ by the system administrator                          │    |
+    ├──────────────────────────┼──────────────────────────────────────────────────────┤    | decreasing order
+    │ /run/systemd/system/     │ units created at runtime                             │    | of priority
+    ├──────────────────────────┼──────────────────────────────────────────────────────┤    |
+    │ /usr/lib/systemd/system/ │ where units of packages installed system-wide belong │    v
+    └──────────────────────────┴──────────────────────────────────────────────────────┘
 
 For systemd running in `--user` mode, it's located in:
 
-        ┌──────────────────────────────┬──────────────────────────────────────────────────┐
-        │ ~/.config/systemd/user/      │ current user units                               │    |
-        ├──────────────────────────────┼──────────────────────────────────────────────────┤    |
-        │ /etc/systemd/user/           │ system-wide user units placed                    │    |
-        │                              │ by the system administrator                      │    |
-        ├──────────────────────────────┼──────────────────────────────────────────────────┤    | decreasing
-        │ /run/user/1000/systemd/user/ │ units created at runtime (for the current user?) │    | order
-        ├──────────────────────────────┼──────────────────────────────────────────────────┤    | of
-        │ /run/systemd/user/           │ units created at runtime (for all users?)        │    | priority
-        ├──────────────────────────────┼──────────────────────────────────────────────────┤    |
-        │ ~/.local/share/systemd/user/ │ units of packages                                │    |
-        │                              │ that have been installed in the home directory   │    |
-        ├──────────────────────────────┼──────────────────────────────────────────────────┤    |
-        │ /usr/lib/systemd/user/       │ units of packages installed system-wide          │    v
-        └──────────────────────────────┴──────────────────────────────────────────────────┘
+    ┌──────────────────────────────┬──────────────────────────────────────────────────┐
+    │ ~/.config/systemd/user/      │ current user units                               │    |
+    ├──────────────────────────────┼──────────────────────────────────────────────────┤    |
+    │ /etc/systemd/user/           │ system-wide user units placed                    │    |
+    │                              │ by the system administrator                      │    |
+    ├──────────────────────────────┼──────────────────────────────────────────────────┤    | decreasing
+    │ /run/user/1000/systemd/user/ │ units created at runtime (for the current user?) │    | order
+    ├──────────────────────────────┼──────────────────────────────────────────────────┤    | of
+    │ /run/systemd/user/           │ units created at runtime (for all users?)        │    | priority
+    ├──────────────────────────────┼──────────────────────────────────────────────────┤    |
+    │ ~/.local/share/systemd/user/ │ units of packages                                │    |
+    │                              │ that have been installed in the home directory   │    |
+    ├──────────────────────────────┼──────────────────────────────────────────────────┤    |
+    │ /usr/lib/systemd/user/       │ units of packages installed system-wide          │    v
+    └──────────────────────────────┴──────────────────────────────────────────────────┘
 
 ## What are the different types of units?
 
-        ┌────────────────┬────────────────┬────────────────────────────────────────────────┐
-        │ Unit Type      │ File Extension │ Description                                    │
-        ├────────────────┼────────────────┼────────────────────────────────────────────────┤
-        │ Service unit   │ .service       │ a system service                               │
-        ├────────────────┼────────────────┼────────────────────────────────────────────────┤
-        │ Socket unit    │ .socket        │ an inter-process communication socket          │
-        ├────────────────┼────────────────┼────────────────────────────────────────────────┤
-        │ Target unit    │ .target        │ a group of systemd units                       │
-        ├────────────────┼────────────────┼────────────────────────────────────────────────┤
-        │ Device unit    │ .device        │ a device file recognized by the kernel         │
-        ├────────────────┼────────────────┼────────────────────────────────────────────────┤
-        │ Mount unit     │ .mount         │ a file system mount point                      │
-        ├────────────────┼────────────────┼────────────────────────────────────────────────┤
-        │ Automount unit │ .automount     │ a file system automount point                  │
-        ├────────────────┼────────────────┼────────────────────────────────────────────────┤
-        │ Swap unit      │ .swap          │ a swap device or a swap file                   │
-        ├────────────────┼────────────────┼────────────────────────────────────────────────┤
-        │ Timer unit     │ .timer         │ a systemd timer                                │
-        ├────────────────┼────────────────┼────────────────────────────────────────────────┤
-        │ Snapshot unit  │ .snapshot      │ a saved state of the systemd manager           │
-        ├────────────────┼────────────────┼────────────────────────────────────────────────┤
-        │ Path unit      │ .path          │ a file or directory in a file system           │
-        ├────────────────┼────────────────┼────────────────────────────────────────────────┤
-        │ Slice unit     │ .slice         │ a group of hierarchically organized units that │
-        │                │                │ manage system processes                        │
-        ├────────────────┼────────────────┼────────────────────────────────────────────────┤
-        │ Scope unit     │ .scope         │ an externally created process                  │
-        └────────────────┴────────────────┴────────────────────────────────────────────────┘
+    ┌────────────────┬────────────────┬────────────────────────────────────────────────┐
+    │ Unit Type      │ File Extension │ Description                                    │
+    ├────────────────┼────────────────┼────────────────────────────────────────────────┤
+    │ Service unit   │ .service       │ a system service                               │
+    ├────────────────┼────────────────┼────────────────────────────────────────────────┤
+    │ Socket unit    │ .socket        │ an inter-process communication socket          │
+    ├────────────────┼────────────────┼────────────────────────────────────────────────┤
+    │ Target unit    │ .target        │ a group of systemd units                       │
+    ├────────────────┼────────────────┼────────────────────────────────────────────────┤
+    │ Device unit    │ .device        │ a device file recognized by the kernel         │
+    ├────────────────┼────────────────┼────────────────────────────────────────────────┤
+    │ Mount unit     │ .mount         │ a file system mount point                      │
+    ├────────────────┼────────────────┼────────────────────────────────────────────────┤
+    │ Automount unit │ .automount     │ a file system automount point                  │
+    ├────────────────┼────────────────┼────────────────────────────────────────────────┤
+    │ Swap unit      │ .swap          │ a swap device or a swap file                   │
+    ├────────────────┼────────────────┼────────────────────────────────────────────────┤
+    │ Timer unit     │ .timer         │ a systemd timer                                │
+    ├────────────────┼────────────────┼────────────────────────────────────────────────┤
+    │ Snapshot unit  │ .snapshot      │ a saved state of the systemd manager           │
+    ├────────────────┼────────────────┼────────────────────────────────────────────────┤
+    │ Path unit      │ .path          │ a file or directory in a file system           │
+    ├────────────────┼────────────────┼────────────────────────────────────────────────┤
+    │ Slice unit     │ .slice         │ a group of hierarchically organized units that │
+    │                │                │ manage system processes                        │
+    ├────────────────┼────────────────┼────────────────────────────────────────────────┤
+    │ Scope unit     │ .scope         │ an externally created process                  │
+    └────────────────┴────────────────┴────────────────────────────────────────────────┘
 
 You can get a similar list by executing:
 
-        $ systemctl list-units -t help
+    $ systemctl list-units -t help
 
 Or shorter:
 
-        $ systemctl -t help
+    $ systemctl -t help
 
 Atm, it doesn't give the exact same list:
 it omits 'snapshot', and includes 'busname' (no idea what this stands for).
@@ -304,31 +304,31 @@ specific unit type, in which case the right suffix will be appended.
 
 So, for example, these commands are equivalent:
 
-            $ systemctl start sshd
-        ⇔
-            $ systemctl start sshd.service
+        $ systemctl start sshd
+    ⇔
+        $ systemctl start sshd.service
 
 
-            $ systemctl isolate default
-        ⇔
-            $ systemctl isolate default.target
+        $ systemctl isolate default
+    ⇔
+        $ systemctl isolate default.target
 
 ## Why can't I find any `.device`, `.scope` and `.swap` unit files on my system?
 
 Systemd dynamically generates certain units itself.
 As a result, these units don't show up in the filesystem, but they do appear in:
 
-        $ systemctl list-units
+    $ systemctl list-units
 
 ## Which unit does `systemctl` operate on, if I execute `$ systemctl status /dev/sda`?
 
-        dev-sda.device
+    dev-sda.device
 
 This shows that systemctl converts automatically a device node to a device unit name.
 
 Which unit does `systemctl` operate on, if I execute `$ systemctl status /run/user/1000`?
 
-        run-user-1000.mount
+    run-user-1000.mount
 
 This shows that systemctl converts automatically a path to a mount unit name.
 
@@ -336,24 +336,23 @@ This shows that systemctl converts automatically a path to a mount unit name.
 
 It's `list-units`:
 
-        $ systemctl -t help
-    ⇔
-        $ systemctl list-units -t help
+    $ systemctl -t help
+⇔
+    $ systemctl list-units -t help
 
 ###
 # Unit file configuration
 ## Why should I install the package `usrmerge`?
 
 For the general case, see:
-
-        https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/
-        https://wiki.debian.org/UsrMerge
+<https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/>
+<https://wiki.debian.org/UsrMerge>
 
 For systemd in particular, it makes things simpler to understand, otherwise unit
 files may be in one of:
 
-        /lib/systemd/system
-        /usr/lib/systemd/system
+    /lib/systemd/system
+    /usr/lib/systemd/system
 
 And they don't have the exact same  contents, so whenever you have an issue with
 a unit file installed from a package, you have to look in 2 directories.
@@ -362,15 +361,14 @@ After installing `usrmerge`, the 2 paths lead to the exact same set of files.
 Indeed the package seems  to move the existing binaries from  `/` to `/usr/` and
 installs these symlinks for backward compatibility:
 
-        /bin   → /usr/bin
-        /sbin  → /usr/sbin
-        /lib   → /usr/lib
-        /lib64 → /usr/lib64
+    /bin   → /usr/bin
+    /sbin  → /usr/sbin
+    /lib   → /usr/lib
+    /lib64 → /usr/lib64
 
 Btw, a backronym  for `usr` is “Universal System Resources”  (but originally, it
 really stood for “USeR”):
-
-        https://unix.stackexchange.com/a/103348/289772
+<https://unix.stackexchange.com/a/103348/289772>
 
 ---
 
@@ -386,17 +384,17 @@ A directive.
 
 ## Where can I find information about all possible lines I can write in a unit file?
 
-        $ man systemd.directives
+    $ man systemd.directives
 
 ## How can I extend the configuration of a service unit file without modifying it directly?
 
 Write your additional directives in:
 
-                                   ┌ if you were to extend another type of unit,
-                                   │ you would need to change this accordingly
-                                   ├─────┐
-        /etc/systemd/system/<name>.service.d/my_extra_directives.conf
-                                          ^^                    ^^^^^
+                               ┌ if you were to extend another type of unit,
+                               │ you would need to change this accordingly
+                               ├─────┐
+    /etc/systemd/system/<name>.service.d/my_extra_directives.conf
+                                      ^^                    ^^^^^
 
 ## ?
 
@@ -586,57 +584,57 @@ user configuration will stay accessible.
 > daemon-reload for user services.
 
 Source:
-        https://serverfault.com/questions/700862/do-systemd-unit-files-have-to-be-reloaded-when-modified#comment1154734_700956
+<https://serverfault.com/questions/700862/do-systemd-unit-files-have-to-be-reloaded-when-modified#comment1154734_700956>
 
 ---
 
-        $ cat <<'EOF' | sudo tee -a /etc/systemd/system/my_service.service
-[Unit]
-Description=My Application
+    $ cat <<'EOF' | sudo tee -a /etc/systemd/system/my_service.service
+    [Unit]
+    Description=My Application
 
-[Service]
-ExecStart=/usr/bin/printf 'We have been triggered'
-EOF
+    [Service]
+    ExecStart=/usr/bin/printf 'We have been triggered'
+    EOF
 
-        $ systemctl start my_service
-        $ journalctl -u my_service
-        <date> ubuntu systemd[1]: Started My Application.~
-        <date> ubuntu printf[1234]: We have been triggered~
-                             ^^^^
-                             pid~
+    $ systemctl start my_service
+    $ journalctl -u my_service
+    <date> ubuntu systemd[1]: Started My Application.~
+    <date> ubuntu printf[1234]: We have been triggered~
+                         ^^^^
+                         pid~
 
-        $ cat <<'EOF' | sudo tee -a /etc/systemd/system/my_service.path
-[Unit]
-Description=Check for files
+    $ cat <<'EOF' | sudo tee -a /etc/systemd/system/my_service.path
+    [Unit]
+    Description=Check for files
 
-[Path]
-PathExists=/tmp/crash.log
- # not necessary, but may make the code more readable
-Unit=my_service.service
+    [Path]
+    PathExists=/tmp/crash.log
+     # not necessary, but may make the code more readable
+    Unit=my_service.service
 
-[Install]
-WantedBy=multi-user.target
-EOF
+    [Install]
+    WantedBy=multi-user.target
+    EOF
 
-        $ systemctl enable my_service.path
-        Created symlink from /etc/systemd/system/multi-user.target.wants/my_service.path~
-                        to   /etc/systemd/system/my_service.path~
+    $ systemctl enable my_service.path
+    Created symlink from /etc/systemd/system/multi-user.target.wants/my_service.path~
+                    to   /etc/systemd/system/my_service.path~
 
-        $ systemctl start my_service.path
+    $ systemctl start my_service.path
 
-        $ journalctl -u my_service.path
-        <date> ubuntu systemd[1]: Started My Application.~
-        <date> ubuntu printf[1234]: We have been triggered~
+    $ journalctl -u my_service.path
+    <date> ubuntu systemd[1]: Started My Application.~
+    <date> ubuntu printf[1234]: We have been triggered~
 
-                  no new entries
+              no new entries
 
-        $ touch /tmp/crash.log
+    $ touch /tmp/crash.log
 
-        $ journalctl -u my_service.path
-        <date>       ubuntu systemd[1]: Started My Application.~
-        <date>       ubuntu printf[1234]: We have been triggered~
-        <other_date> ubuntu systemd[1]: Started My Application.      ← new entry~
-        <other_date> ubuntu printf[5678]: We have been triggered     ← new entry~
+    $ journalctl -u my_service.path
+    <date>       ubuntu systemd[1]: Started My Application.~
+    <date>       ubuntu printf[1234]: We have been triggered~
+    <other_date> ubuntu systemd[1]: Started My Application.      ← new entry~
+    <other_date> ubuntu printf[5678]: We have been triggered     ← new entry~
 
 ##
 # Service
@@ -689,8 +687,7 @@ The new A process will take over where the old one left off.
 ## What's the difference between a service and a daemon?
 
 A service is basically just a collection of daemons:
-
-        https://www.youtube.com/watch?v=S9YmaNuvw5U&t=173s
+<https://www.youtube.com/watch?v=S9YmaNuvw5U&t=173s>
 
 It corresponds to a cgroup.
 
@@ -708,23 +705,23 @@ A  unit is  enabled  through the  creation  of symlinks,  as  configured in  the
 It doesn't remove any stale symlink.
 So, for example, if you have this section in a unit file:
 
-        [Install]
-        WantedBy=multi-user.target
-                 ^^^^^^^^^^
+    [Install]
+    WantedBy=multi-user.target
+             ^^^^^^^^^^
 
 And you edit it like so:
 
-        [Install]
-        WantedBy=graphical.target
-                 ^^^^^^^^^
+    [Install]
+    WantedBy=graphical.target
+             ^^^^^^^^^
 
 Then execute `$ systemctl enable <name>`, a new symlink would be created in:
 
-        /etc/systemd/system/graphical.target.wants/
+    /etc/systemd/system/graphical.target.wants/
 
 But the stale one in:
 
-        /etc/systemd/system/multi-user.target.wants/
+    /etc/systemd/system/multi-user.target.wants/
 
 would NOT be removed.
 
@@ -743,17 +740,17 @@ is **persistent**.
 Also, these 2 categories of commands are orthogonal.
 As a result, if you disable a service while it's running, it will still run:
 
-        $ systemctl is-enabled whoopsie; systemctl is-active whoopsie
-        enabled~
-        active~
+    $ systemctl is-enabled whoopsie; systemctl is-active whoopsie
+    enabled~
+    active~
 
-        $ sudo systemctl disable whoopsie
+    $ sudo systemctl disable whoopsie
 
-        $ systemctl is-enabled whoopsie; systemctl is-active whoopsie
-        disabled~
-        active~
-        ^^^^^^
-        even though `whoopsie` has been disabled, it's still running~
+    $ systemctl is-enabled whoopsie; systemctl is-active whoopsie
+    disabled~
+    active~
+    ^^^^^^
+    even though `whoopsie` has been disabled, it's still running~
 
 ###
 ## What happens when
@@ -761,18 +758,18 @@ As a result, if you disable a service while it's running, it will still run:
 
 If it didn't already exist, systemd creates a symlink from:
 
-        /etc/systemd/system/multi-user.target.wants/whoopsie.service
+    /etc/systemd/system/multi-user.target.wants/whoopsie.service
 
 To:
 
-        /usr/lib/systemd/system/whoopsie.service
+    /usr/lib/systemd/system/whoopsie.service
 
 MWE:
 
-                         vv
-        $ sudo systemctl reenable whoopsie.service
-                Removed symlink /etc/systemd/system/multi-user.target.wants/whoopsie.service.
-                Created symlink from /etc/systemd/system/multi-user.target.wants/whoopsie.service to /usr/lib/systemd/system/whoopsie.service.
+                     vv
+    $ sudo systemctl reenable whoopsie.service
+            Removed symlink /etc/systemd/system/multi-user.target.wants/whoopsie.service.
+            Created symlink from /etc/systemd/system/multi-user.target.wants/whoopsie.service to /usr/lib/systemd/system/whoopsie.service.
 
 ### I disable the whoopsie service unit?
 
@@ -815,94 +812,94 @@ This includes at boot time.
 ## How to print
 ### the status of all loaded services (i.e. are they running or not)?
 
-        $ systemctl list-units -t service -a
-                                │          │
-                                │          └ short form of `--all`; include inactive services
-                                │
-                                └ short form of `--type`
+    $ systemctl list-units -t service -a
+                            │          │
+                            │          └ short form of `--all`; include inactive services
+                            │
+                            └ short form of `--type`
 
 ### the enablement state of all installed service unit files?
 
-        $ systemctl list-unit-files -t service
+    $ systemctl list-unit-files -t service
 
 ### detailed information about a given service (pid, memory, log, ...)?
 
-        $ systemctl status <name>.service
+    $ systemctl status <name>.service
 
 ### all the properties of the cron service?
 
-        $ systemctl show -a cron
+    $ systemctl show -a cron
 
 ### the alias names of the lightdm service ?
 
-                         ┌ limit display to the `Names` property
-                         ├──────┐
-        $ systemctl show -p Names lightdm.service
-        lightdm.service  display-manager.service~
-        ^                ^
-        alias 1          alias 2~
+                     ┌ limit display to the `Names` property
+                     ├──────┐
+    $ systemctl show -p Names lightdm.service
+    lightdm.service  display-manager.service~
+    ^                ^
+    alias 1          alias 2~
 
 Another example:
 
-        $ systemctl show -p Names rsyslog.service
-        rsyslog.service  syslog.service~
-        ^                ^
-        alias 1          alias 2~
+    $ systemctl show -p Names rsyslog.service
+    rsyslog.service  syslog.service~
+    ^                ^
+    alias 1          alias 2~
 
 ###
 ## How to
 ### check whether a service unit is running?
 
-        $ systemctl is-active <name>.service
+    $ systemctl is-active <name>.service
 
 ### check whether a service unit is enabled?
 
-        $ systemctl is-enabled <name>.service
+    $ systemctl is-enabled <name>.service
 
 ### print the services that are ordered to start after/before a given service?
 
-        $ systemctl list-dependencies --after  <name>.service
+    $ systemctl list-dependencies --after  <name>.service
 
-        $ systemctl list-dependencies --before <name>.service
+    $ systemctl list-dependencies --before <name>.service
 
 ###
 ## How to
 ### start and stop a service unit?
 
-        $ systemctl start <name>.service
-                                ├──────┘
-                                └ optional
-                                  without, systemd assumes that <name> refers to a service unit
+    $ systemctl start <name>.service
+                            ├──────┘
+                            └ optional
+                              without, systemd assumes that <name> refers to a service unit
 
-        $ systemctl stop <name>.service
+    $ systemctl stop <name>.service
 
 ### start the services foo and bar in a single command?
 
-        $ systemctl start foo bar
+    $ systemctl start foo bar
 
 ### enable and disable a service unit?
 
-        $ systemctl enable  <name>.service
-        $ systemctl disable <name>.service
+    $ systemctl enable  <name>.service
+    $ systemctl disable <name>.service
 
 ### reload the config of a service unit?
 
-        $ systemctl reload <name>.service
+    $ systemctl reload <name>.service
 
 ### restart a service unit?
 
-        $ systemctl restart <name>.service
+    $ systemctl restart <name>.service
 
 Note that if the service was not running, this command would still start it.
 
 ### restart a service unit, but only if it's running?
 
-        $ systemctl try-restart <name>.service
+    $ systemctl try-restart <name>.service
 
 ### reload the config of a service unit, then, if it fails, restart it?
 
-        $ systemctl reload-or-restart     <name>.service
-        $ systemctl reload-or-try-restart <name>.service
+    $ systemctl reload-or-restart     <name>.service
+    $ systemctl reload-or-try-restart <name>.service
 
 The `reload-or-restart` subcommand is useful because some services don't support
 the “reload my  config” feature (their unit file doesn't  contain a `ReloadExec`
@@ -911,14 +908,14 @@ directive).
 ###
 ## How to list all services whose name begin with `vbox`?
 
-        $ systemctl list-units -a -t service 'vbox*'
+    $ systemctl list-units -a -t service 'vbox*'
 
 This shows that you can use glob patterns in some `$ systemctl` subcommands.
 
 For more info, see:
 
-        $ man 3 fnmatch
-        $ man 7 glob
+    $ man 3 fnmatch
+    $ man 7 glob
 
 But it doesn't seem to work with all of them.
 In  particular,  it  doesn't  work  with the  `start`,  `enable`  and  `disable`
@@ -942,35 +939,35 @@ reports that it's loaded.
 So, it should be taken into consideration when expanding a glob, but in practice
 that's not what happens:
 
-        $ sudo systemctl stop ssh
-        $ systemctl status ssh
-        loaded and inactive~
+    $ sudo systemctl stop ssh
+    $ systemctl status ssh
+    loaded and inactive~
 
-        $ sudo systemctl start 'ss*'
-        $ systemctl status ssh
-        loaded and inactive~
-                   ^^
-                   ✘ it should be loaded and active~
+    $ sudo systemctl start 'ss*'
+    $ systemctl status ssh
+    loaded and inactive~
+               ^^
+               ✘ it should be loaded and active~
 
 ## How to see the status of all services whose name begin with `vbox`?
 
-        $ systemctl status 'vbox*'
+    $ systemctl status 'vbox*'
 
 ## How to stop all `sshd@.service` instances?
 
-        $ systemctl stop 'sshd@*.service'
+    $ systemctl stop 'sshd@*.service'
 
 ##
 ## How to check the status of the `cron` service on a remote machine, from the local one?
 
-        $ sudo systemctl -H user@machine status cron.service
-                          │
-                          └ abbreviation of `--host`
+    $ sudo systemctl -H user@machine status cron.service
+                      │
+                      └ abbreviation of `--host`
 
 More generally, `-H user@machine` allows you to execute an arbitrary `systemctl`
 command on a remote machine:
 
-        $ sudo systemctl -H user@machine <subcommand> <arguments>
+    $ sudo systemctl -H user@machine <subcommand> <arguments>
 
 ##
 # Target
@@ -983,63 +980,63 @@ Group together other systemd units through a chain of dependencies.
 For  example, the  graphical.target unit,  which is  used to  start a  graphical
 session, starts system services such as lightdm (display-manager.service):
 
-        $ cat /usr/lib/systemd/system/graphical.target
-                ...
-                Wants=display-manager.service
-                ...
+    $ cat /usr/lib/systemd/system/graphical.target
+            ...
+            Wants=display-manager.service
+            ...
 
 and also activates the multi-user.target unit:
 
-        $ cat /usr/lib/systemd/system/graphical.target
-                ...
-                Requires=multi-user.target
-                ...
+    $ cat /usr/lib/systemd/system/graphical.target
+            ...
+            Requires=multi-user.target
+            ...
 
 ---
 
 Similarly,  the multi-user.target  unit  starts other  system  services such  as
 NetworkManager (NetworkManager.service):
 
-        $ ls /etc/systemd/system/multi-user.target.wants/
-                ...
-                NetworkManager.service
-                ...
+    $ ls /etc/systemd/system/multi-user.target.wants/
+            ...
+            NetworkManager.service
+            ...
 
 and DBus (dbus.service):
 
-        $ ls /usr/lib/systemd/system/multi-user.target.wants/
-                ...
-                dbus.service
-                ...
+    $ ls /usr/lib/systemd/system/multi-user.target.wants/
+            ...
+            dbus.service
+            ...
 
 It also activates another target unit named basic.target:
 
-        $ cat /usr/lib/systemd/system/multi-user.target
-                ...
-                Requires=basic.target
-                ...
+    $ cat /usr/lib/systemd/system/multi-user.target
+            ...
+            Requires=basic.target
+            ...
 
 ##
 ## What's the name of the target unit to
 ### shut down and reboot the system?
 
-        reboot.target
+    reboot.target
 
 ### shut down and power off the system?
 
-        poweroff.target
+    poweroff.target
 
 ### set up a rescue shell?
 
-        rescue.target
+    rescue.target
 
 ### set up a non-graphical multi-user system?
 
-        multi-user.target
+    multi-user.target
 
 ### set up a graphical multi-user system?
 
-        graphical.target
+    graphical.target
 
 ###
 
@@ -1068,75 +1065,74 @@ When you can't enter rescue mode.
 ##
 ## How to turn off the graphical interface?
 
-        $ sudo systemctl isolate multi-user.target
+    $ sudo systemctl isolate multi-user.target
 
 ###
 ## How to list the ACTIVE and loaded target units?
 
-        $ systemctl list-units -t target
+    $ systemctl list-units -t target
 
 ## How to list ALL the loaded target units?
 
-        $ systemctl list-units -t target -a
+    $ systemctl list-units -t target -a
 
 ## How to change the current target?
 
-        $ sudo systemctl isolate <new>.target
+    $ sudo systemctl isolate <new>.target
 
 ## How to enter rescue mode?
 
-        $ sudo systemctl isolate   rescue.target
+    $ sudo systemctl isolate   rescue.target
 
 ## How to exit rescue mode?
 
-        $ sudo systemctl reboot
+    $ sudo systemctl reboot
 
 ---
 
 Don't press `C-d`, and don't execute:
 
-        $ exit
+    $ exit
 
 Or:
 
-        $ sudo systemctl default
+    $ sudo systemctl default
 
 Each time I've tried, the system didn't respond anymore.
 
 The issue  may come from  the fact that stopping  lightdm and thus  the graphics
 driver breaks the state of the graphics card:
-
-        https://ubuntuforums.org/showthread.php?t=2330707
+<https://ubuntuforums.org/showthread.php?t=2330707>
 
 OTOH, you can enter multi-user mode, then get back to graphical mode:
 
-        $ sudo systemctl isolate multi-user.target
+    $ sudo systemctl isolate multi-user.target
 
-        C-M-F2
+    C-M-F2
 
-        # login
+    # login
 
-        $ sudo systemctl isolate graphical.target
-    OR
-        $ sudo systemctl default
+    $ sudo systemctl isolate graphical.target
+OR
+    $ sudo systemctl default
 
 ## How to print the default target unit?
 
-        $ systemctl get-default
+    $ systemctl get-default
 
 ## How to set the default target unit?
 
-        $ sudo systemctl set-default <new>.target
+    $ sudo systemctl set-default <new>.target
 
 ## What happens when I change the default target unit?
 
 It creates a symlink from:
 
-        /etc/systemd/system/default.target
+    /etc/systemd/system/default.target
 
 To:
 
-        /usr/lib/systemd/system/<new>.target
+    /usr/lib/systemd/system/<new>.target
 
 Note that by default, this symlink doesn't exist.
 It's created as soon as you use the `set-default` subcommand.
@@ -1145,33 +1141,33 @@ It's created as soon as you use the `set-default` subcommand.
 # Shutting down the system
 ## How to halt the system?  (2)
 
-        $ sudo systemctl halt
+    $ sudo systemctl halt
 
-        $ sudo shutdown {-H|--halt}
+    $ sudo shutdown {-H|--halt}
 
 ## How to poweroff the system?  (2)
 
-        $ sudo systemctl poweroff
+    $ sudo systemctl poweroff
 
-        $ sudo shutdown {--poweroff|-P|-h} now
+    $ sudo shutdown {--poweroff|-P|-h} now
 
 ## How to reboot the system?  (2)
 
-        $ sudo systemctl reboot
+    $ sudo systemctl reboot
 
-        $ sudo shutdown {--reboot|-r}
+    $ sudo shutdown {--reboot|-r}
 
 ## How to suspend the system?
 
-        $ sudo systemctl suspend
+    $ sudo systemctl suspend
 
 ## How to hibernate the system?
 
-        $ sudo systemctl hibernate
+    $ sudo systemctl hibernate
 
 ## How to hibernate and suspend the system?
 
-        $ sudo systemctl hybrid-sleep
+    $ sudo systemctl hybrid-sleep
 
 This command makes the OS save the system state on the hard disk (hibernate), so
 that the session can be restored even in case of power failure.
@@ -1180,13 +1176,13 @@ resume the session quickly.
 
 IOW, it's supposed to take the best of the 2 concepts:
 
-        - resilience (hibernate)
-        - quickness (suspend)
+   - resilience (hibernate)
+   - quickness (suspend)
 
 ##
 ## How to shut down the system at 12:34?
 
-        $ sudo shutdown -P 12:34
+    $ sudo shutdown -P 12:34
 
 ---
 
@@ -1201,7 +1197,7 @@ If you cancel the shutdown later, the file will be removed.
 
 ## How to halt the system in 5 minutes?
 
-        $ sudo shutdown -H +5
+    $ sudo shutdown -H +5
 
 The keyword `now` is an alias for `+0`.
 
@@ -1209,23 +1205,23 @@ The keyword `now` is an alias for `+0`.
 
 Add it at the end of the command:
 
-        $ sudo shutdown -H +5 'bye people'
+    $ sudo shutdown -H +5 'bye people'
 
 Note that to see the message, you must be logged in a console:
 
-        C-M-F1
-        # login
+    C-M-F1
+    # login
 
 ## How to prevent any message from being sent?
 
 Use the `--no-wall` option:
 
-        $ sudo shutdown -H +5    --no-wall
-        $ sudo shutdown -P 12:34 --no-wall
+    $ sudo shutdown -H +5    --no-wall
+    $ sudo shutdown -P 12:34 --no-wall
 
 ## How to cancel a pending shutdown?
 
-        $ sudo shutdown -c
+    $ sudo shutdown -c
 
 ##
 ##
@@ -1268,23 +1264,23 @@ runtime.
 ##
 # How to get the system status?
 
-        $ systemctl status
+    $ systemctl status
 
 # How to list the active units?
 
-        $ systemctl
+    $ systemctl
 
 # How to list all units?
 
-        $ systemctl -a
+    $ systemctl -a
 
 # How to list the failed units?
 
-        $ systemctl --state failed
+    $ systemctl --state failed
 
 # How to list the installed unit files?
 
-        $ systemctl list-unit-files
+    $ systemctl list-unit-files
 
 You only get the filenames.
 
@@ -1296,8 +1292,8 @@ You only get the filenames.
 When you  log in for the  first time, systemd automatically  launches a `systemd
 --user` instance:
 
-        $ pstree -s -p $(pidof systemd)
-        systemd(1)───systemd(1150)───(sd-pam)(1151)~
+    $ pstree -s -p $(pidof systemd)
+    systemd(1)───systemd(1150)───(sd-pam)(1151)~
 
 This process will be killed when you log out.
 
@@ -1308,27 +1304,27 @@ timers, dependency system or strict process control via cgroups.
 Similarly to system  units, user units are located in  the following directories
 (in decreasing order of priority):
 
-        ┌──────────────────────────────┬───────────────────────────────────────────────────────┐
-        │ ~/.config/systemd/user/      │ where the user puts their own units                   │
-        ├──────────────────────────────┼───────────────────────────────────────────────────────┤
-        │ /etc/systemd/user/           │ where system-wide user units are placed               │
-        │                              │ by the system administrator                           │
-        ├──────────────────────────────┼───────────────────────────────────────────────────────┤
-        │ ~/.local/share/systemd/user/ │ where units of packages                               │
-        │                              │ that have been installed in the home directory belong │
-        ├──────────────────────────────┼───────────────────────────────────────────────────────┤
-        │ /usr/lib/systemd/user/       │ where units provided by installed packages belong     │
-        └──────────────────────────────┴───────────────────────────────────────────────────────┘
+    ┌──────────────────────────────┬───────────────────────────────────────────────────────┐
+    │ ~/.config/systemd/user/      │ where the user puts their own units                   │
+    ├──────────────────────────────┼───────────────────────────────────────────────────────┤
+    │ /etc/systemd/user/           │ where system-wide user units are placed               │
+    │                              │ by the system administrator                           │
+    ├──────────────────────────────┼───────────────────────────────────────────────────────┤
+    │ ~/.local/share/systemd/user/ │ where units of packages                               │
+    │                              │ that have been installed in the home directory belong │
+    ├──────────────────────────────┼───────────────────────────────────────────────────────┤
+    │ /usr/lib/systemd/user/       │ where units provided by installed packages belong     │
+    └──────────────────────────────┴───────────────────────────────────────────────────────┘
 
 When systemd user instance starts, it brings up the target default.target:
 
-        /usr/lib/systemd/user/default.target
-        │
-        └─ /usr/lib/systemd/user/basic.target
-           │
-           └─ /usr/lib/systemd/user/sockets.target
-              /usr/lib/systemd/user/timers.target
-              /usr/lib/systemd/user/paths.target
+    /usr/lib/systemd/user/default.target
+    │
+    └─ /usr/lib/systemd/user/basic.target
+       │
+       └─ /usr/lib/systemd/user/sockets.target
+          /usr/lib/systemd/user/timers.target
+          /usr/lib/systemd/user/paths.target
 
 Other units can be controlled manually with `$ systemctl --user`.
 
@@ -1349,17 +1345,17 @@ Basic setup
 
 All the user services will be placed in:
 
-        ~/.config/systemd/user/
+    ~/.config/systemd/user/
 
 If you want to run a service on first login, execute:
 
-        $ systemctl --user enable <service>
+    $ systemctl --user enable <service>
 
 for any service you want to be autostarted.
 Tip: If  you want  to  enable a  service  for  all users  rather  than the  user
 executing the systemctl command, run as root:
 
-        $ systemctl --user --global enable <service>
+    $ systemctl --user --global enable <service>
 
 ---
 
@@ -1416,15 +1412,15 @@ instance, systemd interprets  the configuration file user.conf and  the files in
 user.conf.d directories.
 See systemd-system.conf(5) for more information.
 
-        https://askubuntu.com/questions/676007/how-do-i-make-my-systemd-service-run-via-specific-user-and-start-on-boot
-        https://superuser.com/questions/476379/how-do-i-setup-a-systemd-service-to-be-started-by-a-non-root-user-as-a-user-daem
-        https://superuser.com/questions/853717/systemd-user-and-system
+<https://askubuntu.com/questions/676007/how-do-i-make-my-systemd-service-run-via-specific-user-and-start-on-boot>
+<https://superuser.com/questions/476379/how-do-i-setup-a-systemd-service-to-be-started-by-a-non-root-user-as-a-user-daem>
+<https://superuser.com/questions/853717/systemd-user-and-system>
 
-        https://wiki.archlinux.org/index.php/Systemd
-        https://wiki.archlinux.org/index.php/Systemd/User
-        https://wiki.archlinux.org/index.php/Systemd_FAQ
-        https://wiki.archlinux.org/index.php/Environment_variables#Using_pam_env
-        https://wiki.archlinux.org/index.php/Systemd/Timers
+<https://wiki.archlinux.org/index.php/Systemd>
+<https://wiki.archlinux.org/index.php/Systemd/User>
+<https://wiki.archlinux.org/index.php/Systemd_FAQ>
+<https://wiki.archlinux.org/index.php/Environment_variables#Using_pam_env>
+<https://wiki.archlinux.org/index.php/Systemd/Timers>
 
 CONCEPTS
 
@@ -1437,27 +1433,27 @@ and basic set of options is described in systemd.unit(5).
 
 Units may be:
 
-        - "active"
+   - "active"
 
-          started, bound, plugged in, ..., depending on the unit type
+     started, bound, plugged in, ..., depending on the unit type
 
-        - "inactive"
+   - "inactive"
 
-          stopped, unbound, unplugged, ...
+     stopped, unbound, unplugged, ...
 
-        - "activating"
+   - "activating"
 
-          in the process of being activated
+     in the process of being activated
 
-        - "deactivating"
+   - "deactivating"
 
-          in the process of being deactivated
+     in the process of being deactivated
 
-        - "failed"
+   - "failed"
 
-          the  service  is inactive  because  it  failed  in some  way;  process
-          returned error code on exit, or crashed, or an operation timed out
-          If this state is entered, the cause will be logged, for later reference.
+     the  service  is inactive  because  it  failed  in some  way;  process
+     returned error code on exit, or crashed, or an operation timed out
+     If this state is entered, the cause will be logged, for later reference.
 
 Note that  the various  unit types  may have a  number of  additional substates,
 which are mapped to the five generalized unit states described here.
@@ -1622,7 +1618,7 @@ Note that this behaviour is disabled if either unit has DefaultDependencies=no.
 # journalctl
 ## description
 
-        $ journalctl [OPTIONS...] [MATCHES...]
+    $ journalctl [OPTIONS...] [MATCHES...]
 
 `journalctl` may be used to query the contents of the systemd(1) journal.
 
@@ -1632,7 +1628,7 @@ starting with the oldest entry collected.
 If one or more match arguments are passed, the output is filtered accordingly.
 A match is in the format "FIELD=VALUE", e.g.:
 
-        _SYSTEMD_UNIT=httpd.service
+    _SYSTEMD_UNIT=httpd.service
 
 referring to the components of a structured journal entry.
 See systemd.journal-fields(7) for a list of well-known fields.
@@ -1706,21 +1702,21 @@ Members of the "wheel" group can often perform administrative tasks.
 
 When outputting  to a  tty, lines  are colored according  to priority:
 
-        - lines of level ERROR and higher are colored red
-        - lines of level NOTICE and higher are highlighted
-        - other lines are displayed normally
+   - lines of level ERROR and higher are colored red
+   - lines of level NOTICE and higher are highlighted
+   - other lines are displayed normally
 
 ## some useful commands
 
-        $ journalctl -p4
-        $ journalctl -xb (suggested when you enter rescue mode)
-        $ journalctl -xn
-        $ journalctl -u <unit>
-        $ journalctl -b
-        $ journalctl -f
-        $ journalctl --since '10m ago'
-                              │
-                              └ you could also write '10 min ago'
+    $ journalctl -p4
+    $ journalctl -xb (suggested when you enter rescue mode)
+    $ journalctl -xn
+    $ journalctl -u <unit>
+    $ journalctl -b
+    $ journalctl -f
+    $ journalctl --since '10m ago'
+                          │
+                          └ you could also write '10 min ago'
 
 ## -p, --priority=
 
@@ -1822,7 +1818,7 @@ systemctl - Control the systemd system and service manager
 
 SYNOPSIS
 
-        $ systemctl [OPTIONS...] COMMAND [NAME...]
+    $ systemctl [OPTIONS...] COMMAND [NAME...]
 
 DESCRIPTION
 
@@ -1833,13 +1829,13 @@ functionality this tool manages.
 
 ## some useful commands
 
-        $ systemctl  enable   <unit>
-        $ systemctl  disable  <unit>
-        $ systemctl  start    <unit>
-        $ systemctl  stop     <unit>
-        $ systemctl  reload   <unit>
-        $ systemctl  restart  <unit>
-        $ systemctl  status   <unit>
+    $ systemctl  enable   <unit>
+    $ systemctl  disable  <unit>
+    $ systemctl  start    <unit>
+    $ systemctl  stop     <unit>
+    $ systemctl  reload   <unit>
+    $ systemctl  restart  <unit>
+    $ systemctl  status   <unit>
 
 ## enable NAME...
 
@@ -1978,10 +1974,104 @@ The service must have written why it failed.
 # TODO
 
 Watch:
+<https://www.youtube.com/watch?v=S9YmaNuvw5U>
+<https://www.youtube.com/watch?v=tY9GYsoxeLg>
+<https://www.youtube.com/watch?v=V0xoCA_qO58>
 
-        https://www.youtube.com/watch?v=S9YmaNuvw5U
-        https://www.youtube.com/watch?v=tY9GYsoxeLg
-        https://www.youtube.com/watch?v=V0xoCA_qO58
+---
+
+Try to install  a service which would automatically start  xbindkeys when we log
+in, and which we could ask to reload its config.
+This  would  be  useful  to  reload the  config  of  xbindkeys  after  modifying
+`~/.config/keyboard/xbindkeys.conf`.
+
+You could try this code in `~/.config/systemd/user/xbindkeys.service`:
+
+    [Unit]
+    Description=xbindkeys
+
+    [Service]
+    ExecStart=/usr/bin/xbindkeys -n -X :0.0 -f %h/.config/keyboard/xbindkeys.conf
+    Restart=always
+
+    [Install]
+    WantedBy=graphical.target
+
+Then, you would need to run `$ systemctl --user enable xbindkeys` and restart the system.
+It seems to work on Ubuntu 16.04; but maybe not on Ubuntu 18.04, for the latter you may
+need to replace `graphical.target` with `default.target`.
+
+Note that  you need to  pass the `-n` flag  to xbindkeys; otherwise  the process
+fails to be started.
+
+However, there are several issues with this code.
+
+First, we should not need to explicitly tell which display to use (`-X :0.0`);
+xbindkeys should use the current value of `$DISPLAY`.
+I tried to include the directive `PassEnvironment=DISPLAY`, but it didn't work.
+I also tried to run `$ systemctl --user import-environment DISPLAY`, but it didn't work either
+(maybe because I ran the command too early – in `~/.config/keyboard/setup.sh`).
+I don't  know exactly what environment  does the previous command  refer to, but
+you can inspect it by running `$ systemctl --user show-environment`.
+
+Also, after editing your service file, you may need to run `$ systemctl --user daemon-reload`.
+
+Another issue is that if you kill xbindkeys (or run `$ systemctl --user restart xbindkeys`),
+all the programs that you have run via the latter are killed (terminal, tmux, webbrowser, ...).
+I tried to run `$ systemctl --user reload xbindkeys`, but it didn't work.
+
+    Failed to reload xbindkeys.service: Job type reload is not applicable for unit xbindkeys.service.
+    See user logs and 'systemctl --user status xbindkeys.service' for details.
+
+This link is also interesting: <https://superuser.com/a/1128905/913143>
+It explains how to install an xbindkeys service.
+Basically, it gives sth like:
+
+    cat <<EOF >~/.config/systemd/user/xsession.target
+    [Unit]
+    Description=Xsession running
+    BindsTo=graphical-session.target
+    EOF
+
+    cat <<EOF >~/.config/systemd/user/xbindkeys.service
+    [Unit]
+    Description=xbindkeys
+    PartOf=graphical-session.target
+
+    [Service]
+    ExecStart=/usr/bin/xbindkeys -n -f %h/.config/keyboard/xbindkeys.conf
+    Restart=always
+
+    [Install]
+    WantedBy=xsession.target
+    EOF
+
+    cat <<EOF >>~/bin/keyboard.sh
+    systemctl --user import-environment PATH DBUS_SESSION_BUS_ADDRESS
+    systemctl --no-block --user start xsession.target
+    EOF
+
+    systemctl --user enable xbindkeys
+
+I'm not sure the added complexity is really useful though.
+I'm also not sure that `graphical-session.target` really exists.
+I can't find it in the output of `$ systemctl list-units -t target`.
+Did the author mean `graphical.target`?
+Note that this version needs you to run `systemctl --user start ...`;
+our version doesn't  need to, provided that  you choose the right  target in the
+`WantedBy` directive (default.target or graphical.target).
+
+Here are a few other interesting links/commands:
+
+    # Why do I need `--user-init`? https://unix.stackexchange.com/a/439616/289772
+    $ journalctl --user-unit xbindkeys
+
+To understand issue “Start request repeated too quickly”:
+<https://serverfault.com/a/845473>
+
+<https://askubuntu.com/a/859583/867754>
+
+<https://wiki.archlinux.org/index.php/Systemd/User>
 
 ---
 
@@ -1993,14 +2083,13 @@ I don't think we can use $HOME.
 Find a way to version control our customizations of unit files.
 For example, the files in:
 
-        /etc/systemd/system/getty@.service.d/
+    /etc/systemd/system/getty@.service.d/
 
 ---
 
 Sometimes, when we shut down the system, it takes a long time (forever?).
 Debug this issue:
-
-        https://freedesktop.org/wiki/Software/systemd/Debugging/
+<https://freedesktop.org/wiki/Software/systemd/Debugging/>
 
 ---
 
@@ -2013,69 +2102,82 @@ Maybe we should do the same for everything in `~/bin/autostartrc`.
 The new way of creating su(1)-like privileged sessions, which are fully isolated
 from the original session is:
 
-        $ sudo machinectl shell
+    $ sudo machinectl shell
 
 Source:
-        https://github.com/systemd/systemd/pull/1022
-        https://github.com/systemd/systemd/issues/825#issuecomment-127957710
-        https://github.com/systemd/systemd/issues/825#issuecomment-127917622
+
+<https://github.com/systemd/systemd/pull/1022>
+<https://github.com/systemd/systemd/issues/825#issuecomment-127957710>
+<https://github.com/systemd/systemd/issues/825#issuecomment-127917622>
 
 However, the readline key bindings don't work.
 Why?
 I think the command starts this service:
 
-        /usr/lib/systemd/system/rescue.service
+    /usr/lib/systemd/system/rescue.service
 
 It executes these commands:
 
-        /bin/plymouth quit
-        /bin/echo -e 'Welcome to rescue mode! After logging in, type "journalctl -xb" to view\\nsystem logs, "systemctl reboot" to reboot, "systemctl default" or ^D to\\nboot into default mode.'
-        /bin/sh -c "/sbin/sulogin; /bin/systemctl --job-mode=fail --no-block default"
+    /bin/plymouth quit
+    /bin/echo -e 'Welcome to rescue mode! After logging in, type "journalctl -xb" to view\\nsystem logs, "systemctl reboot" to reboot, "systemctl default" or ^D to\\nboot into default mode.'
+    /bin/sh -c "/sbin/sulogin; /bin/systemctl --job-mode=fail --no-block default"
 
 None of them suffer from this issue.
 Where does the issue come from?
 Try to remove as many directives as possible until the issue disappears.
 Find a MWE.
 
+Update: I think  that's because `sudo  machinectl shell`  starts sh (which  is a
+symlink to dash).
+You can check this by running:
+
+    $ echo $SHELL
+    /bin/sh~
+
+You need to make `machinectl shell` start sh with the `-E` flag, to enable emacs
+key bindings. I don't know how atm.
+But even if you manage to do it, there's another issue:
+our sh has been compiled without `--with-libedit`.
+You would need to make `machinectl shell` start our custom sh installed in `~/.local/bin/dash`.
+To understand how we produced this binary, in zshrc, read our comments above the `sh` alias.
+
 ---
 
-https://serverfault.com/a/617864
+<https://serverfault.com/a/617864>
 
-        $ systemd-analyze critical-chain
+    $ systemd-analyze critical-chain
 
-        $ systemd-analyze plot > plot.svg
-        $ display plot.svg
+    $ systemd-analyze plot > plot.svg
+    $ display plot.svg
 
-        $ systemd-analyze dot 'avahi-daemon.*' | dot -Tsvg > avahi.svg
-        $ display avahi.svg
+    $ systemd-analyze dot 'avahi-daemon.*' | dot -Tsvg > avahi.svg
+    $ display avahi.svg
 
 ---
 
 We can't redirect the output of a service into a file.
 We need a more recent version of systemd to use the StandardOutput directive.
-
-        https://stackoverflow.com/a/43830129/9780968
+<https://stackoverflow.com/a/43830129/9780968>
 
 Otherwise, you may use a hack (`/bin/sh -c 'cmd >redir'`):
-
-        https://stackoverflow.com/a/37595720/9780968
+<https://stackoverflow.com/a/37595720/9780968>
 
 ---
 
-        $ systemd-delta
+    $ systemd-delta
 
 It has a lot of output.
 I wonder whether all those `[OVERRIDDEN]` are due to `usrmerge`.
 If that's the case, and you need to clean the output:
 
-        :sil exe 'g/ are identical$/.-2,.d_' | g/^$/d_
+    :sil exe 'g/ are identical$/.-2,.d_' | g/^$/d_
 
 ---
 
 Talk about the `--no-hostname` option:
 
-        $ journalctl -b --no-hostname
-                        ^^^^^^^^^^^^^
+    $ journalctl -b --no-hostname
+                    ^^^^^^^^^^^^^
 
 It's not available in ubuntu 16.04, but it is in 18.04.
 

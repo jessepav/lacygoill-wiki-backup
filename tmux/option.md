@@ -320,39 +320,120 @@ The equivalent of an event in Vim.
 When a hook is  triggered, tmux runs the commands stored in  an array, in order,
 which can be set via an option with the same name as the hook.
 
-### ?
+###
+### How to show the global list of hooks and the commands they run?
 
-How to install a hook?
+    $ tmux show-hooks -g
+
+#### the list of hooks local to an arbitrary session?
+
+    $ tmux show-hooks -t <session>
+
+#### Why should I avoid `show-options -[g]H`?
+
+`-H` doesn't merely display hooks, it *includes* hooks to the output of `show-options`.
+IOW, session and user options are *also* included.
+
+##
+### How to make a hook run
+#### a command when it's triggered?
 
 Use `set-hook`:
 
-    set-hook -a
+    set-hook -ga <hook> 'display -p test'
+              ││
+              │└ append to the array (otherwise, you would reset it)
+              └ global hook
 
-`set-hook [-agRu] [-t target-session] hook-name command`
+Example:
 
-Without `-R`, sets (or with `-u` unsets) hook `hook-name` to command.
-If `-g` is given, `hook-name` is added to the global list of hooks, otherwise it
-is added to the session hooks (for `target-session` with `-t`).
-`-a` appends to a hook.
-Like options, session hooks inherit from the global ones.
+    $ tmux set-hook -ga window-renamed 'display -p test'
 
-With `-R`, run `hook-name` immediately.
+#### all its commands now?
 
-### ?
+Pass `-R` to `set-hook`:
 
-`show-hooks [-g] [-t target-session]`
+                    vv
+    $ tmux set-hook -R window-renamed
+    test~
 
-Shows the global list of hooks with `-g`, otherwise the session hooks.
+##### what if it's a hook local to another session?
 
----
+Use `-t`:
 
-Do *not* use `show-options -[g]H` to display hooks.
-`-H` doesn't merely display hooks, it *includes* hooks to the output of `show-options`.
-IOW, session and user options are also included.
+    set-hook -t <session> -R <hook>
+             ^^^^^^^^^^^^
 
-Prefer `show-hooks`.
+Example:
 
-##
+    $ tmux set-hook -t fun    session-renamed '' \; \
+           set-hook -t fun -a session-renamed 'display -p one' \; \
+           set-hook -t fun -a session-renamed 'display -p two' \; \
+           set-hook -t fun -R session-renamed
+    one~
+    two~
+
+####
+### How to remove
+#### an arbitrary command bound to a hook?
+
+Use `-u`:
+
+    set-hook -gu '<hook>[123]'
+
+Example:
+
+    $ tmux set-hook -g   session-renamed '' \; \
+           set-hook -ga  session-renamed 'display -p test' \; \
+           set-hook -ga  session-renamed 'display -p remove_me' \; \
+           set-hook -gu 'session-renamed[1]' \; \
+           set-hook -R   session-renamed
+    test~
+
+#### a command bound to a hook local to another session?
+
+Use `-t`:
+
+    set-hook -t fun -u '<hook>[123]'
+
+    $ tmux set-hook -t fun     session-renamed '' \; \
+           set-hook -t fun -a  session-renamed 'display -p test' \; \
+           set-hook -t fun -a  session-renamed 'display -p remove_me' \; \
+           set-hook -t fun -u 'session-renamed[1]' \; \
+           set-hook -t fun -R  session-renamed
+    test~
+
+###
+### Can I manually make a hook run *one* of its commands?
+
+It seems you can't.
+
+    $ tmux set-hook -g   session-renamed '' \; \
+           set-hook -ga  session-renamed 'display -p one' \; \
+           set-hook -ga  session-renamed 'display -p two' \; \
+           set-hook -gR 'session-renamed[1]'
+    ''~
+
+###
+### Can I run a command bound to
+#### a session hook and ignore the matching global hook?
+
+Well,  that's what  happens  by default,  no  matter whether  you  pass `-g`  to
+`set-hook`, so yes.
+
+#### a global hook and ignore the matching session hook?
+
+No, probably because a hook is implemented as an array option.
+So, a session hook has priority over a global hook.
+
+    $ tmux set-hook -g  session-renamed '' \; \
+           set-hook -ga session-renamed 'display -p global\ hook' \; \
+           set-hook     session-renamed '' \; \
+           set-hook -a  session-renamed 'display -p session\ hook' \; \
+           set-hook -gR session-renamed
+    session hook~
+
+###
 # Issues
 ## Some options which set colors don't work!
 
@@ -378,23 +459,15 @@ Alternatively, you could use:
 
 MWE:
 
-     $ cat <<'EOF' >/tmp/tmux.conf
-
+     $ tmux -Ltest -f =(cat<<'EOF'
      set -as terminal-overrides ',*-256color:Tc'
      set -gw window-style         'bg=#000000'
      set -gw window-active-style  'bg=#ffffff'
-
-     set -g prefix 'M-space'
-     unbind '"'
-     bind _ splitw -v
-     bind M-space last-pane
      EOF
+     )
 
-     $ tmux -Ltest -f/tmp/tmux.conf
-
-     pfx _
-     pfx SPC
-
+     C-b " (splitw)
+     C-b ; (last-pane)
 
 ##
 # Reference

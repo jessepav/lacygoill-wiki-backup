@@ -501,9 +501,9 @@ During a profiling, `v:profiling` is set to 1.
 
 Temporarily pause the profiling:
 
-        :prof pause
-        " execute your irrelevant command
-        :prof continue
+    :prof pause
+    " execute your irrelevant command
+    :prof continue
 
 ### How to make Vim write the current state of the profiling immediately without restarting, and without `:profd`?
 
@@ -1051,6 +1051,11 @@ there are various things that may clobber the results:
 #
 #
 # Todo
+
+After a profiling, maybe we should always run `:prof pause` then `:noa qa!`.
+<https://vi.stackexchange.com/a/20276/17449>
+
+---
 
 <https://www.dannyadam.com/blog/2019/05/debugging-in-vim/>
 

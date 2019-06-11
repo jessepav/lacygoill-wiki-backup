@@ -2465,12 +2465,17 @@ choosing.
 ##
 ##
 # Issues
+## I'm trying to use a documented feature of a command.  It doesn't work at all! It's missing!
+
+Try to recompile  and look for a configuration option  which enables the desired
+feature.
+
 ## Some configuration for a program I use seems to be ignored!
 
 Maybe something alters your configuration after the file has been processed:
 
-        - delay the processing of the file (`sleep 1s`)
-        - move the line(s) at the end of the file
+   - delay the processing of the file (`sleep 1s`)
+   - move the line(s) at the end of the file
 
 ---
 

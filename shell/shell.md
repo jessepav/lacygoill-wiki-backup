@@ -985,6 +985,14 @@ If you want `ls` to dereference, you need to pass the symlink as a parameter:
         % setopt chaselinks
 
 ##
+# Issues
+## I'm trying to run a shell command, but it doesn't work as I would expect!
+
+Write it in a file and press `|c` to make shellcheck lint it.
+If any error appears in the quickfix  window, press `gx` on it to get redirected
+to the shellcheck wiki where the issue will be described in detail.
+
+##
 ##
 ##
 # SCRIPTS

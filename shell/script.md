@@ -395,6 +395,25 @@ Useful to detect a misspelled variable name.
 
 ##
 # Issues
+## `[ -n $TMUX ] && echo 'inside tmux'` outputs `inside tmux` even outside tmux!
+
+You need to quote the variable:
+
+    [ -n "$TMUX" ] && echo test
+         ^     ^
+
+When `$TMUX` is unquoted, a blank value will cause it to wordsplit and disappear.
+If `$TMUX` is empty, these two statements are identical:
+
+    [ -n $TMUX ]
+    [ -n ]
+
+`[ string ]` is shorthand for testing if a string is empty.
+This is still true when string happens to be `-n`.
+`[ -n ]` is therefore true, and by extension so is `[ -n $TMUX ]`.
+
+See: <https://github.com/koalaman/shellcheck/wiki/SC2070>
+
 ## After executing my script, the prompt is not redrawn!
 
 MWE:
@@ -467,4 +486,14 @@ temporarily toggle `set -e`:
     set +e
     problematic_command
     set -e
+
+## ?
+
+In some scripts (or makefiles), we may set variables and then refer to them in paths.
+It would be nice if ^x^f could complete those kind of paths.
+You could supercharge  our current ^x^f, and make it  check whether the variable
+is in the current environment, and if  it's not, it could look for an assignment
+in the current file.
+
+<https://vi.stackexchange.com/a/20267/17449>
 

@@ -1,5 +1,21 @@
 # ?
 
+Document  that when  you install  xbindkeys, the  latter installs  some kind  of
+autostart script.
+
+It fails to  start if you don't  create a file in `~/.xbindkeysrc`  (we don't so
+we're ok), but still it's probably better to disable it:
+
+    Settings
+    > Session and Startup
+    > Application Autostart
+    > untick “xbindkeys (Start xbindkeys)”
+
+Otherwise, I  think your systemd  journal will  be polluted with  error messages
+about xbindkeys which doesn't find its config file.
+
+# ?
+
         https://wiki.archlinux.org/index.php/Color_output_in_console
         https://wiki.archlinux.org/index.php/Keyboard_input
         https://wiki.archlinux.org/index.php/Keyboard_shortcuts
@@ -676,10 +692,10 @@ This will generate a source keymap inside:
 
 # How does xmodmap work?
 
-        https://wiki.archlinux.org/index.php/Xmodmap
-        https://wiki.archlinux.org/index.php/Keyboard_input
-        https://wiki.archlinux.org/index.php/Xbindkeys
-        https://wiki.archlinux.org/index.php/Xorg
+<https://wiki.archlinux.org/index.php/Xmodmap>
+<https://wiki.archlinux.org/index.php/Keyboard_input>
+<https://wiki.archlinux.org/index.php/Xbindkeys>
+<https://wiki.archlinux.org/index.php/Xorg>
 
 # How to capture the output of all past commands in a virtual console?
 

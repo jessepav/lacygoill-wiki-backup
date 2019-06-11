@@ -1432,21 +1432,6 @@ Search for `\C\<get(` in this file and in all our notes/plugins/...
 You  may find  a lot  of matches,  but don't  worry (`:Cfilter!  -other_plugins`)
 removes a lot of them.
 
----
-
-But don't do it now.
-
-In  Neovim,  you  need  `get()`,  because atm  `getqflist()`  returns  an  empty
-dictionary, if there's no quickfix list:
-
-    $ vim -Nu NONE +'echo getqflist({"size": 0})'
-    {'size': 0}~
-    ~
-    $ nvim -Nu NONE +'echo getqflist({"size": 0})'
-    {}~
-
-Wait for Neovim to be more consistent with Vim.
-
 ## ?
 
 We've  made  a   fundamental  mistake  in  the  past,  every   time  we've  used

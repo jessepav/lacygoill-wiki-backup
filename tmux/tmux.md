@@ -415,7 +415,7 @@ Press `C-t` to tag all buffers, then `D`.
 ## Crash
 ### How to produce an example core file on-demand?
 
-    $ cat <<'EOF' >/tmp/tmux.conf
+    $ tmux -Ltest -f =(cat <<'EOF'
     %if #{l:1}
     set -g status-style fg=cyan,bg='#001040'
     %elif #{l:1}
@@ -425,10 +425,14 @@ Press `C-t` to tag all buffers, then `D`.
     %endif
     bind ^X last-window
     EOF
+    )
 
-    $ tmux -Ltest -f/tmp/tmux.conf
+Source: <https://github.com/tmux/tmux/commit/88ee5a1a00b475fd2b93ef00e71f527fe2e9520e>
 
-<https://github.com/tmux/tmux/commit/88ee5a1a00b475fd2b93ef00e71f527fe2e9520e>
+You need a tmux which doesn't include this commit:
+<https://github.com/tmux/tmux/commit/900238a30657a477f3c62ba344fcc73fc0948ac7>
+
+If you compile tmux 3.0 (or older), you should get a crash.
 
 ###
 ### How to get a backtrace?

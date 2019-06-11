@@ -1,3 +1,74 @@
+# I have a command which generates a completion function to complete some command.  How to use it?
+
+Run it and save its output in a file in a directory of `$fpath`.
+For example, for `$ pandoc`:
+
+     $ pandoc --bash-completion >~/.zsh/my-completions/_pandoc
+     $ sed -i '1i#compdef pandoc\n' ~/.zsh/my-completions/_pandoc
+
+Add these commands to your script which  updates your system so that the code is
+updated regularly.
+
+Do *not* generate the code dynamically every  time you start a shell, by writing
+for example sth like this in your zshrc:
+
+     eval "$(pandoc --bash-completion)"
+
+Or:
+
+     . =(pandoc --bash-completion)
+
+It would probably increase the starting time of a new shell.
+
+##
+# Issues
+## I'm trying to use a bash completion function with bashcompinit, but it doesn't work!
+
+It may not work, but try to add this to your zshrc:
+
+     bash_source() {
+       alias shopt=':'
+       alias _expand=_bash_expand
+       alias _complete=_bash_comp
+       emulate -L sh
+       setopt KSH_GLOB BRACE_EXPAND
+       unsetopt SH_GLOB
+       source "$@"
+     }
+     have() {
+       unset have
+       (( ${+commands[$1]} )) && have=yes
+     }
+     bash_source /path/to/my/completion_function
+
+---
+
+This makes  zsh ignore the bash  `shopt` builtin, and avoids  issues with common
+bash functions that have the same name as zsh ones.
+
+Source: <https://web.archive.org/web/20180404080213/http://zshwiki.org/home/convert/bash>
+
+###
+## I need to press Tab twice when trying to complete `$ tldr`! Why?
+
+It's only necessary the first time you try to complete it in a new shell.
+After that, pressing Tab once is enough.
+I think the  first time you press  Tab, the completion fails,  but zsh sources
+the completion function, which is why it works the second time.
+
+### Is there a fix?
+
+Yes, source the function from your zshrc:
+
+     . ~/.zsh/my-completions/_tldr
+
+#### Why don't you use it?
+
+Starting a shell would take more time, because it runs an external process:
+
+    $ tldr 2>/dev/null --list
+
+##
 # ?
 
 Read `From  bash to  zsh` chapters  10, 15, and  maybe 13  (to learn  more about

@@ -1,3 +1,10 @@
+# How to get the path to the config directory used by the current ranger instance?
+
+From ranger, run:
+
+    :eval fm.notify(ranger.args.confdir, True)
+
+##
 # What's a prefix argument?
 
 Suppose you bind a custom command to `<key>`, and you press `123<key>`:

@@ -258,3 +258,7 @@ This is an old key binding we had in `~/.config/keyboard/xbindkeys.conf`.
 Maybe document how the command worked.
 Could be useful in a script.
 
+---
+
+<https://github.com/svenstaro/rofi-calc>
+
