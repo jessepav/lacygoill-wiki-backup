@@ -1,3 +1,14 @@
+# a
+## alternate screen
+
+A terminal  feature which allows  full screen applications to  avoid overwriting
+what was on  screen before they started  (it is saved and  restored when exiting
+the  alternate screen)  and messing  up the  scrollback (it  is disabled  in the
+alternate screen).
+
+<https://github.com/tmux/tmux/issues/1795#issuecomment-502384443>
+
+##
 # b
 ## bit/baud rate
 

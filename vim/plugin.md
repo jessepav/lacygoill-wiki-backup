@@ -1547,6 +1547,12 @@ functionality.
 
                                     251 sloc
 
+## `quickfixsigns_vim`
+
+Mark quickfix & location list items with signs
+
+<https://github.com/tomtom/quickfixsigns_vim>:1488sloc
+
 ## quickhl
 
             Highlight on the fly.

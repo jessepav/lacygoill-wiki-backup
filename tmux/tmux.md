@@ -131,9 +131,9 @@ But this one would:
 
     bind C-g display "$EDITOR"
 
-And this option would not print some text in green on the right of your status line:
+And this code would not print some text in green on the right of your status line:
 
-    export my_color=green
+    my_color=green
     set -g status-right '#[bg=$my_color]this should be colored in $my_color'
 
 But this one would:
@@ -169,8 +169,8 @@ highlighted as such, instead of being highlighted as a filename.
 
 Quoting a filename makes sure that there won't be any dubious syntax highlighting.
 
-The issue  is not  specific to our  custom syntax plugin;  it can  be reproduced
-with, the default plugin.
+The issue is not specific to our custom syntax plugin; it can be reproduced with
+the default plugin.
 
 ##
 ## Why can't I use two single quotes to represent a single quote in a single-quoted string?
@@ -251,6 +251,13 @@ meaning:
     :display foo\ bar
     foo bar~
 
+    :display foo\\\ bar
+    foo\ bar~
+       │
+       └ originally, this was the second backslash;
+         it has been preserved because the previous backslash removed its special meaning;
+         so now, it's treated as a regular character, and as such, is kept in the output
+
 That's also what allows you to make a key binding run several commands:
 
     bind C-g display -p hello \; display -p world
@@ -269,9 +276,9 @@ The shell parses the first command before tmux.
 It  doesn't remove  the backslash,  because in  a double-quoted  string, `\`  is
 removed only when it's special, i.e.  only when it's followed by some characters
 (like `$`), and `z` is not one of them.
-A shell – probably – only passes  *literal* strings as arguments to a command it
-runs; so  here, zsh  passes the literal  string `'\z'` to  tmux, and  the latter
-doesn't replace anything in a literal string.
+Also, a  shell –  probably –  only passes  *literal* strings  as arguments  to a
+command it runs; so here, zsh passes  the literal string `'\z'` to tmux, and the
+latter doesn't replace anything in a literal string.
 
 OTOH, in the second command, tmux is  the first to parse the command (there's no
 shell this time); and tmux removes one level of backslash, unconditionally.
@@ -413,28 +420,6 @@ Press `C-t` to tag all buffers, then `D`.
 ##
 # Debugging
 ## Crash
-### How to produce an example core file on-demand?
-
-    $ tmux -Ltest -f =(cat <<'EOF'
-    %if #{l:1}
-    set -g status-style fg=cyan,bg='#001040'
-    %elif #{l:1}
-    set -g status-style fg=white,bg='#400040'
-    %else
-    set -g status-style fg=white,bg='#800000'
-    %endif
-    bind ^X last-window
-    EOF
-    )
-
-Source: <https://github.com/tmux/tmux/commit/88ee5a1a00b475fd2b93ef00e71f527fe2e9520e>
-
-You need a tmux which doesn't include this commit:
-<https://github.com/tmux/tmux/commit/900238a30657a477f3c62ba344fcc73fc0948ac7>
-
-If you compile tmux 3.0 (or older), you should get a crash.
-
-###
 ### How to get a backtrace?
 
 Make sure to run `$ ulimit -c unlimited` before reproducing the crash.
@@ -517,7 +502,7 @@ output bandwidth; you can test the latter, roughly, with these commands:
 ### Tmux crashes, but it doesn't dump a core file!
 #### How to get a backtrace?
 
-    $ gdb -q --args ./tmux -Ltest -f/dev/null new
+    $ gdb -q --args ./tmux -Lx -f/dev/null new
     (gdb) set follow-fork-mode child
     (gdb) run
     # reproduce the crash
@@ -535,12 +520,11 @@ Write `return` at its top.
 #####
 #### How to get a trace?
 
-    $ tmux -Ltest kill-server
-    $ strace -ttt -ff -ostrace.out tmux -vv -Ltest -f/dev/null new
+    $ tmux -Lx kill-server
+    $ strace -ttt -ff -ostrace.out tmux -Lx -f/dev/null new
                         ^^^^^^^^^^
                         output file
 
-<https://github.com/tmux/tmux/blob/master/CONTRIBUTING>
 <https://github.com/tmux/tmux/issues/1603#issuecomment-462955045>
 
 ##
@@ -637,14 +621,14 @@ Then redirect the standard error of the shell command to a file:
 And read the error message written in the file to get more information.
 
 ###
-## `$ tmux -Ltest` doesn't read `~/.tmux.conf`!
+## `$ tmux -Lx` doesn't read `~/.tmux.conf`!
 
 Make sure you don't have a running tmux server listening to the socket `test`:
 
     $ ps aux | grep tmux | grep test
-    user 6771 ... tmux -Ltest -f/dev/null~
-                              ├─────────┘
-                              └ your custom config can't be read because of this
+    user 6771 ... tmux -Lx -f/dev/null~
+                           ├─────────┘
+                           └ your custom config can't be read because of this
 
 If there's one, kill it – from inside tmux – with `kill-server`:
 
@@ -661,10 +645,10 @@ this `test` socket.
 MWE:
 
     $ xterm
-    $ tmux -Ltest -f/dev/null
+    $ tmux -Lx -f/dev/null
     Alt-F4
     $ ps aux | grep tmux | grep test
-    user ... tmux -Ltest -f/dev/null~
+    user ... tmux -Lx -f/dev/null~
 
 Alt-F4 kills the client, but not the server.
 The server keeps running in the background.
@@ -1697,11 +1681,6 @@ Tous les raccourcis qui suivent doivent être précédés de pfx.
 # Copier-Coller
 ## Modes
 
-    pfx PgUp
-
-            passer en mode copie et faire un scrollback d'une page en arrière
-
-
     copy_v    copy_Space
     copy_V
 
@@ -2017,28 +1996,15 @@ Les liens sont dépourvus de contexte.
 
 ## Divers
 
-    clock-mode [-t target-pane]
-    pfx t
-
-            Affiche l'heure.
-
-
     show-messages [-JT] [-t target-client]
     showmsgs
-    pfx ~
+    pfx !
 
-            Show client  messages or server information.  Any messages displayed on  the status line
-            are  saved in  a  per-client message  log, up  to  a maximum  of  the limit  set by  the
-            message-limit server option. With -t, display the  log for target-client. -J and -T show
-            debugging information about jobs and terminals.
-
-
-            Affiche les derniers messages de tmux.
-
-            Utile pour relire les messages d'erreurs si le fichier de configuration contient
-            une erreur de syntaxe. Penser à recharger ce dernier avant de taper `pfx ~`.
-            En effet, la 1e fois qu'on lance tmux, si des erreurs surviennent et que tmux les affichent,
-            il ne semble pas les mémoriser pour autant.
+Show client messages or server information.
+Any messages displayed on the status line are saved in a per-client message log,
+up to a maximum of the limit set by the message-limit server option.
+With -t, display the log for target-client.
+-J and -T show debugging information about jobs and terminals.
 
 ## Sessions
 
@@ -2245,8 +2211,9 @@ Les liens sont dépourvus de contexte.
     kill-window [-a] [-t target-window]
     killw
 
-            Kill the current window or the window at target-window, removing it from any sessions to which it is
-            linked.  The -a option kills all but the window given with -t.
+Kill the  current window or  the window at  target-window, removing it  from any
+sessions to which it is linked.
+The `-a` option kills all but the window given with `-t`.
 
 ##
 ##

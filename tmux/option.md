@@ -300,7 +300,7 @@ this minimal `tmux.conf`.
 
 No.
 
-    $ tmux -Ltest -f/dev/null new
+    $ tmux -Lx -f/dev/null new
     $ tmux show terminal-overrides
     terminal-overrides[0] "xterm*:XT:Ms=\\E]52;%p1%s;%p2%s\\007:Cs=\\E]12;%p1%s\\007:Cr=\\E]112\\007:Ss=\\E[%p1%d q:Se=\\E[2 q"~
     terminal-overrides[1] "screen*:XT"~
@@ -433,7 +433,102 @@ So, a session hook has priority over a global hook.
            set-hook -gR session-renamed
     session hook~
 
+##
+# activity, bell, silence
+## What does it mean for tmux to detect in a window
+### some activity?
+
+A process has produced new output.
+
 ###
+### the bell?
+
+A process has written `\a` (`\007`) on  the terminal, which caused the latter to
+ring its bell.
+
+#### What's the most portable way to ring the bell manually?
+
+    $ tput bel
+
+###
+### silence?
+
+A process has been silent since the time given to the `'monitor-silence'` option:
+
+    $ tmux set -w monitor-silence 123
+                                  ^^^
+
+##
+## When the bell rings in a window,
+### how to get a notification in the status line?
+
+    $ tmux set -gw monitor-bell on
+
+You don't  need to  customize your  status line, because  by default,  tmux will
+reverse the  background and foreground colors  of the window in  the status line
+window list.
+
+But if you want another effect, you need to use the `window_bell_flag`.
+
+See here for an example with `window_activity_flag`:
+<https://github.com/tmux/tmux/issues/74#issuecomment-129130023>
+
+#### in addition, how to get an audible notification?
+
+    $ tmux set -gw monitor-bell on
+    $ tmux set -g  visual-bell  both
+                                ^^^^
+
+You'll also need to configure your window manager/terminal/audio server/... appropriately.
+<https://forum.xfce.org/viewtopic.php?id=12031>
+
+##### how about a message instead of a beep?
+
+    $ tmux set -gw monitor-bell on
+    $ tmux set -g  visual-bell  on
+                                ^^
+
+##
+## How to prevent any bell notification (beep, message, reverse colors in status line window list)?
+
+    $ tmux set -gw monitor-bell off
+
+## On which condition does the value of 'bell-action' take effect?
+
+`'monitor-bell'` must be on.
+
+### What *is* its effect?
+
+It controls in  which window(s) an audible sound will  be emitted (provided your
+DE  is correctly  configured),  and/or  a message  will  be displayed  (provided
+`'visual-bell'` is not off), when the bell rings.
+
+Its value can be:
+
+    ┌─────────┬───────────────────────────────────────────────────┐
+    │ any     │ a beep/message is emitted/displayed in any window │
+    ├─────────┼───────────────────────────────────────────────────┤
+    │ none    │ no beep/message in any window                     │
+    ├─────────┼───────────────────────────────────────────────────┤
+    │ current │ a beep/message only in the current window         │
+    ├─────────┼───────────────────────────────────────────────────┤
+    │ other   │ a beep/message only in the other windows          │
+    └─────────┴───────────────────────────────────────────────────┘
+
+---
+
+But it does  *not* control whether the  colors of the window in  the status line
+window list will be reversed:
+
+                                vv                       vvvv                       vvv
+    $ tmux set -gw monitor-bell on \; set -g bell-action none \; set -g visual-bell off \
+        ; sleep 1 ; tput bel
+
+After running the command, focus a different window: the colors of the window in
+the status line  window list have been reversed,  despite `'bell-action'` having
+the value 'none' and `'visual-bell'` being 'off'.
+
+##
 # Issues
 ## Some options which set colors don't work!
 
@@ -459,7 +554,7 @@ Alternatively, you could use:
 
 MWE:
 
-     $ tmux -Ltest -f =(cat<<'EOF'
+     $ tmux -Lx -f =(cat<<'EOF'
      set -as terminal-overrides ',*-256color:Tc'
      set -gw window-style         'bg=#000000'
      set -gw window-active-style  'bg=#ffffff'
@@ -468,7 +563,4 @@ MWE:
 
      C-b " (splitw)
      C-b ; (last-pane)
-
-##
-# Reference
 

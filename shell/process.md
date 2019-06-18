@@ -112,9 +112,9 @@ pas été dumpé, ou bien il peut fournir le chemin vers lequel il a été dump�
          ┌ quiet: pas de messages d'intro / copyright
          │
     gdb -q build/bin/nvim core
-           └─────────────────┤
-                             └ Lance le  binaire nvim  en spécifiant  un fichier
-                               `core` pour analyser un précédent crash.
+           ├─────────────────┘
+           └ Lance le  binaire nvim  en spécifiant  un fichier
+             `core` pour analyser un précédent crash.
 
             ┌ exécute automatiquement la commande GDB qui suit (ici `bt`)
             │
@@ -123,9 +123,9 @@ pas été dumpé, ou bien il peut fournir le chemin vers lequel il a été dump�
                └ affiche le backtrace de  toutes les stack frames (taper `help
                  bt` dans gdb pour + d'infos)
 
-                               ┌ appliquer  la commande qui suit  (ici `bt`) à
-                               │ tous les threads neovim est multi-thread
-                ┌──────────────┤
+                ┌ appliquer  la commande qui suit  (ici `bt`) à
+                │ tous les threads neovim est multi-thread
+                ├──────────────┐
     gdb -q -ex 'thread apply all bt full' build/bin/nvim core
                                     │
                                     └ qualificateur qui demande à afficher les
@@ -180,6 +180,9 @@ Then, search for ‘gdb’ in the commit logs:
 
     $ git log --all --source -p -S 'gdb' | vim -
 
+See also: <https://wiki.archlinux.org/index.php/Core_dump>
+
+---
 
 Une frame est un ensemble de données associées à un appel de fonction.
 Elle contient:
@@ -201,31 +204,43 @@ Ce qui caractérise une stack n'est pas son implémentation (liste ou autre), ma
 son interface: on ne peut que “push“ ou “pop“ un item sur la stack.
 <https://en.wikipedia.org/wiki/Stack_(abstract_data_type)#Implementation>
 
+---
+
+How to generate a core file on-demand?
+
+Start your process, and get its pid.
+Then, run:
+
+    $ gdb -p PID
+    generate-core-file
+
+<https://wiki.archlinux.org/index.php/Core_dump#Making_a_core_dump>
+
 ##
 ##
 ##
 # ASSIMIL
 ## ?
 
-    http://www.linusakesson.net/programming/tty/
+<http://www.linusakesson.net/programming/tty/>
 
 ## ?
 
 Understand the output of `free -h`:
 
-                       total       used        free      shared  buff/cache   available
-        Mem:           3,6G        1,8G        408M        262M        1,4G        1,2G
-        Swap:          3,8G         50M        3,8G
+                   total       used        free      shared  buff/cache   available
+    Mem:           3,6G        1,8G        408M        262M        1,4G        1,2G
+    Swap:          3,8G         50M        3,8G
 
 `Shared` is an obsolete concept and `total` is easy to understand:
 
-                       used        free    buff/cache   available
-        Mem:           1,8G        408M          1,4G        1,2G
-        Swap:           50M        3,8G
+                   used        free    buff/cache   available
+    Mem:           1,8G        408M          1,4G        1,2G
+    Swap:           50M        3,8G
 
 ## ?
 
-https://unix.stackexchange.com/questions/138463/do-parentheses-really-put-the-command-in-a-subshell/138498#comment772229_138498
+<https://unix.stackexchange.com/questions/138463/do-parentheses-really-put-the-command-in-a-subshell/138498#comment772229_138498>
 
 Why does the manual say "The order  of expansions is:
 
@@ -236,8 +251,8 @@ I had interpreted the manual to mean $x would be expanded first as it has higher
 precedence than command substitution.
 But apparently this is not the case, as you correctly point out.
 
-        x=1
-        echo $(x=2; echo $x)
+    x=1
+    echo $(x=2; echo $x)
 
 Which has the priority: variable expansion or command substitution?
 

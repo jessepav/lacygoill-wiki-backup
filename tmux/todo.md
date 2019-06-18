@@ -74,10 +74,6 @@ Vim:
 
 ## reimplement/assimilate tmux-yank and tmux-logging
 
-Once done, I think `check_tmux_version_is_correct()` will be useless.
-Consider removing it.
-If you do, integrate its comments in our notes about scripting the shell.
-
 ## tmux-fingers
 ### it wrongly renames the current window
 
@@ -154,15 +150,17 @@ It's described at `$ man tmux /^\s*new-session [`:
 > options remain independent and any session in a group may be
 > killed without affecting the others.
 
+On the subject of session groups, see also: <https://github.com/tmux/tmux/issues/1793>
+
 # evaluating a tmux replacement variable in different contexts
 
 To test the current value of a replacement variable such as `#{pane_tty}`, run:
 
     # shell command
-    $ tmux -S /tmp/tmux-1000/default display -p #{pane_tty}
+    $ tmux -S /tmp/tmux-1000/default display -p '#{pane_tty}'
 
     # tmux command
-    :display -p #{pane_tty}
+    :display -p '#{pane_tty}'
 
     # Vim command
     :echo system('tmux -S /tmp/tmux-1000/default display -p "#{pane_tty}"')
@@ -316,7 +314,7 @@ As an example, you don't want to bind anything to the sequence `ESC O A`.
     bind -n User0 display hello
     EOF
 
-    $ tmux -Ltest -f/tmp/tmux.conf
+    $ tmux -Lx -f/tmp/tmux.conf
 
 Press Up to recall the last run command in the history of the shell commands:
 tmux prints 'hello'.
@@ -425,6 +423,11 @@ This key binding should toggle it:
 When it's on, anything you type in one pane, is typed in all the others.
 
 # study how v, V, C-v behave in Vim when we're already in visual mode; try to make tmux copy-mode consistent
+
+The  replacement  variables  `rectangle_toggle`  (1 if  rectangle  selection  is
+activated) and `selection_present` (1 if selection  started in copy mode) may be
+useful.
+
 # finish reading `~/Desktop/split-window_tmux.md`
 
 Copied from here:
@@ -452,17 +455,52 @@ Vs:
 
 <https://unix.stackexchange.com/a/137547/289772>
 
+# swap windows pane interactively
+
+<https://www.youtube.com/watch?v=_OOSbjHmLPY>
+
 ##
 # various typos in manpage
 
 In `$ man tmux /COMMAND PARSING AND EXECUTION`:
 
-     Will execute new-session, new-window, if-shell, the shell command
-     true(1), new-window and kill-session in that order.
+> Will  execute new-session,  new-window, if-shell,  the shell  command true(1),
+> **new-window** and kill-session in that order.
 
-This should be:
+I think it should be “Will  execute new-session, new-window, if-shell, the shell
+command true(1), **split-window** and kill-session in that order.”.
 
-     Will execute new-session, new-window, if-shell, the shell command
-     true(1), split-window and kill-session in that order.
-              ^^^^^
+---
+
+In `$ man tmux /uptime`:
+
+> In addition, the **first** line of a shell command's output may be inserted
+> using ‘#()'.
+
+I think it should be “the **last** line of a shell command's output”.
+
+---
+
+In `$ man tmux /PARSING SYNTAX`:
+
+> This section describes the syntax of commands parsed by tmux, for example
+> in a configuration file or at the command prompt.  Note **the** when commands
+> are entered into the shell, they are parsed by the shell - see for exam‐
+> ple ksh(1) or csh(1).
+
+I think it should be “Note **that** when commands are entered into the shell, ...”.
+
+---
+
+In `$ man tmux /FORMAT /itself`:
+
+> ‘E:’  will expand  the format  twice,  for example  ‘#{E:status-left}’ is  the
+> result of  expanding the  content of  the status-left  option rather  than the
+> **content** itself.
+
+I think it should be “... rather than the **option** itself.”.
+
+---
+
+`#{l:}` is not documented at `$ man tmux /FORMAT`.
 

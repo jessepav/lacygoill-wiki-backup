@@ -1972,16 +1972,15 @@ The service must have written why it failed.
 
 ##
 # TODO
+## Watch these videos
 
-Watch:
 <https://www.youtube.com/watch?v=S9YmaNuvw5U>
 <https://www.youtube.com/watch?v=tY9GYsoxeLg>
 <https://www.youtube.com/watch?v=V0xoCA_qO58>
 
----
+## try to install an xbindkeys service
 
-Try to install  a service which would automatically start  xbindkeys when we log
-in, and which we could ask to reload its config.
+We could ask it to reload its config.
 This  would  be  useful  to  reload the  config  of  xbindkeys  after  modifying
 `~/.config/keyboard/xbindkeys.conf`.
 
@@ -2073,31 +2072,26 @@ To understand issue “Start request repeated too quickly”:
 
 <https://wiki.archlinux.org/index.php/Systemd/User>
 
----
+## Find a way to dynamically get the current username from a unit file.
 
-Find a way to dynamically get the current username from a unit file.
 I don't think we can use $HOME.
 
----
+## Find a way to version control our customizations of unit files.
 
-Find a way to version control our customizations of unit files.
 For example, the files in:
 
     /etc/systemd/system/getty@.service.d/
 
----
+## Sometimes, when we shut down the system, it takes a long time (forever?).
 
-Sometimes, when we shut down the system, it takes a long time (forever?).
 Debug this issue:
 <https://freedesktop.org/wiki/Software/systemd/Debugging/>
 
----
-
-Convert `~/bin/keyboard.sh` as a systemd service/timer.
+## Convert `~/.config/keyboard/setup.sh` as a systemd service/timer.
 
 Maybe we should do the same for everything in `~/bin/autostartrc`.
 
----
+## ?
 
 The new way of creating su(1)-like privileged sessions, which are fully isolated
 from the original session is:
@@ -2141,7 +2135,7 @@ our sh has been compiled without `--with-libedit`.
 You would need to make `machinectl shell` start our custom sh installed in `~/.local/bin/dash`.
 To understand how we produced this binary, in zshrc, read our comments above the `sh` alias.
 
----
+## ?
 
 <https://serverfault.com/a/617864>
 
@@ -2153,16 +2147,15 @@ To understand how we produced this binary, in zshrc, read our comments above the
     $ systemd-analyze dot 'avahi-daemon.*' | dot -Tsvg > avahi.svg
     $ display avahi.svg
 
----
+## We can't redirect the output of a service into a file.
 
-We can't redirect the output of a service into a file.
 We need a more recent version of systemd to use the StandardOutput directive.
 <https://stackoverflow.com/a/43830129/9780968>
 
 Otherwise, you may use a hack (`/bin/sh -c 'cmd >redir'`):
 <https://stackoverflow.com/a/37595720/9780968>
 
----
+## ?
 
     $ systemd-delta
 
@@ -2172,9 +2165,7 @@ If that's the case, and you need to clean the output:
 
     :sil exe 'g/ are identical$/.-2,.d_' | g/^$/d_
 
----
-
-Talk about the `--no-hostname` option:
+## Talk about the `--no-hostname` option:
 
     $ journalctl -b --no-hostname
                     ^^^^^^^^^^^^^

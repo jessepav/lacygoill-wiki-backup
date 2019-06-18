@@ -69,3 +69,4 @@ didn't find it in `$PATH`.
 
 [1]: https://github.com/tmux-plugins/tmux-copycat/issues/129
 [2]: https://github.com/tmux-plugins/tmux-copycat/blob/master/docs/limitations.md
+

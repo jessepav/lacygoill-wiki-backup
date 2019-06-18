@@ -4494,6 +4494,10 @@ It's a new feature (gawk 5.0) which I've seen mentioned here:
 I can't find it in the gawk user guide (pdf).
 But it's documented in the manpage.
 
+## assimilate awk-warn.nvim plugin
+
+<https://github.com/HiPhish/awk-ward.nvim>:226 sloc
+
 ##
 # Reference
 

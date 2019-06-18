@@ -106,7 +106,7 @@ Example:
 
 Or use `var=val` in a file sourced by tmux:
 
-     $ tmux -L test -f =(cat <<'EOF'
+     $ tmux -Lx -f =(cat <<'EOF'
      var=hello
      EOF
      )
@@ -221,7 +221,7 @@ It doesn't matter how you create a new session, its environment is always update
 
     # from outside a tmux session, into a new tmux server
     $ export KRB5CCNAME=foo
-    $ tmux -Ltest
+    $ tmux -Lx
     $ tmux showenv | grep KRB5CCNAME
     KRB5CCNAME=foo~
 
