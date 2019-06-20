@@ -421,6 +421,38 @@ Use the `q:` modifier:
     a\$b\"c\`d\&e\>f\;g\|h\(i~
 
 ##
+## How to expand the *content* of an option, rather than the option itself?
+
+Use the `E:` modifier:
+
+    $ tmux set -g @foo '#[fg=colour15]#{?client_prefix,#[bold],}#S#{?client_prefix,,#[bold]}'
+
+    $ tmux display -p '#{@foo}'
+    #[fg=colour15]#{?client_prefix,#[bold],}#S#{?client_prefix,,#[bold]}~
+
+    $ tmux display -p '#{E:@foo}'
+    #[fg=colour15]study#[bold]~
+
+### My option contains a strftime(3) specifier (e.g. `%Y`).  How to expand it as well?
+
+Use `T:`:
+
+    $ tmux set -g @foo '#S %Y'
+
+    $ tmux display -p '#{@foo}'
+    #S %Y~
+    $ tmux display -p '#{E:@foo}'
+    study %Y~
+    $ tmux display -p '#{T:@foo}'
+    study 2019~
+
+#### What are the two options whose value can include a strftime(3) specifier?
+
+`status-left` and `status-right`:
+
+    $ tmux set -g status-left '%Y'
+
+##
 # Replacement variables
 ## How is `#{pane_in_mode}` evaluated?
 
@@ -440,8 +472,7 @@ Into 1 if the current application is using the terminal alternate screen.
 
 ---
 
-The alternate  screen is used  by many interactive  programs such as  vim, htop,
-less ...
+The alternate screen is used by many interactive programs such as vim, htop, less ...
 It's like a different buffer of  the terminal content, which disappears when the
 application exits,  so the whole  terminal gets restored  and it looks  like the
 application hasn't output anything.
@@ -452,158 +483,37 @@ It can be manually used by running `$ tput smcup`.
 And you can leave it by running `$ tput rmcup`.
 
 ##
-##
-##
-# How to expand the content of an option, rather than the option itself?
+# Issues
+## I'm writing nested formats; I have 3 consecutive `}`.  How to prevent Vim from interpreting them as fold markers?
 
-Use the `E:` modifier:
+Use a temporary environment variable.
 
-    $ tmux display -p '#{status-left}'
-    #[fg=colour15]#{?client_prefix,#[bold],}#S#{?client_prefix,,#[bold]}~
+Example:
 
-    $ tmux display -p '#{E:status-left}'
-    #[fg=colour15]study#[bold]~
+    is_vim='#{==:vim,#{pane_current_command}}'
+    display -p "#{||:#{==:nano,#{pane_current_command}},${is_vim}}"
+    setenv -gu is_vim
 
-## My option contains a strftime(3) specifier.  How to expand it as well?
+Don't forget to use double quotes to  surround the nested formats, to allow tmux
+to expand the environment variable.
 
-Use `T:`:
-
-    $ tmux set -g status-right '#S %Y'
-
-    $ tmux display -p '#{status-right}'
-    #S %Y~
-    $ tmux display -p '#{E:status-right}'
-    study %Y~
-    $ tmux display -p '#{T:status-right}'
-    study 2019~
-
-##
-# ?
-
-Old code extracted from our tmux.conf.
-We don't  use it anymore,  because I think monitoring  the bell is  better (less
-noise) than monitoring the activity:
-
-<https://stackoverflow.com/a/39180062/9780968>
-
-See whether we should extract some info in our notes.
-
-    Ignore the activity in a (N)Vim/cmus/mpv/newsboat/weechat window.
-    What's `#{?var,off,on}`?
-
-    A replacement variable, using a conditional operator.
-    It will  be replaced with  'off' if `var` evaluates  to anything else  than 0,
-    'on' otherwise.
-
-    Here `var` is:
-
-        #{||:#{m:*vim,#{pane_current_command}},#{==:cmus,#{pane_current_command}} }
-
-    ---
-
-      `#{||:var1,var2}`?
-
-    A replacement variable  which will be evaluated  to true if any  of `var1` and
-    `var2` is true.
-
-    Here, `var1` is:
-
-        #{m:*vim,#{pane_current_command}}
-
-    And `var2` is:
-
-        #{==:cmus,#{pane_current_command}}
-
-    ---
-
-      `#{m:pat,str}`?
-
-    A replacement variable which will be evaluated to true if `pat` matches `str`.
-    Here, `pat` is `*vim`, and `str` is `#{pane_current_command}`.
-
-    ---
-
-      `#{==:str1,str2}`?
-
-    A replacement variable which will be evaluated to true if `str1` and `str2` are identical.
-    Here, `str1` is `#{pane_current_command}`, and `str2` is `cmus`.
-
-    ---
-
-        is_distraction='#{||:#{==:#{pane_current_command},cmus},#{||:#{==:#{pane_current_command},mpv},#{||:#{==:#{pane_current_command},newsboat},#{==:#{pane_current_command},weechat}}}}'
-        set-hook -ga pane-focus-out \
-          'setw -F monitor-activity \
-              "#{?#{||:#{m:*vim,#{pane_current_command}},$is_distraction},off,on}"'
-        setenv -gu is_distraction
-
-    ---
-
-    TODO: Ask nicm whether `#{||:}` could be made to accept more than two operands.
-
-    It would make the code more readable/maintainable.
-
-    Even better, you could rely on the FNM_EXTMATCH flag which you can pass to the
-    C function `fnmatch()`:
-
-    > crose   `fnmatch(3)` is mentioned several times in `$ man tmux`.
-    >         And according to `$ man 3 fnmatch`, if the flag `FNM_EXTMATCH` is set, you can use extended patterns.
-    >         I'm interested in this, because it lets you use `|` which could be useful to simplify some formats
-    >         when you have more than 2 alternatives.
-    > crose   Unfortunately, it doesn't seem to be set in tmux, because
-    >         `$ tmux display -p '#{m:foo|bar|baz,bar}'` outputs 0.
-    >         Is there a way for the user to set this flag?
-
-    > nicm    it is a flag you pass to fnmatch
-    > nicm    but its not portable so not going to happen
-    > nicm    you could add it for your local build if you wanted
-    > nicm    look for fnmatch in format.c
-    > nicm    and change the 0 to FNM_EXTMATCH
-
-    This would allow you to write sth like:
-
-        $ tmux display -p '#{m:+(foo|bar|baz),bar}'
-
-    Try to  ask nicm whether an  option could be set  at compile-time so  that the
-    FNM_EXTMATCH flag is set at runtime.
-    The compile-time option would not be set by default of course.
-
-    Or write  a sed  script which  would edit all  the tmux  C files  which invoke
-    `fnmatch()` (`$ rg 'fnmatch\('`).
-    Ask nicm whether such a script is reliable; is it likely to break in the future?
-
-    ---
-
-    Do *not* add a space in-between three consecutive `}`.
-
-    For example, if you exchange the position of `#{pane_current_command}` and `cmus`:
-
-        "#{?#{||:#{m:*vim,#{pane_current_command}},#{==:cmus,#{pane_current_command} }},off,on}"'
-                                                                                    ^
-                                                                                    ✘
-
-    It would be tempting to add a space to prevent Vim from detecting the end of a fold.
-    Unfortunately, it  would also break  the hook,  probably because the  space is
-    semantic in this position; same thing after the second `}`.
-
-# ?
-
-When does tmux expand strftime(3) specifiers (e.g. `%Y`)?
-
-In the value of `status-left`, `status-right`, and in any format using the `T:` modifier.
-
-    $ tmux set -g @foo '%Y'
-    $ tmux display -p '#{T:@foo}'
-    2019~
+This also gives the benefit of making the code more readable.
 
 ---
 
-Should we document the fact that `T:` is like `E:` + the strftime expansion?
-Also, maybe we shouldn't have said that `E:` was useful to expand the content of an *option*.
-I think `E:` is more general; it expands *anything* twice.
+Do *not* try to add a space in-between the brackets.
+It would break the meaning of the formats.
+Indeed, any character inside `#{}` is semantic, including a space:
 
-    $ tmux set -g @foo '#[fg=colour15]#{?client_prefix,#[bold],}#S#{?client_prefix,,#[bold]}'
-    $ tmux display -p '#{E:@foo}'
+    $ tmux display -p '#{==:vim,#{pane_current_command}}'
+    1~
 
+                                                       v
+    $ tmux display -p '#{==:vim,#{pane_current_command} }'
+    0~
+
+##
+##
 # ?
 
 `S:`, `W:` or `P:`  will loop over each  session, window or pane  and insert the
@@ -614,11 +524,28 @@ used for the current window or active pane.
 
 For example, to get a list of windows formatted like the status line:
 
-    #{W:#{E:window-status-format} ,#{E:window-status-current-format} }
+    #{W:#{E:window-status-format}    ,#{E:window-status-current-format}    }
+
+---
+
+    $ tmux display -p '#{W:#{E:window-status-format}    ,#{E:window-status-current-format}    }'
+
+---
+
+    $ tmux set -g @foo hello
+    $ tmux display -p '#{W:#{E:@foo} }'
+    $ tmux display -p '#{S:#{E:@foo} }'
+    $ tmux display -p '#{P:#{E:@foo} }'
 
 # ?
 
-A prefix of the form `s/foo/bar/:` will substitute `foo` with `bar` throughout.
+A prefix of the form `s/pat/rep/:` will substitute `pat` with `rep` throughout.
+
+    $ tmux set -g @foo 'pat a pat b' \; display -p '#{s/pat/rep/:@foo}'
+    rep a rep b~
+
+    $ tmux set -g @foo 'pat a pat b' \; display -p '#{s/[^ ]*/rep/:@foo}'
+    rep rep rep rep~
 
 # ?
 

@@ -75,6 +75,12 @@ Procedure to build your own terminfo db.
 Run these commands as a regular user.
 Source: `:h terminfo` in Neovim.
 
+## How to update the terminfo description for the current `$TERM`?
+
+    $ curl -LO http://invisible-island.net/datafiles/current/terminfo.src.gz
+    $ gunzip terminfo.src.gz
+    $ tic -sx -e $TERM terminfo.src
+
 ##
 ## How to view the description of a terminal?
 

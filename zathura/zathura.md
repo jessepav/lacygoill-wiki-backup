@@ -86,13 +86,13 @@ doesn't exist).
 Note that  you can't easily  go beyond  certain versions for  `libmupdf-dev` and
 `zathura-pdf-mupdf`:
 
-    ┌───────┬──────────────┬───────────────────┐
-    │       │ libmupdf-dev │ zathura-pdf-mupdf │
-    ├───────┼──────────────┼───────────────────┤
-    │ 16.04 │     1.11     │       0.3.1       │
-    ├───────┼──────────────┼───────────────────┤
-    │ 18.04 │     1.13     │       0.3.2       │
-    └───────┴──────────────┴───────────────────┘
+    ┌────────┬──────────────┬───────────────────┐
+    │ ubuntu │ libmupdf-dev │ zathura-pdf-mupdf │
+    ├────────┼──────────────┼───────────────────┤
+    │ 16.04  │     1.11     │       0.3.1       │
+    ├────────┼──────────────┼───────────────────┤
+    │ 18.04  │     1.13     │       0.3.2       │
+    └────────┴──────────────┴───────────────────┘
 
 Otherwise the compilation of the plugin fails.
 
@@ -167,7 +167,7 @@ Again, it will purge `zathura-pdf-poppler`:
 
 ##### It doesn't work on Ubuntu 18.04!
 
-Yes, the previous PPA works only for 16.04.
+Yes, the previous PPA only works for 16.04.
 
 Try this:
 

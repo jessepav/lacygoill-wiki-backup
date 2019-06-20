@@ -459,6 +459,35 @@ Vs:
 
 <https://www.youtube.com/watch?v=_OOSbjHmLPY>
 
+# try to use extended patterns as described at `$ man 3 fnmatch /FNM_EXTMATCH`
+
+You can pass the `FNM_EXTMATCH` flag to the C function `fnmatch()`:
+
+> crose   `fnmatch(3)` is mentioned several times in `$ man tmux`.
+>         And according to `$ man 3 fnmatch`, if the flag `FNM_EXTMATCH` is set, you can use extended patterns.
+>         I'm interested in this, because it lets you use `|` which could be useful to simplify some formats
+>         when you have more than 2 alternatives.
+> crose   Unfortunately, it doesn't seem to be set in tmux, because
+>         `$ tmux display -p '#{m:foo|bar|baz,bar}'` outputs 0.
+>         Is there a way for the user to set this flag?
+
+> nicm    it is a flag you pass to fnmatch
+> nicm    but its not portable so not going to happen
+> nicm    you could add it for your local build if you wanted
+> nicm    look for fnmatch in format.c
+> nicm    and change the 0 to FNM_EXTMATCH
+
+This allows you to write sth like:
+
+    $ tmux display -p '#{m:+(foo|bar|baz),bar}'
+
+Try to  ask nicm  whether an  option could be  set at  compile-time so  that the
+`FNM_EXTMATCH` flag is set at runtime.
+The compile-time option would not be set by default of course.
+
+Or write a sed script which edits all the tmux C files invoking `fnmatch()` (`$ rg 'fnmatch\('`).
+Ask nicm whether such a script is reliable; is it likely to break in the future?
+
 ##
 # various typos in manpage
 

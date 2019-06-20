@@ -438,7 +438,7 @@ So, a session hook has priority over a global hook.
 ## What does it mean for tmux to detect in a window
 ### some activity?
 
-A process has produced new output.
+A process has written new output on the terminal.
 
 ###
 ### the bell?
@@ -453,7 +453,8 @@ ring its bell.
 ###
 ### silence?
 
-A process has been silent since the time given to the `'monitor-silence'` option:
+A process has not written any new output since the time given to the
+`'monitor-silence'` option:
 
     $ tmux set -w monitor-silence 123
                                   ^^^
@@ -482,14 +483,14 @@ See here for an example with `window_activity_flag`:
 You'll also need to configure your window manager/terminal/audio server/... appropriately.
 <https://forum.xfce.org/viewtopic.php?id=12031>
 
-##### how about a message instead of a beep?
+##### how about a message instead of a sound?
 
     $ tmux set -gw monitor-bell on
     $ tmux set -g  visual-bell  on
                                 ^^
 
 ##
-## How to prevent any bell notification (beep, message, reverse colors in status line window list)?
+## How to prevent any bell notification (sound, message, reverse colors in status line window list)?
 
     $ tmux set -gw monitor-bell off
 
@@ -505,15 +506,15 @@ DE  is correctly  configured),  and/or  a message  will  be displayed  (provided
 
 Its value can be:
 
-    ┌─────────┬───────────────────────────────────────────────────┐
-    │ any     │ a beep/message is emitted/displayed in any window │
-    ├─────────┼───────────────────────────────────────────────────┤
-    │ none    │ no beep/message in any window                     │
-    ├─────────┼───────────────────────────────────────────────────┤
-    │ current │ a beep/message only in the current window         │
-    ├─────────┼───────────────────────────────────────────────────┤
-    │ other   │ a beep/message only in the other windows          │
-    └─────────┴───────────────────────────────────────────────────┘
+    ┌─────────┬────────────────────────────────────────────────────┐
+    │ any     │ a sound/message is emitted/displayed in any window │
+    ├─────────┼────────────────────────────────────────────────────┤
+    │ none    │ no sound/message in any window                     │
+    ├─────────┼────────────────────────────────────────────────────┤
+    │ current │ a sound/message only in the current window         │
+    ├─────────┼────────────────────────────────────────────────────┤
+    │ other   │ a sound/message only in the other windows          │
+    └─────────┴────────────────────────────────────────────────────┘
 
 ---
 
