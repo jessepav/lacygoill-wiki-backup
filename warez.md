@@ -55,11 +55,6 @@ Cliquer sur le bouton EN en haut à droite pour faire passer la langue de russe 
             moteur de recherche google custom qui cherche dans une liste de sites prédéfinis,
             dont voici les adresses: http://pastebin.com/62tKNmm1
 
-
-
-On peut également louer / acheter un livre sur amazon, faire sauter le DRM, et rendre le livre.
-Faire sauter le DRM nécessite les programmes Calibre, DeDRM Tools (version modifiée?), KindleUnpack.
-
 # Youtube-dl
 
     youtube-dl --help
