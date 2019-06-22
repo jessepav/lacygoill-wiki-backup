@@ -127,8 +127,8 @@ Example:
 
 ---
 
-For `list-buffers`, the relevant prefix would `buffer_`.
-For `list-clients`, the relevant prefix would `client_`.
+For `list-buffers`, the relevant prefix would be `buffer_`.
+For `list-clients`, the relevant prefix would be `client_`.
 Etc.
 
 ###

@@ -93,6 +93,93 @@ Use the `-q` flag:
     already set: @foo~
 
 ##
+## pane option
+### How to set an option local to
+#### a pane?
+
+Use `-p`:
+
+    $ tmux set -p @foo bar
+               ^^
+
+#### all panes in a window?
+
+Use `-w`:
+
+    $ tmux set -w @foo bar
+
+#### all panes in all windows?
+
+Use `-gw`:
+
+    $ tmux set -gw @foo bar
+
+#### ?
+
+why doesn't `$ tmux show-options -gp` doesn't output anything?
+
+    $ tmux show-options -gp | grep 'allow-rename\|alternate-screen\|remain-on-exit\|window-active-style\|window-style'
+    ''~
+
+It seems the options are still considered to be window options...
+
+    $ tmux show-options -gw | grep 'allow-rename\|alternate-screen\|remain-on-exit\|window-active-style\|window-style'
+    allow-rename off~
+    alternate-screen on~
+    remain-on-exit off~
+    window-active-style bg=#dbd6d1~
+    window-style bg=#cacaca~
+
+Once it's fixed, update your menu key binding to display (current + default) pane options.
+Also, document that `set-option` and `show-options` now support a `-p` flag.
+
+---
+
+Read this commit message: <https://github.com/tmux/tmux/commit/5f92f92908b81b4ec66682adb84b9ffc8d83c2f7>
+
+> Pane options inherit from window options (so there should be no change to existing behaviour)
+
+From `$ man tmux /OPTIONS`:
+
+> Similarly, a set of window options is attached to each window and a set
+> of pane options to each pane.  Pane options inherit from window options.
+> This means any pane option may be set as a window option to apply the
+> option to all panes in the window without the option set, for example
+> these commands will set the background colour to red for all panes except
+> pane 0:
+> 
+    $ tmux set -w window-style bg=red
+    $ tmux set -pt:.0 window-style bg=blue
+> 
+> There is also a set of global window options from which any unset window
+> or pane options are inherited.  Window and pane options are altered with
+> set-option -w and -p commands and displayed with show-option -w and -p.
+
+---
+
+Do you understand this output?
+
+    $ tmux set -p allow-rename on \; show -p \; show -gp
+    allow-rename on~
+    allow-rename on~
+
+###
+### The value of a pane option is A inside a given pane, but B in the window of that pane.  Who wins, A or B?
+
+The value local to the pane wins in the given pane.
+In the other panes, A doesn't apply, so B is used.
+
+### How to set the background color of
+#### the panes in the current window as green?
+
+    $ tmux set -w window-style bg=green
+
+##### and at the same time, the pane of index 1 as red?
+
+    $ tmux set -w     window-style bg=green
+    $ tmux set -pt:.1 window-style bg=red
+
+##
 ## I have 2 windows, and I'm in the first one.  How to set the color of the clock in the second window?
 
 Use the `-t` argument:
@@ -127,27 +214,31 @@ The option is toggled between on and off.
 
 ##
 # User options
-## Is a user option a window option, a session one, or a server one?
+## Is a user option a server option, a session option, a window option or a pane option?
 
 It can be any of them.
 
-    $ tmux set -w @foo bar
-    $ tmux show -w @foo
+    $ tmux set -p @foo bar \; show -p @foo
     @foo bar~
 
-    $ tmux set @foo bar
-    $ tmux show @foo
+    $ tmux set -w @foo bar \; show -w @foo
     @foo bar~
 
-    $ tmux set -s @foo bar
-    $ tmux show -s @foo
+    $ tmux set @foo bar \; show @foo
+    @foo bar~
+
+    $ tmux set -s @foo bar \; show -s @foo
     @foo bar~
 
 The concept is orthogonal to the type of the option.
 
 ### Which precaution must I take when setting a user option, or asking for its value?
 
-You must specify its type; either with no flag (server), `-w` (window), or `-s` (session).
+You must specify its type; either with no flag (server), or with a flag:
+
+   - `-p` (pane)
+   - `-w` (window)
+   - `-s` (session)
 
 #### Why?
 
@@ -492,7 +583,10 @@ You'll also need to configure your window manager/terminal/audio server/... appr
 ##
 ## How to prevent any bell notification (sound, message, reverse colors in status line window list)?
 
-    $ tmux set -gw monitor-bell off
+    $ tmux set -gw monitor-bell off \; set -gw window-status-bell-style ''
+                                │                                       │
+                                │                                       └ disable status line indicator
+                                └ disable sound and message
 
 ## On which condition does the value of 'bell-action' take effect?
 
@@ -564,4 +658,18 @@ MWE:
 
      C-b " (splitw)
      C-b ; (last-pane)
+
+##
+##
+# ?
+
+> Ok, I just thought it was a bit weird that the `*-action` options couldn't control the notification in the status line while the `monitor-*` could.
+> I wanted to be sure I didn't misunderstood something in my notes: https://github.com/lacygoill/wiki/blob/master/tmux/option.md#what-is-its-effect
+
+> if   you  want   to  control   how  it   appears  in   the  status   line,  you
+> need  to   change  window-status-activity-style  or   window-status-format  and
+> window-status-current-format
+
+   - window-status-activity-style
+   - window-status-format + window-status-current-format
 

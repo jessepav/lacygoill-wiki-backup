@@ -623,9 +623,9 @@ And read the error message written in the file to get more information.
 ###
 ## `$ tmux -Lx` doesn't read `~/.tmux.conf`!
 
-Make sure you don't have a running tmux server listening to the socket `test`:
+Make sure you don't have a running tmux server listening to the socket `x`:
 
-    $ ps aux | grep tmux | grep test
+    $ ps aux | grep tmux | grep x
     user 6771 ... tmux -Lx -f/dev/null~
                            ├─────────┘
                            └ your custom config can't be read because of this
@@ -640,7 +640,7 @@ It probably targets the current server by inspecting `$TMUX`.
 ---
 
 This issue can happen, even with no  terminal running a tmux client connected to
-this `test` socket.
+this `x` socket.
 
 MWE:
 
@@ -816,7 +816,7 @@ Not  here, because  the tmux  client makes  you interact  with the  child of  an
 entirely different process: the tmux server.
 
 The  communications between the first  shell opened by the  terminal (before
-executing tmux), the tmux client, and the tmux server are all [transparent][2]:
+executing tmux), the tmux client, and the tmux server are all [transparent][1]:
 everything in red in the diagram is not visible.
 
 # Démarrage
@@ -2220,5 +2220,4 @@ The `-a` option kills all but the window given with `-t`.
 ##
 # Reference
 
-[1]: https://github.com/christoomey/vim-tmux-navigator/blob/master/vim-tmux-navigator.tmux
-[2]: $MY_WIKI/graph/tmux/transparent.pdf
+[1]: $MY_WIKI/graph/tmux/transparent.pdf

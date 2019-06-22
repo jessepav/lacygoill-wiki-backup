@@ -27,23 +27,85 @@ It could be useful for our re-implementation of `vim-tbone`.
 ## is it buggy?
 
 Disable your zshrc (`return` at the top).
-Press `pfx :` and run `pipe-pane "exec cat - | ansifilter >>/tmp/log"`.
-The last command comes from:
-<https://github.com/tmux-plugins/tmux-logging/blob/master/scripts/start_logging.sh#L15>
+Press `pfx :` and run `pipe-pane 'ansifilter >/tmp/log'`.
+*Btw, the original command from tmux-logging looked like this*:
+
+    pipe-pane "exec cat - | ansifilter >>/tmp/log"
+
+*Imo `$ cat` is useless, but what about `$ exec`?*
+*Is it useful to prevent the shell from forking?*
+*Better performance?*
+*If so, maybe we should take the habit of always using `$ exec` when tmux pipes text to a shell command...*
+*Also, what about `>>`?*
+*Is it really necessary? It doesn't seem so...*
+*Maybe it's useful to prevent overwriting an existing file. *
 
 Now, run some shell commands, like `$ ls`, `$ echo 'hello'`, `$ sudo aptitude update`, ...
 The output of `$ echo 'hello'` is *not* logged.  Why?
+Update: it *is* logged, but there are 120 characters in front of it (a `%` then 119 spaces).
+So, you don't see it, unless you set Vim's 'wrap' option.
+Why does tmux receive those 120 characters?
+Update: You can prevent them by unsetting `PROMPT_SP`:
+
+    unsetopt PROMPT_SP
+
 If you re-enable all our zshrc, it's correctly logged.  Why?
+Update: It seems to be thanks to our `PS1` line.
+
 There seems  to be a  regular percent sign  (not the special  one we use  in our
 prompt), which is added on a dedicated line after every output.  Why?
+Update: again, run `unsetopt PROMPT_SP`. I think it will remove it.
+However, unsetting this option would clear the output of a command which doesn't
+terminate by a newline:
+
+    $ print -n 'this is a test'
+
+So, you would need to also unset `PROMPT_CR`.
+But now,  after running a command  which doesn't terminate by  a newline, you'll
+get the  current directory  at the  end of  the output  (instead of  the regular
+percent in reverse video):
+<https://unix.stackexchange.com/a/302710/289772>
+No big  deal, but a  percent in reverse video  is less distracting  because more
+consistent.
+Here's another solution:
+
+    :pipe-pane 'ansifilter | sed "/^%\\s*$/d" >/tmp/log'
+
 Only the first executed command is logged (I'm not talking about the output; the
 output is usually logged; I'm talking about the executed line).  Why?
+
+> llua │ basically when zle is enabled, zsh reads input and prints the prompt to the same fd
+>      │ but without, zsh just prints it to fd2
+>      │ so that feature of yours isn't capturing fd10
+>      │ and zsh doesn't use readline, it uses zle, the zsh line editor
+
+> llua │ most shells print their prompt to stderr, we are def a standout in this
+>      │ i am unsure why and lack an opinion either way tho
+> llua │ since zle can interactively update the prompt, i guess that is why
+>      │ eg: a keybind could change the prompt, so it may be why they decided on using its own fd
+
+> llua │ "Pipe output sent by the program in target-pane to a shell command or vice versa."
+>      │ so tmux is prob only checking for fd 1 and 2
+
+> llua │ since tmux is the parent process, it passes 0, 1 and 2 to zsh and is prob why its able to record those,
+>      │ since zsh opens additional fds for its own use, tmux prob can't work with it the same as 0,1 and 2
+
+> llua │ then again, with tmux being a terminal, you would think that it can tell when someone writes something to
+>      │ it, regardless of the fd used
+>      │ idk
 
 Make some tests, with and without our zshrc.
 If `pipe-pane` is buggy, report the bugs.
 
 Once `pipe-pane` is fixed, check out the tmux-logging plugin.
 Right now, it seems to suffer from the same issues described above.
+
+Update: Even if  you fix these issues,  if you edit the  command-line (C-w, C-h,
+...), you'll get every single character you inserted (not the final command).
+This makes me think that `pipe-pane` is not the right tool for the job.
+`capture-pane` seems better.
+
+---
 
 Also,  we  have  moved  the  code sourcing  the  zsh  syntax  highlighting  into
 `~/.zsh/syntax_highlighting.zsh`.
@@ -57,7 +119,6 @@ But was it really the case? Or was it just `pipe-pane` which was broken?
 If it was not the case, do we want to undo everything we did?
 
 #
-
 # Plugins
 ## study these plugins
 
@@ -98,17 +159,17 @@ MWE:
 
 # links to read
 
-<https://www.reddit.com/r/tmux/comments/5cm2ca/post_you_favourite_tmux_tricks_here/>
-<https://raw.githubusercontent.com/tmux/tmux/master/CHANGES>
-<https://medium.freecodecamp.org/tmux-in-practice-series-of-posts-ae34f16cfab0>
-<https://github.com/samoshkin/tmux-config>
-<https://silly-bytes.blogspot.fr/2016/06/seamlessly-vim-tmux-windowmanager_24.html>
-<https://github.com/tmux/tmux/blob/master/example_tmux.conf>
-<http://man.openbsd.org/OpenBSD-current/man1/tmux.1>
-<https://github.com/tmux/tmux/wiki/FAQ>
-<https://devel.tech/tips/n/tMuXz2lj/the-power-of-tmux-hooks/>
-<https://github.com/tmux-plugins/tmux-sensible>
-<https://github.com/tmux-plugins/tmux-pain-control>
+   - <https://www.reddit.com/r/tmux/comments/5cm2ca/post_you_favourite_tmux_tricks_here/>
+   - <https://raw.githubusercontent.com/tmux/tmux/master/CHANGES>
+   - <https://medium.freecodecamp.org/tmux-in-practice-series-of-posts-ae34f16cfab0>
+   - <https://github.com/samoshkin/tmux-config>
+   - <https://silly-bytes.blogspot.fr/2016/06/seamlessly-vim-tmux-windowmanager_24.html>
+   - <https://github.com/tmux/tmux/blob/master/example_tmux.conf>
+   - <http://man.openbsd.org/OpenBSD-current/man1/tmux.1>
+   - <https://github.com/tmux/tmux/wiki/FAQ>
+   - <https://devel.tech/tips/n/tMuXz2lj/the-power-of-tmux-hooks/>
+   - <https://github.com/tmux-plugins/tmux-sensible>
+   - <https://github.com/tmux-plugins/tmux-pain-control>
 
 extended underline style
 <https://github.com/tmux/tmux/commit/bc0e527f32642cc9eb2354d1bdc033ab6beca33b>
@@ -120,8 +181,8 @@ support for overline (SGR 53)
 <https://github.com/tmux/tmux/commit/1ee944a19def82cb62abf6ab92c17eb30df77a41>
 
 Style to follow when submitting a PR to tmux:
-<https://man.openbsd.org/style.9>
-<https://github.com/tmux/tmux/pull/1743#issuecomment-493450917>
+   - <https://man.openbsd.org/style.9>
+   - <https://github.com/tmux/tmux/pull/1743#issuecomment-493450917>
 
 # here's a way to programmatically get the PID of a process launched by tmux:
 
@@ -411,7 +472,7 @@ address 1), and the second number to be the total number of lines in the latter.
 ## make `n` and `N` move in absolute directions in copy mode
 
 It  would be  nice if  `n` and  `N`  could always  move in  the same  direction,
-regardless of whether we started a search with `/` or `N`.
+regardless of whether we started a search with `/` or `?`.
 
 #
 # document the `synchronize-panes` window option
@@ -488,48 +549,8 @@ The compile-time option would not be set by default of course.
 Or write a sed script which edits all the tmux C files invoking `fnmatch()` (`$ rg 'fnmatch\('`).
 Ask nicm whether such a script is reliable; is it likely to break in the future?
 
-##
-# various typos in manpage
+# is `window-status-silence-style` missing?
 
-In `$ man tmux /COMMAND PARSING AND EXECUTION`:
-
-> Will  execute new-session,  new-window, if-shell,  the shell  command true(1),
-> **new-window** and kill-session in that order.
-
-I think it should be “Will  execute new-session, new-window, if-shell, the shell
-command true(1), **split-window** and kill-session in that order.”.
-
----
-
-In `$ man tmux /uptime`:
-
-> In addition, the **first** line of a shell command's output may be inserted
-> using ‘#()'.
-
-I think it should be “the **last** line of a shell command's output”.
-
----
-
-In `$ man tmux /PARSING SYNTAX`:
-
-> This section describes the syntax of commands parsed by tmux, for example
-> in a configuration file or at the command prompt.  Note **the** when commands
-> are entered into the shell, they are parsed by the shell - see for exam‐
-> ple ksh(1) or csh(1).
-
-I think it should be “Note **that** when commands are entered into the shell, ...”.
-
----
-
-In `$ man tmux /FORMAT /itself`:
-
-> ‘E:’  will expand  the format  twice,  for example  ‘#{E:status-left}’ is  the
-> result of  expanding the  content of  the status-left  option rather  than the
-> **content** itself.
-
-I think it should be “... rather than the **option** itself.”.
-
----
-
-`#{l:}` is not documented at `$ man tmux /FORMAT`.
+`window-status-activity-style` and `window-status-bell-style` exist, so it seems
+`window-status-silence-style` should exist too...
 

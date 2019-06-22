@@ -412,3 +412,8 @@ And yes for `if-shell`:
     var_session=123~
     var_global=456~
 
+##
+# Reference
+
+[1]: https://github.com/christoomey/vim-tmux-navigator/blob/master/vim-tmux-navigator.tmux
+
