@@ -4073,6 +4073,7 @@ Inspiration:
 <http://stackoverflow.com/a/10834267 (script inplace)>
 <http://wiki.bash-hackers.org/scripting/obsolete (diverses syntaxes obsolètes)>
 <https://google.github.io/styleguide/shell.xml>
+<https://wiki.bash-hackers.org/scripting/style>
 
 <https://grml.org/zsh/>
 <https://grml.org/zsh/zsh-lovers.pdf>

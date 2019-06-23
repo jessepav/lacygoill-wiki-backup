@@ -68,6 +68,8 @@ Unset its global value.
     $ tmux set -gu clock-mode-colour \; clock-mode
     # the clock is in blue
 
+A server option has no global value; in this case, just unset the value.
+
 ##
 ## How to set an option on the condition it hasn't been set yet?
 
@@ -91,8 +93,8 @@ Use the `-q` flag:
 
 Use the `-t` argument:
 
-    $ tmux set -t2 clock-mode-colour green
-                ^^
+    $ tmux set -t:2 clock-mode-colour green
+                ^^^
 
 ## I have 2 sessions, and I'm in the first one.  How to get the value of an option local to the second one?
 
@@ -191,28 +193,11 @@ In the other panes, A doesn't apply, so B is used.
     $ tmux set -w window-style bg=green
                ^^
 
-#### ?
-
-and at the same time, the pane of index 1 as red?
+#### and at the same time, the pane of index 1 as red?
 
     $ tmux set -w     window-style bg=green
     $ tmux set -pt:.1 window-style bg=red
                ^^^^^^
-
-Why `:.1` instead of simply `1`?
-`1` seems to give the same result:
-
-    $ tmux set -w window-style bg=green \; set -pt1 window-style bg=red
-
-Maybe `1` works but is not officially supported nor documented.
-
-Earlier, we have written this:
-
-    $ tmux set -t2 clock-mode-colour green
-
-Should we have written this instead?
-
-    $ tmux set -t:2 clock-mode-colour green
 
 #
 ## How is `-g` interpreted in `$ tmux set -gp <pane option>`?
@@ -223,11 +208,14 @@ Watch:
 
     $ tmux -Lx -f =(echo 'set -gp allow-rename on')
     no current pane~
-
     $ tmux show -gw allow-rename \; show -w allow-rename \; show -p allow-rename
     off~
     ''~
     ''~
+
+The first command seems to show that `set -gp` was processed like `set -p`.
+This is confirmed by  the second command which shows that  the `set -gp` command
+had no effect, since 'allow-rename' has not the value 'on', no matter the scope.
 
 Possible rationale:
 
@@ -245,7 +233,7 @@ Besides, there are already less ambiguous alternatives for both possible meaning
 
 ## What happens if I use `set-option` or `show-options` for a pane option, without using `-w` nor `-p`?
 
-By default, `$ tmux show` uses `-w`.
+`$ tmux show` assumes `-w`.
 
     $ tmux set -p allow-rename on \; set -w allow-rename off \; \
       show -v allow-rename
@@ -286,11 +274,11 @@ The concept is orthogonal to the type of the option.
 ##
 ## Which precaution must I take when setting a user option, or asking for its value?
 
-You must specify its type; either with no flag (server), or with a flag:
+You must specify its type; either with no flag (session), or with a flag:
 
    - `-p` (pane)
    - `-w` (window)
-   - `-s` (session)
+   - `-s` (server)
 
 ### Why?
 
@@ -304,7 +292,7 @@ the latter can be arbitrarily chosen.
 An option whose final value is an array of items.
 
 ##
-## Currently, there are 6 of them.  What are their names?
+## Currently, there are 5 of them.  What are their names?
 
    - 'command-alias'
    - 'status-format'
@@ -323,29 +311,17 @@ Search for the pattern `[]`.
 
 With the `-a` flag:
 
-    $ tmux show user-keys
-    user-keys~
-
-    $ tmux set -a user-keys "\e[123"
-    $ tmux show user-keys
+    $ tmux set -a user-keys "\e[123" \; show user-keys \; set -u user-keys
     user-keys[0] \\e[123~
-
-    $ tmux set user-keys ''
 
 ---
 
 Or with an `[123]` index:
 
-    $ tmux show user-keys
-    user-keys~
-
                necessary for zsh, where `[` and `]` have a special meaning
                v            v
-    $ tmux set 'user-keys[0]' "\e[123"
-    $ tmux show user-keys
+    $ tmux set 'user-keys[0]' "\e[123" \; show user-keys \; set -u user-keys
     user-keys[0] \\e[123~
-
-    $ tmux set user-keys ''
 
 ### What's the benefit of the first method?
 
@@ -376,8 +352,7 @@ have 1 guard to write.
 
 Don't use `-a` nor `[123]`.
 
-    $ tmux set user-keys "\e[123"
-    $ tmux show user-keys
+    $ tmux set user-keys "\e[123" \; show user-keys \; set -u user-keys
     user-keys[0] "\\e[123"~
 
 ##
@@ -387,8 +362,7 @@ Don't use `-a` nor `[123]`.
 When you want to set several items of the array in a single command.
 In this case, the comma tells tmux when an item ends, and when the next one starts.
 
-    $ tmux set user-keys 'foo,bar'
-    $ tmux show user-keys
+    $ tmux set user-keys 'foo,bar' \; show user-keys \; set -u user-keys
     user-keys[0] foo~
     user-keys[1] bar~
 
@@ -535,7 +509,7 @@ Example:
 
 #### a command bound to a hook local to another session?
 
-Use `-t`:
+Use `-u` and `-t`:
 
     set-hook -t fun -u '<hook>[123]'
 
@@ -701,7 +675,7 @@ Alternatively, you could use:
 
 MWE:
 
-     $ tmux -Lx -f =(cat<<'EOF'
+     $ tmux -Lx -f =(cat <<'EOF'
      set -as terminal-overrides ',*-256color:Tc'
      set -gw window-style         'bg=#000000'
      set -gw window-active-style  'bg=#ffffff'

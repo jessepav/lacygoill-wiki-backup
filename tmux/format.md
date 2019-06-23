@@ -364,16 +364,16 @@ If the string is not found, `#{C:pat}` evaluates to 0.
 In the pattern, you can use the metacharacters documented at `$ man 3 fnmatch`.
 
 ##
-## How to truncate a string after the first `n` characters?
+## How to truncate a string after the first `N` characters?
 
-    #{=n:str}
+    #{=N:str}
 
 ---
 
     $ tmux display -p '#{=2:client_termname}'
     st~
 
-### before the last `n` characters?
+### before the last `N` characters?
 
 Use a negative number:
 
