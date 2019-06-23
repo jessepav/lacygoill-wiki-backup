@@ -317,14 +317,15 @@ terminal is no longer usable.
 List of control sequences supported by xterm (requires the package `xterm`):
 /usr/share/doc/xterm/ctlseqs.txt.gz
 
-<http://invisible-island.net/xterm/ctlseqs/>
-<http://invisible-island.net/xterm/ctlseqs/ctlseqs.html>
-<https://vt100.net/docs/vt510-rm/contents.html>
-<https://en.wikipedia.org/wiki/C0_and_C1_control_codes>
+   - <http://invisible-island.net/xterm/ctlseqs/>
+   - <http://invisible-island.net/xterm/ctlseqs/ctlseqs.html>
+   - <https://vt100.net/docs/vt510-rm/contents.html>
+   - <https://en.wikipedia.org/wiki/C0_and_C1_control_codes>
 
 List of control sequences supported by urxvt:
-<http://pod.tst.eu/http://cvs.schmorp.de/rxvt-unicode/doc/rxvt.7.pod#Definitions>
-<http://pod.tst.eu/http://cvs.schmorp.de/rxvt-unicode/doc/rxvt.7.pod#XTerm_Operating_System_Commands>
+
+   - <http://pod.tst.eu/http://cvs.schmorp.de/rxvt-unicode/doc/rxvt.7.pod#Definitions>
+   - <http://pod.tst.eu/http://cvs.schmorp.de/rxvt-unicode/doc/rxvt.7.pod#XTerm_Operating_System_Commands>
 
 ##
 # Reference

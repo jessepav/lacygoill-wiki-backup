@@ -1,12 +1,30 @@
 # a
 ## alternate screen
 
-A terminal  feature which allows  full screen applications to  avoid overwriting
-what was on  screen before they started  (it is saved and  restored when exiting
-the  alternate screen)  and messing  up the  scrollback (it  is disabled  in the
-alternate screen).
+The alternate screen is used by many interactive programs such as vim, htop, less ...
+It's like a different buffer of  the terminal content, which disappears when the
+application exits,  so the whole  terminal gets restored  and it looks  like the
+application hasn't output anything.
 
-<https://github.com/tmux/tmux/issues/1795#issuecomment-502384443>
+In  the alternate  screen,  the scrollback  buffer is  disabled  to prevent  the
+interactive program from messing it up.
+
+It can be manually entered by running `$ tput smcup`.
+And you can leave it by running `$ tput rmcup`.
+
+See:
+
+   - <https://github.com/tmux/tmux/issues/1795#issuecomment-502384443>
+   - <https://stackoverflow.com/questions/11023929/using-the-alternate-screen-in-a-bash-script>
+
+See also `$ man tmux /alternate-screen`:
+
+> This  option configures  whether  programs  running inside  the  pane may  use
+> the  terminal alternate  screen  feature,  which allows  the  smcup and  rmcup
+> terminfo(5) capabilities.
+> The  alternate screen  feature  preserves the  contents of  the  window when  an
+> interactive  application starts  and restores  it on  exit, so  that any  output
+> visible before the application starts reappears unchanged after it exits.
 
 ##
 # b
@@ -65,9 +83,9 @@ A bit is just a COMPONENT of a symbol:     it has no meaning (it's like a letter
 
 Control Sequence Introducer:  ESC [
 
-<https://en.wikipedia.org/wiki/C0_and_C1_control_codes>
-<https://vt100.net/docs/vt510-rm/chapter4.html#S4.3.3>
-<https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-C1-_8-Bit_-Control-Characters>
+   - <https://en.wikipedia.org/wiki/C0_and_C1_control_codes>
+   - <https://vt100.net/docs/vt510-rm/chapter4.html#S4.3.3>
+   - <https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-C1-_8-Bit_-Control-Characters>
 
 ## capability
 

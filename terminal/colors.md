@@ -108,8 +108,8 @@ TODO:
 Those explanations would be much easier to follow if we had local diagrams.
 Try to reproduce those with tikz:
 
-<http://wtamu.edu/~cbaird/sq/images/rgb_color_wheel.png>
-<http://wtamu.edu/~cbaird/sq/images/color_mixing.png>
+   - <http://wtamu.edu/~cbaird/sq/images/rgb_color_wheel.png>
+   - <http://wtamu.edu/~cbaird/sq/images/color_mixing.png>
 
 ## How to create your own color scheme / palette?
 
@@ -455,8 +455,8 @@ version of the programs.
 
 ## Where can I find more info on true color?
 
-<https://gist.github.com/XVilka/8346728>
-<https://en.wikipedia.org/wiki/ANSI_escape_code#Colors>
+   - <https://gist.github.com/XVilka/8346728>
+   - <https://en.wikipedia.org/wiki/ANSI_escape_code#Colors>
 
 ##
 # Issues

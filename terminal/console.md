@@ -90,12 +90,12 @@ Source:
 
 See also:
 
-<http://user.it.uu.se/~embe8573/cols/www/index.html (section ’the Linux VTs’)>
-<http://user.it.uu.se/~embe8573/cols/www/COLORS>
-<http://user.it.uu.se/~embe8573/cols/run>
-<http://user.it.uu.se/~embe8573/cols/set_cols.sed>
-<http://user.it.uu.se/~embe8573/cols/color_sets/>
-<http://user.it.uu.se/~embe8573/scripts/cols>
+   - <http://user.it.uu.se/~embe8573/cols/www/index.html (section ’the Linux VTs’)>
+   - <http://user.it.uu.se/~embe8573/cols/www/COLORS>
+   - <http://user.it.uu.se/~embe8573/cols/run>
+   - <http://user.it.uu.se/~embe8573/cols/set_cols.sed>
+   - <http://user.it.uu.se/~embe8573/cols/color_sets/>
+   - <http://user.it.uu.se/~embe8573/scripts/cols>
 
 I didn't manage to make this code work...
 
@@ -203,8 +203,9 @@ Yes,  if  you  use   a  recent  enough  version  of  systemd,   you  can  use  a
     ExecStartPre=/usr/bin/setleds -D +num
 
 For more information about the `StandardInput` option:
-<https://github.com/systemd/systemd/pull/7198>
-<https://www.freedesktop.org/software/systemd/man/systemd.exec.html>
+
+   - <https://github.com/systemd/systemd/pull/7198>
+   - <https://www.freedesktop.org/software/systemd/man/systemd.exec.html>
 
 ## But why a redirection is necessary in the first place?
 
@@ -275,6 +276,7 @@ So, `fbi` needs to be started by the root user (sudo), or by a user in the video
 group.
 
 For more information about the framebuffer:
-<https://en.wikipedia.org/wiki/Framebuffer>
-<https://unix.stackexchange.com/search?tab=votes&q=framebuffer>
+
+   - <https://en.wikipedia.org/wiki/Framebuffer>
+   - <https://unix.stackexchange.com/search?tab=votes&q=framebuffer>
 

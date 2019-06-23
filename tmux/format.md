@@ -470,18 +470,6 @@ Into 1 iff the pane is in a mode; 0 otherwise.
 
 Into 1 if the current application is using the terminal alternate screen.
 
----
-
-The alternate screen is used by many interactive programs such as vim, htop, less ...
-It's like a different buffer of  the terminal content, which disappears when the
-application exits,  so the whole  terminal gets restored  and it looks  like the
-application hasn't output anything.
-
-<https://stackoverflow.com/questions/11023929/using-the-alternate-screen-in-a-bash-script>
-
-It can be manually used by running `$ tput smcup`.
-And you can leave it by running `$ tput rmcup`.
-
 ##
 # Issues
 ## I'm writing nested formats; I have 3 consecutive `}`.  How to prevent Vim from interpreting them as fold markers?

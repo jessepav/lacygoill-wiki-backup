@@ -38,13 +38,12 @@ As a command termination (like the shell).
 
 From `$ man tmux /COMMANDS`:
 
-> Multiple commands may be specified together as part of a command
-> sequence.  Each command should be separated by spaces and a semicolon;
-> commands are executed sequentially from left to right and lines ending
-> with a backslash continue on to the next line, except when escaped by
-> another backslash.  A literal semicolon may be included by escaping it
-> with a backslash (for example, when specifying a command sequence to
-> bind-key).
+> Multiple commands may be specified together as part of a command sequence.
+> Each  command should  be  separated  by spaces  and  a  semicolon; commands  are
+> executed  sequentially from  left to  right and  lines ending  with a  backslash
+> continue on to the next line, except when escaped by another backslash.
+> A  literal semicolon  may  be included  by  escaping it  with  a backslash  (for
+> example, when specifying a command sequence to bind-key).
 
 ### When do I need to escape a semicolon?
 

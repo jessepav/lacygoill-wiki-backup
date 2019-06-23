@@ -167,10 +167,11 @@ Study:
 # ?
 
 To read:
-<https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda>
-<https://github.com/neovim/neovim/issues/6978>
-<https://github.com/neovim/neovim/pull/3165>
-<https://misc.flogisoft.com/bash/tip_colors_and_formatting>
+
+   - <https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda>
+   - <https://github.com/neovim/neovim/issues/6978>
+   - <https://github.com/neovim/neovim/pull/3165>
+   - <https://misc.flogisoft.com/bash/tip_colors_and_formatting>
 
 # ?
 

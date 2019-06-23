@@ -93,93 +93,6 @@ Use the `-q` flag:
     already set: @foo~
 
 ##
-## pane option
-### How to set an option local to
-#### a pane?
-
-Use `-p`:
-
-    $ tmux set -p @foo bar
-               ^^
-
-#### all panes in a window?
-
-Use `-w`:
-
-    $ tmux set -w @foo bar
-
-#### all panes in all windows?
-
-Use `-gw`:
-
-    $ tmux set -gw @foo bar
-
-#### ?
-
-why doesn't `$ tmux show-options -gp` doesn't output anything?
-
-    $ tmux show-options -gp | grep 'allow-rename\|alternate-screen\|remain-on-exit\|window-active-style\|window-style'
-    ''~
-
-It seems the options are still considered to be window options...
-
-    $ tmux show-options -gw | grep 'allow-rename\|alternate-screen\|remain-on-exit\|window-active-style\|window-style'
-    allow-rename off~
-    alternate-screen on~
-    remain-on-exit off~
-    window-active-style bg=#dbd6d1~
-    window-style bg=#cacaca~
-
-Once it's fixed, update your menu key binding to display (current + default) pane options.
-Also, document that `set-option` and `show-options` now support a `-p` flag.
-
----
-
-Read this commit message: <https://github.com/tmux/tmux/commit/5f92f92908b81b4ec66682adb84b9ffc8d83c2f7>
-
-> Pane options inherit from window options (so there should be no change to existing behaviour)
-
-From `$ man tmux /OPTIONS`:
-
-> Similarly, a set of window options is attached to each window and a set
-> of pane options to each pane.  Pane options inherit from window options.
-> This means any pane option may be set as a window option to apply the
-> option to all panes in the window without the option set, for example
-> these commands will set the background colour to red for all panes except
-> pane 0:
-> 
-    $ tmux set -w window-style bg=red
-    $ tmux set -pt:.0 window-style bg=blue
-> 
-> There is also a set of global window options from which any unset window
-> or pane options are inherited.  Window and pane options are altered with
-> set-option -w and -p commands and displayed with show-option -w and -p.
-
----
-
-Do you understand this output?
-
-    $ tmux set -p allow-rename on \; show -p \; show -gp
-    allow-rename on~
-    allow-rename on~
-
-###
-### The value of a pane option is A inside a given pane, but B in the window of that pane.  Who wins, A or B?
-
-The value local to the pane wins in the given pane.
-In the other panes, A doesn't apply, so B is used.
-
-### How to set the background color of
-#### the panes in the current window as green?
-
-    $ tmux set -w window-style bg=green
-
-##### and at the same time, the pane of index 1 as red?
-
-    $ tmux set -w     window-style bg=green
-    $ tmux set -pt:.1 window-style bg=red
-
-##
 ## I have 2 windows, and I'm in the first one.  How to set the color of the clock in the second window?
 
 Use the `-t` argument:
@@ -193,7 +106,7 @@ Again, use the `-t` argument:
 
     $ tmux show -t2 <option>
 
-##
+###
 ## What happens if I
 ### omit `-g` when I set a session or window option in `~/.tmux.conf`?
 
@@ -213,6 +126,129 @@ The option is toggled between on and off.
     mouse on~
 
 ##
+# Pane options
+## For every pane option, is there a window counterpart?
+
+Yes.
+
+This  is what  allows you  to set  a  pane option  in a  given pane  differently
+compared to all the other panes of the window:
+
+    $ tmux set -w allow-rename off \; set -p allow-rename on
+    $ tmux show -wv allow-rename \; show -pv allow-rename
+    off~
+    on~
+
+## For every window option, is there a pane counterpart?
+
+Not necessarily.
+For example, `aggressive-resize` is a window  option, but there's no pane counterpart.
+
+##
+## What's the default value of an unset pane option?
+
+It inherits from its window counterpart.
+
+From `$ man tmux /OPTIONS`:
+
+> Pane options inherit from window options.
+> This means any pane option may be set  as a window option to apply the option to
+> all panes in the window without the option set, [...]
+
+## What does it mean for a window option to have a pane counterpart?
+
+It means you get more control over its value.
+You can make it different from one pane to another inside the same window.
+
+##
+## How to set an option
+### local to a pane?
+
+Use `-p`:
+
+    $ tmux set -p @foo bar
+               ^^
+
+### local to all panes in a window?
+
+Use `-w`:
+
+    $ tmux set -w @foo bar
+
+### in all panes in all windows?
+
+Use `-gw`:
+
+    $ tmux set -gw @foo bar
+
+##
+## The value of a pane option is A inside a given pane, but B in the window of that pane.  Who wins, A or B?
+
+A.
+
+The value local to the pane wins in the given pane.
+In the other panes, A doesn't apply, so B is used.
+
+## How to set the background color of
+### the panes in the current window as green?
+
+    $ tmux set -w window-style bg=green
+
+#### and at the same time, the pane of index 1 as red?
+
+    $ tmux set -w     window-style bg=green
+    $ tmux set -pt:.1 window-style bg=red
+
+#
+## How is `-g` interpreted in `$ tmux set -gp <pane option>`?
+
+It's ignored.
+
+Watch:
+
+    $ tmux -Lx -f =(echo 'set -gp allow-rename on')
+    no current pane~
+
+    $ tmux show -gw allow-rename \; show -w allow-rename \; show -p allow-rename
+    off~
+    ''~
+    ''~
+
+Possible rationale:
+
+`-g` is ambiguous in this context.
+Should it be interpreted as “all panes  in the current window”, or as “all panes
+in all windows”?
+
+Besides, there are already less ambiguous alternatives for both possible meanings:
+
+    ┌─────────────────────────────────┬─────┐
+    │ all panes in the current window │ -w  │
+    ├─────────────────────────────────┼─────┤
+    │ all panes in all windows        │ -gw │
+    └─────────────────────────────────┴─────┘
+
+## What happens if I use `set-option` or `show-options` for a pane option, without using `-w` nor `-p`?
+
+By default, `$ tmux show` uses `-w`.
+
+    $ tmux set -p allow-rename on \; set -w allow-rename off \; \
+      show -v allow-rename
+    off~
+
+    $ tmux set -p allow-rename on \; set -wu allow-rename \; \
+      show allow-rename
+    ''~
+
+Same thing for `$ tmux set`.
+
+    $ tmux set -p allow-rename on \; set -w allow-rename on \; \
+      set allow-rename off \; \
+      show -pv allow-rename \; show -wv allow-rename
+      on~
+      off~
+
+###
 # User options
 ## Is a user option a server option, a session option, a window option or a pane option?
 
@@ -232,7 +268,8 @@ It can be any of them.
 
 The concept is orthogonal to the type of the option.
 
-### Which precaution must I take when setting a user option, or asking for its value?
+##
+## Which precaution must I take when setting a user option, or asking for its value?
 
 You must specify its type; either with no flag (server), or with a flag:
 
@@ -240,7 +277,7 @@ You must specify its type; either with no flag (server), or with a flag:
    - `-w` (window)
    - `-s` (session)
 
-#### Why?
+### Why?
 
 There's no way for tmux to infer the  type of a user option from its name, since
 the latter can be arbitrarily chosen.
@@ -333,7 +370,7 @@ Don't use `-a` nor `[123]`.
 ### When do I need a comma to set the value of an array option?
 
 When you want to set several items of the array in a single command.
-In this case, the comma tells tmux when a item ends, and when the next one starts.
+In this case, the comma tells tmux when an item ends, and when the next one starts.
 
     $ tmux set user-keys 'foo,bar'
     $ tmux show user-keys
@@ -364,7 +401,7 @@ and from the faq:
 
 I think that before 2.3, 'terminal-overrides' was a string option.
 
-> * terminal-overrides and update-environment are now array options (the previous
+> * terminal-overrides and update-environment are now array options
 <https://github.com/tmux/tmux/blob/8382ae65b7445a70e8a24b541cf104eedadd7265/CHANGES#L575>
 
 And maybe a comma was needed for a string option.
@@ -379,8 +416,8 @@ If you want to be sure, try this experiment.
     set -s  terminal-overrides 'xterm*:Tc'
     set -as terminal-overrides 'st*:Cs=\E]12;%p1%s\007'
 
-If tmux didn't split after  the value of 'terminal-overrides' after `xterm*:Tc`,
-then it would consider `xterm*` as being  the terminal type pattern for the `Cs`
+If tmux didn't  split the value of 'terminal-overrides'  after `xterm*:Tc`, then
+it  would consider  `xterm*` as  being the  terminal type  pattern for  the `Cs`
 capability, which would  prevent us from resetting the color  of the cursor with
 `$ printf '\033]12;3\007'` in st (since 'st-256color' doesn't match 'xterm*').
 And yet,  in practice, we can  reset the color of  the cursor in st  + tmux with
@@ -537,7 +574,7 @@ A process has written new output on the terminal.
 A process has written `\a` (`\007`) on  the terminal, which caused the latter to
 ring its bell.
 
-#### What's the most portable way to ring the bell manually?
+#### What's the most portable way to manually ring the bell?
 
     $ tput bel
 
@@ -658,18 +695,4 @@ MWE:
 
      C-b " (splitw)
      C-b ; (last-pane)
-
-##
-##
-# ?
-
-> Ok, I just thought it was a bit weird that the `*-action` options couldn't control the notification in the status line while the `monitor-*` could.
-> I wanted to be sure I didn't misunderstood something in my notes: https://github.com/lacygoill/wiki/blob/master/tmux/option.md#what-is-its-effect
-
-> if   you  want   to  control   how  it   appears  in   the  status   line,  you
-> need  to   change  window-status-activity-style  or   window-status-format  and
-> window-status-current-format
-
-   - window-status-activity-style
-   - window-status-format + window-status-current-format
 
