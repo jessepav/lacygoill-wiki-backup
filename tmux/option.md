@@ -61,13 +61,11 @@ Unset its local value.
 
 Unset its global value.
 
-    $ tmux set -g clock-mode-colour red
-    $ tmux clock-mode
+    $ tmux set -g clock-mode-colour red \; clock-mode
     # the clock is in red
 
                 vv
-    $ tmux set -gu clock-mode-colour
-    $ tmux clock-mode
+    $ tmux set -gu clock-mode-colour \; clock-mode
     # the clock is in blue
 
 ##
@@ -75,9 +73,7 @@ Unset its global value.
 
 Use the `-o` flag:
 
-    $ tmux set @foo bar
-
-    $ tmux show @foo
+    $ tmux set @foo bar \; show @foo
     @foo bar~
 
     $ tmux set -o @foo qux
@@ -88,7 +84,7 @@ Use the `-o` flag:
 Use the `-q` flag:
 
     $ tmux set -qo @foo qux
-    already set: @foo~
+    ''~
 
 ##
 ## I have 2 windows, and I'm in the first one.  How to set the color of the clock in the second window?
@@ -103,24 +99,26 @@ Use the `-t` argument:
 Again, use the `-t` argument:
 
     $ tmux show -t2 <option>
+                 ^^
 
 ###
 ## What happens if I
-### omit `-g` when I set a session or window option in `~/.tmux.conf`?
+### omit `-g` when I set a session, window, or pane option in `~/.tmux.conf`?
 
 Tmux will complain with one of these error messages:
 
     no current session
     no current window
+    no current pane
 
 ### don't provide a value to `$ tmux set <boolean option>`?
 
 The option is toggled between on and off.
 
-    $ tmux set -g mouse && tmux show -g mouse
+    $ tmux set -g mouse \; show -g mouse
     mouse off~
 
-    $ tmux set -g mouse && tmux show -g mouse
+    $ tmux set -g mouse \; show -g mouse
     mouse on~
 
 ##
@@ -145,7 +143,7 @@ For example, `aggressive-resize` is a window  option, but there's no pane counte
 ##
 ## What's the default value of an unset pane option?
 
-It inherits from its window counterpart.
+It inherits its value from its window counterpart.
 
 From `$ man tmux /OPTIONS`:
 
@@ -153,9 +151,9 @@ From `$ man tmux /OPTIONS`:
 > This means any pane option may be set  as a window option to apply the option to
 > all panes in the window without the option set, [...]
 
-## What does it mean for a window option to have a pane counterpart?
+## When a window option has a pane counterpart, what benefit do you get?
 
-It means you get more control over its value.
+You get more control over its value.
 You can make it different from one pane to another inside the same window.
 
 ##
@@ -180,7 +178,7 @@ Use `-gw`:
     $ tmux set -gw @foo bar
 
 ##
-## The value of a pane option is A inside a given pane, but B in the window of that pane.  Who wins, A or B?
+## The value of a pane option is A in a given pane, but B in the window of that pane.  Who wins, A or B?
 
 A.
 
@@ -191,11 +189,30 @@ In the other panes, A doesn't apply, so B is used.
 ### the panes in the current window as green?
 
     $ tmux set -w window-style bg=green
+               ^^
 
-#### and at the same time, the pane of index 1 as red?
+#### ?
+
+and at the same time, the pane of index 1 as red?
 
     $ tmux set -w     window-style bg=green
     $ tmux set -pt:.1 window-style bg=red
+               ^^^^^^
+
+Why `:.1` instead of simply `1`?
+`1` seems to give the same result:
+
+    $ tmux set -w window-style bg=green \; set -pt1 window-style bg=red
+
+Maybe `1` works but is not officially supported nor documented.
+
+Earlier, we have written this:
+
+    $ tmux set -t2 clock-mode-colour green
+
+Should we have written this instead?
+
+    $ tmux set -t:2 clock-mode-colour green
 
 #
 ## How is `-g` interpreted in `$ tmux set -gp <pane option>`?

@@ -474,6 +474,23 @@ address 1), and the second number to be the total number of lines in the latter.
 It  would be  nice if  `n` and  `N`  could always  move in  the same  direction,
 regardless of whether we started a search with `/` or `?`.
 
+## filter the output of `show-messages`
+
+Often, you pile up a lot of useless messages.
+It would  be useful  to be  able to  remove them,  so that  a new  and important
+message stands out better.
+
+Maybe install a Vim command which would capture capture the output of
+`$ tmux show-messages`, dump it in a  buffer, and remove some common and useless
+messages.
+
+    com! TxShowMessages call s:tx_show_messages()
+    fu! s:tx_show_messages()
+        new +setl\ bt=nofile\ bh=hide\ nobl\ noswf\ wfw
+        call setline(1, systemlist('tmux show-messages'))
+        sil! g/\m\CConfiguration reloaded.$\|No previous window\|No next window/d_
+    endfu
+
 #
 # document the `synchronize-panes` window option
 

@@ -504,6 +504,58 @@ Indeed, any character inside `#{}` is semantic, including a space:
 ##
 # ?
 
+Document the `i` and `r` flags which can be passed to the `m` modifier.
+
+> An ‘m' specifies an fnmatch(3) or regular expression comparison.
+> The first argument is the pattern and the second the string to compare.
+> An optional third  argument specifies flags: ‘r' means the  pattern is a regular
+> expression instead  of the default fnmatch(3)  pattern, and ‘i' means  to ignore
+> case.
+> For example: ‘#{m:*foo*,#{host}}' or ‘#{m/ri:^A,MYVAR}'.
+
+Note that the flags need to be separated from the modifier by a slash.
+
+---
+
+Document the `i` and `r` flags which can be passed to the `C` modifier.
+
+> A ‘C' performs a  search for an fnmatch(3) pattern or  regular expression in the
+> pane content and evaluates to zero if not found, or a line number if found.
+> Like ‘m',  an ‘r'  flag means search  for a regular  expression and  ‘i' ignores
+> case.
+> For example: ‘#{C/r:^Start}'
+
+---
+
+Document that the `=N` modifier may be passed an optional argument which will be
+appended (if `N > 0`) or prepended (if `N < 0`) to the resulting string.
+
+> ‘#{=-5:pane_title}' the last five characters.
+> A suffix or  prefix may be given as  a second argument - if provided  then it is
+> appended or prepended to the string if  the length has been trimmed, for example
+> ‘#{=/5/...:pane_title}' will  append ‘...' if the  pane title is more  than five
+> characters.
+
+Note that if you use the optional argument, it needs to be separated from `N` by
+a slash, and `N` needs to be separated from `=` by a slash too.
+
+                          v v
+    $ tmux display -p '#{=/3/...:session_name}'
+    $ tmux display -p '#{=/-3/...:session_name}'
+                          ^  ^
+
+---
+
+Document the `i` flag which can be passed to the `s` modifier.
+
+> A  prefix  of  the  form   ‘s/foo/bar/:'  will  substitute  ‘foo'  with  ‘bar'
+> throughout.
+> The first  argument may be an  extended regular expression and  a final argument
+> may be  ‘i' to ignore  case, for  example ‘s/a(.)/\1x/i:' would  change ‘abABab'
+> into ‘bxBxbx'.
+
+# ?
+
 A prefix of the form `s/pat/rep/:` will substitute `pat` with `rep` throughout.
 
     $ tmux set -g @foo 'pat a pat b' \; display -p '#{s/pat/rep/:@foo}'
