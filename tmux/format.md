@@ -504,6 +504,16 @@ Indeed, any character inside `#{}` is semantic, including a space:
 ##
 # ?
 
+A prefix of the form `s/pat/rep/:` will substitute `pat` with `rep` throughout.
+
+    $ tmux set -g @foo 'pat a pat b' \; display -p '#{s/pat/rep/:@foo}'
+    rep a rep b~
+
+    $ tmux set -g @foo 'pat a pat b' \; display -p '#{s/[^ ]*/rep/:@foo}'
+    rep rep rep rep~
+
+# ?
+
 `S:`, `W:` or `P:`  will loop over each  session, window or pane  and insert the
 format once for each.
 
@@ -524,16 +534,6 @@ For example, to get a list of windows formatted like the status line:
     $ tmux display -p '#{W:#{E:@foo} }'
     $ tmux display -p '#{S:#{E:@foo} }'
     $ tmux display -p '#{P:#{E:@foo} }'
-
-# ?
-
-A prefix of the form `s/pat/rep/:` will substitute `pat` with `rep` throughout.
-
-    $ tmux set -g @foo 'pat a pat b' \; display -p '#{s/pat/rep/:@foo}'
-    rep a rep b~
-
-    $ tmux set -g @foo 'pat a pat b' \; display -p '#{s/[^ ]*/rep/:@foo}'
-    rep rep rep rep~
 
 # ?
 

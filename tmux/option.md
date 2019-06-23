@@ -50,13 +50,11 @@ This also applies to hooks, since they are implemented as array options.
 
 Unset its local value.
 
-    $ tmux set clock-mode-colour green
-    $ tmux clock-mode
+    $ tmux set clock-mode-colour green \; clock-mode
     # the clock is in green
 
                 v
-    $ tmux set -u clock-mode-colour
-    $ tmux clock-mode
+    $ tmux set -u clock-mode-colour \; clock-mode
     # the clock is in blue (default global value)
 
 ## How to reset an option to its default value?

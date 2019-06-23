@@ -361,6 +361,17 @@ If it contains:
    - neither `#` nor `=`, it's a boolean one
 
 ##
+## How to cancel a capability?
+
+In the terminal description, append the character `@` to the name of the capability.
+
+---
+
+nicm uses this syntax in some issues on github, like here:
+
+   - <https://github.com/tmux/tmux/issues/1593#issuecomment-460004714>
+   - <https://github.com/tmux/tmux/issues/1419#issuecomment-409111029>
+
 ## How to insert a control character when you edit an entry of the terminfo db?
 
 Use the caret notation.
