@@ -90,7 +90,7 @@ Source:
 
 See also:
 
-   - <http://user.it.uu.se/~embe8573/cols/www/index.html (section ’the Linux VTs’)>
+   - <http://user.it.uu.se/~embe8573/cols/www/index.html> (section ’the Linux VTs’)
    - <http://user.it.uu.se/~embe8573/cols/www/COLORS>
    - <http://user.it.uu.se/~embe8573/cols/run>
    - <http://user.it.uu.se/~embe8573/cols/set_cols.sed>
