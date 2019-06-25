@@ -1,8 +1,37 @@
 # tmux-fingers
-## This plugin doesn't let me search outside the current screen!
+## It doesn't let me search outside the current screen!
 
 Use our `M-:` key binding, which writes the whole scrollback buffer in a Nvim buffer.
 
+##
+## It wrongly renames the current window!
+
+This is fixed by the unmerged PR #67:
+<https://github.com/Morantron/tmux-fingers/pull/67/files>
+
+We've merged it locally, but it may break in a future update.
+Try to assimilate the plugin.
+
+## Sometimes it fails, and gawk prints an error message!
+
+I don't know how to fix this atm.
+
+---
+
+MWE:
+
+Press `pfx ?`, then `pfx f`.
+
+    gawk: ~/.tmux/plugins/tmux-fingers/scripts/hinter.awk:139: (FILENAME=- FNR=1) warning: regexp escape sequence `\"' is not a known regexp operator~
+
+## Every time I press `pfx f`, my 'terminal-overrides' option is being appended with the item `,*:dim=\\E[2m`!
+
+It comes from the `force_dim_support()` function called in
+`~/.tmux/plugins/tmux-fingers/scripts/fingers.sh`.
+
+Remove it; it seems useless.
+
+##
 ## Why should I avoid installing tmux-copycat?
 
 First, it installs a bunch of key bindings which are hard to remember.

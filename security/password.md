@@ -175,7 +175,6 @@ Source: <https://www.eff.org/deeplinks/2018/08/dragon-con-diceware>
 
 About 92 trillion passwords per second.
 
-
 ##
 # Reference
 

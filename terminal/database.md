@@ -108,7 +108,7 @@ Compile the new entry:
 
     $ tic -sx /tmp/entry
            ││
-           │└ include unknown capabilities as user-defined 
+           │└ include unknown capabilities as user-defined
            │
            └ summarize the compile by  showing  the  database  location  into
              which  entries  are written, and the number of entries which are

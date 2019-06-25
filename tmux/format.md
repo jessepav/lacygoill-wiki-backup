@@ -169,10 +169,11 @@ Exception:
 
 Some options values are evaluated later, like `status-right`.
 And during this evaluation, formats are automatically expanded.
-For those, you will probably want to let tmux expand the format at evaluation time.
+For those, you  will probably want to  let tmux expand the  format at evaluation
+time.
 Indeed, if you expand a format in  the value of `status-right` at parse time, it
-will be static, while you probably want it to be evaluated dynamically, every 15
-seconds ('status-interval').
+will be  static, while you probably  want it to be  evaluated dynamically, every
+few seconds ('status-interval').
 
 ##
 # Test
@@ -241,7 +242,7 @@ Examples:
     $ tmux display -p '#{!=:#{client_termname},rxvt-unicode-256color}'
     1~
 
-### a pattern to a string?
+### a shell wildcard pattern to a string?
 
     #{m:pat,str}
 
@@ -259,6 +260,36 @@ relevant flag.
 For example, if you need the `FNM_EXTMATCH`, you will run:
 
     $ sed -i '/fnmatch(/s/0/FNM_EXTMATCH/' ~/GitRepos/tmux/format.c
+
+### a regex to a string?
+
+Pass the `r` flag to the `m` modifier:
+
+                                             vv
+    $ tmux set @foo 'abcd' \; display -p '#{m/r:^[aA].*[dD]$,#{@foo}}'
+    1~
+
+#### How to write a quantifier such as `{1,4}`?
+
+Tmux expects an ERE regex, so there's no need to escape the curly braces.
+However, in a format, `,` and `}` are special, so you need to escape them with `#`:
+
+                                 v  v
+    $ tmux display -p '#{m/r:^.{1#,4#}$,test}'
+    1~
+
+###
+### how to ignore the case, when doing a shell wildcard pattern or regex comparison?
+
+Pass the `i` flag to the `m` modifier:
+
+                                             vv
+    $ tmux set @foo 'ABCD' \; display -p '#{m/i:a*d,#{@foo}}'
+    1~
+
+                                             vvv
+    $ tmux set @foo 'ABCD' \; display -p '#{m/ri:^a.*d$,#{@foo}}'
+    1~
 
 ##
 ## How to check if
@@ -283,7 +314,7 @@ For example, if you need the `FNM_EXTMATCH`, you will run:
 # Modifiers
 ## What is `#{l:}`?
 
-It's a replacement variable using the undocumented modifier `l:`.
+It's a format using the undocumented modifier `l:`.
 The latter stands for “literal”.
 
 You can find it in the `format_replace()` function from the `format.c` file.
@@ -350,7 +381,9 @@ Just include its name inside `#{}`:
     $ tmux display -p '#{buffer-limit}'
     10~
 
-### the address of the line where a pattern matches in the pane content?
+###
+### the address of the line where
+#### a shell wildcard pattern matches in the pane content?
 
     #{C:pat}
 
@@ -362,6 +395,23 @@ Just include its name inside `#{}`:
 If the string is not found, `#{C:pat}` evaluates to 0.
 
 In the pattern, you can use the metacharacters documented at `$ man 3 fnmatch`.
+
+#### a regex matches in the pane content?
+
+    #{C/r:pat}
+    #{C/ri:pat}
+         ^
+         ignore case
+
+---
+
+    $ echo needle ; tmux display -p '#{C/r:^n.*le}'
+    needle~
+    2~
+
+    $ echo NEEDLE ; tmux display -p '#{C/ri:^n.*le}'
+    needle~
+    2~
 
 ##
 ## How to truncate a string after the first `N` characters?
@@ -380,6 +430,25 @@ Use a negative number:
                          vvv
     $ tmux display -p '#{=-8:client_termname}'
     256color~
+
+#### and replace the truncated text with `...`?
+
+    #{=/N/...:string}
+       ^ ^^^^
+
+`...` needs to be separated from `N` with a slash, because it could be any text,
+and so  could begin  with a digit;  in that  case, tmux needs  to know  when `N`
+terminates, and when the replacement text for the truncated text starts.
+
+OTOH, I don't know why `N` needs to be separated from `=` with a slash.
+
+---
+
+    $ tmux set @foo 'one two three' \; display -p '#{=/7/...:@foo}'
+    one two...~
+
+    $ tmux set @foo 'one two three' \; display -p '#{=/-9/...:@foo}'
+    ...two three~
 
 ##
 ## How to convert a Unix time in a human-readable form?
@@ -437,7 +506,7 @@ Use the `E:` modifier:
 
 Use `T:`:
 
-    $ tmux set -g @foo '#S %Y'
+    $ tmux set @foo '#S %Y'
 
     $ tmux display -p '#{@foo}'
     #S %Y~
@@ -453,12 +522,146 @@ Use `T:`:
     $ tmux set -g status-left '%Y'
 
 ##
+## How to replace `pat` with `rep` in a format?
+
+Use the prefix `s/pat/rep/:`:
+
+    $ tmux set @foo 'pat a pat b' \; display -p '#{s/pat/rep/:@foo}'
+    rep a rep b~
+
+    $ tmux set @foo 'pat a pat b' \; display -p '#{s/[^ ]*/rep/:@foo}'
+    rep rep rep rep~
+
+### ignoring the case?
+
+Use the `i` flag:
+
+                                                             v
+    $ tmux set @foo 'PAT a PAT b' \; display -p '#{s/pat/rep/i:@foo}'
+    rep a rep b~
+
+### How to write a quantifier such as `{12,34}` inside a `#{C/r:}`, `#{m/r:}`, `#{s/pat/rep/:}` format?
+
+In `#{C/r:}` and `#{s/pat/rep/:}`:
+
+    {12,34#}
+
+In `#{m/r:}`:
+
+    {12#,34#}
+
+The last syntax works in the 3 contexts.
+
+---
+
+    $ echo suuuper >/tmp/file ; clear ; cat /tmp/file ; tmux display -p '#{C/r:^su{1,3#}per$}'
+    suuuper~
+    1~
+
+    $ tmux set @foo 'suuuper' \; display -p '#{m/r:u{1#,3#},#{@foo}}'
+    1~
+
+    $ tmux set @foo 'suuuper' \; display -p '#{s/u{1,3#}/u/:@foo}'
+    super~
+
+####
+## What are the two modifiers for which I need to use `#{}` a second time to expand a variable they contain?
+
+`m` and `C`:
+
+    $ tmux set @foo 'abc' \; display -p '#{m:a*,@foo}'
+    0~
+    $ tmux set @foo 'abc' \; display -p '#{m:a*,#{@foo}}'
+    1~
+
+    $ echo abc >/tmp/file ; tmux set @foo abc ; clear
+    $ cat /tmp/file ; tmux display -p '#{C:@foo}'
+    abc~
+    1~
+    $ cat /tmp/file ; tmux display -p '#{C:#{@foo}}'
+    abc~
+    2~
+
+Rationale:
+
+In an `m` and `C` format, you search for some text.
+And this text may look like a variable/option, e.g. `@foo`.
+But if tmux expanded  automatically `@foo`, you would not be  able to search for
+the literal text `@foo`.
+
+##
+## How to concatenate the expansions of a format in the context of
+### each session?
+
+    #{S:format}
+
+---
+
+                           ┌ alias for `#{session_name}`
+                           ├┐
+    $ tmux display -p '#{S:#S }'
+    my_session_1 my_session_2 ... ~
+
+Maybe I have a network issue, but I can't read your log files, because of `404 Page not found` error.
+
+### each window of the current session?
+
+    #{W:format}
+
+---
+
+                           ┌ alias for `#{window_name}`
+                         v ├┐
+    $ tmux display -p '#{W:#W }'
+    my_window_1 my_window_2 ... ~
+
+### each pane of the current window?
+
+    #{P:format}
+
+---
+
+                           ┌ alias for `#{pane_index}`
+                           ├┐
+    $ tmux display -p '#{P:#P }'
+    1 2 ...~
+
+###
+### How to make tmux perform a different expansion in the context of the current window or active pane?
+
+Use two comma-separated formats.
+The second will be used for the current window or active pane.
+
+For example, to get a list of windows formatted like in the status line:
+
+    $ tmux display -p '#{W:#{E:window-status-format}   ,#{E:window-status-current-format}   }'
+                           ├──────────────────────────┘ ├──────────────────────────────────┘
+                           │                            └ expanded in the current window
+                           └ expanded in the non-current windows
+
+##
 # Replacement variables
-## How is `#{pane_in_mode}` evaluated?
+## How to test whether
+### a window is
+#### zoomed?
 
-Into 1 iff the pane is in a mode; 0 otherwise.
+    #{window_zoomed_flag}
 
-### In which modes can a tmux pane be?  (4)
+#### the first one?  last one?
+
+    #{window_start_flag}
+    #{window_end_flag}
+
+#### the last-but-one to be focused?
+
+    #{window_last_flag}
+
+###
+### a pane is in a mode?
+
+    #{pane_in_mode}
+
+#### In which modes can a pane be?  (4)
 
    - copy mode
    - client mode (entered via `choose-client`)
@@ -466,11 +669,129 @@ Into 1 iff the pane is in a mode; 0 otherwise.
    - buffer-mode (entered via `choose-buffer`)
 
 ###
-## How is `#{alternate_on}` evaluated?
+### a pane is active?
 
-Into 1 if the current application is using the terminal alternate screen.
+    #{pane_active}
+
+### a pane shares a border with the top border of the window?  bottom border?  left border?  right border?
+
+    #{pane_at_top}
+    #{pane_at_bottom}
+    #{pane_at_left}
+    #{pane_at_right}
+
+###
+### a selection has been started in copy mode?
+
+    #{selection_present}
+
+### a rectangle selection is activated?
+
+    #{rectangle_toggle}
+
+###
+### the current application is using the terminal alternate screen?
+
+    #{alternate_on}
+
+### the prefix key has been pressed?
+
+    #{client_prefix}
 
 ##
+## How to get
+### the PID of
+#### the first process in the pane?
+
+    #{pane_pid}
+
+#### the tmux client process?
+
+    #{client_pid}
+
+#### the tmux server process?
+
+    #{pid}
+
+###
+### the name of the outer terminal?
+
+    #{client_termname}
+
+###
+### the name of a window?
+
+    #{window_name} / #W
+
+### the flags of a window?  (e.g. `*`, `-`, ...)
+
+    #{window_flags} / #F
+
+### the number of panes in the current window?
+
+    #{window_panes}
+
+###
+### the index of a pane?  window?
+
+    #{pane_index} / #P
+    #{window_index} / #I
+
+### the unique ID of a pane?  window?  sesssion?
+
+    #{window_id}
+    #{pane_id} / #D
+    #{session_id}
+
+### the width of a window?  pane?
+
+    #{window_width}
+    #{pane_width}
+
+### the height of a window?  pane?
+
+    #{window_height}
+    #{pane_height}
+
+###
+### the tty used by a pane?
+
+    #{pane_tty}
+
+### the current working directory of the process run in a pane?
+
+    #{pane_current_path}
+
+###
+### the position of the first line in the pane relative to the window?  last line?
+
+    #{pane_top}
+    #{pane_bottom}
+
+### the position of the first character in the pane?  last character?
+
+    #{pane_left}
+    #{pane_right}
+
+##
+### the character under the cursor?
+
+    #{cursor_character}
+
+### the coordinates of the cursor in the active pane?
+
+    #{cursor_x}
+    #{cursor_y}
+
+### the number of non-visible lines in the scrollback buffer of a pane?
+
+    #{history_size}
+
+### the last search string in copy mode?
+
+    #{pane_search_string}
+
+###
 # Issues
 ## I'm writing nested formats; I have 3 consecutive `}`.  How to prevent Vim from interpreting them as fold markers?
 
@@ -502,231 +823,47 @@ Indeed, any character inside `#{}` is semantic, including a space:
 
 ##
 ##
-# ?
-
-Document the `i` and `r` flags which can be passed to the `m` modifier.
-
-> An ‘m' specifies an fnmatch(3) or regular expression comparison.
-> The first argument is the pattern and the second the string to compare.
-> An optional third  argument specifies flags: ‘r' means the  pattern is a regular
-> expression instead  of the default fnmatch(3)  pattern, and ‘i' means  to ignore
-> case.
-> For example: ‘#{m:*foo*,#{host}}' or ‘#{m/ri:^A,MYVAR}'.
-
-Note that the flags need to be separated from the modifier by a slash.
-
----
-
-Document the `i` and `r` flags which can be passed to the `C` modifier.
-
-> A ‘C' performs a  search for an fnmatch(3) pattern or  regular expression in the
-> pane content and evaluates to zero if not found, or a line number if found.
-> Like ‘m',  an ‘r'  flag means search  for a regular  expression and  ‘i' ignores
-> case.
-> For example: ‘#{C/r:^Start}'
-
----
-
-Document that the `=N` modifier may be passed an optional argument which will be
-appended (if `N > 0`) or prepended (if `N < 0`) to the resulting string.
-
-> ‘#{=-5:pane_title}' the last five characters.
-> A suffix or  prefix may be given as  a second argument - if provided  then it is
-> appended or prepended to the string if  the length has been trimmed, for example
-> ‘#{=/5/...:pane_title}' will  append ‘...' if the  pane title is more  than five
-> characters.
-
-Note that if you use the optional argument, it needs to be separated from `N` by
-a slash, and `N` needs to be separated from `=` by a slash too.
-
-                          v v
-    $ tmux display -p '#{=/3/...:session_name}'
-    $ tmux display -p '#{=/-3/...:session_name}'
-                          ^  ^
-
----
-
-Document the `i` flag which can be passed to the `s` modifier.
-
-> A  prefix  of  the  form   ‘s/foo/bar/:'  will  substitute  ‘foo'  with  ‘bar'
-> throughout.
-> The first  argument may be an  extended regular expression and  a final argument
-> may be  ‘i' to ignore  case, for  example ‘s/a(.)/\1x/i:' would  change ‘abABab'
-> into ‘bxBxbx'.
-
-# ?
-
-A prefix of the form `s/pat/rep/:` will substitute `pat` with `rep` throughout.
-
-    $ tmux set -g @foo 'pat a pat b' \; display -p '#{s/pat/rep/:@foo}'
-    rep a rep b~
-
-    $ tmux set -g @foo 'pat a pat b' \; display -p '#{s/[^ ]*/rep/:@foo}'
-    rep rep rep rep~
-
-# ?
-
-`S:`, `W:` or `P:`  will loop over each  session, window or pane  and insert the
-format once for each.
-
-For windows and  panes, two comma-separated formats may be  given: the second is
-used for the current window or active pane.
-
-For example, to get a list of windows formatted like the status line:
-
-    #{W:#{E:window-status-format}    ,#{E:window-status-current-format}    }
-
----
-
-    $ tmux display -p '#{W:#{E:window-status-format}    ,#{E:window-status-current-format}    }'
-
----
-
-    $ tmux set -g @foo hello
-    $ tmux display -p '#{W:#{E:@foo} }'
-    $ tmux display -p '#{S:#{E:@foo} }'
-    $ tmux display -p '#{P:#{E:@foo} }'
-
-# ?
-
-In addition, the last line of a shell command's output may be inserted using `#()`.
-
-For example, `#(uptime)` will insert the system's uptime.
-
-When constructing  formats, tmux  does not  wait for  `#()` commands  to finish;
-instead,  the previous  result  from running  the  same command  is  used, or  a
-placeholder if the command has not been run before.
-
-If the command hasn't  exited, the most recent line of output  will be used, but
-the status line will not be updated more than once a second.
-
-Commands are executed  with the tmux global environment set  (see the GLOBAL AND
-SESSION ENVIRONMENT section).
-
+##
 # The following variables are available, where appropriate:
 
-Probably useful:
-
-    # what's the difference between these 2? (they seem to have the same output)
-    client_name                     Name of client
-    client_tty                      Pseudo terminal of client
-
-    client_pid                      PID of client process
-    pane_pid                        PID of first process in pane
-    pid                             Server PID
-
-    client_session                  Name of the client's session
-    client_termname                 Terminal name of client
-    cursor_character                Character at cursor in pane
-    rectangle_toggle                1 if rectangle selection is activated
-    window_panes                    Number of panes in window
-
-Find which ones could be useful:
+    window_active                   1 if window active
+    pane_pipe                       1 if pane is being piped
+    pane_dead                       1 if pane is dead
+    pane_marked                     1 if this is the marked pane
+    pane_marked_set                 1 if a market pane is set
+    pane_synchronized               1 if pane is synchronized
+    pane_input_off                  1 if input to pane is disabled
+    pane_format                     1 if format is for a pane (not assuming the current)
+    session_format                  1 if format is for a session (not assuming the current)
+    window_format                   1 if format is for a window (not assuming the current)
 
     command                         Name of command in use, if any
     command_list_alias              Command alias if listing commands
     command_list_name               Command name if listing commands
     command_list_usage              Command usage if listing commands
-
-    cursor_flag                     Pane cursor flag
-    cursor_x                        Cursor X position in pane
-    cursor_y                        Cursor Y position in pane
-
-    history_bytes                   Number of bytes in window history
-    history_limit                   Maximum window history lines
-    history_size                    Size of history in lines
-
     hook                            Name of running hook, if any
     hook_pane                       ID of pane where hook was run, if any
     hook_session                    ID of session where hook was run, if any
     hook_session_name               Name of session where hook was run, if any
     hook_window                     ID of window where hook was run, if any
     hook_window_name                Name of window where hook was run, if any
-    host                   #H       Hostname of local host
-    host_short             #h       Hostname of local host (no domain name)
-
-    insert_flag                     Pane insert flag
-
-    keypad_cursor_flag              Pane keypad cursor flag
-    keypad_flag                     Pane keypad flag
-
-    pane_active                     1 if active pane
-    pane_at_bottom                  1 if pane is at the bottom of window
-    pane_at_left                    1 if pane is at the left of window
-    pane_at_right                   1 if pane is at the right of window
-    pane_at_top                     1 if pane is at the top of window
-    pane_bottom                     Bottom of pane
     pane_current_command            Current command if available
-    pane_current_path               Current path if available
-    pane_dead                       1 if pane is dead
     pane_dead_status                Exit status of process in dead pane
-    pane_format                     1 if format is for a pane (not assuming the current)
-    pane_height                     Height of pane
-    pane_id                #D       Unique pane ID
-    pane_in_mode                    If pane is in a mode
-    pane_index             #P       Index of pane
-    pane_input_off                  If input to pane is disabled
-    pane_left                       Left of pane
-    pane_marked                     1 if this is the marked pane"
-    pane_marked_set                 1 if a market pane is set"
-    pane_menu                       The default pane menu
-    pane_mode                       Name of pane mode, if any.
-    pane_pipe                       1 if pane is being piped
-    pane_right                      Right of pane
-    pane_search_string              Last search string in copy mode
     pane_start_command              Command pane started with
-    pane_synchronized               If pane is synchronized
-    pane_tabs                       Pane tab positions
-    pane_title             #T       Title of pane
-    pane_top                        Top of pane
-    pane_tty                        Pseudo terminal of pane
-    pane_width                      Width of pane
-
     scroll_position                 Scroll position in copy mode
     scroll_region_lower             Bottom of scroll region in pane
     scroll_region_upper             Top of scroll region in pane
-
-    selection_present               1 if selection started in copy mode
-
     session_alerts                  List of window indexes with alerts
-    session_attached                Number of clients session is attached to
-    session_format                  1 if format is for a session (not assuming the current)
     session_group                   Name of session group
     session_group_list              List of sessions in group
     session_group_size              Size of session group
-    session_grouped                 1 if session in a group
-    session_id                      Unique session ID
-    session_menu                    The default session menu
     session_stack                   Window indexes in most recent order
     session_windows                 Number of windows in session
-
-    window_active                   1 if window active
-    window_activity_flag            1 if window has activity
-    window_bigger                   1 if window is larger than client
-    window_end_flag                 1 if window has the highest index
-    window_flags           #F       Window flags
-    window_format                   1 if format is for a window (not assuming the current)
-    window_height                   Height of window
-    window_id                       Unique window ID
-    window_index           #I       Index of window
-    window_last_flag                1 if window is the last used
     window_layout                   Window layout description, ignoring zoomed window panes
-    window_linked                   1 if window is linked across sessions
-    window_menu                     The default window menu
-    window_name            #W       Name of window
-    window_offset_x                 X offset into window if larger than client
-    window_offset_y                 Y offset into window if larger than client
-    window_silence_flag             1 if window has silence alert
     window_stack_index              Index in session most recent stack
-    window_start_flag               1 if window has the lowest index
-    window_width                    Width of window
-    window_zoomed_flag              1 if window is zoomed
 
-    wrap_flag                       Pane wrap flag
+Find which ones could be useful.
 
-##
-##
-##
 # COMMAND PARSING AND EXECUTION
 
 tmux distinguishes between command parsing and execution.
@@ -841,9 +978,8 @@ Conditionals may be given on one line, for example:
 
     %if #{==:#{host},myhost} set -g status-style bg=red %endif
 
-# ?
+# We spent a lot of time to write the “Quoting” in `~/wiki/tmux/tmux.md`.
 
-We spent a lot of time to write the “Quoting” in `~/wiki/tmux/tmux.md`.
 What should we have done to write it quicker?
 
 Hint: Our initial notes were all over the place.

@@ -1,7 +1,7 @@
 # How to view the description of the outer terminal used by tmux?
 
-        $ tmux info
-        $ tmux -L{socket_name} info
+    $ tmux info
+    $ tmux -L{socket_name} info
 
 The first command will display the  terminfo descriptions of the outer terminals
 of all the tmux clients connected to the default server.
@@ -35,13 +35,13 @@ of these capabilities (smul, setf).
 
 You need to “escape” it using this syntax:
 
-        \ePtmux;seq\e\\
-                └─┤
-                  └ sequence we want to send to the terminal;
-                    any escape character it contains must be doubled
+    \ePtmux;seq\e\\
+            └─┤
+              └ sequence we want to send to the terminal;
+                any escape character it contains must be doubled
 
 Source:
-https://web.archive.org/web/20150808225911/http://comments.gmane.org:80/gmane.comp.terminal-emulators.tmux.user/1322
+<https://web.archive.org/web/20150808225911/http://comments.gmane.org:80/gmane.comp.terminal-emulators.tmux.user/1322>
 
 Relevant excerpt:
 
@@ -60,9 +60,9 @@ terminal.
 
 Ex:
 
-        :let &t_SI = "\e[6 q"
-        :let &t_EI = "\e[2 q"
-        $ tmux set -as terminal-overrides ',*:Ss=\E[%p1%d q:Se=\E[2 q'
+    :let &t_SI = "\e[6 q"
+    :let &t_EI = "\e[2 q"
+    $ tmux set -as terminal-overrides ',*:Ss=\E[%p1%d q:Se=\E[2 q'
 
 This way, whenever we enter insert mode, the shape of the cursor becomes a line,
 but it's LOCAL to the current pane.
@@ -80,7 +80,7 @@ be GLOBAL to all panes.
 
 # How to customize the terminfo description of the outer terminal?
 
-        $ tmux set -as terminal-overrides '{pat}:{val}'
+    $ tmux set -as terminal-overrides '{pat}:{val}'
 
 You  can customize  the  terminfo  description of  the  outer  terminal via  the
 `terminal-overrides` option.
@@ -117,7 +117,7 @@ It's useful to change the color of  the cursor, or its shape, via the unofficial
 terminfo extensions `Cs` / `Cr` (color)  and `Ss` / `Se` (shape), without having
 to escape the sequence (via `\ePtmux;...`).
 
-For more info, see `man tmux`, section: TERMINFO EXTENSIONS
+For more info, see `$ man tmux /TERMINFO EXTENSIONS`.
 
 # Can you add ad-hoc capabilities to the outer terminal using 'terminal-overrides'?
 
@@ -129,17 +129,17 @@ of `tmux info`.
 
 You can check this like so:
 
-                                                   ┌ `smzz` isn't recognized as a valid
-                                                   │ capability name by tmux
-                                                   ├──┐
-        $ tmux set -as terminal-overrides ',xterm*:smzz=\E[9m'
+                                               ┌ `smzz` isn't recognized as a valid
+                                               │ capability name by tmux
+                                               ├──┐
+    $ tmux set -as terminal-overrides ',xterm*:smzz=\E[9m'
 
-        $ tmux info
-        no `smzz` capability~
+    $ tmux info
+    no `smzz` capability~
 
-        $ printf '\e[9m   strikethrough  \e[0m\n'
-        ✘ the  shell doesn't strike through the text,  even though '\e[9m'~
-          may be (in some terminals) the right sequence to strike through text~
+    $ printf '\e[9m   strikethrough  \e[0m\n'
+    ✘ the  shell doesn't strike through the text,  even though '\e[9m'~
+      may be (in some terminals) the right sequence to strike through text~
 
 
 Inside tmux,  if you  try to  send a sequence  to the  outer terminal,  which is

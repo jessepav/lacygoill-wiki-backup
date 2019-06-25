@@ -98,13 +98,13 @@ Example:
 
 It adds 2 new FAMILIES (one directory per third-party plugin) of directories:
 
-        - ~/.vim/plugged/{plugin}
+   - ~/.vim/plugged/{plugin}
 
-          just after `~/.vim`
+    just after `~/.vim`
 
-        - ~/.vim/plugged/{plugin}/after
+   - ~/.vim/plugged/{plugin}/after
 
-          just before `~/.vim/after`
+    just before `~/.vim/after`
 
 ##
 ## In which order does Vim add my local plugins (`~/.vim/plugin`, `~/.vim/after/plugin`) to the rtp?
@@ -146,26 +146,28 @@ If you remove them, `vim-plug` will correctly add:
    - `~/.config/nvim/after` after  the third-party plugins
 
 ##
-## Where does Vim look for a color scheme when I execute `:colo {colorscheme}`?
+## Where does Vim look for
+### a color scheme when I execute `:colo {colorscheme}`?
 
 In any `colors/` subdirectory of a directory in the rtp.
 
-## Where does Vim look for a compiler when I execute `:compiler {compiler}`?
+### a compiler when I execute `:compiler {compiler}`?
 
 In any `compiler/` subdirectory of a directory in the rtp.
 
-## Where does Vim look for documentation files when I execute `:helptags ALL`?
+### documentation files when I execute `:helptags ALL`?
 
 In any `doc/` subdirectory of a directory in the rtp.
 
-## Where does Vim look for a tag when I execute `:help {tag}`?
+### a tag when I execute `:help {tag}`?
 
 In any `doc/tags` file inside a directory of the rtp.
 
-## Where does Vim look for spell files?
+### spell files?
 
 In any `spell/` subdirectory of a directory in the rtp.
 
+##
 ## What's the main difference between `:helptags`, and `:colo` / `:compiler`?
 
 You can pass a name as argument to `:colo` and `:compiler`.
@@ -206,29 +208,32 @@ The second `:set` had no effect, because `/tmp` was already somewhere in the rtp
 ### How important is it?  What gets broken if it's wrong?
 
 All  buffer-local mechanisms  (filetype, indent,  syntax) rely  on the  filetype
-detection.
-If the latter fails, all these mechanisms will fail too.
+detection; if the latter fails, all these mechanisms will fail too.
 
 ###
 ### What's the expansion of $VIM?
 
 In Vim:
-        /usr/local/share/vim
-             │
-             └ only if you compile Vim and install it with `checkinstall`
+
+    /usr/local/share/vim
+         │
+         └ only if you compile Vim and install it with `checkinstall`
 
 In Neovim:
-        /usr/local/share/vim
+
+    /usr/local/share/vim
 
 ### What's the expansion of $VIMRUNTIME?
 
 In Vim:
-        /usr/local/share/vim/vim81
-                                ├┘
-                                └ may vary; matches Vim's current version
+
+    /usr/local/share/vim/vim81
+                            ├┘
+                            └ may vary; matches Vim's current version
 
 In Neovim:
-        /usr/local/share/nvim/runtime
+
+    /usr/local/share/nvim/runtime
 
 ###
 ### `$VIMRUNTIME/filetype.vim` installs 4 sets of autocmds, and run 1 command.  What does each of them do?
@@ -261,11 +266,11 @@ In Neovim:
 
 ### When a buffer is loaded and its filetype must be set, what does Vim look at? (5)
 
-        1. its extension
-        2. its contents
-        3. other parts of its name
-        4. its extension (again)
-        5. its first few lines
+   1. its extension
+   2. its contents
+   3. other parts of its name
+   4. its extension (again)
+   5. its first few lines
 
 ### What's the rationale behind this order?
 
@@ -305,18 +310,19 @@ ALL the autocmds  in the `filetype.vim` files are sourced  BEFORE ANY autocmd in
 ## Getting information
 ### How to list all filetypes recognized by Vim?
 
-        :setf C-d
+    :setf C-d
 
 ### How to know which mechanism Vim has enabled, among filetype detection, filetype plugins, and indent plugins?
 
-        :filet[ype]
+    :filet[ype]
 
 ###
-### How to get the list of filetype detection scripts located in a `ftdetect/` directory?
+### How to get the list of filetype detection scripts located in a
+#### `ftdetect/` directory?
 
-        :Find! ~/.vim -path '*/ftdetect/*'
+    :Find! ~/.vim -path '*/ftdetect/*'
 
-### How to get the list of filetype detection scripts located in a `filetype.vim` file?
+#### `filetype.vim` file?
 
     :Find! ~/.vim -name 'filetype.vim'
 
@@ -634,7 +640,8 @@ by a default filetype plugin, they need to be sourced after.
 
 ##
 ## Acting
-### Where can I put my C filetype plugin?
+### Where can I put my C
+#### filetype plugin?
 
    - dir/ftplugin/c.vim
    - dir/ftplugin/c_*.vim
@@ -643,7 +650,7 @@ by a default filetype plugin, they need to be sourced after.
 `dir/` must be present in 'rtp'.
 `*` can be any sequence of characters.
 
-### Where can I put my C syntax plugin?
+#### syntax plugin?
 
    - dir/syntax/c.vim
    - dir/syntax/c/*.vim
@@ -658,7 +665,7 @@ Vim doesn't use it when we do `:set syn=foo`:
     Searching for "syntax/foo.vim syntax/foo/*.vim" in ...~
     not found in 'runtimepath': "syntax/foobar.vim syntax/foobar/*.vim"~
 
-### Where can I put my C indent plugin?
+#### indent plugin?
 
     dir/indent/c.vim
 
@@ -766,7 +773,8 @@ You also probably would have to remove `b:did_my_ftplugin` after every `:runtime
     runtime! ftplugin/potion/*.vim | unlet! b:did_ftplugin b:did_my_ftplugin
 
 ###
-### How to reload the filetype plugins for the current buffer?  (2)
+### How to reload
+#### the filetype plugins for the current buffer?  (2)
 
         :do filetypeplugin filetype
 
@@ -775,13 +783,13 @@ You also probably would have to remove `b:did_my_ftplugin` after every `:runtime
 You  could use  `:e`, but  it would  cause ALL  “local” plugins  to be  reloaded
 including the syntax ones.
 
-### How to reload all filetype/indent/syntax plugins for ALL buffers?
+#### all filetype/indent/syntax plugins for ALL buffers?
 
     :doautoall filetypedetect BufReadPost
 
 The augroup `filetypedetect` is defined in `$VIMRUNTIME/filetype.vim`.
 
-### How to reload the filetype plugins for ALL buffers?
+#### the filetype plugins for ALL buffers?
 
     :doautoall filetypeplugin FileType
 
@@ -800,40 +808,39 @@ Don't use `:bufdo`, it would change the current buffer:
 And fuck up the syntax highlighting  of most buffers, because the `Syntax` event
 is disabled while `:bufdo` is being executed.
 
+###
 ### Does reloading a filetype plugin reset all local options?
 
 No.
 
 It doesn't reset the window-local options  which are set from autocmds listening
-to BufWinEnter.
-For these, execute:
+to BufWinEnter; for these, execute:
 
-        :do bufwinenter
+    :do bufwinenter
 
-###
 ### How to remove a mapping from `b:undo_ftplugin`?
 
 `:nunmap` interprets the  `|` as a command termination, so  you can include this
 command in the variable:
 
-        nunmap <buffer> <lhs>| other_command
-                             ^
-                             ✔
+    nunmap <buffer> <lhs>| other_command
+                         ^
+                         ✔
 
 But make sure to avoid a trailing whitespace:
 
-        nunmap <buffer> <lhs> | other_command
-                             ^
-                             ✘
-                             this trailing whitespace would be included in the lhs
+    nunmap <buffer> <lhs> | other_command
+                         ^
+                         ✘
+                         this trailing whitespace would be included in the lhs
 
 ---
 
 Be aware that if another filetype plugin updates `b:undo_ftplugin` and adds sth like:
 
-        let b:undo_ftplugin .= ' | some_command'
-                                ^
-                                ✘
+    let b:undo_ftplugin .= ' | some_command'
+                            ^
+                            ✘
 
 While you added  an `:nunmap` command at the end  of `b:undo_ftplugin`, it could
 result in a trailing whitespace being passed to your `:nunmap`.
@@ -842,17 +849,17 @@ result in a trailing whitespace being passed to your `:nunmap`.
 
 You could also use `:exe`:
 
-        exe 'nunmap <buffer> <lhs>'
+    exe 'nunmap <buffer> <lhs>'
 
 ---
 
 Note that  `:exe` is not  useful to prevent `:nunmap`  or `:nno` to  consume the
 next commands. These commands work fine:
 
-        if 1 | nno cd :echo 'hello'<cr> | endif
-        nunmap cd| echo 'hello'
-                 ^
-                 again, no trailing whitespace
+    if 1 | nno cd :echo 'hello'<cr> | endif
+    nunmap cd| echo 'hello'
+             ^
+             again, no trailing whitespace
 
 This is confirmed by the fact that `:nunmap` and `:nno` are absent from `:h :bar`.
 
@@ -875,29 +882,26 @@ disable the undesired indenting.
 Usually,  the help  documents the  default  indent plugins,  so to  find such  a
 variable, try something like this:
 
-        :h {filetype}*indent C-d
+    :h {filetype}*indent C-d
 
 Example:
 
-        :h html*indent C-d
-        html-indent~
-        html-indenting~
-        ft-html-indent~
+    :h html*indent C-d
+    html-indent~
+    html-indenting~
+    ft-html-indent~
 
-## Can I write an indentation setting in a filetype plugin?
+## Why can't I write an indentation setting in a filetype plugin?
 
-No.
-
-It should be inside an indent plugin.
-
-Why?
 Because you've probably executed this command (or vim-plug has done it for you):
 
-        filetype plugin indent on
+    filetype plugin indent on
 
 This means that the indent plugins are sourced AFTER the filetype plugins.
 So, if you write an indentation setting  in a filetype plugin, even in `after/`,
 it can still be undone by ANY indent plugin (default, custom, ...).
+
+An indentation setting should be inside an indent plugin.
 
 ## Are the indent plugins sourced after the filetype ones because 'indent' is at the end in `filetype plugin indent on`?
 
@@ -918,12 +922,12 @@ always the same:
 # Syntax plugins
 ## How to enable syntax highlighting?  (2)
 
-        :syntax enable
-        :syntax on
+    :syntax enable
+    :syntax on
 
 ### Which way is better?
 
-        :syntax enable
+    :syntax enable
 
 `:syntax on` sets default HGs, without checking whether they were already set.
 
@@ -945,13 +949,13 @@ The latter execute the custom commands `:SynColor` and `:SynLink`, which,
 depending on the argument passed to `:syn` (`enable` or `on`), are defined
 differently:
 
-        on:
-            command -nargs=* SynColor hi          <args>
-            command -nargs=* SynLink  hi link     <args>
+    on:
+        command -nargs=* SynColor hi          <args>
+        command -nargs=* SynLink  hi link     <args>
 
-        enable:
-            command -nargs=* SynColor hi def      <args>
-            command -nargs=* SynLink  hi def link <args>
+    enable:
+        command -nargs=* SynColor hi def      <args>
+        command -nargs=* SynLink  hi def link <args>
 
 We can see that for `:syntax enable`, the commands use `:hi def` instead of just
 `:hi`.
@@ -1043,7 +1047,7 @@ When  the last  step occurs,  Vim  sources the  relevant syntax  plugins in  all
 # Compiler plugins
 ## What's the main difference between a compiler plugin and a filetype/indent/syntax plugin?
 
-Its settings are NOT applied automatically.
+Its settings are *not* applied automatically.
 You need to execute the `:compiler` command.
 
 ##
@@ -1187,7 +1191,6 @@ write:
 If we didn't use  our own custom markdown filetype plugin,  this would be useful
 to prevent  `$VIMRUNTIME/ftplugin/markdown.vim` from sourcing the  html filetype
 plugin.
-
 
 ##
 # Reference

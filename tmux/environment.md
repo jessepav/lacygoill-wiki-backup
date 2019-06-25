@@ -376,22 +376,28 @@ exist, and so was replaced with an empty string.
     :show -v @foo
 
 ###
-## Does a non-interactive shell started by `run-shell` or `if-shell` inherit
+## Does a non-interactive shell started by `run-shell`, `if-shell`, `#()` inherit
 ### the environment of the tmux server process?
 
 Yes for `run-shell`:
 
-    $ tmux run 'pstree -s -p $$ >/tmp/.out'
-    $ cat /tmp/.out
+    $ tmux run 'pstree -s -p $$ >/tmp/.out' ; cat /tmp/.out
     systemd(1)---lightdm(1001)---lightdm(1086)---upstart(1095)---tmux: server(3253)---sh(18687)---pstree(18688)~
 
-And yes for `if-shell`:
+Yes for `if-shell`:
 
     $ tmux source =(cat <<'EOF'
     if "pstree -s -p $$ >/tmp/.out" ""
     EOF
     ) ; cat /tmp/.out
     systemd(1)---lightdm(954)---lightdm(1098)---upstart(1110)---tmux: server(3750)---sh(27584)---pstree(27585)~
+
+Yes for `#()`:
+
+                                                                ┌ for some reason, `$ cat` doesn't always work without
+                                                                ├──────┐
+    $ tmux set -g status-left '#(pstree -s -p $$ >/tmp/.out)' ; sleep .1; cat /tmp/.out
+    systemd(1)---lightdm(943)---lightdm(1100)---upstart(1110)---tmux: server(11803)---sh(12884)---pstree(12887)~
 
 ### the global and session environment?
 
@@ -402,7 +408,7 @@ Yes for `run-shell`:
     var_session=123~
     var_global=456~
 
-And yes for `if-shell`:
+Yes for `if-shell`:
 
     $ tmux setenv var_session 123 \; setenv -g var_global 456
     $ tmux source =(cat <<'EOF'
@@ -411,6 +417,14 @@ And yes for `if-shell`:
     ) ; cat /tmp/.out
     var_session=123~
     var_global=456~
+
+For `#()`, only the global environment is inherited:
+
+    $ tmux setenv -g foo bar \; set -g status-left '#(env | grep foo >/tmp/.out)' ; cat /tmp/.out
+    foo=bar~
+
+    $ tmux setenv -gu foo \; setenv foo bar \; set -g status-left '#(env | grep foo >/tmp/.out)' ; cat /tmp/.out
+    ''~
 
 ##
 # Reference

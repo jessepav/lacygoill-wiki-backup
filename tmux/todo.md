@@ -135,23 +135,6 @@ Vim:
 
 ## reimplement/assimilate tmux-yank and tmux-logging
 
-## tmux-fingers
-### it wrongly renames the current window
-
-This is fixed by the unmerged PR #67:
-<https://github.com/Morantron/tmux-fingers/pull/67/files>
-
-We've merged it locally, but it may break in a future update.
-Try to assimilate the plugin?
-
-### sometimes it fails (maybe because of an error in gawk)
-
-MWE:
-
-    press `pfx ?`
-    press `pfx f`
-    gawk: ~/.tmux/plugins/tmux-fingers/scripts/hinter.awk:139: (FILENAME=- FNR=1) warning: regexp escape sequence `\"' is not a known regexp operator~
-
 ##
         pfx ?
         pfx f
@@ -342,6 +325,8 @@ Document all of this:
 
 >            $ tmux new-session -d 'vi /etc/passwd' \; split-window -d \; attach
 
+# move `~/wiki/terminal/tmux.md` from the terminal wiki to the tmux wiki?
+
 # here's a way to programmatically get the PID of a process launched by tmux:
 
     P=$(tmux new -dP -- mycommand); tmux display -pt$P -F '#{pane_pid}'
@@ -455,12 +440,12 @@ Open the clock in them:
 
 It expects a tmux command as last argument (!= shell command):
 
-    $ tmux confirm-before -p "kill-pane #P? (y/n)" kill-pane
+    $ tmux confirm -p "killp #P? (y/n)" killp
 
 and if the command contains several words, you need to quote it:
 
-    $ tmux confirm-before -p "display a message? (y/n)" "display -p 'hello'"
-                                                        ^                  ^
+    $ tmux confirm -p "display a message? (y/n)" "display -p 'hello'"
+                                                 ^                  ^
 
 Btw, why does `-p` fail here? `display` should print the message on stdout.
 
@@ -572,7 +557,7 @@ And since our prefix is `M-SP`, `pfx F` is `ESC SP F`, and `pfx L` is `ESC SP L`
 
 Is it sth which is already planned?
 
-See: https://github.com/tmux/tmux/wiki/Contributing
+See: <https://github.com/tmux/tmux/wiki/Contributing>
 
 > Small things
 > ...
@@ -664,6 +649,47 @@ The  replacement  variables  `rectangle_toggle`  (1 if  rectangle  selection  is
 activated) and `selection_present` (1 if selection  started in copy mode) may be
 useful.
 
+Here's what doesn't work like Vim atm:
+
+    v    + select sth +  V
+    v    + select sth +  C-v
+    V    + select sth +  v
+    V    + select sth +  C-v
+    C-v  + select sth +  v
+    C-v  + select sth +  V
+
+---
+
+I  think we  would need  a new  variable, `#{line_toggle}`,  to detect  when the
+selection is linewise.
+
+You also need  a way to get  the line address of  the first or last  line of the
+selection.
+Indeed, to be  able to set the correct characterwise  selection, from a linewise
+one, you  would need  to start  a new characterwise  selection from  the current
+cursor position,  then move a  few lines up or  down (depending on  whether your
+cursor is on the first line or last line of the linewise selection).
+You should be  able to use `#{cursor_x}` and `#{cursor_y}`,  but for some reason
+they aren't updated in copy mode.
+
+---
+
+Prevent `h`  and `l` from wrapping  around the first/last column  of the screen,
+when we have a rectangle selection.
+`#{pane_left}` and `#{pane_right}` could be useful.
+
+---
+
+Try to install a key binding using `append-selection`.
+The latter  command allows you  to yank the selection,  append it to  the latest
+tmux buffer, and quit copy mode.
+
+---
+
+`stop-selection` is interesting.
+You stay in copy  mode, and you can move your cursor wherever  you want, but the
+selection remains active.
+
 # finish reading `~/Desktop/split-window_tmux.md`
 
 Copied from here:
@@ -729,6 +755,11 @@ Ask nicm whether such a script is reliable; is it likely to break in the future?
 `window-status-activity-style` and `window-status-bell-style` exist, so it seems
 `window-status-silence-style` should exist too...
 
+---
+
+Also, is `#{window_bell_flag}` missing?
+`#{window_activity_flag}` and `#{window_silence_flag}` exists...
+
 ##
 # typos in manpage
 
@@ -766,4 +797,19 @@ the last `:g` command; you should be able to find the name of the option.
 > target-client, target-session**,** target-window, or target-pane.
                              ^
                              missing comma
+
+---
+
+> pane_mode                       Name of pane mode, if any.
+                                                         ^
+                                                         there should be no dot
+
+---
+
+> alternate_on                    If pane is in alternate screen
+> pane_in_mode                    If pane is in a mode
+> pane_input_off                  If input to pane is disabled
+> pane_synchronized               If pane is synchronized
+
+`If` should be replaced with `1 if`.
 

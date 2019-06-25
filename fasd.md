@@ -680,8 +680,9 @@ Make sure your path doesn't contain more than 4 slashes.
 Use a relative  path, and switch to a  directory which is nearer to  the file if
 necessary.
 
-Also, make sure the name of the file does *not* contain whitespace.
-If it does, replace all whitespace with non-whitespace (like underscores).
+Also, make  sure the  name of  the file  does *not*  contain whitespace,  or any
+special character which requires to be escaped (e.g. `#`).
+Rename it if necessary.
 
 Finally, don't quote your filename.
 
