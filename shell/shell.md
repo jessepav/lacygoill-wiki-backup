@@ -612,7 +612,7 @@ directories of `$PATH`.
 After having found  the full path to the  command, it saves it in  a table whose
 elements look like this:
 
-        command=/path/to/command
+    command=/path/to/command
 
 The next time you'll ask to execute the same command, the shell won't re-look in
 `$PATH` but in the table, which is  probably faster (maybe because the latter is
@@ -624,11 +624,11 @@ having to execute any of them in the first place).
 
 ## How to print the contents of the command hash table?
 
-        $ hash
+    $ hash
 
 ## How to empty it?
 
-        $ hash -r
+    $ hash -r
 
 ## When should I empty it?
 
@@ -745,13 +745,13 @@ In particular, if the `nullglob` option is set, the glob is ignored:
 # Editing output
 ## How to keep only the first 20 characters in the output of a command?  In each line of a file?
 
-        $ cmd | cut -c1-20
+    $ cmd | cut -c1-20
 
-        $ cut -c1-20 file
+    $ cut -c1-20 file
 
 ## What's the shortest command to repeat the last command, but this time keeping only the first 10 characters?
 
-        $ ^2^1
+    $ ^2^1
 
 ##
 ## My command output is a single column of words.  How to format it into a table?
@@ -973,16 +973,16 @@ If you want `ls` to dereference, you need to pass the symlink as a parameter:
 
 ## If I cd to a symlink pointing to a directory, how to prevent `pwd` from lying about the cwd?  (3)
 
-        % pwd -P
+    % pwd -P
 
-        # the external binary `pwd` does NOT lie,
-        # contrary to the shell builtin equivalent
-        % /bin/pwd
+    # the external binary `pwd` does NOT lie,
+    # contrary to the shell builtin equivalent
+    % /bin/pwd
 
-        # bash
-        $ set -o physical
-        # zsh
-        % setopt chaselinks
+    # bash
+    $ set -o physical
+    # zsh
+    % setopt chaselinks
 
 ##
 # Issues
@@ -1115,6 +1115,7 @@ to the shellcheck wiki where the issue will be described in detail.
     zsh -f
 
             Lance zsh sans fichier de conf (NO_RCS; man zshoptions).
+            Update: zshenv is still sourced.
 
 
     logger -i  MSG

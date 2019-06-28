@@ -641,7 +641,7 @@ For example, to get a list of windows formatted like in the status line:
 
 ##
 # Replacement variables
-## How to test whether
+## Which variable should I use to test whether
 ### a window is
 #### zoomed?
 
@@ -699,9 +699,9 @@ For example, to get a list of windows formatted like in the status line:
     #{client_prefix}
 
 ##
-## How to get
+## Which variable should I use to get
 ### the PID of
-#### the first process in the pane?
+#### the first process in a pane?
 
     #{pane_pid}
 
@@ -727,7 +727,11 @@ For example, to get a list of windows formatted like in the status line:
 
     #{window_flags} / #F
 
-### the number of panes in the current window?
+### the number of windows in a session?
+
+    #{session_windows}
+
+### the number of panes in a window?
 
     #{window_panes}
 
@@ -754,21 +758,29 @@ For example, to get a list of windows formatted like in the status line:
     #{pane_height}
 
 ###
-### the tty used by a pane?
+### the command currently running in a pane?
 
-    #{pane_tty}
+    #{pane_current_command}
+
+### the initial command run in a pane?
+
+    #{pane_start_command}
 
 ### the current working directory of the process run in a pane?
 
     #{pane_current_path}
 
+### the tty used by a pane?
+
+    #{pane_tty}
+
 ###
-### the position of the first line in the pane relative to the window?  last line?
+### the position of the first line in a pane relative to the window?  last line?
 
     #{pane_top}
     #{pane_bottom}
 
-### the position of the first character in the pane?  last character?
+### the position of the first character in a pane?  last character?
 
     #{pane_left}
     #{pane_right}
@@ -792,6 +804,67 @@ For example, to get a list of windows formatted like in the status line:
     #{pane_search_string}
 
 ###
+### ?
+
+Here are some (all?) of the info you could ask for:
+
+    cmd (current, initial)
+    cwd
+    flags
+    height
+    id
+    index
+    name / title
+    position (first/last line, first/last character)
+    tty
+    width
+
+    a window is zoomed
+    a window is the first/last one
+    a window is the last-but-one to be focused
+
+    a pane is in a mode
+    a pane is active
+    a pane shares a border with the top/bottom/left/right border of the window
+
+    a selection has been started in copy mode
+    a rectangle selection is activated
+
+    the current application is using the terminal alternate screen
+
+For each info, you could want to specify a context:
+
+    current session/window/pane
+
+    session/window/pane by name
+    session/window/pane by ID
+    session/window/pane by index
+
+    $ tmux display -p '#{pane_current_command}'
+    # by name? ID? index?
+    $ tmux lsp '#{pane_current_command}'
+
+### How to get the name of the current window?
+
+    $ tmux display -p '#W'
+
+#### of the second window in the session 'fun'?
+
+    $ tmux lsw -F '#W' -t fun | sed -n '2p'
+
+### How to get the number of windows of the current session?
+
+    $ tmux display -p '#{session_windows}'
+
+#### the number of windows of the first session?
+
+    $ tmux ls -F '#{session_windows}' | sed -n '1p'
+
+##### in the session 'fun'?
+
+    $ tmux ls | grep '^fun:' | cut -d' ' -f2
+
+##
 # Issues
 ## I'm writing nested formats; I have 3 consecutive `}`.  How to prevent Vim from interpreting them as fold markers?
 
@@ -838,18 +911,13 @@ Indeed, any character inside `#{}` is semantic, including a space:
     window_format                   1 if format is for a window (not assuming the current)
 
     command                         Name of command in use, if any
-    command_list_alias              Command alias if listing commands
-    command_list_name               Command name if listing commands
-    command_list_usage              Command usage if listing commands
     hook                            Name of running hook, if any
     hook_pane                       ID of pane where hook was run, if any
     hook_session                    ID of session where hook was run, if any
     hook_session_name               Name of session where hook was run, if any
     hook_window                     ID of window where hook was run, if any
     hook_window_name                Name of window where hook was run, if any
-    pane_current_command            Current command if available
     pane_dead_status                Exit status of process in dead pane
-    pane_start_command              Command pane started with
     scroll_position                 Scroll position in copy mode
     scroll_region_lower             Bottom of scroll region in pane
     scroll_region_upper             Top of scroll region in pane
@@ -858,9 +926,6 @@ Indeed, any character inside `#{}` is semantic, including a space:
     session_group_list              List of sessions in group
     session_group_size              Size of session group
     session_stack                   Window indexes in most recent order
-    session_windows                 Number of windows in session
-    window_layout                   Window layout description, ignoring zoomed window panes
-    window_stack_index              Index in session most recent stack
 
 Find which ones could be useful.
 

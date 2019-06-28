@@ -578,10 +578,10 @@ Choose the word which is used the most often in the official documentation.
 
 Exception:
 
-If  the most  used word  is confusing  in itself  (e.g. generic  name), and  the
-subject you're  studying is has a  very limited area of  application, and you're
-not  going to  study it  for a  long time,  then it's  ok to  use another  word,
-provided it's still used somewhere in the documentation.
+If the most  used word is confusing  in itself (e.g. generic  name), the subject
+you're studying has a very limited area  of application, and you're not going to
+study it for a long time, then it's  ok to use another word, provided it's still
+used somewhere in the documentation.
 
 So,  in the  previous example,  it's  ok to  use “alternative  link” instead  of
 “generic name”.

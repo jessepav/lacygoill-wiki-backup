@@ -23,13 +23,13 @@ For example, to detect that the terminal is not running a tmux client.
 ##
 # How to list all valid terminal types?
 
-        $ toe -as
-          │    ││
-          │    │└ sort the output according to the names of the terminals
-          │    │
-          │    └ look in all terminal databases; not just the 1st one you find
-          │
-          └ mnemonic: Table Of Entries
+    $ toe -as
+      │    ││
+      │    │└ sort the output according to the names of the terminals
+      │    │
+      │    └ look in all terminal databases; not just the 1st one you find
+      │
+      └ mnemonic: Table Of Entries
 
 List primary names  of all terminal types, to which  `$TERM` can legitimately be
 set.
@@ -41,8 +41,8 @@ description of a given terminal.
 
 When a terminal type is marked with:
 
-   - `*`, it means a conflicting entry is present in another db
-   - `+`, it means an equivalent entry is present in another db
+   - `*`, it means a *conflicting* entry is present in another db
+   - `+`, it means an *equivalent* entry is present in another db
 
 ##
 # How to get the long name of
@@ -64,7 +64,7 @@ it's running in.
 # Where to set `$TERM`?
 
 The *only*  place where you  should set `$TERM`  is in a  terminal configuration
-file, like `~/.Xresources` for `urxvt`.
+file, like `~/.Xresources` for `urxvt` or `xterm`.
 
 ---
 
@@ -145,5 +145,5 @@ Choose a value which is present inside the remote terminfo db.
 
 `xterm` is probably supported everywhere, so you could try:
 
-        $ TERM=xterm ssh host
+    $ TERM=xterm ssh host
 

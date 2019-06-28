@@ -676,7 +676,7 @@ Set `_FASD_SINK` in your `.fasdrc` to obtain a log:
 # Issues
 ## I keep opening a file but fasd never adds it to its database!
 
-Make sure your path doesn't contain more than 4 slashes.
+Make sure the path you used – `~` being expanded – doesn't contain more than 4 slashes.
 Use a relative  path, and switch to a  directory which is nearer to  the file if
 necessary.
 
@@ -692,4 +692,14 @@ Alternatively, if  you don't want  to remember all  those rules, just  open your
 file from ranger; the latter uses a plugin which avoids those issues:
 
     ~/.config/ranger/plugins/plugin_fasd_log.py
+
+Or, add the path manually, using our zsh function `fa()`.
+
+    fa() {
+      emulate -L zsh
+      fasd -A "$1"
+      if ! fasd | grep "$1"; then
+        echo "failed to add $1"
+      fi
+    }
 

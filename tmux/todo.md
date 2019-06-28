@@ -143,12 +143,10 @@ Vim:
 # links to read
 
    - <https://www.reddit.com/r/tmux/comments/5cm2ca/post_you_favourite_tmux_tricks_here/>
-   - <https://raw.githubusercontent.com/tmux/tmux/master/CHANGES>
    - <https://medium.freecodecamp.org/tmux-in-practice-series-of-posts-ae34f16cfab0>
    - <https://github.com/samoshkin/tmux-config>
    - <https://silly-bytes.blogspot.fr/2016/06/seamlessly-vim-tmux-windowmanager_24.html>
    - <https://github.com/tmux/tmux/blob/master/example_tmux.conf>
-   - <http://man.openbsd.org/OpenBSD-current/man1/tmux.1>
    - <https://github.com/tmux/tmux/wiki/FAQ>
    - <https://devel.tech/tips/n/tMuXz2lj/the-power-of-tmux-hooks/>
    - <https://github.com/tmux-plugins/tmux-sensible>
@@ -368,15 +366,6 @@ To test the current value of a replacement variable such as `#{pane_tty}`, run:
 
     # Vim command
     :echo system('tmux -S /tmp/tmux-1000/default display -p "#{pane_tty}"')
-
-# including in the status line the number line where a pattern matches in the current pane
-
-If you  include `#{C:hello}` in your  tmux status line, the  latter will contain
-the number line where `hello` appears in the current tmux pane.
-
-From `$ man tmux /FORMATS`:
-> A  ‘C’ performs  a search  for an  fnmatch(3) pattern  in the  pane content  and
-> evaluates to zero if not found, or a line number if found.
 
 # attach-session
 
@@ -708,12 +697,11 @@ Once you've read it, use your new knowledge to improve our tmux.conf.
 
 Compare:
 
-    $ time tmux new-window -t fun 'echo foo;sleep 10'
+    $ time tmux neww 'echo foo;sleep 3'
 
 Vs:
     ~
-    $ time tmux new-window -t fun 'echo foo;sleep 10;tmux wait-for -S fun-neww-done' \; \
-      wait-for fun-neww-done
+    $ time tmux neww 'echo foo;sleep 3;tmux wait-for -S neww-done' \; wait-for neww-done
 
 <https://unix.stackexchange.com/a/137547/289772>
 
@@ -754,11 +742,6 @@ Ask nicm whether such a script is reliable; is it likely to break in the future?
 
 `window-status-activity-style` and `window-status-bell-style` exist, so it seems
 `window-status-silence-style` should exist too...
-
----
-
-Also, is `#{window_bell_flag}` missing?
-`#{window_activity_flag}` and `#{window_silence_flag}` exists...
 
 ##
 # typos in manpage
@@ -812,4 +795,20 @@ the last `:g` command; you should be able to find the name of the option.
 > pane_synchronized               If pane is synchronized
 
 `If` should be replaced with `1 if`.
+
+---
+
+> set-titles-string string
+>         String used to set the **window title** if set-titles is on.  Formats
+>         are expanded, see the FORMATS section.
+
+Shouldn't `window title` be replaced with `client terminal title`?
+
+From `$ man tmux /OPTIONS /set-titles`:
+
+> set-titles [on | off]
+>         Attempt to set the **client terminal title** using the tsl and fsl
+>         terminfo(5) entries if they exist.  tmux automatically sets these
+>         to the \e]0;...\007 sequence if the terminal appears to be
+>         xterm(1).  This option is off by default.
 

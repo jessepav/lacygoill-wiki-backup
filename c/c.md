@@ -307,6 +307,11 @@ While this will work in C89, *and* in C99:
 ##
 # TODO
 
+Better C syntax highlighting?
+<https://github.com/justinmk/vim-syntax-extra>
+
+---
+
 <http://viewsourcecode.org/snaptoken/kilo/>
 
 Welcome!

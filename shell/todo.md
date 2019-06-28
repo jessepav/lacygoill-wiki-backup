@@ -36,6 +36,10 @@ Example:
 
 See: <https://unix.stackexchange.com/a/68748/289772>
 
+## How do I extract data from an HTML or XML file?
+
+<http://mywiki.wooledge.org/BashFAQ/113>
+
 ##
 # scripts
 ## ideas to improve our scripts:

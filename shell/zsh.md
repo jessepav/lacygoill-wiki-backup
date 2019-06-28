@@ -12,10 +12,10 @@
 ##
 # How to list all the files sourced by zsh on startup?
 
-        % script -c 'zsh -o SOURCE_TRACE' log
-        % exit
-        % vim log
-        :v/^+/d_
+    % script -c 'zsh -o SOURCE_TRACE' log
+    % exit
+    % vim log
+    :v/^+/d_
 
 ##
 # What does `[nyae]` mean when I make a typo and the shell suggests me a correction?
