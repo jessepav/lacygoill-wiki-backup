@@ -314,7 +314,7 @@ yellow; if it doesn't, it means the terminal doesn't support the sequence.
 
 When a program uses a color in the 256color palette, it sends an escape sequence
 containing a decimal code  which refers to a color in the  palette, which can be
-configured by the USER.
+configured by the *user*.
 
 OTOH, when a program  uses a true color, it sends  an escape sequence containing
 the exact  quantity of  red, green,  blue to  produce the  color desired  by the

@@ -51,12 +51,12 @@ At execution time, except for `%if` (cf. nicm).
 No.
 
     $ tmux source =(cat <<'EOF'
-    pane_id='#{pane_id}'
-    bind C-g display "$pane_id"
+    window_id='#{window_id}'
+    bind C-g display "$window_id"
     EOF
     ) \; lsk | grep -i ' c-g '
-    bind-key  -T prefix  C-g  display-message "#{pane_id}"~
-                                               ^^^^^^^^^^
+    bind-key  -T prefix  C-g  display-message "#{window_id}"~
+                                               ^^^^^^^^^^^^
                                                has not been expanded
 
 Rationale:
@@ -64,10 +64,10 @@ Rationale:
 And the shell does not expand a tmux format, because it has no knowledge of what it means.
 So, if tmux expanded a format in `var=val`, it would be inconsistent with the shell.
 
-    $ pane_id='#{pane_id}'
-    $ tmux bind C-g display "$pane_id" \; lsk | grep -i ' c-g '
-    bind-key  -T prefix  C-g  display-message "#{pane_id}"~
-                                               ^^^^^^^^^^
+    $ window_id='#{window_id}'
+    $ tmux bind C-g display "$window_id" \; lsk | grep -i ' c-g '
+    bind-key  -T prefix  C-g  display-message "#{window_id}"~
+                                               ^^^^^^^^^^^^
                                                has not been expanded
 
 ###
@@ -111,7 +111,7 @@ And for `choose-tree`, the relevant prefix could be `pane_`, `session_`, or `win
 
 Example:
 
-    $ tmux choose-tree -F '#W : #{pane_id}'
+    $ tmux choose-tree -F '#W : #{window_id}'
 
 ### `list-commands`, `list-buffers`, `list-clients`, `list-panes`, `list-sessions`, `list-windows`
 
@@ -741,10 +741,10 @@ For example, to get a list of windows formatted like in the status line:
     #{pane_index} / #P
     #{window_index} / #I
 
-### the unique ID of a pane?  window?  sesssion?
+### the unique ID of a pane? (3)  window?  sesssion?
 
+    #{pane_id} / #D / $TMUX_PANE
     #{window_id}
-    #{pane_id} / #D
     #{session_id}
 
 ### the width of a window?  pane?
@@ -811,6 +811,7 @@ Here are some (all?) of the info you could ask for:
     cmd (current, initial)
     cwd
     flags
+    ^C prevents `InsertLeave` from being fired.
     height
     id
     index
@@ -840,9 +841,272 @@ For each info, you could want to specify a context:
     session/window/pane by ID
     session/window/pane by index
 
+---
+
+    Does the error message tell you the name of the script/function from which the error was raised?
+    This plugin might help to jump to the origin of the error: https://github.com/tweekmonster/exception.vim/
+
+    # current pane
     $ tmux display -p '#{pane_current_command}'
-    # by name? ID? index?
-    $ tmux lsp '#{pane_current_command}'
+
+    # pane %123
+    $ tmux display -pt%123 '#{pane_current_command}'
+
+    # title 'my title'
+    $ delim=$(tr x '\001' <<<x) \
+      && tmux lsp -aF "#{pane_title}${delim}#{pane_current_command}" \
+      | awk -F"$delim" "/^my title$delim"'/{print $2}'
+
+    # title 'my title' in current window
+    # title 'my title' in given window of current session
+    # title 'my title' in given window of given session
+    $ tmux ???
+
+    # index 1 in current window
+    $ tmux display -pt:.1 -F '#{pane_current_command}'
+
+    # index 1 in window 2 of current session
+    $ delim=$(tr x '\001' <<<x) \
+      && tmux lsp -s -t $(tmux display -p '#S') -F "#I.#P${delim}#{pane_current_command}" \
+      | awk -F"$delim" "/^2.1$delim"'/{print $2}'
+
+    # index 1 in window 2 of session 'my session'
+    $ delim=$(tr x '\001' <<<x) \
+      && tmux lsp -s -t 'my session' -F "#I.#P$delim"'#{pane_current_command}' \
+      | awk -F"$delim" "/^2.1$delim"'/{print $2}'
+
+I think  there are many  other kinds of  info you could  want to get  in various
+contexts (current session/window/pane, given session/window/pane, ...).
+Find the minimum amount of rules to know to handle all possibilities.
+But first, study `$ man tmux /COMMANDS`; you probably need this to know what can
+be passed to `-t`.
+
+---
+
+Rule 1:  to extract an  information, you  should use either  of `list-sessions`,
+`list-windows`, `list-panes`, `list-clients` in conjunction with `$ awk`.
+
+Rule 2: to extract  an information in the current window  (any pane), you should
+use `display-message`.
+
+Rule 3:  targeting a window/pane  with its  name/title is not  reliable, because
+there's no guarantee for it to be unique.
+OTOH, targeting  a session with its  name should be reliable,  because you can't
+have two sessions with the same name:
+
+    $ tmux new -s study
+    Duplicate session: study~
+
+---
+
+We need  to fully understand  the syntax of  `display-message`, `list-sessions`,
+`list-windows`, `list-panes`, `list-clients`.
+For example, study the `-I` flag which one can pass to `display-message`.
+
+    $ echo hello | tmux splitw -dI
+    $ echo world | tmux display -I -t :.2
+
+> display-message [-aIpv] [-c target-client] [-t target-pane] [message]
+>               (alias: display)
+
+>         Display a message.  If -p is given, the output is printed to std‐
+>         out, otherwise it is displayed in the target-client status line.
+>         The format of message is described in the FORMATS section; infor‐
+>         mation is taken from target-pane if -t is given, otherwise the
+>         active pane for the session attached to target-client.
+
+>         -v prints verbose logging as the format is parsed and -a lists
+>         the format variables and their values.
+
+>         -I forwards any input read from stdin to the empty pane given by
+>         target-pane.
+
+What is an empty pane?
+It seems to be a pane which was not started with any particular command.
+By default, when you run `:splitw` (or sth similar like `:neww`), tmux runs `$ zsh`.
+It may run any arbitrary command, if you provide it.
+But on some occasions, a pane can be created without *any* command.
+E.g.:
+
+    $ echo hello | tmux splitw -dI
+
+The pane opened by `$ tmux splitw` doesn't run any command.
+`$ tmux '#{pane_pid}'` outputs 0; but weirdly enough, `$ tmux '#{pane_current_command}'`
+still outputs `zsh`.
+
+---
+
+Again, we're spending too much time on documenting sth.
+I think  you should not  try to immediately find  all possible commands  using a
+replacement variable.
+
+What is your goal?
+You want to find the minimum amount of rules to get any info in any context.
+Ok, find a sample of *some* commands to get some info in some contexts.
+Then, from them try to infer some rules.
+Now, apply those rules to get any info.
+Does it work? Great, you've finished.
+It doesn't work? Ok, try to tweak the rules (edit/remove/add), and apply the new
+rules to get any info in any context.
+Repeat until you get a good enough set of rules.
+
+https://github.com/justinmk/config/blob/38c4292d5d6891a152e1c89e2b5b7b46c4b9a805/.config/nvim/init.vim#L777-L817
+
+### COMMANDS
+
+> This section describes the commands supported by tmux.  Most commands
+> accept the optional -t (and sometimes -s) argument with one of
+> target-client, target-session, target-window, or target-pane.  These spec‐
+> ify the client, session, window or pane which a command should affect.
+
+> target-client should be the name of the client, typically the pty(4) file
+> to which the client is connected, for example either of /dev/ttyp1 or
+> ttyp1 for the client attached to /dev/ttyp1.  If no client is specified,
+> tmux attempts to work out the client currently in use; if that fails, an
+> error is reported.  Clients may be listed with the list-clients command.
+
+> target-session is tried as, in order:
+
+>       1.   A session ID prefixed with a $.
+
+>       2.   An exact name of a session (as listed by the list-sessions
+>            command).
+
+>       3.   The start of a session name, for example ‘mysess' would match
+>            a session named ‘mysession'.
+
+>       4.   An fnmatch(3) pattern which is matched against the session
+>            name.
+
+> If the session name is prefixed with an ‘=', only an exact match is
+> accepted (so ‘=mysess' will only match exactly ‘mysess', not
+> ‘mysession').
+
+> If a single session is found, it is used as the target session; multiple
+> matches produce an error.  If a session is omitted, the current session
+> is used if available; if no current session is available, the most
+> recently used is chosen.
+
+> target-window (or src-window or dst-window) specifies a window in the
+> form session:window.  session follows the same rules as for
+> target-session, and window is looked for in order as:
+
+>       1.   A special token, listed below.
+
+>       2.   A window index, for example ‘mysession:1' is window 1 in ses‐
+>            sion ‘mysession'.
+
+>       3.   A window ID, such as @1.
+
+>       4.   An exact window name, such as ‘mysession:mywindow'.
+
+>       5.   The start of a window name, such as ‘mysession:mywin'.
+
+>       6.   As an fnmatch(3) pattern matched against the window name.
+
+> Like sessions, a ‘=' prefix will do an exact match only.  An empty window
+> name specifies the next unused index if appropriate (for example the
+> new-window and link-window commands) otherwise the current window in
+> session is chosen.
+
+> The following special tokens are available to indicate particular win‐
+> dows.  Each has a single-character alternative form.
+
+> Token              Meaning
+> {start}       ^    The lowest-numbered window
+> {end}         $    The highest-numbered window
+> {last}        !    The last (previously current) window
+> {next}        +    The next window by number
+> {previous}    -    The previous window by number
+
+> target-pane (or src-pane or dst-pane) may be a pane ID or takes a similar
+> form to target-window but with the optional addition of a period followed
+> by a pane index or pane ID, for example: ‘mysession:mywindow.1'.  If the
+> pane index is omitted, the currently active pane in the specified window
+> is used.  The following special tokens are available for the pane index:
+
+> Token                  Meaning
+> {last}            !    The last (previously active) pane
+> {next}            +    The next pane by number
+> {previous}        -    The previous pane by number
+> {top}                  The top pane
+> {bottom}               The bottom pane
+> {left}                 The leftmost pane
+> {right}                The rightmost pane
+> {top-left}             The top-left pane
+> {top-right}            The top-right pane
+> {bottom-left}          The bottom-left pane
+> {bottom-right}         The bottom-right pane
+> {up-of}                The pane above the active pane
+> {down-of}              The pane below the active pane
+> {left-of}              The pane to the left of the active pane
+> {right-of}             The pane to the right of the active pane
+
+> The tokens ‘+' and ‘-' may be followed by an offset, for example:
+
+>       select-window -t:+2
+
+> In addition, target-session, target-window or target-pane may consist
+> entirely of the token ‘{mouse}' (alternative form ‘=') to specify the
+> most recent mouse event (see the MOUSE SUPPORT section) or ‘{marked}'
+> (alternative form ‘~') to specify the marked pane (see select-pane -m).
+
+> Sessions, window and panes are each numbered with a unique ID; session
+> IDs are prefixed with a ‘$', windows with a ‘@', and panes with a ‘%'.
+> These are unique and are unchanged for the life of the session, window or
+> pane in the tmux server.  The pane ID is passed to the child process of
+> the pane in the TMUX_PANE environment variable.  IDs may be displayed
+> using the ‘session_id', ‘window_id', or ‘pane_id' formats (see the
+> FORMATS section) and the display-message, list-sessions, list-windows or
+> list-panes commands.
+
+> shell-command arguments are sh(1) commands.  This may be a single argu‐
+> ment passed to the shell, for example:
+
+>       new-window 'vi /etc/passwd'
+
+> Will run:
+
+>       /bin/sh -c 'vi /etc/passwd'
+
+> Additionally, the new-window, new-session, split-window, respawn-window
+> and respawn-pane commands allow shell-command to be given as multiple
+> arguments and executed directly (without ‘sh -c').  This can avoid issues
+> with shell quoting.  For example:
+
+>       $ tmux new-window vi /etc/passwd
+
+> Will run vi(1) directly without invoking the shell.
+
+> command [arguments] refers to a tmux command, either passed with the com‐
+> mand and arguments separately, for example:
+
+>       bind-key F1 set-option status off
+
+> Or passed as a single string argument in .tmux.conf, for example:
+
+>       bind-key F1 { set-option status off }
+
+> Example tmux commands include:
+
+>       refresh-client -t/dev/ttyp2
+
+>       rename-session -tfirst newname
+
+>       set-option -wt:0 monitor-activity on
+
+>       new-window ; split-window -d
+
+>       bind-key R source-file ~/.tmux.conf \; \
+>               display-message "source-file done"
+
+> Or from sh(1):
+
+>       $ tmux kill-window -t :1
+
+>       $ tmux new-window \; split-window -d
+
+>       $ tmux new-session -d 'vi /etc/passwd' \; split-window -d \; attach
 
 ### How to get the name of the current window?
 

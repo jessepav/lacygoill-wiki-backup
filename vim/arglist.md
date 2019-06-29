@@ -27,11 +27,11 @@ No and no.
 
 It's a set of filepaths.
 
-        $ vim -Nu NONE /tmp/file
-        :sp
-        :bw
-        :args
-        [/tmp/file]~
+    $ vim -Nu NONE /tmp/file
+    :sp
+    :bw
+    :args
+    [/tmp/file]~
 
 In this experiment,  even after wiping the buffer `/tmp/file`,  which was stored
 in the arglist, it still persists in the arglist.

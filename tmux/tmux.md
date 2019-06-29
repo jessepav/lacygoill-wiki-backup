@@ -15,7 +15,7 @@ See `$ man ps /PROCESS STATE CODES`.
 
 ---
 
-Alternatively, look at the terminal to which the processes are attached.
+Alternatively, look at the terminal to which the process is attached.
 If you can read `?`, it's a server; `pts/123`, it's a client.
 
 ##
