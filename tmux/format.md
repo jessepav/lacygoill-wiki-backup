@@ -1,4 +1,28 @@
 # Syntax
+## What's a format?
+
+A string using format variables such as `pane_current_command`.
+
+Its purpose is to format the  output of the `choose-`, `list-`, `new-` commands,
+as well as the `break-pane` and `split-window` commands:
+
+   - `break-pane`
+   - `choose-buffer`
+   - `choose-client`
+   - `choose-tree`
+   - `list-buffers`
+   - `list-clients`
+   - `list-commands`
+   - `list-panes`
+   - `list-sessions`
+   - `list-windows`
+   - `new-session`
+   - `new-window`
+   - `split-window`
+
+Note that a format variable is only expanded when surrounded by `#{` and `}`.
+
+##
 ## Do all commands expand formats?
 
 No.
@@ -91,7 +115,7 @@ It specifies the format for each item in the displayed list/tree.
 
 ---
 
-For `choose-buffer`, you would probably use replacement variables beginning with `buffer_`.
+For `choose-buffer`, you would probably use format variables beginning with `buffer_`.
 
 Example:
 
@@ -119,11 +143,11 @@ It specifies the format for each item in the displayed list.
 
 ---
 
-For `list-commands`, you would probably use replacement variables beginning with `command_`.
+For `list-commands`, you would probably use format variables beginning with `command_`.
 
 Example:
 
-    $ tmux list-commands -F '#{command_list_name} : #{command_list_alias}'
+    $ tmux lscm -F '#{command_list_name} : #{command_list_alias}'
 
 ---
 
@@ -640,7 +664,7 @@ For example, to get a list of windows formatted like in the status line:
                            └ expanded in the non-current windows
 
 ##
-# Replacement variables
+# Format variables
 ## Which variable should I use to test whether
 ### a window is
 #### zoomed?
@@ -804,6 +828,148 @@ For example, to get a list of windows formatted like in the status line:
     #{pane_search_string}
 
 ###
+# Getting info
+## Which command should I try to use first to get an info about
+### a given session/window/pane?
+
+`display-message`
+
+#### On which condition can I use it?
+
+You need a description of the given session/window/pane, as described in:
+
+    $ man tmux /COMMANDS /^\s*target-session
+    $ man tmux /COMMANDS /^\s*target-window
+    $ man tmux /COMMANDS /^\s*target-pane
+
+And pass it to `-t`.
+
+---
+
+Even though the synopsis of `display-message` refers to `target-pane`:
+
+    display-message [-aIpv] [-c target-client] [-t target-pane] [message]
+                                                   ^^^^^^^^^^^
+
+... you can still use a description of a session or window if needed.
+
+###
+### any session(s)/window(s)/pane(s) satisfying an arbitrary condition?
+
+`list-sessions`, `list-windows` or `list-panes`.
+
+You'll also need to pass the `-F  format` argument, to format the output so that
+it suits your needs, and `$ awk` or `$ sed` to extract the desired info.
+
+### any client(s)/buffer(s)/command(s) satisfying an arbitrary condition?
+
+`list-clients`, `list-buffers` or `list-commands` + `$ awk` or `$ sed`.
+
+###
+## Which pane ID do I get if I run
+### `$ tmux display -p -t mysession '#D'`?
+
+If `mysession` is being attached, the ID of the pane currently focused.
+Otherwise, the ID of the last pane  which was focused when `mysession` was being
+attached.
+
+### `$ tmux display -p -t 'mysession:^' '#D'`?
+
+The ID of  the last pane which  was focused in the first  window of `mysession`,
+when  the latter  was being  attached and  you left  the first  window to  focus
+another one.
+
+### ?
+
+More generally, what happens if I pass a description to `-t` which is not accurate enough?
+
+###
+## How to get the command running in
+### the current pane?
+
+    $ tmux display -p '#{pane_current_command}'
+
+### the pane whose id is `%123`?
+
+    $ tmux display -pt%123 '#{pane_current_command}'
+
+### the pane of index 1?
+
+    $ tmux display -pt:.1 '#{pane_current_command}'
+                      ^^
+                      current session:current window
+
+### the pane of index 1 in the window 2?
+
+    $ tmux display -pt :2.1 '#{pane_current_command}'
+
+### the pane of index 1 in the window 2 in the session 'my session'?
+
+    $ tmux display -pt 'my session:2.1' '#{pane_current_command}'
+
+###
+### any pane whose title is 'my title'?
+
+    $ delim=$(tr x '\001' <<<x) \
+      && tmux lsp -aF "#{pane_title}${delim}#{pane_current_command}" \
+       | awk -F"$delim" "/^my title$delim"'/{print $2}'
+
+##
+
+## How to get the list of all
+### format variables and their values in the current pane?
+
+    $ tmux display -a
+
+###
+### clients attached to the running tmux server?
+
+    $ tmux lsc
+
+### clients connected to the session 'my session'?
+
+    $ tmux lsc -t 'my session'
+
+###
+### all windows on the server?
+
+    $ tmux lsw -a
+               ^^
+
+### all windows in the current session?
+
+    $ tmux lsw
+
+### all windows in the session 'my session'?
+
+    $ tmux lsw -t 'my session'
+
+###
+### all panes on the server?
+
+    $ tmux lsp -a
+               ^^
+
+### all panes in the current window?
+
+    $ tmux lsp
+
+### all panes in the current session?
+
+    $ tmux lsp -s
+               ^^
+
+### all panes in the window `%123`?
+
+    $ tmux lsp -t %123
+               ^^^^^^^
+
+### all panes in the session 'my session'?
+
+    $ tmux lsp -s -t 'my session'
+               ^^^^^^^^^^^^^^^^^^
+
+##
 ### ?
 
 Here are some (all?) of the info you could ask for:
@@ -811,7 +977,6 @@ Here are some (all?) of the info you could ask for:
     cmd (current, initial)
     cwd
     flags
-    ^C prevents `InsertLeave` from being fired.
     height
     id
     index
@@ -843,38 +1008,6 @@ For each info, you could want to specify a context:
 
 ---
 
-    Does the error message tell you the name of the script/function from which the error was raised?
-    This plugin might help to jump to the origin of the error: https://github.com/tweekmonster/exception.vim/
-
-    # current pane
-    $ tmux display -p '#{pane_current_command}'
-
-    # pane %123
-    $ tmux display -pt%123 '#{pane_current_command}'
-
-    # title 'my title'
-    $ delim=$(tr x '\001' <<<x) \
-      && tmux lsp -aF "#{pane_title}${delim}#{pane_current_command}" \
-      | awk -F"$delim" "/^my title$delim"'/{print $2}'
-
-    # title 'my title' in current window
-    # title 'my title' in given window of current session
-    # title 'my title' in given window of given session
-    $ tmux ???
-
-    # index 1 in current window
-    $ tmux display -pt:.1 -F '#{pane_current_command}'
-
-    # index 1 in window 2 of current session
-    $ delim=$(tr x '\001' <<<x) \
-      && tmux lsp -s -t $(tmux display -p '#S') -F "#I.#P${delim}#{pane_current_command}" \
-      | awk -F"$delim" "/^2.1$delim"'/{print $2}'
-
-    # index 1 in window 2 of session 'my session'
-    $ delim=$(tr x '\001' <<<x) \
-      && tmux lsp -s -t 'my session' -F "#I.#P$delim"'#{pane_current_command}' \
-      | awk -F"$delim" "/^2.1$delim"'/{print $2}'
-
 I think  there are many  other kinds of  info you could  want to get  in various
 contexts (current session/window/pane, given session/window/pane, ...).
 Find the minimum amount of rules to know to handle all possibilities.
@@ -883,253 +1016,55 @@ be passed to `-t`.
 
 ---
 
-Rule 1:  to extract an  information, you  should use either  of `list-sessions`,
-`list-windows`, `list-panes`, `list-clients` in conjunction with `$ awk`.
-
-Rule 2: to extract  an information in the current window  (any pane), you should
-use `display-message`.
-
-Rule 3:  targeting a window/pane  with its  name/title is not  reliable, because
-there's no guarantee for it to be unique.
-OTOH, targeting  a session with its  name should be reliable,  because you can't
-have two sessions with the same name:
-
-    $ tmux new -s study
-    Duplicate session: study~
-
----
-
-We need  to fully understand  the syntax of  `display-message`, `list-sessions`,
-`list-windows`, `list-panes`, `list-clients`.
-For example, study the `-I` flag which one can pass to `display-message`.
-
-    $ echo hello | tmux splitw -dI
-    $ echo world | tmux display -I -t :.2
-
-> display-message [-aIpv] [-c target-client] [-t target-pane] [message]
->               (alias: display)
-
->         Display a message.  If -p is given, the output is printed to std‐
->         out, otherwise it is displayed in the target-client status line.
->         The format of message is described in the FORMATS section; infor‐
->         mation is taken from target-pane if -t is given, otherwise the
->         active pane for the session attached to target-client.
-
->         -v prints verbose logging as the format is parsed and -a lists
->         the format variables and their values.
-
->         -I forwards any input read from stdin to the empty pane given by
->         target-pane.
-
-What is an empty pane?
-It seems to be a pane which was not started with any particular command.
-By default, when you run `:splitw` (or sth similar like `:neww`), tmux runs `$ zsh`.
-It may run any arbitrary command, if you provide it.
-But on some occasions, a pane can be created without *any* command.
-E.g.:
-
-    $ echo hello | tmux splitw -dI
-
-The pane opened by `$ tmux splitw` doesn't run any command.
-`$ tmux '#{pane_pid}'` outputs 0; but weirdly enough, `$ tmux '#{pane_current_command}'`
-still outputs `zsh`.
-
----
-
 Again, we're spending too much time on documenting sth.
 I think  you should not  try to immediately find  all possible commands  using a
-replacement variable.
+format variable.
 
 What is your goal?
 You want to find the minimum amount of rules to get any info in any context.
 Ok, find a sample of *some* commands to get some info in some contexts.
-Then, from them try to infer some rules.
+Then, from them, try to infer some rules.
 Now, apply those rules to get any info.
 Does it work? Great, you've finished.
 It doesn't work? Ok, try to tweak the rules (edit/remove/add), and apply the new
 rules to get any info in any context.
 Repeat until you get a good enough set of rules.
+Find your rules with an **iterative** process, progressively, organically, ...
 
-https://github.com/justinmk/config/blob/38c4292d5d6891a152e1c89e2b5b7b46c4b9a805/.config/nvim/init.vim#L777-L817
+###
+## Can I reliably target a given window via its name?  a pane via its title?
 
-### COMMANDS
+No.
 
-> This section describes the commands supported by tmux.  Most commands
-> accept the optional -t (and sometimes -s) argument with one of
-> target-client, target-session, target-window, or target-pane.  These spec‐
-> ify the client, session, window or pane which a command should affect.
+You can have 2 windows with the same name, or 2 panes with the same title.
 
-> target-client should be the name of the client, typically the pty(4) file
-> to which the client is connected, for example either of /dev/ttyp1 or
-> ttyp1 for the client attached to /dev/ttyp1.  If no client is specified,
-> tmux attempts to work out the client currently in use; if that fails, an
-> error is reported.  Clients may be listed with the list-clients command.
+### a session via its name?
 
-> target-session is tried as, in order:
+Yes.
 
->       1.   A session ID prefixed with a $.
+You can't have 2 sessions with the same name.
 
->       2.   An exact name of a session (as listed by the list-sessions
->            command).
+    $ tmux display -p '#S'
+    study~
 
->       3.   The start of a session name, for example ‘mysess' would match
->            a session named ‘mysession'.
+    $ tmux new -s study
+    Duplicate session: study~
 
->       4.   An fnmatch(3) pattern which is matched against the session
->            name.
-
-> If the session name is prefixed with an ‘=', only an exact match is
-> accepted (so ‘=mysess' will only match exactly ‘mysess', not
-> ‘mysession').
-
-> If a single session is found, it is used as the target session; multiple
-> matches produce an error.  If a session is omitted, the current session
-> is used if available; if no current session is available, the most
-> recently used is chosen.
-
-> target-window (or src-window or dst-window) specifies a window in the
-> form session:window.  session follows the same rules as for
-> target-session, and window is looked for in order as:
-
->       1.   A special token, listed below.
-
->       2.   A window index, for example ‘mysession:1' is window 1 in ses‐
->            sion ‘mysession'.
-
->       3.   A window ID, such as @1.
-
->       4.   An exact window name, such as ‘mysession:mywindow'.
-
->       5.   The start of a window name, such as ‘mysession:mywin'.
-
->       6.   As an fnmatch(3) pattern matched against the window name.
-
-> Like sessions, a ‘=' prefix will do an exact match only.  An empty window
-> name specifies the next unused index if appropriate (for example the
-> new-window and link-window commands) otherwise the current window in
-> session is chosen.
-
-> The following special tokens are available to indicate particular win‐
-> dows.  Each has a single-character alternative form.
-
-> Token              Meaning
-> {start}       ^    The lowest-numbered window
-> {end}         $    The highest-numbered window
-> {last}        !    The last (previously current) window
-> {next}        +    The next window by number
-> {previous}    -    The previous window by number
-
-> target-pane (or src-pane or dst-pane) may be a pane ID or takes a similar
-> form to target-window but with the optional addition of a period followed
-> by a pane index or pane ID, for example: ‘mysession:mywindow.1'.  If the
-> pane index is omitted, the currently active pane in the specified window
-> is used.  The following special tokens are available for the pane index:
-
-> Token                  Meaning
-> {last}            !    The last (previously active) pane
-> {next}            +    The next pane by number
-> {previous}        -    The previous pane by number
-> {top}                  The top pane
-> {bottom}               The bottom pane
-> {left}                 The leftmost pane
-> {right}                The rightmost pane
-> {top-left}             The top-left pane
-> {top-right}            The top-right pane
-> {bottom-left}          The bottom-left pane
-> {bottom-right}         The bottom-right pane
-> {up-of}                The pane above the active pane
-> {down-of}              The pane below the active pane
-> {left-of}              The pane to the left of the active pane
-> {right-of}             The pane to the right of the active pane
-
-> The tokens ‘+' and ‘-' may be followed by an offset, for example:
-
->       select-window -t:+2
-
-> In addition, target-session, target-window or target-pane may consist
-> entirely of the token ‘{mouse}' (alternative form ‘=') to specify the
-> most recent mouse event (see the MOUSE SUPPORT section) or ‘{marked}'
-> (alternative form ‘~') to specify the marked pane (see select-pane -m).
-
-> Sessions, window and panes are each numbered with a unique ID; session
-> IDs are prefixed with a ‘$', windows with a ‘@', and panes with a ‘%'.
-> These are unique and are unchanged for the life of the session, window or
-> pane in the tmux server.  The pane ID is passed to the child process of
-> the pane in the TMUX_PANE environment variable.  IDs may be displayed
-> using the ‘session_id', ‘window_id', or ‘pane_id' formats (see the
-> FORMATS section) and the display-message, list-sessions, list-windows or
-> list-panes commands.
-
-> shell-command arguments are sh(1) commands.  This may be a single argu‐
-> ment passed to the shell, for example:
-
->       new-window 'vi /etc/passwd'
-
-> Will run:
-
->       /bin/sh -c 'vi /etc/passwd'
-
-> Additionally, the new-window, new-session, split-window, respawn-window
-> and respawn-pane commands allow shell-command to be given as multiple
-> arguments and executed directly (without ‘sh -c').  This can avoid issues
-> with shell quoting.  For example:
-
->       $ tmux new-window vi /etc/passwd
-
-> Will run vi(1) directly without invoking the shell.
-
-> command [arguments] refers to a tmux command, either passed with the com‐
-> mand and arguments separately, for example:
-
->       bind-key F1 set-option status off
-
-> Or passed as a single string argument in .tmux.conf, for example:
-
->       bind-key F1 { set-option status off }
-
-> Example tmux commands include:
-
->       refresh-client -t/dev/ttyp2
-
->       rename-session -tfirst newname
-
->       set-option -wt:0 monitor-activity on
-
->       new-window ; split-window -d
-
->       bind-key R source-file ~/.tmux.conf \; \
->               display-message "source-file done"
-
-> Or from sh(1):
-
->       $ tmux kill-window -t :1
-
->       $ tmux new-window \; split-window -d
-
->       $ tmux new-session -d 'vi /etc/passwd' \; split-window -d \; attach
-
-### How to get the name of the current window?
-
-    $ tmux display -p '#W'
-
-#### of the second window in the session 'fun'?
-
-    $ tmux lsw -F '#W' -t fun | sed -n '2p'
-
-### How to get the number of windows of the current session?
-
-    $ tmux display -p '#{session_windows}'
-
-#### the number of windows of the first session?
-
-    $ tmux ls -F '#{session_windows}' | sed -n '1p'
-
-##### in the session 'fun'?
-
-    $ tmux ls | grep '^fun:' | cut -d' ' -f2
-
-##
+###
 # Issues
+## I have a complex format whose expansion is not the one I expected!
+
+To debug the expansion, pass the `-v` flag to `display-message`:
+
+    $ tmux display -pv 'complex format'
+                     ^
+
+Example:
+
+    $ tmux display -pv '#{||:#{m:*vim,#{pane_current_command}},#{==:#{pane_current_command},man}}'
+                        ├───────────────────────────────────────────────────────────────────────┘
+                        └ should be 1 iff the command running in the pane is (n)vim or man
+
 ## I'm writing nested formats; I have 3 consecutive `}`.  How to prevent Vim from interpreting them as fold markers?
 
 Use a temporary environment variable.
@@ -1192,120 +1127,6 @@ Indeed, any character inside `#{}` is semantic, including a space:
     session_stack                   Window indexes in most recent order
 
 Find which ones could be useful.
-
-# COMMAND PARSING AND EXECUTION
-
-tmux distinguishes between command parsing and execution.
-In order to  execute a command, tmux needs  it to be split up into  its name and
-arguments.
-This is command parsing.
-If a  command is run from  the shell, the shell  parses it; from inside  tmux or
-from a configuration file, tmux does.
-Examples of when tmux parses commands are:
-
-   - in a configuration file;
-
-   - typed at the command prompt (see command-prompt);
-
-   - given to bind-key;
-
-   - passed as arguments to if-shell or confirm-before.
-
-To execute commands, each client has a ‘command queue’.
-A  global command  queue not  attached  to any  client  is used  on startup  for
-configuration files like ~/.tmux.conf.
-Parsed commands added to the queue are executed in order.
-Some commands, like if-shell and  confirm-before, parse their argument to create
-a new command which is inserted immediately after themselves.
-This means  that arguments can be  parsed twice or  more - once when  the parent
-command (such as if-shell)  is parsed and again when it  parses and executes its
-command.
-Commands like if-shell, run-shell and display-panes stop execution of subsequent
-commands on the  queue until something happens - if-shell  and run-shell until a
-shell command finishes and display-panes until a key is pressed.
-For example, the following commands:
-
-    new-session; new-window
-    if-shell "true" "split-window"
-    kill-session
-
-Will  execute  new-session, new-window,  if-shell,  the  shell command  true(1),
-split-window and kill-session in that order.
-
-The COMMANDS section lists the tmux commands and their arguments.
-
-# PARSING SYNTAX
-
-*the words in bold are different from the manpage*
-
-This section describes the  syntax of commands parsed by tmux,  for example in a
-configuration file or at the command prompt.
-Note that when commands are entered into the shell, they are parsed by the shell
-– see for example ksh(1) or csh(1).
-
-Each command is terminated by a newline or a semicolon (;).
-Commands  separated by  semicolons together  form a  ‘command sequence’  - if  a
-command  in  the  sequence  encounters  an error,  no  subsequent  commands  are
-executed.
-
-Comments are  marked by the  unquoted # character -  any remaining text  after a
-comment is ignored until the end of the line.
-
-If the last character of a line is \, the line is joined with the following line
-(the \ and the newline are completely removed).
-This is  called line  continuation and  applies both  inside and  outside quoted
-strings and in comments.
-
-Command arguments may be specified as strings surrounded by either single (') or
-double quotes (").
-This is required when the argument contains any special character.
-Strings cannot span multiple lines except with line continuation.
-
-Outside of **single** quotes and inside double quotes, these replacements are performed:
-
-   - Environment variables preceded by $ are replaced with their
-     value from the global environment (see the GLOBAL AND SESSION
-     ENVIRONMENT section).
-
-   - A leading ~ or ~user is expanded to the home directory of the
-     current or specified user.
-
-   - \uXXXX or \uXXXXXXXX is replaced by the Unicode codepoint cor‐
-     responding to the given four or eight digit hexadecimal number.
-
-   - When preceded (escaped) by a \, the following characters are
-     replaced: \e by the escape character; \r by a carriage return;
-     \n by a newline; and \t by a tab.
-
-     Any other characters preceded by \ are replaced by themselves
-     (that is, the \ is removed) and are not treated as having any
-     special meaning - so for example \; will not mark a command
-     sequence and \$ will not expand an environment variable.
-
-Environment variables may  be set by using the syntax  ‘name=value’, for example
-‘HOME=/home/user’.
-Variables set during parsing are added to the global environment.
-
-Commands may  be parsed conditionally  by surrounding them with  ‘%if’, ‘%elif’,
-‘%else’ and ‘%endif’.
-The argument to ‘%if’  and ‘%elif’ is expanded as a format  (see FORMATS) and if
-it evaluates  to false  (zero or  empty), subsequent text  is ignored  until the
-closing ‘%elif’, ‘%else’ or ‘%endif’.
-For example:
-
-    %if #{==:#{host},myhost}
-    set -g status-style bg=red
-    %elif #{==:#{host},myotherhost}
-    set -g status-style bg=green
-    %else
-    set -g status-style bg=blue
-    %endif
-
-Will change the status  line to red if running on ‘myhost’,  green if running on
-‘myotherhost’, or blue if running on another host.
-Conditionals may be given on one line, for example:
-
-    %if #{==:#{host},myhost} set -g status-style bg=red %endif
 
 # We spent a lot of time to write the “Quoting” in `~/wiki/tmux/tmux.md`.
 

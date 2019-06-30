@@ -36,9 +36,9 @@ of these capabilities (smul, setf).
 You need to “escape” it using this syntax:
 
     \ePtmux;seq\e\\
-            └─┤
-              └ sequence we want to send to the terminal;
-                any escape character it contains must be doubled
+            ├─┘
+            └ sequence we want to send to the terminal;
+              any escape character it contains must be doubled
 
 Source:
 <https://web.archive.org/web/20150808225911/http://comments.gmane.org:80/gmane.comp.terminal-emulators.tmux.user/1322>
@@ -65,18 +65,17 @@ Ex:
     $ tmux set -as terminal-overrides ',*:Ss=\E[%p1%d q:Se=\E[2 q'
 
 This way, whenever we enter insert mode, the shape of the cursor becomes a line,
-but it's LOCAL to the current pane.
+but it's *local* to the current pane.
 IOW,  without leaving  insert mode,  if  we focus  another pane,  the cursor  is
 restored to a block.
 
 This is  due to tmux automatically  sending `Se`, whenever we  focus a different
-pane.
-And it sends `Ss`  whenever we focus the pane where  we've initially changed the
-shape of the cursor.
+pane; and it sends `Ss` whenever we focus the pane where we've initially changed
+the shape of the cursor.
 
 OTOH, if  we didn't set  the `Ss`, `Se`  capabilities, and manually  escaped the
 sequence to send it to the terminal, the change of the shape of the cursor would
-be GLOBAL to all panes.
+be *global* to all panes.
 
 # How to customize the terminfo description of the outer terminal?
 
@@ -88,6 +87,7 @@ You  can customize  the  terminfo  description of  the  outer  terminal via  the
 `pat` must  match the  terminal type (see  `man fnmatch` for  the syntax  of the
 pattern). `val` must be the sequence to send to change the shape of the cursor.
 
+---
 
 You can't use extended patterns (ex: '@(pattern-list)').
 
@@ -123,19 +123,21 @@ For more info, see `$ man tmux /TERMINFO EXTENSIONS`.
 
 No.
 
-You can only override EXISTING capabilities.
-The latters can be found by looking  for the pattern `\[missing\]` in the output
+You can only override *existing* capabilities.
+The latter can be  found by looking for the pattern  `\[missing\]` in the output
 of `tmux info`.
 
 You can check this like so:
 
-                                               ┌ `smzz` isn't recognized as a valid
-                                               │ capability name by tmux
-                                               ├──┐
-    $ tmux set -as terminal-overrides ',xterm*:smzz=\E[9m'
+    $ tmux -Lx -f =(cat <<'EOF'
+    set -s terminal-overrides '*:smxx@,*:smzz=\E[9m'
+    #                                    ├──┘
+    #                                    └ `smzz` isn't recognized as a valid capability name by tmux
+    EOF
+    )
 
-    $ tmux info
-    no `smzz` capability~
+    $ tmux info | grep smzz
+    ''~
 
     $ printf '\e[9m   strikethrough  \e[0m\n'
     ✘ the  shell doesn't strike through the text,  even though '\e[9m'~

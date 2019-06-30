@@ -196,9 +196,9 @@ It's described at `$ man tmux /^\s*new-session [`:
 
 On the subject of session groups, see also: <https://github.com/tmux/tmux/issues/1793>
 
-# evaluating a tmux replacement variable in different contexts
+# evaluating a format variable in different contexts
 
-To test the current value of a replacement variable such as `#{pane_tty}`, run:
+To test the current value of a format variable such as `pane_tty`, run:
 
     # shell command
     $ tmux -S /tmp/tmux-1000/default display -p '#{pane_tty}'
@@ -313,6 +313,15 @@ If you're looking for a real usage example, see this key binding installed by de
 If you wonder what the `=` sign means here, it's a special token equivalent to `{mouse}`.
 See `$ man tmux /MOUSE SUPPORT /{mouse}`.
 
+# document `-A` option of `new-session` command
+
+> The -A flag makes new-session behave like attach-session if
+> session-name already exists; in this case, -D behaves like -d to
+> attach-session, and -X behaves like -x to attach-session.
+
+It could be useful in a script to make tmux attach to a session, or create it if
+it doesn't exist, without having to test the output of some command like `$ tmux ls ...`.
+
 # can some of the lhs used in our custom key bindings interfere with sequences used by programs?
 
 Yes, I think.
@@ -400,20 +409,14 @@ The key binding would move a horizontal pane into a vertical one to the right.
 Implement similar  ones with `H`, `J`  and `K`, to gain  consistency between Vim
 and tmux.
 
-# play with `$ echo hello | tmux splitw -dI &`
+# implement `M-S-a` to focus the next window with an alert
 
-From `$ man tmux /splitw`:
+Use the `-a` argument passed to `:next-window`.
 
-> An empty shell-command ('') will create a pane with no command
-> running in it.  Output can be sent to such a pane with the
-> display-message command.  The -I flag (if shell-command is not
-> specified or empty) will create an empty pane and forward any
-> output from stdin to it.  For example:
->
->         $ make 2>&1|tmux splitw -dI &
-
-Maybe we should use this to get rid of a temporary file in `:LogEvents`.
-Maybe it would simplify the code.
+> next-window [-a] [-t target-session]
+>               (alias: next)
+>         Move to the next window in the session.  If -a is used, move to
+>         the next window with an alert.
 
 #
 # find a way to
@@ -476,9 +479,8 @@ When it's on, anything you type in one pane, is typed in all the others.
 
 # study how v, V, C-v behave in Vim when we're already in visual mode; try to make tmux copy-mode consistent
 
-The  replacement  variables  `rectangle_toggle`  (1 if  rectangle  selection  is
-activated) and `selection_present` (1 if selection  started in copy mode) may be
-useful.
+The format variables `rectangle_toggle` (1  if rectangle selection is activated)
+and `selection_present` (1 if selection started in copy mode) may be useful.
 
 Here's what doesn't work like Vim atm:
 
@@ -657,4 +659,55 @@ From `$ man tmux /OPTIONS /set-titles`:
 ---
 
 `next-matching-bracket` and `previous-matching-bracket` are not documented.
+
+---
+
+Inconsistency in the terminology.
+
+From `$ man tmux /^\s*display-message /^\s*-v`:
+
+> -v prints verbose logging as the format is parsed and -a lists
+> the **format variables** and their values.
+
+From `$ man tmux /FORMATS`:
+
+> **Replacement variables** are enclosed in ‘#{' and ‘}', for example ‘#{session_name}'.
+
+It should probably settle down on one term (not two).
+
+Personally, I prefer “format variables”.
+It's shorter, and tells you that it only exists in the context of a format.
+From “variable”, you can infer that it can be replaced or evaluated.
+
+---
+
+From `$ man tmux /^\s*display-message`:
+
+> information is taken from target-pane if -t is given, otherwise the
+> active pane for the session attached to target-client.
+
+    $ tmux lsc
+    /dev/pts/4: study [119x34 st-256color] (utf8) ~
+    /dev/pts/10: fun [80x24 xterm-256color] (utf8) ~
+                            ^^^^^^^^^^^^^^
+                            second terminal attached to the second session
+
+From the xterm terminal, and the 'fun' session, run:
+
+    $ echo test | less
+
+Next, from the st terminal, and the 'study' session, run:
+
+    $ tmux display -c $(tmux lsc | awk -F: '/fun/{print $1}') '#{alternate_on}'
+
+Finally, focus the xterm terminal, and run `:show-messages`.
+You should see `0` in the log.
+So, `-c '/dev/pts/10'` made tmux print the message in a different client, but it
+didn't take the info from the active pane attached to the 'fun' session.
+If that was the case, `0` would not have been logged, but `1`.
+
+Is the documentation wrong? Or is it right but there's a bug?
+
+Btw, if you  use `-p` with `-c`, the  message is printed in the  current pane of
+the current client, and not in the active pane of the client passed to `-c`.
 

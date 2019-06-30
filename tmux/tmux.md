@@ -379,7 +379,7 @@ After sh parses the command:
 # Getting Information
 ## How to get the name of the outer terminal?
 
-Use the replacement variable `#{client_termname}`:
+Use the format variable `#{client_termname}`:
 
     $ tmux display -p '#{client_termname}'
                     │
