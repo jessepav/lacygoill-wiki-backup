@@ -233,7 +233,7 @@ It doesn't matter how you create a new session, its environment is always update
 
     # from inside a tmux session
     $ export KRB5CCNAME=foo
-    $ S=$(tmux new-session -d -P)
+    $ S=$(tmux new-session -d -P -F '#{session_id}')
     $ tmux showenv -t $S | grep KRB5CCNAME
     KRB5CCNAME=foo~
 

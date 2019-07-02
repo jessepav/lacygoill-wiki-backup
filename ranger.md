@@ -72,6 +72,12 @@ Press `+gr`.
 
 # BUGS
 
+Open an audio/video file from ranger, then try quit ranger.
+
+    Not quitting: Tasks in progress: Use `quit!` to force quit
+
+---
+
     api w3m-img
     vim config/rc.conf    →    set preview_images true
     ranger --copy-config=scope

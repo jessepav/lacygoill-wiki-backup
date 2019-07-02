@@ -167,17 +167,16 @@ Style to follow when submitting a PR to tmux:
 
 # move `~/wiki/terminal/tmux.md` from the terminal wiki to the tmux wiki?
 
-# here's a way to programmatically get the PID of a process launched by tmux:
+# create a new session from within tmux
 
-    P=$(tmux new -dP -- mycommand); tmux display -pt$P -F '#{pane_pid}'
-                        ^^^^^^^^^
-                        arbitrary command started in a new tmux window
+    $ tmux switchc -t$(tmux new -dP -F '#{session_id}')
 
 # linking windows
 
 Watch this:
 
     $ tmux linkw -s . -t 0
+    # update: it seems you can omit `-s .`:    $ tmux linkw -t0
 
 It creates a window of index 0, which is linked to the current window.
 I think the command means: link the current window (`-s .`) to a new window of index 0.
@@ -403,12 +402,6 @@ See: <https://github.com/tmux/tmux/wiki/Contributing>
 > ...
 > A command in copy mode to toggle the selection.
 
-# implement `pfx L` (similar to `ZL` in Vim)
-
-The key binding would move a horizontal pane into a vertical one to the right.
-Implement similar  ones with `H`, `J`  and `K`, to gain  consistency between Vim
-and tmux.
-
 # implement `M-S-a` to focus the next window with an alert
 
 Use the `-a` argument passed to `:next-window`.
@@ -473,7 +466,7 @@ messages.
 
 This key binding should toggle it:
 
-    bind <key> setw synchronize-panes
+    bind <key> set -w synchronize-panes
 
 When it's on, anything you type in one pane, is typed in all the others.
 
@@ -710,4 +703,33 @@ Is the documentation wrong? Or is it right but there's a bug?
 
 Btw, if you  use `-p` with `-c`, the  message is printed in the  current pane of
 the current client, and not in the active pane of the client passed to `-c`.
+
+---
+
+From `$ man tmux /^\s*select-pane`:
+
+>         select-pane [-DLRUdel] [-T title] [-t target-pane]
+
+> Make pane target-pane the active pane **in window target-window**.
+
+There's no `target-window` in the synopsis of the command.
+Should “in window target-window” be replaced by “in current window”?
+
+---
+
+From `$ man tmux /^\s*last-pane`:
+
+> last-pane [-de] [-t target-window]
+
+Why is `[-t target-window]` mentioned in the synopsis?
+`target-window` is not mentioned in the description of the command.
+I tried to provide a window ID (`@123`) to `-t`, but it didn't have any effect.
+
+It seems the right synopsis is just:
+
+> last-pane [-de]
+
+---
+
+The `-N` flag which one can pass to `command-prompt` is not documented.
 

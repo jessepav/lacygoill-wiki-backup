@@ -676,7 +676,7 @@ For example, to get a list of windows formatted like in the status line:
     #{window_start_flag}
     #{window_end_flag}
 
-#### the last-but-one to be focused?
+#### the last-but-one to be active?
 
     #{window_last_flag}
 
@@ -866,22 +866,31 @@ it suits your needs, and `$ awk` or `$ sed` to extract the desired info.
 `list-clients`, `list-buffers` or `list-commands` + `$ awk` or `$ sed`.
 
 ###
-## Which pane ID do I get if I run
+## Which pane ID is output by
 ### `$ tmux display -p -t mysession '#D'`?
 
-If `mysession` is being attached, the ID of the pane currently focused.
-Otherwise, the ID of the last pane  which was focused when `mysession` was being
+If `mysession` is being attached, the ID of the currently active pane.
+Otherwise, the ID of  the last pane which was active  when `mysession` was being
 attached.
 
 ### `$ tmux display -p -t 'mysession:^' '#D'`?
 
-The ID of  the last pane which  was focused in the first  window of `mysession`,
-when  the latter  was being  attached and  you left  the first  window to  focus
+The ID of the last pane which was active in the first window of `mysession`, the
+last time  the latter was being  attached and you  left the first window  to use
 another one.
 
-### ?
+### `$ tmux display -p -t 'mysession' '#W`'
 
-More generally, what happens if I pass a description to `-t` which is not accurate enough?
+If `mysession` is being attached, the name of the currently used window.
+Otherwise, the name of the last window which was used when `mysession` was being
+attached.
+
+##
+### More generally, what happens if I pass a description to `-t` which is not accurate enough?
+
+Tmux seems to  use the currently active pane/window if  it's compatible with the
+description provided,  otherwise it uses  the last pane/window which  was active
+among the set of panes/windows which are compatible with the description.
 
 ###
 ## How to get the command running in
@@ -987,7 +996,7 @@ Here are some (all?) of the info you could ask for:
 
     a window is zoomed
     a window is the first/last one
-    a window is the last-but-one to be focused
+    a window is the last-but-one to be used
 
     a pane is in a mode
     a pane is active

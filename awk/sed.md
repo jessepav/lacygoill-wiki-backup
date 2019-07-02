@@ -1584,6 +1584,16 @@ Anything which prevents `#n` from being the very first 2 characters of the scrip
 # Todo
 ## ?
 
+From irc `#bash`:
+
+            │ !sed-i
+    greybot │ Some sed(1)s have -i which claims to "modify" files. It does not: sed is not a FILE editor. The -i flag
+            │ re-writes the entire file and replaces the original with the new. This breaks open handles and hard-link
+            │ sets, and fails to follow symlinks. -i is also unportable: valid sed on one system will write broken files
+            │ on another. Use ed(1) or ex(1) instead: eg. ex -sc '%s/a/b/|wq' file
+
+## ?
+
 Without `-e`  or `-f` options,  sed uses the  first non-option parameter  as the
 script, and the following non-option parameters as input files.
 If `-e` or `-f` options are used  to specify a script, all non-option parameters
