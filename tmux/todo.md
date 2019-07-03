@@ -297,20 +297,56 @@ But not when you reach it with `j` or `Down`.
 
 You can make some tests with this minimal tmux.conf:
 
+    $ tmux -Lx -f =(cat <<'EOF'
     set -g mouse on
     bind -n a copy-mode -e
+    EOF
+    )
 
-Then press `pfx a`,  followed by PgDown or WheelDown until you  reach the end of
-the screen; tmux should quit copy mode.
+Then press `a`, followed  by PgDown or WheelDown until you reach  the end of the
+screen; tmux should quit copy mode.
 
 ---
 
 If you're looking for a real usage example, see this key binding installed by default:
 
-    bind WheelUpPane if -F -t = "#{mouse_any_flag}" "send -M" "if -Ft= \"#{pane_in_mode}\" \"send -M\" \"copy-mode -et=\""
+    bind WheelUpPane if -Ft= '#{mouse_any_flag}' { send -M } \
+    { if -Ft= '#{pane_in_mode}' 'send -M' 'copy-mode -et=' }
+                                                      ^
 
-If you wonder what the `=` sign means here, it's a special token equivalent to `{mouse}`.
-See `$ man tmux /MOUSE SUPPORT /{mouse}`.
+---
+
+What's `mouse_any_flag`?
+
+<https://github.com/tmux/tmux/blob/d769fec8d670ce37d476da3e31d6e68f9d43408c/regress/conf/58304907c117cab9898ea0b070bccde3.conf#L65>
+
+    # var|bind \ cmd  |   vim   |   less    | copy |  zsh
+    # pane_in_mode    |    0    |     0     |   1  |   0
+    # mouse_any_flag  |    1    |     0     |   0  |   0
+    # alternate_on    |    1    |     1     |   0  |   0
+    # WheelUpPane     | send -M | send Up   |   *  | send Up (** or copy-mode -e)
+    # WheelDownPane   | send -M | send Down |   *  | send Down
+    # * panes in copy mode have scroll handled by different bindings
+
+If you run `:set mouse=` in Vim, `mouse_any_flag` is 0 in tmux.
+If you run `:set mouse=a` in Vim, `mouse_any_flag` is 1 in tmux.
+
+---
+
+Here are all our current key bindings which can copy text in copy mode:
+
+    bind -T copy-mode-vi S                 send -X copy-pipe-and-cancel "xargs -I {} tmux run 'xdg-open \"https://www.google.com/search?q={}\"'"
+    bind -T copy-mode-vi Y                 send -X copy-selection-and-cancel \; paste-buffer -p
+    bind -T copy-mode-vi x                 send -X copy-pipe-and-cancel "xargs -I {} tmux run 'xdg-open \"{}\"'"
+    bind -T copy-mode-vi y                 send -X copy-pipe-and-cancel "xsel -i --clipboard"
+    bind -T copy-mode-vi MouseDragEnd1Pane send -X copy-pipe-and-cancel "xsel -i --primary"
+    bind -T copy-mode-vi M-y               send -X copy-pipe-and-cancel "xsel -i --clipboard; tmux paste-buffer"
+
+Try to modify them so that the name of the tmux buffers they create is shorter (`buf0`, `buf1`, ...).
+
+> Copy  commands may  take an  optional buffer  prefix argument  which is  used to
+> generate  the  buffer  name  (the  default is  ‘buffer'  so  buffers  are  named
+> ‘buffer0', ‘buffer1' and so on).
 
 # document `-A` option of `new-session` command
 
@@ -461,6 +497,18 @@ messages.
         sil! g/\m\CConfiguration reloaded.$\|No previous window\|No next window/d_
     endfu
 
+## prevent the command-prompt history from polluting the regular history
+
+    :command-prompt 'display %%'
+    (display) hello~
+              ^^^^^
+              type that
+
+      press this
+      vv
+    : Up
+    hello~
+
 #
 # document the `synchronize-panes` window option
 
@@ -469,6 +517,13 @@ This key binding should toggle it:
     bind <key> set -w synchronize-panes
 
 When it's on, anything you type in one pane, is typed in all the others.
+
+      osse │ tmux synchronize-panes is pretty neat when debugging :) Can have the good case in one pane and the bad case
+           │ in the other
+    steven │ I don't think I get it, sync panes literally just sends the same keystrokes to all panes, right?
+           │ so how can you have two different cases
+      osse │ by turning on syncronize-panes after the two cases have been initialized
+           │ in this particular case, open vim in two different directories
 
 # study how v, V, C-v behave in Vim when we're already in visual mode; try to make tmux copy-mode consistent
 
@@ -732,4 +787,31 @@ It seems the right synopsis is just:
 ---
 
 The `-N` flag which one can pass to `command-prompt` is not documented.
+
+I think `-N` makes the prompt only accept numeric key presses.
+
+---
+
+From `$ man tmux /MOUSE SUPPORT`:
+
+> In addition, target-session, target-window or target-pane may consist entirely
+> of the token ‘{mouse}' (alternative form ‘=') to specify **the most recent mouse**
+> **event** (see the MOUSE SUPPORT section)  or ‘{marked}' (alternative form ‘~') to
+> specify the marked pane (see select-pane -m).
+
+I think  it should  be “the session,  window, pane where  the most  recent mouse
+event occurred”.
+
+---
+
+From `$ man tmux /WINDOWS AND PANES`:
+
+> copy-end-of-line [<prefix>]                  D               C-k
+
+Imo, `Y` would be a better choice.
+I understand why `D` was chosen though; by symmetry with `C-k` in emacs.
+Indeed, Vim's `D` is equivalent to emacs's `C-k`.
+But it's irrelevant; `copy-end-of-line` doesn't delete text.
+The reason why `C-k` was chosen in emacs is probably because there's no equivalent of `Y`.
+It was the closest command, but not the exact one.
 

@@ -240,9 +240,97 @@ The pty(4) file to which the client is connected.
 For example, `/dev/pts/1`.
 
 ##
+# pane
+## Can a pane have a title?  A name?
+
+A pane can only have a title.
+
+## Can a window have a title?  A name?
+
+A window can have a name.
+It can't have its own title, but it automatically gets the one of its active pane.
+
+From `$ man tmux /NAMES AND TITLES`:
+> Windows themselves do not have titles - a window's title is the title of its active pane.
+
+###
+## How to set the title of
+### the current pane?  (2)
+
+    $ printf '\033]2;my title\033\\'
+    $ tmux selectp -T 'my title'
+
+### the pane whose id is `%123`?
+
+    $ tmux selectp -t %123 -T 'my title'
+
+###
+## What is an empty pane?
+
+A pane which was not started to run a command, but simply to print some text.
+
+---
+
+An empty pane is characterized by a 0 pid:
+
+    :display -p '#{pane_pid}'
+    0~
+
+Although weirdly enough, `:display -p '#{pane_current_command}'` still outputs `zsh`.
+
+### How to create a new one?
+
+    $ tmux splitw ''
+                  ^^
+
+#### and make it print the output of a shell command (in a single command)?
+
+    $ echo hello | tmux splitw -I
+                               ^^
+                               create an empty pane and forward any output from stdin to it
+
+###
+### Why do `$ tmux splitw ''` and `$ tmux splitw` behave differently?
+
+*Without* any `shell-command` argument, after  creating a new pane, `:splitw` runs
+the command set by the `'default-command'` option.
+The default  value of  the latter is  an empty string,  which instructs  tmux to
+create a login shell using the value of the `'default-shell'` option.
+We use the value `/bin/zsh`.
+
+OTOH, if you pass  an *explicit* empty string to `:splitw`,  in effect, you tell
+tmux to ignore `'default-command'`.
+
+---
+
+Btw, don't conflate  the empty string passed to `:splitw`  with the empty string
+which is assigned by default to `'default-command'`.
+They are used in different contexts, and so can have different meanings.
+
+###
+### How to forward the output of a shell command to an existing empty pane?
+
+Pass the `-I` flag to `display-message`.
+
+    $ echo hello | tmux splitw -dI
+    $ echo world | tmux display -I -t :.2
+                                 ^
+
+### How to send some text to an empty pane from Vim?
+
+Create the empty pane, and save its id.
+Then use this id to send your text.
+Use the second optional argument of `system()` to pass the text to the stdin of `$ tmux`.
+
+    :let pane_id = system('tmux splitw -PF "#D" -dI', "hello\n")[:-2]
+    :call system('tmux display -t ' . pane_id . ' -I', "world\n")
+                                                             ^^
+                                                             don't forget to add a newline,
+                                                             if you want the next text
+                                                             to be printed on a different line
+
 ##
-##
-# COMMANDS
+# marked pane
 ## What is the marked pane?
 
 The default target for `-s` when passed to `join-pane`, `swap-pane` and `swap-window`.
@@ -265,303 +353,17 @@ Use the `select-pane` command:
                    ^^
 
 ##
-## select-pane
+## How to refer to the marked pane when I need to target it?
 
->         select-pane [-DLRUdel] [-T title] [-t target-pane]
+Use the special token `{marked}` or `~`.
 
-> Make pane target-pane the active pane in window target-window.
+---
 
-> If one of -D, -L, -R, or -U is used, respectively the pane below, to the left,
-> to the right, or above the target pane is used.
+    $ tmux bind C-z display -t'~' '#{pane_current_command}'
 
-> -l is the same as using the last-pane command.
+Mark a pane, focus a different one, and press prefix + `C-z`.
+Tmux should print the command running in the marked pane, not in the current one.
 
-> -e enables or -d disables input to the pane.
-
-> -T sets the pane title.
-
-##
-## join-pane
-
->         join-pane [-bdhv] [-l size | -p percentage] [-s src-pane] [-t dst-pane]
->                       (alias: joinp)
-
-> Like split-window, but instead of splitting  dst-pane and creating a new pane,
-> split it and move src-pane into the space.
-> This can be used to reverse break-pane.
-> The -b option causes src-pane to be joined to left of or above dst-pane.
-
-> If -s is omitted and a marked pane is present (see select-pane -m), the marked
-> pane is used rather than the current pane.
-
-## swap-pane
-
-> swap-pane [-dDU] [-s src-pane] [-t dst-pane]
->               (alias: swapp)
->         Swap two panes.  If -U is used and no source pane is specified
->         with -s, dst-pane is swapped with the previous pane (before it
->         numerically); -D swaps with the next pane (after it numerically).
->         -d instructs tmux not to change the active pane.
-
->         If -s is omitted and a marked pane is present (see select-pane
->         -m), the marked pane is used rather than the current pane.
-
-## swap-window
-
-> swap-window [-d] [-s src-window] [-t dst-window]
->               (alias: swapw)
->         This is similar to link-window, except the source and destination
->         windows are swapped.  It is an error if no window exists at
->         src-window.
-
->         Like swap-pane, if -s is omitted and a marked pane is present
->         (see select-pane -m), the window containing the marked pane is
->         used rather than the current window.
-
-##
-##
-## ?
-
-What is a mouse event?
-
-## Which mouse events are available?  (8)
-
-    ┌───────────────┬──────────────────────────────────────────────────────────────┐
-    │ WheelDown     │ wheel scrolled downward                                      │
-    ├───────────────┼──────────────────────────────────────────────────────────────┤
-    │ WheelUp       │ wheel scrolled upward                                        │
-    ├───────────────┼──────────────────────────────────────────────────────────────┤
-    │ DoubleClick1  │ double left click                                            │
-    ├───────────────┼──────────────────────────────────────────────────────────────┤
-    │ TripleClick1  │ triple left click                                            │
-    ├───────────────┼──────────────────────────────────────────────────────────────┤
-    │ MouseDown1    │ left click pressed                                           │
-    ├───────────────┼──────────────────────────────────────────────────────────────┤
-    │ MouseUp1      │ left click released                                          │
-    ├───────────────┼──────────────────────────────────────────────────────────────┤
-    │ MouseDrag1    │ mouse moving after left click has been pressed               │
-    ├───────────────┼──────────────────────────────────────────────────────────────┤
-    │ MouseDragEnd1 │ left click released after it was pressed and the mouse moved │
-    └───────────────┴──────────────────────────────────────────────────────────────┘
-
-In the last 6 events, `1` can be replaced by `2` or `3`.
-
-    ┌───┬───────────────────┐
-    │ 1 │ left click used   │
-    ├───┼───────────────────┤
-    │ 2 │ middle click used │
-    ├───┼───────────────────┤
-    │ 3 │ right click used  │
-    └───┴───────────────────┘
-
-## I left-click on a pane, then release the click.  Which events are fired?
-
-`MouseDown1` then `MouseUp1`.
-
-## I left-click on a pane, move the mouse, then release the click.  Which events are fired?
-
-`MouseDown1`, `MouseDrag1`, `MouseDragEnd1`.
-
-`MouseUp1` is only fired if the mouse didn't move after `MouseDown1`.
-
-## In which location can a mouse event occur?  (6)
-
-    ┌───────────────┬───────────────────────────────────┐
-    │ Pane          │ the contents of a pane            │
-    ├───────────────┼───────────────────────────────────┤
-    │ Border        │ a pane border                     │
-    ├───────────────┼───────────────────────────────────┤
-    │ Status        │ the status line window list       │
-    ├───────────────┼───────────────────────────────────┤
-    │ StatusLeft    │ the left part of the status line  │
-    ├───────────────┼───────────────────────────────────┤
-    │ StatusRight   │ the right part of the status line │
-    ├───────────────┼───────────────────────────────────┤
-    │ StatusDefault │ any other part of the status line │
-    └───────────────┴───────────────────────────────────┘
-
-## How to build the lhs of a mouse key binding?
-
-Follow the syntax `MouseEvent + Location`.
-
-Which lhs should I use to run a command when I right-click on the left part of my status line?
-
-    MouseDown3StatusLeft
-    ├────────┘├────────┘
-    │         └ location
-    └ mouse event
-
-Usage example:
-
-    $ tmux bind -T root MouseDown3StatusLeft display 'test'
-
-## ?
-
-How to target the session/window/pane where a certain mouse event has occurred in a certain location?
-
-## ?
-
-Document the fact that *I think* the token  `{mouse}` or `=` can only be used in
-a key binding.
-It may be due to the definition of a mouse event.
-Maybe a mouse event only occurs when a key is pressed; after that it's too late;
-before that it's too early.
-
-## ?
-
-> In addition, target-session, target-window or target-pane may consist entirely
-> of the token ‘{mouse}' (alternative form ‘=') to specify the most recent mouse
-> event (see the MOUSE SUPPORT section)  or ‘{marked}' (alternative form ‘~') to
-> specify the marked pane (see select-pane -m).
-
-## MOUSE SUPPORT
-
->      If the mouse option is on (the default is off), tmux allows mouse events
->      to be bound as keys.  The name of each key is made up of a mouse event
->      (such as ‘MouseUp1') and a location suffix, one of the following:
-
->            Pane             the contents of a pane
->            Border           a pane border
->            Status           the status line window list
->            StatusLeft       the left part of the status line
->            StatusRight      the right part of the status line
->            StatusDefault    any other part of the status line
-
->      The following mouse events are available:
-
->            WheelUp       WheelDown
->            MouseDown1    MouseUp1      MouseDrag1   MouseDragEnd1
->            MouseDown2    MouseUp2      MouseDrag2   MouseDragEnd2
->            MouseDown3    MouseUp3      MouseDrag3   MouseDragEnd3
->            DoubleClick1  DoubleClick2  DoubleClick3
->            TripleClick1  TripleClick2  TripleClick3
-
->      Each should be suffixed with a location, for example ‘MouseDown1Status'.
-
->      The special token ‘{mouse}' or ‘=' may be used as target-window or
->      target-pane in commands bound to mouse key bindings.  It resolves to the
->      window or pane over which the mouse event took place (for example, the
->      window in the status line over which button 1 was released for a
->      ‘MouseUp1Status' binding, or the pane over which the wheel was scrolled
->      for a ‘WheelDownPane' binding).
-
->      The send-keys -M flag may be used to forward a mouse event to a pane.
-
->      The default key bindings allow the mouse to be used to select and resize
->      panes, to copy text and to change window using the status line.  These
->      take effect if the mouse option is turned on.
-
-## send-keys
-
-> send-keys [-lMRX] [-N repeat-count] [-t target-pane] key ...
->               (alias: send)
->         Send a key or keys to a window.  Each argument key is the name of
->         the key (such as ‘C-a' or ‘NPage') to send; if the string is not
->         recognised as a key, it is sent as a series of characters.  The
->         -l flag disables key name lookup and sends the keys literally.
->         All arguments are sent sequentially from first to last.  The -R
->         flag causes the terminal state to be reset.
-
->         -M passes through a mouse event (only valid if bound to a mouse
->         key binding, see MOUSE SUPPORT).
-
->         -X is used to send a command into copy mode - see the WINDOWS AND
->         PANES section.  -N specifies a repeat count.
-
-###
-## split-window
-
-> split-window [-bdfhIvP] [-c start-directory] [-e environment] [-l size |
->         -p percentage] [-t target-pane] [shell-command] [-F format]
->               (alias: splitw)
->         Create a new pane by splitting target-pane: -h does a horizontal
->         split and -v a vertical split; if neither is specified, -v is
->         assumed.  The -l and -p options specify the size of the new pane
->         in lines (for vertical split) or in cells (for horizontal split),
->         or as a percentage, respectively.  The -b option causes the new
->         pane to be created to the left of or above target-pane.  The -f
->         option creates a new pane spanning the full window height (with
->         -h) or full window width (with -v), instead of splitting the
->         active pane.
-
->         An empty shell-command ('') will create a pane with no command
->         running in it.  Output can be sent to such a pane with the
->         display-message command.  The -I flag (if shell-command is not
->         specified or empty) will create an empty pane and forward any
->         output from stdin to it.  For example:
-
->               $ make 2>&1|tmux splitw -dI &
-
->         All other options have the same meaning as for the new-window
->         command.
-
-## break-pane
-
-> break-pane [-dP] [-F format] [-n window-name] [-s src-pane] [-t
->         dst-window]
->               (alias: breakp)
->         Break src-pane off from its containing window to make it the only
->         pane in dst-window.  If -d is given, the new window does not
->         become the current window.  The -P option prints information
->         about the new window after it has been created.  By default, it
->         uses the format ‘#{session_name}:#{window_index}' but a different
->         format may be specified with -F.
-
-## link-window
-
-> link-window [-adk] [-s src-window] [-t dst-window]
->               (alias: linkw)
->         Link the window at src-window to the specified dst-window.  If
->         dst-window is specified and no such window exists, the src-window
->         is linked there.  With -a, the window is moved to the next index
->         up (following windows are moved if necessary).  If -k is given
->         and dst-window exists, it is killed, otherwise an error is gener‐
->         ated.  If -d is given, the newly linked window is not selected.
-
-## new-window
-
-> new-window [-adkP] [-c start-directory] [-e environment] [-F format] [-n
->         window-name] [-t target-window] [shell-command]
->               (alias: neww)
->         Create a new window.  With -a, the new window is inserted at the
->         next index up from the specified target-window, moving windows up
->         if necessary, otherwise target-window is the new window location.
-
->         If -d is given, the session does not make the new window the cur‐
->         rent window.  target-window represents the window to be created;
->         if the target already exists an error is shown, unless the -k
->         flag is used, in which case it is destroyed.  shell-command is
->         the command to execute.  If shell-command is not specified, the
->         value of the default-command option is used.  -c specifies the
->         working directory in which the new window is created.
-
->         When the shell command completes, the window closes.  See the
->         remain-on-exit option to change this behaviour.
-
->         -e takes the form ‘VARIABLE=value' and sets an environment vari‐
->         able for the newly created window; it may be specified multiple
->         times.
-
->         The TERM environment variable must be set to ‘screen' or ‘tmux'
->         for all programs running inside tmux.  New windows will automati‐
->         cally have ‘TERM=screen' added to their environment, but care
->         must be taken not to reset this in shell start-up files or by the
->         -e option.
-
->         The -P option prints information about the new window after it
->         has been created.  By default, it uses the format
->         ‘#{session_name}:#{window_index}' but a different format may be
->         specified with -F.
-
-##
-## ?
-
-> Most commands  accept the optional  -t (and sometimes  -s) argument with  one of
-> target-client, target-session, target-window, or target-pane.
-> These specify the client, session, window or pane which a command should affect.
-
-##
-##
 ##
 # Input
 ## What does it mean to disable the input to a pane?
@@ -576,27 +378,35 @@ It's replaced by 1 iff the input is disabled.
 
 ##
 ## How to disable/enable input to the
+### current pane
+
+    $ tmux selectp -d
+    $ tmux selectp -e
+
 ### pane above/below/to the right/to the left?
 
 Pass the  `-d` flag (disable) or  `-e` flag (enable),  as well as either  of the
-`-U` (up), `-D` (down), `-L` (left), `-R` (right) flags, to `selectp`.
+`-l` (last), `-U` (up), `-D` (down), `-L` (left), `-R` (right), flags, to `selectp`.
 
 For example, to disable the input in the pane above:
 
     $ tmux selectp -Ud
 
-And to enable the input in the pane to the right:
+And to enable the input in the last pane:
 
-    $ tmux selectp -Re
+    $ tmux selectp -le
 
 ---
 
 Note that these commands don't change the active pane.
 
-### previously selected pane?
+### previously selected pane?  (2)
 
      $ tmux last-pane -d
+     $ tmux selectp -ld
+
      $ tmux last-pane -e
+     $ tmux selectp -le
 
 ##
 ## How to make tmux automatically duplicate the input I send to a pane, to all the other panes in the same window?
@@ -613,57 +423,592 @@ Besides, if  your active  pane is  in a  mode, the  input you  send will  not be
 duplicated *anywhere*.
 
 ##
+## How to make tmux prompt me for some input, then include it in an arbitrary command and run it?
+
+Use `command-prompt`:
+
+    $ tmux command-prompt -p '(my prompt)' 'display %%'
+
+The placeholder `%%` will be replaced by the user input.
+
+### How to prepopulate the command-line with some text?
+
+Use the `-I` flag:
+
+    $ tmux command-prompt -I 'my default input' -p '(my prompt)' 'display %%'
+                          ^^^^^^^^^^^^^^^^^^^^^
+
+###
+### How to limit the user input to only
+#### one keypress?
+
+Use the `-1` flag:
+
+    $ tmux command-prompt -1 -p '(my prompt)' 'display %%'
+                          ^^
+
+If you press `abc`,  tmux will only display `a`, then it will  sends `bc` to the
+command running in the current pane.
+
+#### a number?
+
+Use the `-N` flag:
+
+    :bind -Tcopy-mode-vi  C-z  command-prompt -N {send -N '%%%'}
+                                              ^^
+
+As soon as you press a non-numeric key:
+
+   1. the user input is terminated
+   2. the template command is run
+   3. the non-numeric key is sent to the command running in the current pane
+
+###
+### How to make tmux
+#### escape double quotes in the user input?
+
+Use the `%%%` placeholder instead of `%%`.
+
+    :command-prompt "display %%%"
+    # press a"b
+    a"b~
+
+This doesn't seem to escape single quotes though:
+
+    :command-prompt "display %%%"
+    # press a'b
+    Syntax error~
+
+#### prompts me several times?
+
+Pass a comma separated list of prompts to `-p`:
+
+    $ tmux command-prompt -I 'my input1,my input2' -p '(my prompt1),(my prompt2)' 'display "%1 and %2"'
+                                                                   ^^^^^^^^^^^^^
+
+If you press Enter twice, without changing the default inputs, the command will output:
+
+    my input1 and my input2~
+
+`%1` and `%2` will be replaced with respectively the first and second user input.
+You're limited to 9 user inputs, so you can only go up to `%9`.
+
+Note that `-I` is optional; only `-p` is required to get several prompts.
+
+#### prompt me in an arbitrary tmux client?
+
+Use the `-t` flag,  followed by the path to the pty(4) file  to which the client
+is connected:
+
+    $ tmux command-prompt -t /dev/pts/123  'display "%%%"'
+                          ^^^^^^^^^^^^^^^
+
+#### run the command *every time* I press a key?  (not just once when I press Enter)
+
+Use the `-i` flag (i for interactive?):
+
+                    vv
+    :command-prompt -i {run 'echo "%%%" >>/tmp/log'}
+    # press a, then b, then c
+    $ cat /tmp/log
+    =a~
+    =ab~
+    =abc~
+
+##
+### What happens if I don't provide
+#### a prompt (no `-p '...'` argument)?
+
+Tmux still prompts  you for your input, and the  prompt (!= command-line) prints
+the name of the command used in the template (inside parentheses).
+
+For example:
+
+    $ tmux command-prompt 'display "%%"'
+
+This command prompts  you for your input, and the  text `(display)` is displayed
+in the prompt.
+
+#### a command to run (no `template` argument)?
+
+Tmux will try to run the first word in your input.
+So, for  example, if  you've passed `my  default input` to  `-I`, and  you don't
+alter it  (immediately press Enter),  then tmux would  try to run  the (unknown)
+command `my`.
+
+#### a prompt nor a command to run?
+
+The tmux  prompt will be opened  (`:`), and possibly prepopulated  with the text
+provided by `-I`.
+
+###
+### What's the difference between `%%` and `%1`?
+
+Tmux replaces only the first occurrence of `%%` with the user input.
+OTOH, it replace *all* occurrences of `%1` with the user input.
+
+### Which pitfall should I avoid when combining the `-p` flag with another flag?
+
+Make sure to write `-p` at the end.
+
+Otherwise, the other flag(s) would be interpreted as the text to write in the prompt.
+
+For example, combined with `-1`, this would either raise an error:
+
+    $ tmux command-prompt -p1 '(my prompt)' 'display "%%%"'
+    usage: command-prompt [-1Ni] [-I inputs] [-p prompts] [-t target-client] [template]~
+
+... or `-1` would not limit the user  input to 1 keypress, but instead simply be
+written in the prompt:
+
+    $ tmux command-prompt -p1 'display "%%%"'
+
+The same is true for other combinations of flags with `-p`; don't write `-pN` but `-Np`, ...
+
+#### Which flag is also concerned by this pitfall?
+
+`-I`
+
+Don't write `-I1` but `-1I`, and don't write `-IN` but `-NI`, etc.
+
+##
+##
+##
+# join-pane
 ## ?
 
-Anything else related to input:
+>         join-pane [-bdhv] [-l size | -p percentage] [-s src-pane] [-t dst-pane]
+>                       (alias: joinp)
 
-     command-prompt [-1i] [-I inputs] [-p prompts] [-t target-client] [template]
+> Split dst-pane, and move src-pane into the newly created pane.
+> This can be used to reverse break-pane.
+> The -b option causes src-pane to be joined to left of or above dst-pane.
 
-Open the command prompt in a client.
-This may be used from inside tmux to execute commands interactively.
+> If -s is omitted and a marked pane is present (see select-pane -m), the marked
+> pane is used rather than the current pane.
 
-If template is specified, it is used as the command.
-If present, `-I` is a comma-separated list of the initial text for each prompt.
-If  `-p` is  given,  prompts is  a  comma-separated list  of  prompts which  are
-displayed in  order; otherwise  a single prompt  is displayed,  constructed from
-template if it is present, or `:` if not.
+## Which pane is joined to the current window if I run `:join-pane -s 3`?
 
-Before the command is executed, the first  occurrence of the string `%%` and all
-occurrences of `%1` are  replaced by the response to the  first prompt, all `%2`
-are replaced  with the  response to  the second  prompt, and  so on  for further
-prompts.
-Up to nine prompt responses may be replaced (`%1` to `%9`).
-`%%%` is like `%%` but any quotation marks are escaped.
+If the current  window contains a pane whose  index is 3, tmux will  try to join
+it, which will obviously fail since it's *already* in the current window.
 
-`-1` makes  the prompt  only accept one  key press, in  this case  the resulting
-input is a single character.
-`-i` executes  the command every time  the prompt input changes  instead of when
-the user exits the command prompt.
+Otherwise, tmux will join  the pane of the 3rd window which was  the last one to
+be active when we left the window.
 
----
+Bottom line:  the rules can be  quite complex, so  to avoid any surprise,  be as
+accurate as possible.
 
-Run `$ rg command-prompt`  in the tmux repo, and you'll  find key bindings which
-pass the `-N` flag to `command-prompt`.
+    # ✔
+    $ tmux join-pane -s 3
 
-    $ tmux bind -Tcopy-mode-vi M-3 command-prompt -Np'(repeat)' -I3 'send -N \"%%%\"'
-                                                   ^
+    # ✔✔
+    $ tmux join-pane -s :3
 
-But this flag is not documented.
-What does it mean?
-It seems to  mean that you can  only press 1 key,  and that it won't  be used to
-replace `%%` (or `%%%`), With `-N`, you can press only 1 key.
+    # ✔✔✔
+    $ tmux join-pane -s :3.4
 
-Actually, there's no need to run `$ rg`.
-Just look at the output of `$ tmux lsk | grep command-prompt`:
+    # ✔✔✔✔
+    $ tmux join-pane -s mysession:3.4
 
-    bind-key -T copy-mode-vi 3 command-prompt -N -I 3 -p (repeat) "send -N \"%%%\""
+In practice, I doubt you would want to join a pane which is in another session,
+because usually sessions are built around very different themes (e.g. work vs fun).
+So, you'll probably want to take the habit of using the third syntax:
 
-Btw, those escaped double-quotes are ugly. Use braces instead.
-
-    bind-key -T copy-mode-vi 3 command-prompt -N -I 3 -p (repeat) {send -N '%%%'}
+    $ tmux join-pane -s :x.y
 
 ##
-##
+# break-pane
+
+>         break-pane [-dP] [-F format] [-n window-name] [-s src-pane] [-t dst-window]
+
+>               (alias: breakp)
+
+> Break src-pane  off from  its containing window  to make it  the only  pane in
+> dst-window.
+
+> If -d is given, the new window does not become the current window.
+
+> The -P option prints information about the new window after it has been created.
+> By default, it uses the format ‘#{session_name}:#{window_index}' but a different
+> format may be specified with -F.
+
+#
+# swap-pane
+
+>         swap-pane [-dDU] [-s src-pane] [-t dst-pane]
+>               (alias: swapp)
+
+> Swap two panes.
+> If -U is used and no source pane  is specified with -s, dst-pane is swapped with
+> the previous pane (before it numerically); -D swaps with the next pane (after it
+> numerically).
+> -d instructs tmux not to change the active pane.
+
+> If -s is omitted and a marked pane is present (see select-pane -m), the marked
+> pane is used rather than the current pane.
+
+# swap-window
+
+>         swap-window [-d] [-s src-window] [-t dst-window]
+>               (alias: swapw)
+
+> This is similar to link-window, except  the source and destination windows are
+> swapped.
+> It is an error if no window exists at src-window.
+
+> Like swap-pane, if -s is omitted and a marked pane is present (see select-pane
+> -m), the  window containing the  marked pane is  used rather than  the current
+> window.
+
+#
+# split-window
+
+> split-window [-bdfhIvP] [-c start-directory] [-e environment] [-l size |
+>         -p percentage] [-t target-pane] [shell-command] [-F format]
+>               (alias: splitw)
+
+> Create a new pane by splitting target-pane:  -h does a horizontal split and -v
+> a vertical split; if neither is specified, -v is assumed.
+> The -l and  -p options specify the size  of the new pane in  lines (for vertical
+> split) or in cells (for horizontal split), or as a percentage, respectively.
+> The  -b option  causes the  new  pane to  be created  to  the left  of or  above
+> target-pane.
+> The -f option  creates a new pane  spanning the full window height  (with -h) or
+> full window width (with -v), instead of splitting the active pane.
+
+> An empty shell-command ('') will create a pane with no command running in it.
+> Output can be sent to such a pane with the display-message command.
+> The -I flag  (if shell-command is not  specified or empty) will  create an empty
+> pane and forward any output from stdin to it.
+> For example:
+
+>       $ make 2>&1|tmux splitw -dI &
+
+> All other options have the same meaning as for the new-window command.
+
+# link-window
+
+>         link-window [-adk] [-s src-window] [-t dst-window]
+>               (alias: linkw)
+
+> Link the window at src-window to the specified dst-window.
+> If dst-window is  specified and no such window exists,  the src-window is linked
+> there.
+> With -a, the window  is moved to the next index up  (following windows are moved
+> if necessary).
+> If  -k is  given and  dst-window exists,  it is  killed, otherwise  an error  is
+> generated.
+> If -d is given, the newly linked window is not selected.
+
+# new-window
+
+>         new-window [-adkP] [-c start-directory] [-e environment] [-F format] [-n
+>         window-name] [-t target-window] [shell-command]
+>               (alias: neww)
+
+> Create a new window.
+> With -a,  the new window  is inserted  at the next  index up from  the specified
+> target-window, moving  windows up if  necessary, otherwise target-window  is the
+> new window location.
+
+> If -d is given, the session does not make the new window the current window.
+> target-window represents the window to be  created; if the target already exists
+> an error is shown, unless the -k flag is used, in which case it is destroyed.
+> shell-command is the command to execute.
+> If shell-command  is not specified, the  value of the default-command  option is
+> used.
+> -c specifies the working directory in which the new window is created.
+
+> When the shell command completes, the window closes.
+> See the remain-on-exit option to change this behaviour.
+
+> -e takes  the form ‘VARIABLE=value' and  sets an environment variable  for the
+> newly created window; it may be specified multiple times.
+
+> The  TERM environment  variable must  be  set to  ‘screen' or  ‘tmux' for  all
+> programs running inside tmux.
+> New windows  will automatically have  ‘TERM=screen' added to  their environment,
+> but care must  be taken not to reset  this in shell start-up files or  by the -e
+> option.
+
+> The  -P option  prints information  about  the new  window after  it has  been
+> created.
+> By default, it uses the format ‘#{session_name}:#{window_index}' but a different
+> format may be specified with -F.
+
+# new-session
+
+>         new-session [-AdDEPX] [-c start-directory] [-F format] [-n window-name]
+>         [-s session-name] [-t group-name] [-x width] [-y height]
+>         [shell-command]
+>               (alias: new)
+
+> Create a new session with name session-name.
+
+> The new session is attached to the current terminal unless -d is given.
+> window-name and  shell-command are the name  of and shell command  to execute in
+> the initial window.
+> With -d, the initial  size comes from the global default-size  option; -x and -y
+> can be used to specify a different size.
+> ‘-' uses the size of the current client if any.
+> If -x or -y is given, the default-size option is set for the session.
+
+> If run from  a terminal, any termios(4) special characters  are saved and used
+> for new windows in the new session.
+
+> The  -A flag  makes  new-session behave  like  attach-session if  session-name
+> already exists;  in this case,  -D behaves like  -d to attach-session,  and -X
+> behaves like -x to attach-session.
+
+> If -t is given, it specifies a session group.
+> Sessions in  the same  group share  the same set  of windows  - new  windows are
+> linked to  all sessions  in the group  and any windows  closed removed  from all
+> sessions.
+> The current and  previous window and any session options  remain independent and
+> any session in a group may be killed without affecting the others.
+> The group-name argument may be:
+
+> 1.      the name of an existing group, in which case the new ses‐
+>         sion is added to that group;
+
+> 2.      the name of an existing session - the new session is
+>         added to the same group as that session, creating a new
+>         group if necessary;
+
+> 3.      the name for a new group containing only the new session.
+
+> -n and shell-command are invalid if -t is used.
+
+> The  -P option  prints information  about the  new session  after it  has been
+> created.
+> By default, it uses the format  ‘#{session_name}:' but a different format may be
+> specified with -F.
+
+> If -E is used, the update-environment option will not be applied.
+
+# respawn-pane
+
+>         respawn-pane [-k] [-c start-directory] [-e environment] [-t target-pane] [shell-command]
+>               (alias: respawnp)
+
+> Reactivate a  pane in  which the  command has  exited (see  the remain-on-exit
+> window option).
+> If shell-command  is not given,  the command used when  the pane was  created is
+> executed.
+> The  pane must  be already  inactive,  unless -k  is  given, in  which case  any
+> existing command is killed.
+> -c specifies a new working directory for the pane.
+> The -e option has the same meaning as for the new-window command.
+
+# respawn-window
+
+>         respawn-window [-k] [-c start-directory] [-e environment] [-t target-window] [shell-command]
+>               (alias: respawnw)
+
+> Reactivate a  window in which the  command has exited (see  the remain-on-exit
+> window option).
+> If shell-command is not  given, the command used when the  window was created is
+> executed.
+> The window  must be  already inactive,  unless -k  is given,  in which  case any
+> existing command is killed.
+> -c specifies a new working directory for the window.
+> The -e option has the same meaning as for the new-window command.
+
+# send-keys
+
+    send-keys [-lMRX] [-N repeat-count] [-t target-pane] key ...
+
+Send a key or keys to a window.
+Each argument key is the name of the  key (such as ‘C-a' or ‘NPage') to send; if
+the string is not recognised as a key, it is sent as a series of characters.
+
+The -l flag disables key name lookup and sends the keys literally.
+All arguments are sent sequentially from first to last.
+
+The -R flag causes the terminal state to be reset; `$ tmux send -R` seems similar to `$ clear`.
+
+-N specifies a repeat count; for example:
+
+    $ tmux send -N3 abc
+
+... will send 'abcabcabc' to the current command.
+
+-X is  used to  send a  command into  copy mode  - see  the WINDOWS  AND PANES
+section.
+
+# WINDOWS AND PANES
+
+A tmux window may be in one of two modes.
+The default permits direct access to the terminal attached to the window.
+The other is copy mode, which permits a section of a window or its history to be
+copied to a paste buffer for later insertion into another window.
+This mode is entered with the copy-mode command, bound to ‘[' by default.
+It is also  entered when a command  that produces output, such  as list-keys, is
+executed from a key binding.
+
+Commands are sent to copy mode using the -X flag to the send-keys command.
+
+The following commands are supported in copy mode:
+
+    append-selection
+    append-selection-and-cancel                  A
+    back-to-indentation                          ^
+    begin-selection                              Space
+    bottom-line                                  L
+    cancel                                       q
+    clear-selection                              Escape
+    copy-end-of-line [<prefix>]                  D
+    copy-line [<prefix>]
+    copy-pipe <command> [<prefix>]
+    copy-pipe-no-clear <command> [<prefix>]
+    copy-pipe-and-cancel <command> [<prefix>]
+    copy-selection [<prefix>]
+    copy-selection-no-clear [<prefix>]
+    copy-selection-and-cancel [<prefix>]         Enter
+    cursor-down                                  j
+    cursor-left                                  h
+    cursor-right                                 l
+    cursor-up                                    k
+    end-of-line                                  $
+    goto-line <line>                             :
+    halfpage-down                                C-d
+    halfpage-down-and-cancel
+    halfpage-up                                  C-u
+    history-bottom                               G
+    history-top                                  g
+    jump-again                                   ;
+    jump-backward <to>                           F
+    jump-forward <to>                            f
+    jump-reverse                                 ,
+    jump-to-backward <to>                        T
+    jump-to-forward <to>                         t
+    middle-line                                  M
+    next-paragraph                               }
+    next-space                                   W
+    next-space-end                               E
+    next-word                                    w
+    next-word-end                                e
+    other-end                                    o
+    page-down                                    C-f
+    page-down-and-cancel
+    page-up                                      C-b
+    previous-paragraph                           {
+    previous-space                               B
+    previous-word                                b
+    rectangle-toggle                             v
+    scroll-down                                  C-e
+    scroll-down-and-cancel
+    scroll-up                                    C-y
+    search-again                                 n
+    search-backward <for>                        ?
+    search-forward <for>                         /
+    search-backward-incremental <for>
+    search-forward-incremental <for>
+    search-reverse                               N
+    select-line                                  V
+    select-word
+    start-of-line                                0
+    stop-selection
+    top-line                                     H
+
+Copy  commands may  take an  optional buffer  prefix argument  which is  used to
+generate  the  buffer  name  (the  default is  ‘buffer'  so  buffers  are  named
+‘buffer0', ‘buffer1' and so on).
+Pipe commands take a  command argument which is the command  to which the copied
+text is piped.
+The  ‘-and-cancel' variants  of some  commands exit  copy mode  after they  have
+completed  (for copy  commands)  or  when the  cursor  reaches  the bottom  (for
+scrolling commands).
+‘-no-clear' variants do not clear the selection.
+
+The next and  previous word keys use  space and the ‘-', ‘_'  and ‘@' characters
+as  word  delimiters  by default,  but  this  can  be  adjusted by  setting  the
+word-separators session option.
+Next word moves to the  start of the next word, next word end  to the end of the
+next word and previous word to the start of the previous word.
+The three next and  previous space keys work similarly but use  a space alone as
+the word separator.
+
+The jump commands enable quick movement within a line.
+For instance, typing  ‘f' followed by ‘/'  will move the cursor to  the next ‘/'
+character on the current line.
+A ‘;' will then jump to the next occurrence.
+
+Commands in copy mode may be prefaced by an optional repeat count.
+With vi key bindings, a prefix is entered using the number keys.
+
+The synopsis for the copy-mode command is:
+
+     copy-mode [-Meu] [-t target-pane]
+
+Enter copy mode.
+The -u option scrolls one page up.
+-M begins a  mouse drag (only valid if  bound to a mouse key  binding, see MOUSE
+SUPPORT).
+-e specifies that scrolling to the bottom of the history (to the visible screen)
+should exit copy mode.
+While in  copy mode,  pressing a key  other than those  used for  scrolling will
+disable this behaviour.
+This is intended  to allow fast scrolling through a  pane's history, for example
+with:
+
+    bind PageUp copy-mode -eu
+
+Each window  displayed by tmux may  be split into  one or more panes;  each pane
+takes up a certain area of the display and is a separate terminal.
+A window may be split into panes using the split-window command.
+Windows may be split horizontally (with the -h flag) or vertically.
+Panes  may be  resized with  the resize-pane  command, the  current pane  may be
+changed  with  the  select-pane  command and  the  rotate-window  and  swap-pane
+commands may be used to swap panes without changing their position.
+Panes are numbered beginning from zero in the order they are created.
+
+A number of preset layouts are available.
+These may be selected with the  select-layout command or cycled with next-layout
+(bound to ‘Space' by  default); once a layout is chosen, panes  within it may be
+moved and resized as normal.
+
+The following layouts are supported:
+
+    even-horizontal
+
+Panes are spread out evenly from left to right across the window.
+
+    even-vertical
+
+Panes are spread evenly from top to bottom.
+
+    main-horizontal
+
+A large (main)  pane is shown at the  top of the window and  the remaining panes
+are spread from left to right in the leftover space at the bottom.
+Use the main-pane-height window option to specify the height of the top pane.
+
+    main-vertical
+
+Similar to  main-horizontal but  the large pane  is placed on  the left  and the
+others spread from top to bottom along the right.
+See the main-pane-width window option.
+
+    tiled
+
+Panes are  spread out as  evenly as  possible over the  window in both  rows and
+columns.
+
+In addition, select-layout may  be used to apply a previously  used layout - the
+list-windows command displays  the layout of each window in  a form suitable for
+use with select-layout.
+For example:
+
+    $ tmux list-windows
+    0: ksh [159x48]
+       layout: bb62,159x48,0,0{79x48,0,0,79x48,80,0}
+    $ tmux select-layout bb62,159x48,0,0{79x48,0,0,79x48,80,0}
+
+tmux automatically adjusts the size of the layout for the current window size.
+Note that a layout cannot be applied to  a window with more panes than that from
+which the layout was originally defined.
+
 ##
 # PARSING SYNTAX
 

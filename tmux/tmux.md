@@ -745,7 +745,7 @@ For more info:
 Several tmux clients can be attached to the same session.
 The tmux server is automatically stopped when all sessions are killed.
 
-
+---
 
 When you want to attach a tmux client  to a tmux server, you don't start it from
 the local  machine. The server  AND the  client are always  running on  the same
@@ -754,7 +754,7 @@ machine. The procedure consists in 2 steps:
    1. log in to the remote (for example via ssh)
    2. start a tmux client to attach it to a running tmux server
 
-
+---
 
 When you start tmux on the remote for the first time, 2 processes are created.
 First, one for the client:
@@ -797,7 +797,7 @@ The latter is created in the directory `tmux-{UID}` inside:
    - $TMUX_TMPDIR if the latter set
    - /tmp otherwise
 
-
+---
 
 Any shell created with a tmux client is a child of the tmux server:
 
@@ -822,15 +822,6 @@ everything in red in the diagram is not visible.
 
 Voici qques argument qu'on peut passer à Tmux au démarrage.
 
-
-    tmux command
-
-            Spécifie à Tmux quelle commande exécuter.
-            Si aucune commande n'est donnée, Tmux exécute `new-session`.
-
-            Si `command` accepte des flags en argument, on peut les lui passer ici aussi.
-
-
     -c shell-command
 
             Exécute `shell-command` en utilisant le shell par défaut.
@@ -839,56 +830,6 @@ Voici qques argument qu'on peut passer à Tmux au démarrage.
             Par défaut, elle est vide, et tmux prend donc à la place `$SHELL`.
             `-c shell-command` est utile pour rendre Tmux compatible avec le shell `sh` qd Tmux
             est utilisé comme un login shell.
-
-
-    -f file
-
-            Spécifie un chemin de fichier de configuration alternatif.
-
-
-    -S socket-path
-
-            Spécifie un chemin alternatif vers le socket du serveur.
-
-            Si  `-S`  est  utilisé,  le dossier  par  défaut  (`$TMUX_TMPDIR`,
-            `/tmp`) ainsi que l'argument `-L` sont ignorés.
-
-
-    -v
-
-            Ask for a verbose logging.
-            Can be repeated twice to increase the level of verbosity.
-
-            2/3 log files  are created inside the working directory  (the one from
-            which we started tmux). One for the client, the other(s) for the server.
-
-            Their names follow the scheme:
-
-                    - tmux-client-{PID_c}.log
-                    - tmux-server-{PID_s}.log
-                    - tmux-out-{PID_s}.log (only with `-vv`)
-
-            Where `{PID_c}` and `{PID_s}` are the process ID of the client/server.
-
-            `tmux-server-{PID}.log` is useful to follow how the tmux config file
-            has been sourced.
-
-            `tmux-out-{PID}.log` is useful to see the raw sequences sent by tmux
-            to the terminal.
-
-
-            ┌ SIGUSR2
-            │
-            │   ┌ hint: in the output of `ps aux | grep tmux`, it's the biggest pid;
-            │   │       yes the server seems to be started AFTER the first client ...
-            │   │
-    $ kill -12 {tmux server pid}
-
-            Toggle the  logging of  the server activity.
-
-            Warning:
-            The log files  becomes really big, really fast. Enable logging  only for a short
-            period of time to debug sth.
 
 ##
 # Plugins
@@ -1116,12 +1057,6 @@ depuis un shell hors de la session.
                     - toute la hauteur de l'écran à gauche
 
 
-    mode-keys [vi | emacs]
-
-            Type de raccourcis à utiliser en mode copie.
-            La valeur par défaut est ’emacs’ à moins que `$VISUAL` ou `$EDITOR` ne contienne ’vi’.
-
-
     mode-style my_style
 
             Configure l'apparence de l'indicateur tmux affichant le nb de lignes présentes
@@ -1160,17 +1095,6 @@ depuis un shell hors de la session.
             qd on utilise le layout `main-vertical`.
 
 
-    pane-active-border-style my_style
-
-            Configure l'apparence des frontières du pane actif.
-            ’my_style’ peut contenir les attributs `fg` et `bg` (les autres sont ignorés).
-
-
-    pane-base-index 42
-
-            Les panes commenceront à être indexés à partir de 42.
-
-
     pane-border-format my_format
 
             Configure le texte à afficher dans la status line d'un pane, si elle est activée.
@@ -1179,12 +1103,6 @@ depuis un shell hors de la session.
     pane-border-status [off | top | bottom]
 
             Désactive la status line des panes (off), ou l'active en haut (top), ou en bas (bottom).
-
-
-    pane-border-style my_style
-
-            Set the  pane border  style for panes  aside from  the active pane.  For how  to specify
-            style, see the message-command-style option. Attributes are ignored.
 
 
     remain-on-exit [on | off]
@@ -1210,22 +1128,10 @@ depuis un shell hors de la session.
             the message-command-style option.
 
 
-    window-status-current-format string
-
-            Like window-status-format, but is the format used when the window is the current window.
-
-
     window-status-current-style my_style
 
             Set status line style for the currently active window. For how to specify style, see the
             message-command-style option.
-
-
-    window-status-format string
-
-            Set the format in which the window is  displayed in the status line window list. See the
-            status-left option for details of special  character sequences available. The default is
-            ‘#I:#W#F’.
 
 
     window-status-last-style my_style
@@ -1258,13 +1164,6 @@ depuis un shell hors de la session.
 
             Activée par défaut.
 
-
-    xterm-keys [on | off]
-
-            If this option is set, tmux will  generate xterm(1) -style function key sequences; these
-            have a number included to indicate modifiers such  as Shift, Alt or Ctrl. The default is
-            off.
-
 ## Options sessions
 
     assume-paste-time milliseconds
@@ -1280,12 +1179,6 @@ depuis un shell hors de la session.
             created. The default is zero.
 
 
-    default-command shell-command
-
-            Set the command  used for new windows (if  not specified when the window  is created) to
-            shell-command, which  may be any  sh(1) command. The default  is an empty  string, which
-            instructs tmux to create a login shell using the value of the default-shell option.
-
 
     default-shell path
 
@@ -1299,15 +1192,6 @@ depuis un shell hors de la session.
     destroy-unattached [on | off]
 
             If enabled and the session is no longer attached to any clients, it is destroyed.
-
-
-    detach-on-destroy [on | off]
-
-            Qd cette option est activée (c'est le cas par défaut), le client est automatiquement
-            détaché dès qu'on tue la session courante.
-
-            Si l'option est désactivée, le client passe le focus à la plus récemment active des
-            sessions restantes.
 
 
     display-panes-active-colour colour
@@ -1326,25 +1210,6 @@ depuis un shell hors de la session.
 
             Set the time in milliseconds for which the indicators shown by the display-panes command
             appear.
-
-
-    display-time time
-
-            Set the amount of time for which status line messages and other on-screen indicators are
-            displayed. If  set to  0, messages  and  indicators are  displayed until  a key  is
-            pressed. time is in milliseconds.
-
-
-    history-limit 50
-
-            Configure 50 comme étant le nb max de lignes préservées dans l'historique d'une fenêtre.
-
-            Si on change la valeur de cette option, la nouvelle valeur n'affectera que les fenêtres
-            nouvellement créées. Les anciennes conservent un historique de la taille définie lors
-            de leur création.
-
-            Valeur par défaut:     100
-            Valeur max:           1400
 
 
     key-table key-table
@@ -1479,90 +1344,9 @@ depuis un shell hors de la session.
             sans devoir redéfinir tous les autres attributs.
 
 
-    mouse [on | off]
-
-            If on, tmux captures the mouse and allows  mouse events to be bound as key bindings. See
-            the MOUSE SUPPORT section for details.
-
-
-    prefix  M-Space
-    prefix2 C-Space
-
-            Configure `M-Space` et `C-Space` comme étant des touches préfixe.
-
-
-    renumber-windows [on | off]
-
-            Qd l'option est activée, à chaque fois qu'une fenêtre est fermée, les autres sont renumérotées.
-
-            Permet d'éviter que des "trous" se créent.
-            Pex, si on:
-
-                    - on désactive l'option `renumber-windows`:
-
-                            set-option -s renumber-windows off
-
-                    - crée les fenêtres 1, 2, 3
-
-                    - on supprime la fenêtre 2
-
-            On termine avec les fenêtres 1 et 3 (2 manque, il y a un trou).
-
-
-    repeat-time time
-
-            Allow  multiple commands  to be  entered without  pressing the  prefix-key again  in the
-            specified time milliseconds (the default is 500).  Whether a key repeats may be set when
-            it is bound using the -r flag to  bind-key. Repeat is enabled for the default keys bound
-            to the resize-pane command.
-
-
-    set-titles-string string
-
-            String used to set  the window title if set-titles is on. Formats  are expanded, see the
-            FORMATS section.
-
-
     status [on | off]
 
             Show or hide the status line.
-
-
-    status-interval interval
-
-            Update the status bar  every interval seconds. By default, updates  will occur every 15.
-            seconds A setting of zero disables redrawing at interval                               .
-
-
-    status-justify [left | centre | right]
-
-            Set the position of the window list component  of the status line: left, centre or right
-            justi‐ fied.
-
-
-    status-keys [vi | emacs]
-
-            Use  vi or  emacs-style key  bindings in  the status  line, for  example at  the command
-            prompt. The default is emacs, unless the  VISUAL or EDITOR environment variables are set
-            and contain the string ‘vi’.
-
-
-    status-left string
-
-            Display string  (by default  the session  name) to the  left of  the status  bar. string
-            will  be  passed  through  strftime(3)  and formats  (see  FORMATS)  will  be  expanded.
-            It  may  also contain  the  special  character sequence  #[]  to  change the  colour  or
-            attributes, for example  ‘#[fg=red,bright]’ to set a bright red  foreground. See the
-            message-command-style option for a description of colours and attributes.
-
-            For details on how the names and titles can be set see the NAMES AND TITLES section.
-
-            Examples are:
-
-                    #(sysctl vm.loadavg)
-                    #[fg=yellow,bold]#(apm -l)%%#[default] [#S]
-
-            The default is ‘[#S] ’.
 
 
     status-left-length length
@@ -1581,13 +1365,6 @@ depuis un shell hors de la session.
             Set the position of the status line.
 
 
-    status-right string
-
-            Display string to the  right of the status bar. By default, the  current window title in
-            double quotes,  the date and  the time  are shown. As  with status-left, string  will be
-            passed to strftime(3) and character pairs are replaced.
-
-
     status-right-length length
 
             Set the maximum length of the right component of the status bar. The default is 40.
@@ -1597,23 +1374,6 @@ depuis un shell hors de la session.
 
             Set the style  of the right part of the  status line. For how to specify  style, see the
             message-command-style option.
-
-
-    status-style my_style
-
-            Set status line style. For how to specify style, see the message-command-style option.
-
-
-    visual-activity [on | off]
-
-            If on,  display a status  line message when  activity occurs in  a window for  which the
-            monitor-activity window option is enabled.
-
-
-    visual-silence [on | off]
-
-            If monitor-silence  is enabled,  prints a message  after the interval  has expired  on a
-            given window.
 
 
     word-separators string
@@ -1905,13 +1665,6 @@ Les liens sont dépourvus de contexte.
             Send the prefix key, or with -2 the secondary prefix key, to a window as if it was pressed.
 
 
-    status-keys [vi | emacs]
-
-            Use vi or emacs-style key bindings in the status line, for example at the command prompt.  The
-            default is emacs, unless the VISUAL or EDITOR environment variables are set and contain the
-            string ‘vi’.
-
-
     unbind-key [-an] [-t mode-table] [-T key-table] key
     unbind
 
@@ -1931,29 +1684,6 @@ Les liens sont dépourvus de contexte.
 
 ##
 # Commandes
-## Shell
-
-    $ exit
-
-            Ferme le shell et son pane ainsi que:
-
-                    - la fenêtre courante si elle ne contient qu'un pane
-
-                    - la session courante si elle ne contient qu'une fenêtre, elle-même ne contenant
-                      qu'un pane
-
-            Si `exit` ferme la session courante, et que le serveur tmux fait tourner plusieurs
-            sessions, il ne donne pas le focus à une autre.
-            Toutefois, on peut toujours se rattacher à l'une d'elles via `$ tmux a`.
-
-
-    $ tmux -S /tmp/your_shared_session
-    $ chmod 777 /tmp/your_shared_session
-
-            Start a shared session (partage de terminal / pair programming).
-            Il faut être connecté en tant que même user sur le serveur.
-            Conseil : maximiser son terminal et diminuer la police d'écriture pour chacun.
-
 ## Navigation
 
     switch-client -p
@@ -2013,15 +1743,6 @@ With -t, display the log for target-client.
             On dit aussi qu'on l'attache au terminal (en fait il s'agit de relancer un client tmux).
 
 
-    break-pane [-dP] [-F format] [-s src-pane] [-t dst-window]
-    breakp
-
-            Break src-pane off from its containing window to make it the only pane in dst-window.  If -d is given,
-            the new window does not become the current window.  The -P option prints information about the new win‐
-            dow after it has been created.  By default, it uses the format ‘#{session_name}:#{window_index}’ but a
-            different format may be specified with -F.
-
-
     copy-mode [-Meu] [-t target-pane]
 
             Enter copy mode.  The -u option scrolls one page up.  -M begins a mouse drag (only valid if bound to a
@@ -2039,26 +1760,18 @@ With -t, display the log for target-client.
             se détacher de la session (tuer le client tmux)
 
 
-    display-message [-p] [-c target-client] [-t target-pane] [message]
-    display
-
-            Display a message.
-            If -p  is given, the  output is printed  to stdout, otherwise  it is
-            displayed in the target-client status line.
-            The  format  of  message  is   described  in  the  FORMATS  section;
-            information is taken from target-pane  if -t is given, otherwise the
-            active pane for the session attached to target-client.
-
-
     if-shell [-bF] [-t target-pane] shell-command command [command]
     if
 
-            Execute the first command if shell-command returns success or the second command otherwise.  Before
-            being executed, shell-command is expanded using the rules specified in the FORMATS section, including
-            those relevant to target-pane.  With -b, shell-command is run in the background.
+            Execute the  first command if  shell-command returns success  or the
+            second command otherwise.
+            Before  being executed,  shell-command is  expanded using  the rules
+            specified  in  the  FORMATS  section, including  those  relevant  to
+            target-pane.
+            With -b, shell-command is run in the background.
 
-            If -F is given, shell-command is not executed but considered success if neither empty nor zero (after
-            formats are expanded).
+            If -F is given, shell-command is not executed but considered success
+            if neither empty nor zero (after formats are expanded).
 
 
     kill-session -t foo
@@ -2066,75 +1779,6 @@ With -t, display the log for target-client.
     kill-server
 
             Fermer la session `foo`, la fenêtre `foo`, le serveur tmux.
-
-
-    last-pane [-de] [-t target-window]
-    lastp
-
-            Select the last (previously selected) pane.  -e enables or -d disables input to the pane.
-
-
-    list-sessions
-    ls
-
-            Lister les sessions actives.
-
-
-    new-session [-AdDEP] [-c start-directory] [-F format] [-n window-name] [-s session-name] [-t target-session]
-                [-x width] [-y height] [shell-command]
-    new
-
-            Create a new session with name session-name.
-
-            The new session is attached to the current terminal unless -d is given.  window-name and shell-command
-            are the name of and shell command to execute in the initial window.  If -d is used, -x and -y specify
-            the size of the initial window (80 by 24 if not given).
-
-            If run from a terminal, any termios(4) special characters are saved and used for new windows in the new
-            session.
-
-            The -A flag makes new-session behave like attach-session if session-name already exists; in this case,
-            -D behaves like -d to attach-session.
-
-            If -t is given, the new session is grouped with target-session.  This means they share the same set of
-            windows - all windows from target-session are linked to the new session, any new windows are linked to
-            both sessions and any windows closed removed from both sessions.  The current and previous window and
-            any session options remain independent and either session may be killed without affecting the other.
-            -n and shell-command are invalid if -t is used.
-
-            The -P option prints information about the new session after it has been created.  By default, it uses
-            the format ‘#{session_name}:’ but a different format may be specified with -F.
-
-            If -E is used, the update-environment option will not be applied.
-
-
-    new-session -s basic [-d]
-
-            Lancer une nouvelle session intitulée basic.
-            L'option `-d` permet de lancer la session en mode détaché.
-
-
-    new-window [-adkP] [-c start-directory] [-F format] [-n window-name] [-t target-window] [shell-command]
-    neww
-
-            Create a new window.  With -a, the new window is inserted at the next index up from the specified
-            target-window, moving windows up if necessary, otherwise target-window is the new window location.
-
-            If -d is given, the session does not make the new window the current window.  target-window represents
-            the window to be created; if the target already exists an error is shown, unless the -k flag is used,
-            in which case it is destroyed.  shell-command is the command to execute.  If shell-command is not spec‐
-            ified, the value of the default-command option is used.  -c specifies the working directory in which
-            the new window is created.
-
-            When the shell command completes, the window closes.  See the remain-on-exit option to change this be‐
-            haviour.
-
-            The TERM environment variable must be set to “screen” for all programs running inside tmux.  New
-            windows will automatically have “TERM=screen” added to their environment, but care must be taken not to
-            reset this in shell start-up files.
-
-            The -P option prints information about the new window after it has been created.  By default, it uses
-            the format ‘#{session_name}:#{window_index}’ but a different format may be specified with -F.
 
 
     next-layout [-t target-window]
@@ -2183,27 +1827,6 @@ With -t, display the log for target-client.
     source
 
             Execute commands from path.  If -q is given, no error will be returned if path does not exist.
-
-
-    split-window [-bdfhvP] [-c start-directory] [-l size | -p percentage] [-t target-pane] [shell-command] [-F format]
-    splitw
-
-            Create a new pane by splitting target-pane: -h does a horizontal split and -v a vertical split; if nei‐
-            ther is specified, -v is assumed.  The -l and -p options specify the size of the new pane in lines (for
-            vertical split) or in cells (for horizontal split), or as a percentage, respectively.  The -b option
-            causes the new pane to be created to the left of or above target-pane.  The -f option creates a new
-            pane spanning the full window height (with -h) or full window width (with -v), instead of splitting the
-            active pane.  All other options have the same meaning as for the new-window command.
-
-
-    swap-window [-d] [-s src-window] [-t dst-window]
-    swapw
-
-            This is similar to link-window, except the source and destination windows are swapped.  It is an error
-            if no window exists at src-window.
-
-            Like swap-pane, if -s is omitted and a marked pane is present (see select-pane -m), the window contain‐
-            ing the marked pane is used rather than the current window.
 
 ## Fenêtres
 
