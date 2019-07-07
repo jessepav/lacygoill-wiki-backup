@@ -26,7 +26,9 @@ How to change the browser opened by surfraw?
     $ autoreconf -f -i
     $ ./configure
     $ make
-    $ sudo checkinstall
+    $ VERSION="$(git describe --tags --abbrev=0)"
+    $ VERSION="${VERSION#*-}"
+    $ sudo checkinstall --pkgname=surfraw --pkgversion="$VERSION" --spec=/dev/null --backup=no -y
 
 ##
 # How to list all the search engines supported by surfraw?

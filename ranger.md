@@ -1,3 +1,7 @@
+# How to view the values of all the current settings?
+
+Press `?s`.
+
 # How to get the path to the config directory used by the current ranger instance?
 
 From ranger, run:

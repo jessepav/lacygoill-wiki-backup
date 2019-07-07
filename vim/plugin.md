@@ -2112,6 +2112,66 @@ See also:
 
                                     410 sloc
 
+---
+
+<https://gist.github.com/blueyed/6856354>
+
+<https://github.com/Osse/dotfiles/blob/master/.zfunctions/tmux_complete>
+
+    local -A panes
+    panes=($(tmux list-panes -F '#{pane_index} #{pane_active}'))
+
+    local -a words
+    words=(${(f)"$(
+        for pane active in ${(kv)panes}; do
+            if (( active )); then
+                tmux capture-pane -J -p -t $pane | sed '/^$/d' | head -n -1
+            else
+                tmux capture-pane -J -p -t $pane
+            fi
+        done | grep -o '\<\w\+\>'
+    )"})
+
+    _wanted values expl 'words from visible tmux panes' compadd -a words
+    bindkey -M menuselect '^T' menu-complete
+
+<https://github.com/Osse/dotfiles/blob/master/.zfunctions/tmux_complete_path>
+
+    local -A panes
+    panes=($(tmux list-panes -F '#{pane_index} #{pane_active}'))
+
+    local -a words
+    words=(${(f)"$(
+        for pane active in ${(kv)panes}; do
+            tmux capture-pane -J -p -t $pane
+        done | grep -o '~\?[[:alnum:]/._]\+'
+    )"})
+
+    local -a paths
+    for w in $words; do
+        w=${w#[ab]/}
+        w=${w%/}
+        if [[ -e $w ]] || [[ $w = '~/'* && -e "$HOME${w#\~}" ]]; then
+                paths+=($w)
+        fi
+    done
+
+    _wanted values expl 'paths from visible tmux panes' compadd -Q -a paths
+    bindkey -M menuselect '^P' menu-complete
+
+<https://github.com/Osse/dotfiles/blob/master/.zshrc>
+
+    zstyle ':completion:tmux-complete:*' completer tmux_complete
+    zstyle ':completion:tmux-complete:*' ignore-line current
+    zstyle ':completion:tmux-complete:*' menu yes select
+    zstyle ':completion:tmux-complete-path:*' completer tmux_complete_path
+    zstyle ':completion:tmux-complete-path:*' ignore-line current
+    zstyle ':completion:tmux-complete-path:*' menu yes select
+    zle -C tmux-complete complete-word _generic
+    zle -C tmux-complete-path complete-word _generic
+    bindkey '^X^T' tmux-complete
+    bindkey '^X^P' tmux-complete-path
+
 ## traces
 
             This plugin will highlight patterns and ranges for Ex-commands.

@@ -331,23 +331,6 @@ What's `mouse_any_flag`?
 If you run `:set mouse=` in Vim, `mouse_any_flag` is 0 in tmux.
 If you run `:set mouse=a` in Vim, `mouse_any_flag` is 1 in tmux.
 
----
-
-Here are all our current key bindings which can copy text in copy mode:
-
-    bind -T copy-mode-vi S                 send -X copy-pipe-and-cancel "xargs -I {} tmux run 'xdg-open \"https://www.google.com/search?q={}\"'"
-    bind -T copy-mode-vi Y                 send -X copy-selection-and-cancel \; paste-buffer -p
-    bind -T copy-mode-vi x                 send -X copy-pipe-and-cancel "xargs -I {} tmux run 'xdg-open \"{}\"'"
-    bind -T copy-mode-vi y                 send -X copy-pipe-and-cancel "xsel -i --clipboard"
-    bind -T copy-mode-vi MouseDragEnd1Pane send -X copy-pipe-and-cancel "xsel -i --primary"
-    bind -T copy-mode-vi M-y               send -X copy-pipe-and-cancel "xsel -i --clipboard; tmux paste-buffer"
-
-Try to modify them so that the name of the tmux buffers they create is shorter (`buf0`, `buf1`, ...).
-
-> Copy  commands may  take an  optional buffer  prefix argument  which is  used to
-> generate  the  buffer  name  (the  default is  ‘buffer'  so  buffers  are  named
-> ‘buffer0', ‘buffer1' and so on).
-
 # document `-A` option of `new-session` command
 
 > The -A flag makes new-session behave like attach-session if
@@ -446,6 +429,11 @@ Use the `-a` argument passed to `:next-window`.
 >               (alias: next)
 >         Move to the next window in the session.  If -a is used, move to
 >         the next window with an alert.
+
+# by default, in copy mode, space begins a selection, while v toggles the selection to a block
+
+In Vim, `v` begins a selection, and `C-v` toggles the selection to a block.
+Maybe the defaults should be changed...
 
 #
 # find a way to
@@ -590,10 +578,17 @@ Once you've read it, use your new knowledge to improve our tmux.conf.
 Compare:
 
     $ time tmux neww 'echo foo;sleep 3'
+    ... 0,011 total~
+        ^^^^^
 
 Vs:
     ~
+                                            ┌ my interpretation: emit the “signal” ‘neww-done’
+                                            │                         ┌ wait for the signal ‘neww-done’
+                                            ├───────────────────┐     ├────────────────┐
     $ time tmux neww 'echo foo;sleep 3;tmux wait-for -S neww-done' \; wait-for neww-done
+    ... 3,019 total~
+        ^^^^^
 
 <https://unix.stackexchange.com/a/137547/289772>
 
@@ -634,6 +629,141 @@ Ask nicm whether such a script is reliable; is it likely to break in the future?
 
 `window-status-activity-style` and `window-status-bell-style` exist, so it seems
 `window-status-silence-style` should exist too...
+
+# tmux may fall back on the root table if it can't find a pressed key in the copy-mode table?
+
+> orbisvicis │ does a root key binding have priority over a copy-mode key binding?
+>            │ or do they both run, etc?
+>            │ I mean, from experimenting it seems the copy-mode key binding has priority and the root binding is never
+>            │ executed (testing copy-word in copy-mode where DoubleClick1Pane in root displays a message)
+>            │ but then why do the default root bindings test #{pane_in_mode}, like MouseDrag1Pane or WheelUpPane?
+>       nicm │ because if there is no binding in copy-mode it will go to the root
+>            │ but it is probably unnecessary
+>       nicm │ if you don't want it to do that you can bind the Any key in the table
+
+# try to use C-e, C-y, H, L, M more often in copy mode
+
+    ┌─────┬─────────────┐
+    │ C-e │ scroll-down │
+    │ C-y │ scroll-up   │
+    ├─────┼─────────────┤
+    │ H   │ top-line    │
+    │ L   │ bottom-line │
+    │ M   │ middle-line │
+    └─────┴─────────────┘
+
+# some key bindings / plugins create undesired buffers
+
+For example, fingers (after we press a hint):
+
+    ~/.tmux/plugins/tmux-fingers/scripts/fingers.sh:115
+
+Try to eliminate all those undesired buffers.
+We should only have buffers we've explicitly ask tmux to create, and they should
+all be named with the pattern `buf_123`.
+
+---
+
+See also the TODO in our tmux.conf about `capture-pane` and `M-:`.
+
+# document how to run a custom zsh function from tmux
+
+If the function doesn't run any command which requires a controlling terminal:
+
+    $ tmux run 'zsh -ic "func"'
+
+Otherwise:
+
+    $ tmux neww 'zsh -ic "func"'
+
+fzf is an example of command which needs a controlling terminal:
+
+    func() { fzf; }
+
+# ?
+
+The rhs of my key binding is `splitw 'shell cmd' \; cmd`.  It doesn't work as I would expect!
+
+    Suppose I have a key binding whose rhs is a sequence of 2 commands: cmd1 \; cmd2
+    I guess there's a guarantee that cmd2 will be run after cmd1.
+    But if cmd1 is `splitw 'shell cmd'`, is there a guarantee that cmd2 will be run after 'shell cmd'?
+    I guess not. If not, what's the best way to make sure cmd2 is run after 'shell cmd'?
+    `splitw 'shell cmd ; tmux cmd2'`?
+
+    $ tmux setb 'https://github.com/' \; splitw 'tmux showb && sleep 9' \; deleteb
+
+    $ tmux setb 'https://github.com/' \; splitw 'tmux showb && sleep 9 && tmux deleteb'
+
+---
+
+> run-shell blocks until foo finishes unless you give -b
+
+    $ tmux run 'sleep 10' \; neww
+
+> will wait for 10 seconds before neww
+> but
+
+    $ tmux neww 'sleep 10' \; neww
+
+> will run both neww with no delay
+> so in fact you never need to use wait-for with run-shell unless you use -b
+
+Summary: when running `cmd1 \; cmd2`, you have the guarantee that `cmd2` will be
+run  after  `cmd1`,  iff  it  blocks  (the  execution?)  (*is  it  the  correct*
+*formulation? what does it mean exactly?*).
+`run`, `if`, and `displayp`  are the only (?) commands which  block (and only if
+you don't pass them `-b`).
+`neww`, `new`, `splitw`, `respawnw`, and `respawnp` don't block (sure?; make tests).
+What about `detach` and `pipep`?
+
+`pipep` doesn't block:
+
+    $ tmux pipe-pane -t study:3.2 -I "echo 'ls'; sleep 60" \; neww
+
+---
+
+Actually, I was wrong, `$ bc` is not needed; the shell can do numeric comparisons:
+For numeric comparisons, do *not* use `#{>=:}` & friends; instead use the shell:
+
+    $ tmux if '[ #{pane_height} -lt 12 ]' 'display -p "fewer than 12 lines"' 'display -p "more than 12 lines"'
+                                ^^^
+
+---
+
+Do we need quotes right around a format variable, if the latter is already included in a bigger string?
+
+       outer string (necessary)
+       v                                    v
+    if '[ "$TERM" != "#{default-terminal}" ]' { source-file "$HOME/.tmux/unbind-copy-mode.conf" }
+                     ^                   ^
+                     inner string (useless?)
+
+It seems I can remove the inner quotes.
+
+Look for this pattern everywhere:
+
+    ['"]#{
+
+I think that tmux removes the inner quotes anyway:
+
+    $ tmux run 'echo "#{default-terminal}"'
+    tmux-256color~
+
+Unless you escape them:
+
+    $ tmux run 'echo \"#{default-terminal}\"'
+    "tmux-256color"~
+
+Re-read our notes about quoting to make sure this is compatible with what we wrote.
+Anyway, this suggests that *inner* quotes are indeed useless.
+
+---
+
+    display 'lvl1 " lvl2 '\'' lvl3 '\'' lvl2 " lvl1'
+
+---
+
+finish reviewing our copy mode key bindings `yiw`, `"Ayiw`, `viw`, `yy`, ...
 
 ##
 # typos in manpage
@@ -804,14 +934,16 @@ event occurred”.
 
 ---
 
-From `$ man tmux /WINDOWS AND PANES`:
+From `$ man tmux /FORMATS`:
 
-> copy-end-of-line [<prefix>]                  D               C-k
+> Comparisons may be expressed by prefixing two comma-separated alterna‐
+> tives by ‘==’, ‘!=’, ‘<’, ‘>’, ‘<=’ or ‘>=’ and a colon.
 
-Imo, `Y` would be a better choice.
-I understand why `D` was chosen though; by symmetry with `C-k` in emacs.
-Indeed, Vim's `D` is equivalent to emacs's `C-k`.
-But it's irrelevant; `copy-end-of-line` doesn't delete text.
-The reason why `C-k` was chosen in emacs is probably because there's no equivalent of `Y`.
-It was the closest command, but not the exact one.
+All these operators perform a string comparison, not a numeric one.
+So, for tmux, '2' is “greater than” '11':
+
+    $ tmux display -p '#{>=:2,11}'
+    1~
+
+This does not seem to be documented; maybe it should.
 

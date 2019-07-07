@@ -250,7 +250,17 @@ The local value wins.
 
 ##
 ## How to compare
-### two strings?
+### two numbers?
+
+Use either of the `-eq`, `-ne`, `-gt`, `-ge`, `-lt`, `-le` shell operators.
+
+Example:
+
+    $ tmux if '[ #{pane_height} -lt 12 ]' 'display -p "fewer than 12 lines"' 'display -p "more than 12 lines"'
+                                ^^^
+
+###
+### the equality between two strings?
 
 Use one of these syntaxes:
 
@@ -266,6 +276,21 @@ Examples:
     $ tmux display -p '#{!=:#{client_termname},rxvt-unicode-256color}'
     1~
 
+### the lexicographical order between two strings?
+
+Use `>=`, `>`, `<=` or `<`:
+
+    #{>=:str1,str2}
+    #{>:str1,str2}
+    #{<=:str1,str2}
+    #{<:str1,str2}
+
+Example:
+
+    $ tmux display -p '#{<:a,b}'
+    1~
+
+###
 ### a shell wildcard pattern to a string?
 
     #{m:pat,str}

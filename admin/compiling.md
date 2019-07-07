@@ -1,3 +1,303 @@
+## ?
+
+    VERSION="$(git describe --tags --abbrev=0)"
+
+---
+
+Why `--tags`?
+
+To avoid this kind of error:
+
+    fatal: No annotated tags can describe 'ab18673731522c18696b9b132d3841646904e1bd'.
+
+---
+
+Why `--abbrev=0`?
+
+Most of the time `$ git describe --tags` will return something like:
+
+    v8.1.0648
+
+But sometimes, it will return something like:
+
+    v8.1.0648-1-gc8c884926
+
+I think it happens  when the latest commit was not  tagged, which seems to
+be always the case when Bram commits lots of changes in `$VIMRUNTIME`.
+
+I prefer `v8.1.0648`.
+
+## ?
+
+    $ VERSION="9:${VERSION#v}"
+
+---
+
+What's this `9:`?
+
+Atm, the  Vim packages in the  offical repositories have a  version number
+which looks like this:
+
+    2:8.0.0134-1ubuntu1~ppa1~x 500
+
+The `2:` is what is called the *epoch*.
+From: https://serverfault.com/a/604549
+
+> This is a single (generally small) unsigned integer.
+> It may be omitted, in which case zero is assumed.
+> If it is omitted then the `upstream_version` may not contain any colons.
+> It  is provided  to  allow  mistakes in  the  version  numbers of  older
+> versions of a  package, and also a package's  previous version numbering
+> schemes, to be left behind.
+
+If you don't include  an epoch in the version of your Vim  package, `0:` will be
+assumed:
+
+    0:X.Y.Z
+
+As a result, your package will be overwritten by `$ aptitude safe-upgrade`.
+
+## ?
+
+    $ make clean
+    $ make distclean
+
+## ?
+
+Edit `/etc/apt/sources.list`.
+
+Uncomment:
+
+    deb-src http://fr.archive.ubuntu.com/ubuntu/ $(lsb_release -sc) main restricted
+
+Then run:
+
+    $ sudo aptitude update
+    $ sudo aptitude build-dep vim-gtk
+
+## ?
+
+    $ aptitude install libncurses5-dev \
+      luajit libluajit-5.1-dev \
+      libperl-dev \
+      python-dev \
+      python3-dev \
+      ruby-dev
+
+## ?
+
+    $ ./configure --enable-cscope                                                    \
+                --enable-fail-if-missing                                             \
+                --enable-gui=gtk2                                                    \
+                --enable-luainterp=dynamic                                           \
+                --enable-multibyte                                                   \
+                --enable-perlinterp=dynamic                                          \
+                --enable-python3interp=dynamic                                       \
+                --enable-pythoninterp=dynamic                                        \
+                --enable-rubyinterp=dynamic                                          \
+                --enable-terminal                                                    \
+                --prefix=/usr/local                                                  \
+                --with-compiledby=user                                               \
+                --with-features=huge                                                 \
+                --with-luajit                                                        \
+                --with-python-config-dir=/usr/lib/python2.7/config-x86_64-linux-gnu  \
+                --with-python3-config-dir=/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu
+
+## ?
+
+    $ make
+
+    $ xterm -e 'make test' &
+                           │
+                           └ useless in a script
+
+## ?
+
+*Use `--strip=no` for debugging.*
+
+    $ sudo checkinstall --pkgname=vim --pkgversion="$VERSION" --spec=/dev/null --backup no -y
+                                        │
+                                        └ don't overwrite my package
+                                          with an old version from the official repositories
+                                          when I execute `aptitude safe-upgrade`
+
+---
+
+Why can aptitude overwrite our compiled package?
+
+When aptitude  finds several candidates  for the  same package, it  checks their
+version to decide which one is the newest.
+By default, checkinstall uses the current date as the package version:
+
+    20180914
+
+This would cause an issue for Vim:
+
+    $ apt-cache policy vim
+    vim:~
+      Installed: (none)~
+      Candidate: 2:8.0.0134-1ubuntu1~ppa1~x~
+      Version table:~
+         2:8.0.0134-1ubuntu1~ppa1~x 500~
+            500 http://ppa.launchpad.net/pi-rho/dev/ubuntu xenial/main amd64 Packages~
+    ...~
+
+Here the version of the Vim package in the ppa is `2:8.0.0134`.
+If the version of our compiled package is `20180914`, it will be considered
+older than the one in the ppa.
+I think that's because the format of a date is different.
+`apt` expects a number before a colon, but there's no colon in a date.
+So it assumes that the date should be prefixed by `0:` or `1:` which gives:
+
+    0:20180914
+        <
+    2:8.0.0134-1ubuntu1~ppa1~x
+
+---
+
+Why don't you use `--pkgname="my{PGM}"` anymore?
+
+When  checkinstall tries  to install  `myPGM`, it  may try  to overwrite  a file
+belonging to `PGM` (it  will probably happen if `PGM` is  already installed in a
+different version).
+If that happens, the installation will fail:
+
+    dpkg: error processing archive /home/user/GitRepos/zsh/zsh_9999.9999-1_amd64.deb (--install):~
+     trying to overwrite '/usr/share/man/man1/zshmodules.1.gz', which is also in package myzsh 999-1~
+    dpkg-deb: error: subprocess paste was killed by signal (Broken pipe)~
+
+### ?
+
+TODO: Sometimes, checkinstall ignores the options `--pkgversion`, `--pkgname`, ...
+
+This is because if  it finds a .spec file at the root  of the project, and
+its  basename matches  the  program  (e.g. ansifilter.spec,  weechat.spec,
+...), then it uses its contents to assign the values of these options.
+IOW, a {vim|tmux|...}.spec file has priority over `--pkg...`.
+
+Besides, sometimes, the values in the .spec file are not literal.
+For example, in `~/GitRepos/weechat/weechat.spec:31`, one can read:
+
+    Version:   %{version}
+    Release:   %{release}
+
+Currently, here are the repos which have a spec file:
+
+   - ansifilter
+
+     it overrides your `--pkgversion`, but this doesn't seem to cause an issue atm
+
+   - jumpapp; issue, because of:
+
+        3 -  Version: [ VERSION ]
+        4 -  Release: [ 1%{?dist} ]
+
+   - weechat; issue, because of:
+
+        2 -  Name:    [ 0--name- ]
+        3 -  Version: [  ]
+        4 -  Release: [ %{release} ]
+
+This can cause an issue, especially for the version field.
+Note that for all these 3 projects, the spec file is intended for rpm, not
+dpkg; this may explain the issue...
+
+Solution1:
+
+Use `--spec=/dev/null`.
+This will prevent checkinstall from using any spec file.
+
+You may think that checkinstall will still fall back on some other default spec file.
+For example, if you read the logfile for Vim, you'll find these lines:
+
+    Warning: .spec file path "/dev/null" not found.
+    Warning: Defaulting to "vim.spec".
+
+But in reality,  it seems that `/dev/null` *does* work  even though checkinstall
+says that if falls back on a spec file.
+Case in point:
+
+    $ sudo checkinstall --pkgname=weechat --pkgversion=12.34 --spec=/dev/null --backup=no
+
+You should  see that checkinstall  uses the package version  `12.34`, even
+though the weechat spec file specifies a different version (2.5 atm).
+If you remove `--spec=/dev/null`, you'll that checkinstall tries to use the
+garbage version `%{version}`.
+
+The fallback message comes from `/usr/bin/checkinstall:791`.
+It's triggered by the non-existence of the file `$SPEC_PATH`.
+If you search for the pattern `SPEC_PATH` in the script, you'll find 31 occurrences.
+But only the first 7 are relevant.
+The remaining ones are for foreign package managers (like rpm).
+There are only 2 occurrences of `SPEC_PATH` after the one used in the warning message.
+
+    [ -f SPEC_PATH ] && DEL_SPEC=0
+
+    if [ -f "$SPEC_PATH" ]; then
+    ...
+      VERSION=`getparameter "^[Vv]ersion"`
+    ...
+    fi
+
+None of them indicate that the script is going to use some spec file.
+
+Solution2:
+Test the existence of a spec file, and  if there's one, use sed to edit it
+before invoking checkinstall.
+
+Here's a first attempt to replace `%{name}` with `weechat`:
+
+    $ sed '/^%define\s\+name/{s/.*\s//; h; s/^/%define name /}; /^Name:/{G; s/^\(Name:\s\+\)%{name}\n\(\w\+\)/\1\2/}' weechat.spec
+
+It's a bit long, maybe we could improve the code...
+
+## ?
+
+Vim can be invoked with many commands.
+We need to tell the system that, from now on, they're all provided by `/usr/local/bin/vim`.
+
+    $ sudo update-alternatives --get-selections >"${LOGDIR}/update-alternatives-get-selections.bak"
+    $ typeset -a names=(editor eview evim ex gview gvim gvimdiff rgview rgvim rview rvim vi view vim vimdiff)
+    $ for name in "${names[@]}"; do
+      sudo update-alternatives --log "${LOGFILE}" \
+        --install /usr/bin/"${name}" "${name}" /usr/local/bin/vim 60
+      sudo update-alternatives --log "${LOGFILE}" --set "${name}" /usr/local/bin/vim
+    done
+
+## ?
+
+    grep -i 'mimetype' /usr/local/share/applications/gvim.desktop \
+      | sed 's/mimetype=//i; s/;/ /g' \
+      | xargs xdg-mime default gvim.desktop
+
+---
+
+What's this `gvim.desktop`?
+
+A file installed by the Vim package.
+It describes which files Vim can open in the line ‘MimeType=’.
+
+---
+
+What does this command do?
+
+It parses the default `gvim.desktop` to build and run a command such as:
+
+    $ xdg-mime default gvim.desktop text/english text/plain text/x-makefile ...
+
+In effect, it makes gVim the default program to open various types of text files.
+This matters when using `$ xdg-open` or double-clicking on the icon of a
+file in a GUI file manager.
+
+---
+
+Is it needed?
+
+Once  the `gvim.desktop`  file is  installed, it  doesn't make  gVim the
+default program for text files.
+It just informs the system that gVim *can* open some of them.
+
+##
 # checkinstall
 ## How can I install the latest version of the script?
 
@@ -81,6 +381,9 @@ particular with:
 ### How to recompile it?
 
     $ dpkg-buildpackage -us -uc
+                         │   │
+                         │   └ do not sign the .changes file
+                         └ do not sign the source package
 
 You must  be in the source  code tree when you  run the command, and  the deb is
 written in the parent directory (where the .dsc file lives), not the current one.
@@ -160,6 +463,10 @@ And find the right recipe (e.g. `conf-unicode-256color`):
 
 ---
 
+See also: <https://wiki.debian.org/DebianPackageConfiguration>
+
+---
+
 Alternatively, you can try to read the buildlog on the web.
 
 For example, for `zsh`, you would first visit:
@@ -215,8 +522,8 @@ For example, from the Vim source code, you can compile `vim-gtk` or `vim-tiny`.
 
 ##
 # Todo
+## document `apt-src`, `autoapt`, `autodeb`
 
-Document these utilities:
 <https://wiki.debian.org/apt-src>
 <https://help.ubuntu.com/community/AutoApt>
 <https://wiki.ubuntu.com/AutoDeb>
@@ -238,4 +545,34 @@ doesn't find anything anymore, and you have to restart a complete update.
 
 autodeb is an  experimental script that should perform the  job of both auto-apt
 and checkinstall at the same time.
+
+## learn how to create your own package (to avoid checkinstall which is too buggy)
+
+<https://wiki.debian.org/HowToPackageForDebian>
+<https://wiki.debian.org/Packaging>
+
+---
+
+    $ ar tv foo.deb
+
+`ar` is used to create, modify, and extract from archives.
+
+The `t` option lists the contents `foo.deb`.
+
+The `v` modifier makes the operations verbose.
+With `t`, it allows  you to see the modes, timestamp, owner,  group, and size of
+the members.
+
+---
+
+The GNU ar program creates, modifies, and extracts from archives.
+An archive is a  single file holding a collection of other  files in a structure
+that makes it possible to retrieve the original individual files (called members
+of the archive).
+
+The original  files' contents, mode  (permissions), timestamp, owner,  and group
+are preserved in the archive, and can be restored on extraction.
+
+The paths  to the  elements of the  archive are stored  relative to  the archive
+itself.
 

@@ -63,9 +63,9 @@ running 2 commands:
 
 During the sourcing of the vimrc, and before `~/.vim/plugin/`, Vim sources:
 
-        1. $VIMRUNTIME/ftplugin.vim
-        2. $VIMRUNTIME/indent.vim
-        3. $VIMRUNTIME/syntax/{syntax,synload,syncolor}.vim
+   1. $VIMRUNTIME/ftplugin.vim
+   2. $VIMRUNTIME/indent.vim
+   3. $VIMRUNTIME/syntax/{syntax,synload,syncolor}.vim
 
 #### write `colo default` at the end of the vimrc?
 
@@ -208,21 +208,21 @@ Which is why we always also use this guard:
 
 They've been sourced by either:
 
-        - an autocmd
+   - an autocmd
 
-        - an element of interface (mapping, command, ...)
-          which triggered the sourcing of an autoloaded script
+   - an element of interface (mapping, command, ...)
+     which triggered the sourcing of an autoloaded script
 
-        - a filetype/syntax/indent plugin for a buffer
-                                   ^^^^^^
-                                   Yes,  I  know,  the question  mentions  files
-                                   which are  NOT plugins, but  filetype plugins
-                                   are not local  plugins (`~/.vim/plugin`), nor
-                                   third-party plugins (`~/.vim/plugged/*`).
+    - a filetype/syntax/indent plugin for a buffer
+                               ^^^^^^
+                               Yes,  I  know,  the question  mentions  files
+                               which are  NOT plugins, but  filetype plugins
+                               are not local  plugins (`~/.vim/plugin`), nor
+                               third-party plugins (`~/.vim/plugged/*`).
 
-                                   I   felt  the   necessity  to   mention  them
-                                   separately as they can cause a lot of scripts
-                                   to be sourced when a session is restored.
+                               I   felt  the   necessity  to   mention  them
+                               separately as they can cause a lot of scripts
+                               to be sourced when a session is restored.
 
 ##
 # Verbosity

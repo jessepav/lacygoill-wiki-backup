@@ -396,34 +396,6 @@ vim ~/.config/weechat/buffers.conf
 
 ##
 # Todo
-## Should we restore those default key bindings?   (which I've removed)
-
-4 key bindings added or redefined for context "default":
-
-        meta-meta-OP => /bar scroll buflist * b
-        meta-meta-OQ => /bar scroll buflist * e
-        meta-OP => /bar scroll buflist * -100%
-        meta-OQ => /bar scroll buflist * +100%
-
-16 key bindings added or redefined for context "mouse":
-
-        @bar(buflist):ctrl-wheeldown => hsignal:buflist_mouse
-        @bar(buflist):ctrl-wheelup => hsignal:buflist_mouse
-        @chat(fset.fset):button1 => /window ${_window_number};/fset -go ${_chat_line_y}
-        @chat(fset.fset):button2* => hsignal:fset_mouse
-        @chat(fset.fset):wheeldown => /fset -down 5
-        @chat(fset.fset):wheelup => /fset -up 5
-        @chat(script.scripts):button1 => /window ${_window_number};/script go ${_chat_line_y}
-        @chat(script.scripts):button2 => /window ${_window_number};/script go ${_chat_line_y};/script installremove -q ${script_name_with_extension}
-        @chat(script.scripts):wheeldown => /script down 5
-        @chat(script.scripts):wheelup => /script up 5
-        @item(buflist):button1* => hsignal:buflist_mouse
-        @item(buflist):button2* => hsignal:buflist_mouse
-        @item(buflist2):button1* => hsignal:buflist_mouse
-        @item(buflist2):button2* => hsignal:buflist_mouse
-        @item(buflist3):button1* => hsignal:buflist_mouse
-        @item(buflist3):button2* => hsignal:buflist_mouse
-
 ## To Read
 
 From the less to the most complex:
@@ -463,4 +435,55 @@ Network-specific rules:
 
 <https://freenode.net/kb/all>
 <https://www.abjects.net/page.php?10>
+
+## Should we restore those default key bindings?   (which I've removed)
+
+4 key bindings added or redefined for context "default":
+
+        meta-meta-OP => /bar scroll buflist * b
+        meta-meta-OQ => /bar scroll buflist * e
+        meta-OP => /bar scroll buflist * -100%
+        meta-OQ => /bar scroll buflist * +100%
+
+16 key bindings added or redefined for context "mouse":
+
+        @bar(buflist):ctrl-wheeldown => hsignal:buflist_mouse
+        @bar(buflist):ctrl-wheelup => hsignal:buflist_mouse
+        @chat(fset.fset):button1 => /window ${_window_number};/fset -go ${_chat_line_y}
+        @chat(fset.fset):button2* => hsignal:fset_mouse
+        @chat(fset.fset):wheeldown => /fset -down 5
+        @chat(fset.fset):wheelup => /fset -up 5
+        @chat(script.scripts):button1 => /window ${_window_number};/script go ${_chat_line_y}
+        @chat(script.scripts):button2 => /window ${_window_number};/script go ${_chat_line_y};/script installremove -q ${script_name_with_extension}
+        @chat(script.scripts):wheeldown => /script down 5
+        @chat(script.scripts):wheelup => /script up 5
+        @item(buflist):button1* => hsignal:buflist_mouse
+        @item(buflist):button2* => hsignal:buflist_mouse
+        @item(buflist2):button1* => hsignal:buflist_mouse
+        @item(buflist2):button2* => hsignal:buflist_mouse
+        @item(buflist3):button1* => hsignal:buflist_mouse
+        @item(buflist3):button2* => hsignal:buflist_mouse
+
+## learn how to use cursor mode
+
+Cursor mode  allows you to interact  with some pieces of  information present in
+the buffer more easily.
+For example,  you can  quote someone by  moving your cursor  over a  message and
+pressing `m`.
+
+   - <https://github.com/weechat/weechat/wiki/Cursor-mode>
+   - <https://weechat.org/files/doc/devel/weechat_user.en.html#key_bindings_cursor_context>
+
+Try to install key bindings using the keys h, j, k, l to move in cursor mode.
+You'll probably need to make them local to cursor mode.
+To achieve that, you'll need to understand the concept of “context” in `/help key`.
+Read also `/help cursor`.
+
+## learn how to bind a key differently depending on the type of the buffer
+
+    vejetaryen▹│ Is there a way to bind keys for specific window? I mean, I want meta-j to bind /window page_down in all
+               │ windows except for fset's window. In fset, I want meta-j to bind /fset -down. Is it possible?
+               │ I mean, I won't use /window page_down in fset anyways.
+        sim642 │ You can bind it to some /eval, which uses ${if:...} to output one of the two commands
+               │ Based on the current buffer name
 

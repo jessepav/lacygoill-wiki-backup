@@ -79,6 +79,20 @@ If you only wrote two backslashes, the shell would reduce them into a single one
 So, the shell would try to run `cmd2` itself.
 
 ##
+### Why does this key binding fail?  `$ tmux bind C-z "run { tmux display -p 'foo' \; tmux display -p 'bar'}"`
+
+Because you've escaped the semicolon; don't do it:
+
+    $ tmux bind C-z "run { tmux display -p 'foo' ; tmux display -p 'bar'}"
+                                                 ^
+                                                 no escape
+
+You only  need to  escape a  semicolon in  the rhs  of a  key binding  when it's
+outside a string and outside braces.
+Both  a string  and braces  remove the  special meaning  of the  characters they
+contain.
+
+##
 ## Which escape sequences does tmux translate?  (6)
 
     ┌────────────┬───────────────────────────────────────────────┐

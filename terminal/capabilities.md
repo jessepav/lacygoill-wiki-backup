@@ -27,13 +27,13 @@ column of the previous line.
 Mnemonic: BackWards
 
 ##
-# Cursor motion
+# Cursor
 ## What are the coordinates of "home" for an X terminal?
 
     (1,1)
 
 ##
-## absolute
+## absolute motions
 
     ┌───────────────────────┬──────────────────────────────────────┐
     │ smcup                 │ sequence to start programs using cup │
@@ -98,7 +98,7 @@ because of `%i`.
 For more info, see page 31 of “Termcap and Terminfo” (40 of the original book).
 
 ##
-## relative
+## relative motions
 
     ┌───────────┬───────────────────────────────────────────────┐
     │ cbt=\E[Z  │ backtab                                       │
@@ -125,6 +125,19 @@ For more info, see page 31 of “Termcap and Terminfo” (40 of the original boo
     ├───────────┼───────────────────────────────────────────────┤
     │ nel=\EE   │ newline (behaves like cr followed by lf)      │
     └───────────┴───────────────────────────────────────────────┘
+
+##
+## How to hide the cursor?
+
+Use the `civis` capability:
+
+    $ tput civis
+
+### How to show it again?
+
+Use the `cnorm` capability:
+
+    $ tput cnorm
 
 ##
 # Arrow keys

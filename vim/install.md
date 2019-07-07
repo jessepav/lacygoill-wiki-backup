@@ -1,8 +1,3 @@
-# How to get the paths to all the Vim binaries installed on my system?
-
-    $ type -a vim
-
-##
 # Vim
 
 On peut aussi compiler Vim depuis les sources avec toutes les options désirées.

@@ -9,9 +9,89 @@
    - <https://www.reddit.com/r/megalinks/>
    - <https://www.reddit.com/r/trackers/>
 
+##
 # Ebooks
+## Library Genesis
 
-To read:
+<http://gen.lib.rus.ec/>
+
+If the page is written in russian, click on the button labeled 'EN' in the toolbar.
+
+## #ebooks
+
+    /server irc.irchighway.net
+    /j #ebooks
+
+Run `@search your_book_title` to get a list of results in a zip archive.
+Unzip the archive, and search a line containing the book you're looking for.
+Finally, copy the bang command, and run in the channel.
+Example:
+
+    !temerut Nick Cutter - The Troop (epub).rar
+
+For more info, see:
+<http://ebooks.byethost6.com/index.html>
+
+## #bookz
+
+    /server irc.undernet.org
+    /j #bookz
+
+## google
+
+<https://cse.google.com/cse/publicurl?cx=011394183039475424659:5bfyqg89ers>
+
+Google custom search using this list of predefined urls: <http://pastebin.com/62tKNmm1>
+
+   - <http://gen.lib.rus.ec/*>
+   - <http://en.bookfi.org/*>
+   - <http://bookzz.org/*>
+   - <http://forum.mobilism.org/*>
+   - <http://tuebl.ca/books/*>
+   - <http://avxhome.se/ebooks/*>
+   - <http://www.4shared.com/*>
+   - <http://mediafire.com/*>
+   - <http://ipmart-forum.com/*>
+   - <http://ebook3000.com/*>
+   - <http://freebookspot.es/*>
+   - <http://demonoid.ph/*>
+   - <http://ebookee.org/*>
+   - <http://kat.cr/*>
+   - <http://www.downeu.org/ebook/*>
+   - <https://onebigtorrent.org/torrents/*>
+   - <http://manybooks.net/titles/*>
+   - <http://freshwrap.ws/*>
+   - <http://www.plentyofebooks.net/*>
+   - <http://book.pdfchm.net/*>
+   - <http://www.freebookspot.es/*>
+   - <http://www.feedurbrain.com/forum/*>
+   - <http://ebookbrowsee.net/*>
+   - <http://2020ok.com/books/*>
+   - <http://librs.net/*>
+   - <http://thepiratebay.la/torrent/*>
+   - <http://bitsnoop.com/*>
+   - <http://www.giuciao.com/books/*>
+   - <http://books.tr200.org/*>
+   - <http://booksc.org/*>
+   - <http://club.topsage.com/*>
+   - <http://ebookjunkie.com/*>
+   - <http://nips.djvuzone.org/*>
+   - <http://pdf-giant.com/*>
+   - <http://manybooks.net/*>
+   - <https://www.scribd.com/*>
+   - <http://freecomputerbooks.com/*>
+   - <http://www.freetechbooks.com/*>
+   - <http://www.onlinefreeebooks.net/*>
+   - <http://www.onlineprogrammingbooks.com/*>
+   - <http://www.ebooklobby.com/*>
+   - <http://bookboon.com/*>
+   - <https://www.reddit.com/r/eebooks/*>
+   - <https://www.reddit.com/r/mathbooks/*>
+   - <https://www.reddit.com/r/csbooks/*>
+   - <https://www.reddit.com/r/physicsbooks/*>
+   - <https://www.reddit.com/r/econbooks/>
+
+## See also
 
    - <https://www.reddit.com/r/Piracy/comments/7q856s/is_there_a_problem_with_library_genesis/>
    - <https://www.reddit.com/r/Scholar/comments/2raea8/libgen_down/>
@@ -23,140 +103,133 @@ To read:
    - <https://www.reddit.com/r/Piracy/comments/3i9y7n/guide_for_finding_textbooks/>
    - <https://www.reddit.com/r/trackers/comments/hrgmv/tracker_with_pdfsebooks_of_college_textbooks/c1xrq44>
 
-
-<http://gen.lib.rus.ec/>
-
-Cliquer sur le bouton EN en haut à droite pour faire passer la langue de russe à anglais.
-
-
-    /server irc.irchighway.net
-    /j #ebooks
-
-            Pour + d'infos sur comment fonctionne ce channel:
-
-                    http://ebooks.byethost6.com/index.html
-
-            En gros, il suffit de taper `@search nom_d'un_livre`, pour recevoir une liste de résultats
-            dans une archive .zip.
-            Chercher une ligne contenant le nom exact du livre qui nous intéresse (ainsi que son auteur),
-            et taper la commande qui lui est associée (commence par un bang).  Ex:
-
-                    @search The Troop
-                    … extrait archive zip …
-                    !temerut Nick Cutter - The Troop (epub).rar
-
-
-    /server irc.undernet.org
-    /j #bookz
-
-
-    https://cse.google.com/cse/publicurl?cx=011394183039475424659:5bfyqg89ers
-
-            moteur de recherche google custom qui cherche dans une liste de sites prédéfinis,
-            dont voici les adresses: http://pastebin.com/62tKNmm1
-
+##
 # Youtube-dl
+## Getting info
+### How to get more help?
 
-    youtube-dl --help
+    $ youtube-dl --help
 
-            Affiche l'aide.
+###
+### How to extract the url of a video embedded inside a webpage?
 
+    $ youtube-dl -g 'webpage url'
+                  │
+                  └ --get-url
 
-    -g    --get-url
-    mpv $(youtube-dl -g 'url')
+#### How to stream it in mpv?
 
-            Affiche l'URL où se trouve la vidéo.
-            Streame la vidéo dont la page est présente à l'adresse url.
+    $ mpv $(youtube-dl -g 'url')
 
+###
+### How to get the final name of the file which would be downloaded from an url?
 
-    --get-filename
-    --restrict-filenames
+Use the `--get-filename` argument.
 
-            Affiche le nom du fichier s'il était téléchargé.
-            Interdit l'usage de caractères non ASCII dans le nom du fichier.
+#### How to restrict it to only ASCII characters, and avoid "&" and spaces?
 
+Use the `--restrict-filenames` argument.
 
-    -x    --extract-audio
+###
+### How to list all the formats in which a video is available?
 
-            Convertit les fichiers vidéos en fichiers audio.
-            Nécessite `ffmpeg` ou `avconv`, et `ffprobe` ou `avprobe`.
+Use the `-F` (`--list-formats`) argument.
 
+### How to select the stream whose format code is 123?
 
-    --audio-format mp3
+Use the `-f123` (`--format 123`) argument.
 
-            Sélectionne mp3 comme type de fichier audio en sortie.
+### How to select and merge the two streams of index 12 and 34?
 
+    $ youtube-dl -f12+34
+                  ^^^^^^
 
-    --write-sub
-    --write-auto-sub
-    --all-subs
+For more info, see `$ man youtube-dl /FORMAT SELECTION`.
 
-            Écrire les sous-titres dans un fichier:
+##
+## Audio
+### How to convert a video file into audio file?
 
-                    - ceux dont la langue a été sélectionnée par `--sub-lang`
-                    - ceux générés automatiquement par YouTube
-                    - tous les sous-titres dispo
+    $ youtube -dl -x
+                   │
+                   └ --extract-audio
 
+Requires `ffmpeg` or `avconv`, and `ffprobe` or `avprobe`.
 
-    --list-subs
-    --sub-lang fr,en
+#### How to select mp3 as the audio format?
 
-            Liste les langues pour lesquelles des sous-titres sont dispo.
-            Sélectionne les langues françaises et anglaises pour les sous-titres à dl.
+    $ youtube-dl -x --audio-format mp3
+                      ^^^^^^^^^^^^
 
+##
+## Subtitles
+### How to list all the languages for which subtitles are available?
 
-    --skip-download
+Use the `--list-subs` argument.
 
-            Ne dl pas la vidéo. Utile qd on veut récupérer uniquement les sous-titres.
+### How to select the english and french subtitles?
 
+    $ youtube-dl --sub-lang fr,en ...
+                   ^^^^^^^^^^^^^
 
-    --playlist-items 1-3,7,10-13
+### How to download all the subtitles of a video
 
-            Dl les vidéos au sein d'une playlist, dont l'index est:
+    $ youtube-dl --all-subs
+                   ^^^^^^^^
 
-                    - compris entre 1 et 3
-                    - 7
-                    - compris entre 10 et 13
+#### only the ones selected by `--sub-lang`?
 
-            Illustre que `playlist-items` accepte comme valeur à la fois des index absolus et des rangées.
+    $ youtube-dl --write-sub
+                   ^^^^^^^^^
 
+#### only the ones automatically generated by YouTube?
+
+    $ youtube-dl --write-auto-sub
+                   ^^^^^^^^^^^^^^
+
+###
+### I don't want the video!  Only the subtitles!
+
+    $ youtube-dl --skip-download ...
+                   ^^^^^^^^^^^^^
+
+##
+## How to download all the videos in a playlist
+### whose index is between 12 and 34?
+
+    $ youtube-dl --playlist-items 12-34 ...
+
+### whose index is between 1, 2, 3, 7, 10, 11, 12, 13?
+
+    $ youtube-dl --playlist-items 1-3,7,10-13 ...
+
+##
+## How to change the template used to name a downloaded file?
+
+Use the `-o` argument.
+
+Example:
 
     -o "%(autonumber)02d - %(title)s.%(ext)s"
 
-            Template à utiliser pour les noms des fichiers vidéos.
+This example could name a file like so:
 
-            Exemple de résultat:
+        42 - My Wonderful Video.mp4
+        │    │                  │
+        │    │                  └ %(ext)s
+        │    └ %(title)s
+        └ %(autonumber)02d
 
-                    42 - My Wonderful Video.mp4
-                    │    │                  │
-                    │    │                  └ %(ext)s
-                    │    └ %(title)s
-                    └ %(autonumber)02d
+The  item `%(autonumber)0Nd`  allows you  to number  the downloaded  files, when
+there are several (e.g. playlist); 2 specifies the number of digits to use.
 
-            Dans un template, l'item `%(autonumber)0Nd` permet de numéroter les vidéos téléchargées,
-            qd il y en a plusieurs (ex: playlist).
-            Le chiffre `2` spécifie le nb de chiffres à utiliser.
-
-            Si on pense qu'on va téléchargé entre 10 et 99 vidéos, il vaut mieux utiliser 2.
-            Entre 100 et 999 vidéos, il faut utiliser 3.
-            Etc.
-
-
-    -F      --list-formats
-    -f42    --format 42
-    -f12+34
-
-            Liste tous les formats dans lesquels la vidéo est dispo.
-
-            Sélectionne le flux dont le code de format est 42.
-
-            Sélectionne et multiplexe les flux dont les codes de format sont 12 et 34.
-
-            Pour + d'infos, voir la section `FORMAT SELECTION` dans `man youtube-dl`.
+If you think you're going to download between 10 and 99 videos, use 2.
+Between 100 and 999 videos, use 3.
+Etc.
 
 ##
 # Issues
-## tpb is unavailable.  What to do?
+## tpb is unavailable!
 
 Try to visit the tor site:
 <http://www.uj3wazyk5u4hnvtk.onion/>

@@ -850,66 +850,23 @@ Commands are sent to copy mode using the -X flag to the send-keys command.
 
 The following commands are supported in copy mode:
 
-    append-selection
-    append-selection-and-cancel                  A
-    back-to-indentation                          ^
-    begin-selection                              Space
-    bottom-line                                  L
     cancel                                       q
     clear-selection                              Escape
-    copy-end-of-line [<prefix>]                  D
-    copy-line [<prefix>]
     copy-pipe <command> [<prefix>]
     copy-pipe-no-clear <command> [<prefix>]
     copy-pipe-and-cancel <command> [<prefix>]
     copy-selection [<prefix>]
     copy-selection-no-clear [<prefix>]
-    copy-selection-and-cancel [<prefix>]         Enter
-    cursor-down                                  j
-    cursor-left                                  h
-    cursor-right                                 l
-    cursor-up                                    k
-    end-of-line                                  $
     goto-line <line>                             :
-    halfpage-down                                C-d
     halfpage-down-and-cancel
-    halfpage-up                                  C-u
-    history-bottom                               G
-    history-top                                  g
-    jump-again                                   ;
-    jump-backward <to>                           F
-    jump-forward <to>                            f
-    jump-reverse                                 ,
-    jump-to-backward <to>                        T
-    jump-to-forward <to>                         t
-    middle-line                                  M
-    next-paragraph                               }
-    next-space                                   W
-    next-space-end                               E
-    next-word                                    w
-    next-word-end                                e
-    other-end                                    o
-    page-down                                    C-f
     page-down-and-cancel
-    page-up                                      C-b
-    previous-paragraph                           {
-    previous-space                               B
-    previous-word                                b
-    rectangle-toggle                             v
-    scroll-down                                  C-e
     scroll-down-and-cancel
-    scroll-up                                    C-y
-    search-again                                 n
-    search-backward <for>                        ?
-    search-forward <for>                         /
-    search-backward-incremental <for>
-    search-forward-incremental <for>
-    search-reverse                               N
-    select-line                                  V
-    select-word
-    start-of-line                                0
     stop-selection
-    top-line                                     H
+
+    page-up                                      C-b
+    page-down                                    C-f
+    previous-paragraph                           {
+    next-paragraph                               }
 
 Copy  commands may  take an  optional buffer  prefix argument  which is  used to
 generate  the  buffer  name  (the  default is  ‘buffer'  so  buffers  are  named
