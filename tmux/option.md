@@ -651,6 +651,38 @@ the value 'none' and `'visual-bell'` being 'off'.
 
 ##
 # Issues
+## When I try to combine some color with the bold style, I get a different color!
+
+Don't use a named color, and don't use `colour0`, `colour1`, ..., `colour7` either.
+
+Or use st with this patch:
+
+<https://st.suckless.org/patches/bold-is-not-bright/>
+
+---
+
+In a tmux command, when you refer to a color via its name or via `colour0`, ...,
+`colour7`, tmux  encodes one  of the  first 8 colors  in the  256-color palette,
+using your terminal `setaf` capability.
+This gives `\e[30m`, ..., `\e[37m`.
+
+If  you combine  your color  with the  bold style,  tmux sends  to the  terminal
+`\e[30;1m`, ..., `\e[37;1m`.
+When receiving such sequences, the terminal interprets `1` as bright, not bold:
+
+    $ printf '\e[30;1m  hello  \e[0m\n'
+
+For more info, see our notes about colors in the terminal wiki.
+
+MWE:
+
+    $ tmux -Lx -f =(cat <<'EOF'
+    set -gw window-status-format '#[fg=black,bold]#W'
+    EOF
+    )
+
+The title of a non-focused window should  be in black, but in practice it's in grey.
+
 ## Some options which set colors don't work!
 
 Do you use hex color codes, and does your terminal support true colors?

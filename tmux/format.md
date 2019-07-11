@@ -412,6 +412,36 @@ It can also be useful when you test an `%if` construct:
 
 Indeed, `%if` expects a format as an argument.
 
+### When does it *not* work?
+
+When your text contains braces.
+
+    $ tmux command-prompt -I "#{l:{a} {b}}"
+    {a {b}}~
+          ^
+          ✘
+
+Note that the issue is specific to braces, not formats; so this would work as expected:
+
+    $ tmux command-prompt -I "#{l:#{a} #{b}}"
+    #{a} #{b}~
+
+---
+
+Here's a less contrived example illustrating the issue:
+
+    $ tmux command-prompt -I "#{l:if 'true' {display #{pane_id}} {display 'x'}}"
+    :if 'true' {display #{pane_id} { display 'x' }}~
+                                                  ^
+                                                  ✘
+
+#### What should I do when it doesn't work?
+
+Double all the number signs:
+
+    $ tmux command-prompt -I "if 'true' {display ##{pane_id}} {display 'x'}"
+    :if 'true' {display #{pane_id}} { display 'x' }~
+
 ###
 ## How to write a literal `#`, `,`, or `}`?
 
@@ -1099,6 +1129,89 @@ Example:
                         ├───────────────────────────────────────────────────────────────────────┘
                         └ should be 1 iff the command running in the pane is (n)vim or man
 
+## I can't use braces from the shell!
+
+Prepend `if -F 1` to your braces:
+
+    ✘
+    $ tmux bind x '{ display test }'
+    unknown command:  display test~
+
+    ✔
+    $ tmux bind x 'if -F 1 { display test }'
+                   ^^^^^^^
+
+---
+
+Rationale:
+
+The shell doesn't care that `{}` are equivalent to quotes for tmux.
+From its point of view, they are just regular characters.
+No  matter what  you do,  the  shell will  never  consider them  as quotes  when
+invoking `execve()`:
+
+    $ tmux bind x '{display test}'
+    →
+    execve('tmux', 'bind', 'x', '{display test}')
+    →
+    :bind x '{display test}'
+            ^              ^
+
+Here, the tmux command receives the  subcommand `bind`, as well as the arguments
+`x` and  `{display test}`; but  since the last  argument contains a  space, tmux
+quotes it.
+
+This seems to be confirmed by the fact that if you remove the space, the command
+succeeds:
+
+    $ tmux bind x '{display}'
+    →
+    execve('tmux', 'bind', 'x', '{display}')
+    →
+    :bind x {display}
+            ^       ^
+            this time, tmux did not add additional quotes
+
+Anyway, when tmux parses the key binding and finds that the rhs is `'{display test}'`,
+it cancels the installation because it realizes that the command you're trying to bind
+is `{display test}`. But this is not a valid tmux command; it's a string.
+So tmux complains in the exact same way it would complain if you had run:
+
+    $ tmux bind x '"display test"'
+    unknown command: display test~
+
+---
+
+Note that it  seems you can use the  exact same syntax to install  a key binding
+whether from the shell or from a tmux file:
+
+    $ tmux bind x display test
+    ⇔
+    :bind x display test
+
+    $ tmux bind x 'display test'
+    ⇔
+    :bind x 'display test'
+
+    $ tmux bind x '"display test"'
+    ⇔
+    :bind x '"display test"'
+
+---
+
+Also, note that  in the case of a  key binding, instead of using `if  -F 1`, you
+could also repeat the command and the lhs:
+
+    $ tmux bind x 'bind x { display test }'
+                   ^^^^^^
+
+But `display test` would not be run until you press `x` twice.
+Because the first time you press `x`, the key binding would redefine itself:
+
+    x 'bind x { display test }'
+    →
+    x { display test }
+
 ## I'm writing nested formats; I have 3 consecutive `}`.  How to prevent Vim from interpreting them as fold markers?
 
 Use a temporary environment variable.
@@ -1118,7 +1231,7 @@ This also gives the benefit of making the code more readable.
 
 Do *not* try to add a space in-between the brackets.
 It would break the meaning of the formats.
-Indeed, any character inside `#{}` is semantic, including a space:
+Indeed, any character inside `#{}` is syntaxic, including a space:
 
     $ tmux display -p '#{==:vim,#{pane_current_command}}'
     1~

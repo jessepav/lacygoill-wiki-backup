@@ -1,7 +1,7 @@
 # tmux-fingers
 ## It doesn't let me search outside the current screen!
 
-Use our `M-:` key binding, which writes the whole scrollback buffer in a Nvim buffer.
+Use our `M-c` key binding, which writes the whole scrollback buffer in a Nvim buffer.
 
 ##
 ## It wrongly renames the current window!

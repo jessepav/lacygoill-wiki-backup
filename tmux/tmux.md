@@ -515,7 +515,9 @@ output bandwidth; you can test the latter, roughly, with these commands:
 ### Tmux crashes, but it doesn't dump a core file!
 #### How to get a backtrace?
 
-    $ gdb -q --args ./tmux -Lx -f/dev/null new
+    $ tmux -Lx kill-server
+
+    $ gdb -q --args ./tmux -Lx new
     (gdb) set follow-fork-mode child
     (gdb) run
     # reproduce the crash

@@ -56,22 +56,6 @@ Useful to view the contents of compressed files or archives.
 
     # to reset the contents of a field to a default value,
     # type its index then press Enter without filling anything
-    # FIXME: for some reason, `--pkgname`, `--pkgversion`, ... don't work
-    $ sudo checkinstall
-    0 -  Maintainer: [ root@ubuntu ]~
-    1 -  Summary: [ Input filter for less to better display files ]~
-    2 -  Name:    [ lesspipe ]~
-    3 -  Version: [ 1.8.2 ]~
-    4 -  Release: [ 1 ]~
-    5 -  License: [ GPL ]~
-    6 -  Group:   [ Languages ]~
-    7 -  Architecture: [ amd64 ]~
-    8 -  Source location: [ lesspipe ]~
-    9 -  Alternate source location: [  ]~
-    10 - Requires: [  ]~
-    11 - Provides: [ lesspipe ]~
-    12 - Conflicts: [  ]~
-    13 - Replaces: [  ]~
 
 ---
 
@@ -98,6 +82,8 @@ file if it's updated, by pressing `F`.
 ## ?
 
 Copy the contents of the manpages for less, lesskey and lesspipe and edit them.
+
+Note that we've started configuring less in `~/.config/lesskey`, and in `~/.zshenv`.
 
 ---
 

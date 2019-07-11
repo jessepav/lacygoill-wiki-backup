@@ -337,9 +337,9 @@ Its name, its value and its attributes (e.g. readonly).
 
 ## What are the 3 types of value you can assign to a parameter?
 
-        - scalar (e.g. string, integer, float)
-        - array (list indexed by integers)
-        - associative array (unordered set of (key, value) pairs indexed by strings)
+   - scalar (e.g. string, integer, float)
+   - array (list indexed by integers)
+   - associative array (unordered set of (key, value) pairs indexed by strings)
 
 ##
 # Getting info
@@ -353,16 +353,16 @@ help/prevent the shell from finding an executable (script or binary).
 
 ## How can I know whether a parameter is special?
 
-In `man zshparam`, a special parameter is marked with the characters `<S>`.
+In `$ man zshparam`, a special parameter is marked with the characters `<S>`.
 
 ##
 ## How to get the type of a parameter and its attributes?
 
-        % echo ${(t)param}
-                  │
-                  └ man zshexpn
-                    > PARAMETER EXPANSION
-                    > Parameter Expansion Flags
+    % echo ${(t)param}
+              │
+              └ man zshexpn
+                > PARAMETER EXPANSION
+                > Parameter Expansion Flags
 
 Use  a string  describing the  type  of the  parameter  where the  value of  the
 parameter would usually appear.
@@ -371,59 +371,59 @@ This string consists of keywords separated by hyphens (`-`).
 
 The  first keyword  in the  string describes  the main  type:
 
-        - `array`
-        - `association`
-        - `float`
-        - `integer`
-        - `scalar`
+   - `array`
+   - `association`
+   - `float`
+   - `integer`
+   - `scalar`
 
 The other keywords describe the type in more detail:
 
-        ┌──────────────┬────────────────────────────────────────────────┐
-        │ export       │ exported parameters                            │
-        ├──────────────┼────────────────────────────────────────────────┤
-        │ hide         │ parameters with the `hide` flag                │
-        ├──────────────┼────────────────────────────────────────────────┤
-        │ hideval      │ parameters with the `hideval` flag             │
-        ├──────────────┼────────────────────────────────────────────────┤
-        │ left         │ left justified parameters                      │
-        ├──────────────┼────────────────────────────────────────────────┤
-        │ local        │ local parameters                               │
-        ├──────────────┼────────────────────────────────────────────────┤
-        │ lower        │ parameters whose value is converted            │
-        │              │ to all lower case when it is expanded          │
-        ├──────────────┼────────────────────────────────────────────────┤
-        │ readonly     │ readonly parameters                            │
-        ├──────────────┼────────────────────────────────────────────────┤
-        │ right_blanks │ right justified parameters with leading blanks │
-        ├──────────────┼────────────────────────────────────────────────┤
-        │ right_zeros  │ right justified parameters with leading zeros  │
-        ├──────────────┼────────────────────────────────────────────────┤
-        │ special      │ special parameters defined by the shell        │
-        ├──────────────┼────────────────────────────────────────────────┤
-        │ tag          │ tagged parameters                              │
-        ├──────────────┼────────────────────────────────────────────────┤
-        │ unique       │ arrays which keep only the first occurrence    │
-        │              │ of duplicated values                           │
-        ├──────────────┼────────────────────────────────────────────────┤
-        │ upper        │ parameters whose value is converted            │
-        │              │ to all upper case when it is expanded          │
-        └──────────────┴────────────────────────────────────────────────┘
+    ┌──────────────┬────────────────────────────────────────────────┐
+    │ export       │ exported parameters                            │
+    ├──────────────┼────────────────────────────────────────────────┤
+    │ hide         │ parameters with the `hide` flag                │
+    ├──────────────┼────────────────────────────────────────────────┤
+    │ hideval      │ parameters with the `hideval` flag             │
+    ├──────────────┼────────────────────────────────────────────────┤
+    │ left         │ left justified parameters                      │
+    ├──────────────┼────────────────────────────────────────────────┤
+    │ local        │ local parameters                               │
+    ├──────────────┼────────────────────────────────────────────────┤
+    │ lower        │ parameters whose value is converted            │
+    │              │ to all lower case when it is expanded          │
+    ├──────────────┼────────────────────────────────────────────────┤
+    │ readonly     │ readonly parameters                            │
+    ├──────────────┼────────────────────────────────────────────────┤
+    │ right_blanks │ right justified parameters with leading blanks │
+    ├──────────────┼────────────────────────────────────────────────┤
+    │ right_zeros  │ right justified parameters with leading zeros  │
+    ├──────────────┼────────────────────────────────────────────────┤
+    │ special      │ special parameters defined by the shell        │
+    ├──────────────┼────────────────────────────────────────────────┤
+    │ tag          │ tagged parameters                              │
+    ├──────────────┼────────────────────────────────────────────────┤
+    │ unique       │ arrays which keep only the first occurrence    │
+    │              │ of duplicated values                           │
+    ├──────────────┼────────────────────────────────────────────────┤
+    │ upper        │ parameters whose value is converted            │
+    │              │ to all upper case when it is expanded          │
+    └──────────────┴────────────────────────────────────────────────┘
 
 ## How to get the command which can re-assign the current value of a parameter?
 
-        % typeset -p param
-                  ├┘
-                  └ warning:
-                    you can't combine it with other flags,
-                    they are ignored
+    % typeset -p param
+              ├┘
+              └ warning:
+                you can't combine it with other flags,
+                they are ignored
 
 ## How to make the output more readable for a big array?
 
-        % typeset -p1 param
-                    │
-                    └ arrays and associative arrays are printed
-                      with newlines between indented elements for readability
+    % typeset -p1 param
+                │
+                └ arrays and associative arrays are printed
+                  with newlines between indented elements for readability
 
 ##
 ## How to print all parameters in the shell?
@@ -765,9 +765,9 @@ The shell performed a field splitting when it processed the `% print` command.
 If you quote the expansion, to prevent this splitting, you'll see that `$arr[*]`
 is indeed considered as a single value:
 
-        % arr=( a b c )
-        % print -l "$arr[*]"
-        a b c~
+    % arr=( a b c )
+    % print -l "$arr[*]"
+    a b c~
 
 Remember:
 quote an expansion, if you don't want it to be altered by a field splitting.

@@ -572,8 +572,102 @@ The same is true for other combinations of flags with `-p`; don't write `-pN` bu
 Don't write `-I1` but `-1I`, and don't write `-IN` but `-NI`, etc.
 
 ##
+# command queue
+## What is the command queue?
+
+The commands you ask tmux to run must first be parsed.
+Then, they are added to the command queue.
+Finally, commands on the queue are executed in order.
+
+## Does tmux have only one command queue?
+
+No, each client has a command queue.
+Besides,  a global  command queue  – not  attached to  any client  – is  used on
+startup for configuration files like `~/.tmux.conf`.
+
+## What happens when the commands `if-shell` and `confirm-before` parse their arguments?
+
+They create a new command which is inserted immediately after themselves.
+
+### Are those the only commands for which that happens?
+
+No.
+Any command which accepts another command as argument is also concerned.
+
+### ?
+
+What's the consequence of this for `tmux_cmd` in `if 'shell_cmd' 'tmux_cmd'`
+
+It's parsed twice.
+
+    :display "C-\\"
+    C-\~
+
+    :confirm-before "display C-\\"
+    y
+    Syntax error~
+
+Here, `C-\\` has been parsed twice.
+Once for `confirm-before`, the other for `display-message`.
+After  the   parsing  of  `confirm-before`,   `C-\\`  became  `C-\`,   and  when
+`display-message` parsed `C-\`, it raised an error.
+The same error you would get if you ran `:display C-\`.
+
+> This means that arguments can be parsed twice or more - once when the parent
+> command (such as  if-shell) is parsed and again when  it parses and executes
+> its command.
+
+##
+# Miscellaneous
+## I'm asking tmux to run a sequence of commands, but one in the middle will fail.  Which command(s) will tmux run?
+
+If the  failure can be  detected at parse time  (i.e. the command  fails because
+it's invalid) none.
+
+Otherwise, all the commands which precede.
+
+---
+
+    $ tmux display -p foo \; not_a_cmd \; display -p bar 2>/dev/null
+    ''~
+
+Here,  no  command  is  run  because   tmux  has  detected  an  invalid  command
+(`not_a_cmd`) at parse time.
+
+    $ tmux lsb -F '#{buffer_name}' | xargs -I{} tmux deleteb -b {} ; \
+      tmux display -p foo \; deleteb \; display -p bar 2>/dev/null
+      foo~
+
+And here, the first `display` is run because – at parse time – tmux was not able
+to detect that `deleteb` would fail.
+But at execution time, when `deleteb`  does fail, tmux stops processing the rest
+of the commands.
+
 ##
 ##
+##
+# run-shell
+
+Document that `-b` makes the output of  the shell command displayed in copy mode
+(instead of the stdout of the current shell).
+
+    $ tmux run 'echo hello' \; if '' ''
+    hello~
+
+               vv
+    $ tmux run -b 'echo hello' \; if '' ''
+    hello in copy mode~
+
+> run-shell [-b] [-t target-pane] shell-command
+>               (alias: run)
+>         Execute shell-command in the background without creating a win‐
+>         dow.  Before being executed, shell-command is expanded using the
+>         rules specified in the FORMATS section.  With -b, the command is
+>         run in the background.  After it finishes, any output to stdout
+>         is displayed in copy mode (in the pane specified by -t or the
+>         current pane if omitted).  If the command doesn't return success,
+>         the exit status is also displayed.
+
 # join-pane
 ## ?
 
@@ -815,6 +909,12 @@ So, you'll probably want to take the habit of using the third syntax:
 > The -e option has the same meaning as for the new-window command.
 
 # send-keys
+
+`send-keys` has been updated recently.
+Ignore the following text.
+Update your tmux, and copy the new documentation.
+
+---
 
     send-keys [-lMRX] [-N repeat-count] [-t target-pane] key ...
 

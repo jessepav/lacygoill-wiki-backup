@@ -330,43 +330,43 @@ ALL the autocmds  in the `filetype.vim` files are sourced  BEFORE ANY autocmd in
 ## Acting
 ### Which mechanisms are enabled by `:filetype plugin indent on`?
 
-        :filetype plugin indent on
-         │        │      │
-         │        │      └ enable indent plugins
-         │        │
-         │        └ enable filetype plugins
-         │
-         └ enable filetype detection
+    :filetype plugin indent on
+     │        │      │
+     │        │      └ enable indent plugins
+     │        │
+     │        └ enable filetype plugins
+     │
+     └ enable filetype detection
 
 ### How to disable the filetype plugins?  the indent plugins?
 
-        :filetype plugin off
-        :filetype indent off
+    :filetype plugin off
+    :filetype indent off
 
 ---
 
 Here are all the 8 possible `:filetype` commands:
 
-        ┌─────────────────────────────┬───────────┬───────────┬───────────┐
-        │ command                     │ detection │ plugin    │ indent    │
-        ├─────────────────────────────┼───────────┼───────────┼───────────┤
-        │ :filetype on                │ on        │ ∅         │ ∅         │
-        ├─────────────────────────────┼───────────┼───────────┼───────────┤
-        │ :filetype off               │ off       │ ∅         │ ∅         │
-        ├─────────────────────────────┼───────────┼───────────┼───────────┤
-        │ :filetype plugin on         │ on        │ on        │ ∅         │
-        ├─────────────────────────────┼───────────┼───────────┼───────────┤
-        │ :filetype plugin off        │ ∅         │ off       │ ∅         │
-        ├─────────────────────────────┼───────────┼───────────┼───────────┤
-        │ :filetype indent on         │ on        │ ∅         │ on        │
-        ├─────────────────────────────┼───────────┼───────────┼───────────┤
-        │ :filetype indent off        │ ∅         │ ∅         │ off       │
-        ├─────────────────────────────┼───────────┼───────────┼───────────┤
-        │ :filetype plugin indent on  │ on        │ on        │ on        │
-        ├─────────────────────────────┼───────────┼───────────┼───────────┤
-        │ :filetype plugin indent off │ ∅         │ off       │ off       │
-        └─────────────────────────────┴───────────┴───────────┴───────────┘
-        ∅ = no change
+    ┌─────────────────────────────┬───────────┬───────────┬───────────┐
+    │ command                     │ detection │ plugin    │ indent    │
+    ├─────────────────────────────┼───────────┼───────────┼───────────┤
+    │ :filetype on                │ on        │ ∅         │ ∅         │
+    ├─────────────────────────────┼───────────┼───────────┼───────────┤
+    │ :filetype off               │ off       │ ∅         │ ∅         │
+    ├─────────────────────────────┼───────────┼───────────┼───────────┤
+    │ :filetype plugin on         │ on        │ on        │ ∅         │
+    ├─────────────────────────────┼───────────┼───────────┼───────────┤
+    │ :filetype plugin off        │ ∅         │ off       │ ∅         │
+    ├─────────────────────────────┼───────────┼───────────┼───────────┤
+    │ :filetype indent on         │ on        │ ∅         │ on        │
+    ├─────────────────────────────┼───────────┼───────────┼───────────┤
+    │ :filetype indent off        │ ∅         │ ∅         │ off       │
+    ├─────────────────────────────┼───────────┼───────────┼───────────┤
+    │ :filetype plugin indent on  │ on        │ on        │ on        │
+    ├─────────────────────────────┼───────────┼───────────┼───────────┤
+    │ :filetype plugin indent off │ ∅         │ off       │ off       │
+    └─────────────────────────────┴───────────┴───────────┴───────────┘
+    ∅ = no change
 
 ### Which file(s) are sourced when I execute `:filetype on`?  `:filetype plugin on`?  `:filetype indent on`?
 
@@ -492,7 +492,7 @@ Besides, `after/filetype.vim` is mentioned at `:h 43.2`.
 
 Pass the optional FALLBACK argument to `:setf`:
 
-        :setf FALLBACK {your filetype}
+    :setf FALLBACK {your filetype}
 
 This will tell  Vim that your filetype should  be used only as a  fallback if no
 script sets the filetype later.
@@ -545,7 +545,7 @@ The default value of the latter is:
 
 ### How to ask Vim to look at the new contents I've just inserted, to set the filetype of the current buffer?
 
-        :filetype detect
+    :filetype detect
 
 Useful for  example, when you've  begun writing a shell  script in a  new buffer
 which initially didn't have any filetype.
@@ -601,12 +601,12 @@ When the 'filetype' option of a buffer is set.
 
 ### Which three lines of code are equivalent to `:setf sh`?
 
-            ┌ `did_filetype()` evaluates to true when an autocmd is being processed,
-            │ and the `FileType` event has been fired at least once for the current buffer
-            │
-        if !did_filetype()
-            setl ft=sh
-        endif
+        ┌ `did_filetype()` evaluates to true when an autocmd is being processed,
+        │ and the `FileType` event has been fired at least once for the current buffer
+        │
+    if !did_filetype()
+        setl ft=sh
+    endif
 
 ###
 ### Are all autocmds listening to `BufReadPost` executed before the ones listening to `FileType`?
@@ -681,9 +681,9 @@ Useful to avoid having to repeat some common settings (like the folding ones).
 
 Include this guard at the start of the plugin:
 
-        if exists('b:did_ftplugin')
-            finish
-        endif
+    if exists('b:did_ftplugin')
+        finish
+    endif
 
 ### Why should I NOT write guards in my filetype plugins located in an `after/` directory?
 
@@ -776,9 +776,9 @@ You also probably would have to remove `b:did_my_ftplugin` after every `:runtime
 ### How to reload
 #### the filetype plugins for the current buffer?  (2)
 
-        :do filetypeplugin filetype
+    :do filetypeplugin filetype
 
-        :let &ft = &ft
+    :let &ft = &ft
 
 You  could use  `:e`, but  it would  cause ALL  “local” plugins  to be  reloaded
 including the syntax ones.

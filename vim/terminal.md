@@ -18,6 +18,25 @@ And you can't even set the command-line buffer from a zle widget:
     zle -N func
     bindkey '^G^G' func
 
+### I can't edit the current command-line by pressing `C-x C-e` (only in Nvim)!
+
+Well it doesn't make much sense to do it.
+I mean, you're in already in an editor.
+If you want to edit the line with Nvim commands, just press Escape.
+
+But yeah, it's broken:
+
+    :term
+    $ ls C-x C-e
+    Error detected while processing function <SNR>119_LoadRemotePlugins[1]..<SNR>119_GetManifest[1]..~
+    line    7:~
+    E117: Unknown function: stdpath~
+
+There seems  to be  some kind of  recursive loop;  `s:LoadRemotePlugins()` keeps
+calling itself again and again.
+
+Same issue in bash and zsh, and same issue when you run `$ fc`.
+
 ### Ranger is weirdly displayed!
 
 Yes, the columns (and their borders) are not aligned correctly.

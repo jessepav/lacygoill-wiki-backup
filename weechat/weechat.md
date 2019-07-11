@@ -436,6 +436,10 @@ Network-specific rules:
 <https://freenode.net/kb/all>
 <https://www.abjects.net/page.php?10>
 
+## learn how to paste multiline message
+
+<https://weechat.org/scripts/source/multiline.pl.html/>
+
 ## Should we restore those default key bindings?   (which I've removed)
 
 4 key bindings added or redefined for context "default":

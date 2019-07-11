@@ -127,11 +127,11 @@ desired color belongs to:
     ┌─────────────┬───────────────┐
     │ color index │ Pm            │
     ├─────────────┼───────────────┤
-    │ 0-7         │ 30-37         │
+    │ 0-7         │ 30-37         │ legacy sequences
     ├─────────────┼───────────────┤
-    │ 8-15        │ 90-97         │
+    │ 8-15        │ 90-97         │ "
     ├─────────────┼───────────────┤
-    │ 16-256      │ 38;5;123      │
+    │ 0-256       │ 38;5;123      │
     ├─────────────┼───────────────┤
     │ true color  │ 38;2;rr;gg;bb │
     └─────────────┴───────────────┘
@@ -139,6 +139,7 @@ desired color belongs to:
 Add 10 to the  (1st) number to target the background of the  text instead of its
 foreground.
 
+---
 
     $ printf '\e[30m  text in black    \e[0m\n'
     $ printf '\e[31m  text in red      \e[0m\n'

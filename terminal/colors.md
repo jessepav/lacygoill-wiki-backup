@@ -506,3 +506,40 @@ comparisons to do.
 Alternatively, use `~/bin/is_it_in_the_palette.sh`, but be aware of the
 limitations of this script; they're documented at the top of the file.
 
+##
+## I'm trying to combine the color black with the bold attribute.  I get some light grey!
+
+In some sequences, bold is interpreted as bright:
+
+<https://askubuntu.com/questions/875102/gnome-terminal-use-bright-colors-for-bold>
+
+---
+
+The bold  attribute (`\e[1m`) is interpreted  as bold when combined  with direct
+RGB colors (true  colors), and with the colors of  the 256-color palette, beyond
+the first 16.
+
+However,  the first  16 colors  in the  256-color palette  can be  accessed with
+escape sequences  using the numbers 30–37  (first 8), 90–97 (following  8 bright
+variants), or 38;5;0–15.
+
+And  if you  combine the  sequences using  the numbers  30–37 with  `\e[1m`, the
+latter is interpreted as bold**+bright** (for legacy compatibility reasons).
+
+So, this prints the text “hello” in bold black:
+
+    $ printf '\e[38;5;0;1m  hello  \e[0m\n'
+
+While this prints the same text in bold grey:
+
+    $ printf '\e[30;1m  hello  \e[0m\n'
+
+If you  want to know which  sequence is used by  a program to encode  one of the
+first 16 foreground colors in the 256-color palette, have a look at the value of
+your terminal's `setaf` capability.
+
+---
+
+Note that st doesn't suffer from this issue provided you applied this patch:
+<https://st.suckless.org/patches/bold-is-not-bright/>
+

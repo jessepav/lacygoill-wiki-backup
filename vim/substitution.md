@@ -22,6 +22,8 @@ E.g.:
 
 This command doesn't replace `a[b` with `rep`, but `a[b/rep/` with nothing.
 
+See `:h e769`.
+
 ---
 
             Utilisé  dans un  pattern,  chaîne de  remplacement,  ou une  simple

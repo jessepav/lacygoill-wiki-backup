@@ -124,16 +124,17 @@ If it was not the case, do we want to undo everything we did?
 
 Tmux:
 
-   - <https://github.com/tmux-plugins/tmux-sensible>
+   - <https://github.com/Morantron/tmux-fingers>
+   - <https://github.com/tmux-plugins/tmux-continuum>
+   - <https://github.com/tmux-plugins/tmux-logging>
    - <https://github.com/tmux-plugins/tmux-pain-control>
    - <https://github.com/tmux-plugins/tmux-resurrect>
-   - <https://github.com/tmux-plugins/tmux-continuum>
+   - <https://github.com/tmux-plugins/tmux-sensible>
+   - <https://github.com/tmux-plugins/tmux-yank>
 
 Vim:
 
    - <https://github.com/tmux-plugins/vim-tmux>
-
-## reimplement/assimilate tmux-yank and tmux-logging
 
 ##
         pfx ?
@@ -549,12 +550,6 @@ when we have a rectangle selection.
 
 ---
 
-Try to install a key binding using `append-selection`.
-The latter  command allows you  to yank the selection,  append it to  the latest
-tmux buffer, and quit copy mode.
-
----
-
 `stop-selection` is interesting.
 You stay in copy  mode, and you can move your cursor wherever  you want, but the
 selection remains active.
@@ -566,12 +561,6 @@ Copied from here:
 
 We've already started reading the document, and editing it.
 It begins with fairly basic information, but ends with advanced ones.
-You'll probably better understand tmux key  bindings, and learn how to do things
-you didn't know were possible before.
-For example,  it explains how to  create your own  custom key table, and  how to
-“chain” key bindings.
-
-Once you've read it, use your new knowledge to improve our tmux.conf.
 
 # study wait-for
 
@@ -662,10 +651,6 @@ Try to eliminate all those undesired buffers.
 We should only have buffers we've explicitly ask tmux to create, and they should
 all be named with the pattern `buf_123`.
 
----
-
-See also the TODO in our tmux.conf about `capture-pane` and `M-:`.
-
 # document how to run a custom zsh function from tmux
 
 If the function doesn't run any command which requires a controlling terminal:
@@ -680,7 +665,196 @@ fzf is an example of command which needs a controlling terminal:
 
     func() { fzf; }
 
-# ?
+# learn how to save and restore a layout
+
+<https://wiki.archlinux.org/index.php/tmux#Get_the_default_layout_values>
+*Read the rest of the page for other ideas...*
+
+The format variables `#{window_layout}` and `#{window_visible_layout}` may help,
+as well as `select-layout`.
+More generally, read everything in the manpage which contains 'layout'.
+
+# install a key binding to remove the text before the cursor on command prompt
+
+Right now, `C-u` removes all the line.
+Btw, why does `C-u` delete the whole line by default?
+Does it come from emacs?
+It certainly doesn't come from readline.
+
+Update: It comes from sh.
+
+    $ sh
+    $ foo bar M-b C-u
+
+---
+
+Also, `M-d` is missing, as well as `C-_` and `M-t`.
+Also missing (but those are custom):
+
+   - `M-p`     history-search-backward
+   - `M-n`     history-search-forward
+   - `M-u u`   upcase-word
+   - `M-u l`   downcase-word
+   - `M-u c`   capitalize-word
+
+And when you delete some text with `C-u` or `C-k`, you can't paste it afterward with `C-y`.
+And if you delete several words with `C-w`, you can't paste them with `C-y` (only the last one).
+
+---
+
+Idea:  if we  could ask  tmux to  give us  the position  of the  cursor and  the
+contents of the command-line, we could  give these info to `vim-readline`, which
+would compute the new command-line.
+And if we could then tell tmux to replace the old command-line with the new one,
+we could implement most of these key bindings.
+Except  for `M-p`  and  `M-n`; for  those  we  would also  need  the history  of
+commands,  which atm  is in  `~/.tmux/command_history`,  but it  seems it's  not
+updated in real-time (I think you have to quit tmux to make it update).
+
+# install a key binding to paste the last shell command and its output in the previous pane if it runs Vim
+
+We often need to copy paste a shell command and its output in our notes.
+A key binding could make the process smoother.
+
+# learn the difference between `send -l` and `send -ll`
+
+> Bit more complicated than I thought because keys are always Unicode so we need
+> a flag to say that they aren't.
+> Please try this, you can use two  -l (send-keys -ll) to send literal keys rather
+> than UTF-8: x.diff.txt
+
+<https://github.com/tmux/tmux/issues/1832#issuecomment-509624368>
+
+# document how to use valgrind to debut tmux
+
+<https://github.com/tmux/tmux/issues/1829#issuecomment-509632045>
+
+    $ valgrind --log-file=v.out tmux -Lx new
+
+Note that for some reason, the command doesn't work atm on Ubuntu 16.04.
+According to this answer: <https://askubuntu.com/a/280757/867754>
+the issue should be fixed by installing `libc6-dbg:i386`.
+In practice, it doesn't fix the issue.
+
+Maybe we've somehow broken our Ubuntu 16.04, idk.
+In any case, this valgrind command does work on Ubuntu 18.04 in a VM.
+
+# maybe we could use control mode
+
+> thomas_ada▹│ It's interesting that tmuxc is the only other client besides iterm which uses control mode.
+>   zdykstra │ Nobody even uses tmuxc, I wrote it to scratch my own itch.
+>            │ Which isn't to say I wouldn't mind more users ;)
+>            │ Couple of quirks using control mode in cloned sessions - if memory serves, everything is printed to the
+>            │ control stream once for each cloned session. So if you have 10 cloned sessions, you get 10 instances of
+>            │ %window-add, and so on
+
+<https://github.com/zdykstra/tmuxc>
+
+##
+## ?
+
+Which commands do *not* stop the execution of the commands on the queue?  (4)
+
+`if-shell`, `run-shell`, and `display-panes`, but only if they're passed the `-b` flag.
+Also, `copy-pipe` and its variants.
+
+Commands like if-shell, run-shell and display-panes stop execution of subsequent
+commands on the  queue until something happens - if-shell  and run-shell until a
+shell command finishes and display-panes until a key is pressed.
+
+todo: provide examples
+also, explain what the queue is
+
+## ?
+
+If I run `copy-pipe 'shell_cmd' \; tmux_cmd`, which command is run first?  `shell_cmd` or `tmux_cmd`?
+
+`shell_cmd`  is forked,  so  there is  no  way to  tell  whether `shell_cmd`  or
+`tmux_cmd` will run first.
+
+It means that it's entirely possible for `tmux_cmd` to run before `shell_cmd`.
+
+    $ tmux bind -T copy-mode-vi C-z \
+      send -X copy-pipe-and-cancel "tmux deleteb \\; run 'echo test >/tmp/file'" \\\; \
+      deleteb
+
+    # empty the stack of buffers
+    $ tmux lsb -F '#{buffer_name}' | xargs -I{} tmux deleteb -b {}
+
+    $ rm /tmp/file
+
+    # enter copy mode and press C-z
+
+    $ cat /tmp/file
+    cat: /tmp/file: No such file or directory~
+
+`/tmp/file` was not created because the previous command – `tmux deleteb` – failed.
+It failed because:
+
+   1. we've emptied the stack of buffers
+
+   2. the second `deleteb` was run **before** the first one
+
+   3. the second `deleteb` has removed the buffer created by `copy-pipe-and-cancel`
+
+   4. the first `deleteb` can't remove any buffer, because there's no buffer on
+      the stack anymore
+
+   5. tmux stops processing commands as soon as one of them fails (here the first `deleteb`)
+
+`2.` shows that `tmux_cmd` (here `deleteb`) can be run *before* `shell_cmd` (here `tmux deleteb ...`).
+
+---
+
+Note that even though `tmux deleteb ...` doesn't read its stdin, the key binding
+is still syntactically correct.
+So don't think that `/tmp/file` was not created because of some syntax error.
+You can  check that the syntax  is valid by  replacing any of the  two `deleteb`
+with `display -p foo`:
+
+    $ tmux bind -T copy-mode-vi C-z \
+      send -X copy-pipe-and-cancel "tmux display -p foo \\; run 'echo test >/tmp/file'" \\\; \
+      deleteb
+
+    $ tmux bind -T copy-mode-vi C-z \
+      send -X copy-pipe-and-cancel "tmux deleteb \\; run 'echo test >/tmp/file'" \\\; \
+      display -p foo
+
+In both cases, if you run these commands afterward:
+
+    # empty the stack of buffers
+    $ tmux lsb -F '#{buffer_name}' | xargs -I{} tmux deleteb -b {}
+
+    $ rm /tmp/file
+
+    # enter copy mode and press C-z
+
+    $ cat /tmp/file
+    test~
+
+You'll see that `/tmp/file` is correctly created.
+
+## ?
+
+Does `copy-pipe` (and it variants) stop the execution of the commands on the queue?
+
+No.
+
+    # shows that `deleteb` doesn't fuck up `copy-pipe-and-cancel`, even if we pass `-b` to `run`
+    bind -T copy-mode-vi C-z send -X copy-pipe-and-cancel \
+        "xargs -I {} tmux run -b 'sleep 2 ; xdg-open \"https://www.startpage.com/do/dsearch?query={}\"'" \; \
+        deleteb
+
+## ?
+
+> nicm │ the command is forked and the text is buffered to go to its stdin before the new tmux buffer is created
+>      │ so there is no way to tell whether the buffer will exit by the time the command starts or reads the text
+...
+> nicm │ tmux only guarantees a command is started, it doesn't wait for it
+> nicm │ except for run-shell/if-shell without -b
+> nicm │ someone talked about making copy-pipe also block but we didn't do it
+
+## ?
 
 The rhs of my key binding is `splitw 'shell cmd' \; cmd`.  It doesn't work as I would expect!
 
@@ -694,7 +868,7 @@ The rhs of my key binding is `splitw 'shell cmd' \; cmd`.  It doesn't work as I 
 
     $ tmux setb 'https://github.com/' \; splitw 'tmux showb && sleep 9 && tmux deleteb'
 
----
+## ?
 
 > run-shell blocks until foo finishes unless you give -b
 
@@ -720,7 +894,13 @@ What about `detach` and `pipep`?
 
     $ tmux pipe-pane -t study:3.2 -I "echo 'ls'; sleep 60" \; neww
 
----
+Tmux must run `echo 'ls'; sleep 60` to  get its output, and then type the latter
+in the pane `study:3.2`.
+Later, it must open a new window (`neww`).
+If `pipep` blocked, `neww` would not be opened before 60s, but in practice, it's
+opened immediately.
+
+## ?
 
 Actually, I was wrong, `$ bc` is not needed; the shell can do numeric comparisons:
 For numeric comparisons, do *not* use `#{>=:}` & friends; instead use the shell:
@@ -728,7 +908,7 @@ For numeric comparisons, do *not* use `#{>=:}` & friends; instead use the shell:
     $ tmux if '[ #{pane_height} -lt 12 ]' 'display -p "fewer than 12 lines"' 'display -p "more than 12 lines"'
                                 ^^^
 
----
+## ?
 
 Do we need quotes right around a format variable, if the latter is already included in a bigger string?
 
@@ -757,11 +937,11 @@ Unless you escape them:
 Re-read our notes about quoting to make sure this is compatible with what we wrote.
 Anyway, this suggests that *inner* quotes are indeed useless.
 
----
+## ?
 
     display 'lvl1 " lvl2 '\'' lvl3 '\'' lvl2 " lvl1'
 
----
+## ?
 
 finish reviewing our copy mode key bindings `yiw`, `"Ayiw`, `viw`, `yy`, ...
 
@@ -946,4 +1126,10 @@ So, for tmux, '2' is “greater than” '11':
     1~
 
 This does not seem to be documented; maybe it should.
+
+---
+
+From `$ man tmux /STATUS LINE /command-prompt`:
+
+> Delete current word                            C-w
 

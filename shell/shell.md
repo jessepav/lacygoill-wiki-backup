@@ -1,14 +1,27 @@
 # How to get the list of shell builtin commands?
 
-        $ compgen -b
-                   │
-                   └ synonym of `-A builtin`
+    $ compgen -b
+               │
+               └ synonym of `-A builtin`
 
 This command works also  in zsh, provided that you enabled  the zsh emulation of
 the bash `compgen` function:
 
-        autoload -Uz bashcompinit
-        bashcompinit
+    autoload -Uz bashcompinit
+    bashcompinit
+
+---
+
+TODO: document the fact that you can get other kinds of completions.
+
+Example:
+
+    $ compgen -c avahi
+
+This should output the list of commands starting with the keyword “avahi”.
+
+You can get the list of all possible  flags – which can be passed to `$ compgen`
+– at `$ man bash /SHELL BUILTIN COMMANDS /^\s*complete /^\s*-A`.
 
 ##
 # How to disable a builtin command to use the external command which is its counterpart?
@@ -2387,6 +2400,10 @@ Après avoir sourcé ces fichiers, qd on se déconnecte de la session courante:
 
             IOW, il n'y a aucune raison d'y mettre des variables d'environnement
             spécifiques à un shell interactif.
+
+If the first character in the output of `echo $0` is a hyphen, then you're in an
+interactive login shell, otherwise you're in an interactive non-login shell.
+<https://unix.stackexchange.com/a/237672/289772>
 
 ## options
 
