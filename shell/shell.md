@@ -37,22 +37,18 @@ You can check the effect by executing `type printf` before and after the command
 
 Yes.
 
-# How can I get its current value?
+## How can I get its current value?
 
-        $ getconf ARG_MAX
+    $ getconf ARG_MAX
 
-# Are there other similar limits?
+## How can I get the values of other similar limits?
 
-Yes.
-
-# How can I get all their values?
-
-        $ getconf -a
+    $ getconf -a
 
 Note that these limits are not shell-specific, they are system-specific.
 So, the output of this command will be the same whether you're in bash or zsh.
 
-https://unix.stackexchange.com/a/70370/289772
+<https://unix.stackexchange.com/a/70370/289772>
 
 ##
 # When does the shell fork a subshell?
@@ -67,11 +63,11 @@ To execute:
 
 You can confirm that a job is executed in a subshell with these commands:
 
-        $ { sleep 1000; echo finished ;} &
-        $ pstree -s $(pgrep sleep)
-        ... zsh───zsh───sleep~
-                  ^^^
-                  subshell~
+    $ { sleep 1000; echo finished ;} &
+    $ pstree -s $(pgrep sleep)
+    ... zsh───zsh───sleep~
+              ^^^
+              subshell~
 
 # Why does a shell fork to execute an external command?
 
@@ -91,29 +87,29 @@ Because after the last command, it won't be needed anymore.
 The difference  between an interactive shell  which ALWAYS fork, and  a subshell
 which SOMETIMES doesn't fork, is:
 
-        - the interactive shell doesn't know when it won't be needed anymore
+   - the interactive shell doesn't know when it won't be needed anymore
 
-        - the subshell knows exactly the entire set of commands it will have to
-          execute during its lifetime
+   - the subshell knows exactly the entire set of commands it will have to
+     execute during its lifetime
 
 MWE:
 
-        $ find / -name '*' | wc -l
-        $ pstree -s $(pgrep find)
-        ... bash───find~
-            │      │~
-            │      └ Initially this was a subshell started because `find` was part of a pipeline.~
-            │~
-            │        It should have forked a sub-sub-shell to execute `$ find`.~
-            │        But it didn't.~
-            │        Instead it immediately called `execve()`.~
-            │~
-            └ current shell from which the pipeline is executed~
+    $ find / -name '*' | wc -l
+    $ pstree -s $(pgrep find)
+    ... bash───find~
+        │      │~
+        │      └ Initially this was a subshell started because `find` was part of a pipeline.~
+        │~
+        │        It should have forked a sub-sub-shell to execute `$ find`.~
+        │        But it didn't.~
+        │        Instead it immediately called `execve()`.~
+        │~
+        └ current shell from which the pipeline is executed~
 
 This is an optimization performed by some shells, for some commands:
 
-        https://unix.stackexchange.com/a/41424/289772
-        https://unix.stackexchange.com/a/466523/289772
+- <https://unix.stackexchange.com/a/41424/289772>
+- <https://unix.stackexchange.com/a/466523/289772>
 
 ---
 
@@ -126,19 +122,19 @@ calls `execve()` to replace its image with the one of the script.
 
 OTOH, if the command is not the last one, the subshell WILL fork a sub-sub-shell:
 
-        $ ( find / -name '*'; true ) | wc -l
-        $ pstree -s $(pgrep find)
-        ... bash───bash───find~
-            │      │~
-            │      └ subshell~
-            │~
-            └ current shell from which the pipeline is executed~
+    $ ( find / -name '*'; true ) | wc -l
+    $ pstree -s $(pgrep find)
+    ... bash───bash───find~
+        │      │~
+        │      └ subshell~
+        │~
+        └ current shell from which the pipeline is executed~
 
 Similarly:
 
-        $ while true; do find / -name '*'; done | wc -l
-        $ pstree -s $(pgrep find)
-        ... bash───bash───find~
+    $ while true; do find / -name '*'; done | wc -l
+    $ pstree -s $(pgrep find)
+    ... bash───bash───find~
 
 In the last example, the subshell is asked to execute a single `while` loop.
 But a loop may execute several commands, so the subshell considers that `$ find`
@@ -158,13 +154,13 @@ know about, and they are lost when the shell executes another program.
 
 Even if that other program happens to be a shell script:
 
-        /bin/bash /path/to/script
+    /bin/bash /path/to/script
 
 ... it is  executed by a new shell  instance that doesn't know or  care that its
 parent process happens to also be an instance of the same shell.
 
 For more info, see:
-        https://unix.stackexchange.com/a/157962/289772
+<https://unix.stackexchange.com/a/157962/289772>
 
 ##
 # Why are some commands built into the shell?  (2)
@@ -177,8 +173,8 @@ Or to be able to modify the shell itself (e.g. `alias`, `cd`).
 
 `alias` and `cd` affect the current shell, by:
 
-        - telling it to expand a word into an arbitrary command
-        - changing its current directory
+   - telling it to expand a word into an arbitrary command
+   - changing its current directory
 
 If `alias` and `cd` were not built-in, and instead external programs, they would
 be run in child processes of the current shell.
@@ -187,12 +183,12 @@ So, they wouldn't be able to do their job.
 
 # What are the six basic constructs to build a command-line?
 
-        simple command
-        pipeline
-        list
-        compound command
-        coprocess
-        shell function definition
+   - simple command
+   - pipeline
+   - list
+   - compound command
+   - coprocess
+   - shell function definition
 
 ##
 # Must I always put a backslash at the end of a line to continue on the next one?
@@ -236,7 +232,7 @@ See: <https://unix.stackexchange.com/a/281310/289772>
 ##
 # How to set a readline variable from an interactive bash session?
 
-        $ bind 'set <variable>'
+    $ bind 'set <variable>'
 
 ##
 # I'm in `/tmp/old/path/to/dir`, how to quickly get to `/tmp/new/path/to/dir`?
@@ -257,41 +253,42 @@ So, even though you could expect the following commands to succeed, they will fa
 ##
 # How to list all entries under the current directory?  all files?  all directories?  all links?
 
-        % print -l **/*
-          │      │
-          │      └ put each  entry on its own line instead  of everything on a
-          │        single line
-          │
-          └ zsh shell builtin
+    % print -l **/*
+      │      │
+      │      └ put each  entry on its own line instead  of everything on a
+      │        single line
+      │
+      └ zsh shell builtin
 
-        % print -l **/*(.)
-        % print -l **/*(/)
-        % print -l **/*(@)
+    % print -l **/*(.)
+    % print -l **/*(/)
+    % print -l **/*(@)
 
 # How to execute a command without any shell construct interfering (alias, builtin, function)?
 
 Prefix the command with `env`:
 
-        env [environment variables] <your command>
+    env [environment variables] <your command>
 
 `env` is  an external  program; it  has no knowledge  of all  the shell-specific
 constructs.
 
-        https://unix.stackexchange.com/a/103474/289772
+<https://unix.stackexchange.com/a/103474/289772>
 
 ##
-# How to insert the argument of the last command on the current interactive command-line?
+# How to insert the argument of the last command on
+## the current interactive command-line?
 
-        M-.
+Press `M-.`.
 
-# How to insert the argument of the last command on the current scripted command?
+## on the current scripted command?
 
-        echo $_
+Use the special parameter `$_`.
 
-This is especially useful in a script to avoid repeating oneself:
+It's especially useful in a script to avoid repeating oneself:
 
-        mkdir -p /long/path/to/dir/
-        cd $_
+    mkdir -p /long/path/to/dir/
+    cd $_
 
 ##
 ##
@@ -454,15 +451,141 @@ From `$ info printf`:
 >   ARGUMENTs.  For example, the command ‘printf %s a b’ outputs ‘ab’.
 
 ##
+## ?
+
+Certains caractères ont un sens spécial pour le shell.
+Entre autres:    space Tab \n * $ ( ) !
+
+Pour empêcher le shell d'interpréter un caractère de ce type, il faut le quoter.
+Pour ce faire, on peut utiliser 3 syntaxes:
+
+   - l'encadrer avec des single quotes
+   - "                   double "
+   - le préfixer avec un backslash
+
+Les single/double quotes permettent de protéger une zone de texte entière, tandis que le backslash
+permet une approche plus granulaire.
+
+
+    ls
+    echo "hello world!!"
+    hello worldls    ✘~
+
+    ls
+    echo 'hello world!!'
+    hello world      ✔~
+
+            Les double quotes ne sont pas aussi strictes que les single quotes.
+            Ils autorisent le développement de:
+
+                    - commande:        "$(cmd)"
+
+                    - variable:        "$myvar"
+
+                    - l'historique:    "!!"
+
+
+    myvar="foo
+    > bar
+    > baz"
+
+    echo $myvar
+    foo bar baz~
+
+    echo "$myvar"
+    foo~
+    bar~
+    baz~
+
+            Illustre que bash réalise un field  splitting sur la chaîne issue du
+            développement d'une variable.
+
+            En  effet, dans  la 1e  commande, il  casse le  contenu de  `$myvar`
+            (“foo\nbar\nbaz“) à chaque  fois qu'il rencontre un  newline, ce qui
+            produit les 3 arguments `foo`, `bar`, `baz`.
+            Il passe  ces 3 arguments à  `echo` qui les affiche  en les séparant
+            par un espace.
+
+            Pour empêcher bash d'interpréter  les newlines comme des séparateurs
+            d'arguments, il faut quoter le contenu de la variable.
+
+
+                                     NOTE:
+
+            zsh se comporte  différemment, il ne réalise pas  de field splitting
+            sur  une chaîne  développée à  partir d'une  variable (sauf  si vous
+            activez l'option 'SH_WORD_SPLIT').
+
+            Dans zsh, il n'y a donc pas besoin de quoter `myvar`:
+
+                    echo $myvar
+                    foo~
+                    bar~
+                    baz~
+
+
+                                     NOTE:
+
+            Au passage, on remarque la présence du prompt secondaire:
+
+                    - >         dans bash
+                    - quote>    dans zsh (`dquote>` pour un double quote)
+
+
+    echo $'foo\nbar'
+
+            Affiche `foo` et `bar` sur 2 lignes.
+
+            La syntaxe $'string' permet d'inclure des caractères spéciaux dans une chaîne:
+
+                   ┌────────┬──────────────────────────────────────────────────────────────────┐
+                   │ \b     │ backspace                                                        │
+                   ├────────┼──────────────────────────────────────────────────────────────────┤
+                   │ \e     │ escape                                                           │
+                   ├────────┼──────────────────────────────────────────────────────────────────┤
+                   │ \f     │ form feed                                                        │
+                   ├────────┼──────────────────────────────────────────────────────────────────┤
+                   │ \n     │ new line                                                         │
+                   ├────────┼──────────────────────────────────────────────────────────────────┤
+                   │ \r     │ carriage return                                                  │
+                   ├────────┼──────────────────────────────────────────────────────────────────┤
+                   │ \t     │ horizontal tab                                                   │
+                   ├────────┼──────────────────────────────────────────────────────────────────┤
+                   │ \v     │ vertical tab                                                     │
+                   ├────────┼──────────────────────────────────────────────────────────────────┤
+                   │ \\     │ backslash                                                        │
+                   ├────────┼──────────────────────────────────────────────────────────────────┤
+                   │ \'     │ single quote                                                     │
+                   ├────────┼──────────────────────────────────────────────────────────────────┤
+                   │ \"     │ double quote                                                     │
+                   ├────────┼──────────────────────────────────────────────────────────────────┤
+                   │ \cx    │ un caractère C-x (C-a, C-b, ...)                                 │
+                   ├────────┼──────────────────────────────────────────────────────────────────┤
+                   │ \123   │ le caractère dont le code octal est 123 (1 à 3 chiffres)         │
+                   ├────────┼──────────────────────────────────────────────────────────────────┤
+                   │ \x21   │ le caractère dont le code hexa est 21 (1 à 2 chiffres)           │
+                   ├────────┼──────────────────────────────────────────────────────────────────┤
+                   │ \u2010 │ le caractère unicode dont le code hexa est 2010 (1 à 4 chiffres) │
+                   ├────────┼──────────────────────────────────────────────────────────────────┤
+                   │\U10100 │ "                                         10100 (1 à 8 chiffres) │
+                   └────────┴──────────────────────────────────────────────────────────────────┘
+
+
+            Le dollar n'a pas l'air d'être nécessaire pour zsh.
+
+            Pour plus d'infos, lire `man bash`, section ’QUOTING’.
+
+##
 # Getting info
-## How to get the name of the shell I'm using?
+## How to get
+### the name of the shell I'm using?
 
-        ps -p $$
-        PID TTY          TIME CMD~
-        21107 pts/11   00:00:00 zsh~
+    ps -p $$
+    PID TTY          TIME CMD~
+    21107 pts/11   00:00:00 zsh~
 
-        ps -p $$ -o comm=
-        zsh~
+    ps -p $$ -o comm=
+    zsh~
 
 Note that, with `-o comm=`, the name of the command is truncated to 15 characters.
 But it shouldn't be an issue, as a shell name should be shorter.
@@ -471,105 +594,105 @@ But it shouldn't be an issue, as a shell name should be shorter.
 
 `$0` is unreliable because you can set the name of a program with `ARGV0`:
 
-        $ ARGV0=sh zsh
-        $ echo $0
-        sh~
-        ^ ✘
+    $ ARGV0=sh zsh
+    $ echo $0
+    sh~
+    ^ ✘
 
 For the same reason, don't omit the `-p` option passed to `$ ps`:
 
-        $ ARGV0=sh zsh
-        $ ps $$
-        PID  TTY      STAT   TIME COMMAND~
-        1234 pts/10   S      0:00 sh~
-                                  ^
-                                  ✘
+    $ ARGV0=sh zsh
+    $ ps $$
+    PID  TTY      STAT   TIME COMMAND~
+    1234 pts/10   S      0:00 sh~
+                              ^
+                              ✘
 
 ---
 
 `$SHELL` is unreliable, since anything can reset its value.
 
-## How to get the options which have been set during bash invocation (`bash -...`)?
+### the options which have been set during bash invocation (`bash -...`)?
 
-        echo $-
+    echo $-
 
-## How to get the pid of the current shell?
+### the pid of the current shell?
 
         echo $$
 
-## How to get the pid of the parent of the current shell?
+### the pid of the parent of the current shell?
 
         echo $PPID
 
-## How to get the name of the current (pseudo) terminal?
+### the name of the current (pseudo) terminal?
 
         $ tty
 
 ##
 ## How to start and stop a stopwatch to measure how much time has elapsed between 2 events?
 
-        $ time cat
-        # do your things
-        C-d
+    $ time cat
+    # focus a different terminal/tmux pane
+    # do your things
+    # focus back the terminal running `$ time cat`
+    C-d
 
 ##
 # Environment
 ## How to print all the environment variables of the current shell?
 
-        $ env
+    $ env
 
 You could also use `printenv`, but `env`  is POSIX and more powerful, because it
 also allows you to set an environment variable.
 
 ## How to get the environment of a shell started from a graphical application?
 
-        Alt-F1
-        xterm -e bash --noprofile --norc
-                        │           │
-                        │           └ do not read: ~/.bashrc
-                        └ do not read: /etc/profile, ~/.bash_profile, ~/.bash_login, ~/.profile
-        $ env
+    Alt-F1
+    xterm -e bash --noprofile --norc
+                    │           │
+                    │           └ do not read: ~/.bashrc
+                    └ do not read: /etc/profile, ~/.bash_profile, ~/.bash_login, ~/.profile
+    $ env
 
 Alternatively, if the shell started by your GUI application is zsh:
 
-        Alt-F1
-        xterm -e zsh -f
-                      │
-                      └ don't source any file (except `/etc/zsh/zshenv`)
-        % env
+    Alt-F1
+    xterm -e zsh -f
+                  │
+                  └ don't source any file (except `/etc/zsh/zshenv`)
+    % env
 
 ## How to get the file from which an environment variable got its value?
 
-        % zsh -xl >/tmp/log 2>&1
-               ││
-               │└ enable the LOGIN option; this is a login shell
-               │
-               └ Enables the XTRACE option.
+    # Print commands and their arguments as they are executed.
+    % zsh -xl >/tmp/log 2>&1
+           ││
+           │└ enable the LOGIN option; this is a login shell
+           │
+           └ Enables the XTRACE option.
 
-                 Print  commands  and  their arguments  as  they  are
-                 executed.
-
-        % exit
+    % exit
 
 If  your variable  is not  in there,  then the  shell probably  inherited it  on
 startup, which means that it was set before in some system config file.
 You can try to find the file with:
 
-        % find /etc -type f -exec grep -F YOUR_VAR {} +
-        % find ~    -type f -exec grep -F YOUR_VAR {} +
-                                        │             │
-                                        │             └ run `$ grep` only once:
-                                        │                   grep ... file1 file2 ...
-                                        │
-                                        │               instead of:
-                                        │                   grep ... file1
-                                        │                   grep ... file2
-                                        │                   ...
-                                        │
-                                        └ interpret YOUR_VAR as a fixed string (instead of a regex)
+    % find /etc -type f -exec grep -F YOUR_VAR {} +
+    % find ~    -type f -exec grep -F YOUR_VAR {} +
+                                    │             │
+                                    │             └ run `$ grep` only once:
+                                    │                   grep ... file1 file2 ...
+                                    │
+                                    │               instead of:
+                                    │                   grep ... file1
+                                    │                   grep ... file2
+                                    │                   ...
+                                    │
+                                    └ interpret YOUR_VAR as a fixed string (instead of a regex)
 
 For more info, see:
-        https://unix.stackexchange.com/a/154971/289772
+<https://unix.stackexchange.com/a/154971/289772>
 
 ##
 ## Where is PATH initialised?
@@ -584,7 +707,7 @@ For Ubuntu, have a look at:
 For more info, see:
 
    - `$ man login`
-   - http://unix.stackexchange.com/a/228167
+   - <http://unix.stackexchange.com/a/228167>
 
 ##
 ## When a program needs to start a shell, how does it decide which one to use?
@@ -607,7 +730,7 @@ OTOH, `/etc/passwd` stores a system wide configuration.
 ##
 ## How to start the xfce4 terminal, with bash automatically opened?
 
-        SHELL=/bin/bash xfce4-terminal &!
+    SHELL=/bin/bash xfce4-terminal &!
 
 ##
 ## If I start a bash shell from zsh, does the value of `$SHELL` reflects the new shell?
@@ -679,13 +802,13 @@ and that `~/bin` comes first.
 # Brace expansion
 ## How to create a backup file for `/long/path/to/file.txt`, with a single command, and a single argument?
 
-        $ cp /long/path/to/file.txt{,.bak}
+    $ cp /long/path/to/file.txt{,.bak}
 
 ## How to create a backup file for all the files in the current directory by prefixing their name with `OLD-`?
 
-        for f in *; do
-          cp {,OLD-}"${f}"
-        done
+    for f in *; do
+      cp {,OLD-}"${f}"
+    done
 
 ##
 # Filename generation
@@ -852,184 +975,69 @@ The  two pages  will  appear next  to  each  other, which  will  give the  false
 impression that there's a single page.
 
 ##
-# Hard/Soft links
-## What “dereference” means?
-
-For a utility such as `$ cp` or `$ ls`, it means:
-NOT operate on a symlink, but rather on its target.
-
-## By default, does a utility dereference?
-
-No, it operates on the link itself:
-
-        $ cd /tmp
-        $ sudo ln -s ~/.bashrc link2bashrc
-        $ ls -l link2bashrc
-        lrwxrwxrwx 1 root root <small size> <recent date> link2bashrc → /home/user/.bashrc~
-        ^
-
-        $ ls -lL link2bashrc
-        -rw-r--r-- 1 lgc lgc <big size> <old date> link2bashrc~
-        ^
-
-Between the 2 listings, you will notice that:
-
-        1. `-l` prints the 'root' user/group ; `-lL` prints the 'lgc' user
-        2. "           a small size          ; `-lL` prints a big size
-        3. "           a recent date         ; `-lL` prints an old date
-
-## When a utility is passed a symlink, what are the 3 ways in which it can process it?
-
-       ┌────────┬───────────────────────────────────────────────────────────────────┐
-       │ option │                             behavior                              │
-       ├────────┼───────────────────────────────────────────────────────────────────┤
-       │ -P     │ not follow the link                                               │
-       ├────────┼───────────────────────────────────────────────────────────────────┤
-       │ -H     │ follow the link, non-recursively                                  │
-       │        │ (only once)                                                       │
-       ├────────┼───────────────────────────────────────────────────────────────────┤
-       │ -L     │ follow the link, recursively                                      │
-       │        │ (several times if the symlink's target is itself another symlink) │
-       └────────┴───────────────────────────────────────────────────────────────────┘
-
-##
-## What's an inode?
-
-A  data structure  which describes  a  filesystem object  such  as a  file or  a
-directory.
-
-Each inode  stores the  attributes and  disk block  location(s) of  the object's
-data.
-Filesystem object attributes may include metadata (times of last change, access,
-modification), as well as owner and permission data.
-
-You can view an inode as all the metadata of a file, except its name.
-
-## When is an inode removed?
-
-When no filename refers to it anymore.
-
-##
-## What's the difference between a hard link and a soft link?
-
-A hard link is just a NEW NAME for an existing file.
-A soft link is a NEW FILE, pointing to an existing file.
-
-## What can a soft link do, that a hard link can't?
-
-A soft link can:
-
-        - point to a directory (a hard link can't refer to a directory)
-        - cross filesystem boundaries
-        - cross partitions
-
-##
-## What happens to the contents of a file, if I delete it after creating a HARD link referring to it?
-
-The contents of the file are still accessible:
-
-        $ echo 'hello' >file  && \
-          ln file hlink       && \
-          rm file             && \
-          cat hlink
-          hello~
-
-## What happens to the contents of a file, if I delete it after creating a SOFT link referring to it?
-
-The contents of the file are lost:
-
-        $ echo 'hello' >file
-        $ ln -s file slink
-        $ rm file
-        $ cat slink
-        cat: slink: No such file or directory~
-
-##
-## What happens to a HARD link, if I rename or move the original file?
-
-It still works and gives you access to the contents of the original file.
-
-Indeed, a hard link refers to an inode (via its number), not to a filename.
-And changing  the name of  a file doesn't change  its inode, because  the latter
-doesn't store the latter.
-You can have several filenames referring to the same inode.
-
-## What happens to a SOFT link, if I rename or move the original file?
-
-It's broken, and you can't use it anymore to access the contents of the original
-file.
-
-###
-## How to get the inode numbers of all the files/directories in the current directory?
-
-        $ ls -i1
-
-###
-## How to create the hard link `hlink` and the soft link `slink` pointing to `file`?
-
-        $ ln    file hlink
-        $ ln -s file hlink
-
-## What are the inode numbers of `hlink` and `slink` compared to the one of `file`?
-
-The inode of `hlink` and `file` are identical.
-The inode of `slink` and `file` are different.
-
-##
-## My directory contains a symlink. I've executed `ls -H`, but the listing still refers to the link, not its target!
-
-The options `-P`, `-H`, `-L` only affect the parameters passed to `ls`.
-
-If you want `ls` to dereference, you need to pass the symlink as a parameter:
-
-        $ ls -H my_symlink
-
-## If I cd to a symlink pointing to a directory, how to prevent `pwd` from lying about the cwd?  (3)
-
-    % pwd -P
-
-    # the external binary `pwd` does NOT lie,
-    # contrary to the shell builtin equivalent
-    % /bin/pwd
-
-    # bash
-    $ set -o physical
-    # zsh
-    % setopt chaselinks
-
-##
 # Issues
-## I'm trying to run a shell command, but it doesn't work as I would expect!
+## I'm trying to run a shell command, but it doesn't work as I would expect!  (2)
 
 Write it in a file and press `|c` to make shellcheck lint it.
 If any error appears in the quickfix  window, press `gx` on it to get redirected
 to the shellcheck wiki where the issue will be described in detail.
 
+Also, consider  using our  `args.sh` script  to check how  the shell  splits the
+commands into words:
+
+    $ cat <<'EOF' >~/bin/args.sh
+    #!/bin/bash
+    printf -- '%d args:' $#
+    printf -- ' <%s>' "$@"
+    printf -- '\n'
+    EOF
+
+    $ args.sh my buggy command
+    3 args: <my> <buggy> <command>~
+
 ##
 ##
 ##
-# SCRIPTS
+# Scripts
+## How to exit
+### a `for`/`while` loop?
+
+Use `break`.
+
+### a script or a shell?
+
+Use `exit`.
+
+### a function or a sourced file?
+
+Use `return`.
+
+##
 ## array
+### How to assign a value to a member of an array?
 
-    ┌──────────────────┬─────────────────────────────────────────────────────────────────────────────────────┐
-    │ list[$i]=42      │ affecter la valeur 42 au i-ème élément de list                                      │
-    ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────────┤
-    │ list=($string)   │ convertir la chaîne string en la liste list (l'espace est utilisé comme délimiteur) │
-    └──────────────────┴─────────────────────────────────────────────────────────────────────────────────────┘
+    arr[<number>]=<val>
 
-## break  exit  return
+---
 
-    Ces instructions permettent de sortir d'un(e):
+    $ arr[123]=test ; \
+      echo ${arr[123]}
+    test~
 
-            ┌────────┬─────────────────┐
-            │ break  │ boucle          │
-            ├────────┼─────────────────┤
-            │ exit   │ script, shell   │
-            ├────────┼─────────────────┤
-            │ return │ fonction        │
-            │        │ fichier de conf │
-            └────────┴─────────────────┘
+### How to convert a string of space-separated words into an array?
 
+    arr=($str)
+
+---
+
+    $ str='foo bar baz' ; \
+      arr=($str)        ; \
+      printf -- '%s\n' "${arr[@]}"
+      foo~
+      bar~
+      baz~
+
+##
 ## conventions / bonnes habitudes
 
     myvar1=val1
@@ -1064,11 +1072,6 @@ to the shellcheck wiki where the issue will be described in detail.
             les messages de statuts.
 
 ## debug
-
-    http://redsymbol.net/articles/unofficial-bash-strict-mode/
-
-            TODO: à lire
-
 
     unsetopt GLOBAL_RCS (disable system wide config files)
     ⇔
@@ -1624,7 +1627,7 @@ to the shellcheck wiki where the issue will be described in detail.
             On utilise `myvar` qu'on soit à gauche ou à droite de l'affectation.
 
 ##
-# CONFIGURATION
+# Configuration
 ## alias / fonctions
 
     https://github.com/robbyrussell/oh-my-zsh/wiki/Cheatsheet
@@ -1720,418 +1723,6 @@ to the shellcheck wiki where the issue will be described in detail.
 
             bash et zsh  acceptent des noms de fonction incluant  un tiret, mais
             ce n'est pas le cas de tous les shells.
-
-## coloration syntaxique zsh
-
-    https://github.com/zsh-users/zsh-syntax-highlighting/
-
-            Repo du projet.
-
-Il s'agit d'un plugin colorisant les tokens de la ligne de commande en fonction de leur sens.
-Pex:
-
-        - rouge pour une commande invalide
-        - vert  pour une commande valide
-        - jaune pour une chaîne
-        - bleu  pour un glob qualifier
-
-Le plugin est constitué de “highlighters“, qu'on peut activer individuellement:
-
-        ┌──────────┬──────────────────────────────────────────────────────┐
-        │ main     │ le highlighter de base, et le seul activé par défaut │
-        ├──────────┼──────────────────────────────────────────────────────┤
-        │ brackets │ gère les parenthèses, accolades, crochets            │
-        ├──────────┼──────────────────────────────────────────────────────┤
-        │ pattern  │ gère des patterns définis par l'utilisateur          │
-        ├──────────┼──────────────────────────────────────────────────────┤
-        │ cursor   │ gère le caractère après le curseur                   │
-        ├──────────┼──────────────────────────────────────────────────────┤
-        │ line     │ gère toute la ligne de commande                      │
-        ├──────────┼──────────────────────────────────────────────────────┤
-        │ root     │ idem, mais seulement si l'utilisateur est root       │
-        └──────────┴──────────────────────────────────────────────────────┘
-
-Avec ce plugin, la coloration syntaxique est configurée via 3 arrays:
-
-    ┌────────────────────────────┬─────────────────────────────────────────────────────────┐
-    │ ZSH_HIGHLIGHT_HIGHLIGHTERS │ détermine quels highlighters sont activés par le plugin │
-    ├────────────────────────────┼─────────────────────────────────────────────────────────┤
-    │ ZSH_HIGHLIGHT_STYLES       │ détermine quels highlightings ils doivent appliquer     │
-    ├────────────────────────────┼─────────────────────────────────────────────────────────┤
-    │ zle_highlight              │ détermine la coloration syntaxique intégrée à zsh       │
-    └────────────────────────────┴─────────────────────────────────────────────────────────┘
-
-    ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
-
-            Active les highlighters `main`, `brackets`, et `pattern`, en les ajoutant à l'array
-            `ZSH_HIGHLIGHT_HIGHLIGHTERS`.
-
-            Ils appliquent les highlightings définis dans l'array associative `ZSH_HIGHLIGHT_STYLES`.
-
-
-    ZSH_HIGHLIGHT_STYLES[function]='fg=magenta,underline'
-    ZSH_HIGHLIGHT_STYLES[bracket-level-3]='fg=yellow,bold'
-    ZSH_HIGHLIGHT_PATTERNS+=('rm -rf *' 'fg=white,bold,bg=red')
-
-            Configure l'apparence des:
-
-                    - noms de fonction
-                      nécessite l'activation du highlighter `main`
-
-                    - parenthèses imbriquées (3e niveau d'imbrication)
-                      nécessite l'activation du highlighter `brackets`
-
-                    - commandes commençant par `rm -rf *`
-                      nécessite l'activation du highlighter `pattern`
-
-                      Contrairement aux autres affectations, on utilise `+=` et non `=` pour éviter
-                      d'écraser les styles de précédents patterns.
-
-                      La différence vient du fait que `ZSH_HIGHLIGHT_PATTERNS` peut gérer plusieurs patterns,
-                      et donc stocker plusieurs valeurs.
-
-
-    default:fg=white,bold
-
-            Valeur par défaut de l'array builtin `zle_highlight`.
-
-            `zle_highlight` est intéressante pour 2 raisons:
-
-                    - elle permet de configurer la coloration syntaxique intégrée à zsh par défaut
-
-                    - la syntaxe des valeurs qu'elle accepte est identique à celles qu'on peut donner à
-                      `ZSH_HIGHLIGHT_STYLES`
-                      cette syntaxe est décrite dans `man zshzle`,  section `CHARACTER HIGHLIGHTING`
-
-
-Chaque valeur dans `zle_highlight` suit le schéma suivant:
-
-        contexte:h1,h2,...
-        │        │
-        │        └ quels highlightings appliquer
-        └ où les highlightings suivants doivent être appliqués
-
-`contexte` peut être au choix:
-
-    ┌─────────┬────────────────────────────────────────────────────────────────────────────────────┐
-    │ default │ tout texte affecté par aucun highlighting                                          │
-    ├─────────┼────────────────────────────────────────────────────────────────────────────────────┤
-    │ isearch │ qd un widget de recherche incrémental est actif, la région de la ligne de commande │
-    │         │ où le pattern s'affiche                                                            │
-    ├─────────┼────────────────────────────────────────────────────────────────────────────────────┤
-    │ region  │ la région entre le curseur et la marque qd on l'active via `C-x C-x` ou `C-space`  │
-    ├─────────┼────────────────────────────────────────────────────────────────────────────────────┤
-    │ special │ caractères n'ayant pas de glyphes mais affichés de manière spéciale                │
-    ├─────────┼────────────────────────────────────────────────────────────────────────────────────┤
-    │ suffix  │ caractères de type suffixe qui pourraient être supprimés si la complétion          │
-    │         │ s'arrêtait à eux                                                                   │
-    │         │                                                                                    │
-    │         │ ex:    cd ~; echo Do Tab Tab    →    Documents/                                    │
-    │         │                                               │                                    │
-    │         │                                               └ caractère suffixe                  │
-    ├─────────┼────────────────────────────────────────────────────────────────────────────────────┤
-    │ paste   │ le texte qu'on vient de coller via C-S-v                                           │
-    └─────────┴────────────────────────────────────────────────────────────────────────────────────┘
-
-
-
-Qd `region_highlight` est configurée, les styles de `zle_highlight` et `region_highlight` sont appliqués
-dans cet ordre:
-
-        1. styles `zle_highlight` associés aux contextes isearch, region, suffix, paste
-        2. styles `region_highlight`
-        3. styles `zle_highlight` associés aux contextes default et special
-
-Si un caractère est affecté par plusieurs styles, le dernier appliqué l'emporte.
-
-                                     TODO:
-
-À terminer...
-
-zle_highlight  may  contain  additional  fields for  controlling  how  'terminal
-sequences to change colours' are output.
-Each of the  following is followed by a  colon and a string in the  same form as
-for key bindings.
-This will not  be necessary for the  vast majority of terminals  as the defaults
-shown in parentheses are widely used.
-
-fg_start_code (\e[3)
-
-        The start  of the escape sequence  for the foreground colour.  This is followed by  an ASCII
-        digit representing the colour.
-
-fg_default_code (9)
-
-        The number to use instead of the colour to reset the default foreground colour.
-
-fg_end_code (m)
-
-        The end of the escape sequence for the foreground colour.
-
-bg_start_code (\e[4)
-
-        The start  of the escape sequence  for the background colour.  This is followed by  an ASCII
-        digit repre‐ senting the colour.
-
-bg_default_code (9)
-
-        The number to use instead of the colour to reset the default background colour.
-
-bg_end_code (m)
-
-        The end of the escape sequence for the background colour.
-
-
-The available types of  highlighting are the following. Note that not all  types of highlighting are
-available on all terminals:
-
-none
-
-        No highlighting is  applied to the given context.  It is not useful for this  to appear with
-        other types of highlighting; it is used to override a default.
-
-fg=colour
-
-        The foreground colour should be  set to colour, a decimal integer or the  name of one of the
-        eight most widely-supported colours.
-
-        Not all terminals support this and, of those that do, not all provide facilities to test the
-        support, hence the user should decide based on the terminal type. Most terminals support the
-        colours black, red, green, yellow, blue, magenta, cyan  and white, which can be set by name.
-        In  addition.  default  may  be  used  to set  the  terminal's  default  foreground  colour.
-        Abbreviations are  allowed; b or  bl selects black.  Some terminals may  generate additional
-        colours if the bold attribute is also present.
-
-        On  recent terminals  and on  systems with  an up-to-date  terminal database  the number  of
-        colours supported may be tested by the command `echotc Co'; if this succeeds, it indicates a
-        limit on  the number of  colours which will  be enforced by the  line editor. The  number of
-        colours is in any case limited to 256 (i.e. the range 0 to 255).
-
-        Colour is also known as color.
-
-bg=colour
-
-        The  background colour  should be  set to  colour. This  works similarly  to the  foreground
-        colour, except the background is not usually affected by the bold attribute.
-
-bold
-
-        The characters in the given context are shown  in a bold font. Not all terminals distinguish
-        bold fonts.
-
-standout
-
-        The characters in  the given context are  shown in the terminal's standout  mode. The actual
-        effect is  specific to the  terminal; on many  terminals it is  inverse video. On  some such
-        terminals, where the cursor does not blink  it appears with standout mode negated, making it
-        less than clear where the cursor actually is. On such terminals one of the other effects may
-        be preferable for highlighting the region and matched search string.
-
-underline
-
-        The characters in the given context are shown underlined. Some terminals show the foreground
-        in a different colour instead; in this case whitespace will not be highlighted.
-
-The characters described  above as `special` are  as follows. The formatting described  here is used
-irrespective of whether the characters are highlighted:
-
-ASCII control characters
-
-        Control characters in the ASCII range are shown as `^` followed by the base character.
-
-Unprintable multibyte characters
-
-        This item  applies to control characters  not in the  ASCII range, plus other  characters as
-        follows.  If the  MULTIBYTE option  is  in effect,  multibyte  characters not  in the  ASCII
-        character set  that are reported  as having zero width  are treated as  combining characters
-        when the option COMBINING_CHARS is on. If the option is off, or if a character appears where
-        a combining character is not valid, the character is treated as unprintable.
-
-        Unprintable multibyte characters  are shown as a hexadecimal number  between angle brackets.
-        The number is the code point of the character in the wide character set; this may or may not
-        be Unicode, depending on the operating system.
-
-Invalid multibyte characters
-
-        If the MULTIBYTE option is in effect, any sequence of one or more bytes that does not form a
-        valid character in the current character set is treated as a series of bytes each shown as a
-        special character. This  case can be distinguished from other  unprintable characters as the
-        bytes are represented as two hexadecimal digits between angle brackets, as distinct from the
-        four or eight digits that are used  for unprintable characters that are nonetheless valid in
-        the current character set.
-
-        Not all systems support this: for it to work, the system's representation of wide characters
-        must be code values from the Universal Character Set, as defined by IS0 10646 (also known as
-        Unicode).
-
-Wrapped double-width characters
-
-        When a double-width character appears in the final  column of a line, it is instead shown on
-        the next  line. The empty space  left in the original  position is highlighted as  a special
-        character.
-
-If zle_highlight is  not set or no value  applies to a particular context, the  defaults applied are
-equivalent to
-
-        zle_highlight=(region:standout special:standout suffix:bold isearch:underline)
-
-i.e. both the region and special characters are shown in standout mode.
-
-Within  widgets,  arbitrary regions  may  be  highlighted by  setting  the  special array  parameter
-region_highlight; see above.
-
-zle peuple automatiquement un certain nb de paramètres spéciaux, qu'on peut utiliser au sein des
-fonctions custom invoqués par nos widgets. En voici une liste non exhaustive:
-
-BUFFER (scalaire)
-
-       Tout le contenu du buffer à éditer.
-       On parle de buffer au lieu de ligne de commande, probablement car zle manipule cette dernière
-       via un buffer, comme n'importe quel éditeur le ferait.
-
-       Si une fonction change le buffer, le curseur gardera, si le nouveau buffer est suffisamment
-       long, la même position.
-
-
-LBUFFER (scalaire)
-RBUFFER (scalaire)
-
-       Partie du buffer à gauche / droite du curseur.
-       Si une fonction change l'un des deux, le curseur sera toujours positionné entre LBUFFER et RBUFFER.
-
-
-CURSOR (entier)
-
-       Position du curseur au sein du buffer, comprise entre 0 et `$#BUFFER`.
-       Par définition, $#BUFFER = $#LBUFFER.
-       Modifier la valeur de ce paramètre modifie probablement la position du curseur.
-
-
-PREDISPLAY (scalar)
-POSTDISPLAY (scalar)
-
-       Texte à afficher avant /après la partie éditable du buffer.
-       Pour afficher une ligne vide, on écrira un newline au sein de leurs valeurs.
-
-
-region_highlight (array)
-
-       Each  element of  this array  may  be set  to a  string  that describes  highlighting for  an
-       arbitrary region of the command-line that will  take effect the next time the command-line is
-       redisplayed. Highlighting  of the non-editable  parts of the  command-line in  PREDISPLAY and
-       POSTDISPLAY  are possible,  but note  that the  P flag  is needed  for character  indexing to
-       include PREDISPLAY.
-
-       Each string consists of the following parts:
-
-              Optionally, a `P' to signify that the start and end offset that follow include any  string  set
-              by  the  PREDISPLAY  special parameter; this is needed if the predisplay string itself is to be
-              highlighted.  Whitespace may follow the `P'.
-
-              A start offset in the same units as CURSOR, terminated by whitespace.
-
-              An end offset in the same units as CURSOR, terminated by whitespace.
-
-              A highlight specification in the same format as used for contexts in  the  parameter  zle_high‐
-              light, see the section `Character Highlighting' below; for example, standout or fg=red,bold
-
-       For example,
-
-              region_highlight=("P0 20 bold")
-
-       specifies that the first twenty characters of the text including any predisplay string should be high‐
-       lighted in bold.
-
-       Note that the effect of region_highlight is not saved and disappears as soon as the line is accepted.
-
-       The final highlighting on the command-line depends on both region_highlight and zle_highlight; see the
-       section CHARACTER HIGHLIGHTING below for details.
-
-
-
-
-    https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/docs/highlighters.md
-
-            Lien expliquant comment créer son propre highlighter.
-
-
-La création d'un highlighter, foo, se fait en 5 étapes:
-
-    1. créer et éditer `/path/to/plugin/highlighters/foo/foo-highlighter.zsh`
-
-    2. y écrire la fonction `_zsh_highlight_highlighter_foo_predicate`
-                                                            │
-                                                            └ predicate = qd le highlighter doit être actif
-
-       Elle doit retourner 0 qd on veut que le highlighter soit actif, un autre nb autrement. Ex:
-
-                _zsh_highlight_highlighter_foo_predicate() {
-                  # notre highlighter ne doit être actif que dans un repot git
-                  [[ -d .git ]]
-                }
-
-    3. y écrire la fonction `_zsh_highlight_highlighter_foo_paint`
-                                                            │
-                                                            └ paint = quel style applique le highlighter
-
-       C'est elle qui réalise la coloration syntaxique, en appelant `_zsh_highlight_add_highlight`
-       et en lui passant 3 arguments:
-
-                - début de la région à coloriser
-                - fin de la région
-                - style (via une clé de `ZSH_HIGHLIGHT_STYLES`)
-
-       Le highlighting doit être défini au sein de notre script, et en dehors de toute fonction,
-       via la syntaxe suivante:
-
-                : ${ZSH_HIGHLIGHT_STYLES[foo:mystyle]:=value}
-
-       Exemple:
-
-                : ${ZSH_HIGHLIGHT_STYLES[foo:mystyle]:=fg=green}
-                │                        │           │
-                │                        │           └ `:=` est un opérateur builtin
-                │                        │             il ne modifie le lhs que s'il est non défini ou nul
-                │                        │
-                │                        └ le nom de la clé doit suivre le schéma:
-                │                          foo : mystyle
-                │
-                └ commande builtin qui n'a aucun effet, à ceci près que ses arguments sont développés
-                  ce qui peut avoir un effet sur des paramètres shell
-
-                # coloriser tout le buffer avec le style 'mystyle'
-                _zsh_highlight_highlighter_foo_paint() {
-
-                _zsh_highlight_add_highlight 0 $#BUFFER foo:mystyle
-                #                            │ │        │
-                #                            │ │        └ highlighting à appliquer
-                #                            │ └ fin de la région (variable interne à zsh; `man zshzle`)
-                #                            └ début de la région à coloriser
-                }
-
-
-                                     NOTE:
-
-       En pratique, il semble que si le highlighter n'applique qu'un seul style, on peut se passer
-       de 'mystyle' et simplifier la clé 'foo:mystyle' en 'foo'.
-       De même, si le highlighter applique plusieurs styles, on peut se passer de 'foo'.
-       La seule chose qui semble importante, c'est que chaque style soit associé à une clé ayant un nom unique.
-
-    4. nommer nos fonctions et variables globales `_zsh_highlight_foo_*`
-
-       FIXME: Quelles fonctions et quelles variables ?
-              Et pk les appeler comme ça: obligation ou convention ?
-
-    5. activer notre highlighter dans notre vimrc:
-
-                ZSH_HIGHLIGHT_HIGHLIGHTERS+=(foo)
-
-
-    https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/tests/README.md
-
-            Lien  expliquant   comment  écrire  un  test   pour  vérifier  qu'un
-            highlighter custom se comporte comme on le souhaite dans différentes
-            circonstances.
 
 ## locale
 
@@ -2495,32 +2086,32 @@ interactive login shell, otherwise you're in an interactive non-login shell.
                     emulate -LR zsh
 
 ##
-# LIGNE DE COMMANDE
+# Command-line
 ## command evaluation
 
 FIXME: Toute cette section est à développer en partant du diagramme présent à la page 189 du pdf
 (ou 165 du livre) “Classic Shell Scripting“.
 
-Il faudra peut-être confronter le diagramme à `man zshexpn`. L'ordre des opérations n'a pas l'air
-d'être le même entre bash et zsh.
+Il faudra peut-être confronter le diagramme à `man zshexpn`.
+L'ordre des opérations n'a pas l'air d'être le même entre bash et zsh.
 
-        alias
-        tilde expansion
-        variable substitution
-        command substitution
-        arithmetic expression substitution
-        word splitting
-        wildcard expansion
+   1. alias
+   2. tilde expansion
+   3. variable substitution
+   4. command substitution
+   5. arithmetic expression substitution
+   6. word splitting
+   7. wildcard expansion
 
 D'après `man bash`, l'ordre des développements est:
 
-        brace expansion
-        tilde expansion
-        parameter and variable expansion
-        arithmetic expansion
-        command substitution (done in a left-to-right fashion)
-        word splitting
-        pathname expansion
+   1. brace expansion
+   2. tilde expansion
+   3. parameter and variable expansion
+   4. arithmetic expansion
+   5. command substitution (done in a left-to-right fashion)
+   6. word splitting
+   7. pathname expansion
 
 Il manque certaines étapes, comme ’parameter expansion’, ’quote removal’, ’brace expansion’
 
@@ -2533,8 +2124,8 @@ diverses.
 
 Grouper des commandes permet de:
 
-        - s'assurer qu'elles sont exécutées dans le même environnement
-        - appliquer une même redirection à chacune d'elles (pas besoin de se répéter)
+   - s'assurer qu'elles sont exécutées dans le même environnement
+   - appliquer une même redirection à chacune d'elles (pas besoin de se répéter)
 
 #### Case
 
@@ -2740,14 +2331,15 @@ Grouper des commandes permet de:
 
         Execute <LIST2> while <LIST1> returns TRUE (exit code)
 
+###
 ### commande simple
 
 Une commande simple est:
 
-        1. un ensemble d'affectations de variables
-        2. un nom de commande
-        3. des arguments
-        4. un ensemble de redirections
+   1. un ensemble d'affectations de variables
+   2. un nom de commande
+   3. des arguments
+   4. un ensemble de redirections
 
 Tous ces éléments sont optionnels. Le nom de commande est passé au shell en tant qu'argument 0.
 Une commande simple a un code de sortie allant de 0 (ok) à 255 (diverses erreurs), auquel on peut
@@ -2755,13 +2347,13 @@ accéder depuis le shell via $?
 
 Exemple de commande simple:
 
-        LC_ALL=C ls $HOME >file
+    $ LC_ALL=C ls $HOME >file
 
 Avant d'exécuter une commande simple, bash effectue 3 opérations:
 
-        1. field splitting
-        2. développement
-        3. évaluation
+   1. field splitting
+   2. développement
+   3. évaluation
 
 ### fonction
 
@@ -2902,7 +2494,9 @@ Une liste peut servir à construire une combinaison de commandes, une fonction, 
 
 ### pipeline
 
-Un pipeline est une séquence d'une ou plusieurs commandes simples, séparées par des pipes qui relient leur entrée et sortie.  La dernière commande du pipeline définit le code de sortie.
+Un pipeline est une séquence d'une  ou plusieurs commandes simples, séparées par
+des pipes qui relient leur entrée et sortie.
+La dernière commande du pipeline définit le code de sortie.
 
 
     set -o pipefail    set +o pipefail
@@ -2954,387 +2548,7 @@ La syntaxe générale d'un pipeline est donc:
 
     [time] [!] cmd1 [| cmd2 | ...]
 
-## historique
-
-À chaque fois  qu'on édite lourdement une ligne de  commande (ex: C-a, C-e, C-d,
-C-w, M-b, M-f, M-d ...), il faut se  demander si on n'aurait pas été plus rapide
-en utilisant un développement d'historique.
-
-
-Un développement d'historique est réalisé en 3 étapes:
-
-        1. sélection d'une ligne au sein de l'historique
-
-                Cette ligne se nomme évènement, et on la sélectionne via un “désignateur d'évènement“.
-
-        2. sélection d'une partie de cet évènement afin qu'elle soit incluse sur la ligne courante
-
-                Cette partie est composée de “mots“, qu'on sélectionne via un “désignateur de mots“.
-
-        3. modification des mots via des modificateurs
-
-2 composants consécutifs d'un développement d'historique:
-
-    - désignateur d'évènement
-    - désignateur de mots
-    - modificateurs
-
-... doivent être  séparés par un `:`.
-`:` peut être  omis entre un désignateur d'évènement et  un désignateur de mots,
-si ce dernier commence par un des caractères suivants: `^$*`
-
-
-    zen: pas d'exemples tordus, que du vraisemblable
-         du plus simple au plus compliqué (pas l'inverse)
-
-    ┌────────────────┬────────────────────────────────────────────────────────────────────────────────────────┐
-    │ !!             │ dernière commande (forme abrégée de `!-1`)                                             │
-    │ !1             │ première commande                                                                      │
-    │ !-2            │ avant-dernière commande                                                                │
-    ├────────────────┼────────────────────────────────────────────────────────────────────────────────────────┤
-    │ !com           │ commande la plus récente et COMMENÇANT par la chaîne ’com’                             │
-    ├────────────────┼────────────────────────────────────────────────────────────────────────────────────────┤
-    │ !?mand         │ commande la plus récente et CONTENANT la chaîne ’mand’                                 │
-    │                │                                                                                        │
-    │                │ si un désignateur de mots doit suivre, il faut utiliser un 2e `?`; ex:                 │
-    │                │                                                                                        │
-    │                │     !?mand?$    →    dernier argument de la précédente commande contenant ’mand’       │
-    ├────────────────┼────────────────────────────────────────────────────────────────────────────────────────┤
-    │ !#             │ toute la ligne de commande tapée jusqu'ici                                             │
-    │                │                                                                                        │
-    │ !#:2           │ le 2e argument de la ligne courante                                                    │
-    ├────────────────┼────────────────────────────────────────────────────────────────────────────────────────┤
-    │ !^             │ 1er argument de la dernière commande                                                   │
-    │                │                                                                                        │
-    │                │ on remarque que lorsque `!!` est suivi d'un désignateur de mots ou d'un modificateur,  │
-    │                │ on peut l'abréger en `!`                                                               │
-    ├────────────────┼────────────────────────────────────────────────────────────────────────────────────────┤
-    │ !$             │ dernier argument                                                                       │
-    ├────────────────┼────────────────────────────────────────────────────────────────────────────────────────┤
-    │ !*             │ tous les arguments                                                                     │
-    ├────────────────┼────────────────────────────────────────────────────────────────────────────────────────┤
-    │ !:0            │ nom de commande de la dernière commande                                                │
-    │ !:3            │ 3e argument                                                                            │
-    │ !:2-4          │ arguments entre 2 et 4                                                                 │
-    ├────────────────┼────────────────────────────────────────────────────────────────────────────────────────┤
-    │ !:-3           │ commande + arguments entre 1 et 3                                                      │
-    │ !:3*   !:3-$   │ tous les arguments d'index supérieur à 3                                               │
-    │        !:3-    │ idem, sauf le dernier                                                                  │
-    ├────────────────┼────────────────────────────────────────────────────────────────────────────────────────┤
-    │ !cat:*         │ tous les arguments de la dernière commande commençant par `cat`                        │
-    └────────────────┴────────────────────────────────────────────────────────────────────────────────────────┘
-
-    Dans la  plupart des exemples  précédents, on  peut remplacer `!`  par `!1` ou  n'importe quel
-    désignateur d'évènement.
-
-
-        ┌ ne pas écrire la sortie dans l'éditeur
-        │ ┌ toutes les lignes de l'historique depuis la 1e
-        │ │
-    fc -l 1 | grep curl    zsh
-    history | grep curl    bash
-
-            Affiche les commandes `curl` au sein de l'historique, ainsi que leur index.
-            Utile pour s'y référer ensuite dans un développement d'historique. Ex:
-
-                    !42:s/foo/bar
-
-            Dans  zsh,  on  n'utilisera  pas  `history`,  car  il  s'agit  d'une
-            abréviation  de `fc  -l`,  qui affiche  seulement  les 16  dernières
-            lignes de l'historique.
-
-
-    foo !1 !! bar
-
-            Est  développé en  la  commande  `foo ...  bar`  avec  au milieu  la
-            première et dernière commande de l'historique.
-            Illustre qu'on  peut utiliser plusieurs  développements d'historique
-            sur une  même ligne et  les faire précéder/suivre de  n'importe quel
-            texte.
-
-
-    ┌────────────────────────────────┬───────────────────────────────┐
-    │ cp -R dir long_dirname         │                               │
-    │ ...                            │                               │
-    │ cd !cp:$                       │ se rendre dans `long_dirname` │
-    ├────────────────────────────────┼───────────────────────────────┤
-    │ cp file /path/to/long_filename │                               │
-    │ ...                            │                               │
-    │ vim !cp:$:t                    │ éditer `long_filename`        │
-    └────────────────────────────────┴───────────────────────────────┘
-
-
-    Modificateurs ne conservant dans un chemin que:
-
-    ┌───┬────────────────────────────────────────────┐
-    │ h │ head: tous les composants, sauf le dernier │
-    ├───┼────────────────────────────────────────────┤
-    │ t │ tail: le dernier                           │
-    ├───┼────────────────────────────────────────────┤
-    │ r │ root: tout sauf l'extension du fichier     │
-    ├───┼────────────────────────────────────────────┤
-    │ e │ extension: l'extension                     │
-    └───┴────────────────────────────────────────────┘
-
-            Exemples d'utilisation:
-
-                    echo    /foo/bar.txt    /qux/norf.md
-
-                    echo    !^:h    !$:t
-                    /foo        norf.md~
-
-                    echo    !^:r    !$:e
-                    /foo/bar    md~
-
-
-    echo foo\ bar baz
-
-    !*:x    →    'foo\' 'bar' 'baz'
-    !*:q    →    'foo\ bar baz'    OU    'foo\ bar' 'baz'
-                 │                       │
-                 │                       └ zsh
-                 └ bash
-
-            `x` et `q` sont des modificateurs ayant pour effet de quoter:
-
-                    - chaque mot; les mots étant séparés par des espaces ou des newlines
-                    - l'ensemble des arguments (bash) ou chaque argument (zsh)
-
-
-                                     NOTE:
-
-            Le modificateur `q` de zsh semble plus utile que son homologue bash.
-            Entre `q`  bash, `q` zsh  et `x`,  c'est probablement `q`  zsh qu'on
-            utilisera le plus souvent.
-
-
-    !curl:p
-
-            Affiche  la  dernière  commande   `curl`,  sans  l'exécuter,  et  la
-            repositionne à la fin de l'historique.
-            Pratique si  on doit  se référer  souvent à  elle dans  la prochaine
-            commande, et  qu'on veut éviter  de devoir répéter `!curl`  à chaque
-            fois; `!` suffira désormais.
-
-
-    Modificateurs spécifiques à zsh:
-
-    ┌───┬───────────────────────────────────────────────────────────────────┐
-    │ a │ remplace un chemin relatif en absolu                              │
-    ├───┼───────────────────────────────────────────────────────────────────┤
-    │ A │ idem + résoud les symlinks                                        │
-    ├───┼───────────────────────────────────────────────────────────────────┤
-    │ c │ remplace un nom de commande par le chemin absolu vers son binaire │
-    │   │                                                                   │
-    │   │     !:0:c                                                         │
-    ├───┼───────────────────────────────────────────────────────────────────┤
-    │ l │ fait passer un mot en lowercase                                   │
-    ├───┼───────────────────────────────────────────────────────────────────┤
-    │ u │ idem en uppercase                                                 │
-    ├───┼───────────────────────────────────────────────────────────────────┤
-    │ Q │ retire un niveau de quoting                                       │
-    └───┴───────────────────────────────────────────────────────────────────┘
-
-    Réexécute la dernière commande en:
-
-    ┌───────────────────┬────────────────────────────────────────────────────────────────────┐
-    │ ^old              │ supprimant la 1e occurrence de `old`                               │
-    ├───────────────────┼────────────────────────────────────────────────────────────────────┤
-    │ ^old^new          │ remplaçant la 1e occurrence de `old` par `new`                     │
-    ├───────────────────┼────────────────────────────────────────────────────────────────────┤
-    │ r foo=bar baz=qux │ remplaçant la 1e occurrence de `foo` par `bar`, et `baz` par `qux` │
-    └───────────────────┴────────────────────────────────────────────────────────────────────┘
-
-            Les 2 premières syntaxes sont des abréviations de:
-
-                    !!:s/old/new
-
-            Elles fonctionnent peu importe le shell.
-
-            En revanche, `r` est une commande intégrée à `zsh`.
-            Contrairement à `^old^new` qui ne  peut remplacer qu'une chaîne, `r`
-            peut en remplacer plusieurs simultanément.
-
-            `r` est une abréviation de:
-
-                    ┌ interagit avec certains évènements de l'historique
-                    │ par défaut charge la dernière commande dans $EDITOR
-                    │
-                    fc -e -
-                       └──┤
-                          └ aucun éditeur de texte n'est invoqué
-
-
-    s/old/new/
-    s/old/very_&/
-    s//new/
-
-            Modificateur remplaçant la 1e occurrence:
-
-                    - de `old` par `new`
-
-                    - de `old` par `very_old`
-
-                    - du dernier pattern remplacé par `new`
-
-                      S'il n'y a jamais eu de substitution (ou pas mémorisée tout du moins),
-                      le shell utilisera la dernière chaîne recherchée via `!?string?`.
-
-            Le dernier `/` est optionnel s'il est le dernier sur la ligne.
-
-            Si `&` apparaît dans le champ de remplacement, il est développé en la chaîne à substituer.
-
-            Si `old` ou `new` contiennent un slash, on peut l'échapper pour qu'il ne soit pas
-            interprété comme un délimiteur, ou alors changer de délimiteur.
-
-
-    &
-    g
-
-            Modificateur répétant la précédente substitution.
-            "            demandant à la substitution de s'appliquer à toutes les occurrences sur la ligne.
-
-            Exemples d'utilisation:
-
-                    echo foo bar baz
-                    foo bar baz~
-
-
-                    echo !*:s/b/c
-                    foo car baz~
-                        ^
-                    echo !*:gs/b/c
-                    foo car caz~
-                        ^   ^
-                    echo !*:g&
-                    "~
-
-
-## quoting
-
-Certains caractères ont un sens spécial pour le shell.
-Entre autres:    space Tab \n * $ ( ) !
-
-Pour empêcher le shell d'interpréter un caractère de ce type, il faut le quoter.
-Pour ce faire, on peut utiliser 3 syntaxes:
-
-        - l'encadrer avec des single quotes
-        - "                   double "
-        - le préfixer avec un backslash
-
-Les single/double quotes permettent de protéger une zone de texte entière, tandis que le backslash
-permet une approche plus granulaire.
-
-
-    ls
-    echo "hello world!!"
-    hello worldls    ✘~
-
-    ls
-    echo 'hello world!!'
-    hello world      ✔~
-
-            Les double quotes ne sont pas aussi strictes que les single quotes.
-            Ils autorisent le développement de:
-
-                    - commande:        "$(cmd)"
-
-                    - variable:        "$myvar"
-
-                    - l'historique:    "!!"
-
-
-    myvar="foo
-    > bar
-    > baz"
-
-    echo $myvar
-    foo bar baz~
-
-    echo "$myvar"
-    foo~
-    bar~
-    baz~
-
-            Illustre que bash réalise un field  splitting sur la chaîne issue du
-            développement d'une variable.
-
-            En  effet, dans  la 1e  commande, il  casse le  contenu de  `$myvar`
-            (“foo\nbar\nbaz“) à chaque  fois qu'il rencontre un  newline, ce qui
-            produit les 3 arguments `foo`, `bar`, `baz`.
-            Il passe  ces 3 arguments à  `echo` qui les affiche  en les séparant
-            par un espace.
-
-            Pour empêcher bash d'interpréter  les newlines comme des séparateurs
-            d'arguments, il faut quoter le contenu de la variable.
-
-
-                                     NOTE:
-
-            zsh se comporte  différemment, il ne réalise pas  de field splitting
-            sur  une chaîne  développée à  partir d'une  variable (sauf  si vous
-            activez l'option 'SH_WORD_SPLIT').
-
-            Dans zsh, il n'y a donc pas besoin de quoter `myvar`:
-
-                    echo $myvar
-                    foo~
-                    bar~
-                    baz~
-
-
-                                     NOTE:
-
-            Au passage, on remarque la présence du prompt secondaire:
-
-                    - >         dans bash
-                    - quote>    dans zsh (`dquote>` pour un double quote)
-
-
-    echo $'foo\nbar'
-
-            Affiche `foo` et `bar` sur 2 lignes.
-
-            La syntaxe $'string' permet d'inclure des caractères spéciaux dans une chaîne:
-
-                   ┌────────┬──────────────────────────────────────────────────────────────────┐
-                   │ \b     │ backspace                                                        │
-                   ├────────┼──────────────────────────────────────────────────────────────────┤
-                   │ \e     │ escape                                                           │
-                   ├────────┼──────────────────────────────────────────────────────────────────┤
-                   │ \f     │ form feed                                                        │
-                   ├────────┼──────────────────────────────────────────────────────────────────┤
-                   │ \n     │ new line                                                         │
-                   ├────────┼──────────────────────────────────────────────────────────────────┤
-                   │ \r     │ carriage return                                                  │
-                   ├────────┼──────────────────────────────────────────────────────────────────┤
-                   │ \t     │ horizontal tab                                                   │
-                   ├────────┼──────────────────────────────────────────────────────────────────┤
-                   │ \v     │ vertical tab                                                     │
-                   ├────────┼──────────────────────────────────────────────────────────────────┤
-                   │ \\     │ backslash                                                        │
-                   ├────────┼──────────────────────────────────────────────────────────────────┤
-                   │ \'     │ single quote                                                     │
-                   ├────────┼──────────────────────────────────────────────────────────────────┤
-                   │ \"     │ double quote                                                     │
-                   ├────────┼──────────────────────────────────────────────────────────────────┤
-                   │ \cx    │ un caractère C-x (C-a, C-b, ...)                                 │
-                   ├────────┼──────────────────────────────────────────────────────────────────┤
-                   │ \123   │ le caractère dont le code octal est 123 (1 à 3 chiffres)         │
-                   ├────────┼──────────────────────────────────────────────────────────────────┤
-                   │ \x21   │ le caractère dont le code hexa est 21 (1 à 2 chiffres)           │
-                   ├────────┼──────────────────────────────────────────────────────────────────┤
-                   │ \u2010 │ le caractère unicode dont le code hexa est 2010 (1 à 4 chiffres) │
-                   ├────────┼──────────────────────────────────────────────────────────────────┤
-                   │\U10100 │ "                                         10100 (1 à 8 chiffres) │
-                   └────────┴──────────────────────────────────────────────────────────────────┘
-
-
-            Le dollar n'a pas l'air d'être nécessaire pour zsh.
-
-            Pour plus d'infos, lire `man bash`, section ’QUOTING’.
-
-
+##
 ## raccourcis
 
                                      FIXME:
@@ -3772,7 +2986,6 @@ commande une longue série d'arguments dont le nom est proche.
 
             %/* = on supprime le pattern '/*' (n'importe quel texte après un slash)
 
-
 ### word splitting
 
 Le shell  lit des commandes depuis  son entrée qui  peut être le terminal  ou un
@@ -3786,22 +2999,21 @@ Le 1er  mot est  interprété comme le  nom d'une commande,  les autres  comme d
 arguments (options, noms de fichiers).
 Le shell appelle alors une fonction dans la famille `exec`:
 
-        - execl()
-        - execv()
-        - execle()
-        - execve()
-        - execlp()
-        - execvp()
+   - execl()
+   - execv()
+   - execle()
+   - execve()
+   - execlp()
+   - execvp()
 
 Il lui passe 3 infos:
 
-        - le nom d'un binaire ou d'un script        qui
-        - une array d'arguments (chaînes)           quoi
-        - une array de variables d'environnement    comment
+   - le nom d'un binaire ou d'un script        qui
+   - une array d'arguments (chaînes)           quoi
+   - une array de variables d'environnement    comment
 
 Pour + d'infos:
-
-        https://indradhanush.github.io/blog/writing-a-unix-shell-part-2/
+<https://indradhanush.github.io/blog/writing-a-unix-shell-part-2/>
 
 L'OS cherche  ensuite dans `$PATH` le  nom du binaire/script, et  l'exécute avec
 les arguments passés.
@@ -3868,40 +3080,19 @@ les arguments passés.
 
             Il s'agit encore une fois d'un field splitting.
 
-## terminal
-
-    echo -e "\033(0"
-
-    reset
-    echo -e "\033c"
-
-            La  1e commande  fout en  l'air  l'affichage des  caractères sur  la
-            plupart des émulateurs de terminaux.
-            Les 2 suivantes rétablissent l'affichage.
-            Illustre comment  réparer un terminal  dont l'affichage a  été cassé
-            par une commande exotique.
-            Équivaut à `:redraw!` dans Vim.
-
-
-                                     NOTE:
-
-            Qd on tape `reset`, les  caractères ne s'affichent pas correctement,
-            il faut taper à l'aveugle.
-
 ##
 # Todo
+## How to determine where an environment variable came from?
 
-    https://unix.stackexchange.com/a/154971/275162
-
-            How to determine where an environment variable came from?
+<https://unix.stackexchange.com/a/154971/275162>
 
 
-    You'll also see people exporting things,  such as term, in .bashrc or .zshrc
-    or similar - that will break things  in the long run.  Exports solely belong
-    in the  login shell init file,  such as .bash_profile or  .zprofile and even
-    then you don't export some things like term.
+> You'll also see people  exporting things, such as term, in  .bashrc or .zshrc or
+> similar - that will break things in the long run.
+> Exports solely  belong in the  login shell init  file, such as  .bash_profile or
+> .zprofile and even then you don't export some things like term.
 
-            https://github.com/tmux/tmux/issues/353#issuecomment-203038518
+<https://github.com/tmux/tmux/issues/353#issuecomment-203038518>
 
             Should we move all our exports out of `~/.bashrc`, `~/.zshrc` and `~/.shrc`?
 
@@ -4074,36 +3265,31 @@ Inspiration:
 
         alias g=go
 
-# Links
+## To read
 
-<https://github.com/alebcay/awesome-shell>
-<https://github.com/unixorn/awesome-zsh-plugins>
+- <http://redsymbol.net/articles/unofficial-bash-strict-mode/>
+- <https://github.com/alebcay/awesome-shell>
+- <https://github.com/unixorn/awesome-zsh-plugins>
+- <http://zsh.sourceforge.net/FAQ/>
+- <http://zsh.sourceforge.net/Guide/zshguide.html>
+- <https://www.commandlinefu.com/commands/browse/sort-by-votes>
+- <http://www.shellscript.sh/>
+- <http://mywiki.wooledge.org/BashPitfalls>
+- <http://mywiki.wooledge.org/BashFAQ>
+- <http://stackoverflow.com/a/10834267 (script inplace)>
+- <http://wiki.bash-hackers.org/scripting/obsolete (diverses syntaxes obsolètes)>
+- <https://google.github.io/styleguide/shell.xml>
+- <https://wiki.bash-hackers.org/scripting/style>
+- <https://grml.org/zsh/>
+- <https://grml.org/zsh/zsh-lovers.pdf>
 
-<http://zsh.sourceforge.net/FAQ/>
-<http://zsh.sourceforge.net/Guide/zshguide.html>
+        cd /tmp ; wget -O .zshrc http://git.grml.org/f/grml-etc-core/etc/zsh/zshrc
 
-<https://www.commandlinefu.com/commands/browse/sort-by-votes>
-
-<http://www.shellscript.sh/>
-
-<http://mywiki.wooledge.org/BashPitfalls>
-<http://mywiki.wooledge.org/BashFAQ>
-<http://stackoverflow.com/a/10834267 (script inplace)>
-<http://wiki.bash-hackers.org/scripting/obsolete (diverses syntaxes obsolètes)>
-<https://google.github.io/styleguide/shell.xml>
-<https://wiki.bash-hackers.org/scripting/style>
-
-<https://grml.org/zsh/>
-<https://grml.org/zsh/zsh-lovers.pdf>
-cd /tmp ; wget -O .zshrc http://git.grml.org/f/grml-etc-core/etc/zsh/zshrc
-
-<http://www.bash2zsh.com/>
-<http://www.bash2zsh.com/zsh_refcard/refcard.pdf>
-
-<https://www-s.acm.illinois.edu/workshops/zsh/toc.html>
-
-<https://blog.engineyard.com/2014/bats-test-command-line-tools>
-<https://github.com/sstephenson/bats>
-<https://fr.wikipedia.org/wiki/Test_unitaire>
-<https://fr.wikipedia.org/wiki/Test_driven_development>
+- <http://www.bash2zsh.com/>
+- <http://www.bash2zsh.com/zsh_refcard/refcard.pdf>
+- <https://www-s.acm.illinois.edu/workshops/zsh/toc.html>
+- <https://blog.engineyard.com/2014/bats-test-command-line-tools>
+- <https://github.com/sstephenson/bats>
+- <https://fr.wikipedia.org/wiki/Test_unitaire>
+- <https://fr.wikipedia.org/wiki/Test_driven_development>
 
