@@ -213,7 +213,7 @@ But for some  reason, as soon as  you release `Ctrl`, the image  is erased again
 
 ## When I start st from another terminal, sometimes I can see that it complains about unknown sequences!
 
-Do the error messages look like these:
+Do the error messages look like these?:
 
     erresc: unknown csi ESC[22;0;0t
     erresc: unknown str ESC]11
@@ -223,40 +223,69 @@ If so,  they are due to  Nvim, which sends  some escape sequences that  st can't
 understand.
 
 I don't think there's anything you can do.
-If it causes a bug, report it on Neovim's issue tracker.
+If it causes an issue, see this:
+<https://github.com/neovim/neovim/issues/10476>
 
 ---
 
-If you look at Nvim's internal terminfo database:
+`ESC[22;0;0t` is `CSI Ps ; Ps ; Ps t` with the three numeric parameters `22`, `0` and `0`.
+`ESC[23;0;0t` is also `CSI Ps ; Ps ; Ps t` with the three numeric parameters `23`, `0` and `0`.
+
+They were introduced in [this commit][6].
+
+Both are described [here][7] like so:
+
+> Ps = 2 2 ; 0  -> Save xterm icon and window title on stack.
+> Ps = 2 3 ; 0  -> Restore xterm icon and window title from stack.
+
+They  seem to  be used  to save  and restore  the icon  and window  title of  an
+xterm-compatible terminal.
+
+---
+
+`ESC]11` is probably the truncation of `OSC  Ps ; Pt BEL` with the first numeric
+parameter `11` and the text parameter `?`.
+
+It was introduced in [this commit][8].
+
+`OSC11;?BEL` is described [here][9] like so:
+
+> If a "?" is given rather than  a name or RGB specification, xterm replies with
+> a control sequence of the same form which can be used to set the corresponding
+> color.
+> Because more than one pair of color number and specification can be given in one
+> control sequence, xterm can make more than one reply.
+
+It's probably  used to  get the  color of  the background  of the  terminal, and
+determine whether the Nvim `'bg'` option should be set to 'dark' or 'light'.
+
+st probably doesn't implement these 3  sequences, and so doesn't understand them
+when Nvim sends them.
+
+---
+
+You can find these sequences in Nvim's internal terminfo database:
 
     $ nvim -V3/tmp/log file
     :q
     $ nvim /tmp/log
     :sil exe '1,/{{{$/g/^/d_' | /}}}$/,$g/^/d_
 
-You can find this:
+Inside, look for `ext.get_bg`, `ext.save_title` and `ext.restore_title`:
 
+    ext.get_bg                = <Esc>]11;?<C-G>~
     ext.save_title            = <Esc>[22;0;0t~
     ext.restore_title         = <Esc>[23;0;0t~
 
-This explains the origin of the first and last error message.
-It's due to this commit:
-<https://github.com/neovim/neovim/commit/ccbcd390d42d33a15f15c29fab5d6076a6d3ac08>
+---
 
-The middle error message (`ESC]11`) is probably due to this commit:
-<https://github.com/neovim/neovim/commit/298608f88c463705cfd6ee47035c049dbb1d9fa0>
+You can see these 3 error messages by starting st from another terminal (e.g. xterm):
 
-But I'm not sure; it could be any of these 3 commits:
+    # start xterm
+    $ st
+    $ nvim
 
-    There are only 'skip'ped commits left to test.~
-    The first bad commit could be any of:~
-    298608f88c463705cfd6ee47035c049dbb1d9fa0~
-    5372d9a705b849459bcb5ed52823fa422d0745de~
-    7e9b99d55be68938689b9f593e200054533c3783~
-    We cannot bisect more!~
-
-When trying to bisect  the issue, on some commits I couldn't  compile Nvim, so I
-had to run `$ git bisect skip`.
+They should be printed in xterm.
 
 ##
 # Todo
@@ -289,7 +318,7 @@ color is not properly restored.
 We don't really need this, but maybe it could be useful in the future.
 
 See `~/.config/st/patches/99_osc_12.diff` for inspiration.
-And this [reddit thread][6].
+And this [reddit thread][10].
 
 Once  you've implemented  it, update  your tmux.conf  to set  the `Cr`  terminfo
 extension *un*conditionally:
@@ -387,4 +416,8 @@ This requires that you register your nick on the OFTC network.
 [3]: https://github.com/ranger/ranger/issues/856
 [4]: https://github.com/seebye/ueberzug
 [5]: https://github.com/ranger/ranger/issues/759#issuecomment-276355995
-[6]: https://www.reddit.com/r/unix/comments/8tjcen/how_to_change_the_color_of_the_vim_cursor_in_st/e197b3t/
+[6]: https://github.com/neovim/neovim/commit/ccbcd390d42d33a15f15c29fab5d6076a6d3ac08
+[7]: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Functions-using-CSI-_-ordered-by-the-final-character_s_
+[8]: https://github.com/neovim/neovim/commit/298608f88c463705cfd6ee47035c049dbb1d9fa0
+[9]: https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Operating-System-Commands
+[10]: https://www.reddit.com/r/unix/comments/8tjcen/how_to_change_the_color_of_the_vim_cursor_in_st/e197b3t/

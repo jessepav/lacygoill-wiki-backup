@@ -1,3 +1,515 @@
+# I'm going to run these commands:
+
+    $ IFS=:
+    $ rm myfile myother:file
+
+## Which arguments will the shell pass to `execve()`?
+
+   1. `rm`
+   2. `myfile`
+   3. `myother:file`
+
+### Why?
+
+IFS is only during word splitting of *data*, not code.
+In the last command, the shell does not split any data, only script code.
+And a line of script code is always split only on whitespace.
+
+##
+# I'm going to run these commands:
+
+    $ IFS=:
+    $ files='myfile myother:file'
+    $ rm $files
+
+## Which arguments will the shell pass to `execve()`?
+
+   1. `rm`
+   2. `myfile myother`
+   3. `file`
+
+### Why?
+
+Initially, there's no data,  so the shell ignores IFS and  splits the command at
+the only existing whitspace:
+
+    $ rm $files
+        ^
+
+Then, parameter expansion is performed to expand `$files`, and word splitting is
+performed on the expansion:
+
+    $ rm myfile myother:file
+                       ^
+
+This time, IFS *is* considered because `myfile myother:file` is data.
+So the shell splits at the only character present in IFS, i.e. `:`.
+
+##
+##
+##
+# key bindings
+## bash
+### How to list the key bindings bound to
+#### functions?
+
+    $ bind -p
+    $ bind -P
+
+The lowercase flag can be fed back to the shell.
+The uppercase one is human-readable.
+
+Getting  a machine-readable  output is  useful, if  you want  to redefine  a key
+binding programmatically, for example after a `$ sed` transformation.
+
+#### macros?
+
+    $ bind -s
+    $ bind -S
+
+###
+### How to list variables?
+
+    $ bind -v
+    $ bind -V
+
+                                          ┌ commande d'édition invoquant une fonction
+                                          │
+    Ex de commande:    bind '"\C-t":      transpose-chars'
+    Ex de macro:       bind '"\C-x\C-r":  ". ~/.bashrc"'
+                                          │
+                                          └ macro rejouant une séquence de frappes
+
+###
+## zsh
+### How to list the current
+#### key bindings?
+
+    $ bindkey
+
+#### keymaps?
+
+    $ bindkey -l
+
+###
+### ?
+
+Try to supercharge `C-k`.
+Make it delete till the end of line  (like now), or delete the current region if
+one is active.
+You'll probably need to use  the special parameter `REGION_ACTIVE` documented at
+`$ man zshzle /REGION_ACTIVE`.
+You'll also need to read the chapter 14 of “from bash to zsh”.
+
+Also, try to re-implement `start-kbd-macro`, `end-kbd-macro`, `call-last-kbd-macro`.
+They're bound to `C-x (`, `C-x )`, `C-x e` in bash.
+
+---
+
+    bind '\C-x\C-u:  undo'
+
+Associe à `C-x C-u` la fonction `undo` (déjà par le cas par défaut).
+
+On peut utiliser cette commande dans:
+
+   - une session bash pour une utilisation temporaire
+
+   - son ~/.bash_aliases pour un effet permanent dans bash
+
+   - son ~/.inputrc:
+
+            "\C-x\C-u":  undo
+
+     ... pour un effet permanent dans tous les pgms utilisant readline
+
+La liste des fonctions disponible (du type unix-word-rubout) est lisible via bind -p
+
+---
+
+    M-DEL
+
+Supprime du curseur jusqu'au précédent whitespace.
+
+---
+
+`unix-word-rubout` est le nom de la fonction  utilisée par bash qd on appuie sur C-w.
+Cette fonction  supprime tous les  caractères entre  le curseur et  le précédent
+début de mot (l'espace semblant être le seul séparateur possible entre 2 mots).
+C'est  plutôt  chiant,  car  souvent  on préférera  ne  supprimer  que  jusqu'au
+précédent slash et non jusqu'au précédent espace.
+
+Il existe une autre fonction qui supprime jusqu'au précédent début de mot:
+
+    backward-kill-word
+
+Celle-ci est  toutefois différente,  car contrairement à  unix-word-rubout, elle
+considère aussi le slash comme un séparateur possible entre 2 mots.
+Par défaut, elle est associée à `M-DEL`.
+
+Comme je trouve qu'on supprime plus fréquemment du curseur jusqu'au début du mot
+que jusqu'au  précédent whitespace,  et que  C-w est plus  pratique à  taper que
+M-DEL, j'ai inversé les fonctions utilisées par ces 2 touches.
+
+Dans  emacs, par  défaut, C-w  supprime tout  le texte  entre le  curseur et  la
+marque.
+
+---
+
+Qd readline (ou emacs)  utilise la notation DEL pour désigner  une touche, il ne
+s'agit pas de la touche `delete` (`suppr` en fr) mais de la touche `backspace`.
+
+---
+
+FIXME:
+
+Je n'arrive pas à supprimer le texte entre le curseur et la marque.
+On a oublié de restaurer une fonction readline?
+Vérifier dans ~/.bashrc, ~/.shrc, ~/.zshrc, ~/.inputrc
+
+---
+
+    C-g
+
+Annuler la commande en cours (fonction `abort`).
+Utile pex qd on fuzzy search l'historique des commandes (`C-r`).
+Un peu plus facile  à taper que `C-c` et n'a pas  d'effet visible (n'affiche pas
+de ^C).
+
+---
+
+    C-x C-u
+    C-_
+
+Undo.
+
+---
+
+    C-x C-x
+    C-space
+
+Échange la position du curseur avec celle de la marque.
+Pose la marque à l'endroit où se trouve le curseur.
+
+Les fonctions invoquées par ces chords sont:
+
+        exchange-point-and-mark
+        set-mark / set-mark-command
+
+Pratique qd on édite  le milieu de la ligne de  commande, et qu'on a
+besoin de temporairement  rajouter qch au début, puis  de revenir là
+où on était.
+
+
+Dans zsh, qd on échange la position de la marque avec celle du curseur, le texte
+entre la marque et le curseur est colorisé.
+
+
+Par défaut, la marque se trouve au début de la ligne.
+
+---
+
+    ┌ pose la marque où se trouve le curseur
+    │
+    C-SPC M-b M-b M-"        zsh
+                  │
+                  └ quote le texte entre la marque et le curseur
+
+Quote les 2 mots précédents le curseur.
+
+Par défaut, `M-"` est associé à `quote-region`, qui est un widget zle quotant le
+texte entre la marque et le curseur.
+
+---
+
+    M->
+    M-<
+
+Nous repositionne à la toute fin / au tout début de l'historique.
+
+---
+
+    M-5 x
+
+Insère `xxxxx`.
+
+---
+
+    M-2 M-.
+
+Insère le 2e argument de la dernière commande.
+Répétable: on peut passer en revue tous les 2nds arguments des derniers commandes.
+
+FIXME:
+
+Dans zsh, il semble que l'indexage commence depuis la fin des arguments, au lieu du début:
+
+    (bash): M-2 M-.
+    2e argument~
+
+    (zsh):  M-2 M-.
+    avant-dernier argument~
+
+
+FIXME:
+
+(`M-2`) `C-M-y` (`yank-nth-arg`) ne semble pas fonctionner dans zsh.
+Et dans bash, quelle différence avec `M-2 M-.`?
+
+---
+
+    C-M-e
+
+Développe la ligne de commande.
+
+Note that Ctrl-Alt-E in bash does not only expand aliases.
+It also expands  variables, command substitution (!),  process substitution (!),
+arithmetic  expand  and  removes  quotes  (it  doesn't  do  filename  generation
+(globbing) or tilde expansion).
+
+---
+
+    C-y
+
+Coller le dernier texte tué (yank ; emacs utilise le terme yank pour coller).
+
+Si on supprime plusieurs mots via C-w, le dernier texte tué est la concaténation
+de tous ces mots.
+
+---
+
+    M-y
+
+Changer le dernier texte collé (avec un autre texte tué précédemment).
+Répétable pour passer en revue tous les derniers textes tués.
+
+---
+
+    C-n    (custom)
+    C-p    (")
+
+Compléter des noms de fichiers.
+
+Les candidats sont choisis à partir des items du dossier courant.
+On peut  autocompléter tout  un chemin,  pour ce faire,  il faut  valider chaque
+noeud du chemin en faisant pex un `C-b C-f` (ou un `C-x C-n`).
+
+FIXME:
+
+Pas dispo dans zsh.
+Plus dispo dans bash non plus (j'ai viré le raccourci).
+C'était utile?
+Si oui, réimplémenter en changeant les raccourcis.
+
+---
+
+    M-Y    (custom)
+    copy-region-as-kill
+
+Copy the text between the cursor and the mark.
+You can then paste it wherever you want by pressing `C-y`.
+By default, `copy-region-as-kill` is bound to `M-w` in zsh and unbound in bash.
+
+---
+
+    M-#
+
+Préfixe la commande avec un dièse et l'exécute.
+N'a aucun effet, car  le dièse commente la ligne ce qui  empêche son code d'être
+interprété.
+Utile pour conserver dans l'historique une  commande partielle, ou dont on n'est
+pas encore sûr.
+
+##
+# brace expansion
+
+Il s'agit d'une  fonctionnalité permettant de développer  un série de chaînes,  en les combinant
+éventuellement avec  un préambule et  / ou  post-scriptum. Utile pour  passer + rapidement  à une
+commande une longue série d'arguments dont le nom est proche.
+
+
+    echo {foo,bar,baz}
+    echo _{foo,bar,baz}
+    echo {foo,bar,baz}_
+    echo _{foo,bar,baz}-
+
+            foo bar baz
+            _foo_bar_baz
+            foo_bar_baz_
+            _foo-_bar-_baz-
+
+
+    echo {5..12}
+    echo {c..k}
+
+            5 6 7 8 9 10 11 12
+            c d e f g h i j k
+
+
+    a=5; b=12; echo {$a..$b}
+
+            {5..12}               bash
+            5 6 7 8 9 10 11 12    zsh
+
+            Pk bash ne développe pas l'expression comme on voulait?
+
+            Le développement des accolades se fait avant celui des variables, et
+            bash ne sait développer que des rangées de nb ou de lettres (`$a` et
+            `$b` ne sont ni des nb ni des lettres).
+
+
+    mv long/path/to/foo.{old,,new}
+
+            Renommer `foo.old` en `foo.new`.
+
+
+    cp foo{,.bak}
+
+            Faire un backup de foo nommé `foo.bak`.
+
+
+    wget http://domain.com/book/page{1..5}.html
+
+            Dl les pages 1 à 5 d'un site.
+
+
+    mkdir -p foo/{bar,baz}/{qux,norf}
+
+            Créer une arborescence de dossiers.
+
+
+    echo "${#foo}"
+
+            Afficher la taille de la chaîne stockée dans la variable `foo`.
+
+
+    echo "${foo//[bar]}"
+
+            Supprimer toutes les occurrences de la sous-chaîne `bar` au sein de la chaîne stockée dans `foo`.
+
+
+    echo "${TMUX%/*}"
+
+            Afficher le dossier contenant le socket tmux (dont le chemin est stocké ds la variable $TMUX).
+
+            %/* = on supprime le pattern '/*' (n'importe quel texte après un slash)
+
+# commande substitution
+
+    cmd1 "$(cmd2)"
+    cmd1 "$(cmd2 "$(cmd3)")"
+    cmd1 "$(cmd2 "$(cmd3 "$(cmd4)")")"
+
+On peut imbriquer autant de substitutions de commandes qu'on veut.
+
+Il n'y jamais besoin de traiter les quotes spécialement (pex les échapper).
+C'est pour cette raison que la syntaxe:
+
+    $(...)
+
+... est préférable à:
+
+    `...`
+
+Cette dernière  devient de  plus en  plus complexe au  fur et  à mesure  qu'on a
+besoin de niveaux d'imbrications supplémentaires.
+
+# word splitting
+
+Le shell  lit des commandes depuis  son entrée qui  peut être le terminal  ou un
+fichier.
+Chaque ligne est considérée comme une seule commande.
+Il divise  la ligne de  commande en  mots qui sont  séparés par une  séquence de
+whitespace syntaxique.
+On parle de _word splitting_.
+
+Le 1er  mot est  interprété comme le  nom d'une commande,  les autres  comme des
+arguments (options, noms de fichiers).
+Le shell appelle alors une fonction dans la famille `exec`:
+
+   - execl()
+   - execv()
+   - execle()
+   - execve()
+   - execlp()
+   - execvp()
+
+Il lui passe 3 infos:
+
+   - le nom d'un binaire ou d'un script        qui
+   - une array d'arguments (chaînes)           quoi
+   - une array de variables d'environnement    comment
+
+Pour + d'infos:
+<https://indradhanush.github.io/blog/writing-a-unix-shell-part-2/>
+
+L'OS cherche  ensuite dans `$PATH` le  nom du binaire/script, et  l'exécute avec
+les arguments passés.
+
+
+    IFS=: ; files="foo bar:baz" ; rm $files
+
+            Supprime les fichiers `foo bar` et `baz`.
+
+            Dans la dernière commande, le shell doit développer `$files`:
+            on parle de Parameter Expansion.
+
+            bash passe à `rm` les arguments `foo bar` et `baz`.
+            La valeur de `$IFS` compte à cause du PE.
+
+            Il existe donc 2 types de  splitting qui peuvent se produire sur une
+            même ligne de commande:
+
+                    - le FIELD splitting divise une chaîne issues d'un développement
+                    - le WORD splitting qui divise la ligne de commande qui en résulte
+
+            Contrairement au  word splitting  qui utilise  tjrs une  séquence de
+            whitespace syntaxique  pour délimiter  les mots, le  field splitting
+            utilise  la  valeur de  la  variable  spéciale IFS  (Internal  Field
+            Separator).
+
+            Pour bash, par défaut  IFS n'a pas de valeur, et  agit comme si elle
+            valait " \t\n".
+            Le field splitting se produit  lorsque le shell doit développer qch:
+            un chemin (~ → /home/path), une variable ($myvar) ...
+
+
+                                     NOTE:
+
+            Unfortunately,  the  bash  documentation only  uses  the  expression
+            “word splitting”,  and the  zsh documentation uses  both expressions
+            (word/field) interchangeably:
+
+                    https://unix.stackexchange.com/a/429540/289772
+                    https://www.zsh.org/mla/workers/2018/msg00253.html
+
+
+                                     NOTE:
+
+            Il est déconseillé de modifier IFS  car bash va chercher à remplacer
+            les nouveaux mots développés par des noms de fichiers qui match.
+            En +, il  est difficile de limiter la portée  d'un field splitting à
+            une seule commande.
+
+
+    IFS=: ; rm foo bar:baz
+
+            Supprime foo et "bar:baz".
+
+            Rien à développer donc la valeur d'IFS n'a pas d'importance.
+
+
+    read -p 'Enter 3 values: ' foo bar baz
+
+            `read` nous demande de saisir 3 valeurs.
+
+            Le  shell va  diviser la  ligne qu'on  va saisir,  pour en  affecter
+            chaque morceau aux variables `foo`, `bar`, `baz`.
+
+            Il s'agit encore une fois d'un field splitting.
+
+##
+##
+##
 # How to get the list of shell builtin commands?
 
     $ compgen -b
@@ -994,6 +1506,58 @@ commands into words:
 
     $ args.sh my buggy command
     3 args: <my> <buggy> <command>~
+
+## I'm trying to run a command whose arguments are generated by the output of another command.  Sometimes it fails!
+
+A command substitution should be used only  to generate data, not code (i.e. not
+command names or argument): <https://mywiki.wooledge.org/BashFAQ/050>
+
+---
+
+    ✔
+    $ tmux set @foo 'if -F 1 "display"' ; \
+      tmux $(tmux show -v @foo)
+
+    ✘
+    $ tmux set @foo 'if -F 1 "display test"' ; \
+      tmux $(tmux show -v @foo)
+      syntax error~
+
+This is because:
+
+   1. quoting is performed before command substitution, so when it occurs,
+      `$(tmux show -v @foo)` has not been expanded yet, and the quotes around
+      `"display test"` can't be interpreted as syntactical, because they don't
+      exist yet
+
+   2. an unquoted command substitution is followed by word splitting
+
+   3. when the word splitting occurs, the quotes around `"display test"` are
+      parsed as literal (quoting is done, it's too late for them to be parsed
+      as syntactical); so the shell splits `"display test"` into `"display` and `test"`
+
+You can check how the command is split using our args.sh script:
+
+    $ args.sh $(tmux show -v @foo)
+    5 args: <if> <-F> <1> <"display> <test">~
+
+    $ args.sh if -F 1 "display test"
+    4 args: <if> <-F> <1> <display test>~
+
+---
+
+In the previous example, using `$ eval` could work:
+
+    $ tmux set @foo 'if -F 1 "display test"' ; \
+      eval "tmux $(tmux show -v @foo)"
+
+but sometimes, it may also give [unexpected results][1], idk.
+
+Here, a better approach is to simply save the output of `$ tmux show -v @foo` in
+a file, and make tmux source it.
+
+More generally,  depending on what  you're trying to achieve,  several solutions
+exist: <https://mywiki.wooledge.org/BashFAQ/050>
 
 ##
 ##
@@ -2549,540 +3113,9 @@ La syntaxe générale d'un pipeline est donc:
     [time] [!] cmd1 [| cmd2 | ...]
 
 ##
-## raccourcis
-
-                                     FIXME:
-
-Le paquet `rlwrap`  fournit une commande éponyme qui  permet d'utiliser readline
-dans des programmes où on doit saisir du texte:
-
-        https://github.com/hanslub42/rlwrap
-
-En préfixant un script (ou une commande  externe au shell) par `rlwrap`, on peut
-retrouver les raccourcis readline.
-Ex:
-
-        rlwrap pacmd
-
-Toutefois rlwrap a besoin d'une commande qu'elle peut exécuter.
-Elle ne fonctionne donc pas directement avec une commande intégrée au shell:
-
-        rlwrap read var
-                ✘ rlwrap: error: Cannot execute read: No such file or directory
-
-On peut contourner le problème en exécutant cette dernière dans un sous-shell:
-
-        rlwrap sh -c 'read var'    ✔    (dans le cas de `read`, on pourrait aussi utiliser le flag `-e`)
-
-Update:
-Yeah but your variable will be lost as soon as the subshell exits...
-
-
-Elle ne fonctionne pas non plus avec une fonction custom:
-
-        % type zz
-            zz is an alias for fasd_cd -d -i
-
-        % rlwrap fasd_cd -d -i
-            rlwrap: error: Cannot execute fasd_cd: No such file or directory
-
-        % type fasd_cd
-            fasd_cd is a shell function from /home/user/.fasd-init-zsh
-
-        % rlwrap zsh -c 'fasd_cd -d -i'
-            zsh:1: command not found: fasd_cd
-
-Trouver le moyen de forcer la commande `zsh -c` à sourcer nos fichiers de conf zsh.
-
-        % rlwrap zsh -c 'source ~/.zshrc; fasd_cd -d -i'    ✔
-
-Cette dernière commande fonctionne, mais c'est un peu crade...
-Doit y avoir un flag demandant à zsh de sourcer sa conf...
-Je crois que j'ai trouvé, `-i` peut faire l'affaire:
-
-        % rlwrap zsh -ci 'fasd_cd -d -i'    ✔
-
-Ah merde,  la fonction  `fasd_cd` est  censée nous déplacer  dans le  dossier de
-notre choix, mais `zsh -c` semble nous y empêcher.
-Probablement car la commande est exécutée dans un sous-shell...
-Il  faudrait trouver  une autre  construction  qui s'exécuterait  dans le  shell
-courant.
-
-
-                                     FIXME:
-
-Trouver des équivalents zsh aux raccourcis readline définis dans ~/.inputrc.
-Atm, ils ne fonctionnent que dans bash.
-En  profiter pour  repenser  leur {lhs}  de sorte  qu'ils  soient cohérents  peu
-importe le shell qu'on utilise.
-
-                                    WARNING:
-
-Il est possible que certaines combinaisons  de touches du clavier produisent une
-variante d'un espace insécable.
-On  peut trouver  ces variantes  en  tapant `:UnicodeTable`,  puis en  cherchant
-`no-break`:
-
-              U+00A0  NO-BREAK SPACE
-              U+202F  NARROW NO-BREAK SPACE
-              U+FEFF  ZERO WIDTH NO-BREAK SPACE
-
-Ces caractères sont souvent source d'erreurs difficiles à déboguer.
-Il vaut mieux les désactiver. Pour ce faire, on peut exécuter:
-
-        setxkbmap -option 'nbsp:none'
-
-Ou bien on peut éditer `~/.Xmodmap`.
-Dans  ce cas,  il  faut chercher  la  chaîne ’no-break’  (ou  juste ’break’,  ou
-’space’) ainsi que les codes `00a0`, `202f`, `feff`.
-Puis, remplacer ces keysyms par d'autres moins problématiques/plus utiles.
-
-
-
-    j        k
-    d        u
-    Space    b
-
-            Au sein d'un pager, avancer / reculer d'une ligne, d'une page, d'un écran
-
-
-Source à lire:
-https://www.emacswiki.org/emacs/EmacsNewbieKeyReference
-
-
-    bind -p    (bash)
-    bind -s
-    bind -v
-
-            Affiche les:
-
-                    - raccourcis associés à des fonctions
-                    - "                         macros
-                    - variables / options
-
-            Qd on utilise des flags minuscules, la sortie est formatée de sorte qu'elle peut être
-            utilisée pour réinstaller les raccourcis.
-            Pratique si on veut redéfinir un raccourci de manière programmatique, pex après une
-            transformation via sed.
-
-            Qd on utilise des flags majuscules, la sortie est formatée pour être lue par un humain.
-
-                                                  ┌ commande d'édition invoquant une fonction
-                                                  │
-            Ex de commande:    bind '"\C-t":      transpose-chars'
-            Ex de macro:       bind '"\C-x\C-r":  ". ~/.bashrc"'
-                                                  │
-                                                  └ macro rejouant une séquence de frappes
-
-
-    bindkey       (zsh)
-    bindkey -l
-
-            Affiche toutes les séquences de touches associées à des commandes d'édition ou des macros.
-            Affiche la liste des keymaps existantes.
-
-
-    bind '\C-x\C-u:  undo'
-
-            Associe à `C-x C-u` la fonction `undo` (déjà par le cas par défaut).
-
-            On peut utiliser cette commande dans:
-
-                    - une session bash pour une utilisation temporaire
-
-                    - son ~/.bash_aliases pour un effet permanent dans bash
-
-                    - son ~/.inputrc:
-
-                            "\C-x\C-u":  undo
-
-                      ... pour un effet permanent dans tous les pgms utilisant readline
-
-            La liste des fonctions disponible (du type unix-word-rubout) est lisible via bind -p
-
-
-    M-DEL
-
-            Supprime du curseur jusqu'au précédent whitespace.
-
-
-                                     NOTE:
-
-            `unix-word-rubout` est le nom de la fonction utilisée par bash qd on
-            appuie sur C-w.
-            Cette fonction supprime  tous les caractères entre le  curseur et le
-            précédent début  de mot (l'espace  semblant être le  seul séparateur
-            possible entre 2 mots).
-            C'est  plutôt chiant,  car  souvent on  préférera  ne supprimer  que
-            jusqu'au précédent slash et non jusqu'au précédent espace.
-
-            Il existe une autre fonction qui supprime jusqu'au précédent début de mot:
-
-                    backward-kill-word
-
-            Celle-ci   est    toutefois   différente,   car    contrairement   à
-            unix-word-rubout, elle considère aussi  le slash comme un séparateur
-            possible entre 2 mots.
-            Par défaut, elle est associée à `M-DEL`.
-
-            Comme je trouve qu'on supprime  plus fréquemment du curseur jusqu'au
-            début du mot que jusqu'au précédent  whitespace, et que C-w est plus
-            pratique à taper que M-DEL, j'ai inversé les fonctions utilisées par
-            ces 2 touche.
-
-
-                                     NOTE:
-
-            Dans emacs, par défaut, C-w supprime  tout le texte entre le curseur
-            et la marque.
-
-
-                                     NOTE:
-
-            Qd readline  (ou emacs)  utilise la notation  DEL pour  désigner une
-            touche, il ne s'agit pas de  la touche `delete` (`suppr` en fr) mais
-            de la touche `backspace`.
-
-
-                                     FIXME:
-
-            Je n'arrive pas à supprimer le texte entre le curseur et la marque.
-            On a oublié de restaurer une fonction readline?
-            Vérifier dans ~/.bashrc, ~/.shrc, ~/.zshrc, ~/.inputrc
-
-
-    C-g
-
-            Annuler la commande en cours (fonction `abort`).
-            Utile pex qd on fuzzy search l'historique des commandes (`C-r`).
-            Un peu  plus facile  à taper  que `C-c` et  n'a pas  d'effet visible
-            (n'affiche pas de ^C).
-
-
-    C-x C-u    C-_
-
-            undo
-
-
-    C-x C-x
-    C-space
-
-            Échange la position du curseur avec celle de la marque.
-            Pose la marque à l'endroit où se trouve le curseur.
-
-            Les fonctions invoquées par ces chords sont:
-
-                    exchange-point-and-mark
-                    set-mark / set-mark-command
-
-            Pratique qd on édite  le milieu de la ligne de  commande, et qu'on a
-            besoin de temporairement  rajouter qch au début, puis  de revenir là
-            où on était.
-
-
-                                     NOTE:
-
-            Dans  zsh, qd  on échange  la position  de la  marque avec  celle du
-            curseur, le texte entre la marque et le curseur est colorisé.
-
-
-                                     NOTE:
-
-            Par défaut, la marque se trouve au début de la ligne.
-
-
-    ┌ pose la marque où se trouve le curseur
-    │
-    C-SPC M-b M-b M-"        zsh
-                  │
-                  └ quote le texte entre la marque et le curseur
-
-            Quote les 2 mots précédents le curseur.
-
-            Par défaut,  `M-"` est associé  à `quote-region`, qui est  un widget
-            zle quotant le texte entre la marque et le curseur.
-
-
-    M->    M-<
-
-            Nous repositionne à la toute fin / au tout début de l'historique.
-
-
-    M-5 x
-
-            insère `xxxxx`
-
-
-    M-2 M-.
-
-            Insère le 2e argument de la dernière commande.
-            Répétable: on peut passer en revue tous les 2nds arguments des derniers commandes.
-
-                                     FIXME:
-
-            Dans zsh, il semble que l'indexage commence depuis la fin des arguments, au lieu du début:
-
-                    (bash): M-2 M-.
-                    2e argument~
-
-                    (zsh):  M-2 M-.
-                    avant-dernier argument~
-
-
-                                     FIXME:
-
-            (M-2) C-M-y (yank-nth-arg) ne semble pas fonctionner dans zsh.
-            Et dans bash, quelle différence avec `M-2 M-.`?
-
-
-    C-M-e
-
-            Développe la ligne de commande.
-
-            Note that Ctrl-Alt-E in bash does not only expand aliases.
-            It  also  expands  variables,   command  substitution  (!),  process
-            substitution (!),  arithmetic expand and removes  quotes (it doesn't
-            do filename generation (globbing) or tilde expansion).
-
-
-    C-y
-
-            Coller le dernier texte tué (yank ; emacs utilise le terme yank pour coller).
-
-            Si on supprime  plusieurs mots via C-w, le dernier  texte tué est la
-            concaténation de tous ces mots.
-
-
-    M-y
-
-            Changer le dernier texte collé (avec un autre texte tué précédemment).
-            Répétable pour passer en revue tous les derniers textes tués.
-
-
-    C-n    C-p    (custom)
-
-            Compléter des noms de fichiers.
-
-            Les candidats sont choisis à partir des items du dossier courant.
-            On peut autocompléter tout un chemin, pour ce faire, il faut valider
-            chaque noeud du chemin en faisant pex un C-b C-f (ou un C-x C-n).
-
-                                     FIXME:
-
-            Pas dispo dans zsh.
-            Plus dispo dans bash non plus (j'ai viré le raccourci).
-            C'était utile?
-            Si oui, réimplémenter en changeant les raccourcis.
-
-
-    M-w    (custom)
-
-            copier le texte entre le curseur et la marque (copy-region-as-kill)
-            permet de coller une zone de texte arbitraire via C-y
-
-                                     FIXME:
-
-            Dans zsh M-w tue carrément la région (ce qui la copie aussi).
-
-
-    M-#
-
-            Préfixe la commande avec un dièse et l'exécute.
-            N'a aucun effet,  car le dièse commente la ligne  ce qui empêche son
-            code d'être interprété.
-            Utile pour  conserver dans  l'historique une commande  partielle, ou
-            dont on n'est pas encore sûr.
-
-### commande substitution
-
-    cmd1 "$(cmd2)"
-    cmd1 "$(cmd2 "$(cmd3)")"
-    cmd1 "$(cmd2 "$(cmd3 "$(cmd4)")")"
-
-            On peut imbriquer autant de substitutions de commandes qu'on veut.
-
-            Il n'y jamais besoin de traiter les quotes spécialement (pex les échapper).
-            C'est pour cette raison que la syntaxe:
-
-                    $(...)
-
-            ... est préférable à:
-
-                    `...`
-
-            Cette dernière devient de plus en plus complexe au fur et à mesure qu'on a besoin
-            de niveaux d'imbrications supplémentaires.
-
-### brace expansion
-
-Il s'agit d'une  fonctionnalité permettant de développer  un série de chaînes,  en les combinant
-éventuellement avec  un préambule et  / ou  post-scriptum. Utile pour  passer + rapidement  à une
-commande une longue série d'arguments dont le nom est proche.
-
-
-    echo {foo,bar,baz}
-    echo _{foo,bar,baz}
-    echo {foo,bar,baz}_
-    echo _{foo,bar,baz}-
-
-            foo bar baz
-            _foo_bar_baz
-            foo_bar_baz_
-            _foo-_bar-_baz-
-
-
-    echo {5..12}
-    echo {c..k}
-
-            5 6 7 8 9 10 11 12
-            c d e f g h i j k
-
-
-    a=5; b=12; echo {$a..$b}
-
-            {5..12}               bash
-            5 6 7 8 9 10 11 12    zsh
-
-            Pk bash ne développe pas l'expression comme on voulait?
-
-            Le développement des accolades se fait avant celui des variables, et
-            bash ne sait développer que des rangées de nb ou de lettres (`$a` et
-            `$b` ne sont ni des nb ni des lettres).
-
-
-    mv long/path/to/foo.{old,,new}
-
-            Renommer `foo.old` en `foo.new`.
-
-
-    cp foo{,.bak}
-
-            Faire un backup de foo nommé `foo.bak`.
-
-
-    wget http://domain.com/book/page{1..5}.html
-
-            Dl les pages 1 à 5 d'un site.
-
-
-    mkdir -p foo/{bar,baz}/{qux,norf}
-
-            Créer une arborescence de dossiers.
-
-
-    echo "${#foo}"
-
-            Afficher la taille de la chaîne stockée dans la variable `foo`.
-
-
-    echo "${foo//[bar]}"
-
-            Supprimer toutes les occurrences de la sous-chaîne `bar` au sein de la chaîne stockée dans `foo`.
-
-
-    echo "${TMUX%/*}"
-
-            Afficher le dossier contenant le socket tmux (dont le chemin est stocké ds la variable $TMUX).
-
-            %/* = on supprime le pattern '/*' (n'importe quel texte après un slash)
-
-### word splitting
-
-Le shell  lit des commandes depuis  son entrée qui  peut être le terminal  ou un
-fichier.
-Chaque ligne est considérée comme une seule commande.
-Il divise  la ligne de  commande en  mots qui sont  séparés par une  séquence de
-whitespace syntaxique.
-On parle de _word splitting_.
-
-Le 1er  mot est  interprété comme le  nom d'une commande,  les autres  comme des
-arguments (options, noms de fichiers).
-Le shell appelle alors une fonction dans la famille `exec`:
-
-   - execl()
-   - execv()
-   - execle()
-   - execve()
-   - execlp()
-   - execvp()
-
-Il lui passe 3 infos:
-
-   - le nom d'un binaire ou d'un script        qui
-   - une array d'arguments (chaînes)           quoi
-   - une array de variables d'environnement    comment
-
-Pour + d'infos:
-<https://indradhanush.github.io/blog/writing-a-unix-shell-part-2/>
-
-L'OS cherche  ensuite dans `$PATH` le  nom du binaire/script, et  l'exécute avec
-les arguments passés.
-
-
-    IFS=: ; files="foo bar:baz" ; rm $files
-
-            Supprime les fichiers `foo bar` et `baz`.
-
-            Dans la dernière commande, le shell doit développer `$files`:
-            on parle de Parameter Expansion.
-
-            bash passe à `rm` les arguments `foo bar` et `baz`.
-            La valeur de `$IFS` compte à cause du PE.
-
-            Il existe donc 2 types de  splitting qui peuvent se produire sur une
-            même ligne de commande:
-
-                    - le FIELD splitting divise une chaîne issues d'un développement
-                    - le WORD splitting qui divise la ligne de commande qui en résulte
-
-            Contrairement au  word splitting  qui utilise  tjrs une  séquence de
-            whitespace syntaxique  pour délimiter  les mots, le  field splitting
-            utilise  la  valeur de  la  variable  spéciale IFS  (Internal  Field
-            Separator).
-
-            Pour bash, par défaut  IFS n'a pas de valeur, et  agit comme si elle
-            valait " \t\n".
-            Le field splitting se produit  lorsque le shell doit développer qch:
-            un chemin (~ → /home/path), une variable ($myvar) ...
-
-
-                                     NOTE:
-
-            Unfortunately,  the  bash  documentation only  uses  the  expression
-            “word splitting”,  and the  zsh documentation uses  both expressions
-            (word/field) interchangeably:
-
-                    https://unix.stackexchange.com/a/429540/289772
-                    https://www.zsh.org/mla/workers/2018/msg00253.html
-
-
-                                     NOTE:
-
-            Il est déconseillé de modifier IFS  car bash va chercher à remplacer
-            les nouveaux mots développés par des noms de fichiers qui match.
-            En +, il  est difficile de limiter la portée  d'un field splitting à
-            une seule commande.
-
-
-    IFS=: ; rm foo bar:baz
-
-            Supprime foo et "bar:baz".
-
-            Rien à développer donc la valeur d'IFS n'a pas d'importance.
-
-
-    read -p 'Enter 3 values: ' foo bar baz
-
-            `read` nous demande de saisir 3 valeurs.
-
-            Le  shell va  diviser la  ligne qu'on  va saisir,  pour en  affecter
-            chaque morceau aux variables `foo`, `bar`, `baz`.
-
-            Il s'agit encore une fois d'un field splitting.
-
 ##
 # Todo
-## How to determine where an environment variable came from?
+## How to determine where an environment variable come from?
 
 <https://unix.stackexchange.com/a/154971/275162>
 
@@ -3094,20 +3127,22 @@ les arguments passés.
 
 <https://github.com/tmux/tmux/issues/353#issuecomment-203038518>
 
-            Should we move all our exports out of `~/.bashrc`, `~/.zshrc` and `~/.shrc`?
+Should we move all our exports out of `~/.bashrc`, `~/.zshrc` and `~/.shrc`?
 
-            When the author  of the comment say “that will  break things”, I
-            think he  means that sometimes  you will  start a login  shell which
-            doesn't source your `~/.bashrc` or `~/.zshrc` ...
+When the author  of the comment say  “that will break things”, I  think he means
+that  sometimes  you  will  start  a  login  shell  which  doesn't  source  your
+`~/.bashrc` or `~/.zshrc` ...
 
+---
 
-    étudier et documenter `expand` et `unexpand`
+Study an document `$ expand` and `$ unexpand`.
 
+---
 
-    touch a b é à ; echo [a-z] ; echo [[:lower:]]
+    $ touch a b é à ; echo [a-z] ; echo [[:lower:]]
 
-            Le 1er `echo` affiche seulement `a` et `b`.
-            Le 2e `echo` affiche `a`, `b`, `é` et `à`.
+Le 1er `echo` affiche seulement `a` et `b`.
+Le 2e `echo` affiche `a`, `b`, `é` et `à`.
 
             Illustre  que  la  classe   de  caractères  `[[:lower:]]`  est  plus
             puissante  que  la  rangée  `[a-z]`,   car  elle  peut  matcher  des
@@ -3265,6 +3300,10 @@ Inspiration:
 
         alias g=go
 
+## Review `~/.inputrc`, and find zsh equivalent to all readline key bindings defined there.
+
+Also, review their lhs so that they're as consistent as possible across bash and zsh.
+
 ## To read
 
 - <http://redsymbol.net/articles/unofficial-bash-strict-mode/>
@@ -3293,3 +3332,8 @@ Inspiration:
 - <https://fr.wikipedia.org/wiki/Test_unitaire>
 - <https://fr.wikipedia.org/wiki/Test_driven_development>
 
+
+##
+# Reference
+
+[1]: https://mywiki.wooledge.org/BashFAQ/048

@@ -214,7 +214,6 @@ And an absolute filepath can *not* begin  with a hyphen; it always begins with a
 slash.
 
 ##
-##
 # 'errorformat'
 ## What's the purpose of this option?
 

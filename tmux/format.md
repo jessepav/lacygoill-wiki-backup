@@ -1086,7 +1086,7 @@ format variable.
 
 What is your goal?
 You want to find the minimum amount of rules to get any info in any context.
-Ok, find a sample of *some* commands to get some info in some contexts.
+Ok, find a sample of *some* commands to get *some* info in *some* contexts.
 Then, from them, try to infer some rules.
 Now, apply those rules to get any info.
 Does it work? Great, you've finished.
@@ -1170,7 +1170,7 @@ succeeds:
     →
     :bind x {display}
             ^       ^
-            this time, tmux did not add additional quotes
+            this time, tmux did *not* add additional quotes
 
 Anyway, when tmux parses the key binding and finds that the rhs is `'{display test}'`,
 it cancels the installation because it realizes that the command you're trying to bind

@@ -919,9 +919,9 @@ for a network setting.
 
 ## I need to access the VM settings, from the GUI, while it's shut down.  But when I shut it down, VB is closed!
 
-   1. Shut down the VM.
+1. Shut down the VM.
 
-   2. Start VB by executing:
+2. Start VB by executing:
 
         $ virtualbox &!
 

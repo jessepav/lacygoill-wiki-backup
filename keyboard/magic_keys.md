@@ -6,19 +6,19 @@
 
 Source:
 
-<https://wiki.archlinux.org/index.php/LightDM#NumLock_on_by_default>
-<https://www.freedesktop.org/wiki/Software/LightDM/CommonConfiguration/>
-<https://github.com/CanonicalLtd/lightdm/blob/master/data/lightdm.conf>
+- <https://wiki.archlinux.org/index.php/LightDM#NumLock_on_by_default>
+- <https://www.freedesktop.org/wiki/Software/LightDM/CommonConfiguration/>
+- <https://github.com/CanonicalLtd/lightdm/blob/master/data/lightdm.conf>
 
 ---
 
 If your desktop environment is LXQt:
 
-        $ cat <<'EOF' >>~/.config/lxqt/session.conf
+    $ cat <<'EOF' >>~/.config/lxqt/session.conf
 
-        [Keyboard]
-        numlock=true
-        EOF
+    [Keyboard]
+    numlock=true
+    EOF
 
 Source: <https://wiki.archlinux.org/index.php/Activating_Numlock_on_Bootup#LXQt>
 

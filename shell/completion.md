@@ -815,21 +815,21 @@ a command, and there can be only one command per “simple command”.
 ##
 ## How to make the shell list command names? variable names? filenames? hostnames? usernames?
 
-        C-x !
-        C-x $
-        C-x /
-        C-x @
-        C-x ~ 
+    C-x !
+    C-x $
+    C-x /
+    C-x @
+    C-x ~ 
 
 ---
 
 Note that these widgets don't work by default in zsh:
 
-        M-!    C-x !
-        M-$    C-x $
-        M-/    C-x /
-        M-@    C-x @
-        M-~    C-x ~ 
+    M-!    C-x !
+    M-$    C-x $
+    M-/    C-x /
+    M-@    C-x @
+    M-~    C-x ~ 
 
 They work  only if you install  some custom key bindings  invoking the functions
 `_bash_complete-word` and `_bash_list-choices`.

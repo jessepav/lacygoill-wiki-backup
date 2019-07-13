@@ -2214,10 +2214,10 @@ rbenv, pyenv and phpenv.
 
     https://github.com/ncw/rclone
 
+###
 ### rlwrap
 
-    https://github.com/hanslub42/rlwrap
-
+<https://github.com/hanslub42/rlwrap>
 
     ┌──────────┬──────────────────────────────────────────────────────────────────────┐
     │ !foo Tab │ rappeler la dernière saisie commençant par `foo`                     │
@@ -2225,11 +2225,52 @@ rbenv, pyenv and phpenv.
     │ C-r      │ chercher un pattern au sein de l'historique de saisie de la commande │
     └──────────┴──────────────────────────────────────────────────────────────────────┘
 
+#### What are the limitations of this command?
 
-                                     TODO:
+rlwrap works only with an external command, not with a shell
+builtin/alias/function.
 
-à terminer ...
+---
 
+    $ rlwrap read var
+    rlwrap: error: Cannot execute read: No such file or directory~
+
+You could try to run the builtin in a subshell:
+
+    $ rlwrap sh -c 'read var'
+
+But `var` would be lost as soon as the subshell exits.
+
+`read` is a special case, because you don't necessarily need `rlwrap`.
+You can use the `-e` flag, but it seems only available in bash (not in zsh).
+
+---
+
+    $ alias foo=checkinstall
+    $ rlwrap foo
+    rlwrap: error: Cannot execute foo: No such file or directory~
+    # fails probably because an alias is only expanded when it's the first word.
+
+    $ func() { checkinstall ;}
+    rlwrap: error: Cannot execute func: No such file or directory~
+
+You could run the alias/function from a subshell:
+
+    $ rlwrap zsh -ic 'func'
+                  │
+                  └ make zsh source the zshrc where `func` is defined
+
+But there would still be 2 issues:
+
+   - you can't press C-c to kill the process started by the function/alias
+     (probably consumed by rlwrap)
+
+   - you can't alter the state of the current shell
+
+     So for example, if the purpose of your function is to change the cwd, it will fail.
+     Try with `$ fasd_cd -d -i` (alias `jj`).
+
+#### ?
 
     complétion custom
     historique persistant
@@ -2286,6 +2327,7 @@ and output,  history and completion.  They are somewhat experimental,  and their
 implementation and the  example filters still are of  slightly dubious ('alpha')
 quality.
 
+###
 ### rsync
 
     TODO: lire `man rsync`

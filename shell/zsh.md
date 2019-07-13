@@ -55,7 +55,20 @@ zsh adds the standard suffix `.so` to the name you specified to `zmodload`.
 Then, it looks in all the paths present in `$module_path`.
 
 ##
-# How can a function know the name of the widget from which it was invoked?
+# Widget
+## Where can I find examples of widget functions?
+
+See `$ man zshcontrib /Widgets`.
+
+On your system, they are probably written in the files of one of these directories:
+
+   - `/usr/share/zsh/functions/Zle/`
+   - `/usr/local/share/zsh/functions/Zle/`
+
+They're useful to get ideas of shell functions you might want to write to extend
+the editor.
+
+## How can a function know the name of the widget from which it was invoked?
 
 It can inspect the `$WIDGET` variable.
 

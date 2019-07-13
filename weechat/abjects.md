@@ -250,13 +250,13 @@ You can also get the schedule for the other days:
 
 ## How to list the videos of a given genre?
 
-        !genre <type>
+    !genre <type>
 
 Examples:
 
-        !genre adventure
-        !genre mystery
-        !genre thriller
+    !genre adventure
+    !genre mystery
+    !genre thriller
 
 ##
 ## What are the 18 genres of music I can dl?
@@ -639,7 +639,7 @@ According to the help, it's possible in Mirc:
 To add an extended  dcc send allowance check , add this to  your remote, it will
 only allow sends from bots in moviegods that are voiced:
 
-        ctcp *:DCC SEND *:?: if (($nick !isvoice #moviegods) || ([mg]* !iswm $nick) ) { echo -a BLOCKED SEND FROM $nick | haltdef }
+    ctcp *:DCC SEND *:?: if (($nick !isvoice #moviegods) || ([mg]* !iswm $nick) ) { echo -a BLOCKED SEND FROM $nick | haltdef }
 
 ##
 # Request system

@@ -196,12 +196,20 @@ It allows inter-process communication.
 # w
 ## widget (zsh)
 
-It's an interactive command.
+It's an interactive editing command.
+E.g. `up-line-or-history`.
 
-E.g., `up-line-or-history`.
+"Widget" refers to something the (zle) editor does when you hit a key.
+
+"Widget" is used instead of "command"  or "function", because those words can be
+confusing, and be interpreted as a normal shell command/function.
 
 A widget is usually bound to a sequence of keys inside a ZLE keymap, and calls a
 builtin or custom function:
 
-        keyseq → widget → function
+    keyseq → widget → function
+
+## widget function (zsh)
+
+A shell function that is used to add a new widget which extends the line editor.
 
