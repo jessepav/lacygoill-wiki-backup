@@ -1,3 +1,73 @@
+# How to send `a b` as an argument to an external process started from (N)Vim?  (2)
+
+Use `system()` and quote `a b`:
+
+    :call system('tmux command-prompt -I "a b"')
+    :a b~
+
+More generally, if your argument may contain any kind of quotes, use `shellescape()`:
+
+    :let arg = "a'b\"c"
+    :call system('tmux command-prompt -I '. shellescape(arg))
+    a'b"c~
+
+---
+
+Alternatively, you could use `job_start()`:
+
+    :call job_start(['tmux', 'command-prompt', '-I', 'a b'])
+
+# Why should I avoid passing a string to `job_start()`?
+
+Because Vim  will split the arguments  at any whitespace outside  double quotes,
+which may seem unexpected:
+
+    :call job_start('tmux command-prompt -I "foo bar"')
+    :foo bar~
+
+    :call job_start("tmux command-prompt -I 'foo bar'")
+    (bar') foo'~
+
+In the last command, tmux receives this:
+
+    subcmd = command-prompt
+    arg1   = -I
+    arg2   = 'foo
+    arg3   = bar'
+
+---
+
+Besides, a string works best on Windows, not on Unix.
+From `:h job_start()`:
+
+> {command} can be  a **String**.  This works  best on **MS-Windows**.  On  Unix it is
+> split up  in white-separated parts to  be passed to execvp().   Arguments in
+> **double quotes** can contain white space.
+> ...
+> {command}  can be  a **List**,  where  the first  item is  the executable  and
+> further items  are the arguments.   All items  are converted to  String.  This
+> works best on **Unix**.
+
+# When does `job_start()` (Vim) or `jobstart()` (Nvim) starts a shell to run a command?
+
+Only `jobstart()` starts a shell, and only if you pass it a string argument:
+
+    :call jobstart("tmux command-prompt -I 'foo bar'")
+    foo bar~
+
+This is why you  don't necessarily have to pass a list  to `jobstart()` when you
+want to pass an argument containing whitespace to your external command:
+
+    :call jobstart("tmux command-prompt -I 'foo bar'")
+    foo bar~
+
+Here, tmux receives this:
+
+    subcmd = command-prompt
+    arg1   = -I
+    arg2   = 'foo bar'
+
+##
 # Updating a quickfix/location list asynchronously without interfering with another plugin
 
 <https://gist.github.com/yegappan/3b50ec9ea86ad4511d3a213ee39f1ee0>

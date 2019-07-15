@@ -198,6 +198,96 @@ standard error of the WHOLE pipeline:
             └ subshell
 
 ##
+# Todo
+## Document the fact that when we filter a list, for some conditions, we may need to make a copy of the list.
+
+As an example, suppose that you want to filter this list:
+
+    ['a', 'foo', '%', 'b', 'bar', '%', 'c']
+
+And you  want to  remove 'foo'  and 'bar',  not because  of their  contents, but
+because the next item is '%'.
+
+You could naively run this:
+
+    fu! Func() abort
+        let list = ['a', 'foo', '%', 'b', 'bar', '%', 'c']
+        call filter(list, {i,_ -> get(list, i+1, '') isnot# '%'})
+        echo list
+    endfu
+    call Func()
+    ['a', '%', 'bar', '%', 'c']~
+
+But it doesn't work as expected, because 'b' has been wrongly removed, and 'bar'
+has not been removed.
+
+---
+
+The issue  is due  to the condition  which involves the  item following  the one
+currently filtered;  and because `filter()` alters  the size of the  list during
+the filtering.
+
+Indeed, whenever `filter()` removes one item  from the list, the indexes of each
+following item should be decreased by one.
+But that's  not what  happens; after  removing an item,  Vim doesn't  update the
+indexes of the next ones:
+
+    fu! Func() abort
+        let list = ['a', 'foo', '%', 'b', 'bar', '%', 'c']
+        call filter(list,
+            \ {i,_ -> (writefile(['index ' . i . ' | next index ' . (i+1)], '/tmp/log', 'a') + 2)
+            \ && get(list, i+1, '') isnot# '%'})
+        echo list
+    endfu
+    call Func()
+
+    $ cat /tmp/log
+    index 0 | next index 1~
+    index 1 | next index 2~
+    index 2 | next index 3~
+    index 3 | next index 4~
+    index 4 | next index 5~
+    index 5 | next index 6~
+    index 6 | next index 7~
+
+In  the original  example, after  removing 'foo',  `filter()` inspects  the next
+item, whose index is `2`.
+But in the new list without 'foo', the  item of index 2 is not '%' anymore, it's
+'b'.
+
+---
+
+The solution is to make the condition work on a *copy* of the list.
+
+    fu! Func() abort
+        let list = ['a', 'foo', '%', 'b', 'bar', '%', 'c']
+        let list_copy = copy(list)
+        call filter(list, {i,_ -> get(list_copy, i+1, '') isnot# '%'})
+        "                             ^^^^^^^^^
+        echo list
+    endfu
+    call Func()
+    ['a', '%', 'b', '%', 'c']~
+
+If the test involved the current item, there would be no need for `copy()`.
+
+---
+
+More generally, whenever  your condition inspects the previous or  next items of
+the list, you should make a copy.
+
+The only  case where  maybe it's  useless to make  a copy  is if  your condition
+inspects the previous items, but `filter()` doesn't alter them.
+
+If  you wonder  how `filter()`  could alter  the previous  items, remember  that
+`insert()` can insert an item at any position in a list.
+
+And if you  wonder why `filter()` *necessarily* alters the  next items, remember
+that  its purpose  is to  remove items;  and when  it does  remove one  item, it
+necessarily alters  the next ones,  because their  indexes are not  updated like
+we've just seen before.
+
+##
 ##
 ##
 # Expressions

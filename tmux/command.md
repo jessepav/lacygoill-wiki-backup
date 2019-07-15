@@ -254,6 +254,24 @@ From `$ man tmux /NAMES AND TITLES`:
 > Windows themselves do not have titles - a window's title is the title of its active pane.
 
 ###
+
+## How to get the list of all the panes in the current session?
+
+    $ tmux lsp -s
+
+This is due to what seems to be an undocumented effect of `-s`.
+Indeed, `-s` is meant to change the meaning of `-t`:
+
+> If -s is given, target is a session (or the current ses‐ sion).
+
+But there's no `-t` here.
+I guess that in the absence of `-t`, when you use `-s`, tmux assumes `-t ''`.
+
+    $ tmux lsp -s -t ''
+
+And an empty session name probably refers to the current session.
+
+##
 ## How to set the title of
 ### the current pane?  (2)
 
@@ -589,10 +607,9 @@ startup for configuration files like `~/.tmux.conf`.
 
 They create a new command which is inserted immediately after themselves.
 
-### Are those the only commands for which that happens?
+### For which other commands is this also true?
 
-No.
-Any command which accepts another command as argument is also concerned.
+Any command which accepts another command as argument.
 
 ### ?
 

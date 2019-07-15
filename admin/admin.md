@@ -2593,6 +2593,16 @@ For more info, maybe have a look at this: <https://unix.stackexchange.com/a/1487
 
 ##
 # Todo
+## fix bugs where panel and desktop are absent at login
+
+Actually, it seems the  panel is there, but as soon as we  press `M-j` to open a
+terminal, it disappears.
+Update: and now it's there again...
+
+For the desktop, you may need to run `$ xfdesktop`.
+For the panely, you may try `$ xfce4-panel -r`.
+
+## ?
 
     https://unix.stackexchange.com/questions/484434/sync-a-folder-between-2-computers-with-a-filesystem-watcher-so-that-each-time-a
 

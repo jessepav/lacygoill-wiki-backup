@@ -94,15 +94,13 @@ binding programmatically, for example after a `$ sed` transformation.
 ###
 ### ?
 
-Try to supercharge `C-k`.
-Make it delete till the end of line  (like now), or delete the current region if
-one is active.
-You'll probably need to use  the special parameter `REGION_ACTIVE` documented at
-`$ man zshzle /REGION_ACTIVE`.
-You'll also need to read the chapter 14 of “from bash to zsh”.
-
-Also, try to re-implement `start-kbd-macro`, `end-kbd-macro`, `call-last-kbd-macro`.
+Try to re-implement `start-kbd-macro`, `end-kbd-macro`, `call-last-kbd-macro`.
 They're bound to `C-x (`, `C-x )`, `C-x e` in bash.
+
+---
+
+Document that  we've supercharged `C-k`: it  kills the line, *or*  the region if
+it's active.
 
 ---
 

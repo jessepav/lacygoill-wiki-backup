@@ -498,6 +498,24 @@ messages.
     : Up
     hello~
 
+## name a buffer created by `copy-selection`, `copy-pipe` and friends
+
+Atm, all we can do is choose a prefix, but not the entire name.
+This is an  issue when we need  to remove the buffer shortly  after its creation
+(because we only need it temporarily).
+Indeed, `deleteb` expects a full name.
+Alternatively, as a  feature request, ask for `deleteb` to  accept a pattern, so
+that we can run:
+
+    deleteb -b prefix*
+
+## pass to `send` a count which is the result of a numeric computation
+
+It would be useful to write sth like this:
+
+    command-prompt -I 1 -p 'number of commands:' { send -X -N (%1 + 1) search-backward '٪' }
+                                                                  ^^^
+
 #
 # document the `synchronize-panes` window option
 
@@ -711,11 +729,6 @@ Except  for `M-p`  and  `M-n`; for  those  we  would also  need  the history  of
 commands,  which atm  is in  `~/.tmux/command_history`,  but it  seems it's  not
 updated in real-time (I think you have to quit tmux to make it update).
 
-# install a key binding to paste the last shell command and its output in the previous pane if it runs Vim
-
-We often need to copy paste a shell command and its output in our notes.
-A key binding could make the process smoother.
-
 # learn the difference between `send -l` and `send -ll`
 
 > Bit more complicated than I thought because keys are always Unicode so we need
@@ -749,6 +762,32 @@ In any case, this valgrind command does work on Ubuntu 18.04 in a VM.
 >            │ %window-add, and so on
 
 <https://github.com/zdykstra/tmuxc>
+
+# document that when you run `$ tmux source`, `#{pane_current_command}` is 'tmux'
+
+    $ cat <<'EOF' >/tmp/.tmux.conf
+    is_shell='#{m:*sh,#{pane_current_command}}'
+    if -F "$is_shell" {display 'you are in a shell'} {display 'you are NOT in a shell'}
+    EOF
+
+    $ tmux source /tmp/.tmux.conf
+    you are NOT in a shell~
+
+This may seem unexpected, because if the same command is run from a key binding,
+then the current command is the shell (and not 'bind'):
+
+    $ cat <<'EOF' >/tmp/.tmux.conf
+    is_shell='#{m:*sh,#{pane_current_command}}'
+    bind x if -F "$is_shell" {display 'you are in a shell'} {display 'you are NOT in a shell'}
+    EOF
+
+    $ tmux source /tmp/.tmux.conf
+    # press pfx + x
+    you are in a shell~
+
+Although, now  that I  think about it,  it wouldn't make  sense for  the current
+command to be 'bind',  because `bind` doesn't run the command  when we press pfx +x;
+it *installs* the key binding.
 
 ##
 ## ?
@@ -1132,4 +1171,7 @@ This does not seem to be documented; maybe it should.
 From `$ man tmux /STATUS LINE /command-prompt`:
 
 > Delete current word                            C-w
+
+It doesn't remove the  current word, but from the cursor up to  the start of the
+current/previous word.
 
