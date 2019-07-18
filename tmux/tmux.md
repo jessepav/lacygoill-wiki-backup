@@ -256,6 +256,11 @@ another backslash, just like Vim.
     :display "a \\z b"
     a \z b~
 
+If the next character has a special meaning, the latter is removed:
+
+    :display "a\"b"
+    a"b~
+
 #### Outside strings?
 
 It  is removed,  and if  the next  character is  special, it  loses its  special
@@ -508,7 +513,7 @@ Note that I don't recommend using `-O0`, by default, all the time.
 It has an impact on performance; not  on memory consumption, nor latency, but on
 output bandwidth; you can test the latter, roughly, with these commands:
 
-    $ yes | head -n 1000000 > two_megs.txt
+    $ yes | head -n 1000000 >two_megs.txt
     $ time cat two_megs.txt
 
 ###
@@ -798,8 +803,8 @@ Both (chain of) processes are started by:
 
 You can check this with the following commands:
 
-    $ pstree -ps $(pidof tmux|cut -d' ' -f1)
-    $ pstree -ps $(pidof tmux|cut -d' ' -f2)
+    $ pstree -lsp $(pidof tmux|cut -d' ' -f1)
+    $ pstree -lsp $(pidof tmux|cut -d' ' -f2)
 
 Note that the  server is started after  the first client, so its  pid is bigger,
 which may seem counter-intuitive.

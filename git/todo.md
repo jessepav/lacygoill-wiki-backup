@@ -9,16 +9,16 @@ We've installed tig from the sources:
 
     $ make install-doc
        [...]
-       INSTALL  doc/tig.1 -> /home/jean/share/man/man1
-       INSTALL  doc/tigrc.5 -> /home/jean/share/man/man5
-       INSTALL  doc/tigmanual.7 -> /home/jean/share/man/man7
+       INSTALL  doc/tig.1 -> /home/user/share/man/man1
+       INSTALL  doc/tigrc.5 -> /home/user/share/man/man5
+       INSTALL  doc/tigmanual.7 -> /home/user/share/man/man7
        [...]
-       INSTALL  doc/tig.1.html -> /home/jean/share/doc/tig
-       INSTALL  doc/tigrc.5.html -> /home/jean/share/doc/tig
-       INSTALL  doc/manual.html -> /home/jean/share/doc/tig
-       INSTALL  README.html -> /home/jean/share/doc/tig
-       INSTALL  INSTALL.html -> /home/jean/share/doc/tig
-       INSTALL  NEWS.html -> /home/jean/share/doc/tig
+       INSTALL  doc/tig.1.html -> /home/user/share/doc/tig
+       INSTALL  doc/tigrc.5.html -> /home/user/share/doc/tig
+       INSTALL  doc/manual.html -> /home/user/share/doc/tig
+       INSTALL  README.html -> /home/user/share/doc/tig
+       INSTALL  INSTALL.html -> /home/user/share/doc/tig
+       INSTALL  NEWS.html -> /home/user/share/doc/tig
 
 Read this: <https://github.com/jonas/tig/blob/master/INSTALL.adoc>
 

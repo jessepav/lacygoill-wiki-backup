@@ -1,4 +1,73 @@
-# targetting
+# Parsing
+## Why does `:confirm-before "display \\"` fail (while `:display "\\"` works)?
+
+Because `display \\b` is parsed twice.
+
+    :confirm-before "display \\"
+    y
+    Syntax error~
+
+Once for `confirm-before`, the other for `display-message`.
+After   the  parsing   of   `confirm-before`,  `\\`   becomes   `\`,  and   when
+`display-message` parses  `\`, it raises an  error, because it's used  to remove
+the special meaning of the following double quote.
+As a result,  the string is unfinished,  because the last quote  doesn't end the
+string; it's *included* in the string.
+
+From `$ man tmux /COMMAND PARSING AND EXECUTION /twice`:
+
+> This means that arguments can be parsed twice or more - once when the parent
+> command (such as  if-shell) is parsed and again when  it parses and executes
+> its command.
+
+### More generally, what can you infer from this?
+
+A command which is passed as an argument to another command is always parsed twice.
+
+##
+# Command queue
+## What are the three steps which occur when I ask tmux to run commands?
+
+1. the commands are parsed
+2. they are added to the command queue
+3. commands on the queue are executed in order
+
+## Does tmux have only one command queue?
+
+No, each client has a command queue.
+Besides,  a global  command queue  – not  attached to  any client  – is  used on
+startup for configuration files like `~/.tmux.conf`.
+
+##
+## What happens when the commands `if-shell` and `confirm-before` parse their arguments?
+
+They create a new command which is inserted immediately after themselves.
+
+---
+
+So for example, if the command queue contains:
+
+    if 'true' { display foo }
+    display bar
+
+When `if` parses its arguments, it adds the command `display foo` right after itself:
+
+    if 'true' { display foo }
+    display foo
+    display bar
+
+And *not* at the end of the queue:
+
+    if 'true' { display foo }
+    display bar
+    display foo
+
+### For which other commands is this also true?
+
+Any command which accepts another command as argument.
+
+###
+# Targetting
 ## What is an ID?
 
 A number uniquely identifying a session, window or pane.
@@ -240,7 +309,7 @@ The pty(4) file to which the client is connected.
 For example, `/dev/pts/1`.
 
 ##
-# pane
+# Pane
 ## Can a pane have a title?  A name?
 
 A pane can only have a title.
@@ -348,7 +417,7 @@ Use the second optional argument of `system()` to pass the text to the stdin of 
                                                              to be printed on a different line
 
 ##
-# marked pane
+# Marked pane
 ## What is the marked pane?
 
 The default target for `-s` when passed to `join-pane`, `swap-pane` and `swap-window`.
@@ -590,51 +659,6 @@ The same is true for other combinations of flags with `-p`; don't write `-pN` bu
 Don't write `-I1` but `-1I`, and don't write `-IN` but `-NI`, etc.
 
 ##
-# command queue
-## What is the command queue?
-
-The commands you ask tmux to run must first be parsed.
-Then, they are added to the command queue.
-Finally, commands on the queue are executed in order.
-
-## Does tmux have only one command queue?
-
-No, each client has a command queue.
-Besides,  a global  command queue  – not  attached to  any client  – is  used on
-startup for configuration files like `~/.tmux.conf`.
-
-## What happens when the commands `if-shell` and `confirm-before` parse their arguments?
-
-They create a new command which is inserted immediately after themselves.
-
-### For which other commands is this also true?
-
-Any command which accepts another command as argument.
-
-### ?
-
-What's the consequence of this for `tmux_cmd` in `if 'shell_cmd' 'tmux_cmd'`
-
-It's parsed twice.
-
-    :display "C-\\"
-    C-\~
-
-    :confirm-before "display C-\\"
-    y
-    Syntax error~
-
-Here, `C-\\` has been parsed twice.
-Once for `confirm-before`, the other for `display-message`.
-After  the   parsing  of  `confirm-before`,   `C-\\`  became  `C-\`,   and  when
-`display-message` parsed `C-\`, it raised an error.
-The same error you would get if you ran `:display C-\`.
-
-> This means that arguments can be parsed twice or more - once when the parent
-> command (such as  if-shell) is parsed and again when  it parses and executes
-> its command.
-
-##
 # Miscellaneous
 ## I'm asking tmux to run a sequence of commands, but one in the middle will fail.  Which command(s) will tmux run?
 
@@ -668,11 +692,11 @@ of the commands.
 Document that `-b` makes the output of  the shell command displayed in copy mode
 (instead of the stdout of the current shell).
 
-    $ tmux run 'echo hello' \; if '' ''
+    $ tmux run 'echo hello'
     hello~
 
                vv
-    $ tmux run -b 'echo hello' \; if '' ''
+    $ tmux run -b 'echo hello'
     hello in copy mode~
 
 > run-shell [-b] [-t target-pane] shell-command

@@ -1292,7 +1292,7 @@ You only get the filenames.
 When you  log in for the  first time, systemd automatically  launches a `systemd
 --user` instance:
 
-    $ pstree -s -p $(pidof systemd)
+    $ pstree -lsp $(pidof systemd)
     systemd(1)───systemd(1150)───(sd-pam)(1151)~
 
 This process will be killed when you log out.

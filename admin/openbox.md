@@ -343,7 +343,7 @@ Con: IOW, you'll have to log in again.
 Pro: This should simplify the output of `$ pstree` (and maybe reduce the risk of
 issues, because one less process?).
 Update: I made some tests in a VM. I can't much of a difference betwen `$ exec` and no `$ exec`.
-If you use `$ exec`, here's the tree of process as reported by `$ pstree -s -p $$`:
+If you use `$ exec`, here's the tree of process as reported by `$ pstree -lsp $$`:
 
     systemd
     login
@@ -354,9 +354,10 @@ If you use `$ exec`, here's the tree of process as reported by `$ pstree -s -p $
     xfce4-terminal
     bash
 
-If you look at `$ pstree -s -p  $(pgrep xinit)`, you'll see that, in addition to
+If you look at  `$ pstree -lsp $(pgrep xinit)`, you'll see  that, in addition to
 openbox, xinit also starts the Xorg server.
-Also, if you don't use `$ exec`, then there's an additional `$ sh` process just after xinit:
+Also, if you don't use `$ exec`,  then there's an additional `$ sh` process just
+after xinit:
 
     systemd
     login
@@ -378,7 +379,7 @@ Then, we should use `/etc/systemd/system/x11.service` to implement the autologin
     After=systemd-user-sessions.service
 
     [Service]
-    ExecStart=/sbin/mingetty --autologin jean --noclear tty8 38400
+    ExecStart=/sbin/mingetty --autologin toto --noclear tty8 38400
 
     [Install]
     WantedBy=multi-user.target
@@ -575,5 +576,5 @@ I've always wondered why I had locale environment variables with french values:
     LC_TELEPHONE=fr_FR.UTF-8
 
 Once you've switched to openbox, try to understand.
-Use `$ pstree -s -p $$`, and watch `/proc/PID/environ` as well as `/proc/PID/cmdline`.
+Use `$ pstree -lsp $$`, and watch `/proc/PID/environ` as well as `/proc/PID/cmdline`.
 

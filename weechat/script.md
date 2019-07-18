@@ -14,18 +14,18 @@ In `~/.config/weechat/python/`.
 Create a symlink  in the `autoload/` subdirectory pointing to  the script in the
 parent directory.
 
-        $ cd ~/.config/weechat/python/autoload/
-        $ ln -s ../my_script.py
+    $ cd ~/.config/weechat/python/autoload/
+    $ ln -s ../my_script.py
 
 ##
 # What are the two commands which I can use to handle my python scripts?
 
-        /python
-        /script
+    /python
+    /script
 
 # Which one should I prefer and why?
 
-        /script
+    /script
 
 It will  automatically detect the language  in which the script  is written, and
 call the appropriate plugin to load it.
@@ -33,9 +33,9 @@ call the appropriate plugin to load it.
 ##
 # How to manually load a script?   How to reload it?   How to unload it?
 
-        /script load    my_script.py
-        /script reload  my_script.py
-        /script unload  my_script.py
+    /script load    my_script.py
+    /script reload  my_script.py
+    /script unload  my_script.py
 
 # How to list all the scripts currently loaded?   Only the python scripts?
 

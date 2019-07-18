@@ -79,7 +79,7 @@ The output should be:
 
 Note that `1234`, in the `$ tr` command, is the pid of the `$ man` process.
 You can get it by running `$ echo $$` before running `$ man`, and noting the pid of the shell.
-Then by running `$ pstree -s -p <shell pid>`, to get the pid of the `$ man` child.
+Then by running `$ pstree -lsp <shell pid>`, to get the pid of the `$ man` child.
 
 ## Is there a better solution?
 
@@ -161,7 +161,7 @@ As a result,  when the shell reads  `~/.zshenv`, it doesn't process  most of its
 code, because of our initial guard.
 
 (*) It's the only explanation I can find.
-But it's a temporary child, because we  can't see this relationship in `$ pstree -s -p $$`,
+But it's a temporary child, because we  can't see this relationship in `$ pstree -lsp $$`,
 when we're inside the terminal started by pressing Super-j.
 I think that the terminal is quickly reparented to the session leader
 (`$ upstart` atm) after the fork of `$ xbindkeys` dies.

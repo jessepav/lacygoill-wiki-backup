@@ -381,22 +381,22 @@ exist, and so was replaced with an empty string.
 
 Yes for `run-shell`:
 
-    $ tmux run 'pstree -s -p $$ >/tmp/.out' ; cat /tmp/.out
+    $ tmux run 'pstree -lsp $$ >/tmp/.out' ; cat /tmp/.out
     systemd(1)---lightdm(1001)---lightdm(1086)---upstart(1095)---tmux: server(3253)---sh(18687)---pstree(18688)~
 
 Yes for `if-shell`:
 
     $ tmux source =(cat <<'EOF'
-    if "pstree -s -p $$ >/tmp/.out" ""
+    if "pstree -lsp $$ >/tmp/.out" ""
     EOF
     ) ; cat /tmp/.out
     systemd(1)---lightdm(954)---lightdm(1098)---upstart(1110)---tmux: server(3750)---sh(27584)---pstree(27585)~
 
 Yes for `#()`:
 
-                                                                ┌ for some reason, `$ cat` doesn't always work without
-                                                                ├──────┐
-    $ tmux set -g status-left '#(pstree -s -p $$ >/tmp/.out)' ; sleep .1; cat /tmp/.out
+                                                               ┌ for some reason, `$ cat` doesn't always work without
+                                                               ├──────┐
+    $ tmux set -g status-left '#(pstree -lsp $$ >/tmp/.out)' ; sleep .1; cat /tmp/.out
     systemd(1)---lightdm(943)---lightdm(1100)---upstart(1110)---tmux: server(11803)---sh(12884)---pstree(12887)~
 
 ### the global and session environment?

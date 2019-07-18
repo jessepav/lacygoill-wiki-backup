@@ -290,57 +290,6 @@ preserve the scrollback buffer.
 
 <https://unix.stackexchange.com/a/512501/289772>
 
-# document `-e` option of `copy-mode` command
-
-It makes tmux quit copy mode only when you reach the end of the screen with PgDown and WheelDown.
-And possibly a few others.
-But not when you reach it with `j` or `Down`.
-
-You can make some tests with this minimal tmux.conf:
-
-    $ tmux -Lx -f =(cat <<'EOF'
-    set -g mouse on
-    bind -n a copy-mode -e
-    EOF
-    )
-
-Then press `a`, followed  by PgDown or WheelDown until you reach  the end of the
-screen; tmux should quit copy mode.
-
----
-
-If you're looking for a real usage example, see this key binding installed by default:
-
-    bind WheelUpPane if -Ft= '#{mouse_any_flag}' { send -M } \
-    { if -Ft= '#{pane_in_mode}' 'send -M' 'copy-mode -et=' }
-                                                      ^
-
----
-
-What's `mouse_any_flag`?
-
-<https://github.com/tmux/tmux/blob/d769fec8d670ce37d476da3e31d6e68f9d43408c/regress/conf/58304907c117cab9898ea0b070bccde3.conf#L65>
-
-    # var|bind \ cmd  |   vim   |   less    | copy |  zsh
-    # pane_in_mode    |    0    |     0     |   1  |   0
-    # mouse_any_flag  |    1    |     0     |   0  |   0
-    # alternate_on    |    1    |     1     |   0  |   0
-    # WheelUpPane     | send -M | send Up   |   *  | send Up (** or copy-mode -e)
-    # WheelDownPane   | send -M | send Down |   *  | send Down
-    # * panes in copy mode have scroll handled by different bindings
-
-If you run `:set mouse=` in Vim, `mouse_any_flag` is 0 in tmux.
-If you run `:set mouse=a` in Vim, `mouse_any_flag` is 1 in tmux.
-
-# document `-A` option of `new-session` command
-
-> The -A flag makes new-session behave like attach-session if
-> session-name already exists; in this case, -D behaves like -d to
-> attach-session, and -X behaves like -x to attach-session.
-
-It could be useful in a script to make tmux attach to a session, or create it if
-it doesn't exist, without having to test the output of some command like `$ tmux ls ...`.
-
 # can some of the lhs used in our custom key bindings interfere with sequences used by programs?
 
 Yes, I think.
@@ -517,21 +466,6 @@ It would be useful to write sth like this:
                                                                   ^^^
 
 #
-# document the `synchronize-panes` window option
-
-This key binding should toggle it:
-
-    bind <key> set -w synchronize-panes
-
-When it's on, anything you type in one pane, is typed in all the others.
-
-      osse │ tmux synchronize-panes is pretty neat when debugging :) Can have the good case in one pane and the bad case
-           │ in the other
-    steven │ I don't think I get it, sync panes literally just sends the same keystrokes to all panes, right?
-           │ so how can you have two different cases
-      osse │ by turning on syncronize-panes after the two cases have been initialized
-           │ in this particular case, open vim in two different directories
-
 # study how v, V, C-v behave in Vim when we're already in visual mode; try to make tmux copy-mode consistent
 
 The format variables `rectangle_toggle` (1  if rectangle selection is activated)
@@ -669,20 +603,6 @@ Try to eliminate all those undesired buffers.
 We should only have buffers we've explicitly ask tmux to create, and they should
 all be named with the pattern `buf_123`.
 
-# document how to run a custom zsh function from tmux
-
-If the function doesn't run any command which requires a controlling terminal:
-
-    $ tmux run 'zsh -ic "func"'
-
-Otherwise:
-
-    $ tmux neww 'zsh -ic "func"'
-
-fzf is an example of command which needs a controlling terminal:
-
-    func() { fzf; }
-
 # learn how to save and restore a layout
 
 <https://wiki.archlinux.org/index.php/tmux#Get_the_default_layout_values>
@@ -738,20 +658,6 @@ updated in real-time (I think you have to quit tmux to make it update).
 
 <https://github.com/tmux/tmux/issues/1832#issuecomment-509624368>
 
-# document how to use valgrind to debut tmux
-
-<https://github.com/tmux/tmux/issues/1829#issuecomment-509632045>
-
-    $ valgrind --log-file=v.out tmux -Lx new
-
-Note that for some reason, the command doesn't work atm on Ubuntu 16.04.
-According to this answer: <https://askubuntu.com/a/280757/867754>
-the issue should be fixed by installing `libc6-dbg:i386`.
-In practice, it doesn't fix the issue.
-
-Maybe we've somehow broken our Ubuntu 16.04, idk.
-In any case, this valgrind command does work on Ubuntu 18.04 in a VM.
-
 # maybe we could use control mode
 
 > thomas_ada▹│ It's interesting that tmuxc is the only other client besides iterm which uses control mode.
@@ -762,6 +668,87 @@ In any case, this valgrind command does work on Ubuntu 18.04 in a VM.
 >            │ %window-add, and so on
 
 <https://github.com/zdykstra/tmuxc>
+
+##
+# document the `synchronize-panes` window option
+
+This key binding should toggle it:
+
+    bind <key> set -w synchronize-panes
+
+When it's on, anything you type in one pane, is typed in all the others.
+
+      osse │ tmux synchronize-panes is pretty neat when debugging :) Can have the good case in one pane and the bad case
+           │ in the other
+    steven │ I don't think I get it, sync panes literally just sends the same keystrokes to all panes, right?
+           │ so how can you have two different cases
+      osse │ by turning on syncronize-panes after the two cases have been initialized
+           │ in this particular case, open vim in two different directories
+
+# document how to run a custom zsh function from tmux
+
+If the function doesn't run any command which requires a controlling terminal:
+
+    $ tmux run 'zsh -ic "func"'
+
+Otherwise:
+
+    $ tmux neww 'zsh -ic "func"'
+
+fzf is an example of command which needs a controlling terminal:
+
+    func() { fzf; }
+
+# document `-e` option of `copy-mode` command
+
+It makes tmux quit copy mode only when you reach the end of the screen with PgDown and WheelDown.
+And possibly a few others.
+But not when you reach it with `j` or `Down`.
+
+You can make some tests with this minimal tmux.conf:
+
+    $ tmux -Lx -f =(cat <<'EOF'
+    set -g mouse on
+    bind -n a copy-mode -e
+    EOF
+    )
+
+Then press `a`, followed  by PgDown or WheelDown until you reach  the end of the
+screen; tmux should quit copy mode.
+
+---
+
+If you're looking for a real usage example, see this key binding installed by default:
+
+    bind WheelUpPane if -Ft= '#{mouse_any_flag}' { send -M } \
+    { if -Ft= '#{pane_in_mode}' 'send -M' 'copy-mode -et=' }
+                                                      ^
+
+---
+
+What's `mouse_any_flag`?
+
+<https://github.com/tmux/tmux/blob/d769fec8d670ce37d476da3e31d6e68f9d43408c/regress/conf/58304907c117cab9898ea0b070bccde3.conf#L65>
+
+    # var|bind \ cmd  |   vim   |   less    | copy |  zsh
+    # pane_in_mode    |    0    |     0     |   1  |   0
+    # mouse_any_flag  |    1    |     0     |   0  |   0
+    # alternate_on    |    1    |     1     |   0  |   0
+    # WheelUpPane     | send -M | send Up   |   *  | send Up (** or copy-mode -e)
+    # WheelDownPane   | send -M | send Down |   *  | send Down
+    # * panes in copy mode have scroll handled by different bindings
+
+If you run `:set mouse=` in Vim, `mouse_any_flag` is 0 in tmux.
+If you run `:set mouse=a` in Vim, `mouse_any_flag` is 1 in tmux.
+
+# document `-A` option of `new-session` command
+
+> The -A flag makes new-session behave like attach-session if
+> session-name already exists; in this case, -D behaves like -d to
+> attach-session, and -X behaves like -x to attach-session.
+
+It could be useful in a script to make tmux attach to a session, or create it if
+it doesn't exist, without having to test the output of some command like `$ tmux ls ...`.
 
 # document that when you run `$ tmux source`, `#{pane_current_command}` is 'tmux'
 
@@ -789,20 +776,164 @@ Although, now  that I  think about it,  it wouldn't make  sense for  the current
 command to be 'bind',  because `bind` doesn't run the command  when we press pfx +x;
 it *installs* the key binding.
 
+# document how to use valgrind to debut tmux
+
+<https://github.com/tmux/tmux/issues/1829#issuecomment-509632045>
+
+    $ valgrind --log-file=v.out tmux -Lx new
+
+Note that for some reason, the command doesn't work atm on Ubuntu 16.04.
+According to this answer: <https://askubuntu.com/a/280757/867754>
+the issue should be fixed by installing `libc6-dbg:i386`.
+In practice, it doesn't fix the issue.
+
+Maybe we've somehow broken our Ubuntu 16.04, idk.
+In any case, this valgrind command does work on Ubuntu 18.04 in a VM.
+
+# document that if you change 'terminal-overrides', and don't want to restart the server, you need to detach/re-attach
+
+MWE:
+
+    $ cat <<'EOF' >/tmp/tmux.conf
+    set -s terminal-overrides '*:Cs=\E]123;%p1%s\007:Cr=\\E]112\\007'
+    #                                    ^
+    #                                    ✘ intentional error
+    EOF
+
+    $ urxvt
+    $ tmux -Lx -f/tmp/tmux.conf
+
+                         blue color
+                         v
+    $ printf -- '\033]12;4\007'
+    # the cursor color stays the same, because the `Cs` capability contains a typo
+
+    $ tmux set -s terminal-overrides '*:Cs=\E]12;%p1%s\007:Cr=\\E]112\\007'
+    $ printf -- '\033]12;4\007'
+    # the cursor color stays the same, because tmux didn't read the new value of `Cs`
+
+    $ tmux detach
+    $ tmux -Lx attach
+    # the cursor color is now blue, as expected
+
 ##
-## ?
+# ?
 
-Which commands do *not* stop the execution of the commands on the queue?  (4)
+I'm trying to write a key binding which would run some commands on the condition
+that the current pane is running a shell, and the previous one is running Vim.
+And I'm confused  by the rules which  govern in which pane the  commands will be
+run.
 
-`if-shell`, `run-shell`, and `display-panes`, but only if they're passed the `-b` flag.
-Also, `copy-pipe` and its variants.
+This key binding works as expected:
 
-Commands like if-shell, run-shell and display-panes stop execution of subsequent
-commands on the  queue until something happens - if-shell  and run-shell until a
-shell command finishes and display-panes until a key is pressed.
+    is_shell='#{m:*sh,#{pane_current_command}}'
+    is_vim='#{m:*vim,#{pane_current_command}}'
 
-todo: provide examples
-also, explain what the queue is
+    bind x if -F "$is_shell" {if -F -t! "$is_vim" \
+        {display 'you are in a shell and the previous pane runs Vim'} \
+        {display 'you are in a shell but the previous pane is NOT running Vim'}}
+
+But this one doesn't:
+
+    is_shell='#{m:*sh,#{pane_current_command}}'
+    is_vim='#{m:*vim,#{pane_current_command}}'
+
+    bind x if -F "$is_shell" {if -F -t! "$is_vim" \
+        {copy-mode} \
+        {display 'you are in a shell but the previous pane is NOT running Vim'}}
+
+because I want to enter copy mode in the shell pane, not in the Vim pane.
+So I tried to pass `-t!` to `copy-mode`:
+
+    is_shell='#{m:*sh,#{pane_current_command}}'
+    is_vim='#{m:*vim,#{pane_current_command}}'
+
+    bind x if -F "$is_shell" {if -F -t! "$is_vim" \
+        {copy-mode -t!} \
+        {display 'you are in a shell but the previous pane is NOT running Vim'}}
+
+but it doesn't work.
+Then I tried to run `last-pane` before `copy-mode`:
+
+    is_shell='#{m:*sh,#{pane_current_command}}'
+    is_vim='#{m:*vim,#{pane_current_command}}'
+
+    bind x if -F "$is_shell" {if -F -t! "$is_vim" \
+        {last-pane ; copy-mode} \
+        {display 'you are in a shell but the previous pane is NOT running Vim'}}
+
+but it doesn't work either.
+I tried 2 other things which didn't work either.
+
+From all those  experiments, I inferred the following rule:  “once you've passed
+`-t` to `if-shell`, no matter what you will do, the tmux commands will be run in
+the context of the pane you've targeted”.
+
+But then,  I tried  to make  `copy-mode` be run  by `command-prompt`  instead of
+being run directly:
+
+    is_shell='#{m:*sh,#{pane_current_command}}'
+    is_vim='#{m:*vim,#{pane_current_command}}'
+
+    bind x if -F "$is_shell" {if -F -t! "$is_vim" \
+        {command-prompt -p ':' {copy-mode}}}
+
+For some  reason, `copy-mode` is now  correctly run in the  shell pane, provided
+that I don't cancel the prompt and press Enter.
+And it seems  that when `-t!` is passed  to a command or `last-pane`  is used in
+the template of `command-prompt`, they both work as expected.
+
+So what is the rule?
+“once you've  passed `-t` to  `if-shell`, no matter what  you will do,  the tmux
+commands will be run  in the context of the pane you've  targeted; except if you
+use `command-prompt`, then everything will work as expected”.
+
+---
+
+`:confirm-before` and `run-shell` have the same effect.
+`:choose-buffer` (and  probably all `choose-*`  commands) has a  similar effect;
+i.e. it gives you the ability to target the pane you want.
+
+What about any command which can run another command:
+
+   - choose-buffer
+   - choose-client
+   - choose-tree
+   - display-menu
+   - display-panes
+   - new
+   - neww
+   - pipe-pane
+   - respawn-pane
+   - respawn-window
+   - splitw
+
+These commands don't have the same effect:
+
+   - if-shell
+
+##
+## Which commands do *not* stop the execution of the commands on the queue?  (4)
+
+   - `copy-pipe` and its variants
+   - `if -b`
+   - `run -b`
+   - `displayp -b`
+
+---
+
+    # test is not printed until resp. if, run, displayp is finished
+    $ tmux if 'sleep 3' 'display -p test'
+    $ tmux run 'sleep 3' \; display -p test
+    $ tmux displayp -d0 'display test'
+    test~
+
+    $ tmux if -b 'sleep 3' 'run "echo test >/tmp/file"' ; cat /tmp/file ; rm /tmp/file
+    $ tmux run -b 'echo test >/tmp/file' ; cat /tmp/file ; rm /tmp/file
+    $ tmux displayp -b -d0 'run "echo test >/tmp/file"' ; cat /tmp/file ; rm /tmp/file
+    cat: /tmp/file: No such file or directory~
+
+TODO: Provide an example for `copy-pipe`.
 
 ## ?
 
@@ -813,7 +944,7 @@ If I run `copy-pipe 'shell_cmd' \; tmux_cmd`, which command is run first?  `shel
 
 It means that it's entirely possible for `tmux_cmd` to run before `shell_cmd`.
 
-    $ tmux bind -T copy-mode-vi C-z \
+    $ tmux bind -T copy-mode-vi x \
       send -X copy-pipe-and-cancel "tmux deleteb \\; run 'echo test >/tmp/file'" \\\; \
       deleteb
 
@@ -822,7 +953,7 @@ It means that it's entirely possible for `tmux_cmd` to run before `shell_cmd`.
 
     $ rm /tmp/file
 
-    # enter copy mode and press C-z
+    # enter copy mode and press x
 
     $ cat /tmp/file
     cat: /tmp/file: No such file or directory~
@@ -851,11 +982,11 @@ So don't think that `/tmp/file` was not created because of some syntax error.
 You can  check that the syntax  is valid by  replacing any of the  two `deleteb`
 with `display -p foo`:
 
-    $ tmux bind -T copy-mode-vi C-z \
+    $ tmux bind -T copy-mode-vi x \
       send -X copy-pipe-and-cancel "tmux display -p foo \\; run 'echo test >/tmp/file'" \\\; \
       deleteb
 
-    $ tmux bind -T copy-mode-vi C-z \
+    $ tmux bind -T copy-mode-vi x \
       send -X copy-pipe-and-cancel "tmux deleteb \\; run 'echo test >/tmp/file'" \\\; \
       display -p foo
 
@@ -866,7 +997,7 @@ In both cases, if you run these commands afterward:
 
     $ rm /tmp/file
 
-    # enter copy mode and press C-z
+    # enter copy mode and press x
 
     $ cat /tmp/file
     test~
@@ -875,12 +1006,51 @@ You'll see that `/tmp/file` is correctly created.
 
 ## ?
 
+Document that for `displayp`  to run a command, you need to  press a numeric key
+matching the index of a pane opened in the current window.
+
+---
+
+Document that when  you pass `-b` to  `if`, and you run `run`  without `-b`, you
+get the shell prompt back, but you still have to wait for `run` to finish.
+Until then, any key you press is sent to some typeahead buffer.
+
+Anyway, I don't think it makes much sense to pass `-b` to `if` but not to `run`.
+
+In case you wonder why we get the shell prompt back:
+
+> If you run with if-shell -b then the command is run in the context of the
+> attached client, not the command client you started by typing "tmux if ..."
+> into the shell. So run-shell will block the attached client not the command
+> client. That's why you get the shell prompt back immediately.
+
+<https://github.com/tmux/tmux/issues/1843#issuecomment-512512304>
+
+But what is the “command client”?
+
+Anyway, you should document that it's a bad idea to pass `-b` to `if` and not to `run`:
+
+    $ tmux if -b 'sleep 3' 'run "sleep 3"'
+
+Try to press some  keys: it works, but after 3 seconds,  it stops working during
+the next 3 seconds.
+
+---
+
+From `$ man tmux /COMMAND PARSING AND EXECUTION /subsequent`:
+
+> Commands like if-shell, run-shell and display-panes stop execution of subsequent
+> commands on the  queue until something happens - if-shell  and run-shell until a
+> shell command finishes and display-panes until a key is pressed.
+
+## ?
+
 Does `copy-pipe` (and it variants) stop the execution of the commands on the queue?
 
 No.
 
     # shows that `deleteb` doesn't fuck up `copy-pipe-and-cancel`, even if we pass `-b` to `run`
-    bind -T copy-mode-vi C-z send -X copy-pipe-and-cancel \
+    bind -T copy-mode-vi x send -X copy-pipe-and-cancel \
         "xargs -I {} tmux run -b 'sleep 2 ; xdg-open \"https://www.startpage.com/do/dsearch?query={}\"'" \; \
         deleteb
 
@@ -939,6 +1109,7 @@ Later, it must open a new window (`neww`).
 If `pipep` blocked, `neww` would not be opened before 60s, but in practice, it's
 opened immediately.
 
+##
 ## ?
 
 Actually, I was wrong, `$ bc` is not needed; the shell can do numeric comparisons:
@@ -1057,6 +1228,12 @@ From `$ man tmux /OPTIONS /set-titles`:
 
 `next-matching-bracket` and `previous-matching-bracket` are not documented.
 
+> next-matching-bracket                        %               M-C-f
+> next-paragraph                               }               M-}
+> ...
+> previous-matching-bracket                                    M-C-b
+> previous-paragraph                           {               M-{
+
 ---
 
 Inconsistency in the terminology.
@@ -1139,6 +1316,21 @@ The `-N` flag which one can pass to `command-prompt` is not documented.
 
 I think `-N` makes the prompt only accept numeric key presses.
 
+> command-prompt [-1i] [-I inputs] [-p prompts] [-t target-client]
+>         [template]
+
+→
+
+> command-prompt [-1iN] [-I inputs] [-p prompts] [-t target-client]
+>         [template]
+
+> ...
+> -1 makes the prompt only accept one key press, in this case the
+> resulting input is a single character.  -i executes the command
+> every time the prompt input changes instead of when the user
+> exits the command prompt. -N makes the prompt only accept numeric
+> key presses.
+
 ---
 
 From `$ man tmux /MOUSE SUPPORT`:
@@ -1165,6 +1357,9 @@ So, for tmux, '2' is “greater than” '11':
     1~
 
 This does not seem to be documented; maybe it should.
+
+> **String** comparisons may be expressed by prefixing two comma-separated alterna‐
+> tives by ‘==’, ‘!=’, ‘<’, ‘>’, ‘<=’ or ‘>=’ and a colon.
 
 ---
 

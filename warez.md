@@ -22,6 +22,7 @@ If the page is written in russian, click on the button labeled 'EN' in the toolb
     /server irc.irchighway.net
     /j #ebooks
 
+Wait 30 seconds after joining to send to channel (`+d`).
 Run `@search your_book_title` to get a list of results in a zip archive.
 Unzip the archive, and search a line containing the book you're looking for.
 Finally, copy the bang command, and run in the channel.
@@ -93,6 +94,8 @@ Google custom search using this list of predefined urls: <http://pastebin.com/62
 
 ## See also
 
+   - <http://learnbyreading.herokuapp.com/?hack=true>
+   - <https://forum.mhut.org/viewforum.php?f=6> (LG forum)
    - <https://www.reddit.com/r/Piracy/comments/7q856s/is_there_a_problem_with_library_genesis/>
    - <https://www.reddit.com/r/Scholar/comments/2raea8/libgen_down/>
    - <https://genofond.org/viewtopic.php?p=9000/>

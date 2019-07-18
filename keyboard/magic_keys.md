@@ -69,7 +69,7 @@ For the current session only:
 
 The display manager:
 
-    $ pstree -s -p $(pidof Xorg)
+    $ pstree -lsp $(pidof Xorg)
     systemd(1)───lightdm(996)───Xorg(1011)───{Xorg}(1018)~
                  ^^^^^^^
 

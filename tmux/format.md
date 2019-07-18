@@ -1014,18 +1014,18 @@ among the set of panes/windows which are compatible with the description.
     $ tmux lsp -a
                ^^
 
-### all panes in the current window?
-
-    $ tmux lsp
-
 ### all panes in the current session?
 
     $ tmux lsp -s
                ^^
 
-### all panes in the window `%123`?
+### all panes in the current window?
 
-    $ tmux lsp -t %123
+    $ tmux lsp
+
+### all panes in the window `@123`?
+
+    $ tmux lsp -t @123
                ^^^^^^^
 
 ### all panes in the session 'my session'?

@@ -78,8 +78,6 @@ Enter this:
           ^^^^
           replace with your user name
 
-    /home/jean/GitRepos/rxvt-unicode/src/perl/selection-popup
-
 ---
 
 The `-b` option passed to `$ patch` creates a backup of a file before patching it.
@@ -307,6 +305,7 @@ You can still install the binary with `$ checkinstall`, and it will work fine.
     root window
 
             La fenêtre du fond d'écran (d'après le livre `From bash to zsh`).
+
 ##
 # Todo
 

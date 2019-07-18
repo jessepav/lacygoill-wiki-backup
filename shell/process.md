@@ -270,7 +270,7 @@ So, the job becomes orphan and is re-parented to the session leader.
 MWE:
 
         $ (sleep 100 &)
-        $ pstree -s -p $(pidof sleep)
+        $ pstree -lsp $(pidof sleep)
         systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───sleep(8274)~
                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -291,7 +291,7 @@ Because the second one doesn't work if the job takes time to be started.
 If the job contains several commands:
 
         $ ({ cmd1; cmd2 ;} &)
-        $ pstree -s -p $(pidof sleep)
+        $ pstree -lsp $(pidof sleep)
         systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───bash(11880)───sleep(11881)~
                                                                     ^^^^^^^^^^^
                                                                     this time, the subshell doesn't die~
@@ -322,7 +322,7 @@ Note that according to [Gilles](https://unix.stackexchange.com/a/88235/289772):
 
         $ /tmp/sh.sh &
 
-        $ pstree -s -p $(pidof sleep)
+        $ pstree -lsp $(pidof sleep)
         systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───tmux: server(2784)───zsh(29746)───sh.sh(32569)───sh1.sh(32+~
 
 If you kill `sh.sh`, you get this new process tree:
@@ -342,7 +342,7 @@ Again, the orphan (`sleep`) is re-apparented to the session leader.
 
 However, if you kill the shell from which the script was started, then `sleep` is killed too.
 
-        $ pstree -s -p $(pidof sleep)
+        $ pstree -lsp $(pidof sleep)
         systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───tmux: server(2784)───zsh(29746)───sh.sh(32569)───sh1.sh(32+~
                                                                                          ^^^
         $ kill -1 29746
@@ -802,9 +802,9 @@ Alternatively, start `htop`, select the Vim process, and press `e`.
 
 # How to get the chain of processes from systemd down to the Vim process?
 
-    $ pstree -s $(pgrep vim)
-              │
-              └ show parent processes of the specified process
+    $ pstree -lsp $(pgrep vim)
+               │
+               └ show parent processes of the specified process
 
 ##
 ##
@@ -831,7 +831,7 @@ programs are terminated when a user “hangs up” the terminal connection.
 
 On our machine, atm, it seems the session leader is `upstart`:
 
-    $ pstree -s -p $(pgrep upstart | head -n1)
+    $ pstree -lsp $(pgrep upstart | head -n1)
     systemd(1)---lightdm(980)---lightdm(1086)---upstart(1096)...~
                                                              │~
                   all the programs we start during a session ┘~

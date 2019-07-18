@@ -255,6 +255,9 @@ item, whose index is `2`.
 But in the new list without 'foo', the  item of index 2 is not '%' anymore, it's
 'b'.
 
+Bottom line: `filter()` doesn't iterate over  a fixed list of items; it iterates
+over a fixed list of indexes.
+
 ---
 
 The solution is to make the condition work on a *copy* of the list.
@@ -277,15 +280,15 @@ More generally, whenever  your condition inspects the previous or  next items of
 the list, you should make a copy.
 
 The only  case where  maybe it's  useless to make  a copy  is if  your condition
-inspects the previous items, but `filter()` doesn't alter them.
+inspects the previous items, while `filter()` doesn't alter them.
 
 If  you wonder  how `filter()`  could alter  the previous  items, remember  that
 `insert()` can insert an item at any position in a list.
 
 And if you  wonder why `filter()` *necessarily* alters the  next items, remember
 that  its purpose  is to  remove items;  and when  it does  remove one  item, it
-necessarily alters  the next ones,  because their  indexes are not  updated like
-we've just seen before.
+necessarily alters the next ones, because their indexes are not updated as we've
+just seen before.
 
 ##
 ##

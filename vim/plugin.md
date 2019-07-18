@@ -538,9 +538,23 @@ Vim plugin to diff all the files in two directories.
 
         Git support for dirvish.vim
 
-        https://github.com/kristijanhusak/vim-dirvish-git
+        <https://github.com/kristijanhusak/vim-dirvish-git>
 
                                     161 sloc
+
+## doge
+
+(Do)cumentation (Ge)nerator  (10+ languages) Generate proper  code documentation
+skeletons with a single keypress.
+
+<https://github.com/kkoomen/vim-doge>:2234 sloc
+
+---
+
+Even if we don't use this plugin,  it could be useful to implement some mappings
+to ease the process of writing good documentation at the start of our functions.
+We  should also  agree on  some convention;  e.g. always  write a  `Synopsis` or
+`Signature` line, an `Input` and `Output` section, ...
 
 ## echodoc
 
