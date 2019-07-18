@@ -129,26 +129,25 @@ to the command running in the current pane.
 For example, run this command and try to select a Vim tab page, by left-clicking
 once (not twice) on its title:
 
-    $ tmux bind -Troot MouseDown1Pane selectp -t= ; vim -Nu NONE +'set mouse=a | tabnew'
+    $ tmux bind -n MouseDown1Pane selectp -t= \; set mouse on ; vim -Nu NONE +'set mouse=a | tabnew'
 
 It fails.
 Now repeat the same experiment after modifying the key binding like so:
 
-    $ tmux bind -Troot MouseDown1Pane selectp -t= \\\; send-keys -M ; vim -Nu NONE +'set mouse=a | tabnew'
-                                                  ^^^^^^^^^^^^^^^^^
+    $ tmux bind -n MouseDown1Pane selectp -t= \\\; send -M \; set mouse on ; vim -Nu NONE +'set mouse=a | tabnew'
+                                              ^^^^^^^^^^^^
 
 This time it works.
 
 ---
 
-Similarly, you can double left-click on a Vim tab page title to select it:
-
-    $ tmux bind -Troot DoubleClick1Pane selectp -t= ; vim -Nu NONE +'set mouse=a | tabnew'
-
+Similarly, you can double left-click on a Vim tab page title to select it.
 It works because there's no `DoubleClick1Pane` key binding.
 But if there was one, you would need  to make sure tmux forwards the mouse event
 to Vim:
 
-    $ tmux bind -Troot DoubleClick1Pane selectp -t= \\\; send-keys -M ; vim -Nu NONE +'set mouse=a | tabnew'
-                                                    ^^^^^^^^^^^^^^^^^
+    # we disable `MouseDown1Pane` so that only a double click can select a Vim tab page (not a single click)
+    $ tmux bind -n MouseDown1Pane if -F 1 ''
+    $ tmux bind -n DoubleClick1Pane selectp -t= \\\; send -M \; set mouse on ; vim -Nu NONE +'set mouse=a | tabnew'
+                                                ^^^^^^^^^^^^
 

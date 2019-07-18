@@ -35,7 +35,6 @@ Remove it; it seems useless.
 ## Why should I avoid installing tmux-copycat?
 
 First, it installs a bunch of key bindings which are hard to remember.
-And tmux namespace for key bindings seems rather small.
 
 Besides, it's buggy:
 

@@ -669,6 +669,14 @@ updated in real-time (I think you have to quit tmux to make it update).
 
 <https://github.com/zdykstra/tmuxc>
 
+# what's the closest command to a NOP?
+
+    if -F 1 ''
+    run ''
+    refresh
+
+<https://en.wikipedia.org/wiki/NOP_(code)>
+
 ##
 # document the `synchronize-panes` window option
 
