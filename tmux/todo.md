@@ -671,14 +671,17 @@ updated in real-time (I think you have to quit tmux to make it update).
 
 # what's the closest command to a NOP?
 
-    if -F 1 ''
+    if -F 0 ''
     run ''
     refresh
+
+For now, I would say `if -F 0 ''`.
 
 <https://en.wikipedia.org/wiki/NOP_(code)>
 
 ##
-# document the `synchronize-panes` window option
+# document
+## the `synchronize-panes` window option
 
 This key binding should toggle it:
 
@@ -693,7 +696,7 @@ When it's on, anything you type in one pane, is typed in all the others.
       osse │ by turning on syncronize-panes after the two cases have been initialized
            │ in this particular case, open vim in two different directories
 
-# document how to run a custom zsh function from tmux
+## how to run a custom zsh function from tmux
 
 If the function doesn't run any command which requires a controlling terminal:
 
@@ -707,7 +710,7 @@ fzf is an example of command which needs a controlling terminal:
 
     func() { fzf; }
 
-# document `-e` option of `copy-mode` command
+## `-e` option of `copy-mode` command
 
 It makes tmux quit copy mode only when you reach the end of the screen with PgDown and WheelDown.
 And possibly a few others.
@@ -749,7 +752,7 @@ What's `mouse_any_flag`?
 If you run `:set mouse=` in Vim, `mouse_any_flag` is 0 in tmux.
 If you run `:set mouse=a` in Vim, `mouse_any_flag` is 1 in tmux.
 
-# document `-A` option of `new-session` command
+## `-A` option of `new-session` command
 
 > The -A flag makes new-session behave like attach-session if
 > session-name already exists; in this case, -D behaves like -d to
@@ -758,7 +761,7 @@ If you run `:set mouse=a` in Vim, `mouse_any_flag` is 1 in tmux.
 It could be useful in a script to make tmux attach to a session, or create it if
 it doesn't exist, without having to test the output of some command like `$ tmux ls ...`.
 
-# document that when you run `$ tmux source`, `#{pane_current_command}` is 'tmux'
+## that when you run `$ tmux source`, `#{pane_current_command}` is 'tmux'
 
     $ cat <<'EOF' >/tmp/.tmux.conf
     is_shell='#{m:*sh,#{pane_current_command}}'
@@ -784,7 +787,7 @@ Although, now  that I  think about it,  it wouldn't make  sense for  the current
 command to be 'bind',  because `bind` doesn't run the command  when we press pfx +x;
 it *installs* the key binding.
 
-# document how to use valgrind to debut tmux
+## how to use valgrind to debut tmux
 
 <https://github.com/tmux/tmux/issues/1829#issuecomment-509632045>
 
@@ -798,7 +801,7 @@ In practice, it doesn't fix the issue.
 Maybe we've somehow broken our Ubuntu 16.04, idk.
 In any case, this valgrind command does work on Ubuntu 18.04 in a VM.
 
-# document that if you change 'terminal-overrides', and don't want to restart the server, you need to detach/re-attach
+## that if you change 'terminal-overrides', and don't want to restart the server, you need to detach/re-attach
 
 MWE:
 
@@ -824,7 +827,277 @@ MWE:
     $ tmux -Lx attach
     # the cursor color is now blue, as expected
 
+## that when you pass `-p` and `-c` to `display`
+
+... the message is printed in the current pane of the current client, and not in
+the active pane of the client passed to `-c`.
+
+Also document the effect of `-c`:
+
+    $ tmux lsc
+    /dev/pts/4: study [119x34 st-256color] (utf8) ~
+    /dev/pts/10: fun [80x24 xterm-256color] (utf8) ~
+                            ^^^^^^^^^^^^^^
+                            second terminal attached to the second session
+
+From the xterm terminal, and the 'fun' session, run:
+
+    $ echo test | less
+
+Next, from the st terminal, and the 'study' session, run:
+
+    $ tmux display -c $(tmux lsc | awk -F: '/fun/{print $1}') '#{alternate_on}'
+
+Finally, focus the xterm terminal, and run `:show-messages`.
+You should see `0` in the log.
+
 ##
+# Which commands do *not* stop the execution of the commands on the queue?  (4)
+
+   - `copy-pipe` and its variants
+   - `if -b`
+   - `run -b`
+   - `displayp -b`
+
+---
+
+    # test is not printed until resp. if, run, displayp is finished
+    $ tmux if 'sleep 3' 'display -p test'
+    $ tmux run 'sleep 3' \; display -p test
+    $ tmux displayp -d0 'display test'
+    test~
+
+    $ tmux if -b 'sleep 3' 'run "echo test >/tmp/file"' ; cat /tmp/file ; rm /tmp/file
+    $ tmux run -b 'echo test >/tmp/file' ; cat /tmp/file ; rm /tmp/file
+    $ tmux displayp -b -d0 'run "echo test >/tmp/file"' ; cat /tmp/file ; rm /tmp/file
+    cat: /tmp/file: No such file or directory~
+
+TODO: Provide an example for `copy-pipe`.
+
+# ?
+
+If I run `copy-pipe 'shell_cmd' \; tmux_cmd`, which command is run first?  `shell_cmd` or `tmux_cmd`?
+
+`shell_cmd`  is forked,  so  there is  no  way to  tell  whether `shell_cmd`  or
+`tmux_cmd` will run first.
+
+It means that it's entirely possible for `tmux_cmd` to run before `shell_cmd`.
+
+    $ tmux bind -T copy-mode-vi x \
+      send -X copy-pipe-and-cancel "tmux deleteb \\; run 'echo test >/tmp/file'" \\\; \
+      deleteb
+
+    # empty the stack of buffers
+    $ tmux lsb -F '#{buffer_name}' | xargs -I{} tmux deleteb -b {}
+
+    $ rm /tmp/file
+
+    # enter copy mode and press x
+
+    $ cat /tmp/file
+    cat: /tmp/file: No such file or directory~
+
+`/tmp/file` was not created because the previous command – `tmux deleteb` – failed.
+It failed because:
+
+   1. we've emptied the stack of buffers
+
+   2. the second `deleteb` was run **before** the first one
+
+   3. the second `deleteb` has removed the buffer created by `copy-pipe-and-cancel`
+
+   4. the first `deleteb` can't remove any buffer, because there's no buffer on
+      the stack anymore
+
+   5. tmux stops processing commands as soon as one of them fails (here the first `deleteb`)
+
+`2.` shows that `tmux_cmd` (here `deleteb`) can be run *before* `shell_cmd` (here `tmux deleteb ...`).
+
+---
+
+Note that even though `tmux deleteb ...` doesn't read its stdin, the key binding
+is still syntactically correct.
+So don't think that `/tmp/file` was not created because of some syntax error.
+You can  check that the syntax  is valid by  replacing any of the  two `deleteb`
+with `display -p foo`:
+
+    $ tmux bind -T copy-mode-vi x \
+      send -X copy-pipe-and-cancel "tmux display -p foo \\; run 'echo test >/tmp/file'" \\\; \
+      deleteb
+
+    $ tmux bind -T copy-mode-vi x \
+      send -X copy-pipe-and-cancel "tmux deleteb \\; run 'echo test >/tmp/file'" \\\; \
+      display -p foo
+
+In both cases, if you run these commands afterward:
+
+    # empty the stack of buffers
+    $ tmux lsb -F '#{buffer_name}' | xargs -I{} tmux deleteb -b {}
+
+    $ rm /tmp/file
+
+    # enter copy mode and press x
+
+    $ cat /tmp/file
+    test~
+
+You'll see that `/tmp/file` is correctly created.
+
+# ?
+
+Document that for `displayp`  to run a command, you need to  press a numeric key
+matching the index of a pane opened in the current window.
+
+---
+
+Document that when  you pass `-b` to  `if`, and you run `run`  without `-b`, you
+get the shell prompt back, but you still have to wait for `run` to finish.
+Until then, any key you press is sent to some typeahead buffer.
+
+Anyway, I don't think it makes much sense to pass `-b` to `if` but not to `run`.
+
+In case you wonder why we get the shell prompt back:
+
+> If you run with if-shell -b then the command is run in the context of the
+> attached client, not the command client you started by typing "tmux if ..."
+> into the shell. So run-shell will block the attached client not the command
+> client. That's why you get the shell prompt back immediately.
+
+<https://github.com/tmux/tmux/issues/1843#issuecomment-512512304>
+
+But what is the “command client”?
+
+Anyway, you should document that it's a bad idea to pass `-b` to `if` and not to `run`:
+
+    $ tmux if -b 'sleep 3' 'run "sleep 3"'
+
+Try to press some  keys: it works, but after 3 seconds,  it stops working during
+the next 3 seconds.
+
+---
+
+From `$ man tmux /COMMAND PARSING AND EXECUTION /subsequent`:
+
+> Commands like if-shell, run-shell and display-panes stop execution of subsequent
+> commands on the  queue until something happens - if-shell  and run-shell until a
+> shell command finishes and display-panes until a key is pressed.
+
+# ?
+
+Does `copy-pipe` (and it variants) stop the execution of the commands on the queue?
+
+No.
+
+    # shows that `deleteb` doesn't fuck up `copy-pipe-and-cancel`, even if we pass `-b` to `run`
+    bind -T copy-mode-vi x send -X copy-pipe-and-cancel \
+        "xargs -I {} tmux run -b 'sleep 2 ; xdg-open \"https://www.startpage.com/do/dsearch?query={}\"'" \; \
+        deleteb
+
+# ?
+
+> nicm │ the command is forked and the text is buffered to go to its stdin before the new tmux buffer is created
+>      │ so there is no way to tell whether the buffer will exit by the time the command starts or reads the text
+...
+> nicm │ tmux only guarantees a command is started, it doesn't wait for it
+> nicm │ except for run-shell/if-shell without -b
+> nicm │ someone talked about making copy-pipe also block but we didn't do it
+
+# ?
+
+The rhs of my key binding is `splitw 'shell cmd' \; cmd`.  It doesn't work as I would expect!
+
+    Suppose I have a key binding whose rhs is a sequence of 2 commands: cmd1 \; cmd2
+    I guess there's a guarantee that cmd2 will be run after cmd1.
+    But if cmd1 is `splitw 'shell cmd'`, is there a guarantee that cmd2 will be run after 'shell cmd'?
+    I guess not. If not, what's the best way to make sure cmd2 is run after 'shell cmd'?
+    `splitw 'shell cmd ; tmux cmd2'`?
+
+    $ tmux setb 'https://github.com/' \; splitw 'tmux showb && sleep 9' \; deleteb
+
+    $ tmux setb 'https://github.com/' \; splitw 'tmux showb && sleep 9 && tmux deleteb'
+
+# ?
+
+> run-shell blocks until foo finishes unless you give -b
+
+    $ tmux run 'sleep 10' \; neww
+
+> will wait for 10 seconds before neww
+> but
+
+    $ tmux neww 'sleep 10' \; neww
+
+> will run both neww with no delay
+> so in fact you never need to use wait-for with run-shell unless you use -b
+
+Summary: when running `cmd1 \; cmd2`, you have the guarantee that `cmd2` will be
+run  after  `cmd1`,  iff  it  blocks  (the  execution?)  (*is  it  the  correct*
+*formulation? what does it mean exactly?*).
+`run`, `if`, and `displayp`  are the only (?) commands which  block (and only if
+you don't pass them `-b`).
+`neww`, `new`, `splitw`, `respawnw`, and `respawnp` don't block (sure?; make tests).
+What about `detach` and `pipep`?
+
+`pipep` doesn't block:
+
+    $ tmux pipe-pane -t study:3.2 -I "echo 'ls'; sleep 60" \; neww
+
+Tmux must run `echo 'ls'; sleep 60` to  get its output, and then type the latter
+in the pane `study:3.2`.
+Later, it must open a new window (`neww`).
+If `pipep` blocked, `neww` would not be opened before 60s, but in practice, it's
+opened immediately.
+
+#
+# ?
+
+You don't need `$ bc` to perform numeric comparisons.
+The shell can do them.
+
+    $ tmux if '[ #{pane_height} -lt 12 ]' 'display -p "fewer than 12 lines"' 'display -p "more than 12 lines"'
+                                ^^^
+
+Do *not* use `#{>=:}` & friends.
+They are for string comparisons only.
+
+# ?
+
+Do we need quotes right around a format variable, if the latter is already included in a bigger string?
+
+       outer string (necessary)
+       v                                    v
+    if '[ "$TERM" != "#{default-terminal}" ]' { source-file "$HOME/.tmux/unbind-copy-mode.conf" }
+                     ^                   ^
+                     inner string (useless?)
+
+It seems I can remove the inner quotes.
+
+Look for this pattern everywhere:
+
+    ['"]#{
+
+I think that tmux removes the inner quotes anyway:
+
+    $ tmux run 'echo "#{default-terminal}"'
+    tmux-256color~
+
+Unless you escape them:
+
+    $ tmux run 'echo \"#{default-terminal}\"'
+    "tmux-256color"~
+
+Re-read our notes about quoting to make sure this is compatible with what we wrote.
+Anyway, this suggests that *inner* quotes are indeed useless.
+
+# ?
+
+    display 'lvl1 " lvl2 '\'' lvl3 '\'' lvl2 " lvl1'
+
+# ?
+
+finish reviewing our copy mode key bindings `yiw`, `"Ayiw`, `viw`, `yy`, ...
+
+#
 # ?
 
 I'm trying to write a key binding which would run some commands on the condition
@@ -921,460 +1194,5 @@ These commands don't have the same effect:
    - if-shell
 
 ##
-## Which commands do *not* stop the execution of the commands on the queue?  (4)
-
-   - `copy-pipe` and its variants
-   - `if -b`
-   - `run -b`
-   - `displayp -b`
-
----
-
-    # test is not printed until resp. if, run, displayp is finished
-    $ tmux if 'sleep 3' 'display -p test'
-    $ tmux run 'sleep 3' \; display -p test
-    $ tmux displayp -d0 'display test'
-    test~
-
-    $ tmux if -b 'sleep 3' 'run "echo test >/tmp/file"' ; cat /tmp/file ; rm /tmp/file
-    $ tmux run -b 'echo test >/tmp/file' ; cat /tmp/file ; rm /tmp/file
-    $ tmux displayp -b -d0 'run "echo test >/tmp/file"' ; cat /tmp/file ; rm /tmp/file
-    cat: /tmp/file: No such file or directory~
-
-TODO: Provide an example for `copy-pipe`.
-
-## ?
-
-If I run `copy-pipe 'shell_cmd' \; tmux_cmd`, which command is run first?  `shell_cmd` or `tmux_cmd`?
-
-`shell_cmd`  is forked,  so  there is  no  way to  tell  whether `shell_cmd`  or
-`tmux_cmd` will run first.
-
-It means that it's entirely possible for `tmux_cmd` to run before `shell_cmd`.
-
-    $ tmux bind -T copy-mode-vi x \
-      send -X copy-pipe-and-cancel "tmux deleteb \\; run 'echo test >/tmp/file'" \\\; \
-      deleteb
-
-    # empty the stack of buffers
-    $ tmux lsb -F '#{buffer_name}' | xargs -I{} tmux deleteb -b {}
-
-    $ rm /tmp/file
-
-    # enter copy mode and press x
-
-    $ cat /tmp/file
-    cat: /tmp/file: No such file or directory~
-
-`/tmp/file` was not created because the previous command – `tmux deleteb` – failed.
-It failed because:
-
-   1. we've emptied the stack of buffers
-
-   2. the second `deleteb` was run **before** the first one
-
-   3. the second `deleteb` has removed the buffer created by `copy-pipe-and-cancel`
-
-   4. the first `deleteb` can't remove any buffer, because there's no buffer on
-      the stack anymore
-
-   5. tmux stops processing commands as soon as one of them fails (here the first `deleteb`)
-
-`2.` shows that `tmux_cmd` (here `deleteb`) can be run *before* `shell_cmd` (here `tmux deleteb ...`).
-
----
-
-Note that even though `tmux deleteb ...` doesn't read its stdin, the key binding
-is still syntactically correct.
-So don't think that `/tmp/file` was not created because of some syntax error.
-You can  check that the syntax  is valid by  replacing any of the  two `deleteb`
-with `display -p foo`:
-
-    $ tmux bind -T copy-mode-vi x \
-      send -X copy-pipe-and-cancel "tmux display -p foo \\; run 'echo test >/tmp/file'" \\\; \
-      deleteb
-
-    $ tmux bind -T copy-mode-vi x \
-      send -X copy-pipe-and-cancel "tmux deleteb \\; run 'echo test >/tmp/file'" \\\; \
-      display -p foo
-
-In both cases, if you run these commands afterward:
-
-    # empty the stack of buffers
-    $ tmux lsb -F '#{buffer_name}' | xargs -I{} tmux deleteb -b {}
-
-    $ rm /tmp/file
-
-    # enter copy mode and press x
-
-    $ cat /tmp/file
-    test~
-
-You'll see that `/tmp/file` is correctly created.
-
-## ?
-
-Document that for `displayp`  to run a command, you need to  press a numeric key
-matching the index of a pane opened in the current window.
-
----
-
-Document that when  you pass `-b` to  `if`, and you run `run`  without `-b`, you
-get the shell prompt back, but you still have to wait for `run` to finish.
-Until then, any key you press is sent to some typeahead buffer.
-
-Anyway, I don't think it makes much sense to pass `-b` to `if` but not to `run`.
-
-In case you wonder why we get the shell prompt back:
-
-> If you run with if-shell -b then the command is run in the context of the
-> attached client, not the command client you started by typing "tmux if ..."
-> into the shell. So run-shell will block the attached client not the command
-> client. That's why you get the shell prompt back immediately.
-
-<https://github.com/tmux/tmux/issues/1843#issuecomment-512512304>
-
-But what is the “command client”?
-
-Anyway, you should document that it's a bad idea to pass `-b` to `if` and not to `run`:
-
-    $ tmux if -b 'sleep 3' 'run "sleep 3"'
-
-Try to press some  keys: it works, but after 3 seconds,  it stops working during
-the next 3 seconds.
-
----
-
-From `$ man tmux /COMMAND PARSING AND EXECUTION /subsequent`:
-
-> Commands like if-shell, run-shell and display-panes stop execution of subsequent
-> commands on the  queue until something happens - if-shell  and run-shell until a
-> shell command finishes and display-panes until a key is pressed.
-
-## ?
-
-Does `copy-pipe` (and it variants) stop the execution of the commands on the queue?
-
-No.
-
-    # shows that `deleteb` doesn't fuck up `copy-pipe-and-cancel`, even if we pass `-b` to `run`
-    bind -T copy-mode-vi x send -X copy-pipe-and-cancel \
-        "xargs -I {} tmux run -b 'sleep 2 ; xdg-open \"https://www.startpage.com/do/dsearch?query={}\"'" \; \
-        deleteb
-
-## ?
-
-> nicm │ the command is forked and the text is buffered to go to its stdin before the new tmux buffer is created
->      │ so there is no way to tell whether the buffer will exit by the time the command starts or reads the text
-...
-> nicm │ tmux only guarantees a command is started, it doesn't wait for it
-> nicm │ except for run-shell/if-shell without -b
-> nicm │ someone talked about making copy-pipe also block but we didn't do it
-
-## ?
-
-The rhs of my key binding is `splitw 'shell cmd' \; cmd`.  It doesn't work as I would expect!
-
-    Suppose I have a key binding whose rhs is a sequence of 2 commands: cmd1 \; cmd2
-    I guess there's a guarantee that cmd2 will be run after cmd1.
-    But if cmd1 is `splitw 'shell cmd'`, is there a guarantee that cmd2 will be run after 'shell cmd'?
-    I guess not. If not, what's the best way to make sure cmd2 is run after 'shell cmd'?
-    `splitw 'shell cmd ; tmux cmd2'`?
-
-    $ tmux setb 'https://github.com/' \; splitw 'tmux showb && sleep 9' \; deleteb
-
-    $ tmux setb 'https://github.com/' \; splitw 'tmux showb && sleep 9 && tmux deleteb'
-
-## ?
-
-> run-shell blocks until foo finishes unless you give -b
-
-    $ tmux run 'sleep 10' \; neww
-
-> will wait for 10 seconds before neww
-> but
-
-    $ tmux neww 'sleep 10' \; neww
-
-> will run both neww with no delay
-> so in fact you never need to use wait-for with run-shell unless you use -b
-
-Summary: when running `cmd1 \; cmd2`, you have the guarantee that `cmd2` will be
-run  after  `cmd1`,  iff  it  blocks  (the  execution?)  (*is  it  the  correct*
-*formulation? what does it mean exactly?*).
-`run`, `if`, and `displayp`  are the only (?) commands which  block (and only if
-you don't pass them `-b`).
-`neww`, `new`, `splitw`, `respawnw`, and `respawnp` don't block (sure?; make tests).
-What about `detach` and `pipep`?
-
-`pipep` doesn't block:
-
-    $ tmux pipe-pane -t study:3.2 -I "echo 'ls'; sleep 60" \; neww
-
-Tmux must run `echo 'ls'; sleep 60` to  get its output, and then type the latter
-in the pane `study:3.2`.
-Later, it must open a new window (`neww`).
-If `pipep` blocked, `neww` would not be opened before 60s, but in practice, it's
-opened immediately.
-
-##
-## ?
-
-Actually, I was wrong, `$ bc` is not needed; the shell can do numeric comparisons:
-For numeric comparisons, do *not* use `#{>=:}` & friends; instead use the shell:
-
-    $ tmux if '[ #{pane_height} -lt 12 ]' 'display -p "fewer than 12 lines"' 'display -p "more than 12 lines"'
-                                ^^^
-
-## ?
-
-Do we need quotes right around a format variable, if the latter is already included in a bigger string?
-
-       outer string (necessary)
-       v                                    v
-    if '[ "$TERM" != "#{default-terminal}" ]' { source-file "$HOME/.tmux/unbind-copy-mode.conf" }
-                     ^                   ^
-                     inner string (useless?)
-
-It seems I can remove the inner quotes.
-
-Look for this pattern everywhere:
-
-    ['"]#{
-
-I think that tmux removes the inner quotes anyway:
-
-    $ tmux run 'echo "#{default-terminal}"'
-    tmux-256color~
-
-Unless you escape them:
-
-    $ tmux run 'echo \"#{default-terminal}\"'
-    "tmux-256color"~
-
-Re-read our notes about quoting to make sure this is compatible with what we wrote.
-Anyway, this suggests that *inner* quotes are indeed useless.
-
-## ?
-
-    display 'lvl1 " lvl2 '\'' lvl3 '\'' lvl2 " lvl1'
-
-## ?
-
-finish reviewing our copy mode key bindings `yiw`, `"Ayiw`, `viw`, `yy`, ...
-
-##
 # typos in manpage
-
-'user-keys' is documented in the session options.
-But it's not a session option; it's a server one.
-
-                                             vv
-    $ tmux set -a user-keys "\e[123" \; show -s user-keys \; set user-keys ''
-    user-keys[0] \\e[123~
-
-It's the only option which is in the wrong section.
-Here's how you can check.
-First copy, the lines in the manpage describing the options of a given type.
-Position your  cursor on  an empty line,  and press `""]p`,  so that  the option
-names are indented with 0 space.
-Select the pasted lines (`V']`), then run:
-
-    :*v/^\S/d_
-    :*s/\%(\[\]\)\=\s.*//
-    :*s/^/tmux show -gw /
-    :*g/^/s/.*/\=join(systemlist(getline('.')), '    ')/
-
-In the last but one command, replace `-gw` with `-s` for the server options, and
-with nothing for the session options.
-
-If you get  an empty line somewhere, it  means that the option name  – which was
-there originally – is not documented in the right section.
-Look at the  option above/below – to  memorize its relative position  – and undo
-the last `:g` command; you should be able to find the name of the option.
-
----
-
-> This section describes the commands supported by tmux.  Most commands
-> accept the optional -t (and sometimes -s) argument with one of
-> target-client, target-session**,** target-window, or target-pane.
-                             ^
-                             missing comma
-
----
-
-> pane_mode                       Name of pane mode, if any.
-                                                         ^
-                                                         there should be no dot
-
----
-
-> alternate_on                    If pane is in alternate screen
-> pane_in_mode                    If pane is in a mode
-> pane_input_off                  If input to pane is disabled
-> pane_synchronized               If pane is synchronized
-
-`If` should be replaced with `1 if`.
-
----
-
-> set-titles-string string
->         String used to set the **window title** if set-titles is on.  Formats
->         are expanded, see the FORMATS section.
-
-Shouldn't `window title` be replaced with `client terminal title`?
-
-From `$ man tmux /OPTIONS /set-titles`:
-
-> set-titles [on | off]
->         Attempt to set the **client terminal title** using the tsl and fsl
->         terminfo(5) entries if they exist.  tmux automatically sets these
->         to the \e]0;...\007 sequence if the terminal appears to be
->         xterm(1).  This option is off by default.
-
----
-
-`next-matching-bracket` and `previous-matching-bracket` are not documented.
-
-> next-matching-bracket                        %               M-C-f
-> next-paragraph                               }               M-}
-> ...
-> previous-matching-bracket                                    M-C-b
-> previous-paragraph                           {               M-{
-
----
-
-Inconsistency in the terminology.
-
-From `$ man tmux /^\s*display-message /^\s*-v`:
-
-> -v prints verbose logging as the format is parsed and -a lists
-> the **format variables** and their values.
-
-From `$ man tmux /FORMATS`:
-
-> **Replacement variables** are enclosed in ‘#{' and ‘}', for example ‘#{session_name}'.
-
-It should probably settle down on one term (not two).
-
-Personally, I prefer “format variables”.
-It's shorter, and tells you that it only exists in the context of a format.
-From “variable”, you can infer that it can be replaced or evaluated.
-
----
-
-From `$ man tmux /^\s*display-message`:
-
-> information is taken from target-pane if -t is given, otherwise the
-> active pane for the session attached to target-client.
-
-    $ tmux lsc
-    /dev/pts/4: study [119x34 st-256color] (utf8) ~
-    /dev/pts/10: fun [80x24 xterm-256color] (utf8) ~
-                            ^^^^^^^^^^^^^^
-                            second terminal attached to the second session
-
-From the xterm terminal, and the 'fun' session, run:
-
-    $ echo test | less
-
-Next, from the st terminal, and the 'study' session, run:
-
-    $ tmux display -c $(tmux lsc | awk -F: '/fun/{print $1}') '#{alternate_on}'
-
-Finally, focus the xterm terminal, and run `:show-messages`.
-You should see `0` in the log.
-So, `-c '/dev/pts/10'` made tmux print the message in a different client, but it
-didn't take the info from the active pane attached to the 'fun' session.
-If that was the case, `0` would not have been logged, but `1`.
-
-Is the documentation wrong? Or is it right but there's a bug?
-
-Btw, if you  use `-p` with `-c`, the  message is printed in the  current pane of
-the current client, and not in the active pane of the client passed to `-c`.
-
----
-
-From `$ man tmux /^\s*select-pane`:
-
->         select-pane [-DLRUdel] [-T title] [-t target-pane]
-
-> Make pane target-pane the active pane **in window target-window**.
-
-There's no `target-window` in the synopsis of the command.
-Should “in window target-window” be replaced by “in current window”?
-
----
-
-From `$ man tmux /^\s*last-pane`:
-
-> last-pane [-de] [-t target-window]
-
-Why is `[-t target-window]` mentioned in the synopsis?
-`target-window` is not mentioned in the description of the command.
-I tried to provide a window ID (`@123`) to `-t`, but it didn't have any effect.
-
-It seems the right synopsis is just:
-
-> last-pane [-de]
-
----
-
-The `-N` flag which one can pass to `command-prompt` is not documented.
-
-I think `-N` makes the prompt only accept numeric key presses.
-
-> command-prompt [-1i] [-I inputs] [-p prompts] [-t target-client]
->         [template]
-
-→
-
-> command-prompt [-1iN] [-I inputs] [-p prompts] [-t target-client]
->         [template]
-
-> ...
-> -1 makes the prompt only accept one key press, in this case the
-> resulting input is a single character.  -i executes the command
-> every time the prompt input changes instead of when the user
-> exits the command prompt. -N makes the prompt only accept numeric
-> key presses.
-
----
-
-From `$ man tmux /MOUSE SUPPORT`:
-
-> In addition, target-session, target-window or target-pane may consist entirely
-> of the token ‘{mouse}' (alternative form ‘=') to specify **the most recent mouse**
-> **event** (see the MOUSE SUPPORT section)  or ‘{marked}' (alternative form ‘~') to
-> specify the marked pane (see select-pane -m).
-
-I think  it should  be “the session,  window, pane where  the most  recent mouse
-event occurred”.
-
----
-
-From `$ man tmux /FORMATS`:
-
-> Comparisons may be expressed by prefixing two comma-separated alterna‐
-> tives by ‘==’, ‘!=’, ‘<’, ‘>’, ‘<=’ or ‘>=’ and a colon.
-
-All these operators perform a string comparison, not a numeric one.
-So, for tmux, '2' is “greater than” '11':
-
-    $ tmux display -p '#{>=:2,11}'
-    1~
-
-This does not seem to be documented; maybe it should.
-
-> **String** comparisons may be expressed by prefixing two comma-separated alterna‐
-> tives by ‘==’, ‘!=’, ‘<’, ‘>’, ‘<=’ or ‘>=’ and a colon.
-
----
-
-From `$ man tmux /STATUS LINE /command-prompt`:
-
-> Delete current word                            C-w
-
-It doesn't remove the  current word, but from the cursor up to  the start of the
-current/previous word.
 

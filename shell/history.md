@@ -200,8 +200,8 @@ si ce dernier commence par un des caractères suivants: `^$*`
                     │ par défaut charge la dernière commande dans $EDITOR
                     │
                     fc -e -
-                       └──┤
-                          └ aucun éditeur de texte n'est invoqué
+                       ├──┘
+                       └ aucun éditeur de texte n'est invoqué
 
 
     s/old/new/

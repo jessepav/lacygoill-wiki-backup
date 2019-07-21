@@ -37,6 +37,13 @@ Configure, compile and install:
     $ make
     $ sudo checkinstall
 
+TODO: `$ git diff` won't use this new `$ less`.
+Many other things will probably won't work too.
+I think that's because of the new location (`/usr/local/bin/less` vs `/bin/less`).
+Before `$ make`, you'll need to set the prefix to `/` instead of `/usr/local/`.
+Or, you'll need to configure the system so that it uses `/usr/local/bin/less`;
+try `$ update-alternatives --config pager`, or sth similar.
+
 ## lesspipe
 
 Useful to view the contents of compressed files or archives.

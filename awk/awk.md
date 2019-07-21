@@ -924,7 +924,7 @@ The output should now contain something like:
 
 ### Configure
 
-    $ sh ./configure
+    $ sh ./configure && ./configure --enable-mpfr
 
 ### Compile
 
@@ -933,6 +933,11 @@ The output should now contain something like:
 ### Install
 
     $ sudo checkinstall
+
+    $ sudo update-alternatives --install /usr/bin/awk awk /usr/local/bin/gawk 60 \
+      --slave /usr/share/man/man1/awk.1.gz awk.1.gz /usr/local/share/man/man1/gawk.1.gz
+
+    $ sudo update-alternatives --set awk /usr/local/bin/gawk
 
 ##
 # Command-line

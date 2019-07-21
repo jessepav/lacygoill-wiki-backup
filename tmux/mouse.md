@@ -147,7 +147,8 @@ But if there was one, you would need  to make sure tmux forwards the mouse event
 to Vim:
 
     # we disable `MouseDown1Pane` so that only a double click can select a Vim tab page (not a single click)
-    $ tmux bind -n MouseDown1Pane if -F 1 ''
+    # we can't simply unbind it because we need tmux to consume the keypress
+    $ tmux bind -n MouseDown1Pane if -F 0 ''
     $ tmux bind -n DoubleClick1Pane selectp -t= \\\; send -M \; set mouse on ; vim -Nu NONE +'set mouse=a | tabnew'
                                                 ^^^^^^^^^^^^
 

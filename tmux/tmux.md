@@ -541,11 +541,14 @@ Write `return` at its top.
 #### How to get a trace?
 
     $ tmux -Lx kill-server
-    $ strace -ttt -ff -ostrace.out tmux -Lx -f/dev/null new
+    $ strace -ttt -ff -ostrace.txt tmux -Lx -f/dev/null new
                         ^^^^^^^^^^
                         output file
 
 <https://github.com/tmux/tmux/issues/1603#issuecomment-462955045>
+
+Don't  use the  `.out` extension;  it  seems GitHub  doesn't like  that kind  of
+filename when you try to attach it in an issue. Prefer `.txt`.
 
 ##
 ## How to debug tmux when it's hanging?
