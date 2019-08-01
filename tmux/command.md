@@ -1,4 +1,9 @@
 # Parsing
+## What is it?
+
+The process during which tmux splits a command into its name and arguments.
+
+##
 ## Why does `:confirm-before "display \\"` fail (while `:display "\\"` works)?
 
 Because `display \\b` is parsed twice.
@@ -32,41 +37,295 @@ A command which is passed as an argument to another command is always parsed twi
 2. they are added to the command queue
 3. commands on the queue are executed in order
 
-## Does tmux have only one command queue?
+## How many command queues does tmux use?
 
-No, each client has a command queue.
+One per tmux client.
 Besides,  a global  command queue  – not  attached to  any client  – is  used on
 startup for configuration files like `~/.tmux.conf`.
 
 ##
-## What happens when the commands `if-shell` and `confirm-before` parse their arguments?
+## What happens when the command `if-shell` parses its arguments?
 
-They create a new command which is inserted immediately after themselves.
+It creates a new command which is inserted immediately after itself on the queue.
 
 ---
 
 So for example, if the command queue contains:
 
-    if 'true' { display foo }
-    display bar
+    if 'true' { display one }
+    display two
 
-When `if` parses its arguments, it adds the command `display foo` right after itself:
+When `if` parses its arguments, it adds the command `display one` right after itself:
 
-    if 'true' { display foo }
-    display foo
-    display bar
+    if 'true' { display one }
+    display one   <---
+    display two
 
 And *not* at the end of the queue:
 
-    if 'true' { display foo }
-    display bar
-    display foo
+    if 'true' { display one }
+    display two
+    display one   <---
 
-### For which other commands is this also true?
+### For which other commands is this also true?  (6)
 
-Any command which accepts another command as argument.
+Any command which accepts another tmux command as argument:
+
+   - `choose-buffer`
+   - `choose-client`
+   - `choose-tree`
+   - `command-prompt`
+   - `confirm-before`
+   - `display-panes`
 
 ###
+## Which commands stop the execution of the commands on the queue?  (3)
+
+`if`, `run` and `displayp`.
+
+    # test is not printed until resp. if, run, displayp is finished
+    $ tmux if 'sleep 1' '' \; display test
+    $ tmux run 'sleep 1' \; display test
+    $ tmux displayp -d0 \; display test
+    test~
+
+Unless you pass them the `-b` flag:
+
+    $ rm /tmp/file ; tmux if -b 'sleep 1' 'run "echo test >/tmp/file"' ; cat /tmp/file
+    $ rm /tmp/file ; tmux run -b 'sleep 1 ; echo test >/tmp/file' ; cat /tmp/file
+    $ rm /tmp/file ; tmux displayp -b -d0 'run "echo test >/tmp/file"' ; cat /tmp/file
+    cat: /tmp/file: No such file or directory~
+
+---
+
+The execution is blocked until the whole command has been run; this includes the
+tmux command passed as argument:
+
+    $ tmux if true 'run "sleep 3"' \; display test
+
+Here, you'll have to wait 3 seconds  before 'test' is displayed, even though the
+shell command `true` is instantaneous.
+
+---
+
+`displayp` blocks until you press a key.
+From `$ man tmux /COMMAND PARSING AND EXECUTION /subsequent`:
+
+> Commands like if-shell, run-shell and display-panes stop execution of subsequent
+> commands on the  queue until something happens - if-shell  and run-shell until a
+> shell command finishes and display-panes until a key is pressed.
+
+### Which commands do *not*?
+
+All the other ones.
+This includes `copy-pipe` and its variants.
+
+> nicm │ tmux only guarantees a command is started, it doesn't wait for it
+> ...
+> nicm │ someone talked about making copy-pipe also block but we didn't do it
+
+---
+
+As an example:
+
+    $ tmux pipep -t =study:3.2 -I "echo 'ls'; sleep 60" \; display test
+
+Tmux must  run `$  echo 'ls'; sleep  60` to  get its output,  and then  type the
+latter in the pane `study:3.2`.
+Afterward, it must display 'test'.
+If `pipep` blocked, 'test' would be displayed opened after 60s, but in practice,
+it's displayed immediately.
+
+`neww` doesn't block either:
+
+    # test is printed in the status line immediately, not after 3 seconds
+    $ tmux neww 'sleep 3' \; display test
+    test~
+
+Same thing for `splitw`, `new` and `confirm`:
+
+    $ tmux splitw 'sleep 3' \; display test
+    $ tmux new -d 'sleep 3' \; display test
+    $ tmux confirm 'display' \; display test
+
+#### When does this have an unexpected consequence?
+
+When a command A runs another command B, and then you run yet another command C.
+There's no guarantee that B finishes before C, even though it's written first.
+
+In fact, as  soon as tmux has started  A, it starts C; it  probably doesn't even
+wait to start B.
+B is  started later, once  A has processed  its arguments, and  inserted another
+command on the queue.
+
+##
+## What is wrong in the command `$ tmux if -b 'sleep 3' 'run "sleep 3"'`?
+
+`run-shell` should have been passed the `-b` flag.
+
+Otherwise, you'll  get back the  shell prompt  immediately, which will  make you
+think that you can interact with your shell as usual.
+But after 3 seconds, all your keypresses will be blocked (!= lost) by `run-shell`.
+Tmux won't respond anymore, until `run` has finished its job.
+Afterward, tmux will relay to the foreground process any key pressed while `run`
+was running.
+
+> If you run with if-shell -b then the command is run in the context of the
+> attached client, not the command client you started by typing "tmux if ..."
+> into the shell. So run-shell will block the attached client not the command
+> client. That's why you get the shell prompt back immediately.
+
+<https://github.com/tmux/tmux/issues/1843#issuecomment-512512304>
+
+All of this is confusing and can lead to undesired interactions.
+Bottom line: when you pass `-b` to `if`, pass `-b` to `run` too.
+
+Anyway, I don't think it makes much sense to pass `-b` to `if` but not to `run`.
+
+##
+# copy-pipe
+## The rhs of my key binding is `copy-pipe 'shell_cmd' \; tmux_cmd`?  Is `shell_cmd` run first or `tmux_cmd`?
+
+`shell_cmd`  is forked,  so  there is  no  way to  tell  whether `shell_cmd`  or
+`tmux_cmd` will be run first.
+
+Therefore, it's entirely possible for `tmux_cmd` to be run *before* `shell_cmd`.
+
+---
+
+    $ tmux bind -T copy-mode-vi x \
+      send -X copy-pipe-and-cancel "tmux deleteb \\; run 'echo test >/tmp/file'" \\\; \
+      deleteb
+
+    # empty the stack of buffers
+    $ tmux lsb -F '#{buffer_name}' | xargs -I{} tmux deleteb -b {}
+
+    # enter copy mode and press x
+
+    $ cat /tmp/file
+    cat: /tmp/file: No such file or directory~
+
+When we pressed  `x`, `/tmp/file` was not created, because  the previous command
+in the rhs – `tmux deleteb` – failed.
+
+It failed because:
+
+   1. we've emptied the stack of buffers
+
+   2. the second `deleteb` was run **before** the first one
+
+   3. the second `deleteb` has removed the buffer created by `copy-pipe-and-cancel`
+
+   4. the first `deleteb` can't remove any buffer, because there's no buffer on
+      the stack anymore
+
+   5. tmux stops processing commands as soon as one of them fails (here the first `deleteb`)
+
+`2.` shows that `tmux_cmd` (here `deleteb`) can be run *before* `shell_cmd` (here `tmux deleteb ...`).
+
+---
+
+Note that even though `tmux deleteb ...` doesn't read its stdin, the key binding
+is still syntactically correct.
+So don't think that `/tmp/file` was not created because of some syntax error.
+You can  check that the syntax  is valid by  replacing any of the  two `deleteb`
+with `display -p foo`:
+
+    $ tmux bind -T copy-mode-vi x \
+      send -X copy-pipe-and-cancel "tmux display -p foo \\; run 'echo test >/tmp/file'" \\\; \
+      deleteb
+
+    $ tmux bind -T copy-mode-vi x \
+      send -X copy-pipe-and-cancel "tmux deleteb \\; run 'echo test >/tmp/file'" \\\; \
+      display -p foo
+
+In both cases, if you run these commands afterward:
+
+    # empty the stack of buffers
+    $ tmux lsb -F '#{buffer_name}' | xargs -I{} tmux deleteb -b {}
+
+    $ rm /tmp/file
+
+    # enter copy mode and press x
+
+    $ cat /tmp/file
+    test~
+
+You'll see that `/tmp/file` is correctly created.
+
+### How to make sure `shell cmd` is run before `tmux_cmd`?
+
+Move it inside the argument passed to `copy-pipe`.
+
+    copy-pipe 'shell_cmd ; tmux tmux_cmd'
+
+##
+## tmux buffer
+### Will the next key binding work as expected?
+
+    $ tmux bind -T copy-mode-vi x send -X copy-pipe-and-cancel 'cat >/tmp/file' \\\; deleteb
+                                                                                     ^^^^^^^
+
+↣
+Yes, you can remove  the tmux buffer as soon as you want,  it won't interfere in
+the piping process.
+This is because the buffer which is piped to the shell command has nothing to do
+with the tmux buffer which is put on the stack.
+↢
+
+#### How about this one?
+
+    $ tmux bind -T copy-mode-vi x send -X copy-pipe-and-cancel 'cat >/tmp/file ; tmux deleteb'
+
+↣
+No, you can't remove the buffer from the shell command passed to `copy-pipe`.
+The buffer might not exist yet.
+
+> nicm    the shell command is forked and the text is buffered to go to its stdin
+>         before the new tmux buffer is created
+> nicm    so there is no way to tell whether the buffer will exist
+>         by the time the shell command starts reading the text
+
+*This is not exactly what nicm said.*
+*I've fixed what I think were a few typos.*
+↢
+
+#
+# run-shell
+## Where is `test` displayed when I run
+### `run 'echo test'`?
+
+In the current terminal.
+
+### `run -b 'echo test'`?
+
+In the current pane, in copy mode.
+
+### `run -t :2 'echo test'`?
+
+In the active pane of the second window, in copy mode.
+
+### `run -b -t :2 'echo test'`?
+
+In the active pane of the second window, in copy mode.
+
+##
+## In the shell command run by `run-shell`,
+### why is `2>/dev/null` useless?
+
+Because if the command fails, tmux will still print its exit status.
+
+    $ tmux run 'not_a_command 2>/dev/null'
+    'not_a_command 2>/dev/null' returned 127~
+
+### can I include a format variable?
+
+Yes:
+
+    $ tmux run 'echo #I'
+    1~
+
+##
 # Targetting
 ## What is an ID?
 
@@ -345,6 +604,7 @@ And an empty session name probably refers to the current session.
 ### the current pane?  (2)
 
     $ printf '\033]2;my title\033\\'
+
     $ tmux selectp -T 'my title'
 
 ### the pane whose id is `%123`?
@@ -541,7 +801,7 @@ command running in the current pane.
 
 Use the `-N` flag:
 
-    :bind -Tcopy-mode-vi  C-z  command-prompt -N {send -N '%%%'}
+    :bind -Tcopy-mode-vi  C-z  command-prompt -N {send -N '%%'}
                                               ^^
 
 As soon as you press a non-numeric key:
@@ -684,31 +944,53 @@ to detect that `deleteb` would fail.
 But at execution time, when `deleteb`  does fail, tmux stops processing the rest
 of the commands.
 
+## On which condition does `displayp` run its template argument?
+
+The user  must press a numeric  key matching the index  of a pane opened  in the
+current window.
+
+    $ tmux displayp -d0 'display test'
+
+## When does tmux display the output of a command in copy mode?
+
+Whenever the command which outputs the text is not attached to a terminal.
+This happens when it's run in the  background, from a key binding, or by another
+command:
+
+    $ tmux run -b 'echo test'
+
+    $ tmux bind x display -p test
+    # press 'x'
+
+    $ tmux confirm 'display -p test'
+    $ tmux choose-buffer 'display -p test'
+    $ tmux display-panes 'display -p test'
+
+## Which pitfall must I be aware of when I pass `-r` to `bind-key`?
+
+If the lhs matches the start of another key binding installed in a program which
+is sometimes run  in a tmux pane, there's  a risk for it to be  consumed by tmux
+while you expected it to be sent to the program.
+
+For example, if you have this tmux key binding:
+
+    bind -r C-j resizep -D 5
+         ^^
+
+And this Vim mapping:
+
+    nno <c-j> :wincmd j<cr>
+
+When you  press `C-j` to  focus the  Vim split below,  there's a risk  that tmux
+consumes the keypress and resizes the tmux pane instead.
+
+The issue  will arise after you've  pressed *any* tmux key  binding defined with
+`-r` (after  the prefix  key the  first time;  without the  prefix key  the next
+times), but only for `'repeat-time'` ms.
+
 ##
 ##
 ##
-# run-shell
-
-Document that `-b` makes the output of  the shell command displayed in copy mode
-(instead of the stdout of the current shell).
-
-    $ tmux run 'echo hello'
-    hello~
-
-               vv
-    $ tmux run -b 'echo hello'
-    hello in copy mode~
-
-> run-shell [-b] [-t target-pane] shell-command
->               (alias: run)
->         Execute shell-command in the background without creating a win‐
->         dow.  Before being executed, shell-command is expanded using the
->         rules specified in the FORMATS section.  With -b, the command is
->         run in the background.  After it finishes, any output to stdout
->         is displayed in copy mode (in the pane specified by -t or the
->         current pane if omitted).  If the command doesn't return success,
->         the exit status is also displayed.
-
 # join-pane
 ## ?
 
@@ -977,17 +1259,8 @@ The -R flag causes the terminal state to be reset; `$ tmux send -R` seems simila
 -X is  used to  send a  command into  copy mode  - see  the WINDOWS  AND PANES
 section.
 
+##
 # WINDOWS AND PANES
-
-A tmux window may be in one of two modes.
-The default permits direct access to the terminal attached to the window.
-The other is copy mode, which permits a section of a window or its history to be
-copied to a paste buffer for later insertion into another window.
-This mode is entered with the copy-mode command, bound to ‘[' by default.
-It is also  entered when a command  that produces output, such  as list-keys, is
-executed from a key binding.
-
-Commands are sent to copy mode using the -X flag to the send-keys command.
 
 The following commands are supported in copy mode:
 
@@ -1009,11 +1282,6 @@ The following commands are supported in copy mode:
     previous-paragraph                           {
     next-paragraph                               }
 
-Copy  commands may  take an  optional buffer  prefix argument  which is  used to
-generate  the  buffer  name  (the  default is  ‘buffer'  so  buffers  are  named
-‘buffer0', ‘buffer1' and so on).
-Pipe commands take a  command argument which is the command  to which the copied
-text is piped.
 The  ‘-and-cancel' variants  of some  commands exit  copy mode  after they  have
 completed  (for copy  commands)  or  when the  cursor  reaches  the bottom  (for
 scrolling commands).
@@ -1107,7 +1375,6 @@ tmux automatically adjusts the size of the layout for the current window size.
 Note that a layout cannot be applied to  a window with more panes than that from
 which the layout was originally defined.
 
-##
 # PARSING SYNTAX
 
 This section describes the  syntax of commands parsed by tmux,  for example in a

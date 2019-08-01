@@ -1,18 +1,18 @@
 # Why should I avoid including a shell variable inside the format passed to `$ printf`?
 
-The variable  will be  evaluated by  the shell, *before*  `$ printf`  parses the
+The  variable will  be evaluated  by the  shell *before*  `$ printf`  parses the
 format to replace the specifiers such as `%s`.
 So, if the  value contains sth like `%s`,  `$ printf` will parse it  as a format
-specifier, which may be unexpected (i.e. you probably want it to be left alone).
+specifier, which may be unexpected; you probably want it to be printed verbatim.
 
     $ coverage='96%'
 
-    # ✘
+    ✘
     $ printf "Unit test coverage: $coverage\n"
     printf: %\n: invalid directive~
     Unit test coverage: 96%~
 
-    # ✔
+    ✔
     $ printf "Unit test coverage: %s\n" "$coverage"
     Unit test coverage: 96%~
 

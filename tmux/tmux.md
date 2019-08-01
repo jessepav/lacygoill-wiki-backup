@@ -1603,48 +1603,6 @@ ce qui rend le lien inexploitable à moins de l'éditer.
 Les liens sont dépourvus de contexte.
 
 ##
-# Scripting
-
-    send-keys -t 1.2 echo hello Enter
-    send
-
-            Tape `echo hello` dans le 2e pane de la 1e fenêtre de la session tmux courante.
-
-            `send-keys` reconnaît certaines touches spéciales tq ’C-a’ ou ’npage’.
-            On peut désactiver cette reconnaissance via l'argument `-l` (literal).
-
-            La syntaxe générale de `send-keys` est:
-
-                    :send-keys [-lR] [-t target-pane] key ...
-
-            L'argument -R demande à ce que l'état du terminal soit reset (kézako?).
-
-            On peut utiliser `send-keys` depuis 3 contextes différents:
-
-                    - un script bash
-                    - une session interactive en préfixant la commande avec pfx
-                    - une session Vim. Ex:
-
-                            call system('tmux send-keys -t 1.2 "echo hello" Enter')
-
-
-    break-pane -d -t 1.2 -P -F '#{window_index}'
-
-            Sépare le pane ciblé par `-t` de la fenêtre qui le contient, pour en faire le seul pane
-            dans une nouvelle fenêtre.
-
-            Les arguments `-d`, `-P` et `-F` signifient resp. :
-
-                    * -d    le pane ne doit pas devenir la fenêtre courante
-
-                    * -P    affiche des informations à propos de la nouvelle fenêtre créée
-                            Par défaut, `break-pane` utilise le format suivant:
-
-                                    #{session_name}:#{window_index}
-
-                    * -F    utilise le format qui suit pour afficher les infos
-
-##
 # Raccourcis
 
     bind-key [-nr] [-t mode-table] [-T key-table] key command [arguments]
@@ -1712,8 +1670,6 @@ Les liens sont dépourvus de contexte.
 
     switch-client -p
     switch-client -n
-    pfx (
-    pfx )
 
             Naviguer entre les différentes sessions.
 
@@ -1729,12 +1685,6 @@ Les liens sont dépourvus de contexte.
             Espace  permet de  déplier l'affichage des fenêtres d'une session.
             Dans le menu des sessions, le symbole + devant le  nom d'une  session peut  être déplié
             via la  flèche droite,  afin de  se rendre spécifiquement dans une de ses fenêtres.
-
-
-    command-prompt "find-window '%%'"
-    f string
-
-            Donne le focus à la fenêtre qui affiche qq part à l'écran la chaîne 'string'.
 
 
     select-window -t :=3
@@ -1784,20 +1734,6 @@ With -t, display the log for target-client.
             se détacher de la session (tuer le client tmux)
 
 
-    if-shell [-bF] [-t target-pane] shell-command command [command]
-    if
-
-            Execute the  first command if  shell-command returns success  or the
-            second command otherwise.
-            Before  being executed,  shell-command is  expanded using  the rules
-            specified  in  the  FORMATS  section, including  those  relevant  to
-            target-pane.
-            With -b, shell-command is run in the background.
-
-            If -F is given, shell-command is not executed but considered success
-            if neither empty nor zero (after formats are expanded).
-
-
     kill-session -t foo
     kill-window  -t foo
     kill-server
@@ -1835,22 +1771,6 @@ With -t, display the log for target-client.
     pfx ,
 
             Rename the current window, or the window at target-window if specified, to new-name.
-
-
-    run-shell [-b] [-t target-pane] shell-command
-    run
-
-            Execute shell-command in the background without creating a window.  Before being executed, shell-com‐
-            mand is expanded using the rules specified in the FORMATS section.  With -b, the command is run in the
-            background.  After it finishes, any output to stdout is displayed in copy mode (in the pane specified
-            by -t or the current pane if omitted).  If the command doesn't return success, the exit status is also
-            displayed.
-
-
-    source-file [-q] path
-    source
-
-            Execute commands from path.  If -q is given, no error will be returned if path does not exist.
 
 ## Fenêtres
 

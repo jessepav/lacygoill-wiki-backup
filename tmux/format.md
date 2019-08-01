@@ -259,6 +259,11 @@ Example:
     $ tmux if '[ #{pane_height} -lt 12 ]' 'display -p "fewer than 12 lines"' 'display -p "more than 12 lines"'
                                 ^^^
 
+---
+
+Do *not* use `#{>=:}` & similar.
+They are for string comparisons only.
+
 ###
 ### the equality between two strings?
 
@@ -922,19 +927,19 @@ it suits your needs, and `$ awk` or `$ sed` to extract the desired info.
 
 ###
 ## Which pane ID is output by
-### `$ tmux display -p -t mysession '#D'`?
+### `$ tmux display -p -t =mysession '#D'`?
 
 If `mysession` is being attached, the ID of the currently active pane.
 Otherwise, the ID of  the last pane which was active  when `mysession` was being
 attached.
 
-### `$ tmux display -p -t 'mysession:^' '#D'`?
+### `$ tmux display -p -t '=mysession:^' '#D'`?
 
 The ID of the last pane which was active in the first window of `mysession`, the
 last time  the latter was being  attached and you  left the first window  to use
 another one.
 
-### `$ tmux display -p -t 'mysession' '#W`'
+### `$ tmux display -p -t '=mysession' '#W`'
 
 If `mysession` is being attached, the name of the currently used window.
 Otherwise, the name of the last window which was used when `mysession` was being
@@ -992,7 +997,7 @@ among the set of panes/windows which are compatible with the description.
 
 ### clients connected to the session 'my session'?
 
-    $ tmux lsc -t 'my session'
+    $ tmux lsc -t '=my session'
 
 ###
 ### all windows on the server?
@@ -1006,7 +1011,7 @@ among the set of panes/windows which are compatible with the description.
 
 ### all windows in the session 'my session'?
 
-    $ tmux lsw -t 'my session'
+    $ tmux lsw -t '=my session'
 
 ###
 ### all panes on the server?
@@ -1030,8 +1035,8 @@ among the set of panes/windows which are compatible with the description.
 
 ### all panes in the session 'my session'?
 
-    $ tmux lsp -s -t 'my session'
-               ^^^^^^^^^^^^^^^^^^
+    $ tmux lsp -s -t '=my session'
+               ^^^^^^^^^^^^^^^^^^^
 
 ##
 ### ?
@@ -1077,23 +1082,6 @@ contexts (current session/window/pane, given session/window/pane, ...).
 Find the minimum amount of rules to know to handle all possibilities.
 But first, study `$ man tmux /COMMANDS`; you probably need this to know what can
 be passed to `-t`.
-
----
-
-Again, we're spending too much time on documenting sth.
-I think  you should not  try to immediately find  all possible commands  using a
-format variable.
-
-What is your goal?
-You want to find the minimum amount of rules to get any info in any context.
-Ok, find a sample of *some* commands to get *some* info in *some* contexts.
-Then, from them, try to infer some rules.
-Now, apply those rules to get any info.
-Does it work? Great, you've finished.
-It doesn't work? Ok, try to tweak the rules (edit/remove/add), and apply the new
-rules to get any info in any context.
-Repeat until you get a good enough set of rules.
-Find your rules with an **iterative** process, progressively, organically, ...
 
 ###
 ## Can I reliably target a given window via its name?  a pane via its title?
@@ -1285,4 +1273,34 @@ bothering us.
 Maybe we should have spent more time on the questions than on the answers; first
 trying to find a good structure (main questions, subquestions, ...), then moving
 as much of our notes in this structure.
+
+---
+
+Also, we've spent too much time refactoring the Vim mappings `||` and `|x`.
+We tried to adapt the code to a few features we wanted.
+But the code was too old.
+We should have  started from stratch, and first explicitly  tell which inferface
+we  wanted  (like   what  each  mapping  was  supposed  to   do,  and  in  which
+circumstances; also which signature for the function(s)).
+And from  time to time, check  the old code  to avoid documented pitfalls  or to
+borrow some interesting lines.
+
+
+---
+
+We're  spending  too much  time  on  documenting how  to  get  the list  of  all
+clients/windows/panes/... sharing a given property.
+I think  you should not  try to immediately find  all possible commands  using a
+format variable.
+
+What is your goal?
+You want to find the minimum amount of rules to get any info in any context.
+Ok, find a sample of *some* commands to get *some* info in *some* contexts.
+Then, from them, try to infer some rules.
+Now, apply those rules to get any info.
+Does it work? Great, you've finished.
+It doesn't work? Ok, try to tweak the rules (edit/remove/add), and apply the new
+rules to get any info in any context.
+Repeat until you get a good enough set of rules.
+Find your rules with an **iterative** process, progressively, organically, ...
 

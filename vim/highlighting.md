@@ -531,6 +531,19 @@ palette, which will be ugly/flashy.
 # TODO
 ## ?
 
+Some people say that `:syntax on` and `:syntax enable` are *in practice* equivalent.
+They say that, because most colorscheme authors write this:
+
+    if exists("syntax_on")
+      syntax reset
+    endif
+
+To document. (also document the `reset` subcommand)
+
+<https://www.reddit.com/r/vim/comments/choowl/vimpolyglot_syntax_on_or_syntax_enable/euvzia0/>
+
+## ?
+
 If you set  `'tgc'` in Neovim, you'll notice  that a lot of text  is bold, while
 it's not in Vim, and vice versa.
 

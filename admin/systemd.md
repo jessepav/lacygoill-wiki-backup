@@ -1978,7 +1978,7 @@ The service must have written why it failed.
 <https://www.youtube.com/watch?v=tY9GYsoxeLg>
 <https://www.youtube.com/watch?v=V0xoCA_qO58>
 
-## try to install an xbindkeys service
+## try to install an xbindkeys service, and a `keyboard_setup.sh` service
 
 We could ask it to reload its config.
 This  would  be  useful  to  reload the  config  of  xbindkeys  after  modifying
@@ -2071,6 +2071,20 @@ To understand issue “Start request repeated too quickly”:
 <https://askubuntu.com/a/859583/867754>
 
 <https://wiki.archlinux.org/index.php/Systemd/User>
+
+---
+
+We have the same issue with `~/.config/keyboard/setup.sh`.
+See the todo at the top.
+
+And we probably have the same issue with xfce4-panel.
+Suppose you restart it from a shell managed by tmux:
+
+    $ xfce4-panel -r
+
+I'm not sure but  I think that from now on, any program  started from it will be
+polluted with tmux variables.
+Make some tests to be sure.
 
 ## Find a way to dynamically get the current username from a unit file.
 

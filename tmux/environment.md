@@ -252,7 +252,7 @@ documentation about `switch-client`:
 After attaching a client  to a session, the other sessions  are updated when you
 switch to them; not before.
 
-You can check this by running `$ tmux showenv -t other_session | grep KRB5CCNAME`.
+You can check this by running `$ tmux showenv -t =other_session | grep KRB5CCNAME`.
 The output will still contain the old value of the variable.
 And after you switch to `other_session`, `$ tmux showenv | grep KRB5CCNAME` will
 finally contain the updated value.

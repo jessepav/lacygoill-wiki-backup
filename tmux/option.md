@@ -444,7 +444,7 @@ which can be set via an option with the same name as the hook.
 
 #### the list of hooks local to an arbitrary session?
 
-    $ tmux show-hooks -t <session>
+    $ tmux show-hooks -t =<session>
 
 #### Why should I avoid `show-options -[g]H`?
 
@@ -478,15 +478,15 @@ Pass `-R` to `set-hook`:
 
 Use `-t`:
 
-    set-hook -t <session> -R <hook>
-             ^^^^^^^^^^^^
+    set-hook -t =<session> -R <hook>
+             ^^^^^^^^^^^^^
 
 Example:
 
-    $ tmux set-hook -t fun    session-renamed '' \; \
-           set-hook -t fun -a session-renamed 'display -p one' \; \
-           set-hook -t fun -a session-renamed 'display -p two' \; \
-           set-hook -t fun -R session-renamed
+    $ tmux set-hook -t =fun    session-renamed '' \; \
+           set-hook -t =fun -a session-renamed 'display -p one' \; \
+           set-hook -t =fun -a session-renamed 'display -p two' \; \
+           set-hook -t =fun -R session-renamed
     one~
     two~
 
@@ -511,13 +511,13 @@ Example:
 
 Use `-u` and `-t`:
 
-    set-hook -t fun -u '<hook>[123]'
+    set-hook -t =fun -u '<hook>[123]'
 
-    $ tmux set-hook -t fun     session-renamed '' \; \
-           set-hook -t fun -a  session-renamed 'display -p test' \; \
-           set-hook -t fun -a  session-renamed 'display -p remove_me' \; \
-           set-hook -t fun -u 'session-renamed[1]' \; \
-           set-hook -t fun -R  session-renamed
+    $ tmux set-hook -t =fun     session-renamed '' \; \
+           set-hook -t =fun -a  session-renamed 'display -p test' \; \
+           set-hook -t =fun -a  session-renamed 'display -p remove_me' \; \
+           set-hook -t =fun -u 'session-renamed[1]' \; \
+           set-hook -t =fun -R  session-renamed
     test~
 
 ###

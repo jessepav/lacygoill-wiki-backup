@@ -1108,24 +1108,30 @@ If this environment  variable is set to  0, git will not prompt  on the terminal
 
 Source:
 
-        https://news.ycombinator.com/item?id=11070797
-        https://developer.atlassian.com/blog/2016/02/best-way-to-store-dotfiles-git-bare-repo/
+- <https://news.ycombinator.com/item?id=11070797>
+- <https://developer.atlassian.com/blog/2016/02/best-way-to-store-dotfiles-git-bare-repo/>
 
 Alternatives:
 
-        https://www.reddit.com/r/vim/comments/9tzk2o/is_there_a_way_to_store_my_vimrc_on_github_and/
+<https://www.reddit.com/r/vim/comments/9tzk2o/is_there_a_way_to_store_my_vimrc_on_github_and/>
 
 ---
 
 TODO: Learn how to have multiple working directories.
 This would allow us to version control files in `/etc`:
 
-        https://stackoverflow.com/questions/6270193/multiple-working-directories-with-git
+<https://stackoverflow.com/questions/6270193/multiple-working-directories-with-git>
 
 In the meantime, you can create a hard  link inside your home pointing to a file
 in `/etc`, and version control this hard link.
 Git will back up the contents of the file.
 With a soft link, git would just back up its path.
+
+---
+
+Also, document this:
+
+<https://news.ycombinator.com/item?id=11071976>
 
 ##
 # Commandes

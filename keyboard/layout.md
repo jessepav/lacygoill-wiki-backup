@@ -287,14 +287,24 @@ pressed to validate the command (Enter vs C-m).
     keycode 58 = Control
     ...
 
-Use `dumpkeys`  to read the current  layout and `showkey`  to get the code  of a
-key.
+Use `dumpkeys` to read the current layout and `showkey` to get the code of a key.
 Read `man 5 keymaps` for the syntax of the file.
 
 ---
 
 If you tweak  `vc.conf`, you can apply the changes  immediately, by pressing C-d
 then re-logging.
+
+---
+
+TODO: Document how to bind a *sequence* of keys to a key.
+Basically, you need to bind it to `F123`, then assign the sequence to the string `F123`.
+For example, to make `S-Tab` emit `Esc [ Z`:
+
+    shift keycode 15 = F15
+    string F15 = "\033[Z"
+
+See `$ man 5 keymaps /spare`.
 
 ##
 # Where can I find a list of all the possible options that I can pass to `setxkbmap`?

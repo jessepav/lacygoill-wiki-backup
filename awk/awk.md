@@ -932,7 +932,9 @@ The output should now contain something like:
 
 ### Install
 
-    $ sudo checkinstall
+    $ sudo checkinstall --pkgversion 9:5.0.1
+                                     ^^
+                                     don't forget to specify a big-enough epoch
 
     $ sudo update-alternatives --install /usr/bin/awk awk /usr/local/bin/gawk 60 \
       --slave /usr/share/man/man1/awk.1.gz awk.1.gz /usr/local/share/man/man1/gawk.1.gz
