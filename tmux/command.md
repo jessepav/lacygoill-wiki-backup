@@ -994,10 +994,6 @@ times), but only for `'repeat-time'` ms.
 
     $ tmux run 'tmux #{S:my_tmux_command \; }'
 
-### pane of the current window?
-
-    $ tmux run 'tmux #{P:my_tmux_command \; }'
-
 ### window of the current session?
 
     $ tmux run 'tmux #{W:my_tmux_command \; }'
@@ -1006,7 +1002,23 @@ For example, to make the clock be displayed in red in all windows of the current
 
     $ tmux run 'tmux #{W:set -w -t:#I clock-mode-colour red \; }'
 
-#### It doesn't work when I try to set!
+### pane of the current window?
+
+    $ tmux run 'tmux #{P:my_tmux_command \; }'
+
+#### It doesn't work when I try to set an option with a comma-separated list of values!
+
+Escape the commas by prefixing them with `#`.
+
+    $ tmux run 'tmux #{P:set -w -t:#I window-style "none#,bg=#123456#,fg=#789abc" \; }'
+                                                        ^           ^
+
+---
+
+Inside `#{S:}`, `#{W:}`, `#{P:}`, the comma has a special meaning.
+It's  used to  separate 2  formats; the  second one  is used  for the  *current*
+session/window/pane, while the first one is used for all the other ones.
+You need to escape the commas to remove this special meaning.
 
 ##
 ##

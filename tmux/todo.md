@@ -225,23 +225,6 @@ should be nested with care, unset $TMUX to force”.
 
 What gives?
 
-# double a percent sign when running a shell process for your status line
-
-If you run some shell command to include some info in your status line, e.g.:
-
-    #{?#(cmd1),#(cmd2),}
-
-And if the command contains a percent sign, e.g.:
-
-    $ date +%s
-
-I think you need to double the percent:
-
-    $ date +%%s
-             ^
-
-That's what nicm seemed to suggest once in the #tmux irc channel.
-
 # by default tmux runs a shell process every 15s for the statusline; use `$ sleep` to change that time
 
     #(while :; do command; sleep 30; done)
@@ -911,7 +894,7 @@ Although, now  that I  think about it,  it wouldn't make  sense for  the current
 command to be 'bind',  because `bind` doesn't run the command  when we press pfx +x;
 it *installs* the key binding.
 
-## how to use valgrind to debut tmux
+## how to use valgrind to debug tmux
 
 <https://github.com/tmux/tmux/issues/1829#issuecomment-509632045>
 
@@ -924,32 +907,6 @@ In practice, it doesn't fix the issue.
 
 Maybe we've somehow broken our Ubuntu 16.04, idk.
 In any case, this valgrind command does work on Ubuntu 18.04 in a VM.
-
-## that if you change 'terminal-overrides', and don't want to restart the server, you need to detach/re-attach
-
-MWE:
-
-    $ cat <<'EOF' >/tmp/tmux.conf
-    set -s terminal-overrides '*:Cs=\E]123;%p1%s\007:Cr=\\E]112\\007'
-    #                                    ^
-    #                                    ✘ intentional error
-    EOF
-
-    $ urxvt
-    $ tmux -Lx -f/tmp/tmux.conf
-
-                         blue color
-                         v
-    $ printf -- '\033]12;4\007'
-    # the cursor color stays the same, because the `Cs` capability contains a typo
-
-    $ tmux set -s terminal-overrides '*:Cs=\E]12;%p1%s\007:Cr=\\E]112\\007'
-    $ printf -- '\033]12;4\007'
-    # the cursor color stays the same, because tmux didn't read the new value of `Cs`
-
-    $ tmux detach
-    $ tmux -Lx attach
-    # the cursor color is now blue, as expected
 
 ## that when you pass `-p` and `-c` to `display`
 

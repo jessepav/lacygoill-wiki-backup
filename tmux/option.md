@@ -717,3 +717,42 @@ MWE:
      C-b " (splitw)
      C-b ; (last-pane)
 
+## I'm setting 'status-right'.  The result is unexpected!
+
+Does the value contain a percent character?
+
+If so, you may need to double it:
+
+    $ tmux set -g status-right "#(awk 'BEGIN { printf(\"%%d\", 123) }')"
+                                                        ^^
+
+Indeed,  the   values  of  'status-right'   and  'status-left'  are   passed  to
+`strftime(3)`, for which the `%` character has a special meaning.
+You  need to  double the  character  so that  it's  sent literally  to `$  awk`;
+otherwise, in the previous  example, `%d` would be replaced with  the day of the
+month (01, 02, ..., 31).
+
+---
+
+Does the value contain a double quote?
+
+If so, you may need to escape it more than what you thought.
+
+    $ tmux set -g status-right "#(echo a\"b)"
+    ''~
+
+    $ tmux set -g status-right "#(echo a\\\"b)"
+    a"b~
+
+In the first command, when the shell receives `a"b`, the quote is interpreted as
+the start of a string which is  never closed; hence why the status line contains
+nothing.
+
+Run this in sh:
+
+    $ echo a"b
+    >~
+
+You get the secondary prompt string (`>`  by default), because sh expects you to
+type more text and close the string with a second `"`.
+

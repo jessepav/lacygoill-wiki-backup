@@ -1,30 +1,9 @@
-# ?
-
-How do you include a double quote inside `#()` to insert the output of a shell command in the status line?
-
-    ✘
-    $ tmux set -g status-right "#(echo a\"b)"
-    ''~
-
-    ✘
-    $ tmux set -g status-right '#(echo a"b)'
-    ''~
-
-    ✔
-    $ tmux set -g status-right '#(echo a\"b)'
-    a"b~
-
-How to include in the status line the output of a shell command which contains a mix of single and double quotes (without using a shell script)?
-For example: $ awk 'BEGIN { printf("%d", 123) }'
-I've tried: `$ tmux set -g status-right "#(awk 'BEGIN { printf(\"%d\", 123) }')"`.
-But it inserts '05' instead of '123'.
-
 # How to view the description of
 ## the outer terminal?
 
     $ infocmp -x $(tmux display -p '#{client_termname}')
 
-## the terminals of all tmux clients connected to the tmux server, taking into account 'terminal-overrides'?
+## the terminals of all tmux clients attached to the tmux server, taking into account 'terminal-overrides'?
 
     $ tmux info
 
@@ -186,6 +165,14 @@ the outer terminal; it only uses its own internal description.
 But the latter is based on the terminfo description, and is updated whenever you
 detach/re-attach.
 
+I don't think that  you need to detach/re-attach every time  you update a server
+option.
+I think 'terminal-overrides' is a special case.
+It has one *single*  value – like any option – but it's  used to build *several*
+other values: one per terminal client attached to the server.
+Those values are only updated when you detach/re-attach.
+But there's no equivalent for the other server options.
+
 ##
 ## ?
 
@@ -289,9 +276,9 @@ Solution: Do *not* use a DCS sequence.
 
 And set the `Ss` and `Se` capabilities of the outer terminal.
 
-    $ cat <<'EOF' >>~/.tmux.conf
-    set -as terminal-overrides ',*:Ss=\E[%p1%d q:Se=\E[2 q'
-    EOF
+    $ tmux set -as terminal-overrides ',*:Ss=\E[%p1%d q:Se=\E[2 q'
+    $ tmux detach
+    $ tmux [-Lsocket] attach
 
 ##
 # ?
