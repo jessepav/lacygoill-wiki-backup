@@ -566,7 +566,7 @@ This allows you to write sth like:
     $ tmux display -p '#{m:+(foo|bar|baz),bar}'
 
 Try to  ask nicm  whether an  option could be  set at  compile-time so  that the
-`FNM_EXTMATCH` flag is set at runtime.
+`FNM_EXTMATCH` flag is set at run time.
 The compile-time option would not be set by default of course.
 
 Or write a sed script which edits all the tmux C files invoking `fnmatch()` (`$ rg 'fnmatch\('`).
@@ -1013,4 +1013,8 @@ interpreted as resp. the stdin and the stdout:
     4~
 
 This is not documented.
+
+---
+
+`\ePtmux;seq\e\\` is not documented.
 

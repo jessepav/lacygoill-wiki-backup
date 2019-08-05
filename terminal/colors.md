@@ -237,24 +237,6 @@ part of the terminal's palette.
 For example, `#123456` shouldn't be a shade of gray, while `#121212` could be.
 
 ##
-## A terminal can use colors outside the palette.  Usually, what do they colorize?
-
-It depends on  the terminal, but, among other things,  they're used to colorize
-some elements of the UI:
-
-   - text foreground
-   - terminal background
-   - cursor
-   - tab activity
-   - text selection
-   - bold text
-   ...
-
-The colors used for these don't belong to the palette.
-They are not meant to be used by a program to color an *arbitrary* element of its UI.
-Their only purpose is to color some *fixed* elements of the UI of the terminal.
-
-##
 ## `$ palette`
 ### What do the colors in the same column in the output of `$ palette` have in common?
 
@@ -287,28 +269,52 @@ but not the remaining 240 ones.
 urxvt and  xterm are exceptions;  they allow you to  redefine all colors  of the
 palette via `~/.Xresources`.
 
----
+### How to do it at run time?
 
-Also, in some terminals, you can still use the sequence:
+In some terminals, you can use this sequence:
 
     OSC 4 ; c ; spec ST
+            │   │
+            │   └ desired color
+            └ index of the color in the palette
 
-to change a color of the palette.
-Where `c`  is the index (in  the palette) of the  color you want to  change, and
-`spec` is the name of a color or an RGB specification.
+`spec` can be a name or RGB specification as per XParseColor.
+The latter includes the syntax `#RRGGBB`.
+`#RRGGBB` is an old and not encouraged syntax (see `man XParseColor`).
 
-Try this:
+To test the sequence, first run:
 
     $ palette
 
-Look at the color 159 (it's cyan).
+And look at the color 159 (it's cyan).
+Then run:
 
-    $ printf '\e]4;159;yellow\e\\'
+    $ printf '\e]4;159;yellow\a'
 
 The  color of  the  characters  displaying `159`  should  immediately change  to
 yellow; if it doesn't, it means the terminal doesn't support the sequence.
 
-#
+#### How to change several colors in one single command?
+
+Any number of `c`/`spec` pairs may be given.
+
+    OSC 4 ; c1 ; spec1 ; c2 ; spec2 ; ... ; ST
+
+Example:
+
+    $ printf '\e]4;0;red;1;green\a'
+                   ├───┘ ├─────┘
+                   │     └ set the color 1 to green
+                   └ set the color 0 to red
+
+#### How to reset all the colors to their default values?
+
+Restart a new terminal.
+
+If you're  inside tmux, first  close the terminal  or detach, then  re-attach to
+your tmux session.
+
+##
 # True Color
 ## What's the benefit of true color?
 
@@ -457,6 +463,174 @@ version of the programs.
 
    - <https://gist.github.com/XVilka/8346728>
    - <https://en.wikipedia.org/wiki/ANSI_escape_code#Colors>
+
+##
+# Text color attributes
+## How to apply a color whose index in the terminal palette is
+### between 0 and 7?  (2)
+
+Use the SGR sequence, whose syntax is:
+
+    CSI Pm m
+
+and replace Pm with `30 + <color index>`:
+
+    $ printf '\e[30m  text in black    \e[0m\n'
+    $ printf '\e[31m  text in red      \e[0m\n'
+    $ printf '\e[32m  text in green    \e[0m\n'
+    $ printf '\e[33m  text in yellow   \e[0m\n'
+    $ printf '\e[34m  text in blue     \e[0m\n'
+    $ printf '\e[35m  text in magenta  \e[0m\n'
+    $ printf '\e[36m  text in cyan     \e[0m\n'
+    $ printf '\e[37m  text in white    \e[0m\n'
+
+Or with `38;5;<color index>`:
+
+    $ printf '\e[38;5;0m  text in black    \e[0m\n'
+    $ printf '\e[38;5;1m  text in red      \e[0m\n'
+    $ printf '\e[38;5;2m  text in green    \e[0m\n'
+    $ printf '\e[38;5;3m  text in yellow   \e[0m\n'
+    $ printf '\e[38;5;4m  text in blue     \e[0m\n'
+    $ printf '\e[38;5;5m  text in magenta  \e[0m\n'
+    $ printf '\e[38;5;6m  text in cyan     \e[0m\n'
+    $ printf '\e[38;5;7m  text in white    \e[0m\n'
+
+Prefer the second syntax; the first one is a legacy one.
+
+Note that even though we wrote color names in the previous examples, you may get
+different colors when you run these commands.
+This is because  they apply the colors  of the terminal palette,  and the latter
+may have been arbitrarily changed by the user.
+
+### between 8 and 15?  (2)
+
+In the SGR sequence, replace Pm with `90 + <color index>`.
+
+    $ printf '\e[90m  text in black    \e[0m\n'
+    $ printf '\e[91m  text in red      \e[0m\n'
+    $ printf '\e[92m  text in green    \e[0m\n'
+    $ printf '\e[93m  text in yellow   \e[0m\n'
+    $ printf '\e[94m  text in blue     \e[0m\n'
+    $ printf '\e[95m  text in magenta  \e[0m\n'
+    $ printf '\e[96m  text in cyan     \e[0m\n'
+    $ printf '\e[97m  text in white    \e[0m\n'
+
+Or with `38;5;<color index>`.
+
+    $ printf '\e[38;5;8m   text in black    \e[0m\n'
+    $ printf '\e[38;5;9m   text in red      \e[0m\n'
+    $ printf '\e[38;5;10m  text in green    \e[0m\n'
+    $ printf '\e[38;5;11m  text in yellow   \e[0m\n'
+    $ printf '\e[38;5;12m  text in blue     \e[0m\n'
+    $ printf '\e[38;5;13m  text in magenta  \e[0m\n'
+    $ printf '\e[38;5;14m  text in cyan     \e[0m\n'
+    $ printf '\e[38;5;15m  text in white    \e[0m\n'
+
+### beyond 15?
+
+In the SGR sequence, replace Pm with `38;5;<color index>`.
+
+    $ printf '\e[38;5;123m text colored with 123th color of palette \e[0m\n'
+
+###
+## How to apply a true color?
+
+In the SGR sequence, replace Pm  with `38;2;rr;gg;bb`, where `rr`, `gg` and `bb`
+are the quantity of red, green and  blue present in the desired color, expressed
+by a number in the range `[0-255]`.
+
+    $ printf '\e[38;2;123;234;45m text in this true color \e[0m\n'
+
+Whether it  works and whether  the color is  reliably rendered, or  the terminal
+just chooses the closest match in its palette, depends on the terminal.
+More  specifically,  it  depends  on  whether/how it  supports  the  true  color
+capability.
+
+## How to apply a color to the *background* of the text?
+
+Add 10 to the first number in Pm.
+
+                 ┌ 30 + 10
+                 ├┐
+    $ printf '\e[40m  background in black    \e[0m\n'
+    $ printf '\e[41m  background in red      \e[0m\n'
+    $ printf '\e[42m  background in green    \e[0m\n'
+    $ printf '\e[43m  background in yellow   \e[0m\n'
+    $ printf '\e[44m  background in blue     \e[0m\n'
+    $ printf '\e[45m  background in magenta  \e[0m\n'
+    $ printf '\e[46m  background in cyan     \e[0m\n'
+    $ printf '\e[47m  background in white    \e[0m\n'
+
+                 ┌ 90 + 10
+                 ├─┐
+    $ printf '\e[100m  background in black    \e[0m\n'
+    $ printf '\e[101m  background in red      \e[0m\n'
+    $ printf '\e[102m  background in green    \e[0m\n'
+    $ printf '\e[103m  background in yellow   \e[0m\n'
+    $ printf '\e[104m  background in blue     \e[0m\n'
+    $ printf '\e[105m  background in magenta  \e[0m\n'
+    $ printf '\e[106m  background in cyan     \e[0m\n'
+    $ printf '\e[107m  background in white    \e[0m\n'
+
+                 ┌ 38 + 10
+                 ├┐
+    $ printf '\e[48;5;0m  background in black    \e[0m\n'
+    $ printf '\e[48;5;1m  background in red      \e[0m\n'
+    $ printf '\e[48;5;2m  background in green    \e[0m\n'
+    $ printf '\e[48;5;3m  background in yellow   \e[0m\n'
+    $ printf '\e[48;5;4m  background in blue     \e[0m\n'
+    $ printf '\e[48;5;5m  background in magenta  \e[0m\n'
+    $ printf '\e[48;5;6m  background in cyan     \e[0m\n'
+    $ printf '\e[48;5;7m  background in white    \e[0m\n'
+
+    $ printf '\e[48;5;8m   background in black    \e[0m\n'
+    $ printf '\e[48;5;9m   background in red      \e[0m\n'
+    $ printf '\e[48;5;10m  background in green    \e[0m\n'
+    $ printf '\e[48;5;11m  background in yellow   \e[0m\n'
+    $ printf '\e[48;5;12m  background in blue     \e[0m\n'
+    $ printf '\e[48;5;13m  background in magenta  \e[0m\n'
+    $ printf '\e[48;5;14m  background in cyan     \e[0m\n'
+    $ printf '\e[48;5;15m  background in white    \e[0m\n'
+
+    $ printf '\e[48;5;123m background colored with 123th color of palette \e[0m\n'
+
+    $ printf '\e[48;2;123;234;45m background in true color \e[0m\n'
+
+##
+# UI
+## How to change the color of some element of the terminal's UI?
+
+In some terminals, you can use this sequence:
+
+    OSC Ps ; Pt ST
+        │    │
+        │    └ specifies the new color (can be a name or a hexcode like `#ab1234`)
+        └ specifies a UI element
+
+### How to replace Ps if I want to set the color of
+#### the terminal foreground?
+
+10
+
+    $ printf '\e]10;yellow\a\n'
+    $ printf '\e]10;#ab1234\a\n'
+
+This affects the default  color of the text, when it's  not highlighted, as well
+as the cursor.
+
+#### the terminal background?
+
+11
+
+    $ printf '\e]11;yellow\a\n'
+    $ printf '\e]11;#ab1234\a\n'
+
+#### the cursor foreground?
+
+12
+
+    $ printf '\e]12;yellow\a\n'
+    $ printf '\e]12;#ab1234\a\n'
 
 ##
 # Issues

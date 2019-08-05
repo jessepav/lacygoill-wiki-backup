@@ -22,10 +22,6 @@ database.md
 
 issues.md
 
-# How to write and send a control sequence to the terminal?
-
-sequences.md
-
 # How does tmux interact with the terminal?
 
 tmux.md

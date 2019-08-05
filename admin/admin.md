@@ -164,7 +164,7 @@ Example:
 Note that `/etc/sysctl.d/99-sysctl.conf` is a symlink to `/etc/sysctl.conf`.
 
 # How to change a kernel parameter
-## at runtime?  (2)
+## at run time?  (2)
 
         $ sudo sysctl -w <parameter>=<value>
         $ echo 'value' | sudo tee /proc/sys/path/to/parameter

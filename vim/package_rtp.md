@@ -139,7 +139,7 @@ Or, start Vim with any of these command-line arguments:
 
 ## Which command does Vim execute to load plugins at startup?
 
-        :runtime! plugin/**/*.vim
+    :runtime! plugin/**/*.vim
 
 ## How to make `:runtime` print a message when it doesn't find any file?
 
@@ -351,14 +351,14 @@ When {file} contains wildcards it is expanded to all matching files.  Example:
 
 ## Which values can be used in place of `[where]` in:   `:runtime [where] file ...`?
 
-        ┌───────┬───────────────────────────────────────────────┐
-        │ START │ search under `start/` in 'pp'                 │
-        ├───────┼───────────────────────────────────────────────┤
-        │ OPT   │ search under `opt/` in 'pp'                   │
-        ├───────┼───────────────────────────────────────────────┤
-        │ PACK  │ search under `start/` and `opt/` in 'pp'      │
-        ├───────┼───────────────────────────────────────────────┤
-        │ ALL   │ first use 'rtp',                              │
-        │       │ then search under `start/` and `opt/` in 'pp' │
-        └───────┴───────────────────────────────────────────────┘
+    ┌───────┬───────────────────────────────────────────────┐
+    │ START │ search under `start/` in 'pp'                 │
+    ├───────┼───────────────────────────────────────────────┤
+    │ OPT   │ search under `opt/` in 'pp'                   │
+    ├───────┼───────────────────────────────────────────────┤
+    │ PACK  │ search under `start/` and `opt/` in 'pp'      │
+    ├───────┼───────────────────────────────────────────────┤
+    │ ALL   │ first use 'rtp',                              │
+    │       │ then search under `start/` and `opt/` in 'pp' │
+    └───────┴───────────────────────────────────────────────┘
 

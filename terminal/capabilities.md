@@ -1,76 +1,69 @@
-# Basic
+# Where can I find a list of all control sequences supported by
+## xterm?
 
-    ┌──────────┬─────────────────────────────────────────┐
-    │ am       │ does automatic margins                  │
-    ├──────────┼─────────────────────────────────────────┤
-    │ bw       │ cub1 wraps from column 0 to last column │
-    ├──────────┼─────────────────────────────────────────┤
-    │ ul       │ can underline                           │
-    ├──────────┼─────────────────────────────────────────┤
-    │ bel=^G   │ the key to ring the bell is C-g         │
-    ├──────────┼─────────────────────────────────────────┤
-    │ cols#80  │ the screen has 80 columns               │
-    ├──────────┼─────────────────────────────────────────┤
-    │ lines#24 │ the screen has 24 lines                 │
-    └──────────┴─────────────────────────────────────────┘
+<http://invisible-island.net/xterm/ctlseqs/ctlseqs.html>
 
-## What does `am` mean?
+If the `xterm` package is installed on your machine, you can also read:
+
+    /usr/share/doc/xterm/ctlseqs.txt.gz
+
+## VT100?
+
+<https://vt100.net/docs/vt510-rm/contents.html>
+
+##
+# Basic capabilities
+## What does it mean for a terminal to have the capability
+### `am`?
 
 When the end of a line is reached, an automatic carriage return and line-feed is
 performed.
 
-## What does `bw` mean?
+### `bw`?
 
-Theory: when  you move the  cursor back from  column 0, you  end up on  the last
-column of the previous line.
+Programs can backspace around the left edge.
+And a cub1 (move cursor 1 position to  the left) from the left edge will move to
+the right edge of the previous row.
 
 Mnemonic: BackWards
 
+### `ul`?
+
+The terminal can generate underlined characters.
+
+### `bel=^G`?
+
+The key to ring the bell is `C-g`.
+
+### `cols#80`?
+
+The terminal has 80 columns (in its default geometry?).
+
+### `lines#24`?
+
+The terminal has 24 lines (in its default geometry?).
+
 ##
-# Cursor
+# Cursor capabilities
 ## What are the coordinates of "home" for an X terminal?
 
     (1,1)
 
 ##
-## absolute motions
+## What is the purpose of the capability
+### `cup`?
 
-    ┌───────────────────────┬──────────────────────────────────────┐
-    │ smcup                 │ sequence to start programs using cup │
-    ├───────────────────────┼──────────────────────────────────────┤
-    │ rmcup                 │ sequence to end programs using cup   │
-    ├───────────────────────┼──────────────────────────────────────┤
-    │ cup=\E[%i%p1%d;%p2%dH │ absolute cursor motion               │
-    └───────────────────────┴──────────────────────────────────────┘
+It describes how to move the cursor to an arbitrary location.
 
-`smcup` makes the terminal enter a mode  in which the programs can use the `cup`
-capability (absolute cursor motion).
-In Vim's builtin termcap db, it's called `t_ti`, which contains one of the first
-sequence sent to the terminal.
+#### How is it different from most other string capabilities?
 
-`rmcup` makes the terminal leave this mode.
-In Vim's builtin termcap db , it's called `t_te`, which contains one of the last
-sequence sent to the terminal.
-
-### What is `cup`?
-
-The cursor motion capabilitiy.
-It describes how to move the cursor directly to a specific location.
-
-#### How is it different from most other capabilities?
-
-Since the desired location is specified by a program at run time, the capability
-must provide some mechanism for describing arguments.
-The program uses this  description to figure out *what* string  it needs to send
-to move the cursor to the desired location.
-
-So, simple string capabilities tell what string to send, while `cup` – and other
-string capabilities  with arguments – tell  the program *how to  calculate* what
+Simple string capabilities tell **what string to send**, while `cup` – and other
+string  capabilities with  arguments –  tell the  program **how  to build**  the
 string to send.
 
-#### Which special character does it rely on?
-
-The "%" escape character.
+Indeed, the desired location is specified by a program at run time, and thus the
+capability  must provide  a  mechanism  to encode  the  coordinates  of the  new
+location.
 
 #### What is the data structure used by a terminal to process a `cup` string?
 
@@ -97,8 +90,34 @@ because of `%i`.
 
 For more info, see page 31 of “Termcap and Terminfo” (40 of the original book).
 
+##### What is the purpose of `%`?
+
+It's used as an escape character;  when combined with some valid character, it's
+interpreted as an operation on some runtime argument.
+
 ##
+### `smcup`?
+
+It makes  the terminal  enter a  mode in which  the programs  can use  the `cup`
+capability (absolute cursor motion).
+
+### `rmcup`?
+
+It makes the terminal leave the mode entered after `smcup`.
+
+###
+### How are `smcup` and `rmcup` called in Vim's builtin termcap db?
+
+`t_ti` and `t_te`.
+
+#### What is special about them?
+
+They contain one of the first and last sequence sent to the terminal.
+
+###
 ## relative motions
+### What does it mean for a terminal to have the capability
+#### ?
 
     ┌───────────┬───────────────────────────────────────────────┐
     │ cbt=\E[Z  │ backtab                                       │
@@ -138,6 +157,59 @@ Use the `civis` capability:
 Use the `cnorm` capability:
 
     $ tput cnorm
+
+##
+## How to save the cursor position and use the alternate screen buffer, clearing it first?
+
+    $ tput smcup
+
+### How to use the normal screen buffer and restore the cursor position?
+
+    $ tput rmcup
+
+Try this:
+
+    $ ls
+    $ tput smcup
+    $ echo 'hello'
+    $ tput rmcup
+
+###
+## How to change the shape of the cursor?
+
+    CSI Ps SP q
+
+---
+
+    # block
+    $ printf '\e[2 q'
+
+    # underline
+    $ printf '\e[4 q'
+
+    # bar
+    $ printf '\e[6 q'
+
+    # blinking block
+    $ printf '\e[0 q'
+
+    # blinking underline
+    $ printf '\e[3 q'
+
+    # blinking bar
+    $ printf '\e[5 q'
+
+### How is this sequence called?
+
+    DECSCUSR
+    ││││├┘││
+    │││││ │└ ?
+    │││││ └ Style
+    ││││└ CUrsor
+    │││└ Set
+    ││└ Corporation
+    │└ Equipment
+    └ Digital
 
 ##
 # Arrow keys
@@ -216,7 +288,7 @@ As an experiment, run this in Vim:
 
 Then, press the up arrow key in normal mode.
 The `A` character is inserted above the current line.
-This is because, pressing the up arrow  key makes the terminal send the sequence
+This is because pressing  the up arrow key makes the  terminal send the sequence
 `Esc O A`, and  without `'t_ku'` being properly set, Vim  is unable to recognize
 this sequence.
 
@@ -303,50 +375,100 @@ Underline mode:
     └──────────┴────────┘
 
 #
-# Terminfo Extensions
-## What's a terminfo extension?
+# What's the meaning of BEL, ESC, ST and SP?
 
-An extended capability not found in standard terminfo, which was first supported
-in xterm, and later may have been implemented in other terminals.
+    ┌─────┬──────────────────┐
+    │ BEL │ Bell             │
+    ├─────┼──────────────────┤
+    │ ESC │ Escape           │
+    ├─────┼──────────────────┤
+    │ ST  │ String Terminator│
+    ├─────┼──────────────────┤
+    │ SP  │ a space          │
+    └─────┴──────────────────┘
 
-### How can I list all of them?
+## What about their notations?
 
-    $ infocmp -x xterm+tmux
-    #       Reconstructed via infocmp from file: /home/user/.terminfo/x/xterm+tmux~
-    xterm+tmux|advanced xterm features used in tmux,~
-            Cr=\E]112\007, Cs=\E]12;%p1%s\007,~
-            Ms=\E]52;%p1%s;%p2%s\007, Se=\E[2 q, Ss=\E[%p1%d q,~
-
-Here, you can see 5 capabilities:
-
-   - Cr
-   - Cs
-   - Ms
-   - Se
-   - Ss
+    ┌─────┬─────────────────────┐
+    │ BEL │ C-g  \a  \007  \x07 │
+    ├─────┼─────────────────────┤
+    │ ESC │ C-[  \e  \033  \x1b │
+    ├─────┼─────────────────────┤
+    │ ST  │ Esc \               │
+    ├─────┼─────────────────────┤
+    │ SP  │                     │
+    └─────┴─────────────────────┘
 
 ##
-## What's `Ms`?
+# What's the difference between CSI and OSC sequences?
 
-It's a  way for the terminal  to tell the  applications (such as tmux)  how they
-should encode and send  some arbitrary text, if they want  the terminal to store
-it into the clipboard.
+The CSI sequences finish with a printable character.
+The OSC sequences finish with ST (BEL can also be used in xterm).
 
-### Where can I find more information about it?
+##
+# How to make the terminal report whenever a FocusIn or FocusOut event has been fired?
 
-    $ curl -LO http://invisible-island.net/datafiles/current/terminfo.src.gz
-    $ gunzip terminfo.src.gz
-    $ vim terminfo.src
-    /\m\C\<Ms\>
+Use this sequence:
 
-### What's its default value?
+    CSI ? 1004 h
 
-    Ms=\E]52;%p1%s;%p2%s\007
+## How to disable this?
 
-#### What's the meaning of the two parameters?
+    CSI ? 1004 l
 
-   - p1 = the storage unit (clipboard, selection or cut buffer)
-   - p2 = the base64-encoded clipboard content.
+##
+# How to change the character attributes (bold, italic, underline, color, ...) of some text?
+
+    CSI Pm m
+
+---
+
+    $ printf '\e[1m   bold             \e[0m\n'
+    $ printf '\e[3m   italic           \e[0m\n'
+    $ printf '\e[4m   underline        \e[0m\n'
+    $ printf '\e[5m   blinking         \e[0m\n'
+    $ printf '\e[7m   negative image   \e[0m\n'
+    $ printf '\e[8m   invisible image  \e[0m\n'
+    $ printf '\e[9m   strikethrough    \e[0m\n'
+
+## How is this sequence also called?
+
+SGR, because it invokes the [Select Graphic Rendition][1] control function.
+
+### What's the effect of the “negative image” attribute?
+
+It reverses the foreground and background colors of the text.
+
+#### What about the “invisible image” attribute?
+
+It hides the text.
+
+###
+## How to apply multiple attributes?
+
+Since the syntax of  the sequence contains Pm (and not Ps),  you can combine the
+codes of multiple attributes by separating them with semicolons:
+
+    $ printf '\e[1;4;5m bold + underline + blinking\n'
+                 ^^^^^
+
+### How to reset a specific attribute out of multiple ones?
+
+Use the sequence `CSI 123 m` where  123 stands for the number resulting from the
+addition of 20 with the code of the attribute you want to reset.
+
+    $ printf '\e[3;4m italic + underlined \e[24m just italic\n'
+                                             ^^
+                                             4+20
+                                             ^
+                                             underlined
+
+### How to reset *all* attributes?
+
+Use the sequence `CSI 0 m`.
+
+    $ printf '\e[1;4;5m bold + underline + blinking \e[0m no more attributes\n'
+                                                    ^^^^^
 
 ##
 # Miscellaneous
@@ -378,14 +500,19 @@ If it contains:
 
 In the terminal description, append the character `@` to the name of the capability.
 
+See `$ man terminfo /Similar Terminals /canceled`:
+
+> A capability can be  canceled by placing xx@ to the left  of the use reference
+> that imports it, where xx is the capability.
+
 ---
 
-nicm uses this syntax in some issues on github, like here:
+nicm uses this syntax in some issues on github:
 
    - <https://github.com/tmux/tmux/issues/1593#issuecomment-460004714>
    - <https://github.com/tmux/tmux/issues/1419#issuecomment-409111029>
 
-## How to insert a control character when you edit an entry of the terminfo db?
+## How to insert a control character when I edit an entry of the terminfo db?
 
 Use the caret notation.
 
@@ -446,3 +573,66 @@ which the programs can use the `cup` capability.
 
 `$ clear` is used to move the cursor back to home.
 
+##
+## How to test whether my terminal supports common sequences to set text attributes?
+
+    $ msgcat --color=test
+
+Useful to test whether we can send sequences to:
+
+   - change the color of the text / background
+   - set some styles (bold, italic, underlined)
+
+## How to test whether my terminal supports any sequence?
+
+You must *manually* send it via `printf`, or `echo [-e]`.
+
+`echo` is a shell builtin command.
+`-e` enables the interpretation of some backslash-escaped characters.
+`-e` is necessary in bash, so that `\e` is replaced with a real escape character.
+`-e` is useless in zsh, because its builtin `echo` command already uses `-e` by default.
+
+It's impossible to *programmatically* detect  whether a sequence is supported by
+a given terminal.
+
+Even querying the terminfo db is not reliable.
+For example, by default, xfce4-terminal sets `$TERM` to `xterm`.
+The `xterm` entry in the terminfo db contains a `sitm` field with the value `\E[3m`.
+Which means  xfce4-terminal reports to  all programs  it runs, that  it supports
+italics; it's false, it doesn't.
+
+Bottom line: terminals lie to the programs they're running about their identity.
+
+## Why should I use raw sequences as little as possible?
+
+A raw sequence may work on one terminal but not on another.
+Use `$ tput` instead. It's more portable.
+
+`tput` will query the terminfo db and return the right sequence (if any) for any
+given terminal:
+
+    ✘
+    $ printf 'some \e[1m bold \e[0m text\n'
+
+    ✔
+    $ printf 'some %s bold \e[0m text\n' $(tput bold)
+
+## How to (re)initialize the terminal and the serial line interface?
+
+    $ tput
+    $ tset
+
+Useful when a program  has left either of those in an  unexpected state, and the
+terminal is no longer usable.
+
+## How to get the list of user-defined capabilities?
+
+    $ diff -U $(wc -l < <(infocmp -1x | sed '1,2d')) \
+      <(infocmp -1x | sed '1,2d' | sort) \
+      <(infocmp -1 | sed '1,2d' | sort) \
+      | sed -n 's/^-//p'
+
+##
+# Reference
+
+[1]: https://vt100.net/docs/vt510-rm/SGR.html

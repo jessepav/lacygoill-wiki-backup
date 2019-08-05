@@ -196,28 +196,28 @@ For systemd running in `--system` mode, it's located in:
     │ /etc/systemd/system/     │ where system-wide user units are placed              │    |
     │                          │ by the system administrator                          │    |
     ├──────────────────────────┼──────────────────────────────────────────────────────┤    | decreasing order
-    │ /run/systemd/system/     │ units created at runtime                             │    | of priority
+    │ /run/systemd/system/     │ units created at run time                            │    | of priority
     ├──────────────────────────┼──────────────────────────────────────────────────────┤    |
     │ /usr/lib/systemd/system/ │ where units of packages installed system-wide belong │    v
     └──────────────────────────┴──────────────────────────────────────────────────────┘
 
 For systemd running in `--user` mode, it's located in:
 
-    ┌──────────────────────────────┬──────────────────────────────────────────────────┐
-    │ ~/.config/systemd/user/      │ current user units                               │    |
-    ├──────────────────────────────┼──────────────────────────────────────────────────┤    |
-    │ /etc/systemd/user/           │ system-wide user units placed                    │    |
-    │                              │ by the system administrator                      │    |
-    ├──────────────────────────────┼──────────────────────────────────────────────────┤    | decreasing
-    │ /run/user/1000/systemd/user/ │ units created at runtime (for the current user?) │    | order
-    ├──────────────────────────────┼──────────────────────────────────────────────────┤    | of
-    │ /run/systemd/user/           │ units created at runtime (for all users?)        │    | priority
-    ├──────────────────────────────┼──────────────────────────────────────────────────┤    |
-    │ ~/.local/share/systemd/user/ │ units of packages                                │    |
-    │                              │ that have been installed in the home directory   │    |
-    ├──────────────────────────────┼──────────────────────────────────────────────────┤    |
-    │ /usr/lib/systemd/user/       │ units of packages installed system-wide          │    v
-    └──────────────────────────────┴──────────────────────────────────────────────────┘
+    ┌──────────────────────────────┬───────────────────────────────────────────────────┐
+    │ ~/.config/systemd/user/      │ current user units                                │    |
+    ├──────────────────────────────┼───────────────────────────────────────────────────┤    |
+    │ /etc/systemd/user/           │ system-wide user units placed                     │    |
+    │                              │ by the system administrator                       │    |
+    ├──────────────────────────────┼───────────────────────────────────────────────────┤    | decreasing
+    │ /run/user/1000/systemd/user/ │ units created at run time (for the current user?) │    | order
+    ├──────────────────────────────┼───────────────────────────────────────────────────┤    | of
+    │ /run/systemd/user/           │ units created at run time (for all users?)        │    | priority
+    ├──────────────────────────────┼───────────────────────────────────────────────────┤    |
+    │ ~/.local/share/systemd/user/ │ units of packages                                 │    |
+    │                              │ that have been installed in the home directory    │    |
+    ├──────────────────────────────┼───────────────────────────────────────────────────┤    |
+    │ /usr/lib/systemd/user/       │ units of packages installed system-wide           │    v
+    └──────────────────────────────┴───────────────────────────────────────────────────┘
 
 ## What are the different types of units?
 
@@ -426,7 +426,7 @@ What's the effect of the `Wants` and `Requires` directives in the `[Unit]` secti
 
 Same effect as the `WantedBy` and `RequiredBy` directives.
 But the effect is not obtained  at installation time (`$ systemctl enable ...`),
-but when the unit file is loaded at runtime.
+but when the unit file is loaded at run time.
 
 ---
 
@@ -436,7 +436,7 @@ These directories contain symbolic links to  unit files that are dependencies of
 the sshd service.
 
 The  symbolic  links  are   automatically  created  either  during  installation
-according to [Install] unit file options or at runtime based on [Unit] options.
+according to [Install] unit file options or at run time based on [Unit] options.
 
 ---
 
@@ -481,7 +481,7 @@ unit files, and have no effect.
 
 Unit  files  may include  an  "[Install]"  section, which  carries  installation
 information for the unit.
-This section is not interpreted by systemd(1)  during runtime; it is used by the
+This section is not interpreted by systemd(1) during run time; it is used by the
 enable and  disable commands of the  systemctl(1) tool during installation  of a
 unit.
 Note that settings in the "[Install]" section may not appear in `.d/*.conf` unit
@@ -1256,8 +1256,8 @@ This can be relevant for services such as the Apache web server, which expects a
 fully configured network environment when it is started.
 These services should depend on the network.target.
 However, services  such as Avahi  or Bind  don't require the  dependency because
-they  can  correctly handle  network  interfaces  that  appear or  disappear  at
-runtime.
+they can  correctly handle network  interfaces that  appear or disappear  at run
+time.
 
 ##
 ##

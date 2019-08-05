@@ -90,7 +90,7 @@ Control Sequence Introducer:  ESC [
 ## capability
 
 It can refer both  to an actual terminal characteristic (ex:  number of lines on
-the screen), and to the d terminfo syntax for describing that characteristic.
+the screen), and to the terminfo syntax for describing that characteristic.
 
 There's no canonical list of capabilities.
 IOW, a  terminal can invent a  non-standard capability, found nowhere  else, for
@@ -110,9 +110,9 @@ The name “curses” comes from “cursor manipulation”.
 
 Device Control String:  Esc P
 
-        https://en.wikipedia.org/wiki/C0_and_C1_control_codes
-        https://vt100.net/docs/vt510-rm/chapter4.html#S4.3.4
-        http://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-C1-_8-Bit_-Control-Characters
+- <https://en.wikipedia.org/wiki/C0_and_C1_control_codes>
+- <https://vt100.net/docs/vt510-rm/chapter4.html#S4.3.4>
+- <http://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-C1-_8-Bit_-Control-Characters>
 
 ##
 # o
@@ -120,9 +120,9 @@ Device Control String:  Esc P
 
 Operating System Command:  Esc ]
 
-        https://en.wikipedia.org/wiki/C0_and_C1_control_codes
-        https://vt100.net/docs/vt510-rm/chapter4.html#S4.5
-        http://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-C1-_8-Bit_-Control-Characters
+- <https://en.wikipedia.org/wiki/C0_and_C1_control_codes>
+- <https://vt100.net/docs/vt510-rm/chapter4.html#S4.5>
+- <http://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-C1-_8-Bit_-Control-Characters>
 
 ##
 # p
@@ -134,13 +134,13 @@ Individual values for the parameters are listed with Ps.
 
 ## *Ps*
 
-        selective Parameter
+selective Parameter
 
 It is a single numeric parameter.
 It selects an action associated with the specific parameter.
 
-        https://vt100.net/docs/vt510-rm/chapter4.html#S4.3.3.2
-        http://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Definitions
+- <https://vt100.net/docs/vt510-rm/chapter4.html#S4.3.3.2>
+- <http://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Definitions>
 
 ## *Pt*
 
@@ -214,6 +214,8 @@ Ex:
 ## terminfo
 
 Database similar to `termcap`.
+It's used  by screen-oriented  programs such as  nvi(1), rogue(1)  and libraries
+such as ncurses(3NCURSES).
 
 There are 5 differences between the 2 db:
 

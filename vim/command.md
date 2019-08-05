@@ -669,6 +669,15 @@ This is done to speed up the edition of each buffer.
 
 Note that the issue seems to occur only when you have 3 buffers or more (not just 2).
 
+---
+
+TODO:
+
+The issue may have been fixed by:
+<https://github.com/vim/vim/releases/tag/v8.1.1795>
+
+Should we remove this question?
+
 ### What's the other drawback of using `:argdo`, `:bufdo`, `:cdo`, ...?
 
 `:windo` and `:tabdo` may change the focused window.

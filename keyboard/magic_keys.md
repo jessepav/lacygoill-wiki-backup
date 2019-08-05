@@ -164,7 +164,7 @@ may still disable it at boot time, using `/etc/sysctl.conf`.
       │       │
       │       └ print all parameters currently available
       │
-      └ configure kernel parameters at runtime
+      └ configure kernel parameters at run time
 
     $ cat /proc/sys/kernel/sysrq
 

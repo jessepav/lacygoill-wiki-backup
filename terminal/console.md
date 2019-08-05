@@ -241,8 +241,7 @@ This requires  that you  have the `lesspipe`  utility (on  debian-based distros,
 it's included in the `less` package).
 
 It also requires that you have exported the environment variables `LESSOPEN` and
-`LESSCLOSE`.
-You can do so by executing, in `~/.zshenv`:
+`LESSCLOSE`; you can do so by executing, in `~/.zshenv`:
 
     eval "$(lesspipe)"
 
@@ -266,9 +265,7 @@ For more info:
 
     $ fbi my_pic.jpg
 
----
-
-Why do I have to add my user to the `video` group?
+### Why do I have to add my user to the `video` group?
 
 `fbi` needs to write on `/dev/fb0`.
 This file is owned by the root user, and the video group.

@@ -316,7 +316,7 @@ You can still install the binary with `$ checkinstall`, and it will work fine.
 
     https://github.com/regnarg/urxvt-config-reload
 
-            This plugin allows  you to reload urxvt configuration  at runtime by
+            This plugin allows you to reload  urxvt configuration at run time by
             sending SIGHUP to the urxvt process.
 
 

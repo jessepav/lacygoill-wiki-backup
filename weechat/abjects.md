@@ -9,11 +9,11 @@ You can use `!` to get the results as notices, or `.` to get them as as PMs.
 
 `!` work with all commands, contrary to `.`:
 
-        ✘
-        .la
+    ✘
+    .la
 
-        ✔
-        !la
+    ✔
+    !la
 
 ---
 
@@ -26,65 +26,65 @@ IOW, `.cmd` gives you persistence of data across restarts.
 
 An exclusion is the reverse of a filtering:
 
-                 ┌ filtering: only german movies
-                 ├────┐
-        !movies  german
-        !movies -german
-                ├─────┘
-                └ exclusion: any movie except german ones
+             ┌ filtering: only german movies
+             ├────┐
+    !movies  german
+    !movies -german
+            ├─────┘
+            └ exclusion: any movie except german ones
 
 ## How to exclude several strings at once?
 
 Separate them with commas:
 
-        !movies -german,xxx 720p
+    !movies -german,xxx 720p
 
 ##
 # Get info
 ## How to get help?
 
-        !help
+    !help
 
 ## How to get info about a pack?
 
-        !nfo releasename
-             │
-             └ != name of the file;
-               do NOT include an extension (`.mkv`, `.avi`, ...)
+    !nfo releasename
+         │
+         └ != name of the file;
+           do NOT include an extension (`.mkv`, `.avi`, ...)
 
 Example:
 
-        .nfo Kings.2017.720p.BluRay.x264-GUACAMOLE
+    .nfo Kings.2017.720p.BluRay.x264-GUACAMOLE
 
 Output:
 
-        pre: 30.08.2018
-        size: 3325 Mb (70x50mb)
-        runtime: 86min
+    pre: 30.08.2018
+    size: 3325 Mb (70x50mb)
+    runtime: 86min
 
-        imdb: https://www.imdb.com/title/tt5843850/
-        rating: 4,7/10 from 1.113 users
-        genre: Crime, Drama, Romance
+    imdb: https://www.imdb.com/title/tt5843850/
+    rating: 4,7/10 from 1.113 users
+    genre: Crime, Drama, Romance
 
-        video: X264 2 Pass @ 4589 kbps
-        reso: 1280 x 536 @ 2,40:1
-        fps: 23,976
+    video: X264 2 Pass @ 4589 kbps
+    reso: 1280 x 536 @ 2,40:1
+    fps: 23,976
 
-        audio: english 6ch dts @ 768kbps
+    audio: english 6ch dts @ 768kbps
 
 ##
 ## How to view my chat stats?
 
-        !stat [nick]
-               │
-               └ optional nick of another user
+    !stat [nick]
+           │
+           └ optional nick of another user
 
 Output example:
 
-        -- │ o_o (unix@only.4.u): [#MG-CHAT] (lg) WORDS: 143 - LETTERS: 1084 - LINES: 76 (w/o cmds: 1) - CHARS/LINES: 14 -
-           │ WORDS/LINES: 2 - CMDS: 75 (98.7%) - Activity: 1m ago
-           │ Unknown option -- o_o (unix@only.4.u): [#MG-CHAT] (lg) WORDS: 143 - LETTERS: 1084 - LINES: 76 (w/o cmds: 1) -
-           │ CHARS/LINES: 14 - WORDS/LINES: 2 - CMDS: 75 (98.7%) - Activity: 1m ago
+    -- │ o_o (unix@only.4.u): [#MG-CHAT] (lg) WORDS: 143 - LETTERS: 1084 - LINES: 76 (w/o cmds: 1) - CHARS/LINES: 14 -
+       │ WORDS/LINES: 2 - CMDS: 75 (98.7%) - Activity: 1m ago
+       │ Unknown option -- o_o (unix@only.4.u): [#MG-CHAT] (lg) WORDS: 143 - LETTERS: 1084 - LINES: 76 (w/o cmds: 1) -
+       │ CHARS/LINES: 14 - WORDS/LINES: 2 - CMDS: 75 (98.7%) - Activity: 1m ago
 
 ## How to view my download stats?   (2)
 
@@ -97,87 +97,87 @@ Use the `!dl` or `!checkstats` commands.
 
 Output example (!dl):
 
-        -- │ BotReign (Bot@Me.Serve.You.Long.Time): [USER]       RANK: 1st Lieutenant-II (lg) (20518) ---> next RANK:
-           │ Captain-III (30.0%) (16515 Users) - CREDITS: 3.38GiB
-        -- │ BotReign (Bot@Me.Serve.You.Long.Time): [TRAFFIC]    COMPLETEs: 13x - ATTEMPTs: 20x - TRAFFIC: 29.53GiB
-        -- │ BotReign (Bot@Me.Serve.You.Long.Time):              MONTH: 499.37MiB, 2x (Last: 0.00B, 0x) - WEEK:
-           │ 499.37MiB, 2x - TODAY: 0.00B, 0x
-        -- │ BotReign (Bot@Me.Serve.You.Long.Time): [SPEED]      LAST: 1.62MiB/s - SLOWEST: 40.00KiB/s
-           │ ([mg]-MV|EU|007) - FASTEST: 2.37MiB/s ([MG]-HDTV|EU|S|Escape) - ACTIVITY: 1day 4hrs ago
-        -- │ BotReign (Bot@Me.Serve.You.Long.Time): [#MG-CHAT]   WORDS: 129 - LETTERS: 990 - LINES: 72 (w/o cmds: 1) -
-           │ CHARS/LINE: 13.8 - WORDS/LINE: 1.8 - CMDS: 71 (98.6%) - Activity: 1min 11secs
+    -- │ BotReign (Bot@Me.Serve.You.Long.Time): [USER]       RANK: 1st Lieutenant-II (lg) (20518) ---> next RANK:
+       │ Captain-III (30.0%) (16515 Users) - CREDITS: 3.38GiB
+    -- │ BotReign (Bot@Me.Serve.You.Long.Time): [TRAFFIC]    COMPLETEs: 13x - ATTEMPTs: 20x - TRAFFIC: 29.53GiB
+    -- │ BotReign (Bot@Me.Serve.You.Long.Time):              MONTH: 499.37MiB, 2x (Last: 0.00B, 0x) - WEEK:
+       │ 499.37MiB, 2x - TODAY: 0.00B, 0x
+    -- │ BotReign (Bot@Me.Serve.You.Long.Time): [SPEED]      LAST: 1.62MiB/s - SLOWEST: 40.00KiB/s
+       │ ([mg]-MV|EU|007) - FASTEST: 2.37MiB/s ([MG]-HDTV|EU|S|Escape) - ACTIVITY: 1day 4hrs ago
+    -- │ BotReign (Bot@Me.Serve.You.Long.Time): [#MG-CHAT]   WORDS: 129 - LETTERS: 990 - LINES: 72 (w/o cmds: 1) -
+       │ CHARS/LINE: 13.8 - WORDS/LINE: 1.8 - CMDS: 71 (98.6%) - Activity: 1min 11secs
 
 ---
 
 Output example (!checkstats):
 
-        !BotReign │ lg is Level: 2 Total Downloaded: 29.53GiB Gets: 13 [Need 7 gets for Level 3] Request Credits:
-                  │ 3.38GiB
+    !BotReign │ lg is Level: 2 Total Downloaded: 29.53GiB Gets: 13 [Need 7 gets for Level 3] Request Credits:
+              │ 3.38GiB
 
 ##
 ## How to list global xdcc channel stats?
 
-        !stats
+    !stats
 
 Output example:
 
-        ~ls │ - STATS #MOVIEGODS ( 111/5042 Bots | 49425 packs | 14651 )
-            │ TOTAL: Slots|1324 - Speed|1.07TB/s - Offered|60.32TB - Transferred|6.84PB - Queued|35
-            │ CURRENT: Leechers|108 - Speed|205.44MB/s - Speed/Leechers|1.9MB/s
-            │ RECORD : Leechers|764 - Speed|594.71MB/s - Speed/Leechers|2.35MB/s
+    ~ls │ - STATS #MOVIEGODS ( 111/5042 Bots | 49425 packs | 14651 )
+        │ TOTAL: Slots|1324 - Speed|1.07TB/s - Offered|60.32TB - Transferred|6.84PB - Queued|35
+        │ CURRENT: Leechers|108 - Speed|205.44MB/s - Speed/Leechers|1.9MB/s
+        │ RECORD : Leechers|764 - Speed|594.71MB/s - Speed/Leechers|2.35MB/s
 
 ##
 ## If the bot wall-e puts me in a queue, how to ask it to send a notification about my position in the latter?
 
-        !queue wall-e
+    !queue wall-e
 
 Make sure to check for notices in #moviegods.
 
 ##
 ## How to get an imdb link for the movie 'real steel'?
 
-        !il real steel (2011)
+    !il real steel (2011)
 
 This command will output up to 6 results.
 
 ## How to get details about the movie 'real steel' from 2011 querying imdb?  rottentomatoes?
 
-        !i real steel (2011)
-                      ├────┘
-                      └ the year is optional, but if present it must be surrounded by parentheses
+    !i real steel (2011)
+                  ├────┘
+                  └ the year is optional, but if present it must be surrounded by parentheses
 
-        !rt real steel (2011)
+    !rt real steel (2011)
 
 ## How to get details about a movie whose name looks like 'real steel' querying imdb?
 
-        !i -m real steel
-           ├┘
-           └ flip the match from exact to popular matches
+    !i -m real steel
+       ├┘
+       └ flip the match from exact to popular matches
 
 ##
 ## How to get the list of new/returning/subcribed shows for today?
 
-        !today new
+    !today new
 
 ## How to get the details about the tv-show dexter?
 
-        !ep dexter
+    !ep dexter
 
 ## How to get the schedule for today's series episodes?  tomorrow's ?  monday's?  sunday's?
 
-        !today
-        !tomorrow
+    !today
+    !tomorrow
 
-        !mon
-        !sun
+    !mon
+    !sun
 
 You can also get the schedule for the other days:
 
-        !tue
-        !wed
-        !thu
-        !fri
-        !sat
+    !tue
+    !wed
+    !thu
+    !fri
+    !sat
 
 ##
 ## How to get the movie openings of the current week?  next week?  3 weeks ago?
@@ -197,42 +197,42 @@ You can also get the schedule for the other days:
 # List packs
 ## What are the 27 sections I can search through?
 
-        - android
-        - apps
+   - android
+   - apps
 
-        - console
-        - games
-        - nds
-        - ps3
-        - psp
-        - wii
-        - xbox
+   - console
+   - games
+   - nds
+   - ps3
+   - psp
+   - wii
+   - xbox
 
-        - ebook
-        - latest
-        - music
+   - ebook
+   - latest
+   - music
 
-        - bluray
-        - classic    (old known movies)
-        - german
-        - hd
-        - hdtv
-        - movies
-        - mvid
-        - pack
-        - sd
-        - sdtv
-        - tv
-        - x264
-        - xvid
-        - xxx
-        - web
+   - bluray
+   - classic    (old known movies)
+   - german
+   - hd
+   - hdtv
+   - movies
+   - mvid
+   - pack
+   - sd
+   - sdtv
+   - tv
+   - x264
+   - xvid
+   - xxx
+   - web
 
 ## How to list the packs of a given section?   The most downloaded ones during the last hour?
 
-        !section
+    !section
 
-        !hot section
+    !hot section
 
 ##
 ## What are the 10 genres of videos I can dl?
@@ -261,39 +261,39 @@ Examples:
 ##
 ## What are the 18 genres of music I can dl?
 
-        - alternative
-        - ambient
-        - bass
-        - black
-        - dance
-        - funk
-        - hardcore
-        - hip-hop
-        - house
-        - indie
-        - jazz
-        - metal
-        - pop
-        - punk
-        - rap
-        - reggae
-        - rock
-        - techno
+   - alternative
+   - ambient
+   - bass
+   - black
+   - dance
+   - funk
+   - hardcore
+   - hip-hop
+   - house
+   - indie
+   - jazz
+   - metal
+   - pop
+   - punk
+   - rap
+   - reggae
+   - rock
+   - techno
 
 ## How to list house, pop, rock mp3s?
 
-        !mp3genre house
-        !mp3genre pop
-        !mp3genre rock
+    !mp3genre house
+    !mp3genre pop
+    !mp3genre rock
 
 ##
 ## How to list the most downloaded releases?
 
-        !tops
+    !tops
 
 ## How to list the most downloaded packs of the last 7 days containing the string 'hdtv', but not 'german'?
 
-        !topdl7 -german hdtv
+    !topdl7 -german hdtv
 
 ---
 
@@ -303,108 +303,108 @@ You need a level greater than 4 to go beyond 7 days.
 
 The general syntax of the `!topdl` command is:
 
-        !topdl[days] [filter|-exclusion] [SECTION/MOVIENAME/RELEASENAME/STRING]
+    !topdl[days] [filter|-exclusion] [SECTION/MOVIENAME/RELEASENAME/STRING]
 
 ##
 ## How to list the packs, in PMs, whose names contain the string 'foo', then a character, then 'bar'?
 
-        .s foo?bar
+    .s foo?bar
 
 ## How to list the packs, in notices, whose names contain the strings 'foo' and 'bar'?   Including offline packs?
 
-        !s  foo*bar
-        !sa foo*bar
-          │
-          └ browse through All packs, including the offline ones
+    !s  foo*bar
+    !sa foo*bar
+      │
+      └ browse through All packs, including the offline ones
 
 ## How to list the packs, in notices, whose names contain the string 'homeland' in their name, but not 'german'?
 
-        !s -german homeland
-        │
-        └ trigger prefix
+    !s -german homeland
+    │
+    └ trigger prefix
 
 Will display:
 
-        - current number of gets
-        - pack size
-        - name of the pack
-        - xdcc command to download it
-        - queuesize
-        - average userspeed
+   - current number of gets
+   - pack size
+   - name of the pack
+   - xdcc command to download it
+   - queuesize
+   - average userspeed
 
 ##
 ## How to list retail movies (dvd, bluray, ...)?
 
-        !retail
+    !retail
 
 ## How to list SD Rips (not in german)?   HD Rips in 720p?   Webrips?
 
-        !sd  -german
-        !hd  -german 720p
-        !web -german
+    !sd  -german
+    !hd  -german 720p
+    !web -german
 
 ## How to list the movies whose positions (from the latest one) are between `250` and `300`?
 
-        !movies50-250
-               ├────┘
-               └ works with all `!section` triggers (`!hd`, `!games`, ...)
+    !movies50-250
+           ├────┘
+           └ works with all `!section` triggers (`!hd`, `!games`, ...)
 
 ##
 ## How to list the latest 50 packs?   Ignoring the tv section?
 
-        !latest50
-        !latest50 -tv
+    !latest50
+    !latest50 -tv
 
 FIXME:
 We should be able to shorten the name of the command to `l` (like for `!search` → `!s`):
 
-        !l50
+    !l50
 
 But in practice, it doesn't work.
 Do we need a higher rank?
 
 ## How to list the latest 5 packs in each section (ebook, games, mp3, ...)?
 
-        !la
+    !la
 
 ## How to list the latest packs, excluding the ones from the section mp3, tv, and `xxx`?
 
-        !latest -mp3,tv,xxx
+    !latest -mp3,tv,xxx
 
 ## How to get an overview of all possible layouts for the results?   How to use the second one?
 
-        !l0
-        !l2
+    !l0
+    !l2
 
 ##
 ## How to list the latest movies encoded with the `xvid` codec?   `x264` codec?
 
-        !xvid
-        !x264
+    !xvid
+    !x264
 
 ## How to list the 20 latest packs from the bot '[mg]-stor|005' and matching the section `x264`?
 
-        !bot20  [mg]-stor|005  x264
+    !bot20  [mg]-stor|005  x264
 
 ##
 # Get packs
 ## How to make the bot `wall-e` send me the packet 123 right away, jumping on the queue if necessary?
 
-        !send wall-e 123
+    !send wall-e 123
 
 The bot must support it, and you must be at least level 5.
 
 ## How to jump on a queue and get a packet by its name (regardless of its number)?
 
-        !get file
+    !get file
 
 ## How to ask a bot to send me the contents of a tar file, instead of the archive itself?
 
-        !extract archive.tar
+    !extract archive.tar
 
 ## How to subscribe for a TV show season?
 
-        !subscribe TV SHOWNAME.S06
+    !subscribe TV SHOWNAME.S06
 
 New episodes will be autosent to you when available.
 
@@ -460,27 +460,27 @@ to 1080p.
 ##
 ## Order the different tags from best to worst quality?
 
-        1. bluray hd ~ hd web-dl
-        2. hd webrip
-        3. hd(tv)rip
-        4. hd-to-sd web-dl
-        5. hd-to-sd webrip
-        6. dvdrip ~ sd webdl
-        7. sd webrip ~ sdtv
+   1. bluray hd ~ hd web-dl
+   2. hd webrip
+   3. hd(tv)rip
+   4. hd-to-sd web-dl
+   5. hd-to-sd webrip
+   6. dvdrip ~ sd webdl
+   7. sd webrip ~ sdtv
 
 ##
 # Misc.
 ## What's the difference between a “releasename” and a “filename”?
 
-        filename = releasename + extension
+    filename = releasename + extension
 
 Example:
 
-        ┌ releasename
-        ├───────────────────────────────────┐
-        Kings.2017.720p.BluRay.x264-GUACAMOLE.mkv
-        ├───────────────────────────────────────┘
-        └ filename
+    ┌ releasename
+    ├───────────────────────────────────┐
+    Kings.2017.720p.BluRay.x264-GUACAMOLE.mkv
+    ├───────────────────────────────────────┘
+    └ filename
 
 ##
 ## How fast can I send messages to the channel without being kicked?
@@ -493,42 +493,42 @@ is triggered, and you'll be kicked.
 
 In practice, when someone is kicked, the channel receives a message such as:
 
-        ⟵ │ irc.abjects.net has kicked user (Channel flood triggered (limit is 5 lines in 20 secs))
-                                                                               ^
-                                                                               may change regularly
+    ⟵ │ irc.abjects.net has kicked user (Channel flood triggered (limit is 5 lines in 20 secs))
+                                                                           ^
+                                                                           may change regularly
 
 ##
 ## How to change the default layout of a search result?
 
-        !setsearch LAYOUT
+    !setsearch LAYOUT
 
 E.g.:
 
-        !setsearch |%COLOR,01%GETSx| |%SIZE| %RLS | %COLOR,16 /msg %NICK xdcc send #%PNUM  | %COLOR,04%OFFLINE
+    !setsearch |%COLOR,01%GETSx| |%SIZE| %RLS | %COLOR,16 /msg %NICK xdcc send #%PNUM  | %COLOR,04%OFFLINE
 
 ---
 
 Available tokens:
 
-        ┌───────────┬─────────────────────────────────────────────────────────────────────────┐
-        │ %ID       │ position of the package among all the results: 001, 002, ...            │
-        ├───────────┼─────────────────────────────────────────────────────────────────────────┤
-        │ %COLOR,01 │ set the color for the following text using the first color in a palette │
-        ├───────────┼─────────────────────────────────────────────────────────────────────────┤
-        │ %CHAN     │ channel name                                                            │
-        ├───────────┼─────────────────────────────────────────────────────────────────────────┤
-        │ %GETS     │ number of times the package was downloaded                              │
-        ├───────────┼─────────────────────────────────────────────────────────────────────────┤
-        │ %SIZE     │ size of the package                                                     │
-        ├───────────┼─────────────────────────────────────────────────────────────────────────┤
-        │ %RLS      │ release name                                                            │
-        ├───────────┼─────────────────────────────────────────────────────────────────────────┤
-        │ %NICK     │ bot nickname                                                            │
-        ├───────────┼─────────────────────────────────────────────────────────────────────────┤
-        │ %PNUM     │ package number                                                          │
-        ├───────────┼─────────────────────────────────────────────────────────────────────────┤
-        │ %OFFLINE  │ online status                                                           │
-        └───────────┴─────────────────────────────────────────────────────────────────────────┘
+    ┌───────────┬─────────────────────────────────────────────────────────────────────────┐
+    │ %ID       │ position of the package among all the results: 001, 002, ...            │
+    ├───────────┼─────────────────────────────────────────────────────────────────────────┤
+    │ %COLOR,01 │ set the color for the following text using the first color in a palette │
+    ├───────────┼─────────────────────────────────────────────────────────────────────────┤
+    │ %CHAN     │ channel name                                                            │
+    ├───────────┼─────────────────────────────────────────────────────────────────────────┤
+    │ %GETS     │ number of times the package was downloaded                              │
+    ├───────────┼─────────────────────────────────────────────────────────────────────────┤
+    │ %SIZE     │ size of the package                                                     │
+    ├───────────┼─────────────────────────────────────────────────────────────────────────┤
+    │ %RLS      │ release name                                                            │
+    ├───────────┼─────────────────────────────────────────────────────────────────────────┤
+    │ %NICK     │ bot nickname                                                            │
+    ├───────────┼─────────────────────────────────────────────────────────────────────────┤
+    │ %PNUM     │ package number                                                          │
+    ├───────────┼─────────────────────────────────────────────────────────────────────────┤
+    │ %OFFLINE  │ online status                                                           │
+    └───────────┴─────────────────────────────────────────────────────────────────────────┘
 
 ## How to reset the layout?
 
@@ -569,7 +569,7 @@ You probably don't have a high enough level.
 
 Syntax:
 
-        !toppre [section/moviename/releasename]
+    !toppre [section/moviename/releasename]
 
 Here's the description given by the help:
 
@@ -654,9 +654,9 @@ file.
 
 ## How to send a request?
 
-        !req releasename
-             │
-             └ if possible try to use a particular p2p or scene releasename.
+    !req releasename
+         │
+         └ if possible try to use a particular p2p or scene releasename.
 
 Whenever the request gets filled, your file will be autosent (level 3 required).
 
@@ -675,22 +675,22 @@ By idling and downloading.
 ##
 ## How to cancel my request?
 
-        !reqclose <id/wildcard/partial requestname match (w/o spaces)> [reason for closure]
-                                                                        │
-                                                                        └ optional
+    !reqclose <id/wildcard/partial requestname match (w/o spaces)> [reason for closure]
+                                                                    │
+                                                                    └ optional
 
 ## How to change my requestname?
 
-        !reqchange <id/wildcard/partial requestname match(w/o spaces)> <New Requestname>
+    !reqchange <id/wildcard/partial requestname match(w/o spaces)> <New Requestname>
 
 ##
 ## How to list my latest 50 closed requests?
 
-        !reqclosed
+    !reqclosed
 
 ## How to list the latest 50 filled requests by the user toto?
 
-        !reqfilled toto
+    !reqfilled toto
 
 ## How long do the bots try to fill a request?
 
@@ -700,27 +700,27 @@ It expires automatically after about 2 days.
 
 Yes, the bigger the data, the greater level you need:
 
-        ┌─────────────┬────────────┐
-        │ level range │ size limit │
-        ├─────────────┼────────────┤
-        │     3-6     │    20GB    │
-        ├─────────────┼────────────┤
-        │     7-10    │    30GB    │
-        ├─────────────┼────────────┤
-        │    11-15    │    40GB    │
-        ├─────────────┼────────────┤
-        │     16+     │    45GB    │
-        └─────────────┴────────────┘
+    ┌─────────────┬────────────┐
+    │ level range │ size limit │
+    ├─────────────┼────────────┤
+    │     3-6     │    20GB    │
+    ├─────────────┼────────────┤
+    │     7-10    │    30GB    │
+    ├─────────────┼────────────┤
+    │    11-15    │    40GB    │
+    ├─────────────┼────────────┤
+    │     16+     │    45GB    │
+    └─────────────┴────────────┘
 
 ## How are all the requests received by the bots tagged?
 
 Accepted requests are tagged as ACKD.
 
-┌ downloading?
-│
-│        ┌ available?
-│        │
-Incoming/spreading requests are tagged as DLIN/FILL.
-                                          ├──┘
-                                          └ DownLoadINg ?
+    ┌ downloading?
+    │
+    │        ┌ available?
+    │        │
+    Incoming/spreading requests are tagged as DLIN/FILL.
+                                              ├──┘
+                                              └ DownLoadINg ?
 

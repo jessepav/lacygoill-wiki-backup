@@ -60,6 +60,17 @@ Here's a short description of the bracketed paste mode:
 > from myself [...].
 
 ##
+# I've changed the value of the `cbt` and `kcbt` capabilities.
+
+    $ tic -sx <(infocmp -x | sed 's/cbt=\\E\[Z/cbt=\\E\[Y/g')
+
+## Why is the new value not printed when I press `C-v S-Tab`?
+
+Only screen-oriented programs use terminfo.
+Your terminal is  *not* a screen-oriented program, and it  doesn't need to query
+an external db to know which sequence it should emit when S-Tab is pressed.
+
+##
 # Reference
 
 [1]: https://cirw.in/blog/bracketed-paste

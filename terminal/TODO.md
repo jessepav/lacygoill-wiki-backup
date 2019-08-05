@@ -115,43 +115,6 @@ Easier to grep. Fewer matches when we have an issue with a terminal capability.
 
 # ?
 
-`infocmp rxvt-unicode-256color` gives weird sequence for `rmcup`:
-
-    \E[r\E[?1049l
-
-Should we use it instead of the one we're currently using in `vim-term`?
-
-    \E[?1049l
-
-# ?
-
-Do this:
-
-    # open a tmux pane
-    $ tput Cs
-    the cursor becomes pink~
-
-    # get back to Vim, and press `coC` twice:
-    # the cursor becomes black
-
-    # get back to the shell tmux pane:
-    # the cursor becomes pink
-
-    # get back to Vim, and press `coC` twice:
-    # the cursor becomes black
-
-    # open another tmux pane:
-    # the cursor becomes pink
-
-    # close all tmux panes, except the one where Vim is
-    # get back to Vim, and press `coC` twice:
-    # the cursor becomes black
-
-    # open another tmux pane:
-    # the cursor stays black
-
-# ?
-
 To restore the color of the cursor, you can try this:
 
     $ tput Cs '#373b41'

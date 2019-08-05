@@ -808,6 +808,13 @@ Don't use `:bufdo`, it would change the current buffer:
 And fuck up the syntax highlighting  of most buffers, because the `Syntax` event
 is disabled while `:bufdo` is being executed.
 
+TODO:
+
+This issue may have been fixed by:
+<https://github.com/vim/vim/releases/tag/v8.1.1795>
+
+Should we update the answer?
+
 ###
 ### Does reloading a filetype plugin reset all local options?
 

@@ -4,7 +4,7 @@
     'grepprg' / 'gp'
     'makeprg' / 'mp'
 
-## Inside the values of these options, how to refer to the arguments passed to `:grep` and `:make` at runtime?
+## Inside the values of these options, how to refer to the arguments passed to `:grep` and `:make` at run time?
 
 Use the placeholder `$*`.
 

@@ -657,32 +657,32 @@ Before the last component of the path, ONE directory:
 ##
 ## How do ‘bpr’ interpret `*foo.vim`?   What about `*/foo.vim`?
 
-        ┌────────────────────────────────┬─────────────────────────────────────────────────┐
-        │ :{breakadd|prof} file *foo.vim │ any file anywhere BELOW a directory of the rtp, │
-        │                                │ and whose name ENDS with `foo.vim`              │
-        │                                │                                                 │
-        │                                │ Examples:                                       │
-        │                                │         .../plugin/foo.vim                      │
-        │                                │         .../autoload/xfoo.vim                   │
-        ├────────────────────────────────┼─────────────────────────────────────────────────┤
-        │ :runtime! *foo.vim             │ any file INSIDE a directory of the rtp,         │
-        │                                │ and whose name ENDS with `foo.vim`              │
-        ├────────────────────────────────┼─────────────────────────────────────────────────┤
-        │ :runtime! */*foo.vim           │ any file BELOW a directory of the rtp,          │
-        │                                │ and whose name ENDS with `foo.vim`              │
-        └────────────────────────────────┴─────────────────────────────────────────────────┘
+    ┌────────────────────────────────┬─────────────────────────────────────────────────┐
+    │ :{breakadd|prof} file *foo.vim │ any file anywhere BELOW a directory of the rtp, │
+    │                                │ and whose name ENDS with `foo.vim`              │
+    │                                │                                                 │
+    │                                │ Examples:                                       │
+    │                                │         .../plugin/foo.vim                      │
+    │                                │         .../autoload/xfoo.vim                   │
+    ├────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ :runtime! *foo.vim             │ any file INSIDE a directory of the rtp,         │
+    │                                │ and whose name ENDS with `foo.vim`              │
+    ├────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ :runtime! */*foo.vim           │ any file BELOW a directory of the rtp,          │
+    │                                │ and whose name ENDS with `foo.vim`              │
+    └────────────────────────────────┴─────────────────────────────────────────────────┘
 
-        ┌─────────────────────────────────┬─────────────────────────────────────────────────┐
-        │ :{breakadd|prof} file */foo.vim │ any file anywhere BELOW a directory of the rtp, │
-        │                                 │ and whose name IS `foo.vim`                     │
-        │                                 │                                                 │
-        │                                 │ Examples:                                       │
-        │                                 │         .../plugin/foo.vim                      │
-        │                                 │         .../autoload/foo.vim                    │
-        ├─────────────────────────────────┼─────────────────────────────────────────────────┤
-        │ :runtime! */foo.vim             │ any file anywhere BELOW a directory of the rtp, │
-        │                                 │ and whose name IS `foo.vim`                     │
-        └─────────────────────────────────┴─────────────────────────────────────────────────┘
+    ┌─────────────────────────────────┬─────────────────────────────────────────────────┐
+    │ :{breakadd|prof} file */foo.vim │ any file anywhere BELOW a directory of the rtp, │
+    │                                 │ and whose name IS `foo.vim`                     │
+    │                                 │                                                 │
+    │                                 │ Examples:                                       │
+    │                                 │         .../plugin/foo.vim                      │
+    │                                 │         .../autoload/foo.vim                    │
+    ├─────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ :runtime! */foo.vim             │ any file anywhere BELOW a directory of the rtp, │
+    │                                 │ and whose name IS `foo.vim`                     │
+    └─────────────────────────────────┴─────────────────────────────────────────────────┘
 
 ## Are the two wildcards necessary in
 ### `:{breakadd|prof} file */*foo.vim`?
@@ -707,10 +707,10 @@ second wildcard.
 And if  it can be located  anywhere below a directory  of the rtp, you  need the
 first wildcard.
 
-        :runtime! */*foo.vim
-                  └┤
-                   └ NOT useless,  because with `:ru`, a star can  NOT match the
-                     path to a directory and a part of a filename at the same time
+    :runtime! */*foo.vim
+              └┤
+               └ NOT useless,  because with `:ru`, a star can  NOT match the
+                 path to a directory and a part of a filename at the same time
 
 #
 # Issues

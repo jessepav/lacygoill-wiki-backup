@@ -989,6 +989,26 @@ The issue  will arise after you've  pressed *any* tmux key  binding defined with
 times), but only for `'repeat-time'` ms.
 
 ##
+## How to run a command in the context of each
+### session?
+
+    $ tmux run 'tmux #{S:my_tmux_command \; }'
+
+### pane of the current window?
+
+    $ tmux run 'tmux #{P:my_tmux_command \; }'
+
+### window of the current session?
+
+    $ tmux run 'tmux #{W:my_tmux_command \; }'
+
+For example, to make the clock be displayed in red in all windows of the current session:
+
+    $ tmux run 'tmux #{W:set -w -t:#I clock-mode-colour red \; }'
+
+#### It doesn't work when I try to set!
+
+##
 ##
 ##
 # join-pane

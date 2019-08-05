@@ -686,8 +686,6 @@ the literal text `@foo`.
     $ tmux display -p '#{S:#S }'
     my_session_1 my_session_2 ... ~
 
-Maybe I have a network issue, but I can't read your log files, because of `404 Page not found` error.
-
 ### each window of the current session?
 
     #{W:format}

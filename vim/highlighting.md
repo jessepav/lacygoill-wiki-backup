@@ -521,7 +521,7 @@ color  code, but  it would  make Vim  choose the  color in  its builtin/fallback
 palette, which will be ugly/flashy.
 
 ##
-### How to change them at runtime?
+### How to change them at run time?
 
     :call term_setansicolors('', ['#123456', ...])
 

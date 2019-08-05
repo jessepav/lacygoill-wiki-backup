@@ -103,7 +103,7 @@ Again, use the `-t` argument:
     $ tmux show -t2 <option>
                  ^^
 
-###
+##
 ## What happens if I
 ### omit `-g` when I set a session, window, or pane option in `~/.tmux.conf`?
 

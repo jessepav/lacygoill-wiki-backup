@@ -19,13 +19,27 @@ specifier, which may be unexpected; you probably want it to be printed verbatim.
 For more info, see:
 <https://github.com/koalaman/shellcheck/wiki/SC2059>
 
-## When is it necessary to include one nevertheless?
+# When does `$ printf` translate an escape sequence such as `\007`?
 
-When the variable contains an escape sequence which you want to be expanded.
+When it's written inside the format:
 
-### What's the alternative in this case?
+    $ printf 'a\007b'
+    ab~
 
-You can also use `%b`. See `$ man printf /%b`.
+    $ var='\007' ; printf "a${var}b"
+    ab~
+
+or in an argument bound to the format specifier `%b`:
+
+    $ printf '%b' 'a\007b'
+    ab~
+
+---
+
+In all other cases, `$ printf` does *not* translate an escape sequence:
+
+    $ printf '%s' 'a\007b'
+    a\007b~
 
 ##
 # How to execute all the scripts in a directory?

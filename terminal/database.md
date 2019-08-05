@@ -181,10 +181,10 @@ No.
 
 A terminal can have a capability which is absent from its description. Ex:
 
-    $ infocmp -x xfce
-    ∅ no smxx capability (strikethrough style)~
+    $ infocmp -1x xfce | grep smxx
+    ''
 
-    $ printf '\e[9m   strikethrough  \e[0m\n'
+    $ printf '\e[9m strikethrough \e[0m\n'
     ✔ strikes through the text in `xfce4-terminal`~
 
 #
@@ -245,7 +245,7 @@ In Neovim:
 
 ##
 # Pitfalls
-## `$ infocmp` doesn't display the custom capabilities set via the tmux option 'terminal-overrides'!
+## `$ infocmp` doesn't display the capabilities set via the tmux option 'terminal-overrides'!
 
 Those are part of a db internal to tmux.
 To view them, run `$ tmux info`.
