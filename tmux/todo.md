@@ -942,6 +942,10 @@ in which client the format variable is evaluated.
 I think there's none.
 If that's true, then `showb` is probably better because more explicit.
 
+## that we can install key bindings which are local to a session
+
+To do so, you need to create a new key table and set the 'key-table' option accordingly.
+
 ##
 # typos in manpage
 

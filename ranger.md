@@ -1291,6 +1291,18 @@ Done!
 
 Read: <http://ranger.nongnu.org/cheatsheet.svg>
 
+---
+
+Find a way to automatically mount a flash disk or hard drive.
+From outside ranger, you could try udiskie: <https://github.com/coldfix/udiskie>
+From ranger:
+
+    ~/GitRepos/ranger/examples/plugin_pmount.py
+    ~/GitRepos/ranger/examples/plugin_pmount_dynamic.py
+
+Although, these scripts depend on pmount which doesn't seem to be actively developed.
+Have a look at bashmount too: <https://github.com/jamielinux/bashmount>
+
 ##
 # Reference
 

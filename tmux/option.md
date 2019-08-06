@@ -348,6 +348,16 @@ If there're several settings, group them (possibly  in a file), so that you only
 have 1 guard to write.
 
 ##
+## How to remove the item of index 123?
+
+Simply pass the `-u` flag to `set-option`:
+
+    $ tmux set -u 'option[123]'
+                ^
+
+You may need `-g` if you're working with a session or window option.
+And you may need `-s`, `-w`, `-p` if you're working with a user option.
+
 ## How to reset the *whole* value of an array option?
 
 Don't use `-a` nor `[123]`.
