@@ -2189,3 +2189,5 @@ It's not available in ubuntu 16.04, but it is in 18.04.
 It makes the  output more readable, because it removes  the hostname which gives
 more room for the messages.
 
+## Convert all commands inside `/etc/rc.local` into systemd services
+

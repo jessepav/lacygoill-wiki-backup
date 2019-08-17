@@ -237,8 +237,6 @@ Etc.
 Try to visit the tor site:
 <http://www.uj3wazyk5u4hnvtk.onion/>
 
-Then:
-
-    $ cd ~/Downloads/tor/tor-browser_en-US/Browser/
-    $ ./start-tor-browser
+If you can't click on a magnet, search  for the text 'magnet' in the source code
+of the webpage; copy the link and paste it in transmission.
 

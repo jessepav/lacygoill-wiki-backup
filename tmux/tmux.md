@@ -1,24 +1,3 @@
-# How can I make the difference between a tmux server and a tmux client in the output of `$ ps`?
-
-Look at the process state codes.
-If you can read `Ss`, it's a server; `S+`, it's a client.
-
-    ┌───┬────────────────────────────────────────────────────────┐
-    │ S │ interruptible sleep (waiting for an event to complete) │
-    ├───┼────────────────────────────────────────────────────────┤
-    │ s │ is a session leader                                    │
-    ├───┼────────────────────────────────────────────────────────┤
-    │ + │ is in the foreground process group                     │
-    └───┴────────────────────────────────────────────────────────┘
-
-See `$ man ps /PROCESS STATE CODES`.
-
----
-
-Alternatively, look at the terminal to which the process is attached.
-If you can read `?`, it's a server; `pts/123`, it's a client.
-
-##
 # Syntax
 ## What is `info` in `$ tmux info`?  I can't find it in the documentation.
 
@@ -407,6 +386,36 @@ Use the format variable `#{client_termname}`:
 
 However, be  aware that this  information is  not always reliable,  because many
 terminals lie about their identity (they pretend to be xterm-256color).
+
+## How can I make the difference between a tmux server and a tmux client in the output of `$ ps`?
+
+Look at the process state codes.
+If you can read `Ss`, it's a server; `S+`, it's a client.
+
+    ┌───┬────────────────────────────────────────────────────────┐
+    │ S │ interruptible sleep (waiting for an event to complete) │
+    ├───┼────────────────────────────────────────────────────────┤
+    │ s │ is a session leader                                    │
+    ├───┼────────────────────────────────────────────────────────┤
+    │ + │ is in the foreground process group                     │
+    └───┴────────────────────────────────────────────────────────┘
+
+See `$ man ps /PROCESS STATE CODES`.
+
+---
+
+Alternatively, look at the terminal to which the process is attached.
+If you can read `?`, it's a server; `pts/123`, it's a client.
+
+## How do I get the pid of the terminal client?  `$ pstree -lsp $$` doesn't work!
+
+`$$` is replaced  by the pid of the  current shell which is handled  by the tmux
+server, run probably by your session manager which itself is run by systemd.
+Your terminal is not in the tree process.
+
+You need to look at the tmux client, not the tmux server:
+
+    $ pstree -lsp $(tmux display -p '#{client_pid}')
 
 ##
 # Buffers
@@ -806,8 +815,8 @@ Both (chain of) processes are started by:
 
 You can check this with the following commands:
 
-    $ pstree -lsp $(pidof tmux|cut -d' ' -f1)
-    $ pstree -lsp $(pidof tmux|cut -d' ' -f2)
+    $ pstree -lsp $(tmux display -p '#{pid}')
+    $ pstree -lsp $(tmux display -p '#{client_pid}')
 
 Note that the  server is started after  the first client, so its  pid is bigger,
 which may seem counter-intuitive.

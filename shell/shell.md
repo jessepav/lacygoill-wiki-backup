@@ -574,7 +574,7 @@ To execute:
 You can confirm that a job is executed in a subshell with these commands:
 
     $ { sleep 1000; echo finished ;} &
-    $ pstree -lsp $(pgrep sleep)
+    $ pstree -lsp $(pidof sleep)
     ... zsh───zsh───sleep~
               ^^^
               subshell~
@@ -605,7 +605,7 @@ which SOMETIMES doesn't fork, is:
 MWE:
 
     $ find / -name '*' | wc -l
-    $ pstree -lsp $(pgrep find)
+    $ pstree -lsp $(pidof find)
     ... bash───find~
         │      │~
         │      └ Initially this was a subshell started because `find` was part of a pipeline.~
@@ -633,7 +633,7 @@ calls `execve()` to replace its image with the one of the script.
 OTOH, if the command is not the last one, the subshell WILL fork a sub-sub-shell:
 
     $ ( find / -name '*'; true ) | wc -l
-    $ pstree -lsp $(pgrep find)
+    $ pstree -lsp $(pidof find)
     ... bash───bash───find~
         │      │~
         │      └ subshell~
@@ -643,7 +643,7 @@ OTOH, if the command is not the last one, the subshell WILL fork a sub-sub-shell
 Similarly:
 
     $ while true; do find / -name '*'; done | wc -l
-    $ pstree -lsp $(pgrep find)
+    $ pstree -lsp $(pidof find)
     ... bash───bash───find~
 
 In the last example, the subshell is asked to execute a single `while` loop.

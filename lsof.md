@@ -21,11 +21,9 @@ For example, bash needs this setting:
 
 ##
 ## Get the list of
-### files opened by the single Vim process?
+### files opened by the Vim process?
 
     $ lsof -p $(pidof vim)
-                ├───────┘
-                └ make sure you only have one Vim process running
 
 ### files opened by all the firefox processes?
 

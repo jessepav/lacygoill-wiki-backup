@@ -1,3 +1,35 @@
+# How is used
+## the real user ID (ruid) of a process?
+
+It identifies  the real  owner of  the process and  affects the  permissions for
+sending signals.
+
+A process  without superuser privileges may  signal another process only  if the
+sender's ruid (or euid) matches receiver's ruid (or suid).
+Because a child process  inherits its ruidd from its parent,  a child and parent
+may signal each other.
+
+<https://en.wikipedia.org/wiki/User_identifier#Real_user_ID>
+
+## the effective user ID (euid) of a process?
+
+It's used for most access checks.
+It's also used as the owner for files created by that process.
+
+<https://en.wikipedia.org/wiki/User_identifier#Effective_user_ID>
+
+## the saved user ID (suid) of a process?
+
+It's  used when  a process  running with  elevated privileges  needs to  do some
+unprivileged work temporarily; changing euid  from a privileged value (typically
+0) to some unprivileged value causes the privileged value to be stored in suid.
+
+Later, the process's euid  can be set back to the value stored  in suid, so that
+elevated privileges can be restored.
+
+<https://en.wikipedia.org/wiki/User_identifier#Saved_user_ID>
+
+##
 # How to print
 ## all the limits imposed on the resources available to the shell and the processes started by it?
 
@@ -242,7 +274,7 @@ Understand the output of `free -h`:
 
 <https://unix.stackexchange.com/questions/138463/do-parentheses-really-put-the-command-in-a-subshell/138498#comment772229_138498>
 
-Why does the manual say "The order  of expansions is:
+Why does the manual say "The order of expansions is:
 
 ... parameter and  variable expansion, ..., and command substitution  (done in a
 left-to-right fashion); word splitting; and filename expansion." Isn't this kind
@@ -269,40 +301,42 @@ So, the job becomes orphan and is re-parented to the session leader.
 
 MWE:
 
-        $ (sleep 100 &)
-        $ pstree -lsp $(pidof sleep)
-        systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───sleep(8274)~
-                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    $ (sleep 100 &)
+    $ pstree -lsp $(pidof sleep)
+    systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───sleep(8274)~
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ---
 
 How to start a job as a daemon?
 
 Solution 1:
-        $ (cmd &)
+
+    $ (cmd &)
 
 Solution 2:
-        $ cmd &
-        $ disown %
+
+    $ cmd &
+    $ disown %
 
 I think the first solution is more powerful.
 Because the second one doesn't work if the job takes time to be started.
 
 If the job contains several commands:
 
-        $ ({ cmd1; cmd2 ;} &)
-        $ pstree -lsp $(pidof sleep)
-        systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───bash(11880)───sleep(11881)~
-                                                                    ^^^^^^^^^^^
-                                                                    this time, the subshell doesn't die~
+    $ ({ cmd1; cmd2 ;} &)
+    $ pstree -lsp $(pidof sleep)
+    systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───bash(11880)───sleep(11881)~
+                                                                ^^^^^^^^^^^
+                                                                this time, the subshell doesn't die~
 
 ---
 
 Explain why none of these work:
 
-        alias dropbox_restart='killall dropbox; ( "${HOME}/.dropbox-dist/dropboxd" ) &'
-        alias dropbox_restart='killall dropbox; { "${HOME}/.dropbox-dist/dropboxd" & ;}'
-        alias dropbox_restart='killall dropbox; { "${HOME}/.dropbox-dist/dropboxd" ;} &'
+    alias dropbox_restart='killall dropbox; ( "${HOME}/.dropbox-dist/dropboxd" ) &'
+    alias dropbox_restart='killall dropbox; { "${HOME}/.dropbox-dist/dropboxd" & ;}'
+    alias dropbox_restart='killall dropbox; { "${HOME}/.dropbox-dist/dropboxd" ;} &'
 
 Note that according to [Gilles](https://unix.stackexchange.com/a/88235/289772):
 
@@ -312,29 +346,29 @@ Note that according to [Gilles](https://unix.stackexchange.com/a/88235/289772):
 
 ## ?
 
-        $ cat /tmp/sh.sh
-            #!/bin/bash
-            /tmp/sh1.sh
+    $ cat /tmp/sh.sh
+        #!/bin/bash
+        /tmp/sh1.sh
 
-        $ cat /tmp/sh1.sh
-            #!/bin/bash
-            sleep
+    $ cat /tmp/sh1.sh
+        #!/bin/bash
+        sleep
 
-        $ /tmp/sh.sh &
+    $ /tmp/sh.sh &
 
-        $ pstree -lsp $(pidof sleep)
-        systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───tmux: server(2784)───zsh(29746)───sh.sh(32569)───sh1.sh(32+~
+    $ pstree -lsp $(pidof sleep)
+    systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───tmux: server(2784)───zsh(29746)───sh.sh(32569)───sh1.sh(32+~
 
 If you kill `sh.sh`, you get this new process tree:
 
-        systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───sh1.sh(32570)───sleep(32571)
+    systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───sh1.sh(32570)───sleep(32571)
 
 This shows  that when  a process  dies, its child  is re-parented  to init  or a
 subreaper (here the session leader upstart).
 
 If you kill `sh1.sh`, you get this new process tree:
 
-        systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───sleep(32571)
+    systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───sleep(32571)
 
 Again, the orphan (`sleep`) is re-apparented to the session leader.
 
@@ -342,35 +376,35 @@ Again, the orphan (`sleep`) is re-apparented to the session leader.
 
 However, if you kill the shell from which the script was started, then `sleep` is killed too.
 
-        $ pstree -lsp $(pidof sleep)
-        systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───tmux: server(2784)───zsh(29746)───sh.sh(32569)───sh1.sh(32+~
-                                                                                         ^^^
-        $ kill -1 29746
-                │
-                └ TERM is not enough
+    $ pstree -lsp $(pidof sleep)
+    systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───tmux: server(2784)───zsh(29746)───sh.sh(32569)───sh1.sh(32+~
+                                                                                     ^^^
+    $ kill -1 29746
+            │
+            └ TERM is not enough
 
 This shows that when you exit a shell, the latter sends SIGHUP to all its children.
 
 ---
 
-systemd(1)---lightdm(980)---lightdm(1086)---upstart(1096)---sh(6583)---run-or-raise.sh(6584)---firefox(6586)...
-                                                            │          │
-                                                            │          └ /bin/bash ~/bin/run-or-raise.sh firefox
-                                                            │
-                                                            └ sh -c ~/bin/run-or-raise.sh firefox
+    systemd(1)---lightdm(980)---lightdm(1086)---upstart(1096)---sh(6583)---run-or-raise.sh(6584)---firefox(6586)...
+                                                                │          │
+                                                                │          └ /bin/bash ~/bin/run-or-raise.sh firefox
+                                                                │
+                                                                └ sh -c ~/bin/run-or-raise.sh firefox
 
-systemd(1)---lightdm(980)---lightdm(1086)---upstart(1096)---sh(2426)---run-or-raise.sh(2427)---urxvt(2429)-+-urxvt(2430)
-                                                            │          │
-                                                            │          └ /bin/bash /home/user/bin/run-or-raise.sh urxvt
-                                                            │
-                                                            └ sh -c ${HOME}/bin/run-or-raise.sh urxvt
+    systemd(1)---lightdm(980)---lightdm(1086)---upstart(1096)---sh(2426)---run-or-raise.sh(2427)---urxvt(2429)-+-urxvt(2430)
+                                                                │          │
+                                                                │          └ /bin/bash /home/user/bin/run-or-raise.sh urxvt
+                                                                │
+                                                                └ sh -c ${HOME}/bin/run-or-raise.sh urxvt
 
 ---
 
-$ cat /tmp/sh.sh
-    mousepad [&]
+    $ cat /tmp/sh.sh
+        mousepad [&]
 
-$ /tmp/sh.sh
+    $ /tmp/sh.sh
 
         systemd(1)---lightdm(980)---lightdm(1086)---upstart(1096)---mousepad(30648)-+-{dconf worker}(30649)
                                                                                     |-{gdbus}(30651)
@@ -419,16 +453,16 @@ These  orphaned processes  waste server  resources and  can potentially  leave a
 server starved for resources.
 However, there are several solutions to the orphan process problem:
 
-    - Extermination is the  most commonly used technique; in this  case the
-      orphan is killed.
+   - Extermination is the  most commonly used technique; in this  case the
+     orphan is killed.
 
-    - Reincarnation is  a technique in  which machines periodically try  to
-      locate the parents  of any remote  computations; at which point  orphaned
-      processes are killed.
+   - Reincarnation is  a technique in  which machines periodically try  to
+     locate the parents  of any remote  computations; at which point  orphaned
+     processes are killed.
 
-    - Expiration is a technique where each process is allotted a certain amount
-      of time to finish before being killed. If need be a  process may "ask" for
-      more time to  finish before the allotted time expires.
+   - Expiration is a technique where each process is allotted a certain amount
+     of time to finish before being killed. If need be a  process may "ask" for
+     more time to  finish before the allotted time expires.
 
 ## Zombie process
 
@@ -475,11 +509,6 @@ table, causing a resource leak.
 In some situations this may be desirable – the parent process wishes to continue
 holding this resource – for example  if the parent creates another child process
 it ensures that it will not be allocated the same PID.
-On  modern UNIX-like  systems  (that  comply with  SUSv3  specification in  this
-respect), the following  special case applies: if the  parent explicitly ignores
-SIGCHLD  by setting  its handler  to SIG_IGN  (rather than  simply ignoring  the
-signal  by default)  or has  the SA_NOCLDWAIT  flag set,  all child  exit status
-information will be discarded and no zombie processes will be left.
 
 Zombies can be identified in the output from the Unix ps command by the presence
 of a "Z" in the "STAT" column.
@@ -493,7 +522,7 @@ itself, but may indicate a problem that would grow serious under heavier loads.
 Since there is no memory allocated to  zombie processes – the only system memory
 usage is  for the  process table entry  itself – the  primary concern  with many
 zombies is not  running out of memory,  but rather running out  of process table
-entries, concretely process ID numbers.
+entries, concretely process ID numbers (`$ cat /proc/sys/kernel/pid_max`).
 
 To remove zombies  from a system, the  SIGCHLD signal can be sent  to the parent
 manually, using the kill command.
@@ -504,83 +533,66 @@ When a process loses its parent, init becomes its new parent.
 init periodically executes the wait system call to reap any zombies with init as
 parent.
 
-## ps
+---
 
-        ps -p 42 -o ppid
-                  │
-                  └ user-defined format
+<https://unix.stackexchange.com/a/5648/289772>
 
-Affiche le PPID (Parent PID) du processus dont le PID est 42, avec une en-tête.
-L'en-tête est une ligne affichant un intitulé pour chaque colonne d'info, ex:
-
-        PPID COMMAND
-
-`-o` est  une option  qu'on peut  passer à  `ps` pour  spécifier le  format dans
-lequel on veut qu'il affiche les infos.
-
-Ça peut servir à:
-
-        - choisir les infos qui nous intéresse
-        - renommer l'intitulé d'une colonne d'info donnée
-        - changer sa largeur
-
-Elle accepte comme valeur une liste de mots-clés séparés par des virgules.
-Les  mots-clés  utilisables  sont  décrits  dans  la  section  “STANDARD  FORMAT
-SPECIFIERS“ de la page man de `ps`.
-Parmi eux, on trouve:
-
-        ┌─────────┬──────────────────────────────────────────────────────────────────┐
-        │ %cpu    │ consommation cpu     du processus                                │
-        │ %mem    │ "            mémoire "                                           │
-        ├─────────┼──────────────────────────────────────────────────────────────────┤
-        │ cmd     │ commande complète (avec ses arguments) exécutée par le processus │
-        │         │ (synonymes: args, command)                                       │
-        │         │                                                                  │
-        │ comm    │ nom de l'exécutable                                              │
-        ├─────────┼──────────────────────────────────────────────────────────────────┤
-        │ pid     │ pid du processus                                                 │
-        │ ppid    │ pid du parent                                                    │
-        ├─────────┼──────────────────────────────────────────────────────────────────┤
-        │ ruser   │ proprio du processus                                             │
-        └─────────┴──────────────────────────────────────────────────────────────────┘
-
-
-        1. ps -p 42 -o ppid=
-        2. ps -p 42 -o ppid:13
-        3. ps -p 42 -o ppid:13=
-
-1. Idem, sauf que cette fois, l'intitulé de la colonne des PIDs est vide grâce
-   à l'opérateur `=` qui, ici, est utilisé pour lui affecter une valeur vide.
-
-2. La largeur de la colonne des PIDs est configurée comme étant 13.
-
-3. Idem, et son intitulé est vide.
-
-Si tous  les intitulés de colonne  sont supprimés (en leur  affectant une valeur
-nulle via `=`), alors la ligne d'en-tête est elle-même supprimée.
+You may sometimes see entries marked Z in the ps or top output.
+These  are technically  not  processes,  they are  zombie  processes, which  are
+nothing more than an entry in the  process table, kept around so that the parent
+process can be notified of the death of its child.
+They will go away when the parent process pays attention via wait(2) (or dies).
 
 ---
 
-        ps -p 42 -o args:13,ppid
+How to reap a zombie?
 
-Affiche le PPID et la commande complète du processus de PID 42.
-La largeur de la colonne consacrée à la commande est configurée comme étant 13.
+    $ gdb -p PPID
+    (gdb) call waitpid(PID, 0, 0)
+    (gdb) quit
 
----
+PID is the pid of the zombie, and PPID is the pid of its parent.
 
-        ps -o pid,ruser=RealUser -o comm=Command
+<https://serverfault.com/a/101525>
 
-Affiche le pid, l'utilisateur, et le nom de commande des processus.
-L'intitulé de la colonne utilisateur est changé en ’RealUser’.
+You can test this solution like so:
 
-La sortie de:
+    $ cat <<'EOF' >/tmp/zombie.c
+    // https://vitux.com/how-to-create-a-dummy-zombie-process-in-ubuntu/
+    #include <stdlib.h>
+    #include <sys/types.h>
+    #include <unistd.h>
+    int main ()
+    {
+    pid_t child_pid;child_pid = fork ();
+    if (child_pid > 0) {
+    // replace 3600 with the time in seconds during which the zombie should run
+    sleep (3600);
+    }
+    else {
+    exit (0);
+    }
+    return 0;
+    }
+    EOF
 
-        ps -o pid=X,comm=Y
+    $ cc /tmp/zombie.c -o /tmp/zombie
+    $ /tmp/zombie &!
+    $ ps ax -o pid,ppid,stat,args | grep defunct
+    22511 22510 ZN   [zombie] <defunct>~
 
-... peut être une colonne nommée 'X,comm=Y' ou 2 colonnes nommées 'X' et 'Y'.
-Ça dépend de la “personnalité“ de `ps` configurable via `$PS_PERSONALITY`.
+    $ gdb -p 22510
+    (gdb) call waitpid(22511, 0, 0)
+    (gdb) quit
+    $ ps ax -o pid,ppid,stat,args | grep defunct
+    ''~
 
-Dans le doute, utiliser plusieurs options `-o`.
+    $ killall zombie
+
+Document that there are at least two other ways:
+
+   - kill the parent (should always work: the zombie is adopted by a subreaper, then reaped)
+   - send SIGCHLD to the parent (may not work if the parent doesn't wait(2) – I think)
 
 ## Daemon
 
@@ -628,40 +640,40 @@ The common method for a process to  become a daemon, when the process is started
 from the  command-line  or from a  startup script  such as an  init script  or a
 SystemStarter script, involves:
 
-    - Optionally removing unnecessary variables from environment.
+   - Optionally removing unnecessary variables from environment.
 
-    - Executing as a background task by  forking and exiting (in the parent
-      "half" of the fork). This  allows daemon's  parent (shell  or  startup
-      process)  to receive  exit notification and continue its normal execution.
+   - Executing as a background task by  forking and exiting (in the parent
+     "half" of the fork). This  allows daemon's  parent (shell  or  startup
+     process)  to receive  exit notification and continue its normal execution.
 
-    - Dissociating from  the controlling tty
+   - Dissociating from  the controlling tty
 
-    - Creating a new session  and becoming the session leader of that session.
+   - Creating a new session  and becoming the session leader of that session.
 
-    - Becoming a process group leader.
-      These  three  steps  are  usually  accomplished  by  a  single  operation,
-      setsid().
+   - Becoming a process group leader.
+     These  three  steps  are  usually  accomplished  by  a  single  operation,
+     setsid().
 
-    - If  the daemon  wants  to  ensure that  it  won't  acquire a  new
-      controlling  tty even  by  accident  (which happens  when  a session
-      leader without a controlling tty opens a free tty), it may fork and exit
-      again. This means  that it is no  longer a session  leader in the new
-      session, and can't acquire a controlling tty.
+   - If  the daemon  wants  to  ensure that  it  won't  acquire a  new
+     controlling  tty even  by  accident  (which happens  when  a session
+     leader without a controlling tty opens a free tty), it may fork and exit
+     again. This means  that it is no  longer a session  leader in the new
+     session, and can't acquire a controlling tty.
 
-    - Setting the root directory (/) as  the current working directory so that
-      the process does  not keep any directory  in use that  may be on
-      a  mounted file system (allowing it to be unmounted).
+   - Setting the root directory (/) as  the current working directory so that
+     the process does  not keep any directory  in use that  may be on
+     a  mounted file system (allowing it to be unmounted).
 
-    - Changing the umask to 0 to allow open(), creat(), and other operating
-      system calls to provide their  own permission masks and not to  depend on
-      the umask of the caller
+   - Changing the umask to 0 to allow open(), creat(), and other operating
+     system calls to provide their  own permission masks and not to  depend on
+     the umask of the caller
 
-    - Closing all inherited files  at the time of execution that are left open
-      by the  parent process, including file descriptors 0,  1 and 2 for the
-      standard streams (stdin, stdout and stderr). Required files will be opened
-      later.
+   - Closing all inherited files  at the time of execution that are left open
+     by the  parent process, including file descriptors 0,  1 and 2 for the
+     standard streams (stdin, stdout and stderr). Required files will be opened
+     later.
 
-    - Using a logfile, the console, or /dev/null as stdin, stdout, and stderr
+   - Using a logfile, the console, or /dev/null as stdin, stdout, and stderr
 
 If the process is  started by a super-server daemon, such  as inetd, launchd, or
 systemd, the  super-server daemon will  perform those functions for  the process
@@ -673,11 +685,11 @@ as Type=forking and "multi-threaded" datagram servers under inetd).
 ##
 # How to kill the process responsible for a GUI window, without knowing its pid?
 
-        $ xkill
-        # hover your cursor on the window
-        # left-click on it
+    $ xkill
+    # hover your cursor on the window
+    # left-click on it
 
-The only thing that `xkill` does, is to close the connection to the X server.
+The only thing that `$ xkill` does, is to close the connection to the X server.
 There's no  guarantee that the application  will abort nicely, or  even abort at
 all.
 Many existing applications do indeed abort when their connection to the X server
@@ -780,7 +792,8 @@ Press:
 ##
 ##
 ##
-# How to get the environment of the Vim process?  (2)
+# How to get
+## the environment of the Vim process?  (2)
 
     $ cat /proc/$(pidof vim)/environ | tr '\0' '\n'
 
@@ -792,17 +805,17 @@ Any change the process might have made to its environment won't be visible:
 
 Alternatively, start `htop`, select the Vim process, and press `e`.
 
-# How to get the list of processes whose name is 'firefox'?
+## the list of processes whose name is 'firefox'?
 
     $ pidof firefox
 
-# How to get the list of processes whose name matches the regex `fire*`?
+## the list of processes whose name matches the regex `fire*`?
 
     $ pgrep 'fire*'
 
-# How to get the chain of processes from systemd down to the Vim process?
+## the tree of processes from systemd down to the Vim process?
 
-    $ pstree -lsp $(pgrep vim)
+    $ pstree -lsp $(pidof vim)
                │
                └ show parent processes of the specified process
 
@@ -852,7 +865,7 @@ groups to end before terminating itself.
 
 ###
 ## Process group
-### What's a process group?
+### What is a process group?
 
 A collection of one or more related processes.
 
@@ -861,11 +874,12 @@ There  may be  several because  the  command may  be  a compound  command, or  a
 pipeline.
 Besides a process may spawn child processes.
 
-### What is it used for?
+#### What is it used for?
 
-It is used to send a signal to several related processes simultaneously.
+It's used to send a signal to several related processes simultaneously.
 
-### What's the purpose of the foreground process group of a terminal?
+###
+### What is the purpose of the foreground process group of a terminal?
 
 It determines  what processes may  perform I/O to and  from the terminal  at any
 given time.
@@ -873,7 +887,7 @@ given time.
 It's  also the  process  group to  which  the tty  device  driver sends  signals
 generated by keyboard interrupts, notably C-c, C-z and C-\.
 
-### Who sets it?
+#### Who sets it?
 
 The shell.
 
@@ -915,9 +929,9 @@ the orphan to discover its termination status.
 
 For more info, see:
 
-        $ man 2 prctl
+    $ man 2 prctl
 
-        https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ebec18a6d3aa1e7d84aab16225e87fd25170ec2b
+<https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ebec18a6d3aa1e7d84aab16225e87fd25170ec2b>
 
 ###
 ### What does it mean for a parent process to wait(2) on a child?
@@ -925,15 +939,15 @@ For more info, see:
 It means that the parent calls the  system call `wait()` to get information when
 the state of one of its child changes.
 
-A state change is considered to be:
+A state change can be:
 
-        - the child terminated
-        - the child was stopped by a signal
-        - the child was resumed by a signal
+   - the child has terminated
+   - the child was stopped by a signal
+   - the child was resumed by a signal
 
 For more info, see:
 
-        $ man 2 wait
+    $ man 2 wait
 
 ### Why is it important to do so?
 
@@ -946,262 +960,563 @@ It remains in a zombie state.
 
 ##
 # ps
-## Where does the name of the `$ ps` command come from?
+## What's the effect of the option?
+### `a`?
 
-Process Status
+When you  use a BSD-style option  – whose name is  not prefixed by `-`  – `$ ps`
+only displays processes owned by the current user.
 
-## How to print information about the processes whose pid are 1, 2 and 3?
+`a` removes this restriction.
 
-        ps -p 1 2 3
-            │
-            └ pidlist (long form = `--pid`)
+### `x`?
 
+When you use a BSD-style option, `$ ps` only displays processes who have a tty.
+
+`x` removes this restriction.
+
+### `f`?
+
+It draws some ASCII art to represent the parent-child relationship between processes.
+
+The 'f' is for "forest".
+
+### `u`?
+
+It selects information and format them according to a predefined user-oriented format.
+
+---
+
+Other similar options  exist to print information according  to other predefined
+formats, highlighting various characteristics of processes:
+
+    ┌───┬───────────────────────────────┐
+    │ l │ display BSD long format       │
+    ├───┼───────────────────────────────┤
+    │ s │ display signal format         │
+    ├───┼───────────────────────────────┤
+    │ v │ display virtual memory format │
+    ├───┼───────────────────────────────┤
+    │ X │ register format               │
+    └───┴───────────────────────────────┘
+
+### `w`?
+
+Long lines are wrapped.
+
+You can also use `$ less` to read long lines.
+
+##
+## How to only print the effective user, pid, tty, state and command of all current processes?
+
+    $ ps axfo user,pid,tty,stat,args
+            ├──────────────────────┘
+            └ user-defined format
+
+`o`/`-o` is  an option which  you can use to  specify how which  information you
+want to see, and how they should be formatted.
+See `$ man ps /STANDARD FORMAT SPECIFIERS` for the full list of keywords you can use.
+
+### The header of the tty column is `TT`.  How to make `$ ps` write `TTY` instead?
+
+You  can populate  a  column header  with  an arbitrary  text  by suffixing  the
+relevant keyword with `=mytext`:
+
+    $ ps axfo user,pid,tty=TTY,stat,args
+                          ^^^^
+
+#### And how to make the column 13 cells wide?
+
+Specify the desired width after a colon:
+
+    $ ps axfo user,pid,tty:13=TTY,stat,args
+                          ^^^
+
+---
+
+Note that if  you specify `=mytext`, `:number` must precede,  otherwise it would
+be wrongly interpreted as being part of the text in the column header:
+
+    ✘
+    $ ps axfo user,pid,tty=TTY:13,stat,args
+                              ^^^
+                              would be  interpreted literally  as being  part of
+                              the column header for the tty keyword
+
+###
+### How to suppress the output of the header line?
+
+Empty every column header with an equal sign.
+
+This is especially useful when you  only want the information about one process,
+and the header is just noise:
+
+    $ ps o pid=,tty=,stat=,args= -p $(pidof vim)
+              ^    ^     ^     ^
+
+##
+### How to also include the name of the kernel function where a process is sleeping?
+
+Include the `wchan` keyword in your format:
+
+    $ ps xo pid,wchan,args
+                ^^^^^
+
+#### What does it mean for `-` to be printed instead of a kernel function name?
+
+The process is not sleeping.
+
+##
+## How to only print
+### the processes whose effective user ID is root?
+
+Use the `-u` option:
+
+    $ ps -u root
+
+### the processes whose pid are 12, 34 and 56?
+
+Use the `-p` option:
+
+    $ ps -p 12,34,56
+         ^^
+
+### the 10 most memory-consuming processes?
+
+Use the `--sort` option, pass it the `rss` keyword, and pipe the output of `$ ps` to `$ head`:
+
+    $ ps aux --sort -rss | head -n11
+                    │
+                    └ print the processes in a DEcreasing order
+
+                      by default, or with a `+` sign, the processes would be
+                      displayed in an INcreasing order
+
+##
 ## What do the numbers in the TIME column mean?
 
 They stand for how much cpu time the processes have consumed thus far.
 They do NOT stand for how long the processes have been running.
 
-## How to limit the output of `$ ps` to the 10 most memory-consuming processes?
+## Where does the name of the `$ ps` command come from?
 
-        $ ps aux --sort -rss | head -n11
-                        │
-                        └ print the processes in a DEcreasing order
+Process Status
 
-                          by default, or with a `+` sign, the processes would be
-                          displayed in an INcreasing order
+##
+# pidof, pgrep
+## How to get the *name* of
+### a given process from its PID?
+
+    $ ps o comm= -p PID
+
+---
+
+Note that it's not clear how a process name is chosen.
+
+It may be that a process and/or its parent can set the name arbitrarily:
+<https://unix.stackexchange.com/q/279782/289772>
+
+    $ pgrep -fl firefox
+    3111 firefox~
+    3157 Web Content~
+    3202 WebExtensions~
+    7177 Web Content~
+
+### all processes started from a command-line containing 'firefox'?
+
+    $ pgrep -lf firefox
+             ││
+             │└ matched 'firefox' against the full command-line
+             └ list the process name as well as the process ID
+
+###
+## What are the three differences between `$ pidof` and `$ pgrep`?
+
+First, if several pids match the argument:
+
+   - `$ pidof` prints them on a single line, separated by spaces
+   - `$ pgrep` prints each of them on a dedicated line
+
+Second,  `$ pidof`  parses its  argument as  a *literal*  name, while  `$ pgrep`
+parses it as an ERE *regex*.
+
+Third, `$ pidof` matches its argument against the full name of the *executable*,
+while `$ pgrep` matches it against the *name of the process*.
+
+### Why does `$ pgrep firefox` only output one pid, while `$ pidof firefox` output several?
+
+You probably have several firefox processes,  but only one contains 'firefox' in
+its name:
+
+    $ ps xo fname | grep firefox
+    firefox~
+
+So `$ pgrep` only prints the pid of the latter.
+However, all of them were started from the 'firefox' executable:
+
+    $ ps xo args | grep firefox
+    /usr/lib/firefox/firefox ...~
+    ...~
+    ...~
+
+So `$ pidof` prints all of their pids.
+
+#### How to make `$ pgrep` print all the firefox processes?
+
+Pass it the `-f` option so that  it matches the regex 'firefox' against the full
+command-line of each process, and not just their name.
+
+##
+## How to limit the output of `$ pgrep` to the processes
+### of the root user?
+
+Use the `-u root` argument.
+
+Only the euid is considered, not the ruid.
+
+### whose parent has the PID 123, 456 or 789?
+
+Use the `-P 123,456,789` argument.
 
 ##
 # Signals
-## Where can I find more info about the different signals that I can send to a process?
+## In which command(s) do I need to
+### write a signal name in uppercase?
 
-        $ man 7 signal /Standard signals
+When passed as an argument to `$ trap` in zsh.
 
-## What does it mean for a process to “catch” a signal?
+In all other cases, you can write a signal name in lowercase too.
+That is, when the signal name is passed as an argument to:
 
-It  means  that the  process  has  registered a  signal  handler  which will  be
-automatically invoked when the signal is received.
-This handler will determine the behavior of the process, which may be completely
-different than the default behavior of the process if the signal was not caught.
+   - `$ kill` in sh/bash/zsh
+   - `$ trap` in sh/bash
 
-###
-## When does a process receive SIGWINCH?
+### shorten a signal name by removing its `SIG` prefix?
 
-When the size of the terminal window has changed.
+`$ kill` and `$ trap` but only in the sh shell.
 
-## When does a process receive SIGCHLD?
+In bash and zsh, you can use the full name of a signal (e.g. SIGTERM).
+Although, for consistency, and because it's shorter, I would recommend using the
+shortened version of a signal name.
+
+##
+## When does a process receive
+### SIGWINCH?
+
+When the size of its graphical window (could be a terminal emulator window) has changed.
+
+### SIGCHLD?
 
 When one of its children has stopped or died.
 
-## When does a process receive SIGPIPE?
+### SIGPIPE?
 
-When a process tries to write to a pipe while the reading end has been closed.
+When it tries to write to a pipe while the reading end has been closed.
 
-The idea is that if you run `foo | bar` and `bar` exits, `foo` gets killed by a
-SIGPIPE.
+The idea is that if you run `$ foo  | bar` and `bar` exits, `foo` gets killed by
+a SIGPIPE (sent by the shell?).
 
-It doesn't necessarily raise an error in the shell.
-It does only if the signal handler for SIGPIPE has been set to SIG_IGN (ignore):
+It doesn't necessarily raise an error.
+It  does only  if the  signal  handler for  SIGPIPE  has been  set to  `SIG_IGN`
+(ignore); in that case, an error is reported via the exit status of write(2).
 
-        https://unix.stackexchange.com/a/482254/289772
+<https://unix.stackexchange.com/a/482254/289772>
 
 ##
 ## What's the number of the default signal sent by `$ kill` to a process?  What's its name?
 
-        15
+    15
 
-        SIGTERM
-           ^^^^
-           TERMination
+    SIGTERM
+       ^^^^
+       TERMination
 
-## What are the numbers of the 2 other signals I can send to kill a process?  Their names?
+### What are the 4 other signals I can send to kill a process?  (name + number)
 
-        1
-        SIGHUP
-           ^^^
-           HangUP detected on controlling terminal or death of controlling process
+    ┌─────────┬────────┬─────────────────────────────────────────┐
+    │ name    │ number │ meaning                                 │
+    ├─────────┼────────┼─────────────────────────────────────────┤
+    │ SIGHUP  │ 1      │ Hangup detected on controlling terminal │
+    │         │        │ or death of controlling process         │
+    ├─────────┼────────┼─────────────────────────────────────────┤
+    │ SIGINT  │ 2      │ Interrupt from keyboard                 │
+    ├─────────┼────────┼─────────────────────────────────────────┤
+    │ SIGQUIT │ 3      │ Quit from keyboard                      │
+    ├─────────┼────────┼─────────────────────────────────────────┤
+    │ SIGKILL │ 9      │ Kill signal                             │
+    └─────────┴────────┴─────────────────────────────────────────┘
 
-        9
-        SIGKILL
+#### How are they sorted, from the least effective to the most effective?
 
-## Which signal is the most effective?  Least effective?
+    int(2) < hup(1) ≈ term(15) < quit(3) < kill(9)
 
-        SIGKILL > SIGHUP > SIGTERM
-        9       > 1      > 15
+<https://unix.stackexchange.com/a/251267/289772>
 
 ##
 ## What happens when a process tries to read from the terminal or write to it, outside the foreground process group?
 
-The tty device driver sends to it the SIGTTIN and SIGTTOU signals.
+The tty device driver sends to it the SIGTTIN (read) or SIGTTOU (write) signal.
 Unless caught, these signals make the process stop.
 
 Shells often  override the  default stop  action of  SIGTTOU so  that background
 processes deliver their output to the controlling terminal by default.
 
+## How do daemons usually react to SIGHUP?
+
+They reload their config.
+
+> SIGHUP   also   has   a   completely  different   conventional   meaning   for
+> non-user-facing applications (daemons), which is to reload their configuration
+> file.
+
+<https://unix.stackexchange.com/a/251267/289772>
+
+As an example, see `$ man xbindkeys /.*HUP`.
+
 ###
-## What's the name of the signal generated by C-c?
+## How to send – in a single command – SIGKILL to
+### the processes whose pid are 123 and 456?
 
-        SIGINT
+    $ kill -kill 123 456
 
-## What happens when I press C-c?
+### the jobs whose jobspec are %1, %2 and %3?
+
+    $ kill -KILL %1 %2 %3
+
+### the process group whose PGID is 123?
+
+Use the PGID prefixed by `-`:
+
+    $ kill -KILL -123
+                 ^
+
+---
+
+If you wanted to send the default  signal (SIGTERM), you would need `--` to mark
+the end of the optional arguments:
+
+    $ kill -- -123
+           ^^
+
+##
+## getting info
+### Where can I find more info about the different signals that I can send to a process?
+
+    $ man 7 signal /Standard signals
+
+###
+### How to get
+#### the list of all possible signal names?
+
+    $ kill -l
+
+#### the number of the signal INT?
+
+    $ kill -l int
+    2~
+
+#### the name of the signal 8?
+
+    $ kill -l 8
+    FPE~
+
+#### the name of the signal which has terminated or stopped my process?
+
+    $ kill -l <exit status>
+
+Example:
+
+    $ sleep
+    C-c
+    # the exit status is 130
+
+    $ kill -l 130
+    INT~
+
+###
+### What does it mean for a process to “catch” a signal?
+
+The process has registered a signal handler which will be automatically run when
+the signal is received.
+This handler will determine the behavior of the process, which may be completely
+different than the  default behavior of the  process if the signal  had not been
+caught.
+
+### How to know which signals a given process block/ignore/catch?
+
+    $ cat /proc/PID/status | grep -E '^Sig(Blk|Ign|Cgt):'
+                                           │   │   │
+                                           │   │   └ caught signals
+                                           │   └ ignored signals
+                                           └ blocked signals
+
+The numbers on the right are bitmasks written in hexadecimal.
+To understand their meaning, you must convert them in binary:
+
+    $ echo 'ibase=16;obase=2;ABC123' | bc
+    101010111100000100100011~
+
+The *index* of each non-zero bit stands for the number of a signal.
+
+So, for example, if you have this bitmask:
+
+    SigCgt: 00000000280b2603
+
+It can be converted in binary, and interpreted like so:
+
+    SigCgt: 101010111100000100100011
+                              │   ││
+                              │   │└ the signal 1 is caught (SIGHUP)
+                              │   └ the signal 2 is caught (SIGINT)
+                              └ the signal 6 is caught (SIGUSR1)
+            ...
+
+
+To  automate the  binary  conversion and  interpretation, we  have  a script  in
+`~/bin/signal.sh`.
+To use it, invoke it  on the command-line and pass it the pid  of a process as a
+parameter:
+
+    $ signal.sh $(pidof vim)
+
+For more info, see:
+
+<https://unix.stackexchange.com/a/85365/289772>
+
+##
+## keypress-generated signals
+### What's the name of the signal generated by the keypress
+#### C-c?
+
+    SIGINT
+
+#### C-\?
+
+    SIGQUIT
+
+#### C-z?
+
+    SIGTSTP
+
+### What happens when I press
+#### C-c?
 
 The SIGINT signal is sent to the foreground process group.
 By default, SIGINT makes processes go back to the main loop.
 
-## What's the name of the signal generated by C-\?
-
-        SIGQUIT
-
-## What happens when I press C-\?
+#### C-\?
 
 The SIGQUIT signal is sent to the foreground process group.
 By default, SIGQUIT makes processes quit immediately.
 
-## What's the name of the signal generated by C-z?
-
-        SIGTSTP
-
-## What happens when I press C-z?
+#### C-z?
 
 The SIGTSTP signal is sent to the foreground process group.
 By default, SIGTSTP makes processes stop, and control is returned to the shell.
 
 ##
-## Which signals can I use to suspend a job?  What's the difference between them?
+### How to change the character which I have to send to interrupt a process (by default C-c)?
 
-    ┌──────────┬───────────────┐
-    │ name     │ kill argument │
-    ├──────────┼───────────────┤
-    │ SIGTSTP  │ -TSTP         │  * Typing SToPped
-    ├──────────┼───────────────┤
-    │ SIGTSTOP │ -STOP         │
-    └──────────┴───────────────┘
+    $ stty intr '^k'
+                  │
+                  └ case insensitive
+
+Technically,  this command  tells the  terminal device  that the  character that
+causes a SIGINT to be sent to the foreground job is `C-k`.
+
+### How to tell the terminal device to never send SIGINT, SIGQUIT, SIGTSTP?
+
+    $ stty -isig
+
+##
+## suspension
+### Which signal(s) can I send to
+#### suspend a job?
+
+SIGTSTP or SIGSTOP.
+
+Mnemonic for SIGTSTP: Typing SToPped
+
+##### What's the difference between them?
 
 SIGTSTP allows the process  to suspend gracefully (i.e. it can  use some time to
 organize itself), and can be caught or ignored.
 
 SIGSTOP forces  the process  to suspend  immediately, can't  be caught,  and may
-leave the process in an unstable state.
+leave the process in an unstable state (i.e. can't be resumed).
 
-## Which signal can I use to resume a suspended job in the background?
+#### resume a suspended job in the background?
 
-    ┌─────────┬───────────────┐
-    │ name    │ kill argument │
-    ├─────────┼───────────────┤
-    │ SIGCONT │ -CONT         │
-    └─────────┴───────────────┘
+SIGCONT
 
-##
-## How to get the list of all possible signal names?
+###
+### How to suspend the current job, which runs in the background, with `$ kill`?
 
-        $ kill -l
+    $ kill -tstp %
 
-## How to get the number of the signal INT?
+#### Without `$ kill`?
 
-        $ kill -l INT
-
-## How to get the name of the signal 8?
-
-        $ kill -l 8
-
-## How to get the name of the signal which has terminated or stopped my process?
-
-        $ kill -l <exit status>
-
-Example:
-
-        $ sleep
-
-        C-c
-        the exit status is 130~
-
-        $ kill -l 130
-        INT~
-
-## How to know which signals a given process block/ignore/catch?
-
-        $ cat /proc/PID/status | grep -E '^Sig(Blk|Ign|Cgt):'
-                                               │   │   │
-                                               │   │   └ caught signals
-                                               │   └ ignored signals
-                                               └ blocked signals
-
-The right numbers are bitmasks written in hexadecimal.
-To understand their meaning, you must convert them in binary:
-
-        $ echo 'ibase=16;obase=2;ABC123' | bc
-        101010111100000100100011~
-
-The INDEX of each non-zero bit stands for the number of a signal.
-
-So, for example, if you have this bitmask:
-
-        SigCgt: 00000000280b2603
-
-It can be converted in binary, and interpreted like so:
-
-        SigCgt: 101010111100000100100011
-                                  │   ││
-                                  │   │└ the signal 1 is caught (SIGHUP)
-                                  │   └ the signal 2 is caught (SIGINT)
-                                  └ the signal 6 is caught (SIGUSR1)
-                ...
-
-
-To  automate the  binary  conversion and  interpretation, we  have  a script  in
-`~/bin/how_do_you_handle_signals.sh`.
-To use it, invoke it  on the command-line and pass it the pid  of a process as a
-parameter:
-
-        $ how_do_you_handle_signals.sh $(pidof vim)
-
-For more info, see:
-
-        https://unix.stackexchange.com/a/85365/289772
+    $ fg
+    C-z
 
 ##
-## How to change the character which I have to send to interrupt a process (by default C-c)?
-
-        $ stty intr '^k'
-                      │
-                      └ case insensitive
-
-Technically,  this command  tells the  terminal device  that the  character that
-causes a SIGINT to be sent to the foreground job is `C-k`.
-
-## How to tell the terminal device to never send any signal?
-
-        $ stty -isig
-
-##
-## How to suspend the current job, which runs in the background, with `$ kill`?  Without `$ kill`?
-
-With `$ kill`:
-
-        $ kill -TSTP %
-or:
-        $ kill -STOP %
-
----
-
-Without `$ kill`:
-
-        $ fg
-        C-z
-
-## What should I do before suspending a GUI program with `$ kill` or `C-z`?
+### What should I do before suspending a GUI program with `$ kill` or `C-z`?
 
 Minimize it.
 Otherwise its frozen window will take valuable space on your desktop, and you'll
 get confused if you try to interact with it (because it won't respond).
 
 ##
-## How to send SIGKILL to the processes whose pid are 123 and 456, in a single command?
+## traps
+### How to list all the traps set in the current shell?
 
-        $ kill -KILL 123 456
+    $ trap
 
-## How to send SIGKILL to the jobs whose jobspec are %1, %2 and %3, in a single command?
+### How to make all future commands run in the shell ignore a given signal?
 
-        $ kill -KILL %1 %2 %3
+Install a trap running an empty command.
+
+For example, to make all commands ignore SIGHUP:
+
+    $ trap '' HUP
+    $ sleep 1234
+
+Then, from another terminal:
+
+    $ kill -HUP $(pidof sleep)
+
+The sleep process won't terminate.
+
+---
+
+TODO: For some  reason, you  can't set  a trap to  make a  command run  from zsh
+ignore SIGTERM. Why?
+
+### What does resetting a trap mean?
+
+The specified signal is reset to its original disposition (the value it had upon
+entrance to the shell).
+
+#### How to do it?
+
+Use the special argument `-`.
+
+    $ trap - sigspec
+
+---
+
+Example:
+
+    $ trap '' HUP
+    $ trap
+    trap -- '' HUP~
+
+    $ trap - HUP
+    $ trap
+    ''~
+
+In zsh, you can reset all traps by omitting the sigspec:
+
+    $ trap -
 
 ##
 # Debugging
@@ -1211,7 +1526,7 @@ It runs the specified command until it exits, and intercepts the system calls of
 the process started by the command, as well as the signals which are received by
 the latter.
 
-## How is it useful?
+### How is it useful?
 
 Since  system calls  and  signals  are events  that  happen  at the  user/kernel
 interface, a close examination of this boundary is very useful for:
@@ -1282,7 +1597,8 @@ Warning: This can create big files.
                     ^^
 
 ##
-## How to trace only the system calls accessing files?
+## How to trace only the system calls
+### accessing files?
 
     $ strace -o log -e trace=file vim
                     ^^^^^^^^^^^^^
@@ -1290,12 +1606,12 @@ Warning: This can create big files.
 Useful when a  program fails because it can't find/read  its configuration file,
 but doesn't tell you where it's supposed to be.
 
-## How to trace only the system call `open()`?
+### `open()`?
 
     $ strace -o log -e trace=open vim
                     ^^^^^^^^^^^^^
 
-## How to trace only the system calls `open()` and `read()`?
+### `open()` and `read()`?
 
     $ strace -o log -e trace=open,read vim
                     ^^^^^^^^^^^^^^^^^^
@@ -1322,8 +1638,8 @@ Note that filenames are not considered strings and are always printed in full.
 # Issues
 ## My process is taking too much time!
 
-        $ strace -o log -r <cmd>
-        $ sort log >sorted_log
+    $ strace -o log -r <cmd>
+    $ sort log >sorted_log
 
 The lines at the bottoom should match the slowest system calls.
 Try to understand why they take so much time...
@@ -1332,26 +1648,26 @@ Try to understand why they take so much time...
 
 The process may use another similar system call:
 
-        - openat
-        - creat
+   - openat
+   - creat
 
 See `$ man 2 open`.
 
 So, to be more thorough, you should execute:
 
-        $ strace -o log -e trace=open,openat,creat cmd
-                                 ^^^^^^^^^^^^^^^^^
+    $ strace -o log -e trace=open,openat,creat cmd
+                             ^^^^^^^^^^^^^^^^^
 
 It's also possible that the process started by your command spawns child processes.
 And maybe it's one of them which opens 'foo'.
-So, to be even more thorough, you can execute:
+So, to be even more thorough, execute:
 
-        $ strace -o log -e trace=open,openat,creat -f cmd
-                                                   ^^
+    $ strace -o log -e trace=open,openat,creat -f cmd
+                                               ^^
 
 ##
 # Todo
-## Document how to start a job which doesn't stop when we clos the shell.
+## Document how to start a job which doesn't stop when we close the shell.
 
 I had this alias in the past:
 
@@ -1362,8 +1678,17 @@ terminated when we left the shell from which we ran the alias.
 When we start a job from a  subshell, it seems that it's immediately re-parented
 to the session leader (here it was `upstart`).
 
+May be relevant:
+
+- <https://blog.debiania.in.ua/posts/2013-03-13-fun-with-bash-disown.html>
+- <https://thinkiii.blogspot.com/2009/12/double-fork-to-avoid-zombie-process.html>
+
 Make sure it's true.
 Check whether  there're other ways to  start a job which  persists after leaving
 the shell (`nohup`, `&!`, ...).
-Which way is the more reliable?
+Which way is the most reliable?
+
+Study the PGID and the file descriptors of a process in a subshell vs in a script.
+
+Is a subshell interactive?
 

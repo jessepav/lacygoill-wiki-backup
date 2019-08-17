@@ -26,7 +26,8 @@ style to true for the 'manuals' tag:
     $ whatis pstree
 
 ##
-# How to get the manpages whose NAME section contains the word 'sound'?
+# How to get the manpages
+## whose NAME section contains the word 'sound'?
 
     $ apropos sound
 
@@ -34,20 +35,20 @@ style to true for the 'manuals' tag:
            │
            └ mnemonic: loo*k* up; small 'k' = just in description
 
-# How to get the manpages whose NAME section contains the words 'delete file'?
+## whose NAME section contains the words 'delete file'?
 
     $ apropos 'delete file'
     $ man -k 'delete file'
 
-# How to get the manpages containing the word 'game' anywhere?
+## containing the word 'game' anywhere?
 
-    man -s6 -Kw game
-         │   ││
-         │   │└ mnemonic: I just want to know *w*here it is (don't open the pages)
-         │   │
-         │   └ mnemonic: loo*K* up; big 'K' = in the whole pages
-         │
-         └ limit the search to the manpages in section 6
+    $ man -s6 -Kw game
+           │   ││
+           │   │└ mnemonic: I just want to know *w*here it is (don't open the pages)
+           │   │
+           │   └ mnemonic: loo*K* up; big 'K' = in the whole pages
+           │
+           └ limit the search to the manpages in section 6
 
 The search is time/cpu-consuming, so it's wise  to add the `-s` option and limit
 the search to one or a few section(s) of the manual.
@@ -63,7 +64,7 @@ And after closing a page, we would have to press:
     │ C-C │ stop                           │
     └─────┴────────────────────────────────┘
 
-# How to get the manpages whose contents matches a regex?
+## whose contents matches a regex?
 
     $ man -s1 -Kw --regex 'your regex'
                   ^^^^^^^
@@ -90,9 +91,9 @@ And in the source code, a hyphen must be escaped to be rendered literally.
 
 So, escape your hyphens:
 
-        $ man -Kw 'word\-with\-hyphens'
-                  │
-                  └ quote the word to prevent the shell from removing the backslashes
+    $ man -Kw 'word\-with\-hyphens'
+              │
+              └ quote the word to prevent the shell from removing the backslashes
 
 ---
 

@@ -126,9 +126,9 @@ Update:
 Maybe we could send a sequence encoding a color above `88`, to determine whether
 the terminal supports 256 color...
 
-    $ printf '\e]4;%d;?\a' 123 | if read -d $'\a' -s -t 1; then echo 'color 123 is supported'; fi
+    $ printf '\e]4;%d;?\a' 123 ; if read -d $'\a' -s -t 0.1; then echo 'color 123 is supported'; else echo 'color 123 is NOT supported'; fi
 
-Source: https://unix.stackexchange.com/a/23789/289772
+Source: <https://unix.stackexchange.com/a/23789/289772>
 
 ##
 # Remote machine

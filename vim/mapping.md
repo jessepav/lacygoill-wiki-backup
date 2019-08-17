@@ -226,6 +226,44 @@ They are terminal/Vim keycodes by themselves.
 
 ##
 ##
+# Why should I avoid passing the `t` flag to `feedkeys()` all the time?
+
+It will break `feedkeys()` if the latter is called by `:norm`.
+
+---
+
+MWE:
+
+    $ vim -Nu NONE +'nno cd :exe "norm! :call feedkeys(\"aaa\",\"t\")\r"<cr>'
+
+Press `cd`: nothing is inserted in the buffer.
+
+    $ vim -Nu NONE +'nno cd :exe "norm! :call feedkeys(\"aaa\")\r"<cr>'
+
+Press `cd`: 'aa' is inserted in the buffer.
+
+This is a  contrived example, but the  issue can be encountered in  a real usage
+scenario. For example, atm, we have these mappings and function:
+
+    " ~/.vim/plugged/vim-help/after/ftplugin/help.vim
+    nno <buffer><nowait><silent> q :<c-u>norm 1<space>q<cr>
+
+    " ~/.vim/plugged/vim-window/plugin/window.vim
+    nno <silent><unique> <space>q :<c-u>call lg#window#quit()<cr>
+
+    fu! lg#window#quit() abort
+        ...
+        if reg_recording() isnot# ''
+            return feedkeys('q', 'int')[-1]
+                                    ^
+                                    ✘
+        endif
+        ...
+
+If a register is being recorded, and we're in a help buffer, pressing `q` should
+end the recording; in practice, it doesn't because of the `t` flag.
+
+##
 # When do I need to use `inputsave()` and `inputrestore()`?
 
 Every time your mapping invokes `input()`.
@@ -299,7 +337,7 @@ Use `feedkeys()` instead.
                                                 ^
                                                 ✘
 
-        nno  <key>  :set opfunc=OpFunc<bar>call feedkeys(v:count1.'g@_', 'int')<cr>
+        nno  <key>  :set opfunc=OpFunc<bar>call feedkeys(v:count1.'g@_', 'in')<cr>
                                                 ^
                                                 ✔
 

@@ -1,18 +1,4 @@
-# Where can I find a list of all control sequences supported by
-## xterm?
-
-<http://invisible-island.net/xterm/ctlseqs/ctlseqs.html>
-
-If the `xterm` package is installed on your machine, you can also read:
-
-    /usr/share/doc/xterm/ctlseqs.txt.gz
-
-## VT100?
-
-<https://vt100.net/docs/vt510-rm/contents.html>
-
-##
-# Basic capabilities
+# Basic
 ## What does it mean for a terminal to have the capability
 ### `am`?
 
@@ -44,7 +30,72 @@ The terminal has 80 columns (in its default geometry?).
 The terminal has 24 lines (in its default geometry?).
 
 ##
-# Cursor capabilities
+# Character attributes
+## How to change the character attributes (bold, italic, underline, color, ...) of some text?
+
+    CSI Pm m
+
+---
+
+    $ printf '\e[1m   bold             \e[0m\n'
+    $ printf '\e[3m   italic           \e[0m\n'
+    $ printf '\e[4m   underline        \e[0m\n'
+    $ printf '\e[5m   blinking         \e[0m\n'
+    $ printf '\e[7m   negative image   \e[0m\n'
+    $ printf '\e[8m   invisible image  \e[0m\n'
+    $ printf '\e[9m   strikethrough    \e[0m\n'
+
+### How is this sequence also called?
+
+SGR, because it invokes the [Select Graphic Rendition][1] control function.
+
+#### What's the effect of the “negative image” attribute?
+
+It reverses the foreground and background colors of the text.
+
+##### What about the “invisible image” attribute?
+
+It hides the text.
+
+####
+### How to apply multiple attributes?
+
+Since the syntax of  the sequence contains Pm (and not Ps),  you can combine the
+codes of multiple attributes by separating them with semicolons:
+
+    $ printf '\e[1;4;5m bold + underline + blinking\n'
+                 ^^^^^
+
+#### How to reset a specific attribute out of multiple ones?
+
+Use the sequence `CSI 123 m` where  123 stands for the number resulting from the
+addition of 20 with the code of the attribute you want to reset.
+
+    $ printf '\e[3;4m italic + underlined \e[24m just italic\n'
+                                             ^^
+                                             4+20
+                                             ^
+                                             underlined
+
+#### How to reset *all* attributes?
+
+Use the sequence `CSI 0 m`.
+
+    $ printf '\e[1;4;5m bold + underline + blinking \e[0m no more attributes\n'
+                                                    ^^^^^
+
+##
+## How to test whether my terminal supports common sequences to set character attributes?
+
+    $ msgcat --color=test
+
+Useful to test whether we can send sequences to:
+
+   - change the color of the text / background
+   - set some styles (bold, italic, underlined)
+
+##
+# Cursor
 ## What are the coordinates of "home" for an X terminal?
 
     (1,1)
@@ -212,7 +263,7 @@ Try this:
     └ Digital
 
 ##
-# Arrow keys
+# Arrows
 
     ┌────────────┬─────────────────┐
     │ kcud1=\EOB │ down  arrow key │
@@ -315,6 +366,328 @@ This is explained here:
 > string sent by tputs) is apt to confuse the shell.
 
 ##
+# Clipboard
+## What is the purpose of the `Ms` capability?
+
+It's a way for the terminal to  tell the applications how they should encode and
+send  some arbitrary  text, if  they  want the  terminal  to store  it into  its
+clipboard.
+
+### Where can I find more information about it?
+
+    OSC Ps ; Pt BEL /Ps = 5 2
+
+See also:
+
+    $ curl -LO http://invisible-island.net/datafiles/current/terminfo.src.gz
+    $ gunzip terminfo.src.gz
+    $ vim terminfo.src
+    /\m\C\<Ms\>
+
+### What's its default value?
+
+    Ms=\E]52;%p1%s;%p2%s\007
+
+#### What's the meaning of the two parameters?
+
+   - p1 = the storage unit (clipboard, selection or cut buffer)
+   - p2 = the base64-encoded clipboard content.
+
+##
+## How to set the terminal clipboard?
+
+Use the OSC 52 sequence:
+
+    Esc]52;base64-encoded-string;BEL
+
+Example:
+
+    $ printf '\e]52;c;%s\x07' $(printf 'hello' | base64)
+    $ xsel -b
+    hello~
+
+See `OSC Ps ; Pt BEL /Ps = 5 2`.
+
+### It doesn't work!
+
+Make sure your terminal supports the sequence.
+Check whether its description includes the `Ms` capability:
+
+    $ infocmp -1x | grep Ms
+    Ms=\E]52;%p1%s;%p2%s\007,~
+
+---
+
+If you're using xterm, make sure to have these lines in `~/.Xresources`:
+
+    XTerm*disallowedWindowOps: 20,21,SetXprop
+    XTerm*selectToClipboard: true
+
+The  first line  makes  xterm  accept most  extended  window control  sequences,
+including OSC 52 because it doesn't include the name 'SetSelection'.
+The value is taken from `$ man tmux /set-clipboard`.
+
+The second line makes xterm write in the clipboard selection by default, instead
+of the primary selection.
+
+Indeed,  when  tmux sends  an  OSC  52 sequence,  it  always  removes the  first
+parameter specifying the storage unit:
+
+    \e]52;;...\x07
+         ^^
+         no 'c' parameter to specify the clipboard
+
+When  xterm  receives  such a  sequence,  it  writes  the  text in  its  primary
+selection, which is not where you want it to be if you're used to paste the text
+by pressing C-S-v.
+
+---
+
+If you're inside tmux, make sure `set-clipboard` is set to 'on'.
+
+'external' should also be a good value, because:
+
+> If set to external, tmux will attempt to set the terminal clipboard but ignore
+> attempts by applications to set tmux buffers.
+
+But in practice, for some reason, it doesn't work:
+<https://github.com/tmux/tmux/issues/1864>
+
+Note that this issue doesn't affect `copy-pipe` nor `copy-selection`.
+IOW, tmux will correctly set the terminal clipboard when you press a key binding
+whose rhs  invokes `copy-pipe`  or `copy-selection`  even if  `set-clipboard` is
+'external'.
+
+If you  need `set-clipboard`  to be  'external', then wrap  the OSC  52 sequence
+inside a DCS sequence with the prefix `tmux;`:
+
+    $ printf '\ePtmux;\eseq\e\\'
+                      ├┘
+                      └ All the characters inside the OSC 52 sequence should be doubled.
+                        If you use BEL instead of ST at the end of OSC 52,
+                        there should be only one escape character at its start,
+                        so you just need to double this first character.
+
+Example:
+
+    $ printf '\ePtmux;\e\e]52;c;%s\x07\e\\' $(printf 'hello' | base64)
+
+###
+## How to read the terminal clipboard?
+
+Use the `OSC 52` sequence with `?` as the second parameter:
+
+    Esc];c;?BEL
+           ^
+           special parameter
+
+See `OSC Ps ; Pt BEL /Ps = 5 2 /.*?`.
+
+> If the second parameter is a ? , xterm replies to the host
+> with the selection data encoded using the same protocol.
+
+---
+
+Usage example:
+
+    # write 'hello' in the clipboard
+    $ printf '\033]52;c;%s\007' "$(printf 'hello' | base64)"
+
+    # read the clipboard
+    $ printf '\033]52;c;?\007'
+    52;c;aGVsbG8=~
+
+    # decode the clipboard
+    $ base64 -d <<<'aGVsbG8='
+    hello~
+
+### I can't redirect the output of `$ printf` to `$ base64` and get a one-liner!
+
+You can:
+
+    $ printf '\033]52;c;?\007' | base64 -d
+    base64: invalid input~
+
+but that's not what you want.
+
+The output of `$ printf` is not the contents of the base64-encoded clipboard (`aGVsbG8=`).
+It's just  the string of  characters `\033]52;c;?\007`, where `\033`  and `\007`
+have been replaced with an ESC and a BEL.
+
+What you  can read on  the shell's command-line  – `52;c;aGVsbG8=` –  does *not*
+belong to `$ printf`'s output; it's a reply from the terminal *process* which is
+written on the  shell stdin (and more  generally – probably –  on the foreground
+process stdin).
+
+If your foreground  process is the shell, the terminal  process writes its reply
+on the shell stdin.
+In  return, the  shell asks  the  terminal process  to  print the  reply on  its
+command-line in the terminal window.
+
+If your foreground process is a script, the terminal process writes its reply on
+the stdin of the script.
+And if the script  runs `$ read`, the latter inherits the stdin  of the former –
+i.e. the terminal – and thus consumes the terminal's reply.
+
+#### ?
+
+Then how to get a one-liner?
+
+    $ printf '\033]52;c;?\007' ; \
+      read -d $'\a' -s -t 0.1 ; \
+      base64 -d <<<${REPLY#$(printf "\e]52;c;")}
+
+The code works because `$ read` reads  from its stdin which it inherits from the
+shell; and by default, the shell's stdin is the terminal.
+
+---
+
+The first semicolon is essential (not the second one).
+You need it to prevent a new  command-line from being printed between `$ printf`
+and `$ read`; if that were to  happen you couldn't run `$ read` without removing
+the reply from the terminal.
+
+    ✘
+    $ printf ...
+    $ terminal_reply read ...
+      ^^^^^^^^^^^^^^
+
+    ✔
+    $ printf ... ; read ...
+
+---
+
+In a script,  you can eliminate the semicolons, because  there's no command-line
+in a non-interactive shell; the commands are not taken from the readline editing
+buffer, but from the script.
+As  a  result,  there's  no  risk  for  the  terminal's  reply  to  pollute  the
+command-line.
+
+    #!/bin/bash
+
+    printf '\033]52;c;?\007'
+
+    read -d $'\a' -s -t 0.1
+    #    ├──────┘  │ ├────┘
+    #    │         │ └ time out after 0.1s if you haven't been able to read an input line
+    #    │         └ be silent (don't echo the reply from the terminal)
+    #    └ stop consuming input when the first BEL character is encountered (instead of newline)
+
+    base64 -d <<<${REPLY#$(printf "\e]52;c;")}
+    #              ├───┘├───────────────────┘
+    #              │    └ remove an undesired prefix from the reply
+    #              └ if no names are supplied to `$ read`, the line read is assigned to the variable REPLY
+
+#### ?
+
+Document `sgr0` and `el`.
+
+    To better understand:
+
+    Start a bash shell with no config:
+
+         $ bash --noprofile --norc
+
+    This is  necessary because zsh  and a customized bash  behave differently,
+    and can make the experiments harder to explain.
+
+    ---
+
+    Test the `setab` capability:
+
+         $ printf '123 \e[48;5;123m'; clear
+
+    The whole screen is redrawn in cyan.
+    This is because the printf statement tells the terminal to redraw any cell in cyan.
+
+    ---
+
+    Test the `sgr0` capability:
+
+         $ tput sgr0; clear
+
+    The whole screen is redrawn normally.
+    This is because the sgr0 capability  tells the terminal to redraw any cell
+    with no graphical attribute (so no custom color).
+
+    ---
+
+    Test the `el` (Erase Line) capability:
+
+         $ printf '123 \e[48;5;123m'; tput el
+
+    On the next line,  '123 ' is printed on non-colored  cells, then the shell
+    prompt is colored in cyan, as well as the rest of the line.
+    The line is in  cyan because `$ tput el` has made  the terminal redraw all
+    the cells on the line.
+
+    ---
+
+         $ printf '123 \e[48;5;123m'; tput el; tput sgr0
+
+    Same result as previously, but with one difference: the prompt is not in cyan.
+
+    This is because the prompt was drawn *after* `$ tput sgr0`.
+    So, right after `$ tput el`, the cells occupied by the prompt were in cyan.
+    Right after `$ tput sgr0`, they were still in cyan.
+    Finally, after the contents of the prompt was drawn, they were not in cyan
+    anymore, thanks  to `$ tput  sgr0` which had  told the terminal  to redraw
+    cells with no attributes.
+
+    ---
+
+         $ printf '123 \e[48;5;123m'; tput el; tput sgr0; echo
+
+    Same result as previously, but with one difference: the prompt is drawn on
+    the next line.
+    Thanks to this, the next typed  characters won't cause the colorized cells
+    to be redrawn and lose their color.
+
+---
+
+Show how to clear the current line.
+
+In bash:
+
+    $ read -n 1 -p "What's 2 + 2? " answer; echo; if [ "$answer" -eq 4 ]; then echo 'right'; else echo 'wrong'; fi
+vs:
+    $ read -n 1 -p "What's 2 + 2? " answer; tput cr; tput el; echo; if [ "$answer" -eq 4 ]; then echo 'right'; else echo 'wrong'; fi
+
+    $ read -k 1 "answer?What's 2 + 2? "; echo; if [ "$answer" -eq 4 ]; then echo 'right'; else echo 'wrong'; fi
+vs:
+    $ read -k 1 "answer?What's 2 + 2? "; tput cr; tput el; echo; if [ "$answer" -eq 4 ]; then echo 'right'; else echo 'wrong'; fi
+
+---
+
+Be consistent in how you write ESC and BEL across all wikis.
+I think we should  always use `\033` and `\007`, because  it's probably the most
+portable notation.
+For example, I don't think you can write `\x07` or `\a` in tmux's 'terminal-overrides' option.
+
+---
+
+Document how to temporarily change a color in the terminal palette:
+
+    $ printf '\e[48;5;123m some colored text \e[0m\n'
+    $ printf '\e]4;123;?\a'; read -s -d $'\a'
+    $ printf '\e]4;123;red\a'
+    $ printf '%s\a' "$REPLY"
+
+###
+### It doesn't work in st!
+
+Yes, st doesn't support the `OSC52;c;?BEL` sequence.
+
+Besides, upon  receiving it,  st clears  its clipboard; this  is similar  to how
+xterm reacts  when receiving an  `OSC52;c;Pt` sequence  where `Pt` is  neither a
+base64 string nor `?`.
+
+> If the second parameter is neither a base64 string nor ? ,
+> then the selection is cleared.
+
+###
+##
+##
 # Clearing
 
     ┌────────────────┬─────────────────────────┐
@@ -324,6 +697,22 @@ This is explained here:
     ├────────────────┼─────────────────────────┤
     │ el=\E[K        │ clear to end of line    │
     └────────────────┴─────────────────────────┘
+## How to temporarily clear the screen while executing arbitrary code?
+
+    $ tput smcup
+    $ clear
+    # arbitrary code
+    $ tput rmcup
+
+The screen is saved with `$ tput smcup`, then restored with `$ tput rmcup`.
+
+Saving/restoring the screen  is not the primary purpose of  `smcup` and `rmcup`;
+it's just a – here useful – side-effect.
+The purpose of these capabilities is to  make the terminal enter/leave a mode in
+which the programs can use the `cup` capability.
+
+`$ clear` is used to move the cursor back to home.
+
 
 # Adding and deleting
 
@@ -375,127 +764,7 @@ Underline mode:
     └──────────┴────────┘
 
 #
-# What's the meaning of BEL, ESC, ST and SP?
-
-    ┌─────┬──────────────────┐
-    │ BEL │ Bell             │
-    ├─────┼──────────────────┤
-    │ ESC │ Escape           │
-    ├─────┼──────────────────┤
-    │ ST  │ String Terminator│
-    ├─────┼──────────────────┤
-    │ SP  │ a space          │
-    └─────┴──────────────────┘
-
-## What about their notations?
-
-    ┌─────┬─────────────────────┐
-    │ BEL │ C-g  \a  \007  \x07 │
-    ├─────┼─────────────────────┤
-    │ ESC │ C-[  \e  \033  \x1b │
-    ├─────┼─────────────────────┤
-    │ ST  │ Esc \               │
-    ├─────┼─────────────────────┤
-    │ SP  │                     │
-    └─────┴─────────────────────┘
-
-##
-# What's the difference between CSI and OSC sequences?
-
-The CSI sequences finish with a printable character.
-The OSC sequences finish with ST (BEL can also be used in xterm).
-
-##
-# How to make the terminal report whenever a FocusIn or FocusOut event has been fired?
-
-Use this sequence:
-
-    CSI ? 1004 h
-
-## How to disable this?
-
-    CSI ? 1004 l
-
-##
-# How to change the character attributes (bold, italic, underline, color, ...) of some text?
-
-    CSI Pm m
-
----
-
-    $ printf '\e[1m   bold             \e[0m\n'
-    $ printf '\e[3m   italic           \e[0m\n'
-    $ printf '\e[4m   underline        \e[0m\n'
-    $ printf '\e[5m   blinking         \e[0m\n'
-    $ printf '\e[7m   negative image   \e[0m\n'
-    $ printf '\e[8m   invisible image  \e[0m\n'
-    $ printf '\e[9m   strikethrough    \e[0m\n'
-
-## How is this sequence also called?
-
-SGR, because it invokes the [Select Graphic Rendition][1] control function.
-
-### What's the effect of the “negative image” attribute?
-
-It reverses the foreground and background colors of the text.
-
-#### What about the “invisible image” attribute?
-
-It hides the text.
-
-###
-## How to apply multiple attributes?
-
-Since the syntax of  the sequence contains Pm (and not Ps),  you can combine the
-codes of multiple attributes by separating them with semicolons:
-
-    $ printf '\e[1;4;5m bold + underline + blinking\n'
-                 ^^^^^
-
-### How to reset a specific attribute out of multiple ones?
-
-Use the sequence `CSI 123 m` where  123 stands for the number resulting from the
-addition of 20 with the code of the attribute you want to reset.
-
-    $ printf '\e[3;4m italic + underlined \e[24m just italic\n'
-                                             ^^
-                                             4+20
-                                             ^
-                                             underlined
-
-### How to reset *all* attributes?
-
-Use the sequence `CSI 0 m`.
-
-    $ printf '\e[1;4;5m bold + underline + blinking \e[0m no more attributes\n'
-                                                    ^^^^^
-
-##
-# Miscellaneous
-## What are the different types of terminal capabilities?
-
-There are 3 types of capabilities, depending on the type of values they receive:
-
-    ┌─────────┬─────────┬─────────────────────────────────────────┐
-    │ type    │ example │                 meaning                 │
-    ├─────────┼─────────┼─────────────────────────────────────────┤
-    │ boolean │ am      │ does automatic margins                  │
-    ├─────────┼─────────┼─────────────────────────────────────────┤
-    │ numeric │ cols#80 │ the terminal has 80 columns             │
-    ├─────────┼─────────┼─────────────────────────────────────────┤
-    │ string  │ cuu1=^K │ the sequence `C-k` will move the cursor │
-    │         │         │ up one line                             │
-    └─────────┴─────────┴─────────────────────────────────────────┘
-
-### How to infer the type of a capability from its name?
-
-If it contains:
-
-   - `#`, it's a numeric one
-   - `=`, it's a string one
-   - neither `#` nor `=`, it's a boolean one
-
-##
+# Editing the db
 ## How to cancel a capability?
 
 In the terminal description, append the character `@` to the name of the capability.
@@ -557,33 +826,81 @@ Instead, insert the 2 characters `^` and `K`.
 Some of them are specific to terminfo, or have another representation in termcap.
 See page 20 in the book `Termcap and Terminfo` (O'Reilly).
 
-## How to temporarily clear the screen while executing arbitrary code?
+##
+# Documentation
+## Where can I find a list of all control sequences supported by
+### xterm?
 
-    $ tput smcup
-    $ clear
-    # arbitrary code
-    $ tput rmcup
+<http://invisible-island.net/xterm/ctlseqs/ctlseqs.html>
 
-The screen is saved with `$ tput smcup`, then restored with `$ tput rmcup`.
+If the `xterm` package is installed on your machine, you can also read:
 
-Saving/restoring the screen  is not the primary purpose of  `smcup` and `rmcup`;
-it's just a – here useful – side-effect.
-The purpose of these capabilities is to  make the terminal enter/leave a mode in
-which the programs can use the `cup` capability.
+    /usr/share/doc/xterm/ctlseqs.txt.gz
 
-`$ clear` is used to move the cursor back to home.
+### VT100?
+
+<https://vt100.net/docs/vt510-rm/contents.html>
 
 ##
-## How to test whether my terminal supports common sequences to set text attributes?
+## What's the meaning of BEL, ESC, ST and SP?
 
-    $ msgcat --color=test
+    ┌─────┬──────────────────┐
+    │ BEL │ Bell             │
+    ├─────┼──────────────────┤
+    │ ESC │ Escape           │
+    ├─────┼──────────────────┤
+    │ ST  │ String Terminator│
+    ├─────┼──────────────────┤
+    │ SP  │ a space          │
+    └─────┴──────────────────┘
 
-Useful to test whether we can send sequences to:
+### What about their notations?
 
-   - change the color of the text / background
-   - set some styles (bold, italic, underlined)
+    ┌─────┬─────────────────────┐
+    │ BEL │ C-g  \a  \007  \x07 │
+    ├─────┼─────────────────────┤
+    │ ESC │ C-[  \e  \033  \x1b │
+    ├─────┼─────────────────────┤
+    │ ST  │ Esc \               │
+    ├─────┼─────────────────────┤
+    │ SP  │                     │
+    └─────┴─────────────────────┘
 
-## How to test whether my terminal supports any sequence?
+##
+##
+##
+# Miscellaneous
+## What are the different types of terminal capabilities?
+
+There are 3 types of capabilities, depending on the type of values they receive:
+
+    ┌─────────┬─────────┬─────────────────────────────────────────┐
+    │ type    │ example │                 meaning                 │
+    ├─────────┼─────────┼─────────────────────────────────────────┤
+    │ boolean │ am      │ does automatic margins                  │
+    ├─────────┼─────────┼─────────────────────────────────────────┤
+    │ numeric │ cols#80 │ the terminal has 80 columns             │
+    ├─────────┼─────────┼─────────────────────────────────────────┤
+    │ string  │ cuu1=^K │ the sequence `C-k` will move the cursor │
+    │         │         │ up one line                             │
+    └─────────┴─────────┴─────────────────────────────────────────┘
+
+### How to infer the type of a capability from its name?
+
+If it contains:
+
+   - `#`, it's a numeric one
+   - `=`, it's a string one
+   - neither `#` nor `=`, it's a boolean one
+
+##
+## What's the difference between CSI and OSC sequences?
+
+The CSI sequences finish with a printable character.
+The OSC sequences finish with ST (BEL can also be used in xterm).
+
+###
+## How to test whether my terminal supports an arbitrary sequence?
 
 You must *manually* send it via `printf`, or `echo [-e]`.
 
@@ -632,7 +949,17 @@ terminal is no longer usable.
       <(infocmp -1 | sed '1,2d' | sort) \
       | sed -n 's/^-//p'
 
-##
+## How to make the terminal report whenever a FocusIn or FocusOut event has been fired?
+
+Use this sequence:
+
+    CSI ? 1004 h
+
+### How to disable this?
+
+    CSI ? 1004 l
+
+###
 # Reference
 
 [1]: https://vt100.net/docs/vt510-rm/SGR.html

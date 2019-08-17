@@ -1,87 +1,5 @@
 # ?
 
-The sequence `\e]52;c; text \x07` is described on [this page][1].
-
-It tells  that the  function called by  the sequence may  be disabled  using the
-`allowWindowOps` resource.
-This is how it's described in `$ man xterm`:
-
-> allowWindowOps (class AllowWindowOps)
->
-> Specifies whether extended window control sequences (as used in dtterm) should
-> be  allowed.  These  include several  control sequences  which manipulate  the
-> window size or  position, as well as  reporting these values and  the title or
-> icon name.   Each of these  can be abused in  a script; curiously  enough most
-> terminal emulators  that implement  these restrict  only a  small part  of the
-> repertoire.  For finetuning, see disallowedWindowOps.  The default is “false”.
-
-Note that it says that the resource is disabled by default.
-You can enable it by writing in `~/.Xresources`:
-
-    xterm.VT100.allowWindowOps:  true
-
-Then, if you start xterm and run this command:
-
-    $ printf -- '\e]52;c;%s\x07' $(base64 <<<'hello')
-
-Your clipboard should contain the text `hello`.
-
-However, it seems that urxvt doesn't support this resource.
-At least I couldn't find it in one of its manpages (`$ man -Kw allowWindowOps`).
-
-I tried to include a wildcard in the name resource:
-
-    *.allowWindowOps:  true
-
-But the sequence still doesn't work in urxvt.
-Some sequences are only supported if urxvt was compiled with `--enable-frills`.
-See `$ man 7 urxvt /Compile frills`
-My current urxvt was compiled with frills:
-
-    $ urxvt --help 2>&1 | grep frills
-    options: ...,frills,...~
-                 ^^^^^^
-
-So the issue doesn't come from there.
-
-# ?
-
-The following is useful to synchronize the local clipboard with the one of a remote server:
-
-    " Inspiration:
-    " https://www.reddit.com/r/vim/comments/ac9eyh/talk_i_gave_on_going_mouseless_with_vim_tmux/ed6kl67/
-    " Doesn't work atm...
-    fu! s:osc_52_yank() abort
-        let seq = system('base64 -w0', @0)
-        let seq = substitute(seq, '\n$', '', '')
-        let seq = '\e]52;c;' . seq . '\x07'
-        if !empty($TMUX)
-            let seq = '\ePtmux;' . substitute(seq, '\\e', '\\e\\e', 'g') . '\e\\'
-        endif
-        let tty = matchstr(system('ls -l /proc/'.getpid().'/fd/0'), '/dev/pts/\d\+')
-        sil exe '!printf -- ' . shellescape(seq, 1) . ' > ' . tty
-    endfu
-
-    augroup test_sth
-        au!
-        au TextYankPost * if v:event.operator is# 'y' | call s:osc_52_yank() | endif
-    augroup END
-
-> silent exe "!echo -ne ".shellescape(buffer)." > ".shellescape("/dev/pts/0")
-
-One possible improvement in the code would  be to escape characters such as `!`,
-`#` and `%`, which  are considered as special when you run  the `:!` command, by
-passing a  non-zero number as a  second argument to `shellescape()`,  invoke the
-latter once instead of twice, and use `$ printf` instead of `$ echo`:
-
-    silent exe "!printf -- ".shellescape(buffer." > /dev/pts/0", 1)
-    "            ^^^^^^ ^^                                       ^
-
-If you  can use `system()` instead  of `:!`, then  you don't need to  escape the
-special characters `!`, `#`, `%`, but I'm not sure it would work.
-
-# ?
-
 Document how we can get the number of colors supported by the terminal.
 
 `$ tput colors` is not reliable, because it relies on `$TERM` which could lie.
@@ -93,9 +11,28 @@ To determine whether the terminal supports:
    - 256 colors, you can run our custom script `$ palette`
    - a given color, you could try:
 
-            $ printf '\e]4;%d;?\a' 123 | if read -d $'\a' -s -t 1; then echo 'color 123 is supported'; fi
+            #!/bin/bash
 
-Understand how the last command works:
+            printf '\e]4;%d;?\a' $1
+            read -d $'\a' -s -t 0.1
+            #     │        │  │
+            #     │        │  └ Time out and return failure
+            #     │        │    if a complete line of input
+            #     │        │    is not read within 1 second.
+            #     │        │
+            #     │        └ Silent mode.
+            #     │          If input is coming from a terminal,
+            #     │          characters are not echoed.
+            #     │
+            #     └ The first character of delim is used to terminate
+            #       the input line, rather than newline.
+
+            if [ $? = 0 ]; then
+              printf 'color %s is supported\n' $1
+            else
+              printf 'color %s is NOT supported\n' $1
+            fi
+
 <https://unix.stackexchange.com/a/23789/289772>
 
 # ?

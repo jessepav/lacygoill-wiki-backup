@@ -83,7 +83,7 @@ arglist is global.
 
 Maybe it will change in the future:
 
-        https://github.com/coot/vim_patches#arglistspatch
+<https://github.com/coot/vim_patches#arglistspatch>
 
 #
 # Action

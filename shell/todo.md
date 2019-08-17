@@ -156,8 +156,6 @@ IOW, I think they are supposed to be accessible from the whole script.
 
 ##
 # zsh
-## Add a preview window for our zsh snippets. Like what we did with `:Rg`.
-
 ## Implement your own version of the `tldr` command.
 
 Write files named `tldr_mycmd.txt` in various wikis.
@@ -206,6 +204,8 @@ In  the preview  pane,  make fzf  display a  description  (maybe the  question
 associated with the command).
 When you select a command, make fzf write  it in the clipboard, so that we can
 paste it immediately on the shell's command-line.
+
+## Add a preview window for our zsh snippets. Like what we did with `:Rg`.
 
 ## Think about how we could better leverage our zsh history.
 

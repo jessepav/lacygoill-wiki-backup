@@ -1,4 +1,6 @@
-# How to choose the font?
+# Configuration
+## How to
+### choose the font?
 
     $ sudo dpkg-reconfigure -plow console-setup
                              │
@@ -49,7 +51,7 @@ Alternative 2:
 
     $ setfont /usr/share/consolefonts/Lat7-TerminusBold32x16.psf.gz
 
-# How to change the color scheme?
+### change the color scheme?
 
 Try this:
 
@@ -106,7 +108,7 @@ ls, zsh-syntax-highlighting, ...
 
 You may need to also tweak them so that the text they print is readable.
 
-# How to make the background color white immediately (before a successful login)?
+### make the background color white immediately (before a successful login)?
 
     $ sudo mkdir -p /etc/systemd/system/getty@.service.d
 
@@ -139,16 +141,14 @@ About `-background` and `-foreground`:
 we could  also use `--`,  but `man  setterm` recommends to  use `-` in  a script
 (section `COMPATIBILITY`).
 
-##
-# How to increase the size of the scrollback buffer?
+### increase the size of the scrollback buffer?
 
 Use tmux.
 
 Otherwise, I think you would need to recompile the kernel to set some option:
 <https://superuser.com/a/281876/913143>
 
-##
-# How to turn on the Numlock key by default?
+### turn on the Numlock key by default?
 
     $ sudo mkdir -p /etc/systemd/system/getty@.service.d
     $ cat <<'EOF' | sudo tee -a /etc/systemd/system/getty@.service.d/activate-numlock.conf
@@ -158,7 +158,7 @@ Otherwise, I think you would need to recompile the kernel to set some option:
 
 Source: <https://wiki.archlinux.org/index.php/Activating_Numlock_on_Bootup#Extending_getty@.service>
 
-## How does it work?
+#### How does it work?
 
 Whenever you try to log in from a console, systemd starts a service instantiated
 from the template unit:
@@ -183,7 +183,7 @@ including the following directive:
 `ExecStartPre` will execute `/bin/sh -c '...'` before `agetty` is invoked, which
 will invoke `setleds`, which will turn the Numlock key on.
 
-## Why executing `/bin/sh -c` instead of directly `setleds ...`?
+#### Why executing `/bin/sh -c` instead of directly `setleds ...`?
 
 Because of the stdin redirection.
 
@@ -193,7 +193,7 @@ From `man systemd.service`:
 > in  the background  using "&",  and  other elements  of shell  syntax are  not
 > supported.
 
-## Is there an alternative?
+#### Is there an alternative?
 
 Yes,  if  you  use   a  recent  enough  version  of  systemd,   you  can  use  a
 `StandardInput` directive:
@@ -207,7 +207,7 @@ For more information about the `StandardInput` option:
    - <https://github.com/systemd/systemd/pull/7198>
    - <https://www.freedesktop.org/software/systemd/man/systemd.exec.html>
 
-## But why a redirection is necessary in the first place?
+#### But why a redirection is necessary in the first place?
 
 Theory: by default `$  setleds` affect the current tty which  is attached to its
 stdin.
@@ -215,25 +215,56 @@ However, here, the command is executed outside the context of a tty.
 So, we need to reconnect the stdin of  `$ setleds` to the tty for which `agetty`
 is going to be invoked by the systemd service.
 
-## What's `%I`?
+#### What's `%I`?
 
 A specifier which is replaced with  the unescaped instance name (`tty1`, `tty2`,
 ...) of the instantiated service.
 
 See `man systemd.unit`.
 
-## What does `-D` do?
+#### What does `-D` do?
 
 `$ setleds` changes the led flag settings of the VC.
 `$ setleds -D` does the same thing, but also changes their default values.
 
-## What does `+num` do?
+#### What does `+num` do?
 
 It sets the NumLock flag.
 
+###
+### increase the keyboard repeat rate, and decrease the delay time?
+
+Use `$ kbdrate`:
+
+    $ sudo kbdrate -r 50 -d 150 </dev/tty1
+                                │
+                                └ only needed if you're under X
+
+<https://unix.stackexchange.com/a/58652/289772>
+
+To run it automatically, include the command in `/etc/rc.local`:
+
+    $ sudo sed -i.bak '/^exit 0/i kbdrate -r 50 -d 150 </dev/tty1' /etc/rc.local
+
+<https://askubuntu.com/a/290100/867754>
+
+TODO: Convert that in a systemd service.
+<https://askubuntu.com/a/960333/867754>
+
 ##
-# How to view
-## a pdf?
+# Usage
+## How to switch to another console?  (2)
+
+Use the `$ chvt` command:
+
+    $ chvt 3
+
+Or press `C-M-Fx` if you're in the graphical environment, or `M-Fx` if you're in a console.
+Replace `x` with the number of the console.
+
+##
+## How to view
+### a pdf?
 
 Use `less`.
 
@@ -245,7 +276,7 @@ It also requires that you have exported the environment variables `LESSOPEN` and
 
     eval "$(lesspipe)"
 
-## a video?
+### a video?
 
     $ mpv -vo drm my_video.mkv
 
@@ -258,14 +289,14 @@ For more info:
 
     $ man mpv /drm
 
-## an image?
+### an image?
 
     $ sudo aptitude install fbi
     $ sudo adduser user video
 
     $ fbi my_pic.jpg
 
-### Why do I have to add my user to the `video` group?
+#### Why do I have to add my user to the `video` group?
 
 `fbi` needs to write on `/dev/fb0`.
 This file is owned by the root user, and the video group.

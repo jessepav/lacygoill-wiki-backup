@@ -345,7 +345,7 @@ Press:
 ##
 ## What does pressing and releasing `M-SysRq` do?
 
-If you're in  a virtual console, it  cycles between the current  console and the
+If you're  in a  virtual terminal,  it cycles  between the  current one  and the
 previous one.
 
 ##

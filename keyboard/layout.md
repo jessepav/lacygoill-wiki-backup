@@ -735,7 +735,7 @@ This will generate a source keymap inside:
 - <https://wiki.archlinux.org/index.php/Xbindkeys>
 - <https://wiki.archlinux.org/index.php/Xorg>
 
-# How to capture the output of all past commands in a virtual console?
+# How to capture the output of all past commands in a virtual terminal?
 
 <https://wiki.archlinux.org/index.php/Screen_capture#Virtual_console>
 

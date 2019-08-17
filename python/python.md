@@ -5,6 +5,159 @@ A number: no.
 
 ##
 ##
+# TODO: Do *not* install a locally compiled python!  (unless – maybe – you install it outside PATH)
+## It would break the compilation of the python interface in Vim.
+
+For some reason,  during the compilation, sometimes Vim would  use your compiled
+python, but not always.
+IOW, it would mix the default python (3.5 atm) with your locally compiled version.
+
+    $ vim -Nu NONE
+    :py3 ""
+    E448: Could not load library function PySlice_AdjustIndices~
+    E263: Sorry, this command is disabled, the Python library could not be loaded.~
+
+### You could fix it by temporarily resetting `PATH`
+
+So that `/usr/bin` appears before `/usr/local/bin`:
+
+    PATH=/usr/bin:$PATH ./configure ...
+    ^^^^^^^^^^^^^^^^^^^
+
+By  moving  `/usr/bin`  at  the  start  of `PATH`,  you  would  make  sure  that
+Vim  finds the  default  python  (`/usr/bin/python3`), and  not  your local  one
+(`/usr/local/bin/python3`).
+
+- <https://stackoverflow.com/a/15282645/9780968>
+- <https://stackoverflow.com/questions/8391077/vim-python-support-with-non-system-python/8393716#comment21639294_8393716>
+
+###
+### You could also try to set
+#### `--with-python3-config-dir`
+
+With the config dir of your locally compiled python.
+For example, you would replace this:
+
+    --with-python3-config-dir=/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu
+
+with:
+
+    --with-python3-config-dir=/usr/local/lib/python3.7/config-3.7m-x86_64-linux-gnu
+
+However, I tried, and the compilation succeeded, but the python3 interface didn't work:
+
+    $ vim -Nu NONE
+    :py3 ""
+    E370: Could not load library libpython3.7m.a~
+    E263: Sorry, this command is disabled, the Python library could not be loaded.~
+
+---
+
+There may be sth to do with the environment variable `LD_LIBRARY_PATH`.
+I tried to set it like this:
+
+    LD_LIBRARY_PATH=/usr/lib:/usr/local/lib ./configure ...
+
+The compilation succeeded, but the python3 interface still didn't work.
+
+---
+
+If you  find a way to  make this solution work,  and you need to  get the config
+paths programmatically, try this:
+
+    # example of values: 2.7 and 3.5
+    python2_version="$(readlink -f "$(which python)" | sed 's/.*\(...\)/\1/')"
+    python3_version="$(readlink -f "$(which python3)" | sed 's/.*\(...\)/\1/')"
+
+    # example of paths: `/usr/lib/python2.7/config-x86_64-linux-gnu` and `/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu`
+    python2_config_path="$(locate -r "/usr/.*lib/python${python2_version}/config-" | head -n1)"
+    python3_config_path="$(locate -r "/usr/.*lib/python${python3_version}/config-${python3_version}" | head -n1)"
+    ...
+
+    --with-python-config-dir="$python2_config_path" \
+    --with-python3-config-dir="$python3_config_path"
+
+#### `vi_cv_path_python3` with the path to the default python:
+
+    vi_cv_path_python3=/usr/bin/python3.5 ./configure ...
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+But I don't understand what it does, and I don't know where it's documented.
+I found it here:
+<https://stackoverflow.com/a/23095537/9780968>
+
+From `:h python-building`:
+
+> If you have more than one version  of Python 3, you need to link python3
+> to the one you prefer, before running configure.
+
+I have no idea how to “link python3 to the one I prefer” though.
+
+Also, maybe have a look at `:h python-dynamic`, and `:h python-2-and-3`.
+More generally, reading the whole `if_pyth.txt` file may be useful.
+
+###
+### Do not try to exclude `/usr/local/bin` from `PATH` while configuring.
+
+    delim="$(tr x '\001' <<<x)"
+    new_path=$(sed "s${delim}/usr/local/bin:${delim}${delim}" <<<$PATH)
+    PATH="$new_path" ./configure ...
+
+It would break the compilation of some  programs which need to find some utility
+installed in `/usr/local/bin`.
+As an  example, Vim's  compilation requires  gawk, and atm,  the latter  is only
+installed in `/usr/local/bin`.
+
+##
+## It would break the compilation of the python plugin in WeeChat.
+
+When you start WeeChat, this message would be printed in the core buffer:
+
+    Error: unable to load plugin "/usr/local/lib/weechat/plugins/python.so": /usr/local/lib/weechat/plugins/python.so: undefined symbol: forkpty~
+
+According to this message from a dev, the issue is due to our custom python:
+
+> I think your compilation problem is caused by your custom install of Python, so
+> as I can not reproduce the problem, I close the issue.
+
+<https://github.com/weechat/weechat/issues/1383#issuecomment-520126339>
+
+And they don't want to support such a use case.
+
+##
+## It would probably break other python plugins in the future.
+
+It would create too many issues which are not worth being fixed.
+
+You should see  python like bash; it's  a too fundamental program  to be updated
+manually.
+Many scripts/programs expect a certain version defined somewhere by your distro,
+and won't work anymore if they find another version.
+
+---
+
+If you want a more recent python, update your distro.
+
+Or, try to install it outside PATH.
+But if  you do, reinstall  Vim and WeeChat immediately,  and make sure  your Vim
+python interface is still working as well as the WeeChat python plugin.
+
+This should not cause any error:
+
+    $ vim -Nu NONE
+    :py3 ""
+
+And here the output of `/plugin` should include 'python':
+
+    $ weechat
+    /plugin
+
+Also, make sure  that your pip packages are still  installed against the default
+python.
+They should  still be installed in  `~/.local/lib/python3.5` (assuming python3.5
+is your default python).
+
+##
 # How to install python?
 ## Download
 
@@ -184,16 +337,18 @@ Use `$ apt-file search` to search for a missing dependency:
 Immediately after  the install, try  to update your  system, and see  whether an
 error occurs.
 
-### Why not naming the package `python`?
+### Why not naming the package
+#### `python`?
 
 This would shadow the default python2 package, and because many programs rely on
 it, they'll all get broken.
 
-### Why not naming the package `python3`?
+#### `python3`?
 
 Some programs rely on a specific (and older) version of `python3`.
 They would get broken by a new version.
 
+###
 ### I have installed the package and named it `python(3)` by accident!
 
 Downgrade your `python(3)` package:

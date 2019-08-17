@@ -1522,6 +1522,34 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
 ## Expression lambda / closure
 
+Document that  when you define  a lambda which refers  to some variables  in the
+rhs, absent  from the  lhs, they should  all be assigned  before the  lambda (at
+least one).
+
+MWE:
+
+        fu! Func()
+            let l:Test = { -> foo + bar ==# 3 }
+            let foo  = 1
+            let bar  = 2
+            return l:Test()
+        endfu
+        echo Func()
+        E121~
+
+        fu! Func()
+            let foo  = 1
+            let l:Test = { -> foo + bar ==# 3 }
+            let bar  = 2
+            return l:Test()
+        endfu
+        echo Func()
+        1~
+
+Explanation: <https://github.com/vim/vim/issues/2643#issuecomment-366954582>
+
+---
+
 Document the fact that when you save  a lambda or funcref inside a function, you
 should always  use the scope  `l:`, otherwise there could  be a conflict  with a
 public custom function.

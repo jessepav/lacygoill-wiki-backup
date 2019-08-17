@@ -1125,23 +1125,23 @@ MWE:
 # process substitution
 ## What does `>(cmd)` mean?
 
-        1. create a temporary file
-        2. anything which will be written inside, send it to the stdin of `cmd`
+   1. create a temporary file
+   2. anything which will be written inside, send it to the stdin of `cmd`
 
 ---
 
 Example:
 
-        $ echo 'hello' > >(wc -m)
-        6~
+    $ echo 'hello' > >(wc -m)
+    6~
 
 This example was equivalent to:
 
-        $ echo 'hello' >/tmp/file
-                        ├───────┘
-                        └ anything written here will be sent the stdin of `wc -m`
+    $ echo 'hello' >/tmp/file
+                    ├───────┘
+                    └ anything written here will be sent the stdin of `wc -m`
 
-        $ echo hello | wc -m
+    $ echo hello | wc -m
 
 ## What are the 3 main differences between `<()` and `>()`?
 
@@ -1163,7 +1163,7 @@ With `>(cmd)`, `cmd` is passed the file on its stdin.
 When set, it allows you to redirect standard streams of a process to several files.
 Example:
 
-        % echo hello >foo >bar
+    % echo hello >foo >bar
 
 ## What happens if I execute `echo hello >foo >bar`, while the MULTIOS option is unset?
 

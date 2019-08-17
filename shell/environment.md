@@ -47,7 +47,8 @@ Without this, the following would fail:
     See 'man 7 undocumented' for help when manual pages are not available.~
 
 Indeed, for some reason,  in the environment of a `$ man`  process, the value of
-`$MANSECT` is split after each colon.
+`$MANSECT` is split after each colon: <https://unix.stackexchange.com/q/477977/289772>
+
 As  a result,  the  value of  `$MANSECT`  is truncated  after  the first  manual
 section.
 

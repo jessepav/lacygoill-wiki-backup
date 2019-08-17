@@ -1603,3 +1603,13 @@ Morale de l'histoire:    ne jamais mettre de newline dans une capture à laquell
             This can lead to unexpected results if you apply it to an expression
             using an atom refering to a column position.
 
+            ---
+
+            You can check the difference between `\zs` and `\@<=` with this text:
+
+                foo A B C bar D E F
+
+            If you look for `bar.*\zs\u`, you'll only get `F`.
+            If you look for `bar.\{-}\zs\u`, you'll only get `D`.
+            If you look for `\%(bar.*\)\@<=\u`, you'll only get `D`, `E`, and `F`.
+

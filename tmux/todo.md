@@ -166,8 +166,6 @@ Style to follow when submitting a PR to tmux:
    - <https://man.openbsd.org/style.9>
    - <https://github.com/tmux/tmux/pull/1743#issuecomment-493450917>
 
-# move `~/wiki/terminal/tmux.md` from the terminal wiki to the tmux wiki?
-
 # create a new session from within tmux
 
     $ tmux switchc -t$(tmux new -dP -F '#{session_id}')
@@ -437,22 +435,64 @@ our status line.
 
 This would be very useful when we press sth like `"Ayiw` in copy mode.
 
-## make tmux print whether the `-r` flag passed to `bind` is in effect
+## make tmux repeat an arbitrary subset of keys
 
-Again, we would  need a format variable  which gives us this info,  and we would
-use it in our status line.
+Right now,  when `-r` is  passed to  `bind`, tmux enters  in a sort  of “repeat”
+submode, in which **all** key bindings defined with `-r` can be repeated without
+the prefix key.
 
-This would be useful when we intend  to pass the next keypress to the foreground
-process, and want to be sure it's not going to be consumed by tmux.
+This often leads to confusing situations.
+For example, we have these key bindings:
 
-Issue:  `-r` stays  in effect  a very  short period  of time  (1s atm;  value of
-'repeat-time' option).
+    bind -r C-h resizep -L 5
+    bind -r C-j resizep -D 5
+    bind -r C-k resizep -U 5
+    bind -r C-l resizep -R 5
+
+Now suppose we want to make `(` and `)` repeatable:
+
+    bind -r ( switchc -p
+    bind -r ) switchc -n
+
+We press the prefix key then `)` to focus the next session and have a brief look
+at a window in the next session.
+We press `)` again to get back to our other session which is running Vim.
+In Vim, we have several splits; we want to focus the one below the current one,
+and so we press `C-j`.
+Instead of Vim focusing the split below, tmux will resize the current pane.
+This is unexpected.
+It would be  better if we coud tell  tmux to only repeat `)` and  `(`; not *any*
+key binding defined with `-r`.
+Basically, we would need sth equivalent to `vim-submode`.
 
 ## prevent tmux from wrapping long lines in copy mode
 
 Wrapping long lines makes the output of `lsk` hard to read.
 It would be nice if tmux could print a long line of text on a single screen line.
 We would need a command to scroll the text horizontally.
+
+## set up the color of the selection in copy mode, as well as the color of the indicator in the upper-right corner
+
+## tell `if -F '#{@my_option}'` which scope we want to use for a user option
+
+This matters if we have several user options with the same name but different scopes.
+
+By default, tmux gives the priority to a server option:
+
+    $ tmux set -s @my_option 0 \; set @my_option 1 \; set -w @my_option 1 \; set -p @my_option 1 \; if -F '#{@my_option}' 'display -p yes' 'display -p no'
+    no~
+
+Then a pane option:
+
+    $ tmux set -us @my_option \; set -p @my_option 0 \; set -w @my_option 0 \; set -s @my_option 0 \; if -F '#{@my_option}' 'display -p yes' 'display -p no'
+    no~
+
+Then a window option:
+
+    $ tmux set -us @my_option \; set -up @my_option \; set -s @my_option 0 \; set -w @my_option 1 \; if -F '#{@my_option}' 'display -p yes' 'display -p no'
+    no~
+
+Finally a session option.
 
 #
 # study how v, V, C-v behave in Vim when we're already in visual mode; try to make tmux copy-mode consistent
@@ -600,6 +640,33 @@ all be named with the pattern `buf_123`.
 The format variables `#{window_layout}` and `#{window_visible_layout}` may help,
 as well as `select-layout`.
 More generally, read everything in the manpage which contains 'layout'.
+
+---
+
+You can save the current layout in an option with:
+
+    $ tmux set -Fw @layout "#{window_layout}"
+
+And you can restore the layout with:
+
+    $ tmux run 'tmux select-layout "#{@layout}"'
+
+---
+
+Usage example (toggle  between moving the pane to the  far right, maximizing it,
+or restoring original layout):
+
+    $ cat <<'EOF' >/tmp/tmux.conf
+    if -F '#{@layout}' \
+        {run 'tmux select-layout "#{@layout}" \; set -uw @layout'} \
+        {set -Fw @layout "#{window_layout}" ; splitw -fh  ; swapp -t ! ; killp -t !}
+    EOF
+
+    $ tmux neww \; splitw \; display -p one \; splitw -h
+
+    $ tmux source /tmp/tmux.conf
+    $ tmux source /tmp/tmux.conf
+    ...
 
 # install a key binding to remove the text before the cursor on command prompt
 
@@ -786,6 +853,46 @@ These commands don't have the same effect:
 This would give a little more info in a backtrace.
 Not sure this would really help; just consider it.
 
+# decipher the default value of 'status-format'
+
+    status-format[0] "#[align=left range=left #{status-left-style}]#{T;=/#{status-left-length}:status-left}#[norange default]#[list=on align=#{status-justify}]#[list=left-marker]<#[list=right-marker]>#[list=on]#{W:#[range=window|#{window_index} #{window-status-style}#{?#{&&:#{window_last_flag},#{!=:#{window-status-last-style},default}}, #{window-status-last-style},}#{?#{&&:#{window_bell_flag},#{!=:#{window-status-bell-style},default}}, #{window-status-bell-style},#{?#{&&:#{||:#{window_activity_flag},#{window_silence_flag}},#{!=:#{window-status-activity-style},default}}, #{window-status-activity-style},}}]#{T:window-status-format}#[norange default]#{?window_end_flag,,#{window-status-separator}},#[range=window|#{window_index} list=focus #{?#{!=:#{window-status-current-style},default},#{window-status-current-style},#{window-status-style}}#{?#{&&:#{window_last_flag},#{!=:#{window-status-last-style},default}}, #{window-status-last-style},}#{?#{&&:#{window_bell_flag},#{!=:#{window-status-bell-style},default}}, #{window-status-bell-style},#{?#{&&:#{||:#{window_activity_flag},#{window_silence_flag}},#{!=:#{window-status-activity-style},default}}, #{window-status-activity-style},}}]#{T:window-status-current-format}#[norange list=on default]#{?window_end_flag,,#{window-status-separator}}}#[nolist align=right range=right #{status-right-style}]#{T;=/#{status-right-length}:status-right}#[norange default]"
+
+    status-format[1] "#[align=centre]#{P:#{?pane_active,#[reverse],}#{pane_index}[#{pane_width}x#{pane_height}]#[default] }"
+
+The default value of 'status-format' as given by `$ tmux -Lx -f/dev/null start \; show -g status-format` is: https://0x0.st/zOUx.txt
+It contains this snippet: `#{T;=/#{status-left-length}:status-left}`.
+I know the `T` format modifier, but I don't understand the meaning of the semicolon which follows immediately.
+And I can't find a single example of a format modifier followed by a semicolon in the manpage.
+
+The latter is also weird; it follows the syntax `#{=/number:...}` which doesn't seem to match any documented syntax.
+Like `#{=5:...}`, `#{=-5:...}`, `#{=/5/prefix:...}`, `#{=/-5/suffix:...}`.
+None of them match `#{=/number:...}`.
+
+I think the semicolon is a way to combine several modifiers:
+                                                                      v
+    $ tmux set -g @foo 'some long text' \; display -p '#{s/long/short/;=/10/...:@foo}'
+    some short...~
+                                                                 v
+    $ tmux set -g @foo 'some long text' \; display -p '#{=/10/...;s/long/short/:@foo}'
+    some short...~
+
+And what about this `range` token?
+I think you can use it to define when the left part of the status line begins and when it ends.
+
+    #[range=left] ... #[norange] = left part
+
+Same thing for the right part:
+
+    #[range=right] ... #[norange] = right part
+
+Same thing for a particular window:
+
+    #[range=window|123 ... #[norange] = part of the window list matching the window 123
+
+This is mainly (only?) useful for the mouse.
+When you click on  some part of the status line, tmux must  know how to consider
+the location: left part? right part? window list?
+
 ##
 # document
 ## the `synchronize-panes` window option
@@ -946,6 +1053,43 @@ If that's true, then `showb` is probably better because more explicit.
 
 To do so, you need to create a new key table and set the 'key-table' option accordingly.
 
+## most of the `-status` and `-style` options
+
+Not all; just the one you find the most useful.
+Group them  according to  some themes, and  write questions/answers  about their
+effect (not their syntax).
+
+Sth like:
+
+    # status line
+    ## contents
+    ### Which option should I set to change
+    #### its left part?
+    #### its right part?
+    #### the window list in the middle?
+    #### ...
+    ## style
+    ### Which option should I set to change the style of
+    #### the left part?
+    #### ...
+
+## the `-c` argument passed of `attach-session`
+
+This allows to set the default working directory used for new windows.
+Right now, when you create a new window, the cwd is probably `~`.
+Run these commands:
+
+    $ tmux detach
+    $ tmux attach -c /tmp
+
+Now, when you create a new window, its cwd is `/tmp`.
+Note that this is local to the session to which you attach.
+If you switch to another session and create a new window, the cwd will be `~`, not `/tmp`.
+
+All of this illustrate a new concept: the session working directory.
+It's the working  directory set by default  to any process started  from a given
+session (I think).
+
 ##
 # typos in manpage
 
@@ -978,4 +1122,76 @@ This is not documented.
 ---
 
 `\ePtmux;seq\e\\` is not documented.
+It's useful, for example, to send an OSC 52 sequence to the terminal, regardless
+of how `set-clipboard` is set.
+
+---
+
+The documentation about `message-command-style` is unclear:
+
+> message-command-style style
+>         Set status line message command style.  For how to specify style,
+>         see the STYLES section.
+
+<https://github.com/tmux/tmux/issues/1065#issuecomment-328431849>
+
+This would be more clear:
+
+> message-command-style style
+>         Set status line message command style for when you are in command mode with vi keys.
+>         For how to specify style, see the STYLES section.
+
+If you  need to  test the option:
+
+    $ tmux -Lx -f =(cat <<'EOF'
+      set -g status-keys vi
+      set -g message-command-style fg=white,bg=colour31
+      EOF
+      )
+
+     # press `C-b :` to enter command prompt
+     # insert some text
+     # press `Escape` to enter pseudo vi normal mode
+     # press `i` to get back to insert mode
+
+Note that `message-style`  controls the style of the command  prompt when you're
+in insert mode, or when you're using emacs keys.
+It also controls the style of the status line messages.
+
+---
+
+The possibility of combining 2 format modifiers with a semicolon is not documented.
+
+    $ tmux set -g @foo 'some long text' \; display -p '#{s/long/short/;=/10/...:@foo}'
+    some short...~
+
+    $ tmux display -p '#{t;s/^.../XXX/:start_time}'
+    XXX Aug  8 13:11:27 2019~
+
+Note that you can't combine several modifiers of the same type:
+
+> nicm │ crose: the way modifiers are implemented you can only have one of each type
+
+For example this command outputs `next-3.Y`, instead of `Xext-3.Y`:
+
+    $ tmux display -p '#{s/^./X/;s/.$/Y/:version}'
+
+This is only an issue for `s` though, and it may change in the future:
+
+> nicm │ id like it to work so it might change at some point
+>      │ it only really makes sense for s
+>      │ which wouldn't be that hard to do
+
+You can also combine more than 2 modifiers:
+
+    $ tmux display -p '#{t;=/10/;s/^.../XXX/:start_time}'
+
+You should also document all of this in our notes.
+
+---
+
+The synopsis of some commands includes `start-directory`.
+I  think   it  should   be  `working-directory`  to   be  consistent   with  the
+terminology used  in the description  of the commands  and with the  synopsis of
+`attach-session`.
 

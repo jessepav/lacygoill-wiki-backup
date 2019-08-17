@@ -315,6 +315,40 @@ If you're  inside tmux, first  close the terminal  or detach, then  re-attach to
 your tmux session.
 
 ##
+## How to get the rgb specification of a color used in the palette?
+
+Use this sequence:
+
+    OSC 4 ; <color index> ; ? BEL
+
+Example:
+
+    $ printf '\e]4;123;?\a'
+
+See `OSC Ps ; Pt BEL`:
+
+> If a "?" is given rather than  a name or RGB specification, xterm replies with
+> a control sequence of the same form which can be used to set the corresponding
+> color.
+
+---
+
+To capture the terminal's reply in a variable, run `$ read`:
+
+    $ printf '\e]4;123;?\a' ; read -d $'\a' -s -t 0.1
+
+The reply should be in `$REPLY`.
+If you  want to  inspect its contents,  don't simply echo  it (you  wouldn't see
+anything because it starts with an Escape); use `$ od` instead:
+
+    $ printf -- '%s' ${REPLY#$(printf "\e]4;")[0-9]*;rgb:} | od -t c
+
+### It doesn't work in st!
+
+Yes, the sequence is not supported by all terminals.
+xterm does support it though; no idea about the other terminals.
+
+##
 # True Color
 ## What's the benefit of true color?
 

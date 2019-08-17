@@ -37,12 +37,13 @@ Configure, compile and install:
     $ make
     $ sudo checkinstall
 
-TODO: `$ git diff` won't use this new `$ less`.
-Many other things will probably won't work too.
-I think that's because of the new location (`/usr/local/bin/less` vs `/bin/less`).
-Before `$ make`, you'll need to set the prefix to `/` instead of `/usr/local/`.
-Or, you'll need to configure the system so that it uses `/usr/local/bin/less`;
-try `$ update-alternatives --config pager`, or sth similar.
+Inform the system that the pager to use is in `/usr/local/bin/less`:
+
+    $ sudo update-alternatives --install /usr/bin/pager pager /usr/local/bin/less 60
+    $ sudo update-alternatives --set pager /usr/local/bin/less
+
+This is necessary, for example, so that  `$ git diff` invokes our compiled less,
+instead of writing its output directly onto the terminal.
 
 ## lesspipe
 
@@ -52,6 +53,7 @@ Useful to view the contents of compressed files or archives.
     $ cd lesspipe
 
     # TODO: maybe you should set `LESS_ADVANCED_PREPROCESSOR` in `~/.zshenv`
+    $ make clean
     $ ./configure
     Activate syntax highlighting code [y/N] ? y~
 
@@ -59,10 +61,7 @@ Useful to view the contents of compressed files or archives.
     ENV variable LESS_ADVANCED_PREPROCESSOR is set [y/N] ? y~
 
     $ make
-    $ sudo cp lesspipe.sh code2color /usr/local/bin
-
-    # to reset the contents of a field to a default value,
-    # type its index then press Enter without filling anything
+    $ sudo checkinstall --spec /dev/null
 
 ---
 

@@ -258,56 +258,72 @@ If the exit code is `1`, the option is unset or doesn't exist.
 
 ##
 # Test
-## How to test if a directory is empty?
+## How to test whether
+### a parameter is set?
 
-        if [[ -z "$(ls -A -- "${dir}")" ]]; then
-          ...
-        fi
+Use this parameter expansion:
+
+    ${parameter:-word}
+
+Example:
+
+    $ if [[ "${TERM:-none}" == 'none' ]]; then echo 'the parameter is NOT set'; else echo 'the parameter is set'; fi
+    the parameter is set~
+    $ if [[ "${foo:-none}" == 'none' ]]; then echo 'the parameter is NOT set'; else echo 'the parameter is set'; fi
+    the parameter is NOT set~
+
+    $ case ${TERM:-none} in none) echo 'the parameter is NOT set';; *) echo 'the parameter is set';; esac
+    the parameter is set~
+    $ case ${foo:-none} in none) echo 'the parameter is NOT set';; *) echo 'the parameter is set';; esac
+    the parameter is NOT set~
+
+### a directory is empty?
+
+    if [[ -z "$(ls -A -- "${dir}")" ]]; then
+      ...
+    fi
 
 For more info, see:
 
-        http://mywiki.wooledge.org/BashFAQ/004
-        https://unix.stackexchange.com/a/204572/289772
-        https://unix.stackexchange.com/a/202352/289772
+- <http://mywiki.wooledge.org/BashFAQ/004>
+- <https://unix.stackexchange.com/a/204572/289772>
+- <https://unix.stackexchange.com/a/202352/289772>
 
-##
-## How to test whether a command exist on my system?
+### a command exists on my system?
 
         if command -v "${cmd}" >/dev/null 2>&1; then
           ...
         fi
 
-## Is it completely reliable?  Why?
+#### When is it not reliable?
 
-Not in zsh, because of the possible interference of a suffix alias.
+In zsh, because of the possible interference of a suffix alias.
 
 MWE:
 
-        alias -s md=vim
-        if command -v md.md >/dev/null 2>&1; then
-          echo 'md.md is a valid command!'
-        fi
-        md.md is a valid command!~
+    $ alias -s md=vim
+    $ if command -v md.md >/dev/null 2>&1; then echo 'md.md is a valid command!'; fi
+    md.md is a valid command!~
 
-## Which alternative may be more reliable?
+#### Which alternative may be more reliable?
 
-        if [[ -x "${cmd}" && ! -d "${cmd}" ]]; then
-          ...
-        fi
+    if [[ -x "${cmd}" && ! -d "${cmd}" ]]; then
+      ...
+    fi
 
 ---
 
 FIXME:
 Why doesn't `setopt no_aliases` work?
 
-        % alias -s md=vim && setopt no_aliases && md.md
-        zsh: command not found: md.md (✔ expected)~
+    % alias -s md=vim && setopt no_aliases && md.md
+    zsh: command not found: md.md (✔ expected)~
 
-        % alias -s md=vim && setopt no_aliases && command -v md.md
-        vim (✘ it shouldn't output anything)~
+    % alias -s md=vim && setopt no_aliases && command -v md.md
+    vim (✘ it shouldn't output anything)~
 
 ##
-## How to test whether I'm in a console?
+### I'm in a console?
 
         [[ -z "${DISPLAY}" ]]
         [[ "$(tty)" == *pts* ]]

@@ -186,7 +186,7 @@ You need to “escape” it using this syntax:
     \ePtmux;seq\e\\
             ├─┘
             └ sequence you want to send to the outer terminal;
-              any escape character it contains must be *doubled*
+              any escape character it contains must be doubled
 
 Source:
 <https://web.archive.org/web/20150808225911/http://comments.gmane.org:80/gmane.comp.terminal-emulators.tmux.user/1322>
@@ -202,57 +202,18 @@ Relevant excerpt:
 >    Will  pass \ePtmux;\e\e]12;red\e\e\\\e\\  to the  terminal
 >    (and change the cursor colour in xterm).
 
-##
-# Terminfo Extensions
-## What's a terminfo extension?
+Note that you really need the DCS sequence to end with ST (`\e\\`) not BEL (`\a`).
+OTOH, since you need to double all  the escape characters in the sequence you're
+trying to send to the outer terminal,  prefer to end the latter with BEL instead
+of ST, to improve the readability.
 
-An extended capability not found in  standard terminfo, which was probably first
-supported in xterm, and later may have been implemented in other terminals.
+Compare:
 
-## How can I list all terminfo extensions supported by tmux?
+    $ printf '\ePtmux;\e\e]4;0;red\a\e\\'
 
-    $ infocmp -x xterm+tmux
-    #       Reconstructed via infocmp from file: /home/user/.terminfo/x/xterm+tmux~
-    xterm+tmux|advanced xterm features used in tmux,~
-            Cr=\E]112\007, Cs=\E]12;%p1%s\007,~
-            Ms=\E]52;%p1%s;%p2%s\007, Se=\E[2 q, Ss=\E[%p1%d q,~
+Vs:
 
-Here, you can see 5 capabilities:
-
-   - Cr
-   - Cs
-   - Ms
-   - Se
-   - Ss
-
-##
-## What's `Ms`?
-
-It's a way for the terminal to  tell the applications how they should encode and
-send  some arbitrary  text, if  they  want the  terminal  to store  it into  the
-clipboard.
-
-### Where can I find more information about it?
-
-    OSC Ps ; Pt BEL /Ps = 5 2
-
-        Where is OSC 52 documented?
-
-See also:
-
-    $ curl -LO http://invisible-island.net/datafiles/current/terminfo.src.gz
-    $ gunzip terminfo.src.gz
-    $ vim terminfo.src
-    /\m\C\<Ms\>
-
-### What's its default value?
-
-    Ms=\E]52;%p1%s;%p2%s\007
-
-#### What's the meaning of the two parameters?
-
-   - p1 = the storage unit (clipboard, selection or cut buffer)
-   - p2 = the base64-encoded clipboard content.
+    $ printf '\ePtmux;\e\e]4;0;red\e\e\\\e\\'
 
 ##
 # Miscellaneous
@@ -288,10 +249,24 @@ sequence which would cause an issue when received by the outer terminal.
                                          └ cancel Ss: never relay '\e[<digit> q'
 
 ##
+## What's a terminfo extension?
+
+An unofficial extended capability not found in standard terminfo.
+
+### How can I list all terminfo extensions supported by tmux?
+
+    $ infocmp -1x xterm+tmux | sed '1,2d'
+    Cr=\E]112\007,~
+    Cs=\E]12;%p1%s\007,~
+    Ms=\E]52;%p1%s;%p2%s\007,~
+    Se=\E[2 q,~
+    Ss=\E[%p1%d q,~
+
+##
 ## Which sequence can I send to the terminal to set the title of
 ### the current tmux pane?
 
-    OSC 2 ; Pt ST
+    OSC 2 ; Pt BEL
 
 Example:
 
@@ -302,11 +277,11 @@ Example:
 
 Usually, this sequence is used to set the title of the terminal window.
 
-See `OSC Ps ; Pt ST /Ps = 2`.
+See `OSC Ps ; Pt BEL /Ps = 2`.
 
 ### the current window?
 
-    Esc k Pt ST
+    Esc k Pt BEL
 
 Example:
 
@@ -319,6 +294,28 @@ This sequence is specific to tmux.
 
 ##
 # Issues
+## I've updated 'terminal-overrides' while the tmux server is running.  `$ tmux info` is not updated!
+
+Detach and re-attach your tmux client.
+
+If you have  multiple tmux clients using  the same terminal, you  need to detach
+them *all*  before re-attaching  any of  them, because  tmux only  maintains one
+description per type of terminal client currently attached to the server.
+
+---
+
+You also need to detach/re-attach if  you've edited the description of the outer
+terminal with `$ tic`.
+
+---
+
+You don't need to detach/re-attach every time you update a server option.
+`'terminal-overrides'` is a special case.
+It has one *single*  value – like any option – but it's  used to build *several*
+descriptions: one per type of terminal client attached to the server.
+Those descriptions are only updated when you detach/re-attach.
+There's no equivalent of such a mechanism for the other server options.
+
 ## I've configured Vim to change the shape of the cursor when I enter insert mode, using a DCS sequence.
 
     :let &t_SI = "\ePtmux;\e\e[6 q\e\\"
@@ -344,27 +341,4 @@ And set the `Ss` and `Se` capabilities of the outer terminal.
     $ tmux set -as terminal-overrides ',*:Ss=\E[%p1%d q:Se=\E[2 q'
     $ tmux detach
     $ tmux [-Lsocket] attach
-
-##
-## I've updated 'terminal-overrides' while the tmux server is running.  `$ tmux info` is not updated!
-
-Detach and re-attach your tmux client.
-
-If you have  multiple tmux clients using  the same terminal, you  need to detach
-them *all*  before re-attaching  any of  them, because  tmux only  maintains one
-description per type of terminal client currently attached to the server.
-
----
-
-You also need to detach/re-attach if  you've edited the description of the outer
-terminal with `$ tic`.
-
----
-
-You don't need to detach/re-attach every time you update a server option.
-`'terminal-overrides'` is a special case.
-It has one *single*  value – like any option – but it's  used to build *several*
-descriptions: one per terminal client attached to the server.
-Those descriptions are only updated when you detach/re-attach.
-There's no equivalent of such a mechanism for the other server options.
 

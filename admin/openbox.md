@@ -307,7 +307,7 @@ See:
 Which file(s) should we use?
 
 According  to the  gentoo  wiki,  we can  use  `~/.xinitrc`  and `~/.zlogin`  to
-autostart a WM depending on the VT.
+autostart a WM depending on the VC.
 
         # ~/.xinitrc
         case $(tty | cut -b9-) in
@@ -316,7 +316,7 @@ autostart a WM depending on the VT.
         esac
 
        # ~/.bash_login
-       # Auto startx depending on the VT
+       # Auto startx depending on the VC
        if [[ -z "$DISPLAY" && $(id -u) -ge 1000 ]] ; then
            TTY=$(tty)
            [[ "${TTY/tty}" != "$TTY" && "${TTY:8:1}" = "3" ]] &&
@@ -332,7 +332,7 @@ autostart a WM depending on the VT.
        }
 
 What's the difference between the two snippets?
-Is there a difference between the tty and the VT?
+Is there a difference between the tty and the VC?
 Why is there no `fi` in the zsh snippet? Where is this syntax documented?
 
 In the previous snippets, what are the pros and cons of using the `$ exec` command?
@@ -354,7 +354,7 @@ If you use `$ exec`, here's the tree of process as reported by `$ pstree -lsp $$
     xfce4-terminal
     bash
 
-If you look at  `$ pstree -lsp $(pgrep xinit)`, you'll see  that, in addition to
+If you look at  `$ pstree -lsp $(pidof xinit)`, you'll see  that, in addition to
 openbox, xinit also starts the Xorg server.
 Also, if you don't use `$ exec`,  then there's an additional `$ sh` process just
 after xinit:

@@ -1790,51 +1790,6 @@ précédant le curseur (custom).
                     - `set hls`      active la mise en surbrillance ssi &hls = 0
 
 
-    :norm[al] {commands}
-
-            :norm ne sait pas traduire les caractères spéciaux (<cr>, <Esc>, <C-w> ...).
-
-            Exception:  si  :norm fait  partie  d'une  commande custom  ou  d'un
-            mapping défini dans un fichier sourcé par Vim.
-            En effet,  au moment où  Vim source ses fichiers  (vimrc, plugins...),
-            les  caractères de  contrôle  d'une commande  ou  d'un mapping  sont
-            automatiquement  traduits  en  caractères  littéraux,  i.e.:   <C-R>
-            devient ^R
-
-                    com! TEST norm! /<C-R>/<cr>             commande qui cherche le registre recherche
-                    nno <key>    :<c-u>norm! /<C-R>a<cr>    mapping qui cherche le contenu du registre a
-
-            En dehors  d'un mapping ou  d'une commande,  il est possible  de les
-            représenter dans une chaîne via  des caractères spéciaux (:h string):
-
-                    \b ou \<BS>     BS
-                    \e ou \<Esc>    Esc
-                    \r ou \<cr>     CR
-                    \<C-W>          C-w        (interaction avec des fenêtres)
-                    \\              \
-
-            Pour + de caractères spéciaux de ce type: :h expr-quote
-
-            Pour que les caractères puissent  être traduits, il faut encadrer la
-            chaîne avec des " et non des '.
-            De plus, si la chaîne doit contenir un ", il faut l'échapper (\").
-
-            Qd {commands} inclut le caractère  'q', les frappes qui suivent sont
-            bien exécutées mais pas enregistrées dans une macro.
-
-            feedkeys(), à laquelle on passera le  flag t en 2nd argument, semble
-            la seule solution dans ce cas.
-
-    :exe "norm! 1\<C-I>"
-
-            avancer dans la jumplist
-
-            Qd les {commands}  commencent par un espace ou un  tab (^I), il faut
-            les préfixer par un 1.
-            Autrement, Vim le parse comme un caractère syntaxique séparant :norm
-            et {commands}, et :norm ne reçoit pas l'espace/tab.
-
-
     :sp +enew | 0Nread url
     :$d_ | noautocmd sil w! file | bw
 
