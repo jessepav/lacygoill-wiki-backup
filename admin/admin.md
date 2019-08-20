@@ -2602,6 +2602,18 @@ Update: and now it's there again...
 For the desktop, you may need to run `$ xfdesktop`.
 For the panely, you may try `$ xfce4-panel -r`.
 
+## Document when `$ aptitude dist-upgrade` is useful.
+
+When you run `$ aptitude [safe-]upgrade` and you can see on the last line of the
+output that some packages were not upgraded:
+
+    0 upgraded, 0 newly installed, 0 to remove and 4 not upgraded.~
+
+`$ aptitude dist-upgrade` should upgrade them.
+
+See here for an explanation:
+<https://debian-administration.org/article/69/Some_upgrades_show_packages_being_kept_back>
+
 ## ?
 
     https://unix.stackexchange.com/questions/484434/sync-a-folder-between-2-computers-with-a-filesystem-watcher-so-that-each-time-a

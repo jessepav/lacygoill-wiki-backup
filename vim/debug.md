@@ -714,6 +714,27 @@ first wildcard.
 
 #
 # Issues
+## I'm writing a bug report for a Vim issue.  I need the Vim binary to include debugging symbols!
+
+When you configure – before compiling – edit the file `src/Makefile`.
+In it, uncomment these lines:
+
+    CFLAGS = -g -DSINIXN
+    STRIP = /bin/true
+
+I don't think the second line is necessary, but better be safe than sorry.
+
+See `:h debug-gcc`.
+
+### I need Vim to crash when an internal error (`:h E315`) is detected – to get a core file!
+
+In `src/Makefile`, uncomment this line:
+
+    ABORT_CFLAGS = -DABORT_ON_INTERNAL_ERROR
+
+I found `ABORT_CFLAGS` here: <https://github.com/vim/vim/issues/3177#issue-339241917>
+
+##
 ## When I try to debug Neovim, I get an error about an unknown function (e.g. `colorscheme#set()`)!
 
 Make sure you've copied the contents of `~/.config/nvim/init.vim` in addition to

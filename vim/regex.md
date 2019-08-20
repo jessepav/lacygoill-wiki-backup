@@ -43,7 +43,7 @@ For example, the  next pattern matches any  character which is not  `a`, `b`, or
 
 ##
 # What's the regex to find
-## all sequences of two or more uppercase characters *not* followed by a comma?
+## all sequences of several uppercase characters *not* followed by a comma *nor another uppercase character*?
 
     \%(\u\{2,}\)\@>,\@!
                 ^^^
@@ -69,7 +69,7 @@ Here, without it, we would find `AB`, `DEF`, `GH` and `JKL`.
 
     \%(^\%("[^"]*"\|[^"]\)*\)\@<=,
        │                  │
-       │                  └ will repeat the strings, and the non-string characters
+       │                  └ will repeat the strings, and the not-a-strings
        │
        └ necessary; otherwise, the description could start from anywhere,
          which would be too permissive, and all commas would be matched;
@@ -81,7 +81,7 @@ You can test the regex against this line:
 
 The key  idea, is that  you can  uniquely describe a  comma outside a  string by
 expressing  the fact  that it's  preceded by  0 or  more alternation  of strings
-(`"[^"]*"`) and outside-of-strings (`[^"]`).
+(`"[^"]*"`) and not-a-strings (`[^"]`).
 This description  won't match  a comma  inside a string,  because there  will be
 half-a-string at the end:
 
@@ -89,8 +89,7 @@ half-a-string at the end:
                                        ^^^^^^^^^^^^^^^^^
 
 The underlined text is *not* a full  string so it won't be matched by `"[^"]*"`,
-and it's  not an  outside-of-string either,  so it won't  be matched  by `[^"]*`
-either.
+and it's not a not-a-string either, so it won't be matched by `[^"]*` either.
 
 ---
 

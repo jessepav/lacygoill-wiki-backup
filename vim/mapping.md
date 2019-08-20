@@ -263,6 +263,16 @@ scenario. For example, atm, we have these mappings and function:
 If a register is being recorded, and we're in a help buffer, pressing `q` should
 end the recording; in practice, it doesn't because of the `t` flag.
 
+---
+
+Note that you really need `:norm` to reproduce the issue.
+For example,  if you  try to replace  it with a  second `feedkeys()`,  the issue
+disappears (no matter whether you use the 't' flag in any function call):
+
+    nno cd :call feedkeys('gh', 't')<cr>
+    nno gh :call feedkeys('aaa', 't')<cr>
+    " press `cd`: 'aa' is inserted
+
 ##
 # When do I need to use `inputsave()` and `inputrestore()`?
 

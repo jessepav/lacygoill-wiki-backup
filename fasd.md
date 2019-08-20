@@ -244,12 +244,13 @@ Use the `-b` option:
 
      The path to this file can be controlled via `_FASD_RECENTLY_USED_XBEL`.
 
-## How can I use one of them by default?
+### How can I use one of them by default?
 
 Set the variable `_FASD_BACKENDS` appropriately:
 
     _FASD_BACKENDS=viminfo
 
+##
 ## How can I define my own backend?
 
 Define a shell function in `~/.fasdrc`, and assign its name to `_FASD_BACKENDS`:
@@ -385,7 +386,7 @@ The *last* query must match the *last* component of the path.
 
 It tries the same process, but this time it ignores the case.
 
-### If no match is found, how does fasd re-re-compare the queries with the path?
+#### If no match is found, how does fasd re-re-compare the queries with the path?
 
 It tries the same process, but this time it allows extra characters to be placed
 between query characters for fuzzy matching.
@@ -402,9 +403,7 @@ Use word mode completion, with an empty second query:
 
 Append `/` to the last query.
 
-    $ mkdir -p /tmp/.foo/bar
-    $ touch /tmp/.foo/bar/baz
-    $ fasd -A /tmp/.foo/bar/baz
+    $ mkdir -p /tmp/.foo/bar && touch /tmp/.foo/bar/baz && fasd -A /tmp/.foo/bar/baz
 
     $ f foo bar
     ''~
@@ -419,6 +418,45 @@ So, this would work too:
     $ f foo br/
     6          /tmp/.foo/bar/baz~
 
+### Which limitation exists on these last two syntaxes?
+
+When writing a query matching a path component other than the last, you can omit
+characters with 2 limitations:
+
+   1. your query can start from any position in the path component,
+      but it must go on until its end
+
+   2. after the first character of your query, you can omit characters,
+      but never more than 2 consecutive ones
+      (this number can be changed via `_FASD_FUZZY` in `~/.fasdrc`)
+
+---
+
+    $ mkdir -p /tmp/.directory \
+        && touch /tmp/.directory/file && \
+        fasd -A /tmp/.directory/file && \
+        f ectory/ && \
+        fasd -D /tmp/.directory/file
+     12         /tmp/.directory/file~
+    # works even though 4 characters were omitted at the start of `f ectory/` ('.', 'd', 'i', 'r')
+
+    $ mkdir -p /tmp/.directory \
+        && touch /tmp/.directory/file && \
+        fasd -A /tmp/.directory/file && \
+        f .direcry/ && \
+        fasd -D /tmp/.directory/file
+     12         /tmp/.directory/file~
+    # works even though 2 characters were omitted in the middle of `f .direcry/` ('t', 'o')
+
+    $ mkdir -p /tmp/.directory \
+        && touch /tmp/.directory/file && \
+        fasd -A /tmp/.directory/file && \
+        f .direry/ && \
+        fasd -D /tmp/.directory/file
+    ''~
+    # fails because more than 2 characters were omitted in the middle of `f .direry/` ('c', 't', 'o')
+
+##
 ## How to make the last query match the *end* of the last component of a path?
 
 Append `$` to the last query.
@@ -646,12 +684,14 @@ Inspiration: <https://github.com/ranger/ranger/wiki/Custom-Commands#visit-freque
 
     $ cat <<'EOF' >~/.config/ranger/plugins/plugin_fasd_log.py
     import ranger.api
+    try: from shlex import quote
+    except ImportError: from pipes import quote
 
     old_hook_init = ranger.api.hook_init
 
     def hook_init(fm):
         def fasd_add():
-            fm.execute_console("shell fasd --add '" + fm.thisfile.path + "'")
+            fm.execute_console("shell fasd --add " + quote(fm.thisfile.path))
         fm.signal_bind('execute.before', fasd_add)
         return old_hook_init(fm)
 
@@ -668,7 +708,7 @@ file opened from ranger.
 ##
 # How to debug fasd?
 
-Set `_FASD_SINK` in your `.fasdrc` to obtain a log:
+Set `_FASD_SINK` in your `~/.fasdrc` to obtain a log:
 
     _FASD_SINK="${HOME}/.fasd.log"
 
@@ -677,8 +717,8 @@ Set `_FASD_SINK` in your `.fasdrc` to obtain a log:
 ## I keep opening a file but fasd never adds it to its database!
 
 Make sure the path you used – `~` being expanded – doesn't contain more than 4 slashes.
-Use a relative  path, and switch to a  directory which is nearer to  the file if
-necessary.
+If  necessary, switch  to a  directory which  is nearer  to the  file and  use a
+relative path.
 
 Also, make  sure the  name of  the file  does *not*  contain whitespace,  or any
 special character which requires to be escaped (e.g. `#`).
@@ -688,18 +728,41 @@ Finally, don't quote your filename.
 
 ---
 
-Alternatively, if  you don't want  to remember all  those rules, just  open your
+Alternatively, if you don't want to  remember all those pitfalls, just open your
 file from ranger; the latter uses a plugin which avoids those issues:
 
     ~/.config/ranger/plugins/plugin_fasd_log.py
 
-Or, add the path manually, using our zsh function `fa()`.
+Or, add the path manually, using our zsh function `fasd_add()`.
 
-    fa() {
+    fasd_add() {
       emulate -L zsh
+      if [[ $# -eq 0 ]]; then
+        cat <<EOF >&2
+      usage: $0 <filepath to add in fasd's database>
+    EOF
+        return 64
+      fi
+
       fasd -A "$1"
-      if ! fasd | grep "$1"; then
+      if ! fasd | grep -P "^\d*\.?\d*\s*$1$"; then
         echo "failed to add $1"
       fi
     }
+
+The benefit of this function over `$ fasd -A` is that you get an immediate feedback.
+You know whether the path was added to fasd's database.
+
+##
+# Todo
+## Why can't we redirect the output of `$ fasd -f a`?
+
+    $ fasd -f a
+
+This command currently outputs several lines.
+If we try to redirect the output, only the last line is passed to the second command:
+
+    $ fasd -f a | wc -l
+
+What happens to the other ones?
 
