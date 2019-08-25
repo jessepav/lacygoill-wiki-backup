@@ -160,7 +160,7 @@ Etc.
 
 `-F` changes how the shell command is used.
 
-Without `-F`, it's run and considered succes if the *exit code* is 0:
+Without `-F`, it's run and considered success if the *exit status* is 0:
 
     $ tmux if '[ "$TERM" = "#{default-terminal}" ]' 'display -p "your tmux.conf has already been sourced once"'
     your tmux.conf has already been sourced once~

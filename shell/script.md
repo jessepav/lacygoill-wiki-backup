@@ -238,9 +238,9 @@ The latters may be or not.
 
         $ [[ -o foo ]]; echo $?
 
-If the exit code is `0`, the option is set.
-If the exit code is `1`, the option is unset.
-If the exit code is `3`, the option doesn't exist.
+If the exit status is `0`, the option is set.
+If the exit status is `1`, the option is unset.
+If the exit status is `3`, the option doesn't exist.
 
 ## In bash?
 
@@ -249,8 +249,8 @@ It depends on whether the option is set with `set` or `shopt`:
         $ [[ -o foo ]]; echo $?
         $ shopt foo; echo $?
 
-If the exit code is `0`, the option is set.
-If the exit code is `1`, the option is unset or doesn't exist.
+If the exit status is `0`, the option is set.
+If the exit status is `1`, the option is unset or doesn't exist.
 
 ## How do I test whether the boolean readline variable 'foo' is set?
 

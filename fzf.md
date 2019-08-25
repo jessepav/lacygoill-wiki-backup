@@ -928,6 +928,12 @@ Learn the syntax of `$ fd`, and try to adapt the code.
 <https://bluz71.github.io/2018/11/26/fuzzy-finding-in-bash-with-fzf.html>
 <https://bluz71.github.io/2018/12/04/fuzzy-finding-in-vim-with-fzf.html>
 
+## It would be nice to be able to fuzzy search through old commit messages.
+
+See our todo in:
+
+    ~/.vim/plugged/vim-gitcommit/after/ftplugin/gitcommit.vim
+
 ## ?
 
 Use fzf (and/or fzf.vim) to create a mapping which would fuzzy search inside our

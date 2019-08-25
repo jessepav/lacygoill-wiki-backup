@@ -1090,6 +1090,10 @@ All of this illustrate a new concept: the session working directory.
 It's the working  directory set by default  to any process started  from a given
 session (I think).
 
+## how to get the index of the last window
+
+    $ tmux display -p '#{W:#{?window_end_flag,#I,}}'
+
 ##
 # typos in manpage
 

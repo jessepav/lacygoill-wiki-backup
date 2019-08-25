@@ -2891,7 +2891,7 @@ Grouper des commandes permet de:
 
     while <LIST1> ; do <LIST2> ; done
 
-        Execute <LIST2> while <LIST1> returns TRUE (exit code)
+        Execute <LIST2> while <LIST1> returns TRUE (exit status)
 
 ###
 ### commande simple
