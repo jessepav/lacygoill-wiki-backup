@@ -560,22 +560,22 @@ Les options `'cdpath'`, `'path'`, `'tags'` raisonnent en terme de buffer.
 In a filetype plugin, assign the value you would want to give to the local value
 of `'foo'` (if it could have one) to a buffer-local variable:
 
-        let b:foo = '...'
+    let b:foo = '...'
 
 In your `vimrc`, write a wrapper around the command.
 Use the wrapper to temporarily reset `'foo'`:
 
-        " save 'foo'
-        let foo_save = &foo
+    " save 'foo'
+    let foo_save = &foo
 
-        " alter 'foo'
-        let &foo = get(b:, 'foo', &foo)
+    " alter 'foo'
+    let &foo = get(b:, 'foo', &foo)
 
-        " use the default command
-        ...
+    " use the default command
+    ...
 
-        " restore 'foo'
-        let &foo = foo_save
+    " restore 'foo'
+    let &foo = foo_save
 
 #
 # Terminal

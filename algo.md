@@ -2,10 +2,10 @@
 
 We can represent the sequence of numbers from 1 to N in 4 ways:
 
-        a) 1 <= i <  N+1
-        b) 0 <  i <= N
-        c) 1 <= i <= N
-        d) 0 <  i <  N+1
+    a) 1 <= i <  N+1
+    b) 0 <  i <= N
+    c) 1 <= i <= N
+    d) 0 <  i <  N+1
 
 Which version is better?
 
@@ -16,18 +16,18 @@ This is ugly, so we should avoid them.
 Which version is better between `a` and `c`?
 Suppose that we want to represent the sequence of numbers from `0` to `1`:
 
-        a) 0 <= i <  2
-        c) 0 <= i <= 1
+    a) 0 <= i <  2
+    c) 0 <= i <= 1
 
 Suppose that we want to represent the sequence of numbers from `0` to `0`:
 
-        a) 0 <= i <  1
-        c) 0 <= i <= 0
+    a) 0 <= i <  1
+    c) 0 <= i <= 0
 
 Suppose that we want to represent the EMPTY sequence of numbers starting from `0`:
 
-        a) 0 <= i <  0
-        c) 0 <= i <= -1
+    a) 0 <= i <  0
+    c) 0 <= i <= -1
 
 `c` is ugly because of the negative upper bound.
 So, `a` is the best notation.
@@ -42,21 +42,21 @@ Also, `a` provide 2 benefits (`b` provide them too):
 
 Source:
 
-        https://www.cs.utexas.edu/users/EWD/transcriptions/EWD08xx/EWD831.html
+<https://www.cs.utexas.edu/users/EWD/transcriptions/EWD08xx/EWD831.html>
 
 # Why numbering should start at zero?
 
 We know that the best way to represent the sequence of numbers from `1` to `N` is:
 
-        1 <= i < N+1
+    1 <= i < N+1
 
 So, to subscript an array, we could use:
 
-        1 <= i < N+1
+    1 <= i < N+1
 
 or:
 
-        0 <= i < N
+    0 <= i < N
 
 The last notation is  shorter, so we should start indexing an  array with 0, and
 not 1.
@@ -522,79 +522,79 @@ lisible possible:
 
 Qd on doit résoudre un problème impliquant un nombre variable de données, utiliser l'algo suivant:
 
-        1. écrire une fonction `f()` acceptant un nombre variable d'arguments
+   1. écrire une fonction `f()` acceptant un nombre variable d'arguments
 
-        2. à l'intérieur, tester le nombre d'arguments reçus
+   2. à l'intérieur, tester le nombre d'arguments reçus
 
-        3. si c'est 2, écrire le code pour obtenir le résultat désiré
+   3. si c'est 2, écrire le code pour obtenir le résultat désiré
 
-                g(donnée1,donnée2)
+           g(donnée1,donnée2)
 
-        4. si c'est plus que 2, décomposer le calcul de la façon suivante:
+   4. si c'est plus que 2, décomposer le calcul de la façon suivante:
 
-                g(donnée1, f(données restantes))
-                ^
-                Remarque1:
+           g(donnée1, f(données restantes))
+           ^
+           Remarque1:
 
-           Cette fonction `g()` sera identique  à la fonction `g()` dans l'étape
-           précédente, ssi, `f(a,b)` a le même type et la même structure que `a`
-           et `b`.
+      Cette fonction `g()` sera identique  à la fonction `g()` dans l'étape
+      précédente, ssi, `f(a,b)` a le même type et la même structure que `a`
+      et `b`.
 
-            Pour un exemple, où `g()` est différente lire:
+       Pour un exemple, où `g()` est différente lire:
 
-                  ~/.vim/plugged/vim-hydra/autoload/hydra.vim
-                 /s:all_combinations()
+             ~/.vim/plugged/vim-hydra/autoload/hydra.vim
+            /s:all_combinations()
 
-            Et pour rappel:
+       Et pour rappel:
 
-                   - 1 et 'one'  n'ont pas le même type
-                                 (nombre vs chaîne)
+              - 1 et 'one'  n'ont pas le même type
+                            (nombre vs chaîne)
 
-                   - [1,2] et ['one', 'two']  n'ont pas la même structure
-                                              (liste de nombres vs liste de chaînes)
+              - [1,2] et ['one', 'two']  n'ont pas la même structure
+                                         (liste de nombres vs liste de chaînes)
 
-           Remarque2:
+      Remarque2:
 
-           En  VimL, cette  étape requiert  `a:000`  pour extraire  la liste  de
-           données restantes, et `call()` pour déballer cette dernière et passer
-           son contenu à `f()` en tant qu'arguments positionnels.
+      En  VimL, cette  étape requiert  `a:000`  pour extraire  la liste  de
+      données restantes, et `call()` pour déballer cette dernière et passer
+      son contenu à `f()` en tant qu'arguments positionnels.
 
-           Plus généralement, selon le language  utilisé (bash, python, ...), on
-           aura besoin de constructions différentes (idiomatiques).
+      Plus généralement, selon le language  utilisé (bash, python, ...), on
+      aura besoin de constructions différentes (idiomatiques).
 
-           Alternative:
-           On peut aussi  écrire une fonction `f()` dont  la signature n'accepte
-           qu'un seul argument de type liste.
+      Alternative:
+      On peut aussi  écrire une fonction `f()` dont  la signature n'accepte
+      qu'un seul argument de type liste.
 
-           Dans ce cas, on n'a pas besoin de déballer les données restantes.
-           En revanche, on aura toujours besoin de les extraire (a:list[1:]), et
-           initialement on peut avoir besoin de les emballer en une liste.
+      Dans ce cas, on n'a pas besoin de déballer les données restantes.
+      En revanche, on aura toujours besoin de les extraire (a:list[1:]), et
+      initialement on peut avoir besoin de les emballer en une liste.
 
 
-        Exemple:
+   Exemple:
 
-               com! -nargs=+ Prod echo s:product(<f-args>)
-               fu! s:product(...) abort
-                   return a:0 == 2
-                   \?         a:1 * a:2
-                   \:         a:1 * call('s:product', a:000[1:])
-                   "                │                 ├───────┘
-                   "                │                 └ extraire les données restantes
-                   "                └ déballer les données restantes
-               endfu
+          com! -nargs=+ Prod echo s:product(<f-args>)
+          fu! s:product(...) abort
+              return a:0 == 2
+              \?         a:1 * a:2
+              \:         a:1 * call('s:product', a:000[1:])
+              "                │                 ├───────┘
+              "                │                 └ extraire les données restantes
+              "                └ déballer les données restantes
+          endfu
 
-        Alternative:
+   Alternative:
 
-                                                   ┌ nécessaire pour emballer les données dans une liste
-                                                   ├────────┐
-                 com! -nargs=+ Prod echo s:product([<f-args>])
-                 fu! s:product(numbers) abort
-                     return len(a:numbers) == 2
-                     \?         a:numbers[0] * a:numbers[1]
-                     \:         a:numbers[0] * s:product(a:numbers[1:])
-                     "                                   ├───────────┘
-                     "                                   └ extraire les données restantes
-                 endfu
+                                              ┌ nécessaire pour emballer les données dans une liste
+                                              ├────────┐
+            com! -nargs=+ Prod echo s:product([<f-args>])
+            fu! s:product(numbers) abort
+                return len(a:numbers) == 2
+                \?         a:numbers[0] * a:numbers[1]
+                \:         a:numbers[0] * s:product(a:numbers[1:])
+                "                                   ├───────────┘
+                "                                   └ extraire les données restantes
+            endfu
 
 ## Réutiliser et composer des concepts
 
@@ -652,16 +652,15 @@ En effet, certains arrangements de valeurs peuvent être impossibles.
 Pex,  dans   notre  plugin   `vim-session`,  2  paramètres   peuvent  influencer
 l'indicateur dans la statusline:
 
-        - le chargement d'une session  (a eu lieu ou pas)
-        - le tracking d'une session    (a lieu ou pas)
+   - le chargement d'une session  (a eu lieu ou pas)
+   - le tracking d'une session    (a lieu ou pas)
 
 Chacun de ces paramètres peut avoir 2 valeurs `on`, `off`.
 On pourrait donc penser que E = 4.
 Mais il est impossible qu'une session soit trackée sans qu'au préalable elle ait
-été chargée.
-Donc:
+été chargée; donc:
 
-        E = 4 - 1 = 3
+    E = 4 - 1 = 3
 
 ---
 
@@ -712,7 +711,7 @@ celle du problème d'origine.
 Parfois, la complexité découle de plusieurs degrés de liberté.
 Dans ce cas, lire la section `Purpose` dans:
 
-        ~/.vim/plugged/vim-hydra/plugin/hydra.vim
+    ~/.vim/plugged/vim-hydra/plugin/hydra.vim
 
 ## Abstraction and Exposition
 
@@ -740,20 +739,20 @@ of what you're about to execute; therefore, it will:
 When you  have a command or  snippet of code  which can be written  in different
 forms, and you're confused, ask yourself:
 
-        “Is there a specific result which my command must achieve?”
+    “Is there a specific result which my command must achieve?”
 
 If  the answer  is yes,  use  `vim-hydra` to  find  what are  the necessary  and
 sufficient conditions to get this result.
 
 If the answer is “no, the desired result depends on the context”, ask yourself:
 
-        “Can my command have more than 2 forms?”
+    “Can my command have more than 2 forms?”
 
 If the answer is yes, in a faq  write a question for each degree of freedom (see
 the next example).
 If the answer is no, ask yourself:
 
-        “Which form is probably the less frequently used?”
+    “Which form is probably the less frequently used?”
 
 Once you've found the less frequent form, `:vimgrep` it in your codebase.
 Study all the occurrences written by experienced coders.
@@ -765,9 +764,9 @@ That's what we did for the `-bar` attribute in Vim.
 Example  of faq  where we  wrote a  question  for each  degree of  freedom of  a
 polymorph command (here the command `:com! Cmd call Func()`):
 
-        Which escape sequence should I use: `<args>`, `<f-args>`, `<q-args>`?
+    Which escape sequence should I use: `<args>`, `<f-args>`, `<q-args>`?
 
-        Do I need to quote strings passed to my command with `<args>`?  `<f-args>`?  `<q-args>`?
+    Do I need to quote strings passed to my command with `<args>`?  `<f-args>`?  `<q-args>`?
 
-        Do I need to use commas to separate the arguments replacing `<args>`?  `<f-args>`?  `<q-args>`?
+    Do I need to use commas to separate the arguments replacing `<args>`?  `<f-args>`?  `<q-args>`?
 

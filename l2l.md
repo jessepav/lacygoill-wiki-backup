@@ -1,3 +1,70 @@
+# How to take good notes?
+## the time you need to find any given info should be short
+
+This implies  that you should  choose the name  of your wikis,  files, sections,
+subsections, ... very carefully.
+
+## use an FAQ format
+
+This allows you to test your memory when reviewing your notes.
+When you can't remember an info, it may be because the question or the answer is
+not properly written; you can then rephrase it, which in turn improves your notes.
+
+This also associates a short question to each – possibly long – info.
+You can view a question as the key to retrieve an info.
+
+## avoid repetition (DRY, DIE)
+
+A repetition means that you need to (in no particular order):
+
+   1. remove sth
+
+   2. restructure your notes
+      merge two sections, break down a too big section ...
+
+   3. rephrase an idea which you've documented several aspects of
+
+`1.` and `2.`  have the benefit of  resp. removing noise and  should making your
+notes more logical; this makes it easier to find an info in your notes.
+
+`3.` has the  benefit of giving a better understanding,  by making links between
+different  (but similar)  ideas, and  synthesizing  them into  shorter and  more
+powerful ideas.
+
+## your notes should contain as much practical info as possible
+
+Theoretical info is harder to understand and remember than practical info.
+Try to limit it to definitions in a glossary.
+
+If you  need to  define some concept  outside a glossary,  be consistent  in the
+location where you do it; atm, I try to do it at the start of a section.
+When  you  have difficulty  understanding  a  practical  info, because  of  some
+concept, you'll find its  definition quicker if you know in  advance where it is
+defined.
+
+## the structure of a section should be consistent
+
+One example of  simple structure would be  to place the theoretical  info at the
+top, and the practical one at the bottom.
+
+No matter  the structure  you choose, and  no matter how  complicated it  is, be
+consistent; that is, you should use the same one all the time.
+
+## an info should be easy to understand
+
+This implies that you should:
+
+   - move the most important idea to the front of the text
+   - break down long sentences into shorter ones
+   - shorten the text by using new and richer words of vocabulary
+
+---
+
+If you're not able  to reduce an info into a few lines,  it means you're missing
+some  intermediary concepts;  wait until  you've understood  and documented  the
+latter in other questions/answers or in a glossary.
+
+##
 # Where to find documentation for a program?
 
    - $ man pgm
@@ -21,69 +88,6 @@
 # How to write good documentation?
 
 <https://writing.stackexchange.com/a/34138/30109>
-
-# Accelerated learning techniques
-
-Selon la théorie du cerveau triunique, on peut décomposer le cerveau en 3 parties:
-
-    ┌───────────────────┬───────────────┬────────────────────────────────────────────────┐
-    │ nom               │ emplacement   │ fonction                                       │
-    ├───────────────────┼───────────────┼────────────────────────────────────────────────┤
-    │ cerveau reptilien │ base du crâne │ fonctions vitales basiques:                    │
-    │                   │               │ respiration, rythme cardiaque, pression        │
-    │                   │               │ artérielle                                     │
-    │                   │               │                                                │
-    │                   │               │ comportements instinctifs (survie):            │
-    │                   │               │ réponse combat-fuite                           │
-    ├───────────────────┼───────────────┼────────────────────────────────────────────────┤
-    │ cerveau limbique  │               │ régule les systèmes immunitaire et hormonal    │
-    │                   │               │        la sexualité                            │
-    │                   │               │        l'humeur                                │
-    │                   │               │        les sentiments et émotions              │
-    │                   │               │                                                │
-    │                   │               │ contrôle une partie de la mémoire à long-terme │
-    ├───────────────────┼───────────────┼────────────────────────────────────────────────┤
-    │ néocortex         │               │ pensée                                         │
-    └───────────────────┴───────────────┴────────────────────────────────────────────────┘
-
-Qd on ressent de la _peur, de  l'anxiété, du stress_, le cerveau reptilien prend
-le dessus, et met en oeuvre la réponse combat-fuite: de l'adrénaline est envoyée
-dans notre corps, et le cerveau rétrograde en mode survie.
-Cela nous empêche d'accéder à nos [facultés de réflexions d'ordre supérieures][1].
-
-Cette rétrogradation mentale est une stratégie datant de le préhistoire.
-Elle nous permettait de réagir rapidement face à un danger imminent (ex: fauve).
-
-On la rencontre  encore aujourd'hui lors d'un examen au  cours duquel on devient
-anxieux / stressé pour une raison donnée.
-On perd alors la  faculté de penser clairement; même si on  connait la réponse à
-une question, on est incapable de retrouver l'information.
-Il existe  une technique pour  faire face à ce  problème, qui consiste  à entrer
-dans un  mode mental optimisé  pour la  réflexion: dans ce  mode, on a  un accès
-maximal à nos facultés de réflexions d'ordre supérieures.
-
-
-Le système limbique contient entre autres:
-
-   - le [thalamus][2]
-   - l'[amygdale cérébrale][3]
-   - l'[hippocampe][4]
-
-Le  thalamus  contrôle   la  destination  où  les   informations  qu'on  perçoit
-(visuelles, auditives, kinesthésiques)  sont envoyées dans le  cerveau pour être
-traitées.
-
-All of the visual, auditory, and  kinesthetic information from our senses enters
-the thalamus, where it  is categorized and sent to different  parts of the brain
-for processing.
-The thalamus actually  sends sensory information in two  different directions at
-the same time.
-The first  direction (the high road)  leads to the sensory  cortices: the visual
-cortex, the auditory cortex, and the somatosensory cortex.
-These are located in  the neocortex and will be discussed in  more detail in the
-next section.
-As shown in the  figure below, the second direction in  which the thalamus sends
-sensory information (the low road) leads to the amygdala.
 
 # Comment assimiler un plugin Vim
 
@@ -204,66 +208,6 @@ pas dans quelle direction partir.
 On ne lui expliquera pas le  fonctionnement du plugin dans ses moindres détails;
 les appels de fonctions, les noms de variables, ...
 
-# Comment prendre ses notes
-
-    Bonne structure globale
-
-Qd on cherche une info, on trouve rapidement la section où elle se trouve.
-Section = chemin pour y parvenir = chapitre + sous-chapitre + ...
-
-    Bonne structure fine
-
-Au sein d'une section, théorie vers le haut, pratique vers le bas.
-Ordre alphabétique pour des commandes.
-
-    Éviter la répétition
-
-Une répétition signifie qu'il faut:
-
-   - supprimer qch
-
-   - restructure ses notes
-     fusionner 2 sections, et éventuellement faire péter la fusion si trop grande
-
-   - reformuler une idée dont on vient de voir plusieurs aspects différents
-     faire des liens participe à une meilleure compréhension
-
-En évitant de se répéter, on est amené à dégager des règles.
-Ceci a 2 avantages:
-
-   - qd on tombera sur un nouveau cas de figure où la règle s'applique, on le
-     saura immédiatement. Pas besoin d'expérimenter. Gain de temps.
-
-   - les notes sur différents cas de figures seront plus courtes. On cernera
-     mieux l'info pertinente, càd propre à ce cas de figure.
-
-Format question-réponse
-
-Pas forcément de vraies questions.
-Une commande / une citation / une affirmation / une date (truc bref dont on aura besoin en pratique)
-+
-description et explication
-
-    Éviter la pure théorie au maximum
-
-La pure  théorie ne devrait être  nécessaire que pour définir  quelques nouveaux
-concepts / idées / mots de voca.
-
-Le faire au début d'une section qd c'est nécessaire.
-Comme ça qd on  trouve une info pratique ds une section,  mais qu'on ne comprend
-pas bien un  mot, on sait tout de  suite qu'il faut chercher vers le  haut de la
-section.
-
-    Synthétiser
-
-Faire des phrases courtes.
-Faire péter les longues.
-
-Réduire en utilisant de nouveaux mots de voca.
-Faire apparaître l'info importante dans une phrase vers le début.
-Si on peut pas réduire un concept en qq lignes, il est encore trop tôt.
-Il nous manque des concepts intermédiaires.
-
 ##
 # Résoudre un problème
 
@@ -281,7 +225,7 @@ Ne pas approfondir une hypothèse avant d'en avoir exploré un maximum:
 
             “breadth before depth”
 
-
+---
 
 Qd  on rencontre  un  problème difficile,  ne  pas s'obstiner  à  chercher à  le
 résoudre.
@@ -299,7 +243,7 @@ permette de résoudre facilement les autres.
 Il faut  voir un problème  difficile comme un PUZZLE,  pas comme un  roman qu'on
 doit lire du début à la fin.
 
-
+---
 
 Qd on rencontre un bug, il ne faut pas chercher à le réparer immédiatement.
 Au préalable, il faut chercher à le simplifier un maximum.
@@ -321,8 +265,9 @@ En réalité, il y avait plusieurs matchs qu'on confondait en un seul.
 La confusion a été levé en explicitant l'ancre `^` au début de la 2e branche:
 
     .*pat\|^.*
+           ^
 
-
+---
 
 Il y a un thème récurrent qui se dégage jusqu'ici:
 
@@ -654,6 +599,92 @@ Without a design, you'll:
 
    - have a hard time to refactor and improve your solutions
      (because they'll all be slightly different)
+
+##
+# I'm too confused by a command!
+## Try the hydra method.
+
+The hydra method is only useful if the reason why you're confused is because you
+feel overwhelmed by too many variations the same command.
+
+Here's how it goes:
+
+   1. Identify the parameters which can vary in the command.
+   2. Enumerate all commands by using all possible combinations of parameter values.
+   3. Put a comment above each command, describing its effect.
+   4. Group the commands according to their effect.
+   5. In each group, identify the parameter values which don't change.
+   6. From those parameter values, infer some rules predicting the effect of any command.
+
+The rules inferred in step 6 should help you gain a better understanding of the command.
+You should now see  that the commands can only have a few  effects, and that you
+can predict the effect  of any given command according to a  short set of simple
+rules.
+
+##
+# Todo
+## Finish reading “Accelerated Learning Techniques for Students”
+
+Selon la théorie du cerveau triunique, on peut décomposer le cerveau en 3 parties:
+
+    ┌───────────────────┬───────────────┬────────────────────────────────────────────────┐
+    │ nom               │ emplacement   │ fonction                                       │
+    ├───────────────────┼───────────────┼────────────────────────────────────────────────┤
+    │ cerveau reptilien │ base du crâne │ fonctions vitales basiques:                    │
+    │                   │               │ respiration, rythme cardiaque, pression        │
+    │                   │               │ artérielle                                     │
+    │                   │               │                                                │
+    │                   │               │ comportements instinctifs (survie):            │
+    │                   │               │ réponse combat-fuite                           │
+    ├───────────────────┼───────────────┼────────────────────────────────────────────────┤
+    │ cerveau limbique  │               │ régule les systèmes immunitaire et hormonal    │
+    │                   │               │        la sexualité                            │
+    │                   │               │        l'humeur                                │
+    │                   │               │        les sentiments et émotions              │
+    │                   │               │                                                │
+    │                   │               │ contrôle une partie de la mémoire à long-terme │
+    ├───────────────────┼───────────────┼────────────────────────────────────────────────┤
+    │ néocortex         │               │ pensée                                         │
+    └───────────────────┴───────────────┴────────────────────────────────────────────────┘
+
+Qd on ressent de la *peur, de  l'anxiété, du stress*, le cerveau reptilien prend
+le dessus, et met en oeuvre la réponse combat-fuite: de l'adrénaline est envoyée
+dans notre corps, et le cerveau rétrograde en mode survie.
+Cela nous empêche d'accéder à nos [facultés de réflexions d'ordre supérieures][1].
+
+Cette rétrogradation mentale est une stratégie datant de le préhistoire.
+Elle nous permettait de réagir rapidement face à un danger imminent (ex: fauve).
+
+On la rencontre  encore aujourd'hui lors d'un examen au  cours duquel on devient
+anxieux / stressé pour une raison donnée.
+On perd alors la  faculté de penser clairement; même si on  connait la réponse à
+une question, on est incapable de retrouver l'information.
+Il existe  une technique pour  faire face à ce  problème, qui consiste  à entrer
+dans un  mode mental optimisé  pour la  réflexion: dans ce  mode, on a  un accès
+maximal à nos facultés de réflexions d'ordre supérieures.
+
+
+Le système limbique contient entre autres:
+
+   - le [thalamus][2]
+   - l'[amygdale cérébrale][3]
+   - l'[hippocampe][4]
+
+Le  thalamus  contrôle   la  destination  où  les   informations  qu'on  perçoit
+(visuelles, auditives, kinesthésiques)  sont envoyées dans le  cerveau pour être
+traitées.
+
+All of the visual, auditory, and  kinesthetic information from our senses enters
+the thalamus, where it  is categorized and sent to different  parts of the brain
+for processing.
+The thalamus actually  sends sensory information in two  different directions at
+the same time.
+The first  direction (the high road)  leads to the sensory  cortices: the visual
+cortex, the auditory cortex, and the somatosensory cortex.
+These are located in  the neocortex and will be discussed in  more detail in the
+next section.
+As shown in the  figure below, the second direction in  which the thalamus sends
+sensory information (the low road) leads to the amygdala.
 
 ##
 # Reference

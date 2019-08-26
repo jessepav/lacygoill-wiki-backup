@@ -168,6 +168,17 @@ la screen(1) or ssh(1).
 
 Now let's take a step back and see how all of this fits into the process model.
 
+# Document how to set TERM in gnome-terminal, and find a way to back up the config
+
+    Edit
+    > Profile Preferences
+    > Command
+    > tick "Run a custom command instead of my shell"
+    > inside the "Custom command" field, write "/usr/bin/env TERM=gnome-256color /usr/bin/zsh"
+
+<https://askubuntu.com/a/578798/867754>
+<https://askubuntu.com/a/774400/867754>
+
 ##
 # Reference
 

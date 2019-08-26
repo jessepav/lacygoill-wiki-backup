@@ -562,7 +562,9 @@ filename when you try to attach it in an issue. Prefer `.txt`.
 ##
 ## How to debug tmux when it's hanging?
 
-From another terminal, get the pid of the tmux server.
+You have to consider 2 cases: either the server is hanging or the client.
+
+If the server is hanging, from another terminal, get the pid of the tmux server.
 Or, if you can, run this before reproducing the issue:
 
     $ tmux display -p '#{pid}'
@@ -579,10 +581,44 @@ Then, still from another terminal, run:
 The output of `bt full` should be in `gdb.txt`.
 Join it to your bug report.
 
----
-
 See here to learn more about how to make gdb print to a file instead of stdout:
 <https://stackoverflow.com/a/5941271/9780968>
+
+---
+
+If the client is hanging, you can follow the same procedure as previously.
+With two differences:
+
+   - make sure *not* to close the terminal window (you would kill the hanging client)
+   - to get the pid of the client, use the format variable `#{client_pid}`, and not `#{pid}`
+
+Once you have a backtrace, close  the terminal window (by pressing Alt+F4), then
+re-attach from another terminal.
+The new tmux client should not hang.
+
+A client may hang if a tmux command block its command queue indefinitely.
+
+Example:
+
+    $ echo 'run "sleep 99999999"' >/tmp/tmux.conf && tmux bind C-z source /tmp/tmux.conf
+    # press `C-z`
+    # from another terminal, `$ pkill sleep`
+
+For a real example:
+
+> if-shell  and  run-shell  will  block  the  client  command  queue  where  the
+> source-file happens  until the child  process exits  so the hanging  but being
+> able to  attach a new  client is consistent with  tmux not realising  that the
+> process has exited.
+<https://github.com/tmux/tmux/issues/1854#issuecomment-524910268>
+
+> You can see the same if you have a file that does 'run "sleep 10"' then do C-b
+> : source myfile - the client won't respond until the sleep is finished.
+<https://github.com/tmux/tmux/issues/1854#issuecomment-524912247>
+
+> If it isn't getting SIGCHLD it will never know the processes have exited so it
+> will never let the client continue.
+<https://github.com/tmux/tmux/issues/1854#issuecomment-524930364>
 
 ## When writing a bug report, which terminal geometry should I use?
 
