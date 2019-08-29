@@ -1,10 +1,21 @@
 # ?
 
+You should always install a mapping on Tab to focus previous window:
+
+    nno <buffer><nowait><silent> <tab> <c-w><c-p>
+    nno <buffer><nowait><silent> <c-h> :<c-u>echo 'press Tab'<cr>
+    nno <buffer><nowait><silent> <c-l> :<c-u>echo 'press Tab'<cr>
+
+Otherwise, if you simply  press `C-h` or `C-l`, you won't  always focus back the
+window from which you came.
+
+# ?
+
 What about the name of the buffer:
 
-        'foobar'
-        tempname().'foobar'
-        'plugin://foobar'
+    'foobar'
+    tempname().'foobar'
+    'plugin://foobar'
 
 # ?
 
@@ -48,13 +59,13 @@ No.
 
 There are already default commands for that:
 
-        - gf
-        - gF
-        - C-w f
-        - C-w F
-        - C-w gf
-        - C-w gF
-        - C-w T
+   - gf
+   - gF
+   - C-w f
+   - C-w F
+   - C-w gf
+   - C-w gF
+   - C-w T
 
 You should rely on default commands as much as possible (consistency, synergy, ...).
 When they're improved (by you, a  plugin, Vim's developers), you'll benefit from

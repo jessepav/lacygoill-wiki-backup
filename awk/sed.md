@@ -1582,6 +1582,10 @@ Anything which prevents `#n` from being the very first 2 characters of the scrip
 ##
 ##
 # Todo
+## youtube playlist
+
+<https://www.youtube.com/watch?v=1k7_7e5ugrY&list=PLUQzXLQ6jvHL-Kw9I5H6dvFHal-ynWSTA>
+
 ## ?
 
 From irc `#bash`:

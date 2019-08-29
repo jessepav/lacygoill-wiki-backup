@@ -6,12 +6,44 @@ It will be useful later to restore the file in its original state.
 Then press:
 
    - `yCiE` (yank code in the whole file)
-   - `viE` (select whole file)
-   - `p` (replace whole file with only the code; in effect, you've removed empty/commented lines)
+   - `driE` (replace whole file with unnamed register)
 
-Then, bisect the code.
-Once you've  found the problematic line(s),  press `-u` to restore  the original
-state of the file.
+*Note that `yC` and `dr` are custom operators; `iE` is a custom text-object.*
+
+Then, bisect the code: remove half the code, and see whether the issue persists.
+If it does, the PL (problematic line) is in the remaining half, otherwise in the
+removed half.
+Repeat the  process until you've  found the PL; then  press `-u` to  restore the
+original state of the file.
+
+---
+
+Now, try to reproduce with a minimal config file containing only the PL.
+
+If you can reproduce, you have a MWE.
+But it doesn't mean that no other line triggers the issue.
+You need  to remove the  PL from  your real config  file, and check  whether the
+issue is fixed; if it is, you're finished.
+If it's  not, you need to  bisect again your  config file, the PL  being removed
+first; repeat until you've found all the problematic lines; each of them is able
+to reproduce the issue alone.
+
+If  you can't  reproduce, the  issue is  not due  to a  single line,  but to  an
+interaction between several.
+Leave the PL in  your config file, move it at the top,  and re-bisect the config
+file to find another PL, *without ever* removing the previous PL.
+Repeat until you've found out the whole set of problematic lines.
+
+---
+
+Bottom line: once you've found a PL, you still need to check two things:
+
+   - the PL can be used as a MWE
+   - removing the PL from the config file fixes the issue
+
+You have to, because an issue can be triggered by several lines.
+And each  of them may be  able to trigger  it (PL1 ||  PL2 || ...), or  only the
+whole set (PL1 && PL2 && ...).
 
 ##
 # Hard-to-reproduce issue
@@ -35,7 +67,7 @@ We noticed  that we could temporarily  and manually fix the  issue by restarting
 Vim from another pane.
 
 ##
-# But report
+# Bug report
 ## When shoud I write one?
 
 Whenever you face an issue which you find hard to solve.

@@ -577,6 +577,15 @@ format and adhere to defined styles.
 
                                     446 sloc
 
+---
+
+Greg Hurrell doesn't like EditorConfig, because it requires you to put a file in
+the project,  and you may not  be able to do  so if it's not  your project (e.g.
+you're collaborating with others).
+
+Instead, he uses a bit of Vimscript:
+<https://www.youtube.com/watch?v=ifA8iw42vwI>
+
 ## editvar
 
             Edits vim variable in buffer.
@@ -1566,20 +1575,6 @@ functionality.
 Mark quickfix & location list items with signs
 
 <https://github.com/tomtom/quickfixsigns_vim>:1488sloc
-
-## quickhl
-
-            Highlight on the fly.
-
-            quickhl.vim support highlight for
-
-                - manual keywords
-                - tag in ctags generated file
-                - automatically higlight word under cursor(<cword>).
-
-            https://github.com/t9md/vim-quickhl
-
-                                    489 sloc
 
 ## quickmenu
 

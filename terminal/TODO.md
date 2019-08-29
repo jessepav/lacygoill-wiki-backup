@@ -1,6 +1,26 @@
 # ?
 
-Document how we can get the number of colors supported by the terminal.
+##
+# Find a way to make `coC` more reliable.
+
+I think it sometimes fails (in some terminals or with some colorscheme...); I'm not sure...
+
+---
+
+In vim-toggle-settings, you've written things like:
+
+    let color = escape(a:color, '#')
+    let seq = "\033]12;".color."\007"
+    exe 'sil !printf '.string(seq)
+                              ^^^
+
+This would probably be better:
+
+    let color = escape(a:color, '#')
+    exe 'sil !tput '..string(color)
+              ^^^^           ^^^^^
+
+# Document how we can get the number of colors supported by the terminal.
 
 `$ tput colors` is not reliable, because it relies on `$TERM` which could lie.
 `:echo &t_Co` is even less reliable.
@@ -35,7 +55,7 @@ To determine whether the terminal supports:
 
 <https://unix.stackexchange.com/a/23789/289772>
 
-# ?
+# Make sure you've always used `$ tput` instead of a raw sequence.
 
 Look for all the places where we wrote a raw sequence in our plugins:
 
@@ -43,40 +63,21 @@ Look for all the places where we wrote a raw sequence in our plugins:
 
 When possible, try to use `tput` instead.
 
-# ?
-
-Try to always use \033, instead of \e.
+# Try to always use \033, instead of \e.
 
 Why?
 Easier to grep. Fewer matches when we have an issue with a terminal capability.
 
-# ?
+# Study: `:lh \cterm\%(info\|cap\)` (in Neovim and maybe in Vim)
 
-To restore the color of the cursor, you can try this:
-
-    $ tput Cs '#373b41'
-
-Find a way to make `coC` more reliable.
-
-# ?
-
-Study:
-
-    :lh \cterm\%(info\|cap\) (in Neovim and maybe in Vim)
-
-# ?
-
-To read:
+# To read:
 
    - <https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda>
    - <https://github.com/neovim/neovim/issues/6978>
    - <https://github.com/neovim/neovim/pull/3165>
    - <https://misc.flogisoft.com/bash/tip_colors_and_formatting>
 
-# ?
-
-Finish summarizing this:
-<https://www.linusakesson.net/programming/tty/>
+# Finish reading: <https://www.linusakesson.net/programming/tty/>
 
    [breakdown 1][2]
 
@@ -176,8 +177,8 @@ Now let's take a step back and see how all of this fits into the process model.
     > tick "Run a custom command instead of my shell"
     > inside the "Custom command" field, write "/usr/bin/env TERM=gnome-256color /usr/bin/zsh"
 
-<https://askubuntu.com/a/578798/867754>
-<https://askubuntu.com/a/774400/867754>
+- <https://askubuntu.com/a/578798/867754>
+- <https://askubuntu.com/a/774400/867754>
 
 ##
 # Reference

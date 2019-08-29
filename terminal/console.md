@@ -253,14 +253,22 @@ TODO: Convert that in a systemd service.
 
 ##
 # Usage
-## How to switch to another console?  (2)
+## How to switch to
+### the third console
+#### interactively?
+
+Press `C-M-F3` if you're in the graphical environment, or `M-F3` if you're in a console.
+
+#### in a script?
 
 Use the `$ chvt` command:
 
     $ chvt 3
 
-Or press `C-M-Fx` if you're in the graphical environment, or `M-Fx` if you're in a console.
-Replace `x` with the number of the console.
+###
+### the next/previous console?
+
+Press `M-→` / `M-←`.
 
 ##
 ## How to view

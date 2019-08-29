@@ -183,8 +183,8 @@ Solution: Quote your arguments properly.
 
 For more info, see:
 
-          https://superuser.com/a/669674/913143
-          https://unix.stackexchange.com/a/271402/289772
+- <https://superuser.com/a/669674/913143>
+- <https://unix.stackexchange.com/a/271402/289772>
 
 ##
 # Todo

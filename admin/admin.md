@@ -1762,6 +1762,22 @@ broken.
             Ressemble à `top` avec peut-être plus d'infos, et l'enrigstrement de l'activité passée
             (pas juste l'activité courante).
 
+### chafa
+
+View gifs in your terminal.
+
+    $ git clone https://github.com/hpjansson/chafa.git
+    $ sudo aptitude install libmagickwand-dev
+    $ ./autogen.sh
+    $ make
+    $ sudo checkinstall --pkgversion ...
+                                     │
+                                     └ `$ git describe --abbrev=0`
+                                       ` $ ./tools/chafa/chafa --version`
+
+- <https://www.youtube.com/watch?v=SoYKKzBNnwo>
+- <https://github.com/hpjansson/chafa>
+
 ### cylon-deb
 
     TUI menu driven bash shell script to maintain a Debian based Linux distro.
@@ -2007,6 +2023,11 @@ broken.
     TODO: lire `man dfc`
     dfc - display file system space usage using graphs and colors
     (df mais en plus lisible)
+
+### diana-mui
+
+- <https://www.youtube.com/watch?v=y59JwlYsrAE>
+- <https://github.com/baskerville/diana>
 
 ### direnv
 

@@ -1303,6 +1303,8 @@ From ranger:
 Although, these scripts depend on pmount which doesn't seem to be actively developed.
 Have a look at bashmount too: <https://github.com/jamielinux/bashmount>
 
+See also: <https://www.youtube.com/watch?v=SOCV7ueJCMs>
+
 ##
 # Reference
 

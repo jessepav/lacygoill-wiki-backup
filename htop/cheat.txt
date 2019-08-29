@@ -1,0 +1,74 @@
+Moving around {{{1
+Left                      M-h   «Left»
+Right                     M-l   «Right»
+Down                      M-j   «Down»
+Up                        M-k   «Up»
+# Meta keys work in any menu too
+To process PID 1234       1234
+Find by name              /
+# While in search mode, pressing F3 will
+# cycle through matching occurrences
+Follow                    F
+# Useful when process moves up/down
+Start of line             ^     C-a
+End of line               $     C-e
+First line                «Home»
+Last line                 «End»
+Sorting {{{1
+Based on CPU              P
+Based on memory           M
+Based on chosen column    .
+Reverse sorting order     I
+# Mnemonic: *I*nverse
+Filtering {{{1
+Toggle user threads       H
+Toggle kernel threads     K
+Filter by user            u
+Filter by name            \ pat Enter
+# Only show processes with 'pat' in name
+Edit name filtering       \ C-h ...
+Cancel name filtering     \ Esc
+Tagging {{{1
+Tag/Untag process         «Spc»
+# Useful to send a signal to multiple
+# processes; the currently highlighted
+# process is then ignored
+Tag process + children    c
+Untag all processes       U
+Extra Information {{{1
+Tree view {{{2
+Toggle tree view          t
+Collapse node             -
+Expand node               +
+}}}
+Help                      ?
+Toggle full path program  p
+List opened files         l
+Environment               e
+Trace system calls        s
+Setting priorities {{{1
+Increase CPU priority     ]
+# This can only be done by the superuser
+Decrease CPU priority     [
+# To renice process to 0 from command-line:
+#     $ sudo renice -n 0 $(pidof ...)
+Set IO priority           i
+# io_priority = (cpu_nice + 20) / 5
+# See also `$ man ionice`
+Configure {{{1
+Setup screen              S
+
+# To move 'PID' column:
+#
+#    1.   S
+#    2.   arrows  (to move cursor over PID)
+#    3.   Enter   (to select PID)
+#    3.1  Enter   (optional: to deselect PID)
+#    4.   arrows  (to move PID)
+#    5.   Enter   (to validate)
+
+# To remove 'PID' column:
+#
+#    1.   S
+#    2.   arrows  (to move cursor over PID)
+#    3.   Del

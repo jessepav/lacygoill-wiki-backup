@@ -6,7 +6,7 @@ sending signals.
 
 A process  without superuser privileges may  signal another process only  if the
 sender's ruid (or euid) matches receiver's ruid (or suid).
-Because a child process  inherits its ruidd from its parent,  a child and parent
+Because a child  process inherits its ruid  from its parent, a  child and parent
 may signal each other.
 
 <https://en.wikipedia.org/wiki/User_identifier#Real_user_ID>
@@ -594,6 +594,20 @@ Document that there are at least two other ways:
    - kill the parent (should always work: the zombie is adopted by a subreaper, then reaped)
    - send SIGCHLD to the parent (may not work if the parent doesn't wait(2) – I think)
 
+---
+
+From `$ man 2 wait`:
+
+>    A child that terminates, but has not been waited for becomes a "zombie".
+>    The kernel maintains a minimal set of information about the zombie process (PID,
+>    termination status, resource usage information) in  order to allow the parent to
+>    later perform a wait to obtain information about the child.
+>    As long as a zombie is not removed from the system via a wait, it will consume a
+>    slot  in the  kernel process  table, and  if this  table fills,  it will  not be
+>    possible to create further processes.
+>    If a parent process terminates, then  its "zombie" children (if any) are adopted
+>    by init(1), which automatically performs a wait to remove the zombies.
+
 ## Daemon
 
 A daemon is a program that runs as a background process, rather than being under
@@ -694,100 +708,6 @@ There's no  guarantee that the application  will abort nicely, or  even abort at
 all.
 Many existing applications do indeed abort when their connection to the X server
 is closed, but some can choose to continue.
-
-##
-##
-##
-# In htop, how to...
-## follow the selected process?
-
-Press `F`.
-
-This is useful when the position of the process constantly changes, and you need
-to interact with it.
-
-## filter the processes to keep only the ones containing 'pat' in their name?
-
-Press:
-
-        \
-        pat
-        Enter
-
-## How to undo the filtering?
-
-        \
-        C-h ...
-        Enter
-
-## toggle the tree view?
-
-Press `t`.
-
-## expand/collapse a node in the tree?
-
-Press `-` / `+`.
-
-## toggle the full program paths?
-
-Press `p`.
-
-## toggle the process threads?
-
-Press `H`.
-
-## toggle the kernel threads?
-
-Press `K`.
-
-## list the files opened for a process?
-
-Select the process and press `l`.
-
-## trace the system calls of a process?
-
-Select the process and press `s`.
-
-##
-## sort the processes by memory consumption?
-
-Press `M`.
-
-### by cpu consumption?
-
-Press `P`.
-
-### by time?
-
-Press `T`.
-
-## choose the column to base the sorting on interactively?
-
-Press `F6`.
-
-## reverse the order of the sorting?
-
-Press `I` (think “inverse”).
-
-##
-## move the position of uptime?
-
-Press:
-
-        1. S       (to configure htop)
-        2. arrows  (to select 'uptime')
-        3. Enter
-        4. arrows  (to move it)
-
-If, after pressing Enter, you decide to cancel the operation, re-press Enter.
-
-## remove uptime?
-
-Press:
-
-        1. S
-        2. arrows to select 'uptime'
-        3. Del
 
 ##
 ##
@@ -897,11 +817,12 @@ terminal.
 
 ###
 ## Special processes
-### How do you name a process which has started (directly or indirectly) another process?
+### What's the term for a process
+#### which has started (directly or indirectly) another process?
 
 An ancestor process.
 
-### How do you name a process which has been started (directly or indirectly) by another process?
+#### which has been started (directly or indirectly) by another process?
 
 A descendant process.
 
@@ -1103,7 +1024,28 @@ Process Status
 
 ##
 # pidof, pgrep
+## To what is compared the argument of
+### pidof?
+
+The names of the executables which have been run to start the running processes.
+
+### pgrep?
+
+The names of the running processes.
+
+### pgrep -fl?
+
+The full command-lines which have been run to start the running processes.
+
+##
 ## How to get the *name* of
+### all processes started from a command-line containing 'firefox'?
+
+    $ pgrep -fl firefox
+             ││
+             │└ *l*ist the process name as well as the process ID
+             └ matches 'firefox' against the *f*ull command-line
+
 ### a given process from its PID?
 
     $ ps o comm= -p PID
@@ -1120,13 +1062,6 @@ It may be that a process and/or its parent can set the name arbitrarily:
     3157 Web Content~
     3202 WebExtensions~
     7177 Web Content~
-
-### all processes started from a command-line containing 'firefox'?
-
-    $ pgrep -lf firefox
-             ││
-             │└ matched 'firefox' against the full command-line
-             └ list the process name as well as the process ID
 
 ###
 ## What are the three differences between `$ pidof` and `$ pgrep`?
@@ -1403,6 +1338,14 @@ For more info, see:
 The SIGINT signal is sent to the foreground process group.
 By default, SIGINT makes processes go back to the main loop.
 
+Example:
+
+    $ vim
+    :sil call system('sleep 123')
+    " can't interact with Vim anymore
+    C-c
+    " can interact again (presumably because Vim went back to its main loop)
+
 #### C-\?
 
 The SIGQUIT signal is sent to the foreground process group.
@@ -1519,7 +1462,7 @@ In zsh, you can reset all traps by omitting the sigspec:
     $ trap -
 
 ##
-# Debugging
+# strace
 ## What does `$ strace` do?
 
 It runs the specified command until it exits, and intercepts the system calls of
@@ -1691,4 +1634,83 @@ Which way is the most reliable?
 Study the PGID and the file descriptors of a process in a subshell vs in a script.
 
 Is a subshell interactive?
+
+## Document `$ pkill -u toto`
+
+Kills all processes whose EUID is toto.
+
+## Document the process state code `I`
+
+It means that the process is *i*dle.
+
+- <https://stackoverflow.com/a/49407039/9780968>
+- <https://elixir.bootlin.com/linux/v4.15.12/source/fs/proc/array.c#L135>
+
+## Document how a child process dies
+
+I think it calls exit(2) and returns its exit status to the kernel.
+Then, the kernel:
+
+   - terminates the child
+   - closes all its open file descriptors
+   - reparent its possible children to a subreaper or init
+
+At that moment, the child is a  zombie, because it has terminated but the kernel
+sill keeps some  info about it; notably,  its pid in the process  table, and its
+exit status.
+
+Then, the kernel sends SIGCHLD to the parent process.
+The latter should then collect the exit status via wait(2).
+Finally, the kernel removes the pid of the zombie from the process table.
+
+See `$ man 2 exit`:
+
+>    The  function _exit()  terminates the  calling process  "immediately".  Any
+>    open file descriptors belonging to the  process are closed; any children of
+>    the process are  inherited by process 1, init, and  the process's parent is
+>    sent a SIGCHLD signal.
+
+>    The value  status is returned to  the parent process as  the process's exit
+>    status, and can be collected using one of the wait(2) family of calls.
+
+## Define what a system call (or syscall) is
+
+<https://en.wikipedia.org/wiki/System_call>
+
+###
+## Youtube playlist
+
+<https://www.youtube.com/watch?v=Eqjm11U0JQM&list=PLU2hZmcNdDQJN43RL6pGcX79fQVBFlobl&index=1>
+
+### Process Display
+
+<https://www.youtube.com/watch?v=Eqjm11U0JQM>
+
+Most of the time, a  process can be in 5 states, which you  can find in the STAT
+column in the output of `$ ps`:
+
+    ┌────────────────────┬─────────────────────────────────────────────────────────────────────┐
+    │ process state code │ description                                                         │
+    ├────────────────────┼─────────────────────────────────────────────────────────────────────┤
+    │ R                  │ running or runnable (on run queue)                                  │
+    ├────────────────────┼─────────────────────────────────────────────────────────────────────┤
+    │ S                  │ interruptible sleep (waiting for an event to complete)              │
+    ├────────────────────┼─────────────────────────────────────────────────────────────────────┤
+    │ D                  │ uninterruptible sleep (usually IO)                                  │
+    ├────────────────────┼─────────────────────────────────────────────────────────────────────┤
+    │ T                  │ stopped by job control signal                                       │
+    ├────────────────────┼─────────────────────────────────────────────────────────────────────┤
+    │ Z                  │ defunct ("zombie") process, terminated but not reaped by its parent │
+    └────────────────────┴─────────────────────────────────────────────────────────────────────┘
+
+---
+
+To get rid of a zombie, you may need to kill and restart its parent.
+
+---
+
+I stopped around the 4:40 min mark, when the speaker mentioned the current shell
+session; before going further, we need to better understand what is a session.
+
+Finish reading the "terminally confused" pdf.
 

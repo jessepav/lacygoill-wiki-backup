@@ -309,3 +309,10 @@ Suggestion de Gotbletu.
     buffer
 
             Page web chargée par w3m.
+
+##
+# Todo
+## Watch youtube video “gotbletu Terminal Web Browsing Workflow”
+
+<https://www.youtube.com/watch?v=z-vOQr8Ym-8>
+

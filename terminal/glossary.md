@@ -114,6 +114,38 @@ Device Control String:  Esc P
 - <https://vt100.net/docs/vt510-rm/chapter4.html#S4.3.4>
 - <http://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-C1-_8-Bit_-Control-Characters>
 
+## device file
+
+Interface to  a device driver  that appears in  a file system  as if it  were an
+ordinary file.
+
+It allows an application  program to interact with a device  by using its device
+driver via standard input/output system calls.
+
+Using  standard  system  calls  simplifies many  programming  tasks,  and  leads
+to  consistent  user-space I/O  mechanisms  regardless  of device  features  and
+functions.
+
+## ?
+
+device type
+
+In general, in order to obtain a file descriptor to some device, a process would
+open a device file living in `/dev`.
+
+Each  such device  is  either  a block  device  (buffered)  or character  device
+(unbuffered), and if a single device can  act as either block or character, then
+there will be two device nodes for that file: one block, one character.
+
+Each device node also has an associated major and minor device type number.
+
+If you rename a  device node, it'll still refer to the  same device, because the
+major and minor numbers determine which device it refers to.
+
+You can see the major and minor numbers in the output of stat(1):
+
+    $ stat /dev/... | awk -F': ' '/Device type/{print $NF}'
+
 ##
 # o
 ## OSC
@@ -147,6 +179,7 @@ It selects an action associated with the specific parameter.
 A text parameter composed of printable characters.
 For a color, it could be a name (red), or a hex number.
 
+##
 ## parity check / bit
 
 A parity bit is a bit added to a  string of binary code to ensure that the total
@@ -155,6 +188,52 @@ number of 1-bits in the string is even (or odd).
 The check makes sure that the number of 1-bits is even (or odd).
 
 Parity bits are used as the simplest form of error detecting code.
+
+##
+## physical terminal
+
+Hardware device attached to a computer allowing humans to interact with the latter.
+
+Example of physical terminals:
+
+   - keyboard + monitor
+   - touch-screen monitor (e.g. at an airline kiosk)
+
+Note that a monitor alone is not a terminal, because it can only output data.
+And a keyboard is not a terminal, because it can only input data.
+
+### What is the physical terminal in
+#### a desktop computer?
+
+Everything that isn't part of the tower:
+
+   - keyboard
+   - mouse
+   - joystick
+   - monitor
+   - speakers
+   - printer
+   - scanner
+
+#### a laptop?
+
+It's fused with the non-human-facing parts.
+
+###
+### I have 3 monitors on my desktop pc.  How many physical terminals do I have?
+
+1
+
+Even with several monitors,  only one person can use the computer  at a time, so
+it doesn't matter how many you have.
+
+### A thin client is a kind of physical terminal.  But what is it exactly?
+
+A computer  that is relatively  useless on its own,  but has a  keyboard, mouse,
+monitor, maybe  one or  two USB  ports, and a  local area  connection to  a more
+powerful server machine that actually runs user programs.
+
+Often found in professional environment, or in student computer labs.
 
 ##
 # s
@@ -174,6 +253,23 @@ These parameters include:
 
    - definition of special control characters for erasing a character, killing
      a line of input, or interrupting a running process
+
+## system console
+
+Technically, it's the screen and keyboard used for system administration:
+<https://en.wikipedia.org/wiki/System_console>
+
+But the term is  also used to refer to the only  virtual terminal available when
+Linux is in single-user mode (called rescue mode in systemd).
+The latter can be accessed on an OS using systemd by running either of:
+
+    $ telinit 1
+    $ systemctl rescue
+    $ systemctl isolate rescue.target
+
+---
+
+Its tty is `/dev/console` (device type 5:1).
 
 ##
 # t
@@ -236,4 +332,134 @@ There are 5 differences between the 2 db:
      uses up to 5 characters
 
    - the syntax for encoding some capabilities is different
+
+###
+## terminal device (aka tty)
+
+Device file living in `/dev`, that  provides a software abstraction to a virtual
+terminal, in the same way that  (for example) `/dev/sda1` might represent a hard
+drive or `/dev/dsp` the speakers.
+
+Thus, if  you write to `/dev/tty1`,  for example, characters will  appear on the
+first virtual terminal's  virtual screen, which you  will be able to  see if you
+then switch to it.
+
+### In which way can it be considered as a software abstraction?
+
+An application program which wants to  interact with a virtual terminal, doesn't
+need  to  know its  features  or  functions; the  program  can  use the  virtual
+terminal's device driver via standard I/O system calls on the tty.
+
+#### Which benefit(s) does this give?
+
+This **simplifies** the program and leads to **consistent** user-space I/O mechanisms.
+
+###
+### To finish
+#### The following terminal devices are found on a typical system:
+#### seven virtual terminals
+
+The seven virtual terminals, with corresponding device nodes `/dev/tty1` through
+`/dev/tty7` (4:1, …, 4:7).
+
+On some system, there can be more; for example up to 63 (4:3f).
+
+#### /dev/tty
+
+The device node `/dev/tty` (5:0) refers to the controlling terminal of the process
+that opens it (more on this later).
+
+So if I have bash running on tty1 and  tty2, and I launch a program from bash on
+tty1 and that  program opens `/dev/tty`, the  effect will be identical  to if it
+had opened `/dev/tty1`,  but if I launched  the same program from  bash on tty2,
+then the effect would be identical to if it had opened `/dev/tty2`.
+
+This device node is also required to exist by POSIX.
+
+If a program  with no controlling terminal tries to  open `/dev/tty`, the result
+(on Linux, at least) will be ENXIO.
+From `$ man 2 open`:
+
+>    ENXIO [...] the file is a device special file and no corresponding device exists.
+
+#### /dev/tty0
+
+Some systems have a `/dev/tty0` (4:0).
+
+Now, the virtual terminals are always numbered starting from one, but several of
+the Linux-specific terminal ioctl(2)s that take  a virtual terminal number as an
+argument  will  happily accept  0,  which  means  the currently  active  virtual
+terminal.
+
+In analogy, opening `/dev/tty0` will give you a file descriptor to the currently
+active virtual terminal.
+
+On a headless  machine (with, therefore, no active virtual  terminal), trying to
+open this device, again, yields ENXIO.
+
+#### /dev/ttyS0 ... /dev/ttyS3
+
+You will  typically find serial  consoles on a Linux  system as well;  my Ubuntu
+system has four,  with device nodes `/dev/ttyS0` through  `/dev/ttyS3` (4:40, …,
+4:43), regardless of how many serial ports are actually present on the machine.
+
+If you read from or write to one of these, the system will attempt to receive or
+transmit data through a serial port presumably connected to another computer.
+
+(If there  is no connection,  you'll simply get  an EIO.) I probably  won't talk
+about these much.
+
+#### BSD-style pseudoterminals
+
+I  will probably  devote  an entire  part  to pseudoterminals,  and  I will  not
+explain what  they are  right now;  however, a pseudoterminal  has two  parts, a
+master  and  slave  part,  where  the  master is  exposed  as  the  device  node
+`/dev/pty([a-e]|[p-z])[0-f]` and the slave `/dev/tty([a-e]|[p-z])[0-f]`.
+
+(So, `/dev/ptya0` and so on: a total of 256 pairs.) The major device number is 2
+for each master and  3 for each slave; the minor device numbers  start at 00 for
+ttyp0 or  ptyp0, 01 for ttyp1,  and so on, and  increase up to af  for ttyzf, at
+which point they wrap, so b0 for ttya0, and so on up to ff for ttyef.
+
+(Presumably, it starts at “p” because this  is the first letter of “pseudo”, and
+it wraps around the alphabet just because it has to.)
+
+#### Unix98 pseudoterminals
+
+Unix98 pseudoterminals,  consisting of the master  multiplexer `/dev/ptmx` (5:2)
+and the  slaves `/dev/pts/n` generated  on demand, that is,  `/dev/pts/0` (88:0,
+not sure whether that's set in stone) and so on.
+
+Note that a pseudoterminal  is often called a pty, and  the term “tty” sometimes
+includes pseudoterminals  and serial  consoles, and at  other times  it includes
+only the system console and numbered virtual terminals.
+You'll have to figure it out by context.
+
+##
+# v
+## virtual screen
+
+Each virtual  terminal has its own  virtual screen, but only  one virtual screen
+can be on the physical terminal's monitor at any given time.
+
+## virtual terminal (aka virtual console)
+
+Conceptual combination of the keyboard and display for a computer user interface.
+
+On  the physical  terminal of  a typical  Linux system,  there are  seven usable
+virtual terminals  by default; one can  switch between them to  access unrelated
+user interfaces.
+
+Even though only one person can use  a physical terminal at any given time, that
+person may maintain several distinct sessions, one on each virtual terminal.
+
+### What does the seventh virtual terminal run on Ubuntu?
+
+The graphical environment.
+
+### What does Alt+Fn do, formally?
+
+It  activates the  virtual  terminal number  `n`, which  means  that the  latter
+receives  all  keyboard and  mouse  input  exclusively,  and only  that  virtual
+terminal's virtual screen is shown on the physical terminal.
 

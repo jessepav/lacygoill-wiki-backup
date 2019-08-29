@@ -1260,7 +1260,7 @@ And  when it  does,  it tries  to open  `/etc/apt/sources.list`,  but fails  to,
 because it doesn't have enough rights (`sudo` hasn't been started yet).
 
 For more info, see:
-        https://unix.stackexchange.com/a/279489/289772
+<https://unix.stackexchange.com/a/279489/289772>
 
 ## How to append the output of a command to a system file?
 
