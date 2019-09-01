@@ -881,15 +881,15 @@ inside `A`.
 
 `contains=A` does *not* mean:
 
->     MUST contain B
+>     MUST contain A
 
 And `containedin=A` does *not* mean:
 
 >     MUST be contained in A
 
-### On which condition can a syntax item be contained in another?
+### On which condition can a syntax item B start in another A?
 
-An item B can start in another A, *iff* either one of these is true:
+Iff either one of these is true:
 
    - A has `contains=B`
 

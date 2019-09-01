@@ -158,28 +158,27 @@ IOW, I think they are supposed to be accessible from the whole script.
 # zsh
 ## Implement your own version of the `tldr` command.
 
-Write files named `tldr_mycmd.txt` in various wikis.
+Write files named `tldr/mycmd.txt` in various wikis.
 Inside, write the most useful invocations of `mycmd`.
 Extract them from your notes (e.g. strace.md).
-Your notes should  not contains shortcuts (that's better for  a cheatsheet), Nor
+Your notes should  not contains shortcuts (that's better for  a cheatsheet), nor
 should they contain one-liner answers (those should be in a tldr file).
 Why?
 Because, these information would be quicker to access that way.
 
 Then, write  a shell  `td` command  (Too long Didn't  read) which  suggests such
 files and echo them in the terminal, just like `tldr`.
-Inside the  files, use  escape sequences (e.g.  `\e[1m...\e[0m`, `\[3m...\e[0m`,
-`\e[1;3m...\e[0m`) to add some styles (bold, italic, bold+italic).
+Inside the files,  use escape sequences via  `$ tput` to add  some styles (bold,
+italic, bold+italic):
+
+    $ printf 'some %s bold %s text' $(tput bold) $(tput sgr0)
+    $ printf 'some %s bold %s text' $(tput sitm) $(tput sgr0)
+    $ printf 'some %s bold+italic %s text' "$(tput bold)$(tput sitm)" $(tput sgr0)
+
 Use  this  command to  print  the  file, so  that  the  sequences are  correctly
 interpreted:
 
     $ while read -r line; do printf -- "$line\n"; done </tmp/file
-
-Use these sandwich recipes to insert the sequences more easily:
-
-    \ + [{'buns': ['\e[3m', '\e[0m'], 'input': ['si']}]
-    \ + [{'buns': ['\e[1m', '\e[0m'], 'input': ['sb']}]
-    \ + [{'buns': ['\e[1;3m', '\e[0m'], 'input': ['sB']}]
 
 Try to give the files a dedicated filetype, and conceal the escape sequences.
 
@@ -195,6 +194,7 @@ Write your files in a `tldr/` subdirectory, and use markdown (for folding).
 ---
 
 Install a mapping (`-D`?) to get a tldr window when you press it on a command name.
+Same thing for a cheatsheet window.
 
 ---
 

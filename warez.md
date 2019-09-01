@@ -240,3 +240,10 @@ Try to visit the tor site:
 If you can't click on a magnet, search  for the text 'magnet' in the source code
 of the webpage; copy the link and paste it in transmission.
 
+---
+
+TODO: Watch and document these videos:
+
+torsocks - Access The Tor Network - Linux CLI: <https://www.youtube.com/watch?v=0uXFffq-UPU>
+W3M Magnet Links Handler - Linux CLI: <https://www.youtube.com/watch?v=euk_LMdXNOU>
+

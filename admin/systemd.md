@@ -1289,8 +1289,8 @@ You only get the filenames.
 #
 # ?
 
-When you  log in for the  first time, systemd automatically  launches a `systemd
---user` instance:
+When you log in for the first time, systemd automatically launches a
+`$ systemd --user` instance:
 
     $ pstree -lsp $(pidof systemd)
     systemd(1)───systemd(1150)───(sd-pam)(1151)~
@@ -1965,7 +1965,7 @@ without a popup window.
 
 ## My custom service is not executed!
 
-For every executable you invoke, write a FULL path.
+For every executable you invoke, write a *full* path.
 
 If that doesn't help, have a look at `$ journalctl -b`.
 The service must have written why it failed.
@@ -2190,4 +2190,24 @@ It makes the  output more readable, because it removes  the hostname which gives
 more room for the messages.
 
 ## Convert all commands inside `/etc/rc.local` into systemd services
+
+## Document the purpose of the tor daemon which may be running on your machine
+
+    tor --defaults-torrc /usr/share/tor/tor-service-defaults-torrc -f /etc/tor/torrc --RunAsDaemon 0
+
+It can help  to torify a shell command  such as `$ pip install`,  when a package
+can't be installed because of a network issue (AS blacklisted).
+
+    $ . torsocks on
+    $ python3 -m pip install --user requests
+
+<https://tor.stackexchange.com/questions/12588/debian-tor-user-running-tor-in-the-background-from-startup#comment13069_12588>
+
+If it's not running, you need to start the service manually:
+
+    $ . torsocks on
+    $ sudo systemctl start tor.service
+    $ python3 -m pip install --user requests
+
+torsocks - Access The Tor Network - Linux CLI: <https://www.youtube.com/watch?v=0uXFffq-UPU>
 

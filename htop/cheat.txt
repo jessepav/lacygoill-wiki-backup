@@ -17,6 +17,8 @@ Last line                 «End»
 Sorting {{{1
 Based on CPU              P
 Based on memory           M
+Based on time             T
+# Minutes:Seconds.Hundredths of seconds
 Based on chosen column    .
 Reverse sorting order     I
 # Mnemonic: *I*nverse
@@ -36,7 +38,7 @@ Tag/Untag process         «Spc»
 Tag process + children    c
 Untag all processes       U
 Extra Information {{{1
-Tree view {{{2
+  Tree view {{{
 Toggle tree view          t
 Collapse node             -
 Expand node               +
@@ -63,7 +65,7 @@ Setup screen              S
 #    1.   S
 #    2.   arrows  (to move cursor over PID)
 #    3.   Enter   (to select PID)
-#    3.1  Enter   (optional: to deselect PID)
+#    3.1  Enter   (optional: to deselect)
 #    4.   arrows  (to move PID)
 #    5.   Enter   (to validate)
 

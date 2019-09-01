@@ -60,7 +60,7 @@ the completion function, which is why it works the second time.
 
 Yes, source the function from your zshrc:
 
-     . ~/.zsh/my-completions/_tldr
+    . ~/.zsh/my-completions/_tldr
 
 #### Why don't you use it?
 

@@ -776,3 +776,18 @@ See: <https://vi.stackexchange.com/a/19385/17449>
 
     au BufNewFile  *\(_spec\)\@<!.rb  0r ~/vim/skeleton.rb
 
+---
+
+Document  that the  order  of the  autocmds  in  the output  of  `:au` is  first
+alphabetical, then chronological.
+
+That is, the command shows the  autocmds listening to:
+`BufDelete`, then `BufEnter`, then `BufHidden`, then `BufLeave`, ...
+That doesn't mean that the autocmds listening to `BufHidden` are processed after
+the ones listening to `BufEnter`.
+It's just that the word `BufHidden` comes after `BufEnter` in the alphabetical order.
+
+OTOH, for a given  event, the autocmds listed in the output  of `:au` are listed
+in the order in which they have been  installed (and thus in the order they will
+be processed).
+

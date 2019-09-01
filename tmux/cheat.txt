@@ -1,9 +1,8 @@
-About {{{2
+About {{{1
   Labels:
 
   N    Type in Normal mode
   C    Type in Copy mode
-}}}
 Open {{{1
 Open selected url         x            C
 Open selected file path   «C-x»        C

@@ -1,9 +1,8 @@
-About {{{2
+About {{{1
   Labels:
 
   N    Type in Normal or Fullscreen mode
   I    Type in Index mode
-}}}
 Move around  {{{1
 Move backward in jumplist «C-o»        N
 Move forward in jumplist  «C-i»        N

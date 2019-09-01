@@ -715,7 +715,7 @@ is closed, but some can choose to continue.
 # How to get
 ## the environment of the Vim process?  (2)
 
-    $ cat /proc/$(pidof vim)/environ | tr '\0' '\n'
+    $ tr '\0' '\n' </proc/$(pidof vim)/environ
 
 Note that this shows the environment as it was when the process was spawned.
 Any change the process might have made to its environment won't be visible:
@@ -910,15 +910,15 @@ It selects information and format them according to a predefined user-oriented f
 Other similar options  exist to print information according  to other predefined
 formats, highlighting various characteristics of processes:
 
-    ┌───┬───────────────────────────────┐
-    │ l │ display BSD long format       │
-    ├───┼───────────────────────────────┤
-    │ s │ display signal format         │
-    ├───┼───────────────────────────────┤
-    │ v │ display virtual memory format │
-    ├───┼───────────────────────────────┤
-    │ X │ register format               │
-    └───┴───────────────────────────────┘
+    ┌───┬───────────────────────┐
+    │ l │ BSD long format       │
+    ├───┼───────────────────────┤
+    │ s │ signal format         │
+    ├───┼───────────────────────┤
+    │ v │ virtual memory format │
+    ├───┼───────────────────────┤
+    │ X │ register format       │
+    └───┴───────────────────────┘
 
 ### `w`?
 
@@ -1485,8 +1485,12 @@ readily available, since you don't need to recompile it in order to trace it.
 ## Where is the output of `$ strace` written?
 
 By default, on standard error.
-But with the `-o` option, you can redirect it into a file.
 
+### How to redirect it into a file?
+
+Use the `-o` option.
+
+##
 ## What does `123` mean in `system_call(args) = 123`?
 
 It's the return value of the system call.
@@ -1509,9 +1513,32 @@ It's less useful with big processes such as Vim or zsh, but you can still try...
 
 ## How to trace an existing Vim process?
 
-    $ strace -o log -p $(pidof vim)
+    $ strace -o log -p $(pidof vim) &!
                     ^^^^^^^^^^^^^^^
+
     $ less +F log
+
+---
+
+FIXME: For  some reason,  `$ less`  doesn't update  the log  file as  `$ strace`
+writes into it.
+
+MWE:
+
+    $ echo test >>/tmp/log
+
+`$ less` doesn't show `test`.
+
+`$ tail -f log` doesn't suffer from this issue.
+
+    $ echo one >/tmp/file
+    $ less +F /tmp/file
+
+    # from another terminal
+    $ echo two >>/tmp/file
+
+Here,  `$ less  +F` works  as  expected; so  the issue  probably lies  somewhere
+between `$ strace` and `$ less`.
 
 ##
 ## How to trace a process AND all its children?
@@ -1534,7 +1561,7 @@ Warning: This can create big files.
     $ strace -o log -t vim
                     ^^
 
-## How about a relative timestamp?
+### How about a relative timestamp?
 
     $ strace -o log -r vim
                     ^^
@@ -1586,6 +1613,10 @@ Note that filenames are not considered strings and are always printed in full.
 
 The lines at the bottoom should match the slowest system calls.
 Try to understand why they take so much time...
+
+---
+
+For some reason, if you reverse the order of `$ sort`, you lose Vim's syntax highlighting.
 
 ## I know that my command opens the file 'foo'.  But `$ strace -o log -e trace=open cmd` can't find it!
 
@@ -1672,6 +1703,93 @@ See `$ man 2 exit`:
 
 >    The value  status is returned to  the parent process as  the process's exit
 >    status, and can be collected using one of the wait(2) family of calls.
+
+## Document the difference between a task, a process and a thread
+
+I  think   a  thread  is  a   lightweight  process  that  you   haven't  started
+intentionally.
+Instead,  it was  spawned by  another process,  probably to  improve performance
+(i.e. by leveraging multi-core cpus to execute several unit of executions).
+
+I think a task is a process  you've started (e.g. firefox), plus all the threads
+it has itself spawned.
+
+When you view an image such as:
+<https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Multithreaded_process.svg/1024px-Multithreaded_process.svg.png>
+I think that the text "process" should be replaced with "task".
+From the  kernel point  of view,  there's no (or  little?) difference  between a
+process and a thread.
+So saying that a process is a group of threads is misleading.
+A *task* is a heavy process + a group of lightweight threads.
+
+---
+
+In `$ htop`, you can view the number of tasks.
+You can also hide/show the threads created by:
+
+   - user processes by pressing `H`
+   - kernel processes by pressing `K`
+
+What is shown in the column PID of htop is not always a pid.
+I think sometimes, it's a tid (thread id):
+
+    $ ps -eLf | sed '/UID\|cmus/!d' | grep -v sed
+
+Notice how all  the lines show the  same PID, but not the  same LWP (LightWeight
+Process id); see `$ man ps /.*lwp\s*LWP`.
+
+> lwp         LWP       light weight process (thread) ID of the
+>                       dispatchable entity (alias spid, tid).  See tid
+>                       for additional information.
+
+However, things are confusing, because it seems that a tid can appear as a pid:
+
+> tid         TID       the unique number representing a dispatchable
+>                       entity (alias lwp, spid).  This value may also
+>                       appear as: a process ID (pid); a process group ID
+>                       (pgrp); a session ID for the session leader
+>                       (sid); a thread group ID for the thread group
+>                       leader (tgid); and a tty process group ID for the
+>                       process group leader (tpgid).
+
+Difference between PID and TID: <https://stackoverflow.com/a/8787888/9780968>
+
+Update: I think I get it.
+When you start a heavy process, its pid and tid are equal.
+But then,  if it spawns threads,  their tids are  different from the pid  of the
+heavy process.
+You can check this by looking at the first line in the output of the previous `$ ps`
+command: the first  cmus process has a pid  equal to its tid, but  not the other
+threads.
+
+---
+
+In  case you  wonder why  `$ htop`  considers that  you have  *multiple* firefox
+tasks, maybe it's because one task is created per tab you've opened and visited.
+Or maybe viewing an embedded video on a webpage starts another task.
+Or maybe downloading a file from a webpage starts another task.
+...
+You get the idea: the browser rarely performs only one task.
+
+---
+
+Note that not all programs are multithreaded.
+For example, WeeChat doesn't seem to be.
+Press `\  weechat Enter`  in htop,  then `H` to  show the  user threads:  no new
+process is displayed.
+
+OTOH, cmus is multithreaded.
+Press `\ cmus Enter` in htop, then `H`  to show the user threads: a bunch of new
+processes are displayed.
+
+Btw, zathura and Nvim are also multithreaded, but not Vim nor ranger.
+
+---
+
+<https://en.wikipedia.org/wiki/Thread_(computing)>
+Difference Between Process and Thread: <https://www.youtube.com/watch?v=O3EyzlZxx3g>
+Intro to Processes & Threads: <https://www.youtube.com/watch?v=exbKr6fnoUw>
+Process Management (Processes and Threads): <https://www.youtube.com/watch?v=OrM7nZcxXZU>
 
 ## Define what a system call (or syscall) is
 

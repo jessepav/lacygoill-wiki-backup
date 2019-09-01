@@ -545,16 +545,33 @@ newer version of the pip package manager.
 
 ---
 
-As a last resort, try to use pip via a proxy:
+Otherwise, try to use pip via a proxy:
 
     $ https_proxy=<IP Address>:<Port> python3 -m pip install --user <package>
 
 See here for more info: <https://stackoverflow.com/a/19962913/9780968>
 And here for a list of proxies: <https://www.us-proxy.org/>
-Make sure to choose a proxy supporting http*s*.
+Make sure to choose a proxy supporting http**s**.
 
 This solution works (even for `$ gem`),  but you may need to try several proxies
 before finding one which succeeds in installing a package.
+
+---
+
+As a last resort, try to to torify your command:
+
+    $ . torsocks on
+    $ sudo systemctl start tor.service
+    $ python3 -m pip install --user requests
+
+Note that the second command may be optional.
+It's possible  that you have a  tor daemon which runs  the service automatically
+when the OS boots up:
+
+    tor --defaults-torrc /usr/share/tor/tor-service-defaults-torrc -f /etc/tor/torrc --RunAsDaemon 0
+
+But I'm not  sure this is a good  idea; are there more risks for  the program to
+have been tampered with?
 
 ## Why shouldn't I use `$ sudo pip`?
 
