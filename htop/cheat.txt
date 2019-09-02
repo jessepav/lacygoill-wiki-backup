@@ -1,9 +1,20 @@
 Moving around {{{1
-Left                      M-h   «Left»
-Right                     M-l   «Right»
-Down                      M-j   «Down»
-Up                        M-k   «Up»
-# Meta keys work in any menu too
+Left                      M-h
+Right                     M-l
+Down                      M-j   C-n
+Up                        M-k   C-p
+# You can also use the arrow keys. {{{
+
+# The meta keys work only in a recent
+# version of htop.
+
+# They only work if TERM is 'xterm',
+# or 'xterm-256color' (github issue
+# 942).
+
+# They don't work in some menus
+# (e.g. list of opened files).
+}}}
 To process PID 1234       1234
 Find by name              /
 # While in search mode, pressing F3 will
@@ -15,7 +26,7 @@ End of line               $     C-e
 First line                «Home»
 Last line                 «End»
 Sorting {{{1
-Based on CPU              P
+Based on cpu              P
 Based on memory           M
 Based on time             T
 # Minutes:Seconds.Hundredths of seconds

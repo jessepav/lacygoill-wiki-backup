@@ -314,7 +314,7 @@ This happens because but in a help buffer, `'isk'` contains this value:
 
 It includes the parentheses:
 
-    :echo map(range(char2nr('!'), char2nr('~')), {i,v -> nr2char(v)})
+    :echo map(range(char2nr('!'), char2nr('~')), {_,v -> nr2char(v)})
     ['!', ..., '(', ')' ..., '~']~
                 ^    ^
                 ✘    ✘

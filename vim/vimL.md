@@ -1628,7 +1628,7 @@ En cas d'erreur au sein de cette dernière, on pourra donc exécuter:
 
 ---
 
-    echo map([1, 2, 3], {i,v -> v + 1})
+    echo map([1, 2, 3], {_,v -> v + 1})
     [2, 3, 4]~
 
     echo sort([3,7,2,1,4], {a,b -> a - b})
@@ -1769,7 +1769,7 @@ De plus, `nr2char()` ne reçoit pas les bons codepoints:
 
 Solution:
 
-    map(range(65,90), {i,v -> nr2char(v)})
+    map(range(65,90), {_,v -> nr2char(v)})
                        ^^
 
 Conclusion:
@@ -1778,7 +1778,7 @@ Pour pouvoir se  référer à un argument  reçu par une expression  lambda, il 
 correctement tous les déclarer.
 Donc,  qd une  fonction  accepte  une expression  lambda  en argument,  toujours
 regarder quels arguments elle envoit à cette dernière.
-Ici, `map()` n'en envoit pas 1 (`x`), mais 2 (`i`, `v`).
+Ici, `map()` n'en envoit pas 1 (`x`), mais 2 (`_`, `v`).
 
 
     fu! Foo(arg)

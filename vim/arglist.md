@@ -1,11 +1,11 @@
 When you need to do some tests while editing this file, use this code:
 
-        nno  <silent>  cd  :<c-u>call <sid>study_arglist()<cr>
-        fu! s:study_arglist() abort
-            sp
-            args /etc/*.conf
-            let  g:my_stl_list_position = 2
-        endfu
+    nn  <silent> cd :<c-u>call <sid>study_arglist()<cr>
+    fu! s:study_arglist() abort
+        sp
+        args /etc/*.conf
+        let  g:my_stl_list_position = 2
+    endfu
 
 ---
 
@@ -38,29 +38,29 @@ in the arglist, it still persists in the arglist.
 
 ## How to get the length of the currently used arglist?
 
-        :echo argc()
+    :echo argc()
 
 ## How to get the list of entries in the currently used arglist?
 
-        :echo argv()
-                 │
-                 └ mnemonic: vector
+    :echo argv()
+             │
+             └ mnemonic: vector
 
 ## How to get the i-th entry in the currently used arglist?
 
-        :echo argv(i)
+    :echo argv(i)
 
 ## How to get the id of the currently used arglist?
 
-        :echo arglistid()
+    :echo arglistid()
 
 ## How to get the id of the currently used arglist in the second window?
 
-        :echo arglistid(2)
+    :echo arglistid(2)
 
 ## How to get the id of the currently used arglist in the second window in the third tabpage?
 
-        :echo arglistid(2,3)
+    :echo arglistid(2,3)
 
 ## How to detect whether the currently used arglist is global?
 
@@ -68,11 +68,11 @@ The global id of a global arglist is `0`.
 The global id of a local arglist is a positive integer.
 So:
 
-        if arglistid()
-            " do sth with the local arglist
-        else
-            " do sth with the global arglist
-        endif
+    if arglistid()
+        " do sth with the local arglist
+    else
+        " do sth with the global arglist
+    endif
 
 ## What can I do with the id of a local arglist?
 
@@ -89,11 +89,11 @@ Maybe it will change in the future:
 # Action
 ## How to populate the arglist with the output of a shell command?
 
-        :args `=systemlist('shell cmd')`
+    :args `=systemlist('shell cmd')`
 
 ## How to populate the arglist with all the files in `~/.vim/after/ftplugin`?
 
-        :args `=glob('~/.vim/after/ftplugin/*')`
+    :args `=glob('~/.vim/after/ftplugin/*')`
 
 #
 # Issues
@@ -102,7 +102,7 @@ Maybe it will change in the future:
 `fname` may contain some characters which are special on Vim's command-line.
 To prevent their interpretations, use `fnameescape()`:
 
-        :exe 'args '.fnameescape(fname)
+    :exe 'args '.fnameescape(fname)
 
 ## Why does   :args `=systemlist('ls ~/.vim/after/ftplugin')`   fail?
 
@@ -116,16 +116,16 @@ file.
 
 It may not work and raise the error:
 
-        E79: Cannot expand wildcards
+    E79: Cannot expand wildcards
 
 
 MWE:
 
-        $ find /etc -name 'debconf.conf' 2>/dev/null
-        /etc/debconf.conf    ✔~
+    $ find /etc -name 'debconf.conf' 2>/dev/null
+    /etc/debconf.conf    ✔~
 
-        :args `find /etc -name 'debconf.conf' 2>/dev/null`
-        E79    ✘~
+    :args `find /etc -name 'debconf.conf' 2>/dev/null`
+    E79    ✘~
 
 
 Besides, if the shell command contains a  pipe, a quote, or some other character
@@ -133,7 +133,7 @@ which has a special meaning on Vim's command-line, you'll have to escape it.
 
 You don't need to escape anything with:
 
-        :args `=...`
+    :args `=...`
 
 #
 # ?
@@ -412,7 +412,7 @@ global one.
             Ce n° est local à la fenêtre (sure? I think it should depend on which
             arglist is currently used: the global one or the local one).
 
-# TODO
+# Todo
 
 The indicator in the  statusline should show the position in the  qfl AND in the
 arglist if they both exist simultaneously.
@@ -434,5 +434,5 @@ global one or the local one).
 
 Integrate here anything related to the arglist (`:all`, dirvish `x_x`, ...):
 
-        noa vim /arglist/gj ## | cw
+    noa vim /arglist/gj ## | cw
 

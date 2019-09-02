@@ -1127,7 +1127,7 @@ Use the `'module'` and `'items'` key:
         call setqflist([],
         \              'r',
         \              {'items': map(getqflist(),
-        \                            {i,v -> extend(v, {'module': fnamemodify(bufname(v.bufnr), ':t')})})})
+        \                            {_,v -> extend(v, {'module': fnamemodify(bufname(v.bufnr), ':t')})})})
 
 `'module'` allows you to change the text displayed in the filename column.
 
@@ -1135,7 +1135,7 @@ Use the `'module'` and `'items'` key:
 in a single invocation of `setqflist()`.
 Without `'items'`, you would need two:
 
-        let new_qfl = map(getqflist(), {i,v -> extend(v, {'module': fnamemodify(bufname(v.bufnr), ':t')})
+        let new_qfl = map(getqflist(), {_,v -> extend(v, {'module': fnamemodify(bufname(v.bufnr), ':t')})
         call setqflist(new_qfl, 'r')
         call setqflist([], 'a', {'title': get(getqflist({'title': 0}), 'title', ':setqflist()')})
 
@@ -1207,11 +1207,11 @@ The second solution is more reliable:
 
 For the qf windows:
 
-        :echo filter(getwininfo(), {i,v -> v.quickfix && !v.loclist})
+    :echo filter(getwininfo(), {_,v -> v.quickfix && !v.loclist})
 
 For the location windows:
 
-        :echo filter(getwininfo(), {i,v -> v.quickfix &&  v.loclist})
+    :echo filter(getwininfo(), {_,v -> v.quickfix &&  v.loclist})
 
 ## How to programmatically detect whether Vim was started with the `-q` argument?
 
@@ -1242,9 +1242,9 @@ If you wipe the buffer before restoring the qfl, it will raise an error.
 
 For each entry, add the `'filename'` key, and then remove the `'bufnr'` key:
 
-        let qfl = map(getqflist(),
-        \             {i,v -> extend(v,
-        \                           {'filename': fnamemodify(bufname(remove(v, 'bufnr')), ':p')})})
+    let qfl = map(getqflist(),
+    \             {_,v -> extend(v,
+    \                           {'filename': fnamemodify(bufname(remove(v, 'bufnr')), ':p')})})
 
 ##
 # Issues

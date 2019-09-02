@@ -2031,7 +2031,7 @@ précédant le curseur (custom).
 
     fu! CompleteFunc(arglead, _cmdline, _pos)
         let candidates = ['foo', 'bar', 'baz']
-        return filter(candidates, {i,v -> stridx(v, a:arglead) == 0})
+        return filter(candidates, {_,v -> stridx(v, a:arglead) == 0})
     endfu
 
             définit la commande :MyCom qui appelle la fonction MyFunc()

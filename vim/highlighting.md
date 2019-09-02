@@ -388,23 +388,23 @@ The link wins:
 
 If it has its own attributes (no link):
 
-        :hi clear MyGroup
+    :hi clear MyGroup
 
 Otherwise:
 
-        :hi link MyGroup NONE
+    :hi link MyGroup NONE
 
 ---
 
 If it has its own attributes *and* is linked to another HG at the same time:
 
-        :hi MyGroup ctermbg=green guibg=green
-        :hi! link MyGroup Search
+    :hi MyGroup ctermbg=green guibg=green
+    :hi! link MyGroup Search
 
 you'll need both commands:
 
-        :hi clear MyGroup
-        :hi link MyGroup NONE
+    :hi clear MyGroup
+    :hi link MyGroup NONE
 
 ### How to reset (clear) some attribute of a HG?
 
