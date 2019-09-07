@@ -720,9 +720,13 @@ Make sure the path you used – `~` being expanded – doesn't contain more than
 If  necessary, switch  to a  directory which  is nearer  to the  file and  use a
 relative path.
 
-Also, make  sure the  name of  the file  does *not*  contain whitespace,  or any
-special character which requires to be escaped (e.g. `#`).
-Rename it if necessary.
+Also, make sure the name of the file does *not* contain:
+
+   - whitespace, or any special character which requires to be escaped (e.g. `#`)
+     Rename it if necessary.
+
+   - `~`, or any environment variable
+     Expand it if necessary.
 
 Finally, don't quote your filename.
 

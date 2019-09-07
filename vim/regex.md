@@ -1,15 +1,62 @@
-# Are `[` and `]` literal or special outside a bracket expression?
+# Theory
+## What is a
+### multi?
+
+A quantifier in Vimspeak.
+
+### piece?
+
+An atom followed by a possible multi.
+
+### concat?
+
+One or several pieces, concatenated.
+
+##
+## What is a branch composed of?
+
+One or several concats separated by `\&`.
+
+        concat1 \& concat2 \& ...
+
+### Which of its parts is used to look for a match?
+
+Its last concat.
+
+### On what condition is there a match?
+
+All the previous concats must match at the same place where the last one matches.
+
+### What does it allow me to do?
+
+You can use it to remove  undesirable results, by describing the surroundings of
+the match.
+
+##
+## What is a pattern composed of?
+
+One or several branches separated by `\|`.
+
+    branch1 \| branch 2 \| ...
+
+### Which of its parts is used to look for a match?
+
+The first (leftmost) matching branch.
+
+##
+# Bracket expression
+## Are `[` and `]` literal or special outside a bracket expression?
 
 Literal.
 
-## What if they're inside?
+### What if they're inside?
 
 `[` is always literal inside a bracket expression.
 
 `]` is literal only at the start of a bracket expression, or if it's backslash-escaped.
 Note that the start of a complemented bracket expression is right after `^`.
 
-## Wat's the pattern to describe some random text inside square brackets?
+### Wat's the pattern to describe some random text inside square brackets?
 
     \[.\{-}]
 
@@ -17,8 +64,8 @@ You don't need to escape the second bracket, because the first one was escaped.
 As a result, `]` can't be interpreted  as the end of a bracket expression, since
 none has started so far.
 
-##
-# How to include a newline in a bracket expression?
+###
+## How to include a newline in a bracket expression?
 
 Prefix it with `\_`:
 
@@ -28,7 +75,7 @@ Prefix it with `\_`:
 
     [abc\n]
 
-## What if I'm writing a *complemented* bracket expression?
+### What if I'm writing a *complemented* bracket expression?
 
 `\_` will still include the newline in the pattern positively.
 
@@ -42,7 +89,116 @@ For example, the  next pattern matches any  character which is not  `a`, `b`, or
     [^abc]\|\n
 
 ##
-# What's the regex to find
+# Lookaround
+## When I use `\@<=` or `\@<!`, how far does the engine backtrack?
+
+Up to the beginning of the previous line.
+
+From `:h /\@<=`:
+
+> But to  limit the  time needed, only  the line where  what follows  matches is
+> searched, and one line before that (if there is one).
+> This should be sufficient to match most things and not be too slow.
+
+Example:
+
+    $ cat <<'EOF' >/tmp/file
+    foo
+    bar
+    baz
+    EOF
+
+    :sp /tmp/file
+    /\%(foo\_.*\)\@<=baz
+    E486~
+    /\%(foo\_.*\)\@<=bar
+    [1/1] \%(foo\_.*\)\@<=bar~
+
+Theory: Vim  is  unable  to  distinguish   a  pattern  containing  only  literal
+characters from a pattern containing metacharacters.
+As a result,  it doesn't try to compute  the size of what you pass  to `\@<=` or
+`\@<!`, and it just tries to match at all possible positions, from the beginning
+of the previous line.
+
+## How can I improve the performance of a lookbehind?
+
+If you know the maximum BYTE size of the pattern to which you apply the lookbehind,
+use this info to limit how far the engine will backtrack.
+
+##
+## The character `𞹼` weighs 4 bytes.
+
+    $ echo '𞹼' | xxd -p
+     f09eb9bc0a~
+     ├──────┘├┘
+     │       └ ending newline
+     └ 4 bytes
+
+### If I search for `\%(𞹼𞹼\)\@5<=a` in the text `𞹼𞹼a`, what will Vim find?
+
+You may think  that Vim won't find  anything because `𞹼𞹼` weighs  8 bytes, while
+you limited the backtracking to 5 bytes.
+But in practice, Vim *does* find the `a` character.
+
+Theory: The regex engine backtracks by *characters* not by bytes.
+So, when you say:
+
+>     don't backtrack by more than 5 bytes
+
+Vim backtracks by the least amount of characters which weighs 5 bytes or more.
+Here, it means 2 characters.
+
+### If I search for `\%(𞹼𞹼\)\@4<=a` in the text `𞹼𞹼a`, what will Vim find?
+
+Nothing.
+
+The least amount of characters which weigh 4 bytes or more is 1.
+So, Vim backtracks by only 1 character, which is insufficient to match `𞹼𞹼`.
+
+##
+# What's the regex to match
+## a consonant?
+
+    [^aeiou]\&\a
+
+The regex  matches any alphabetic character  (`\a`), but only if  it's different
+than a vowel (`[^aeiou]`).
+
+## any alphabetic character? (even if it has a diacritic sign)
+
+    [[:lower:][:upper:]]
+
+From `:h [:upper:]`:
+
+> These items  only work  for 8-bit characters,  except [:lower:]  and [:upper:]
+> also work for multi-byte characters when using the new regexp engine.
+
+## a sequence of non-keyword characters?
+
+    \%(\k\@!.\)\+
+
+Useful to simulate `\K\+` (`\K` doesn't exist).
+
+Test the regex against:
+
+    àbc - déf
+       ^^^
+
+---
+
+If your Vim includes the patch 8.1.0862, you can also write:
+
+    [^[:keyword:]]\+
+
+The patch introduces these character classes:
+
+   - `[:keyword:]`
+   - `[:ident:]`
+   - `[:fname:]`
+
+Which can be used to construct the complement of resp. `\k`, `\i`, `\f`.
+
+##
 ## all sequences of several uppercase characters *not* followed by a comma *nor another uppercase character*?
 
     \%(\u\{2,}\)\@>,\@!
@@ -63,7 +219,7 @@ The regex will find `DEF` and `JKL`.
 
 This shows how the atom `\@>` can be useful.
 Here, without it, we would find `AB`, `DEF`, `GH` and `JKL`.
-`\@>` allows us to prevent the backtracking in `\{2,}`.
+`\@>` allows us to prevent the backtracking in `\u\{2,}`.
 
 ## all commas outside a double-quoted string?
 
@@ -102,72 +258,236 @@ You can test this new regex against this line:
     0.12 , 0.15 , (inside parentheses) , (inside parentheses, with, many, commas,)
 
 ##
-# When I use `\@<=` or `\@<!`, how far does the engine backtrack?
+## the text from the start of the line till the end of `pat` if it matches, or till the end of the line otherwise?
 
-Up to the beginning of the previous line.
+    .*pat\|^.*
 
-From `:h /\@<=`:
+Test the regex against:
 
-> But to  limit the  time needed, only  the line where  what follows  matches is
-> searched, and one line before that (if there is one).
-> This should be sufficient to match most things and not be too slow.
+    a pat b
+    ^^^^^^^
 
-Example:
+    a b
+    ^^^
 
-    $ cat <<'EOF' >/tmp/file
-    foo
-    bar
-    baz
-    EOF
+---
 
-    :sp /tmp/file
-    /\%(foo\_.*\)\@<=baz
-    E486~
-    /\%(foo\_.*\)\@<=bar
-    [1/1] \%(foo\_.*\)\@<=bar~
+Without the  anchor `^`,  on a line  containing `pat`, you  would have  a second
+undesired match:
 
-Theory: Vim  is  unable  to  distinguish   a  pattern  containing  only  literal
-characters from a pattern containing metacharacters.
-As a result,  it doesn't try to compute  the size of what you pass  to `\@<=` or
-`\@<!`, and it just tries to match at all possible positions, from the beginning
-of the previous line.
+    a pat b
+         ^^
 
-# How can I improve the performance of a lookbehind?
+---
 
-If you know the maximum BYTE size of the pattern to which you apply the lookbehind,
-use this info to limit how far the engine will backtrack.
-
-# The character `𞹼` weighs 4 bytes.
-
-    $ echo '𞹼' | xxd -p
-     f09eb9bc0a~
-     ├──────┘├┘
-     │       └ ending newline
-     └ 4 bytes
-
-## If I search for `\%(𞹼𞹼\)\@5<=a` in the text `𞹼𞹼a`, what will Vim find?
-
-You may think  that Vim won't find  anything because `𞹼𞹼` weighs  8 bytes, while
-you limited the backtracking to 5 bytes.
-But in practice, Vim *does* find the `a` character.
-
-Theory: The regex engine backtracks by *characters* not by bytes.
-So, when you say:
-
->     don't backtrack by more than 5 bytes
-
-Vim backtracks by the least amount of characters which weighs 5 bytes or more.
-Here, it means 2 characters.
-
-## If I search for `\%(𞹼𞹼\)\@4<=a` in the text `𞹼𞹼a`, what will Vim find?
-
-Nothing.
-
-The least amount of characters which weigh 4 bytes or more is 1.
-So, Vim backtracks by only 1 character, which is insufficient to match `𞹼𞹼`.
+It works because alternations are *ordered* in Vim.
+It means  that the regex engine  uses the *first* matching  alternation; not the
+one producing the *longest* match.
 
 ##
-# Why should I prefer the `=` quantfier instead of its synonym `?`?
+## the text between an `A` and the next `C`, with a `B` somewhere in the middle?
+
+    A[^C]*B[^C]*C
+    ^^^^^^^^^^
+
+Test the regex against:
+
+    AxxBxxC
+    AxxxxxC
+
+It should match the first line but not the second one.
+
+---
+
+You could try to use `.\{-}`; it would give:
+
+    \%(.*C\)\@=\%(A.\{-}B.\{-}C\)\@>\%\(C.*\)\@<=
+
+Most of the time, it would match the same texts as the previous one.
+But not always:
+
+    A C B C
+    ^^^^^^^
+
+Here, it would match the whole line, while it should not.
+There is no `B` between `A` and the next `C`; just a single space:
+
+    A C B C
+     ^
+
+The issue is in the first `.\{-}`.
+You need to replace it with `[^C]*`:
+
+    \%(.*C\)\@=\%(A[^C]*B.\{-}C\)\@>\%\(C.*\)\@<=
+                   ^^^^^
+
+This seems to  show that, in the  general case, you need  a complemented bracket
+expression (`.\{-}` is not enough).
+
+`.\{-}` can be used to express sth like  “the text between the pattern A and the
+*next* pattern B”.
+But, it can't be used reliably to express sth like “the text between the pattern
+A and the next pattern B *with* a pattern C in the middle”.
+
+### What happens when C is a multi-character text, like `PAT`?
+
+Replace `[^C]*` with `\%(\%(PAT\)\@!.\)*`
+
+    A\%(\%(PAT\)\@!.\)*B\%(\%(PAT\)\@!.\)*PAT
+
+Test the regex against this text:
+
+    AxxBxxPAT
+    AxxxxxPAT
+
+It should match the first line but not the second one.
+
+##
+## the text under the cursor, surrounded by two consecutive quotes
+
+    \%(.*\%#\)\@='[^']*'\%(\%#.*\)\@<=
+    ├───────────┘├─────┘├────────────┘
+    │            │      └ the cursor must be before the closing quote
+    │            └ two consecutive quotes
+    └ the cursor must be after the opening quote
+
+The lookahead `\%(.*\%#\)\@=`  is applied to the position right  before the next
+matched character (i.e. the opening quote).
+It expresses that you want the cursor  to be somewhere after the position before
+the opening quote.
+
+And the lookbehind  `\%(\%#.*\)\@<=` is applied to the position  right after the
+previous matched character (i.e. the closing quote).
+It expresses that you want the cursor  to be somewhere before the position after
+the closing quote.
+
+---
+
+You can  test the  regex on this  text (position your  cursor on  each character
+between brackets):
+
+    one 't[w]o' three 'fo[u]r' five
+
+---
+
+You may  be used  to a  lookahead written after  a matched  character, and  to a
+lookbehind written before a matched character.
+So, you  may be surprised that  here, the lookahead is  written after *nothing*,
+and the lookbehind is written before *nothing*.
+
+Don't be surprised.
+A lookaround is not *applied to* the previous or next matched character.
+It's  *searched for*  at  the position  reached  by the  regex  engine when  the
+lookaround is processed.
+
+---
+
+You could replace `[^']*` with `.\{-}`, but you would also need to use `\@>`:
+
+    \%(.*\%#\)\@=\%('.\{-}'\)\@>\%(\%#.*\)\@<=
+                 ^^^       ^^^^^
+
+### In which positions must the cursor be for the regex to match `'four'`?
+
+    one 'two' three 'four' five
+                    ^^^^^^^
+                    'four' is matched while the cursor is in any of these positions
+
+---
+
+You may wonder how there can be a match when the cursor is there:
+
+    one 'two' three 'four' five
+                          ^
+
+You need to understand why this pattern still matches:
+
+    '\%(\%#.*\)\@<=
+    │
+    └ closing quote
+
+Since the `*` quantifier can match 0 characters, the engine is allowed to end up
+trying this pattern:
+
+    '\%#\@<=
+
+Which is equivalent to any of these (because `\%#` is a zero-width atom):
+
+    '\%#\@=
+    '\%#
+
+This last pattern does match when your cursor is right after the closing quote.
+
+###
+### How to rewrite this regex with negative lookarounds?
+
+    \%(\%#.*\)\@<!'[^']*'\%(.*\%#\)\@!
+    ├────────────┘├─────┘├───────────┘
+    │             │      └ the cursor must *not* be after the closing quote
+    │             └ two consecutive quotes
+    └ the cursor must *not* be before the opening quote
+
+#### In which positions must the cursor be for the regex to match `'four'`?
+
+    one 'two' three 'four' five
+                     ^^^^^
+
+Notice that this time, the regex would not match the expected `'four'` when your
+cursor is  on its  opening quote, nor  on the next  character after  the closing
+quote.
+
+###
+# Miscellaneous
+## When Vim's regex engine processes 2 alternations, both matching the text, which one is used to produce a match?
+
+The first one.
+
+Alternations in Vim's regex engine are  neither lazy (the shortest matches), nor
+greedy (the longest matches), it's *ordered* (the first matches).
+
+That's why this regex:
+
+    tour\|to\|tournament
+
+matches `tour` in the text:
+
+    three tournaments won
+          ^^^^
+
+If it was lazy, it would match `to`, and if it was greedy, it would match `tournament`.
+
+---
+
+This is not the case of all regex engines.
+In some of them, alternations are greedy.
+
+For more info, have a look  at the book “Mastering Regular Expressions”, chapter
+4, section “Is Alternation Greedy?” (page 198 of the pdf).
+
+###
+## My regex matches a multi-line text.
+### Which text does Vim ignore when looking for the start of the next match?
+
+Only the first line of the previous match.
+
+For example, if your text file contains only:
+
+    a
+    a
+    b
+
+and your regex is:
+
+    a\_.*b
+
+Vim finds two matches:  from the first `a` up to the `b`,  *and* from the second
+`a` up to the `b`.
+
+This is specific to Vim; e.g. PCRE and Python would only match from the first `a`:
+<https://regex101.com/r/RQbIQc/1>
+
+###
+## Why should I prefer the `=` quantfier instead of its synonym `?`?
 
 If you use  your regex in a  backward search, you'll have to  double escape `?`,
 which is awkward.
@@ -180,105 +500,174 @@ than:
 
         ?fooz\\?bar
 
-# Why should I use a backward search (`?` instead of `/`) to test a regex containing a slash?
+## Why should I use a backward search (`?` instead of `/`) to test a regex containing a slash?
 
 To avoid having to escape the slash.
 
 For example, it's simpler to read:
 
-        ?foo/bar
+    ?foo/bar
 
 than:
 
-        /foo\/bar
+    /foo\/bar
 
-# When can I use `.\{-}`  to replace the complement of a collection?
+###
+## What kind of atom is `\@>`?
 
-`a.\{-}b` can replace `a[^b]*b`.
-But that's probably the only case.
+A possessive quantifier.
 
-As  an  example,  suppose  you  want  to  match  2  consecutive  opening/closing
-parentheses.
-Both these patterns will work:
+It's a type of quantifier.
+There  are greedy  quantifiers  (`*`,  `+`, ...),  lazy  (`{-}`, `{-2,3}`),  and
+possessive (`@>`).
+The greedy  and lazy  ones control  how to  repeat a  token, the  possessive one
+prevents backtracking.
 
-        ([^)]*)
+### What is its purpose?
 
-        (.\{-})
+It prevents the engine from backtracking after a subpattern has been matched.
 
-Now,  suppose you  want  to match  a `z`  inside  2 consecutive  opening/closing
-parentheses.
-IOW, you  want to match the  `z` in the next  first line, but not  in the second
-one:
+For example,  if your pattern  is `\%(a.\{-}b\)\@>c`, after  matching `a.\{-}b`,
+the regex may still fail to match `c`.
+If that happens, the engine could backtrack thanks to `\{-}`; but `\@>` prevents
+the engine from doing this.
 
-        (aaa z aaa)(bbb)
-        (aaa)z(bbb)
+In practice, it's used  to optimize a regex, or it can  be necessary to describe
+the text you're interested in.
 
-This pattern won't work:
+### Where can I find more info about it?
 
-        " ✘
-        (.\{-}z.\{-})
-
-This one will:
-
-        " ✔
-        ([^)]*z[^)]*)
-
-IOW, `.\{-}` can be used to express sth like “the text between the pattern A and
-the *next* B”.
-But, it can't  be used to express sth  like “the text between the  pattern A and
-the *next* B with a pattern C in the middle”.
-For that, you need a complemented bracket expression.
-
-##
-# Glossary
-## What's a multi?
-
-A quantifier in Vimspeak.
-
-## What's a piece?
-
-An atom followed by a possible multi.
-
-## What's a concat?
-
-One or several pieces, concatenated.
-
-##
-## What's a branch composed of?
-
-One or several concats separated by `\&`.
-
-        concat1 \& concat2 \& ...
-
-## Which of its parts is used to look for a match?
-
-Its last concat.
-
-## On what condition is there a match?
-
-All the previous concats must match at the same place where the last one matches.
-
-## What does it allow me to do?
-
-You can use it to remove  undesirable results, by describing the surroundings of
-the match.
-
-##
-## What's a pattern composed of?
-
-One or several branches separated by `\|`.
-
-        branch1 \| branch 2 \| ...
-
-## Which of its parts is used to look for a match?
-
-The first (leftmost) matching branch.
+   - `:h /\@>`
+   - <http://www.regular-expressions.info/possessive.html>
+   - <http://perldoc.perl.org/perlre.html#extended-patterns>
 
 ##
 # Issues
-## I wrote some code using a regex. It works in most buffers. But in one of them, it works differently!
+## What is the first thing I should do when my regex seems to fail, and I don't understand why?
 
-Make sure to temporarily reset the local value of 'isk' to its global value:
+Use it as the pattern of a substitution command with a confirmation flag:
+
+    :%s///gc
+       ├┘
+       └ use last pattern (assumes that you've just searched your regex in a `/` command)
+
+When `:s` asks for your confirmation, press `n` to leave the text unchanged.
+Before each  confirmation request, you can  see the matched text  highlighted by
+`IncSearch`.
+
+---
+
+Rationale:
+
+The text highlighted by `Search` may not be the one you expect.
+And you may infer from this highlighting that your regex is wrong.
+It's not necessarily the case; your regex could still be correct.
+
+As an example, consider this regex:
+
+    a\_.*b
+
+And this text file:
+
+    a
+    a
+    b
+
+If you search for  the regex in a `/` command, *all* the  text is highlighted by
+`Search` (*and* by `IncSearch` right before pressing Enter).
+This could give you the wrong impression that there is only one match.
+But in reality,  there are two matches: from  the first `a` up to  `b`, and from
+the second `a` up to `b`.
+
+---
+
+As another example, consider this regex:
+
+    ^###\n.*\n###
+
+And this file:
+
+    ###
+    foo
+    ###
+    bar
+    ###
+    baz
+    ###
+
+If you look at the `Search` highlighting,  it really looks like there are only 2
+matches; this one:
+
+    ###
+    foo
+    ###
+
+and this one:
+
+    ###
+    baz
+    ###
+
+But in reality, there's a third match in the middle:
+
+    ###
+    bar
+    ###
+
+---
+
+As a final example, consider this regex:
+
+    \(.*\%#\)\@=`[^`]*`\(\%#.*\)\@<=
+
+And this text, while your cursor is on `four`:
+
+    one `two` three `four` five
+            ^^^^^^^^
+            highlighted
+
+But the real text matched by the regex is not the one highlighted.
+You can see it by running `:%s///gc`:
+
+    one `two` three `four` five
+                    ^^^^^^
+
+The `Search` highlighting is probably  unreliable because right after the search
+command,  the cursor  is moved,  and  thus the  position expressed  by `\%#`  is
+altered.
+
+## I'm writing a script.  `\%#` doesn't work!
+
+Replace it with `\%123c`, where `123` stands for the output of `col('.')`.
+
+For example, if your pattern is:
+
+    let pat = '\k*\%#\k*'
+
+You can rewrite it like so:
+
+    let col = col('.')
+    let pat = '\k*\%'..col..'c\k*'
+
+---
+
+`\%#` works in a `/` command, and in a call to `search()`.
+In both cases, Vim searches directly in the current buffer.
+
+But it doesn't work in sth like:
+
+    let line = getline('.')
+    let str = matchstr(line, '\k*\%#\k*')
+                                 ^^^
+
+because `matchstr()`  doesn't search directly  in the  current buffer, but  on a
+copy of the current line provided by `getline('.')`.
+In this copy, the cursor position is lost.
+
+##
+## I wrote some code using a regex.  It works in most buffers.  But in one of them, it works differently!
+
+Make sure to temporarily reset the local value of `'isk'` to its global value:
 
     let isk_save = &l:isk
     try
@@ -308,7 +697,7 @@ MWE:
       in a help buffer (✘ UNexpected)~
 
 
-This happens because but in a help buffer, `'isk'` contains this value:
+This happens because in a help buffer, `'isk'` contains this value:
 
     !-~
 
@@ -348,9 +737,9 @@ The regex will be affected by the buffer-local values of some options:
 
 Which may have unexpected results.
 
-## Are there any pitfalls I should be aware of when using the complement of a bracket expression?
+## Which pitfall I should be aware of when using the complement of a bracket expression?
 
-Is your complement preceded by an atom and a quantifier?
+Is your complement preceded by an atom followed by a quantifier?
 If so, make sure your bracket expression  includes the atom, or use `\@>` on the
 previous atom.
 
@@ -374,7 +763,8 @@ So you try this regex:
     a\+\s\+\zs[^b]\S\+
 
 Now it matches `xyz` on the first line (✔), but also `bxyz` on the second line (✘).
-This is because the engine backtracked.
+This is because the engine backtracked:
+`\s\+` gave back one space, and `[^b]` matched it.
 The solution is to include a whitespace in the complement of your collection:
 
     a\+\s\+\zs[^b \t]\S\+
@@ -388,50 +778,16 @@ You could also use `\@>` to prevent the backtracking:
 ##
 # Lookahead / concats
 
-    \ze ou (…)@=
-    \zs ou (…)@<=
-           (…)@123<=
+`@<!` peut être lent; dans ce cas, préférer `@123<!`.
 
-            positive lookahead        l'aide classe \zs et \ze dans la catégorie des ancres
-            positive lookbehind       les @ dans les multi peut être à cause des parenthèses
-            positive lookbehind       la recherche est limitée à 123 octets
+Les positive /  negative lookbehind peuvent considérablement  ralentir le moteur
+de regex.
+Qd on cherche  un pattern contenant l'un  de ces multi, et que  la recherche est
+trop lente (+ consommation  cpu en hausse), il faut utiliser  une version de ces
+multi limitée à un nb restreint d'octets:
 
-    (…)@!
-    (…)@<!
-    (…)@123<!
-
-            negative lookahead
-            negative lookbehind
-            negative lookbehind       la recherche est limitée à 123 octetss
-
-            `@<!` peut être lent; dans ce cas, préférer `@123<!`.
-            123 est un nb arbitraire qu'on peut choisir comme on veut.
-
-                                               NOTE:
-
-            Les positive / negative lookbehind peuvent considérablement ralentir
-            le moteur de regex.
-            Qd on  cherche un  pattern contenant  l'un de ces  multi, et  que la
-            recherche est  trop lente  (+ consommation cpu  en hausse),  il FAUT
-            utiliser  une  version  de  ces  multi LIMITÉE  à  un  nb  restreint
-            d'octets:
-
-                    (…)@12<=
-                    (…)@34<!
-
-
-    [^aeiou]\&\a
-
-            une consonne
-
-            Techniquement, le  pattern match une  lettre (\a) mais  seulement si
-            elle est différente d'une voyelle ([^aeiou]).
-
-            \& permet de réaliser des intersections d'ensembles de caractères:
-
-                        consonnes =    lettres    ∩    non-voyelles
-
-            Ou de supprimer certains caractères d'un ensemble donné.
+    \%(...\)\@12<=
+    \%(...\)\@34<!
 
 
     \v((foobar)@!.)+&<\k{3,}>
@@ -460,9 +816,9 @@ You could also use `\@>` to prevent the backtracking:
 
             La 2e syntaxe pourrait se lire comme ceci:
 
-                    ((then)@!.)*       (then)@!.(then)@!.(then)@!.    …
+                    ((then)@!.)*       (then)@!.(then)@!.(then)@!.    ...
 
-            … et    .(then)@!    matche un caractère à condition qu'il ne soit pas suivi d'un then.
+            ... et    .(then)@!    matche un caractère à condition qu'il ne soit pas suivi d'un then.
 
             @! ne fait pas reculer le moteur après qu'il ait matché le dot.
             En réalité, il lui demande de vérifier qu'il n'y a pas de then APRÈS le match en cours.
@@ -480,7 +836,7 @@ You could also use `\@>` to prevent the backtracking:
 
                     \vfoo(\_.(bar)@!)*qux
 
-            … on ne s'assurerait pas que bar ne suit pas directement foo.
+            ... on ne s'assurerait pas que bar ne suit pas directement foo.
             Pex, on risquerait de matcher 'foobar hello qux'.
 
 
@@ -561,20 +917,6 @@ You could also use `\@>` to prevent the backtracking:
 
 # Quantificateurs / Ancres
 
-Un backslash est toujours traité comme un métacaractère, peu importe le mode (\V, \v, \m …).
-Pour décrire un backslash littéral, il faut donc toujours écrire un double backslash: \\
-
-En mode \V tous les symboles sont interprétés littéralement à l'exception du backslash.
-Les quantificateurs sont traités:
-
-    - littéralement en mode \V, \m et dans une collection ([…])
-    - spécialement  en mode \v
-
-Dans une  collection, on ne  peut trouver  que des caractères  littéraux. Raison pour  laquelle un
-quantificateur perd automatiquement son sens spécial dans  une collection, peu importe le mode dans
-lequel le moteur parse la regex.
-
-
 Quelques quantificateurs (:h /multi) :
 
     ┌───────────────┬────────────────────────────────┐
@@ -634,18 +976,6 @@ Quelques ancres/atomes ordinaires de largeur nulle (:h /zero-width) :
             newline (à cause de \_$).
 
 
-    \<    \>
-
-            Début, fin de mot.
-
-                    \<    le caractère suivant est le premier d'un mot (isk)
-                    \>    le caractère précédent est le dernier "
-
-            \< et \> sont des ancres, et à ce titre peuvent s'appliquer à un groupe de plusieurs branches
-            capturées par des parenthèses:         \v<(foo|bar|baz)>
-            IOW, pas besoin d'écrire:              \v<foo>|<bar>|<baz>
-
-
     \v(.{-}\zsfoo){3}
 
             matche la 3e occurrence de foo sur la ligne
@@ -653,31 +983,26 @@ Quelques ancres/atomes ordinaires de largeur nulle (:h /zero-width) :
             En effet, le dernier pattern équivaut à:    \v.{-}\zsfoo.{-}\zsfoo.{-}\zsfoo
 
 
-    \%^    \%$
-
-            début, fin de fichier
-
-
     \%V
 
             Le caractère qui suit est dans la sélection visuelle.
 
-            Pour décrire un pattern limité à l'intérieur d'une sélection visuelle, il faut l'encadrer
-            avec 2 atomes %V:
+            Pour  décrire  un  pattern  limité  à  l'intérieur  d'une  sélection
+            visuelle, il faut l'encadrer avec 2 atomes %V:
 
                     \v%Vpattern%V
 
 
             Exemple:
 
-                                ┌ colonne sélectionnée
-                    ┌───────────┤
+                    ┌ colonne sélectionnée
+                    ├───────────┐
                     foo 1 bar foo 2 bar
                     foo 1 bar foo 2 bar
                     foo 1 bar foo 2 bar
-                    └───────┤
-                            └ texte recherché
-                              pattern à utiliser:    \v%Vfoo.*bar%V
+                    ├───────┘
+                    └ texte recherché
+                      pattern à utiliser:    \v%Vfoo.*bar%V
 
 
                                                NOTE:
@@ -697,8 +1022,8 @@ Quelques ancres/atomes ordinaires de largeur nulle (:h /zero-width) :
 
             Exemple:
 
-                        ┌ colonne sélectionnée
-                     ┌──┤
+                     ┌ colonne sélectionnée
+                     ├──┐
                     a1   a       a   1a
                     b12  b   →   b  12b
                     c123 c   ^   c 123c
@@ -706,14 +1031,13 @@ Quelques ancres/atomes ordinaires de largeur nulle (:h /zero-width) :
                              │
                              │
                             *s/\v%V(.{-})(\s*)%V@!/\2\1/
-                                              └──┤
-                                                 └ Le caractère qui suit ne doit pas être dans la sélection.
+                                              ├──┘
+                                              └ Le caractère qui suit ne doit pas être dans la sélection.
+                                                Ne fonctionnerait sans doute pas si la fin
+                                                du pattern utilisait un quantifcateur non-greedy.
 
-                                                   Ne fonctionnerait sans doute pas si la fin
-                                                   du pattern utilisait un quantifcateur non-greedy.
-
-                                                   Sans `@!`, le pattern pourrait matcher un texte vide,
-                                                   présent devant chaque caractère de la sélection.
+                                                Sans `@!`, le pattern pourrait matcher un texte vide,
+                                                présent devant chaque caractère de la sélection.
 
 
                     a1   a           a   1a
@@ -725,43 +1049,6 @@ Quelques ancres/atomes ordinaires de largeur nulle (:h /zero-width) :
                                 *s/\v%V(\S*)(\s*)%V(.)/\=submatch(3) =~ '\s' ? submatch(2).submatch(3).submatch(1) : submatch(1).submatch(3)/
 
                                 Cette substitution gère aussi le cas précédent.
-
-
-    \%#
-
-            Là où se trouve le curseur actuellement.
-
-            Rappel: le curseur ne se trouve jamais sur un caractère, mais entre 2.
-
-            Équivalent à:
-
-                    '\v%'.line('.').'l%'.col('.').'c'
-
-            On peut utiliser \%# dans une recherche directe (/?) ou dans une chaîne passée à search(),
-            car cette dernière cherche dans le buffer courant (comme /?).
-            En revanche, on ne peut pas l'utiliser dans une fonction qui ne travaille pas directement
-            sur le contenu du buffer. Pex matchstr():
-
-                    matchstr(getline('.'), '\k*\%#\k*')    ✘
-
-            Ici, bien que getline('.') retourne une chaîne correspondant à la ligne courante,
-            il ne s'agit que d'une copie, pas la ligne originale dans le buffer.
-            Pour cette raison, la position du curseur et n'importe quelle marque présente sur la ligne
-            sont perdues.
-
-            Dans ce cas, puisque getline('.') matche déjà la ligne courante ('\v%'.line('.').'l'),
-            on peut utiliser simplement:    '\v%'.col('.').'c'
-
-            En revanche on peut l'utiliser avec search():
-
-                    search('\k*\%#\k\+', 'n')
-
-            … cherche le mot sous le curseur et retourne son n° de ligne (donc le n° de la ligne courante)
-
-
-    /\k*\%#\k*
-
-            Cherche le mot sous le curseur.
 
 
     \%>'m
@@ -870,30 +1157,6 @@ Quelques ancres/atomes ordinaires de largeur nulle (:h /zero-width) :
             Le caractère occupant la 41e colonne sur la ligne.
             Le caractère dont le dernier octet est le 41e sur la ligne.
 
-                                               NOTE:
-
-            On peut utiliser  l'ancre \%c avec une expression  comme la fonction
-            col(), en revanche,  on ne voudra sans doute  jamais l'utiliser avec
-            un nb absolu.
-
-            En  effet, si  le texte  dans lequel  on cherche  un caractère  peut
-            contenir des caractères multi-octets, on ne connaîtra pas à l'avance
-            l'index de son 1er (ou dernier) octet.
-            Exemple:
-
-                    bar―qux
-
-            On cherche le 5e caractère et on veut utiliser l'ancre \%c.
-
-            \%5c. ne matche rien, car il n'existe aucun caractère dont le premier octet est le 5e.
-            Le premier octet de '―' est le 4e, et le 1er de 'q' est le 7e (car ― pèse 3 octets).
-
-            Si on veut le 5e caractère ('q'), il faut utiliser le pattern /\%5v./
-
-            Le  pb  avec '\%c'  vient  du  fait que,  pour  une  ligne de  texte
-            arbitraire,  on ne  connaît pas  à l'avance  le poids  de la  chaîne
-            précédant le 5e caractère.
-
 
     \v%2l%5v.
 
@@ -917,7 +1180,7 @@ Quelques ancres/atomes ordinaires de largeur nulle (:h /zero-width) :
 
                     \v%>4l%<11lfoo\nbar
 
-            … matchera ces 2 lignes, bien que 'bar' soit sur la ligne 11.
+            ... matchera ces 2 lignes, bien que 'bar' soit sur la ligne 11.
 
 
     \v%>43v.%<46v
@@ -938,7 +1201,7 @@ Quelques ancres/atomes ordinaires de largeur nulle (:h /zero-width) :
 # Atomes
 
 Une classe de caractères est une séquence d'échappement spéciale représentant un
-ensemble de caractères ayant un point commun (lettres, chiffres…).
+ensemble de caractères ayant un point commun (lettres, chiffres...).
 
 Un atome est un caractère ordinaire, ou une classe de caractères, ou une ancre.
 It's something that you can't break in two parts without changing its meaning.
@@ -954,15 +1217,13 @@ Quelques classes (:h /character-classes) :
                                                NOTE:
 
                     Dans une chaîne passée à `matchstr()`, `.` représente n'importe quel caractère,
-                    y compris un berline. `.` et `\_.` sont alors équivalents.
+                    y compris un newline. `.` et `\_.` sont alors équivalents.
 
     \a \A           (non-)alphabet [A-Za-z]
     \b              backspace
-    \C              sensible à la casse (outrepasse 'ignorecase')
     \d \D           (non-)chiffre
     \h \H           (non-)head of word character [a-zA-Z_]
     \l \L           (non-)lettre minuscule [a-z]
-    \r              enter
     \u \U           (non-)lettre majuscule [A-Z]
 
                                                NOTE:
@@ -971,39 +1232,14 @@ Quelques classes (:h /character-classes) :
     dans un pattern ou dans une chaîne de remplacement.
     Dans un pattern, il s'agit d'un des atomes qu'on vient de voir.
     Dans une  chaîne de remplacement, ils  modifient la casse d'un  ou plusieurs
-    caractères développés à partir de \0, \1 … \9, &, ~
+    caractères développés à partir de `\0`, `\1`, ..., `\9`, `&`, `~`.
 
-    \v
-
-            le moteur de regex doit parser la regex qui suit en mode very magic
-            very magic veut dire que tous les caractères ascii, sauf [0-9a-zA-Z _ ] ont un sens spécial
-
-    \k
-
-            classe des caractères définis par l'option 'iskeyword'
-            Il s'agit généralement de [0-9a-zA-Z_] (\w) + caractères accentués (point de code décimal 192-255)
-
-                                               NOTE:
-
-            \k et \w sont différents pour 3 raisons:
-
-                    - \k contient par défaut les caractères accentués; pas \w En
-                      effet, 'isk' contient par défaut la valeur @ dont la
-                      signification est donnée par :h 'isf
-
-                    - \k peut être entièrement configuré via l'option 'isk'; pas \w
-
-                    - \k est utilisé par certaines commandes en mode normal (w) et insertion (C-x C-…); pas \w
-
-    \w    \W
-
-            (non-)word character [0-9A-Za-z_]
 
     \_x
 
             classe de caractères \x (ex: \a, \d, \s) en incluant le newline
 
-    \_[…]    […\n]
+    \_[...]    [...\n]
 
             collection de caractères incluant le newline
 
@@ -1013,7 +1249,7 @@ Quelques classes (:h /character-classes) :
 
                 - appliquer un multi
                 - ajouter une ancre avant ou après
-                - se référer plus tard (\0, \1, … \9; submatch(0), submatch(1), …)
+                - se référer plus tard (\0, \1, ... \9; submatch(0), submatch(1), ...)
 
                                                NOTE:
 
@@ -1023,13 +1259,7 @@ Quelques classes (:h /character-classes) :
             remplacement, on obtient bien tjrs le match voulu.
 
 
-    \(patt1\|patt2\)
-    %\(patt1\|patt2\)
-
-            pattern1 OU pattern2
-
-
-    […]
+    [...]
 
             Ensemble de caractères (collection).
             N'importe quel caractère présent à l'intérieur des [] comme si on les séparait par des OU.
@@ -1044,7 +1274,7 @@ Quelques classes (:h /character-classes) :
             Mais on ne peut pas y inclure les autres tq \s ou \d (:h /character-classes).
 
 
-    [^…]
+    [^...]
 
             N'importe quel caractère sauf ceux à l'intérieur de la collection.
             Inversion de collection.
@@ -1064,7 +1294,7 @@ Quelques classes (:h /character-classes) :
             Si on veut utiliser `^` et `-` chacun avec son sens spécial, il vaut mieux
             écrire:
 
-                    [^-…]    n'importe quel caractère sauf un tiret et d'autres caractères …
+                    [^-...]    n'importe quel caractère sauf un tiret et d'autres caractères ...
 
 
     [abc\u00a0]
@@ -1124,7 +1354,7 @@ Quelques classes (:h /character-classes) :
 
                     \d \o \x \u \U
 
-            … comme une classe.
+            ... comme une classe.
             Donc dans une chaîne qui n'est pas passée au moteur de regex, ces notations sont libres.
             On peut donc les utiliser, sans `%`, pour représenter un caractère à partir de son point
             de code en décimal ou en octal.
@@ -1179,7 +1409,7 @@ Quelques classes (:h /character-classes) :
             Il existe d'autres classes similaires:
 
                         - [:blank:]        espace ou tab horizontal
-                        - [:cntrl:]        caractères de contrôle (inclue un tab, bizarre …)
+                        - [:cntrl:]        caractères de contrôle (inclue un tab, bizarre ...)
                         - [:digit:]        \d
                         - [:graph:]        caractères ascii sauf espace
                         - [:lower:]        \l
@@ -1210,7 +1440,7 @@ Quelques classes (:h /character-classes) :
 
             [:alnum:] est la classe des caractères alphanumériques.
 
-            Illustre qu'un atome spécial tq [:alnum:], [:cntrl:], … peut être accompagné
+            Illustre qu'un atome spécial tq [:alnum:], [:cntrl:], ... peut être accompagné
             d'autres caractères au sein d'une collection.
 
 
@@ -1227,20 +1457,23 @@ Quelques classes (:h /character-classes) :
 
 Vim peut utiliser 2 moteurs de regex:
 
-        1. un vieux, qui supporte tout (FIXME: qualifié de backtracking par :h nfa; kézako?)
-        2. un nouveau moteur NFA (Nondeterministic Finite Automatons) qui travaille plus vite
-           sur certains patterns, mais ne supporte pas tout
+   1. un vieux, qui supporte tout (FIXME: qualifié de backtracking par :h nfa;
+      kézako?)
 
-Vim sélectionne automatiquement le bon moteur. Mais si on rencontre un pb, pour tenter de le déboguer,
-on peut préfixer son pattern avec:
+   2. un nouveau moteur NFA (Nondeterministic Finite Automatons) qui travaille
+      plus vite sur certains patterns, mais ne supporte pas tout
 
-        \%#=1    vieux moteur
-        \%#=2    nouveau moteur NFA
+Vim sélectionne automatiquement le bon moteur.
+Mais si  on rencontre un pb,  pour tenter de  le déboguer, on peut  préfixer son
+pattern avec:
 
-Ne pas confondre avec l'ancre \%# qui matche la position courante du curseur.
-Le texte matché par une regex peut être complètement différent selon le moteur qu'on utilise.
-Pour une liste de qques pbs qu'on peut rencontrer avec une regex, en fonction du moteur utilisé,
-voir    :lh NFA    et + particulièrement    :h todo    →    /regexp problems
+    \%#=1    vieux moteur
+    \%#=2    nouveau moteur NFA
+
+Le texte matché  par une regex peut être complètement  différent selon le moteur
+qu'on utilise.
+Pour une liste de qques pbs qu'on peut rencontrer avec une regex, en fonction du
+moteur utilisé, voir `:lh NFA` et plus particulièrement `:h todo /regexp problems`.
 
 Exemple de différences entre les 2:
 
@@ -1250,8 +1483,8 @@ Exemple de différences entre les 2:
     (3)    %s:\%#=2\v^(.*\n)\1+:\1:    (6)    %s:\%#=2\v^(.*\n)\1{1,}:\1:
 
 
-Cette substitution ayant pour but de réduire des séquences de lignes identiques, ne produit pas le même
-résultat suivant le multi et le moteur de regex utilisé:
+Cette substitution ayant pour but de réduire des séquences de lignes identiques,
+ne produit pas le même résultat suivant le multi et le moteur de regex utilisé:
 
              2,4,5    1,3,6
         foo    foo    foo
@@ -1270,84 +1503,18 @@ En réalité, la bonne commande pour réduire des séquences de lignes identique
 
     %s:\v^(.*)(\n\1)+:\1:
 
-En effet, les précédentes commandes ne peuvent correctement gérer le cas d'une ligne doublon lorsqu'elle
-se trouve tout à la fin du buffer et qu'elle n'est donc pas suivi d'un newline.
-Le 1er groupe capturé ne doit pas contenir de newline pour pouvoir matcher n'importe quelle ligne doublon,
-même en fin de buffer.
+En effet, les  précédentes commandes ne peuvent correctement gérer  le cas d'une
+ligne doublon  lorsqu'elle se trouve  tout à la fin  du buffer et  qu'elle n'est
+donc pas suivi d'un newline.
+Le  1er groupe  capturé ne  doit pas  contenir de  newline pour  pouvoir matcher
+n'importe quelle ligne doublon, même en fin de buffer.
 
-Bizarrement, ce coup-ci, peu importe le multi (+ ou {1,}), et peu importe le moteur, ça marche toujours.
-Morale de l'histoire:    ne jamais mettre de newline dans une capture à laquelle on se réfère ensuite?
+Bizarrement, ce coup-ci, peu importe le multi (`+` ou `{1,}`), et peu importe le
+moteur, ça marche toujours.
+Morale de l'histoire: ne jamais mettre de newline dans une capture à laquelle on
+se réfère ensuite?
 
-
-    .*pat\|^.*
-
-            Everything from  the beginning  of the  line, until  the end  of the
-            line, except if the line contains `pat`.
-            In this case, stop at the latter.
-
-            Why do I need the anchor `^`?
-            Without, on a line containing `pat`, you would have 2 matches:
-
-                    - one from the beginning of the line until `pat`
-                    - one from after `pat` until the end of the line
-
-            You don't want the second match. So, add the anchor to get rid of it.
-
-
-                                     NOTE:
-
-            When processing  alternations, Vim's regex  engine seems to  stop as
-            soon as it finds a branch matching sth.
-            This is not the case of all regex engines.
-
-            Have a look at:
-
-                    - the book “Mastering Regular Expressions”
-                    - Chapter “4. The Mechanics of Expression Processing”
-                    - Section “Is Alternation Greedy?” (page 198)
-
-            Some of them  process all alternations and use the  one matching the
-            most text.
-
-            Whenever you think you've found a  case where Vim does this (instead
-            of stopping at the first  matching branch), you're probably confused
-            by the highlighting.
-
-            Copy the line of text in an empty buffer, and test your regex.
-            Even if  you see  the whole  line highlighted,  it doesn't  mean the
-            engine chose the branch matching the longest text.
-            More probably, there are SEVERAL matches  on the line, each due to a
-            different branch.
-            But their simultaneous highlighting  gives the false impression that
-            there's a single match.
-
-            Here's another example; suppose you have this file:
-
-                    $ cat <<'EOF' >/tmp/file
-                    ###
-                    foo
-                    ###
-                    bar
-                    ###
-                    baz
-                    ###
-                    EOF
-
-           And this regex:
-
-                ^###\n.*\n###
-
-           If you look at the highlighting, it really looks like there are only 2 matches.
-           But if you press `n` to jump between all the matches, you'll see that
-           there are 3 of them, not 2.
-
-
-    \vfoo.*pat|foo(.*pat)@!.*$
-
-            Everything from `foo` until the end  of the line, except if the line
-            contains `pat`.
-            In this case, stop at the latter.
-
+---
 
     [\u2000-\u200a]
 
@@ -1355,21 +1522,11 @@ Morale de l'histoire:    ne jamais mettre de newline dans une capture à laquell
             Shows that you write an arbitrary range of unicode characters.
 
 
-    [[:lower:][:upper:]]
-
-            Any alphabetical character, even if it has a diacritic sign.
-            From `:h E944`:
-
-                    These items only work for 8-bit characters, except [:lower:]
-                    and [:upper:] also work for multi-byte characters when using
-                    the new regexp engine.
-
-
     [^\x00-\x7f]
 
             ensemble des caractères non ascii
 
-            Dans un ensemble de caractères ([…]), \x00 et \x7f correspondent aux
+            Dans un ensemble de caractères ([...]), \x00 et \x7f correspondent aux
             caractères dont  les points de  code sont 00  et 7f (exprimés  via 2
             chiffres en hexa via l'atome \x).
             Donc:
@@ -1396,18 +1553,18 @@ Morale de l'histoire:    ne jamais mettre de newline dans une capture à laquell
 
 
     let pattern_broad  = '...'
-    let pos            = col('.')
-    let pattern_narrow = pattern_broad.'\%(.*\%'.pos.'c\)\@!'
+    let col            = col('.')
+    let pattern_narrow = pattern_broad..'\%(.*\%'..col..'c\)\@!'
 
-            `pattern_narrow` permet  de trouver le  1er match décrit  par broad`
-            `pattern_contenant le caractère où se trouve le curseur.
+            `pattern_narrow` permet  de trouver le  1er match décrit  par `pattern_broad`
+            contenant le caractère où se trouve le curseur.
 
             Décomposition:
 
-                    1. pattern_broad            pattern sans restriction
+                    1. pattern_broad              pattern sans restriction
 
-                    2. '\%(.*\%'.pos.'c\)\@!'   restriction:
-                                                le curseur ne doit pas se trouver après le match
+                    2. '\%(.*\%'..col..'c\)\@!'   restriction:
+                                                  le curseur ne doit pas se trouver après le match
 
 
             Cette syntaxe permet de facilement exprimer la condition:
@@ -1418,22 +1575,21 @@ Morale de l'histoire:    ne jamais mettre de newline dans une capture à laquell
             sous-pattern de `pattern_broad`.
             La méthode produirait des  patterns de + en + complexes  au fur et à
             mesure que `pattern_broad` serait lui-même complexe.
-            Se scalerait mal.
 
             S'il peut y avoir plusieurs  matchs différents contenant le curseur,
             et qu'on les veut tous, on  pourrait préfixer le pattern avec une 2e
             restriction comme ceci:
 
-                    '\v%(%'.pos.'c.*)@<!'.pattern_broad.'%(.*%'.pos.'c)@!'
-
-            '\v%(%'.pos.'c.*)@<!' exprime que le curseur ne doit pas se trouver avant le match.
+                    '\v%(%'..col..'c.*)@<!'.pattern_broad.'%(.*%'..col..'c)@!'
+                     ├───────────────────┘
+                     └ le curseur ne doit pas se trouver avant le match.
 
 
     \v^%(\s*".*)@!.*\zsfoo
 
     \v^%(\s*".*)@=.*\zsfoo
 
-            Un `foo` sur une ligne NON commentée, dans un fichier Vim.
+            Un `foo` sur une ligne non commentée, dans un fichier Vim.
 
             Idem mais sur une ligne commentée.
 
@@ -1526,23 +1682,6 @@ Morale de l'histoire:    ne jamais mettre de newline dans une capture à laquell
                 !=  \vpattern(B)@!     Je ne veux pas voir B.
 
             Ici A = ( et B = )
-
-
-    \v(\k@!.)+
-
-            Séquence de caractères non keyword.
-
-            Pratique pour simuler `\K+`. `\K` n'existe pas.
-
-            Update: If you have 8.1.0862, you can now use:
-
-               - [:keyword:]
-               - [:ident:]
-               - [:fname:]
-
-            `[:keyword:]` can be used to construct the complement of `\k`:
-
-                [^[:keyword:]]
 
 
 Étant donné la ligne suivante:    FooBar baz QuxNorf

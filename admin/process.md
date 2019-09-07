@@ -608,6 +608,39 @@ From `$ man 2 wait`:
 >    If a parent process terminates, then  its "zombie" children (if any) are adopted
 >    by init(1), which automatically performs a wait to remove the zombies.
 
+---
+
+> processes that stay zombies for a long time are generally an error and cause a **resource leak**.
+<https://en.wikipedia.org/wiki/Zombie_process>
+
+> In  computer  science,  a  resource  leak  is  a  particular  type  of  resource
+> consumption by a  computer program where the program does  not release resources
+> it has acquired.
+> This condition is normally the result of a bug in a program.
+
+> Examples  of resources  available in  limited  numbers to  the operating  system
+> include  internet sockets,  file  handles, **process  table  entries, and  process**
+> **identifiers (PIDs)**.
+> Resource leaks  are often a  minor problem, causing  at most minor  slowdown and
+> being recovered from after processes terminate.
+> In  other  cases  resource  leaks  can be  a  major  problem,  causing  resource
+> starvation  and severe  system  slowdown or  instability,  crashing the  leaking
+> process, other processes, or even the system.
+> Resource leaks often go unnoticed under light load and short runtimes, and these
+> problems only manifest themselves under heavy system load or systems that remain
+> running for long periods of time.
+
+<https://en.wikipedia.org/wiki/Resource_leak>
+
+> In computing,  a (system)  resource is  any physical  or virtual  component of
+> limited availability within a computer system.
+> Every device connected to a computer system is a resource.
+> Every internal system component is a resource.
+> Virtual  system  resources  include  files (concretely  file  handles),  network
+> connections (concretely network sockets), and memory areas.
+
+<https://en.wikipedia.org/wiki/System_resource>
+
 ## Daemon
 
 A daemon is a program that runs as a background process, rather than being under

@@ -98,21 +98,21 @@ Call `matchdelete()`:
 
 ### all the matches?
 
-        :call clearmatches()
+    :call clearmatches()
 
 ##
 ## How to restore all the matches?
 
 Use `setmatches()`:
 
-        :call matchadd('DiffAdd', 'foo')
-        :call matchadd('DiffChange', 'bar')
+    :call matchadd('DiffAdd', 'foo')
+    :call matchadd('DiffChange', 'bar')
 
-        :let list = getmatches()
-        :call clearmatches()
+    :let list = getmatches()
+    :call clearmatches()
 
-       :call setmatches(list)
-             ^^^^^^^^^^
+    :call setmatches(list)
+          ^^^^^^^^^^
 
 ##
 ## Is the search of the pattern case-sensitive by default?
@@ -230,7 +230,7 @@ The latter highlights leading spaces on a line in a snippet definition.
 Currently, we fix this issue by reloading  any syntax plugin used by a displayed
 buffer, with an autocmd in our vimrc:
 
-        au ColorScheme * call s:reinstall_cleared_hg()
+    au ColorScheme * call s:reinstall_cleared_hg()
 
 ##
 ## Builtin HGs

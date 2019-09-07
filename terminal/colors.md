@@ -279,8 +279,8 @@ In some terminals, you can use this sequence:
             └ index of the color in the palette
 
 `spec` can be a name or RGB specification as per XParseColor.
-The latter includes the syntax `#RRGGBB`.
-`#RRGGBB` is an old and not encouraged syntax (see `man XParseColor`).
+The latter includes the syntax `#RRGGBB` – which is old and not encouraged – and
+`rgb:12/34/56` (see `$ man XParseColor`).
 
 To test the sequence, first run:
 

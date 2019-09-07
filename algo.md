@@ -1,3 +1,61 @@
+# ?
+
+How to write an algorithm composed of 1 main case, and several special cases?
+
+   - chronologically, implement main case *first* (special cases later)
+
+   - inside the code, write special cases *before* main case
+
+   - describe *exactly* the state of the environment when a special case occurs;
+     –  aka necessary  and sufficient  conditions –  ... and  let all  the other
+     states be handled by the main case
+
+---
+
+Think about the main use case first, *then* the special cases.
+Why?
+
+Here's a metaphor: You have to paint a figure inside a sheet.
+The figure covers most of the sheet.
+It's easier to paint the whole sheet,  then remove what's in excess, rather than
+carefully paint the inside without never crossing the boundaries.
+
+Other metaphor:
+To express the number 7, it's easier to read and write:
+
+        ┌ default action
+        │
+        10 - 1 - 1 - 1
+             │   │   │
+             │   │   └ ...
+             │   └ special case
+             └ special case
+
+... than:
+
+        1 + 1 + 1 + 1 + 1 + 1 + 1
+        │   │   │   │   │   │   │
+        │   │   │   │   │   │   └ ...
+        │   │   │   │   │   └ ...
+        │   │   │   │   └ ...
+        │   │   │   └ ...
+        │   │   └ ...
+        │   └ main case
+        └ main case
+
+In practice, it means that most of  the time, you shouldn't consider the special
+cases before implementing the main use case.
+For 2 reasons:
+
+   - the final flowchart of your algorithm will be less complex
+
+   - once you have implemented the code for the main use case, you'll have
+     a tool to discover by experimentation the special cases you didn't
+     think about initially
+
+##
+##
+##
 # Which kind of interval should I use to represent a sequence of numbers?
 
 We can represent the sequence of numbers from 1 to N in 4 ways:

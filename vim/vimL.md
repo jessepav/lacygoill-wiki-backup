@@ -98,6 +98,66 @@ Unlike the previous `append()`, the cursor moves on the 'bar' line.
 It will create 5 new lines, so that  it can replace their empty contents.
 
 ##
+# Antipatterns
+## When can I simplify `empty(filter(...))`?
+
+When the condition passed to `filter()` is a simple regex or string comparison.
+
+### How to simplify it?
+
+Use `index(...) == -1` or `match(...) == -1`.
+
+If the test is inverted by a bang, then replace `== -1` with `>= 0`.
+
+---
+
+For example, to express that a list contains an item matching a pattern, write this:
+
+    match(list, pat) >= 0
+
+and not this:
+
+    !empty(filter(copy(list), {_,v -> v =~# pat}))
+
+---
+
+As another example, to express that there's no location window anywhere, write this:
+
+    index(map(getwininfo(), {_,v -> v.loclist}), 1) == -1
+
+and not this:
+
+    !empty(filter(map(getwininfo(), {_,v -> v.loclist}), {_,v -> v}))
+
+You could even write:
+
+    match(getwininfo(), "'loclist': 1") == -1
+
+This works  because each item in  the output of `getwininfo()`  is a dictionary,
+and in that case `match()` uses a dictionary as a string.
+
+Although, it feels awkward and brittle...
+What  if one  day the  output of  `getwininfo()` uses  double quote  to surround
+`loclist`, or adds/removes a space after `:`?
+You would need a more permissive pattern.
+
+#### Why should I do it?
+
+It's shorter, and thus a little more readable.
+
+There's  less risk  of an  unexpected side-effect;  indeed, `filter()`  operates
+in-place, which often requires you not to forget to use `copy()` or `deepcopy()`.
+
+#### When is such a simplification impossible?
+
+When the condition passed  to `filter()` is more complex than  a simple regex or
+string comparison:
+
+    empty(filter(copy(list), {_,v -> v.foo == 1 && v.bar != 2}))
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^
+                                     assume that `list` contains dictionaries with the keys `foo` and `bar`
+
+##
 # Miscellaneous
 ## How can the following assignment be simplified?
 

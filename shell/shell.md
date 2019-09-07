@@ -1168,9 +1168,7 @@ also allows you to set an environment variable.
 Alternatively, if the shell started by your GUI application is zsh:
 
     Alt-F1
-    xterm -e zsh -f
-                  │
-                  └ don't source any file (except `/etc/zsh/zshenv`)
+    xterm -e zsh -f -d
     % env
 
 ## How to get the file from which an environment variable got its value?
@@ -1690,9 +1688,9 @@ Use `return`.
                             -v = verbose
 
 
-    zsh -f
+    zsh -f -d
 
-            Lance zsh sans fichier de conf (NO_RCS; man zshoptions).
+            Lance zsh sans fichier de conf (`$ man zshoptions /NO_RCS`; `$ man zshoptions /GLOBAL_RCS`).
             Update: zshenv is still sourced.
 
 

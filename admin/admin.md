@@ -2235,6 +2235,12 @@ rbenv, pyenv and phpenv.
 
     https://github.com/ncw/rclone
 
+### rev
+
+rev - reverse lines characterwise
+
+See `$ man rev`.
+
 ###
 ### rlwrap
 

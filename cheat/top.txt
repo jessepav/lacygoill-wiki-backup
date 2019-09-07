@@ -1,19 +1,18 @@
 Moving around {{{1
-Left                      M-h
-Right                     M-l
-Down                      M-j   C-n
-Up                        M-k   C-p
-# You can also use the arrow keys. {{{
+Down                      C-n
+Up                        C-p
+# You can also use M-[hjkl]. {{{
 
-# The meta keys work only in a recent
-# version of htop.
-
-# They only work if TERM is 'xterm',
-# or 'xterm-256color' (github issue
-# 942).
-
-# They don't work in some menus
-# (e.g. list of opened files).
+# But it works only:
+#
+#    - in a recent version of htop
+#
+#    - if TERM is 'xterm' or a derivative
+#      (github issue 942)
+#
+#    - in some menus
+#      (e.g. it doesn't work in the list
+#      of opened files)
 }}}
 To process PID 1234       1234
 Find by name              /
