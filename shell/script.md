@@ -1,8 +1,8 @@
-# Why should I avoid including a shell variable inside the format passed to `$ printf`?
+# Why should I avoid including a shell variable inside the format passed to `printf`?
 
-The  variable will  be evaluated  by the  shell *before*  `$ printf`  parses the
-format to replace the specifiers such as `%s`.
-So, if the  value contains sth like `%s`,  `$ printf` will parse it  as a format
+The variable will be evaluated by  the shell *before* `printf` parses the format
+to replace the specifiers such as `%s`.
+So, if the  value contains sth like `%s`,  `printf` will parse it  as a format
 specifier, which may be unexpected; you probably want it to be printed verbatim.
 
     $ coverage='96%'
@@ -19,7 +19,7 @@ specifier, which may be unexpected; you probably want it to be printed verbatim.
 For more info, see:
 <https://github.com/koalaman/shellcheck/wiki/SC2059>
 
-# When does `$ printf` translate an escape sequence such as `\007`?
+# When does `printf` translate an escape sequence such as `\007`?
 
 When it's written inside the format:
 
@@ -36,7 +36,7 @@ or in an argument bound to the format specifier `%b`:
 
 ---
 
-In all other cases, `$ printf` does *not* translate an escape sequence:
+In all other cases, `printf` does *not* translate an escape sequence:
 
     $ printf '%s' 'a\007b'
     a\007b~
@@ -368,7 +368,7 @@ inside a file.
 ## What's the difference between `[[ str == pat ]]` and  `[[ str =~ pat ]]`?
 
 The `==` operator allows you to use the metacharacters documented in
-`$ man fnmatch` (fn = filename), i.e. the ones you use in a glob.
+`man fnmatch` (fn = filename), i.e. the ones you use in a glob.
 
 The `=~` operator allows you to use any metacharacter valid in an extended regex.
 
@@ -487,7 +487,7 @@ But in practice, you won't know how much time you have to wait.
 Maybe you should document this command.
 It's used when you want your script to stop as soon as an error is raised by a command.
 
-See `$ man bash /SHELL BUILTIN COMMANDS /^\s*set [`.
+See `man bash /SHELL BUILTIN COMMANDS/;/^\s*set [`.
 
 Although,  the  command is  not  reliable,  and  because  of this,  some  people
 recommend to avoid it:
@@ -506,7 +506,7 @@ Although, there're other ways to achieve the same result:
 
 ---
 
-If you use `set -e`, you'll need to systematically pass `-f` to `$ rm`, and `-p` to `$ mkdir`.
+If you use `set -e`, you'll need to systematically pass `-f` to `rm(1)`, and `-p` to `mkdir(1)`.
 Even if they seem unnecessary.
 This is because they suppress errors.
 

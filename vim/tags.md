@@ -111,9 +111,9 @@ tagstack est utilisé.
         $ make
         $ sudo checkinstall
 
-During the installation, `$ checkinstall` will complain about the version number
-being invalid: just  type immediately (no menu entry to  select) whatever number
-you want (1.2.3).
+During  the  installation, `checkinstall(8)`  will  complain  about the  version
+number being invalid:  just type immediately (no menu entry  to select) whatever
+number you want (1.2.3).
 
 
 For more info, read:

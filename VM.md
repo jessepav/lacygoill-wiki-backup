@@ -324,7 +324,7 @@ By default, a VM tries to boot from:
     $ vboxmanage modifyvm ubuntu --nic1 bridged --bridgeadapter1 enp3s0
                                       │ │         │              │
                                       │ │         │              └ you may need to modify the name
-                                      │ │         │                of the interface (see `$ ifconfig`)
+                                      │ │         │                of the interface (see `ifconfig(8)`)
                                       │ │         │
                                       │ │         └ specify which host interface the virtual network interface
                                       │ │           will use

@@ -29,7 +29,7 @@ Only the second one can:
 
 ## What's the specific order to respect when I pass options and a subcommand to update-alternatives?
 
-According to  the synopsis  in `$ man  update-alternatives`, the  options should
+According to  the synopsis  in `man  update-alternatives`, the  options should
 come before the subcommand.
 Unfortunately, both look the same: they all start with two hyphens.
 
@@ -46,7 +46,7 @@ terms will help to explain its operation.
 A symlink, like `/usr/bin/editor`,  which refers to one of a  number of files of
 similar function.
 
-In `$ man update-alternatives`, it's also called “generic name”.
+In `man update-alternatives`, it's also called “generic name”.
 
 ## alternative name
 
@@ -57,7 +57,7 @@ The name of a symlink in `/etc/alternatives/`.
 The name of a specific file in  the filesystem, which may be made accessible via
 an alternative link using the alternatives system.
 
-In `$ man update-alternatives`, it's also simply called “alternative”.
+In `man update-alternatives`, it's also simply called “alternative”.
 
 ## link group
 

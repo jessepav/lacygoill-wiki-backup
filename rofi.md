@@ -61,7 +61,7 @@ command is run.
 While `-modi`  tells rofi which modes  (menus) we want  to be able to  see after
 pressing `C-Tab` repeatedly.
 
-Run `$ rofi` without argument, and read the usage message for more info.
+Run `rofi(1)` without argument, and read the usage message for more info.
 
 ---
 

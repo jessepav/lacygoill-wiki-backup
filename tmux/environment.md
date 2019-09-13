@@ -45,7 +45,7 @@ which the tmux client was started.
 
 The ones in the environment of the tmux server process, as well as `~` and `~user`.
 
-See `$ man tmux /PARSING SYNTAX`.
+See `man tmux /PARSING SYNTAX`.
 
 ---
 
@@ -315,7 +315,7 @@ not the environment of a process which has already started.
 ### The environment of my session has been automatically updated.
 #### How to reflect this update in the environment of the *current* shell?
 
-Use `$ eval` and pass `-s` to `showenv`:
+Use `eval` and pass `-s` to `showenv`:
 
     $ eval $(tmux showenv -s VAR)
                            │
@@ -355,7 +355,7 @@ has the last word on the values of the environment variables it sets.
 When  expanding  an  environment  variable,   tmux  only  considers  the  global
 environment, not the session one.
 
-From `$ man tmux /PARSING SYNTAX`:
+From `man tmux /PARSING SYNTAX`:
 
 > -   Environment variables preceded by $ are replaced with their
 >     value from the **global environment** (see the GLOBAL AND SESSION
@@ -394,7 +394,7 @@ Yes for `if-shell`:
 
 Yes for `#()`:
 
-                                                               ┌ for some reason, `$ cat` doesn't always work without
+                                                               ┌ for some reason, `cat(1)` doesn't always work without
                                                                ├──────┐
     $ tmux set -g status-left '#(pstree -lsp $$ >/tmp/.out)' ; sleep .1; cat /tmp/.out
     systemd(1)---lightdm(943)---lightdm(1100)---upstart(1110)---tmux: server(11803)---sh(12884)---pstree(12887)~

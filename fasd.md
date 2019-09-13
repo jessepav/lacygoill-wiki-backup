@@ -9,7 +9,7 @@ command-line, provided that you accessed it in the past.
     $ git clone https://github.com/clvv/fasd
     $ sudo checkinstall
 
-Use `$ checkinstall` or `$ make` to get the manpage.
+Use `checkinstall(8)` or `make(1)` to get the manpage.
 
 ##
 # Synopsis

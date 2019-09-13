@@ -216,7 +216,7 @@ Example:
 
 ##
 # Vim used in a shell pipeline
-## In `$ echo cmd  | vim +cmd`, in which order are `echo cmd`   and `+cmd` processed?
+## In `$ echo cmd  | vim +cmd`, in which order are `echo cmd` and `+cmd` processed?
 
 `+cmd` is processed before `echo cmd |`, even though it's written afterward.
 
@@ -238,7 +238,7 @@ While this one has:
     $ echo 'set vbs=1 number?|qa!' | vim -es <(echo text)
       nonumber~
 
-## In `$ echo text | vim +cmd`, in which order are `echo text |` and `+cmd` processed?
+## In `$ echo text | vim +cmd`, in which order are `echo text` and `+cmd` processed?
 
 `echo text` first populates a Vim buffer, *then* `+cmd` is run on the latter.
 
@@ -491,7 +491,7 @@ as an Ex command; it is ignored.
 It seems that any command which doesn't  quit automatically can be forced to, by
 redirecting stderr to `/dev/null` with `2>/dev/null` or `2</dev/null`.
 
-It could be due to `$ man vim /^\s*-\s`:
+It could be due to `man vim /^\s*-\s`:
 
 > -           The  file  to  edit  is read from stdin.  **Commands are read**
 >             **from stderr**, which should be a tty.
@@ -544,13 +544,13 @@ In a shell which doesn't support process substitution, like dash.
 
 ##
 # Miscellaneous
-## What are `$ ex` and `$ exim`?
+## What are `ex` and `exim`?
 
 Shell command names equivalent to `$ vim -e` and `$ vim -E`.
 
 ---
 
-`$ ex` is a symlink to the Vim binary:
+`ex` is a symlink to the Vim binary:
 
     $ type ex
     ex is /usr/local/bin/ex~
@@ -562,8 +562,8 @@ When Vim is invoked under the name `ex`, it automatically starts in Ex mode.
 
 ---
 
-`$ exim`  is not  installed by default;  and we  don't have it  when we  use our
-script to manually compile and install Vim from source.
+`exim` is not installed by default; and we  don't have it when we use our script
+to manually compile and install Vim from source.
 
 From `:h exim`:
 
@@ -572,13 +572,13 @@ From `:h exim`:
 
 ---
 
-`$ ex` and `$ exim` have been removed from Nvim.
+`ex` and `exim` have been removed from Nvim.
 IOW, you can't invoke Nvim under those names.
 
-### I get a whole bunch of errors when I run `$ ex`!
+### I get a whole bunch of errors when I run `ex`!
 
 Initializations are not skipped, so your vimrc and plugins are sourced.
-But when Vim is called under the name `$ ex`, it starts in compatible mode.
+But when Vim is called under the name `ex`, it starts in compatible mode.
 You need to reset `'compatible'`:
 
     $ ex -N
@@ -651,7 +651,7 @@ You need a trailing newline to run the Ex command:
     $ printf '%%p\n' | vim -es file
                  ^^
 
-Or use `$ echo` which adds one automatically:
+Or use `echo` which adds one automatically:
 
     $ echo '%p' | vim -es file
 

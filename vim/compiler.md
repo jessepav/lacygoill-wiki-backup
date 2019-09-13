@@ -136,8 +136,8 @@ However,   more    generally,   `:make`   can    be   used   to    execute   any
 
 Compiling is  only one step in  a building process; others  exist like packaging
 and testing.
-`$ make` is an example of build automation tool.
-`$ gcc` is an example of compiler.
+`make(1)` is an example of build automation tool.
+`gcc(1)` is an example of compiler.
 
 ## Which command should I type to manually invoke `:make`?
 

@@ -305,7 +305,7 @@ Example:
     $ tmux display -p '#{m:*256*,#{client_termname}}'
     1~
 
-In the pattern, you can use the metacharacters documented at `$ man 3 fnmatch`.
+In the pattern, you can use the metacharacters documented at `man 3 fnmatch`.
 
 Except for the ones documented below a flag which is a GNU extension.
 To be  able to use  these, you need  to recompile tmux,  to add support  for the
@@ -478,7 +478,7 @@ Just include its name inside `#{}`:
 
 If the string is not found, `#{C:pat}` evaluates to 0.
 
-In the pattern, you can use the metacharacters documented at `$ man 3 fnmatch`.
+In the pattern, you can use the metacharacters documented at `man 3 fnmatch`.
 
 #### a regex matches in the pane content?
 
@@ -896,9 +896,9 @@ For example, to get a list of windows formatted like in the status line:
 
 You need a description of the given session/window/pane, as described in:
 
-    $ man tmux /COMMANDS /^\s*target-session
-    $ man tmux /COMMANDS /^\s*target-window
-    $ man tmux /COMMANDS /^\s*target-pane
+    man tmux /COMMANDS/;/^\s*target-session
+    man tmux /COMMANDS/;/^\s*target-window
+    man tmux /COMMANDS/;/^\s*target-pane
 
 And pass it to `-t`.
 
@@ -917,11 +917,11 @@ Even though the synopsis of `display-message` refers to `target-pane`:
 `list-sessions`, `list-windows` or `list-panes`.
 
 You'll also need to pass the `-F  format` argument, to format the output so that
-it suits your needs, and `$ awk` or `$ sed` to extract the desired info.
+it suits your needs, and `awk(1)` or `sed(1)` to extract the desired info.
 
 ### any client(s)/buffer(s)/command(s) satisfying an arbitrary condition?
 
-`list-clients`, `list-buffers` or `list-commands` + `$ awk` or `$ sed`.
+`list-clients`, `list-buffers` or `list-commands` + `awk(1)` or `sed(1)`.
 
 ###
 ## Which pane ID is output by
@@ -1078,7 +1078,7 @@ For each info, you could want to specify a context:
 I think  there are many  other kinds of  info you could  want to get  in various
 contexts (current session/window/pane, given session/window/pane, ...).
 Find the minimum amount of rules to know to handle all possibilities.
-But first, study `$ man tmux /COMMANDS`; you probably need this to know what can
+But first, study `man  tmux /COMMANDS`; you probably need this  to know what can
 be passed to `-t`.
 
 ###

@@ -27,8 +27,8 @@ This would probably be better:
 
 To determine whether the terminal supports:
 
-   - more than 256 colors, you can run our custom script `$ truecolor`
-   - 256 colors, you can run our custom script `$ palette`
+   - more than 256 colors, you can run our custom script `truecolor`
+   - 256 colors, you can run our custom script `palette`
    - a given color, you could try:
 
             #!/bin/bash
@@ -55,7 +55,7 @@ To determine whether the terminal supports:
 
 <https://unix.stackexchange.com/a/23789/289772>
 
-# Make sure you've always used `$ tput` instead of a raw sequence.
+# Make sure you've always used `tput(1)` instead of a raw sequence.
 
 Look for all the places where we wrote a raw sequence in our plugins:
 

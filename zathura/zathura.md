@@ -63,7 +63,7 @@ novel into a pdf before being able to read it.
 
     $ CFLAGS=-fPIC make HAVE_X11=no HAVE_GLUT=no prefix=/usr/local
       ├──────────┘
-      └ pass some flags to `$ gcc`, otherwise the compilation of `zathura-pdf-mupdf` will fail,
+      └ pass some flags to `gcc(1)`, otherwise the compilation of `zathura-pdf-mupdf` will fail,
         with an error  message recommending you to recompile with those flags.
 
     # Give this description: “development files for the MuPDF viewer”
@@ -180,7 +180,7 @@ Try this:
     $ sudo dpkg -i libmupdf-pic-dev*.deb
     $ sudo make install
 
-If the link passed to `$ wget` doesn't work, try to find another one from this webpage:
+If the link passed to `wget(1)` doesn't work, try to find another one from this webpage:
 <https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf/+sourcepub/8048472/+listing-archive-extra>
 
 ---

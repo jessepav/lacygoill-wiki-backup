@@ -64,6 +64,11 @@ Which one to choose?
     'plugin://foobar'
     ...
 
+## how to handle the name of a scratch buffer in the status line?
+
+Look at what we did for `fex_tree` buffers.
+Should we do the same for all scratch buffers?
+
 ##
 ## mappings
 ### There should should be a mapping on C-l to focus the previous window:
@@ -128,6 +133,16 @@ It seems that `:close`  doesn't make Vim quit when there's  only one help window
 left, and that it's not documented.
 
 Is it a good idea to rely on an undocumented feature?
+
+---
+
+Update: I think  that now we  use `:q`  everywhere; probably because  we thought
+`:close` was too annoying when it raised an error...
+Is it a good idea? Should we use `:close` back? Or this:
+
+    exe winnr('$') > 1 ? 'close' : 'q'
+
+?
 
 ### never install custom mappings to open filepaths using special keys (C-s, C-v C-v, C-t)
 

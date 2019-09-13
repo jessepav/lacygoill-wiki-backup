@@ -199,9 +199,9 @@ Put this in your vimrc:
 
 For more info:
 
-    $ man terminfo /bce
-    https://sunaku.github.io/vim-256color-bce.html
-    https://sw.kovidgoyal.net/kitty/faq.html#using-a-color-theme-with-a-background-color-does-not-work-well-in-vim
+    man terminfo /bce
+   - <https://sunaku.github.io/vim-256color-bce.html>
+   - <https://sw.kovidgoyal.net/kitty/faq.html#using-a-color-theme-with-a-background-color-does-not-work-well-in-vim>
 
 ## When I change the lightness of the color scheme, sometimes, the text in the tabline is underlined!
 

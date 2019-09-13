@@ -180,7 +180,7 @@ Import the release manager public keys via the public key file:
 
     $ curl https://www.python.org/static/files/pubkeys.txt | gpg --import -
 
-If you  can't download  `pubkeys.txt` with  `$ curl`, use  our custom  zsh shell
+If you  can't download `pubkeys.txt`  with `curl(1)`,  use our custom  zsh shell
 function `tor`; visit the url, right-click, `Save Page As...`.
 
 Or grab the individual keys directly from the keyserver network:
@@ -305,7 +305,7 @@ Configure:
     $ make test
 
 You   probably   don't   need   to   start   the   tests   if   you   used   the
-`--enable-optimizations` flag, because  the latter will cause `$  make` to start
+`--enable-optimizations` flag, because the latter will cause `make(1)` to start
 them all.
 
 If a  message is  printed about a  failed test  or a traceback  or core  dump is
@@ -379,7 +379,7 @@ been removed in the process.
     python3 is /usr/bin/python3~
     python3 is /bin/python3~
 
-### In the previous output, what's the absolute path of the interpreter which will be run when I invoke `$ python3`?
+### In the previous output, what's the absolute path of the interpreter which will be run when I invoke `python3`?
 
     /usr/local/bin/python3
 
@@ -553,7 +553,7 @@ See here for more info: <https://stackoverflow.com/a/19962913/9780968>
 And here for a list of proxies: <https://www.us-proxy.org/>
 Make sure to choose a proxy supporting http**s**.
 
-This solution works (even for `$ gem`),  but you may need to try several proxies
+This solution works (even for `gem(1)`), but you may need to try several proxies
 before finding one which succeeds in installing a package.
 
 ---

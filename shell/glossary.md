@@ -47,7 +47,7 @@ The duplicate shell is called a “fork” of the original shell.
 Then, the  fork replaces  its code  with the one  of the  command by  invoking a
 family of system calls informally called “exec()”.
 
-You can do manually replace the code of the current shell using the `$ exec` command:
+You can do manually replace the code of the current shell using the `exec` command:
 
         % echo $SHELL
         zsh~
@@ -63,7 +63,8 @@ press `C-d`, the  terminal window closes (instead of getting  back to the prompt
 of the parent shell).
 
 For more info:
-        $ man 3 exec
+
+    man 3 exec
 
 ##
 # j

@@ -147,7 +147,7 @@ For example, `aggressive-resize` is a window  option, but there's no pane counte
 
 It inherits its value from its window counterpart.
 
-From `$ man tmux /OPTIONS`:
+From `man tmux /OPTIONS`:
 
 > Pane options inherit from window options.
 > This means any pane option may be set  as a window option to apply the option to
@@ -738,7 +738,7 @@ If so, you may need to double it:
 
 Indeed,  the   values  of  'status-right'   and  'status-left'  are   passed  to
 `strftime(3)`, for which the `%` character has a special meaning.
-You  need to  double the  character  so that  it's  sent literally  to `$  awk`;
+You  need to  double the  character  so that  it's sent  literally to  `awk(1)`;
 otherwise, in the previous  example, `%d` would be replaced with  the day of the
 month (01, 02, ..., 31).
 

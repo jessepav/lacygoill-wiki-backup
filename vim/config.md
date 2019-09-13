@@ -543,7 +543,7 @@ que Vim cherche à suivre la convention du shell sur la ligne de commande.
 
 À savoir que le dot signifie “là où je suis en ce moment“.
 
-Dans le shell, cette phrase signifie effectivement le dossier de travail (`$ pwd`).
+Dans le shell, cette phrase signifie effectivement le dossier de travail (`pwd`).
 
 Mais dans un buffer, on peut l'interpréter différemment:
 

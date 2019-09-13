@@ -181,7 +181,7 @@ Edit its configuration file:
 
     /etc/default/grub
 
-Then, execute `$ update-grub`.
+Then, execute `update-grub(8)`.
 
 ## Where can I find the documentation to configure grub?
 
@@ -204,11 +204,11 @@ Make sure these options are enabled in grub's config file:
 
 ## How to remove the splash screen so that I can see the kernel messages when the system boots?
 
-        $ sudoedit /etc/default/grub
+    $ sudoedit /etc/default/grub
 
-        :s/GRUB_CMDLINE_LINUX_DEFAULT="\zsquiet splash\ze"//c
+    :s/GRUB_CMDLINE_LINUX_DEFAULT="\zsquiet splash\ze"//c
 
-        $ sudo update-grub
+    $ sudo update-grub
 
 Don't use `update-grub2`, it's just a symlink to `update-grub`.
 
@@ -216,7 +216,7 @@ Actually,  the fact  that  it's  a symlink  doesn't  necessarily  mean that  the
 commands are equivalent, because the executable program could look at how it was
 invoked, but that's not the case here.
 
-        https://askubuntu.com/a/167768/867754
+<https://askubuntu.com/a/167768/867754>
 
 ##
 ##
@@ -2239,7 +2239,7 @@ rbenv, pyenv and phpenv.
 
 rev - reverse lines characterwise
 
-See `$ man rev`.
+See `man rev`.
 
 ###
 ### rlwrap
@@ -2626,7 +2626,7 @@ Actually, it seems the  panel is there, but as soon as we  press `M-j` to open a
 terminal, it disappears.
 Update: and now it's there again...
 
-For the desktop, you may need to run `$ xfdesktop`.
+For the desktop, you may need to run `xfdesktop(1)`.
 For the panely, you may try `$ xfce4-panel -r`.
 
 ## Document when `$ aptitude dist-upgrade` is useful.
@@ -2711,7 +2711,7 @@ See here for an explanation:
     https://github.com/sharkdp/fd
     https://mike.place/2017/fzf-fd/
 
-            Alternative to `$ find`.
+            Alternative to `find(1)`.
 
 
 <https://www.reddit.com/r/linux/comments/21rm3o/what_is_a_useful_linux_tool_that_you_use_that/>

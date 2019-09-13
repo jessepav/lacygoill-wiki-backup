@@ -215,7 +215,7 @@ This is the biggest cube we can use which fits in 1 byte (256 codes).
 
 It seems so.
 
-Run `$ palette` in  a terminal, start Gpick, and hover your  cursor over a given
+Run `palette`  in a terminal,  start Gpick, and hover  your cursor over  a given
 color; you'll always find the same hex color code.
 It seems to indicate that most (all?)  terminals use the same last 216+24 colors
 in their palette, probably inspired by xterm.
@@ -237,8 +237,8 @@ part of the terminal's palette.
 For example, `#123456` shouldn't be a shade of gray, while `#121212` could be.
 
 ##
-## `$ palette`
-### What do the colors in the same column in the output of `$ palette` have in common?
+## `palette`
+### What do the colors in the same column in the output of `palette` have in common?
 
 They end with the same digits.
 
@@ -249,7 +249,7 @@ For example, if you're looking for `#123456`,  you pick a color in a column, and
 its hex color code  is `#789abc`, there's no need to  compare `#123456` with any
 other color in the column, because `56` doesn't match `bc`.
 
-### What do the colors in the same 6x6 square in the output of `$ palette` have in common?
+### What do the colors in the same 6x6 square in the output of `palette` have in common?
 
 They start with the same digits.
 
@@ -280,7 +280,7 @@ In some terminals, you can use this sequence:
 
 `spec` can be a name or RGB specification as per XParseColor.
 The latter includes the syntax `#RRGGBB` – which is old and not encouraged – and
-`rgb:12/34/56` (see `$ man XParseColor`).
+`rgb:12/34/56` (see `man XParseColor`).
 
 To test the sequence, first run:
 
@@ -333,13 +333,13 @@ See `OSC Ps ; Pt BEL`:
 
 ---
 
-To capture the terminal's reply in a variable, run `$ read`:
+To capture the terminal's reply in a variable, run `read`:
 
     $ printf '\e]4;123;?\a' ; read -d $'\a' -s -t 0.1
 
 The reply should be in `$REPLY`.
 If you  want to  inspect its contents,  don't simply echo  it (you  wouldn't see
-anything because it starts with an Escape); use `$ od` instead:
+anything because it starts with an Escape); use `od(1)` instead:
 
     $ printf -- '%s' ${REPLY#$(printf "\e]4;")[0-9]*;rgb:} | od -t c
 

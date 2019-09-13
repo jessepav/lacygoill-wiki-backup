@@ -1155,7 +1155,7 @@ Check the absolute path of your file from Vim:
     :echo expand('%:p')
 
 If your file, or some parent directory, is a symlink, the output of the previous
-command may differ from the path to the file you passed to `$ vim` or `:e`.
+command may differ from the path to the file you passed to `vim(1)` or `:e`.
 And it may differ from the path you've written in your autocmd.
 
 Make them match; either eliminate the symlink, or add the output of

@@ -4,7 +4,7 @@ Document this:
 
     $ tmux pipe-pane -t =study:2.1 -I "echo 'ls'"
 
-This command  executes `$  ls` in  the first pane  of the  second window  of the
+This command  executes `ls(1)`  in the first  pane of the  second window  of the
 `study` session; the syntax is the following:
 
     $ tmux pipe-pane -t {session}:{window}.{pane} -I "shell-cmd"
@@ -32,10 +32,10 @@ Press `pfx :` and run `pipe-pane 'ansifilter >/tmp/log'`.
 
     pipe-pane "exec cat - | ansifilter >>/tmp/log"
 
-*Imo `$ cat` is useless, but what about `$ exec`?*
+*Imo `cat(1)` is useless, but what about `exec`?*
 *Is it useful to prevent the shell from forking?*
 *Better performance?*
-*If so, maybe we should take the habit of always using `$ exec` when tmux pipes text to a shell command...*
+*If so, maybe we should take the habit of always using `exec` when tmux pipes text to a shell command...*
 *Also, what about `>>`?*
 *Is it really necessary? It doesn't seem so...*
 *Maybe it's useful to prevent overwriting an existing file. *
@@ -183,7 +183,7 @@ Now, everything you type in one of these 2 windows, is also typed in the other.
 
 It seems that windows can also be linked to sessions.
 To understand what it means you'll need to first understand the concept of “session group”.
-It's described at `$ man tmux /^\s*new-session [`:
+It's described at `man tmux /^\s*new-session [`:
 
 > If -t is given, it specifies a session group.  Sessions in the
 > same group share the same set of windows - new windows are linked
@@ -209,7 +209,7 @@ To test the current value of a format variable such as `pane_tty`, run:
 
 # attach-session
 
-From `$ man tmux /^\s*attach-session`
+From `man tmux /^\s*attach-session`
 
 > If run from outside tmux, create a new client in the current terminal and attach
 > it to target-session. If used from inside, switch the current client.
@@ -223,7 +223,7 @@ should be nested with care, unset $TMUX to force”.
 
 What gives?
 
-# by default tmux runs a shell process every 15s for the statusline; use `$ sleep` to change that time
+# by default tmux runs a shell process every 15s for the statusline; use `sleep(1)` to change that time
 
     #(while :; do command; sleep 30; done)
 
@@ -566,12 +566,12 @@ Vs:
 
 <https://www.youtube.com/watch?v=_OOSbjHmLPY>
 
-# try to use extended patterns as described at `$ man 3 fnmatch /FNM_EXTMATCH`
+# try to use extended patterns as described at `man 3 fnmatch /FNM_EXTMATCH`
 
 You can pass the `FNM_EXTMATCH` flag to the C function `fnmatch()`:
 
-> crose   `fnmatch(3)` is mentioned several times in `$ man tmux`.
->         And according to `$ man 3 fnmatch`, if the flag `FNM_EXTMATCH` is set, you can use extended patterns.
+> crose   `fnmatch(3)` is mentioned several times in `man tmux`.
+>         And according to `man 3 fnmatch`, if the flag `FNM_EXTMATCH` is set, you can use extended patterns.
 >         I'm interested in this, because it lets you use `|` which could be useful to simplify some formats
 >         when you have more than 2 alternatives.
 > crose   Unfortunately, it doesn't seem to be set in tmux, because
@@ -1097,7 +1097,7 @@ session (I think).
 ##
 # typos in manpage
 
-From `$ man tmux /OPTIONS`:
+From `man tmux /OPTIONS`:
 
     OPTIONS
          The appearance and behaviour of tmux may be modified by changing the

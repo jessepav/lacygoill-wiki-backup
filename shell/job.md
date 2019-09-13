@@ -135,7 +135,7 @@ The shell artificially generates a job ID  for each job you start; the first job
 you start from a given shell is 1, the second job is 2, and so on.
 
 In a `fg`, `bg`,  `kill` or `disown` command, you can refer to  the job whose ID
-is 123 with the token `%123`; this token is called a jobspec in `$ man bash`.
+is 123 with the token `%123`; this token is called a jobspec in `man bash`.
 
 The term is a shorthand for “job specification”.
 
@@ -182,7 +182,7 @@ The pid of the last command in the pipeline.
 
 ##
 ## How to refer to
-### the current job in a `$ kill`, `$ jobs`, `$ fg` or `$ bg` command?
+### the current job in a `kill`, `jobs`, `fg` or `bg` command?
 
     %
 
@@ -341,10 +341,10 @@ running).
 
 ##
 ## fg / bg
-### What's the main difference between `$ kill` and `$ fg`/`$ bg`?
+### What's the main difference between `kill` and `fg`/`bg`?
 
-`$ fg` and `$ bg` accept only job IDs as parameters.
-In addition to those, `$ kill` also accept PIDs.
+`fg` and `bg` accept only job IDs as parameters.
+In addition to those, `kill` also accept PIDs.
 
 ### How to stop the job whose id is 123?  How to resume it?
 
@@ -418,13 +418,13 @@ To circumvent the shell's hangup handling:
      to remove the job from the job table, and tell the shell to not send SIGHUP
      once the session ends
 
-### What does `$ disown` do?
+### What does `disown` do?
 
 It removes  jobs from the  job table,  so that when  the session ends  the child
 process  groups are  not  sent SIGHUP,  nor  does  the shell  wait  for them  to
 terminate.
 
-### What happens to the current job after executing `$ disown`, and exiting the current shell?
+### What happens to the current job after executing `disown`, and exiting the current shell?
 
 Its processes become orphans, and are adopted by the init process.
 

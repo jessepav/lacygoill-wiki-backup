@@ -147,7 +147,7 @@ Use the `-f123` (`--format 123`) argument.
     $ youtube-dl -f12+34
                   ^^^^^^
 
-For more info, see `$ man youtube-dl /FORMAT SELECTION`.
+For more info, see `man youtube-dl /FORMAT SELECTION`.
 
 ##
 ## Audio
@@ -246,4 +246,10 @@ TODO: Watch and document these videos:
 
 torsocks - Access The Tor Network - Linux CLI: <https://www.youtube.com/watch?v=0uXFffq-UPU>
 W3M Magnet Links Handler - Linux CLI: <https://www.youtube.com/watch?v=euk_LMdXNOU>
+
+##
+# Todo
+
+Review the quality of the sites given here:
+<https://github.com/Igglybuff/awesome-piracy#courses-and-tutorials>
 

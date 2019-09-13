@@ -5,13 +5,13 @@
 
 ## short but complete reference?
 
-    $ man 7 groff
+    man 7 groff
 
 There's another manpage for groff in section 1; don't conflate the two.
 
 ## list of the escape sequences for all special glyphs?
 
-    $ man 7 groff_char
+    man 7 groff_char
 
 ##
 # How to make Vim apply the `nroff` filetype to my `pgm.1` file?
@@ -162,7 +162,7 @@ specially):
 ###
 ### an em-dash?
 
-Use the macro `\(em`, which is documented at `$ man 7 man-pages`.
+Use the macro `\(em`, which is documented at `man 7 man-pages`.
 
 #### How is it rendered on an ASCII terminal?
 
@@ -225,7 +225,7 @@ manual-page conventions:
 ###
 ## How is the body of the NAME section of a manpage used by some utilities?
 
-It provides fodder for `$ apropos` – or  equivalently `$ man -k`.
+It provides fodder for `apropos(1)` – or  equivalently `$ man -k`.
 
 ### What should it contain?
 
@@ -285,6 +285,28 @@ Or `\f[B]` and `\f[P]`.
 ##
 ##
 ##
+# Integrate the contents of `~/wiki/shell/doc.md` in this file.
+
+# Document how to look for a keyword respecting the case.
+
+    $ man -I -Kw PAGER
+          ^^
+
+# Document how to open a man page in a webbrowser.
+
+    $ man --html man
+          ^^^^^^
+
+`man(1)` uses `$BROWSER` to determine which webbrowser to start.
+Atm, we've set the latter with the value `firefox`.
+
+Issue: the previous command fails.
+However, it works as soon as you run it a second time.
+It seems that  it can only work if there  is one tab in firefox with  a man page
+which has been failed to be read.
+Indeed, if  you close  the tab where  the man  page could not  be read,  and you
+re-run your `$ man --html` command again, then it fail again...
+
 # ?
 
 Let's understand this request:
@@ -439,27 +461,27 @@ Name it following this scheme: `<program>.<section>`:
 After the first invocation of `$ man <program>`, the file
 `~/share/man/cat1/<program>.<section>.gz` will be created.
 
-Maybe you should invoke  `$ sudo mandb` before the first  invocation of `$ man`,
+Maybe you should invoke  `$ sudo mandb` before the first  invocation of `man(1)`,
 but I'm not sure it's necessary.
 
 ---
 
-Why does `$ man` look into `~/share/man` even though it's not in `$MANPATH`?
+Why does `man(1)` look into `~/share/man` even though it's not in `$MANPATH`?
 
     https://askubuntu.com/a/244810/867754
     https://askubuntu.com/a/633924/867754
     man 1 manpath
     man 5 manpath
 
-Update: you can see `~/share/man` in the output of the `$ manpath` command.
+Update: you can see `~/share/man` in the output of the `manpath(1)` command.
 `~/share/man` is not used because of some config in `/etc/manpath.config`,
 because even after removing all the contents of this file and running `$ sudo mandb`,
-`$ manpath` still includes `~/share/man`.
+`manpath(1)` still includes `~/share/man`.
 
 Anyway, version control `~/share/man`.
 
-Also, if you want to draw table in a manpage, you probably need to read `$ man tbl`.
-For pictures and equations, see also `$ man pic` and `$ man eqn`.
+Also, if you want to draw table in a manpage, you probably need to read `man tbl`.
+For pictures and equations, see also `man pic` and `man eqn`.
 `tbl`, `pic` and `eqn` are preprocessors.
 
 ##

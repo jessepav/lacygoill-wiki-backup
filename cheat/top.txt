@@ -66,7 +66,7 @@ Decrease CPU priority     [
 #     $ sudo renice -n 0 $(pidof ...)
 Set IO priority           i
 # io_priority = (cpu_nice + 20) / 5
-# See also `$ man ionice`
+# See also `man ionice`
 Configure {{{1
 Setup screen              S
 

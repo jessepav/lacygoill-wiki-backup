@@ -335,15 +335,15 @@ What's the difference between the two snippets?
 Is there a difference between the tty and the VC?
 Why is there no `fi` in the zsh snippet? Where is this syntax documented?
 
-In the previous snippets, what are the pros and cons of using the `$ exec` command?
+In the previous snippets, what are the pros and cons of using the `exec` command?
 
 If you use it,  the login shell will immediately be replaced  with an X session,
 and when you'll quit the latter, you won't get back to the shell.
 Con: IOW, you'll have to log in again.
-Pro: This should simplify the output of `$ pstree` (and maybe reduce the risk of
-issues, because one less process?).
-Update: I made some tests in a VM. I can't much of a difference betwen `$ exec` and no `$ exec`.
-If you use `$ exec`, here's the tree of process as reported by `$ pstree -lsp $$`:
+Pro: This should simplify  the output of `pstree(1)` (and maybe  reduce the risk
+of issues, because one less process?).
+Update: I made some tests in a VM. I can't much of a difference betwen `exec` and no `exec`.
+If you use `exec`, here's the tree of process as reported by `$ pstree -lsp $$`:
 
     systemd
     login
@@ -356,7 +356,7 @@ If you use `$ exec`, here's the tree of process as reported by `$ pstree -lsp $$
 
 If you look at  `$ pstree -lsp $(pidof xinit)`, you'll see  that, in addition to
 openbox, xinit also starts the Xorg server.
-Also, if you don't use `$ exec`,  then there's an additional `$ sh` process just
+Also, if you  don't use `exec`, then there's an  additional `sh(1)` process just
 after xinit:
 
     systemd
@@ -369,8 +369,8 @@ after xinit:
     xfce4-terminal
     bash
 
-I think that `$ exec` replaces `$ sh` with the window manager.
-Without `$ exec`, `$ sh` stays there.
+I think that `exec` replaces `sh(1)` with the window manager.
+Without `exec`, `sh(1)` stays there.
 
 
 Then, we should use `/etc/systemd/system/x11.service` to implement the autologin:
@@ -435,7 +435,7 @@ What should we do?
 
 Next, we need  to find a replacement for  every basic component of a  DE, like a
 screen locker, an app to access system settings, a panel bar, ...
-Have a look at  the output of `$ top`, and see what  seems interesting in what's
+Have a look at the output of  `top(1)`, and see what seems interesting in what's
 running.
 
 # ?
@@ -529,7 +529,7 @@ Btw, when you do some tests, install xterm in addition to twm:
 
     $ aptitude install twm xterm
 
-Now, after running `$ startx`, you can make Xorg display sth (xterm).
+Now, after running `startx(1)`, you can make Xorg display sth (xterm).
 This is all mentioned here: <https://wiki.gentoo.org/wiki/Xorg/Guide#Using_startx>
 
 When you start twm, left-click on the desktop, and maintain the click.

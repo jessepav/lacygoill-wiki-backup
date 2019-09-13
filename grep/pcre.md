@@ -35,18 +35,18 @@ You may be interested in installing the package pcre2-utils.
 ##
 # What are the differences between PCRE2 and Perl regexes?
 
-    $ man pcre2compat
+    man pcre2compat
 
 ##
 # Documentation
 
 For a quick reference, read:
 
-    $ man pcre2syntax
+    man pcre2syntax
 
 For a complete reference, read:
 
-    $ man pcre2pattern
+    man pcre2pattern
 
 Don't read these manpages as tutorials.
 They're references.

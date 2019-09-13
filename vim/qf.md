@@ -541,7 +541,7 @@ Whenever you  want to look  for a pattern  in a set of  files which can  only be
 defined by a shell command, use a backtick expansion.
 
 
-About `$ find`:
+About `find(1)`:
 
 There are six options similar to `-cmin`.
 
@@ -688,7 +688,7 @@ The qf stack allows you to bind to each pattern a separate qfl.
 
         call setqflist([], ' ', {'nr' : '$', 'lines' : systemlist('grep -RHIins pat *')})
 
-## What `$ grep` command should I execute to get an output that 'efm' can parse?
+## What `grep(1)` command should I execute to get an output that 'efm' can parse?
 
                    ┌ ignore case
                    │┌ print the number of the lines
@@ -702,7 +702,7 @@ The qf stack allows you to bind to each pattern a separate qfl.
                 └ recursively (enter subdirectories)
 
 
-The `-n` option  is necessary for Vim to  parse the output of `$  grep`, via the
+The `-n` option is  necessary for Vim to parse the output  of `grep(1)`, via the
 format `'%f:%l:%m'` in the default value of `'efm'`.
 
 Otherwise, Vim will populate the qfl only with invalid entries.
@@ -714,12 +714,12 @@ If you want as many entries matches, you need to also include the `-o` option.
 However, doing so makes you lose context; you don't get the entire line, but just the match.
 
 Solution: Use ripgrep instead.
-When  you pass  the  option `--vimgrep`  to  `$ rg`,  you get  each  match on  a
+When  you pass  the option  `--vimgrep`  to `rg(1)`,  you  get each  match on  a
 dedicated line, *with* its context.
 
     $ rg --vimgrep -i -L pat file ...
 
-TODO: Should we replace all our `$ grep` commands with `$ rg` equivalent?
+TODO: Should we replace all our `grep(1)` commands with `rg(1)` equivalent?
 
 ---
 
@@ -739,7 +739,7 @@ Don't use this:
 
 It works, but it may leave the terminal in an unexpected state:
 on my machine, after using this command,  I can't close the terminal with `C-d`;
-I need to execute `$ exit`.
+I need to execute `exit`.
 
 ## How to look for all the lines matching `pat` in $PWD, and send them to a running Vim server?
 
@@ -1154,12 +1154,12 @@ Because:
 # Miscellaneous
 ## When executing `$ ag ...`, how to get ALL matches on any given line?   What about `$ grep ...`?
 
-Pass the `--vimgrep` option to `$ ag`.
+Pass the `--vimgrep` option to `ag(1)`.
 
-Pass the `-o` option to `$ grep`.
+Pass the `-o` option to `grep(1)`.
 
 
-`-o` (--only-matching) makes `$ grep` print only the matched parts of a matching
+`-o` (--only-matching) makes `grep(1)` print only the matched parts of a matching
 line, with each such part on a separate output line.
 
 However, we lose  the context: we don't  see the rest of the  line anymore, only
@@ -1171,7 +1171,7 @@ Because of the default value given to `'shellpipe'` on linux:
 
         &shellpipe = '2>&1| tee'
                             │
-                            └ `$ tee` redirects its input to a file AND to the terminal
+                            └ `tee(1)` redirects its input to a file AND to the terminal
 
 This also affects `:grep`.
 
@@ -1469,6 +1469,28 @@ much.
 
     :Vim :[cl]\%(add\|get\)\=\%(expr\|file\|buffer\)\|l\=make\|l\=vim\%[grep]\%(add\)\=\>.*/[^/]*/[gj]\{1,2}:gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
     :Cfilter! -tmp -commented -other_plugins
+
+## The qfl is altered if you delete a line, even if you undo right after.  Bug?  Improvement to ask on github?
+
+    $ vim -Nu NONE +'vim /a\|c/gj %' <(echo "a\nb\nc\nd")
+    " press `j` to focus the line containing `b`
+    " press `gwj` to format the line `b` with the line `c`
+    " press `u` to undo
+    :cnext
+    (2 of 2) (line deleted): c~
+
+After `:cnext`, the cursor is positioned on line `d`; I would expect line `c`.
+Besides, the qfl has been altered:
+
+    :echo getqflist()[1]
+    {'lnum': 4, 'bufnr': 1, 'col': 1, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': 0, 'type': '', 'module': '', 'text': 'c'}~
+
+The value of the key `lnum` has changed from `3` to `4`.
+
+In practice, because of this issue, when you edit some text in a buffer in which
+there are some qf entries, sometimes, when jumping to a qfl entry, you end up in
+an unexpected  location, which  doesn't match the  pattern which  was originally
+used to populate the qfl.
 
 ## Document that you can set the current entry in the qfl via `setqflist()` and the 'idx' property.
 

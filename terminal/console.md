@@ -209,11 +209,11 @@ For more information about the `StandardInput` option:
 
 #### But why a redirection is necessary in the first place?
 
-Theory: by default `$  setleds` affect the current tty which  is attached to its
+Theory: by default `setleds(1)` affect the  current tty which is attached to its
 stdin.
 However, here, the command is executed outside the context of a tty.
-So, we need to reconnect the stdin of  `$ setleds` to the tty for which `agetty`
-is going to be invoked by the systemd service.
+So,  we need  to  reconnect the  stdin  of  `setleds(1)` to  the  tty for  which
+`agetty(8)` is going to be invoked by the systemd service.
 
 #### What's `%I`?
 
@@ -234,7 +234,7 @@ It sets the NumLock flag.
 ###
 ### increase the keyboard repeat rate, and decrease the delay time?
 
-Use `$ kbdrate`:
+Use `kbdrate(8)`:
 
     $ sudo kbdrate -r 50 -d 150 </dev/tty1
                                 │
@@ -261,7 +261,7 @@ Press `C-M-F3` if you're in the graphical environment, or `M-F3` if you're in a 
 
 #### in a script?
 
-Use the `$ chvt` command:
+Use the `chvt(1)` command:
 
     $ chvt 3
 
@@ -295,7 +295,7 @@ with the kernel rather than with Xorg.
 For more info:
 <https://unix.stackexchange.com/a/301402/232487>
 
-    $ man mpv /drm
+    man mpv /drm
 
 ### an image?
 

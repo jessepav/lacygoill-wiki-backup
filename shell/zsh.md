@@ -58,7 +58,7 @@ Then, it looks in all the paths present in `$module_path`.
 # Widget
 ## Where can I find examples of widget functions?
 
-See `$ man zshcontrib /Widgets`.
+See `man zshcontrib /Widgets`.
 
 On your system, they are probably written in the files of one of these directories:
 

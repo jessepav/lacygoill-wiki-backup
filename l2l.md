@@ -67,7 +67,7 @@ latter in other questions/answers or in a glossary.
 ##
 # Where to find documentation for a program?
 
-   - $ man pgm
+   - `man pgm`
 
    - amazon book
 

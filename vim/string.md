@@ -752,7 +752,7 @@ Here,  you  don't  need  `localtime()`,   because  without  a  second  argument,
 
 #### Where can I find all the possible formats?
 
-    $ man strftime
+    man strftime
 
 #
 ## How to get a human-readable date of the epoch?

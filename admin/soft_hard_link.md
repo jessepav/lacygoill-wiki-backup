@@ -1,6 +1,6 @@
 # What “dereference” means?
 
-For a utility such as `$ cp` or `$ ls`, it means:
+For a utility such as `cp(1)` or `ls(1)`, it means:
 NOT operate on a symlink, but rather on its target.
 
 # By default, does a utility dereference?
@@ -127,9 +127,9 @@ No.
 #
 # My directory contains a symlink. I've executed `ls -H`, but the listing still refers to the link, not its target!
 
-The options `-P`, `-H`, `-L` only affect the arguments passed to `$ ls`.
+The options `-P`, `-H`, `-L` only affect the arguments passed to `ls(1)`.
 
-If you want `$ ls` to dereference, you need to pass the symlink as an argument:
+If you want `ls(1)` to dereference, you need to pass the symlink as an argument:
 
     $ ls -H my_symlink
 

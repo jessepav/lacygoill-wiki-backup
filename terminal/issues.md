@@ -28,7 +28,7 @@ version is greater than 7).
 If you're using  tmux, you must also make sure  that whenever the `paste-buffer`
 command is invoked, it's passed the `-p` option.
 
-From `$ man tmux /paste-buffer`:
+From `man tmux /paste-buffer`:
 
 > If -p is specified, paste bracket control codes are inserted around the buffer
 > if the application has requested bracketed paste mode.

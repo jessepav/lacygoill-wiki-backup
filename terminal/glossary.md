@@ -17,7 +17,7 @@ See:
    - <https://github.com/tmux/tmux/issues/1795#issuecomment-502384443>
    - <https://stackoverflow.com/questions/11023929/using-the-alternate-screen-in-a-bash-script>
 
-See also `$ man tmux /alternate-screen`:
+See also `man tmux /alternate-screen`:
 
 > This  option configures  whether  programs  running inside  the  pane may  use
 > the  terminal alternate  screen  feature,  which allows  the  smcup and  rmcup
@@ -378,7 +378,7 @@ This device node is also required to exist by POSIX.
 
 If a program  with no controlling terminal tries to  open `/dev/tty`, the result
 (on Linux, at least) will be ENXIO.
-From `$ man 2 open`:
+From `man 2 open`:
 
 >    ENXIO [...] the file is a device special file and no corresponding device exists.
 

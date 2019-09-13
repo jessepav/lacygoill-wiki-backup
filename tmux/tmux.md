@@ -15,7 +15,7 @@ As a command termination (like the shell).
 
 ---
 
-From `$ man tmux /COMMANDS`:
+From `man tmux /COMMANDS`:
 
 > Multiple commands may be specified together as part of a command sequence.
 > Each  command should  be  separated  by spaces  and  a  semicolon; commands  are
@@ -346,7 +346,7 @@ Then,  tmux doesn't  remove  the backslash,  probably because  it  was passed  a
 literal string by zsh.
 
 Finally, sh removes the backslash – which itself has removed the special meaning
-of `;` – and includes `;` in the argument of `$ echo`.
+of `;` – and includes `;` in the argument of `echo`.
 
 #### `$ tmux run "echo foo \\\; echo bar"`?
 
@@ -387,7 +387,7 @@ Use the format variable `#{client_termname}`:
 However, be  aware that this  information is  not always reliable,  because many
 terminals lie about their identity (they pretend to be xterm-256color).
 
-## How can I make the difference between a tmux server and a tmux client in the output of `$ ps`?
+## How can I make the difference between a tmux server and a tmux client in the output of `ps(1)`?
 
 Look at the process state codes.
 If you can read `Ss`, it's a server; `S+`, it's a client.
@@ -400,7 +400,7 @@ If you can read `Ss`, it's a server; `S+`, it's a client.
     │ + │ is in the foreground process group                     │
     └───┴────────────────────────────────────────────────────────┘
 
-See `$ man ps /PROCESS STATE CODES`.
+See `man ps /PROCESS STATE CODES`.
 
 ---
 
@@ -427,7 +427,7 @@ You need to look at the tmux client, not the tmux server:
 
 For more info, see:
 
-    $ man tmux /choose-buffer
+    man tmux /choose-buffer
 
 ### Several buffers in one keypress?
 
@@ -501,7 +501,7 @@ Use the compiled binary to reproduce the crash, *and* to extract a backtrace fro
 
 ---
 
-See `$ man gcc` for more info:
+See `man gcc` for more info:
 
 > The output is sensitive to the effects of previous command-line
 > options, so for example it is possible to find out which
@@ -632,7 +632,7 @@ Make sure the terminal has 80 columns, and 24 lines.
 
 The goal is to reproduce with a “standard” geometry.
 
-See `$ man tmux /^\s*default-size`:
+See `man tmux /^\s*default-size`:
 
 > The default is 80x24.
 
@@ -859,7 +859,7 @@ which may seem counter-intuitive.
 Also, the relationship between the 2 processes is NOT parent-child.
 It's client-server.
 IOW, they are 2 independent processes.
-You won't find both of them listed in the output of the same `$ pstree` command.
+You won't find both of them listed in the output of the same `pstree(1)` command.
 They communicate via a socket, which by default is called `default`.
 The latter is created in the directory `tmux-{UID}` inside:
 

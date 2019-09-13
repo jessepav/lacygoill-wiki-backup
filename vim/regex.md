@@ -90,7 +90,7 @@ For example, the  next pattern matches any  character which is not  `a`, `b`, or
 
 ##
 # Lookaround
-## When I use `\@<=` or `\@<!`, how far does the engine backtrack?
+## When I use `\@<=` or `\@<!`, how far back does the engine search?
 
 Up to the beginning of the previous line.
 
@@ -122,8 +122,8 @@ of the previous line.
 
 ## How can I improve the performance of a lookbehind?
 
-If you know the maximum BYTE size of the pattern to which you apply the lookbehind,
-use this info to limit how far the engine will backtrack.
+If  you know  the maximum  *byte* size  of the  pattern to  which you  apply the
+lookbehind, use this info to limit how far back the engine will search.
 
 ##
 ## The character `𞹼` weighs 4 bytes.
@@ -137,26 +137,26 @@ use this info to limit how far the engine will backtrack.
 ### If I search for `\%(𞹼𞹼\)\@5<=a` in the text `𞹼𞹼a`, what will Vim find?
 
 You may think  that Vim won't find  anything because `𞹼𞹼` weighs  8 bytes, while
-you limited the backtracking to 5 bytes.
+you limited the search to the 5 previous bytes.
 But in practice, Vim *does* find the `a` character.
 
-Theory: The regex engine backtracks by *characters* not by bytes.
+Theory: The regex engine searches for *characters* not bytes.
 So, when you say:
 
->     don't backtrack by more than 5 bytes
+>     don't search back for more than 5 bytes
 
-Vim backtracks by the least amount of characters which weighs 5 bytes or more.
-Here, it means 2 characters.
+Vim searches  back for  the least amount  of characters which  weigh 5  bytes or
+more; here, it means 2 characters.
 
 ### If I search for `\%(𞹼𞹼\)\@4<=a` in the text `𞹼𞹼a`, what will Vim find?
 
 Nothing.
 
 The least amount of characters which weigh 4 bytes or more is 1.
-So, Vim backtracks by only 1 character, which is insufficient to match `𞹼𞹼`.
+So, Vim searches back for only 1 character, which is insufficient to match `𞹼𞹼`.
 
 ##
-# What's the regex to match
+# What's the shortest regex to match
 ## a consonant?
 
     [^aeiou]\&\a
@@ -219,7 +219,7 @@ The regex will find `DEF` and `JKL`.
 
 This shows how the atom `\@>` can be useful.
 Here, without it, we would find `AB`, `DEF`, `GH` and `JKL`.
-`\@>` allows us to prevent the backtracking in `\u\{2,}`.
+`\@>` allows us to prevent the backtracking into `\u\{2,}`.
 
 ## all commas outside a double-quoted string?
 
@@ -257,6 +257,13 @@ You can test this new regex against this line:
 
     0.12 , 0.15 , (inside parentheses) , (inside parentheses, with, many, commas,)
 
+### all commas *inside* a double-quoted string?
+
+    \%(^\%("[^"]*"\|[^"]\)*"[^"]*\)\@<=,
+                           ^^^^^^
+                           only difference compared to the previous regex:
+                           an unterminated string
+
 ##
 ## the text from the start of the line till the end of `pat` if it matches, or till the end of the line otherwise?
 
@@ -288,20 +295,19 @@ one producing the *longest* match.
 ## the text between an `A` and the next `C`, with a `B` somewhere in the middle?
 
     A[^C]*B[^C]*C
-    ^^^^^^^^^^
 
 Test the regex against:
 
-    AxxBxxC
-    AxxxxxC
+    AxBxC
+    AxxxC
 
 It should match the first line but not the second one.
 
----
+### Why can't I use `.\{-}`?
 
-You could try to use `.\{-}`; it would give:
+You could try. It would give:
 
-    \%(.*C\)\@=\%(A.\{-}B.\{-}C\)\@>\%\(C.*\)\@<=
+    A.\{-}B.\{-}C
 
 Most of the time, it would match the same texts as the previous one.
 But not always:
@@ -318,8 +324,8 @@ There is no `B` between `A` and the next `C`; just a single space:
 The issue is in the first `.\{-}`.
 You need to replace it with `[^C]*`:
 
-    \%(.*C\)\@=\%(A[^C]*B.\{-}C\)\@>\%\(C.*\)\@<=
-                   ^^^^^
+    A[^C]*B.\{-}C
+     ^^^^^
 
 This seems to  show that, in the  general case, you need  a complemented bracket
 expression (`.\{-}` is not enough).
@@ -329,7 +335,7 @@ expression (`.\{-}` is not enough).
 But, it can't be used reliably to express sth like “the text between the pattern
 A and the next pattern B *with* a pattern C in the middle”.
 
-### What happens when C is a multi-character text, like `PAT`?
+### How to adapt the regex when C is a multi-character text, like `PAT`?
 
 Replace `[^C]*` with `\%(\%(PAT\)\@!.\)*`
 
@@ -337,106 +343,207 @@ Replace `[^C]*` with `\%(\%(PAT\)\@!.\)*`
 
 Test the regex against this text:
 
-    AxxBxxPAT
-    AxxxxxPAT
+    AxBxPAT
+    AxxxPAT
 
 It should match the first line but not the second one.
 
-##
-## the text under the cursor, surrounded by two consecutive quotes
+###
+### What if B is `\%#`?
 
-    \%(.*\%#\)\@='[^']*'\%(\%#.*\)\@<=
-    ├───────────┘├─────┘├────────────┘
-    │            │      └ the cursor must be before the closing quote
-    │            └ two consecutive quotes
-    └ the cursor must be after the opening quote
+The regex works, but  you probably want an additional branch  to handle the case
+where the cursor is right before `A`.
 
-The lookahead `\%(.*\%#\)\@=`  is applied to the position right  before the next
-matched character (i.e. the opening quote).
-It expresses that you want the cursor  to be somewhere after the position before
-the opening quote.
+    A[^C]*\%#[^C]*C\|\%#A[^C]*C
+                   ^^^^^^^^^^^^
 
-And the lookbehind  `\%(\%#.*\)\@<=` is applied to the position  right after the
-previous matched character (i.e. the closing quote).
-It expresses that you want the cursor  to be somewhere before the position after
-the closing quote.
+Indeed, when you see  your cursor *on* `A` in normal  mode, you'll probably want
+your regex to match.
+But for the regex engine, your cursor is not on `A`, but *right before* (so it's
+not inside "from `A` up to the next `C`", but right before).
 
----
+### What if A = C?
 
-You can  test the  regex on this  text (position your  cursor on  each character
-between brackets):
+It  depends  on whether  you  allow  matches  in-between two  consecutive  texts
+surrounded by pairs of As.
 
-    one 't[w]o' three 'fo[u]r' five
+If you do, then use this regex:
+
+    \%(A[^A]*B\)\@=A[^A]*A
+    ├─────────────┘├─────┘
+    │              └ text surrounded by a pair of As
+    └ B must be in the middle
+
+If you don't:
+
+    \%(^\%(A[^A]*A\|[^A]\)*\)\@<=A[^A]*B[^A]*A
+           ├─────┘  ├──┘  │      ├───────────┘
+           │        │     │      └ a text surrounded by a pair of As with B in the middle
+           │        │     └ there can be several of them
+           │        └ there can be a character outside a text surrounded by a pair of As before
+           └ there can be a text surrounded by a pair of As before
+
+Test the regexes against this text:
+
+    AxA   AxBxA
+    AxA B AxA
 
 ---
 
 You may  be used  to a  lookahead written after  a matched  character, and  to a
 lookbehind written before a matched character.
-So, you  may be surprised that  here, the lookahead is  written after *nothing*,
-and the lookbehind is written before *nothing*.
+So, you  may be  surprised that in  the second regex,  the lookahead  is written
+after *nothing*, and the lookbehind is written before *nothing*.
 
 Don't be surprised.
 A lookaround is not *applied to* the previous or next matched character.
 It's  *searched for*  at  the position  reached  by the  regex  engine when  the
 lookaround is processed.
 
+#### Is there an alternative?
+
+You could replace the last regex with this one:
+
+    \%(.*B\)\@=\%(A[^A]*A\)\@>\%(B.*\)\@<=
+    ├─────────┘├─────────────┘├──────────┘
+    │          │              └ B must be before
+    │          └ text surrounded by a pair of As
+    └ B must be after
+
+However, it only works as expected when there is one B per line, not several.
+For example, in this text:
+
+    AxA AxBxA B AxA AxBxA
+                ^^^
+
+It wrongly matches the second `AxA`.
+
+Besides, I don't understand how the atomic group prevents a match in-between two
+consecutive texts surrounded by pairs of As.
+
+Without it, the regex becomes:
+
+    \%(.*B\)\@=A[^A]*A\%(B.*\)\@<=
+
+And this new regex finds a match here:
+
+    AxxA B AxxA
+       ^^^^^
+
+`\@>` prevents the regex engine from backtracking, but I don't understand how it
+has any effect here.
+It can't  give up any character  inside `A B A`  anyway (if it did,  it couldn't
+match the second A anymore), so there is no submatch which `\@>` can prevent.
+
+It seems to be due to a combination of:
+
+   - the new NFA engine being used
+   - a variable-width lookafter
+   - an atomic group
+
+Indeed,  these regexes  do match  `A B A`,  which  is more  compatible with  my
+understanding of regexes:
+
+    " no new engine
+    \%#=1\%(.*B\)\@=\%(A[^A]*A\)\@>\%(B.*\)\@<=
+
+    " no variable-width lookafter
+    \%#=2\%(..B\)\@=\%(A[^A]*A\)\@>\%(B.*\)\@<=
+
+    " no atomic group
+    \%#=2\%(.*B\)\@=A[^A]*A\%(B.*\)\@<=
+
+The regex probably works only because of an implementation detail.
+The implementation could change in the future, therefore the regex is unreliable.
+Don't use it.
+
 ---
 
-You could replace `[^']*` with `.\{-}`, but you would also need to use `\@>`:
+Here's another example where the new engine processes an atomic group in a weird
+way.
 
-    \%(.*\%#\)\@=\%('.\{-}'\)\@>\%(\%#.*\)\@<=
-                 ^^^       ^^^^^
+Let's assume you want `bar` in `[foo](bar)` when it's under the cursor.
+Here's a one possible regex:
 
-### In which positions must the cursor be for the regex to match `'four'`?
+    \%(.*\%#\)\@=\%(\[.\{-}\](\zs.\{-}\ze)\)\@>\%(\%#.*\)\@<=
 
-    one 'two' three 'four' five
-                    ^^^^^^^
-                    'four' is matched while the cursor is in any of these positions
+Which can be tested against this text:
+
+    one [two](three) (four) [five](six) seven
+                                    ^
+                                    cursor here
+
+With the old engine, the match is `six`.
+
+With the new engine, the match is `[five](six)`, while I would expect just `six`
+(thanks to `\zs` and  `\ze`); it's as if the new engine  ignored `\zs` and `\ze`
+inside the atomic group.
+
+##
+## the quoted string under the cursor?
+
+    \%(.*\%#\)\@=\%('[^']*'\)\@>\%(\%#.\+\)\@<=
+    ├───────────┘├─────────────┘├─────────────┘
+    │            │              └ the cursor must be before the closing quote
+    │            └ two consecutive quotes
+    └ the cursor must be after the opening quote
+
+Test the regex against this text:
+
+    a 'string' and 'another one' !
 
 ---
 
-You may wonder how there can be a match when the cursor is there:
+The lookahead `\%(.*\%#\)\@=`  is applied to the position right  before the next
+matched character (i.e. the opening quote).
+It expresses that you want the cursor  to be somewhere after the position before
+the opening quote.
 
-    one 'two' three 'four' five
-                          ^
+And the lookbehind `\%(\%#.\+\)\@<=` is applied  to the position right after the
+previous matched character (i.e. the closing quote).
+It expresses that you want the cursor to be somewhere after the closing quote.
 
-You need to understand why this pattern still matches:
+### Why the `+` quantifier in the second lookaround?
 
-    '\%(\%#.*\)\@<=
-    │
-    └ closing quote
+To prevent a match when the cursor is right after the closing quote.
 
-Since the `*` quantifier can match 0 characters, the engine is allowed to end up
-trying this pattern:
+Indeed, between  the cursor position  and the  position right after  the closing
+quote, there must be at least one character: the closing quote.
 
-    '\%#\@<=
+If you use `*` instead, then you  allow 0 characters between the cursor position
+and the position  right after the closing quote; which  happens when your cursor
+is right after the closing quote.
 
-Which is equivalent to any of these (because `\%#` is a zero-width atom):
+### Why the atomic group?
 
-    '\%#\@=
-    '\%#
+To prevent a match when you're outside a string.
 
-This last pattern does match when your cursor is right after the closing quote.
+For example, when your cursor is on the `n` of `and`:
 
-###
-### How to rewrite this regex with negative lookarounds?
+    a 'string' and 'another one' !
+                ^
 
-    \%(\%#.*\)\@<!'[^']*'\%(.*\%#\)\@!
-    ├────────────┘├─────┘├───────────┘
-    │             │      └ the cursor must *not* be after the closing quote
-    │             └ two consecutive quotes
-    └ the cursor must *not* be before the opening quote
+The regex – without `\@>` – matches `' and '` in this position:
 
-#### In which positions must the cursor be for the regex to match `'four'`?
+    a 'string' and 'another one' !
+             ^^^^^^^
 
-    one 'two' three 'four' five
-                     ^^^^^
+---
 
-Notice that this time, the regex would not match the expected `'four'` when your
-cursor is  on its  opening quote, nor  on the next  character after  the closing
-quote.
+It's also  necessary to prevent a  match when you're  on the opening quote  of a
+string which is not the first on the line.
 
-###
+For example, on this position:
+
+    a 'string' and 'another one' !
+                   ^
+
+The regex – without `\@>` – would match `' and '`:
+
+    a 'string' and 'another one' !
+             ^^^^^^^
+
+####
 # Miscellaneous
 ## When Vim's regex engine processes 2 alternations, both matching the text, which one is used to produce a match?
 
@@ -515,13 +622,17 @@ than:
 ###
 ## What kind of atom is `\@>`?
 
-A possessive quantifier.
+An atomic group.
 
-It's a type of quantifier.
-There  are greedy  quantifiers  (`*`,  `+`, ...),  lazy  (`{-}`, `{-2,3}`),  and
-possessive (`@>`).
-The greedy  and lazy  ones control  how to  repeat a  token, the  possessive one
-prevents backtracking.
+It prevents the regex engine from backtracking into anything inside.
+
+---
+
+An  atomic group  is a  group  that –  when the  regex  engine exits  from it  –
+automatically throws  away all backtracking  positions remembered by  any tokens
+inside the group.
+
+See: <https://www.regular-expressions.info/atomic.html>
 
 ### What is its purpose?
 
@@ -529,8 +640,8 @@ It prevents the engine from backtracking after a subpattern has been matched.
 
 For example,  if your pattern  is `\%(a.\{-}b\)\@>c`, after  matching `a.\{-}b`,
 the regex may still fail to match `c`.
-If that happens, the engine could backtrack thanks to `\{-}`; but `\@>` prevents
-the engine from doing this.
+If that happens, the engine could backtrack into `a.\{-}b` thanks to `\{-}`; but
+`\@>` prevents the engine from doing this.
 
 In practice, it's used  to optimize a regex, or it can  be necessary to describe
 the text you're interested in.
@@ -538,12 +649,12 @@ the text you're interested in.
 ### Where can I find more info about it?
 
    - `:h /\@>`
-   - <http://www.regular-expressions.info/possessive.html>
+   - <https://www.regular-expressions.info/atomic.html>
    - <http://perldoc.perl.org/perlre.html#extended-patterns>
 
 ##
 # Issues
-## What is the first thing I should do when my regex seems to fail, and I don't understand why?
+## What is the first thing I should do when my regex doesn't produce the expected matches?
 
 Use it as the pattern of a substitution command with a confirmation flag:
 
@@ -636,33 +747,35 @@ The `Search` highlighting is probably  unreliable because right after the search
 command,  the cursor  is moved,  and  thus the  position expressed  by `\%#`  is
 altered.
 
-## I'm writing a script.  `\%#` doesn't work!
+### Ok, I did it.  Doesn't help.  What now?
 
-Replace it with `\%123c`, where `123` stands for the output of `col('.')`.
+Prefix your regex with `\%#=1`.
+This will force Vim to use its old regex engine, which "supports everything".
+From `:h two-engines`:
 
-For example, if your pattern is:
+> 1. An old, backtracking engine that **supports everything**.
 
-    let pat = '\k*\%#\k*'
+If your  regex now works as  expected, it means that  Vim was using the  new NFA
+engine, and you were using some feature not supported by the latter.
 
-You can rewrite it like so:
+Otherwise, try to prefix it with `\%#=2` to force Vim to use the new NFA engine.
+If it now works as expected, it means that Vim was using the old engine, and you
+were using some feature not supported by the latter.
 
-    let col = col('.')
-    let pat = '\k*\%'..col..'c\k*'
+Note that `\%#=1` and `\%#=2` must be written at *the very beginning* of the regex.
+Even before sth like `\m` or `\v`.
 
 ---
 
-`\%#` works in a `/` command, and in a call to `search()`.
-In both cases, Vim searches directly in the current buffer.
+Finally, if the  regex still does not  work as expected, simplify it  as much as
+possible, as well as the testing text.
+Then, try to translate the result in PCRE, and test it on [regex101.com][1].
 
-But it doesn't work in sth like:
+If it produces the expected match(es), it probably means that there is a bug in Vim.
+Have a look at `:h todo` and Vim's issue tracker; maybe it's a known bug.
 
-    let line = getline('.')
-    let str = matchstr(line, '\k*\%#\k*')
-                                 ^^^
-
-because `matchstr()`  doesn't search directly  in the  current buffer, but  on a
-copy of the current line provided by `getline('.')`.
-In this copy, the cursor position is lost.
+Otherwise, it probably  means that you're missing some knowledge;  in that case,
+regex101.com can help you by providing an explanation of the PCRE regex.
 
 ##
 ## I wrote some code using a regex.  It works in most buffers.  But in one of them, it works differently!
@@ -740,7 +853,7 @@ Which may have unexpected results.
 ## Which pitfall I should be aware of when using the complement of a bracket expression?
 
 Is your complement preceded by an atom followed by a quantifier?
-If so, make sure your bracket expression  includes the atom, or use `\@>` on the
+If so, make sure your bracket expression includes this atom, or use `\@>` on the
 previous atom.
 
 ---
@@ -769,9 +882,38 @@ The solution is to include a whitespace in the complement of your collection:
 
     a\+\s\+\zs[^b \t]\S\+
 
-You could also use `\@>` to prevent the backtracking:
+You could also use `\@>` to prevent the regex engine from backtracking into `\s\+`:
 
     a\+\%(\s\+\)\@>\zs[^b]\S\+
+
+##
+## I'm writing a script.  `\%#` doesn't work!
+
+Replace it with `\%123c`, where `123` stands for the output of `col('.')`.
+
+For example, if your pattern is:
+
+    let pat = '\k*\%#\k*'
+
+You can rewrite it like so:
+
+    let col = col('.')
+    let pat = '\k*\%'..col..'c\k*'
+
+---
+
+`\%#` works in a `/` command, and in a call to `search()`.
+In both cases, Vim searches directly in the current buffer.
+
+But it doesn't work in sth like:
+
+    let line = getline('.')
+    let str = matchstr(line, '\k*\%#\k*')
+                                 ^^^
+
+because `matchstr()`  doesn't search directly  in the  current buffer, but  on a
+copy of the current line provided by `getline('.')`.
+In this copy, the cursor position is lost.
 
 ##
 ##
@@ -1457,13 +1599,35 @@ Quelques classes (:h /character-classes) :
 
 Vim peut utiliser 2 moteurs de regex:
 
-   1. un vieux, qui supporte tout (FIXME: qualifié de backtracking par :h nfa;
-      kézako?)
+   1. un vieux, qui supporte tout (qualifié de backtracking par :h nfa)
 
    2. un nouveau moteur NFA (Nondeterministic Finite Automatons) qui travaille
       plus vite sur certains patterns, mais ne supporte pas tout
 
-Vim sélectionne automatiquement le bon moteur.
+TODO: Does the fact that the old engine is documented as backtracking implies that the new one is not?
+
+It does not seem to be the case.
+It seems that the new engine *is* backtracking:
+
+Regex:
+
+    \%#=2\u\{2,},\@!
+
+Text:
+
+    ABC,
+    DEF
+    GHI,
+    JKL
+
+The regex finds `AB`, `DEF`, `GH`, `JKL`.
+The fact that it finds `AB` and `GH` seems to suggest that it backtracked.
+Unless it uses some optimized algorithm which  can produce the same results as a
+backtracking engine, without having to backtrack...
+
+---
+
+Vim sélectionne automatiquement le moteur qu'il juge le plus adapté.
 Mais si  on rencontre un pb,  pour tenter de  le déboguer, on peut  préfixer son
 pattern avec:
 
@@ -1477,10 +1641,10 @@ moteur utilisé, voir `:lh NFA` et plus particulièrement `:h todo /regexp probl
 
 Exemple de différences entre les 2:
 
-    (1)    %s:\v^(.*\n)\1+:\1:         (4)    %s:\v^(.*\n)\1{1,}:\1:
+    (1)    %s/^\(.*\n\)\1\+/\1/        (4)    %s/^\(.*\n\)\1\{1,}/\1/
 
-    (2)    %s:\%#=1\v^(.*\n)\1+:\1:    (5)    %s:\%#=1\v^(.*\n)\1{1,}:\1:
-    (3)    %s:\%#=2\v^(.*\n)\1+:\1:    (6)    %s:\%#=2\v^(.*\n)\1{1,}:\1:
+    (2)    %s/\%#=1^\(.*\n\)\1\+/\1/   (5)    %s/\%#=1^\(.*\n\)\1\{1,}/\1/
+    (3)    %s/\%#=2^\(.*\n\)\1\+/\1/   (6)    %s/\%#=2^\(.*\n\)\1\{1,}/\1/
 
 
 Cette substitution ayant pour but de réduire des séquences de lignes identiques,
@@ -1501,7 +1665,7 @@ Les commandes 2, 4 et 5 réussissent tandis que 1, 3 et 6 échouent.
 
 En réalité, la bonne commande pour réduire des séquences de lignes identiques serait:
 
-    %s:\v^(.*)(\n\1)+:\1:
+    %s/^\(.*\)\(\n\1\)\+/\1/
 
 En effet, les  précédentes commandes ne peuvent correctement gérer  le cas d'une
 ligne doublon  lorsqu'elle se trouve  tout à la fin  du buffer et  qu'elle n'est
@@ -1751,3 +1915,8 @@ se réfère ensuite?
             If you look for `bar.\{-}\zs\u`, you'll only get `D`.
             If you look for `\%(bar.*\)\@<=\u`, you'll only get `D`, `E`, and `F`.
 
+
+##
+# Reference
+
+[1]: https://regex101.com/

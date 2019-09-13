@@ -769,18 +769,18 @@ It reconnects echo's fd1 with write mode from the terminal to `file`.
 # What will this command output: `cd ~ ; echo '/tmp' | ls` ?
 
 The contents of `~`.
-It won't list the contents of `/tmp`, because `$ ls` doesn't read its stdin.
+It won't list the contents of `/tmp`, because `ls(1)` doesn't read its stdin.
 
 Many other commands ignore their stdin: `cd`, `cp`, `readlink`, ...
 
 ---
 
-If you really wanted to pass the output of  a command to `$ ls`, you could use a
+If you really wanted to pass the output of  a command to `ls(1)`, you could use a
 command substitution:
 
         ls $(echo '/tmp')
 
-Or `$ xargs`:
+Or `xargs(1)`:
 
         echo '/tmp' | xargs ls
 
@@ -824,11 +824,11 @@ The shell needs places to read and write information.
 #
 # Why does `echo hello` write 'hello' on the terminal?
 
-The `$ echo` process is a child of the current shell.
+The `echo` process is a child of the current shell.
 As a result, it has inherited its file descriptors.
 In particular, the fd1 of the shell is by default connected, with write mode, to
 the current terminal.
-So, the fd1 of `$ echo` is also the current terminal.
+So, the fd1 of `echo` is also the current terminal.
 
 #
 # If I give a filename as a parameter to a unix command (`grep`, `less`, ...), what is its stdin connected to?
@@ -1207,13 +1207,13 @@ Example:
 Or:
         $ cat file1 >file2 && rm file1
 
-`$ cp` and  a redirection will both  preserve the hard link,  because they don't
+`cp(1)` and a  redirection will both preserve the hard  link, because they don't
 create a new file if they don't need to.
 They just overwrite the contents of an existing file when they can.
 So the inode number is left unchanged.
 
-Do NOT use `$ mv`.
-If `file2` is a  hard link referring to an existing file, `$  mv` will break the
+Do *not* use `mv(1)`.
+If `file2` is a hard link referring  to an existing file, `mv(1)` will break the
 link because it creates a new file `file2` with a new inode number.
 
 ---
@@ -1267,7 +1267,7 @@ For more info, see:
         $ cmd | sudo tee -a system_file
 
 It works because there's no redirection to `system_file`.
-`$ tee` writes the output of `$ cmd` on the terminal and append it to `system_file`.
+`tee(1)` writes the output of `cmd` on the terminal and append it to `system_file`.
 It can because it's started as if it was by the root user.
 
 ---

@@ -92,7 +92,7 @@ No, it's relative to the location of the `.gitignore` file.
 
 For more info, see:
 
-        $ man 3 fnmatch
+    man 3 fnmatch
 
 Also, in the same manpage have a look at the flag `FNM_PATHNAME`.
 
@@ -606,9 +606,9 @@ A file which is safely stored in `.git/`.
 ##
 ## How to get the manpage of a subcommand?  (2)
 
-        $ man git-subcommand
+    $ man git-subcommand
 
-        $ git help subcommand
+    $ git help subcommand
 
 ## How to get a usage message and the list of all available options of a subcommand?
 
@@ -618,7 +618,7 @@ A file which is safely stored in `.git/`.
 # Config
 ## Where can I find information about how to config Git?
 
-        $ man git-config
+    man git-config
 
 ##
 ## How to change the location of the base of the repository (`.git/`)?
@@ -1214,7 +1214,7 @@ il faut se poser la question suivante:
 TODO: You can use the terms “old” and “new” in your commands.
 You can even use your own terms.
 
-See `$ man git-bisect`:
+See `man git-bisect`:
 
 > To support  this more general usage,  the terms "old"  and "new" can be  used in
 > place of "good" and "bad", or you can choose your own terms.
@@ -1952,7 +1952,7 @@ références peuvent être déplacées librement.
         http://rypress.com/tutorials/git/index
 
         https://jonas.github.io/tig/doc/manual.html
-        $ man tig
-        $ man tigrc
-        $ man tigmanual
+        man tig
+        man tigrc
+        man tigmanual
 

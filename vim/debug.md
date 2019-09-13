@@ -89,7 +89,7 @@ The only directory matching this pattern atm on my machine is
 
 Yes.
 
-## What's the effect of `--noplugin` when passed to `$ vim`?
+## What's the effect of `--noplugin` when passed to `vim(1)`?
 
 It prevents Vim from sourcing any script in a `plugin/` directory.
 Other files/directories are unaffected.

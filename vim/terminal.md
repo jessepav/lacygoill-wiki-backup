@@ -77,7 +77,7 @@ But yeah, it's broken:
 There seems  to be  some kind of  recursive loop;  `s:LoadRemotePlugins()` keeps
 calling itself again and again.
 
-Same issue in bash and zsh, and same issue when you run `$ fc`.
+Same issue in bash and zsh, and same issue when you run `fc`.
 
 ### Nvim crashes after I delete too many lines in a terminal buffer!
 

@@ -20,7 +20,7 @@ The parentheses have three usages:
 In a `grep`-like  program, writing an OPTIONAL sub-expression at  the end of the
 pattern is useless.
 Indeed, it only affects the length of the matched text; it doesn't affect whether
-there IS a match or not (which is what `$ grep` is mainly concerned with).
+there IS a match or not (which is what `grep(1)` is mainly concerned with).
 
 Ex:
 

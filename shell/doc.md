@@ -1,4 +1,4 @@
-# How to print a short help for the `$ man` command?
+# How to print a short help for the `man(1)` command?
 
     $ man -h
 
@@ -13,13 +13,13 @@ style to true for the 'manuals' tag:
     zstyle ':completion:*:manuals' separate-sections true
 
 ##
-# How to get the path to the manpage of the `$ ls` command?
+# How to get the path to the manpage of the `ls(1)` command?
 
     $ man -w ls
            │
            └ mnemonic: Where
 
-# How to print the NAME section of the `$ pstree` command?  (2)
+# How to print the NAME section of the `pstree(1)` command?  (2)
 
     $ man -f pstree
 

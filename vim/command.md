@@ -267,7 +267,7 @@ So, `:Shdo` is NOT given `-bar`.
 Example 2: `:Cp`
 
 This command copies the current file to another one.
-It mimics `$ cp`.
+It mimics `cp(1)`.
 The shell interprets a bar as a pipe:
 
     $ cp foo bar|baz
@@ -276,11 +276,11 @@ The shell interprets a bar as a pipe:
     $ cp foo bar\|baz
     ✔
 
-Therefore, you should give `-bar` to `:Cp` so that its behavior is consistent
-with `$ cp`.
+Therefore, you  should give `-bar` to  `:Cp` so that its  behavior is consistent
+with `cp(1)`.
 
 And if you stumble upon a file whose  name contains a bar, you'll need to escape
-it (like with `$ cp`):
+it (like with `cp(1)`):
 
     :Cp bar\|baz
 

@@ -168,7 +168,7 @@ Because, these information would be quicker to access that way.
 
 Then, write  a shell  `td` command  (Too long Didn't  read) which  suggests such
 files and echo them in the terminal, just like `tldr`.
-Inside the files,  use escape sequences via  `$ tput` to add  some styles (bold,
+Inside the files,  use escape sequences via `tput(1)` to  add some styles (bold,
 italic, bold+italic):
 
     $ printf 'some %s bold %s text' $(tput bold) $(tput sgr0)

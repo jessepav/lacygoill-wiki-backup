@@ -212,8 +212,8 @@ The cause may be:
 
 ---
 
-Install the package `inetutils-traceroute`, then use the `$ traceroute6` command
-to diagnose the connection between your machine and the server:
+Install  the  package  `inetutils-traceroute`,  then  use  the  `traceroute6(8)`
+command to diagnose the connection between your machine and the server:
 
     $ traceroute6 chat.freenode.net
 

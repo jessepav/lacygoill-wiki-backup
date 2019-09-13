@@ -429,10 +429,10 @@ message:
       - WARNING: Could not contact PyPI to get latest version.~
       - ERROR: HTTP request failed: error: curl error with https://pypi.python.org/pypi/pynvim/json: 35~
 
-It's due to a SSL handshaking which fails while `$ curl` tries to download this file:
+It's due to a SSL handshaking which fails while `curl(1)` tries to download this file:
 <https://pypi.python.org/pypi/pynvim/json>.
 
-See `$ man curl`, and search for `35` which is the given code error.
+See `man curl`, and search for `35` which is the given code error.
 
 ---
 
@@ -525,7 +525,7 @@ Alternatively, maybe you could try to contact another mirror:
                                               ├────────────────────────────────┘
                                               └ https://stackoverflow.com/a/13878827/9780968
 
-Or, use `$ pip` behind a proxy:
+Or, use `pip` behind a proxy:
 
     $ export https_proxy=http://web-proxy.mydomain.com
     $ python3 -m pip install --user --upgrade pynvim

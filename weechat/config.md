@@ -232,7 +232,7 @@ Why the inconsistency between ctrl and meta?
 
 Because of the terminal.
 It can't distinguish between `ctrl-g` and  `ctrl-G`, but it can between `meta-g`
-and `meta-G`; try with `$ cat`.
+and `meta-G`; try with `cat(1)`.
 
 ## Can I use both ctrl and meta?
 

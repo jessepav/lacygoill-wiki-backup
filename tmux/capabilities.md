@@ -176,7 +176,7 @@ The description of the inner terminal is irrelevant.
 
     $ printf '\e[9m  strikethrough  \e[0m\n'
 
-In the output of `$ printf`, the  terminal strikes through the text, even though
+In the  output of `printf`, the  terminal strikes through the  text, even though
 `smxx` is not in the description of the inner terminal (`screen`).
 
 ### How to send such a sequence in those circumstances?
@@ -277,7 +277,7 @@ Example:
 
 Usually, this sequence is used to set the title of the terminal window.
 
-See `OSC Ps ; Pt BEL /Ps = 2`.
+See `OSC Ps ; Pt BEL/;/Ps = 2`.
 
 ### the current window?
 
@@ -305,7 +305,7 @@ description per type of terminal client currently attached to the server.
 ---
 
 You also need to detach/re-attach if  you've edited the description of the outer
-terminal with `$ tic`.
+terminal with `tic(1)`.
 
 ---
 

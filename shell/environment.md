@@ -2,7 +2,7 @@
 
     $ tr '\0' '\n' < /proc/<pid>/environ
 
-Alternatively, use our `$ environ` function:
+Alternatively, use our `environ` function:
 
     $ environ <pid>
 
@@ -38,7 +38,7 @@ And in Vim:
     let $MANSECT = $MYMANSECT
 
 We use `$MYMANSECT` as a backup of  `$MANSECT`, to restore its value when we run
-a `$ man` command.
+a `man(1)` command.
 Without this, the following would fail:
 
     $ man man
@@ -46,7 +46,7 @@ Without this, the following would fail:
     man.vim: command error (11) man -w mount: No manual entry for mount~
     See 'man 7 undocumented' for help when manual pages are not available.~
 
-Indeed, for some reason,  in the environment of a `$ man`  process, the value of
+Indeed, for some reason,  in the environment of a `man(1)`  process, the value of
 `$MANSECT` is split after each colon: <https://unix.stackexchange.com/q/477977/289772>
 
 As  a result,  the  value of  `$MANSECT`  is truncated  after  the first  manual
@@ -78,21 +78,21 @@ The output should be:
     MANSECT=1:n:l:8:3:2:3posix:3pm:3perl:5:4:9:6:7~
     ...~
 
-Note that `1234`, in the `$ tr` command, is the pid of the `$ man` process.
-You can get it by running `$ echo $$` before running `$ man`, and noting the pid of the shell.
-Then by running `$ pstree -lsp <shell pid>`, to get the pid of the `$ man` child.
+Note that `1234`, in the `tr(1)` command, is the pid of the `man(1)` process.
+You can get it by running `$ echo $$` before running `man(1)`, and noting the pid of the shell.
+Then by running `$ pstree -lsp <shell pid>`, to get the pid of the `man(1)` child.
 
 ## Is there a better solution?
 
 I don't have one atm.
-It could be a bug in `$ man`.
+It could be a bug in `man(1)`.
 
-If you want to investigate more, try to run `$ man` in debug mode:
+If you want to investigate more, try to run `man(1)` in debug mode:
 
     $ man -d man
           ^^
 
-Or use `$ strace`:
+Or use `strace(1)`:
 
     $ strace -f -o /tmp/log man man
 
@@ -154,7 +154,7 @@ Explanation:
 
 Super-j is intercepted  by the xbindkeys daemon; it looks  for the command which
 is bound to this key combo – here, the terminal – and runs it.
-I think (*) that the terminal is then, temporarily, the child of an `$ xbindkeys`
+I think (*) that the terminal is then, temporarily, the child of an `xbindkeys(1)`
 process (which is forked from the daemon).
 So, if  the latter  contains `$MY_ENVIRONMENT_HAS_BEEN_SET` in  its environment,
 then the terminal inherits it, as well as the shell started by the terminal.
@@ -164,8 +164,8 @@ code, because of our initial guard.
 (*) It's the only explanation I can find.
 But it's a temporary child, because we  can't see this relationship in `$ pstree -lsp $$`,
 when we're inside the terminal started by pressing Super-j.
-I think that the terminal is quickly reparented to the session leader
-(`$ upstart` atm) after the fork of `$ xbindkeys` dies.
+I think that the terminal is quickly reparented to the session leader (`upstart`
+atm) after the fork of `xbindkeys(1)` dies.
 
 If you want to check this theory, here's how.
 Run Vim to temporarily clear the value of `$LESS` in `~/.zshenv`.
@@ -245,7 +245,7 @@ At the moment, it looks like this:
 ### How does this compare to the guard, performance-wise?
 
 It's not as good, but good enough.
-In particular, make sure to guard any `$ eval` command.
+In particular, make sure to guard any `eval` command.
 They seem to have a big impact on performance.
 
     # ✘

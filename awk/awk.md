@@ -338,7 +338,7 @@ Name it `gawk-aregex` instead of just `aregex`.
 
 For more info, see:
 
-    $ man 3am aregex
+    man 3am aregex
 
 “am” stands for Awk Module.
 
@@ -383,7 +383,7 @@ Similarly install other library extensions in `gawkextlib/`.
 
 For more info, see:
 
-    $ man 3am [abort|csv|...]
+    man 3am [abort|csv|...]
 
 ---
 
@@ -870,7 +870,7 @@ If that happens, you'll have to play with `update-alternatives`:
       --slave /usr/share/man/man1/awk.1.gz awk.1.gz /usr/local/share/man/man1/gawk.1.gz
     $ sudo update-alternatives --set awk /usr/local/bin/gawk
 
-The `--slave` is there so that `$ man awk` opens the `gawk` manpage.
+The `--slave` is there so that `man awk` opens the `gawk` manpage.
 
 ##
 ## How to install the latest stable release of gawk?
@@ -3365,7 +3365,7 @@ fichier n'est pas lisible).
 
 ---
 
-`getline` is a command, not a function (source: `$ man gawk`, gawk user's guide):
+`getline` is a command, not a function (source: `man gawk`, gawk user's guide):
 
     getline()    ✘
     getline      ✔

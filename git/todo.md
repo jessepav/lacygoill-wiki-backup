@@ -82,7 +82,7 @@ See also `:h ft-gitcommit-plugin`.
 
 ---
 
-Document the option `rerere.autoUpdate` (see `$ man git-config`).
+Document the option `rerere.autoUpdate` (see `man git-config`).
 We've found it on page 28 (statusline) in the Pro Git book.
 Do  it once  you've studied  the “rerere”  feature (REuse  REcorded REsolution),
 which the book talks about.
@@ -112,11 +112,11 @@ des fonctionnalités, pour faciliter le travail avec GitHub.
 On peut l'installer en téléchargeant  la dernière release, puis en décompressant
 l'archive et en exécutant le script d'installation:
 
-        $ sudo ./install
+    $ sudo ./install
 
 Ça devrait aussi installer les pages man du pgm. Les lire:
 
-        $ man hub
+    man hub
 
 ---
 

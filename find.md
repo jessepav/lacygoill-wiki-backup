@@ -93,7 +93,7 @@ An expression can contain any of the following types of primaries:
      It seems actions are a kind of tests, because:
 
        1. they return a true/false value
-       2. `$ man find /NON-BUGS` says:
+       2. `man find /NON-BUGS` says:
 
        > Remember that the  precedence of `-a` is higher than  that of `-o`, and
        > when there is no operator specified between tests, `-a` is assumed.
@@ -110,7 +110,7 @@ An expression can contain any of the following types of primaries:
        An  expression also  contains positional  and global  options (not  to be
        confused with regular options).
        These options seem to be a kind of tests, since they all return true.
-       Read `$ man find /EXPRESSION`.
+       Read `man find /EXPRESSION`.
 
    - operators connect the other arguments and affect when and whether they are
      evaluated
@@ -191,7 +191,7 @@ Note that `.java` is a directory with a hidden subdirectory and hidden files.
 
 Issue:
 
-It seems to contradict `$ man find`:
+It seems to contradict `man find`:
 
 > If  the whole  expression contains  no actions  other than  -prune or  -print,
 > -print is performed on all files for which the whole expression is true.
@@ -226,7 +226,7 @@ It may be interesting to convert some info into questions.
 
 ---
 
-Alternative using `$ find`:
+Alternative using `find(1)`:
 
     command="find -L . \( -path '*/\.*' -o -fstype 'dev' -o -fstype 'proc' \) -prune" \
             + " -o " \
@@ -283,7 +283,7 @@ false; hence, we need `-o`.
 
 ---
 
-Is it equivalent to the next `$ fd`?
+Is it equivalent to the next `fd(1)`?
 
 No, but these two are:
 
@@ -300,7 +300,7 @@ You can check it like so:
 Document that using a `.fdignore` should be preferred to `-E` whenever possible.
 
 Why?
-If you  want to be  sure that any  command relying on  `$ fd` ignores  a certain
+If you  want to be sure  that any command  relying on `fd(1)` ignores  a certain
 pattern, it's going to be tedious/error-prone to edit each of them.
 `.fdignore` is easier, more reliable, and scale better to any number of commands
 you'll add in the future.
@@ -314,10 +314,10 @@ you'll add in the future.
 
     $ xargs grep pat <listing
 
-`$ xargs` reads  its standard input, and  pass it as an argument  to the command
+`xargs(1)` reads its standard  input, and pass it as an  argument to the command
 which follows.
-Here, the  operator `<` redirects  xarg's stdin to  `listing`, and so  `$ xargs`
-runs `$ grep` by passing it all the file paths stored in the file.
+Here, the  operator `<` redirects xarg's  stdin to `listing`, and  so `xargs(1)`
+runs `grep(1)` by passing it all the file paths stored in the file.
 
 It's as if you had run:
 

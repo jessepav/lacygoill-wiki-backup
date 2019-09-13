@@ -2749,7 +2749,7 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
 
                     - les noms des buffers
                     - "            fichiers du working directory
-                    - "            "        de la bdd de `$ locate`
+                    - "            "        de la bdd de `locate(1)`
 
 
     :BCommits
@@ -4491,14 +4491,15 @@ Plusieurs syntaxes sont possibles suivant la façon dont on souhaite charger un 
 
     Plug 'foo', { 'do': 'yes | command' }
 
-            Qd le post-update hook associé à un plugin nécessite qu'on réponde oui à une question,
-            on peut utiliser la commande shell `$ yes`, qui par défaut écrit sur sa sortie standard,
-            la chaîne `y` jusqu'à ce qu'on la tue.
+            Qd le post-update  hook associé à un plugin  nécessite qu'on réponde
+            oui à une question, on peut utiliser la commande shell `yes(1)`, qui
+            par défaut  écrit sur sa sortie  standard, la chaîne `y`  jusqu'à ce
+            qu'on la tue.
 
             À la place de `y`, elle peut écrire une chaîne arbitraire si on lui en passe une argument.
 
-            Ici, elle écrit `y` sur le pipe, et `$ command` lit le pipe, donc `yes` répond
-            automatiquement oui à la question posée par `$ command`.
+            Ici, elle écrit `y` sur le pipe, et `command` lit le pipe, donc `yes(1)` répond
+            automatiquement oui à la question posée par `command`.
 
 
     Plug 'junegunn/fzf', { 'do': 'yes \| ./install' }    let g:fzf_install = 'yes | ./install'

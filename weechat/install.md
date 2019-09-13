@@ -82,7 +82,7 @@ If that's the case, try to find it here:
 
 ---
 
-Consider using the build type `Debug` to get more accurate info when you use `$ gdb`:
+Consider using the build type `Debug` to get more accurate info when you use `gdb(1)`:
 
         $ cmake .. -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
                 ...

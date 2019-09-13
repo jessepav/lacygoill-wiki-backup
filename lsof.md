@@ -155,7 +155,7 @@ It represents the type of the opened file:
 
 For more info, see:
 
-    $ man lsof /OUTPUT
+    man lsof /OUTPUT
 
 ##
 ## What's a socket?

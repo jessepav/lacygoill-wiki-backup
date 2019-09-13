@@ -245,7 +245,7 @@ In Neovim:
 
 ##
 # Pitfalls
-## `$ infocmp` doesn't display the capabilities set via the tmux option 'terminal-overrides'!
+## `infocmp(1)` doesn't display the capabilities set via the tmux option 'terminal-overrides'!
 
 Those are part of a db internal to tmux.
 To view them, run `$ tmux info`.

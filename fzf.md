@@ -914,11 +914,11 @@ the fzf buffer is replaced with the last visited buffer.
 ## fzf integration is slow!
 
 In  `~/.config/ranger/commands.py`, we  define the  `fzf_select` ranger  command
-which relies on the `$ find` shell command.
+which relies on the `find(1)` shell command.
 We map it  to `zz`, and the nearer  you're from the root of  the filesystem, the
 slower fzf is.
-Maybe we could make `zz` faster if we used `$ fd` instead.
-Learn the syntax of `$ fd`, and try to adapt the code.
+Maybe we could make `zz` faster if we used `fd(1)` instead.
+Learn the syntax of `fd(1)`, and try to adapt the code.
 
 ## Create commands to fuzzy search the changelist and other kind of lists
 

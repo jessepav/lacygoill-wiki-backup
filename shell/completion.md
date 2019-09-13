@@ -1,7 +1,7 @@
 # I have a command which generates a completion function to complete some command.  How to use it?
 
 Run it and save its output in a file in a directory of `$fpath`.
-For example, for `$ pandoc`:
+For example, for `pandoc(1)`:
 
      $ pandoc --bash-completion >~/.zsh/my-completions/_pandoc
      $ sed -i '1i#compdef pandoc\n' ~/.zsh/my-completions/_pandoc
@@ -49,7 +49,7 @@ bash functions that have the same name as zsh ones.
 Source: <https://web.archive.org/web/20180404080213/http://zshwiki.org/home/convert/bash>
 
 ###
-## I need to press Tab twice when trying to complete `$ tldr`! Why?
+## I need to press Tab twice when trying to complete `tldr`! Why?
 
 It's only necessary the first time you try to complete it in a new shell.
 After that, pressing Tab once is enough.

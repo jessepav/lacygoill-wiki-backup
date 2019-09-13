@@ -35,7 +35,7 @@ elevated privileges can be restored.
 
     $ ulimit -a
 
-See `$ man bash /ulimit` for more info.
+See `man bash /ulimit` for more info.
 
 ##
 ## the maximum size of a core file created when a process crash?
@@ -73,13 +73,13 @@ Ici, le 1er caractère est un pipe.
 mais sur l'entrée standard du programme `apport`.
 
 On peut aussi accéder à ce paramètre via `$ sysctl kernel.core_pattern`.
-Et on peut aussi – sans doute – le modifier en passant `-w` à `$ sysctl`.
+Et on peut aussi – sans doute – le modifier en passant `-w` à `sysctl(8)`.
 
 ---
 
 Les items  `%` sont des  spécificateurs automatiquement remplacés  par certaines
 valeurs.
-Pour plus d'infos lire `$ man core`.
+Pour plus d'infos lire `man core`.
 
 ---
 
@@ -596,7 +596,7 @@ Document that there are at least two other ways:
 
 ---
 
-From `$ man 2 wait`:
+From `man 2 wait`:
 
 >    A child that terminates, but has not been waited for becomes a "zombie".
 >    The kernel maintains a minimal set of information about the zombie process (PID,
@@ -736,7 +736,7 @@ as Type=forking and "multi-threaded" datagram servers under inetd).
     # hover your cursor on the window
     # left-click on it
 
-The only thing that `$ xkill` does, is to close the connection to the X server.
+The only thing that `xkill(1)` does, is to close the connection to the X server.
 There's no  guarantee that the application  will abort nicely, or  even abort at
 all.
 Many existing applications do indeed abort when their connection to the X server
@@ -883,7 +883,7 @@ the orphan to discover its termination status.
 
 For more info, see:
 
-    $ man 2 prctl
+    man 2 prctl
 
 <https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=ebec18a6d3aa1e7d84aab16225e87fd25170ec2b>
 
@@ -901,7 +901,7 @@ A state change can be:
 
 For more info, see:
 
-    $ man 2 wait
+    man 2 wait
 
 ### Why is it important to do so?
 
@@ -917,14 +917,14 @@ It remains in a zombie state.
 ## What's the effect of the option?
 ### `a`?
 
-When you  use a BSD-style option  – whose name is  not prefixed by `-`  – `$ ps`
+When you use  a BSD-style option – whose  name is not prefixed by  `-` – `ps(1)`
 only displays processes owned by the current user.
 
 `a` removes this restriction.
 
 ### `x`?
 
-When you use a BSD-style option, `$ ps` only displays processes who have a tty.
+When you use a BSD-style option, `ps(1)` only displays processes who have a tty.
 
 `x` removes this restriction.
 
@@ -957,7 +957,7 @@ formats, highlighting various characteristics of processes:
 
 Long lines are wrapped.
 
-You can also use `$ less` to read long lines.
+You can also use `less(1)` to read long lines.
 
 ##
 ## How to only print the effective user, pid, tty, state and command of all current processes?
@@ -968,9 +968,9 @@ You can also use `$ less` to read long lines.
 
 `o`/`-o` is  an option which  you can use to  specify how which  information you
 want to see, and how they should be formatted.
-See `$ man ps /STANDARD FORMAT SPECIFIERS` for the full list of keywords you can use.
+See `man ps /STANDARD FORMAT SPECIFIERS` for the full list of keywords you can use.
 
-### The header of the tty column is `TT`.  How to make `$ ps` write `TTY` instead?
+### The header of the tty column is `TT`.  How to make `ps(1)` write `TTY` instead?
 
 You  can populate  a  column header  with  an arbitrary  text  by suffixing  the
 relevant keyword with `=mytext`:
@@ -1036,7 +1036,7 @@ Use the `-p` option:
 
 ### the 10 most memory-consuming processes?
 
-Use the `--sort` option, pass it the `rss` keyword, and pipe the output of `$ ps` to `$ head`:
+Use the `--sort` option, pass it the `rss` keyword, and pipe the output of `ps(1)` to `head(1)`:
 
     $ ps aux --sort -rss | head -n11
                     │
@@ -1051,7 +1051,7 @@ Use the `--sort` option, pass it the `rss` keyword, and pipe the output of `$ ps
 They stand for how much cpu time the processes have consumed thus far.
 They do NOT stand for how long the processes have been running.
 
-## Where does the name of the `$ ps` command come from?
+## Where does the name of the `ps(1)` command come from?
 
 Process Status
 
@@ -1097,18 +1097,18 @@ It may be that a process and/or its parent can set the name arbitrarily:
     7177 Web Content~
 
 ###
-## What are the three differences between `$ pidof` and `$ pgrep`?
+## What are the three differences between `pidof(8)` and `pgrep(1)`?
 
 First, if several pids match the argument:
 
-   - `$ pidof` prints them on a single line, separated by spaces
-   - `$ pgrep` prints each of them on a dedicated line
+   - `pidof(8)` prints them on a single line, separated by spaces
+   - `pgrep(1)` prints each of them on a dedicated line
 
-Second,  `$ pidof`  parses its  argument as  a *literal*  name, while  `$ pgrep`
+Second, `pidof(8)`  parses its  argument as a  *literal* name,  while `pgrep(1)`
 parses it as an ERE *regex*.
 
-Third, `$ pidof` matches its argument against the full name of the *executable*,
-while `$ pgrep` matches it against the *name of the process*.
+Third, `pidof(8)` matches its argument against the full name of the *executable*,
+while `pgrep(1)` matches it against the *name of the process*.
 
 ### Why does `$ pgrep firefox` only output one pid, while `$ pidof firefox` output several?
 
@@ -1118,7 +1118,7 @@ its name:
     $ ps xo fname | grep firefox
     firefox~
 
-So `$ pgrep` only prints the pid of the latter.
+So `pgrep(1)` only prints the pid of the latter.
 However, all of them were started from the 'firefox' executable:
 
     $ ps xo args | grep firefox
@@ -1126,15 +1126,15 @@ However, all of them were started from the 'firefox' executable:
     ...~
     ...~
 
-So `$ pidof` prints all of their pids.
+So `pidof(8)` prints all of their pids.
 
-#### How to make `$ pgrep` print all the firefox processes?
+#### How to make `pgrep(1)` print all the firefox processes?
 
 Pass it the `-f` option so that  it matches the regex 'firefox' against the full
 command-line of each process, and not just their name.
 
 ##
-## How to limit the output of `$ pgrep` to the processes
+## How to limit the output of `pgrep(1)` to the processes
 ### of the root user?
 
 Use the `-u root` argument.
@@ -1150,17 +1150,17 @@ Use the `-P 123,456,789` argument.
 ## In which command(s) do I need to
 ### write a signal name in uppercase?
 
-When passed as an argument to `$ trap` in zsh.
+When passed as an argument to `trap` in zsh.
 
 In all other cases, you can write a signal name in lowercase too.
 That is, when the signal name is passed as an argument to:
 
-   - `$ kill` in sh/bash/zsh
-   - `$ trap` in sh/bash
+   - `kill` in sh/bash/zsh
+   - `trap` in sh/bash
 
 ### shorten a signal name by removing its `SIG` prefix?
 
-`$ kill` and `$ trap` but only in the sh shell.
+`kill` and `trap` but only in the sh shell.
 
 In bash and zsh, you can use the full name of a signal (e.g. SIGTERM).
 Although, for consistency, and because it's shorter, I would recommend using the
@@ -1190,7 +1190,7 @@ It  does only  if the  signal  handler for  SIGPIPE  has been  set to  `SIG_IGN`
 <https://unix.stackexchange.com/a/482254/289772>
 
 ##
-## What's the number of the default signal sent by `$ kill` to a process?  What's its name?
+## What's the number of the default signal sent by `kill` to a process?  What's its name?
 
     15
 
@@ -1238,7 +1238,7 @@ They reload their config.
 
 <https://unix.stackexchange.com/a/251267/289772>
 
-As an example, see `$ man xbindkeys /.*HUP`.
+As an example, see `man xbindkeys /HUP`.
 
 ###
 ## How to send – in a single command – SIGKILL to
@@ -1269,7 +1269,7 @@ the end of the optional arguments:
 ## getting info
 ### Where can I find more info about the different signals that I can send to a process?
 
-    $ man 7 signal /Standard signals
+    man 7 signal /Standard signals
 
 ###
 ### How to get
@@ -1425,17 +1425,17 @@ leave the process in an unstable state (i.e. can't be resumed).
 SIGCONT
 
 ###
-### How to suspend the current job, which runs in the background, with `$ kill`?
+### How to suspend the current job, which runs in the background, with `kill`?
 
     $ kill -tstp %
 
-#### Without `$ kill`?
+#### Without `kill`?
 
     $ fg
     C-z
 
 ##
-### What should I do before suspending a GUI program with `$ kill` or `C-z`?
+### What should I do before suspending a GUI program with `kill` or `C-z`?
 
 Minimize it.
 Otherwise its frozen window will take valuable space on your desktop, and you'll
@@ -1496,7 +1496,7 @@ In zsh, you can reset all traps by omitting the sigspec:
 
 ##
 # strace
-## What does `$ strace` do?
+## What does `strace(1)` do?
 
 It runs the specified command until it exits, and intercepts the system calls of
 the process started by the command, as well as the signals which are received by
@@ -1515,7 +1515,7 @@ It's also useful  to solve an issue with  a program for which the  source is not
 readily available, since you don't need to recompile it in order to trace it.
 
 ##
-## Where is the output of `$ strace` written?
+## Where is the output of `strace(1)` written?
 
 By default, on standard error.
 
@@ -1553,14 +1553,14 @@ It's less useful with big processes such as Vim or zsh, but you can still try...
 
 ---
 
-FIXME: For  some reason,  `$ less`  doesn't update  the log  file as  `$ strace`
+FIXME: For some  reason, `less(1)`  doesn't update the  log file  as `strace(1)`
 writes into it.
 
 MWE:
 
     $ echo test >>/tmp/log
 
-`$ less` doesn't show `test`.
+`less(1)` doesn't show `test`.
 
 `$ tail -f log` doesn't suffer from this issue.
 
@@ -1571,7 +1571,7 @@ MWE:
     $ echo two >>/tmp/file
 
 Here,  `$ less  +F` works  as  expected; so  the issue  probably lies  somewhere
-between `$ strace` and `$ less`.
+between `strace(1)` and `less(1)`.
 
 ##
 ## How to trace a process AND all its children?
@@ -1589,7 +1589,7 @@ Warning: This can create big files.
                     where pid is the pid of the process
 
 ##
-## How to make `$ strace` add an absolute timestamp before each system call?
+## How to make `strace(1)` add an absolute timestamp before each system call?
 
     $ strace -o log -t vim
                     ^^
@@ -1649,7 +1649,7 @@ Try to understand why they take so much time...
 
 ---
 
-For some reason, if you reverse the order of `$ sort`, you lose Vim's syntax highlighting.
+For some reason, if you reverse the order of `sort(1)`, you lose Vim's syntax highlighting.
 
 ## I know that my command opens the file 'foo'.  But `$ strace -o log -e trace=open cmd` can't find it!
 
@@ -1658,7 +1658,7 @@ The process may use another similar system call:
    - openat
    - creat
 
-See `$ man 2 open`.
+See `man 2 open`.
 
 So, to be more thorough, you should execute:
 
@@ -1727,7 +1727,7 @@ Then, the kernel sends SIGCHLD to the parent process.
 The latter should then collect the exit status via wait(2).
 Finally, the kernel removes the pid of the zombie from the process table.
 
-See `$ man 2 exit`:
+See `man 2 exit`:
 
 >    The  function _exit()  terminates the  calling process  "immediately".  Any
 >    open file descriptors belonging to the  process are closed; any children of
@@ -1757,7 +1757,7 @@ A *task* is a heavy process + a group of lightweight threads.
 
 ---
 
-In `$ htop`, you can view the number of tasks.
+In `htop(1)`, you can view the number of tasks.
 You can also hide/show the threads created by:
 
    - user processes by pressing `H`
@@ -1769,7 +1769,7 @@ I think sometimes, it's a tid (thread id):
     $ ps -eLf | sed '/UID\|cmus/!d' | grep -v sed
 
 Notice how all  the lines show the  same PID, but not the  same LWP (LightWeight
-Process id); see `$ man ps /.*lwp\s*LWP`.
+Process id); see `man ps /lwp\s*LWP`.
 
 > lwp         LWP       light weight process (thread) ID of the
 >                       dispatchable entity (alias spid, tid).  See tid
@@ -1791,13 +1791,13 @@ Update: I think I get it.
 When you start a heavy process, its pid and tid are equal.
 But then,  if it spawns threads,  their tids are  different from the pid  of the
 heavy process.
-You can check this by looking at the first line in the output of the previous `$ ps`
-command: the first  cmus process has a pid  equal to its tid, but  not the other
-threads.
+You can check  this by looking at the  first line in the output  of the previous
+`ps(1)` command: the first cmus process has a  pid equal to its tid, but not the
+other threads.
 
 ---
 
-In  case you  wonder why  `$ htop`  considers that  you have  *multiple* firefox
+In case  you wonder  why `htop(1)`  considers that  you have  *multiple* firefox
 tasks, maybe it's because one task is created per tab you've opened and visited.
 Or maybe viewing an embedded video on a webpage starts another task.
 Or maybe downloading a file from a webpage starts another task.
@@ -1838,7 +1838,7 @@ Process Management (Processes and Threads): <https://www.youtube.com/watch?v=OrM
 <https://www.youtube.com/watch?v=Eqjm11U0JQM>
 
 Most of the time, a  process can be in 5 states, which you  can find in the STAT
-column in the output of `$ ps`:
+column in the output of `ps(1)`:
 
     ┌────────────────────┬─────────────────────────────────────────────────────────────────────┐
     │ process state code │ description                                                         │

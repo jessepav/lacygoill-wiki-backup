@@ -286,8 +286,8 @@ It parses the default `gvim.desktop` to build and run a command such as:
     $ xdg-mime default gvim.desktop text/english text/plain text/x-makefile ...
 
 In effect, it makes gVim the default program to open various types of text files.
-This matters when using `$ xdg-open` or double-clicking on the icon of a
-file in a GUI file manager.
+This matters when  using `xdg-open(1)` or double-clicking on the  icon of a file
+in a GUI file manager.
 
 ---
 
@@ -310,11 +310,11 @@ It just informs the system that gVim *can* open some of them.
     $ checkinstall
 
 ##
-## Which `$ make` command does checkinstall run by default?
+## Which `make(1)` command does checkinstall run by default?
 
     $ make install
 
-### How to pass it an arbitrary `$ make` command?
+### How to pass it an arbitrary `make(1)` command?
 
 Just write it right afterwards:
 

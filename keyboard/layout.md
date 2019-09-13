@@ -304,12 +304,12 @@ For example, to make `S-Tab` emit `Esc [ Z`:
     shift keycode 15 = F15
     string F15 = "\033[Z"
 
-See `$ man 5 keymaps /spare`.
+See `man 5 keymaps /spare`.
 
 ##
 # Where can I find a list of all the possible options that I can pass to `setxkbmap`?
 
-    $ man 7 xkeyboard-config
+    man 7 xkeyboard-config
 
 ##
 # What interesting utility does `kbd` provide?
@@ -501,9 +501,9 @@ It's only useful to get additional keymaps and fonts for the console.
 `dpkg-reconfigure console-data` doesn't seem to alter any file.
 
 ##
-## Why does `$ localectl status` ignore any change performed by `$ setxkbmap`?
+## Why does `$ localectl status` ignore any change performed by `setxkbmap(1)`?
 
-`$ setxkbmap` alters the CURRENT layout.
+`setxkbmap(1)` alters the CURRENT layout.
 
 `$  localectl  status` shows  information  about  the DEFAULT  keyboard  layouts
 for  X11 and  the console,  using  the contents  of `/etc/default/keyboard`  and
@@ -917,7 +917,7 @@ Illustrate that you can describe a keysym via its code point in Unicode
 ##
 # Console
 
-    $ man 5 keyboard
+    man 5 keyboard
 
 - <http://www.xfree86.org/current/XKB-Config.html>
 - <http://pascal.tsu.ru/en/xkb/>
@@ -1177,7 +1177,7 @@ In xfce, this assumes that you deselect `Use system defaults` (sure?).
     Couldn't find any console keymaps.
 
 It comes  from the fact that  the package `console-data` installs  some archives
-with the extension `.kmap.gz`, while `$ localectl` expects `.map.gz`.
+with the extension `.kmap.gz`, while `localectl(1)` expects `.map.gz`.
 This is a debian bug:
 
 <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=790955>
@@ -1214,7 +1214,7 @@ console layout will be correctly set after the first reboot of the OS.
 
 ## `$ localectl <subcommand> <args>` doesn't work!
 
-`$  localectl` invokes  the service  `systemd-localed`, so  have a  look at  the
+`localectl(1)`  invokes the  service `systemd-localed`,  so have  a look  at the
 journal, to see which issue the latter has encountered:
 
     $ journalctl --no-hostname --since '5m ago' -u systemd-localed

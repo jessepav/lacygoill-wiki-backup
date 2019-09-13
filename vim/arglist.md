@@ -106,7 +106,7 @@ To prevent their interpretations, use `fnameescape()`:
 
 ## Why does   :args `=systemlist('ls ~/.vim/after/ftplugin')`   fail?
 
-Because `$ ls` returns filenames, but `:args` needs complete filepaths.
+Because `ls(1)` returns filenames, but `:args` needs complete filepaths.
 
 So, when `:args`  receives a filename, it completes its  path with Vim's working
 directory, which  will probably lead  to a buffer  NOT associated with  any real

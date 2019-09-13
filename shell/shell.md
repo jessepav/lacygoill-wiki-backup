@@ -60,7 +60,7 @@ The lowercase flag can be fed back to the shell.
 The uppercase one is human-readable.
 
 Getting  a machine-readable  output is  useful, if  you want  to redefine  a key
-binding programmatically, for example after a `$ sed` transformation.
+binding programmatically, for example after a `sed(1)` transformation.
 
 #### macros?
 
@@ -530,8 +530,8 @@ Example:
 
 This should output the list of commands starting with the keyword “avahi”.
 
-You can get the list of all possible  flags – which can be passed to `$ compgen`
-– at `$ man bash /SHELL BUILTIN COMMANDS /^\s*complete /^\s*-A`.
+You can get the list of all possible  flags – which can be passed to `compgen` –
+at `man bash /SHELL BUILTIN COMMANDS/;/^\s*complete/;/^\s*-A`.
 
 ##
 # How to disable a builtin command to use the external command which is its counterpart?
@@ -607,14 +607,14 @@ MWE:
     $ find / -name '*' | wc -l
     $ pstree -lsp $(pidof find)
     ... bash───find~
-        │      │~
-        │      └ Initially this was a subshell started because `find` was part of a pipeline.~
-        │~
-        │        It should have forked a sub-sub-shell to execute `$ find`.~
-        │        But it didn't.~
-        │        Instead it immediately called `execve()`.~
-        │~
-        └ current shell from which the pipeline is executed~
+        │      │
+        │      └ Initially this was a subshell started because `find` was part of a pipeline.
+        │
+        │        It should have forked a sub-sub-shell to execute `find(1)`.
+        │        But it didn't.
+        │        Instead it immediately called `execve()`.
+        │
+        └ current shell from which the pipeline is executed
 
 This is an optimization performed by some shells, for some commands:
 
@@ -624,7 +624,7 @@ This is an optimization performed by some shells, for some commands:
 ---
 
 This is also the reason why you  don't see the subshell executing a script, with
-`$ pstree`.
+`pstree(1)`.
 Since the  subshell has only  one command to execute,  it doesn't fork,  it just
 calls `execve()` to replace its image with the one of the script.
 
@@ -647,8 +647,8 @@ Similarly:
     ... bash───bash───find~
 
 In the last example, the subshell is asked to execute a single `while` loop.
-But a loop may execute several commands, so the subshell considers that `$ find`
-is not the last command, and forks.
+But  a  loop may  execute  several  commands,  so  the subshell  considers  that
+`find(1)` is not the last command, and forks.
 
 # Why does a shell variable (i.e. non-exported) persist in a subshell but not in a script?
 
@@ -810,7 +810,7 @@ It's used to remove the special meaning of certain characters or words to the sh
 
 ### Where can I find more info about it?
 
-    $ man bash /QUOTING
+    man bash /QUOTING
 
 ##
 ## What are the three quoting mechanisms?
@@ -839,7 +839,7 @@ Note that `\` is special only if followed by either of:
 
 Also, `!` is special only if history expansion is enabled.
 Besides, some characters may inhibit the expansion when they follow immediately.
-See `$ man bash /HISTORY EXPANSION`, and `$ man zshexpn /HISTORY EXPANSION`.
+See `man bash /HISTORY EXPANSION`, and `man zshexpn /HISTORY EXPANSION`.
 
 ## Which character gets a new special meaning when quoted?
 
@@ -898,16 +898,15 @@ Although, it is in zsh:
     !!~
 
 ##
-## Why should I use `$ printf` instead of `$ echo` when testing how the shell processes a string?  (2)
+## Why should I use `printf` instead of `echo` when testing how the shell processes a string?  (2)
 
-`$   echo`   can  add   an   additional   processing,  which   translates   some
-backslash-escaped  characters  (like `\t`  or  `\u00e9`),  after the  shell  has
-processed the command.
+`echo` can add an additional processing, which translates some backslash-escaped
+characters (like `\t` or `\u00e9`), after the shell has processed the command.
 
 This makes the reasoning  about what the shell really does  more complex than it
 should be.
 
-Besides, `$ echo` is inconsistent across various shells:
+Besides, `echo` is inconsistent across various shells:
 
     $ bash -c 'echo "a\u00e9b"'
     a\u00e9b~
@@ -918,7 +917,7 @@ Besides, `$ echo` is inconsistent across various shells:
     $ zsh -c 'echo "a\u00e9b"'
     aéb~
 
-OTOH, by default, `$ printf` never translates anything, and is consistent across
+OTOH, by default,  `printf` never translates anything, and  is consistent across
 all popular shells:
 
     $ bash -c 'printf "%s" "a\u00e9b"'
@@ -932,12 +931,12 @@ all popular shells:
 
 ---
 
-Note that bash's  `$ echo` can translate some  backslash-escaped characters like
+Note that bash's  `echo` can translate some  backslash-escaped characters like
 in zsh, but only if you pass it the `-e` flag.
 
 ### Why should I always use a format (like `'%s'`) and not just a string?
 
-Inside a format `$ printf` removes  any backslash considered to be special, like
+Inside a format `printf` removes  any backslash considered to be special, like
 the shell does in a double-quoted string.
 
     $ printf 'a \\z b'
@@ -946,7 +945,7 @@ the shell does in a double-quoted string.
     $ printf 'a \t b'
     a 	 b~
 
-OTOH, if you use a format, the string won't be altered by `$ printf`:
+OTOH, if you use a format, the string won't be altered by `printf`:
 
     $ printf '%s' 'a \\z b'
     a \\z b~
@@ -1109,7 +1108,7 @@ But it shouldn't be an issue, as a shell name should be shorter.
     sh~
     ^ ✘
 
-For the same reason, don't omit the `-p` option passed to `$ ps`:
+For the same reason, don't omit the `-p` option passed to `ps(1)`:
 
     $ ARGV0=sh zsh
     $ ps $$
@@ -1189,7 +1188,7 @@ You can try to find the file with:
     % find /etc -type f -exec grep -F YOUR_VAR {} +
     % find ~    -type f -exec grep -F YOUR_VAR {} +
                                     │             │
-                                    │             └ run `$ grep` only once:
+                                    │             └ run `grep(1)` only once:
                                     │                   grep ... file1 file2 ...
                                     │
                                     │               instead of:
@@ -1214,7 +1213,7 @@ For Ubuntu, have a look at:
 
 For more info, see:
 
-   - `$ man login`
+   - `man login`
    - <http://unix.stackexchange.com/a/228167>
 
 ##
@@ -1414,7 +1413,7 @@ Example:
 
 The longer is the longest word, the less columns there is in the table.
 
-## Which character(s) does `$ column` add between 2 words to align them?
+## Which character(s) does `column(1)` add between 2 words to align them?
 
 Tab characters.
 
@@ -1477,8 +1476,8 @@ Add the `-a` option (`--across`):
 
 ## What happens if I use one of these commands, but my command output contains 24 words?
 
-`$ pr` will format the first 12 words in a page, then format the 12 next ones in
-a second page.
+`pr(1)` will format the  first 12 words in a page, then format  the 12 next ones
+in a second page.
 The  two pages  will  appear next  to  each  other, which  will  give the  false
 impression that there's a single page.
 
@@ -1542,7 +1541,7 @@ You can check how the command is split using our args.sh script:
 
 ---
 
-In the previous example, using `$ eval` could work:
+In the previous example, using `eval` could work:
 
     $ tmux set @foo 'if -F 1 "display test"' ; \
       eval "tmux $(tmux show -v @foo)"
@@ -1690,7 +1689,7 @@ Use `return`.
 
     zsh -f -d
 
-            Lance zsh sans fichier de conf (`$ man zshoptions /NO_RCS`; `$ man zshoptions /GLOBAL_RCS`).
+            Lance zsh sans fichier de conf (`man zshoptions /NO_RCS`; `man zshoptions /GLOBAL_RCS`).
             Update: zshenv is still sourced.
 
 
@@ -2342,7 +2341,6 @@ La localisation (abrégée en `l10n`) s'oppose à l'internationalisation (`i18n`
                     LC_TIME
 
             `LC_ALL` a priorité sur toutes les autres.
-            IOW, si on lui donne une valeur, les autres variables la copient.
 
 
     LC_TIME=fr_FR.UTF-8 date
@@ -3131,7 +3129,7 @@ that  sometimes  you  will  start  a  login  shell  which  doesn't  source  your
 
 ---
 
-Study an document `$ expand` and `$ unexpand`.
+Study an document `expand(1)` and `unexpand(1)`.
 
 ---
 

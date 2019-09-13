@@ -113,7 +113,7 @@ This is because there's no color indexed by 258 in the array `*colorname[]`:
     [256] = "#cccccc",
     [257] = "#555555",
 
-You can test this issue by running `$ infocmp`.
+You can test this issue by running `infocmp(1)`.
 If the output is not readable, it's because you didn't fix the patch.
 Although, for  some reason, the issue  is not present inside  tmux (even without
 any tmux config).
@@ -176,9 +176,9 @@ by pressing `dp`.
 This is necessary, for example, if you build st, then apply the Xresource patch,
 then try to rebuild.
 
-The patch adds new lines into  `config.def.h`, but not to `config.h` because the
-latter is created by `$ make`,  and `$ make` does *not* duplicate `config.def.h`
-into `config.h` if it already exists.
+The patch  adds new  lines into  `config.def.h`, but  not to  `config.h` because
+the  latter  is  created  by  `make(1)`,  and  `make(1)`  does  *not*  duplicate
+`config.def.h` into `config.h` if it already exists.
 
 Another solution is to  remove `config.h`, but then you lose  all the values you
 changed (like the colors for example).
@@ -343,7 +343,7 @@ extension *un*conditionally:
 
 <https://www.youtube.com/watch?v=9H75enWM22k>
 
-## Prevent `$ make` from compiling the terminfo description into our local database.
+## Prevent `make(1)` from compiling the terminfo description into our local database.
 
 I don't trust it.
 I prefer to rely on the one from invisible-island.
@@ -359,7 +359,7 @@ Note somewhere that we should remove these lines:
 
 ... from `~/GitRepos/st/Makefile`.
 
-This should be done automatically (with `$ sed`), so we need to use a script.
+This should be done automatically (with `sed(1)`), so we need to use a script.
 Maybe use `upp.sh`.
 
 ---

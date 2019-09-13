@@ -151,7 +151,7 @@ It remains in the background, mostly in an idle state.
 
 It communicates with  the kernel and will  be informed of events such  as a user
 pressing Ctrl+Alt+Del.
-When the  user calls  a command  such as  `$ systemctl  poweroff`, it  will then
+When  the user  runs a  command such  as `$  systemctl poweroff`,  it will  then
 initiate everything that's required to cleanly shut down the system.
 
 ###
@@ -275,7 +275,7 @@ It allows systemd to automatically mount a partition during the system boot.
 ### an automount unit?
 
 It allows  systemd to automatically mount  a partition when you  enter its mount
-point via a graphical file manager, or via `$ cd`.
+point via a graphical file manager, or via `cd`.
 
 ### a path unit?
 
@@ -332,7 +332,7 @@ Which unit does `systemctl` operate on, if I execute `$ systemctl status /run/us
 
 This shows that systemctl converts automatically a path to a mount unit name.
 
-## What's the default subcommand executed by `$ systemctl`?
+## What's the default subcommand executed by `systemctl(1)`?
 
 It's `list-units`:
 
@@ -384,7 +384,7 @@ A directive.
 
 ## Where can I find information about all possible lines I can write in a unit file?
 
-    $ man systemd.directives
+    man systemd.directives
 
 ## How can I extend the configuration of a service unit file without modifying it directly?
 
@@ -910,12 +910,12 @@ directive).
 
     $ systemctl list-units -a -t service 'vbox*'
 
-This shows that you can use glob patterns in some `$ systemctl` subcommands.
+This shows that you can use glob patterns in some `systemctl(1)` subcommands.
 
 For more info, see:
 
-    $ man 3 fnmatch
-    $ man 7 glob
+    man 3 fnmatch
+    man 7 glob
 
 But it doesn't seem to work with all of them.
 In  particular,  it  doesn't  work  with the  `start`,  `enable`  and  `disable`
@@ -923,7 +923,7 @@ subcommands.
 
 The  reason may  be that,  when  expanding a  glob pattern,  for some  commands,
 systemctl ignores a unit which is inactive or not loaded.
-This seems to be implied in `$ man systemctl`:
+This seems to be implied in `man systemctl`:
 
 > Note  that glob  patterns operate  on the  set of  primary names  of currently
 > loaded units.
@@ -1186,7 +1186,7 @@ IOW, it's supposed to take the best of the 2 concepts:
 
 ---
 
-This shows an advantage of `$ shutdown` over `$ sytemctl`:
+This shows an advantage of `shutdown(8)` over `sytemctl(1)`:
 you can pass a time argument to delay the operation.
 
 ---
@@ -1958,7 +1958,7 @@ filter for messages and might be more convenient.
 # Issues
 ## I get a popup window every time I execute a `systemctl` command!
 
-Prefix your command with `$ sudo`.
+Prefix your command with `sudo(8)`.
 
 You'll still be prompted for your password,  but only once per shell session and
 without a popup window.
@@ -1971,7 +1971,69 @@ If that doesn't help, have a look at `$ journalctl -b`.
 The service must have written why it failed.
 
 ##
-# TODO
+# Todo
+## Sometimes, when we shut down the system, it takes a long time (forever?).
+
+Read:
+
+   - `/usr/share/doc/systemd/README.Debian.gz`
+     (press `-l` to get folding; read section "Debugging boot/shutdown problems")
+   - <https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1464917>
+   - <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=788303>
+   - <https://freedesktop.org/wiki/Software/systemd/Debugging/>
+
+---
+
+Try to enable a debug shell before shutting down the system:
+
+    $ sudo systemctl start debug-shell
+
+Then, when the shutdown hangs, press Ctrl+Alt+F9.
+
+You should get a debug shell.
+In it, run this to see the hanging jobs:
+
+    $ systemctl list-jobs
+
+If you see any hanging job/error, run `dmesg(1)`.
+Run also `journalctl(1)`, and search for errors at the end.
+
+You  could  also  try  to include  `debug`  in  `GRUB_CMDLINE_LINUX_DEFAULT`  in
+`/etc/default/grub`, to increase the verbosity of the messages.
+
+---
+
+Try to gather a max of info:
+
+    $ systemctl list-jobs >>shutdown.text
+    $ systemctl --failed >>shutdown.text
+    $ uname -a >>shutdown.text
+    $ systemd --version >>shutdown.text
+    $ lsblk >>shutdown.text
+    $ blkid >>shutdown.text
+    $ journalctl -b >>shutdown.text
+    $ systemctl -all >>shutdown.text
+    $ journalctl -xe >>shutdown.text
+    $ journalctl -xe
+
+---
+
+Try to shut down the system by running `$ sudo systemctl poweroff` (don't use `shutdown(8)`).
+Or if you need to reboot: `$ sudo systemctl reboot`.
+
+---
+
+Try to disable all swap partitions: `$ sudo swapoff -a`.
+You can do this before shutting down the system, or after, in a debug shell.
+
+---
+
+Try to add the `-proposed` archive to your list of sources:
+<https://wiki.ubuntu.com/Testing/EnableProposed>
+
+And update systemd.
+
+##
 ## Watch these videos
 
 <https://www.youtube.com/watch?v=S9YmaNuvw5U>
@@ -2095,11 +2157,6 @@ I don't think we can use $HOME.
 For example, the files in:
 
     /etc/systemd/system/getty@.service.d/
-
-## Sometimes, when we shut down the system, it takes a long time (forever?).
-
-Debug this issue:
-<https://freedesktop.org/wiki/Software/systemd/Debugging/>
 
 ## Convert `~/.config/keyboard/setup.sh` as a systemd service/timer.
 

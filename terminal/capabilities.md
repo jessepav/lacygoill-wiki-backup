@@ -406,7 +406,7 @@ Example:
     $ xsel -b
     hello~
 
-See `OSC Ps ; Pt BEL /Ps = 5 2`.
+See `OSC Ps ; Pt BEL/;/Ps = 5 2`.
 
 ### It doesn't work!
 
@@ -425,7 +425,7 @@ If you're using xterm, make sure to have these lines in `~/.Xresources`:
 
 The  first line  makes  xterm  accept most  extended  window control  sequences,
 including OSC 52 because it doesn't include the name 'SetSelection'.
-The value is taken from `$ man tmux /set-clipboard`.
+The value is taken from `man tmux /set-clipboard`.
 
 The second line makes xterm write in the clipboard selection by default, instead
 of the primary selection.
@@ -481,7 +481,7 @@ Use the `OSC 52` sequence with `?` as the second parameter:
            ^
            special parameter
 
-See `OSC Ps ; Pt BEL /Ps = 5 2 /.*?`.
+See `OSC Ps ; Pt BEL/;/Ps = 5 2/;/.*?`.
 
 > If the second parameter is a ? , xterm replies to the host
 > with the selection data encoded using the same protocol.
@@ -501,7 +501,7 @@ Usage example:
     $ base64 -d <<<'aGVsbG8='
     hello~
 
-### I can't redirect the output of `$ printf` to `$ base64` and get a one-liner!
+### I can't redirect the output of `printf` to `base64(1)` and get a one-liner!
 
 You can:
 
@@ -510,12 +510,12 @@ You can:
 
 but that's not what you want.
 
-The output of `$ printf` is not the contents of the base64-encoded clipboard (`aGVsbG8=`).
+The output of `printf` is not the contents of the base64-encoded clipboard (`aGVsbG8=`).
 It's just  the string of  characters `\033]52;c;?\007`, where `\033`  and `\007`
 have been replaced with an ESC and a BEL.
 
 What you  can read on  the shell's command-line  – `52;c;aGVsbG8=` –  does *not*
-belong to `$ printf`'s output; it's a reply from the terminal *process* which is
+belong to `printf`'s output; it's a reply from the terminal *process* which is
 written on the  shell stdin (and more  generally – probably –  on the foreground
 process stdin).
 
@@ -526,7 +526,7 @@ command-line in the terminal window.
 
 If your foreground process is a script, the terminal process writes its reply on
 the stdin of the script.
-And if the script  runs `$ read`, the latter inherits the stdin  of the former –
+And if  the script runs `read`,  the latter inherits  the stdin of the  former –
 i.e. the terminal – and thus consumes the terminal's reply.
 
 #### ?
@@ -537,15 +537,15 @@ Then how to get a one-liner?
       read -d $'\a' -s -t 0.1 ; \
       base64 -d <<<${REPLY#$(printf "\e]52;c;")}
 
-The code works because `$ read` reads  from its stdin which it inherits from the
+The code works  because `read` reads from  its stdin which it  inherits from the
 shell; and by default, the shell's stdin is the terminal.
 
 ---
 
 The first semicolon is essential (not the second one).
-You need it to prevent a new  command-line from being printed between `$ printf`
-and `$ read`; if that were to  happen you couldn't run `$ read` without removing
-the reply from the terminal.
+You need  it to prevent a  new command-line from being  printed between `printf`
+and `read`; if that were to happen  you couldn't run `read` without removing the
+reply from the terminal.
 
     ✘
     $ printf ...
@@ -576,7 +576,7 @@ command-line.
     base64 -d <<<${REPLY#$(printf "\e]52;c;")}
     #              ├───┘├───────────────────┘
     #              │    └ remove an undesired prefix from the reply
-    #              └ if no names are supplied to `$ read`, the line read is assigned to the variable REPLY
+    #              └ if no names are supplied to `read`, the line read is assigned to the variable REPLY
 
 #### ?
 
@@ -713,7 +713,6 @@ which the programs can use the `cup` capability.
 
 `$ clear` is used to move the cursor back to home.
 
-
 # Adding and deleting
 
     ┌───────────┬────────────────────┐
@@ -769,7 +768,7 @@ Underline mode:
 
 In the terminal description, append the character `@` to the name of the capability.
 
-See `$ man terminfo /Similar Terminals /canceled`:
+See `man terminfo /Similar Terminals/;/canceled`:
 
 > A capability can be  canceled by placing xx@ to the left  of the use reference
 > that imports it, where xx is the capability.

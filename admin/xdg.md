@@ -15,7 +15,7 @@ Programs use it to determine how to handle the data they receive.
 
 ## When should I change the mimetype of a file?
 
-When you double-click  on a file, or  use `$ xdg-open`, and it  doesn't open the
+When you double-click on  a file, or use `xdg-open(1)`, and  it doesn't open the
 file with the desired program.
 
 ## How to get the mimetype of a file?
@@ -54,7 +54,7 @@ If it doesn't, use a regex to widen the search:
     ~/.config/mimeapps.list
 
 There may be other files (like `~/.local/share/applications/mimeapps.list`), use
-`$ locate` to find them:
+`locate(1)` to find them:
 
     $ locate -i mimeapps.list
 

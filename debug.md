@@ -30,8 +30,9 @@ to reproduce the issue alone.
 
 If  you can't  reproduce, the  issue is  not due  to a  single line,  but to  an
 interaction between several.
-Leave the PL in  your config file, move it at the top,  and re-bisect the config
-file to find another PL, *without ever* removing the previous PL.
+Leave  the PL  in your  config  file –  maybe move  it  at the  top (unless  the
+reordering affects the issue...) – and re-bisect the config file to find another
+PL, *without ever* removing the previous PL.
 Repeat until you've found out the whole set of problematic lines.
 
 ---
@@ -138,7 +139,7 @@ We could  have ended up  thinking that  maybe xterm did  write the text,  but in
 another selection.
 Then, we could have inspected the output of `$ xsel -p`, `$ xsel -s`, `$ xsel -b`.
 We would have found that xterm wrote the text in the primary selection.
-We then would have  looked at `$ man xterm` to check whether  it was possible to
+We then  would have looked at  `man xterm` to  check whether it was  possible to
 configure xterm and make it write to the clipboard.
 There are only 25 matches for the pattern `clipboard` in the manpage atm.
 So, we would have quickly found  the option `selectToClipboard`, tried to change

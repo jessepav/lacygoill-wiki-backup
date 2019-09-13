@@ -1,4 +1,4 @@
-# What's the synopsis of the `$ bash` command?
+# What's the synopsis of the `bash(1)` command?
 
        $ bash [options] [command_string | file]
 

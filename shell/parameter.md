@@ -353,7 +353,7 @@ help/prevent the shell from finding an executable (script or binary).
 
 ## How can I know whether a parameter is special?
 
-In `$ man zshparam`, a special parameter is marked with the characters `<S>`.
+In `man zshparam`, a special parameter is marked with the characters `<S>`.
 
 ##
 ## How to get the type of a parameter and its attributes?

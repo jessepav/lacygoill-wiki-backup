@@ -19,7 +19,7 @@ the special meaning of the following double quote.
 As a result,  the string is unfinished,  because the last quote  doesn't end the
 string; it's *included* in the string.
 
-From `$ man tmux /COMMAND PARSING AND EXECUTION /twice`:
+From `man tmux /COMMAND PARSING AND EXECUTION/;/twice`:
 
 > This means that arguments can be parsed twice or more - once when the parent
 > command (such as  if-shell) is parsed and again when  it parses and executes
@@ -109,7 +109,7 @@ shell command `true` is instantaneous.
 ---
 
 `displayp` blocks until you press a key.
-From `$ man tmux /COMMAND PARSING AND EXECUTION /subsequent`:
+From `man tmux /COMMAND PARSING AND EXECUTION/;/subsequent`:
 
 > Commands like if-shell, run-shell and display-panes stop execution of subsequent
 > commands on the  queue until something happens - if-shell  and run-shell until a
@@ -578,7 +578,7 @@ A pane can only have a title.
 A window can have a name.
 It can't have its own title, but it automatically gets the one of its active pane.
 
-From `$ man tmux /NAMES AND TITLES`:
+From `man tmux /NAMES AND TITLES`:
 > Windows themselves do not have titles - a window's title is the title of its active pane.
 
 ###
@@ -667,7 +667,7 @@ Pass the `-I` flag to `display-message`.
 
 Create the empty pane, and save its id.
 Then use this id to send your text.
-Use the second optional argument of `system()` to pass the text to the stdin of `$ tmux`.
+Use the second optional argument of `system()` to pass the text to the stdin of `tmux(1)`.
 
     :let pane_id = system('tmux splitw -PF "#D" -dI', "hello\n")[:-2]
     :call system('tmux display -t ' . pane_id . ' -I', "world\n")

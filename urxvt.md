@@ -80,7 +80,7 @@ Enter this:
 
 ---
 
-The `-b` option passed to `$ patch` creates a backup of a file before patching it.
+The `-b` option passed to `patch(1)` creates a backup of a file before patching it.
 The backup file bears the extension `.orig`.
 
 ---
@@ -177,7 +177,7 @@ It may crash (`malloc()` memory corruption).
 The issue has been introduced in this commit:
 <https://github.com/exg/rxvt-unicode/commit/d3fc23b4a4ac48a1185985cad764477e951da688>
 
-You can still install the binary with `$ checkinstall`, and it will work fine.
+You can still install the binary with `checkinstall(8)`, and it will work fine.
 
 ### install
 
