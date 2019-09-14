@@ -416,7 +416,7 @@ nothing to separate.
 ###
 ### My command must act differently depending on the number of arguments it receives.  Which sequence should I use?
 
-        <f-args>
+    <f-args>
 
 Ofc, you could still split one big  string with `split()`, but it makes the code
 a little longer.

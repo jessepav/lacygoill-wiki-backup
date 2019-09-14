@@ -1523,23 +1523,6 @@ et 'baz'.
             `user` peut lancer sur n'importe qelle machine, en tant que n'importe quel utilisateur,
             n'importe quelle commande.
 
-### What's your current config?
-
-    Defaults    pwfeedback
-    Defaults    timestamp_timeout=30
-
-    user ubuntu=(root)NOPASSWD:/usr/bin/aptitude update,/usr/bin/aptitude upgrade
-    user ubuntu=(root)NOPASSWD:/usr/bin/aptitude install *,/usr/bin/aptitude purge *
-    user ubuntu=(root)NOPASSWD:/usr/bin/aptitude safe-upgrade
-    user ubuntu=(root)NOPASSWD:/usr/bin/systemctl
-    %admin ubuntu=(root)NOEXEC:/usr/bin/vim
-
-TODO: How to backup/version control `/etc/sudoers.d/my_modifications`?
-It's a sensitive  file, and owned by  root so cloning it could  be tricky (`sudo
-config pull ...`?).
-And if the  cloning fails and we end  up with a corrupted file,  `sudo` could be
-broken.
-
 ### utilisation
 
     su -l

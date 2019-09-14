@@ -1883,15 +1883,15 @@ des LF (aucun effet donc).
                     1 ] C-i
 
 
-                        ┌  le pattern doit être unbounded
-                        │  mnémotechnique: les slashs brisent les ancres
-                        │
-                        │  permet aussi de faire suivre `:isp` d'une autre commande Ex, après un pipe;
-                        │  sans les slashs, `|other_cmd` serait interprété comme faisant partie du pattern
-                    ┌───┤
+                    ┌ le pattern doit être unbounded
+                    │ mnémotechnique: les slashs brisent les ancres
+                    │
+                    │ permet aussi de faire suivre `:isp` d'une autre commande Ex, après un pipe;
+                    │ sans les slashs, `|other_cmd` serait interprété comme faisant partie du pattern
+                    ├───┐
     :5,10isearch! 3 /pat/
                 │
-                └─ cherche aussi dans les lignes commentées
+                └ cherche aussi dans les lignes commentées
 
     :5,10ilist!     /pat/
 

@@ -1996,30 +1996,15 @@ In it, run this to see the hanging jobs:
     $ systemctl list-jobs
 
 If you see any hanging job/error, run `dmesg(1)`.
-Run also `journalctl(1)`, and search for errors at the end.
+Run also `$ journalctl -xe`.
 
 You  could  also  try  to include  `debug`  in  `GRUB_CMDLINE_LINUX_DEFAULT`  in
 `/etc/default/grub`, to increase the verbosity of the messages.
 
 ---
 
-Try to gather a max of info:
-
-    $ systemctl list-jobs >>shutdown.text
-    $ systemctl --failed >>shutdown.text
-    $ uname -a >>shutdown.text
-    $ systemd --version >>shutdown.text
-    $ lsblk >>shutdown.text
-    $ blkid >>shutdown.text
-    $ journalctl -b >>shutdown.text
-    $ systemctl -all >>shutdown.text
-    $ journalctl -xe >>shutdown.text
-    $ journalctl -xe
-
----
-
-Try to shut down the system by running `$ sudo systemctl poweroff` (don't use `shutdown(8)`).
-Or if you need to reboot: `$ sudo systemctl reboot`.
+Try to shut down the system by running `$ systemctl poweroff` (don't use `shutdown(8)`).
+Or if you need to reboot: `$ systemctl reboot`.
 
 ---
 
@@ -2032,6 +2017,39 @@ Try to add the `-proposed` archive to your list of sources:
 <https://wiki.ubuntu.com/Testing/EnableProposed>
 
 And update systemd.
+
+---
+
+Atm, here's the output of `$ systemctl list-jobs`:
+
+    JOB UNIT                                                          TYPE  STATE
+    1529 dev-sda5.swap                                                 stop  running
+    1528 dev-disk-by\x2did-wwn\x2d0x55cd2e404bd8ae31\x2dpart5.swap     stop  running
+    1385 systemd-poweroff.service                                      start waiting
+    1524 umount.target                                                 start waiting
+    1525 dev-disk-by\x2dpath-...0000:00:1f.2\x2data\x2d5\x2dpart5.swap stop  running
+    1384 poweroff.target                                               start waiting
+    1526 dev-disk-by\x2duuid-...2\x2d4f56\x2da70d\x2d99203e934142.swap stop  running
+    1527 dev-disk-by\x2did-at...120A3_CVCV434202BE120BGN\x2dpart5.swap stop  running
+    1533 final.target                                                  start waiting
+
+    9 jobs listed.
+
+You can see that there are 5 jobs running; they are all related to the swap.
+And there  are 4 jobs  waiting; they are  probably waiting for  the swap-related
+jobs to be finished.
+In conclusion, it seems our hanging issue is related to the swap.
+
+---
+
+Document how to start a debug shell during the boot process.
+
+I   think  you   need  to   edit  `/etc/default/grub`,   and  append   the  item
+`systemd.debug-shell`  in  the  value   assigned  to  `GRUB_CMDLINE_LINUX`  (see
+`/usr/share/doc/systemd/README.Debian.gz`), then run `$ sudo update-grub`.
+
+For   more  info   about   the  difference   between  `GRUB_CMDLINE_LINUX`   and
+`GRUB_CMDLINE_LINUX_DEFAULT`, see `info -f grub -n 'Simple configuration'`.
 
 ##
 ## Watch these videos
