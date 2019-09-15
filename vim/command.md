@@ -432,8 +432,7 @@ From `:h <f-args>`:
 > <f-args> replaces every pair of backslashes (\\) with one backslash.
 
 You could use another escape sequence,  but the manual parsing would probably be
-non-trivial.
-`<f-args>` give it to you for free.
+non-trivial; `<f-args>` give it to you for free.
 
 ### How is `<f-args>` replaced if I provide no argument to the command?
 

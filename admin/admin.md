@@ -2670,6 +2670,11 @@ See here for an explanation:
             Also, see this:
             https://github.com/garabik/grc
 
+            See also `ccze(1)`:
+
+                $ aptitude install ccze
+                $ cat /var/log/boot.log | ccze -A
+
 
     https://beyondgrep.com/feature-comparison/
     https://rentes.github.io/unix/utilities/2015/07/27/moreutils-package/

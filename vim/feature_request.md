@@ -31,35 +31,8 @@ Same issue for other completions: `C-x C-t`, `C-x C-d`, `C-x C-l`, ...
 
 It would be useful to toggle an auto-open-fold mode in an arbitrary buffer.
 
-    nno <silent> coz :<c-u>call <sid>auto_open_fold('enable')<cr>
+---
 
-    fu! s:auto_open_fold(action) abort
-        if s:auto_open_fold('is_active')
-            call s:auto_open_fold('disable')
-            echo '[auto open folds] OFF'
-        else
-            call s:auto_open_fold('enable')
-            echo '[auto open folds] ON'
-        endif
-        if a:action is# 'is_active'
-            return exists('s:fold_options_save')
-        elseif a:action is# 'enable' && !exists('s:fold_options_save')
-            let s:fold_options_save = {
-            \                           'close'  : &foldclose,
-            \                           'open'   : &foldopen,
-            \                           'enable' : &foldenable,
-            \                           'level'  : &foldlevel,
-            \                         }
-            set foldclose=all
-            set foldopen=all
-            set foldenable
-            set foldlevel=0
-        elseif a:action is# 'disable' && exists('s:fold_options_save')
-            for op in keys(s:fold_options_save)
-                exe 'let &fold'.op.' = s:fold_options_save.'.op
-            endfor
-            norm! zMzv
-            unlet! s:fold_options_save
-        endif
-    endfu
+Right now,  we do it by  installing temporary mappings (`j`,  `k`, `C-d`, `C-u`,
+`gg`, `G`), which automatically open folds.
 
