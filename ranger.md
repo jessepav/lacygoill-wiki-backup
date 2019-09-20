@@ -69,10 +69,10 @@ Press `+gr`.
 ##
 # AIDE
 
-    :help → m                                       dans ranger
+    :help → m                                  dans ranger
 
-    :Man /home/user/GitRepos/ranger/doc/ranger.1    dans Vim
-    :Man /home/user/GitRepos/ranger/doc/rifle.1
+    :Man /home/user/Vcs/ranger/doc/ranger.1    dans Vim
+    :Man /home/user/Vcs/ranger/doc/rifle.1
 
 # BUGS
 
@@ -160,7 +160,7 @@ Open an audio/video file from ranger, then try quit ranger.
 # CONFIGURATION
 
 Pour ajouter le support des VCS (glyphes git), dans `~/.config/ranger/rc.conf` remplacer `set vcs_aware false` par:
-`setlocal path=~/home/user/GitRepos/ vcs_aware true`
+`setlocal path=~/home/user/Vcs/ vcs_aware true`
 
 Source: https://github.com/hut/ranger/wiki/VCS-integratio://github.com/hut/ranger/wiki/VCS-integration
 
@@ -1297,8 +1297,8 @@ Find a way to automatically mount a flash disk or hard drive.
 From outside ranger, you could try udiskie: <https://github.com/coldfix/udiskie>
 From ranger:
 
-    ~/GitRepos/ranger/examples/plugin_pmount.py
-    ~/GitRepos/ranger/examples/plugin_pmount_dynamic.py
+    ~/Vcs/ranger/examples/plugin_pmount.py
+    ~/Vcs/ranger/examples/plugin_pmount_dynamic.py
 
 Although, these scripts depend on pmount which doesn't seem to be actively developed.
 Have a look at bashmount too: <https://github.com/jamielinux/bashmount>

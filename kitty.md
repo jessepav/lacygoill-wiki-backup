@@ -187,7 +187,7 @@ You need to copy the terminfo description of kitty inside `~/.terminfo/x/`:
 I don't know why.
 Try to understand.
 
-        $ cp ~/GitRepos/kitty/terminfo/x/xterm-kitty ~/.terminfo/x/
+        $ cp ~/Vcs/kitty/terminfo/x/xterm-kitty ~/.terminfo/x/
 
 ## The background of the terminal bleeds into my Vim color scheme background!
 

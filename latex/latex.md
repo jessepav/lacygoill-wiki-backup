@@ -741,10 +741,11 @@ Or try to tweak  the mapping starting the compilation, so that  it `:lcd` in the
 directory of the current file before compiling.
 
 #
-# TODO
+# Todo
 
 https://castel.dev/post/lecture-notes-1/
 https://castel.dev/post/lecture-notes-2/
+https://castel.dev/post/lecture-notes-3/
 
 [texlive-en.pdf](~/texlive/2018/texmf-dist/doc/texlive/texlive-en/texlive-en.pdf)
 

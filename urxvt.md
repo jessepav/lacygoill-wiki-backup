@@ -9,7 +9,7 @@
 ## By Compiling
 ### clone the repo
 
-    $ cd ~/GitRepos/
+    $ cd ~/Vcs/
     $ git clone https://github.com/exg/rxvt-unicode
 
 You could also have run:
@@ -42,7 +42,7 @@ See these links for more info:
 
 ### apply patches
 
-    $ cd ~/GitRepos/rxvt-unicode/src
+    $ cd ~/Vcs/rxvt-unicode/src
 
     $ patch -b <~/.config/urxvt/patches/00-font-width-fix.patch ; \
       patch -b <~/.config/urxvt/patches/00-256resources.patch ; \
@@ -74,7 +74,7 @@ The last patch raises this error:
 
 Enter this:
 
-    /home/user/GitRepos/rxvt-unicode/src/perl/selection-popup
+    /home/user/Vcs/rxvt-unicode/src/perl/selection-popup
           ^^^^
           replace with your user name
 
@@ -112,7 +112,7 @@ For more info, see:
 
 ### configure
 
-    $ cd ~/GitRepos/rxvt-unicode
+    $ cd ~/Vcs/rxvt-unicode
 
     $ ./configure \
     --enable-256-color \

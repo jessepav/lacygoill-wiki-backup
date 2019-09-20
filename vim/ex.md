@@ -1,4 +1,4 @@
-# What's the difference between `-e` and `-E` in a non-interactive command in
+# What's the difference between `-e` and `-E` when used to start non-interactively
 ## Vim?
 
 None.
@@ -36,8 +36,8 @@ you'll never use `-e`, nor `-E`, without `-s`.
 
 ---
 
-There's no difference between `-e` and `-E` in an interactive command.
-Both start Nvim in an "improved" Ex mode.
+There's no difference between `-e` and  `-E` when Nvim is started interactively;
+both start Nvim in an "improved" Ex mode.
 
 ##
 # silent/batch mode
@@ -76,21 +76,40 @@ This is because Vim would write directly  to the terminal, to draw the output in
 its own window; it  would not write the output on its  stdout which is connected
 to the shell pipe.
 
-## When is it useful?
+## When is it useful?  (2)
 
 When you need to edit some text non-interactively.
 That is, when you want to execute Ex  commands from a file or a pipe, instead of
 the keyboard.
 
+---
+
+It's also useful when you want Vim's output to be printed on the terminal, which
+is handy when you want to easily  reproduce some behavior (either in your notes,
+or in a bug report).
+
+Instead of writing:
+
+    $ vim
+    :cmd
+
+You can write a shell one-liner:
+
+    $ vim -es +"put ='cmd'" +'%p|qa!'
+
 ##
 ## I have a long series of Ex commands I want to regularly run on some file(s).
 ### What's the most readable and re-usable way to apply them?
 
-Write your Ex commands in a `filter` file, then run:
+Write them in a `filter` file, then run:
 
     $ vim -es <filter file
               │
               └ redirect to stdin
+
+Which is equivalent to:
+
+    $ cat filter | vim -es - file
 
 ---
 
@@ -163,7 +182,7 @@ also redirect stderr:
 ## How to skip *all* initializations
 ### in Vim?
 
-You need to reset `'loadplugins'` (e.g. via `--noplugin`).
+You need to reset `'loadplugins'` (e.g. via `--noplugin` or `-Nu NONE`):
 
           vvvvvvvvvv
     $ vim --noplugin -es +'set vbs=1|scriptnames|qa!'
@@ -183,9 +202,8 @@ Otherwise, plugins are not skipped:
 
 You need to:
 
-   - reset `'loadplugins'` (e.g. via `--noplugin`) to skip plugins
-
-   - use `-u NONE` to skip the scripts sourcing the filetype/syntax/indent plugins
+   - use `-u NONE` to skip the plugins (like `--noplugin` would do)
+     *and* the scripts sourcing the filetype/syntax/indent plugins
 
         1: /usr/local/share/nvim/runtime/filetype.vim
         2: /usr/local/share/nvim/runtime/ftplugin.vim
@@ -198,8 +216,8 @@ You need to:
 
 Example:
 
-           vvvvvvvvvvvvvvvvvvvvvvvvvv
-    $ nvim -u NONE -i NONE --noplugin -es +'set vbs=1|scriptnames|qa!'
+           vvvvvvvvvvvvvvv
+    $ nvim -u NONE -i NONE -es +'set vbs=1|scriptnames|qa!'
     ''~
 
 ###
@@ -213,6 +231,10 @@ Example:
 > another.
 > Use ed(1) or ex(1) instead: eg.
 > ex -sc '%s/a/b/|wq' file
+
+Besides, `$ sed -i` makes you lose Vim's undo tree.
+With `vim(1)`,  you can preserve the  latter provided that you  set `'undofile'`
+and `'undodir'` appropriately.
 
 ##
 # Vim used in a shell pipeline
@@ -230,12 +252,12 @@ due to `%p`).
 This also explains why this command has no output:
 
     # `qa!` makes Vim quit before printing the value of the 'number' option
-    $ echo 'set vbs=1 number?' | vim -es +'qa!' <(echo text)
+    $ echo 'set vbs=1 number?' | vim -es +'qa!'
     ''~
 
 While this one has:
 
-    $ echo 'set vbs=1 number?|qa!' | vim -es <(echo text)
+    $ echo 'set vbs=1 number?|qa!' | vim -es
       nonumber~
 
 ## In `$ echo text | vim +cmd`, in which order are `echo text` and `+cmd` processed?
@@ -306,10 +328,10 @@ By specifying `-` *before* `-es`, we make Vim process the stdin as a literal tex
 
 ---
 
-The shell command does not exit with `1`  because of the fact that `text` is not
+The shell command does not exit with `1` because of the fact that `:text` is not
 a valid Ex command.
 Indeed, `+cmd` is always processed before `echo cmd`, so here `qa!` is processed
-before the "command" `text`, and `text` is not run.
+before the "command" `text`, and `:text` is not run.
 
 ##
 ### When I use it, how is the stdin read by
@@ -578,7 +600,7 @@ IOW, you can't invoke Nvim under those names.
 ### I get a whole bunch of errors when I run `ex`!
 
 Initializations are not skipped, so your vimrc and plugins are sourced.
-But when Vim is called under the name `ex`, it starts in compatible mode.
+Besides when Vim is called under the name `ex`, it starts in compatible mode.
 You need to reset `'compatible'`:
 
     $ ex -N
@@ -725,9 +747,10 @@ As a result, the contents of the undo  file is not synchronized with the file it
 was written for.
 
 From `:h persistent-undo`:
-> Vim will detect if an undo file is no longer synchronized with the file it was
-> written for (with a hash of the file contents) and ignore it when the file was
-> changed after the undo file was written, to prevent corruption.
+
+>    Vim will detect if an undo file  is no longer synchronized with the file it
+>    was written for (with  a hash of the file contents) and  ignore it when the
+>    file was changed after the undo file was written, to prevent corruption.
 
 You  need to  manually  "undo" (can't  use `:undo`  nor  `u`) the  modifications
 applied since the last time the undo file was saved.

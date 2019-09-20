@@ -63,7 +63,7 @@ Interface for Rapidly Tagging Many Small Files
             Installation des dépendances nécessaires à la compilation du paquet `TMSU`.
 
 
-    cd ~/GitRepos/
+    cd ~/Vcs/
     git clone https://github.com/oniony/TMSU/
     cd TMSU/
     git checkout v0.6.1 (la release la plus récente atm)

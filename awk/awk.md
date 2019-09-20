@@ -289,7 +289,7 @@ For more info, see page 433 of the gawk user's guide, and:
 Install gawk shared library:
 
     $ git clone git://git.code.sf.net/p/gawkextlib/code gawkextlib
-    $ cd ~/GitRepos/gawkextlib/lib
+    $ cd ~/Vcs/gawkextlib/lib
     $ autoreconf -i && ./configure && make && make check
 
     $ sudo checkinstall
@@ -301,7 +301,7 @@ The version is given in `configure.ac` (look for the line `AC_INIT`).
 
 Build `tre` which is a dependency of the `aregex` library extension:
 
-    $ cd ~/GitRepos/
+    $ cd ~/Vcs/
     $ git clone https://github.com/laurikari/tre/
     $ cd tre
     $ ./utils/autogen.sh
@@ -332,7 +332,7 @@ Debian  wants  the  name of  a  package,  not  a  path: give  the  package  name
 Build the `aregex` library extension.
 Name it `gawk-aregex` instead of just `aregex`.
 
-    $ cd ~/GitRepos/gawkextlib/aregex
+    $ cd ~/Vcs/gawkextlib/aregex
     $ autoreconf -i && ./configure && make && make check
     $ sudo checkinstall
 
@@ -360,7 +360,7 @@ Similarly install other library extensions in `gawkextlib/`.
     gd
 
     # need the `libhpdf-dev` package
-    # there's no documentation, except for `~/GitRepos/gawkextlib/haru/test/pdftest.awk`
+    # there's no documentation, except for `~/Vcs/gawkextlib/haru/test/pdftest.awk`
     haru
 
     json

@@ -162,7 +162,7 @@ belonging to `PGM` (it  will probably happen if `PGM` is  already installed in a
 different version).
 If that happens, the installation will fail:
 
-    dpkg: error processing archive /home/user/GitRepos/zsh/zsh_9999.9999-1_amd64.deb (--install):~
+    dpkg: error processing archive /home/user/Vcs/zsh/zsh_9999.9999-1_amd64.deb (--install):~
      trying to overwrite '/usr/share/man/man1/zshmodules.1.gz', which is also in package myzsh 999-1~
     dpkg-deb: error: subprocess paste was killed by signal (Broken pipe)~
 
@@ -176,7 +176,7 @@ its  basename matches  the  program  (e.g. ansifilter.spec,  weechat.spec,
 IOW, a {vim|tmux|...}.spec file has priority over `--pkg...`.
 
 Besides, sometimes, the values in the .spec file are not literal.
-For example, in `~/GitRepos/weechat/weechat.spec:31`, one can read:
+For example, in `~/Vcs/weechat/weechat.spec:31`, one can read:
 
     Version:   %{version}
     Release:   %{release}

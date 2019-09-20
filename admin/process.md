@@ -641,6 +641,17 @@ From `man 2 wait`:
 
 <https://en.wikipedia.org/wiki/System_resource>
 
+---
+
+Document  that  `~/bin/signals_disposition.sh`  is  useful to  check  whether  a
+process is blocking `CHLD`, which can explain why it has zombies.
+And that  more generally, `/proc/PID/status` contains  a lot of useful  info for
+debugging an issue.
+
+I think that when a process blocks a signal, it tells the OS never to send it.
+OTOH, when a process ignores a signal, the OS can still send it, but the process
+doesn't react to it.
+
 ## Daemon
 
 A daemon is a program that runs as a background process, rather than being under

@@ -1950,9 +1950,9 @@ références peuvent être déplacées librement.
         https://www.reviewboard.org/docs/codebase/dev/git/clean-commits/
         http://ndpsoftware.com/git-cheatsheet.html
         http://rypress.com/tutorials/git/index
+        https://blog.jez.io/cli-code-review/
 
         https://jonas.github.io/tig/doc/manual.html
         man tig
         man tigrc
         man tigmanual
-

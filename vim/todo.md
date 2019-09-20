@@ -39,6 +39,36 @@ At the  moment, we  set `'cul'` in  the `window#scroll_preview()`  function from
 `~/plugged/vim-window/autoload/window.vim`, so you don't have  to set it in your
 implementation of a scratch buffer.
 
+---
+
+Update:
+
+Pro:
+
+   - keep focus where it currently is
+
+   - auto-open-fold for free
+
+    Otherwise, you'll need to run `:norm coz`.
+
+    But that's unreliable, because you may change the lhs of your `coz` mapping.
+
+    And because,  if you install a  shell function to start  Vim and immediately
+    open the scratch buffer, it won't work (`coz` is installed on `CursorHold`).
+    Although,  you could  convert  `s:auto_open_fold()` into  a public  function
+    though, and call the latter...
+
+Con:
+
+   - `z}` is harder to press to close the window (vs `q`)
+
+   - you may want to implement some interactive features; if so, you'll need to
+     focus the window cancelling the main benefit of a preview window
+
+   - if there is already a preview window, its contents is replaced
+
+   - adds noise in the status line (`[Preview]` flag)
+
 ### `{`, `}`, `(`, `)`, `[[`, `]]` as lhs in various local mappings
 
 ### enabling auto-opening fold
@@ -64,6 +94,15 @@ The cursor position should be preserved.
 
 Should we also make a scratch buffer reloadable via a custom mapping?
 (lhs = `r` or `R`; maybe `R` to not be too easy to press by accident...)
+
+---
+
+All of the above is irrelevant if the info in your scratch buffer is read from a
+regular file; in which case, you should just edit it in read-only mode.
+
+The read-only mode will prevent you from wrongly editing the file by accident.
+In particular, the auto-save feature won't save a modified read-only buffer.
+But it will still allow you to edit the file if you really want to (`:w!`).
 
 ## at most, only one scratch buffer should be displayed per tab page
 
@@ -244,6 +283,10 @@ So, it makes more sense to display the information on the left than on the right
 
 If the information is specific to the current buffer, choose `:leftabove`.
 Otherwise, choose `:topleft`.
+
+## make sure no error is raised when we reload a scratch buffer which is in a tab page containing only 1 window
+
+Find a design which prevents this possible issue.
 
 ##
 ## once you've come up with a design

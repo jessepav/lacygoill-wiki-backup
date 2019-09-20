@@ -996,8 +996,8 @@ contenant plusieurs fichiers.
 
             `node` est un très gros projet:
 
-                    % du -sh ~/GitRepos/node
-                    751M    /home/user/GitRepos/node
+                    % du -sh ~/Vcs/node
+                    751M    /home/user/Vcs/node
 
             La compilation peut prendre beaucoup de temps, et consommer pas mal de ressources (mémoire et cpu).
 

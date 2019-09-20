@@ -464,8 +464,8 @@ Recompile one with our zsh snippet:
 
 And use it to extract a backtrace from the core:
 
-    $ gdb -n -ex 'thread apply all bt full' -batch ~/GitRepos/tmux/tmux /path/to/core >backtrace.txt
-                                                   ^^^^^^^^^^^^^^^^^^^^
+    $ gdb -n -ex 'thread apply all bt full' -batch ~/Vcs/tmux/tmux /path/to/core >backtrace.txt
+                                                   ^^^^^^^^^^^^^^^
 
 ---
 
