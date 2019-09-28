@@ -43,10 +43,10 @@ Also integrate some comments from `vim-completion`.
 Le comportement d'une complétion est géré par l'option 'completeopt'.
 Celle-ci peut prendre une série de valeurs. Les plus importantes sont:
 
-        - 'noinsert'    la 1e entrée n'est pas automatiquement insérée,
-                        mais elle peut être automatiquement sélectionnée
+   - 'noinsert'    la 1e entrée n'est pas automatiquement insérée,
+                   mais elle peut être automatiquement sélectionnée
 
-        - 'noselect'    elle n'est ni insérée, ni sélectionnée
+   - 'noselect'    elle n'est ni insérée, ni sélectionnée
 
 
 Le contenu  du menu  est mis à  jour dynamiquement après  un C-h  (backspace) ou
@@ -54,10 +54,10 @@ l'insertion d'un nouveau caractère.
 Sauf si une entrée a déjà été automatiquement insérée.
 C'est le cas lorsque:
 
-        - on tape C-n ou C-p
+   - on tape C-n ou C-p
 
-        - 'cot' ne contient ni 'noinsert', ni 'noselect'
-          Vim insère alors automatiquement la 1e entrée du menu
+   - 'cot' ne contient ni 'noinsert', ni 'noselect'
+     Vim insère alors automatiquement la 1e entrée du menu
 
 Dans les 2 cas, l'insertion d'une entrée met fin à la mise à jour dynamique du menu.
 La prochaine fois qu'on tapera un caractère manuellement, le menu se fermera.

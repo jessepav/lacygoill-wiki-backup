@@ -1496,6 +1496,19 @@ used to populate the qfl.
 
 <https://github.com/vim/vim/pull/3701>
 
+## Document the errorformat shell utility
+
+<https://github.com/reviewdog/errorformat>
+<https://reviewdog.github.io/errorformat-playground/>
+
+> It's basically for practicing and checking errorformat with ease in browsers.
+> I expect users can write erroformats in playground first, validate them, and use
+> it for vim's  quickfix list or other use cases  like reviewdog or efm-langserver
+> outside vim too.
+> https://github.com/reviewdog/errorformat#use-cases-of-errorformat-outside-vim
+
+Source: <https://www.reddit.com/r/vim/comments/d7vdbk/erroformat_playground/>
+
 ## Talk about the 'filewinid' property of a location window.
 
 See `:h getloclist()`.
@@ -1562,7 +1575,7 @@ Try this:
         set sp=>
         grep! foobar /etc 2>/dev/null
 
-## Why does `sil grep! pat . | redraw!` make the screen “flash” (even if we remove `tee` from 'sp')?
+## Why does `sil grep! pat . | redraw!` make the screen flicker (even if we remove `tee` from 'sp')?
 
 ## How to open the qf window from a script, using an autocmd installed elsewhere?
 

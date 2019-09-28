@@ -131,6 +131,7 @@ Tmux:
    - <https://github.com/tmux-plugins/tmux-resurrect>
    - <https://github.com/tmux-plugins/tmux-sensible>
    - <https://github.com/tmux-plugins/tmux-yank>
+   - <https://github.com/zolrath/wemux>
 
 Vim:
 

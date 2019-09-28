@@ -536,42 +536,40 @@ Use the `<range>` escape sequence:
 
 The syntax of the command:
 
-        “are there enough arguments?”
+    “are there enough arguments?”
 
 and the sanity of the arguments when they're non boolean:
 
-        “are they what the function expects?”
+    “are they what the function expects?”
 
 ---
 
 If the syntax is wrong, print a usage message:
-
 ```vim
-        "  ┌ `match()` interpret its argument as a pattern;
-        "  │ here `index()` is better, because it interprets it as a literal string
-        "  │
-        if index(args, '-kind') == -1 || index(args, '-filetype') == -1
-            echo 'usage:'
-            echo '    DebugLocalPlugin -kind ftplugin -filetype sh'
-            echo '    DebugLocalPlugin -kind indent   -filetype awk'
-            echo '    DebugLocalPlugin -kind syntax   -filetype python'
-            return
-        endif
+    "  ┌ `match()` interpret its argument as a pattern;
+    "  │ here `index()` is better, because it interprets it as a literal string
+    "  │
+    if index(args, '-kind') == -1 || index(args, '-filetype') == -1
+        echo 'usage:'
+        echo '    DebugLocalPlugin -kind ftplugin -filetype sh'
+        echo '    DebugLocalPlugin -kind indent   -filetype awk'
+        echo '    DebugLocalPlugin -kind syntax   -filetype python'
+        return
+    endif
 ```
 If the arguments are not sane, print an error message:
-
 ```vim
-        "         ┌ WHITELIST of expected values
-        "         │ (don't use a blacklist, it's not restrictive enough)
-        "         ├────────────────────────────┐
-        if index(['ftplugin', 'indent', 'syntax'], kind) == -1
-            echo 'you did not provide a valid kind; choose:  ftplugin, indent, or syntax'
-            return
+    "         ┌ WHITELIST of expected values
+    "         │ (don't use a blacklist, it's not restrictive enough)
+    "         ├────────────────────────────┐
+    if index(['ftplugin', 'indent', 'syntax'], kind) == -1
+        echo 'you did not provide a valid kind; choose:  ftplugin, indent, or syntax'
+        return
 
-        elseif index(getcompletion('*', 'filetype'), filetype) == -1
-            echo 'you did not provide a valid filetype'
-            return
-        endif
+    elseif index(getcompletion('*', 'filetype'), filetype) == -1
+        echo 'you did not provide a valid filetype'
+        return
+    endif
 ```
 ### Why should I pass the range of a command inside the arguments of the called function, and not before `:call`?
 
@@ -581,11 +579,11 @@ In the replacement text  of the command, if you position  the range right before
 You could prevent this by giving the  `range` attribute to the function, but the
 cursor would still jump to the first line in the range.
 
-        fu! Func() range
-            echo ''
-        endfu
-        1,3call Func()
-        the cursor jumps on the first line of the buffer~
+    fu! Func() range
+        echo ''
+    endfu
+    1,3call Func()
+    the cursor jumps on the first line of the buffer~
 
 The jump occurs BEFORE the function is called.
 So, you wouldn't be able to save and restore the view inside the function.
@@ -598,40 +596,40 @@ Too cumbersome.
 
 The address of the current line.
 
-        fu! Func()
-            echo a:firstline == line('.') && a:lastline == line('.')
-        endfu
-        call Func()
-        1~
+    fu! Func()
+        echo a:firstline == line('.') && a:lastline == line('.')
+    endfu
+    call Func()
+    1~
 
 ### My command includes `<q-args>`.  Which built-in functions should I use to extract its arguments?
 
 The command and the function will look like this:
 
-        com! Cmd call Func(<q-args>)
-        fu! Func(...)
-            " ...
-        endfu
+    com! Cmd call Func(<q-args>)
+    fu! Func(...)
+        " ...
+    endfu
 
 Your arguments  could be  options with  values (e.g.  `-type file`),  or boolean
 options (e.g. `-verbose`).
 
 For the value of an option use `matchstr()`:
 
-        let type = matchstr(a:1, '-type\s\+\zs[^- ]\S*')
-                                                ││
-                                                │└ the engine can backtrack because the previous atom
-                                                │  is followed by a quantifier; don't let it backtrack
-                                                │
-                                                └ the next word could be another option
-                                                  we're not interested in this case
+    let type = matchstr(a:1, '-type\s\+\zs[^- ]\S*')
+                                            ││
+                                            │└ the engine can backtrack because the previous atom
+                                            │  is followed by a quantifier; don't let it backtrack
+                                            │
+                                            └ the next word could be another option
+                                              we're not interested in this case
 
 And to get a boolean option use `split()` and `index()`:
 
-        " split the command-line at the right characters (probably spaces)
-        let args = split(a:1, 'pat')
+    " split the command-line at the right characters (probably spaces)
+    let args = split(a:1, 'pat')
 
-        let is_verbose = index(args, '-verbose') >= 0
+    let is_verbose = index(args, '-verbose') >= 0
 
 #
 # System commands

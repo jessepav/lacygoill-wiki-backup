@@ -1,10 +1,10 @@
 # Types of options
 ## What are the four types of scope that an option can have?
 
-   - global          (233 options have this type atm: /^'.*\n\s*global$)
-   - buffer-local    (57)
-   - window-local    (37)
-   - global-local    (21)
+   - global          (235 options have this type atm: `/^'.*\n\s*global$`)
+   - buffer-local    (59; `/^'.*\n\s*local to buffer$`)
+   - window-local    (39; `/^'.*\n\s*local to window$`)
+   - global-local    (23; `/^'.*\n\%(\s\+.*\n\)*\s*global or`)
 
 ##
 ## Do all options have a local value?
@@ -14,9 +14,8 @@ No.
 Some of them only have a global value.
 For example, `'cot'`.
 
-## Does a buffer-local option has a global value? If so, what's its purpose?
-
-Yes.
+## What is the purpose of the global value of
+### a buffer-local option?
 
 It's used to initialize the local value in all new buffers.
 
@@ -29,17 +28,15 @@ From `:h local-options`:
 
 Open a help buffer, then run:
 
-        :setg bt?
-            ∅
+    :setg bt?
+    ''~
 
-        :setl bt?
-            help
+    :setl bt?
+    ''~
 
 The values are different because `'buftype'` has a local and a global value.
 
-## Does a window-local option has a global value? If so, what's its purpose?
-
-Yes.
+### a window-local option?
 
 *In a given window*, a window-local option has:
 
@@ -60,10 +57,10 @@ Execute:
     :setl nu
 
     :setg nu?
-        nonumber
+    nonumber~
 
     :setl nu?
-        number
+    number~
 
 The last 2 commands have different outputs because `'number'` has a global and a
 local value.
@@ -81,27 +78,27 @@ Yes.
 ## global-local
 ### What are the 21 global-local options?
 
-        'autoread'
-        'backupcopy'
-        'balloonexpr'
-        'cryptmethod'
-        'define'
-        'dictionary'
-        'equalprg'
-        'errorformat'
-        'formatprg'
-        'grepprg'
-        'include'
-        'keywordprg'
-        'lispwords'
-        'makeencoding'
-        'makeprg'
-        'path'
-        'statusline'
-        'tagcase'
-        'tags'
-        'thesaurus'
-        'undolevels'
+   - `'autoread'`
+   - `'backupcopy'`
+   - `'balloonexpr'`
+   - `'cryptmethod'`
+   - `'define'`
+   - `'dictionary'`
+   - `'equalprg'`
+   - `'errorformat'`
+   - `'formatprg'`
+   - `'grepprg'`
+   - `'include'`
+   - `'keywordprg'`
+   - `'lispwords'`
+   - `'makeencoding'`
+   - `'makeprg'`
+   - `'path'`
+   - `'statusline'`
+   - `'tagcase'`
+   - `'tags'`
+   - `'thesaurus'`
+   - `'undolevels'`
 
 ### What are the only two global-local options whose type is not a string?
 
@@ -116,14 +113,14 @@ It depends on the buffer you consider.
 If the buffer has a local copy of  the option, from its point of view the option
 is local; i.e. it ignores the global value.
 
-If the buffer has NO local copy of the option, from its point of view the option
-is global; i.e. it uses the global value.
+If the  buffer has *no*  local copy of  the option, from  its point of  view the
+option is global; i.e. it uses the global value.
 
 ### When it's local, is it to a buffer?
 
 Yes for most global-local options.
 
-The only exception is `'stl'`, which is global or local to a *window*.
+The only exceptions are `'stl'`, `'so'`, and `'siso'`, which are global or local to a *window*.
 
 ---
 
@@ -134,7 +131,7 @@ But it makes the sentences too cumbersome.
 ###
 ### How is a global-local option different compared to a buffer-local one?
 
-You can remove the  local value of a global-local option, but you  can NOT for a
+You can remove the local value of a global-local option, but you can *not* for a
 buffer-local one.
 
 You can't for a window-local option either.
@@ -149,7 +146,7 @@ Suppose that you are in a buffer A, and you make the local value copy the global
 value.
 Then, later, you change the global value from another buffer B, via `:set`.
 
-The change will NOT affect A.
+The change will *not* affect A.
 It will only affect how the option is initialized in new buffers.
 
 ###
@@ -160,19 +157,20 @@ In any buffer where the local value has been removed.
 ### What are its two purposes?
 
 Like for any  buffer-local option, it initializes the local  value of the option
-when a new buffer is loaded (or a new window is opened in the case of `'stl'`).
+when a new buffer  is loaded (or a new window is opened  in the case of `'stl'`,
+`'so'`, `'siso'`).
 
 But, it's also applied in all buffers where the local value has been removed.
 
 ##
 ## What are the six `'*prg'` options?
 
-   - 'cscopeprg'
-   - 'equalprg'
-   - 'formatprg'
-   - 'grepprg'
-   - 'keywordprg'
-   - 'makeprg'
+   - `'cscopeprg'`
+   - `'equalprg'`
+   - `'formatprg'`
+   - `'grepprg'`
+   - `'keywordprg'`
+   - `'makeprg'`
 
 ##
 # Getting information
@@ -186,20 +184,20 @@ It also prints the local options whose *local* value is different than the defau
 ##
 ## How to print the *local* values of all local options?
 
-        :setl all
+    :setl all
 
 ## How to print the *global* values of all local options?
 
-        :setg all
+    :setg all
 
 ##
 ## How to print the local options whose *local* value is different than the default?
 
-        :setl
+    :setl
 
 ## How to print the local options whose *global* value is different than the default?
 
-        :setg
+    :setg
 
 ##
 ## When I execute `:setl ar?`, `--autoread` is displayed. What does `--` mean?
@@ -248,21 +246,21 @@ local value to see it.
 # Setting options
 ## What are the six commands you can use to set an option?
 
-        ┌──────────┬───────────────────────────────────────────────────────────────────┐
-        │ :set     │ affect the global AND local value of the option, whichever exists │
-        │ :let &   │                                                                   │
-        ├──────────┼───────────────────────────────────────────────────────────────────┤
-        │ :setl    │ affect the LOCAL value of the option, if it exists                │
-        │ :let &l: │                                                                   │
-        ├──────────┼───────────────────────────────────────────────────────────────────┤
-        │ :setg    │ affect the GLOBAL value of the option, if it exists               │
-        │ :let &g: │                                                                   │
-        └──────────┴───────────────────────────────────────────────────────────────────┘
+    ┌──────────┬───────────────────────────────────────────────────────────────────┐
+    │ :set     │ affect the global AND local value of the option, whichever exists │
+    │ :let &   │                                                                   │
+    ├──────────┼───────────────────────────────────────────────────────────────────┤
+    │ :setl    │ affect the LOCAL value of the option, if it exists                │
+    │ :let &l: │                                                                   │
+    ├──────────┼───────────────────────────────────────────────────────────────────┤
+    │ :setg    │ affect the GLOBAL value of the option, if it exists               │
+    │ :let &g: │                                                                   │
+    └──────────┴───────────────────────────────────────────────────────────────────┘
 
 ##
 ## How to make the local value of an option copy the global one?
 
-        :setl option<
+    :setl option<
 
 ---
 
@@ -285,8 +283,8 @@ local value to see it.
 
 All window-local options have two values:
 
-        - one is local  to the buffer CURRENTLY displayed in the window
-        - one is global to any buffer which WILL BE displayed in the window
+   - one is local  to the buffer CURRENTLY displayed in the window
+   - one is global to any buffer which WILL BE displayed in the window
 
 `:setg nu` sets the global value of `'nu'` to `1`.
 
@@ -305,7 +303,7 @@ displayed.
 ## global-local
 ### How to remove the local value of a global-local option?
 
-        :set option<
+    :set option<
 
 #### What's the effect?
 
@@ -314,16 +312,16 @@ If you change the global value later, it will be reflected in the buffer.
 
 ---
 
-`'stl'` is a particular case, because it's the only global-local option which is
-local to a window.
+`'stl'`, `'so'`  and `'siso'` are  particular cases,  because they are  the only
+global-local options which are local to a window.
 
-And contrary to a global-local option local to a buffer, its global value is not
-applied to all buffers in *all* windows.
-The global value of `'stl'` is applied to all buffers in the *current* window.
+And contrary to a  global-local option local to a buffer,  their global value is
+not applied to all buffers in *all* windows.
+It's applied to all buffers in the *current* window.
 
 So, if you execute:
 
-        :setl stl<
+    :setl stl<
 
 The  statusline  should now  always  be  the same  no  matter  the buffer  being
 displayed in the current window.
@@ -341,24 +339,24 @@ But it should have no effect on the other windows.
 
 Use:
 
-        :set option<
+    :set option<
 
 This will remove the local value, which is how Vim is configured by default:
 
-        $ vim -Nu NONE
+    $ vim -Nu NONE
 
-        :echo &l:path
-        ∅~
+    :echo &l:path
+    ∅~
 
-        :echo &g:path
-        .,/usr/include,,~
+    :echo &g:path
+    .,/usr/include,,~
 
 ---
 
 You could also execute:
 
-        :setl option<
-            ^
+    :setl option<
+        ^
 
 But it would make  the local value copy the global one, which  is NOT how Vim is
 configured by default.
@@ -370,7 +368,7 @@ The buffer will use an empty local value.
 
 Example:
 
-        :setl mps=
+    :setl mps=
 
 #### What if the option was global-local?
 
@@ -378,7 +376,7 @@ The buffer will use the global.
 
 Example:
 
-        :setl path=
+    :setl path=
 
 ###
 
@@ -393,9 +391,9 @@ The global value will be set.
 
 Example:
 
-        " 'cot' has no local value,
-        " and yet this command will still reset its global value
-        setl cot=
+    " 'cot' has no local value,
+    " and yet this command will still reset its global value
+    setl cot=
 
 From `:h :setl`:
 
@@ -405,19 +403,19 @@ From `:h :setl`:
 ## In my vimrc, I need to add/remove a value inside a comma-separated list of values for an option.
 ### Which command should I execute first?
 
-        :set option&vim
+    :set option&vim
 
 ### Why?
 
 Suppose you add the value `foo`, by writing in your vimrc:
 
-        :set option+=foo
+    :set option+=foo
 
 Later, you want to replace `foo` with `bar`.
 You'll first need to remove `foo`, and so write:
 
-        :set option-=foo
-        :set option+=bar
+    :set option-=foo
+    :set option+=bar
 
 Then, you'll need to remove `:set option-=foo` from your vimrc.
 It's awkward  and unreliable (for example,  in the meantime, you  may have added
@@ -476,66 +474,65 @@ provided it's prefixed with a colon.
 ##
 ## ?
 
-        'path'
-            global / buffer-local
-            default:    .,/usr/incude,,
+    'path'
+        global / buffer-local
+        default:    .,/usr/incude,,
 
 Liste des dossiers dans lesquels  chercher lorsqu'on utilise certaines commandes
 ou fonctions, tq:
 
-        - gf, gF
-        - :find, :sfind, :tabfind
-        - fnamemodify()
-        - C-r C-p (sur la ligne de commande)
-        - commande custom portant l'attribut `-complete=file_in_path`
+   - gf, gF
+   - :find, :sfind, :tabfind
+   - fnamemodify()
+   - C-r C-p (sur la ligne de commande)
+   - commande custom portant l'attribut `-complete=file_in_path`
 
 ... auxquelles on passe en argument  des chemins de fichiers relatifs; i.e.: qui
 ne débutent pas par:
 
-                    -   /
-                    -  ./
-                    - ../
+  -   /
+  -  ./
+  - ../
 
 Les valeurs de `path` peuvent être des chemins relatifs ou absolus.
 
 ## ?
 
-        'cdpath'
-            global
-            default: ,,
+    'cdpath'
+        global
+        default: ,,
 
 Liste des dossiers dans lesquels chercher  lorsqu'on passe un chemin relatif aux
 commandes `:cd` et `:lcd`.
 
-                                     NOTE:
+---
 
 Pour Vim:
 
-        - chemin absolu     chemin commençant par /    ./    ../
-        - chemin relatif    tous les autres
+   - chemin absolu     chemin commençant par /    ./    ../
+   - chemin relatif    tous les autres
 
-                            aka, tout ce qui n'a pas de racine explicite:    /
-                                                            OU implicite:    ./    ../
+                       aka, tout ce qui n'a pas de racine explicite:    /
+                                                       OU implicite:    ./    ../
 
 Pour bash:
 
-        - chemin absolu     chemin commençant par /
-        - chemin relatif    tous les autres
+   - chemin absolu     chemin commençant par /
+   - chemin relatif    tous les autres
 
 Qd on passe un chemin relatif à `:[l]cd`, elle doit chercher à le compléter, car
 il n'a aucune racine (ni explicite, ni implicite).
 Pour ce faire, elle utilise les valeurs contenues dans `'path'`.
 
-
-                                     NOTE:
+---
 
 Attention:
 
-        .    dossier de travail sur la ligne de commande (:cd ./subdir)
-             dossier du fichier courant dans les options 'path', 'cdpath', 'tags'
+    .    dossier de travail sur la ligne de commande (:cd ./subdir)
+         dossier du fichier courant dans les options 'path', 'cdpath', 'tags'
 
-        ,,   dossier de travail dans les options 'path', 'cdpath', 'tags' (chaîne vide)
-        ..   parent du dossier de travail sur la ligne de commande
+    ,,   dossier de travail dans les options 'path', 'cdpath', 'tags' (chaîne vide)
+    ..   parent du dossier de travail sur la ligne de commande
 
 L'incohérence  de la  signification du  dot,  selon qu'on  est sur  la ligne  de
 commande ou dans  une des 3 options citées, s'explique  probablement par le fait
@@ -547,7 +544,7 @@ Dans le shell, cette phrase signifie effectivement le dossier de travail (`pwd`)
 
 Mais dans un buffer, on peut l'interpréter différemment:
 
-        le dossier du fichier courant
+    le dossier du fichier courant
 
 “Là où je suis“ n'a pas le même  sens, selon qu'on est sur la ligne de commande,
 ou dans un buffer.
@@ -578,37 +575,14 @@ Use the wrapper to temporarily reset `'foo'`:
     let &foo = foo_save
 
 #
-# Terminal
-
-    :set termcap
-
-            voir toutes les options du terminal
-
-            Par opposition à :set all qui affiche toutes les options Vim.
-
-Les deux  derniers caractères du nom  d'une option du terminal  représentent une
-entrée dans la bdd termcap interne à Vim.
-
-Les options du terminal (t_xx) permettent  de modifier la valeur d'une entrée de
-la bdd termcap interne à Vim.
-
-
-    :echo $TERM
-
-            affiche le nom du type de terminal
-
-    $ echo $termcap
-
-            Chaîne  configurée  par l'émulateur  de  terminal  pour décrire  ses
-            caractéristiques auprès du shell et des pgms qu'il affiche.
-
 # Status Line
 
 Les couleurs de la status line  peuvent être configurées via les HG `StatusLine`
 (fenêtre active) et `StatusLineNC` (fenêtres inactives).
 
+---
 
-        set stl+=%-{minwid}.{maxwid}{item}
+    set stl+=%-{minwid}.{maxwid}{item}
 
 Ajoute un item à la status line.
 
@@ -616,12 +590,12 @@ Ajoute un item à la status line.
 
 Ils servent à formater l'affichage de l'item:
 
-       * {minwid}     largeur minimale en colonnes
+   * {minwid}     largeur minimale en colonnes
 
-       * .{maxwid}    largeur maximale en colonnes
+   * .{maxwid}    largeur maximale en colonnes
 
-       * -            justification vers la gauche (utile seulement
-                      qd {minwid} > longueur de l'item)
+   * -            justification vers la gauche (utile seulement
+                  qd {minwid} > longueur de l'item)
 
 Par défaut, qd {minwid} > longueur de l'item, l'item est justifié vers la droite
 et le padding utilise des espaces.
@@ -631,15 +605,16 @@ un nb), en faisant précéder {minwid} d'un 0.
 
 `{item}` peut être entre autres:
 
-        - une expression (ex: MyFunc())
-        - f    chemin relatif vers le fichier courant
-        - l    n° de la ligne courante
-        - n    n° du buffer
-        - p    %age de lignes lues
-        - v    n° de la colonne virtuelle
+   - une expression (ex: MyFunc())
+   - f    chemin relatif vers le fichier courant
+   - l    n° de la ligne courante
+   - n    n° du buffer
+   - p    %age de lignes lues
+   - v    n° de la colonne virtuelle
 
+---
 
-        set stl+=\ %.20f
+    set stl+=\ %.20f
 
 Ajout du chemin relatif vers le buffer courant, précédé d'un espace.
 
@@ -650,8 +625,9 @@ Le chemin ne peut prendre plus de 20 colonnes.
 Le  point précédant  20  est  obligatoire, autrement  20  sera interprété  comme
 `{minwid}` au lieu de `{maxwid}`.
 
+---
 
-        set stl+=%-10.20(%l,%c%)
+    set stl+=%-10.20(%l,%c%)
 
 Ajout du n° de la ligne, d'une virgule et du n° de la colonne.
 
@@ -660,31 +636,36 @@ L'ensemble doit occuper entre 10 et 20 colonnes et être justifié à gauche (-)
 `%-n.m(...%)` permet  de regrouper un ensemble  d'items afin de les  justifier à
 gauche et/ou leur attribuer une largeur min/max.
 
+---
 
-        set stl+=\ %m%r%y%w
+    set stl+=\ %m%r%y%w
 
 Ajout  des flags  modifié  / read-only  /  type de  fichier  / fenêtre  preview,
 précédés d'un espace.
 
+---
 
-        let &stl.='%%  '
-        set stl+=%%\ \
+    let &stl.='%%  '
+    set stl+=%%\ \
 
 Ajout du symbole pourcent suivi de 2 espaces.
 
+---
 
-        set stl+=%<
+    set stl+=%<
 
 Si  la  stl  est trop  longue,  ne  pas  afficher  ce qui  suit  (indicateur  de
 troncation).
 
+---
 
-        set stl+=%=
+    set stl+=%=
 
 Les prochains items doivent s'afficher à droite de l'écran.
 
+---
 
-        set statusline+=%{&ft=='python'?'success':'failure'}
+    set statusline+=%{&ft=='python'?'success':'failure'}
 
 Ajoute la chaîne 'success' si le type  de fichiers du buffer courant est python,
 'failure' autrement.
@@ -697,13 +678,15 @@ laquelle appartient chaque status line.
 Ceci  permet, pex,  d'afficher  un  indicateur signalant  si  chaque buffer  est
 modifié ou non.
 
+---
 
-        set stl+=%#Keyword#
+    set stl+=%#Keyword#
 
 Utiliser le HG Keyword pour mettre en couleurs la suite de la status line.
 
+---
 
-        set stl+=%1*
+    set stl+=%1*
 
 Utiliser le HG `User1` pour mettre en couleurs la suite de la status line.
 
@@ -712,50 +695,52 @@ HG (pex `:highlight link User1 StatusLine`).
 
 On peut utiliser jusqu'à 9 HG `User{N}`:
 
-        %1* ... %9*
+    %1* ... %9*
 
+---
 
-        set stl+=%*
+    set stl+=%*
 
 Restaure le HG StatusLine pour la suite des items.
 `%*` est la forme abrégée de `%0*`.
 
+---
 
-        set stl+=%{test\ ?\ expr1\ :\ expr2}
-        let &stl.='%{test ? expr1 : expr2}'
+    set stl+=%{test\ ?\ expr1\ :\ expr2}
+    let &stl.='%{test ? expr1 : expr2}'
 
 Ajoute une expression conditionnelle  utilisant l'opérateur conditionnel `?:` et
 contenant des espaces.
 
+---
 
-        set stl=!%MyFunc()
+    set stl=!%MyFunc()
 
 Définit l'intégralité de la status line comme étant la sortie de `MyFunc()`.
 
 Si on veut intégrer dans sa status line :
 
-        - le n° du buffer
-        - le chemin vers son fichier
-        - le n° de la ligne courante
-        - le symbole '+' si le buffer est modifié
+   - le n° du buffer
+   - le chemin vers son fichier
+   - le n° de la ligne courante
+   - le symbole '+' si le buffer est modifié
 
 ... il faudra écrire dans `MyFunc()` qch comme:
 
-        let string = '%n'
-        let string .= '%f'
-        let string .= '%l'
-        let string .= "%{&mod ? '+' : ''}"
-        return string
+    let string = '%n'
+    let string .= '%f'
+    let string .= '%l'
+    let string .= "%{&mod ? '+' : ''}"
+    return string
 
 `MyFunc()` va alors  procéder à diverses concaténations et  retourner une grande
 chaîne qui sera ensuite évaluée.
 
-
-                                     NOTE:
+---
 
 On ne pourrait pas écrire:
 
-        let string .= &mod ? '+' : ''
+    let string .= &mod ? '+' : ''
 
 En effet, `MyFunc()` (et  donc l'expression `&mod ? '+' :  ''`) est évaluée dans
 le contexte du buffer de la fenêtre ayant le focus.
@@ -766,11 +751,11 @@ affichaient des buffers non modifiés.
 
 # Commandes
 
-        " ✘
-        set option=<SID>MyFunc
+    " ✘
+    set option=<SID>MyFunc
 
-        " ✔
-        let &option = s:snr() . 'MyFunc'
+    " ✔
+    let &option = s:snr() . 'MyFunc'
 
 Si on veut attribuer à la valeur d'une  option le nom d'une fonction locale à un
 script, on ne peut pas toujours utiliser `<SID>`.
@@ -781,21 +766,26 @@ mapping.
 
 Une solution consiste à utiliser la 2e syntaxe:
 
-        let &option = s:snr() . 'MyFunc()'
+    let &option = s:snr() . 'MyFunc()'
 
 ... où `s:snr()` est définie comme suit:
 
-        fu! s:snr()
-            return matchstr(expand('<sfile>'), '<SNR>\d\+_')
-        endfu
+    fu! s:snr()
+        return matchstr(expand('<sfile>'), '.*\zs<SNR>\d\+_')
+    endfu
 
+Btw, integrate  here the  comments from  our vim snippets  file where  the `snr`
+snippet is defined. It explains why we must use `.*\zs`.
 
-        :set all
+---
+
+    :set all
 
 Afficher toutes les options Vim.
 
+---
 
-        :set all&
+    :set all&
 
 Réinitialiser toutes les options.
 
@@ -803,27 +793,30 @@ Attention, ceci pourrait poser pb avec des plugins qui avaient modifié la confi
 par défaut pour leur besoin.
 `:h :set-default`:  Warning: This may have a lot of side effects.
 
+---
 
-        :set ts^=2
+    :set ts^=2
 
 Multiplie par 2 la valeur de l'option 'tabstop'.
 
 Illustre qu'on  peut utiliser l'opérateur  `^=` pour multiplier la  valeur d'une
 option numérique.
 
+---
 
 Qd on donne une  valeur à une option via la commande :set,  il faut échapper les
 espaces, les pipes et les ", pour leur faire perdre leur caractère syntaxique.
 
 En effet, `:set` interprète:
 
-        - un espace          comme un séparateur entre 2 options
+   - un espace          comme un séparateur entre 2 options
 
-        - un pipe            comme une terminaison de commande
+   - un pipe            comme une terminaison de commande
 
-        - un double quote    comme le début d'un commentaire (tout ce qui suit
-                             est ignoré)
+    - un double quote    comme le début d'un commentaire (tout ce qui suit
+                         est ignoré)
 
+---
 
 Un ensemble d'options peuvent configurer Vim dans un certain nb d'états.
 
@@ -841,74 +834,74 @@ est l'état courant.
 
 Pex, si `op1` et `op2` sont des options dont les valeurs sont des booléens:
 
-        :exe mydic[&op1 . &op2]
+    :exe mydic[&op1 . &op2]
 
 D'un point de vue théorique:
 
-    - le dictionnaire est un modèle de calcul mathématique appelé fsm
-      (finite-state machine)
+   - le dictionnaire est un modèle de calcul mathématique appelé fsm
+     (finite-state machine)
 
-    - les clés sont les états de la machine
+   - les clés sont les états de la machine
 
-    - les valeurs sont les évènements déclencheurs de transitions entre 2 états
+   - les valeurs sont les évènements déclencheurs de transitions entre 2 états
 
-
-                                     NOTE:
+---
 
 On peut représenter un état de la machine via une chaîne contenant:
 
-        - les valeurs des options qui la définissent
+   - les valeurs des options qui la définissent
 
-          On peut l'obtenir, pex, via join():
+     On peut l'obtenir, pex, via join():
 
-                join([&op1, ...], ',')
+        join([&op1, ...], ',')
 
-        - un nb
+  - un nb
 
-          Si les options sont  des booléens et que leurs valeurs  sont donc 0 ou
-          1, on peut l'obtenir directement:
+    Si les options sont  des booléens et que leurs valeurs  sont donc 0 ou
+    1, on peut l'obtenir directement:
 
-                &op1 . &op2 . ...
+        &op1 . &op2 . ...
 
-          Les nb seront convertis automatiquement en chaîne et concaténés.
+    Les nb seront convertis automatiquement en chaîne et concaténés.
 
-          Autrement,  si les  options ont  des valeurs  plus complexes,  on peut
-          obtenir le nb représentant un état de la machine, via index():
+    Autrement,  si les  options ont  des valeurs  plus complexes,  on peut
+    obtenir le nb représentant un état de la machine, via index():
 
-                index(states, [&op1, ...])
+        index(states, [&op1, ...])
 
-          Où states est une liste de listes.
+    Où states est une liste de listes.
 
-          Chaque  liste  qu'elle  contient   regroupe  un  ensemble  de  valeurs
-          d'options configurant un état donné.
+    Chaque  liste  qu'elle  contient   regroupe  un  ensemble  de  valeurs
+    d'options configurant un état donné.
 
-          Les valeurs dans les listes de states et dans [&op1, ...] doivent être
-          tjrs dans  le même ordre, pour  que index() puisse trouver  l'index de
-          l'état courant à l'intérieur de `states`.
+    Les valeurs dans les listes de states et dans [&op1, ...] doivent être
+    tjrs dans  le même ordre, pour  que index() puisse trouver  l'index de
+    l'état courant à l'intérieur de `states`.
 
-          Le mapping n'a plus qu'à exécuter la commande permettant la transition
-          vers un autre état:
+    Le mapping n'a plus qu'à exécuter la commande permettant la transition
+    vers un autre état:
 
-                :exe mydic[index(states, [&op1, ...])]
+        :exe mydic[index(states, [&op1, ...])]
 
-          La dernière commande :exe peut se décomposer comme ceci:
+    La dernière commande :exe peut se décomposer comme ceci:
 
-                states                liste de tous les états possibles
-                [&op1, ...]           état courant
-                index(states, [...])  position de l'état courant au sein de la fsm (clé du dico)
-                mydic[index(...)]     commande pour activer la transition vers le prochain état
-                exe mydic[...]        activer la transition
+        states                liste de tous les états possibles
+        [&op1, ...]           état courant
+        index(states, [...])  position de l'état courant au sein de la fsm (clé du dico)
+        mydic[index(...)]     commande pour activer la transition vers le prochain état
+        exe mydic[...]        activer la transition
 
+---
 
 Exemple de mapping illustrant la méthode:
 
-        exe 'set ve=' . {
-                        \ ''        : 'block',
-                        \ 'block'   : 'all',
-                        \ 'insert'  : 'block',
-                        \ 'all'     : '',
-                        \ 'onemore' : 'block',
-                        \ }[&ve]
+    exe 'set ve=' . {
+                    \ ''        : 'block',
+                    \ 'block'   : 'all',
+                    \ 'insert'  : 'block',
+                    \ 'all'     : '',
+                    \ 'onemore' : 'block',
+                    \ }[&ve]
 
 Au passage, on note  qu'ici on n'a pas eu besoin de  `join()` car les différents
 états sont contrôlés par une seule option (`'ve'`).
@@ -921,6 +914,7 @@ Du coup, les valeurs du dico ne sont plus des commandes mais des états.
 
 En résumé, il associe à chaque état possible, le prochain état désiré.
 
+---
 
 Même si on  n'est pas intéressé par un  état donné, pour que le  mapping soit le
 plus robuste possible, il vaut mieux l'inclure dans le dictionnaire.
@@ -930,14 +924,14 @@ désiré, on pourrait s'y retrouver par accident pour une autre raison.
 
 Dans ce cas, lorsque le mapping serait tapé, on aurait l'erreur:
 
-        E716: Key not present in Dictionary: ...
+    E716: Key not present in Dictionary: ...
 
-
+---
 
 De nombreuses  options (comme  `'fo'`) prennent  automatiquement une  valeur par
 défaut lorsque `'compatible'` est (dés)activée:
 
-                                     NOTE:
+---
 
 > This option is set to the Vi default value when 'compatible' is set and to the
 > Vim default value when 'compatible' is reset.
@@ -949,20 +943,21 @@ Dans ce cas, elle est désactivée.
 
 Conseil: ne pas écrire 'set nocompatible' dans son vimrc, pour 2 raisons:
 
-        1. inutile, l'option est déjà désactivée
+   1. inutile, l'option est déjà désactivée
 
-        2. à chaque fois qu'on source  son vimrc, 'set nocp' réinitialiserait
-           plein d'options.
+   2. à chaque fois qu'on source  son vimrc, 'set nocp' réinitialiserait
+      plein d'options.
 
+---
 
 Une option locale à une fenêtre est en réalité liée à un buffer dans une fenêtre.
 On peut le vérifier comme ceci:
 
-        " in a buffer `foo`
-        :let [&g:cul, &l:cul] = [1, 0]
-        :e bar
-        :echo &l:cul
-        1~
+    " in a buffer `foo`
+    :let [&g:cul, &l:cul] = [1, 0]
+    :e bar
+    :echo &l:cul
+    1~
 
 La dernière commande affiche 1 et non pas 0.
 
@@ -983,16 +978,17 @@ Dans ce nouveau  couple, l'option 'cul' reçoit comme valeur  globale la valeur 
 (à cause  de la 1e  commande), et  comme valeur locale  1 aussi (héritage  de la
 valeur globale).
 
+---
 
 Un buffer peut être dans 3 états:
 
-        ┌─────────┬──────────────────────────────────────────────────────────┐
-        │ actif   │ affiché dans une fenêtre                                 │
-        ├─────────┼──────────────────────────────────────────────────────────┤
-        │ caché   │ non affiché dans une fenêtre mais tjrs chargé en mémoire │
-        ├─────────┼──────────────────────────────────────────────────────────┤
-        │ inactif │ non affiché, non chargé en mémoire                       │
-        └─────────┴──────────────────────────────────────────────────────────┘
+    ┌─────────┬──────────────────────────────────────────────────────────┐
+    │ actif   │ affiché dans une fenêtre                                 │
+    ├─────────┼──────────────────────────────────────────────────────────┤
+    │ caché   │ non affiché dans une fenêtre mais tjrs chargé en mémoire │
+    ├─────────┼──────────────────────────────────────────────────────────┤
+    │ inactif │ non affiché, non chargé en mémoire                       │
+    └─────────┴──────────────────────────────────────────────────────────┘
 
 On  dit qu'on  abandonne  un buffer  quand  on ferme  la  dernière fenêtre  dans
 laquelle il était affiché.
@@ -1002,28 +998,30 @@ Il peut alors devenir caché ou pas en fonction de certaines options.
 Un buffer est caché s'il est chargé dans la mémoire mais affiché dans une aucune
 fenêtre.
 
+---
 
 On peut créer divers types de buffers spéciaux via les 4 options suivantes:
 
-        'bufhidden', 'buftype', 'swapfile', 'buflisted'
+    'bufhidden', 'buftype', 'swapfile', 'buflisted'
 
-Lire :h special-buffers
+Lire `:h special-buffers`.
 
+---
 
 On peut accéder à l'ensemble des options regroupées par thèmes via :opt[ions].
 Depuis la fenêtre qui s'ouvre, on peut appuyer sur CR, le curseur étant sur:
 
-    - une ligne numérotée de l'index ('1 important', '2 moving around', ...),
-      pour se rendre au paragraphe contenant l'ensemble des options concernées
+   - une ligne numérotée de l'index ('1 important', '2 moving around', ...),
+     pour se rendre au paragraphe contenant l'ensemble des options concernées
 
-    - le titre numéroté d'un paragraphe ou la ligne vide juste en-dessous, pour
-      revenir à l'index
+   - le titre numéroté d'un paragraphe ou la ligne vide juste en-dessous, pour
+     revenir à l'index
 
-    - une ligne contenant un nom d'option à l'intérieur d'un paragraphe, pour
-      ouvrir une fenêtre d'aide décrivant l'option concernée
+   - une ligne contenant un nom d'option à l'intérieur d'un paragraphe, pour
+     ouvrir une fenêtre d'aide décrivant l'option concernée
 
-    - une ligne contenant la commande :set, soit pour toggle une option de type
-      booléen, soit pour exécuter la commande après qu'on l'ait éditée
+   - une ligne contenant la commande :set, soit pour toggle une option de type
+     booléen, soit pour exécuter la commande après qu'on l'ait éditée
 
 Si on modifie  la valeur d'une option  depuis la ligne de  commande (sans passer
 par  la fenêtre),  on peut  rafraîchir  la ligne  de la  fenêtre :opt  contenant
@@ -1034,7 +1032,7 @@ sur espace.
 # Options Diverses
 ## Commandes
 
-        :set colorcolumn=80
+    :set colorcolumn=80
 
 Affiche une ligne verticale rouge sur la 80e colonne.
 
@@ -1044,21 +1042,23 @@ un certain nb de caractères par ligne.
 Permet de voir qd il faut passer à la  ligne qd on écrit et aussi ce qui dépasse
 dans ce qui a déjà été écrit.
 
+---
 
-        :set list nolist list!
+    :set list nolist list!
 
 Active list, désactive list, toggle list.
 
-        :set fo+=t
+    :set fo+=t
 
 Ajoute le flag `t`  à la valeur globale de l'option `'fo'`  ainsi qu'à sa valeur
 locale dans le buffer courant.
 
 N'a aucun impact sur la valeur locale des autres buffers existants déjà.
 
+---
 
-        :verb setg fo?
-        :verb setl fo?
+    :verb setg fo?
+    :verb setl fo?
 
 Affiche  le dernier  fichier  à avoir  modifié  la valeur  globale  / locale  de
 l'option `'fo'`.
@@ -1071,43 +1071,47 @@ Pk?
 Probablement parce que la  locale a priorité sur la globale,  et c'est donc elle
 qui agit dans le buffer courant.
 
+---
 
-        :set fo&
+    :set fo&
 
 Réinitialise l'option `'fo'` en lui donnant sa valeur par défaut.
 
 Celle indiquée dans l'aide de Vim, càd hors vimrc et hors ft plugins.
 
+---
 
-        :setl bt=nofile nobl noma bh=wipe noswf
+    :setl bt=nofile nobl noma bh=wipe noswf
 
 Crée un buffer spécial (scratch) laissant un minimum de trace.
 
+---
 
-        :set ft fenc ff
+    :set ft fenc ff
 
 Afficher le  type de fichier,  son encodage (utf-8, ascii,  ...), et
 son format (unix, dos, ...).
 
+---
 
-        :set isf^=\ 
+    :set isf^=\ 
 
 Ajoute l'espace à l'option `'isf'`.
 
-                                     NOTE:
+---
 
-        set isf+=\ 
-        " ou
-        let &isf .= ' '
+    set isf+=\ 
+    " ou
+    let &isf .= ' '
 
 ne fonctionnent pas,  sans doute parce qu'il est impossible  d'avoir un espace à
 la fin de la valeur d'une option.
 
 ## Noms
 
-        'bufhidden'
-            buffer-local
-            default: ''
+    'bufhidden'
+        buffer-local
+        default: ''
 
 Détermine ce qui se passe lorsqu'on abandonne le buffer courant.
 Comme elle est locale, elle a priorité sur 'hidden'.
@@ -1117,15 +1121,16 @@ Par défaut 'bh' vaut '', ce qui  signifie qu'elle se conforme à l'option globa
 
 Elle peut prendre 4 autres valeurs :
 
-        'hide'      le buffer reste chargé
-        'unload'    il est déchargé mais reste dans la liste des buffers
-        'delete'    il est déchargé et passe en non-listé dans la liste des buffers
-        'wipe'      il est déchargé et totalement supprimé de la liste des buffers
+    'hide'      le buffer reste chargé
+    'unload'    il est déchargé mais reste dans la liste des buffers
+    'delete'    il est déchargé et passe en non-listé dans la liste des buffers
+    'wipe'      il est déchargé et totalement supprimé de la liste des buffers
 
+---
 
-        'buftype'
-            buffer-local
-            default: ''
+    'buftype'
+        buffer-local
+        default: ''
 
 Permet de créer un type de buffer spécial, pour lequel les opérations d'écriture
 et  de fermeture  de  la fenêtre  ne  sont  pas gérées  comme  pour les  buffers
@@ -1142,12 +1147,13 @@ que l'option 'hidden' est désactivée.
 
 Utile pour tester si le buffer courant est spécial ou non:
 
-        !empty(&buftype)
+    !empty(&buftype)
 
+---
 
-        'includeexpr'
-            buffer-local
-            default: ''
+    'includeexpr'
+        buffer-local
+        default: ''
 
 Si Vim  échoue à ouvrir  le fichier  dont le chemin  est sous le  curseur (parce
 qu'il a  mal sélectionné ce dernier),  lui demande de retenter  avec une version
@@ -1155,15 +1161,16 @@ modifiée du chemin Le chemin initialement tenté est stocké dans v:fname.
 
 Ex d'utilisation:
 
-        set includeexpr=substitute(v:fname, '.*=', '', '')
+    set includeexpr=substitute(v:fname, '.*=', '', '')
 
 Retente d'ouvrir le fichier en supprimant tout ce qui se trouve après le dernier
 symbole =.
 
+---
 
-        'matchpairs'
-            buffer-local
-            default:    '(:),{:},[:]'
+    'matchpairs'
+        buffer-local
+        default:    '(:),{:},[:]'
 
 Contient une liste  de paires de caractères  entre lesquels on se  déplace qd on
 appuie sur `%`.
@@ -1172,26 +1179,20 @@ par un `:`.
 
 Pex, pour ajouter les chevrons dans un buffer html:
 
-        :setl mps+=<:>
+    :setl mps+=<:>
 
+---
 
-        'swapfile'
-            buffer-local
-            default: on
+    'swapfile'
+        buffer-local
+        default: on
 
 Détermine si le buffer  sera copié dans un fichier swap ou  s'il ne sera présent
 que dans la RAM.
 
 Dans ce dernier cas, on ne pourra pas récupérer le fichier en cas de pb.
 
-
-        'term'
-
-Stocke  la  valeur  de  la  variable d'environnement  shell  $TERM  le  nom  que
-l'émulateur de terminal se donne.
-
-`:echo &term` ou `:echo $TERM` permet de la lire
-
+---
 
     ┌────────────────────────┬──────────────┬────────────────────────────────────┐
     │ 'textwidth'     / 'tw' │ buffer-local │ default: 0                         │
@@ -1213,8 +1214,7 @@ Elle est mise à jour dès qu'on redimensionne le terminal.
 
 Réciproquement, elle permet de changer la largeur du terminal depuis Vim.
 
-
-                                     NOTE:
+---
 
 Influence de `'tw'` et `'wm'` qd on écrit des lignes:
 
@@ -1227,8 +1227,7 @@ Influence de `'tw'` et `'wm'` qd on écrit des lignes:
    - &l:tw  != 0   &&   &l:fo contient 'c' / 't'
     elles sont wrappées dès que leur longueur dépasse &l:tw
 
-
-                                     NOTE:
+---
 
 Influence de `'tw'` et `'wm'` qd on formate des lignes (via gq/gw):
 
@@ -1241,13 +1240,11 @@ Influence de `'tw'` et `'wm'` qd on formate des lignes (via gq/gw):
        - winwidth(0) - &l:wm,     si &l:wm != 0
        - min(79, winwidth(0)),    si &l:wm == 0
 
-
-                                     NOTE:
+---
 
 Largeur de la fenêtre != `&co` si la fenêtre est splittée verticalement.
 
-
-                                     NOTE:
+---
 
 Les flags `'tc'`  de l'option `'fo'` ne formatent pas  automatiquement une ligne
 préexistante qu'on édite après coup.
@@ -1256,18 +1253,16 @@ Pour ajouter le formatage automatique des lignes d'un paragraphe lorsqu'on édit
 une de  ses lignes (ajout/suppression  de texte), il faut  donner le flag  `a` à
 `'fo'`.
 
+---
 
-        'thesaurus'
-            global / buffer-local
+    'thesaurus'
+        global / buffer-local
 
 Contient une  suite de chemins vers  des fichiers contenant sur  chaque ligne un
 groupe de synonymes.
-Ex de fichier de synonymes:
+Ex de fichier de synonymes: <https://www.gutenberg.org/files/3202/files/mthesaur.txt>
 
-        https://www.gutenberg.org/files/3202/files/mthesaur.txt
-
-
-                                     NOTE:
+---
 
 Sur une  même ligne,  les synonymes  doivent être séparés  par un  caractère qui
 n'est pas dans `'isk'`.
@@ -1283,10 +1278,11 @@ Autrement, chaque ligne entière serait considérée comme un seul synonyme.
 
 Préférer la virgule dans ce cas.
 
+---
 
-        'updatecount'
-            global
-            default: 200
+    'updatecount'
+        global
+        default: 200
 
 Nb de  caractères tapés au-delà  desquels le fichier  d'échange sera
 écrit sur le disque.
@@ -1296,18 +1292,20 @@ Si vaut 0, aucun fichier swap n'est créé.
 `'swapfile'` a  la priorité  sur `'uc'`,  car c'est une  option locale  (local >
 global).
 
+---
 
-        'updatetime'
-            global
-            default: 4000
+    'updatetime'
+        global
+        default: 4000
 
 Durée en  ms au-delà  de laquelle  Vim écrit le  fichier d'échange  utilisée par
 l'évènement `CursorHold`.
 
+---
 
-        'suffixes'
-            global
-            default:    '.bak,~,.o,.h,.info,.swp,.obj'
+    'suffixes'
+        global
+        default:    '.bak,~,.o,.h,.info,.swp,.obj'
 
 Qd on développe un pattern contenant  un wildcard, les fichiers dont l'extension
 est présente dans `&su`, sont traités avec une priorité inférieure aux autres.
@@ -1318,31 +1316,74 @@ en-dehors de &su ne match le pattern (sure?).
 De plus, les fichiers dont l'extension est dans &su sont cherchés en dernier par
 la commande :vimgrep (et sans doute ses amies :lvimgrep ...).
 
+---
 
-        'viminfo'
+    'viminfo'
 
 Contient une liste de paramètres et de valeurs séparés par des virgules.
 
 Détermine  essentiellement  quelles  informations   seront  mémorisées  entre  2
 sessions et dans quel fichier.
 
-        ┌─────────────────────┬────────────────────────────────────────────────────────────────────┐
-        │ '100                │ mémorise les marques de jusqu'à 100 fichiers différents au maximum │
-        ├─────────────────────┼────────────────────────────────────────────────────────────────────┤
-        │ n~/.vim/tmp/viminfo │ stocke les infos dans `~/.vim/tmp/viminfo` (au lieu de ~/.viminfo) │
-        └─────────────────────┴────────────────────────────────────────────────────────────────────┘
+    ┌─────────────────────┬────────────────────────────────────────────────────────────────────┐
+    │ '100                │ mémorise les marques de jusqu'à 100 fichiers différents au maximum │
+    ├─────────────────────┼────────────────────────────────────────────────────────────────────┤
+    │ n~/.vim/tmp/viminfo │ stocke les infos dans `~/.vim/tmp/viminfo` (au lieu de ~/.viminfo) │
+    └─────────────────────┴────────────────────────────────────────────────────────────────────┘
 
+---
 
-        'wildignore'
-            global
-            default: ''
+    'wildignore'
+        global
+        default: ''
 
 Les fichiers dont le  nom match un pattern présent dans &wig  sont ignorés qd on
 développe une expression  contenant un wildcard ou qd on  fait une recherche via
 `:vimgrep` (et sans doute ses amies `:lvimgrep`...).
 
 ##
-# TODO
+# Todo
+## ?
+
+It seems our knowledge about the events fired when completing text is a mess.
+
+When are those events fired?
+
+   - `CompleteChanged`
+   - `CompleteDone`
+   - `TextChangedP`
+
+   - `CursorMovedI`
+   - `CursorMoved`
+   - `TextChangedI`
+   - `TextChanged`
+
+Which one(s) should we listen to when trying to restore an option?
+
+In our plugins, did we listen to the wrong event(s) in our autocmds restoring options?
+
+Re-read the comments in `vim-completion`, around the autocmds:
+
+    ~/.vim/plugged/vim-completion/autoload/completion.vim:684
+    ~/.vim/plugged/vim-completion/autoload/completion.vim:761
+    ~/.vim/plugged/vim-completion/autoload/completion/custom.vim:4
+    ~/.vim/plugged/vim-completion/autoload/completion/util.vim:8
+
+Make sure we didn't say anything wrong.
+Integrate them in `~/wiki/vim/complete.md`.
+
+---
+
+Document that restoring an option after `CompleteDone` is not reliable.
+The latter is not fired when you quit the completion menu by pressing `C-c`.
+You  must also  listen to  `TextChangedP`  or `CursorMoved`,  because those  are
+fired.  Read our comment in `completion#util#custom_isk()`:
+
+    ~/.vim/plugged/vim-completion/autoload/completion/util.vim
+
+Check whether we've made this mistake in our vimrc or in other plugins.
+
+## ?
 
 Document that when you save, change,  and restore an option, the environment may
 change, and you must take that into account.
@@ -1354,30 +1395,215 @@ current buffer, when you restore `'isk'`, you can't simply write:
 
 Instead, you must write:
 
-    let bufnr = bufnr('%')
+    let [isk_save, bufnr] = [&l:isk, bufnr('%')]
     ...
     call setbufvar(bufnr, '&isk', isk_save)
 
 Have a look  at `vim#jump_to_tag()` in `~/.vim/plugged/vim-vim/autoload/vim.vim`
-for a real example.
+for an example where it is really necessary.
 
 ---
 
-Document that restoring an option after `CompleteDone` is not reliable.
-The latter is not fired when you quit the completion menu by pressing `C-c`.
-You must also listen to `TextChanged` or `CursorMoved`, because those are fired.
-Read our comment in `completion#util#custom_isk()`:
+For a window-local option, such as `'wrap'`, you'll write this instead:
 
-    ~/.vim/plugged/vim-completion/autoload/completion/util.vim
+    let [wrap_save, winid, bufnr] = [&l:wrap, win_getid(), bufnr('%')]
+    ...
+    if winbufnr(winid) == bufnr
+        let [tabnr, winnr] = win_id2tabwin(winid)
+        call settabwinvar(tabnr, winnr, '&wrap', wrap_save)
+    endif
 
-Check whether we've made this mistake in our vimrc or in other plugins.
+Caveat: if the buffer  displayed in the window has changed,  the option won't be
+restored thanks to/because of the guard.
+If you really wanted to restore it, you could try to run sth like:
+
+    let [wrap_save, winid, bufnr] = [&l:wrap, win_getid(), bufnr('%')]
+    ...
+    if winbufnr(winid) == bufnr
+        let [tabnr, winnr] = win_id2tabwin(winid)
+        call settabwinvar(tabnr, winnr, '&wrap', wrap_save)
+    else
+        call win_execute(winid, 'e '..bufnr)
+        call settabwinvar(tabnr, winnr, '&wrap', wrap_save)
+        call win_execute(winid, 'b#')
+    endif
+
+But this  gets really complicated,  and it has the  side effect of  changing the
+alternate file in the window.
+
+Update: Study the possibility of simplifying the code, by using `setbufvar()`.
+I think it can work if the buffer is only displayed in one window at most.
 
 ---
 
-Document that  you should  use `&option`  instead of  `&l:option`, when  you use
-`getbufvar()`, `getwinvar()`, `setbufvar()`, `setwinvar()`, ...
+Make sure we've correctly restored local options in the past.
+We've already looked for the pattern `&l:`, and fixed everything we found.
+Now, look for `save_` or `_save`:
 
-`&l:option` doesn't work with `setbufvar()`, while `&option` works everywhere.
+    :vim /save_\%(sel\|cb\|reg\|ve\|winnr\|tabnr\|cursor\|cpo\)\@!\|\%(sel\|cb\|reg\|ve\|winnr\|tabnr\|cursor\|cpo\)\@<!_save/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
+    :Cfilter! -other_plugins
+
+We've already started  fixing things after running this command,  but we stopped
+at the `vim-completion` plugin.
+Indeed, the  latter brought  another issue  to my attention;  I don't  think the
+autocmds restoring local options are listening to the right events.
+What the comments say about the events which are fired after a completion seems wrong.
+It could be due to a Vim update which has changed which events are fired.
+
+## ?
+
+Document that you should use `&option` instead of `&l:option`, when you use:
+
+   - `getbufvar()`
+   - `gettabwinvar()`
+   - `getwinvar()`
+
+   - `setbufvar()`
+   - `settabwinvar()`
+   - `setwinvar()`
+
+`&l:option` only works with `get*var()`, while `&option` works everywhere.
+
+---
+
+`get*var()` supports `&` (which is a shorthand for `&l:`), `&l:` and `&g:`:
+
+    # getbufvar()
+    $ vim -es -Nu NONE \
+        +'b2|setl sw=1|setg sw=10|b1' \
+        +"pu!=[getbufvar(2, '&sw'), getbufvar(2, '&l:sw'), getbufvar(2, '&g:sw')]" \
+        +'1,3p|qa!' \
+        x y
+    1~
+    1~
+    10~
+
+    # getwinvar()
+    $ vim -es -Nu NONE \
+        +'wincmd w|setl sw=1|setg sw=10|wincmd w' \
+        +"pu!=[getwinvar(2, '&sw'), getwinvar(2, '&l:sw'), getwinvar(2, '&g:sw')]" \
+        +'1,3p|qa!' \
+        -O x y
+    1~
+    1~
+    10~
+
+    # gettabwinvar()
+    $ vim -es -Nu NONE \
+        +'tabn|setl sw=1|setg sw=10|tabp' \
+        +"pu!=[gettabwinvar(2, 1, '&sw'), gettabwinvar(2, 1, '&l:sw'), gettabwinvar(2, 1, '&g:sw')]" \
+        +'1,3p|qa!' \
+        -p x y
+    1~
+    1~
+    10~
+
+---
+
+`set*var()` only supports `&`:
+
+    # setbufvar()
+    $ vim -es -Nu NONE -i NONE \
+        +'set vbs=1' \
+        +'b2|setl sw=1|setg sw=10|b1' \
+        +"pu!=[setbufvar(2, '&sw', 1), setbufvar(2, '&l:sw', 1), setbufvar(2, '&g:sw', 10)]" \
+        +'qa!' \
+        x y
+    ...~
+    Error detected while processing command line:~
+    E355: Unknown option: l:sw~
+    E355: Unknown option: g:sw~
+
+    # setwinvar()
+    $ vim -es -Nu NONE -i NONE \
+       +'set vbs=1' \
+       +'wincmd w|setl sw=1|setg sw=10|wincmd w' \
+       +"pu!=[setwinvar(2, '&sw', 1), setwinvar(2, '&l:sw', 1), setwinvar(2, '&g:sw', 10)]" \
+       +'qa!' \
+       -O x y
+    ...~
+    Error detected while processing command line:~
+    E355: Unknown option: l:sw~
+    E355: Unknown option: g:sw~
+
+    # settabwinvar()
+    $ vim -es -Nu NONE -i NONE \
+       +'set vbs=1' \
+       +'tabn|setl sw=1|setg sw=10|tabp' \
+       +"pu!=[settabwinvar(2, 1, '&sw', 1), settabwinvar(2, 1, '&l:sw', 1), settabwinvar(2, 1, '&g:sw', 10)]" \
+       +'qa!' \
+       -p x y
+    ...~
+    Error detected while processing command line:~
+    E355: Unknown option: l:sw~
+    E355: Unknown option: g:sw~
+
+which is still a shorthand for `&l:`:
+
+    # setbufvar()
+    $ vim -es -Nu NONE \
+        +'b2|setl sw=1|setg sw=10|b1' \
+        +"pu!=[setbufvar(2, '&sw', 12), getbufvar(2, '&l:sw', 12)]" \
+        +'1,2p|qa!' \
+        x y
+    0~
+    12~
+
+    # setwinvar()
+    $ vim -es -Nu NONE \
+        +'wincmd w|setl sw=1|setg sw=10|wincmd w' \
+        +"pu!=[setbufvar(2, '&sw', 12), getbufvar(2, '&l:sw', 12)]" \
+        +'1,2p|qa!' \
+        -O x y
+    0~
+    12~
+
+    # settabwinvar()
+    $ vim -es -Nu NONE \
+        +'tabn|setl sw=1|setg sw=10|tabp' \
+        +"pu!=[setbufvar(2, '&sw', 12), getbufvar(2, '&l:sw', 12)]" \
+        +'1,2p|qa!' \
+        -p x y
+    0~
+    12~
+
+---
+
+Imo,  `setbufvar()` should  support  `&g:`, because  it  can be  used  to set  a
+window-local option. From `:h local-option`:
+
+> This also works for a global or local window option, but it
+> doesn't work for a global or local window variable.
+
+And a window-local option can have a global value.
+Therefore, `setbufvar()`  should support `&g:`, to  allow the user to  alter the
+global value of a window-local option.
+Besides, this would be more consistent with `getbufvar()`.
+
+Same thing for `setwinvar()` and `settabwinvar()`.
+
+---
+
+You can  ignore `gettabvar()`  and `settabvar()`,  because there's  no tab-local
+option,  so you  can't pass  them a  second argument  prefixed with  `&`, `&l:`,
+`&:g`.
+
+## ?
+
+Document when one  should use `setbufvar()` instead of `setwinvar()`  to set the
+value of a window-local option.
+
+I think  that by default, you'll  want to use `setwinvar()`,  because that makes
+more sense: you  want to set a  *window*-local option, so you  probably know the
+number of the window for which you want to set the option.
+
+However, sometimes, you may not know the  number of the window, but you may know
+the number of the buffer it displays.
+In fact, the window may not even be  in the current tab page; in which case, you
+can't use `setwinvar()`, because the latter only supports a window number, not a
+window id.
+
+In those cases, you'll need to use `setbufvar()`.
 
 ##
 # Reference
