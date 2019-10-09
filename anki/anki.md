@@ -107,7 +107,7 @@ Click on the buttons:
 
 ## How to create a new note type?
 
-Press <kbd>C-S-n</kbd>, or click the buttons:
+Press `C-S-n`, or click the buttons:
 
    - Tools
    - Manage Note Types
@@ -134,8 +134,8 @@ From the `Manage Note Types` window, your new note type can be:
 
 Add a new card type to the currently used note type.
 
-Press <kbd>C-l</kbd> or click on the  `Cards...` button, then click on `Options`
-and finally `Add Card Type...`.
+Press  `C-l` or  click on  the `Cards...`  button, then  click on  `Options` and
+finally `Add Card Type...`.
 
 Repeat the process as many times as desired.
 

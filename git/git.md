@@ -1951,8 +1951,22 @@ références peuvent être déplacées librement.
         http://ndpsoftware.com/git-cheatsheet.html
         http://rypress.com/tutorials/git/index
         https://blog.jez.io/cli-code-review/
+        https://www.conventionalcommits.org/
+        https://raw.githubusercontent.com/git/git/master/Documentation/howto/revert-a-faulty-merge.txt
 
         https://jonas.github.io/tig/doc/manual.html
         man tig
         man tigrc
         man tigmanual
+
+##
+# Todo
+## Document
+### `$ vim +'Gedit :'`
+
+<https://twitter.com/jesseleite85/status/1179437557035220993>
+
+> That'll open a vim instance with a fullscreen `:Gstatus` buffer.
+> From there, `g?` to see available mappings,  and `:q` to quit, as you would from
+> a commit buffer.
+

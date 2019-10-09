@@ -19,7 +19,7 @@ autoformat
 
 Liste partielle de plugins tirant avantage des fonctionnalités de Neovim:
 
-            https://github.com/neovim/neovim/wiki/Related-projects#plugins
+<https://github.com/neovim/neovim/wiki/Related-projects#plugins>
 
 ## AdvancedSorters
 
@@ -38,314 +38,262 @@ While  `:sort`  has  several  flags  for  sorting  on  various  numbers,  and  a
 /{pattern}/ can  be specified  to skip  or sort on,  it doesn't  allow arbitrary
 (Vimscript) expressions.
 
-        This plugin  offers extension commands  that evaluate an  expression per
-        line, put  that number in  front of the line,  do a numerical  sort, and
-        then remove the temporary number again.
-        Specializations handle  the common sort  by number of characters  and by
-        the line's display width.
+This plugin offers extension commands that  evaluate an expression per line, put
+that number  in front  of the  line, do a  numerical sort,  and then  remove the
+temporary number again.
+Specializations handle the common sort by number of characters and by the line's
+display width.
 
-        http://www.vim.org/scripts/script.php?script_id=4958
+<http://www.vim.org/scripts/script.php?script_id=4958> 260sloc
 
-                                    260 sloc
+---
 
-        Simpler alternative (previous script has dependencies…):
+Simpler alternative (previous script has dependencies...):
 
-        https://gist.github.com/PeterRincker/582ea9be24a69e6dd8e237eb877b8978
+<https://gist.github.com/PeterRincker/582ea9be24a69e6dd8e237eb877b8978>
 
 ## ALE    syntastic    neomake
 
-            ALE (Asynchronous Lint Engine) is  a plugin for providing linting in
-            NeoVim and Vim 8 while you edit your text files.
+ALE (Asynchronous Lint  Engine) is a plugin for providing  linting in NeoVim and
+Vim 8 while you edit your text files.
 
-            ALE makes use  of NeoVim and Vim 8 job  control functions and timers
-            to run linters on the contents  of text buffers and return errors as
-            text is changed in Vim.
-            This allows for displaying warnings and errors in files being edited
-            in Vim before files have been saved back to a filesystem.
+ALE  makes use  of NeoVim  and Vim  8 job  control functions  and timers  to run
+linters on the contents of text buffers  and return errors as text is changed in
+Vim.
+This allows  for displaying  warnings and  errors in files  being edited  in Vim
+before files have been saved back to a filesystem.
 
-            In other words, this plugin allows you to lint while you type.
+In other words, this plugin allows you to lint while you type.
 
-            https://github.com/w0rp/ale
+<https://github.com/w0rp/ale> 8614 sloc
 
-                                   8614 sloc
+---
 
+Alternatives:
 
-            Alternatives:
-
-            https://github.com/scrooloose/syntastic
-            https://github.com/neomake/neomake
-
-            Neomake  peut fonctionner  en mode  asynchrone dans  Neovim, ce  qui
-            évite pex  que l'UI  se fige  pendant qques  secondes à  chaque fois
-            qu'on sauvegarde et que le plugin vérifie si le fichier contient des
-            erreurs.
+- <https://github.com/scrooloose/syntastic>
+- <https://github.com/neomake/neomake>
 
 ## alias
 
-        This plugin lets  you define command-line abbreviations  by :Alias which
-        only expand at the beginning of the command prompt.
+This  plugin lets  you define  command-line abbreviations  by :Alias  which only
+expand at the beginning of the command prompt.
 
-        You can pass the optional parameters
+You can  pass the optional parameters  `-buffer` or `-range` to  create a buffer
+local alias or one that accepts a range preceding the alias.
 
-        -buffer or -range
+These command-line  abbreviations work  like the bash  aliases, except  that the
+alias is substituted in-place.
 
-        to create a buffer local alias or one that accepts a range preceding the alias.
-
-        These command-line abbreviations work like the bash aliases, except that
-        the alias is substituted in-place.
-
-        https://github.com/Konfekt/vim-alias
-
-                                              156 sloc
+<https://github.com/Konfekt/vim-alias> 156 sloc
 
 ## altscreen
 
-            Alternate screen setup for terminal Vim
-            (Noevim doesn't seem to need this)
+Alternate screen setup for terminal Vim (Noevim doesn't seem to need this).
 
-            https://github.com/fcpg/vim-altscreen
-
-                                              28 sloc
+<https://github.com/fcpg/vim-altscreen> 28 sloc
 
 ## anywhere
 
-            Sometimes, you edit text outside  of Vim. These are sad times. Enter
-            vim-anywhere!
+Sometimes, you edit text outside of Vim.
+These are sad times.
+Enter vim-anywhere!
 
-            Once  invoked, vim-anywhere  will open  a buffer. Close  it and  its
-            contents are copied to your  clipboard and your previous application
-            is refocused.
+Once invoked, vim-anywhere will open a buffer.
+Close  it and  its  contents are  copied  to your  clipboard  and your  previous
+application is refocused.
 
-            https://github.com/cknadler/vim-anywhere
+<https://github.com/cknadler/vim-anywhere> 167 sloc
 
-                                    167 sloc
+Alternative:
 
-            Alternative:
-
-            https://github.com/hrantzsch/vimclip
-
-                                    12 sloc
+<https://github.com/hrantzsch/vimclip> 12 sloc
 
 ## apathy
 
-            Apathy sets the five path searching options — 'path', 'suffixesadd',
-            'include', 'includeexpr', and 'define' — for file types I don't care
-            about enough to bother with creating a proper plugin.
+Apathy sets the five path  searching options — 'path', 'suffixesadd', 'include',
+'includeexpr', and 'define' — for file types I don't care about enough to bother
+with creating a proper plugin.
 
-            https://github.com/tpope/vim-apathy
-
-                                    229 sloc
+<https://github.com/tpope/vim-apathy> 229 sloc
 
 ## argumentative
 
-            Argumentative aids with manipulating and moving between function arguments.
+Argumentative aids with manipulating and moving between function arguments.
 
-            https://github.com/PeterRincker/vim-argumentative
+<https://github.com/PeterRincker/vim-argumentative> 312 sloc
 
-                                    312 sloc
+Alternative:
 
-
-            Alternative:
-
-            vim-swap
-            https://github.com/machakann/vim-swap
-
-                                   2943 sloc
+<https://github.com/machakann/vim-swap> 2943 sloc
 
 ## async
 
-            Normalize async job control api for vim and neovim.
+Normalize async job control api for vim and neovim.
 
-            https://github.com/prabirshrestha/async.vim
-
-                                    243 sloc
+<https://github.com/prabirshrestha/async.vim> 243 sloc
 
 ## asyncrun
 
-            This plugin takes the  advantage of new apis in Vim 8 (and  NeoVim) to enable you to
-            run shell commands in background and read output in the quickfix window in realtime:
+This plugin takes the  advantage of new apis in Vim 8 (and  NeoVim) to enable you to
+run shell commands in background and read output in the quickfix window in realtime:
 
-                - Easy to use, just start your background command by :AsyncRun
-                  Just like old '!' cmd.
+   - Easy to use, just start your background command by :AsyncRun
+     Just like old '!' cmd.
 
-                - Command is done in the background, no need to wait for the entire process to finish.
+   - Command is done in the background, no need to wait for the entire process to finish.
 
-                - Output are displayed in the quickfix window, errors are matched with errorformat.
+   - Output are displayed in the quickfix window, errors are matched with errorformat.
 
-                - You can explore the error output immediately or keep working in vim while executing.
+   - You can explore the error output immediately or keep working in vim while executing.
 
-                - Ring the bell or play a sound to notify you job finished while you're focusing
-                  on editing.
+   - Ring the bell or play a sound to notify you job finished while you're focusing
+     on editing.
 
-                - Fast and lightweight, just a single self-contained asyncrun.vim source file.
+   - Fast and lightweight, just a single self-contained asyncrun.vim source file.
 
-                - Provide corresponding user experience in Vim, neovim, gvim and macvim.
+   - Provide corresponding user experience in Vim, neovim, gvim and macvim.
 
-                https://github.com/skywind3000/asyncrun.vim/
-
-                                    1286 sloc
+<https://github.com/skywind3000/asyncrun.vim/> 1302 sloc
 
 ## asyncomplete
 
-        Provide async  autocompletion for vim8  and neovim with timers.  This repository is  fork of
-        https://github.com/roxma/nvim-complete-manager  in pure  vim script  with python  dependency
-        removed.
+Provide async autocompletion for vim8 and neovim with timers.
+This repository  is fork of  <https://github.com/roxma/nvim-complete-manager> in
+pure vim script with python dependency removed.
 
-        asyncomplete.vim deliberately does not contain any  sources. Please use one of the following
-        sources or create your own.
+asyncomplete.vim deliberately does not contain any sources.
+Please use one of the following sources or create your own.
 
-                - Buffer     via asyncomplete-buffer.vim
-                - Vim Syntax via asyncomplete-necosyntax.vim
-                - Vim        via asyncomplete-necovim.vim
-                - UltiSnips  via asyncomplete-ultisnips.vim
+   - Buffer     via asyncomplete-buffer.vim
+   - Vim Syntax via asyncomplete-necosyntax.vim
+   - Vim        via asyncomplete-necovim.vim
+   - UltiSnips  via asyncomplete-ultisnips.vim
 
-        https://github.com/prabirshrestha/asyncomplete.vim
-
-                                    353 sloc
+<https://github.com/prabirshrestha/asyncomplete.vim> 353 sloc
 
 ## autoformat
 
-        Format code with one button press.
+Format code with one button press.
 
-        This plugin  makes use  of external formatting  programs to  achieve the
-        best results.
+This  plugin makes  use  of external  formatting programs  to  achieve the  best
+results.
 
-        Check  the list  of  formatprograms  below to  see  which languages  are
-        supported by default.
+Check the list  of formatprograms below to see which  languages are supported by
+default.
 
-        You can easily customize these or add your own formatprogram.
+You can easily customize these or add your own formatprogram.
 
-        When no  formatprogram exists (or  no formatprogram is installed)  for a
-        certain  filetype, vim-autoformat  falls back  by default  to indenting,
-        (using vim's auto indent functionality), retabbing and removing trailing
-        whitespace.
+When no  formatprogram exists (or no  formatprogram is installed) for  a certain
+filetype, vim-autoformat falls  back by default to indenting,  (using vim's auto
+indent functionality), retabbing and removing trailing whitespace.
 
-        https://github.com/Chiel92/vim-autoformat
-
-                                    538 sloc
+<https://github.com/Chiel92/vim-autoformat> 538 sloc
 
 ## autoread
 
-        Use `tail -f` on a buffer and append new content.
+Use `tail -f` on a buffer and append new content.
 
-        This plugin uses Vim 8 async jobs to append new buffer content.
+This plugin uses Vim 8 async jobs to append new buffer content.
 
-        Internally, it works by running tail -f on a file and the output will be
-        appended to the buffer, which displays this buffer.
+Internally, it works by running tail -f on a file and the output will be
+appended to the buffer, which displays this buffer.
 
-        https://github.com/chrisbra/vim-autoread
-
-                                    145 sloc
+<https://github.com/chrisbra/vim-autoread> 145 sloc
 
 ## braceless
 
-        Text objects, folding, and more for Python and other indented languages.
+Text objects, folding, and more for Python and other indented languages.
 
-        https://github.com/tweekmonster/braceless.vim
-
-                                   2183 sloc
+<https://github.com/tweekmonster/braceless.vim> 2183 sloc
 
 ## browserlink
 
-            Live browser editing for Vim.
+Live browser editing for Vim.
 
-            Browserlink allows you to live edit CSS files, which are sent to the
-            browser on  change, without reloading  or changing the state  of the
-            page.
+Browserlink allows you to live edit CSS  files, which are sent to the browser on
+change, without reloading or changing the state of the page.
 
-            Browserlink  allows  you  to   evaluate  buffers  or  selections  of
-            JavaScript directly,  or even  call individual functions  within the
-            buffer, for instant feedback in the browser.
+Browserlink allows you to evaluate buffers or selections of JavaScript directly,
+or even call individual functions within the buffer, for instant feedback in the
+browser.
 
-            https://github.com/jaxbot/browserlink.vim/issues
-
-                                   2904 sloc
+<https://github.com/jaxbot/browserlink.vim/issues> 2904 sloc
 
 ## CamelCaseMotion
 
-        https://github.com/bkad/CamelCaseMotion
+<https://github.com/bkad/CamelCaseMotion> 107 sloc
 
-        Ideas of mappings (make motion repeatable with ; ,):
+Ideas of mappings (make motion repeatable with ; ,):
 
-                - \w    next       beginning of Word
-                - \b    previous   "
-                - \e    next       end of Word
-                - \ge   previous   "
+   - `\w`    next       beginning of Word
+   - `\b`    previous   "
+   - `\e`    next       end of Word
+   - `\ge`   previous   "
 
-        Adapt the plugin to support snake case also. That is `\w` should move the cursor to the next
-        uppercase character OR underscore. Same things for other mappings.
+Adapt the plugin to support snake case also.
+That  is  `\w`  should move  the  cursor  to  the  next uppercase  character  OR
+underscore; same things for other mappings.
 
-                                    107 sloc
-
-        Alternative:
-        https://github.com/chaoren/vim-wordmotion
+Alternative:
+<https://github.com/chaoren/vim-wordmotion>
 
 ## cheat40
 
-            Cheat40 is a foldable extensible  40-column cheat sheet that you may
-            open in Vim by pressing <leader>?.
+Cheat40 is a foldable extensible 40-column cheat  sheet that you may open in Vim
+by pressing <leader>?.
 
-            Mappings and  commands are organized  like the  menus of a  GUI app:
-            there is a File section, an Edit section, a View section, and so on.
+Mappings and commands are organized like the menus of a GUI app: there is a File
+section, an Edit section, a View section, and so on.
 
-            For each  item the  description comes  first, because  one typically
-            wants to find how  to execute a task, not what the  meaning of a key
-            sequence is (there is Vim's help for that).
+For each item  the description comes first, because one  typically wants to find
+how to execute a task, not what the meaning of a key sequence is (there is Vim's
+help for that).
 
-            Syntax  coloring  and  the  use  of conceal  keep  the  cheat  sheet
-            clutter-free and easy to read.
+Syntax coloring  and the use  of conceal keep  the cheat sheet  clutter-free and
+easy to read.
 
-            https://github.com/lifepillar/vim-cheat40
-
-                                    78 sloc
+<https://github.com/lifepillar/vim-cheat40> 78 sloc
 
 ## clam
 
-            A lightweight Vim plugin for working with shell commands.
+A lightweight Vim plugin for working with shell commands.
 
-            https://github.com/sjl/clam.vim
-
-                                    97 sloc
+<https://github.com/sjl/clam.vim> 97 sloc
 
 ## codi
 
-            The interactive scratchpad for hackers.
+The interactive scratchpad for hackers.
 
-            Codi  is  an interactive  scratchpad  for  hackers, with  a  similar
-            interface to  Numi (https://numi.io).  It opens  a pane synchronized
-            to your  main buffer which  displays the results of  evaluating each
-            line as  you type (if  Vim has +job and  +channel, asynchronously!).
-            It's  extensible  to  nearly  any  language  that  provides  a  REPL
-            (interactive interpreter)!
+Codi is an interactive scratchpad for  hackers, with a similar interface to Numi
+(<https://numi.io>).
+It opens  a pane  synchronized to  your main buffer  which displays  the results
+of  evaluating  each   line  as  you  type  (if  Vim   has  +job  and  +channel,
+asynchronously!).
+It's  extensible  to nearly  any  language  that  provides a  REPL  (interactive
+interpreter)!
 
-            Note: without async support, evaluation  will trigger on cursor hold
-            rather than text change.
+Note: without async support, evaluation  will trigger on cursor hold
+rather than text change.
 
+<https://github.com/metakirby5/codi.vim> 747 sloc
 
-            https://github.com/metakirby5/codi.vim
+---
 
-                                    747 sloc
+See also:
 
-            See also:
+simple REPL inside vim
 
-            simple REPL inside vim
+supports:  python,  php,  coffee,  mysql, mongodb,  redis,  sh,  go,
+javascript, ruby, elixir ...
 
-            supports:  python,  php,  coffee,  mysql, mongodb,  redis,  sh,  go,
-            javascript, ruby, elixir ...
+<https://github.com/zweifisch/pipe2eval> 407 sloc
 
-            https://github.com/zweifisch/pipe2eval
+And:
+<https://github.com/krisajenkins/vim-pipe> 73 sloc
 
-                                    407 sloc
-
-            And:
-            https://github.com/krisajenkins/vim-pipe
-
-                                    73 sloc
-
-            And:
-            https://github.com/jalvesaq/vimcmdline
-
-                                    799 sloc
+And:
+<https://github.com/jalvesaq/vimcmdline> 799 sloc
 
 ## colorizer
 
@@ -361,172 +309,146 @@ This plugin is interesting to study how to use `nvim_buf_set_virtual_text()` and
 
 ## committia
 
-            A Vim plugin for more pleasant editing on commit messages
+A Vim plugin for more pleasant editing on commit messages
 
-            https://github.com/rhysd/committia.vim
-
-                                    336 sloc
+<https://github.com/rhysd/committia.vim> 336 sloc
 
 ## CompleteParameter
 
-            Complete parameter after select the completion.
-            Integration with YouCompleteMe(ycm), deoplete, neocomplete.
+Complete parameter after select the completion.
+Integration with YouCompleteMe(ycm), deoplete, neocomplete.
 
-            https://github.com/tenfyzhong/CompleteParameter.vim
-
-                                   1202 sloc
+<https://github.com/tenfyzhong/CompleteParameter.vim> 1202 sloc
 
 ## complimentary
 
-        Complimentary  improves  the  completion   of  VimL  builtin  functions,
-        commands, variables and options.
+Complimentary  improves  the  completion   of  VimL  builtin  functions,
+commands, variables and options.
 
-        https://github.com/fcpg/vim-complimentary
-
-                                              464 sloc
-                                              265 VimL + 199 awk
+<https://github.com/fcpg/vim-complimentary> 464 sloc (265 VimL + 199 awk)
 
 ## cosco
 
-            VIM colon and semicolon insertion bliss
+VIM colon and semicolon insertion bliss
 
-            https://github.com/lfilho/cosco.vim
-
-                                              450 sloc
+<https://github.com/lfilho/cosco.vim> 450 sloc
 
 ## csv
 
-            https://github.com/chrisbra/csv.vim
-            https://github.com/andmarti1424/sc-im
-            https://csvkit.readthedocs.io/en/0.9.1/tutorial/1_getting_started.html
+- <https://github.com/chrisbra/csv.vim>
+- <https://github.com/andmarti1424/sc-im>
+- <https://csvkit.readthedocs.io/en/0.9.1/tutorial/1_getting_started.html>
 
 ## ctags    GNU global
 
-            Ctags is a programming tool that generates an index (or tag) file of
-            names  found  in source  and  header  files of  various  programming
-            languages.
+Ctags is a programming tool that generates an index (or tag) file of names found
+in source and header files of various programming languages.
 
-            2 flavors exist:    exuberant ctags    and    universal ctags
+2 flavors exist: exuberant ctags and universal ctags
 
-            Universal Ctags  is a fork  of Exuberant Ctags,  Universal-ctags has
-            the objective of continuing the development from Exuberant Ctags.
+Universal Ctags is a fork of  Exuberant Ctags, Universal-ctags has the objective
+of continuing the development from Exuberant Ctags.
 
-            The goal of the project  is preparing and maintaining common/unified
-            space  where  people interested  in  making  Ctags better  can  work
-            together.
+The goal of the project is  preparing and maintaining common/unified space where
+people interested in making Ctags better can work together.
 
-            Universal will replace exuberant:
+Universal will replace exuberant:
 
-                    https://github.com/universal-ctags/ctags/issues/446
+<https://github.com/universal-ctags/ctags/issues/446>
 
-            It's probably more actively maintained.
+It's probably more actively maintained.
 
-            Blog post about exuberant:
+Blog post about exuberant:
 
-                    https://andrew.stwrt.ca/posts/vim-ctags/
+<https://andrew.stwrt.ca/posts/vim-ctags/>
 
-            Installation:    sudo aptitude install exuberant-ctags       exuberant
-                             https://github.com/universal-ctags/ctags    universal
+---
 
+Linux source  code GNU GLOBAL is  a source code tagging  system that
+works  the  same way  across  diverse  environments, such  as  Emacs
+editor, Vi  editor, Less viewer,  Bash shell, various  web browsers,
+etc.
 
+<https://www.gnu.org/software/global/>
 
-            Linux source  code GNU GLOBAL is  a source code tagging  system that
-            works  the  same way  across  diverse  environments, such  as  Emacs
-            editor, Vi  editor, Less viewer,  Bash shell, various  web browsers,
-            etc.
+Is this a more powerful alternative to cscope ?
 
-                             https://www.gnu.org/software/global/
+<https://github.com/OpenGrok/OpenGrok/wiki/Comparison-with-Similar-Tools>
 
-            Is this a more powerful alternative to cscope ?
-
-                             https://github.com/OpenGrok/OpenGrok/wiki/Comparison-with-Similar-Tools
-
-            Also, read `:h cscope`.
+Also, read `:h cscope`.
 
 ## ctrlsf
 
-            An ack.vim alternative mimics Ctrl-Shift-F on Sublime Text 2
+An ack.vim alternative mimics Ctrl-Shift-F on Sublime Text 2
 
-            Features
+Features
 
-                - Search and display result in a user-friendly view with adjustable context.
+   - Search and display result in a user-friendly view with adjustable context.
 
-                - Edit mode which is incredible useful when you are doing refactoring. (Inspired by vim-ags)
+   - Edit mode which is incredible useful when you are doing refactoring. (Inspired by vim-ags)
 
-                - Preview mode for fast exploring.
+   - Preview mode for fast exploring.
 
-                - View location results in a quickfix window.
+   - View location results in a quickfix window.
 
-                - Various options for customized search, view and edit.
+   - Various options for customized search, view and edit.
 
-            https://github.com/dyng/ctrlsf.vim
-
-                                   1899 sloc
+<https://github.com/dyng/ctrlsf.vim> 1899 sloc
 
 ## dadbod
 
-DB is a  Vim plugin for interacting  with databases. It's a more  modern take on
-dbext.vim, improving on it on the following ways:
+DB is a Vim plugin for interacting with databases.
+It's a more modern take on dbext.vim, improving on it on the following ways:
 
-    - Connections are specified with a single URL, rather than prompting you for
-      14 separate variables
+   - Connections are specified with a single URL, rather than prompting you for
+     14 separate variables
 
-    - All interaction is through invoking :DB, not 53 different commands and 35
-      different maps (omitting many of the more esoteric features, of course)
+   - All interaction is through invoking :DB, not 53 different commands and 35
+     different maps (omitting many of the more esoteric features, of course)
 
-    - Supports a modern array of backends, including NoSQL databases:
+   - Supports a modern array of backends, including NoSQL databases:
 
-            - MongoDB
-            - MySQL
-            - PostgreSQL
-            - Redis
-            - Sqlite
-            - Your own easily implemented adapter
+       * MongoDB
+       * MySQL
+       * PostgreSQL
+       * Redis
+       * Sqlite
+       * Your own easily implemented adapter
 
-    - Easily configurable based on a project  directory (as seen in rails.vim,
-      for example), rather than just globally or in a per-file modeline
+   - Easily configurable based on a project  directory (as seen in rails.vim,
+     for example), rather than just globally or in a per-file modeline
 
-        https://github.com/tpope/vim-dadbod
-
-                                    1018 sloc
+<https://github.com/tpope/vim-dadbod> 1018 sloc
 
 ## dasht
 
-            (Neo)Vim plugin for dasht integration
+(Neo)Vim plugin for dasht integration
 
-            https://github.com/sunaku/vim-dasht
+<https://github.com/sunaku/vim-dasht> 88 sloc
 
-                                    88 sloc
+Alternative:
 
-            Alternative:
-
-            https://github.com/kabbamine/zeavim.vim
-
-                                    228 sloc
+<https://github.com/kabbamine/zeavim.vim> 228 sloc
 
 ## debugger
 
-            https://github.com/idanarye/vim-vebugger
-            https://github.com/joonty/vdebug
+- <https://github.com/idanarye/vim-vebugger>
+- <https://github.com/joonty/vdebug>
 
 ## diffconflicts
 
-            https://github.com/whiteinge/diffconflicts
-
-                                    133 sloc
+<https://github.com/whiteinge/diffconflicts> 133 sloc
 
 Read also: <https://medium.com/prodopsio/solving-git-merge-conflicts-with-vim-c8a8617e3633>
 
 ## diminactive
 
-            Vim plugin to dim inactive windows.
+Vim plugin to dim inactive windows.
 
-            https://github.com/blueyed/vim-diminactive
+<https://github.com/blueyed/vim-diminactive> 419 sloc
 
-                                    419 sloc
-
-            Alternative:
-            On Neovim see `:h hl-NormalNC`.
+Alternative:
+On Neovim see `:h hl-NormalNC`.
 
 ## dirdiff
 
@@ -536,11 +458,9 @@ Vim plugin to diff all the files in two directories.
 
 ## dirvish-git
 
-        Git support for dirvish.vim
+Git support for dirvish.vim
 
-        <https://github.com/kristijanhusak/vim-dirvish-git>
-
-                                    161 sloc
+<https://github.com/kristijanhusak/vim-dirvish-git> 161 sloc
 
 ## doge
 
@@ -558,11 +478,9 @@ We  should also  agree on  some convention;  e.g. always  write a  `Synopsis` or
 
 ## echodoc
 
-        Displays function signatures from completions in the command-line.
+Displays function signatures from completions in the command-line.
 
-        https://github.com/Shougo/echodoc.vim
-
-                                              488 sloc
+<https://github.com/Shougo/echodoc.vim> 488 sloc
 
 ## editorconfig
 
@@ -572,10 +490,8 @@ The EditorConfig  project consists of a  file format for defining  coding styles
 and a  collection of text  editor plugins that enable  editors to read  the file
 format and adhere to defined styles.
 
-            https://github.com/editorconfig/editorconfig-vim
-            http://editorconfig.org/
-
-                                    446 sloc
+- <https://github.com/editorconfig/editorconfig-vim> 446 sloc
+- <http://editorconfig.org/>
 
 ---
 
@@ -588,73 +504,62 @@ Instead, he uses a bit of Vimscript:
 
 ## editvar
 
-            Edits vim variable in buffer.
+Edits vim variable in buffer.
 
-            https://github.com/thinca/vim-editvar
-
-                                    209 cloc
+<https://github.com/thinca/vim-editvar> 209 cloc
 
 ## errormarker
 
-            Highlights and sets error markers for lines with compile errors.
+Highlights and sets error markers for lines with compile errors.
 
-            https://github.com/mh21/errormarker.vim
-
-                                    118 sloc
+<https://github.com/mh21/errormarker.vim> 118 sloc
 
 ## expand-region
 
-            vim-expand-region is a Vim plugin that allows you to visually select
-            increasingly larger regions of text using the same key combination.
+vim-expand-region  is  a   Vim  plugin  that  allows  you   to  visually  select
+increasingly larger regions of text using the same key combination.
 
-            https://github.com/terryma/vim-expand-region
-            https://github.com/landock/vim-expand-region
-
-                                    226 sloc
+- <https://github.com/terryma/vim-expand-region> 226 sloc
+- <https://github.com/landock/vim-expand-region> 231 sloc
 
 ## fastfold
 
-            https://github.com/Konfekt/FastFold
+<https://github.com/Konfekt/FastFold> 162 sloc
 
-                                    162 sloc
+Automatic  folds (that  is,  folds generated  by a  fold  method different  from
+manual), bog down VIM noticeably in insert mode.
+They are also often recomputed too early (for example, when inserting an opening
+fold marker whose closing counterpart is yet missing to complete the fold.)
 
-            Automatic folds (that is,  folds generated by a fold method  different from manual), bog
-            down  VIM noticeably  in insert  mode. They  are also  often recomputed  too early  (for
-            example, when inserting an opening fold  marker whose closing counterpart is yet missing
-            to complete the fold.)
+For a discussion, see:
+<http://vim.wikia.com/wiki/Keep_folds_closed_while_inserting_text>
 
-            For a discussion, see:
+With this plug-in,  the folds in the  currently edited buffer are  updated by an
+automatic fold method only when:
 
-                    http://vim.wikia.com/wiki/Keep_folds_closed_while_inserting_text
+   - saving the buffer
+   - closing or opening folds (zo, za, zc, etc...)
+   - moving or operating fold-wise (zj,zk,[z,]z)
+   - typing zuz in normal mode
 
-            With this plug-in, the folds in the  currently edited buffer are updated by an automatic
-            fold method only when:
-
-                    - saving the buffer
-                    - closing or opening folds (zo, za, zc, etc...)
-                    - moving or operating fold-wise (zj,zk,[z,]z)
-                    - typing zuz in normal mode
-
-            … and are kept as is otherwise (by keeping the fold method set to manual).
+... and are kept as is otherwise (by keeping the fold method set to manual).
 
 ## ferret
 
-            Enhanced multi-file search for Vim
+Enhanced multi-file search for Vim
 
-            Ferret improves Vim's multi-file search in four ways:
+Ferret improves Vim's multi-file search in four ways:
 
-                    1. Powerful multi-file search
-                    2. Streamlined multi-file replace
-                    3. Quickfix listing enhancements
-                    4. Easy operations on files in the quickfix listing
+   1. Powerful multi-file search
+   2. Streamlined multi-file replace
+   3. Quickfix listing enhancements
+   4. Easy operations on files in the quickfix listing
 
-            https://github.com/wincent/ferret
-
-                                    880 sloc
+<https://github.com/wincent/ferret> 880 sloc
 
 ## fetch
 
-    https://github.com/kopischke/vim-fetch
+<https://github.com/kopischke/vim-fetch> 218 sloc
 
 vim-fetch enables  Vim to process  line and  column jump specifications  in file
 paths as found in stack traces and similar output.
@@ -662,88 +567,66 @@ When  asked to  open such  a file,  in- or  outside Vim  or via  `gF`, Vim  with
 vim-fetch will  jump to  the specified  line (and column,  if given)  instead of
 displaying an empty, new file.
 
-                                    218 sloc
-
 ## flagship
 
-            Flagship provides a  Vim status line and  tab line that are both  easily customizable by
-            the user and extensible by other plugins.
+Flagship provides a  Vim status line and  tab line that are both  easily customizable by
+the user and extensible by other plugins.
 
-            Light alternative to powerline, airline, … from tpope.
-            This plugin defines the function `Hoist()` which is sometimes called in an autocmd
-            inside other tpope plugins.
+Light alternative to powerline, airline, … from tpope.
+This plugin defines the function `Hoist()` which is sometimes called in an autocmd
+inside other tpope plugins.
 
-            https://github.com/tpope/vim-flagship
-
-                                    491 sloc
+<https://github.com/tpope/vim-flagship> 491 sloc
 
 ## flattery
 
-            Flattery provides  targets for f/t searches,  either as a conveniency  [eg. fb searching
-            for ), as for text-objects] or creating new target types.
+Flattery provides  targets for f/t searches,  either as a conveniency  [eg. fb searching
+for ), as for text-objects] or creating new target types.
 
-            Ce plugin pourrait être utile pour se déplacer dans un mot utilisant la forme camelcase,
-            ou snakecase:
+Ce plugin pourrait être utile pour se déplacer dans un mot utilisant la forme camelcase,
+ou snakecase:
 
-                    fu:  jump to the next uppercase letter
+        fu:  jump to the next uppercase letter
 
-                    fw:  jump to the next alnum-word.
-                         Useful to move around in, for instance, snake-case identifiers
-                         like 'did_load_filetypes'
+        fw:  jump to the next alnum-word.
+             Useful to move around in, for instance, snake-case identifiers
+             like 'did_load_filetypes'
 
-            Il faudrait toutefois changer les raccourcis.
-            Peut-être utiliser  `C-g f`  comme préfixe  au lieu de  `f`. Puis rendre  le mouvement
-            répétable.  Ou créer un sous-mode.
+Il faudrait toutefois changer les raccourcis.
+Peut-être utiliser  `C-g f`  comme préfixe  au lieu de  `f`. Puis rendre  le mouvement
+répétable.  Ou créer un sous-mode.
 
-            https://github.com/fcpg/vim-flattery
-
-                                              570 sloc
+<https://github.com/fcpg/vim-flattery> 570 sloc
 
 ## floobits
 
-            Real-time collaborative editing. Think Etherpad, but with native editors.
+Real-time collaborative editing. Think Etherpad, but with native editors.
 
-            https://github.com/Floobits/floobits-neovim
-
-                                    39 sloc
-
-            https://github.com/Floobits/floobits-vim
-
-                                    113 sloc
-
-            https://floobits.com/
+- <https://github.com/Floobits/floobits-neovim> 39 sloc
+- <https://github.com/Floobits/floobits-vim> 113 sloc
+- <https://floobits.com/>
 
 ## foldscript
 
-        Simple way to show some text ('transcript') in terminal recordings (eg. asciinema).
+Simple way to show some text ('transcript') in terminal recordings (eg. asciinema).
 
-        https://github.com/fcpg/vim-foldscript
-
-                                              83 sloc
+<https://github.com/fcpg/vim-foldscript> 83 sloc
 
 ## flygrep
 
-        Grep on the fly (and asynchronously).
+Grep on the fly (and asynchronously).
 
-        https://github.com/wsdjeg/FlyGrep.vim
-
-                                              1056 sloc
+<https://github.com/wsdjeg/FlyGrep.vim> 1056 sloc
 
 ## fzf    skim    picker
 
-            fuzzy-finder:
+fuzzy-finder:
 
-            https://github.com/junegunn/fzf
-            https://github.com/junegunn/fzf.vim
-
-            https://github.com/lotabout/skim
-            https://github.com/lotabout/skim.vim    (readme is identical, but not the code)
-
-                                   1141 sloc
-
-            https://github.com/srstevenson/vim-picker
-
-                                    201 sloc
+- <https://github.com/junegunn/fzf>
+- <https://github.com/junegunn/fzf.vim>
+- <https://github.com/lotabout/skim>
+- <https://github.com/lotabout/skim.vim> 1141 sloc (readme is identical, but not the code)
+- <https://github.com/srstevenson/vim-picker> 201 sloc
 
 ## git-messenger.vim
 
@@ -823,438 +706,377 @@ underlying version control system.
 
 ## gitv
 
-            Using  this plugin  you can  view a  repository's history  including
-            branching and merging, you can see which commits refs point to.
-            You can  quickly and  easily view  what changed  to which  files and
-            when.
-            You  can  perform  arbitrary  diffs   (using  Vim's  built  in  diff
-            functionality)  and  you can  easily  check  out whole  commits  and
-            branches or just individual files if need be.
-            Start the plugin  by running :Gitv in  Vim when viewing a  file in a
-            git repository.
+Using  this plugin  you can  view a  repository's history  including
+branching and merging, you can see which commits refs point to.
+You can  quickly and  easily view  what changed  to which  files and
+when.
+You  can  perform  arbitrary  diffs   (using  Vim's  built  in  diff
+functionality)  and  you can  easily  check  out whole  commits  and
+branches or just individual files if need be.
+Start the plugin  by running :Gitv in  Vim when viewing a  file in a
+git repository.
 
-            https://github.com/gregsexton/gitv
+<https://github.com/gregsexton/gitv> 1435 sloc
 
-                                   1435 sloc
+---
 
+Alternative:
 
-            Alternative:
+gitv is  nice. But I needed  a faster, and possibly  simpler alternative that I  can use
+with a project with thousands of commits.
 
-            gitv is  nice. But I needed  a faster, and possibly  simpler alternative that I  can use
-            with a project with thousands of commits.
-
-            https://github.com/junegunn/gv.vim
-
-                                    299 sloc
+<https://github.com/junegunn/gv.vim> 299 sloc
 
 
-            A lightweight and powerful git branch viewer for vim.
+A lightweight and powerful git branch viewer for vim.
 
-            https://github.com/rbong/vim-flog
-
-                                    860 sloc
+<https://github.com/rbong/vim-flog> 860 sloc
 
 ## golden-ratio
 
-            When working  with many windows  at the same  time, each window has  a size that  is not
-            convenient for editing.
+When working  with many windows  at the same  time, each window has  a size that  is not
+convenient for editing.
 
-            golden-ratio  helps  on this  issue  by  resizing automatically  the
-            windows you  are working  on to  the size  specified in  the "Golden
-            Ratio".
-            The window  that has the main  focus will have the  perfect size for
-            editing, while the  ones that are not being actively  edited will be
-            re-sized to a smaller  size that doesn't get in the  way, but at the
-            same time will be readable enough to know it's content.
+golden-ratio  helps  on this  issue  by  resizing automatically  the
+windows you  are working  on to  the size  specified in  the "Golden
+Ratio".
+The window  that has the main  focus will have the  perfect size for
+editing, while the  ones that are not being actively  edited will be
+re-sized to a smaller  size that doesn't get in the  way, but at the
+same time will be readable enough to know it's content.
 
-            https://github.com/roman/golden-ratio
-
-                                    135 sloc
+<https://github.com/roman/golden-ratio> 135 sloc
 
 ## goyo    limelight
 
-            Distraction-free writing in Vim.                   Hyperfocus-writing in Vim.
-            https://github.com/junegunn/goyo.vim               https://github.com/junegunn/limelight.vim
+Distraction-free writing in Vim.
+<https://github.com/junegunn/goyo.vim> 355 sloc
 
-                        355 sloc                                               238 sloc
+Hyperfocus-writing in Vim.
+<https://github.com/junegunn/limelight.vim> 238 sloc
 
 ## gnupg
 
-            This script implements transparent editing of gpg encrypted files.
-            The filename must have a ".gpg", ".pgp" or ".asc" suffix.
-            When opening  such a file the  content is decrypted, when  opening a
-            new file  the script will  ask for  the recipients of  the encrypted
-            file.
-            The file  content will be encrypted  to all recipients before  it is
-            written.
+This script implements transparent editing of gpg encrypted files.
+The filename must have a ".gpg", ".pgp" or ".asc" suffix.
+When opening such a  file the content is decrypted, when opening  a new file the
+script will ask for the recipients of the encrypted file.
+The file content will be encrypted to all recipients before it is written.
 
-            https://github.com/jamessan/vim-gnupg
-            http://www.vim.org/scripts/script.php?script_id=3645 (For a rudimentary documentation)
-
-                                    793 sloc
+- <https://github.com/jamessan/vim-gnupg> 793 sloc
+- <http://www.vim.org/scripts/script.php?script_id=3645> (For a rudimentary documentation)
 
 ## grepper
 
 This plugin makes searching in files easier than ever!
 
-            It supports  many common grep tools  (ag, ack, git grep,  sift, pt, findstr and  our beloved BSD/GNU
-            grep) out-of-the-box and it is easy to add new  ones. Grepper focuses on flexbility - there are many
-            ways to use it
+It supports many common grep tools (ag, ack, git grep, sift, pt, findstr and our
+beloved BSD/GNU grep) out-of-the-box and it is easy to add new ones.
+Grepper focuses on flexbility - there are many ways to use it
 
-            Using the prompt:                  just insert the search query or switch through the
-                                               available grep tools
+Using the prompt:  just insert the search query or  switch through the available
+grep tools
 
-            Using the operator:                search for the current visual selection or motion right away or
-                                               pre-fill the prompt with it
+Using the operator: search for the current visual selection or motion right away
+or pre-fill the prompt with it
 
-            Using the pre-defined commands:    all supported tools come with their own command
-                                               for convenience. :Ag 'foo bar' test/ does just what you would expect.
+Using the pre-defined commands: all supported  tools come with their own command
+for convenience; `:Ag 'foo bar' test/` does just what you would expect.
 
-            Build your own mappings commands:  for maximum customization simply use the :Grepper command.
-                                               It is fully configurable using flags that take priority over
-                                               options defined in your vimrc. Actually, all the default commands
-                                               like :Ag etc. a built atop of :Grepper.
+Build  your own  mappings commands:  for  maximum customization  simply use  the
+:Grepper command.
+It is fully configurable using flags  that take priority over options defined in
+your vimrc.
+Actually, all the default commands like :Ag etc. a built atop of :Grepper.
 
-            https://github.com/mhinz/vim-grepper
-
-                                    863 sloc
+<https://github.com/mhinz/vim-grepper> 863 sloc
 
 ## gutentags
 
-            Gutentags is a plugin that takes  care of the much needed management
-            of tags files in Vim.
+Gutentags is  a plugin  that takes care  of the much  needed management  of tags
+files in Vim.
 
-            It will (re)generate tag files  as you work while staying completely
-            out of your way.
+It will (re)generate tag files as you  work while staying completely out of your
+way.
 
-            It will  even do its best  to keep those  tag files out of  your way
-            too.
+It will even do its best to keep those tag files out of your way too.
 
-            It has no dependencies and just works.
+It has no dependencies and just works.
 
-            https://github.com/ludovicchabant/vim-gutentags
+<https://github.com/ludovicchabant/vim-gutentags> 1081 sloc
 
+See also:
+<https://github.com/skywind3000/gutentags_plus>
 
-                                             1081 sloc
-
-            See also:
-            https://github.com/skywind3000/gutentags_plus
-
-            Alternative:
-            https://github.com/jsfaint/gen_tags.vim
-
-                                              615 sloc
+Alternative:
+<https://github.com/jsfaint/gen_tags.vim> 615 sloc
 
 ## haskellConcealPlus
 
-            This bundle provides  extended Haskell Conceal feature  for Vim. The feature  is used to
-            display unicode operators in Haskell code without changing the underlying file.
+This bundle provides extended Haskell Conceal feature for Vim.
+The  feature is  used  to  display unicode  operators  in  Haskell code  without
+changing the underlying file.
 
-            This  package  offers more  (and,  more  importantly,  configurable) features  than  the
-            baseline vim-haskellConceal  bundle. The  baseline bundle has  numerous forks,  which is
-            possible  to  combine, so  everyone  is  welcome to  share,  improve  or contribute  new
-            notations to this Conceal Plus package.
+This package offers more (and, more importantly, configurable) features than the
+baseline vim-haskellConceal bundle.
+The  baseline bundle  has  numerous  forks, which  is  possible  to combine,  so
+everyone  is welcome  to  share, improve  or contribute  new  notations to  this
+Conceal Plus package.
 
-            https://github.com/enomsg/vim-haskellConcealPlus
+<https://github.com/enomsg/vim-haskellConcealPlus>
 
-            S'inspirer de ce syntax plugin pour conceal davantage de bruit.
-            Il y a 2 fichiers pour 2 types de fichiers différents.
-            Chacun utilise environ 300 sloc.
+S'inspirer de ce syntax plugin pour conceal davantage de bruit.
+Il y a 2 fichiers pour 2 types de fichiers différents.
+Chacun utilise environ 300 sloc.
 
 ## hier
 
-            Highlight quickfix errors and location list entries in buffer.
+Highlight quickfix errors and location list entries in buffer.
 
-            https://github.com/jceb/vim-hier
-
-                                    90 sloc
+<https://github.com/jceb/vim-hier> 90 sloc
 
 ## indent-object
 
-            Vim plugin that defines a new text object representing lines of code at the same indent level.
-            Useful for python/vim scripts, etc.
+Vim plugin that defines a new text object representing lines of code at the same indent level.
+Useful for python/vim scripts, etc.
 
-            https://github.com/michaeljsmith/vim-indent-object
-
-                                    141 sloc
+<https://github.com/michaeljsmith/vim-indent-object> 141 sloc
 
 ## indentLine
 
-            A vim plugin to display the indention levels with thin vertical lines. (may be slow)
+A vim plugin to display the indention levels with thin vertical lines. (may be slow)
 
-            https://github.com/Yggdroot/indentLine
-
-                                              294 sloc
+<https://github.com/Yggdroot/indentLine> 294 sloc
 
 
-            A Vim plugin for visually displaying indent levels in code. (may be faster)
+A Vim plugin for visually displaying indent levels in code. (may be faster)
 
-            https://github.com/nathanaelkane/vim-indent-guides
-
-                                             1034 sloc
+<https://github.com/nathanaelkane/vim-indent-guides> 1034 sloc
 
 ## jdaddy
 
-            Check out these must have mappings for working with JSON in Vim:
+Check out these must have mappings for working with JSON in Vim:
 
-                - aj provides a text  object for the outermost JSON object,
-                  array, string, number, or keyword.
-                - gqaj "pretty  prints" (wraps/indents/sorts  keys/otherwise
-                  cleans  up) the JSON construct  under the cursor.
-                - gwaj takes the JSON  object on the  clipboard and extends it
-                  into the JSON object under the cursor.
+   - aj provides a text  object for the outermost JSON object,
+     array, string, number, or keyword.
+   - gqaj "pretty  prints" (wraps/indents/sorts  keys/otherwise
+     cleans  up) the JSON construct  under the cursor.
+   - gwaj takes the JSON  object on the  clipboard and extends it
+     into the JSON object under the cursor.
 
-            There  are  also  ij  variants that  target  innermost  rather  than
-            outermost JSON construct.
+There  are  also  ij  variants that  target  innermost  rather  than
+outermost JSON construct.
 
-            https://github.com/tpope/vim-jdaddy
-
-                                    246 sloc
+<https://github.com/tpope/vim-jdaddy> 246 sloc
 
 ## join
 
-            a better (hopefully) :Join command in vim
+a better (hopefully) :Join command in vim
 
-            https://github.com/sk1418/Join
-
-                                    140 sloc
+<https://github.com/sk1418/Join> 140 sloc
 
 ## kronos
 
-            A simple task and time manager for vim.
+A simple task and time manager for vim.
 
-            https://github.com/soywod/kronos.vim/
-
-                                    789 sloc
+<https://github.com/soywod/kronos.vim/> 789 sloc
 
 ## live-latex-preview
 
-            A clone of Kevin Klement's vim-live-latex-preview
+A clone of Kevin Klement's vim-live-latex-preview
 
-            https://github.com/ying17zi/vim-live-latex-preview
-
-            https://jlebl.wordpress.com/2011/01/13/vim-evince-and-forward-and-backward-latex-synctex-search/
-
-                                    312 sloc
+- <https://github.com/ying17zi/vim-live-latex-preview>
+- <https://jlebl.wordpress.com/2011/01/13/vim-evince-and-forward-and-backward-latex-synctex-search/> 312 sloc
 
 ## lister
 
-            lister.vim is a collection of commands for manipulating and moving between lists.
+lister.vim is a collection of commands for manipulating and moving between lists.
 
 
-                                  Quickfix list and Location list
+                      Quickfix list and Location list
 
-            :Qgrep {pattern} will narrow  down the quickfix list to results  with a message matching
-            the given pattern. :Qgrep! {pattern} will narrow down the results to those whose message
-            does not match the given pattern.
+:Qgrep {pattern} will narrow  down the quickfix list to results  with a message matching
+the given pattern. :Qgrep! {pattern} will narrow down the results to those whose message
+does not match the given pattern.
 
-            Similarly, :Qfilter {pattern}  will narrow the quickfix list to  results with a filename
-            matching the given pattern (and :Qfilter! for the inverse).
+Similarly, :Qfilter {pattern}  will narrow the quickfix list to  results with a filename
+matching the given pattern (and :Qfilter! for the inverse).
 
-            For the location list, there are :Lgrep and :Lfilter commands.
+For the location list, there are :Lgrep and :Lfilter commands.
 
-            The {pattern} argument is always a Vim-flavoured regex.
-
-
-                                           Argument list
-
-            :Agrep  [arguments]  runs :grep  [arguments]  on  the files  in  the  argument list.  If
-            provided, ! is passed directly to :grep.  This causes the quickfix list to be populated,
-            but Vim does not move to the first item.
-
-            :Afilter  {pattern}  narrows  the  argument  list to  those  with  a  filename  matching
-            {pattern}. :Afilter! does the same, but where filenames do not match a pattern.
+The {pattern} argument is always a Vim-flavoured regex.
 
 
-                                   Moving between types of lists
+                               Argument list
 
-            :Qargs populates the  argument list with a  unique set of files from  the quickfix list.
-            Similar for :Largs, but with the location list.
+:Agrep  [arguments]  runs :grep  [arguments]  on  the files  in  the  argument list.  If
+provided, ! is passed directly to :grep.  This causes the quickfix list to be populated,
+but Vim does not move to the first item.
 
-            :Sargs will convert all of the windows in the current tab page into a local argument list.
+:Afilter  {pattern}  narrows  the  argument  list to  those  with  a  filename  matching
+{pattern}. :Afilter! does the same, but where filenames do not match a pattern.
 
-            https://github.com/tommcdo/vim-lister
 
-                                    89 sloc
+                       Moving between types of lists
+
+:Qargs populates the  argument list with a  unique set of files from  the quickfix list.
+Similar for :Largs, but with the location list.
+
+:Sargs will convert all of the windows in the current tab page into a local argument list.
+
+<https://github.com/tommcdo/vim-lister> 89 sloc
 
 ## lookup
 
-            This plugin is  meant for VimL programmers. It  knows how to jump to  the definitions of
-            script-local and autoload variables or functions:
+This plugin is meant for VimL programmers.
+It knows how  to jump to the definitions of  script-local and autoload variables
+or functions:
 
-                    - s:var
-                    - s:func()
-                    - <sid>func()
-                    - autoload#foo#var
-                    - autoload#foo#func()
-                    - 'autoload#foo#func'
+   - s:var
+   - s:func()
+   - <sid>func()
+   - autoload#foo#var
+   - autoload#foo#func()
+   - 'autoload#foo#func'
 
-            https://github.com/mhinz/vim-lookup
-
-                                    124 sloc
+<https://github.com/mhinz/vim-lookup> 124 sloc
 
 ## lsp
 
-        async language server protocol plugin for vim and neovim
+async language server protocol plugin for vim and neovim
 
-        https://github.com/prabirshrestha/vim-lsp
+- <https://github.com/prabirshrestha/vim-lsp> 1353 sloc
+- <https://github.com/prabirshrestha/vim-lsp/wiki>
 
-                                   1353 sloc
+---
 
+<https://github.com/iamcco/vim-language-server> 42998 sloc
 
-        https://github.com/prabirshrestha/vim-lsp/wiki
+---
 
-                Welcome to the vim-lsp wiki!
+<https://github.com/prabirshrestha/vim-lsp/wiki/Servers-Python>
 
-                Click here to see the list of server registrations for vim-lsp.
+A Python 2.7 and 3.4+ implementation of the Language Server Protocol.
 
+---
 
-        https://github.com/iamcco/vim-language-server
+<https://github.com/prabirshrestha/asyncomplete-lsp.vim>
 
-                                   42998 sloc
+LSP source for asyncomplete.vim and vim-lsp
 
+Provide Language Server Protocol autocompletion source for asyncomplete.vim and vim-lsp.
 
-        https://github.com/prabirshrestha/vim-lsp/wiki/Servers-Python
+Résumé (pas sûr; juste mon intuition):
 
-                A Python 2.7 and 3.4+ implementation of the Language Server Protocol.
+- `asyncomplete.vim` et `vim-lsp` fournissent des frameworks pour compléter du code
+- `asyncomplete-lsp.vim` fournit des candidats utilisables par ces frameworks
+- `async.vim` est une dépendance à installer pour `vim-lsp`
 
+---
 
-        https://github.com/prabirshrestha/asyncomplete-lsp.vim
+<https://www.reddit.com/r/vim/comments/71nj1a/code_completion/dnc661o/>
 
-                LSP source for asyncomplete.vim and vim-lsp
+Commentaire de l'auteur des précédents plugins:
 
-                Provide Language Server Protocol autocompletion source for asyncomplete.vim and vim-lsp.
+> asyncomplete.vim paired with vim-lsp.
+> Language Server Protocol  (LSP) provides more than  just autocompletion features
+> like go to definition, rename find symbols, format and so on.
+> Since it runs in a separate process using jobs, it doesn’t slow down vim.
 
+---
 
-                                               NOTE:
+Liens intéressants:
 
-        Résumé (pas sûr; juste mon intuition):
-
-        `asyncomplete.vim` et `vim-lsp` fournissent des frameworks pour compléter du code.
-        `asyncomplete-lsp.vim` fournit des candidats utilisables par ces frameworks.
-        `async.vim` est une dépendance à installer pour `vim-lsp`.
-
-
-        https://www.reddit.com/r/vim/comments/71nj1a/code_completion/dnc661o/
-
-                Commentaire de l'auteur des précédents plugins:
-
-                asyncomplete.vim paired with vim-lsp.
-                Language  Server   Protocol  (LSP)   provides  more   than  just
-                autocompletion  features  like  go to  definition,  rename  find
-                symbols, format and so on.
-                Since it runs in a separate  process using jobs, it doesn’t slow
-                down vim.
-
-        Lien intéressant:
-        https://fortes.com/2017/language-server-neovim
-        https://blog.logrocket.com/how-to-use-the-language-server-protocol-to-extending-a-client-764da0e7863c
-        https://microsoft.github.io/language-server-protocol/overview
+- <https://fortes.com/2017/language-server-neovim>
+- <https://blog.logrocket.com/how-to-use-the-language-server-protocol-to-extending-a-client-764da0e7863c>
+- <https://microsoft.github.io/language-server-protocol/overview>
 
 ## makejob
 
-            This is a plugin for folks  who think that Vim's quickfix feature is
-            great, but  who don't like how  calls to :make and  :grep freeze the
-            editor. MakeJob  implements  asynchronous  versions of  the  builtin
-            commands in just over 150 lines of Vimscript.
+This is a plugin for folks  who think that Vim's quickfix feature is
+great, but  who don't like how  calls to :make and  :grep freeze the
+editor. MakeJob  implements  asynchronous  versions of  the  builtin
+commands in just over 150 lines of Vimscript.
 
-            https://github.com/foxik/vim-makejob
+<https://github.com/foxik/vim-makejob> 197 sloc
 
-                                    197 sloc
+---
 
-                                               NOTE:
+This plugin could be useful to learn how to implement our own custom
+async solutions, because it's short.
 
-            This plugin could be useful to learn how to implement our own custom
-            async solutions, because it's short.
-
-            See also:
-            https://github.com/yegappan/asyncmake
-
-                                    125 sloc
+See also:
+<https://github.com/yegappan/asyncmake> 125 sloc
 
 ## makery
 
-            Do  you know  about Vim's  own :make  system? It's  great! You  can set  makeprg to  any
-            executable program, so you can use :make not  just to run make with a Makefile, but also
-            to run linters, build scripts, task runners, etc.
+Do  you know  about Vim's  own :make  system? It's  great! You  can set  makeprg to  any
+executable program, so you can use :make not  just to run make with a Makefile, but also
+to run linters, build scripts, task runners, etc.
 
-            Vim will then  catch the results of :make into  a quickfix list, so you can  jump to any
-            errors, down to the correct filename, line, and column!
+Vim will then  catch the results of :make into  a quickfix list, so you can  jump to any
+errors, down to the correct filename, line, and column!
 
-            This plugin is designed to be a companion to :make.
+This plugin is designed to be a companion to :make.
 
-            https://github.com/igemnace/vim-makery
-
-                                    152 sloc
+<https://github.com/igemnace/vim-makery> 152 sloc
 
 ## mark
 
-            This plugin adds  mappings and a :Mark command  to highlight several
-            words in  different colors  simultaneously, similar to  the built-in
-            'hlsearch' highlighting of search results and the * star command.
+This plugin adds  mappings and a :Mark command  to highlight several
+words in  different colors  simultaneously, similar to  the built-in
+'hlsearch' highlighting of search results and the * star command.
 
-            For example,  when you are  browsing a  big program file,  you could
-            highlight multiple identifiers in parallel.
+For example,  when you are  browsing a  big program file,  you could
+highlight multiple identifiers in parallel.
 
-            This will make it easier to trace the source code.
+This will make it easier to trace the source code.
 
-            https://github.com/inkarkat/vim-mark
+<https://github.com/inkarkat/vim-mark> 1263 sloc
 
-                                   1263 sloc
+---
 
+Alternative:
 
-            Alternative:
+Highlight on the fly.
 
-            Highlight on the fly.
+`quickhl.vim` support highlight for:
 
-            `quickhl.vim` support highlight for:
+   - manual keywords
+   - tag in ctags generated file
+   - automatically higlight word under cursor(<cword>)
 
-                    - manual keywords
-                    - tag in ctags generated file
-                    - automatically higlight word under cursor(<cword>)
-
-            https://github.com/t9md/vim-quickhl
-
-                                    518 sloc
+<https://github.com/t9md/vim-quickhl> 518 sloc
 
 ## matchup    matchparen
 
-            match-up is a replacement for the venerable vim plugin matchit.vim.
-            match-up aims to  replicate all of matchit's features,  fix a number
-            of its deficiencies and bugs, and add a few totally new features.
-            It  also  replaces  the  standard plugin  matchparen,  allowing  all
-            of  matchit's words  to  be highlighted  along  with the  matchpairs
-            ((){}[]).
+match-up is a replacement for the venerable vim plugin matchit.vim.
+match-up  aims to  replicate all  of  matchit's features,  fix a  number of  its
+deficiencies and bugs, and add a few totally new features.
+It also replaces the standard plugin matchparen, allowing all of matchit's words
+to be highlighted along with the matchpairs ((){}[]).
 
-            https://www.reddit.com/r/vim/comments/7c1rjd/matchup_a_modern_enhanced_matchit_replacement/
-            https://github.com/andymass/vim-matchup
+- <https://www.reddit.com/r/vim/comments/7c1rjd/matchup_a_modern_enhanced_matchit_replacement/>
+- <https://github.com/andymass/vim-matchup> 1731 sloc
 
-                                   1731 sloc
+---
 
+Smaller and faster alternative to `$VIMRUNTIME/plugin/matchparen.vim`.
 
+<https://github.com/itchyny/vim-parenmatch>
 
-            Smaller and faster alternative to $VIMRUNTIME/plugin/matchparen.vim.
-
-            https://github.com/itchyny/vim-parenmatch
-
-            Documentation:
-            https://raw.githubusercontent.com/itchyny/vim-parenmatch/master/doc/parenmatch.txt
-
-                                    51 sloc
+Documentation:
+<https://raw.githubusercontent.com/itchyny/vim-parenmatch/master/doc/parenmatch.txt> 51 sloc
 
 ## markology  markbar
 
-        Vim mark visualization, navigation and management
+Vim mark visualization, navigation and management
 
-        https://github.com/jeetsukumaran/vim-markology
+<https://github.com/jeetsukumaran/vim-markology> 658 sloc
 
-                                    658 sloc
+Alternative:
 
-        Alternative:
-
-        https://github.com/Yilin-Yang/vim-markbar
-
-                                   2679 sloc
+<https://github.com/Yilin-Yang/vim-markbar> 2679 sloc
 
 ## minpac
 
@@ -1262,12 +1084,11 @@ Minpac is a minimal package manager for Vim 8 (and Neovim).
 This uses the packages feature and the  jobs feature which have been newly added
 on Vim 8.
 
-        https://github.com/k-takata/minpac
-        1067 sloc
+<https://github.com/k-takata/minpac> 1067 sloc
 
 Why is minpac interesting:
 
-                https://www.reddit.com/r/vim/comments/6x64oh/vim_8_any_reason_to_use_the_buildin_package/dmdqeec/
+<https://www.reddit.com/r/vim/comments/6x64oh/vim_8_any_reason_to_use_the_buildin_package/dmdqeec/>
 
 > Because it doesn't need to be loaded every time you start Vim.
 > Only when you call one of its function to install / update / delete a plugin.
@@ -1278,182 +1099,168 @@ Why is minpac interesting:
 
 Alternative:
 
-        https://github.com/kristijanhusak/vim-packager
-        944 sloc
+<https://github.com/kristijanhusak/vim-packager> 944 sloc
 
 ## miniyank
 
-        killring-alike plugin for neovim with no default mappings
+killring-alike plugin for neovim with no default mappings
 
-        https://github.com/bfredl/nvim-miniyank
+<https://github.com/bfredl/nvim-miniyank> 141 sloc
 
-                                              141 sloc
+This is a neovim plugin, but we could implement it in Vim because `TextYankPost`
+has been added in Vim:
 
-        This is a  neovim plugin, but we could  implement it in Vim because  `TextYankPost` has been
-        added in Vim:
+<https://github.com/vim/vim/pull/2333#issuecomment-344177706>
 
-                https://github.com/vim/vim/pull/2333#issuecomment-344177706
-
-        The neovim plugin uses `msgpackparse()` and `msgpackdump()` which don't exist in Vim.
-        Maybe try `json_encode()` and `json_decode()`, or `js_encode()` and `js_decode()`.
+The neovim plugin uses `msgpackparse()` and `msgpackdump()` which don't exist in Vim.
+Maybe try `json_encode()` and `json_decode()`, or `js_encode()` and `js_decode()`.
 
 ## neoformat
 
-        A (Neo)vim plugin for formatting code.
+A (Neo)vim plugin for formatting code.
 
-        Neoformat uses a variety  of formatters for many filetypes. Currently,  Neoformat will run a
-        formatter using the  current buffer data, and  on success it will update  the current buffer
-        with the  formatted text.  On a  formatter failure,  Neoformat will  try the  next formatter
-        defined for the filetype.
+Neoformat uses a variety  of formatters for many filetypes. Currently,  Neoformat will run a
+formatter using the  current buffer data, and  on success it will update  the current buffer
+with the  formatted text.  On a  formatter failure,  Neoformat will  try the  next formatter
+defined for the filetype.
 
-        By using getbufline() to read from the current  buffer instead of file, Neoformat is able to
-        format your  buffer without  you having  to :w your  file first.  Also, by  using setline(),
-        marks, jumps, etc. are all maintained after formatting.
+By using getbufline() to read from the current  buffer instead of file, Neoformat is able to
+format your  buffer without  you having  to :w your  file first.  Also, by  using setline(),
+marks, jumps, etc. are all maintained after formatting.
 
-        Neoformat supports both sending buffer data to formatters via stdin, and also writing buffer
-        data to /tmp/ for formatters to read that do not support input via stdin.
+Neoformat supports both sending buffer data to formatters via stdin, and also writing buffer
+data to /tmp/ for formatters to read that do not support input via stdin.
 
-        https://github.com/sbdchd/neoformat
+<https://github.com/sbdchd/neoformat> 1098 sloc
 
-                                    1098 sloc
+---
 
+Alternative:
 
-        Alternative:
-
-        https://github.com/prettier/vim-prettier
-
-                                              418 sloc
+<https://github.com/prettier/vim-prettier> 418 sloc
 
 ## neoman
 
-            Read manpages faster than superman!
+Read manpages faster than superman!
 
-            https://github.com/nhooyr/neoman.vim
+<https://github.com/nhooyr/neoman.vim> 267 sloc
 
-                                    267 sloc
+Note: A much improved version of this plugin is included by default in neovim!
 
-            note: A much improved version of this plugin is included by default in neovim!
-
-            https://github.com/neovim/neovim/blob/master/runtime/plugin/man.vim
-            https://github.com/neovim/neovim/blob/master/runtime/autoload/man.vim
-            https://github.com/neovim/neovim/blob/master/runtime/syntax/man.vim
-            https://github.com/neovim/neovim/blob/master/runtime/ftplugin/man.vim
-
-            https://github.com/nhooyr/neoman.vim/blob/master/scripts/nman.zsh
+- <https://github.com/neovim/neovim/blob/master/runtime/plugin/man.vim>
+- <https://github.com/neovim/neovim/blob/master/runtime/autoload/man.vim>
+- <https://github.com/neovim/neovim/blob/master/runtime/syntax/man.vim>
+- <https://github.com/neovim/neovim/blob/master/runtime/ftplugin/man.vim>
+- <https://github.com/nhooyr/neoman.vim/blob/master/scripts/nman.zsh>
 
 ## neoterm
 
-            Wrapper of some neovim's :terminal functions.
+Wrapper of some neovim's :terminal functions.
 
-            https://github.com/kassio/neoterm
-
-                                    489 sloc
+<https://github.com/kassio/neoterm> 489 sloc
 
 ## ninja-feet
 
-            While Vim has a  great number of wonderful text objects, and plugins  can add even more,
-            there is no general way to operate from the cursor to the beginning or end of those text
-            objects.
+While Vim has a  great number of wonderful text objects, and plugins  can add even more,
+there is no general way to operate from the cursor to the beginning or end of those text
+objects.
 
-            Well, now there is. ninja-feet.vim lets you do so by putting [ or ] between the operator
-            and the text object. For example, d]i) deletes from the cursor to the end of the current
-            parenthetical term. c[ip changes from the cursor to the beginning of the paragraph.
+Well, now there is. ninja-feet.vim lets you do so by putting [ or ] between the operator
+and the text object. For example, d]i) deletes from the cursor to the end of the current
+parenthetical term. c[ip changes from the cursor to the beginning of the paragraph.
 
-            You  can  also  jump into  Insert  mode  at  the  beginning  or  end of  a  text  object
-            (technically, any motion) with z[ and z].
+You  can  also  jump into  Insert  mode  at  the  beginning  or  end of  a  text  object
+(technically, any motion) with z[ and z].
 
-            https://github.com/tommcdo/vim-ninja-feet/
+<https://github.com/tommcdo/vim-ninja-feet/> 57 sloc
 
-                                    57 sloc
+## notifications
+
+use floating window to show notifications
+
+<https://github.com/wsdjeg/notifications.vim> 190 sloc
+
+---
+
+Could be useful to study how to use popup windows in (N)Vim.
 
 ## one
 
-            Inspired by Derek Wyatt’s “One Vim ... just one” video, this rewrite
-            of  the mvim  script  builds on  Vim’s  +clientserver capability  to
-            better manage remote server sessions.
+Inspired by Derek Wyatt’s “One Vim ... just one” video, this rewrite of the mvim
+script builds on  Vim’s +clientserver capability to better  manage remote server
+sessions.
 
-            https://github.com/reedes/vim-one
+<https://github.com/reedes/vim-one> 259 sloc
 
-                                              259 sloc
-
-            Alternative:
-            https://github.com/susam/vimer
+Alternative:
+<https://github.com/susam/vimer>
 
 ## opex
 
-            Opex  is a  simple plugin  that  defines two  custom  operators to  execute motions  (:h
-            motion.txt) with  builtin interpreters. Execution  operator (opex-execute)  executes the
-            code  and displays  any output  in  the message  line. Appending operator  (opex-append)
-            executes the code and appends any output as a comment below the code.
+Opex  is a  simple plugin  that  defines two  custom  operators to  execute motions  (:h
+motion.txt) with  builtin interpreters. Execution  operator (opex-execute)  executes the
+code  and displays  any output  in  the message  line. Appending operator  (opex-append)
+executes the code and appends any output as a comment below the code.
 
-            https://github.com/gokcehan/vim-opex
-
-                                              345 sloc
+<https://github.com/gokcehan/vim-opex> 345 sloc
 
 ## outlaw
 
-        The wanted outliner!
+The wanted outliner!
 
-        https://github.com/lifepillar/vim-outlaw
+<https://github.com/lifepillar/vim-outlaw> 219 sloc
 
-                                    219 sloc
+---
 
+Also, study this:
 
-        Also, study this:
+<https://github.com/rlue/vim-getting-things-down/> 258 sloc
 
-        https://github.com/rlue/vim-getting-things-down/
+---
 
-                                    258 sloc
+Also, read this:
+<https://github.com/vim-voom/VOoM/blob/master/doc/voom.txt>
 
-
-        Also, read this:
-        https://github.com/vim-voom/VOoM/blob/master/doc/voom.txt
-
-        You can't study this code, it's written in python. However, the features it provide could give
-        us inspiration.
+You can't study this code, it's written in python.
+However, the features it provide could give us inspiration.
 
 ## pandoc
 
-        vim-pandoc provides facilities to integrate Vim with the pandoc document
-        converter  and  work with  documents  written  in its  markdown  variant
-        (although textile documents are also supported).
+vim-pandoc  provides  facilities  to  integrate Vim  with  the  pandoc  document
+converter  and work  with documents  written in  its markdown  variant (although
+textile documents are also supported).
 
-        vim-pandoc's goals are:
+vim-pandoc's goals are:
 
-                - to provide advanced integration with pandoc
-                - a comfortable document writing environment
-                - great configurability
+   - to provide advanced integration with pandoc
+   - a comfortable document writing environment
+   - great configurability
 
-        https://github.com/vim-pandoc/vim-pandoc
+<https://github.com/vim-pandoc/vim-pandoc> 3519 sloc
 
-                                   3519 sloc
+---
 
+pandoc-syntax
 
+Pandoc syntax module, to be used alongside vim-pandoc (or as standalone).
 
-        pandoc-syntax
+If you want to use vim-pandoc-syntax without vim-pandoc, you'll need to tell Vim
+to load it for certain files.
+Just add something like this to your vimrc:
 
-        Pandoc syntax module, to be used alongside vim-pandoc (or as standalone).
+    augroup pandoc_syntax
+        au! BufNewFile,BufFilePre,BufRead *.md set filetype=markdown.pandoc
+    augroup END
 
-        If you want to use vim-pandoc-syntax without vim-pandoc,  you'll need to tell Vim to load it
-        for certain files. Just add something like this to your vimrc:
+<https://github.com/vim-pandoc/vim-pandoc-syntax> 516 sloc
 
-            augroup pandoc_syntax
-                au! BufNewFile,BufFilePre,BufRead *.md set filetype=markdown.pandoc
-            augroup END
+<http://pandoc.org/MANUAL.html#pandocs-markdown>
 
-        https://github.com/vim-pandoc/vim-pandoc-syntax
+---
 
-                                    516 sloc
+rmarkdown
 
-        http://pandoc.org/MANUAL.html#pandocs-markdown
-
-
-
-        rmarkdown
-
-        https://github.com/vim-pandoc/vim-rmarkdown
-
-                                    221 sloc
+<https://github.com/vim-pandoc/vim-rmarkdown> 221 sloc
 
 ## pear-tree
 
@@ -1466,148 +1273,122 @@ It  also  provides pair-wise  deletion,  newline  expansion, and  other  typical
 auto-pair   features  without   interfering  with   Vim's  undo   or  dot-repeat
 functionality.
 
-        https://github.com/tmsvg/pear-tree
-        1307 sloc
+<https://github.com/tmsvg/pear-tree> 1307 sloc
 
 ## peekaboo
 
-            Peekaboo extends " and @ in normal mode and <CTRL-R> in insert mode so you can see the
-            contents of the registers.
+Peekaboo extends " and  @ in normal mode and <CTRL-R> in insert  mode so you can
+see the contents of the registers.
 
-            ≈ 300 lines of code
+≈ 300 lines of code
 
-            https://github.com/junegunn/vim-peekaboo
+<https://github.com/junegunn/vim-peekaboo> 228 sloc
 
-                                    228 sloc
+---
 
+If autocompletion breaks because of vim-peekaboo, try:
 
-            If autocompletion breaks because of vim-peekaboo, try:
+        let g:peekaboo_ins_prefix = '<c-x>'
 
-                    let g:peekaboo_ins_prefix = '<c-x>'
-
-            https://github.com/lifepillar/vim-mucomplete/issues/15
-
+<https://github.com/lifepillar/vim-mucomplete/issues/15>
 
 ## phonetics
 
-            A vim plugin for checking and listening to English phonetics.
+A vim plugin for checking and listening to English phonetics.
 
-            https://github.com/soywod/vim-phonetics
-
-                                    84 sloc
+<https://github.com/soywod/vim-phonetics> 84 sloc
 
 ## pythonsense
 
-            A  Vim plugin  that provides  text  objects and  motions for  Python
-            classes, methods, functions, and doc strings.
+A Vim plugin that provides text objects and motions for Python classes, methods,
+functions, and doc strings.
 
-            https://github.com/jeetsukumaran/vim-pythonsense
-
-                                    486 sloc
+<https://github.com/jeetsukumaran/vim-pythonsense> 486 sloc
 
 ## preview
 
-            This plugin  solves a  series of user  experience problems  in vim's
-            preview window  and provide a handy  way to preview tags,  files and
-            function signatures.
+This plugin solves a series of  user experience problems in vim's preview window
+and provide a handy way to preview tags, files and function signatures.
 
-            https://github.com/skywind3000/vim-preview
-
-                                    869 sloc
+<https://github.com/skywind3000/vim-preview> 869 sloc
 
 ## qf
 
-            vim-qf—short  for  vim-quickfix—is a  small  collection  of settings,  commands  and
-            mappings put together to make working with the location/quickfix list/window smoother.
+vim-qf—short for  vim-quickfix—is a small  collection of settings,  commands and
+mappings put  together to  make working  with the  location/quickfix list/window
+smoother.
 
-                    https://github.com/romainl/vim-qf
+<https://github.com/romainl/vim-qf> 556 sloc
 
-                                    556 sloc
+Global features (available from any window)
 
-            Global features (available from any window)
+   - quickfix buffers are hidden from :ls and buffer navigation
 
-                - quickfix buffers are hidden from :ls and buffer navigation
+   - optional mappings for :cnext, :cprevious, :lnext, :lprevious that wrap around
+     the beginning and end of the list
 
-                - optional mappings for :cnext, :cprevious, :lnext, :lprevious that wrap around
-                  the beginning and end of the list
+   - optional mapping for jumping to and from the location/quickfix window,
+   - optional mappings for toggling location/quickfix windows
 
-                - optional mapping for jumping to and from the location/quickfix window,
-                - optional mappings for toggling location/quickfix windows
+   - open the location/quickfix window automatically after :make, :grep, :lvimgrep and
+     friends if there are valid locations/errors
 
-                - open the location/quickfix window automatically after :make, :grep, :lvimgrep and
-                  friends if there are valid locations/errors
+   - quit Vim if the last window is a location/quickfix window
+   - close the location window automatically when quitting parent window
 
-                - quit Vim if the last window is a location/quickfix window
-                - close the location window automatically when quitting parent window
+Local features (available only in location/quickfix windows)
 
-            Local features (available only in location/quickfix windows)
-
-                - disable soft-wrapping
-                - disable relative numbers
-                - optional Ack.vim-inspired mappings
-                - filter and restore the current list
-                - perform commands on each line in the current list
-                - perform commands on each file in the current list
-                - jump to next group of entries belonging to same file (“file grouping“)
-                - save and load named lists
+   - disable soft-wrapping
+   - disable relative numbers
+   - optional Ack.vim-inspired mappings
+   - filter and restore the current list
+   - perform commands on each line in the current list
+   - perform commands on each file in the current list
+   - jump to next group of entries belonging to same file (“file grouping“)
+   - save and load named lists
 
 ## qf-layout
 
-            https://github.com/MarcWeber/vim-addon-qf-layout
-
-                                    108 sloc
+<https://github.com/MarcWeber/vim-addon-qf-layout> 108 sloc
 
 ## qf-resize
 
-            Automatically resize quickfix and location list windows.
+Automatically resize quickfix and location list windows.
 
-            It will resize location/quickfix windows based on the number of lines therein; e.g. with
-            a single list entry, why waste 10 lines (the default height)?!
+It will resize location/quickfix windows based on the number of lines therein; e.g. with
+a single list entry, why waste 10 lines (the default height)?!
 
-            With vim-test/dispatch-neovim etc., and on VimResized it will process all existing qf windows.
+With vim-test/dispatch-neovim etc., and on VimResized it will process all existing qf windows.
 
-            https://github.com/blueyed/vim-qf_resize
-
-                                    251 sloc
+<https://github.com/blueyed/vim-qf_resize> 251 sloc
 
 ## `quickfixsigns_vim`
 
 Mark quickfix & location list items with signs
 
-<https://github.com/tomtom/quickfixsigns_vim>:1488sloc
+<https://github.com/tomtom/quickfixsigns_vim> 1488sloc
 
 ## quickmenu
 
-            A nice customizable popup menu for vim
+A nice customizable popup menu for vim
 
-            https://github.com/skywind3000/quickmenu.vim
-
-                                    510 sloc
+<https://github.com/skywind3000/quickmenu.vim> 510 sloc
 
 ## quick-scope
 
-            A Vim plugin that highlights which characters to target for f, F and family. No mappings are needed.
+A Vim plugin that highlights which characters to target for f, F and family.
+No mappings are needed.
 
-            https://github.com/unblevable/quick-scope
+<https://github.com/unblevable/quick-scope> 269 sloc
 
-                                    269 sloc
-
-            Met en surbrillance le bon caractère à choisir pour se déplacer sur chaque mot de la ligne
-            via `f{char}`.
+Met en surbrillance le  bon caractère à choisir pour se  déplacer sur chaque mot
+de la ligne via `f{char}`.
 
 ## rainbow_parentheses.vim
 
-            https://github.com/kien/rainbow_parentheses.vim
-
-                                    90 sloc
-
-            https://github.com/junegunn/rainbow_parentheses.vim
-
-                                    189 sloc
-
-            https://github.com/bounceme/poppy.vim
-
-                                    40 sloc
+- <https://github.com/kien/rainbow_parentheses.vim> 90 sloc
+- <https://github.com/junegunn/rainbow_parentheses.vim> 189 sloc
+- <https://github.com/bounceme/poppy.vim> 40 sloc
 
 ## rhubarb   merginal
 
@@ -1632,195 +1413,178 @@ Fugitive extension to manage and merge Git branches
 
 ## scratch
 
-            Unobtrusive scratch window
+Unobtrusive scratch window
 
-            https://github.com/mtth/scratch.vim
-
-                                              181 sloc
+<https://github.com/mtth/scratch.vim> 181 sloc
 
 ## sideways
 
-A Vim  plugin to move  function arguments (and  other delimited-by-something
-items) left and right.
+A Vim plugin to move function arguments (and other delimited-by-something items)
+left and right.
 
 <https://github.com/AndrewRadev/sideways.vim> 2108 sloc
 
 ## signature
 
-            vim-signature is a plugin to place, toggle and display marks.
+vim-signature is a plugin to place, toggle and display marks.
 
-            Le plugin permet aussi de poser 10 types de marqueurs visuels en utilisant les symboles:
+Le plugin permet aussi de poser 10 types de marqueurs visuels en utilisant les symboles:
 
-                    ! @ # $ % ^ & * ( )
+    ! @ # $ % ^ & * ( )
 
-            Contrairement aux marques, il semble qu'on puisse poser un même marqueur sur plusieurs
-            lignes différentes.
+Contrairement aux marques, il semble qu'on puisse poser un même marqueur sur plusieurs
+lignes différentes.
 
-            Par défaut, le plugin installe un certain nb de mappings. Parmi eux,
-            4 posent pb, car ils changent des mappings par défaut:
+Par défaut, le plugin installe un certain nb de mappings. Parmi eux,
+4 posent pb, car ils changent des mappings par défaut:
 
-                    `]           se rend à la prochaine marque dans l'ordre alphabétique
-                                 par défaut, se rend sur le dernière caractère du dernier texte changé
+    `]           se rend à la prochaine marque dans l'ordre alphabétique
+                 par défaut, se rend sur le dernière caractère du dernier texte changé
 
-                    `[           se rend à la précédente marque dans l'ordre alphabétique
-                                 par défaut, se rend sur le 1er caractère du dernier texte changé
+    `[           se rend à la précédente marque dans l'ordre alphabétique
+                 par défaut, se rend sur le 1er caractère du dernier texte changé
 
-                    ']           mappings similaires mais se rend sur le 1er caractère non whitespace
-                    '[           "
+    ']           mappings similaires mais se rend sur le 1er caractère non whitespace
+    '[           "
 
-            Heureusement, on peut modifier les  mappings installés par le plugin
-            via la variable g:SignatureMap qui contient le dico suivant:
+Heureusement, on peut modifier les  mappings installés par le plugin
+via la variable g:SignatureMap qui contient le dico suivant:
 
-                    let g:SignatureMap = {
-                    \ 'Leader'             :  "m",
-                    \ 'PlaceNextMark'      :  "m,",
-                    \ 'ToggleMarkAtLine'   :  "m.",
-                    \ 'PurgeMarksAtLine'   :  "m-",
-                    \ 'DeleteMark'         :  "dm",
-                    \ 'PurgeMarks'         :  "m<Space>",
-                    \ 'PurgeMarkers'       :  "m<BS>",
-                    \ 'GotoNextLineAlpha'  :  "']",
-                    \ 'GotoPrevLineAlpha'  :  "'[",
-                    \ 'GotoNextSpotAlpha'  :  "`]",
-                    \ 'GotoPrevSpotAlpha'  :  "`[",
-                    \ 'GotoNextLineByPos'  :  "]'",
-                    \ 'GotoPrevLineByPos'  :  "['",
-                    \ 'GotoNextSpotByPos'  :  "]`",
-                    \ 'GotoPrevSpotByPos'  :  "[`",
-                    \ 'GotoNextMarker'     :  "]-",
-                    \ 'GotoPrevMarker'     :  "[-",
-                    \ 'GotoNextMarkerAny'  :  "]=",
-                    \ 'GotoPrevMarkerAny'  :  "[=",
-                    \ 'ListBufferMarks'    :  "m/",
-                    \ 'ListBufferMarkers'  :  "m?"
-            \ }
+    let g:SignatureMap = {
+    \ 'Leader'             :  "m",
+    \ 'PlaceNextMark'      :  "m,",
+    \ 'ToggleMarkAtLine'   :  "m.",
+    \ 'PurgeMarksAtLine'   :  "m-",
+    \ 'DeleteMark'         :  "dm",
+    \ 'PurgeMarks'         :  "m<Space>",
+    \ 'PurgeMarkers'       :  "m<BS>",
+    \ 'GotoNextLineAlpha'  :  "']",
+    \ 'GotoPrevLineAlpha'  :  "'[",
+    \ 'GotoNextSpotAlpha'  :  "`]",
+    \ 'GotoPrevSpotAlpha'  :  "`[",
+    \ 'GotoNextLineByPos'  :  "]'",
+    \ 'GotoPrevLineByPos'  :  "['",
+    \ 'GotoNextSpotByPos'  :  "]`",
+    \ 'GotoPrevSpotByPos'  :  "[`",
+    \ 'GotoNextMarker'     :  "]-",
+    \ 'GotoPrevMarker'     :  "[-",
+    \ 'GotoNextMarkerAny'  :  "]=",
+    \ 'GotoPrevMarkerAny'  :  "[=",
+    \ 'ListBufferMarks'    :  "m/",
+    \ 'ListBufferMarkers'  :  "m?"
+    \ }
 
-            https://github.com/kshenoy/vim-signature
-
-                                    766 sloc
+<https://github.com/kshenoy/vim-signature> 766 sloc
 
 ## signjump
 
-            Jump to signs just like other object motions.
-            A feature that is oddly absent from Vim.
+Jump to signs just like other object motions.
+A feature that is oddly absent from Vim.
 
-            https://github.com/ZeroKnight/vim-signjump
-
-                                    153 sloc
+<https://github.com/ZeroKnight/vim-signjump> 153 sloc
 
 ## shortcut
 
-            L'avantage  de ce  plugin  par  rapport à  fzf.vim,  semble être  de
-            pouvoir chercher dans une description de ce que fait le mapping.
+L'avantage de ce  plugin par rapport à fzf.vim, semble  être de pouvoir chercher
+dans une description de ce que fait le mapping.
 
-            Avec  fzf.vim, on  peut juste  chercher  dans le  lhs et  le rhs  du
-            mapping.
+Avec fzf.vim, on peut juste chercher dans le lhs et le rhs du mapping.
 
-            This plugin provides a discoverable  shortcut system for Vim that is
-            inspired by Spacemacs and powered by fzf.vim.
+This plugin provides a discoverable shortcut  system for Vim that is inspired by
+Spacemacs and powered by fzf.vim.
 
-            It displays  a searchable menu  of shortcuts when you  pause partway
-            while typing a  shortcut, say, because you forgot the  rest of it or
-            because you  just want to  see the  shortcut menu again  to discover
-            what else is available.
+It displays a searchable menu of shortcuts when you pause partway while typing a
+shortcut, say, because you forgot the rest of it or because you just want to see
+the shortcut menu again to discover what else is available.
 
-            You can interactively  filter the menu by typing  more shortcut keys
-            or parts of shortcut descriptions shown in the menu.
+You can interactively filter  the menu by typing more shortcut  keys or parts of
+shortcut descriptions shown in the menu.
 
-            https://github.com/sunaku/vim-shortcut
+<https://github.com/sunaku/vim-shortcut> 258 sloc
 
-                                    258 sloc
+Alternatives:
 
-            Alternatives:
-            https://github.com/hecal3/vim-leader-guide
-
-                                    509 sloc
-
-            https://github.com/urbainvaes/vim-remembrall
-
-                                    226 sloc
-
+- <https://github.com/hecal3/vim-leader-guide> 509 sloc
+- <https://github.com/urbainvaes/vim-remembrall> 226 sloc
 
 ## smartword
 
-            https://github.com/kana/vim-smartword
-
-                                    108 sloc
+<https://github.com/kana/vim-smartword> 108 sloc
 
 ## spellcheck
 
-            This  plugin populates  the quickfix-list  with all  spelling errors
-            found in a buffer to give you that overview.
-            You can use the built-in quickfix  features to navigate to the first
-            occurrence of a particular spell error.
-            You can  also manage the spelling  errors (mark as good  / bad word,
-            globally replace with suggestion)  directly from the quickfix window
-            via the usual zg, zw, z= etc.
-            mappings.
+This plugin  populates the  quickfix-list with  all spelling  errors found  in a
+buffer to give you that overview.
+You can use  the built-in quickfix features to navigate  to the first occurrence
+of a particular spell error.
+You can  also manage  the spelling  errors (mark  as good  / bad  word, globally
+replace with suggestion) directly from the quickfix window via the usual zg, zw,
+z= etc. mappings.
 
-            https://github.com/vim-scripts/SpellCheck
-
-                                    378 sloc
+<https://github.com/vim-scripts/SpellCheck> 378 sloc
 
 ## splitjoin
 
-            Switching between a single-line statement and a multi-line one.
-            Offers the following default keybindings, which can be customized:
+Switching between a single-line statement and a multi-line one.
+Offers the following default keybindings, which can be customized:
 
-                    - gS to split a one-liner into multiple lines
-                    - gJ (with the cursor on the first line of a block) to join a block into
-                      a single-line statement
+   - `gS` to split a one-liner into multiple lines
 
-            https://github.com/AndrewRadev/splitjoin.vim
+   - `gJ` (with the cursor on the first line of a block) to join a block into
+     a single-line statement
 
-                                   5165 sloc
+<https://github.com/AndrewRadev/splitjoin.vim> 5165 sloc
+
+## stable-windows
+
+Keeps vim windows stable when layout changes.
+
+It  really annoys  me when  opening  new windows  in vim  (especially using  the
+quickfix or  location list) and  vim automatically adjusts  the text in  all the
+windows so the cursor line is centered.
+
+<https://github.com/gillyb/stable-windows> 114 sloc
 
 ## startify
 
-    This plugin provides a start screen for Vim and Neovim.
+This plugin provides a start screen for Vim and Neovim.
 
-    It provides  dynamically created  headers or  footers and  uses configurable
-    lists to show recently used or bookmarked files and persistent sessions.
+It provides  dynamically created  headers or  footers and  uses configurable
+lists to show recently used or bookmarked files and persistent sessions.
 
-    All of this can be accessed in a simple to use menu that even allows to open
-    multiple entries at once.
+All of this can be accessed in a simple to use menu that even allows to open
+multiple entries at once.
 
-    Startify doesn't get in your way and works out-of-the-box, but provides many
-    options for fine-grained customization.
+Startify doesn't get in your way and works out-of-the-box, but provides many
+options for fine-grained customization.
 
-    https://github.com/mhinz/vim-startify
+<https://github.com/mhinz/vim-startify> 1029 sloc
 
-                                             1029 sloc
-
-    See also:
-        http://vi.stackexchange.com/a/715/6960
+See also:
+<http://vi.stackexchange.com/a/715/6960>
 
 ## startuptime
 
-        Everybody knows that  1ms could mean the difference  between life and death in  Vim. This plugin
-        breaks down  the output of  --startuptime so you  can zero in on  the scripts that  are stealing
-        dozens of your milliseconds  each time Vim is started. You won't even  need to leave the comfort
-        of Vim.
+Everybody knows  that 1ms could  mean the difference  between life and  death in
+Vim.
+This plugin breaks  down the output of  --startuptime so you can zero  in on the
+scripts that are stealing dozens of your milliseconds each time Vim is started.
+You won't even need to leave the comfort of Vim.
 
-        https://github.com/tweekmonster/startuptime.vim
-
-                                    303 sloc
+<https://github.com/tweekmonster/startuptime.vim> 303 sloc
 
 ## stay
 
-            vim-stay  adds  automated  view  session  creation  and  restoration
-            whenever  editing a  buffer,  across Vim  sessions  and window  life
-            cycles.
+vim-stay adds automated view session creation and restoration whenever editing a
+buffer, across Vim sessions and window life cycles.
 
-            It also  alleviates Vim's tendency  to lose view state  when cycling
-            through buffers (via argdo, bufdo et al.).
+It  also alleviates  Vim's  tendency to  lose view  state  when cycling  through
+buffers (via argdo, bufdo et al.).
 
-            It is smart about which buffers should be persisted and which should
-            not, making the procedure painless and invisible.
+It is smart about which buffers should be persisted and which should not, making
+the procedure painless and invisible.
 
-            https://github.com/kopischke/vim-stay
-
-                                              283 sloc
+<https://github.com/kopischke/vim-stay> 283 sloc
 
 ## subversive
 
@@ -1829,320 +1593,259 @@ quick substitutions.
 It contains no default  mappings and will have no effect until  you add your own
 maps to it.
 
-                                    234 sloc
-
-https://github.com/svermeulen/vim-subversive
+<https://github.com/svermeulen/vim-subversive> 234 sloc
 
 ## swapit
 
-            Permet d'alterner entre 2 à 10 mots-clés via C-a/C-x.
-            On peut définir sa propre liste (sans doute locale à un buffer ou à un type de fichiers).
+Permet d'alterner entre 2 à 10 mots-clés via C-a/C-x.
+On peut définir sa  propre liste (sans doute locale à un buffer  ou à un type de
+fichiers).
 
-            Exemple d'utilisation:
-            définir la liste ['true', 'false'] et positionner son curseur sur la ligne:
+Exemple d'utilisation:  définir la  liste ['true',  'false'] et  positionner son
+curseur sur la ligne:
 
-                    setting=tr|ue
+    setting=tr|ue
 
-            … le pipe représentant le curseur, appuyer sur C-a produira la ligne:
+... le pipe représentant le curseur, appuyer sur C-a produira la ligne:
 
-                    setting=false
+    setting=false
 
-            Exemples de listes de mots-clés installées par défaut:
+Exemples de listes de mots-clés installées par défaut:
 
-                ['yes','no']
-                ['Yes','No']
-                ['True','False']
-                ['true','false']
-                ['AND','OR']
-                ['Hello World!','GoodBye Cruel World!' , 'See You Next Tuesday!']
-                ['On','Off']
-                ['on','off']
-                ['ON','OFF']
-                ['<','<=','==', '>=', '>' , '=~', '!=']
-                ['bool', 'char','int','unsigned int', 'float','long', 'double']
-                ['Sunday','Monday', 'Tuesday', 'Wednesday','Thursday', 'Friday', 'Saturday']
+    ['yes','no']
+    ['Yes','No']
+    ['True','False']
+    ['true','false']
+    ['AND','OR']
+    ['Hello World!','GoodBye Cruel World!' , 'See You Next Tuesday!']
+    ['On','Off']
+    ['on','off']
+    ['ON','OFF']
+    ['<','<=','==', '>=', '>' , '=~', '!=']
+    ['bool', 'char','int','unsigned int', 'float','long', 'double']
+    ['Sunday','Monday', 'Tuesday', 'Wednesday','Thursday', 'Friday', 'Saturday']
 
-            https://github.com/mjbrownie/swapit
+<https://github.com/mjbrownie/swapit> 310 sloc
 
-            Ideas for mappings:
+Ideas for mappings:
 
-                    <s >s to cycle in a chain
-                    =s to get a default value no matter where we are in the chain
-
-                                    310 sloc
-
-
-            Alternatives:
-
-                    switch
-                    https://github.com/AndrewRadev/switch.vim
-
-                                    1208 sloc
-
-                    vim-cycle
-                    https://github.com/zef/vim-cycle
-
-                                    159 sloc
-
-                    https://github.com/bootleq/vim-cycle
-
-                                    627 sloc
-
-
-            switch semble + puissant mais nécessite de bien connaître les regex pour être customisé.
-
-            Screencast consacré à switch:
-            https://www.youtube.com/watch?v=zIOOLZJb87U
-
-
-                                               NOTE:
-
-            Une alternative naïve consiste à utiliser `C-x C-t` et un fichier spécial de synonymes.
-
-## swoop
-
-            Allows you  to find  and replace occurrences  in many  buffers being
-            aware of the context.
-
-            You can  edit the swoopBuffer  and the  changes you applied  will be
-            save for all corresponding files by saving the buffer.
-
-            Especially  useful to  refactor a  name in  multiple files  and keep
-            control on it...
-
-            https://github.com/pelodelfuego/vim-swoop
-
-                                    416 sloc
-
-            Alternative:
-
-            https://github.com/Olical/vim-enmasse
-
-                                    171 sloc
-
-## SyntaxRange
-
-        https://github.com/inkarkat/vim-SyntaxRange
-
-Define a different filetype syntax on regions of a buffer.
-
-                                    78 sloc
-
-
-See also:
-
-        https://www.reddit.com/r/vim/comments/2x5yav/markdown_with_fenced_code_blocks_is_great/
-
-## tagbar
-
-            Tagbar is a Vim plugin that provides  an easy way to browse the tags
-            of the current file and get an overview of its structure.
-
-            It does this by creating a sidebar that displays the ctags-generated
-            tags of the current file, ordered by their scope.
-
-            This means that  for example methods in C++ are  displayed under the
-            class they are defined in.
-
-            Tagbar is not a general-purpose tool for managing tags files.
-
-            It  only creates  the  tags it  needs  on-the-fly in-memory  without
-            creating any files.
-
-            tags file management is provided  by other plugins, like for example
-            easytags.
-
-            https://github.com/majutsushi/tagbar
-
-                                   4788 sloc
-
-## targets
-
-            Targets.vim is a  Vim plugin that adds various text  objects to give
-            you more targets to operate on.
-
-            It expands  on the idea of  simple commands like di'  (delete inside
-            the single quotes around the  cursor) to give you more opportunities
-            to craft powerful commands that can be repeated reliably.
-
-            One major goal is to handle all corner cases correctly.
-
-            https://github.com/wellle/targets.vim
-
-                                   1459 sloc
-
-            https://github.com/wellle/line-targets.vim
-
-                                    34 sloc
-
-## test    entr
-
-            A Vim wrapper for running tests on different granularities.
-
-            https://github.com/janko-m/vim-test
-
-                                   2694 sloc
-
-            https://www.youtube.com/watch?v=ODzMN91AhXc
-
-
-
-            http://entrproject.org/
-
-## textobj-user
-
-            vim-textobj-user is  a Vim  plugin to create  your own  text objects
-            without pain.
-
-            It is hard  to create text objects, because there  are many pitfalls
-            to deal with.
-
-            This plugin  hides such  details and provides  a declarative  way to
-            define text objects.
-
-            You can  use regular expressions  to define simple text  objects, or
-            use functions to define complex ones.
-
-            https://github.com/kana/vim-textobj-user
-
-                                   558 sloc
-
-
-            A  vim plugin  providing a  single text  object (on  iv and  av) for
-            variable segments.
-
-            A variable  segment is defined to  be a substring in  any identifier
-            character followed  by an underscore  ("snake case") or  a lowercase
-            identifier  character followed  by  an  uppercase character  ("camel
-            case").
-
-            https://github.com/Julian/vim-textobj-variable-segment
-
-                                    62 sloc (après avoir viré t/ et bin/)
-
-
-            Defines text objects to target text after the designated characters.
-
-            https://github.com/junegunn/vim-after-object
-
-                                    93 sloc
-
-## tiler
-
-            Tiling window manger for Vim
-
-            Features
-
-                - multiple layouts
-                - can increase or decrease master window count on the fly
-                - support for popups e.g. nerdtree, tagbar, quickfix, etc
-                - each tab has its own settings
-
-            https://github.com/zhamlin/tiler.vim
-
-                                    401 sloc
-
-            Alternatives:
-
-            https://github.com/mattboehm/vim-accordion
-
-                                    335 sloc
-
-            https://github.com/paroxayte/vwm.vim
-
-                                    538 sloc
-
-## tmuxify    tbone    tmux-runner    vimux    slimux
-
-            From best to worst:
-
-            https://github.com/jebaum/vim-tmuxify  (seems very good for handling panes)
-
-                                    252 sloc
-
-            https://github.com/tpope/vim-tbone
-
-                                    338 sloc
-
-            https://github.com/christoomey/vim-tmux-runner
-
-                                    437 sloc
-
-            https://github.com/benmills/vimux
-
-                                    169 sloc
-
-
-            Celui-là je sais pas où le ranger:
-
-            https://github.com/epeli/slimux
-
-                                              487 sloc
-
-
-            See also:
-            https://github.com/roxma/vim-tmux-clipboard
-
-            I began a refactoring of this last one here:
-
-                    ~/Dropbox/vim_plugins/tmux_clipboard.vim
-
-## tmux-complete
-
-            Vim plugin for insert mode completion of words in adjacent tmux panes
-
-            If you're using  Vim in tandem with Tmux you  might be familiar with
-            this pesky situation:
-
-            You're happily editing your lovely files in Vim, when you notice you
-            need to type a word that you  can see in a different Tmux pane right
-            next to Vim.
-
-            This might be  some secret key found  in your REPL or the  name of a
-            failing test.
-
-            Usually the interesting text is too short to warrant switching panes
-            and going into Tmux' copy mode, so you end typing it out again.
-
-            But fear no longer!
-
-            This plugin adds  a completion function that puts  all words visible
-            in your Tmux panes right under your fingertips.
-
-            Just enter  insert mode,  start typing  any word  you see  and press
-            <C-X><c-u> to the trigger user defined insert mode completion.
-
-            It also completes words that  are scrolled off, hidden in background
-            tmux windows and even different tmux sessions.
-
-            And it even works from gvim or MacVim!
-
-            https://github.com/wellle/tmux-complete.vim
-
-                                    410 sloc
+   - `<s`, `>s` to cycle in a chain
+   - `=s` to get a default value no matter where we are in the chain
 
 ---
 
-<https://gist.github.com/blueyed/6856354>
+Alternatives:
 
-<https://github.com/Osse/dotfiles/blob/master/.zfunctions/tmux_complete>
+- <https://github.com/AndrewRadev/switch.vim> 1208 sloc
+- <https://github.com/zef/vim-cycle> 159 sloc
+- <https://github.com/bootleq/vim-cycle> 627 sloc
 
-    local -A panes
-    panes=($(tmux list-panes -F '#{pane_index} #{pane_active}'))
+---
 
-    local -a words
-    words=(${(f)"$(
-        for pane active in ${(kv)panes}; do
-            if (( active )); then
-                tmux capture-pane -J -p -t $pane | sed '/^$/d' | head -n -1
-            else
-                tmux capture-pane -J -p -t $pane
-            fi
-        done | grep -o '\<\w\+\>'
-    )"})
+switch semble  + puissant mais nécessite  de bien connaître les  regex pour être
+customisé.
 
-    _wanted values expl 'words from visible tmux panes' compadd -a words
-    bindkey -M menuselect '^T' menu-complete
+Screencast consacré à switch:
+<https://www.youtube.com/watch?v=zIOOLZJb87U>
+
+---
+
+Une alternative naïve consiste à utiliser `C-x C-t` et un fichier spécial de synonymes.
+
+## swoop
+
+Allows you to  find and replace occurrences  in many buffers being  aware of the
+context.
+
+You can edit  the swoopBuffer and the  changes you applied will be  save for all
+corresponding files by saving the buffer.
+
+Especially useful to refactor a name in multiple files and keep control on it...
+
+<https://github.com/pelodelfuego/vim-swoop> 416 sloc
+
+Alternative:
+
+<https://github.com/Olical/vim-enmasse> 171 sloc
+
+## SyntaxRange
+
+Define a different filetype syntax on regions of a buffer.
+
+<https://github.com/inkarkat/vim-SyntaxRange> 78 sloc
+
+See also:
+<https://www.reddit.com/r/vim/comments/2x5yav/markdown_with_fenced_code_blocks_is_great/>
+
+## tagbar
+
+Tagbar is  a Vim  plugin that provides  an easy  way to browse  the tags  of the
+current file and get an overview of its structure.
+
+It does this by creating a sidebar that displays the ctags-generated tags of the
+current file, ordered by their scope.
+
+This means that  for example methods in  C++ are displayed under  the class they
+are defined in.
+
+Tagbar is not a general-purpose tool for managing tags files.
+
+It only  creates the  tags it  needs on-the-fly  in-memory without  creating any
+files.
+
+tags file management is provided by other plugins, like for example easytags.
+
+<https://github.com/majutsushi/tagbar> 4788 sloc
+
+## targets
+
+Targets.vim is  a Vim  plugin that adds  various text objects  to give  you more
+targets to operate on.
+
+It expands  on the idea  of simple commands like  di' (delete inside  the single
+quotes  around the  cursor) to  give you  more opportunities  to craft  powerful
+commands that can be repeated reliably.
+
+One major goal is to handle all corner cases correctly.
+
+- <https://github.com/wellle/targets.vim> 1459 sloc
+- <https://github.com/wellle/line-targets.vim> 34 sloc
+
+## test    entr
+
+A Vim wrapper for running tests on different granularities.
+
+- <https://github.com/janko-m/vim-test> 2694 sloc
+- <https://www.youtube.com/watch?v=ODzMN91AhXc>
+
+---
+
+<http://entrproject.org/>
+
+## textobj-user
+
+vim-textobj-user is a Vim plugin to create your own text objects without pain.
+
+It is hard to create text objects, because there are many pitfalls to deal with.
+
+This plugin  hides such details  and provides a  declarative way to  define text
+objects.
+
+You can use regular expressions to  define simple text objects, or use functions
+to define complex ones.
+
+<https://github.com/kana/vim-textobj-user> 558 sloc
+
+---
+
+A  vim plugin  providing  a single  text  object  (on iv  and  av) for  variable
+segments.
+
+A variable  segment is  defined to  be a substring  in any  identifier character
+followed by  an underscore  ("snake case") or  a lowercase  identifier character
+followed by an uppercase character ("camel case").
+
+<https://github.com/Julian/vim-textobj-variable-segment> 62 sloc (après avoir viré t/ et bin/)
+
+---
+
+Defines text objects to target text after the designated characters.
+
+<https://github.com/junegunn/vim-after-object> 93 sloc
+
+## tiler
+
+Tiling window manger for Vim
+
+Features
+
+   - multiple layouts
+   - can increase or decrease master window count on the fly
+   - support for popups e.g. nerdtree, tagbar, quickfix, etc
+   - each tab has its own settings
+
+<https://github.com/zhamlin/tiler.vim> 401 sloc
+
+Alternatives:
+
+- <https://github.com/mattboehm/vim-accordion> 335 sloc
+- <https://github.com/paroxayte/vwm.vim> 538 sloc
+
+## tmuxify    tbone    tmux-runner    vimux    slimux
+
+From best to worst:
+
+- <https://github.com/jebaum/vim-tmuxify  (seems very good for handling panes)> 252 sloc
+- <https://github.com/tpope/vim-tbone> 338 sloc
+- <https://github.com/christoomey/vim-tmux-runner> 437 sloc
+- <https://github.com/benmills/vimux> 169 sloc
+
+---
+
+Celui-là je sais pas où le ranger:
+
+<https://github.com/epeli/slimux> 487 sloc
+
+---
+
+See also:
+<https://github.com/roxma/vim-tmux-clipboard>
+
+I began a refactoring of this last one here:
+
+    ~/Dropbox/vim_plugins/tmux_clipboard.vim
+
+## tmux-complete
+
+Vim plugin for insert mode completion of words in adjacent tmux panes
+
+If you're using  Vim in tandem with  Tmux you might be familiar  with this pesky
+situation:
+
+You're happily  editing your lovely  files in Vim, when  you notice you  need to
+type a word that you can see in a different Tmux pane right next to Vim.
+
+This might be some secret key found in your REPL or the name of a failing test.
+
+Usually the interesting text is too short to warrant switching panes
+and going into Tmux' copy mode, so you end typing it out again.
+
+But fear no longer!
+
+This plugin adds a completion function that  puts all words visible in your Tmux
+panes right under your fingertips.
+
+Just enter insert  mode, start typing any  word you see and  press <C-X><c-u> to
+the trigger user defined insert mode completion.
+
+It also completes words that are scrolled off, hidden in background tmux windows
+and even different tmux sessions.
+
+And it even works from gvim or MacVim!
+
+<https://github.com/wellle/tmux-complete.vim> 410 sloc
+
+---
+
+- <https://gist.github.com/blueyed/6856354>
+- <https://github.com/Osse/dotfiles/blob/master/.zfunctions/tmux_complete>
+
+        local -A panes
+        panes=($(tmux list-panes -F '#{pane_index} #{pane_active}'))
+
+        local -a words
+        words=(${(f)"$(
+            for pane active in ${(kv)panes}; do
+                if (( active )); then
+                    tmux capture-pane -J -p -t $pane | sed '/^$/d' | head -n -1
+                else
+                    tmux capture-pane -J -p -t $pane
+                fi
+            done | grep -o '\<\w\+\>'
+        )"})
+
+        _wanted values expl 'words from visible tmux panes' compadd -a words
+        bindkey -M menuselect '^T' menu-complete
 
 <https://github.com/Osse/dotfiles/blob/master/.zfunctions/tmux_complete_path>
 
@@ -2183,20 +1886,15 @@ See also:
 
 ## traces
 
-            This plugin will highlight patterns and ranges for Ex-commands.
+This plugin will highlight patterns and ranges for Ex-commands.
 
-                                    738 sloc
-
-            https://github.com/xtal8/traces.vim
-
+<https://github.com/xtal8/traces.vim> 738 sloc
 
 ## tradewinds
 
-            the missing window movement
+the missing window movement
 
-            https://github.com/andymass/vim-tradewinds
-
-                                    165 sloc
+<https://github.com/andymass/vim-tradewinds> 165 sloc
 
 ## translate-shell.vim
 
@@ -2205,195 +1903,165 @@ It provides a window that displays  the translate of word under cursor, selected
 text or you can use "on fly" translation and translate inserted text.
 Also, you can save your translate story to file and import it to Anki.
 
-<https://github.com/echuraev/translate-shell.vim>:906 sloc
+<https://github.com/echuraev/translate-shell.vim> 906 sloc
 
 ## twiggy
 
-            Git branch management for Vim
+Git branch management for Vim
 
-            https://github.com/sodapopcan/vim-twiggy
-
-                                   1082 sloc
+<https://github.com/sodapopcan/vim-twiggy> 1082 sloc
 
 ## vimdade
 
 An  eye friendly  plugin that  fades your  inactive buffers  and preserves  your
 syntax highlighting!
 
-            https://github.com/TaDaa/vimade
-
-            510 sloc
+<https://github.com/TaDaa/vimade> 510 sloc
 
 ## vimagit    gita    tig    gina
 
-            Ease your git worflow within vim.
+Ease your git worflow within vim.
 
-            From a very single vim buffer, you can  perform main git operations in few key press. To
-            name a few:
+From a very  single vim buffer, you  can perform main git operations  in few key
+press; to name a few:
 
-                - Visualize all diffs in your git repository.
-                - Stage file, hunks or even just parts of a hunk using a single key press.
-                - Write or amend your commit message and commit in the same buffer.
+   - Visualize all diffs in your git repository.
+   - Stage file, hunks or even just parts of a hunk using a single key press.
+   - Write or amend your commit message and commit in the same buffer.
 
-            https://github.com/jreybert/vimagit
+<https://github.com/jreybert/vimagit> 2089 sloc
 
-                                   2089 sloc
+---
 
+gita  is a  git  manipulation plugin  which  allow users  to  perform daily  git
+operation within Vim's live session.
 
-            gita is  a git  manipulation plugin  which allow  users to  perform daily  git operation
-            within Vim's live session.
+<https://github.com/lambdalisue/vim-gita> 15463 sloc (!!!)
 
-            https://github.com/lambdalisue/vim-gita
+---
 
-                                   15463 sloc (!!!)
+Asynchronously control git repositories in Neovim/Vim 8
 
+<https://github.com/lambdalisue/gina.vim> 14016 sloc (!!!)
 
-            Asynchronously control git repositories in Neovim/Vim 8
+---
 
-            https://github.com/lambdalisue/gina.vim
+Alternatively, we could open a terminal  buffer in Neovim, and from there launch
+the `tig` program:
 
-                                   14016 sloc (!!!)
+<https://github.com/jonas/tig>
 
+This idea comes from:
 
-            Alternatively, we could open a terminal buffer in Neovim, and from there launch the `tig`
-            program:
+<https://medium.com/usevim/what-is-modern-vim-2591f6b1ec04>
 
-            https://github.com/jonas/tig
+Any command-line tool that you enjoy using alongside Vim can be used in Neovim’s
+split terminal.
+For example, if  you like using tig,  the text-mode Git interface,  then you can
+open a panel that runs tig!
+This instantly gives you the power of integrated Git, without waiting for Neovim
+or a plugin author to add this functionality.
+Again,  this  usage  is  similar  to   the  benefits  of  using  tmux  alongside
+command-line Vim, but you might prefer the integrated approach because it adds a
+modal layer for movement and yank/paste over tig.
 
-            This idea comes from:
+Youtube video demo for tig:
 
-            https://medium.com/usevim/what-is-modern-vim-2591f6b1ec04
+<https://www.youtube.com/watch?v=udCXubFr5Yo>
 
-            Any command-line tool that you enjoy using alongside Vim can be used
-            in Neovim’s split terminal.
-            For example,  if you  like using tig,  the text-mode  Git interface,
-            then you can open a panel that runs tig!
-            This  instantly  gives you  the  power  of integrated  Git,  without
-            waiting for Neovim or a plugin author to add this functionality.
-            Again, this usage is similar to the benefits of using tmux alongside
-            command-line  Vim,  but you  might  prefer  the integrated  approach
-            because it adds a modal layer for movement and yank/paste over tig.
+Read also the man pages:
+tig(1), tigrc(5), tigmanual(7)
 
-            Youtube video demo for tig:
+Update:
+You could also integrate tig in Vim:
 
-            https://www.youtube.com/watch?v=udCXubFr5Yo
-
-            Read also the man pages:
-            tig(1), tigrc(5), tigmanual(7)
-
-            Update:
-            You could also integrate tig in Vim:
-
-                    https://github.com/iberianpig/tig-explorer.vim
-
-                                    229 sloc
+<https://github.com/iberianpig/tig-explorer.vim> 229 sloc
 
 ## vimdoc
 
-        https://github.com/google/vimdoc
+Helpfile generation for vim
 
-        Helpfile generation for vim
-
-                                   1606 sloc
+<https://github.com/google/vimdoc> 1606 sloc
 
 ## vint
 
-            Fast and Highly Extensible Vim script Language Lint implemented by Python.
+Fast and Highly Extensible Vim script Language Lint implemented by Python.
 
-            https://github.com/Kuniwak/vint/
-
-                                   11349 sloc
+<https://github.com/Kuniwak/vint/> 11349 sloc
 
 ## vis
 
-            Extended Visual Mode Commands, Substitutes, and Searches
+Extended Visual Mode Commands, Substitutes, and Searches
 
-            http://vim.sourceforge.net/scripts/script.php?script_id=1195
-            https://github.com/RobertAudi/vis.vim (mirror)
-
-                                    475 sloc
+- <http://vim.sourceforge.net/scripts/script.php?script_id=1195>
+- <https://github.com/RobertAudi/vis.vim (mirror)> 475 sloc
 
 ## visual-split
 
-            Vim plugin to control splits with visual selections or text objects
+Vim plugin to control splits with visual selections or text objects
 
-            https://github.com/wellle/visual-split.vim
-
-                                              102 sloc
-
-            https://www.reddit.com/r/vim/comments/3x2fcu/visualsplitvim_plugin_to_control_splits_with/
+- <https://github.com/wellle/visual-split.vim> 102 sloc
+- <https://www.reddit.com/r/vim/comments/3x2fcu/visualsplitvim_plugin_to_control_splits_with/>
 
 ## vpager
 
-            Pipe input from Vims terminal directly back into Vim
+Pipe input from Vims terminal directly back into Vim
 
-            https://github.com/chrisbra/vpager
-
-            https://www.reddit.com/r/vim/comments/8hqang/github_chrisbravpager_pipe_input_from_vims/dympxc2/
-
-                                    182 sloc
+- <https://github.com/chrisbra/vpager>
+- <https://www.reddit.com/r/vim/comments/8hqang/github_chrisbravpager_pipe_input_from_vims/dympxc2/> 182 sloc
 
 ## which-key
 
 vim-which-key is vim port of emacs-which-key that displays available keybindings
 in popup.
 
-<https://github.com/liuchengxu/vim-which-key>:606 sloc
+<https://github.com/liuchengxu/vim-which-key> 606 sloc
 
 ## wildfire
 
-            Smart selection of the closest text object
+Smart selection of the closest text object
 
-            https://github.com/gcmt/wildfire.vim
-
-                                              346 sloc
+<https://github.com/gcmt/wildfire.vim> 346 sloc
 
 ## wiki
 
-            A wiki plugin for Vim
+A wiki plugin for Vim
 
-            https://github.com/lervag/wiki
-
-            https://www.reddit.com/r/vim/comments/8hz8bd/some_questions_regarding_note_taking_with_vim/dyow7db/
-
-            https://www.youtube.com/watch?v=wh_WGWii7UE
-
-                                   1995 sloc
+- <https://github.com/lervag/wiki>
+- <https://www.reddit.com/r/vim/comments/8hz8bd/some_questions_regarding_note_taking_with_vim/dyow7db/>
+- <https://www.youtube.com/watch?v=wh_WGWii7UE> 1995 sloc
 
 ## winresizer
 
-            very simple vim plugin for easy resizing of your vim windows
+very simple vim plugin for easy resizing of your vim windows
 
-            https://github.com/simeji/winresizer/
+<https://github.com/simeji/winresizer/> 239 sloc
 
-                                    239 sloc
+---
 
-            ---
-
-            It could be useful and easier than what we do currently, to create a
-            submode in which we can resize/move windows with `hjkl`.
-            and move them.
+It could be useful and easier than what  we do currently, to create a submode in
+which we can resize/move windows with `hjkl`, and move them.
 
 ##
 # Abolish
 
-        ┌─────────────────────┬──────────────────────────────────────────────────┐
-        │ FooBar   →  fooBar  │ crc         coerce to camelCase                  │
-        ├─────────────────────┼──────────────────────────────────────────────────┤
-        │ foo_bar  →  FooBar  │ crm         "         MixedCase                  │
-        ├─────────────────────┼──────────────────────────────────────────────────┤
-        │ fooBar   →  foo_bar │ crs         "         snake_case                 │
-        ├─────────────────────┼──────────────────────────────────────────────────┤
-        │ FooBar   →  FOO_BAR │ cru         "         UPPER_CASE                 │
-        ├─────────────────────┼──────────────────────────────────────────────────┤
-        │ FooBar   →  foo bar │ cr space    "         space case    irréversible │
-        ├─────────────────────┼──────────────────────────────────────────────────┤
-        │ FooBar   →  foo-bar │ crk         "         kebab-case    "            │
-        ├─────────────────────┼──────────────────────────────────────────────────┤
-        │ FooBar   →  foo.bar │ cr.         "         dot.case      "            │
-        ├─────────────────────┼──────────────────────────────────────────────────┤
-        │ xv       →  ✔       │ crg         "         glyph         "            │
-        └─────────────────────┴──────────────────────────────────────────────────┘
+    ┌─────────────────────┬──────────────────────────────────────────────────┐
+    │ FooBar   →  fooBar  │ crc         coerce to camelCase                  │
+    ├─────────────────────┼──────────────────────────────────────────────────┤
+    │ foo_bar  →  FooBar  │ crm         "         MixedCase                  │
+    ├─────────────────────┼──────────────────────────────────────────────────┤
+    │ fooBar   →  foo_bar │ crs         "         snake_case                 │
+    ├─────────────────────┼──────────────────────────────────────────────────┤
+    │ FooBar   →  FOO_BAR │ cru         "         UPPER_CASE                 │
+    ├─────────────────────┼──────────────────────────────────────────────────┤
+    │ FooBar   →  foo bar │ cr space    "         space case    irréversible │
+    ├─────────────────────┼──────────────────────────────────────────────────┤
+    │ FooBar   →  foo-bar │ crk         "         kebab-case    "            │
+    ├─────────────────────┼──────────────────────────────────────────────────┤
+    │ FooBar   →  foo.bar │ cr.         "         dot.case      "            │
+    ├─────────────────────┼──────────────────────────────────────────────────┤
+    │ xv       →  ✔       │ crg         "         glyph         "            │
+    └─────────────────────┴──────────────────────────────────────────────────┘
 
 Les coercitions  space case, kebab-case  et dot.case sont irréversibles  à moins
 d'ajouter temporairement  l'espace, le tiret et  le point à la  valeur locale de
@@ -2407,11 +2075,11 @@ On peut  aussi l'utiliser  sur une  ligne pour y  convertir tous  les digraphes:
 
 See also:
 
-        https://github.com/arthurxavierx/vim-caser
+<https://github.com/arthurxavierx/vim-caser>
 
 Could be useful for this reason:
 
-        https://www.reddit.com/r/vim/comments/9dyu5w/vimcaser_easily_change_word_casing_with_motions/e5l6s0m/
+<https://www.reddit.com/r/vim/comments/9dyu5w/vimcaser_easily_change_word_casing_with_motions/e5l6s0m/>
 
 > Yes, that  was the inspiration,  and some  part of the  code is based  on that
 > plugin.
@@ -2995,7 +2663,8 @@ Exemples d'utilisation :
 
     foo()        bar( foo() )        ysiWFbar
 
-La dernière commande a été trouvée ici (http://vi.stackexchange.com/a/6910/4939).
+La dernière commande a été trouvée ici:
+<http://vi.stackexchange.com/a/6910/4939>
 
 ## yss
 
@@ -3811,7 +3480,7 @@ On exécuterait qch comme `gaip:`
 
 Lire:
 How can I use several triggers for the same snippet?
-http://vi.stackexchange.com/a/10536/6960
+<http://vi.stackexchange.com/a/10536/6960>
 
 ##
 # Unicode.vim
@@ -4165,50 +3834,50 @@ Commandes lançables depuis n'importe quelle fenêtre Vim :
 
 Commandes lançables uniquement dans la fenêtre de vim-plug :
 
-        ┌──────────┬────────────────────────────────────────────────────────────────────────────────────┐
-        │ [[    ]] │ naviguer entre différents plugins                                                  │
-        │          │                                                                                    │
-        │          │ pratique dans la fenêtre :PlugDiff                                                 │
-        ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
-        │ D        │ :PlugDiff                                                                          │
-        │          │                                                                                    │
-        │          │ voir les derniers commits ayant changés nos plugins                                │
-        ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
-        │ gx       │ ouvrir l'adresse github du plugin sous le curseur                                  │
-        │          │                                                                                    │
-        │          │ fonctionne aussi pour un commit                                                    │
-        ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
-        │ H        │ afficher l'aide du plugin sous le curseur                                          │
-        ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
-        │ J  K     │ scroll la fenêtre preview                                                          │
-        ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
-        │ L        │ charger le plugin sous le curseur                                                  │
-        │          │                                                                                    │
-        │          │ s'il ne l'a pas déjà été, `vim-plug` affiche:                                      │
-        │          │                                                                                    │
-        │          │     `(not loaded)`                                                                 │
-        │          │                                                                                    │
-        │          │ … sur la ligne du plugin                                                           │
-        ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
-        │ o        │ prévisualiser un commit                                                            │
-        │          │                                                                                    │
-        │          │ uniquement dans la fenêtre :PlugDiff                                               │
-        ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
-        │ q        │ fermer la fenêtre                                                                  │
-        ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
-        │ R        │ retenter les màj / installations qui ont échoué                                    │
-        ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
-        │ S        │ :PlugStatus                                                                        │
-        ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
-        │ U        │ mettre à jour les plugins sélectionnés visuellement                                │
-        ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
-        │ X        │ annuler un commit                                                                  │
-        │          │                                                                                    │
-        │          │ fonctionne uniquement dans la fenêtre :PlugDiff                                    │
-        ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
-        │ C-n  C-p │ déplacer le curseur vers le prochain/précédent commit                              │
-        │ C-j  C-k │ idem + afficher son contenu dans la fenêtre preview                                │
-        └──────────┴────────────────────────────────────────────────────────────────────────────────────┘
+    ┌──────────┬────────────────────────────────────────────────────────────────────────────────────┐
+    │ [[    ]] │ naviguer entre différents plugins                                                  │
+    │          │                                                                                    │
+    │          │ pratique dans la fenêtre :PlugDiff                                                 │
+    ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
+    │ D        │ :PlugDiff                                                                          │
+    │          │                                                                                    │
+    │          │ voir les derniers commits ayant changés nos plugins                                │
+    ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
+    │ gx       │ ouvrir l'adresse github du plugin sous le curseur                                  │
+    │          │                                                                                    │
+    │          │ fonctionne aussi pour un commit                                                    │
+    ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
+    │ H        │ afficher l'aide du plugin sous le curseur                                          │
+    ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
+    │ J  K     │ scroll la fenêtre preview                                                          │
+    ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
+    │ L        │ charger le plugin sous le curseur                                                  │
+    │          │                                                                                    │
+    │          │ s'il ne l'a pas déjà été, `vim-plug` affiche:                                      │
+    │          │                                                                                    │
+    │          │     `(not loaded)`                                                                 │
+    │          │                                                                                    │
+    │          │ … sur la ligne du plugin                                                           │
+    ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
+    │ o        │ prévisualiser un commit                                                            │
+    │          │                                                                                    │
+    │          │ uniquement dans la fenêtre :PlugDiff                                               │
+    ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
+    │ q        │ fermer la fenêtre                                                                  │
+    ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
+    │ R        │ retenter les màj / installations qui ont échoué                                    │
+    ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
+    │ S        │ :PlugStatus                                                                        │
+    ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
+    │ U        │ mettre à jour les plugins sélectionnés visuellement                                │
+    ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
+    │ X        │ annuler un commit                                                                  │
+    │          │                                                                                    │
+    │          │ fonctionne uniquement dans la fenêtre :PlugDiff                                    │
+    ├──────────┼────────────────────────────────────────────────────────────────────────────────────┤
+    │ C-n  C-p │ déplacer le curseur vers le prochain/précédent commit                              │
+    │ C-j  C-k │ idem + afficher son contenu dans la fenêtre preview                                │
+    └──────────┴────────────────────────────────────────────────────────────────────────────────────┘
 
 ## avancé
 

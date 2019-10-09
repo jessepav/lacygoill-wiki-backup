@@ -1610,9 +1610,25 @@ Explanation: <https://github.com/vim/vim/issues/2643#issuecomment-366954582>
 
 ---
 
-Document the fact that when you save  a lambda or funcref inside a function, you
-should always  use the scope  `l:`, otherwise there could  be a conflict  with a
-public custom function.
+The name of a variable storing a  lambda or funcref must begin with an uppercase
+character, because  you could  drop the  `l:`, in  which case  there could  be a
+conflict with a builtin function (e.g. you've used the variable name `len`).
+The name **must** start with an uppercase character.
+
+But now that your variable starts with  an uppercase character, there could be a
+conflict with a global custom function.
+So, the name **should** be scoped with `l:` to avoid E705.
+From `:h e705`:
+
+> You cannot have both a Funcref variable and a function with the same name.
+
+Indeed, without `l:`, if you run this inside a function:
+
+    let Lambda = {-> 123}
+    echo Lambda()
+
+and you have  a global custom function  named `Lambda`, Vim will  not know which
+definition to use.
 
 Review this section, and add `l:` whenever it makes sense.
 

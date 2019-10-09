@@ -243,3 +243,7 @@ L'énigme MU.
 
                 La dernière égalité est impossible, MU est bien une wff mais pas un théorème.
 
+##
+# To read
+
+<https://venhance.github.io/napkin/Napkin.pdf>

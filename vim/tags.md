@@ -57,16 +57,15 @@ sommet de la tag stack.
     C-t
     :pop
 
-Revenir à l'étiquette  d'un tag (mot-clé sur lequel on  a fait <kbd>C-]</kbd>) a
-pour effet  de retirer un  `{ident}` à la tag  stack on pourrait  aussi utiliser
-<kbd>C-o</kbd> (ne retire rien à la tag stack)
+Revenir à l'étiquette d'un tag (mot-clé sur lequel on a fait `C-]`) a pour effet
+de retirer  un `{ident}`  à la tag  stack on pourrait  aussi utiliser  `C-o` (ne
+retire rien à la tag stack)
 
-Qd on utilise  <kbd>C-t</kbd> pour revenir à l'étiquette d'un  tag et qu'ensuite
-on  veut  retourner   à  sa  définition,  on  pourrait   être  tenté  d'utiliser
-<kbd>C-i</kbd>, en  se disant, à  tort, que  <kbd>C-t</kbd> nous a  fait reculer
-dans la jumplist.
-En réalité,  le saut provoqué  par <kbd>C-t</kbd>  a probablement pour  effet de
-déplacer l'entrée correspondant à l'étiquette à la fin de la jumplist.
+Qd on utilise  `C-t` pour revenir à  l'étiquette d'un tag et  qu'ensuite on veut
+retourner  à sa  définition,  on pourrait  être tenté  d'utiliser  `C-i`, en  se
+disant, à tort, que `C-t` nous a fait reculer dans la jumplist.
+En réalité,  le saut provoqué  par `C-t` a  probablement pour effet  de déplacer
+l'entrée correspondant à l'étiquette à la fin de la jumplist.
 Pk?
 Extrait de :h jumplist:
 
@@ -79,8 +78,8 @@ entrée est supprimée.
 Ceci équivaut à un déplacement.
 L'étiquette  devenant  l'entrée  la  plus  récente,  celle  correspondant  à  la
 définition est forcément plus ancienne.
-Dans ce  cas, c'est donc  <kbd>C-o</kbd> qu'il faut  utiliser pour revenir  à la
-définition d'un tag.
+Dans ce cas, c'est  donc `C-o` qu'il faut utiliser pour  revenir à la définition
+d'un tag.
 
 ---
 

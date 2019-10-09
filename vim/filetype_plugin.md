@@ -777,11 +777,23 @@ You also probably would have to remove `b:did_my_ftplugin` after every `:runtime
 #### the filetype plugins for the current buffer?  (2)
 
     :do filetypeplugin filetype
+        │              │
+        │              └ event name
+        └ augroup name
 
     :let &ft = &ft
 
 You  could use  `:e`, but  it would  cause ALL  “local” plugins  to be  reloaded
 including the syntax ones.
+
+---
+
+If you have some autocmds listening to  `FileType`, and you want them to be run,
+the previous commands won't be enough; in that case, use this:
+
+    :exe 'do filetype '..&ft
+             │
+             └ event name
 
 #### all filetype/indent/syntax plugins for ALL buffers?
 

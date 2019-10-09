@@ -316,8 +316,8 @@ Use black background.
 ## History
 ### --history=HISTORY_FILE
 
-Load search history from the specified file and update the file on completion.
-When enabled, <kbd>C-n</kbd> and <kbd>C-p</kbd> are automatically remapped to `next-history` and
+Load search history  from the specified file and update  the file on completion.
+When enabled, `C-n`  and `C-p` are automatically remapped  to `next-history` and
 `previous-history`.
 
 ### --history-size=N

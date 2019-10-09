@@ -1343,46 +1343,190 @@ développe une expression  contenant un wildcard ou qd on  fait une recherche vi
 
 ##
 # Todo
-## ?
+## Document that restoring an option after `CompleteDone` is not reliable.
 
-It seems our knowledge about the events fired when completing text is a mess.
+   - it's only fired after you select and validate a match in the pum
+     (or you insert any character, or you press another completion command)
 
-When are those events fired?
+   - it's not fired when you quit the pum by pressing `C-c`
 
-   - `CompleteChanged`
-   - `CompleteDone`
+Make it listen to:
+
    - `TextChangedP`
-
-   - `CursorMovedI`
-   - `CursorMoved`
    - `TextChangedI`
    - `TextChanged`
+   - `CompleteDone`
 
-Which one(s) should we listen to when trying to restore an option?
+`TextChangedP`  is fired  *immediately*  by the  very  first completion  command
+(e.g. `C-x C-p`); so it's more reliable than `CompleteDone`.
 
-In our plugins, did we listen to the wrong event(s) in our autocmds restoring options?
+### Why not
+#### `CompleteChanged` instead of `TextChangedP`?
 
-Re-read the comments in `vim-completion`, around the autocmds:
+The former is fired too early.
 
-    ~/.vim/plugged/vim-completion/autoload/completion.vim:684
-    ~/.vim/plugged/vim-completion/autoload/completion.vim:761
-    ~/.vim/plugged/vim-completion/autoload/completion/custom.vim:4
-    ~/.vim/plugged/vim-completion/autoload/completion/util.vim:8
+As an example, source this:
 
-Make sure we didn't say anything wrong.
-Integrate them in `~/wiki/vim/complete.md`.
+    set cot=menu,menuone,noinsert
+    ino <c-z> <c-r>=Func()<cr>
+    fu! Func()
+        let s:cot_save = &cot
+        set cot-=noinsert
+        au CompleteChanged * ++once let &cot = s:cot_save
+        return "\<c-x>\<c-p>"
+    endfu
+    call writefile(['the quick brown fox jumps over the lazy dog', 'the'], '/tmp/file')
+    sp /tmp/file
+
+Press `C-z` several times after `the` on the last line.
+You should get  the whole sentence, but  instead you stay blocked  on the single
+word `the`.
+This  is because  `'cot'` has  been restored  before Vim  inspects it  to decide
+whether it should insert a match from the pum.
+
+Another example:
+
+    set cot=
+    ino <c-z> <c-r>=Func()<cr>
+    fu! Func()
+        let s:cot_save = &cot
+        set cot=menu,menuone
+        au CompleteChanged * ++once let &cot = s:cot_save
+        return "\<c-x>\<c-p>"
+    endfu
+    call writefile(['the quick brown fox jumps over the lazy dog', 'the'], '/tmp/file')
+    sp /tmp/file
+
+This time, when you  press `C-z` a second time, there is  no menu displaying the
+two  matches `the  quick` and  `the  lazy`, even  though you've  set `'cot'`  to
+include `menu`.
+
+#### `SafeState`?
+
+`SafeState` is not fired right after a completion.
+
+In insert mode, it seems to be fired only when you insert:
+
+   - a character while the pum is not visible
+   - a character which makes you quit the pum
+
+IOW, it's fired way too late to restore a completion option.
+
+#### saving and restoring the option with 2 `C-r = Func()`?
+
+If you append a `C-r = expr` after a builtin completion command which may take a
+long time (e.g. `C-x C-k`, `C-x C-t`, ...), two issues arise:
+
+   - you can't interact with the pum while Vim is finishing populating it with
+     all the matches
+
+   - if you press `C-c` to interrupt the pum's population, `= expr` is dumped in
+     the buffer
+
+MWE:
+
+    $ vim -Nu NONE +"ino <c-z> <c-x><c-k><c-r>=''<cr>" +'set dict=/usr/share/dict/words' +startinsert
+    C-z
+    C-c
+    AA=''~
+      ^^^
+
+###
+### Why
+#### `TextChangedI`?
+
+To restore the option  in case the completion fails, or it  succeeds but the pum
+is  not visible  (e.g. there  is only  one match  and `menuone`  is absent  from
+`'cot'`).
+
+When that happens, the only fired events are `CusorMovedI` and `TextChangedI`.
+
+#### `TextChanged`?
+
+It may be necessary in some corner cases.
+
+For example, if you source this:
+
+    ino <plug>(nop) <nop>
+    ino <plug>(default_c-p) <c-p>
+    imap <c-z> <plug>(default_c-p)<c-r>=''<cr><plug>(nop)
+    call writefile(['the quick brown fox jumps over the lazy dog', 'the'], '/tmp/file')
+    sp /tmp/file
+
+then  press `C-z`  after `the`  on the  second line,  you should  see that  only
+`CompleteChanged` is fired.
+But remember, we can't listen to it because it's fired too early.
+
+From there, the pum can be left in 3 ways:
+
+   - by inserting a character: `CompleteDone` and `TextChangedI` are fired
+   - by pressing `C-[np]`: `TextChangedP` is fired
+   - by pressing `C-c`: `TextChanged` is fired
+
+You need to listen to `TextChanged` to handle the third case.
 
 ---
 
-Document that restoring an option after `CompleteDone` is not reliable.
-The latter is not fired when you quit the completion menu by pressing `C-c`.
-You  must also  listen to  `TextChangedP`  or `CursorMoved`,  because those  are
-fired.  Read our comment in `completion#util#custom_isk()`:
+The previous  example is contrived (especially  because of the `<nop>`),  but in
+practice, our custom Tab mapping installed by `vim-completion` does sth similar.
 
-    ~/.vim/plugged/vim-completion/autoload/completion/util.vim
+#### `CompleteDone`?
 
-Check whether we've made this mistake in our vimrc or in other plugins.
+Source this:
 
+    set cot=
+    ino <c-z> <c-r>=Func()<cr>
+    fu! Func()
+        let s:cot_save = &cot
+        set cot=menu,menuone
+        au CompleteChanged * ++once let &cot = s:cot_save
+        return "\<c-x>\<c-p>"
+    endfu
+    call writefile(['word.', '', 'word'], '/tmp/file')
+    sp /tmp/file
+
+Press `A` then `C-z` three times.
+Check out the value of `'cot'`: it's `menu,menuone`.
+It has not been correctly restored to an empty string.
+This is because, when you pressed `C-z` the third time, the only fired event was
+`CompleteDone`.
+
+Note that this is a contrived example,  because in practice you would not listen
+to `CompleteChanged`, but to `TextChangedP` and `TextChangedI`.
+And when listening to  the latter events, on pressing `C-z`  for the third time,
+`TextChangedI` is fired in addition to `CompleteDone`.
+
+Nevertheless, this may suggest that in some corner cases, only `CompleteDone` is
+fired; listen to it; better be safe than sorry.
+
+###
+### In the next snippet, why is `s:` the right scope for the variables?  Why not `b:`?
+
+    ino <expr> <c-z> Func()
+    fu! Func() abort
+        let s:cot_save = &cot
+        set cot-=noinsert
+        unlet! s:did_shoot
+        au TextChangedP,TextChangedI,TextChanged,CompleteDone * ++once
+            \ if !get(s:, 'did_shoot', 0)
+            \ |     let s:did_shoot = 1
+            \ |     let &cot = s:cot_save
+            \ |     unlet! s:cot_save
+            \ | endif
+        return "\<c-x>\<c-p>"
+    endfu
+
+`b:` would be necessary  if you could execute a completion  command in a buffer,
+then a second  one in a different  buffer before one of the  events triggered by
+the first completion command was fired.
+
+But that's not possible.
+Most of the  time, one of the events  will be fired right after  you execute the
+command.
+And when that's not  the case, and you focus a  different buffer without leaving
+insert mode, `CompleteDone` is fired right before you leave the first buffer.
+
+##
 ## ?
 
 Document that when you save, change,  and restore an option, the environment may

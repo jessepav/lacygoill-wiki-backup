@@ -1053,7 +1053,7 @@ inputs:
 
 ### How to exit?
 
-Press <kbd>C-d</kbd>.
+Press `C-d`.
 
 This sends the end-of-file signal to the awk foreground process.
 

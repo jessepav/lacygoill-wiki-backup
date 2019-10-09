@@ -1247,6 +1247,61 @@ For each entry, add the `'filename'` key, and then remove the `'bufnr'` key:
     \                           {'filename': fnamemodify(bufname(remove(v, 'bufnr')), ':p')})})
 
 ##
+## When does a newly created window have a location list?
+
+When the window from which it was created had already one.
+
+When you  open a window, in  the current tab page  or in a new  one, it inherits
+every window-local settings of the window from which you created it.
+This includes the location list.
+
+### How to empty it?
+
+Maybe with sth like:
+
+    augroup prevent_location_list_inheritance
+        au!
+        au WinNew * sil! call setloclist(0, [], 'f')
+    augroup END
+
+---
+
+Btw, this wouldn't empty the loclist of the location window.
+
+Theory:
+
+From `:h setloclist()`:
+
+    For a location list window, the *displayed* location list is modified.
+          ├──────────────────┘
+          └ != regular window
+
+When `WinNew` is fired, there's probably *no displayed* location list yet.
+So, the autocmd fails to mutate the location list.
+
+Confirmed by the fact that if we slightly delay the autocmd, it *does* empty the
+loclist:
+
+    au WinNew * call timer_start(0, {-> setloclist(0, [], 'r')})
+
+#### Why is it a bad idea?
+
+When you press `C-w CR` in a qf window, Vim creates a new window with an unnamed
+buffer,  then it  tries to  open the  entry in  the location  list on  which you
+pressed the keys.
+
+If you have an  autocmd emptying the location list, there  won't be anything for
+Vim to display in the new window.
+This will raise the error:
+
+                                                ┌ replace current loclist
+                                                │
+   - E42:  No Errors         , if you gave the 'r' action to `setloclist()`
+   - E776: No location list  , "               'f' "
+                                                │
+                                                └ delete all loclists
+
+##
 # Issues
 ## Why does  `:helpg \~$`  fail?
 
@@ -1469,6 +1524,11 @@ much.
 
     :Vim :[cl]\%(add\|get\)\=\%(expr\|file\|buffer\)\|l\=make\|l\=vim\%[grep]\%(add\)\=\>.*/[^/]*/[gj]\{1,2}:gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
     :Cfilter! -tmp -commented -other_plugins
+
+## Install a custom command to filter the qfl with fzf.
+
+Maybe have a look at this for inspiration:
+<https://gist.github.com/davidmh/f35fba1f9cde176d1ec9b4919769653a>
 
 ## The qfl is altered if you delete a line, even if you undo right after.  Bug?  Improvement to ask on github?
 

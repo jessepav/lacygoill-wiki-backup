@@ -1486,9 +1486,9 @@ few times before trying to fix it.
     $ vim -S /tmp/efm.vim
 
 Don't set the  local value of `'efm'`;  the format would be tied  to the current
-buffer which is NOT the set of lines we're going to pass to `:cgetexpr`.
+buffer which is *not* the set of lines we're going to pass to `:cgetexpr`.
 
-Replace the value assigned to 'efm' with the one you want to test.
+Replace the value assigned to `'efm'` with the one you want to test.
 Same thing  for the  compiler's output  lines and  the list  of lines  passed to
 `:cgetexpr`:
 

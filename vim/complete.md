@@ -1,5 +1,45 @@
-Make sure we haven't used a timer to restore an option, while we shouldn't have.
+# ?
 
+Did we use a timer or a one-shot autocmd in the past where it was not needed?
+Are there occasions where we could have delayed the execution of the code simply
+by "moving" it later; e.g.:
+
+    ino <expr> <key> <c-r>=FuncA()..FuncB()<cr>
+                                    ^^^^^^^
+                                    contains the code to be delayed
+
+IOW, when is a timer or a one-shot autocmd really needed?
+
+---
+
+Make sure we haven't used a timer to restore an option, while we shouldn't have.
+Try to use a one-shot autocmd instead; or try to "move" the code later if possible.
+
+---
+
+When `SafeState` is merged in Nvim, replace these lines:
+
+    " ~/.vim/plugged/vim-cmdline/autoload/cmdline.vim:89
+    call timer_start(0, {-> feedkeys(':'.cmdline.keys, 'in')})
+
+with:
+
+    let s:rerun_fixed_cmd ={-> feedkeys(':'.cmdline.keys, 'in')}
+    au SafeState * ++once call s:rerun_fixed_cmd()
+
+and:
+
+    " ~/.vim/plugged/vim-completion/autoload/completion/spel.vim:57
+    let new_line = substitute(getline('.'), '\<'.badword.'\>', suggestion, 'g')
+    call timer_start(0, {-> setline('.', new_line)})
+
+with:
+
+    let new_line = substitute(getline('.'), '\<'.badword.'\>', suggestion, 'g')
+    let s:fix_word = {-> setline('.', new_line)}
+    au SafeState * ++once call s:fix_word()
+
+---
 
 Explain why we shouldn't alter 'isk' from a condition (`s:setup_isk()`); instead
 we must redefine a problematic default method.
@@ -32,6 +72,7 @@ Probable bottom line:
 never restore an option from a timer; restore it from a known point in your code
 or event.
 
+---
 
 Search for `compl[[=e=]]t` in our notes, and in vimrc.
 Integrate any relevant comment here,  and integrate any relevant mapping/setting
@@ -40,7 +81,7 @@ Also integrate some comments from `vim-completion`.
 
 # 'cot'
 
-Le comportement d'une complétion est géré par l'option 'completeopt'.
+Le comportement d'une complétion est géré par l'option `'completeopt'`.
 Celle-ci peut prendre une série de valeurs. Les plus importantes sont:
 
    - 'noinsert'    la 1e entrée n'est pas automatiquement insérée,
@@ -48,6 +89,7 @@ Celle-ci peut prendre une série de valeurs. Les plus importantes sont:
 
    - 'noselect'    elle n'est ni insérée, ni sélectionnée
 
+---
 
 Le contenu  du menu  est mis à  jour dynamiquement après  un C-h  (backspace) ou
 l'insertion d'un nouveau caractère.
@@ -136,7 +178,7 @@ Voici qques raccourcis permettant d'entrer dans un mode de complétion:
             En   fait,  ce   chord  se   souvient  des   complétions  similaires
             précédentes, de la même façon que `C-x C-n` ou `C-x C-p`.
 
-                                     NOTE :
+                                     NOTE:
 
             Raccourci  facilement répétable  à condition  de ne  pas insérer  de
             lignes vides à l'intérieur d'un bloc de code (pex une fonction).
@@ -245,7 +287,7 @@ Voici qques raccourcis permettant d'entrer dans un mode de complétion:
             Or qd on  indexe des caractères au sein d'une  chaîne, on commence à
             compter à partir de 0.
 
-                                               NOTE:
+                                     NOTE:
 
             On peut trouver le début du texte à compléter de 2 façons:
 
@@ -276,7 +318,7 @@ Voici qques raccourcis permettant d'entrer dans un mode de complétion:
             final contient l'index du 1er octet du texte à compléter, -1.
 
 
-                                               NOTE:
+                                     NOTE:
 
             Si le texte  à compléter peut contenir  des caractères multi-octets,
             la boucle while n'est pas fiable.
@@ -301,7 +343,7 @@ Voici qques raccourcis permettant d'entrer dans un mode de complétion:
 
                     let candidates = []
                     sil keepj keepp %s/pat/\=add(candidates, submatch(0))/gne
-                    return filter(candidates, 'v:val[:strlen(a:base)-1] ==# a:base')
+                    return filter(candidates, {_,v -> v[:strlen(a:base)-1] is# a:base})
 
 #
 #
@@ -320,25 +362,7 @@ line to try to guess the role of each word.
 If your  line begins with  a random  word, it will  be considered as  an invalid
 command.
 
-# How to navigate in the completion menu without inserting any candidate?
+# How to navigate in the pum without inserting any candidate?
 
 Press `Up` and `Down` instead of `C-n` and `C-p`.
-
-# Can I use a timer to restore the value of an option influencing a completion?
-
-It depends.
-
-If your code involves a chain of completions, then no.
-You couldn't be sure  that the callback would be executed before  the try of the
-next completion method in the chain.
-As a  result, later, you  would risk saving/restoring  a modified value  of your
-option.
-
-Instead, you should always try to listen to `CompleteDone`, which is a much more
-relevant and precise event than “in a very short period of time”.
-
-Otherwise (no chain of completions), a timer may work as expected.
-
-More generally,  you can use  a timer to restore  something only if  you're sure
-that the change can NOT be repeated too quickly, i.e. BEFORE the callback.
 

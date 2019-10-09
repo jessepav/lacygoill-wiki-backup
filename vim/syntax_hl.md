@@ -2078,8 +2078,7 @@ statement, you can't use `\zs` and `\ze`.
 Instead, use `\<@=` and `\@=`.
 
 This is confirmed in this answer:
-
-    https://stackoverflow.com/a/53730038/9780968
+<https://stackoverflow.com/a/53730038/9780968>
 
 > Another pitfall is that \zs limits the highlighting, but internally still matches the whole text.
 
@@ -2325,8 +2324,6 @@ space between  the beginning  of the  line and  the comment  leader), then
 `xCommentCodeBlock` will start *before* `xComment`.
 
 ## ?
-
-press this <kbd>key</kbd> please
 
 some **bold** text
 some [url *text*](http://www.google.com)

@@ -47,7 +47,7 @@ user-defined function:
 ##
 # Which condition must a variable name satisfy to store a funcref?
 
-It must begin with an uppercase character.
+It must begin with an uppercase character, if it's global:
 
           ✘
           v
@@ -61,25 +61,43 @@ It must begin with an uppercase character.
     echo g:Length('hello')
     5~
 
-Unless it's local:
-
-    let t:length = function(exists('*strchars') ? 'strchars' : 'strlen')
-    echo t:length('hello')
-    5~
-
-But not if it's local to a function:
+or if it's local to a function:
 
     unlet! g:Length
     fu! Length(string) abort
+        "     ✘
+        "     v
         let l:length = function(exists('*strchars') ? 'strchars' : 'strlen')
         return l:length(a:string)
     endfu
     echo Length('hello')
     E704: Funcref variable name must start with a capital: l:length~
 
+    unlet! g:Length
+    fu! Length(string) abort
+        "     ✔
+        "     v
+        let l:Length = function(exists('*strchars') ? 'strchars' : 'strlen')
+        return l:Length(a:string)
+    endfu
+    echo Length('hello')
+    5~
+
+---
+
+There's no such requirement if the variable is local to sth else than a function:
+
+    let t:length = function(exists('*strchars') ? 'strchars' : 'strlen')
+    echo t:length('hello')
+    5~
+
 ## Why?
 
-To avoid a conflict with a builtin function.
+In the global scope, you can drop the `g:`.
+In the scope of a function, you can drop the `l:`.
+
+So, if  a variable  storing a  funcref could start  with a  lowercase character,
+there could be a conflict with a builtin function.
 
 ##
 # I save a funcref in a global variable, then define a function whose name is identical to the variable:
@@ -108,10 +126,11 @@ But the definition of the function is weird:
     2          return l:Length(a:string)~
        endfunction~
 
-## Could I have reversed the order of the saving and the definition?
+## What would happen if I reversed the order of the funcref definition and the function definition?
 
-No.
+It would raise `E705`.
 
+    unlet! g:Length
     fu! Length(string) abort
         let l:Length = function(exists('*strchars') ? 'strchars' : 'strlen')
         return l:Length(a:string)
@@ -311,50 +330,104 @@ For more info, see:
 ##
 # ?
 
-        fu! Func() dict
-            return 'called from '.self['which dict am I']
-        endfu
-        let adict = {'which dict am I': 'adict'}
+Document that you don't need to assign a lambda to a variable in order to echo its output:
+
+    :echo {-> 'test'}()
+    test~
+
+But you do need to assign it in order to call it:
+
+    :call {-> 'test'}()
+    E15: Invalid expression: > 'test'~
+    E475: Invalid argument: {-> 'test'}()~
+
+---
+
+Document that if you refer to a lambda directly, and not via a variable, then it
+can't access its outer scope:
+
+    fu! Func()
+        let msg = 'test'
+        let s:lambda = {-> msg}
+        au SafeState * ++once echo s:lambda()
+    endfu
+    call Func()
+    test~
+
+    fu! Func()
+        let msg = 'test'
+        au SafeState * ++once echo {-> msg}()
+    endfu
+    call Func()
+    Error detected while processing function <lambda>1234:~
+    line    1:~
+    E121: Undefined variable: msg~
+
+It seems the issue is specific to an autocmd.
+Without an autocmd, the code works as expected:
+
+    fu! Func()
+        let msg = 'test'
+        echo {-> msg}()
+    endfu
+    call Func()
+    test~
+
+I think that when  you refer to a lambda directly, it's as  if it was defined on
+the spot.
+So, if you refer  to a lambda directly in an autocmd, it's  as if it was defined
+in the autocmd, and the latter has no outer scope.
+Therefore, the lambda can't access the function variables.
+
+OTOH, if you refer to a lambda directly in a function, it's as if it was defined
+in the function; so the lambda's outer scope is the function, which it can access.
+
+# ?
+
+    fu! Func() dict
+        return 'called from '.self['which dict am I']
+    endfu
+    let adict = {'which dict am I': 'adict'}
 
 
-        let adict.myFunc = function('Func')
-        echo adict.myFunc()
+    let adict.myFunc = function('Func')
+    echo adict.myFunc()
 
-        let adict.myFunc = function('Func')
-        let bdict = {'which dict am I': 'bdict'}
-        let bdict.myFunc = adict.myFunc
-        echo bdict.myFunc()
+    let adict.myFunc = function('Func')
+    let bdict = {'which dict am I': 'bdict'}
+    let bdict.myFunc = adict.myFunc
+    echo bdict.myFunc()
 
-        let adict.myFunc = function(function('Func'), adict)
-        let bdict = {'which dict am I': 'bdict'}
-        let bdict.myFunc = adict.myFunc
-        echo bdict.myFunc()
+    let adict.myFunc = function(function('Func'), adict)
+    let bdict = {'which dict am I': 'bdict'}
+    let bdict.myFunc = adict.myFunc
+    echo bdict.myFunc()
 
 ---
 
 Note that binding a function to a Dictionary also happens when the function is a
 member of the Dictionary:
 
-        let myDict.myFunction = MyFunction
-        call myDict.myFunction()
+    let myDict.myFunction = MyFunction
+    call myDict.myFunction()
 
 Here `MyFunction()` will get `myDict` passed as "self".
 This happens when the "myFunction" member is accessed.
 When assigning  "myFunction" to otherDict  and calling it,  it will be  bound to
 otherDict:
 
-        let otherDict.myFunction = myDict.myFunction
-        call otherDict.myFunction()
+    let otherDict.myFunction = myDict.myFunction
+    call otherDict.myFunction()
 
 Now "self" will be "otherDict".
 But when the dictionary was bound explicitly:
 
-        let myDict.myFunction = function(MyFunction, myDict)
+    let myDict.myFunction = function(MyFunction, myDict)
 
 it won't happen:
 
-        let otherDict.myFunction = myDict.myFunction
-        call otherDict.myFunction()
+    let otherDict.myFunction = myDict.myFunction
+    call otherDict.myFunction()
 
 Here "self" will be "myDict", because it was bound explicitly.
 
@@ -590,7 +663,7 @@ En informatique, une  application de fonction partielle décrit  le processus qu
 consiste à  fixer un sous-ensemble des  arguments d'une fonction en  les liant à
 des valeurs prédéterminées, produisant une autre fonction, d'arité inférieure.
 
-    https://en.wikipedia.org/wiki/Partial_application
+<https://en.wikipedia.org/wiki/Partial_application>
 
 Pour rappel, en mathématiques, l'arité  d'une fonction est le nombre d'arguments
 qu'elle requiert.

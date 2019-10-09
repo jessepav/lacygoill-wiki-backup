@@ -756,6 +756,28 @@ So, if you tried to use the  previous alternative to emulate `:windo`, you would
 not what `:windo` does.
 
 ##
+## An error is raised for a command which is not even processed!
+
+When Vim  parses a  *known* command  with a *wrong*  syntax in  an *un*processed
+block, the command is not run, *but* an error is raised:
+
+    $ vim -Nu NONE +'if 1|clear|else|clear foo|endif'
+    Error detected while processing command line:~
+    E488: Trailing characters: clear foo~
+
+The error may  seem unexpected because when  you write an unknown  command in an
+unprocessed block, no error is raised:
+
+    $ vim -Nu NONE +'if 1|clear|else|not_a_cmd|endif'
+
+If that is an issue, use `:exe`:
+
+    $ vim -Nu NONE +'if 1|clear|else|exe "clear foo"|endif'
+                                     ^^^
+
+<https://github.com/neovim/neovim/issues/11136#issuecomment-537253732>
+
+##
 # ?
 
 Document that, in practice, you don't need to combine `:update` and `:argdo`:

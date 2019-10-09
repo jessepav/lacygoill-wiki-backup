@@ -1,3 +1,124 @@
+# How to allow an autocmd, which is installed from a function, to access a variable in the function scope?  (3)
+
+Use:
+
+   - a lambda
+
+         fu! Func()
+            let var = 'defined in outer scope'
+            let s:lambda = {-> var}
+            au SafeState * ++once echo s:lambda()
+         endfu
+         call Func()
+         defined in outer scope~
+
+   - a closure
+
+         fu! Func()
+            let var = 'defined in outer scope'
+            fu! Closure() closure
+                echo var
+            endfu
+            au SafeState * ++once call Closure()
+         endfu
+         call Func()
+         defined in outer scope~
+
+   - a partial
+
+         fu! Func()
+            let var = 'defined in outer scope'
+            let s:partial = function('s:echo', [var])
+            au SafeState * ++once call s:partial()
+         endfu
+         fu! s:echo(var)
+            echo a:var
+         endfu
+         call Func()
+         defined in outer scope~
+
+---
+
+The solution  using a  closure can seem  awkward, because you  need to  define a
+function inside another function.
+
+---
+
+The solution using a lambda can sometimes seem awkward:
+
+    fu! Func()
+       let var = 'defined in outer scope'
+       let s:lambda = {-> execute('let g:var_save ='..string(var))}
+       au SafeState * ++once call s:lambda()
+    endfu
+    call Func()
+
+    " need to wait for `SafeState` to be fired
+    echo g:var_save
+    defined in outer scope~
+
+Here, the  `execute()` used  to get  an expression to  pass in  the body  of the
+lambda is ugly.
+Besides, the `string()` invocation seems brittle.
+Although, it seems to work, even if the variable contains quotes:
+
+    fu! Func()
+       let var = "a'b\"c"
+       let s:lambda = {-> execute('let g:var_save ='..string(var))}
+       au SafeState * ++once call s:lambda()
+    endfu
+    call Func()
+
+    echo g:var_save
+    a'b"c~
+
+---
+
+The solution using a partial has 2 drawbacks:
+
+   - it's longer
+
+   - you need to come up with yet another variable name (in the previous example `s:partial`),
+     and it needs to be unique in the current script
+
+## Each of these solutions requires the creation of an extra variable/function.
+### So what is their benefit over simply moving the variable from the function scope to the script scope?
+
+These solutions scale better when you need to access several variables.
+
+Example:
+
+    fu! Func()
+       let [a, b, c] = [1, 2, 3]
+       fu! Closure() closure
+           echo a + b + c
+       endfu
+       au SafeState * ++once call Closure()
+    endfu
+    call Func()
+    6~
+
+    fu! Func()
+       let [s:a, s:b, s:c] = [1, 2, 3]
+       au SafeState * ++once echo s:a + s:b + s:c
+    endfu
+    call Func()
+    6~
+
+In the second case,  you have to create 3 script-local variables  to get the sum
+of the variables.
+
+It may seem awkward  because you may consider them relevant  only in the context
+of `Func()`, so putting them in the script-local scope may feel like giving them
+too much importance.
+
+Besides, the extra `s:` makes the variable names a little harder to read.
+
+Finally,  it's harder  to avoid  conflicts between  script-local variables  than
+between function-local ones, simply because a script is usually much longer than
+a function.
+
+##
 # How to write the quantifier “0 or 1” in the pattern of an autocmd?
 
     {foo,}bar
@@ -12,9 +133,59 @@ Use the `++once` flag.
     au {event} {pat} ++once {cmd}
                      ^^^^^^
 
-## When should I wrap such an autocmd in an augroup?
+## Does `++once` prevent the duplication of an autocmd if its code is sourced multiple times?
 
-When you need to be able to remove it before the event it's listening to:
+No:
+
+    :au CursorHoldI * ++once "
+    2@:
+    :au CursorHoldI
+    CursorHoldI~
+        *         "~
+                  "~
+                  "~
+
+##
+## Why shouldn't I wrap all one-shot autocmds inside an augroup?
+
+First, `++once`  is clearly  meant, among  other things, to  make the  code less
+verbose, and get rid of the augroup:
+
+> Before:
+
+>     augroup FooGroup
+>       autocmd!
+>       autocmd FileType foo call Foo() | autocmd! FooGroup FileType foo
+>     augroup END
+
+> After:
+
+>     autocmd FileType foo ++once call Foo()
+
+Source: <https://github.com/vim/vim/pull/4100>
+
+---
+
+Second, in practice, a one-shot autocmd will often have a short life (e.g. fired
+the next time the cursor is moved), so the risk of duplication is low.
+
+---
+
+Third, even though `++once` does not prevent a duplication, it limits its effects.
+
+To illustrate, in this example:
+
+    :au CursorHoldI * ++once "
+    :au CursorHoldI * ++once "
+    :au CursorHoldI * ++once "
+
+the  next time  `CursorHoldI` will  be  fired, all  the autocmds  will be  fired
+and  removed; without  `++once`,  they would  keep being  run  again every  time
+`CursorHoldI` is fired.
+
+### When should I do it then?  (3)
+
+When you *need* to be able to remove it before the event it's listening to:
 
     augroup some_group
         au!
@@ -29,10 +200,10 @@ See the `search#nohls()` function in `vim-search` for an example.
 
 ---
 
-Or when your command needs to be  fired from two different autocmds (because you
+When your  command needs to  be fired from  two different autocmds  (because you
 need two patterns with different meanings or values).
 Suppose you want to call `Func()` only once, as soon as `CursorHold` is fired or
-you enter the Ex command-line `CmdlineEnter`; you could write:
+you enter the Ex command-line; you could write:
 
     augroup some_group
         au!
@@ -57,6 +228,12 @@ Once for each event.
 
 See the augroup `delay_slow_call` in our vimrc for a real example.
 
+---
+
+When there is a  real risk of duplication, and the  latter would give unexpected
+results.
+
+##
 ## How many times is the autocmd fired if it listens to several events?
 
 Once per event.
@@ -195,6 +372,16 @@ This  is because  when  you ran  `:e /tmp/file`,  `BufWinLeave`  was not  fired,
 because `filetype.vim` was still displayed in a window.
 
 ##
+# What is the difference between `SafeState` and `SafeStateAgain`?
+
+I think they have the same meaning: they're fired when Vim has nothing to do.
+
+However,  `SafeStateAgain` is  fired after  Vim  has invoked  a callback  (think
+timer, job, ...), or processed a message from a job.
+When invoking  a callback/processing  a message,  Vim is  busy again,  and right
+afterward it's idle again (so it's safe to run sth again and `SafeStateAgain` is
+fired).
+
 ##
 ##
 # Syntaxe
