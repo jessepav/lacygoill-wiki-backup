@@ -158,7 +158,112 @@ string comparison:
                                      assume that `list` contains dictionaries with the keys `foo` and `bar`
 
 ##
+## The next expression uses a ternary conditional:
+
+    var is# 'foo'
+    \ ?     1
+    \ : var is# 'bar'
+    \ ?     2
+    \ :     3
+
+### How should I rewrite it?
+
+    {'foo': 1, 'bar': 2, 'baz': 3}[var]
+
+Or:
+
+    get({'foo': 1, 'bar': 2}, var, 3)
+
+---
+
+Use the first expression if you know the third value which can be assigned to `var`.
+Use the second one if you don't know what other value(s) can be assigned to `var`.
+
+#### Why?
+
+  - more concise/readable
+
+  - mentions explicitly the third value `baz` in the first case
+    (before it was implicit/not mentioned at all)
+
+  - easier to expand later if `var` can have more values
+
+##
 # Miscellaneous
+## When should I use
+### `==`, `==#`, `is#`?
+
+Here's what I recommend:
+
+   - use `is#` if one of the operand is a string
+
+   - use `==#` if one of the operand is a list/dictionary
+
+   - use `==` otherwise
+
+---
+
+Note that you can't use `is#` if the operands are lists/dictionaries:
+
+    :echo ['a'] is# ['a']
+    0~
+
+    :echo {'k': 'v'} is# {'k': 'v'}
+    0~
+
+But you *can* if one of the operands is the *member* of a list/dictionary:
+
+    :echo ['a'][0] is# 'a'
+    1~
+
+    :echo ['a'][0] is# ['a'][0]
+    1~
+
+    :echo {'k': 'v'}.k is# 'v'
+    1~
+
+    :echo {'k': 'v'}.k is# {'k': 'v'}.k
+    1~
+
+---
+
+For  a list,  `==#` is  only useful  if  it contains  at least  one string  with
+alphabetical characters; but let's make things  simple: one operator per type of
+data.
+
+### the function-local scope `l:`, explicitly?  (2)
+
+When your variable stores a funcref without any scope.
+
+If you don't, there is a risk of conflict with a public function.
+
+---
+
+When your variable name is one of:
+
+   - count
+   - errmsg
+   - shell_error
+   - this_session
+   - version
+
+In that case, without an explicit scope, Vim assumes `v:`.
+
+Source: <https://github.com/Kuniwak/vint/issues/245#issuecomment-337296606>
+
+It seems to be true, if you look at this file:
+<https://github.com/vim/vim/blob/master/src/eval.c>
+
+And if you search for `VV_COMPAT`, you only find these 5 variables atm.
+
+If you're concerned by  a conflict with a `v:` variable, write  this line at the
+top of your script:
+
+    :scriptversion 3
+                   ^
+                   or any number bigger than 3
+
+##
 ## How can the following assignment be simplified?
 
     let test = var == 123 ? 1 : 0

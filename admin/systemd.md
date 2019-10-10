@@ -195,7 +195,7 @@ For systemd running in `--system` mode, it's located in:
     ┌──────────────────────────┬──────────────────────────────────────────────────────┐
     │ /etc/systemd/system/     │ where system-wide user units are placed              │    |
     │                          │ by the system administrator                          │    |
-    ├──────────────────────────┼──────────────────────────────────────────────────────┤    | decreasing order
+    ├──────────────────────────┼──────────────────────────────────────────────────────┤    | descending order
     │ /run/systemd/system/     │ units created at run time                            │    | of priority
     ├──────────────────────────┼──────────────────────────────────────────────────────┤    |
     │ /usr/lib/systemd/system/ │ where units of packages installed system-wide belong │    v
@@ -208,7 +208,7 @@ For systemd running in `--user` mode, it's located in:
     ├──────────────────────────────┼───────────────────────────────────────────────────┤    |
     │ /etc/systemd/user/           │ system-wide user units placed                     │    |
     │                              │ by the system administrator                       │    |
-    ├──────────────────────────────┼───────────────────────────────────────────────────┤    | decreasing
+    ├──────────────────────────────┼───────────────────────────────────────────────────┤    | descending
     │ /run/user/1000/systemd/user/ │ units created at run time (for the current user?) │    | order
     ├──────────────────────────────┼───────────────────────────────────────────────────┤    | of
     │ /run/systemd/user/           │ units created at run time (for all users?)        │    | priority
@@ -1302,7 +1302,7 @@ automated tasks,  with all the benefits  of systemd, such as  socket activation,
 timers, dependency system or strict process control via cgroups.
 
 Similarly to system  units, user units are located in  the following directories
-(in decreasing order of priority):
+(in descending order of priority):
 
     ┌──────────────────────────────┬───────────────────────────────────────────────────────┐
     │ ~/.config/systemd/user/      │ where the user puts their own units                   │

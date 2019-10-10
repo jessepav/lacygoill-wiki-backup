@@ -870,6 +870,13 @@ install your own Vim commands/mappings.
 There's one additional public function `fzf#shellescape()`, but it's useless.
 It's just a wrapper around `shellescape()` which also supports Windows.
 
+---
+
+For more info about `fzf#wrap()`, see `:h fzf#wrap`:
+
+> By "wrapping" your options dictionary with `fzf#wrap` before passing it to
+> `fzf#run`, you can make your command also support the options.
+
 ##
 ##
 ##

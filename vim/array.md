@@ -218,7 +218,7 @@ Use `map()` + `range()`:
     echo range(20, 40, 5)
     [20, 25, 30, 35, 40]~
 
-#### from `2` to `-2`, in decreasing order?
+#### from `2` to `-2`, in descending order?
 
     echo range(2, -2, -1)
     [2, 1, 0, -1, -2]~

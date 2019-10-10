@@ -69,7 +69,30 @@ Con:
 
    - adds noise in the status line (`[Preview]` flag)
 
-### `{`, `}`, `(`, `)`, `[[`, `]]` as lhs in various local mappings
+### `(`, `)`, `[[`, `]]`, `{`, `}`, `<`, `>` as lhs in various local mappings
+
+Right now,  we tend  to use  `)` and  `(` to  preview the  next/previous "entry"
+(whatever that means in the context of the current buffer):
+
+    :vim /nno.*<buffer>\S*\s\+\%([()]\|\[\[\|\]\]\)\s/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
+                                       ^^^^^^^^^^
+                                       we also use `[[` and `]]` as a secondary pair of lhs
+
+We chose  `(`/`)` – instead of  `{`/`}` – because  previewing sth seems to  be a
+feature we  frequently want, and  because we rarely  press `(`/`)` (so  we don't
+lose much).
+
+OTOH:
+
+   - we use `{`/`}` more frequently
+   - `{`/`}` is harder to press
+
+If you  need other  pairs of  lhs, I would  recommend –  in descending  order of
+preference:
+
+   - `[[`/`]]`
+   - `{`/`}`
+   - `<`/`>`
 
 ### enabling auto-opening fold
 

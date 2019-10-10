@@ -2266,7 +2266,7 @@ If `^` was left-associative:
 The precedence of an arbitrary operator.
 
 ##
-## Which mnemonic device can I use to remember the operators in decreasing order of precedence?
+## Which mnemonic device can I use to remember the operators in descending order of precedence?
 
 GRI ELMACR RAL LTA
 
@@ -2293,7 +2293,7 @@ GRI ELMACR RAL LTA
     │ = += -= *= /= %= ^=     │ Assignment                                   │
     └─────────────────────────┴──────────────────────────────────────────────┘
 
-## Which mnemonic device can I use to remember the *regex* operators in decreasing order of precedence?
+## Which mnemonic device can I use to remember the *regex* operators in descending order of precedence?
 
 GQPSC ANCA EB E
 

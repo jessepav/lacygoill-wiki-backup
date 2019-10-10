@@ -473,7 +473,7 @@ the entire regular expression.
 The element of BASH_REMATCH  with index n is the portion  of the string matching
 the nth parenthesized subexpression.
 
-Expressions may be combined using  the following operators, listed in decreasing
+Expressions may be combined using  the following operators, listed in descending
 order of precedence:
 
               ( expression )
@@ -2613,7 +2613,7 @@ The operators and their precedence, associativity, and values are the same as in
 the C language.
 The  following list  of operators  is  grouped into  levels of  equal-precedence
 operators.
-The levels are listed in order of decreasing precedence.
+The levels are listed in descending order of precedence.
 
        id++ id--
               variable post-increment and post-decrement
@@ -5353,7 +5353,7 @@ prevent this interpretation.
               maries  described  above under CONDITIONAL EXPRESSIONS.  test does not accept any options, nor does it
               accept and ignore an argument of -- as signifying the end of options.
 
-              Expressions may be combined using the following operators, listed in decreasing order  of  precedence.
+              Expressions may be combined using the following operators, listed in descending order  of  precedence.
               The  evaluation depends on the number of arguments; see below.  Operator precedence is used when there
               are five or more arguments.
               ! expr True if expr is false.

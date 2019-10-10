@@ -1051,10 +1051,10 @@ Use the `--sort` option, pass it the `rss` keyword, and pipe the output of `ps(1
 
     $ ps aux --sort -rss | head -n11
                     │
-                    └ print the processes in a DEcreasing order
+                    └ print the processes in a descending order
 
                       by default, or with a `+` sign, the processes would be
-                      displayed in an INcreasing order
+                      displayed in an ascending order
 
 ##
 ## What do the numbers in the TIME column mean?
