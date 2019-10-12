@@ -354,3 +354,8 @@ Here, the  starting-point is `tmp`, so  when the directory `/tmp`  is processed,
 But  the  path `tmp`  can't  match  the pattern  `/tmp`,  so  `find` can't  find
 anything.
 
+##
+# Todo
+
+Read this: <http://mywiki.wooledge.org/UsingFind>
+

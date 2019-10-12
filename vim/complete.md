@@ -10,12 +10,12 @@ by "moving" it later; e.g.:
 
 IOW, when is a timer or a one-shot autocmd really needed?
 
----
+# ?
 
 Make sure we haven't used a timer to restore an option, while we shouldn't have.
 Try to use a one-shot autocmd instead; or try to "move" the code later if possible.
 
----
+# ?
 
 When `SafeState` is merged in Nvim, replace these lines:
 
@@ -39,7 +39,7 @@ with:
     let s:fix_word = {-> setline('.', new_line)}
     au SafeState * ++once call s:fix_word()
 
----
+# ?
 
 Explain why we shouldn't alter 'isk' from a condition (`s:setup_isk()`); instead
 we must redefine a problematic default method.
@@ -72,12 +72,57 @@ Probable bottom line:
 never restore an option from a timer; restore it from a known point in your code
 or event.
 
----
+# ?
 
 Search for `compl[[=e=]]t` in our notes, and in vimrc.
 Integrate any relevant comment here,  and integrate any relevant mapping/setting
 in `vim-completion`.
 Also integrate some comments from `vim-completion`.
+
+# ?
+
+Document what's the disadvantag of pressing `c-x c-p`, or `c-p`, instead of `c-x c-n`/`c-n`.
+
+`:h 'cot /ctrl-l` doesn't work with `C-x C-p` and `C-p`:
+
+    $ vim -Nu NONE +'set cot=menu,longest|startinsert!' =(cat <<'EOF'
+    xx
+    xxabc
+    xxab
+    xxa
+    EOF
+    )
+
+If you press `C-x C-p`: `xxa` is completed.
+If you then press `C-l`: no character is inserted.
+
+Had you pressed `C-x C-n` instead of `C-x C-p`, `C-l` would have inserted `b`.
+
+# ?
+
+Document how the pum is populated with `C-x C-n` and `C-x C-p`.
+
+I think that Vim looks for matches after the current position with `C-x C-n` and
+populates the menu from its start down to its end.
+OTOH, with  `C-x C-p`, Vim  looks for matches  before the current  position, and
+populates the menu from its end up to its start.
+
+If each match is present only once in the buffer, the resulting menu is identical:
+
+    yy
+    yya
+    yyb
+    yyc
+
+However, it's *not*, if one of the match is present twice, and non-consecutively:
+
+    zz
+    zza
+    zzb
+    zzc
+    zza
+
+In the same way, document how Vim populates the pum with `C-n` and `C-p`.
 
 # 'cot'
 
@@ -89,7 +134,7 @@ Celle-ci peut prendre une série de valeurs. Les plus importantes sont:
 
    - 'noselect'    elle n'est ni insérée, ni sélectionnée
 
----
+# ?
 
 Le contenu  du menu  est mis à  jour dynamiquement après  un C-h  (backspace) ou
 l'insertion d'un nouveau caractère.
@@ -105,264 +150,272 @@ Dans les 2 cas, l'insertion d'une entrée met fin à la mise à jour dynamique d
 La prochaine fois qu'on tapera un caractère manuellement, le menu se fermera.
 
 # keybindings
-
-Voici qques raccourcis permettant d'interagir avec le menu de complétion:
-
+## Voici qques raccourcis permettant d'interagir avec le menu de complétion:
 
     C-l
 
-            Si  le mot  précédant actuellement  le curseur  est +  court que  le
-            candidat sélectionné,  insère un caractère supplémentaire  pour s'en
-            rapprocher.
-            Si aucun candidat n'est sélectionné,  C-l utilise le 1er candidat du
-            menu.
+Si le mot précédant  le curseur est plus court que  le match sélectionné, insère
+un caractère supplémentaire pour s'en rapprocher.
+Si aucun match n'est sélectionné, `C-l` utilise le 1er match du menu.
 
-Voici qques raccourcis permettant d'entrer dans un mode de complétion:
+---
 
-    C-n    C-p
+Try to get rid of `lg#window#has_neighbor()`.
+For the most part, you can get the same result with `winnr('hjkl')`.
+However, the optional argument is harder to emulate (I think you need to combine
+`win_execute()` with `winnr('hjkl')`).
 
-            complétion de mots (next, previous)
+## Voici qques raccourcis permettant d'entrer dans un mode de complétion:
+### `C-n`, `C-p`
 
-            Cherche  dans tous  les endroits  spécifiés par  l'option locale  au
-            buffer 'complete', qui par défaut vaut:
+Complétion de mots (next, previous).
 
-                    .,w,b,u,t,i
+Cherche  dans  tous  les  endroits  spécifiés  par  l'option  locale  au  buffer
+`'complete'`, qui par défaut vaut:
 
-            .    buffer courant
-            w    buffers des autres fenêtres
-            b    buffers chargés de la buffer list
-            u    buffers déchargés de la buffer list
-            t    fichiers tags
-            i    fichiers précédés par des instructions tq: include, import, request …
-            kspell
-                 dictionnaire de notre langue (seulement qd 'spell' est activée)
+    .,w,b,u,t,i
 
-    C-x C-f
+    ┌────────┬─────────────────────────────────────────────────────────────────────────┐
+    │ .      │ buffer courant                                                          │
+    ├────────┼─────────────────────────────────────────────────────────────────────────┤
+    │ w      │ buffers des autres fenêtres                                             │
+    ├────────┼─────────────────────────────────────────────────────────────────────────┤
+    │ b      │ buffers chargés de la buffer list                                       │
+    ├────────┼─────────────────────────────────────────────────────────────────────────┤
+    │ u      │ buffers déchargés de la buffer list                                     │
+    ├────────┼─────────────────────────────────────────────────────────────────────────┤
+    │ t      │ fichiers tags                                                           │
+    ├────────┼─────────────────────────────────────────────────────────────────────────┤
+    │ i      │ fichiers précédés par des instructions tq: include, import, request ... │
+    ├────────┼─────────────────────────────────────────────────────────────────────────┤
+    │ kspell │ dictionnaire de notre langue (seulement qd 'spell' est activée)         │
+    └────────┴─────────────────────────────────────────────────────────────────────────┘
 
-            Complète un nom  de fichier/dossier en cherchant dans  le dossier de
-            travail (:pwd).
+### `C-x C-f`
 
-            Si un  chemin vers un  dossier précède  le curseur, cherche  dans ce
-            dossier plutôt que dans le dossier de travail.
-            On peut compléter tout un chemin en répétant ce chord.
+Complète  un nom  de fichier/dossier  en cherchant  dans le  dossier de  travail
+(:pwd).
 
-    C-x C-k
+Si un chemin vers un dossier précède  le curseur, cherche dans ce dossier plutôt
+que dans le dossier de travail.
+On peut compléter tout un chemin en répétant ce chord.
 
-            Complète  un  nom   à  partir  de  mots  trouvés   dans  un  fichier
-            dictionnaire.
-            On peut avoir plusieurs dico.
-            Leurs chemins  doivent être  ajoutés à la  valeur de  'dictionary' /
-            'dict'.
+### `C-x C-k`
 
-            'dict' est une option globale ou locale au buffer.
+Complète un nom à partir de mots trouvés dans un fichier dictionnaire.
+On peut avoir plusieurs dico.
+Leurs chemins doivent être ajoutés à la valeur de `'dict'`.
 
-            Par défaut, le dico /usr/share/dict/words est dispo (il contient des
-            mots anglais).
-            Pour ajouter un dico français, installer le paquet wfrench.
-            Il installera  entre autres le fichier  /usr/share/dict/french qu'on
-            pourra ajouter à 'dict'.
+`'dict'` est une option globale ou locale au buffer.
 
-    C-x C-l
+Par  défaut, le  dico `/usr/share/dict/words`  est dispo  (il contient  des mots
+anglais).
+Pour ajouter un dico français, installer le paquet wfrench.
+Il  installera  entre  autres  le fichier  /usr/share/dict/french  qu'on  pourra
+ajouter à `'dict'`.
 
-            Complète la ligne (cherche dans les fichiers définis par 'complete').
+### `C-x C-l`
 
-            Si on se trouve au milieu d'une ligne ça marche en une seule fois.
+Complète la ligne (cherche dans les fichiers définis par `'complete'`).
 
-            Si on se trouve à la fin d'une ligne, on peut directement compléter la suivante :
+Si on se trouve au milieu d'une ligne ça marche en une seule fois.
 
-                    - en une seule invocation si on vient juste de compléter la ligne courante
+Si on se trouve à la fin d'une ligne, on peut directement compléter la suivante :
 
-                    - en 2 invocations autrement (càd qu'on a tapé la ligne manuellement)
-                      la 1e invocation repropose juste la ligne courante
+   - en une seule invocation si on vient juste de compléter la ligne courante
 
-            En   fait,  ce   chord  se   souvient  des   complétions  similaires
-            précédentes, de la même façon que `C-x C-n` ou `C-x C-p`.
+   - en 2 invocations autrement (càd qu'on a tapé la ligne manuellement)
+     la 1e invocation repropose juste la ligne courante
 
-                                     NOTE:
+En   fait,  ce   chord  se   souvient  des   complétions  similaires
+précédentes, de la même façon que `C-x C-n` ou `C-x C-p`.
 
-            Raccourci  facilement répétable  à condition  de ne  pas insérer  de
-            lignes vides à l'intérieur d'un bloc de code (pex une fonction).
-            Autrement, après une ligne vide,  le raccourci proposera bcp trop de
-            suggestions non  pertinentes, si notre  buffer est rempli  de lignes
-            vides pour aérer.
+---
 
+Raccourci  facilement répétable  à condition  de ne  pas insérer  de
+lignes vides à l'intérieur d'un bloc de code (pex une fonction).
+Autrement, après une ligne vide,  le raccourci proposera bcp trop de
+suggestions non  pertinentes, si notre  buffer est rempli  de lignes
+vides pour aérer.
 
-    C-x C-n
-    C-x C-p
+### `C-x C-n`, `C-x C-p`
 
-            La  1e fois  qu'on utilise  un de  ces chords,  Vim complète  le mot
-            courant.
-            La fois suivante, il se souvient  du mot qu'on vient de compléter et
-            ne propose  que des candidats qui  sont précédés de ce  mot ailleurs
-            dans le buffer.
-            Les  fois  d'après,  il  continue de  se  souvenir  des  précédentes
-            complétions.
+La 1e fois qu'on utilise un de ces chords, Vim complète le mot courant.
+La fois suivante, il  se souvient du mot qu'on vient de  compléter et ne propose
+que des matchs qui sont précédés de ce mot ailleurs dans le buffer.
+Les fois d'après, il continue de se souvenir des précédentes complétions.
 
-            Les  propositions sont  plus  ciblées qu'avec  C-n/p, non  seulement
-            parce que  ce chord tient  compte des complétions  précédentes, mais
-            aussi parce qu'il  ne cherche pas dans tous  les buffers, uniquement
-            dans le buffer courant (cf: :h compl-current).
+Les propositions sont plus ciblées  qu'avec `C-n`/`C-p`, non seulement parce que
+ce chord  tient compte des  complétions précédentes,  mais aussi parce  qu'il ne
+cherche pas dans tous les buffers, uniquement dans le buffer courant
+(cf: `:h compl-current`).
 
+### `C-x C-o`
 
-    C-x C-o
+omni-complétion
 
-            omni-complétion
+Vim devine  la nature  de l'objet  (d'où le  `omni`... omniscient)  précédant le
+curseur, et propose des matchs commençant de la même façon.
 
-            Vim  devine la  nature  de l'objet  (d'où  le 'omni'...  omniscient)
-            précédant le curseur, et propose des candidats commençant de la même
-            façon.
+Utile pour compléter des noms d'objets qui  n'ont pas été analysés par ctags, ou
+qui ne peuvent pas l'être comme pex des  noms de fonctions intégrées à Vim ( ex:
+`setreg()`).
 
-            Utile pour  compléter des noms  d'objets qui n'ont pas  été analysés
-            par  ctags, ou  qui ne  peuvent  pas l'être  comme pex  des noms  de
-            fonctions intégrées à Vim ( ex: setreg() ).
+Pour certains languages il faut installer  un programme tiers pour documenter la
+fonction d'omnicomplétion.
+Pour python, il y a jedi et son plugin Vim jedi-vim.
 
-            Pour certains  languages il faut  installer un programme  tiers pour
-            documenter la fonction d'omnicomplétion.
-            Pour python, il y a jedi et son plugin Vim jedi-vim.
+L'omni-complétion est  très proche de la  complétion custom (`C-x C-u`):  elle est
+gérée par une fonction dont le nom est définie par une option locale au buffer.
+`'omnifunc'` pour  `C-x C-o`,  `'completefunc'` pour `C-x C-u` Une  fonction `'omnifunc'`
+doit être écrite comme une fonction `'completefunc'` (`if a:findstart | ...`).
 
-            L'omni-complétion est très proche de la complétion custom (C-x C-u):
-            elle est  gérée par  une fonction  dont le nom  est définie  par une
-            option locale au buffer.
-            'omnifunc' pour  C-x C-o, 'completefunc'  pour C-x C-u  Une fonction
-            'omnifunc' doit  être écrite  comme une fonction  'completefunc' (if
-            a:findstart | …).
+La  principale  différence  vient  du   fait  que  la  fonction  'omnifunc'  est
+généralement définie par  un filetype plugin, qu'elle est donc  propre à un type
+de  fichiers,  et  qu'elle  complète  des mots-clés  propres  à  un  langage  de
+programmation (pratique qd on ne connaît pas bien le langage en question).
+Une fonction de  complétion omnifunc pour python, une autre  pour html, une pour
+css etc.
 
-            La principale  différence vient du  fait que la  fonction 'omnifunc'
-            est généralement  définie par un  filetype plugin, qu'elle  est donc
-            propre  à un  type de  fichiers, et  qu'elle complète  des mots-clés
-            propres à un langage de programmation (pratique qd on ne connaît pas
-            bien le langage en question).
-            Une  fonction de  complétion omnifunc  pour python,  une autre  pour
-            html, une pour css etc.
+Permet de compléter automatiquement une balise fermante en html en tenant compte
+de la précédante balise ouvrante.
 
-            Permet de compléter  automatiquement une balise fermante  en html en
-            tenant compte de la précédante balise ouvrante.
+Ex:
 
-            Ex:    <p> … </ + C-x C-o    →    <p> … </p>
+    <p> ... </ + C-x C-o
+    →
+    <p> ... </p>
 
-    C-x s
+### `C-x s`
 
-            Complète le  mot précédant le  curseur en proposant  des corrections
-            orthographiques.
-            Nécessite que l'option (locale à la fenêtre) 'spell' soit activée.
+Complète   le  mot   précédant   le  curseur   en   proposant  des   corrections
+orthographiques.
+Nécessite que l'option (locale à la fenêtre) 'spell' soit activée.
 
-    C-x C-t
+### `C-x C-t`
 
-            Complète le mot précédant le curseur en proposant des synonymes.
-            Les  synonymes sont  cherchés dans  un  fichier dont  le chemin  est
-            présent ds l'option 'thesaurus'.
+Complète le mot précédant le curseur en proposant des synonymes.
+Les  synonymes sont  cherchés dans  un  fichier dont  le chemin  est présent  ds
+l'option `'thesaurus'`.
 
-            Ce type  de complétion est utile  pex pour accéder à  un ensemble de
-            noms  de fonctions,  ou d'autres  termes qui  ne sont  pas forcément
-            synonymes mais qu'on peut ranger dans une même catégorie.
+Ce  type de  complétion est  utile pex  pour accéder  à un  ensemble de  noms de
+fonctions, ou  d'autres termes qui  ne sont  pas forcément synonymes  mais qu'on
+peut ranger dans une même catégorie.
 
+### `C-x C-u`
 
-    C-x C-u
+Complète via une fonction custom.
 
-            Complète via une fonction custom.
+Le  nom de  la fonction  est défini  par l'option  locale au  buffer
+'completefunc'.
+Vim  appelle la  fonction 2  fois consécutivement  en lui  passant à
+chaque fois 2 arguments:
 
-            Le  nom de  la fonction  est défini  par l'option  locale au  buffer
-            'completefunc'.
-            Vim  appelle la  fonction 2  fois consécutivement  en lui  passant à
-            chaque fois 2 arguments:
+   - 1, ''
+   - 0, 'texte à compléter'
 
-                    - 1, ''
-                    - 0, 'texte à compléter'
+Au  sein  de  la  fonction,  par convention,  on  peut  appeler  ces
+arguments `findstart` et `base`.
 
-            Au  sein  de  la  fonction,  par convention,  on  peut  appeler  ces
-            arguments `findstart` et `base`.
+Le corps de la fonction doit suivre la syntaxe:
 
-            Le corps de la fonction doit suivre la syntaxe:
+    if a:findstart
+        ...
+        return {index du 1er octet du texte à compléter -1}
+    else
+        ...
+        return {matchs}
+    endif
 
-                    if a:findstart
-                        ...
-                        return {index du 1er octet du texte à compléter -1}
-                    else
-                        ...
-                        return {candidates}
-                    endif
+Pk -1?
+Probablement car le nb est utilisé comme un index de chaîne.
+Or qd on  indexe des caractères au sein d'une  chaîne, on commence à
+compter à partir de 0.
 
-            Pk -1?
-            Probablement car le nb est utilisé comme un index de chaîne.
-            Or qd on  indexe des caractères au sein d'une  chaîne, on commence à
-            compter à partir de 0.
+---
 
-                                     NOTE:
+On peut trouver le début du texte à compléter de 2 façons:
 
-            On peut trouver le début du texte à compléter de 2 façons:
+   - via `searchpos()`
 
-            - via `searchpos()`
+     Ex: pour compléter du curseur jusqu'au précédent double quote:
 
-              Ex: pour compléter du curseur jusqu'au précédent double quote:
+        return searchpos('"', 'bcnW', line('.'))[1] - 1
 
-                     return searchpos('"', 'bcnW', line('.'))[1] - 1
+   - une boucle `while`
 
-            - une boucle `while`
+     Ex: pour compléter du curseur jusqu'au précédent caractère absent de la classe `\k`:
 
-              Ex: pour compléter du curseur jusqu'au précédent caractère absent de la classe `\k`:
+        let start = col('.') - 1
+        while start > 0 && getline('.')[start - 1] =~ '\k'
+            let start -= 1
+        endwhile
+        return start
 
-                     let start = col('.') - 1
-                     while start > 0 && getline('.')[start - 1] =~ '\k'
-                         let start -= 1
-                     endwhile
-                     return start
+Qu'est-ce que `start` ?
+Initialement, il s'agit  de l'index du 1er octet  suivant le curseur
+(qui peut ne pas exister si on est en fin de ligne), `-1`.
 
-            Qu'est-ce que `start` ?
-            Initialement, il s'agit  de l'index du 1er octet  suivant le curseur
-            (qui peut ne pas exister si on est en fin de ligne), -1.
+Chaque  itération de  la boucle  teste si  le caractère  (en réalité
+octet) précédant `start` est dans `'isk'`.
+Si oui, `start` est décrémenté.
+Autrement la boucle s'arrête et la fonction retourne `start`, qui au
+final contient l'index du 1er octet du texte à compléter, `-1`.
 
-            Chaque  itération de  la boucle  teste si  le caractère  (en réalité
-            octet) précédant `start` est dans 'isk'.
-            Si oui, `start` est décrémenté.
-            Autrement la boucle s'arrête et la fonction retourne `start`, qui au
-            final contient l'index du 1er octet du texte à compléter, -1.
+---
 
+Si le  texte à compléter  peut contenir  des caractères multi-octets,  la boucle
+while n'est pas fiable.
+Il vaut mieux utiliser `searchpos()` (avec pex le pattern `\<\k`).
 
-                                     NOTE:
+En effet, `while` s'appuie sur le test:
 
-            Si le texte  à compléter peut contenir  des caractères multi-octets,
-            la boucle while n'est pas fiable.
-            Il vaut mieux utiliser `searchpos()` (avec pex le pattern '\<\k').
+    getline('.')[start-1] =~ '\k'
 
-            En effet, `while` s'appuie sur le test:
+Or, si `start-1` correspond à l'index  d'un octet d'un caractère multi-octet, le
+test échouera.
 
-                    getline('.')[start-1] =~ '\k'
+Ex:
 
-            Or,  si `start-1`  correspond à  l'index d'un  octet d'un  caractère
-            multi-octet, le test échouera.
+    getline('.')            =     'élé'
+    start                   =     col('.') - 1  =    6 - 1    =    5
+    getline('.')[start - 1] =     'élé'[4]      =    <a9>    !~    '\k'
 
-            Ex:
-                   getline('.')            =     'élé'
-                   start                   =     col('.') - 1  =    6 - 1    =    5
-                   getline('.')[start - 1] =     'élé'[4]      =    <a9>    !~    '\k'
+---
 
+Pour peupler les matchs on utilisera pex le code suivant:
 
-                                               NOTE:
-
-            Pour peupler les candidats on utilisera pex le code suivant:
-
-                    let candidates = []
-                    sil keepj keepp %s/pat/\=add(candidates, submatch(0))/gne
-                    return filter(candidates, {_,v -> v[:strlen(a:base)-1] is# a:base})
+    let matches = []
+    sil keepj keepp %s/pat/\=add(matches, submatch(0))/gne
+    return filter(matches, {_,v -> v[:strlen(a:base)-1] is# a:base})
 
 #
 #
 #
 #
-# Does C-x C-v complete only Ex commands?
+# What can `C-x C-v` complete in addition to Ex commands?
 
-No.
+Their arguments.
 
-It can also complete their arguments.
+    com - C-x C-v
+    addr~
+    bang~
+    bar~
+    buffer~
+    complete~
+    count~
+    nargs~
+    range~
+    register~
 
-# Why doesn't C-x C-v always complete an Ex command?
+# Why doesn't `C-x C-v` complete `com` when the line is `foo com`?
 
 The command name  must be at the  beginning of the line, because  Vim parses the
 line to try to guess the role of each word.
 If your  line begins with  a random  word, it will  be considered as  an invalid
 command.
 
-# How to navigate in the pum without inserting any candidate?
+# How to navigate in the pum without inserting any match?
 
 Press `Up` and `Down` instead of `C-n` and `C-p`.
 

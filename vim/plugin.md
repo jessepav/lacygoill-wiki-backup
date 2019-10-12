@@ -598,6 +598,14 @@ répétable.  Ou créer un sous-mode.
 
 <https://github.com/fcpg/vim-flattery> 570 sloc
 
+## floaterm
+
+Open the terminal in the floating window and toggle it quickly
+
+<https://github.com/voldikss/vim-floaterm> 157 sloc
+
+This plugin could be handy to study how to use the floating window in Nvim.
+
 ## floobits
 
 Real-time collaborative editing. Think Etherpad, but with native editors.

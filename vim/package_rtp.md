@@ -133,9 +133,9 @@ Reset `'loadplugins'` in the vimrc.
 
 Or, start Vim with any of these command-line arguments:
 
-        * -u NONE
-        * --clean
-        * --noplugin
+   * `-u NONE`
+   * `--clean`
+   * `--noplugin`
 
 ## Which command does Vim execute to load plugins at startup?
 

@@ -200,9 +200,9 @@ Otherwise, plugins are not skipped:
 
 ### in Nvim?
 
-You need to:
+You need to use:
 
-   - use `-u NONE` to skip the plugins (like `--noplugin` would do)
+   * `-u NONE` to skip the plugins (like `--noplugin` would do)
      *and* the scripts sourcing the filetype/syntax/indent plugins
 
         1: /usr/local/share/nvim/runtime/filetype.vim
@@ -212,12 +212,18 @@ You need to:
         5: /usr/local/share/nvim/runtime/syntax/synload.vim
         6: /usr/local/share/nvim/runtime/syntax/syncolor.vim
 
-   - use `-i NONE` to not write the ShaDa file
+   * `-i NONE` to not write the ShaDa file
+
+Or just use `--clean`.
 
 Example:
 
            vvvvvvvvvvvvvvv
     $ nvim -u NONE -i NONE -es +'set vbs=1|scriptnames|qa!'
+    ''~
+
+           vvvvvvv
+    $ nvim --clean -es +'set vbs=1|scriptnames|qa!'
     ''~
 
 ###
