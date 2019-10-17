@@ -772,7 +772,7 @@ This is because `~/.vim` was not added to the rtp by `~/.config/nvim/init.vim`.
 
 ## I install an Ex command in a plugin, but when I start Vim, it's not there!
 
-    $ vim -V15/tmp/log
+    $ vim -V16/tmp/log
     :q
     $ vim /tmp/log
     /YourCommand
@@ -1100,6 +1100,13 @@ If there's no problem with `vim -Nu NONE`, but there's one with
 another command sourcing more files, then the issue is in one of
 the files listed `:Scriptnames`.
 
+---
+
+What kind of info does the verbose level 16 give access to?
+
+<https://github.com/vim/vim/commit/4facea310c2788c88f021b262658b847381a50a8>
+
+##
 # OBSCURE
 
 :debugg[reedy]

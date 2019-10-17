@@ -1,5 +1,27 @@
 # ?
 
+Document `:unhide`.
+
+Useful to see all hidden buffers in a window.
+It only works  if you don't have  too many hidden buffers  (otherwise `E36`: not
+enough room).
+
+    $ vim -p ~/.shrc ~/.bashrc ~/.zshrc
+    :tabonly
+    :unhide
+
+Note that it doesn't work here:
+
+    $ vim ~/.shrc ~/.bashrc ~/.zshrc
+    :unhide
+
+Because even though  `~/.bashrc` and `~/.zshrc` are  not displayed, technically,
+they are not hidden buffers.
+They are just file paths in the buffer list.
+They will be loaded/created once you visit them.
+
+# ?
+
 If you have modified a file from outside Vim, you will lose its undo history.
 For example, assuming `file` is not opened in a Vim instance, if you run:
 
@@ -12,6 +34,14 @@ and if the buffer contains less than 10000 lines (see `:h 'undoreload'`).
 If that's the case, run `:e!`.
 
 <https://www.reddit.com/r/vim/comments/bnzl43/any_hacks_to_make_vim_read_undofile_when_file_is/enavpuj/>
+
+---
+
+I think you can  also recover the undo history by editing the  text so that it's
+identical to  the last time  the undo file  was saved; but  you need to  do that
+while `'undofile'` is reset.
+
+See `ex.md`, and look for `undofile`.
 
 # ?
 
@@ -34,8 +64,8 @@ But why does the cursor moves one character backward when I press `i Esc`?
 Often, you're typing at the end of the line, and there, `Esc` can only go left.
 So the general behavior is the most common behavior.
 
-    https://unix.stackexchange.com/a/11405/289772
-    https://www.reddit.com/r/vim/comments/a9zzv5/last_character_end_of_file/ecnwnln/
+- <https://unix.stackexchange.com/a/11405/289772>
+- <https://www.reddit.com/r/vim/comments/a9zzv5/last_character_end_of_file/ecnwnln/>
 
 ##
 # Démarrage

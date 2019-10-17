@@ -1698,6 +1698,9 @@ se réfère ensuite?
                     [\x00-\x7f]     rangée de caractères regroupant tous les caractères ascii (0 à 127)
                     [^\x00-\x7f]    ensemble des caractères non ascii
 
+            Question: What's the difference between that and `[[:graph:]]`?
+            Only the space character (which is absent from `[[:graph:]]`)?
+
 
     [^\x00-\xff]
 

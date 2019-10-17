@@ -98,6 +98,58 @@ Unlike the previous `append()`, the cursor moves on the 'bar' line.
 It will create 5 new lines, so that  it can replace their empty contents.
 
 ##
+# Searching text
+## My cursor is on the third line in this file:
+
+    x
+
+
+    x
+
+### What will be the output `:echo search('x', 'n', 2)`?
+
+`0`
+
+### What does it imply regarding the stopline argument?  (2)
+
+You may  have thought  that the stopline  would have no  effect, because  it was
+before the current  line, and that the  output would be `4`; but  that's not the
+case.
+
+The stopline argument is processed independently  from the current line; it does
+not mean:
+
+    "search from the current line up/down to the stopline"
+            ^^^^^^^^^^^^^^^^^^^^^
+
+but:
+
+    "ignore every line after/before the stopline"
+
+---
+
+This also implies that the flag `W` is useless with a stopline.
+Suppose you  don't use the  flag `b`; the  stopline will make  `search()` ignore
+every line after.
+As a result, `search()` can *not* reach the end of the file, and `W` is useless.
+Something similar  happens if you use  `b`; `search()` can't reach  the start of
+the file.
+
+##
+## Inside a `while` loop, which flag should I
+### always pass to `search()`?
+
+`W`
+
+Otherwise, the loop will probably never ends.
+
+### never pass to `search()`?
+
+`c`
+
+Same reason as previously.
+
+##
 # Antipatterns
 ## When can I simplify `empty(filter(...))`?
 
@@ -280,6 +332,58 @@ otherwise; as such, it can be used (alone) in the rhs of an assignment.
     let test = var == 123
     echo test
     1~
+
+##
+## How to save/restore the cursor position?
+
+Use `getcurpos()` and `setpos()`:
+
+    let pos = getcurpos()
+    ...
+    call setpos('.', pos)
+
+Do *not* use `getpos()`; it does not preserve the `curswant` number.
+
+`getpos()` is fine though if:
+
+   - you need to save the position of a mark
+   - you don't care about `curswant`, and you just need the line/column number
+
+---
+
+The help at `:h setpos()` seems contradictory.
+
+On the one hand, it says:
+
+> The "curswant" number is only used when setting the cursor
+> position.  It sets the preferred column for when moving the
+> cursor vertically.
+
+then later, it says:
+
+> This does not restore the preferred column for moving
+> vertically; if you set the cursor position with this, |j| and
+> |k| motions will jump to previous columns!  Use |cursor()| to
+> also set the preferred column.
+
+I think the second paragraph is older.
+When it was written, `setpos()` could not  set `curswant`; but now it can, hence
+the first paragraph, which was added later.
+
+Anyway, in my limited testing, `setpos()` *can* correctly set `curswant`.
+For example, run this command:
+
+    $ vim -Nu <(cat <<'EOF'
+    pu! =join(map(range(97, 122), {_,v -> nr2char(v)}), '')
+    t.
+    call setpos('.', [bufnr(), line('.'), col('.'), 0, 12])
+    norm! k
+    EOF
+    )
+
+Notice that the  `k` motion has made  the cursor move onto the  character `l` of
+the first  line of text;  this is because `setpos()`  has set `curswant`  to the
+value 12, and `l` is the 12th character on the line.
 
 ##
 ## How to get the command with which Vim was started?

@@ -377,7 +377,7 @@ This includes sth like `:echo 'msg'` and `:call input('>')`.
 I don't know any solution to this  issue, other than printing your messages from
 another function invoked before/after your opfunc, but not directly from it:
 
-        nno cd :set opfunc=Func<cr>g@_
+        nno cd :set opfunc=Func<bar>norm! g@_<cr>
         fu! Func(_)
             call FuncA()
         endfu
@@ -389,7 +389,7 @@ another function invoked before/after your opfunc, but not directly from it:
         " press `cd`
         " bar~
 
-        nno cd :set opfunc=Func<cr>g@_:call FuncA()<cr>
+        nno cd :set opfunc=Func<bar>exe 'norm! g@_'<bar>:call FuncA()<cr>
         fu! Func(_)
         endfu
         fu! FuncA() abort
@@ -549,12 +549,15 @@ Such an operator can be useful to make a custom command repeatable.
 
 # When I implement a custom operator, I often hesitate between `g@_` and `g@l`.  Which one should I use?
 
-If you're implementing a non-pseudo operator, use `g@_`.
-For a pseudo-operator, use `g@l`, unless:
+If you're *not* implementing a pseudo operator, use `g@_`.
 
-        - it needs to refer to the change marks
-          and
-        - it doesn't care about the column position of the cursor
+If you *are* implementing a pseudo-operator, use `g@l`; unless:
+
+   - it needs to refer to the change marks
+
+     and
+
+   - it doesn't care about the column position of the cursor
 
 ---
 
@@ -562,22 +565,22 @@ Rationale:
 
 If your custom operator is a pseudo one, and you implemented it like this:
 
-        nno  <key>  :<c-u>set opfunc=MyOp<cr>g@_
-                                               ^
-                                               ✘
+    nno <key> :<c-u>set opfunc=MyOp<bar>norm! g@_<cr>
+                                                ^
+                                                ✘
 
 The `_` motion will make the cursor jump at the beginning of the line, which you
 probably don't want.
 You can avoid the jump by replacing the motion `_` with `l`.
 
 
-If your custom operator is a non-pseudo operator, and you implemented like this:
+If your custom operator is *not* a pseudo operator, and you implemented like this:
 
-        nno  <key>       :set opfunc=MyOp<cr>g@
-        xno  <key>       :call MyOp('vis')<cr>
-        nno  <key><key>  :set opfunc=MyOp<bar>exe 'norm! '.v:count1.'g@l'<cr>
-                                                                       ^
-                                                                       ✘
+    nno  <key>       :set opfunc=MyOp<cr>g@
+    xno  <key>       :call MyOp('vis')<cr>
+    nno  <key><key>  :set opfunc=MyOp<bar>exe 'norm! '.v:count1.'g@l'<cr>
+                                                                   ^
+                                                                   ✘
 
 The `l` motion will  prevent Vim from setting the change marks  on the lines you
 want to change, when you press `123<key><key>`.
@@ -589,6 +592,36 @@ In the second case, it will have to use the range `.,. +(v:count1 -1)`.
 
 This introduces unneeded complexity...
 So, replace the `l` motion with `_`.
+
+## ?
+
+Document that it's probably better to run `norm! g@l` rather than pressing `g@l` directly.
+
+Why?
+Because if your opfunc invokes `input()`, you don't want your keys to be consumed.
+
+MWE:
+
+    nno cd :call Func()<cr>bbb
+    fu! Func() abort
+        call input('>')
+    endfu
+
+Press cd, and you'll see that `bbb`  has been consumed by `input()` and inserted
+on the command-line, instead of being pressed.
+But if you rewrite the mapping like this, it works as expected:
+
+    nno cd :call Func()<bar>norm! bbb<cr>
+    fu! Func() abort
+        call input('>')
+    endfu
+
+Even if your opfunc doesn't invoke `input()`  now, it may in the future (or some
+other function which triggers the same issue).
+Code defensively: always use `norm! g@l`.
+
+Update: Uh, no. `norm! g@l` is not always good.
+E.g., it would break our custom `z=`.
 
 # When should I use `g@_` to implement a pseudo-operator?
 
@@ -641,7 +674,7 @@ execution, `.` will repeat the latter.
 
 Example:
 
-        nno <silent>  \d  :<c-u>set opfunc=<sid>duplicate_and_comment<cr>g@
+        nno <silent> \d :<c-u>set opfunc=<sid>duplicate_and_comment<cr>g@
 
         fu! s:duplicate_and_comment(type)
             norm! '[y']

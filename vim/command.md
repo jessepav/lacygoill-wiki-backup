@@ -33,51 +33,51 @@ command:
 
 ## What's the output of these commands?
 
-        fu! Func(...) abort
-            for i in a:000
-                " replace a trailing whitespace with `S`
-                echo substitute(i, '\s\+$', '\=repeat("S", len(submatch(0)))', '')
-            endfor
-        endfu
+    fu! Func(...) abort
+        for i in a:000
+            " replace a trailing whitespace with `S`
+            echo substitute(i, '\s\+$', '\=repeat("S", len(submatch(0)))', '')
+        endfor
+    endfu
 
-        com! -nargs=* Cmd  call Func(<q-args>)
+    com! -nargs=* Cmd  call Func(<q-args>)
 
-        Cmd ab         ↣ 'ab' ↢
-        Cmd a\b        ↣ 'a\b' ↢
-        Cmd a\ b       ↣ 'a\ b' ↢
-        Cmd a\  b      ↣ 'a\  b' ↢
-        Cmd a\\b       ↣ 'a\\b' ↢
-        Cmd a\\ b      ↣ 'a\\ b' ↢
-        Cmd a\\\b      ↣ 'a\\\b' ↢
-        Cmd a\\\ b     ↣ 'a\\\ b' ↢
-        Cmd a\\\\b     ↣ 'a\\\\b' ↢
-        Cmd a\\\\ b    ↣ 'a\\\\ b' ↢
+    Cmd ab         ↣ 'ab' ↢
+    Cmd a\b        ↣ 'a\b' ↢
+    Cmd a\ b       ↣ 'a\ b' ↢
+    Cmd a\  b      ↣ 'a\  b' ↢
+    Cmd a\\b       ↣ 'a\\b' ↢
+    Cmd a\\ b      ↣ 'a\\ b' ↢
+    Cmd a\\\b      ↣ 'a\\\b' ↢
+    Cmd a\\\ b     ↣ 'a\\\ b' ↢
+    Cmd a\\\\b     ↣ 'a\\\\b' ↢
+    Cmd a\\\\ b    ↣ 'a\\\\ b' ↢
 
-        com! -nargs=* Cmd  call Func(<f-args>)
+    com! -nargs=* Cmd  call Func(<f-args>)
 
-        Cmd ab         ↣ 'ab' ↢
-        Cmd a\b        ↣ 'a\b' ↢
-        Cmd a\ b       ↣ 'a b' ↢
-        Cmd a\  b      ↣ 'a ', 'b' ↢
-        Cmd a\\b       ↣ 'a\b' ↢
-        Cmd a\\ b      ↣ 'a\', 'b' ↢
-        Cmd a\\\b      ↣ 'a\\b' ↢
-        Cmd a\\\ b     ↣ 'a\ b' ↢
-        Cmd a\\\\b     ↣ 'a\\b' ↢
-        Cmd a\\\\ b    ↣ 'a\\', 'b' ↢
+    Cmd ab         ↣ 'ab' ↢
+    Cmd a\b        ↣ 'a\b' ↢
+    Cmd a\ b       ↣ 'a b' ↢
+    Cmd a\  b      ↣ 'a ', 'b' ↢
+    Cmd a\\b       ↣ 'a\b' ↢
+    Cmd a\\ b      ↣ 'a\', 'b' ↢
+    Cmd a\\\b      ↣ 'a\\b' ↢
+    Cmd a\\\ b     ↣ 'a\ b' ↢
+    Cmd a\\\\b     ↣ 'a\\b' ↢
+    Cmd a\\\\ b    ↣ 'a\\', 'b' ↢
 
-        com! -bar -nargs=* Cmd  call Func(<f-args>)
+    com! -bar -nargs=* Cmd  call Func(<f-args>)
 
-        Cmd a|b         ↣ 'a'    `:b` is executed separately and has no visible effect ↢
-        Cmd a\|b        ↣ 'a|b' ↢
-        Cmd a\| b       ↣ 'a|' 'b' ↢
-        Cmd a\|  b      ↣ 'a|', 'b' ↢
-        Cmd a\\|b       ↣ 'a\|b' ↢
-        Cmd a\\| b      ↣ 'a\|', 'b' ↢
-        Cmd a\\\|b      ↣ 'a\|b' ↢
-        Cmd a\\\| b     ↣ 'a\|', 'b' ↢
-        Cmd a\\\\|b     ↣ 'a\\|b' ↢
-        Cmd a\\\\| b    ↣ 'a\\|', 'b' ↢
+    Cmd a|b         ↣ 'a'    `:b` is executed separately and has no visible effect ↢
+    Cmd a\|b        ↣ 'a|b' ↢
+    Cmd a\| b       ↣ 'a|' 'b' ↢
+    Cmd a\|  b      ↣ 'a|', 'b' ↢
+    Cmd a\\|b       ↣ 'a\|b' ↢
+    Cmd a\\| b      ↣ 'a\|', 'b' ↢
+    Cmd a\\\|b      ↣ 'a\|b' ↢
+    Cmd a\\\| b     ↣ 'a\|', 'b' ↢
+    Cmd a\\\\|b     ↣ 'a\\|b' ↢
+    Cmd a\\\\| b    ↣ 'a\\|', 'b' ↢
 
 ##
 # Custom command
@@ -355,35 +355,35 @@ file, and all the files/directories anywhere below the working directory.
 
 Use the attribute `-addr=buffers` or `-addr=windows`.
 
-        com! Test echo <line1>
-        :Test
-        line 355~
+    com! Test echo <line1>
+    :Test
+    line 355~
 
-        com! -addr=buffers Test echo <line1>
-        :Test
-        buffer 11~
+    com! -addr=buffers Test echo <line1>
+    :Test
+    buffer 11~
 
-        com! -addr=windows Test echo <line1>
-        :Test
-        window 1~
+    com! -addr=windows Test echo <line1>
+    :Test
+    window 1~
 
 In all the previous commands, the line specifier `.` was implicit (i.e. `Test` ⇔ `.Test`).
 
 Here's the full list of possible values:
 
-        ┌────────────────┬──────────────────────────────────────────────────────────┐
-        │ lines          │ default interpretation of `-addr`                        │
-        ├────────────────┼──────────────────────────────────────────────────────────┤
-        │ arguments      │ position in the arglist                                  │
-        ├────────────────┼──────────────────────────────────────────────────────────┤
-        │ buffers        │ position in the buffer list, including the unloaded ones │
-        ├────────────────┼──────────────────────────────────────────────────────────┤
-        │ loaded_buffers │ position in the buffer list, excluding "                 │
-        ├────────────────┼──────────────────────────────────────────────────────────┤
-        │ windows        │ window number                                            │
-        ├────────────────┼──────────────────────────────────────────────────────────┤
-        │ tabs           │ tabpage number                                           │
-        └────────────────┴──────────────────────────────────────────────────────────┘
+    ┌────────────────┬──────────────────────────────────────────────────────────┐
+    │ lines          │ default interpretation of `-addr`                        │
+    ├────────────────┼──────────────────────────────────────────────────────────┤
+    │ arguments      │ position in the arglist                                  │
+    ├────────────────┼──────────────────────────────────────────────────────────┤
+    │ buffers        │ position in the buffer list, including the unloaded ones │
+    ├────────────────┼──────────────────────────────────────────────────────────┤
+    │ loaded_buffers │ position in the buffer list, excluding "                 │
+    ├────────────────┼──────────────────────────────────────────────────────────┤
+    │ windows        │ window number                                            │
+    ├────────────────┼──────────────────────────────────────────────────────────┤
+    │ tabs           │ tabpage number                                           │
+    └────────────────┴──────────────────────────────────────────────────────────┘
 
 ###
 ## Escape sequences
@@ -438,97 +438,97 @@ non-trivial; `<f-args>` give it to you for free.
 
 It's replaced with nothing.
 
-        com! -nargs=* Cmd  call Func(<f-args>)
-        fu! Func(...) abort
-            echo a:000
-        endfu
+    com! -nargs=* Cmd  call Func(<f-args>)
+    fu! Func(...) abort
+        echo a:000
+    endfu
 
-        :Cmd
-        []~
+    :Cmd
+    []~
 
 ### Does `<f-args>` always split the arguments passed to a custom command at spaces and tabs?
 
 Only if your command is defined as accepting multiple arguments.
 IOW, only if you gave the attribute:
 
-        -nargs=*
-        -nargs=+
+    -nargs=*
+    -nargs=+
 
 But not with:
 
-        -nargs=1
-        -nargs=?
+    -nargs=1
+    -nargs=?
 
 MWE:
 
-        fu! Func(...) abort
-            echo a:000
-        endfu
+    fu! Func(...) abort
+        echo a:000
+    endfu
 
-        com! -nargs=* Cmd  call Func(<f-args>)
-        Cmd a b c
-        ['a', 'b', 'c']~
+    com! -nargs=* Cmd  call Func(<f-args>)
+    Cmd a b c
+    ['a', 'b', 'c']~
 
-        com! -nargs=+ Cmd  call Func(<f-args>)
-        Cmd a b c
-        ['a', 'b', 'c']~
+    com! -nargs=+ Cmd  call Func(<f-args>)
+    Cmd a b c
+    ['a', 'b', 'c']~
 
-        com! -nargs=1 Cmd  call Func(<f-args>)
-        Cmd a b c
-        ['a b c']~
+    com! -nargs=1 Cmd  call Func(<f-args>)
+    Cmd a b c
+    ['a b c']~
 
-        com! -nargs=? Cmd  call Func(<f-args>)
-        Cmd a b c
-        ['a b c']~
+    com! -nargs=? Cmd  call Func(<f-args>)
+    Cmd a b c
+    ['a b c']~
 
 ###
 ### How is `<count>` replaced if I use `-count` without any value, and I don't give a count to my command?
 
 It's replaced by `0`:
 
-        com! -count -nargs=*  Test  echo <count>
-        :Test
-        0~
+    com! -count -nargs=*  Test  echo <count>
+    :Test
+    0~
 
 ### Same question if I use `-range`?
 
 It's replaced by `-1`.
 
-        com! -range -nargs=*  Test  echo <count>
-        :Test
+    com! -range -nargs=*  Test  echo <count>
+    :Test
 
 ### How are `<line1>` and `<line2>` replaced if I use `-range` without any value, and don't pass any range?
 
 They're both replaced with the current line address:
 
-        com! -range -nargs=*  Test  echo '<line1>,<line2>'
-        :Test
+    com! -range -nargs=*  Test  echo '<line1>,<line2>'
+    :Test
 
 ### How is `<count>` replaced if I use `-count`, and pass the count `12` as a prefix, and the count `34` as a suffix?
 
 The last line specifier is used, here `34`:
 
-        com! -count -nargs=*  Test  echo <count>
-        :12Test 34
-        34~
+    com! -count -nargs=*  Test  echo <count>
+    :12Test 34
+    34~
 
-        :12,34Test 56
-        56~
+    :12,34Test 56
+    56~
 
 ##
 ### How to get the number of line specifiers used in the range of the command?
 
 Use the `<range>` escape sequence:
 
-        com! -range  Test  echo <range>
-        :Test
-        0~
+    com! -range  Test  echo <range>
+    :Test
+    0~
 
-        :12Test
-        1~
+    :12Test
+    1~
 
-        :12,34Test
-        2~
+    :12,34Test
+    2~
 
 ##
 ## Function called by the custom command
