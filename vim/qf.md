@@ -232,6 +232,11 @@ But you won't get the key `'all'` in the dictionary output.
 TODO: Aren't there other missing properties?
 Like `qfbufnr`, `filewinid`, `module`, ...
 
+---
+
+I think `filewinid` will land in Nvim once this PR is merged:
+<https://github.com/neovim/neovim/pull/11213>
+
 ##
 ## What's the 'context' property of a qfl?
 
