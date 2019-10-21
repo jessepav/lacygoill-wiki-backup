@@ -513,7 +513,12 @@ Here's what doesn't work like Vim atm:
 ---
 
 I  think we  would need  a new  variable, `#{line_toggle}`,  to detect  when the
-selection is linewise.
+selection is linewise; or try to infer it from:
+
+   - `#{selection_start_x}`
+   - `#{selection_start_y}`
+   - `#{selection_end_x}`
+   - `#{selection_end_y}`
 
 You also need  a way to get  the line address of  the first or last  line of the
 selection.
@@ -521,8 +526,7 @@ Indeed, to be  able to set the correct characterwise  selection, from a linewise
 one, you  would need  to start  a new characterwise  selection from  the current
 cursor position,  then move a  few lines up or  down (depending on  whether your
 cursor is on the first line or last line of the linewise selection).
-You should be  able to use `#{cursor_x}` and `#{cursor_y}`,  but for some reason
-they aren't updated in copy mode.
+You should be able to use `#{copy_cursor_x}` and `#{copy_cursor_y}`.
 
 ---
 

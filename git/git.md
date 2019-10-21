@@ -1583,27 +1583,27 @@ https://help.github.com/articles/using-pull-requests/
 
 Pour créer une pull request (PR) :
 
-        1. sur github, forker le projet
+   1. sur github, forker le projet
 
-        2. sur sa machine, cloner le fork localement
+   2. sur sa machine, cloner le fork localement
 
-        3. créer une nouvelle branche avec un nom adéquat : `git checkout -b my-branch` ;
-           ceci permettra de pousser automatiquement d'éventuels futurs commits par la suite
+   3. créer une nouvelle branche avec un nom adéquat : `git checkout -b my-branch` ;
+      ceci permettra de pousser automatiquement d'éventuels futurs commits par la suite
 
-        4. apporter les modifications souhaitées
+   4. apporter les modifications souhaitées
 
-        5. commit les changements avec un message clair :
+   5. commit les changements avec un message clair :
 
-               git add .
-               git commit -v
+          git add .
+          git commit -v
 
-        6. pousser vers son dépôt : `git push origin my-branch`
+   6. pousser vers son dépôt : `git push origin my-branch`
 
-        7. sur github, switcher sur la branche `my-branch`, et vérifier qu'on a bien un message du genre :
+   7. sur github, switcher sur la branche `my-branch`, et vérifier qu'on a bien un message du genre :
 
-                   This branch is 1 commit ahead of <project>:master
+              This branch is 1 commit ahead of <project>:master
 
-        8. cliquer sur le bouton `Compare` (pas sur `Compare & pull request`)
+   8. cliquer sur le bouton `Compare` (pas sur `Compare & pull request`)
 
 
 Par défaut, une pull  request est supposée cibler la branche  par défaut du repo
@@ -1646,17 +1646,17 @@ par la nouvelle via:
 
 Chaque projet peut être cloné via https ou ssh. Pour plus d'infos:
 
-        https://help.github.com/articles/which-remote-url-should-i-use/
-        https://help.github.com/articles/generating-an-ssh-key/
+- <https://help.github.com/articles/which-remote-url-should-i-use/>
+- <https://help.github.com/articles/generating-an-ssh-key/>
 
 L'avantage de ssh est de ne pas avoir besoin de fournir ses identifiants dans le
 terminal à chaque fois qu'on push / pull.
 
 Pour supprimer un dépôt (pex un fork devenu inutile):
 
-        1. sélectionner le dépôt
-        2. Settings (roue dentée; les settings du dépôt, pas ceux du profil)
-        3. Delete this repository (dans la zone rouge "Danger Zone")
+   1. sélectionner le dépôt
+   2. Settings (roue dentée; les settings du dépôt, pas ceux du profil)
+   3. Delete this repository (dans la zone rouge "Danger Zone")
 
 Pour link un passage précis dans un bout de code:
 cliquer sur le n° de la 1e ligne, shift clic sur le n° de la dernière ligne, <y>.
@@ -1677,30 +1677,32 @@ Pour ce faire cliquer sur l'icône d'edit (stylo), attribuer un message au commi
 changes`.
 
 
-        https://guides.github.com/features/issues/
+<https://guides.github.com/features/issues/>
 
 Mastering issues (10 min read)
 
 
 Pour obtenir un permalink vers une suite de lignes de code d'un repo:
 
-        - clic-gauche sur la 1e ligne
-        - Shift-clic-gauche sur la dernière ligne
-        - (optionnel) taper `S-Esc` pour désactiver temporairement Vimperator
-        - taper `y`
+   - clic-gauche sur la 1e ligne
+   - Shift-clic-gauche sur la dernière ligne
+   - (optionnel) taper `S-Esc` pour désactiver temporairement Vimperator
+   - taper `y`
 
+---
 
-        créer un repo sur github (sans readme, license, .cvsignore)
-        $ git init
-        $ git add .
-        $ git commit -m 'first commit'
-        $ git remote add origin <remote repository URL.git>
-        $ git remote -v
-        $ rlwrap git push -u origin master
+    créer un repo sur github (sans readme, license, .cvsignore)
+
+    $ git init
+    $ git add .
+    $ git commit -m 'first commit'
+    $ git remote add origin <remote repository URL.git>
+    $ git remote -v
+    $ rlwrap git push -u origin master
 
 Procédure pour envoyer un projet existant vers un nouveau repo github.
 
-        https://help.github.com/articles/adding-an-existing-project-to-github-using-the-command-line/
+<https://help.github.com/articles/adding-an-existing-project-to-github-using-the-command-line/>
 
 # Tricks
 

@@ -1557,6 +1557,20 @@ there are some qf entries, sometimes, when jumping to a qfl entry, you end up in
 an unexpected  location, which  doesn't match the  pattern which  was originally
 used to populate the qfl.
 
+## Document how `:cdo` can be used to repeat a macro on an arbitrary set of locations.
+
+    /my pattern
+    q .... q
+    :vim //gj {files}
+    :call setqflist(reverse(getqflist()))
+    :cno norm! @q
+
+You need to reverse the qfl because each  run of the `q` macro may transform the
+buffer in  such a  way that the  next locations  are no more  valid (need  to be
+updated).
+
+<https://vi.stackexchange.com/a/21579/17449>
+
 ## Document that you can set the current entry in the qfl via `setqflist()` and the 'idx' property.
 
 <https://github.com/vim/vim/pull/3701>
