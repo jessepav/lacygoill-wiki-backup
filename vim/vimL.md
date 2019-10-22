@@ -12,6 +12,198 @@
     $ python3 -m pip install --user --upgrade .
 
 ##
+# Function calls
+## I have a function call with many arguments
+### how to make it more readable?
+
+Break the arguments on multiple lines:
+
+    call Func(
+        \ arg1,
+        \ arg2,
+        \ ...
+        \ )
+
+This kind of syntax is probably portable across many other programming languages
+(C, python, ...).
+
+### how to reduce their number (knowing that some of them can be derived from a single expression)?
+
+Pass the expression from which some of the arguments can be derived, and let the
+function compute the arguments inside its body.
+
+Example:
+
+    let view = winsaveview()
+    call Func(lnum, col)
+              ^^^^^^^^^
+              2 arguments
+
+    →
+
+    let view = winsaveview()
+    call Func(view)
+              ^^^^
+              1 argument
+
+    fu! Func(view)
+        let [lnum, col] = [a:view.lnum, a:view.col]
+    endfu
+
+##
+## How to avoid
+### passing the same argument(s) in several calls to the same function?
+
+Use a partial:
+
+    fu! Func(a, b, ...)
+        if a:0
+            echom printf('received 4 arguments: %d, %d, %d, %d', a:a, a:b, a:1, a:2)
+        else
+            echom printf('received 2 arguments: %d, %d', a:a, a:b)
+        endif
+    endfu
+    let b:partial = function('Func', [1, 2])
+
+Now you can make those 2 function calls:
+
+    call b:partial()
+    call b:partial(3, 4)
+
+---
+
+Without a partial, you would had to write:
+
+    call Func(1, 2)
+    call Func(1, 2, 3, 4)
+
+Note that  we used  `b:` here to  make the example  easily reproducible,  but in
+practice,  you'll  probably make  your  function  calls  inside  the body  of  a
+function; in which  case, you can use  `l:` instead, but you  need to capitalize
+the name of the partial:
+
+    let l:Partial = function('Func', [1, 2])
+        ^^^
+
+---
+
+Analogy: Just like you can tattoo some  drawing(s) on a person, you can "tattoo"
+arguments on a function; it then becomes a partial.
+
+### passing the same arguments in several calls to different functions?
+
+Assign them to a list, and pass the latter to the function with `call()`:
+
+    let args = [1, 2, 3]
+    call call('FuncA', args)
+    call call('FuncB', args)
+    ...
+    fu! FuncA()
+        let [a, b, c] = a:000
+    endfu
+
+
+Without `call()`, you would had to write:
+
+    call FuncA(1, 2, 3)
+    call FuncB(1, 2, 3)
+    ...
+
+---
+
+Btw, `call()` is useful even if there are non-repeating arguments before/after:
+
+    let args = [1, 2, 3]
+    call call('FuncA', args + [4, 5])
+    call call('FuncB', [6, 7] + args)
+    ...
+    fu! FuncA()
+        let [a, b, c] = a:000
+    endfu
+
+---
+
+Analogy: Just like you can put several  drawings inside a packaging to send them
+to a person, you can "package" arguments in a list and pass it to a function via
+`call()`.
+
+##
+# Heredoc
+## Can I start a line with a backslash inside a heredoc?
+
+Not for the first one:
+
+    " ✘
+    let lines =<< trim END
+        \a
+        b
+        c
+    END
+    E990: Missing end marker 'ENDa'~
+
+That's because the line continuation is used before the command is parsed.
+
+If your first item needs to start with a backslash, do this:
+
+    let cpo_save = &cpo | set cpo+=C
+        let lines =<< trim END
+        \a
+        b
+        c
+    END
+    let &cpo = cpo_save
+    echo lines
+    ['\a', 'b', 'c']~
+
+Or this:
+
+    let lines =<< trim END
+        b
+        c
+    END
+    let lines = ['\a'] + lines
+    echo lines
+    ['\a', 'b', 'c']~
+
+The other lines can start with a backslash:
+
+    " ✔
+    let lines =<< trim END
+        a
+        \b
+        \c
+    END
+    echo lines
+    ['a', '\b', '\c']~
+
+## ?
+
+If I use the `trim` argument, how much leading whitespace does Vim trim?
+
+Vim uses the indentation of the assignment line where `=<<` is:
+
+    let list =<< trim END
+    xx
+      xx
+    xx
+    END
+    echo list
+    ['xx', '  xx', 'xx']~
+
+Exception: it  seems that for the  last line containing the  marker, the leading
+whitespace must match exactly the one on the first line containing `=<<`.
+Which would  explain why the assignment  fails when there are  *fewer* spaces on
+the last line than on the first line:
+
+      let list =<< trim END
+      xx
+        xx
+      xx
+    END
+      echo list
+      E990: Missing end marker 'END'~
+
+##
 # Pasting text
 ## What are the pros of using `:put =` over `append()` or `setline()`?
 
@@ -451,6 +643,16 @@ directory exists.
 
 This has an effect on the `:h` modifier, because the latter considers a trailing
 slash as a (empty) path component.
+
+##
+## When can I *not* add a comma after the last item of a list?
+
+When the list is the left operand of an assignment (`:h :let-unpack`):
+
+    let [a,b,c,] = [1,2,3]
+    "         ^
+    "         ✘
+    E475: Invalid argument: ] = [1,2,3]~
 
 ##
 # Issues

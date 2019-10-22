@@ -616,6 +616,10 @@ Ask nicm whether such a script is reliable; is it likely to break in the future?
 >            │ but it is probably unnecessary
 >       nicm │ if you don't want it to do that you can bind the Any key in the table
 
+# what's the `Any` key binding? how is it useful?
+
+<https://github.com/tmux/tmux/issues/1953#issuecomment-544356973>
+
 # try to use C-e, C-y, H, L, M more often in copy mode
 
     ┌─────┬─────────────┐
