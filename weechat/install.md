@@ -128,5 +128,5 @@ If the executable is not there, here's how you can find where it's located:
 
 # install the binary as part of a package
 
-        $ sudo rlwrap checkinstall --pkgname myweechat -y
+    $ sudo rlwrap checkinstall --pkgname myweechat -y
 

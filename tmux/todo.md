@@ -540,6 +540,8 @@ when we have a rectangle selection.
 You stay in copy  mode, and you can move your cursor wherever  you want, but the
 selection remains active.
 
+# use `#{copy_cursor_line}` and `#{copy_cursor_word}` to solve issues/implement new features
+
 # finish reading `~/Desktop/split-window_tmux.md`
 
 Copied from here:
@@ -619,6 +621,8 @@ Ask nicm whether such a script is reliable; is it likely to break in the future?
 # what's the `Any` key binding? how is it useful?
 
 <https://github.com/tmux/tmux/issues/1953#issuecomment-544356973>
+
+See `man tmux /the Any key`.
 
 # try to use C-e, C-y, H, L, M more often in copy mode
 

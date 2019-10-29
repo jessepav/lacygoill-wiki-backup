@@ -27,6 +27,26 @@ be always the case when Bram commits lots of changes in `$VIMRUNTIME`.
 
 I prefer `v8.1.0648`.
 
+---
+
+Why is it important to always set the option `--prefix` with the value `/usr/local`?
+
+If you don't, when you'll install the files obtained from the compilation, there
+is a risk you overwrite the files of an existing package installed from Ubuntu's
+repositories.
+
+Note that if you can't write in  `/usr/local`, you may also use `$HOME`:
+
+    $ ./configure --prefix=$HOME ...
+                           ^^^^^
+
+In this case, you need to make sure that `$HOME/bin` is in your `PATH`.
+
+---
+
+Instead of passing  options to `configure`, you can also  uncomment the relevant
+lines in the Makefile, before running `./configure`.
+
 ## ?
 
     $ VERSION="9:${VERSION#v}"
@@ -221,7 +241,7 @@ Case in point:
 
 You should  see that checkinstall  uses the package version  `12.34`, even
 though the weechat spec file specifies a different version (2.5 atm).
-If you remove `--spec=/dev/null`, you'll that checkinstall tries to use the
+If you remove `--spec=/dev/null`, you'll see  that checkinstall tries to use the
 garbage version `%{version}`.
 
 The fallback message comes from `/usr/bin/checkinstall:791`.
@@ -546,7 +566,7 @@ doesn't find anything anymore, and you have to restart a complete update.
 autodeb is an  experimental script that should perform the  job of both auto-apt
 and checkinstall at the same time.
 
-## learn how to create your own package (to avoid checkinstall which is too buggy)
+## learn how to create your own package (to avoid checkinstall which is a hack/too buggy)
 
 <https://wiki.debian.org/HowToPackageForDebian>
 <https://wiki.debian.org/Packaging>

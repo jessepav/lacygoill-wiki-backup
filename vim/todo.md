@@ -1,3 +1,25 @@
+# Document
+## how to squash a non-focused window
+
+    :3resize 0
+     │
+     └ window number 3
+
+The fact that `:resize` accept a prefix count, interpreted as a window number, does not seem to be documented.
+
+---
+
+Do *not* try to use `win_execute()`; it doesn't work:
+
+    vim -Nu NONE +'set wmh=0|sp|call win_execute(win_getid(2), "resize 0")'
+
+Instead:
+
+    vim -Nu NONE +'set wmh=0|sp|2resize 0'
+
+<https://github.com/vim/vim/issues/5131#issuecomment-546715292>
+
+##
 # Find a consistent design to display a scratch buffer
 ## check how plugin authors implement one
 

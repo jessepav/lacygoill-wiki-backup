@@ -360,7 +360,7 @@ Note somewhere that we should remove these lines:
 ... from `~/Vcs/st/Makefile`.
 
 This should be done automatically (with `sed(1)`), so we need to use a script.
-Maybe use `upp.sh`.
+Maybe use `upp`.
 
 ---
 

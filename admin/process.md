@@ -387,17 +387,17 @@ This shows that when you exit a shell, the latter sends SIGHUP to all its childr
 
 ---
 
-    systemd(1)---lightdm(980)---lightdm(1086)---upstart(1096)---sh(6583)---run-or-raise.sh(6584)---firefox(6586)...
+    systemd(1)---lightdm(980)---lightdm(1086)---upstart(1096)---sh(6583)---run-or-raise(6584)---firefox(6586)...
                                                                 │          │
-                                                                │          └ /bin/bash ~/bin/run-or-raise.sh firefox
+                                                                │          └ /bin/bash ~/bin/run-or-raise firefox
                                                                 │
-                                                                └ sh -c ~/bin/run-or-raise.sh firefox
+                                                                └ sh -c ~/bin/run-or-raise firefox
 
-    systemd(1)---lightdm(980)---lightdm(1086)---upstart(1096)---sh(2426)---run-or-raise.sh(2427)---urxvt(2429)-+-urxvt(2430)
+    systemd(1)---lightdm(980)---lightdm(1086)---upstart(1096)---sh(2426)---run-or-raise(2427)---urxvt(2429)-+-urxvt(2430)
                                                                 │          │
-                                                                │          └ /bin/bash /home/user/bin/run-or-raise.sh urxvt
+                                                                │          └ /bin/bash /home/user/bin/run-or-raise urxvt
                                                                 │
-                                                                └ sh -c ${HOME}/bin/run-or-raise.sh urxvt
+                                                                └ sh -c ${HOME}/bin/run-or-raise urxvt
 
 ---
 
@@ -643,8 +643,8 @@ From `man 2 wait`:
 
 ---
 
-Document  that  `~/bin/signals_disposition.sh`  is  useful to  check  whether  a
-process is blocking `CHLD`, which can explain why it has zombies.
+Document that `~/bin/signals-disposition`  is useful to check  whether a process
+is blocking `CHLD`, which can explain why it has zombies.
 And that  more generally, `/proc/PID/status` contains  a lot of useful  info for
 debugging an issue.
 

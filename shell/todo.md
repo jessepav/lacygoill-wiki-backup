@@ -62,7 +62,7 @@ set by default to 0.
 Then, write `printf`  statements in the most useful locations,  to get debugging
 info.
 Guard those statements by checking the value of `DEBUG`.
-Have a look at what we did in upp.sh.
+Have a look at what we did in upp.
 
 ---
 
@@ -149,16 +149,16 @@ Read: <http://www.kfirlavi.com/blog/2012/11/14/defensive-bash-programming/>
 
 ## Make sure to never abuse the `local` keyword.
 
-Remember the issue we had created in `gifrec.sh`.
+Remember the issue we had created in `gifrec`.
 Note that  the variables set  by a script should  not affect the  current shell,
 because the script is executed in a subshell.
 So, is it recommended to use `local` in the functions of a script?
 
 Update:
 The google style guide recommends to always use them.
-Maybe  we should  re-use `local`  in `gifrec.sh`,  and pass  the variables  as
+Maybe  we should  re-use `local`  in `gifrec`,  and pass  the variables  as
 arguments between functions...
-What about `VERSION` inside `upp.sh`? Should we make this variable local?
+What about `VERSION` inside `upp`? Should we make this variable local?
 
 Update:
 These variables are indeed in a function, but they don't have to.

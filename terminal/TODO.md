@@ -169,6 +169,8 @@ la screen(1) or ssh(1).
 
 Now let's take a step back and see how all of this fits into the process model.
 
+# Read <http://catern.com/posts/terminal_quirks.html>
+
 # Document how to set TERM in gnome-terminal, and find a way to back up the config
 
     Edit

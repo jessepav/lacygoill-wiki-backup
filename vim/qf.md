@@ -230,12 +230,7 @@ But you won't get the key `'all'` in the dictionary output.
    - changedtick
 
 TODO: Aren't there other missing properties?
-Like `qfbufnr`, `filewinid`, `module`, ...
-
----
-
-I think `filewinid` will land in Nvim once this PR is merged:
-<https://github.com/neovim/neovim/pull/11213>
+Like `qfbufnr`, `module`, ...
 
 ##
 ## What's the 'context' property of a qfl?
@@ -1591,12 +1586,6 @@ Source: <https://www.reddit.com/r/vim/comments/d7vdbk/erroformat_playground/>
 ## Talk about the 'filewinid' property of a location window.
 
 See `:h getloclist()`.
-See also one of our TO DO in:
-
-        ~/.vim/plugged/vim-lg-lib/autoload/lg/window.vim
-
-'filewinid' can  help simplify the  code which  is responsible for  focusing the
-window associated to the current location window when we press `z[`.
 
 ## If I remove `tee`  from 'sp', the output of the shell  command is still echoed...
 to the screen, when I execute `:grep! pat /etc`. Why?

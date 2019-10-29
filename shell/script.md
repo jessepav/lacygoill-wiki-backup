@@ -289,6 +289,7 @@ For more info, see:
 - <https://unix.stackexchange.com/a/204572/289772>
 - <https://unix.stackexchange.com/a/202352/289772>
 
+###
 ### a command exists on my system?
 
         if command -v "${cmd}" >/dev/null 2>&1; then
@@ -328,6 +329,44 @@ Why doesn't `setopt no_aliases` work?
         [[ -z "${DISPLAY}" ]]
         [[ "$(tty)" == *pts* ]]
         [[ "${TERM}" == linux ]]
+
+### a running script has root privileges?
+
+    check_we_are_root() {
+      # 0 is the EUID of the root user.
+      if [[ "${EUID}" -ne 0 ]]; then
+        cat <<EOF >&2
+    Please run as root:
+        sudo "$0"
+    EOF
+        # 77 = not sufficient permission
+        exit 77
+      fi
+    }
+
+    check_we_are_root
+
+---
+
+If you have a  `main` function and you redirect its output in  a log file, don't
+call `check_we_are_root` from it; call it from outside, before:
+
+    check_we_are_root
+    main "$1" 2>&1 | tee -a "${LOGFILE}"
+
+Rationale:
+
+Suppose the script process has no root privileges, but the logfile is owned by root.
+If you write this:
+
+    main() {
+      check_we_are_root
+      ...
+    }
+    main "$1" 2>&1 | tee -a "${LOGFILE}"
+
+`tee` will report an error *before*  `check_we_are_root` tells us to restart the
+script as root; this is noise.
 
 ##
 # Loop

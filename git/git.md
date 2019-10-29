@@ -1955,6 +1955,8 @@ références peuvent être déplacées librement.
         https://blog.jez.io/cli-code-review/
         https://www.conventionalcommits.org/
         https://raw.githubusercontent.com/git/git/master/Documentation/howto/revert-a-faulty-merge.txt
+        https://jwiegley.github.io/git-from-the-bottom-up/
+        https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow
 
         https://jonas.github.io/tig/doc/manual.html
         man tig

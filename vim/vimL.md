@@ -176,32 +176,38 @@ The other lines can start with a backslash:
     echo lines
     ['a', '\b', '\c']~
 
-## ?
+## If I use the `trim` argument, how much leading whitespace does Vim trim?
 
-If I use the `trim` argument, how much leading whitespace does Vim trim?
-
-Vim uses the indentation of the assignment line where `=<<` is:
+Vim trims any leading whitespace matching the indentation of the first non-empty
+(`!~ '^$'`) text line inside the heredoc:
 
     let list =<< trim END
-    xx
       xx
     xx
+        xx
     END
     echo list
-    ['xx', '  xx', 'xx']~
+    ['xx', 'xx', '  xx']~
+                  ^^
+                  there were 4 spaces initially,
+                  but 2 were trimmed because there were 2 on the first text line
 
-Exception: it  seems that for the  last line containing the  marker, the leading
-whitespace must match exactly the one on the first line containing `=<<`.
-Which would  explain why the assignment  fails when there are  *fewer* spaces on
-the last line than on the first line:
+Note that Vim makes a distinction between tabs and spaces.
 
-      let list =<< trim END
-      xx
-        xx
-      xx
-    END
-      echo list
-      E990: Missing end marker 'END'~
+---
+
+Exception: on the last line containing the  marker, Vim trims only a sequence of
+leading whitespace if it matches *exactly* the one on the line containing `=<<`.
+IOW, there must not be less *or more* whitespace.
+This explains why the assignment fails when there are *fewer* spaces on the last
+line than on the first line:
+
+        let list =<< trim END
+    2 spaces below
+    vv
+      END
+        echo list
+        E990: Missing end marker 'END'~
 
 ##
 # Pasting text

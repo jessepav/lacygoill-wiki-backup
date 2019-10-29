@@ -649,7 +649,17 @@ Instead of relying on `$ git log` to  search when did a line of code appear, and
 why, you could stay in Vim and  make the commit message – introducing the change
 – be printed in a preview (Vim) / popup (Nvim) window.
 
+---
+
 Alternatively, use `:Gblame` and press O.
+
+Or try one of these `:GB` commands:
+
+    command! -range GB echo join(systemlist("git -C " . shellescape(expand('%:p:h')) . " blame -L <line1>,<line2> " . expand('%')), "\n")
+
+    command! -range GB echo substitute(join(systemlist("git -C " . shellescape(expand('%:p:h')) . " blame -L <line1>,<line2> " . expand('%')), "\n"), '^\([a-z0-9]\+\)[^)]\+\zs) .*$', '\=") " . system("git log -1 --pretty=%s " . submatch(1))', '')
+
+Source: <https://www.reddit.com/r/vim/comments/dmi2qo/display_commit_message_for_line_in_file/f5168y8/>
 
 ## gitgutter    signify
 

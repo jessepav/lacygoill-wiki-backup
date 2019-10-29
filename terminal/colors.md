@@ -711,8 +711,8 @@ comparisons to do.
 
 ---
 
-Alternatively, use `~/bin/is_it_in_the_palette.sh`, but be aware of the
-limitations of this script; they're documented at the top of the file.
+Alternatively, use `~/bin/is-it-in-the-palette`, but be aware of the limitations
+of this script; they're documented at the top of the file.
 
 ##
 ## I'm trying to combine the color black with the bold attribute.  I get some light grey!

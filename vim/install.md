@@ -1,83 +1,73 @@
-# Vim
+# Compiling Vim
+## install dependencies
 
-On peut aussi compiler Vim depuis les sources avec toutes les options désirées.
-Procédure décrite dans `:h 90.1`.
+Find the section of the repo from where the default Vim binary can be installed:
 
-    sudoedit /etc/apt/sources.list
+    $ apt-cache policy vim
 
-            Dupliquer la 1e ligne correspondant au dépôt à partir duquel on peut installer Vim.
-            Elle peut ressembler à:
+For example, on Ubuntu 16.04, the default Vim binary can be installed from `xenial/main`:
 
-                    deb http://ch.archive.ubuntu.com/ubuntu/ saucy main restricted
+    2:7.4.1689-3ubuntu1 500
+       500 http://fr.archive.ubuntu.com/ubuntu xenial/main amd64 Packages
+                                               ^^^^^^^^^^^
+                                               relevant section
 
+Backup `sources.list`:
 
-            Pour trouver la bonne ligne, on peut faire un `apt-cache policy …`, pour voir quels dépôts
-            contiennent Vim. Sur la ligne dupliquée, remplacer `deb` par `deb-src`.
+    $ sudo cp /etc/apt/sources.list /etc/apt/sources.list.backup
 
-            Cette nouvelle ligne ajoute des dépôts contenant le code source des paquets binaires
-            présents dans les dépôts de la ligne précédente.
+Edit the file, so that you can download the source code of the default Vim binary:
 
-            Si on a peur de faire une erreur dans ce fichier sensible, on peut faire un backup du
-            fichier avant:
+    $ sudoedit /etc/apt/sources.list
+    /deb-src.*xenial main
+    " press `gcc` to uncomment the line
 
-                    sudo cp /etc/apt/sources.list /etc/apt/sources.list.backup
+If you can't find  a line matching `deb-src.*xenial main`, just  look for a line
+matching `deb.*xenial main`, duplicate it, and replace `deb` with `deb-src`.
 
-            Pour + d'infos:
+You should end up with a line such as:
 
-                    https://help.ubuntu.com/community/Repositories/CommandLine
+    deb-src http://fr.archive.ubuntu.com/ubuntu/ xenial main restricted
 
+Download the source code of the default Vim binary:
 
-    sudo aptitude update
+    $ sudo aptitude update
 
-            Dl le code source présent dans le dépôt nouvellement ajouté.
+Install the default Vim's binary dependencies:
 
+    $ sudo aptitude build-dep vim
 
-    sudo aptitude build-dep vim
+---
 
-            Installer les dépendances nécessaires à la compilation d'un binaire vim.
+Install the dependencies necessary to compile the lua interface:
 
+    $ sudo aptitude install luajit libluajit-5.1-dev
 
-    sudo aptitude install luajit libluajit-5.1-dev
+Later, you can check the lua interface has been compiled by running:
 
-            Installation des dépendances nécessaires pour que l'interface lua utilise luajit:
+    :echo has('lua')
+    1~
+    :echo &luadll
+    libluajit-5.1.so.2~
 
-                    :echo &luadll
-                    luadll=libluajit-5.1.so.2~
+## get the source code
 
+    $ git clone https://github.com/vim/vim.git
+    $ cd vim
+    $ make clean; make distclean
+    $ git checkout master
+    $ git pull
 
-                                               NOTE:
-
-            En cas de pb pour activer l'interface lua pendant la compilation de Vim, jeter un oeil
-            au buildlog de pi-rho (pour trouver des dépendances manquantes ou des options à activer/configurer):
-
-                    curl --compressed -Lo buildlog.txt.gz \
-                    https://launchpad.net/~pi-rho/+archive/ubuntu/dev/+build/11804831/+files/buildlog_ubuntu-xenial-amd64.vim_2%3A8.0.0134-1ubuntu1~ppa1~x_BUILDING.txt.gz
-
-                    vim buildlog.txt.gz
-
-
-    git clone https://github.com/vim/vim.git
-    cd vim
-    make clean; make distclean
-    git checkout master
-    git pull
-    cd src
-
-            `make clean; make distclean` n'est nécessaire que si a déjà compilé Vim dans le passé.
-            Entre autres, elle supprime le binaire vim produit localement dans src/.
-
-            `git pull` permet de mettre à jour le code source.
-
+##
+##configure the compilation
 
     ./configure --enable-cscope \
                 --enable-fail-if-missing \
                 --enable-gui=gtk2 \
                 --enable-luainterp=dynamic \
                 --enable-multibyte \
-                --enable-perlinterp=yes \
                 --enable-python3interp=yes \
                 --enable-pythoninterp=yes \
-                --enable-rubyinterp=dynamic \
                 --enable-terminal \
                 --prefix=/usr/local \
                 --with-compiledby=user \
@@ -86,251 +76,162 @@ Procédure décrite dans `:h 90.1`.
                 --with-python-config-dir=/usr/lib/python2.7/config-x86_64-linux-gnu/ \
                 --with-python3-config-dir=/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu/
 
-            NE PAS copier-coller cette commande directement dans le shell mais dans Vim, via
-            `fc` ou `C-x C-e`. Ce faisant, on pourra plus facilement y apporter des modifications,
-            et notamment changer les chemins vers les dossiers de configuration Python.
+### Why should I avoid the perl and ruby interfaces?
 
-            Si on veut annuler la commande, quitter Vim en tapant `:cq[uit]`.
-            `:cq` se terminera avec un code d'erreur, et ce faisant le shell n'exécutera pas le
-            contenu du buffer.
+First, you probably don't need them; I  have never found a plugin which requires
+the ruby or perl interface to work.
 
-            Ces options ont été trouvées à cette url:
+Second, the less code, the less bugs.
 
-                    https://github.com/Valloric/YouCompleteMe/wiki/Building-Vim-from-source
+---
 
-            On peut ajouter d'autres options.
-            Pour voir les options dispo, taper `./configure --help`.
+If yoy really need them, pass these options to `configure`:
 
-            On peut aussi exécuter `:h :ve`.
-            L'aide affiche les différentes options dispo, et pour chacune d'elles la version minimale
-            dans laquelle elle est incluse (si elle est dispo via `--with-features=xxx`) via un flag:
+    --enable-perlinterp=yes
+    --enable-rubyinterp=dynamic
 
-                    T   tiny
-                    S   small
-                    N   normal
-                    B   big
-                    H   huge
-                    m   manually enabled or depends on other features
+### How can I get the list of all possible `configure` options?
 
-            On pourrait aussi décommenter les options désirées dans le fichier Makefile
-            avant de taper ./configure.
+    ./configure --help
 
-            En ajoutant l'option `--with-features=huge`, on s'assure d'avoir le support de toutes les
-            fonctionnalités précédées d'un flag qcq à l'exception de `m` (`T`, `S`, `N`, `B`, `H`).
+###
+### What is the effect of
+#### `--with-features=huge`?
 
-                    --enable-multibyte
+Enable all the  features documented at `:h +feature-list` which  are prefixed by
+the flag `T`, `S`, `N`, `B` or `H`.
 
-                            Ajoute le support des caractères multioctets (16 et 32 bits).
+See `:h :ve` for the meaning of these flags.
 
-                    --enable-luainterp=dynamic
-                    --enable-perlinterp=yes
-                    --enable-pythoninterp=yes
-                    --enable-python3interp=yes
-                    --enable-rubyinterp=yes
+####
+#### `--enable-luainterp=dynamic`, `--enable-pythoninterp=yes`, `--enable-python3interp=yes`?
 
-                            Ajoute les interfaces lua/perl/python2/python3/ruby permettant d'utiliser
-                            des plugins écrits dans ces langages.
+Enable the lua/perl/python[23] interfaces.
+See `:h if_lua` and `:h if_pyth`.
 
+#### `--enable-fail-if-missing`?
 
-                    --enable-fail-if-missing
+Make the configuration script stop if it finds that an interface won't work.
 
-                            Demande au script de configuration de s'arrêter s'il rencontre un problème
-                            avec une interface.
+####
+#### `--enable-gui=gtk2`?
 
+According to `:h gui-x11-compiling`, it's not necessary, because it's enabled by
+default:
 
-                    --with-python-config-dir=/usr/lib/python2.7/config-x86_64-linux-gnu/
+> The GTK+ 2 GUI is built by default. Therefore, you usually don't
+> need to pass any options  such as --enable-gui=gtk2 to configure
+> and build that.
 
-                            Configure le chemin vers le dossier de configuration de Python 2.7.
+Nevertheless, better be explicit.
 
-                            Compléter ou changer si besoin ce chemin, en utilisant la complétion `C-x C-f`.
-                            Pour ce faire, introduire temporairement un espace après le symbole `=`.
-                            Si la complétion `C-x C-f` ne donne rien, supprimer la dernière partie du chemin,
-                            et retenter une complétion, pour que Vim nous propose des suggestions valides.
+In particular, we don't want to use gtk3, because the latter can increase the latency.
 
-                    --with-python3-config-dir=/usr/lib/python3.4/config-3.4m-x86_64-linux-gnu/
+> We can also  note that Vim using GTK3 is slower  than its GTK2 counterpart
+> by  an order  of magnitude. It  might therefore  be possible  that the  GTK3
+> framework  introduces extra  latency,  as  we can  also  observe other  that
+> GTK3-based terminals  (Terminator, Xfce4  Terminal, and GNOME  Terminal, for
+> example) have higher latency.
 
-                            Même chose que précédemment.
+Source: <https://lwn.net/Articles/751763/>
 
-                    --with-compiledby=user
+I can confirm what the article states.
+In my limited testing with typometer, the latency doubles after compiling with gtk3.
 
-                            Qd on exécutera `:version`, la ligne `Compiled by` affichera le nom `user`.
+#### `--enable-multibyte`?
 
-                    --enable-gui=gtk2
+Add support for multibyte characters (16 and 32 bits).
 
-                            Selon l'aide (`:h gui-x11-compiling`), cette option n'est pas nécessaire
-                            car elle est activée par défaut:
+#### `--with-compiledby=user`?
 
-                                    The GTK+ 2 GUI is built by default. Therefore, you usually don't
-                                    need to pass any options  such as --enable-gui=gtk2 to configure
-                                    and build that.
+Display `user` on the `Compiled by` line in the output of `:version`.
 
-                            Si on utilise le serveur graphique X11, lors de la configuration, Vim
-                            cherchera par ordre de priorité, les fichiers de la librairie graphique:
+###
+## compile
 
-                                    - GTK+ 2/GTK+ 3
-                                    - Motif
-                                    - Athena
+    $ make
 
-                            Si GTK+ 2 et GTK+ 3 sont installés, GTK+ 2 sera choisi en priorité, à moins qu'on
-                            demande explicitement GTK+ 3 via l'option `--enable-gui=gtk3`.
+### Where is the newly compiled binary?
 
-                            Si on veut utiliser GTK+, le processus de configuration de Vim utilisera
-                            `pkg-config` pour vérifier que la librairie GTK+ demandée est correctement
-                            installée et utilisable.
-                            Avant de lancer `./configure`, il vaut donc mieux vérifier que ce pgm est installé:
+    ./src/vim
 
-                                    pkg-config --modversion gtk+-2.0
-                                    OU
-                                    pkg-config --modversion gtk+-3.0
+#### How to test it?
 
-                            Si on obtient en sortie la version correcte de notre librairie GTK+,
-                            on peut continuer. Autrement, il faudra installer/configurer `pkg-config` et GTK+.
+    $ make test
 
-                            Si on veut utiliser GTK+ 2, il faut installer une version supérieure à 2.2.
-                            Si on veut utiliser GTK+ 3, l'aide recommende d'installer une version supérieure
-                            à 3.10:
+Once all tests have been run,scroll back in the output until you find `Test results`.
+A bit later, you should find sth like:
 
-                                    we  recommend GTK+  3.10  or later  because  of its  substantial
-                                    implementation changes in redraw done at that version.
+    Executed: 2313 tests
+     Skipped:   20 tests
+      Failed:    0 test
 
-                    --prefix=/usr/local
+    ALL DONE
 
-                            Les fichiers seront installés à l'intérieur de `/usr/local`.
-                            Si on n'a pas les droits suffisants pour y installer des fichiers,
-                            on peut remplacer `/usr/local` par un autre dossier tq `$HOME`.
+If only a few tests fail, Vim can still work, but not perfectly.
+If  many tests  fail,  or Vim  can't  even run  all the  tests,  you'll need  to
+re-compile; this  time try to  change the configuration, or  install/configure a
+missing dependency.
 
-                                    ./configure … --prefix=$HOME
+---
 
-                            Dans ce cas, il faut vérifier que le chemin `$HOME/bin` est présent
-                            dans la variable d'environnement `$PATH`.
-                            Si besoin, on peut modifier sa valeur dans `~/.profile`.
+For a maximum of tests to succeed, run them:
 
-                            Pour + d'infos:
+   - outside tmux
+   - in xterm
+   - with a "standard" geometry (24x80)
 
-                                    http://askubuntu.com/a/60221
-                                    http://mywiki.wooledge.org/DotFiles
+#### ?
 
+How to install it?
 
-                            Cette option est très importante si on veut pouvoir utiliser plusieurs Vim.
-                            En effet, un Vim installé depuis les dépôts de la distrib utilisera
-                            `/usr/share/vim` pour tous ses fichiers runtime.
-                            Si on ne configure pas `--prefix`, qd on voudra installer notre Vim compilé,
-                            il tentera lui-aussi d'utiliser `/usr/share/vim`, et `checkinstall` échouera
-                            car il ne pourra pas écraser des fichiers système existants.
+    $ sudo checkinstall
 
-                            C'est pour éviter ce genre de problème qu'il faut toujours installer des programmes
-                            compilés dans `/usr/local`.
+Si on n'a pas `checkinstall`, exécuter `sudo make install` à la place.
 
+La procédure d'installation nous posera qques questions.
 
-    make
-    make test
+Lorsqu'un menu apparaîtra, on pensera à changer la valeur de l'entrée 2, dont le
+nom est 'Name'.
+Le nom  qu'on donnera au paquet  (par défaut `src`,  car on est dans  un dossier
+`src`), sera celui qu'il faudra utiliser qd on voudra manipuler le paquet par la
+suite via `dpkg`.
 
-            Lancer la compilation. Puis, tester le binaire généré.
+On pourra aussi changer la valeur des entrées 0, 1 et 11:
 
-            Au terme de la compilation, le binaire `src/vim` devrait être créé.
-            `make test` permet de vérifier qu'elle s'est bien passée.
+   - 0 (Maintainer: donner son email)
+   - 1 (Summary: VIM compiled from source)
+   - 2 (Name: myvim)
+   - 11 (Provides: editor)
 
-            La procédure de vérification consiste en une séquence de scripts chargés de tester
-            que Vim fonctionne correctement.
-            Vim démarrera de nombreuses fois, et différents types de textes et messages apparaîtront
-            et disparaîtront rapidement.
+Il  est important  de ne  pas utiliser  le nom  `vim` pour  notre paquet,  si on
+souhaite installer et utiliser en parallèle le paquet `vim` des repos officiels.
+Autrement  il y  aura  conflit, et  qd  on fera  une màj,  le  paquet des  repos
+supprimera notre paquet.
 
-            Si la compilation s'est bien passée, à la fin des tests, en scrollant en arrière
-            pour relire les messages passés, on devrait voir qques pages en arrière, un message tq:
+---
 
-                    Executed 224 tests
-                    Test results:
-                    ALL DONE
-
-            Si on obtient au contraire le message:
-
-                    TEST FAILURE
-
-            … ça signifie qu'au moins un test a échoué.
-            S'il n'y a qu'un ou 2 messages à propos de tests échoués, Vim peut fonctionner, mais pas
-            parfaitement.
-            S'il y a bcp de messages d'erreur, ou que Vim n'arrive même pas à finir tous les tests,
-            il faut recommencer la compilation en essayant de changer qch (installer/configurer un
-            paquet, changer la configuration avant la compilation), ou chercher de l'aide sur internet.
-
-            Pour qu'un maximum de tests réussissent, exécuter la commande en-dehors de tmux, dans un terminal
-            en plein écran (un terminal trop petit peut empêcher certains scripts de se lancer).
-
-
-    ./vim
-    :version
-    :echo has('lua')
-    :echo has('perl')
-    :echo has('python2')
-    :echo has('python3')
-    :echo has('ruby')
-
-            Lance le binaire vim et vérifie qu'on a la bonne version de Vim, et qu'on a le support
-            des interfaces pour les langages de script désirés.
-
-
-    sudo aptitude install checkinstall
-
-            Installer le paquet `checkinstall`.
-
-            Il s'agit d'un pgm qui surveille une procédure d'installation (tq `make install`)
-            et crée un paquet standard adapté à notre distribution. Il supporte entre autre les formats
-            deb et rpm, pour les distros basés sur resp. debian et RHEL.
-
-            On peut ensuite installer et supprimer ce paquet via notre gestionnaire de paquets système
-            (dpkg pour debian).
-
-            On utilisera `checkinstall` pour pouvoir supprimer plus facilement Vim plus tard.
-
-
-    sudo checkinstall
-
-            Installe Vim.
-
-            Si on n'a pas `checkinstall`, exécuter `sudo make install` à la place.
-
-            La procédure d'installation nous posera qques questions.
-
-            Lorsqu'un menu apparaîtra, on pensera à changer la valeur de l'entrée 2, dont le nom
-            est 'Name'. Le nom qu'on donnera au paquet (par défaut `src`, car on est dans un dossier `src`),
-            sera celui qu'il faudra utiliser qd on voudra manipuler le paquet par la suite via `dpkg`.
-
-            On pourra aussi changer la valeur des entrées 0, 1 et 11:
-
-                    - 0 (Maintainer: donner son email)
-                    - 1 (Summary: VIM compiled from source)
-                    - 2 (Name: myvim)
-                    - 11 (Provides: editor)
-
-            Il est important de ne pas utiliser le nom `vim` pour notre paquet, si on souhaite installer
-            et utiliser en parallèle le paquet `vim` des repos officiels.
-            Autrement il y aura conflit, et qd on fera une màj, le paquet des repos supprimera notre paquet.
+finish importing comments from `~/bin/upp`.
 
 ##
-# Neovim
-## How to install Neovim via a PPA?
+## For more info:
 
-        $ sudo add-apt-repository ppa:neovim-ppa/stable
-        $ sudo aptitude update
-        $ sudo aptitude install neovim
-
-Source:
-
-        https://launchpad.net/%7Eneovim-ppa/+archive/ubuntu/stable
+- `:h 90.1`
+- <https://github.com/Valloric/YouCompleteMe/wiki/Building-Vim-from-source>
 
 ##
-## How to compile Neovim
-### documentation
+# Compiling Neovim
+## documentation
 
 <https://github.com/neovim/neovim/wiki/Building-Neovim>
 
-### install dependencies
+## install dependencies
 
     $ sudo aptitude install libtool libtool-bin autoconf automake cmake g++ pkg-config unzip
 
 Source: <https://github.com/neovim/neovim/wiki/Building-Neovim#build-prerequisites>
 
-### clone and update the Neovim repo
+## clone and update the Neovim repo
 
     $ git clone https://github.com/neovim/neovim
 
@@ -338,13 +239,13 @@ Source: <https://github.com/neovim/neovim/wiki/Building-Neovim#build-prerequisit
 
     $ git pull
 
-### clean the repo from the files generated during the previous compilation
+## clean the repo from the files generated during the previous compilation
 
     $ make clean && make distclean
                          │
                          └ removes, among other things, the `build/` directory
 
-### compile
+## compile
 
     $ make CMAKE_BUILD_TYPE=Release
            ├──────────────────────┘
@@ -361,11 +262,11 @@ nvim ever crashes, you can still get a backtrace.
 If a network connection fails during the compilation, the latter will also fail.
 In that case, re-try a compilation (now or a bit later).
 
-### check the version of the binary you've just compiled
+## check the version of the binary you've just compiled
 
     $ ./build/bin/nvim --version | grep ^Build
 
-### test it
+## test it
 
     $ LC_ALL=C make test
     $ make oldtest
@@ -374,17 +275,18 @@ The second command executes the Vim tests.
 They need to be performed in a fullscreen terminal.
 If you use Tmux, run the command in an unsplit window, or in zoomed pane.
 
-### install it
+## ?
+
+install it
 
     $ sudo checkinstall --pkgname "nvim" --pkgversion "$(git describe)" --spec /dev/null -y
 
 ---
 
-If the installation fails.
-Try to recompile:
+If the installation fails, try to recompile:
 
-<https://github.com/neovim/neovim/issues/2364#issuecomment-113966180>
-<https://github.com/serverwentdown/env/commit/a05a31733443fcb0979fecf18f2aa8e9e2722c7c>
+- <https://github.com/neovim/neovim/issues/2364#issuecomment-113966180>
+- <https://github.com/serverwentdown/env/commit/a05a31733443fcb0979fecf18f2aa8e9e2722c7c>
 
 Note that there may be a performance cost if you disable jemalloc, I don't know.
 See here to understand what jemalloc is:
@@ -399,13 +301,48 @@ Alternatively, you  could try  to pass  an option to  checkinstall, and  make it
 generate a deb without installing it.
 Then, you could try to force its installation with `dpkg` and the right options.
 
-### UNinstall it (optional)
+---
+
+    # If this command fails for Nvim
+
+    #     checkinstall --pkgname="${PGM}" --pkgversion="${VERSION}" --spec=/dev/null --backup=no -y
+
+    # try to recompile and replace:
+    #
+    #     $ make CMAKE_BUILD_TYPE=Release
+    #
+    # With:
+    #
+    #     $ make CMAKE_BUILD_TYPE=Release CMAKE_EXTRA_FLAGS=-DENABLE_JEMALLOC=OFF
+    #
+    # See:
+    # https://github.com/neovim/neovim/issues/2364#issuecomment-113966180
+    # https://github.com/serverwentdown/env/commit/a05a31733443fcb0979fecf18f2aa8e9e2722c7c
+    #
+    # Note that I  don't know whether there's a performance  cost if you disable
+    # jemalloc.
+    #
+    # See here to understand what jemalloc is:
+    # https://stackoverflow.com/a/1624744/9780968
+    #
+    # Note that Nvim is multi-threaded:
+    # > `thread apply all bt` may be necessary because **Neovim is multi-threaded**.
+    #
+    # Source: https://github.com/neovim/neovim/wiki/Development-tips/fd1582128edb0130c1d5c828a3a9b55aa9107030
+    #
+    # ---
+    #
+    # Alternatively, you  could try  to pass  an option to  checkinstall, and  make it
+    # generate a deb without installing it.
+    # Then, you could try to force its installation with `dpkg` and the right options.
+
+## UNinstall it (optional)
 
     $ sudo rm /usr/local/bin/nvim
 
     $ sudo rm -r /usr/local/share/nvim/
 
-### ?
+## ?
 
 python integration
 
@@ -532,7 +469,7 @@ Or, use `pip` behind a proxy:
 
 Source: <https://stackoverflow.com/a/19962913/9780968>
 
-### ?
+## ?
 
     ## Ruby provider (optional)~
       - INFO: Ruby: ruby 2.3.1p112 (2016-04-26) [x86_64-linux-gnu]~
@@ -558,7 +495,7 @@ Source: <https://stackoverflow.com/a/19962913/9780968>
     # choose a proxy supporting http*s* from here: <https://www.us-proxy.org/>
     $ https_proxy=<ip>:<port> gem install --user-install neovim
 
-### ?
+## ?
 
     $ sudo update-alternatives --install /usr/bin/vi vi /usr/bin/nvim 60
     $ sudo update-alternatives --config vi
@@ -569,7 +506,7 @@ Source: <https://stackoverflow.com/a/19962913/9780968>
 
 Use Neovim for some (or all) of the editor alternatives.
 
-### ?
+## ?
 
 <https://github.com/mhinz/neovim-remote>
 <https://hkupty.github.io/2016/Ditching-TMUX/>

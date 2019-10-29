@@ -2058,7 +2058,7 @@ For   more  info   about   the  difference   between  `GRUB_CMDLINE_LINUX`   and
 <https://www.youtube.com/watch?v=tY9GYsoxeLg>
 <https://www.youtube.com/watch?v=V0xoCA_qO58>
 
-## try to install an xbindkeys service, and a `keyboard_setup.sh` service
+## try to install an xbindkeys service, and a `keyboard_setup` service
 
 We could ask it to reload its config.
 This  would  be  useful  to  reload the  config  of  xbindkeys  after  modifying
@@ -2089,7 +2089,7 @@ First, we should not need to explicitly tell which display to use (`-X :0.0`);
 xbindkeys should use the current value of `$DISPLAY`.
 I tried to include the directive `PassEnvironment=DISPLAY`, but it didn't work.
 I also tried to run `$ systemctl --user import-environment DISPLAY`, but it didn't work either
-(maybe because I ran the command too early – in `~/.config/keyboard/setup.sh`).
+(maybe because I ran the command too early – in `~/.config/keyboard/setup`).
 I don't  know exactly what environment  does the previous command  refer to, but
 you can inspect it by running `$ systemctl --user show-environment`.
 
@@ -2154,7 +2154,7 @@ To understand issue “Start request repeated too quickly”:
 
 ---
 
-We have the same issue with `~/.config/keyboard/setup.sh`.
+We have the same issue with `~/.config/keyboard/setup`.
 See the todo at the top.
 
 And we probably have the same issue with xfce4-panel.
@@ -2176,7 +2176,7 @@ For example, the files in:
 
     /etc/systemd/system/getty@.service.d/
 
-## Convert `~/.config/keyboard/setup.sh` as a systemd service/timer.
+## Convert `~/.config/keyboard/setup` as a systemd service/timer.
 
 Maybe we should do the same for everything in `~/bin/autostartrc`.
 

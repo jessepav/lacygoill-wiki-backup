@@ -31,7 +31,7 @@ Source:
 
                                      TODO:
 
-Maybe we should update the keys in `up.sh`.
+Maybe we should update the keys in `up`.
 
 
                                      FIXME:
@@ -2573,7 +2573,7 @@ For more info, maybe have a look at this: <https://unix.stackexchange.com/a/1487
             De plus, il semble qu'il défait notre config xmodmap.
             Enfin, `xdotool` et/ou `wmctrl` ne semblent plus fonctionner pendant
             plusieurs  minutes, car  les raccourcis  qui utilisent  notre script
-            `run-or-raise.sh` ne produisent leur effet que bien plus tard.
+            `run-or-raise` ne produisent leur effet que bien plus tard.
 
             Les   3  lignes   écrites   plus  haut   ont   été  copiées   depuis
             `/var/log/Xorg.0.log`.

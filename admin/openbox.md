@@ -558,7 +558,7 @@ To turn on the Numlock key in a X session, as soon as openbox starts, run:
 
 This requires the numlockx package.
 
-Also, read `~/bin/restore-env.sh` and search for ‘lightdm’ and ‘numlockx’.
+Also, read `~/bin/restore-env` and search for ‘lightdm’ and ‘numlockx’.
 There are some commands which we should probably run for openbox.
 
 # ?
