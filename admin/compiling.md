@@ -1,67 +1,118 @@
-## ?
+# How to remove the files generated during the last compilation?
 
-    VERSION="$(git describe --tags --abbrev=0)"
+    $ make clean; make distclean
+
+##
+# What should I do when the compilation fails because of some missing dependencies?
+
+Run:
+
+    $ aptitude build-dep PGM
 
 ---
 
-Why `--tags`?
+Before that, you may need to edit `/etc/apt/sources.list`, and uncomment:
 
-To avoid this kind of error:
+    deb-src http://fr.archive.ubuntu.com/ubuntu/ xenial main restricted
+
+Note that you need to replace `xenial` with the actual codename of your Ubuntu OS as given by:
+
+    $(lsb_release -sc)
+
+And you need  to replace `main restricted` with the  section of the repositories
+from which the program can be installed; you can get it by running:
+
+      $ apt-cache policy PGM
+
+Example:
+
+      $ apt-cache policy weechat
+      ...~
+           1.4-2 500~
+              500 http://fr.archive.ubuntu.com/ubuntu xenial/universe amd64 Packages~
+                                                      ^^^^^^^^^^^^^^^
+
+Then, run `$ sudo aptitude update`.
+
+##
+# How to make sure `make install` installs all the files under `/usr/local`?
+
+It depends on the program you're compiling.
+Often, the `configure` script supports a `--prefix` option:
+
+    $ ./configure --prefix=/usr/local ...
+                  ^^^^^^^^^^^^^^^^^^^
+
+Otherwise, try to  uncomment and edit the relevant line  in the Makefile, before
+running `./configure`.
+
+## Why is it important to do so?
+
+To  avoid  a  conflict  with  a  file  of  a  package  installed  from  Ubuntu's
+repositories.
+
+## What should I check if I install the files under my home directory?
+
+Make sure that `$HOME/bin` is in your `PATH`.
+
+##
+# Installing the compiled binary as a deb package
+## How to get the version of the binary?
+
+Assuming it's version-controlled by git:
+
+    $ git describe --tags --abbrev=0
+
+---
+
+`--tags` is useful to avoid this kind of error:
 
     fatal: No annotated tags can describe 'ab18673731522c18696b9b132d3841646904e1bd'.
 
+From `man git-describe`:
+
+> --tags
+>    Instead of  using only the annotated  tags, use any tag  found in refs/tags
+>    namespace. This option enables matching a lightweight (non-annotated) tag.
+
 ---
 
-Why `--abbrev=0`?
-
-Most of the time `$ git describe --tags` will return something like:
-
-    v8.1.0648
-
-But sometimes, it will return something like:
+`--abbrev=0` is useful to truncate a long tag.
+For example, in Vim, sometimes, `$ git describe --tags` outputs:
 
     v8.1.0648-1-gc8c884926
 
-I think it happens  when the latest commit was not  tagged, which seems to
-be always the case when Bram commits lots of changes in `$VIMRUNTIME`.
+I think  it happens when  the latest  commit was not  tagged, which seems  to be
+always the case when Bram commits lots of changes in `$VIMRUNTIME`.
 
-I prefer `v8.1.0648`.
+With `--abbrev=0`, the output is truncated to:
 
----
-
-Why is it important to always set the option `--prefix` with the value `/usr/local`?
-
-If you don't, when you'll install the files obtained from the compilation, there
-is a risk you overwrite the files of an existing package installed from Ubuntu's
-repositories.
-
-Note that if you can't write in  `/usr/local`, you may also use `$HOME`:
-
-    $ ./configure --prefix=$HOME ...
-                           ^^^^^
-
-In this case, you need to make sure that `$HOME/bin` is in your `PATH`.
+    v8.1.0648
 
 ---
 
-Instead of passing  options to `configure`, you can also  uncomment the relevant
-lines in the Makefile, before running `./configure`.
+If you need to remove a non-numerical prefix, like `v`, use a parameter expansion:
 
-## ?
+    $ echo ${$(git describe --abbrev=0)#v}
+           ^^                          ^^^
 
-    $ VERSION="9:${VERSION#v}"
+See `man bash /Parameter Expansion/;/${parameter#word}`.
 
----
+## How to prevent the package from being replaced by another version during an `aptitude safe-upgrade`?
 
-What's this `9:`?
+You need to assign a recent version  number to your package, otherwise it may be
+replaced in  the future during  an `$ aptitude  safe-upgrade`, by a  more recent
+package from the official repositories.
 
-Atm, the  Vim packages in the  offical repositories have a  version number
+Besides, you may need to prefix the version number with a big enough epoch.
+
+For example, atm, the Vim package in the offical repository has a version number
 which looks like this:
 
     2:8.0.0134-1ubuntu1~ppa1~x 500
+    ^^
 
-The `2:` is what is called the *epoch*.
-From: https://serverfault.com/a/604549
+The `2:` is called the **epoch**:
 
 > This is a single (generally small) unsigned integer.
 > It may be omitted, in which case zero is assumed.
@@ -70,303 +121,18 @@ From: https://serverfault.com/a/604549
 > versions of a  package, and also a package's  previous version numbering
 > schemes, to be left behind.
 
-If you don't include  an epoch in the version of your Vim  package, `0:` will be
-assumed:
+Source: <https://serverfault.com/a/604549>
+
+If you don't include an epoch in the version of your package, `0:` is assumed:
 
     0:X.Y.Z
-
-As a result, your package will be overwritten by `$ aptitude safe-upgrade`.
-
-## ?
-
-    $ make clean
-    $ make distclean
-
-## ?
-
-Edit `/etc/apt/sources.list`.
-
-Uncomment:
-
-    deb-src http://fr.archive.ubuntu.com/ubuntu/ $(lsb_release -sc) main restricted
-
-Then run:
-
-    $ sudo aptitude update
-    $ sudo aptitude build-dep vim-gtk
-
-## ?
-
-    $ aptitude install libncurses5-dev \
-      luajit libluajit-5.1-dev \
-      libperl-dev \
-      python-dev \
-      python3-dev \
-      ruby-dev
-
-## ?
-
-    $ ./configure --enable-cscope                                                    \
-                --enable-fail-if-missing                                             \
-                --enable-gui=gtk2                                                    \
-                --enable-luainterp=dynamic                                           \
-                --enable-multibyte                                                   \
-                --enable-perlinterp=dynamic                                          \
-                --enable-python3interp=dynamic                                       \
-                --enable-pythoninterp=dynamic                                        \
-                --enable-rubyinterp=dynamic                                          \
-                --enable-terminal                                                    \
-                --prefix=/usr/local                                                  \
-                --with-compiledby=user                                               \
-                --with-features=huge                                                 \
-                --with-luajit                                                        \
-                --with-python-config-dir=/usr/lib/python2.7/config-x86_64-linux-gnu  \
-                --with-python3-config-dir=/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu
-
-## ?
-
-    $ make
-
-    $ xterm -e 'make test' &
-                           │
-                           └ useless in a script
-
-## ?
-
-*Use `--strip=no` for debugging.*
-
-    $ sudo checkinstall --pkgname=vim --pkgversion="$VERSION" --spec=/dev/null --backup no -y
-                                        │
-                                        └ don't overwrite my package
-                                          with an old version from the official repositories
-                                          when I execute `aptitude safe-upgrade`
-
----
-
-Why can aptitude overwrite our compiled package?
-
-When aptitude  finds several candidates  for the  same package, it  checks their
-version to decide which one is the newest.
-By default, checkinstall uses the current date as the package version:
-
-    20180914
-
-This would cause an issue for Vim:
-
-    $ apt-cache policy vim
-    vim:~
-      Installed: (none)~
-      Candidate: 2:8.0.0134-1ubuntu1~ppa1~x~
-      Version table:~
-         2:8.0.0134-1ubuntu1~ppa1~x 500~
-            500 http://ppa.launchpad.net/pi-rho/dev/ubuntu xenial/main amd64 Packages~
-    ...~
-
-Here the version of the Vim package in the ppa is `2:8.0.0134`.
-If the version of our compiled package is `20180914`, it will be considered
-older than the one in the ppa.
-I think that's because the format of a date is different.
-`apt` expects a number before a colon, but there's no colon in a date.
-So it assumes that the date should be prefixed by `0:` or `1:` which gives:
-
-    0:20180914
-        <
-    2:8.0.0134-1ubuntu1~ppa1~x
-
----
-
-Why don't you use `--pkgname="my{PGM}"` anymore?
-
-When  checkinstall tries  to install  `myPGM`, it  may try  to overwrite  a file
-belonging to `PGM` (it  will probably happen if `PGM` is  already installed in a
-different version).
-If that happens, the installation will fail:
-
-    dpkg: error processing archive /home/user/Vcs/zsh/zsh_9999.9999-1_amd64.deb (--install):~
-     trying to overwrite '/usr/share/man/man1/zshmodules.1.gz', which is also in package myzsh 999-1~
-    dpkg-deb: error: subprocess paste was killed by signal (Broken pipe)~
-
-### ?
-
-TODO: Sometimes, checkinstall ignores the options `--pkgversion`, `--pkgname`, ...
-
-This is because if  it finds a .spec file at the root  of the project, and
-its  basename matches  the  program  (e.g. ansifilter.spec,  weechat.spec,
-...), then it uses its contents to assign the values of these options.
-IOW, a {vim|tmux|...}.spec file has priority over `--pkg...`.
-
-Besides, sometimes, the values in the .spec file are not literal.
-For example, in `~/Vcs/weechat/weechat.spec:31`, one can read:
-
-    Version:   %{version}
-    Release:   %{release}
-
-Currently, here are the repos which have a spec file:
-
-   - ansifilter
-
-     it overrides your `--pkgversion`, but this doesn't seem to cause an issue atm
-
-   - jumpapp; issue, because of:
-
-        3 -  Version: [ VERSION ]
-        4 -  Release: [ 1%{?dist} ]
-
-   - weechat; issue, because of:
-
-        2 -  Name:    [ 0--name- ]
-        3 -  Version: [  ]
-        4 -  Release: [ %{release} ]
-
-This can cause an issue, especially for the version field.
-Note that for all these 3 projects, the spec file is intended for rpm, not
-dpkg; this may explain the issue...
-
-Solution1:
-
-Use `--spec=/dev/null`.
-This will prevent checkinstall from using any spec file.
-
-You may think that checkinstall will still fall back on some other default spec file.
-For example, if you read the logfile for Vim, you'll find these lines:
-
-    Warning: .spec file path "/dev/null" not found.
-    Warning: Defaulting to "vim.spec".
-
-But in reality,  it seems that `/dev/null` *does* work  even though checkinstall
-says that if falls back on a spec file.
-Case in point:
-
-    $ sudo checkinstall --pkgname=weechat --pkgversion=12.34 --spec=/dev/null --backup=no
-
-You should  see that checkinstall  uses the package version  `12.34`, even
-though the weechat spec file specifies a different version (2.5 atm).
-If you remove `--spec=/dev/null`, you'll see  that checkinstall tries to use the
-garbage version `%{version}`.
-
-The fallback message comes from `/usr/bin/checkinstall:791`.
-It's triggered by the non-existence of the file `$SPEC_PATH`.
-If you search for the pattern `SPEC_PATH` in the script, you'll find 31 occurrences.
-But only the first 7 are relevant.
-The remaining ones are for foreign package managers (like rpm).
-There are only 2 occurrences of `SPEC_PATH` after the one used in the warning message.
-
-    [ -f SPEC_PATH ] && DEL_SPEC=0
-
-    if [ -f "$SPEC_PATH" ]; then
-    ...
-      VERSION=`getparameter "^[Vv]ersion"`
-    ...
-    fi
-
-None of them indicate that the script is going to use some spec file.
-
-Solution2:
-Test the existence of a spec file, and  if there's one, use sed to edit it
-before invoking checkinstall.
-
-Here's a first attempt to replace `%{name}` with `weechat`:
-
-    $ sed '/^%define\s\+name/{s/.*\s//; h; s/^/%define name /}; /^Name:/{G; s/^\(Name:\s\+\)%{name}\n\(\w\+\)/\1\2/}' weechat.spec
-
-It's a bit long, maybe we could improve the code...
-
-## ?
-
-Vim can be invoked with many commands.
-We need to tell the system that, from now on, they're all provided by `/usr/local/bin/vim`.
-
-    $ sudo update-alternatives --get-selections >"${LOGDIR}/update-alternatives-get-selections.bak"
-    $ typeset -a names=(editor eview evim ex gview gvim gvimdiff rgview rgvim rview rvim vi view vim vimdiff)
-    $ for name in "${names[@]}"; do
-      sudo update-alternatives --log "${LOGFILE}" \
-        --install /usr/bin/"${name}" "${name}" /usr/local/bin/vim 60
-      sudo update-alternatives --log "${LOGFILE}" --set "${name}" /usr/local/bin/vim
-    done
-
-## ?
-
-    grep -i 'mimetype' /usr/local/share/applications/gvim.desktop \
-      | sed 's/mimetype=//i; s/;/ /g' \
-      | xargs xdg-mime default gvim.desktop
-
----
-
-What's this `gvim.desktop`?
-
-A file installed by the Vim package.
-It describes which files Vim can open in the line ‘MimeType=’.
-
----
-
-What does this command do?
-
-It parses the default `gvim.desktop` to build and run a command such as:
-
-    $ xdg-mime default gvim.desktop text/english text/plain text/x-makefile ...
-
-In effect, it makes gVim the default program to open various types of text files.
-This matters when  using `xdg-open(1)` or double-clicking on the  icon of a file
-in a GUI file manager.
-
----
-
-Is it needed?
-
-Once  the `gvim.desktop`  file is  installed, it  doesn't make  gVim the
-default program for text files.
-It just informs the system that gVim *can* open some of them.
-
-##
-# checkinstall
-## How can I install the latest version of the script?
-
-    $ git clone http://checkinstall.izto.org/checkinstall.git
-
-    # from the INSTALL file
-    $ make
-    $ su
-    $ make install
-    $ checkinstall
-
-##
-## Which `make(1)` command does checkinstall run by default?
-
-    $ make install
-
-### How to pass it an arbitrary `make(1)` command?
-
-Just write it right afterwards:
-
-    $ sudo checkinstall make foo
-
-Equivalent of `$  make install foo`, except  that a deb package  is produced and
-installed via `$ dpkg -i foo`.
-
-##
-## The installation fails!  “trying to overwrite '...', which is also in package”
-
-If you  know that  the file  which the package  was trying  to overwrite  is not
-important, you can manually install the .deb generated by checkinstall:
-
-    $ sudo dpkg -i --force-overwrite package.deb
-
-Otherwise, you'll  have to uninstall  the conflicting package which  has already
-installed the problematic file.
-
-<https://askubuntu.com/q/176121/867754>
-
----
-
-Alternatively, if  the path  of the  file ends  with `info/dir`,  try to  find a
-configuration option allowing  you to change the location of  the file; it could
-be `--infodir`.
-
-Example:
-
-    $ ./configure --infodir=/usr/local/share
-                    ^^^^^^^^^^^^^^^^^^^^^^^^
-                    move the info file from `/usr/share/info` to `/usr/local/share/info`
+    ^^
+
+Now, suppose that you install a package built locally under the version `4.5.6`,
+while the official repo contains the same package under the version `2:1.2.3`.
+When you'll upgrade your system, your local  package will be replaced by the one
+from the official repo, even if it's actually older; simply because its epoch is
+bigger.
 
 ##
 # debian source packages
@@ -541,6 +307,248 @@ For example, from the Vim source code, you can compile `vim-gtk` or `vim-tiny`.
     Package: vim-gnome-py2~
 
 ##
+# checkinstall
+## ?
+
+Review our notes about how installing gawk.
+Get rid of checkinstall in the notes.
+Same thing for sed.
+Same thing in all our wikis.
+
+## Which pitfalls should I be aware of if I use checkinstall?
+### It contains many errors.
+
+Atm, shellcheck only finds one error:
+
+    $ shellcheck -f gcc $(which checkinstall)
+    /usr/bin/checkinstall:1364:10: note: The mentioned syntax error was in this if expression. [SC1009]~
+    /usr/bin/checkinstall:1364:13: error: Couldn't parse this test expression. Fix to allow more checks. [SC1073]~
+    /usr/bin/checkinstall:1364:24: error: You need a space before the ]. [SC1020]~
+    /usr/bin/checkinstall:1364:24: error: Missing space before ]. Fix any mentioned problems and try again. [SC1072]~
+
+But that's because this error prevents shellcheck from parsing the file correctly.
+If you correct it:
+
+     if [ $? -gt 0]; then
+     →
+     if [ $? -gt 0 ]; then
+                  ^
+
+shellcheck finds 636 errors:
+
+    $ shellcheck -f gcc /usr/bin/checkinstall | wc -l
+    636~
+
+### It leaves a deb package behind.
+
+This  is actually  useful if  you  intend to  install  it later  on a  different
+machine; but otherwise it just takes space.
+
+For example, the mpv binary weighs 22M (if stripped).
+So,  as you  can see,  the  weights of  packages can  quickly  add up  to a  non
+negligible amount of space.
+
+### It creates an archive to backup all overwritten files.
+
+And every time you reinvoke checkinstall, a new archive is created.
+This adds up and can quickly amount to a fair amount of space.
+
+To prevent this, you need to use the `--backup=no` option.
+
+### It seems to create files under `/usr/share/doc` no matter what.
+
+Even if you use the prefix `/usr/local`.
+
+This is untidy  if you want *all*  files to be installed  under `/usr/local`, to
+avoid any conflict with a system package.
+
+###
+### By default, it strips the binary from its debugging symbols.
+
+This prevents you from getting a meaningful backtrace in case of a crash.
+
+#### Solution:
+
+To fix that, you need to use the `--strip=no` option.
+
+This shows that  checkinstall alters your compilation in various  ways, and make
+your  binary behave  unexpectedly; and  understanding that  checkinstall is  the
+cause of an unexpected behavior is not always easy, nor is it easy to fix it.
+
+###
+### Sometimes, it ignores the options `--pkgversion`, `--pkgname`, ...
+
+This  is because  if  it  finds a  `.spec`  file at  the  root  of the  project,
+and  its basename  matches  the  name of  the  program (e.g.  `ansifilter.spec`,
+`weechat.spec`, ...),  then it uses its  contents to assign the  values of these
+options; IOW, a `.spec` file has priority over `--pkg...`.
+
+Besides, sometimes, the values in the `.spec` file are not literal.
+For example, in `~/Vcs/weechat/weechat.spec:31`, one can read:
+
+    Version:   %{version}
+    Release:   %{release}
+
+This can cause an issue, especially for the version field.
+Note that  in the  weechat example, the  `.spec` file is  intended for  rpm, not
+dpkg, which creates an additional issue.
+
+#### Solution1:
+
+Use `--spec=/dev/null`.
+
+This will prevent checkinstall from using any `.spec` file.
+
+You may think that checkinstall will still fall back on some other default `.spec` file.
+For example, when running checkinstall to install Vim, its output contains these lines:
+
+    Warning: .spec file path "/dev/null" not found.~
+    Warning: Defaulting to "vim.spec".~
+
+But in reality,  it seems that `/dev/null` *does* work  even though checkinstall
+says that if falls back on a `.spec` file.
+Case in point:
+
+    $ sudo checkinstall --pkgname=weechat --pkgversion=12.34 --spec=/dev/null
+
+You should see  that checkinstall uses the package version  `12.34`, even though
+the weechat `.spec` file specifies a different version (2.5 atm).
+If you remove `--spec=/dev/null`, you'll see  that checkinstall tries to use the
+wrong version `%{version}`.
+
+The fallback message comes from `/usr/bin/checkinstall:791`.
+It's triggered by the non-existence of the file `$SPEC_PATH`.
+If you search for the pattern `SPEC_PATH` in the script, you'll find 31 occurrences.
+But only the first 7 are relevant.
+The remaining ones are for foreign package managers (like rpm).
+There are only 2 occurrences of `SPEC_PATH` after the one used in the warning message.
+
+    [ -f SPEC_PATH ] && DEL_SPEC=0
+
+    if [ -f "$SPEC_PATH" ]; then
+    ...
+      VERSION=`getparameter "^[Vv]ersion"`
+    ...
+    fi
+
+None of them indicate that the script is going to use some spec file.
+
+#### Solution2:
+
+Test the  existence of a `.spec`  file, and if there's  one, use sed to  edit it
+before invoking checkinstall.
+
+Here's a first attempt to replace `%{name}` with `weechat`:
+
+    $ sed '/^%define\s\+name/{s/.*\s//; h; s/^/%define name /}; /^Name:/{G; s/^\(Name:\s\+\)%{name}\n\(\w\+\)/\1\2/}' weechat.spec
+
+It's a bit long; maybe the code could be improved.
+
+###
+### When used interactively, you can't use readline commands to edit your input.
+#### Solution:
+
+Use rlwrap:
+
+    $ sudo rlwrap checkinstall ...
+
+##
+## How can I install the latest version of the script?
+
+    $ git clone http://checkinstall.izto.org/checkinstall.git
+
+    # from the INSTALL file
+    $ make
+    $ su
+    $ make install
+    $ checkinstall
+
+##
+## In general, what information should I provide to checkinstall?
+
+At the very least, you'll need to give a name and a version to the package.
+
+The name is important because it's the one you'll have to use later whenever you
+want to manipulate the package via `dpkg(1)` or `aptitude(8)`.
+
+The version is  important because if it's not recent  enough, your local package
+may be replaced later during an `aptitude safe-upgrade`.
+
+### How to provide them
+#### interactively?
+
+When prompted with:
+
+    Enter a number to change any of them or press ENTER to continue:
+
+Type `2`, then provide the desired name for your package:
+
+    Enter new name:
+    >>
+
+Then, type `3`, and provide the desired version:
+
+    Enter new version:
+    >>
+
+#### from the command-line?
+
+Use the `--pkgname` and `--pkgversion` options.
+
+###
+### Why shouldn't I give an ad-hoc name to my package?
+
+Suppose you're trying to compile and  install zsh via checkinstall, and you name
+the package `myzsh`; and suppose that zsh is already installed on your system in
+a different version.
+
+checkinstall may fail to install your  local package, because it can't overwrite
+some file(s) belonging to the `zsh` package:
+
+    dpkg: error processing archive /home/user/Vcs/zsh/zsh_9999.9999-1_amd64.deb (--install):~
+     trying to overwrite '/usr/share/man/man1/zshmodules.1.gz', which is also in package myzsh 999-1~
+    dpkg-deb: error: subprocess paste was killed by signal (Broken pipe)~
+
+##
+## Which `make(1)` command does checkinstall run by default?
+
+    $ make install
+
+### How to pass it an arbitrary `make(1)` command?
+
+Just write it right afterwards:
+
+    $ sudo checkinstall make foo
+
+Equivalent of `$  make install foo`, except  that a deb package  is produced and
+installed via `$ dpkg -i foo`.
+
+##
+## The installation fails!  “trying to overwrite '...', which is also in package”
+
+If you  know that  the file  which the package  was trying  to overwrite  is not
+important, you can manually install the .deb generated by checkinstall:
+
+    $ sudo dpkg -i --force-overwrite package.deb
+
+Otherwise, you'll  have to uninstall  the conflicting package which  has already
+installed the problematic file.
+
+<https://askubuntu.com/q/176121/867754>
+
+---
+
+Alternatively, if  the path  of the  file ends  with `info/dir`,  try to  find a
+configuration option allowing  you to change the location of  the file; it could
+be `--infodir`.
+
+Example:
+
+    $ ./configure --infodir=/usr/local/share
+                    ^^^^^^^^^^^^^^^^^^^^^^^^
+                    move the info file from `/usr/share/info` to `/usr/local/share/info`
+
+##
 # Todo
 ## document `apt-src`, `autoapt`, `autodeb`
 
@@ -570,6 +578,7 @@ and checkinstall at the same time.
 
 <https://wiki.debian.org/HowToPackageForDebian>
 <https://wiki.debian.org/Packaging>
+<https://github.com/mpv-player/mpv-build#instructions-for-debian--ubuntu-package>
 
 ---
 

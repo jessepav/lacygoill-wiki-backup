@@ -453,11 +453,11 @@ Example to  exclude everything except  a specific directory `foo/bar`  (note the
 ##
 # How to get a more recent version of Git on Ubuntu, without compiling?
 
-        $ sudo add-apt-repository ppa:git-core/ppa
-        $ sudo aptitude update
-        $ sudo aptitude safe-upgrade
+    $ sudo add-apt-repository ppa:git-core/ppa
+    $ sudo aptitude update
+    $ sudo aptitude safe-upgrade
 
-Source:  https://launchpad.net/~git-core/+archive/ubuntu/ppa
+Source: <https://launchpad.net/~git-core/+archive/ubuntu/ppa>
 
 ##
 # Compiling Git from source
@@ -466,50 +466,50 @@ Source:  https://launchpad.net/~git-core/+archive/ubuntu/ppa
 Download  the  latest  tagged  release  tarball  (`git-X.YY.Z.tar.xz`)  and  its
 signature (`git-X.YY.Z.tar.sign`) from one of those links:
 
-        https://mirrors.edge.kernel.org/pub/software/scm/git/
-        https://github.com/git/git/releases
+- <https://mirrors.edge.kernel.org/pub/software/scm/git/>
+- <https://github.com/git/git/releases>
 
 Github doesn't provide signatures, but is easier to find the latest release.
 
 ## How to check the signature of the tarball?
 
-              ┌ write the decompressed data to STDOUT instead of a file
-              │
-              │┌ decompress
-              ││                           ┌ assume that:
-              ││                           │     - the next argument is a detached signature
-              ││                           │     - the next one is the signed data
-              ││                           │
-              ││                           │ verify the signed data using the signature
-              ││                           │
-              ││                           │                           ┌ read the signed data from STDIN
-              ││                           │                           │
-        $ xz -cd git-2.19.2.tar.xz | gpg --verify git-2.19.2.tar.sign  -
-        gpg: Signature made Wed 21 Nov 2018 04:04:41 PM CET using RSA key ID 96AFE6CB
-        gpg: Can't check signature: public key not found
+          ┌ write the decompressed data to STDOUT instead of a file
+          │
+          │┌ decompress
+          ││                           ┌ assume that:
+          ││                           │     - the next argument is a detached signature
+          ││                           │     - the next one is the signed data
+          ││                           │
+          ││                           │ verify the signed data using the signature
+          ││                           │
+          ││                           │                           ┌ read the signed data from STDIN
+          ││                           │                           │
+    $ xz -cd git-2.19.2.tar.xz | gpg --verify git-2.19.2.tar.sign  -
+    gpg: Signature made Wed 21 Nov 2018 04:04:41 PM CET using RSA key ID 96AFE6CB
+    gpg: Can't check signature: public key not found
 
 If the signature can't be verified, note the ID of the public key which was used
 to sign the tarball (here it's `96AFE6CB`).
 Use the ID to import the public key:
 
-        $ gpg --keyserver hkp://keys.gnupg.net --recv-keys 96AFE6CB
-        gpg: requesting key 96AFE6CB from hkp server keys.gnupg.net
-        gpg: key 713660A7: public key "Junio C Hamano <gitster@pobox.com>" imported
-        gpg: no ultimately trusted keys found
-        gpg: Total number processed: 1
-        gpg:               imported: 1  (RSA: 1)
+    $ gpg --keyserver hkp://keys.gnupg.net --recv-keys 96AFE6CB
+    gpg: requesting key 96AFE6CB from hkp server keys.gnupg.net~
+    gpg: key 713660A7: public key "Junio C Hamano <gitster@pobox.com>" imported~
+    gpg: no ultimately trusted keys found~
+    gpg: Total number processed: 1~
+    gpg:               imported: 1  (RSA: 1)~
 
 Try again to verify the signature:
 
-        $ xz -cd git-2.19.2.tar.xz | gpg --verify git-2.19.2.tar.sign -
-        gpg: Signature made Wed 21 Nov 2018 04:04:41 PM CET using RSA key ID 96AFE6CB
-        gpg: Good signature from "Junio C Hamano <gitster@pobox.com>"
-        gpg:                 aka "Junio C Hamano <jch@google.com>"
-        gpg:                 aka "Junio C Hamano <junio@pobox.com>"
-        gpg: WARNING: This key is not certified with a trusted signature!
-        gpg:          There is no indication that the signature belongs to the owner.
-        Primary key fingerprint: 96E0 7AF2 5771 9559 80DA  D100 20D0 4E5A 7136 60A7
-             Subkey fingerprint: E1F0 36B1 FEE7 221F C778  ECEF B0B5 E886 96AF E6CB
+    $ xz -cd git-2.19.2.tar.xz | gpg --verify git-2.19.2.tar.sign -
+    gpg: Signature made Wed 21 Nov 2018 04:04:41 PM CET using RSA key ID 96AFE6CB~
+    gpg: Good signature from "Junio C Hamano <gitster@pobox.com>"~
+    gpg:                 aka "Junio C Hamano <jch@google.com>"~
+    gpg:                 aka "Junio C Hamano <junio@pobox.com>"~
+    gpg: WARNING: This key is not certified with a trusted signature!~
+    gpg:          There is no indication that the signature belongs to the owner.~
+    Primary key fingerprint: 96E0 7AF2 5771 9559 80DA  D100 20D0 4E5A 7136 60A7~
+         Subkey fingerprint: E1F0 36B1 FEE7 221F C778  ECEF B0B5 E886 96AF E6CB~
 
 This time, you should read “Good signature from ...”.
 
@@ -1957,6 +1957,7 @@ références peuvent être déplacées librement.
         https://raw.githubusercontent.com/git/git/master/Documentation/howto/revert-a-faulty-merge.txt
         https://jwiegley.github.io/git-from-the-bottom-up/
         https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow
+        https://sethrobertson.github.io/GitFixUm/fixup.html
 
         https://jonas.github.io/tig/doc/manual.html
         man tig

@@ -170,7 +170,7 @@ Should we do the same for all scratch buffers?
 
 ##
 ## mappings
-### There should should be a mapping on C-l to focus the previous window:
+### There should be a mapping on C-l to focus the previous window:
 
     nno <buffer><nowait><silent> <c-l> :<c-u>call <sid>focus_previous_window_if_on_right()<cr>
 
@@ -264,6 +264,8 @@ Avoid  the NIH  syndrome:  don't  create an  ad-hoc  system  which doesn't  work
 everywhere, and not always in the same manner.
 
 [Reuse code][1] as much as possible.
+
+### `q` should close the window *and* focus back the previous one
 
 ##
 ## options

@@ -35,7 +35,7 @@ Configure, compile and install:
     $ make clean && make distclean
     $ sh configure
     $ make
-    $ sudo checkinstall
+    $ sudo make install
 
 Inform the system that the pager to use is in `/usr/local/bin/less`:
 

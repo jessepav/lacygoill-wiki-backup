@@ -532,7 +532,7 @@ the issue comes from.
 
 Example:
 
-    $ python3 -m pip -vvv install --user requests
+    $ python3 -m pip -vvv install --user <package>
                      ^^^^
 
 ---
@@ -545,9 +545,47 @@ newer version of the pip package manager.
 
 ---
 
-Otherwise, try to use pip via a proxy:
+You can also install the package manually.
+
+First, find it on `https://pypi.org/`.
+For example, for the pynvim package, the url is:
+
+<https://pypi.org/project/pynvim/>
+
+Next, click on `Homepage` and you'll get this url:
+
+<https://github.com/neovim/pynvim>
+
+Clone the repo:
+
+    $ git clone https://github.com/neovim/pynvim
+
+Then install the package like this:
+
+    $ cd pynvim
+    $ python3 -m pip install --user --upgrade .
+
+The installation may fail because of a missing dependency, `msgpack`.
+
+    Could not find a version that satisfies the requirement msgpack>=0.5.0 (from pynvim==0.3.1) (from versions: )~
+    No matching distribution found for msgpack>=0.5.0 (from pynvim==0.3.1)~
+
+In that case repeat the process:
+
+    # https://pypi.org/project/msgpack/
+    # https://github.com/msgpack/msgpack
+    $ git clone https://github.com/msgpack/msgpack
+    $ cd msgpack
+    $ python3 -m pip install --user --upgrade .
+    $ cd ../pynvim
+    $ python3 -m pip install --user --upgrade .
+
+---
+
+Alternatively, try to use pip via a proxy:
 
     $ https_proxy=<IP Address>:<Port> python3 -m pip install --user <package>
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 See here for more info: <https://stackoverflow.com/a/19962913/9780968>
 And here for a list of proxies: <https://www.us-proxy.org/>
@@ -558,11 +596,11 @@ before finding one which succeeds in installing a package.
 
 ---
 
-As a last resort, try to to torify your command:
+As a last resort, try to torify your command:
 
     $ . torsocks on
     $ sudo systemctl start tor.service
-    $ python3 -m pip install --user requests
+    $ python3 -m pip install --user <package>
 
 Note that the second command may be optional.
 It's possible  that you have a  tor daemon which runs  the service automatically
@@ -570,8 +608,8 @@ when the OS boots up:
 
     tor --defaults-torrc /usr/share/tor/tor-service-defaults-torrc -f /etc/tor/torrc --RunAsDaemon 0
 
-But I'm not  sure this is a good  idea; are there more risks for  the program to
-have been tampered with?
+But I'm  not sure  this is a  good idea; is  there a  risk the program  has been
+tampered with?
 
 ## Why shouldn't I use `$ sudo pip`?
 

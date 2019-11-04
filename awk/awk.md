@@ -292,10 +292,11 @@ Install gawk shared library:
     $ cd ~/Vcs/gawkextlib/lib
     $ autoreconf -i && ./configure && make && make check
 
-    $ sudo checkinstall
+    $ sudo make install
 
-Name it `libgawkextlib`, and use the `README` for the summary.
-The version is given in `configure.ac` (look for the line `AC_INIT`).
+If you try to build a deb package, name it `libgawkextlib`, and use the `README`
+for the  summary.  The  version is  given in `configure.ac`  (look for  the line
+`AC_INIT`).
 
 ---
 
@@ -320,27 +321,28 @@ You  don't run  the  same command  in  Debian, because  Ubuntu  has tweaked  the
 `locale-gen` utility.
 <https://unix.stackexchange.com/a/38735/289772>
 
-    $ sudo checkinstall
+    $ sudo make install
 
-The installation  may fail because  of the  `Requires` field which  is populated
-with `/sbin/ldconfig`.
+If you  use checkinstall, the  installation may  fail because of  the `Requires`
+field which is populated with `/sbin/ldconfig`.
 Debian  wants  the  name of  a  package,  not  a  path: give  the  package  name
 `libc-bin`.
 
 ---
 
 Build the `aregex` library extension.
-Name it `gawk-aregex` instead of just `aregex`.
 
     $ cd ~/Vcs/gawkextlib/aregex
     $ autoreconf -i && ./configure && make && make check
-    $ sudo checkinstall
+    $ sudo make install
 
 For more info, see:
 
     man 3am aregex
 
 “am” stands for Awk Module.
+
+If you use checkinstall, name the package `gawk-aregex` instead of just `aregex`.
 
 ---
 

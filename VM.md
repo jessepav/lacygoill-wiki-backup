@@ -385,7 +385,6 @@ Or, you could use the GUI:
 However, it seems to break the network.
 You can't reach any host with `Am79C973` atm...
 
-##
 ###
 # Configuration of a VM
 ## OS Post Install
@@ -414,6 +413,7 @@ storage medium from the config of the VM.
 You should eject the disk right after installing the OS of the VM.
 It may prevent the Guest Additions ISO file from being mounted.
 
+###
 ### How to install the Guest Additions from the guest OS Ubuntu?
 
 From the guest OS:
@@ -919,7 +919,7 @@ for a network setting.
 
 ## I need to access the VM settings, from the GUI, while it's shut down.  But when I shut it down, VB is closed!
 
-1. Shut down the VM.
+1. Shut down the VM (from the guest OS).
 
 2. Start VB by executing:
 

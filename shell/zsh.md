@@ -1,13 +1,13 @@
 # How to make zsh my default shell?
 
-        # add zsh to the list of valid login shells
-        $ command -v zsh | sudo tee -a /etc/shells
+    # add zsh to the list of valid login shells
+    $ command -v zsh | sudo tee -a /etc/shells
 
-        # set zsh as my login shell
-        $ sudo chsh -s "$(command -v zsh)" "${USER}"
+    # set zsh as my login shell
+    $ sudo chsh -s "$(command -v zsh)" "${USER}"
 
-        # logout/login (to restart graphical session)
-        $ loginctl terminate-session "$(loginctl session-status | awk 'NR==1{print $1}')"
+    # logout/login (to restart graphical session)
+    $ loginctl terminate-session "$(loginctl session-status | awk 'NR==1{print $1}')"
 
 ##
 # How to list all the files sourced by zsh on startup?
@@ -20,17 +20,17 @@
 ##
 # What does `[nyae]` mean when I make a typo and the shell suggests me a correction?
 
-        ┌───┬───────┬───────────────────────────────────────────────────────────┐
-        │ n │ no    │ refuse the correction, execute the command as it is       │
-        ├───┼───────┼───────────────────────────────────────────────────────────┤
-        │ y │ yes   │ accept the correction                                     │
-        ├───┼───────┼───────────────────────────────────────────────────────────┤
-        │ a │ abort │ cancel the execution of the command                       │
-        ├───┼───────┼───────────────────────────────────────────────────────────┤
-        │ e │ edit  │ cancel the execution of the command,                      │
-        │   │       │ and populate a new command-line with the current command, │
-        │   │       │ to let me edit it                                         │
-        └───┴───────┴───────────────────────────────────────────────────────────┘
+    ┌───┬───────┬───────────────────────────────────────────────────────────┐
+    │ n │ no    │ refuse the correction, execute the command as it is       │
+    ├───┼───────┼───────────────────────────────────────────────────────────┤
+    │ y │ yes   │ accept the correction                                     │
+    ├───┼───────┼───────────────────────────────────────────────────────────┤
+    │ a │ abort │ cancel the execution of the command                       │
+    ├───┼───────┼───────────────────────────────────────────────────────────┤
+    │ e │ edit  │ cancel the execution of the command,                      │
+    │   │       │ and populate a new command-line with the current command, │
+    │   │       │ to let me edit it                                         │
+    └───┴───────┴───────────────────────────────────────────────────────────┘
 
 `e` is particularly useful  when you make a typo, and  the spelling mechanism is
 unable to fix it.

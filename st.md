@@ -39,7 +39,7 @@ Review the other patches.
 ### ?
 
 Explain how to create a patch.
-I.e. create a temporarily branch, commit, edit files, and run `$ git diff`.
+I.e. create a temporary branch, commit, edit files, and run `$ git diff`.
 
 ###
 ## patches to avoid
