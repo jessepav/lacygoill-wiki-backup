@@ -170,44 +170,6 @@ Should we do the same for all scratch buffers?
 
 ##
 ## mappings
-### There should be a mapping on C-l to focus the previous window:
-
-    nno <buffer><nowait><silent> <c-l> :<c-u>call <sid>focus_previous_window_if_on_right()<cr>
-
-    fu! s:focus_previous_window_if_on_right() abort
-        if s:previous_window_is_on_right()
-            wincmd p
-        else
-            wincmd l
-        endif
-    endfu
-
-    fu! s:previous_window_is_on_right() abort
-        let nr = winnr()
-        let rightedge_current_window = win_screenpos(nr)[1] + winwidth(nr) - 1
-        let nr = winnr('#')
-        let leftedge_previous_window = win_screenpos(nr)[1]
-        return rightedge_current_window + 1 == leftedge_previous_window - 1
-    endfu
-
-Otherwise, if you use the regular `C-l`,  you won't always focus back the window
-from which you came.
-
----
-
-In case you wonder why the mapping sometimes runs `wincmd l` instead of `wincmd p`:
-
-    $ vim
-    :Cheat
-    :h
-    C-j
-    C-l
-
-I would  expect the  last `C-l`  to focus the  window on  the right;  instead it
-focuses the window on the top.
-IOW, the previous window may not be on  the right; but if that's the case, `C-l`
-should still focus a window on the right.
-
 ### ?
 
 We should not run `:q` to close a scratch buffer via custom buffer-local mapping.

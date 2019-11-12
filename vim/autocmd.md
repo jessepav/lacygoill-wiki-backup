@@ -4,7 +4,7 @@ Use:
 
    - a lambda
 
-         fu! Func()
+         fu Func()
             let var = 'defined in outer scope'
             let s:lambda = {-> var}
             au SafeState * ++once echo s:lambda()
@@ -14,7 +14,7 @@ Use:
 
    - a closure
 
-         fu! Func()
+         fu Func()
             let var = 'defined in outer scope'
             fu! Closure() closure
                 echo var
@@ -26,12 +26,12 @@ Use:
 
    - a partial
 
-         fu! Func()
+         fu Func()
             let var = 'defined in outer scope'
             let s:partial = function('s:echo', [var])
             au SafeState * ++once call s:partial()
          endfu
-         fu! s:echo(var)
+         fu s:echo(var)
             echo a:var
          endfu
          call Func()
@@ -46,7 +46,7 @@ function inside another function.
 
 The solution using a lambda can sometimes seem awkward:
 
-    fu! Func()
+    fu Func()
        let var = 'defined in outer scope'
        let s:lambda = {-> execute('let g:var_save ='..string(var))}
        au SafeState * ++once call s:lambda()
@@ -62,7 +62,7 @@ lambda is ugly.
 Besides, the `string()` invocation seems brittle.
 Although, it seems to work, even if the variable contains quotes:
 
-    fu! Func()
+    fu Func()
        let var = "a'b\"c"
        let s:lambda = {-> execute('let g:var_save ='..string(var))}
        au SafeState * ++once call s:lambda()
@@ -88,7 +88,7 @@ These solutions scale better when you need to access several variables.
 
 Example:
 
-    fu! Func()
+    fu Func()
        let [a, b, c] = [1, 2, 3]
        fu! Closure() closure
            echo a + b + c
@@ -98,7 +98,7 @@ Example:
     call Func()
     6~
 
-    fu! Func()
+    fu Func()
        let [s:a, s:b, s:c] = [1, 2, 3]
        au SafeState * ++once echo s:a + s:b + s:c
     endfu
@@ -210,7 +210,7 @@ you enter the Ex command-line; you could write:
         au CursorHold * call Func()
         au CmdlineEnter : call Func()
     augroup END
-    fu! Func()
+    fu Func()
         au! some_group
         " do sth
     endfu
@@ -219,7 +219,7 @@ But you couldn't re-write it like this:
 
     au CursorHold * ++once call Func()
     au CmdlineEnter : ++once call Func()
-    fu! Func()
+    fu Func()
         " do sth
     endfu
 
@@ -737,7 +737,7 @@ Ex:
         autocmd BufEnter * call MyFunc()
     augroup END
 
-    fu! MyFunc() abort
+    fu MyFunc() abort
         let g:last_entered_file = expand('<amatch>')
     endfu
 
@@ -780,7 +780,7 @@ le flag `nested` juste avant la commande de A.  Exemple:
 
 # Pratique
 
-    fu! ToStartOfChange()
+    fu ToStartOfChange()
         augroup ToStartOfChange
             au!
             au InsertLeave * exe 'norm! g`[' | exe 'au! ToStartOfChange' | aug! ToStartOfChange

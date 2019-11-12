@@ -9,21 +9,21 @@
 In an `<expr>` mapping, it depends:
 
     " ✔
-    fu! Func(str)
+    fu Func(str)
         return ''
     endfu
     nno <expr> cd Func('foo <c-j> bar')
     norm cd
 
     " ✔
-    fu! Func(str)
+    fu Func(str)
         return ''
     endfu
     nno <expr> cd ':call ' . Func('foo <c-j> bar')
     norm cd
 
     " ✘
-    fu! Func(str)
+    fu Func(str)
         return a:str
     endfu
     nno <expr> cd ':call ' . Func('foo <c-j> bar')
@@ -31,7 +31,7 @@ In an `<expr>` mapping, it depends:
 
 However, they *can* in a regular mapping:
 
-    fu! Func(str)
+    fu Func(str)
         echo a:str
     endfu
     nno cd :call Func('foo <c-j> bar')<cr>
@@ -251,7 +251,7 @@ scenario. For example, atm, we have these mappings and function:
     " ~/.vim/plugged/vim-window/plugin/window.vim
     nno <silent><unique> <space>q :<c-u>call lg#window#quit()<cr>
 
-    fu! lg#window#quit() abort
+    fu lg#window#quit() abort
         ...
         if reg_recording() isnot# ''
             return feedkeys('q', 'int')[-1]
@@ -287,7 +287,7 @@ sequence of Ex commands separated by bars.
 ---
 
         nno  cd  :<c-u>call Func()<cr>bbb
-        fu! Func() abort
+        fu Func() abort
             call input('>')
         endfu
 
@@ -298,7 +298,7 @@ sequence of Ex commands separated by bars.
 ---
 
         nno  <silent>  cd  :<c-u>call Func()<cr>bbb
-        fu! Func() abort
+        fu Func() abort
             call input('>')
         endfu
 
@@ -320,7 +320,7 @@ their input.
 ---
 
         nno  cd  :<c-u>call Func()<bar>norm! bbb<cr>
-        fu! Func() abort
+        fu Func() abort
             call input('> ')
         endfu
 
@@ -356,13 +356,13 @@ Use `feedkeys()` instead.
 Install a wrapper around your opfunc.
 Inside the wrapper, call the opfunc by prefixing `:call` with the range:
 
-                    ┌ consumes the type
-                    │
-        fu! Wrapper(_)
+                   ┌ consumes the type
+                   │
+        fu Wrapper(_)
             '[,']call OpFunc()
         endfu
 
-        fu! OpFunc()
+        fu OpFunc()
             " use setline()
         endfu
 
@@ -378,10 +378,10 @@ I don't know any solution to this  issue, other than printing your messages from
 another function invoked before/after your opfunc, but not directly from it:
 
         nno cd :set opfunc=Func<bar>norm! g@_<cr>
-        fu! Func(_)
+        fu Func(_)
             call FuncA()
         endfu
-        fu! FuncA() abort
+        fu FuncA() abort
             echo 'foo'
             echo 'bar'
         endfu
@@ -390,9 +390,9 @@ another function invoked before/after your opfunc, but not directly from it:
         " bar~
 
         nno cd :set opfunc=Func<bar>exe 'norm! g@_'<bar>:call FuncA()<cr>
-        fu! Func(_)
+        fu Func(_)
         endfu
-        fu! FuncA() abort
+        fu FuncA() abort
             echo 'foo'
             echo 'bar'
         endfu
@@ -420,7 +420,7 @@ And for autocmds:
         au!
         au CursorHold * call Func() | au! test_echo
     augroup END
-    fu! Func()
+    fu Func()
         echo 'foo'
         echo 'bar'
     endfu
@@ -496,7 +496,7 @@ Or:
         nmap          <lhs>                  <plug>(named_mapping)
         nno <silent>  <plug>(named_mapping)  :cmd1<bar>cmd2...<bar>call Func()<cr>
 
-        fu! Func()
+        fu Func()
             ...
             sil! call repeat#set("\<plug>(named_mapping)")
             "  ^
@@ -603,7 +603,7 @@ Because if your opfunc invokes `input()`, you don't want your keys to be consume
 MWE:
 
     nno cd :call Func()<cr>bbb
-    fu! Func() abort
+    fu Func() abort
         call input('>')
     endfu
 
@@ -612,7 +612,7 @@ on the command-line, instead of being pressed.
 But if you rewrite the mapping like this, it works as expected:
 
     nno cd :call Func()<bar>norm! bbb<cr>
-    fu! Func() abort
+    fu Func() abort
         call input('>')
     endfu
 
@@ -656,7 +656,7 @@ Example with the `gq` operator:
         nno <silent>  gqq  :<c-u>set opfunc=<sid>gq<bar>exe 'norm! '.v:count1.'g@_'<cr>
         xno <silent>  gq   :<c-u>call <sid>gq('vis')<cr>
 
-        fu! s:gq()
+        fu s:gq()
             " tweak some setting which alters the behavior of `gq`
             ...
             " execute the default `gq`
@@ -676,7 +676,7 @@ Example:
 
         nno <silent> \d :<c-u>set opfunc=<sid>duplicate_and_comment<cr>g@
 
-        fu! s:duplicate_and_comment(type)
+        fu s:duplicate_and_comment(type)
             norm! '[y']
 
             " norm gc']     ✘
@@ -783,10 +783,10 @@ trigger InsertLeave.
     ├─────────────────────────┼────────────────────────────────────────────────────────────┤
     │ nno <expr> <key> Func() │ nno         <Plug>(open_line)    :call append('.', '')<cr> │
     │                         │ nno         <Plug>(abc)          abc                       │
-    │ fu! Func()              │                                                            │
+    │ fu Func()               │                                                            │
     │ call append('.', '')    │ nmap <expr> <key>                Func()                    │
     │     return 'abc'        │                                                            │
-    │ endfu                   │ fu! Func()                                                 │
+    │ endfu                   │ fu Func()                                                  │
     │                         │     return "\<Plug>(open_line)\<Plug>(abc)"                │
     │                         │ endfu                                                      │
     └─────────────────────────┴────────────────────────────────────────────────────────────┘
@@ -827,19 +827,19 @@ trigger InsertLeave.
                     ├──────────────────────┼──────────────────────────────────────────────┤
                     │ nno <expr> cd Func() │ nmap <expr>  cd            FuncA()           │
                     │                      │ nno          <plug>(plug)  :call FuncB()<cr> │
-                    │ fu! Func()           │                                              │
-                    │     echo 'hello'     │ fu! FuncA()                                  │
+                    │ fu Func()            │                                              │
+                    │     echo 'hello'     │ fu FuncA()                                   │
                     │     return ''        │     return "\<plug>(plug)"                   │
                     │ endfu                │ endfu                                        │
                     │                      │                                              │
-                    │                      │ fu! FuncB()                                  │
+                    │                      │ fu FuncB()                                   │
                     │                      │     echo 'hello'                             │
                     │                      │ endfu                                        │
                     └──────────────────────┴──────────────────────────────────────────────┘
 
 
     noremap <expr> <key>    ':<c-u>call MyFunc(' . string(mode()) . ')<cr>'
-    fu! MyFunc(mode)
+    fu MyFunc(mode)
         echo 'This function was called from ' . a:mode . ' mode'
     endfu
 
@@ -941,7 +941,7 @@ trigger InsertLeave.
 
 ## <plug>
 
-    fu! Reminder(cmd)
+    fu Reminder(cmd)
         " erase the input before displaying next message
         redraw
         echohl WarningMsg | echo '['.a:cmd.'] was equivalent' | echohl NONE
@@ -1010,7 +1010,7 @@ trigger InsertLeave.
 
             On aurait pu déplacer `input()` au sein même de `Reminder()`:
 
-                    fu! Reminder()
+                    fu Reminder()
                         let cmd = input('')
                         redraw
                         echohl WarningMsg | echo '['.cmd.'] was equivalent' | echohl NONE
@@ -1369,10 +1369,10 @@ Si la commande Ex est :call, 2 possibilités:
             Ex:    set <M-p>=                    fonctionne
                                                  car :set ne modifie en rien la table des commandes
 
-                   com! DisMeta set <M-p>=       ne fonctionnera pas qd on voudra l'utiliser
+                   com DisMeta set <M-p>=        ne fonctionnera pas qd on voudra l'utiliser
                                                  E518: Unknown option: ð=
 
-                   com! DisMeta set <lt>M-p>=    fonctionnera
+                   com DisMeta set <lt>M-p>=     fonctionnera
 
 
 
@@ -1423,7 +1423,7 @@ sera frappé, le contexte ne sera plus celui du script.
 Pour accéder à une variable locale à un script depuis un mapping, il faut passer par une fonction ex:
 
             let s:myvar = 'hello world!'
-            fu! s:my_func()
+            fu s:my_func()
                 return s:myvar
             endfu
             nno <key>    :echo <SID>my_func()<cr>
@@ -1819,7 +1819,7 @@ Whenever we mention a text-object, a motion is a valid replacement.
 
     xno  <key>  :<c-u>call Func('vis')<cr>
 
-    fu! Func(type, ...)
+    fu Func(type, ...)
         if a:type is# 'vis'
             " process visual selection
         else
@@ -1846,7 +1846,7 @@ Whenever we mention a text-object, a motion is a valid replacement.
 
                     xno  <key>  :<c-u>call Func(visualmode(), 1)<cr>
 
-                    fu! Func(type, ...)
+                    fu Func(type, ...)
                         if a:0
                             " process visual selection
                         else
@@ -1861,9 +1861,9 @@ Whenever we mention a text-object, a motion is a valid replacement.
             The consistency remains even if we also call the function from an Ex
             command:
 
-                    com! Cmd call Func('Ex', <line1>, <line2>)
+                    com Cmd call Func('Ex', <line1>, <line2>)
 
-                    fu! Func(type, ...)
+                    fu Func(type, ...)
                         if a:type is# 'Ex'
                             " operate on lines between `a:1` and `a:2`
                         endif
@@ -1887,11 +1887,11 @@ Voici qques exemples, ainsi qu'une description de leur traitement par Vim.
     nno  <expr>    <plug>(one)   FuncB()
     nno          ge<plug>(one)  :echo 'world'<cr>
 
-    fu! FuncA()
+    fu FuncA()
         return "ge\<plug>(one)"
     endfu
 
-    fu! FuncB()
+    fu FuncB()
         echo 'hello'
     endfu
 
@@ -1910,11 +1910,11 @@ Voici qques exemples, ainsi qu'une description de leur traitement par Vim.
     nno   <expr>   <plug>(one)   FuncB()
     nno           N<plug>(one)  :echo 'world'<cr>
 
-    fu! FuncA()
+    fu FuncA()
         return "N\<plug>(one)"
     endfu
 
-    fu! FuncB()
+    fu FuncB()
         echo 'hello'
         return ''
     endfu
@@ -1948,11 +1948,11 @@ Voici qques exemples, ainsi qu'une description de leur traitement par Vim.
     nmap <expr>   <plug>(one)   FuncB()
     nno         cd<plug>(one)  :echo 'world'<cr>
 
-    fu! FuncA()
+    fu FuncA()
         return "cd\<plug>(one)"
     endfu
 
-    fu! FuncB()
+    fu FuncB()
         echo 'hello'
         return ''
     endfu
@@ -2015,20 +2015,20 @@ Voici qques exemples, ainsi qu'une description de leur traitement par Vim.
 # Retardement
 
     nno <expr> cd Func()
-    fu! Func()
+    fu Func()
         put =42                                         ✘ E523: Not allowed here
         return 'yy'
     endfu
 
     nno <expr> cd Func()
-    fu! Func()
+    fu Func()
         call timer_start(0, {-> execute('put =42')})    ✔
         return 'yy'
     endfu
 
     nno <expr> cd Func()
     nno <plug>(put_42) :put =42<cr>
-    fu! Func()
+    fu Func()
         call feedkeys("\<plug>(put_42)")                ✔
         return 'yy'
     endfu

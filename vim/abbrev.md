@@ -48,7 +48,7 @@ Or, in the definition of your abbreviation, consume the space with `getchar()`.
 
 Example:
 
-    fu! s:eat_space() abort
+    fu s:eat_space() abort
        let c = nr2char(getchar(0))
        return c =~# '\s' ? '' : c
     endfu

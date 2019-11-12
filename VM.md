@@ -505,7 +505,6 @@ Assuming you've successfully installed the Guest Additions:
 
 Alternatively, in GUI:
 
-
       select “Devices” in the virtual machine's menu bar
     > select the menu item “Shared Clipboard”
     > select the menu item “Bidirectional”

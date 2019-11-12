@@ -189,7 +189,7 @@ discarded.
 
 ---
 
-    fu! Func()
+    fu Func()
         try
         finally
             return
@@ -229,7 +229,7 @@ BCFR in try block:
 
 
 
-    fu! Func()
+    fu Func()
         try
             let answer = input('?')
             if answer is# ''
@@ -292,7 +292,7 @@ sourced from a script or called by a function.
     endtry
     "
     "
-    fu! Func() abort
+    fu Func() abort
         try
             abcd
         catch /efgh/
@@ -512,11 +512,11 @@ No.
 
 Example:
 
-    fu! TASK1()
+    fu TASK1()
         sleep 10
     endfu
     "
-    fu! TASK2()
+    fu TASK2()
         sleep 20
     endfu
     "
@@ -575,7 +575,7 @@ Example:
 
 This displays 'first', 'cleanup', 'second', 'cleanup', and 'end'.
 
-    fu! Func()
+    fu Func()
         try
             return 123
         finally
@@ -637,13 +637,13 @@ Additional information  in parentheses  can be cut  out from  `v:exception` with
 
 Example:
 
-    fu! CheckRange(a, func)
+    fu CheckRange(a, func)
         if a:a < 0
             throw 'EXCEPT:MATHERR:RANGE('.a:func.')'
         endif
     endfu
     "
-    fu! Add(a, b)
+    fu Add(a, b)
         call CheckRange(a:a, 'Add')
         call CheckRange(a:b, 'Add')
         let c = a:a + a:b
@@ -653,7 +653,7 @@ Example:
         return c
     endfu
     "
-    fu! Div(a, b)
+    fu Div(a, b)
         call CheckRange(a:a, 'Div')
         call CheckRange(a:b, 'Div')
         if a:b == 0
@@ -662,7 +662,7 @@ Example:
         return a:a / a:b
     endfu
     "
-    fu! Write(file)
+    fu Write(file)
         try
             exe 'write '.fnameescape(a:file)
         catch /^Vim(write):/
@@ -1147,7 +1147,7 @@ The ':throw' command then does not throw a new exception.
 
 Example:
 
-    fu! Foo(arg)
+    fu Foo(arg)
         try
             throw a:arg
         catch /me/
@@ -1155,7 +1155,7 @@ Example:
         return 3
     endfu
     "
-    fu! Bar()
+    fu Bar()
         echom 'in_Bar'
         return 120
     endfu
@@ -1203,7 +1203,7 @@ recently caught as long it is not finished.
 
 Example:
 
-    fu! Caught()
+    fu Caught()
         if v:exception != ''
             echom 'caught '.string(v:exception).' in '.v:throwpoint
         else
@@ -1211,7 +1211,7 @@ Example:
         endif
     endfu
     "
-    fu! Func()
+    fu Func()
         try
             try
                 try
@@ -1241,21 +1241,21 @@ This displays:
 A practical example:  the following command `:linenumber` displays the line
 number in the script or function where it has been used:
 
-    fu! Linenumber()
+    fu Linenumber()
         return substitute(v:throwpoint, '.*\d\(\d\+\).*', '\1', '')
     endfu
-    com! Linenumber try | throw '' | catch | echom Linenumber() | endtry
+    com Linenumber try | throw '' | catch | echom Linenumber() | endtry
 
 ---
 
 You can catch an exception and throw a new one to be caught elsewhere from the
 catch clause:
 
-    fu! Foo()
+    fu Foo()
         throw 'foo'
     endfu
     "
-    fu! Bar()
+    fu Bar()
         try
             call Foo()
         catch /foo/
@@ -1275,7 +1275,7 @@ This displays 'caught foo, throw bar' and then 'caught bar'.
 There is no real rethrow in the Vim script language, but you may throw
 `v:exception` instead:
 
-    fu! Bar()
+    fu Bar()
         try
             call Func()
         catch /.*/

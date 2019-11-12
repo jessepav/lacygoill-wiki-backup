@@ -175,7 +175,7 @@ So, if you edit the middle of your recording later, Vim will add an undesirable 
 
                                 nno cd :call MyFunc()<cr>
 
-                                fu! MyFunc()                     fu! MyFunc()
+                                fu MyFunc()                      fu MyFunc()
                                     s/foo/bar/                       let @/='foo'
                                 endfu                            endfu
 
@@ -513,9 +513,9 @@ Update `xsel`, or compile it from source:
     $ git clone https://github.com/kfish/xsel
     $ cd xsel
     $ ./autogen.sh
-    $ ./configure.sh
+    $ ./configure
     $ make
-    $ sudo checkinstall (give a valid version number)
+    $ sudo make install
 
 ---
 

@@ -126,7 +126,7 @@ If the executable is not there, here's how you can find where it's located:
         $ tree -aF | vipe
         /\<weechat\*
 
-# install the binary as part of a package
+# install the binary
 
-    $ sudo rlwrap checkinstall --pkgname myweechat -y
+    $ sudo make install
 

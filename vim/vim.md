@@ -1404,7 +1404,7 @@ Infographie résumant les différents types d'interaction possibles entre Vim et
 
                     setl fex=MyFormatExpr(v:lnum,v:lnum+v:count-1)
 
-                    fu! MyFormatExpr(start, end)
+                    fu MyFormatExpr(start, end)
                         sil! exe a:start . ',' . a:end . 's/[.!?]\zs /\r/g'
                     endfu
 
@@ -2354,7 +2354,7 @@ ligne de la marque a (les 2 lignes incluses).
                 let next_begin = searchpos(@/, 'n')
                 let next_end   = searchpos(@/, 'cne')
 
-                fu! IsBefore(pos1, pos2)
+                fu IsBefore(pos1, pos2)
                     return a:pos1[0] < a:pos2[0] || (a:pos1[0] == a:pos2[0] && a:pos1[1] < a:pos2[1])
                 endfu
 
@@ -3176,7 +3176,7 @@ On peut se rendre à une marque de 4 façons différentes, en la préfixant avec
 
             Ex:
 
-                    com! ABC vnew | file foobar
+                    com ABC vnew | file foobar
 
             … il se peut qu'on voit un message du genre:
 

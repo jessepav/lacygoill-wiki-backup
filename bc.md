@@ -1,14 +1,9 @@
 
     https://ftp.gnu.org/gnu/bc/
 
-    $ ./configure --with-readline --prefix=/usr
+    $ ./configure --with-readline
     $ make
-    $ sudo checkinstall
-
-Make sure to use `/usr` as the installation directory.
-Otherwise, bc will be installed under `/usr/local`, which, for some reason, will
-prevent checkinstall  from installing other  packages later, because  it doesn't
-want to overwrite `/usr/local/share/info/dir`.
+    $ sudo make install
 
 # What is bc?
 

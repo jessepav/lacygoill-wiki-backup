@@ -11,9 +11,7 @@ Once the archive is downloaded, check its authenticity, extract it, then:
     $ ./configure
     $ make
     $ make check
-    $ sudo rlwrap checkinstall
-
-Installing the package is useful to get the manpages documenting the PCRE syntax.
+    $ sudo make install
 
 ## pcre2-utils
 

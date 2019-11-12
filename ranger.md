@@ -67,97 +67,14 @@ Press `+gr`.
 ##
 ##
 ##
-# AIDE
+# Documentation
 
     :help → m                                  dans ranger
 
     :Man /home/user/Vcs/ranger/doc/ranger.1    dans Vim
     :Man /home/user/Vcs/ranger/doc/rifle.1
 
-# BUGS
-
-Open an audio/video file from ranger, then try quit ranger.
-
-    Not quitting: Tasks in progress: Use `quit!` to force quit
-
----
-
-    api w3m-img
-    vim config/rc.conf    →    set preview_images true
-    ranger --copy-config=scope
-
-            Procédure pour activer la prévisualisation d'images. Elle est décrite ici:
-
-                    https://github.com/ranger/ranger/wiki/Image-Previews
-
-            La 3e étape n'est pas nécessaire si on a déjà un fichier `config/scope.sh`.
-
-            Ne fonctionne que dans certains terminaux (xterm, rxvt-unicode, st), et en-dehors de tmux.
-            Trouver un moyen de faire marcher ça dans notre terminal (guake ou autre + tmux).
-            Ou trouver qch d'équivalent.
-
-
-    sudo api w3m-img ffmpegthumbnailer
-    ranger --copy-config=scope
-    vim config/scope.sh    →    uncomment 3 lines:
-
-                                video/*)
-                                    ffmpegthumbnailer -i "${FILE_PATH}" -o "${IMAGE_CACHE_PATH}" -s 0 && exit 6
-                                    exit 1;;
-
-            Procédure pour activer la prévisualisation de vidéos. Elle est décrite ici:
-
-                    https://github.com/ranger/ranger/wiki/Video-Previews
-
-            La 2e étape n'est pas nécessaire si on a déjà un fichier `config/scope.sh`.
-
-            La prévisualisation repose sur le programme `ffmpegthumbnailer`.
-            Malheureusement ça ne marche pas, il n'y a aucune prévisualisation qd on sélectionne
-            un fichier vidéo dans ranger.
-
-            Le problème semble venir de ffmpegthumbnailer.
-            En effet, ranger obtient une prévisualisation en exécutant une commande du genre:
-
-                    ffmpegthumbnailer -i video_file -o output_image -s 0
-
-            Qd on exécute cette commande dans le terminal, on obtient un message d'erreur similaire à:
-
-                    Error: basic_string::substr: __pos (which is 18446744073709551615) > this->size() (which is 4)
-
-            J'ai purgé `ffmpegthumbnailer` et tenté d'installer une version plus récente, en compilant
-            depuis la source. La procédure de compilation est sommairement décrite ici:
-
-                    https://github.com/dirkvdb/ffmpegthumbnailer/blob/master/INSTALL
-
-            Je suis parvenu à compiler en installant quelques dépendances, et en utilisant
-            `checkinstall` plutôt que `make` (pour pouvoir supprimer ensuite via `dpkg -r ffmpegthumbnailer`):
-
-                    sudo aptitude install cmake libavcodec-dev libavformat-dev libavfilter-dev
-                    cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_GIO=ON -DENABLE_THUMBNAILER=ON .
-                    make
-                    sudo checkinstall
-
-            Un autre problème se pose, car ce nouveau `ffmpegthumbnailer` ne sait pas où trouver une
-            bibliothèque dont il a besoin quand on l'exécute.
-            Pour le lui apprendre, il semble qu'on ait 2 possibilités:
-
-                    sudo ldconfig
-
-                        OU
-
-                    LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/libffmpegthumbnailer.so.4
-                    export LD_LIBRARY_PATH
-
-            Plus d'infos sur le sujet ici:
-
-                    https://stackoverflow.com/questions/480764/linux-error-while-loading-shared-libraries-cannot-open-shared-object-file-no-s
-
-            Mais même avec cette version plus récente de `ffmpegthumbnailer`, la génération de vignette
-            continue d'échouer avec le même message d'erreur qu'auparavant.
-            Trouver une solution.
-
-
-# CONFIGURATION
+# Configuration
 
 Pour ajouter le support des VCS (glyphes git), dans `~/.config/ranger/rc.conf` remplacer `set vcs_aware false` par:
 `setlocal path=~/home/user/Vcs/ vcs_aware true`
@@ -179,7 +96,7 @@ Sa config est dans : `~/.config/ranger/rifle.conf`.
 Pour qu'il puisse correctement afficher la preview des images en ascii, il faut installer le paquet caca-utils
 (qui contient la fonction img2txt).
 
-# INSTALLATION
+# Installation
 
 Try to install ranger as a debian package.
 This way, you'll have the manpages (ranger(1), rifle(1)).
@@ -226,7 +143,7 @@ Official User Guide : https://github.com/hut/ranger/wiki/Official-user-guide
             ext 7z|ace|ar|arc|bz2?|cab|cpio|cpt|deb|dgc|dmg|gz,  has aunpack = aunpack -- "$@"
             ext iso|jar|msi|pkg|rar|shar|tar|tgz|xar|xpi|xz|zip, has aunpack = aunpack -- "$@"
 
-# RACCOURCIS
+# Key Bindings
 
     C-c         annuler une commande (ex: :rename)
 

@@ -101,23 +101,18 @@ tagstack est utilisé.
 
 # How to install `universal-ctags`?
 
-        $ sudo aptitude purge exuberant-ctags
-        $ sudo aptitude install python-docutils
-        $ git clone https://github.com/universal-ctags/ctags/
-        $ cd ctags
-        $ ./autogen.sh
-        $ ./configure
-        $ make
-        $ sudo checkinstall
-
-During  the  installation, `checkinstall(8)`  will  complain  about the  version
-number being invalid:  just type immediately (no menu entry  to select) whatever
-number you want (1.2.3).
-
+    $ sudo aptitude purge exuberant-ctags
+    $ sudo aptitude install python-docutils
+    $ git clone https://github.com/universal-ctags/ctags/
+    $ cd ctags
+    $ ./autogen.sh
+    $ ./configure
+    $ make
+    $ sudo make install
 
 For more info, read:
 
-https://github.com/universal-ctags/ctags/blob/master/docs/autotools.rst
+<https://github.com/universal-ctags/ctags/blob/master/docs/autotools.rst>
 
 # How to open the tag under the cursor in a new split?
 

@@ -217,7 +217,7 @@ In Vim:
 
     /usr/local/share/vim
          │
-         └ only if you compile Vim and install it with `checkinstall`
+         └ only if you compile Vim locally and install it with `make install`
 
 In Neovim:
 

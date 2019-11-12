@@ -796,8 +796,8 @@ Do the same for `'isf'`, `'isi'` and `'isp'` if your regex includes `\f`, `\i`, 
 
 MWE:
 
-    com! Test call Func()
-    fu! Func() abort
+    com Test call Func()
+    fu Func() abort
         let func_name = 'function! Some_name() abort'
         echo matchstr(func_name, '^\k\+!\=\s\+\zs\k\+')
     endfu

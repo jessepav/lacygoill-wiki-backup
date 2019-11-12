@@ -103,7 +103,7 @@ They need to call the same function, and you decide to move the latter in a libr
         ├─────────────────────────────────────┼─────────────────┤
         │ pack/foo/start/two/plugin/two.vim   │ call lib#func() │
         ├─────────────────────────────────────┼─────────────────┤
-        │ pack/foo/start/lib/autoload/lib.vim │ fu! lib#func()  │
+        │ pack/foo/start/lib/autoload/lib.vim │ fu lib#func()   │
         │                                     │     ...         │
         │                                     │ endfu           │
         └─────────────────────────────────────┴─────────────────┘

@@ -807,6 +807,7 @@ An awk utility is a binary you run from the command-line (like `/usr/local/bin/g
 
     $ vim README.git
 
+##
 ## How to install the latest version of gawk?
 ### Clone the repo
 
@@ -853,9 +854,12 @@ Including the patch number.
 
 ### Install
 
-    $ sudo checkinstall
+    $ sudo make install
 
-Use the previously noted version to fill in the version (`3: Version`):
+---
+
+If you use checkinstall, use the previously noted version to fill in the version
+(`3: Version`):
 
     9:4.2.1-722~
     ^^
@@ -934,9 +938,7 @@ The output should now contain something like:
 
 ### Install
 
-    $ sudo checkinstall --pkgversion 9:5.0.1
-                                     ^^
-                                     don't forget to specify a big-enough epoch
+    $ sudo make install
 
     $ sudo update-alternatives --install /usr/bin/awk awk /usr/local/bin/gawk 60 \
       --slave /usr/share/man/man1/awk.1.gz awk.1.gz /usr/local/share/man/man1/gawk.1.gz

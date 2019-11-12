@@ -1066,25 +1066,14 @@ Highlight on the fly.
 
 <https://github.com/t9md/vim-quickhl> 518 sloc
 
-## matchup    matchparen
+## mathpix
 
-match-up is a replacement for the venerable vim plugin matchit.vim.
-match-up  aims to  replicate all  of  matchit's features,  fix a  number of  its
-deficiencies and bugs, and add a few totally new features.
-It also replaces the standard plugin matchparen, allowing all of matchit's words
-to be highlighted along with the matchpairs ((){}[]).
+Vim commands to use mathpix from your screen
 
-- <https://www.reddit.com/r/vim/comments/7c1rjd/matchup_a_modern_enhanced_matchit_replacement/>
-- <https://github.com/andymass/vim-matchup> 1731 sloc
+This  is useful  if you  work with  LaTeX; it  allows you  to convert  a picture
+containing a diagram or an equation into LaTeX source code, and paste it in Vim.
 
----
-
-Smaller and faster alternative to `$VIMRUNTIME/plugin/matchparen.vim`.
-
-<https://github.com/itchyny/vim-parenmatch>
-
-Documentation:
-<https://raw.githubusercontent.com/itchyny/vim-parenmatch/master/doc/parenmatch.txt> 51 sloc
+<https://github.com/ekiim/vim-mathpix> 37 sloc
 
 ## markology  markbar
 
@@ -4156,7 +4145,7 @@ Plusieurs syntaxes sont possibles suivant la façon dont on souhaite charger un 
                     - status:    'installed', 'updated', ou 'unchanged'
                     - force:     flag activé (valeur 1) qd on utilise `:PlugInstall!` ou `:PlugUpdate!`
 
-                    fu! BuildYCM(info) abort
+                    fu BuildYCM(info) abort
 
                         if a:info.status == 'installed' || a:info.force
                             !./install.py
@@ -4206,6 +4195,6 @@ Plusieurs syntaxes sont possibles suivant la façon dont on souhaite charger un 
 
                     :echo 'foo | bar'                      ✔
 
-                    :com! -nargs=+ -bar Test echo <args>
+                    :com -nargs=+ -bar Test echo <args>
                     :Test 'foo | bar'                      ✘
 

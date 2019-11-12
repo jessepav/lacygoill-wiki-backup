@@ -1,66 +1,17 @@
-# CAVA
+# cava
 
 `cava` est un pgm permettant de visualiser sous la forme d'une sorte d'histogramme dynamique.
 
 ## Installation
 
-On peut installer le pgm en le compilant depuis la page github du projet.
-
-    sudo aptitude install libfftw3-dev libasound2-dev libncursesw5-dev libpulse-dev libtool
-    sudo aptitude install m4 autoconf automake
-    ./autogen.sh
-    ./configure
-    make
-    sudo checkinstall
-
-            Procédure pour installer cava depuis le repo github:
-
-                    https://github.com/karlstav/cava
-
-            La 1e ligne est donnée par la page readme du projet.
-            Elle installe des dépendances nécessaire à la compilation.
-            Il se peut que les dépendances changent dans le futur qd cava sera mis à jour:
-
-                    ⇒ ne pas copier cette ligne bêtement, relire le readme
-
-            La 2e ligne installe des dépendances supplémentaires dont j'ai eu besoin lors de ma dernière
-            compilation.
-
-            Le binaire est installé dans `/usr/local/bin`.
-
-
-                                     NOTE:
-
-            Pendant l'installation via `checkinstall`, un message d'erreur apparaît:
-
-                    *** Warning: The package version "0.4.2-17-geed0bca
-                    0.4.2-17-geed0bca
-                    0.4.2-17-geed0bca
-                    0.4.2-17-geed0bca
-                    0.4.2-17-geed0bca" is not a
-                    *** Warning: debian policy compliant one. Please specify an alternate one
-
-            Le pb vient du fait que le nom du paquet n'est pas conforme à une règle établie par Debian.
-            Si on ne corrige pas ce pb, le binaire (paquet?) sera bien installé, mais le paquet ne sera
-            pas manipulable via `dpkg`.
-
-            Solution:
-
-            Renommer le paquet en conservant le n° de version, mais en remplaçant ce qui suit par un suffixe
-            conforme à la politique de Debian. Ex:
-
-                    0.4.2-17-geed0bca    →    0.4.2-17+dfsg-0ubuntu5
-
-            Le suffixe `+dfsg-0ubuntu5` a été trouvé en s'inspirant du nom du paquet `alsa-base`
-            (paquet lui-aussi lié au son), via `aptitude show alsa-base`.
-
-
-    sudo dpkg -L cava
-    sudo dpkg -r cava
-
-            Liste les fichiers au sein du paquet `cava`.
-            Supprime le paquet `cava`.
-
+    $ sudo aptitude install libfftw3-dev libasound2-dev libncursesw5-dev libpulse-dev libtool
+    $ sudo aptitude install m4 autoconf automake
+    $ git clone https://github.com/karlstav/cava
+    $ cd cava
+    $ ./autogen.sh
+    $ ./configure
+    $ make
+    $ sudo make install
 
 ## Configuration
 

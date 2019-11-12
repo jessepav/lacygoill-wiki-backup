@@ -64,7 +64,7 @@ It must begin with an uppercase character, if it's global:
 or if it's local to a function:
 
     unlet! g:Length
-    fu! Length(string) abort
+    fu Length(string) abort
         "     ✘
         "     v
         let l:length = function(exists('*strchars') ? 'strchars' : 'strlen')
@@ -74,7 +74,7 @@ or if it's local to a function:
     E704: Funcref variable name must start with a capital: l:length~
 
     unlet! g:Length
-    fu! Length(string) abort
+    fu Length(string) abort
         "     ✔
         "     v
         let l:Length = function(exists('*strchars') ? 'strchars' : 'strlen')
@@ -103,7 +103,7 @@ there could be a conflict with a builtin function.
 # I save a funcref in a global variable, then define a function whose name is identical to the variable:
 
     let g:Length = function('toupper')
-    fu! Length(string) abort
+    fu Length(string) abort
         let l:Length = function(exists('*strchars') ? 'strchars' : 'strlen')
         return l:Length(a:string)
     endfu
@@ -131,7 +131,7 @@ But the definition of the function is weird:
 It would raise `E705`.
 
     unlet! g:Length
-    fu! Length(string) abort
+    fu Length(string) abort
         let l:Length = function(exists('*strchars') ? 'strchars' : 'strlen')
         return l:Length(a:string)
     endfu
@@ -145,7 +145,7 @@ It seems that `:let` is careful about avoiding conflicts, but not `:fu`.
 
 Any expression whose value is a funcref.
 
-    fu! Func(i,j)
+    fu Func(i,j)
         return a:i + a:j
     endfu
     let list = [function('Func')]
@@ -169,7 +169,7 @@ Pass the dictionary as an argument to `function()`.
 The resulting funcref binds the function to the dictionary.
 
     let adict = {'name': 'toto'}
-    fu! Func() dict
+    fu Func() dict
         return 'my name is: '.self['name']
     endfu
     let Fn = function('Func', adict)
@@ -191,7 +191,7 @@ The resulting funcref binds the function to the dictionary.
 
 Example:
 
-    fu! s:size() dict
+    fu s:size() dict
         return len(self.data)
     endfu
     let adict = {'data': [0, 1, 2], 'size': function('s:size')}
@@ -214,7 +214,7 @@ Follow this scheme for the name of the function:
 Example:
 
     let adict = {'data': [0, 1, 2]}
-    fu! adict.size()
+    fu adict.size()
         return len(self.data)
     endfu
     echo adict.size()
@@ -240,7 +240,7 @@ variable `self`; it couldn't without.
 
 You can't call a function defined with `dict` directly:
 
-    fu! Func() dict
+    fu Func() dict
         return 1
     endfu
     echo Func()
@@ -257,7 +257,7 @@ It  adds the  key `size`  to `adict`,  and give  it a  funcref referring  to the
 currently defined function, as a value.
 
     let adict = {'data': [0, 1, 2]}
-    fu! adict.size()
+    fu adict.size()
         return len(self.data)
     endfu
     echo adict.size
@@ -276,7 +276,7 @@ currently defined function, as a value.
 If `adict` already contains a `size` key, the definition of the function fails:
 
     let adict = {'data': [0, 1, 2], 'size': 0}
-    fu! adict.size()
+    fu adict.size()
         return len(self.data)
     endfu
     E718: Funcref required~
@@ -307,7 +307,7 @@ So, if  you think you can  infer where the location  of the function is  in your
 codebase, by looking at its definition, you may not even be able to do that:
 
     let adict = {'data': [0, 1, 2]}
-    fu! adict.size()
+    fu adict.size()
         return len(self.data)
     endfu
     echo adict.size
@@ -346,7 +346,7 @@ But you do need to assign it in order to call it:
 Document that if you refer to a lambda directly, and not via a variable, then it
 can't access its outer scope:
 
-    fu! Func()
+    fu Func()
         let msg = 'test'
         let s:lambda = {-> msg}
         au SafeState * ++once echo s:lambda()
@@ -354,7 +354,7 @@ can't access its outer scope:
     call Func()
     test~
 
-    fu! Func()
+    fu Func()
         let msg = 'test'
         au SafeState * ++once echo {-> msg}()
     endfu
@@ -366,7 +366,7 @@ can't access its outer scope:
 It seems the issue is specific to an autocmd.
 Without an autocmd, the code works as expected:
 
-    fu! Func()
+    fu Func()
         let msg = 'test'
         echo {-> msg}()
     endfu
@@ -384,7 +384,7 @@ in the function; so the lambda's outer scope is the function, which it can acces
 
 # ?
 
-    fu! Func() dict
+    fu Func() dict
         return 'called from '.self['which dict am I']
     endfu
     let adict = {'which dict am I': 'adict'}
@@ -434,7 +434,7 @@ Here "self" will be "myDict", because it was bound explicitly.
 # ?
 
     let adict = {'data': [0, 1, 2]}
-    fu! adict.size()
+    fu adict.size()
         return len(self.data)
     endfu
     let bdict = {'data': [0, 1], 'size': function(adict.size)}
@@ -488,11 +488,11 @@ Qd elle en reçoit un, elle l'associe à la fonction.
 
 # ?
 
-    fu! Hello()
+    fu Hello()
         echo 'hello'
     endfu
 
-    fu! World()
+    fu World()
         echo 'world'
     endfu
 
@@ -513,7 +513,7 @@ l'évaluation est une funcref:
 
 ---
 
-    fu! Func(i,j)
+    fu Func(i,j)
         return a:i + a:j
     endfu
     let Fn = function('Func')
@@ -539,7 +539,7 @@ la liste, pas si on les laisse dedans:
 On peut  aussi utiliser `call()`  pour passer une  liste d'arguments
 directement à une fonction:
 
-    fu! Func(...)
+    fu Func(...)
         let sum = 0
         for i in a:000
             let sum += i
@@ -557,13 +557,13 @@ pas connue à l'avance.
 
 ---
 
-    fu! Func()                  ┊ "
+    fu Func()                   ┊ "
         return 'foo'            ┊ "
     endfu                       ┊ "
                                 ┊
     let Fn = function('Func')   ┊   let Fn = funcref('Func')
                                 ┊
-    fu! Func()                  ┊ "
+    fu Func()                   ┊ "
         return 'bar'            ┊ "
     endfu                       ┊ "
                                 ┊
@@ -603,7 +603,7 @@ Pour  obtenir le  nom  d'une funcref  sous  forme de  chaîne,  il faut  utilise
 
 ---
 
-    fu! Func()
+    fu Func()
         return 42
     endfu
     let Func = function('Func')
@@ -617,7 +617,7 @@ contenant une funcref se référant à elle.
 En revanche, on  peut ré-utiliser le nom  d'une fonction pour nommer  une clé de
 dico dont la valeur est une funcref se référant à elle:
 
-    fu! Func()
+    fu Func()
         return 42
     endfu
     let mydict = {'data': [0, 1], 'Func': function('Func')}
@@ -626,7 +626,7 @@ dico dont la valeur est une funcref se référant à elle:
 
 # ?
 
-    fu! Describe(i, j, object)
+    fu Describe(i, j, object)
         echo (a:i + a:j).' '.a:object
     endfu
     let Description = function('Describe', [1, 2])
@@ -681,7 +681,7 @@ en ne fournissant à une autre fonction qu'une partie de ses arguments.
 
 ---
 
-    fu! Describe() dict
+    fu Describe() dict
         echo 'here are some ' . self.name
     endfu
     let object = {'name': 'fruits'}
@@ -698,7 +698,7 @@ Elle peut alors se référer au dico via sa variable locale `self`.
 
 ---
 
-    fu! Describe(count, adj) dict
+    fu Describe(count, adj) dict
         echo a:count.' '.a:adj.' '. self.name
     endfu
     let object = {'name': 'piggies'}
@@ -715,14 +715,14 @@ Il s'agit de 2 ensembles totalement séparés.
 San partiel, l'exemple précédent se ré-écrirait de la façon suivante:
 
     let object = {'name': 'piggies'}
-    fu! object.Describe(count, adj)
+    fu object.Describe(count, adj)
         echo a:count.' '.a:adj.' '. self.name
     endfu
     call object.Describe(3, 'little')
 
 ---
 
-    fu! Describe(i, j, object)
+    fu Describe(i, j, object)
         echo (a:i + a:j).' '.a:object
     endfu
     let Desc = function('Describe', [1])
@@ -760,7 +760,7 @@ La dernière commande équivaut à :
 
 ---
 
-    fu! Func() dict
+    fu Func() dict
         echo self.name
     endfu
 
@@ -777,7 +777,7 @@ Ici, `Func()` reçoit `mydict` via `self` qd on accède à la clé `myfunc`.
 
 ---
 
-    fu! Func() dict
+    fu Func() dict
         echo self.name
     endfu
 
@@ -804,7 +804,7 @@ lieu de `foo`.
 
 ---
 
-    fu! Func() dict
+    fu Func() dict
         echo self.name
     endfu
 

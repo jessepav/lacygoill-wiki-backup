@@ -5,6 +5,8 @@
 
     # set zsh as my login shell
     $ sudo chsh -s "$(command -v zsh)" "${USER}"
+    # same thing for the root user (necessary for `$ sudo -i` to work as expected)
+    $ sudo chsh -s "$(command -v zsh)" 'root'
 
     # logout/login (to restart graphical session)
     $ loginctl terminate-session "$(loginctl session-status | awk 'NR==1{print $1}')"

@@ -432,8 +432,8 @@ Use a [level of indirection][1].
 First define a custom command, then assign it to `'kp'`:
 
     setl kp=:MyCmd
-    com! MyCmd call Func()
-    fu! Func()
+    com MyCmd call Func()
+    fu Func()
         " complex commands
         " ...
     endfu
@@ -770,7 +770,7 @@ Une solution consiste à utiliser la 2e syntaxe:
 
 ... où `s:snr()` est définie comme suit:
 
-    fu! s:snr()
+    fu s:snr()
         return matchstr(expand('<sfile>'), '.*\zs<SNR>\d\+_')
     endfu
 
@@ -1369,7 +1369,7 @@ As an example, source this:
 
     set cot=menu,menuone,noinsert
     ino <c-z> <c-r>=Func()<cr>
-    fu! Func()
+    fu Func()
         let s:cot_save = &cot
         set cot-=noinsert
         au CompleteChanged * ++once let &cot = s:cot_save
@@ -1388,7 +1388,7 @@ Another example:
 
     set cot=
     ino <c-z> <c-r>=Func()<cr>
-    fu! Func()
+    fu Func()
         let s:cot_save = &cot
         set cot=menu,menuone
         au CompleteChanged * ++once let &cot = s:cot_save
@@ -1476,7 +1476,7 @@ Source this:
 
     set cot=
     ino <c-z> <c-r>=Func()<cr>
-    fu! Func()
+    fu Func()
         let s:cot_save = &cot
         set cot=menu,menuone
         au CompleteChanged * ++once let &cot = s:cot_save
@@ -1503,7 +1503,7 @@ fired; listen to it; better be safe than sorry.
 ### In the next snippet, why is `s:` the right scope for the variables?  Why not `b:`?
 
     ino <expr> <c-z> Func()
-    fu! Func() abort
+    fu Func() abort
         let s:cot_save = &cot
         set cot-=noinsert
         unlet! s:did_shoot

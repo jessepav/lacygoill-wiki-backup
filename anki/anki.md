@@ -24,9 +24,7 @@ Follow the instructions at: <https://apps.ankiweb.net/>
 
     $ tar xjf Downloads/anki-2.1.8-amd64.tar.bz2
     $ cd anki-2.1.8-linux-amd64
-    $ sudo checkinstall
-
-Make sure to give a valid version number during the installation.
+    $ sudo make install
 
 ## How to include the deck `bar` inside the deck `foo`?
 

@@ -46,7 +46,7 @@ Example:
               ^^^^
               1 argument
 
-    fu! Func(view)
+    fu Func(view)
         let [lnum, col] = [a:view.lnum, a:view.col]
     endfu
 
@@ -56,7 +56,7 @@ Example:
 
 Use a partial:
 
-    fu! Func(a, b, ...)
+    fu Func(a, b, ...)
         if a:0
             echom printf('received 4 arguments: %d, %d, %d, %d', a:a, a:b, a:1, a:2)
         else
@@ -98,7 +98,7 @@ Assign them to a list, and pass the latter to the function with `call()`:
     call call('FuncA', args)
     call call('FuncB', args)
     ...
-    fu! FuncA()
+    fu FuncA()
         let [a, b, c] = a:000
     endfu
 
@@ -117,7 +117,7 @@ Btw, `call()` is useful even if there are non-repeating arguments before/after:
     call call('FuncA', args + [4, 5])
     call call('FuncB', [6, 7] + args)
     ...
-    fu! FuncA()
+    fu FuncA()
         let [a, b, c] = a:000
     endfu
 
@@ -687,7 +687,7 @@ because the next item is '%'.
 
 You could naively run this:
 
-    fu! Func() abort
+    fu Func() abort
         let list = ['a', 'foo', '%', 'b', 'bar', '%', 'c']
         call filter(list, {i,_ -> get(list, i+1, '') isnot# '%'})
         echo list
@@ -709,7 +709,7 @@ following item should be decreased by one.
 But that's  not what  happens; after  removing an item,  Vim doesn't  update the
 indexes of the next ones:
 
-    fu! Func() abort
+    fu Func() abort
         let list = ['a', 'foo', '%', 'b', 'bar', '%', 'c']
         call filter(list,
             \ {i,_ -> (writefile(['index ' . i . ' | next index ' . (i+1)], '/tmp/log', 'a') + 2)
@@ -739,7 +739,7 @@ over a fixed list of indexes.
 
 The solution is to make the condition work on a *copy* of the list.
 
-    fu! Func() abort
+    fu Func() abort
         let list = ['a', 'foo', '%', 'b', 'bar', '%', 'c']
         let list_copy = copy(list)
         call filter(list, {i,_ -> get(list_copy, i+1, '') isnot# '%'})
@@ -790,7 +790,7 @@ Une expression peut être :
         :let idx=42
         :echo myvar{idx}
 
-        :fu! MyFunc42()
+        :fu MyFunc42()
         :    return 'world'
         :endfu
         :let idx=42
@@ -807,7 +807,7 @@ Une expression peut être :
                         :let idx=42
                         :echo eval('myvar' . idx)
 
-                        :fu! MyFunc42()
+                        :fu MyFunc42()
                         :   return 'world'
                         :endfu
                         :let idx=42
@@ -874,7 +874,7 @@ Une expression peut être :
             Itère sur les clés et valeurs de mydict.
 
 
-    fu! s:grab_words()
+    fu s:grab_words()
         call cursor(1, 1)
 
         let guard         = 0
@@ -1096,7 +1096,7 @@ Il ne faut jamais créer 2 fichiers dont le chemin depuis un dossier `autoload/`
 
 En effet, si on définit une fonction dans le 2e fichier:
 
-        fu! foo#bar()
+        fu foo#bar()
             echo 'hello'
         endfu
 
@@ -1143,7 +1143,7 @@ son exécution si elle vaut 0.
 Ex:
 
             let s:myvar = 1
-            fu! MyFunc()
+            fu MyFunc()
                 if s:myvar == 0
                     return
                 endif
@@ -1155,9 +1155,9 @@ Ex:
 On peut aller + loin en ajoutant à la fin du script définissant la fonction 3 commandes pour éteindre
 / allumer / toggle cette dernière:
 
-            com! SwitchOnMyFunc     let s:myvar = 1
-            com! SwitchOffMyFunc    let s:myvar = 0
-            com! ToggleMyFunc       let s:myvar = !s:myvar
+            com SwitchOnMyFunc     let s:myvar = 1
+            com SwitchOffMyFunc    let s:myvar = 0
+            com ToggleMyFunc       let s:myvar = !s:myvar
 
 ## Arguments
 
@@ -1168,7 +1168,7 @@ ainsi que des arguments supplémentaires et optionnels (représenté par '...').
 Les arguments optionnels sont utiles pour permettre de modifier la valeur par défaut de certaines variables
 utilisées au sein de la fonction. Ex:
 
-    fu! MyFunc(...)
+    fu MyFunc(...)
         let var1 = a:0 >= 1 ? a:1 : 'foo'
         let var2 = a:0 >= 2 ? a:2 : 'bar'
         let var3 = a:0 >= 3 ? a:3 : 'baz'
@@ -1183,7 +1183,7 @@ Pour mieux comprendre, on pourrait tout aussi bien réécrire le code précéden
 Une méthode plus élégante consiste à utiliser get() en lui passant en argument entre autres la liste
 des arguments optionnels a:000 :
 
-    fu! MyFunc(...)
+    fu MyFunc(...)
         let var1 = get(a:000, 0, 'foo')
         let var2 = get(a:000, 1, 'bar')
         let var3 = get(a:000, 2, 'baz')
@@ -1724,7 +1724,7 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 ## Diverses
 
     inoremap <F2> <C-R>=CustomMenu()<cr>
-    fu! CustomMenu()
+    fu CustomMenu()
         call complete(col('.'), ['foo', 'bar', 'baz'])
         return ''
     endfu
@@ -2005,7 +2005,7 @@ least one).
 
 MWE:
 
-        fu! Func()
+        fu Func()
             let l:Test = { -> foo + bar ==# 3 }
             let foo  = 1
             let bar  = 2
@@ -2014,7 +2014,7 @@ MWE:
         echo Func()
         E121~
 
-        fu! Func()
+        fu Func()
             let foo  = 1
             let l:Test = { -> foo + bar ==# 3 }
             let bar  = 2
@@ -2070,20 +2070,20 @@ Elle diffère d'une fonction régulière de 2 façons:
 
 ---
 
-    fu! A()
+    fu A()
         return 'i am A'
     endfu
-    fu! B()
+    fu B()
         let A = {-> 42}
         return A()
     endfu
     echo B()
     E705: Variable name conflicts with existing function: A~
 
-    fu! A()
+    fu A()
         return 'i am A'
     endfu
-    fu! B()
+    fu B()
         let l:A = { -> 42 }
         return l:A()
     endfu
@@ -2145,7 +2145,7 @@ Si un timer est  exécuté au moment où on se trouve sur  la ligne de commande,
 curseur peut temporairement quitter cette dernière et s'afficher dans le buffer.
 
     nno <expr> cd Func()
-    fu! Func()
+    fu Func()
         let my_timer = timer_start(2000, { -> execute('sleep 1', '') })
         return ''
     endfu
@@ -2274,7 +2274,7 @@ regarder quels arguments elle envoit à cette dernière.
 Ici, `map()` n'en envoit pas 1 (`x`), mais 2 (`_`, `v`).
 
 
-    fu! Foo(arg)
+    fu Foo(arg)
         let i = 3
         return {x -> x + i - a:arg}
     endfu
@@ -2295,7 +2295,7 @@ L'expression lambda ne se plaint pas que les variables ne sont pas définies :
 extérieur; on parle de “closure“ (clôture).
 
 
-    fu! Foo()
+    fu Foo()
         let x = 0
         fu! Bar() closure
             let x += 1 " pas d'erreur, grâce à `closure`

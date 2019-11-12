@@ -1493,7 +1493,7 @@ There is no way to see the command at the current line yet.
             interférer: ceux dont le rhs appelle une fonction custom.
 
                     nno cd :call Func()<cr>
-                    fu! Func()
+                    fu Func()
                     endfu
 
                     debug call Func()    ✘ possibilité d'interférence avec mappings custom
@@ -1501,7 +1501,7 @@ There is no way to see the command at the current line yet.
 
 
                     nno cd :call Func()<cr>
-                    fu! Func()
+                    fu Func()
                         let var1 = 'foo'
                         Breakadd here
                     endfu

@@ -1888,7 +1888,7 @@ Clear (then customize if you want) the syntax group from an autocmd listening to
         au Syntax markdown call s:fix_embedding()
     augroup END
 
-    fu! s:fix_embedding() abort
+    fu s:fix_embedding() abort
         if execute('syn list @markdownEmbedzsh', 'silent!') !~# 'markdownEmbedzsh'
             return
         endif

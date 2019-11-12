@@ -787,7 +787,7 @@ applies again.
 Or, you may have a mapping such as:
 
     cno <expr> <cr> Func()
-    fu! Func()
+    fu Func()
 
         return "\<cr>"
     endfu

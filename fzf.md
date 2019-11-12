@@ -31,7 +31,7 @@ Try to install a more recent version of the highlight package:
     $ git clone https://gitlab.com/saalen/highlight.git highlight
     $ cd highlight
     $ make
-    $ sudo checkinstall
+    $ sudo make install
 
 For more info: <http://www.andre-simon.de/doku/highlight/en/install.php>
 

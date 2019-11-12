@@ -11,7 +11,7 @@ Install some dependencies:
         libxcb-util-dev \
         libxcb-xinerama0-dev
 
-Compile the `xutils-dev` dependency (can't be installed from the repo of Ubuntu 16.04):
+Compile the `xcb-util` dependency (can't be installed from the repo of Ubuntu 16.04):
 
     $ git clone https://github.com/Airblader/xcb-util-xrm/
     $ cd xcb-util-xrm
@@ -24,8 +24,7 @@ Compile the `xutils-dev` dependency (can't be installed from the repo of Ubuntu 
     $ sudo aptitude install xutils-dev
 
     $ ./autogen.sh
-    $ make
-    $ sudo checkinstall
+    $ sudo make install
 
 Compile the `check` dependency (can't be installed from the repo of Ubuntu 16.04 because too old):
 
@@ -35,7 +34,7 @@ Compile the `check` dependency (can't be installed from the repo of Ubuntu 16.04
     $ ./configure
     $ make
     $ make check
-    $ sudo checkinstall
+    $ sudo make install
     $ sudo ldconfig
 
 Install rofi:
@@ -49,7 +48,7 @@ Install rofi:
     $ cd build
     $ ../configure
     $ make
-    $ sudo checkinstall --pkgname rofi --provides rofi --pkgversion 1.5.2-1
+    $ sudo make install
 
 ##
 # gotbletu

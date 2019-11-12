@@ -1,7 +1,7 @@
 When you need to do some tests while editing this file, use this code:
 
     nn  <silent> cd :<c-u>call <sid>study_arglist()<cr>
-    fu! s:study_arglist() abort
+    fu s:study_arglist() abort
         sp
         args /etc/*.conf
         let  g:my_stl_list_position = 2

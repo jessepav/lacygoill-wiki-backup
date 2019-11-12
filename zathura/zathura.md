@@ -48,9 +48,10 @@ zathura is *much* faster to read a pdf when it uses MuPDF as a backend:
 
 It also consumes a lot less memory (2-4 times less in my limited testing).
 
-Finally, it  gives epub support,  which means that you  don't need to  convert a
+Finally, it provides epub support, which means  that you don't need to convert a
 novel into a pdf before being able to read it.
 
+###
 ### How to install it?
 #### compile a recent version of `libmupdf-dev`
 
@@ -220,7 +221,7 @@ These are some notes about our experience in compiling zathura.
 
 ---
 
-https://pwmt.org/projects/girara/
+<https://pwmt.org/projects/girara/>
 
     $ git clone https://git.pwmt.org/pwmt/girara.git
 

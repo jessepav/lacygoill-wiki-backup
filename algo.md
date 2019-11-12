@@ -418,7 +418,7 @@ esprit.
 Mauvais exemple:
 
         " ✘
-        fu! s:get_qfl()
+        fu s:get_qfl()
             return b:qf_is_loclist ? getloclist(0) : getqflist()
         endfu
 
@@ -428,7 +428,7 @@ Agaçant qd on veux lire sa documentation (:h ???).
 Bon exemple:
 
         " ✔
-        fu! s:getqflist()
+        fu s:getqflist()
             return b:qf_is_loclist ? getloclist(0) : getqflist()
         endfu
 
@@ -631,27 +631,27 @@ Qd on doit résoudre un problème impliquant un nombre variable de données, uti
 
    Exemple:
 
-          com! -nargs=+ Prod echo s:product(<f-args>)
-          fu! s:product(...) abort
+          com -nargs=+ Prod echo s:product(<f-args>)
+          fu s:product(...) abort
               return a:0 == 2
-              \?         a:1 * a:2
-              \:         a:1 * call('s:product', a:000[1:])
-              "                │                 ├───────┘
-              "                │                 └ extraire les données restantes
-              "                └ déballer les données restantes
+              \ ?         a:1 * a:2
+              \ :         a:1 * call('s:product', a:000[1:])
+              "                 │                 ├───────┘
+              "                 │                 └ extraire les données restantes
+              "                 └ déballer les données restantes
           endfu
 
    Alternative:
 
-                                              ┌ nécessaire pour emballer les données dans une liste
-                                              ├────────┐
-            com! -nargs=+ Prod echo s:product([<f-args>])
-            fu! s:product(numbers) abort
+                                             ┌ nécessaire pour emballer les données dans une liste
+                                             ├────────┐
+            com -nargs=+ Prod echo s:product([<f-args>])
+            fu s:product(numbers) abort
                 return len(a:numbers) == 2
-                \?         a:numbers[0] * a:numbers[1]
-                \:         a:numbers[0] * s:product(a:numbers[1:])
-                "                                   ├───────────┘
-                "                                   └ extraire les données restantes
+                \ ?         a:numbers[0] * a:numbers[1]
+                \ :         a:numbers[0] * s:product(a:numbers[1:])
+                "                                    ├───────────┘
+                "                                    └ extraire les données restantes
             endfu
 
 ## Réutiliser et composer des concepts
@@ -820,7 +820,7 @@ That's what we did for the `-bar` attribute in Vim.
 ---
 
 Example  of faq  where we  wrote a  question  for each  degree of  freedom of  a
-polymorph command (here the command `:com! Cmd call Func()`):
+polymorph command (here the command `:com Cmd call Func()`):
 
     Which escape sequence should I use: `<args>`, `<f-args>`, `<q-args>`?
 

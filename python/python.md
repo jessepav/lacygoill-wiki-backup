@@ -138,7 +138,7 @@ and won't work anymore if they find another version.
 
 If you want a more recent python, update your distro.
 
-Or, try to install it outside PATH.
+Or, try to install it outside your PATH.
 But if  you do, reinstall  Vim and WeeChat immediately,  and make sure  your Vim
 python interface is still working as well as the WeeChat python plugin.
 
@@ -171,8 +171,8 @@ Don't click on the main button, instead click on the link which gives you access
 to various installer formats: <https://www.python.org/downloads/release/python-370/>
 
 Download the tarball of the installer, and its signature stored in a PGP ASCII Armored File:
-<https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz>
-<https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz.asc>
+- <https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz>
+- <https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz.asc>
 
 ## Check the authenticity of the installer
 

@@ -308,13 +308,6 @@ For example, from the Vim source code, you can compile `vim-gtk` or `vim-tiny`.
 
 ##
 # checkinstall
-## ?
-
-Review our notes about how installing gawk.
-Get rid of checkinstall in the notes.
-Same thing for sed.
-Same thing in all our wikis.
-
 ## Which pitfalls should I be aware of if I use checkinstall?
 ### It contains many errors.
 
@@ -574,7 +567,19 @@ doesn't find anything anymore, and you have to restart a complete update.
 autodeb is an  experimental script that should perform the  job of both auto-apt
 and checkinstall at the same time.
 
-## learn how to create your own package (to avoid checkinstall which is a hack/too buggy)
+## learn how to create your own package
+
+To avoid:
+
+   - checkinstall which is a hack/too buggy
+
+   - `$ sudo make install` which is untidy
+
+     in particular, it's hard to remove all files installed by `make(1)`:
+     you need to get back to the repo, run `$ sudo make uninstall`,
+     and hope that the recipe correctly removes all the files
+
+---
 
 <https://wiki.debian.org/HowToPackageForDebian>
 <https://wiki.debian.org/Packaging>
@@ -604,4 +609,8 @@ are preserved in the archive, and can be restored on extraction.
 
 The paths  to the  elements of the  archive are stored  relative to  the archive
 itself.
+
+## implement a zsh function listing all the locally compiled packages currently installed on our system
+
+Similar to `checkinstall_what_have_i_installed`.
 

@@ -392,8 +392,8 @@ Maybe install a Vim command which would capture capture the output of
 `$ tmux show-messages`, dump it in a  buffer, and remove some common and useless
 messages.
 
-    com! TxShowMessages call s:tx_show_messages()
-    fu! s:tx_show_messages()
+    com TxShowMessages call s:tx_show_messages()
+    fu s:tx_show_messages()
         new +setl\ bt=nofile\ bh=hide\ nobl\ noswf\ wfw
         call setline(1, systemlist('tmux show-messages'))
         sil! g/\m\CConfiguration reloaded.$\|No previous window\|No next window/d_

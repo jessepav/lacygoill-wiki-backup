@@ -461,7 +461,7 @@ Source: <https://launchpad.net/~git-core/+archive/ubuntu/ppa>
 
 ##
 # Compiling Git from source
-## Where to download Git?
+## download
 
 Download  the  latest  tagged  release  tarball  (`git-X.YY.Z.tar.xz`)  and  its
 signature (`git-X.YY.Z.tar.sign`) from one of those links:
@@ -471,7 +471,7 @@ signature (`git-X.YY.Z.tar.sign`) from one of those links:
 
 Github doesn't provide signatures, but is easier to find the latest release.
 
-## How to check the signature of the tarball?
+## check the signature of the tarball
 
           ┌ write the decompressed data to STDOUT instead of a file
           │
@@ -513,25 +513,25 @@ Try again to verify the signature:
 
 This time, you should read “Good signature from ...”.
 
-## How to configure Git?
+## configure
 
-        $ xt git-X.YY.Z.tar.xz
+    $ xt git-X.YY.Z.tar.xz
 
-        $ make configure
+    $ make configure
 
-        $ ./configure --prefix=/usr/local
+    $ ./configure --prefix=/usr/local
 
-## How to compile and install Git?
+## compile and install
 
-        $ make
+    $ make
 
-        $ sudo checkinstall
+    $ sudo checkinstall
 
-## How to update Git?
+## update
 
 Now, you can get the latest updates with your compiled `git`:
 
-        $ git clone git://git.kernel.org/pub/scm/git/git.git
+    $ git clone git://git.kernel.org/pub/scm/git/git.git
 
 ##
 # Concepts

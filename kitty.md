@@ -32,35 +32,35 @@ Read this:
 ##
 # Installation
 
-        $ git clone https://github.com/kovidgoyal/kitty && cd kitty
+    $ git clone https://github.com/kovidgoyal/kitty && cd kitty
 
-        $ make
-        python3 setup.py
-        CC: gcc (5, 4)
-        Package harfbuzz was not found in the pkg-config search path.
-        Perhaps you should add the directory containing `harfbuzz.pc'
-        to the PKG_CONFIG_PATH environment variable
-        No package 'harfbuzz' found
-        harfbuzz >= 1.5 is required, found version: not found
-        Makefile:9: recipe for target 'all' failed
-        make: *** [all] Error 1
-
----
-
-        $ apt-cache policy libharfbuzz-dev
-        libharfbuzz-dev:
-        Installed: (none)
-        Candidate: 1.0.1-1ubuntu0.1
-        Version table:
-            1.0.1-1ubuntu0.1 500
-                500 http://fr.archive.ubuntu.com/ubuntu xenial-updates/main amd64 Packages
-                500 http://security.ubuntu.com/ubuntu xenial-security/main amd64 Packages
-            1.0.1-1build2 500
-                500 http://fr.archive.ubuntu.com/ubuntu xenial/main amd64 Packages
+    $ make
+    python3 setup.py~
+    CC: gcc (5, 4)~
+    Package harfbuzz was not found in the pkg-config search path.~
+    Perhaps you should add the directory containing `harfbuzz.pc'~
+    to the PKG_CONFIG_PATH environment variable~
+    No package 'harfbuzz' found~
+    harfbuzz >= 1.5 is required, found version: not found~
+    Makefile:9: recipe for target 'all' failed~
+    make: *** [all] Error 1~
 
 ---
 
-https://github.com/harfbuzz/harfbuzz/blob/master/BUILD.md
+    $ apt-cache policy libharfbuzz-dev
+    libharfbuzz-dev:~
+    Installed: (none)~
+    Candidate: 1.0.1-1ubuntu0.1~
+    Version table:~
+        1.0.1-1ubuntu0.1 500~
+            500 http://fr.archive.ubuntu.com/ubuntu xenial-updates/main amd64 Packages~
+            500 http://security.ubuntu.com/ubuntu xenial-security/main amd64 Packages~
+        1.0.1-1build2 500~
+            500 http://fr.archive.ubuntu.com/ubuntu xenial/main amd64 Packages~
+
+---
+
+<https://github.com/harfbuzz/harfbuzz/blob/master/BUILD.md>
 
 > On Linux, install the development packages for FreeType, Cairo, and GLib.
 > For example, on Ubuntu / Debian, you would do:
@@ -69,68 +69,67 @@ https://github.com/harfbuzz/harfbuzz/blob/master/BUILD.md
 
 ---
 
-        $ sudo apt-get install libfreetype6-dev libcairo2-dev
-        Reading package lists... Done
-        Building dependency tree
-        Reading state information... Done
-        Some packages could not be installed. This may mean that you have
-        requested an impossible situation or if you are using the unstable
-        distribution that some required packages have not yet been created
-        or been moved out of Incoming.
-        The following information may help to resolve the situation:
+    $ sudo apt-get install libfreetype6-dev libcairo2-dev
+    Reading package lists... Done~
+    Building dependency tree~
+    Reading state information... Done~
+    Some packages could not be installed. This may mean that you have~
+    requested an impossible situation or if you are using the unstable~
+    distribution that some required packages have not yet been created~
+    or been moved out of Incoming.~
+    The following information may help to resolve the situation:~
 
-        The following packages have unmet dependencies:
-        libfreetype6-dev : Depends: libfreetype6 (= 2.6.1-0.1ubuntu2.3) but 2.8.1-2 is to be installed
-        E: Unable to correct problems, you have held broken packages.
+    The following packages have unmet dependencies:~
+    libfreetype6-dev : Depends: libfreetype6 (= 2.6.1-0.1ubuntu2.3) but 2.8.1-2 is to be installed~
+    E: Unable to correct problems, you have held broken packages.~
 
 ---
 
-        $ sudo apt-get install libfreetype6=2.6.1-0.1ubuntu2.3
-            # ✔
-        $ sudo apt-get install libfreetype6-dev
-            # ✔
-        $ sudo apt-get install libcairo2-dev
-            # ✔
+    $ sudo apt-get install libfreetype6=2.6.1-0.1ubuntu2.3
+    # ✔
+    $ sudo apt-get install libfreetype6-dev
+    # ✔
+    $ sudo apt-get install libcairo2-dev
+    # ✔
 
 ---
 
 Download latest tarball:
 
-https://www.freedesktop.org/software/harfbuzz/release/
+<https://www.freedesktop.org/software/harfbuzz/release/>
 
-        $ ./configure
-        $ make
-        $ sudo checkinstall
+    $ ./configure
+    $ make
+    $ sudo make install
 
 ---
 
 In kitty directory:
 
-        $ make
-
-        Package xkbcommon-x11 was not found in the pkg-config search path.
-        Perhaps you should add the directory containing `xkbcommon-x11.pc'
-        to the PKG_CONFIG_PATH environment variable
-        No package 'xkbcommon-x11' found
-        The package xkbcommon-x11 was not found on your system
-        Makefile:9: recipe for target 'all' failed
-        make: *** [all] Error 1
-
----
-
-        $ sudo aptitude install libxkbcommon-x11-dev
+    $ make
+    Package xkbcommon-x11 was not found in the pkg-config search path.~
+    Perhaps you should add the directory containing `xkbcommon-x11.pc'~
+    to the PKG_CONFIG_PATH environment variable~
+    No package 'xkbcommon-x11' found~
+    The package xkbcommon-x11 was not found on your system~
+    Makefile:9: recipe for target 'all' failed~
+    make: *** [all] Error 1~
 
 ---
 
-        $ make
-            # ✔
+    $ sudo aptitude install libxkbcommon-x11-dev
+
+---
+
+    $ make
+    # ✔
 
 ---
 
 If you have more issues, read this:
 
-        https://github.com/kovidgoyal/kitty/issues/180
-        https://github.com/kovidgoyal/kitty/commit/11b17c09ced4577f5c1464fe1d040bda22972c77
+- <https://github.com/kovidgoyal/kitty/issues/180>
+- <https://github.com/kovidgoyal/kitty/commit/11b17c09ced4577f5c1464fe1d040bda22972c77>
 
 # Comparison with `urxvt`
 

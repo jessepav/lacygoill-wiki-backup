@@ -6,10 +6,10 @@
 
     $ sudo aptitude install rxvt-unicode-256color
 
+##
 ## By Compiling
 ### clone the repo
 
-    $ cd ~/Vcs/
     $ git clone https://github.com/exg/rxvt-unicode
 
 You could also have run:
@@ -181,7 +181,11 @@ You can still install the binary with `checkinstall(8)`, and it will work fine.
 
 ### install
 
-    $ sudo checkinstall --pkgname 'rxvt-unicode-256color' --pkgversion "${$(git describe --tags --abbrev=0)##*-}" --spec /dev/null -y
+    $ sudo checkinstall \
+      --pkgname 'rxvt-unicode-256color' \
+      --pkgversion "${$(git describe --tags --abbrev=0)##*-}" \
+      --spec /dev/null \
+      -y
 
 ##
 # Configuration

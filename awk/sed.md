@@ -14,7 +14,7 @@ Finally, configure, compile and install:
     $ ./configure --prefix=/usr --without-included-regex
     $ make
     $ make check
-    $ sudo checkinstall
+    $ sudo make install
 
 Without `--prefix`, the binary will be in `/usr/local/bin/sed`.
 This may break your scripts, if their shebang refers to `/usr/bin/sed` instead.
@@ -23,15 +23,6 @@ Without `--without-included-regex`, sed doesn't support equivalence classes:
 
     $ /usr/bin/sed 's/[[=e=]]/X/g' <<<'a é b e c è'
     a é b X c è~
-
-If checkinstall fails to install the deb  – because it would have to overwrite a
-file which is present in another package – run:
-
-    $ sudo dpkg -i --force-overwrite package.deb
-
-Or,  if the  issue is  with an  `info/dir`  file, try  to move  its location  by
-reconfiguring with  `--infodir=/usr/local/share/info` (use any directory  as you
-see fit).
 
 ---
 

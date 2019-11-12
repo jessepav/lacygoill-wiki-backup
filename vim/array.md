@@ -494,7 +494,7 @@ operator.
 #### What's the output of the last command in these snippets?
 ##### 1:
 
-    fu! Increment(list, i)
+    fu Increment(list, i)
         let a:list[a:i] += 1
     endfu
     let list = [0, 0, 0]
@@ -505,7 +505,7 @@ operator.
 
 ##### 2:
 
-    fu! Increment(list, i)
+    fu Increment(list, i)
         let a:list[a:i] += 1
     endfu
     let counts = [0, 0, 0]
@@ -524,13 +524,13 @@ But it doesn't matter: `counts` has still mutated.
 
 ##### 3:
 
-    fu! Func()
+    fu Func()
         let list = [1, 2, 3]
         let n = 42
         call FuncA(n)
         echo n
     endfu
-    fu! FuncA(n)
+    fu FuncA(n)
         let l:n = a:n
         let l:n += 1
     endfu
@@ -598,7 +598,7 @@ If the items of the list are non-scalars, use `deepcopy()`:
 
 `a:000` can't mutate:
 
-    fu! Func(...) abort
+    fu Func(...) abort
         return map(a:000, 'v:val+1')
     endfu
     echo Func(1, 2, 3)
@@ -765,7 +765,7 @@ in the rhs of the assignment.
 
 Don't use `count()`; it would be less effecient:
 
-        fu! Func()
+        fu Func()
             let words = []
             %s/\<\k\+\>/\=add(words, submatch(0))/gn
             let freq = {}
@@ -776,7 +776,7 @@ Don't use `count()`; it would be less effecient:
         endfu
         10Time sil call Func()
 
-        fu! Func()
+        fu Func()
             let words = []
             %s/\<\k\+\>/\=add(words, submatch(0))/gn
             let freq = {}

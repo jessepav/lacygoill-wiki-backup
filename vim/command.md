@@ -33,14 +33,14 @@ command:
 
 ## What's the output of these commands?
 
-    fu! Func(...) abort
+    fu Func(...) abort
         for i in a:000
             " replace a trailing whitespace with `S`
             echo substitute(i, '\s\+$', '\=repeat("S", len(submatch(0)))', '')
         endfor
     endfu
 
-    com! -nargs=* Cmd  call Func(<q-args>)
+    com -nargs=* Cmd  call Func(<q-args>)
 
     Cmd ab         ↣ 'ab' ↢
     Cmd a\b        ↣ 'a\b' ↢
@@ -53,7 +53,7 @@ command:
     Cmd a\\\\b     ↣ 'a\\\\b' ↢
     Cmd a\\\\ b    ↣ 'a\\\\ b' ↢
 
-    com! -nargs=* Cmd  call Func(<f-args>)
+    com -nargs=* Cmd  call Func(<f-args>)
 
     Cmd ab         ↣ 'ab' ↢
     Cmd a\b        ↣ 'a\b' ↢
@@ -66,7 +66,7 @@ command:
     Cmd a\\\\b     ↣ 'a\\b' ↢
     Cmd a\\\\ b    ↣ 'a\\', 'b' ↢
 
-    com! -bar -nargs=* Cmd  call Func(<f-args>)
+    com -bar -nargs=* Cmd  call Func(<f-args>)
 
     Cmd a|b         ↣ 'a'    `:b` is executed separately and has no visible effect ↢
     Cmd a\|b        ↣ 'a|b' ↢
@@ -81,12 +81,12 @@ command:
 
 ##
 # Custom command
-## What's the name of everything written after `Test` in `com! Test call Func()`?
+## What's the name of everything written after `Test` in `com Test call Func()`?
 
 It's called the replacement text:
 
-    com! Test call Func()
-              ^^^^^^^^^^^
+    com Test call Func()
+             ^^^^^^^^^^^
 
 ## How to list the help tags useful to create a custom command?
 
@@ -99,11 +99,11 @@ It's called the replacement text:
 It's allowed, but  the count is not preserved; it's  subtracted from the current
 line address:
 
-    com! -count  Test  echo <count>
+    com -count  Test  echo <count>
     :-1 Test
     101~
 
-    com! -range  Test  echo <count>
+    com -range  Test  echo <count>
     :-1 Test
     105~
 
@@ -111,11 +111,11 @@ line address:
 
 If raises `E488`:
 
-    com! -range Test echo <count>
+    com -range Test echo <count>
     :Test -123
     E488: Trailing characters~
 
-    com! -count Test echo <count>
+    com -count Test echo <count>
     :Test -123
     E488: Trailing characters~
 
@@ -124,7 +124,7 @@ If raises `E488`:
 
 Use `-range=-N`:
 
-    com! -range=-123 Test echo <count>
+    com -range=-123 Test echo <count>
     :Test
     -123~
 
@@ -141,8 +141,8 @@ command, `<count>` will be replaced by `-1`.
 
 MWE:
 
-    com! -nargs=* -range=0  Test  call Func(<count>)
-    fu! Func(count)
+    com -nargs=* -range=0  Test  call Func(<count>)
+    fu Func(count)
         if !a:count
             echo 'the command was executed WITHOUT count'
         else
@@ -164,7 +164,7 @@ command-line and the first non-digit of the first argument.
 So, if the first argument can be a number or can begin with a number, the latter
 will be consumed to replace `<count>`:
 
-    com! -count -nargs=+ Test echo printf("count: %s\n<lt>q-args>: %s", <count>, <q-args>)
+    com -count -nargs=+ Test echo printf("count: %s\n<lt>q-args>: %s", <count>, <q-args>)
     :12Test 34abc
     count: 34~
     <q-args>: abc~
@@ -177,8 +177,8 @@ is immune to this issue.
 
 NONE.
 
-    com! -bar -nargs=* Cmd  call Func(<q-args>)
-    fu! Func(...) abort
+    com -bar -nargs=* Cmd  call Func(<q-args>)
+    fu Func(...) abort
         echo join(a:000)
     endfu
 
@@ -355,15 +355,15 @@ file, and all the files/directories anywhere below the working directory.
 
 Use the attribute `-addr=buffers` or `-addr=windows`.
 
-    com! Test echo <line1>
+    com Test echo <line1>
     :Test
     line 355~
 
-    com! -addr=buffers Test echo <line1>
+    com -addr=buffers Test echo <line1>
     :Test
     buffer 11~
 
-    com! -addr=windows Test echo <line1>
+    com -addr=windows Test echo <line1>
     :Test
     window 1~
 
@@ -438,8 +438,8 @@ non-trivial; `<f-args>` give it to you for free.
 
 It's replaced with nothing.
 
-    com! -nargs=* Cmd  call Func(<f-args>)
-    fu! Func(...) abort
+    com -nargs=* Cmd  call Func(<f-args>)
+    fu Func(...) abort
         echo a:000
     endfu
 
@@ -461,23 +461,23 @@ But not with:
 
 MWE:
 
-    fu! Func(...) abort
+    fu Func(...) abort
         echo a:000
     endfu
 
-    com! -nargs=* Cmd  call Func(<f-args>)
+    com -nargs=* Cmd  call Func(<f-args>)
     Cmd a b c
     ['a', 'b', 'c']~
 
-    com! -nargs=+ Cmd  call Func(<f-args>)
+    com -nargs=+ Cmd  call Func(<f-args>)
     Cmd a b c
     ['a', 'b', 'c']~
 
-    com! -nargs=1 Cmd  call Func(<f-args>)
+    com -nargs=1 Cmd  call Func(<f-args>)
     Cmd a b c
     ['a b c']~
 
-    com! -nargs=? Cmd  call Func(<f-args>)
+    com -nargs=? Cmd  call Func(<f-args>)
     Cmd a b c
     ['a b c']~
 
@@ -486,7 +486,7 @@ MWE:
 
 It's replaced by `0`:
 
-    com! -count -nargs=*  Test  echo <count>
+    com -count -nargs=*  Test  echo <count>
     :Test
     0~
 
@@ -494,21 +494,21 @@ It's replaced by `0`:
 
 It's replaced by `-1`.
 
-    com! -range -nargs=*  Test  echo <count>
+    com -range -nargs=*  Test  echo <count>
     :Test
 
 ### How are `<line1>` and `<line2>` replaced if I use `-range` without any value, and don't pass any range?
 
 They're both replaced with the current line address:
 
-    com! -range -nargs=*  Test  echo '<line1>,<line2>'
+    com -range -nargs=*  Test  echo '<line1>,<line2>'
     :Test
 
 ### How is `<count>` replaced if I use `-count`, and pass the count `12` as a prefix, and the count `34` as a suffix?
 
 The last line specifier is used, here `34`:
 
-    com! -count -nargs=*  Test  echo <count>
+    com -count -nargs=*  Test  echo <count>
     :12Test 34
     34~
 
@@ -520,7 +520,7 @@ The last line specifier is used, here `34`:
 
 Use the `<range>` escape sequence:
 
-    com! -range  Test  echo <range>
+    com -range  Test  echo <range>
     :Test
     0~
 
@@ -579,7 +579,7 @@ In the replacement text  of the command, if you position  the range right before
 You could prevent this by giving the  `range` attribute to the function, but the
 cursor would still jump to the first line in the range.
 
-    fu! Func() range
+    fu Func() range
         echo ''
     endfu
     1,3call Func()
@@ -596,7 +596,7 @@ Too cumbersome.
 
 The address of the current line.
 
-    fu! Func()
+    fu Func()
         echo a:firstline == line('.') && a:lastline == line('.')
     endfu
     call Func()
@@ -606,8 +606,8 @@ The address of the current line.
 
 The command and the function will look like this:
 
-    com! Cmd call Func(<q-args>)
-    fu! Func(...)
+    com Cmd call Func(<q-args>)
+    fu Func(...)
         " ...
     endfu
 
@@ -638,7 +638,7 @@ And to get a boolean option use `split()` and `index()`:
 Yes, by prefixing it with a count, you can send the latter to the program stored in `'kp'`.
 
     set kp=:Test
-    com! -nargs=*  Test  echo <q-args>
+    com -nargs=*  Test  echo <q-args>
     " press 3K on the word 'hello'
     3 hello~
 
@@ -820,7 +820,7 @@ See:
 <https://github.com/vim/vim/pull/3653>
 <https://github.com/vim/vim/pull/3655>
 
-    com! -count -addr=quickfix Test echo <count>
+    com -count -addr=quickfix Test echo <count>
     :vim /the/j %
     :-1 Test
     E16: Invalid range~
@@ -869,21 +869,21 @@ Read this:
 When is `%:{filename-modifier}` expanded after pressing Tab?
 Make some tests:
 
-    com! -nargs=1 -complete=file  Test  echo <q-args>
+    com -nargs=1 -complete=file  Test  echo <q-args>
     :cd ~/Downloads
     :Test %:h
     :Test %:t
     :Test %:r
     :Test %:e
 
-    com! -nargs=1 -complete=file_in_path  Test  echo <q-args>
+    com -nargs=1 -complete=file_in_path  Test  echo <q-args>
     :cd ~/Downloads
     :Test %:h
     :Test %:t
     :Test %:r
     :Test %:e
 
-    com! -nargs=1 -complete=file_in_path  Test  echo <q-args>
+    com -nargs=1 -complete=file_in_path  Test  echo <q-args>
 
 It seems to depend on various things:
 
@@ -1381,7 +1381,7 @@ Quelques commandes Ex qui interprètent la barre verticale comme un argument:
 
     :autocmd                                la barre verticale fait partie de la commande à exécuter par :autocmd
 
-    :command                                com! SV source $MYVIMRC | source ~/.vim/autoload/myfunctions.vim
+    :command                                com SV source $MYVIMRC | source ~/.vim/autoload/myfunctions.vim
                                             la barre verticale fait partie de la commande à exécuter par :SV
 
                                             Sauf si on définit la commande en lui donnant l'attribut -bar.
@@ -1839,7 +1839,7 @@ précédant le curseur (custom).
 
                     nno <key>    :call MyFunc()<cr>
 
-                    fu! MyFunc()
+                    fu MyFunc()
                         let char = ''
                         while char != 'x'
                             let char = input('type a character: ')
@@ -1865,7 +1865,7 @@ précédant le curseur (custom).
 
             ... causé par la présence de plusieurs messages sur la ligne de commandes.
 
-                    fu! Func()
+                    fu Func()
                         let answer = confirm('Do a listing?', "&Yes\n&No", 1)
                         if answer == 1
                             call system('ls')
@@ -2010,10 +2010,10 @@ précédant le curseur (custom).
             'Complete' détermine le type de suggestions quand on appuie sur Tab.
 
 
-    com! Foo echoerr  Foo()    ✘
-    com! Foo exe      Foo()    ✔
+    com Foo echoerr  Foo()    ✘
+    com Foo exe      Foo()    ✔
 
-    fu! Foo()
+    fu Foo()
         try
             mksession! /tmp/file
         catch
@@ -2040,15 +2040,15 @@ précédant le curseur (custom).
                                        car `:echoerr` produit une erreur reconnue comme valide
 
 
-   com! Del +,$delete
+    com Del +,$delete
 
             définit la commande  :Del qui supprime les lignes  depuis celle sous
             le curseur (+ = .+1) jusqu'à la fin du fichier ($)
 
 
-    com! -nargs=1 -complete=customlist,CompleteFunc MyCom call MyFunc()
+    com -nargs=1 -complete=customlist,CompleteFunc MyCom call MyFunc()
 
-    fu! CompleteFunc(arglead, _cmdline, _pos)
+    fu CompleteFunc(arglead, _cmdline, _pos)
         let candidates = ['foo', 'bar', 'baz']
         return filter(candidates, {_,v -> stridx(v, a:arglead) == 0})
     endfu

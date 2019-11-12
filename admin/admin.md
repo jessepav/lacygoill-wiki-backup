@@ -282,25 +282,17 @@ See `~/.icons/README.md`.
 
 Install `arc-theme`:
 
-        $ git clone https://github.com/horst3180/arc-theme
-        $ sudo aptitude install autoconf automake pkg-config libgtk-3-dev gnome-themes-standard gtk2-engines-murrine
-        $ ./autogen.sh --prefix=/usr
-        $ sudo rlwrap checkinstall
-
-During the installation:
-
-        - use `arc-theme` for the name of the package
-          (to avoid a conflict with `arc` which is a package to create archives)
-
-        - give a version number
+    $ git clone https://github.com/horst3180/arc-theme
+    $ sudo aptitude install autoconf automake pkg-config libgtk-3-dev gnome-themes-standard gtk2-engines-murrine
+    $ ./autogen.sh --prefix=/usr
+    $ sudo make install
 
 Once installed, the theme is in `/usr/share/themes/`.
 
 ---
 
 Alternatively, you can install it from a repo or grab a binary package from here:
-
-        https://software.opensuse.org/download.html?project=home%3AHorst3180&package=arc-theme
+<https://software.opensuse.org/download.html?project=home%3AHorst3180&package=arc-theme>
 
 ## Which GUI program can help me configure everything related to the appearance of XFCE (theme, icons, cursor...)?
 
@@ -741,13 +733,13 @@ contenant plusieurs fichiers.
             Page du projet.
 
 
-    sudo cpan Term::ExtendedColor
-    git clone git://github.com/trapd00r/ls--.git
-    cd ls--
-    perl Makefile.PL
-    make
-    sudo rlwrap checkinstall
-    mkdir ~/.config/ls++ ; cp ls++.conf $HOME/.config/ls++/ls++.conf
+    $ sudo cpan Term::ExtendedColor
+    $ git clone git://github.com/trapd00r/ls--.git
+    $ cd ls--
+    $ perl Makefile.PL
+    $ make
+    $ sudo make install
+    $ mkdir ~/.config/ls++ ; cp ls++.conf $HOME/.config/ls++/ls++.conf
 
             Procédure d'installation.
 
@@ -977,17 +969,17 @@ contenant plusieurs fichiers.
             À utiliser éventuellement, si la compilation échoue ou prend trop de temps.
 
 
-    git clone https://github.com/nodejs/node/
-    cd node
-    git checkout v6.11.0
-    ./configure
-    make
-    make test
-    make doc
-    man doc/node.1 (test)
-    ./node -e "console.log('Hello from Node.js ' + process.version)"
+    $ git clone https://github.com/nodejs/node/
+    $ cd node
+    $ git checkout v6.11.0
+    $ ./configure
+    $ make
+    $ make test
+    $ make doc
+    $ man doc/node.1 (test)
+    $ ./node -e "console.log('Hello from Node.js ' + process.version)"
     Hello from Node.js v6.11.0   (test)~
-    sudo rlwrap checkinstall
+    $ sudo make install
 
             Procédure d'installation.
 
@@ -1006,14 +998,14 @@ contenant plusieurs fichiers.
 
                     make -j4
                            │
-                           └─ 4 jobs
+                           └ 4 jobs
 
             Toutefois, ça augmente la consommation de ressources de manière drastique. À éviter sur une machine
             peu puissante. Voici ce que rapporte la commande `make -j4` sur ma machine atm:
 
                     make -j4  2160.75s user 97.62s system 363% cpu 10:21.56 total
-                                                                   └────────────┤
-                                                                                └ temps pris par la compilation
+                                                                   ├────────────┘
+                                                                   └ temps pris par la compilation
 
             On constate qu'elle a augmenté la charge cpu à 363%, et pris 10 minutes et 21 secondes.
             Si on avait réduit le nombre de jobs, la compilation aurait sans doute pris
@@ -1753,10 +1745,7 @@ View gifs in your terminal.
     $ sudo aptitude install libmagickwand-dev
     $ ./autogen.sh
     $ make
-    $ sudo checkinstall --pkgversion ...
-                                     │
-                                     └ `$ git describe --abbrev=0`
-                                       ` $ ./tools/chafa/chafa --version`
+    $ sudo make install
 
 - <https://www.youtube.com/watch?v=SoYKKzBNnwo>
 - <https://github.com/hpjansson/chafa>
@@ -2067,6 +2056,16 @@ rbenv, pyenv and phpenv.
 
             Quickly check your project for typos
 
+### highlight
+
+    $ git clone https://gitlab.com/saalen/highlight && cd *(/oc[1])
+    $ git checkout x.y
+    $ make help
+    $ make
+    $ sudo make install
+
+<http://www.andre-simon.de/doku/highlight/en/highlight.php>
+
 ### inotifywait
 
     https://github.com/rvoicilas/inotify-tools/wiki
@@ -2111,7 +2110,7 @@ rbenv, pyenv and phpenv.
                 ./autogen.sh
                 ./configure
                 make
-                sudo checkinstall
+                sudo make install
 
         OU
 
@@ -2401,42 +2400,6 @@ quality.
 
             man socat
 
-### solunar
-
-    Command-line utility for displaying solar and lunar ephemera.
-
-    git clone https://github.com/kevinboone/solunar_cmdline
-    cd solunar_cmdline
-    make
-    sudo rlwrap checkinstall
-
-            Installation.
-
-            En cas  de bug, au moment  de la compilation `make`,  lire le message pour  voir à quel
-            endroit du Makefile, une  erreur est survenue. La dernière fois, j'ai  résolu le pb en
-            éditant le Makefile au niveau de la ligne 25:
-
-                    ./parse_zoneinfo.pl    →    perl ./parse_zoneinfo.pl
-
-            ... et en explicitant l'interpréteur perl avant d'invoquer un script.
-            Autrement, il y avait un message d'erreur disant qu'on avait pas les droits suffisants.
-
-
-    solunar --cities
-
-            Affiche les villes supportées par le programme.
-
-
-    solunar -c paris
-
-            Affiche l'heure de lever / coucher du soleil pour Paris.
-
-
-    https://github.com/kevinboone/solunar_cmdline
-    http://kevinboone.net/README_solunar.html
-
-            TODO: Install, Read, Use, Document solunar
-
 ### streamlink
 
         https://github.com/streamlink/streamlink
@@ -2492,10 +2455,9 @@ choosing.
     cd translate-shell
     git checkout Tab    (atm, la release la plus récente est 0.9.6.4)
     make
-    sudo rlwrap checkinstall
+    sudo make install
 
-            Procédure d'installation. Ne pas oublier de donner un n° de version à checkinstall.
-            En donner un bidon, ou regarder le n° de la plus récente branche du repo.
+            Procédure d'installation.
 
 
     trans -shell
@@ -2623,6 +2585,49 @@ output that some packages were not upgraded:
 
 See here for an explanation:
 <https://debian-administration.org/article/69/Some_upgrades_show_packages_being_kept_back>
+
+## I have to give my password twice in 2 different screens when I resume a session after suspending the OS!
+
+Google “suspend linux password twice”:
+
+- <https://askubuntu.com/questions/639014/another-password-prompt-when-waking-from-suspend>
+- <https://bugs.launchpad.net/bugs/1296270>
+- <https://bugs.launchpad.net/bugs/1631715>
+
+For the moment, I tried to fix the issue by running:
+
+    $ light-locker-settings
+
+Then disabling “Lock on suspend”.
+
+---
+
+IMO, this bug illustrates the benefits of using a custom and minimalist DE.
+When  you'll build  your own  DE, you  probably won't  install the  light-locker
+package; maybe just the xscreensaver package.
+
+See also: <https://askubuntu.com/questions/1063481/lightlocker-and-xscreensaver-conflicting>
+
+---
+
+Note that light-locker seems to have 2 purposes:
+
+   - it can blank the screen after a certain amount of time (screensaver)
+   - it can lock the session after a certain amount of time or when you suspend (session-locker)
+
+---
+
+You can configure xscreensaver by running `xscreensaver-demo(1)`.
+
+---
+
+We can configure xscreensaver so that it  asks for our password after the screen
+gets blank and a certain amount of additional time has elapsed.
+But how  to configure linux so  that it asks for  our password when we  resume a
+session (after suspending it)?
+We can configure light-locker to do so, but I don't want to rely on this package
+because it's tied to  an existing DE (xfce/lxde), and because  it seems to cause
+the issue currently discussed (double password).
 
 ## ?
 

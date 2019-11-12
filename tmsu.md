@@ -13,7 +13,7 @@ Interface for Rapidly Tagging Many Small Files
                     go1.8.3.linux-amd64.tar.gz (86MB)
 
 
-    sudo tar -C /usr/local -xzf go1.8.3.linux-amd64.tar.gz
+    $ sudo tar -C /usr/local -xzf go1.8.3.linux-amd64.tar.gz
 
             Extraire l'archive précédemment téléchargée dans `/usr/local`.
             Commande trouvée ici:
@@ -21,20 +21,20 @@ Interface for Rapidly Tagging Many Small Files
                     https://golang.org/doc/install
 
 
-    vim ~/.zshenv
-      export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
+    $ vim ~/.zshenv
+      export PATH=$PATH:/usr/local/go/bin
       export GOPATH=$HOME/go
 
             Indiquer:
 
-                    - au shell  où se trouve le binaire `go` + nos scripts `go`
+                    - au shell  où se trouve le binaire `go`
                     - à `go`    où se trouve notre espace de travail
                                 (nécessaire pour que `go get` fonctionne et sache où dl des fichiers)
 
 
-    mkdir -p $HOME/go/src/hello/
+    $ mkdir -p $HOME/go/src/hello/
 
-    cat <<'EOF' >$HOME/go/src/hello/hello.go
+    $ cat <<'EOF' >$HOME/go/src/hello/hello.go
     package main
     import "fmt"
     func main() {
@@ -42,9 +42,9 @@ Interface for Rapidly Tagging Many Small Files
     }
     EOF
 
-    cd $HOME/go/src/hello/
-    go build
-    ./hello
+    $ cd $HOME/go/src/hello/
+    $ go build
+    $ ./hello
 
             Pour vérifier que `go` a été correctement installé, ces commandes créent un programme “hello world“.
 
@@ -52,23 +52,22 @@ Interface for Rapidly Tagging Many Small Files
 
                     go install
 
-            … et le supprimer via:
+            ... et le supprimer via:
 
                     go clean
 
 
-    go get -u github.com/mattn/go-sqlite3
-    go get -u github.com/hanwen/go-fuse/fuse
+    $ go get -u github.com/mattn/go-sqlite3
+    $ go get -u github.com/hanwen/go-fuse/fuse
 
             Installation des dépendances nécessaires à la compilation du paquet `TMSU`.
 
 
-    cd ~/Vcs/
-    git clone https://github.com/oniony/TMSU/
-    cd TMSU/
-    git checkout v0.6.1 (la release la plus récente atm)
-    make
-    sudo checkinstall
+    $ git clone https://github.com/oniony/TMSU/
+    $ cd TMSU/
+    $ git checkout v0.6.1 (la release la plus récente atm)
+    $ make
+    $ sudo make install
 
             Compilation et installation du paquet TMSU.
 
