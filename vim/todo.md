@@ -5,8 +5,6 @@
      │
      └ window number 3
 
-The fact that `:resize` accept a prefix count, interpreted as a window number, does not seem to be documented.
-
 ---
 
 Do *not* try to use `win_execute()`; it doesn't work:
@@ -285,7 +283,7 @@ See also `:h 'bt`:
 >                    command.
 
 ##
-## the window should be opened with either `:leftabove` or `:topleft`
+## by default, the window should be opened with either `:leftabove` or `:topleft`
 
 We read from the left to the right.
 So, it makes more sense to display the information on the left than on the right.
@@ -293,6 +291,20 @@ So, it makes more sense to display the information on the left than on the right
 If the information is specific to the current buffer, choose `:leftabove`.
 Otherwise, choose `:topleft`.
 
+### the custom command should still support a modifier (`:to`, `:bo`, `:lefta`, `:rightb`)
+
+Useful to change where the window is opened at runtime.
+
+    " uses `:lefta` or `:to` by default
+    :MyCmd
+
+    " uses `:bo` when specified
+    :bo MyCmd
+
+More generally, make  sure that any custom  command that we have  created in the
+past, and which opens a window to display some information, supports a modifier.
+
+##
 ## make sure no error is raised when we reload a scratch buffer which is in a tab page containing only 1 window
 
 Find a design which prevents this possible issue.
