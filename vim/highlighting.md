@@ -49,11 +49,11 @@ And it gives you control over the relative priority between the matches.
 ## How to get information about
 ### the match whose id is `3`?  (without using `getmatches()`)
 
-        :echo matcharg(3)
+    :echo matcharg(3)
 
 ### all the matches defined in the current window?
 
-        :echo getmatches()
+    :echo getmatches()
 
 Each item in the list is a dictionary with 4 keys:
 
@@ -69,13 +69,13 @@ can give information about *all* the matches.
 ## How to highlight
 ### `pat` with the HG `DiffAdd`?  (2)
 
-        :match DiffAdd /pat/
+    :match DiffAdd /pat/
 
-        :call matchadd('DiffAdd', 'pat')
+    :call matchadd('DiffAdd', 'pat')
 
 ### `pat` with `DiffAdd`, an id of `12` and a priority of `34`?
 
-        :call matchadd('DiffAdd', 'pat', 34, 12)
+    :call matchadd('DiffAdd', 'pat', 34, 12)
 
 ##
 ## How to make `matchadd()` choose an id automatically for the match?
@@ -236,7 +236,7 @@ buffer, with an autocmd in our vimrc:
 ## Builtin HGs
 ### How to get the list of all builtin HGs in Vim's pager?
 
-        :h hl- C-d
+    :h hl- C-d
 
 ### Which HGs control the appearance of
 #### html links?
@@ -379,9 +379,9 @@ You could also have cleared `MyGroup`:
 
 The link wins:
 
-        :hi MyGroup ctermbg=green guibg=green
-        :hi! link MyGroup Search
-        :hi MyGroup
+    :hi MyGroup ctermbg=green guibg=green
+    :hi! link MyGroup Search
+    :hi MyGroup
 
 ###
 ### How to clear a HG?
@@ -667,6 +667,19 @@ MWE:
 
 It doesn't matter whether you start Vim or gVim.
 It seems only `ctermbg` matters, not `guibg` (weird...).
+
+## ?
+
+Document that running a  `:hi` command to (re)set an attribute  has no effect on
+the other ones.
+
+    :hi SpecialKey
+    SpecialKey     xxx term=bold ctermfg=145 guifg=#afafaf~
+    :hi SpecialKey guifg=#121212
+    :hi SpecialKey
+    SpecialKey     xxx term=bold ctermfg=145 guifg=#121212~
+                       ^^^^^^^^^^^^^^^^^^^^^
+                       did not change
 
 ## 'bg'
 

@@ -1958,6 +1958,8 @@ références peuvent être déplacées librement.
         https://jwiegley.github.io/git-from-the-bottom-up/
         https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow
         https://sethrobertson.github.io/GitFixUm/fixup.html
+        https://github.com/jessfraz/branch-cleanup-action
+        https://sethrobertson.github.io/GitBestPractices/
 
         https://jonas.github.io/tig/doc/manual.html
         man tig
@@ -1974,4 +1976,37 @@ références peuvent être déplacées librement.
 > That'll open a vim instance with a fullscreen `:Gstatus` buffer.
 > From there, `g?` to see available mappings,  and `:q` to quit, as you would from
 > a commit buffer.
+
+##
+## Find a way to remove all the binary/big files we've committed by accident in our config repo.
+
+To find them, clone the repo in a temporary directory, then run:
+
+    $ git rev-list --objects --all \
+    | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' \
+    | awk '/^blob/ {print substr($0,6)}' \
+    | sort --numeric-sort --key=2 \
+    | cut --complement --characters=13-40 \
+    | numfmt --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest
+
+The big files are at the end of the output.
+
+You can remove one by running:
+
+    $ git filter-branch --index-filter 'git rm --cached --ignore-unmatch my/big/file' HEAD
+                                                                         ^^^^^^^^^^^
+                                                                         replace with the path to the file
+                                                                         you want to remove
+
+Make sure that you don't have any non-committed change.
+Source: <https://stackoverflow.com/a/46615578/9780968>
+
+Issue: If you do that, you'll get a message (I think in the output of `$ config status`),
+telling you that your local branch has diverged from origin/master.
+
+I don't know how to fix this issue.
+
+To undo the removal of the big file, run:
+
+    $ git reset --hard origin/master
 
