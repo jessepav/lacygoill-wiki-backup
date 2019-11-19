@@ -231,7 +231,7 @@ They've been sourced by either:
 
 Use the `-V` argument:
 
-        $ vim -V2 file
+    $ vim -V2 file
 
 ### Vim's startup AND redirect the messages in a file?
 

@@ -145,10 +145,6 @@ But not get it:
     ['lnum', 'bufnr', 'col', 'pattern', 'valid', 'vcol', 'nr', 'type', 'module', 'text']~
       no 'filename' key~
 
-## What's the only property that a qf entry in Neovim currently misses, compared to Vim?
-
-    'module'
-
 ##
 ## What's the 'module'  property of a qf entry?
 
@@ -225,12 +221,9 @@ But you won't get the key `'all'` in the dictionary output.
    - size
    - winid
 
-## What are the properties that a qfl in Neovim currently misses, compared to Vim?
+## What is the only property that a qfl in Neovim currently misses, compared to Vim?
 
-   - changedtick
-
-TODO: Aren't there other missing properties?
-Like `qfbufnr`, `module`, ...
+`qfbufnr`
 
 ##
 ## What's the 'context' property of a qfl?

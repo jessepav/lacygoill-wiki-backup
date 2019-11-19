@@ -1518,6 +1518,14 @@ Alternatives:
 
 <https://github.com/kana/vim-smartword> 108 sloc
 
+## smoothie
+
+This (neo)vim plugin makes scrolling nice and smooth.
+Find yourself completely lost every time you press Ctrl-D or Ctrl-F?
+You might want to give vim-smoothie a try!
+
+<https://github.com/psliwka/vim-smoothie> 121 sloc
+
 ## spellcheck
 
 This plugin  populates the  quickfix-list with  all spelling  errors found  in a
