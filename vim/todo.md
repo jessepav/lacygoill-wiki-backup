@@ -227,6 +227,12 @@ everywhere, and not always in the same manner.
 
 ### `q` should close the window *and* focus back the previous one
 
+    let winid = lg#win_getid('#')
+    close
+    call win_gotoid(winid)
+
+Read our comments about the `s:close_fugitive_window()` function in our vimrc.
+
 ##
 ## options
 ### `'winfixwidth'` (or `'winfixheight'`) should be set

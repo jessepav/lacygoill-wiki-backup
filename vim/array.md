@@ -511,7 +511,7 @@ operator.
     let counts = [0, 0, 0]
     let patterns = ['a_word', 'b_word', 'c_word']
     for i in range(3)
-        exe '%s/'.patterns[i].'/\=Increment(counts,'.i.')/gn'
+        exe '%s/'..patterns[i]..'/\=Increment(counts,'..i..')/gn'
     endfor
     echo counts
 
@@ -594,7 +594,27 @@ If the items of the list are non-scalars, use `deepcopy()`:
     [1, {'n': 2}]~
 
 ####
-#### Which list is unable to mutate?
+#### The next code mutates a dictionary so that the numbers in its list values are doubled.
+
+    let dict = {'A': [1,2], 'B': [3,4], 'C': [5,6]}
+    call map(dict, {_,v -> map(v, {_,v -> v * 2})})
+    echo dict
+    {'A': [2, 4], 'B': [6, 8], 'C': [10, 12]}~
+
+##### Rewrite it using `items()`, a single `map()`, and without any additional `:let` assignment.
+
+    let dict = {'A': [1,2], 'B': [3,4], 'C': [5,6]}
+    for [k,v] in items(dict)
+        call map(v, {_,v -> v * 2})
+    endfor
+    echo dict
+    {'A': [2, 4], 'B': [6, 8], 'C': [10, 12]}~
+
+Since the values of the dictionary are lists, Vim does not assign copies to `v`,
+but references.
+
+####
+#### Which special list is unable to mutate?
 
 `a:000` can't mutate:
 

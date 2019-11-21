@@ -2443,16 +2443,10 @@ exécution.
             Fermer la dernière fenêtre qu'on a visité dans l'onglet courant.
 
 
-    let view = winsaveview()
-
-            sauvegarde l'état de la fenêtre (position du curseur, de la fenêtre...) dans la variable `view`
-
-            winsaveview() retourne un dictionnaire
-
-
     call winrestview(view)
 
             restaure l'état de la fenêtre à partir des informations du dictionnaire stocké dans `view`
+            et peuplé par `winsaveview()`
 
                                                NOTE:
 
