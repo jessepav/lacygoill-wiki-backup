@@ -292,10 +292,7 @@ They should be printed in xterm.
 ## Add support for hex colors in an OSC 12 sequence
 
 When we change the cursor color from Vim (`coC`), it would be nice to be able to
-use hex colors.
-
-Right now, we can't use hex colors in st, but we can in urxvt.
-And we can't use decimal colors beyond 15 in urxvt, but we can in st.
+use `#ab1234` or `rgb:ab/12/34`.
 
 ---
 

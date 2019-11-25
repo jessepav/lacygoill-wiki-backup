@@ -17,11 +17,11 @@ It sets the `'errorformat'` and `'makeprg'` options.
 
 In:
 
-    - ~/.vim/after/compiler
-        to overrule some settings of the default compilers in `$VIMRUNTIME/compiler/`
+   - `~/.vim/after/compiler`
+     to overrule some settings of the default compilers in `$VIMRUNTIME/compiler/`
 
-    - ~/.vim/compiler
-        to bypass the default compilers entirely
+   - `~/.vim/compiler`
+     to bypass the default compilers entirely
 
 The bypassing  works ONLY if you  assign a value to  `current_compiler`, because
 the default  compilers have a  guard which  checks whether this  variable exists
@@ -617,8 +617,8 @@ This field is used to locate the error line.
 To  make the  search as  accurate as  possible, Vim  adds (to  the text  used to
 convert `%s`):
 
-   - the anchors '^' and  '$'
-   - the '\V' atom as a prefix
+   - the anchors `^` and `$`
+   - the `\V` atom as a prefix
 
 Which gives:
 

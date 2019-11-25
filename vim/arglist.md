@@ -1,6 +1,6 @@
 When you need to do some tests while editing this file, use this code:
 
-    nn  <silent> cd :<c-u>call <sid>study_arglist()<cr>
+    nno  <silent> cd :<c-u>call <sid>study_arglist()<cr>
     fu s:study_arglist() abort
         sp
         args /etc/*.conf
@@ -13,8 +13,6 @@ You can switch from the local arglist to the global one with `:argg`.
 How to do the reverse?
 `:argl` doesn't work because it creates a new copy of the global one.
 That's not what I want. I want to get back to the old local one.
-
----
 
 Maybe it's lost after `:argg`.
 In that case, we may need a mapping/command which saves the local arglist before
@@ -36,32 +34,35 @@ It's a set of filepaths.
 In this experiment,  even after wiping the buffer `/tmp/file`,  which was stored
 in the arglist, it still persists in the arglist.
 
-## How to get the length of the currently used arglist?
+##
+## How to get
+### the length of the currently used arglist?
 
     :echo argc()
 
-## How to get the list of entries in the currently used arglist?
+### the list of entries in the currently used arglist?
 
     :echo argv()
              │
              └ mnemonic: vector
 
-## How to get the i-th entry in the currently used arglist?
+### the i-th entry in the currently used arglist?
 
     :echo argv(i)
 
-## How to get the id of the currently used arglist?
+### the id of the currently used arglist?
 
     :echo arglistid()
 
-## How to get the id of the currently used arglist in the second window?
+### the id of the currently used arglist in the second window?
 
     :echo arglistid(2)
 
-## How to get the id of the currently used arglist in the second window in the third tabpage?
+### the id of the currently used arglist in the second window in the third tabpage?
 
     :echo arglistid(2,3)
 
+##
 ## How to detect whether the currently used arglist is global?
 
 The global id of a global arglist is `0`.
@@ -97,14 +98,14 @@ Maybe it will change in the future:
 
 #
 # Issues
-## Why does   :args fname   sometimes fail?
+## Why does `:args fname` sometimes fail?
 
 `fname` may contain some characters which are special on Vim's command-line.
 To prevent their interpretations, use `fnameescape()`:
 
     :exe 'args '.fnameescape(fname)
 
-## Why does   :args `=systemlist('ls ~/.vim/after/ftplugin')`   fail?
+## Why does ``:args `=systemlist('ls ~/.vim/after/ftplugin')` `` fail?
 
 Because `ls(1)` returns filenames, but `:args` needs complete filepaths.
 
@@ -112,7 +113,7 @@ So, when `:args`  receives a filename, it completes its  path with Vim's working
 directory, which  will probably lead  to a buffer  NOT associated with  any real
 file.
 
-## Why using  :args `shell cmd`   to populate the arglist is a bad idea?
+## Why using ``:args `shell cmd` `` to populate the arglist is a bad idea?
 
 It may not work and raise the error:
 
@@ -414,25 +415,34 @@ global one.
 
 # Todo
 
-The indicator in the  statusline should show the position in the  qfl AND in the
-arglist if they both exist simultaneously.
-
-Update: Actually, it may consume too much resource...
-It depends on the size of the arglist and the qfl.
-Profile `vim-statusline`.
-
-Also, when the size of the qfl is  too big, moving in a buffer makes Vim consume
-a lot of cpu.
-Maybe we should put a limit on  the indicator and not report anything above some
-arbitrary size.
-
-
-Also, the indicator should  show us which arglist is currently used  in each window (the
-global one or the local one).
+It would be  nice if the arglist  indicator in the status line  (`%a`) showed us
+which arglist  is currently  used in each  window (the global  one or  the local
+one).
 
 ---
 
 Integrate here anything related to the arglist (`:all`, dirvish `x_x`, ...):
 
     noa vim /arglist/gj ## | cw
+
+---
+
+Play with:
+
+   - `argc()` + `argv()`
+     They can now access the global arglist and the local arglist of another window:
+
+        https://github.com/vim/vim/releases/tag/v8.1.0493
+
+   - `getcompletion('*', 'arglist')`
+     +
+     `com -complete=arglist ...`
+
+
+---
+
+See our fixme in `~/.vim/plugged/vim-brackets/plugin/brackets.vim`.
+It's about  `]a` which behaves  unexectedly when we  try to visit  an unreadable
+argument (this  is due  to `:next` –  and probably `:prev`  too –  which behaves
+differently inside a `try` conditional).
 
