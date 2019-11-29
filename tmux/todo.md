@@ -908,6 +908,14 @@ the location: left part? right part? window list?
 
 ##
 # document
+## the `p` format modifier
+
+`man tmux /pad`:
+
+> ... Similarly, ‘p’ pads the string to a given width, for
+> example ‘#{p10:pane_title}’ will result in a width of at least 10 charac‐
+> ters.  A positive width pads on the left, a negative on the right.
+
 ## the `synchronize-panes` window option
 
 This key binding should toggle it:
@@ -1184,20 +1192,6 @@ The possibility of combining 2 format modifiers with a semicolon is not document
 
     $ tmux display -p '#{t;s/^.../XXX/:start_time}'
     XXX Aug  8 13:11:27 2019~
-
-Note that you can't combine several modifiers of the same type:
-
-> nicm │ crose: the way modifiers are implemented you can only have one of each type
-
-For example this command outputs `next-3.Y`, instead of `Xext-3.Y`:
-
-    $ tmux display -p '#{s/^./X/;s/.$/Y/:version}'
-
-This is only an issue for `s` though, and it may change in the future:
-
-> nicm │ id like it to work so it might change at some point
->      │ it only really makes sense for s
->      │ which wouldn't be that hard to do
 
 You can also combine more than 2 modifiers:
 

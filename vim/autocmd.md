@@ -1,6 +1,15 @@
-# How to allow an autocmd, which is installed from a function, to access a variable in the function scope?  (3)
+# How to allow an autocmd, which is installed from a function, to access a variable in the function scope?  (4)
 
 Use:
+
+   - an `:exe`
+
+         fu Func()
+            let var = 'defined in outer scope'
+            exe 'au SafeState * ++once echo '..string(var)
+         endfu
+         call Func()
+         defined in outer scope~
 
    - a lambda
 
@@ -81,10 +90,10 @@ The solution using a partial has 2 drawbacks:
    - you need to come up with yet another variable name (in the previous example `s:partial`),
      and it needs to be unique in the current script
 
-## Each of these solutions requires the creation of an extra variable/function.
+## Most of these solutions require the creation of an extra variable/function.
 ### So what is their benefit over simply moving the variable from the function scope to the script scope?
 
-These solutions scale better when you need to access several variables.
+They scale better when you need to access several variables.
 
 Example:
 
@@ -117,6 +126,42 @@ Besides, the extra `s:` makes the variable names a little harder to read.
 Finally,  it's harder  to avoid  conflicts between  script-local variables  than
 between function-local ones, simply because a script is usually much longer than
 a function.
+
+### Which pitfall should I be aware of, when using them?
+
+Suppose that:
+
+   - you use a lambda/closure/partial
+   - its definition is not static but dynamic (it depends on some value which can change at runtime)
+
+   - your autocmd is local to a buffer (pattern `<buffer>`)
+   - it can be installed in different buffers simultaneously
+
+In that case, every time `Func()`  is invoked, the new definition will overwrite
+the old one which is currently used in the previously installed autocmds.
+
+MWE:
+
+    fu Func()
+       let msg = bufname('%')
+       fu! Closure() closure
+           echom msg
+       endfu
+       au WinEnter <buffer> call Closure()
+    endfu
+
+Call this function in two windows displaying buffers with different names.
+Then, alternate the focus between the two windows:
+Vim always displays the  same buffer name, the one displayed  in the last window
+where you called `Func()`.
+
+You probably expected Vim to display the names of the two buffers alternatively.
+If that's an issue, use an `:exe` instead of a lambda/closure/partial:
+
+    fu Func()
+       let msg = bufname('%')
+       exe 'au WinEnter <buffer> echom '..string(msg)
+    endfu
 
 ##
 # How to write the quantifier “0 or 1” in the pattern of an autocmd?
