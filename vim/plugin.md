@@ -2811,26 +2811,14 @@ ou
 
 ## Configuration
 
-    :echo has('python')
     :echo has('python3')
 
-            Tester si Vim a été compilé avec python 2.x ou 3.x
+            Tester si Vim a été compilé avec 3.x
 
 
-    :py  import sys; print(sys.version)
     :py3 import sys; print(sys.version)
 
-            Déterminer la version de l'interpréteur python 2.x / 3.x contre laquelle Vim a été compilé.
-
-
-   let g:UltiSnipsUsePythonVersion = 2
-   let g:UltiSnipsUsePythonVersion = 3
-
-            Demander à Vim d'utiliser python 2.x ou 3.x
-
-            Cette configuration est généralement inutile, car UltiSnips devrait détecter automatiquement
-            quelle version de l'interpréteur python a été compilé dans Vim.
-            Toutefois, ça peut être nécessaire si cette détection échoue.
+            Déterminer la version de l'interpréteur python 3.x contre laquelle Vim a été compilé.
 
 
 UltiSnips permet de développer un tab trigger en snippet.

@@ -70,13 +70,11 @@ Later, you can check the lua interface has been compiled by running:
                 --enable-luainterp=dynamic \
                 --enable-multibyte \
                 --enable-python3interp=yes \
-                --enable-pythoninterp=yes \
                 --enable-terminal \
                 --prefix=/usr/local \
                 --with-compiledby=user \
                 --with-features=huge \
                 --with-luajit \
-                --with-python-config-dir=/usr/lib/python2.7/config-x86_64-linux-gnu/ \
                 --with-python3-config-dir=/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu/
 
 ### Why should I avoid the perl and ruby interfaces?
@@ -107,9 +105,9 @@ the flag `T`, `S`, `N`, `B` or `H`.
 See `:h :ve` for the meaning of these flags.
 
 ####
-#### `--enable-luainterp=dynamic`, `--enable-pythoninterp=yes`, `--enable-python3interp=yes`?
+#### `--enable-luainterp=dynamic`, `--enable-python3interp=yes`?
 
-Enable the lua/perl/python[23] interfaces.
+Enable the lua/perl/python3 interfaces.
 See `:h if_lua` and `:h if_pyth`.
 
 #### `--enable-fail-if-missing`?
@@ -229,7 +227,6 @@ Source: <https://github.com/neovim/neovim/wiki/Building-Neovim#build-prerequisit
 
 To use python plugins, the pynvim module is needed:
 
-    $ python -m pip install --user --upgrade pynvim
     $ python3 -m pip install --user --upgrade pynvim
 
 See `:h provider-python`.

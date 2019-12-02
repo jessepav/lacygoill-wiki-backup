@@ -615,7 +615,7 @@ You need to reset `'compatible'`:
 ###
 ## How to test in a shell script whether my Vim binary was compiled with a python interface?
 
-Run `if has('python')` in Vim's silent mode.
+Run `if has('python3')` in Vim's silent mode.
 And if the test succeeds, quit with `:qa!`; the exit status should be 0:
 
     $ vim -es +'qa!' ; echo $?
@@ -628,8 +628,8 @@ otherwise, quit with `:cq`; the exit status will be 1:
 
 Finally, test the exit status of the Vim command with the shell keyword `if`:
 
-    $ if vim -es +'if has("python")|qa!|else|cq|endif'; then echo 'Vim has python2'; else echo 'Vim does not have python2'; fi
-    Vim has python2~
+    $ if vim -es +'if has("python3")|qa!|else|cq|endif'; then echo 'Vim has python3'; else echo 'Vim does not have python3'; fi
+    Vim has python3~
 
 ---
 
@@ -640,8 +640,8 @@ In Nvim, you can prefix `:cq` with a count, which is used as the exit status:
 
 So, the previous command can be re-written like this:
 
-    $ if nvim -es +'if has("python")|0cq|else|1cq|endif'; then echo 'Nvim has python2'; else echo 'Nvim does not have python2'; fi
-    Nvim has python2~
+    $ if nvim -es +'if has("python3")|0cq|else|1cq|endif'; then echo 'Nvim has python3'; else echo 'Nvim does not have python3'; fi
+    Nvim has python3~
 
 ####
 # Issues

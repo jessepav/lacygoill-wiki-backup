@@ -233,6 +233,57 @@ everywhere, and not always in the same manner.
 
 Read our comments about the `s:close_fugitive_window()` function in our vimrc.
 
+### if you open a vertical split window, closing it may reset the heights of your main horizontal splits
+
+Suppose you have several horizontal splits.
+You open a scratch buffer in a vertical window (like undotree or vim-fex).
+Next, you open a split window from it (e.g. diff panel in undotree).
+When you'll close the latter, the heights of your main horizontal splits will be
+equalized if `'ea'` is set.
+
+This is jarring.
+You can't fix the issue by temporarily  resetting `'ea'`, because as soon as you
+set the option, Vim will equalize the windows.
+
+I can see 2 solutions:
+
+   - initially, save the id of the window from which the scratch buffer is opened,
+     then later, call `win_execute(saved_id, 'do WinEnter')`
+
+   - before opening the scratch buffer, save the values of `'wfh'` in all the windows of the current tab page,
+     then execute `windo setl wfh`,
+     finally, when closing the scratch buffer, restore `'wfh'` everywhere
+
+I implemented the 1st solution in `plugin#undotree#diff_toggle()`:
+
+    ~/.vim/autoload/plugin/undotree.vim
+    /fu plugin#undotree#diff_toggle(/;/call lg#win_execute(
+
+It's good enough, but not totally reliable; see our warning inside `plugin#undotree#show()`.
+
+For the second solution, you would need to call a function looking like this:
+
+    fu Func() abort
+        let s:wfh_save = {}
+        let winnr = range(1, winnr('$'))
+        call map(copy(winnr), {_,v -> extend(s:wfh_save, {v : getwinvar(v, '&wfh', 0)})})
+        echo s:wfh_save
+        call map(copy(winnr), {_,v -> setwinvar(v, '&wfh', 1)})
+        q
+        call timer_start(0, {-> map(copy(winnr), {_,v -> setwinvar(v, '&wfh', s:wfh_save[v])})})
+    endfu
+
+Notice the timer; for some reason, it doesn't work without.
+I don't like the idea of restoring option values with a timer though...
+
+---
+
+I  think the  best solution  would  be to  reset  `'ea'`, but  it's tricky;  see
+`vim-window`.   Also, note  that it  wouldn't entirely  fix the  issue regarding
+undotree,  but that's  because  the latter  focuses a  bunch  of windows  before
+closing  the diff  panel. I  think that  you  would still  need  to restore  the
+previous focused window...
+
 ##
 ## options
 ### `'winfixwidth'` (or `'winfixheight'`) should be set

@@ -138,9 +138,10 @@ Vim:
    - <https://github.com/tmux-plugins/vim-tmux>
 
 ##
-        pfx ?
-        pfx f
-        gawk: ~/.tmux/plugins/tmux-fingers/scripts/hinter.awk:139: (FILENAME=- FNR=1) warning: regexp escape sequence `\"' is not a known regexp operator
+
+    pfx ?
+    pfx f
+    gawk: ~/.tmux/plugins/tmux-fingers/scripts/hinter.awk:139: (FILENAME=- FNR=1) warning: regexp escape sequence `\"' is not a known regexp operator
 
 # links to read
 

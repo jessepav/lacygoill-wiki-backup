@@ -137,7 +137,7 @@ after `:tselect` or `:tjump`, then `:pop`.
 
 # ?
 
-Read `:h preview-window`, `:h tags-and-searches`, `:h usr_29`.
+Read `:h preview-window`, `:h tags-and-searches`, `:h usr_29`, `:h Q_ta`.
 
 Integrate everything in our notes regarding 'path', 'tags', 'cdpath', `**`.
 
