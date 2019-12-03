@@ -501,10 +501,10 @@ In that case, without an explicit scope, Vim assumes `v:`.
 
 Source: <https://github.com/Kuniwak/vint/issues/245#issuecomment-337296606>
 
-It seems to be true, if you look at this file:
-<https://github.com/vim/vim/blob/master/src/eval.c>
+It seems to be true, if you look at the source code:
+<https://github.com/vim/vim/blob/a050b9471c66b383ed674bfd57ac78016199d972/src/evalvars.c#L38-L61>
 
-And if you search for `VV_COMPAT`, you only find these 5 variables atm.
+If you search for `VV_COMPAT`, you only find these 5 variables atm.
 
 If you're concerned by  a conflict with a `v:` variable, write  this line at the
 top of your script:
