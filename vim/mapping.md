@@ -44,8 +44,16 @@ the command.
 
 # ?
 
-`:h index`: key sequences mapped by default
-`:h key-notation`: notation for keys
+If you wonder whether your chosen lhs is going to override a default command, have a look at these help tags:
+
+   - `:h insert-index`
+   - `:h normal-index`
+   - `:h visual-index`
+   - `:h ex-edit-index`
+
+They list all the default commands in resp. insert/normal/visual/ex mode.
+
+---
 
 - <http://vimcasts.org/blog/2014/02/follow-my-leader/>
 - <https://vimeo.com/85343734>
@@ -53,18 +61,19 @@ the command.
 You could want to create 3 types of lhs:
 
    - one calling a function or command
-   - one calling an operator
-   - an object
+   - an operator
+   - a text-object
 
 You could divide the keys on the keyboard in 4 categories:
 
-   - motion      ' backtick # $ % ^ *  ( ) 0 _ - + w W  e E t T { } [ ] f F G h H j k l L , ; | b B n N M ? /
+   - motion      ' ` # $ % ^ *  ( ) 0 _ - + w W  e E t T { } [ ] f F G h H j k l L , ; | b B n N M ? /
    - command     a A C D i I J K m o O p P q Q r R s S u U v V x X Y Esc ~ @ & : .
    - operator    c d y = < > !
    - prefix      g z Z ' " \ Ctrl [ ]
 
-To build a  lhs which won't override  / shadow a default  functionality, you can
-make it begin with a prefix.
+To build  a lhs which won't  override a default  command, you can make  it begin
+with a prefix.
+
 E.g.:
 
    - `gl` (vim-lion)
@@ -85,20 +94,19 @@ Use an operator than a prefix. E.g.: `cz`, `dgb`
 
 Use 2 operators. E.g.: `cd`, `cu`, `y=`
 
-Note that  `op1`+`op2` doesn't make sense  only if there's no  text-object using
+Note that  `op1 + op2` doesn't make sense  only if there's no  text-object using
 `op2` as its lhs.
 If `op2` only uses one character, this is not an issue, because there aren't any
 operator and text-object using the same 1-char lhs.
-IOW, there's a `c` operator, but there's no `c` object.
+For example, there is a `c` operator, but there is no `c` object.
+In fact, there is no one-character text-object.
 
-En fait, il y a une autre raison: y'a pas d'objet utilisant un seul caractère.
+I think this is because it would  violate the convention which makes an operator
+repeated twice is equivalent to making it operate on the current line.
+For example,  if the  `d` text-object  existed, then `dd`  would not  delete the
+current line anymore, but whatever text is targeted by this `d` object.
 
-              Dit autrement, il n'existe pas d'objet `c`, `d`, `y`, `=`, `<`, `>`, `!`.
-              Pk?
-              Car ça violerait la convention qui veut que répéter un opérateur revient à lui passer
-              la ligne courante en argument.
-              Pex, s'il existait un objet `d`, alors `dd` ne supprimerait plus la ligne courante,
-              mais l'objet `d`.
+If `op2` contains several characters, then `op1 + op2` may be valid or not.
 
               Qd l'opérateur2 utilise plusieurs caractères, le pb peut se poser (cf `gc`), ou pas (`gl`).
 
@@ -112,13 +120,23 @@ En fait, il y a une autre raison: y'a pas d'objet utilisant un seul caractère.
 
               En revanche, vim-lion ne crée pas d'objet `gl`, on pourrait donc utiliser `dgl` comme lhs.
 
-... ou encore un lhs valide mais peu utile car il existe un synonyme:    C-n C-p + - s S ...
+... ou encore un lhs valide mais peu utile car il existe un synonyme:
+
+   - `C-n`
+   - `C-p`
+   - `+`
+   - `-`
+   - `s`
+   - `S`
+   - ...
+
 Pex, dirvish/vinegar remap `-` car `k` fait pratiquement la même chose et est plus utilisé.
 sneak remap `s` et `S` car ils sont peut utilisés et `cl`/`cc` sont des synonymes.
 `gs` est aussi un bon candidat, car inutile dans l'absolu.
 
-On peut utiliser ces méthodes pour créer non pas un lhs mais un nouveau namespace à l'intérieur duquel
-on créera des mappings similaires (ex: `co`, `[o`, `]o` dans unimpaired).
+On  peut utiliser  ces  méthodes pour  créer  non  pas un  lhs  mais un  nouveau
+namespace  à l'intérieur  duquel on  créera des  mappings similaires  (ex: `co`,
+`[o`, `]o` dans unimpaired).
 
 ---
 
@@ -130,37 +148,40 @@ Qd on cherche un lhs pour un objet, généralement son début suit un des patter
    - cmd  + namespace
 
 `cmd1` étant très souvent `i` ou `a`.
-En théorie, on pourrait aussi le faire commencer par le lhs d'un opérateur (ex: `gc`), mais
-parfois ça pourrait introduire du lag (`gcgc` vs `gcgcfoo`) ou un namespace.
+En théorie, on pourrait aussi le faire  commencer par le lhs d'un opérateur (ex:
+`gc`), mais  parfois ça pourrait introduire  du lag (`gcgc` vs  `gcgcfoo`) ou un
+namespace.
+
 Pour des exemples, lire:
 
-        https://github.com/kana/vim-textobj-user/wiki
-        https://github.com/wellle/targets.vim
+- <https://github.com/kana/vim-textobj-user/wiki>
+- <https://github.com/wellle/targets.vim>
 
 ---
 
 On peut se créer son propre leader via l'astuce suivante:
-http://vi.stackexchange.com/a/9711/6960
+<http://vi.stackexchange.com/a/9711/6960>
 
 A priori, `[unite]` pourrait être remplacé par `<Plug>(unite)` ce qui présenterait l'avantage
 de ne masquer / outrepasser aucun mapping préexistant.
 
-        nno  [myLeader]a  :echo 'hello'<CR>
-        nno  [myLeader]b  :echo 'world'<CR>
+    nno [myLeader]a :echo 'hello'<CR>
+    nno [myLeader]b :echo 'world'<CR>
 
-        nno  <Plug>(myLeader)a  :echo 'hello'<CR>
-        nno  <Plug>(myLeader)b  :echo 'world'<CR>
-
----
-
-Certaines commandes normales sont pensées pour être outrepassées:    `gq` ('formatprg'), `=` ('equalprg')
-D'autres peuvent être étendues. Pex, `z=` ne fonctionne que si 'spell' est activée.
-On pourrait lui faire qch (de similaire) qd l'option est désactivée, comme suggérer des synonymes
-du mot sous le curseur.
+    nno <Plug>(myLeader)a :echo 'hello'<CR>
+    nno <Plug>(myLeader)b :echo 'world'<CR>
 
 ---
 
-Vim ne définit aucun mapping contenant des chiffres à l'exception de 3:
+Certaines  commandes   normales  sont  pensées  pour   être  outrepassées:  `gq`
+('formatprg'), `=` ('equalprg') D'autres peuvent être étendues.
+Pex, `z=` ne fonctionne que si `'spell'` est activée.
+On  pourrait lui  faire qch  (de similaire)  qd l'option  est désactivée,  comme
+suggérer des synonymes du mot sous le curseur.
+
+---
+
+Vim ne définit aucun mapping contenant des chiffres à l'exception de:
 
    - 0 C-d (insert mode)
    - g0
@@ -169,8 +190,7 @@ Vim ne définit aucun mapping contenant des chiffres à l'exception de 3:
 
 ---
 
-Some key sequences can begin with one  of 2 symmetrical characters, such as `[`,
-`]`.
+Some key sequences can begin with one  of 2 symmetrical characters, such as `[`, `]`.
 Don't use them to perform completely unrelated actions.
 You would lose the symmetry.
 Use them to perform reverse operations.
@@ -195,7 +215,7 @@ Output example when `<keys>` = `g CTRL-`
 
 FIXME: I think the output of `taglist()` is influenced by the current buffer.
 Because it must look  in tags files, and those are set  by a buffer-local option
-('tags'); to be checked.
+(`'tags'`); to be checked.
 
 # ?
 
@@ -732,7 +752,7 @@ MWE:
     $ vim -Nu NONE +'ino bc –' +'echo execute("ino bc")'
     i  bc          * ^S~
 
-Also, note how the output of `:ino bc –` is empty; it could be another bug...
+Also, note how the rhs is empty in the output of `:ino bc`; it could be another bug...
 
 The issue is not linked to `execute()`, since we can reproduce with `:redir`.
 I can reproduce the issue with an abbreviation too.

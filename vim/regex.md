@@ -198,7 +198,32 @@ The patch introduces these character classes:
 
 Which can be used to construct the complement of resp. `\k`, `\i`, `\f`.
 
-##
+## the text from the start of the line till the end of `pat` if it matches, or till the end of the line otherwise?
+
+    .*pat\|^.*
+
+Test the regex against:
+
+    a pat b
+    ^^^^^^^
+
+    a b
+    ^^^
+
+---
+
+Without the  anchor `^`,  on a line  containing `pat`, you  would have  a second
+undesired match:
+
+    a pat b
+         ^^
+
+---
+
+It works because alternations are *ordered* in Vim.
+It means  that the regex engine  uses the *first* matching  alternation; not the
+one producing the *longest* match.
+
 ## all sequences of several uppercase characters *not* followed by a comma *nor another uppercase character*?
 
     \%(\u\{2,}\)\@>,\@!
@@ -221,6 +246,7 @@ This shows how the atom `\@>` can be useful.
 Here, without it, we would find `AB`, `DEF`, `GH` and `JKL`.
 `\@>` allows us to prevent the backtracking into `\u\{2,}`.
 
+##
 ## all commas outside a double-quoted string?
 
     \%(^\%("[^"]*"\|[^"]\)*\)\@<=,
@@ -265,31 +291,70 @@ You can test this new regex against this line:
                            an unterminated string
 
 ##
-## the text from the start of the line till the end of `pat` if it matches, or till the end of the line otherwise?
+## a single-quoted string, which may include backslash-escaped single quotes
 
-    .*pat\|^.*
+    '\%(\\.\|[^'\\]\)*'
+        ├─┘     ├┘
+        │       └ to prevent matching a non-terminated string containing a literal quote
+        │         (e.g. '\', '\\\', ...)
+        │
+        │         Remember the: "no matter what the latter is"?
+        │         This `\\` is there to add: "except the final quote".
+        │
+        └ this is where the main issue is solved:
+          if you find a backslash, consume it as well as the next character, no matter what the latter is
 
-Test the regex against:
+Test it against these strings:
 
-    a pat b
+    'ab'c
+    ^^^^
+
+    'a\'b'c
+    ^^^^^^
+
+    'a\\'bc
+    ^^^^^
+
+    'a\\\'b'c
+    ^^^^^^^^
+
+    'a\\\\'bc
     ^^^^^^^
 
-    a b
-    ^^^
+Notice how  the regex correctly  handles sequences of backslashes;  when looking
+for the end  of the string, it only  ignores a quote if it's prefixed  by an odd
+number of backslashes (but not if it's prefixed by an even number).
 
 ---
 
-Without the  anchor `^`,  on a line  containing `pat`, you  would have  a second
-undesired match:
+You may wonder  why it's necessary to include the  backslash in the complemented
+bracket expression:
 
-    a pat b
-         ^^
+    '\%(\\.\|[^'\\]\)*'
+                ^^
 
----
+After all, if the regex engine has  to try the second alternation, it means that
+`\\.` did  not match; and if  it did not match,  then it means that  there is no
+backslash at the current position, right?
 
-It works because alternations are *ordered* in Vim.
-It means  that the regex engine  uses the *first* matching  alternation; not the
-one producing the *longest* match.
+Nope.
+It's possible  that there  *is* a  backslash at the  current position,  and that
+`\\.` *did* match; but  the overall match failed because `.`  matched the end of
+the string, which prevented the final `'` to match.
+
+### How to generalize the regex so that it works for double-quoted strings too?
+
+    \(['"]\)\%(\\.\|\1\@![^\\]\)*\1
+
+Test it against these strings:
+
+    'ab'
+    'a\'b'
+    'a\\'b
+
+    "ab"
+    "a\"b"
+    "a\\"b
 
 ##
 ## the text between an `A` and the next `C`, with a `B` somewhere in the middle?

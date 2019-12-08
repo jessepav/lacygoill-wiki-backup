@@ -1,5 +1,6 @@
 # Priority
 
+matchup
 outlaw
 swapit
 sandwich
@@ -326,6 +327,17 @@ Complimentary  improves  the  completion   of  VimL  builtin  functions,
 commands, variables and options.
 
 <https://github.com/fcpg/vim-complimentary> 464 sloc (265 VimL + 199 awk)
+
+## context
+
+A Vim plugin that shows the context of the currently visible buffer contents.
+It's supposed to work on a wide range of file types, but is probably most useful
+when looking at source code files.
+In most programming  languages this context will show you  which function you're
+looking at, and  within that function which loops or  conditions are surrounding
+the visible code.
+
+<https://github.com/wellle/context.vim> 383 sloc
 
 ## cosco
 

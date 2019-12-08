@@ -148,8 +148,8 @@ It stops highlighting new matches/text after `'redrawtime'` ms, to avoid hanging
 
 `:h highlight-groups` mentions:
 
-        CursorIM
-        Terminal
+    CursorIM
+    Terminal
 
 But they're not present in the output of `:hi` when you start Vim with no config
 (`$ vim -Nu NONE`), nor when you load seoul256.
@@ -162,9 +162,9 @@ be defined manually...
 
 When you start Vim with `$ vim -Nu NONE`, `:hi` includes these HGs:
 
-        ToolbarButton
-        ToolbarLine
-        lCursor
+    ToolbarButton
+    ToolbarLine
+    lCursor
 
 But they're not documented at `:h highlight-groups`.
 I think the help forgot them.

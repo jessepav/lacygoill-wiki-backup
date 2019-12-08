@@ -25,6 +25,73 @@ Update: I think most of this section applies to any argument passed to a shell c
 Look for `system()`, `systemlist()` everywhere,  and make sure we've always used
 `:S`, `shellescape()` (and `:p` for file names).
 
+##
+# I need to pass an argument to an Ex command, and it may contain special characters.  When should I use
+## `fnameescape()`?
+
+Use it if the characters are special on Vim's command-line (`:h cmdline-special`),
+and your argument is unquoted (outside a string).
+
+Example:
+
+    :e /tmp/foo
+    :b#
+    :sp /tmp/foo#bar
+    :echo expand('%:p')
+    /tmp/foo/tmp/foobar~
+    ✘
+
+    :e /tmp/foo
+    :b#
+    :exe 'sp '..fnameescape('/tmp/foo#bar')
+    :echo expand('%:p')
+    /tmp/foo#bar~
+    ✔
+
+### Which alternative can I use?
+
+Expand backticks as a Vim expression:
+
+    :e /tmp/foo
+    :b#
+    :sp `='/tmp/foo#bar'`
+    :echo expand('%:p')
+    /tmp/foo#bar~
+    ✔
+
+See `:h backtick-expansion /=`.
+
+##
+## `shellescape()`?
+
+Use it if your argument will be parsed by the shell.
+
+Example:
+
+    :exe 'grep! '..shellescape('==#')..' $VIMRUNTIME'
+
+Wait...
+Why is `#` replaced by the alternate filename?
+
+Answer:
+Because `:grep` runs the shell command set by `'grepprg'` via `:!`.
+Check this:
+
+    :4verb exe 'grep! '..shellescape('==#')..' $VIMRUNTIME'
+    :!rg -LS --vimgrep 2>/dev/null '==/tmp/foo#bar' $VIMRUNTIME 2>&1| tee /tmp/v6WVFDZ/45~
+     ^
+
+Are there other Ex commands which invoke `:!` (see `:h :index`)?
+Make sure that whenever we've used any of them, we've passed the second optional
+argument `1` to `shellescape()`.
+
+## ?
+
+Maybe we should replace `[!=]=[#?]\=` with `[!]empty()` everywhere.
+This is more readable, and you don't have to wonder whether `#` should be used.
+
+## ?
+
 From `~/.vim/autoload/myfuncs.vim:848`:
 
     " Old Interesting Alternative:
@@ -48,8 +115,8 @@ From `~/.vim/autoload/myfuncs.vim:848`:
     "    └───────────────────┴──────────┴─────────────┴────────────┘
     "
     " `fnameescape()` would not protect `;`.
-    " The  shell  would  interpret  the  semicolon as  the  end  of  the
-    " `grep(1)` command, and would execute the rest as another command.
+    " The  shell would  interpret  the semicolon  as the  end  of the  `grep(1)`
+    " command, and would execute the rest as another command.
     " This can be dangerous:
     "
     "     foo;rm -rf
@@ -85,18 +152,3 @@ From `~/.vim/autoload/myfuncs.vim:848`:
     " It's less verbose.
     " `:S` must be the last modifier, and it can work with other special
     " characters such as `#` or `<cfile>`.
-
----
-
-Look for `system()` and `systemlist()` everywhere, and look for comments related
-to the  issue about `:cexpr`  which parses a bar  as a command  termination even
-inside quotes.
-
-Report the issue.
-
-##
-# Todo
-
-Look for `C-a` everywhere.
-Use `\x01` or `$'\x01'` instead.
-

@@ -335,17 +335,35 @@ candidates will be performed.
     │ at the root of the working directory │                             │
     └──────────────────────────────────────┴─────────────────────────────┘
 
-### If I have to choose between the two, which one should I use?
+#### If I have to choose between the two, which one should I use?
 
 `-complete=file` gives less  suggestions, and they will be more  relevant if you
 configure the working directory to match  the root of the project you're working
 on.
 
-### If the local and global working directories are different, which one is used by these attributes?
+##### Which pitfall should I be aware of though?
+
+Characters which are special on Vim's command-line will be automatically expanded:
+
+    com -complete=file -nargs=1 Cmd call Func(<args>)
+    fu Func(arg)
+        echo a:arg
+    endfu
+    Cmd 'A%B'
+    Acommand.mdB~
+     ^^^^^^^^^^
+       `%` has been expanded into the name of the current file
+
+---
+
+The same pitfall applies to `-complete=dir`.
+
+####
+#### If the local and global working directories are different, which one is used by these attributes?
 
 The local one has always priority.
 
-### If I use `-complete=file_in_path` and 'path' has the value `.,**`, what will be suggested?
+#### If I use `-complete=file_in_path` and 'path' has the value `.,**`, what will be suggested?
 
 All the  files/directories at the root  of the directory containing  the current
 file, and all the files/directories anywhere below the working directory.

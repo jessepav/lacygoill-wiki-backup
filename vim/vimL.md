@@ -660,6 +660,40 @@ When the list is the left operand of an assignment (`:h :let-unpack`):
     "         ✘
     E475: Invalid argument: ] = [1,2,3]~
 
+
+##
+## ?
+
+How to play a sound?
+
+Use `sound_playfile()` or `sound_playevent()`.
+
+For example, you could download the intro music for the PlayStation 1:
+
+    $ youtube-dl -x --audio-format vorbis -o 'ps.%(ext)s' 'https://www.youtube.com/watch?v=oAhvQoLpvsM'
+
+Then, play it when Vim starts, adding this code to your vimrc:
+
+    if ! has('nvim')
+        augroup play_ps_sound_on_vimenter
+            au!
+            au VimEnter * call sound_playfile('/tmp/ps.ogg')
+        augroup END
+    endif
+
+Note that you really need `%(ext)s` in  the value passed to the argument `-o` of
+`youtube-dl(1)`; I think that's because the latter expects a template.
+You could  write `ps.ogg` directly, and  `mpv(1)` would play the  file (although
+with a warning message, I think), but not Vim.
+
+---
+
+The `complete` "event" is a nice and probably useful sound:
+
+    call sound_playevent('complete')
+
+As an example, it could be played after an async command has finished populating the qfl.
+
 ##
 # Issues
 ## Why does  `:call system('grep -IRn pat * | grep -v garbage >file')`  fail to capture the standard error in file?
