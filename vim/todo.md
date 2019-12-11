@@ -119,6 +119,9 @@ preference:
 Tricky, because the  state of this feature  must be restored when  the window is
 closed, no matter how it's closed (`:q`, `q`, `SPC q`, ...).
 
+Update: now we use an auto-open fold feature  which is local to the buffer, so I
+think the previous comment is not relevant anymore...
+
 ##
 ## the buffer should be reloadable
 
@@ -146,6 +149,8 @@ regular file; in which case, you should just edit it in read-only mode.
 The read-only mode will prevent you from wrongly editing the file by accident.
 In particular, the auto-save feature won't save a modified read-only buffer.
 But it will still allow you to edit the file if you really want to (`:w!`).
+
+## the buffer should not be displayed in several windows if we keep pressing its mapping/executing its Ex command
 
 ## at most, only one scratch buffer should be displayed per tab page
 
@@ -278,11 +283,19 @@ I don't like the idea of restoring option values with a timer though...
 
 ---
 
-I  think the  best solution  would  be to  reset  `'ea'`, but  it's tricky;  see
-`vim-window`.   Also, note  that it  wouldn't entirely  fix the  issue regarding
-undotree,  but that's  because  the latter  focuses a  bunch  of windows  before
-closing  the diff  panel. I  think that  you  would still  need  to restore  the
-previous focused window...
+We have fixed the issue by resetting `'ea'` in `vim-window`.
+
+We still have an issue regarding undotree, but that's because the latter focuses
+a bunch of windows before closing the diff panel.
+
+---
+
+Earlier, you said that we couldn't fix the issue by temporarily resetting `'ea'`.
+Are you sure?
+blueyed seems to handle the issue by doing exactly that:
+
+- <https://github.com/vim/vim/issues/2682#issuecomment-372850659>
+- <https://github.com/vim/vim/issues/908#issuecomment-249459047>
 
 ##
 ## options
@@ -304,6 +317,32 @@ The width of the freekeys window increases by a lot.
 ---
 
 If you use a horizontal window, then `'winfixheight'` should be set instead.
+
+---
+
+Update: The issue was due to `'equalalways'` which is set by default.
+Now, we reset it, so the issue should not occur anymore.
+
+However,  the width  of the  window may  still be  altered when  closing another
+window, although in a different way;  the windows are not equalized anymore, but
+the space  previously taken  by the closed  window may be  given to  the current
+window; it seems to be due to `'splitbelow'` and `'splitright'`:
+
+                              vv vvv
+    $ vim -Nu NONE +'set noea sb spr|au VimEnter * wincmd =' +vs +vs
+    :2q
+    " the width of the first window increases
+
+                              vvvv vvvvv
+    $ vim -Nu NONE +'set noea nosb nospr|au VimEnter * wincmd =' +vs +vs
+    :2q
+    " the width of the first window stays fixed
+
+Is it a Vim bug?
+Why should `'sb'` and  `'spr'` have any effect on whether  the width/height of a
+window stays fixed when another window is closed and `'ea'` is reset?
+
+In any case, this shows that `'wfh'` and `'wfw'` are still useful.
 
 ### `bh` should be set to `delete`, not `wipe`
 

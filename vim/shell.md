@@ -62,7 +62,9 @@ Expand backticks as a Vim expression:
 See `:h backtick-expansion /=`.
 
 ##
-## `shellescape()`?
+## ?
+
+`shellescape()`?
 
 Use it if your argument will be parsed by the shell.
 
@@ -152,3 +154,9 @@ From `~/.vim/autoload/myfuncs.vim:848`:
     " It's less verbose.
     " `:S` must be the last modifier, and it can work with other special
     " characters such as `#` or `<cfile>`.
+
+## ?
+
+Check whether `:PQ` is really necessary.
+We have a todo in our vimrc telling that it may not be.
+

@@ -69,3 +69,37 @@ It would be useful to toggle an auto-open-fold mode in an arbitrary buffer.
 Right now,  we do it by  installing temporary mappings (`j`,  `k`, `C-d`, `C-u`,
 `gg`, `G`), which automatically open folds.
 
+## can't customize the command-line history interactively
+
+It would be nice to be able to remove an Ex command from the history by deleting
+its  line  in  the  command-line  window.
+
+I tried in the past:
+
+    au CmdWinEnter : let s:old_cmd_hist = getline(1, line('$')-1)
+    au CmdWinLeave : au WinEnter * ++once call s:update_history()
+
+    fu s:update_history() abort
+        if has('nvim') | return | endif
+        let new_hist = filter(getline(1, '$'), {_,v -> v !~# '^\s*$' && v !~# '^.\{,5}$'})
+        call histdel(':')
+        for line in new_hist
+            call histadd(':', line)
+        endfor
+        let viminfo = expand($HOME..'/.viminfo')
+        if !filereadable(viminfo) | return | endif
+        let info = readfile(viminfo)
+        let deleted_entries = filter(copy(s:old_cmd_hist), {_,v -> index(new_hist, v) == -1})
+        call map(deleted_entries, {_,v -> index(info, ':'..v)})
+        call sort(filter(deleted_entries, {_,v -> v >= 0}))
+        if empty(deleted_entries) | return | endif
+        for entry in reverse(deleted_entries)
+            call remove(info, entry, entry + 1)
+        endfor
+        call writefile(info, viminfo, 'b')
+    endfu
+
+But it was not reliable; often, the whole command history would be cleared.
+Besides, there were  other issues (didn't support Nvim, failed  to remove a line
+containing a literal carriage return, ...).
+
