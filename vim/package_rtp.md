@@ -1,8 +1,8 @@
 Read:
 
-        :h :runtime
-        :h :packadd
-        :h :packloadall
+    :h :runtime
+    :h :packadd
+    :h :packloadall
 
 It seems that you can use all metacharacters documented in `:h file-pattern`.
 Document this.
@@ -14,26 +14,26 @@ A directory containing one or more plugins.
 
 ## What are the advantages of a package over normal plugins?
 
-        - A package can be downloaded as:
+   - A package can be downloaded as:
 
-                  - an archive
-                  - a git repository
+       * an archive
+       * a git repository
 
-          An archive can be unpacked in a single directory.
-          A git repo can easily be cloned (for installation) or pulled (for updating).
+     An archive can be unpacked in a single directory.
+     A git repo can easily be cloned (for installation) or pulled (for updating).
 
-          In both cases, the package files are not mixed with files of other plugins.
-          As a result, a package is easier to update and remove.
+     In both cases, the package files are not mixed with files of other plugins.
+     As a result, a package is easier to update and remove.
 
-        - A package can contain multiple plugins that depend on each other.
+   - A package can contain multiple plugins that depend on each other.
 
-        - A package can be loaded on-demand with `:packadd`.
-          A plugin is always loaded.
+   - A package can be loaded on-demand with `:packadd`.
+     A plugin is always loaded.
 
 ## How to install a package from an archive in `/tmp/archive.zip`?
 
-        $ mkdir -p ~/.vim/pack/my_package
-        $ unzip /tmp/archive.zip ~/.vim/pack/my_package
+    $ mkdir -p ~/.vim/pack/my_package
+    $ unzip /tmp/archive.zip ~/.vim/pack/my_package
 
 The directory name `my_package/` is arbitrary, you can pick anything you like.
 
@@ -41,10 +41,10 @@ The directory name `my_package/` is arbitrary, you can pick anything you like.
 
 At its root:
 
-        my_package/README.txt
-        my_package/start/foo/plugin/foo.vim
-        my_package/opt/bar/plugin/bar.vim
-        ...
+    my_package/README.txt
+    my_package/start/foo/plugin/foo.vim
+    my_package/opt/bar/plugin/bar.vim
+    ...
 
 ## Must there be a relationship between the name of the package, one of its plugins, one its files?
 
@@ -52,11 +52,11 @@ No.
 
 You can choose three different names:
 
-        my_package/start/my_plugin/plugin/my_file.vim
-        └────────┤       └───────┤        └─────┤
-                 │               │              └ interface
-                 │               └ plugin
-                 └ package
+    my_package/start/my_plugin/plugin/my_file.vim
+    ├────────┘       ├───────┘        ├─────┘
+    │                │                └ Interface
+    │                └ plugin
+    └ package
 
 ## What's the default value of 'pp'?
 
@@ -71,14 +71,12 @@ Every time one is found, Vim assumes it contains a plugin, and adds it to `'rtp'
 
 You can check this like so:
 
-        $ mkdir -p ~/.vim/pack/my_pack/start/foo
-        $ vim
-        :echo &rtp
-        should contain `~/.vim/pack/my_pack/start/foo`, because:~
-
-            - `~/.vim` is in 'pp'~
-            - `pack/mypack/start/foo` matches `pack/*/start/*`~
-
+    $ mkdir -p ~/.vim/pack/my_pack/start/foo
+    $ vim
+    :echo &rtp
+    " should contain `~/.vim/pack/my_pack/start/foo`, because:
+    "   - `~/.vim` is in 'pp'
+    "   - `pack/mypack/start/foo` matches `pack/*/start/*`
 
 Then, it loads all the plugins in `'rtp'`.
 
@@ -96,32 +94,30 @@ They need to call the same function, and you decide to move the latter in a libr
 
 `foo` would include these files (and these statements):
 
-        ┌─────────────────────────────────────┬─────────────────┐
-        │ file                                │ statement       │
-        ├─────────────────────────────────────┼─────────────────┤
-        │ pack/foo/start/one/plugin/one.vim   │ call lib#func() │
-        ├─────────────────────────────────────┼─────────────────┤
-        │ pack/foo/start/two/plugin/two.vim   │ call lib#func() │
-        ├─────────────────────────────────────┼─────────────────┤
-        │ pack/foo/start/lib/autoload/lib.vim │ fu lib#func()   │
-        │                                     │     ...         │
-        │                                     │ endfu           │
-        └─────────────────────────────────────┴─────────────────┘
+    ┌─────────────────────────────────────┬─────────────────┐
+    │ file                                │ statement       │
+    ├─────────────────────────────────────┼─────────────────┤
+    │ pack/foo/start/one/plugin/one.vim   │ call lib#func() │
+    ├─────────────────────────────────────┼─────────────────┤
+    │ pack/foo/start/two/plugin/two.vim   │ call lib#func() │
+    ├─────────────────────────────────────┼─────────────────┤
+    │ pack/foo/start/lib/autoload/lib.vim │ fu lib#func()   │
+    │                                     │     ...         │
+    │                                     │ endfu           │
+    └─────────────────────────────────────┴─────────────────┘
 
 Now suppose that when Vim finds a plugin in `pack/*/start/`, it loads it immediately.
 Here's what would happen:
 
-        - Vim finds `pack/foo/start/one/plugin/one.vim`, and sources it immediately
+   - Vim finds `pack/foo/start/one/plugin/one.vim`, and sources it immediately
 
-        - Vim executes `call lib#func()`
+   - Vim executes `call lib#func()`
 
 This would  cause an  error, because the  library would NOT  have been  added to
 `'rtp'` and Vim would NOT find the definition of `lib#func()`.
 
-
 IOW,  Vim must  have  a  complete knowledge  of  all  plugins' locations  before
 sourcing any of them.
-
 
 For more info, see `:h packload-two-steps`.
 
@@ -161,11 +157,11 @@ Look for the pattern `sourcing`.
 ##
 ## In which order are the plugins loaded (inside/outside packages, inside/outside `after/`)?
 
-        1. plugins outside `after/` and outside packages
-        2. plugins outside `after/` and inside  packages
+   1. plugins outside `after/` and outside packages
+   2. plugins outside `after/` and inside  packages
 
-        3. plugins inside  `after/` and outside packages
-        4. plugins inside  `after/` and inside  packages
+   3. plugins inside  `after/` and outside packages
+   4. plugins inside  `after/` and inside  packages
 
 All directories in `'rtp'` (except the ones ending in `after/`) are searched for
 a `plugin/`  subdirectory. Inside, all  files ending in  `.vim` are  sourced (in
@@ -180,14 +176,13 @@ plugins are sourced.
 
 Plugins in directories ending in `after/` are loaded.
 
-
 For more info, see `:h load-plugins`.
 
 ## ?
 
 To load packages earlier, so that `'rtp'` gets updated:
 
-        :packloadall
+    :packloadall
 
 This also works when loading plugins is disabled.  The automatic loading will
 only happen once.
@@ -224,14 +219,14 @@ If the package has an `after/` directory,  that directory is added to the end of
 If you don't have a package but a single plugin, you need to create the extra
 directory level:
 
-        $ mkdir -p ~/.vim/pack/foo/start/foobar
-        $ cd ~/.vim/pack/foo/start/foobar
-        $ unzip /tmp/someplugin.zip
+    $ mkdir -p ~/.vim/pack/foo/start/foobar
+    $ cd ~/.vim/pack/foo/start/foobar
+    $ unzip /tmp/someplugin.zip
 
 You would now have these files:
 
-        pack/foo/start/foobar/plugin/foo.vim
-        pack/foo/start/foobar/syntax/some.vim
+    pack/foo/start/foobar/plugin/foo.vim
+    pack/foo/start/foobar/syntax/some.vim
 
 From here it works like above.
 
@@ -271,11 +266,11 @@ found.  Unless you have more than one plugin for a file type and want to
 select which one to load with `:packadd`.  E.g. depending on the compiler
 version:
 
-        if foo_compiler_version > 34
-            packadd foo_new
-        else
-            packadd foo_old
-        endif
+    if foo_compiler_version > 34
+        packadd foo_new
+    else
+        packadd foo_old
+    endif
 
 `after/` is most likely not useful in a package.  It's not disallowed though.
 
@@ -335,7 +330,7 @@ the command after changing the plugin help:
 
 ==============================================================================
 
-        :runtime syntax/c.vim
+    :runtime syntax/c.vim
 
 Sources the first file `syntax/c.vim`  found in a directory of `'rtp'`.
 No error is raised if the file is not found.
@@ -347,7 +342,7 @@ When [where] is omitted only `'rtp'` is used.
 
 When {file} contains wildcards it is expanded to all matching files.  Example:
 
-        :runtime! plugin/*.vim
+    :runtime! plugin/*.vim
 
 ## Which values can be used in place of `[where]` in:   `:runtime [where] file ...`?
 

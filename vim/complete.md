@@ -41,20 +41,20 @@ with:
 
 # ?
 
-Explain why we shouldn't alter 'isk' from a condition (`s:setup_isk()`); instead
-we must redefine a problematic default method.
+Explain  why we  shouldn't  alter `'isk'`  from  a condition  (`s:setup_isk()`);
+instead we must redefine a problematic default method.
 
 Update:
 I don't remember why I wrote this...
-I suspect it was because we restored 'isk' from a timer.
+I suspect it was because we restored `'isk'` from a timer.
 Indeed, suppose we have a chain of 2 methods `A-B`:
 
     A saves 'isk', starts a timer to restore it, alters 'isk', but fails to complete
     B saves 'isk', starts a timer to restore it, alters 'isk', and succeeds
 
-The timer from A will correctly restore 'isk', but the one from B will NOT.
-Because when B was called, it saved the version of 'isk' modified by A.
-In the end, 'isk' has now the value set by A.
+The timer from  A will correctly restore  `'isk'`, but the one from  B will *not*.
+Because when B was called, it saved the version of `'isk'` modified by A.
+In the end, `'isk'` has now the value set by A.
 It's just a theory though, as I don't remember what was the issue...
 
 I suppose the solution was to restore the option from an autocmd listening
@@ -124,19 +124,17 @@ However, it's *not*, if one of the match is present twice, and non-consecutively
 
 In the same way, document how Vim populates the pum with `C-n` and `C-p`.
 
-# 'cot'
+# ?
 
-Le comportement d'une complétion est géré par l'option `'completeopt'`.
-Celle-ci peut prendre une série de valeurs. Les plus importantes sont:
+Document that to use  omni completion, you need to set `'ofu'`  with the name of
+a  custom  function,  and  that  you can  find  such  default  functions  inside
+`$VIMRUNTIME/autoload/`; e.g.:
 
-   - 'noinsert'    la 1e entrée n'est pas automatiquement insérée,
-                   mais elle peut être automatiquement sélectionnée
-
-   - 'noselect'    elle n'est ni insérée, ni sélectionnée
+    setl ofu=syntaxcomplete#Complete
 
 # ?
 
-Le contenu  du menu  est mis à  jour dynamiquement après  un C-h  (backspace) ou
+Le contenu  du pum est  mis à jour dynamiquement  après un `C-h`  (backspace) ou
 l'insertion d'un nouveau caractère.
 Sauf si une entrée a déjà été automatiquement insérée.
 C'est le cas lorsque:
@@ -149,6 +147,7 @@ C'est le cas lorsque:
 Dans les 2 cas, l'insertion d'une entrée met fin à la mise à jour dynamique du menu.
 La prochaine fois qu'on tapera un caractère manuellement, le menu se fermera.
 
+##
 # keybindings
 ## Voici qques raccourcis permettant d'interagir avec le menu de complétion:
 
@@ -389,9 +388,6 @@ Pour peupler les matchs on utilisera pex le code suivant:
     sil keepj keepp %s/pat/\=add(matches, submatch(0))/gne
     return filter(matches, {_,v -> v[:strlen(a:base)-1] is# a:base})
 
-#
-#
-#
 #
 # What can `C-x C-v` complete in addition to Ex commands?
 

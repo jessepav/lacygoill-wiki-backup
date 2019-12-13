@@ -320,11 +320,11 @@ ALL the autocmds  in the `filetype.vim` files are sourced  BEFORE ANY autocmd in
 ### How to get the list of filetype detection scripts located in a
 #### `ftdetect/` directory?
 
-    :Find! ~/.vim -path '*/ftdetect/*'
+    :Find ~/.vim -path '*/ftdetect/*'
 
 #### `filetype.vim` file?
 
-    :Find! ~/.vim -name 'filetype.vim'
+    :Find ~/.vim -name 'filetype.vim'
 
 ###
 ## Acting
@@ -411,44 +411,63 @@ Note that these 3 paths must be relative to any directory in the rtp.
 For more info, read `:h ftdetect`, and:
 <https://vi.stackexchange.com/a/14339/17449>
 
-### Why should I use `filetype.vim` instead of `ftdetect/`?
+###
+### Which pitfall should I be aware of when using
+#### `filetype.vim`?
 
-If you set the  filetype detection too late, Vim may set  it wrongly, which will
-cause various undesired plugins to be sourced.
+If you  intend to  use your plugin  as a  package, then it  seems you  can't use
+`filetype.vim` instead of  `ftdetect/` to implement the filetype  detection of a
+file; in that case, Vim doesn't source `filetype.vim`, only `ftdetect/*.vim`.
 
-You   could  use   `:set`  to   fix  this,   but  you'll   still  source   wrong
-filetype/indent/syntax plugins, and you don't know whether their effects will be
-correctly undone when the detection will be changed.
+---
 
-### Is there an issue with using `filetype.vim`?  Does it matter?
+I can understand why Vim does not  source `filetype.vim` if the package is under
+`opt/`, because in that case, it's intended  to be loaded after the startup; and
+after the  startup, it's too late  to process `filetype.vim`, Vim  can't install
+its autocmds *before* the existing autocmds detecting the filetype.
 
-Yes.
+But shouldn't Vim at least source `filetype.vim` when the package is under `start/`?
+Is this a Vim bug?
 
-You may use an extension for a new type of special buffer A (freekeys, hydra, ...).
-But, what you don't  know, is that it's is already used  to set another filetype
-B, for example in `$VIMRUNTIME/filetype.vim`.
-In this case, your buffer A will be correctly detected, but not B.
+This issue is vaguely related: <https://github.com/vim/vim/issues/1679>
 
-That being said, no matter what you do, you can't avoid this kind of issues.
+---
 
-Note that the issue will NOT go unnoticed forever.
-It will go unnoticed as long as you don't load a buffer B.
-When you'll load B, you'll obviously see that the filetype is not correctly set.
+Your  custom detection  implemented  in `filetype.vim`  may  override a  default
+detection implemented in `$VIMRUNTIME/filetype.vim`.
 
-You have  to choose between  possibly breaking your special  buffers immediately
-and/or frequently, or breaking UNused filetypes (types of buffers you never load
-atm).
-I prefer the risk of breaking UNused filetypes.
-Also, I  don't think  it matters  much to know  RIGHT NOW  that I've  broken the
-detection of a filetype that I never use.
+#### `ftdetect/`?
 
+Vim   may    already   set   the    filetype   from   a    `filetype.vim`   file
+(e.g. `$VIMRUNTIME/filetype.vim`),   which   will    cause   various   undesired
+filetype/indent/syntax plugins to be sourced.
+
+---
+
+Don't use `:set` instead of `:setf` to fix the filetype:
+
+   - you would not be informed that your custom detection conflicts with another one
+
+   - you would still source wrong  filetype/indent/syntax plugins, and you don't
+     know whether their effects would be correctly undone when the detection
+     would change
+
+Use `:setf`; and if your custom detection conflicts with another one:
+
+   - try to change it (e.g. use a different file extension if possible)
+
+   - use `filetype.vim` (unless you intend to use your plugin as a package)
+
+   - use `:set` as a last resort
+
+###
 ### Where should I use `:setf`?  What about `:set ft=`?
 
 Use `:setf` everywhere.
 
 It will make sure you don't set the filetype twice.
 
-This is recommended in `:h 43.2`:
+This is recommended at `:h 43.2`:
 
 > The "setf" command  will set the 'filetype' option to  its argument, unless it
 > was set already.
@@ -478,15 +497,11 @@ filetypes in a `filetype.vim` sourced earlier:
 
 ---
 
-Instead of `after/filetype.vim`, you could also use `ftdetect/*.vim`.
+See `:h 43.2` for another similar example.
 
-However, it's probably better to use `after/filetype.vim`.
-Otherwise, an autocmd from a `ftdetect/` subdirectory of the rtp may wrongly set
-the filetype of your files before your autocmd has the chance to do its job.
-And if  your autocmd  uses `:setf`  (it should), it  won't be  able to  undo the
-detection.
+---
 
-Besides, `after/filetype.vim` is mentioned at `:h 43.2`.
+Instead of `after/filetype.vim`, you could also use `ftdetect/sh.vim`.
 
 ### How to set the filetype of a file, and still allow any later script to reset it (even if it uses `:setf`)?
 
@@ -1160,7 +1175,7 @@ Yes.
 
 ##
 # Issues
-## I've set up the filetype of some file in `~/.vim/filetype.vim`.  It's not applied!
+## I've set up the filetype of some file in `ftdetect/x.vim`.  It's not applied!
 
 Check the absolute path of your file from Vim:
 

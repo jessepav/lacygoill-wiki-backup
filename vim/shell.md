@@ -92,6 +92,9 @@ argument `1` to `shellescape()`.
 Maybe we should replace `[!=]=[#?]\=` with `[!]empty()` everywhere.
 This is more readable, and you don't have to wonder whether `#` should be used.
 
+What about `is# ''` and `isnot# ''`?
+Should we replace them with `[!]empty()` too?
+
 ## ?
 
 From `~/.vim/autoload/myfuncs.vim:848`:
@@ -157,6 +160,23 @@ From `~/.vim/autoload/myfuncs.vim:848`:
 
 ## ?
 
-Check whether `:PQ` is really necessary.
-We have a todo in our vimrc telling that it may not be.
+Do we really need `:CGrep`?
+We already have `C-g g`...
 
+Old comment:
+
+    " We already have `:CGrep`, so why `:PQ`?
+    "
+    " `:CGrep` (and `|g`) relies on `rg(1)` and `'efm'` (because we use `:cgetexpr`).
+    " `:PQ` gives us more control on the grep program.
+    " For example, it allows us to pass the argument `-w` to `rg(1)`:
+    "
+    "    ┌─────────────────────────┬──────────────────────────────────────────────────────┐
+    "    │ :CGrep              pat │ search any `pat` using   `$ ripgrep --vimgrep -i -L` │
+    "    ├─────────────────────────┼──────────────────────────────────────────────────────┤
+    "    │ :PQ ag    --vimgrep pat │ search any `pat` using   `$ ag --vimgrep`            │
+    "    ├─────────────────────────┼──────────────────────────────────────────────────────┤
+    "    │ :PQ ag -w --vimgrep pat │ search a whole word `pat` using `$ ag -w --vimgrep`  │
+    "    └─────────────────────────┴──────────────────────────────────────────────────────┘
+    "             -w --word-regexp
+    "             Only match whole words.

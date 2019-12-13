@@ -1073,6 +1073,22 @@ there are various things that may clobber the results:
 #
 # Todo
 
+If  your Vim  is  slow, but  you  don't know  exactly  which function/plugin  is
+responsible, you can still use `:prof` to find it out:
+
+    :prof start profile.log
+    :prof func *
+    :prof file *
+    " At this point do slow actions
+    :prof pause
+    :noa qall!
+
+Source: <https://stackoverflow.com/a/12216578/9780968>
+
+To document.
+
+---
+
 After a profiling, maybe we should always run `:prof pause` then `:noa qa!`.
 <https://vi.stackexchange.com/a/20276/17449>
 

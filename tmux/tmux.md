@@ -803,8 +803,13 @@ reading, so it can block or crash or behaves unexpectedly.
 It wouldn't be easy to fix  this issue, without also breaking legitimate devices
 like `/dev/null` or blacklisting some paths (which will depend on the platform).
 
-For more info:
-<https://github.com/tmux/tmux/issues/1755>
+For more info: <https://github.com/tmux/tmux/issues/1755>
+
+Update: I think it has been fixed by:
+<https://github.com/tmux/tmux/commit/c284ebe0ade7cc85ad6c3fe5ce7ed5108119222d>
+
+This commit also allows `source-file` to read its stdin:
+<https://github.com/tmux/tmux/commit/5134666702ce972390f39e34bed9b60fe566263a>
 
 ##
 ##
