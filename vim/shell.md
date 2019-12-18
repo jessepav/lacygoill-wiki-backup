@@ -180,3 +180,25 @@ Old comment:
     "    └─────────────────────────┴──────────────────────────────────────────────────────┘
     "             -w --word-regexp
     "             Only match whole words.
+
+## ?
+
+Document what's the benefit/disadvantage of `:cexpr` (&friends) compared to `setqflist()`.
+Hint: `:cexpr` is better suited for an interactive usage.
+
+Old comment:
+
+    " Why `:lgetexpr` instead of `:lgrep!`?{{{
+    "
+    " The latter shows us the output of the shell command (`$ rg ...`).
+    " This makes the screen flicker, which is distracting.
+    "}}}
+    "     sil lgetexpr system(cmd)
+    "     call setloclist(0, [], 'a', {'title': cmd})
+
+## ?
+
+Remember that we use `:do QuickFixCmdPost` to open the qf window in our plugins?
+What pattern should we use? `[cl]window` or `[cl]open`?
+Which rule should we follow to decide?
+

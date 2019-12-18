@@ -1227,9 +1227,8 @@ Indeed, any character inside `#{}` is syntaxic, including a space:
     0~
 
 ##
-##
-##
-# The following variables are available, where appropriate:
+# Todo
+## The following variables are available, where appropriate:
 
     window_active                   1 if window active
     pane_pipe                       1 if pane is being piped
@@ -1261,7 +1260,7 @@ Indeed, any character inside `#{}` is syntaxic, including a space:
 
 Find which ones could be useful.
 
-# We spent a lot of time to write the “Quoting” in `~/wiki/tmux/tmux.md`.
+## We spent a lot of time to write the “Quoting” in `~/wiki/tmux/tmux.md`.
 
 What should we have done to write it quicker?
 
@@ -1301,4 +1300,7 @@ It doesn't work? Ok, try to tweak the rules (edit/remove/add), and apply the new
 rules to get any info in any context.
 Repeat until you get a good enough set of rules.
 Find your rules with an **iterative** process, progressively, organically, ...
+
+
+## Read <https://github.com/tmux/tmux/wiki/Formats>
 

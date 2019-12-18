@@ -605,13 +605,13 @@ the screen, forcing you to `:redraw`.
 
 MWE:
 
-        :call system('sleep 3')
-        " smash the 'l' key
-        " ✘ `l` is printed on the command-line~
+    :call system('sleep 3')
+    " smash the 'l' key
+    " ✘ `l` is printed on the command-line~
 
-        :sil call system('sleep 3')
-        " smash the 'l' key
-        " ✔ nothing is printed on the command-line~
+    :sil call system('sleep 3')
+    " smash the 'l' key
+    " ✔ nothing is printed on the command-line~
 
 ## How to get the path to the parent of
 ### a given file?
@@ -1602,12 +1602,12 @@ Mais pk Vim développe <cword> pour :grep? D'après l'aide :grep attend des [arg
 Update:
 D'après `:h :grep`:
 
-        Just like ":make", but use 'grepprg' instead of
-        'makeprg' and 'grepformat' instead of 'errorformat'.
+> Just like ":make", but use 'grepprg' instead of
+> 'makeprg' and 'grepformat' instead of 'errorformat'.
 
 Puis, d'après `:h :lmake`:
 
-        Characters '%' and '#' are expanded as usual on a command-line.
+> Characters '%' and '#' are expanded as usual on a command-line.
 
 Donc, `:make` développe des caractères spéciaux, et `:grep` se comporte comme `:make`.
 

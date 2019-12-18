@@ -582,7 +582,7 @@ And you want them to be parsable by the format `'%f:%l:%m'`, you could try:
 
 ## How to parse the output of a shell command and get a qfl, without modifying the qf stack?
 
-    echo getqflist({'lines': systemlist('# shell cmd'), 'efm':   '{format}'})
+    echo getqflist({'lines': systemlist('# shell cmd'), 'efm': '{format}'})
 
 When  you pass  the optional  dictionary `{'lines':  ...}` to  `getqflist()`, it
 returns a dictionary with a single `'items'` key.

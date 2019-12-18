@@ -415,3 +415,128 @@ command.
 
 Press `Up` and `Down` instead of `C-n` and `C-p`.
 
+##
+# Todo
+## find a way to suppress the messages when we use the dictionary completion
+
+    $ vim -Nu NONE +'set dict=/usr/share/dict/words shm+=filmnrwxaoOstTWAIcqFS' +startinsert +'call feedkeys("simul")'
+    " press C-x C-k
+    " keep pressing C-k
+    :mess
+    match in file /usr/share/dict/words~
+    match in file /usr/share/dict/words~
+    ...~
+
+Same issue with the `C-n` (and `C-p`) completion.
+
+## ?
+
+" 118 -
+"
+" Look for `++once` everywhere.
+" For every match, check whether you could replace the event(s) with `SafeState`.
+" This can greatly simplify the code: no need of `s:did_shoot` guard.
+"
+" Also, look for `timer_start(` everywhere.
+" For every  match, check whether  you could replace  the timer with  a one-shot
+" autocmd listening to `SafeState` or some other event(s).
+"
+" Wait for Nvim to support `SafeState`.
+
+## ?
+
+" 116 -
+"
+"     $ vim -o =(echo ruby) =(echo rubyinterp) +'setl dict=/usr/share/dict/words' +startinsert!
+"
+" You want to complete `ruby` into `rubyinterp` (which is displayed in the other window).
+"
+" Press Tab to complete `ruby`.
+" The pum suggests:
+"
+"     Ruby /usr/share/dict/words
+"     ruby /usr/share/dict/words
+"
+" And the text has been changed to `Ruby`.
+" Press `C-j`  to try another  completion command;  you don't get  any different
+" results, and yo don't get `rubyinterp`.
+" We didn't have this  issue in the past; is it due to  our recent change in the
+" value of `'cot'`? Or the order of completion commands in `b:mc_chain`?
+"
+" ---
+"
+" Also,  press `C-q`  to quit  the  pum: `Ruby` stays  in the  buffer, it's  not
+" replaced with the original text `ruby`.
+" That doesn't happen with `-Nu NONE`: bisect your config.
+"
+" ---
+"
+" Update: It's because we include `longest` in `'cot'`, in `vim-completion`.
+"
+" MWE:
+"
+"     $ cat <<'EOF' >/tmp/dict
+"     fooxxa
+"     fooxxb
+"     fooxxc
+"     EOF
+"
+"     $ vim -Nu NONE =(echo foo) +'setl cot+=longest dict=/tmp/dict' +'startinsert!'
+"     " press C-x C-k to complete
+"     " press C-e to cancel: `fooxx` is in the buffer, while originally only `foo` was in the buffer
+"
+" Solution: Install a custom `C-q` mapping which restores the original text.
+" Save the latter before the completion starts.
+" Use your custom mapping in `vim-completion` instead of `C-e`.
+"
+" Issue: It's hard to save the original text.
+" It's not stored in any `v:` variable.
+" And even if you can save it, restoring it would probably break the dot command.
+"
+" Update: I think it could be considered as a bug.
+" Here is what `:h popupmenu-keys` says:
+"
+" > CTRL-E    End completion, go back to what was there before selecting a
+" >           match (what was typed **or longest common string**).
+"
+" I can see why `C-e` behaves like it does (see bold text).
+" And most of the time, it's probably desirable.
+" But  I still  think that  in some  cases  (when you  want to  try a  different
+" completion command next) the behavior is undesirable.
+" Try to ask for `C-e` to restore the original text.
+" Or for an option to do so.
+" Or for a function to give the original text.
+" I guess that the `inserted` item from `:h complete_info(` could help.
+" But not entirely (what if the case of the text has changed too?).
+" Also, whatever fix you implement, it would probably break the dot command.
+
+## ?
+
+Make sure you've removed the augroup for each one-shot autocmd.
+
+## ?
+
+" Replace `:silent!` with `:silent` whenever possible.
+" There may be errors to fix which we are missing because they are silent.
+" Also, if you wonder whether a plugin/(auto)command/function is working
+" as expected, and has no silent errors, use `:verbose` to increase
+" the verbosity level.
+
+---
+
+
+What about `unlet!` → `unlet`?
+Or the reverse?
+
+---
+
+Get rid of `norm` (without bang) everywhere.
+
+    " 24 -
+    "
+    " Replace all occurrences of `norm ga` with appropriate code.
+    " Do the same for other `norm` (ex: `norm gs`).
+    "
+    "     vim /\c\%(^\s*".*\|\<ono\>.*\)\@<!norm!\@!\>/gj ~/.vim/**/*.vim ~/.vim/vimrc
+    "     :cfilter! -other_plugins
+    "

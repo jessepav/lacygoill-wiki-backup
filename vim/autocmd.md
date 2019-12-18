@@ -191,10 +191,10 @@ No:
                   "~
 
 ##
-## Why shouldn't I wrap all one-shot autocmds inside an augroup?
+## Why shouldn't I wrap a one-shot autocmd inside an augroup all the time?
 
 First, `++once`  is clearly  meant, among  other things, to  make the  code less
-verbose, and get rid of the augroup:
+verbose, and to get rid of the augroup:
 
 > Before:
 
@@ -247,8 +247,9 @@ See the `search#nohls()` function in `vim-search` for an example.
 
 When your  command needs to  be fired from  two different autocmds  (because you
 need two patterns with different meanings or values).
-Suppose you want to call `Func()` only once, as soon as `CursorHold` is fired or
-you enter the Ex command-line; you could write:
+
+For  example,  suppose  you  want  to  call  `Func()`  only  once,  as  soon  as
+`CursorHold` is fired or you enter the Ex command-line; you could write:
 
     augroup some_group
         au!
@@ -285,7 +286,27 @@ Once per event.
 
 ### How to fire it just once, regardless of how many events it listens to?
 
-Use a guard.
+Wrap the  autocmd in an augroup,  and make it  clear itself the first  time it's
+fired:
+
+    augroup my_augroup
+        au!
+        au MyEvent * exe 'au! my_augroup' | do sth once
+    augroup END
+
+Make sure to clean the augroup right from the start.
+Never write sth like this:
+
+    au MyEvent * do sth once | au! my_augroup
+
+If `do sth once` fails, the following `au!` won't be processed.
+To avoid  this issue, you  could also prefix  *each* command before  `:au!` with
+`:silent!`, bu  or use a `:try`  conditional to catch possible  errors, but it's
+cumbersome and error-prone (you can easily forget to do it).
+
+---
+
+You could be tempted to use a guard:
 
     unlet! s:did_shoot
     au Event1,Event2,... * ++once
@@ -294,15 +315,17 @@ Use a guard.
         \ |     " do sth just once
         \ | endif
 
----
+Don't. It's tricky; you need to:
 
-Alternatively,  you could  wrap the  autocmd in  an augroup,  and make  it clear
-itself the first time it's fired.
-However, be  aware of  a possible  pitfall: if one  of the  commands run  by the
-autocmd fails,  the rest won't be  processed; this may prevent  the final `:au!`
-command from being run.
-To  avoid this  issue,  you need  to  prefix every  command  before `:au!`  with
-`:silent!`, or use a `:try` conditional to catch possible errors.
+   - set a custom flag (e.g. `s:did_shoot`)
+
+   - remove the flag before installing the autocmd (or reset it to 0)
+
+   - make sure the flag's name is unique  in the script if you have several
+     one-shot autocmds each of them listening to several events
+
+Besides,  all of  this makes  the  code more  verbose, which  defeats the  whole
+purpose of `++once`.
 
 ##
 # When several autocmds listen to the same event, in which does Vim run them?
@@ -385,15 +408,15 @@ Use `BufWinLeave` to remove it.
 
 ---
 
-Do NOT use `BufWinEnter` to create a match, it would fail when you execute:
+Do *not* use `BufWinEnter` to create a match, it would fail when you execute:
 
-        :split
-        :split file_already_opened
+    :split
+    :split file_already_opened
 
 Because in those cases, `BufWinEnter` is not  fired, and the new window does NOT
 inherit the matches of the original window.
 
-Do  NOT use  `WinLeave`  to remove  a  match, it  would cause  the  match to  be
+Do  *not* use  `WinLeave`  to remove  a  match, it  would cause  the  match to  be
 installed only when you focus the window.
 
 FIXME:
@@ -404,14 +427,14 @@ So the match could stay in a window, while it should be removed.
 
 MWE:
 
-        :sp ~/.vim/filetype.vim
-        :put ='set error'
-            'set ' is highlighted ✔
+    :sp ~/.vim/filetype.vim
+    :put ='set error'
+        'set ' is highlighted ✔
 
-        :sp
-        :e /tmp/file
-        :put ='set error'
-            'set ' is highlighted ✘
+    :sp
+    :e /tmp/file
+    :put ='set error'
+        'set ' is highlighted ✘
 
 This  is because  when  you ran  `:e /tmp/file`,  `BufWinLeave`  was not  fired,
 because `filetype.vim` was still displayed in a window.
@@ -438,24 +461,6 @@ fired).
             et pour chacune le fichier qui l'a installée.
 
 
-    augroup TEST
-        au!
-        exe 'au BufEnter * let g:myvar = get(g:, "myvar", 0) + 1'
-    augroup END
-
-            Toute commande `:au` exécutée à l'intérieur d'un augroup appartient à cet augroup,
-            même si elle est exécutée indirectement via `:exe`.
-
-            IOW, il n'y a pas de duplication si on source plusieurs fois le script où elle est définie.
-
-            On peut le vérifier avec cet exemple.
-            Tant que l'instruction `:exe …` reste à l'extérieur de l'augroup, `g:myvar` est incrémentée
-            de 1 à chaque fois qu'on change de buffer.
-
-            Mais dès qu'elle passe à l'extérieur, et qu'on la source plusieurs fois, `g:myvar` est incrémentée
-            avec une valeur >1.
-
-
     doautocmd CursorMoved
     doautoall SessionLoadPost
 
@@ -476,75 +481,6 @@ fired).
             `:doautoall` est destinée à exécuter des autocmds qui configurent des options,
             changent la coloration syntaxique, etc.
             IOW, `:doautoall` est destinée à modifier l'apparence des buffers, pas leurs contenus.
-
-
-    if exists('#User#MyFuncPost')
-        doautocmd <nomodeline> User MyFuncPost
-    endif
-
-            Crée et déclenche l'évènement `MyFuncPost`.
-
-            Utile dans un plugin à la fin de `MyFuncPost()`.
-            Permet aux utilisateurs d'exécuter leur propre fonction à chaque fois que `MyFunc()` est exécutée.
-            Techniquement, on dit que l'utilisateur enregistre sa fonction en tant que callback.
-
-
-                                               NOTE:
-
-            Pourquoi tester l'existence de l'autocmd avant de l'exécuter ?
-            Car si l'utilisateur n'installe aucune autocmd écoutant `MyFuncPost`, chaque fois
-            que `MyFunc()` sera exécutée, il aura le message:
-
-                    No matching autocommands
-
-            Une solution consiste à préfixer `:doautocmd` avec `:silent`:
-
-                    silent doautocmd User MyFuncPost
-
-            Mais du coup, l'utilisateur ne peut plus afficher un message avec `:echo`:
-
-                    silent doautocmd User MyFuncPost
-                    autocmd          User MyFuncPost echo 'message'    ✘
-
-            Il devra alors utiliser `:unsilent` pour temporairement “lever“ le silence:
-
-                    silent doautocmd User MyFuncPost
-                    autocmd          User MyFuncPost unsilent echo 'message'    ✔
-
-            Pour éviter de devoir recourir à `:unsilent` à chaque fois qu'on veut afficher un message,
-            il vaut donc mieux vérifier l'existence de l'autocmd avant son exécution.
-
-
-                                               NOTE:
-
-            Pourquoi l'argument `<nomodeline>` ?
-
-            Par  défaut, après  avoir  exécuté une  autocmd,  si 'modeline'  est
-            activée, et  que la valeur de  'modelines' est différente de  0, Vim
-            traite les modelines du buffer courant.
-            Il fait  cela pour  que leurs configurations  aient la  priorité par
-            rapport à d'éventuelles configurations apportées par les autocmd.
-
-            Le  traitement des  modelines  à la  suite  d'une autocmd  utilisant
-            l'évènement `User {MadeUpEvent}` est probablement non désiré.
-
-            Plus   généralement,   on    pensera   à   utiliser   `<nomodeline>`
-            systématiquement sauf pour les  évènements `Buf*` (BufAdd, BufEnter,
-            BufNew, BufNewFile, BufReadPost, BufUnload, BufWinEnter).
-            Exception:
-            on peut utiliser `<nomodeline>` avec BufReadPost dans un buffer qf.
-            En effet, un buffer qf est spécial: l'utilisateur ne peut pas y
-            écrire des modelines.
-
-            Cf `:h :do` et:
-            https://github.com/tpope/vim-commentary/issues/26
-
-
-    autocmd User MyFuncPost call MyFunc()
-
-            Illustre comment un utilisateur peut exécuter sa fonction `MyFunc()` à la suite de la fonction
-            `MyFunc()` d'un plugin.
-            Nécessite que l'auteur du plugin ait créé et déclenché l'évènement `MyFuncPost` via `:doautocmd`.
 
 # Évènements
 

@@ -1392,12 +1392,12 @@ développe une expression  contenant un wildcard ou qd on  fait une recherche vi
 # Todo
 ## Document that restoring an option after `CompleteDone` is not reliable.
 
-   - it's only fired after you select and validate a match in the pum
+   - it's only fired *after* you select and validate a match in the pum
      (or you insert any character, or you press another completion command)
 
    - it's not fired when you quit the pum by pressing `C-c`
 
-Make it listen to:
+Make it listen to all of these:
 
    - `TextChangedP`
    - `TextChangedI`
@@ -1795,6 +1795,11 @@ can't use `setwinvar()`, because the latter only supports a window number, not a
 window id.
 
 In those cases, you'll need to use `setbufvar()`.
+
+Update: What about `settabwinvar()`?
+The latter supports a winid; from `:h settabwinvar(`:
+
+> {winnr} can be the window number or the |window-ID|.
 
 ##
 # Reference

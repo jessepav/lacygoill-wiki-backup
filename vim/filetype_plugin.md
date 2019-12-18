@@ -901,6 +901,34 @@ And if  your lhs  or rhs  contains a  bar, as  usual, to  prevent it  from being
 interpreted as a command  termination you have to escape it,  or use the keycode
 `<bar>`.
 
+### If I don't set `b:undo_ftplugin`, what will *not* happen when I change the filetype from A to B?  (2)
+
+First, the settings applied by the filetype plugins A won't be undone.
+
+But in addition to that, the filetype plugins B won't be sourced:
+
+    $ vim -es -Nu NONE --cmd 'filetype plugin on' +'set ft=python vbs=1 | nno <buffer>' +'qa!' /tmp/abap.abap
+    No mapping found~
+
+    $ vim -es -Nu NONE --cmd 'filetype plugin on' +'let b:undo_ftplugin ="" | set ft=python vbs=1 | nno <buffer>' +'qa!' /tmp/abap.abap
+    n  [M          *@:call <SNR>5_Python_jump('n', '\v\S\n*(^(\s*\n*)*(class|def|async def)|^\S)', 'Wb', v:count1, 0)<CR>~
+            Last set from /usr/local/share/vim/vim82/ftplugin/python.vim line 65~
+    ...~
+
+In the  first command, the  mappings from the  python filetype plugins  have not
+been  installed because  `b:undo_ftplugin` was  not  set when  the filetype  was
+reset  to  python (check  out  `$VIMRUNTIME/ftplugin/abap.vim`;  it doesn't  set
+`b:undo_ftplugin`).
+
+OTOH, in the second command, the mappings *are* installed because we've manually
+created `b:undo_ftplugin` before resetting the filetype to python.
+
+---
+
+Setting `b:undo_ftplugin` tells Vim that you  expect the filetype to be changed;
+and from that information, Vim infers  that it should remove `b:did_ftplugin` to
+allow your new filetype plugins to be sourced.
+
 ##
 # Indent plugins
 ## How to prevent Vim from indenting the current line when I insert some character, or open a new line?  (2)

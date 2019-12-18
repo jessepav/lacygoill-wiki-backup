@@ -1,15 +1,8 @@
 ## PPA
 
-        ppa:pi-rho/dev                  tmux
-        ppa:nilarimogard/webupd8        youtube-dl(g)
-
-Adresses de quelques PPAs utiles.
-
----
-
-        $ sudo add-apt-repository          ppa:jonathonf/vim
-        $ sudo add-apt-repository --remove ppa:jonathonf/vim
-        $ sudo ppa-purge ppa:jonathonf/vim
+    $ sudo add-apt-repository          ppa:jonathonf/vim
+    $ sudo add-apt-repository --remove ppa:jonathonf/vim
+    $ sudo ppa-purge ppa:jonathonf/vim
 
 Ajoute/Supprime le PPA `ppa:jonathonf/vim` à la liste de ses dépôts.
 
@@ -17,17 +10,17 @@ En cas de suppression via `add-apt-repository`, penser à purger au préalable l
 paquets installés depuis le PPA.
 Autrement, utiliser `ppa-purge` (nécessite l'installation du paquet éponyme).
 
+---
 
-        $ apt-key list | grep expired
-        $ sudo apt-key adv --recv-keys --keyserver <keyserver url> <10-char key ID>
+    $ apt-key list | grep expired
+    $ sudo apt-key adv --recv-keys --keyserver <keyserver url> <10-char key ID>
 
 Afficher les clés signant des dépôts installés ayant expirées.
 
 Mettre à jour la clé d'identifiant <10-char key ID>.
 Ne fonctionne que si le mainteneur du dépôt a uploadé une nouvelle clé.
 
-Source:
-        https://serverfault.com/a/615362
+Source: <https://serverfault.com/a/615362>
 
                                      TODO:
 
@@ -40,9 +33,9 @@ Comment savoir quel serveur de clés utiliser ?
 
 `<keyserver url>` peut être:
 
-        - keys.gnupg.net
-        - keyserver.ubuntu.com
-        - ... (autres possible ?)
+   - keys.gnupg.net
+   - keyserver.ubuntu.com
+   - ... (autres possible ?)
 
 ---
 

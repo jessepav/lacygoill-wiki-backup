@@ -170,7 +170,7 @@ The resulting funcref binds the function to the dictionary.
 
     let adict = {'name': 'toto'}
     fu Func() dict
-        return 'my name is: '.self['name']
+        return 'my name is: '..self['name']
     endfu
     let Fn = function('Func', adict)
                               ^^^^^
@@ -323,9 +323,22 @@ codebase, by looking at its definition, you may not even be able to do that:
     fu {13}
     E123: Undefined function: 13~
 
-For more info, see:
+For more info, see: <https://github.com/LucHermitte/lh-vim-lib/blob/master/doc/OO.md>
 
-    https://github.com/LucHermitte/lh-vim-lib/blob/master/doc/OO.md
+#### ?
+
+Document that you can't write `eval(string(dict))` if `dict` contains a numbered
+function.
+
+Visit `~/.vim/plugged/vim-quickhl/autoload/quickhl.vim` and look for `a:func` to
+see why this can be an issue.
+
+Also, document that you can *read* `function('123')` in some command output, but
+you can't *write* it in an executed command:
+
+    let a = function('123')
+    E129: Function name required~
+    E475: Invalid argument: 123~
 
 ##
 # ?
