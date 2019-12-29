@@ -1525,6 +1525,7 @@ Alternatives:
 
 - <https://github.com/hecal3/vim-leader-guide> 509 sloc
 - <https://github.com/urbainvaes/vim-remembrall> 226 sloc
+- <https://github.com/skywind3000/vim-quickui> 1864 sloc
 
 ## smartword
 
@@ -2009,6 +2010,12 @@ You could also integrate tig in Vim:
 Helpfile generation for vim
 
 <https://github.com/google/vimdoc> 1606 sloc
+
+## vimspector
+
+vimspector - A multi-language debugging system for Vim
+
+<https://github.com/puremourning/vimspector> 5016 sloc
 
 ## vint
 

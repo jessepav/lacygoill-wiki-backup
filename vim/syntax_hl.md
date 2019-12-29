@@ -1826,7 +1826,7 @@ Clearly this may be extended to other languages.
 ##
 ##
 ##
-# TODO
+# Todo
 ## ?
 
 Document `:h :syn-spell` and `:h spell-syntax`.
@@ -1844,8 +1844,13 @@ It breaks  the syntax  highlighting when the  syntax plugin is  used to  embed a
 language inside another.
 
 See here for a solution:
-<https://github.com/derekwyatt/vim-scala/pull/59>
-<https://github.com/vim-pandoc/vim-pandoc-syntax/issues/54>
+- <https://github.com/derekwyatt/vim-scala/pull/59>
+- <https://github.com/vim-pandoc/vim-pandoc-syntax/issues/54>
+
+Or maybe we should report this as a Vim bug?
+See:
+- <https://github.com/chrisbra/vim-zsh/issues/21#issuecomment-568958828>
+- <https://github.com/vim/vim/blob/5666fcd0bd794dd46813824cce63a38bcae63794/src/syntax.c#L6134>
 
 ---
 
@@ -1878,7 +1883,9 @@ MWE:
 
 The output of the last command should be empty, but it's not.
 
-Theory: maybe the syntax group is locked while the cluster is defined...
+From `:h 44.9`:
+> The `:syntax  include` command is  clever enough  to ignore a  `:syntax clear`
+> command in the included file.
 
 Solution:
 Clear (then customize if you want) the syntax group from an autocmd listening to `Syntax`.

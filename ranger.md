@@ -1222,6 +1222,27 @@ Have a look at bashmount too: <https://github.com/jamielinux/bashmount>
 
 See also: <https://www.youtube.com/watch?v=SOCV7ueJCMs>
 
+---
+
+Something is weird at the moment.
+This error message is printed in the terminal whenever I use ranger:
+
+    The option named `update_icon_title' does not exist
+
+It comes from this file:
+
+    ~/.local/lib/python3.5/site-packages/ranger/config/rc.conf
+
+I thought ranger only loaded files from `~/.config/ranger/`.
+Why does it load a file from another directory?
+I tried to prevent this by setting `RANGER_LOAD_DEFAULT_RC` to false.
+It works, but ranger is then unusable (can't even quit).
+It means that our `~/.config/ranger/rc.conf` is largely incomplete.
+We need to find all interesting lines from the system rc.conf and copy them.
+Maybe we need to do the same thing for other files (`rifle.conf`, `scope.sh`, ...).
+Then we need to  set `RANGER_LOAD_DEFAULT_RC` to false to be  sure that only our
+config files are loaded.
+
 ##
 # Reference
 

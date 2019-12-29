@@ -516,19 +516,35 @@ Make sure you've removed the augroup for each one-shot autocmd.
 
 ## ?
 
-" Replace `:silent!` with `:silent` whenever possible.
-" There may be errors to fix which we are missing because they are silent.
-" Also, if you wonder whether a plugin/(auto)command/function is working
-" as expected, and has no silent errors, use `:verbose` to increase
-" the verbosity level.
+Try to avoid `:s`, prefer `setline()` and `substitute()`.
+
+    vim /keep[jp]/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
+
+Or:
+
+    vim !s\([/:;@]\).\{-}\1!gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
+    Cfilter! -other_plugins -tmp
+    Cfilter! ^\s*\%(let\|call\|echo\|return\|if\|unlet!\=\|&&\)\s
+
+Or:
+
+    vim !\C\%(\<s\|'.s\)\([/:@]\).\{-}\1.\{-}\1!gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
+    Cfilter! -tmp
+    Cfilter! -other_plugins
+
+Create a refactoring command?
+Make sure to use an eval string, and not a lambda (faster on big buffers).
 
 ---
 
+I think that, as a benefit, you won't have to:
 
-What about `unlet!` → `unlet`?
-Or the reverse?
+   - use the `e` flag to avoid an error
+   - use the `silent` modifier to be silent
+   - use the `keepj keepp` modifiers to preserve mark/pattern
+   - worry about `'gd'`
 
----
+## ?
 
 Get rid of `norm` (without bang) everywhere.
 
@@ -540,3 +556,40 @@ Get rid of `norm` (without bang) everywhere.
     "     vim /\c\%(^\s*".*\|\<ono\>.*\)\@<!norm!\@!\>/gj ~/.vim/**/*.vim ~/.vim/vimrc
     "     :cfilter! -other_plugins
     "
+
+## ?
+
+Replace `:silent!` with `:silent` whenever possible.
+There may be errors to fix which we are missing because they are silent.
+
+Also,  if  you wonder  whether  a  plugin/(auto)command/function is  working  as
+expected, and  has no silent  errors, use  `:verbose` to increase  the verbosity
+level.
+
+When is it ok to use `silent!`?
+I think it's ok whenever you have to:
+
+   - source a file which may not exist
+   - jump to a mark which may not be set
+   - call a function or execute an Ex command which may not exist
+   - remove sth which may not exist (an autocmd, an augroup, a match, a mapping)
+     or can't be removed (a line in a non-modifiable buffer)
+
+   - use a pattern which may have no match in a search command (`/`, `]I`),
+     or inside a line specifier (`:/wont_find_this/y`)
+
+   - write a buffer which may not be writable
+     (not a real file, not modifiable, special type like terminal)
+
+   - run a sequence of commands, one of which may raise an error and prevent the rest to be processed
+     (e.g. `:norm`, `:argdo`, `:bufdo`, `:{c|l}[f]do`, `:tabdo`, `:windo`)
+
+Should we use `:sil!` systematically after `:xdo` commands?
+
+    :vim /\C\<\%(argdo\|bufdo\|[cl]f\=do\|tabdo\|windo\)\>/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
+
+---
+
+What about `unlet!` → `unlet`?
+Or the reverse?
+

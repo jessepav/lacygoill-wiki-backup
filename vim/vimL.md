@@ -911,12 +911,12 @@ Une expression peut être :
     fu s:grab_words()
         call cursor(1, 1)
 
-        let guard         = 0
-        let words         = []
-        let matchline     = search('\<\k\+\>', 'cW')
+        let guard = 0
+        let words = []
+        let matchline = search('\<\k\+\>', 'cW')
 
-        while matchline && guard < 1000
-            let words    += [matchstr(getline('.'), '\%' . col('.') . 'c\<\k\+\>')]
+        while matchline && guard < 999
+            let words += [matchstr(getline('.'), '\%' . col('.') . 'c\<\k\+\>')]
             let matchline = search('\<\k\+\>', 'W')
         endwhile
         return words
@@ -980,18 +980,6 @@ Une expression peut être :
             Mais ensuite, au sein de la boucle, on ne passe plus ce flag à search(), autrement
             elle trouverait continuellement le même 1er match. Le curseur ne se déplacerait pas,
             on ne trouverait pas les autres matchs, et la boucle while ne se terminerait jamais.
-
-                                               NOTE:
-
-            On connaît rarement à l'avance le nb d'itérations d'une boucle while, contrairement à une boucle for.
-            Il se peut qu'elle en exécute un très grand nb, voire une infinité (infinite loop).
-            De ce fait, il est généralement utile d'implémenter un garde-fou.
-
-            Pour ce faire, on créera une variable 'guard' initialisée à 0 avant l'exécution de la boucle.
-            Dans la condition testée par while, on vérifiera entre autres que guard est inférieure
-            à un certain nb (100, 1000).
-            Enfin, au sein de la boucle, on incrémentera guard.
-            Ceci permettra de s'assurer que while n'exécute qu'un nb limité d'itérations.
 
 # Let
 

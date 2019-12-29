@@ -1122,6 +1122,11 @@ What kind of info does the verbose level 16 give access to?
 
 <https://github.com/vim/vim/commit/4facea310c2788c88f021b262658b847381a50a8>
 
+---
+
+Read this to learn how to use valgrind / ASAN:
+<https://github.com/vim/vim/issues/5410#issuecomment-569516803>
+
 ##
 # OBSCURE
 

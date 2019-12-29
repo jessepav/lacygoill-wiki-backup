@@ -57,13 +57,10 @@ The solution using a lambda can sometimes seem awkward:
 
     fu Func()
        let var = 'defined in outer scope'
-       let s:lambda = {-> execute('let g:var_save ='..string(var))}
+       let s:lambda = {-> execute('echo '..string(var), '')}
        au SafeState * ++once call s:lambda()
     endfu
     call Func()
-
-    " need to wait for `SafeState` to be fired
-    echo g:var_save
     defined in outer scope~
 
 Here, the  `execute()` used  to get  an expression to  pass in  the body  of the
@@ -73,13 +70,22 @@ Although, it seems to work, even if the variable contains quotes:
 
     fu Func()
        let var = "a'b\"c"
-       let s:lambda = {-> execute('let g:var_save ='..string(var))}
+       let s:lambda = {-> execute('echo '..string(var), '')}
        au SafeState * ++once call s:lambda()
     endfu
     call Func()
-
-    echo g:var_save
     a'b"c~
+
+Note that you could  avoid `string()` in the lambda, by  moving `var` inside the
+lambda scope. But you would still need `string()` to pass `var` to the lambda:
+
+    fu Func()
+       let var = 'defined in outer scope'
+       let s:lambda = {var -> execute('echo var', '')}
+       exe 'au SafeState * ++once call s:lambda('..string(var)..')'
+    endfu
+    call Func()
+    defined in outer scope~
 
 ---
 

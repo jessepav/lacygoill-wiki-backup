@@ -395,6 +395,10 @@ Therefore, the lambda can't access the function variables.
 OTOH, if you refer to a lambda directly in a function, it's as if it was defined
 in the function; so the lambda's outer scope is the function, which it can access.
 
+---
+
+Document this: <https://github.com/vim/vim/issues/5373#issuecomment-567502480>
+
 # ?
 
     fu Func() dict
