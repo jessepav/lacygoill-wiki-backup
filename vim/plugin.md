@@ -262,6 +262,12 @@ A lightweight Vim plugin for working with shell commands.
 
 <https://github.com/sjl/clam.vim> 97 sloc
 
+## codelf
+
+(Neo)Vim plugin for searching useful variable names
+
+<https://github.com/voldikss/vim-codelf> 252 sloc
+
 ## codi
 
 The interactive scratchpad for hackers.

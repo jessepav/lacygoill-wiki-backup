@@ -93,6 +93,18 @@ See:
 
 ---
 
+If we wanted to make this mapping dot repeatable (shoehorning an opfunc):
+
+    ~/.vim/plugged/vim-doc/plugin/doc.vim:11
+    nno <silent><unique> K :<c-u>call doc#mapping#main('')<cr>
+
+We wouldn't be able to use `norm! g@l` because the latter would reset `v:count`,
+and our function may rely on its original value.
+
+This is an argument in favor of avoiding `norm! g@l`.
+
+---
+
 Look for `g@` everywhere, and read surrounding comments.
 Summarize them in our notes about mappings.
 

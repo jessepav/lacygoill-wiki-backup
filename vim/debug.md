@@ -1105,10 +1105,10 @@ Update:
 You should find a succession of commands loading more and more files.
 Example:
 
-        $ vim -Nu NONE
-        $ vim -Nu NORC
-        $ vim -Nu /tmp/vimrc (with only filetype plugin indent on)
-        $ vim
+    $ vim -Nu NONE
+    $ vim -Nu NORC
+    $ vim -Nu /tmp/vimrc (with only filetype plugin indent on)
+    $ vim
 
 Also, use `:Scriptnames` to see a list of all the loaded scripts.
 

@@ -406,7 +406,7 @@ A name *can* be targeted by a new link.
 ###
 ## How to remove a path choice for a master alternative?
 
-    $ sudo update-alternatives --remove <name>  <path>
+    $ sudo update-alternatives --remove <name> <path>
 
 Example:
 

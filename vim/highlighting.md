@@ -528,7 +528,7 @@ palette, which will be ugly/flashy.
 ##
 ##
 ##
-# TODO
+# Todo
 ## ?
 
 Some people say that `:syntax on` and `:syntax enable` are *in practice* equivalent.
@@ -724,6 +724,7 @@ Document this:
         https://speakerdeck.com/cocopon/creating-your-lovely-color-scheme
         http://vimcasts.org/episodes/creating-colorschemes-for-vim/
         https://gist.github.com/romainl/5cd2f4ec222805f49eca
+        https://vimways.org/2019/vims-default-colors/
 
 ---
 

@@ -1,3 +1,31 @@
+# Document:
+## `--files-without-match`
+
+It's supported by `grep(1)` and `rg(1)`.
+For `grep(1)`, you can also use the short flag `-L`.
+
+This  option  is useful  to  populate  the qfl  with  a  subset of  files  *not*
+containing an arbitrary pattern:
+
+    call setqflist(getqflist({'lines': systemlist('grep -L pattern files 2>/dev/null'), 'efm': '%f'}).items)
+                                                        ^^
+
+## `-c`
+
+> -c, --count
+>        Suppress  normal output; instead print a count of matching lines
+>        for each input file.  With the -v,  --invert-match  option  (see
+>        below), count non-matching lines.
+
+So, it seems that this is an anti-pattern:
+
+    $ grep pat file | wc -l
+
+Instead, you should run:
+
+    $ grep -c pat file
+
+##
 # ?
 
 Document that it seems that only ripgrep  (and ag) can print several matches, on
@@ -20,23 +48,6 @@ Note that PCRE is not fully compatible with Perl regexes:
 <https://en.wikipedia.org/wiki/Perl_Compatible_Regular_Expressions#Differences_from_Perl>
 
 Read our book about regexes to fully exploit Perl regexes.
-
-# ?
-
-Document `-c`:
-
-> -c, --count
->        Suppress  normal output; instead print a count of matching lines
->        for each input file.  With the -v,  --invert-match  option  (see
->        below), count non-matching lines.
-
-So, it seems that this is an anti-pattern:
-
-    $ grep pat file | wc -l
-
-Instead, you should run:
-
-    $ grep -c pat file
 
 # ?
 
