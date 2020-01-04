@@ -1114,10 +1114,8 @@ command may raise an error, prefix the whole command with `silent!`:
 
 Use the `'module'` and `'items'` key:
 
-    call setqflist([],
-    \              'r',
-    \              {'items': map(getqflist(),
-    \                            {_,v -> extend(v, {'module': fnamemodify(bufname(v.bufnr), ':t')})})})
+    call setqflist([], 'r',
+        \ {'items': map(getqflist(), {_,v -> extend(v, {'module': fnamemodify(bufname(v.bufnr), ':t')})})})
 
 `'module'` allows you to change the text displayed in the filename column.
 
@@ -1232,9 +1230,7 @@ If you wipe the buffer before restoring the qfl, it will raise an error.
 
 For each entry, add the `'filename'` key, and then remove the `'bufnr'` key:
 
-    let qfl = map(getqflist(),
-    \             {_,v -> extend(v,
-    \                           {'filename': fnamemodify(bufname(remove(v, 'bufnr')), ':p')})})
+    let qfl = map(getqflist(), {_,v -> extend(v, {'filename': fnamemodify(bufname(remove(v, 'bufnr')), ':p')})})
 
 ##
 ## When does a newly created window have a location list?

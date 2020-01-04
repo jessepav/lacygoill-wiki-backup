@@ -445,6 +445,15 @@ Same issue with the `C-n` (and `C-p`) completion.
 
 ## ?
 
+Make sure you've removed the augroup for each one-shot autocmd.
+
+Update: not sure what we meant...
+Try this:
+
+    :vim /\C++once\|\<au\%[tocmd]\>.*\<au\%[tocmd]\>!/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
+
+## ?
+
 " 116 -
 "
 "     $ vim -o =(echo ruby) =(echo rubyinterp) +'setl dict=/usr/share/dict/words' +startinsert!
@@ -512,10 +521,6 @@ Same issue with the `C-n` (and `C-p`) completion.
 
 ## ?
 
-Make sure you've removed the augroup for each one-shot autocmd.
-
-## ?
-
 Try to avoid `:s`, prefer `setline()` and `substitute()`.
 
     vim /keep[jp]/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
@@ -546,34 +551,22 @@ I think that, as a benefit, you won't have to:
 
 ## ?
 
-Get rid of `norm` (without bang) everywhere.
-
-    " 24 -
-    "
-    " Replace all occurrences of `norm ga` with appropriate code.
-    " Do the same for other `norm` (ex: `norm gs`).
-    "
-    "     vim /\c\%(^\s*".*\|\<ono\>.*\)\@<!norm!\@!\>/gj ~/.vim/**/*.vim ~/.vim/vimrc
-    "     :cfilter! -other_plugins
-    "
-
-## ?
-
 Replace `:silent!` with `:silent` whenever possible.
 There may be errors to fix which we are missing because they are silent.
 
 Also,  if  you wonder  whether  a  plugin/(auto)command/function is  working  as
 expected, and  has no silent  errors, use  `:verbose` to increase  the verbosity
-level.
+level. Update: how does this work? `:15verb sil! garbage` does not echo anything...
 
 When is it ok to use `silent!`?
 I think it's ok whenever you have to:
 
    - source a file which may not exist
+   - list the items in a syntax group which may not exist
    - jump to a mark which may not be set
    - call a function or execute an Ex command which may not exist
    - remove sth which may not exist (an autocmd, an augroup, a match, a mapping)
-     or can't be removed (a line in a non-modifiable buffer)
+     or can't be removed (a line in a non-modifiable buffer, an augroup still in use)
 
    - use a pattern which may have no match in a search command (`/`, `]I`),
      or inside a line specifier (`:/wont_find_this/y`)
@@ -584,9 +577,15 @@ I think it's ok whenever you have to:
    - run a sequence of commands, one of which may raise an error and prevent the rest to be processed
      (e.g. `:norm`, `:argdo`, `:bufdo`, `:{c|l}[f]do`, `:tabdo`, `:windo`)
 
+---
+
 Should we use `:sil!` systematically after `:xdo` commands?
 
     :vim /\C\<\%(argdo\|bufdo\|[cl]f\=do\|tabdo\|windo\)\>/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
+
+Rationale: if `:bufdo` fails to execute a command in a buffer, it will stop.
+You may want `:bufdo` to continue in the next buffers.
+Same thing for all the other `:xdo`.
 
 ---
 
