@@ -1145,6 +1145,9 @@ interpreted as resp. the stdin and the stdout:
 
 This is not documented.
 
+With `saveb  -`, you don't  have to  specify which buffer  you want to  write on
+stdout; Tmux will choose the buffer at the top of the stack.
+
 ---
 
 `\ePtmux;seq\e\\` is not documented.

@@ -41,7 +41,7 @@ A command which is passed as an argument to another command is always parsed twi
 
 One per tmux client.
 Besides,  a global  command queue  – not  attached to  any client  – is  used on
-startup for configuration files like `~/.tmux.conf`.
+startup for configuration files like `~/.config/tmux/tmux.conf`.
 
 ##
 ## What happens when the command `if-shell` parses its arguments?
@@ -1498,7 +1498,7 @@ Examples of when tmux parses commands are:
 
 To execute commands, each client has a ‘command queue’.
 A  global command  queue not  attached  to any  client  is used  on startup  for
-configuration files like ~/.tmux.conf.
+configuration files like `~/.config/tmux/tmux.conf`.
 Parsed commands added to the queue are executed in order.
 Some commands, like if-shell and  confirm-before, parse their argument to create
 a new command which is inserted immediately after themselves.

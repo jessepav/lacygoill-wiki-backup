@@ -105,7 +105,7 @@ Again, use the `-t` argument:
 
 ##
 ## What happens if I
-### omit `-g` when I set a session, window, or pane option in `~/.tmux.conf`?
+### omit `-g` when I set a session, window, or pane option in `~/.config/tmux/tmux.conf`?
 
 Tmux will complain with one of these error messages:
 

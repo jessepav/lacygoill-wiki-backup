@@ -2021,7 +2021,12 @@ Helpfile generation for vim
 
 vimspector - A multi-language debugging system for Vim
 
-<https://github.com/puremourning/vimspector> 5016 sloc
+- <https://github.com/puremourning/vimspector> 5016 sloc
+- <https://puremourning.github.io/vimspector-web/>
+
+Alternative for Nvim:
+
+<https://github.com/sakhnik/nvim-gdb> 1432 sloc
 
 ## vint
 
@@ -2070,6 +2075,23 @@ A wiki plugin for Vim
 - <https://github.com/lervag/wiki>
 - <https://www.reddit.com/r/vim/comments/8hz8bd/some_questions_regarding_note_taking_with_vim/dyow7db/>
 - <https://www.youtube.com/watch?v=wh_WGWii7UE> 1995 sloc
+
+## win
+
+vim-win is a Vim plugin for managing windows.
+Built-in functionality  includes window  selection, window buffer  swapping, and
+window resizing.
+The plugin  is extensible,  allowing additional functionality  to be  added (see
+Configuration below).
+
+<https://github.com/dstein64/vim-win> 362 sloc
+
+---
+
+It may be interesting to study this plugin because:
+
+   - it's recent
+   - it uses features such as popup / floating windows
 
 ## winresizer
 

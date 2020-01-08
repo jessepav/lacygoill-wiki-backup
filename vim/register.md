@@ -504,11 +504,11 @@ messages d'erreur via :messages.
 # Issues
 ## I can't copy more than 4000 characters in the clipboard from Nvim!
 
-Nvim may use `xsel`, which has [an issue][1].
+Nvim may be using `xsel(1x)`, which has [an issue][1].
 
 It has been fixed by [this PR][2].
 
-Update `xsel`, or compile it from source:
+Update `xsel(1x)`, or compile it from source:
 
     $ git clone https://github.com/kfish/xsel
     $ cd xsel
@@ -517,10 +517,27 @@ Update `xsel`, or compile it from source:
     $ make
     $ sudo make install
 
----
+## I've copied a block of text in the system clipboard from Nvim.  Pasted in another Vim instance it gets linewise!
 
-Alternatively, configure `g:clipboard` so that Nvim uses `xclip` instead of `xsel`.
-Try something like this:
+    $ nvim -Nu NONE <(cat <<'EOF'
+    xxx
+    xxx
+    xxx
+    EOF
+
+    " yank the second column of x's in the clipboard selection (`"+y`)
+    :echo getregtype('+')
+    ^V1~
+
+    " without closing the first Nvim instance, start a second one
+    $ nvim -Nu NONE
+    :echo getregtype('+')
+    V~
+
+It seems to be an issue with Nvim.
+I don't have a solution right now.
+I've tried to  use another clipboard manager (taken from  `:h g:clipboard`), but
+none fixed the issue:
 
     let g:clipboard = {
         \   'name': 'my_clipboard',
@@ -535,12 +552,46 @@ Try something like this:
         \   'cache_enabled': 1,
         \ }
 
-[Source](https://vi.stackexchange.com/a/15213/17449)
+    let g:clipboard = {
+        \   'name': 'my_clipboard',
+        \   'copy': {
+        \      '+': 'xsel -ib',
+        \      '*': 'xsel -ib',
+        \    },
+        \   'paste': {
+        \      '+': 'xsel -ob',
+        \      '*': 'xsel -ob',
+        \   },
+        \   'cache_enabled': 1,
+        \ }
 
-## I've copied a block of text in the system clipboard from Nvim.  Pasted in another Vim instance it gets linewise!
+    let g:clipboard = {
+          \   'name': 'myClipboard',
+          \   'copy': {
+          \      '+': 'tmux load-buffer -',
+          \      '*': 'tmux load-buffer -',
+          \    },
+          \   'paste': {
+          \      '+': 'tmux save-buffer -',
+          \      '*': 'tmux save-buffer -',
+          \   },
+          \   'cache_enabled': 1,
+          \ }
 
-It seems to be an issue with Nvim.
-Try to use another clipboard manager (`xclip` instead of `xsel`).
+    let g:clipboard = {
+          \   'name': 'myClipboard',
+          \   'copy': {
+          \      '+': {lines, regtype -> extend(g:, {'foo': [lines, regtype]}) },
+          \      '*': {lines, regtype -> extend(g:, {'foo': [lines, regtype]}) },
+          \    },
+          \   'paste': {
+          \      '+': {-> get(g:, 'foo', [])},
+          \      '*': {-> get(g:, 'foo', [])},
+          \   },
+          \ }
+
+Worse,  with all  of them  – except  the last  one –  the type  is automatically
+converted from `^V` to `V`, inside the Nvim instance where the text is yanked.
 
 See also [this issue][3] (it may be linked ... or not).
 
@@ -550,4 +601,3 @@ See also [this issue][3] (it may be linked ... or not).
 [1]: https://github.com/kfish/xsel/issues/13
 [2]: https://github.com/kfish/xsel/pull/16
 [3]: https://github.com/neovim/neovim/issues/1822
-[4]: https://vi.stackexchange.com/a/19726/17449

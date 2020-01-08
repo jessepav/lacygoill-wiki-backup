@@ -10,8 +10,6 @@ And the image preview is misplaced in Vim's terminal.
 
 There are probably other issues with ranger in a (N)Vim terminal.
 
-##
-## Vim only
 ### I can't use my zsh snippets!
 
 For some reason, you can't run fzf from a zle widget in Vim's terminal:
@@ -29,6 +27,12 @@ And you can't even set the command-line buffer from a zle widget:
     }
     zle -N func
     bindkey '^G^G' func
+
+---
+
+Right now (commit `a91ea02`), the snippets  work in Nvim's terminal; however, as
+soon  as you  use one,  the terminal  window flickers  every time  you insert  a
+character.
 
 ##
 ## Nvim only
@@ -86,7 +90,7 @@ MWE:
     $ nvim -Nu NONE +term +setl\ modifiable +startinsert
     $ cat ~/.vim/vimrc
     C-\ C-n
-    dGG
+    dgg
     i
     ls Enter
 

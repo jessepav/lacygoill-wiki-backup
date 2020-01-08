@@ -120,8 +120,8 @@ it's relative to the location of `.gitignore`).
 
 Use a pattern describing it, and prefix it with a bang:
 
-        tags
-        !tags/
+    tags
+    !tags/
 
 Here, the first pattern excludes all files and directories whose name is `tags`,
 while the second pattern re-includes the directories whose name is `tags`.

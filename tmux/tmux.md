@@ -689,7 +689,7 @@ Then redirect the standard error of the shell command to a file:
 And read the error message written in the file to get more information.
 
 ###
-## `$ tmux -Lx` doesn't read `~/.tmux.conf`!
+## `$ tmux -Lx` doesn't read `~/.config/tmux/tmux.conf`!
 
 Make sure you don't have a running tmux server listening to the socket `x`:
 
@@ -940,7 +940,7 @@ But do *not* forget to prefix the semicolon with a space!
 
 Without, tpm would not source the plugin.
 
-I think that's because tpm parses the contents of `~/.tmux.conf`:
+I think that's because tpm parses the contents of `~/.config/tmux/tmux.conf`:
 
     ~/.tmux/plugins/tpm/tpm:44
     ~/.tmux/plugins/tpm/scripts/source_plugins.sh:31
@@ -1625,7 +1625,7 @@ souris, le temps de copier, puis le réactiver via :
 Ces raccourcis sont fournis par le plugin tmux-open :
 <https://github.com/tmux-plugins/tmux-open>
 
-On peut les modifier en écrivant dans ~/.tmux.conf (pex):
+On peut les modifier en écrivant dans `~/.config/tmux/tmux.conf` (pex):
 
     set-option -g @open        'x'
     set-option -g @open-editor 'C-x'
@@ -1639,7 +1639,7 @@ On peut les modifier en écrivant dans ~/.tmux.conf (pex):
 Ce raccourci nécessite l'installation du paquet urlview et de l'addon tmux-urlview (pour la définition du hotkey).
 https://github.com/tmux-plugins/tmux-urlview
 
-On peut changer le raccourci en écrivant dans ~/.tmux.conf (pex) :
+On peut changer le raccourci en écrivant dans `~/.config/tmux/tmux.conf` (pex) :
 
         set-option -g @urlview-key 'x'
 

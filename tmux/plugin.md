@@ -1,35 +1,24 @@
 # tmux-fingers
+## It doesn't work at all!
+
+Run this script to check everything is properly configured:
+
+    $ ~/.config/tmux/plugins/tmux-fingers/scripts/health-check.sh
+
+In particular, make sure you've initialized the plugin's submodules:
+
+    $ cd ~/.config/tmux/plugins/tmux-fingers
+    $ git submodule update --init --recursive
+
 ## It doesn't let me search outside the current screen!
 
 Use our `M-c` key binding, which writes the whole scrollback buffer in a Nvim buffer.
 
-##
-## It wrongly renames the current window!
+## Sometimes it fails!
 
-This is fixed by the unmerged PR #67:
-<https://github.com/Morantron/tmux-fingers/pull/67/files>
-
-We've merged it locally, but it may break in a future update.
-Try to assimilate the plugin.
-
-## Sometimes it fails, and gawk prints an error message!
+MWE: Press `pfx ?`, then `pfx f`.
 
 I don't know how to fix this atm.
-
----
-
-MWE:
-
-Press `pfx ?`, then `pfx f`.
-
-    gawk: ~/.tmux/plugins/tmux-fingers/scripts/hinter.awk:139: (FILENAME=- FNR=1) warning: regexp escape sequence `\"' is not a known regexp operator~
-
-## Every time I press `pfx f`, my 'terminal-overrides' option is being appended with the item `,*:dim=\\E[2m`!
-
-It comes from the `force_dim_support()` function called in
-`~/.tmux/plugins/tmux-fingers/scripts/fingers.sh`.
-
-Remove it; it seems useless.
 
 ##
 ## Why should I avoid installing tmux-copycat?
@@ -51,7 +40,7 @@ When you press a key binding from copycat, this line overrides some key bindings
 
 This is because `Y` is in the output of `copycat_quit_copy_mode_keys()` which is defined here:
 
-    ~/.tmux/plugins/tmux-copycat/scripts/helpers.sh:160
+    tmux-copycat/scripts/helpers.sh
 
 The latter runs:
 

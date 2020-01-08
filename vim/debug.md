@@ -1127,6 +1127,10 @@ What kind of info does the verbose level 16 give access to?
 Read this to learn how to use valgrind / ASAN:
 <https://github.com/vim/vim/issues/5410#issuecomment-569516803>
 
+Basically, it seems to boil down to:
+
+    $ valgrind --leak-check=yes --num-callers=50 --track-origins=yes --log-file=valgrind.log vim
+
 ##
 # OBSCURE
 

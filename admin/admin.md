@@ -2622,6 +2622,31 @@ We can configure light-locker to do so, but I don't want to rely on this package
 because it's tied to  an existing DE (xfce/lxde), and because  it seems to cause
 the issue currently discussed (double password).
 
+## Document why `xsel(1x)` is better than `xclip(1)`.
+
+`xclip(1)` doesn't close its stdout.
+
+This can make Tmux unresponsive:
+
+- <https://askubuntu.com/a/898094/867754>
+- <https://wiki.archlinux.org/index.php/Tmux#X_clipboard_integration>
+- <https://unix.stackexchange.com/questions/15715/getting-tmux-to-copy-a-buffer-to-the-clipboard/15716#comment349384_16405>
+
+The archwiki link suggests to close it manually with `>/dev/null`.
+It may be a known issue: <https://github.com/astrand/xclip/issues/20>
+
+---
+
+Closing xclip's stdout doesn't fix another issue where the `xclip(1)` process is
+automatically terminated when we start it from Vim and quit the latter:
+
+<https://unix.stackexchange.com/q/523255/289772>
+
+See our comments inside `tmux#capture_pane#main()`:
+
+    ~/.vim/plugged/vim-tmux/autoload/tmux/capture_pane.vim:2
+
+##
 ## ?
 
     https://unix.stackexchange.com/questions/484434/sync-a-folder-between-2-computers-with-a-filesystem-watcher-so-that-each-time-a
@@ -2745,4 +2770,3 @@ Il y a très peu d'activité sur le projet, et le dernier commit remonte à un a
         https://github.com/clvv/fasd/commits/master
 
 Le réimplémenter pour pouvoir facilement continuer son développement par la suite?
-
