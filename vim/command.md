@@ -650,7 +650,7 @@ And to get a boolean option use `split()` and `index()`:
     let is_verbose = index(args, '-verbose') >= 0
 
 #
-# System commands
+# Built-in commands
 ## Can I pass an argument to the command invoked by the normal command `K`?
 
 Yes, by prefixing it with a count, you can send the latter to the program stored in `'kp'`.
@@ -659,6 +659,56 @@ Yes, by prefixing it with a count, you can send the latter to the program stored
     com -nargs=*  Test  echo <q-args>
     " press 3K on the word 'hello'
     3 hello~
+
+## When I run `:bufdo cmd`, why is `cmd` executed in *every* buffer even if `cmd` raises an error in one of them?
+
+    $ vim -Nu NONE +"bufdo echo x" /tmp/file{1..3}
+
+    E121: Undefined variable: x~
+    "/tmp/file2" 0 lines, 0 characters~
+    E121: Undefined variable: x~
+    "/tmp/file3" 0 lines, 0 characters~
+    E121: Undefined variable: x~
+
+You could  think that Vim would  stop iterating over  the buffers as soon  as an
+error is raised in one of them, because according to `:h :bufdo`:
+
+>     When an error is detected on one buffer, further
+>     buffers will not be visited.
+
+But in reality, an error stops `:bufdo` only when it's raised while visiting the
+next buffer, not when executing `cmd`:
+
+    $ vim -Nu NONE +"bn|pu='text'|set hidden|bp|set nohidden|bufdo echo 'msg'" /tmp/file{1..3}
+    msg~
+    msg~
+    Error detected while processing command line:~
+    E37: No write since last change (add ! to override)~
+
+Notice how `msg` is printed only twice.
+
+The same is true for all the `:xdo` commands (e.g. `:argdo`, `:windo`, ...).
+
+---
+
+> I would say this works as intended, since it's the same as with other
+> commands that loop over a list.  But the documentation should say:
+
+>         When going to the next entry fails execution stops.
+
+> This is so it doesn't get stuck in one position and loop forever.
+> If you use ":argdo s/xxx/yyy" you get as many failures as you have
+> arguments.
+
+Source: <https://github.com/vim/vim/issues/5102#issuecomment-545163473>
+
+## ?
+
+Two patches were proposed to make `:cdo` stop when `cmd` raises an error:
+<https://groups.google.com/d/msg/vim_dev/eQCTUtHZV6k/LA6Am9dhAQAJ>
+
+Test them.
+If they work, report it here: <https://github.com/vim/vim/issues/5102>
 
 ##
 # Issues

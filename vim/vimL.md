@@ -660,6 +660,21 @@ When the list is the left operand of an assignment (`:h :let-unpack`):
     "         ✘
     E475: Invalid argument: ] = [1,2,3]~
 
+## Why should I avoid using `matchend()` instead of `matchstr()->len()`?
+
+They are not always equivalent:
+
+    " equivalent
+    :echo matchend('### title', '^#\+')
+    3~
+    :echo matchstr('### title', '^#\+')->len()
+    3~
+
+    " NOT equivalent
+    :echo matchend('title', '^#\+')
+    -1~
+    :echo matchstr('title', '^#\+')->len()
+    0~
 
 ##
 ## ?
@@ -701,12 +716,25 @@ As an example, it could be played after an async command has finished populating
 The pipe between the  two greps redirects only the standard  output of the first
 grep, not its standard error.
 
-If you really want  the errors too, then execute use a  subshell to redirect the
-standard error of the WHOLE pipeline:
+If you really want the errors too, then group the commands:
 
-            (grep -IRn pat * | grep -v garbage) >file 2>&1
-            ├─────────────────────────────────┘
-            └ subshell
+    { grep -IRn pat * | grep -v garbage  ;} >file 2>&1
+    ^                                    ^^
+
+## ?
+
+My function is slow.  It executes some `:norm` commands.  What can I do to improve the performance?
+
+Check whether some of them enter insert mode.
+If some  do, prefix them with  the `:noa` modifier to  prevent the `InsertEnter`
+and `InsertLeave` events from being fired.
+
+Remember  that replace  mode is  a submode  of insert  mode; so  if you  execute
+`:norm` to replace a character, you probably want to prefix it with `:noa` too.
+
+So far, it has helped us in `vim-breakdown` and in `comment#and_paste()`.
+
+    cmd
 
 ##
 # Todo

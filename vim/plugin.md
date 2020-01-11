@@ -540,28 +540,6 @@ increasingly larger regions of text using the same key combination.
 - <https://github.com/terryma/vim-expand-region> 226 sloc
 - <https://github.com/landock/vim-expand-region> 231 sloc
 
-## fastfold
-
-<https://github.com/Konfekt/FastFold> 162 sloc
-
-Automatic  folds (that  is,  folds generated  by a  fold  method different  from
-manual), bog down VIM noticeably in insert mode.
-They are also often recomputed too early (for example, when inserting an opening
-fold marker whose closing counterpart is yet missing to complete the fold.)
-
-For a discussion, see:
-<http://vim.wikia.com/wiki/Keep_folds_closed_while_inserting_text>
-
-With this plug-in,  the folds in the  currently edited buffer are  updated by an
-automatic fold method only when:
-
-   - saving the buffer
-   - closing or opening folds (zo, za, zc, etc...)
-   - moving or operating fold-wise (zj,zk,[z,]z)
-   - typing zuz in normal mode
-
-... and are kept as is otherwise (by keeping the fold method set to manual).
-
 ## ferret
 
 Enhanced multi-file search for Vim

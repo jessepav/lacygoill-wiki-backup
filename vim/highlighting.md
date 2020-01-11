@@ -193,9 +193,9 @@ However, seoul256 defines them separately.
 
 Yes:
 
-        :hi MyGroup ctermbg=green guibg=green
-        :hi mygroup
-        MyGroup        xxx ctermbg=10 guibg=green~
+    :hi MyGroup ctermbg=green guibg=green
+    :hi mygroup
+    MyGroup        xxx ctermbg=10 guibg=green~
 
 ##
 ## Why shouldn't a syntax plugin author set the attributes of a HG in their plugin?  (2)
