@@ -1,16 +1,16 @@
-From  the  perspective of  the  `par`  utility, the  bar  character  is a  quote
-character, because we've included it in its Q option, via `$PARINIT`:
+From the perspective of the par utility, the bar character is a quote character,
+because we've included it in its Q option, via `$PARINIT`:
 
-        export PARINIT='rTbgqR B=.,?_A_a Q=_s>|'
-                                         │    │
-                                         │    └ bar
-                                         │
-                                         └ quote characters
+    export PARINIT='rTbgqR B=.,?_A_a Q=_s>|'
+                                     │    │
+                                     │    └ bar
+                                     │
+                                     └ quote characters
 
 It means that we can format a paragraph whose lines begin with bars.
 
-For more info,  on how `par` use the quote  characters, search for
-“quote” in the `Details` section of our notes on `par`.
+For more info  on how par uses  the quote characters, search for  “quote” in the
+`Details` section.
 
 # Synopsis
 
@@ -45,7 +45,7 @@ par is a filter for reformatting paragraphs.
 It  copies its  input  to  its output,  changing  all  white characters  (except
 newlines) to spaces, and reformatting each paragraph.
 
-Paragraphs are separated by protected, blank, and bodiless lines, and optionally
+Paragraphs  are  separated  by protected/blank/bodiless  lines,  and  optionally
 delimited by indentation (see the boolean option 'd').
 
 Each OP is generated from the corresponding IP as follows:
@@ -75,17 +75,17 @@ have to be escaped or quoted to prevent your shell from interpreting them.
 To learn how to use par, read quickly the sections:
 
    - Description
-   - Terminology
+   - Glossary
    - Options
    - Environment
 
 Then read  carefully the  Examples section,  referring back  to the  Options and
-Terminology sections as needed.
+Glossary sections as needed.
 
 For the power  user, a full understanding of par  will require multiple readings
 of the sections:
 
-   - Terminology
+   - Glossary
    - Options
    - Details
    - Examples
@@ -93,60 +93,57 @@ of the sections:
 ##
 # Glossary
 ## Miscellaneous
+### charset syntax
 
-    charset syntax
+A way of representing a set of characters as a string.
+The set includes exactly those characters which appear in the string.
 
-           A  way of  representing a  set of  characters as  a string.   The set
-           includes exactly those characters which appear in the string.
+The underscore is an escape character.
+It can be used in any of the following escape sequences:
 
-           The underscore is an escape character.  It  can be used in any of the
-           following escape sequences:
+    ┌──────┬────────────────────────────────────┐
+    │ __   │ an underscore                      │
+    ├──────┼────────────────────────────────────┤
+    │ _s   │ a space                            │
+    ├──────┼────────────────────────────────────┤
+    │ _b   │ a backslash                        │
+    ├──────┼────────────────────────────────────┤
+    │ _q   │ a single quote                     │
+    ├──────┼────────────────────────────────────┤
+    │ _Q   │ a double quote                     │
+    ├──────┼────────────────────────────────────┤
+    │ _A   │ [A-Z]                              │
+    ├──────┼────────────────────────────────────┤
+    │ _a   │ [a-z]                              │
+    ├──────┼────────────────────────────────────┤
+    │ _0   │ [0-9]                              │
+    ├──────┼────────────────────────────────────┤
+    │ _x00 │ NUL                                │
+    ├──────┼────────────────────────────────────┤
+    │ _x1a │ the character  represented by      │
+    │      │ the  two hexadecimal digits '1a'   │
+    │      │ (which may be upper or lower case) │
+    └──────┴────────────────────────────────────┘
 
-                    ┌──────┬────────────────────────────────────┐
-                    │ __   │ an underscore                      │
-                    ├──────┼────────────────────────────────────┤
-                    │ _s   │ a space                            │
-                    ├──────┼────────────────────────────────────┤
-                    │ _b   │ a backslash                        │
-                    ├──────┼────────────────────────────────────┤
-                    │ _q   │ a single quote                     │
-                    ├──────┼────────────────────────────────────┤
-                    │ _Q   │ a double quote                     │
-                    ├──────┼────────────────────────────────────┤
-                    │ _A   │ [A-Z]                              │
-                    ├──────┼────────────────────────────────────┤
-                    │ _a   │ [a-z]                              │
-                    ├──────┼────────────────────────────────────┤
-                    │ _0   │ [0-9]                              │
-                    ├──────┼────────────────────────────────────┤
-                    │ _x00 │ NUL                                │
-                    ├──────┼────────────────────────────────────┤
-                    │ _x1a │ the character  represented by      │
-                    │      │ the  two hexadecimal digits '1a'   │
-                    │      │ (which may be upper or lower case) │
-                    └──────┴────────────────────────────────────┘
+### error
 
-    error
+A condition which causes par to abort.  See the Diagnostics section.
 
-            A condition which causes par to abort.  See the DIAGNOSTICS section.
+### IP
 
+Input paragraph.
 
-    IP
+### OP
 
-            Input paragraph.
+Output paragraph.
 
+### parameter
 
-    OP
+A symbol which may take on unsigned integral values.
+There are several parameters whose values affect the behavior of par.
+Parameters can be assigned values using command-line options.
 
-            Output paragraph.
-
-
-    parameter
-
-            A  symbol  which  may  take  on  unsigned  integral  values.   There
-            are  several parameters  whose values  affect the  behavior of  par.
-            Parameters can be assigned values using command-line options.
-
+##
 ## Types of characters
 ### alphanumeric character
 
@@ -244,7 +241,6 @@ spaces.
 
 ##
 ## Types of lines
-
 ### blank line
 
 An empty  line, or  a line  whose first  character is  not protective  and which
@@ -507,7 +503,7 @@ suffixes may not contain any leading body characters.
 
 Actually, the situation is complicated by space characters.
 
-See comprelen and comsuflen in the Terminology section.
+See comprelen and comsuflen in the Glossary section.
 
 If body is 0, prefixes and suffixes may not contain any body characters at all.
 

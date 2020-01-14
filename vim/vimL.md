@@ -736,6 +736,8 @@ So far, it has helped us in `vim-breakdown` and in `comment#and_paste()`.
 
     cmd
 
+Update: I think a more reliable fix is to use sth like fastfold.
+
 ##
 # Todo
 ## Document the fact that when we filter a list, for some conditions, we may need to make a copy of the list.

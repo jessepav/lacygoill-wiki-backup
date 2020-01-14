@@ -632,6 +632,16 @@ fuzzy-finder:
 - <https://github.com/lotabout/skim.vim> 1141 sloc (readme is identical, but not the code)
 - <https://github.com/srstevenson/vim-picker> 201 sloc
 
+## git-diff
+
+`auto-git-diff` is a vim plugin which shows git diff between each commit and its
+parent commit below the commit list window of git rebase interactive.
+
+When you  move a text-cursor  in `git-rebase-todo` file, `auto-git-diff`  gets a
+commit hash of the line where the cursor exists and update the diff window.
+
+<https://github.com/hotwatermorning/auto-git-diff> 103 sloc
+
 ## git-messenger.vim
 
 Vim and Neovim plugin to reveal the commit messages under the cursor
