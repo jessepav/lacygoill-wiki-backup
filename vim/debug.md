@@ -572,8 +572,8 @@ size to avoid trying at all positions in the current and previous lines:
     \%(foo.*\)\@123<=bar    ✔
 
 ##
-##
 #
+##
 # Debug mode
 ## What does the debug mode allow me to do?
 
@@ -714,7 +714,8 @@ first wildcard.
 
 #
 # Issues
-## I'm writing a bug report for a Vim issue.  I need the Vim binary to include debugging symbols!
+## I'm writing a bug report for a Vim issue.
+### I need the Vim binary to include debugging symbols!
 
 When you configure – before compiling – edit the file `src/Makefile`.
 In it, uncomment these lines:
@@ -726,6 +727,11 @@ I don't think the second line is necessary, but better be safe than sorry.
 
 See `:h debug-gcc`.
 
+---
+
+You don't have to do that manually; we  have a zsh snippet to compile a Vim with
+debugging symbols; use it.
+
 ### I need Vim to crash when an internal error (`:h E315`) is detected – to get a core file!
 
 In `src/Makefile`, uncomment this line:
@@ -733,6 +739,50 @@ In `src/Makefile`, uncomment this line:
     ABORT_CFLAGS = -DABORT_ON_INTERNAL_ERROR
 
 I found `ABORT_CFLAGS` here: <https://github.com/vim/vim/issues/3177#issue-339241917>
+
+---
+
+Again, you don't have to do that manually; use our zsh snippet to compile Vim.
+
+### When extracting a backtrace, I get a warning message!
+
+    warning: exec file is newer than core file.
+
+The last  time you've reproduced the  crash, there was probably  an existing old
+core file in your working directory which prevented Vim from dumping a new one:
+
+   1. remove the old core
+   2. reproduce the crash again, to get a new core
+   3. extract a backtrace from the latter
+
+### I need a valgrind log!
+
+Run this:
+
+    $ valgrind --leak-check=yes --num-callers=50 --track-origins=yes --log-file=valgrind.log ./src/vim -Nu ...
+
+After reproducing the issue, the log should be written in `./valgrind.log`.
+
+Source: <https://github.com/vim/vim/issues/5410#issuecomment-569516803>
+See also `:h debug-leaks`.
+
+---
+
+Valgrind doesn't work atm on Ubuntu 16.04, but it works on Ubuntu 18.04 in a VM.
+
+### I need an asan log!
+
+    $ git stash
+    $ make clean; make distclean
+    $ sed -i '/fsanitize=address/s/^#//' src/Makefile
+    $ ./configure --enable-fail-if-missing --with-features=huge
+    $ make
+
+    $ vim -f -g 2>asan.log
+
+After reproducing the issue, the log should be written in `./asan.log`.
+
+Source: <https://github.com/vim/vim/issues/5410#issuecomment-569516803>
 
 ##
 ## When I try to debug Neovim, I get an error about an unknown function (e.g. `colorscheme#set()`)!
@@ -792,7 +842,7 @@ Alternatively, you can try to `:vimgrep` your config files.
 ##
 ## I'm trying to profile a script, but nothing is written in the profile file. Why?
 
-The script must be sourced AFTER `:prof`.
+The script must be sourced *after* `:prof`.
 So, pay attention to the relative order  in which you execute `:prof` and source
 your script.
 
@@ -818,21 +868,21 @@ your script.
           --cmd 'prof! file  */statusline.vim' \
           -cq
 
-If you use `-c`  to execute `:prof`, it will be executed  AFTER the interface of
+If you use `-c` to execute `:prof`, it will be executed *after* the interface of
 your plugins has been sourced, and thus the profiling won't work.
 
-## Is `:prof start {fname}` dangerous?
-
-Yes.
+## Why is `:prof start {fname}` dangerous?
 
 If `{fname}` already exists, it will be silently overwritten.
 Make sure  to not  mix the name  of the file  where you  want the output  of the
 profiling to be written, with the name of the script you want to profile:
 
-    :prof start script.vim    ✘
+    ✘
+    :prof start script.vim
     :prof file foo
 
-    :prof start foo           ✔
+    ✔
+    :prof start foo
     :prof file script.vim
 
 ## I've executed `:4verb grep! pat .`, but I can't see the exact shell command which was invoked by Vim!
@@ -1121,15 +1171,6 @@ the files listed `:Scriptnames`.
 What kind of info does the verbose level 16 give access to?
 
 <https://github.com/vim/vim/commit/4facea310c2788c88f021b262658b847381a50a8>
-
----
-
-Read this to learn how to use valgrind / ASAN:
-<https://github.com/vim/vim/issues/5410#issuecomment-569516803>
-
-Basically, it seems to boil down to:
-
-    $ valgrind --leak-check=yes --num-callers=50 --track-origins=yes --log-file=valgrind.log vim
 
 ##
 # OBSCURE
