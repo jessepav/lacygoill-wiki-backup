@@ -864,6 +864,20 @@ Theory:
 `split()` expects a regex, so `'\n'` is fine.
 `join()` expects a literal string, so `'\n'` doesn't work.
 
+### How to split `abXcd` into `['ab', 'X', 'cd']`?
+
+    ✘
+    echo split('abXcd', 'X\zs\|\zeX')
+    ['abX', 'cd']~
+    echo split('abXcd', '\zeX\|X\zs')
+    ['ab', 'Xcd']~
+
+    ✔
+    echo split('abXcd', 'X\@<=\|\zeX')
+    ['ab', 'X', 'cd']~
+    echo split('abXcd', '\zeX\|X\@<=')
+    ['ab', 'X', 'cd']~
+
 ##
 ## Translating
 ### How to replace a set of characters with another set in a given string?

@@ -209,7 +209,7 @@ If you try to add several bytes, only the last one is used:
 Rationale:
 
 A blob behaves like a list.
-You can't  use `add()`  to concatenate  lists, so you  can't use  it concatenate
+You can't use `add()`  to concatenate lists, so you can't  use it to concatenate
 blobs either.
 
 ## How to insert a byte in a blob?
@@ -232,6 +232,14 @@ If you try to insert several bytes, it raises `E475`:
     let blob = 0z00112233
     call insert(blob, 0x4455, 1)
     E475: Invalid argument: 17493~
+
+## How to remove all the bytes `0x34` from a blob?
+
+Use `filter()`:
+
+    let blob = 0z12345678
+    echo filter(blob, 'v:val != 0x34')
+    0z125678~
 
 ##
 ##

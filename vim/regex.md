@@ -90,6 +90,179 @@ For example, the  next pattern matches any  character which is not  `a`, `b`, or
 
 ##
 # Lookaround
+## When should I probably replace `\zs` with `\@<=`?
+
+When the regex you're writing:
+
+   - can have overlapping matches once it's stripped from `\zs`
+   - you're interested in all the matches, not just the first one
+
+---
+
+Rationale:
+
+In  `a\zsb`, Vim  matches `ab`,  then  excludes `a`  from the  given match;  but
+*internally*, `ab` has been wholly matched; this can make an expected subsequent
+match fail.
+
+OTOH, in `a\@<=b`, Vim matches `b`, then it checks whether it's preceded by `a`;
+internally, only `b` matches, which is what you expect.
+
+---
+
+Be cautious when you build a regex  from several variables, or define your regex
+in one location, then use it in another.
+If you  blindly replace  `\@=` with  `\ze`, without looking  at how  exactly the
+overall regex is used,  you may end up applying the lookafter  to more text than
+you should have; or it may be cancelled by a later `\zs`.
+
+---
+
+Here  are some  examples where  `\zs` causes  an issue,  which can  be fixed  by
+replacing it with `\@<=`.
+
+Example 1.
+
+Suppose you have this text:
+
+    abXcd
+
+And you want a regex matching the positions before and after `X`.
+This regex will only match after `X` (because alternations are ordered in Vim):
+
+    X\zs\|\zeX
+
+OTOH, this regex matches before and after `X`:
+
+    X\@<=\|\zeX
+
+---
+
+Example 2.
+
+Suppose you want to split `abXcd` into `['ab', 'X', 'cd']` using `split()`:
+
+    ✘
+    echo split('abXcd', 'X\zs\|\zeX')
+    ['abX', 'cd']~
+
+    ✔
+    echo split('abXcd', 'X\@<=\|\zeX')
+    ['ab', 'X', 'cd']~
+
+---
+
+Example 3.
+
+A syntax rule may be broken by the usage of `\zs` in another rule:
+
+    " text file
+    abXcd
+
+    " broken syntax rules
+    :hi link xAb DiffAdd | hi link xCd DiffDelete | syn match xCd /ab.*\zscd/ | syn match xAb /ab/
+                                                                       ^^^
+                                                                       will cause an issue
+    " resulting highlights
+    abXcd
+    ├┘ ├┘
+    │  └ not highlighted ✘
+    └ highlighted by `xAb`
+
+    " fixed syntax rules
+    :hi link xAb DiffAdd | hi link xCd DiffDelete | syn match xCd /\%(ab.*\)\@<=cd/ | syn match xAb /ab/
+                                                                   ^^^    ^^^^^^
+                                                                   fixes the issue
+    " resulting highlights
+    abXcd
+    ├┘ ├┘
+    │  └ highlighted by `xCd`
+    └ highlighted by `xAb`
+
+### Which new pitfall should I be aware of if I do it?
+
+`\@<=` can be significantly  slower than `\zs`, especially if you  use it with a
+variable-width subexpression.
+
+---
+
+You can limit the  cost of `\@<=` by limiting how far  Vim should backtrack when
+looking for the start of the subexpression.
+For example, `\@123<=` limits the backtracking to the 123 earlier bytes.
+
+You should  always use `\@123<=` (and  the negative variant `\@123<!`)  when you
+know  the  maximum  byte size  of  the  subexpression  to  which you  apply  the
+lookbehind.
+
+### Why is `\zs` affected by this pitfall, but not `\ze`?
+
+I think it's a design choice to get a fast atom.
+
+When `\@<=` is applied to a subexpression, its cost explodes because there is no
+way to know in advance where it should start; Vim makes one attempt per previous
+character on  the current  line and the  line above; if  there are  123 previous
+characters on the current line and the one above, then the cost is multiplied by
+123.
+
+I think  that Vim  devs have decided  that it  would be better  for `\zs`  to be
+processed  differently  compared  to  `\@<=`;  it  simply  tries  to  match  the
+subexpression from  the current position,  and removes  from the match  the text
+which  was matched  until `\zs`;  this  way, Vim  doesn't have  to backtrack  in
+various earlier  positions and  try to match  from every of  them; it  just stay
+where it is and removes some text from the match.
+
+OTOH, with `\ze`, Vim doesn't have to backtrack in various positions and attempt
+to match  the subexpression in  each of them;  it just has  to try and  match it
+where it currently is when it finds `\ze`; that's why `\ze` is not affected.
+
+In theory, `\zs`  could avoid this pitfall; when processing  the lookbehind, Vim
+would need to reverse it (e.g. `a.*b` → `b.*a`), then try to match this reversed
+lookbehind *from the current position and backward*.
+In that case, the lookbehind would only be matched from one position (instead of
+potentially many), the current one.
+But  Vim's regex  engine is  not able  to do  that; maybe  reversing a  regex or
+matching backward is non-trivial, or too costly...
+
+### More generally, what's the main limitation of `\zs` and `\ze` compared to `\@<=` and `\@=`?
+
+They give less control.
+
+With `\zs` and `\ze`, you can only describe the surroundings of 2 positions (and
+only in one direction): the one before  the first character of the match (in the
+backward  direction), and  the  one after  the last  character  (in the  forward
+direction).
+This  is  because  *everything*  that  comes  before/after  is  processed  as  a
+lookaround (although, `\zs` and `\ze` stop at an alternation).
+
+With  `\@=` and  `\@<=`, you  can describe  the surroundings  of *any*  position
+inside a  match (and  in both  directions), including the  one right  before the
+first character, and the one after the last character.
+This is because they  allow you to ask for an arbitrary part  of the regex to be
+processed as a lookaround, via parentheses.
+
+##
+## Why does this regex `.*z\@!` matches the text `abcz`?
+
+`.*` matches `abcz`, and reaches the position right after `z`:
+
+    abcz
+        ^
+
+In  that position,  Vim checks  that  there is  no  `z` afterward;  there is  no
+character afterward, so `z` can't match, the negative assertion is satisfied and
+the overall regex matches `abcz`.
+
+If you want to match only `abc`, use this:
+
+    .*z\@<!
+
+This time, when `.*` matches `abcz`, Vim  checks that there is no `z` before the
+position which comes right after `z`; but in that position, there is a `z` right
+before; therefore the negative assertion is not satisfied, and the overall match
+fails; Vim  can backtrack (thanks  to `*`), and  tries the shorter  match `abc`,
+which does satisfy the negative assertion.
+
+##
 ## When I use `\@<=` or `\@<!`, how far back does the engine search?
 
 Up to the beginning of the previous line.
@@ -117,13 +290,39 @@ Example:
 Theory: Vim  is  unable  to  distinguish   a  pattern  containing  only  literal
 characters from a pattern containing metacharacters.
 As a result,  it doesn't try to compute  the size of what you pass  to `\@<=` or
-`\@<!`, and it just tries to match at all possible positions, from the beginning
-of the previous line.
+`\@<!`, even if it only contains literal  characters; and it just tries to match
+at all possible positions, from the beginning of the previous line.
 
-## How can I improve the performance of a lookbehind?
+## When can Vim backtrack more than 123 bytes to process `\@123<=`?
 
-If  you know  the maximum  *byte* size  of the  pattern to  which you  apply the
-lookbehind, use this info to limit how far back the engine will search.
+When:
+
+   - the subexpression is multi-line
+   - there are less than 123 bytes before the current position on the current line
+
+In that  case, when Vim  reaches the  start of the  current line, it  resets the
+number of backtracked bytes to 0.
+
+From `:h \@123<=`:
+
+> After crossing a line boundary, the limit is relative to the end of the line.
+> Thus the  characters at the  start of  the line with  the match are  not counted
+> (this is just to keep it simple).
+
+---
+
+For example, consider this text file:
+
+    axxxxxxxxx
+    xxxxxxxxxb
+
+`\%(a\_.*\)\@10<=b` matches even though there are more than 10 bytes between `a` and `b`.
+The match is possible because:
+
+   - the subexpression is multi-line (thanks to `\_.`)
+   - there are less than 10 bytes before `b` on the line
+   - Vim resets the number of backtracked bytes to 0 when it reaches the start
+     of the line
 
 ##
 ## The character `𞹼` weighs 4 bytes.
@@ -154,6 +353,21 @@ Nothing.
 
 The least amount of characters which weigh 4 bytes or more is 1.
 So, Vim searches back for only 1 character, which is insufficient to match `𞹼𞹼`.
+
+##
+## How to rewrite `\%(foo\)\@=...` and `\%(foo\)\@<=...` with atoms which don't require parentheses?
+
+Use `\&` and `\zs`:
+
+    \%(foo\)\@=...
+    ⇔
+    foo\&...
+       ^^
+
+    \%(foo\)\@<=...
+    ⇔
+    foo\zs...
+       ^^^
 
 ##
 # What's the shortest regex to match
@@ -701,7 +915,7 @@ See: <https://www.regular-expressions.info/atomic.html>
 
 ### What is its purpose?
 
-It prevents the engine from backtracking after a subpattern has been matched.
+It prevents the engine from backtracking after a subexpression has been matched.
 
 For example,  if your pattern  is `\%(a.\{-}b\)\@>c`, after  matching `a.\{-}b`,
 the regex may still fail to match `c`.
@@ -1934,11 +2148,12 @@ se réfère ensuite?
 
             première maj après baz
 
-    \v.*\zs\u\ze.*baz
+    .*\zs\u\ze.*baz
 
             dernière maj avant baz (.{-} à la place du 2e .* marcherait aussi)
 
-    \v\u(.*baz)@=    \u\ze.*baz
+    \u\%(.*baz\)\@=
+    \u\ze.*baz
 
             toutes les maj avant baz
 
@@ -1946,19 +2161,19 @@ se réfère ensuite?
             on décrit la présence de baz qq part après.
             On pourrait remplacer .* par .\{-}, ça marcherait tjrs.
 
-    \v(baz.*)@<=\u
+    \%(baz.*\)\@<=\u
 
             toutes les majuscules après baz
 
-            Dans (baz.*)@<=\u, .* est dans une ancre qui n'est matchée qu'après \u.
+            Dans \%(baz.*\)\@<=\u, .* est dans un lookbehind qui n'est matché qu'après \u.
             Dans baz.*\zs\u, .* est matché avant \u.
             Ceci illustre une différence fondamentale entre \zs et ()@<=.
-            Ces ancres ne sont pas matchées au même moment par rapport au reste du pattern.
+            Ces atomes ne sont pas matchés au même moment par rapport au reste du pattern.
 
             Ici, une seule syntaxe est possible, car c'est la seule dans laquelle la maj est matchée en 1e.
 
-            Avec baz.*\zs\u, on matcherait seulement la dernière maj (équivalent à .*\zs\u).
-            Avec baz.\{-}\zs\u, on matcherait seulement la 1e maj après baz.
+            Avec `baz.*\zs\u`, on matcherait seulement la dernière maj après baz.
+            Avec `baz.\{-}\zs\u`, on matcherait seulement la 1e maj après baz.
             Ces 2 dernières syntaxes ne marchent pas car une fois qu'un match est trouvé,
             le moteur de regex avance, il ne cherche pas un nouveau match au même endroit.
             S'il y a une autre maj sur la ligne après un autre baz, il la trouvera.
@@ -1982,7 +2197,6 @@ se réfère ensuite?
             If you look for `bar.*\zs\u`, you'll only get `F`.
             If you look for `bar.\{-}\zs\u`, you'll only get `D`.
             If you look for `\%(bar.*\)\@<=\u`, you'll only get `D`, `E`, and `F`.
-
 
 ##
 # Reference

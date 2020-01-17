@@ -1,12 +1,3 @@
-Read:
-
-    :h :runtime
-    :h :packadd
-    :h :packloadall
-
-It seems that you can use all metacharacters documented in `:h file-pattern`.
-Document this.
-
 # Packages
 ## What is a Vim package?
 
@@ -356,4 +347,55 @@ When {file} contains wildcards it is expanded to all matching files.  Example:
     │ ALL   │ first use 'rtp',                              │
     │       │ then search under `start/` and `opt/` in 'pp' │
     └───────┴───────────────────────────────────────────────┘
+
+
+##
+##
+##
+# Todo
+## Read this
+
+    :h :runtime
+    :h :packadd
+    :h :packloadall
+
+It seems that you can use all metacharacters documented in `:h file-pattern`.
+Document this.
+
+## ?
+
+Converting all our plugins into optional packages could have an additional benefit.
+To test one of them, we could just run:
+
+              or NORC if you need the filetype/indent/syntax plugins
+              vvvv
+    $ vim -Nu NONE +'packadd my_package'
+    :packadd my_package
+
+Although, it would not work for packages under `start/`, only for the ones under `/opt`.
+Besides, with `-u NORC`, you would load all plugins in `~/.vim{/after}`, which may interfere.
+
+## ?
+
+Could  we use  Vim packages  to eliminate  the separation  of plugins'  config
+between `~/.vim/plugin` and `~/.vim/after/plugin/`?
+
+> What  I like  about packadd  is  that **you  can actually  put the  before**
+> **and  after  config**  and  the  loading of  the  plugin  **in  a  single**
+> **file**.  That's because packadd loads the plugin right when it's called as
+> apposed to most plugin managers that collect the list of all plugins to load
+> before loading  them.  (For  that to  work plugins need  to be  installed in
+> a  pack/**/opt  directory  i.e.  when  using  the  minpac  package  manager:
+> minpac#add(url, {'type': 'opt'}))
+
+> Oh that's  a neat idea. I  think at  the moment though  I prefer to  see all
+> external plugins that will be loaded  in the one place. I use :packadd! (the
+> ! version) which adds the plugins to  the runtime path but doesn't load them
+> immediately. Also, that  way the plugins are  loaded when they expect  to be
+> loaded (ie. in the usual place in the startup order).
+
+Source:
+
+- <https://www.reddit.com/r/vim/comments/a5ngap/debugging_your_vim_config_vimways_1224/eboufag/>
+- <https://www.reddit.com/r/vim/comments/a5ngap/debugging_your_vim_config_vimways_1224/ebow7d5/>
 

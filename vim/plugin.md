@@ -657,6 +657,13 @@ why, you could stay in Vim and  make the commit message – introducing the chan
 
 ---
 
+Similar:
+
+- <https://github.com/APZelos/blamer.nvim> 173 sloc
+- <https://github.com/tveskag/nvim-blame-line> 115 sloc
+
+---
+
 Alternatively, use `:Gblame` and press O.
 
 Or try one of these `:GB` commands:

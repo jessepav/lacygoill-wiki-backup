@@ -1,3 +1,15 @@
+Read this: <https://nikodoko.com/posts/vim-substitute-tricks/>
+
+---
+
+Document the `a`, `l`, and `q` answers when using the `c` flag.
+
+    a replaces the current match and *a*ll the remaining ones matches
+    l replaces the current match and stop; it's the *l*ast one to be replaced
+    q does not replace the current match, nor the next ones; in effect, you *q*uit
+
+---
+
 Replace one pattern out of two with `foo`, and the other with `bar`:
 
     let a = ['bar', 'foo']
@@ -117,8 +129,6 @@ See `:h e769`.
 
 
     c_C-s
-
-            rechercher le pattern sans tenir compte des accents
             Mapping custom à taper en mode commande (à la fin d'une recherche).
 
     v_C-s

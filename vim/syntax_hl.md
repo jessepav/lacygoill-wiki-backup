@@ -2078,24 +2078,6 @@ performance of the regexes.
 
 ## ?
 
-Document that in a Vim syntax statement, `foo\zs` and `\zebar` consume `foo` and
-`bar`.
-It means  that if  you need to  apply some  style to `foo`  or `bar`  in another
-statement, you can't use `\zs` and `\ze`.
-Instead, use `\<@=` and `\@=`.
-
-This is confirmed in this answer:
-<https://stackoverflow.com/a/53730038/9780968>
-
-> Another pitfall is that \zs limits the highlighting, but internally still matches the whole text.
-
-Update:
-I think `\zs` and `\ze` are significantly faster.
-Maybe we should learn more about syntax to use them, and deal with the “consuming”;
-using nested items or something like that...
-
-## ?
-
 Review `vim-comment`.
 Do we need `gC` and `iC`?
 Adapt their code when necessary.

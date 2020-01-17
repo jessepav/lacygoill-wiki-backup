@@ -660,7 +660,8 @@ When the list is the left operand of an assignment (`:h :let-unpack`):
     "         ✘
     E475: Invalid argument: ] = [1,2,3]~
 
-## Why should I avoid using `matchend()` instead of `matchstr()->len()`?
+## Why should I avoid
+### replacing `matchstr()->len()` with `matchend()`?
 
 They are not always equivalent:
 
@@ -675,6 +676,19 @@ They are not always equivalent:
     -1~
     :echo matchstr('title', '^#\+')->len()
     0~
+
+### `:k` or `:mark` to set a mark on the current position, and prefer `:norm! m` instead?
+
+With  `:k`   and  `:mark`,  the   column  position  always  matches   the  first
+non-whitespace character on the line.
+Because of this,  jumping to the mark  doesn't always restore the  cursor on the
+original position where you set the mark; you lose the column position.
+
+    " execute this command while your cursor is on the `a` character
+    :k a
+    :echo getpos("'a")[2]
+    5~
+    " the original column was 8
 
 ##
 ## ?

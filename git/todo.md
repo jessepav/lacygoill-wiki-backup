@@ -126,3 +126,7 @@ l'archive et en exécutant le script d'installation:
 Merging without whitespace conflicts
 Commit without whitespace changes on github
 
+---
+
+Read: <http://michaelwales.com/articles/make-gitconfig-work-for-you/>
+
