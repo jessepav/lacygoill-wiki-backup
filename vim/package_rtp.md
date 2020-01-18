@@ -364,19 +364,6 @@ Document this.
 
 ## ?
 
-Converting all our plugins into optional packages could have an additional benefit.
-To test one of them, we could just run:
-
-              or NORC if you need the filetype/indent/syntax plugins
-              vvvv
-    $ vim -Nu NONE +'packadd my_package'
-    :packadd my_package
-
-Although, it would not work for packages under `start/`, only for the ones under `/opt`.
-Besides, with `-u NORC`, you would load all plugins in `~/.vim{/after}`, which may interfere.
-
-## ?
-
 Could  we use  Vim packages  to eliminate  the separation  of plugins'  config
 between `~/.vim/plugin` and `~/.vim/after/plugin/`?
 

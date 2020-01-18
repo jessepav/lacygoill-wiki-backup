@@ -12,7 +12,7 @@
     │         │ the others can be in 'isk' or not       │                │
     └─────────┴─────────────────────────────────────────┴────────────────┘
 
-##
+#
 # Which condition must the character BEFORE an abbreviation satisfy, for the abbreviation to be expanded?
 
 It must be either:

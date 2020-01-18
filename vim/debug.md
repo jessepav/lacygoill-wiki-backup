@@ -101,14 +101,20 @@ But for Vim, “plugin files” are just the files in a `plugin/` directory.
 ##
 ## How to start Vim with no script sourced?
 
-        $ vim -Nu NONE
+    $ vim -Nu NONE
+
 or
-        $ vim -Nu NORC --noplugin
-                  │      │
-                  │      └ same as:
-                  │           --cmd 'set noloadplugins'
-                  │
-                  └ nothing except the plugins
+
+    $ vim -Nu NORC --noplugin
+              │      │
+              │      └ same as:  --cmd 'set noloadplugins'
+              │
+              └ nothing except the plugins
+
+---
+
+TODO: The second version still loads some scripts with Nvim.
+Document this.
 
 ### With only the filetype/indent/syntax plugins?
 
@@ -471,15 +477,6 @@ If you want to include the commands inside functions, you must use a bang:
               -cq
 
 ###
-### What's the difference between `--cmd` and `-c`/`+`?
-
-   - `--cmd` execute a command BEFORE the vimrc is sourced.
-
-   - `-c`    execute a command AFTER the first file is read
-           which includes its autocmds and its modelines
-
-`+` is a synonym of `-c`.
-
 ### When I profile a script from the shell, should I execute `:prof` via `--cmd` or `-c`?
 
 `--cmd`.
@@ -573,6 +570,36 @@ size to avoid trying at all positions in the current and previous lines:
 
 ##
 #
+# Miscellaneous
+## What's the difference between `--cmd` and `-c`/`+`?
+
+   - `--cmd` execute a command BEFORE the vimrc is sourced.
+
+   - `-c`    execute a command AFTER the first file is read
+           which includes its autocmds and its modelines
+
+`+` is a synonym of `-c`.
+
+## When does an autocmd listening to `VimEnter` executes its command compared to `+'cmd'`?  Before or after?
+
+After.
+
+From `:h startup`:
+
+>     12. Execute startup commands
+>     ...
+>             The commands given with the |-c| and |+cmd| arguments are executed.
+>             The |v:vim_did_enter| variable is set to 1.
+>             The |VimEnter| autocommands are executed.
+
+Try this:
+
+    $ vim -es -Nu NONE +'pu=v:vim_did_enter|%p' +'qa!'
+    0~
+
+When the  `+` command was  processed, `v:vim_did_enter`  was not set  yet; which
+means that `VimEnter` had not been fired.
+
 ##
 # Debug mode
 ## What does the debug mode allow me to do?
@@ -729,8 +756,8 @@ See `:h debug-gcc`.
 
 ---
 
-You don't have to do that manually; we  have a zsh snippet to compile a Vim with
-debugging symbols; use it.
+You don't  have to  do that manually;  we have  a zsh snippet  to compile  a Vim
+binary with debugging symbols; use it.
 
 ### I need Vim to crash when an internal error (`:h E315`) is detected – to get a core file!
 
