@@ -1,59 +1,25 @@
 # Issues
-## I don't have any solution for any of the following issues.
-##
 ## (N)Vim
+### Previewing a picture in ranger causes some part of the screen not to be redrawn!
+
+##
+## Vim only
 ### Ranger is weirdly displayed!
 
 Yes, the columns (and their borders) are not aligned correctly.
 Also, the number of entries in a directory is sometimes not drawn.
-And the image preview is misplaced in Vim's terminal.
+And the image preview is wrongly positioned.
 
-There are probably other issues with ranger in a (N)Vim terminal.
+It has been fixed in Nvim, by one of these commits:
 
-### I can't use my zsh snippets!
-
-For some reason, you can't run fzf from a zle widget in Vim's terminal:
-
-    func() {
-        echo "foo\nbar" | fzf
-    }
-    zle -N func
-    bindkey '^G^G' func
-
-And you can't even set the command-line buffer from a zle widget:
-
-    func() {
-        BUFFER=foobar
-    }
-    zle -N func
-    bindkey '^G^G' func
-
----
-
-Right now (commit `a91ea02`), the snippets  work in Nvim's terminal; however, as
-soon  as you  use one,  the terminal  window flickers  every time  you insert  a
-character.
+    2a590e2293638eb27bbedc7c5758e9241aea0a77
+    d57250ae64b61a37fbe84024be9706985186dbc1
 
 ##
 ## Nvim only
-### Some colors are wrong!
+### When I use one of my zsh snippets, the terminal window flickers!
 
-If you set  `'tgc'`, Nvim's terminal seems  to use a palette  which is different
-than the one of your regular terminal.
-
-If your color is outside the 16 ANSI colors, I don't think there's a solution.
-Afaik, Nvim doesn't let you configure the colors beyond 16.
-
-For example,  in `~/.zshrc`, we  use the color 137  to highlight strings;  but –
-when  we set  `'tgc'`  – the  exact  hex code  used by  Nvim's  terminal is  not
-identical to the one used by xterm or st:
-
-    # start xterm
-    $ nvim -Nu NONE +'set tgc' +terminal
-    $ palette
-
-Start Gpick, and hover your mouse over the color 137 to reveal its hex code.
-Atm, we find `#875f5f`, which is different than the code used in xterm (`#af875f`).
+    $ nvim -Nu NONE +'set so=3 | 10sp | term'
 
 ### The terminal doesn't support the bracketed paste mode!
 
@@ -64,24 +30,7 @@ MWE:
 
 `foo` is wrongly run.
 
-### I can't edit the current command-line by pressing `C-x C-e`!
-
-Well it doesn't make much sense to do it.
-I mean, you're in already in an editor.
-If you want to edit the line with Nvim commands, just press Escape.
-
-But yeah, it's broken:
-
-    :term
-    $ ls C-x C-e
-    Error detected while processing function <SNR>119_LoadRemotePlugins[1]..<SNR>119_GetManifest[1]..~
-    line    7:~
-    E117: Unknown function: stdpath~
-
-There seems  to be  some kind of  recursive loop;  `s:LoadRemotePlugins()` keeps
-calling itself again and again.
-
-Same issue in bash and zsh, and same issue when you run `fc`.
+It's a known issue: <https://github.com/neovim/neovim/issues/11418>
 
 ### Nvim crashes after I delete too many lines in a terminal buffer!
 
@@ -108,4 +57,46 @@ It's a known issue:
 >    Deleting lines isn't supported (it will be prevented in a future PR).
 
 <https://github.com/neovim/neovim/pull/6142#issuecomment-282690785>
+
+###
+### I can't edit the current command-line by pressing `C-x C-e`!
+
+Well it doesn't make much sense to do it.
+I mean, you're in already in an editor.
+If you want to edit the line with Nvim commands, just press Escape.
+
+But yeah, it's broken:
+
+    :term
+    $ ls C-x C-e
+    Error detected while processing function <SNR>119_LoadRemotePlugins[1]..<SNR>119_GetManifest[1]..~
+    line    7:~
+    E117: Unknown function: stdpath~
+
+There seems  to be  some kind of  recursive loop;  `s:LoadRemotePlugins()` keeps
+calling itself again and again.
+
+Same issue in bash and zsh, and same issue when you run `fc`.
+
+---
+
+Workaround: set `$EDITOR` to `nvim` (instead of `vim`) when starting ranger.
+
+    EDITOR=nvim ranger
+
+You could try to  set the variable only when inside  a Nvim terminal (inspecting
+some environment variable which is only set in the latter).
+
+#### An error is displayed when I open a file in Vim from ranger!
+
+This is the same error as previously.
+
+Workaround: In your zshrc, replace `vim` with `nvim`:
+
+    __sane_vim() STTY=sane command nvim +'...'
+                                   ^^^^
+
+##### and when I use `| vipe`!
+
+Workaround: Set `VISUAL` to `nvim`.
 

@@ -1,0 +1,225 @@
+# Refactoring
+## When should we
+### pass `W` and `c` to `search()`?
+
+I think we definitely need to pass it in a while loop.
+And if `search()` is passed `b`, I  think `W` should be passed too, even outside
+a loop.
+Otherwise, you're allowing Vim to wrap around  the end of the file, and it could
+find sth *after* your current position, which may be unexpected.
+
+I'm not sure for the rest of the time.
+I  tend to  think that  `W` should  always be  passed, but  there may  be a  few
+exceptions...
+
+    :vim /\m\Csearch\%(pos\|pair\|pairpos\)\=(\%(.*W\)\@!)\@!/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
+    Cfilter! -other_plugins
+
+---
+
+Now that  I think  about it,  you probably don't  want `W`  if you're  writing a
+motion which you want  to wrap around the end of the file,  like the default `n`
+motion when `'wrapscan'` is set.
+
+---
+
+Mmm.
+I thought that `b`  without `W` lead to unexpected results, but  I'm not so sure
+anymore.
+You may want  to look for sth backward,  but if that sth can't  be found before,
+you may want  to look for it  after, and so let  Vim wrap around the  end of the
+file...
+
+Although, that seems theoretical.
+In practice, I think using `W` with `b` will be fine.
+
+---
+
+If you do sth like this:
+
+    call cursor(1, 1)
+    call search(pat)
+
+I would recomment to use `W`:
+
+    call search(pat, 'W')
+
+It's not needed but it explicits what is going to happen.
+Either `search()` finds `pat`,  and it doesn't wrap around the  end of the file,
+or it  does not find  `pat`, and again,  it doesn't wrap  around the end  of the
+file.
+In both cases, it won't wrap; `W` tells us that.
+
+---
+
+Make sure we have not used `W` when we should not have in the past.
+
+    :vim /\m\Csearch\%(pos\|pair\|pairpos\)\=(\%(.*W\)\@=/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
+                                             │├─────────┘
+                                             ││
+                                             │└ there must be a W flag
+                                             └ there must be an open parenthesis
+
+---
+
+I think that if you use `search()` to:
+
+   - describe some text, you should use `W`
+
+   - move the cursor, you should not use `W`
+
+     With one exception: if your custom motion is a wrapper around a default motion, then
+     respect its behavior.
+     For example, `}` does not wrap, so if you customize it, it should still not wrap.
+
+### use `g@[l_]` vs `norm! g@[l_]` vs `feedkeys('g@[l_]', 'in')`?
+
+In this mapping:
+
+    ~/.vim/plugged/vim-vim/after/ftplugin/vim.vim:116
+
+we can't use `norm! g@l`, because our opfunc invokes `getchar()`.
+This is an INcomplete command: it requires our input to finish.
+Because of this, `:norm` would press `Escape` to abort.
+From `:h :norm`:
+
+> {commands} should  be a complete command.   If {commands} does not  finish a
+> command, the last one will be aborted as if <Esc> or <C-C> was typed.
+
+See:
+
+    ~/.vim/plugged/vim-par/plugin/par.vim:87
+    ~/.vim/vimrc:3507
+
+---
+
+If we wanted to make this mapping dot repeatable (shoehorning an opfunc):
+
+    ~/.vim/plugged/vim-doc/plugin/doc.vim:11
+    nno <silent><unique> K :<c-u>call doc#mapping#main('')<cr>
+
+We wouldn't be able to use `norm! g@l` because the latter would reset `v:count`,
+and our function may rely on its original value.
+
+This is an argument in favor of avoiding `norm! g@l`.
+
+---
+
+Look for `g@` everywhere, and read surrounding comments.
+Summarize them in our notes about mappings.
+
+Do the same for `feedkeys()`.
+
+---
+
+Example where `g@l` causes an issue, and `norm! g@l` is needed:
+
+    nno <buffer><nowait><silent> =rh :<c-u>call Func()<cr>g@l
+    fu Func() abort
+        set opfunc=MyOp
+        let var = input('prompt: ')
+        echom var
+    endfu
+    fu MyOp(_) abort
+        norm! dd
+    endfu
+
+Other example:
+
+    nno <silent> cr :<c-u>call <sid>get_transformation()
+                    \<bar>set opfunc=<sid>coerce<bar>norm! g@l<cr>
+
+Other example:
+<https://github.com/lervag/vimtex/pull/1247>
+
+Basically,  when `g@[l_]`  is  only preceded  by  `set opfunc=Func`,  everything
+should work fine.
+
+Otherwise, if `g@[l_]` is preceded by a function call (which sets 'opfunc'), and
+invokes a function which consumes  user input (`input()`, `getchar()`, ...), the
+latter may wrongly consume `g@[l_]`.
+In that case, use `norm! g@[l_]`.
+
+However, if  your opfunc also invokes  a function consuming user  input, `norm!`
+won't work:
+
+    ~/.vim/plugged/vim-par/plugin/par.vim:96
+
+In that case, you need to use `feedkeys()`.
+
+In the previous example (`vim-par`), we don't need `feedkeys()` because there is
+a previous function call  which consumes user input (there is  none); we need it
+because:
+
+   - we need to use a count – so `g@l` can't be pressed directly
+   - the opfunc consumes user input so `norm! g@l` can't be used
+
+---
+
+Decide what we should write by default:
+
+    g@l
+    norm! g@l
+    call feedkeys('g@l', 'in')
+
+Review  all  locations where  we've  written  `norm! g@[l_]`, and  enforce  this
+decision whenever possible.
+
+Update: I think you should use `g@l` by default.
+And if that doesn't work, then you should use `call feedkeys('g@l', 'in')`.
+
+Why?
+Because when your opfunc fails because of `norm! g@l`, it fails silently, which is bad.
+It doesn't give you any info about where the issue comes from.
+OTOH, with  `g@l`, if  there is  an issue, you'll  probably understand  where it
+comes from (because `g@l` will be  consumed by an input function like `input()`,
+or `getchar()`).
+
+And with `feedkeys()`, there should never be an issue.
+
+Refactor all locations where you used `norm! g@l`, and replace with `g@l`,
+unless it breaks sth.
+
+---
+
+Also, document that in general, you should pass the flags `in` to `feedkeys()`.
+And use `t` only if it's needed.
+In the past, we have had issues with the `t` flag.
+
+##
+# Document
+## how to squash a non-focused window
+
+    :3resize 0
+     │
+     └ window number 3
+
+---
+
+Do *not* try to use `win_execute()`; it doesn't work:
+
+    vim -Nu NONE +'set wmh=0|sp|call win_execute(win_getid(2), "resize 0")'
+
+Instead:
+
+    vim -Nu NONE +'set wmh=0|sp|2resize 0'
+
+<https://github.com/vim/vim/issues/5131#issuecomment-546715292>
+
+## how Vim processes unknown commands, and known commands with wrong syntax
+
+<https://github.com/neovim/neovim/issues/11136#issuecomment-537253732>
+
+---
+
+There may be other locations where we could have used a heredoc:
+
+    :vim /[a-z](\[/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
+          ^^^^^^^^
+          there may be other patterns to test
+
+##
+# Reference
+
+[1]: https://en.wikipedia.org/wiki/Code_reuse
+

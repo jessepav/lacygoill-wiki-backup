@@ -522,18 +522,11 @@ Or the reverse?
 " And the text has been changed to `Ruby`.
 " Press `C-j`  to try another  completion command;  you don't get  any different
 " results, and yo don't get `rubyinterp`.
-" We didn't have this  issue in the past; is it due to  our recent change in the
-" value of `'cot'`? Or the order of completion commands in `b:mc_chain`?
-"
-" ---
 "
 " Also,  press `C-q`  to quit  the  pum: `Ruby` stays  in the  buffer, it's  not
 " replaced with the original text `ruby`.
-" That doesn't happen with `-Nu NONE`: bisect your config.
 "
-" ---
-"
-" Update: It's because we include `longest` in `'cot'`, in `vim-completion`.
+" It's because we include `longest` in `'cot'`, in `vim-completion`.
 "
 " MWE:
 "

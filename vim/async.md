@@ -1,3 +1,7 @@
+# To document
+
+<https://vi.stackexchange.com/questions/22596/job-start-command-only-works-with-seemingly-random-job-options>
+
 # How to send `a b` as an argument to an external process started from (N)Vim?  (2)
 
 Use `system()` and quote `a b`:
