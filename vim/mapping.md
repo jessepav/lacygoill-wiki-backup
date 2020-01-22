@@ -737,6 +737,38 @@ where you restore `'opfunc'`.
 ##
 ##
 # Issues
+## My mapping ignores the count I prefixed it with!
+
+You may have a `:norm!` command somewhere which resets `v:count[1]` to 1.
+Try to capture `v:count[1]` as soon as possible in a variable; then always refer
+to the latter in your code (never refer to `v:count[1]`).
+
+Capture it either at the very start of the function definition:
+
+    nno cd :call Func()
+    fu Func()
+        let cnt = v:count1
+        " refer to `cnt` when needed
+        ...
+    endfu
+
+Or at the function call site:
+
+    nno cd :call Func(v:count1)
+    fu Func(cnt)
+        " refer to `a:cnt` when needed
+        ...
+    endfu
+
+---
+
+It's not always possible or a good idea to capture the count at the call site.
+It's not possible when the function is used as an opfunc.
+It's  not  a  good idea  when  the  function  is  called repeatedly  in  various
+mappings/commands (DRY, DIE).
+
+In those cases, capture the variable at the start of the function definition.
+
 ## The output of `:ino bc –` followed by `:echo execute('ino bc')` is `i  bc    * ^S`!
 
 It should look like this: `i  bc    * –`.

@@ -72,6 +72,9 @@ Answer: with `:wall`:
 
    - `:h :cq` (`:{N}cq[uit][!]`, Quit Vim with error code {N}.)
 
+   - `:tabnext` accepts the argument `#` to focus previous tab (Nvim only)
+     https://github.com/neovim/neovim/pull/11626/files
+
    - `:h :unlet-$`
 
 ##

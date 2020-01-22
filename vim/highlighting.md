@@ -468,7 +468,7 @@ configure non-builtin HGs.
 
 Also, it's deprecated in Neovim.
 
-##
+###
 # Color Scheme
 ## How to run some code before or after a color scheme has been sourced?
 

@@ -354,3 +354,78 @@ terminaison de commande.
 Il s'agit en fait de la valeur par défaut de fillchars.
 `'fillchars'` permet aussi de configurer d'autres caractères de remplissage.
 
+##
+# Todo
+## Document that in VimL, `let _ = foldlevel(1)` is a better alternative than `zx`/`zX`.
+
+Because it preserves manually opened/closed folds.
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+    setl fml=0 fdm=manual fde=getline(v:lnum)=~#'^#'?'>1':'='
+    %d|pu=repeat(['x'], 5)|1
+    EOF
+    ) /tmp/file
+    " insert:  #
+    " run:  setl fdm=expr | setl fdm=manual
+    " no fold is created;
+    " but a fold would have been created if you had run:
+
+        :setl fdm=expr | let _ = foldlevel(1) | setl fdm=manual
+
+It seems the mere  fact of evaluating a fold-related function  is enough to make
+Vim recompute all folds.
+
+Update this example so that it shows that `let _ = foldlevel(1)` preserves manually opened/closed folds.
+
+---
+
+Alternatively, you could execute:
+
+    exe winnr()..'windo "'
+    setl fdm=manual
+
+Or:
+
+    let [curwin, curbuf] = [win_getid(), bufnr('%')]
+    call timer_start(0, {-> winbufnr(curwin) == curbuf && setwinvar(curwin, '&fdm', 'manual')})
+
+Or:
+
+    let view = winsaveview()
+    norm! zizi
+    setl fdm=manual
+    call winrestview(view)
+
+But note that `let _ = foldlevel(1)` is the fastest method:
+
+    " open vimrc
+    :10000Time let _ = foldlevel(1)
+    0.055 seconds to run ...~
+
+    :10000Time exe winnr()..'windo "'
+    0.080 seconds to run ...~
+
+    :10000Time let [g:curwin, g:curbuf] = [win_getid(), bufnr('%')] | call timer_start(0, {-> winbufnr(g:curwin) == g:curbuf && setwinvar(g:curwin, '&fdm', 'manual')})
+    0.150 seconds to run ...~
+
+    :10000Time let view = winsaveview() | exe "norm! zizi" | call winrestview(view)
+    0.270 seconds to run ...~
+
+Besides, the fact that `:123windo "` makes Vim recompute folds is not documented.
+It would be brittle to rely on such an undocumented feature, because there is no
+guarantee that it continues working in the future.
+
+## Document that disabling folding temporarily may alter the view.
+
+If your code is not supposed to move the cursor, save and restore the view:
+
+    let view = winsaveview()
+    let fen_save = &l:fen
+    ...
+    let &l:fen = fen_save
+    call winrestview(view)
+
+Check out our qfl named `fen_save`.
+We still have 3 locations where we temporarily disable folding without restoring the view.
+Should we restore it?
+

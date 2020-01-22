@@ -49,6 +49,11 @@ The issue only arises in the second window counting from the bottom:
 The issue is specific to Vim.
 In Nvim, you can "fix" it by making sure that the `pum` item is in the value of `'wop'`.
 
+## a folded line outside the text
+
+`Folded`  controls the  color  of a  folded  line;  maybe it  would  be nice  to
+highlight the title of a fold with special colors, but not the rest of the line.
+
 ##
 # Issues
 ## can't customize `C-k` when a dictionary completion is active

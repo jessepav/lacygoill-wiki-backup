@@ -1526,7 +1526,7 @@ Alternatives:
 
 - <https://github.com/hecal3/vim-leader-guide> 509 sloc
 - <https://github.com/urbainvaes/vim-remembrall> 226 sloc
-- <https://github.com/skywind3000/vim-quickui> 1864 sloc
+- <https://github.com/skywind3000/vim-quickui> 3807 sloc
 
 ## smartword
 

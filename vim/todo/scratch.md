@@ -188,6 +188,11 @@ Is it a good idea? Should we use `:close` back? Or this:
 
 ?
 
+---
+
+`:close` doesn't fire `QuitPre`; `:q` does.
+If you need to react to the closing of a window, you probably need `:q`.
+
 ### never install custom mappings to open filepaths using special keys (C-s, C-v C-v, C-t)
 
 There are already default commands for that:

@@ -6,7 +6,7 @@
 ## Vim only
 ### Ranger is weirdly displayed!
 
-Yes, the columns (and their borders) are not aligned correctly.
+The columns (and their borders) are not aligned correctly.
 Also, the number of entries in a directory is sometimes not drawn.
 And the image preview is wrongly positioned.
 
