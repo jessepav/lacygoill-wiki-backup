@@ -153,9 +153,8 @@ And here the output of `/plugin` should include 'python':
     /plugin
 
 Also, make sure  that your pip packages are still  installed against the default
-python.
-They should  still be installed in  `~/.local/lib/python3.5` (assuming python3.5
-is your default python).
+python.  They  should still  be installed in  `~/.local/lib/python3.5` (assuming
+python3.5 is your default python).
 
 ##
 # How to install python?

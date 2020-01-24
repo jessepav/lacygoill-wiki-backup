@@ -375,7 +375,8 @@ Because it preserves manually opened/closed folds.
 It seems the mere  fact of evaluating a fold-related function  is enough to make
 Vim recompute all folds.
 
-Update this example so that it shows that `let _ = foldlevel(1)` preserves manually opened/closed folds.
+Update  this example  so that  it shows  that `let  _ =  foldlevel(1)` preserves
+manually opened/closed folds.
 
 ---
 
