@@ -1390,6 +1390,55 @@ développe une expression  contenant un wildcard ou qd on  fait une recherche vi
 
 ##
 # Todo
+## Document how a window-local option is initialized when displaying a buffer displayed in another window
+
+From `:h local-options`:
+
+>     When editing a buffer that has been edited before, the options from the window
+>     that was last closed are used again.  If this buffer has been edited in this
+>     window, the values from back then are used.  Otherwise the values from the
+>     last closed window where the buffer was edited last are used.
+
+This excerpt is incomplete.
+What if the buffer has been displayed in  other windows in the past, but none of
+them has been closed so far?
+
+Watch:
+
+    $ seq 5 >/tmp/file; vim +'vs|vs|wincmd =|1wincmd w|setl nu|3wincmd w|vnew|e /tmp/file' /tmp/file
+    " 'number' is set in the fourth window
+
+    $ seq 5 >/tmp/file; vim +'vs|vs|wincmd =|2wincmd w|setl nu|3wincmd w|vnew|e /tmp/file' /tmp/file
+    " 'number' is NOT set in the fourth window
+
+There is only one explanation for these results.
+When a buffer has been displayed in other  windows in the past, but none of them
+has been closed  yet, Vim initializes a window-local option  with the value from
+the window where the buffer has been displayed for the *first* time.
+
+---
+
+Conclusion:
+
+Regarding the initialization of a window-local option, there are 4 cases to consider:
+
+   1. the buffer has never been displayed anywhere
+
+   2. the buffer has already been displayed in at least one other window; the
+      new window results from a split
+
+   3. the buffer has already been displayed in at least one other window; at
+      least one of them has been closed
+
+   4. the buffer has already been displayed in at least one other window; none
+      of them has been closed
+
+In case `1.`, the local value is initialized from the global one.
+In case `2.`, it's simply copied from the window which was split.
+In case `3.`, it's initialized with the value it had in the **last** closed window (where it was displayed).
+In case `4.`, it's initialized with the value it has in the window where it was displayed for the **first** time.
+
+##
 ## Document that restoring an option after `CompleteDone` is not reliable.
 
    - it's only fired *after* you select and validate a match in the pum

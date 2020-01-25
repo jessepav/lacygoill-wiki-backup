@@ -356,13 +356,13 @@ Il s'agit en fait de la valeur par défaut de fillchars.
 
 ##
 # Todo
-## Document that in VimL, `let _ = foldlevel(1)` is a better alternative than `zx`/`zX`.
+## Document that in VimL, `:eval foldlevel(1)` is a better alternative than `zx`/`zX`.
 
 Because it preserves manually opened/closed folds.
 
     $ vim -Nu NONE -S <(cat <<'EOF'
     setl fml=0 fdm=manual fde=getline(v:lnum)=~#'^#'?'>1':'='
-    %d|pu=repeat(['x'], 5)|1
+    %d|sil pu=repeat(['x'], 5)|1
     EOF
     ) /tmp/file
     " insert:  #
@@ -370,13 +370,18 @@ Because it preserves manually opened/closed folds.
     " no fold is created;
     " but a fold would have been created if you had run:
 
-        :setl fdm=expr | let _ = foldlevel(1) | setl fdm=manual
+        :setl fdm=expr | eval foldlevel(1) | setl fdm=manual
 
 It seems the mere  fact of evaluating a fold-related function  is enough to make
 Vim recompute all folds.
 
-Update  this example  so that  it shows  that `let  _ =  foldlevel(1)` preserves
+Update  this  example so  that  it  shows  that `:eval  foldlevel(1)`  preserves
 manually opened/closed folds.
+
+---
+
+Note that Nvim does not support `:eval` atm.
+Use a dummy assigment instead; `let _ = foldlevel(1)`.
 
 ---
 
@@ -397,10 +402,10 @@ Or:
     setl fdm=manual
     call winrestview(view)
 
-But note that `let _ = foldlevel(1)` is the fastest method:
+But note that `:eval foldlevel(1)` is the fastest method:
 
     " open vimrc
-    :10000Time let _ = foldlevel(1)
+    :10000Time eval foldlevel(1)
     0.055 seconds to run ...~
 
     :10000Time exe winnr()..'windo "'
