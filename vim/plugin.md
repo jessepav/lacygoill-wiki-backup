@@ -1917,7 +1917,7 @@ And it even works from gvim or MacVim!
 
 This plugin will highlight patterns and ranges for Ex-commands.
 
-<https://github.com/xtal8/traces.vim> 738 sloc
+<https://github.com/xtal8/traces.vim> 1018 sloc
 
 ## tradewinds
 

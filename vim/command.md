@@ -955,8 +955,7 @@ It seems to depend on various things:
    - the filename modifier
 
 Also, it seems  that some Tab-expansions don't work if  the result doesn't match
-an existing file.
-For example:
+an existing file.  For example:
 
     $ touch /tmp/new_file
     $ vim /tmp/new_file
@@ -972,8 +971,7 @@ doesn't remove the extension.
 That doesn't mean that they don't work as expected once you press Enter.
 
 Also, I think  that you can only use a  filename modifiers with `-complete=file`
-and `-complete=file_in_path`.
-Not with `-complete=custom...`.
+and `-complete=file_in_path`.  Not with `-complete=custom...`.
 
 ##
 ##

@@ -691,9 +691,7 @@ original position where you set the mark; you lose the column position.
     " the original column was 8
 
 ##
-## ?
-
-How to play a sound?
+## How to play a sound?
 
 Use `sound_playfile()` or `sound_playevent()`.
 
@@ -703,7 +701,7 @@ For example, you could download the intro music for the PlayStation 1:
 
 Then, play it when Vim starts, adding this code to your vimrc:
 
-    if ! has('nvim')
+    if !has('nvim')
         augroup play_ps_sound_on_vimenter
             au!
             au VimEnter * call sound_playfile('/tmp/ps.ogg')
@@ -734,23 +732,6 @@ If you really want the errors too, then group the commands:
 
     { grep -IRn pat * | grep -v garbage  ;} >file 2>&1
     ^                                    ^^
-
-## ?
-
-My function is slow.  It executes some `:norm` commands.  What can I do to improve the performance?
-
-Check whether some of them enter insert mode.
-If some  do, prefix them with  the `:noa` modifier to  prevent the `InsertEnter`
-and `InsertLeave` events from being fired.
-
-Remember  that replace  mode is  a submode  of insert  mode; so  if you  execute
-`:norm` to replace a character, you probably want to prefix it with `:noa` too.
-
-So far, it has helped us in `vim-breakdown` and in `comment#and_paste()`.
-
-    cmd
-
-Update: I think a more reliable fix is to use sth like fastfold.
 
 ##
 # Todo
@@ -1810,7 +1791,7 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
                             remplace les 3 derniers caractères
 
-                    - col('.') - len(matchstr(getline('.')[:col('.')-2], '\S\+'))
+                    - col('.') - len(matchstr(getline('.')[:col('.')-2], '\S\+$'))
 
                             remplace le texte devant le curseur;
                             le texte étant défini comme une séquence de non-whitespace

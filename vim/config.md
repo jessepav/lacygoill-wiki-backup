@@ -1405,16 +1405,71 @@ them has been closed so far?
 
 Watch:
 
-    $ seq 5 >/tmp/file; vim +'vs|vs|wincmd =|1wincmd w|setl nu|3wincmd w|vnew|e /tmp/file' /tmp/file
+    $ vim -Nu NONE +'set spr|vs|vs|1wincmd w|setl nu|3wincmd w|vnew|e /tmp/file' /tmp/file
     " 'number' is set in the fourth window
 
-    $ seq 5 >/tmp/file; vim +'vs|vs|wincmd =|2wincmd w|setl nu|3wincmd w|vnew|e /tmp/file' /tmp/file
+    $ vim -Nu NONE +'set spr|vs|vs|2wincmd w|setl nu|3wincmd w|vnew|e /tmp/file' /tmp/file
     " 'number' is NOT set in the fourth window
 
 There is only one explanation for these results.
 When a buffer has been displayed in other  windows in the past, but none of them
 has been closed  yet, Vim initializes a window-local option  with the value from
 the window where the buffer has been displayed for the *first* time.
+
+Btw, don't be confused by this:
+
+    $ vim -Nu NONE /tmp/file +'set stl=%{&l:cc}' +'vs|1wincmd w|setl cc=10|2wincmd w|setl cc=20' +'vnew|e /tmp/file'
+
+It looks  like in the  second window, the option  has been initialized  with the
+value from the last window where `/tmp/file` was displayed (i.e. the third one).
+But the  third window is not  the window where  the file was displayed  the last
+time; it's really the window where it was displayed for the first time.
+
+By default `'spr'` is reset, and so the splitting commands create new windows to
+the left, instead of the right.
+So the oldest window  where the file was displayed is not on  the far left, like
+it would usually be when `'spr'` is set, but on the far right.
+
+---
+
+    $ vim -Nu NONE +'set spr stl=%{&l:cc}|setl cc=10|vs|setl cc=20' /tmp/file
+    :vnew | e /tmp/file
+    :echo &l:cc
+    10~
+
+    $ vim -Nu NONE +'set spr stl=%{&l:cc}|setl cc=10|vs|setl cc=20' /tmp/file
+    :vnew /tmp/file
+    :echo &l:cc
+    20~
+
+When executed from a window displaying `/tmp/file`, Vim processes
+`:vnew /tmp/file` like `:vs /tmp/file`; i.e. like a splitting command.
+
+This  explains why  in  the last  command,  the  local value  of  `'cc'` is  not
+initialized  with the  value it  has  in the  first window  displaying the  file
+(i.e. `10`), but with the value it has in the current window (i.e. `20`).
+
+The  same is  true  if  you replace  `:vnew`/`:vs`  with  `:new`/`:sp`, or  with
+`:tabnew`/`:tab sp`.
+
+---
+
+When  you split  a window,  the new  window  copies both  the local  value of  a
+window-local option *and* the global value.
+
+    $ vim -Nu NONE +'set spr|setl cc=10|setg cc=20|vs' /tmp/file
+    :echo [&l:cc, &g:cc]
+    ['10', '20']~
+
+---
+
+When you  create a  new window,  the global  value of  a window-local  option is
+inherited; the local value is then  initialized from the global one (unless it's
+being displayed elsewhere, or was displayed elsewhere in the past).
+
+    $ vim -Nu NONE +'set spr|setl cc=10|setg cc=20|vnew' /tmp/file
+    :echo [&l:cc, &g:cc]
+    ['20', '20']~
 
 ---
 
@@ -1437,6 +1492,41 @@ In case `1.`, the local value is initialized from the global one.
 In case `2.`, it's simply copied from the window which was split.
 In case `3.`, it's initialized with the value it had in the **last** closed window (where it was displayed).
 In case `4.`, it's initialized with the value it has in the window where it was displayed for the **first** time.
+
+---
+
+There can be some weird exceptions:
+
+    $ vim -Nu NONE -O /tmp/file1 /tmp/file2 -S <(cat <<'EOF'
+        set spr
+        1wincmd w | vs
+        1wincmd w | setl cc=10 | setg cc=1
+        2wincmd w | setl cc=20 | setg cc=2
+        3wincmd w | setl cc=30 | setg cc=3
+        1wincmd w | tabnew | e /tmp/file1
+    EOF
+    )
+    :echo &l:cc
+    ''~
+    " ✘ it should be 10
+
+It can only be reproduced when starting Vim with `-O` (and probably `-o`, `-p`),
+and when asking to display a file which is already displayed in the first window
+(or any window split  from the latter).  It does not affect  a file displayed in
+subsequent windows:
+
+    $ vim -Nu NONE -O /tmp/file1 /tmp/file2 -S <(cat <<'EOF'
+        set spr
+        1wincmd w | vs
+        1wincmd w | setl cc=10 | setg cc=1
+        2wincmd w | setl cc=20 | setg cc=2
+        3wincmd w | setl cc=30 | setg cc=3
+        1wincmd w | tabnew | e /tmp/file2
+    EOF
+    )
+    :echo &l:cc
+    30~
+    " ✔
 
 ##
 ## Document that restoring an option after `CompleteDone` is not reliable.
