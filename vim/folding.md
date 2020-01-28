@@ -374,6 +374,8 @@ Because it preserves manually opened/closed folds.
 
 It seems the mere  fact of evaluating a fold-related function  is enough to make
 Vim recompute all folds.
+Which seems  logical; if Vim  did not  recompute folds, a  fold-related function
+could give a wrong value.
 
 Update  this  example so  that  it  shows  that `:eval  foldlevel(1)`  preserves
 manually opened/closed folds.
@@ -420,6 +422,49 @@ But note that `:eval foldlevel(1)` is the fastest method:
 Besides, the fact that `:123windo "` makes Vim recompute folds is not documented.
 It would be brittle to rely on such an undocumented feature, because there is no
 guarantee that it continues working in the future.
+
+## Document that a new fold may be automatically closed when folds are recomputed.
+
+And only a new fold; not existing ones.
+And even if you use `:eval foldlevel(1)` instead of `zx`.
+
+Find a MWE.
+Does the issue depend on some options?
+
+From our vim-fold plugin:
+
+    " MWE:
+    "
+    "     $ vim -Nu NONE -S <(cat <<'EOF'
+    "         setl fml=0 fdm=manual fde=getline(v:lnum)=~#'^#'?'>1':'='
+    "         au BufWritePost * setl fdm=expr | eval foldlevel(1) | setl fdm=manual
+    "         %d|sil pu=repeat(['x'], 5)|1
+    "     EOF
+    "     ) /tmp/md.md
+    "
+    "     " press:  O # Esc :w  (the fold is closed automatically)
+    "     " press:  O # Esc :w  (the fold is closed automatically if 'fml' is 0)
+    "
+    " I think that for the issue to be reproduced, you need to:
+    "
+    "    - set `'fdl'` to 0 (it is by default)
+    "    - modify the buffer so that the expr method detects a *new* fold
+    "    - switch from manual to expr
+
+## Document that in some circumstances, Vim has to decide whether a fold should be open or closed.
+
+When you:
+
+   - press `zx` or `zX`
+   - load a buffer
+   - add new lines which are detected as a new fold
+
+And in those cases, Vim uses the value of `'foldlevel'`.
+A fold above this value is closed; and below this value it's opened.
+`'foldlevel'`  is   a  window-local  option   which  may  be   initialized  with
+`'foldlevelstart'` (global option).
+
+Make sure our understanding is correct.
 
 ## Document that disabling folding temporarily may alter the view.
 

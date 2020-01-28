@@ -231,6 +231,12 @@ To use python plugins, the pynvim module is needed:
 
 See `:h provider-python`.
 
+And try to add this to your `init.vim`:
+
+    let g:python3_host_prog = '/usr/bin/python3'
+
+Replace the path `/usr/bin/python3` with whatever path is output by the shell command `type python3`.
+
 ## get the source code / update
 
     $ git clone https://github.com/neovim/neovim

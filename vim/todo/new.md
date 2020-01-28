@@ -82,6 +82,7 @@ Answer: with `:wall`:
 
    - `:h CmdlineChanged`
    - `:h CompleteChanged`
+   - `:h CompleteDonePre`
    - `:h DiffUpdated`
    - `:h DirChanged`
    - `:h ExitPre`
