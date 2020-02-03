@@ -786,7 +786,7 @@ core file in your working directory which prevented Vim from dumping a new one:
 
 Run this:
 
-    $ valgrind --leak-check=yes --num-callers=50 --track-origins=yes --log-file=valgrind.log ./src/vim -Nu ...
+    $ valgrind --leak-check=yes --num-callers=50 --track-origins=yes --log-file=valgrind.log ./src/vim -Nu NONE
 
 After reproducing the issue, the log should be written in `./valgrind.log`.
 
@@ -805,7 +805,7 @@ Valgrind doesn't work atm on Ubuntu 16.04, but it works on Ubuntu 18.04 in a VM.
     $ ./configure --enable-fail-if-missing --with-features=huge
     $ make
 
-    $ vim -f -g 2>asan.log
+    $ ./src/vim -Nu NONE -f -g 2>asan.log
 
 After reproducing the issue, the log should be written in `./asan.log`.
 

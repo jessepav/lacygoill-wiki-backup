@@ -12,90 +12,183 @@ or the lines in closed folds.
 Don't conflate `:folddoopen` with `:foldopen`.
 
 ##
-# Théorie, mappings
+# What does `'foldlevel'` control?
 
-Voici les options permettant de configurer le pliage dans un fichier ou de manière générale:
+When set to a number, any fold with  a higher level is closed, and any fold with
+a lower level is opened.
 
-    ┌──────────────────┬─────────────────────────────────────────────────────────────────────────────────┐
-    │ 'debug'          │ en cas d'erreur lors de l'évaluation de 'fde' aucun message d'erreur n'est émis │
-    │                  │ sauf si on donne la valeur 'msg' ou 'throw' à 'debug'                           │
-    ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
-    │ 'foldclose'      │ si sa valeur est 'all', tout pli ne contenant pas le curseur, et dont le niveau │
-    │                  │ est supérieur à &l:foldlevel est automatiquement fermé                          │
-    ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
-    │ 'foldcolumn'     │ largeur de la colonne de pliage (contient les symboles -+|)                     │
-    ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
-    │ 'foldenable'     │ détermine si le pliage est activé dans la fenêtre                               │
-    ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
-    │ 'foldexpr'       │ sa valeur est une expression dont l'évaluation est le niveau de pli d'une ligne │
-    ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
-    │ 'foldignore'     │ suite de caractères                                                             │
-    │                  │                                                                                 │
-    │                  │ toute ligne dont le 1er caractère est dans cet ensemble hérite son niveau       │
-    │                  │ d'indentation d'une ligne voisine; son niveau d'indentation est ignoré          │
-    │                  │                                                                                 │
-    │                  │ n'a d'effet que lorsque la méthode de pliage est 'indent'                       │
-    ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
-    │ 'foldlevel'      │ les plis dont le niveau est supérieur sont fermés par défaut                    │
-    ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
-    │ 'foldlevelstart' │ valeur par défaut de 'foldlevel'                                                │
-    ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
-    │ 'foldmarker'     │ marqueurs de début et de fin pour la méthode est 'marker'                       │
-    ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
-    │ 'foldmethod'     │ méthode de pliage                                                               │
-    ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
-    │ 'foldminlines'   │ minimum de lignes qu'un pli doit contenir                                       │
-    │                  │                                                                                 │
-    │                  │ un pli contenant moins de lignes ne peut pas être fermé individuellement        │
-    ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
-    │ 'foldnestmax'    │ niveau de pli maximum (on ne peut pas aller au-delà de 20)                      │
-    ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
-    │ 'foldopen'       │ liste des commandes ouvrant automatiquement un pli qd on entre dedans           │
-    ├──────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
-    │ 'foldtext'       │ sa valeur est une expression dont l'évaluation sert de titre pour les plis      │
-    └──────────────────┴─────────────────────────────────────────────────────────────────────────────────┘
+## Which normal commands can alter its value?
 
-Toutes les options sont locales à la fenêtre, sauf:
+   - `zM`
+   - `zm`
+
+   - `zR`
+   - `zr`
+
+---
+
+The commands which can open/close a particular fold, do *not* alter `'foldlevel'`:
+
+   - `zA`
+   - `zC`
+   - `zO`
+
+   - `za`
+   - `zc`
+   - `zo`
+
+   - `zv`
+
+##
+# What are the four fold-related options which are not window-local?
 
    - `'debug'`
    - `'foldclose'`
    - `'foldopen'`
    - `'foldlevelstart'`
 
----
+## What do they control?
 
-Par défaut, `'fdm'` = manual, ce qui implique 2 choses:
-
-   1. pour plier une section de texte, il faut le faire manuellement avec `zf`
-
-   2. les plis ne sont pas sauvegardés au-delà de la session
-
-      Pour les faire persister au-delà d'une session, il faut utiliser `:mkview`
-      et `:loadview`, via une autocmd.
-
-`'foldmethod'` peut prendre 5 autres valeurs:
-
-    ┌────────┬──────────────────────────────────────────────────────────────┐
-    │ diff   │ utilisée dans les fenêtres diff pour plier le texte inchangé │
-    ├────────┼──────────────────────────────────────────────────────────────┤
-    │ expr   │ le pliage est configuré par une expression (méthode avancée) │
-    ├────────┼──────────────────────────────────────────────────────────────┤
-    │ indent │ plis basés sur le niveau d'indentation                       │
-    ├────────┼──────────────────────────────────────────────────────────────┤
-    │ marker │ plis basés sur des marqueurs présents au sein du texte,      │
-    │        │ souvent dans des commentaires:    {{{                        │
-    ├────────┼──────────────────────────────────────────────────────────────┤
-    │ syntax │ plis basés sur la syntaxe; ex: pliage des blocs de code      │
-    └────────┴──────────────────────────────────────────────────────────────┘
+If `'foldclose'` is set  to `all`, a fold is automatically  closed when you move
+the cursor outside of it and its level is higher than `'foldlevel'`.
 
 ---
 
-Qd on  utilise la  méthode `'indent'`,  les lignes  commençant par  un caractère
-présent dans la  valeur `'foldignore'` prennent comme niveau de  pli celui de la
-prochaine ou précédente ligne; le plus petit des 2.
-Leur niveau d'indentation est ignoré, d'où le nom de l'option.
+`'foldopen'` specifies which types of commands will make Vim open a closed fold,
+when they make the cursor move into one.
+
+Its default value is:
+
+    block,hor,mark,percent,quickfix,search,tag,undo
+    │     │   │    │       │        │      │   │
+    │     │   │    │       │        │      │   └ undo or redo: "u" and CTRL-R
+    │     │   │    │       │        │      └ jumping to a tag: ":ta", CTRL-T, etc.
+    │     │   │    │       │        └ search for a pattern: "/", "n", "*", "gd", etc.
+    │     │   │    │       └ ":cn", ":crew", ":make", etc.
+    │     │   │    └ "%"
+    │     │   └ jumping to a mark: "'m", CTRL-O, etc.
+    │     └ horizontal movements: "l", "w", "fx", etc.
+    └ "(", "{", "[[", "[{", etc.
 
 ---
+
+`'foldlevelstart'` sets `'foldlevel'` when starting to edit a buffer in a window.
+
+Some useful values are:
+
+    ┌────┬──────────────────────────────────────────────┐
+    │ -1 │ the option is ignored                        │
+    ├────┼──────────────────────────────────────────────┤
+    │ 0  │ all folds are closed                         │
+    ├────┼──────────────────────────────────────────────┤
+    │ 1  │ most folds are closed (except level-1 folds) │
+    ├────┼──────────────────────────────────────────────┤
+    │ 99 │ no fold is closed                            │
+    └────┴──────────────────────────────────────────────┘
+
+It can be overridden by a modeline or by an autocmd listening to `BufReadPre`.
+
+---
+
+If `'debug'`  is set  to `msg`,  when Vim encounters  an error  while evaluating
+`'fde'`, it gives an error message.
+If it has the value `throw`, it will also throws an exception and set `v:errmsg`.
+
+##
+# I'm using the `indent` foldmethod.
+## For a given line, how to make Vim use the level of indentation of the line above or below?
+
+If this line starts with a particular character, assign it to `'foldignore'`.
+
+Any line starting with the character saved  inside this option will get its fold
+level from the next or previous line (the smallest of the two).
+Their own indentation level is ignored, hence the option name.
+White space is skipped before checking for the character.
+
+##
+# From a script, how to fold the lines 12 to 34?
+
+    :12,34fold
+
+`:fold` is the Ex equivalent of the normal command `zf`.
+
+# `'foldopen'` doesn't work for a command I use in my mapping!
+
+It doesn't apply to commands which are used in a mapping.
+Rationale: it gives the user more control over the folds.
+
+Use `zv` or `:norm! zv` in your mapping to get the same effect.
+
+##
+# Théorie, mappings
+## ?
+
+Se déplacer vers:
+
+    ┌────┬───────────────────────────────────────────────────────────────────────┐
+    │ [z │ la précédente fin de pli  peu importe son niveau                      │
+    ├────┼───────────────────────────────────────────────────────────────────────┤
+    │ ]z │ le prochain   début de pli "                                          │
+    ├────┼───────────────────────────────────────────────────────────────────────┤
+    │ [Z │ le précédent  début de pli de niveau supérieur ou égal au pli courant │
+    ├────┼───────────────────────────────────────────────────────────────────────┤
+    │ ]Z │ la prochaine  fin de pli   "                                          │
+    └────┴───────────────────────────────────────────────────────────────────────┘
+
+Ce sont des mappings custom; par défaut Vim utilise:
+
+   - zj
+   - zk
+   - [z
+   - ]z
+
+---
+
+TODO: Review this answer.  I don't think it's quite correct.
+
+      [Z │ le précédent  début de pli de niveau supérieur ou égal au pli courant │
+                                                ^^^^^^^^^^^^^^^^^
+                                                strictly lower?
+
+But first, understand how the default commands work.
+Test `zj`, `zk`, `[z`, and `]z` with `:norm!`.
+
+Then, consider refactoring our  mappings so that they really do  what we want in
+all cases (whether folds are stacked or nested in markdown).
+
+---
+
+When I use the default `zk` command to move to the end of the previous fold, Vim skips some ends of folds!
+
+No, it does not.
+
+You're probably confused by the nesting foldexpr, which we don't use often.
+
+Suppose you have this markdown file while you're using the nesting foldexpr:
+
+    line address  foldcolumn  text
+    1             -           # a
+    2             |
+    3             |           a
+    4             |
+    5             |-          ## aa
+    6             ||
+    7             ||          aa
+    8             ||
+    9             |-          ##
+    10            -           # b
+    11            |
+    12            |           b
+    13            |
+    14            |-          ## bb
+    15            ||
+    16            ||          cursor is on this line
+
+You execute `:norm! zk` to move to the previous end of fold.
+You probably expect your cursor to jump on line 13, but in reality it jumps on line 9.
+line 13 is *not* the end of a fold; it belongs to the level-1 fold starting on line 10.
+
+## ?
 
 Qd on utilise la méthode `'expr'`, voici les règles à retenir:
 
@@ -158,21 +251,7 @@ Qd on utilise la méthode `'expr'`, voici les règles à retenir:
      sont incluses dans le même pli (jusqu'à atteindre une ligne de niveau
      inférieur)
 
----
-
-Le  pliage automatique  (toute  méthode  différente de  manual  et marker)  peut
-entraîner  des  ralentissements, en  particulier  en  mode insertion  (pour  une
-solution voir plugin `FastFold`).
-
----
-
-    :10,20fold
-
-Plie les lignes 10 à 20.
-
-`:fold` est l'équivalent en mode Ex de la commande normale `zf`.
-
----
+## ?
 
     za
     zA
@@ -182,9 +261,7 @@ Toggle:
    - le pli courant
    - le pli courant et tous ses parents / enfants
 
-N'affecte pas `'fdl'`.
-
----
+## ?
 
     zc
     zC
@@ -197,9 +274,7 @@ Ferme:
 En répétant `zc`, on peut  fermer toute une hiérarchie de plis.
 `za` se contenterait d'ouvrir / fermer le même pli.
 
-N'affecte pas `'fdl'`.
-
----
+## ?
 
     zd
     zD
@@ -213,17 +288,7 @@ Supprime:
 
 Ne fonctionne que si la méthode de pliage est `manual` ou `marker`.
 
----
-
-    zfap
-    zfaB
-
-Plie:
-
-   - le paragraphe
-   - le texte entre les accolades
-
----
+## ?
 
     zn
     zN
@@ -239,31 +304,9 @@ Modifie l'option `'foldenable'`:
 une/des ligne(s), via `:move`.
 En effet, un bug  introduit dans le patch 7.4.700 a pour effet  de fermer le pli
 dans lequel on déplace une ligne.
-Ceci peut avoir des effets inattendus sur les commandes suivantes (ex: `norm!
-==`).
+Ceci peut avoir des effets inattendus sur les commandes suivantes (ex: `norm!  ==`).
 
----
-
-Se déplacer vers:
-
-    ┌────┬───────────────────────────────────────────────────────────────────────┐
-    │ [z │ la précédente fin de pli  peu importe son niveau                      │
-    ├────┼───────────────────────────────────────────────────────────────────────┤
-    │ ]z │ le prochain   début de pli "                                          │
-    ├────┼───────────────────────────────────────────────────────────────────────┤
-    │ [Z │ le précédent  début de pli de niveau supérieur ou égal au pli courant │
-    ├────┼───────────────────────────────────────────────────────────────────────┤
-    │ ]Z │ la prochaine  fin de pli   "                                          │
-    └────┴───────────────────────────────────────────────────────────────────────┘
-
-Ce sont des mappings custom; par défaut Vim utilise:
-
-   - zj
-   - zk
-   - [z
-   - ]z
-
----
+## ?
 
     zm
     zM
@@ -276,7 +319,7 @@ Altère la valeur de l'option `'foldlevel'`, en la:
 Les plis dont le niveau est supérieur à `&l:fdl` sont fermés.
 Donc, `zm` ferme un peu plus de plis, tandis que `zM` les ferme tous.
 
----
+## ?
 
     zr
     zR
@@ -288,7 +331,7 @@ Altère la valeur de l'option `'foldlevel'`, en:
 
 `zr` ouvre un peu plus de plis, tandis que `zR` les ouvre tous.
 
----
+## ?
 
     zo
     zO
@@ -302,58 +345,6 @@ Si le curseur  se trouve dans une  imbrication de plis, `zo` n'ouvre  que le pli
 fermé le plus haut dans la hiérarchie.
 `zO` ouvre toute la hiérarchie.
 
-N'affecte pas `'fdl'`.
-
-# Configuration
-
-    setl foldlevel=3
-
-Définit 3 comme étant le niveau max d'imbrication pour un pli ouvert.
-Au-delà de ce niveau, un pli est fermé.
-
-La valeur de cette option est modifiée par:
-
-   - zm
-   - zM
-   - zr
-   - zR
-
-Mais pas par:
-
-   - za
-   - zA
-   - zc
-   - zC
-   - zo
-   - zO
-   - zv
-
-Une commande  normale qui  altère simplement l'état  d'un pli  (ouvert/fermé) ne
-change pas `'fdl'`.
-Seule les commandes qui altèrent l'ensemble des plis affectent `'fdl'`.
-
----
-
-`'foldlevel'` est locale à une fenêtre comme la plupart des options de pliage.
-
-Ne pas la confondre avec `'foldlevelstart'` qui elle est globale.
-Cette dernière configure la valeur  initiale de `'foldlevel'` dans toute fenêtre
-où un nouveau buffer est édité.
-
----
-
-    set fcs=vert:\|,fold:-
-
-Définit le séparateur vertical (celui affiché  dans la barre séparant 2 fenêtres
-après un `:vs`) comme étant `|`, et  le caractère de remplissage sur la 1e ligne
-d'un pli comme étant `-`.
-
-Il  faut échapper  le pipe  pour  éviter que  `:set` ne  l'interprète comme  une
-terminaison de commande.
-
-Il s'agit en fait de la valeur par défaut de fillchars.
-`'fillchars'` permet aussi de configurer d'autres caractères de remplissage.
-
 ##
 # Todo
 ## Document that in VimL, `:eval foldlevel(1)` is a better alternative than `zx`/`zX`.
@@ -361,29 +352,25 @@ Il s'agit en fait de la valeur par défaut de fillchars.
 Because it preserves manually opened/closed folds.
 
     $ vim -Nu NONE -S <(cat <<'EOF'
-    setl fml=0 fdm=manual fde=getline(v:lnum)=~#'^#'?'>1':'='
-    %d|sil pu=repeat(['x'], 5)|1
+        setl fml=0 fdm=expr fde=getline(v:lnum)=~#'^#'?'>1':'='
+        %d|for i in range(2) | sil pu=['#', '']+repeat(['x'], 5)+[''] | endfor
+        setl fdm=manual
+        1d_
+        norm! zoGyyp
     EOF
     ) /tmp/file
-    " insert:  #
-    " run:  setl fdm=expr | setl fdm=manual
-    " no fold is created;
-    " but a fold would have been created if you had run:
 
-        :setl fdm=expr | eval foldlevel(1) | setl fdm=manual
+    " the first fold stays open
+    :setl fdm=expr | eval foldlevel(1) | setl fdm=manual
 
-It seems the mere  fact of evaluating a fold-related function  is enough to make
-Vim recompute all folds.
-Which seems  logical; if Vim  did not  recompute folds, a  fold-related function
-could give a wrong value.
+    " the first fold gets closed
+    :setl fdm=expr | exe 'norm! zx' | setl fdm=manual
 
-Update  this  example so  that  it  shows  that `:eval  foldlevel(1)`  preserves
-manually opened/closed folds.
+Note that in both commands, the folds get recomputed, which is why you can close
+the new third fold by pressing `zc`.
 
----
-
-Note that Nvim does not support `:eval` atm.
-Use a dummy assigment instead; `let _ = foldlevel(1)`.
+Also,  this  works  because  evaluating  any  fold-related  function  makes  Vim
+recompute all folds; it has to, so that the function can give a correct value.
 
 ---
 
@@ -416,12 +403,17 @@ But note that `:eval foldlevel(1)` is the fastest method:
     :10000Time let [g:curwin, g:curbuf] = [win_getid(), bufnr('%')] | call timer_start(0, {-> winbufnr(g:curwin) == g:curbuf && setwinvar(g:curwin, '&fdm', 'manual')})
     0.150 seconds to run ...~
 
-    :10000Time let view = winsaveview() | exe "norm! zizi" | call winrestview(view)
+    :10000Time let view = winsaveview() | exe 'norm! zizi' | call winrestview(view)
     0.270 seconds to run ...~
 
 Besides, the fact that `:123windo "` makes Vim recompute folds is not documented.
 It would be brittle to rely on such an undocumented feature, because there is no
 guarantee that it continues working in the future.
+
+---
+
+Nvim does not support `:eval` atm.
+Use a dummy assigment instead; `let _ = foldlevel(1)`.
 
 ## Document that a new fold may be automatically closed when folds are recomputed.
 

@@ -75,8 +75,8 @@ As an input file:
 
     $ sed [options] -e <pgm file> <input file>
     $ sed [options] -f <pgm file> <input file>
-                    ├──────────────┘ ├──────────┘
-                    │                └ positional argument
+                    ├───────────┘ ├──────────┘
+                    │             └ positional argument
                     └ optional argument
 
 ###

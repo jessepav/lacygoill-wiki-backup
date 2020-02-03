@@ -1,8 +1,4 @@
 # Issues
-## (N)Vim
-### Previewing a picture in ranger causes some part of the screen not to be redrawn!
-
-##
 ## Vim only
 ### Ranger is weirdly displayed!
 
@@ -15,11 +11,15 @@ It has been fixed in Nvim, by one of these commits:
     2a590e2293638eb27bbedc7c5758e9241aea0a77
     d57250ae64b61a37fbe84024be9706985186dbc1
 
+### Previewing a picture in ranger causes some part of the screen not to be redrawn!
+
 ##
 ## Nvim only
 ### When I use one of my zsh snippets, the terminal window flickers!
 
-    $ nvim -Nu NONE +'set so=3 | 10sp | term'
+    $ nvim -Nu NONE +'set so=3 | 10sp | term' +'startinsert'
+    # press C-g C-g Esc
+    # insert some random characters
 
 ### The terminal doesn't support the bracketed paste mode!
 
