@@ -308,7 +308,7 @@ For example, from the Vim source code, you can compile `vim-gtk` or `vim-tiny`.
 
 ##
 # checkinstall
-## Which pitfalls should I be aware of if I use checkinstall?
+## What are some of its pitfalls?
 ### It contains many errors.
 
 Atm, shellcheck only finds one error:

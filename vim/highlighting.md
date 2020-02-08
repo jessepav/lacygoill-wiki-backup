@@ -342,7 +342,7 @@ The values of the arguments `fg` and `bg` are exchanged, in a color terminal.
 
 ### How to hide the characters highlighted by the HG `NonText`?
 
-        :hi NonText ctermfg=bg
+    :hi NonText ctermfg=bg
 
 `bg` is a  special value, which is  evaluated into the value which  was given to
 `ctermfg=` or `guifg` from the HG `Normal`.

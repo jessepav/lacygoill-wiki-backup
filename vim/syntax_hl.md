@@ -1089,7 +1089,7 @@ This is useful  for syntax items that  don't need any highlighting  but are used
 only to skip over a part of the text.
 
 ###
-### Which pitfall could I face when using `transparent`?
+### What's one pitfall of `transparent`?
 
 By definition, a transparent item is contained in another one.
 Let's call it `A`.

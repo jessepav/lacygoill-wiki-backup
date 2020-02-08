@@ -1,29 +1,16 @@
-# How to yank all the lines in open folds?
-
-    qaq
-    :folddoopen y A
-
-`:folddoopen` and `:folddoclosed` are similar to `:g`.
-They allow you to execute a command on  a set of lines; the lines in open folds,
-or the lines in closed folds.
-
----
-
-Don't conflate `:folddoopen` with `:foldopen`.
-
-##
-# What does `'foldlevel'` control?
+# Options
+## What does `'foldlevel'` control?
 
 When set to a number, any fold with  a higher level is closed, and any fold with
 a lower level is opened.
 
-## Which normal commands can alter its value?
+### Which normal commands can alter its value?
 
-   - `zM`
-   - `zm`
+   - `zM`: reset to 0
+   - `zm`: decrease by 1
 
-   - `zR`
-   - `zr`
+   - `zR`: reset to max
+   - `zr`: increase by 1
 
 ---
 
@@ -39,15 +26,38 @@ The commands which can open/close a particular fold, do *not* alter `'foldlevel'
 
    - `zv`
 
+### When is it applied?  (3)
+
+When you:
+
+   - load a buffer
+   - press `zx` or `zX`
+   - add new lines which are detected as a new fold
+
+###
+## Which normal commands automatically set `'foldenable'`?  (9)
+
+`zN` and `zi` are meant specifically to set the option (`zi` once out of two).
+In addition, any command which creates a fold (`zf`), or closes one or several fold(s):
+
+   - `zc`
+   - `zC`
+
+   - `za`
+   - `zA`
+
+   - `zm`
+   - `zM`
+
 ##
-# What are the four fold-related options which are not window-local?
+## What are the four fold-related options which are not window-local?
 
    - `'debug'`
    - `'foldclose'`
    - `'foldopen'`
    - `'foldlevelstart'`
 
-## What do they control?
+### What do they control?
 
 If `'foldclose'` is set  to `all`, a fold is automatically  closed when you move
 the cursor outside of it and its level is higher than `'foldlevel'`.
@@ -94,25 +104,8 @@ If `'debug'`  is set  to `msg`,  when Vim encounters  an error  while evaluating
 `'fde'`, it gives an error message.
 If it has the value `throw`, it will also throws an exception and set `v:errmsg`.
 
-##
-# I'm using the `indent` foldmethod.
-## For a given line, how to make Vim use the level of indentation of the line above or below?
-
-If this line starts with a particular character, assign it to `'foldignore'`.
-
-Any line starting with the character saved  inside this option will get its fold
-level from the next or previous line (the smallest of the two).
-Their own indentation level is ignored, hence the option name.
-White space is skipped before checking for the character.
-
-##
-# From a script, how to fold the lines 12 to 34?
-
-    :12,34fold
-
-`:fold` is the Ex equivalent of the normal command `zf`.
-
-# `'foldopen'` doesn't work for a command I use in my mapping!
+###
+## `'foldopen'` doesn't work for a command I use in my mapping!
 
 It doesn't apply to commands which are used in a mapping.
 Rationale: it gives the user more control over the folds.
@@ -120,45 +113,107 @@ Rationale: it gives the user more control over the folds.
 Use `zv` or `:norm! zv` in your mapping to get the same effect.
 
 ##
-# Théorie, mappings
-## ?
+# Opening/Closing
+## How to close/open
+### the current fold?
 
-Se déplacer vers:
+Use the `zc`/`zo` command.
 
-    ┌────┬───────────────────────────────────────────────────────────────────────┐
-    │ [z │ la précédente fin de pli  peu importe son niveau                      │
-    ├────┼───────────────────────────────────────────────────────────────────────┤
-    │ ]z │ le prochain   début de pli "                                          │
-    ├────┼───────────────────────────────────────────────────────────────────────┤
-    │ [Z │ le précédent  début de pli de niveau supérieur ou égal au pli courant │
-    ├────┼───────────────────────────────────────────────────────────────────────┤
-    │ ]Z │ la prochaine  fin de pli   "                                          │
-    └────┴───────────────────────────────────────────────────────────────────────┘
+#### and its parent?
 
-Ce sont des mappings custom; par défaut Vim utilise:
+Use `zc`/`zo` twice.
 
-   - zj
-   - zk
-   - [z
-   - ]z
+#### and *all* its parents?
+
+Use the `zC`/`zO` command.
+
+###
+## How to toggle the current fold?
+
+Use the `za` command.
+
+### What happens if I do this on
+#### a nested closed fold?
+
+The oldest parent is opened.
+Then, the child of this parent is opened.
+Then, its child, and so on; until the current line is visible.
+
+#### a nested opened fold?
+
+It's just toggled (closed, opened, closed, opened...).
+
+###
+### How to do it recursively?
+
+Use the `zA` command.
+
+It's equivalent to `zC`  if the current fold is open, or to  `zO` if the current
+fold is closed.
+
+##
+## When Vim computes the foldlevel of new folded lines, does the new fold get closed or opened?
+
+It depends on `'foldlevel'`.
+
+If  the  new  fold has  a  greater  level  than  `'foldlevel'`, it  gets  closed
+automatically; otherwise, it stays open.
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        setl fdl=1 fml=0 fdm=manual fde=getline(v:lnum)=~#'^#'?'>'..len(matchstr(getline(v:lnum),'^#*')):'='
+        au BufWritePost * setl fdm=expr | eval foldlevel(1) | setl fdm=manual
+        %d|sil pu=repeat(['x'], 5)|1
+    EOF
+    ) /tmp/md.md
+
+    " press:  O # Esc :w  (the fold stays open)
+    " press:  O ## Esc :w  (the fold is closed automatically)
 
 ---
 
-TODO: Review this answer.  I don't think it's quite correct.
+We set `'fdl'` to 0, so a new fold is always automatically closed for us.
 
-      [Z │ le précédent  début de pli de niveau supérieur ou égal au pli courant │
-                                                ^^^^^^^^^^^^^^^^^
-                                                strictly lower?
+But we also use  some custom code which automatically presses `zv`  for us, so –
+in the  end – a new  fold is always automatically  closed iff our cursor  is not
+inside.
 
-But first, understand how the default commands work.
-Test `zj`, `zk`, `[z`, and `]z` with `:norm!`.
+##
+# Motions
+## Where do the default `]z` and `[z` commands make the cursor jump?
 
-Then, consider refactoring our  mappings so that they really do  what we want in
-all cases (whether folds are stacked or nested in markdown).
+Resp. to the start and end of the current fold.
+If the cursor is already at the  start/end of the current fold, the cursor jumps
+to the start/end of the containing fold.
+
+### What about `zj` and `zk`?
+
+Resp. to the start of the next fold, and to the end of the previous fold.
+
+### What about our custom `]z` and `[z`?
+
+`]z` jumps to:
+
+   - the end of the current fold
+   - the end of the next fold
+   - right above the start of the next nested fold
+
+Whichever is the nearest.
+
+Exception: when the  folding method is 'marker',  the cursor does not  move on a
+line containing a folding marker; it moves right above.
 
 ---
 
-When I use the default `zk` command to move to the end of the previous fold, Vim skips some ends of folds!
+`[z` jumps to:
+
+   - right below the start of the current fold
+   - right below the start of the previous fold
+   - right below the end of the previous nested fold
+
+Whichever is the nearest.
+
+###
+### When I use the default `zk` command to move to the end of the previous fold, Vim skips some ends of folds!
 
 No, it does not.
 
@@ -188,168 +243,172 @@ You execute `:norm! zk` to move to the previous end of fold.
 You probably expect your cursor to jump on line 13, but in reality it jumps on line 9.
 line 13 is *not* the end of a fold; it belongs to the level-1 fold starting on line 10.
 
-## ?
+##
+# Enabling/Disabling Creating/Deleting
+## How to enable/disable/toggle folding?
 
-Qd on utilise la méthode `'expr'`, voici les règles à retenir:
+   - `zN`
 
-   - chaque ligne du buffer a un niveau de pliage, positif ou nul
+   - `zn`
 
-   - l'expression donnée comme valeur à `'fde'` est évaluée dans le contexte:
+   - `zi`
 
-       * du buffer courant
-       * la fenêtre courante
-       * la ligne dont l'addresse est `v:lnum`
+Technically, these commands set/reset/toggle `'foldenable'`.
 
-   - l'évaluation de cette expression détermine le niveau de chaque ligne;
-     elle peut prendre pour valeur:
+### What's one pitfall of temporarily disabling folding?
 
-    ┌───────────────┬────────────────────────────────────────────────────────────────────────┐
-    │ 0             │ la ligne n'est pas dans un pli                                         │
-    ├───────────────┼────────────────────────────────────────────────────────────────────────┤
-    │ -1            │ le niveau est indéfini;                                                │
-    │               │ Vim doit utiliser le niveau de la ligne voisine la plus proche,        │
-    │               │ celle dont le niveau est le plus petit                                 │
-    ├───────────────┼────────────────────────────────────────────────────────────────────────┤
-    │   1,    2,  … │ la ligne est dans un pli de ce niveau                                  │
-    │ '>1', '>2', … │ idem mais en plus la ligne est la 1e       d'un pli                    │
-    │ '<1', '<2', … │ idem "                            dernière d'un pli                    │
-    ├───────────────┼────────────────────────────────────────────────────────────────────────┤
-    │ 'a1', 'a2', … │ [a]jouter/[s]oustraire 1, 2, … au niveau de la ligne précédente,       │
-    │ 's1', 's2', … │ et utiliser le résultat pour la ligne courante                         │
-    └───────────────┴────────────────────────────────────────────────────────────────────────┘
+The view may be altered.
 
-   - qd une ligne a le même niveau que la suivante, toutes 2 sont rangées dans un même pli
+    vim -Nu NONE -S <(cat <<'EOF'
+        setl fml=0 fdm=expr fde=getline(v:lnum)=~#'^#'?'>1':'='
+        %d|sil pu=repeat(['#'], &lines)+['#']+repeat([''], &lines)+['#', '']
+        norm! zo
+    EOF
+    ) /tmp/md.md
 
-   - qd une ligne a un niveau supérieur à la précédente, elle débute un nouveau pli; ex:
+    " press:  zizi
+    " the last line of the file is no longer the last line of the screen
 
-           a
-               b
-               c
-                   d    ← niveau 2, et la précédente a pour niveau 1 = début d'un pli
-                   e
-               f
-           g
+If that's an issue, save and restore the view:
 
-     corollaire:
-     il n'est pas nécessaire de lui donner pour niveau `'>N'`, `'N'` suffit
+    let view = winsaveview()
+    let fen_save = &l:fen
+    ...
+    let &l:fen = fen_save
+    call winrestview(view)
 
-   - qd une ligne a un niveau supérieur à la suivante, elle termine le pli
-     courant; ex:
+---
 
-           a
-               b
-               c
-                   d
-                   e    ← niveau 2, et la suivante a pour niveau 1 = fin d'un pli
-               f
-           g
+In a script, it seems the issue is not always triggered:
 
-     corollaire:
-     il n'est pas nécessaire de lui donner pour niveau `'<N'`, `'N'` suffit
+    vim -Nu NONE -S <(cat <<'EOF'
+        setl fml=0 fdm=expr fde=getline(v:lnum)=~#'^#'?'>1':'='
+        %d|sil pu=repeat(['#'], &lines)+['#']+repeat([''], &lines)+['#', '']
+        norm! zo
+    EOF
+    ) /tmp/md.md
 
-   - qd une ligne a un niveau N, toutes les lignes suivantes de niveau supérieur
-     sont incluses dans le même pli (jusqu'à atteindre une ligne de niveau
-     inférieur)
+    " the view is preserved
+    :setl nofen | setl fen
 
-## ?
+    " the view is altered
+    :setl nofen | exe 'norm! "' | setl fen
+                       ^^^^
+                       a `:norm` command is necessary to trigger the issue in a script;
+                       maybe other commands trigger the issue too...
 
-    za
-    zA
-
-Toggle:
-
-   - le pli courant
-   - le pli courant et tous ses parents / enfants
-
-## ?
-
-    zc
-    zC
-
-Ferme:
-
-   - le pli courant s'il est ouvert ou son parent s'il est fermé
-   - tous les plis dans lequel se trouve le curseur
-
-En répétant `zc`, on peut  fermer toute une hiérarchie de plis.
-`za` se contenterait d'ouvrir / fermer le même pli.
-
-## ?
-
-    zd
-    zD
-    zE
-
-Supprime:
-
-   - le pli contenant la ligne où se trouve le curseur
-   - tous les plis contenant la ligne où se trouve le curseur
-   - tous les plis du buffer (Eliminate)
-
-Ne fonctionne que si la méthode de pliage est `manual` ou `marker`.
-
-## ?
-
-    zn
-    zN
-    zi
-
-Modifie l'option `'foldenable'`:
-
-   - désactivaction
-   - activation
-   - toggling
-
-`'fen'` est très utile pour temporairement désactiver les plis avant de déplacer
-une/des ligne(s), via `:move`.
-En effet, un bug  introduit dans le patch 7.4.700 a pour effet  de fermer le pli
-dans lequel on déplace une ligne.
-Ceci peut avoir des effets inattendus sur les commandes suivantes (ex: `norm!  ==`).
-
-## ?
-
-    zm
-    zM
-
-Altère la valeur de l'option `'foldlevel'`, en la:
-
-   - décrémentant d'un
-   - faisant passer à 0
-
-Les plis dont le niveau est supérieur à `&l:fdl` sont fermés.
-Donc, `zm` ferme un peu plus de plis, tandis que `zM` les ferme tous.
-
-## ?
-
-    zr
-    zR
-
-Altère la valeur de l'option `'foldlevel'`, en:
-
-   - l'incrémentant d'un
-   - la faisant passer à `niveau de plis max`
-
-`zr` ouvre un peu plus de plis, tandis que `zR` les ouvre tous.
-
-## ?
-
-    zo
-    zO
-
-Ouvre:
-
-   - un pli           dans lequel se trouve le curseur
-   - tous les plis    "
-
-Si le curseur  se trouve dans une  imbrication de plis, `zo` n'ouvre  que le pli
-fermé le plus haut dans la hiérarchie.
-`zO` ouvre toute la hiérarchie.
+I suspect that when Vim executes scripted commands, it doesn't update the view.
+But it probably does when the script contains an interactive command (e.g. `:h :s_c`),
+or a pseudo-interactive one (e.g. `:norm`, `feedkeys()`, ...).
 
 ##
-# Todo
-## Document that in VimL, `:eval foldlevel(1)` is a better alternative than `zx`/`zX`.
+## From a script, how to fold the lines 12 to 34?
 
-Because it preserves manually opened/closed folds.
+    :12,34fold
+
+`:fold` is the Ex equivalent of the normal command `zf`.
+
+###
+## For which folding methods can I delete folds?
+
+`manual` and `marker`.
+
+## How to delete folds
+### recursively at the cursor?
+
+    zD
+
+### everywhere?
+
+    zE
+
+##
+# Folding method
+## When writing a folding expression, which value should it produce so that the parsed line:
+### is not in a fold?
+
+    0
+
+### is in a fold of level 3?
+
+    3
+
+###
+### starts a fold of level 3?
+
+    '>3'
+
+#### When can I use just `3`?
+
+When the previous line has a lower level.
+
+###
+### ends a fold of level 3?
+
+    '<3'
+
+#### When can I use just `3`?
+
+When the next line has a lower level.
+
+###
+### has the same level as
+#### the previous line minus 3?
+
+    's3'
+     │
+     └ subtract
+
+#### the previous line plus 3?
+
+    'a3'
+     │
+     └ add
+
+#### the next or previous line, whichever is the smallest one?
+
+    -1
+
+##
+## I'm using the `indent` foldmethod.
+### For a given line, how to make Vim use the level of indentation of the line above or below?
+
+If this line starts with a particular character, assign it to `'foldignore'`.
+
+Any line starting with the character saved  inside this option will get its fold
+level from the next or previous line (the smallest of the two).
+Their own indentation level is ignored, hence the option name.
+White space is skipped before checking for the character.
+
+##
+# Miscellaneous
+## How to yank all the lines in closed folds?
+
+    qaq
+    :folddoclosed y A
+
+`:folddoclosed` is similar to `:g`.
+It allows you to execute a command on a set of lines; the lines in closed folds.
+
+### And for lines in open folds?
+
+    :folddoopen if foldlevel('.') > 0 | y A | endif
+
+---
+
+`:folddoopen` does not operate only on lines which are in open folds.
+It operates on any line which is not inside a closed fold.
+IOW it also operates on lines outside of folds.
+That's why you need the `foldlevel()` test.
+
+---
+
+Don't conflate `:folddoopen` with `:foldopen`.
+
+##
+## In a script, how to make Vim recompute folds without altering the state of the folds (open vs closed)?
+
+Execute `:eval foldlevel(1)`.
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         setl fml=0 fdm=expr fde=getline(v:lnum)=~#'^#'?'>1':'='
@@ -367,7 +426,8 @@ Because it preserves manually opened/closed folds.
     :setl fdm=expr | exe 'norm! zx' | setl fdm=manual
 
 Note that in both commands, the folds get recomputed, which is why you can close
-the new third fold by pressing `zc`.
+the new  third fold by  pressing `zc`.  But  `zx` makes Vim  apply `'foldlevel'`
+which does not preserve the state of the folds.
 
 Also,  this  works  because  evaluating  any  fold-related  function  makes  Vim
 recompute all folds; it has to, so that the function can give a correct value.
@@ -414,61 +474,4 @@ guarantee that it continues working in the future.
 
 Nvim does not support `:eval` atm.
 Use a dummy assigment instead; `let _ = foldlevel(1)`.
-
-## Document that a new fold may be automatically closed when folds are recomputed.
-
-And only a new fold; not existing ones.
-And even if you use `:eval foldlevel(1)` instead of `zx`.
-
-Find a MWE.
-Does the issue depend on some options?
-
-From our vim-fold plugin:
-
-    " MWE:
-    "
-    "     $ vim -Nu NONE -S <(cat <<'EOF'
-    "         setl fml=0 fdm=manual fde=getline(v:lnum)=~#'^#'?'>1':'='
-    "         au BufWritePost * setl fdm=expr | eval foldlevel(1) | setl fdm=manual
-    "         %d|sil pu=repeat(['x'], 5)|1
-    "     EOF
-    "     ) /tmp/md.md
-    "
-    "     " press:  O # Esc :w  (the fold is closed automatically)
-    "     " press:  O # Esc :w  (the fold is closed automatically if 'fml' is 0)
-    "
-    " I think that for the issue to be reproduced, you need to:
-    "
-    "    - set `'fdl'` to 0 (it is by default)
-    "    - modify the buffer so that the expr method detects a *new* fold
-    "    - switch from manual to expr
-
-## Document that in some circumstances, Vim has to decide whether a fold should be open or closed.
-
-When you:
-
-   - press `zx` or `zX`
-   - load a buffer
-   - add new lines which are detected as a new fold
-
-And in those cases, Vim uses the value of `'foldlevel'`.
-A fold above this value is closed; and below this value it's opened.
-`'foldlevel'`  is   a  window-local  option   which  may  be   initialized  with
-`'foldlevelstart'` (global option).
-
-Make sure our understanding is correct.
-
-## Document that disabling folding temporarily may alter the view.
-
-If your code is not supposed to move the cursor, save and restore the view:
-
-    let view = winsaveview()
-    let fen_save = &l:fen
-    ...
-    let &l:fen = fen_save
-    call winrestview(view)
-
-Check out our qfl named `fen_save`.
-We still have 3 locations where we temporarily disable folding without restoring the view.
-Should we restore it?
 

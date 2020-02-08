@@ -15,12 +15,6 @@ It has been fixed in Nvim, by one of these commits:
 
 ##
 ## Nvim only
-### When I use one of my zsh snippets, the terminal window flickers!
-
-    $ nvim -Nu NONE +'set so=3 | 10sp | term' +'startinsert'
-    # press C-g C-g Esc
-    # insert some random characters
-
 ### The terminal doesn't support the bracketed paste mode!
 
 MWE:

@@ -147,7 +147,7 @@ Make sure the options `sec.crypt.*` are set correctly:
     /set sec.crypt.*
 
 Make sure  that your passphrase  is set, and that  you can decrypt  your secured
-password (by pressing M-v):
+password (by pressing `M-v`):
 
     /secure
 

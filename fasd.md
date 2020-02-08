@@ -600,7 +600,7 @@ Move to an ancestor directory, and press `M-j` (provided by fzf).
 The latter will let you fuzzy search all the directories below the cwd.
 
 ##
-## Which pitfall should I avoid when using fasd's word mode completion?
+## What's one pitfall of fasd's word mode completion?
 
 zsh's path completion may interfere if your query is not specific enough.
 

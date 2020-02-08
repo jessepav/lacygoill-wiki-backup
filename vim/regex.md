@@ -1129,7 +1129,7 @@ The regex will be affected by the buffer-local values of some options:
 
 Which may have unexpected results.
 
-## Which pitfall I should be aware of when using the complement of a bracket expression?
+## What's one pitfall of using the complement of a bracket expression?
 
 Is your complement preceded by an atom followed by a quantifier?
 If so, make sure your bracket expression includes this atom, or use `\@>` on the

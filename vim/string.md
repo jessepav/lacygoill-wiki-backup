@@ -81,7 +81,7 @@ Whether you use  the number when you  define the dictionary, or when  you try to
 access some of its value, Vim will coerce it into a string.
 
 ##
-## Which pitfall should I avoid when relying on Vim's builtin coercion of strings into numbers?
+## What's one pitfall of Vim's builtin coercion of strings into numbers?
 
 If the  number inside the  string begins  with `0`, and  if its digits  don't go
 beyond `7`, it will be interpreted as octal.
@@ -707,7 +707,26 @@ It can be used to allow or prevent Vim from printing any message:
     ∅~
 
 ##
-## How to make it execute several commands, without any bar?
+## In which context is `execute()` run?
+
+The current one.
+
+### What does it entail?
+
+`execute()` can access variables in the current scope:
+
+    :call execute('let var = 12') | echo g:var
+    12~
+
+    fu Func()
+        call execute('let var = 34')
+        echo var
+    endfu
+    call Func()
+    34~
+
+##
+## How to make `execute()` execute several commands, without any bar?
 
 Pass it a list of commands:
 
@@ -717,10 +736,14 @@ Pass it a list of commands:
 
     echo execute(['echo "foo"', 'echo "bar"'])
 
-###
 ## How to eliminate the newline at the beginning of `execute('ls')`?
 
     echo execute('ls')[1:]
+
+##
+## To which other function can everything documented in this section also apply?
+
+`win_execute()`
 
 ##
 # Time

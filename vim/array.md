@@ -624,6 +624,33 @@ but references.
     echo Func(1, 2, 3)
     E742: Cannot change value of map() argument~
 
+#### I can't append a new item to a list argument with `+=`!
+
+    fu Func(list) abort
+        let a:list += [2]
+        echo a:list
+    endfu
+    call Func([1])
+    E46: Cannot change read-only variable "a:list"~
+
+Use `add()` instead of `+=`:
+
+    fu Func(list) abort
+        call add(a:list, 2)
+        echo a:list
+    endfu
+    call Func([1])
+    [1, 2]~
+
+Imo, `+=` should work just like `add()`...
+
+See `:h E742`:
+
+>     The a: scope and the variables in it cannot be changed, they are fixed.
+>     However, if a composite type is used, such as |List| or |Dictionary| , you can
+>     change their contents.  Thus you can pass a |List| to a function and have the
+>     function add an item to it.
+
 ###
 # Dictionaries
 ## What are the benefits of the syntax `dict['key']` over `dict.key`?

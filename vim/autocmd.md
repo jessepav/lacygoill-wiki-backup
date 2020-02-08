@@ -133,7 +133,7 @@ Finally,  it's harder  to avoid  conflicts between  script-local variables  than
 between function-local ones, simply because a script is usually much longer than
 a function.
 
-### Which pitfall should I be aware of, when using them?
+### What's one of their pitfalls?
 
 Suppose that:
 
@@ -455,6 +455,33 @@ timer, job, ...), or processed a message from a job.
 When invoking  a callback/processing  a message,  Vim is  busy again,  and right
 afterward it's idle again (so it's safe to run sth again and `SafeStateAgain` is
 fired).
+
+# What's one pitfall of listening to `TerminalOpen`?
+
+There is no guarantee that the current buffer is a terminal buffer:
+
+    $ vim -Nu NONE +"au TerminalOpen * echom 'buftype is: '..(&bt is# '' ? 'regular' : &bt)"
+    :call popup_create(term_start(&shell, #{hidden: 1}), {})
+    " press C-\ C-n
+    :mess
+    buftype is: regular~
+                ^^^^^^^
+                it's not 'terminal' as you may have expected initially
+
+This  is because,  in Vim,  it's possible  to create  a terminal  buffer without
+opening any window;  and when you do that, `TerminalOpen`  is fired, even though
+the current window does not display a buffer terminal.
+
+From `:h TerminalOpen`:
+
+>     This event is triggered even if the buffer is created without a window, with the
+>     ++hidden option.
+
+Solution: Listen to `TerminalWinOpen`.
+
+From `:h TerminalWinOpen`:
+
+>     This event is triggered only if the buffer is created with a window.
 
 ##
 ##

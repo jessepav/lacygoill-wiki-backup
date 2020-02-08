@@ -355,7 +355,7 @@ différentes, et donc d'avoir un bloc dont le bord droit est irrégulier.
 
 ##
 # Pitfalls
-## I want to append some text at the end of multiple lines.  Which pitfall should I avoid when using `v_b_A`?
+## I want to append some text at the end of multiple lines.  What's one pitfall of `v_b_A`?
 
 Be sure to reset `'wrap'`.
 Otherwise, the text may not always be added at the end of the lines.

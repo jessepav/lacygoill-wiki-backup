@@ -1308,9 +1308,16 @@ see the contents of the registers.
 
 If autocompletion breaks because of vim-peekaboo, try:
 
-        let g:peekaboo_ins_prefix = '<c-x>'
+    let g:peekaboo_ins_prefix = '<c-x>'
 
 <https://github.com/lifepillar/vim-mucomplete/issues/15>
+
+---
+
+Warning: <https://github.com/junegunn/vim-peekaboo/issues/32#issuecomment-117720067>
+
+It would be a good idea to re-implement the plugin using the popup window.
+The latter has – probably – fewer side-effects.
 
 ## phonetics
 
@@ -1781,6 +1788,13 @@ followed by an uppercase character ("camel case").
 Defines text objects to target text after the designated characters.
 
 <https://github.com/junegunn/vim-after-object> 93 sloc
+
+## tig-explorer.vim
+
+Vim plugin to use Tig as a git client.
+Seamless switching between vim and Tig with opening in the same buffer.
+
+<https://github.com/iberianpig/tig-explorer.vim> 248 sloc
 
 ## tiler
 

@@ -94,14 +94,6 @@ preference:
    - `{`/`}`
    - `<`/`>`
 
-### enabling auto-opening fold
-
-Tricky, because the  state of this feature  must be restored when  the window is
-closed, no matter how it's closed (`:q`, `q`, `SPC q`, ...).
-
-Update: now we use an auto-open fold feature  which is local to the buffer, so I
-think the previous comment is not relevant anymore...
-
 ##
 ## the buffer should be reloadable
 

@@ -157,13 +157,6 @@ Si le mot précédant  le curseur est plus court que  le match sélectionné, in
 un caractère supplémentaire pour s'en rapprocher.
 Si aucun match n'est sélectionné, `C-l` utilise le 1er match du menu.
 
----
-
-Try to get rid of `lg#window#has_neighbor()`.
-For the most part, you can get the same result with `winnr('hjkl')`.
-However, the optional argument is harder to emulate (I think you need to combine
-`win_execute()` with `winnr('hjkl')`).
-
 ## Voici qques raccourcis permettant d'entrer dans un mode de complétion:
 ### `C-n`, `C-p`
 
@@ -460,8 +453,6 @@ Or:
 
 Create a refactoring command?
 Make sure to use an eval string, and not a lambda (faster on big buffers).
-Update: Wait. The lambda  is called only  once, yes? So the overhead  should not
-make a significant difference...  Make some tests.
 
 ---
 

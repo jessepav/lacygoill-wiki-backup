@@ -894,7 +894,7 @@ provided by `-I`.
 Tmux replaces only the first occurrence of `%%` with the user input.
 OTOH, it replace *all* occurrences of `%1` with the user input.
 
-### Which pitfall should I avoid when combining the `-p` flag with another flag?
+### What's one pitfall of combining the `-p` flag with another flag?
 
 Make sure to write `-p` at the end.
 
@@ -966,7 +966,7 @@ command:
     $ tmux choose-buffer 'display -p test'
     $ tmux display-panes 'display -p test'
 
-## Which pitfall must I be aware of when I pass `-r` to `bind-key`?
+## What's one pitfall passing `-r` to `bind-key`?
 
 If the lhs matches the start of another key binding installed in a program which
 is sometimes run  in a tmux pane, there's  a risk for it to be  consumed by tmux

@@ -412,7 +412,7 @@ For more info, read `:h ftdetect`, and:
 <https://vi.stackexchange.com/a/14339/17449>
 
 ###
-### Which pitfall should I be aware of when using
+### What's one pitfall of
 #### `filetype.vim`?
 
 If you  intend to  use your plugin  as a  package, then it  seems you  can't use
