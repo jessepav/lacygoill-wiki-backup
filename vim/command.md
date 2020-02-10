@@ -691,24 +691,16 @@ The same is true for all the `:xdo` commands (e.g. `:argdo`, `:windo`, ...).
 
 ---
 
-> I would say this works as intended, since it's the same as with other
-> commands that loop over a list.  But the documentation should say:
+>     I would say this works as intended, since it's the same as with other
+>     commands that loop over a list.  But the documentation should say:
 
->         When going to the next entry fails execution stops.
+>             When going to the next entry fails execution stops.
 
-> This is so it doesn't get stuck in one position and loop forever.
-> If you use ":argdo s/xxx/yyy" you get as many failures as you have
-> arguments.
+>     This is so it doesn't get stuck in one position and loop forever.
+>     If you use ":argdo s/xxx/yyy" you get as many failures as you have
+>     arguments.
 
 Source: <https://github.com/vim/vim/issues/5102#issuecomment-545163473>
-
-## ?
-
-Two patches were proposed to make `:cdo` stop when `cmd` raises an error:
-<https://groups.google.com/d/msg/vim_dev/eQCTUtHZV6k/LA6Am9dhAQAJ>
-
-Test them.
-If they work, report it here: <https://github.com/vim/vim/issues/5102>
 
 ##
 # Issues

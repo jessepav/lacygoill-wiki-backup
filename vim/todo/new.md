@@ -19,10 +19,9 @@
    - `:h sign_unplace()`
    - `:h str2list()` + `:h list2str()`
    - `:h strptime()`
-   - `:h term_setansicolors()` + `:h term_getansicolors()` + `:h g:terminal_ansi_colors`
+   - `:h term_setansicolors()` + `:h term_getansicolors()`
    - `:h term_setsize()`
    - `:h win_splitmove()`
-   - `:h winlayout()`
 
 ---
 

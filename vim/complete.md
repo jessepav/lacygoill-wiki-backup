@@ -1,3 +1,8 @@
+# Where does `C-x C-f` look for matches in insert mode when no text precedes the cursor?
+
+The current working directory (as reported by `:pwd`).
+
+##
 # ?
 
 Did we use a timer or a one-shot autocmd in the past where it was not needed?
@@ -149,7 +154,7 @@ La prochaine fois qu'on tapera un caractère manuellement, le menu se fermera.
 
 ##
 # keybindings
-## Voici qques raccourcis permettant d'interagir avec le menu de complétion:
+## Voici qques raccourcis permettant d'interagir avec le pum
 
     C-l
 
@@ -182,15 +187,6 @@ Cherche  dans  tous  les  endroits  spécifiés  par  l'option  locale  au  buff
     ├────────┼─────────────────────────────────────────────────────────────────────────┤
     │ kspell │ dictionnaire de notre langue (seulement qd 'spell' est activée)         │
     └────────┴─────────────────────────────────────────────────────────────────────────┘
-
-### `C-x C-f`
-
-Complète  un nom  de fichier/dossier  en cherchant  dans le  dossier de  travail
-(:pwd).
-
-Si un chemin vers un dossier précède  le curseur, cherche dans ce dossier plutôt
-que dans le dossier de travail.
-On peut compléter tout un chemin en répétant ce chord.
 
 ### `C-x C-k`
 
@@ -409,8 +405,15 @@ command.
 Press `Up` and `Down` instead of `C-n` and `C-p`.
 
 ##
-# Todo
-## find a way to suppress the messages when we use the dictionary completion
+# Issues
+## A noisy message is logged every time I use dictionary completion!
+
+It's a known issue: <https://github.com/vim/vim/issues/3412#issuecomment-570905815>
+It could be fixed in the future.
+
+---
+
+MWE:
 
     $ vim -Nu NONE +'set dict=/usr/share/dict/words shm+=filmnrwxaoOstTWAIcqFS' +startinsert +'call feedkeys("simul")'
     " press C-x C-k
@@ -422,6 +425,8 @@ Press `Up` and `Down` instead of `C-n` and `C-p`.
 
 Same issue with the `C-n` (and `C-p`) completion.
 
+---
+
 Note that the reason  why you don't see the messages with  `-Nu NONE` is because
 `'showmode'` is set by default, but you reset it in your vimrc.
 And when `'showmode'` is set while `'shm'` includes the `c` flag, `-- INSERT --`
@@ -430,129 +435,63 @@ messages from `C-x C-k`.
 
 The actual messages depend on whether `'showmode'` is set and whether `'shm'` contains `c`.
 
-Update: It is a known issue: <https://github.com/vim/vim/issues/3412#issuecomment-570905815>
-It could be fixed in the future.
-
+##
+# Todo
 ## ?
 
-Try to avoid `:s`, prefer `setline()` and `substitute()`.
+    $ vim -o =(echo ruby) =(echo rubyinterp) +'setl dict=/usr/share/dict/words' +startinsert!
 
-    vim /keep[jp]/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
+You want to complete `ruby` into `rubyinterp` (which is displayed in the other window).
 
-Or:
+Press Tab to complete `ruby`.
+The pum suggests:
 
-    vim !s\([/:;@]\).\{-}\1!gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
-    Cfilter! -other_plugins -tmp
-    Cfilter! ^\s*\%(let\|call\|echo\|return\|if\|unlet!\=\|&&\)\s
+    Ruby /usr/share/dict/words
+    ruby /usr/share/dict/words
 
-Or:
+And the text has been changed to `Ruby`.
+Press `C-j`  to try another  completion command;  you don't get  any different
+results, and yo don't get `rubyinterp`.
 
-    vim !\C\%(\<s\|'.s\)\([/:@]\).\{-}\1.\{-}\1!gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
-    Cfilter! -tmp
-    Cfilter! -other_plugins
+Also,  press `C-q`  to quit  the  pum: `Ruby` stays  in the  buffer, it's  not
+replaced with the original text `ruby`.
 
-Create a refactoring command?
-Make sure to use an eval string, and not a lambda (faster on big buffers).
+It's because we include `longest` in `'cot'`, in `vim-completion`.
 
----
+MWE:
 
-I think that, as a benefit, you won't have to:
+    $ cat <<'EOF' >/tmp/dict
+    fooxxa
+    fooxxb
+    fooxxc
+    EOF
 
-   - use the `e` flag to avoid an error
-   - use the `silent` modifier to be silent
-   - use the `keepj keepp` modifiers to preserve mark/pattern
-   - worry about `'gd'`
+    $ vim -Nu NONE =(echo foo) +'setl cot+=longest dict=/tmp/dict' +'startinsert!'
+    " press C-x C-k to complete
+    " press C-e to cancel: `fooxx` is in the buffer, while originally only `foo` was in the buffer
 
-## ?
+Solution: Install a custom `C-q` mapping which restores the original text.
+Save the latter before the completion starts.
+Use your custom mapping in `vim-completion` instead of `C-e`.
 
-Replace `:silent!` with `:silent` whenever possible.
-There may be errors to fix which we are missing because they are silent.
+Issue: It's hard to save the original text.
+It's not stored in any `v:` variable.
+And even if you can save it, restoring it would probably break the dot command.
 
-Also,  if  you wonder  whether  a  plugin/(auto)command/function is  working  as
-expected, and  has no silent  errors, use  `:verbose` to increase  the verbosity
-level. Update: how does this work? `:15verb sil! garbage` does not echo anything...
+Update: I think it could be considered as a bug.
+Here is what `:h popupmenu-keys` says:
 
-When is it ok to use `silent!`?
-I think it's ok whenever you have to:
+>     CTRL-E    End completion, go back to what was there before selecting a
+>               match (what was typed **or longest common string**).
 
-   - source a file which may not exist
-   - list the items in a syntax group which may not exist
-   - jump to a mark which may not be set
-   - call a function or execute an Ex command which may not exist
-   - remove sth which may not exist (an autocmd, an augroup, a match, a mapping)
-     or can't be removed (a line in a non-modifiable buffer, an augroup still in use)
-
-   - use a pattern which may have no match in a search command (`/`, `]I`),
-     or inside a line specifier (`:/wont_find_this/y`)
-
-   - write a buffer which may not be writable
-     (not a real file, not modifiable, special type like terminal)
-
-   - run a sequence of commands, one of which may raise an error and prevent the rest to be processed
-     (e.g. `:norm`)
-
----
-
-What about `unlet!` → `unlet`?
-Or the reverse?
-
-## ?
-
-" 116 -
-"
-"     $ vim -o =(echo ruby) =(echo rubyinterp) +'setl dict=/usr/share/dict/words' +startinsert!
-"
-" You want to complete `ruby` into `rubyinterp` (which is displayed in the other window).
-"
-" Press Tab to complete `ruby`.
-" The pum suggests:
-"
-"     Ruby /usr/share/dict/words
-"     ruby /usr/share/dict/words
-"
-" And the text has been changed to `Ruby`.
-" Press `C-j`  to try another  completion command;  you don't get  any different
-" results, and yo don't get `rubyinterp`.
-"
-" Also,  press `C-q`  to quit  the  pum: `Ruby` stays  in the  buffer, it's  not
-" replaced with the original text `ruby`.
-"
-" It's because we include `longest` in `'cot'`, in `vim-completion`.
-"
-" MWE:
-"
-"     $ cat <<'EOF' >/tmp/dict
-"     fooxxa
-"     fooxxb
-"     fooxxc
-"     EOF
-"
-"     $ vim -Nu NONE =(echo foo) +'setl cot+=longest dict=/tmp/dict' +'startinsert!'
-"     " press C-x C-k to complete
-"     " press C-e to cancel: `fooxx` is in the buffer, while originally only `foo` was in the buffer
-"
-" Solution: Install a custom `C-q` mapping which restores the original text.
-" Save the latter before the completion starts.
-" Use your custom mapping in `vim-completion` instead of `C-e`.
-"
-" Issue: It's hard to save the original text.
-" It's not stored in any `v:` variable.
-" And even if you can save it, restoring it would probably break the dot command.
-"
-" Update: I think it could be considered as a bug.
-" Here is what `:h popupmenu-keys` says:
-"
-" > CTRL-E    End completion, go back to what was there before selecting a
-" >           match (what was typed **or longest common string**).
-"
-" I can see why `C-e` behaves like it does (see bold text).
-" And most of the time, it's probably desirable.
-" But  I still  think that  in some  cases  (when you  want to  try a  different
-" completion command next) the behavior is undesirable.
-" Try to ask for `C-e` to restore the original text.
-" Or for an option to do so.
-" Or for a function to give the original text.
-" I guess that the `inserted` item from `:h complete_info(` could help.
-" But not entirely (what if the case of the text has changed too?).
-" Also, whatever fix you implement, it would probably break the dot command.
+I can see why `C-e` behaves like it does (see bold text).
+And most of the time, it's probably desirable.
+But  I still  think  that  in some  cases  (when you  want  to  try a  different
+completion command next) the behavior is undesirable.
+Try to ask for `C-e` to restore the original text.
+Or for an option to do so.
+Or for a function to give the original text.
+I guess that the `inserted` item from `:h complete_info(` could help.
+But not entirely (what if the case of the text has changed too?).
+Also, whatever fix you implement, it would probably break the dot command.
 

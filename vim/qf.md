@@ -913,41 +913,41 @@ Useful after navigating in the file or other files.
     :cc 123
     :ll 123
 
-## What are the other six motions you can perform in a qfl?   How to perform them?
+## What are the other six custom motions we can perform in a qfl?
 
-    ┌─────────────────────────────────┬────────────────┬────────────────┐
-    │             purpose             │   Ex command   │ normal command │
-    ├─────────────────────────────────┼────────────────┼────────────────┤
-    │ previous entry                  │ cprevious      │ [q             │
-    │                                 │ lprevious      │ [l             │
-    ├─────────────────────────────────┼────────────────┼────────────────┤
-    │ next entry                      │ cnext          │ ]q             │
-    │                                 │ lnext          │ ]l             │
-    ├─────────────────────────────────┼────────────────┼────────────────┤
-    │ first entry                     │ cfirst         │ [Q             │
-    │                                 │ lfirst         │ [L             │
-    ├─────────────────────────────────┼────────────────┼────────────────┤
-    │ last entry                      │ clast          │ ]Q             │
-    │                                 │ llast          │ ]L             │
-    ├─────────────────────────────────┼────────────────┼────────────────┤
-    │ last entry in the previous file │ cpfile         │ [ C-q          │
-    │                                 │ lpfile         │ [ C-l          │
-    ├─────────────────────────────────┼────────────────┼────────────────┤
-    │ first entry in the next file    │ cnfile         │ ] C-q          │
-    │                                 │ lnfile         │ ] C-l          │
-    └─────────────────────────────────┴────────────────┴────────────────┘
+    ┌─────────────────────────────────┬────────────────┬──────────────┐
+    │             purpose             │ custom command │ Ex command   │
+    ├─────────────────────────────────┼────────────────┼──────────────┤
+    │ previous entry                  │ [q             │ cprevious    │
+    │                                 │ [l             │ lprevious    │
+    ├─────────────────────────────────┼────────────────┼──────────────┤
+    │ next entry                      │ ]q             │ cnext        │
+    │                                 │ ]l             │ lnext        │
+    ├─────────────────────────────────┼────────────────┼──────────────┤
+    │ first entry                     │ [Q             │ cfirst       │
+    │                                 │ [L             │ lfirst       │
+    ├─────────────────────────────────┼────────────────┼──────────────┤
+    │ last entry                      │ ]Q             │ clast        │
+    │                                 │ ]L             │ llast        │
+    ├─────────────────────────────────┼────────────────┼──────────────┤
+    │ last entry in the previous file │ [ C-q          │ cpfile       │
+    │                                 │ [ C-l          │ lpfile       │
+    ├─────────────────────────────────┼────────────────┼──────────────┤
+    │ first entry in the next file    │ ] C-q          │ cnfile       │
+    │                                 │ ] C-l          │ lnfile       │
+    └─────────────────────────────────┴────────────────┴──────────────┘
 
-## What are the two motions you can perform in the qf stack?   How to perform them?
+## What are the two motions we can perform in the qf stack?
 
-    ┌──────────┬────────────┬────────────────┐
-    │ purpose  │ Ex command │ normal command │
-    ├──────────┼────────────┼────────────────┤
-    │ previous │ colder     │ <q             │
-    │          │ lolder     │ <l             │
-    ├──────────┼────────────┼────────────────┤
-    │ next     │ cnewer     │ >q             │
-    │          │ lnewer     │ >l             │
-    └──────────┴────────────┴────────────────┘
+    ┌──────────┬────────────────┬────────────┐
+    │ purpose  │ custom command │ Ex command │
+    ├──────────┼────────────────┼────────────┤
+    │ previous │ <q             │ colder     │
+    │          │ <l             │ lolder     │
+    ├──────────┼────────────────┼────────────┤
+    │ next     │ >q             │ cnewer     │
+    │          │ >l             │ lnewer     │
+    └──────────┴────────────────┴────────────┘
 
 ## How to prevent Vim from jumping to the first entry, when I execute a command to populate the qfl?
 
@@ -983,6 +983,41 @@ Example:
 
     :make!
          ^
+
+##
+## How to jump to the next entry relative to the current cursor position?
+
+    :cafter
+    :lafter
+
+### Same thing but ignoring the entries on the current line?
+
+    :cbelow
+    :lbelow
+
+---
+
+These commands only consider the first entry on a line.
+So, if you execute sth like `:3cbelow`,  Vim doesn't jump to the 3rd entry after
+the cursor, but to the *first* entry  on the third *line* after the cursor where
+an entry can be found.
+
+### What happens when I run these commands while I'm on the last entry of the buffer?
+
+`E553` is raised.
+They don't jump to the next entry in the quickfix list.
+They are limited to the current buffer.
+
+##
+## How to jump to the previous entry relative to the current cursor position?
+
+    :cbefore
+    :lbefore
+
+### Same thing but ignoring the entries on the current line?
+
+    :cabove
+    :labove
 
 ##
 # Operate on the entries of a qfl
