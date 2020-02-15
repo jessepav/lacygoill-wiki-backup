@@ -707,7 +707,7 @@ base64 string nor `?`.
 The screen is saved with `$ tput smcup`, then restored with `$ tput rmcup`.
 
 Saving/restoring the screen  is not the primary purpose of  `smcup` and `rmcup`;
-it's just a – here useful – side-effect.
+it's just a – here useful – side effect.
 The purpose of these capabilities is to  make the terminal enter/leave a mode in
 which the programs can use the `cup` capability.
 

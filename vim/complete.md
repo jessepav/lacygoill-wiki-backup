@@ -430,7 +430,7 @@ Same issue with the `C-n` (and `C-p`) completion.
 Note that the reason  why you don't see the messages with  `-Nu NONE` is because
 `'showmode'` is set by default, but you reset it in your vimrc.
 And when `'showmode'` is set while `'shm'` includes the `c` flag, `-- INSERT --`
-is  displayed on  the  command-line  which has  the  side-effect  of hiding  the
+is  displayed on  the  command-line  which has  the  side effect  of hiding  the
 messages from `C-x C-k`.
 
 The actual messages depend on whether `'showmode'` is set and whether `'shm'` contains `c`.

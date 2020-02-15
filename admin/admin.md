@@ -50,72 +50,68 @@ Comment savoir quel serveur de clés utiliser ?
 `realpath` permet de  fournir le chemin absolu d'un dossier  ou un fichier, même
 si c'est un lien symbolique.
 
-        $ ln -s path/to path/destination
+    $ ln -s path/to path/destination
 
-        lns() {
-           # Usage: lns path/to path/destination
-           ln -sv $(realpath $1) $(realpath $2)
-        }
+    lns() {
+       # Usage: lns path/to path/destination
+       ln -sv $(realpath $1) $(realpath $2)
+    }
 
 ##
 ##
 ##
 # How to get the version of the distro I'm using?
 
-        $ cat /etc/issue
+    $ cat /etc/issue
 
 # How to get its codename?
 
-        $ lsb_release -sc
+    $ lsb_release -sc
 
 ##
 # How to rename the machine?
 
-        $ sudoedit /etc/hosts /etc/hostname
+    $ sudoedit /etc/hosts /etc/hostname
 
-        :argdo %s/old_name/new_name/gc | update
+    :argdo %s/old_name/new_name/gc | update
 
-        $ sudo systemctl reboot
+    $ sudo systemctl reboot
 
-For more info, see:
-
-        https://askubuntu.com/questions/9540/how-do-i-change-the-computer-name/9614
+For more info, see: <https://askubuntu.com/questions/9540/how-do-i-change-the-computer-name/9614>
 
 # How to reboot the machine?  How to turn it off?
 
-        $ shutdown -r
-        $ shutdown {-H|-P}
+    $ shutdown -r
+    $ shutdown {-H|-P}
 
 ##
 # How to list the groups installed on the system?
 
-        $ getent group
-          │
-          └ get entries from databases supported by the Name Service Switch libraries
+    $ getent group
+      │
+      └ get entries from databases supported by the Name Service Switch libraries
 
 ##
 # How to prepare a chroot environment?
 
-        $ sudo -i
-        $ cd /
-        $ mount -t ext4 /dev/sda1 /mnt
-        $ mount -t proc proc /mnt/proc
-        $ mount -t sysfs sys /mnt/sys
-        $ mount -o bind /dev /mnt/dev
-        $ chroot /mnt /bin/bash
+    $ sudo -i
+    $ cd /
+    $ mount -t ext4 /dev/sda1 /mnt
+    $ mount -t proc proc /mnt/proc
+    $ mount -t sysfs sys /mnt/sys
+    $ mount -o bind /dev /mnt/dev
+    $ chroot /mnt /bin/bash
 
-        # do your stuff
+    # do your stuff
 
-        $ exit
-        $ umount /mnt/{proc,sys,dev}
-        $ umount /mnt
+    $ exit
+    $ umount /mnt/{proc,sys,dev}
+    $ umount /mnt
 
 I tested it on a virtual machine, and it seemed to work.
 But this is a minimal procedure, you may need to execute more commands depending
 on what you want to do in the chroot environment.
-For more info, see:
-
-        https://superuser.com/a/111215/913143
+For more info, see: <https://superuser.com/a/111215/913143>
 
 ---
 
@@ -131,40 +127,40 @@ not have the same view of the filesystem.
 ##
 # How to get all the names of the kernel parameters?
 
-        $ sysctl -a
+    $ sysctl -a
 
 # How to get the names of the kernel parameters matching a regex?
 
-        $ sysctl -a -r 'regex'
+    $ sysctl -a -r 'regex'
 
 # How to get the path to a file in `/proc` where the value of the parameter `foo.bar.baz` is stored?
 
-        /proc/sys/foo/bar/baz
+    /proc/sys/foo/bar/baz
 
 Example:
 
-        $ sysctl -a -r 'max_dgram_qlen'
-        net.unix.max_dgram_qlen = 512~
+    $ sysctl -a -r 'max_dgram_qlen'
+    net.unix.max_dgram_qlen = 512~
 
-        $ cat /proc/sys/net/unix/max_dgram_qlen
-        512~
+    $ cat /proc/sys/net/unix/max_dgram_qlen
+    512~
 
 # Where are the kernel parameters configured?
 
-        /etc/sysctl.conf
-        /etc/sysctl.d/*
+    /etc/sysctl.conf
+    /etc/sysctl.d/*
 
 Note that `/etc/sysctl.d/99-sysctl.conf` is a symlink to `/etc/sysctl.conf`.
 
 # How to change a kernel parameter
 ## at run time?  (2)
 
-        $ sudo sysctl -w <parameter>=<value>
-        $ echo 'value' | sudo tee /proc/sys/path/to/parameter
+    $ sudo sysctl -w <parameter>=<value>
+    $ echo 'value' | sudo tee /proc/sys/path/to/parameter
 
 ## at boot time?
 
-        $ echo 'parameter=value' | sudo tee -a /etc/sysctl.conf
+    $ echo 'parameter=value' | sudo tee -a /etc/sysctl.conf
 
 ##
 # Grub
@@ -184,16 +180,16 @@ Then, execute `update-grub(8)`.
 
 Make sure these options are enabled in grub's config file:
 
-        # The default menu entry will be the one saved by 'GRUB_SAVEDEFAULT'.
-        GRUB_DEFAULT=saved
+    # The default menu entry will be the one saved by 'GRUB_SAVEDEFAULT'.
+    GRUB_DEFAULT=saved
 
-        # When an entry is  selected, save it as a new default  entry for use by
-        # future runs of GRUB.
-        GRUB_SAVEDEFAULT=true
+    # When an entry is  selected, save it as a new default  entry for use by
+    # future runs of GRUB.
+    GRUB_SAVEDEFAULT=true
 
 ## How to make grub's menu wait 2 seconds before automatically selecting an entry?
 
-        GRUB_TIMEOUT=2
+    GRUB_TIMEOUT=2
 
 ## How to remove the splash screen so that I can see the kernel messages when the system boots?
 
@@ -261,15 +257,15 @@ See `~/.icons/README.md`.
 
 ## How to have pretty icons (paper icons, flat-design)?
 
-        # go to https://snwh.org/paper/download
+    # go to https://snwh.org/paper/download
 
-        # dl the package `paper-icon-theme_XXX.deb`
+    # dl the package `paper-icon-theme_XXX.deb`
 
-        # install the package
-        $ sudo dpkg -i paper*.deb
+    # install the package
+    $ sudo dpkg -i paper*.deb
 
-        # optional; may be necessary to install missing dependencies
-        sudo apt-get install -f
+    # optional; may be necessary to install missing dependencies
+    sudo apt-get install -f
 
 ## How to have a pretty theme?
 
@@ -289,20 +285,20 @@ Alternatively, you can install it from a repo or grab a binary package from here
 
 ## Which GUI program can help me configure everything related to the appearance of XFCE (theme, icons, cursor...)?
 
-        $ lxappearance
+    $ lxappearance
 
 ## How to get borderless windows?
 
-        # Source: https://www.youtube.com/watch?v=U-2KPrzIwao
-        $ cd /usr/share/themes/Kokodi/
-        $ mkdir xfwm4_backup
-        $ mv xfwm4/* xfwm4_backup
-        $ cp xfwm4_backup/themerc xfwm4
+    # Source: https://www.youtube.com/watch?v=U-2KPrzIwao
+    $ cd /usr/share/themes/Kokodi/
+    $ mkdir xfwm4_backup
+    $ mv xfwm4/* xfwm4_backup
+    $ cp xfwm4_backup/themerc xfwm4
 
-        Settings
-          > Window Manager
-          > Style
-          > Select 'Kokodi'
+    Settings
+      > Window Manager
+      > Style
+      > Select 'Kokodi'
 
 ## How to import the config of xfce4-terminal from another machine (for the color palette)?
 

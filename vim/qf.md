@@ -1546,6 +1546,45 @@ there are some qf entries, sometimes, when jumping to a qfl entry, you end up in
 an unexpected  location, which  doesn't match the  pattern which  was originally
 used to populate the qfl.
 
+## Document that curly brackets in the file pattern of a `:vim` command break the expansion of environment variables.
+
+    " grep for 'pattern' in all conf or sh files under /etc
+    :vim /pat/ /etc/**/*.{conf,sh}
+                         ^       ^
+
+    " same thing, but fails to look into vimrc:
+    "     Cannot open file "$MYVIMRC"
+    :vim /pat/ /etc/**/*.{conf,sh} $MYVIMRC
+
+    " still fails
+    :vim /pat/ /etc/**/*.{conf,sh} `=getenv('MYVIMRC')`
+
+    " works
+    :vim /pat/ /etc/**/*.conf /etc/**/*.sh $MYVIMRC
+
+    " also works
+    :vim /pat/ /etc/**/*.{conf,sh} | vimgrepadd /pat/gj $MYVIMRC
+
+It makes sense.
+
+Once you start using regex-like metacharacters  (like `{` and `}`), Vim probably
+parses the whole file pattern in a regex-like way.
+And in a regex, environment variables are not expanded.
+
+    :vim /$TERM/ /tmp/file
+    E480: No match: $TERM~
+                    ^^^^^
+                    $TERM was not expanded
+
+IOW, in "regex-like mode", Vim has no way  to know in advance which parts of the
+file-pattern should  be parsed in  a regex-like way,  and which parts  should be
+parsed as environment variables:
+
+    :vim /pat/ $HOME/*{.sh,.txt}
+               ├───┘  ├────────┘
+               │      └ ... because this is parsed in a regex-like way, so everything is parsed similarly
+               └ can't be parsed as an environment variable...
+
 ## Document how `:cdo` can be used to repeat a macro on an arbitrary set of locations.
 
     /my pattern

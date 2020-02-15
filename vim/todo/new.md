@@ -27,7 +27,7 @@
 
 `:h  bufadd()` and  `:h  bufload()` are  useful  to  edit a  file  which is  not
 currently  loaded, with  `deletebufline()`,  `setbufline()`,  ... and  *without*
-side-effects (e.g. no window opened/closed which could alter the layout).
+side effects (e.g. no window opened/closed which could alter the layout).
 
     " buffer gets `u` flag in `:ls` output
     let bufnr = bufadd(expand('~/.shrc'))
@@ -130,7 +130,7 @@ You can't write that:
 
     :call expr->func()
 
-Where `func()` is  a function which mutates  `expr` or has a  side-effect on Vim
+Where `func()` is  a function which mutates  `expr` or has a  side effect on Vim
 (option, buffer, ...).
 
 You could write that:

@@ -169,7 +169,7 @@ See also: <http://tldp.org/HOWTO/Keyboard-and-Console-HOWTO-5.html>
 
 You could fix that at the OS level, by using `loadkeys` in the console and `xkb`
 in Xorg; but I'm not sure it's worth it, and I don't know whether there would be
-undesired side-effects.
+undesired side effects.
 
 Btw, for the console, you would have to write in `~/.config/keyboard/vc.conf`:
 

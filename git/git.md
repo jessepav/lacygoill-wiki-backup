@@ -17,9 +17,9 @@ change.
 
 # How to get a url selecting a range of lines in a file hosted on GitHub?
 
-        1. open your file in Vim
-        2. visually select the lines
-        3. run `:Gbrowse!`
+   1. open your file in Vim
+   2. visually select the lines
+   3. run `:Gbrowse!`
 
 The url should now be in your system clipboard (and printed on the command-line).
 
@@ -77,10 +77,10 @@ No, it's relative to the location of the `.gitignore` file.
 ##
 ### How to exclude all the files under `abc/`?
 
-        abc/
-           ^
-           tells Git that we only want to exlude a directory `abc/`,
-           not files or symlinks `abc`
+    abc/
+       ^
+       tells Git that we only want to exlude a directory `abc/`,
+       not files or symlinks `abc`
 
 ### Which wildcards can a pattern contain?
 
@@ -113,7 +113,7 @@ it's relative to the location of `.gitignore`).
 
 ### How to match `a/b`, `a/x/b`, `a/x/y/b`, ...?
 
-        a/**/b
+    a/**/b
 
 ###
 ### How to re-include a file which has been excluded by a previous pattern?
@@ -136,9 +136,9 @@ If one of its parent directory is excluded.
 
 Quote the special character with a backslash:
 
-        \#pat
-        pat\ 
-        \!pat
+    \#pat
+    pat\ 
+    \!pat
 
 ##
 ## Can I ignore already tracked files?
@@ -147,7 +147,7 @@ No.
 
 ## How to stop tracking a file that is currently tracked?
 
-        $ git rm --cached <file>
+    $ git rm --cached <file>
 
 FIXME: Are you sure?
 https://stackoverflow.com/a/6919257/9780968
@@ -169,11 +169,11 @@ behavior can be overridden with the `-f` option.
 When `--cached` is given, the staged content  has to match either the tip of the
 branch or the file on disk, allowing the file to be removed from just the index.
 
-        -f, --force
+    -f, --force
 
 Override the up-to-date check.
 
-        --cached
+    --cached
 
 Use this option to unstage and remove paths only from the index.
 Working tree files, whether modified or not, will be left alone.
@@ -184,35 +184,35 @@ Effects of `$ git rm --cached <file>`:
 
 If the file was just added to the index:
 
-        A  file
-        ?? file~
+    A  file
+    ?? file~
 
 
 If the file was already committed:
 
-        D  file
-        ?? file
+    D  file
+    ?? file
 
 
 If the file was just modified:
 
-       M  file
-         or
-        M file
-       D  file~
-       ?? file~
+    M  file
+      or
+     M file
+    D  file~
+    ?? file~
 
 
 If the file was modified and staged, then modified again:
 
-       MM file
-       D  file~
-       ?? file~
+    MM file
+    D  file~
+    ?? file~
 
 
 Note that in this case you need the `-f` argument:
 
-        $ git rm --cached -f file
+    $ git rm --cached -f file
 
 To avoid:
 
@@ -222,33 +222,33 @@ To avoid:
 
 Study the effect of these commands:
 
-        $ git rm file
-        $ git rm -f file
-        $ git rm --cached file
+    $ git rm file
+    $ git rm -f file
+    $ git rm --cached file
 
 File can be:
 
-        1. ∅∅
-        2. A
-        3.  M
-        4. M
-        5. MM
+   1. ∅∅
+   2. A
+   3.  M
+   4. M
+   5. MM
 
 ---
 
 Removing the file from the index means one of two things:
 
-        - if `$ git status -s` prints:
+   - if `$ git status -s` prints:
 
-                A  file
+           A  file
 
-        it disappears from the index
+    it disappears from the index
 
-        - otherwise, `$ git status -s` prints:
+   - otherwise, `$ git status -s` prints:
 
-                D  file
+           D  file
 
-          The file will be removed from the repo in the next commit.
+     The file will be removed from the repo in the next commit.
 
 ---
 
@@ -257,10 +257,10 @@ from the repo.
 
 It works only if the file has NOT been modified compared to:
 
-        - the version from the tip of the branch (last commit of current branch)
+   - the version from the tip of the branch (last commit of current branch)
 
-        - the version from the index
-          (you can ignore this condition if the file is not staged)
+   - the version from the index
+     (you can ignore this condition if the file is not staged)
 
 ---
 
@@ -275,7 +275,7 @@ untracked.
 Exception:
 If `$ git status -s` reports:
 
-                MM file
+    MM file
 
 the command fails.
 
@@ -286,112 +286,112 @@ changes it contains definitively.
 There's no copy anywhere.
 In contrast, when `$ git status -s` reports one of:
 
-                 M file
-                M  file
+     M file
+    M  file
 
 There's always a copy of the changes (in the version of the working tree).
 
 ### 1.
 
-        1. ∅∅
+    1. ∅∅
 
-        $ touch abc
-        $ git add abc
-        $ git commit -m 'msg'
-        $ git rm [-f] abc
-        'abc' is removed from the working tree and deleted from the index~
-        (i.e. it will be removed from the repo in the next commit)~
+    $ touch abc
+    $ git add abc
+    $ git commit -m 'msg'
+    $ git rm [-f] abc
+    'abc' is removed from the working tree and deleted from the index~
+    (i.e. it will be removed from the repo in the next commit)~
 
-        $ git rm --cached abc
-        D  abc~
-        ?? abc~
+    $ git rm --cached abc
+    D  abc~
+    ?? abc~
 
-            the current version of 'abc' becomes untracked
-            the version in the repo is removed from the index
+        the current version of 'abc' becomes untracked
+        the version in the repo is removed from the index
 
 ### 2.
 
-        2. A
+    2. A
 
-        $ touch abc
-        $ git add abc
-        $ git rm abc
+    $ touch abc
+    $ git add abc
+    $ git rm abc
 
-            error: the following file has changes staged in the index:
-                abc
-            (use --cached to keep the file, or -f to force removal)
+        error: the following file has changes staged in the index:
+            abc
+        (use --cached to keep the file, or -f to force removal)
 
-        $ git rm -f abc
-        'abc' is removed from the working tree and from the index~
+    $ git rm -f abc
+    'abc' is removed from the working tree and from the index~
 
-        $ touch abc
-        $ git add abc
-        $ git rm --cached abc
-        'abc' is removed from the index (it's untracked)~
+    $ touch abc
+    $ git add abc
+    $ git rm --cached abc
+    'abc' is removed from the index (it's untracked)~
 
 ### 3.
 
-        3.  M
+    3.  M
 
-        $ touch abc
-        $ git add abc
-        $ git commit -m 'msg'
-        $ echo 'text' >>abc
-        $ git rm abc
+    $ touch abc
+    $ git add abc
+    $ git commit -m 'msg'
+    $ echo 'text' >>abc
+    $ git rm abc
 
-            error: the following file has local modifications:
-                abc
-            (use --cached to keep the file, or -f to force removal)
+        error: the following file has local modifications:
+            abc
+        (use --cached to keep the file, or -f to force removal)
 
-        $ git rm --cached abc
-        D  abc~
-        ?? abc~
+    $ git rm --cached abc
+    D  abc~
+    ?? abc~
 
-        $ git add abc
-        $ git rm -f abc
-        'abc' is removed from the working tree and from the index~
+    $ git add abc
+    $ git rm -f abc
+    'abc' is removed from the working tree and from the index~
 
 ### 4.
 
-        4. M
+    4. M
 
-        $ touch abc
-        $ git add abc
-        $ git commit -m 'msg'
-        $ echo 'text' >>abc
-        $ git add abc
-        $ git rm abc
-            error: the following file has changes staged in the index:
-                abc
-            (use --cached to keep the file, or -f to force removal)
+    $ touch abc
+    $ git add abc
+    $ git commit -m 'msg'
+    $ echo 'text' >>abc
+    $ git add abc
+    $ git rm abc
+        error: the following file has changes staged in the index:
+            abc
+        (use --cached to keep the file, or -f to force removal)
 
-        $ git rm --cached abc
-        D  abc~
-        ?? abc~
+    $ git rm --cached abc
+    D  abc~
+    ?? abc~
 
-        $ git add abc
-        $ git rm -f abc
-        'abc' is removed from the working tree and from the index~
+    $ git add abc
+    $ git rm -f abc
+    'abc' is removed from the working tree and from the index~
 
 ### 5.
 
-        5. MM
+    5. MM
 
-        $ touch abc
-        $ git add abc
-        $ git commit -m 'msg'
-        $ echo 'text' >>abc
-        $ git add abc
-        $ echo 'text' >>abc
-        $ git rm abc
+    $ touch abc
+    $ git add abc
+    $ git commit -m 'msg'
+    $ echo 'text' >>abc
+    $ git add abc
+    $ echo 'text' >>abc
+    $ git rm abc
 
-            error: the following file has staged content different from both the
-            file and the HEAD:
-                abc
-            (use -f to force removal)
+        error: the following file has staged content different from both the
+        file and the HEAD:
+            abc
+        (use -f to force removal)
 
-        $ git rm -f abc
-        'abc' is removed from the working tree and from the index~
+    $ git rm -f abc
+    'abc' is removed from the working tree and from the index~
 
 ##
 ##
@@ -597,11 +597,11 @@ A file which is safely stored in `.git/`.
 ## How to get a list of all available
 ### subcommands?
 
-        $ git help -a
+    $ git help -a
 
 ### guides?
 
-        $ git help -g
+    $ git help -g
 
 ##
 ## How to get the manpage of a subcommand?  (2)
@@ -612,7 +612,7 @@ A file which is safely stored in `.git/`.
 
 ## How to get a usage message and the list of all available options of a subcommand?
 
-        $ git <subcommand> -h
+    $ git <subcommand> -h
 
 ###
 # Config
@@ -625,9 +625,9 @@ A file which is safely stored in `.git/`.
 
 Set `$GIT_DIR`, or use the `--git-dir` command-line option:
 
-        $ GIT_DIR=my_base git init
+    $ GIT_DIR=my_base git init
 
-        $ git --git-dir my_base init
+    $ git --git-dir my_base init
 
 ##
 ## An option name is a dot separated list of words.
@@ -649,93 +649,93 @@ The subsections.
 
 Everywhere, i.e. in the system, global and repository-local configuration files:
 
-        /etc/gitconfig
-        ~/.gitconfig  or  ~/.config/git/config
-        .git/config
+    /etc/gitconfig
+    ~/.gitconfig  or  ~/.config/git/config
+    .git/config
 
 ### to write an option?
 
 In the repository-local configuration file:
 
-        .git/config
+    .git/config
 
 ##
 ## How to specify which file(s) I want Git to open, when reading/writing an option?
 
 Use one of these options:
 
-        ┌──────────────────┬──────────────────────────────────────┐
-        │ option           │ read/write only from/into            │
-        ├──────────────────┼──────────────────────────────────────┤
-        │--system          │ /etc/gitconfig                       │
-        ├──────────────────┼──────────────────────────────────────┤
-        │--global          │ ~/.gitconfig or ~/.config/git/config │
-        ├──────────────────┼──────────────────────────────────────┤
-        │--local           │ .git/config                          │
-        ├──────────────────┼──────────────────────────────────────┤
-        │--file <filename> │ <filename>                           │
-        └──────────────────┴──────────────────────────────────────┘
+    ┌──────────────────┬──────────────────────────────────────┐
+    │ option           │ read/write only from/into            │
+    ├──────────────────┼──────────────────────────────────────┤
+    │--system          │ /etc/gitconfig                       │
+    ├──────────────────┼──────────────────────────────────────┤
+    │--global          │ ~/.gitconfig or ~/.config/git/config │
+    ├──────────────────┼──────────────────────────────────────┤
+    │--local           │ .git/config                          │
+    ├──────────────────┼──────────────────────────────────────┤
+    │--file <filename> │ <filename>                           │
+    └──────────────────┴──────────────────────────────────────┘
 
 ##
 ## Which file(s) does Git open when I run `$ git config [--system|--global|--local]`?
 
-        ┌──────────────────────┬─────────────────────────┐
-        │ command              │ opened file             │
-        ├──────────────────────┼─────────────────────────┤
-        │ git config --system  │ /etc/gitconfig          │
-        ├──────────────────────┼─────────────────────────┤
-        │ git config --global  │    ~/.gitconfig         │
-        │                      │ or ~/.config/git/config │
-        ├──────────────────────┼─────────────────────────┤
-        │ git config [--local] │ .git/config             │
-        └──────────────────────┴─────────────────────────┘
+    ┌──────────────────────┬─────────────────────────┐
+    │ command              │ opened file             │
+    ├──────────────────────┼─────────────────────────┤
+    │ git config --system  │ /etc/gitconfig          │
+    ├──────────────────────┼─────────────────────────┤
+    │ git config --global  │    ~/.gitconfig         │
+    │                      │ or ~/.config/git/config │
+    ├──────────────────────┼─────────────────────────┤
+    │ git config [--local] │ .git/config             │
+    └──────────────────────┴─────────────────────────┘
 
 ### In case of conflict, which one has the priority?
 
 The more specific the option is, the more priority it has.
 
-        1. /etc/gitconfig          |
-                                   |
-        2. ~/.config/git/config    | more priority
-                                   |
-        3. .git/config             v
+   1. /etc/gitconfig          |
+                              |
+   2. ~/.config/git/config    | more priority
+                              |
+   3. .git/config             v
 
 ##
 ## Reading options
 ### How to read the value given to the option `user.name`
 #### for the current repo?
 
-        $ git config [--local] user.name
-                     ├───────┘
-                     └ optional because even if Git will look in all the configuration files,
-                       it will only print the last value it finds,
-                       which will be in `.git/config` if you're in a git repo
+    $ git config [--local] user.name
+                 ├───────┘
+                 └ optional because even if Git will look in all the configuration files,
+                   it will only print the last value it finds,
+                   which will be in `.git/config` if you're in a git repo
 
 #### for all my repos?
 
-        $ git config --global user.name
+    $ git config --global user.name
 
 #### for all the users on the system?
 
-        $ git config --system user.name
+    $ git config --system user.name
 
 #### for any scope?
 
-        $ git config --get-all user.name
-                     ^^^^^^^^^
+    $ git config --get-all user.name
+                 ^^^^^^^^^
 
 ####
 ### How to read
 #### the file from which the option `user.name` received its value?
 
-        $ git config [--global|--system] --show-origin user.name
-                                           │
-                                           └ requires at least Git version 2.8.0
+    $ git config [--global|--system] --show-origin user.name
+                                       │
+                                       └ requires at least Git version 2.8.0
 
 ####
 #### all my options local to the current repo?
 
-        $ git config --local --list
+    $ git config --local --list
 
 Here, `--local` is not optional.
 If you  omit it, Git  will list all options  regardless of their  scope (system,
@@ -743,15 +743,15 @@ global, local).
 
 #### all my options global to all my repos?
 
-        $ git config --global --list
+    $ git config --global --list
 
 #### all the system options?
 
-        $ git config --system --list
+    $ git config --system --list
 
 #### all the options which have been changed thus far?
 
-        $ git config --list
+    $ git config --list
 
 ##
 #### Why can I see several identical options with different values?
@@ -767,8 +767,8 @@ The last one.
 ## Writing options
 ### How to set my user name and my email address?
 
-        $ git config --global user.name  'John Doe'
-        $ git config --global user.email 'johndoe@example.com'
+    $ git config --global user.name  'John Doe'
+    $ git config --global user.email 'johndoe@example.com'
 
 If you want to override this with a different name or email address for specific
 projects, you can  run the command without the `--global`  option when you're in
@@ -784,7 +784,7 @@ It's not used to automatically give your credentials when pushing a commit.
 ###
 ### How to set my default editor?
 
-        $ git config --global core.editor vim
+    $ git config --global core.editor vim
 
 #### How will this information be used?
 
@@ -800,11 +800,11 @@ Git will use `$EDITOR`.
 
 Quote it:
 
-        $ git config user.name 'John Doe'
+    $ git config user.name 'John Doe'
 
 OTOH, there's no need to, if the value doesn't contain any whitespace:
 
-        $ git config user.name John_Doe
+    $ git config user.name John_Doe
 
 ### What happens if I execute `$ git config user.name John` outside a git repo?
 
@@ -833,18 +833,18 @@ A pattern is applied recursively throughout the entire working directory.
 
 Prefix `tags` with a slash:
 
-        /tags
+    /tags
 
 ### How to ignore any directory named `tags/`?
 
 Append `tags` with a slash:
 
-        tags/
+    tags/
 
 ### How to ignore any file named `tags`?
 
-        tags
-        !tags/
+    tags
+    !tags/
 
 The first pattern  makes Git ignore any file  named tags (✔), and any  file in a
 directory named tags (✘).
@@ -870,7 +870,7 @@ No.
 # Usage
 ## How to clone the repo at `<url>` inside the directory `dir/`?
 
-        $ git clone <url> dir
+    $ git clone <url> dir
 
 This has nothing to do with the `-C` option.
 `-C dir` tells  Git to temporarily change the shell  working directory to `dir/`
@@ -885,11 +885,11 @@ repo.
 ##
 ## How to stage all the files under a directory?
 
-        $ git add <dir>
+    $ git add <dir>
 
 That's why this command works:
 
-        $ git add .
+    $ git add .
 
 ##
 ## I've staged a file (version A), then modified it (B), and finally committed it.  Which version has been committed?
@@ -902,7 +902,7 @@ Because it's the one at the time you ran `$ git add`.
 
 Re-add the file to the index:
 
-        $ git add file
+    $ git add file
 
 The new version B will overwrite the existing version A inside the index.
 
@@ -912,8 +912,8 @@ The new version B will overwrite the existing version A inside the index.
 
 The status of files in:
 
-        - the index
-        - the working directory
+   - the index
+   - the working directory
 
 ### What does it mean to read a
 #### `M` in the left column?
@@ -933,14 +933,14 @@ modified version of the file which is NOT in the index (UNstaged).
 
 So, you probably did sth like:
 
-        # edit file which creates version A
-        $ vim file
+    # edit file which creates version A
+    $ vim file
 
-        # stage version A
-        $ git add file
+    # stage version A
+    $ git add file
 
-        # edit file which creates version B
-        $ vim file
+    # edit file which creates version B
+    $ vim file
 
 The first `M` is for version A, the second one for version B.
 
@@ -968,20 +968,20 @@ The file is untracked.
 ##
 # ?
 
-        $ git config --global core.excludesfile  ~/.cvsignore
-        $ git config --global merge.tool         vimdiff
+    $ git config --global core.excludesfile  ~/.cvsignore
+    $ git config --global merge.tool         vimdiff
 
 Configuration post-installation de Git.
 
 Définition du:
 
-        - fichiers à ignorer dans tous les repos (utile pour les fichiers tags)
-        - programme à invoquer qd on exécute `git mergetool`
+   - fichiers à ignorer dans tous les repos (utile pour les fichiers tags)
+   - programme à invoquer qd on exécute `git mergetool`
 
 ---
 
-        credential.helper cache
-        credential.helper 'cache --timeout=3600'
+    credential.helper cache
+    credential.helper 'cache --timeout=3600'
 
 Active la  mise en cache du  pseudo et du mdp  pendant 15 minutes (défaut)  ou 1
 heure (custom).
@@ -989,7 +989,7 @@ Utile pour ne pas avoir à redonner son mdp pour chaque commit.
 
 ---
 
-        commit.template    ~/.config/git/message.txt
+    commit.template    ~/.config/git/message.txt
 
 Template de message pour les commits.
 
@@ -998,7 +998,7 @@ Avec   la   valeur   utilisée   ici,   le  template   doit   être   écrit   d
 
 ---
 
-        help.autocorrect 10
+    help.autocorrect 10
 
 Qd  on fait  une  erreur de  typo  en tapant  une commande,  Git  fait tjrs  une
 auto-correction.
@@ -1009,25 +1009,25 @@ La valeur est un entier correspondant à une durée en dizièmes de seconde.
 
 ---
 
-        user.signingkey <gpg-key-id>
+    user.signingkey <gpg-key-id>
 
 ID de la clé GPG à utiliser pour signer un tag. Facilite la signature d'un tag:
 
-        git tag -s <tag-name>
+    git tag -s <tag-name>
 
 Plus besoin de spécifier l'id via `-u <keyid>`.
 
 ---
 
-        core.excludesfile    ~/.cvsignore
+    core.excludesfile    ~/.cvsignore
 
 Définit `~/.cvsignore` comme étant une sorte de fichier `.gitignore` global.
 
 Tous les patterns qu'il contient seront ignorés quel que soit le repo.
 
-        - *~           emacs
-        - .*.swp       vim
-        - .DS_Store    Mac OS X
+   - *~           emacs
+   - .*.swp       vim
+   - .DS_Store    Mac OS X
 
 Git  ne considèrera  jamais un  fichier dont  le nom  correspond à  l'un de  ces
 patterns,  comme non  suivi (untracked),  et ne  tentera jamais  de l'ajouter  à
@@ -1035,15 +1035,15 @@ l'index si on exécute `git add` sur lui.
 
 ---
 
-        $ cat <<'EOF' >.cvsignore
-        *.[oa]          # pas de fichier portant l'extension `.o` ou `.a`
-        !lib.a          # n'ignore pas les fichiers `lib.a`, malgré la précédente règle
+    $ cat <<'EOF' >.cvsignore
+    *.[oa]          # pas de fichier portant l'extension `.o` ou `.a`
+    !lib.a          # n'ignore pas les fichiers `lib.a`, malgré la précédente règle
 
-        /TODO           # pas de fichier TODO à la RACINE du dossier courant (n'ignore pas subdir/TODO)
-        build/          # "              du dossier `build/`
-        doc/*.txt       # "              portant l'extension `txt` à la racine d'un dossier `doc/`
-        doc/**/*.pdf    # "                                  `pdf` n'importe où sous un dossier `doc/`
-        EOF
+    /TODO           # pas de fichier TODO à la RACINE du dossier courant (n'ignore pas subdir/TODO)
+    build/          # "              du dossier `build/`
+    doc/*.txt       # "              portant l'extension `txt` à la racine d'un dossier `doc/`
+    doc/**/*.pdf    # "                                  `pdf` n'importe où sous un dossier `doc/`
+    EOF
 
 Exemple de contenu d'un fichier `.cvsignore`.
 Chaque repo peut disposer d'un fichier de ce type.
@@ -1057,37 +1057,37 @@ voir au sein du repo.
 
 À l'intérieur des patterns, on peut utiliser les métacaractères suivant:
 
-        - !        ne pas ignorer le pattern qui suit, même si une règle précédente l'exige
+   - !        ne pas ignorer le pattern qui suit, même si une règle précédente l'exige
 
-        - *        n'importe quelle suite de caractères
+   - *        n'importe quelle suite de caractères
 
-        - **       n'importe quelle arborescence de dossiers ; ex:
+   - **       n'importe quelle arborescence de dossiers ; ex:
 
-                       a/**/z  matchera  a/z, a/b/z, a/b/c/z, ...
+                  a/**/z  matchera  a/z, a/b/z, a/b/c/z, ...
 
-        - ?        n'importe quel caractère
+   - ?        n'importe quel caractère
 
-        - [abc]    collection de caractères (ici, a, b, ou c)
+   - [abc]    collection de caractères (ici, a, b, ou c)
 
-        - [0-9]    rangée de caractères (ici, chiffre de 0 à 9)
+   - [0-9]    rangée de caractères (ici, chiffre de 0 à 9)
 
-        - /        en début de pattern: oblige ce dernier à être matché à la RACINE
-                                        du dossier courant
-                   en fin   de pattern: traite ce dernier comme un dossier, dont le CONTENU
-                                        doit être ignoré
+   - /        en début de pattern: oblige ce dernier à être matché à la RACINE
+                                   du dossier courant
+              en fin   de pattern: traite ce dernier comme un dossier, dont le CONTENU
+                                   doit être ignoré
 
 ---
 
 To read:
 
-        https://augustl.com/blog/2009/global_gitignores/
-        https://help.github.com/articles/ignoring-files/#create-a-global-gitignore
+- <https://augustl.com/blog/2009/global_gitignores/>
+- <https://help.github.com/articles/ignoring-files/#create-a-global-gitignore>
 
 ##
 # Script
 ## How to prevent Git from waiting for my credential when I call it from a script to push a commit?
 
-        export GIT_TERMINAL_PROMPT=0
+    export GIT_TERMINAL_PROMPT=0
 
 If this environment  variable is set to  0, git will not prompt  on the terminal
 (e.g., when asking for HTTP authentication).
@@ -1097,14 +1097,14 @@ If this environment  variable is set to  0, git will not prompt  on the terminal
 ##
 # How to version control my config files?
 
-        $ git init --bare $HOME/.cfg
-        $ alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
-        $ config config --local status.showUntrackedFiles no
-        $ config status
-        $ config add ~/.vim/vimrc
-        $ config commit -m 'add vimrc'
-        $ config remote add origin https://github.com/lacygoill/config.git
-        $ config push -u origin master
+    $ git init --bare $HOME/.cfg
+    $ alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+    $ config config --local status.showUntrackedFiles no
+    $ config status
+    $ config add ~/.vim/vimrc
+    $ config commit -m 'add vimrc'
+    $ config remote add origin https://github.com/lacygoill/config.git
+    $ config push -u origin master
 
 Source:
 
@@ -1262,15 +1262,15 @@ this time, `$ git log` is invoked no matter what.
 
 ---
 
-        $ git blame -L 12,34 file
+    $ git blame -L 12,34 file
 
 Annote les lignes 12 à 34 de `file` avec les infos suivantes:
 
-        - le sha1 partiel du dernier commit l'ayant modifiée
+   - le sha1 partiel du dernier commit l'ayant modifiée
 
-        - qui l'a écrite
+   - qui l'a écrite
 
-        - quand
+   - quand
 
 L'option `-L` est facultative.
 Sans elle, on obtient la même sortie que `:Gblame`.
@@ -1280,21 +1280,20 @@ changée depuis le commit ayant inclut le fichier.
 
 Exemple d'annotation:
 
-        ┌ sha1 partiel
-        │         ┌ auteur
-        │         │         ┌ date
-        │         │         │
-        b66520f2 (lacygoill 2017-07-05 22) " some comment
-                                       │   │
-                                       │   └ contenu
-                                       └ n° de ligne
+    ┌ sha1 partiel
+    │         ┌ auteur
+    │         │         ┌ date
+    │         │         │
+    b66520f2 (lacygoill 2017-07-05 22) " some comment
+                                   │   │
+                                   │   └ contenu
+                                   └ n° de ligne
 
-        ^bfeb373 (lacygoill 2017-02-16 23) "
-        │
-        └ la ligne est là depuis le début
+    ^bfeb373 (lacygoill 2017-02-16 23) "
+    │
+    └ la ligne est là depuis le début
 
-
-                         NOTE:
+---
 
 La  recherche par  dichotomie et  l'annotation  de fichier  sont des  techniques
 complémentaires pour  trouver l'origine  d'un problème: la  1e permet  permet de
@@ -1319,31 +1318,31 @@ Càd le commit où on a déplacé la ligne de `fileA` vers `fileB`.
 On peut répéter `-C` 2 à 3 fois pour que git cherche l'origine d'un snippet dans
 davantage de fichiers:
 
-        -CC     les fichiers présents dans le commit ayant créé `fileB`
-                pas juste ceux qui ont été modifiés
+    -CC     les fichiers présents dans le commit ayant créé `fileB`
+            pas juste ceux qui ont été modifiés
 
-        -CCC    les fichiers présents dans n'importe quel commit
+    -CCC    les fichiers présents dans n'importe quel commit
 
 Exemple d'annotation via `git blame -C`:
 
-        f344f58d fileA (Scott 2009-01-04 12)
-        f344f58d fileA (Scott 2009-01-04 13) - (void) gatherObjectShasFromC
-        f344f58d fileA (Scott 2009-01-04 14) {
-        70befddd fileA (Scott 2009-03-22 15)         //NSLog(@"GATHER COMMI
-        ad11ac80 fileB (Scott 2009-03-24 16)
-        ad11ac80 fileB (Scott 2009-03-24 17)         NSString *parentSha;
-        ad11ac80 fileB (Scott 2009-03-24 18)         GITCommit *commit = [g
-        ad11ac80 fileB (Scott 2009-03-24 19)
-        ad11ac80 fileB (Scott 2009-03-24 20)         //NSLog(@"GATHER COMMI
-        ad11ac80 fileB (Scott 2009-03-24 21)
-        56ef2caf fileA (Scott 2009-01-05 22)         if(commit) {
-        56ef2caf fileA (Scott 2009-01-05 23)                 [refDict setOb
-        56ef2caf fileA (Scott 2009-01-05 24)
+    f344f58d fileA (Scott 2009-01-04 12)
+    f344f58d fileA (Scott 2009-01-04 13) - (void) gatherObjectShasFromC
+    f344f58d fileA (Scott 2009-01-04 14) {
+    70befddd fileA (Scott 2009-03-22 15)         //NSLog(@"GATHER COMMI
+    ad11ac80 fileB (Scott 2009-03-24 16)
+    ad11ac80 fileB (Scott 2009-03-24 17)         NSString *parentSha;
+    ad11ac80 fileB (Scott 2009-03-24 18)         GITCommit *commit = [g
+    ad11ac80 fileB (Scott 2009-03-24 19)
+    ad11ac80 fileB (Scott 2009-03-24 20)         //NSLog(@"GATHER COMMI
+    ad11ac80 fileB (Scott 2009-03-24 21)
+    56ef2caf fileA (Scott 2009-01-05 22)         if(commit) {
+    56ef2caf fileA (Scott 2009-01-05 23)                 [refDict setOb
+    56ef2caf fileA (Scott 2009-01-05 24)
 
 ## divers
 
-        $ git add .
-        $ git add <file> [...]
+    $ git add .
+    $ git add <file> [...]
 
 Ajoute tout le contenu du dossier à l'index.
 
@@ -1352,8 +1351,9 @@ nouveau, ou juste indexé s'il était déjà tracké mais modifié.
 
 L'index est stocké dans le binaire `.git/index`.
 
+---
 
-        $ git branch
+    $ git branch
 
 Affiche le nom des branches existantes.
 La branche sur laquelle on travaille étant précédée d'un astérisque.
@@ -1364,9 +1364,10 @@ on crée une nouvelle branche (légère divergence de la base de code principale
 Si au bout  d'un moment on est  satisfait du résultat, on la  fusionnera avec la
 branche principale.
 
+---
 
-        $ git checkout <sha1>
-        $ git checkout -- <file> ...
+    $ git checkout <sha1>
+    $ git checkout -- <file> ...
 
 Se repositionner sur le commit d'empreinte <sha1> (retour dans le passé).
 
@@ -1384,7 +1385,9 @@ Annuler les modifications apportées à <file> ..., y compris une suppression.
     └──────────────────────────────┴────────────────────────────────────────────────────┘
 
 
-        $ git commit [-a] [-m "msg"]  commit ;
+---
+
+    $ git commit [-a] [-m "msg"]  commit ;
 
 L'option -m permet de lui associer un message.
 
@@ -1398,27 +1401,31 @@ L'option `-a`  indique à Git que  tout fichier du  dépôt qui a été  modifi�
 être réajouté à l'index, mais n'est  pas utilisable pour un tout nouveau fichier
 évite de devoir taper `git add` pour chacun.
 
+---
 
-        $ git config --get remote.origin.url
+    $ git config --get remote.origin.url
 
 Retourne l'url du dépôt central, stockée dans `.git/config`.
 
+---
 
-        $ git diff
-        $ git diff --cached
+    $ git diff
+    $ git diff --cached
 
 Affiche les différences entre le working tree et:
 
-        - le dernier commit
-        - l'index
+   - le dernier commit
+   - l'index
 
+---
 
-        $ git init
+    $ git init
 
 Transforme le dossier courant en dépôt Git (en créant un sous-dossier `.git/`).
 
+---
 
-        $ git log
+    $ git log
 
 Affiche tous les commits effectués sous la forme de plusieurs informations, dont
 le nom de l'auteur, la date, le message et le sha1 du commit.
@@ -1427,22 +1434,22 @@ Le log tient compte des repositionnements via la commande checkout.
 Autrement dit, un retour dans le passé implique que des commits disparaissent du
 log
 
+---
 
-        $ git log -S <STRING> --all --source -p | vipe
+    $ git log -S <STRING> --all --source -p | vipe
 
 Affiche le(s) commit(s) ayant ajouté ou supprimé la chaîne <STRING>.
 
-        --all       start from every branch
-        --source    show which branch lead to each commit found
-        -p          show the patch that each commit has introduced
+    --all       start from every branch
+    --source    show which branch lead to each commit found
+    -p          show the patch that each commit has introduced
 
 Si on cherche une regex plutôt qu'une chaîne, il faut remplacer le flag `-S` par
 `-G`.
 
 Source:    http://stackoverflow.com/a/5816177
 
-
-                                     NOTE:
+---
 
 Pour lire les commentaires de l'auteur  d'un commit sur github, chercher dans le
 buffer Vim le pattern `^commit`.
@@ -1456,19 +1463,22 @@ projet.
 
 Un résultat sera trouvé dans l'onglet ’Commits’ (et pas dans ’Code’).
 
+---
 
-        $ git ls-files {--stage | -s}
+    $ git ls-files {--stage | -s}
 
 Affiche les droits, le sha1 et les chemins vers les fichiers de l'index.
 
+---
 
-        $ git pull <repo> <branch>
+    $ git pull <repo> <branch>
 
 Récupère  les derniers  changements depuis  le  dépôt central  / upstream;  plus
 rapide qu'un clonage intégral et donc régulièrement répétable.
 
+---
 
-        $ git push [-u] <repo> <branch>
+    $ git push [-u] <repo> <branch>
 
 Envoie les changements sur la branche <branch> du dépôt <repo>.
 
@@ -1479,20 +1489,21 @@ défaut pour les prochains pull / push.
 
 Forme abrégée de `--set-upstream-to`.
 
+---
 
-        $ git reflog
+    $ git reflog
 
 Affiche tout ce qui est arrivé au dernier commit.
 
 Permet de récupérer l'id d'un commit  supprimé et de se repositionner dessus via
 un:
 
-        $ git reset --hard id
+    $ git reset --hard id
 
 
-        $ git remote add <fork> <url>
-        $ git fetch <fork>
-        $ git checkout -b <fork_branch> <fork>/<branch>
+    $ git remote add <fork> <url>
+    $ git fetch <fork>
+    $ git checkout -b <fork_branch> <fork>/<branch>
 
 Les 2  premières commandes importent  les branches  du dépôt dont  l'adresse est
 `<url>`, à l'intérieur du repo local.
@@ -1501,12 +1512,12 @@ Au passage, leur repo d'origine est nommé `<fork>`.
 
 La 3e  commande crée  la branche  `<fork_branch>` en  copiant `<fork>/<branch>`,
 c'est-à-dire la branche `<branch>` du repo distant, appelé localement `<fork>`.
+<http://stackoverflow.com/a/14383288>
 
-        http://stackoverflow.com/a/14383288
+---
 
-
-        $ git rev-parse HEAD
-        $ git reset --hard <sha1>
+    $ git rev-parse HEAD
+    $ git reset --hard <sha1>
 
 Affiche le sha1 du dernier commit.
 
@@ -1515,9 +1526,9 @@ par `<sha1>`.
 
 Les 2 commandes peuvent être combinées:
 
-        $ git reset --hard $(git rev-parse HEAD)
+    $ git reset --hard $(git rev-parse HEAD)
 
-        $ git reset --hard <sha1>
+    $ git reset --hard <sha1>
 
 Repositionne la  tête (le  dernier commit)  sur le  commit dont  l'empreinte est
 `<sha1>`.
@@ -1527,50 +1538,55 @@ Supprime tous les commits qui suivent.
 On peut se  contenter de taper uniquement les premiers  chiffres de l'empreinte,
 généralement les 4 premiers chiffres suffisent pour une identification.
 
+---
 
-        $ git reset --hard HEAD~1
+    $ git reset --hard HEAD~1
 
 Repositionne la  tête sur l'avant-dernier commit  (HEAD~2 = avant-avant-dernier,
 ...).
 
+---
 
-        $ git reset --hard HEAD
+    $ git reset --hard HEAD
 
 Repositionne la tête sur le dernier commit.
 
 N'efface  aucun commit,  mais  efface  tous les  changements  effectués dans  le
 dossier de travail et ds l'index depuis le dernier commit.
 
+---
 
-        $ git rev-parse --abbrev-ref HEAD
+    $ git rev-parse --abbrev-ref HEAD
 
 Affiche la branche locale courante/active.
 
+---
 
-        $ git show
-        $ git show --oneline
+    $ git show
+    $ git show --oneline
 
 Montre le commit sur lequel pointe `HEAD`.
 
 La 2e version  présente une version abrégée,  avec juste le sha1  partiel, et le
 titre du commit.
 
+---
 
-        $ git stash
-        $ git stash apply
+    $ git stash
+    $ git stash apply
 
 Cache / Réapplique les changements non-commits du cwd.
 
-
-                                     NOTE:
+---
 
 Qd on expérimente une branche, pour que les changements ne soient appliqués qu'à
 cette dernière, il faut obligatoirement les commit ou les cacher.
 
 Autrement, ils seront appliqués à toutes les branches.
 
+---
 
-        $ git status
+    $ git status
 
 Indique si on se  trouve ou non dans un dépôt Git, si  la branche de notre dépôt
 local est en avance  par rapport à celle du dépôt distant, et  si des fichiers /
@@ -1578,70 +1594,80 @@ dossiers sont untracked, ou staged mais pas committed.
 
 ##
 # Pull Request
+## How to create one?
 
-https://help.github.com/articles/using-pull-requests/
+   1. fork the project
 
-Pour créer une pull request (PR) :
+   2. clone the fork locally
 
-   1. sur github, forker le projet
+   3. create a topic branch (new branch with telling name):
 
-   2. sur sa machine, cloner le fork localement
+        $ git checkout -b my-branch
 
-   3. créer une nouvelle branche avec un nom adéquat : `git checkout -b my-branch` ;
-      ceci permettra de pousser automatiquement d'éventuels futurs commits par la suite
+      this makes it easier to push follow-up commits if you need to update your proposed changes
 
-   4. apporter les modifications souhaitées
+   4. edit files
 
-   5. commit les changements avec un message clair :
+   5. commit the changes with a telling message:
 
-          git add .
-          git commit -v
+        $ git add .
+        $ git commit -v
 
-   6. pousser vers son dépôt : `git push origin my-branch`
+   6. push the commit to the fork repo:
 
-   7. sur github, switcher sur la branche `my-branch`, et vérifier qu'on a bien un message du genre :
+        $ git push origin my-branch
 
-              This branch is 1 commit ahead of <project>:master
+   7. on github, switch to `my-branch`, and check this kind of message is displayed:
 
-   8. cliquer sur le bouton `Compare` (pas sur `Compare & pull request`)
+        This branch is 1 commit ahead of <project>:master
 
+   8. click on the `Compare` button (not on `Compare & pull request`)
 
-Par défaut, une pull  request est supposée cibler la branche  par défaut du repo
-parent (le repo qu'on a fork au début).
+On the top line, make sure the settings in dropdown menus are correct:
 
-Sur la ligne du haut, via des listes incluses dans des menus déroulants, on peut
-modifier le repo  et la branche de son  fork ainsi que le repo et  la branche du
-repo parent dont la PR dépend.
+    ┌─────────────────┬───────────────────────────────────────┐
+    │ base repository │ remote repo (e.g. `vim/vim`)          │
+    ├─────────────────┼───────────────────────────────────────┤
+    │ base            │ remote branch (e.g. `master`)         │
+    ├─────────────────┼───────────────────────────────────────┤
+    │ head repository │ fork repo (e.g. `lacygoill/vim`)      │
+    ├─────────────────┼───────────────────────────────────────┤
+    │ compare         │ branch on fork repo (e.g. `fix-typo`) │
+    └─────────────────┴───────────────────────────────────────┘
 
-        base fork   = repo cible de la PR
-        base        = branche cible de la PR
-        head fork   = repo d'origine des changements inclus dans la PR
-        compare     = branche d'origine des changements inclus dans la PR
+Below, make sure the files contain the changes you want your PR to include.
 
-En dessous  de cette ligne  s'affiche les fichiers  et les lignes  qui diffèrent
-entre son fork et le repo parent.
+   9. click on the `Create pull request` button
 
-        1. cliquer sur le bouton `Create pull request`
+   10. give a title to the PR (by default, it's the one of the commit)
 
-        2. donner un titre au message (par défaut c'est celui du commit qui s'affiche)
+   11. describe the PR in a message below the title
 
-        3. écrire un message décrivant la PR
+   12. click on the `Create pull request` button
 
-        4. cliquer sur le bouton `Create pull request`
+Once the PR has been sent, any new  commit which is pushed toward your branch on
+your fork will be automatically added to the PR.
 
-Une  fois la  PR envoyée,  tout nouveau  commit poussé  vers notre  branche sera
-automatiquement  ajouté  à  la  PR  ; pratique  si  de  nouvelles  modifications
-s'avèrent nécessaires.
+For more info, see: <https://help.github.com/articles/using-pull-requests/>
 
-Si le titre/message du commit contient une erreur, on peut la corriger via:
+### The title/message of my commit contains an error!  How to fix it?
 
-        $ git commit --amend
+    $ git commit --amend
 
-Corriger l'erreur dans son éditeur, puis, remplacer l'ancienne version du message
-par la nouvelle via:
+Fix the error in your editor, then:
 
-        $ git push --force origin my-branch
+    $ git push --force origin my-branch
 
+##
+## How to test an existing one?
+
+    $ git remote add upstream git://github.com/<original-dev-username>/<repo-you-forked-from>.git
+    $ git fetch upstream pull/<PR-id>/head:<PR-branch>
+    $ git checkout <PR-branch>
+
+For more info, see: <https://github.com/TeamPorcupine/ProjectPorcupine/wiki/How-to-Test-a-Pull-Request>
+
+##
 # Github
 
 Chaque projet peut être cloné via https ou ssh. Pour plus d'infos:
@@ -1709,12 +1735,13 @@ Procédure pour envoyer un projet existant vers un nouveau repo github.
 En cas de perte  du repo local, si on veut retravailler  sur une branche testing
 sur laquelle on était en train de travailler au cours d'une PR:
 
-        $ git clone url
+    $ git clone url
 
-        $ git checkout -b testing origin/testing
+    $ git checkout -b testing origin/testing
 
 Source: http://stackoverflow.com/a/72156
 
+---
 
     $ git rebase -i HEAD~2
     $ git push origin +master
@@ -1740,18 +1767,18 @@ Les _branches_ sont des pointeurs.
 
 Git utilise 3 types d'objets (blob, tree, commit), tous stockés dans:
 
-        .git/objects/<2 premiers caractères de leur sha1>
+    .git/objects/<2 premiers caractères de leur sha1>
 
 ... et ayant tous pour nom les 38 derniers caractères de leur sha1.
 
 En effet, le  sha1 sert de clé  pour retrouver n'importe quel  objet; ainsi Git
 identifie un fichier par son contenu et non pas par son nom.
 
-        $ git cat-file -t <sha1>
+    $ git cat-file -t <sha1>
 
 Affiche le type d'objet de l'objet dont l'empreinte est `<sha1>`.
 
-        $ git cat-file -p <sha1>
+    $ git cat-file -p <sha1>
 
 Affiche le contenu de l'objet dont l'empreinte est `<sha1>`.
 
@@ -1762,35 +1789,35 @@ Un  _tree_ est  la représentation  du contenu  d'un dossier  à un  instant don
 
 Chaque entrée correspond à un fichier / dossier et contient 4 infos :
 
-        - droits
-        - type (blob ou tree)
-        - chemin vers le fichier (ou dossier)
+   - droits
+   - type (blob ou tree)
+   - chemin vers le fichier (ou dossier)
 
-        - sha1 du fichier (ou du tree représentant le dossier dans le cas où le
-          chemin mène à un dossier) qui sert de pointeur
+   - sha1 du fichier (ou du tree représentant le dossier dans le cas où le
+     chemin mène à un dossier) qui sert de pointeur
 
 Un _commit_ est un fichier contenant un ensemble d'infos, dont les 5 suivantes:
 
-        - un message
-        - une date
-        - un auteur
+   - un message
+   - une date
+   - un auteur
 
-        - le sha1 du tree sur lequel le commit pointe (l'arborescence du
-          snapshot de fichiers qu'il représente)
+   - le sha1 du tree sur lequel le commit pointe (l'arborescence du
+     snapshot de fichiers qu'il représente)
 
-        - le sha1 du commit parent (celui qui précède dans l'historique)
+   - le sha1 du commit parent (celui qui précède dans l'historique)
 
 L'index (binaire `.git/index`) est un tree  spécial; il représente le contenu du
 prochain snapshot.
 Quand on fait un:
 
-        $ git add <file>
+    $ git add <file>
 
 ... Git ajoute à l'index une entrée contenant entre autres:
 
-        - les droits du fichier
-        - son chemin d'accès (pour savoir où le recréer si besoin)
-        - son sha1 (pour pouvoir le retrouver dans ses objets)
+   - les droits du fichier
+   - son chemin d'accès (pour savoir où le recréer si besoin)
+   - son sha1 (pour pouvoir le retrouver dans ses objets)
 
 Quand on fait un `git checkout`, Git met à jour l'index pour qu'il représente le
 contenu du nouveau working directory.
@@ -1842,14 +1869,14 @@ L'ensemble des commits constitue l'historique du projet.
 
 Pour Git, un fichier peut être dans 4 états :
 
-        - untracked    le fichier est nouveau     `git add` pour que le fichier soit tracké et indexé
-                                                  par la même occasion
+   - untracked    le fichier est nouveau     `git add` pour que le fichier soit tracké et indexé
+                                             par la même occasion
 
-        - unstaged     il n'est pas nouveau mais modifié et non indexé (`git add` pour que ça change)
+   - unstaged     il n'est pas nouveau mais modifié et non indexé (`git add` pour que ça change)
 
-        - staged       il est indexé mais pas commited (`git commit` ")
+   - staged       il est indexé mais pas commited (`git commit` ")
 
-        - unchanged    il est dans le dépôt et n'a pas changé depuis qu'il y est
+   - unchanged    il est dans le dépôt et n'a pas changé depuis qu'il y est
 
 Dans un projet Git, le workflow se  décompose en 3 étapes : modification d'un ou
 plusieurs  fichiers  / dossiers,  indexation  (staging)  de certaines  nouvelles
@@ -1889,12 +1916,13 @@ Un nœud du DAG ne peut pas exister seul, il faut qu'un autre nœud pointe sur l
 
 On peut supprimer les nœuds isolés via:
 
-        $ git gc --auto
+    $ git gc --auto
 
 ... ou récupérer via:
 
-        $ git fsck --full
+    $ git fsck --full
 
+---
 
 Un commit stocke  un message et fait  référence à un tree  qui représente l'état
 des fichiers à un instant donné.
@@ -1918,53 +1946,53 @@ références peuvent être déplacées librement.
 
 # Ressources
 
-    MOOCS:
+MOOCS:
 
-        https://www.udacity.com/course/how-to-use-git-and-github--ud775
-        https://www.codeschool.com/courses/try-git
+- <https://www.udacity.com/course/how-to-use-git-and-github--ud775>
+- <https://www.codeschool.com/courses/try-git>
 
-    INTERACTIVITÉ:
+INTERACTIVITÉ:
 
-        http://learngitbranching.js.org/?NODEMO
-        https://try.github.io/levels/1/challenges/1
+- <http://learngitbranching.js.org/?NODEMO>
+- <https://try.github.io/levels/1/challenges/1>
 
-    VIDÉOS:
+VIDÉOS:
 
-        https://www.youtube.com/watch?v=zZ2hG6PMjk8
-        https://www.youtube.com/watch?v=1ffBJ4sVUb4
-        https://www.youtube.com/watch?v=6LhTe8Mz6jM
-        https://www.youtube.com/watch?v=ZDR433b0HJY
-        https://vimeo.com/17118008
+- <https://www.youtube.com/watch?v=zZ2hG6PMjk8>
+- <https://www.youtube.com/watch?v=1ffBJ4sVUb4>
+- <https://www.youtube.com/watch?v=6LhTe8Mz6jM>
+- <https://www.youtube.com/watch?v=ZDR433b0HJY>
+- <https://vimeo.com/17118008>
 
-    DIVERS:
+DIVERS:
 
-        http://rogerdudler.github.io/git-guide/
-        http://think-like-a-git.net/
-        http://marklodato.github.io/visual-git-guide/index-en.html
-        https://www.atlassian.com/git/tutorials/
-        https://github.com/Gazler/githug
-        http://www-cs-students.stanford.edu/~blynn/gitmagic/
-        https://medium.com/@ashk3l/a-visual-introduction-to-git-9fdca5d3b43a#.msc7rc931
-        https://www.sbf5.com/~cduan/technical/git/git-1.shtml
-        http://nvie.com/posts/a-successful-git-branching-model/
-        http://tutorialzine.com/2016/06/learn-git-in-30-minutes/
-        https://jwiegley.github.io/git-from-the-bottom-up/
-        https://www.reviewboard.org/docs/codebase/dev/git/clean-commits/
-        http://ndpsoftware.com/git-cheatsheet.html
-        http://rypress.com/tutorials/git/index
-        https://blog.jez.io/cli-code-review/
-        https://www.conventionalcommits.org/
-        https://raw.githubusercontent.com/git/git/master/Documentation/howto/revert-a-faulty-merge.txt
-        https://jwiegley.github.io/git-from-the-bottom-up/
-        https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow
-        https://sethrobertson.github.io/GitFixUm/fixup.html
-        https://github.com/jessfraz/branch-cleanup-action
-        https://sethrobertson.github.io/GitBestPractices/
+- <http://rogerdudler.github.io/git-guide/>
+- <http://think-like-a-git.net/>
+- <http://marklodato.github.io/visual-git-guide/index-en.html>
+- <https://www.atlassian.com/git/tutorials/>
+- <https://github.com/Gazler/githug>
+- <http://www-cs-students.stanford.edu/~blynn/gitmagic/>
+- <https://medium.com/@ashk3l/a-visual-introduction-to-git-9fdca5d3b43a#.msc7rc931>
+- <https://www.sbf5.com/~cduan/technical/git/git-1.shtml>
+- <http://nvie.com/posts/a-successful-git-branching-model/>
+- <http://tutorialzine.com/2016/06/learn-git-in-30-minutes/>
+- <https://jwiegley.github.io/git-from-the-bottom-up/>
+- <https://www.reviewboard.org/docs/codebase/dev/git/clean-commits/>
+- <http://ndpsoftware.com/git-cheatsheet.html>
+- <http://rypress.com/tutorials/git/index>
+- <https://blog.jez.io/cli-code-review/>
+- <https://www.conventionalcommits.org/>
+- <https://raw.githubusercontent.com/git/git/master/Documentation/howto/revert-a-faulty-merge.txt>
+- <https://jwiegley.github.io/git-from-the-bottom-up/>
+- <https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow>
+- <https://sethrobertson.github.io/GitFixUm/fixup.html>
+- <https://github.com/jessfraz/branch-cleanup-action>
+- <https://sethrobertson.github.io/GitBestPractices/>
 
-        https://jonas.github.io/tig/doc/manual.html
-        man tig
-        man tigrc
-        man tigmanual
+- <https://jonas.github.io/tig/doc/manual.html>
+- `man tig`
+- `man tigrc`
+- `man tigmanual`
 
 ##
 # Todo

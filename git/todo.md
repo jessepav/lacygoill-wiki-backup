@@ -53,11 +53,11 @@ Read: <https://chris.beams.io/posts/git-commit/>
 
 Read:
 
-        $ git help <guide>
+    $ git help <guide>
 
 Where `<guide>` is any guide given in the output of:
 
-        $ git help -g
+    $ git help -g
 
 ---
 
@@ -65,9 +65,7 @@ How to create automatically a repository-local `.gitignore` file when starting a
 new project?
 
 Maybe we  should use vim-projectionist  to automatically create them,  using the
-relevant file from here as a template:
-
-        https://github.com/github/gitignore
+relevant file from here as a template: <https://github.com/github/gitignore>
 
 In particular, it would be interesting to copy the LaTeX and python files.
 
@@ -75,8 +73,8 @@ In particular, it would be interesting to copy the LaTeX and python files.
 
 Learn to use the buffer-local commands/mappings installed by:
 
-        $VIMRUNTIME/ftplugin/gitcommit.vim
-        $VIMRUNTIME/ftplugin/gitrebase.vim
+    $VIMRUNTIME/ftplugin/gitcommit.vim
+    $VIMRUNTIME/ftplugin/gitrebase.vim
 
 See also `:h ft-gitcommit-plugin`.
 
@@ -89,18 +87,18 @@ which the book talks about.
 
 ---
 
-<https://try.gitea.io/>
-<https://www.reddit.com/r/linux/comments/8oziba/gitea_is_a_very_lightweight_github_clone_but_i/e07r34f/>
-<https://docs.gitea.io/en-us/config-cheat-sheet/>
+- <https://try.gitea.io/>
+- <https://www.reddit.com/r/linux/comments/8oziba/gitea_is_a_very_lightweight_github_clone_but_i/e07r34f/>
+- <https://docs.gitea.io/en-us/config-cheat-sheet/>
 
 ---
 
 Read:
 
-<https://gist.github.com/CristinaSolana/1885435>
-<https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request>
-<https://help.github.com/articles/checking-out-pull-requests-locally/>
-<https://vimways.org/2018/vim-and-git/>
+- <https://gist.github.com/CristinaSolana/1885435>
+- <https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request>
+- <https://help.github.com/articles/checking-out-pull-requests-locally/>
+- <https://vimways.org/2018/vim-and-git/>
 
 ---
 
@@ -120,8 +118,8 @@ l'archive et en exécutant le script d'installation:
 
 ---
 
-<https://stackoverflow.com/a/9784089>
-<https://stackoverflow.com/a/8498197>
+- <https://stackoverflow.com/a/9784089>
+- <https://stackoverflow.com/a/8498197>
 
 Merging without whitespace conflicts
 Commit without whitespace changes on github
@@ -130,3 +128,6 @@ Commit without whitespace changes on github
 
 Read: <http://michaelwales.com/articles/make-gitconfig-work-for-you/>
 
+---
+
+Read: <https://github.blog/2020-02-12-supercharge-your-command-line-experience-github-cli-is-now-in-beta/>

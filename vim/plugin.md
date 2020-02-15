@@ -646,8 +646,7 @@ commit hash of the line where the cursor exists and update the diff window.
 
 Vim and Neovim plugin to reveal the commit messages under the cursor
 
-<https://github.com/rhysd/git-messenger.vim>
-777 sloc
+<https://github.com/rhysd/git-messenger.vim> 1013 sloc
 
 This plugin  would be  really useful  when you  are studying  the codebase  of a
 foreign project.
@@ -661,6 +660,7 @@ Similar:
 
 - <https://github.com/APZelos/blamer.nvim> 173 sloc
 - <https://github.com/tveskag/nvim-blame-line> 115 sloc
+- <https://teukka.tech/vimtip-gitlens.html> 35 sloc
 
 ---
 
@@ -1317,7 +1317,7 @@ If autocompletion breaks because of vim-peekaboo, try:
 Warning: <https://github.com/junegunn/vim-peekaboo/issues/32#issuecomment-117720067>
 
 It would be a good idea to re-implement the plugin using the popup window.
-The latter has – probably – fewer side-effects.
+The latter has – probably – fewer side effects.
 
 ## phonetics
 

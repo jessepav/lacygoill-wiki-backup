@@ -175,7 +175,7 @@ is immune to this issue.
 ###
 ### Some of my custom commands accept an unquoted regex as argument.  To which ones should I give the `-bar` attribute?
 
-NONE.
+None.
 
     com -bar -nargs=* Cmd  call Func(<q-args>)
     fu Func(...) abort
@@ -202,7 +202,7 @@ What's this?
 An alternation, or a simple bar?
 Answer: it depends.
 
-In a regex it's an alternation.
+In a regex, it's an alternation.
 In your poorly-defined command, it's a simple bar.
 
 ---
@@ -976,18 +976,18 @@ Graphique résumant différentes syntaxes:
 
 L'absence de rangée peut être interprétée par une commande de 2 façons:
 
-        - tout le buffer    %    1,$    C'est le cas de :g, :goto, :hardcopy, :retab, :w
-        - ligne courante    .    .,.    Les autres...
+   - tout le buffer    %    1,$    C'est le cas de :g, :goto, :hardcopy, :retab, :w
+   - ligne courante    .    .,.    Les autres...
 
 
 Lorsqu'une rangée est inversée (a,b avec a > b), Vim demande s'il peut la remettre dans l'ordre:
 
-        Backwards range given, OK to swap (y/n)?
+    Backwards range given, OK to swap (y/n)?
 
 Pour auto-accepter cette demande, il suffit de faire précéder la commande Ex préfixée d'une rangée
 par la commande :silent.  Ex:
 
-        :sil 5,1s/foo/bar/g
+    :sil 5,1s/foo/bar/g
 
 
 Qd  on  utilise un  pattern  comme  spécificateur  de  ligne, la  recherche  est
@@ -1627,11 +1627,10 @@ Pex,  :exe attend  une expression,  :normal des  commandes, et  :edit un  nom de
 fichier.
 
 
-Sur la ligne de commande (: ?
-/), C-p  / C-n permettent  de naviguer  dans l'historique des  commandes passées
-(built-in), M-p / M-n dans un sous-ensemble de l'historique contenant l'ensemble
-des commandes passées qui commencent de la même façon que la chaîne de caractère
-précédant le curseur (custom).
+Sur  la ligne  de  commande (:  ?  /), C-p  / C-n  permettent  de naviguer  dans
+l'historique des commandes  passées (built-in), M-p / M-n  dans un sous-ensemble
+de l'historique contenant l'ensemble des  commandes passées qui commencent de la
+même façon que la chaîne de caractère précédant le curseur (custom).
 
 
     :!{cmd}

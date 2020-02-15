@@ -103,7 +103,7 @@ An expression can contain any of the following types of primaries:
 
        So,  it  seems that  an  expression  is  solely  comprised of  tests  and
        operators.
-       And  tests can  have side-effects,  in which  case they're  named actions
+       And  tests can  have side effects,  in which  case they're  named actions
        (special type of tests).
 
        Update: This section is partially wrong.

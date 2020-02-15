@@ -317,7 +317,7 @@ the terminal (`C-S-v`), after quitting Vim.
 
 It turns out that this behavior is perfectly normal.
 We thought it  was not normal, because  we were used to a  perl script (`pasta`)
-which has the  side-effect of allowing us  to paste the clipboard  in urxvt even
+which has the  side effect of allowing us  to paste the clipboard  in urxvt even
 after quitting Vim.
 
 What was weird was urxvt, not st.

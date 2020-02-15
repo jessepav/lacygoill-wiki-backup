@@ -1336,7 +1336,7 @@ When this other statement includes an expression.
 
 ### How is it possible?
 
-For awk, an  assignment is an expression  – with the side-effect  of assigning a
+For awk, an  assignment is an expression  – with the side effect  of assigning a
 value to a variable.
 
 ---

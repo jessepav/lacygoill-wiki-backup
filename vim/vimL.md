@@ -395,7 +395,7 @@ You would need a more permissive pattern.
 
 It's shorter, and thus a little more readable.
 
-There's  less risk  of an  unexpected side-effect;  indeed, `filter()`  operates
+There's  less risk  of an  unexpected side effect;  indeed, `filter()`  operates
 in-place, which often requires you not to forget to use `copy()` or `deepcopy()`.
 
 #### When is such a simplification impossible?
@@ -584,13 +584,49 @@ the first  line of text;  this is because `setpos()`  has set `curswant`  to the
 value 12, and `l` is the 12th character on the line.
 
 ##
-## How to get the command with which Vim was started?
+## How to get the full command with which was executed to start Vim?
 
-        :echo system('ps -o command= -p '.getpid())
+    :echo v:argv
+
+---
+
+If your Vim doesn't support the variable, try this:
+
+    :echo system('ps -o command= -p '..getpid())
+
+---
 
 Useful  if you  want to  parse the  command-line to  install some  configuration
 depending on the flags which were passed to Vim on the shell's command-line.
 
+## Vim has been started by another process.  How can I get the full pathname of its command?
+
+    :echo $_
+
+From `man bash /^\s*_`:
+
+>     _      ...
+>            Also set  to the full pathname  used to invoke each  command executed
+>            and placed in the environment exported to that command.
+
+From `man zshparam /^\s*_`:
+
+>     _ <S> ...
+>           Also,  this parameter  is  set  in the  environment  of every  command
+>           executed to the full pathname of the command.
+
+Usage example:
+
+    $ ls | vipe
+    :echo $_
+    /usr/bin/vipe~
+
+    $ cd ~/Vcs/vim
+    $ git commit --amend
+    :echo $_
+    /usr/bin/git~
+
+##
 ## Why should I prefix any call to `system[list]()` with `:silent`?
 
 When vim is running, the terminal is in “raw” mode: it sends a character as soon
@@ -732,6 +768,35 @@ If you really want the errors too, then group the commands:
 
     { grep -IRn pat * | grep -v garbage  ;} >file 2>&1
     ^                                    ^^
+
+## Why should I avoid ``expand('`shell cmd`')`` and use `system('shell cmd')[:-2]` instead?
+
+Sometimes it doesn't work as expected:
+
+    $ cd ~/Vcs/vim
+    $ git commit --amend
+    :echo expand('`ps -p $(ps -p '..getpid()..' -o ppid=) -o comm=`')
+    ''~
+    :echo system('ps -p $(ps -p '..getpid()..' -o ppid=) -o comm=')[:-2]
+    git~
+
+Weirdly enough,  if you capture the  output of `getpid()`, and  execute the same
+`expand()` command in a regular Vim instance (started manually), it works:
+
+    :echo expand('`ps -p $(ps -p 1234 -o ppid=) -o comm=`')
+    git~
+
+In fact, the issue can be reproduced with any process:
+
+    $ cd ~/Vcs/vim
+    $ git commit --amend
+    :echo expand('`ps -p $(pidof cmus) -o comm=`')
+    ''~
+    :echo expand('`ps -p $(pidof cmus)`')
+    3722 pts/8    00:00:22 cmus~
+
+In any case, it's not a  well-documented construct (``:helpg expand(['"]` `` has
+only 1 relevant match).  So, it's probably not well-tested.
 
 ##
 # Todo
@@ -1720,7 +1785,6 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
 
     glob("`find . -name '*.conf' | grep input`", 0, 1, 1)
-    expand("`find . -name '*.conf' | grep input`", 0, 1)
     systemlist("find . -name '*.conf' | grep input")
 
             Sortie de la commande shell:
@@ -1732,8 +1796,6 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
                 - glob() ne retourne que des noms de fichier existants.
                   Elle filtre tout ce qui n'est pas exactement un nom de fichier exact.
                   Les messages d'erreurs sont donc supprimés.
-
-                - expand() retourne la sortie brute du shell (erreurs incluses)
 
                 - system() aussi, mais ajoute un newline à la fin, ce qui fait qu'on a une ligne vide
                   en bas du pager
@@ -2775,8 +2837,6 @@ exécution.
             Le simple fait d'invoquer la commande shell `mktemp` provoque également la création d'un
             dossier temporaire par Vim:
 
-                    echo expand('`mktemp -d /tmp/.pgm.XXXXXXXXXX`')
-                    /tmp/abcd123/ + /tmp/.pgm.abcdef12345~
                     call system('mktemp -d /tmp/.pgm.XXXXXXXXXX')
                     /tmp/abcd123/ + /tmp/.pgm.abcdef12345~
 
