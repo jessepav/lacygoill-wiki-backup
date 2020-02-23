@@ -165,11 +165,10 @@ instead of `--cmd`.
 #### the plugin `vim-foo`?
 
                    vvvvv         v
-    $ vim -Nu NORC --cmd 'set rtp^=/path/to/vim-foo' \
-      --cmd 'let g:no_plugin = 1 | let g:no_after_plugin = 1'
-                   │                     │
-                   │                     └ disable `~/.vim/after/plugin/*.vim`
-                   └ disable `~/.vim/plugin/*.vim`
+    $ vim -Nu NORC --cmd 'set rtp^=/path/to/vim-foo rtp-=~/.vim rtp-=~/.vim/after'
+                                                       │           │
+                                                       │           └ disable `~/.vim/after/plugin/*.vim`
+                                                       └ disable `~/.vim/plugin/*.vim`
 
 Make sure to use `--cmd`, and not `+` or `-c`, so that the path to the plugin is
 added to the rtp *before* Vim looks for plugins to source.

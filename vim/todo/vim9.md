@@ -1,21 +1,4 @@
 # Bugs?
-## command-line not redrawn
-
-Source this script with the command `:so%`:
-
-    def! Func()
-        echo 'a'
-    enddef
-    call Func()
-
-The command-line dislays:
-
-    aso%
-     ^^^
-     this should not be displayed
-
-The issue is due to the command-line not being redrawn.
-
 ## cannot use a bar
 
     def! Func()

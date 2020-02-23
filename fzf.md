@@ -935,6 +935,10 @@ Learn the syntax of `fd(1)`, and try to adapt the code.
 <https://bluz71.github.io/2018/11/26/fuzzy-finding-in-bash-with-fzf.html>
 <https://bluz71.github.io/2018/12/04/fuzzy-finding-in-vim-with-fzf.html>
 
+## Learn how to customize fzf options via `_fzf_comprun`.
+
+<https://github.com/junegunn/fzf/commit/52154153150d0014a76ef8b429b73c590cb7f755>
+
 ## It would be nice to be able to fuzzy search through old commit messages.
 
 See our todo in:

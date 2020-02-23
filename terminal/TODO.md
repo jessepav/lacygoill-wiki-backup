@@ -171,6 +171,8 @@ Now let's take a step back and see how all of this fits into the process model.
 
 # Read <http://catern.com/posts/terminal_quirks.html>
 
+# Read <https://www.cons.org/cracauer/sigint.html>
+
 # Document how to set TERM in gnome-terminal, and find a way to back up the config
 
     Edit

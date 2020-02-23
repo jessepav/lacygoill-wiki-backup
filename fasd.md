@@ -735,24 +735,8 @@ file from ranger; the latter uses a plugin which avoids those issues:
 
     ~/.config/ranger/plugins/plugin_fasd_log.py
 
-Or, add the path manually, using our zsh function `fasd_add()`.
-
-    fasd_add() {
-      emulate -L zsh
-      if [[ $# -eq 0 ]]; then
-        cat <<EOF >&2
-      usage: $0 <filepath to add in fasd's database>
-    EOF
-        return 64
-      fi
-
-      fasd -A "$1"
-      if ! fasd | grep -P "^\d*\.?\d*\s*$1$"; then
-        echo "failed to add $1"
-      fi
-    }
-
-The benefit of this function over `$ fasd -A` is that you get an immediate feedback.
+Or, add the path manually, using our custom zsh function `fasd_add()`.
+The benefit of the latter over `$ fasd -A` is that you get an immediate feedback.
 You know whether the path was added to fasd's database.
 
 ##

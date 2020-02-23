@@ -598,7 +598,7 @@ répétable.  Ou créer un sous-mode.
 
 Open the terminal in the floating window and toggle it quickly
 
-<https://github.com/voldikss/vim-floaterm> 157 sloc
+<https://github.com/voldikss/vim-floaterm> 927 sloc
 
 This plugin could be handy to study how to use the floating window in Nvim.
 

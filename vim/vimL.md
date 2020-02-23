@@ -758,6 +758,29 @@ The `complete` "event" is a nice and probably useful sound:
 As an example, it could be played after an async command has finished populating the qfl.
 
 ##
+# Pitfalls
+## Do *not* use a function which has a side effect as the third argument of `get()`!
+
+Example:
+
+    let buf = get(s:, 'buf', term_start(&shell, #{hidden: 1}))
+
+If this statement can be executed multiple  times during the same Vim session, a
+new hidden terminal buffer will be created each time, which is probably not what
+you want.
+
+This is because the arguments passed to `get()` are evaluated *before* the latter.
+IOW,  when `get()`  checks  whether `s:buf`  exists, it's  already  too late  to
+prevent `term_start()` from being evaluated.
+
+Instead, write this:
+
+    let buf = exists('s:buf') ? s:buf : term_start(&shell, #{hidden: 1})
+
+This time, the third operand of `?:` will be evaluated only if the first operand
+is false; i.e. only if `s:buf` does not exist.
+
+##
 # Issues
 ## Why does  `:call system('grep -IRn pat * | grep -v garbage >file')`  fail to capture the standard error in file?
 
@@ -773,30 +796,32 @@ If you really want the errors too, then group the commands:
 
 Sometimes it doesn't work as expected:
 
-    $ cd ~/Vcs/vim
-    $ git commit --amend
-    :echo expand('`ps -p $(ps -p '..getpid()..' -o ppid=) -o comm=`')
-    ''~
-    :echo system('ps -p $(ps -p '..getpid()..' -o ppid=) -o comm=')[:-2]
-    git~
+MWE:
 
-Weirdly enough,  if you capture the  output of `getpid()`, and  execute the same
-`expand()` command in a regular Vim instance (started manually), it works:
+    $ mkdir -p /tmp/foo; cd /tmp/foo; \
+      vim -es -Nu NONE +"pu=expand(\\\"`pidof vim | awk '{print $1}'`\\\")" +'%p|qa!'
+      1234~
 
-    :echo expand('`ps -p $(ps -p 1234 -o ppid=) -o comm=`')
-    git~
+    $ mkdir -p /tmp/foo; cd /tmp/foo; \
+      vim -es -Nu NONE +'set wig+=*/foo/*' +"pu=expand(\\\"`pidof vim | awk '{print $1}'`\\\")" +'%p|qa!'
+                       ^^^^^^^^^^^^^^^^^^^
+      ''~
 
-In fact, the issue can be reproduced with any process:
+To avoid this pitfall, you need to pass a non-zero value as a second argument to `expand()`:
 
-    $ cd ~/Vcs/vim
-    $ git commit --amend
-    :echo expand('`ps -p $(pidof cmus) -o comm=`')
-    ''~
-    :echo expand('`ps -p $(pidof cmus)`')
-    3722 pts/8    00:00:22 cmus~
+    $ mkdir -p /tmp/foo; cd /tmp/foo; \
+      vim -es -Nu NONE +'set wig+=*/foo/*' +"pu=expand(\\\"`pidof vim | awk '{print $1}'`\\\", v:true)" +'%p|qa!'
+                                                                                               ^^^^^^
+      1234~
 
-In any case, it's not a  well-documented construct (``:helpg expand(['"]` `` has
-only 1 relevant match).  So, it's probably not well-tested.
+---
+
+In any case, it's not a well-documented construct.
+This has only a few relevant matches:
+
+    :helpg \%(expand\|glob\)(['"]`
+
+So, it's probably not well-tested.
 
 ##
 # Todo
@@ -962,41 +987,7 @@ Une expression peut être :
 
                     system ("ls -l  . expand('%:p') . '")'
 
-
-    exe "nno cd :echo ".string({'one':1, 'two':2})."\r"    ✔
-    exe "nno cd :echo ".{'one':1, 'two':2}."\r"            ✘
-
-            Au sein d'une expression, il y a bien coercition automatique de nb en chaîne:
-
-                    exe "nno cd :echo ".42."\r"    ✔
-
-            ... mais pas de dico en chaîne.
-
-            Il faut donc convertir soi-même le dico en chaîne via `string()`.
-
 # For / While
-
-    for [lnum, col] in [[1, 3], [2, 5], [3, 8]]
-        echo getline(lnum)[col]
-    endfor
-
-            Montre qu'on peut itérer sur une liste de listes (ici [1,3], [2,5] et [3,8]),
-            et ainsi modifier la valeur de plusieurs variables simultanément (au lieu d'une seule
-            habituellement: for i in list).
-            Utile qd on veut itérer sur les clés/valeurs d'un dico.
-
-            La construction de base avec for est:    for var in list
-            Cette autre construction:                for [var1, var2, ...] in listlist
-            ... est en fait une variante de la 1e, qui n'est possible que lorsque list est composée exclusivement
-            de listes ayant toutes la même dimension.
-
-
-    for [key, value] in items(mydict)
-        " do some stuff
-    endfor
-
-            Itère sur les clés et valeurs de mydict.
-
 
     fu s:grab_words()
         call cursor(1, 1)
@@ -1012,65 +1003,68 @@ Une expression peut être :
         return words
     endfu
 
-            définit la fonction s:grab_words() qui lance une boucle while pour stocker tous les mots
-            du buffer courant dans la liste words
+Définit la fonction `s:grab_words()` qui lance une boucle while pour stocker tous les mots
+du buffer courant dans la liste words.
 
-                                               NOTE:
+---
 
-            On pourrait aussi utiliser:
+On pourrait aussi utiliser:
 
-                    let words = split(join(getline(1, '$'), "\n"), '\W\+')
+    let words = split(join(getline(1, '$'), "\n"), '\W\+')
 
-            ... qui est encore + rapide.
+... qui est encore + rapide.
 
-            En revanche, le principe sur lequel repose cette commande nécessite qu'on puisse facilement
-            décrire l'inverse du pattern recherché.
-            Facile pour un mot (\W\+), mais plus difficile pour un pattern arbitraire (! foobar = ?).
+En revanche, le principe sur lequel repose cette commande nécessite qu'on puisse facilement
+décrire l'inverse du pattern recherché.
+Facile pour un mot (`\W\+`), mais plus difficile pour un pattern arbitraire (! foobar = ?).
 
-                                               FIXME:
+---
 
-            Existe-t-il un moyen simple d'inverser un pattern arbitraire (ex: foobar)?
-            J'ai tenté:     foobar\zs\_.\{-}\zefoobar\|^\_.\{-}\zefoobar\|\_.*foobar\zs\_.\{-}$
+FIXME:
 
-            ... dans:        :echo split(join(getline(1, '$'), "\n"), 'reverse pattern')
-            ... ça semble marcher sauf pour le dernier foobar (dernière branche dans le pattern inversé).
-            J'ai aussi tenté:
+Existe-t-il un moyen simple d'inverser un pattern arbitraire (ex: foobar)?
+J'ai tenté:
 
-                           :echo split(join(getline(1, '$'), "\n"), '\v((foobar)@!\_.){-1,}')
+    foobar\zs\_.\{-}\zefoobar\|^\_.\{-}\zefoobar\|\_.*foobar\zs\_.\{-}$
 
-                                               NOTE:
+dans:
 
-            Si on sait que le pattern ne peut être présent qu'une fois par ligne, on peut aussi utiliser:
+    :echo split(join(getline(1, '$'), "\n"), 'reverse pattern')
 
-                    :g/pattern/call add(list, matchstr(getline('.'), 'pattern'))
+Ça semble marcher sauf pour le  dernier foobar (dernière branche dans le pattern
+inversé).  J'ai aussi tenté:
 
-                                               NOTE:
+    :echo split(join(getline(1, '$'), "\n"), '\v((foobar)@!\_.){-1,}')
 
-            On peut imaginer que :while teste toujours une condition en fonction de qch qui se situe
-            au-dessus d'elle.
-            Ex, ici, :while teste si matchline est non nulle. Elle le fait initialement en se basant sur:
+---
 
-                    let matchline = search('\w\+', 'cW')
+Si on sait  que le pattern ne peut  être présent qu'une fois par  ligne, on peut
+aussi utiliser:
 
-            ... qui est juste au-dessus.
+    :g/pattern/call add(list, matchstr(getline('.'), 'pattern'))
 
-            Puis, elle le fait en se basant sur:
+---
 
-                    let matchline = search('\w\+', 'W')
+On peut  imaginer que `:while` teste  toujours une condition en  fonction de qch
+qui se situe au-dessus d'elle.
+Ex, ici, `:while` teste si matchline est non nulle.
+Elle le fait initialement en se basant sur:
 
-            ... qui, certes, se situe après :while au sein de la fonction, mais est bien exécutée AVANT
-            le prochain retour vers :while.
-            Donc, c'est un peu comme si ce 2e let se situait juste avant :while (JUSTE avant car il n'y
-            a rien entre ce :let et :endwhile, et que :endwhile signifie retour vers :while).
+    let matchline = search('\w\+', 'cW')
 
-                                               NOTE:
+... qui est juste au-dessus.
 
-            On passe le flag 'c' à search() initialement, car il se peut qu'il y ait un match dès
-            le début du buffer.
-            Mais ensuite, au sein de la boucle, on ne passe plus ce flag à search(), autrement
-            elle trouverait continuellement le même 1er match. Le curseur ne se déplacerait pas,
-            on ne trouverait pas les autres matchs, et la boucle while ne se terminerait jamais.
+Puis, elle le fait en se basant sur:
 
+    let matchline = search('\w\+', 'W')
+
+... qui,  certes, se situe après  :while au sein  de la fonction, mais  est bien
+exécutée AVANT le prochain retour vers :while.
+Donc, c'est un peu comme si ce 2e let se situait juste avant :while (JUSTE avant
+car il n'y a  rien entre ce :let et :endwhile, et  que :endwhile signifie retour
+vers :while).
+
+##
 # Let
 
     let
@@ -1203,102 +1197,47 @@ Vim gère 2 types de nombres, les entiers (signés sur 32 bits, +-2 milliards) e
 
 Il ne faut jamais créer 2 fichiers dont le chemin depuis un dossier `autoload/` est identique:
 
-        ~/.vim/plugged/a_plugin/autoload/foo.vim
-        ~/.vim/plugged/b_plugin/autoload/foo.vim
+    ~/.vim/plugged/a_plugin/autoload/foo.vim
+    ~/.vim/plugged/b_plugin/autoload/foo.vim
 
 En effet, si on définit une fonction dans le 2e fichier:
 
-        fu foo#bar()
-            echo 'hello'
-        endfu
+    fu foo#bar()
+        echo 'hello'
+    endfu
 
 Elle ne sera jamais trouvée:
 
-        call foo#bar()
-        E117: Unknown function: foo#bar~
+    call foo#bar()
+    E117: Unknown function: foo#bar~
 
 ... car Vim s'arrêtera de chercher  dès qu'il trouvera un fichier `foo.vim` dans
 un dossier `autoload/` du rtp.
 
+---
 
 En programmation, on  appelle subroutine (sous-programme/routine/procédure), une
 fonction  dont le  code de  sortie ne  nous intéresse  pas, seule  son exécution
 compte.
 En vimscript, une procédure est appelée via la commande Ex :call.
 
-
-
-En cas d'échec,  le code de sortie des  fonctions système est 0, ou -1  si 0 est
-une valeur possible de succès.
-Pex, en cas d'échec exists() retourne 0 alors que match() retourne -1.
-En effet,  0 est une  valeur possible de  succès pour match()  (ex: match('foo',
-'f')), mais pas pour exists().
-
-Lorsqu'une fonction utilise -1 comme code de retour pour un échec, on ne peut pas écrire:
-
-        if [!]MyFunc()
-
-... pour réaliser un test. Il faut obligatoirement comparer la sortie à -1:
-
-        if MyFunc() == -1
-
-
-    :fu Foo
-
-            afficher le code contenu dans la fonction Foo
-
-
-Parfois, il peut être intéressant d'“éteindre“ temporairement une fonction, c'est à dire l'empêcher
-de s'exécuter, sans pour autant la supprimer ou la commenter.
-Pour ce faire, il suffit de créer une variable locale avant la définition de la fonction, et de stopper
-son exécution si elle vaut 0.
-Ex:
-
-            let s:myvar = 1
-            fu MyFunc()
-                if s:myvar == 0
-                    return
-                endif
-                ...
-                main code
-                ...
-            endfu
-
-On peut aller + loin en ajoutant à la fin du script définissant la fonction 3 commandes pour éteindre
-/ allumer / toggle cette dernière:
-
-            com SwitchOnMyFunc     let s:myvar = 1
-            com SwitchOffMyFunc    let s:myvar = 0
-            com ToggleMyFunc       let s:myvar = !s:myvar
-
 ## Arguments
 
-On peut définir une fonction qui attend des arguments identifiés (named arguments) limités à 20,
-ainsi que des arguments supplémentaires et optionnels (représenté par '...').
+On  peut  définir  une  fonction  qui attend  des  arguments  identifiés  (named
+arguments) limités à  20, ainsi que des arguments  supplémentaires et optionnels
+(représenté par '...').
 
+---
 
-Les arguments optionnels sont utiles pour permettre de modifier la valeur par défaut de certaines variables
-utilisées au sein de la fonction. Ex:
+Les arguments  optionnels sont utiles pour  permettre de modifier la  valeur par
+défaut de certaines variables utilisées au sein de la fonction.
 
-    fu MyFunc(...)
-        let var1 = a:0 >= 1 ? a:1 : 'foo'
-        let var2 = a:0 >= 2 ? a:2 : 'bar'
-        let var3 = a:0 >= 3 ? a:3 : 'baz'
-    endfu
-
-Pour mieux comprendre, on pourrait tout aussi bien réécrire le code précédent en remplaçant:
-
-    - a:0 >= 1         exists('a:1')
-    - a:0 >= 2    →    exists('a:2')
-    - a:0 >= 3         exists('a:3')
-
-Une méthode plus élégante consiste à utiliser get() en lui passant en argument entre autres la liste
-des arguments optionnels a:000 :
+Ex:
 
     fu MyFunc(...)
-        let var1 = get(a:000, 0, 'foo')
-        let var2 = get(a:000, 1, 'bar')
-        let var3 = get(a:000, 2, 'baz')
+        let var1 = get(a:, '1', 'foo')
+        let var2 = get(a:, '2', 'bar')
+        let var3 = get(a:, '3', 'baz')
     endfu
 
 Ici MyFunc() attribue par défaut les valeurs 'foo', 'bar' et 'baz' aux variables
@@ -1309,8 +1248,8 @@ Seulement, [var1], [var1, var2] et [var1, var2, var3].
 IOW, seulement un sous-ensemble continu qui débute par var1.
 Pex on ne pourrait pas modifier:
 
-    - [var1, var3] car il n'est pas continu; il manque var2
-    - [var2, var3] car bien que continu il ne commence pas par var1
+   - [var1, var3] car il n'est pas continu; il manque var2
+   - [var2, var3] car bien que continu il ne commence pas par var1
 
 De ce fait, qd on écrit MyFunc() il faut veiller à affecter a:1 à la variable la
 plus susceptible d'être modifiée.
@@ -1323,6 +1262,7 @@ chances d'être modifiée.
 donc modifier aussi var2 et var3, qui n'en auront peut-être pas besoin.
 Auquel cas, il faudra passer à MyFunc() les valeurs par défaut de var2 et var3.
 
+---
 
 Depuis une fonction on peut accéder en lecture à un argument (a:bar) mais pas en
 écriture.
@@ -1348,27 +1288,6 @@ semble.
             a:bar    (est évalué à) contenu de l'argument bar
             a:0      nb d'arguments du groupe ... (n'inclut donc pas bar)
             a:1      1er argument du groupe ... (!= bar)
-
-    a:0
-
-            nb d'arguments optionnels  [...] passé à une fonction  (proche de $#
-            dans un script bash)
-
-    a:1, a:2
-
-            1er, 2e argument optionnel
-            équivaut à a:000[1], a:000[2]; similaire à $1, $2 dans un script bash
-
-    a:000
-
-            liste des  arguments optionnels passés  à la fonction (proche  de $@
-            dans un script bash)
-
-    a:{i}
-
-            ième argument; équivaut à a:i
-
-            découvert via :h 41.7 (section: variable number of arguments)
 
 ## Buffers
 
@@ -1554,21 +1473,6 @@ semble.
     │ ...('w$')    │ en bas de la fenêtre   │
     └──────────────┴────────────────────────┘
 
-    getline(1, '$')
-
-            Retourne toutes les lignes entre la 1e et la dernière du buffer sous la forme d'une liste.
-            Chaque item de la liste est une chaîne contenant une ligne du buffer.
-
-            On peut aussi utiliser les fonctions getbufline() et readfile() pour récupérer les lignes
-            d'un buffer/ fichier. Chaque fonction est utile dans un contexte différent:
-
-                    - getline()       buffer courant
-                    - getbufline()    buffer autre que le courant
-                    - readfile()      fichier non chargé dans un buffer
-
-            Pour un buffer déchargé, getbufline() retourne une liste vide [] peu importe son contenu réel.
-
-
     Retourne le n° de la ligne:
 
     ┌───────────┬───────────────────────┐
@@ -1609,23 +1513,6 @@ semble.
             Pk `<= 2`?
             Parce qu'une ligne vide contiendra au moins un 1er caractère (BOM?) et un newline à la fin.
 
-
-    setline(5, 'hello world!')
-    setbufline(2, 5, 'hello world!')
-
-            Remplace la 5e ligne du buffer courant / buffer n° 2 par 'hello world!'.
-
-            Retourne 0 en cas de succès, 1 autrement.
-
-            Ne fait pas bouger  le curseur.  Utile pour substituer une ligne ou  un morceau de ligne
-            (y  compris sur  la courante),  via  un mapping  /  commande. Pour ce  faire, donner  à
-            setline(), en 2e argument, la sortie de substitute(getline(...), ...).
-
-
-    setline(5, ['foo', 'bar', 'baz'])
-
-            remplace la 5e ligne du buffer par 'foo', la 6e par 'bar', et la 7e par 'baz'
-
 ## Développement de noms de fichiers
 
 Les wildcards suivants sont développés automatiquement dans les noms de fichier (:h wildcard):
@@ -1654,7 +1541,7 @@ Vim développe automatiquement les caractères spéciaux au sein d'une commande 
 cette dernière.  Il les développe même s'ils sont encadrés par des single quotes.
 Les quotes sont nécessaires qd on envoit leur développement au shell. Ex:
 
-        :grep -R '<cword>' .
+    :grep -R '<cword>' .
 
 Ici, les single quotes empêchent le shell d'interpréter d'éventuels symboles spéciaux présents
 dans le mot sous le curseur avant qu'il n'exécute la commande shell grep.
@@ -1662,7 +1549,7 @@ Mais ce n'est pas suffisant. En effet, si <cword> contient un single quote ce de
 interprété par le shell. Il faut donc protéger <cword> avec un outil plus puissant: shellescape().
 Exemple:
 
-        :exe 'grep -R '.shellescape(expand('<cword>')) .
+    :exe 'grep -R '.shellescape(expand('<cword>')) .
 
 Dans ce nouvel exemple, on veut passer <cword> à shellescape() pour que tous ses caractères spéciaux
 soient échappés, y compris un single quote.
@@ -1877,26 +1764,6 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
             expr peut être une chaîne, une liste, un dictionnaire ou un nb (vide = 0)
 
 
-    if exists('*myfunc')
-    if exists(':cmd')
-    if exists('#current_word#CursorHold')
-
-            Teste l'existence de:
-
-                - d'une fonction du nom de `myfunc`
-
-                - de la commande Ex `:cmd`
-
-                - d'une autocmd dans l'augroup `current_word` surveillant l'évènement `CursorHold`
-
-
-    if has('gui_running')
-
-            teste si Vim tourne en gui
-
-            la liste des fonctionnalités supportées par Vim est lisible via: :h feature-list
-
-
     confirm('Are you sure?', "&yes\n&no\n&quit", 2)
 
             Affiche une ligne affichant le message 'Are you sure?', propose à l'utilisateur
@@ -2038,12 +1905,6 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
 
                                                NOTE:
 
-            Si on utilise des double quotes pour '\=expr', bien penser à doubler les backslashs
-            à l'intérieur y compris le 1er: "\\=expr"
-
-
-                                               NOTE:
-
             Alternativement, on peut remplacer '\=expr' par une expression lambda :
 
                     substitute('text', 'pattern', {-> expr}, 'flags')
@@ -2053,31 +1914,6 @@ Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
     system('cmd', 'input')
 
             retourne la sortie de la commande shell cmd (en écrivant 'input' sur son entrée standard)
-
-    system('ls -l '.expand('%:p'))
-
-            retourne un listing détaillé (ls -l) du fichier courant
-
-            Cette commande illustre le fait que Vim peut évaluer une concaténation de chaînes avant
-            d'en passer le résultat à une fonction acceptant une expression comme argument.
-            En effet, une concaténation d'expressions est une expression.
-
-
-    system('tmux send-keys -t 1.2 "echo hello" Enter')
-
-            exécute la commande shell `$ echo hello` dans le 2e pane de la 1e fenêtre de la session
-            tmux courante
-
-
-    tabpagenr()
-    tabpagenr('$')
-
-            retourne le n° de l'onglet courant; du dernier onglet
-
-
-    exe (tabpagenr()-1).'tabnew'
-
-            ouvre un nouvel onglet juste avant l'onglet courant
 
 
     taglist('pattern')
@@ -2593,14 +2429,6 @@ exécution.
 
             échappe les espaces et les backslash dans le nom de fichier file
             plus généralement tous les caractères présents dans le 2e argument de escape() sont échappés
-
-
-    if filereadable('/path/fo/file')
-
-            teste si /path/to/file PEUT ÊTRE LU (et donc aussi son existence)
-
-            Ce test peut s'écrire simplement comme ça car le code de retour de filereadable()
-            en cas d'échec est 0. Si c'était -1, il faudrait obligatoirement comparer la sortie à -1.
 
 
     if !empty(glob('/path/to/file'))

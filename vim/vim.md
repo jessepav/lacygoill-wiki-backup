@@ -59,13 +59,14 @@ was in normal mode: this makes it look like it moves half a character backward.
 
 ---
 
-But why does the cursor moves one character backward when I press `i Esc`?
+But why does the cursor move one character backward when I press `i Esc`?
 
 Often, you're typing at the end of the line, and there, `Esc` can only go left.
 So the general behavior is the most common behavior.
 
 - <https://unix.stackexchange.com/a/11405/289772>
 - <https://www.reddit.com/r/vim/comments/a9zzv5/last_character_end_of_file/ecnwnln/>
+- <https://github.com/neovim/neovim/issues/11456#issuecomment-558072430>
 
 ##
 # Démarrage
@@ -88,7 +89,7 @@ Several Vim binaries can be installed. How to detect which one is responsible fo
 
 ---
 
-        $ less file
+    $ less file
 
 Affiche le contenu de file dans le pager `less`.
 Si on appuie sur la touche `v`, le fichier est chargé dans un buffer Vim.
@@ -168,86 +169,24 @@ Après avoir quitté Vim, on se retrouve  dans `less`, le contenu du fichier aya
             On peut profiter du fait qu'une fonction est une expression (dont la valeur
             est son code de retour) pour exécuter du code arbitraire.
 
-
-    vim --startuptime log log
-
-            Édite `file`, en écrivant dans log le temps passé à sourcer chaque fichier.
-            Équivalent de `dmesg` pour le kernel linux.
-
-            Permet d'identifier quel plugin ralentit Vim au démarrage.
-            Pour trier `log` selon le nb dans la 2e colonne (contient le temps passé à charger un fichier) :
-
-                    :'<,'>!sort -k2
-
-
-    vim -V20/tmp/log
-
-            Lance une session Vim en enregistrant les initialisations dans `/tmp/log`.
-
-            Utile pex pour déterminer quel plugin a créé une variable donnée (g:some_var).
-
-
-    {tmux prefix} Spc {motion} v {motion} C-o
-
-            Séquence de touches pour ouvrir un fichier dont le nom apparaît qq part dans un terminal.
-
-                    1. {tmux prefix} Spc      passe en mode visuel au sein de tmux
-                    2. {motion} v {motion}    sélectionne le nom du fichier qui nous intéresse
-                    3. C-o                    ouvre le fichier dans Vim
-
-
-                                               NOTE:
-
-            On peut remplacer `C-o` par `o` pour ouvrir le fichier via xdg-open.
-            En fonction de l'extension du fichier, ça peut appeler mousepad, gVim, …
-            Dans XFCE, pour une extension donnée, on peut configurer le pgm à appeler via:
-
-                    Settings > MIME Type Editor
-
-            `o` permet en plus d'ouvrir des url.
-
-
-                                               NOTE:
-
-            Nécessite l'installation du plugin `tmux-open`.
-
 #
 # Édition
 ## Divers
 
 Un opérateur (c, d, y, g@ …) est:
 
-    - une commande normale appelant une fonction qui agit sur le texte encadré
-      par les “change marks”
+   - une commande normale appelant une fonction qui agit sur le texte encadré
+     par les “change marks”
 
-    - une commande normale appelée depuis le mode visuel et agissant sur le
-      texte encadré par les “visual marks”
+   - une commande normale appelée depuis le mode visuel et agissant sur le
+     texte encadré par les “visual marks”
 
 En mode normal, il attend un mouvement ou un text-object pour pouvoir placer les
 change marks avant d'appeler la fonction.
 Un  mouvement  peut   être  utilisé  à  la  place  d'un   text-object  (en  mode
 operator-pending).
-On peut utiliser  un text-object qd on  se trouve n'importe où  à l'intérieur du
-texte sur lequel on veut agir.
-Ex: d}  supprime le  paragraphe uniquement si  on est au  début dip  supprime le
-paragraphe peu importe où on est à l'intérieur
 
-Après avoir posé les marques, l'opérateur place le curseur au début du texte sur lequel la fonction doit agir.
-La fonction attend en argument le type du mouvement ('char', 'line', 'v', 'V', '^V').
-Pour copier le texte sur lequel elle doit agir, la fonction utilisera les commandes normales:
-
-    `[v`]y    pour un mouvement characterwise
-    '[V']y    pour un mouvement linewise         Attention: bien utiliser un V majuscule et non minuscule,
-                                                 pour bien sélectionner des lignes entières.
-                                                 En effet les change marks (comme toutes les marques commençant
-                                                 par un ') débutent toujours sur la 1e colonne d'une ligne.
-                                                 On peut compter sur elles pour sélectionner du texte sur chaque
-                                                 ligne couverte par le mouvement fourni à l'opérateur, MAIS on ne
-                                                 peut pas compter sur elles pour sélectionner l'intégralité de la
-                                                 dernière ligne.
-    gvy       pour une sélection visuelle
-
-
+---
 
     just = make,
            all,
@@ -490,30 +429,6 @@ Pour copier le texte sur lequel elle doit agir, la fonction utilisera les comman
 
             `g C-a` et `g C-x` permettent de générer des suites arithmétiques.
 
-    C-g u
-
-            casser un bloc d'éditions en mode insertion
-
-            Qd on réalise une suite d'éditions via une fonction ou un mapping, elle forme un bloc incassable :
-            qd on appuie sur u pour le défaire, il est défait en entier.
-            Si on souhaite ne défaire qu'une partie il faut le casser via ce raccourci qui fonctionne
-            en mode insertion.
-
-            Exemple :    taper 'foo bar' puis u défait tout le texte
-                         taper 'foo C-g u bar' puis u ne défait que "bar"
-
-
-    C-g U
-
-            en mode insertion, fusionner l'édition suivante avec la précédente
-
-            Utile pour éviter que le prochain <Left>, <Right> ne casse le bloc d'éditions, et empêche
-            dot de réinsérer tout le texte inséré; ex:    o()<C-G>U<Left>foo    . répète (foo)
-                                                          o()<Left>foo          . répète foo
-
-    C-o zz
-
-            centrer la ligne courante à l'écran sans quitter le mode insertion
 
     C-o v {motion} v
 
@@ -574,10 +489,11 @@ comme s'il était linewise.
 On peut également modifier le type d'un registre via la fonction setreg(), en ajoutant une chaîne vide et
 le nouveau type désiré. Ex:
 
-            call setreg('+', '', 'ac')
+    call setreg('+', '', 'ac')
 
-…change le type du registre + en characterwise
+... change le type du registre + en characterwise
 
+---
 
     C-v {motion1} y {motion2} p
 
@@ -593,6 +509,7 @@ le nouveau type désiré. Ex:
             Ce comportement peut être indésirable si on ne veut pas que le texte soit altéré.
             La question et la réponse suivante montre comment résoudre ce pb.
 
+---
 
 En mode normal, on peut coller du texte de 5 façons différentes (les 3 dernières sont custom):
 
@@ -614,6 +531,7 @@ En mode normal, on peut coller du texte de 5 façons différentes (les 3 derniè
 Les 4 dernières façons permettent de coller un texte characterwise sur une ligne dédiée, au lieu de la ligne
 courante.
 
+---
 
     ]p    [p
 
@@ -721,14 +639,6 @@ courante.
             tandis que dans le 2e ils sont collés dans leur ordre de numérotation (1 → 9).
 
 
-    :23 put a
-
-            coller le contenu du registre a sous la ligne 23
-
-    :put =list
-
-            coller sous la ligne courante le contenu de list, un item par ligne
-
     :put _
 
             coller une ligne vide sous la ligne courante
@@ -768,21 +678,10 @@ courante.
             On ne peut pas utiliser un pipe pour séparer :!date de :-j car il serait envoyé au shell
             au lieu d'être interprété par Vim comme une terminaison de commande Ex.
 
-    :0r !cmd
-
-            insère / importe la sortie de la commande shell cmd à partir de la 1e ligne du buffer (sous la ligne 0)
-
-    :r !lynx -dump url
-
-            importe le texte présent à l'adresse url
-
     :r !date^@-j
-    :.read !date ^@ .-1join
 
             insère sous la ligne courante la date et l'heure (:.read !date), puis (^@) réalise
-            une fusion de lignes (join)
-            à partir de la ligne précédant la ligne courante (.-1)
-            -j   →   -1join   →   .-1join
+            une fusion de lignes (join) à partir de la ligne précédant la ligne courante (.-1)
 
     :r !echo $RANDOM
     :put =system('echo $RANDOM')
@@ -791,13 +690,6 @@ courante.
 
             Illustre les 2 méthodes possibles pour coller la sortie d'une commande shell.
 
-    :r !python foo.py
-    :put =system('python foo.py')
-
-            coller la sortie du script python foo.py
-
-
-    :23 read fname
     :23r fname
 
             insère le contenu du fichier fname sous la ligne 23
@@ -1028,7 +920,7 @@ courante.
 
             commenter un mot juste / faux de la liste fr.utf-8.add pour annuler un zg / zw
 
-                                               NOTE:
+---
 
 La correction orthographique dépend de la valeur de l'option spelllang.
 Quand celle-ci vaut 'en', ça implique que si un mot est juste dans une région de
@@ -1109,11 +1001,6 @@ spell), il n'est pas colorisé et souligné dans la même couleur que les mots f
             lui envoie l'argument type = 'block'.
 
 
-    :g/pat/m$
-
-            Déplacer toutes les lignes contenant `pat` à la fin du buffer.
-
-
     :g/^/m0
     :11,20g/^/m 10
 
@@ -1123,7 +1010,7 @@ spell), il n'est pas colorisé et souligné dans la même couleur que les mots f
                     - 11 à 20
 
 
-    :g/^/exe 'm -'.(line('.')%4 ? line('.')%4 : 4)
+    :g/^/exe 'm -'..(line('.')%4 ? line('.')%4 : 4)
 
             Inverser l'ordre de tri toutes les 4 lignes.
 
@@ -1353,7 +1240,7 @@ Infographie résumant les différents types d'interaction possibles entre Vim et
                     :e ++bin file
                     vim -b file
 
-                                               FIXME:
+                                               TODO:
 
             À compléter
 
@@ -1505,23 +1392,6 @@ De toute façon, les tabs n'ont pas été pensés pour l'alignement. Ex:
 La 2e ligne ne peut être alignée qu'à condition que &ts = 4. Pour toute autre valeur, on perd l'alignement.
 
 
-Les règles  d'indentation sont écrites  en vimscript dans des  fichiers présents
-dans $VIMRUNTIME/indent/.
-Chaque fichier contient des règles pour un langage de programmation spécifique.
-
-On peut outrepasser ces règles pour un langage donné, pex python, en créant le fichier:
-
-    ~/.vim/indent/python.vim
-OU
-    ~/.vim/after/ftplugin/python.vim
-
-Et en y utilisant uniquement la commande :setlocal (et non :set) pour que les configurations d'options
-soient locales au buffer dont le type de fichiers a été détecté comme étant python.
-
-
-Le type de fichiers doit être correctement configuré pour qu'une auto-indentation réussisse.
-
-
     =
 
             auto-indentation de la sélection visuelle
@@ -1584,29 +1454,10 @@ Le type de fichiers doit être correctement configuré pour qu'une auto-indentat
 
             auto-indenter la ligne courante et les 4 qui suivent
 
-    ={motion}
-
-            auto-indenter de la ligne courante jusqu'à la ligne atteinte par {motion}
-
-    vip=    =ip    =i}
-
-            auto-indenter toutes les lignes du paragraphe
-
-    <if . .
-
-            supprimer 3 niveaux d'indentation sur chaque ligne au sein de la fonction courante
-            if est un custom text-object
 
     =iB
 
             auto-indenter les lignes au sein du bloc de code courant ({…})
-
-    5>>
-
-            indenter la ligne courante et les 4 lignes qui suivent
-
-            >>, <<, == acceptent un count (qui répète le filtrage sur N lignes consécutives)
-            >, <, =    attendent un mouvement/text-object
 
     0 C-d
 
@@ -1623,20 +1474,6 @@ Le type de fichiers doit être correctement configuré pour qu'une auto-indentat
 
             Ne fonctionne que si l'option locale au buffer 'indentexpr' / 'inde' est non vide.
             Donc, ne fonctionne pas par défaut dans un fichier markdown, ni dans un fichier d'aide.
-
-    cc
-
-            sur une ligne vide, passe en mode insertion et autoindente (le S système fait ça aussi)
-
-                                               NOTE:
-
-            Ne fonctionne que si 'indentexpr' est non vide.
-
-            On devrait  rarement être amené  à taper  sur Tab plusieurs  fois en
-            mode  insertion pour  arriver au  bon niveau  d'indentation sur  une
-            ligne.
-            'autoindent' ou 'indentexpr', et cc / o / O / i_CR / i_C-f devraient
-            suffire la plupart du temps.
 
     vip 3>
 
@@ -1665,27 +1502,6 @@ Le type de fichiers doit être correctement configuré pour qu'une auto-indentat
             Si 'et' est activée, :retab remplace les tabs en un nb approprié d'espaces.
 
 ## Rechercher
-
-Qd on copie un pattern multi-ligne et qu'on le colle sur la ligne de commande / recherche,
-les LF (^J) sont traduits en CR (^M).
-Ceci peut poser pb si on veut utiliser ce pattern dans une recherche ou une commande de substitution.
-La solution consiste à remplacer tous les LF par \n:    substitute(@", '\n', '\\n', 'g')
-On peut vérifier tout ceci en sélectionnant visuellement puis en copiant:
-                                                                            foo
-                                                                            bar
-Puis en tapant:
-                   :reg "    on voit la notation ^J
-                   :C-r "    on voit que Vim traduit un LF en un CR (on passe de ^J à ^M)
-                   :C-r =substitute(@", '\n', '\\n', 'g')
-
-Pk la solution avec substitute() fonctionne ?
-Le moteur de regex interprète '\n' comme le caractère LF (^J).
-
-On demande donc à substitute() de remplacer tous les LF par '\\n'.
-Pk doit-on doublement échapper '\\n' ?
-Parce qu'autrement substitute() interpréterait le 2e '\n' comme un LF, et on remplacerait tous les LF par
-des LF (aucun effet donc).
-
 
     tab    S-tab
 
@@ -1792,19 +1608,6 @@ des LF (aucun effet donc).
 
                     pattern  →  le contenu du registre recherche
                     action   →  la commande `:print`
-
-
-    :g/func\|var/#
-
-            Afficher toutes les lignes contenant func ou var.
-
-            On peut ensuite se rendre sur une ligne bien précise via :{lnum}<cr>, ou exécuter
-            n'importe quelle commande Ex en utilisant une rangée trouvée via le pager.
-
-
-                                               NOTE:
-
-            Le : permet de sortir automatiquement du pager intégré.
 
 
      Afficher certaines lignes contenant le mot sous le curseur, au sein du fichier courant
@@ -2115,7 +1918,7 @@ suivants.
 Pour cette raison, il est préférable d'utiliser un opérateur depuis le mode normal que visuel.
 Car _depuis le mode visuel, dot perd de l'information_ (ip → 5 lignes).
 
-
+---
 
 Qd on répète un objet via un count, qu'ajoute-t-on ?
 Il semble que ça dépende des limites de l'objet:
@@ -2145,19 +1948,11 @@ complexe.  Il y a plusieurs choses étranges avec ce genre d'objets:
             le dernier texte édité (mapping custom)
 
 
-    C-g
-
-            toggle entre le mode visuel et sélection
-
-            En mode sélection, dès qu'on tape un caractère affichable, le texte sélectionné est supprimé,
-            on passe en mode insertion, et le caractère est inséré.
-            Ce mode émule le comportement des éditeurs traditionnels qd on sélectionne du texte.
-
     3v
 
             sélectionne le caractère sous le curseur et les 2 suivants
 
-
+---
 
 Dans toutes les  commandes qui suivent l'opérateur v pourrait  être remplacé par
 c, d ou y pour agir sur le texte sélectionné.
@@ -2409,19 +2204,6 @@ ligne de la marque a (les 2 lignes incluses).
             si on remplace v par un opérateur l'opération devient linewise:
             Elle affecte des lignes entières en incluant celle où se trouve le curseur et la (5e)
             suivant/précédant celle où se trouve la prochaine occurrence du registre recherche.
-
-    v^
-
-            le texte entre le curseur et le 1er caractère non whitespace de la ligne
-
-    v$h
-
-            le texte entre le curseur et la fin de la ligne
-
-                                               NOTE:
-
-            Il est nécessaire de faire reculer le curseur d'un caractère vers la gauche via h,
-            car v$ sélectionne le dernier caractère sur la ligne + le newline.
 
     v(    v)
 
@@ -2704,14 +2486,15 @@ par la suite.
 L'opérateur de sélection visuelle v est intéressant par rapport aux opérateurs c, d, y, car il permet
 de voir ce qu'on sélectionne avant d'agir dessus.  Toutefois, il présente 2 inconvénients:
 
-        1. une touche de plus
-        2. non répétable via dot
+   1. une touche de plus
+   2. non répétable via dot
 
+---
 
 Un mouvement peut être:
 
-    - characterwise s'il peut déplacer le curseur au sein d'une même ligne
-    - linewise s'il déplace le curseur entre des lignes
+   - characterwise s'il peut déplacer le curseur au sein d'une même ligne
+   - linewise s'il déplace le curseur entre des lignes
 
 Un texte copié, coupé ou supprimé via un mouvement linewise sera collé sous (p) / au-dessus de (P)
 la ligne du curseur (car getregtype('"') = V).
@@ -2719,51 +2502,57 @@ S'il l'est via un mouvement characterwise, il sera collé après (p) / avant (P)
 S'il l'est via un mouvement blockwise, il sera collé après / avant le bloc dont la frontière droite
 est une colonne passant par le curseur (car getregtype('"') = ^V).
 
-    Remarques:
+Remarques:
 
-    - un mouvement qui déplace le curseur entre plusieurs lignes est généralement linewise (mais y'a des exceptions)
+   - un mouvement qui déplace le curseur entre plusieurs lignes est généralement linewise (mais y'a des exceptions)
 
-    - { et } (déplacements par paragraphes) sont characterwise.
-      d} supprime depuis le caractère sous le curseur jusqu'à la fin du paragraphe.
-      S'il était linewise, d} supprimerait depuis le 1er caractère de la ligne courante.
+   - { et } (déplacements par paragraphes) sont characterwise.
+     d} supprime depuis le caractère sous le curseur jusqu'à la fin du paragraphe.
+     S'il était linewise, d} supprimerait depuis le 1er caractère de la ligne courante.
 
-    - Un mouvement vers une marque précédée d'un backtick est characterwise.
-      Un mouvement vers une marque précédée d'une apostrophe est linewise.
+   - Un mouvement vers une marque précédée d'un backtick est characterwise.
+     Un mouvement vers une marque précédée d'une apostrophe est linewise.
 
+---
 
 Un mouvement linewise est tjrs inclusif (précédé d'un opérateur, ce dernier affecte les lignes de
 départ et d'arrivée).
 
 Un mouvement characterwise peut être inclusif ou exclusif:
 
-    - inclusif signifie que lorsqu'il est précédé d'un opérateur ce dernier agit sur le caractère
-      de départ et d'arrivée
+   - inclusif signifie que lorsqu'il est précédé d'un opérateur ce dernier agit sur le caractère
+     de départ et d'arrivée
 
-    - exclusif signifie que lorsqu'il est précédé d'un opérateur ce dernier n'agit pas sur le dernier
-      caractère: celui le + proche de la fin du buffer;
-      ça peut être le caractère de départ ou celui d'arrivée suivant le sens du mouvement
+   - exclusif signifie que lorsqu'il est précédé d'un opérateur ce dernier n'agit pas sur le dernier
+     caractère: celui le + proche de la fin du buffer;
+     ça peut être le caractère de départ ou celui d'arrivée suivant le sens du mouvement
 
-      Exemples de mouvements characterwise exclusifs:
+     Exemples de mouvements characterwise exclusifs:
 
-            - F    cFx = coupe jusqu'au précédent caractère x mais pas le caractère sous le curseur
-            - w    yw  = copie jusqu'au début du prochain mot mais ne copie pas le 1er caractère de ce dernier
+       * F    cFx = coupe jusqu'au précédent caractère x mais pas le caractère sous le curseur
+       * w    yw  = copie jusqu'au début du prochain mot mais ne copie pas le 1er caractère de ce dernier
 
 
-On peut forcer un mouvement à devenir characterwise, linewise ou blockwise, le temps d'une opération.
+On peut forcer  un mouvement à devenir characterwise, linewise  ou blockwise, le
+temps d'une opération.
 Pour ce faire, il suffit de suffixer l'opérateur avec v, V ou C-v.
+
 Ex:
+
     dj         supprimer la ligne courante et celle qui suit
     dvj        supprimer depuis le curseur jusqu'au caractère de la même colonne sur la ligne suivante
     d C-v j    supprimer le caractère où se trouve le curseur et celui sur la même colonne sur la ligne suivante
 
-Lorsqu'on suffixe un opérateur avec v, alors que l'opérateur est suivi d'un mouvement qui est déjà
-characterwise, ce dernier passe d'inclusif à exclusif ou d'exclusif à inclusif.
-Pex, on peut transformer les mouvements exclusifs F et w en mouvements inclusifs via les mapping:
+Lorsqu'on suffixe  un opérateur  avec v,  alors que  l'opérateur est  suivi d'un
+mouvement qui est déjà characterwise, ce  dernier passe d'inclusif à exclusif ou
+d'exclusif à inclusif.
+Pex, on peut transformer les mouvements exclusifs F et w en mouvements inclusifs
+via les mapping:
 
     ono  F  vF
     ono  w  vw
 
-                                               NOTE:
+---
 
 F n'est pas un objet mais une commande qui attend en argument un caractère.
 Le 1er  mapping ne crée pas  un nouvel objet, il  se contente d'ajouter v  qd on
@@ -2774,17 +2563,6 @@ F{char} d'exclusif à inclusif.
 # Listes De Fichiers / Navigation
 ## Buffer list
 ### Mouvements dans un buffer
-
-    "_yiw
-
-            Déplacer le curseur sur le 1er caractère du mot courant.
-
-            `b` fonctionne aussi mais pas si le curseur se trouve déjà sur le 1er caractère.
-            Dans ce cas, il déplace le curseur sur le début du mot précédent.
-
-            "_yiw profite du fait qu'après avoir fourni un objet (ici iw) à un opérateur,
-            Vim positionne le curseur là où se trouve(ait) le 1er caractère de l'objet.
-
 
     5H    5L
 
@@ -2802,12 +2580,6 @@ F{char} d'exclusif à inclusif.
     gi
 
             déplace le curseur au dernier endroit où on a inséré du texte, et fait passer en mode insertion
-
-
-    gj    gk    g^    g0    g$
-
-            Équivalents de j, k, ^, 0 et $  en considérant la ligne d'affichage (de l'écran) et non
-            la ligne du fichier.
 
 
     g'x    g`x
@@ -2836,15 +2608,6 @@ F{char} d'exclusif à inclusif.
 
             1er caractère non whitespace de la 4e ligne qui suit
             5^ déplacerait toujours le curseur au 1er caractère non whitespace de la ligne courante
-
-    g_
-
-            dernier caractère non whitespace de la ligne du fichier
-
-    0    $
-
-            premier / dernier caractère de la ligne du fichier (inclut les whitespaces)
-            j'ai remap 0 et $ à g0 et g$
 
     3$
 
@@ -2894,20 +2657,10 @@ F{char} d'exclusif à inclusif.
             :k est une forme abrégée de :mark
             Elle est spéciale car contrairement à :mark, elle ne demande pas à être séparée de son argument
             par un espace:
-                            :km       ✔
-                            :markm    ✘
 
-            Astuce: on peut utiliser les marques b et t pour désigner une position arbitraire vers
-            le bas et vers le haut: b = bottom, t = top
+                :km       ✔
+                :markm    ✘
 
-    C-e    C-y
-
-            faire avancer / reculer la fenêtre d'une ligne
-
-    0    $
-
-            début (colonne 0) / fin (dernière colonne) de ligne
-            inclut les leading / trailing whitespaces
 
     _    g_
 
@@ -2977,17 +2730,11 @@ Quelques propriétés concernant une marque:
 
 On peut se rendre à une marque de 4 façons différentes, en la préfixant avec:
 
-        - `    endroit exact
-        - '    1er caractère non whitespace sur la ligne où se trouve la marque
-        - g`   comme ` mais sans poser la marque ' sur la ligne courante avant le déplacement
-        - g'   comme ' mais "
+    - `    endroit exact
+    - '    1er caractère non whitespace sur la ligne où se trouve la marque
+    - g`   comme ` mais sans poser la marque ' sur la ligne courante avant le déplacement
+    - g'   comme ' mais "
 
-
-    :$    :'a    :'a+2
-
-            déplacer le curseur sur la dernière ligne du fichier
-            sur la ligne portant la marque a
-            sur la 2e ligne suivant celle qui porte la marque a
 
     10yy']    p`]
 
@@ -3069,22 +2816,10 @@ On peut se rendre à une marque de 4 façons différentes, en la préfixant avec
 ### Navigation entre buffers
 
     ┌────────────────────┬────────────────────────────────────────────────────────────────────────────┐
-    │ :b foo             │ afficher le buffer foo; supporte la complétion                             │
-    ├────────────────────┼────────────────────────────────────────────────────────────────────────────┤
     │ :b pat C-d         │ lister les buffers dont le nom matche pat                                  │
     ├────────────────────┼────────────────────────────────────────────────────────────────────────────┤
     │ :b *foo/**/*bar    │ afficher le buffer dont un des dossiers sur le chemin se finit par foo     │
     │                    │ et dont le nom du fichier se finit par bar                                 │
-    ├────────────────────┼────────────────────────────────────────────────────────────────────────────┤
-    │ :buffer 5          │ afficher le buffer n° 5 dans la fenêtre courante                           │
-    ├────────────────────┼────────────────────────────────────────────────────────────────────────────┤
-    │ :b#                │ afficher l'alternate buffer (répétable, permet d'alterner entre 2 buffers) │
-    ├────────────────────┼────────────────────────────────────────────────────────────────────────────┤
-    │ :bfirst / :blast   │ afficher le 1er / dernier buffer de la buffer list                         │
-    │ [B ]B              │                                                                            │
-    ├────────────────────┼────────────────────────────────────────────────────────────────────────────┤
-    │ :bprevious / bnext │ afficher le buffer précédent / suivant de la buffer list                   │
-    │ [b ]b              │                                                                            │
     ├────────────────────┼────────────────────────────────────────────────────────────────────────────┤
     │ 3 C-^              │ charger le buffer n° 3                                                     │
     └────────────────────┴────────────────────────────────────────────────────────────────────────────┘
@@ -3114,11 +2849,6 @@ On peut se rendre à une marque de 4 façons différentes, en la préfixant avec
 
             décharger les buffers 5 et 10
             décharger les buffers 5 à  10
-
-    :bw[ipeout] …
-
-            supprimer totalement un buffer (… mêmes types d'arguments que pour :bd)
-            le buffer est déchargé et tout ce qui fait référence au buffer (marques, options) est perdu
 
     :1,10bufdo cmd
 
@@ -3243,9 +2973,6 @@ On peut se rendre à une marque de 4 façons différentes, en la préfixant avec
 
             Le bang est nécessaire pour autoriser Vim à écrire un buffer partiel.
 
-    :wa[ll]
-
-            écrire tous les buffers présents dans la buffer list
 
     :wqa[ll]    :xa[ll]
 
@@ -3258,11 +2985,13 @@ On peut se rendre à une marque de 4 façons différentes, en la préfixant avec
 ##
 ## Fichiers
 
-Qd on  doit passer un  nom de fichier  en argument à  une commande Ex,  on peut utiliser  un chemin
-relatif par  rapport au  dossier de  travail. Ce  dernier peut être  modifié via  :cd ou  :lcd. Un
-dossier  de travail  judicieux, càd  juste au-dessus  des fichiers  qu'on veut  éditer pendant  la
-session, permet donc d'économiser des frappes au clavier.
+Qd on  doit passer  un nom de  fichier en  argument à une  commande Ex,  on peut
+utiliser un chemin relatif par rapport au dossier de travail.
+Ce dernier peut être modifié via :cd ou :lcd.
+Un dossier  de travail judicieux,  càd juste  au-dessus des fichiers  qu'on veut
+éditer pendant la session, permet donc d'économiser des frappes au clavier.
 
+---
 
     :bro[wse] {cmd}
 
@@ -3373,46 +3102,6 @@ Ouvre dirvish pour laisser l'utilisateur choisir un fichier:
                     - un viewport horizontal
                     - un viewport vertcical
                     - un nouvel onglet
-
-
-    SPC eF / eS / eV / eT
-
-            Chercher un fichier à partir du dossier du fichier courant et l'éditer dans:
-
-                    - la fenêtre courante
-                    - un viewport horizontal
-                    - un viewport vertical
-                    - un nouvel onglet
-
-            `:find` échoue qd il existe plusieurs fichiers correspondant à l'argument qu'on lui a passé.
-            Dans ce cas, on peut:
-
-                    - réduire le développement à 1 seul match, en ajoutant un mot-clé présent
-                      dans le nom fu fichiers qui nous intéresse
-
-                    - appuyer sur Tab pour que Vim nous laisse choisir le match qui nous intéresse
-                      dans le wildmenu
-
-
-
-    SPC ef / es / ev / et
-
-            Chercher un fichier à partir du dossier de travail et l'éditer dans:
-
-                    - la fenêtre courante
-                    - un viewport horizontal
-                    - un viewport vertical
-                    - un nouvel onglet
-
-            Mnémotechnique: le  dossier de  travail est  plus important que  le dossier  du fichier
-            courant,  donc  on lui  donne  les  raccourcis  demandant  le moins  d'efforts  (lettres
-            minuscules au lieu de majuscules).
-
-
-    SPC cd    SPC lcd
-
-            Définir le dossier de travail comme étant le dossier contenant le buffer courant
-            globalement ou localement à la fenêtre.
 
 
     gf

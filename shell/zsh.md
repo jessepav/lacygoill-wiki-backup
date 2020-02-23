@@ -118,7 +118,7 @@ You may have installed it from the official repositories.
 In this case, `zsh-common` may have been installed as a dependency.
 The latter installs the file:
 
-        /etc/zsh/zshrc
+    /etc/zsh/zshrc
 
 Which contains a `compinit` command.
 If you  already executed this  command in your  `~/.zshrc`, it will  probably be
@@ -142,30 +142,30 @@ prevent `/etc/zsh/zshrc`...
 Also,  this may  be undesirable,  because you  may want  to source  some of  the
 remaining startup files like:
 
-        /etc/zsh_command_not_found
+    /etc/zsh_command_not_found
 
 ## Some commands work fine in bash, but fail in zsh:  “zsh: no matches found: <some pattern>”!
 
 You probably have passed an argument to your command which contains wildcards:
 
-        ?
-        *
-        [...]
+    ?
+    *
+    [...]
 
 MWE:
 
-        $ shopt -u nofailglob; echo ?
-        ?~
+    $ shopt -u nofailglob; echo ?
+    ?~
 
-        $ shopt -s nofailglob; echo ?
-        bash: no match: ?~
-        (because there's no file/directory in the cwd whose name contains only 1 character)~
+    $ shopt -s nofailglob; echo ?
+    bash: no match: ?~
+    (because there's no file/directory in the cwd whose name contains only 1 character)~
 
-        % unsetopt nomatch; echo ?
-        ?~
+    % unsetopt nomatch; echo ?
+    ?~
 
-        % setopt nomatch; echo ?
-        zsh: no matches found: ?~
+    % setopt nomatch; echo ?
+    zsh: no matches found: ?~
 
 Both shells try to expand a glob pattern.
 The difference is how they react to a glob pattern which they fail to expand.

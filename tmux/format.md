@@ -1252,6 +1252,7 @@ Indeed, any character inside `#{}` is syntaxic, including a space:
     scroll_position                 Scroll position in copy mode
     scroll_region_lower             Bottom of scroll region in pane
     scroll_region_upper             Top of scroll region in pane
+    selection_active                1 if selection started and changes with the cursor in copy mode
     session_alerts                  List of window indexes with alerts
     session_group                   Name of session group
     session_group_list              List of sessions in group

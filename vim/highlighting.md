@@ -553,12 +553,10 @@ This  is because  the  gui attribute  is applied  (`gui=bold`),  instead of  the
 I can reproduce with this minimal vimrc:
 
     set rtp-=~/.vim
+    set rtp-=~/.vim/after
     set rtp^=~/.vim/plugged/seoul256.vim
-    set rtp^=~/.vim
 
-    let [g:no_plugin, g:no_after_plugin] = [1,1]
-
-    filetype plugin indent on
+    filetype plugin on
     syntax enable
 
     set termguicolors
