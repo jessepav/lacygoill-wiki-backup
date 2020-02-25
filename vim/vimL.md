@@ -211,10 +211,10 @@ line than on the first line:
 
 ##
 # Pasting text
-## What are the pros of using `:put =` over `append()` or `setline()`?
+## What are the pros of using `:pu=` over `append()` or `setline()`?
 
-`:put =`  is more handy  on the command-line,  in an interactive  usage, because
-less verbose.
+`:pu=` is more handy on the  command-line, in an interactive usage, because less
+verbose.
 
 Also, it moves the cursor on the last line pasted.
 This is handy when you have multiple blocks of text to paste.
@@ -222,7 +222,7 @@ This is handy when you have multiple blocks of text to paste.
 With `append()` and `setline()`, you would have to re-compute the line address
 from which you want to paste every block, to avoid that they overlap.
 
-## What are the cons of using `:put =`?
+## What are the cons of using `:pu=`?
 
    - the cursor moves
    (which may be undesirable when you only have one paste to do)
@@ -280,13 +280,13 @@ UNexisting line 0 and the existing line 1.
 IOW, ABOVE line 1.
 The empty line is the old line 1.
 
-## What happens if I execute `:put =['foo', 'bar']` in a new buffer?  What's the difference with the previous `append()`?
+## What happens if I execute `:pu=['foo', 'bar']` in a new buffer?  What's the difference with the previous `append()`?
 
 Like with the previous `append()`, you get an empty line, 'foo', then 'bar'.
 Unlike the previous `append()`, the cursor moves on the 'bar' line.
 
 ###
-## How to use `append()` and make the cursor move like `:put =`?
+## How to use `append()` and make the cursor move like `:pu=`?
 
         :let lines = [...]
         :call append('.', lines) | exe '+'.len(lines)

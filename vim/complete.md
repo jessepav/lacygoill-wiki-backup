@@ -439,6 +439,18 @@ The actual messages depend on whether `'showmode'` is set and whether `'shm'` co
 # Todo
 ## ?
 
+Document that you can specify as many  arbitrary files as you want as completion
+sources.
+
+From `:h 'complete /k{dict}`:
+
+>     k{dict}     scan the file {dict}.  Several "k" flags can be given,
+>                 patterns are valid too.  For example: >
+>                     :set cpt=k/usr/dict/*,k~/spanish
+
+
+## ?
+
     $ vim -o =(echo ruby) =(echo rubyinterp) +'setl dict=/usr/share/dict/words' +startinsert!
 
 You want to complete `ruby` into `rubyinterp` (which is displayed in the other window).

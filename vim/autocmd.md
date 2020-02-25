@@ -456,7 +456,9 @@ When invoking  a callback/processing  a message,  Vim is  busy again,  and right
 afterward it's idle again (so it's safe to run sth again and `SafeStateAgain` is
 fired).
 
-# What's one pitfall of listening to `TerminalOpen`?
+##
+# What's one pitfall of
+## listening to `TerminalOpen`?
 
 There is no guarantee that the current buffer is a terminal buffer:
 
@@ -483,6 +485,48 @@ From `:h TerminalWinOpen`:
 
 >     This event is triggered only if the buffer is created with a window.
 
+## using `expand('<abuf>')`?
+
+You get a string containing a number, not a number.
+
+A function may interpret its argument differently depending on its type.
+That's the case for `bufname()`:
+
+>     If {expr} is a Number, that buffer number's name is given.
+>     ...
+>     If {expr} is a String, it is used as a |file-pattern| to match
+>     with the buffer names.
+
+    $ vim /tmp/file{1..99}
+    :echo bufname(3)
+    /tmp/file3~
+    :echo bufname('3')
+    ''~
+
+The second output is probably not what you would expect (i.e. `/tmp/file3`).
+That's because:
+
+   - `'3'` has been used as a file pattern
+   - `'3'` matches `/tmp/file3`, `/tmp/file13`, `/tmp/file23`, ...
+   - when there is more than one match, `bufname()` returns an empty string
+
+Solution: Cast the string into a number immediately.
+
+That is, don't write this:
+
+    expand('<abuf>')
+
+But this:
+
+    0+expand('<abuf>')
+
+Or shorter:
+
+    +expand('<abuf>')
+
+That's what Tpope does in vim-fugitive btw.
+
+##
 ##
 ##
 # Syntaxe

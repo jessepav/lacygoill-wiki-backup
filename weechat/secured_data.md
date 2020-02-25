@@ -74,17 +74,17 @@ Use the `/secure set` command:
 
 Example:
 
-    /secure set freenodepass mypassword
+    /secure set freenodepass mypassword_on_freenode
 
 The key  can be an  arbitrary name, which  you'll have to  use to refer  to your
 value later.
 
 ### How to make sure my secured data can be correctly decrypted?
 
-Press M-v in the `secured_data` buffer (the one opened by `/secure`).
+Press `M-v` in the `secured_data` buffer (the one opened by `/secure`).
 The password should be printed on the screen.
 
-Press M-v again to hide it.
+Press `M-v` again to hide it.
 
 ###
 ## How to refer to some secured data?
@@ -120,12 +120,12 @@ written by any user except you.
 
 Secure your password (make WeeChat encrypt it):
 
-    /secure set freenodepass mypassword
+    /secure set freenodepass mypassword_on_freenode
                 │
                 └ you can name your secured data however you like
 
-Press  M-v in  the `secured_data`  buffer, to  check that  your password  can be
-correctly decrypted.
+Press  `M-v`  in the  `secured_data`  buffer  (`/secure`),  to check  that  your
+password can be correctly decrypted.
 
 Make WeeChat use your secured password to connect to freenode, using the [SASL][1] framework:
 
@@ -179,8 +179,8 @@ Then try to find a MWE:
                                                   ^^^^^^
     /secure passphrase this is my passphrase
     /set sec.crypt.passphrase_file /tmp/passphrase
-    /secure set freenodepass mypassword
-                             ^^^^^^^^^^
+    /secure set freenodepass mypassword_on_freenode
+                             ^^^^^^^^^^^^^^^^^^^^^^
     /set irc.server.freenode.password "${sec.data.freenodepass}"
 
 Also,  run `/fset  autoconnect` to  disable all  networks to  which you  connect
