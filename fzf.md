@@ -947,6 +947,14 @@ See our todo in:
 
 ## ?
 
+Install some shell functions which run filter some frequently used commands with
+fzf.  Similar to what `C-g C-g` does.
+The idea being that `C-g C-g` could grow too much over time; we may need to move
+all commands linked to a similar topic (git, compilation, debugging, ...) behind
+a shell function with a telling name.
+
+## ?
+
 Use fzf (and/or fzf.vim) to create a mapping which would fuzzy search inside our
 abbreviations (including their {rhs}).
 It would be useful in a case such as this:

@@ -358,8 +358,6 @@ Use the `+` operator or `extend()`.
     echo list1 + list2
 
     echo extend(list1, list2)
-     │
-     └ the output of `extend()` is `list1` after being extended
 
 ---
 
@@ -373,7 +371,7 @@ Use the `+` operator or `extend()`.
 
 #### What's the difference between the 2 methods?
 
-The `+` operator doesn't alter any existing list:
+The `+` operator doesn't make mutate any list:
 
     let list = [1, 2]
     echo list + [3, 4]
@@ -381,8 +379,7 @@ The `+` operator doesn't alter any existing list:
     echo list
     [1, 2]~
 
-While `extend()`  operates in-place, and  alters the  first list it  receives as
-argument:
+OTOH, `extend()` makes the first list mutate:
 
     let list = [1, 2]
     echo extend(list, [3, 4])
@@ -398,6 +395,10 @@ But not the second one:
     [1, 2, 3, 4]~
     echo blist
     [3, 4]~
+
+Remember: the  first argument **m**utates, the  second one **w**ins (in  case of
+conflict) **w**ithout **k**eep being used (as third argument).
+Mnemonic: "1. mutates, 2. wins without keep" ("MWWK").
 
 ####
 ### How to insert some list inside another list, at an arbitrary position?
@@ -699,7 +700,7 @@ Use `extend()`:
     {'four': 4, 'one': 1, 'two': 2, 'three': 3}~
 
 ### In case of conflict between two keys with different values, how to
-#### keep the value of the first dictionary?
+#### make the value of the first dictionary win?
 
 Use the optional third argument `keep`:
 
