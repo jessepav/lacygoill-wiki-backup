@@ -1104,7 +1104,7 @@ Minpac is a minimal package manager for Vim 8 (and Neovim).
 This uses the packages feature and the  jobs feature which have been newly added
 on Vim 8.
 
-<https://github.com/k-takata/minpac> 1067 sloc
+<https://github.com/k-takata/minpac> 1103 sloc
 
 Why is minpac interesting:
 
@@ -1119,7 +1119,7 @@ Why is minpac interesting:
 
 Alternative:
 
-<https://github.com/kristijanhusak/vim-packager> 944 sloc
+<https://github.com/kristijanhusak/vim-packager> 1139 sloc
 
 ## miniyank
 

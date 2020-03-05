@@ -400,29 +400,29 @@ vim ~/.config/weechat/buffers.conf
 
 From the less to the most complex:
 
-<https://weechat.org/files/doc/stable/weechat_quickstart.en.html>
-<https://weechat.org/files/doc/stable/weechat_faq.en.html>
-<https://guides.fixato.org/setting_up_weechat.html>
-<https://github.com/weechat/weechat/wiki>
-<https://gist.github.com/pascalpoitras/8406501>
+- <https://weechat.org/files/doc/stable/weechat_quickstart.en.html>
+- <https://weechat.org/files/doc/stable/weechat_faq.en.html>
+- <https://guides.fixato.org/setting_up_weechat.html>
+- <https://github.com/weechat/weechat/wiki>
+- <https://gist.github.com/pascalpoitras/8406501>
 
-<https://weechat.org/files/doc/stable/weechat_user.en.html>
-<https://weechat.org/files/doc/stable/weechat_scripting.en.html>
-<https://weechat.org/files/doc/stable/weechat_plugin_api.en.html>
-<https://weechat.org/files/doc/stable/weechat_relay_protocol.en.html>
+- <https://weechat.org/files/doc/stable/weechat_user.en.html>
+- <https://weechat.org/files/doc/stable/weechat_scripting.en.html>
+- <https://weechat.org/files/doc/stable/weechat_plugin_api.en.html>
+- <https://weechat.org/files/doc/stable/weechat_relay_protocol.en.html>
 
 Misc:
 
-<https://news.ycombinator.com/item?id=12267254>
-<https://aaronparecki.com/2015/08/29/8/why-i-live-in-irc>
-<https://botbot.me/how-to-setup-irc-channel/>
+- <https://news.ycombinator.com/item?id=12267254>
+- <https://aaronparecki.com/2015/08/29/8/why-i-live-in-irc>
+- <https://botbot.me/how-to-setup-irc-channel/>
 
 ---
 
 Web interface:
 
-<https://hveem.no/a-modern-IRC-experience>
-<https://github.com/glowing-bear/glowing-bear/>
+- <https://hveem.no/a-modern-IRC-experience>
+- <https://github.com/glowing-bear/glowing-bear/>
 
 Pro:
 
@@ -433,8 +433,8 @@ Pro:
 
 Network-specific rules:
 
-<https://freenode.net/kb/all>
-<https://www.abjects.net/page.php?10>
+- <https://freenode.net/kb/all>
+- <https://www.abjects.net/page.php?10>
 
 ## learn how to paste multiline message
 

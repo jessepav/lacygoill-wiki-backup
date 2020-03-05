@@ -300,9 +300,9 @@ While this will work in C89, *and* in C99:
 # Resources
 ## Programs and answers
 
-<http://knking.com/books/c2/programs/index.html>
-<http://knking.com/books/c2/answers/index.html>
-<https://github.com/williamgherman/c-solutions>
+- <http://knking.com/books/c2/programs/index.html>
+- <http://knking.com/books/c2/answers/index.html>
+- <https://github.com/williamgherman/c-solutions>
 
 ##
 # TODO

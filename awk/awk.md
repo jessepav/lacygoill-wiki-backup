@@ -283,8 +283,9 @@ As a result, a comparison with a string may be influenced by `CONVFMT`:
 # ?
 
 For more info, see page 433 of the gawk user's guide, and:
-<http://gawkextlib.sourceforge.net/>
-<https://sourceforge.net/projects/gawkextlib/files/>
+
+- <http://gawkextlib.sourceforge.net/>
+- <https://sourceforge.net/projects/gawkextlib/files/>
 
 Install gawk shared library:
 
@@ -4443,8 +4444,8 @@ It's probably because awk can operate on multi-line records.
 
 Read this:
 
-<https://github.com/soimort/translate-shell/wiki/AWK-Style-Guide>
-<https://softwareengineering.stackexchange.com/questions/157407/best-practice-on-if-return#comment300476_157407>
+- <https://github.com/soimort/translate-shell/wiki/AWK-Style-Guide>
+- <https://softwareengineering.stackexchange.com/questions/157407/best-practice-on-if-return#comment300476_157407>
 
 Usually, there's a difference between these snippets:
 
@@ -4493,8 +4494,9 @@ The first time we read our first awk book,  we stopped at the page 84 of the pdf
 ## Read: <http://www.awklang.org/>
 
 Have a look at the links in the sidebar:
-<https://github.com/e36freak/awk-libs>
-<https://github.com/ericpruitt/wcwidth.awk> (Miscellaneous > More AWK libraries...)
+
+- <https://github.com/e36freak/awk-libs>
+- <https://github.com/ericpruitt/wcwidth.awk> (Miscellaneous > More AWK libraries...)
 ...
 
 ## Document namespaces

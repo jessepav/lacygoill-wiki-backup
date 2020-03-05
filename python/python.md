@@ -221,8 +221,8 @@ To get rid of the warning:
     Your decision? 5
 
 See:
-<https://serverfault.com/a/569923>
-<https://security.stackexchange.com/a/69089>
+- <https://serverfault.com/a/569923>
+- <https://security.stackexchange.com/a/69089>
 
 ## Extract the contents of the tarball
 
@@ -238,8 +238,8 @@ fail because of a lack of space.
 
 Check how much space you have on the partition where you extract with `\df -h` or `dfc`.
 
-<https://stackoverflow.com/a/31493804/9780968>
-<https://unix.stackexchange.com/a/16158/289772>
+- <https://stackoverflow.com/a/31493804/9780968>
+- <https://unix.stackexchange.com/a/16158/289772>
 
 ## Dependencies
 

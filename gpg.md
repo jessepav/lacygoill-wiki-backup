@@ -11,6 +11,6 @@
     Your decision? 5
 
 See:
-<https://serverfault.com/a/569923>
-<https://security.stackexchange.com/a/69089>
+- <https://serverfault.com/a/569923>
+- <https://security.stackexchange.com/a/69089>
 

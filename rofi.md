@@ -92,9 +92,9 @@ Document:
 
 # document script mode
 
-<https://github.com/DaveDavenport/rofi/issues/205>
-<https://github.com/DaveDavenport/rofi/issues/63>
-<https://github.com/DaveDavenport/rofi/tree/next/Examples>
+- <https://github.com/DaveDavenport/rofi/issues/205>
+- <https://github.com/DaveDavenport/rofi/issues/63>
+- <https://github.com/DaveDavenport/rofi/tree/next/Examples>
 
     $ rofi -modi "test:/path/to/script.sh" -show test
 

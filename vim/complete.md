@@ -448,7 +448,6 @@ From `:h 'complete /k{dict}`:
 >                 patterns are valid too.  For example: >
 >                     :set cpt=k/usr/dict/*,k~/spanish
 
-
 ## ?
 
     $ vim -o =(echo ruby) =(echo rubyinterp) +'setl dict=/usr/share/dict/words' +startinsert!

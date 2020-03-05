@@ -871,9 +871,9 @@ Document the [new][2] `-addr=quickfix`.
 
 See:
 
-<https://github.com/vim/vim/issues/3654>
-<https://github.com/vim/vim/pull/3653>
-<https://github.com/vim/vim/pull/3655>
+- <https://github.com/vim/vim/issues/3654>
+- <https://github.com/vim/vim/pull/3653>
+- <https://github.com/vim/vim/pull/3655>
 
     com -count -addr=quickfix Test echo <count>
     :vim /the/j %
@@ -912,9 +912,9 @@ I doubt that will happen.
 To read:
 
 `:h sign-support`
-<https://vi.stackexchange.com/questions/15846/is-there-a-way-to-quickly-jump-to-signs>
-<https://gist.github.com/BoltsJ/5942ecac7f0b0e9811749ef6e19d2176>
-<https://github.com/tpope/vim-scriptease/pull/23>
+- <https://vi.stackexchange.com/questions/15846/is-there-a-way-to-quickly-jump-to-signs>
+- <https://gist.github.com/BoltsJ/5942ecac7f0b0e9811749ef6e19d2176>
+- <https://github.com/tpope/vim-scriptease/pull/23>
 
 # ?
 

@@ -248,8 +248,8 @@ Or:
 # Appearance
 ## Where to get information about XFCE?
 
-<https://docs.xfce.org/start>
-<https://wiki.xfce.org/faq>
+- <https://docs.xfce.org/start>
+- <https://wiki.xfce.org/faq>
 
 ## How to change the cursor theme?
 
@@ -1992,8 +1992,8 @@ View gifs in your terminal.
 
 ### direnv
 
-<https://github.com/direnv/direnv>
-<https://github.com/direnv/direnv.vim>
+- <https://github.com/direnv/direnv>
+- <https://github.com/direnv/direnv.vim>
 
 direnv is an environment switcher for the shell.
 It knows  how to hook  into bash, zsh,  tcsh, fish shell  and elvish to  load or
@@ -2721,9 +2721,9 @@ See our comments inside `tmux#capture_pane#main()`:
             Alternative to `find(1)`.
 
 
-<https://www.reddit.com/r/linux/comments/21rm3o/what_is_a_useful_linux_tool_that_you_use_that/>
-<https://www.reddit.com/r/linux/comments/mi80x/give_me_that_one_command_you_wish_you_knew_years/>
-<https://www.reddit.com/r/linux/comments/389mnk/what_are_your_favourite_not_well_known_cli/>
+- <https://www.reddit.com/r/linux/comments/21rm3o/what_is_a_useful_linux_tool_that_you_use_that/>
+- <https://www.reddit.com/r/linux/comments/mi80x/give_me_that_one_command_you_wish_you_knew_years/>
+- <https://www.reddit.com/r/linux/comments/389mnk/what_are_your_favourite_not_well_known_cli/>
 
 
 What is a bitmask and a mask?

@@ -1605,8 +1605,8 @@ updated).
 
 ## Document the errorformat shell utility
 
-<https://github.com/reviewdog/errorformat>
-<https://reviewdog.github.io/errorformat-playground/>
+- <https://github.com/reviewdog/errorformat>
+- <https://reviewdog.github.io/errorformat-playground/>
 
 > It's basically for practicing and checking errorformat with ease in browsers.
 > I expect users can write erroformats in playground first, validate them, and use

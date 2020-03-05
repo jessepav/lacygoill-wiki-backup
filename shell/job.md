@@ -117,8 +117,8 @@ session will be without a leader until it is dissolved.
 
 ## ?
 
-<https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap03.html>
-<https://stackoverflow.com/questions/6548823/use-and-meaning-of-session-and-process-group-in-unix>
+- <https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap03.html>
+- <https://stackoverflow.com/questions/6548823/use-and-meaning-of-session-and-process-group-in-unix>
 
 ##
 # Jobs

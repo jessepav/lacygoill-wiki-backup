@@ -117,8 +117,8 @@ Even more formally:
 > A set  S is countable if  there exists an injective  function f from S  to the
 > natural numbers N = {0, 1, 2, 3, ...}.
 
-<https://en.wikipedia.org/wiki/Countable_set#Definition>
-<https://en.wikipedia.org/wiki/Injective_function>
+- <https://en.wikipedia.org/wiki/Countable_set#Definition>
+- <https://en.wikipedia.org/wiki/Injective_function>
 
 ## How to prove that
 ### the set of rational numbers is countable?
@@ -382,8 +382,8 @@ precision.
 
 As many as the measured quantity with the smallest amount of significant digits.
 
-<https://en.wikipedia.org/wiki/Significant_figures#Arithmetic>
-<https://en.wikipedia.org/wiki/Significance_arithmetic>
+- <https://en.wikipedia.org/wiki/Significant_figures#Arithmetic>
+- <https://en.wikipedia.org/wiki/Significance_arithmetic>
 
 ## What's the quantity calculated by
 ### `8 × 8`?

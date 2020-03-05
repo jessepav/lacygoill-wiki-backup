@@ -298,9 +298,9 @@ common DE as a fallback in case of an issue.
 And anyway, right now, we definitely need to disable lightdm before building our DE.
 
 See:
-<https://askubuntu.com/questions/882422/how-can-i-disable-all-display-managers>
-<https://askubuntu.com/questions/16371/how-do-i-disable-x-at-boot-time-so-that-the-system-boots-in-text-mode/79682#79682>
-<https://superuser.com/questions/974797/how-to-boot-a-linux-system-without-graphical-server>
+- <https://askubuntu.com/questions/882422/how-can-i-disable-all-display-managers>
+- <https://askubuntu.com/questions/16371/how-do-i-disable-x-at-boot-time-so-that-the-system-boots-in-text-mode/79682#79682>
+- <https://superuser.com/questions/974797/how-to-boot-a-linux-system-without-graphical-server>
 
 ---
 
@@ -460,13 +460,13 @@ So, for the time being, try to install and configure openbox.
 
 Read: <http://openbox.org/wiki/Help:Getting_started>
 
-<http://openbox.org/wiki/Help:Autostart>
-<http://openbox.org/wiki/Help:Openbox-session>
-<http://openbox.org/wiki/Help:Contents#Cool_programs_to_run_with_Openbox>
+- <http://openbox.org/wiki/Help:Autostart>
+- <http://openbox.org/wiki/Help:Openbox-session>
+- <http://openbox.org/wiki/Help:Contents#Cool_programs_to_run_with_Openbox>
 
-<http://openbox.org/wiki/Help:Themes>
-<https://www.opendesktop.org/browse/cat/140/ord/top/>
-<https://www.deviantart.com/customization/skins/linuxutil/winmanagers/openbox/newest/>
+- <http://openbox.org/wiki/Help:Themes>
+- <https://www.opendesktop.org/browse/cat/140/ord/top/>
+- <https://www.deviantart.com/customization/skins/linuxutil/winmanagers/openbox/newest/>
 
 Also, have a look at the output of `$ aptitude show openbox`:
 
@@ -483,11 +483,12 @@ Btw, what's this bar:
 # ?
 
 We should also learn how to reduce latency, and how to better judge a terminal.
-<https://anarc.at/blog/2018-05-04-terminal-emulators-2/#latency> (read the first part too)
-<https://lwn.net/Articles/751763/> (read the first part too)
-<https://pavelfatin.com/typing-with-pleasure/>
-<https://pavelfatin.com/typometer/>
-<https://github.com/pavelfatin/typometer/issues/2>
+
+- <https://anarc.at/blog/2018-05-04-terminal-emulators-2/#latency> (read the first part too)
+- <https://lwn.net/Articles/751763/> (read the first part too)
+- <https://pavelfatin.com/typing-with-pleasure/>
+- <https://pavelfatin.com/typometer/>
+- <https://github.com/pavelfatin/typometer/issues/2>
 
 We recently have switched from urxvt to st.
 I think it was a wise decision for different reasons.

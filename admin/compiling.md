@@ -545,9 +545,9 @@ Example:
 # Todo
 ## document `apt-src`, `autoapt`, `autodeb`
 
-<https://wiki.debian.org/apt-src>
-<https://help.ubuntu.com/community/AutoApt>
-<https://wiki.ubuntu.com/AutoDeb>
+- <https://wiki.debian.org/apt-src>
+- <https://help.ubuntu.com/community/AutoApt>
+- <https://wiki.ubuntu.com/AutoDeb>
 
 auto-apt can find missing dependencies:
 
@@ -581,9 +581,9 @@ To avoid:
 
 ---
 
-<https://wiki.debian.org/HowToPackageForDebian>
-<https://wiki.debian.org/Packaging>
-<https://github.com/mpv-player/mpv-build#instructions-for-debian--ubuntu-package>
+- <https://wiki.debian.org/HowToPackageForDebian>
+- <https://wiki.debian.org/Packaging>
+- <https://github.com/mpv-player/mpv-build#instructions-for-debian--ubuntu-package>
 
 ---
 

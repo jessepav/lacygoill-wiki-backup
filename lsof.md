@@ -174,9 +174,9 @@ Analogy:
                    and where you can put your outgoing mail as well as receive mail
 
 Sources:
-<https://unix.stackexchange.com/a/193665/289772>
-<https://unix.stackexchange.com/a/16323/289772>
-<https://unix.stackexchange.com/a/193824/289772>
+- <https://unix.stackexchange.com/a/193665/289772>
+- <https://unix.stackexchange.com/a/16323/289772>
+- <https://unix.stackexchange.com/a/193824/289772>
 
 ## What's a Unix domain socket?
 

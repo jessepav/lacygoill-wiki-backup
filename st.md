@@ -400,8 +400,8 @@ Also, if you write a script to install st, make sure it runs `$ make clean`.
 
 It would be useful to gather some useful tips/information organically over time.
 
-<https://suckless.org/community/>
-<https://www.oftc.net/>
+- <https://suckless.org/community/>
+- <https://www.oftc.net/>
 
 This requires that you register your nick on the OFTC network.
 

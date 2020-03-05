@@ -348,7 +348,6 @@ When {file} contains wildcards it is expanded to all matching files.  Example:
     │       │ then search under `start/` and `opt/` in 'pp' │
     └───────┴───────────────────────────────────────────────┘
 
-
 ##
 ##
 ##

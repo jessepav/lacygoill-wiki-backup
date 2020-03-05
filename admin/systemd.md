@@ -345,8 +345,9 @@ It's `list-units`:
 ## Why should I install the package `usrmerge`?
 
 For the general case, see:
-<https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/>
-<https://wiki.debian.org/UsrMerge>
+
+- <https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/>
+- <https://wiki.debian.org/UsrMerge>
 
 For systemd in particular, it makes things simpler to understand, otherwise unit
 files may be in one of:
@@ -1412,15 +1413,15 @@ instance, systemd interprets  the configuration file user.conf and  the files in
 user.conf.d directories.
 See systemd-system.conf(5) for more information.
 
-<https://askubuntu.com/questions/676007/how-do-i-make-my-systemd-service-run-via-specific-user-and-start-on-boot>
-<https://superuser.com/questions/476379/how-do-i-setup-a-systemd-service-to-be-started-by-a-non-root-user-as-a-user-daem>
-<https://superuser.com/questions/853717/systemd-user-and-system>
+- <https://askubuntu.com/questions/676007/how-do-i-make-my-systemd-service-run-via-specific-user-and-start-on-boot>
+- <https://superuser.com/questions/476379/how-do-i-setup-a-systemd-service-to-be-started-by-a-non-root-user-as-a-user-daem>
+- <https://superuser.com/questions/853717/systemd-user-and-system>
 
-<https://wiki.archlinux.org/index.php/Systemd>
-<https://wiki.archlinux.org/index.php/Systemd/User>
-<https://wiki.archlinux.org/index.php/Systemd_FAQ>
-<https://wiki.archlinux.org/index.php/Environment_variables#Using_pam_env>
-<https://wiki.archlinux.org/index.php/Systemd/Timers>
+- <https://wiki.archlinux.org/index.php/Systemd>
+- <https://wiki.archlinux.org/index.php/Systemd/User>
+- <https://wiki.archlinux.org/index.php/Systemd_FAQ>
+- <https://wiki.archlinux.org/index.php/Environment_variables#Using_pam_env>
+- <https://wiki.archlinux.org/index.php/Systemd/Timers>
 
 CONCEPTS
 
@@ -2054,9 +2055,9 @@ For   more  info   about   the  difference   between  `GRUB_CMDLINE_LINUX`   and
 ##
 ## Watch these videos
 
-<https://www.youtube.com/watch?v=S9YmaNuvw5U>
-<https://www.youtube.com/watch?v=tY9GYsoxeLg>
-<https://www.youtube.com/watch?v=V0xoCA_qO58>
+- <https://www.youtube.com/watch?v=S9YmaNuvw5U>
+- <https://www.youtube.com/watch?v=tY9GYsoxeLg>
+- <https://www.youtube.com/watch?v=V0xoCA_qO58>
 
 ## try to install an xbindkeys service, and a `keyboard_setup` service
 
@@ -2189,9 +2190,9 @@ from the original session is:
 
 Source:
 
-<https://github.com/systemd/systemd/pull/1022>
-<https://github.com/systemd/systemd/issues/825#issuecomment-127957710>
-<https://github.com/systemd/systemd/issues/825#issuecomment-127917622>
+- <https://github.com/systemd/systemd/pull/1022>
+- <https://github.com/systemd/systemd/issues/825#issuecomment-127957710>
+- <https://github.com/systemd/systemd/issues/825#issuecomment-127917622>
 
 However, the readline key bindings don't work.
 Why?

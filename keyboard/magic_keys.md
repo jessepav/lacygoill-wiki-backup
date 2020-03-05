@@ -110,11 +110,11 @@ state, or to obtain a clean reboot when nothing else works.
 
 ## Where can I find more information about the SysRq functions?
 
-<https://fedoraproject.org/wiki/QA/Sysrq>
-<https://en.wikipedia.org/wiki/Magic_SysRq_key>
+- <https://fedoraproject.org/wiki/QA/Sysrq>
+- <https://en.wikipedia.org/wiki/Magic_SysRq_key>
 
-<https://askubuntu.com/questions/4408/what-sho>uld-i-do-when-ubuntu-freezes
-<https://askubuntu.com/questions/11002/alt-sys>rq-reisub-doesnt-reboot-my-laptop
+- <https://askubuntu.com/questions/4408/what-should-i-do-when-ubuntu-freezes>
+- <https://askubuntu.com/questions/11002/alt-sysrq-reisub-doesnt-reboot-my-laptop>
 
 ##
 ## How to invoke a sysrq function?

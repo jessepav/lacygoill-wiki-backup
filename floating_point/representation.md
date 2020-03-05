@@ -212,8 +212,8 @@ The bit  in the  leftmost position  of the sum  cannot be  stored in  the 32-bit
 computer word, and thus is discarded.
 The result is 0, which is exactly what we want for `71 + (-71)`.
 
-<https://en.wikipedia.org/wiki/Two%27s_complement>
-<https://en.wikipedia.org/wiki/Method_of_complements>
+- <https://en.wikipedia.org/wiki/Two%27s_complement>
+- <https://en.wikipedia.org/wiki/Method_of_complements>
 
 ---
 

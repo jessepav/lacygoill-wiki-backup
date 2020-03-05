@@ -889,10 +889,10 @@ Try to update it.
 
 Read these links for more info:
 
-<https://github.com/junegunn/fzf/issues/1486>
-<https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1813873>
-<https://wiki.ubuntu.com/Kernel/LTSEnablementStack>
-<https://wiki.ubuntu.com/Kernel/RollingLTSEnablementStack>
+- <https://github.com/junegunn/fzf/issues/1486>
+- <https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1813873>
+- <https://wiki.ubuntu.com/Kernel/LTSEnablementStack>
+- <https://wiki.ubuntu.com/Kernel/RollingLTSEnablementStack>
 
 Wait for a kernel upgrade, or try this command:
 
@@ -906,15 +906,6 @@ If  you  also  installed  the  package  `xserver-xorg-hwe-16.04`,  and  you  get
 distracting artifacts, read this:
 
 <http://ubuntuhandbook.org/index.php/2017/02/install-remove-enablement-stacks-ubuntu-16-04/>
-
-## ?
-
-    spc fr    (:fzhistory)
-    escape
-    :tabnew
-
-A new tab page  is correctly opened, but the focus stay in  the same window, and
-the fzf buffer is replaced with the last visited buffer.
 
 ##
 # TODO
@@ -931,9 +922,9 @@ Learn the syntax of `fd(1)`, and try to adapt the code.
 
 ## To read
 
-<http://blog.owen.cymru/fzf-ripgrep-navigate-with-bash-faster-than-ever-before/>
-<https://bluz71.github.io/2018/11/26/fuzzy-finding-in-bash-with-fzf.html>
-<https://bluz71.github.io/2018/12/04/fuzzy-finding-in-vim-with-fzf.html>
+- <http://blog.owen.cymru/fzf-ripgrep-navigate-with-bash-faster-than-ever-before/>
+- <https://bluz71.github.io/2018/11/26/fuzzy-finding-in-bash-with-fzf.html>
+- <https://bluz71.github.io/2018/12/04/fuzzy-finding-in-vim-with-fzf.html>
 
 ## Learn how to customize fzf options via `_fzf_comprun`.
 
@@ -943,7 +934,7 @@ Learn the syntax of `fd(1)`, and try to adapt the code.
 
 See our todo in:
 
-    ~/.vim/plugged/vim-gitcommit/after/ftplugin/gitcommit.vim
+    ~/.vim/plugged/vim-git/after/ftplugin/gitcommit.vim
 
 ## ?
 

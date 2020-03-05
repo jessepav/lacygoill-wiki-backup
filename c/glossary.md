@@ -51,15 +51,15 @@ and ISO/IEC 9899:1990, in 1990.
 
 Version of the C language described in the standard ISO/IEC 9899:1999, in 1999.
 
-<https://en.wikipedia.org/wiki/C99>
-<https://gcc.gnu.org/c99status.html>
+- <https://en.wikipedia.org/wiki/C99>
+- <https://gcc.gnu.org/c99status.html>
 
 ## C11
 
 Version of the C language described in the standard ISO/IEC 9899:2011, in 2011.
 
-<https://en.wikipedia.org/wiki/C11_%28C_standard_revision%29>
-<https://gcc.gnu.org/wiki/C11Status>
+- <https://en.wikipedia.org/wiki/C11_%28C_standard_revision%29>
+- <https://gcc.gnu.org/wiki/C11Status>
 
 ## C17
 

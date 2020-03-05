@@ -36,9 +36,9 @@ If you're not installing the dependencies for  the first time, and you just want
 to update them, try to run `$ cvs update`.
 
 See these links for more info:
-<https://unix.stackexchange.com/a/302887/289772>
-<http://software.schmorp.de/pkg/libev.html>
-<http://software.schmorp.de/pkg/libptytty.html>
+- <https://unix.stackexchange.com/a/302887/289772>
+- <http://software.schmorp.de/pkg/libev.html>
+- <http://software.schmorp.de/pkg/libptytty.html>
 
 ### apply patches
 
@@ -107,8 +107,8 @@ You may need to tweak the value depending on your machine/environment (-1, -5, .
 
 The result may not be always as good as the patch.
 For more info, see:
-<https://bugs.launchpad.net/ubuntu/+source/rxvt-unicode/+bug/309792>
-<https://unix.stackexchange.com/questions/118641/font-rendering-issue-in-urxvt-too-much-space-between-characters>
+- <https://bugs.launchpad.net/ubuntu/+source/rxvt-unicode/+bug/309792>
+- <https://unix.stackexchange.com/questions/118641/font-rendering-issue-in-urxvt-too-much-space-between-characters>
 
 ### configure
 
@@ -143,8 +143,8 @@ For more info, see:
     --with-term=rxvt-unicode-256color
 
 You can find which options ubuntu devs use here:
-<https://launchpadlibrarian.net/411350604/buildlog_ubuntu-disco-amd64.rxvt-unicode_9.22-6_BUILDING.txt.gz>
-<https://launchpadlibrarian.net/268049601/buildlog_ubuntu-xenial-amd64.rxvt-unicode_9.22-1ubuntu1~ppa1~x_BUILDING.txt.gz>
+- <https://launchpadlibrarian.net/411350604/buildlog_ubuntu-disco-amd64.rxvt-unicode_9.22-6_BUILDING.txt.gz>
+- <https://launchpadlibrarian.net/268049601/buildlog_ubuntu-xenial-amd64.rxvt-unicode_9.22-1ubuntu1~ppa1~x_BUILDING.txt.gz>
 
 This last link was tricky to find.
 
