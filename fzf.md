@@ -908,7 +908,129 @@ distracting artifacts, read this:
 <http://ubuntuhandbook.org/index.php/2017/02/install-remove-enablement-stacks-ubuntu-16-04/>
 
 ##
-# TODO
+# Todo
+## I have an issue with the fzf popup/floating window when invoking fzf from (N)Vim!
+
+You need to find a MWE.
+Unfortunately, the  fzf and fzf.vim plugins  are very long, and  bisecting their
+code can take a long time.
+
+Here's a start; write this in `/tmp/vimrc`:
+
+    " to avoid an error if you open a popup terminal on VimEnter;
+    " netrw runs `:windo` on VimEnter which is forbidden while the focus is in a popup terminal
+    let g:loaded_netrwPlugin = 1
+    set rtp^=~/.fzf rtp-=~/.vim rtp-=~/.vim/after hidden
+    " useful if you make the fzf Vim plugin just run the fzf binary;
+    " in your home it would take too much time (because too many files)
+    cd /tmp
+    nno cd :call fzf#run()<cr>
+
+In the fzf plugin, simplify the `fzf#run()` function definition like so:
+
+    function! fzf#run() abort
+      set shell=sh
+      let dict = {
+        \ 'dir': '/tmp',
+        \ 'window': {
+        \     'width': 0.9,
+        \     'height': 0.6,
+        \     'highlight': 'Normal',
+        \     'border': 'sharp',
+        \ }}
+      let temp = {'result': tempname()}
+      let command = 'fzf >'..temp.result
+      return s:execute_term(dict, command, temp)
+    endfunction
+
+Finally, start Vim like this:
+
+    $ vim -Nu /tmp/vimrc
+    " press cd
+
+You'll still have to bisect the  code in `s:execute_term()` and all script-local
+functions it invokes; but if you can reproduce your issue with this code, then
+you won't have to bisect:
+
+   - your vimrc
+   - the fzf.vim plugin
+   - `fzf#wrap()`
+   - `fzf#run()`
+
+That's already a huge boost.
+
+If it  doesn't work, try  to find  a better start,  and update the  code written
+previously, so  that it's as  reliable as possible  for all fzf-related  bugs we
+find in the future.
+
+Also, try to bisect `s:execute_term()`, and  see whether we could remove it from
+our generic MWE, so that we don't have to bisect it again and again after each bug.
+
+In the  end, it would  be nice if  we had some generic  MWE from which  we could
+quickly find another MWE for a  (N)Vim bug related to the popup/floating window,
+and triggered by an fzf command.
+
+---
+
+Tip: Visually select a long function you want to simplify.
+Then search for this pattern:
+
+    \%V\%(end\)\@<!if
+
+Below each match, write:
+
+    let g:d_if_1 = 1
+               ^
+               increment the number after each match
+
+Reproduce the issue, then, on the command-line, tab-complete `echo g:d_`.
+Note the list of numbers which appear; e.g.:
+
+    echo g:d_
+    Tab
+    echo g:d_if_2
+    Tab
+    echo g:d_if_5
+    Tab
+    echo g:d_if_8
+    Tab
+    echo g:d_
+
+In this example, you know that only `d_if_2`, `d_if_5` and `d_if_8` have been created.
+Remove any `if/elseif` block/clause containing  a line with a `d_if_N` variable,
+`N` being a number different than `2`, `5` and `8`.
+
+If you set `'wildmenu'`, you probably won't have to press Tab more than once.
+
+---
+
+Pitfall:  You may find out that after  removing `setf fzf`, pressing `Esc` in an
+fzf buffer doesn't close its window anymore.
+This is because of `vim-terminal` which installs these autocmds:
+
+    au TerminalWinOpen * tno <buffer><nowait><silent> <esc><esc> <c-\><c-n>:call terminal#fire_termleave()<cr>
+    au FileType fzf tunmap <buffer> <esc><esc>
+
+The first one installs a mapping all terminal buffers; the second one removes it
+in fzf buffers.  If  you don't set the filetype to fzf,  it's no longer removed,
+which explains this issue.
+
+Solution: as long  as you start Vim  with `vim-terminal`, make sure  to run this
+command in an fzf buffer:
+
+    sil! tunmap <buffer> <esc><esc>
+
+Write  it  –  for  example  –  right after  this  line  (which  starts  fzf)  in
+`s:execute_term()`:
+
+    let fzf.buf = term_start([&shell, &shellcmdflag, command], {'curwin': 1, 'exit_cb': function(fzf.on_exit)})
+
+---
+
+The creation of the popup window results from this chain of function calls:
+
+    fzf#run() → s:execute_term() → s:split() → s:popup() → s:create_popup() → popup_create()
+
 ## fzf integration is slow!
 
 In  `~/.config/ranger/commands.py`, we  define the  `fzf_select` ranger  command

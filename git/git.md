@@ -1593,6 +1593,19 @@ local est en avance  par rapport à celle du dépôt distant, et  si des fichier
 dossiers sont untracked, ou staged mais pas committed.
 
 ##
+# Fork
+## How to update a fork?
+
+    $ git clone git@github.com:YOUR-USERNAME/YOUR-FORKED-REPO.git
+    $ cd into/cloned/fork-repo
+    $ git remote add upstream git://github.com/ORIGINAL-DEV-USERNAME/REPO-YOU-FORKED-FROM.git
+    $ git fetch upstream
+    $ git pull upstream master
+    $ git push
+
+<https://gist.github.com/CristinaSolana/1885435>
+
+##
 # Pull Request
 ## How to create one?
 
@@ -1661,7 +1674,10 @@ Fix the error in your editor, then:
 ##
 ## How to test an existing one?
 
-    $ git remote add upstream git://github.com/<original-dev-username>/<repo-you-forked-from>.git
+For Vim:
+
+    # may fail if you did it already; in that case, ignore the error and go on
+    $ git remote add upstream git://github.com/vim/vim.git
     $ git fetch upstream pull/<PR-id>/head:<PR-branch>
     $ git checkout <PR-branch>
 

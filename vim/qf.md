@@ -610,8 +610,7 @@ Without the `'efm'` key, Vim will use the `'efm'` option.
 
 ## How to populate a valid qfl with `$ find /etc -name '*conf'` without altering the 'efm' option?
 
-    let qfl = getqflist({'lines': systemlist('find /etc/ -name "*.conf"'),
-        \                'efm':   '%f'})
+    let qfl = getqflist({'lines': systemlist('find /etc/ -name "*.conf"'), 'efm': '%f'})
     call setqflist(get(qfl, 'items', []))
     cw
 
