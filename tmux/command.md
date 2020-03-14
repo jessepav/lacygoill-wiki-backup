@@ -1572,3 +1572,8 @@ split-window and kill-session in that order.
 
 >       $ tmux new-session -d 'vi /etc/passwd' \; split-window -d \; attach
 
+##
+# study
+## the `-d` flag of `run-shell`
+
+<https://github.com/tmux/tmux/commit/516f6099fc2e928587e573176cd753ce3de5806b>

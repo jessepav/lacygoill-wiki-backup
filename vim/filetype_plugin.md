@@ -605,7 +605,7 @@ indent, syntax).
 ### When is it ok to use `setf foo.bar` to source the 'bar' filetype plugin?
 
 When it doesn't have a guard and there's no `bar` syntax, indent plugins.
-Or you don't mind all of 3 of them being sourced.
+Or you don't mind all 3 of them being sourced.
 
 ###
 # Filetype plugins

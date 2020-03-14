@@ -152,3 +152,10 @@ to Vim:
     $ tmux bind -n DoubleClick1Pane selectp -t= \\\; send -M \; set mouse on ; vim -Nu NONE +'set mouse=a | tabnew'
                                                 ^^^^^^^^^^^^
 
+##
+# Todo
+
+Study these commits:
+
+- <https://github.com/tmux/tmux/commit/f7bc753442ef23ec96266dad738cf2dc22343118>
+- <https://github.com/tmux/tmux/commit/6571dd50f86927595b6edd2d6fe4a8982b61d8c6>

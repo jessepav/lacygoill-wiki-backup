@@ -1261,6 +1261,19 @@ Indeed, any character inside `#{}` is syntaxic, including a space:
 
 Find which ones could be useful.
 
+## Document how to use numeric operators in formats:
+
+    Numeric operators may be performed by prefixing two comma-separated
+    alternatives with an ‘e' and an operator.  An optional ‘f' flag may be
+    given after the operator to use floating point numbers, otherwise inte‐
+    gers are used.  This may be followed by a number giving the number of
+    decimal places to use for the result.  The available operators are: addi‐
+    tion ‘+', subtraction ‘-', multiplication ‘*', division ‘/', and modulus
+    ‘m' or ‘%' (note that ‘%' must be escaped as ‘%%' in formats which are
+    also expanded by strftime(3)).  For example, ‘#{e|*|f|4:5.5,3}' multi‐
+    plies 5.5 by 3 for a result with four decimal places and ‘#{e|%%:7,3}'
+    returns the modulus of 7 and 3.
+
 ## We spent a lot of time to write the “Quoting” in `~/wiki/tmux/tmux.md`.
 
 What should we have done to write it quicker?
@@ -1283,7 +1296,6 @@ circumstances; also which signature for the function(s)).
 And from  time to time, check  the old code  to avoid documented pitfalls  or to
 borrow some interesting lines.
 
-
 ---
 
 We're  spending  too much  time  on  documenting how  to  get  the list  of  all
@@ -1301,7 +1313,6 @@ It doesn't work? Ok, try to tweak the rules (edit/remove/add), and apply the new
 rules to get any info in any context.
 Repeat until you get a good enough set of rules.
 Find your rules with an **iterative** process, progressively, organically, ...
-
 
 ## Read <https://github.com/tmux/tmux/wiki/Formats>
 

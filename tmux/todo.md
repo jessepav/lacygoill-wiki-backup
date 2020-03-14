@@ -359,6 +359,8 @@ indexed by 1 is at the bottom, while the last one is at the top.
 In Vim, that's the opposite.
 This is a continuous source of distraction.
 
+Update:  You can hide it by passing the `-H` flag to the `copy-mode` command.
+
 ## configure the indicator `[123/456]` in the upper-right corner of the screen, when we enter copy mode
 
 The first number is  the number of lines in the scrollback  buffer which are not

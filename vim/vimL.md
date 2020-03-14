@@ -2102,21 +2102,22 @@ Taper `cd`, puis écrire qch sur la ligne de commande et attendre.
     ✘
     call timer_start(0, {-> execute('call FuncA() | call FuncB()')})
     ✔
-    call timer_start(0, {-> FuncA() + FuncB()})
+    call timer_start(0, {-> [FuncA(), FuncB()]})
 
     ✘
     call timer_start(0, {-> execute('if expr | call Func() | endif')})
     ✔
-    call timer_start(0, {-> expr ? Func() : 0})
-    ✔✔
-    call timer_start(0, {-> expr && Func()})
+    call timer_start(0, {-> expr && type(Func())})
+                                    ^^^^
+                                    not necessary if the output of `Func()` is:
+                                        - a boolean
+                                        - a number
+                                        - a string
 
     ✘
     call timer_start(0, {-> execute('if expr | call FuncA() | endif | call FuncB()})
     ✔
-    call timer_start(0, {-> (expr ? FuncA() : 0) + FuncB()})
-    ✔✔
-    call timer_start(0, {-> (expr && FuncA()) + FuncB()})
+    call timer_start(0, {-> [expr && type(FuncA()), FuncB()]})
 
 On  n'a  pratiquement  jamais  besoin d'utiliser  `execute()`  et  `:call`  pour
 exécuter une fonction via un lambda.
