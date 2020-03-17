@@ -94,6 +94,20 @@ Alternate screen setup for terminal Vim (Noevim doesn't seem to need this).
 
 <https://github.com/fcpg/vim-altscreen> 28 sloc
 
+## any-jump
+
+IDE madness without overhead for 40+ languages
+
+Vim code inspection plugin for finding defitinitions and references/usages.
+
+Any-jump can  be used with any  language, but definitions search  only available
+for supported languages.
+This is not a problem in general, so use any-jump freely on any code project.
+
+Based on syntax rules for 40 languages and fast regexp engines like ripgrep and ag.
+
+<https://github.com/pechorin/any-jump.vim> 6074 sloc
+
 ## anywhere
 
 Sometimes, you edit text outside of Vim.
@@ -238,23 +252,6 @@ underscore; same things for other mappings.
 
 Alternative:
 <https://github.com/chaoren/vim-wordmotion>
-
-## cheat40
-
-Cheat40 is a foldable extensible 40-column cheat  sheet that you may open in Vim
-by pressing <leader>?.
-
-Mappings and commands are organized like the menus of a GUI app: there is a File
-section, an Edit section, a View section, and so on.
-
-For each item  the description comes first, because one  typically wants to find
-how to execute a task, not what the meaning of a key sequence is (there is Vim's
-help for that).
-
-Syntax coloring  and the use  of conceal keep  the cheat sheet  clutter-free and
-easy to read.
-
-<https://github.com/lifepillar/vim-cheat40> 78 sloc
 
 ## clam
 
@@ -562,17 +559,6 @@ paths as found in stack traces and similar output.
 When  asked to  open such  a file,  in- or  outside Vim  or via  `gF`, Vim  with
 vim-fetch will  jump to  the specified  line (and column,  if given)  instead of
 displaying an empty, new file.
-
-## flagship
-
-Flagship provides a  Vim status line and  tab line that are both  easily customizable by
-the user and extensible by other plugins.
-
-Light alternative to powerline, airline, … from tpope.
-This plugin defines the function `Hoist()` which is sometimes called in an autocmd
-inside other tpope plugins.
-
-<https://github.com/tpope/vim-flagship> 491 sloc
 
 ## flattery
 
@@ -1294,30 +1280,6 @@ auto-pair   features  without   interfering  with   Vim's  undo   or  dot-repeat
 functionality.
 
 <https://github.com/tmsvg/pear-tree> 1307 sloc
-
-## peekaboo
-
-Peekaboo extends " and  @ in normal mode and <CTRL-R> in insert  mode so you can
-see the contents of the registers.
-
-≈ 300 lines of code
-
-<https://github.com/junegunn/vim-peekaboo> 228 sloc
-
----
-
-If autocompletion breaks because of vim-peekaboo, try:
-
-    let g:peekaboo_ins_prefix = '<c-x>'
-
-<https://github.com/lifepillar/vim-mucomplete/issues/15>
-
----
-
-Warning: <https://github.com/junegunn/vim-peekaboo/issues/32#issuecomment-117720067>
-
-It would be a good idea to re-implement the plugin using the popup window.
-The latter has – probably – fewer side effects.
 
 ## phonetics
 
@@ -2659,208 +2621,6 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
     "        s       |                   |  Snippets
     "        t       |                   |  Tags
     "        w       |                   |  Windows
-
-
-##
-# Surround
-## s ou S
-
-Qd le s des commandes `cs`, `ys` et `yss` est  remplacé par un S, le résultat est le même à ceci
-près que  les 2 symboles entourants  ainsi que le  texte entouré sont  tous les 3 placés  sur des
-lignes différentes et le texte est indenté.
-
-On obtient le même résultat qd on utilise `v_gS` au lieu de `v_S`.
-
-## cs
-
-    cs{encadrement}{remplacement}
-
-        La commande `cs` a besoin de 2 arguments :
-        un encadrement (quelle paire de symboles modifier) et un remplacement (par quoi on la remplace).
-
-l'encadrement peut prendre les valeurs suivantes :
-
-    (    ou    ),b    b est un alias propre à Vim
-    {    ou    },B    B aussi
-    <    ou    >,a    a est un alias propre au plugin ( a = angle brackets )
-    [    ou    ],r    r aussi                         ( r = ressemble à un [ )
-    '
-    "
-    `
-    t                 tag: balise html ou xml (voir :h tag-blocks)
-    f                 fonction: fait apparaître un prompt demandant le nom de la fonction
-
-le remplacement peut être n'importe quel caractère non alphabétique ( pex / ou | ).
-
-Exemples d'utilisation :
-
-    (foo)                    ( foo )                          cs)(
-    [foo]                    {foo}                            csrB
-    "foo"                    'foo'                            cs"'
-    `foo`               →     <foo>                            cs`a
-
-    'arg'                    func(arg)                        cs'ffunc
-
-    <foo> text </foo>        <bar> text </bar>                csttbar
-
-mnémotechnique : Change Surrounding Tags (with another) Tag (containing) BAR
-
-    <foo><a> text </a></foo>        <bar><a> text </a></bar>         cs2ttbar
-    <a foo=bar> text </a>      →    <qux foo=bar> text </qux>        csttqux
-    <a foo=bar> text </a>           <baz> text </baz>                csttbaz>
-
-    (foo bar)                       {                                cSbB
-                                    foo bar
-                                    }
-
-## ys
-
-    ys{cible}{encadrement}
-
-La commande `ys` (“you  surround“) a besoin de 2 arguments; une  cible (qu'est-ce qu'on encadre) et
-un encadrement (avec  quoi).
-
-L'encadrement peut être n'importe quel caractère non alphabétique ( pex | ou / ).
-
-Exemples d'utilisation :
-
-    foo          (foo)               ysiwb
-
-    foo     →    (                   ySiwb
-                     foo
-                 )
-
-    foo()        bar(foo())          ysiWfbar
-
-    foo()        bar( foo() )        ysiWFbar
-
-La dernière commande a été trouvée ici:
-<http://vi.stackexchange.com/a/6910/4939>
-
-## yss
-
-    yss{encadrement}
-
-        Variante de ys qui agit sur toute la ligne (sans leading whitespace) :
-
-        Exemples d'utilisation :
-
-                Hello w|orld!         yssB            {Hello world!}
-
-                Hello w|orld!         ySSr            [
-                                                        Hello world!
-                                                      ]
-
-## v_S
-
-    v_S{encadrement}
-    v_gS{encadrement}
-
-        `S` et `gS` sont des commandes visuelle ayant besoin d'un argument cible qui peut prendre
-        les mêmes valeurs que `cs`.
-
-Exemples d'utilisation :
-
-    link description       →    <a href=url>link description</a>
-
-        v 2e St a href=url
-
-                                <p>
-    here is a paragraph    →        here is a paragraph
-                                </p>
-
-        v 4e gSt p
-
-                                  (
-    line1                  →       line1
-    line2                          line2
-                                  )
-
-        V j Sb
-
-    coffee                 →      <li>coffee</li>
-    tea                           <li>tea</li>
-
-        C-v $j St li
-
-## ds
-
-La commande `ds` n'a besoin que d'un argument cible qui peut prendre les mêmes valeurs que `cs`.
-
-Exemples d'utilisation :
-
-    "Hello |world!"           ds"         Hello world!
-    (123+4|56)/2              ds)         123+456/2
-    <div>Yo!|</div>           dst         Yo!
-
-## i_C-g s    i_C-g S
-
-Pour insérer rapidement  une paire de symboles entourants  et placer le curseur au  milieu, en mode
-insertion :
-
-        C-g s    ou    C-s
-        C-g S    ou    C-s C-s / C-s CR
-
-Les raccourcis de la 1e ligne permettent d'insérer,  depuis le mode normal, une paire de symboles
-entourants en plaçant  le curseur au milieu. Les  raccourcis de la 2e ligne font  pareil mais ils
-placent les symboles et le curseur sur 3 lignes différentes.
-
-
-Qd  on utilise  ces mappings  en  mode insertion,  il est  possible de  tjrs  ajouter à  la fin  de
-caractères entourants une même chaîne de caractères arbitraire, via une variable globale:
-
-        let g:surround_insert_tail = '<++>'
-
-Dans cet exemple, le plugin ajoutera systématiquement la chaîne '<++>' juste après la partie droite
-d'une paire de symboles entourants.
-Peut être utile avec certains plugins/mappings qui permettent de sauter vers des marques de ce genre.
-
-
-## Symboles customs
-
-    let g:surround_113 = "’\r’"
-
-            Désormais, ’q’  pourra être  utilisé comme n'importe  quel symbole  supporté par
-            défaut (a, b, B, r). On peut même l'utiliser en mode visuel (’Sq’).
-
-            ’\r’ sera remplacé par le texte object d'origine.
-
-            Illustre qu'on peut ajouter à surround.vim ses propres symboles entourants.
-
-            `113` est le code ascii décimal du caractère  `q`.
-
-
-Exemples d'utilisation:
-
-            foobar           →    ’foobar’               ysiwq
-
-            `key |name`      →    ’key name’             cs`q
-
-            Hello |world!    →    ’Hello world!’         yssq
-
-
-Dans un filetype  plugin, on peut également définir  des symboles entourants locaux à  un type de
-fichier donné. Ex:
-
-    let b:surround_45 = '<?php \r ?>'
-
-            Dans  cet exemple,  la  touche à  frapper  est le  tiret (ascii  45),  et les  symboles
-            entourants sont  ’<?php ’ et  ’ ?>’. Illustre que  chaque partie d'une  paire de
-            symboles entourant peut contenir plusieurs caractères,  et que les 2 parties (gauche et
-            droite) peuvent être entièrement différentes.
-
-## Problèmes
-
-Qd on utilise une commande qui indente du texte ( cS, yS, ySS, vgS, C-g S ), l'indentation est gérée
-un peu n'importe comment. Pour le moment, on peut taper:
-
-        :let b:surround_indent = 1
-
-ou
-
-        :let g:surround_indent = 1
-
-… pour permettre à Vim de réindenter automatiquement via =
 
 ##
 # UltiSnips

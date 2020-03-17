@@ -160,7 +160,7 @@ the line.
                    ID of the float
 
 ##
-### How to hide/disable various visual features (`EndOfBuffer`, signcolumn, ...)?
+### How to hide/disable various visual features (`EndOfBuffer`, sign column, ...)?
 
 In `{config}`, include this key-value pair:
 
@@ -178,6 +178,10 @@ When displaying a temporary float where the text should not be edited.
 In `{config}`, include this key-value pair:
 
     'focusable': v:false
+
+Can be  overridden by  the `{enter}` argument  passed to  `nvim_open_win()`, but
+only when creating the float; not afterward (i.e. after focusing another window,
+you can't focus the float again, unless you use `nvim_set_current_win()`).
 
 #### How to focus such a float in a script?
 
