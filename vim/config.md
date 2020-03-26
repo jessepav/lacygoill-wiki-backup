@@ -1713,6 +1713,10 @@ And when that's not  the case, and you focus a  different buffer without leaving
 insert mode, `CompleteDone` is fired right before you leave the first buffer.
 
 ##
+## Read this gist about 'path'
+
+<https://gist.github.com/romainl/7e2b425a1706cd85f04a0bd8b3898805>
+
 ## ?
 
 Document that when you save, change,  and restore an option, the environment may

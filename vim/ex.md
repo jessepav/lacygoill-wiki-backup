@@ -1,45 +1,3 @@
-# What's the difference between `-e` and `-E` when used to start non-interactively
-## Vim?
-
-None.
-
-They both start Vim in Ex mode.
-
----
-
-The only difference between them is in an interactive command.
-In the latter,  `-E` start an "improved"  Ex mode in which  command line editing
-and completion are available.
-
-In a usual Vim  session, by default, you can access the Ex  mode started by `-e`
-and `-E` by pressing resp. `Q` and `gQ`.
-
-## Nvim?
-
-stdin is read as:
-
-   - Ex commands with `-e`
-   - text (into buffer 1) with `-E`
-
----
-
-This is what is documented at `:h -e`; but it's not entirely true:
-
-    # `cmd` is not run
-    $ echo cmd | nvim -e
-
-    # `cmd` should be run as an Ex command; instead it's used as text
-    $ echo cmd | nvim - -e
-
-Although, those  exceptions are not  important to remember, because  in practice
-you'll never use `-e`, nor `-E`, without `-s`.
-
----
-
-There's no difference between `-e` and  `-E` when Nvim is started interactively;
-both start Nvim in an "improved" Ex mode.
-
-##
 # silent/batch mode
 ## What characterizes this mode?  (4)
 
@@ -51,8 +9,8 @@ Most initializations are skipped.
 
 ---
 
-Most prompts, warnings, informative/error messages  are switched off (unless you
-increase the verbosity level to a non-zero value).
+Most prompts, warnings,  informative/error messages are switched  off; hence the
+mode name "silent".
 
 ---
 
@@ -66,8 +24,8 @@ The output of these commands is printed to stdout:
 This is especially  useful in a pipeline,  to send the output of  Vim to another
 shell command for further processing:
 
-                                                               v
-    $ echo 'a\nb\nc' | vim --not-a-term +'2d' +'%p' +'qa!' - -es | tr '[ac]' '[AC]'
+                               v
+    $ echo 'a\nb\nc' | vim - -es +'2d|%p|qa!' --not-a-term | tr '[ac]' '[AC]'
     A~
     C~
 
@@ -84,18 +42,18 @@ the keyboard.
 
 ---
 
-It's also useful when you want Vim's output to be printed on the terminal, which
-is handy when you want to easily  reproduce some behavior (either in your notes,
-or in a bug report).
+It's  also useful  when  you want  a  Vim command  to print  its  output on  the
+terminal; useful to easily reproduce some  behavior (either in your notes, or in
+a bug report).
 
-Instead of writing:
+Instead of writing sth like:
 
     $ vim
-    :cmd
+    :ls
 
 You can write a shell one-liner:
 
-    $ vim -es +"put ='cmd'" +'%p|qa!'
+    $ vim -es +"pu=execute('ls')" +'%p|qa!'
 
 ##
 ## I have a long series of Ex commands I want to regularly run on some file(s).
@@ -132,7 +90,7 @@ Example:
     world~
 
 ##
-## How to make Vim print the messages output by Ex commands in this mode?
+## How to make Vim print the messages output by all Ex commands in this mode?
 
 Increase Vim's verbosity:
 
@@ -229,52 +187,73 @@ Example:
 ###
 ## What's its benefit over `$ sed -i`?
 
-> Some sed(1)s have -i which claims to "modify" files.
-> It does not: sed is not a FILE editor.
-> The -i flag re-writes the entire file and replaces the original with the new.
-> This breaks open handles and hard-link sets, and fails to follow symlinks.
-> -i  is also  unportable: valid  sed on  one system  will write  broken files  on
-> another.
-> Use ed(1) or ex(1) instead: eg.
-> ex -sc '%s/a/b/|wq' file
+>     Some sed(1)s have -i which claims to "modify" files.
+>     It does not: sed is not a FILE editor.
+>     The -i flag re-writes the entire file and replaces the original with the new.
+>     This breaks open handles and hard-link sets, and fails to follow symlinks.
+>     -i  is also  unportable: valid  sed on  one system  will write  broken files  on
+>     another.
+>     Use ed(1) or ex(1) instead: eg.
+>     ex -sc '%s/a/b/|wq' file
+
+Source: <http://wooledge.org/~greybot/meta/sed-i>
+Also, connect to the irc server freenode, then run this command:
+
+    /msg greybot sed-i
+
+---
 
 Besides, `$ sed -i` makes you lose Vim's undo tree.
 With `vim(1)`,  you can preserve the  latter provided that you  set `'undofile'`
 and `'undodir'` appropriately.
 
 ##
-# Vim used in a shell pipeline
-## In `$ echo cmd  | vim +cmd`, in which order are `echo cmd` and `+cmd` processed?
+# What's the difference between `-e` and `-E` when used to start
+## Vim non-interactively?
 
-`+cmd` is processed before `echo cmd |`, even though it's written afterward.
+None.
 
-    $ echo 'set vbs=1 number?' | vim -es +'%p' <(echo text)
-    text~
-    nonumber~
+They both start Vim in Ex mode.
 
-Notice that the  value of `'number'` is printed *after*  'text' (which itself is
-due to `%p`).
+## Nvim non-interactively?
 
-This also explains why this command has no output:
+stdin is read as:
 
-    # `qa!` makes Vim quit before printing the value of the 'number' option
-    $ echo 'set vbs=1 number?' | vim -es +'qa!'
-    ''~
+   - Ex commands with `-e`
+   - text (into buffer 1) with `-E`
 
-While this one has:
+---
 
-    $ echo 'set vbs=1 number?|qa!' | vim -es
-      nonumber~
+This is what is documented at `:h -e`; but it's not entirely true:
 
-## In `$ echo text | vim +cmd`, in which order are `echo text` and `+cmd` processed?
+    # `cmd` is not run
+    $ echo cmd | nvim -e
 
-`echo text` first populates a Vim buffer, *then* `+cmd` is run on the latter.
+    # `cmd` should be run as an Ex command; instead it's used as text
+    $ echo cmd | nvim - -e
+
+Although, those  exceptions are not  important to remember, because  in practice
+you'll never use `-e`, nor `-E`, without `-s`.
+
+## Vim interactively?
+
+`-E` starts an  "improved" Ex mode in which command  line editing and completion
+are available.
+
+In a usual Vim session, by default, you can access the Ex mode matching `-e` and
+`-E` by pressing resp. `Q` and `gQ`.
+
+## Nvim interactively?
+
+There's no difference between `-e` and  `-E` when Nvim is started interactively;
+both start Nvim in an "improved" Ex mode.
 
 ##
+# Vim used in a shell pipeline
 ## special filename `-`
 ### What does it refer to?
 
-The stdin.
+Vim's stdin.
 
 The latter can be connected to a pipe via `|`:
 
@@ -282,64 +261,10 @@ The latter can be connected to a pipe via `|`:
 
 or to a file via `<`:
 
-    $ cat <<'EOF' >/tmp/file
-    foo
-    bar
-    EOF
-
     $ </tmp/file vim -
+      ^
 
 ###
-### When can I omit it?  (2)
-
-When you're using Neovim:
-
-    $ echo text    | nvim
-    $ echo '1t1|x' | nvim -es /tmp/file
-
-Or when you start  Vim in Ex mode with `-e`, and you  want the contents of stdin
-to be read as an Ex command:
-
-    $ echo '%s/X/l/|%p' | vim -es <(echo "helXo\nworXd")
-    hello~
-    world~
-
-It's probably assumed at the end of the command-line.
-But in practice, it's better to use it explicitly to improve readibility.
-
-### The next shell command exits with the code 1.  How to fix it?
-
-    $ echo text | vim -es +'%p' +'qa!'
-
-↣
-    $ echo text | vim --not-a-term - -es +'%p' +'qa!'
-                                   ^
-`--not-a-term` is only necessary to remove this message from the output:
-
-    Vim: Reading from stdin...
-↢
-
-#### Explain why the first command fails, while the second works.
-
-Without `-`, Vim processes  the stdin as if it had been specified  at the end of
-the shell command-line:
-
-    $ echo text | vim -es +'%p' +'qa!' -
-                                       ^
-
-As a result, its contents is processed as an Ex command, not as text.
-So, the Vim buffer is empty, and `%p` fails to print anything.
-
-By specifying `-` *before* `-es`, we make Vim process the stdin as a literal text.
-
----
-
-The shell command does not exit with `1` because of the fact that `:text` is not
-a valid Ex command.
-Indeed, `+cmd` is always processed before `echo cmd`, so here `qa!` is processed
-before the "command" `text`, and `:text` is not run.
-
-##
 ### When I use it, how is the stdin read by
 #### Vim?
 
@@ -356,7 +281,7 @@ Before, it's read as literal text:
 
 After, it's read as an Ex command:
 
-    $ echo "put! ='text'|%p" | vim -es -
+    $ echo "pu!='text'|%p" | vim -es -
     text~
 
 #### Nvim?
@@ -368,7 +293,7 @@ With `-E`, `-` is read as literal text:
 
 With `-e`, `-` is read as an Ex command:
 
-    $ echo "put! ='text'|%p" | nvim -es -
+    $ echo "pu!='text'|%p" | nvim -es -
     text~
 
 ---
@@ -385,36 +310,8 @@ Those are not  important to remember, because in practice  you'll never use `-e`
 nor `-E` without `-s`.
 
 ###
-### What if I omit it in
-#### Vim?
-
-Without `-e`/`-E`, Vim errors out:
-
-    $ echo foo | vim
-    Vim: Warning: Input is not from a terminal~
-    Vim: Error reading input, exiting...~
-    Vim: preserving files...~
-    Vim: Finished.~
-
-Rationale: Vim thinks  that you  made an  error, because it's  rarely used  in a
-shell pipeline.
-
-OTOH, if you pass `-` to Vim, the command succeeds.
-Rationale: you've proved  that you know that  Vim is used in a  pipeline, so you
-probably know what you're doing.
-
----
-
-With `-e`/`-E`, Vim assumes `-` at the end of the command-line:
-
-    # quits automatically (because stdin is read as Ex commands)
-    $ echo 1t1 | vim   -e
-    $ echo 1t1 | vim   -e -
-
-    # populates buffer with '1t1', and starts in Ex mode
-    $ echo 1t1 | vim - -e
-
-#### Nvim?
+### What if I omit it
+#### in Nvim?
 
 You  can omit  `-`,  or position  it  wherever  you want;  it  doesn't make  any
 difference:
@@ -438,6 +335,87 @@ difference:
     $ echo not_a_cmd | nvim - -es   +'set vbs=1' 2>&1 | grep 'E[0-9]'
     E492: Not an editor command: not_a_cmd~
 
+#### in Vim without using `-e`/`-E`?
+
+Vim errors out:
+
+    $ echo foo | vim
+    Vim: Warning: Input is not from a terminal~
+    Vim: Error reading input, exiting...~
+    Vim: preserving files...~
+    Vim: Finished.~
+
+Rationale: Vim thinks  that you  made an  error, because it's  rarely used  in a
+shell pipeline.
+
+OTOH, if you pass `-` to Vim, the command succeeds.
+Rationale: you've proved  that you know that  Vim is used in a  pipeline, so you
+probably know what you're doing.
+
+#### in Vim with `-e`/`-E`?
+
+Vim assumes `-` at the end of the command-line:
+
+    # quits automatically (because stdin is read as Ex commands)
+    $ echo 1t1 | vim   -e
+    $ echo 1t1 | vim   -e -
+
+    # populates buffer with '1t1', and starts in Ex mode
+    $ echo 1t1 | vim - -e
+
+##
+### When can I omit it?  (2)
+
+When you're using Neovim:
+
+    $ echo text    | nvim
+    $ echo '1t1|x' | nvim -es /tmp/file
+
+Or when you start Vim in Ex mode with  `-e` (or `-E`), and you want the stdin to
+be read as an Ex command:
+
+    $ echo '%s/X/l/|%p' | vim -es <(echo "helXo\nworXd")
+    hello~
+    world~
+
+It's probably assumed at the end of the command-line.
+But in practice, it's better to use it explicitly to improve readibility.
+
+##
+### The next shell command exits with the code 1.  How to fix it?
+
+    $ echo text | vim -es +'%p|qa!'
+
+↣
+
+    $ echo text | vim --not-a-term - -es +'%p' +'qa!'
+                                   ^
+`--not-a-term` is only necessary to remove this message from the output:
+
+    Vim: Reading from stdin...
+↢
+
+#### Explain why the first command fails, while the second works.
+
+Without `-`, Vim processes  the stdin as if it had been specified  at the end of
+the shell command-line:
+
+    $ echo text | vim -es +'%p|qa!' -
+                                    ^
+
+As a result, its contents is processed as an Ex command, not as text.
+So, the Vim buffer is empty, and `%p` fails to print anything.
+
+By specifying `-` *before* `-es`, we make Vim process the stdin as a literal text.
+
+#### Explain why the shell command exits with the code 1.
+
+That's not because `:text` is not a  valid Ex command; that's because the buffer
+is empty, and `:p` fails to print anything.
+
+`+'%p|qa!'`  is before  `echo  text`,  so here  `qa!`  is  processed before  the
+"command" `text`, and `:text` is not run.
+
 ##
 ## When do I need `qa!`?
 
@@ -451,8 +429,8 @@ processed *after* `+cmd`; to allow the latter to be processed.
 
 This behavior probably comes from the POSIX vi specification:
 
-> if the  editor detects an  end-of-file condition  from the standard  input, it
-> shall be equivalent to a SIGHUP asynchronous event.
+>     if the  editor detects an  end-of-file condition  from the standard  input, it
+>     shall be equivalent to a SIGHUP asynchronous event.
 
 <https://pubs.opengroup.org/onlinepubs/9699919799/utilities/vi.html>
 
@@ -531,8 +509,35 @@ When you feed *text* to Vim via its stdin (`$ cmd | vim -` or `$ <file vim -`).
 
 But you don't need it when you feed an Ex command:
 
-    $ echo "put! ='text'|%p" | vim -es -
+    $ echo "pu!='text'|%p" | vim -es -
     text~
+
+##
+## In `$ echo cmd  | vim +cmd`, in which order are `echo cmd` and `+cmd` processed?
+
+`+cmd` is processed before `echo cmd |`, even though it's written afterward.
+
+    $ echo 'set vbs=1 number?' | vim -es +'%p' <(echo text)
+    text~
+    nonumber~
+
+Notice that the  value of `'number'` is printed *after*  'text' (which itself is
+due to `%p`).
+
+This also explains why this command has no output:
+
+    # `qa!` makes Vim quit before printing the value of the 'number' option
+    $ echo 'set vbs=1 number?' | vim -es +'qa!'
+    ''~
+
+While this one has:
+
+    $ echo 'set vbs=1 number?|qa!' | vim -es
+      nonumber~
+
+## In `$ echo text | vim +cmd`, in which order are `echo text` and `+cmd` processed?
+
+`echo text` first populates a Vim buffer, *then* `+cmd` is run on the latter.
 
 ##
 # sourcing normal commands
@@ -694,8 +699,8 @@ But it can't edit both at the same time.
 
 See `:h vim-arguments`:
 
-> Exactly one out of the following five items may be used to choose how to
-> start editing:
+>     Exactly one out of the following five items may be used to choose how to
+>     start editing:
 
 Solution:
 

@@ -334,7 +334,7 @@ Besides,  all of  this makes  the  code more  verbose, which  defeats the  whole
 purpose of `++once`.
 
 ##
-# When several autocmds listen to the same event, in which does Vim run them?
+# When several autocmds listen to the same event, in which order does Vim run them?
 
 In the order they were installed.
 
@@ -365,31 +365,31 @@ You must consider 5 autocmds:
 
 When you load a file:
 
-        1. `BufReadPost` is fired
-        2. the autocmds listening to `BufReadPost` are run, (1) being the first of them
-        3. 'ft' is set up
-        4. `FileType` is fired
+   1. `BufReadPost` is fired
+   2. the autocmds listening to `BufReadPost` are run, (1) being the first of them
+   3. 'ft' is set up
+   4. `FileType` is fired
 
-        5. Vim stops processing the autocmds listening to `BufReadPost` because
-           of the previous rule, and the autocmds listening to `FileType` are
-           run, (2) being the first of them
+   5. Vim stops processing the autocmds listening to `BufReadPost` because
+      of the previous rule, and the autocmds listening to `FileType` are
+      run, (2) being the first of them
 
-        6. 'syntax' is set up
-        7. `Syntax` is fired
+   6. 'syntax' is set up
+   7. `Syntax` is fired
 
-        9. Vim stops processing the autocmds listening to `FileType` because of
-           the previous rule, and the autocmds listening to `Syntax` are run,
-           (3) being the first of them
+   9. Vim stops processing the autocmds listening to `FileType` because of
+      the previous rule, and the autocmds listening to `Syntax` are run,
+      (3) being the first of them
 
-       10. the syntax highlighting is loaded for the current buffer
+  10. the syntax highlighting is loaded for the current buffer
 
-       11. (4) is run
+  11. (4) is run
 
-           (4) is run after (3)  because `:LogEvents` has installed its autocmds
-           after the ones in `$VIMRUNTIME`
+      (4) is run after (3)  because `:LogEvents` has installed its autocmds
+      after the ones in `$VIMRUNTIME`
 
-       12. the rest of the autocmds listening to `FileType` are run, (5) being
-           the first of them
+  12. the rest of the autocmds listening to `FileType` are run, (5) being
+      the first of them
 
 ---
 

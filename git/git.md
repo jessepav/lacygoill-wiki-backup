@@ -1678,7 +1678,10 @@ For Vim:
 
     # may fail if you did it already; in that case, ignore the error and go on
     $ git remote add upstream git://github.com/vim/vim.git
+
+    # when looking for the PR branch, ignore the name of the user before the colon, and ignore the colon as well
     $ git fetch upstream pull/<PR-id>/head:<PR-branch>
+
     $ git checkout <PR-branch>
 
 For more info, see: <https://github.com/TeamPorcupine/ProjectPorcupine/wiki/How-to-Test-a-Pull-Request>

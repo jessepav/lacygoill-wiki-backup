@@ -67,7 +67,8 @@ disant, à tort, que `C-t` nous a fait reculer dans la jumplist.
 En réalité,  le saut provoqué  par `C-t` a  probablement pour effet  de déplacer
 l'entrée correspondant à l'étiquette à la fin de la jumplist.
 Pk?
-Extrait de :h jumplist:
+
+Extrait de `:h jumplist`:
 
 > If you use a  jump command, the current line number is inserted  at the end of
 > the jump list.
@@ -135,6 +136,17 @@ after `:tselect` or `:tjump`, then `:pop`.
 
 <https://www.reddit.com/r/vim/comments/ao4y3k/for_those_who_use_tags_how_do_you_jump_forward_in/?ref=share&ref_source=link>
 
+##
+# Todo
+## Learn how to use gnu global
+
+<https://www.gnu.org/software/global/manual/>
+
+I think it's more powerful than ctags,  but it may not be a complete replacement
+for cscope.  I'm not sure it supports "caller/callee search"; see here:
+<https://github.com/oracle/opengrok/wiki/Comparison-with-Similar-Tools>
+
+##
 # ?
 
 Read `:h preview-window`, `:h tags-and-searches`, `:h usr_29`, `:h Q_ta`.
@@ -203,7 +215,7 @@ The location list showing the matching tags is independent of the tag stack.
 
 # ?
 
-        :[count]ta[g] {ident}
+    :[count]ta[g] {ident}
 
 Jump to the definition of `{ident}`, using the information in the tags file(s).
 Put `{ident}` in the tag stack.
@@ -698,9 +710,9 @@ We would need to include some custom markers in the notes (like star in a Vim he
 Google “how to add support for new language universal ctags”.
 And read:
 
-        https://github.com/universal-ctags/ctags/blob/master/docs/optlib.rst
-        http://docs.ctags.io/en/latest/optlib.html
-        http://ctags.sourceforge.net/EXTENDING.html
+- <https://github.com/universal-ctags/ctags/blob/master/docs/optlib.rst>
+- <http://docs.ctags.io/en/latest/optlib.html>
+- <http://ctags.sourceforge.net/EXTENDING.html>
 
-See also the TO DO in our vimrc, just above `$MY_WIKI`.
+See also the todo in our vimrc, just above `$MY_WIKI`.
 

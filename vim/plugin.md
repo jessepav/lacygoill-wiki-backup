@@ -435,6 +435,16 @@ It's a more modern take on dbext.vim, improving on it on the following ways:
 
 <https://github.com/tpope/vim-dadbod> 1018 sloc
 
+---
+
+See also `vim-dadbod-ui`:
+
+Simple UI for vim-dadbod.
+It  allows simple  navigation through  databases and  allows saving  queries for
+later use.
+
+<https://github.com/kristijanhusak/vim-dadbod-ui> 311 sloc
+
 ## dasht
 
 (Neo)Vim plugin for dasht integration

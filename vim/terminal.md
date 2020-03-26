@@ -1,3 +1,23 @@
+# Pitfalls
+## In xterm, Vim doesn't make the difference between `<m-g>` and `<m-G>`!
+
+The shift modifier must be explicit:
+
+    <m-s-g>
+       ^^
+
+Example:
+
+    ✘
+    vim -Nu NONE +'nno <m-g> :echo "m-g"<cr>' +'nno <m-G> :echo "m-G"<cr>'
+    " press m-g and m-G: no difference
+
+    ✔
+    vim -Nu NONE +'nno <m-g> :echo "m-g"<cr>' +'nno <m-s-g> :echo "m-G"<cr>'
+                                                       ^^
+    " press m-g and m-G: Vim makes the difference
+
+##
 # Issues
 ## Vim only
 ### Ranger is weirdly displayed!

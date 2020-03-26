@@ -909,8 +909,21 @@ This is mainly (only?) useful for the mouse.
 When you click on  some part of the status line, tmux must  know how to consider
 the location: left part? right part? window list?
 
+# try to install custom key bindings in the choose modes
+
+<https://github.com/tmux/tmux/issues/2118#issuecomment-599901207>
+
 ##
 # document
+## the `display-popup` command
+
+Read this comment, and all the subsequent ones:
+<https://github.com/tmux/tmux/issues/1842#issuecomment-601057063>
+
+As a simple example, try this:
+
+    $ tmux popup -xC -yC -w60 -h10 -R 'fzf <~/.shrc' -K -E
+
 ## the `p` format modifier
 
 `man tmux /pad`:
