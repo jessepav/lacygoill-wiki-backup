@@ -115,7 +115,7 @@ User data is unpredictable; you have to assume a decimal number may begin with `
 As an example, when you perform a  substitution, and you use `submatch()` in the
 replacement part to refer to a capturing group matching a number.
 
-####
+##
 # Special notations
 ## Why is the caret notation of
 ### a null `^@`?
@@ -1403,6 +1403,78 @@ You could also use a string concatenation, but it would be less readable.
     let prec = 9
     echo printf('%.' . prec . 'f', 1/3.0)
     0.333333333~
+
+##
+### Which syntax can replace `string(dict)` or `string(list)` in a string concatenation?
+
+The `%s` item of `printf()` can do that automatically.
+
+    let dict = {'a': 1, 'b': 2}
+    echo 'my dictionary is '..string(dict)
+                              ^^^^^^
+    ⇔
+
+    let dict = {'a': 1, 'b': 2}
+    echo printf('my dictionary is %s', dict)
+         ^^^^^^                   ^^
+
+From `:h printf-s`:
+
+>     If the argument is not a String type, it is
+>     automatically converted to text with the same format
+>     as ":echo".
+
+---
+
+This is especially useful when you have several `string()` invocations which all
+have the purpose of converting a non-string data into a string so that it can be
+concatenated with other strings.
+
+It can make the code more readable, and works with most (any?) type of data:
+
+    let F = function('len')
+    let b = 0zaabbcc
+    echo printf('my funcref is %s, and my blob is %s', F, b)
+
+The latter is more readable than:
+
+    let F = function('len')
+    let b = 0zaabbcc
+    echo 'my funcref is '..string(function('len'))..', and my blob is '..string(0zaabbcc)
+
+#### What's the limitation of this syntax?
+
+`printf()` and `%s` merely  allow you to include any type of  data into a string
+concatenation; they don't magically convert its contents into a valid command.
+
+Example:
+
+    fu Func(str)
+        echom 'the string '..a:str..' contains '..strchars(a:str)..' characters'
+    endfu
+    let arg = 'test'
+    let cmd = 'call Func('..string(arg)..')'
+    exe cmd
+
+Here, you could be tempted to replace this line:
+
+    let cmd = 'call Func('..string(arg)..')'
+
+With this line:
+
+    let cmd = printf('call Func(%s)', arg)
+
+But it won't work; it will raise:
+
+    E121: Undefined variable: test
+
+You still need `string()`:
+
+    let cmd = printf('call Func(%s)', string(arg))
+                                      ^^^^^^
+
+In this example, `arg`  still has to be quoted when  passed to `Func()`, because
+the latter expects a string, not a variable name.
 
 ##
 # Issues

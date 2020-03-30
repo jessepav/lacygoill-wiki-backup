@@ -457,6 +457,41 @@ afterward it's idle again (so it's safe to run sth again and `SafeStateAgain` is
 fired).
 
 ##
+# How to install a buffer-local `User` autocmd?
+
+Omit  the name  of your  custom event,  pass the  special pattern  `<buffer>` to
+`:au`, and  test the name  of the custom event  inside the executed  command via
+`expand('<afile>')`:
+
+    au User <buffer> if expand("<afile>") is# "Test" | echom "User Test was fired" | endif
+            ^^^^^^^^    ^^^^^^^^^^^^^^^^^
+
+---
+
+Example:
+
+    $ vim -Nu NONE -o /tmp/file{1..2} -S <(cat <<'EOF'
+        au User <buffer> if expand("<afile>") is# "Test" | echom "User Test was fired" | endif
+        bufdo do User Test
+    EOF
+    )
+
+Observe how the message `User Test was fired` is printed only for the first buffer.
+This shows that the autocmd is really local to the buffer where it was installed.
+Had you removed `<buffer>`, the message  would have been printed twice (once for
+each buffer):
+
+    $ vim -Nu NONE -o /tmp/file{1..2} -S <(cat <<'EOF'
+        au User Test echom "User Test was fired"
+        bufdo do User Test
+    EOF
+    )
+
+---
+
+For a real example, see `$VIMRUNTIME/ftplugin/rust.vim`.
+
+##
 # What's one pitfall of
 ## listening to `TerminalOpen`?
 
@@ -526,7 +561,50 @@ Or shorter:
 
 That's what Tpope does in vim-fugitive btw.
 
-##
+## using `expand('%')` in an autocmd?
+
+It may not evaluate to what you expect.
+
+For example, when you write this:
+
+    au BufHidden * echom expand('%:p')
+
+You probably expect Vim to echo the path to the file whose buffer gets hidden.
+That's not always the case; from `:h BufHidden`:
+
+>     NOTE: When this autocommand is executed, the
+>     current buffer "%" may be different from the
+>     buffer being unloaded "<afile>".
+
+When  you need  to  refer  to the  file  for which  an  event  is fired,  prefer
+`<afile>`; according to  the help, only these events should  be affected by this
+pitfall:
+
+   - `BufAdd`, `BufCreate`
+   - `BufDelete`
+   - `BufHidden`
+   - `BufNew`
+   - `BufUnload`
+   - `BufWinLeave`
+   - `BufWipeOut`
+   - `FileChangedShell`
+   - `FileType`
+
+But there could be more.
+For example,  in `vim-eunuch`, tpope uses  `<afile>` in an autocmd  listening to
+`BufWritePost` and `FileWritePost`; see:
+<https://github.com/tpope/vim-eunuch/blob/33e875b31c8b811a0a47908884a5e2339106bbe8/plugin/eunuch.vim#L323>
+
+To be completely  sure, use `<afile>` whenever  you need to refer to  a file for
+which an event is fired.
+
+Note that this  includes filetype plugins; indeed, a filetype  plugin is sourced
+via an autocmd listening to `FileType`:
+<https://github.com/vim/vim/blob/bd5e622bfa12bd80a5ce9406704205400e3faa6a/runtime/ftplugin.vim#L31>
+And `FileType`  is fired  for a  particular file; if  you need  to refer  to the
+latter, use `expand('<afile>:p')` and not `expand('%:p')`.
+It may not be necessary, but it's more consistent with what we wrote here.
+
 ##
 ##
 # Syntaxe
@@ -779,13 +857,13 @@ Exemples de pattern (qd il match un fichier):
 
 Au sein de la commande exécutée par une autocmd, on peut utiliser certains caractères spéciaux:
 
-    expand('<afile>')     chemin du fichier courant (qui déclenche l'autocmd) relatif au dossier de travail
+    expand('<afile>')     chemin du fichier qui déclenche l'autocmd, relatif au dossier de travail
     expand('<abuf>')      n° du buffer courant (")
     expand('<amatch>')    match obtenu dans la comparaison par rapport au pattern
                           (what is matched against the autocmd pattern)
                           Qd le pattern est comparé à un nom de fichier:
-                                                                        - <amatch> est un chemin absolu
-                                                                        - expand('<afile>') == expand('<amatch>:.')
+                              - <amatch> est un chemin absolu
+                              - expand('<afile>') == expand('<amatch>:.')
 
 En fait, on peut utiliser ces caractères spéciaux même au sein d'une fonction appelée par une autocmd.
 Ex:

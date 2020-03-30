@@ -915,6 +915,27 @@ the location: left part? right part? window list?
 
 ##
 # document
+## how to pass some text from one Vim instance to another without the OS clipboard
+
+    " in first Vim instance
+    :.w !tmux loadb -
+     ^
+     current line; you can replace it with arbitrary range
+
+    " in second Vim instance
+    :r !tmux showb
+
+### how to pass several texts from one Vim instance to another program
+
+    " in Vim, on some line
+    :.w !tmux loadb -
+    " on another line
+    :.w !tmux loadb -
+    ...
+
+    " in other program, press "tmux prefix" + "p" (which is currently bound to choose-buffer + paste-buffer)
+
+##
 ## the `display-popup` command
 
 Read this comment, and all the subsequent ones:

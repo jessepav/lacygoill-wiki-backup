@@ -26,7 +26,7 @@ it use a preview window:
 
 ---
 
-In that case, you need `'cul'` to enabled.
+In that case, you need `'cul'` to be enabled.
 Otherwise,  when  you move  with  `M-j`  and `M-k`,  you  may  not see  anything
 happening for  quite some  time; you  may wrongly  end up  thinking that  sth is
 broken.
@@ -74,7 +74,7 @@ Con:
 Right now,  we tend  to use  `)` and  `(` to  preview the  next/previous "entry"
 (whatever that means in the context of the current buffer):
 
-    :vim /nno.*<buffer>\S*\s\+\%([()]\|\[\[\|\]\]\)\s/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
+    :vim /nno.*<buffer>\S*\s\+\%([()]\|\[\[\|\]\]\)\s/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
                                        ^^^^^^^^^^
                                        we also use `[[` and `]]` as a secondary pair of lhs
 
@@ -145,7 +145,7 @@ Should we do the same for all scratch buffers?
 
 ##
 ## mappings
-### ?
+### decide how to close the window
 
 We should not run `:q` to close a scratch buffer via custom buffer-local mapping.
 
@@ -386,7 +386,7 @@ Find a design which prevents this possible issue.
 ## once you've come up with a design
 ### use it to bring consistency (and fix errors) in the way we've created a scratch buffer in the past
 
-    :vim /setl.*bt=nofile/gj ~/.vim/**/*.vim ~/.vim/**/vim.snippets ~/.vim/vimrc
+    :vim /setl.*bt=nofile/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
 
-### enforce it via snippets/templates/vim-projectionist...
+### enforce it via library functions/snippets/templates/vim-projectionist...
 

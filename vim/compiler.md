@@ -1628,8 +1628,8 @@ Here is an alternative for Unix that filters the output first:
 You need to put the following in "vim-javac-filter" somewhere in your path
 (e.g., in ~/bin) and make it executable:
 
-   #!/bin/sed -f
-   /\^$/s/\t/\ /g;/:[0-9]\+:/{h;d};/^[ \t]*\^/G;
+    #!/bin/sed -f
+    /\^$/s/\t/\ /g;/:[0-9]\+:/{h;d};/^[ \t]*\^/G;
 
 Broken down:
 

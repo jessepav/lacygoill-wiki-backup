@@ -1528,6 +1528,16 @@ subsequent windows:
     30~
     " ✔
 
+---
+
+I think a popup window is yet another exception.
+For example, if  you display a buffer  in a popup, all  window-local options are
+reset to their default values.  If you  then close the popup, and re-display the
+buffer in  another window,  the window-local  options don't  seem to  keep their
+default values; it seems to contradict rule `3.`.
+
+Check out whether popups obey the same set of rules as regular windows.
+
 ##
 ## Document that restoring an option after `CompleteDone` is not reliable.
 

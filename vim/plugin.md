@@ -94,6 +94,12 @@ Alternate screen setup for terminal Vim (Noevim doesn't seem to need this).
 
 <https://github.com/fcpg/vim-altscreen> 28 sloc
 
+## AnkiVim
+
+Use vim (or your favorite editor) to write anki cards quickly in plain text or latex.
+
+<https://github.com/MFreidank/AnkiVim>
+
 ## any-jump
 
 IDE madness without overhead for 40+ languages

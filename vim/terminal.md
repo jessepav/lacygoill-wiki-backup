@@ -114,3 +114,17 @@ Workaround: In your zshrc, replace `vim` with `nvim`:
 
 Workaround: Set `VISUAL` to `nvim`.
 
+##
+# Todo
+## Document that `term_sendkeys()` is not instantaneous.
+
+So, if your  next command depends on `term_sendkeys()` to  have finished, try to
+first invoke `term_wait()`.
+
+    call term_sendkeys(...)
+    call term_wait(...)
+    ...
+
+See here for a real example:
+<https://github.com/vim/vim/commit/52ea92b19d2bc992dd4570add64c12d98eab9db2>
+

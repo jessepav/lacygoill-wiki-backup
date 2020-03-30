@@ -1042,6 +1042,14 @@ Learn the syntax of `fd(1)`, and try to adapt the code.
 
 ## Create commands to fuzzy search the changelist and other kind of lists
 
+## Create mapping to fuzzy search old commit messages
+
+It would be handy to paste an old commit messages.
+Easier  than blindly  pressing `[m`  or `]m`  (custom mappings)  in a  gitcommit
+buffer until we stumble upon the one we're looking for.
+Since  commit messages  may be  multiline, try  to enable  the preview  pane (to
+preview the files where the old commit messages are saved).
+
 ## To read
 
 - <http://blog.owen.cymru/fzf-ripgrep-navigate-with-bash-faster-than-ever-before/>
