@@ -1,57 +1,28 @@
-# Which pitfalls should I pay attention to when running a macro?
+# getting the contents of a register
+## How to get the contents of a register as a list of lines?
 
-After pressing `o` or `O`, avoid pressing `C-u` to remove all the indentation of
-a line; prefer pressing `Escape` then `i`.
+Pass the third optional boolean argument `1` to `getreg()`:
 
-Rationale: you can't always be sure that  the next time you run your macro there
-will be an indentation; it depends from where you open a new line.
-If there's no indentation, `C-u` will remove the current line entirely.
+    :echo getreg('q', 1, 1)
+                         ^
+Note that the second argument is ignored here, so you could write any expression
+in its place.
 
----
+## How to get the last expression written in the expression register?
 
-Never end your recording with `CR`; press something afterwards like `Escape`.
-
-Rationale: for some reason, Vim adds a `C-j` to a register ending with `CR`:
-
-    let @a = "/pat\r"
-    reg a
-    "a   /pat^M^J
-               ^^
-
-So, if you edit the middle of your recording later, Vim will add an undesirable `C-j`.
-
-# ?
-
-    getreg('a')
-
-            retourne le contenu du registre @a sous la forme d'une chaîne
-
-    getreg('a', 1, 1)
-
-            retourne le contenu du registre @a sous la forme d'une liste, dont chaque item correspond
-            à une ligne du registre; \n sert de séparateur
-
-            Le 2e argument est facultatif et ignoré sauf pour le registre expression ('=').
-
-            Le 3e argument est facultatif et détermine si le retour sera une chaîne ou une liste.
+Pass the second optional boolean argument `1` to `getreg()`:
 
     getreg('=', 1)
+                ^
 
-            retourne la dernière expression passée au registre @= avant son évaluation
-            si on veut l'évaluation, il faut remplacer le 2e argument par 0
+Without  this  argument,  or  if  it was  false,  `getreg()`  would  return  the
+evaluation of the last expression instead of the expression itself.
 
-    getregtype('a')
+##
+# setting the contents of a register
+## ?
 
-            retourne le type du registre a:
-
-                'v'    ou 'c'         characterwise
-                'V'    ou 'l'         linewise
-                '10' ou 'b10'       blockwise (10 étant la largeur du bloc)
-
-            Le type d'un registre détermine de quelle façon il sera collé dans un buffer.
-
-            On peut appeler getregtype() sans lui passer d'argument,
-            dans ce cas elle retourne le type du registre en cours d'utilisation par un opérateur (v:register).
+`setreg()`
 
     setreg('a', string)
 
@@ -89,6 +60,34 @@ So, if you edit the middle of your recording later, Vim will add an undesirable 
             Ceci est une astuce illustrant comment changer le type d'un registre, car il n'existe
             pas de fonction setregtype().
 
+    :call setreg('d', @a..@b..@c,    getregtype('d'))
+    :call setreg('d', @d..MyFunc(), getregtype('d'))
+
+            Stocker dans le registre `d`, la concaténation:
+
+                    - des registres a, b et c
+                    - du registre d et de la sortie de `MyFunc()`
+
+                                               NOTE:
+
+                    :let @d  = @a.@b.@c    ✘
+                    :let @d .= MyFunc()    ✘
+
+            Les opérateurs `=` et `.=` ne sont pas fiables car ils ne préservent pas le type du registre.
+
+
+    :let save_reg = [getreg('a'), getregtype('a')]
+    :call setreg('a', save_reg[0], save_reg[1])
+
+            sauvegarde puis restaure le registre a
+
+            Qd on manipule des registres, il  faut se méfier des opérateurs = et
+            .= car  il est possible  qu'ils ne préservent  pas tjrs le  type des
+            registres.
+            L'instruction suivante n'est donc pas fiable:
+
+                let save_reg = @a    ✘
+
 ##
 # Noms
 
@@ -109,7 +108,7 @@ So, if you edit the middle of your recording later, Vim will add an undesirable 
                pour voir la signification de “longue“ lire :h registers
                dd = "1dd
 
-               "2 = 2e plus récente longue suppression / changement, …, "9 = 9e plus récente…
+               "2 = 2e plus récente longue suppression / changement, ..., "9 = 9e plus récente...
 
     ".         registre de la plus récente édition
                Vim y stocke les frappes au clavier tapées la dernière fois qu'on était en mode insertion
@@ -127,7 +126,7 @@ So, if you edit the middle of your recording later, Vim will add an undesirable 
 
                         - les mots entre lesquels on navigue via n/N
                         - le texte mis en surbrillance qd 'hlsearch' est activée
-                        - le texte sur lequel on opère via gn (dgn, cgn, …)
+                        - le texte sur lequel on opère via gn (dgn, cgn, ...)
 
                Il  faut  distinguer  ce  registre   de  la  dernière  entrée  de
                l'historique consultable via q/.
@@ -151,7 +150,7 @@ So, if you edit the middle of your recording later, Vim will add an undesirable 
 
                                 :call histdel('/', @/),
 
-                        … ce dernier est automatiquement réintégré à l'historique lors de la prochaine
+                        ... ce dernier est automatiquement réintégré à l'historique lors de la prochaine
                         recherche via:
 
                                 n N
@@ -189,15 +188,12 @@ So, if you edit the middle of your recording later, Vim will add an undesirable 
                                      NOTE:
 
                Qd on  insère ce registre,  les caractères ayant un  sens spécial
-               dans un pattern (^$*~/ …) sont automatiquement échappés.
-
-
-    "*         registre de la sélection à la souris; pex: texte mis en surbrillance dans Fx
+               dans un pattern (^$*~/ ...) sont automatiquement échappés.
 
 
     "=         registre expression
                permet d'insérer, en mode insertion ou ligne de commande, le résultat d'une expression vimscript,
-               d'une commande shell, ou d'un script externe (python, …)
+               d'une commande shell, ou d'un script externe (python, ...)
 
                Le registre expression diffère des autres registres pour 2 raisons:
 
@@ -246,23 +242,25 @@ So, if you edit the middle of your recording later, Vim will add an undesirable 
 Un nom de registre / une macro peut être précédée d'un :
 
     @      qd on veut exécuter son contenu en mode normal / Ex
-           OU qd on veut y écrire en mode Ex (let @a = …)
+           OU qd on veut y écrire en mode Ex (let @a = ...)
 
     "      qd on veut y accéder en lecture (coller) / écriture (copier) depuis le mode normal
      C-r   qd on veut y accéder en lecture (coller) depuis le mode insertion / Ex
 
     rien   qd on le passe en argument à une des commandes Ex suivantes: :change, :delete, :put, :yank
 
+---
 
 Une macro est enregistrée dans un registre normal.
 Ceci est très pratique pour éditer une longue macro qu'on doit modifier car elle n'a pas tout à fait
 le comportement attendu.  Pour ce faire, il suffit de :
 
-        1. coller le contenu de la macro dans un buffer (ex: "ap),
-        2. l'éditer en insérant littéralement les caractères de contrôle si besoin
-        3. la recopier dans le registre ("aY),
-        4. et enfin la rejouer.
+   1. coller le contenu de la macro dans un buffer (ex: "ap),
+   2. l'éditer en insérant littéralement les caractères de contrôle si besoin
+   3. la recopier dans le registre ("aY),
+   4. et enfin la rejouer.
 
+---
 
 Qd on enregistre une macro, on peut avoir besoin de déplacer un mot ou une ligne
 à un autre endroit.
@@ -282,17 +280,17 @@ Ces registres n et x peuvent désormais servir de mémoire temporaire.
 On peut utiliser n'importe quel registre sauf  celui dans lequel on est en train
 d'enregistrer sa macro.
 
+---
 
 On peut  avoir besoin  d'opérer une  transformation sur 2  lignes au  lieu d'une
-seule.
-Dans ce cas, on peut:
+seule.  Dans ce cas, on peut:
 
-    - les sélectionner visuellement, juste avant l'enregistrement, de sorte
-      qu'elles correspondent aux frontières de la sélection
+   - les sélectionner visuellement, juste avant l'enregistrement, de sorte
+     qu'elles correspondent aux frontières de la sélection
 
-    - dupliquer les marques visuelles, juste après le début de l'enregistrement,
-      pour ne pas les perdre si on doit sélectionner qch au cours de
-      l'enregistrement:    mt o mb    (t = top, b = bottom)
+   - dupliquer les marques visuelles, juste après le début de l'enregistrement,
+     pour ne pas les perdre si on doit sélectionner qch au cours de
+     l'enregistrement:    mt o mb    (t = top, b = bottom)
 
 Désormais on pourra s'y rendre via les mouvements 't et 'b.
 Il faudra  s'assurer de sélectionner les  2 lignes désirées avant  de rejouer la
@@ -303,6 +301,7 @@ Pendant l'enregistrement d'une macro, ne pas hésiter à utiliser des registres 
 des marques pour déplacer de l'information  (texte), ou en préserver (adresse de
 ligne).
 
+---
 
 Pendant l'enregistrement d'une macro, on peut exécuter une autre macro.
 Ceci permet  de réaliser des  opérations complexes, en fragmentant  les éditions
@@ -310,6 +309,7 @@ dans plusieurs macros, imbriquées si besoin.
 Pex, on peut avoir la macro principale @q qui appelle à des moments divers les 3
 macros @a, @b et @c.
 
+---
 
 Parfois on ne sait pas cb de fois  rejouer sa macro pour qu'elle affecte tout le
 fichier.
@@ -318,14 +318,14 @@ macro récursive.
 Une macro récursive s'appelle elle-même.
 Pour créer une macro récursive stockée dans le registre q, il faut:
 
-               1. qqq      vider le contenu du registre q
-               2. qq       débuter l'enregistrement de la macro q
-               3. xxx      réaliser sa macro
+   1. qqq      vider le contenu du registre q
+   2. qq       débuter l'enregistrement de la macro q
+   3. xxx      réaliser sa macro
 
-               4. @q       appeler la macro a depuis elle-même
-                           c'est ici qu'il est important d'avoir vidé le contenu du registre q au début
+   4. @q       appeler la macro a depuis elle-même
+               c'est ici qu'il est important d'avoir vidé le contenu du registre q au début
 
-               5. q        finir l'enregistrement
+   5. q        finir l'enregistrement
 
 Pour limiter la  répétition d'une macro à  la ligne courante plutôt  que tout le
 buffer, faire débuter la macro avec:
@@ -338,9 +338,8 @@ Et à la fin de la macro, remplacer @q par:
 
 Cette dernière  commande ne rejoue  la macro que  si le n°  de la ligne  n'a pas
 changé.
-Envelopper 'norm @q' dans une chaîne  qu'on exécute via :exe est nécessaire pour
-empêcher :norm de consommer (taper) le reste de la commande (|endif).
 
+---
 
     "=1+2 CR p
 
@@ -350,10 +349,6 @@ empêcher :norm de consommer (taper) le reste de la commande (|endif).
             Il n'est utilisé que temporairement.
             Une fois  qu'on a collé  son contenu, p  (et ses amies)  utilisent à
             nouveau "" ou "+.
-
-    qaq    :let @a=''
-
-            supprimer le contenu du registre a
 
     qA
 
@@ -379,8 +374,8 @@ empêcher :norm de consommer (taper) le reste de la commande (|endif).
             une macro.
 
 
-    nno <key>               :call MyFunc(@%)<cr>
-    autocmd FileType python  call MyFunc(@#)
+    nno <key> :call MyFunc(@%)<cr>
+    au FileType python  call MyFunc(@#)
 
             Définit un mapping  qui appelle une fonction à laquelle on passe le nom du buffer courant.
             "       une autocmd "                                                             alternatif
@@ -390,37 +385,13 @@ empêcher :norm de consommer (taper) le reste de la commande (|endif).
             copier l'indentation de la ligne courante
             Utile si on veut donner le même niveau d'indentation à une autre ligne.
 
-    :echo @a
 
-            echo le contenu du registre a
-
-    :global/KEYWORD/y A
-
-            ajouter au registre `a` toutes les lignes contenant le mot-clé KEYWORD
-
-
-    :call setreg('d', @a.@b.@c,    getregtype('d'))
-    :call setreg('d', @d.MyFunc(), getregtype('d'))
-
-            Stocker dans le registre `d`, la concaténation:
-
-                    - des registres a, b et c
-                    - du registre d et de la sortie de `MyFunc()`
-
-                                               NOTE:
-
-                    :let @d  = @a.@b.@c    ✘
-                    :let @d .= MyFunc()    ✘
-
-            Les opérateurs `=` et `.=` ne sont pas fiables car ils ne préservent pas le type du registre.
-
-
-    :let @a .= '@a'
+    :let @a ..= '@a'
     qA@aq
 
             rend la macro a récursive
 
-    :let altbuf = bufnr('#') | … | let @# = altbuf
+    :let altbuf = bufnr('#') | ... | let @# = altbuf
 
             Stocke le n°  du buffer alternatif dans la  variable altbuf, exécute
             des commandes  qui modifient  le buffer  alternatif pour  la fenêtre
@@ -429,19 +400,8 @@ empêcher :norm de consommer (taper) le reste de la commande (|endif).
             Cette commande illustre le fait qu'on peut écrire dans le registre #
             et que ce dernier contrôle le buffer alternatif.
 
-    :let save_reg = [getreg('a'), getregtype('a')]
-    :call setreg('a', save_reg[0], save_reg[1])
-
-            sauvegarde puis restaure le registre a
-
-            Qd on manipule des registres, il  faut se méfier des opérateurs = et
-            .= car  il est possible  qu'ils ne préservent  pas tjrs le  type des
-            registres.
-            L'instruction suivante n'est donc pas fiable:
-
-                let save_reg = @a    ✘
-
-    :.,$norm @q    :*norm @q
+    :.,$norm @q
+    :*norm @q
 
             rejouer la macro q sur les lignes du fichier entre la ligne courante
             et la fin du fichier ou sur la sélection visuelle
@@ -459,11 +419,9 @@ empêcher :norm de consommer (taper) le reste de la commande (|endif).
             plutôt que le nom de la macro,  on peut les éditer par la suite dans
             l'historique des commandes (q: ou ↑).
 
-            De plus, :1,5norm!
-            C-r q présente un autre avantage par rapport 5@q.
+            De plus, :1,5norm!  C-r q présente un autre avantage par rapport à 5@q.
             En effet, 5@q nécessite que  pendant l'enregistrement de la macro q,
-            on s'assure qu'à la fin on finit  bien au début de la ligne suivante
-            (j_).
+            on s'assure qu'à la fin on finit  bien au début de la ligne suivante (j_).
             :norm le fait automatiquement pour nous.
 
     :reg xy
@@ -479,14 +437,14 @@ Cas de figure où ça peut être utile: on a un buffer contenant un listing de n
 de fichiers  et un  autre contenant  du texte dont  on souhaite  s'assurer qu'il
 contient chaque nom de fichier du listing (ex: un makefile).
 
-               gg0              se rend au début du fichier
-               qf               débute l'enregistrement de la macro f
-               y$               copie la 1e ligne contenant un 1er nom de fichier
-                C-w w           passe à l'autre fenêtre (celle du makefile)
-               /C-r " CR        cherche le nom de fichier copié (stocké dans le registre par défaut)
-               C-w wj           repasse à la fenêtre du listing et on descend d'une ligne
-               @f               appelle la macro f pour que celle-ci devienne récursive
-               q                termine l'enregistrement de la macro
+    gg0              se rend au début du fichier
+    qf               débute l'enregistrement de la macro f
+    y$               copie la 1e ligne contenant un 1er nom de fichier
+     C-w w           passe à l'autre fenêtre (celle du makefile)
+    /C-r " CR        cherche le nom de fichier copié (stocké dans le registre par défaut)
+    C-w wj           repasse à la fenêtre du listing et on descend d'une ligne
+    @f               appelle la macro f pour que celle-ci devienne récursive
+    q                termine l'enregistrement de la macro
 
 Résultat, si tous les noms de fichiers  sont bien présents dans le makefile, ils
 seront tous mis en surbrillance.
@@ -496,9 +454,69 @@ survient et la macro s'interrompt
                                      FIXME:
 
 En théorie,  chez moi  ça marche  pas; toutefois on  peut toujours  regarder les
-messages d'erreur via :messages.
+messages d'erreur via `:messages`.
 
-        Source: http://vim.wikia.com/wiki/Record_a_recursive_macro
+Source: <http://vim.wikia.com/wiki/Record_a_recursive_macro>
+
+##
+# Pitfalls
+## During a recording
+### after `o` or `O`, do *not* press `C-u` to remove all the indentation of the current line.
+
+Prefer pressing `Escape` then `i`.
+
+Rationale: there is no guarantee that  the next time you execute your recording,
+there will be an indentation; it depends from where you open a new line.  And if
+there's no indentation, `C-u` may remove the previous newline.
+
+    vim -Nu NONE <(cat <<'EOF'
+        indented
+    NOT indented
+    EOF
+    ) +'set autoindent backspace=eol,start | let @q = "o\<c-u>\<esc>"'
+    " press @q on the first line: a new line is opened below
+    " press @q on the second line: NO new line is opened below,
+    " because C-u has immediately removed the newline added by the 'o' command
+
+### do *not* end your recording right after pressing `CR`.
+
+Press something afterwards, like `Escape`, then you can end your recording.
+
+Rationale: for some reason, Vim adds a `C-j` to a register ending with `CR`:
+
+    let @q = ":\r"
+    reg q
+    "q   :^M^J
+            ^^
+
+And because of that, when you execute your recording, `C-j` may be pressed.
+If you've mapped something to `C-j`, it may have unexpected effects.
+
+    vim -Nu NONE +'let @q = ":\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
+    " press @q: the C-j mapping is executed (the message is logged)
+
+I can reproduce when `CR` is pressed in other modes, like normal mode:
+
+    vim -Nu NONE +"pu=''" +'let @q = "\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
+                  ^^^^^^^
+                  there needs to be a line after the one from which we press `@q`,
+                  otherwise, `^M` would fail and Vim would stop executing the recording
+
+---
+
+It may be related to `:h 'ff'` and `:h file-formats`.
+
+                            vvv
+    $ vim -Nu NONE +'set ff=mac | let @q = ":\r"'
+    reg q
+    "q   :^J^J
+          ^^
+
+What's weird  is that  the translation  of `^M` into  `^M^J` occurs  even though
+I'm  on  Linux  and not  on  Windows,  and  even  if I  set  `'fileformat'`  and
+`'fileformats'` to `unix`.
+
+Or maybe the issue is related to  `:h CR-used-for-NL`, `:h NL-used-for-Nul`...
 
 ##
 # Issues
@@ -593,7 +611,7 @@ none fixed the issue:
 Worse,  with all  of them  – except  the last  one –  the type  is automatically
 converted from `^V` to `V`, inside the Nvim instance where the text is yanked.
 
-See also [this issue][3] (it may be linked ... or not).
+See also [this issue][3] (it may be related ... or not).
 
 ##
 # Reference

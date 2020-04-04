@@ -86,8 +86,8 @@ Don't give any priority, or `-1` if you need the optional `dict` argument.
 ## How to remove
 ### the match `3`?  (2)
 
-        :3match none
-        :call matchdelete(3)
+    :3match none
+    :call matchdelete(3)
 
 ### a match defined by `matchadd()`?
 

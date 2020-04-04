@@ -30,7 +30,7 @@
 
                     https://www.youtube.com/watch?v=ud_8Up2E_PE
 
-            … ou lire la section pertinente au sein du readme du projet:
+            ... ou lire la section pertinente au sein du readme du projet:
 
                     https://github.com/karlstav/cava#from-alsa-loopback-device-tricky
 

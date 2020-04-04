@@ -472,53 +472,6 @@ Only as an external program.
 provided it's prefixed with a colon.
 
 ##
-## When should I pass `<nomodeline>` to `:doautocmd`?
-
-Only when  the event  you're manually triggering  occurs automatically  when you
-load a new buffer.
-
-If you want to be sure, write this in `/tmp/vim.vim`:
-
-     " vi:sw=3
-
-Then, execute this command:
-
-     :setl ml mls=1 | au SomeEvent * setl sw=5
-                         ^^^^^^^^^
-                         replace with the name of the event you want to really test
-
-Finally, reload the buffer (`:e`), and ask Vim what is the local value of `'sw'`:
-
-     :echo &l:sw
-
-If the output is `5`, it means the modelines are processed *before* `SomeEvent`.
-If the output is `3`, it means the modelines are processed *after* `SomeEvent`.
-
-In the latter  case, you should not  pass `<nomodeline>` to `:do`,  so that your
-event –  triggered manually – has  the same effect  as if it had  been triggered
-automatically.
-
-Otherwise, you should pass `<nomdeline>` to `:do`.
-
----
-
-In practice, I think you should use `<nomdeline>` for most events except these ones:
-
-    BufDelete
-    BufWipeout
-    BufUnload
-    BufNew
-    BufAdd
-    BufReadPre
-    Syntax
-    FileType
-    BufReadPost
-    BufEnter
-
-They are  all fired when you  load a new buffer,  and when used in  the previous
-test, they all give the output `3`.
-
-##
 ## ?
 
     'path'

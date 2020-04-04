@@ -945,6 +945,10 @@ As a simple example, try this:
 
     $ tmux popup -xC -yC -w60 -h10 -R 'fzf <~/.shrc' -K -E
 
+## the `search-forward` and `search-backward` commands
+
+They support regexes.
+
 ## the `p` format modifier
 
 `man tmux /pad`:

@@ -1,3 +1,24 @@
+# How to paste a register in a terminal buffer in Vim?
+
+You must be in Terminal-Job mode, and temporarily switch to Terminal-Normal mode
+via `'termwinkey'`.  From this stack of modes, you can paste the `a` register by
+pressing:
+
+    "a
+
+It's similar to how you would insert  the register from insert mode in a regular
+buffer after  pressing `C-r`.   Except that  in a terminal  buffer, you  have to
+prefix the register name  with `"`, so that Vim knows that  you're not trying to
+execute a normal mode command.
+
+See `:h t_CTRL-W_quote`.
+
+## What about Nvim?
+
+Like you would in a regular buffer.
+To paste the `a` register, you must be in Terminal-Normal mode, and press `"ap`.
+
+##
 # Pitfalls
 ## In xterm, Vim doesn't make the difference between `<m-g>` and `<m-G>`!
 

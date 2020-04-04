@@ -909,6 +909,13 @@ distracting artifacts, read this:
 
 ##
 # Todo
+## Read the README page.
+
+<https://github.com/junegunn/fzf>
+
+It seems that some settings are not documented anywhere else.
+Like `FZF_COMPLETION_TRIGGER`.
+
 ## I have an issue with the fzf popup/floating window when invoking fzf from (N)Vim!
 
 You need to find a MWE.
@@ -1052,6 +1059,7 @@ preview the files where the old commit messages are saved).
 
 ## To read
 
+- <https://medium.com/@vdeantoni/boost-your-command-line-productivity-with-fuzzy-finder-985aa162ba5d>
 - <http://blog.owen.cymru/fzf-ripgrep-navigate-with-bash-faster-than-ever-before/>
 - <https://bluz71.github.io/2018/11/26/fuzzy-finding-in-bash-with-fzf.html>
 - <https://bluz71.github.io/2018/12/04/fuzzy-finding-in-vim-with-fzf.html>

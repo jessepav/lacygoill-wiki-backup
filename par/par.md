@@ -12,6 +12,42 @@ It means that we can format a paragraph whose lines begin with bars.
 For more info  on how par uses  the quote characters, search for  “quote” in the
 `Details` section.
 
+# Warning: `par(1)` has been recently updated (2020-03-16)
+
+<https://bitbucket.org/amc-nicemice/par/commits/>
+
+You can clone the repo:
+
+    $ git clone https://bitbucket.org/amc-nicemice/par && cd par
+
+And compile the binary with:
+
+    $ make -f protoMakefile
+
+Source: <http://www.nicemice.net/par/#building>
+
+Read the  `releasenotes` file  to find the  list of bug  fixes and  new features
+added by this commit.
+
+---
+
+Unfortunately, the new version still doesn't support multibyte characters.
+<http://sysmic.org/dotclear/index.php?post/2006/06/22/55-add-multibyte-characters-support-in-par>
+
+And I can't apply the patch we use in our current version on this new version:
+<http://sysmic.org/dl/par/par-1.52-i18n.4.patch>
+
+Find  a way  to apply  the patch,  or to  configure `par(1)`  so that  it better
+handles text with multibyte characters.
+
+---
+
+The documentation has changed a little:
+<https://bitbucket.org/amc-nicemice/par/commits/eb0590f6bafc4f9e44a5ad7e0baadc29c69e79e7#chg-par.doc>
+
+Find the differences, and incorporate them in the current document.
+
+##
 # Synopsis
 
     par  [ help ]

@@ -1,65 +1,3 @@
-## PPA
-
-    $ sudo add-apt-repository          ppa:jonathonf/vim
-    $ sudo add-apt-repository --remove ppa:jonathonf/vim
-    $ sudo ppa-purge ppa:jonathonf/vim
-
-Ajoute/Supprime le PPA `ppa:jonathonf/vim` à la liste de ses dépôts.
-
-En cas de suppression via `add-apt-repository`, penser à purger au préalable les
-paquets installés depuis le PPA.
-Autrement, utiliser `ppa-purge` (nécessite l'installation du paquet éponyme).
-
----
-
-    $ apt-key list | grep expired
-    $ sudo apt-key adv --recv-keys --keyserver <keyserver url> <10-char key ID>
-
-Afficher les clés signant des dépôts installés ayant expirées.
-
-Mettre à jour la clé d'identifiant <10-char key ID>.
-Ne fonctionne que si le mainteneur du dépôt a uploadé une nouvelle clé.
-
-Source: <https://serverfault.com/a/615362>
-
-                                     TODO:
-
-Maybe we should update the keys in `up`.
-
-
-                                     FIXME:
-
-Comment savoir quel serveur de clés utiliser ?
-
-`<keyserver url>` peut être:
-
-   - keys.gnupg.net
-   - keyserver.ubuntu.com
-   - ... (autres possible ?)
-
----
-
-    synaptic
-    onglet 'Origin'
-    tri par 'State'
-
-            Trouver les paquets installés depuis un ppa donné.
-
-## realpath
-
-`realpath` permet de  fournir le chemin absolu d'un dossier  ou un fichier, même
-si c'est un lien symbolique.
-
-    $ ln -s path/to path/destination
-
-    lns() {
-       # Usage: lns path/to path/destination
-       ln -sv $(realpath $1) $(realpath $2)
-    }
-
-##
-##
-##
 # How to get the version of the distro I'm using?
 
     $ cat /etc/issue
@@ -309,11 +247,367 @@ Copy this file from the old machine to the new one:
 Source: <https://askubuntu.com/a/676452/867754>
 
 ##
-##
-##
-# Utilities
+# Issues
+## I'm trying to use a documented feature of a command.  It doesn't work at all! It's missing!
 
-## Links
+Try to recompile  and look for a configuration option  which enables the desired
+feature.
+
+## Some configuration for a program I use seems to be ignored!
+
+Maybe something alters your configuration after the file has been processed:
+
+   - delay the processing of the file (`sleep 1s`)
+   - move the line(s) at the end of the file
+
+---
+
+Maybe your program has cached its config, and use the latter which is stale.
+Remove the cache (e.g. `rm ~/.zcompdump`).
+
+## How to get rid of “Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown:”?
+
+Install the deb package `at-spi2-core`.
+
+For more info, maybe have a look at this: <https://unix.stackexchange.com/a/148779/289772>
+
+## divers
+
+    Restaurer les consoles tty1-6:    sudoedit /etc/default/grub
+                                      décommenter la (les?) ligne `GRUB_TERMINAL=console`
+                                      sudo update-grub
+
+            Si aucune console n'est accessible (`C-M-F1..6`), il se peut que la cause soit la résolution
+            de la console configurée au démarrage qui n'est pas supportée par la carte/processeur graphique.
+
+            La solution consiste à décommenter une ligne dans le fichier de conf de grub.
+            Ceci a également pour effet de donner une faible résolution au menu de grub.
+            Plus moche, mais plus lisible car la taille des caractères est bien plus grande.
+
+            Source:
+            https://askubuntu.com/questions/162535/why-does-switching-to-the-tty-give-me-a-blank-screen
+
+                    This is usually caused because the graphical text-mode resolution set at boot up
+                    is  not compatible  with your  video card.  The solution  is to  switch to  true
+                    text-mode by configuring Grub appropriately.
+
+
+    (II) AIGLX: Suspending AIGLX clients for VT switch
+    (II) AIGLX: Resuming AIGLX clients after VT switch
+    (II) intel(0): switch to mode 1920x1080@60.0 on VGA1 using pipe 0, position (0, 0), rotation normal, reflection none
+
+            Atm, on a un bug qui fait que lorsqu'on tape C-M-F1 pour se loguer à
+            une console,  puis C-M-F7  pour revenir à  l'environnement graphique
+            (sans même s'être logué), Xorg consomme 25% du cpu pendant plusieurs
+            minutes.
+
+            De plus, il semble qu'il défait notre config xmodmap.
+            Enfin, `xdotool` et/ou `wmctrl` ne semblent plus fonctionner pendant
+            plusieurs  minutes, car  les raccourcis  qui utilisent  notre script
+            `run-or-raise` ne produisent leur effet que bien plus tard.
+
+            Les   3  lignes   écrites   plus  haut   ont   été  copiées   depuis
+            `/var/log/Xorg.0.log`.
+            Elles correspondent à ce que rapporte  Xorg après qu'on ait tenté de
+            se loguer en console.
+
+            Pour chercher une solution, se rendre sur askubuntu.com, et chercher
+            les questions taguées par `Xorg`, et contenant le mot-clé AIGLX.
+
+            Voir aussi ce thread:
+            https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=541388
+
+            Faire une recherche google avec ces mots-clés:
+            xorg console xmodmap aiglx
+
+
+                                               NOTE:
+
+            Si on commente `~/.Xmodmap`, le pb semble persister mais ne dure que 20s.
+
+
+                                               NOTE:
+
+            Au démarrage,  Xorg semble consommer  bcp de cpu, et  les raccourcis
+            utilisant run-or-raise mettent toujours du temps à répondre, mais ça
+            dure pas longtemps.
+
+##
+# Todo
+## fix bugs where panel and desktop are absent at login
+
+Actually, it seems the  panel is there, but as soon as we  press `M-j` to open a
+terminal, it disappears.
+Update: and now it's there again...
+
+For the desktop, you may need to run `xfdesktop(1)`.
+For the panely, you may try `$ xfce4-panel -r`.
+
+## I have to give my password twice in 2 different screens when I resume a session after suspending the OS!
+
+Google “suspend linux password twice”:
+
+- <https://askubuntu.com/questions/639014/another-password-prompt-when-waking-from-suspend>
+- <https://bugs.launchpad.net/bugs/1296270>
+- <https://bugs.launchpad.net/bugs/1631715>
+
+For the moment, I tried to fix the issue by running:
+
+    $ light-locker-settings
+
+Then disabling “Lock on suspend”.
+
+---
+
+IMO, this bug illustrates the benefits of using a custom and minimalist DE.
+When  you'll build  your own  DE, you  probably won't  install the  light-locker
+package; maybe just the xscreensaver package.
+
+See also: <https://askubuntu.com/questions/1063481/lightlocker-and-xscreensaver-conflicting>
+
+---
+
+Note that light-locker seems to have 2 purposes:
+
+   - it can blank the screen after a certain amount of time (screensaver)
+   - it can lock the session after a certain amount of time or when you suspend (session-locker)
+
+---
+
+You can configure xscreensaver by running `xscreensaver-demo(1)`.
+
+---
+
+We can configure xscreensaver so that it  asks for our password after the screen
+gets blank and a certain amount of additional time has elapsed.
+But how  to configure linux so  that it asks for  our password when we  resume a
+session (after suspending it)?
+We can configure light-locker to do so, but I don't want to rely on this package
+because it's tied to  an existing DE (xfce/lxde), and because  it seems to cause
+the issue currently discussed (double password).
+
+## Document when `$ aptitude dist-upgrade` is useful.
+
+When you run `$ aptitude [safe-]upgrade` and you can see on the last line of the
+output that some packages were not upgraded:
+
+    0 upgraded, 0 newly installed, 0 to remove and 4 not upgraded.~
+
+`$ aptitude dist-upgrade` should upgrade them.
+
+See here for an explanation:
+<https://debian-administration.org/article/69/Some_upgrades_show_packages_being_kept_back>
+
+## Document why `xsel(1x)` is better than `xclip(1)`.
+
+`xclip(1)` doesn't close its stdout.
+
+This can make Tmux unresponsive:
+
+- <https://askubuntu.com/a/898094/867754>
+- <https://wiki.archlinux.org/index.php/Tmux#X_clipboard_integration>
+- <https://unix.stackexchange.com/questions/15715/getting-tmux-to-copy-a-buffer-to-the-clipboard/15716#comment349384_16405>
+
+The archwiki link suggests to close it manually with `>/dev/null`.
+It may be a known issue: <https://github.com/astrand/xclip/issues/20>
+
+---
+
+Closing xclip's stdout doesn't fix another issue where the `xclip(1)` process is
+automatically terminated when we start it from Vim and quit the latter:
+
+<https://unix.stackexchange.com/q/523255/289772>
+
+See our comments inside `tmux#capture_pane#main()`:
+
+    ~/.vim/plugged/vim-tmux/autoload/tmux/capture_pane.vim:2
+
+## Document `realpath(1)`
+
+`realpath` permet de  fournir le chemin absolu d'un dossier  ou un fichier, même
+si c'est un lien symbolique.
+
+    $ ln -s path/to path/destination
+
+    lns() {
+       # Usage: lns path/to path/destination
+       ln -sv $(realpath $1) $(realpath $2)
+    }
+
+## Document how to handle PPAs
+
+    $ sudo add-apt-repository          ppa:jonathonf/vim
+    $ sudo add-apt-repository --remove ppa:jonathonf/vim
+    $ sudo ppa-purge ppa:jonathonf/vim
+
+Ajoute/Supprime le PPA `ppa:jonathonf/vim` à la liste de ses dépôts.
+
+En cas de suppression via `add-apt-repository`, penser à purger au préalable les
+paquets installés depuis le PPA.
+Autrement, utiliser `ppa-purge` (nécessite l'installation du paquet éponyme).
+
+---
+
+    $ apt-key list | grep expired
+    $ sudo apt-key adv --recv-keys --keyserver <keyserver url> <10-char key ID>
+
+Afficher les clés signant des dépôts installés ayant expirées.
+
+Mettre à jour la clé d'identifiant <10-char key ID>.
+Ne fonctionne que si le mainteneur du dépôt a uploadé une nouvelle clé.
+
+Source: <https://serverfault.com/a/615362>
+
+                                     TODO:
+
+Maybe we should update the keys in `up`.
+
+
+                                     FIXME:
+
+Comment savoir quel serveur de clés utiliser ?
+
+`<keyserver url>` peut être:
+
+   - keys.gnupg.net
+   - keyserver.ubuntu.com
+   - ... (autres possible ?)
+
+---
+
+    synaptic
+    onglet 'Origin'
+    tri par 'State'
+
+            Trouver les paquets installés depuis un ppa donné.
+
+## ?
+
+    https://unix.stackexchange.com/questions/484434/sync-a-folder-between-2-computers-with-a-filesystem-watcher-so-that-each-time-a
+
+            Sync a folder between 2 computers, with a filesystem watcher so that
+            each time a file is modified, it is immediately replicated
+
+
+    https://notmuchmail.org/
+
+
+    https://0x0.st/
+    https://github.com/lachs0r/0x0
+
+            No-bullshit file hosting and URL shortening service
+            Read the contents of the first link to understand how to use the command.
+
+            Some examples to upload:
+
+                    # a local file
+                    curl -F'file=@yourfile.png' https://0x0.st
+
+                    # a remote url
+                    curl -F'url=http://example.com/image.jpg' https://0x0.st
+
+                    # a remote url
+                    curl -F'shorten=http://example.com/some/long/url' https://0x0.st
+
+                    # output of a shell command
+                    command | curl -F'file=@-' https://0x0.st
+
+            We've implemented  a `:Share` command in  `vim-unix` which leverages
+            this web service.
+            Select  some  text,  and  execute  `:'<,'>Share`,  or  just  execute
+            `:Share` while in a file.
+            Try it out!
+
+
+    https://superuser.com/a/602298
+
+            Is there colorizer utility that can take command output and colorize
+            it accordingly to pre-defined scheme?
+
+            Also, see this:
+            https://github.com/garabik/grc
+
+            See also `ccze(1)`:
+
+                $ aptitude install ccze
+                $ cat /var/log/boot.log | ccze -A
+
+
+    https://beyondgrep.com/feature-comparison/
+    https://rentes.github.io/unix/utilities/2015/07/27/moreutils-package/
+
+            À lire.
+
+
+    https://www.youtube.com/watch?v=wBp0Rb-ZJak
+
+            The Complete Linux Course: Beginner to Power User!
+
+
+    https://www.gnu.org/software/coreutils/manual/html_node/Directory-Setuid-and-Setgid.html
+
+            27.5 Directories and the Set-User-ID and Set-Group-ID Bits
+
+
+    https://github.com/jhawthorn/fzy
+
+            Alternative to fzf.
+
+    https://github.com/sharkdp/fd
+    https://mike.place/2017/fzf-fd/
+
+            Alternative to `find(1)`.
+
+
+- <https://www.reddit.com/r/linux/comments/21rm3o/what_is_a_useful_linux_tool_that_you_use_that/>
+- <https://www.reddit.com/r/linux/comments/mi80x/give_me_that_one_command_you_wish_you_knew_years/>
+- <https://www.reddit.com/r/linux/comments/389mnk/what_are_your_favourite_not_well_known_cli/>
+
+
+What is a bitmask and a mask?
+        https://stackoverflow.com/a/31576303
+
+
+Lire toute la documentation de:
+
+        - fasd
+        - fzf
+        - ifne
+        - ranger
+        - rofi
+        - strace
+        - xsel (`xsel <file`:  écrit file dans le presse-papier)
+        - utilitaires fournis par le paquet moreutils
+
+
+
+    https://github.com/peco/peco
+
+            Alternative à fzf:
+
+                    - a l'air plus configurable
+                    - plus puissant au niveau des regex
+                    - moins de documentation? less battery included? moins bonne synergie avec Vim?
+
+
+    https://www.booleanworld.com/guide-linux-top-command/
+
+            Guide pour la commande `top`.
+
+
+`fasd` semble être un simple fichier shell avec peu de code (533 sloc):
+
+        https://github.com/clvv/fasd/blob/master/fasd
+
+Il y a très peu d'activité sur le projet, et le dernier commit remonte à un an et demi:
+
+        https://github.com/clvv/fasd/commits/master
+
+Le réimplémenter pour pouvoir facilement continuer son développement par la suite?
+##
+## Utilities
+
+### Links
 
     https://github.com/learnbyexample/Command-line-text-processing
 
@@ -347,7 +641,7 @@ Source: <https://askubuntu.com/a/676452/867754>
 
             K.Mandla's blog of Linux experiences
 
-## atool
+### atool
 
 `atool` est un outil permettant de manipuler divers types d'archives, via une syntaxe cohérente.
 Il s'agit d'un wrapper autour des commandes:
@@ -454,7 +748,7 @@ contenant plusieurs fichiers.
             de conflits. -f = --force
 
 
-## curl
+### curl
 
 `curl` accept plusieurs arguments. En voici quelques-uns:
 
@@ -493,7 +787,7 @@ contenant plusieurs fichiers.
             d'emplacement (-L).
 
 
-## grep
+### grep
 
     cat <<'EOF' >file
     this line has !bangs!
@@ -601,7 +895,7 @@ contenant plusieurs fichiers.
             `-e` est utile qd on cherche un pattern commençant par un tiret.
 
 
-## less
+### less
 
     cmd | less → s
 
@@ -620,7 +914,7 @@ contenant plusieurs fichiers.
                     vim package.deb            ✘
                     less package.deb | vipe    ✔
 
-## ls
+### ls
 
      ┌─────────────────────┬─────────────────────────────────────────────────────────┐
      │ ls -1               │ une seule entrée par ligne                              │
@@ -713,7 +1007,7 @@ contenant plusieurs fichiers.
             On peut voir les  options qui ont été activées au moment de  monter une partition via
             la commande `mount`. Pour plus d'infos: https://unix.stackexchange.com/a/8842/232487
 
-## ls++
+### ls++
 
     https://github.com/trapd00r/ls--
 
@@ -849,7 +1143,7 @@ contenant plusieurs fichiers.
             Certaines combinaisons de flags `ls` produisent des résultats étranges avec `ls++`.
 
 
-## mapscii
+### mapscii
 
     https://github.com/rastapasta/mapscii
 
@@ -907,13 +1201,13 @@ contenant plusieurs fichiers.
 
             Raccourcis claviers utilisables pour trouver un lieu géographique bien précis.
 
-## nmtui
+### nmtui
 
     Text User Interface for controlling NetworkManager
 
     It's already installed.
 
-## node
+### node
 
     gcc and g++ 4.9.4 or newer
     Python 2.6 or 2.7
@@ -1002,7 +1296,7 @@ contenant plusieurs fichiers.
 
             Conseil: bite the bullet, et n'utiliser qu'un seul job (`make` sans `-j`).
 
-## notify-send
+### notify-send
 
                       ┌───────────── duration, in milliseconds, for the notification to appear on screen
                       │            ┌ spécifie un nom d'icone custom ou stock (installé avec l'OS)
@@ -1017,7 +1311,7 @@ contenant plusieurs fichiers.
 
                     cd /usr/share/icons/Paper/ ; tree -a V
 
-## parallel  xargs
+### parallel  xargs
 
     https://www.youtube.com/watch?v=OpaiGYxkSuQ
     https://www.gnu.org/software/parallel/parallel_tutorial.html
@@ -1089,7 +1383,7 @@ contenant plusieurs fichiers.
 
                     https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=749355#133
 
-## printf
+### printf
 
     printf '%s\n' 'foo' 'bar' 'baz'
     foo~
@@ -1101,7 +1395,7 @@ autant d'items qu'il n'y d'expressions à formater.
 Dans cet exemple, il n'y a qu'un seul item `%s`, mais 3 expressions 'foo', 'bar'
 et 'baz'.
 
-## renommage
+### renommage
 
     touch image{1..9}.png
     for f in *.png; do mv "$f" "${f#image}"; done
@@ -1328,7 +1622,7 @@ et 'baz'.
             Certains pgms comme w3m conservent ces caractères indésirables qd on sauvegarde des fichiers
             depuis le web.
 
-## sort
+### sort
 
     sort file -o file
 
@@ -1403,10 +1697,10 @@ et 'baz'.
 
                     LC_ALL=C sort ...
 
-##
-## sudo
+###
+### sudo
 
-### configuration
+#### configuration
 
     sudo visudo -f /etc/sudoers.d/my_modifications
 
@@ -1504,7 +1798,7 @@ et 'baz'.
             `user` peut lancer sur n'importe qelle machine, en tant que n'importe quel utilisateur,
             n'importe quelle commande.
 
-### utilisation
+#### utilisation
 
     su -l
 
@@ -1657,15 +1951,15 @@ et 'baz'.
             Ni `-E`, ni `env_keep` ne préservent pas `PATH`, il faut donc la passer manuellement.
 
 
-### déboguage
+#### déboguage
 
     /var/log/auth.log
 
             Chaque utilisation de `sudo` ajoute une ligne dans ce fichier.
             À consulter en cas de pb.
 
-##
-## tee
+###
+### tee
 
     cmd | tee    file        cmd  >file
     cmd | tee -a file        cmd >>file
@@ -1715,10 +2009,10 @@ et 'baz'.
             (qui effectue la redirection).
             Il faut donc élever les droits du shell, ou d'une commande écrivant dans le fichier.
 
-##
-## Futur
+###
+### Futur
 
-### atop
+#### atop
 
     api atop
     man atop
@@ -1726,7 +2020,7 @@ et 'baz'.
             Ressemble à `top` avec peut-être plus d'infos, et l'enrigstrement de l'activité passée
             (pas juste l'activité courante).
 
-### chafa
+#### chafa
 
 View gifs in your terminal.
 
@@ -1739,7 +2033,7 @@ View gifs in your terminal.
 - <https://www.youtube.com/watch?v=SoYKKzBNnwo>
 - <https://github.com/hpjansson/chafa>
 
-### cylon-deb
+#### cylon-deb
 
     TUI menu driven bash shell script to maintain a Debian based Linux distro.
 
@@ -1749,7 +2043,7 @@ View gifs in your terminal.
 
     Pourrait être utile pour automatiser une maintenance plus rigoureuse d'une distro basée sur debian.
 
-### dasht
+#### dasht
 
     Search API docs offline, in terminal or browser.
 
@@ -1973,24 +2267,24 @@ View gifs in your terminal.
 
             Chercher dans la documentation tous les sujets contenant 'c - x'.
 
-### dateutils
+#### dateutils
 
     https://github.com/hroptatyr/dateutils
 
             nifty command-line date and time utilities; fast date calculations and conversion in the shell
 
-### dfc
+#### dfc
 
     TODO: lire `man dfc`
     dfc - display file system space usage using graphs and colors
     (df mais en plus lisible)
 
-### diana-mui
+#### diana-mui
 
 - <https://www.youtube.com/watch?v=y59JwlYsrAE>
 - <https://github.com/baskerville/diana>
 
-### direnv
+#### direnv
 
 - <https://github.com/direnv/direnv>
 - <https://github.com/direnv/direnv.vim>
@@ -2012,11 +2306,11 @@ be unnoticeable on each prompt.
 It  is also  language-agnostic and  can be  used to  build solutions  similar to
 rbenv, pyenv and phpenv.
 
-### findmnt
+#### findmnt
 
         findmnt - find a filesystem
 
-### khal
+#### khal
 
     https://github.com/pimutils/khal
 
@@ -2033,19 +2327,19 @@ rbenv, pyenv and phpenv.
             Console carddav client.
 
 
-### googler
+#### googler
 
     https://github.com/jarun/googler
 
             Google Search, Google Site Search, Google News from the terminal
 
-### grep-typos
+#### grep-typos
 
     https://github.com/ss18/grep-typos
 
             Quickly check your project for typos
 
-### highlight
+#### highlight
 
     $ git clone https://gitlab.com/saalen/highlight && cd *(/oc[1])
     $ git checkout x.y
@@ -2055,7 +2349,7 @@ rbenv, pyenv and phpenv.
 
 <http://www.andre-simon.de/doku/highlight/en/highlight.php>
 
-### inotifywait
+#### inotifywait
 
     https://github.com/rvoicilas/inotify-tools/wiki
     https://superuser.com/a/181543/747860
@@ -2076,13 +2370,13 @@ rbenv, pyenv and phpenv.
             À propos de `entr`:
             https://news.ycombinator.com/item?id=13856623
 
-### insect
+#### insect
 
         High precision scientific calculator with support for physical units.
 
         https://github.com/sharkdp/insect
 
-### lnav
+#### lnav
 
         Log file navigator http://lnav.org
 
@@ -2123,7 +2417,7 @@ rbenv, pyenv and phpenv.
 
                 https://github.com/tstack/lnav/pull/468
 
-### newsbeuter
+#### newsbeuter
 
     Description: text mode rss feed reader with podcast support newsbeuter is an innovative RSS feed
     reader  for  the  text  console.  It  supports  OPML  import/exports,  HTML  rendering,  podcast
@@ -2134,7 +2428,7 @@ rbenv, pyenv and phpenv.
 
     On a sauvegardé la playlist de Gotbletu consacrée au programme (6 vidéos).
 
-### newspaper
+#### newspaper
 
     https://github.com/desmondhume/newspaper
 
@@ -2148,13 +2442,13 @@ rbenv, pyenv and phpenv.
 
                     Replace Mercury with a readability library
 
-### noti
+#### noti
 
     https://github.com/variadico/noti
 
             Trigger notifications when a process completes.
 
-### pass
+#### pass
 
     https://www.passwordstore.org/
 
@@ -2162,7 +2456,7 @@ rbenv, pyenv and phpenv.
 
             À comparer à keepasscli.
 
-### polyglot
+#### polyglot
 
     https://github.com/agkozak/polyglot
 
@@ -2170,7 +2464,7 @@ rbenv, pyenv and phpenv.
 
                                     196 sloc
 
-### progress
+#### progress
 
     https://github.com/Xfennec/progress
 
@@ -2185,7 +2479,7 @@ rbenv, pyenv and phpenv.
 
             En revanche, pour d'autres commandes (ex: `dd`) ...
 
-### rat
+#### rat
 
     Compose shell commands to build interactive terminal applications
 
@@ -2199,21 +2493,21 @@ rbenv, pyenv and phpenv.
 
     https://github.com/ericfreese/rat
 
-### rclone
+#### rclone
 
     "rsync for cloud  storage" - Google Drive,  Amazon Drive, S3, Dropbox, Backblaze  B2, One Drive,
     Swift, Hubic, Cloudfiles, Google Cloud Storage, Yandex Files https://rclone.org
 
     https://github.com/ncw/rclone
 
-### rev
+#### rev
 
 rev - reverse lines characterwise
 
 See `man rev`.
 
-###
-### rlwrap
+####
+#### rlwrap
 
 <https://github.com/hanslub42/rlwrap>
 
@@ -2223,7 +2517,7 @@ See `man rev`.
     │ C-r      │ chercher un pattern au sein de l'historique de saisie de la commande │
     └──────────┴──────────────────────────────────────────────────────────────────────┘
 
-#### What are the limitations of this command?
+##### What are the limitations of this command?
 
 rlwrap works only with an external command, not with a shell
 builtin/alias/function.
@@ -2268,7 +2562,7 @@ But there would still be 2 issues:
      So for example, if the purpose of your function is to change the cwd, it will fail.
      Try with `$ fasd_cd -d -i` (alias `jj`).
 
-#### ?
+##### ?
 
     complétion custom
     historique persistant
@@ -2325,8 +2619,8 @@ and output,  history and completion.  They are somewhat experimental,  and their
 implementation and the  example filters still are of  slightly dubious ('alpha')
 quality.
 
-###
-### rsync
+####
+#### rsync
 
     TODO: lire `man rsync`
 
@@ -2361,12 +2655,12 @@ quality.
 
     À quel point est-il fiable?
 
-### pv
+#### pv
 
     TODO: lire `man pv`
     pv - monitor the progress of data through a pipe
 
-### SC-IM
+#### SC-IM
 
     https://github.com/andmarti1424/sc-im
 
@@ -2374,13 +2668,13 @@ quality.
             (http://ibiblio.org/pub/Linux/apps/financial/spreadsheet/sc-7.16.tar.gz)   SC   original
             authors are James Gosling and Mark Weiser, and mods were later added by Chuck Martin.
 
-### sdcv
+#### sdcv
 
     https://askubuntu.com/questions/191125/is-there-an-offline-command-line-dictionary
 
     sudo aptitude install sdcv
 
-### socat
+#### socat
 
     http://freecode.com/projects/socat
     https://unix.stackexchange.com/search?tab=votes&q=socat
@@ -2389,7 +2683,7 @@ quality.
 
             man socat
 
-### streamlink
+#### streamlink
 
         https://github.com/streamlink/streamlink
 
@@ -2400,7 +2694,7 @@ quality.
 CLI  for extracting  streams from  various websites  to a  video player  of your
 choosing.
 
-### TMSU
+#### TMSU
 
     https://github.com/oniony/TMSU
 
@@ -2427,7 +2721,7 @@ choosing.
             I would recommend anyone doing it  and I would hope schools teach it
             some day.
 
-### translate-shell
+#### translate-shell
 
     https://github.com/soimort/translate-shell/
 
@@ -2464,305 +2758,3 @@ choosing.
             Traduit une phrase en français vers l'anglais (langue système).
             Idem mais en moins verbeux.
 
-##
-##
-##
-# Issues
-## I'm trying to use a documented feature of a command.  It doesn't work at all! It's missing!
-
-Try to recompile  and look for a configuration option  which enables the desired
-feature.
-
-## Some configuration for a program I use seems to be ignored!
-
-Maybe something alters your configuration after the file has been processed:
-
-   - delay the processing of the file (`sleep 1s`)
-   - move the line(s) at the end of the file
-
----
-
-Maybe your program has cached its config, and use the latter which is stale.
-Remove the cache (e.g. `rm ~/.zcompdump`).
-
-## How to get rid of “Error retrieving accessibility bus address: org.freedesktop.DBus.Error.ServiceUnknown:”?
-
-Install the deb package `at-spi2-core`.
-
-For more info, maybe have a look at this: <https://unix.stackexchange.com/a/148779/289772>
-
-## divers
-
-    Restaurer les consoles tty1-6:    sudoedit /etc/default/grub
-                                      décommenter la (les?) ligne `GRUB_TERMINAL=console`
-                                      sudo update-grub
-
-            Si aucune console n'est accessible (`C-M-F1..6`), il se peut que la cause soit la résolution
-            de la console configurée au démarrage qui n'est pas supportée par la carte/processeur graphique.
-
-            La solution consiste à décommenter une ligne dans le fichier de conf de grub.
-            Ceci a également pour effet de donner une faible résolution au menu de grub.
-            Plus moche, mais plus lisible car la taille des caractères est bien plus grande.
-
-            Source:
-            https://askubuntu.com/questions/162535/why-does-switching-to-the-tty-give-me-a-blank-screen
-
-                    This is usually caused because the graphical text-mode resolution set at boot up
-                    is  not compatible  with your  video card.  The solution  is to  switch to  true
-                    text-mode by configuring Grub appropriately.
-
-
-    (II) AIGLX: Suspending AIGLX clients for VT switch
-    (II) AIGLX: Resuming AIGLX clients after VT switch
-    (II) intel(0): switch to mode 1920x1080@60.0 on VGA1 using pipe 0, position (0, 0), rotation normal, reflection none
-
-            Atm, on a un bug qui fait que lorsqu'on tape C-M-F1 pour se loguer à
-            une console,  puis C-M-F7  pour revenir à  l'environnement graphique
-            (sans même s'être logué), Xorg consomme 25% du cpu pendant plusieurs
-            minutes.
-
-            De plus, il semble qu'il défait notre config xmodmap.
-            Enfin, `xdotool` et/ou `wmctrl` ne semblent plus fonctionner pendant
-            plusieurs  minutes, car  les raccourcis  qui utilisent  notre script
-            `run-or-raise` ne produisent leur effet que bien plus tard.
-
-            Les   3  lignes   écrites   plus  haut   ont   été  copiées   depuis
-            `/var/log/Xorg.0.log`.
-            Elles correspondent à ce que rapporte  Xorg après qu'on ait tenté de
-            se loguer en console.
-
-            Pour chercher une solution, se rendre sur askubuntu.com, et chercher
-            les questions taguées par `Xorg`, et contenant le mot-clé AIGLX.
-
-            Voir aussi ce thread:
-            https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=541388
-
-            Faire une recherche google avec ces mots-clés:
-            xorg console xmodmap aiglx
-
-
-                                               NOTE:
-
-            Si on commente `~/.Xmodmap`, le pb semble persister mais ne dure que 20s.
-
-
-                                               NOTE:
-
-            Au démarrage,  Xorg semble consommer  bcp de cpu, et  les raccourcis
-            utilisant run-or-raise mettent toujours du temps à répondre, mais ça
-            dure pas longtemps.
-
-##
-# Todo
-## fix bugs where panel and desktop are absent at login
-
-Actually, it seems the  panel is there, but as soon as we  press `M-j` to open a
-terminal, it disappears.
-Update: and now it's there again...
-
-For the desktop, you may need to run `xfdesktop(1)`.
-For the panely, you may try `$ xfce4-panel -r`.
-
-## Document when `$ aptitude dist-upgrade` is useful.
-
-When you run `$ aptitude [safe-]upgrade` and you can see on the last line of the
-output that some packages were not upgraded:
-
-    0 upgraded, 0 newly installed, 0 to remove and 4 not upgraded.~
-
-`$ aptitude dist-upgrade` should upgrade them.
-
-See here for an explanation:
-<https://debian-administration.org/article/69/Some_upgrades_show_packages_being_kept_back>
-
-## I have to give my password twice in 2 different screens when I resume a session after suspending the OS!
-
-Google “suspend linux password twice”:
-
-- <https://askubuntu.com/questions/639014/another-password-prompt-when-waking-from-suspend>
-- <https://bugs.launchpad.net/bugs/1296270>
-- <https://bugs.launchpad.net/bugs/1631715>
-
-For the moment, I tried to fix the issue by running:
-
-    $ light-locker-settings
-
-Then disabling “Lock on suspend”.
-
----
-
-IMO, this bug illustrates the benefits of using a custom and minimalist DE.
-When  you'll build  your own  DE, you  probably won't  install the  light-locker
-package; maybe just the xscreensaver package.
-
-See also: <https://askubuntu.com/questions/1063481/lightlocker-and-xscreensaver-conflicting>
-
----
-
-Note that light-locker seems to have 2 purposes:
-
-   - it can blank the screen after a certain amount of time (screensaver)
-   - it can lock the session after a certain amount of time or when you suspend (session-locker)
-
----
-
-You can configure xscreensaver by running `xscreensaver-demo(1)`.
-
----
-
-We can configure xscreensaver so that it  asks for our password after the screen
-gets blank and a certain amount of additional time has elapsed.
-But how  to configure linux so  that it asks for  our password when we  resume a
-session (after suspending it)?
-We can configure light-locker to do so, but I don't want to rely on this package
-because it's tied to  an existing DE (xfce/lxde), and because  it seems to cause
-the issue currently discussed (double password).
-
-## Document why `xsel(1x)` is better than `xclip(1)`.
-
-`xclip(1)` doesn't close its stdout.
-
-This can make Tmux unresponsive:
-
-- <https://askubuntu.com/a/898094/867754>
-- <https://wiki.archlinux.org/index.php/Tmux#X_clipboard_integration>
-- <https://unix.stackexchange.com/questions/15715/getting-tmux-to-copy-a-buffer-to-the-clipboard/15716#comment349384_16405>
-
-The archwiki link suggests to close it manually with `>/dev/null`.
-It may be a known issue: <https://github.com/astrand/xclip/issues/20>
-
----
-
-Closing xclip's stdout doesn't fix another issue where the `xclip(1)` process is
-automatically terminated when we start it from Vim and quit the latter:
-
-<https://unix.stackexchange.com/q/523255/289772>
-
-See our comments inside `tmux#capture_pane#main()`:
-
-    ~/.vim/plugged/vim-tmux/autoload/tmux/capture_pane.vim:2
-
-##
-## ?
-
-    https://unix.stackexchange.com/questions/484434/sync-a-folder-between-2-computers-with-a-filesystem-watcher-so-that-each-time-a
-
-            Sync a folder between 2 computers, with a filesystem watcher so that
-            each time a file is modified, it is immediately replicated
-
-
-    https://notmuchmail.org/
-
-
-    https://0x0.st/
-    https://github.com/lachs0r/0x0
-
-            No-bullshit file hosting and URL shortening service
-            Read the contents of the first link to understand how to use the command.
-
-            Some examples to upload:
-
-                    # a local file
-                    curl -F'file=@yourfile.png' https://0x0.st
-
-                    # a remote url
-                    curl -F'url=http://example.com/image.jpg' https://0x0.st
-
-                    # a remote url
-                    curl -F'shorten=http://example.com/some/long/url' https://0x0.st
-
-                    # output of a shell command
-                    command | curl -F'file=@-' https://0x0.st
-
-            We've implemented  a `:Share` command in  `vim-unix` which leverages
-            this web service.
-            Select  some  text,  and  execute  `:'<,'>Share`,  or  just  execute
-            `:Share` while in a file.
-            Try it out!
-
-
-    https://superuser.com/a/602298
-
-            Is there colorizer utility that can take command output and colorize
-            it accordingly to pre-defined scheme?
-
-            Also, see this:
-            https://github.com/garabik/grc
-
-            See also `ccze(1)`:
-
-                $ aptitude install ccze
-                $ cat /var/log/boot.log | ccze -A
-
-
-    https://beyondgrep.com/feature-comparison/
-    https://rentes.github.io/unix/utilities/2015/07/27/moreutils-package/
-
-            À lire.
-
-
-    https://www.youtube.com/watch?v=wBp0Rb-ZJak
-
-            The Complete Linux Course: Beginner to Power User!
-
-
-    https://www.gnu.org/software/coreutils/manual/html_node/Directory-Setuid-and-Setgid.html
-
-            27.5 Directories and the Set-User-ID and Set-Group-ID Bits
-
-
-    https://github.com/jhawthorn/fzy
-
-            Alternative to fzf.
-
-    https://github.com/sharkdp/fd
-    https://mike.place/2017/fzf-fd/
-
-            Alternative to `find(1)`.
-
-
-- <https://www.reddit.com/r/linux/comments/21rm3o/what_is_a_useful_linux_tool_that_you_use_that/>
-- <https://www.reddit.com/r/linux/comments/mi80x/give_me_that_one_command_you_wish_you_knew_years/>
-- <https://www.reddit.com/r/linux/comments/389mnk/what_are_your_favourite_not_well_known_cli/>
-
-
-What is a bitmask and a mask?
-        https://stackoverflow.com/a/31576303
-
-
-Lire toute la documentation de:
-
-        - fasd
-        - fzf
-        - ifne
-        - ranger
-        - rofi
-        - strace
-        - xsel (`xsel <file`:  écrit file dans le presse-papier)
-        - utilitaires fournis par le paquet moreutils
-
-
-
-    https://github.com/peco/peco
-
-            Alternative à fzf:
-
-                    - a l'air plus configurable
-                    - plus puissant au niveau des regex
-                    - moins de documentation? less battery included? moins bonne synergie avec Vim?
-
-
-    https://www.booleanworld.com/guide-linux-top-command/
-
-            Guide pour la commande `top`.
-
-
-`fasd` semble être un simple fichier shell avec peu de code (533 sloc):
-
-        https://github.com/clvv/fasd/blob/master/fasd
-
-Il y a très peu d'activité sur le projet, et le dernier commit remonte à un an et demi:
-
-        https://github.com/clvv/fasd/commits/master
-
-Le réimplémenter pour pouvoir facilement continuer son développement par la suite?

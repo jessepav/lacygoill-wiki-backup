@@ -19,14 +19,15 @@ In an `<expr>` mapping, it depends:
     fu Func(str)
         return ''
     endfu
-    nno <expr> cd ':call ' . Func('foo <c-j> bar')
+    " nno <expr> cd ':call '..Func('foo <c-j> bar')
+    nno <expr> cd Func('foo <c-j> bar')
     norm cd
 
     " ✘
     fu Func(str)
         return a:str
     endfu
-    nno <expr> cd ':call ' . Func('foo <c-j> bar')
+    nno <expr> cd ':call '..Func('foo <c-j> bar')
     norm cd
 
 However, they *can* in a regular mapping:
@@ -39,8 +40,8 @@ However, they *can* in a regular mapping:
     E115: Missing quote: 'foo ~
 
 This  is probably  because  the keys  in  the  rhs are  processed  while on  the
-command-line; and on  the command-line, when `C-j` or `C-m`  is pressed, it ends
-the command.
+command-line;  and on  the  command-line, when  `C-j` or  `C-m`  is pressed,  it
+terminates the command.
 
 # ?
 
@@ -132,7 +133,7 @@ If `op2` contains several characters, then `op1 + op2` may be valid or not.
 
 Pex, dirvish/vinegar remap `-` car `k` fait pratiquement la même chose et est plus utilisé.
 sneak remap `s` et `S` car ils sont peut utilisés et `cl`/`cc` sont des synonymes.
-`gs` est aussi un bon candidat, car inutile dans l'absolu.
+`gs` est aussi un bon candidat, car peu utile en général.
 
 On  peut utiliser  ces  méthodes pour  créer  non  pas un  lhs  mais un  nouveau
 namespace  à l'intérieur  duquel on  créera des  mappings similaires  (ex: `co`,
@@ -156,20 +157,6 @@ Pour des exemples, lire:
 
 - <https://github.com/kana/vim-textobj-user/wiki>
 - <https://github.com/wellle/targets.vim>
-
----
-
-On peut se créer son propre leader via l'astuce suivante:
-<http://vi.stackexchange.com/a/9711/6960>
-
-A priori, `[unite]` pourrait être remplacé par `<Plug>(unite)` ce qui présenterait l'avantage
-de ne masquer / outrepasser aucun mapping préexistant.
-
-    nno [myLeader]a :echo 'hello'<CR>
-    nno [myLeader]b :echo 'world'<CR>
-
-    nno <Plug>(myLeader)a :echo 'hello'<CR>
-    nno <Plug>(myLeader)b :echo 'world'<CR>
 
 ---
 
@@ -311,10 +298,10 @@ sequence of Ex commands separated by bars.
 
 ---
 
-        nno  cd  :<c-u>call Func()<cr>bbb
-        fu Func() abort
-            call input('>')
-        endfu
+    nno  cd  :<c-u>call Func()<cr>bbb
+    fu Func() abort
+        call input('>')
+    endfu
 
 ✘
 
@@ -322,10 +309,10 @@ sequence of Ex commands separated by bars.
 
 ---
 
-        nno  <silent>  cd  :<c-u>call Func()<cr>bbb
-        fu Func() abort
-            call input('>')
-        endfu
+    nno  <silent>  cd  :<c-u>call Func()<cr>bbb
+    fu Func() abort
+        call input('>')
+    endfu
 
 ✘
 
@@ -344,10 +331,10 @@ their input.
 
 ---
 
-        nno  cd  :<c-u>call Func()<bar>norm! bbb<cr>
-        fu Func() abort
-            call input('> ')
-        endfu
+    nno  cd  :<c-u>call Func()<bar>norm! bbb<cr>
+    fu Func() abort
+        call input('> ')
+    endfu
 
 ✔
 
@@ -355,105 +342,9 @@ their input.
 of Ex commands as `:call Func()`.
 
 ##
-# My opfunc uses `:s/pat/rep/c`.  It doesn't work!
-
-You may be invoking your opfunc via `:norm!`.
-In this case, read this (from `:h :norm`):
-
->       {commands} should be a complete command.  If
->       {commands} does not finish a command, the last one
->       will be aborted as if <Esc> or <C-C> was typed.
-
-`:s/pat/rep/c` is an unfinished command: it requires the user's input to finish.
-So, `:norm!` aborts your `:s/.../c` command.
-Use `feedkeys()` instead.
-
-        nno  <key>  :set opfunc=OpFunc<bar>exe 'norm! '.v:count1.'g@_'<cr>
-                                                ^
-                                                ✘
-
-        nno  <key>  :set opfunc=OpFunc<bar>call feedkeys(v:count1.'g@_', 'in')<cr>
-                                                ^
-                                                ✔
-
-# My opfunc uses `setline()`, not `:s`.  How to pass it a range when I use a count (e.g. `123g@_`)?
-
-Install a wrapper around your opfunc.
-Inside the wrapper, call the opfunc by prefixing `:call` with the range:
-
-                   ┌ consumes the type
-                   │
-        fu Wrapper(_)
-            '[,']call OpFunc()
-        endfu
-
-        fu OpFunc()
-            " use setline()
-        endfu
-
-You  can use  the  change marks  because  Vim should  set  them correctly  after
-`123g@_` has been executed.
-
-# My opfunc executes several `:echo`.  Only the last message is printed!
-
-I think that Vim redraws automatically before every command printing a message.
-This includes sth like `:echo 'msg'` and `:call input('>')`.
-
-I don't know any solution to this  issue, other than printing your messages from
-another function invoked before/after your opfunc, but not directly from it:
-
-        nno cd :set opfunc=Func<bar>norm! g@_<cr>
-        fu Func(_)
-            call FuncA()
-        endfu
-        fu FuncA() abort
-            echo 'foo'
-            echo 'bar'
-        endfu
-        " ✘
-        " press `cd`
-        " bar~
-
-        nno cd :set opfunc=Func<bar>exe 'norm! g@_'<bar>:call FuncA()<cr>
-        fu Func(_)
-        endfu
-        fu FuncA() abort
-            echo 'foo'
-            echo 'bar'
-        endfu
-        " ✔
-        " press `cd`
-        " foo~
-        " bar~
-
----
-
-Note that the same issue exists for timers:
-
-        " ✔
-        :echo 'foo' | echo 'bar'
-        foo~
-        bar~
-
-        " ✘
-        :call timer_start(0, {-> execute('echo "foo" | echo "bar"', '')})
-        bar~
-
-And for autocmds:
-
-    augroup test_echo
-        au!
-        au CursorHold * call Func() | au! test_echo
-    augroup END
-    fu Func()
-        echo 'foo'
-        echo 'bar'
-    endfu
-
-##
 # One of my custom normal command is not repeatable with the dot command!  Why?
 
-`.` only repeats the LAST default normal command.
+`.` only repeats the *last* default normal command.
 So, if your  custom command executes several commands, `.`  will only repeat the
 last one instead of the whole sequence.
 
@@ -469,7 +360,7 @@ So, there's no need to use `repeat#set()` or any other hack.
 
 1) The repetition doesn't always work as expected after an undo:
 
-        https://github.com/tpope/vim-repeat/issues/63
+<https://github.com/tpope/vim-repeat/issues/63>
 
 2) And sometimes, `.` repeats an old custom command.
 
@@ -480,13 +371,12 @@ a brittle hack, which should be avoided whenever possible.
 
 1) You can check it doesn't work correctly after an undo with `vim-easy-align`:
 
-        gaip*|
-        u
-        .
+    gaip*|
+    u
+    .
 
 The dot  command should  repeat the  alignment of  all the  bars in  the current
-paragraph.
-Instead, it asks again for the characters to align.
+paragraph.  Instead, it asks again for the characters to align.
 
 The same kind of issue applied to `g SPC` (break line).
 After an undo, the repetition didn't break the line, and did something else:
@@ -496,40 +386,40 @@ delete the line, put an empty line below...
 
 2) In the past, I found another issue with `] SPC`:
 
-        1. ] SPC
-        2. dd
-        3. `.` to repeat `dd`
+   1. ] SPC
+   2. dd
+   3. `.` to repeat `dd`
 
-        Vim repeated `] SPC`, instead of `dd`~
+   Vim repeated `] SPC`, instead of `dd`~
 
 I found a solution, which was to add this line at the end of our custom function
 (after invoking `repeat#set()`):
 
-        do <nomodeline> CursorMoved
+    do <nomodeline> CursorMoved
 
 # I still want to make it repeatable with `repeat#set()`! How to do it?
 
-        nno  <lhs>  <rhs>:call repeat#set('<lhs>')<cr>
+    nno  <lhs>  <rhs>:call repeat#set('<lhs>')<cr>
 
 Or:
 
-        nmap          <lhs>                  <plug>(named_mapping)
-        nno <silent>  <plug>(named_mapping)  :cmd1<bar>cmd2...<bar>call repeat#set("\<plug>(named_mapping)")<cr>
+    nmap          <lhs>                  <plug>(named_mapping)
+    nno <silent>  <plug>(named_mapping)  :cmd1<bar>cmd2...<bar>call repeat#set("\<plug>(named_mapping)")<cr>
 
 Or:
 
-        nmap          <lhs>                  <plug>(named_mapping)
-        nno <silent>  <plug>(named_mapping)  :cmd1<bar>cmd2...<bar>call Func()<cr>
+    nmap          <lhs>                  <plug>(named_mapping)
+    nno <silent>  <plug>(named_mapping)  :cmd1<bar>cmd2...<bar>call Func()<cr>
 
-        fu Func()
-            ...
-            sil! call repeat#set("\<plug>(named_mapping)")
-            "  ^
-            " Sometimes, you may not have the plugin, or it may be temporarily disabled.
-            " In this case, the function won't exist.
-        endfu
+    fu Func()
+        ...
+        sil! call repeat#set("\<plug>(named_mapping)")
+        "  ^
+        " Sometimes, you may not have the plugin, or it may be temporarily disabled.
+        " In this case, the function won't exist.
+    endfu
 
-# I want `.` to repeat my commands with the same count I used initially! How to do it?
+# I want `.` to repeat my commands with the same count I used initially!  How to do it?
 
 `repeat#set()` accepts a 2nd optional argument.
 Use it to pass `v:count1`.
@@ -538,16 +428,12 @@ Use it to pass `v:count1`.
 
 In the previous code, replace:
 
-        - `:nmap` with `:xmap`
-        - `:nnoremap` with `:noremap`
-                             ^
-                             != nnoremap
+   - `:nmap` with `:xmap`
+   - `:nnoremap` with `:noremap`
 
-# Are there any pitfalls to avoid?
+# Which pitfalls should I avoid?  (2)
 
-Yes, two.
-
-1) Don't use `:xnoremap` in your 2nd mapping, use `:noremap` instead.
+Don't use `:xnoremap` in your 2nd mapping, use `:noremap` instead.
 
 `repeat.vim` remaps the dot command, to make it type the contents of some
 variables updated via some autocmds.
@@ -555,15 +441,14 @@ But it remaps the dot command only in normal mode, not in visual mode.
 
 As a result, your 2nd mapping (<plug> → ...) need to cover both modes:
 
-        - visual    when you'll press the lhs initially
-        - normal    when you'll press `.`
+   - visual    when you'll press the lhs initially
+   - normal    when you'll press `.`
 
 ---
 
-2) Don't  reselect  the visual  selection  with  `gv` at  the  end  of your  custom
-commands.
-Otherwise, before being able  to press `.`, you would need  to press `Escape` to
-get back to normal mode.
+Don't  reselect  the visual  selection  with  `gv` at  the  end  of your  custom
+commands.  Otherwise,  before being able to  press `.`, you would  need to press
+`Escape` to get back to normal mode.
 
 ##
 # What's a “pseudo operator”?
@@ -598,6 +483,7 @@ The `_` motion will make the cursor jump at the beginning of the line, which you
 probably don't want.
 You can avoid the jump by replacing the motion `_` with `l`.
 
+---
 
 If your custom operator is *not* a pseudo operator, and you implemented like this:
 
@@ -663,12 +549,12 @@ an entry from being added to the jumplist.
 
 Instead of:
 
-        '.,.+'.(v:count1 - 1)
+    '.,.+'.(v:count1 - 1)
 
 Currently, the only place where these conditions are satisfied is in:
 
-        ~/.vim/plugged/vim-par/plugin/par.vim:98
-        /gqs
+    ~/.vim/plugged/vim-par/plugin/par.vim:98
+    /gqs
 
 ##
 # How to tweak the behavior of a default operator?
@@ -677,20 +563,20 @@ Create a wrapper around it.
 
 Example with the `gq` operator:
 
-        nno <silent>  gq   :<c-u>set opfunc=<sid>gq<cr>g@
-        nno <silent>  gqq  :<c-u>set opfunc=<sid>gq<bar>exe 'norm! '.v:count1.'g@_'<cr>
-        xno <silent>  gq   :<c-u>call <sid>gq('vis')<cr>
+    nno <silent>  gq   :<c-u>set opfunc=<sid>gq<cr>g@
+    nno <silent>  gqq  :<c-u>set opfunc=<sid>gq<bar>exe 'norm! '.v:count1.'g@_'<cr>
+    xno <silent>  gq   :<c-u>call <sid>gq('vis')<cr>
 
-        fu s:gq()
-            " tweak some setting which alters the behavior of `gq`
-            ...
-            " execute the default `gq`
-            if a:type is# 'vis'
-                norm! '<V'>gq
-            else
-                norm! '[gq']
-            endif
-        endfu
+    fu s:gq()
+        " tweak some setting which alters the behavior of `gq`
+        ...
+        " execute the default `gq`
+        if a:type is# 'vis'
+            norm! '<V'>gq
+        else
+            norm! '[gq']
+        endif
+    endfu
 
 # My custom operator works. But when I press `.`, it's not repeated!  Why?
 
@@ -699,20 +585,20 @@ execution, `.` will repeat the latter.
 
 Example:
 
-        nno <silent> \d :<c-u>set opfunc=<sid>duplicate_and_comment<cr>g@
+    nno <silent> \d :<c-u>set opfunc=<sid>duplicate_and_comment<cr>g@
 
-        fu s:duplicate_and_comment(type)
-            norm! '[y']
+    fu s:duplicate_and_comment(type)
+        norm! '[y']
 
-            " norm gc']     ✘
-            ']Commentary    ✔
+        " norm gc']     ✘
+        ']Commentary    ✔
 
-            norm! ']p
-        endfu
+        norm! ']p
+    endfu
 
 Here, the normal command:
 
-        norm gc']
+    norm gc']
 
 ... would cause an issue, because it invokes the operator `gc`.
 So, after  pressing `\dip`  (duplicate and comment  inside paragraph),  `.` will
@@ -734,14 +620,215 @@ of your operator function, you'll also need to remember to change it on the line
 where you restore `'opfunc'`.
 
 ##
+# opfunc
+## My opfunc uses `:s/pat/rep/c`.  It doesn't work!
+
+You may be invoking your opfunc via `:norm!`.
+In this case, read this (from `:h :norm`):
+
+>       {commands} should be a complete command.  If
+>       {commands} does not finish a command, the last one
+>       will be aborted as if <Esc> or <C-C> was typed.
+
+`:s/pat/rep/c` is an unfinished command: it requires the user's input to finish.
+So, `:norm!` aborts your `:s/.../c` command.
+Use `feedkeys()` instead.
+
+    nno  <key>  :set opfunc=OpFunc<bar>exe 'norm! '.v:count1.'g@_'<cr>
+                                            ^
+                                            ✘
+
+    nno  <key>  :set opfunc=OpFunc<bar>call feedkeys(v:count1.'g@_', 'in')<cr>
+                                            ^
+                                            ✔
+
+## My opfunc uses `setline()`, not `:s`.  How to pass it a range when I use a count (e.g. `123g@_`)?
+
+Install a wrapper around your opfunc.
+Inside the wrapper, call the opfunc by prefixing `:call` with the range:
+
+               ┌ consumes the type
+               │
+    fu Wrapper(_)
+        '[,']call OpFunc()
+    endfu
+
+    fu OpFunc()
+        " use setline()
+    endfu
+
+You  can use  the  change marks  because  Vim should  set  them correctly  after
+`123g@_` has been executed.
+
+## My opfunc executes several `:echo`.  Only the last message is printed!
+
+I think that Vim redraws automatically before every command printing a message.
+This includes sth like `:echo 'msg'` and `:call input('>')`.
+
+I don't know any solution to this  issue, other than printing your messages from
+another function invoked before/after your opfunc, but not directly from it:
+
+    nno cd :set opfunc=Func<bar>norm! g@_<cr>
+    fu Func(_)
+        call FuncA()
+    endfu
+    fu FuncA() abort
+        echo 'foo'
+        echo 'bar'
+    endfu
+    " ✘
+    " press `cd`
+    " bar~
+
+    nno cd :set opfunc=Func<bar>exe 'norm! g@_'<bar>:call FuncA()<cr>
+    fu Func(_)
+    endfu
+    fu FuncA() abort
+        echo 'foo'
+        echo 'bar'
+    endfu
+    " ✔
+    " press `cd`
+    " foo~
+    " bar~
+
+---
+
+Note that the same issue exists for timers:
+
+    " ✔
+    :echo 'foo' | echo 'bar'
+    foo~
+    bar~
+
+    " ✘
+    :call timer_start(0, {-> execute('echo "foo" | echo "bar"', '')})
+    bar~
+
+And for autocmds:
+
+    augroup test_echo
+        au!
+        au CursorHold * call Func() | au! test_echo
+    augroup END
+    fu Func()
+        echo 'foo'
+        echo 'bar'
+    endfu
+
 ##
+# `maparg()`
+## How to represent the mode 'nvo' in the input of `maparg()`?
+
+Use an empty string:
+
+    vim -Nu NONE +'noremap <c-e> :echom "test"<cr>'
+    :echo maparg('<c-e>', '')
+                          ^^
+
+### How does `maparg()` represent `nvo` when its output is a dictionary?
+
+With a space:
+
+    vim -Nu NONE +'noremap <c-e> :echom "test"<cr>'
+    :echo maparg('<c-e>', '', 0, 1).mode is# ' '
+                                              ^
+
 ##
-# Issues
+## How to represent the operator-pending mode in the input of `maparg()`?
+
+Use 'o':
+
+    vim -Nu NONE +'ono <c-e> :echom "test"<cr>'
+    :echo maparg('<c-e>', 'o')
+                          ^^^
+
+### How does `mode()` represent the operator-pending mode in its output?
+
+With 'n':
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        ono <expr> <c-e> Func()
+        fu Func()
+            echom mode()
+        endfu
+    EOF
+    )
+    " press y C-e: n is printed
+
+Which is the same as for normal mode.
+IOW, `mode()`  is useless to detect  operator-pending mode; you need  to pass it
+the optional argument `1` for its output to be reliable.
+
+#### What if I pass the optional argument `1`?
+
+Then, `mode(1)` evaluates to 'no', or 'nov', or 'noV' or 'no^V'.
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        ono <expr> <c-e> Func()
+        fu Func()
+            echom mode(1)
+        endfu
+    EOF
+    )
+    " press y C-e: no
+    " press y v C-e: nov
+    " press y V C-e: noV
+    " press y C-v C-e: no^V
+
+##
+# Tricks
+## How to create my own pseudo-leader key?
+
+    " define `<plug>(myLeader)` as a pseudo-leader key
+    nmap <space> <plug>(myLeader)
+
+    " make sure it doesn't have any effect if you don't press any key after the leader until the timeout,
+    " just like the regular leader key does
+    nno <plug>(myLeader) <nop>
+
+    " you can use your leader key
+    nno <plug>(myLeader)a :echo 'foo'<cr>
+    nno <plug>(myLeader)b :echo 'bar'<cr>
+    nno <plug>(myLeader)c :echo 'baz'<cr>
+    ...
+
+<http://vi.stackexchange.com/a/9711/6960>
+
+### What's one pitfall of this trick?
+
+`<plug>(myLeader)a` fails to override a mapping whose lhs is `<space>a`:
+
+    nno <space>a :echo 'original'<cr>
+
+    nmap <space> <plug>(myLeader)
+    nno <plug>(myLeader) <nop>
+    nno <plug>(myLeader)a :echo 'redefined'<cr>
+
+In contrast, `<leader>a` would succeed:
+
+    let mapleader = ' '
+    nno <space>a :echo 'original'<cr>
+    nno <leader>a :echo 'overridden'<cr>
+
+### When is it useful?
+
+I guess it's  only useful when you write  a plugin and want to  provide a leader
+key to your users.  Although, even then, because of the pitfall, you'll probably
+want to write sth like this instead:
+
+    let leader = get(g:, 'user_leader', '<space>')
+    for [lhs, rhs] in [['a', ':echo "foo"<cr>'], ['b', ':echo "bar"<cr>'], ['c', ':echo "baz"<cr>']]
+        exe 'nno '..leader..lhs..' '..rhs
+    endfor
+
+##
+# Pitfalls
 ## My mapping ignores the count I prefixed it with!
 
 You may have a `:norm!` command somewhere which resets `v:count[1]` to 1.
-Try to capture `v:count[1]` as soon as possible in a variable; then always refer
-to the latter in your code (never refer to `v:count[1]`).
+Try to  capture `v:count[1]`  as soon  as possible in  a variable;  then, always
+refer to the latter in your code (never refer to `v:count[1]`).
 
 Capture it either at the very start of the function definition:
 
@@ -769,6 +856,67 @@ mappings/commands (DRY, DIE).
 
 In those cases, capture the variable at the start of the function definition.
 
+## My mapping raises E474 when I try to install it!
+
+The limit size of a lhs is 50 bytes.
+
+    vim -Nu NONE +'nno xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx abc'
+    E474: Invalid argument~
+
+Make the lhs shorter.
+
+---
+
+Note that the weight of `<plug>` is 3 bytes:
+
+    :echo len("\<plug>")
+    3~
+
+## Sometimes, my autocmd listening to `InsertLeave` is not triggered!
+
+If you've quit insert mode by pressing `C-c`, `InsertLeave` was not fired.
+Note that this is  working as intended; if that's an issue  for you, you'll need
+to find a workaround which does not rely on `InsertLeave`.
+
+### ?
+
+    " Why don't you use `@=` to make our custom `J` support a count?
+    "
+    " Yeah, in the past we installed this:
+    "
+    "     nno <silent> J @="m'J``"<cr>
+    "
+    " But I raises an issue when you replay a macro with `@@` which contains `J`:
+    "
+    "     $ printf 'ab\ncd\nef\ngh\nij\nkl' | vim -Nu NONE +'nno J @="J"<cr>' -
+    "     qq A, Esc J q
+    "     j @q
+    "     j @@
+    "
+    " You should get `ij, kl` in the last line, but instead you'll get `ij kl`.
+    "
+    " That's because when  you re-execute the last executed register  with `@@`, the
+    " latter  is reset  by  `@=`.  That is,  during  the  execution, the  expression
+    " register is  executed, and therefore  becomes the new last  executed register;
+    " this changes the meaning of the next `@@`.
+
+##
+# Issues
+## When I press some special key (`<f1>`, `<up>`, `<M-b>`, ...) it doesn't behave as expected!
+
+Make sure that you don't have any mapping containing `Esc` in its lhs.
+Run `:new|pu=execute('map')`, and look for the  pattern `<esc>`, but only in the
+lhs of a mapping.
+
+If one  of them does, and  you want to keep  it, then you'll have  to double the
+`Esc`  (and obviously  you'll need  to press  it twice  for your  mapping to  be
+triggered now).  What is  important is that there is no way  for Vim to conflate
+this `Esc` with  the start of a sequence  of key codes (like `Esc O  A` which is
+produced by `<up>` in xterm).
+
+- <https://github.com/vim/vim/issues/2216>
+- <https://vi.stackexchange.com/a/24403/17449>
+
 ## The output of `:ino bc –` followed by `:echo execute('ino bc')` is `i  bc    * ^S`!
 
 It should look like this: `i  bc    * –`.
@@ -791,13 +939,28 @@ I can reproduce the issue with an abbreviation too.
 It's probably somewhat linked to the fact that `–` is a multibyte character.
 
 ##
+# Todo
+## `maparg()` with a `{dict}` argument now includes a `script` key.  Refactor all your plugins to use it.
+
+Vim patch 8.2.0491:
+<https://github.com/vim/vim/commit/2da0f0c445da3c9b35b2a0cd595d10e81ad2a6f9>
+
+    :vim /\C\<maparg(/gj  $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
+    :Cfilter! -other_plugins
+
+Look  for files  in the  qfl which  contain the  (uncommented) pattern  `nowait`
+(without the surrounding brackets).  Atm, only these three files match.
+
+    ~/.vim/plugged/vim-lg-lib/autoload/lg/map.vim
+    ~/.vim/plugged/vim-repmap/autoload/repmap/make.vim
+    ~/.vim/plugged/vim-submode/autoload/submode.vim
+
+---
+
+The patch has not yet been ported to Nvim though.
+
 ##
 ##
-# Tricks
-
-Use `<C-c>` instead of `<Esc>` in a mapping in insert mode, if you don't want to
-trigger `InsertLeave`.
-
 ##
 # Arguments
 ## Which mappings should never be defined with `<silent>`?
@@ -1051,9 +1214,9 @@ avant le rhs.
 
 On pourrait se passer de `<script>` et utiliser un `<plug>` à la place:
 
-        nmap   ,dt                      <SID>(FindTopic)<Plug>(norecursive_dd)
-        nno    <Plug>(norecursive_dd)    dd
-        nno    <SID>(FindTopic)          /Topic<cr>
+    nmap ,dt                    <SID>(FindTopic)<Plug>(norecursive_dd)
+    nno  <Plug>(norecursive_dd)  dd
+    nno  <SID>(FindTopic)        /Topic<cr>
 
 Mais on doit écrire une ligne de code supplémentaire, et on perd en lisibilité.
 
@@ -1189,7 +1352,7 @@ Qd le  rhs d'un mapping  en mode  normal exécute une  suite de commandes  et qu
 l'une d'elles échoue, les commandes qui suivent ne sont pas exécutées.
 Exemple:
 
-    nno <key>    <c-w>w<c-d><c-w>w
+    nno <key> <c-w>w<c-d><c-w>w
 
 Lorsqu'on a 2 fenêtres, ce mapping est censé:
 
@@ -1204,7 +1367,7 @@ d'origine.
 
 Solution:
 
-        nno <key>  :sil! exe "norm! \<lt>c-w>w\<lt>c-d>\<lt>c-w>w"<cr>
+    nno <key>  :sil! exe "norm! \<lt>c-w>w\<lt>c-d>\<lt>c-w>w"<cr>
 
 `:silent!`  (le bang  est  important)  permet de  poursuivre  l'exécution de  la
 commande `:normal` même si celle-ci rencontre une erreur.
@@ -1220,7 +1383,11 @@ entre double quote, et que cette dernière est lue par une commande de mapping o
 passée en  argument à une  fonction, il faut  protéger le caractère  de contrôle
 autant de fois que nécessaires via plusieurs `<lt>`  imbriqués.
 
-        Ex:    \<lt>lt>CR>    un CR protégé 2 fois
+Ex:
+
+    \<lt>lt>CR>
+
+Un CR protégé 2 fois.
 
 ---
 
@@ -1236,7 +1403,7 @@ intégralement répété, seule sa première commande normale l'est.
 Pour  définir  un  mapping  pour  lequel un  count  répètera  l'intégralité  des
 commandes, on peut passer par le registre expression, ex:
 
-    nnoremap  {lhs} @='keystrokes'<cr>
+    nno {lhs} @='keystrokes'<cr>
 
 Cela fonctionne car une macro accepte un count.
 Pex: `10@q` rejoue la macro `q` 10 fois.
@@ -1262,8 +1429,8 @@ redefined by `@=`.
 You shouldn't need `@=` anyway.
 You can build a mapping which supports a count by using `<expr>`:
 
-    nno <expr> J "m'" . v:count1 . 'J``'
-        ^^^^^^          ^^^^^^^^
+    nno <expr> J "m'"..v:count1..'J``'
+        ^^^^^^         ^^^^^^^^
 
 And if you were using `@=` for another reason, you can probably replace it with `:exe`:
 
@@ -1308,22 +1475,22 @@ ce que Vim la traite de gauche à droite.
 Mais ce n'est pas une obligation.
 Ici, le mapping traite le mapping dans l'ordre suivant:
 
-        ┌ 1. écrit un début de commande dans le typeahead buffer
-        │
-        │                                     ┌ 2. écrit `CR hello` dans le typeahead buffer
-        │                                     │ ce qui exécute la commande
-        │                                     │ et fait consommer `hello` à `input()`
-        ├──────────────────┐                  ├───────┐
-        :let msg = input('') <bar> echo ' bye'<cr>hello
-                                   ├─────────┘
-                                   └ 3. le mapping attend que `input()` ait
-                                        capturé la saisie de l'utilisateur
-                                        avant d'écrire `echo ' bye' CR` dans
-                                        le typeahead buffer
+    ┌ 1. écrit un début de commande dans le typeahead buffer
+    │
+    │                                     ┌ 2. écrit `CR hello` dans le typeahead buffer
+    │                                     │ ce qui exécute la commande
+    │                                     │ et fait consommer `hello` à `input()`
+    ├──────────────────┐                  ├───────┐
+    :let msg = input('') <bar> echo ' bye'<cr>hello
+                               ├─────────┘
+                               └ 3. le mapping attend que `input()` ait
+                                    capturé la saisie de l'utilisateur
+                                    avant d'écrire `echo ' bye' CR` dans
+                                    le typeahead buffer
 
 ---
 
-En revanche, ici, `input()` consomme `hello CR` AVANT la saisie, et non après:
+En revanche, ici, `input()` consomme `hello CR` *avant* la saisie, et non après:
 
     nno cd :let msg = input('')<cr>hello<cr>
 
@@ -1573,7 +1740,7 @@ Pk?
 Probablement car le lhs (`N`) est répété au début du rhs.
 Extrait de `:h recursive_mapping`:
 
-> If the {rhs} starts with {lhs}, the first character is not mapped again.
+>     If the {rhs} starts with {lhs}, the first character is not mapped again.
 
 Donc, Vim ne veut en aucune manière remap `N`.
 En revanche, il peut remap le reste `<plug>(one)`, ce qu'il fait en utilisant le
@@ -1706,6 +1873,8 @@ Concernant les flags de `feedkeys()`:
 
    - `t`: utile qd les touches contiennent des commandes manipulant des plis,
      l'undo tree, le wildmenu ...
+
+TODO: find usage examples of the `!` and `L` flags.
 
 ---
 

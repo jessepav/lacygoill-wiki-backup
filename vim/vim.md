@@ -1779,6 +1779,14 @@ La 2e ligne ne peut être alignée qu'à condition que &ts = 4. Pour toute autre
 
                     - réaliser une recherche unbounded (en mettant des slashs autour du pattern)
 
+---
+
+Document  that  Vim  adds  anchors  around a  non-delimited  pattern  passed  to
+`:isearch` & similar commands, but only for those commands.
+
+It does not do that for `:vim` for example.
+See `:h include-search` and `:h :search-args`.
+
 ## Remplacer
 
     3rx

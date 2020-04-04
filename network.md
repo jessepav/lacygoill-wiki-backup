@@ -1,4 +1,4 @@
-# LIENS
+# Links
 
     Basic Security Testing with Kali Linux 2
 
@@ -213,3 +213,11 @@ Il paraît que `x2go` est meilleur, plus rapide, et moins gourmand en ressource:
 
             Copie le dossier `local_folder/` dans `distant_folder/`, en se connectant en tant que `login`
             sur la machine identifiée par l'adresse `ip`.
+
+##
+# Todo
+## Learn the `ss(8)` and `ip(8)` suite of commands.
+
+Apparently, they are better than the old `ifconfig(8)` and `netstat(8)`:
+<https://utcc.utoronto.ca/~cks/space/blog/linux/ReplacingNetstatNotBad?showcomments#comments>
+

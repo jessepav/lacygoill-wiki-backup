@@ -21,6 +21,7 @@ The mappings are processed *before* the filters.
     call popup_create('test', #{filter: function('s:popup_filter')})
     pedit /tmp/file
     nno z<c-k> <c-w>+
+    set showcmd
 
     # start Vim like this
     $ vim -Nu NONE -S /tmp/t.vim
@@ -29,28 +30,25 @@ The mappings are processed *before* the filters.
 
 Here's what happens.
 When you press `z C-k`, the mapping replaces the keys with `C-w +`.
-The popup filter ignores `C-w` and passes it on, but consumes `+`.
-It handles `+` by resetting the height of the popup from 1 line to 3 lines.
+The popup  filter ignores `C-w`, but  consumes `+`; it handles  `+` by resetting
+the height of the popup from 1 line to 3 lines.
 
 This shows that the mappings are processed *before* the popup filters.
 
 ### In this example, when I press `z C-k` a second time, the preview window is closed.  Why?
 
-The first `z C-k` wrote `C-w` in the typeahead buffer.
-The second `z C-k` appends `z C-k` to the typeahead buffer; it's not replaced by
-`C-w +` because Vim is still waiting for keys to complete a mapping (see `:h timeoutlen`).
-Which gives the sequence:
+After the first `z C-k`, `C-w` remains in the typeahead buffer.
+When `z` is pressed, it's appended to the typeahead buffer which now contains:
 
-    C-w z C-k
-    ├─┘ ├───┘
-    │   └ the second `z C-k` is not mapped because Vim waits for keys to complete a mapping
-    │     and it does not contain any key consumed by the filter
-    │
-    └ what remains after the first `z C-k` has been mapped to `C-w +`
-      and `+` has been consumed by the filter
+    C-w z
 
-`C-w z` closes the preview window (but there's none here), and `C-k` is not used
-in normal mode (`:h normal-index`).
+This forms  a valid command (see  `:h ^wz`), so  Vim executes it and  closes the
+preview window.
+
+When `C-k` is typed, it's appended to the typeahead buffer which is now empty.
+There are no mappings nor any builtin command starting with `C-k`.
+See `:h normal-index /CTRL-K`.
+So Vim discards `C-k` because it can't be used in a valid command.
 
 ##
 ## What's the meaning of `return v:false` and `return v:true` in a filter?

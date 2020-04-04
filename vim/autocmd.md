@@ -334,6 +334,53 @@ Besides,  all of  this makes  the  code more  verbose, which  defeats the  whole
 purpose of `++once`.
 
 ##
+# When should I pass `<nomodeline>` to `:doautocmd`?
+
+Only when  the event  you're manually triggering  occurs automatically  when you
+load a new buffer.
+
+If you want to be sure, write this in `/tmp/vim.vim`:
+
+     " vi:sw=3
+
+Then, execute this command:
+
+     :setl ml mls=1 | au SomeEvent * setl sw=5
+                         ^^^^^^^^^
+                         replace with the name of the event you want to really test
+
+Finally, reload the buffer (`:e`), and ask Vim what is the local value of `'sw'`:
+
+     :echo &l:sw
+
+If the output is `5`, it means the modelines are processed *before* `SomeEvent`.
+If the output is `3`, it means the modelines are processed *after* `SomeEvent`.
+
+In the latter  case, you should not  pass `<nomodeline>` to `:do`,  so that your
+event –  triggered manually – has  the same effect  as if it had  been triggered
+automatically.
+
+Otherwise, you should pass `<nomdeline>` to `:do`.
+
+---
+
+In practice, I think you should use `<nomdeline>` for most events except these ones:
+
+    BufDelete
+    BufWipeout
+    BufUnload
+    BufNew
+    BufAdd
+    BufReadPre
+    Syntax
+    FileType
+    BufReadPost
+    BufEnter
+
+They are  all fired when you  load a new buffer,  and when used in  the previous
+test, they all give the output `3`.
+
+##
 # When several autocmds listen to the same event, in which order does Vim run them?
 
 In the order they were installed.
@@ -444,6 +491,119 @@ MWE:
 
 This  is because  when  you ran  `:e /tmp/file`,  `BufWinLeave`  was not  fired,
 because `filetype.vim` was still displayed in a window.
+
+##
+# Is `InsertCharPre` fired when `v:char` is written in the typeahead buffer, or when it's executed?
+
+When it's executed;  right *before* being actually inserted in  the user buffer,
+which still gives you a chance to change the character.
+
+---
+
+    vim -Nu NONE +'au InsertCharPre * if v:char is# "x" | call feedkeys(" ICP ", "in") | endif'
+    " press: x
+    " you get: x ICP
+
+Note that even though you've asked `feedkeys()`  to insert the text `ICP` at the
+*start* of the typeahead buffer, it still ends up *after* `x`.
+
+This is  only possible if  `v:char` has already  left the typeahead  buffer when
+`InsertCharPre` is fired and `feedkeys()` is invoked.
+
+## When I start Vim with the next command, and press `ab` in insert mode, I get `efcd` instead of `cdef`:
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        ino ab ef
+        au InsertCharPre * ++once call feedkeys('cd', 'n')
+    EOF
+    )
+
+### How to get `cdef`?
+
+   - pass the `i` flag to `feedkeys()`
+   - start the fed keys with `<bs>`
+   - end the fed keys with `v:char`
+
+New code:
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        ino ab ef
+        au InsertCharPre * ++once call feedkeys("\<bs>cd"..v:char, 'in')
+    EOF
+    )
+
+---
+
+You need the `i` flag so that `cd` is inserted *before* `f`.
+And you need `<bs>`, as well as appending `v:char`, to move `e` *after* `cd`.
+
+---
+
+Here's what happened when you pressed `ab` with the old code:
+
+   - the keys `a` and `b` are written in the typeahead buffer
+   - `ab` is remapped into `ef`
+   - Vim starts executing the typeahead buffer; i.e. it inserts `e` in the user buffer
+   - our autocmd is triggered when `e` is inserted
+
+   - `feedkeys()` **appends** `cd` in the typeahead buffer;
+     the latter still contains `f` which hasn't been executed yet;
+     the typeahead buffer contains: `fcd`
+
+   - Vim goes on executing the contents of the typeahead buffer;
+     i.e. `f`, `c`, `d` are inserted in the user buffer
+
+Summary:
+
+     typeahead buffer | user buffer
+     ------------------------------
+     ab               |
+     ef               |
+     f                | e
+     fcd              | e
+                      | efcd
+
+Here's what happens when you press `ab` with the new code:
+
+   - the keys `a` and `b` are written in the typeahead buffer
+   - `ab` is remapped into `ef`
+   - Vim starts executing the typeahead buffer; i.e. it inserts `e` in the user buffer
+   - our autocmd is triggered when `e` is inserted
+
+   - `feedkeys()` **inserts** `<bs>cde` in the typeahead buffer;
+     the latter still contains `f` which hasn't been executed yet;
+     the typeahead buffer contains: `<bs>cdef`
+
+   - Vim goes on executing the contents of the typeahead buffer;
+     i.e. `<bs>`, `c`, `d`, `e`, `f` are inserted in the user buffer
+
+Summary:
+
+     typeahead buffer | user buffer
+     ------------------------------
+     ab               |
+     ef               |
+     f                | e
+     <bs>cdef         | e
+                      | e<bs>cdef
+                      | cdef
+
+##
+## When I start Vim with the next command, and insert the register `a`, I get `reg x`:
+
+    $ vim -Nu NONE +'let @a = "reg" | au InsertCharPre * ++once call feedkeys(" x ", "in")'
+    " press: i C-r a
+    " 'reg x' is inserted
+
+### Why isn't `x reg` inserted?
+
+I  guess that  when you  insert a  register,  the keys  are not  written in  the
+typeahead buffer; they are executed immediately.
+
+It makes sense; the typeahead buffer is used by Vim to accumulate enough keys to
+get a complete command.  When you insert  a register, each key inside the latter
+is already  a complete  command; it  means: "insert this  character in  the user
+buffer"; so there's no need for it to be written in the typeahead buffer.
 
 ##
 # What is the difference between `SafeState` and `SafeStateAgain`?
@@ -765,23 +925,6 @@ Exemples d'évènements :
 
             Se produit qd on charge un buffer pour la 1e fois.
             Raison pour laquelle il se reproduit si on fait :bd puis :b# (reload)
-
-
-    InsertCharPre
-
-            juste avant l'insertion d'un caractère
-
-
-                                               NOTE:
-
-            Cet évènement  permet de  changer le  prochain caractère  inséré, en
-            modifiant v:char.
-
-            Toutefois, il semble  que v:char soit déjà dans  le typeahead buffer
-            qd InsertCharPre se produit.
-            En effet, même si on donne le  flag 'i' à feedkeys() pour insérer un
-            caractère à taper le plus tôt  possible dans le typeahead buffer, il
-            semble que ce dernier soit tjrs tapé après v:char.
 
 
     QuitPre

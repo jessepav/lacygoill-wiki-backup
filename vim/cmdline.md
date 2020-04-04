@@ -463,7 +463,7 @@ IOW:
 #
 # How to execute the contents of a register containing an Ex command?
 
-        :@{regname}
+    :@{regname}
 
 What happens  probably, is that when  you press Enter, in  the typeahead buffer,
 `@{regname}` is expanded into its contents.
@@ -489,6 +489,3 @@ What happens  probably, is that when  you press Enter, in  the typeahead buffer,
 
 When you yank into a named register, `"0` is not altered.
 
-#
-#
-#

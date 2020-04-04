@@ -1,3 +1,393 @@
+# Filename expansion
+## In a command which expects a filename as argument, how to represent
+### any single character?
+
+Use the wildcard `?`:
+
+                v
+    :sp /etc/env?ronment
+    " edit /etc/environment
+
+### any sequence of characters excluding a slash?
+
+Use the wildcard `*`:
+
+                v
+    :sp /etc/env*
+    " edit /etc/environment
+
+Warning: If your command expects only one filename (like `:e` or `:sp`), and the
+expansion generates more than one filename, an error may be raised:
+
+    :sp /etc/bash*
+    E77: Too many file names~
+
+### any sequence of characters including a slash?
+
+Use the wildcard `**`:
+
+                               vv
+    :sp | argl | args /etc/apt/**
+    " all files and directories under `/etc/apt` are included in the local arglist
+
+Here, without  the second star,  only the files and  directories at the  root of
+`/etc/apt` would be included in the arglist.
+
+Les wildcards suivants sont développés automatiquement dans les noms de fichier (`:h wildcard`):
+
+### the character 'a' or 'b' or 'c'?
+
+Use `[abc]`:
+
+    :sp | argl | args /etc/[abc]*
+                           ^^^^^^
+
+Here,  only the  files and  directories  starting with  `a`  or `b`  or `c`  are
+included in the arglist.
+
+##
+## When should I use `glob()` instead of `expand()`?
+
+When you're interested in *existing* filenames:
+
+>     A name for a non-existing file is not included.
+
+### What happens if I use it in other circumstances?
+
+It may not generate what you expect:
+
+    sil cd /tmp | echo glob('%:t')
+
+Here, you  get an  empty string,  while you  probably expected  the name  of the
+current file.  That's because `%:t` refers to  the name of the current file, but
+there is probably no file with this name in the current working directory (which
+here is `/tmp`).
+
+---
+
+OTOH, this would work:
+
+    sil cd /tmp | echo glob('%:p')
+                               ^
+
+Because `%:p` refers  to the *absolute* path  to the current file,  which is not
+sensitive to the current working directory.
+
+---
+
+Similarly, this will probably fail to expand the word under the cursor:
+
+    echo glob('<cword>')
+
+Unless, you have a file with the same  name as the word under the cursor in your
+current working directory.
+
+#### What should I use instead then?
+
+`expand()` is not restricted by this limitation:
+
+    sil cd /tmp | echo expand('%:t')
+
+    echo expand('<cword>')
+
+##
+# Special characters
+## What are they?
+
+Sequence of characters which Vim expands automatically when executing some commands.
+For example, `%` or `<cword>`.  See `:h cmdline-special`.
+
+## Do quotes prevent their expansion?
+
+No.
+
+    :sp '<cword>'
+
+Assuming your cursor  is on the word  `foo`, the previous command  will edit the
+file `'foo'`.  It will not edit the file `'<cword>'`.
+
+## Are they expanded by the command itself or by Vim?
+
+I think they are expanded by Vim.
+
+Write this on the command-line:
+
+    :e %
+
+Then press `Tab`.
+
+The percent character is replaced with the path of the current file, relative to
+the cwd.  And yet, `:e` has not been executed.
+
+##
+## The following command fails:
+
+    :setl gp&vim | exe 'grep '..shellescape('<cWORD>')..' %'
+
+When it's run while the cursor is on this text:
+
+    a'b
+
+### Why?
+
+Vim does not  expand special characters automatically for  *all* commands.  Only
+for *some*  of them, for which  it's useful to do  so; and `:exe` is  not one of
+them.  So,  `shellescape()` does  not have  any effect:  it receives  the string
+`'<cWORD>'`, and outputs the same string.
+
+Yes, `<cWORD>` is expanded when `:grep` is finally run later, but at that point,
+it's too late for `shellescape()` to properly escape the quote in the text.
+
+---
+
+To check this yourself, increase the verbosity to 4:
+
+    :setl gp&vim | 4verb exe 'grep '..shellescape('<cWORD>')..' %'
+                   ^^^^^
+
+It fails because the shell runs `grep -n 'a'b' ...`:
+
+                                       vvvvv
+    Calling shell to execute: "grep -n 'a'b' ...~
+    zsh:1: unmatched '~
+    ^^^^^^^^^^^^^^^^^^
+
+---
+
+The issue is *not* that `shellescape()` did  not receive a valid string; if that
+was the case, then it would have raised E116 (try `:echo shellescape('a'b')`).
+
+### How to fix it?
+
+Use `expand()`:
+
+                                                      vvvvvv
+        :setl gp&vim | 4verb exe 'grep '..shellescape(expand('<cWORD>'))..' %'
+        Calling shell to execute: "grep -n 'a'\''b' ...~
+                                           ^^^^^^^^
+
+Note  that  the quotes  around  `<cWORD>`  are only  necessary  to  get a  valid
+expression to pass to `expand()`.
+
+##
+## Why should I never use special characters in the pattern field of a `:vim` command without delimiters?
+
+It's hard to predict how it will be parsed.
+
+Consider this text:
+
+    foo !x!bar
+         ^
+         cursor here
+
+And run this command while on it:
+
+    :vim <cWORD> %
+
+Vim looks for `x` in the file `bar` and in the current file.
+While you probably expected for Vim to look for `!x!bar` in the current file.
+
+That's because Vim ran this:
+
+    :vim !x!bar %
+         ^ ^
+         parsed as delimiters, not as pattern
+
+More generally, any character in the expansion may be parsed as anything:
+delimiter, pattern, flag, filename...
+
+---
+
+A similar issue can affect `<cword>`.
+
+    foo !
+        ^
+        cursor here
+
+`:vim <cword> !` raises `E682` because `!` is parsed as a delimiter instead of a
+pattern.
+
+### What's the effect of the delimiters on the expansion of special characters?
+
+The latter is suppressed by the delimiters.
+To expand them, you need `expand()` and `:exe`.
+
+##
+## ?
+
+`:echo` doesn't expand  `<cword>`, which is expected; it  expects an expression,
+and `<cword>` is not one.
+
+OTOH, `:grep` does expand `<cword>`.
+From `:h :grep`:
+
+>     Just like ":make", but use 'grepprg' instead of
+>     'makeprg' and 'grepformat' instead of 'errorformat'.
+
+Then, from `:h :make`:
+
+>     Characters '%' and '#' are expanded as usual on a command-line.
+
+So, `:make` expands special characters, and `:grep` behaves similarly.
+
+## ?
+
+Study when a wildcard can match a dot.
+I think `*` can match a dot in a `:e` or `:sp` command.
+
+But not in a `'wig'` setting.
+And probably not in other contexts; from `h file-searching`:
+
+>     The file searching is currently used for the 'path', 'cdpath' and 'tags'
+>     options, for |finddir()| and |findfile()|.  Other commands use |wildcards|
+>     which is slightly different.
+>
+>     ...
+>
+>     The usage of '*' is quite simple: It matches 0 or more characters.  In a
+>     search pattern this would be ".*".
+>     **Note that the "." is not used for file searching.**
+
+## ?
+
+    expand('$LANG')
+
+Retourne la valeur de la variable d'environnement `$LANG` du shell courant.
+
+Si la session Vim connaît déjà la  variable d'environnement, il n'y a pas besoin
+d'appeler `expand()`: `:echo $LANG` fonctionnera.
+
+Mais si elle ne la connaît pas, `expand()` permet de s'assurer qu'elle sera bien
+développée.  Pour ce faire, elle lance un shell pour l'occasion.
+
+---
+
+`expand()` n'est pas limitée à des fichiers, elle peut développer:
+
+   - des caractères spéciaux (:h cmdline-special)
+   - des commandes shell
+   - des globs
+   - des variables d'environnement
+
+## ?
+
+    ┌──────────────────┬────────────────────────────────────────────────────────────────────────┐
+    │ expand('%')      │ chemin vers le vers fichier courant, relatif au cwd                    │
+    ├──────────────────┼────────────────────────────────────────────────────────────────────────┤
+    │ ...('%:t')       │ nom du fichier courant (tail of path)                                  │
+    ├──────────────────┼────────────────────────────────────────────────────────────────────────┤
+    │ ...('<cfile>:t') │ nom du fichier sous le curseur                                         │
+    ├──────────────────┼────────────────────────────────────────────────────────────────────────┤
+    │ ...('%:h:t')     │ chemin vers le dossier parent du fichier courant (la queue de la tête) │
+    └──────────────────┴────────────────────────────────────────────────────────────────────────┘
+
+## ?
+
+    ┌ développe un éventuel tilde ($HOME) à l'intérieur du précédent développement
+    │      ┌ développe <cfile>
+    │      │
+    expand(expand('<cfile>'))
+    glob('<cfile>')
+
+Retourne le chemin complet vers le fichier sous le curseur.
+
+## ?
+
+    expand('<sfile>')
+
+À l'intérieur d'une fonction, retourne le nom de la fonction, sous la forme:
+
+    function MyFunc
+        ou
+    function <SNR>3_MyFunc
+
+À l'intérieur d'un script (mais à l'extérieur d'une fonction), retourne le chemin vers le script.
+
+## ?
+
+                ┌ respecte 'su' et 'wig'
+                │  ┌ résultat sous forme de liste et non de chaîne
+                │  │
+    expand('*', 0, 1)
+    glob('*', 0, 1, 1)
+                    │
+                    └ inclut tous les liens symboliques,
+                      même ceux qui pointent sur des fichiers non-existants
+
+Noms des fichiers / dossiers du cwd.
+
+---
+
+Si le dossier de travail est  vide, `expand()` retourne `'*'`, `glob()` retourne
+`''`.  `glob()` est  donc  plus  fiable.  Ceci  est  une  propriété générale  de
+`expand()`. Qd elle ne parvient pas à développer qch, elle le retourne tel quel:
+
+    echo expand('$FOOBAR')
+    $FOOBAR~
+
+## ?
+
+    expand('**/README', 0, 1)
+    glob('**/README', 0, 1, 1)
+
+Liste des  chemins vers des fichiers  README situés dans  le cwd ou l'un  de ses
+sous-dossiers.
+
+À nouveau,  si aucun  fichier n'est  trouvé, `expand()`  retourne `['**/README']`,
+tandis que `glob()` retourne `[]`.  `glob()` est donc plus fiable.
+
+## ?
+
+    glob("`find . -name '*.conf' | grep input`", 0, 1, 1)
+    systemlist("find . -name '*.conf' | grep input")
+
+Sortie de la commande shell:
+
+    $ find . -name '*.conf' | grep input
+
+Quelles différences? :
+
+   - `glob()` ne retourne que des noms de fichier existants.
+     Elle filtre tout ce qui n'est pas exactement un nom de fichier exact.
+     Les messages d'erreurs sont donc supprimés.
+
+   - `system()` aussi, mais ajoute un newline à la fin, ce qui fait qu'on a une
+     ligne vide en bas du pager.
+
+## ?
+
+    globpath(&rtp, 'syntax/c.vim', 0, 1, 1)
+
+Le chemin relatif `syntax/c.vim` est ajouté en suffixe à chaque chemin absolu du
+rtp.  Si  le résultat  correspond à  un fichier  existant, il  est ajouté  à une
+liste. `globpath()` retourne  la liste finale, une fois que  tous les chemins du
+rtp ont été utilisés.
+
+## ?
+
+    globpath(&rtp, '**/README.txt', 0, 1, 1)
+
+Idem, sauf que  cette fois, le suffixe  contient un wildcard, qui  à chaque fois
+est développé en une liste de 0, 1 ou plusieurs fichiers correspondant.
+
+---
+
+Plus  généralement, `globpath()`  attend  2 arguments,  tous  2 des  expressions
+évaluées en chaînes:
+
+   - la 1e doit stocker des chemins séparés par des virgules
+   - la 2e un chemin relatif vers un fichier, incluant éventuellement des wildcards
+
+## ?
+
+    :echo substitute(glob2regpat(&wig), ',', '\\|', 'g')
+    \.bak\|.*\.swo\|.*\.swp\|.*\~\|.*\.mp3\|.*\.png,...~
+
+`glob2regpat()` convertit un pattern de fichier en un pattern de recherche.
+Utile qd on cherche un nom de fichier,  dont le nom est écrit dans un buffer, et
+qui est décrit par un glob contenu dans une option tq `'wig'`.
+
+##
 # vim-vint
 ## How to install it?
 
@@ -781,6 +1171,48 @@ This time, the third operand of `?:` will be evaluated only if the first operand
 is false; i.e. only if `s:buf` does not exist.
 
 ##
+## When should I include a guard at the top of an autoloaded script?
+
+Whenever the latter sets some variable or interface (mapping, autocmd, command).
+
+### Why?
+
+Suppose that your  script has an internal state which  is initialized by setting
+some script-local variable (updated at runtime):
+
+    let s:var = {}
+
+If the script is  sourced a second time, the variable will be  reset, as well as
+the internal  state of the  script.  In effect, this  will tell the  script that
+it's in the same state as if Vim had just started.
+This is a lie;  you may have been using Vim for quite  some time.
+This reset state may not be adapted to the state in which Vim is currently.
+It may break assumptions on which you rely in other parts of the script.
+
+#### But how an autoloaded script could be sourced twice?
+
+Suppose you need to call a function defined in your script from somewhere else:
+
+    call script#func()
+
+You write the  name of the function  correctly, except you make a  small typo in
+the last component (i.e. the text after the last `#`):
+
+    call script#funx()
+                   ^
+                   ✘
+
+When this function call is processed, suppose that the script has *already* been
+sourced because another function from it  was called earlier.  Vim sees see this
+wrongly spelled function is not defined; so,  it has to look for its definition.
+The path  *before* the last  component being correct,  it finds the  script, and
+sources it *again*.  Because of the typo,  it doesn't find the function, but the
+damage is done: the script has been sourced twice.
+
+See also:
+<https://vi.stackexchange.com/questions/22374/why-are-inclusion-guards-used-in-vim-plugins>
+
+##
 # Issues
 ## Why does  `:call system('grep -IRn pat * | grep -v garbage >file')`  fail to capture the standard error in file?
 
@@ -1513,210 +1945,6 @@ semble.
             Pk `<= 2`?
             Parce qu'une ligne vide contiendra au moins un 1er caractère (BOM?) et un newline à la fin.
 
-## Développement de noms de fichiers
-
-Les wildcards suivants sont développés automatiquement dans les noms de fichier (:h wildcard):
-
-    - ?       un caractère
-
-    - *       n'importe quelle chaîne de caractères (le point EXCLU!)
-
-    - **      n'importe quel chemin (le point INCLUS!)
-              en l'absence de préfixe, vers un fichier du cwd ou l'un de ses sous-dossiers
-
-    - [abc]   le caractère 'a', 'b' ou 'c'
-
-
-    echo glob('%:t')        ✘
-    echo glob('<cword>')    ✘
-
-    echo expand('%:t')      ✔
-    echo expand('<cword>')  ✔
-
-            expand() est la seule à pouvoir développer les expressions '<cword>' et '%:t',
-            car glob() ne peut produire que des chemins vers des fichiers EXISTANTS.
-
-
-Vim développe automatiquement les caractères spéciaux au sein d'une commande :grep, juste avant d'exécuter
-cette dernière.  Il les développe même s'ils sont encadrés par des single quotes.
-Les quotes sont nécessaires qd on envoit leur développement au shell. Ex:
-
-    :grep -R '<cword>' .
-
-Ici, les single quotes empêchent le shell d'interpréter d'éventuels symboles spéciaux présents
-dans le mot sous le curseur avant qu'il n'exécute la commande shell grep.
-Mais ce n'est pas suffisant. En effet, si <cword> contient un single quote ce dernier sera mal
-interprété par le shell. Il faut donc protéger <cword> avec un outil plus puissant: shellescape().
-Exemple:
-
-    :exe 'grep -R '.shellescape(expand('<cword>')) .
-
-Dans ce nouvel exemple, on veut passer <cword> à shellescape() pour que tous ses caractères spéciaux
-soient échappés, y compris un single quote.
-Si on n'utilise pas expand(), Vim ne développera <cword> qu'au dernier moment, et donc shellescape()
-ne recevra pas la chaîne contenant le mot sous le curseur mais la chaîne littérale '<cword>'.
-Cette fois, les single quotes autour de <cword> ne servent plus à le protéger du shell
-mais à obtenir une chaîne à passer à la fonction expand().
-
-                                               FIXME:
-
-Vim ne développe pas <cword> pour :echo. Normal, elle attend une expression et <cword> n'en est pas une.
-
-Mais pk Vim développe <cword> pour :grep? D'après l'aide :grep attend des [arguments]...
-
-Update:
-D'après `:h :grep`:
-
-> Just like ":make", but use 'grepprg' instead of
-> 'makeprg' and 'grepformat' instead of 'errorformat'.
-
-Puis, d'après `:h :lmake`:
-
-> Characters '%' and '#' are expanded as usual on a command-line.
-
-Donc, `:make` développe des caractères spéciaux, et `:grep` se comporte comme `:make`.
-
-
-                                     FIXME:
-
-Avec `:vimgrep`, pk Vim ne développe <cword> que s'il n'est pas quoté?
-
-
-    expand('$LANG')
-
-            Retourne la valeur de la variable d'environnement $LANG du shell courant.
-
-            Si la session Vim connaît déjà la variable d'environnement, il n'y a pas besoin d'appeler
-            expand(): echo $LANG fonctionnera.
-
-            Mais si elle ne la connaît pas, expand() permet de s'assurer qu'elle sera bien développée.
-            Pour ce faire, elle lance un shell pour l'occasion.
-
-
-                                               NOTE:
-
-            expand() et glob() ne sont pas limités à des fichiers, elles peuvent développer:
-
-                    - des caractères spéciaux (:h cmdline-special)
-                    - des commandes shell
-                    - des globs
-                    - des variables d'environnement
-
-            La seule restriction s'impose à glob(), qui rejette toute valeur ne correspondant pas à
-            un chemin vers un fichier existant.
-
-
-    ┌──────────────────┬────────────────────────────────────────────────────────────────────────┐
-    │ expand('%')      │ chemin vers le vers fichier courant, relatif au cwd                    │
-    ├──────────────────┼────────────────────────────────────────────────────────────────────────┤
-    │ ...('%:t')       │ nom du fichier courant (tail of path)                                  │
-    ├──────────────────┼────────────────────────────────────────────────────────────────────────┤
-    │ ...('<cfile>:t') │ nom du fichier sous le curseur                                         │
-    ├──────────────────┼────────────────────────────────────────────────────────────────────────┤
-    │ ...('%:p:h')     │ chemin vers le dossier du fichier courant                              │
-    ├──────────────────┼────────────────────────────────────────────────────────────────────────┤
-    │ ...('%:h:t')     │ chemin vers le dossier parent du fichier courant (la queue de la tête) │
-    └──────────────────┴────────────────────────────────────────────────────────────────────────┘
-
-
-    ┌ développe un éventuel tilde ($HOME) à l'intérieur du précédent développement
-    │      ┌ développe <cfile>
-    │      │
-    expand(expand('<cfile>'))
-    glob('<cfile>')
-
-            Retourne le chemin complet vers le fichier sous le curseur.
-
-
-    expand('<sfile>')
-
-            À l'intérieur d'une fonction, retourne le nom de la fonction, sous la forme:
-
-                function MyFunc
-                    ou
-                function <SNR>3_MyFunc
-
-            À l'intérieur d'un script (mais à l'extérieur d'une fonction), retourne le chemin vers le script.
-
-
-                ┌─ respecte 'su' et 'wig'
-                │  ┌─ résultat sous forme de liste et non de chaîne
-                │  │
-    expand('*', 0, 1)
-    glob('*', 0, 1, 1)
-                    │
-                    └─ inclut tous les liens symboliques,
-                       même ceux qui pointent sur des fichiers non-existants
-
-            Noms des fichiers / dossiers du cwd.
-
-
-                                               NOTE:
-
-            Si le dossier de travail est vide, expand() retourne '*', glob() retourne ''.
-            glob() est donc plus fiable.
-            Ceci est une propriété générale de expand(). Qd elle ne parvient pas à développer qch,
-            elle le retourne tq:
-
-                    echo expand('$FOOBAR')
-                    $FOOBAR~
-
-
-    expand('**/README', 0, 1)
-    glob('**/README', 0, 1, 1)
-
-            Liste des chemins vers des fichiers README situés dans le cwd ou l'un de ses sous-dossiers.
-
-            À nouveau, si aucun fichier n'est trouvé, expand() retourne ['**/README'],
-            tandis que glob() retourne []. glob() est donc plus fiable.
-
-
-    glob("`find . -name '*.conf' | grep input`", 0, 1, 1)
-    systemlist("find . -name '*.conf' | grep input")
-
-            Sortie de la commande shell:
-
-                    $ find . -name '*.conf' | grep input
-
-            Quelles différences? :
-
-                - glob() ne retourne que des noms de fichier existants.
-                  Elle filtre tout ce qui n'est pas exactement un nom de fichier exact.
-                  Les messages d'erreurs sont donc supprimés.
-
-                - system() aussi, mais ajoute un newline à la fin, ce qui fait qu'on a une ligne vide
-                  en bas du pager
-
-
-    globpath(&rtp, 'syntax/c.vim', 0, 1, 1)
-
-            Le chemin relatif `syntax/c.vim` est ajouté en suffixe à chaque chemin absolu du 'rtp'.
-            Si le résultat correspond à un fichier existant, il est ajouté à une liste.
-            `globpath()` retourne la liste finale, une fois que tous les chemins du 'rtp' ont été utilisés.
-
-
-    globpath(&rtp, '**/README.txt', 0, 1, 1)
-
-            Idem, sauf que cette fois, le suffixe contient un wildcard, qui à chaque fois est développé
-            en une liste de 0, 1 ou plusieurs fichiers correspondant.
-
-
-                                               NOTE:
-
-            Plus généralement, globpath() attend 2 arguments, tous 2 des expressions évaluées en chaînes:
-
-                    - la 1e doit stocker des chemins séparés par des virgules
-                    - la 2e un chemin relatif vers un fichier, incluant éventuellement des wildcards
-
-
-    substitute(glob2regpat(&wig), ',', '\\|', 'g')
-
-        \.bak\|.*\.swo\|.*\.swp\|.*\~\|.*\.mp3\|.*\.png,...~
-
-            `glob2repat()` convertit un pattern de fichier en un pattern de recherche.
-            Utile qd on cherche un nom de fichier, dont le nom est écrit dans un buffer,
-            et qui est décrit par un glob contenu dans une option tq 'wig'.
-
 ## Diverses
 
     inoremap <F2> <C-R>=CustomMenu()<cr>
@@ -1982,7 +2210,7 @@ conflict with a global custom function.
 So, the name **should** be scoped with `l:` to avoid E705.
 From `:h e705`:
 
-> You cannot have both a Funcref variable and a function with the same name.
+>     You cannot have both a Funcref variable and a function with the same name.
 
 Indeed, without `l:`, if you run this inside a function:
 

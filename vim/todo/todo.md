@@ -83,8 +83,8 @@ This is an INcomplete command: it requires our input to finish.
 Because of this, `:norm` would press `Escape` to abort.
 From `:h :norm`:
 
-> {commands} should  be a complete command.   If {commands} does not  finish a
-> command, the last one will be aborted as if <Esc> or <C-C> was typed.
+>     {commands} should  be a complete command.   If {commands} does not  finish a
+>     command, the last one will be aborted as if <Esc> or <C-C> was typed.
 
 See:
 
@@ -115,12 +115,12 @@ Do the same for `feedkeys()`.
 Example where `g@l` causes an issue, and `norm! g@l` is needed:
 
     nno <buffer><nowait><silent> =rh :<c-u>call Func()<cr>g@l
-    fu Func() abort
+    fu Func()
         set opfunc=MyOp
         let var = input('prompt: ')
         echom var
     endfu
-    fu MyOp(_) abort
+    fu MyOp(_)
         norm! dd
     endfu
 
