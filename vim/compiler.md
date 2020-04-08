@@ -11,7 +11,7 @@ It sets the `'errorformat'` and `'makeprg'` options.
 ##
 ## Where can I find examples of code for a compiler plugin?
 
-        :next $VIMRUNTIME/compiler/*.vim
+    :next $VIMRUNTIME/compiler/*.vim
 
 ## Where to put my compiler plugin?
 

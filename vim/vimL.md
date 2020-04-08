@@ -215,11 +215,36 @@ To expand them, you need `expand()` and `:exe`.
 ##
 ## ?
 
+In `./mapping.md`, finish documenting why `@=` can create an issue in a mapping.
+Hint: it can raise an issue when you replay a macro with `@@`.
+
+---
+
+Now that we  better understand the typeahead buffer, finish  reviewing our notes
+to make sure we haven't written bullshit about it.
+Run `:Crestore typeahead` in the qf window, and review each match.
+
+---
+
+In `./mapping.md`, look  for `g@`.  For each match, try  to refactor whatever is
+written; and try to answer any question related to `g@`.
+Same thing in `./todo/todo.md`.
+
+---
+
+Make sure we correctly understand how `feedkeys()` work.
+If needed, refer to this document for details:
+<https://vimways.org/2019/a-test-to-attest-to/>
+
+Did we abuse the `i` flag?
+Search for `feedkeys()` everywhere.
+
+## ?
+
 `:echo` doesn't expand  `<cword>`, which is expected; it  expects an expression,
 and `<cword>` is not one.
 
-OTOH, `:grep` does expand `<cword>`.
-From `:h :grep`:
+OTOH, `:grep` does expand `<cword>`.  From `:h :grep`:
 
 >     Just like ":make", but use 'grepprg' instead of
 >     'makeprg' and 'grepformat' instead of 'errorformat'.

@@ -475,26 +475,6 @@ operator-pending).
 
 ## Coller / Importer
 
-Le texte stocké dans un registre est associé à un type: character/line/block-wise.
-Ce type détermine de quelle façon le texte sera collé:
-
-    characterwise = collé entre des caractères
-    linewise      =                 lignes
-    blockwise     =                 blocs
-
-Exceptions: un registre collé via :put ou inséré via C-r {reg} est considéré comme linewise,
-ce qui est pratique pour coller ou insérer le contenu d'un registre blockwise, entre 2 lignes consécutives,
-comme s'il était linewise.
-
-On peut également modifier le type d'un registre via la fonction setreg(), en ajoutant une chaîne vide et
-le nouveau type désiré. Ex:
-
-    call setreg('+', '', 'ac')
-
-... change le type du registre + en characterwise
-
----
-
     C-v {motion1} y {motion2} p
 
             coller un bloc de texte A à la suite d'un autre B
@@ -588,57 +568,6 @@ courante.
             Si le texte collé est linewise, le dernier caractère est un newline et donc le curseur
             est positionné sur la ligne suivante.
 
-
-    "1p u. u. u. u. u. u. u. u.
-
-            Coller le contenu du registre 1,
-            défaire puis coller le registre 2,
-            ...
-            défaire puis coller le registre 9
-
-            Permet de passer en revue les 9 registres numérotés contenant les 9 derniers gros textes supprimés.
-
-            Ceci découle d'une propriété spéciale de la commande dot:
-            lorsqu'elle répète une opération impliquant  un registre numéroté, elle incrémente
-            automatiquement ce dernier (:h redo-register).
-
-            Ne fonctionne pas avec :put (une commande Ex n'est pas répétable via dot).
-
-            L'itération:
-
-                - est annulée dès qu'on utilise p / P
-
-                  Pex dès qu'on tape p ou "aP on colle le registre unnamed / a,
-                  et par la suite, la commande dot recolle le registre unnamed / a (et non plus 1…9).
-
-                - s'arrête une fois arrivé au registre 9 (pas de boucle)
-
-                - est réinitialisée dès qu'on réutilise un registre numéroté
-
-            On peut commencer à itérer depuis n'importe quel registre numéroté (pas forcément le 1) sauf 0.
-
-
-                                               NOTE:
-
-            Si on a ajouté le flag 'y' à l'option 'cpo', un yanking devient répétable, et donc on peut
-            faire:
-
-                    "1yy . . . . . . . .
-
-            … pour copier 9 lignes distinctes (ou plus généralement n'importe quel text-object),
-            dans les 9 registres numérotés.
-
-
-    "1P . . . . . . . .
-    "1p . . . . . . . .
-
-            Coller le contenu des 9 registres numérotés.
-
-            Dans les 2 cas, on colle du registre 1 jusqu'au registre 9.
-            Mais dans le 1er, à la fin les 9 registres sont collés dans l'ordre inverse (9 → 1),
-            tandis que dans le 2e ils sont collés dans leur ordre de numérotation (1 → 9).
-
-
     :put _
 
             coller une ligne vide sous la ligne courante
@@ -727,26 +656,11 @@ courante.
             La 2e syntaxe est probablement plus fiable.
 
 
-    :redir @a | sil! cmd | redir END
-
-            redirige la sortie de cmd dans le registre a
-
-            Pour que le registre contienne l'intégralité de la sortie il faut faire défiler l'écran
-            qui s'affiche jusqu'au bout, ou exécuter cmd silencieusement.
-
     :redir > file
     :redir >> file
 
             redirige la sortie des prochaines commandes dans file (rajouter un ! si file existe déjà)
             idem mais en mode append (sans écraser)
-
-    :redir @A
-
-            redirection dans le registre 'a' en mode append
-
-    :redir @+>>
-
-            redirection dans le registre clipboard en mode append
 
     :redir => var
     :redir =>> var
@@ -755,24 +669,6 @@ courante.
             idem mais en mode append
 
 ## Copier / Dupliquer
-
-    zy{motion}
-
-            copier les caractères couverts par {motion} dans le registre + (et y) en mode append (custom)
-            fonctionne aussi en mode visuel
-
-    3zyy
-
-            copier la ligne courante et les 2 suivantes dans le registre + (et y) en mode append
-            opérateur `zy` custom
-
-    +yc
-
-            vider le registre z (custom)
-
-    "by/foo
-
-            copier jusqu'à la prochaine occurrence de foo dans le registre b
 
     :3copy 7    :3t7
 
@@ -2244,14 +2140,6 @@ ligne de la marque a (les 2 lignes incluses).
 
 ## Supprimer
 
-Quand  on  supprime du  texte  pour  “nettoyer“  un  buffer (enlever  de  l'info
-indésirable, faire ressortir l'info intéressante), il faut prendre l'habitude de
-préciser qu'on veut le  faire dans le registre trou noir pour  ne pas polluer le
-registre unnamed.
-Ce dernier contient souvent du  texte copié/coupé/supprimé qu'on souhaite coller
-par la suite.
-
-
     3D
 
             supprimer la ligne courante et les 2 suivantes
@@ -2261,10 +2149,9 @@ par la suite.
             Précédé d'un nb, il supprime les newlines à la fin de chaque ligne.
             Sans nb, il conserve le newline à la fin de la ligne courante.
 
-
     dvip
 
-            Réduire toutes les lignes vide entre 2 lignes de texte, en une seule ligne vide.
+            Réduire toutes les lignes vides entre 2 lignes de texte, en une seule ligne vide.
 
 
                                                NOTE:

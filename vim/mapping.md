@@ -886,7 +886,7 @@ to find a workaround which does not rely on `InsertLeave`.
     "
     "     nno <silent> J @="m'J``"<cr>
     "
-    " But I raises an issue when you replay a macro with `@@` which contains `J`:
+    " But it raises an issue when you replay a macro with `@@` which contains `J`:
     "
     "     $ printf 'ab\ncd\nef\ngh\nij\nkl' | vim -Nu NONE +'nno J @="J"<cr>' -
     "     qq A, Esc J q

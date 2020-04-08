@@ -1,10 +1,14 @@
 # getting the contents of a register
+## How to display the contents and types of the registers `a`, `b`, and `c`?
+
+    :reg abc
+
 ## How to get the contents of a register as a list of lines?
 
 Pass the third optional boolean argument `1` to `getreg()`:
 
-    :echo getreg('q', 1, 1)
-                         ^
+    echo getreg('q', 1, 1)
+                        ^
 Note that the second argument is ignored here, so you could write any expression
 in its place.
 
@@ -20,452 +24,1007 @@ evaluation of the last expression instead of the expression itself.
 
 ##
 # setting the contents of a register
-## ?
+## How to save and restore a register?
 
-`setreg()`
+Use `getreg()` and `getregtype()`:
 
-    setreg('a', string)
+    " save
+    let a_save = [getreg('a'), getregtype('a')]
 
-            écrit la chaîne string dans le registre @a
+    " restore
+    call setreg('a', a_save[0], a_save[1])
 
-    setreg(v:register, @*)
+## How to change the type of a register?
 
-            écrit le contenu du registre sélection dans le registre en cours d'utilisation par un opérateur
-            la fonction setreg() retourne 0 en cas de succès, un autre nb autrement
+Use a combination of:
 
-    setreg('*', @%, 'av')
+   - the `setreg()` function
+   - an empty second value argument
+   - a third flag argument containing `a` to append the empty value
 
-            ajoute (flag 'a' dans le 3e argument) le nom du buffer courant au contenu du registre sélection
-            et attribue le type characterwise à ce dernier (flag 'v' dans le 3e argument)
+Example:
 
-    setreg('a', "1\n2\n3", 'b5')
+    call setreg('+', '', 'aV')
 
-            stocke la chaîne "1\n2\n3" dans le registre @a et lui attribue le type par bloc avec une largeur 5
-            si on ne précise pas la largeur du bloc, elle est égale automatiquement au nb de caractères
-            sur la plus longue des lignes
+This sets the type of the `+` register to linewise.
 
-    setreg('a', ['foo', 'bar', 'baz'])
+---
 
-            stocke dans le registre 'a' les chaînes 'foo', 'bar' et 'baz' sur 3 lignes différentes
-            le type du registre 'a' est automatiquement 'V'
-
-    setreg('+', '', 'aV')
-
-            fait passer le type du registre @+ à linewise
-
-            Le flag 'a' indique qu'il faut ajouter la valeur à l'ancien contenu du registre @+
-            (au lieu de l'écraser), et comme la valeur est '' le contenu de @+ n'est pas modifié
-            (mais son type oui).
-
-            Ceci est une astuce illustrant comment changer le type d'un registre, car il n'existe
-            pas de fonction setregtype().
-
-    :call setreg('d', @a..@b..@c,    getregtype('d'))
-    :call setreg('d', @d..MyFunc(), getregtype('d'))
-
-            Stocker dans le registre `d`, la concaténation:
-
-                    - des registres a, b et c
-                    - du registre d et de la sortie de `MyFunc()`
-
-                                               NOTE:
-
-                    :let @d  = @a.@b.@c    ✘
-                    :let @d .= MyFunc()    ✘
-
-            Les opérateurs `=` et `.=` ne sont pas fiables car ils ne préservent pas le type du registre.
-
-
-    :let save_reg = [getreg('a'), getregtype('a')]
-    :call setreg('a', save_reg[0], save_reg[1])
-
-            sauvegarde puis restaure le registre a
-
-            Qd on manipule des registres, il  faut se méfier des opérateurs = et
-            .= car  il est possible  qu'ils ne préservent  pas tjrs le  type des
-            registres.
-            L'instruction suivante n'est donc pas fiable:
-
-                let save_reg = @a    ✘
+This is a trick to emulate the missing `setregtype()` function.
 
 ##
-# Noms
+## Consider this assignment:
 
-    ""         registre unnamed
+    let @a ..= 'appended'
 
-               Ce registre a 2 propriétés:
+### What's wrong with it?
 
-                   - il pointe vers le dernier registre modifié
-                   - il est utilisé par défaut par les commandes qui collent du texte:    p = ""p
+It doesn't preserve the original type of the register `a`.
 
-               La 1e propriété est non modifiable, la 2e oui (via 'clipboard').
+    norm! "ayy
+    echo getregtype('a')
+    V~
 
-    "0         registre de la plus récente commande yank
-               après une nouvelle copie, le contenu de ce registre est perdu
-               yy = "0yy    yiw = "0yiw
+    let @a ..= 'appended'
+    echo getregtype('a')
+    v~
 
-    "1         registre de la plus récente longue suppression / changement
-               pour voir la signification de “longue“ lire :h registers
-               dd = "1dd
+### How to fix it?
 
-               "2 = 2e plus récente longue suppression / changement, ..., "9 = 9e plus récente...
+Use the third argument of `setreg()` to preserve the type:
 
-    ".         registre de la plus récente édition
-               Vim y stocke les frappes au clavier tapées la dernière fois qu'on était en mode insertion
+    call setreg('a', 'appended', 'a'..getregtype('a'))
+                                  │   │
+                                  │   └ preserve the current type
+                                  └ append, don't overwrite
 
-    "-         registre de la plus récente courte suppression (lettre, mot)
+Example:
 
+    norm! "ayy
+    echo getregtype('a')
+    V~
 
-    "/         registre recherche
+    call setreg('a', 'appended', 'a'..getregtype('a'))
+    echo getregtype('a')
+    V~
 
-               Contient le dernier pattern recherché via /, ?, :s ou :g/:v
+##
+## What's the default type of a register when I set it with `setreg()`
+### and no third argument?
 
-                                               NOTE:
+Characterwise.
 
-               Le contenu de ce registre détermine:
+    call setreg('a', 'linewise')
+    echo getregtype('a')
+    v~
 
-                        - les mots entre lesquels on navigue via n/N
-                        - le texte mis en surbrillance qd 'hlsearch' est activée
-                        - le texte sur lequel on opère via gn (dgn, cgn, ...)
+### and the second argument is a list of strings?
 
-               Il  faut  distinguer  ce  registre   de  la  dernière  entrée  de
-               l'historique consultable via q/.
-               Les 2 ne sont pas tjrs identiques.
-               Par  exemple, si  on vide  son  contenu (let  @/=''), le  dernier
-               pattern recherché reste dans l'historique q/.
-               À ce moment-là, les 2 diffèrent.
+Linewise.
 
-                                               NOTE:
+    call setreg('a', ['foo', 'bar', 'baz'])
+    echo getregtype('a')
+    V~
 
-               Le  registre   recherche  et   l'historique  de   recherche  sont
-               automatiquement repeuplés dans certaines circonstances:
+###
+## How to use `:redir` to redirect the output of an Ex command into a register?
 
-                     1. Si on vide le registre recherche, il est automatiquement repeuplé par
-                        le pattern de la dernière commande :s, :g lors d'une recherche via:
+    :redir @q | sil! cmd | redir END
 
-                                n N
-
-                     2. Si en plus, on supprime de l'historique, le pattern de la dernière commande
-                        :s, :g :
-
-                                :call histdel('/', @/),
-
-                        ... ce dernier est automatiquement réintégré à l'historique lors de la prochaine
-                        recherche via:
-
-                                n N
-
-                        Il  est   probable  que   le  pattern  de   la  dernière
-                        commande :s,  :g, soit  mémorisé qq  part (en  dehors de
-                        l'historique), de sorte que  lorsqu'on demande à répéter
-                        la recherche, Vim peut s'appuyer sur qch.
-                        Ça expliquerait  comment Vim fait pour  s'en souvenir qd
-                        on appuie sur n, N.
-
-                        Il est  également probable  que Vim restaure  d'abord le
-                        registre recherche, puis,  par conséquence, réintègre la
-                        recherche au sein de l'historique.
-
-                     3. À l'issue de l'exécution d'une fonction ou d'une
-                        autocmd, les registres . et / sont restaurés, cf :h
-                        function-search-undo
-
-                        Exception:
-
-                                nno cd :call MyFunc()<cr>
-
-                                fu MyFunc()                      fu MyFunc()
-                                    s/foo/bar/                       let @/='foo'
-                                endfu                            endfu
-
-                        Qd on appuiera  sur `cd` en utilisant la  1er version de
-                        `MyFunc()` le registre @/ sera bien restauré.
-                        Mais pas avec la 2e version.
-                        Conclusion, si on manipule  @/ directement, il n'est pas
-                        restauré.
-
-
-                                     NOTE:
-
-               Qd on  insère ce registre,  les caractères ayant un  sens spécial
-               dans un pattern (^$*~/ ...) sont automatiquement échappés.
-
-
-    "=         registre expression
-               permet d'insérer, en mode insertion ou ligne de commande, le résultat d'une expression vimscript,
-               d'une commande shell, ou d'un script externe (python, ...)
-
-               Le registre expression diffère des autres registres pour 2 raisons:
-
-               1. il évalue ce qu'on lui passe avant de l'exécuter (les autres registres n'évaluent rien)
-               2. on définit son contenu et on l'exécute/insère son évaluation directement ensuite
-
-                  Les  autres  registres  distinguent  clairement  la  phase  de
-                  définition (let @a='dd') de la phase d'exécution/insertion (@a
-                  / C-r a).
-                  En effet, si  on définit le contenu du  registre expression au
-                  préalable (let @=  = 'dd'), au moment de  l'exécuter (@=), Vim
-                  nous demande de le redéfinir de toute façon.
-
-               Pour  évaluer une  expression  écrite sur  la  ligne courante  du
-               buffer, on peut taper:
-
-                   - pour la lire:       _y$    →    :echo eval(@")
-                   - pour l'exécuter:    _y$    →    @=@"
-                   - pour l'insérer:                 C-r =@"
-
-                   yy copierait le newline qui soulèverait une erreur, raison pour laquelle on utilise _y$.
-
-
-    ":         registre commande; contient la dernière commande tapée
-
-    "_         registre trou noir ( sorte de /dev/null )
-               c'est un trou noir pour 2 raisons :
-               il n'est pas possible de lire / écrire son contenu; le registre unnamed ne pointe jamais sur lui
-
-    "%         registre du nom du buffer courant
-
-    "#         registre du nom du buffer alternatif pour la fenêtre courante
-               On peut écrire dans ce registre et ainsi modifier le buffer alternatif.
-               :b# et <C-^> voient leur comportement modifier.
-
-    v:register
-
-               variable interne stockant le nom du registre en cours d'utilisation par un opérateur
-               Elle vaut:
-
-                   - " si aucun registre n'est en cours d'utilisation
-                   - + si &clipboard commence par unnamedplus
-
-# Utilisation
-
-Un nom de registre / une macro peut être précédée d'un :
-
-    @      qd on veut exécuter son contenu en mode normal / Ex
-           OU qd on veut y écrire en mode Ex (let @a = ...)
-
-    "      qd on veut y accéder en lecture (coller) / écriture (copier) depuis le mode normal
-     C-r   qd on veut y accéder en lecture (coller) depuis le mode insertion / Ex
-
-    rien   qd on le passe en argument à une des commandes Ex suivantes: :change, :delete, :put, :yank
+This redirects the output of `cmd` inside the register `q`.
 
 ---
 
-Une macro est enregistrée dans un registre normal.
-Ceci est très pratique pour éditer une longue macro qu'on doit modifier car elle n'a pas tout à fait
-le comportement attendu.  Pour ce faire, il suffit de :
+`:silent` makes sure *all* the output is redirected into the register.
 
-   1. coller le contenu de la macro dans un buffer (ex: "ap),
-   2. l'éditer en insérant littéralement les caractères de contrôle si besoin
-   3. la recopier dans le registre ("aY),
-   4. et enfin la rejouer.
+If the  output is long,  it may  be displayed in  Vim's pager; if  that happens,
+you'll need to scroll to reach the  end, otherwise the redirection will miss all
+the lines which were never displayed; `:silent` avoids this pitfall.
 
----
+### How to do the same thing without overwriting the current contents of the register?  I just want to append.
 
-Qd on enregistre une macro, on peut avoir besoin de déplacer un mot ou une ligne
-à un autre endroit.
-Il peut alors être utile de les supprimer dans des registres aux noms évocateurs
-comme n pour un nombre, ou x pour un texte:
+Uppercase the register name:
 
-    "nde
+    :redir @Q | sil! cmd | redir END
+            ^
 
-            supprimer dans le registre n depuis le curseur jusqu'à la fin du mot
-            le curseur étant au début d'un nombre
+#### That's not possible for the system clipboard!
 
-    "xdd
+Append `>>` to the register name:
 
-            supprimer la ligne dans le registre x
+    :redir @+>> | sil! cmd | redir END
+             ^^
 
-Ces registres n et x peuvent désormais servir de mémoire temporaire.
-On peut utiliser n'importe quel registre sauf  celui dans lequel on est en train
-d'enregistrer sa macro.
+##
+# Special registers
+## What does `@%` contain?
 
----
+The name of the current buffer.
+The latter describes the path to the current file relative to the cwd.
 
-On peut  avoir besoin  d'opérer une  transformation sur 2  lignes au  lieu d'une
-seule.  Dans ce cas, on peut:
+## What does `@#` contain?
 
-   - les sélectionner visuellement, juste avant l'enregistrement, de sorte
-     qu'elles correspondent aux frontières de la sélection
+The name of the alternate buffer for the current window.
+The latter describes the path to the alternate file relative to the cwd.
 
-   - dupliquer les marques visuelles, juste après le début de l'enregistrement,
-     pour ne pas les perdre si on doit sélectionner qch au cours de
-     l'enregistrement:    mt o mb    (t = top, b = bottom)
+##
+## Which contents does the unnamed register `""` refer to?
 
-Désormais on pourra s'y rendre via les mouvements 't et 'b.
-Il faudra  s'assurer de sélectionner les  2 lignes désirées avant  de rejouer la
-macro.
+Whatever contents is stored in the last modified register.
+For example, if  you've deleted a word  into the register `a`,  then the unnamed
+register points to the latter.
 
-À retenir:
-Pendant l'enregistrement d'une macro, ne pas hésiter à utiliser des registres ou
-des marques pour déplacer de l'information  (texte), ou en préserver (adresse de
-ligne).
+### Which commands does it affect?
 
----
+It's used by default by commands which put text (e.g. `p` == `""p`).
 
-Pendant l'enregistrement d'une macro, on peut exécuter une autre macro.
-Ceci permet  de réaliser des  opérations complexes, en fragmentant  les éditions
-dans plusieurs macros, imbriquées si besoin.
-Pex, on peut avoir la macro principale @q qui appelle à des moments divers les 3
-macros @a, @b et @c.
+#### How to change this effect?
 
----
+You can choose a different default register via the `'clipboard'` option.
 
-Parfois on ne sait pas cb de fois  rejouer sa macro pour qu'elle affecte tout le
-fichier.
-Dans ce  cas, on peut la  préfixer d'un gd  nombre (ex: 9999) ou bien  créer une
-macro récursive.
-Une macro récursive s'appelle elle-même.
-Pour créer une macro récursive stockée dans le registre q, il faut:
+##
+## Which register is automatically restored at the end of a function call?
 
-   1. qqq      vider le contenu du registre q
-   2. qq       débuter l'enregistrement de la macro q
-   3. xxx      réaliser sa macro
+The search register.
 
-   4. @q       appeler la macro a depuis elle-même
-               c'est ici qu'il est important d'avoir vidé le contenu du registre q au début
+See `:h function-search-undo`.
 
-   5. q        finir l'enregistrement
+>     The last used search pattern and the redo command "."
+>     will not be changed by the function.
 
-Pour limiter la  répétition d'une macro à  la ligne courante plutôt  que tout le
-buffer, faire débuter la macro avec:
+    s/outside func call//ne
+    fu! Func()
+        s/inside func call//ne
+        echom @/
+    endfu
+    call Func()
+    echom @/
+    inside func call~
+    outside func call~
 
-    let a=line('.')
+Warning: Do *not*  use our custom  `+s` operator to  source this code;  it would
+interfere with the results.  Do *not* run the code via `:@*` after selecting it;
+it wouldn't work as expected either.
 
-Et à la fin de la macro, remplacer @q par:
+Instead, write the code in a file, and source it with `:so%`.
 
-    if line('.')==a | exe 'norm @q' | endif
+### When is it not restored?
 
-Cette dernière  commande ne rejoue  la macro que  si le n°  de la ligne  n'a pas
-changé.
+When you set it manually via `:let` or `setreg()`.
 
----
+    s/outside func call//ne
+    fu! Func()
+        let @/ = 'inside func call'
+    endfu
+    call Func()
+    echo @/
+    inside func call~
+
+### What about the dot register?  Is it restored?
+
+No:
+
+    norm! o" outside
+    echom @.
+    fu! Func()
+        norm! o" inside
+        echom @.
+        norm! .
+    endfu
+    call Func()
+    echom @.
+    " outside~
+    " inside~
+    " inside~
+      ^^^^^^
+      after the function call, the dot register has not been restored
+
+But, it doesn't matter.
+The redo command `.` is not affected; it keeps its original behavior:
+
+    norm! o" outside
+    fu! Func()
+        norm! o" inside
+        norm! .
+    endfu
+    call Func()
+    norm! .
+    " outside~
+    " inside~
+    " inside~
+    " outside~
+      ^^^^^^^
+      after the function call, the dot command still repeats the last edition performed *before* the function call
+
+In fact, as soon as you use it, the `.` register is restored:
+
+    norm! o" outside
+    fu! Func()
+        norm! o" inside
+        norm! .
+    endfu
+    call Func()
+    norm! .
+    echom @.
+    " outside~
+
+##
+## What's stored in the search register `"/`?
+
+The last search pattern used in one of these commands:
+
+    /
+    ?
+    :s
+    :g
+    :v
+
+### Which command(s)/option(s) does it affect?
+
+Its contents determines:
+
+   - where `n` and `N` jump
+   - the text which is highlighted when `'hlsearch'` is on
+   - the text selected by `gn`
+
+### When does the search register differ from the last entry in the search history (`histget('/')`)?
+
+The search history only logs patterns which  were actually used in a `:s`, `:g`,
+`:v`, `/`, `?` command.  If you reset  `@/` via `:let`, only the search register
+is affected:
+
+    /pat
+    :let @/ = 'reset'
+    :echo histget('/')
+    pat~
+    ^^^
+    different than 'reset'
+
+###
+### What happens if I run `:let @/ = ''` then press `n`?
+
+Vim resets  the search register  with the pattern used  in the last  `:s`, `:g`,
+`:v` command.  It then jumps to the next occurrence of this pattern.
+
+    :s/sub//en
+    /slash
+    :let @/ = ''
+    " 'n' jumps to the next occurrence of 'sub'
+    norm! n
+
+#### What if I also remove the search register from the history (`:call histdel('/', @/)`) before pressing `n`?
+
+Vim adds the search register back into the history.
+
+    :s/sub//en
+    /slash
+    :call histdel('/', @/)
+    :let @/ = ''
+    " 'n' still jumps to the next occurrence of 'sub'
+    norm! n
+
+###
+## Which features are specific to the expression register `"=`?  (2)
+
+It's the only register which evaluates what you write into it:
 
     "=1+2 CR p
 
-            colle l'évaluation du registre expression, contenant 1+2: 3
+This should paste `3` and not `1+2`.
 
-            Le registre expression ne devient pas le dernier registre modifié.
-            Il n'est utilisé que temporairement.
-            Une fois  qu'on a collé  son contenu, p  (et ses amies)  utilisent à
-            nouveau "" ou "+.
+---
 
-    qA
+You can't separate the writing step from the execution/insertion step:
 
-            débute  un  enregistrement  des  frappes  dans  le  registre  a  (en
-            mode  append,  sans  écraser   son  contenu)  utile  pour  reprendre
-            l'enregistrement  d'une macro  dont  on a  interrompu la  définition
-            prématurément
+    let @= = 'dd'
 
-    @a    :@a
+Here, we've written an expression into the register.
+But if you  try to refer to it (via  `@`, `"`, `C-r`), Vim still asks  you for a
+new expression, which in effect makes the previous writing step irrelevant.
 
-            exécuter le contenu du registre a en mode normal / sur la ligne de commande
+In contrast, you can write into a regular register:
 
-            Sur  la ligne  de commande,  le contenu  du registre  est interprété
-            comme des commandes Ex:
+    let @a = 'dd'
 
-                   :let @a = 'echo "hello"'
-                   :@a
+And later, you can refer to it  (`@a`, `"a`, `C-r a`) without having to redefine
+its contents.
 
-                                               NOTE:
+##
+## In which register does Vim save
+### the last yanked text?
 
-            En mode  normal, si  le registre  a contient  le caractère  'q', les
-            frappes qui suivent sont bien  exécutées, mais pas enregistrées dans
-            une macro.
+In the numbered register `0`:
 
+    $ vim -Nu NONE -i NONE +"pu='if anything remember this'"
+    :norm! wwy$
+    :echo @0
+    remember this~
 
-    nno <key> :call MyFunc(@%)<cr>
-    au FileType python  call MyFunc(@#)
+### the last changed or deleted text smaller than one line?
 
-            Définit un mapping  qui appelle une fonction à laquelle on passe le nom du buffer courant.
-            "       une autocmd "                                                             alternatif
+In the small delete register `-`:
 
-    0v^hy
+    $ vim -Nu NONE -i NONE +"pu='once upon DELETEME a time'"
+    :norm! wwde
+    :echo @-
+    DELETEME~
 
-            copier l'indentation de la ligne courante
-            Utile si on veut donner le même niveau d'indentation à une autre ligne.
+See `:h quote_-`.
 
+### the last changed or deleted text bigger than one line?
 
-    :let @a ..= '@a'
-    qA@aq
+In the numbered register `1`:
 
-            rend la macro a récursive
+    $ vim -Nu NONE -i NONE +"pu=['once', 'upon', 'DELETE', 'ME', 'a', 'time']"
+    :3,4d
+    :echo @1
+    DELETE~
+    ME~
 
-    :let altbuf = bufnr('#') | ... | let @# = altbuf
+See: `:h quote_number`.
 
-            Stocke le n°  du buffer alternatif dans la  variable altbuf, exécute
-            des commandes  qui modifient  le buffer  alternatif pour  la fenêtre
-            courante, restaure le buffer alternatif d'origine.
+#### What's the side-effect of such a change/deletion?
 
-            Cette commande illustre le fait qu'on peut écrire dans le registre #
-            et que ce dernier contrôle le buffer alternatif.
+The last big change/deletion which was stored in `"1` is shifted into `"2`.
+The last but one change/deletion which was stored in `"2` is shifted into `"3`.
+The process repeats itself until `"9`.
+Whatever was stored in `"9` is now lost.
 
-    :.,$norm @q
-    :*norm @q
+###
+### When does Vim use a different register for a small changed/deleted text?
 
-            rejouer la macro q sur les lignes du fichier entre la ligne courante
-            et la fin du fichier ou sur la sélection visuelle
+When you combine the change or delete operator with one of these motions:
 
-            J'ai défini  des mappings customs  (@@, @a-z) permettant  de rejouer
-            automatiquement une macro sur une sélection visuelle.
-            Donc la 2e  commande est bonne à connaître mais  ne devrait pas être
-            utile.
+    `{a-z}
+    '{a-z}
+    %
+    n
+    N
+    /
+    ?
+    (
+    )
+    {
+    }
 
-    :{range}norm! C-r q
+In that case, Vim always uses the `"1` register (in addition to `"-`).
 
-            rejouer une séquence de frappes sur chaque ligne à l'intérieur d'une rangée
+    $ vim -Nu NONE -i NONE +"pu='once upon (DELETE ME) a time'"
+    :norm! wwd%
+    :reg 1-
+    c  "1   (DELETE ME)~
+    c  "-   (DELETE ME)~
 
-            En passant les frappes directement à :norm!
-            plutôt que le nom de la macro,  on peut les éditer par la suite dans
-            l'historique des commandes (q: ou ↑).
+    $ vim -Nu NONE -i NONE +"pu='once upon (CHANGE ME) a time'"
+    :norm! wwc%replacement
+    :reg 1-
+    c  "1   (CHANGE ME)~
+    c  "-   (CHANGE ME)~
 
-            De plus, :1,5norm!  C-r q présente un autre avantage par rapport à 5@q.
-            En effet, 5@q nécessite que  pendant l'enregistrement de la macro q,
-            on s'assure qu'à la fin on finit  bien au début de la ligne suivante (j_).
-            :norm le fait automatiquement pour nous.
+Rationale: These motions can jump to another  line; when used after an operator,
+they can span multiple lines, and the resulting text can be considered as "big".
+But this is on  a per-motion basis; so instead of parsing  the text to determine
+whether it's big for each single motion, Vim probably prefers to simply consider
+it as "big" by default.
 
-    :reg xy
+### In which case does Vim use none of these special registers?
 
-            afficher le contenu des registres x et y
+When you:
 
-    :23,27 y[ank] a
+   - yank some text, or change/delete a text smaller than one line
+   - provide an explicit register to the command
 
-            copier les lignes 23 à 27 dans le registre a
+Then the text is only saved into that register.
 
-Une macro peut inclure des changements de fenêtre.
-Cas de figure où ça peut être utile: on a un buffer contenant un listing de noms
-de fichiers  et un  autre contenant  du texte dont  on souhaite  s'assurer qu'il
-contient chaque nom de fichier du listing (ex: un makefile).
+Examples:
 
-    gg0              se rend au début du fichier
-    qf               débute l'enregistrement de la macro f
-    y$               copie la 1e ligne contenant un 1er nom de fichier
-     C-w w           passe à l'autre fenêtre (celle du makefile)
-    /C-r " CR        cherche le nom de fichier copié (stocké dans le registre par défaut)
-    C-w wj           repasse à la fenêtre du listing et on descend d'une ligne
-    @f               appelle la macro f pour que celle-ci devienne récursive
-    q                termine l'enregistrement de la macro
+    $ vim -Nu NONE -i NONE +"pu='if anything remember this'"
+    :norm! ww"ay$
+    :echo @0
+    ''~
 
-Résultat, si tous les noms de fichiers  sont bien présents dans le makefile, ils
-seront tous mis en surbrillance.
-En revanche,  si à  un moment  donné, un  fichier n'est  pas trouvé,  une erreur
-survient et la macro s'interrompt
+    $ vim -Nu NONE -i NONE +"pu='once upon DELETEME a time'"
+    :norm! ww"bde
+    :echo @-
+    ''~
 
-                                     FIXME:
+---
 
-En théorie,  chez moi  ça marche  pas; toutefois on  peut toujours  regarder les
-messages d'erreur via `:messages`.
+This exception does not affect a big change/deletion:
 
-Source: <http://vim.wikia.com/wiki/Record_a_recursive_macro>
+    $ vim -Nu NONE -i NONE +"pu=['once', 'upon', 'DELETE', 'ME', 'a', 'time']"
+    :3,4d c
+    :echo @1
+    DELETE~
+    ME~
+
+Which seems to contradict the documentation at `:h quote_number`:
+
+>     Numbered register 1 contains the text deleted by the most recent delete or
+>     change command, **unless the command specified another register**
+
+But, oh well...
+
+### What happens when I specify a numbered register bigger than 0 before a yank/delete/change operator?
+
+If your text is  bigger than 1 line and you use a  deletion, then Vim writes the
+text in the register 1 *and* in the register you specified +1.
+For example, `"3dd` will delete the current line in the registers 1 and 4.
+
+    $ vim -Nu NONE -i NONE +"pu='some text'"
+    "3dd
+    :reg 123456789
+    l  "1   some text^J~
+    l  "4   some text^J~
+
+In all other cases, the text is only written in the register you specified.
+
+    $ vim -Nu NONE -i NONE +"pu='some text'"
+    "3diw
+    :reg 123456789
+    c  "3   some~
+
+The  old contents  from  the numbered  register is  *not*  shifted into  another
+numbered register; it's lost.
+
+    $ vim -Nu NONE -i NONE +"pu='some text'" +"pu='some other text'"
+    1G
+    "3yy
+    2G
+    "3yy
+    :reg 123456789
+    c  "3   some other text^J~
+
+##
+# Macro
+## I'm recording some keys into a register to execute the latter as a macro
+### how to assert that my cursor is on a whitespace?
+
+Run this search command:
+
+    /\%#\s
+
+It should not make the cursor move, but it will only succeed if the cursor is on a whitespace.
+
+### how to assert that my cursor is before the mark 's'?
+
+Run this search command:
+
+    /\%#\%<'s
+
+### how to reliably create a new line with the exact same indentation as the current line?
+
+Duplicate the line with `:t` or `yy` and  `p`, then press `C` to change the rest
+of the line as you see fit.
+
+This  works  because   when  Vim  puts  the  duplicated  line,   the  cursor  is
+automatically positioned on the first non-whitespace character.
+
+    $ vim -Nu NONE -i NONE -S <(cat <<'EOF'
+        set list showcmd ai
+        let lines = range(1,8)->map({_,v -> repeat(' ', v)..repeat("\t", v < 5 ? 1 : 2)..'some line'})
+        call setline(1, lines)
+        g/^\s/pu=''
+        norm! 1G1|
+    EOF
+    )
+    " press: qqq
+             qq
+             yyp
+             C another line Esc
+             /^\s CR
+             @q
+             q
+             :set nows
+             @q
+
+---
+
+Do *not* press `cc` instead of `C`.
+`cc`  will only  preserve  the  current indentation  if  `'autoindent'` is  set;
+otherwise, it will change the whole line, including the indentation.
+
+---
+
+Alternatively, you could yank the indentation of the current line:
+
+    y/\S
+
+Then insert it on your new line with `C-r C-o "`.
+
+Pitfall1:  when opening  your new  line, the  auto indentation  may add  an extra
+indentation; you need to temporarily leave  insert mode to undo this, before you
+can safely insert the yanked indentation.
+
+Pitfall2: if  the current line  has no indentation,  `y/\S` will still  yank its
+first character.  This is not what you want.
+To avoid  inserting a wrong  indentation, during  the recording, you  may assert
+that the current line has some indentation with:
+
+    0
+    /\%#\s
+
+If the assertion fails, `E486` will be raised and the macro will stop.
+
+##
+## How to execute a macro on several consecutive lines?
+
+Execute the macro via `:norm!`:
+
+    :12,34norm! @q
+     ^^^^^
+     range of lines on which the macro will be executed
+
+---
+
+Remember that  we have a  mapping to execute  a macro on  each line in  a visual
+selection:
+
+    :xno <silent> @ :<c-u>exe "'<,'>norm @"..nr2char(getchar())<cr>
+
+Use it to repeat a macro on an arbitrary range of lines.
+
+## My macro needs to move the cursor at the start of the line.  I forgot to record this motion!
+
+Exexute the macro via `:norm!` *with* a range.
+
+    ✘
+    :norm! @q
+
+    ✔
+    :.norm! @q
+     ^
+
+With a range,  `:norm` will automatically move  the cursor at the  start of each
+line inside the latter.  Without a range, `:norm` would just press the keys from
+the current cursor position.
+
+##
+## I need a macro for a complex edition.  How to simplify the process a little?
+
+Break it down in simple editions.
+Work out a reliable macro for each of them:
+
+    qa
+    ...
+    q
+
+    qb
+    ...
+    q
+
+    ...
+
+During your final recording, execute your simple macros when needed:
+
+     ┌ final
+     │
+    qf
+    ...
+    @a
+    ...
+    @b
+    ...
+    q
+
+Execute your final macro:
+
+    @f
+
+## What happens if I run `:@q`?
+
+`@q` is expanded into  the contents of the register `q`;  the result is executed
+as one or several Ex commands.
+
+    :let @a = 'echo "hello"'
+    :@a
+
+Had you pressed `@q` from normal  mode, the contents would have been interpreted
+as normal commands.
+
+Bottom line: how `@q` is interpreted depends on the current mode.
+
+##
+## How to execute a recursive macro?
+
+Start by clearing the register in which you want to record keys:
+
+    qxq
+     ^
+     name of the register in which you want to record keys
+
+Start recording as usual:
+
+    qx
+
+Run whatever commands you want to record.
+
+Press `@x` so that the macro recalls itself.
+For this to work properly, it's important that you cleared the register at the start.
+
+Finally, stop recording by pressing `q`.
+
+### How to make sure it doesn't re-execute itself indefinitely?
+
+Record  it  so that  an  error  is encountered  at  some  point, and  Vim  stops
+processing the macro.
+
+Such  an error  could  be triggered  by  a  disallowed motion,  which  is why  –
+before executing  a recursive  macro –  you want `'whichwrap'`  to be  empty and
+`'wrapscan'` to be reset, so that a maximum of motions are disallowed.
+
+### How to make it stop at an arbitrary position?
+
+Before starting recording, press `ms` to  set the mark `s` (mnemonic: *s*top) on
+the desired position.  Then, as soon as you start recording, run this:
+
+    /\%#\%<'s
+
+This last command should assert that your cursor is before the mark `s`.
+When this  assertion fails, `E486` should  be raised, which in  turn should stop
+the macro.
+
+If you're sure that the macro will recall itself at a position *after* the mark,
+and thus  sure that  `E486` will  be raised,  then you  shouldn't need  to reset
+`'wrapscan'` to prevent an infinite loop.
+
+---
+
+If you want to practice, run this:
+
+    $ vim -Nu NONE +'pu=range(1,100)|%j|s/0 \zs/\r/g'
+    " set the mark 's' on the first digit of the first number you do *not* want to increment
+    " press: qqq
+             qq
+             /\%#\%<'s
+             C-a
+             w
+             @q
+             q
+
+All the numbers should be incremented until the mark `s`.
+
+### How to turn an existing non-recursive macro into a recursive one?  (2)
+
+Execute:
+
+    :let @x ..= '@x'
+
+Or press:
+
+    qX@xq
+
+##
+## I have a macro which needs to execute another recursive macro, then some commands:
+
+    let @a = "@bvip:v/x/d_\r\e"
+    let @b = '^lllyyp$2hd^k$x@b'
+
+The purpose  is to  get a  list of all  three-characters subsequences  from some
+arbitrary text line, but only if they contain the character `x`.
+
+The main macro, `@a`, executes `@b` to break the line.
+Then, it runs `:v` to remove the lines which don't contain `x`.
+
+You can test `@b` on this line (make sure `'ww'` does not contain `l`):
+
+    abcxdefxghi
+
+It's correctly broken into:
+
+    abc
+    bcx
+    cxd
+    xde
+    def
+    efx
+    fxg
+    xgh
+    ghi
+
+### The main macro doesn't work!  Why?
+
+I get this:
+
+    abc
+    bcx
+    cxd
+    xde
+    def
+    efx
+    fxg
+    xgh
+    ghi
+
+Instead of this:
+
+    bcx
+    cxd
+    xde
+    efx
+    fxg
+    xgh
+
+For `@b` to stop, an error needs to be encountered.
+That's the purpose of `lll`; it will fail on a line with fewer than 4 characters.
+IOW, when the macro  has broken the line into so many  pieces that the remaining
+text contains only 3 characters, it stops re-calling itself.
+
+But this error prevents Vim from processing the rest of the `@a` macro.
+
+You have 2 seemingly contradicting requirements.
+On the one hand, you need an error for `@b` to stop.
+On the other hand, you need to prevent any error so that `@a` is processed entirely.
+
+### How to fix it?
+
+Don't run `@b` directly; run it from `:norm`.
+No error is raised by `:norm`, even if you ask it to run an invalid command:
+
+    " ✔
+    :norm! :not a cmd^M
+                     ^^
+                     literal carriage return
+
+Applied to our issue, it gives:
+
+    let @a = ":norm!@b\rvip:v/x/d_\r\e"
+              ^^^^^^
+
+This time, `@a` should get you:
+
+    bcx
+    cxd
+    xde
+    efx
+    fxg
+    xgh
+
+---
+
+Do *not* use `silent!`, it would make Vim *ignore* any error while pressing the keys:
+
+    let @a = ":sil! norm!@b\rvip:v/x/d_\r\e"
+               ^^^^
+               ✘
+
+You need the error *not* to be ignored for `@b` to stop.
+
+##
+# Tricks
+## How to force a characterwise or blockwise register to be put linewise?
+
+In command-line mode, use `:put`.
+
+    $ vim -Nu NONE +"pu=['a', 'b']"
+    :exe "norm! ggy\<c-v>j"
+    :norm! p
+    aa~
+    bb~
+
+    :undo
+    :pu
+    a~
+    a~
+    b~
+    b~
+
+In a script, use `setreg()` to reset the type of the register:
+
+    :call setreg('"', '', 'al')
+                            ^
+                            linewise
+
+---
+
+In insert mode, you can use `C-r`, but it only works for a blockwise register.
+
+##
+## How to review the numbered registers 7, 8, 9?
+
+    "7p
+    u.
+    u.
+
+### How does this work?
+
+When you provide a  numbered register to a command or  operator, the dot command
+does not  repeat the exact  same command;  it increments the  numbered register;
+when 9 is reached, it keeps using the register 9 (it doesn't get back to 1).
+
+This is documented at `:h redo-register`.
+
+## How to move 3 non-consecutive big texts (>= 1 line) to non-consecutive new locations?
+
+    " delete a line
+    dd
+    " delete two lines, anywhere else
+    dj
+    " delete a paragraph, anywhere else
+    dip
+
+    " paste the last deleted paragraph, anywhere you want
+    "1p
+    " paste the previous deleted block of 2 lines, anywhere else
+    .
+    " paste the first deleted line, anywhere else
+    .
+
+You can also replace `p` with `P` to paste above:
+
+    "1P
+    .
+    .
+
+### What if I want to move small texts?
+
+Specify an explicit numbered register for the first deletion:
+
+    " delete a word
+    "1daw
+    " delete another word, anywhere else
+    .
+    " delete yet another word, anywhere else
+    .
+
+    " paste the last deleted word, anywhere you want
+    "1p
+    " paste the previous deleted word lines, anywhere else
+    .
+    " paste the first deleted word, anywhere else
+    .
+
+Since the dot command automatically increments a numbered register, this is equivalent to:
+
+    "1daw
+    "2daw
+    "3daw
+    "1p
+    "2p
+    "3p
+
+## How to duplicate 3 non-consecutive texts to non-consecutive new locations?
+
+    " yank a line
+    "1yy
+
+    " yank another line, anywhere else
+    "2yy
+
+    " yank yet another line, anywhere else
+    "3yy
+
+    " paste the last yanked line, anywhere you want
+    "1p
+
+    " paste the previous yanked line, anywhere else
+    .
+
+    " paste the first yanked line, anywhere else
+    .
+
+Note that you're not limited to lines; you can yank any text-object, motion.
+
+---
+
+You may wonder why  you need to specify the numbered  register for each yanking,
+while you don't for deletions/changes.
+
+That's because  yanking and  deletions/changes are  2 very  different mechanisms
+when it comes to registers.
+
+By default, Vim writes a yanked text into  register 0, not 1.  And when you yank
+another text, it's also written into register 0 (the old contents is not shifted
+to  another register).   If you  want to  build a  stack of  texts, you  need to
+specify where each yank has to be written; Vim won't do it for you here.
+
+### The yanking is too tedious!
+
+Include the flag `y` into `'cpo'` so that the dot command can also repeat a yank:
+
+    :set cpo+=y
+
+After that the yanking becomes:
+
+    " yank a line
+    "1yy
+
+    " yank another line, anywhere else
+    .
+
+    " yank yet another line, anywhere else
+    .
+
+##
+## What's the simplest way to change the alternate file of the current window without any side-effect?
+
+The `#` register is writable.
+Simply write the new desired file path in it:
+
+    let @# = '/path/to/new/alternate/file'
+
+This will affect the behavior of `:b#` and `C-^`.
+
+---
+
+Note that the new alternate file must match an existing buffer.
+
+    sil! exe 'bw! '..$MYVIMRC
+    let @# = $MYVIMRC
+    E94: No matching buffer for ...~
+
+Make sure it exists:
+
+    if !bufexists($MYVIMRC)
+        call bufadd($MYVIMRC)
+    endif
+    let @# = $MYVIMRC
+
+## I have a listing of files A, and another file B.  How to check that all the files from A are present in B?
+
+Use a macro.
+
+Focus A, and press:
+
+   1. `gg0`: position the cursor on first character of first line
+   2. `qqq`: empty register `q`
+   3. `qq`: start recording in register 'q'
+   4. `^y$`: yank the file path
+   5. `C-w w`: focus file B
+   6. `?C-r " CR`: look for the file path you've just yanked in file B
+   7. `C-w w j`: focus back the listing A
+   8. `@q`: make the macro recursive
+   9. `q`: stop recording
+   10. `:set nows`: prevent the macro from being stuck in an infinite loop if no file path is missing
+
+Now, from the top of the listing A, execute your macro `q`.
+If no error is raised, then all the files from the listing A are present in B.
+
+But if a file from the listing A is missing in B, then:
+
+   - `E486` should be raised: `E486: Pattern not found: /path/to/missing/file`
+   - the cursor should be positioned on the last file path from A which was found in B
+
+---
+
+Note that it's important to look for the file path with the `?` command, and not
+`/`. Since  file paths in Linux  use the slash  as a delimiter, the  `/` command
+would not be able to find a file path without the delimiters being escaped.
+
+And note  that the `?` command  suffers from a  similar issue; i.e. it  won't be
+able to find a file path containing a question mark; although, in practice, such
+a file  path should be  rare, since  a question mark  is a metacharacter  in the
+shell, and thus known to cause issues in general.
+
+---
+
+If you want to practice, run this:
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        %d_
+        " populate listing A
+        pu!='/path/to/file1'
+        exe 'norm! yy'..(winheight(0)-1).."p2GVGg\<c-a>gg"
+        update
+        " focus file B
+        wincmd w
+        " import listing A
+        0r#
+        " remove random existing line whose address is above or equal to 5
+        let seed = srand()
+        let random = 5 + rand(seed) % (winheight(0)-4)
+        exe random..'d_'
+        wincmd w
+    EOF
+    ) -O /tmp/listingA /tmp/fileB
 
 ##
 # Pitfalls
-## During a recording
-### after `o` or `O`, do *not* press `C-u` to remove all the indentation of the current line.
+## During a recording, after `o` or `O`, do *not* press `C-u` to remove all the indentation of the current line.
 
 Prefer pressing `Escape` then `i`.
 
-Rationale: there is no guarantee that  the next time you execute your recording,
+Rationale: there  is no  guarantee that  the next time  you execute  your macro,
 there will be an indentation; it depends from where you open a new line.  And if
 there's no indentation, `C-u` may remove the previous newline.
 
@@ -478,45 +1037,56 @@ there's no indentation, `C-u` may remove the previous newline.
     " press @q on the second line: NO new line is opened below,
     " because C-u has immediately removed the newline added by the 'o' command
 
-### do *not* end your recording right after pressing `CR`.
+## When should I avoid `:let` to set the contents of a register?
 
-Press something afterwards, like `Escape`, then you can end your recording.
+When its contents is intended to be executed as a macro, and it ends with a `CR`.
 
-Rationale: for some reason, Vim adds a `C-j` to a register ending with `CR`:
+### Why?
+
+If you use `:let`, Vim will add a trailing `C-j`:
 
     let @q = ":\r"
     reg q
     "q   :^M^J
             ^^
 
-And because of that, when you execute your recording, `C-j` may be pressed.
-If you've mapped something to `C-j`, it may have unexpected effects.
+And because of that, when you execute your macro, `C-j` will be pressed.
+If you've mapped something to `C-j`, it will have unexpected effects.
+
+Example when `CR` is pressed in command-line mode:
 
     vim -Nu NONE +'let @q = ":\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
     " press @q: the C-j mapping is executed (the message is logged)
 
-I can reproduce when `CR` is pressed in other modes, like normal mode:
+Example when `CR` is pressed in normal mode:
 
     vim -Nu NONE +"pu=''" +'let @q = "\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
                   ^^^^^^^
                   there needs to be a line after the one from which we press `@q`,
-                  otherwise, `^M` would fail and Vim would stop executing the recording
+                  otherwise, `^M` would fail and Vim would stop executing the macro
 
 ---
 
-It may be related to `:h 'ff'` and `:h file-formats`.
+The issue is explained at `:h :let-@`:
 
-                            vvv
-    $ vim -Nu NONE +'set ff=mac | let @q = ":\r"'
-    reg q
-    "q   :^J^J
-          ^^
+>     If the result of {expr1} ends in a <CR> or <NL>, the
+>     register will be linewise, otherwise it will be set to
+>     characterwise.
 
-What's weird  is that  the translation  of `^M` into  `^M^J` occurs  even though
-I'm  on  Linux  and not  on  Windows,  and  even  if I  set  `'fileformat'`  and
-`'fileformats'` to `unix`.
+`:let` sets a register ending with `CR` to linewise; and in a linewise register,
+a line must always end with `C-j`.
 
-Or maybe the issue is related to  `:h CR-used-for-NL`, `:h NL-used-for-Nul`...
+### What should I do instead?
+
+Use `setreg()` and pass it the third argument `c`:
+
+    :call setreg('q', ":\<cr>", 'c')
+                                 ^
+                                 important!
+                                 tells Vim not to process the contents of the register as a *line* of text,
+                                 which would cause a trailing '^J' to be added
+
+Source: <https://groups.google.com/d/msg/vim_use/-pbK15zfqts/jfxLV8zXlC8J>
 
 ##
 # Issues
@@ -616,6 +1186,6 @@ See also [this issue][3] (it may be related ... or not).
 ##
 # Reference
 
-[1]: https://github.com/kfish/xsel/issues/13
+[1]: https://:github:.com/kfish/xsel/issues/13
 [2]: https://github.com/kfish/xsel/pull/16
 [3]: https://github.com/neovim/neovim/issues/1822
