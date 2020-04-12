@@ -465,8 +465,8 @@ IOW:
 
     :@{regname}
 
-What happens  probably, is that when  you press Enter, in  the typeahead buffer,
-`@{regname}` is expanded into its contents.
+What *probably* happens, is that when  you press Enter, `@{regname}` is expanded
+into its contents.
 
 # How to execute the current line assuming it contains an Ex command?
 

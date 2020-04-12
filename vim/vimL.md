@@ -215,19 +215,9 @@ To expand them, you need `expand()` and `:exe`.
 ##
 ## ?
 
-In `./mapping.md`, finish documenting why `@=` can create an issue in a mapping.
-Hint: it can raise an issue when you replay a macro with `@@`.
-
----
-
-Now that we  better understand the typeahead buffer, finish  reviewing our notes
-to make sure we haven't written bullshit about it.
-Run `:Crestore typeahead` in the qf window, and review each match.
-
----
-
 In `./mapping.md`, look  for `g@`.  For each match, try  to refactor whatever is
 written; and try to answer any question related to `g@`.
+
 Same thing in `./todo/todo.md`.
 
 ---
@@ -487,7 +477,7 @@ Now you can make those 2 function calls:
 
 ---
 
-Without a partial, you would had to write:
+Without a partial, you would have to write:
 
     call Func(1, 2)
     call Func(1, 2, 3, 4)
@@ -1391,58 +1381,44 @@ Une expression peut être :
    - la sortie d'une fonction
    - le résultat d'une opération entre 2 expressions (+, -, *, /, %, .)
 
+---
 
-        :let myvar42 = 'hello'
-        :let idx=42
-        :echo myvar{idx}
+    let myvar42 = 'hello'
+    let idx=42
+    echo myvar{idx}
 
-        :fu MyFunc42()
-        :    return 'world'
-        :endfu
-        :let idx=42
-        :echo MyFunc{idx}()
+    fu MyFunc42()
+        return 'world'
+    endfu
+    let idx=42
+    echo MyFunc{idx}()
 
-                On peut développer (interpoler?) une expression au sein même d'un nom de variable
-                ou de fonction. Cf. :h curly-braces-names
+On  peut développer  une expression  au sein  même d'un  nom de  variable ou  de
+fonction. Cf. `:h curly-braces-names`.
 
-                                               NOTE:
+Il peut s'agir d'une alternative à eval():
 
-                Il peut s'agir d'une alternative à eval():
+    let myvar42 = 'hello'
+    let idx=42
+    echo eval('myvar' . idx)
 
-                        :let myvar42 = 'hello'
-                        :let idx=42
-                        :echo eval('myvar' . idx)
+    fu MyFunc42()
+       return 'world'
+    endfu
+    let idx=42
+    echo eval('MyFunc' . idx . '()')
 
-                        :fu MyFunc42()
-                        :   return 'world'
-                        :endfu
-                        :let idx=42
-                        :echo eval('MyFunc' . idx . '()')
+`eval()` est moins lisible:
 
-                eval() est moins lisible:
+    echo eval('myvar'.idx)
+    echo myvar{idx}
 
-                        :echo eval('myvar'.idx)
-                        :echo myvar{idx}
+It works even if there's nothing outside the curly braces:
 
-                                     NOTE:
-
-
-        It works even if there's nothing outside the curly braces:
-
-                :let var = 'hello'
-                :let {var} = 'world'
-                :echo hello
-                world ~
-
-
-    system('ls -l ' . expand('%:p'))
-
-            Une concaténation de chaînes étant une expression, on peut la passer directement en argument
-            à une fonction.
-
-            Pas besoin de:
-
-                    system ("ls -l  . expand('%:p') . '")'
+    let var = 'hello'
+    let {var} = 'world'
+    echo hello
+    world ~
 
 # For / While
 
@@ -1460,8 +1436,8 @@ Une expression peut être :
         return words
     endfu
 
-Définit la fonction `s:grab_words()` qui lance une boucle while pour stocker tous les mots
-du buffer courant dans la liste words.
+Définit la  fonction `s:grab_words()`  qui lance une  boucle while  pour stocker
+tous les mots du buffer courant dans la liste words.
 
 ---
 
@@ -1471,9 +1447,9 @@ On pourrait aussi utiliser:
 
 ... qui est encore + rapide.
 
-En revanche, le principe sur lequel repose cette commande nécessite qu'on puisse facilement
-décrire l'inverse du pattern recherché.
-Facile pour un mot (`\W\+`), mais plus difficile pour un pattern arbitraire (! foobar = ?).
+En revanche, le principe sur lequel repose cette commande nécessite qu'on puisse
+facilement décrire l'inverse du pattern recherché.  Facile pour un mot (`\W\+`),
+mais plus difficile pour un pattern arbitraire (! foobar = ?).
 
 ---
 
@@ -1515,19 +1491,20 @@ Puis, elle le fait en se basant sur:
 
     let matchline = search('\w\+', 'W')
 
-... qui,  certes, se situe après  :while au sein  de la fonction, mais  est bien
-exécutée AVANT le prochain retour vers :while.
-Donc, c'est un peu comme si ce 2e let se situait juste avant :while (JUSTE avant
-car il n'y a  rien entre ce :let et :endwhile, et  que :endwhile signifie retour
-vers :while).
+... qui,  certes, se situe après  `:while` au sein  de la fonction, mais  est bien
+exécutée AVANT le prochain retour vers `:while`.
+Donc, c'est un peu comme si ce 2e let se situait juste avant `:while` (JUSTE avant
+car il n'y a  rien entre ce :let et `:endwhile`, et  que `:endwhile` signifie retour
+vers `:while`).
 
 ##
 # Let
 
     let
 
-            affiche l'ensemble des variables actuellement définies
+Affiche l'ensemble des variables actuellement définies.
 
+---
 
     let list2 = list1
 
@@ -1676,7 +1653,7 @@ un dossier `autoload/` du rtp.
 En programmation, on  appelle subroutine (sous-programme/routine/procédure), une
 fonction  dont le  code de  sortie ne  nous intéresse  pas, seule  son exécution
 compte.
-En vimscript, une procédure est appelée via la commande Ex :call.
+En vimscript, une procédure est appelée via la commande Ex `:call`.
 
 ## Arguments
 
@@ -2075,68 +2052,6 @@ semble.
 
             La taille de la liste passée en argument à inputlist() et ce qu'elle contient n'a pas d'importance,
             elle ne sert qu'à informer l'utilisateur des nb qu'il peut taper et leur conséquence.
-
-
-    mapcheck('<C-G>', 'c')
-
-            retourne le {rhs} du mapping dont le {lhs} est C-g
-
-    setcmdpos(6)
-
-            positionne le curseur juste avant le 6e octet sur la ligne de commande
-
-            Si aucun des 5 premiers caractères de la ligne de commande n'est multi-octets,
-            positionne le curseur juste avant le 6e caractère.
-
-            Ne fonctionne que lorsqu'on édite la ligne de commande:
-
-                    - en y insérant l'évaluation d'une expression via C-r
-                    - en la remplaçant entièrement par l'évaluation d'une expression via C-\ e
-
-            Je n'ai pas réussi à l'utiliser directement au sein du (pseudo?) registre expression
-            dans lequel on entre qd on tape C-r ou C-\ e.
-            En revanche, elle fonctionne correctement qd on évalue une fonction custom juste après.
-
-            Qd on évalue une fonction custom:
-
-                - via C-\ e, setcmdpos() permet de positionner le curseur sur la nouvelle ligne de
-                  commande, l'ancienne étant remplacée par l'évaluation
-
-                - via  C-r, setcmdpos()  permet  de positionner  le curseur  sur  l'ancienne ligne  de
-                  commande (qui n'est  pas remplacée), avant que l'évaluation ne soit insérée là où se
-                  trouve le curseur
-
-            Qd on utilise  C-\ e ou C-r = pour  évaluer une fonction custom, il ne  sert à rien de
-            demander  à cette  dernière de  retourner des  caractères de  contrôle tq  <cr> pour
-            exécuter la ligne de commande ou <Left>, <Right> pour déplacer le curseur.
-
-            En effet, C-\ e  et C-r ne peuvent qu'insérer des caractères,  donc des caractères de
-            contrôle seraient insérés littéralement et non interprétés comme des commandes.
-
-            Si on  veut déplacer le  curseur sur  la ligne de  commande après que  les caractères
-            retournés par la fonction custom aient été insérés, il faut utiliser soit:
-
-                    - setcmdpos() au sein de la fonction custom
-
-                    - des <left>, <right> après que la fonction custom ait été évaluée; pex au sein d'un mapping:
-
-                            cno <f8> <c-\>e MyFunc()<cr><left><left>
-
-            On ne rencontrerait pas ce pb avec  un mapping auquel on passerait l'argument <expr>, et
-            auquel on demanderait de taper les touches retournées par une fonction custom.
-
-            Dans  ce cas,  les touches  de contrôle  ne  seraient pas  insérées sur  la ligne  de
-            commande, mais interprétées comme des actions (validation, mouvement).
-
-                                               NOTE:
-
-            La position du curseur via `setcmdpos()` n'est pas établie au même moment selon qu'on
-            utilise `C-r =`  ou  `C-\ e` / `C-r C-r =`:
-
-                    - C-r =        après avoir évalué l'expression, MAIS AVANT de l'insérer
-
-                    - C-r C-r =    après avoir évalué l'expression
-                      C-\ e
 
 
     submatch()
@@ -2601,7 +2516,9 @@ exécution.
             retourne l'id de la fenêtre de n° 1 dans l'onglet 1
 
 
-    winnr()    winnr('#')    winnr('$')
+    winnr()
+    winnr('#')
+    winnr('$')
 
             retourne le n° de:
 
@@ -2637,7 +2554,7 @@ exécution.
 
 
     @=winnr('#') CR C-w c      mode normal
-    :exe winnr('#').'close'    mode Ex
+    :exe winnr('#')..'close'    mode Ex
 
             Fermer la dernière fenêtre qu'on a visité dans l'onglet courant.
 
@@ -2679,15 +2596,9 @@ exécution.
             Un lien symbolique est supprimé, mais pas ce sur quoi il pointe.
 
 
-    escape(file, ' \')
-
-            échappe les espaces et les backslash dans le nom de fichier file
-            plus généralement tous les caractères présents dans le 2e argument de escape() sont échappés
-
-
     if !empty(glob('/path/to/file'))
 
-            TESTE L'EXISTENCE de /path/to/file (fonctionne même si on n'a pas les droits pour le lire)
+            teste L'EXISTENCE de /path/to/file (fonctionne même si on n'a pas les droits pour le lire)
 
             Ce test peut s'écrire simplement comme ça car le code de retour de empty()
             en cas d'échec est 0. Si c'était -1, il faudrait obligatoirement comparer la sortie à -1.
@@ -2772,7 +2683,7 @@ exécution.
             But the last path component can be empty, if the last character of the path is `/`.
 
 
-    :exe 'e '.fnameescape('fname')
+    :exe 'e '..fnameescape('fname')
 
             Exécute la commande  Ex ':edit fname' en ayant  échappé les symboles
             spéciaux que fname contient.
@@ -2780,7 +2691,7 @@ exécution.
             développe ces symboles.
 
 
-    !isdirectory(expand('$HOME') . '/dir')
+    !isdirectory(expand('$HOME')..'/dir')
 
             teste la non-existence du dossier /home/user/dir
 
@@ -2788,7 +2699,7 @@ exécution.
             en cas d'échec est 0. Si c'était -1, il faudrait obligatoirement comparer la sortie à -1.
 
 
-    mkdir(expand('$HOME').'foo/bar', 'p')
+    mkdir(expand('$HOME')..'foo/bar', 'p')
 
             crée le dossier /home/user/foo/bar, en créant les dossiers intermédiaires si nécessaire
             (2e argument 'p')
@@ -2875,7 +2786,7 @@ exécution.
             Au lieu de chercher "foo;rm -rf", le shell exécuterait `$ grep foo`, PUIS `rm -rf`.
 
 
-    system('chmod +x -- ' . shellescape(expand('%')))
+    system('chmod +x -- '..shellescape(expand('%')))
 
             retourne la sortie de la commande shell:
 
@@ -2978,77 +2889,6 @@ exécution.
 
             supprime la dernière recherche, et restocke dans le registre recherche l'avant-dernière
             utile après une recherche dont on ne souhaite laisser aucune trace (ou alors utiliser :keeppatterns)
-
-## Mappings
-
-    if empty(maparg('-', 'n'))
-
-            teste si la touche - est map à quelque chose en mode normal
-
-
-    maparg('<C-L>', 'v')
-
-            retourne le {rhs} du mapping v_ctrl-l
-
-            Qd le 2e argument est une chaine vide, maparg() cherche un {rhs} pour le mode normal,
-            visuel et operator-pending.
-            S'il existe 2 mappings utilisant C-l comme {lhs}, un global et un buffer-local, c'est le {rhs}
-            du buffer-local qui est retourné. Même chose qd on demande un dictionnaire (maparg(..., 0, 1)).
-
-
-    maparg('<C-L>', 'v', 0, 1)
-
-            retourne un dictionnaire contenant toutes les infos concernant le mapping v_ctrl-l
-            Entre autres:
-
-              est-il silencieux?
-              est-il local au buffer?
-              son lhs, son rhs
-              le rhs est-il récursif?
-              son rhs est-il le résultat d'une expression?
-              attend-il avant d'exécuter le {rhs} si un autre mapping existe qui commence par le même {lhs}?
-              son mode
-              le sid du fichier dans lequel il a été défini (3 = vimrc)
-
-              Qd le 3e argument de maparg() est non nul, le 1er argument n'est plus interprété comme le
-              {lhs} d'un mapping mais le {lhs} d'une abréviation.
-
-
-    exe 'nnoremap <Tab> ==' . maparg('<Tab>', 'n')
-
-            préfixe '==' au {rhs} de <Tab> en mode normal
-
-            Pex, si <Tab> en mode normal était associé à 'gm', après la commande précédente,
-            il est associé à '==gm'
-
-
-    mapcheck('abc', 'n')
-
-            Retourne le rhs d'un mapping en mode normal si:
-
-                    'abc' est le début de son lhs (lhs =~ ^abc)
-                    ou inversement si le lhs d'un mapping est le début de 'abc' (abc =~ ^lhs)
-
-            Si 'abc'  est le  début du  lhs d'un mapping  (ex: 'abcd'),  alors définir  un nouveau
-            mapping dont le lhs  est 'abc' posera pb car lorsqu'on appuiera  sur 'abc', Vim attendra
-            3s (&timeoutlen) avant d'exécuter le rhs.
-
-            Réciproquement, si le lhs d'un mapping débute de la même façon que 'abc' (ex: 'ab'),
-            alors  définir un  nouveau mapping  dont le  lhs est  'abc' posera  là encore  pb, car
-            lorsqu'on appuiera sur 'ab', Vim attendra 3s avant d'exécuter son rhs.
-
-            En testant  que la sortie de  mapcheck('abc') est bien  vide, on peut s'assurer  dans un
-            script qu'on peut définir un nouveau mapping dont le {lhs} est 'abc' sans qu'il n'y ait
-            jamais d'ambiguïté (pour 'abc' ou pour un autre qui commence pareil: 'a', 'ab').
-
-
-    hasmapto('abc', 'n')
-
-            Retourne 1 s'il existe un mapping en mode normal, dont le rhs contient `abc`.
-            0 autrement.
-
-            Utile dans un plugin pour vérifier si l'utilisateur a déjà associé une séquence de touches
-            à un `<plug>` mapping.
 
 ## Recherche / curseur
 

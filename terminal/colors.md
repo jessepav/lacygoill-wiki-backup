@@ -466,8 +466,8 @@ intended ones.
 
 It may be due to:
 
-> it uses nearest colour in RGB colour space, with a usual false assumption
-> about orthogonal axes
+>     it uses nearest colour in RGB colour space, with a usual false assumption
+>     about orthogonal axes
 
 <https://github.com/neovim/neovim/issues/793#issuecomment-48106948>
 

@@ -10,21 +10,20 @@ The mappings are processed *before* the filters.
 
 ---
 
-    " write this in `/tmp/t.vim`
-    fu s:popup_filter(winid, key)
-        if a:key is# '+'
-            call popup_setoptions(a:winid, #{minheight: 3})
-            return v:true
-        endif
-        return v:false
-    endfu
-    call popup_create('test', #{filter: function('s:popup_filter')})
-    pedit /tmp/file
-    nno z<c-k> <c-w>+
-    set showcmd
-
-    # start Vim like this
-    $ vim -Nu NONE -S /tmp/t.vim
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        fu s:popup_filter(winid, key)
+            if a:key is# '+'
+                call popup_setoptions(a:winid, #{minheight: 3})
+                return v:true
+            endif
+            return v:false
+        endfu
+        call popup_create('test', #{filter: function('s:popup_filter')})
+        pedit /tmp/file
+        nno z<c-k> <c-w>+
+        set showcmd
+    EOF
+    )
     " press `z C-k` to increase the height of the current window:
     " it's the popup's height which is increased
 
@@ -54,7 +53,7 @@ So Vim discards `C-k` because it can't be used in a valid command.
 ## What's the meaning of `return v:false` and `return v:true` in a filter?
 
 `return v:false` means that the key should *not* be consumed.
-`return v:true` means that the key *should* be consumed (i.e. not sent to the typeahead buffer).
+`return v:true` means that the key *should* be consumed (i.e. removed from the typeahead buffer).
 
 ##
 # Scrolling

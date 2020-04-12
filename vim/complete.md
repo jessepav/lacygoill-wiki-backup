@@ -46,7 +46,7 @@ with:
 
 # ?
 
-Explain  why we  shouldn't  alter `'isk'`  from  a condition  (`s:setup_isk()`);
+Explain  why we  shouldn't  alter `'isk'`  from  a condition  (`completion#util#custom_isk()`);
 instead we must redefine a problematic default method.
 
 Update:

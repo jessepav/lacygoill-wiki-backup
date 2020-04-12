@@ -510,15 +510,15 @@ Note that even though you've asked `feedkeys()`  to insert the text `ICP` at the
 This is  only possible if  `v:char` has already  left the typeahead  buffer when
 `InsertCharPre` is fired and `feedkeys()` is invoked.
 
-## When I start Vim with the next command, and press `ab` in insert mode, I get `efcd` instead of `cdef`:
+## When I start Vim with the next command, and press `ab` in insert mode, I get `efCD` instead of `CDef`:
 
     vim -Nu NONE -S <(cat <<'EOF'
         ino ab ef
-        au InsertCharPre * ++once call feedkeys('cd', 'n')
+        au InsertCharPre * ++once call feedkeys('CD', 'n')
     EOF
     )
 
-### How to get `cdef`?
+### How to get `CDef`?
 
    - pass the `i` flag to `feedkeys()`
    - start the fed keys with `<bs>`
@@ -528,14 +528,14 @@ New code:
 
     vim -Nu NONE -S <(cat <<'EOF'
         ino ab ef
-        au InsertCharPre * ++once call feedkeys("\<bs>cd"..v:char, 'in')
+        au InsertCharPre * ++once call feedkeys("\<bs>CD"..v:char, 'in')
     EOF
     )
 
 ---
 
-You need the `i` flag so that `cd` is inserted *before* `f`.
-And you need `<bs>`, as well as appending `v:char`, to move `e` *after* `cd`.
+You need the `i` flag so that `CD` is inserted *before* `f`.
+And you need `<bs>`, as well as appending `v:char`, to move `e` *after* `CD`.
 
 ---
 
@@ -546,12 +546,12 @@ Here's what happened when you pressed `ab` with the old code:
    - Vim starts executing the typeahead buffer; i.e. it inserts `e` in the user buffer
    - our autocmd is triggered when `e` is inserted
 
-   - `feedkeys()` **appends** `cd` in the typeahead buffer;
+   - `feedkeys()` **appends** `CD` in the typeahead buffer;
      the latter still contains `f` which hasn't been executed yet;
-     the typeahead buffer contains: `fcd`
+     the typeahead buffer contains: `fCD`
 
    - Vim goes on executing the contents of the typeahead buffer;
-     i.e. `f`, `c`, `d` are inserted in the user buffer
+     i.e. `f`, `c`, `d` are typed in the user buffer
 
 Summary:
 
@@ -560,8 +560,8 @@ Summary:
      ab               |
      ef               |
      f                | e
-     fcd              | e
-                      | efcd
+     fCD              | e
+                      | efCD
 
 Here's what happens when you press `ab` with the new code:
 
@@ -570,12 +570,12 @@ Here's what happens when you press `ab` with the new code:
    - Vim starts executing the typeahead buffer; i.e. it inserts `e` in the user buffer
    - our autocmd is triggered when `e` is inserted
 
-   - `feedkeys()` **inserts** `<bs>cde` in the typeahead buffer;
+   - `feedkeys()` **inserts** `<bs>CDe` in the typeahead buffer;
      the latter still contains `f` which hasn't been executed yet;
-     the typeahead buffer contains: `<bs>cdef`
+     the typeahead buffer contains: `<bs>CDef`
 
    - Vim goes on executing the contents of the typeahead buffer;
-     i.e. `<bs>`, `c`, `d`, `e`, `f` are inserted in the user buffer
+     i.e. `<bs>`, `c`, `d`, `e`, `f` are typed in the user buffer
 
 Summary:
 
@@ -584,26 +584,32 @@ Summary:
      ab               |
      ef               |
      f                | e
-     <bs>cdef         | e
-                      | e<bs>cdef
-                      | cdef
+     <bs>CDef         | e
+                      | e<bs>CDef
+                      | CDef
 
 ##
-## When I start Vim with the next command, and insert the register `a`, I get `reg x`:
+## When I start Vim with the next command, and insert the register `a`, I get `reg X`:
 
-    $ vim -Nu NONE +'let @a = "reg" | au InsertCharPre * ++once call feedkeys(" x ", "in")'
+    $ vim -Nu NONE +'let @a = "reg" | au InsertCharPre * ++once call feedkeys(" X ", "in")'
     " press: i C-r a
-    " 'reg x' is inserted
+    " 'reg X' is inserted
 
-### Why isn't `x reg` inserted?
+### Why isn't `X reg` inserted?
 
 I  guess that  when you  insert a  register,  the keys  are not  written in  the
 typeahead buffer; they are executed immediately.
 
 It makes sense; the typeahead buffer is used by Vim to accumulate enough keys to
 get a complete command.  When you insert  a register, each key inside the latter
-is already  a complete  command; it  means: "insert this  character in  the user
-buffer"; so there's no need for it to be written in the typeahead buffer.
+is already a complete command because mappings and abbreviations are ignored.
+From `:h i^r`:
+
+>     The text is inserted as if you typed it, but mappings and
+>     abbreviations are not used.
+
+Each key simply means:  "type this character in the user  buffer"; so there's no
+need for it to be written in the typeahead buffer.
 
 ##
 # What is the difference between `SafeState` and `SafeStateAgain`?

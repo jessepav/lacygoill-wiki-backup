@@ -145,6 +145,9 @@ Vim:
 
 # links to read
 
+   - <https://github.com/tmux/tmux/wiki/Getting-Started>
+   - <https://github.com/tmux/tmux/wiki/Advanced-Use>
+
    - <https://www.reddit.com/r/tmux/comments/5cm2ca/post_you_favourite_tmux_tricks_here/>
    - <https://medium.freecodecamp.org/tmux-in-practice-series-of-posts-ae34f16cfab0>
    - <https://github.com/samoshkin/tmux-config>

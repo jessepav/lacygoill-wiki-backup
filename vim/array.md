@@ -792,18 +792,18 @@ Here, you removed all the items whose keys didn't begin with `a`.
 
 Iterate over the words of the list, to build the dictionary.
 
-        let list = ['one', 'two', 'two', 'three', 'three', 'three']
-        let freq = {}
-        for word in list
-            let freq[word] = get(freq, word, 0) + 1
-        endfor
-        echo freq
-        {'one': 1, 'two': 2, 'three': 3}~
+    let list = ['one', 'two', 'two', 'three', 'three', 'three']
+    let freq = {}
+    for word in list
+        let freq[word] = get(freq, word, 0) + 1
+    endfor
+    echo freq
+    {'one': 1, 'two': 2, 'three': 3}~
 
 Note that you can't write one of these statements:
 
-        let freq[word] += 1
-        let freq[word] = freq[word] + 1
+    let freq[word] += 1
+    let freq[word] = freq[word] + 1
 
 Because when  the loop will  encounter `word` for  the first time,  `freq` won't
 have any key yet  for it; so `freq[word]` won't exist which  will raise an error
@@ -813,27 +813,27 @@ in the rhs of the assignment.
 
 Don't use `count()`; it would be less effecient:
 
-        fu Func()
-            let words = []
-            %s/\<\k\+\>/\=add(words, submatch(0))/gn
-            let freq = {}
-            for word in uniq(sort(copy(words)))
-                let freq[word] = count(words, word)
-            endfor
-            echo freq
-        endfu
-        10Time sil call Func()
+    fu Func()
+        let words = []
+        %s/\<\k\+\>/\=add(words, submatch(0))/gn
+        let freq = {}
+        for word in uniq(sort(copy(words)))
+            let freq[word] = count(words, word)
+        endfor
+        echo freq
+    endfu
+    10Time sil call Func()
 
-        fu Func()
-            let words = []
-            %s/\<\k\+\>/\=add(words, submatch(0))/gn
-            let freq = {}
-            for word in words
-                let freq[word] = get(freq, word, 0) + 1
-            endfor
-            echo freq
-        endfu
-        10Time sil call Func()
+    fu Func()
+        let words = []
+        %s/\<\k\+\>/\=add(words, submatch(0))/gn
+        let freq = {}
+        for word in words
+            let freq[word] = get(freq, word, 0) + 1
+        endfor
+        echo freq
+    endfu
+    10Time sil call Func()
 
 Indeed, assuming your list contains 10  unique words, you would invoke `count()`
 10 times.

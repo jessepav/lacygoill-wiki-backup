@@ -1,8 +1,8 @@
 # Refactoring
 ## When should we
-### pass `W` and `c` to `search()`?
+### pass `W`, `c` or `z` to `search()`?
 
-I think we definitely need to pass it in a while loop.
+I think we definitely need to pass `c` in a while loop.
 And if `search()` is passed `b`, I  think `W` should be passed too, even outside
 a loop.
 Otherwise, you're allowing Vim to wrap around  the end of the file, and it could
@@ -14,6 +14,9 @@ exceptions...
 
     :vim /\m\Csearch\%(pos\|pair\|pairpos\)\=(\%(.*W\)\@!)\@!/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
     Cfilter! -other_plugins
+
+As for `z`, does it improve the perf?
+If so, should we have passed it to `search()` and `searchpos()` all the time?
 
 ---
 

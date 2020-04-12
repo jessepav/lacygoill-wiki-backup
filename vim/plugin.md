@@ -758,12 +758,12 @@ Alternative:
 gitv is  nice. But I needed  a faster, and possibly  simpler alternative that I  can use
 with a project with thousands of commits.
 
-<https://github.com/junegunn/gv.vim> 299 sloc
+<https://github.com/junegunn/gv.vim> 298 sloc
 
 
 A lightweight and powerful git branch viewer for vim.
 
-<https://github.com/rbong/vim-flog> 860 sloc
+<https://github.com/rbong/vim-flog> 1787 sloc
 
 ## golden-ratio
 

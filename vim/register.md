@@ -98,7 +98,7 @@ Characterwise.
     echo getregtype('a')
     v~
 
-### and the second argument is a list of strings?
+#### and the second argument is a list of strings?
 
 Linewise.
 
@@ -117,9 +117,9 @@ This redirects the output of `cmd` inside the register `q`.
 
 `:silent` makes sure *all* the output is redirected into the register.
 
-If the  output is long,  it may  be displayed in  Vim's pager; if  that happens,
-you'll need to scroll to reach the  end, otherwise the redirection will miss all
-the lines which were never displayed; `:silent` avoids this pitfall.
+If  the output  is too  long, it  may  be displayed  in Vim's  pager; when  that
+happens, you need  to scroll to reach the end,  otherwise the redirection misses
+all the lines which were never displayed; `:silent` avoids this pitfall.
 
 ### How to do the same thing without overwriting the current contents of the register?  I just want to append.
 
@@ -130,7 +130,7 @@ Uppercase the register name:
 
 #### That's not possible for the system clipboard!
 
-Append `>>` to the register name:
+You can also append `>>` to the register name:
 
     :redir @+>> | sil! cmd | redir END
              ^^
@@ -183,8 +183,8 @@ See `:h function-search-undo`.
     outside func call~
 
 Warning: Do *not*  use our custom  `+s` operator to  source this code;  it would
-interfere with the results.  Do *not* run the code via `:@*` after selecting it;
-it wouldn't work as expected either.
+interfere with the results.  And do *not* run the code via `:@*` after selecting
+it; it wouldn't work as expected either.
 
 Instead, write the code in a file, and source it with `:so%`.
 
@@ -195,6 +195,7 @@ When you set it manually via `:let` or `setreg()`.
     s/outside func call//ne
     fu! Func()
         let @/ = 'inside func call'
+      " ^^^
     endfu
     call Func()
     echo @/
@@ -289,8 +290,8 @@ Vim resets  the search register  with the pattern used  in the last  `:s`, `:g`,
     :s/sub//en
     /slash
     :let @/ = ''
-    " 'n' jumps to the next occurrence of 'sub'
     norm! n
+    " 'n' jumps to the next occurrence of 'sub'
 
 #### What if I also remove the search register from the history (`:call histdel('/', @/)`) before pressing `n`?
 
@@ -300,8 +301,8 @@ Vim adds the search register back into the history.
     /slash
     :call histdel('/', @/)
     :let @/ = ''
-    " 'n' still jumps to the next occurrence of 'sub'
     norm! n
+    " 'n' still jumps to the next occurrence of 'sub'
 
 ###
 ## Which features are specific to the expression register `"=`?  (2)
@@ -582,7 +583,7 @@ the current cursor position.
 ##
 ## I need a macro for a complex edition.  How to simplify the process a little?
 
-Break it down in simple editions.
+Break it down into simple editions.
 Work out a reliable macro for each of them:
 
     qa
@@ -681,6 +682,8 @@ If you want to practice, run this:
              w
              @q
              q
+             gg
+             @q
 
 All the numbers should be incremented until the mark `s`.
 
@@ -850,7 +853,7 @@ This is documented at `:h redo-register`.
     " paste the first deleted line, anywhere else
     .
 
-You can also replace `p` with `P` to paste above:
+Replace `p` with `P` to paste above:
 
     "1P
     .
@@ -1020,6 +1023,27 @@ If you want to practice, run this:
 
 ##
 # Pitfalls
+## `@@` does not replay my last macro as expected!
+
+The last macro is not necessarily the one you've executed interactively.
+Indeed, the latter could have executed another (nested) macro.  If so, then this
+other macro *is* the last one.
+
+    vim -Nu NONE +'let @a = "a@a\e@b" | let @b = "a @b \e"'
+    " press @a: '@a @b ' is inserted
+    " press @@: ' @b'    is inserted
+
+Here, notice how  `@@` repeats `@b`, even though the  last macro you've executed
+interactively was `@a`.
+
+---
+
+For this reason, you should avoid `@=` as much as possible in the rhs of a mapping.
+
+If you use such a mapping during  a recording, when you'll execute the resulting
+register (let's say it's `q`), the mapping will cause the last macro to be reset
+to `@=`.  Which means that – subsequently – `@@` will replay `@=` and not `@q`.
+
 ## During a recording, after `o` or `O`, do *not* press `C-u` to remove all the indentation of the current line.
 
 Prefer pressing `Escape` then `i`.

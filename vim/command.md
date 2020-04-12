@@ -748,6 +748,12 @@ Indeed, all the `:...do` commands are equivalent to the following snippets:
     │        │ :next     │
     │        │ :{cmd}    │
     │        │ ...       │
+    ├────────┼───────────┤
+    │ :bufdo │ :bfirst   │
+    │        │ :{cmd}    │
+    │        │ :bnext    │
+    │        │ :{cmd}    │
+    │        │ ...       │
     ├────────┼───────────┼────────┬───────────┐
     │ :cdo   │ :cfirst   │ :ldo   │ :lfirst   │
     │        │ :{cmd}    │        │ :{cmd}    │
