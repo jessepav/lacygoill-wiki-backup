@@ -363,6 +363,16 @@ Document this.
 
 ## ?
 
+> One annoyance with packages is `:helptags ALL` does not consider `opt` directories. Personally, I like having help documentation tags built for all packages, even optional ones.
+
+> Here is an "enhanced" command, `:Helptags`:
+
+>      command! -nargs=0 -bar Helptags for p in glob('~/.vim/pack/*/opt/*', 1, 1) | exe 'packadd '.fnamemodify(p, ':t') | endfor | silent! helptags ALL
+
+<https://www.reddit.com/r/vim/comments/g68bf6/pathogen_is_dead_or_should_be_long_live_vim_8/fo861i8/>
+
+## ?
+
 Could  we use  Vim packages  to eliminate  the separation  of plugins'  config
 between `~/.vim/plugin` and `~/.vim/after/plugin/`?
 

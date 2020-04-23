@@ -98,7 +98,7 @@ Characterwise.
     echo getregtype('a')
     v~
 
-#### and the second argument is a list of strings?
+### and the second argument is a list of strings?
 
 Linewise.
 
@@ -220,7 +220,7 @@ No:
       ^^^^^^
       after the function call, the dot register has not been restored
 
-But, it doesn't matter.
+But it doesn't matter.
 The redo command `.` is not affected; it keeps its original behavior:
 
     norm! o" outside
@@ -235,7 +235,7 @@ The redo command `.` is not affected; it keeps its original behavior:
     " inside~
     " outside~
       ^^^^^^^
-      after the function call, the dot command still repeats the last edition performed *before* the function call
+      after the function call, the dot command still repeats the last command performed *before* the function call
 
 In fact, as soon as you use it, the `.` register is restored:
 
@@ -450,13 +450,15 @@ But, oh well...
 
 If your text is  bigger than 1 line and you use a  deletion, then Vim writes the
 text in the register 1 *and* in the register you specified +1.
-For example, `"3dd` will delete the current line in the registers 1 and 4.
+For example, `"3dd` writes the current line in the registers 1 and 4.
 
     $ vim -Nu NONE -i NONE +"pu='some text'"
     "3dd
     :reg 123456789
     l  "1   some text^J~
     l  "4   some text^J~
+
+---
 
 In all other cases, the text is only written in the register you specified.
 
@@ -624,6 +626,25 @@ Had you pressed `@q` from normal  mode, the contents would have been interpreted
 as normal commands.
 
 Bottom line: how `@q` is interpreted depends on the current mode.
+
+---
+
+Note that this only works if `'cpo'` contains the `e` flag, which is the case by
+default.  If it does not, you'll need to press `CR` manually.
+
+    :set cpo-=e
+    :let @q = 'echo "test"'
+    :@q
+    " press CR
+
+From `:h cpo-e`:
+
+>     *cpo-e*
+>     ...
+>               If this flag is not present, the register
+>     is not linewise and the last line does not end in a
+>     <CR>, then the last line is put on the command-line
+>     and can be edited before hitting <CR>.
 
 ##
 ## How to execute a recursive macro?
@@ -969,24 +990,24 @@ Use a macro.
 
 Focus A, and press:
 
-   1. `gg0`: position the cursor on first character of first line
+   1. `gg`: jump to start of file
    2. `qqq`: empty register `q`
    3. `qq`: start recording in register 'q'
-   4. `^y$`: yank the file path
+   4. `^y$`: yank the current file path
    5. `C-w w`: focus file B
-   6. `?C-r " CR`: look for the file path you've just yanked in file B
-   7. `C-w w j`: focus back the listing A
-   8. `@q`: make the macro recursive
-   9. `q`: stop recording
-   10. `:set nows`: prevent the macro from being stuck in an infinite loop if no file path is missing
+   6. `G$`: jump to the end of the file
+   7. `? ^ \V C-r " \m $ CR`: look for the file path you've just yanked in file B
+   8. `C-w w j`: focus back the listing A and move to the next file path
+   9. `@q`: make the macro recursive
+   10. `q`: stop recording
 
 Now, from the top of the listing A, execute your macro `q`.
 If no error is raised, then all the files from the listing A are present in B.
 
-But if a file from the listing A is missing in B, then:
+But if a file from the listing A is missing in B, then `E486` should be raised:
 
-   - `E486` should be raised: `E486: Pattern not found: /path/to/missing/file`
-   - the cursor should be positioned on the last file path from A which was found in B
+    E486: Pattern not found: ^\V/path/to/missing/file\m$
+                                ^^^^^^^^^^^^^^^^^^^^^
 
 ---
 
@@ -1011,6 +1032,7 @@ If you want to practice, run this:
         update
         " focus file B
         wincmd w
+        %d
         " import listing A
         0r#
         " remove random existing line whose address is above or equal to 5
@@ -1038,12 +1060,36 @@ interactively was `@a`.
 
 ---
 
-For this reason, you should avoid `@=` as much as possible in the rhs of a mapping.
+During a recording, if  you use a mapping whose rhs contains  `@=` , when you'll
+execute the resulting register (let's say  `q`), the mapping will cause the last
+macro to be  reset to `@=`. Which  means that – subsequently –  `@@` will replay
+`@=` and not `@q`.
 
-If you use such a mapping during  a recording, when you'll execute the resulting
-register (let's say it's `q`), the mapping will cause the last macro to be reset
-to `@=`.  Which means that – subsequently – `@@` will replay `@=` and not `@q`.
+### How to avoid this pitfall in the future?
 
+You could  install wrapper mappings around  `@` and `@@` to  save/re-execute the
+last register which was executed *interactively*.
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        let @a = "a@a\e@b" | let @b = "a @b \e"
+
+        nmap <expr><unique> @ <sid>fix_macro_execution()
+        fu s:fix_macro_execution() abort
+            let char = nr2char(getchar(), 1)
+            if empty(reg_executing())
+                let s:last_register_executed_interactively = char
+            endif
+            return '@'..char
+        endfu
+
+        nmap <expr><unique> @@ <sid>atat()
+        fu s:atat() abort
+            return '@'..get(s:, 'last_register_executed_interactively', '@')
+        endfu
+    EOF
+    )
+
+##
 ## During a recording, after `o` or `O`, do *not* press `C-u` to remove all the indentation of the current line.
 
 Prefer pressing `Escape` then `i`.
@@ -1063,11 +1109,47 @@ there's no indentation, `C-u` may remove the previous newline.
 
 ## When should I avoid `:let` to set the contents of a register?
 
-When its contents is intended to be executed as a macro, and it ends with a `CR`.
+When its contents is intended to be executed as a macro.
 
 ### Why?
 
-If you use `:let`, Vim will add a trailing `C-j`:
+If you've used an escape sequence to set some terminal key:
+
+    exe "set <m-f>=\ef"
+
+When you'll execute  the register, Vim will wrongly translate  the sequence into
+the terminal key:
+
+    vim -es -Nu NONE -S <(cat <<'EOF'
+        set ttm=10
+        exe "set <m-f>=\ef"
+        0pu=['b.', 'b.']
+        1
+        let @q = "ia.\ef.ac\e"
+        1,2norm! @q
+        %p
+        qa!
+    EOF
+    )
+
+    " outputs:
+
+        a.æ.acb.
+        a.æ.acb.
+
+    " expected:
+
+        a.b.c
+        a.b.c
+
+This issue does not affect a recording thanks to the patch [8.1.1003][1].
+I think that, during a recording, Vim  adds a no-op after any escape produced by
+pressing the Escape key interactively.
+
+---
+
+Besides, if  the value you  assign to  the register ends  with a `CR`,  Vim will
+append a literal `C-j`:
 
     let @q = ":\r"
     reg q
@@ -1089,8 +1171,6 @@ Example when `CR` is pressed in normal mode:
                   there needs to be a line after the one from which we press `@q`,
                   otherwise, `^M` would fail and Vim would stop executing the macro
 
----
-
 The issue is explained at `:h :let-@`:
 
 >     If the result of {expr1} ends in a <CR> or <NL>, the
@@ -1100,9 +1180,25 @@ The issue is explained at `:h :let-@`:
 `:let` sets a register ending with `CR` to linewise; and in a linewise register,
 a line must always end with `C-j`.
 
-### What should I do instead?
+#### How to avoid these issues?
 
-Use `setreg()` and pass it the third argument `c`:
+Replace any  escape character which is  not part of a  terminal escape sequence,
+with a `<c-\><c-n>` sequence:
+
+    " bad
+    let @q = "ia.\ef.ac\e"
+                 ^^^
+
+    " good
+    let @q = "ia.\<c-\>\<c-n>f.ac\e"
+                 ^^^^^^^^^^^^
+
+Don't use `<c-c>`; it would prevent `InsertLeave` from being fired.
+
+---
+
+If the  value you assign to  the register ends  with a `CR`, use  `setreg()` and
+pass it the third argument `c`:
 
     :call setreg('q', ":\<cr>", 'c')
                                  ^
@@ -1116,9 +1212,9 @@ Source: <https://groups.google.com/d/msg/vim_use/-pbK15zfqts/jfxLV8zXlC8J>
 # Issues
 ## I can't copy more than 4000 characters in the clipboard from Nvim!
 
-Nvim may be using `xsel(1x)`, which has [an issue][1].
+Nvim may be using `xsel(1x)`, which has [an issue][2].
 
-It has been fixed by [this PR][2].
+It has been fixed by [this PR][3].
 
 Update `xsel(1x)`, or compile it from source:
 
@@ -1205,11 +1301,12 @@ none fixed the issue:
 Worse,  with all  of them  – except  the last  one –  the type  is automatically
 converted from `^V` to `V`, inside the Nvim instance where the text is yanked.
 
-See also [this issue][3] (it may be related ... or not).
+See also [this issue][4] (it may be related ... or not).
 
 ##
 # Reference
 
-[1]: https://:github:.com/kfish/xsel/issues/13
-[2]: https://github.com/kfish/xsel/pull/16
-[3]: https://github.com/neovim/neovim/issues/1822
+[1]: https://github.com/vim/vim/releases/tag/v8.1.1003
+[2]: https://:github:.com/kfish/xsel/issues/13
+[3]: https://github.com/kfish/xsel/pull/16
+[4]: https://github.com/neovim/neovim/issues/1822

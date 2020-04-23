@@ -503,18 +503,18 @@ Use the compiled binary to reproduce the crash, *and* to extract a backtrace fro
 
 See `man gcc` for more info:
 
-> The output is sensitive to the effects of previous command-line
-> options, so for example it is possible to find out which
-> optimizations are enabled at -O2 by using:
+>     The output is sensitive to the effects of previous command-line
+>     options, so for example it is possible to find out which
+>     optimizations are enabled at -O2 by using:
 >
->         -Q -O2 --help=optimizers
+>             -Q -O2 --help=optimizers
 >
-> Alternatively you can discover which binary optimizations are
-> enabled by -O3 by using:
+>     Alternatively you can discover which binary optimizations are
+>     enabled by -O3 by using:
 >
->         gcc -c -Q -O3 --help=optimizers > /tmp/O3-opts
->         gcc -c -Q -O2 --help=optimizers > /tmp/O2-opts
->         diff /tmp/O2-opts /tmp/O3-opts | grep enabled
+>             gcc -c -Q -O3 --help=optimizers > /tmp/O3-opts
+>             gcc -c -Q -O2 --help=optimizers > /tmp/O2-opts
+>             diff /tmp/O2-opts /tmp/O3-opts | grep enabled
 
 ---
 
@@ -524,6 +524,23 @@ output bandwidth; you can test the latter, roughly, with these commands:
 
     $ yes | head -n 1000000 >two_megs.txt
     $ time cat two_megs.txt
+
+###
+### How to get the value of an expression referred to in the backtrace?
+
+    $ gdb /path/to/tmux /path/to/core
+    (gdb) set logging on
+    (gdb) p *ctx
+    (gdb) p *ctx->s
+    (gdb) p *ctx->s->grid
+    (gdb) p *s->grid
+    (gdb) quit
+
+The output should be in `gdb.txt`.
+Here,  `*ctx`,  `*ctx->s`,  `*ctx->s->grid`   and  `*s->grid`  are  examples  of
+expressions that the devs could ask you about.
+
+Source: <https://github.com/tmux/tmux/issues/2173>
 
 ###
 ### Tmux crashes, but it doesn't dump a core file!
@@ -541,12 +558,13 @@ output bandwidth; you can test the latter, roughly, with these commands:
 
 The backtrace should be in `gdb.txt`.
 
-##### I can't run any command in the shell.  What I type is not what is written on the command-line!
+---
 
-Maybe something in your zshrc is interfering.
-Write `return` at its top.
+FIXME: Because  of  `set follow-fork-mode  child`,  a  shell command-line  typed
+interactively may be "mangled".  For example,  typing `vim Enter`, may result in
+`i Enter`.  If you can't reproduce, try  to make sure you're starting a new tmux
+server (kill any existing server if necessary).
 
-#####
 #### How to get a trace?
 
     $ tmux -Lx kill-server

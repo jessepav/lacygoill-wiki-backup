@@ -90,9 +90,30 @@ alias is substituted in-place.
 
 ## altscreen
 
-Alternate screen setup for terminal Vim (Noevim doesn't seem to need this).
+Alternate screen setup for terminal Vim (Neovim doesn't seem to need this).
 
 <https://github.com/fcpg/vim-altscreen> 28 sloc
+
+The code can be boiled down to:
+
+    augroup NoAltScreen
+        au!
+        au VimEnter * call s:altscreen(v:true)
+        au VimLeave * call s:altscreen(v:false)
+    augroup END
+
+    fu s:altscreen(disable) abort
+        if a:disable
+            let [s:t_ti_save, s:t_te_save] = [&t_ti, &t_te]
+            let &t_ti = substitute(&t_ti, '\e\[?1049h', '', '')
+            let &t_te = substitute(&t_te, '\e\[?1049l', '', '')
+        else
+            if exists('s:t_te_save')
+                let &t_te = s:t_te_save
+                let &t_ti = s:t_ti_save
+            endif
+        endif
+    endfu
 
 ## AnkiVim
 

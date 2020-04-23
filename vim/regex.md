@@ -487,22 +487,25 @@ half-a-string at the end:
 The underlined text is *not* a full  string so it won't be matched by `"[^"]*"`,
 and it's not a not-a-string either, so it won't be matched by `[^"]*` either.
 
----
-
-The regex could be tweaked for parentheses:
-
-    \%(^\%(([^()]*)\|[^()]\)*\)\@<=,
-
-You can test this new regex against this line:
-
-    0.12 , 0.15 , (inside parentheses) , (inside parentheses, with, many, commas,)
-
 ### all commas *inside* a double-quoted string?
 
     \%(^\%("[^"]*"\|[^"]\)*"[^"]*\)\@<=,
                            ^^^^^^
                            only difference compared to the previous regex:
                            an unterminated string
+
+
+## all commas outside parentheses?
+
+    \%(^\%(([^()]*)\|[^()]\)*\)\@<=,
+
+Test it against this line:
+
+    0.12 , 0.15 , (inside parentheses) , (inside parentheses, with, many, commas,)
+
+### all commas *inside* parentheses?
+
+    \%(^\%(([^()]*)\|[^()]\)*([^()]*\)\@<=,
 
 ##
 ## a single-quoted string, which may include backslash-escaped single quotes

@@ -163,12 +163,12 @@ You need to use:
    * `-u NONE` to skip the plugins (like `--noplugin` would do)
      *and* the scripts sourcing the filetype/syntax/indent plugins
 
-        1: /usr/local/share/nvim/runtime/filetype.vim
-        2: /usr/local/share/nvim/runtime/ftplugin.vim
-        3: /usr/local/share/nvim/runtime/indent.vim
-        4: /usr/local/share/nvim/runtime/syntax/syntax.vim
-        5: /usr/local/share/nvim/runtime/syntax/synload.vim
-        6: /usr/local/share/nvim/runtime/syntax/syncolor.vim
+         1: /usr/local/share/nvim/runtime/filetype.vim
+         2: /usr/local/share/nvim/runtime/ftplugin.vim
+         3: /usr/local/share/nvim/runtime/indent.vim
+         4: /usr/local/share/nvim/runtime/syntax/syntax.vim
+         5: /usr/local/share/nvim/runtime/syntax/synload.vim
+         6: /usr/local/share/nvim/runtime/syntax/syncolor.vim
 
    * `-i NONE` to not write the ShaDa file
 

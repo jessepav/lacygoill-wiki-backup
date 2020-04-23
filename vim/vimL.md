@@ -229,6 +229,11 @@ If needed, refer to this document for details:
 Did we abuse the `i` flag?
 Search for `feedkeys()` everywhere.
 
+---
+
+1305 undo seq (`autoload/submode.vim`)
+1462 undo seq (`slow_call/submode.vim`)
+
 ## ?
 
 `:echo` doesn't expand  `<cword>`, which is expected; it  expects an expression,
@@ -378,7 +383,7 @@ rtp.  Si  le résultat  correspond à  un fichier  existant, il  est ajouté  à
 liste. `globpath()` retourne  la liste finale, une fois que  tous les chemins du
 rtp ont été utilisés.
 
-## ?
+---
 
     globpath(&rtp, '**/README.txt', 0, 1, 1)
 
@@ -392,6 +397,16 @@ Plus  généralement, `globpath()`  attend  2 arguments,  tous  2 des  expressio
 
    - la 1e doit stocker des chemins séparés par des virgules
    - la 2e un chemin relatif vers un fichier, incluant éventuellement des wildcards
+
+---
+
+`globpath()` is useful to get an overview of a type of files.
+Vim filetype plugins, C syntax plugins, lua indent plugins, keymap files, ...
+
+    echo globpath(&rtp, 'ftplugin/vim.vim')
+    echo globpath(&rtp, 'syntax/c.vim')
+    echo globpath(&rtp, 'indent/lua.vim')
+    echo globpath(&rtp, 'keymap/*.vim')
 
 ## ?
 
@@ -845,80 +860,6 @@ Use the second one if you don't know what other value(s) can be assigned to `var
 
 ##
 # Miscellaneous
-## When should I use
-### `==`, `==#`, `is#`?
-
-Here's what I recommend:
-
-   - use `is#` if one of the operand is a string
-
-   - use `==#` if one of the operand is a list/dictionary
-
-   - use `==` otherwise
-
----
-
-Note that you can't use `is#` if the operands are lists/dictionaries:
-
-    :echo ['a'] is# ['a']
-    0~
-
-    :echo {'k': 'v'} is# {'k': 'v'}
-    0~
-
-But you *can* if one of the operands is the *member* of a list/dictionary:
-
-    :echo ['a'][0] is# 'a'
-    1~
-
-    :echo ['a'][0] is# ['a'][0]
-    1~
-
-    :echo {'k': 'v'}.k is# 'v'
-    1~
-
-    :echo {'k': 'v'}.k is# {'k': 'v'}.k
-    1~
-
----
-
-For  a list,  `==#` is  only useful  if  it contains  at least  one string  with
-alphabetical characters; but let's make things  simple: one operator per type of
-data.
-
-### the function-local scope `l:`, explicitly?  (2)
-
-When your variable stores a funcref without any scope.
-
-If you don't, there is a risk of conflict with a public function.
-
----
-
-When your variable name is one of:
-
-   - count
-   - errmsg
-   - shell_error
-   - this_session
-   - version
-
-In that case, without an explicit scope, Vim assumes `v:`.
-
-Source: <https://github.com/Kuniwak/vint/issues/245#issuecomment-337296606>
-
-It seems to be true, if you look at the source code:
-<https://github.com/vim/vim/blob/a050b9471c66b383ed674bfd57ac78016199d972/src/evalvars.c#L38-L61>
-
-If you search for `VV_COMPAT`, you only find these 5 variables atm.
-
-If you're concerned by  a conflict with a `v:` variable, write  this line at the
-top of your script:
-
-    :scriptversion 3
-                   ^
-                   or any number bigger than 3
-
-##
 ## How can the following assignment be simplified?
 
     let test = var == 123 ? 1 : 0
@@ -1032,27 +973,20 @@ Usage example:
     /usr/bin/git~
 
 ##
-## Why should I prefix any call to `system[list]()` with `:silent`?
+## How to get the length of the longest line in the current buffer?
 
-When vim is running, the terminal is in “raw” mode: it sends a character as soon
-as it receives one.
+    echo max(map(getline(1, '$'), 'strchars(v:val, 1)'))
 
-But when  you execute  a shell  command (via `:!`  or `system()`),  the terminal
-switches to “cooked” mode: it buffers the received characters until a CR.
+Or:
 
-This allows the terminal to implement some rudimentary line-editing functions.
-But when the  terminal is in cooked  mode, some stray characters may  be left on
-the screen, forcing you to `:redraw`.
+    echo max(map(range(1, line('$')), 'virtcol([v:val, "$"])')) - 1
+                                                                ^^^
 
-MWE:
+Note that the reason for `-1` is explained at `:h virtcol()`:
 
-    :call system('sleep 3')
-    " smash the 'l' key
-    " ✘ `l` is printed on the command-line~
-
-    :sil call system('sleep 3')
-    " smash the 'l' key
-    " ✔ nothing is printed on the command-line~
+>     $	    the end of the cursor line (the result is the
+>             number of displayed characters in the cursor line
+>             **plus one**)
 
 ## How to get the path to the parent of
 ### a given file?
@@ -1090,46 +1024,6 @@ directory exists.
 
 This has an effect on the `:h` modifier, because the latter considers a trailing
 slash as a (empty) path component.
-
-##
-## When can I *not* add a comma after the last item of a list?
-
-When the list is the left operand of an assignment (`:h :let-unpack`):
-
-    let [a,b,c,] = [1,2,3]
-    "         ^
-    "         ✘
-    E475: Invalid argument: ] = [1,2,3]~
-
-## Why should I avoid
-### replacing `matchstr()->len()` with `matchend()`?
-
-They are not always equivalent:
-
-    " equivalent
-    :echo matchend('### title', '^#\+')
-    3~
-    :echo matchstr('### title', '^#\+')->len()
-    3~
-
-    " NOT equivalent
-    :echo matchend('title', '^#\+')
-    -1~
-    :echo matchstr('title', '^#\+')->len()
-    0~
-
-### `:k` or `:mark` to set a mark on the current position, and prefer `:norm! m` instead?
-
-With  `:k`   and  `:mark`,  the   column  position  always  matches   the  first
-non-whitespace character on the line.
-Because of this,  jumping to the mark  doesn't always restore the  cursor on the
-original position where you set the mark; you lose the column position.
-
-    " execute this command while your cursor is on the `a` character
-    :k a
-    :echo getpos("'a")[2]
-    5~
-    " the original column was 8
 
 ##
 ## How to play a sound?
@@ -1228,8 +1122,145 @@ See also:
 <https://vi.stackexchange.com/questions/22374/why-are-inclusion-guards-used-in-vim-plugins>
 
 ##
+## When should I use
+### `==`, `==#`, `is#`?
+
+Here's what I recommend:
+
+   - use `is#` if one of the operand is a string
+
+   - use `==#` if one of the operand is a list/dictionary
+
+   - use `==` otherwise
+
+---
+
+Note that you can't use `is#` if the operands are lists/dictionaries:
+
+    :echo ['a'] is# ['a']
+    0~
+
+    :echo {'k': 'v'} is# {'k': 'v'}
+    0~
+
+But you *can* if one of the operands is the *member* of a list/dictionary:
+
+    :echo ['a'][0] is# 'a'
+    1~
+
+    :echo ['a'][0] is# ['a'][0]
+    1~
+
+    :echo {'k': 'v'}.k is# 'v'
+    1~
+
+    :echo {'k': 'v'}.k is# {'k': 'v'}.k
+    1~
+
+---
+
+For  a list,  `==#` is  only useful  if  it contains  at least  one string  with
+alphabetical characters; but let's make things  simple: one operator per type of
+data.
+
+### the function-local scope `l:`, explicitly?  (2)
+
+When your variable stores a funcref without any scope.
+
+If you don't, there is a risk of conflict with a public function.
+
+---
+
+When your variable name is one of:
+
+   - count
+   - errmsg
+   - shell_error
+   - this_session
+   - version
+
+In that case, without an explicit scope, Vim assumes `v:`.
+
+Source: <https://github.com/Kuniwak/vint/issues/245#issuecomment-337296606>
+
+It seems to be true, if you look at the source code:
+<https://github.com/vim/vim/blob/a050b9471c66b383ed674bfd57ac78016199d972/src/evalvars.c#L38-L61>
+
+If you search for `VV_COMPAT`, you only find these 5 variables atm.
+
+If you're concerned by  a conflict with a `v:` variable, write  this line at the
+top of your script:
+
+    :scriptversion 3
+                   ^
+                   or any number bigger than 3
+
+##
+## Why should I prefix any call to `system[list]()` with `:silent`?
+
+When vim is running, the terminal is in “raw” mode: it sends a character as soon
+as it receives one.
+
+But when  you execute  a shell  command (via `:!`  or `system()`),  the terminal
+switches to “cooked” mode: it buffers the received characters until a CR.
+
+This allows the terminal to implement some rudimentary line-editing functions.
+But when the  terminal is in cooked  mode, some stray characters may  be left on
+the screen, forcing you to `:redraw`.
+
+MWE:
+
+    :call system('sleep 3')
+    " smash the 'l' key
+    " ✘ `l` is printed on the command-line~
+
+    :sil call system('sleep 3')
+    " smash the 'l' key
+    " ✔ nothing is printed on the command-line~
+
+## When can I *not* add a comma after the last item of a list?
+
+When the list is the left operand of an assignment (`:h :let-unpack`):
+
+    let [a,b,c,] = [1,2,3]
+    "         ^
+    "         ✘
+    E475: Invalid argument: ] = [1,2,3]~
+
+##
+## Why should I avoid
+### replacing `matchstr()->len()` with `matchend()`?
+
+They are not always equivalent:
+
+    " equivalent
+    :echo matchend('### title', '^#\+')
+    3~
+    :echo matchstr('### title', '^#\+')->len()
+    3~
+
+    " NOT equivalent
+    :echo matchend('title', '^#\+')
+    -1~
+    :echo matchstr('title', '^#\+')->len()
+    0~
+
+### `:k` or `:mark` to set a mark on the current position, and prefer `:norm! m` instead?
+
+With  `:k`   and  `:mark`,  the   column  position  always  matches   the  first
+non-whitespace character on the line.
+Because of this,  jumping to the mark  doesn't always restore the  cursor on the
+original position where you set the mark; you lose the column position.
+
+    " execute this command while your cursor is on the `a` character
+    :k a
+    :echo getpos("'a")[2]
+    5~
+    " the original column was 8
+
+##
 # Issues
-## Why does  `:call system('grep -IRn pat * | grep -v garbage >file')`  fail to capture the standard error in file?
+## Why does  `:call system('grep -IRn pat * | grep -v garbage >file')`  fail to capture the standard error in `file`?
 
 The pipe between the  two greps redirects only the standard  output of the first
 grep, not its standard error.

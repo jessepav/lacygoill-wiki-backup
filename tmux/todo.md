@@ -939,6 +939,20 @@ the location: left part? right part? window list?
     " in other program, press "tmux prefix" + "p" (which is currently bound to choose-buffer + paste-buffer)
 
 ##
+## when searching for a pattern in copy mode, only the matches in the current screen are considered
+
+In the past, *any* match in the scrollback buffer was considered.
+Not anymore since this commit: <https://github.com/tmux/tmux/commit/a20d96000e7b04962105242883c91655833809da>
+
+## the `-s` flag of `copy-mode`
+
+When entering copy mode, you can specify an arbitrary pane for the source contents:
+
+    $ tmux copy-mode -t 1 -s 2
+
+This should enter copy mode in the  first pane, while displaying the contents of
+the *second* pane.
+
 ## the `display-popup` command
 
 Read this comment, and all the subsequent ones:

@@ -141,7 +141,7 @@ command, `<count>` will be replaced by `-1`.
 
 MWE:
 
-    com -nargs=* -range=0  Test  call Func(<count>)
+    com -nargs=* -range=0 Test call Func(<count>)
     fu Func(count)
         if !a:count
             echo 'the command was executed WITHOUT count'

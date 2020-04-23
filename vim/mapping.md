@@ -480,181 +480,260 @@ Then, `mode(1)` evaluates to 'no', or 'nov', or 'noV' or 'no^V'.
     " press y C-v C-e: no^V
 
 ##
-## ?
+## I'm saving information about this mapping:
 
-    if empty(maparg('-', 'n'))
+    nno <m-b> :call <sid>func()<cr>
+    fu s:func()
+        echo 'mapping is working'
+    endfu
+    let save = maparg('<m-b>', 'n', 0, 1)
 
-Test whether `-` is mapped to sth in normal mode.
+### What's wrong with the code?  (2)
 
----
+The `lhs` key is translated:
 
-    echo hasmapto('abc', 'n')
-
-Retourne 1 s'il existe un mapping en mode normal, dont le rhs contient `abc`.
-0 autrement.
-
-Utile dans un plugin pour vérifier  si l'utilisateur a déjà associé une séquence
-de touches à un `<plug>` mapping.
-
----
-
-    echo mapcheck('abc', 'n')
-
-Retourne le rhs d'un mapping en mode normal si:
-
-   - `abc` est le début de son lhs (`'lhs' =~ '^abc'`)
-   - ou inversement si le lhs d'un mapping est le début de `abc` (`'abc' =~ '^lhs'`)
-
-Si `abc` est le début du lhs d'un mapping (ex: `abcd`), alors définir un nouveau
-mapping dont le  lhs est `abc` posera  pb car lorsqu'on appuiera  sur `abc`, Vim
-attendra 3s (&timeoutlen) avant d'exécuter le rhs.
-
-Réciproquement, si le  lhs d'un mapping débute  de la même façon  que `abc` (ex:
-`ab`), alors définir un  nouveau mapping dont le lhs est  `abc` posera là encore
-pb, car lorsqu'on appuiera sur `ab`, Vim attendra 3s avant d'exécuter son rhs.
-
-En testant que  la sortie de `mapcheck('abc')` est bien  vide, on peut s'assurer
-dans un script qu'on peut définir un  nouveau mapping dont le lhs est `abc` sans
-qu'il  n'y ait  jamais d'ambiguïté  (pour `abc`  ou pour  un autre  qui commence
-pareil: `a`, `ab`).
-
-## ?
-
-Document  that the  `lhs` key  in the  output of  `maparg()` (with  the `{dict}`
-argument) is not reliable:
-
-    :nno <buffer> <m-b> :echo 'm-b'<cr>
-    :echo maparg('<m-b>', 'n', 0, 1).lhs
+    echo save.lhs
     â~
 
-You can still use it to save/restore a mapping:
+This doesn't prevent you from saving/restoring a mapping:
 
-    :let maparg = maparg('<m-b>', 'n', 0, 1)
-    :nunmap <buffer> <m-b>
-    :exe 'nno <buffer> '..maparg.lhs..' :echo "m-b"<cr>'
-    :nno <m-b>
+    nno <m-b> :echo 'm-b'<cr>
+    let save = maparg('<m-b>', 'n', 0, 1)
+    nunmap <m-b>
+    exe 'nno '..save.lhs..' '..save.rhs
+
+    nno <m-b>
     No mapping found~
+
     " press M-b: 'm-b' is displayed
 
-But as you can see, you wouldn't be able to refer to it via the same notation.
+But as you  can see, after the restoration,  you can't refer to it  via the same
+notation in a `:map` command, which is unexpected.
 
 ---
 
-Similarly, document that the `rhs` key does not translate `<sid>`.
+Pseudo-keys (like `<sid>`) are *not* translated in the `rhs` key:
 
-Instead of translating it manually via `substitute()` and the `sid` key, you can
-use the output of `maparg()` without the `{dict}` argument.
-Note that in the  latter, a bar is represented via a literal  `|`; if you intend
-to use this rhs to restore a mapping, you need to escape a bar.
+    echo save.rhs
+    :call <sid>func()<cr>~
 
-See what we did in `s:maparg()` in:
+When you  later try to  restore the mapping, `<sid>`  will be translated  in the
+context of the current script, which  will probably be different than the script
+where `s:func()` was originally defined; IOW, the translation will be wrong.
 
-    ~/.vim/plugged/vim-lg-lib/autoload/lg/map.vim
+---
 
 All  the other  keys should  not cause  any issue;  they are  either numbers  or
 boolean flags, so there's nothing to translate.
 
-## ?
+### How to fix it?
 
-Document how `maparg()` reacts when:
+    nno <m-b> :call <sid>func()<cr>
+    fu s:func()
+        echo 'mapping is working'
+    endfu
 
-   - you ask for info about a mapping in `nvo` mode (via empty string)
-   - there's no mapping in `nvo` mode
-   - there *is* a mapping in some subset of `nvo`
+    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+    let fix = {'lhs': '<m-b>', 'rhs': escape(maparg('<m-b>', 'n'), '|')}
+    let save = extend(maparg('<m-b>', 'n', 0, 1), fix)
+               ^^^^^^                             ^^^
 
-It outputs the mapping which was installed last:
+Note that  the fix relies  on the fact  that `maparg()`, *without*  the `{dict}`
+argument, *does* translate pseudo-keys.
+But after `maparg()`  translates `<bar>` into a literal bar,  you need to escape
+it to prevent it from terminating a mapping command (hence the `escape()`).
 
-    unmap <c-q>
+##
+## What is a pseudo-mode?
+
+The term is not used in the official  documentation, but we use it to refer to a
+collection of  modes which can appear  for a single  mapping in the output  of a
+`:map` command  (or a  similar command  for other  modes), or  in the  output of
+`maparg()`.
+
+A pseudo-mode is not  a real mode, because you can't be in  several modes at the
+same time.
+
+---
+
+For  example, `:map`  and `maparg()`  use a  space to  describe the  pseudo-mode
+matching normal mode, visual/select mode, and operator-pending mode:
+
+    noremap <c-q> <esc>
+    map <c-q>
+       <C-Q>       * <Esc>~
+    ^
+    echo maparg('<c-q>', '', 0, 1).mode is# ' '
+    1~
+
+Similarly, `:map!` and  `maparg()` use `!` to describe  the pseudo-mode matching
+insert mode and command-line mode:
+
+    noremap! <c-q> <esc>
+    imap <c-q>
+    !  <C-Q>       * <Esc>~
+    echo maparg('<c-q>', 'i', 0, 1).mode
+    !~
+
+And `:vmap` and  `maparg()` use `v` to describe the  pseudo-mode matching visual
+and select mode:
+
+    vnoremap <c-q> <esc>
+    vmap <c-q>
+    v  <C-Q>       * <Esc>~
+    echo maparg('<c-q>', 'i', 0, 1).mode
+    v~
+
+### In the next snippet, what is the pseudo-mode in the output of `:map` and `maparg()`?
+
+    noremap <c-q> <esc>
+    nunmap <c-q>
+
+    map <c-q>
+↣
+    ov <C-Q>       * <Esc>~
+    ^^
+↢
+
+    echo maparg('<c-q>', '', 0, 1).mode
+↣
+    ov~
+↢
+
+#### Explain the result.
+
+When a mapping  is installed in a  pseudo-mode, then removed in one  of the real
+modes  contained in  this pseudo-mode,  `:map`  and `maparg()`  don't break  the
+mapping into several (one for each remaining mode).
+
+---
+
+This  creates another  category  of pseudo-modes  in which  a  mapping can't  be
+installed via a single mapping command (you always need an extra `:unmap` command):
+
+    sil! unmap <c-q>
+    map <c-q> <nop>
+    nunmap <c-q>
+    map <c-q>
+    ov <C-Q>         <Esc>~
+    ^^
+
+    sil! unmap <c-q>
+    map <c-q> <nop>
+    vunmap <c-q>
+    map <c-q>
+    no <C-Q>         <Esc>~
+    ^^
+
+    sil! unmap <c-q>
+    map <c-q> <nop>
+    ounmap <c-q>
+    map <c-q>
+    nv <C-Q>         <Esc>~
+    ^^
+
+    sil! unmap <c-q>
+    map <c-q> <nop>
+    xunmap <c-q>
+    map <c-q>
+    nos<C-Q>         <Esc>~
+    ^^^
+
+    sil! unmap <c-q>
+    map <c-q> <nop>
+    sunmap <c-q>
+    map <c-q>
+    nox<C-Q>         <Esc>~
+    ^^^
+
+### What about this snippet?
+
+    noremap <c-q> <esc>
+    nunmap <c-q>
+    nnoremap <c-q> <esc>
+
+    map <c-q>
+↣
+    n  <C-Q>       * <Esc>~
+    ov <C-Q>       * <Esc>~
+↢
+
+    echo maparg('<c-q>', '', 0, 1).mode
+↣
+    n~
+↢
+
+#### Explain the result.
+
+When you re-install the exact same mapping, Vim does not merge back the mappings
+into a single one (using a "bigger" pseudo-mode).
+
+### What about this one?
+
+    sil! unmap <c-q>
     nnoremap <c-q> <esc>
     xnoremap <c-q> <esc><esc>
     snoremap <c-q> <esc><esc><esc>
     onoremap <c-q> <esc><esc><esc><esc>
 
-    map <c-q>
-    o  <C-Q>       * <Esc><Esc><Esc><Esc>~
-    s  <C-Q>       * <Esc><Esc><Esc>~
-    x  <C-Q>       * <Esc><Esc>~
-    n  <C-Q>       * <Esc>~
-
     echo maparg('<c-q>', '')
+↣
     <Esc><Esc><Esc><Esc>~
+↢
 
-Also,  document what  happens when  a mapping  is installed  in `nvo`  mode (via
-`:map` or `:noremap`), then  you remove a mapping in one of  the modes `n`, `x`,
-`s`, `v`, `o`.
+#### Explain the result.
 
-    noremap <c-q> <esc>
-    nunmap <c-q>
-    map <c-q>
-    ov <C-Q>       * <Esc>~
-    ^^
-    echo maparg('<c-q>', '', 0, 1).mode
-    ov~
+If:
 
-It seems that Vim does not break the remaining mapping into several mappings (one for each mode).
+   - you ask for info about a mapping in the pseudo-mode `''` (aka `nvo`)
+   - there is no mapping in this pseudo-mode
+   - but there *is* a mapping in `n`, `x`, `s`, or `o` mode
 
-And document what happens when you re-install the exact same mapping.
+then `maparg()` outputs the mapping which was installed last.
 
-    nnoremap <c-q> <esc>
-    map <c-q>
-    n  <C-Q>       * <Esc>~
-    ov <C-Q>       * <Esc>~
-    echo maparg('<c-q>', '', 0, 1).mode
-    n~
+##
+# Tests
+## My plugin needs to install a mapping on `abc`.
+### How to check whether it will cause a timeout for some other mapping?
 
-It seems that Vim does not merge back the mappings into a single one (with the mode `nvo`).
+    if empty(mapcheck('abc', 'n'))
+        " can install mapping on `abc`
+    endif
 
----
+`mapcheck()` returns an empty string iff none of these statements is true:
 
-Define  the  concept  of  "pseudo-mode".   It  doesn't  exist  in  the  official
-documentation, but we could use it to refer to `nvo`, `ic`, and `v`.
+   - `abc` matches at the start of the lhs of an existing mapping
+   - the lhs of an existing mapping matches at the start of `abc`
 
-Also, document that there exists 5 other pseudo-modes:
+If the user has a mapping on `ab`, the new mapping on `abc` will cause a timeout for the latter.
+If the user has a mapping on `abcd`, it will cause a timeout for the new mapping on `abc`.
 
-    " ov
-    sil! unmap <c-q>
-    sil! unmap! <c-q>
-    map <c-q> <nop>
-    nunmap <c-q>
-    map <c-q>
+In the first case, `mapcheck('abc')` will return the rhs of the `ab` mapping.
+In the second case, `mapcheck('abc')` will return the rhs of the `abcd` mapping.
 
-    " no
-    sil! unmap <c-q>
-    sil! unmap! <c-q>
-    map <c-q> <nop>
-    vunmap <c-q>
-    map <c-q>
+### How to check whether `abc` is already mapped?
 
-    " nv
-    sil! unmap <c-q>
-    sil! unmap! <c-q>
-    map <c-q> <nop>
-    ounmap <c-q>
-    map <c-q>
+    if empty(maparg('abc', 'n'))
+        " `abc` is not mapped
+    endif
 
-    " nos
-    sil! unmap <c-q>
-    sil! unmap! <c-q>
-    map <c-q> <nop>
-    xunmap <c-q>
-    map <c-q>
+##
+## My plugin provides some feature via a `<plug>` mapping.
+### How to check whether the user has already mapped a key sequence to this `<plug>`?
 
-    " nox
-    sil! unmap <c-q>
-    sil! unmap! <c-q>
-    map <c-q> <nop>
-    sunmap <c-q>
-    map <c-q>
+    if !hasmapto('<plug>(abc)', 'n')
+        " no mapping is currently mapped to `<plug>(abc)`
+    endif
 
-But those can not be obtained via a single mapping command.
-You need at least 2 commands.
+Actually, `hasmapto()`  returns 1 iff  `<plug>(abc)` is contained  *anywhere* in
+the rhs of a mapping.  It doesn't need to be *exactly* the rhs of a mapping.
 
-Actually,  there is  another pseudo-mode:  "language" mode;  it includes  insert
-mode, command-line mode, and lang-arg mode.
-I don't recommend  documenting it, because it's tricky (e.g.  it's influenced by
-`'iminsert'` and `'keymap'`), and we never use it.
+Example:
 
-undo seq (map.vim): 2207
+    nno <plug>(abc) :echo 'some feature'<cr>
+    nmap cd "_yy<plug>(abc)"_yy
+    echo hasmapto('<plug>(abc)', 'n')
+    1~
 
 ##
 # Tricks
@@ -741,7 +820,275 @@ want to write sth like this instead:
     endfor
 
 ##
+# Miscellaneous
+## What's the exact effect of `set <M-d>=^[d`?
+
+It changes  how the  keys in the  typeahead buffer are  processed; it  makes Vim
+translate the sequence `Esc` + `d` into `<M-d>`.
+
+This is confirmed by the output of `set termcap`:
+
+    <ä>        ^[d~
+     ^
+     notice how Vim does not write <M-d>
+
+---
+
+But it does *not* change the way Vim encodes `<M-d>` internally:
+
+    $ vim -es -Nu NONE -S <(cat <<'EOF'
+        exe "set <m-d>=\ed"
+        nno <esc>d dd
+        0pu=['a', 'b', 'c']
+        2
+        call feedkeys("\<m-d>", 'x')
+        %p
+        qa!
+    EOF
+    )
+    a~
+    b~
+    c~
+
+Here, you may have thought that  `feedkeys()` would have written `<esc>d` in the
+typeahead buffer because of `set <m-d>=^[d`,  and as a result, the mapping would
+have deleted the text line `b`.
+
+However, that's not what happens.
+Vim still encodes `<M-d>` like `ä`;  so `feedkeys()` writes `ä` in the typeahead
+buffer, *not* `esc` + `d`, and thus the mapping is not used.
+
+Conclusion: it  does not work in  both ways; after running  this `:set` command,
+`<M-d>` and `^[d` are not equivalent.
+
+    ✔
+    esc + d ⇒ M-d
+
+    ✘
+    M-d ⇒ esc + d
+
+## What happens if I use the same key sequence to define several terminal keys?
+
+Vim uses the first one in its internal termcap db (`:set termcap`).
+What matters is the  order of the keys in the db; not  the order in which you've
+run your `:set <...>` commands.
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        exe "set <F10>=\ed"
+        nno <F10> :echo 'F10 was pressed'<cr>
+        exe "set <F5>=\ed"
+        nno <F5> :echo 'F5 was pressed'<cr>
+    EOF
+    )
+    " press 'Esc' + 'd': 'F5 was pressed' is printed
+
+In the last example, the `F5` mapping was used even though the `F10` key and the
+`F10` mapping were defined earlier.
+This is because `F5` comes before `F10` in the output of `:set termcap`.
+
+## When does Vim translate terminal keys (set with sth like `set <m-d>=^[d`)?
+
+When processing mappings; right before trying to expand the keys.
+It doesn't matter whether the keys *will be* remapped; what matters is that they
+*can* be remapped.
+
+    vim -es -Nu NONE -S <(cat <<'EOF'
+        exe "set <m-d>=\ed"
+        call feedkeys("i\<esc>d", 'x')
+        %p
+        qa!
+    EOF
+    )
+    ä~
+
+Here is what happened:
+
+    typeahead | executed
+    --------------------
+    <esc>d    |
+    <m-d>     |
+    ä         |
+
+There was no mapping  in the mappings table, and yet  Vim did translate `<esc>d`
+into `<m-d>`.  This is because `<esc>d` was fed without the `n` flag, so Vim had
+to try to expand the keys; but before doing so, it had to try to translate them.
+
+    vim -es -Nu NONE -S <(cat <<'EOF'
+        exe "set <m-d>=\ed"
+        ino <m-d> <esc>dd
+        0pu=['a', 'b', 'c']
+        2
+        call feedkeys("i\<esc>d", 'x')
+        %p
+        qa!
+    EOF
+    )
+    a~
+    c~
+
+This time,  there *was* a mapping,  and Vim used  it; the result can  only be
+explained  if the  terminal  keys  (here `<esc>d`)  were  translated (here  into
+`<m-d>`) *before* trying to expand them using mappings (here `ino <m-d> <esc>dd`).
+
+---
+
+This  is confirmed  by  yet 2  other  experiments where  `<esc>d`  is not  typed
+directly but expanded from a `<c-b>` mapping:
+
+    vim -es -Nu NONE -S <(cat <<'EOF'
+        exe "set <m-d>=\ed"
+        imap <c-b> <esc>dd
+        0pu='x'
+        call feedkeys("i\<c-b>", 'x')
+        %p
+        qa!
+    EOF
+    )
+    ädx~
+
+    vim -es -Nu NONE -S <(cat <<'EOF'
+        exe "set <m-d>=\ed"
+        ino <c-b> <esc>dd
+        0pu='x'
+        call feedkeys("i\<c-b>", 'x')
+        %p
+        qa!
+    EOF
+    )
+    ''~
+
+Here's what happened in the first experiment:
+
+    typeahead | executed
+    --------------------
+    <c-b>     |
+    <esc>dd   |
+    <m-d>d    |
+    äd        |
+              | äd
+
+And in the second one:
+
+    typeahead | executed
+    --------------------
+    <c-b>     |
+    <esc>dd   |
+              | <esc>dd
+
+`<esc>d` is  only translated in the  first experiment because it's  the only one
+where the mapping is recursive, and so Vim has to try to remap the keys one more
+time.
+
+##
 # Pitfalls
+## Why should I avoid a mapping with an `<Esc>` in its lhs?
+
+The terminal uses `Esc` to encode some special keys (e.g. arrow keys, function keys, ...).
+
+Now suppose you have this mapping:
+
+    nno <c-b><esc> :echo 'C-b Esc'<cr>
+    nno <c-b><up>  :echo 'C-b Up'<cr>
+
+And you  press `C-b Up`;  instead of  using your 2nd  mapping, Vim will  use the
+first one, and insert `A` in the buffer.
+
+Here's what happens:
+
+    typed  | typeahead              | executed
+    ------------------------------------------
+    C-b Up | C-b Esc O A            |
+           | :echo 'C-b Esc' CR O A |
+           |                        | :echo 'C-b Esc' CR O A
+
+Vim conflates the `Esc`  produced by the terminal when `Up`  is pressed, with an
+`Esc` typed interactively.
+
+This can lead to unexpected behaviors such as the one reported [here][2].
+
+From `LeoNerd` on the `#vim` irc channel.
+
+>     Yeah.. that's because vim's keyboard input system is stupid
+>     In vim- raw bytes arrive from the terminal, go into the map engine (which just looks to see if the
+>     headofqueue bytes match any of its mappings, and replace them if so), then bytes come out directly into
+>     the command system
+>     Whereas in nvim, raw bytes go into the termkey instance, which turns them into *keys*, and those *keys*
+>     are what goes into the map engine
+>     So the map engine is never confused by the individual component bytes that formed those keypresses
+>     Just like it isn't confused by the individual bytes that came across the X11 unix socket when in gvim
+>     mode, or.. any other stupid crazy things that wouldn't be possible if it was actually sensible
+
+### What if `<Esc>` is used in the rhs of a mapping?
+
+If the mapping is non-recursive, it should be ok.
+Otherwise, replace it with `<C-\><C-n>` so that Vim's map engine can't get confused.
+
+In  general, in  the rhs  of  a mapping,  always write  `<C-\><C-n>` instead  of
+`<Esc>`; it's  more consistent, and  more future-proof (a  non-recursive mapping
+could be refactored into a recursive one in the future).
+
+---
+
+Example to illustrate the pitfall:
+
+    vim -es -Nu NONE -S <(cat <<'EOF'
+        exe "set <F31>=\ed"
+        imap <c-b> <esc>ddi
+        0pu=['a', 'b', 'c']
+        2
+        call feedkeys("i\<c-b>", 'x')
+        %p
+        qa!
+    EOF
+    )
+
+    " outputs:
+
+        a
+        <F31>dib
+        c
+
+    " instead of:
+
+        a
+        c
+
+Here is what I think happens:
+
+    typeahead | executed
+    --------------------
+    <c-b>     |
+    <esc>ddi  |
+    <F31>di   |
+              | <F31>di
+
+Replacing `<esc>` with `<c-\><c-n>` fixes the issue:
+
+    " bad
+    imap <c-b> <esc>ddi
+               ^^^^^
+
+    " good
+    imap <c-b> <c-\><c-n>ddi
+               ^^^^^^^^^^
+
+Now, this is what happens:
+
+    typeahead     | executed
+    --------------------
+    <c-b>         |
+    <c-\><c-n>ddi |
+                  | <c-\><c-n>ddi
+
+---
+
+The reason  why non-recursive mappings should  not be affected by  an `<esc>` in
+the rhs  is because Vim only  translates terminal keys *right  before* trying to
+expand them via mappings. If  the keys have been produced by  a mapping, and the
+latter is non-recursive,  then Vim can't expand them a  second time, and there's
+no need to translate terminal keys; so it just executes them.
+
+##
 ## My mapping ignores the count I prefixed it with!
 
 You may have a `:norm!` command somewhere which resets `v:count[1]` to 1.
@@ -790,6 +1137,216 @@ Note that the weight of `<plug>` is 3 bytes:
     :echo len("\<plug>")
     3~
 
+##
+## How to use a chord with the meta modifier in my mappings?
+
+                   ┌ terminal sequence encoding `M-b`
+                   ├─┐
+    exe "set <M-b>=\eb"
+    ino <M-b> ...
+
+### Now I can't insert some accented characters anymore!
+
+Yes, for example, if you have the mapping `ino <m-d> <c-o>de`, you can't insert `ä`.
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        exe "set <M-d>=\ed"
+        ino <M-d> <c-o>de
+        startinsert
+    EOF
+    )
+    " press the dead key '¨' followed by 'a': 'ä' is not inserted
+
+Solutions:
+
+Press `C-v` to suppress mappings:
+
+    C-v ¨ a
+
+From `:h i^v`:
+
+>     The characters typed right after CTRL-V are not considered for mapping.
+
+Or use a digraph:
+
+    C-k a "
+
+Or use replace mode:
+
+    r ¨ a
+
+Or use an equivalence class in a search command.
+
+#### But what causes this pitfall?
+
+When you try to insert `ä`, it's first written in the typeahead buffer.
+But internally, Vim encodes `ä` exactly as `<M-d>`:
+
+    vim -Nu NONE
+    :echo "\<m-d>"
+    ä~
+
+So, it's as if you had press `<M-d>`, which is then remapped according to your mappings.
+
+---
+
+The  reason  why Vim  encodes  `<M-d>`  like `ä`  is  probably  due to  history.
+Originally, I think terminals could encode up to 128 characters using seven bits
+(via a  standard named ASCII).   And to encode  chords using the  meta modifier,
+they flipped the eighth bit:
+
+    character | binary encoding | decimal code
+    ------------------------------------------
+      d       | 01100100        | 100
+    M-d       | 11100100        | 228
+                ^
+                flipped
+
+Later, terminals  switched to  extended ASCII  to encode  up to  256 characters.
+They needed the  eighth bit to encode  new characters; it could not  be used for
+meta anymore.  As  an example, the binary  code `11100100` could not  be used to
+encode `M-d` anymore; now it was meant to encode `ä`.
+
+So,  to encode  chords, terminals  switched to  a different  scheme; instead  of
+sending only 1 byte, they sent several, the first one always encoding the escape
+character.  As a result,  `M-d` is now encoded as `Esc` + `d`  (at least by most
+terminals including xterm).
+
+From the terminal's  point of view, there's no ambiguity  between `M-d` and `ä`;
+it sends different sequences for the two characters.
+But Vim, up to this day, still encodes `<M-d>` just like `ä`.
+
+This is my understanding based on this answer:
+<https://vi.stackexchange.com/a/3570/17449>
+
+---
+
+Btw, you can check that all  the previous binary/decimal codes are correct, from
+Vim, by running:
+
+    :echo char2nr('d')
+    100~
+                                            decimal code of 'd'
+                                            vvv
+    :echo system('bc <<<"ibase=10; obase=2; 100"')[:-2]
+    1100100~
+                                              binary code of 'd' with an extra bit set on the left
+                                              vvvvvvvv
+    :echo system('bc <<<"ibase=2; obase=1010; 11100100"')[:-2]
+    228~
+    :echo nr2char('228')
+    ä~
+
+####
+#### I want a fix which doesn't require any extra input!
+
+Try this:
+
+    exe "set <F30>=\ed"
+    nno <F30> ...
+         ├─┘
+         └ arbitrary function key
+          (you want to choose one which you'll never use interactively, so forget about F1-F12)
+
+Example:
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        exe "set <F30>=\ed"
+        nno <F30> :echom 'I pressed M-d'<cr>
+    EOF
+    )
+    " press M-d: Vim logs the message 'I pressed M-d'
+
+---
+
+Note that you can use function keys up to the number 37.
+
+    :set <f37>
+    E846: Key code not set: <f37>~
+
+    :set <f38>
+    E518: Unknown option: <f38>~
+
+And you  can combine  a function  key with  the shift  modifier to  decrease the
+probability you'll ever need to use it interactively:
+
+    nno <S-F30> ...
+         ^^
+
+But you can't use any other modifier:
+
+    :set <c-f1>
+    E518: Unknown option: <c-f1>~
+
+    :set <m-f1>
+    E518: Unknown option: <m-f1>~
+
+---
+
+It works, but in practice, it's cumbersome to use because it's only necessary in
+Vim and only if the terminal is not  in modifyOtherKeys mode, so you have to use
+this kind of template when installing your meta mappings:
+
+    if has('nvim') || &t_TI =~# "\e[>4;2m"
+        nno <m-d> ...
+    else
+        nno <f30> ...
+    endif
+
+Besides, using function keys to refer to meta chords makes the code harder to read.
+
+##### How does this work?
+
+By telling Vim a lie:
+
+    exe "set <F30>=\ed"
+
+This tells Vim that  whenever it sees the sequence `Esc` +  `d` in the typeahead
+buffer, it must translate it into `<F30>`; which is wrong, but bear with me.
+
+From then, whenever you need to refer to `M-d` in a mapping, you write `<F30>`.
+As an example, you don't write this:
+
+    ino <M-d> <esc>id
+        ^^^^^
+        ✘
+
+But this:
+
+    ino <F30> <c-o>de
+        ^^^^^
+        ✔
+
+Now, when you'll try to insert `ä`, here's what happens:
+
+    typeahead | executed
+    --------------------
+    ä         |
+              | ä
+
+`ä` is not remapped  in the typeahead buffer because you  don't have any mapping
+whose lhs is `<M-d>` nor `ä`.
+
+###### Wait.  How does a mapping triggered by `<M-d>` still work if I never write the latter explicitly?
+
+You don't need the  key notation `<M-d>` to make Vim execute  sth when you press
+`M-d` in the terminal.
+
+Consider the previous code:
+
+    exe "set <F30>=\ed"
+    ino <F30> <c-o>de
+
+And suppose you press `M-d`; here's what happens:
+
+    typeahead | executed
+    --------------------
+    <esc>d    |
+    <F30>     |
+    <c-o>de   |
+              | <c-o>de
+
+####
 ## Sometimes, my autocmd listening to `InsertLeave` is not triggered!
 
 If you've quit insert mode by pressing `C-c`, `InsertLeave` was not fired.
@@ -833,6 +1390,40 @@ combination of `:exe` and another command:
     " after
     nno <buffer><nowait><silent> q :<c-u>wincmd p <bar> exe winnr('#')..'wincmd c'<cr>
                                                         ^^^              ^^^^^^
+
+##
+## `<nowait>` doesn't work!
+
+Try to install your mapping later.
+
+---
+
+The installation order of your mappings matters:
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        set showcmd timeoutlen=3000
+        nno <nowait> <c-b>  :echo "c-b was pressed"<cr>
+        nno          <c-b>x <nop>
+    EOF
+    )
+    " press C-b: you need to wait 3s for the message to be printed
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        set showcmd timeoutlen=3000
+        nno          <c-b>x <nop>
+        nno <nowait> <c-b>  :echo "c-b was pressed"<cr>
+    EOF
+    )
+    " press C-b: the message is printed immediately
+
+---
+
+In practice, you should not encounter this issue, because `<nowait>` is intended
+to prevent a global mapping from causing a timeout for a buffer-local mapping.
+
+And a buffer-local mapping is typically installed from a filetype plugin while a
+global mapping  is installed from a  regular plugin; regular plugins  are always
+sourced before any filetype plugin.
 
 ##
 # Issues
@@ -2118,4 +2709,4 @@ more verbose.
 # Reference
 
 [1]: https://github.com/tpope/vim-repeat/issues/63#issuecomment-390281441
-
+[2]: https://github.com/vim/vim/issues/2216

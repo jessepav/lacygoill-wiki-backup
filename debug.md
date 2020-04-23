@@ -236,3 +236,19 @@ to better understand the cause of the problem.
 Amplifying a  subtle problem, whose origin  is hard to locate  exactly, makes it
 more obvious.
 
+##
+# Pitfalls
+## Always write the *full path* to the binary of the program you're debugging.
+
+This is especially important with a program like Tmux.
+If you have a running server, any tmux command you execute will be run by the latter.
+But if you want to test a different binary, you need to specify its full path.
+
+## When debugging, script as much as you can.
+
+It's easy to make a typo or to forget to use a full path.
+Write  all the  commands  – or  as  many as  possible –  which  are required  to
+reproduce the issue in a script (or several), and run the latter.
+
+In a  script, you can still  make an error, but  once it's fixed, it  will never
+interfere in your experiments again.

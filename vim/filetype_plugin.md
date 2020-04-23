@@ -469,9 +469,9 @@ It will make sure you don't set the filetype twice.
 
 This is recommended at `:h 43.2`:
 
-> The "setf" command  will set the 'filetype' option to  its argument, unless it
-> was set already.
-> This will make sure that 'filetype' isn't set twice.
+>     The "setf" command  will set the 'filetype' option to  its argument, unless it
+>     was set already.
+>     This will make sure that 'filetype' isn't set twice.
 
 ### How to set the filetype of all files, in a directory, which don't have an extension (and only them!) to 'sh'?
 

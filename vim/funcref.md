@@ -343,6 +343,31 @@ you can't *write* it in an executed command:
 ##
 # ?
 
+Document that you can use `get()` to get some "properties" of a funcref.
+See `:h get() /func`:
+
+>     get({func}, {what})
+>                     Get an item with from Funcref {func}.  Possible values for
+>                     {what} are:
+>                             "name"      The function name
+>                             "func"      The function
+>                             "dict"      The dictionary
+>                             "args"      The list with arguments
+
+Found it used here: <https://vi.stackexchange.com/a/24654/17449>
+Although, it doesn't seem to be really needed in the answer (nor `call()`, nor `string()`):
+
+    fu InstallMapping(funcref) abort
+        exe printf('nno <buffer><nowait><silent> cd :<c-u>call %s()<cr>', a:funcref)
+    endfu
+    fu Func() abort
+        echom 'called from Func()'
+    endfu
+    call InstallMapping(function('Func'))
+    " press cd
+
+# ?
+
 Document that you don't need to assign a lambda to a variable in order to echo its output:
 
     :echo {-> 'test'}()

@@ -1134,133 +1134,106 @@ Also, document this:
 <https://news.ycombinator.com/item?id=11071976>
 
 ##
-# Commandes
-## bisect / blame
+# Commands
+## How to find the first commit from which some project exhibits a new behavior (like a bug)?
 
     $ git bisect start
-    $ git bisect bad
-    $ git bisect good v1.0
+    $ git bisect new
+    $ git bisect old v1.2.3
 
-Lance une recherche par dichotomie (“binary search“), en:
+`git bisect new` specifies that the current commit exhibits the new behavior.
+`git bisect old  v1.2.3` specifies that the commit tagged  `v1.2.3` exhibits the
+old behavior; you can also specify a commit via its sha1 (full or partial).
 
-   1. lançant `git bisect`
+git should check out a commit in the middle of the range of commits, between the
+"old" and "new" commits.  Test whether  the project exhibits the new behavior on
+this commit.  If you can, run:
 
-   2. indiquant que le commit courant est mauvais
+    $ git bisect new
 
-   3. indiquant que le commit portant le tag `v1.0` est bon on aurait pu aussi
-      se référer au commit via son sha1 (full ou partiel)
+If you can't, run:
 
-Une fois ces 3  commandes tapées, git sait quel est  l'ensemble des commits dans
-lequel se trouve le commit qui a conféré à notre projet le bug:
+    $ git bisect old
 
-    Bisecting: 6 revisions left to test after this
-    [ecb6e1bc347ccecc5f9350d878ce677feb13d3b2] error handling on repo
-
-Ici, `git bisect`  nous dit qu'il nous  a positionné sur le commit  au milieu de
-cet ensemble, et  qu'une fois qu'on lui  aura rapporté si ce dernier  est bon ou
-mauvais, l'ensemble ne contiendra plus que 6  commits (il doit en contenir 12 ou
-13 en ce moment).
-
-À  ce moment-là,  il faut  qu'on teste  le projet  dans l'état  où il  est, puis
-rapporter à `git bisect` s'il est bon  ou mauvais, via `git bisect good` ou `git
-bisect bad`.
-
-Le processus se répète jusqu'à ce que `git bisect` soit capable de dire quel est
-le commit ayant introduit un bug.
-Une fois terminé, il nous reste à exécuter:
+Repeat the process until git can tell you which commit introduced the new behavior.
+Once you're finished, run:
 
     $ git bisect reset
 
-... afin de repositionner HEAD sur le commit où on se trouvait avant d'invoquer `git bisect`.
+to get back on the commit you were on before running `git-bisect(1)`.
 
-If you can't test a commit (e.g. a compilation fails), you can skip it:
+### On some commit, I can't test the project!
+
+Run this:
 
     $ git bisect skip
 
-But then, git may be unable to find the offending commit.
+Note that git may be unable to find the desired commit.
 It should still narrow down the search to only a few candidates.
 
----
+### How to automate the process?
 
-Il ne faut pas donner trop de sens à “mauvais“ et “bon“.
-
-Si on veut chercher à savoir quel  commit a conféré à notre projet une propriété
-qui nous intéresse, on pourra utiliser:
-
-   - `$ git bisect bad`
-     pour désigner un état du projet dans lequel il dispose de la propriété
-
-   - `$ git bisect good`
-     pour désigner un état dans lequel il ne l'a pas
-
-Si la propriété qui nous intéresse est  un bug, alors “mauvais“ et “bon“ peuvent
-être interprétés littéralement.
-
-Mais si la  propriété est, au contraire,  la correction d'un bug,  alors le sens
-premier de ces mots doit être ignoré.
-
-C'est pourquoi, il vaut mieux les comprendre de la façon suivante:
-
-    “bad“  → “nouvel état“
-    “good“ → “ancien état“
-
-IOW, à chaque fois  qu'on doit rapporter à git si le projet  est bon ou mauvais,
-il faut se poser la question suivante:
-
-    Suis-je dans le nouvel état ? (bugué, pas bugué, osef)
-        Oui → bad
-        Non → good
-
-TODO: You can use the terms “old” and “new” in your commands.
-You can even use your own terms.
-
-See `man git-bisect`:
-
-> To support  this more general usage,  the terms "old"  and "new" can be  used in
-> place of "good" and "bad", or you can choose your own terms.
-> See section "Alternate terms" below for more information.
-
-Update the last paragraphs.
-
----
-
-                       ┌─ bad commit
-                       │    ┌─ good commit
+                       ┌ commit exhibiting new behavior
+                       │    ┌ commit exhibiting old behavior
                        │    │
-    $ git bisect start HEAD v1.0
-    $ git bisect run test-error.sh
+    $ git bisect start v3.4 v1.2
+    $ git bisect run /path/to/custom-script
 
-Recherche par dichotomie automatique.
+The custom script must exit with the error code:
 
-La 1e commande fournit à `git bisect` un mauvais et un bon commit.
+   - 0 if the old behavior can be reproduced on the current commit
+   - 1 if the new behavior can be reproduced
+   - 125 if there's no way to tell whether the old or new behavior can be reproduced
+     (e.g. the compilation fails)
 
-La 2e commande  lui fournit un script custom  dont la sortie est 0  si le projet
-est bon, ou une valeur non-nulle s'il est mauvais.
+You  can replace  the script  with any  shell command  which exits  with 0  or 1
+depending on whether the current commit exhibits the old or new behavior.
 
-À l'aide du  script, `git bisect` n'aura  plus besoin de nous pour  savoir si le
-commit du milieu est bon ou pas.
+###
+### After having marked some revisions as old/new, how to get a summary of what I have done so far?
 
-Il pourra donc trouver automatiquement le commit ayant conféré à notre projet la
-propriété intéressante.
+    $ git bisect log
 
-On peut remplacer le  script par n'importe quelle commande dont  la sortie est 0
-qd le projet est bon, ou une valeur non-nulle autrement.
+You should see sth like:
 
----
+    git bisect start
+    # new: [dd5299841a87c0bf842488f7f9feb84b7e37c819] Merge branch 'obsd-master'
+    git bisect new dd5299841a87c0bf842488f7f9feb84b7e37c819
+    # old: [bbcb19917447b960b355ace88ce25c70cf2fd245] 3.0 version.
+    git bisect old bbcb19917447b960b355ace88ce25c70cf2fd245
+    # old: [444e9f3c582b2d20800b0fe4aa363fb7e801cbc2] Bump 3.1-rc up to master.
+    git bisect old 444e9f3c582b2d20800b0fe4aa363fb7e801cbc2
+    # old: [450315aa74c9821ce1bc8c4d51f7ab4abf55993a] Merge branch 'obsd-master'
+    git bisect old 450315aa74c9821ce1bc8c4d51f7ab4abf55993a
+    # skip: [deffef6f1378db4986941dd9d83ba61f11142cd8] Reset background colour on scrolled line.
+    git bisect skip deffef6f1378db4986941dd9d83ba61f11142cd8
+
+### I made a mistake when marking a revision!
+
+    $ git bisect log >/tmp/git-bisect.log
+    $ vim /tmp/git-bisect.log
+    " edit the file to remove the entry matching the revision for which you specified a wrong status
+    $ git bisect reset
+    $ git bisect replay /tmp/git-bisect.log
+
+###
+### How to see the currently remaining commits which git is still bisecting?
 
     $ git bisect visualize
 
-See the currently remaining suspects.
-If you have installed  `gitk`, a GUI window will open  and offer different views
-in a  single screen (otherwise `$  git log` will  be invoked); in gitk,  you can
-navigate between the commits with the arrow keys.
+If you  have installed  `gitk(1)`, a  GUI window will  open and  offer different
+views in a single screen (otherwise `git-log(1)` will be invoked); in `gitk(1)`,
+you can navigate between the commits with the arrow keys.
+
+#### That's too verbose!
 
     $ git bisect visualize --oneline
+                           ^^^^^^^^^
 
-Same thing but much shorter (commit id,  tag, and first line of commit message);
-this time, `$ git log` is invoked no matter what.
+This time, `git-log(1)` is invoked no matter what.
 
----
+##
+## git-blame
 
     $ git blame -L 12,34 file
 
