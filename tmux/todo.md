@@ -939,6 +939,11 @@ the location: left part? right part? window list?
     " in other program, press "tmux prefix" + "p" (which is currently bound to choose-buffer + paste-buffer)
 
 ##
+## that a tmux buffer is now editable
+
+Press the `e` key while selecting a tmux buffer in buffer mode.
+<https://github.com/tmux/tmux/commit/cc19203be2aab1adc4930b18e46d522005159412>
+
 ## when searching for a pattern in copy mode, only the matches in the current screen are considered
 
 In the past, *any* match in the scrollback buffer was considered.
@@ -961,6 +966,25 @@ Read this comment, and all the subsequent ones:
 As a simple example, try this:
 
     $ tmux popup -xC -yC -w60 -h10 -R 'fzf <~/.shrc' -K -E
+
+---
+
+Another example:
+
+    bind -n DoubleClick1Pane if -F '#{m/r:^[^:]*:[0-9]+:,#{mouse_word}}' {
+            popup -w90% -h90% -KE -d '#{pane_current_path}' -R {
+                    vim $(echo #{mouse_word}|awk -F: '{print "+" $2,$1}')
+            }
+    } {
+            if -F '#{m/r:https?://([a-z0-9A-Z]+(:[a-zA-Z0-9]+)?@)?([a-z0-9A-Z][-a-z0-9A-Z]*\.)+[A-Za-z][-A-Za-z]*((:[0-9]+)?)(/[a-zA-Z0-9;/\.\-_+%\
+    ?&@=#\(\)~]*)?,#{mouse_word}}' {
+                    popup -w90% -h90% -KE -d '#{pane_current_path}' -R { w3m "#{mouse_word}" }
+            } {
+                    popup -w90% -h90% -KE -d '#{pane_current_path}' -R { vim "#{mouse_word}" }
+            }
+    }
+
+Tweaked from: <https://github.com/tmux/tmux/issues/1842#issuecomment-611618853>
 
 ## the `search-forward` and `search-backward` commands
 

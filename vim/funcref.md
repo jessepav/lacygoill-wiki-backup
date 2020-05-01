@@ -343,6 +343,81 @@ you can't *write* it in an executed command:
 ##
 # ?
 
+Document that expression strings are faster than lambdas.
+
+Test lambdas:
+
+    $ for i in {1..10}; do vim -es -i NONE -Nu <(cat <<'EOF'
+      let time = reltime()
+      call map(range(999999), {_,v-> v+1})
+      pu=matchstr(reltimestr(reltime(time)), '\v.*\..{,3}')..' seconds to run the command'
+      %p
+      qa!
+    EOF
+    ) ; done
+
+Results in seconds:
+
+    lambdas before 8.2.499:
+
+        4.236
+        4.270
+        4.204
+        4.409
+        4.316
+        4.356
+        4.448
+        4.369
+        4.250
+        4.248
+        -----
+        avg: 4.311
+
+    lambdas after 8.2.499:
+
+        1.032
+        1.004
+        1.125
+        1.179
+        1.120
+        1.066
+        1.030
+        1.045
+        1.147
+        1.194
+        -----
+        avg: 1.094
+
+---
+
+Test expression strings:
+
+    $ for i in {1..10}; do vim -es -i NONE -Nu <(cat <<'EOF'
+      let time = reltime()
+      call map(range(999999), 'v:val+1')
+      pu=matchstr(reltimestr(reltime(time)), '\v.*\..{,3}')..' seconds to run the command'
+      %p
+      qa!
+    EOF
+    ) ; done
+
+Results:
+
+    0.569
+    0.549
+    0.573
+    0.564
+    0.574
+    0.576
+    0.584
+    0.576
+    0.559
+    0.577
+    -----
+    avg: 0.57
+
+# ?
+
 Document that you can use `get()` to get some "properties" of a funcref.
 See `:h get() /func`:
 

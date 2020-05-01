@@ -75,45 +75,61 @@ I think that if you use `search()` to:
      respect its behavior.
      For example, `}` does not wrap, so if you customize it, it should still not wrap.
 
-### use `g@[l_]` vs `norm! g@[l_]` vs `feedkeys('g@[l_]', 'in')`?
+### use `g@[_l]` vs `norm! g@[_l]` vs `feedkeys('g@[_l]', 'n')`?
 
-In this mapping:
+I think you should use `g@[_l]` by default.
+And if you need to pass `v:count1` to the opfunc, use `:exe` + `:norm!`.
 
-    ~/.vim/plugged/vim-vim/after/ftplugin/vim.vim:116
+However, if  your opfunc invokes  an interactive command  (`z=`, `:s/pat/rep/c`,
+`:let c =  getchar()`, ...), `:norm!` will type Escape,  because it considers an
+interactive command as incomplete:
 
-we can't use `norm! g@l`, because our opfunc invokes `getchar()`.
-This is an INcomplete command: it requires our input to finish.
-Because of this, `:norm` would press `Escape` to abort.
+    " can't fix 'helzo' into 'hello'
+    :new | pu='helzo' | setl spell | norm! z=
+
+    " can't replace 'pat' with 'rep'
+    :new | pu='pat' | exe "norm! :s/pat/rep/c\r"
+
+    " can't get a character interactively
+    :exe "norm! :let g:char = getchar()\r"
+    :echo g:char
+    27~
+    ^^
+    escape
+
 From `:h :norm`:
 
 >     {commands} should  be a complete command.   If {commands} does not  finish a
 >     command, the last one will be aborted as if <Esc> or <C-C> was typed.
 
-See:
-
-    ~/.vim/plugged/vim-par/plugin/par.vim:87
-    ~/.vim/vimrc:3507
+To avoid this pitfall, you need to press `g@[_l]` via `feedkeys()` instead of `:norm!`.
 
 ---
 
-If we wanted to make this mapping dot repeatable (shoehorning an opfunc):
+Note that for some reason, `:norm!` does not seem to consider `:call input()` as
+incomplete:
 
-    ~/.vim/plugged/vim-doc/plugin/doc.vim:11
-    nno <silent><unique> K :<c-u>call doc#mapping#main('')<cr>
+    " you can type anything you want, as usual
+    :exe "norm! :let g:input = input('')\r"
 
-We wouldn't be able to use `norm! g@l` because the latter would reset `v:count`,
-and our function may rely on its original value.
+#### ?
 
-This is an argument in favor of avoiding `norm! g@l`.
-
----
-
-Look for `g@` everywhere, and read surrounding comments.
+Look for `feedkeys()` everywhere, and read surrounding comments.
 Summarize them in our notes about mappings.
 
-Do the same for `feedkeys()`.
-
 ---
+
+Example where the 't' flag is useful:
+
+    $ vim -Nu NONE +'cno <c-q> <tab>'
+    $ vim -Nu NONE +'cno <expr> <c-q> feedkeys("<tab>", "n")[-1]'
+    " press ':', then 'C-q' repeatedly:  Vim inserts literal tab characters
+
+                                                          v
+    $ vim -Nu NONE +'cno <expr> <c-q> feedkeys("<tab>", "nt")[-1]'
+    " press ':', then 'C-q' repeatedly:  Vim iterates over Ex commands
+
+#### ?
 
 Example where `g@l` causes an issue, and `norm! g@l` is needed:
 
@@ -135,13 +151,13 @@ Other example:
 Other example:
 <https://github.com/lervag/vimtex/pull/1247>
 
-Basically,  when `g@[l_]`  is  only preceded  by  `set opfunc=Func`,  everything
+Basically,  when `g@[_l]`  is  only preceded  by  `set opfunc=Func`,  everything
 should work fine.
 
-Otherwise, if `g@[l_]` is preceded by a function call (which sets 'opfunc'), and
+Otherwise, if `g@[_l]` is preceded by a function call (which sets 'opfunc'), and
 invokes a function which consumes  user input (`input()`, `getchar()`, ...), the
-latter may wrongly consume `g@[l_]`.
-In that case, use `norm! g@[l_]`.
+latter may wrongly consume `g@[_l]`.
+In that case, use `norm! g@[_l]`.
 
 However, if  your opfunc also invokes  a function consuming user  input, `norm!`
 won't work:
@@ -157,19 +173,19 @@ because:
    - we need to use a count – so `g@l` can't be pressed directly
    - the opfunc consumes user input so `norm! g@l` can't be used
 
----
+#### ?
 
 Decide what we should write by default:
 
     g@l
     norm! g@l
-    call feedkeys('g@l', 'in')
+    call feedkeys('g@l', 'n')
 
-Review  all  locations where  we've  written  `norm! g@[l_]`, and  enforce  this
+Review  all  locations where  we've  written  `norm! g@[_l]`, and  enforce  this
 decision whenever possible.
 
 Update: I think you should use `g@l` by default.
-And if that doesn't work, then you should use `call feedkeys('g@l', 'in')`.
+And if that doesn't work, then you should use `call feedkeys('g@l', 'n')`.
 
 Why?
 Because when your opfunc fails because of `norm! g@l`, it fails silently, which is bad.
@@ -180,14 +196,16 @@ or `getchar()`).
 
 And with `feedkeys()`, there should never be an issue.
 
-Refactor all locations where you used `norm! g@l`, and replace with `g@l`,
+Refactor all  locations where you used  `norm! g@l`, and replace  it with `g@l`,
 unless it breaks sth.
 
----
+#### ?
 
-Also, document that in general, you should pass the flags `in` to `feedkeys()`.
-And use `t` only if it's needed.
-In the past, we have had issues with the `t` flag.
+Document that you should pass the `t` flag to `feedkeys()` only if it's needed.
+It can create issues:
+
+   - `feedkeys()` + `t` flag is not run when invoked from `:norm!`
+   - during a recording, the `t` flag causes the fed key(s) to be recorded, which you don't want
 
 ##
 # Document

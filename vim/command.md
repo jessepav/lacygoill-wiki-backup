@@ -303,14 +303,14 @@ So, you can't make a literal bar become a command termination.
 
 Yes, from `:command-completion-custom`:
 
-> For the  "custom" argument, it is  not necessary to filter  candidates against
-> the (implicit pattern in) ArgLead.
+>     For the  "custom" argument, it is  not necessary to filter  candidates against
+>     the (implicit pattern in) ArgLead.
 
-> Vim will filter the candidates with its regexp engine after function return, and
-> this is probably more efficient in most cases.
+>     Vim will filter the candidates with its regexp engine after function return, and
+>     this is probably more efficient in most cases.
 
-> For  the "customlist"  argument, Vim  will  not filter  the returned  completion
-> candidates and the user supplied function should filter the candidates.
+>     For  the "customlist"  argument, Vim  will  not filter  the returned  completion
+>     candidates and the user supplied function should filter the candidates.
 
 This is a basic filtering over which you have no control.
 
@@ -656,7 +656,7 @@ And to get a boolean option use `split()` and `index()`:
 Yes, by prefixing it with a count, you can send the latter to the program stored in `'kp'`.
 
     set kp=:Test
-    com -nargs=*  Test  echo <q-args>
+    com -nargs=* Test echo <q-args>
     " press 3K on the word 'hello'
     3 hello~
 

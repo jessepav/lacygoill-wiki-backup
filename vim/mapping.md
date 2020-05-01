@@ -7,15 +7,13 @@ It will break `feedkeys()` if the latter is called by `:norm`.
 MWE:
 
     $ vim -Nu NONE +'nno cd :exe "norm! :call feedkeys(\"aaa\",\"t\")\r"<cr>'
-
-Press `cd`: nothing is inserted in the buffer.
+    " press 'cd': nothing is inserted in the buffer~
 
     $ vim -Nu NONE +'nno cd :exe "norm! :call feedkeys(\"aaa\")\r"<cr>'
+    " press 'cd': 'aa' is inserted in the buffer~
 
-Press `cd`: 'aa' is inserted in the buffer.
-
-This is a  contrived example, but the  issue can be encountered in  a real usage
-scenario. For example, atm, we have these mappings and function:
+This is  a contrived example, but  the issue can  be encountered in a  real life
+scenario. For example, in the past, we had these mappings:
 
     " ~/.vim/plugged/vim-help/after/ftplugin/help.vim
     nno <buffer><nowait><silent> q :<c-u>norm 1<space>q<cr>
@@ -23,44 +21,54 @@ scenario. For example, atm, we have these mappings and function:
     " ~/.vim/plugged/vim-window/plugin/window.vim
     nno <silent><unique> <space>q :<c-u>call lg#window#quit()<cr>
 
-    fu lg#window#quit() abort
+and this function:
+
+    fu window#quit#main() abort
         ...
         if reg_recording() isnot# ''
-            return feedkeys('q', 'int')[-1]
-                                    ^
-                                    ✘
+            return feedkeys('q', 'nt')[-1]
+                                   ^
+                                   ✘
         endif
         ...
 
 If a register is being recorded, and we're in a help buffer, pressing `q` should
-end the recording; in practice, it doesn't because of the `t` flag.
+end the recording; in practice, it didn't because of the `t` flag.
 
 ---
 
 Note that you really need `:norm` to reproduce the issue.
 For example,  if you  try to replace  it with a  second `feedkeys()`,  the issue
-disappears (no matter whether you use the 't' flag in any function call):
+disappears (no matter whether you use the `t` flag in any function call):
 
     nno cd :call feedkeys('gh', 't')<cr>
-    nno gh :call feedkeys('aaa', 't')<cr>
+    nno gh :call feedkeys('aaa', 'nt')<cr>
     " press `cd`: 'aa' is inserted
 
 ##
-# One of my custom normal command is not repeatable with the dot command!  Why?
+# One of my custom normal command is not repeatable with the redo command!  Why?
 
 `.` only repeats the *last* default normal command.
 So, if your  custom command executes several commands, `.`  will only repeat the
 last one instead of the whole sequence.
 
-# Do I need to make a custom operator repeatable with `.`?
+# What do I need to do to make a custom operator repeatable with `.`?
 
-No.
+Nothing.
+There's no need to use `repeat#set()` or any other hack.
 
-By default, `.` repeats the last operator AND the last text-object.
-So, there's no need to use `repeat#set()` or any other hack.
+---
+
+No matter how you implement your custom  operator, in the end, it executes `g@`,
+which is  a builtin  Vim command.  `.` repeats the  last Vim  command, including
+`g@`.
+
+Note that `.` also repeats the motion or a text-object which you provided to the
+operator.
 
 ##
-# Why should I avoid using `repeat#set()` to make it repeatable?
+# vim-repeat
+## Why should I avoid using `repeat#set()` to make it repeatable?
 
 1) The repetition doesn't always work as expected after an undo:
 
@@ -68,8 +76,8 @@ So, there's no need to use `repeat#set()` or any other hack.
 
 2) And sometimes, `.` repeats an old custom command.
 
-These bugs and [tpope's comment][1] indicate that `repeat#set()` is
-a brittle hack, which should be avoided whenever possible.
+These bugs  and [tpope's comment][1] indicate  that `repeat#set()` is  a brittle
+hack, which should be avoided whenever possible.
 
 ---
 
@@ -79,7 +87,7 @@ a brittle hack, which should be avoided whenever possible.
     u
     .
 
-The dot  command should  repeat the  alignment of  all the  bars in  the current
+The redo  command should  repeat the alignment  of all the  bars in  the current
 paragraph.  Instead, it asks again for the characters to align.
 
 The same kind of issue applied to `g SPC` (break line).
@@ -90,20 +98,20 @@ delete the line, put an empty line below...
 
 2) In the past, I found another issue with `] SPC`:
 
-   1. ] SPC
-   2. dd
+   1. `] SPC`
+   2. `dd`
    3. `.` to repeat `dd`
 
-   Vim repeated `] SPC`, instead of `dd`~
+Vim repeated `] SPC`, instead of `dd`.
 
 I found a solution, which was to add this line at the end of our custom function
 (after invoking `repeat#set()`):
 
     do <nomodeline> CursorMoved
 
-# I still want to make it repeatable with `repeat#set()`! How to do it?
+### I still want to make it repeatable with `repeat#set()`!  How to do it?
 
-    nno  <lhs>  <rhs>:call repeat#set('<lhs>')<cr>
+    nno <lhs> <rhs>:call repeat#set('<lhs>')<cr>
 
 Or:
 
@@ -123,30 +131,31 @@ Or:
         " In this case, the function won't exist.
     endfu
 
-# I want `.` to repeat my commands with the same count I used initially!  How to do it?
+##
+## I want `.` to repeat my commands with the same count I used initially!  How to do it?
 
 `repeat#set()` accepts a 2nd optional argument.
 Use it to pass `v:count1`.
 
-# My mapping is in visual mode, not normal! How to adapt the code?
+### My mapping is in visual mode, not normal!  How to adapt the code?
 
 In the previous code, replace:
 
    - `:nmap` with `:xmap`
    - `:nnoremap` with `:noremap`
 
-## Which pitfalls should I avoid?  (2)
+#### Which pitfalls should I avoid?  (2)
 
 Don't use `:xnoremap` in your 2nd mapping, use `:noremap` instead.
 
-`repeat.vim` remaps the dot command, to make it type the contents of some
+`repeat.vim`  remaps the  redo command,  to make  it type  the contents  of some
 variables updated via some autocmds.
-But it remaps the dot command only in normal mode, not in visual mode.
+But it remaps the redo command only in normal mode, not in visual mode.
 
-As a result, your 2nd mapping (<plug> → ...) need to cover both modes:
+As a result, your 2nd mapping (<plug> → ...) needs to cover both modes:
 
-   - visual    when you'll press the lhs initially
-   - normal    when you'll press `.`
+   - visual when you'll press the lhs initially
+   - normal when you'll press `.`
 
 ---
 
@@ -209,20 +218,15 @@ So, replace the `l` motion with `_`.
 
 ## ?
 
-Document that it's probably better to run `norm! g@l` rather than pressing `g@l` directly.
-
-Why?
-Because if your opfunc invokes `input()`, you don't want your keys to be consumed.
-
-MWE:
+Document this pitfall:
 
     nno cd :call Func()<cr>bbb
     fu Func() abort
         call input('>')
     endfu
 
-Press cd, and you'll see that `bbb`  has been consumed by `input()` and inserted
-on the command-line, instead of being pressed.
+Press  `cd`, and  you'll  see that  `bbb`  has been  consumed  by `input()`  and
+inserted on the command-line, instead of being pressed.
 But if you rewrite the mapping like this, it works as expected:
 
     nno cd :call Func()<bar>norm! bbb<cr>
@@ -230,12 +234,39 @@ But if you rewrite the mapping like this, it works as expected:
         call input('>')
     endfu
 
-Even if your opfunc doesn't invoke `input()`  now, it may in the future (or some
-other function which triggers the same issue).
-Code defensively: always use `norm! g@l`.
+Or you could write this:
 
-Update: Actually, no?  `norm! g@l` is not always good.
-E.g., it would break our custom `z=`.
+    nno cd :call Func()<cr>bbb
+    fu Func() abort
+        call inputsave()
+        call input('>')
+        call inputrestore()
+    endfu
+
+---
+
+Document this pitfall:
+
+    nno z= :set opfunc=Z_equal<bar>norm! g@l<cr>
+    fu Z_equal(_) abort
+        setl spell
+        call feedkeys('z=', 'n')
+    endfu
+
+It could  be tempting  to always  write `norm! g@l`  rather than  pressing `g@l`
+directly,  so that  if the  opfunc invokes  a function  consuming the  typeahead
+(`input()`, `getchar()`, ...), it doesn't wrongly consume `g@`.
+
+But doing  so would break  commands which requires  the user's input,  like `:s`
+with the `c` flag, or `z=`.  Indeed, `:norm` considers these type of commands as
+*in*complete  (the user's  input is  missing), and  so it  presses Escape  which
+prevents you from providing any input.
+
+From `:h norm`:
+
+>     {commands} should be a complete command.  If
+>     {commands} does not finish a command, the last one
+>     will be aborted as if <Esc> or <C-C> was typed.
 
 # When should I use `g@_` to implement a pseudo-operator?
 
@@ -293,8 +324,10 @@ Example:
     fu s:duplicate_and_comment(type)
         norm! '[y']
 
-        " norm gc']     ✘
-        ']Commentary    ✔
+        " ✘
+        " norm gc']
+        " ✔
+        ']Commentary
 
         norm! ']p
     endfu
@@ -337,13 +370,13 @@ In this case, read this (from `:h :norm`):
 So, `:norm!` aborts your `:s/.../c` command.
 Use `feedkeys()` instead.
 
-    nno  <key>  :set opfunc=OpFunc<bar>exe 'norm! '..v:count1..'g@_'<cr>
-                                            ^
-                                            ✘
+    nno <key> :set opfunc=OpFunc<bar>exe 'norm! '..v:count1..'g@_'<cr>
+                                          ^
+                                          ✘
 
-    nno  <key>  :set opfunc=OpFunc<bar>call feedkeys(v:count1..'g@_', 'in')<cr>
-                                            ^
-                                            ✔
+    nno <key> :set opfunc=OpFunc<bar>call feedkeys(v:count1..'g@_', 'n')<cr>
+                                          ^
+                                          ✔
 
 ## My opfunc uses `setline()`, not `:s`.  How to pass it a range when I use a count (e.g. `123g@_`)?
 
@@ -1208,9 +1241,9 @@ meta anymore.  As  an example, the binary  code `11100100` could not  be used to
 encode `M-d` anymore; now it was meant to encode `ä`.
 
 So,  to encode  chords, terminals  switched to  a different  scheme; instead  of
-sending only 1 byte, they sent several, the first one always encoding the escape
+sending only 1 byte, they sent several; the first one always encoding the escape
 character.  As a result,  `M-d` is now encoded as `Esc` + `d`  (at least by most
-terminals including xterm).
+terminals, including xterm).
 
 From the terminal's  point of view, there's no ambiguity  between `M-d` and `ä`;
 it sends different sequences for the two characters.
@@ -1287,13 +1320,20 @@ It works, but in practice, it's cumbersome to use because it's only necessary in
 Vim and only if the terminal is not  in modifyOtherKeys mode, so you have to use
 this kind of template when installing your meta mappings:
 
-    if has('nvim') || &t_TI =~# "\e[>4;2m"
+    if has('nvim') || has('gui_running') || &t_TI =~# "\e[>4;2m"
         nno <m-d> ...
     else
         nno <f30> ...
     endif
 
 Besides, using function keys to refer to meta chords makes the code harder to read.
+
+Finally, it doesn't fix the issue for gVim.
+Indeed,  when you  press  `M-d`, gVim  doesn't  receive  `Esc +  d`,  like in  a
+terminal; it really  receives `ä`.  Press `C-v  M-d` in Vim vs  gVim, and you'll
+see the difference.
+IOW, if you want your `<m-d>` mapping to work in gVim, you *have to* use `<m-d>`.
+And you have to accept that you can't insert `ä` anymore.
 
 ##### How does this work?
 
@@ -1465,6 +1505,57 @@ It's probably somewhat linked to the fact that `–` is a multibyte character.
 
 ##
 # Todo
+## ?
+
+    $ vim -Nu NONE +'set showcmd | tno <c-w>a bbb' +term
+    " press C-w C-w to focus the split below: it works but you need to wait for a timeout
+
+Theory to explain the timeout:
+
+It seems that `'termwinkey'` is not written in the typeahead (not printed in the
+`'showcmd'` area immediately).  It must be processed outside.
+
+This creates an issue if you have  a Terminal-Job mode mapping which starts with
+`'termwinkey'`.  When you press the key,  should Vim process it with its default
+meaning (i.e. start a C-W command)?  Or should it remap the key?
+
+In the first case, the key must stay *outside* the typeahead.
+In the second case, the key must be sent *into* the typeahead.
+Vim solves  this issue by waiting  `&timeoutlen` ms before sending  the key into
+the typeahead.
+
+To get rid of the timeout, install this mapping:
+
+    tno <c-w><c-w> <c-w><c-w>
+
+When you'll press the first `C-w`, there'll still be an ambiguity.
+But when you'll press the second `C-w`, Vim will understand that you want to use
+the `<c-w><c-w>` mapping and immediately writes the keys in the typeahead.
+Note that the issue persists if you  wait more than `&timeoutlen` ms between the
+first `C-w` and the second one.
+
+This works under  the assumption that you didn't reset  `'termwinkey'`, and as a
+result Vim uses  `<C-w>` to start a  C-W command.  This wouldn't  work if you've
+reset the  option to, let's  say, `<C-s>`, and  you press `<C-s><C-w>`  to focus
+another window.  For something more reliable, you could try this:
+
+    augroup termwinkey_no_timeout
+        au!
+        au TerminalWinOpen * let b:_twk = &l:twk == '' ? '<c-w>' : &l:twk
+          \ | exe printf('tno <buffer><nowait> %s<c-w> %s<c-w>', b:_twk , b:_twk)
+          \ | unlet! b:_twk
+    augroup END
+
+Or:
+
+    augroup termwinkey_no_timeout
+        au!
+        au TerminalWinOpen * let b:_twk = getbufvar(+expand('<abuf>'), '&twk')
+          \ | if b:_twk == '' | let b:_twk = '<c-w>' | endif
+          \ | exe printf('tno <buffer><nowait> %s<c-w> %s<c-w>', b:_twk , b:_twk)
+          \ | unlet! b:_twk
+    augroup END
+
 ## ?
 
 Find usage examples for the `!` and `L` flags of `feedkeys()`.
@@ -1805,7 +1896,7 @@ Second, it prevents the command-line from being redrawn:
 ##
 ## <expr>
 
-    cmap <f7> <c-\>e escape(getcmdline(), ' \')<cr>
+    cno <f7> <c-\>e escape(getcmdline(), ' \')<cr>
 
 `<f7>` échappe tous les espaces et les backslash sur la ligne de commande.
 
@@ -2033,9 +2124,11 @@ La vérification portera à la fois sur les mappings globaux et locaux.
 Donc, les 2 cas de figure suivants échoueront:
 
     nno                    cd  :echo 'hello'<cr>
-    nno  <buffer><unique>  cd  :echo 'world'<cr>    ✘
+    " ✘
+    nno  <buffer><unique>  cd  :echo 'world'<cr>
 
-    nno  <buffer>          cd  :echo 'hello'<cr>    ✘
+    " ✘
+    nno  <buffer>          cd  :echo 'hello'<cr>
     nno          <unique>  cd  :echo 'world'<cr>
 
 
@@ -2679,10 +2772,10 @@ carriage return typed interactively to execute `:update`:
     typeahead           | executed
     ------------------------------
     u                   | u
-    p                   | up
-    d                   | upd
-    ...
-    e                   | update
+    p                   | p
+    d                   | d
+    ...                 | ...
+    e                   | e
     CR                  | update is replaced with: 'update' .. feedkeys(":echo 'hello'\r", 'i')[-1]
     :echo 'hello' CR CR | update
                         | update :echo 'hello' CR CR
@@ -2692,10 +2785,10 @@ carriage return typed interactively to execute `:update`:
     typeahead           | executed
     ------------------------------
     u                   | u
-    p                   | up
-    d                   | upd
-    ...
-    e                   | update
+    p                   | p
+    d                   | d
+    ...                 | ...
+    e                   | e
     CR                  | update is replaced with: 'update' .. feedkeys(":echo 'hello'\r")[-1]
     CR :echo 'hello' CR | update
                         | update CR :echo 'hello' CR

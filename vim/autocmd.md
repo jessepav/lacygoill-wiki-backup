@@ -757,9 +757,13 @@ pitfall:
    - `FileType`
 
 But there could be more.
-For example,  in `vim-eunuch`, tpope uses  `<afile>` in an autocmd  listening to
-`BufWritePost` and `FileWritePost`; see:
-<https://github.com/tpope/vim-eunuch/blob/33e875b31c8b811a0a47908884a5e2339106bbe8/plugin/eunuch.vim#L323>
+For example,  at `:h gzip-example`, `<afile>`  is used in autocmds  listening to
+these events:
+
+   - `BufWritePost`
+   - `FileAppendPost`
+   - `FileAppendPre`
+   - `FileWritePost`
 
 To be completely  sure, use `<afile>` whenever  you need to refer to  a file for
 which an event is fired.

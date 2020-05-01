@@ -531,12 +531,63 @@ palette, which will be ugly/flashy.
 # Todo
 ## ?
 
+Document that  for `CursorLine`  not to  completely override  `Diff*`, `Search`,
+`IncSearch`, you should define the latter with the `reverse` attribute.
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        hi clear CursorLine | hi CursorLine ctermbg=white
+        hi DiffChange ctermfg=235 ctermbg=108
+        nos e /tmp/file1 | pu='some text'
+        nos vs /tmp/file2 | pu='some other text'
+        windo set cul | diffthis
+    EOF
+    )
+
+When you select the changed line, `CursorLine` overrides `DiffChange`.
+Now, try this:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        hi clear CursorLine | hi CursorLine ctermbg=white
+        hi DiffChange cterm=reverse ctermfg=108 ctermbg=235
+        nos e /tmp/file1 | pu='some text'
+        nos vs /tmp/file2 | pu='some other text'
+        windo set cul | diffthis
+    EOF
+    )
+
+This time, it looks like `DiffChange` overrides `CursorLine`.
+
+---
+
+Before `7.4.390`, the `Diff*` HGs had priority over `CursorLine`.  Starting from
+[`7.4.391`][1],  the attributes  of  `Diff*` are  combined  with the  attributes
+of  `CursorLine`,  which is  why  the  `reverse`  attribute of  `Diff*`  affects
+`CursorLine` causing the undefined `ctermfg` attribute to be used instead of the
+defined `ctermbg`:
+
+    " on a line without diff highlighting
+    hi CursorLine ctermbg=white
+    ⇔
+    hi CursorLine ctermbg=white ctermfg=NONE
+
+    " on a line *with* diff highlighting, 'reverse' is applied
+    hi CursorLine cterm=reverse ctermbg=white ctermfg=NONE
+    ⇔
+    hi CursorLine ctermbg=NONE ctermfg=white
+    ⇔
+    hi CursorLine ctermfg=white
+
+Same thing for the search and match highlighting (`Search` and `IncSearch`?).
+Starting from [`7.4.682`][2], their attributes are combined with `CursorLine`.
+
+## ?
+
 Some people say that `:syntax on` and `:syntax enable` are *in practice* equivalent.
 They say that, because most colorscheme authors write this:
 
-    if exists("syntax_on")
-      syntax reset
-    endif
+if exists("syntax_on")
+  syntax reset
+endif
 
 To document. (also document the `reset` subcommand)
 
@@ -552,18 +603,18 @@ This  is because  the  gui attribute  is applied  (`gui=bold`),  instead of  the
 
 I can reproduce with this minimal vimrc:
 
-    set rtp-=~/.vim
-    set rtp-=~/.vim/after
-    set rtp^=~/.vim/plugged/seoul256.vim
+set rtp-=~/.vim
+set rtp-=~/.vim/after
+set rtp^=~/.vim/plugged/seoul256.vim
 
-    filetype plugin on
-    syntax enable
+filetype plugin on
+syntax enable
 
-    set termguicolors
-    colo seoul256-light
+set termguicolors
+colo seoul256-light
 
-    hi clear Statement
-    hi Statement ctermfg=66 guifg=#719899
+hi clear Statement
+hi Statement ctermfg=66 guifg=#719899
 
 This makes me  think that this is  intended by Neovim devs; and  it makes sense:
 when `'tgc'`  is set,  we tell (Neo)Vim  that the terminal  can support  all the
@@ -586,35 +637,35 @@ You need to make sure they're removed.
 
 It seems the issue is specific to `:hi`:
 
-    https://www.reddit.com/r/vim/comments/aikx7g/utility_function_to_extendoverride_highlight/eep49gk/
+https://www.reddit.com/r/vim/comments/aikx7g/utility_function_to_extendoverride_highlight/eep49gk/
 
 Still, maybe there are other commands which behave like that.
 
 Make sure we haven't made this kind of mistake elsewhere:
 
-    Vim /\C\s\<execute(/gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
+Vim /\C\s\<execute(/gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
 
 Also, should we remove the newline, or replace it  with a space?
 If we remove it, is it enough, or does Vim still add an extra space?
 
 When you know what to do, review what we did in:
 
-    ~/.vim/autoload/colorscheme.vim
-    /colorscheme#customize(
-    /hi Underlined
+~/.vim/autoload/colorscheme.vim
+/colorscheme#customize(
+/hi Underlined
 
 ## ?
 
 Document the fact that for a HG, the only relevant attributes are:
 
-   - `gui`, `guifg` and `guibg` (in GUI)
-   - `cterm`, `guifg` and `guibg` (in a truecolor terminal)
-   - `term`, `cterm`, `ctermfg` and `ctermbg` (in a terminal)
+- `gui`, `guifg` and `guibg` (in GUI)
+- `cterm`, `guifg` and `guibg` (in a truecolor terminal)
+- `term`, `cterm`, `ctermfg` and `ctermbg` (in a terminal)
 
 Btw, the style `term` is used in console:
 
-    hi MyGroup term=standout cterm=italic gui=bold ctermfg=4 ctermbg=6
-    call matchadd('MyGroup', '\d\+')
+hi MyGroup term=standout cterm=italic gui=bold ctermfg=4 ctermbg=6
+call matchadd('MyGroup', '\d\+')
 
 It means that  Vim considers the console  as a normal terminal (as  opposed to a
 color terminal).
@@ -630,8 +681,8 @@ non-existant) palette.
 
 If we do:
 
-    :colo elflord
-    :colo seoul256
+:colo elflord
+:colo seoul256
 
 The `Identifier` HG becomes bold.
 As a result, variable names in VimL are bold.
@@ -642,9 +693,9 @@ I think it has to do with `$VIMRUNTIME/syntax/syncolor.vim:37`.
 
 We can get back a normal `Identifier` HG, by reloading seoul256:
 
-    :colo elflord
-    :colo seoul256
-    :colo seoul256
+:colo elflord
+:colo seoul256
+:colo seoul256
 
 Understand what happens.
 
@@ -659,9 +710,9 @@ Make sure it's true.
 
 MWE:
 
-    :colo elflord
-    :hi EndOfBuffer ctermfg=bg
-    E420: BG color unknown ~
+:colo elflord
+:hi EndOfBuffer ctermfg=bg
+E420: BG color unknown ~
 
 It doesn't matter whether you start Vim or gVim.
 It seems only `ctermbg` matters, not `guibg` (weird...).
@@ -671,13 +722,13 @@ It seems only `ctermbg` matters, not `guibg` (weird...).
 Document that running a  `:hi` command to (re)set an attribute  has no effect on
 the other ones.
 
-    :hi SpecialKey
-    SpecialKey     xxx term=bold ctermfg=145 guifg=#afafaf~
-    :hi SpecialKey guifg=#121212
-    :hi SpecialKey
-    SpecialKey     xxx term=bold ctermfg=145 guifg=#121212~
-                       ^^^^^^^^^^^^^^^^^^^^^
-                       did not change
+:hi SpecialKey
+SpecialKey     xxx term=bold ctermfg=145 guifg=#afafaf~
+:hi SpecialKey guifg=#121212
+:hi SpecialKey
+SpecialKey     xxx term=bold ctermfg=145 guifg=#121212~
+                   ^^^^^^^^^^^^^^^^^^^^^
+                   did not change
 
 ## 'bg'
 
@@ -693,10 +744,10 @@ Update:
 
 That's not what seems to happen.
 
-        :hi ErrorMsg ctermbg=blue
-        :unlet! g:colors_name
-        :set bg=light
-        :hi ErrorMsg
+    :hi ErrorMsg ctermbg=blue
+    :unlet! g:colors_name
+    :set bg=light
+    :hi ErrorMsg
 
 `ErrorMsg` wasn't reset.
 Also, it seems that `syncolor.vim` is automatically resourced...
@@ -710,7 +761,7 @@ Or it may reset `'bg'`.
 First delete `g:colors_name` when needed (for what?  to make Vim behave as if no
 color scheme was loaded, i.e. only resets the builtin HGs?).
 
-        https://vi.stackexchange.com/a/13089/17449
+    https://vi.stackexchange.com/a/13089/17449
 
 When `'bg'` is set, the default attributes for the HGs will change.
 To use other attributes, place `:hi` commands *after* setting `'bg'`.
@@ -719,61 +770,61 @@ To use other attributes, place `:hi` commands *after* setting `'bg'`.
 
 Document this:
 
-        https://speakerdeck.com/cocopon/creating-your-lovely-color-scheme
-        http://vimcasts.org/episodes/creating-colorschemes-for-vim/
-        https://gist.github.com/romainl/5cd2f4ec222805f49eca
-        https://vimways.org/2019/vims-default-colors/
+    https://speakerdeck.com/cocopon/creating-your-lovely-color-scheme
+    http://vimcasts.org/episodes/creating-colorschemes-for-vim/
+    https://gist.github.com/romainl/5cd2f4ec222805f49eca
+    https://vimways.org/2019/vims-default-colors/
 
 ---
 
 template to create own color scheme:
 
-        https://github.com/cocopon/iceberg.vim/blob/master/src/template.vim
+    https://github.com/cocopon/iceberg.vim/blob/master/src/template.vim
 
-        if !has('gui_running') && &t_Co < 256
-          finish
-        endif
+    if !has('gui_running') && &t_Co < 256
+      finish
+    endif
 
-        set background=dark
-        hi clear
+    set background=dark
+    hi clear
 
-        if exists('syntax_on')
-          syntax reset
-        endif
+    if exists('syntax_on')
+      syntax reset
+    endif
 
-        let g:colors_name = 'iceberg'
+    let g:colors_name = 'iceberg'
 
 
-        {{ rules }}
-        hi HG ctermfg=...
-        ...
+    {{ rules }}
+    hi HG ctermfg=...
+    ...
 
-        {{ links }}
-        hi! link HG1 HG2
-        ...
+    {{ links }}
+    hi! link HG1 HG2
+    ...
 
 
 To customize an existing one:
 
-        $ mkdir ~/.vim/colors/
-        $ cat <<'EOF' >~/.vim/colors/test.vim
-        runtime colors/evening.vim
-        let g:colors_name = 'mine'
-        hi ...
-        ...
-        EOF
+    $ mkdir ~/.vim/colors/
+    $ cat <<'EOF' >~/.vim/colors/test.vim
+    runtime colors/evening.vim
+    let g:colors_name = 'mine'
+    hi ...
+    ...
+    EOF
 
-        $ echo 'colorscheme mine' >>~/.vim/vimrc
+    $ echo 'colorscheme mine' >>~/.vim/vimrc
 
 ---
 
 For more info about how creating a color scheme:
 
-        $VIMRUNTIME/colors/README.txt:70
+    $VIMRUNTIME/colors/README.txt:70
 
 In particular, if you can't find a meaningful name for your color scheme, write:
 
-        let g:colors_name = expand('<sfile>:t:r')
+    let g:colors_name = expand('<sfile>:t:r')
 
 ## how to write a reliable / correct color scheme
 
@@ -867,3 +918,9 @@ appliquer sont complexes.
 En  fonction de  la taille  du buffer,  et de  la complexité  des règles,  cette
 commande peut être plus ou moins longue et coûteuse en cpu.
 
+
+##
+# Reference
+
+[1]: https://github.com/vim/vim/commit/e0f148270a03e0da2bf21706bee4d2fe99146c55
+[2]: https://github.com/vim/vim/releases/tag/v7.4.682

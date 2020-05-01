@@ -1076,6 +1076,37 @@ See our todo in:
 
 ## ?
 
+Document that the equivalent of this shell command:
+
+    $ fzf --preview 'cat {}'
+
+Inside Vim is:
+
+    :FZF --preview cat\ {}
+
+This is because `:FZF` uses the escape sequence `<f-args>`:
+
+    command! -nargs=* -complete=dir -bang FZF call s:cmd(<bang>0, <f-args>)
+
+This means that Vim splits here:
+
+    :FZF --preview 'cat {}'
+                  ^    ^
+                  ✔    ✘
+
+To prevent the second split, you need to escape the space:
+
+    :FZF --preview 'cat\ {}'
+                       ^
+
+But `<f-args>` still quotes the string  `'cat {}'` a second time, which prevents
+the shell from splitting `cat(1)` from the file argument; remove the quotes, and
+let Vim quote `cat {}` when replacing `<f-args>`:
+
+    :FZF --preview cat\ {}
+
+## ?
+
 Install some shell functions which run filter some frequently used commands with
 fzf.  Similar to what `C-g C-g` does.
 The idea being that `C-g C-g` could grow too much over time; we may need to move

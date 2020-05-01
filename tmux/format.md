@@ -981,6 +981,10 @@ among the set of panes/windows which are compatible with the description.
       && tmux lsp -aF "#{pane_title}${delim}#{pane_current_command}" \
        | awk -F"$delim" "/^my title$delim"'/{print $2}'
 
+---
+
+TODO: Read this: <https://github.com/tmux/tmux/issues/2179#issuecomment-619025695>
+
 ##
 
 ## How to get the list of all

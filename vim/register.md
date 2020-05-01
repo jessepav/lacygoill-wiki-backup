@@ -235,7 +235,7 @@ The redo command `.` is not affected; it keeps its original behavior:
     " inside~
     " outside~
       ^^^^^^^
-      after the function call, the dot command still repeats the last command performed *before* the function call
+      after the function call, the redo command still repeats the last command performed *before* the function call
 
 In fact, as soon as you use it, the `.` register is restored:
 
@@ -815,6 +815,51 @@ Do *not* use `silent!`, it would make Vim *ignore* any error while pressing the 
 You need the error *not* to be ignored for `@b` to stop.
 
 ##
+## During a recording, I press a key which is mapped.  The rhs invokes `feedkeys()`.  Does Vim record the fed keys?
+
+No, unless you pass the `t` flag to `feedkeys()`:
+
+    $ vim -Nu NONE +'nno <expr> <c-a> feedkeys("<c-b>", "in")[-1]'
+    " press:
+             qq
+             C-a
+             q
+    :reg q
+    c  "q   ^A~
+
+                                                           v
+    $ vim -Nu NONE +'nno <expr> <c-a> feedkeys("<c-b>", "int")[-1]'
+    " press:
+             qq
+             C-a
+             q
+    :reg q
+    c  "q   ^A^B~
+              ^^
+
+With the  `t` flag, the key  is not processed  as if it  came from the rhs  of a
+mapping, and Vim records it.
+
+---
+
+For this reason, use the `t` flag only when it's really necessary.
+Otherwise, the replay of a macro may give an unexpected result:
+
+    $ vim -Nu NONE +'set wcm=9 | cno <expr> <s-tab> feedkeys("<s-tab>", "int")[-1]' +"pu='some text'"
+    " press:
+    "        qq : Tab Tab Tab S-Tab CR
+    "        q
+    "        @q
+
+The macro should  replay `:#` which should print the  current line; instead, Vim
+runs `:!`.
+
+With the `t` flag, when you press `S-Tab`, a second `S-Tab` is recorded.
+Because  of  that,  the  recording  contains  *two*  `S-Tab`,  instead  of  just
+one.  One for  the `S-Tab` you've pressed interactively, and  another one fed by
+`feedkeys()`.
+
+##
 # Tricks
 ## How to force a characterwise or blockwise register to be put linewise?
 
@@ -852,7 +897,7 @@ In insert mode, you can use `C-r`, but it only works for a blockwise register.
 
 ### How does this work?
 
-When you provide a  numbered register to a command or  operator, the dot command
+When you provide a numbered register to  a command or operator, the redo command
 does not  repeat the exact  same command;  it increments the  numbered register;
 when 9 is reached, it keeps using the register 9 (it doesn't get back to 1).
 
@@ -898,7 +943,7 @@ Specify an explicit numbered register for the first deletion:
     " paste the first deleted word, anywhere else
     .
 
-Since the dot command automatically increments a numbered register, this is equivalent to:
+Since the redo command automatically increments a numbered register, this is equivalent to:
 
     "1daw
     "2daw
@@ -944,7 +989,7 @@ specify where each yank has to be written; Vim won't do it for you here.
 
 ### The yanking is too tedious!
 
-Include the flag `y` into `'cpo'` so that the dot command can also repeat a yank:
+Include the flag `y` into `'cpo'` so that the redo command can also repeat a yank:
 
     :set cpo+=y
 

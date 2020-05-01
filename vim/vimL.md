@@ -213,6 +213,33 @@ The latter is suppressed by the delimiters.
 To expand them, you need `expand()` and `:exe`.
 
 ##
+## Why does Vim expand `<cword>` for `:grep` but not for `:echo`?
+
+`:echo` expects an expression, and `<cword>` is not one.
+
+OTOH, from `:h :grep`:
+
+>     **Just like ":make"**, but use 'grepprg' instead of
+>     'makeprg' and 'grepformat' instead of 'errorformat'.
+
+Then, from `:h :make`:
+
+>     Characters '%' and '#' are expanded as usual on a command-line.
+
+So, Vim expands special characters for `:make`, and similarly for `:grep`.
+
+## How to get the path to the file under the cursor?
+
+    :echo glob('<cfile>')
+
+Or:
+
+    :echo expand(expand('<cfile>'))
+          │      │
+          │      └ expand '<cfile>'
+          └ expand a possible tilde in the expansion of '<cfile>'
+
+##
 ## ?
 
 In `./mapping.md`, look  for `g@`.  For each match, try  to refactor whatever is
@@ -228,27 +255,6 @@ If needed, refer to this document for details:
 
 Did we abuse the `i` flag?
 Search for `feedkeys()` everywhere.
-
----
-
-1305 undo seq (`autoload/submode.vim`)
-1462 undo seq (`slow_call/submode.vim`)
-
-## ?
-
-`:echo` doesn't expand  `<cword>`, which is expected; it  expects an expression,
-and `<cword>` is not one.
-
-OTOH, `:grep` does expand `<cword>`.  From `:h :grep`:
-
->     Just like ":make", but use 'grepprg' instead of
->     'makeprg' and 'grepformat' instead of 'errorformat'.
-
-Then, from `:h :make`:
-
->     Characters '%' and '#' are expanded as usual on a command-line.
-
-So, `:make` expands special characters, and `:grep` behaves similarly.
 
 ## ?
 
@@ -300,16 +306,6 @@ développée.  Pour ce faire, elle lance un shell pour l'occasion.
     ├──────────────────┼────────────────────────────────────────────────────────────────────────┤
     │ ...('%:h:t')     │ chemin vers le dossier parent du fichier courant (la queue de la tête) │
     └──────────────────┴────────────────────────────────────────────────────────────────────────┘
-
-## ?
-
-    ┌ développe un éventuel tilde ($HOME) à l'intérieur du précédent développement
-    │      ┌ développe <cfile>
-    │      │
-    expand(expand('<cfile>'))
-    glob('<cfile>')
-
-Retourne le chemin complet vers le fichier sous le curseur.
 
 ## ?
 
@@ -416,6 +412,18 @@ Vim filetype plugins, C syntax plugins, lua indent plugins, keymap files, ...
 `glob2regpat()` convertit un pattern de fichier en un pattern de recherche.
 Utile qd on cherche un nom de fichier,  dont le nom est écrit dans un buffer, et
 qui est décrit par un glob contenu dans une option tq `'wig'`.
+
+## ?
+
+Document that you can set a custom completion for `input()`:
+
+    " can't use a script-local function
+    fu CompleteWords(_a, _l, _p) abort
+        return getline(1, '$')->join(' ')->split('\s\+')
+            \ ->filter('v:val =~# "^\\a\\k\\+$"')
+            \ ->sort()->uniq()->join("\n")
+    endfu
+    let word = input('word: ', '', 'custom,CompleteWords')
 
 ##
 # vim-vint

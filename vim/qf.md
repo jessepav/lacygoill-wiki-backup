@@ -608,7 +608,7 @@ Without the `'efm'` key, Vim will use the `'efm'` option.
 
     :cgetexpr system('grep-like cmd')
 
-## How to populate a valid qfl with `$ find /etc -name '*conf'` without altering the 'efm' option?
+## How to populate a valid qfl with `$ find /etc -name '*.conf'` without altering the 'efm' option?
 
     let qfl = getqflist({'lines': systemlist('find /etc/ -name "*.conf"'), 'efm': '%f'})
     call setqflist(get(qfl, 'items', []))
@@ -1607,11 +1607,11 @@ updated).
 - <https://github.com/reviewdog/errorformat>
 - <https://reviewdog.github.io/errorformat-playground/>
 
-> It's basically for practicing and checking errorformat with ease in browsers.
-> I expect users can write erroformats in playground first, validate them, and use
-> it for vim's  quickfix list or other use cases  like reviewdog or efm-langserver
-> outside vim too.
-> https://github.com/reviewdog/errorformat#use-cases-of-errorformat-outside-vim
+>     It's basically for practicing and checking errorformat with ease in browsers.
+>     I expect users can write erroformats in playground first, validate them, and use
+>     it for vim's  quickfix list or other use cases  like reviewdog or efm-langserver
+>     outside vim too.
+>     https://github.com/reviewdog/errorformat#use-cases-of-errorformat-outside-vim
 
 Source: <https://www.reddit.com/r/vim/comments/d7vdbk/erroformat_playground/>
 

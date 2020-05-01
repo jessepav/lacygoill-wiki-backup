@@ -451,9 +451,8 @@ In this example, when we want to include in the value:
    - a backslash, we need two backslashes
 
 We must escape the characters `?` and `&` to prevent the shell from interpreting
-them.
-`?` could be interpreted  as a glob, and `&` as a  control operator (run process
-in background).
+them. `?`  could be interpreted as  a glob, and  `&` as a control  operator (run
+process in background).
 
 We must add a backslash at the end because Vim will append to the value a space,
 as well as the word under the cursor when we'll press `K`.

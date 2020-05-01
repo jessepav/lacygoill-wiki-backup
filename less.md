@@ -71,11 +71,11 @@ distro, but the script seems extremely old compared to github.
 ##
 # What should I use instead of `$ tail -f log` to watch a log?  Why?
 
-        $ less +F log
-               ││
-               │└ command: scroll forward, and keep trying to read when the end of file is reached
-               │
-               └ option: the remainder of that option must be taken as an initial command
+    $ less +F log
+           ││
+           │└ command: scroll forward, and keep trying to read when the end of file is reached
+           │
+           └ option: the remainder of that option must be taken as an initial command
 
 With `$ less +F`, you're not stuck at the end of the file, you can scroll back.
 
@@ -84,7 +84,34 @@ At any  moment, you can re-execute  the `F` command  to keep trying to  read the
 file if it's updated, by pressing `F`.
 
 ##
-# TODO
+# filtering
+## How to display only the lines matching `pat`?
+
+Type the `&` command followed by `pat`:
+
+    &pat
+
+## How to display only the lines which do *not* match `pat`?
+
+Type `!` after `&`:
+
+    &!pat
+     ^
+
+## How to turn off a filtering?
+
+Use an empty pattern; i.e. press `&` + `Enter`.
+
+## How to suppress the special meaning of metacharacters?
+
+Press `C-r` after `&`; for example, to look for all the lines containing a star:
+
+    & C-r * Enter
+        ^
+        means: don't interpret *r*egular expression metacharacters
+
+##
+# Todo
 ## ?
 
 Copy the contents of the manpages for less, lesskey and lesspipe and edit them.

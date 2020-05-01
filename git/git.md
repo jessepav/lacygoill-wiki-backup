@@ -1357,7 +1357,6 @@ Annuler les modifications apportées à <file> ..., y compris une suppression.
     │ git push origin --delete foo │ supprime la branche foo sur le repo distant origin │
     └──────────────────────────────┴────────────────────────────────────────────────────┘
 
-
 ---
 
     $ git commit [-a] [-m "msg"]  commit ;

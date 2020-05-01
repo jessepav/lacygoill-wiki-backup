@@ -39,6 +39,43 @@ Insert the trigger literally:
     :cabc[lear] <buffer>
 
 ##
+# When is the triggering space executed?  Before or after the abbreviation has been expanded?
+
+After.
+
+    $ vim -Nu NONE +'inorea <expr> a "b"..feedkeys("c", "n")[-1]'
+    " press: i a SPC
+    " result: 'b c'
+
+If the space  had already been executed when the  abbreviation was expanded, the
+result would have been `bc `.
+
+The same is true for a CR which expands a command-line abbreviation:
+
+    $ vim -Nu NONE +'cnorea ab split'
+    :ab Enter
+    " Vim correctly splits the window
+
+If the CR had already been executed, then `split` would have been executed while
+Vim was in normal  mode, and it would not have split the  window; but the window
+*is* split, so the hypothesis is wrong.
+
+## When is it written in the typeahead?
+
+Immediately.
+
+---
+
+It could be written:
+
+   1. immediately
+   2. after the rhs of the abbreviation has been written in the typeahead
+   3. after the rhs of the abbreviation has been executed from the typeahead
+
+The previous  experiment rules  out `2.` and  `3.` (i.e. if  they were  true, we
+would get `bc `).
+
+##
 # How to manually expand an existing abbreviation without a space being inserted at the end?
 
 Press `C-]`.
@@ -59,17 +96,19 @@ Here's what happens:
 
    - you type `i`; it's written in the typeahead buffer, then executed (i.e. inserted in the user buffer)
    - you type `f`; same thing
-
    - you type space:
 
        * it's written in the typeahead buffer
        * Vim checks whether the text before the cursor matches an abbreviation
-       * it finds one, and removes `if` in the typeahead buffer
-       * `if ()<left><c-r>=<sid>eat_space()<cr>` is written in the typeahead buffer
-       * the typeahead buffer is executed
-       * when `<sid>eat_space()` is processed, the space is still in the typeahead buffer (right after),
-         and `getchar()` consumes it
-       * the typeahead buffer is now empty, and the space is not executed (i.e. inserted in the user buffer)
+
+       * it finds one; as a result, it removes `if` from the regular buffer,
+         and inserts `if ()<left><c-r>=<sid>eat_space()<cr>` in the typeahead in front of the space
+
+       * the typeahead is executed, and when `<c-r>=<sid>eat_space()<cr>` is executed,
+         `s:eat_space()` consumes the last remaining space from the typeahead (via `getchar()`)
+
+       * the typeahead buffer is now empty, and the space is not executed
+         (i.e. inserted in the regular buffer)
 
 You may wonder why `if ()...` is written in the typeahead buffer.
 I think  it has  to, because if  you define a  recursive abbreviation  (`iab` vs
@@ -116,4 +155,37 @@ typeahead buffer when the latter is empty:
 It's necessary when you expand an abbreviation via `C-]`.
 This suggests that `C-]`  is not written in the typeahead  buffer (but the space
 is, which is expected).
+
+### How do you know that the rhs of the abbreviation is *inserted* in the typeahead?
+
+The  only other  alternative would  be  that Vim  uses  the rhs  to replace  the
+triggering space in the typeahead.
+
+    SPC
+    →
+    rhs + SPC
+
+But this is ruled out by this experiment:
+
+    $ vim -Nu NONE +'inorea <expr> a "b"..feedkeys("c", "in")[-1]'
+    " press: i a SPC
+    " result: 'bc '
+
+If the  space was  replaced by  the rhs of  the abbreviation  followed by  a new
+space, the typeahead would end up containing `c b SPC`:
+
+    typeahead
+    ---------
+        SPC    (typed interactively; triggers the expansion of the abbreviation)
+    c   SPC    ('c' is inserted by 'feedkeys()' during the evaluation of the rhs)
+    c b SPC    (SPC is replaced by the rhs, here 'b', followed by a new space)
+
+This contents contradicts the previous result (i.e. `bc `).
+Here is what really happens:
+
+    typeahead
+    ---------
+        SPC    (typed interactively; triggers the expansion of the abbreviation)
+      c SPC    ('c' is inserted by 'feedkeys()' during the evaluation of the rhs)
+    b c SPC    (the rhs is inserted)
 

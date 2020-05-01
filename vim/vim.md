@@ -69,6 +69,16 @@ So the general behavior is the most common behavior.
 - <https://github.com/neovim/neovim/issues/11456#issuecomment-558072430>
 
 ##
+# help
+## Which tags can give me an overview of all the available commands?
+
+    :h quickref
+    :h index
+
+In `:h quickref`, commands are organized around common themes.
+In `:h index`, they are organized around modes.
+
+##
 # Démarrage
 
 Several commands can start Vim. How to detect which one is responsible for the current Vim process?
