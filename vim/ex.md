@@ -600,8 +600,8 @@ to manually compile and install Vim from source.
 
 From `:h exim`:
 
-> exim  vim -E      Start in improved Ex mode (see |Ex-mode|).      *exim*
->                         (**normally not installed**)
+>     exim  vim -E      Start in improved Ex mode (see |Ex-mode|).      *exim*
+>                             (**normally not installed**)
 
 ---
 
@@ -610,12 +610,20 @@ IOW, you can't invoke Nvim under those names.
 
 ### I get a whole bunch of errors when I run `ex`!
 
-Initializations are not skipped, so your vimrc and plugins are sourced.
-Besides when Vim is called under the name `ex`, it starts in compatible mode.
+When Vim is called under the name `ex`, it starts in compatible mode.
+And even if  the vimrc is skipped,  some plugins are still  sourced; namely, any
+vimscript file inside one of these directories:
+
+   - `~/.vim/plugin`
+   - `$VIMRUNTIME/plugin`
+   - `~/.vim/after/plugin`
+
 You need to reset `'compatible'`:
 
     $ ex -N
          ^^
+
+And you probably want to use `-u NONE` too.
 
 ###
 ## How to test in a shell script whether my Vim binary was compiled with a python interface?

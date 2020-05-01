@@ -317,7 +317,7 @@ This is a basic filtering over which you have no control.
 For a candidate to be kept, it must simply begin with `a:arglead`.
 The comparison respects `'ignorecase'` and `'smartcase'`
 
-### Should I give the attribute `-complete=custom` or `-complete=customlist` to my completion function??
+### Should I give the attribute `-complete=custom` or `-complete=customlist` to my completion function?
 
 If  possible use  `-complete=custom`, because  its automatic  filtering is  more
 efficient.
@@ -1151,8 +1151,8 @@ Voici qques exemples de spécificateurs de lignes:
             autrement avec 'Preface'.
 
 
-                  ┌─ si `EXPORT` est présent sur la dernière ligne, et qu'on n'utilise pas `+`,
-                  │  on termine sur la ligne contenant l'avant-dernière occurrence
+                  ┌ si `EXPORT` est présent sur la dernière ligne, et qu'on n'utilise pas `+`,
+                  │ on termine sur la ligne contenant l'avant-dernière occurrence
                   │
     0/EXPORT/    $+?EXPORT?
 
