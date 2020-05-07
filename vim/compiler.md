@@ -52,11 +52,11 @@ will have been set by the default plugin in `$VIMRUNTIME/compiler/`.
 
 See the end of `:h CompilerSet`:
 
-> When you  write a compiler  plugin to overrule  settings from a  default plugin,
-> don't check "current_compiler".
-> This plugin is supposed  to be loaded last, thus it should be  in a directory at
-> the end of 'runtimepath'.
-> For Unix that could be ~/.vim/after/compiler.
+>     When you  write a compiler  plugin to overrule  settings from a  default plugin,
+>     don't check "current_compiler".
+>     This plugin is supposed  to be loaded last, thus it should be  in a directory at
+>     the end of 'runtimepath'.
+>     For Unix that could be ~/.vim/after/compiler.
 
 OTOH, as  the help says,  if you put your  plugin in `~/.vim/compiler`,  you can
 include a guard.
@@ -325,8 +325,8 @@ IOW, the more  compilers' output your format  matches, the more to  the right of
 
 That's my interpretation of this recommendation in `:h efm-entries`:
 
-> If there is a pattern that  may match output from several compilers (but
-> not in a right way), put it after one that is more restrictive.
+>     If there is a pattern that  may match output from several compilers (but
+>     not in a right way), put it after one that is more restrictive.
 
 I could be wrong.
 
@@ -896,18 +896,18 @@ MWE:
 
 However in `:h quickfix-valid`:
 
-> Some examples for C compilers that produce single-line error outputs:
+>     Some examples for C compilers that produce single-line error outputs:
 >
-> `%f:%l:\ %t%*[^0123456789]%n:\ %m`    for Manx/Aztec C error messages
->                                     **(scanf() doesn't understand [0-9])**
+>     `%f:%l:\ %t%*[^0123456789]%n:\ %m`    for Manx/Aztec C error messages
+>                                         **(scanf() doesn't understand [0-9])**
 
 It seems to indicate that, in order to  parse the output of a compiler, Vim uses
 the  `scanf()` function  of  the latter,  which  seems to  be  confirmed by  `:h
 error-file-format`:
 
-> Each entry in 'errorformat' is a scanf-like string that describes the format.
-> First, you need to know how scanf works.
-> Look in the documentation of YOUR C compiler.
+>     Each entry in 'errorformat' is a scanf-like string that describes the format.
+>     First, you need to know how scanf works.
+>     Look in the documentation of YOUR C compiler.
 
 To see all  the locations where a  collection of digits is written  in a default
 compiler plugin, run:

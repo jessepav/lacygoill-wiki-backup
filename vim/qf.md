@@ -155,14 +155,14 @@ an equivalence (i.e. only one filename matches this module name and vice versa).
 As a result, the module name is used only for displaying purposes.
 The file name is still used when jumping to the file.
 
-> For some languages the file paths can be really long.
-> For example in PureScript we often have locations as long as:
+>     For some languages the file paths can be really long.
+>     For example in PureScript we often have locations as long as:
 >
->     ./src/bower_components/purescript-free/src/Control/Comonad/Cofree.purs
+>         ./src/bower_components/purescript-free/src/Control/Comonad/Cofree.purs
 >
-> And it might get even longer when it expands to a fullpath.
-> This might  be helpful for  other languages where  there is a  clear mapping
-> between file system and **module name space** (Haskell, Python, NodeJs, etc).
+>     And it might get even longer when it expands to a fullpath.
+>     This might  be helpful for  other languages where  there is a  clear mapping
+>     between file system and **module name space** (Haskell, Python, NodeJs, etc).
 
 <https://github.com/vim/vim/pull/1757#issuecomment-325200776>
 
@@ -1327,7 +1327,7 @@ This will raise the error:
 
 From `:h :helpg`:
 
-> The pattern does not support line breaks, it must match within one line.
+>     The pattern does not support line breaks, it must match within one line.
 
 ---
 

@@ -944,11 +944,6 @@ the location: left part? right part? window list?
 Press the `e` key while selecting a tmux buffer in buffer mode.
 <https://github.com/tmux/tmux/commit/cc19203be2aab1adc4930b18e46d522005159412>
 
-## when searching for a pattern in copy mode, only the matches in the current screen are considered
-
-In the past, *any* match in the scrollback buffer was considered.
-Not anymore since this commit: <https://github.com/tmux/tmux/commit/a20d96000e7b04962105242883c91655833809da>
-
 ## the `-s` flag of `copy-mode`
 
 When entering copy mode, you can specify an arbitrary pane for the source contents:

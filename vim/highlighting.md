@@ -482,18 +482,18 @@ Install an autocmd listening to:
 
 Don't refer to the ANSI colors (i.e. color names and color 0-15).
 
-> So if  I write colorscheme morning  in my .vimrc, since  the morning colorscheme
-> makes reference to the ANSI colors, and these have been changed from the default
-> ones by ~/.Xresources, the morning colorscheme is not rendered as the author had
-> intended it to be.
-> [...]
-> I see  therefore two  ways to  make my terminal's  theme independent  from vim's
-> color scheme:
-> 1. Use a  vim color scheme that  does not make  reference to the ANSI  colors, only
-> using colors 16-255, which have not been modified by ~/.Xresources.
-> There should  be plenty of  colors for  the scheme to  choose from to  be pretty
-> enough.
-> [...]
+>     So if  I write colorscheme morning  in my .vimrc, since  the morning colorscheme
+>     makes reference to the ANSI colors, and these have been changed from the default
+>     ones by ~/.Xresources, the morning colorscheme is not rendered as the author had
+>     intended it to be.
+>     [...]
+>     I see  therefore two  ways to  make my terminal's  theme independent  from vim's
+>     color scheme:
+>     1. Use a  vim color scheme that  does not make  reference to the ANSI  colors, only
+>     using colors 16-255, which have not been modified by ~/.Xresources.
+>     There should  be plenty of  colors for  the scheme to  choose from to  be pretty
+>     enough.
+>     [...]
 
 Source: <https://www.reddit.com/r/vim/comments/bp67ww/how_to_make_vim_ignore_xresources/ens0rkg/>
 

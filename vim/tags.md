@@ -70,9 +70,9 @@ Pk?
 
 Extrait de `:h jumplist`:
 
-> If you use a  jump command, the current line number is inserted  at the end of
-> the jump list.
-> If the same line was already in the jump list, it is removed.
+>     If you use a  jump command, the current line number is inserted  at the end of
+>     the jump list.
+>     If the same line was already in the jump list, it is removed.
 
 Donc, une nouvelle entrée correspondant  à l'étiquette est ajoutée et l'ancienne
 entrée est supprimée.
@@ -127,7 +127,7 @@ Execute `:tag`.
 
 From below `:h :pop`:
 
-> :[count]ta[g][!]      Jump to [count] newer entry in tag stack (default 1).
+>     :[count]ta[g][!]      Jump to [count] newer entry in tag stack (default 1).
 
 ---
 
@@ -185,9 +185,9 @@ Permet de chercher l'emplacement d'un fichier de tags en trop.
 
 <https://www.reddit.com/r/vim/comments/6oj6gg/what_are_some_lesser_know_tips_and_tricks_in_vim/dkhtx0c/>
 
-> Either I jump directly to a POI  by name (:tj /foo<tab> or :il /foo<tab>, when
-> the cursor is not on the symbol) or directly (g<C-]> or [I, when the cursor is
-> on the symbol).
+>     Either I jump directly to a POI  by name (:tj /foo<tab> or :il /foo<tab>, when
+>     the cursor is not on the symbol) or directly (g<C-]> or [I, when the cursor is
+>     on the symbol).
 
 # ?
 
@@ -209,9 +209,9 @@ The location list showing the matching tags is independent of the tag stack.
 
 À propos des commandes permettant de naviguer dans la tag match list (from `:h tag-matchlist`):
 
-> When  there are  several matching  tags, these  commands can  be used  to jump
-> between them.
-> Note that these commands don't change the tag stack, they keep the same entry.
+>     When  there are  several matching  tags, these  commands can  be used  to jump
+>     between them.
+>     Note that these commands don't change the tag stack, they keep the same entry.
 
 # ?
 
@@ -302,9 +302,9 @@ Prévisualise `file` en positionnant le curseur sur `pat`.
 
 Small difference from `:tag`:
 
-> When  `ident` is  equal to  the  already displayed  tag, the  position in  the
-> matching tag list is not reset.
-> This makes the CursorHold example work after a `:ptnext`.
+>     When  `ident` is  equal to  the  already displayed  tag, the  position in  the
+>     matching tag list is not reset.
+>     This makes the CursorHold example work after a `:ptnext`.
 
 FIXME: Est-ce que cette remarque explique la différence de comportement entre `:tjump` et `:ptjump`?
 
@@ -696,9 +696,9 @@ This searches the same directories, but in a different order.
 
 This comment seems to imply that you can generate your own custom tags, in any file.
 
-> I think you want tags?
-> You'd just define  a custom filetype and  a tag marker of your  choosing and use
-> universal-ctags with your regexes.
+>     I think you want tags?
+>     You'd just define  a custom filetype and  a tag marker of your  choosing and use
+>     universal-ctags with your regexes.
 
 <https://www.reddit.com/r/vim/comments/87azt5/line_pointers/dwbku57/>
 

@@ -1957,6 +1957,11 @@ VIDÉOS:
 
 DIVERS:
 
+- <https://tom.preston-werner.com/2009/05/19/the-git-parable.html>
+- <https://jwiegley.github.io/git-from-the-bottom-up/>
+- <https://eagain.net/articles/git-for-computer-scientists/>
+- <https://www.webdesignerdepot.com/2009/03/intro-to-git-for-web-designers/>
+- <https://ericsink.com/vcbe/html/bk01-toc.html>
 - <http://rogerdudler.github.io/git-guide/>
 - <http://think-like-a-git.net/>
 - <http://marklodato.github.io/visual-git-guide/index-en.html>
@@ -1967,14 +1972,12 @@ DIVERS:
 - <https://www.sbf5.com/~cduan/technical/git/git-1.shtml>
 - <http://nvie.com/posts/a-successful-git-branching-model/>
 - <http://tutorialzine.com/2016/06/learn-git-in-30-minutes/>
-- <https://jwiegley.github.io/git-from-the-bottom-up/>
 - <https://www.reviewboard.org/docs/codebase/dev/git/clean-commits/>
 - <http://ndpsoftware.com/git-cheatsheet.html>
 - <http://rypress.com/tutorials/git/index>
 - <https://blog.jez.io/cli-code-review/>
 - <https://www.conventionalcommits.org/>
 - <https://raw.githubusercontent.com/git/git/master/Documentation/howto/revert-a-faulty-merge.txt>
-- <https://jwiegley.github.io/git-from-the-bottom-up/>
 - <https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow>
 - <https://sethrobertson.github.io/GitFixUm/fixup.html>
 - <https://github.com/jessfraz/branch-cleanup-action>

@@ -487,7 +487,7 @@ Use your custom mapping in `vim-completion` instead of `C-e`.
 
 Issue: It's hard to save the original text.
 It's not stored in any `v:` variable.
-And even if you can save it, restoring it would probably break the redo command.
+And even if you can save it, restoring it would probably break the dot command.
 
 Update: I think it could be considered as a bug.
 Here is what `:h popupmenu-keys` says:
@@ -504,5 +504,5 @@ Or for an option to do so.
 Or for a function to give the original text.
 I guess that the `inserted` item from `:h complete_info(` could help.
 But not entirely (what if the case of the text has changed too?).
-Also, whatever fix you implement, it would probably break the redo command.
+Also, whatever fix you implement, it would probably break the dot command.
 

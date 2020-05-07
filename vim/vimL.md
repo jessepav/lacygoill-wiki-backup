@@ -701,7 +701,7 @@ You get an empty line, 'foo', then 'bar'.
 Where does the empty line come from?
 Think like this:
 
-> “append() INSERTS lines between 2 existing lines”
+>     “append() INSERTS lines between 2 existing lines”
 
 When  you pass  it the  address  `0`, it  inserts  'foo' and  'bar' between  the
 UNexisting line 0 and the existing line 1.
@@ -907,16 +907,16 @@ The help at `:h setpos()` seems contradictory.
 
 On the one hand, it says:
 
-> The "curswant" number is only used when setting the cursor
-> position.  It sets the preferred column for when moving the
-> cursor vertically.
+>     The "curswant" number is only used when setting the cursor
+>     position.  It sets the preferred column for when moving the
+>     cursor vertically.
 
 then later, it says:
 
-> This does not restore the preferred column for moving
-> vertically; if you set the cursor position with this, |j| and
-> |k| motions will jump to previous columns!  Use |cursor()| to
-> also set the preferred column.
+>     This does not restore the preferred column for moving
+>     vertically; if you set the cursor position with this, |j| and
+>     |k| motions will jump to previous columns!  Use |cursor()| to
+>     also set the preferred column.
 
 I think the second paragraph is older.
 When it was written, `setpos()` could not  set `curswant`; but now it can, hence

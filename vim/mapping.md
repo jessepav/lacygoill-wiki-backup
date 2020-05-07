@@ -45,8 +45,14 @@ disappears (no matter whether you use the `t` flag in any function call):
     nno gh :call feedkeys('aaa', 'nt')<cr>
     " press `cd`: 'aa' is inserted
 
+Also, the issue disappears if you use the `x` flag:
+
+                                                                  v
+    $ vim -Nu NONE +'nno cd :exe "norm! :call feedkeys(\"aaa\",\"tx\")\r"<cr>'
+    " press 'cd': 'aa' is inserted in the buffer~
+
 ##
-# One of my custom normal command is not repeatable with the redo command!  Why?
+# One of my custom normal command is not repeatable with the dot command!  Why?
 
 `.` only repeats the *last* default normal command.
 So, if your  custom command executes several commands, `.`  will only repeat the
@@ -87,7 +93,7 @@ hack, which should be avoided whenever possible.
     u
     .
 
-The redo  command should  repeat the alignment  of all the  bars in  the current
+The dot  command should  repeat the  alignment of  all the  bars in  the current
 paragraph.  Instead, it asks again for the characters to align.
 
 The same kind of issue applied to `g SPC` (break line).
@@ -148,9 +154,9 @@ In the previous code, replace:
 
 Don't use `:xnoremap` in your 2nd mapping, use `:noremap` instead.
 
-`repeat.vim`  remaps the  redo command,  to make  it type  the contents  of some
+`repeat.vim`  remaps the  dot command,  to  make it  type the  contents of  some
 variables updated via some autocmds.
-But it remaps the redo command only in normal mode, not in visual mode.
+But it remaps the dot command only in normal mode, not in visual mode.
 
 As a result, your 2nd mapping (<plug> → ...) needs to cover both modes:
 
@@ -1507,6 +1513,390 @@ It's probably somewhat linked to the fact that `–` is a multibyte character.
 # Todo
 ## ?
 
+      v7.3.917
+      vvvvvvvvv
+    $ ./src/vim -Nu NONE -S <(cat <<'EOF'
+        pu!=['a,xxx,b', 'a,xxxx,b']
+        set rtp^=/run/user/1000/tmp/vim-repeat
+        ono <c-b> :norm! T,vt,<cr>
+        norm! 1Gfx
+    EOF
+    )
+    " press: d C-b
+             j .
+    " final line contains: a,x,b
+
+    $ ./src/vim -Nu NONE -S <(cat <<'EOF'
+        pu!=['a,xxx,b', 'a,xxxx,b']
+        set rtp^=/run/user/1000/tmp/vim-repeat
+        ono <c-b> :exe 'norm! T,vt,'<bar>call repeat#set(v:operator."\<lt>c-b>")<cr>
+        norm! 1Gfx
+    EOF
+    )
+    " press: d C-b
+             j .
+    " final line contains: a,,b
+
+How does the vim-repeat plugin fix the issue?
+Answer: it's because the plugin repeats the exact same sequence; i.e. `d C-b`.
+In contrast, the native `.` is broken due to a bug fixed by the next patch.
+
+Follow-up question: if you comment this line:
+
+    silent exe "norm! \"=''\<CR>p"
+
+The issue re-appears.  Why?
+Update: I   think  that   without,   the  ticks   are  de-synchronized   because
+`b:changedtick` is not incremented immediately from an omap.
+And  `"=''`   causes  `b:changedtick`  to  be   incremented  which  accidentally
+re-synchronizes the  ticks and  allows the  wrapper around dot  to feed  `d C-b`
+instead of `.`.
+However, sth  is still weird.  I  thought that the ticks  were synchronized even
+from an omap provided that the  latter visually select the text-object (which is
+the case here).  When are the ticks synchronized exactly?
+Also, even though  `"=''` may temporarily re-synchronize the  ticks, they should
+be de-synchronized again right after the omap has been processed...
+Why are they synchronized by `"=''`?
+It  looks  like  the mere  fact  of  editing  the  buffer from  an  omap  causes
+`b:changedtick` to be incremented earlier...
+
+Also, if  you run `:norm!  .` instead of  pressing `.`, the  issue is –  again –
+fixed; how is that possible?  I thought the native `.` was broken...
+
+## ?
+
+Remember  that  we wrote  somewhere  that  `b:changedtick` was  not  immediately
+incremented in an omap? (which is the  reason why we use an autocmd listening to
+`CursorMoved` in `vim-repeat`)
+
+I think it *is* sometimes incremented immediately.
+But only when you enter visual mode from operator-pending mode.
+Make some tests...
+
+## ?
+
+Find  an example  where  the  `CursorMoved` autocmd  of  `vim-repeat` fixed  the
+repetition of an omap (at least in the past).  Based on this comment:
+<https://github.com/tpope/vim-repeat/issues/8#issuecomment-13951082>
+
+---
+
+Btw, what the  author of the original  issue report describes seems to  be a bug
+which was fixed by 7.3.918.
+It looks like –  in the past – if you defined a  text-object which enters visual
+mode, then Vim  remembered the geometry of  the text which was  operated on, and
+the dot command used that info.
+
+This means that the repetition was sometimes unexpected:
+
+    $ vim -Nu NONE +'ono <c-b> :norm! T,vt,<cr>' +"pu!=['a,xxx,b', 'a,xxxx,b']" +'norm! 1Gfx'
+    " press: d C-b
+             j .
+
+Before 7.3.918, the second line contained:
+
+    a,x,b
+      ^
+      ✘
+
+After the patch, it contains:
+
+    a,,b
+     ^^
+     ✔
+
+So `vim-repeat` seems completely irrelevant here.
+
+## ?
+
+Maybe you should document here when `b:changedtick` is incremented.
+Comment from `vim-repeat`:
+
+    " `b:changedtick` is incremented when:
+    "
+    "    - `BufReadPre` is fired
+    "
+    "    - `BufEnter` is fired right after `BufReadPre`
+    "
+    "         touch /tmp/.file && vim -Nu NONE -S <(cat <<'EOF'
+    "             augroup test_changedtick | au!
+    "                 au BufLeave * unsilent echom 'BufLeave: '..b:changedtick
+    "                 au BufEnter * unsilent echom 'BufEnter: '..b:changedtick
+    "                 au BufReadPre * unsilent echom 'BufReadPre: '..b:changedtick
+    "                 au BufWritePre * unsilent echom 'BufWritePre: '..b:changedtick
+    "                 au BufWritePost * unsilent echom 'BufWritePost: '..b:changedtick
+    "             augroup END
+    "         EOF
+    "         ) /tmp/.file
+    "         :echo b:changedtick
+    "         3~
+    "         :e
+    "         BufReadPre: 4~
+    "         BufEnter: 5~
+    "
+    "    - `BufWritePost` is fired *while the buffer is modified*
+    "
+    "         touch /tmp/.file && vim -Nu NONE -S <(cat <<'EOF'
+    "             augroup test_changedtick | au!
+    "                 au BufLeave * unsilent echom 'BufLeave: '..b:changedtick
+    "                 au BufEnter * unsilent echom 'BufEnter: '..b:changedtick
+    "                 au BufReadPre * unsilent echom 'BufReadPre: '..b:changedtick
+    "                 au BufWritePre * unsilent echom 'BufWritePre: '..b:changedtick
+    "                 au BufWritePost * unsilent echom 'BufWritePost: '..b:changedtick
+    "             augroup END
+    "         EOF
+    "         ) /tmp/.file
+    "         :echo b:changedtick
+    "         3~
+    "         :w
+    "         BufWritePre: 3~
+    "         BufWritePost: 3~
+    "         "='' CR p
+    "         :echo b:changedtick
+    "         4~
+    "         :w
+    "         BufWritePre: 4~
+    "         BufWritePost: 5~
+    "
+    " It is not  incremented on other `BufEnter` events, nor  on `BufLeave`, nor
+    " on `BufWritePre`.
+
+## ?
+
+Document that it's impossible to map keys while Vim's pager is displayed.
+
+From `:h pager`:
+
+>     Note: The typed key is directly obtained from the terminal, it is not mapped
+>     and typeahead is ignored.
+
+For the  hit-enter prompt, mappings  do apply,  but `mode()` always  returns `n`
+when invoked from an `<expr>` mapping (or when included in the status line).
+As  a workaround,  you can  try to  evaluate it  from a  timer (but  that's only
+possible in Vim, not in Nvim).  See here for an example:
+
+    ~/.vim/plugged/vim-cmdline/autoload/cmdline.vim
+    /hit_enter_prompt_no_recording
+
+You  may wonder  why `mode()`  returns `n`  from an  `<expr>` mapping  while the
+hit-enter prompt is visible.
+Theory:
+No matter the key you press, the hit-enter prompt is closed immediately:
+
+    $ vim -Nu NONE +'nno x <nop>' +"pu='ccc'" +'echo "a\nb"'
+    " press 'x': the hit-enter prompt is closed, even though 'x' had no effect because it was a no-op
+
+So, maybe  mappings are probably  processed right  afterward; but in  that case,
+it's too late for  `mode()` to return `r`; now, it can  only return `n`, because
+the hit-enter prompt is no longer visible and you're really in normal mode.
+
+You may wonder why `mode()` returns `n` in the status line.
+Theory: The  status line  is  not  updated on  the  command-line,  nor when  the
+hit-enter prompt is visible:
+
+    $ vim -Nu NONE +'set ls=2 stl=%{mode(1)}'
+    :echo "a\nb"
+    " the status line contains 'n' while you're typing the command (not 'c')
+    " the status line still contains 'n' after you've run the command
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        set ls=2 stl=%{Stl()}
+        fu Stl()
+            let mode = mode(1)
+            let g:modes = get(g:, 'mode', []) + [mode]
+            return mode
+        endfu
+    EOF
+    )
+    :echo "a\nb"
+    " wait for a minute
+    :echo g:modes
+    " the list should contain a lot of items; it only contains a few
+
+In Nvim, the status line *is* updated when you enter the command-line, but *not*
+when the hit-enter prompt is visible.
+
+---
+
+Also, document the  difference between the hit-enter prompt  and the more-prompt
+(aka pager).  You're at the former when you reach the end of a multi-line output
+(`mode(1)` is `rm`), and at the latter when you scroll back (`mode(1)` is `r`).
+
+---
+
+Explain why  `q` starts a recording  when it's pressed at  the hit-enter prompt,
+but not at the more prompt.
+
+At the more-prompt, only a small number of commands are valid:
+
+>     Any other key causes the meaning of the keys to be displayed.
+
+`q` is one of them; it stops the listing.
+
+OTOH, at  the hit-enter prompt, all  the usual normal commands  are valid again,
+including `q` which starts a recording.
+
+---
+
+You may want to leave an explanation here: <https://github.com/vim/vim/issues/2589>
+As well as this workaround:
+<https://vi.stackexchange.com/questions/25109/how-to-map-q-to-cr-for-the-hit-enter-prompt/25140#25140>
+
+---
+
+Document  that –  in  Nvim –  timers's  callbacks are  not  processed while  the
+hit-enter  prompt is  visible.   They  are blocked  until  it's  left *and*  you
+interact with Nvim. See our comments in:
+
+    " /cmdline#hit_enter_prompt_no_recording(
+    ~/.vim/plugged/vim-cmdline/autoload/cmdline.vim
+
+## ?
+
+There's no need to  escape (so that the visual marks are set)  to know where the
+visual selection begins/ends.
+
+You can use `getpos('v')`, and `line('.')`:
+
+    xno <expr><silent> <c-a> Func()
+    fu Func() abort
+        let lnums = [getpos('v')[1], line('.')]
+        echom 'the visual selection starts at line '.min(lnums).' and ends at line '.max(lnums)
+        return ''
+    endfu
+
+Try to use this technique in your plugin(s) instead of escaping.
+Unless they really need to update the visual marks.
+
+See `:h line()`:
+
+>     v       In Visual mode: the start of the Visual area (the
+>             cursor is the end).  When not in Visual mode
+>             returns the cursor position.  Differs from |'<| in
+>             that it's updated right away.
+
+    :vim /\m\C\\e/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
+    :Cfilter! -other_plugins
+
+Note that  the start of the  selection does not necessarily  match the character
+which will be  marked with `'<`; if you're controlling  `'<`, then `getpos('v')`
+gives  the  position of  `'>`,  and  vice  versa;  if you're  controlling  `'>`,
+`getpos('v')` gives the position of `'<`.
+
+I think "start of the Visual area" in the help means "controlled corner"...
+
+If you want an expression which tells  you whether you're controlling the end of
+the selection:
+
+    line('.') > getpos('v')[1] || line('.') == getpos('v')[1] && col('.') >= getpos('v')[2]
+
+And here's a mapping which gets you the geometry of the current visual selection
+without quitting visual mode:
+
+    xno <expr> <c-b> GetVisualSelectionGeometry()
+    fu GetVisualSelectionGeometry() abort
+        let [curpos, pos_v] = [getcurpos()[1:2], getpos('v')[1:2]]
+        let control_end = curpos[0] > pos_v[0] || curpos[0] == pos_v[0] && curpos[1] >= pos_v[1]
+        if control_end
+            let [start, end] = [pos_v, curpos]
+        else
+            let [start, end] = [curpos, pos_v]
+        endif
+        echom printf('the visual selection starts at line %d column %d and ends at line %d column %d',
+            \ start[0], start[1], end[0], end[1])
+        return ''
+    endfu
+
+Note  that if  you've  pressed `O`,  the  reported positions  do  not match  the
+upper-left and bottom-right corners, but the upper-right and bottom-left ones.
+
+## ?
+
+    $ vim
+    :h
+    C-k
+    qq
+    ll
+    C-j
+    ll
+    q
+    :reg q
+    c  "q   ll^@llq~
+                  ^
+                  ✘
+
+I think the issue is due to the  existence of a custom mapping on `q`.  When you
+press `q`,  Vim probably  detects that  it's not the  default `q`  command which
+terminates  a recording;  so it  records the  keypress.  It  turns out  that the
+mapping will – in the end – press the default `q` command.
+
+Solution:
+
+In `window#quit#main()`, replace this line:
+
+    if reg_recording() isnot# '' | return feedkeys('q', 'in')[-1] | endif
+
+with this block:
+
+    let regname = reg_recording()
+    if regname isnot# ''
+        call feedkeys('q', 'in')[-1]
+        call timer_start(0, {-> setreg(regname, substitute(getreg(regname), 'q$', '', ''), 'c')})
+        return ''
+    endif
+
+Should we wrap that  in a `lg#` function and use it wherever  we've used a local
+`q` mapping?
+Note that I  don't think that a trailing  `q` has any effect in  a recording; at
+least, it doesn't start a new recording.
+I think that the special meaning of `q` is disabled while replaying a recording;
+maybe because  it would cause an  infinite recursion when pressing  `q` during a
+recording.
+
+Bonus question: If we add the `t` flag, why isn't `q` recorded twice?
+Answer: I think that the `q` we press interactively is always recorded.
+But the one which is fed is never recorded, because it ends the recording.
+
+## ?
+
+Document that `:norm` *inserts* keys in the typeahead:
+
+    $ vim -Nu NONE <(cat <<'EOF'
+        " a
+        " b
+        " c
+        " some folded text {{{
+        " some folded text
+        " some folded text }}}
+    EOF
+    ) +'set fdm=marker noro' +1d +'$'
+    :call feedkeys('3gsu', 'n') | norm! zv
+
+Notice how the fold is immediately opened, but the undo command is not run before 3s.
+That's because Vim has executed the keys in this order:
+
+    zv3gsu
+    ^^
+    inserted; not appended
+
+---
+
+Also, document that `:norm!` – contrary to `feedkeys()` – executes the keys immediately:
+
+    $ vim -es -Nu NONE -i NONE +"pu='some text'" \
+      +'set vbs=1 | echom b:changedtick | call feedkeys("dd", "n") | echom b:changedtick | qa!'
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    3~
+    3~
+
+    $ vim -es -Nu NONE -i NONE +"pu='some text'" \
+      +'set vbs=1 | echom b:changedtick | exe "norm! dd" | echom b:changedtick | qa!'
+                                          ^^^^^^^^^^^^^^
+    3~
+    4~
+
+## ?
+
     $ vim -Nu NONE +'set showcmd | tno <c-w>a bbb' +term
     " press C-w C-w to focus the split below: it works but you need to wait for a timeout
 
@@ -1862,6 +2252,16 @@ It becomes one if it's used in the lhs of a mapping.
 
 By contrast, `^[[23~` and `<S-F1>` don't need any context.
 They are terminal/Vim keycodes by themselves.
+
+## ?
+
+Document that  `<nop>` loses  its special  meaning as soon  as it's  followed or
+preceded by another key.  IOW, it must be alone.
+
+    $ vim -Nu NONE +'nno cd <nop>x'
+    " press 'cd'
+    E486: Pattern not found: e~
+    " this error is raised by the 'n' in '<nop>'
 
 ##
 ##

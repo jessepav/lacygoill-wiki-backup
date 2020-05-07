@@ -363,11 +363,11 @@ Document this.
 
 ## ?
 
-> One annoyance with packages is `:helptags ALL` does not consider `opt` directories. Personally, I like having help documentation tags built for all packages, even optional ones.
+>     One annoyance with packages is `:helptags ALL` does not consider `opt` directories. Personally, I like having help documentation tags built for all packages, even optional ones.
 
-> Here is an "enhanced" command, `:Helptags`:
+>     Here is an "enhanced" command, `:Helptags`:
 
->      command! -nargs=0 -bar Helptags for p in glob('~/.vim/pack/*/opt/*', 1, 1) | exe 'packadd '.fnamemodify(p, ':t') | endfor | silent! helptags ALL
+>          command! -nargs=0 -bar Helptags for p in glob('~/.vim/pack/*/opt/*', 1, 1) | exe 'packadd '.fnamemodify(p, ':t') | endfor | silent! helptags ALL
 
 <https://www.reddit.com/r/vim/comments/g68bf6/pathogen_is_dead_or_should_be_long_live_vim_8/fo861i8/>
 
@@ -376,19 +376,19 @@ Document this.
 Could  we use  Vim packages  to eliminate  the separation  of plugins'  config
 between `~/.vim/plugin` and `~/.vim/after/plugin/`?
 
-> What  I like  about packadd  is  that **you  can actually  put the  before**
-> **and  after  config**  and  the  loading of  the  plugin  **in  a  single**
-> **file**.  That's because packadd loads the plugin right when it's called as
-> apposed to most plugin managers that collect the list of all plugins to load
-> before loading  them.  (For  that to  work plugins need  to be  installed in
-> a  pack/**/opt  directory  i.e.  when  using  the  minpac  package  manager:
-> minpac#add(url, {'type': 'opt'}))
+>     What  I like  about packadd  is  that **you  can actually  put the  before**
+>     **and  after  config**  and  the  loading of  the  plugin  **in  a  single**
+>     **file**.  That's because packadd loads the plugin right when it's called as
+>     apposed to most plugin managers that collect the list of all plugins to load
+>     before loading  them.  (For  that to  work plugins need  to be  installed in
+>     a  pack/**/opt  directory  i.e.  when  using  the  minpac  package  manager:
+>     minpac#add(url, {'type': 'opt'}))
 
-> Oh that's  a neat idea. I  think at  the moment though  I prefer to  see all
-> external plugins that will be loaded  in the one place. I use :packadd! (the
-> ! version) which adds the plugins to  the runtime path but doesn't load them
-> immediately. Also, that  way the plugins are  loaded when they expect  to be
-> loaded (ie. in the usual place in the startup order).
+>     Oh that's  a neat idea. I  think at  the moment though  I prefer to  see all
+>     external plugins that will be loaded  in the one place. I use :packadd! (the
+>     ! version) which adds the plugins to  the runtime path but doesn't load them
+>     immediately. Also, that  way the plugins are  loaded when they expect  to be
+>     loaded (ie. in the usual place in the startup order).
 
 Source:
 

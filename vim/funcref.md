@@ -32,7 +32,7 @@ However, so  far, we  only saw  functions whose  semantics changed  according to
 their arity; `function()` is the first  one whose semantics changes according to
 the type of its arguments.
 
-> The functions must differ either by the arity or types of their parameters
+>     The functions must differ either by the arity or types of their parameters
 
 Source: [Function overloading][1]
 

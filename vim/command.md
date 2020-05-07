@@ -446,8 +446,8 @@ You can then embed a whitespace inside an argument by escaping it.
 
 From `:h <f-args>`:
 
-> To embed whitespace into an argument of <f-args>, prepend a backslash.
-> <f-args> replaces every pair of backslashes (\\) with one backslash.
+>     To embed whitespace into an argument of <f-args>, prepend a backslash.
+>     <f-args> replaces every pair of backslashes (\\) with one backslash.
 
 You could use another escape sequence,  but the manual parsing would probably be
 non-trivial; `<f-args>` give it to you for free.

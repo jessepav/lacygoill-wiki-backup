@@ -120,19 +120,19 @@ Make the configuration script stop if it finds that an interface won't work.
 According to `:h gui-x11-compiling`, it's not necessary, because it's enabled by
 default:
 
-> The GTK+ 2 GUI is built by default. Therefore, you usually don't
-> need to pass any options  such as --enable-gui=gtk2 to configure
-> and build that.
+>     The GTK+ 2 GUI is built by default. Therefore, you usually don't
+>     need to pass any options  such as --enable-gui=gtk2 to configure
+>     and build that.
 
 Nevertheless, better be explicit.
 
 In particular, we don't want to use gtk3, because the latter can increase the latency.
 
-> We can also  note that Vim using GTK3 is slower  than its GTK2 counterpart
-> by  an order  of magnitude. It  might therefore  be possible  that the  GTK3
-> framework  introduces extra  latency,  as  we can  also  observe other  that
-> GTK3-based terminals  (Terminator, Xfce4  Terminal, and GNOME  Terminal, for
-> example) have higher latency.
+>     We can also  note that Vim using GTK3 is slower  than its GTK2 counterpart
+>     by  an order  of magnitude. It  might therefore  be possible  that the  GTK3
+>     framework  introduces extra  latency,  as  we can  also  observe other  that
+>     GTK3-based terminals  (Terminator, Xfce4  Terminal, and GNOME  Terminal, for
+>     example) have higher latency.
 
 Source: <https://lwn.net/Articles/751763/>
 

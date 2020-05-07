@@ -202,16 +202,16 @@ No:
 First, `++once`  is clearly  meant, among  other things, to  make the  code less
 verbose, and to get rid of the augroup:
 
-> Before:
+>     Before:
 
->     augroup FooGroup
->       autocmd!
->       autocmd FileType foo call Foo() | autocmd! FooGroup FileType foo
->     augroup END
+>         augroup FooGroup
+>           autocmd!
+>           autocmd FileType foo call Foo() | autocmd! FooGroup FileType foo
+>         augroup END
 
-> After:
+>     After:
 
->     autocmd FileType foo ++once call Foo()
+>         autocmd FileType foo ++once call Foo()
 
 Source: <https://github.com/vim/vim/pull/4100>
 
@@ -444,15 +444,15 @@ Do *not* conflate a **type** of event with an **occurrence** of event.
 
 When you think:
 
-> `BufReadPost` comes before `FileType`
+>     `BufReadPost` comes before `FileType`
 
 it does not mean:
 
-> ANY occurrence of `BufReadPost` comes before ANY occurrence of `FileType`
+>     ANY occurrence of `BufReadPost` comes before ANY occurrence of `FileType`
 
 but:
 
-> there is ONE occurrence of `BufReadPost` which triggers ONE occurrence of `FileType`
+>     there is ONE occurrence of `BufReadPost` which triggers ONE occurrence of `FileType`
 
 # What are the best events to automatically create/remove a match in a window?
 
@@ -1245,8 +1245,8 @@ This allows you to use lookarounds:
 
 From `:h file-pattern`:
 
-> It is possible to use |pattern| items, but they may not work as expected,
-> because of the translation done for the above.
+>     It is possible to use |pattern| items, but they may not work as expected,
+>     because of the translation done for the above.
 
 See: <https://vi.stackexchange.com/a/19385/17449>
 

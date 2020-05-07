@@ -36,7 +36,9 @@ So, if you get disconnected, and want to check what you missed when you come bac
 ---
 
 Learn how to use `git-jump`.
-Read `~/bin/README.md`.
+Read `~/bin/README.md`, and read this to populate a qfl with the output:
+- <https://vi.stackexchange.com/q/13433/17449>
+- <https://gist.github.com/romainl/a3ddb1d08764b93183260f8cdf0f524f>
 
 ---
 

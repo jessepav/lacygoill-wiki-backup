@@ -14,16 +14,16 @@ Press `M-1`.
 ##
 # How to jump to first/last buffer?
 
-        /buffer -
-        /buffer +
+    /buffer -
+    /buffer +
 
 # How to display variables local to the current buffer?
 
-        /buffer localvar
+    /buffer localvar
 
 # How to move the current buffer to the position 123 in the buflist?
 
-        /buffer move 123
+    /buffer move 123
 
 ##
 # How to make WeeChat scroll so that the first unread line is the first line of the window?

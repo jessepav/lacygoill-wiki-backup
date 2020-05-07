@@ -44,13 +44,13 @@ In the last command, tmux receives this:
 Besides, a string works best on Windows, not on Unix.
 From `:h job_start()`:
 
-> {command} can be  a **String**.  This works  best on **MS-Windows**.  On  Unix it is
-> split up  in white-separated parts to  be passed to execvp().   Arguments in
-> **double quotes** can contain white space.
-> ...
-> {command}  can be  a **List**,  where  the first  item is  the executable  and
-> further items  are the arguments.   All items  are converted to  String.  This
-> works best on **Unix**.
+>     {command} can be  a **String**.  This works  best on **MS-Windows**.  On  Unix it is
+>     split up  in white-separated parts to  be passed to execvp().   Arguments in
+>     **double quotes** can contain white space.
+>     ...
+>     {command}  can be  a **List**,  where  the first  item is  the executable  and
+>     further items  are the arguments.   All items  are converted to  String.  This
+>     works best on **Unix**.
 
 # When does `job_start()` (Vim) or `jobstart()` (Nvim) starts a shell to run a command?
 
@@ -222,3 +222,7 @@ MakeJob implements  asynchronous versions of  the builtin commands in  just over
 
 208 sloc
 
+##
+# Links
+
+<https://ms-jpq.github.io/neovim-async-tutorial/>

@@ -21,8 +21,8 @@ It's used to initialize the local value in all new buffers.
 
 From `:h local-options`:
 
-> ... for each buffer-local  option there also is a global  value, which is used
-> for new buffers.
+>     ... for each buffer-local  option there also is a global  value, which is used
+>     for new buffers.
 
 ---
 
@@ -215,8 +215,8 @@ The global value could be `0`.
 
 `--autoread` should be read as:
 
-> if you  want to know  which value  is used for  'autoread', don't look  at the
-> local value, there's none, check the global value instead
+>     if you  want to know  which value  is used for  'autoread', don't look  at the
+>     local value, there's none, check the global value instead
 
 ## What happens when 'undolevels' has the local value -123456?   -1?    0?
 
@@ -397,7 +397,7 @@ Example:
 
 From `:h :setl`:
 
-> If the option does not have a local value the global value is set.
+>     If the option does not have a local value the global value is set.
 
 ##
 ## In my vimrc, I need to add/remove a value inside a comma-separated list of values for an option.
@@ -932,8 +932,8 @@ défaut lorsque `'compatible'` est (dés)activée:
 
 ---
 
-> This option is set to the Vi default value when 'compatible' is set and to the
-> Vim default value when 'compatible' is reset.
+>     This option is set to the Vi default value when 'compatible' is set and to the
+>     Vim default value when 'compatible' is reset.
 
 Cette option est activée par défaut, sauf si Vim trouve un vimrc utilisateur (!=
 système, != -u ...) au cours de son démarrage.
@@ -1868,8 +1868,8 @@ which is still a shorthand for `&l:`:
 Imo,  `setbufvar()` should  support  `&g:`, because  it  can be  used  to set  a
 window-local option. From `:h local-option`:
 
-> This also works for a global or local window option, but it
-> doesn't work for a global or local window variable.
+>     This also works for a global or local window option, but it
+>     doesn't work for a global or local window variable.
 
 And a window-local option can have a global value.
 Therefore, `setbufvar()`  should support `&g:`, to  allow the user to  alter the
@@ -1904,7 +1904,7 @@ In those cases, you'll need to use `setbufvar()`.
 Update: What about `settabwinvar()`?
 The latter supports a winid; from `:h settabwinvar(`:
 
-> {winnr} can be the window number or the |window-ID|.
+>     {winnr} can be the window number or the |window-ID|.
 
 ##
 # Reference

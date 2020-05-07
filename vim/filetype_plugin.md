@@ -584,8 +584,8 @@ It depends on whether they have a guard.
 
 From `:h 'syntax`:
 
-> Note that the second one must be prepared to be loaded as an addition,
-> otherwise it will be skipped.
+>     Note that the second one must be prepared to be loaded as an addition,
+>     otherwise it will be skipped.
 
 ### What should I do instead?  What's the benefit?
 
@@ -996,10 +996,10 @@ always the same:
 Sources:
 
 From `:h syn_cmd`:
-> Only define colors for groups that don't have highlighting yet
+>     Only define colors for groups that don't have highlighting yet
 
 From `:h syntax_loading`:
-> ":syntax enable" only sets groups that weren't set yet
+>     ":syntax enable" only sets groups that weren't set yet
 
 ---
 

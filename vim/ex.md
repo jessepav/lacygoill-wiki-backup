@@ -204,8 +204,8 @@ Also, connect to the irc server freenode, then run this command:
 ---
 
 Besides, `$ sed -i` makes you lose Vim's undo tree.
-With `vim(1)`,  you can preserve the  latter provided that you  set `'undofile'`
-and `'undodir'` appropriately.
+With Vim,  you can preserve  the latter provided  that you set  `'undofile'` and
+`'undodir'` appropriately.
 
 ##
 # What's the difference between `-e` and `-E` when used to start
@@ -466,7 +466,7 @@ This is also confirmed by:
 I think this was implemented in Nvim as a convenience feature.
 From <https://vimways.org/2018/vims-social-life/>:
 
-> It also works with -Es (but not -es), **and it exits automatically (no +'qa!' needed)**:
+>     It also works with -Es (but not -es), **and it exits automatically (no +'qa!' needed)**:
 
 There are other exceptions which are mentioned below.
 But this  one is  the only exception  you should remember,  because none  of the
@@ -499,8 +499,8 @@ redirecting stderr to `/dev/null` with `2>/dev/null` or `2</dev/null`.
 
 It could be due to `man vim /^\s*-\s`:
 
-> -           The  file  to  edit  is read from stdin.  **Commands are read**
->             **from stderr**, which should be a tty.
+>     -           The  file  to  edit  is read from stdin.  **Commands are read**
+>                 **from stderr**, which should be a tty.
 
 ##
 ## When do I need `--not-a-term`?

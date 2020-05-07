@@ -221,7 +221,7 @@ No:
       after the function call, the dot register has not been restored
 
 But it doesn't matter.
-The redo command `.` is not affected; it keeps its original behavior:
+The dot command is not affected; it keeps its original behavior:
 
     norm! o" outside
     fu! Func()
@@ -235,7 +235,7 @@ The redo command `.` is not affected; it keeps its original behavior:
     " inside~
     " outside~
       ^^^^^^^
-      after the function call, the redo command still repeats the last command performed *before* the function call
+      after the function call, the dot command still repeats the last command performed *before* the function call
 
 In fact, as soon as you use it, the `.` register is restored:
 
@@ -897,7 +897,7 @@ In insert mode, you can use `C-r`, but it only works for a blockwise register.
 
 ### How does this work?
 
-When you provide a numbered register to  a command or operator, the redo command
+When you provide a  numbered register to a command or  operator, the dot command
 does not  repeat the exact  same command;  it increments the  numbered register;
 when 9 is reached, it keeps using the register 9 (it doesn't get back to 1).
 
@@ -943,7 +943,7 @@ Specify an explicit numbered register for the first deletion:
     " paste the first deleted word, anywhere else
     .
 
-Since the redo command automatically increments a numbered register, this is equivalent to:
+Since the dot command automatically increments a numbered register, this is equivalent to:
 
     "1daw
     "2daw
@@ -989,7 +989,7 @@ specify where each yank has to be written; Vim won't do it for you here.
 
 ### The yanking is too tedious!
 
-Include the flag `y` into `'cpo'` so that the redo command can also repeat a yank:
+Include the flag `y` into `'cpo'` so that the dot command can also repeat a yank:
 
     :set cpo+=y
 

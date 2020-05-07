@@ -151,21 +151,21 @@ Don't confuse the delete character with the delete key.
 
 Although, according to `:h Linux-backspace`, this is wrong:
 
-> Note about Linux: By default the backspace key
-> produces CTRL-?, which is wrong.  You can fix it by
-> putting this line in your rc.local:
+>     Note about Linux: By default the backspace key
+>     produces CTRL-?, which is wrong.  You can fix it by
+>     putting this line in your rc.local:
 
->         echo "keycode 14 = BackSpace" | loadkeys
+>             echo "keycode 14 = BackSpace" | loadkeys
 
 The backspace key should emit the backspace character.
 
 See also: <http://tldp.org/HOWTO/Keyboard-and-Console-HOWTO-5.html>
 
-> Why doesn't the Backspace key generate BackSpace by default?
+>     Why doesn't the Backspace key generate BackSpace by default?
 >
-> (i) Because the VT100 had a Delete key above the Enter key.
+>     (i) Because the VT100 had a Delete key above the Enter key.
 >
-> (ii) Because Linus decided so.
+>     (ii) Because Linus decided so.
 
 You could fix that at the OS level, by using `loadkeys` in the console and `xkb`
 in Xorg; but I'm not sure it's worth it, and I don't know whether there would be
@@ -352,7 +352,7 @@ instead.
 `col('.')` adds `1` to the byte index of the character under the cursor;
 probably because `0` is already used for an error:
 
-> The first column is 1.  0 is returned for an error.
+>     The first column is 1.  0 is returned for an error.
 
 ---
 
