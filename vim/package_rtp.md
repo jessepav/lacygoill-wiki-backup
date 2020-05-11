@@ -363,6 +363,19 @@ Document this.
 
 ## ?
 
+From nickspoon on `#vim`:
+
+>     The benefit of vim-plug (and the older Vundle) is that it does the plugin cloning and updating for you
+>     Also, vim-plug is handy for testing plugins, because you can easily disable them temporarily by simply
+>     commenting them out of your .vimrc. **With packages you need to delete the dir** (with pathogen you could
+>     rename it with a prefix and it would be ignored)
+>     Another alternative is minpac, which works like vim-plug except it uses vim's packages under the hood.
+
+If we use packages instead of plugins, will it be a pain in the ass to bisect an
+issue located in an arbitrary plugin?
+
+## ?
+
 >     One annoyance with packages is `:helptags ALL` does not consider `opt` directories. Personally, I like having help documentation tags built for all packages, even optional ones.
 
 >     Here is an "enhanced" command, `:Helptags`:

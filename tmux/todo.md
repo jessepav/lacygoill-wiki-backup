@@ -939,6 +939,11 @@ the location: left part? right part? window list?
     " in other program, press "tmux prefix" + "p" (which is currently bound to choose-buffer + paste-buffer)
 
 ##
+## the customize-mode command
+
+It allows all options to be browsed and modified from a menu list.
+By default, it's bound to `pfx + C` (but right now, we override the key binding).
+
 ## that a tmux buffer is now editable
 
 Press the `e` key while selecting a tmux buffer in buffer mode.

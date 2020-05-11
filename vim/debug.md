@@ -54,10 +54,10 @@ running 2 commands:
 ### And if I
 #### start it with `$ vim -Nu /tmp/empty_vimrc.vim`?
 
-        1. /tmp/empty_vimrc.vim
-        2. ~/.vim/plugin/**/*.vim
-        3. $VIMRUNTIME/plugin/**/*.vim
-        4. ~/.vim/after/plugin/**/*.vim
+ 1. /tmp/empty_vimrc.vim
+ 2. ~/.vim/plugin/**/*.vim
+ 3. $VIMRUNTIME/plugin/**/*.vim
+ 4. ~/.vim/after/plugin/**/*.vim
 
 #### write `filetype plugin indent on` in the vimrc?
 
@@ -72,7 +72,7 @@ During the sourcing of the vimrc, and before `~/.vim/plugin/`, Vim sources:
 During the sourcing of the  vimrc, after the filetype/indent/syntax plugins, and
 before `~/.vim/plugin/`, Vim sources:
 
-        1. $VIMRUNTIME/colors/default.vim
+   1. $VIMRUNTIME/colors/default.vim
 
 #### add `Plug ...` statements?
 
@@ -118,43 +118,43 @@ Document this.
 
 ### With only the filetype/indent/syntax plugins?
 
-        $ vim -Nu NONE --cmd 'filetype plugin indent on | syntax enable'
-                         │
-                         └ execute the command before the vimrc
+    $ vim -Nu NONE --cmd 'filetype plugin indent on | syntax enable'
+                     │
+                     └ execute the command before the vimrc
 
 This will make Vim source the scripts:
 
-        ~/.vim/filetype.vim
-        $VIMRUNTIME/filetype.vim
-        $VIMRUNTIME/ftplugin.vim
-        $VIMRUNTIME/indent.vim
-        $VIMRUNTIME/syntax/{syntax,syntax,syncolor}.vim
+    ~/.vim/filetype.vim
+    $VIMRUNTIME/filetype.vim
+    $VIMRUNTIME/ftplugin.vim
+    $VIMRUNTIME/indent.vim
+    $VIMRUNTIME/syntax/{syntax,syntax,syncolor}.vim
 
 #### my local plugins?
 
-        $ vim -Nu NORC
+    $ vim -Nu NORC
 
 This will make Vim source the plugins in:
 
-        ~/.vim/plugin/**/*.vim
-        $VIMRUNTIME/plugin/**/*.vim
-        ~/.vim/after/plugin/**/*.vim
+    ~/.vim/plugin/**/*.vim
+    $VIMRUNTIME/plugin/**/*.vim
+    ~/.vim/after/plugin/**/*.vim
 
 #### my local plugins and the filetype/indent/syntax plugins?
 
-        $ vim -Nu NORC --cmd 'filetype plugin indent on | syntax enable'
+    $ vim -Nu NORC --cmd 'filetype plugin indent on | syntax enable'
 
 This will make Vim source the scripts:
 
-        ~/.vim/filetype.vim
-        $VIMRUNTIME/filetype.vim
-        $VIMRUNTIME/ftplugin.vim
-        $VIMRUNTIME/indent.vim
-        $VIMRUNTIME/syntax/{syntax,synload,syncolor}.vim
+    ~/.vim/filetype.vim
+    $VIMRUNTIME/filetype.vim
+    $VIMRUNTIME/ftplugin.vim
+    $VIMRUNTIME/indent.vim
+    $VIMRUNTIME/syntax/{syntax,synload,syncolor}.vim
 
-        ~/.vim/plugin/**/*.vim
-        $VIMRUNTIME/plugin/**/*.vim
-        ~/.vim/after/plugin/**/*.vim
+    ~/.vim/plugin/**/*.vim
+    $VIMRUNTIME/plugin/**/*.vim
+    ~/.vim/after/plugin/**/*.vim
 
 In effect,  you're starting Vim  with everything except the  third-party plugins
 handled by your plugin manager.
@@ -284,40 +284,40 @@ anything, without being constantly interrupted by a message.
 
 Redirect them in a file:
 
-        :set vfile=/tmp/messages
+    :set vfile=/tmp/messages
 
-            THEN
+        THEN
 
-        :set vbs={lvl}
-        :cmd1
-        :cmd2
-        :cmd3
-        ...
-        :set vbs=0
+    :set vbs={lvl}
+    :cmd1
+    :cmd2
+    :cmd3
+    ...
+    :set vbs=0
 
-            OR
+        OR
 
-        :{lvl}verb cmd
+    :{lvl}verb cmd
 
-            FINALLY
+        FINALLY
 
-        :set vfile=
+    :set vfile=
 
 ## What are the six things for which I can ask the last file to have changed their definition?   How to ask?
 
-        ┌─────────────────┬──────────────────┐
-        │ augroup         │ verb au foo      │
-        ├─────────────────┼──────────────────┤
-        │ command         │ verb com Cmd     │
-        ├─────────────────┼──────────────────┤
-        │ function        │ verb fu Func     │
-        ├─────────────────┼──────────────────┤
-        │ highlight group │ verb hi HG       │
-        ├─────────────────┼──────────────────┤
-        │ mapping         │ verb map lhs     │
-        ├─────────────────┼──────────────────┤
-        │ option          │ verb set option? │
-        └─────────────────┴──────────────────┘
+    ┌─────────────────┬──────────────────┐
+    │ augroup         │ verb au foo      │
+    ├─────────────────┼──────────────────┤
+    │ command         │ verb com Cmd     │
+    ├─────────────────┼──────────────────┤
+    │ function        │ verb fu Func     │
+    ├─────────────────┼──────────────────┤
+    │ highlight group │ verb hi HG       │
+    ├─────────────────┼──────────────────┤
+    │ mapping         │ verb map lhs     │
+    ├─────────────────┼──────────────────┤
+    │ option          │ verb set option? │
+    └─────────────────┴──────────────────┘
 
 ##
 ## Above which verbosity level does Vim display a message when:
@@ -364,15 +364,15 @@ Redirect them in a file:
 ##
 ## What are the three type of messages for which you can read/set the last message?   How?
 
-        ┌─────────┬──────────────────────────┬──────────────────────────┐
-        │ type    │ how to read last message │ how to set last message  │
-        ├─────────┼──────────────────────────┼──────────────────────────┤
-        │ Error   │ echo v:errormsg          │ let v:errormsg = 'foo'   │
-        ├─────────┼──────────────────────────┼──────────────────────────┤
-        │ Status  │ echo v:statusmsg         │ let v:statusmsg = 'foo'  │
-        ├─────────┼──────────────────────────┼──────────────────────────┤
-        │ Warning │ echo v:warningmsg        │ let v:warningmsg = 'foo' │
-        └─────────┴──────────────────────────┴──────────────────────────┘
+    ┌─────────┬──────────────────────────┬──────────────────────────┐
+    │ type    │ how to read last message │ how to set last message  │
+    ├─────────┼──────────────────────────┼──────────────────────────┤
+    │ Error   │ echo v:errormsg          │ let v:errormsg = 'foo'   │
+    ├─────────┼──────────────────────────┼──────────────────────────┤
+    │ Status  │ echo v:statusmsg         │ let v:statusmsg = 'foo'  │
+    ├─────────┼──────────────────────────┼──────────────────────────┤
+    │ Warning │ echo v:warningmsg        │ let v:warningmsg = 'foo' │
+    └─────────┴──────────────────────────┴──────────────────────────┘
 
 ## What type of message does `:verb cmd` give?
 
@@ -382,19 +382,19 @@ Status.
 
 Yes:
 
-        :sil verb ru foobar.vim
-        no message displayed~
-        no message added in `:mess`~
+    :sil verb ru foobar.vim
+    no message displayed~
+    no message added in `:mess`~
 
 ## How to react to a message given by `:verb cmd` without displaying any message?
 
-        let v:statusmsg = ''
+    let v:statusmsg = ''
 
-        sil verb cmd
+    sil verb cmd
 
-        if v:statusmsg is# '...'
-            " do sth
-        endif
+    if v:statusmsg is# '...'
+        " do sth
+    endif
 
 It works because `:sil verb` doesn't prevent Vim from populating `v:statusmsg`.
 
@@ -405,12 +405,12 @@ evaluating an expression used to set `'fde'`, `'fex'` or `'inde'`.
 
 To change that, set `'debug'` and give it the value `msg` or `throw`:
 
-        ┌─────────────────┬─────────────────────────────────────────────────────────────────────┐
-        │ set debug=msg   │ Error messages that would otherwise be omitted will be given anyway │
-        ├─────────────────┼─────────────────────────────────────────────────────────────────────┤
-        │ set debug=throw │ Error messages that would otherwise be omitted will be given anyway │
-        │                 │ and also throw an exception and set `v:errmsg`                      │
-        └─────────────────┴─────────────────────────────────────────────────────────────────────┘
+    ┌─────────────────┬─────────────────────────────────────────────────────────────────────┐
+    │ set debug=msg   │ Error messages that would otherwise be omitted will be given anyway │
+    ├─────────────────┼─────────────────────────────────────────────────────────────────────┤
+    │ set debug=throw │ Error messages that would otherwise be omitted will be given anyway │
+    │                 │ and also throw an exception and set `v:errmsg`                      │
+    └─────────────────┴─────────────────────────────────────────────────────────────────────┘
 
 Warning:
 
@@ -443,8 +443,8 @@ If `/tmp/profile.log` already exists, it will be overwritten.
 
 ### How to set the scripts/functions to profile?
 
-        :prof! file {pat}
-        :prof  func {pat}
+    :prof! file {pat}
+    :prof  func {pat}
 
 ### Does `:prof file */foo.vim` profile ALL commands in the matching files?
 
@@ -454,26 +454,26 @@ Only the ones outside functions.
 
 If you want to include the commands inside functions, you must use a bang:
 
-        :prof! file */foo.vim
-             ^
+    :prof! file */foo.vim
+         ^
 
 ###
 ### From Vim, which commands should I execute to profile a script named `search.vim` in the rtp?
 
-        :prof  start /tmp/profile.log
-        :prof! file */search.vim
-        :ru! autoload/search.vim
+    :prof  start /tmp/profile.log
+    :prof! file */search.vim
+    :ru! autoload/search.vim
 
-        " use the plugin, and reproduce the slowdown for which you want to know the cause
-        " restart Vim
+    " use the plugin, and reproduce the slowdown for which you want to know the cause
+    " restart Vim
 
 #### Same question, but from the shell?
 
-        $ vim --cmd 'prof  start /tmp/profile.log' \
-              --cmd 'prof! file  */autoload/search.vim' \
-              -c    'e +/\\v%>12v%<34v. file' \
-              -c    'norm n' \
-              -cq
+    $ vim --cmd 'prof  start /tmp/profile.log' \
+          --cmd 'prof! file  */autoload/search.vim' \
+          -c    'e +/\\v%>12v%<34v. file' \
+          -c    'norm n' \
+          -cq
 
 ###
 ### When I profile a script from the shell, should I execute `:prof` via `--cmd` or `-c`?
@@ -620,7 +620,7 @@ verbosity level.
 
 ## How to list all breakpoints?
 
-        :breakl[ist]
+    :breakl[ist]
 
 ##
 # `:breakadd`  `:profile`  `:runtime`    ‘bpr’
@@ -638,19 +638,19 @@ Yes, all of them.
 
 `:breakadd` and `:profile` completes the path using the working directory:
 
-        :breakadd file foo.vim
-                    ⇔
-        :breakadd file cwd/foo.vim
+    :breakadd file foo.vim
+                ⇔
+    :breakadd file cwd/foo.vim
 
 ---
 
 `:runtime` completes the path using every path present inside `&rtp`:
 
-        :runtime! file foo.vim
-                    ⇔
-        :so dir1/foo.vim
-        :so dir2/foo.vim
-        ...
+    :runtime! file foo.vim
+                ⇔
+    :so dir1/foo.vim
+    :so dir2/foo.vim
+    ...
 
 Where dir1, dir2, are in the rtp.
 
@@ -670,15 +670,15 @@ Any string of characters (including a dot).
 
 In the last component of the path, a part of the filename:
 
-        :ru! *foo.vim
+    :ru! *foo.vim
 
 Before the last component of the path, ONE directory:
 
-        :ru! */foo.vim
-        could source `plugin/foo.vim`~
+    :ru! */foo.vim
+    could source `plugin/foo.vim`~
 
-        :ru! */*/foo.vim
-        could source `plugin/bar/foo.vim`~
+    :ru! */*/foo.vim
+    could source `plugin/bar/foo.vim`~
 
 ##
 ## How do ‘bpr’ interpret `*foo.vim`?   What about `*/foo.vim`?
@@ -715,16 +715,16 @@ Before the last component of the path, ONE directory:
 
 No. One is enough:
 
-                               ┌ useless, because a single star can match two things at the same time:
-                               │
-                               │       - the path to a directory
-                               │       - a part of a filename
-                              ┌┤
-        :{breakadd|prof} file */*foo.vim
+                           ┌ useless, because a single star can match two things at the same time:
+                           │
+                           │       - the path to a directory
+                           │       - a part of a filename
+                          ┌┤
+    :{breakadd|prof} file */*foo.vim
 
-                        ⇔
+                    ⇔
 
-        :{breakadd|prof} file *foo.vim
+    :{breakadd|prof} file *foo.vim
 
 ### `:runtime! */*foo.vim`?
 
@@ -945,10 +945,10 @@ MWE:
 #
 # Profiling
 
-        :profd[el] ...
+    :profd[el] ...
 
-                Stop profiling for the arguments specified.
-                See `:breakdel` for the arguments.
+Stop profiling for the arguments specified.
+See `:breakdel` for the arguments.
 
 ---
 
@@ -973,10 +973,10 @@ The header (lines 1-4) gives the time for the whole function.
 The `Total` time is the time passed while the function was executing.
 The `Self` time is the `Total` time reduced by time spent in:
 
-        - other user defined functions
-        - sourced scripts
-        - executed autocommands
-        - external (shell) commands
+   - other user defined functions
+   - sourced scripts
+   - executed autocommands
+   - external (shell) commands
 
 Lines 7-11 show the time spent in each executed line.
 Lines that are not executed do not count.
@@ -993,31 +993,31 @@ Thus how long you take to respond to the input() prompt is irrelevant.
 Profiling should give a good indication of where time is spent, but keep in mind
 there are various things that may clobber the results:
 
-        - The accuracy of the time measured depends on the gettimeofday() system
-          function.  It may only be as accurate as 1/100 second, even though the times
-          are displayed in micro seconds.
+   - The accuracy of the time measured depends on the gettimeofday() system
+     function.  It may only be as accurate as 1/100 second, even though the times
+     are displayed in micro seconds.
 
-        - Real elapsed time is measured, if other processes are busy they may cause
-          delays at unpredictable moments.  You may want to run the profiling several
-          times and use the lowest results.
+   - Real elapsed time is measured, if other processes are busy they may cause
+     delays at unpredictable moments.  You may want to run the profiling several
+     times and use the lowest results.
 
-        - If you have several commands in one line you only get one time.  Split the
-          line to see the time for the individual commands.
+   - If you have several commands in one line you only get one time.  Split the
+     line to see the time for the individual commands.
 
-        - The time of the lines added up is mostly less than the time of the whole
-          function.  There is some overhead in between.
+   - The time of the lines added up is mostly less than the time of the whole
+     function.  There is some overhead in between.
 
-        - Functions that are deleted before Vim exits will not produce profiling
-          information.  You can check the `v:profiling` variable if needed:
+   - Functions that are deleted before Vim exits will not produce profiling
+     information.  You can check the `v:profiling` variable if needed:
 
-                if !v:profiling
-                    delfunc MyFunc
-                endif
+           if !v:profiling
+               delfunc MyFunc
+           endif
 
-        - Profiling may give weird results on multi-processor systems, when sleep
-          mode kicks in or the processor frequency is reduced to save power.
+   - Profiling may give weird results on multi-processor systems, when sleep
+     mode kicks in or the processor frequency is reduced to save power.
 
-        - The `self` time is wrong when a function is used recursively.
+   - The `self` time is wrong when a function is used recursively.
 
 # profiling
 
@@ -1331,26 +1331,26 @@ When [lnum] is omitted, the first breakpoint in the function or file is deleted.
 The  {name} must  be exactly  the same  as what  was typed  for the  `:breakadd`
 command:
 
-        - explorer
-        - *explorer.vim
-        - *explorer*
+    - explorer
+    - *explorer.vim
+    - *explorer*
 
 ... are different.
 
 Because of  this, if you source  a file you want  to debug with `:ru`,  you must
 pass an absolute path to `:breakadd`:
 
-        " ✘
-        :breakadd plugin/search.vim
-        :ru plugin/search.vim
+    " ✘
+    :breakadd plugin/search.vim
+    :ru plugin/search.vim
 
-        " ✘
-        :breakadd */plugin/search.vim
-        :ru plugin/search.vim
+    " ✘
+    :breakadd */plugin/search.vim
+    :ru plugin/search.vim
 
-        " ✔
-        :breakadd ~/.vim/plugged/vim-search/plugin/search.vim
-        :ru plugin/search.vim
+    " ✔
+    :breakadd ~/.vim/plugged/vim-search/plugin/search.vim
+    :ru plugin/search.vim
 
 Probably because `:ru`  expands the argument it receives into  an absolute path,
 once it finds a matching file in the rtp.
@@ -1376,27 +1376,27 @@ If no path is specified the current directory is used.
 Note that functions are first loaded and later executed.
 When they are:
 
-        - loaded,   the 'file' breakpoints are checked
-        - executed, the 'func' breakpoints are checked
+   - loaded,   the 'file' breakpoints are checked
+   - executed, the 'func' breakpoints are checked
 
 ## Examples
 
 This matches 'explorer.vim' in the current directory:
 
-        breakadd file explorer.vim
+    breakadd file explorer.vim
 
 ---
 
 This matches '.../plugin/explorer.vim', '.../plugin/iexplorer.vim', etc. :
 
-        breakadd file *explorer.vim
+    breakadd file *explorer.vim
 
 ---
 
 This  matches   '.../plugin/explorer.vim'  and   'explorer.vim'  in   any  other
 directory:
 
-        breakadd file */explorer.vim
+    breakadd file */explorer.vim
 
 
 
@@ -1406,47 +1406,47 @@ For local functions this means that something like `'<SNR>99_'` is prepended.
 
 ## How to profile the scripts whose path match `*/autoload/search.vim`, including all functions?
 
-        :prof! file */autoload/search.vim
-             │
-             └ include all functions
+    :prof! file */autoload/search.vim
+         │
+         └ include all functions
 
 ## How to profile the functions whose name begin with `Func`?
 
-        :prof func Func*
+    :prof func Func*
 
 ## How to profile the functions whose name begin with `Func` and finish with any character different than `a` or `b`?
 
-        :prof func Func[^ab]
+    :prof func Func[^ab]
 
 ## How to profile the functions whose name begin with `Func` and finish with 2 to 5 characters?
 
-        :prof func Func?\\\{2,5\}
+    :prof func Func?\\\{2,5\}
 
 # DEBUG MODE
 
 Once in debugging mode, the usual Ex commands can be used.
 For example, to inspect the value of a variable:
 
-        echo idx
+    echo idx
 
 When inside  a user function,  this will print the  value of the  local variable
 `idx`.
 Prepend `g:` to get the value of a global variable:
 
-        echo g:idx
+    echo g:idx
 
 All commands are executed in the context of the current function or script.
 You can also  set options, for example setting or  resetting 'verbose' will show
 what happens, but you  might want to set it just before  executing the lines you
 are interested in:
 
-        :set verbose=20
+    :set verbose=20
 
 Commands  that require  updating the  screen  should be  avoided, because  their
 effect won't be noticed until after leaving debug mode.
 For example:
 
-        :help
+    :help
 
 won't be very helpful.
 
@@ -1459,40 +1459,40 @@ Replace `99` with the line number.
 
 Additionally, these commands can be used:
 
-        cont            Continue execution until the next breakpoint is hit.
+    cont            Continue execution until the next breakpoint is hit.
 
-        quit            Abort execution.
-                        This is  like using CTRL-C,  some things might  still be
-                        executed, doesn't abort everything.
-                        Still stops at the next breakpoint.
+    quit            Abort execution.
+                    This is  like using CTRL-C,  some things might  still be
+                    executed, doesn't abort everything.
+                    Still stops at the next breakpoint.
 
-        next            Execute the  command and  come back  to debug  mode when
-                        it's finished.
-                        This steps over user function calls and sourced files.
+    next            Execute the  command and  come back  to debug  mode when
+                    it's finished.
+                    This steps over user function calls and sourced files.
 
-        step            Execute the command and come  back to debug mode for the
-                        next command.
-                        This steps into called user functions and sourced files.
+    step            Execute the command and come  back to debug mode for the
+                    next command.
+                    This steps into called user functions and sourced files.
 
-        interrupt       This is like using CTRL-C, but unlike `>quit` comes back
-                        to debug mode for the next command that is executed.
-                        Useful for testing `:finally`  and `:catch` on interrupt
-                        exceptions.
+    interrupt       This is like using CTRL-C, but unlike `>quit` comes back
+                    to debug mode for the next command that is executed.
+                    Useful for testing `:finally`  and `:catch` on interrupt
+                    exceptions.
 
-        finish          Finish the current script or user function and come back
-                        to debug mode for the command after the one that sourced
-                        or called it.
+    finish          Finish the current script or user function and come back
+                    to debug mode for the command after the one that sourced
+                    or called it.
 
-        backtrace       Show the call stacktrace for current debugging session.
-        bt
-        where
+    backtrace       Show the call stacktrace for current debugging session.
+    bt
+    where
 
-        frame N         Goes to N backtrace level. + and - signs make movement
-                        relative.  E.g., `:frame +3` goes three frames up.
+    frame N         Goes to N backtrace level. + and - signs make movement
+                    relative.  E.g., `:frame +3` goes three frames up.
 
-        up              Goes one level up from call stacktrace.
+    up              Goes one level up from call stacktrace.
 
-        down            Goes one level down from call stacktrace.
+    down            Goes one level down from call stacktrace.
 
 About the additional commands in debug mode:
 
@@ -1512,12 +1512,12 @@ About the additional commands in debug mode:
 
 The backtrace shows the hierarchy of function calls, e.g.:
 
-        >bt
-          3 function One[3]
-          2 Two[3]
-        ->1 Three[3]
-          0 Four
-        line 1: let four = 4
+    >bt
+      3 function One[3]
+      2 Two[3]
+    ->1 Three[3]
+      0 Four
+    line 1: let four = 4
 
 The `->` points to the current frame.
 Use `up`, `down` and `frame N` to select another frame.

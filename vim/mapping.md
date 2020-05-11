@@ -1513,65 +1513,84 @@ It's probably somewhat linked to the fact that `–` is a multibyte character.
 # Todo
 ## ?
 
-      v7.3.917
-      vvvvvvvvv
-    $ ./src/vim -Nu NONE -S <(cat <<'EOF'
-        pu!=['a,xxx,b', 'a,xxxx,b']
-        set rtp^=/run/user/1000/tmp/vim-repeat
-        ono <c-b> :norm! T,vt,<cr>
-        norm! 1Gfx
+Document when `b:changedtick` is automatically incremented.
+
+    $ touch /tmp/file{1..2} && vim -Nu NONE -S <(cat <<'EOF'
+        let g:abuf = 'expand("<abuf>")'
+        eval getcompletion('buf*', 'event')
+            \->filter({_,v -> v !~# 'Cmd$'})
+            \->map({_,v -> execute(printf(
+            \ 'au %s * unsilent echom "%s in buf "..%s..": tick is "..getbufvar(%s, "changedtick")'
+            \ , v, v, g:abuf, g:abuf))})
+        call map(range(10), {_,v -> execute('pu='..v)})
+        undo
     EOF
-    )
-    " press: d C-b
-             j .
-    " final line contains: a,x,b
+    ) /tmp/file1
+    :mess clear
+    :e /tmp/file2
+    :mess
+    BufNew in buf 2: tick is 1~
+    BufAdd in buf 2: tick is 1~
+    BufCreate in buf 2: tick is 1~
 
-    $ ./src/vim -Nu NONE -S <(cat <<'EOF'
-        pu!=['a,xxx,b', 'a,xxxx,b']
-        set rtp^=/run/user/1000/tmp/vim-repeat
-        ono <c-b> :exe 'norm! T,vt,'<bar>call repeat#set(v:operator."\<lt>c-b>")<cr>
-        norm! 1Gfx
+    BufLeave in buf 1: tick is 34~
+    BufWinLeave in buf 1: tick is 34~
+    BufUnload in buf 1: tick is 34~
+
+    BufRead in buf 2: tick is 1~
+    BufReadPost in buf 2: tick is 1~
+    BufEnter in buf 2: tick is 2~
+    BufWinEnter in buf 2: tick is 2~
+
+Note how `b:changedtick` is initialized to 1 on `BufNew`.
+And how  it's incremented on the  first `BufEnter` (it's not  incremented on the
+subsequent ones).
+
+It's also incremented on `BufReadPre`, but only when you reload a buffer.
+Remember that `BufReadPre` is fired only if the buffer is read from an existing file.
+
+Btw, yes, we really need `expand('<abuf>')`.
+If you just write `b:changedtick`, you'll get wrong results.
+For example, `BufNew` is  not fired in the context of  the newly created buffer,
+but in the context of the one from which it's being created.
+
+Update: `b:changedtick` is not initialized to 1 on `BufNew` when you run `:saveas`.
+
+---
+
+It's also automatically incremented on  `BufWritePost`, provided that the buffer
+is modified:
+
+    $ touch /tmp/file && vim -Nu NONE -S <(cat <<'EOF'
+        au BufWritePre * echom 'BufWritePre: '..b:changedtick
+        au BufWritePost * echom 'BufWritePost: '..b:changedtick
     EOF
-    )
-    " press: d C-b
-             j .
-    " final line contains: a,,b
+    ) /tmp/file
+    :echo b:changedtick
+    3~
+    :w
+    BufWritePre: 3~
+    BufWritePost: 3~
+    "='' CR p
+    :echo b:changedtick
+    4~
+    :w
+    BufWritePre: 4~
+    BufWritePost: 5~
 
-How does the vim-repeat plugin fix the issue?
-Answer: it's because the plugin repeats the exact same sequence; i.e. `d C-b`.
-In contrast, the native `.` is broken due to a bug fixed by the next patch.
+---
 
-Follow-up question: if you comment this line:
+In an  operator-pending mapping,  `b:changedtick` is  not incremented  until the
+mapping has completed and the operator has been executed.
 
-    silent exe "norm! \"=''\<CR>p"
+---
 
-The issue re-appears.  Why?
-Update: I   think  that   without,   the  ticks   are  de-synchronized   because
-`b:changedtick` is not incremented immediately from an omap.
-And  `"=''`   causes  `b:changedtick`  to  be   incremented  which  accidentally
-re-synchronizes the  ticks and  allows the  wrapper around dot  to feed  `d C-b`
-instead of `.`.
-However, sth  is still weird.  I  thought that the ticks  were synchronized even
-from an omap provided that the  latter visually select the text-object (which is
-the case here).  When are the ticks synchronized exactly?
-Also, even though  `"=''` may temporarily re-synchronize the  ticks, they should
-be de-synchronized again right after the omap has been processed...
-Why are they synchronized by `"=''`?
-It  looks  like  the mere  fact  of  editing  the  buffer from  an  omap  causes
-`b:changedtick` to be incremented earlier...
+When you  delete some  text with  `d`, `b:changedtick` is  incremented by  1, no
+matter the text size.
 
-Also, if  you run `:norm!  .` instead of  pressing `.`, the  issue is –  again –
-fixed; how is that possible?  I thought the native `.` was broken...
-
-## ?
-
-Remember  that  we wrote  somewhere  that  `b:changedtick` was  not  immediately
-incremented in an omap? (which is the  reason why we use an autocmd listening to
-`CursorMoved` in `vim-repeat`)
-
-I think it *is* sometimes incremented immediately.
-But only when you enter visual mode from operator-pending mode.
-Make some tests...
+When you change some text with `c`,  `b:changedtick` is incremented by 1 as soon
+as the text is deleted, and you enter insert mode; then for each typed key, it's
+incremented by 1 more.
 
 ## ?
 
@@ -1606,6 +1625,9 @@ After the patch, it contains:
      ✔
 
 So `vim-repeat` seems completely irrelevant here.
+Update: Actually, it's not completely irrelevant; it could have helped by making
+`.` retype the exact same sequence of  keys (instead of the native `.` which was
+broken).
 
 ## ?
 
@@ -2694,6 +2716,41 @@ Note that this  is a contrived example;  if all you wanted was  to echo `<c-w>`,
 you could just write:
 
     nno cd :echo '<lt>c-w>'<cr>
+
+---
+
+But `:silent!` does *not* make Vim ignore errors raised other commands, like `:call`:
+
+    nno <silent> cd :sil! call UnknownFunc() <bar> let g:d_var = 1<cr>
+    " press:  cd
+    " run:  :echo g:d_var
+    " result:    E121
+    " expected:  1 is printed
+
+    nno <silent> cd :sil! 999999d <bar> let g:d_var = 1<cr>
+    " press:  cd
+    " run:  :echo g:d_var
+    " result:    E121
+    " expected:  1 is printed
+
+Why?
+Is it because of this:
+<https://github.com/neovim/neovim/issues/11136#issuecomment-537253732>
+You may think it's because for `silent!` to  work, it needs to be applied to the
+whole rhs.  That's not true:
+
+    nno <silent> cd :sil! exe 'call UnknownFunc() <bar> let g:d_var = 1'<cr>
+    " press:  cd
+    " run:  :echo g:d_var
+    " result:    E121
+    " expected:  1 is printed
+
+I think it just works for `:norm`...
+
+In any case, as a workaround, use `:exe`:
+
+                     vvv
+    nno <silent> cd :exe 'sil! call UnknownFunc()' <bar> echom 'processed'<cr>
 
 ---
 

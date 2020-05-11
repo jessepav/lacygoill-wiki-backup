@@ -545,8 +545,8 @@ it later.
 
 <https://github.com/pavelfatin/typometer/issues/2#issuecomment-232727288>
 
-> the  option to  open  a file  is  intended only  for  importing of  previously
-> exported results
+>     the  option to  open  a file  is  intended only  for  importing of  previously
+>     exported results
 
 # ?
 
