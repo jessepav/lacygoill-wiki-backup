@@ -1,3 +1,12 @@
+# ?
+
+Read:
+
+- <https://github.com/mhinz/neovim-remote>
+- <https://www.reddit.com/r/vim/comments/83ve6g/how_to_open_file_in_current_vim_instance_from/>
+- <https://gist.github.com/andymass/bcd0a4956ed1a873d41f7265be6c6979>
+
+##
 # How to paste a register in a terminal buffer in Vim?
 
 You must be in Terminal-Job mode, and temporarily switch to Terminal-Normal mode

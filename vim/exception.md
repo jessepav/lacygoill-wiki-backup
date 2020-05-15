@@ -1496,7 +1496,8 @@ parsing to skip the whole line and not see the '|' that separates the commands.
 #
 #
 #
-# TODO
+# Todo
+## ?
 
 Compare:
 
@@ -1529,4 +1530,42 @@ is faster than returning `v:exception` and echoerr'ing it.
 Indeed, if you try to use  the 2nd technique for our mapping `<space>q` (close
 window) introduces lag.
 Make some tests inside our unimpaired mappings.
+
+## ?
+
+When  an  instruction  causes  several  errors,  and  it's  executed  in  a  try
+conditional, the first error can be catched and converted into an exception with
+`v:exception` (`:h except-several-errors`).
+However, for some reason, I can't display its message.
+All  I have  is the  hit-enter prompt,  which usually  accompanies a  multi-line
+message (as if Vim was trying to display all the error messages).
+
+MWE:
+
+    $ touch /tmp/file && vim -Nu NONE -S <(cat <<'EOF'
+    nno cd :exe Func()<cr>
+    fu Func() abort
+        try
+            qall
+        catch
+            return 'echoerr '..string(v:exception)
+        endtry
+        return ''
+    endfu
+    EOF
+    ) /tmp/file
+    " press:  o Esc cd
+    " result: no message is visible (except for the hit-enter prompt itself)
+    " run:  :mess
+    Vim(qall):E37: No write since last change~
+
+Update: Actually, if you press `Enter` instead of `Esc` at the hit-enter prompt,
+you can see the error.
+But sth is  weird.  It seems the  `catch` clause is not processed  (write a
+`let g:d_ebug = 1` inside, and you should see that the variable is never set).
+However, if you run `:breakadd func Func`, you can see that it *is* processed.
+What gives?
+
+I wonder whether this issue is specific to `:qall`...
+Can you find other similar issues which don't make Vim quit?
 

@@ -935,20 +935,13 @@ Here's a start; write this in `/tmp/vimrc`:
 
 In the fzf plugin, simplify the `fzf#run()` function definition like so:
 
-    function! fzf#run() abort
+    fu fzf#run(...) abort
       set shell=sh
-      let dict = {
-        \ 'dir': '/tmp',
-        \ 'window': {
-        \     'width': 0.9,
-        \     'height': 0.6,
-        \     'highlight': 'Normal',
-        \     'border': 'sharp',
-        \ }}
+      let dict = {'dir': '/tmp', 'window': {'width': 0.9, 'height': 0.6}}
       let temp = {'result': tempname()}
       let command = 'fzf >'..temp.result
       return s:execute_term(dict, command, temp)
-    endfunction
+    endfu
 
 Finally, start Vim like this:
 

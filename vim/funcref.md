@@ -706,7 +706,7 @@ IOW, la funcref produite par:
 
 ---
 
-    :echo type(function('system')) == type('')
+    :echo type(function('system')) == v:t_string
     0~
 
 Confirme que  la sortie  de `function()`  qui s'affiche à  l'écran est  bien une
@@ -762,7 +762,7 @@ Sans partiel, les 2 dernières lignes du code se ré-écriraient comme ceci:
 
 Un partiel est une funcref particulière:
 
-    echo type(Description) == type(function('tr'))
+    echo type(Description) == v:t_func
     1~
 
 ---

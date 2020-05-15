@@ -711,13 +711,17 @@ That's because:
    - `'3'` matches `/tmp/file3`, `/tmp/file13`, `/tmp/file23`, ...
    - when there is more than one match, `bufname()` returns an empty string
 
-Solution: Cast the string into a number immediately.
+Solution: Convert the string into a number.
 
 That is, don't write this:
 
     expand('<abuf>')
 
 But this:
+
+    str2nr(expand('<abuf>'))
+
+Alternatively, cast the string into a number like this:
 
     0+expand('<abuf>')
 

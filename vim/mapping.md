@@ -141,7 +141,7 @@ Or:
 ## I want `.` to repeat my commands with the same count I used initially!  How to do it?
 
 `repeat#set()` accepts a 2nd optional argument.
-Use it to pass `v:count1`.
+Use it to pass `v:count`.
 
 ### My mapping is in visual mode, not normal!  How to adapt the code?
 
@@ -1488,27 +1488,6 @@ produced by `<up>` in xterm).
 - <https://github.com/vim/vim/issues/2216>
 - <https://vi.stackexchange.com/a/24403/17449>
 
-## The output of `:ino bc –` followed by `:echo execute('ino bc')` is `i  bc    * ^S`!
-
-It should look like this: `i  bc    * –`.
-
-It may be a bug in Vim.
-
-MWE:
-
-    $ vim -Nu NONE +'ino bc –' +'redir =>var' +'ino bc' +'redir END' +'echo var'
-    i  bc          *~
-    i  bc          * ^S~
-
-    $ vim -Nu NONE +'ino bc –' +'echo execute("ino bc")'
-    i  bc          * ^S~
-
-Also, note how the rhs is empty in the output of `:ino bc`; it could be another bug...
-
-The issue is not linked to `execute()`, since we can reproduce with `:redir`.
-I can reproduce the issue with an abbreviation too.
-It's probably somewhat linked to the fact that `–` is a multibyte character.
-
 ##
 # Todo
 ## ?
@@ -1962,7 +1941,7 @@ Or:
 
     augroup termwinkey_no_timeout
         au!
-        au TerminalWinOpen * let b:_twk = getbufvar(+expand('<abuf>'), '&twk')
+        au TerminalWinOpen * let b:_twk = getbufvar(str2nr(expand('<abuf>')), '&twk')
           \ | if b:_twk == '' | let b:_twk = '<c-w>' | endif
           \ | exe printf('tno <buffer><nowait> %s<c-w> %s<c-w>', b:_twk , b:_twk)
           \ | unlet! b:_twk
