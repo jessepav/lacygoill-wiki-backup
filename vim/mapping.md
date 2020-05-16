@@ -1492,6 +1492,31 @@ produced by `<up>` in xterm).
 # Todo
 ## ?
 
+Document how to configure Tmux for `:h modifyOtherKeys` to work in Vim.
+
+- <https://github.com/tmux/tmux/issues/2216#issuecomment-629600225>
+- <https://github.com/tmux/tmux/issues/2216#issuecomment-629601762>
+- <https://github.com/tmux/tmux/wiki/Modifier-Keys#extended-keys>
+
+Note that Tmux only supports `modifyOtherKeys = 1`, not `modifyOtherKeys = 2`.
+The latter would be tricky to implement:
+<https://github.com/tmux/tmux/issues/2216#issuecomment-629597863>
+
+So, you can't make Vim distinguish between some keys, like `C-i` and `Tab` inside Tmux.
+And, inside Tmux, you should set `'t_TI'` like this:
+
+    let &t_TI = "\<Esc>[>4;1m"
+                           ^
+                           ✔
+
+*Not* like this:
+
+    let &t_TI = "\<Esc>[>4;2m"
+                           ^
+                           ✘
+
+## ?
+
 Document when `b:changedtick` is automatically incremented.
 
     $ touch /tmp/file{1..2} && vim -Nu NONE -S <(cat <<'EOF'

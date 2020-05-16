@@ -3,8 +3,75 @@
 Read:
 
 - <https://github.com/mhinz/neovim-remote>
-- <https://www.reddit.com/r/vim/comments/83ve6g/how_to_open_file_in_current_vim_instance_from/>
-- <https://gist.github.com/andymass/bcd0a4956ed1a873d41f7265be6c6979>
+
+# ?
+
+Document that  you can't use  single quotes to surround  arguments in an  OSC 51
+sequence  (which implements  an api  allowing a  shell job  associated to  a Vim
+buffer to discuss with the outer Vim; see `:h terminal-api`).
+
+                                    ✘        ✘
+                                    v        v
+    $ printf -- "\033]51;[\"drop\", 'tmp/file']\007"
+    E474: Invalid argument~
+
+You need double quotes:
+
+                                     ✔         ✔
+                                     v         v
+    $ printf -- "\033]51;[\"drop\", \"tmp/file\"]\007"
+
+Because of this, if your argument comes  from some Vim expression, you can't use
+`string()` to include its evaluation inside a string concatenation:
+
+    $ vim -Nu NONE +term
+    $ vim -Nu NONE
+    :let file = '/tmp/file'
+                                            ✘
+                                            vvvvvv
+    :call writefile(["\e"..']51;["drop", '..string(file).."]\007"], '/dev/tty', 'b')
+    E474: Invalid argument~
+
+Use `json_encode()` instead:
+                                            ✔
+                                            vvvvvvvvvvv
+    :call writefile(["\e"..']51;["drop", '..json_encode(file).."]\007"], '/dev/tty', 'b')
+
+---
+
+Document that there is a limit size on the sequence you can send via OSC 51.
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        term
+        fu Tapi_drop(_, files)
+            exe 'tabnew | drop '..join(a:files)
+        endfu
+    EOF
+    )
+
+    " from Vim's terminal
+    $ vim -Nu NONE
+    :let files = map(range(1, 279), {_,v -> '/tmp/file'..v})
+    :call writefile(["\e"..']51;["call", "Tapi_drop", '..json_encode(files)..']'.."\007"], '/dev/tty', 'b')
+    " fails for 279 or more files, but succeeds for 278 or fewer
+
+And that the best  solution if you have to execute a very  long command (e.g. if
+it includes many file paths) is to write most of it inside a temporary file, and
+let the outer  Vim read it.  This  allows you to shorten the  sequence; you just
+have to include the name of the temporary file.
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        term
+        fu Tapi_drop(_, tempfile)
+            exe 'tabnew | drop '..join(readfile(a:tempfile))
+        endfu
+    EOF
+    )
+
+    $ vim -Nu NONE
+    :let files = map(range(1, 279), {_,v -> '/tmp/file'..v})
+    :call writefile(files, '/tmp/tempfile', 'b')
+    :call writefile(["\e"..']51;["call", "Tapi_drop", "/tmp/tempfile"]'.."\007"], '/dev/tty', 'b')
 
 ##
 # How to paste a register in a terminal buffer in Vim?
