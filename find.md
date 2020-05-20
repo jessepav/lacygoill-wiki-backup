@@ -297,13 +297,13 @@ You can check it like so:
 
 # ?
 
-Document that using a `.fdignore` should be preferred to `-E` whenever possible.
+Document that using `.config/fd/ignore` should be preferred to `-E` whenever possible.
 
 Why?
 If you  want to be sure  that any command  relying on `fd(1)` ignores  a certain
 pattern, it's going to be tedious/error-prone to edit each of them.
-`.fdignore` is easier, more reliable, and scale better to any number of commands
-you'll add in the future.
+`.config/fd/ignore` is easier, more reliable, and  scale better to any number of
+commands you'll add in the future.
 
 ##
 # How to make `locate` print the names of all files whose name ends with ‘Makefile’ or ‘makefile’?

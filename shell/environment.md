@@ -35,7 +35,7 @@ In `~/.zshenv`, we have this line:
 
 And in Vim:
 
-    let $MANSECT = $MYMANSECT
+    call setenv('MANSECT', $MYMANSECT)
 
 We use `$MYMANSECT` as a backup of  `$MANSECT`, to restore its value when we run
 a `man(1)` command.

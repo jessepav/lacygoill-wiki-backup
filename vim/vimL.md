@@ -1034,6 +1034,15 @@ This has an effect on the `:h` modifier, because the latter considers a trailing
 slash as a (empty) path component.
 
 ##
+## How to get the width of the number column (whether it's visible doesn't matter)?
+
+    :echo max([strlen(line('$')), &l:numberwidth-1])
+
+## How to get the width of all the *currently visible* fold/number/sign columns?
+
+    :echo wincol() - virtcol('.')
+
+##
 ## How to play a sound?
 
 Use `sound_playfile()` or `sound_playevent()`.

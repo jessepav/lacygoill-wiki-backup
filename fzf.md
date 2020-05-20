@@ -1067,6 +1067,72 @@ See our todo in:
 
     ~/.vim/plugged/vim-git/after/ftplugin/gitcommit.vim
 
+## Simplify popup window implementation in fzf Vim plugin
+
+Remember when @ichizok proposed a PR to prevent fzf from creating an extra process?
+Here's what it looked like:
+<https://github.com/junegunn/fzf/commit/07e8816ae830769dbece7ea9c7833967280eeadf>
+
+It was  revised and  made more  complicated to  support the  case where  fzf was
+invoked from a popup terminal.  It turns out that since 8.2.0791, you can't open
+2 popup terminals  at the same time in  Vim anymore (which imo is  a good thing,
+since it created too many issues).  So the original version of the PR is now good.
+
+Maybe we should submit this simplified version as a PR.
+If you  do, don't forget to  give all the credit  to @ichizok in the  git commit
+message, since they are the original author.
+
+Btw, this PR could also probably be undone: <https://github.com/junegunn/fzf/pull/1927>
+
+## Fix E861 when fzf is invoked from popup terminal
+
+Invoke an fzf command from a popup terminal, and you'll get the error `E861`:
+
+    Error detected while processing TerminalOpen Autocommands for "*":
+    E861: Cannot open a second popup with a terminal
+    Error detected while processing function <SNR>53_history:
+    line    7:
+    E171: Missing :endif
+
+`s:split()` invoked  by `fzf#run()` should bail  out when it finds  out that the
+currently focused window is a popup terminal:
+
+    diff --git a/plugin/fzf.vim b/plugin/fzf.vim
+    index 06ef99a..6a141a4 100644
+    --- a/plugin/fzf.vim
+    +++ b/plugin/fzf.vim
+    @@ -655,6 +655,10 @@ function! s:split(dict)
+             if !has('nvim') && !has('patch-8.2.191')
+               throw 'Vim 8.2.191 or later is required for pop-up window'
+             end
+    +        " `:sil!` because if the current window is not a popup window, `E993` is raised
+    +        sil! if !has('nvim') && !empty(popup_getoptions(win_getid()))
+    +            throw 'E861: Cannot open a second popup with a terminal'
+    +        endif
+             call s:popup(a:dict.window)
+             let is_popup = 1
+           else
+
+This patch is *probably* what @junegunn would want.
+It fits  well in the  current code (notice how  the previous `:throw`  handles a
+somewhat similar issue).  But I don't like  this patch; it makes the stack trace
+even more verbose:
+
+    Error detected while processing function <SNR>53_history[7]..fzf#vim#history[1]..<SNR>167_fzf[18]..fzf#run[58]..<SNR>52_execute_term[3]..<SNR>52_split:
+    line   16:
+    E605: Exception not caught: E861: Cannot open a second popup with a terminal
+    Error detected while processing function <SNR>53_history:
+    line    7:
+    E171: Missing :endif
+
+When you re-implement the fzf *Vim* plugin  (not the fzf binary), make sure your
+code just bail out when a popup terminal is currently open.
+Also, use `win_gettype()` to make the code simpler:
+
+    if win_gettype() is# 'popup'
+        return
+    endif
+
 ## ?
 
 Document that the equivalent of this shell command:

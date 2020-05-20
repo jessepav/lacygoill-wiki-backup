@@ -1658,6 +1658,25 @@ For Vim:
 
 For more info, see: <https://github.com/TeamPorcupine/ProjectPorcupine/wiki/How-to-Test-a-Pull-Request>
 
+## How to squash 2 commits into a single one?
+
+    $ git clone git@github.com:YOUR-USERNAME/YOUR-FORKED-REPO.git
+    $ cd YOUR-FORKED-REPO
+
+    # when you clone a repo, you don't get all the branches: https://stackoverflow.com/a/72156/9780968
+    # btw, do *not* write 'origin/my-branch', just 'my-branch'
+    $ git checkout my-branch
+
+    # apply changes
+    $ git add . && git commit -m 'my message'
+
+    $ git rebase -i HEAD~2 # 2 = squash 2 commits
+    # press C-a 3 times on the 'pick' word of the second line
+
+    $ git push -f
+
+For more info, see: <https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request>
+
 ##
 # Github
 

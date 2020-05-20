@@ -1,87 +1,5 @@
-# ?
-
-Document `:unhide`.
-
-Useful to see all hidden buffers in a window.
-It only works  if you don't have  too many hidden buffers  (otherwise `E36`: not
-enough room).
-
-    $ vim -p ~/.shrc ~/.bashrc ~/.zshrc
-    :tabonly
-    :unhide
-
-Note that it doesn't work here:
-
-    $ vim ~/.shrc ~/.bashrc ~/.zshrc
-    :unhide
-
-Because even though  `~/.bashrc` and `~/.zshrc` are  not displayed, technically,
-they are not hidden buffers.
-They are just file paths in the buffer list.
-They will be loaded/created once you visit them.
-
-# ?
-
-If you have modified a file from outside Vim, you will lose its undo history.
-For example, assuming `file` is not opened in a Vim instance, if you run:
-
-    $ echo 'hello' >>file
-
-All the undo history of `file` is lost.
-
-You may still recover the undo history, if the file is currently loaded in a Vim buffer,
-and if the buffer contains less than 10000 lines (see `:h 'undoreload'`).
-If that's the case, run `:e!`.
-
-<https://www.reddit.com/r/vim/comments/bnzl43/any_hacks_to_make_vim_read_undofile_when_file_is/enavpuj/>
-
----
-
-I think you can  also recover the undo history by editing the  text so that it's
-identical to  the last time  the undo file  was saved; but  you need to  do that
-while `'undofile'` is reset.
-
-See `ex.md`, and look for `undofile`.
-
-# ?
-
-In insert mode, a character is between 2 characters.
-In normal mode, a character is *on* a character.
-
-But while in normal  mode there are `n` possible characters  on which the cursor
-may be, in insert mode there are `n+1` possible positions for the cursor (“posts
-vs fences”).
-
-When you  switch to insert  mode from  normal mode, the  cursor has to  choose a
-location between 2 characters.
-And when you press `i`, it chooses to  be right before the character on which it
-was in normal mode: this makes it look like it moves half a character backward.
-
----
-
-But why does the cursor move one character backward when I press `i Esc`?
-
-Often, you're typing at the end of the line, and there, `Esc` can only go left.
-So the general behavior is the most common behavior.
-
-- <https://unix.stackexchange.com/a/11405/289772>
-- <https://www.reddit.com/r/vim/comments/a9zzv5/last_character_end_of_file/ecnwnln/>
-- <https://github.com/neovim/neovim/issues/11456#issuecomment-558072430>
-
-##
-# help
-## Which tags can give me an overview of all the available commands?
-
-    :h quickref
-    :h index
-
-In `:h quickref`, commands are organized around common themes.
-In `:h index`, they are organized around modes.
-
-##
-# Démarrage
-
-Several commands can start Vim. How to detect which one is responsible for the current Vim process?
+# Starting (N)Vim
+## How to get the name of the shell command which was executed to start the current Vim process?
 
     :echo v:progname
 
@@ -91,95 +9,191 @@ Example:
     :echo v:progname
     vimdiff~
 
----
+## How to get the name of the binary which was executed to start the current Vim process?
 
-Several Vim binaries can be installed. How to detect which one is responsible for the current Vim process?
+Several Vim binaries can be installed.  How to detect which one is responsible for the current Vim process?
 
     :echo v:progpath
 
----
+##
+## When starting Vim, how to make it become a server?
 
-    $ less file
+    $ vim --servername MYSERVER
 
-Affiche le contenu de file dans le pager `less`.
-Si on appuie sur la touche `v`, le fichier est chargé dans un buffer Vim.
-On peut le lire et l'éditer dans Vim.
-Après avoir quitté Vim, on se retrouve  dans `less`, le contenu du fichier ayant
-été mis à jour.
+### How to do it *after* Vim was started?
 
----
+    :call remote_startserver('MYSERVER')
 
-        Ouvre file et:
-        ┌──────────────────────────────┬──────────────────────────────────────────────────────────────────┐
-        │ vim +5 file                  │ place le curseur sur la 5e ligne                                 │
-        ├──────────────────────────────┼──────────────────────────────────────────────────────────────────┤
-        │ vim +/bar file               │ cherche automatiquement le mot bar                               │
-        └──────────────────────────────┴──────────────────────────────────────────────────────────────────┘
+## How to print all running servers on stdout?
 
+    $ vim --serverlist
 
-        ┌───────────────────────────────┬───────────────────────────────────────────────────────────────────────┐
-        │ cat file1 file2 file3 | vim - │ lire le contenu de 3 fichiers dans un seul buffer Vim                 │
-        ├───────────────────────────────┼───────────────────────────────────────────────────────────────────────┤
-        │ vim url                       │ dl et affiche le code source de la page web à l'adresse url           │
-        ├───────────────────────────────┼───────────────────────────────────────────────────────────────────────┤
-        │ vim -p foo bar                │ lancer Vim en affichant les fichiers foo et bar                       │
-        │                               │ chacun dans un onglet distinct                                        │
-        ├───────────────────────────────┼───────────────────────────────────────────────────────────────────────┤
-        │ vim -R file                   │ lit `file` en mode RO (read-only)                                     │
-        │                               │                                                                       │
-        │                               │ pour annuler le mode RO, taper `set noro`                             │
-        │                               │                                                                       │
-        │                               │ Le flag -R inclut le flag -n, qui signifie qu'il n'y aura pas         │
-        │                               │ de fichier swap. `:set uc=200` permet de changer ça.                  │
-        └───────────────────────────────┴───────────────────────────────────────────────────────────────────────┘
+## How to print all running servers in Vim?
 
+    :echo serverlist()
 
-    vim --servername FOO
+This doesn't work as you may expect in Nvim.
+It doesn't list *all* Nvim running servers.
+It  only lists  the running  Nvim servers  which were  started from  the current
+instance via `serverstart()` (which is an Nvim-only function).
 
-            Lancer un serveur Vim du nom de FOO.
+##
+## From another shell, how to make a running Vim server
+### edit some file?
 
-            Qd on voudra s'y connecter avec vim `--remote`, si on ne fournit pas le nom du serveur,
-            Vim cherche automatiquement à se connecter au serveur `VIM`.
-            Il est donc utile d'appeler son serveur `VIM`, pour pouvoir s'y connecter + facilement ensuite.
+    $ vim --remote /path/to/file --servername MYSERVER
+          ^^^^^^^^
 
+#### in a new tab page?
 
-    vim --serverlist
+    $ vim --remote-tab /path/to/file --servername MYSERVER
+                  ^^^^
 
-            Liste les serveurs Vim qui tournent actuellement.
+### type some keys?
 
+    $ vim --remote-send '<esc>:echom "test"<cr>' --servername MYSERVER
+                  ^^^^^
 
-    vim --servername FOO --remote[-tab] bar
+Note that  the string argument  passed to  `--remote-send` is able  to translate
+special sequences such as `<esc>` and `<cr>` just like any mapping command.
 
-            Se connecter au serveur Vim `FOO` pour qu'il édite le fichier `bar`.
+### evaluate some Vim expression?
 
-            En utilisant `--remote-tab`, bar s'ouvre dans un nouvel onglet.
+    $ vim --remote-expr 'Func()' --servername MYSERVER
+                  ^^^^^
 
-            Utile pour ouvrir un fichier depuis un shell dans une session Vim existante.
-            De la même façon que lorsqu'on clique sur un lien dans rssowl ou thunderbird,
-            ça n'ouvre pas à chaque fois une nouvelle fenêtre de firefox,
-            on n'a pas besoin d'avoir une nouvelle instance de Vim à chaque fois qu'on veut
-            éditer un fichier.
+##
+## When starting Nvim, how to make it become a server?
 
-            Si on ne précise pas le serveur, Vim tente de se connecter au serveur VIM.
+There's no need to.  Nvim becomes a server automatically.
 
+### How to get its address?  (2)
 
-    vim --remote-send '<Esc>:echo "hello"<cr>'
+    :echo v:servername
+    :echo $NVIM_LISTEN_ADDRESS
 
-            Afficher le message 'hello' dans la session du serveur VIM.
+### How to set its address from the shell?  (2)
 
-            --remote-send prend comme valeur une chaîne contenant des caractères à taper
-            Cette chaîne peut inclure des touches spéciales comme <cr>, <Esc>, etc.
+    $ nvim --listen '/tmp/mysocket'
+    $ NVIM_LISTEN_ADDRESS=/tmp/mysocket nvim
 
+### How to pass a `--remote-*` argument to Nvim?
 
-    vim --remote-expr 'MyFunc()'
+You can't directly.  But you can install the `neovim-remote` package via the pip installer:
+<https://github.com/mhinz/neovim-remote>
 
-            faire exécuter le code de MyFunc() au serveur VIM
+It provides the `nvr` command; use it as a replacement to `nvim` in your command.
+Examples:
 
-            --remote-expr prend comme valeur une chaîne contenant une expression à évaluer
-            On peut profiter du fait qu'une fonction est une expression (dont la valeur
-            est son code de retour) pour exécuter du code arbitraire.
+    $ nvr --remote file1 file2
+
+    $ nvr --remote-send 'iabc<esc>'
+
+    $ nvr --remote-expr 'bufname("")'
+
+##
+## What's special about the server names `VIM` and `/tmp/nvimsocket`?
+
+They are used as a fallback when you use `--remote-*`, but not `--servername`,
+resp. in a Vim command and in a nvr one.
 
 #
+# Misc.
+## Which help tags can give me an overview of all the available commands?
+
+    :h quickref
+    :h index
+
+In `:h quickref`, commands are organized around common themes.
+In `:h index`, they are organized around modes.
+
+## How to make Vim display all the hidden buffers?
+
+Use `:unhide`.
+
+    $ vim -p /tmp/file{1..3}
+    :tabonly
+    :unhide
+
+It only works  if you don't have  too many hidden buffers  (otherwise `E36`: not
+enough room).
+
+---
+
+Note that it doesn't work here:
+
+    $ vim /tmp/file{1..3}
+    :unhide
+
+That's  because even  though `/tmp/file2`  and `/tmp/file3`  are not  displayed,
+technically,  they are  not hidden  buffers.  They  are just  file paths  in the
+buffer list.  They will be loaded/created once you visit them.
+
+## Why does the cursor move one character backward when I press `i Esc`?
+
+In insert mode, a character is *between* 2 characters.
+In normal mode, a character is *on* a character.
+
+And while in normal  mode there are `n` possible characters  on which the cursor
+may be, in insert mode there are `n+1` possible positions for the cursor (“posts
+vs fences”).
+
+When you  switch to insert  mode from  normal mode, the  cursor has to  choose a
+position between 2 characters.   And when you press `i`, it  chooses to be right
+before the character on which it was in normal mode: this makes it look like the
+cursor moves half a character backward.
+
+Now you  may wonder why Vim  chooses to go to  the left position instead  of the
+right one.  That's because, most of the  time, when you're typing, the cursor is
+at the end of  the line, and there, `Esc` can only go  left.  So the most common
+behavior was generalized to other cursor positions (i.e. in the middle of a line).
+
+Further reading:
+- <https://unix.stackexchange.com/a/11405/289772>
+- <https://github.com/neovim/neovim/issues/11456#issuecomment-558072430>
+- <https://www.reddit.com/r/vim/comments/a9zzv5/last_character_end_of_file/ecnwnln/>
+
+##
+# Pitfalls
+## I've lost all the undo history of my file!
+
+You probably have modified your file from outside Vim.
+For example, assuming `file` is *not* opened in a Vim instance, if you run:
+
+    $ echo 'hello' >>file
+
+All the undo history of `file` is lost.
+
+That's because the  hash of the contents  of the file no longer  matches the one
+which was saved in the undo file.  See `:h undo-persistence`.
+
+You  can try  to recover  the undo  history  by editing  the text  so that  it's
+identical to  the last time  the undo file  was saved; but  you need to  do that
+while `'undofile'` is reset.
+
+See `ex.md`, and look for `undofile`.
+
+---
+
+If  the file  is still  currently loaded  in  a Vim  buffer, and  if the  latter
+contains fewer than 10000 lines (see  `:h 'undoreload'`), just reload the buffer
+with `:e` or `:e!`.  When Vim re-reads the file, the undo tree should be updated
+and saved.
+
+If you don't reload,  and just quit Vim, when you'll re-edit  the file, the undo
+history will be lost.
+
+In practice, I think we don't have to reload the buffer in such a case, probably
+because:
+
+   - we set `'autoread'`
+   - we execute `:checktime` from various events (`BufEnter`, `CursorHold`, `InsertEnter`, ...)
+
+So Vim automatically reloads the buffer when it detects that the file has changed.
+
+##
+##
+##
 # Édition
 ## Divers
 

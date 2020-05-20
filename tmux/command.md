@@ -670,11 +670,11 @@ Then use this id to send your text.
 Use the second optional argument of `system()` to pass the text to the stdin of `tmux(1)`.
 
     :let pane_id = system('tmux splitw -PF "#D" -dI', "hello\n")[:-2]
-    :call system('tmux display -t ' . pane_id . ' -I', "world\n")
-                                                             ^^
-                                                             don't forget to add a newline,
-                                                             if you want the next text
-                                                             to be printed on a different line
+    :call system('tmux display -t '..pane_id..' -I', "world\n")
+                                                           ^^
+                                                           don't forget to add a newline,
+                                                           if you want the next text
+                                                           to be printed on a different line
 
 ##
 # Marked pane

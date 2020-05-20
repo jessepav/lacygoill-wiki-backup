@@ -51,6 +51,6 @@
 
 # VimFx
 
-        https://addons.mozilla.org/en-US/firefox/addon/vimfx/
-        https://addons.mozilla.org/en-US/firefox/addon/the-fox-only-better/ (hide/customize address bar)
+- <https://addons.mozilla.org/en-US/firefox/addon/vimfx/>
+- <https://addons.mozilla.org/en-US/firefox/addon/the-fox-only-better/ (hide/customize address bar)>
 
