@@ -845,7 +845,7 @@ The following plugin let you use ranger in place of the builtin `netrw`. It's a 
 
 # kakoune
 
-This text editor has commands to quickly open ranger in Tmux panes or X11 windows: https://github.com/mawww/kakoune/blob/master/rc/extra/ranger.kak
+This text editor has commands to quickly open ranger in tmux panes or X11 windows: https://github.com/mawww/kakoune/blob/master/rc/extra/ranger.kak
 # Keybindings.md
 Here is a place for useful custom key bindings. Share what you got!
 

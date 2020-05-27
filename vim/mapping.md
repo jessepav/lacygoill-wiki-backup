@@ -1,57 +1,3 @@
-# Why should I avoid passing the `t` flag to `feedkeys()` all the time?
-
-It will break `feedkeys()` if the latter is called by `:norm`.
-
----
-
-MWE:
-
-    $ vim -Nu NONE +'nno cd :exe "norm! :call feedkeys(\"aaa\",\"t\")\r"<cr>'
-    " press 'cd': nothing is inserted in the buffer~
-
-    $ vim -Nu NONE +'nno cd :exe "norm! :call feedkeys(\"aaa\")\r"<cr>'
-    " press 'cd': 'aa' is inserted in the buffer~
-
-This is  a contrived example, but  the issue can  be encountered in a  real life
-scenario. For example, in the past, we had these mappings:
-
-    " ~/.vim/plugged/vim-help/after/ftplugin/help.vim
-    nno <buffer><nowait><silent> q :<c-u>norm 1<space>q<cr>
-
-    " ~/.vim/plugged/vim-window/plugin/window.vim
-    nno <silent><unique> <space>q :<c-u>call lg#window#quit()<cr>
-
-and this function:
-
-    fu window#quit#main() abort
-        ...
-        if reg_recording() isnot# ''
-            return feedkeys('q', 'nt')[-1]
-                                   ^
-                                   ✘
-        endif
-        ...
-
-If a register is being recorded, and we're in a help buffer, pressing `q` should
-end the recording; in practice, it didn't because of the `t` flag.
-
----
-
-Note that you really need `:norm` to reproduce the issue.
-For example,  if you  try to replace  it with a  second `feedkeys()`,  the issue
-disappears (no matter whether you use the `t` flag in any function call):
-
-    nno cd :call feedkeys('gh', 't')<cr>
-    nno gh :call feedkeys('aaa', 'nt')<cr>
-    " press `cd`: 'aa' is inserted
-
-Also, the issue disappears if you use the `x` flag:
-
-                                                                  v
-    $ vim -Nu NONE +'nno cd :exe "norm! :call feedkeys(\"aaa\",\"tx\")\r"<cr>'
-    " press 'cd': 'aa' is inserted in the buffer~
-
-##
 # One of my custom normal command is not repeatable with the dot command!  Why?
 
 `.` only repeats the *last* default normal command.
@@ -170,133 +116,6 @@ commands.  Otherwise,  before being able to  press `.`, you would  need to press
 `Escape` to get back to normal mode.
 
 ##
-# What's a “pseudo-operator”?
-
-The term is not used in the help.
-I use it to refer to an operator to which the same text-object is always passed.
-Such an operator can be useful to make a custom command repeatable.
-
-# When I implement a custom operator, I often hesitate between `g@_` and `g@l`.  Which one should I use?
-
-If you're *not* implementing a pseudo-operator, use `g@_`.
-
-If you *are* implementing a pseudo-operator, use `g@l`; unless:
-
-   - it needs to refer to the change marks
-
-     and
-
-   - it doesn't care about the column position of the cursor
-
----
-
-Rationale:
-
-If your custom operator is a pseudo one, and you implemented it like this:
-
-    nno <key> :<c-u>set opfunc=MyOp<bar>norm! g@_<cr>
-                                                ^
-                                                ✘
-
-The `_` motion will make the cursor jump at the beginning of the line, which you
-probably don't want.  You can avoid the jump by replacing the motion `_` with `l`.
-
----
-
-If your custom operator is *not* a pseudo operator, and you implemented like this:
-
-    nno <key>      :set opfunc=MyOp<cr>g@
-    xno <key>      :call MyOp('vis')<cr>
-    nno <key><key> :set opfunc=MyOp<bar>exe 'norm! '..v:count1..'g@l'<cr>
-                                                                   ^
-                                                                   ✘
-
-The `l` motion will  prevent Vim from setting the change marks  on the lines you
-want to change, when you press `123<key><key>`.
-So,  `MyOp()`  will  need  to  make   a  distinction:  have  I  been  called  by
-`<key>{text-object|motion}`, or by `123<key><key>`?
-
-In the first case, it will have to use the change marks.
-In the second case, it will have to use the range `.,. +(v:count1 -1)`.
-
-This introduces unneeded complexity...
-So, replace the `l` motion with `_`.
-
-## ?
-
-Document this pitfall:
-
-    nno cd :call Func()<cr>bbb
-    fu Func() abort
-        call input('>')
-    endfu
-
-Press  `cd`, and  you'll  see that  `bbb`  has been  consumed  by `input()`  and
-inserted on the command-line, instead of being pressed.
-But if you rewrite the mapping like this, it works as expected:
-
-    nno cd :call Func()<bar>norm! bbb<cr>
-    fu Func() abort
-        call input('>')
-    endfu
-
-Or you could write this:
-
-    nno cd :call Func()<cr>bbb
-    fu Func() abort
-        call inputsave()
-        call input('>')
-        call inputrestore()
-    endfu
-
----
-
-Document this pitfall:
-
-    nno z= :set opfunc=Z_equal<bar>norm! g@l<cr>
-    fu Z_equal(_) abort
-        setl spell
-        call feedkeys('z=', 'n')
-    endfu
-
-It could  be tempting  to always  write `norm! g@l`  rather than  pressing `g@l`
-directly,  so that  if the  opfunc invokes  a function  consuming the  typeahead
-(`input()`, `getchar()`, ...), it doesn't wrongly consume `g@`.
-
-But doing  so would break  commands which requires  the user's input,  like `:s`
-with the `c` flag, or `z=`.  Indeed, `:norm` considers these type of commands as
-*in*complete  (the user's  input is  missing), and  so it  presses Escape  which
-prevents you from providing any input.
-
-From `:h norm`:
-
->     {commands} should be a complete command.  If
->     {commands} does not finish a command, the last one
->     will be aborted as if <Esc> or <C-C> was typed.
-
-# When should I use `g@_` to implement a pseudo-operator?
-
-When two conditions are satisfied.
-
-1. The commands executed by your function make the cursor jump (e.g. `:s`).
-
-Note that `:keepj`  doesn't prevent the cursor from jumping,  it merely prevents
-an entry from being added to the jumplist.
-
-2. You prefer to use this range (for better readability):
-
-        line("'[")..','..line("']")
-
-Instead of:
-
-    '.,.+' .. (v:count1 - 1)
-
-Currently, the only place where these conditions are satisfied is in:
-
-    ~/.vim/plugged/vim-par/plugin/par.vim:98
-    /gqs
-
-##
 # How to tweak the behavior of a default operator?
 
 Create a wrapper around it.
@@ -304,7 +123,7 @@ Create a wrapper around it.
 Example with the `gq` operator:
 
     nno <silent> gq  :<c-u>set opfunc=<sid>gq<cr>g@
-    nno <silent> gqq :<c-u>set opfunc=<sid>gq<bar>exe 'norm! '..v:count1..'g@_'<cr>
+    nno <silent> gqq :<c-u>set opfunc=<sid>gq<bar>exe 'norm! '..(v:count ? v:count : '')..'g@_'<cr>
     xno <silent> gq  :<c-u>call <sid>gq('vis')<cr>
 
     fu s:gq()
@@ -363,27 +182,38 @@ where you restore `'opfunc'`.
 
 ##
 # opfunc
-## My opfunc uses `:s/pat/rep/c`.  It doesn't work!
+## What's a “pseudo-operator”?
 
-You may be invoking your opfunc via `:norm!`.
-In this case, read this (from `:h :norm`):
+The term is not used in the help.
+I use it to refer to an operator to which the same text-object is always passed.
+Such an operator can be useful to make a custom command repeatable.
 
->       {commands} should be a complete command.  If
->       {commands} does not finish a command, the last one
->       will be aborted as if <Esc> or <C-C> was typed.
+## When I implement a custom operator, I often hesitate between `g@_` and `g@l`.  Which one should I use?
 
-`:s/pat/rep/c` is an unfinished command: it requires the user's input to finish.
-So, `:norm!` aborts your `:s/.../c` command.
-Use `feedkeys()` instead.
+Use `g@l` for a pseudo-operator; `g@_` otherwise.
 
-    nno <key> :set opfunc=OpFunc<bar>exe 'norm! '..v:count1..'g@_'<cr>
-                                          ^
-                                          ✘
+---
 
-    nno <key> :set opfunc=OpFunc<bar>call feedkeys(v:count1..'g@_', 'n')<cr>
-                                          ^
-                                          ✔
+If your custom operator is a pseudo one, and you implement it like this:
 
+    nno <key> :<c-u>set opfunc=MyOp<bar>norm! g@_<cr>
+                                                ^
+                                                ✘
+
+The `_` motion will make the cursor jump at the beginning of the line, which you
+probably don't want.  You can avoid the jump by replacing the motion `_` with `l`.
+
+If your custom operator is *not* a pseudo operator, and you implement it like this:
+
+    nno <key>      :set opfunc=MyOp<cr>g@
+    xno <key>      :call MyOp('vis')<cr>
+    nno <key><key> :set opfunc=MyOp<bar>exe 'norm! '..(v:count ? v:count : '')..'g@l'<cr>
+                                                                                   ^
+                                                                                   ✘
+
+The change marks will be wrongly set.
+
+##
 ## My opfunc uses `setline()`, not `:s`.  How to pass it a range when I use a count (e.g. `123g@_`)?
 
 Install a wrapper around your opfunc.
@@ -457,6 +287,208 @@ And for autocmds:
         echo 'foo'
         echo 'bar'
     endfu
+
+##
+# feedkeys()
+## When is it useful to use the `t` flag?
+
+When a key doesn't behave exactly as expected.
+
+For example, witouth `t`, `Tab` and  `S-Tab` don't interact with the wildmenu in
+command-line mode (open it or cycle to the next/previous entry):
+
+    $ vim -Nu NONE +'cno <expr> <c-q> feedkeys("<tab>", "n")[-1]'
+    " press ':', then 'C-q' repeatedly:  Vim inserts literal tab characters
+
+                                                          v
+    $ vim -Nu NONE +'cno <expr> <c-q> feedkeys("<tab>", "nt")[-1]'
+    " press ':', then 'C-q' repeatedly:  Vim iterates over Ex commands
+
+And without  `t`, `u` doesn't automatically  open the fold where  the change was
+performed:
+
+    $ vim -Nu NONE +"set fdm=marker | pu!=['fold {{{1', 'some text', 'some text']"
+    " press:  zRGdk
+    :call feedkeys('u', 't')
+                         ^
+    " without the 't' flag, 'u' would not have opened the fold
+
+### And when should I avoid it?
+
+When a recording is being performed.
+Indeed, during a recording,  the `t` flag causes the fed  key(s) to be recorded,
+which you probably don't want.
+
+MWE:
+
+    ✘
+    vim -Nu NONE +'nno <expr> <c-b> feedkeys("ix\<esc>", "int")[-1]'
+    " press:  qq
+    "         C-b
+    "         q
+    "         @q
+    " resulting line:  xxx
+    " expected line:   xx
+
+    ✔
+    vim -Nu NONE +'nno <expr> <c-b> feedkeys("ix\<esc>", "in"..(empty(reg_recording()) ? "t" : ""))[-1]'
+                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+---
+
+Also, don't use the `t` flag if `feedkeys()` can be invoked from `:norm` (unless
+you also use the `x` flag).
+
+Indeed, `feedkeys()` + `t` flag has no effect when invoked from `:norm`.
+
+MWE:
+
+    $ vim -Nu NONE +'nno cd :exe "norm! :call feedkeys(\"aaa\",\"t\")\r"<cr>'
+    " press 'cd': nothing is inserted in the buffer
+
+    $ vim -Nu NONE +'nno cd :exe "norm! :call feedkeys(\"aaa\")\r"<cr>'
+    " press 'cd': 'aa' is inserted in the buffer
+
+This is  a contrived example, but  the issue can  be encountered in a  real life
+scenario.  For example, in the past, we had these mappings:
+
+    " ~/.vim/plugged/vim-help/after/ftplugin/help.vim
+    nno <buffer><nowait><silent> q :<c-u>norm 1<space>q<cr>
+
+    " ~/.vim/plugged/vim-window/plugin/window.vim
+    nno <silent><unique> <space>q :<c-u>call lg#window#quit()<cr>
+
+and this function:
+
+    fu window#quit#main() abort
+        ...
+        if reg_recording() isnot# ''
+            return feedkeys('q', 'nt')[-1]
+                                   ^
+                                   ✘
+        endif
+        ...
+
+If a register is being recorded, and we're in a help buffer, pressing `q` should
+end the recording; in practice, it didn't because of the `t` flag.
+
+---
+
+Note that you really need `:norm` to reproduce this last issue.
+For example, if you try to replace `:norm` with a second `feedkeys()`, the issue
+disappears (no matter whether you use the `t` flag in any function call):
+
+    nno cd :call feedkeys('gh', 't')<cr>
+    nno gh :call feedkeys('aaa', 'nt')<cr>
+    " press `cd`: 'aa' is inserted
+
+Also, the issue disappears if you use the `x` flag:
+
+                                                                  v
+    $ vim -Nu NONE +'nno cd :exe "norm! :call feedkeys(\"aaa\",\"tx\")\r"<cr>'
+    " press 'cd': 'aa' is inserted in the buffer
+
+##
+## Why should I use the `i` flag as often as possible?
+
+To make the replay of a macro more reliable.
+
+    $ vim -Nu NONE -i NONE +"let &wcm = &wc | pu!='xxx'" +'cno <expr> <s-tab> feedkeys("<s-tab>", "n")[-1]'
+    " press:  qq
+              : Tab Tab Tab S-Tab Enter
+              q
+              @q
+    E33: No previous substitute regular expression~
+    " '@q' should have executed ':#'; instead it has executed ':&'
+
+When you replay the macro, here's what happens:
+
+    typeahead       | executed
+    --------------------------
+    @q              |
+    :^I^I^I<80>kB^M |
+     ^I^I^I<80>kB^M | :
+       ^I^I<80>kB^M | :^I
+         ^I<80>kB^M | :^I^I
+           <80>kB^M | :^I^I^I
+           ^^^^^^
+           Vim's internal encoding of 'S-Tab'
+
+At that point, `S-Tab` is remapped into nothing (empty string).
+But during  the evaluation of  the mapping's  rhs, `feedkeys()` is  invoked, and
+*appends* a new `S-Tab` in the typeahead, which gives:
+
+    typeahead       | executed
+    --------------------------
+           ^M<80>kB | :^I^I^I
+             <80>kB | :^I^I^I^M
+                    | :^I^I^I^M<80>kB
+
+As you can see, without the `i` flag, `S-Tab` is appended, which means that it's
+executed *after* whatever Ex command is currently selected in the wildmenu.
+IOW, it's executed too late, and has  no effect (unless you've mapped `S-Tab` in
+normal mode); it should  have made Vim select `:#` (which  is the previous entry
+before `:&`).
+
+Similar issue: <https://github.com/tpope/vim-repeat/issues/23>
+
+Btw, @chrisbra has the same opinion:
+
+>     After thinking a bit more, I think,  when the keys have not been typed, they
+>     should **always** be inserted at the current position.
+
+Source: <https://github.com/vim/vim/issues/212#issuecomment-132351526>
+
+### And when should I avoid it?
+
+When you want to delay the execution  of the key sequence until Vim has entirely
+finished processing a mapping or an abbreviation.
+This is typically  the case when the  purpose of `feedkeys()` is  not to emulate
+some interactive key press, but to postpone some arbitrary code.
+
+Example:
+<https://gist.github.com/lacygoill/88437bcbbe90d1d2e2787695e1c1c6a9#reminder>
+Here, passing the `i` flag to `feedkeys()` would break the code.
+
+Before timers were added to Vim, `feedkeys()`  was a good way to emulate a timer
+with  a  0ms  waiting time  (or  to  emulate  a  one-shot autocmd  listening  to
+`SafeState`):
+
+    fu Func()
+        echom 'start of Func'
+        call timer_start(0, {-> execute('echom "delayed after Func"', '')})
+        echom 'end of Func'
+    endfu
+    :call Func()
+    :mess
+    start of Func~
+    end of Func~
+    delayed after Func~
+
+    ⇔
+
+    fu Func()
+        echom 'start of Func'
+        nno <plug>(func) :echom 'delayed after Func'<cr>
+        call feedkeys("\<plug>(func)")
+        echom 'end of Func'
+    endfu
+    :call Func()
+    :mess
+    start of Func~
+    end of Func~
+    delayed after Func~
+
+It worked with or without the `i` flag.
+But the `i` flag was undesirable when the typeahead was not empty:
+
+                                                                        ✘
+                                                                        v
+    nno cd :echom 'start rhs' \| call feedkeys("\<plug>(not_delayed)", 'i')<cr>:echom 'end rhs'<cr>
+    nno <plug>(not_delayed) :echom 'not delayed'<cr>
+    start rhs~
+    not delayed~
+    end rhs~
 
 ##
 # `maparg()`
@@ -1128,6 +1160,44 @@ latter is non-recursive,  then Vim can't expand them a  second time, and there's
 no need to translate terminal keys; so it just executes them.
 
 ##
+## Why should I avoid `@=` in the rhs of a mapping?
+
+It would reset the last used macro, and make a subsequent `@@` behave unexpectedly:
+
+    $ printf 'a\nb\nc\nd\ne\nf' | vim -Nu NONE +'nno J @="J"<cr>' -
+    " press: qq A, Esc J q
+             j @q
+             j @@
+
+`@@` should get you `e, f` in the last line, but instead you get `e f`.
+That's because  when you've executed `@q`,  the last executed register  has been
+reset by `@=`.  So  `@@` repeats `@='J'`, and simply joins  the lines; it doesn't
+append a comma to the first line before.
+
+### What should I use instead?
+
+If  you were  using `@=`  for a  count to  be applied  to a  sequence of  normal
+commands, use `<expr>` instead:
+
+    " before
+    nno <silent> cd @='xlx'<cr>
+
+    " after
+    nno <expr> cd "\e"..repeat('xlx', v:count1)
+
+---
+
+If you were  using `@=` for another  reason, you can probably replace  it with a
+combination of `:exe` and another command:
+
+    " before
+    nno <buffer><nowait><silent> q <c-w><c-p>@=winnr('#')<cr><c-w>c
+
+    " after
+    nno <buffer><nowait><silent> q :<c-u>wincmd p <bar> exe winnr('#')..'wincmd c'<cr>
+                                                        ^^^              ^^^^^^
+
+##
 ## My mapping ignores the count I prefixed it with!
 
 You may have a `:norm!` command somewhere which resets `v:count[1]` to 1.
@@ -1175,6 +1245,105 @@ Note that the weight of `<plug>` is 3 bytes:
 
     :echo len("\<plug>")
     3~
+
+## My mapping invokes `input()`.  But the latter consumes the end of the rhs!
+
+    nno cd :call Func()<cr>bbb
+    fu Func() abort
+        call input('>')
+    endfu
+
+Press  `cd`, and  you'll  see that  `bbb`  has been  consumed  by `input()`  and
+inserted on the command-line, instead of being pressed.
+
+Solution:
+
+Surround `input()` with `inputsave()` and `inputrestore()`:
+
+    nno cd :call Func()<cr>bbb
+    fu Func() abort
+        call inputsave()
+        call input('>')
+        call inputrestore()
+    endfu
+
+---
+
+Alternatively, you could use `:norm` to execute the end of the rhs before the CR
+which invokes `input()`.
+
+    nno cd :call Func()<bar>norm! bbb<cr>
+    fu Func() abort
+        call input('>')
+    endfu
+
+But this would lead to another pitfall if `Func()` executes an interactive command.
+Besides, it makes the code less readable: "why did I use :norm ?".
+In the future, you may forget the purpose of `:norm`, and think you can simplify
+the code by getting rid of it:
+
+    nno cd :call Func()<bar>norm! bbb<cr>
+    →
+    nno cd :call Func()<cr>bbb
+
+So, I recommend you avoid this solution; don't be clever, be explicit.
+
+## My mapping invokes a command which requires some user input.  It doesn't ask for my input!
+
+Make sure your command is not executed via `:norm`:
+
+    " can't fix 'helzo' into 'hello'
+    :new | pu='helzo' | setl spell | norm! z=
+
+    " can't replace 'pat' with 'rep'
+    :new | pu='pat' | exe "norm! :s/pat/rep/c\r"
+
+    " can't get a character interactively
+    :exe "norm! :let g:char = getchar()\r"
+    :echo g:char
+    27~
+    ^^
+    escape
+
+`:norm` considers interactive  commands/functions, like `z=`, `:s`  with the `c`
+flag, `getchar()`,  ... as  *in*complete (the  user's input  is missing).   As a
+result, it presses Escape which prevents you from providing any input.
+
+From `:h norm`:
+
+>     {commands} should be a complete command.  If
+>     {commands} does not finish a command, the last one
+>     will be aborted as if <Esc> or <C-C> was typed.
+
+Solution: Find a way to execute your command without `:norm`, via `feedkeys()` if needed.
+
+---
+
+The issue persists even if `:norm` executes your command indirectly:
+
+    ✘
+    nno z= :set opfunc=Z_equal<bar>norm! g@l<cr>
+    fu Z_equal(_) abort
+        setl spell
+        call feedkeys('z=', 'in')
+    endfu
+    " press 'z=' right above the misspelled word 'helzo':  you can't choose any suggestion in the pager
+    " and yet, between ':norm' and 'z=', there were 'g@l', 'Z_equal()' and 'feedkeys()'
+
+    ✔
+    nno z= :set opfunc=Z_equal<cr>g@l
+    fu Z_equal(_) abort
+        setl spell
+        call feedkeys('z=', 'in')
+    endfu
+
+---
+
+Note  that for  some reason,  `:norm!` does  not seem  to consider  `input()` as
+incomplete:
+
+    " you can type anything you want, as usual
+    :exe "norm! :let g:input = input('')\r"
 
 ##
 ## How to use a chord with the meta modifier in my mappings?
@@ -1400,44 +1569,6 @@ Note that this is  working as intended; if that's an issue  for you, you'll need
 to find a workaround which does not rely on `InsertLeave`.
 
 ##
-## Why should I avoid `@=` in the rhs of a mapping?
-
-It would reset the last used macro, and make a subsequent `@@` behave unexpectedly:
-
-    $ printf 'a\nb\nc\nd\ne\nf' | vim -Nu NONE +'nno J @="J"<cr>' -
-    " press: qq A, Esc J q
-             j @q
-             j @@
-
-`@@` should get you `e, f` in the last line, but instead you get `e f`.
-That's because  when you've executed `@q`,  the last executed register  has been
-reset by `@=`.  So  `@@` repeats `@='J'`, and simply joins  the lines; it doesn't
-append a comma to the first line before.
-
-### What should I use instead?
-
-If  you were  using `@=`  for a  count to  be applied  to a  sequence of  normal
-commands, use `<expr>` instead:
-
-    " before
-    nno <silent> cd @='xlx'<cr>
-
-    " after
-    nno <expr> cd "\e"..repeat('xlx', v:count1)
-
----
-
-If you were  using `@=` for another  reason, you can probably replace  it with a
-combination of `:exe` and another command:
-
-    " before
-    nno <buffer><nowait><silent> q <c-w><c-p>@=winnr('#')<cr><c-w>c
-
-    " after
-    nno <buffer><nowait><silent> q :<c-u>wincmd p <bar> exe winnr('#')..'wincmd c'<cr>
-                                                        ^^^              ^^^^^^
-
-##
 ## `<nowait>` doesn't work!
 
 Try to install your mapping later.
@@ -1471,6 +1602,95 @@ And a buffer-local mapping is typically installed from a filetype plugin while a
 global mapping  is installed from a  regular plugin; regular plugins  are always
 sourced before any filetype plugin.
 
+## `:h modifyOtherKeys` doesn't work when Vim runs inside tmux!
+
+Make sure to set the server option `extended-keys`:
+
+    set -s extended-keys on
+
+And to enable  the `extkeys` feature by including the  entry `xterm*:extkeys` in
+the server option `terminal-features`:
+
+    set -as terminal-features 'xterm*:extkeys'
+                               ^^^^^^
+                               if you have a terminal which supports extended keys
+                               but whose '$TERM' does not start with 'xterm', you may
+                               need to add another pattern, or just use '*'
+
+Usage example:
+
+    tmux -Lx -f <(cat <<'EOF'
+        set -s extended-keys on
+        set -as terminal-features 'xterm*:extkeys'
+    EOF
+    )
+
+    vim -Nu NONE --cmd 'let [&t_TI, &t_TE] = ["\e[>4;1m", "\e[>4;m"]' \
+      +'nno <C-Enter> :echom "C-Enter was pressed"<cr>'
+    " press:  C-Enter
+    C-Enter was pressed~
+    " note that 'Enter' is really the 'Enter' key, not 'C-m'
+
+---
+
+Technically,  enabling the  `extkeys`  feature  makes Vim  set  the `Dseks`  and
+`Eneks` capabilities in `$ tmux info`.
+
+    $ tmux info | grep '\(Ds\|En\)eks'
+    31: Dseks: (string) \033[>4m~
+    41: Eneks: (string) \033[>4;1m~
+
+It's equivalent to:
+
+    set -as terminal-overrides 'xterm*:Eneks=\E[>4;1m'
+    set -as terminal-overrides 'xterm*:Dseks=\E[>4;m'
+
+For more info, see:
+- <https://github.com/tmux/tmux/wiki/Modifier-Keys#extended-keys>
+- <https://github.com/tmux/tmux/issues/2216#issuecomment-629600225>
+- <https://github.com/tmux/tmux/issues/2216#issuecomment-629601762>
+
+### It still doesn't work.  I can't make Vim distinguish between `Tab` and `C-i`!
+
+tmux only supports `modifyOtherKeys = 1`, not `modifyOtherKeys = 2`.
+The difference  is that  the former does  not enable the  feature for  keys with
+well-known behavior like `Tab`.
+
+The latter would be tricky to implement:
+<https://github.com/tmux/tmux/issues/2216#issuecomment-629597863>
+
+---
+
+From `man xterm /^\s*modifyOtherKeys`:
+
+>     modifyOtherKeys (class ModifyOtherKeys)
+>             Like modifyCursorKeys,  tells  xterm  to  construct  an  escape
+>             sequence  for  other  keys  (such as “2”) when modified by Con‐
+>             trol-, Alt- or Meta-modifiers.  This feature does not apply  to
+>             function  keys and well-defined keys such as ESC or the control
+>             keys.  The default is “0”:
+>
+>             0    disables this feature.
+>
+>             1    enables this feature for keys except for those with  well-
+>                  known behavior, e.g., Tab, Backarrow and some special con‐
+>                  trol character cases, e.g., Control-Space to make a NUL.
+>
+>             2    enables this feature for  keys  including  the  exceptions
+>                  listed.
+
+---
+
+For this reason, inside tmux, you could also (should?) set `'t_TI'` like this:
+
+    let &t_TI = "\<Esc>[>4;1m"
+                           ^
+
+Instead of this:
+
+    let &t_TI = "\<Esc>[>4;2m"
+                           ^
+
 ##
 # Issues
 ## When I press some special key (`<f1>`, `<up>`, `<M-b>`, ...) it doesn't behave as expected!
@@ -1492,28 +1712,54 @@ produced by `<up>` in xterm).
 # Todo
 ## ?
 
-Document how to configure Tmux for `:h modifyOtherKeys` to work in Vim.
+When we implement an operator, we currently  have 2 ways to handle the operation
+on lines regarding `g@`:
 
-- <https://github.com/tmux/tmux/issues/2216#issuecomment-629600225>
-- <https://github.com/tmux/tmux/issues/2216#issuecomment-629601762>
-- <https://github.com/tmux/tmux/wiki/Modifier-Keys#extended-keys>
+    :exe 'norm! '..(v:count ? v:count : '')..'g@_'
+    :call feedkeys((v:count ? v:count : '')..'g@_', 'in')
 
-Note that Tmux only supports `modifyOtherKeys = 1`, not `modifyOtherKeys = 2`.
-The latter would be tricky to implement:
-<https://github.com/tmux/tmux/issues/2216#issuecomment-629597863>
+But `:norm` can break interactive commands, and `feedkeys()` is brittle (need to
+find the right flags, correctly handle macros, ...).
 
-So, you can't make Vim distinguish between some keys, like `C-i` and `Tab` inside Tmux.
-And, inside Tmux, you should set `'t_TI'` like this:
+Tpope doesn't do  that.  He uses an `<expr>` mapping  which evaluates the opfunc
+without any argument.  And when the opfunc doesn't receive any argument, it sets
+`'opfunc'` with the name of  the current function (via `expand('<sfile>')`), and
+returns `g@`.
 
-    let &t_TI = "\<Esc>[>4;1m"
-                           ^
-                           ✔
+Using `<expr>` is  clever; it should avoid  all the pitfalls we had  in the past
+when dealing with `g@_`.   You don't have to manually pass  the count; it's done
+naturally.
 
-*Not* like this:
+Besides, it has  fewer side-effects (e.g. it doesn't enter  the command-line, so
+`CmdlineEnter` and `CmdlineLeave` are not fired).
 
-    let &t_TI = "\<Esc>[>4;2m"
-                           ^
-                           ✘
+Also, it should preserve `v:register`.
+And you don't have to pass the ad-hoc string arguments `Ex`/`vis`.
+And you  don't have to  handle an  extra visual mode  case in your  opfunc; it's
+handled automatically by the case which takes care of the text-objects.
+
+Finally,  it makes  the rhs  of  the mappings  much  shorter; the  code is  more
+readable.
+
+Refactor all our opfunc to use this scheme (in our plugins and in our notes).
+
+---
+
+Update: Does this solution work well with visual mode, regardless of the type of
+selection (characterwise, linewise, blockwise)?
+
+Besides, this  solution should  indeed pass  the count and  the register  to our
+opfunc correctly.  But  afterward, do we have the guarantee  that no matter what
+our opfunc does, it won't alter the count/register/last command?
+IOW, if we press `.` afterward, do we have the guarantee that it will repeat our
+opfunc?
+
+If not, what should we do to make sure `.` behaves as expected?
+
+---
+
+Make sure we haven't returned `g@l` while in visual mode.
+In normal mode, it's ok, but in visual mode I think we should just return `g@`.
 
 ## ?
 
@@ -1598,43 +1844,6 @@ incremented by 1 more.
 
 ## ?
 
-Find  an example  where  the  `CursorMoved` autocmd  of  `vim-repeat` fixed  the
-repetition of an omap (at least in the past).  Based on this comment:
-<https://github.com/tpope/vim-repeat/issues/8#issuecomment-13951082>
-
----
-
-Btw, what the  author of the original  issue report describes seems to  be a bug
-which was fixed by 7.3.918.
-It looks like –  in the past – if you defined a  text-object which enters visual
-mode, then Vim  remembered the geometry of  the text which was  operated on, and
-the dot command used that info.
-
-This means that the repetition was sometimes unexpected:
-
-    $ vim -Nu NONE +'ono <c-b> :norm! T,vt,<cr>' +"pu!=['a,xxx,b', 'a,xxxx,b']" +'norm! 1Gfx'
-    " press: d C-b
-             j .
-
-Before 7.3.918, the second line contained:
-
-    a,x,b
-      ^
-      ✘
-
-After the patch, it contains:
-
-    a,,b
-     ^^
-     ✔
-
-So `vim-repeat` seems completely irrelevant here.
-Update: Actually, it's not completely irrelevant; it could have helped by making
-`.` retype the exact same sequence of  keys (instead of the native `.` which was
-broken).
-
-## ?
-
 Maybe you should document here when `b:changedtick` is incremented.
 Comment from `vim-repeat`:
 
@@ -1686,6 +1895,43 @@ Comment from `vim-repeat`:
     "
     " It is not  incremented on other `BufEnter` events, nor  on `BufLeave`, nor
     " on `BufWritePre`.
+
+## ?
+
+Find  an example  where  the  `CursorMoved` autocmd  of  `vim-repeat` fixed  the
+repetition of an omap (at least in the past).  Based on this comment:
+<https://github.com/tpope/vim-repeat/issues/8#issuecomment-13951082>
+
+---
+
+Btw, what the  author of the original  issue report describes seems to  be a bug
+which was fixed by 7.3.918.
+It looks like –  in the past – if you defined a  text-object which enters visual
+mode, then Vim  remembered the geometry of  the text which was  operated on, and
+the dot command used that info.
+
+This means that the repetition was sometimes unexpected:
+
+    $ vim -Nu NONE +'ono <c-b> :norm! T,vt,<cr>' +"pu!=['a,xxx,b', 'a,xxxx,b']" +'norm! 1Gfx'
+    " press: d C-b
+             j .
+
+Before 7.3.918, the second line contained:
+
+    a,x,b
+      ^
+      ✘
+
+After the patch, it contains:
+
+    a,,b
+     ^^
+     ✔
+
+So `vim-repeat` seems completely irrelevant here.
+Update: Actually, it's not completely irrelevant; it could have helped by making
+`.` retype the exact same sequence of  keys (instead of the native `.` which was
+broken).
 
 ## ?
 
@@ -1772,7 +2018,7 @@ As well as this workaround:
 
 Document  that –  in  Nvim –  timers's  callbacks are  not  processed while  the
 hit-enter  prompt is  visible.   They  are blocked  until  it's  left *and*  you
-interact with Nvim. See our comments in:
+interact with Nvim.  See our comments in:
 
     " /cmdline#hit_enter_prompt_no_recording(
     ~/.vim/plugged/vim-cmdline/autoload/cmdline.vim
@@ -1851,10 +2097,14 @@ upper-left and bottom-right corners, but the upper-right and bottom-left ones.
                   ^
                   ✘
 
-I think the issue is due to the  existence of a custom mapping on `q`.  When you
-press `q`,  Vim probably  detects that  it's not the  default `q`  command which
-terminates  a recording;  so it  records the  keypress.  It  turns out  that the
-mapping will – in the end – press the default `q` command.
+This is documented at `:h q`:
+
+>     q                     Stops recording.  (Implementation note: The 'q' that
+>                           stops recording is not stored in the register, **unless**
+>                           **it was the result of a mapping**)
+
+The issue is  due to the existence of  a custom mapping on `q`,  which feeds `q`
+into the typeahead.
 
 Solution:
 
@@ -2288,6 +2538,274 @@ preceded by another key.  IOW, it must be alone.
     " press 'cd'
     E486: Pattern not found: e~
     " this error is raised by the 'n' in '<nop>'
+
+## ?
+
+How to filter  a custom text-object without the command-line not being redrawn?
+
+MWE:
+
+    !iE SPC
+    ![m SPC
+    ...
+
+We could try sth like this:
+
+    ono <silent> ie :<c-u>exe 'norm vie'..(v:operator is# '!' ? '<space>' : '')<cr>
+
+But, why does the issue occur with `![m`, but not with `![z`?
+
+Update: It probably has sth to do with these functions:
+
+   - `s:jump()`    (✔)   ~/.vim/plugged/vim-fold/autoload/fold/motion.vim:101
+   - `s:jump()`    (✘)   ~/.vim/plugged/vim-brackets/autoload/brackets/move.vim:178
+
+Update:
+It has to do with the `<silent>` argument in the mapping.
+We need it in all modes except in operator-pending mode.
+Alternatively, we could include at the end of `s:jump()`:
+
+    exe 'norm! '..line('.')..'g'
+
+It would not make the cursor move, but it would make the command-line redrawn.
+
+MWE:
+
+    map <silent> ]g :call search('pat')<cr>
+        !]g → command-line not redrawn
+
+    map <silent> ]g :call search('pat') <bar> exe 'norm! '..line('.')..'g'<cr>
+        !]g → command-line redrawn
+
+It seems `vim-textobj-user` doesn't suffer from this issue:
+
+    " unmap pre-existing `o_ie` mapping
+    call textobj#user#plugin('entire_buffer', {
+    \   'code': {
+    \     'pattern': ['\%^.', '.\%$'],
+    \     'select-a': 'ae',
+    \     'select-i': 'ie',
+    \   },
+    \ })
+
+You  should   try  to   better  understand  this   issue  when   you  assimilate
+`vim-textobj-user`, and fix it every time you defined a text object in the past.
+
+## ?
+
+Search for `g@` everywhere.
+
+Should we use `:keepj` in all our operators?
+See `myfuncs#op_replace_without_yank()`.
+
+It doesn't seem useful for the jumplist (update: now it seems useful...), but it
+is for  the changelist.   It seems that  if you use  `:keepj` for  every edition
+performed in your  opfunc, then no entry  is added in the  changelist.  OTOH, if
+you omit `:keepj`  for *any* edition performed by your  opfunc, then *one* entry
+is added in the changelist.
+
+tommy uses it here: <https://vi.stackexchange.com/a/8748/17449>
+
+---
+
+Dirvish uses `keepj` for `tabnext` and `wincmd w`:
+<https://github.com/justinmk/vim-dirvish/blob/fa6197150dbffe0f93028c46cd229bcca83105a9/autoload/dirvish.vim#L4>
+
+Why?
+Should we do the same?
+Are there other commands for which we should have used `keepj` in the past?
+
+---
+
+For  an operator  which can  be prefixed  by a  register, should  we save  and
+restore the register?
+If so,  consider passing the optional  argument `1` to `getreg()`  to properly
+restore the expression register.
+See `myfuncs#op_replace_without_yank()`.
+
+---
+
+Do you need to save and restore `v:register` every time?
+Do you need to save and restore `v:count` every time?
+
+---
+
+If the  operator yanks the text  on which we  operate, should it be  done with
+`:noa` to minimize unexpected side effects?
+E.g., I  think  it would  prevent  our  visual  ring  from saving  a  possible
+selection.
+
+---
+
+Have you used `:s`, while you should have used `setline()`?
+
+---
+
+Make sure to always save and restore visual marks.
+See what  we did with  the function  called by the  `dr` operator, and  read the
+comments.
+
+---
+
+You should  simplify the  mappings, so  that we call  only one  function, before
+pressing `g@`.  The latter should save some info if needed, and set `'opfunc'`.
+
+---
+
+The repetition of  an operation in visual  mode is not consistent  with what Vim
+does:
+
+   - press `~` on a visual selection
+   - move the cursor on another line
+   - press .
+
+Vim has recomputed a new visual selection with the same geometry as the previous
+one.  See `:h .` and `:h visual-repeat`.
+
+That's not what your operators do.
+Study how `vim-operator-user` solves this issue (I think it presses `gvg@`; IOW,
+`g@` should be pressed from visual mode for the repetition to work as expected).
+
+Update: I *think* our new implementation  of operators, using `<expr>` fixes the
+issue, because it presses `g@` in visual mode...
+
+---
+
+Our  snippet implementing  an operator  is too  long; move  it inside  a library
+function.  The latter would contain the boilerplate code:
+
+    fu lg#my_opfunc(myfunc, type, ...) abort
+        let cb_save  = &cb
+        ...
+    endfu
+
+and it would expect the name of a custom function:
+
+    fu lg#my_opfunc(myfunc, type, ...) abort
+                    ^^^^^^
+
+The latter  would be  defined in  the plugin  where you  need to  implement your
+operator.  It  would contain the  logic specific to  the operator (i.e.  not the
+boilerplate code).   The library function would  use this name to  call `myfunc`
+(with `call()`).
+
+## ?
+
+Re-read our snippet `op`, and refactor this section in our notes:
+
+        # mappings / abréviations
+      → ## opérateurs
+
+---
+
+Refactor  all operators  so that  they remove  `unnamed` and  `unnamedplus` from
+`'cb'`, and set `'inclusive'`.
+
+    vim /g@/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
+    :cfilter! -other_plugins
+
+---
+
+    catch
+        return lg#catch()
+
+---
+
+What happens if you do:
+
+      op + v + motion
+
+I've just checked with `|gvj` (grep  text from current position until next line,
+characterwise).  And inside `op_grep()`, `a:type`  is `char`, which is good.  If
+it had been visual, we could have a problem, because our function would think we
+are operating from visual mode, instead of normal mode.
+
+To document.
+
+---
+
+Should we yank with noautocmd to prevent our visual ring from saving
+a possible selection?
+
+## ?
+
+Review all  custom text-objects: make sure  they all position the  cursor on the
+end  of the  selection, to  be consistent  with what  Vim seems  to do  with its
+builtin text-objects (e.g. try `vi{` in a shell function).
+
+---
+
+Make sure that they correctly handle a  count.  For example, right now, it looks
+like `il` does not; `5dil` deletes only the current line.  Shouldn't it delete 5
+lines?  Study  how builtin objects  handle counts; check whether  their behavior
+differ depending on whether the start with `i` or `a` (e.g. `iw` vs `aw`).
+
+---
+
+Make sure that they correctly handle a `v`, `V`, `C-v` prefix, by inspecting the
+output of `mode(1)`: <https://github.com/vim/vim/releases/tag/v8.1.0648>
+
+I  guess that  it means  that  all our  text-objects should  be implemented  via
+`<expr>` mappings...  Otherwise, the output of `mode(1)` is unreliable.
+
+---
+
+Press `dio` on one column then `.` on another; this is printed on the command-line:
+
+    :call column_object#main('iw')
+
+Why are our custom text-objects non-silent when repeated by `.`?
+Even though we define them with `<silent>`...
+
+Does kana's plugin suffer from the same pitfall?
+If no, how is it fixed?
+
+Idea: redefine  all your  text-objects with `<expr>`  to avoid  the command-line
+from being entered.
+
+## ?
+
+We have 4 todos/fixmes in `myfuncs#op_replace_without_yank()` related to opfuncs
+in general.  Review/fix them.
+
+## ?
+
+Document the  fact that you need  to put `<esc>` at  the start of the  rhs of an
+`:ono` mapping if it presses `v:operator`.
+
+Watch this:
+
+    :ono ii :<c-u>exe 'normal! T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())<cr>
+
+Move your cursor on `bar`, then press `ciixy`:
+
+    foo x_bar_y baz
+    foo baz~
+
+Here, `ciixy` is equivalent to `c:norm! Txcty`.
+
+Now try this mapping:
+
+            vvvvv
+    :ono ii <esc>:<c-u>exe 'normal! T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())<cr>
+    foo x_bar_y baz
+    foo xy baz~
+
+The result is different.
+
+If you omit `<esc>` the result can even be wrong.
+Watch this:
+
+    :ono <expr> ii 'T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())
+    foo x_bar_y baz
+    foo xctyar_y baz~
+
+                    vvvvv
+    :ono <expr> ii '<esc>T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())
+    foo x_bar_y baz
+    foo xy baz~
+
+<https://www.reddit.com/r/vim/comments/bo2o0b/text_object_that_is_delimited_by_two_distinct/end5png/>
 
 ##
 ##
@@ -2898,7 +3416,7 @@ Whenever we mention a text-object, a motion is a valid replacement.
 
 ---
 
-    nno <key><key> :<c-u>set opfunc=Func<bar>exe 'norm! '..v:count1..'g@_'<cr>
+    nno <key><key> :<c-u>set opfunc=Func<bar>exe 'norm! '..(v:count ? v:count : '')..'g@_'<cr>
 
 This mapping implements the convention,  which makes an operator act
 on a number of lines when it's repeated.
@@ -2907,11 +3425,11 @@ Without a count, the operator acts on the current line.
 
 It defines `Func()` as the function to call, then executes:
 
-    :norm! {v:count1}g@_
+    :norm! {cnt}g@_
 
 The `_` motion makes Vim operate on the current line.
-`v:count1` makes  Vim operate  on several  lines, from the  current one,  if the
-operator was prefixed with a count.
+`cnt` makes Vim operate on several lines,  from the current one, if the operator
+was prefixed with a count.
 
 ---
 

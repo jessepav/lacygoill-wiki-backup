@@ -113,8 +113,8 @@ Example:
                         └ name of the buffer where the command must be executed;
                           an empty string matches the current buffer:
 
-> name of buffer, if it is NULL  or empty string, the current buffer is returned
-> (buffer displayed by current window)
+>     name of buffer, if it is NULL  or empty string, the current buffer is returned
+>     (buffer displayed by current window)
 
 Source: https://weechat.org/files/doc/stable/weechat_plugin_api.en.html#_buffer_search
 

@@ -325,7 +325,7 @@ Pass the `r` flag to the `m` modifier:
 
 #### How to write a quantifier such as `{1,4}`?
 
-Tmux expects an ERE regex, so there's no need to escape the curly braces.
+tmux expects an ERE regex, so there's no need to escape the curly braces.
 However, in a format, `,` and `}` are special, so you need to escape them with `#`:
 
                                  v  v
@@ -946,7 +946,7 @@ attached.
 ##
 ### More generally, what happens if I pass a description to `-t` which is not accurate enough?
 
-Tmux seems to  use the currently active pane/window if  it's compatible with the
+tmux seems to  use the currently active pane/window if  it's compatible with the
 description provided,  otherwise it uses  the last pane/window which  was active
 among the set of panes/windows which are compatible with the description.
 

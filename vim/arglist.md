@@ -425,6 +425,9 @@ Integrate here anything related to the arglist (`:all`, dirvish `x_x`, ...):
 
     noa vim /arglist/gj ## | cw
 
+Btw, `:sall` and `:vert sall` are  really nice when your arglist doesn't contain
+too many files.
+
 ---
 
 Play with:

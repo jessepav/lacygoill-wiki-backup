@@ -1150,11 +1150,11 @@ For more info, see:
 
 If you use xmodmap:
 
-> You can  use xmodmap to redefine  existing mappings as long  as those mappings
-> actually exist in your original keyboard layout.
-> In the case described in the question  you cannot extend behavior of any keys to
-> use AltGr.
-> You can only change the AltGr keysyms for keycodes that are already using AltGr.
+>     You can  use xmodmap to redefine  existing mappings as long  as those mappings
+>     actually exist in your original keyboard layout.
+>     In the case described in the question  you cannot extend behavior of any keys to
+>     use AltGr.
+>     You can only change the AltGr keysyms for keycodes that are already using AltGr.
 
 Source:
 

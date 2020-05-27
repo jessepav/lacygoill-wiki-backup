@@ -74,25 +74,25 @@ Here's another solution:
 Only the first executed command is logged (I'm not talking about the output; the
 output is usually logged; I'm talking about the executed line).  Why?
 
-> llua │ basically when zle is enabled, zsh reads input and prints the prompt to the same fd
->      │ but without, zsh just prints it to fd2
->      │ so that feature of yours isn't capturing fd10
->      │ and zsh doesn't use readline, it uses zle, the zsh line editor
+>     llua │ basically when zle is enabled, zsh reads input and prints the prompt to the same fd
+>          │ but without, zsh just prints it to fd2
+>          │ so that feature of yours isn't capturing fd10
+>          │ and zsh doesn't use readline, it uses zle, the zsh line editor
 
-> llua │ most shells print their prompt to stderr, we are def a standout in this
->      │ i am unsure why and lack an opinion either way tho
-> llua │ since zle can interactively update the prompt, i guess that is why
->      │ eg: a keybind could change the prompt, so it may be why they decided on using its own fd
+>     llua │ most shells print their prompt to stderr, we are def a standout in this
+>          │ i am unsure why and lack an opinion either way tho
+>     llua │ since zle can interactively update the prompt, i guess that is why
+>          │ eg: a keybind could change the prompt, so it may be why they decided on using its own fd
 
-> llua │ "Pipe output sent by the program in target-pane to a shell command or vice versa."
->      │ so tmux is prob only checking for fd 1 and 2
+>     llua │ "Pipe output sent by the program in target-pane to a shell command or vice versa."
+>          │ so tmux is prob only checking for fd 1 and 2
 
-> llua │ since tmux is the parent process, it passes 0, 1 and 2 to zsh and is prob why its able to record those,
->      │ since zsh opens additional fds for its own use, tmux prob can't work with it the same as 0,1 and 2
+>     llua │ since tmux is the parent process, it passes 0, 1 and 2 to zsh and is prob why its able to record those,
+>          │ since zsh opens additional fds for its own use, tmux prob can't work with it the same as 0,1 and 2
 
-> llua │ then again, with tmux being a terminal, you would think that it can tell when someone writes something to
->      │ it, regardless of the fd used
->      │ idk
+>     llua │ then again, with tmux being a terminal, you would think that it can tell when someone writes something to
+>          │ it, regardless of the fd used
+>          │ idk
 
 Make some tests, with and without our zshrc.
 If `pipe-pane` is buggy, report the bugs.
@@ -122,7 +122,7 @@ If it was not the case, do we want to undo everything we did?
 # Plugins
 ## study these plugins
 
-Tmux:
+tmux:
 
    - <https://github.com/Morantron/tmux-fingers>
    - <https://github.com/tmux-plugins/tmux-continuum>
@@ -190,12 +190,12 @@ It seems that windows can also be linked to sessions.
 To understand what it means you'll need to first understand the concept of “session group”.
 It's described at `man tmux /^\s*new-session [`:
 
-> If -t is given, it specifies a session group.  Sessions in the
-> same group share the same set of windows - new windows are linked
-> to all sessions in the group and any windows closed removed from
-> all sessions.  The current and previous window and any session
-> options remain independent and any session in a group may be
-> killed without affecting the others.
+>     If -t is given, it specifies a session group.  Sessions in the
+>     same group share the same set of windows - new windows are linked
+>     to all sessions in the group and any windows closed removed from
+>     all sessions.  The current and previous window and any session
+>     options remain independent and any session in a group may be
+>     killed without affecting the others.
 
 On the subject of session groups, see also: <https://github.com/tmux/tmux/issues/1793>
 
@@ -216,8 +216,8 @@ To test the current value of a format variable such as `pane_tty`, run:
 
 From `man tmux /^\s*attach-session`
 
-> If run from outside tmux, create a new client in the current terminal and attach
-> it to target-session. If used from inside, switch the current client.
+>     If run from outside tmux, create a new client in the current terminal and attach
+>     it to target-session. If used from inside, switch the current client.
 
 I interpret  the second sentence  as tmux switching  the current session  in the
 current client; the equivalent of pressing `pfx )`.
@@ -234,9 +234,9 @@ What gives?
 
 In case you wonder why you need a `while` loop, here's nicm's explanation:
 
-> │  guardian │ I'm not sure I undertand why I need to wrap in a while loop
-> │      nicm │ there is no mechanism to make tmux run it at particular times, so you need to run it all
-> │           │ the time and just do your stuff every 30 seconds
+>     │  guardian │ I'm not sure I undertand why I need to wrap in a while loop
+>     │      nicm │ there is no mechanism to make tmux run it at particular times, so you need to run it all
+>     │           │ the time and just do your stuff every 30 seconds
 
 ---
 
@@ -247,9 +247,9 @@ session option 'status-interval'.
 
 Open the clock in them:
 
-> Not really  the solution,  but any pane  set in a  different mode  (e.g. clock
-> mode, copy mode, showing help) will not respond to key strokes.
-> If you need all but a couple of panes to synchronize, this works pretty well.
+>     Not really  the solution,  but any pane  set in a  different mode  (e.g. clock
+>     mode, copy mode, showing help) will not respond to key strokes.
+>     If you need all but a couple of panes to synchronize, this works pretty well.
 
 <https://stackoverflow.com/questions/12451951/tmux-synchronize-some-but-not-all-panes#comment19620986_12451951>
 
@@ -313,7 +313,7 @@ terminal.
 
 One possible lhs concerned by this issue is `M-:`:
 
-> ESC :     Select #3 Character Set.
+>     ESC :     Select #3 Character Set.
 
 <https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Tektronix-4014-Mode>
 
@@ -340,18 +340,18 @@ Is it sth which is already planned?
 
 See: <https://github.com/tmux/tmux/wiki/Contributing>
 
-> Small things
-> ...
-> A command in copy mode to toggle the selection.
+>     Small things
+>     ...
+>     A command in copy mode to toggle the selection.
 
 # implement `M-S-a` to focus the next window with an alert
 
 Use the `-a` argument passed to `:next-window`.
 
-> next-window [-a] [-t target-session]
->               (alias: next)
->         Move to the next window in the session.  If -a is used, move to
->         the next window with an alert.
+>     next-window [-a] [-t target-session]
+>                   (alias: next)
+>             Move to the next window in the session.  If -a is used, move to
+>             the next window with an alert.
 
 #
 # find a way to
@@ -583,19 +583,19 @@ Vs:
 
 You can pass the `FNM_EXTMATCH` flag to the C function `fnmatch()`:
 
-> crose   `fnmatch(3)` is mentioned several times in `man tmux`.
->         And according to `man 3 fnmatch`, if the flag `FNM_EXTMATCH` is set, you can use extended patterns.
->         I'm interested in this, because it lets you use `|` which could be useful to simplify some formats
->         when you have more than 2 alternatives.
-> crose   Unfortunately, it doesn't seem to be set in tmux, because
->         `$ tmux display -p '#{m:foo|bar|baz,bar}'` outputs 0.
->         Is there a way for the user to set this flag?
+>     crose   `fnmatch(3)` is mentioned several times in `man tmux`.
+>             And according to `man 3 fnmatch`, if the flag `FNM_EXTMATCH` is set, you can use extended patterns.
+>             I'm interested in this, because it lets you use `|` which could be useful to simplify some formats
+>             when you have more than 2 alternatives.
+>     crose   Unfortunately, it doesn't seem to be set in tmux, because
+>             `$ tmux display -p '#{m:foo|bar|baz,bar}'` outputs 0.
+>             Is there a way for the user to set this flag?
 
-> nicm    it is a flag you pass to fnmatch
-> nicm    but its not portable so not going to happen
-> nicm    you could add it for your local build if you wanted
-> nicm    look for fnmatch in format.c
-> nicm    and change the 0 to FNM_EXTMATCH
+>     nicm    it is a flag you pass to fnmatch
+>     nicm    but its not portable so not going to happen
+>     nicm    you could add it for your local build if you wanted
+>     nicm    look for fnmatch in format.c
+>     nicm    and change the 0 to FNM_EXTMATCH
 
 This allows you to write sth like:
 
@@ -615,14 +615,14 @@ Ask nicm whether such a script is reliable; is it likely to break in the future?
 
 # tmux may fall back on the root table if it can't find a pressed key in the copy-mode table?
 
-> orbisvicis │ does a root key binding have priority over a copy-mode key binding?
->            │ or do they both run, etc?
->            │ I mean, from experimenting it seems the copy-mode key binding has priority and the root binding is never
->            │ executed (testing copy-word in copy-mode where DoubleClick1Pane in root displays a message)
->            │ but then why do the default root bindings test #{pane_in_mode}, like MouseDrag1Pane or WheelUpPane?
->       nicm │ because if there is no binding in copy-mode it will go to the root
->            │ but it is probably unnecessary
->       nicm │ if you don't want it to do that you can bind the Any key in the table
+>     orbisvicis │ does a root key binding have priority over a copy-mode key binding?
+>                │ or do they both run, etc?
+>                │ I mean, from experimenting it seems the copy-mode key binding has priority and the root binding is never
+>                │ executed (testing copy-word in copy-mode where DoubleClick1Pane in root displays a message)
+>                │ but then why do the default root bindings test #{pane_in_mode}, like MouseDrag1Pane or WheelUpPane?
+>           nicm │ because if there is no binding in copy-mode it will go to the root
+>                │ but it is probably unnecessary
+>           nicm │ if you don't want it to do that you can bind the Any key in the table
 
 # what's the `Any` key binding? how is it useful?
 
@@ -728,21 +728,21 @@ Otherwise, you'll have to learn a bit of C and edit `status.c`.
 
 # learn the difference between `send -l` and `send -ll`
 
-> Bit more complicated than I thought because keys are always Unicode so we need
-> a flag to say that they aren't.
-> Please try this, you can use two  -l (send-keys -ll) to send literal keys rather
-> than UTF-8: x.diff.txt
+>     Bit more complicated than I thought because keys are always Unicode so we need
+>     a flag to say that they aren't.
+>     Please try this, you can use two  -l (send-keys -ll) to send literal keys rather
+>     than UTF-8: x.diff.txt
 
 <https://github.com/tmux/tmux/issues/1832#issuecomment-509624368>
 
 # maybe we could use control mode
 
-> thomas_ada▹│ It's interesting that tmuxc is the only other client besides iterm which uses control mode.
->   zdykstra │ Nobody even uses tmuxc, I wrote it to scratch my own itch.
->            │ Which isn't to say I wouldn't mind more users ;)
->            │ Couple of quirks using control mode in cloned sessions - if memory serves, everything is printed to the
->            │ control stream once for each cloned session. So if you have 10 cloned sessions, you get 10 instances of
->            │ %window-add, and so on
+>     thomas_ada▹│ It's interesting that tmuxc is the only other client besides iterm which uses control mode.
+>       zdykstra │ Nobody even uses tmuxc, I wrote it to scratch my own itch.
+>                │ Which isn't to say I wouldn't mind more users ;)
+>                │ Couple of quirks using control mode in cloned sessions - if memory serves, everything is printed to the
+>                │ control stream once for each cloned session. So if you have 10 cloned sessions, you get 10 instances of
+>                │ %window-add, and so on
 
 <https://github.com/zdykstra/tmuxc>
 
@@ -994,9 +994,9 @@ They support regexes.
 
 `man tmux /pad`:
 
-> ... Similarly, ‘p’ pads the string to a given width, for
-> example ‘#{p10:pane_title}’ will result in a width of at least 10 charac‐
-> ters.  A positive width pads on the left, a negative on the right.
+>     ... Similarly, ‘p’ pads the string to a given width, for
+>     example ‘#{p10:pane_title}’ will result in a width of at least 10 charac‐
+>     ters.  A positive width pads on the left, a negative on the right.
 
 ## the `synchronize-panes` window option
 
@@ -1071,9 +1071,9 @@ If you run `:set mouse=a` in Vim, `mouse_any_flag` is 1 in tmux.
 
 ## `-A` option of `new-session` command
 
-> The -A flag makes new-session behave like attach-session if
-> session-name already exists; in this case, -D behaves like -d to
-> attach-session, and -X behaves like -x to attach-session.
+>     The -A flag makes new-session behave like attach-session if
+>     session-name already exists; in this case, -D behaves like -d to
+>     attach-session, and -X behaves like -x to attach-session.
 
 It could be useful in a script to make tmux attach to a session, or create it if
 it doesn't exist, without having to test the output of some command like `$ tmux ls ...`.
@@ -1227,7 +1227,7 @@ interpreted as resp. the stdin and the stdout:
 This is not documented.
 
 With `saveb  -`, you don't  have to  specify which buffer  you want to  write on
-stdout; Tmux will choose the buffer at the top of the stack.
+stdout; tmux will choose the buffer at the top of the stack.
 
 ---
 
@@ -1239,17 +1239,17 @@ of how `set-clipboard` is set.
 
 The documentation about `message-command-style` is unclear:
 
-> message-command-style style
->         Set status line message command style.  For how to specify style,
->         see the STYLES section.
+>     message-command-style style
+>             Set status line message command style.  For how to specify style,
+>             see the STYLES section.
 
 <https://github.com/tmux/tmux/issues/1065#issuecomment-328431849>
 
 This would be more clear:
 
-> message-command-style style
->         Set status line message command style for when you are in command mode with vi keys.
->         For how to specify style, see the STYLES section.
+>     message-command-style style
+>             Set status line message command style for when you are in command mode with vi keys.
+>             For how to specify style, see the STYLES section.
 
 If you  need to  test the option:
 

@@ -402,7 +402,7 @@ See here for an explanation:
 
 `xclip(1)` doesn't close its stdout.
 
-This can make Tmux unresponsive:
+This can make tmux unresponsive:
 
 - <https://askubuntu.com/a/898094/867754>
 - <https://wiki.archlinux.org/index.php/Tmux#X_clipboard_integration>

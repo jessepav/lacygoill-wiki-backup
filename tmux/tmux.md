@@ -17,12 +17,12 @@ As a command termination (like the shell).
 
 From `man tmux /COMMANDS`:
 
-> Multiple commands may be specified together as part of a command sequence.
-> Each  command should  be  separated  by spaces  and  a  semicolon; commands  are
-> executed  sequentially from  left to  right and  lines ending  with a  backslash
-> continue on to the next line, except when escaped by another backslash.
-> A  literal semicolon  may  be included  by  escaping it  with  a backslash  (for
-> example, when specifying a command sequence to bind-key).
+>     Multiple commands may be specified together as part of a command sequence.
+>     Each  command should  be  separated  by spaces  and  a  semicolon; commands  are
+>     executed  sequentially from  left to  right and  lines ending  with a  backslash
+>     continue on to the next line, except when escaped by another backslash.
+>     A  literal semicolon  may  be included  by  escaping it  with  a backslash  (for
+>     example, when specifying a command sequence to bind-key).
 
 ### When do I need to escape a semicolon?
 
@@ -35,7 +35,7 @@ If you write:
 
     bind <key> cmd1 ; cmd2
 
-Tmux will populate its key bindings table with:
+tmux will populate its key bindings table with:
 
     <key> cmd1
 
@@ -167,7 +167,7 @@ the default plugin.
 ##
 ## Why can't I use two single quotes to represent a single quote in a single-quoted string?
 
-Tmux interprets `''` as  the end of a string followed by the  beginning of a new
+tmux interprets `''` as  the end of a string followed by the  beginning of a new
 one; and then it concatenates them.
 
     $ tmux source =(cat <<'EOF'
@@ -543,7 +543,7 @@ expressions that the devs could ask you about.
 Source: <https://github.com/tmux/tmux/issues/2173>
 
 ###
-### Tmux crashes, but it doesn't dump a core file!
+### tmux crashes, but it doesn't dump a core file!
 #### How to get a backtrace?
 
     $ tmux -Lx kill-server
@@ -624,18 +624,18 @@ Example:
 
 For a real example:
 
-> if-shell  and  run-shell  will  block  the  client  command  queue  where  the
-> source-file happens  until the child  process exits  so the hanging  but being
-> able to  attach a new  client is consistent with  tmux not realising  that the
-> process has exited.
+>     if-shell  and  run-shell  will  block  the  client  command  queue  where  the
+>     source-file happens  until the child  process exits  so the hanging  but being
+>     able to  attach a new  client is consistent with  tmux not realising  that the
+>     process has exited.
 <https://github.com/tmux/tmux/issues/1854#issuecomment-524910268>
 
-> You can see the same if you have a file that does 'run "sleep 10"' then do C-b
-> : source myfile - the client won't respond until the sleep is finished.
+>     You can see the same if you have a file that does 'run "sleep 10"' then do C-b
+>     : source myfile - the client won't respond until the sleep is finished.
 <https://github.com/tmux/tmux/issues/1854#issuecomment-524912247>
 
-> If it isn't getting SIGCHLD it will never know the processes have exited so it
-> will never let the client continue.
+>     If it isn't getting SIGCHLD it will never know the processes have exited so it
+>     will never let the client continue.
 <https://github.com/tmux/tmux/issues/1854#issuecomment-524930364>
 
 ## When writing a bug report, which terminal geometry should I use?
@@ -652,11 +652,11 @@ The goal is to reproduce with a “standard” geometry.
 
 See `man tmux /^\s*default-size`:
 
-> The default is 80x24.
+>     The default is 80x24.
 
 See also `:h window-size`:
 
-> If everything fails a default size of 24 lines and 80 columns is assumed.
+>     If everything fails a default size of 24 lines and 80 columns is assumed.
 
 ##
 # Issues
@@ -798,7 +798,7 @@ xfce4-terminal on Ubuntu 16.04, and waiting.
 The issue is fixed in more  recent versions of xfce4-terminal; I can't reproduce
 on Ubuntu 18.04 in a VM.
 
-## Tmux is hanging indefinitely after using a process substitution!
+## tmux is hanging indefinitely after using a process substitution!
 
 So, you've run sth like:
 
@@ -912,7 +912,7 @@ everything in red in the diagram is not visible.
 
 # Démarrage
 
-Voici qques argument qu'on peut passer à Tmux au démarrage.
+Voici qques argument qu'on peut passer à tmux au démarrage.
 
     -c shell-command
 
@@ -920,14 +920,14 @@ Voici qques argument qu'on peut passer à Tmux au démarrage.
 
             Ce dernier est défini par l'option `default-shell`.
             Par défaut, elle est vide, et tmux prend donc à la place `$SHELL`.
-            `-c shell-command` est utile pour rendre Tmux compatible avec le shell `sh` qd Tmux
+            `-c shell-command` est utile pour rendre tmux compatible avec le shell `sh` qd tmux
             est utilisé comme un login shell.
 
 ##
 # Plugins
 ## heytmux
 
-Tmux scripting made easy
+tmux scripting made easy
 
 Heytmux can read STDIN, so:
 
@@ -1550,55 +1550,6 @@ Tous les raccourcis qui suivent doivent être précédés de pfx.
     copy_C-m    copy_q
 
             revenir au mode normal
-
-## Raccourcis
-
-    Enter
-    sélection souris
-
-            copier dans un buffer tmux
-
-    copy_y
-
-            Copie la sélection dans le buffer système.
-
-            Ce raccourci est fourni par tmux-yank:
-
-                    https://github.com/tmux-plugins/tmux-yank
-
-            Il nécessite l'installation du paquet xclip ou xsel.
-            Préférer xsel:
-
-                    https://wiki.archlinux.org/index.php/Tmux#X_clipboard_integration
-
-
-    copy_Y
-
-            Copie la sélection dans un buffer tmux et la coller automatiquement dans la ligne de
-            commande (tmux-yank).
-
-            Attention  à  ne pas  copier  un  caractère  de trop  à  la  fin, autrement  il  sera
-            interprété comme  un retour  à la ligne,  ce qui  aura le même  effet que  taper sur
-            entrée (du coup, pas le temps de relire la ligne de commande avant de valider).
-
-
-    pfx y
-
-            Copie la ligne de commande (tmux-yank) dans le buffer système
-            et dans un buffer tmux. Fonctionne même si la commande se poursuit sur plusieurs lignes
-
-
-    pfx p
-    pfx P
-
-            Colle le dernier buffer tmux / celui de son choix (custom).
-
-
-    pfx -
-    pfx +
-
-            Supprime le dernier buffer tmux.
-            Écrit le presse-papier système dans un buffer tmux. (custom)
 
 ## Copier avec la souris
 

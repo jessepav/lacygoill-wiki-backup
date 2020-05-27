@@ -13,7 +13,7 @@ See here for more info:
 Note that some attributes (which ones?) may not work if the channel has the `+c`
 mode on freenode.
 
-> Strip colour and formatting codes from channel messages.
+>     Strip colour and formatting codes from channel messages.
 
 Source: <https://freenode.net/kb/answer/channelmodes>
 

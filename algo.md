@@ -434,7 +434,7 @@ Bon exemple:
 
 ## Design
 
-> Conçoit l'architecture, nomme les composants, documente les détails.
+>     Conçoit l'architecture, nomme les composants, documente les détails.
 
 L'algo doit être compréhensible par son architecture.
 Les composants (variables, fonctions, ...) par leurs noms.
@@ -490,7 +490,7 @@ Hypotheses help you find the most interesting ones quicker.
 
 ## Éviter les non-dits / mensonges
 
-> Expliciter clairement ce qu'on veut, et ce qu'on sait.
+>     Expliciter clairement ce qu'on veut, et ce qu'on sait.
 
 Si on n'explique pas clairement:
 
@@ -505,7 +505,7 @@ Si on n'explique pas clairement:
      Qu'elle fasse partie de la catégorie “objectifs“, ou “connaissances“.
 
 
-> Synthétiser l'objectif d'une fonction en une simple phrase, et le noter à son début.
+>     Synthétiser l'objectif d'une fonction en une simple phrase, et le noter à son début.
 
 Utile qd l'écriture d'une fonction ou son refactoring devient trop difficile.
 
@@ -513,8 +513,8 @@ Cet  effort de  synthèse permet  de gagner  en compréhension,  et facilite  to
 raisonnement autour d'un pb qu'on rencontre avec la fonction.
 
 
-> Le nom d'une fonction (ou variable) ne doit pas mentir.
-> Son objectif non plus.
+>     Le nom d'une fonction (ou variable) ne doit pas mentir.
+>     Son objectif non plus.
 
 À force de manipuler le code d'une  fonction, pour corriger des bugs ou apporter
 des fonctionnalités, son objectif peut changer de manière significative.
@@ -525,8 +525,8 @@ Idem pour son objectif noté en commentaire à son début.
 
 ## Efficacité
 
-> Dans une boucle, ne jamais tester la valeur d'une expression qui ne dépend pas
-> de la variable d'itération.
+>     Dans une boucle, ne jamais tester la valeur d'une expression qui ne dépend pas
+>     de la variable d'itération.
 
 Pk?
 Parce que c'est inefficace.
@@ -557,7 +557,7 @@ It will help you debug your issues faster.
 
 ## Lisibilité
 
-> Écrire une fonction `main()` la plus lisible possible.
+>     Écrire une fonction `main()` la plus lisible possible.
 
 Généralement,  un  élément d'interface  (commande,  mapping,  ...) commence  par
 appeler une fonction;  appelons cette dernière `main()`; elle doit  être le plus
@@ -656,11 +656,11 @@ Qd on doit résoudre un problème impliquant un nombre variable de données, uti
 
 ## Réutiliser et composer des concepts
 
-> Re-use and composition  of concepts multiplies the utility  of those concepts;
-> if a plugin does not reuse a concept, both that concept and the new, redundant
-> mechanism are made mutually  less valuable — the sum is less  than the parts —
-> because the user  now must learn or choose from  two slightly different things
-> instead of one augmented system.
+>     Re-use and composition  of concepts multiplies the utility  of those concepts;
+>     if a plugin does not reuse a concept, both that concept and the new, redundant
+>     mechanism are made mutually  less valuable — the sum is less  than the parts —
+>     because the user  now must learn or choose from  two slightly different things
+>     instead of one augmented system.
 
 Source: :h dirvish
 
@@ -678,7 +678,7 @@ Pex, raccourcis identiques d'un pgm à l'autre pour des fonctions similaires.
 
 ## Séparation des problèmes
 
-> Dans une fonction utilitaire, respecter la séparation des problèmes.
+>     Dans une fonction utilitaire, respecter la séparation des problèmes.
 
 À chaque fois qu'on appelle une fonction  B au sein d'une fonction utilitaire A,
 se demander si elle a un lien direct avec l'objectif de A.

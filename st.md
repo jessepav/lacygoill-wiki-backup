@@ -79,7 +79,7 @@ The latest version atm is:
 <https://st.suckless.org/patches/xresources/st-xresources-20190105-3be4cf1.diff>
 
 The header of the patch reads:
-> Subject: [PATCH] Update base patch to 0.8.1
+>     Subject: [PATCH] Update base patch to 0.8.1
 
 Which means that it should work on st version 0.8.1.
 I've tested it against 0.8.2, and it still works.
@@ -235,8 +235,8 @@ They were introduced in [this commit][6].
 
 Both are described [here][7] like so:
 
-> Ps = 2 2 ; 0  -> Save xterm icon and window title on stack.
-> Ps = 2 3 ; 0  -> Restore xterm icon and window title from stack.
+>     Ps = 2 2 ; 0  -> Save xterm icon and window title on stack.
+>     Ps = 2 3 ; 0  -> Restore xterm icon and window title from stack.
 
 They  seem to  be used  to save  and restore  the icon  and window  title of  an
 xterm-compatible terminal.
@@ -250,11 +250,11 @@ It was introduced in [this commit][8].
 
 `OSC11;?BEL` is described [here][9] like so:
 
-> If a "?" is given rather than  a name or RGB specification, xterm replies with
-> a control sequence of the same form which can be used to set the corresponding
-> color.
-> Because more than one pair of color number and specification can be given in one
-> control sequence, xterm can make more than one reply.
+>     If a "?" is given rather than  a name or RGB specification, xterm replies with
+>     a control sequence of the same form which can be used to set the corresponding
+>     color.
+>     Because more than one pair of color number and specification can be given in one
+>     control sequence, xterm can make more than one reply.
 
 It's probably  used to  get the  color of  the background  of the  terminal, and
 determine whether the Nvim `'bg'` option should be set to 'dark' or 'light'.
@@ -365,17 +365,17 @@ Why don't you trust this terminfo description?
 
 When you look at the terminfo.src from invisible-island, you can read this:
 
-> Se and Ss are implemented in the source-code, but the terminfo
-> provided with the source is incorrect, since Se/Ss are mis-coded
-> as booleans rather than strings.
+>     Se and Ss are implemented in the source-code, but the terminfo
+>     provided with the source is incorrect, since Se/Ss are mis-coded
+>     as booleans rather than strings.
 
 ...
 
-> The source includes two entries which are not useful here:
->       st-meta| simpleterm with meta key,
->       st-meta-256color| simpleterm with meta key and 256 colors,
-> because st's notion of "meta" does not correspond to the terminfo definition.
-> Rather, it acts like xterm - when the meta feature is disabled.
+>     The source includes two entries which are not useful here:
+>           st-meta| simpleterm with meta key,
+>           st-meta-256color| simpleterm with meta key and 256 colors,
+>     because st's notion of "meta" does not correspond to the terminfo definition.
+>     Rather, it acts like xterm - when the meta feature is disabled.
 
 It seems to indicate that the  terminfo description which comes with st's source
 code is  not always correct... Search  for `\C\<st\>` in terminfo.src,  and read
@@ -389,7 +389,7 @@ I wonder whether we should stick with the terminfo description from st source co
 And if you read this:
 <https://github.com/tmux/tmux/issues/1593#issuecomment-460063051>
 You may, yet again, change your mind:
-> The upstream st (which I've seen more than once comment suggesting as an improvement) also is incorrect.
+>     The upstream st (which I've seen more than once comment suggesting as an improvement) also is incorrect.
 
 ---
 

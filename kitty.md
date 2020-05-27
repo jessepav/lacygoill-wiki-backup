@@ -15,13 +15,13 @@ Maybe we could use a thicker font?
 
 From: <https://github.com/kovidgoyal/kitty/issues/214#issuecomment-419317498>
 
-> If you like thicker fonts, why not just use a font with a thicker stem size?
-> It seems  backwards to  me to get  the font rendering  subsytem to  jump through
-> hoops just to thicken your fonts.
-> Different typefaces have  different design characteristics and IMO  it should be
-> the job of the rendering system to render them as accurately as possible.
-> Otherwise font designers will never be able  to rely on rendering systems to get
-> rendering right.
+>     If you like thicker fonts, why not just use a font with a thicker stem size?
+>     It seems  backwards to  me to get  the font rendering  subsytem to  jump through
+>     hoops just to thicken your fonts.
+>     Different typefaces have  different design characteristics and IMO  it should be
+>     the job of the rendering system to render them as accurately as possible.
+>     Otherwise font designers will never be able  to rely on rendering systems to get
+>     rendering right.
 
 Read this: <http://webagility.com/posts/finding-the-best-programming-font>
 

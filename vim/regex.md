@@ -128,7 +128,7 @@ Suppose you have this text:
     abXcd
 
 And you want a regex matching the positions before and after `X`.
-This regex will only match after `X` (because alternations are ordered in Vim):
+This regex will only match after `X` (because alternation is ordered in Vim).
 
     X\zs\|\zeX
 
@@ -434,8 +434,8 @@ undesired match:
 
 ---
 
-It works because alternations are *ordered* in Vim.
-It means  that the regex engine  uses the *first* matching  alternation; not the
+It works because alternation is *ordered* in Vim.
+It means  that the regex engine  uses the *first* matching  alternative; not the
 one producing the *longest* match.
 
 ## all sequences of several uppercase characters *not* followed by a comma *nor another uppercase character*?
@@ -476,7 +476,7 @@ You can test the regex against this line:
     0.12 , 0.15 , "this is a string" , "this is a string, with, many, commas,"
 
 The key  idea, is that  you can  uniquely describe a  comma outside a  string by
-expressing  the fact  that it's  preceded by  0 or  more alternation  of strings
+expressing the  fact that  it's preceded  by 0 or  more alternatives  of strings
 (`"[^"]*"`) and not-a-strings (`[^"]`).
 This description  won't match  a comma  inside a string,  because there  will be
 half-a-string at the end:
@@ -550,7 +550,7 @@ bracket expression:
     '\%(\\.\|[^'\\]\)*'
                 ^^
 
-After all, if the regex engine has  to try the second alternation, it means that
+After all, if the regex engine has  to try the second alternative, it means that
 `\\.` did  not match; and if  it did not match,  then it means that  there is no
 backslash at the current position, right?
 
@@ -827,12 +827,13 @@ The regex – without `\@>` – would match `' and '`:
 
 ####
 # Miscellaneous
-## When Vim's regex engine processes 2 alternations, both matching the text, which one is used to produce a match?
+## When Vim's regex engine processes 2 alternatives, both matching the text, which one is used to produce a match?
 
 The first one.
 
-Alternations in Vim's regex engine are  neither lazy (the shortest matches), nor
-greedy (the longest matches), it's *ordered* (the first matches).
+Alternation in Vim's regex engine is neither lazy (the alternative producing the
+shortest match is used), nor greedy (the alternative producing the longest match
+is used), it's *ordered* (the first which matches is used).
 
 That's why this regex:
 
@@ -848,7 +849,7 @@ If it was lazy, it would match `to`, and if it was greedy, it would match `tourn
 ---
 
 This is not the case of all regex engines.
-In some of them, alternations are greedy.
+In some of them, alternation is greedy.
 
 For more info, have a look  at the book “Mastering Regular Expressions”, chapter
 4, section “Is Alternation Greedy?” (page 198 of the pdf).

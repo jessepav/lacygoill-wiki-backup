@@ -100,10 +100,10 @@ If you're concerned by the portability of your program, you need to stick to C89
 
 From “C Programming A Modern Approach”, page 7:
 
-> Most C  compilers provide  language features and  library functions  that aren't
-> part of the C89 or C99 standards.
-> For portability,  it's best  to avoid using  nonstandard features  and libraries
-> unless they're absolutely necessary.
+>     Most C  compilers provide  language features and  library functions  that aren't
+>     part of the C89 or C99 standards.
+>     For portability,  it's best  to avoid using  nonstandard features  and libraries
+>     unless they're absolutely necessary.
 
 ##
 ## How to compile `pun.c` into `pun`?

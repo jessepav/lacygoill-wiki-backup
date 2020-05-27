@@ -114,8 +114,8 @@ But not this one:
 
 Even more formally:
 
-> A set  S is countable if  there exists an injective  function f from S  to the
-> natural numbers N = {0, 1, 2, 3, ...}.
+>     A set  S is countable if  there exists an injective  function f from S  to the
+>     natural numbers N = {0, 1, 2, 3, ...}.
 
 - <https://en.wikipedia.org/wiki/Countable_set#Definition>
 - <https://en.wikipedia.org/wiki/Injective_function>

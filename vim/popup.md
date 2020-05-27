@@ -241,7 +241,7 @@ From `:h popup-mapping`:
 ## My filter doesn't work.  When I press a key, it's not handled as expected!
 
 You probably have a mapping which interferes.
-Mappings are invoked before filters.
+Mappings are processed before filters.
 
 Solution: Pass `mapping: v:false` to `popup_create()`.
 Downside: This will break all your mappings as long as the popup is visible.

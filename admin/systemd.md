@@ -4,8 +4,8 @@ What does “static” mean in the output of `$ systemctl list-unit-files`
 
 From `man systemctl`:
 
-> The  unit file  is  not enabled,  and  has  no provisions  for  enabling in  the
-> "[Install]" section.
+>     The  unit file  is  not enabled,  and  has  no provisions  for  enabling in  the
+>     "[Install]" section.
 
 # ?
 
@@ -581,8 +581,8 @@ While the  daemon is being  reloaded, all sockets  systemd listens on  behalf of
 user configuration will stay accessible.
 
 
-> Just in case, daemon-reload isn't universal,  have got to run systemctl --user
-> daemon-reload for user services.
+>     Just in case, daemon-reload isn't universal,  have got to run systemctl --user
+>     daemon-reload for user services.
 
 Source:
 <https://serverfault.com/questions/700862/do-systemd-unit-files-have-to-be-reloaded-when-modified#comment1154734_700956>
@@ -926,14 +926,14 @@ The  reason may  be that,  when  expanding a  glob pattern,  for some  commands,
 systemctl ignores a unit which is inactive or not loaded.
 This seems to be implied in `man systemctl`:
 
-> Note  that glob  patterns operate  on the  set of  primary names  of currently
-> loaded units.
-> **Units which are not active and are not in a failed state usually are not loaded,**
-> **and will not be matched by any pattern.**
-> In addition,  in case  of instantiated  units, systemd is  often unaware  of the
-> instance name until the instance has been started.
-> **Therefore, using glob patterns with start has limited usefulness.**
-> Also, secondary alias names of units are not considered.
+>     Note  that glob  patterns operate  on the  set of  primary names  of currently
+>     loaded units.
+>     **Units which are not active and are not in a failed state usually are not loaded,**
+>     **and will not be matched by any pattern.**
+>     In addition,  in case  of instantiated  units, systemd is  often unaware  of the
+>     instance name until the instance has been started.
+>     **Therefore, using glob patterns with start has limited usefulness.**
+>     Also, secondary alias names of units are not considered.
 
 What's weird though, is that if you  disable a unit, `$ systecmctl status` still
 reports that it's loaded.
@@ -1634,29 +1634,29 @@ A match is in the format "FIELD=VALUE", e.g.:
 referring to the components of a structured journal entry.
 See systemd.journal-fields(7) for a list of well-known fields.
 
-> Entries in the journal resemble an  environment block in their syntax but with
-> fields that can include binary data.
-> Primarily, fields  are formatted  UTF-8 text strings,  and binary  formatting is
-> used only where formatting as UTF-8 text strings makes little sense.
-> New fields may freely be defined by  applications, but a few fields have special
-> meaning.
-> All fields with special meanings are optional.
-> In some cases, fields may appear more than once per entry.
+>     Entries in the journal resemble an  environment block in their syntax but with
+>     fields that can include binary data.
+>     Primarily, fields  are formatted  UTF-8 text strings,  and binary  formatting is
+>     used only where formatting as UTF-8 text strings makes little sense.
+>     New fields may freely be defined by  applications, but a few fields have special
+>     meaning.
+>     All fields with special meanings are optional.
+>     In some cases, fields may appear more than once per entry.
 >
-> USER JOURNAL FIELDS
+>     USER JOURNAL FIELDS
 >
-> User fields are fields that are directly passed from clients and stored in the
-> journal.
+>     User fields are fields that are directly passed from clients and stored in the
+>     journal.
 >
-> TRUSTED JOURNAL FIELDS
+>     TRUSTED JOURNAL FIELDS
 >
-> Fields prefixed  with an underscore are  trusted fields, i.e. fields  that are
-> implicitly added by the journal and cannot be altered by client code.
+>     Fields prefixed  with an underscore are  trusted fields, i.e. fields  that are
+>     implicitly added by the journal and cannot be altered by client code.
 >
-> KERNEL JOURNAL FIELDS
+>     KERNEL JOURNAL FIELDS
 >
-> Kernel fields are  fields that are used by messages  originating in the kernel
-> and stored in the journal.
+>     Kernel fields are  fields that are used by messages  originating in the kernel
+>     and stored in the journal.
 
 If multiple matches are specified matching different fields, the log entries are
 filtered by both, i.e. the resulting  output will show only entries matching all

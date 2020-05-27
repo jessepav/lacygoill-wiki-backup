@@ -1829,7 +1829,7 @@ Clearly this may be extended to other languages.
 # Todo
 ## ?
 
-Document `:h :syn-spell` and `:h spell-syntax`.
+Document `:h spell-syntax` and `:h :syn-spell`.
 
 ## ?
 

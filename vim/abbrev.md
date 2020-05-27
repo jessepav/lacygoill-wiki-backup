@@ -44,11 +44,11 @@ Insert the trigger literally:
 After.
 
     $ vim -Nu NONE +'inorea <expr> a "b"..feedkeys("c", "n")[-1]'
-    " press: i a SPC
+    " press:  i a SPC
     " result: 'b c'
 
-If the space  had already been executed when the  abbreviation was expanded, the
-result would have been `bc `.
+`c` can come after  the space only if the latter had not  been executed when the
+abbreviation was expanded.  Otherwise, the result would have been `bc `.
 
 The same is true for a CR which expands a command-line abbreviation:
 
@@ -86,7 +86,7 @@ In the rhs of the abbreviation, consume the space with `getchar()`.
 
 Example:
 
-    fu s:eat_space() abort
+    fu s:eat_space()
        let c = nr2char(getchar(0))
        return c =~# '\s' ? '' : c
     endfu
@@ -101,8 +101,10 @@ Here's what happens:
        * it's written in the typeahead buffer
        * Vim checks whether the text before the cursor matches an abbreviation
 
-       * it finds one; as a result, it removes `if` from the regular buffer,
-         and inserts `if ()<left><c-r>=<sid>eat_space()<cr>` in the typeahead in front of the space
+       * it finds one; as a result, it removes its lhs from the user buffer, and
+         inserts its rhs into the typeahead; i.e. `if` is removed from the regular buffer,
+         and   `if  ()<left><c-r>=<sid>eat_space()<cr>`  is  inserted   in  the
+         typeahead in front of the space
 
        * the typeahead is executed, and when `<c-r>=<sid>eat_space()<cr>` is executed,
          `s:eat_space()` consumes the last remaining space from the typeahead (via `getchar()`)

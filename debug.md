@@ -240,7 +240,7 @@ more obvious.
 # Pitfalls
 ## Always write the *full path* to the binary of the program you're debugging.
 
-This is especially important with a program like Tmux.
+This is especially important with a program like tmux.
 If you have a running server, any tmux command you execute will be run by the latter.
 But if you want to test a different binary, you need to specify its full path.
 

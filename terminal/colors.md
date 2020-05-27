@@ -151,7 +151,7 @@ consistent.
 
 If you've got difficulty to remember which spelling is american, remember this:
 
-> E for England, A for America.
+>     E for England, A for America.
 
 <https://english.stackexchange.com/questions/255435/gray-or-grey-which-one-should-i-use/255437#comment558850_255436>
 
@@ -327,9 +327,9 @@ Example:
 
 See `OSC Ps ; Pt BEL`:
 
-> If a "?" is given rather than  a name or RGB specification, xterm replies with
-> a control sequence of the same form which can be used to set the corresponding
-> color.
+>     If a "?" is given rather than  a name or RGB specification, xterm replies with
+>     a control sequence of the same form which can be used to set the corresponding
+>     color.
 
 ---
 

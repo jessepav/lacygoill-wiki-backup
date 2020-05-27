@@ -614,10 +614,10 @@ OTOH, the `italics` style has different letter shapes.
 
 Btw, don't use the `slanted` style:
 
-> Serif typefaces with a good slanted variant are extremely rare, so if you care
-> about typography, you should stick to italics.
+>     Serif typefaces with a good slanted variant are extremely rare, so if you care
+>     about typography, you should stick to italics.
 
-https://tex.stackexchange.com/questions/68931/what-is-the-difference-between-italics-and-slanted-text#comment147156_68932
+<https://tex.stackexchange.com/questions/68931/what-is-the-difference-between-italics-and-slanted-text#comment147156_68932>
 
 ##
 # Miscellaneous

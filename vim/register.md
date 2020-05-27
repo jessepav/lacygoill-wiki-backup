@@ -819,7 +819,7 @@ You need the error *not* to be ignored for `@b` to stop.
 
 No, unless you pass the `t` flag to `feedkeys()`:
 
-    $ vim -Nu NONE +'nno <expr> <c-a> feedkeys("<c-b>", "in")[-1]'
+    $ vim -Nu NONE +'nno <expr> <c-a> feedkeys("<c-b>")[-1]'
     " press:
              qq
              C-a
@@ -827,8 +827,8 @@ No, unless you pass the `t` flag to `feedkeys()`:
     :reg q
     c  "q   ^A~
 
-                                                           v
-    $ vim -Nu NONE +'nno <expr> <c-a> feedkeys("<c-b>", "int")[-1]'
+                                                         v
+    $ vim -Nu NONE +'nno <expr> <c-a> feedkeys("<c-b>", "t")[-1]'
     " press:
              qq
              C-a

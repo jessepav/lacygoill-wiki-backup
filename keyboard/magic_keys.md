@@ -319,18 +319,18 @@ For more information, see:
 
     man systemd /SIGINT
 
-> SIGINT
+>     SIGINT
 >
-> Upon  receiving  this   signal  the  systemd  system  manager   will  start  the
-> ctrl-alt-del.target unit.
-> This is mostly equivalent to systemctl start ctl-alt-del.target.
-> If this  signal is received  more than  7 times per  2s, an immediate  reboot is
-> triggered.
-> Note that pressing Ctrl-Alt-Del on the console will trigger this signal.
-> Hence, if a reboot is hanging, pressing  Ctrl-Alt-Del more than 7 times in 2s is
-> a relatively safe way to trigger an immediate reboot.
+>     Upon  receiving  this   signal  the  systemd  system  manager   will  start  the
+>     ctrl-alt-del.target unit.
+>     This is mostly equivalent to systemctl start ctl-alt-del.target.
+>     If this  signal is received  more than  7 times per  2s, an immediate  reboot is
+>     triggered.
+>     Note that pressing Ctrl-Alt-Del on the console will trigger this signal.
+>     Hence, if a reboot is hanging, pressing  Ctrl-Alt-Del more than 7 times in 2s is
+>     a relatively safe way to trigger an immediate reboot.
 >
-> systemd user managers treat this signal the same way as SIGTERM.
+>     systemd user managers treat this signal the same way as SIGTERM.
 
 See also: <https://askubuntu.com/questions/763887/how-do-we-disable-ctrl-alt-del-on-ubuntu-16-04>
 
@@ -368,11 +368,11 @@ display manager.
 
 According to the [archwiki](https://wiki.archlinux.org/index.php/Keyboard_shortcuts#Kernel), it should not prevent the “reisub” sequence from working:
 
-> If you  are using a  display manager and  after Alt+SysRq+e you  are presented
-> with the login  screen (or full desktop  if autologin is enabled),  it is most
-> likely caused by Restart=always directive in the relevant service file.
-> If  necessary, edit  the  unit, however  this should  not  prevent the  "REISUB"
-> sequence from working.
+>     If you  are using a  display manager and  after Alt+SysRq+e you  are presented
+>     with the login  screen (or full desktop  if autologin is enabled),  it is most
+>     likely caused by Restart=always directive in the relevant service file.
+>     If  necessary, edit  the  unit, however  this should  not  prevent the  "REISUB"
+>     sequence from working.
 
 Nevertheless,  if   you  wish  to   prevent  the  display  manager   from  being
 automatically restarted, you need to comment out the directive:

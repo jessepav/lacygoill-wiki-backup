@@ -122,7 +122,7 @@ inside `$ tmux info`.
 
 ---
 
-Tmux doesn't  relay a sequence which  is not associated to  any known capability
+tmux doesn't  relay a sequence which  is not associated to  any known capability
 (and thus absent from the description of the outer terminal).
 
     $ tmux -Lx -f/dev/null
@@ -133,7 +133,7 @@ sequence is not associated to any capability inside `$ tmux info`.
 
 ---
 
-Tmux doesn't relay a sequence which has been removed from the description of the
+tmux doesn't relay a sequence which has been removed from the description of the
 outer terminal.
 
     $ tic -sx <(infocmp -x | sed '/smxx=/d')
@@ -151,7 +151,7 @@ The terminal does *not* strike through the  text, because the value of `smxx` is
 
 ---
 
-Tmux doesn't relay a sequence associated to a canceled capability.
+tmux doesn't relay a sequence associated to a canceled capability.
 
     $ tmux set -as terminal-overrides '*:smxx@'
     $ tmux detach
@@ -291,6 +291,17 @@ Example:
 ---
 
 This sequence is specific to tmux.
+
+##
+## How to set `Ms` correctly?
+
+    set -as terminal-overrides 'yourTERMname:Ms=...'
+                    ^^^^^^^^^^                 ^^^^
+
+Starting from tmux 3.2, you could also write:
+
+    set -as terminal-features 'yourTERMname:clipboard'
+                    ^^^^^^^^^               ^^^^^^^^^
 
 ##
 # Issues

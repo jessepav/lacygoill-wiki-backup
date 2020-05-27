@@ -13,7 +13,7 @@ Yes.
 
 You can, but you don't need to.
 
-Tmux can infer the type of an option from its name, except if it's a user option.
+tmux can infer the type of an option from its name, except if it's a user option.
 
 ##
 ## How to get the value of the 'clock-mode-colour' option, and *only* its value (i.e. not its name)?
@@ -107,7 +107,7 @@ Again, use the `-t` argument:
 ## What happens if I
 ### omit `-g` when I set a session, window, or pane option in `~/.config/tmux/tmux.conf`?
 
-Tmux will complain with one of these error messages:
+tmux will complain with one of these error messages:
 
     no current session
     no current window
@@ -149,9 +149,9 @@ It inherits its value from its window counterpart.
 
 From `man tmux /OPTIONS`:
 
-> Pane options inherit from window options.
-> This means any pane option may be set  as a window option to apply the option to
-> all panes in the window without the option set, [...]
+>     Pane options inherit from window options.
+>     This means any pane option may be set  as a window option to apply the option to
+>     all panes in the window without the option set, [...]
 
 ## When a window option has a pane counterpart, what benefit do you get?
 
@@ -398,14 +398,14 @@ and from the faq:
                                 ^
 ##### Why?
 
-I think that before 2.3, 'terminal-overrides' was a string option.
+I think that before 2.3, `terminal-overrides` was a string option.
 
-> * terminal-overrides and update-environment are now array options
+>     * terminal-overrides and update-environment are now array options
 <https://github.com/tmux/tmux/blob/8382ae65b7445a70e8a24b541cf104eedadd7265/CHANGES#L575>
 
 And maybe a comma was needed for a string option.
 
-But anyway, now, 'terminal-overrides' is an array option.
+But anyway, now, `terminal-overrides` is an array option.
 So, a comma should be useless most of the time.
 
 ---
@@ -415,15 +415,15 @@ If you want to be sure, try this experiment.
     set -s  terminal-overrides 'xterm*:Tc'
     set -as terminal-overrides 'st*:Cs=\E]12;%p1%s\007'
 
-If tmux didn't  split the value of 'terminal-overrides'  after `xterm*:Tc`, then
+If tmux didn't  split the value of `terminal-overrides`  after `xterm*:Tc`, then
 it  would consider  `xterm*` as  being the  terminal type  pattern for  the `Cs`
 capability, which would  prevent us from resetting the color  of the cursor with
-`$ printf '\033]12;3\007'` in st (since 'st-256color' doesn't match 'xterm*').
+`$ printf '\033]12;3\007'` in st (since `st-256color` doesn't match `xterm*`).
 And yet,  in practice, we can  reset the color of  the cursor in st  + tmux with
 this minimal `tmux.conf`.
 
 ###
-### For 'terminal-overrides', do I need a comma to separate two capabilities for the same terminal type pattern?
+### For `terminal-overrides`, do I need a comma to separate two capabilities for the same terminal type pattern?
 
 No.
 

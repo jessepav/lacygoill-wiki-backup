@@ -321,7 +321,7 @@ Yes, on the condition that:
 
    - the terminal supports true colors
 
-   - Vim and Tmux are properly configured to support true colors:
+   - Vim and tmux are properly configured to support true colors:
    see `:h xterm-true-color`, and `man tmux /Tc`
 
 ### What are the 6 most common attributes which can be given to a HG via `[c]term` and `gui`?

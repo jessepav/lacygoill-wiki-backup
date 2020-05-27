@@ -19,12 +19,12 @@ See:
 
 See also `man tmux /alternate-screen`:
 
-> This  option configures  whether  programs  running inside  the  pane may  use
-> the  terminal alternate  screen  feature,  which allows  the  smcup and  rmcup
-> terminfo(5) capabilities.
-> The  alternate screen  feature  preserves the  contents of  the  window when  an
-> interactive  application starts  and restores  it on  exit, so  that any  output
-> visible before the application starts reappears unchanged after it exits.
+>     This  option configures  whether  programs  running inside  the  pane may  use
+>     the  terminal alternate  screen  feature,  which allows  the  smcup and  rmcup
+>     terminfo(5) capabilities.
+>     The  alternate screen  feature  preserves the  contents of  the  window when  an
+>     interactive  application starts  and restores  it on  exit, so  that any  output
+>     visible before the application starts reappears unchanged after it exits.
 
 ##
 # b

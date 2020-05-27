@@ -51,10 +51,10 @@ They're references.
 If you  need a better  understanding of PCRE, learn  Perl regexes with  the book
 “Mastering Regular Expressions”.
 
-> Perl's  regular expressions are described in its own documentation, and
-> regular expressions in general are covered in a number of  books,  some
-> of  which  have  copious  examples. Jeffrey Friedl's "Mastering Regular
-> Expressions", published by  O'Reilly,  covers  regular  expressions  in
-> great  detail.  This  description  of  PCRE2's  regular  expressions is
-> intended as **reference** material.
+>     Perl's  regular expressions are described in its own documentation, and
+>     regular expressions in general are covered in a number of  books,  some
+>     of  which  have  copious  examples. Jeffrey Friedl's "Mastering Regular
+>     Expressions", published by  O'Reilly,  covers  regular  expressions  in
+>     great  detail.  This  description  of  PCRE2's  regular  expressions is
+>     intended as **reference** material.
 

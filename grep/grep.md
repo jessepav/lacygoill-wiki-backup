@@ -12,10 +12,10 @@ containing an arbitrary pattern:
 
 ## `-c`
 
-> -c, --count
->        Suppress  normal output; instead print a count of matching lines
->        for each input file.  With the -v,  --invert-match  option  (see
->        below), count non-matching lines.
+>     -c, --count
+>            Suppress  normal output; instead print a count of matching lines
+>            for each input file.  With the -v,  --invert-match  option  (see
+>            below), count non-matching lines.
 
 So, it seems that this is an anti-pattern:
 
@@ -26,6 +26,17 @@ Instead, you should run:
     $ grep -c pat file
 
 ##
+# ?
+
+    $ \rg -FLS foobar /etc
+    $ \rg -F -LS foobar /etc
+    error: The argument '--follow' was provided more than once, but cannot be used multiple times~
+
+    $ \rg -F -SL foobar /etc
+    error: The argument '--smart-case' was provided more than once, but cannot be used multiple times~
+
+Is it a bug?  If so, report it.
+
 # ?
 
 Document that it seems that only ripgrep  (and ag) can print several matches, on

@@ -242,22 +242,6 @@ Or:
 ##
 ## ?
 
-In `./mapping.md`, look  for `g@`.  For each match, try  to refactor whatever is
-written; and try to answer any question related to `g@`.
-
-Same thing in `./todo/todo.md`.
-
----
-
-Make sure we correctly understand how `feedkeys()` work.
-If needed, refer to this document for details:
-<https://vimways.org/2019/a-test-to-attest-to/>
-
-Did we abuse the `i` flag?
-Search for `feedkeys()` everywhere.
-
-## ?
-
 Study when a wildcard can match a dot.
 I think `*` can match a dot in a `:e` or `:sp` command.
 

@@ -193,8 +193,8 @@ Issue:
 
 It seems to contradict `man find`:
 
-> If  the whole  expression contains  no actions  other than  -prune or  -print,
-> -print is performed on all files for which the whole expression is true.
+>     If  the whole  expression contains  no actions  other than  -prune or  -print,
+>     -print is performed on all files for which the whole expression is true.
 
 # ?
 
@@ -202,8 +202,8 @@ Understand this:
 
     $ find \! -name '.?*' -o \! -prune
 
-> The command  line I posted  will still print out  all the matching  files, but
-> it'll skip any dotfiles.
+>     The command  line I posted  will still print out  all the matching  files, but
+>     it'll skip any dotfiles.
 
 Theory:
 

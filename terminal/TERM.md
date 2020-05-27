@@ -81,7 +81,7 @@ But you  will need to convert  a terminfo description for  `xfce4-terminal` into
 `/etc/termcap`.
 
 ##
-# Tmux
+# tmux
 ## Which value should I assign to `$TERM` inside tmux?
 
 The only valid values are `screen`, `tmux` and some variants like `tmux-256color`.

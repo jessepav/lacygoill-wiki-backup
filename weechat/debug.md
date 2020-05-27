@@ -53,9 +53,9 @@ directory:
 
 This should work according to:
 
-> Copy   file    toto.so   into   system   plugins    directory   (for   example
-> /usr/local/lib/weechat/plugins)  **or  into  user's plugins  directory**  (for
-> example **/home/xxx/.weechat/plugins**).
+>     Copy   file    toto.so   into   system   plugins    directory   (for   example
+>     /usr/local/lib/weechat/plugins)  **or  into  user's plugins  directory**  (for
+>     example **/home/xxx/.weechat/plugins**).
 
 <https://weechat.org/files/doc/stable/weechat_plugin_api.en.html#load_plugin>
 

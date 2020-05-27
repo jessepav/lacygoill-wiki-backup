@@ -132,9 +132,9 @@ point floats to the position immediately after the first non-zero digit.
 
 ---
 
-> The term floating point refers to the  fact that a number's radix point (decimal
-> point, or,  more commonly in computers,  binary point) can "float";  that is, it
-> can be placed anywhere relative to the significant digits of the number.
+>     The term floating point refers to the  fact that a number's radix point (decimal
+>     point, or,  more commonly in computers,  binary point) can "float";  that is, it
+>     can be placed anywhere relative to the significant digits of the number.
 
 Source: <https://en.wikipedia.org/wiki/Floating-point_arithmetic>
 

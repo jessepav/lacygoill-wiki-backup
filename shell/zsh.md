@@ -193,5 +193,5 @@ For more info, see:
 
 To read:
 
-> In zsh, how can I dump all configuration?
+>     In zsh, how can I dump all configuration?
 <https://unix.stackexchange.com/a/117344/289772>

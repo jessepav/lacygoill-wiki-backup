@@ -956,8 +956,8 @@ The format is reused as many times as necessary to consume all the arguments.
 
 From `$ info printf`:
 
-> • The FORMAT argument is reused as necessary to convert all the given
->   ARGUMENTs.  For example, the command ‘printf %s a b’ outputs ‘ab’.
+>     • The FORMAT argument is reused as necessary to convert all the given
+>       ARGUMENTs.  For example, the command ‘printf %s a b’ outputs ‘ab’.
 
 ##
 ## ?
@@ -3114,10 +3114,10 @@ La syntaxe générale d'un pipeline est donc:
 <https://unix.stackexchange.com/a/154971/275162>
 
 
-> You'll also see people  exporting things, such as term, in  .bashrc or .zshrc or
-> similar - that will break things in the long run.
-> Exports solely  belong in the  login shell init  file, such as  .bash_profile or
-> .zprofile and even then you don't export some things like term.
+>     You'll also see people  exporting things, such as term, in  .bashrc or .zshrc or
+>     similar - that will break things in the long run.
+>     Exports solely  belong in the  login shell init  file, such as  .bash_profile or
+>     .zprofile and even then you don't export some things like term.
 
 <https://github.com/tmux/tmux/issues/353#issuecomment-203038518>
 

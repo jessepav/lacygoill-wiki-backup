@@ -1841,20 +1841,20 @@ I began a refactoring of this last one here:
 
 Vim plugin for insert mode completion of words in adjacent tmux panes
 
-If you're using  Vim in tandem with  Tmux you might be familiar  with this pesky
+If you're using  Vim in tandem with  tmux you might be familiar  with this pesky
 situation:
 
 You're happily  editing your lovely  files in Vim, when  you notice you  need to
-type a word that you can see in a different Tmux pane right next to Vim.
+type a word that you can see in a different tmux pane right next to Vim.
 
 This might be some secret key found in your REPL or the name of a failing test.
 
 Usually the interesting text is too short to warrant switching panes
-and going into Tmux' copy mode, so you end typing it out again.
+and going into tmux' copy mode, so you end typing it out again.
 
 But fear no longer!
 
-This plugin adds a completion function that  puts all words visible in your Tmux
+This plugin adds a completion function that  puts all words visible in your tmux
 panes right under your fingertips.
 
 Just enter insert  mode, start typing any  word you see and  press <C-X><c-u> to

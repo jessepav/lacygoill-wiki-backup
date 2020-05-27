@@ -65,8 +65,8 @@ Here's an example of fingerprint:
 
 During the installation, you'll read some interesting messages:
 
-> ureadahead will be reprofiled on next reboot
-> Adding group `vboxusers' (GID 131) ...
+>     ureadahead will be reprofiled on next reboot
+>     Adding group `vboxusers' (GID 131) ...
 
 ## Why should I install `dkms`?
 
@@ -359,10 +359,10 @@ Atm, it could be  useful to change to either of:
 
 to be protected from a 0day vulnerability which allows:
 
-> an attacker with root/administrator privileges in  a guest to escape to a host
-> ring3.
-> Then the attacker  can use existing techniques to escalate  privileges to ring 0
-> via /dev/vboxdrv.
+>     an attacker with root/administrator privileges in  a guest to escape to a host
+>     ring3.
+>     Then the attacker  can use existing techniques to escalate  privileges to ring 0
+>     via /dev/vboxdrv.
 
 <https://github.com/MorteNoir1/virtualbox_e1000_0day#how-to-protect-yourself>
 
@@ -537,8 +537,8 @@ Now, you can use `~/VB/ubuntu/share/` to exchange files.
 
 I'm not sure, but after reading this:
 
-> --name <name> Specifies the name of the share.
-> Each share has a UNIQUE name within the namespace of the host operating system. Mandatory.
+>     --name <name> Specifies the name of the share.
+>     Each share has a UNIQUE name within the namespace of the host operating system. Mandatory.
 
 From here:
 
