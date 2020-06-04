@@ -1,184 +1,51 @@
-# One of my custom normal command is not repeatable with the dot command!  Why?
+# Terminology
+## What's a terminal key code?
 
-`.` only repeats the *last* default normal command.
-So, if your  custom command executes several commands, `.`  will only repeat the
-last one instead of the whole sequence.
+A sequence of bytes emitted by the terminal when you press a given key on your keyboard.
 
-# What do I need to do to make a custom operator repeatable with `.`?
+For example, when you press `S-Tab`, xterm emits this sequence of 3 bytes:
 
-Nothing.
-There's no need to use `repeat#set()` or any other hack.
+    1b 5b 5a
+    │  │  │
+    │  │  └ Z
+    │  └ [
+    └ Esc
 
----
+This is the key code for `S-Tab`.
 
-No matter how you implement your custom  operator, in the end, it executes `g@`,
-which is  a builtin  Vim command.  `.` repeats the  last Vim  command, including
-`g@`.
+See also: <https://vi.stackexchange.com/a/10284/17449>
 
-Note that `.` also repeats the motion or a text-object which you provided to the
-operator.
+## What's a Vim key code?
 
-##
-# vim-repeat
-## Why should I avoid using `repeat#set()` to make it repeatable?
+A notation to represent some special keys (or chords) on the keyboard.
 
-1) The repetition doesn't always work as expected after an undo:
+Examples:
 
-<https://github.com/tpope/vim-repeat/issues/63>
+   - `<CR>`
+   - `<Esc>`
+   - `<Left>`
+   - `<F1>`
 
-2) And sometimes, `.` repeats an old custom command.
+See `:h keycode`.
 
-These bugs  and [tpope's comment][1] indicate  that `repeat#set()` is  a brittle
-hack, which should be avoided whenever possible.
+## What's a mapped key sequence?
 
----
-
-1) You can check it doesn't work correctly after an undo with `vim-easy-align`:
-
-    gaip*|
-    u
-    .
-
-The dot  command should  repeat the  alignment of  all the  bars in  the current
-paragraph.  Instead, it asks again for the characters to align.
-
-The same kind of issue applied to `g SPC` (break line).
-After an undo, the repetition didn't break the line, and did something else:
-delete the line, put an empty line below...
-
----
-
-2) In the past, I found another issue with `] SPC`:
-
-   1. `] SPC`
-   2. `dd`
-   3. `.` to repeat `dd`
-
-Vim repeated `] SPC`, instead of `dd`.
-
-I found a solution, which was to add this line at the end of our custom function
-(after invoking `repeat#set()`):
-
-    do <nomodeline> CursorMoved
-
-### I still want to make it repeatable with `repeat#set()`!  How to do it?
-
-    nno <lhs> <rhs>:call repeat#set('<lhs>')<cr>
-
-Or:
-
-    nmap          <lhs>                  <plug>(named_mapping)
-    nno <silent>  <plug>(named_mapping)  :cmd1<bar>cmd2...<bar>call repeat#set("\<plug>(named_mapping)")<cr>
-
-Or:
-
-    nmap          <lhs>                  <plug>(named_mapping)
-    nno <silent>  <plug>(named_mapping)  :cmd1<bar>cmd2...<bar>call Func()<cr>
-
-    fu Func()
-        ...
-        sil! call repeat#set("\<plug>(named_mapping)")
-        "  ^
-        " Sometimes, you may not have the plugin, or it may be temporarily disabled.
-        " In this case, the function won't exist.
-    endfu
-
-##
-## I want `.` to repeat my commands with the same count I used initially!  How to do it?
-
-`repeat#set()` accepts a 2nd optional argument.
-Use it to pass `v:count`.
-
-### My mapping is in visual mode, not normal!  How to adapt the code?
-
-In the previous code, replace:
-
-   - `:nmap` with `:xmap`
-   - `:nnoremap` with `:noremap`
-
-#### Which pitfalls should I avoid?  (2)
-
-Don't use `:xnoremap` in your 2nd mapping, use `:noremap` instead.
-
-`repeat.vim`  remaps the  dot command,  to  make it  type the  contents of  some
-variables updated via some autocmds.
-But it remaps the dot command only in normal mode, not in visual mode.
-
-As a result, your 2nd mapping (<plug> → ...) needs to cover both modes:
-
-   - visual when you'll press the lhs initially
-   - normal when you'll press `.`
-
----
-
-Don't  reselect  the visual  selection  with  `gv` at  the  end  of your  custom
-commands.  Otherwise,  before being able to  press `.`, you would  need to press
-`Escape` to get back to normal mode.
-
-##
-# How to tweak the behavior of a default operator?
-
-Create a wrapper around it.
-
-Example with the `gq` operator:
-
-    nno <silent> gq  :<c-u>set opfunc=<sid>gq<cr>g@
-    nno <silent> gqq :<c-u>set opfunc=<sid>gq<bar>exe 'norm! '..(v:count ? v:count : '')..'g@_'<cr>
-    xno <silent> gq  :<c-u>call <sid>gq('vis')<cr>
-
-    fu s:gq()
-        " tweak some setting which alters the behavior of `gq`
-        ...
-        " execute the default `gq`
-        if a:type is# 'vis'
-            norm! '<V'>gq
-        else
-            norm! '[gq']
-        endif
-    endfu
-
-# My custom operator works.  But when I press `.`, it's not repeated!  Why?
-
-If the  function implementing  your operator calls  another operator  during its
-execution, `.` will repeat the latter.
+A sequence of keys and/or Vim key codes used as the lhs of a mapping.
 
 Example:
 
-    nno <silent> \d :<c-u>set opfunc=<sid>duplicate_and_comment<cr>g@
+    inoremap jk <Esc>:nohl<CR>
+             ^^
+             this is a mapped key sequence
 
-    fu s:duplicate_and_comment(type)
-        norm! '[y']
+The term is used at `:h 'ttimeout'`.
 
-        " ✘
-        " norm gc']
-        " ✔
-        ']Commentary
+Note that a mapped key sequence doesn't make sense outside of a mapping.
+`jk` by itself is not a mapped key sequence.
+It becomes one if it's used as the lhs of a mapping.
 
-        norm! ']p
-    endfu
-
-Here, the normal command:
-
-    norm gc']
-
-... would cause an issue, because it invokes the operator `gc`.
-So, after  pressing `\dip`  (duplicate and comment  inside paragraph),  `.` will
-repeat `gc']` instead of `\dip`.
-
-# How to fix it?
-
-1) Restore `'opfunc'` correctly.
-
-2) Or better, don't use a a second operator B inside an operator A:
-   call the function implementing B via an Ex command.
-
-In the previous example, we use `:Commentary`.
-
-Using an Ex  command is better, because resetting `'opfunc'`  inside an operator
-function feels clumsy.
-Besides, it creates a bad repetition (DRY,  DIE): if one day you change the name
-of your operator function, you'll also need to remember to change it on the line
-where you restore `'opfunc'`.
+By contrast, `^[[Z` and `<S-Tab>` don't need any context.
+They are terminal/Vim key codes by themselves.
 
 ##
 # opfunc
@@ -196,71 +63,121 @@ Use `g@l` for a pseudo-operator; `g@_` otherwise.
 
 If your custom operator is a pseudo one, and you implement it like this:
 
-    nno <key> :<c-u>set opfunc=MyOp<bar>norm! g@_<cr>
-                                                ^
-                                                ✘
+    nno <expr> <key> MyOp()
+
+    fu MyOp(...)
+        if !a:0
+            let &opfunc = 'MyOP'
+            return 'g@_'
+                      ^
+                      ✘
+        endif
+        ...
+    endfu
 
 The `_` motion will make the cursor jump at the beginning of the line, which you
 probably don't want.  You can avoid the jump by replacing the motion `_` with `l`.
 
 If your custom operator is *not* a pseudo operator, and you implement it like this:
 
-    nno <key>      :set opfunc=MyOp<cr>g@
-    xno <key>      :call MyOp('vis')<cr>
-    nno <key><key> :set opfunc=MyOp<bar>exe 'norm! '..(v:count ? v:count : '')..'g@l'<cr>
-                                                                                   ^
-                                                                                   ✘
+    nno <expr> <key> MyOp()
+    xno <expr> <key> MyOp()
+    nno <expr> <key><key> MyOp()..'l'
+                                   ^
+                                   ✘
+
+    fu MyOp(...)
+        if !a:0
+            let &opfunc = 'MyOP'
+            return 'g@'
+        endif
+        ...
+    endfu
 
 The change marks will be wrongly set.
 
 ##
-## My opfunc uses `setline()`, not `:s`.  How to pass it a range when I use a count (e.g. `123g@_`)?
+## My opfunc substitutes text via `setline()`, not `:s`.  How to pass it a range when I use a count (e.g. `123g@_`)?
 
-Install a wrapper around your opfunc.
-Inside the wrapper, call the opfunc by prefixing `:call` with the range:
+Move the code of your opfunc into another function.
+Inside the opfunc, call this other  function by prefixing `:call` with the range
+`'[,']`.
 
-               ┌ consumes the type
-               │
-    fu Wrapper(_)
-        '[,']call OpFunc()
+       opfunc = dispatch
+       vvvvvvvvv
+    fu MyOpSetup(...)
+        if !a:0
+            let &opfunc = 'MyOpSetup'
+            return 'g@'
+        endif
+        '[,']call MyOp()
+        ^^^^^
     endfu
 
-    fu OpFunc()
-        " use setline()
-    endfu
+Example:
 
-You  can use  the  change marks  because  Vim should  set  them correctly  after
-`123g@_` has been executed.
+    vim -Nu NONE -S <(cat <<'EOF'
+        nno <expr> <c-b>      MyOpSetup()
+        nno <expr> <c-b><c-b> MyOpSetup()..'_'
+
+        fu MyOpSetup(...)
+            if !a:0
+                let &opfunc = 'MyOpSetup'
+                return 'g@'
+            endif
+            '[,']call MyOp()
+        endfu
+
+        fu MyOp()
+            call setline('.', substitute(getline('.'), 'pat', 'rep', 'g'))
+        endfu
+        let text =<< trim END
+            " pat pat pat
+            " foo foo foo
+            " pat pat pat
+            " foo foo foo
+            " pat pat pat
+        END
+        sil pu!=text
+        1
+    EOF
+    )
+    " press:  3 C-b C-b
+    " result:  'pat' is replaced on line 1 and 3
 
 ## My opfunc executes several `:echo`.  Only the last message is printed!
 
 I think that Vim redraws automatically before every command printing a message.
-This includes sth like `:echo 'msg'` and `:call input('>')`.
+This includes sth like `:echom 'msg'` and `:call input('>')`.
 
 I don't know any solution to this  issue, other than printing your messages from
 another function invoked before/after your opfunc, but not directly from it:
 
-    nno cd :set opfunc=Func<bar>norm! g@_<cr>
-    fu Func(_)
+    nno <expr> <c-b> Func()
+    fu Func(...)
+        if !a:0
+            let &opfunc = 'Func'
+            return 'g@_'
+        endif
         call FuncA()
     endfu
-    fu FuncA() abort
-        echo 'foo'
-        echo 'bar'
+    fu FuncA()
+        echom 'foo'
+        echom 'bar'
     endfu
     " ✘
-    " press `cd`
+    " press:  C-b
     " bar~
 
-    nno cd :set opfunc=Func<bar>exe 'norm! g@_'<bar>:call FuncA()<cr>
+    nno <c-b> :set opfunc=Func<bar>exe 'norm! g@_'<bar>:call FuncA()<cr>
     fu Func(_)
     endfu
     fu FuncA() abort
-        echo 'foo'
-        echo 'bar'
+        echom 'foo'
+        echom 'bar'
     endfu
     " ✔
-    " press `cd`
+    " press:  C-b
     " foo~
     " bar~
 
@@ -269,23 +186,22 @@ another function invoked before/after your opfunc, but not directly from it:
 Note that the same issue exists for timers:
 
     " ✔
-    :echo 'foo' | echo 'bar'
+    :echom 'foo' | echom 'bar'
     foo~
     bar~
 
     " ✘
-    :call timer_start(0, {-> execute('echo "foo" | echo "bar"', '')})
+    :call timer_start(0, {-> execute('echom "foo" | echom "bar"', '')})
     bar~
 
 And for autocmds:
 
-    augroup test_echo
-        au!
-        au CursorHold * call Func() | au! test_echo
+    augroup test_echo | au!
+        au CursorHold * ++once call Func() | au! test_echo
     augroup END
     fu Func()
-        echo 'foo'
-        echo 'bar'
+        echom 'foo'
+        echom 'bar'
     endfu
 
 ##
@@ -489,6 +405,56 @@ But the `i` flag was undesirable when the typeahead was not empty:
     start rhs~
     not delayed~
     end rhs~
+
+##
+## comparison with `:norm`
+### Does `:norm` append or insert keys in the typeahead?
+
+It always inserts keys:
+
+    $ vim -Nu NONE <(cat <<'EOF'
+        " a
+        " b
+        " c
+        " some folded text {{{
+        " some folded text
+        " some folded text }}}
+    EOF
+    ) +'set fdm=marker noro' +1d +'$'
+    :call feedkeys('3gsu', 'n') | norm! zv
+
+Notice how the fold is immediately opened, but the undo command is not run before 3s.
+That's because Vim has executed the keys in this order:
+
+    zv3gsu
+    ^^
+    inserted; not appended
+
+In contrast, `feedkeys()` only inserts keys if you pass it the `i` flag.
+
+### Are the keys typed by `:norm` executed immediately?
+
+Yes:
+
+    $ vim -es -Nu NONE -i NONE +"pu='some text'" \
+      +'set vbs=1 | echo b:changedtick | exe "norm! dd" | echo b:changedtick | qa!'
+                                         ^^^^^^^^^^^^^^
+    3~
+    4~
+
+In contrast, `feedkeys()` executes the keys immediately only if you pass it the `x` flag:
+
+    $ vim -es -Nu NONE -i NONE +"pu='some text'" \
+      +'set vbs=1 | echo b:changedtick | call feedkeys("dd", "n") | echo b:changedtick | qa!'
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^
+    3~
+    3~
+
+    $ vim -es -Nu NONE -i NONE +"pu='some text'" \
+      +'set vbs=1 | echo b:changedtick | call feedkeys("dd", "nx") | echo "\n"..b:changedtick | qa!'
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+    3~
+    4~
 
 ##
 # `maparg()`
@@ -807,7 +773,378 @@ Example:
     1~
 
 ##
+# repetition
+## One of my custom normal command is not repeatable with the dot command!  Why?
+
+`.` only repeats the *last* default normal command.
+So, if your  custom command executes several commands, `.`  will only repeat the
+last one instead of the whole sequence.
+
+## What do I need to do to make a custom operator repeatable with `.`?
+
+Nothing.
+There's no need to use `repeat#set()` or any other hack.
+
+---
+
+No matter how you implement your custom  operator, in the end, it executes `g@`,
+which is  a builtin  Vim command.  `.` repeats the  last Vim  command, including
+`g@`.
+
+Note that `.` also repeats the motion or a text-object which you provided to the
+operator.
+
+###
+## My custom operator works.  But when I press `.`, it's not repeated!  Why?
+
+If the  function implementing  your operator calls  another operator  during its
+execution, `.` will repeat the latter.
+
+Example:
+
+    nno <expr> \d <sid>duplicate_and_comment()
+
+    fu s:duplicate_and_comment(...)
+        if !a:0
+            let &opfunc = matchstr(expand('<sfile>'), '<SNR>\w*$')
+            return 'g@'
+        endif
+        norm! '[y']
+
+        " ✘
+        " norm gc']
+        " ✔
+        ']Commentary
+
+        norm! ']p
+    endfu
+
+Here, the normal command:
+
+    norm gc']
+
+... would cause an issue, because it invokes the operator `gc`.
+So, after  pressing `\dip`  (duplicate and comment  inside paragraph),  `.` will
+repeat `gc']` instead of `\dip`.
+
+### How to fix it?
+
+1) Restore `'opfunc'` correctly.
+
+2) Or better, don't use a a second operator B inside an operator A:
+   call the function implementing B via an Ex command.
+
+In the previous example, we use `:CommentToggle`.
+
+Using an Ex  command is better, because resetting `'opfunc'`  inside an operator
+function feels clumsy.
+Besides, it creates a bad repetition (DRY,  DIE): if one day you change the name
+of your operator function, you'll also need to remember to change it on the line
+where you restore `'opfunc'`.
+
+##
+## vim-repeat
+### How to make a mapping repeatable with `repeat#set()`?
+
+    nno {lhs} {rhs}:call repeat#set('{lhs}')<cr>
+
+Or:
+
+    nmap          {lhs}                  <plug>(named_mapping)
+    nno <silent>  <plug>(named_mapping)  {rhs}:call repeat#set("\<plug>(named_mapping)")<cr>
+
+Or:
+
+    nmap          {lhs}                  <plug>(named_mapping)
+    nno <silent>  <plug>(named_mapping)  :<c-u>call Func()<cr>
+
+    fu Func()
+        ...
+        sil! call repeat#set("\<plug>(named_mapping)")
+        "  ^
+        " Sometimes, you may not have the plugin, or it may be temporarily disabled.
+        " In this case, the function won't exist.
+    endfu
+
+#### My mapping is in visual mode, not normal mode!  How to adapt the code?
+
+If you don't use a `<plug>` mapping, just replace `:nno` with `:xno`.
+
+Otherwise, replace:
+
+   - `:nmap` with `:xmap`
+   - `:nno` with `:noremap`
+
+##### Which pitfalls should I avoid?  (2)
+
+Don't use `:xno` in for your `<plug>` mapping, use `:noremap` instead.
+
+Rationale: `repeat.vim` remaps the dot command,  to make it type the contents of
+some variables updated via some autocmds; but only in normal mode, not in visual
+mode.
+
+As a result, your 2nd `<plug>` needs to support both modes:
+
+   - visual when you'll press the lhs initially
+   - normal when you'll press `.`
+
+---
+
+Don't  reselect  the visual  selection  with  `gv` at  the  end  of your  custom
+commands.  Otherwise,  before being able to  press `.`, you would  need to press
+`Escape` to get back to normal mode.
+
+###
+### I want `.` to repeat my commands with the same count I used initially!  How to do it?
+
+`repeat#set()` accepts a 2nd optional argument.
+Use it to pass `v:count`.
+
+##
+# pager
+## What's the difference between the hit-enter prompt and the more prompt?
+
+When you run a  command with a long output (more lines than  what the screen can
+display), you're initially at the more prompt:
+
+    -- More --
+
+If you  scroll downward, eventually  you reach the last  line of the  output; at
+that moment you're at the hit-enter prompt:
+
+    Press ENTER or type command to continue
+
+### In a script, how can I determine whether I'm at one or at the other?
+
+Try to inspect the output of `mode(1)`.
+If it's `r`, you're at the hit-enter prompt.
+If it's `rm`, you're at the more prompt.
+
+##
+## I've included `mode()` in my status line.  It returns `n` even when I'm at the hit-enter prompt!
+
+Theory: The  status line  is  not  updated on  the  command-line,  nor when  the
+hit-enter prompt is visible:
+
+    $ vim -Nu NONE +'set ls=2 stl=%{mode(1)}'
+    :echo "a\nb"
+    " the status line contains 'n' while you're typing the command (not 'c')
+    " the status line still contains 'n' after you've run the command and the pager is open
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        set ls=2 stl=%{Stl()}
+        fu Stl()
+            let mode = mode(1)
+            let g:modes = get(g:, 'mode', []) + [mode]
+            return mode
+        endfu
+    EOF
+    )
+    :echo "a\nb"
+    " wait for a minute
+    :echo g:modes
+    " the list should contain a lot of items; it only contains a few
+
+In Nvim, the status line *is* updated when you enter the command-line, but *not*
+when the hit-enter prompt is visible.
+
+##
+## When can I map a key while Vim's pager is open?
+
+Only when you're  at the hit-enter prompt;  not when you're at  the more prompt.
+That's because at the latter, mappings are ignored.  From `:h pager`:
+
+>     Note: The typed key is directly obtained from the terminal, it is not mapped
+>     and typeahead is ignored.
+
+## I'm trying to install a mapping triggered when I'm at the hit-enter prompt.
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        nno <expr> <c-b> Func()
+        fu Func()
+            if mode(1) is# 'r'
+                echom 'I''m at the hit-enter prompt'
+            endif
+            return ''
+        endfu
+    EOF
+    )
+
+    :ls
+    " press:  C-b
+    :mess
+    " result:   no message has been logged
+    " expected: "I'm at the hit-enter prompt" has been logged
+
+### Why does it not work?
+
+When you press `C-b`, `mode(1)` returns `n` while you would expect `r`.
+
+No matter the key you press, the hit-enter prompt is closed immediately:
+
+    $ vim -Nu NONE +'nno x <nop>' +"pu='ccc'" +'echo "a\nb"'
+    " press:  x
+    " result: the hit-enter prompt is closed, even though 'x' had no effect because it was a no-op
+
+And  *maybe* mappings  are  processed right  afterward; but  it's  too late  for
+`mode()`  to return  `r`; now,  it can  only return  `n`, because  the hit-enter
+prompt is no longer visible and you're really in the regular normal mode.
+
+#### Ok, is there a workaround?
+
+You can't test whether  the pager is open when you press your  key.  But you can
+test it before.  Indeed,  for the pager to be opened, an Ex  command needs to be
+run, so you know that `CmdlineLeave` is always fired right before.
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        let s:is_pager_open = v:false
+        au CmdlineLeave : call timer_start(0, {-> mode() is# 'r' && SetFlag()})
+        fu SetFlag()
+            let s:is_pager_open = v:true
+            au SafeState * ++once let s:is_pager_open = v:false
+        endfu
+        nno <expr> <c-b> {-> C_b()}()
+        fu C_b()
+            if s:is_pager_open
+                echom "C-b has been pressed while the pager was open"
+            endif
+            return ''
+        endfu
+    EOF
+    )
+    " press C-b:  nothing happens
+    :ls
+    " press C-b:  the message is printed on the command-line
+
+---
+
+It seems that  `<expr>` is not necessary  here, but it makes the  code easier to
+understand and possibly more reliable.  If you wrote this instead:
+
+    nno <silent> <c-b> :call C_b()<cr>
+
+When pressing `C-b`, you would enter and leave the command-line which would fire
+`CmdlineLeave`  a second  time.   Then  you have  to  wonder,  when this  second
+`CmdlineLeave` is fired, is the pager still open?
+It looks like  it is, but it  must be for a  short period of time,  and it's not
+obvious why:
+
+    $ vim -Nu NONE
+    :ls
+    :call reltime()
+    " the pager is closed as soon as Enter is pressed
+
+In any  case, with `<expr>`, there's  no such question; the  command-line is not
+entered nor leaved.
+
+---
+
+Do *not* pass a `1` argument to `mode()`:
+
+    au CmdlineLeave : call timer_start(0, {-> mode(1) is# 'r' && SetFlag()})
+                                                   ^
+                                                   ✘
+
+When you've run a command with an output longer than the current visible screen,
+and `-- more --` is printed at the bottom, `mode(1)` is `rm`, *not* `r`.
+As a result, if  you wrote `mode(1)`, your flag would not  be set correctly when
+the pager has many lines to display.
+
+##### It doesn't work in Nvim!
+
+Well, `SafeState` is not  supported in Nvim at the moment;  you could replace it
+with a short timer, but the code would still not work.
+That's  because,  in  Nvim,  timers's  callbacks are  not  processed  while  the
+hit-enter  prompt is  visible.   They  are blocked  until  it's  left *and*  you
+interact with Nvim:
+
+    $ nvim -u NONE -S <(cat <<'EOF'
+        call timer_start(2000, {-> Cb()}, {'repeat': 10})
+        fu Cb() abort
+            let g:modes = get(g:, 'modes', []) + [mode(1)]
+        endfu
+        echo "a\nb"
+    EOF
+    )
+    " wait for 20s
+    " run:  :echo g:modes (type the command quickly)
+    " expected: 10 items in the list, a few of them being 'rm'
+    " actual: fewer than 10 items in the list, none of them is 'rm'
+
+Nvim blocks the callbacks until the  hit-enter prompt disappears; at that point,
+it starts the remaining callbacks.
+
+From someone on the #neovim irc channel:
+
+>     the callback wants  to execute on the main thread,  which is blocked
+>     until you hit enter
+>     it's probably just an architecture  difference. I don't know how vim
+>     handles it but  neovim uses libuv to  run an event loop  on the main
+>     thread. all the io is via  libuv's async worker threadpools, and you
+>     can even send jobs  to other threads that way, but the  ui is all on
+>     the main thread the event loop runs on
+>     well not all the io. some of it's still blocking, like :write
+
+As a workaround, instead of installing a definitive mapping, you could install a
+temporary one:
+
+    nvim -Nu NONE -S <(cat <<'EOF'
+        au CmdlineLeave : call InstallTempMapping()
+        fu InstallTempMapping()
+            nno <expr> <c-b> C_b()
+            return timer_start(0, {-> execute('nunmap <c-b>', 'silent!')})
+        endfu
+        fu C_b()
+            echom "C-b has been pressed while the pager was open"
+        endfu
+    EOF
+    )
+
+Obviously, if `C-b` is  already mapped in normal mode, then  you'll need to save
+and restore this other mapping.
+
+##
+## Why does `q` start a recording when it's pressed at the hit-enter prompt, but not at the more prompt?
+
+At the more-prompt, only a small number of commands are valid.
+From `:h pager /other`:
+
+>     Any other key causes the meaning of the keys to be displayed.
+
+`q` is one of them; it stops the listing:
+
+>     q, <Esc> or CTRL-C                    stop the listing
+
+OTOH, at the hit-enter prompt, `q` gets back its default meaning (i.e. start/end
+a recording):
+
+>    -> Press ':' or any other Normal mode command character to start that command.
+
+As a workaround, you could try [this code][1].
+
+##
 # Tricks
+## How to tweak the behavior of a builtin operator?
+
+Create a wrapper around it.
+
+Example with the `gq` operator:
+
+    nno <expr> gq  <sid>gq()
+    nno <expr> gqq <sid>gq()..'_'
+    xno <expr> gq  <sid>gq()
+
+    fu s:gq(...)
+        if !a:0
+            let &opfunc = matchstr(expand('<sfile>'), '<SNR>\w*$')
+        endif
+        " tweak some setting which alters the behavior of `gq`
+        ...
+        " execute the default `gq`
+        norm! '[gq']
+    endfu
+
+##
 ## I have a simple mapping whose rhs is just a sequence of normal commands.
 
 Example:
@@ -1051,7 +1388,254 @@ where the mapping is recursive, and so Vim has to try to remap the keys one more
 time.
 
 ##
+## How is `b:changedtick` incremented when I change the contents of the buffer?
+
+    $ vim -Nu NONE +"pu='some text'"
+    :echo b:changedtick
+    3~
+    " press:  dd
+    :echo b:changedtick
+    4~
+
+Notice that  the size  of a  deletion does not  matter; `b:changedtick`  is only
+incremented by 1.
+
+    $ vim -Nu NONE +"pu='some text'"
+    " press:  cc new text
+    :echo b:changedtick
+    12~
+
+Notice that  the size  of the  inserted text  *does* matter;  `b:changedtick` is
+incremented by 1 as  soon as the text is cut, then by  1 more for every inserted
+character.
+
+    $ vim -Nu NONE +"pu='some text'"
+    :echo b:changedtick
+    3~
+    " press:  dd
+    :echo b:changedtick
+    4~
+    " press:  u
+    6~
+    " press:  C-r
+    8~
+
+Notice that the size of an undone/redone change does not matter, `b:changedtick`
+by always incremented by 2.
+
+### On which event is it initialized?
+
+On `BufNew`, it is initialized to 1:
+
+    $ touch /tmp/file{1..2}; vim -Nu NONE -S <(cat <<'EOF'
+        let g:abuf = 'expand("<abuf>")'
+        call getcompletion('buf*', 'event')
+            \->filter({_,v -> v !~# 'Cmd$'})
+            \->map({_,v -> execute(printf(
+            \ 'au %s * unsilent echom "%s in buf "..%s..": tick is "..getbufvar(%s, "changedtick")'
+            \ , v, v, g:abuf, g:abuf))})
+    EOF
+    ) /tmp/file1
+    :e /tmp/file2
+    :mess
+    BufNew in buf 2: tick is 1~
+    ...~
+
+---
+
+Note that things  are a little different  if the current buffer, or  the one you
+load, is unnamed.
+
+    # special case where current buffer is unnamed
+    $ touch /tmp/file; vim -Nu NONE -S <(cat <<'EOF'
+        let g:abuf = 'expand("<abuf>")'
+        call getcompletion('buf*', 'event')
+            \->filter({_,v -> v !~# 'Cmd$'})
+            \->map({_,v -> execute(printf(
+            \ 'au %s * unsilent echom "%s in buf "..%s..": tick is "..getbufvar(%s, "changedtick")'
+            \ , v, v, g:abuf, g:abuf))})
+    EOF
+    )
+    :e /tmp/file
+    BufDelete in buf 1: tick is~
+    BufWipeout in buf 1: tick is~
+    BufUnload in buf 1: tick is~
+    BufNew in buf 1: tick is~
+    BufAdd in buf 1: tick is~
+    BufCreate in buf 1: tick is~
+    "/tmp/file" 0L, 0C~
+    BufRead in buf 1: tick is~
+    BufReadPost in buf 1: tick is~
+    BufEnter in buf 1: tick is~
+    BufWinEnter in buf 1: tick is~
+
+    # special case where new buffer is unnamed
+    $ touch /tmp/file; vim -Nu NONE -S <(cat <<'EOF'
+        let g:abuf = 'expand("<abuf>")'
+        call getcompletion('buf*', 'event')
+            \->filter({_,v -> v !~# 'Cmd$'})
+            \->map({_,v -> execute(printf(
+            \ 'au %s * unsilent echom "%s in buf "..%s..": tick is "..getbufvar(%s, "changedtick")'
+            \ , v, v, g:abuf, g:abuf))})
+    EOF
+    ) /tmp/file
+    :new
+    BufNew in buf 2: tick is~
+    BufAdd in buf 2: tick is~
+    BufCreate in buf 2: tick is~
+    BufLeave in buf 1: tick is~
+    BufEnter in buf 2: tick is~
+    BufWinEnter in buf 2: tick is~
+
+Not sure what to make of these results, but those are special cases.
+Most of the time, you deal with buffers which are read from files.
+Buffers which are  not tied to a  file are special, and you  probably don't care
+about `b:changedtick` for a special buffer.
+
+### ?
+
+    $ touch /tmp/file{1..2} && vim -Nu NONE -S <(cat <<'EOF'
+        let g:abuf = 'expand("<abuf>")'
+        call getcompletion('buf*', 'event')
+            \->filter({_,v -> v !~# 'Cmd$'})
+            \->map({_,v -> execute(printf(
+            \ 'au %s * unsilent echom "%s in buf "..%s..": tick is "..getbufvar(%s, "changedtick")'
+            \ , v, v, g:abuf, g:abuf))})
+        call map(range(10), {_,v -> execute('pu='..v)})
+        undo
+    EOF
+    ) /tmp/file1
+    :e /tmp/file2
+    :mess
+    BufNew in buf 2: tick is 1~
+    BufAdd in buf 2: tick is 1~
+    BufCreate in buf 2: tick is 1~
+
+    BufLeave in buf 1: tick is 34~
+    BufWinLeave in buf 1: tick is 34~
+    BufUnload in buf 1: tick is 34~
+
+    BufRead in buf 2: tick is 1~
+    BufReadPost in buf 2: tick is 1~
+    BufEnter in buf 2: tick is 2~
+    BufWinEnter in buf 2: tick is 2~
+
+Btw, yes, you really need `expand('<abuf>')`.
+If you just write `b:changedtick`, you'll get wrong results.
+For example, `BufNew` is  not fired in the context of  the newly created buffer,
+but in the context of the one from which it's being created.
+
+### ?
+
+On which event(s) is it incremented?
+
+On the *first* `BufEnter`, and on `BufReadPre` when you reload the buffer.
+
+Remember that `BufReadPre` is fired only if  the buffer is read from an existing
+file.
+
+---
+
+It's also automatically incremented on  `BufWritePost`, provided that the buffer
+is modified:
+
+    $ touch /tmp/file && vim -Nu NONE -S <(cat <<'EOF'
+        au BufWritePre * echom 'BufWritePre: '..b:changedtick
+        au BufWritePost * echom 'BufWritePost: '..b:changedtick
+    EOF
+    ) /tmp/file
+    :echo b:changedtick
+    3~
+    :w
+    BufWritePre: 3~
+    BufWritePost: 3~
+    "='' CR p
+    :echo b:changedtick
+    4~
+    :w
+    BufWritePre: 4~
+    BufWritePost: 5~
+
+### ?
+
+In an  operator-pending mapping,  `b:changedtick` is  not incremented  until the
+mapping has completed and the operator has been executed.
+
+### ?
+
+Maybe you should document here when `b:changedtick` is incremented.
+Comment from `vim-repeat`:
+
+    " `b:changedtick` is incremented when:
+    "
+    "    - `BufReadPre` is fired
+    "
+    "    - `BufEnter` is fired right after `BufReadPre`
+    "
+    "         touch /tmp/.file && vim -Nu NONE -S <(cat <<'EOF'
+    "             augroup test_changedtick | au!
+    "                 au BufLeave * unsilent echom 'BufLeave: '..b:changedtick
+    "                 au BufEnter * unsilent echom 'BufEnter: '..b:changedtick
+    "                 au BufReadPre * unsilent echom 'BufReadPre: '..b:changedtick
+    "                 au BufWritePre * unsilent echom 'BufWritePre: '..b:changedtick
+    "                 au BufWritePost * unsilent echom 'BufWritePost: '..b:changedtick
+    "             augroup END
+    "         EOF
+    "         ) /tmp/.file
+    "         :echo b:changedtick
+    "         3~
+    "         :e
+    "         BufReadPre: 4~
+    "         BufEnter: 5~
+    "
+    "    - `BufWritePost` is fired *while the buffer is modified*
+    "
+    "         touch /tmp/.file && vim -Nu NONE -S <(cat <<'EOF'
+    "             augroup test_changedtick | au!
+    "                 au BufLeave * unsilent echom 'BufLeave: '..b:changedtick
+    "                 au BufEnter * unsilent echom 'BufEnter: '..b:changedtick
+    "                 au BufReadPre * unsilent echom 'BufReadPre: '..b:changedtick
+    "                 au BufWritePre * unsilent echom 'BufWritePre: '..b:changedtick
+    "                 au BufWritePost * unsilent echom 'BufWritePost: '..b:changedtick
+    "             augroup END
+    "         EOF
+    "         ) /tmp/.file
+    "         :echo b:changedtick
+    "         3~
+    "         :w
+    "         BufWritePre: 3~
+    "         BufWritePost: 3~
+    "         "='' CR p
+    "         :echo b:changedtick
+    "         4~
+    "         :w
+    "         BufWritePre: 4~
+    "         BufWritePost: 5~
+    "
+    " It is not  incremented on other `BufEnter` events, nor  on `BufLeave`, nor
+    " on `BufWritePre`.
+
+##
 # Pitfalls
+## In xterm, Vim doesn't make the difference between `<m-g>` and `<m-G>`!
+
+The shift modifier must be explicit:
+
+    <m-s-g>
+       ^^
+
+Example:
+
+    ✘
+    vim -Nu NONE +'nno <m-g> :echo "m-g"<cr>' +'nno <m-G> :echo "m-G"<cr>'
+    " press m-g and m-G: no difference
+
+    ✔
+    vim -Nu NONE +'nno <m-g> :echo "m-g"<cr>' +'nno <m-s-g> :echo "m-G"<cr>'
+                                                       ^^
+    " press m-g and m-G: Vim makes the difference
+
+##
 ## Why should I avoid a mapping with an `<Esc>` in its lhs?
 
 The terminal uses `Esc` to encode some special keys (e.g. arrow keys, function keys, ...).
@@ -1197,6 +1781,38 @@ combination of `:exe` and another command:
     nno <buffer><nowait><silent> q :<c-u>wincmd p <bar> exe winnr('#')..'wincmd c'<cr>
                                                         ^^^              ^^^^^^
 
+###
+## When should I avoid `<c-r>=` in a command-line mode mapping?
+
+Whenever you want to be able to use the mapping in the expression command-line.
+
+### Why?
+
+You can't press `C-r =` if you're already on the expression command-line.
+It has no effect.
+
+    $ vim -Nu NONE +"cno <c-b> <c-r>='test'<cr>"
+    " press:  : C-r = C-b Enter
+    " expected:  'test' is inserted
+    " result:    nothing is inserted
+
+Note that  if the expression  register is not empty,  `C-r = Enter`  inserts the
+evaluation of the  last expression.  Here, nothing is inserted  because there is
+no last expression.
+
+### What should I use instead?
+
+`:h c_CTRL-\_e`:
+
+                               vvvvvv
+    $ vim -Nu NONE +"cno <c-b> <c-\>e 'test'<cr>"
+    " press:  : C-r = C-b
+    " result: 'test' is inserted
+
+Note that contrary  to `C-r =` which *inserts* the  evaluation of an expression,
+`C-\ e` *replaces* the whole command-line with the evaluation of an expression.
+You need to take that into account when writing your mapping.
+
 ##
 ## My mapping ignores the count I prefixed it with!
 
@@ -1323,7 +1939,7 @@ The issue persists even if `:norm` executes your command indirectly:
 
     ✘
     nno z= :set opfunc=Z_equal<bar>norm! g@l<cr>
-    fu Z_equal(_) abort
+    fu Z_equal(_)
         setl spell
         call feedkeys('z=', 'in')
     endfu
@@ -1331,9 +1947,13 @@ The issue persists even if `:norm` executes your command indirectly:
     " and yet, between ':norm' and 'z=', there were 'g@l', 'Z_equal()' and 'feedkeys()'
 
     ✔
-    nno z= :set opfunc=Z_equal<cr>g@l
-    fu Z_equal(_) abort
-        setl spell
+    nno <expr> z= Z_equal()
+    fu Z_equal(...)
+        if !a:0
+            setl spell
+            let &opfunc = 'Z_equal'
+            return 'g@l'
+        endif
         call feedkeys('z=', 'in')
     endfu
 
@@ -1348,14 +1968,61 @@ incomplete:
 ##
 ## How to use a chord with the meta modifier in my mappings?
 
+If you use Nvim,  you don't need anything special; you can  write `<M-x>` in the
+lhs of a mapping without any issue.
+
+If you use gVim,  you don't need anything special either, but  you need at least
+the patch [8.2.0851][3].
+
+If  you  use Vim  in  a  terminal  which  supports the  modifyOtherKeys  feature
+(typically xterm), again,  you don't need anything special.   The feature should
+be enabled by default, but if that's not  the case, you can enable it by setting
+the terminal options `'t_TI'` and `'t_TE'`:
+
+                       ┌ 1 = enables this feature for keys excluding keys with well-known behavior
+                       │ 2 = enables this feature for all keys (see `man xterm /^\s*modifyOtherKeys`)
+                       │
+    let &t_TI = "\e[>4;2m"
+    let &t_TE = "\e[>4;m"
+
+If you use Vim in a terminal which does not support the modifyOtherKeys feature,
+write this:
+
                    ┌ terminal sequence encoding `M-b`
                    ├─┐
     exe "set <M-b>=\eb"
     ino <M-b> ...
 
+---
+
+You can  check whether  the modifyOtherKeys  feature is  enabled by  pressing in
+insert mode `C-S-v` followed by `C-v`.
+
+If Vim inserts this key code:
+
+    ^[[27;5;118~
+
+Then it's enabled; otherwise, if you just get:
+
+    ^V
+
+Then it's disabled.
+
+Note that for the test to succeed, you need to make sure that you don't have any
+terminal key binding on `C-S-v`, like this one in `~/.Xresources` for example:
+
+    XTerm*VT100.Translations: #override \
+                     Ctrl Shift <Key>V:    insert-selection(CLIPBOARD) \n\
+                     Ctrl Shift <Key>C:    copy-selection(CLIPBOARD)
+
+If you have one, try to disable it temporarily.
+
 ### Now I can't insert some accented characters anymore!
 
-Yes, for example, if you have the mapping `ino <m-d> <c-o>de`, you can't insert `ä`.
+It  probably means  that  you're  using a  terminal  which  doesn't support  the
+modifyOtherKeys feature, or you didn't enable the feature.
+
+In that case, if you have the mapping `ino <m-d> <c-o>de`, you can't insert `ä`:
 
     vim -Nu NONE -S <(cat <<'EOF'
         exe "set <M-d>=\ed"
@@ -1363,11 +2030,14 @@ Yes, for example, if you have the mapping `ino <m-d> <c-o>de`, you can't insert 
         startinsert
     EOF
     )
-    " press the dead key '¨' followed by 'a': 'ä' is not inserted
+    " press the dead key '¨' followed by 'a':  'ä' is not inserted
 
-Solutions:
+Workarounds:
 
-Press `C-v` to suppress mappings:
+Use gVim,  Nvim, or a terminal  which supports the modifyOtherKeys  feature (and
+make sure it's enabled).
+
+Or press `C-v` to suppress mappings:
 
     C-v ¨ a
 
@@ -1383,7 +2053,7 @@ Or use replace mode:
 
     r ¨ a
 
-Or use an equivalence class in a search command.
+Or use an equivalence class in a search command (`[[=a=]]`).
 
 #### But what causes this pitfall?
 
@@ -1446,7 +2116,7 @@ Vim, by running:
     ä~
 
 ####
-#### I want a fix which doesn't require any extra input!
+#### I don't want to change my terminal, and I want a fix which doesn't require any extra input!
 
 Try this:
 
@@ -1491,9 +2161,9 @@ But you can't use any other modifier:
 
 ---
 
-It works, but in practice, it's cumbersome to use because it's only necessary in
-Vim and only if the terminal is not  in modifyOtherKeys mode, so you have to use
-this kind of template when installing your meta mappings:
+It works, but in practice it's cumbersome  to use because it's only necessary in
+Vim and only if modifyOtherKeys is not enabled,  so you have to use this kind of
+template when installing your meta mappings:
 
     if has('nvim') || has('gui_running') || &t_TI =~# "\e[>4;2m"
         nno <m-d> ...
@@ -1502,13 +2172,6 @@ this kind of template when installing your meta mappings:
     endif
 
 Besides, using function keys to refer to meta chords makes the code harder to read.
-
-Finally, it doesn't fix the issue for gVim.
-Indeed,  when you  press  `M-d`, gVim  doesn't  receive  `Esc +  d`,  like in  a
-terminal; it really  receives `ä`.  Press `C-v  M-d` in Vim vs  gVim, and you'll
-see the difference.
-IOW, if you want your `<m-d>` mapping to work in gVim, you *have to* use `<m-d>`.
-And you have to accept that you can't insert `ä` anymore.
 
 ##### How does this work?
 
@@ -1544,7 +2207,7 @@ whose lhs is `<M-d>` nor `ä`.
 
 ###### Wait.  How does a mapping triggered by `<M-d>` still work if I never write the latter explicitly?
 
-You don't need the  key notation `<M-d>` to make Vim execute  sth when you press
+You don't need the  Vim key code `<M-d>` to make Vim execute  sth when you press
 `M-d` in the terminal.
 
 Consider the previous code:
@@ -1569,6 +2232,16 @@ Note that this is  working as intended; if that's an issue  for you, you'll need
 to find a workaround which does not rely on `InsertLeave`.
 
 ##
+## `<nop>` doesn't work!
+
+`<nop>`  loses its  special meaning  as  soon as  it's followed  or preceded  by
+another key.  IOW, it must be alone.
+
+    $ vim -Nu NONE -i NONE +'nno <c-b> <nop>x'
+    " press:  C-b
+    E35: No previous regular expression~
+    " this error is raised by the 'n' in '<nop>'
+
 ## `<nowait>` doesn't work!
 
 Try to install your mapping later.
@@ -1710,7 +2383,8 @@ produced by `<up>` in xterm).
 
 ##
 # Todo
-## ?
+## operators
+### ?
 
 When we implement an operator, we currently  have 2 ways to handle the operation
 on lines regarding `g@`:
@@ -1761,142 +2435,318 @@ If not, what should we do to make sure `.` behaves as expected?
 Make sure we haven't returned `g@l` while in visual mode.
 In normal mode, it's ok, but in visual mode I think we should just return `g@`.
 
-## ?
+### ?
 
-Document when `b:changedtick` is automatically incremented.
+Search for `g@` everywhere.
 
-    $ touch /tmp/file{1..2} && vim -Nu NONE -S <(cat <<'EOF'
-        let g:abuf = 'expand("<abuf>")'
-        eval getcompletion('buf*', 'event')
-            \->filter({_,v -> v !~# 'Cmd$'})
-            \->map({_,v -> execute(printf(
-            \ 'au %s * unsilent echom "%s in buf "..%s..": tick is "..getbufvar(%s, "changedtick")'
-            \ , v, v, g:abuf, g:abuf))})
-        call map(range(10), {_,v -> execute('pu='..v)})
-        undo
+Should we use `:keepj` in all our operators?
+See `myfuncs#op_replace_without_yank()`.
+
+It doesn't seem useful for the jumplist (update: now it seems useful...), but it
+is for  the changelist.   It seems that  if you use  `:keepj` for  every edition
+performed in your  opfunc, then no entry  is added in the  changelist.  OTOH, if
+you omit `:keepj`  for *any* edition performed by your  opfunc, then *one* entry
+is added in the changelist.
+
+tommy uses it here: <https://vi.stackexchange.com/a/8748/17449>
+
+---
+
+Dirvish uses `keepj` for `tabnext` and `wincmd w`:
+<https://github.com/justinmk/vim-dirvish/blob/fa6197150dbffe0f93028c46cd229bcca83105a9/autoload/dirvish.vim#L4>
+
+Why?
+Should we do the same?
+Are there other commands for which we should have used `keepj` in the past?
+
+---
+
+For  an operator  which can  be prefixed  by a  register, should  we save  and
+restore the register?
+If so,  consider passing the optional  argument `1` to `getreg()`  to properly
+restore the expression register.
+See `myfuncs#op_replace_without_yank()`.
+
+---
+
+Do you need to save and restore `v:register` every time?
+Do you need to save and restore `v:count` every time?
+
+---
+
+If the  operator yanks the text  on which we  operate, should it be  done with
+`:noa` to minimize unexpected side effects?
+E.g., I  think  it would  prevent  our  visual  ring  from saving  a  possible
+selection.
+
+---
+
+Have you used `:s`, while you should have used `setline()`?
+
+---
+
+Make sure to always save and restore visual marks.
+See what  we did with  the function  called by the  `dr` operator, and  read the
+comments.
+
+---
+
+The repetition of  an operation in visual  mode is not consistent  with what Vim
+does:
+
+   - press `~` on a visual selection
+   - move the cursor on another line
+   - press .
+
+Vim has recomputed a new visual selection with the same geometry as the previous
+one.  See `:h .` and `:h visual-repeat`.
+
+That's not what your operators do.
+Study how `vim-operator-user` solves this issue (I think it presses `gvg@`; IOW,
+`g@` should be pressed from visual mode for the repetition to work as expected).
+
+Update: I *think* our new implementation  of operators, using `<expr>` fixes the
+issue, because it presses `g@` in visual mode...
+
+### ?
+
+Review our snippet `op`.
+
+Is it too long?
+If so, try to  move it inside a library function.  The  latter would contain the
+boilerplate code:
+
+    fu lg#my_opfunc(myfunc, type, ...) abort
+        let cb_save  = &cb
+        ...
+    endfu
+
+and it would expect the name of a custom function:
+
+    fu lg#my_opfunc(myfunc, type, ...) abort
+                    ^^^^^^
+
+The latter  would be  defined in  the plugin  where you  need to  implement your
+operator.  It  would contain the  logic specific to  the operator (i.e.  not the
+boilerplate code).   The library function would  use this name to  call `myfunc`
+(with `call()`).
+
+---
+
+Refactor  all operators  so that  they remove  `unnamed` and  `unnamedplus` from
+`'cb'`, and set `'inclusive'`.
+
+    vim /g@/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
+    :cfilter! -other_plugins
+
+---
+
+    catch
+        return lg#catch()
+
+---
+
+What happens if you do:
+
+      op + v + motion
+
+I've just checked with `|gvj` (grep  text from current position until next line,
+characterwise).  And inside `op_grep()`, `a:type`  is `char`, which is good.  If
+it had been visual, we could have a problem, because our function would think we
+are operating from visual mode, instead of normal mode.
+
+To document.
+
+---
+
+Should we yank with noautocmd to prevent our visual ring from saving
+a possible selection?
+
+### ?
+
+We have 4 todos/fixmes in `myfuncs#op_replace_without_yank()` related to opfuncs
+in general.  Review/fix them.
+
+##
+## text-objects
+### ?
+
+How to filter a custom text-object without the command-line not being redrawn?
+
+MWE:
+
+    !iE SPC
+    ![m SPC
+    ...
+
+We could try sth like this:
+
+    ono <silent> ie :<c-u>exe 'norm vie'..(v:operator is# '!' ? '<space>' : '')<cr>
+
+But, why does the issue occur with `![m`, but not with `![z`?
+
+Update: It probably has sth to do with these functions:
+
+   - `s:jump()`  (✔)  ~/.vim/plugged/vim-fold/autoload/fold/motion.vim:101
+   - `s:jump()`  (✘)  ~/.vim/plugged/vim-brackets/autoload/brackets/move.vim:178
+
+Update:
+It has to do with the `<silent>` argument in the mapping.
+We need it in all modes except in operator-pending mode.
+Alternatively, we could include at the end of `s:jump()`:
+
+    exe "norm! \<c-\>\<c-n>"
+
+It causes the command-line to be redrawn.
+More generally, it seems executing any `:norm` command at the end fixes the issue.
+
+MWE:
+
+    ono <silent> ]g :call search('pat')<cr>
+        !]g → command-line not redrawn
+
+    ono <silent> ]g :call search('pat')<bar>exe "norm! \<lt>c-\>\<lt>c-n>"<cr>
+        !]g → command-line redrawn
+
+Btw, to make Vim redraw the command-line, press `SPC` then `BS`.
+
+See here for a possible fix:
+<https://github.com/wellle/targets.vim/pull/210>
+
+Update: I think the best solution is to drop `<silent>` and use a dummy `:echo` at the end.
+`:echo` fixes the issue (just like `<silent>`), and another one (unlike `<silent>`).
+This other issue is related to the dot command; the rhs is sometimes printed.
+
+Update: You keep saying that the command-line is "redrawn" or "not redrawn".
+Is that the correct term?
+Because some of  those pitfalls (all?) can't  be fixed by `:redraw`,  but can be
+fixed by `:echo`...
+
+Reciprocally, some issues can be fixed by `:redraw` but not by `:echo`:
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        nno <c-b> :call Func()<cr>
+        fu Func()
+            call input('prompt: ')
+            echo
+        endfu
     EOF
-    ) /tmp/file1
-    :mess clear
-    :e /tmp/file2
-    :mess
-    BufNew in buf 2: tick is 1~
-    BufAdd in buf 2: tick is 1~
-    BufCreate in buf 2: tick is 1~
+    )
+    " press:  C-b Enter
+    " :echo doesn't clear the command-line
 
-    BufLeave in buf 1: tick is 34~
-    BufWinLeave in buf 1: tick is 34~
-    BufUnload in buf 1: tick is 34~
+I think that's because `input()` behaves like `:echon`:
 
-    BufRead in buf 2: tick is 1~
-    BufReadPost in buf 2: tick is 1~
-    BufEnter in buf 2: tick is 2~
-    BufWinEnter in buf 2: tick is 2~
-
-Note how `b:changedtick` is initialized to 1 on `BufNew`.
-And how  it's incremented on the  first `BufEnter` (it's not  incremented on the
-subsequent ones).
-
-It's also incremented on `BufReadPre`, but only when you reload a buffer.
-Remember that `BufReadPre` is fired only if the buffer is read from an existing file.
-
-Btw, yes, we really need `expand('<abuf>')`.
-If you just write `b:changedtick`, you'll get wrong results.
-For example, `BufNew` is  not fired in the context of  the newly created buffer,
-but in the context of the one from which it's being created.
-
-Update: `b:changedtick` is not initialized to 1 on `BufNew` when you run `:saveas`.
-
----
-
-It's also automatically incremented on  `BufWritePost`, provided that the buffer
-is modified:
-
-    $ touch /tmp/file && vim -Nu NONE -S <(cat <<'EOF'
-        au BufWritePre * echom 'BufWritePre: '..b:changedtick
-        au BufWritePost * echom 'BufWritePost: '..b:changedtick
+    vim -Nu NONE -S <(cat <<'EOF'
+        nno <c-b> :call Func()<cr>
+        fu Func()
+            echon 'prompt: '
+            echo
+        endfu
     EOF
-    ) /tmp/file
-    :echo b:changedtick
-    3~
-    :w
-    BufWritePre: 3~
-    BufWritePost: 3~
-    "='' CR p
-    :echo b:changedtick
-    4~
-    :w
-    BufWritePre: 4~
-    BufWritePost: 5~
+    )
+    " press:  C-b Enter
+    " again, :echo doesn't clear the command-line
+
+Other example:
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        nno <c-b> :call Func()<cr>
+        fu Func()
+            echo 'abc'
+            echo
+            echo 'def'
+        endfu
+    EOF
+    )
+    " press:  C-b
+    " result: both 'abc' and 'def' are printed (hit-enter prompt)
+    " expected: only 'def' is printed (no hit-enter prompt)
+
+### ?
+
+Review all  custom text-objects: make sure  they all position the  cursor on the
+end  of the  selection, to  be consistent  with what  Vim seems  to do  with its
+builtin text-objects (e.g. try `vi{` in a shell function).
 
 ---
 
-In an  operator-pending mapping,  `b:changedtick` is  not incremented  until the
-mapping has completed and the operator has been executed.
+Make sure that they correctly handle a  count.  For example, right now, it looks
+like `il` does not; `5dil` deletes only the current line.  Shouldn't it delete 5
+lines?  Study  how builtin objects  handle counts; check whether  their behavior
+differ depending on whether the start with `i` or `a` (e.g. `iw` vs `aw`).
 
 ---
 
-When you  delete some  text with  `d`, `b:changedtick` is  incremented by  1, no
-matter the text size.
+Make sure that they correctly handle a `v`, `V`, `C-v` prefix, by inspecting the
+output of `mode(1)`: <https://github.com/vim/vim/releases/tag/v8.1.0648>
 
-When you change some text with `c`,  `b:changedtick` is incremented by 1 as soon
-as the text is deleted, and you enter insert mode; then for each typed key, it's
-incremented by 1 more.
+I  guess that  it means  that  all our  text-objects should  be implemented  via
+`<expr>` mappings...  Otherwise, the output of `mode(1)` is unreliable.
 
-## ?
+---
 
-Maybe you should document here when `b:changedtick` is incremented.
-Comment from `vim-repeat`:
+Press `dio` on one column then `.` on another; this is printed on the command-line:
 
-    " `b:changedtick` is incremented when:
-    "
-    "    - `BufReadPre` is fired
-    "
-    "    - `BufEnter` is fired right after `BufReadPre`
-    "
-    "         touch /tmp/.file && vim -Nu NONE -S <(cat <<'EOF'
-    "             augroup test_changedtick | au!
-    "                 au BufLeave * unsilent echom 'BufLeave: '..b:changedtick
-    "                 au BufEnter * unsilent echom 'BufEnter: '..b:changedtick
-    "                 au BufReadPre * unsilent echom 'BufReadPre: '..b:changedtick
-    "                 au BufWritePre * unsilent echom 'BufWritePre: '..b:changedtick
-    "                 au BufWritePost * unsilent echom 'BufWritePost: '..b:changedtick
-    "             augroup END
-    "         EOF
-    "         ) /tmp/.file
-    "         :echo b:changedtick
-    "         3~
-    "         :e
-    "         BufReadPre: 4~
-    "         BufEnter: 5~
-    "
-    "    - `BufWritePost` is fired *while the buffer is modified*
-    "
-    "         touch /tmp/.file && vim -Nu NONE -S <(cat <<'EOF'
-    "             augroup test_changedtick | au!
-    "                 au BufLeave * unsilent echom 'BufLeave: '..b:changedtick
-    "                 au BufEnter * unsilent echom 'BufEnter: '..b:changedtick
-    "                 au BufReadPre * unsilent echom 'BufReadPre: '..b:changedtick
-    "                 au BufWritePre * unsilent echom 'BufWritePre: '..b:changedtick
-    "                 au BufWritePost * unsilent echom 'BufWritePost: '..b:changedtick
-    "             augroup END
-    "         EOF
-    "         ) /tmp/.file
-    "         :echo b:changedtick
-    "         3~
-    "         :w
-    "         BufWritePre: 3~
-    "         BufWritePost: 3~
-    "         "='' CR p
-    "         :echo b:changedtick
-    "         4~
-    "         :w
-    "         BufWritePre: 4~
-    "         BufWritePost: 5~
-    "
-    " It is not  incremented on other `BufEnter` events, nor  on `BufLeave`, nor
-    " on `BufWritePre`.
+    :call column_object#main('iw')
 
-## ?
+Why are our custom text-objects non-silent when repeated by `.`?
+Even though we define them with `<silent>`...
+
+Does kana's plugin suffer from the same pitfall?
+If no, how is it fixed?
+
+Idea: redefine  all your  text-objects with `<expr>`  to avoid  the command-line
+from being entered.
+
+Note:  the issue  may not  be visible  if the  operation has  changed more  than
+`&report` lines;  that's because in  that case, Vim  prints some message  on the
+command-line, such as:
+
+    3 fewer lines
+
+### ?
+
+Document the  fact that you need  to put `<esc>` at  the start of the  rhs of an
+`:ono` mapping if it presses `v:operator`.
+
+Watch this:
+
+    :ono ii :<c-u>exe 'normal! T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())<cr>
+
+Move your cursor on `bar`, then press `ciixy`:
+
+    foo x_bar_y baz
+    foo baz~
+
+Here, `ciixy` is equivalent to `c:norm! Txcty`.
+
+Now try this mapping:
+
+            vvvvv
+    :ono ii <esc>:<c-u>exe 'normal! T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())<cr>
+    foo x_bar_y baz
+    foo xy baz~
+
+The result is different.
+
+If you omit `<esc>` the result can even be wrong.
+Watch this:
+
+    :ono <expr> ii 'T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())
+    foo x_bar_y baz
+    foo xctyar_y baz~
+
+                    vvvvv
+    :ono <expr> ii '<esc>T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())
+    foo x_bar_y baz
+    foo xy baz~
+
+<https://www.reddit.com/r/vim/comments/bo2o0b/text_object_that_is_delimited_by_two_distinct/end5png/>
+
+##
+## Misc.
+### ?
 
 Find  an example  where  the  `CursorMoved` autocmd  of  `vim-repeat` fixed  the
 repetition of an omap (at least in the past).  Based on this comment:
@@ -1933,97 +2783,7 @@ Update: Actually, it's not completely irrelevant; it could have helped by making
 `.` retype the exact same sequence of  keys (instead of the native `.` which was
 broken).
 
-## ?
-
-Document that it's impossible to map keys while Vim's pager is displayed.
-
-From `:h pager`:
-
->     Note: The typed key is directly obtained from the terminal, it is not mapped
->     and typeahead is ignored.
-
-For the  hit-enter prompt, mappings  do apply,  but `mode()` always  returns `n`
-when invoked from an `<expr>` mapping (or when included in the status line).
-As  a workaround,  you can  try to  evaluate it  from a  timer (but  that's only
-possible in Vim, not in Nvim).  See here for an example:
-
-    ~/.vim/plugged/vim-cmdline/autoload/cmdline.vim
-    /hit_enter_prompt_no_recording
-
-You  may wonder  why `mode()`  returns `n`  from an  `<expr>` mapping  while the
-hit-enter prompt is visible.
-Theory:
-No matter the key you press, the hit-enter prompt is closed immediately:
-
-    $ vim -Nu NONE +'nno x <nop>' +"pu='ccc'" +'echo "a\nb"'
-    " press 'x': the hit-enter prompt is closed, even though 'x' had no effect because it was a no-op
-
-So, maybe  mappings are probably  processed right  afterward; but in  that case,
-it's too late for  `mode()` to return `r`; now, it can  only return `n`, because
-the hit-enter prompt is no longer visible and you're really in normal mode.
-
-You may wonder why `mode()` returns `n` in the status line.
-Theory: The  status line  is  not  updated on  the  command-line,  nor when  the
-hit-enter prompt is visible:
-
-    $ vim -Nu NONE +'set ls=2 stl=%{mode(1)}'
-    :echo "a\nb"
-    " the status line contains 'n' while you're typing the command (not 'c')
-    " the status line still contains 'n' after you've run the command
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        set ls=2 stl=%{Stl()}
-        fu Stl()
-            let mode = mode(1)
-            let g:modes = get(g:, 'mode', []) + [mode]
-            return mode
-        endfu
-    EOF
-    )
-    :echo "a\nb"
-    " wait for a minute
-    :echo g:modes
-    " the list should contain a lot of items; it only contains a few
-
-In Nvim, the status line *is* updated when you enter the command-line, but *not*
-when the hit-enter prompt is visible.
-
----
-
-Also, document the  difference between the hit-enter prompt  and the more-prompt
-(aka pager).  You're at the former when you reach the end of a multi-line output
-(`mode(1)` is `rm`), and at the latter when you scroll back (`mode(1)` is `r`).
-
----
-
-Explain why  `q` starts a recording  when it's pressed at  the hit-enter prompt,
-but not at the more prompt.
-
-At the more-prompt, only a small number of commands are valid:
-
->     Any other key causes the meaning of the keys to be displayed.
-
-`q` is one of them; it stops the listing.
-
-OTOH, at  the hit-enter prompt, all  the usual normal commands  are valid again,
-including `q` which starts a recording.
-
----
-
-You may want to leave an explanation here: <https://github.com/vim/vim/issues/2589>
-As well as this workaround:
-<https://vi.stackexchange.com/questions/25109/how-to-map-q-to-cr-for-the-hit-enter-prompt/25140#25140>
-
----
-
-Document  that –  in  Nvim –  timers's  callbacks are  not  processed while  the
-hit-enter  prompt is  visible.   They  are blocked  until  it's  left *and*  you
-interact with Nvim.  See our comments in:
-
-    " /cmdline#hit_enter_prompt_no_recording(
-    ~/.vim/plugged/vim-cmdline/autoload/cmdline.vim
-
-## ?
+### ?
 
 There's no need to  escape (so that the visual marks are set)  to know where the
 visual selection begins/ends.
@@ -2082,7 +2842,7 @@ without quitting visual mode:
 Note  that if  you've  pressed `O`,  the  reported positions  do  not match  the
 upper-left and bottom-right corners, but the upper-right and bottom-left ones.
 
-## ?
+### ?
 
     $ vim
     :h
@@ -2133,45 +2893,7 @@ Bonus question: If we add the `t` flag, why isn't `q` recorded twice?
 Answer: I think that the `q` we press interactively is always recorded.
 But the one which is fed is never recorded, because it ends the recording.
 
-## ?
-
-Document that `:norm` *inserts* keys in the typeahead:
-
-    $ vim -Nu NONE <(cat <<'EOF'
-        " a
-        " b
-        " c
-        " some folded text {{{
-        " some folded text
-        " some folded text }}}
-    EOF
-    ) +'set fdm=marker noro' +1d +'$'
-    :call feedkeys('3gsu', 'n') | norm! zv
-
-Notice how the fold is immediately opened, but the undo command is not run before 3s.
-That's because Vim has executed the keys in this order:
-
-    zv3gsu
-    ^^
-    inserted; not appended
-
----
-
-Also, document that `:norm!` – contrary to `feedkeys()` – executes the keys immediately:
-
-    $ vim -es -Nu NONE -i NONE +"pu='some text'" \
-      +'set vbs=1 | echom b:changedtick | call feedkeys("dd", "n") | echom b:changedtick | qa!'
-                                          ^^^^^^^^^^^^^^^^^^^^^^^^
-    3~
-    3~
-
-    $ vim -es -Nu NONE -i NONE +"pu='some text'" \
-      +'set vbs=1 | echom b:changedtick | exe "norm! dd" | echom b:changedtick | qa!'
-                                          ^^^^^^^^^^^^^^
-    3~
-    4~
-
-## ?
+### ?
 
     $ vim -Nu NONE +'set showcmd | tno <c-w>a bbb' +term
     " press C-w C-w to focus the split below: it works but you need to wait for a timeout
@@ -2222,15 +2944,15 @@ Or:
           \ | unlet! b:_twk
     augroup END
 
-## ?
+### ?
 
 Find usage examples for the `!` and `L` flags of `feedkeys()`.
 
-## ?
+### ?
 
 Move as many comments from `vim-freekeys` here.
 
-## ?
+### ?
 
     call setcmdpos(6)
 
@@ -2291,7 +3013,7 @@ qu'on utilise `C-r =` ou `C-\ e` / `C-r C-r =`:
 
    - `C-r C-r =` et `C-\ e`, après avoir évalué l'expression
 
-## ?
+### ?
 
 `C-j` (or a NUL) and `C-m` don't make a string end prematurely:
 
@@ -2336,7 +3058,50 @@ This  is probably  because  the keys  in  the  rhs are  processed  while on  the
 command-line;  and on  the  command-line, when  `C-j` or  `C-m`  is pressed,  it
 terminates the command.
 
-## ?
+### ?
+
+In `~/.vim/plugged/vim-search/plugin/search.vim`, we have these mappings:
+
+    nmap <expr><unique> n search#wrap_n(1)
+    nmap <expr><unique> N search#wrap_n(0)
+
+We've commented that we need to  avoid `<silent>`, otherwise we wouldn't see the
+index of the current match in Nvim.  Is it a pitfall we should document?
+Should we use  `<silent>` with `<expr>` only when really  needed; i.e. only when
+the expression doesn't enter the command-line.
+What about `<silent>` + `<cmd>` in Nvim?  Does it make sense or should we remove
+`<silent>`?
+
+Once you've taken a decision, enforce it everywhere.
+
+### ?
+
+To document:
+
+Printing a message via a timer from an `<expr>` mapping does not work well
+in Nvim.  You need to wait for a redraw to see the message.
+
+    $ nvim -u NONE -S <(cat <<'EOF'
+        nno <expr><silent> cd Func()
+        fu Func() abort
+            call timer_start(0, {-> Msg()})
+            return ''
+        endfu
+        fu Msg()
+            echo 'some message'
+        endfu
+    EOF
+    )
+    " press:  cd
+    " result:   no message is printed
+    " expected: the message is printed
+    " press:  C-l
+    " result:   the message is finally printed
+
+ `<cmd>` is meant to avoid side effects  when calling a function from a mapping;
+in contrast, `<expr>` + timer is a hack.
+
+### ?
 
 If you wonder whether your chosen lhs is going to override a default command, have a look at these help tags:
 
@@ -2497,316 +3262,7 @@ FIXME: I think the output of `taglist()` is influenced by the current buffer.
 Because it must look  in tags files, and those are set  by a buffer-local option
 (`'tags'`); to be checked.
 
-## ?
-
-Read this: <https://vi.stackexchange.com/a/10284/17449>
-
-Useful to better understand the distinction between a:
-
-   - terminal keycode
-   - Vim keycode
-   - (mapped) key sequence
-
-Hint:
-
-This is a terminal keycode:
-
-    ^[[23~
-
-This is a Vim keycode:
-
-    <S-F1>
-
-This is a mapped key sequence:
-
-    inoremap jk <Esc>:nohl<CR>
-             ^^
-
-Note that a mapped key sequence doesn't make sense outside of a mapping.
-`jk` by itself is not a mapped key sequence.
-It becomes one if it's used in the lhs of a mapping.
-
-By contrast, `^[[23~` and `<S-F1>` don't need any context.
-They are terminal/Vim keycodes by themselves.
-
-## ?
-
-Document that  `<nop>` loses  its special  meaning as soon  as it's  followed or
-preceded by another key.  IOW, it must be alone.
-
-    $ vim -Nu NONE +'nno cd <nop>x'
-    " press 'cd'
-    E486: Pattern not found: e~
-    " this error is raised by the 'n' in '<nop>'
-
-## ?
-
-How to filter  a custom text-object without the command-line not being redrawn?
-
-MWE:
-
-    !iE SPC
-    ![m SPC
-    ...
-
-We could try sth like this:
-
-    ono <silent> ie :<c-u>exe 'norm vie'..(v:operator is# '!' ? '<space>' : '')<cr>
-
-But, why does the issue occur with `![m`, but not with `![z`?
-
-Update: It probably has sth to do with these functions:
-
-   - `s:jump()`    (✔)   ~/.vim/plugged/vim-fold/autoload/fold/motion.vim:101
-   - `s:jump()`    (✘)   ~/.vim/plugged/vim-brackets/autoload/brackets/move.vim:178
-
-Update:
-It has to do with the `<silent>` argument in the mapping.
-We need it in all modes except in operator-pending mode.
-Alternatively, we could include at the end of `s:jump()`:
-
-    exe 'norm! '..line('.')..'g'
-
-It would not make the cursor move, but it would make the command-line redrawn.
-
-MWE:
-
-    map <silent> ]g :call search('pat')<cr>
-        !]g → command-line not redrawn
-
-    map <silent> ]g :call search('pat') <bar> exe 'norm! '..line('.')..'g'<cr>
-        !]g → command-line redrawn
-
-It seems `vim-textobj-user` doesn't suffer from this issue:
-
-    " unmap pre-existing `o_ie` mapping
-    call textobj#user#plugin('entire_buffer', {
-    \   'code': {
-    \     'pattern': ['\%^.', '.\%$'],
-    \     'select-a': 'ae',
-    \     'select-i': 'ie',
-    \   },
-    \ })
-
-You  should   try  to   better  understand  this   issue  when   you  assimilate
-`vim-textobj-user`, and fix it every time you defined a text object in the past.
-
-## ?
-
-Search for `g@` everywhere.
-
-Should we use `:keepj` in all our operators?
-See `myfuncs#op_replace_without_yank()`.
-
-It doesn't seem useful for the jumplist (update: now it seems useful...), but it
-is for  the changelist.   It seems that  if you use  `:keepj` for  every edition
-performed in your  opfunc, then no entry  is added in the  changelist.  OTOH, if
-you omit `:keepj`  for *any* edition performed by your  opfunc, then *one* entry
-is added in the changelist.
-
-tommy uses it here: <https://vi.stackexchange.com/a/8748/17449>
-
----
-
-Dirvish uses `keepj` for `tabnext` and `wincmd w`:
-<https://github.com/justinmk/vim-dirvish/blob/fa6197150dbffe0f93028c46cd229bcca83105a9/autoload/dirvish.vim#L4>
-
-Why?
-Should we do the same?
-Are there other commands for which we should have used `keepj` in the past?
-
----
-
-For  an operator  which can  be prefixed  by a  register, should  we save  and
-restore the register?
-If so,  consider passing the optional  argument `1` to `getreg()`  to properly
-restore the expression register.
-See `myfuncs#op_replace_without_yank()`.
-
----
-
-Do you need to save and restore `v:register` every time?
-Do you need to save and restore `v:count` every time?
-
----
-
-If the  operator yanks the text  on which we  operate, should it be  done with
-`:noa` to minimize unexpected side effects?
-E.g., I  think  it would  prevent  our  visual  ring  from saving  a  possible
-selection.
-
----
-
-Have you used `:s`, while you should have used `setline()`?
-
----
-
-Make sure to always save and restore visual marks.
-See what  we did with  the function  called by the  `dr` operator, and  read the
-comments.
-
----
-
-You should  simplify the  mappings, so  that we call  only one  function, before
-pressing `g@`.  The latter should save some info if needed, and set `'opfunc'`.
-
----
-
-The repetition of  an operation in visual  mode is not consistent  with what Vim
-does:
-
-   - press `~` on a visual selection
-   - move the cursor on another line
-   - press .
-
-Vim has recomputed a new visual selection with the same geometry as the previous
-one.  See `:h .` and `:h visual-repeat`.
-
-That's not what your operators do.
-Study how `vim-operator-user` solves this issue (I think it presses `gvg@`; IOW,
-`g@` should be pressed from visual mode for the repetition to work as expected).
-
-Update: I *think* our new implementation  of operators, using `<expr>` fixes the
-issue, because it presses `g@` in visual mode...
-
----
-
-Our  snippet implementing  an operator  is too  long; move  it inside  a library
-function.  The latter would contain the boilerplate code:
-
-    fu lg#my_opfunc(myfunc, type, ...) abort
-        let cb_save  = &cb
-        ...
-    endfu
-
-and it would expect the name of a custom function:
-
-    fu lg#my_opfunc(myfunc, type, ...) abort
-                    ^^^^^^
-
-The latter  would be  defined in  the plugin  where you  need to  implement your
-operator.  It  would contain the  logic specific to  the operator (i.e.  not the
-boilerplate code).   The library function would  use this name to  call `myfunc`
-(with `call()`).
-
-## ?
-
-Re-read our snippet `op`, and refactor this section in our notes:
-
-        # mappings / abréviations
-      → ## opérateurs
-
----
-
-Refactor  all operators  so that  they remove  `unnamed` and  `unnamedplus` from
-`'cb'`, and set `'inclusive'`.
-
-    vim /g@/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
-    :cfilter! -other_plugins
-
----
-
-    catch
-        return lg#catch()
-
----
-
-What happens if you do:
-
-      op + v + motion
-
-I've just checked with `|gvj` (grep  text from current position until next line,
-characterwise).  And inside `op_grep()`, `a:type`  is `char`, which is good.  If
-it had been visual, we could have a problem, because our function would think we
-are operating from visual mode, instead of normal mode.
-
-To document.
-
----
-
-Should we yank with noautocmd to prevent our visual ring from saving
-a possible selection?
-
-## ?
-
-Review all  custom text-objects: make sure  they all position the  cursor on the
-end  of the  selection, to  be consistent  with what  Vim seems  to do  with its
-builtin text-objects (e.g. try `vi{` in a shell function).
-
----
-
-Make sure that they correctly handle a  count.  For example, right now, it looks
-like `il` does not; `5dil` deletes only the current line.  Shouldn't it delete 5
-lines?  Study  how builtin objects  handle counts; check whether  their behavior
-differ depending on whether the start with `i` or `a` (e.g. `iw` vs `aw`).
-
----
-
-Make sure that they correctly handle a `v`, `V`, `C-v` prefix, by inspecting the
-output of `mode(1)`: <https://github.com/vim/vim/releases/tag/v8.1.0648>
-
-I  guess that  it means  that  all our  text-objects should  be implemented  via
-`<expr>` mappings...  Otherwise, the output of `mode(1)` is unreliable.
-
----
-
-Press `dio` on one column then `.` on another; this is printed on the command-line:
-
-    :call column_object#main('iw')
-
-Why are our custom text-objects non-silent when repeated by `.`?
-Even though we define them with `<silent>`...
-
-Does kana's plugin suffer from the same pitfall?
-If no, how is it fixed?
-
-Idea: redefine  all your  text-objects with `<expr>`  to avoid  the command-line
-from being entered.
-
-## ?
-
-We have 4 todos/fixmes in `myfuncs#op_replace_without_yank()` related to opfuncs
-in general.  Review/fix them.
-
-## ?
-
-Document the  fact that you need  to put `<esc>` at  the start of the  rhs of an
-`:ono` mapping if it presses `v:operator`.
-
-Watch this:
-
-    :ono ii :<c-u>exe 'normal! T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())<cr>
-
-Move your cursor on `bar`, then press `ciixy`:
-
-    foo x_bar_y baz
-    foo baz~
-
-Here, `ciixy` is equivalent to `c:norm! Txcty`.
-
-Now try this mapping:
-
-            vvvvv
-    :ono ii <esc>:<c-u>exe 'normal! T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())<cr>
-    foo x_bar_y baz
-    foo xy baz~
-
-The result is different.
-
-If you omit `<esc>` the result can even be wrong.
-Watch this:
-
-    :ono <expr> ii 'T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())
-    foo x_bar_y baz
-    foo xctyar_y baz~
-
-                    vvvvv
-    :ono <expr> ii '<esc>T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())
-    foo x_bar_y baz
-    foo xy baz~
-
-<https://www.reddit.com/r/vim/comments/bo2o0b/text_object_that_is_delimited_by_two_distinct/end5png/>
-
+##
 ##
 ##
 ##
@@ -3121,7 +3577,7 @@ Définit un mapping appelant `SomeFunc()`.
 
 À la place de `<plug>(plugin_some_func)` on pourrait utiliser autre chose, comme
 pex `SPC x`, mais dans ce cas on consommerait un mapping existant.
-`<plug>` correspond  à un keycode qu'il  est impossible de taper  au clavier, ce
+`<plug>` correspond à un  key code qu'il est impossible de  taper au clavier, ce
 faisant on ne consomme aucun mapping.
 
 ---
@@ -3241,7 +3697,7 @@ you could just write:
 
 ---
 
-But `:silent!` does *not* make Vim ignore errors raised other commands, like `:call`:
+But `:silent!` does *not* make Vim ignore errors raised by other commands, like `:call`:
 
     nno <silent> cd :sil! call UnknownFunc() <bar> let g:d_var = 1<cr>
     " press:  cd
@@ -3409,75 +3865,6 @@ de ce dernier.
 posée à l'endroit où se trouvait le curseur initialement.
 
 On peut ainsi “diviser“ le text-object en 2 parties en utilisant la marque `''`.
-
-# Opérateurs
-
-Whenever we mention a text-object, a motion is a valid replacement.
-
----
-
-    nno <key><key> :<c-u>set opfunc=Func<bar>exe 'norm! '..(v:count ? v:count : '')..'g@_'<cr>
-
-This mapping implements the convention,  which makes an operator act
-on a number of lines when it's repeated.
-
-Without a count, the operator acts on the current line.
-
-It defines `Func()` as the function to call, then executes:
-
-    :norm! {cnt}g@_
-
-The `_` motion makes Vim operate on the current line.
-`cnt` makes Vim operate on several lines,  from the current one, if the operator
-was prefixed with a count.
-
----
-
-    xno  <key>  :<c-u>call Func('vis')<cr>
-
-    fu Func(type, ...)
-        if a:type is# 'vis'
-            " process visual selection
-        else
-            " process other cases
-        endif
-    endfu
-
-Mapping implementing a visual operator.
-
-We don't need to  execute `g@` because we already know  the text-object on which
-we must operate: it's the one surrounded by the visual marks.
-
-However, we need `C-u` so that the function is only called once.
-We could eliminate `C-u`, if we gave the `range` attribute to the function.
-
----
-
-Some people  use this code  to tell  the function that  it has been  called from
-visual mode:
-
-    xno <key> :<c-u>call Func(visualmode(), 1)<cr>
-
-    fu Func(type, ...)
-        if a:0
-            " process visual selection
-        else
-            " process other cases
-        endif
-    endfu
-
-We prefer the version  using `vis`, because it makes the  code more readable and
-more consistent: we always inspect the value of `a:type`.
-
-The consistency persists even if we also call the function from an Ex command:
-
-    com Cmd call Func('Ex', <line1>, <line2>)
-
-    fu Func(type, ...)
-        if a:type is# 'Ex'
-            " operate on lines between `a:1` and `a:2`
-        endif
-    endfu
 
 # Récursivité
 
@@ -3780,5 +4167,6 @@ more verbose.
 ##
 # Reference
 
-[1]: https://github.com/tpope/vim-repeat/issues/63#issuecomment-390281441
+[1]: https://vi.stackexchange.com/a/25140/17449
 [2]: https://github.com/vim/vim/issues/2216
+[3]: https://github.com/vim/vim/releases/tag/v8.2.0851

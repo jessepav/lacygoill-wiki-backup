@@ -408,7 +408,7 @@ Don't conflate `:folddoopen` with `:foldopen`.
 ##
 ## In a script, how to make Vim recompute folds without altering the state of the folds (open vs closed)?
 
-Execute `:eval foldlevel(1)`.
+Execute `:call foldlevel(1)`.
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         setl fml=0 fdm=expr fde=getline(v:lnum)=~#'^#'?'>1':'='
@@ -420,7 +420,7 @@ Execute `:eval foldlevel(1)`.
     ) /tmp/file
 
     " the first fold stays open
-    :setl fdm=expr | eval foldlevel(1) | setl fdm=manual
+    :setl fdm=expr | call foldlevel(1) | setl fdm=manual
 
     " the first fold gets closed
     :setl fdm=expr | exe 'norm! zx' | setl fdm=manual
@@ -451,10 +451,10 @@ Or:
     setl fdm=manual
     call winrestview(view)
 
-But note that `:eval foldlevel(1)` is the fastest method:
+But note that `:call foldlevel(1)` is the fastest method:
 
     " open vimrc
-    :10000Time eval foldlevel(1)
+    :10000Time call foldlevel(1)
     0.055 seconds to run ...~
 
     :10000Time exe winnr()..'windo "'
@@ -469,9 +469,4 @@ But note that `:eval foldlevel(1)` is the fastest method:
 Besides, the fact that `:123windo "` makes Vim recompute folds is not documented.
 It would be brittle to rely on such an undocumented feature, because there is no
 guarantee that it continues working in the future.
-
----
-
-Nvim does not support `:eval` atm.
-Use a dummy assigment instead; `let _ = foldlevel(1)`.
 

@@ -20,25 +20,6 @@ To paste the `a` register, you must be in Terminal-Normal mode, and press `"ap`.
 
 ##
 # Pitfalls
-## In xterm, Vim doesn't make the difference between `<m-g>` and `<m-G>`!
-
-The shift modifier must be explicit:
-
-    <m-s-g>
-       ^^
-
-Example:
-
-    ✘
-    vim -Nu NONE +'nno <m-g> :echo "m-g"<cr>' +'nno <m-G> :echo "m-G"<cr>'
-    " press m-g and m-G: no difference
-
-    ✔
-    vim -Nu NONE +'nno <m-g> :echo "m-g"<cr>' +'nno <m-s-g> :echo "m-G"<cr>'
-                                                       ^^
-    " press m-g and m-G: Vim makes the difference
-
-##
 ## How to send a command from a (N)Vim terminal to a host Vim process?
 
 Write an OSC 51 sequence on the tty:
@@ -111,6 +92,7 @@ concatenation:
     E474: Invalid argument~
 
 Use `json_encode()` instead:
+
                                                             ✔
                                                             vvvvvvvvvvv
     :call writefile([printf('%s]51;["drop", %s]%s', "\033", json_encode(file), "\007")], '/dev/tty', 'b')

@@ -760,6 +760,113 @@ Otherwise, the loop will probably never ends.
 Same reason as previously.
 
 ##
+# How to get the number of matches of an arbitrary pattern in the current buffer?
+
+    :echo searchcount(#{pattern: 'pat'}).total
+
+## What happens if I don't provide a pattern?
+
+The search register is used.
+
+#
+## How to be sure that *all* matches are found?
+
+Set `maxcount` to 0  to lift the upper limit on the number  of matches which can
+be  found.   And  set  `timeout`  to  0 to  disable  the  time  out  during  the
+recomputing.
+
+    :echo searchcount(#{pattern: '.'})
+    {'exact_match': 0, 'current': 100, 'incomplete': 2, 'maxcount': 99, 'total': 100}~
+                                                                                 ^^^
+
+                                                v           v
+    :echo searchcount(#{pattern: '.', maxcount: 0, timeout: 0})
+    {'exact_match': 1, 'current': 1000, 'incomplete': 0, 'maxcount': 0, 'total': 4913}~
+                                                                                 ^^^^
+
+## What happens to `total` if there are more matches than `maxcount`?
+
+It's set to `maxcount + 1`.
+
+    :echo searchcount(#{pattern: '.'})
+    {'exact_match': 0, 'current': 100, 'incomplete': 2, 'maxcount': 99, 'total': 100}~
+                                                                                 ^^^
+                                                                                 99 + 1
+
+###
+## How to get the index of the match under the cursor?
+
+Inspect the `current` key:
+
+    :echo searchcount(#{pattern: 'pat'}).current
+                                        ^^^^^^^^
+
+### What does this output if I'm not on a match?
+
+The index of the previous match; and if there's no previous match, 0.
+
+## How to get the index of the match at an arbitrary position?
+
+Pass a dictionary  to `searchcount()` which includes the `pos`  key, and a value
+describing the position you're interested in:
+
+    $ vim -Nu NONE +"let @/ = 'pat' | sil pu!=['xxx', 'pat']->repeat(3)"
+                        vvvvvvvvvvv
+    :echo searchcount(#{pos: [4,1,0]}).current
+    2~
+
+Here, `searchcount()` tells you that the index of the match on line 4 column 1 is 2.
+If you had not passed the dictionary, `searchcount()` would have returned 3, because
+that's the index of the match on the last line of the buffer where the cursor is.
+
+---
+
+`pos` has an effect on `current` *and* `exact_match`.
+
+##
+## How to check whether
+### the cursor is on a match?
+
+Inspect the `exact_match` key (its value is a boolean):
+
+    if searchcount(#{pattern: 'pat'}).exact_match
+        " the cursor is on a match
+    endif
+
+### the results are unreliable because
+#### finding all the matches took too much time?
+
+Inspect the `incomplete` key; it should be 1 in that case.
+
+#### there were more matches than `maxcount`?
+
+Inspect the `incomplete` key; it should be 2 in that case.
+
+##
+## What's the effect of `recompute: 0`?
+
+It makes `searchcount()`  give the results relevant for the  last `/`, `?`, `n`,
+`N` command,  or for the  last invocation  of the function;  but only if  `S` is
+absent from `'shm'`.
+
+    $ vim -Nu NONE +"set shm-=S | let @/ = '.' | pu!='xxxxx'"
+    " press:  n $
+    :echo searchcount(#{recompute: 0})
+    {'exact_match': 1, 'current': 2, 'incomplete': 0, 'maxcount': 99, 'total': 5}~
+                                  ^
+    :echo searchcount()
+    {'exact_match': 1, 'current': 5, 'incomplete': 0, 'maxcount': 99, 'total': 5}~
+                                  ^
+
+If `S` is in `'shm'`, then it  gives the results relevant for the current cursor
+position.  This  is because, in that  case, there is no  previous computed value
+which `searchcount()` could return; it has to (re)compute.
+
+Whether `S` is in `'shm'` or not, a possible `pattern` key is ignored.
+That is, `searchcount()`  uses either `@/` or the last  pattern `key`, depending
+on what was the last command (`/`, `?`, `n`, `N` vs `:call searchcount()`).
+
+##
 # Antipatterns
 ## When can I simplify `empty(filter(...))`?
 

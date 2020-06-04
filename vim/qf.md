@@ -1822,7 +1822,7 @@ To reproduce the issue, you need to do that:
 
 ## What's the purpose of 'items'?
 
-It seems we could without it (:h setqflist-examples):
+It seems we could without it (`:h setqflist-examples`):
 
     :echo getqflist({'id' : qfid, 'items' : 0}).items
     ⇔

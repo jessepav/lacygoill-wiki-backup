@@ -719,6 +719,14 @@ It seems only `ctermbg` matters, not `guibg` (weird...).
 
 ## ?
 
+Experiment the new termcap codes `t_AU` and `t_8u`:
+<https://github.com/vim/vim/commit/e023e88bed3f2e0a7ea4cf10cac2de80bc9c271c>
+
+They should  allow you to  specify a color for  underline/undercurl, independent
+from the foreground color.
+
+## ?
+
 Document that running a  `:hi` command to (re)set an attribute  has no effect on
 the other ones.
 

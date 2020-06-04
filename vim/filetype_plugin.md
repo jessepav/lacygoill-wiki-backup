@@ -898,7 +898,7 @@ next commands. These commands work fine:
 This is confirmed by the fact that `:nunmap` and `:nno` are absent from `:h :bar`.
 
 And if  your lhs  or rhs  contains a  bar, as  usual, to  prevent it  from being
-interpreted as a command  termination you have to escape it,  or use the keycode
+interpreted as a command termination you have  to escape it, or use the key code
 `<bar>`.
 
 ### If I don't set `b:undo_ftplugin`, what will *not* happen when I change the filetype from A to B?  (2)

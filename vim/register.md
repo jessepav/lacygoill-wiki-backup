@@ -330,6 +330,16 @@ In contrast, you can write into a regular register:
 And later, you can refer to it  (`@a`, `"a`, `C-r a`) without having to redefine
 its contents.
 
+## What happens after pressing `C-r =` or `"=` if I don't provide any expression?
+
+The evaluation of the last expression is used:
+
+    $ vim -Nu NONE
+    " press:  C-r = 1 + 1 Enter
+    " result: 2 is inserted
+    " press:  C-r = Enter
+    " result: 2 is again inserted
+
 ##
 ## In which register does Vim save
 ### the last yanked text?

@@ -11,6 +11,9 @@
    - `:h listener_remove()`
    - `:h pum_getpos()`
    - `:h rand()` + `:h srand()`
+   - `:h readdir()` + `:h readdirex()`
+   - `:h reduce()`
+   - `:h searchcount()`
    - `:h str2list()` + `:h list2str()`
    - `:h strptime()`
    - `:h term_setansicolors()` + `:h term_getansicolors()`
@@ -42,6 +45,11 @@ Answer: with `:wall`:
     some
     text
 
+---
+
+Look for `eval(.*join(` everywhere.
+For every match, check whether we could use `reduce()` instead.
+
 ## arguments of functions
 
    - `:h getbufinfo()` includes a `linecount` key in the output dictionary since 8.2.0019
@@ -53,6 +61,8 @@ Answer: with `:wall`:
      they all accept a new optional window ID argument
 
    - `:h mode()` can output `n_ov`, `n_oV`, `n_oC-v` since 8.1.0648
+   - `:h trim()` can trim only at the start or end thanks to the third optional argument `{dir}` since 8.2.0868
+   - `:h setqflist()` supports a new `quickfixtextfunc` key inside the `{what}` dictionary since 8.2.0869
    - `:h winnr()` supports a new argument `{N}[hjkl]` since 8.1.1140
 
 ##
@@ -62,6 +72,8 @@ Answer: with `:wall`:
    - `:h :swapname`
 
 ## arguments of commands
+
+   - `:h ctermul` (argument of `:hi`) + terminal options: `:h t_AU`, `:h t_8u`, `:h t_Cs`, `:h t_Ce`
 
    - `:h :cq` (`:{N}cq[uit][!]`, Quit Vim with error code {N}.)
 
@@ -84,6 +96,8 @@ Answer: with `:wall`:
    - `:h WinClosed` (Nvim only)
 
 # options
+
+   - `:h 'quickfixtextfunc'`
 
    - `:h 'varsofttabstop'` + `:h 'vartabstop'`
 
