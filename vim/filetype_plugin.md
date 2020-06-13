@@ -13,87 +13,6 @@
     │ 5. ~/.vim/after        │ same thing for the user                                │
     └────────────────────────┴────────────────────────────────────────────────────────┘
 
-## Which directories are in Neovim's rtp by default (`$ nvim -Nu NORC`)?
-
-TLDR:
-
-Before `$VIMRUNTIME`, Neovim includes:
-
-    $XDG_CONFIG_HOME/nvim (user config)
-    $XDG_CONFIG_DIRS/nvim (sysadmin config)
-    $XDG_DATA_HOME/nvim/site (user plugins)
-    $XDG_DATA_DIRS/nvim/site (sysadmin plugins)
-
-After `$VIMRUNTIME`, Neovim includes:
-
-    $XDG_DATA_DIRS/nvim/site/after
-    $XDG_DATA_HOME/nvim/site/after
-    $XDG_CONFIG_DIRS/nvim/after
-    $XDG_CONFIG_HOME/nvim/after
-
----
-
-In case you didn't notice:
-
-   - those are the same directories, in reverse order, and with the `after/` suffix
-   - `$XDG_CONFIG_DIRS` is a SET of directories; same thing for `$XDG_DATA_DIRS`
-                     ^
-                     plural
-
-And in case you wonder what those `$XDG_...` variables are:
-<https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>
-
----
-
-More details.
-
-There are 9 sets of directories:
-
-   1. $XDG_CONFIG_HOME/nvim
-
-Usually, `$XDG_CONFIG_HOME` is `~/.config`.
-If `$XDG_CONFIG_HOME` is not set, Neovim falls back on `$HOME/.config`.
-
-
-   2. $XDG_CONFIG_DIRS/nvim
-
-`$XDG_CONFIG_DIRS` is an array of directories.
-So this second set contains more than one directories.
-Example:
-
-    /etc/xdg/xdg-xubuntu/nvim
-    /usr/share/upstart/xdg/nvim
-    /etc/xdg/nvim
-
-
-   3. $XDG_DATA_HOME/nvim/site
-
-Usually `$XDG_DATA_HOME` is `~/.local/share`.
-
-
-   4. $XDG_DATA_DIRS/nvim/site
-
-`$XDG_DATA_DIRS` is an array of directories.
-So this fourth set contains more than one directories.
-Example:
-
-    /usr/share/xubuntu/nvim/site
-    /usr/share/xfce4/nvim/site
-    /usr/local/share/nvim/site
-    /usr/share/nvim/site
-    /var/lib/snapd/desktop/nvim/site
-
-
-   5. $VIMRUNTIME
-
-   6. $XDG_DATA_DIRS/nvim/site/after
-
-   7. $XDG_DATA_HOME/nvim/site/after
-
-   8. $XDG_CONFIG_DIRS/nvim/after
-
-   9. $XDG_CONFIG_HOME/nvim/after
-
 ## Which directories does `vim-plug` add to the rtp?  In which position exactly?
 
 It adds 2 new FAMILIES (one directory per third-party plugin) of directories:
@@ -130,20 +49,6 @@ They could do so by creating a file such as:
 ## Why is `~/.vim/plugged/{plugin}/after` added before `~/.vim/after` in the rtp?
 
 To give the user a chance to override some of its settings.
-
-## In Neovim, why is `~/.config/nvim` added after the third-party plugins in the rtp?
-
-I'm not sure, but it seems to be an error.
-
-Anyway, this is due to those lines in `~/.config/nvim/init.vim`:
-
-    set rtp^=~/.vim
-    set rtp+=~/.vim/after
-
-If you remove them, `vim-plug` will correctly add:
-
-   - `~/.config/nvim`       before the third-party plugins
-   - `~/.config/nvim/after` after  the third-party plugins
 
 ##
 ## Where does Vim look for
@@ -213,27 +118,15 @@ detection; if the latter fails, all these mechanisms will fail too.
 ###
 ### What's the expansion of $VIM?
 
-In Vim:
-
     /usr/local/share/vim
          │
          └ only if you compile Vim locally and install it with `make install`
 
-In Neovim:
-
-    /usr/local/share/vim
-
 ### What's the expansion of $VIMRUNTIME?
-
-In Vim:
 
     /usr/local/share/vim/vim81
                             ├┘
                             └ may vary; matches Vim's current version
-
-In Neovim:
-
-    /usr/local/share/nvim/runtime
 
 ###
 ### `$VIMRUNTIME/filetype.vim` installs 4 sets of autocmds, and run 1 command.  What does each of them do?

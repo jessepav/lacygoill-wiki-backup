@@ -1137,6 +1137,7 @@ Also, document this:
 # Commands
 ## How to find the first commit from which some project exhibits a new behavior (like a bug)?
 
+    $ git bisect reset
     $ git bisect start
     $ git bisect new
     $ git bisect old v1.2.3
@@ -1162,6 +1163,24 @@ Once you're finished, run:
 
 to get back on the commit you were on before running `git-bisect(1)`.
 
+### How to choose arbitrary terms instead of "old" and "new"?
+
+Start the bisection using:
+
+    $ git bisect start --term-old <term-old> --term-new <term-new>
+
+Example:
+
+    $ git bisect reset
+    $ git bisect start --term-old error --term-new ok
+    $ git bisect error v8.1.1888
+    $ git bisect ok master
+    # test
+    $ git bisect error
+    # test
+    $ git bisect ok
+    ...
+
 ### On some commit, I can't test the project!
 
 Run this:
@@ -1178,6 +1197,8 @@ It should still narrow down the search to only a few candidates.
                        │    │
     $ git bisect start v3.4 v1.2
     $ git bisect run /path/to/custom-script
+                     ^^^^^^^^^^^^^^^^^^^^^^
+                     make sure it's executable
 
 The custom script must exit with the error code:
 

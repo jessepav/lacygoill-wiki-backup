@@ -18,6 +18,7 @@
    - `:h strptime()`
    - `:h term_setansicolors()` + `:h term_getansicolors()`
    - `:h term_setsize()`
+   - `:h terminalprops()`
    - `:h win_splitmove()`
 
 ---
@@ -53,6 +54,7 @@ For every match, check whether we could use `reduce()` instead.
 ## arguments of functions
 
    - `:h getbufinfo()` includes a `linecount` key in the output dictionary since 8.2.0019
+   - `:h getcompletion()` supports the `cmdline` argument since 8.2.0925
    - `:h getloclist()` supports a `filewinid` key in the optional dictionary argument since 8.1.0345
    - `:h line()` supports an optional `{winid}` argument since 8.1.1967
 
@@ -62,6 +64,7 @@ For every match, check whether we could use `reduce()` instead.
 
    - `:h mode()` can output `n_ov`, `n_oV`, `n_oC-v` since 8.1.0648
    - `:h trim()` can trim only at the start or end thanks to the third optional argument `{dir}` since 8.2.0868
+   - `:h search()` supports a new `{skip}` argument
    - `:h setqflist()` supports a new `quickfixtextfunc` key inside the `{what}` dictionary since 8.2.0869
    - `:h winnr()` supports a new argument `{N}[hjkl]` since 8.1.1140
 
@@ -77,9 +80,6 @@ For every match, check whether we could use `reduce()` instead.
 
    - `:h :cq` (`:{N}cq[uit][!]`, Quit Vim with error code {N}.)
 
-   - `:tabnext` accepts the argument `#` to focus previous tab (Nvim only)
-     https://github.com/neovim/neovim/pull/11626/files
-
    - `:h :unlet-$`
 
 ##
@@ -91,9 +91,9 @@ For every match, check whether we could use `reduce()` instead.
    - `:h DiffUpdated`
    - `:h DirChanged`
    - `:h ExitPre`
+   - `:h SigUSR1`
    - `:h SourcePost`
    - `:h TextChangedP`
-   - `:h WinClosed` (Nvim only)
 
 # options
 
@@ -101,21 +101,16 @@ For every match, check whether we could use `reduce()` instead.
 
    - `:h 'varsofttabstop'` + `:h 'vartabstop'`
 
-   - `:h 'wincolor'` (Vim only); could be used to dim the unfocused windows
-    (I think the equivalent in Nvim is `'winhighlight'`; see also `:h hl-NormalNC` and `:h hl-NormalFloat`)
+   - `:h 'wincolor'`; could be used to dim the unfocused windows
 
 # `v:` variables
 
-   - `:h v:argv` (command-line arguments Vim was invoked with; Vim only)
-   - `:h v:echospace`
+When `TextYankPost` is fired, `v:event` now contains a `visual` key.
+Could be useful for our `vim-selection-ring` plugin...
 
 ##
 # Miscellaneous
-## `:h api-extended-marks` (Nvim only)
-
-## `:h api-buffer-updates` (Nvim only)
-
-## `:h literal-Dict` (Vim only)
+## `:h literal-Dict`
 
 ## `:h method` and `:h :eval`
 
@@ -167,10 +162,6 @@ You can now set a default value to an argument passed to a function.
 
 ---
 
-It will be available in Nvim once the PR 10905 is merged.
-
----
-
 I *think* you should refactor things like:
 
     fu Func(...)
@@ -183,7 +174,7 @@ Into:
     fu Func(foo = 12, bar = 34)
         ...
 
-## `:h prompt-buffer` (Vim only)
+## `:h prompt-buffer`
 
 ##
 # Review `https://arp242.net/vimlog/`

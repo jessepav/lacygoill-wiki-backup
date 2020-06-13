@@ -466,8 +466,6 @@ But you could also use a mode:
 `:hi link`  gives you  the same  control, and  is more  consistent with  how you
 configure non-builtin HGs.
 
-Also, it's deprecated in Neovim.
-
 ###
 # Color Scheme
 ## How to run some code before or after a color scheme has been sourced?
@@ -595,35 +593,7 @@ To document. (also document the `reset` subcommand)
 
 ## ?
 
-If you set  `'tgc'` in Neovim, you'll notice  that a lot of text  is bold, while
-it's not in Vim, and vice versa.
-
-This  is because  the  gui attribute  is applied  (`gui=bold`),  instead of  the
-`cterm` attribute.
-
-I can reproduce with this minimal vimrc:
-
-set rtp-=~/.vim
-set rtp-=~/.vim/after
-set rtp^=~/.vim/plugged/seoul256.vim
-
-filetype plugin on
-syntax enable
-
-set termguicolors
-colo seoul256-light
-
-hi clear Statement
-hi Statement ctermfg=66 guifg=#719899
-
-This makes me  think that this is  intended by Neovim devs; and  it makes sense:
-when `'tgc'`  is set,  we tell (Neo)Vim  that the terminal  can support  all the
-styles a gui program could.
-
-To document.
-
-But this begs  the question: why did  Vim choose to apply  the `cterm` attribute
-when `'tgc'` is set?
+Why did Vim choose to apply the `cterm` attribute when `'tgc'` is set?
 
 Answer: it's probably an issue that Vim should fix:
 <https://github.com/vim/vim/issues/1740>
@@ -724,6 +694,16 @@ Experiment the new termcap codes `t_AU` and `t_8u`:
 
 They should  allow you to  specify a color for  underline/undercurl, independent
 from the foreground color.
+
+See also `:h undercurl`:
+
+>     "undercurl" is a curly underline.  When "undercurl" is not possible
+>     then "underline" is used.  In general "undercurl" and "strikethrough"
+>     are only available in the GUI and some terminals.  The color is set
+>     with |highlight-guisp| or |highlight-ctermul|.  You can try these
+>     termcap entries to make undercurl work in a terminal: >
+>         let &t_Cs = "\e[4:3m"
+>         let &t_Ce = "\e[4:0m"
 
 ## ?
 

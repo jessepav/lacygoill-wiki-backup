@@ -51,9 +51,26 @@ They are terminal/Vim key codes by themselves.
 # opfunc
 ## What's a “pseudo-operator”?
 
-The term is not used in the help.
-I use it to refer to an operator to which the same text-object is always passed.
-Such an operator can be useful to make a custom command repeatable.
+The term is not used in the help.  I use it to refer to an operator to which the
+same text-object  is always  passed (typically  `l`).  Such  an operator  can be
+useful to make a custom command repeatable.
+
+Example:
+
+    nno <expr> <c-b> Transpose()
+    fu Transpose(...)
+        if !a:0
+            set opfunc=Transpose
+            return 'g@l'
+        endif
+        norm! xp
+    endfu
+
+    " press:  C-b .
+    " 'C-b' transposes 2 characters, and dot repeats the transposition
+
+Here, the  sole purpose of the  opfunc is to  make `xp` repeatable with  the dot
+command.
 
 ## When I implement a custom operator, I often hesitate between `g@_` and `g@l`.  Which one should I use?
 
@@ -63,11 +80,11 @@ Use `g@l` for a pseudo-operator; `g@_` otherwise.
 
 If your custom operator is a pseudo one, and you implement it like this:
 
-    nno <expr> <key> MyOp()
+    nno <expr> <key> Op()
 
-    fu MyOp(...)
+    fu Op(...)
         if !a:0
-            let &opfunc = 'MyOP'
+            let &opfunc = 'Op'
             return 'g@_'
                       ^
                       ✘
@@ -80,13 +97,13 @@ probably don't want.  You can avoid the jump by replacing the motion `_` with `l
 
 If your custom operator is *not* a pseudo operator, and you implement it like this:
 
-    nno <expr> <key> MyOp()
-    xno <expr> <key> MyOp()
-    nno <expr> <key><key> MyOp()..'l'
-                                   ^
-                                   ✘
+    nno <expr> <key> Op()
+    xno <expr> <key> Op()
+    nno <expr> <key><key> Op()..'l'
+                                 ^
+                                 ✘
 
-    fu MyOp(...)
+    fu Op(...)
         if !a:0
             let &opfunc = 'MyOP'
             return 'g@'
@@ -96,6 +113,25 @@ If your custom operator is *not* a pseudo operator, and you implement it like th
 
 The change marks will be wrongly set.
 
+### Which pitfall should I be aware of about `g@l`?
+
+Don't use it for a visual mode mapping.  For the latter, just use `g@`:
+
+    nno <expr> <key> Op()
+    xno <expr> <key> Op()
+    fu Op(...)
+        if !a:0
+            let &opfunc = 'Op'
+            return 'g@'..(mode() is# 'n' ? 'l' : '')
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        endif
+        ...
+    endfu
+
+`g@` is enough to execute your operator in visual mode.
+It doesn't expect a text-object (or a motion); the selection *is* the text-object.
+So `l` would be useless; worse, it would make the cursor move.
+
 ##
 ## My opfunc substitutes text via `setline()`, not `:s`.  How to pass it a range when I use a count (e.g. `123g@_`)?
 
@@ -104,31 +140,31 @@ Inside the opfunc, call this other  function by prefixing `:call` with the range
 `'[,']`.
 
        opfunc = dispatch
-       vvvvvvvvv
-    fu MyOpSetup(...)
+       vvvvvvv
+    fu OpSetup(...)
         if !a:0
-            let &opfunc = 'MyOpSetup'
+            let &opfunc = 'OpSetup'
             return 'g@'
         endif
-        '[,']call MyOp()
+        '[,']call Op()
         ^^^^^
     endfu
 
 Example:
 
     vim -Nu NONE -S <(cat <<'EOF'
-        nno <expr> <c-b>      MyOpSetup()
-        nno <expr> <c-b><c-b> MyOpSetup()..'_'
+        nno <expr> <c-b>      OpSetup()
+        nno <expr> <c-b><c-b> OpSetup()..'_'
 
-        fu MyOpSetup(...)
+        fu OpSetup(...)
             if !a:0
-                let &opfunc = 'MyOpSetup'
+                let &opfunc = 'OpSetup'
                 return 'g@'
             endif
-            '[,']call MyOp()
+            '[,']call Op()
         endfu
 
-        fu MyOp()
+        fu Op()
             call setline('.', substitute(getline('.'), 'pat', 'rep', 'g'))
         endfu
         let text =<< trim END
@@ -147,8 +183,13 @@ Example:
 
 ## My opfunc executes several `:echo`.  Only the last message is printed!
 
-I think that Vim redraws automatically before every command printing a message.
-This includes sth like `:echom 'msg'` and `:call input('>')`.
+I  guess the  other messages  are cleared  because Vim  has redrawn  the screen;
+similar to what this comment explains:
+
+>     The messages are actually output, but the screen is redrawn right away
+>     afterwards.  Try adding a sleep after the messages.
+
+<https://github.com/vim/vim/issues/3960#issuecomment-463769646>
 
 I don't know any solution to this  issue, other than printing your messages from
 another function invoked before/after your opfunc, but not directly from it:
@@ -794,7 +835,50 @@ which is  a builtin  Vim command.  `.` repeats the  last Vim  command, including
 Note that `.` also repeats the motion or a text-object which you provided to the
 operator.
 
-###
+## Do I have the guarantee that `.` will repeat my custom opfunc with the same count/register?
+
+Yes.
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        nno <expr> <c-b> Op()
+        fu Op(...)
+            if !a:0
+                set opfunc=Op
+                return 'g@'
+            endif
+            echom 'the count is '..v:count
+            echom 'the register is '..v:register
+            norm! "b4yl
+        endfu
+    EOF
+    )
+
+    " press:  "a 3 C-b l
+    " press:  .
+    :mess
+    the count is 3~
+    the register is a~
+    the count is 3~
+    the register is a~
+
+Notice how `"b4yl` did not reset the count  to 4, nor the register to `"b`, when
+the dot command was executed.
+
+`v:count` and `v:register` are temporary variables;  as soon as the operator has
+been executed, they are reset to resp. 0 and `"`.
+But Vim remembers the last count/register which was passed to the operator.
+See `:h .`:
+
+>   Without a count, the count of the last change is used.
+
+## After executing an operator from visual mode, on what text does `.` operate?
+
+Briefly put, on a region of text which starts from the cursor position and which
+has the same geometry as the previous selection.
+
+For more detail, see `:h visual-repeat`.
+
+##
 ## My custom operator works.  But when I press `.`, it's not repeated!  Why?
 
 If the  function implementing  your operator calls  another operator  during its
@@ -945,9 +1029,6 @@ hit-enter prompt is visible:
     :echo g:modes
     " the list should contain a lot of items; it only contains a few
 
-In Nvim, the status line *is* updated when you enter the command-line, but *not*
-when the hit-enter prompt is visible.
-
 ##
 ## When can I map a key while Vim's pager is open?
 
@@ -1049,59 +1130,6 @@ When you've run a command with an output longer than the current visible screen,
 and `-- more --` is printed at the bottom, `mode(1)` is `rm`, *not* `r`.
 As a result, if  you wrote `mode(1)`, your flag would not  be set correctly when
 the pager has many lines to display.
-
-##### It doesn't work in Nvim!
-
-Well, `SafeState` is not  supported in Nvim at the moment;  you could replace it
-with a short timer, but the code would still not work.
-That's  because,  in  Nvim,  timers's  callbacks are  not  processed  while  the
-hit-enter  prompt is  visible.   They  are blocked  until  it's  left *and*  you
-interact with Nvim:
-
-    $ nvim -u NONE -S <(cat <<'EOF'
-        call timer_start(2000, {-> Cb()}, {'repeat': 10})
-        fu Cb() abort
-            let g:modes = get(g:, 'modes', []) + [mode(1)]
-        endfu
-        echo "a\nb"
-    EOF
-    )
-    " wait for 20s
-    " run:  :echo g:modes (type the command quickly)
-    " expected: 10 items in the list, a few of them being 'rm'
-    " actual: fewer than 10 items in the list, none of them is 'rm'
-
-Nvim blocks the callbacks until the  hit-enter prompt disappears; at that point,
-it starts the remaining callbacks.
-
-From someone on the #neovim irc channel:
-
->     the callback wants  to execute on the main thread,  which is blocked
->     until you hit enter
->     it's probably just an architecture  difference. I don't know how vim
->     handles it but  neovim uses libuv to  run an event loop  on the main
->     thread. all the io is via  libuv's async worker threadpools, and you
->     can even send jobs  to other threads that way, but the  ui is all on
->     the main thread the event loop runs on
->     well not all the io. some of it's still blocking, like :write
-
-As a workaround, instead of installing a definitive mapping, you could install a
-temporary one:
-
-    nvim -Nu NONE -S <(cat <<'EOF'
-        au CmdlineLeave : call InstallTempMapping()
-        fu InstallTempMapping()
-            nno <expr> <c-b> C_b()
-            return timer_start(0, {-> execute('nunmap <c-b>', 'silent!')})
-        endfu
-        fu C_b()
-            echom "C-b has been pressed while the pager was open"
-        endfu
-    EOF
-    )
-
-Obviously, if `C-b` is  already mapped in normal mode, then  you'll need to save
-and restore this other mapping.
 
 ##
 ## Why does `q` start a recording when it's pressed at the hit-enter prompt, but not at the more prompt?
@@ -1968,9 +1996,6 @@ incomplete:
 ##
 ## How to use a chord with the meta modifier in my mappings?
 
-If you use Nvim,  you don't need anything special; you can  write `<M-x>` in the
-lhs of a mapping without any issue.
-
 If you use gVim,  you don't need anything special either, but  you need at least
 the patch [8.2.0851][3].
 
@@ -2034,8 +2059,8 @@ In that case, if you have the mapping `ino <m-d> <c-o>de`, you can't insert `ä`
 
 Workarounds:
 
-Use gVim,  Nvim, or a terminal  which supports the modifyOtherKeys  feature (and
-make sure it's enabled).
+Use gVim or a terminal which supports the modifyOtherKeys feature (and make sure
+it's enabled).
 
 Or press `C-v` to suppress mappings:
 
@@ -2165,7 +2190,7 @@ It works, but in practice it's cumbersome  to use because it's only necessary in
 Vim and only if modifyOtherKeys is not enabled,  so you have to use this kind of
 template when installing your meta mappings:
 
-    if has('nvim') || has('gui_running') || &t_TI =~# "\e[>4;2m"
+    if has('gui_running') || &t_TI =~# "\e[>4;2m"
         nno <m-d> ...
     else
         nno <f30> ...
@@ -2384,56 +2409,190 @@ produced by `<up>` in xterm).
 ##
 # Todo
 ## operators
-### ?
+### Why should I use `<expr>` when installing an operator mapping?
 
-When we implement an operator, we currently  have 2 ways to handle the operation
-on lines regarding `g@`:
+Without `<expr>`, the count and register are not passed naturally to the opfunc,
+and by the time the opfunc is processed, they have been reset to resp. 0 and `"`.
 
-    :exe 'norm! '..(v:count ? v:count : '')..'g@_'
-    :call feedkeys((v:count ? v:count : '')..'g@_', 'in')
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        nno <c-b> :<c-u>set opfunc=Op<cr>g@
+        fu Op(_)
+            echom 'the count is '..v:count
+            echom 'the register is '..v:register
+        endfu
+    EOF
+    )
 
-But `:norm` can break interactive commands, and `feedkeys()` is brittle (need to
-find the right flags, correctly handle macros, ...).
+    " press:  "a 3 C-b l
+    :mess
+    the count is 0~
+    the register is "~
 
-Tpope doesn't do  that.  He uses an `<expr>` mapping  which evaluates the opfunc
-without any argument.  And when the opfunc doesn't receive any argument, it sets
-`'opfunc'` with the name of  the current function (via `expand('<sfile>')`), and
-returns `g@`.
+You'll need to pass them manually, either via `:norm` or `feedkeys()`.
+But both come with pitfalls.
+For example, `:norm` can break an  interactive command by pressing `Esc` when an
+input is asked:
 
-Using `<expr>` is  clever; it should avoid  all the pitfalls we had  in the past
-when dealing with `g@_`.   You don't have to manually pass  the count; it's done
-naturally.
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        "                                           vvvvv
+        nno <c-b><c-b> :<c-u>set opfunc=Op<bar>exe 'norm! '..(v:count ? v:count : '')..'g@_'<cr>
+        call setline(1, ["a\x01b"])
+        fu Op(_)
+            '[,']s/[[:cntrl:]]//c
+        endfu
+    EOF
+    )
 
-Besides, it has  fewer side-effects (e.g. it doesn't enter  the command-line, so
-`CmdlineEnter` and `CmdlineLeave` are not fired).
+    " press:     C-b C-b
+    " result:    nothing happens
+    " expected:  the literal ^A is removed
 
-Also, it should preserve `v:register`.
-And you don't have to pass the ad-hoc string arguments `Ex`/`vis`.
-And you  don't have to  handle an  extra visual mode  case in your  opfunc; it's
-handled automatically by the case which takes care of the text-objects.
+Not  that  from *inside*  the  opfunc,  you could  still  access  the count  via
+`v:prevcount` instead of `v:count`, but:
 
-Finally,  it makes  the rhs  of  the mappings  much  shorter; the  code is  more
-readable.
+   - not the register; there is no `v:prevregister`
+   - you want `v:count`, and not `v:prevcount`, if you need the count from *outside* the opfunc
+     (e.g. to execute sth like `123g@_`)
 
-Refactor all our opfunc to use this scheme (in our plugins and in our notes).
+`feedkeys()` can avoid the issue, but passing it the right flags can be tricky.
+
+Besides, the operator would not work as expected when preceded by a count.
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        nno <c-b> :<c-u>set opfunc=Op<cr>g@
+        fu Op(type)
+            if a:type is# 'line'
+                sil norm! '[V']y
+            elseif a:type is# 'char'
+                sil norm! `[v`]y
+            elseif a:type is# 'block'
+                sil exe "norm! `[\<c-v>`]y"
+            endif
+            echom @@
+        endfu
+        call setline(1, ['aaa', 'bbb', 'ccc'])
+    EOF
+    )
+
+    " ✔
+    " press:  C-b 2 j
+    aaa^@bbb^@ccc^@~
+
+    " ✘
+    " press:  2 C-b j
+    aaa^@bbb^@~
+    " '2 C-b j' should behave like '2dj'; i.e. operate on 3 lines, not 2
+
+With `<expr>`,  all these issues are  fixed, because the count  and register are
+passed naturally:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        nno <expr> <c-b> Op()
+        fu Op(...)
+            if !a:0
+                set opfunc=Op
+                return 'g@'
+            endif
+            echom 'the count is '..v:count
+            echom 'the register is '..v:register
+        endfu
+    EOF
+    )
+
+    " press:  "a 3 C-b l
+    :mess
+    the count is 3~
+    the register is a~
+
+See also: <https://vi.stackexchange.com/a/12557/17449>
 
 ---
 
-Update: Does this solution work well with visual mode, regardless of the type of
-selection (characterwise, linewise, blockwise)?
+Without `<expr>`, visual mode needs to be handled specially:
 
-Besides, this  solution should  indeed pass  the count and  the register  to our
-opfunc correctly.  But  afterward, do we have the guarantee  that no matter what
-our opfunc does, it won't alter the count/register/last command?
-IOW, if we press `.` afterward, do we have the guarantee that it will repeat our
-opfunc?
+    nno <silent> <c-b> :<c-u>set opfunc=CountSpaces<cr>g@
+    xno <silent> <c-b> :<c-u>call CountSpaces(visualmode(), 1)<cr>
+    fu CountSpaces(type, ...)
+        if a:0
+            set opfunc=CountSpaces
+            " can't use ':norm', because dot would be reset at the end of the function
+            " feedkeys() avoids the issue, because the keys are processed *after* the function
+            return feedkeys('gvg@', 'in')
+        elseif a:type is# 'line'
+            sil norm! '[V']y
+        elseif a:type is# 'char'
+            sil norm! `[v`]y
+        elseif a:type is# 'block'
+            sil exe "norm! `[\<c-v>`]y"
+        endif
+        echom count(@@, ' ')
+    endfu
 
-If not, what should we do to make sure `.` behaves as expected?
+With `<expr>`,  there's no need to,  because visual mode can  be handled exactly
+like normal mode:
+
+    nno <expr> <c-b> CountSpaces()
+    xno <expr> <c-b> CountSpaces()
+    fu CountSpaces(...)
+        if !a:0
+            set opfunc=CountSpaces
+            return 'g@'
+        endif
+        let type = a:1
+        if type is# 'line'
+            sil norm! '[V']y
+        elseif type is# 'char'
+            sil norm! `[v`]y
+        elseif type is# 'block'
+            sil exe "norm! `[\<c-v>`]y"
+        endif
+        echom count(@@, ' ')
+    endfu
 
 ---
 
-Make sure we haven't returned `g@l` while in visual mode.
-In normal mode, it's ok, but in visual mode I think we should just return `g@`.
+The mappings are easier to read.  Compare:
+
+    nno <silent> <c-b> :<c-u>set opfunc=CountSpaces<cr>g@
+    xno <silent> <c-b> :<c-u>call CountSpaces(visualmode(), 1)<cr>
+    nno <silent> <c-b><c-b> :<c-u>set opfunc=CountSpaces<bar>exe 'norm! '..(v:count ? v:count : '')..'g@_'<cr>
+
+Versus:
+
+    nno <expr> <c-b> CountSpaces()
+    xno <expr> <c-b> CountSpaces()
+    nno <expr> <c-b><c-b> CountSpaces()..'_'
+
+---
+
+With `<expr>`, the mappings don't  enter the command-line, so `CmdlineEnter` and
+`CmdlineLeave` are not fired, and the code has fewer side-effects.
+
+#### How to pass an arbitrary argument to my opfunc?
+
+Use two functions; for example `OpSetup()` and `Op()`.
+Use the first one to save the argument in a script-local variable.
+Use the second one to implement the operator.
+
+    nno <expr> <c-a> OpSetup('some arg')
+    xno <expr> <c-a> OpSetup('some arg')
+    nno <expr> <c-a><c-a> OpSetup('some arg')..'_'
+
+    nno <expr> <c-b> OpSetup('another arg')
+    xno <expr> <c-b> OpSetup('another arg')
+    nno <expr> <c-b><c-b> OpSetup('another arg')..'_'
+
+    fu OpSetup(arg)
+        let s:arg = a:arg
+        let &opfunc = 'Op'
+        "              ^^
+        return 'g@'
+    endfu
+
+    fu Op(type)
+        " the argument passed to the opfunc is in 's:arg'
+        ...
+    endfu
 
 ### ?
 
@@ -2461,23 +2620,10 @@ Are there other commands for which we should have used `keepj` in the past?
 
 ---
 
-For  an operator  which can  be prefixed  by a  register, should  we save  and
-restore the register?
-If so,  consider passing the optional  argument `1` to `getreg()`  to properly
-restore the expression register.
-See `myfuncs#op_replace_without_yank()`.
-
----
-
-Do you need to save and restore `v:register` every time?
-Do you need to save and restore `v:count` every time?
-
----
-
 If the  operator yanks the text  on which we  operate, should it be  done with
 `:noa` to minimize unexpected side effects?
-E.g., I  think  it would  prevent  our  visual  ring  from saving  a  possible
-selection.
+E.g., I think it would prevent our visual ring from saving a possible selection,
+and also prevent the auto highlighting if we've pressed `coy`.
 
 ---
 
@@ -2486,27 +2632,76 @@ Have you used `:s`, while you should have used `setline()`?
 ---
 
 Make sure to always save and restore visual marks.
-See what  we did with  the function  called by the  `dr` operator, and  read the
-comments.
+
+Note that  the operator may have  removed the characters where  the visual marks
+were originally, and  the positions of the  saved marks may be  invalid.  But in
+practice, it doesn't seem to raise any error:
+
+    $ vim -Nu NONE +'echom setpos("'\''<", [0, 999, 999, 0])'
+    0~
+
+So there  is no need  to check  the validity of  the positions before  trying to
+restore the marks.
 
 ---
 
-The repetition of  an operation in visual  mode is not consistent  with what Vim
-does:
+Contrary to what this answer seems to imply:
+<https://vi.stackexchange.com/a/21817/17449>
 
-   - press `~` on a visual selection
-   - move the cursor on another line
-   - press .
+I don't think you need to temporarily remove the `y` flag from `'cpo'`.
 
-Vim has recomputed a new visual selection with the same geometry as the previous
-one.  See `:h .` and `:h visual-repeat`.
+The dot command keeps its original behavior:
 
-That's not what your operators do.
-Study how `vim-operator-user` solves this issue (I think it presses `gvg@`; IOW,
-`g@` should be pressed from visual mode for the repetition to work as expected).
+    set cpo+=y
+    norm! dd
+    fu Func()
+        norm! yy
+    endfu
+    call Func()
+    norm! .
+    " dot keeps removing the current line
 
-Update: I *think* our new implementation  of operators, using `<expr>` fixes the
-issue, because it presses `g@` in visual mode...
+See `:h function-search-undo`, and `register.md`; in particular this question:
+
+    ### What about the dot register?  Is it restored?
+
+As for the dot register, it contains the last inserted text (see `:h quote_.`).
+But a yank does not insert any  text, so it can't alter the register, regardless
+of whether `y` is in `'cpo'`.
+
+---
+
+Make sure to save  and restore the unnamed register; the text,  the type and the
+register to which it points; use `getreginfo()` to get all of this info.
+
+If you only save & restore the text and type, Vim will automatically redirect it to `"0`.
+
+If you  want to  restore the  `"0` register,  Vim will  – again  – automatically
+redirect the unnamed register to the  latter.
+*sure? can't reproduce*
+
+If it pointed to another register originally, you might want to run:
+
+    :call setreg('x', {'isunnamed': v:true})
+                  ^
+                  name of the register which the unnamed register pointed to originally
+
+Also, answer  the next  question to popularize  `getreginfo()` and  solidify our
+understanding of the functions, and of registers in general:
+
+<https://vi.stackexchange.com/q/20005/17449>
+
+---
+
+This is too verbose:
+
+    set cb-=unnamed cb-=unnamedplus
+
+Can't we make it shorter?
+
+    set cb=
+
+How does ingo handle this in his library functions?
 
 ### ?
 
@@ -2534,10 +2729,13 @@ boilerplate code).   The library function would  use this name to  call `myfunc`
 ---
 
 Refactor  all operators  so that  they remove  `unnamed` and  `unnamedplus` from
-`'cb'`, and set `'inclusive'`.
+`'cb'`, and set `'selection'` to `inclusive`.
 
     vim /g@/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
-    :cfilter! -other_plugins
+    :Cfilter! -other_plugins
+
+Or maybe, on the contrary, we should remove any command which tweak these options.
+After all, we correctly set them by default...
 
 ---
 
@@ -2556,16 +2754,6 @@ it had been visual, we could have a problem, because our function would think we
 are operating from visual mode, instead of normal mode.
 
 To document.
-
----
-
-Should we yank with noautocmd to prevent our visual ring from saving
-a possible selection?
-
-### ?
-
-We have 4 todos/fixmes in `myfuncs#op_replace_without_yank()` related to opfuncs
-in general.  Review/fix them.
 
 ##
 ## text-objects
@@ -2678,6 +2866,71 @@ differ depending on whether the start with `i` or `a` (e.g. `iw` vs `aw`).
 
 ---
 
+Make sure they restore `v:register`.
+This matters for when the opfunc will do its work right afterward.
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        fu Opfunc(...)
+            if !a:0
+                let &opfunc = 'Opfunc'
+                return 'g@'
+            endif
+            echom v:register
+        endfu
+        nno <expr> <c-b> Opfunc()
+        xno io iw
+        ono io :normal vio<cr>
+    EOF
+    )
+
+    " press:  "r C-b io
+    "~
+    ^
+    ✘
+    it should be 'r'
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        fu Opfunc(...)
+            if !a:0
+                let &opfunc = 'Opfunc'
+                return 'g@'
+            endif
+            echom v:register
+        endfu
+        nno <expr> <c-b> Opfunc()
+        xno io iw
+        ono io :normal vio"<c-r>=v:register<cr><cr>
+    EOF
+    )
+
+    " press:  "r C-b io
+    r~
+    ^
+    ✔
+
+Note that when `<c-r>` is processed, Vim is *not* in visual mode.
+It's in command-line mode;  `:norm` has not been executed yet;  btw, this is why
+the  last register  has not  yet been  reset and  you can  still access  it with
+`v:register`.
+
+See: <https://vi.stackexchange.com/a/20327/17449>
+
+I don't think you need to do sth similar for `v:count`.
+The latter is only necessary to determine the text on which to operate.
+But, once it's done, the change marks are set; and those are not altered.
+
+If your opfunc really needs the count, try `v:prevcount` (untested).
+
+We don't have this kind of issue between a builtin operator and a custom text-object.
+Bug?  Report?
+I mean, sure, there  is a workaround, but it's one more pitfall  to be aware of,
+and fixing this could make existing text-objects provided by third-party plugins
+more reliable.
+
+Idea of title for the issue: "g@ does not save v:register".
+
+---
+
 Make sure that they correctly handle a `v`, `V`, `C-v` prefix, by inspecting the
 output of `mode(1)`: <https://github.com/vim/vim/releases/tag/v8.1.0648>
 
@@ -2712,19 +2965,22 @@ Document the  fact that you need  to put `<esc>` at  the start of the  rhs of an
 
 Watch this:
 
-    :ono ii :<c-u>exe 'normal! T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())<cr>
+    :ono ii :<c-u>exe 'norm! T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())<cr>
 
 Move your cursor on `bar`, then press `ciixy`:
+*update: actually, the result is influenced by which character on 'bar' you're on*
 
     foo x_bar_y baz
     foo baz~
+
+*why is there a difference between ":norm! dTxdty" and "d:norm! Txdty"?*
 
 Here, `ciixy` is equivalent to `c:norm! Txcty`.
 
 Now try this mapping:
 
             vvvvv
-    :ono ii <esc>:<c-u>exe 'normal! T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())<cr>
+    :ono ii <esc>:<c-u>exe 'norm! T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())<cr>
     foo x_bar_y baz
     foo xy baz~
 
@@ -2743,6 +2999,42 @@ Watch this:
     foo xy baz~
 
 <https://www.reddit.com/r/vim/comments/bo2o0b/text_object_that_is_delimited_by_two_distinct/end5png/>
+
+Update:
+
+    :ono ii :norm! Txcty<cr>
+    foo x_bar_y baz
+           ^
+           cursor
+    " press:  cii
+    foo baz~
+
+    :ono ii Txcty
+    foo x_bar_y baz
+           ^
+           cursor
+    " press:  cii
+    foo xctyar_y baz~
+
+Why the difference?
+
+### ?
+
+Study and document `:h v:prevcount`.
+
+Watch:
+
+    " press:  3 d : C-r = v:count CR
+    :3~
+
+    " press:  3 d : CR : C-r = v:count CR
+    :0~
+
+    " press:  3 d : C-r = v:prevcount CR
+    :0~
+
+    " press:  3 d : CR : C-r = v:prevcount CR
+    :3~
 
 ##
 ## Misc.
@@ -3060,49 +3352,6 @@ terminates the command.
 
 ### ?
 
-In `~/.vim/plugged/vim-search/plugin/search.vim`, we have these mappings:
-
-    nmap <expr><unique> n search#wrap_n(1)
-    nmap <expr><unique> N search#wrap_n(0)
-
-We've commented that we need to  avoid `<silent>`, otherwise we wouldn't see the
-index of the current match in Nvim.  Is it a pitfall we should document?
-Should we use  `<silent>` with `<expr>` only when really  needed; i.e. only when
-the expression doesn't enter the command-line.
-What about `<silent>` + `<cmd>` in Nvim?  Does it make sense or should we remove
-`<silent>`?
-
-Once you've taken a decision, enforce it everywhere.
-
-### ?
-
-To document:
-
-Printing a message via a timer from an `<expr>` mapping does not work well
-in Nvim.  You need to wait for a redraw to see the message.
-
-    $ nvim -u NONE -S <(cat <<'EOF'
-        nno <expr><silent> cd Func()
-        fu Func() abort
-            call timer_start(0, {-> Msg()})
-            return ''
-        endfu
-        fu Msg()
-            echo 'some message'
-        endfu
-    EOF
-    )
-    " press:  cd
-    " result:   no message is printed
-    " expected: the message is printed
-    " press:  C-l
-    " result:   the message is finally printed
-
- `<cmd>` is meant to avoid side effects  when calling a function from a mapping;
-in contrast, `<expr>` + timer is a hack.
-
-### ?
-
 If you wonder whether your chosen lhs is going to override a default command, have a look at these help tags:
 
    - `:h insert-index`
@@ -3167,17 +3416,17 @@ current line anymore, but whatever text is targeted by this `d` object.
 
 If `op2` contains several characters, then `op1 + op2` may be valid or not.
 
-              Qd l'opérateur2 utilise plusieurs caractères, le pb peut se poser (cf `gc`), ou pas (`gl`).
+      Qd l'opérateur2 utilise plusieurs caractères, le pb peut se poser (cf `gc`), ou pas (`gl`).
 
-              Pex, vim-commentary crée l'opérateur et l'objet `gc`.
-              De fait, on ne pourrait donc pas utiliser `dgc` comme un lhs.
-              Malgré cela, l'opérateur `gc` peut agir sur la ligne courante via une forme de répétition.
-              En effet, une 2e convention veut que lorsqu'un opérateur utilise 2 caractères,
-              il peut agir sur la ligne courante si on le répète intégralement (plus possible avec `gc`),
-              ou bien si on répète seulement son 2e caractère (`gcc` est tjrs dispo et Tim Pope l'a
-              correctement défini).
+      Pex, vim-commentary crée l'opérateur et l'objet `gc`.
+      De fait, on ne pourrait donc pas utiliser `dgc` comme un lhs.
+      Malgré cela, l'opérateur `gc` peut agir sur la ligne courante via une forme de répétition.
+      En effet, une 2e convention veut que lorsqu'un opérateur utilise 2 caractères,
+      il peut agir sur la ligne courante si on le répète intégralement (plus possible avec `gc`),
+      ou bien si on répète seulement son 2e caractère (`gcc` est tjrs dispo et Tim Pope l'a
+      correctement défini).
 
-              En revanche, vim-lion ne crée pas d'objet `gl`, on pourrait donc utiliser `dgl` comme lhs.
+      En revanche, vim-lion ne crée pas d'objet `gl`, on pourrait donc utiliser `dgl` comme lhs.
 
 ... ou encore un lhs valide mais peu utile car il existe un synonyme:
 
@@ -3262,12 +3511,45 @@ FIXME: I think the output of `taglist()` is influenced by the current buffer.
 Because it must look  in tags files, and those are set  by a buffer-local option
 (`'tags'`); to be checked.
 
+### ?
+
+We haven't seriously taken into account `:redraw`: `:h :echo-redraw`.
+Maybe we should have used `:redraw` more often before an `:echo`.
+
+<https://github.com/google/vim-searchindex/blob/28c509b9a6704620320ef74b902c064df61b731f/plugin/searchindex.vim#l187-l189>
+
+### ?
+
+    $ vim -Nu <(cat <<'EOF'
+        set lz
+        nmap n <plug>(a)<plug>(b)
+        nno <plug>(a) n
+        nno <plug>(b) <nop>
+    EOF
+    ) +"pu=repeat(['some text'], &lines)"
+
+Search for `text`, then press `n` a few times: the cursor does not seem to move.
+In reality, it does move, but you don't see it because the screen is not redrawn
+enough; press `C-l`, and you should see it has correctly moved.
+
+It think that's because when `'lz'` is  set, Vim doesn't redraw in the middle of
+a mapping.  Indeed, if you reverse the order of the `<plug>` mappings, the issue
+disappears:
+
+    $ vim -Nu <(cat <<'EOF'
+        set lz
+        nmap n <plug>(a)<plug>(b)
+        nno <plug>(a) <nop>
+        nno <plug>(b) n
+    EOF
+    ) +"pu=repeat(['some text'], &lines)"
+
 ##
 ##
 ##
 ##
 # Arguments
-## Which mappings should never be defined with `<silent>`?
+## Which mappings should *never* be defined with `<silent>`?
 
 Any mapping in command-line mode.
 
@@ -3292,6 +3574,16 @@ Second, it prevents the command-line from being redrawn:
     " press `C-z` to jump to the start of the command-line: the cursor seems to have stayed where it was
     " press `Right`: the cursor is now on the second character of the line
       (which means that it was previously – and correctly – at the start)
+
+## Should I use `<silent>` with `<expr>`?
+
+It depends on whether the rhs expression returns a `:` which enters the command-line.
+
+If it does,  you probably want `<silent>`.
+Unless, the goal is to populate the  command-line, but not execute a command; in
+that case, you don't want `<silent>`.
+
+Otherwise, you don't need `<silent>`.
 
 ##
 ## <expr>

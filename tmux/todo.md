@@ -998,6 +998,8 @@ They support regexes.
 >     example ‘#{p10:pane_title}’ will result in a width of at least 10 charac‐
 >     ters.  A positive width pads on the left, a negative on the right.
 
+## the new `#{search_present}` and `#{search_match}` formats
+
 ## the `synchronize-panes` window option
 
 This key binding should toggle it:

@@ -666,7 +666,7 @@ MWE:
                 augroup END
 
                 let g:vimtex_compiler_latexmk = {
-                    \ 'backend' : has('nvim') ? 'nvim' : 'jobs',
+                    \ 'backend' : 'jobs',
                     \ 'background' : 1,
                     \ 'build_dir' : '',
                     \ 'callback' : 1,

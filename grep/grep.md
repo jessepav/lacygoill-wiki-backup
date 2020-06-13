@@ -28,14 +28,16 @@ Instead, you should run:
 ##
 # ?
 
-    $ \rg -FLS foobar /etc
-    $ \rg -F -LS foobar /etc
+    $ \rg -LS foobar /etc
     error: The argument '--follow' was provided more than once, but cannot be used multiple times~
 
-    $ \rg -F -SL foobar /etc
+    $ \rg -SL foobar /etc
     error: The argument '--smart-case' was provided more than once, but cannot be used multiple times~
 
 Is it a bug?  If so, report it.
+
+It looks similar to this other bug:
+<https://github.com/BurntSushi/ripgrep/issues/884>
 
 # ?
 

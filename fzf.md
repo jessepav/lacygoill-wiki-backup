@@ -909,6 +909,42 @@ distracting artifacts, read this:
 
 ##
 # Todo
+## Simplify popup window implementation in fzf Vim plugin
+
+Remember when @ichizok proposed a PR to prevent fzf from creating an extra process?
+Here's what it looked like:
+<https://github.com/junegunn/fzf/commit/07e8816ae830769dbece7ea9c7833967280eeadf>
+
+It was  revised and  made more  complicated to  support the  case where  fzf was
+invoked from a popup terminal.  It turns out that since 8.2.0791, you can't open
+2 popup terminals  at the same time in  Vim anymore (which imo is  a good thing,
+since it created too many issues).  So the original version of the PR is now good.
+
+Maybe we should submit this simplified version as a PR.
+If you  do, don't forget to  give all the credit  to @ichizok in the  git commit
+message, since they are the original author.
+Also,  make sure  not to  introduce a  regression; the  purpose of  the PR  from
+@ichizok was to fix a bug; make sure it's still fixed.
+
+Btw, this PR could also probably be undone: <https://github.com/junegunn/fzf/pull/1927>
+
+---
+
+Right now, we have an issue where the match created by `vim-sneak` when we press
+sth like `fe`, is  not removed if we open the fzf  popup terminal without moving
+the cursor before.
+
+The issue comes from the fact that `WinLeave` is not fired:
+
+    ~/.vim/plugged/vim-sneak/plugin/sneak.vim:254
+    autocmd InsertEnter,WinLeave,BufLeave * call sneak#cancel()
+
+We don't have this issue if we open our togglable popup terminal.
+So, I suspect the issue is due to the current fzf implementation.
+Once you submit your PR, make sure this issue is fixed.
+If it is, open an issue on the fzf repo to increase the chances that the PR is merged.
+
+##
 ## Read the README page.
 
 <https://github.com/junegunn/fzf>
@@ -916,7 +952,7 @@ distracting artifacts, read this:
 It seems that some settings are not documented anywhere else.
 Like `FZF_COMPLETION_TRIGGER`.
 
-## I have an issue with the fzf popup/floating window when invoking fzf from (N)Vim!
+## I have an issue with the fzf popup/floating window when invoking fzf from Vim!
 
 You need to find a MWE.
 Unfortunately, the  fzf and fzf.vim plugins  are very long, and  bisecting their
@@ -967,8 +1003,8 @@ Also, try to bisect `s:execute_term()`, and  see whether we could remove it from
 our generic MWE, so that we don't have to bisect it again and again after each bug.
 
 In the  end, it would  be nice if  we had some generic  MWE from which  we could
-quickly find another MWE for a  (N)Vim bug related to the popup/floating window,
-and triggered by an fzf command.
+quickly find another MWE for a Vim bug related to the popup/floating window, and
+triggered by an fzf command.
 
 ---
 
@@ -1066,23 +1102,6 @@ preview the files where the old commit messages are saved).
 See our todo in:
 
     ~/.vim/plugged/vim-git/after/ftplugin/gitcommit.vim
-
-## Simplify popup window implementation in fzf Vim plugin
-
-Remember when @ichizok proposed a PR to prevent fzf from creating an extra process?
-Here's what it looked like:
-<https://github.com/junegunn/fzf/commit/07e8816ae830769dbece7ea9c7833967280eeadf>
-
-It was  revised and  made more  complicated to  support the  case where  fzf was
-invoked from a popup terminal.  It turns out that since 8.2.0791, you can't open
-2 popup terminals  at the same time in  Vim anymore (which imo is  a good thing,
-since it created too many issues).  So the original version of the PR is now good.
-
-Maybe we should submit this simplified version as a PR.
-If you  do, don't forget to  give all the credit  to @ichizok in the  git commit
-message, since they are the original author.
-
-Btw, this PR could also probably be undone: <https://github.com/junegunn/fzf/pull/1927>
 
 ## Fix E861 when fzf is invoked from popup terminal
 

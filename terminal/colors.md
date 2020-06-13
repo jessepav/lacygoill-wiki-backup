@@ -368,7 +368,7 @@ it will use.
 With true color, the color of any  HG is defined by `guifg` and `guibg`, instead
 of `ctermfg` and `ctermbg`.
 
-## How to enable true color in Vim?
+### How to enable it?
 
 Vim supports true color in the terminal, if:
 
@@ -397,33 +397,6 @@ The syntax with colons which is more compatible but less widely supported.
 
 Interesting comment about the two syntaxes:
 <https://gist.github.com/XVilka/8346728#gistcomment-2008553>
-
-## How to enable true color in Neovim?
-
-Nvim supports true color in the terminal, if:
-
-   - the terminal supports true color
-   - 'termguicolors' is set
-   - the 'setrgbf' and 'setrgbb' terminfo extensions are correctly set
-
-Nvim adds constructed  'setrgbf' and 'setrgbb' capabilities in  the terminfo db,
-if they're missing and:
-
-   - the 'Tc' terminfo extension *is* set (in the external db)
-   - the 'Tc' terminfo extension is *not* set, but $TERM is:
-
-   - 'rxvt'
-   - 'linux'
-   - 'st'
-   - 'tmux'
-   - 'iterm'
-
-   ... or the terminal is:
-
-   - Konsole
-   - genuine Xterm
-   - a libvte terminal emulator version 0.36 or later
-   - a terminal emulator that sets the COLORTERM environment variable to 'truecolor'
 
 ## How does Vim encode true colors?
 

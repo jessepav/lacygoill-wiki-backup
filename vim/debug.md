@@ -111,11 +111,6 @@ or
               │
               └ nothing except the plugins
 
----
-
-TODO: The second version still loads some scripts with Nvim.
-Document this.
-
 ### With only the filetype/indent/syntax plugins?
 
     $ vim -Nu NONE --cmd 'filetype plugin indent on | syntax enable'
@@ -501,20 +496,6 @@ Temporarily pause the profiling:
     " execute your irrelevant command
     :prof continue
 
-### How to make Vim write the current state of the profiling immediately without restarting, and without `:profd`?
-
-You can't in Vim.
-But you can in Neovim, using the subcommand `dump`:
-
-    :prof[ile] dump
-
-### How to make Vim stop the profiling without restarting Vim, and without `:profd`?
-
-You can't in Vim.
-But you can in Neovim, using the subcommand `stop`:
-
-    :prof[ile] stop
-
 ##
 ## syntax plugin
 ### How to profile a syntax plugin?
@@ -787,6 +768,8 @@ Run this:
 
     $ valgrind --leak-check=yes --num-callers=50 --track-origins=yes --log-file=valgrind.log ./src/vim -Nu NONE
 
+    valgrind --leak-check=yes --num-callers=50 --track-origins=yes --log-file=valgrind.log ./src/vim -Nu NONE -i NONE +'au WinNew * smile'
+
 After reproducing the issue, the log should be written in `./valgrind.log`.
 
 Source: <https://github.com/vim/vim/issues/5410#issuecomment-569516803>
@@ -801,7 +784,7 @@ Valgrind doesn't work atm on Ubuntu 16.04, but it works on Ubuntu 18.04 in a VM.
     $ git stash -a
     $ make clean; make distclean
     $ sed -i '/fsanitize=address/s/^#//' src/Makefile
-    $ ./configure --enable-fail-if-missing --with-features=huge
+    $ ./configure --with-features=huge
     $ make
 
     $ ./src/vim -Nu NONE 2>asan.log
@@ -809,34 +792,6 @@ Valgrind doesn't work atm on Ubuntu 16.04, but it works on Ubuntu 18.04 in a VM.
 After reproducing the issue, the log should be written in `./asan.log`.
 
 Source: <https://github.com/vim/vim/issues/5410#issuecomment-569516803>
-
-##
-## When I try to debug Neovim, I get an error about an unknown function (e.g. `colorscheme#set()`)!
-
-Make sure you've copied the contents of `~/.config/nvim/init.vim` in addition to
-the one of `~/.vim/vimrc`, inside your `/tmp/vimrc`.
-Obviously, you need  to remove `:source $HOME/.vim/vimrc` if  you already copied
-the contents of `~/.vim/vimrc` in `/tmp/vimrc`.
-
----
-
-Explanation:
-
-Suppose that you need to debug your vimrc, and you make a copy of `~/.vim/vimrc`
-in `/tmp/vimrc`.
-
-Then, you start Neovim with this custom vimrc, which calls a function in
-`~/.vim/autoload/`, like `colorscheme#set()`.
-
-It will raise `E717`, because Neovim won't find the function:
-
-    $ nvim -Nu /tmp/vimrc
-    Error detected while processing /tmp/vimrc:~
-    line  717:~
-    E117: Unknown function: colorscheme#set~
-    Press ENTER or type command to continue~
-
-This is because `~/.vim` was not added to the rtp by `~/.config/nvim/init.vim`.
 
 ##
 ## Some global variable is created, but I don't know which script did it!

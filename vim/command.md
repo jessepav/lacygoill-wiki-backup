@@ -908,11 +908,6 @@ The patch  may have introduced a  regression, but it doesn't  matter, you should
 use `-addr=other`.
 <https://github.com/tpope/vim-scriptease/issues/43>
 
-Atm, Nvim doesn't support `-addr=other`, but it's not an issue because it hasn't
-merged 8.1.1241 either.
-There would be an issue if Nvim merged 8.1.1241 without 8.1.0560 (`-addr=other`).
-I doubt that will happen.
-
 # ?
 
 To read:
@@ -1031,31 +1026,7 @@ Voici qques exemples de spécificateurs de lignes:
 
                                      NOTE:
 
-            Dans Vim, les spécificateurs `\/`,  `\?` et `\&` ne fonctionnent pas
-            en-dessous de la version `8.0.0298`, à cause d'un bug.
-
-            Dans Neovim, ils ne fonctionnent pas non plus, car le patch n'a pas été porté.
-
-            La procédure pour porter un patch de Vim vers Neovim est décrite ici:
-                    https://github.com/neovim/neovim/wiki/Merging-patches-from-upstream-vim
-
-            Les 1es commandes à taper dans le repo de Neovim sont:
-
-                    ./scripts/vim-patch.sh -l
-                        listing des patchs manquants (vérifier que celui qu'on s'apprête à porter y est)
-
-                    ./scripts/vim-patch.sh -p 8.0.0298
-                        préparation du portage
-
-                    patch -p1 < vim-8.0.0298.patch
-                        création du patch
-
-            À ce stade, perso, j'ai des erreurs. Donc, j'ai arrêté.
-
-
-                                     NOTE:
-
-            Même sans le patch, on peut s'en servir seules pour se déplacer avant éventuellement
+            On peut  s'en servir  seules pour  se déplacer  avant éventuellement
             d'exécuter une commande. Ex:
 
                     :\/ | d

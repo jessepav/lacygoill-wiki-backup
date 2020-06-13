@@ -90,7 +90,7 @@ Run `os.exit()`.
             Plus puissant que le moteur de regex intégré à Vim ?
             Si oui, permettrait-il d'avoir une meilleure coloration syntaxique ?
             Moins d'erreurs, et de meilleurs perf' ?
-            Est-ce réservé aux devs de Vim/Neovim, ou peut-on en profiter en tant que simple utilisateur
+            Est-ce réservé aux devs de Vim, ou peut-on en profiter en tant que simple utilisateur
             via l'interface `lua` (:luafile, luaeval(), :luado).
 
 
@@ -219,7 +219,7 @@ Run `os.exit()`.
             justinmk dit que convertir ce plugin VimL en Lua aurait de la valeur:
             https://www.reddit.com/r/neovim/comments/6bfn33/any_documentation_on_how_to_use_native_lua/dhmifjl/
 
-            Lire `:h lua` et `:h api`.
+            Lire `:h lua`.
 
 # LOVE
 

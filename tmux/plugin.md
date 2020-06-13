@@ -12,7 +12,7 @@ In particular, make sure you've initialized the plugin's submodules:
 
 ## It doesn't let me search outside the current screen!
 
-Use our `M-c` key binding, which writes the whole scrollback buffer in a Nvim buffer.
+Use our `M-c` key binding, which writes the whole scrollback buffer in a Vim buffer.
 
 ## Sometimes it fails!
 

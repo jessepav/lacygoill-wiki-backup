@@ -236,13 +236,6 @@ In Vim:
 
     :put =execute('set termcap')
 
-In Neovim:
-
-    $ nvim -V3/tmp/log file
-    :q
-    $ nvim /tmp/log
-    :sil exe '1,/{{{$/g/^/d_' | /}}}$/,$g/^/d_
-
 ##
 # Pitfalls
 ## `infocmp(1)` doesn't display the capabilities set via the tmux option 'terminal-overrides'!

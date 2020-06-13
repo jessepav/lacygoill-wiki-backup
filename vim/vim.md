@@ -1,4 +1,4 @@
-# Starting (N)Vim
+# Starting Vim
 ## How to get the name of the shell command which was executed to start the current Vim process?
 
     :echo v:progname
@@ -32,11 +32,6 @@ Several Vim binaries can be installed.  How to detect which one is responsible f
 
     :echo serverlist()
 
-This doesn't work as you may expect in Nvim.
-It doesn't list *all* Nvim running servers.
-It  only lists  the running  Nvim servers  which were  started from  the current
-instance via `serverstart()` (which is an Nvim-only function).
-
 ##
 ## From another shell, how to make a running Vim server
 ### edit some file?
@@ -63,39 +58,10 @@ special sequences such as `<esc>` and `<cr>` just like any mapping command.
                   ^^^^^
 
 ##
-## When starting Nvim, how to make it become a server?
+## What's special about the server names `VIM`?
 
-There's no need to.  Nvim becomes a server automatically.
-
-### How to get its address?  (2)
-
-    :echo v:servername
-    :echo $NVIM_LISTEN_ADDRESS
-
-### How to set its address from the shell?  (2)
-
-    $ nvim --listen '/tmp/mysocket'
-    $ NVIM_LISTEN_ADDRESS=/tmp/mysocket nvim
-
-### How to pass a `--remote-*` argument to Nvim?
-
-You can't directly.  But you can install the `neovim-remote` package via the pip installer:
-<https://github.com/mhinz/neovim-remote>
-
-It provides the `nvr` command; use it as a replacement to `nvim` in your command.
-Examples:
-
-    $ nvr --remote file1 file2
-
-    $ nvr --remote-send 'iabc<esc>'
-
-    $ nvr --remote-expr 'bufname("")'
-
-##
-## What's special about the server names `VIM` and `/tmp/nvimsocket`?
-
-They are used as a fallback when you use `--remote-*`, but not `--servername`,
-resp. in a Vim command and in a nvr one.
+It's used as a fallback when you  use `--remote-*`, but not `--servername`, in a
+Vim command.
 
 #
 # Misc.
@@ -190,6 +156,65 @@ because:
    - we execute `:checktime` from various events (`BufEnter`, `CursorHold`, `InsertEnter`, ...)
 
 So Vim automatically reloads the buffer when it detects that the file has changed.
+
+## When I start Vim with `xargs(1)`, the terminal ends up in a broken state!
+
+Pass the `-o` flag to `xargs(1)`:
+
+    $ find /etc -name '*.conf' | xargs -o vim
+                                       ^^
+                                       --open-tty
+
+From `man xargs`:
+
+>     Reopen stdin as /dev/tty in the child process  before  executing
+>     the  command.  This is useful if you want xargs to run an inter‐
+>     active application.
+
+Note that `-o` flag was added [a few years ago][1].
+If your `xargs(1)` doesn't support the flag; you'll need to update the program.
+On Ubuntu, the  utility comes from the `findutils` package;  you can download it
+[from here][2].
+
+Then, run:
+
+    tar xvJf findutils-X.Y.Z.tar.xz
+    cd findutils-X.Y.Z
+    ./configure
+    make
+    sudo make install
+
+---
+
+When  you  invoke a  program  via  `xargs(1)`,  the  program's stdin  points  to
+`/dev/null`.   But Vim  expects its  stdin  to be  the same  as its  controlling
+terminal, and performs various terminal-related ioctl's on stdin directly.  When
+done on `/dev/null`, those ioctls are  meaningless and return ENOTTY, which gets
+silently ignored.
+
+On startup  Vim *probably* reads  and remembers  the old terminal  settings, and
+restores them back when  exiting.  And if it saves wrong  settings, then it will
+restore wrong settings.
+
+---
+
+Note that the issue is not limited  to *after* you've quit Vim.  The Vim session
+itself is affected.  For example, if you  try to press backspace in insert mode,
+instead of deleting a character, `^?` is inserted.
+
+And you  can reproduce without `xargs(1)`,  just by reconnecting Vim's  stdin to
+`/dev/null`:
+
+    $ vim </dev/null
+
+---
+
+Note that this is a known issue:
+<https://github.com/vim/vim/issues/982>
+
+For more info, see:
+<https://superuser.com/q/336016/913143>
+<https://vi.stackexchange.com/a/1892/17449>
 
 ##
 ##
@@ -496,6 +521,23 @@ operator-pending).
             Illustrates how you can generate composing (or combining?) characters.
             You use an escape sequence for a base character (like `E`, `D`, `I`,
             ...) then you add escape sequences for combining characters.
+
+---
+
+Document  that `dt)`  is an  anti-pattern  (or at  least probably  a bad  idea).
+Instead, press `d])`:
+
+         cursor
+         v
+    (a, b|, (c + d), e)
+
+    " dt)
+    (a, b), e)
+    ✘
+
+    " d])
+    (a, b)
+    ✔
 
 ## Coller / Importer
 
@@ -3051,3 +3093,9 @@ Ouvre dirvish pour laisser l'utilisateur choisir un fichier:
     │ `0   ...   `9 │ endroit où on se trouvait au moment où la dernière / 9e précédente session s'est terminée │
     └───────────────┴───────────────────────────────────────────────────────────────────────────────────────────┘
 
+
+##
+# Reference
+
+[1]: https://git.savannah.gnu.org/cgit/findutils.git/commit/?id=40cd25147b4461979c0d992299f2c101f9034f7a
+[2]: https://ftp.gnu.org/gnu/findutils/?C=M;O=D

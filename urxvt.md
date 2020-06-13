@@ -42,7 +42,7 @@ See these links for more info:
 
 ### apply patches
 
-    $ cd ~/Vcs/rxvt-unicode/src
+    $ cd src/
 
     $ patch -b <~/.config/urxvt/patches/00-font-width-fix.patch ; \
       patch -b <~/.config/urxvt/patches/00-256resources.patch ; \
@@ -148,11 +148,11 @@ You can find which options ubuntu devs use here:
 
 This last link was tricky to find.
 
-First, visit:                    <https://launchpad.net/~pi-rho>
-Click on “dev”:                  <https://launchpad.net/~pi-rho/+archive/ubuntu/dev>
-Click on “View package details”: <https://launchpad.net/~pi-rho/+archive/ubuntu/dev/+sourcepub/6596151/+listing-archive-extra>
-Click on “amd64”:                <https://launchpad.net/~pi-rho/+archive/ubuntu/dev/+build/10174196>
-Click on “buildlog”:             <https://launchpadlibrarian.net/268049601/buildlog_ubuntu-xenial-amd64.rxvt-unicode_9.22-1ubuntu1~ppa1~x_BUILDING.txt.gz>
+- First, visit:                    <https://launchpad.net/~pi-rho>
+- Click on “dev”:                  <https://launchpad.net/~pi-rho/+archive/ubuntu/dev>
+- Click on “View package details”: <https://launchpad.net/~pi-rho/+archive/ubuntu/dev/+sourcepub/6596151/+listing-archive-extra>
+- Click on “amd64”:                <https://launchpad.net/~pi-rho/+archive/ubuntu/dev/+build/10174196>
+- Click on “buildlog”:             <https://launchpadlibrarian.net/268049601/buildlog_ubuntu-xenial-amd64.rxvt-unicode_9.22-1ubuntu1~ppa1~x_BUILDING.txt.gz>
 
 Or you can download the source code:
 
@@ -192,8 +192,8 @@ You can still install the binary with `checkinstall(8)`, and it will work fine.
 
     urxvt --help 2>&1 | grep font | less
                  │
-                 └── `urxvt` écrit son aide dans son flux d'erreur (au lieu du terminal)
-                     donc, il faut rediriger le flux d'erreur vers le pipe
+                 └ `urxvt` écrit son aide dans son flux d'erreur (au lieu du terminal)
+                   donc, il faut rediriger le flux d'erreur vers le pipe
 
             Chercher tous les noms d'options en lien avec la police d'écriture.
 

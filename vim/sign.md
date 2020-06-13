@@ -73,8 +73,6 @@ buffer displayed in both a regular window and a popup window?
 What happens when we  set a sign **without** the group prefix  name `PopUp` in a
 buffer displayed in both a regular window and a popup window?
 
-Same questions in Nvim.
-
 # What's the effect of `sign_undefine()` in a regular buffer with signs?
 
 # Are signs local to a buffer?

@@ -3,18 +3,31 @@
 
     :reg abc
 
-## How to get the contents of a register as a list of lines?
+## How to get the contents of a register as a list of lines?  (2)
 
-Pass the third optional boolean argument `1` to `getreg()`:
+Use `getreginfo()`:
 
-    echo getreg('q', 1, 1)
+    echo getreginfo('r').regcontents
+
+---
+
+Or pass the third optional boolean argument `1` to `getreg()`:
+
+    echo getreg('r', 1, 1)
                         ^
+
 Note that the second argument is ignored here, so you could write any expression
 in its place.
 
-## How to get the last expression written in the expression register?
+## How to get the last expression written in the expression register?  (2)
 
-Pass the second optional boolean argument `1` to `getreg()`:
+Use `getreginfo()`:
+
+    echo getreginfo('=').regcontents[0]
+
+---
+
+Or pass the second optional boolean argument `1` to `getreg()`:
 
     getreg('=', 1)
                 ^
@@ -22,21 +35,40 @@ Pass the second optional boolean argument `1` to `getreg()`:
 Without  this  argument,  or  if  it was  false,  `getreg()`  would  return  the
 evaluation of the last expression instead of the expression itself.
 
+## How to get the name of the register which the unnamed register points to?
+
+    :echo getreginfo('"').points_to
+
+Usage example:
+
+                                                 vv
+    $ vim -Nu NONE -i NONE +"pu!='text'" +'norm! "ryy'
+    :echo getreginfo('"').points_to
+    r~
+
 ##
 # setting the contents of a register
 ## How to save and restore a register?
 
-Use `getreg()` and `getregtype()`:
+Use `getreginfo()` and `setreg()`:
 
     " save
-    let a_save = [getreg('a'), getregtype('a')]
+    let r_save = getreginfo('r')
 
     " restore
-    call setreg('a', a_save[0], a_save[1])
+    call setreg('r', r_save)
 
-## How to change the type of a register?
+## How to change the type of a register?  (2)
 
-Use a combination of:
+Use a combination of `setreg()`, `getreginfo()` and `extend()`:
+
+    call getreginfo('r')->extend({'regtype': 'V'})->setreg('r')
+                                              ^
+                                              new desired type
+
+---
+
+Or use a combination of:
 
    - the `setreg()` function
    - an empty second value argument
@@ -44,74 +76,133 @@ Use a combination of:
 
 Example:
 
-    call setreg('+', '', 'aV')
-
-This sets the type of the `+` register to linewise.
+    call setreg('r', [''], 'aV')
 
 ---
 
-This is a trick to emulate the missing `setregtype()` function.
+Both these solutions are workarounds to emulate the missing `setregtype()` function.
+However, prefer the first one when changing the type of the unnamed register.
+You need `getreginfo()`  to preserve the name of the  register which the unnamed
+register points to.
+
+    $ vim -Nu NONE -i NONE +"pu!='text'" +'norm! "ryy'
+    :echo getreginfo('"').points_to
+    r~
+
+    :call setreg('"', [''], 'av')
+    :echo getreginfo('"').points_to
+    0~
+
+## How to change the register which the unnamed register points to?
+
+    :call setreg('r', {'isunnamed': v:true})
+
+Example:
+
+    $ vim -Nu NONE -i NONE +'call setline(1, ["aaa", "zzz"])' +'norm! "ayyj"zyy'
+
+    :pu
+    " 'zzz' is put
+    :echo getreginfo('"').points_to
+    z~
+
+    :call setreg('a', {'isunnamed': v:true})
+
+    :pu
+    " 'aaa' is put
+    :echo getreginfo('"').points_to
+    a~
+
+##
+## Why should I never use a string or a list to set the contents of the unnamed register?
+
+It would be automatically reconnected to `"0` right before the text is written.
+
+    $ vim -Nu NONE -i NONE +"pu!='text'" +'norm! "ryy'
+    :echo getreginfo('"').points_to
+    r~
+
+    :call setreg('"', [''], '')
+    :echo getreginfo('"').points_to
+    0~
+
+Same thing if you use `:let` instead of `setreg()`:
+
+    :norm! "ryy
+    :echo getreginfo('"').points_to
+    r~
+
+    :let @" = ''
+    :echo getreginfo('"').points_to
+    0~
+
+### What should I use instead?
+
+A dictionary containing a `points_to` key.
+
+The latter  tells Vim which  "real" register you  want to write  into.  Remember
+that the unnamed register is not a real register; it's just a pointer.
 
 ##
 ## Consider this assignment:
 
-    let @a ..= 'appended'
+    let @r ..= 'appended'
 
 ### What's wrong with it?
 
-It doesn't preserve the original type of the register `a`.
+It doesn't preserve the original type of the register `r`.
 
-    norm! "ayy
-    echo getregtype('a')
+    norm! "ryy
+    echo getregtype('r')
     V~
 
-    let @a ..= 'appended'
-    echo getregtype('a')
+    let @r ..= 'appended'
+    echo getregtype('r')
     v~
 
 ### How to fix it?
 
 Use the third argument of `setreg()` to preserve the type:
 
-    call setreg('a', 'appended', 'a'..getregtype('a'))
-                                  │   │
-                                  │   └ preserve the current type
-                                  └ append, don't overwrite
+    call setreg('r', ['appended'], 'a'..getregtype('r'))
+                                    │   │
+                                    │   └ preserve the current type
+                                    └ append, don't overwrite
 
 Example:
 
-    norm! "ayy
-    echo getregtype('a')
+    norm! "ryy
+    echo getregtype('r')
     V~
 
-    call setreg('a', 'appended', 'a'..getregtype('a'))
-    echo getregtype('a')
+    call setreg('r', ['appended'], 'a'..getregtype('r'))
+    echo getregtype('r')
     V~
 
 ##
-## What's the default type of a register when I set it with `setreg()`
-### and no third argument?
+## What's the default type of a register when I set it with `setreg()`, without a 3rd argument, and
+### the 2nd argument is a string?
 
 Characterwise.
 
-    call setreg('a', 'linewise')
-    echo getregtype('a')
+    call setreg('r', 'linewise')
+    echo getregtype('r')
     v~
 
-### and the second argument is a list of strings?
+### the 2nd argument is a list of strings?
 
 Linewise.
 
-    call setreg('a', ['foo', 'bar', 'baz'])
-    echo getregtype('a')
+    call setreg('r', ['foo', 'bar', 'baz'])
+    echo getregtype('r')
     V~
 
 ###
 ## How to use `:redir` to redirect the output of an Ex command into a register?
 
-    :redir @q | sil! cmd | redir END
+    :redir @r | sil! cmd | redir END
 
-This redirects the output of `cmd` inside the register `q`.
+This redirects the output of `cmd` inside the register `r`.
 
 ---
 
@@ -125,10 +216,10 @@ all the lines which were never displayed; `:silent` avoids this pitfall.
 
 Uppercase the register name:
 
-    :redir @Q | sil! cmd | redir END
+    :redir @R | sil! cmd | redir END
             ^
 
-#### That's not possible for the system clipboard!
+#### That's not possible for the clipboard!
 
 You can also append `>>` to the register name:
 
@@ -151,7 +242,7 @@ The latter describes the path to the alternate file relative to the cwd.
 ## Which contents does the unnamed register `""` refer to?
 
 Whatever contents is stored in the last modified register.
-For example, if  you've deleted a word  into the register `a`,  then the unnamed
+For example, if  you've deleted a word  into the register `r`,  then the unnamed
 register points to the latter.
 
 ### Which commands does it affect?
@@ -325,9 +416,9 @@ new expression, which in effect makes the previous writing step irrelevant.
 
 In contrast, you can write into a regular register:
 
-    let @a = 'dd'
+    let @r = 'dd'
 
-And later, you can refer to it  (`@a`, `"a`, `C-r a`) without having to redefine
+And later, you can refer to it  (`@r`, `"r`, `C-r r`) without having to redefine
 its contents.
 
 ## What happens after pressing `C-r =` or `"=` if I don't provide any expression?
@@ -350,6 +441,13 @@ In the numbered register `0`:
     :norm! wwy$
     :echo @0
     remember this~
+
+Unless you specified another explicit register:
+
+    $ vim -Nu NONE -i NONE +"pu='if anything remember this'"
+    :norm! ww"ry$
+    :reg 0r
+    c  "r   remember this~
 
 ### the last changed or deleted text smaller than one line?
 
@@ -418,7 +516,7 @@ But this is on  a per-motion basis; so instead of parsing  the text to determine
 whether it's big for each single motion, Vim probably prefers to simply consider
 it as "big" by default.
 
-### In which case does Vim use none of these special registers?
+### In which case doesn't Vim use any of these special registers?
 
 When you:
 
@@ -445,9 +543,8 @@ This exception does not affect a big change/deletion:
 
     $ vim -Nu NONE -i NONE +"pu=['once', 'upon', 'DELETE', 'ME', 'a', 'time']"
     :3,4d c
-    :echo @1
-    DELETE~
-    ME~
+    :reg 1
+    l  "1   DELETE^JME^J~
 
 Which seems to contradict the documentation at `:h quote_number`:
 
@@ -521,6 +618,7 @@ automatically positioned on the first non-whitespace character.
         norm! 1G1|
     EOF
     )
+
     " press: qqq
              qq
              yyp
@@ -640,7 +738,7 @@ Bottom line: how `@q` is interpreted depends on the current mode.
 ---
 
 Note that this only works if `'cpo'` contains the `e` flag, which is the case by
-default.  If it does not, you'll need to press `CR` manually.
+default.  If it does not, you'll need to press CR manually.
 
     :set cpo-=e
     :let @q = 'echo "test"'
@@ -890,9 +988,9 @@ In command-line mode, use `:put`.
 
 In a script, use `setreg()` to reset the type of the register:
 
-    :call setreg('"', '', 'al')
-                            ^
-                            linewise
+    :call setreg('"', [''], 'al')
+                              ^
+                              linewise
 
 ---
 
@@ -1100,6 +1198,164 @@ If you want to practice, run this:
 
 ##
 # Pitfalls
+## When should I avoid `:let` to set (!= restore) a register?  (2)
+
+When the value you assign contains a NUL, because Vim will translate it into a NL.
+
+This issue is explained at `:h NL-used-for-NUL`.
+
+---
+
+Also when it ends with a CR, because Vim will append a literal `C-j`:
+
+    let @q = ":\r"
+    reg q
+    "q   :^M^J
+            ^^
+
+And because of that, when you execute your macro, `C-j` will be pressed.
+If you've mapped something to `C-j`, it will have unexpected effects.
+
+Example when CR is pressed in command-line mode:
+
+    vim -Nu NONE +'let @q = ":\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
+    " press @q: the C-j mapping is executed (the message is logged)
+
+Example when CR is pressed in normal mode:
+
+    vim -Nu NONE +"pu=''" +'let @q = "\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
+                  ^^^^^^^
+                  there needs to be a line after the one from which we press `@q`,
+                  otherwise, `^M` would fail and Vim would stop executing the macro
+
+This issue is explained at `:h :let-@`:
+
+>     If the result of {expr1} ends in a <CR> or <NL>, the
+>     register will be linewise, otherwise it will be set to
+>     characterwise.
+
+`:let` sets a register ending with CR to linewise; and in a linewise register, a
+line must always end with `C-j`.
+
+### What should I use instead?
+
+For the first issue, use `setreg()` and pass the value as a list, not as a string:
+
+                                                  ✘
+                                                  vvvvvvvv
+    $ vim -es -Nu NONE -i NONE +'call setreg("q", "a\x0ab", "c")' +'pu=execute(\"reg q\") | %p | qa!'
+    Type Name Content~
+      c  "q   a^Jb~
+               ^^
+               NUL has been translated into NL
+
+                                                  ✔
+                                                  vvvvvvvvvv
+    $ vim -es -Nu NONE -i NONE +'call setreg("q", ["a\x0ab"], "c")' +'pu=execute(\"reg q\") | %p | qa!'
+    Type Name Content~
+      c  "q   a^@b~
+               ^^
+               NUL has been preserved
+
+---
+
+For the second issue, use `setreg()` and pass it the third argument `c`:
+
+                                                                v
+    $  vim -es -Nu NONE -i NONE +'call setreg("q", [":\<cr>"], "c")' +'pu=execute(\"reg q\") | %p | qa!'
+    Type Name Content~
+      c  "q   :^M~
+
+The `c`  flag prevents  Vim from processing  the contents of  the register  as a
+*line* of text, which would cause a trailing `^J` to be added.
+
+Source: <https://groups.google.com/d/msg/vim_use/-pbK15zfqts/jfxLV8zXlC8J>
+
+##
+## Why should I never save the contents of a register as a string, to restore it later?
+
+If your register contains a NUL, it will be translated into a NL.
+Later,  when you'll  try to  restore  the original  contents, this  NL won't  be
+translated back into a NUL, because Vim has no way to distinguish between a real
+NL and one which results from the translation of a NUL.
+
+    vim -es -Nu NONE -i NONE -S <(cat <<'EOF'
+        call setline(1, "original:  a\x0ab\x0ac")
+        norm! ^fa"ry$
+        let save = [getreg('r'), getregtype('r')]
+        "           ^^^^^^^^^^^
+        call setreg('r', save[0], save[1])
+        pu='restored:  '..execute('reg r')->split('\n')[1]->matchstr(':\s*\zs.*')
+        %p
+        qa!
+    EOF
+    )
+
+    original:  a^@b^@c~
+    restored:  a^Jb^Jc~
+                ^^ ^^
+                ✘  ✘
+
+See `:h getreg() /NL`:
+
+>     If {list} is present and |TRUE|, the result type is changed
+>     to |List|. Each list item is one text line. Use it if you care
+>     about zero bytes possibly present inside register: without
+>     third argument both NLs and zero bytes are represented as NLs
+>     (see |NL-used-for-Nul|).
+
+See also: <https://github.com/vim/vim/pull/3370#issuecomment-415975411>
+
+>     It is  essential that  it must  be a  list of  strings, you  can't restore
+>     registers which have embedded NUL otherwise.
+
+---
+
+OTOH, if you save the register as a  list, and it contains a NUL, Vim will still
+translate it as a NL:
+
+    vim -es -Nu NONE -i NONE -S <(cat <<'EOF'
+        call setline(1, "a\x0ab")
+        norm! ^"ry$
+        set vbs=1 | echo getreg('r', 1, 1)
+        "                               ^
+        qa!
+    EOF
+    )
+
+    ['a~
+    b']~
+
+*But* when you'll restore it, Vim will know that it's not a real NL because it's
+inside  a single  list item;  and a  list item  describes *one*  text line,  not
+several, which  – by definition  – can't  contain a NL.   As a result,  Vim will
+translate it back into a NUL.
+
+    vim -es -Nu NONE -i NONE -S <(cat <<'EOF'
+        call setline(1, "original:  a\x0ab\x0ac")
+        norm! ^fa"ry$
+        let save = [getreg('r', 1, 1), getregtype('r')]
+        "                          ^
+        call setreg('r', save[0], save[1])
+        pu='restored:  '..execute('reg r')->split('\n')[1]->matchstr(':\s*\zs.*')
+        %p
+        qa!
+    EOF
+    )
+
+    original:  a^@b^@c~
+    restored:  a^@b^@c~
+
+---
+
+Note that this is a theoretical issue.
+In  practice, you  should  never use  `getreg()` and  `getregtype()`  to save  a
+register.  Instead,  you should use  `getreginfo()` which contains all  the info
+you need (and even more thanks to  the `isunnamed` key), and avoids this pitfall
+because  it always  return the  contents of  a register  as a  list (never  as a
+string).
+
+##
 ## `@@` does not replay my last macro as expected!
 
 The last macro is not necessarily the one you've executed interactively.
@@ -1158,22 +1414,18 @@ there's no indentation, `C-u` may remove the previous newline.
     NOT indented
     EOF
     ) +'set autoindent backspace=eol,start | let @q = "o\<c-u>\<esc>"'
+
     " press @q on the first line: a new line is opened below
     " press @q on the second line: NO new line is opened below,
     " because C-u has immediately removed the newline added by the 'o' command
 
-## When should I avoid `:let` to set the contents of a register?
+##
+## My macro doesn't work as expected, unless I disable `exe "set <m-x>=\ex"`?
 
-When its contents is intended to be executed as a macro.
+Cause:
 
-### Why?
-
-If you've used an escape sequence to set some terminal key:
-
-    exe "set <m-f>=\ef"
-
-When you'll execute  the register, Vim will wrongly translate  the sequence into
-the terminal key:
+When you  execute the register, Vim  wrongly translates the sequence  `\ex` into
+the terminal key `<M-x>`:
 
     vim -es -Nu NONE -S <(cat <<'EOF'
         set ttm=10
@@ -1201,41 +1453,7 @@ This issue does not affect a recording thanks to the patch [8.1.1003][1].
 I think that, during a recording, Vim  adds a no-op after any escape produced by
 pressing the Escape key interactively.
 
----
-
-Besides, if  the value you  assign to  the register ends  with a `CR`,  Vim will
-append a literal `C-j`:
-
-    let @q = ":\r"
-    reg q
-    "q   :^M^J
-            ^^
-
-And because of that, when you execute your macro, `C-j` will be pressed.
-If you've mapped something to `C-j`, it will have unexpected effects.
-
-Example when `CR` is pressed in command-line mode:
-
-    vim -Nu NONE +'let @q = ":\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
-    " press @q: the C-j mapping is executed (the message is logged)
-
-Example when `CR` is pressed in normal mode:
-
-    vim -Nu NONE +"pu=''" +'let @q = "\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
-                  ^^^^^^^
-                  there needs to be a line after the one from which we press `@q`,
-                  otherwise, `^M` would fail and Vim would stop executing the macro
-
-The issue is explained at `:h :let-@`:
-
->     If the result of {expr1} ends in a <CR> or <NL>, the
->     register will be linewise, otherwise it will be set to
->     characterwise.
-
-`:let` sets a register ending with `CR` to linewise; and in a linewise register,
-a line must always end with `C-j`.
-
-#### How to avoid these issues?
+Solution:
 
 Replace any  escape character which is  not part of a  terminal escape sequence,
 with a `<c-\><c-n>` sequence:
@@ -1250,118 +1468,94 @@ with a `<c-\><c-n>` sequence:
 
 Don't use `<c-c>`; it would prevent `InsertLeave` from being fired.
 
----
-
-If the  value you assign to  the register ends  with a `CR`, use  `setreg()` and
-pass it the third argument `c`:
-
-    :call setreg('q', ":\<cr>", 'c')
-                                 ^
-                                 important!
-                                 tells Vim not to process the contents of the register as a *line* of text,
-                                 which would cause a trailing '^J' to be added
-
-Source: <https://groups.google.com/d/msg/vim_use/-pbK15zfqts/jfxLV8zXlC8J>
-
 ##
 # Issues
-## I can't copy more than 4000 characters in the clipboard from Nvim!
+## When executing a register, one of my mapping is used.  It should not!
 
-Nvim may be using `xsel(1x)`, which has [an issue][2].
+When Vim  executes a  register, it  seems that sometimes,  there's some  kind of
+"lag" before a mode  is quit.  You don't experience this  lag during a recording
+though, maybe because you don't type as fast as Vim...  It looks like a bug.
 
-It has been fixed by [this PR][3].
+Examples:
 
-Update `xsel(1x)`, or compile it from source:
-
-    $ git clone https://github.com/kfish/xsel
-    $ cd xsel
-    $ ./autogen.sh
-    $ ./configure
-    $ make
-    $ sudo make install
-
-## I've copied a block of text in the system clipboard from Nvim.  Pasted in another Vim instance it gets linewise!
-
-    $ nvim -Nu NONE <(cat <<'EOF'
-    xxx
-    xxx
-    xxx
+    vim -Nu NONE -S <(cat <<'EOF'
+        let @q = 'Vr-x'
+        xno <expr> x Func()
+        fu Func()
+            echom 'x mapping is used'
+            return ''
+        endfu
+        pu!='some text'
+        au VimEnter * call feedkeys('@q')
     EOF
+    )
 
-    " yank the second column of x's in the clipboard selection (`"+y`)
-    :echo getregtype('+')
-    ^V1~
+    :mess
+    x mapping is used~
 
-    " without closing the first Nvim instance, start a second one
-    $ nvim -Nu NONE
-    :echo getregtype('+')
-    V~
+    vim -es -Nu NONE -S <(cat <<'EOF'
+        ono foo bar
+        let @q = "ctdfoo\<esc>"
+        pu!='abcd'
+        call feedkeys('@q', 'x')
+        %p
+        qa!
+    EOF
+    )
 
-It seems to be an issue with Nvim.
-I don't have a solution right now.
-I've tried to  use another clipboard manager (taken from  `:h g:clipboard`), but
-none fixed the issue:
+    bard~
+    ^^^
+    should be foo
 
-    let g:clipboard = {
-        \   'name': 'my_clipboard',
-        \   'copy': {
-        \      '+': 'xclip -selection clipboard',
-        \      '*': 'xclip -selection clipboard',
-        \    },
-        \   'paste': {
-        \      '+': 'xclip -selection clipboard -o',
-        \      '*': 'xclip -selection clipboard -o',
-        \   },
-        \   'cache_enabled': 1,
-        \ }
+As a workaround, try to press `Esc` to be sure that the rest of the commands are
+processed in the mode you expect:
 
-    let g:clipboard = {
-        \   'name': 'my_clipboard',
-        \   'copy': {
-        \      '+': 'xsel -ib',
-        \      '*': 'xsel -ib',
-        \    },
-        \   'paste': {
-        \      '+': 'xsel -ob',
-        \      '*': 'xsel -ob',
-        \   },
-        \   'cache_enabled': 1,
-        \ }
+    vim -Nu NONE -S <(cat <<'EOF'
+        let @q = "Vr-\ex"
+        "            ^^
+        xno <expr> x Func()
+        fu Func()
+            echom 'x mapping is used'
+            return ''
+        endfu
+        pu!='some text'
+        au VimEnter * call feedkeys('@q')
+    EOF
+    )
 
-    let g:clipboard = {
-          \   'name': 'myClipboard',
-          \   'copy': {
-          \      '+': 'tmux load-buffer -',
-          \      '*': 'tmux load-buffer -',
-          \    },
-          \   'paste': {
-          \      '+': 'tmux save-buffer -',
-          \      '*': 'tmux save-buffer -',
-          \   },
-          \   'cache_enabled': 1,
-          \ }
+    :mess
+    ''~
 
-    let g:clipboard = {
-          \   'name': 'myClipboard',
-          \   'copy': {
-          \      '+': {lines, regtype -> extend(g:, {'foo': [lines, regtype]}) },
-          \      '*': {lines, regtype -> extend(g:, {'foo': [lines, regtype]}) },
-          \    },
-          \   'paste': {
-          \      '+': {-> get(g:, 'foo', [])},
-          \      '*': {-> get(g:, 'foo', [])},
-          \   },
-          \ }
+If the mode you expect is not normal, use a no-op instead of `Esc`:
 
-Worse,  with all  of them  – except  the last  one –  the type  is automatically
-converted from `^V` to `V`, inside the Nvim instance where the text is yanked.
+    vim -es -Nu NONE -S <(cat <<'EOF'
+        ono foo bar
+        let @q = "ctd\<c-r>=''\<cr>foo\<esc>"
+        "            ^^^^^^^^^^^^^^
+        pu!='abcd'
+        call feedkeys('@q', 'x')
+        %p
+        qa!
+    EOF
+    )
 
-See also [this issue][4] (it may be related ... or not).
+    food~
+
+See also:
+
+- <https://github.com/vim/vim/issues/3021#issuecomment-639978098>
+- <https://github.com/vim/vim/issues/3678#issuecomment-639992731>
+
+##
+# Todo
+## Replace `getreg()` and `getregtype()` with `getreginfo()` everywhere (vimrc, plugins, ...).
+
+## Make sure you've never used a string as a second argument of `setreg()`.
+
+Always use a list or a dictionary.
+In the case of the unnamed register, use a dictionary to preserve the pointer.
 
 ##
 # Reference
 
 [1]: https://github.com/vim/vim/releases/tag/v8.1.1003
-[2]: https://:github:.com/kfish/xsel/issues/13
-[3]: https://github.com/kfish/xsel/pull/16
-[4]: https://github.com/neovim/neovim/issues/1822

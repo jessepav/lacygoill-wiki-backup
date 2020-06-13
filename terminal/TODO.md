@@ -68,13 +68,11 @@ When possible, try to use `tput` instead.
 Why?
 Easier to grep. Fewer matches when we have an issue with a terminal capability.
 
-# Study: `:lh \cterm\%(info\|cap\)` (in Neovim and maybe in Vim)
+# Study: `:lh \cterm\%(info\|cap\)`
 
 # To read:
 
    - <https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda>
-   - <https://github.com/neovim/neovim/issues/6978>
-   - <https://github.com/neovim/neovim/pull/3165>
    - <https://misc.flogisoft.com/bash/tip_colors_and_formatting>
 
 # Finish reading: <https://www.linusakesson.net/programming/tty/>

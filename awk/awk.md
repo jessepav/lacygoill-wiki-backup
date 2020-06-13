@@ -4509,7 +4509,7 @@ But it's documented in the manpage.
 
 ## assimilate awk-warn.nvim plugin
 
-<https://github.com/HiPhish/awk-ward.nvim>:226 sloc
+<https://github.com/HiPhish/awk-ward.nvim>:221 sloc
 
 ##
 # Reference

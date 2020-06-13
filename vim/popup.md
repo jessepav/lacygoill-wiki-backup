@@ -321,25 +321,6 @@ Note that in this particular example, the issue can only be reproduced if:
    - `mapping: v:false` is passed to `popup_create()` (it's set to `v:true` by default)
 
 ##
-## A long line is wrapped in a Vim popup but not in an Nvim float.  Why the difference?
-
-It's not wrapped in Nvim because you probably reset the option.
-
-OTOH, in a Vim popup window, all window-local options are automatically reset to
-their default value.  And the default value of `'wrap'` is on.
-Note that  in the  case of  `'wrap'`, this  behavior can  be overridden  via the
-`wrap` key passed in the second argument of `popup_create()`.
-
-### Now my long line is wrapped in both, but it's not broken at the same characters!
-
-Same issue, but this time with `'linebreak'`.
-
-In Vim `'linebreak'` is  reset (because "off" is the default  value), but not in
-Nvim (because we set it in our vimrc).
-As a result, Vim breaks the line at the last character which fits on the screen,
-while Nvim only breaks the line at a character which is present inside `'breakat'`.
-
-##
 ## I can't close my popup terminal with `:close`!
 
 It's forbidden in a popup terminal; use this instead:
@@ -495,10 +476,10 @@ FIXME: The title  of a  help preview popup  is still visible  when we've  run an
 
 ## Are there settings which we want to apply in all popups?
 
-For example, right now, we reset 'scl' and 'wrap' in help popups:
+For example, right now, we reset `'scl'` and `'wrap'` in help popups:
 
     " ~/.vim/plugged/vim-help/after/ftplugin/help.vim
-    au BufWinEnter <buffer> if !has('nvim') && win_gettype() is# 'popup' | setl scl&vim wrap&vim cole&vim | endif
+    au BufWinEnter <buffer> if win_gettype() is# 'popup' | setl scl&vim wrap&vim cole&vim | endif
 
 Do we want that only in *help* popups?  Or in *all* popups?
 In the latter case, move the settings in `vim-window`.
@@ -551,20 +532,10 @@ I never liked this function; too complex; simplify it.
     "\ don't fill the empty cells in the title line with these characters: `═`
     \ borderchars: [' '],
 
-Could we achieve the same in Nvim with virtual text?
-I don't think so, because virtual text can't shadow buffer text (can it?).
-Could we create another float for the title?
-
 ## Document how to create a buffer-relative popup.
 
 Create a dummy text property at the desired position in the buffer, then use the
 `textprop` key in the options passed to `popup_create()`.
-
-Find a way to implement sth equivalent in Nvim.
-I think you could use `'bufpos': [12, 34]`.
-If so,  update your library  functions so  that they can  create buffer-relative
-popups/floats; it would be useful to  create tooltips which follow the text they
-document.
 
 ## I don't understand this excerpt from `:h preview-popup`:
 
@@ -630,6 +601,20 @@ difference.
 ## After setting 'pvp', is it still ok for our scripts to run `wincmd P`?  What about `wincmd p`.
 
 We have an item on this subject in our todo in vimrc (nr 38).
+
+## Document that in a popup, Vim resets all window-local options to their default values.
+
+Note that  in the  case of  `'wrap'`, this  behavior can  be overridden  via the
+`wrap` key passed in the second argument of `popup_create()`.
+
+---
+
+Note  that the  default value  of `'wrap'`  is on,  while the  default value  of
+`'linebreak'` is off.   If Vim wraps a long  line in a popup and  you don't like
+where it gets broken, set `'linebreak'`.
+
+How should we set `'wrap'` and `'linebreak'` in a popup?
+I guess it depends on what it displays...
 
 ## Document that Vim does not reset window-local options (and buffer-local ones?) in a help popup.
 
@@ -762,7 +747,7 @@ from reading the end of long lines when previewing a help tag in a popup.
         call nvim_set_current_line(new_line)
     endfu
 
-Write some recipe/plugin which supports both environments (Vim + Nvim).
+Write some recipe/plugin.
 
 ## Read `:h popup` in its entirety?
 

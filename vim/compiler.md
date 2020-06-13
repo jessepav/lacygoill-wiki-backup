@@ -388,6 +388,8 @@ Possible prefixes are:
     ├────┼──────────────────────────────────────────────────┤
     │ %I │ start of a multi-line informational message      │
     ├────┼──────────────────────────────────────────────────┤
+    │ %N │ start of a multi-line note message               │
+    ├────┼──────────────────────────────────────────────────┤
     │ %W │ start of a multi-line warning message            │
     ├────┼──────────────────────────────────────────────────┤
     │ %C │ continuation of a multi-line message             │
@@ -598,10 +600,10 @@ Usage example:
     EOF
 
     $ cat <<'EOF' >/tmp/efm.vim
-    set mp=cat\ /tmp/log
-    set efm=%E%f:%m,%-Z%p^
-    sil make! | redraw!
-    copen
+        set mp=cat\ /tmp/log
+        set efm=%E%f:%m,%-Z%p^
+        sil make! | redraw!
+        copen
     EOF
 
     $ vim -S /tmp/efm.vim
@@ -636,10 +638,10 @@ Usage example:
     EOF
 
     $ cat <<'EOF' >/tmp/efm.vim
-    set mp=cat\ /tmp/log
-    set efm=%f:%s:%m,%-G%.%#
-    sil make! | redraw!
-    copen
+        set mp=cat\ /tmp/log
+        set efm=%f:%s:%m,%-G%.%#
+        sil make! | redraw!
+        copen
     EOF
 
     $ vim -S /tmp/efm.vim
@@ -655,11 +657,11 @@ Here are some usage examples taken from `$VIMRUNTIME/compiler/`:
     ┌────────────────────────────────────────┬────────────────────────────────────┐
     │ items                                  │ can match                          │
     ├────────────────────────────────────────┼────────────────────────────────────┤
-    │ %t%*[^:]                               │ `error:`, `warning:`, `info:`, ... │
-    │ ├┘├┘├──┘                               │  ^         ^           ^           │
+    │ %t%*[^:]                               │  error:    info:                   │
+    │ ├┘├┘├──┘                               │  ^         ^                       │
     │ │ │ └ any character other than a colon │                                    │
-    │ │ └ the next atom can be repeated 1    │                                    │
-    │ │   or as many times as you want       │                                    │
+    │ │ └ the next atom can be repeated 1    │  note:     warning:                │
+    │ │   or as many times as you want       │  ^         ^                       │
     │ └ a character                          │                                    │
     ├────────────────────────────────────────┼────────────────────────────────────┤
     │ %trror                                 │ Error                              │
@@ -698,10 +700,10 @@ regardless of whether the consumed characters are in `'isf'`.
     EOF
 
     $ cat <<'EOF' >/tmp/efm.vim
-    set mp=cat\ /tmp/log
-    set efm=%f:%l:%m
-    sil make! | redraw!
-    copen
+        set mp=cat\ /tmp/log
+        set efm=%f:%l:%m
+        sil make! | redraw!
+        copen
     EOF
 
 After sourcing `/tmp/efm.vim`, the qfl will be:
@@ -869,10 +871,10 @@ MWE:
     EOF
 
     $ cat <<'EOF' >/tmp/efm.vim
-    set mp=cat\ /tmp/log
-    set efm=%f:%l:%s:%m,%-G%.%#
-    sil make! | redraw!
-    copen
+        set mp=cat\ /tmp/log
+        set efm=%f:%l:%s:%m,%-G%.%#
+        sil make! | redraw!
+        copen
     EOF
 
     $ vim -S /tmp/efm.vim
@@ -1122,10 +1124,10 @@ message is the compiler's current directory.
 That's why you can print the message "Leaving dir" without any additional name.
 
 ##
-## What's the difference between `%[EIW]` and `%t`?
+## What's the difference between `%[EINW]` and `%t`?
 
-`%E`, `%I`  and `%W` automatically  populate the `type`  field of the  qfl entry
-with the values `error`, `info`, `warning`.
+`%E`, `%I`,  `%N` and `%W`  automatically populate the  `type` field of  the qfl
+entry with the values `error`, `info`, `note`, `warning`.
 
 However, if you also use `%t`, the latter will have the priority:
 
@@ -1134,10 +1136,10 @@ However, if you also use `%t`, the latter will have the priority:
     EOF
 
     $ cat <<'EOF' >/tmp/efm.vim
-    set mp=cat\ /tmp/log
-    set efm=%E%f:%l:%t%*[^:]:%m
-    sil make! | redraw!
-    copen
+        set mp=cat\ /tmp/log
+        set efm=%E%f:%l:%t%*[^:]:%m
+        sil make! | redraw!
+        copen
     EOF
 
 `%E` should yield a qfl entry whose type is `error`, but because of `%t` and the
@@ -1354,8 +1356,8 @@ MWE:
     EOF
 
     $ cat <<'EOF' >/tmp/efm.vim
-    set mp=cat\ /tmp/log
-    set efm=%A%f:%l,%C\ %m,%Z%p^
+        set mp=cat\ /tmp/log
+        set efm=%A%f:%l,%C\ %m,%Z%p^
     EOF
 
 Then, reorder the formats in `'efm'`, and the lines in the log file.
@@ -1660,14 +1662,14 @@ a multi-line message.
 To test any of the following examples, execute:
 
     $ cat <<'EOF' >/tmp/efm.vim
-    set mp=cat\ /tmp/log
+        set mp=cat\ /tmp/log
 
-    set efm=%f:%l:\ %m,
-          \,%Dmake:\ Entering\ directory\ `%f'
-          \,%Xmake:\ Leaving\ directory\ `%f'
+        set efm=%f:%l:\ %m,
+              \,%Dmake:\ Entering\ directory\ `%f'
+              \,%Xmake:\ Leaving\ directory\ `%f'
 
-    sil make! | redraw!
-    copen
+        sil make! | redraw!
+        copen
     EOF
 
 Vim uses a 3-steps algorithm.
@@ -1777,6 +1779,21 @@ You get the following:
 
 This can  be solved by  printing absolute  directories in the  "enter directory"
 message or by printing "leave directory" messages.
+
+##
+# Todo
+## Document the errorformat shell utility
+
+- <https://github.com/reviewdog/errorformat>
+- <https://reviewdog.github.io/errorformat-playground/>
+
+>     It's basically for practicing and checking errorformat with ease in browsers.
+>     I expect users can write erroformats in playground first, validate them, and use
+>     it for vim's  quickfix list or other use cases  like reviewdog or efm-langserver
+>     outside vim too.
+>     https://github.com/reviewdog/errorformat#use-cases-of-errorformat-outside-vim
+
+Source: <https://www.reddit.com/r/vim/comments/d7vdbk/erroformat_playground/>
 
 ##
 # Reference

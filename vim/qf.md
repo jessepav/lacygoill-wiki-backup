@@ -221,10 +221,6 @@ But you won't get the key `'all'` in the dictionary output.
    - size
    - winid
 
-## What is the only property that a qfl in Neovim currently misses, compared to Vim?
-
-`qfbufnr`
-
 ##
 ## What's the 'context' property of a qfl?
 
@@ -1514,6 +1510,11 @@ much.
     :Vim :[cl]\%(add\|get\)\=\%(expr\|file\|buffer\)\|l\=make\|l\=vim\%[grep]\%(add\)\=\>.*/[^/]*/[gj]\{1,2}:gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
     :Cfilter! -tmp -commented -other_plugins
 
+## ?
+
+Document that `:[cl]history` can be prefixed by a count.
+Doing so allows you to select an arbitrary qfl in the stack.
+
 ## Add a flag in the tab line to warn us when an async command has terminated populating a qfl.
 
 Make the flag disappear once we've visited the qf buffer.
@@ -1601,19 +1602,6 @@ updated).
 ## Document that you can set the current entry in the qfl via `setqflist()` and the 'idx' property.
 
 <https://github.com/vim/vim/pull/3701>
-
-## Document the errorformat shell utility
-
-- <https://github.com/reviewdog/errorformat>
-- <https://reviewdog.github.io/errorformat-playground/>
-
->     It's basically for practicing and checking errorformat with ease in browsers.
->     I expect users can write erroformats in playground first, validate them, and use
->     it for vim's  quickfix list or other use cases  like reviewdog or efm-langserver
->     outside vim too.
->     https://github.com/reviewdog/errorformat#use-cases-of-errorformat-outside-vim
-
-Source: <https://www.reddit.com/r/vim/comments/d7vdbk/erroformat_playground/>
 
 ## Talk about the 'filewinid' property of a location window.
 

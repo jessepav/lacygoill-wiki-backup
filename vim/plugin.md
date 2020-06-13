@@ -16,12 +16,7 @@ vimtex
 autoformat
 
 ##
-# Futurs plugins
-
-Liste partielle de plugins tirant avantage des fonctionnalités de Neovim:
-
-<https://github.com/neovim/neovim/wiki/Related-projects#plugins>
-
+# Interesting plugins
 ## AdvancedSorters
 
 The built-in `:sort` command is powerful, but it still is line-based.
@@ -90,7 +85,7 @@ alias is substituted in-place.
 
 ## altscreen
 
-Alternate screen setup for terminal Vim (Neovim doesn't seem to need this).
+Alternate screen setup for terminal Vim.
 
 <https://github.com/fcpg/vim-altscreen> 28 sloc
 
@@ -335,8 +330,7 @@ A Vim plugin to colorize all text in the form #rrggbb or #rgb.
 Alternative:
 <https://github.com/RRethy/vim-hexokinase>:263 sloc
 
-This plugin is interesting to study how to use `nvim_buf_set_virtual_text()` and
-`nvim_buf_clear_namespace()` in Neovim, and the signs in Vim.
+This plugin is interesting to study how to use signs in Vim.
 
 ## committia
 
@@ -499,9 +493,6 @@ Vim plugin to dim inactive windows.
 
 <https://github.com/blueyed/vim-diminactive> 419 sloc
 
-Alternative:
-On Neovim see `:h hl-NormalNC`.
-
 ## dirdiff
 
 Vim plugin to diff all the files in two directories.
@@ -617,19 +608,10 @@ répétable.  Ou créer un sous-mode.
 
 <https://github.com/fcpg/vim-flattery> 570 sloc
 
-## floaterm
-
-Open the terminal in the floating window and toggle it quickly
-
-<https://github.com/voldikss/vim-floaterm> 927 sloc
-
-This plugin could be handy to study how to use the floating window in Nvim.
-
 ## floobits
 
 Real-time collaborative editing. Think Etherpad, but with native editors.
 
-- <https://github.com/Floobits/floobits-neovim> 39 sloc
 - <https://github.com/Floobits/floobits-vim> 113 sloc
 - <https://floobits.com/>
 
@@ -675,14 +657,12 @@ This plugin  would be  really useful  when you  are studying  the codebase  of a
 foreign project.
 Instead of relying on `$ git log` to  search when did a line of code appear, and
 why, you could stay in Vim and  make the commit message – introducing the change
-– be printed in a preview (Vim) / popup (Nvim) window.
+– be printed in a popup window.
 
 ---
 
 Similar:
 
-- <https://github.com/APZelos/blamer.nvim> 173 sloc
-- <https://github.com/tveskag/nvim-blame-line> 115 sloc
 - <https://teukka.tech/vimtip-gitlens.html> 35 sloc
 
 ---
@@ -843,7 +823,9 @@ It is fully configurable using flags  that take priority over options defined in
 your vimrc.
 Actually, all the default commands like :Ag etc. a built atop of :Grepper.
 
-<https://github.com/mhinz/vim-grepper> 863 sloc
+<https://github.com/mhinz/vim-grepper> 971 sloc
+
+See also: <https://github.com/yegappan/grep/> 706 sloc
 
 ## gutentags
 
@@ -1041,7 +1023,6 @@ Commentaire de l'auteur des précédents plugins:
 
 Liens intéressants:
 
-- <https://fortes.com/2017/language-server-neovim>
 - <https://blog.logrocket.com/how-to-use-the-language-server-protocol-to-extending-a-client-764da0e7863c>
 - <https://microsoft.github.io/language-server-protocol/overview>
 
@@ -1182,26 +1163,6 @@ Alternative:
 
 <https://github.com/prettier/vim-prettier> 418 sloc
 
-## neoman
-
-Read manpages faster than superman!
-
-<https://github.com/nhooyr/neoman.vim> 267 sloc
-
-Note: A much improved version of this plugin is included by default in neovim!
-
-- <https://github.com/neovim/neovim/blob/master/runtime/plugin/man.vim>
-- <https://github.com/neovim/neovim/blob/master/runtime/autoload/man.vim>
-- <https://github.com/neovim/neovim/blob/master/runtime/syntax/man.vim>
-- <https://github.com/neovim/neovim/blob/master/runtime/ftplugin/man.vim>
-- <https://github.com/nhooyr/neoman.vim/blob/master/scripts/nman.zsh>
-
-## neoterm
-
-Wrapper of some neovim's :terminal functions.
-
-<https://github.com/kassio/neoterm> 489 sloc
-
 ## ninja-feet
 
 While Vim has a  great number of wonderful text objects, and plugins  can add even more,
@@ -1216,16 +1177,6 @@ You  can  also  jump into  Insert  mode  at  the  beginning  or  end of  a  text
 (technically, any motion) with z[ and z].
 
 <https://github.com/tommcdo/vim-ninja-feet/> 57 sloc
-
-## notifications
-
-use floating window to show notifications
-
-<https://github.com/wsdjeg/notifications.vim> 190 sloc
-
----
-
-Could be useful to study how to use popup windows in (N)Vim.
 
 ## one
 
@@ -1932,12 +1883,6 @@ This plugin will highlight patterns and ranges for Ex-commands.
 
 <https://github.com/xtal8/traces.vim> 1018 sloc
 
-## tradewinds
-
-the missing window movement
-
-<https://github.com/andymass/vim-tradewinds> 165 sloc
-
 ## translate-shell.vim
 
 Translate-shell.vim is a plugin for translating text without leaving Vim.
@@ -1988,8 +1933,8 @@ Asynchronously control git repositories in Neovim/Vim 8
 
 ---
 
-Alternatively, we could open a terminal  buffer in Neovim, and from there launch
-the `tig` program:
+Alternatively, we could open a terminal  buffer, and from there launch the `tig`
+program:
 
 <https://github.com/jonas/tig>
 
@@ -1997,15 +1942,15 @@ This idea comes from:
 
 <https://medium.com/usevim/what-is-modern-vim-2591f6b1ec04>
 
-Any command-line tool that you enjoy using alongside Vim can be used in Neovim’s
-split terminal.
-For example, if  you like using tig,  the text-mode Git interface,  then you can
-open a panel that runs tig!
-This instantly gives you the power of integrated Git, without waiting for Neovim
-or a plugin author to add this functionality.
-Again,  this  usage  is  similar  to   the  benefits  of  using  tmux  alongside
-command-line Vim, but you might prefer the integrated approach because it adds a
-modal layer for movement and yank/paste over tig.
+>     Any command-line tool that you enjoy using alongside Vim can be used in Neovim’s
+>     split terminal.
+>     For example, if  you like using tig,  the text-mode Git interface,  then you can
+>     open a panel that runs tig!
+>     This instantly gives you the power of integrated Git, without waiting for Neovim
+>     or a plugin author to add this functionality.
+>     Again,  this  usage  is  similar  to   the  benefits  of  using  tmux  alongside
+>     command-line Vim, but you might prefer the integrated approach because it adds a
+>     modal layer for movement and yank/paste over tig.
 
 Youtube video demo for tig:
 
@@ -2031,10 +1976,6 @@ vimspector - A multi-language debugging system for Vim
 
 - <https://github.com/puremourning/vimspector> 5016 sloc
 - <https://puremourning.github.io/vimspector-web/>
-
-Alternative for Nvim:
-
-<https://github.com/sakhnik/nvim-gdb> 1432 sloc
 
 ## vint
 
@@ -3745,33 +3686,6 @@ Commandes lançables uniquement dans la fenêtre de vim-plug :
             Toutefois, il peut être utile de le faire manuellement.
             Pex, si on travaille sur un plugin en local, qu'on modifie sa documentation,
             et qu'on veut régénérer ses tags sans pour autant mettre à jour tous les plugins.
-
-
-
-    Plug 'foo', has('nvim') ? {}              : { 'on': [] }
-    Plug 'bar', has('nvim') ? { 'on': 'CMD' } : { 'on': [] }
-
-            Ne charge `foo` que si on est dans neovim.
-            "         `bar` "                         et qu'après avoir utilisé `CMD`.
-
-            Le chargement du plugin est empêché qd on n'est pas dans neovim, car une liste vide
-            ne peut matcher aucun nom de commande existante.
-
-            Fonctionne avec aussi avec la clé `for`.
-
-            Le plugin est malgré tout enregistré par vim-plug dans la variable `g:plugs`.
-
-
-                                               NOTE:
-
-            Ne pas écrire:
-
-                    if has('nvim')
-                        Plug 'foo'    ✘
-                    endif
-
-            En effet, avec cette dernière version, `:PlugClean` supprimerait `foo` lorsqu'on
-            n'utiliserait pas neovim.
 
 
     Plug 'SirVer/ultisnips',       { 'on': [] }

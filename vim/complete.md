@@ -22,30 +22,6 @@ Try to use a one-shot autocmd instead; or try to "move" the code later if possib
 
 # ?
 
-When `SafeState` is merged in Nvim, replace these lines:
-
-    " ~/.vim/plugged/vim-cmdline/autoload/cmdline.vim:89
-    call timer_start(0, {-> feedkeys(':'.cmdline.keys, 'in')})
-
-with:
-
-    let s:rerun_fixed_cmd ={-> feedkeys(':'.cmdline.keys, 'in')}
-    au SafeState * ++once call s:rerun_fixed_cmd()
-
-and:
-
-    " ~/.vim/plugged/vim-completion/autoload/completion/spel.vim:57
-    let new_line = substitute(getline('.'), '\<'.badword.'\>', suggestion, 'g')
-    call timer_start(0, {-> setline('.', new_line)})
-
-with:
-
-    let new_line = substitute(getline('.'), '\<'.badword.'\>', suggestion, 'g')
-    let s:fix_word = {-> setline('.', new_line)}
-    au SafeState * ++once call s:fix_word()
-
-# ?
-
 Explain  why we  shouldn't  alter `'isk'`  from  a condition  (`completion#util#custom_isk()`);
 instead we must redefine a problematic default method.
 

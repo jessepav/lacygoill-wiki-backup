@@ -1,29 +1,28 @@
 # Management
 ## How to install `newsboat`?
 
-        # https://github.com/newsboat/newsboat#dependencies
-        $ api asciidoc libcurl4-gnutls-dev libjson-c-dev libsqlite3-dev libstfl-dev
+    # https://github.com/newsboat/newsboat#dependencies
+    $ api asciidoc libcurl4-gnutls-dev libjson-c-dev libsqlite3-dev libstfl-dev
 
-        $ git clone https://github.com/newsboat/newsboat
+    $ git clone https://github.com/newsboat/newsboat
 
-        $ cd newsboat
+    $ cd newsboat
 
-        $ make
-        $ sudo checki
+    $ make
+    $ sudo make install
 
-        $ mkdir -p ~/.local/share/newsboat
+    $ mkdir -p ~/.local/share/newsboat
 
-        $ vim ~/.config/newsboat/urls
-                # write the urls of your feeds; ex:
+    $ vim ~/.config/newsboat/urls
+            # write the urls of your feeds; ex:
 
-                https://github.com/vim/vim/commits/master.atom
-                https://github.com/neovim/neovim/commits/master.atom
+            https://github.com/vim/vim/commits/master.atom
 
-        $ vim ~/.config/newsboat/config
+    $ vim ~/.config/newsboat/config
 
-        $ vim ~/.shrc
+    $ vim ~/.shrc
 
-                alias nb='newsboat'
+            alias nb='newsboat'
 
 ## How to remove `newsboat`?
 

@@ -658,8 +658,9 @@ each buffer):
 For a real example, see `$VIMRUNTIME/ftplugin/rust.vim`.
 
 ##
-# What's one pitfall of
-## listening to `TerminalOpen`?
+# Pitfalls
+## What's one pitfall of
+### listening to `TerminalOpen`?
 
 There is no guarantee that the current buffer is a terminal buffer:
 
@@ -686,7 +687,7 @@ From `:h TerminalWinOpen`:
 
 >     This event is triggered only if the buffer is created with a window.
 
-## using `expand('<abuf>')`?
+### using `expand('<abuf>')`?
 
 You get a string containing a number, not a number.
 
@@ -731,7 +732,7 @@ Or shorter:
 
 That's what Tpope does in vim-fugitive btw.
 
-## using `expand('%')` in an autocmd?
+### using `expand('%')` in an autocmd?
 
 It may not evaluate to what you expect.
 
@@ -779,6 +780,47 @@ And `FileType`  is fired  for a  particular file; if  you need  to refer  to the
 latter, use `expand('<afile>:p')` and not `expand('%:p')`.
 It may not be necessary, but it's more consistent with what we wrote here.
 
+##
+## Which pattern should I write to restrict an autocmd to the search command-line?
+
+    /,\?
+
+Example:
+
+                                    vvvv
+    $ vim -Nu NONE +"au CmdWinEnter /,\? nno <buffer> cd :echom 'only for a search command-line'<cr>"
+
+    " press:  q:
+    "         cd
+    " result: nothing (✔)
+
+    " :q
+
+    " press:  q?
+    "         cd
+    " result: a message is displayed (✔)
+
+---
+
+You could also write:
+
+    [/\?]
+
+But it doesn't work on Windows:
+<https://github.com/vim/vim/pull/2198#issuecomment-341131934>
+
+### Why do I need the backslash?
+
+To suppress the special meaning of `?` in the pattern field of an autocmd.
+From `:h file-pattern`:
+
+>     ?     matches any single character
+
+You want the literal meaning, to only match a backward search command-line.
+You  don't want  `?` to  match  any character,  which  would cause  any type  of
+command-line to be affected including a regular one (`:`). See `:h cmdwin-char`.
+
+##
 ##
 ##
 # Syntaxe
@@ -961,12 +1003,6 @@ Exemples d'évènements :
             Plus généralement, tous les évènements dont le nom suit le pattern `*Cmd`
             ont en commun le fait de laisser la responsabilité de l'écriture/lecture/sourcage
             d'un fichier à l'utilisateur.
-
-
-    TerminalOpen  (Vim)
-    TermOpen      (Neovim)
-
-            Qd un terminal est ouvert.
 
 
 Pour une liste exhaustive: :h autocmd-events
@@ -1242,6 +1278,7 @@ le flag `nested` juste avant la commande de A.  Exemple:
 
 ##
 # Todo
+## ?
 
 Document that you can use a regular pattern, and not just a file pattern, as the
 pattern of an autocmd.

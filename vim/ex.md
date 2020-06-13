@@ -137,8 +137,7 @@ also redirect stderr:
     4~
 
 ##
-## How to skip *all* initializations
-### in Vim?
+## How to skip *all* initializations?
 
 You need to reset `'loadplugins'` (e.g. via `--noplugin` or `-Nu NONE`):
 
@@ -155,34 +154,6 @@ Otherwise, plugins are not skipped:
     ...~
     24: ~/.vim/after/plugin/abolish.vim~
     ...~
-
-### in Nvim?
-
-You need to use:
-
-   * `-u NONE` to skip the plugins (like `--noplugin` would do)
-     *and* the scripts sourcing the filetype/syntax/indent plugins
-
-         1: /usr/local/share/nvim/runtime/filetype.vim
-         2: /usr/local/share/nvim/runtime/ftplugin.vim
-         3: /usr/local/share/nvim/runtime/indent.vim
-         4: /usr/local/share/nvim/runtime/syntax/syntax.vim
-         5: /usr/local/share/nvim/runtime/syntax/synload.vim
-         6: /usr/local/share/nvim/runtime/syntax/syncolor.vim
-
-   * `-i NONE` to not write the ShaDa file
-
-Or just use `--clean`.
-
-Example:
-
-           vvvvvvvvvvvvvvv
-    $ nvim -u NONE -i NONE -es +'set vbs=1|scriptnames|qa!'
-    ''~
-
-           vvvvvvv
-    $ nvim --clean -es +'set vbs=1|scriptnames|qa!'
-    ''~
 
 ###
 ## What's its benefit over `$ sed -i`?
@@ -208,45 +179,20 @@ With Vim,  you can preserve  the latter provided  that you set  `'undofile'` and
 `'undodir'` appropriately.
 
 ##
-# What's the difference between `-e` and `-E` when used to start
-## Vim non-interactively?
+# What's the difference between `-e` and `-E` when used to start Vim
+## non-interactively?
 
 None.
 
 They both start Vim in Ex mode.
 
-## Nvim non-interactively?
-
-stdin is read as:
-
-   - Ex commands with `-e`
-   - text (into buffer 1) with `-E`
-
----
-
-This is what is documented at `:h -e`; but it's not entirely true:
-
-    # `cmd` is not run
-    $ echo cmd | nvim -e
-
-    # `cmd` should be run as an Ex command; instead it's used as text
-    $ echo cmd | nvim - -e
-
-Although, those  exceptions are not  important to remember, because  in practice
-you'll never use `-e`, nor `-E`, without `-s`.
-
-## Vim interactively?
+## interactively?
 
 `-E` starts an  "improved" Ex mode in which command  line editing and completion
 are available.
 
 In a usual Vim session, by default, you can access the Ex mode matching `-e` and
 `-E` by pressing resp. `Q` and `gQ`.
-
-## Nvim interactively?
-
-There's no difference between `-e` and  `-E` when Nvim is started interactively;
-both start Nvim in an "improved" Ex mode.
 
 ##
 # Vim used in a shell pipeline
@@ -265,8 +211,7 @@ or to a file via `<`:
       ^
 
 ###
-### When I use it, how is the stdin read by
-#### Vim?
+### When I use it, how is the stdin read by Vim?
 
 It depends on the position of `-` relative to `-e`/`-E`.
 
@@ -284,57 +229,8 @@ After, it's read as an Ex command:
     $ echo "pu!='text'|%p" | vim -es -
     text~
 
-#### Nvim?
-
-With `-E`, `-` is read as literal text:
-
-    $ echo text | nvim -Es +'%p' -
-    text~
-
-With `-e`, `-` is read as an Ex command:
-
-    $ echo "pu!='text'|%p" | nvim -es -
-    text~
-
----
-
-Exceptions:
-
-    # `cmd` is not run
-    $ echo cmd | nvim -e
-
-    # `cmd` should be run as an Ex command; instead it's used as text
-    $ echo cmd | nvim - -e
-
-Those are not  important to remember, because in practice  you'll never use `-e`
-nor `-E` without `-s`.
-
 ###
 ### What if I omit it
-#### in Nvim?
-
-You  can omit  `-`,  or position  it  wherever  you want;  it  doesn't make  any
-difference:
-
-    # populate Nvim buffer with 'text'
-    $ echo text | nvim
-    $ echo text | nvim -
-
-    # exit status = 0
-    $ echo sleep 1m | nvim   -es
-    $ echo sleep 1m | nvim   -es -
-    $ echo sleep 1m | nvim - -es
-
-    # exit status = 1
-    $ echo not_a_cmd | nvim   -es
-    $ echo not_a_cmd | nvim   -es -
-    $ echo not_a_cmd | nvim - -es
-
-    $ echo not_a_cmd | nvim   -es   +'set vbs=1' 2>&1 | grep 'E[0-9]'
-    $ echo not_a_cmd | nvim   -es - +'set vbs=1' 2>&1 | grep 'E[0-9]'
-    $ echo not_a_cmd | nvim - -es   +'set vbs=1' 2>&1 | grep 'E[0-9]'
-    E492: Not an editor command: not_a_cmd~
-
 #### in Vim without using `-e`/`-E`?
 
 Vim errors out:
@@ -366,13 +262,8 @@ Vim assumes `-` at the end of the command-line:
 ##
 ### When can I omit it?  (2)
 
-When you're using Neovim:
-
-    $ echo text    | nvim
-    $ echo '1t1|x' | nvim -es /tmp/file
-
-Or when you start Vim in Ex mode with  `-e` (or `-E`), and you want the stdin to
-be read as an Ex command:
+When you start Vim in Ex mode with `-e`  (or `-E`), and you want the stdin to be
+read as an Ex command:
 
     $ echo '%s/X/l/|%p' | vim -es <(echo "helXo\nworXd")
     hello~
@@ -419,9 +310,9 @@ is empty, and `:p` fails to print anything.
 ##
 ## When do I need `qa!`?
 
-Always, unless (N)Vim reads an Ex command from a pipe or a file.
+Always, unless Vim reads an Ex command from a pipe or a file.
 
-In the latter case, (N)Vim quits automatically.
+In the latter case, Vim quits automatically.
 This  is probably  why  an Ex  command  which is  read from  a  pipe, is  always
 processed *after* `+cmd`; to allow the latter to be processed.
 
@@ -459,40 +350,6 @@ This is also confirmed by:
     $ echo 1t1 | vim - -e
 
 ### Which exception to this rule exist?
-
-    # shouldn't quit automatically
-    $ echo text | nvim -Es
-
-I think this was implemented in Nvim as a convenience feature.
-From <https://vimways.org/2018/vims-social-life/>:
-
->     It also works with -Es (but not -es), **and it exits automatically (no +'qa!' needed)**:
-
-There are other exceptions which are mentioned below.
-But this  one is  the only exception  you should remember,  because none  of the
-other ones use silent mode; and in practice, you'll always use silent mode.
-
----
-
-    # shouldn't quit automatically (like `$ echo text | vim - -E`)
-    $ echo text | nvim -E -
-
----
-
-    # should quit automatically (like `$ echo cmd | vim -e` and `$ echo cmd | nvim -e -`)
-    $ echo cmd | nvim   -e
-    $ echo cmd | nvim - -e
-
----
-
-Note that here, Nvim doesn't quit automatically:
-
-    $ echo 1t1 | nvim -e
-
-But this is not  an exception to the previous rule, because  `1t1` is *not* read
-as an Ex command; it is ignored.
-
----
 
 It seems that any command which doesn't  quit automatically can be forced to, by
 redirecting stderr to `/dev/null` with `2>/dev/null` or `2</dev/null`.
@@ -565,16 +422,6 @@ You can't use a shell pipeline:
     $ echo ifoo | vim -s -
     Cannot open for reading: "-"~
 
-### What's the other possible way for Neovim?
-
-A shell pipeline:
-
-    $ echo ifoo | nvim -s -
-
-#### When is it necessary to use this?
-
-In a shell which doesn't support process substitution, like dash.
-
 ##
 # Miscellaneous
 ## What are `ex` and `exim`?
@@ -603,11 +450,6 @@ From `:h exim`:
 >     exim  vim -E      Start in improved Ex mode (see |Ex-mode|).      *exim*
 >                             (**normally not installed**)
 
----
-
-`ex` and `exim` have been removed from Nvim.
-IOW, you can't invoke Nvim under those names.
-
 ### I get a whole bunch of errors when I run `ex`!
 
 When Vim is called under the name `ex`, it starts in compatible mode.
@@ -629,32 +471,20 @@ And you probably want to use `-u NONE` too.
 ## How to test in a shell script whether my Vim binary was compiled with a python interface?
 
 Run `if has('python3')` in Vim's silent mode.
-And if the test succeeds, quit with `:qa!`; the exit status should be 0:
+And if the test succeeds, quit with `:0cq`; the exit status should be 0:
 
-    $ vim -es +'qa!' ; echo $?
+    $ vim -es +'0cq' ; echo $?
     0~
 
-otherwise, quit with `:cq`; the exit status will be 1:
+Otherwise, quit with `:cq`; the exit status will be 1:
 
     $ vim -es +'cq' ; echo $?
     1~
 
 Finally, test the exit status of the Vim command with the shell keyword `if`:
 
-    $ if vim -es +'if has("python3")|qa!|else|cq|endif'; then echo 'Vim has python3'; else echo 'Vim does not have python3'; fi
+    $ if vim -es +'if has("python3")|0cq|else|1cq|endif'; then echo 'Vim has python3'; else echo 'Vim does not have python3'; fi
     Vim has python3~
-
----
-
-In Nvim, you can prefix `:cq` with a count, which is used as the exit status:
-
-    $ nvim -es +'123cq' ; echo $?
-    123~
-
-So, the previous command can be re-written like this:
-
-    $ if nvim -es +'if has("python3")|0cq|else|1cq|endif'; then echo 'Nvim has python3'; else echo 'Nvim does not have python3'; fi
-    Nvim has python3~
 
 ####
 # Issues
@@ -709,15 +539,6 @@ See `:h vim-arguments`:
 
 >     Exactly one out of the following five items may be used to choose how to
 >     start editing:
-
-Solution:
-
-Use Nvim:
-
-    $ echo text | nvim file
-    :ls
-    1 %a + "[No Name]"~
-    2      "file"~
 
 ##
 ## I'm running a shell pipeline whose exit status is non-zero.  What's the issue?
@@ -830,22 +651,4 @@ At the moment, we have 7 plugins which are affected by this issue:
    * vim-save
    * vim-term
    * vim-toggle-settings
-
----
-
-MWE1:
-
-    $ echo text | nvim -Nu NONE +'fu Func()
-
-    endfu' +'au CmdlineLeave : call Func()' -E
-    :vi
-    E501: At end-of-file~
-
-MWE2:
-
-    $ echo cmd | nvim -Nu NONE +'fu Func()
-
-    endfu' +'au CmdlineLeave : call Func()' -e
-    :vi
-    E749: empty buffer~
 

@@ -2,7 +2,7 @@
 
 <https://vi.stackexchange.com/questions/22596/job-start-command-only-works-with-seemingly-random-job-options>
 
-# How to send `a b` as an argument to an external process started from (N)Vim?  (2)
+# How to send `a b` as an argument to an external process started from Vim?  (2)
 
 Use `system()` and quote `a b`:
 
@@ -51,25 +51,6 @@ From `:h job_start()`:
 >     {command}  can be  a **List**,  where  the first  item is  the executable  and
 >     further items  are the arguments.   All items  are converted to  String.  This
 >     works best on **Unix**.
-
-# When does `job_start()` (Vim) or `jobstart()` (Nvim) starts a shell to run a command?
-
-Only `jobstart()` starts a shell, and only if you pass it a string argument:
-
-    :call jobstart("tmux command-prompt -I 'foo bar'")
-    foo bar~
-
-This is why you  don't necessarily have to pass a list  to `jobstart()` when you
-want to pass an argument containing whitespace to your external command:
-
-    :call jobstart("tmux command-prompt -I 'foo bar'")
-    foo bar~
-
-Here, tmux receives this:
-
-    subcmd = command-prompt
-    arg1   = -I
-    arg2   = 'foo bar'
 
 ##
 # Updating a quickfix/location list asynchronously without interfering with another plugin
@@ -222,7 +203,3 @@ MakeJob implements  asynchronous versions of  the builtin commands in  just over
 
 208 sloc
 
-##
-# Links
-
-<https://ms-jpq.github.io/neovim-async-tutorial/>

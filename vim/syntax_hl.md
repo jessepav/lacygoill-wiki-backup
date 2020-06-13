@@ -2425,6 +2425,26 @@ zathura; the second text does *not* produce an interactive link.
 
 Read this: <https://vi.stackexchange.com/a/25171/17449>
 
+## ?
+
+Document the fact that `contained=` and `containedin=` accept patterns.
+
+From `:h :syn-contains /pattern`:
+
+>     The {group-name} in the "contains" list can be a pattern.  All group names
+>     that match the pattern will be included (or excluded, if "ALLBUT" is used).
+>     The pattern cannot contain white space or a ','.  Example:
+
+>        ... contains=Comment.*,Keyw[0-3]
+
+>     The matching will be done at moment the syntax command is executed.  Groups
+>     that are defined later will not be matched.  Also, if the current syntax
+>     command defines a new group, it is not matched.
+
+Could/Should we  have leveraged this  feature to make  some of our  syntax rules
+shorter and more future-proof?  Actually,  you could make the opposite argument:
+with a pattern you don't know exactly what will be matched in the future...
+
 ##
 # Reference
 

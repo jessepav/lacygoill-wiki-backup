@@ -1117,7 +1117,7 @@ Example:
 
     $ tmux display -pv '#{||:#{m:*vim,#{pane_current_command}},#{==:#{pane_current_command},man}}'
                         ├───────────────────────────────────────────────────────────────────────┘
-                        └ should be 1 iff the command running in the pane is (n)vim or man
+                        └ should be 1 iff the command running in the pane is vim or man
 
 ## I can't use braces from the shell!
 

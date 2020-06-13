@@ -248,9 +248,6 @@ The issue only arises in the second window counting from the bottom:
 
    - ...
 
-The issue is specific to Vim.
-In Nvim, you can "fix" it by making sure that the `pum` item is in the value of `'wop'`.
-
 ## a folded line outside the text
 
 `Folded`  controls the  color  of a  folded  line;  maybe it  would  be nice  to
@@ -287,7 +284,6 @@ I tried in the past:
     au CmdWinLeave : au WinEnter * ++once call s:update_history()
 
     fu s:update_history() abort
-        if has('nvim') | return | endif
         let new_hist = filter(getline(1, '$'), {_,v -> v !~# '^\s*$' && v !~# '^.\{,5}$'})
         call histdel(':')
         for line in new_hist
@@ -307,6 +303,6 @@ I tried in the past:
     endfu
 
 But it was not reliable; often, the whole command history would be cleared.
-Besides, there were  other issues (didn't support Nvim, failed  to remove a line
-containing a literal carriage return, ...).
+Besides,  there were  other issues  (it  failed to  remove a  line containing  a
+literal carriage return, ...).
 

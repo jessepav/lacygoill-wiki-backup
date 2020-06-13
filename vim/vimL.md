@@ -1144,12 +1144,10 @@ For example, you could download the intro music for the PlayStation 1:
 
 Then, play it when Vim starts, adding this code to your vimrc:
 
-    if !has('nvim')
-        augroup play_ps_sound_on_vimenter
-            au!
-            au VimEnter * call sound_playfile('/tmp/ps.ogg')
-        augroup END
-    endif
+    augroup play_ps_sound_on_vimenter
+        au!
+        au VimEnter * call sound_playfile('/tmp/ps.ogg')
+    augroup END
 
 Note that you really need `%(ext)s` in  the value passed to the argument `-o` of
 `youtube-dl(1)`; I think that's because the latter expects a template.
