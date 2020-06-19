@@ -69,13 +69,15 @@ Useful to view the contents of compressed files or archives.
 distro, but the script seems extremely old compared to github.
 
 ##
-# What should I use instead of `$ tail -f log` to watch a log?  Why?
+# What should I use instead of `$ tail -f log` to watch a log?
 
     $ less +F log
            ││
            │└ command: scroll forward, and keep trying to read when the end of file is reached
            │
            └ option: the remainder of that option must be taken as an initial command
+
+## Why?
 
 With `$ less +F`, you're not stuck at the end of the file, you can scroll back.
 

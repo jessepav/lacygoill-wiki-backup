@@ -583,9 +583,9 @@ Starting from [`7.4.682`][2], their attributes are combined with `CursorLine`.
 Some people say that `:syntax on` and `:syntax enable` are *in practice* equivalent.
 They say that, because most colorscheme authors write this:
 
-if exists("syntax_on")
-  syntax reset
-endif
+    if exists("syntax_on")
+      syntax reset
+    endif
 
 To document. (also document the `reset` subcommand)
 
@@ -710,13 +710,13 @@ See also `:h undercurl`:
 Document that running a  `:hi` command to (re)set an attribute  has no effect on
 the other ones.
 
-:hi SpecialKey
-SpecialKey     xxx term=bold ctermfg=145 guifg=#afafaf~
-:hi SpecialKey guifg=#121212
-:hi SpecialKey
-SpecialKey     xxx term=bold ctermfg=145 guifg=#121212~
-                   ^^^^^^^^^^^^^^^^^^^^^
-                   did not change
+    :hi SpecialKey
+    SpecialKey     xxx term=bold ctermfg=145 guifg=#afafaf~
+    :hi SpecialKey guifg=#121212
+    :hi SpecialKey
+    SpecialKey     xxx term=bold ctermfg=145 guifg=#121212~
+                       ^^^^^^^^^^^^^^^^^^^^^
+                       did not change
 
 ## 'bg'
 

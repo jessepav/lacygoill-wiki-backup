@@ -4511,6 +4511,8 @@ But it's documented in the manpage.
 
 <https://github.com/HiPhish/awk-ward.nvim>:221 sloc
 
+## <https://lwn.net/Articles/820829/>
+
 ##
 # Reference
 

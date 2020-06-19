@@ -751,6 +751,16 @@ I found `ABORT_CFLAGS` here: <https://github.com/vim/vim/issues/3177#issue-33924
 
 Again, you don't have to do that manually; use our zsh snippet to compile Vim.
 
+### I want my backtrace to contain as much info as possible (no <optimized out>)!
+
+Edit the file `src/Makefile`, and look for the first line like this:
+
+    #CFLAGS = -O
+
+Replace it with:
+
+    CFLAGS = -g -O0
+
 ### When extracting a backtrace, I get a warning message!
 
     warning: exec file is newer than core file.
@@ -766,9 +776,9 @@ core file in your working directory which prevented Vim from dumping a new one:
 
 Run this:
 
-    $ valgrind --leak-check=yes --num-callers=50 --track-origins=yes --log-file=valgrind.log ./src/vim -Nu NONE
+    valgrind --leak-check=yes --num-callers=50 --track-origins=yes --log-file=valgrind.log ./src/vim -Nu NONE
 
-    valgrind --leak-check=yes --num-callers=50 --track-origins=yes --log-file=valgrind.log ./src/vim -Nu NONE -i NONE +'au WinNew * smile'
+    valgrind --leak-check=yes --num-callers=50 --track-origins=yes --log-file=valgrind.log ./src/vim -u NONE -S /tmp/t.vim
 
 After reproducing the issue, the log should be written in `./valgrind.log`.
 
@@ -784,7 +794,7 @@ Valgrind doesn't work atm on Ubuntu 16.04, but it works on Ubuntu 18.04 in a VM.
     $ git stash -a
     $ make clean; make distclean
     $ sed -i '/fsanitize=address/s/^#//' src/Makefile
-    $ ./configure --with-features=huge
+    $ ./configure
     $ make
 
     $ ./src/vim -Nu NONE 2>asan.log

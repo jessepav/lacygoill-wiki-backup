@@ -2072,3 +2072,31 @@ To undo the removal of the big file, run:
 
     $ git reset --hard origin/master
 
+## Study/document quilt
+
+From `$ aptitude show quilt`:
+
+>     Quilt manages a  series of patches by  keeping track of the  changes each of
+>     them makes. They  are logically  organized as  a stack,  and you  can apply,
+>     un-apply, refresh them easily by traveling into the stack (push/pop).
+
+>     Quilt is good for managing additional  patches applied to a package received
+>     as a  tarball or maintained  in another version control  system. The stacked
+>     organization is  proven to  be efficient  for the  management of  very large
+>     patch sets (more  than hundred patches). As matter of fact,  it was designed
+>     by and for Linux kernel hackers (Andrew  Morton, from the -mm branch, is the
+>     original author), and its main use  by the current upstream maintainer is to
+>     manage  the (hundreds  of)  patches against  the kernel  made  for the  SUSE
+>     distribution.
+
+>     This package provides seamless integration  into Debhelper or CDBS, allowing
+>     maintainers to  easily add  a quilt-based patch  management system  in their
+>     packages. The  package  also  provides  some basic  support  for  those  not
+>     using  those  tools. See  README.Debian  for  more  information.   Homepage:
+>     http://savannah.nongnu.org/projects/quilt
+
+---
+
+To integrate quilt into your prompt, read:
+
+    man zshcontrib /GATHERING INFORMATION FROM VERSION CONTROL SYSTEMS/;/^\s*Quilt Support

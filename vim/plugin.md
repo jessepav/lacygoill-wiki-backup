@@ -1898,6 +1898,12 @@ Git branch management for Vim
 
 <https://github.com/sodapopcan/vim-twiggy> 1082 sloc
 
+## vim-stream
+
+vims - use vim commands for pipeline filtering in terminal
+
+<https://github.com/MilesCranmer/vim-stream> 33 sloc
+
 ## vimdade
 
 An  eye friendly  plugin that  fades your  inactive buffers  and preserves  your

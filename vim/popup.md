@@ -10,7 +10,7 @@ The mappings are processed *before* the filters.
 
 ---
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    vim -Nu NONE -S <(cat <<'EOF'
         fu s:popup_filter(winid, key)
             if a:key is# '+'
                 call popup_setoptions(a:winid, #{minheight: 3})
@@ -24,6 +24,7 @@ The mappings are processed *before* the filters.
         set showcmd
     EOF
     )
+
     " press `z C-k` to increase the height of the current window:
     " it's the popup's height which is increased
 

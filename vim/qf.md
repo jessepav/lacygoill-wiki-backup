@@ -610,6 +610,17 @@ Without the `'efm'` key, Vim will use the `'efm'` option.
     call setqflist(get(qfl, 'items', []))
     cw
 
+---
+
+TODO: Document that there exists a simpler command to get the same results:
+
+    :vim /\%^/ /etc/**/*.conf
+
+Although, you may not get exactly the same results:
+
+   - some entries may be duplicate (probably because of symlinks)
+   - some entries may be missing (probably because Vim can't read a file owned by another user, like root)
+
 ## How to populate a qfl with a location which has never been visited (i.e. absent from all buffers)?
 
 Use the `'filename'` property:

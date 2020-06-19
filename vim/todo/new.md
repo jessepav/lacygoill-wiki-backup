@@ -63,10 +63,15 @@ For every match, check whether we could use `reduce()` instead.
      they all accept a new optional window ID argument
 
    - `:h mode()` can output `n_ov`, `n_oV`, `n_oC-v` since 8.1.0648
-   - `:h trim()` can trim only at the start or end thanks to the third optional argument `{dir}` since 8.2.0868
+   - `:h readdir()` and `:h readdirex()` support a new optional `{dict}` argument
    - `:h search()` supports a new `{skip}` argument
    - `:h setqflist()` supports a new `quickfixtextfunc` key inside the `{what}` dictionary since 8.2.0869
+   - `:h trim()` can trim only at the start or end thanks to the third optional argument `{dir}` since 8.2.0868
    - `:h winnr()` supports a new argument `{N}[hjkl]` since 8.1.1140
+
+## output of functions
+
+   - `:h win_gettype()` can now output `preview` and `autocmd`
 
 ##
 # commands
@@ -104,6 +109,10 @@ For every match, check whether we could use `reduce()` instead.
    - `:h 'wincolor'`; could be used to dim the unfocused windows
 
 # `v:` variables
+
+   - `v:collate`
+
+---
 
 When `TextYankPost` is fired, `v:event` now contains a `visual` key.
 Could be useful for our `vim-selection-ring` plugin...
@@ -158,21 +167,43 @@ I think  the only thing `:call`  has over `:eval`,  is that it supports  a range
 
 You can now set a default value to an argument passed to a function.
 
-    function Something(a = 10, b = 20, c = 30)
+    fu Func(a = 10, b = 20, c = 30)
 
 ---
 
 I *think* you should refactor things like:
 
     fu Func(...)
-        let foo = get(a:, '1', 12)
-        let bar = get(a:, '2', 34)
+        let foo = get(a:, 1, 12)
+        let bar = get(a:, 2, 34)
         ...
 
 Into:
 
     fu Func(foo = 12, bar = 34)
         ...
+
+---
+
+This makes function signatures more readable; but what about function call sites?
+
+Try this:
+
+    fu Func(opts)
+        let opts = a:opts
+        ...
+
+
+    call Func(#{foo: 1, bar: 2, ...})
+
+And if you want the arguments to be optional:
+
+    fu Func(opts)
+        let opts = extend(a:opts, #{foo: 1, bar: 2, ...}, 'keep')
+        ...
+
+Should we refactor our vimrc/plugins to  make function calls with many arguments
+more readable?
 
 ## `:h prompt-buffer`
 
