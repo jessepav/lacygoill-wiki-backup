@@ -293,7 +293,7 @@ In a script, it seems the issue is not always triggered:
 
     " the view is altered
     :setl nofen | exe 'norm! "' | setl fen
-                       ^^^^
+                       ^--^
                        a `:norm` command is necessary to trigger the issue in a script;
                        maybe other commands trigger the issue too...
 

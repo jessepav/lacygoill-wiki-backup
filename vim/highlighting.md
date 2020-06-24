@@ -112,7 +112,7 @@ Use `setmatches()`:
     :call clearmatches()
 
     :call setmatches(list)
-          ^^^^^^^^^^
+          ^--------^
 
 ##
 ## Is the search of the pattern case-sensitive by default?
@@ -715,7 +715,7 @@ the other ones.
     :hi SpecialKey guifg=#121212
     :hi SpecialKey
     SpecialKey     xxx term=bold ctermfg=145 guifg=#121212~
-                       ^^^^^^^^^^^^^^^^^^^^^
+                       ^-------------------^
                        did not change
 
 ## 'bg'

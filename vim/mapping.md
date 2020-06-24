@@ -123,7 +123,7 @@ Don't use it for a visual mode mapping.  For the latter, just use `g@`:
         if !a:0
             let &opfunc = 'Op'
             return 'g@'..(mode() is# 'n' ? 'l' : '')
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         ^-------------------------^
         endif
         ...
     endfu
@@ -140,14 +140,14 @@ Inside the opfunc, call this other  function by prefixing `:call` with the range
 `'[,']`.
 
        opfunc = dispatch
-       vvvvvvv
+       v-----v
     fu OpSetup(...)
         if !a:0
             let &opfunc = 'OpSetup'
             return 'g@'
         endif
         '[,']call Op()
-        ^^^^^
+        ^---^
     endfu
 
 Example:
@@ -289,7 +289,7 @@ MWE:
 
     ✔
     vim -Nu NONE +'nno <expr> <c-b> feedkeys("ix\<esc>", "in"..(empty(reg_recording()) ? "t" : ""))[-1]'
-                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                                ^-------------------------------^
 
 ---
 
@@ -368,7 +368,7 @@ When you replay the macro, here's what happens:
        ^I^I<80>kB^M | :^I
          ^I<80>kB^M | :^I^I
            <80>kB^M | :^I^I^I
-           ^^^^^^
+           ^----^
            Vim's internal encoding of 'S-Tab'
 
 At that point, `S-Tab` is remapped into nothing (empty string).
@@ -479,7 +479,7 @@ Yes:
 
     $ vim -es -Nu NONE -i NONE +"pu='some text'" \
       +'set vbs=1 | echo b:changedtick | exe "norm! dd" | echo b:changedtick | qa!'
-                                         ^^^^^^^^^^^^^^
+                                         ^------------^
     3~
     4~
 
@@ -487,13 +487,13 @@ In contrast, `feedkeys()` executes the keys immediately only if you pass it the 
 
     $ vim -es -Nu NONE -i NONE +"pu='some text'" \
       +'set vbs=1 | echo b:changedtick | call feedkeys("dd", "n") | echo b:changedtick | qa!'
-                                         ^^^^^^^^^^^^^^^^^^^^^^^^
+                                         ^----------------------^
     3~
     3~
 
     $ vim -es -Nu NONE -i NONE +"pu='some text'" \
       +'set vbs=1 | echo b:changedtick | call feedkeys("dd", "nx") | echo "\n"..b:changedtick | qa!'
-                                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+                                         ^-----------------------^
     3~
     4~
 
@@ -522,7 +522,7 @@ Use 'o':
 
     vim -Nu NONE +'ono <c-e> :echom "test"<cr>'
     :echo maparg('<c-e>', 'o')
-                          ^^^
+                          ^-^
 
 ### How does `mode()` represent the operator-pending mode in its output?
 
@@ -611,10 +611,10 @@ boolean flags, so there's nothing to translate.
         echo 'mapping is working'
     endfu
 
-    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+    v------------------------------------------------------------------v
     let fix = {'lhs': '<m-b>', 'rhs': escape(maparg('<m-b>', 'n'), '|')}
     let save = extend(maparg('<m-b>', 'n', 0, 1), fix)
-               ^^^^^^                             ^^^
+               ^----^                             ^-^
 
 Note that  the fix relies  on the fact  that `maparg()`, *without*  the `{dict}`
 argument, *does* translate pseudo-keys.
@@ -715,14 +715,14 @@ installed via a single mapping command (you always need an extra `:unmap` comman
     xunmap <c-q>
     map <c-q>
     nos<C-Q>         <Esc>~
-    ^^^
+    ^-^
 
     sil! unmap <c-q>
     map <c-q> <nop>
     sunmap <c-q>
     map <c-q>
     nox<C-Q>         <Esc>~
-    ^^^
+    ^-^
 
 ### What about this snippet?
 
@@ -1184,7 +1184,7 @@ Example:
 Use the `<expr>` argument:
 
     nno <expr> cd "\e"..repeat('xlx', v:count1)
-        ^^^^^^     ^^                 ^^^^^^^^
+        ^----^     ^^                 ^------^
 
 Note that the escape is only needed to cancel a possible count.
 Basically,  it tells  Vim: "forget  the  first count,  I need  to reposition  it
@@ -1749,11 +1749,11 @@ Replacing `<esc>` with `<c-\><c-n>` fixes the issue:
 
     " bad
     imap <c-b> <esc>ddi
-               ^^^^^
+               ^---^
 
     " good
     imap <c-b> <c-\><c-n>ddi
-               ^^^^^^^^^^
+               ^--------^
 
 Now, this is what happens:
 
@@ -1807,7 +1807,7 @@ combination of `:exe` and another command:
 
     " after
     nno <buffer><nowait><silent> q :<c-u>wincmd p <bar> exe winnr('#')..'wincmd c'<cr>
-                                                        ^^^              ^^^^^^
+                                                        ^-^              ^----^
 
 ###
 ## When should I avoid `<c-r>=` in a command-line mode mapping?
@@ -1832,7 +1832,7 @@ no last expression.
 
 `:h c_CTRL-\_e`:
 
-                               vvvvvv
+                               v----v
     $ vim -Nu NONE +"cno <c-b> <c-\>e 'test'<cr>"
     " press:  : C-r = C-b
     " result: 'test' is inserted
@@ -2130,11 +2130,11 @@ Vim, by running:
     :echo char2nr('d')
     100~
                                             decimal code of 'd'
-                                            vvv
+                                            v-v
     :echo system('bc <<<"ibase=10; obase=2; 100"')[:-2]
     1100100~
                                               binary code of 'd' with an extra bit set on the left
-                                              vvvvvvvv
+                                              v------v
     :echo system('bc <<<"ibase=2; obase=1010; 11100100"')[:-2]
     228~
     :echo nr2char('228')
@@ -2211,13 +2211,13 @@ From then, whenever you need to refer to `M-d` in a mapping, you write `<F30>`.
 As an example, you don't write this:
 
     ino <M-d> <esc>id
-        ^^^^^
+        ^---^
         ✘
 
 But this:
 
     ino <F30> <c-o>de
-        ^^^^^
+        ^---^
         ✔
 
 Now, when you'll try to insert `ä`, here's what happens:
@@ -2310,7 +2310,7 @@ And to enable  the `extkeys` feature by including the  entry `xterm*:extkeys` in
 the server option `terminal-features`:
 
     set -as terminal-features 'xterm*:extkeys'
-                               ^^^^^^
+                               ^----^
                                if you have a terminal which supports extended keys
                                but whose '$TERM' does not start with 'xterm', you may
                                need to add another pattern, or just use '*'
@@ -2434,7 +2434,7 @@ For example, `:norm` can break an  interactive command by pressing `Esc` when an
 input is asked:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
-        "                                           vvvvv
+        "                                           v---v
         nno <c-b><c-b> :<c-u>set opfunc=Op<bar>exe 'norm! '..(v:count ? v:count : '')..'g@_'<cr>
         call setline(1, ["a\x01b"])
         fu Op(_)
@@ -2719,7 +2719,7 @@ boilerplate code:
 and it would expect the name of a custom function:
 
     fu lg#my_opfunc(myfunc, type, ...) abort
-                    ^^^^^^
+                    ^----^
 
 The latter  would be  defined in  the plugin  where you  need to  implement your
 operator.  It  would contain the  logic specific to  the operator (i.e.  not the
@@ -2979,7 +2979,7 @@ Here, `ciixy` is equivalent to `c:norm! Txcty`.
 
 Now try this mapping:
 
-            vvvvv
+            v---v
     :ono ii <esc>:<c-u>exe 'norm! T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())<cr>
     foo x_bar_y baz
     foo xy baz~
@@ -2993,7 +2993,7 @@ Watch this:
     foo x_bar_y baz
     foo xctyar_y baz~
 
-                    vvvvv
+                    v---v
     :ono <expr> ii '<esc>T'..nr2char(getchar())..v:operator..'t'..nr2char(getchar())
     foo x_bar_y baz
     foo xy baz~
@@ -3557,7 +3557,7 @@ First, it doesn't make sense.
 `<silent>` is useful to  prevent Vim from displaying an Ex  command which is run
 after entering the command-line from the rhs of the mapping:
 
-        vvvvvvvv
+        v------v
     nno <silent> cd :call Func()<cr>
     fu Func()
         " ...
@@ -4019,7 +4019,7 @@ I think it just works for `:norm`...
 
 In any case, as a workaround, use `:exe`:
 
-                     vvv
+                     v-v
     nno <silent> cd :exe 'sil! call UnknownFunc()' <bar> echom 'processed'<cr>
 
 ---
@@ -4139,11 +4139,11 @@ Illustration:
              cursor is here
              v
     func1(foo|, func2(), bar);
-          ^^^
+          ^-^
           text yanked if you press `yOb)`
 
     func1(foo|, func2(), bar);
-              ^^^^^^^^^^^^^^
+              ^------------^
           text yanked if you press `yOe)`
 
 Ceci  illustre également  que, si  on  divise un  text-object en  2 parties,  la

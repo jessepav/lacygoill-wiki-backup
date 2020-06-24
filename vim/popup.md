@@ -101,7 +101,7 @@ Make sure `firstline` has been reset to 0.
 
     let id = popup_create({what}, {opts})
     call popup_setoptions(id, #{firstline: 0})
-                              ^^^^^^^^^^^^^^^
+                              ^-------------^
 
 When Vim redraws the screen, it always uses the value bound to `firstline`.
 It doesn't care what is the current topline in the popup at that moment.
@@ -293,7 +293,7 @@ If you capture the keys received by the filter:
 
     fu s:popup_filter(winid, key) abort
         let g:d_keys = get(g:, 'd_keys', []) + [a:key]
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ^--------------------------------------------^
 
 you should see that Vim receives this byte sequence when you press `M-S-g`:
 
@@ -303,12 +303,12 @@ To limit the noise in your variable, pass `filtermode: 'n'` to `popup_create()`,
 so that you don't get all the keys typed on the command-line.
 
     call popup_create('test', #{filter: function('s:popup_filter'), filtermode: 'n', mapping: v:false})
-                                                                    ^^^^^^^^^^^^^^^
+                                                                    ^-------------^
 
 Anyway, once you get the sequence, use it to fix your `if`/`elseif` statement:
 
     if a:key is# "\<m-g>" || a:key is# "\<m-s-g>" || a:key is# "\x80\xfc\<c-b>Ç"
-                                                               ^^^^^^^^^^^^^^^^^
+                                                               ^---------------^
 
 ---
 
@@ -327,7 +327,7 @@ Note that in this particular example, the issue can only be reproduced if:
 It's forbidden in a popup terminal; use this instead:
 
     :call popup_close(win_getid())
-          ^^^^^^^^^^^
+          ^---------^
 
 ### Wait.  Now I have a popup terminal which I *can* close with `:close`.  What gives?
 
@@ -380,7 +380,7 @@ Instead, close the popup and create a new one:
     )
 
     :call popup_close(winid) | call popup_create('popup', {})
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     ^------------------------------------------------------^
 
 ##
 # Todo

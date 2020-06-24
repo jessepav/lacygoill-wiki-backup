@@ -61,7 +61,7 @@ A substitution also adds an entry in the jumplist:
 In a script, to preserve the jumplist, `:keepjumps` must be invoked:
 
     keepjumps %s/pat/rep/g
-    ^^^^^^^^^
+    ^-------^
 
 ---
 
@@ -80,7 +80,7 @@ A substitution also alters the change marks:
 In a script, to preserve the change marks, `:lockmarks` must be invoked (requires [`8.1.2302`](https://github.com/vim/vim/releases/tag/v8.1.2302)):
 
     lockmarks %s/pat/rep/g
-    ^^^^^^^^^
+    ^-------^
 
 ---
 
@@ -97,14 +97,14 @@ A substitution also alters the search register:
 In a script, to preserve the search register, `:keeppatterns` must be invoked:
 
     keeppatterns %s/pat/rep/g
-    ^^^^^^^^^^^^
+    ^----------^
 
 ---
 
 If the number of changed lines is greater than `&report`, then a message is written on the command-line.  In a script, to prevent a message from being displayed, `:silent` must be invoked:
 
     silent %s/pat/rep/g
-    ^^^^^^
+    ^----^
 
 And the `e` flag must be used to avoid `E486` when the pattern is not found:
 

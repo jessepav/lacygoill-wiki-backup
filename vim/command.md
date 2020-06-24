@@ -86,7 +86,7 @@ command:
 It's called the replacement text:
 
     com Test call Func()
-             ^^^^^^^^^^^
+             ^---------^
 
 ## How to list the help tags useful to create a custom command?
 
@@ -351,7 +351,7 @@ Characters which are special on Vim's command-line will be automatically expande
     endfu
     Cmd 'A%B'
     Acommand.mdB~
-     ^^^^^^^^^^
+     ^--------^
        `%` has been expanded into the name of the current file
 
 ---
@@ -834,7 +834,7 @@ the command is not run, *but* an error is raised:
 If that is an issue, use `:exe`:
 
     $ vim -Nu NONE +'if 0 | exe "clear foo" | endif'
-                            ^^^
+                            ^-^
 
 See also: <https://github.com/neovim/neovim/issues/11136#issuecomment-537253732>
 
@@ -844,7 +844,7 @@ See also: <https://github.com/neovim/neovim/issues/11136#issuecomment-537253732>
 Document that, in practice, you don't need to combine `:update` and `:argdo`:
 
     :argdo SomeCommand | update
-                       ^^^^^^^^
+                       ^------^
 
 Our `vim-save` plugin automatically updates a buffer on BufLeave.
 

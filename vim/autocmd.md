@@ -182,7 +182,7 @@ This should match `foobar` or just `bar`.
 Use the `++once` flag.
 
     au {event} {pat} ++once {cmd}
-                     ^^^^^^
+                     ^----^
 
 ## Does `++once` prevent the duplication of an autocmd if its code is sourced multiple times?
 
@@ -346,7 +346,7 @@ If you want to be sure, write this in `/tmp/vim.vim`:
 Then, execute this command:
 
      :setl ml mls=1 | au SomeEvent * setl sw=5
-                         ^^^^^^^^^
+                         ^-------^
                          replace with the name of the event you want to really test
 
 Finally, reload the buffer (`:e`), and ask Vim what is the local value of `'sw'`:
@@ -630,7 +630,7 @@ Omit  the name  of your  custom event,  pass the  special pattern  `<buffer>` to
 `expand('<afile>')`:
 
     au User <buffer> if expand("<afile>") is# "Test" | echom "User Test was fired" | endif
-            ^^^^^^^^    ^^^^^^^^^^^^^^^^^
+            ^------^    ^---------------^
 
 ---
 
@@ -669,7 +669,7 @@ There is no guarantee that the current buffer is a terminal buffer:
     " press C-\ C-n
     :mess
     buftype is: regular~
-                ^^^^^^^
+                ^-----^
                 it's not 'terminal' as you may have expected initially
 
 This  is because,  in Vim,  it's possible  to create  a terminal  buffer without
@@ -787,7 +787,7 @@ It may not be necessary, but it's more consistent with what we wrote here.
 
 Example:
 
-                                    vvvv
+                                    v--v
     $ vim -Nu NONE +"au CmdWinEnter /,\? nno <buffer> cd :echom 'only for a search command-line'<cr>"
 
     " press:  q:

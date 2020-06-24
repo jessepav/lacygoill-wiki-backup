@@ -9,7 +9,7 @@ For example, on Ubuntu 16.04, the default Vim binary can be installed from `xeni
 
     2:7.4.1689-3ubuntu1 500
        500 http://fr.archive.ubuntu.com/ubuntu xenial/main amd64 Packages
-                                               ^^^^^^^^^^^
+                                               ^---------^
                                                relevant section
 
 Backup `sources.list`:
@@ -64,18 +64,13 @@ Later, you can check the lua interface has been compiled by running:
 ##
 ##configure the compilation
 
-    ./configure --enable-cscope \
-                --enable-fail-if-missing \
+    ./configure --enable-fail-if-missing \
                 --enable-gui=gtk2 \
                 --enable-luainterp=dynamic \
-                --enable-multibyte \
                 --enable-python3interp=yes \
-                --enable-terminal \
                 --prefix=/usr/local \
                 --with-compiledby=user \
-                --with-features=huge \
-                --with-luajit \
-                --with-python3-config-dir=/usr/lib/python3.5/config-3.5m-x86_64-linux-gnu/
+                --with-luajit
 
 ### Why should I avoid the perl and ruby interfaces?
 

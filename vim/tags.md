@@ -146,6 +146,11 @@ I think it's more powerful than ctags,  but it may not be a complete replacement
 for cscope.  I'm not sure it supports "caller/callee search"; see here:
 <https://github.com/oracle/opengrok/wiki/Comparison-with-Similar-Tools>
 
+## Study one of these plugins
+
+<https://github.com/majutsushi/tagbar/blob/master/doc/tagbar.txt>
+<https://github.com/yegappan/taglist/blob/master/doc/taglist.txt>
+
 ##
 # ?
 

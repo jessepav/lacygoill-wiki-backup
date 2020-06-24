@@ -1577,6 +1577,13 @@ Anything which prevents `#n` from being the very first 2 characters of the scrip
 
 <https://www.youtube.com/watch?v=1k7_7e5ugrY&list=PLUQzXLQ6jvHL-Kw9I5H6dvFHal-ynWSTA>
 
+## learn how to debug a sed script using the desed utility
+
+Debugger for  Sed: demystify and  debug your sed  scripts, from comfort  of your
+terminal. https://soptik.tech/articles/building…
+
+<https://github.com/SoptikHa2/desed>
+
 ## ?
 
 From irc `#bash`:

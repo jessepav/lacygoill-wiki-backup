@@ -37,17 +37,17 @@ Several Vim binaries can be installed.  How to detect which one is responsible f
 ### edit some file?
 
     $ vim --remote /path/to/file --servername MYSERVER
-          ^^^^^^^^
+          ^------^
 
 #### in a new tab page?
 
     $ vim --remote-tab /path/to/file --servername MYSERVER
-                  ^^^^
+                  ^--^
 
 ### type some keys?
 
     $ vim --remote-send '<esc>:echom "test"<cr>' --servername MYSERVER
-                  ^^^^^
+                  ^---^
 
 Note that  the string argument  passed to  `--remote-send` is able  to translate
 special sequences such as `<esc>` and `<cr>` just like any mapping command.
@@ -55,7 +55,7 @@ special sequences such as `<esc>` and `<cr>` just like any mapping command.
 ### evaluate some Vim expression?
 
     $ vim --remote-expr 'Func()' --servername MYSERVER
-                  ^^^^^
+                  ^---^
 
 ##
 ## What's special about the server names `VIM`?

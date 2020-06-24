@@ -159,7 +159,7 @@ instead of `--cmd`.
 
 #### the plugin `vim-foo`?
 
-                   vvvvv         v
+                   v---v         v
     $ vim -Nu NORC --cmd 'set rtp^=/path/to/vim-foo rtp-=~/.vim rtp-=~/.vim/after'
                                                        │           │
                                                        │           └ disable `~/.vim/after/plugin/*.vim`
@@ -214,7 +214,7 @@ They've been sourced by either:
      which triggered the sourcing of an autoloaded script
 
     - a filetype/syntax/indent plugin for a buffer
-                               ^^^^^^
+                               ^----^
                                Yes,  I  know,  the question  mentions  files
                                which are  NOT plugins, but  filetype plugins
                                are not local  plugins (`~/.vim/plugin`), nor
@@ -777,8 +777,6 @@ core file in your working directory which prevented Vim from dumping a new one:
 Run this:
 
     valgrind --leak-check=yes --num-callers=50 --track-origins=yes --log-file=valgrind.log ./src/vim -Nu NONE
-
-    valgrind --leak-check=yes --num-callers=50 --track-origins=yes --log-file=valgrind.log ./src/vim -u NONE -S /tmp/t.vim
 
 After reproducing the issue, the log should be written in `./valgrind.log`.
 

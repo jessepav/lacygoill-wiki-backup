@@ -40,7 +40,7 @@ Les wildcards suivants sont développés automatiquement dans les noms de fichie
 Use `[abc]`:
 
     :sp | argl | args /etc/[abc]*
-                           ^^^^^^
+                           ^----^
 
 Here,  only the  files and  directories  starting with  `a`  or `b`  or `c`  are
 included in the arglist.
@@ -143,14 +143,14 @@ it's too late for `shellescape()` to properly escape the quote in the text.
 To check this yourself, increase the verbosity to 4:
 
     :setl gp&vim | 4verb exe 'grep '..shellescape('<cWORD>')..' %'
-                   ^^^^^
+                   ^---^
 
 It fails because the shell runs `grep -n 'a'b' ...`:
 
-                                       vvvvv
+                                       v---v
     Calling shell to execute: "grep -n 'a'b' ...~
     zsh:1: unmatched '~
-    ^^^^^^^^^^^^^^^^^^
+    ^----------------^
 
 ---
 
@@ -161,10 +161,10 @@ was the case, then it would have raised E116 (try `:echo shellescape('a'b')`).
 
 Use `expand()`:
 
-                                                      vvvvvv
+                                                      v----v
         :setl gp&vim | 4verb exe 'grep '..shellescape(expand('<cWORD>'))..' %'
         Calling shell to execute: "grep -n 'a'\''b' ...~
-                                           ^^^^^^^^
+                                           ^------^
 
 Note  that  the quotes  around  `<cWORD>`  are only  necessary  to  get a  valid
 expression to pass to `expand()`.
@@ -448,14 +448,14 @@ Example:
 
     let view = winsaveview()
     call Func(lnum, col)
-              ^^^^^^^^^
+              ^-------^
               2 arguments
 
     →
 
     let view = winsaveview()
     call Func(view)
-              ^^^^
+              ^--^
               1 argument
 
     fu Func(view)
@@ -495,7 +495,7 @@ function; in which  case, you can use  `l:` instead, but you  need to capitalize
 the name of the partial:
 
     let l:Partial = function('Func', [1, 2])
-        ^^^
+        ^-^
 
 ---
 
@@ -730,7 +730,7 @@ The stopline argument is processed independently  from the current line; it does
 not mean:
 
     "search from the current line up/down to the stopline"
-            ^^^^^^^^^^^^^^^^^^^^^
+            ^-------------------^
 
 but:
 
@@ -777,12 +777,12 @@ recomputing.
 
     :echo searchcount(#{pattern: '.'})
     {'exact_match': 0, 'current': 100, 'incomplete': 2, 'maxcount': 99, 'total': 100}~
-                                                                                 ^^^
+                                                                                 ^-^
 
                                                 v           v
     :echo searchcount(#{pattern: '.', maxcount: 0, timeout: 0})
     {'exact_match': 1, 'current': 1000, 'incomplete': 0, 'maxcount': 0, 'total': 4913}~
-                                                                                 ^^^^
+                                                                                 ^--^
 
 ## What happens to `total` if there are more matches than `maxcount`?
 
@@ -790,7 +790,7 @@ It's set to `maxcount + 1`.
 
     :echo searchcount(#{pattern: '.'})
     {'exact_match': 0, 'current': 100, 'incomplete': 2, 'maxcount': 99, 'total': 100}~
-                                                                                 ^^^
+                                                                                 ^-^
                                                                                  99 + 1
 
 ###
@@ -799,7 +799,7 @@ It's set to `maxcount + 1`.
 Inspect the `current` key:
 
     :echo searchcount(#{pattern: 'pat'}).current
-                                        ^^^^^^^^
+                                        ^------^
 
 ### What does this output if I'm not on a match?
 
@@ -811,7 +811,7 @@ Pass a dictionary  to `searchcount()` which includes the `pos`  key, and a value
 describing the position you're interested in:
 
     $ vim -Nu NONE +"let @/ = 'pat' | sil pu!=['xxx', 'pat']->repeat(3)"
-                        vvvvvvvvvvv
+                        v---------v
     :echo searchcount(#{pos: [4,1,0]}).current
     2~
 
@@ -923,7 +923,7 @@ When the condition passed  to `filter()` is more complex than  a simple regex or
 string comparison:
 
     empty(filter(copy(list), {_,v -> v.foo == 1 && v.bar != 2}))
-                                     ^^^^^^^^^^^^^^^^^^^^^^^^
+                                     ^----------------------^
                                      assume that `list` contains dictionaries with the keys `foo` and `bar`
 
 ##
@@ -1079,7 +1079,7 @@ Usage example:
 Or:
 
     echo max(map(range(1, line('$')), 'virtcol([v:val, "$"])')) - 1
-                                                                ^^^
+                                                                ^-^
 
 Note that the reason for `-1` is explained at `:h virtcol()`:
 
@@ -1388,14 +1388,14 @@ MWE:
 
     $ mkdir -p /tmp/foo; cd /tmp/foo; \
       vim -es -Nu NONE +'set wig+=*/foo/*' +"pu=expand(\\\"`pidof vim | awk '{print $1}'`\\\")" +'%p|qa!'
-                       ^^^^^^^^^^^^^^^^^^^
+                       ^-----------------^
       ''~
 
 To avoid this pitfall, you need to pass a non-zero value as a second argument to `expand()`:
 
     $ mkdir -p /tmp/foo; cd /tmp/foo; \
       vim -es -Nu NONE +'set wig+=*/foo/*' +"pu=expand(\\\"`pidof vim | awk '{print $1}'`\\\", v:true)" +'%p|qa!'
-                                                                                               ^^^^^^
+                                                                                               ^----^
       1234~
 
 ---
@@ -1476,7 +1476,7 @@ The solution is to make the condition work on a *copy* of the list.
         let list = ['a', 'foo', '%', 'b', 'bar', '%', 'c']
         let list_copy = copy(list)
         call filter(list, {i,_ -> get(list_copy, i+1, '') isnot# '%'})
-        "                             ^^^^^^^^^
+        "                             ^-------^
         echo list
     endfu
     call Func()
@@ -2413,7 +2413,7 @@ Taper `cd`, puis écrire qch sur la ligne de commande et attendre.
     call timer_start(0, {-> execute('if expr | call Func() | endif')})
     ✔
     call timer_start(0, {-> expr && type(Func())})
-                                    ^^^^
+                                    ^--^
                                     not necessary if the output of `Func()` is:
                                         - a boolean
                                         - a number

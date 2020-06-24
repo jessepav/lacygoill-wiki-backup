@@ -10,7 +10,7 @@ Are there occasions where we could have delayed the execution of the code simply
 by "moving" it later; e.g.:
 
     ino <expr> <key> <c-r>=FuncA()..FuncB()<cr>
-                                    ^^^^^^^
+                                    ^-----^
                                     contains the code to be delayed
 
 IOW, when is a timer or a one-shot autocmd really needed?

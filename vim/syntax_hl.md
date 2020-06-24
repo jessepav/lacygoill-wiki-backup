@@ -476,7 +476,7 @@ Consider this:
 
     " text
     foo { bar { baz } qux } norf }
-        ^^^^^^^^^^^^^
+        ^-----------^
         highlighted
 
 ` qux } norf }` should be highlighted, but it's not.
@@ -514,12 +514,12 @@ it can also find its ending.
 Here's what would be highlighted for the following text:
 
     before "A string with a double quote (\") in it" after
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^---------------------------------------^
 
 If you had omitted the `skip` argument:
 
     before "A string with a double quote (\") in it" after
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^       ^^^^^^^
+           ^-------------------------------^       ^-----^
 
 ##
 ## How to conceal the start and end of a region?
@@ -596,7 +596,7 @@ And your cursor was on `Foo`, the stack of syntax items would still have been:
 And not:
 
     xWord xMatchgroup xRegion~
-    ^^^^^
+    ^---^
 
 ### What happens to the text matched by `end` if it's affected by a `matchgroup=xMatchgroup`?
 
@@ -606,7 +606,7 @@ In the previous example, you'll notice that when the cursor is on `Bar`, the sta
 of syntax items is:
 
     xMatchgroup~
-                ^^^^^^^
+                ^-----^
                 no xRegion
 
 Instead of:
@@ -618,7 +618,7 @@ Instead of:
 Use an additional `matchgroup=NONE` to reset  to not using a different group for
 the end pattern:
 
-                                                          vvvvvvvvvvvvvvv
+                                                          v-------------v
     syn region xRegion matchgroup=xMatchgroup start=/Foo/ matchgroup=NONE end=/Bar/
 
     hi link xRegion DiffAdd
@@ -730,7 +730,7 @@ No.
 You have to explicitly define it with `contains=xRegion`:
 
     syn region xBlock start=/{/ end=/}/ contains=xBlock
-                                        ^^^^^^^^^^^^^^^
+                                        ^-------------^
 
 ###
 ### Which issue is created by a region contained inside another region, and with no text matching its end pattern?
@@ -1112,7 +1112,7 @@ with the `contains=NONE` argument.
 Example:
 
     syn match xVim /\<vim\>/ transparent contained contains=NONE
-                                                   ^^^^^^^^^^^^^
+                                                   ^-----------^
 
 ###
 ### Here is a usage example of `transparent`:
@@ -1171,7 +1171,7 @@ Highlighted as a comment.
 Why doesn't the command produce this stack:
 
     xVim xWord xVim xString
-    ^^^^
+    ^--^
 
 Well,  I  don't  think  it's  possible  because  `xWord`  is  not  defined  with
 `contains=xVim`, but even if it was, according to `:h syn-transparent`:
@@ -1314,7 +1314,7 @@ Avoid quantifiers inside lookarounds as much as possible.
 If you wrote something like this:
 
          *
-    ^^^^^
+    ^---^
     spaces
 
 Try this instead:

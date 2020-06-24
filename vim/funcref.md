@@ -120,7 +120,7 @@ The first definition (funcref) seems to win:
 But the definition of the function is weird:
 
     fu Length
-                vvvvvvvvvvvvvvv
+                v-------------v
        function toupper(string) abort~
     1          let l:Length = function(exists('*strchars') ? 'strchars' : 'strlen')~
     2          return l:Length(a:string)~
@@ -173,7 +173,7 @@ The resulting funcref binds the function to the dictionary.
         return 'my name is: '..self['name']
     endfu
     let Fn = function('Func', adict)
-                              ^^^^^
+                              ^---^
 
     " the dictionary was not modified
     echo adict

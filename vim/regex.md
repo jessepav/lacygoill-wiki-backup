@@ -161,7 +161,7 @@ A syntax rule may be broken by the usage of `\zs` in another rule:
 
     " broken syntax rules
     :hi link xAb DiffAdd | hi link xCd DiffDelete | syn match xCd /ab.*\zscd/ | syn match xAb /ab/
-                                                                       ^^^
+                                                                       ^-^
                                                                        will cause an issue
     " resulting highlights
     abXcd
@@ -171,7 +171,7 @@ A syntax rule may be broken by the usage of `\zs` in another rule:
 
     " fixed syntax rules
     :hi link xAb DiffAdd | hi link xCd DiffDelete | syn match xCd /\%(ab.*\)\@<=cd/ | syn match xAb /ab/
-                                                                   ^^^    ^^^^^^
+                                                                   ^-^    ^----^
                                                                    fixes the issue
     " resulting highlights
     abXcd
@@ -367,7 +367,7 @@ Use `\&` and `\zs`:
     \%(foo\)\@<=...
     ⇔
     foo\zs...
-       ^^^
+       ^-^
 
 ##
 # What's the shortest regex to match
@@ -396,7 +396,7 @@ Useful to simulate `\K\+` (`\K` doesn't exist).
 Test the regex against:
 
     àbc - déf
-       ^^^
+       ^-^
 
 ---
 
@@ -419,10 +419,10 @@ Which can be used to construct the complement of resp. `\k`, `\i`, `\f`.
 Test the regex against:
 
     a pat b
-    ^^^^^^^
+    ^-----^
 
     a b
-    ^^^
+    ^-^
 
 ---
 
@@ -441,7 +441,7 @@ one producing the *longest* match.
 ## all sequences of several uppercase characters *not* followed by a comma *nor another uppercase character*?
 
     \%(\u\{2,}\)\@>,\@!
-                ^^^
+                ^-^
 
 ---
 
@@ -482,7 +482,7 @@ This description  won't match  a comma  inside a string,  because there  will be
 half-a-string at the end:
 
     0.12 , 0.15 , "this is a string" , "this is a string, with, many, commas,"
-                                       ^^^^^^^^^^^^^^^^^
+                                       ^---------------^
 
 The underlined text is *not* a full  string so it won't be matched by `"[^"]*"`,
 and it's not a not-a-string either, so it won't be matched by `[^"]*` either.
@@ -490,7 +490,7 @@ and it's not a not-a-string either, so it won't be matched by `[^"]*` either.
 ### all commas *inside* a double-quoted string?
 
     \%(^\%("[^"]*"\|[^"]\)*"[^"]*\)\@<=,
-                           ^^^^^^
+                           ^----^
                            only difference compared to the previous regex:
                            an unterminated string
 
@@ -524,19 +524,19 @@ Test it against this line:
 Test it against these strings:
 
     'ab'c
-    ^^^^
+    ^--^
 
     'a\'b'c
-    ^^^^^^
+    ^----^
 
     'a\\'bc
-    ^^^^^
+    ^---^
 
     'a\\\'b'c
-    ^^^^^^^^
+    ^------^
 
     'a\\\\'bc
-    ^^^^^^^
+    ^-----^
 
 Notice how  the regex correctly  handles sequences of backslashes;  when looking
 for the end  of the string, it only  ignores a quote if it's prefixed  by an odd
@@ -595,7 +595,7 @@ Most of the time, it would match the same texts as the previous one.
 But not always:
 
     A C B C
-    ^^^^^^^
+    ^-----^
 
 Here, it would match the whole line, while it should not.
 There is no `B` between `A` and the next `C`; just a single space:
@@ -607,7 +607,7 @@ The issue is in the first `.\{-}`.
 You need to replace it with `[^C]*`:
 
     A[^C]*B.\{-}C
-     ^^^^^
+     ^---^
 
 This seems to  show that, in the  general case, you need  a complemented bracket
 expression (`.\{-}` is not enough).
@@ -637,7 +637,7 @@ The regex works, but  you probably want an additional branch  to handle the case
 where the cursor is right before `A`.
 
     A[^C]*\%#[^C]*C\|\%#A[^C]*C
-                   ^^^^^^^^^^^^
+                   ^----------^
 
 Indeed, when you see  your cursor *on* `A` in normal  mode, you'll probably want
 your regex to match.
@@ -696,7 +696,7 @@ However, it only works as expected when there is one B per line, not several.
 For example, in this text:
 
     AxA AxBxA B AxA AxBxA
-                ^^^
+                ^-^
 
 It wrongly matches the second `AxA`.
 
@@ -710,7 +710,7 @@ Without it, the regex becomes:
 And this new regex finds a match here:
 
     AxxA B AxxA
-       ^^^^^
+       ^---^
 
 `\@>` prevents the regex engine from backtracking, but I don't understand how it
 has any effect here.
@@ -808,7 +808,7 @@ For example, when your cursor is on the `n` of `and`:
 The regex – without `\@>` – matches `' and '` in this position:
 
     a 'string' and 'another one' !
-             ^^^^^^^
+             ^-----^
 
 ---
 
@@ -823,7 +823,7 @@ For example, on this position:
 The regex – without `\@>` – would match `' and '`:
 
     a 'string' and 'another one' !
-             ^^^^^^^
+             ^-----^
 
 ####
 # Miscellaneous
@@ -842,7 +842,7 @@ That's why this regex:
 matches `tour` in the text:
 
     three tournaments won
-          ^^^^
+          ^--^
 
 If it was lazy, it would match `to`, and if it was greedy, it would match `tournament`.
 
@@ -1017,14 +1017,14 @@ As a final example, consider this regex:
 And this text, while your cursor is on `four`:
 
     one `two` three `four` five
-            ^^^^^^^^
+            ^------^
             highlighted
 
 But the real text matched by the regex is not the one highlighted.
 You can see it by running `:%s///gc`:
 
     one `two` three `four` five
-                    ^^^^^^
+                    ^----^
 
 The `Search` highlighting is probably  unreliable because right after the search
 command,  the cursor  is moved,  and  thus the  position expressed  by `\%#`  is
@@ -1192,7 +1192,7 @@ But it doesn't work in sth like:
 
     let line = getline('.')
     let str = matchstr(line, '\k*\%#\k*')
-                                 ^^^
+                                 ^-^
 
 because `matchstr()`  doesn't search directly  in the  current buffer, but  on a
 copy of the current line provided by `getline('.')`.

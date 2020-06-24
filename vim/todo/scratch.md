@@ -75,7 +75,7 @@ Right now,  we tend  to use  `)` and  `(` to  preview the  next/previous "entry"
 (whatever that means in the context of the current buffer):
 
     :vim /nno.*<buffer>\S*\s\+\%([()]\|\[\[\|\]\]\)\s/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
-                                       ^^^^^^^^^^
+                                       ^--------^
                                        we also use `[[` and `]]` as a secondary pair of lhs
 
 We chose  `(`/`)` – instead of  `{`/`}` – because  previewing sth seems to  be a
@@ -305,12 +305,12 @@ window, although in a different way;  the windows are not equalized anymore, but
 the space  previously taken  by the closed  window may be  given to  the current
 window; it seems to be due to `'splitbelow'` and `'splitright'`:
 
-                              vv vvv
+                              vv v-v
     $ vim -Nu NONE +'set noea sb spr|au VimEnter * wincmd =' +vs +vs
     :2q
     " the width of the first window increases
 
-                              vvvv vvvvv
+                              v--v v---v
     $ vim -Nu NONE +'set noea nosb nospr|au VimEnter * wincmd =' +vs +vs
     :2q
     " the width of the first window stays fixed

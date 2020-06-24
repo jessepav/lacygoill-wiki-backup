@@ -370,7 +370,7 @@ This is recommended at `:h 43.2`:
 
 Use an `after/` directory:
 
-                           vvvvv
+                           v---v
     $ cat <<'EOF' >>~/.vim/after/filetype.vim
 
     augroup filetypedetect
@@ -662,7 +662,7 @@ previous  filetype plugin  has been  sourced  in the  rtp, maybe  you could  set
 another variable in `ftplugin/potion.vim`:
 
     let b:did_my_ftplugin = 1
-             ^^^^
+             ^--^
 
 Then, in `potion/folding.vim`, you would check it existence:
 

@@ -82,14 +82,14 @@ concatenation:
     " in Vim's terminal
     $ vim -Nu NONE +'let file = "/tmp/file"'
                                                             ✘
-                                                            vvvvvv
+                                                            v----v
     :call writefile([printf('%s]51;["drop", %s]%s', "\033", string(file), "\007")], '/dev/tty', 'b')
     E474: Invalid argument~
 
 Use `json_encode()` instead:
 
                                                             ✔
-                                                            vvvvvvvvvvv
+                                                            v---------v
     :call writefile([printf('%s]51;["drop", %s]%s', "\033", json_encode(file), "\007")], '/dev/tty', 'b')
 
 ### It doesn't work for no apparent reason!

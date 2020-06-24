@@ -100,13 +100,13 @@ Increase Vim's verbosity:
 
 It's better to set `'verbose'` via `:set`:
 
-            vvvvvvvvv
+            v-------v
     $ echo 'set vbs=1|2d' | vim -es =(printf 'one\ntwo\nthree\nfour\nfive')
     three~
 
 than via `-V1` which produces much more noise:
 
-                    vvv
+                    v-v
     $ echo 2d | vim -V1 -es =(printf 'one\ntwo\nthree\nfour\nfive')
     XSMP opening connection~
     not found in 'packpath': "pack/*/start/*"~
@@ -132,7 +132,7 @@ also redirect stderr:
     test0~
 
                                            ✔
-                                           vvvv
+                                           v--v
     $ vim +'set vbs=1|echo "test"|qa!' -es 2>&1 | wc -m
     4~
 
@@ -141,7 +141,7 @@ also redirect stderr:
 
 You need to reset `'loadplugins'` (e.g. via `--noplugin` or `-Nu NONE`):
 
-          vvvvvvvvvv
+          v--------v
     $ vim --noplugin -es +'set vbs=1|scriptnames|qa!'
     ''~
 
@@ -546,7 +546,7 @@ See `:h vim-arguments`:
 Increase the verbosity level to get more information:
 
     $ echo 'set vbs=1|your Ex commands' | vim ...
-            ^^^^^^^^^
+            ^-------^
 
 ### What's the first line in the output of this command?
 

@@ -1333,7 +1333,7 @@ has less than 6 digits, trailing zeros are added:
 
     echo printf('%f', 123.456)
     123.456000~
-           ^^^
+           ^-^
 
 ---
 
@@ -1377,7 +1377,7 @@ But this is an exception; usually `.precision` can only truncate:
 
     echo printf('%.10s', 'hello')
     hello~
-         ^^^^^
+         ^---^
          no trailing spaces are added
 
 So, truncation is probably the main usage of `.precision`.
@@ -1411,12 +1411,12 @@ The `%s` item of `printf()` can do that automatically.
 
     let dict = {'a': 1, 'b': 2}
     echo 'my dictionary is '..string(dict)
-                              ^^^^^^
+                              ^----^
     ⇔
 
     let dict = {'a': 1, 'b': 2}
     echo printf('my dictionary is %s', dict)
-         ^^^^^^                   ^^
+         ^----^                   ^^
 
 From `:h printf-s`:
 
@@ -1471,7 +1471,7 @@ But it won't work; it will raise:
 You still need `string()`:
 
     let cmd = printf('call Func(%s)', string(arg))
-                                      ^^^^^^
+                                      ^----^
 
 In this example, `arg`  still has to be quoted when  passed to `Func()`, because
 the latter expects a string, not a variable name.

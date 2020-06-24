@@ -970,7 +970,7 @@ Use `get` or `add` in the middle of the name of the command.
 Example:
 
     :cgetfile
-      ^^^
+      ^-^
 
 ----------
 
@@ -1102,7 +1102,7 @@ If you execute a command which modifies the buffer, update it afterwards:
 
     " ✔
     :sil! noa cdo d_ | update
-                     ^^^^^^^^
+                     ^------^
 
 ---
 
@@ -1125,7 +1125,7 @@ If you  execute a command  which MAY change the  focused window, prefix  it with
 
     " ✔
     :sil! noa bufdo vimgrepadd /pat/gj %
-          ^^^
+          ^-^
 
 ---
 
@@ -1137,7 +1137,7 @@ command may raise an error, prefix the whole command with `silent!`:
 
     " ✔
     :sil! noa argdo %caddbuffer
-     ^^^^
+     ^--^
 
 ## How does `:cdo` interpret a range?   What about `:cfdo`?   `:cgetbuffer`?  `:bufdo`?
 
@@ -1376,7 +1376,7 @@ register.
 So, you need to write the pattern explicitly in the substitution:
 
     :vim /pat/gj /etc/*.conf | cdo s/pat/rep/e | update
-                                     ^^^
+                                     ^-^
 
 ## Why does  `:bufdo grepadd pat %`  sometimes fail?
 
@@ -1407,7 +1407,7 @@ Example 1:
     " ✔
 
     :sil! noa bufdo vimgrepadd /pat/gj %
-          ^^^
+          ^-^
 
 
 Example 2:
@@ -1421,7 +1421,7 @@ Example 2:
     " ✔
 
     :noa g/pat/caddexpr substitute(getline('.'), '@', ':', 'g')
-     ^^^
+     ^-^
 
 ##
 ##
@@ -1584,7 +1584,7 @@ And in a regex, environment variables are not expanded.
 
     :vim /$TERM/ /tmp/file
     E480: No match: $TERM~
-                    ^^^^^
+                    ^---^
                     $TERM was not expanded
 
 IOW, in "regex-like mode", Vim has no way  to know in advance which parts of the

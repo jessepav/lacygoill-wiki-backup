@@ -58,41 +58,6 @@ Use `getreginfo()` and `setreg()`:
     " restore
     call setreg('r', r_save)
 
-## How to change the type of a register?  (2)
-
-Use a combination of `setreg()`, `getreginfo()` and `extend()`:
-
-    call getreginfo('r')->extend({'regtype': 'V'})->setreg('r')
-                                              ^
-                                              new desired type
-
----
-
-Or use a combination of:
-
-   - the `setreg()` function
-   - an empty second value argument
-   - a third flag argument containing `a` to append the empty value
-
-Example:
-
-    call setreg('r', [''], 'aV')
-
----
-
-Both these solutions are workarounds to emulate the missing `setregtype()` function.
-However, prefer the first one when changing the type of the unnamed register.
-You need `getreginfo()`  to preserve the name of the  register which the unnamed
-register points to.
-
-    $ vim -Nu NONE -i NONE +"pu!='text'" +'norm! "ryy'
-    :echo getreginfo('"').points_to
-    r~
-
-    :call setreg('"', [''], 'av')
-    :echo getreginfo('"').points_to
-    0~
-
 ## How to change the register which the unnamed register points to?
 
     :call setreg('r', {'isunnamed': v:true})
@@ -112,6 +77,46 @@ Example:
     " 'aaa' is put
     :echo getreginfo('"').points_to
     a~
+
+## How to change the type of a register?
+
+Use a combination of `setreg()`, `getreginfo()` and `extend()`:
+
+    call getreginfo('r')->extend({'regtype': 'V'})->setreg('r')
+                                              ^
+                                              new desired type
+
+### Why not relying on the 3rd argument of `setreg()` and appending an empty string?  (2)
+
+So, you're thinking about sth like this:
+
+    call setreg('r', [''], 'aV')
+
+There are two pitfalls.
+
+First, if you try  to alter the type of the unnamed register  like that, it will
+be automatically reconnected to `"0`.
+
+    $ vim -Nu NONE -i NONE +"pu!='text'" +'norm! "ryy'
+    :echo getreginfo('"').points_to
+    r~
+
+    :call setreg('"', [''], 'av')
+    :echo getreginfo('"').points_to
+    0~
+
+Second, when if you  – accidentally – reset a linewise  register into a linewise
+register  (yeah, I  know,  it's  useless; hence  the  *accidentally*), Vim  will
+happily append an undesirable extra newline:
+
+    $ vim -Nu NONE -i NONE +"pu!='text'" +'norm! yy'
+    :call setreg('"', [''], 'aV')
+    :reg "
+    l  ""   text^J^J~
+                  ^^
+                  ✘
+
+See: <https://github.com/vim/vim/issues/323>
 
 ##
 ## Why should I never use a string or a list to set the contents of the unnamed register?
@@ -196,6 +201,21 @@ Linewise.
     call setreg('r', ['foo', 'bar', 'baz'])
     echo getregtype('r')
     V~
+
+## Consider these assignments:
+
+    call setreg('"', #{regcontents: 'one', points_to: 'r'})
+    call setreg('"', #{regcontents: 'two'})
+
+### Which register does the unnamed register points to in the end?
+
+It points to `"0`:
+
+    echo getreginfo('"').points_to
+    0~
+
+Which is  consistent with a  `setreg()` invocation where  the 2nd argument  is a
+string or a list.
 
 ###
 ## How to use `:redir` to redirect the output of an Ex command into a register?
@@ -286,7 +306,7 @@ When you set it manually via `:let` or `setreg()`.
     s/outside func call//ne
     fu! Func()
         let @/ = 'inside func call'
-      " ^^^
+      " ^-^
     endfu
     call Func()
     echo @/
@@ -308,7 +328,7 @@ No:
     " outside~
     " inside~
     " inside~
-      ^^^^^^
+      ^----^
       after the function call, the dot register has not been restored
 
 But it doesn't matter.
@@ -325,7 +345,7 @@ The dot command is not affected; it keeps its original behavior:
     " inside~
     " inside~
     " outside~
-      ^^^^^^^
+      ^-----^
       after the function call, the dot command still repeats the last command performed *before* the function call
 
 In fact, as soon as you use it, the `.` register is restored:
@@ -369,7 +389,7 @@ is affected:
     :let @/ = 'reset'
     :echo histget('/')
     pat~
-    ^^^
+    ^-^
     different than 'reset'
 
 ###
@@ -663,7 +683,7 @@ If the assertion fails, `E486` will be raised and the macro will stop.
 Execute the macro via `:norm!`:
 
     :12,34norm! @q
-     ^^^^^
+     ^---^
      range of lines on which the macro will be executed
 
 ---
@@ -901,7 +921,7 @@ No error is raised by `:norm`, even if you ask it to run an invalid command:
 Applied to our issue, it gives:
 
     let @a = ":norm!@b\rvip:v/x/d_\r\e"
-              ^^^^^^
+              ^----^
 
 This time, `@a` should get you:
 
@@ -917,7 +937,7 @@ This time, `@a` should get you:
 Do *not* use `silent!`, it would make Vim *ignore* any error while pressing the keys:
 
     let @a = ":sil! norm!@b\rvip:v/x/d_\r\e"
-               ^^^^
+               ^--^
                ✘
 
 You need the error *not* to be ignored for `@b` to stop.
@@ -1160,7 +1180,7 @@ If no error is raised, then all the files from the listing A are present in B.
 But if a file from the listing A is missing in B, then `E486` should be raised:
 
     E486: Pattern not found: ^\V/path/to/missing/file\m$
-                                ^^^^^^^^^^^^^^^^^^^^^
+                                ^-------------------^
 
 ---
 
@@ -1224,7 +1244,7 @@ Example when CR is pressed in command-line mode:
 Example when CR is pressed in normal mode:
 
     vim -Nu NONE +"pu=''" +'let @q = "\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
-                  ^^^^^^^
+                  ^-----^
                   there needs to be a line after the one from which we press `@q`,
                   otherwise, `^M` would fail and Vim would stop executing the macro
 
@@ -1242,7 +1262,7 @@ line must always end with `C-j`.
 For the first issue, use `setreg()` and pass the value as a list, not as a string:
 
                                                   ✘
-                                                  vvvvvvvv
+                                                  v------v
     $ vim -es -Nu NONE -i NONE +'call setreg("q", "a\x0ab", "c")' +'pu=execute(\"reg q\") | %p | qa!'
     Type Name Content~
       c  "q   a^Jb~
@@ -1250,7 +1270,7 @@ For the first issue, use `setreg()` and pass the value as a list, not as a strin
                NUL has been translated into NL
 
                                                   ✔
-                                                  vvvvvvvvvv
+                                                  v--------v
     $ vim -es -Nu NONE -i NONE +'call setreg("q", ["a\x0ab"], "c")' +'pu=execute(\"reg q\") | %p | qa!'
     Type Name Content~
       c  "q   a^@b~
@@ -1283,7 +1303,7 @@ NL and one which results from the translation of a NUL.
         call setline(1, "original:  a\x0ab\x0ac")
         norm! ^fa"ry$
         let save = [getreg('r'), getregtype('r')]
-        "           ^^^^^^^^^^^
+        "           ^---------^
         call setreg('r', save[0], save[1])
         pu='restored:  '..execute('reg r')->split('\n')[1]->matchstr(':\s*\zs.*')
         %p
@@ -1460,11 +1480,11 @@ with a `<c-\><c-n>` sequence:
 
     " bad
     let @q = "ia.\ef.ac\e"
-                 ^^^
+                 ^-^
 
     " good
     let @q = "ia.\<c-\>\<c-n>f.ac\e"
-                 ^^^^^^^^^^^^
+                 ^----------^
 
 Don't use `<c-c>`; it would prevent `InsertLeave` from being fired.
 
@@ -1504,7 +1524,7 @@ Examples:
     )
 
     bard~
-    ^^^
+    ^-^
     should be foo
 
 As a workaround, try to press `Esc` to be sure that the rest of the commands are
@@ -1531,7 +1551,7 @@ If the mode you expect is not normal, use a no-op instead of `Esc`:
     vim -es -Nu NONE -S <(cat <<'EOF'
         ono foo bar
         let @q = "ctd\<c-r>=''\<cr>foo\<esc>"
-        "            ^^^^^^^^^^^^^^
+        "            ^------------^
         pu!='abcd'
         call feedkeys('@q', 'x')
         %p
@@ -1548,12 +1568,41 @@ See also:
 
 ##
 # Todo
-## Replace `getreg()` and `getregtype()` with `getreginfo()` everywhere (vimrc, plugins, ...).
+## Replace `getreg()` with `getreginfo()` everywhere (vimrc, plugins, ...).
 
-## Make sure you've never used a string as a second argument of `setreg()`.
+    :copen | Crestore getreg
+
+##
+## Make sure you've never
+### used a string as a second argument of `setreg()`.
 
 Always use a list or a dictionary.
 In the case of the unnamed register, use a dictionary to preserve the pointer.
+
+### set the unnamed register via a list.
+
+Always via a dictionary to be sure that the text is written in the same register
+as the unnamed register was originally pointing to.
+
+Pay attention to cases  where the first argument of `setreg()`  is a variable or
+an expression.   You probably have  no guarantee that  the latter will  never be
+`"`; iow, use a dictionary in those cases too.
+
+##
+## Is it wrong to write `@"` or `@@` to refer to the contents of a register?
+
+More generally, is it wrong to write `@x` (`x` being any register name)?
+
+    :vim /\m\C\<\%(let\>\|setreg(\).*\c@[-*+/=abcdefghijklmnopqrstuvwxyz]/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
+
+## Is this an issue?
+
+<https://github.com/vim/vim/pull/3370#issuecomment-647174322>
+
+    ./vim --clean +"let @0=0 | echo getreginfo('0') | echo getreginfo('\"')"
+
+    {'regcontents': ['0'], 'isunnamed': v:false, 'regtype': 'v'}
+    {'regcontents': ['0'], 'regtype': 'v', 'points_to': '"'}
 
 ##
 # Reference

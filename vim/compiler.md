@@ -39,7 +39,7 @@ It depends where you put it.
 If you put it in:
 
     ~/.vim/after/compiler
-           ^^^^^
+           ^---^
 
 don't make it begin with:
 
@@ -858,8 +858,7 @@ explosions.
 ## What happens if I use the items `%s` and `%l`, and the error message contains a line number?
 
 If the search  is successful, the line  number will not be used  when jumping to
-the entry.
-The `pattern` field has priority over the `lnum` one.
+the entry.  The `pattern` field has priority over the `lnum` one.
 
 MWE:
 
@@ -1033,7 +1032,6 @@ When there're several backslashes, one level  of them will be removed by `:set`,
 because a backslash has a special meaning for the latter: it allows to include a
 backslash, bar, comma, double quote, space in an option value.
 
-##
 ## Why do I need two backslashes to include a comma in a format?
 
 `'efm'` is assigned a SINGLE value, which may contain a list of SEVERAL formats.
@@ -1044,7 +1042,6 @@ one value).
 The  2nd  backslash prevents  Vim,  when  parsing  the  value of  `'efm'`,  from
 interpreting the comma as a separator between 2 formats.
 
-##
 ## How to match a literal backslash in an error message?
 
 If you use `:let`, multiply the backslashes by 4:

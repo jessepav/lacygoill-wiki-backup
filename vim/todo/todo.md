@@ -104,7 +104,7 @@ Instead:
 There may be other locations where we could have used a heredoc:
 
     :vim /[a-z](\[/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
-          ^^^^^^^^
+          ^------^
           there may be other patterns to test
 
 ##
