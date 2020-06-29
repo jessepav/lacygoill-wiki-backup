@@ -96,15 +96,15 @@ Here's what happens:
 
    - you type `i`; it's written in the typeahead buffer, then executed (i.e. inserted in the user buffer)
    - you type `f`; same thing
-   - you type space:
+   - you type space which should be a non-keyword character:
 
        * it's written in the typeahead buffer
        * Vim checks whether the text before the cursor matches an abbreviation
 
-       * it finds one; as a result, it removes its lhs from the user buffer, and
-         inserts its rhs into the typeahead; i.e. `if` is removed from the regular buffer,
-         and   `if  ()<left><c-r>=<sid>eat_space()<cr>`  is  inserted   in  the
-         typeahead in front of the space
+       * it finds one; as a result, it removes its lhs from your buffer, and
+         inserts its rhs into the typeahead; i.e. `if` is removed from your buffer,
+         and `if ()<left><c-r>=<sid>eat_space()<cr>` is inserted in the typeahead
+         in front of the space
 
        * the typeahead is executed, and when `<c-r>=<sid>eat_space()<cr>` is executed,
          `s:eat_space()` consumes the last remaining space from the typeahead (via `getchar()`)
@@ -126,7 +126,7 @@ You could probably replace this line:
 
 With:
 
-    return c
+    return ''
 
 However, if  you were to  use `s:eat_space()`  in another abbreviation,  and for
 some  reason you  wanted to  use it  in  a different  position in  the rhs,  the
@@ -148,7 +148,7 @@ Besides, from where else would `getchar()` consume a key?
                             v
     let c = nr2char(getchar(0))
 
-It  prevents the  latter from  waiting  for a  character  to be  written in  the
+It  prevents `getchar()`  from waiting  for  a character  to be  written in  the
 typeahead buffer when the latter is empty:
 
    - if there's one, it consumes it

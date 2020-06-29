@@ -420,6 +420,11 @@ a negative index in a string, it produces an empty string.
 
 An empty string.
 
+From `:h expr-[]`:
+
+>     A negative index always results in an empty string (reason: backward
+>     compatibility).
+
 #### `str[-i:-j]` with `0 < i < j`?
 
 An empty string.

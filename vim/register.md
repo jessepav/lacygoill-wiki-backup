@@ -105,7 +105,7 @@ be automatically reconnected to `"0`.
     :echo getreginfo('"').points_to
     0~
 
-Second, when if you  – accidentally – reset a linewise  register into a linewise
+Second,  if you  – accidentally  –  reset a  linewise register  into a  linewise
 register  (yeah, I  know,  it's  useless; hence  the  *accidentally*), Vim  will
 happily append an undesirable extra newline:
 
@@ -119,7 +119,7 @@ happily append an undesirable extra newline:
 See: <https://github.com/vim/vim/issues/323>
 
 ##
-## Why should I never use a string or a list to set the contents of the unnamed register?
+## Why should I never use a string, and rarely a list, to set the contents of the unnamed register?
 
 It would be automatically reconnected to `"0` right before the text is written.
 
@@ -147,6 +147,16 @@ A dictionary containing a `points_to` key.
 
 The latter  tells Vim which  "real" register you  want to write  into.  Remember
 that the unnamed register is not a real register; it's just a pointer.
+
+### When should I still use a list?
+
+When you want to *modify* (!= restore) the unnamed register definitively.
+In that case, if  you use a dictionary to preserve the pointer,  the text may be
+written in a non-ephemeral register (e.g. `"r`).
+You probably don't want to lose the information contained in such a register.
+That's why, you should let Vim reconnect `""` to `"0`.
+The latter is ephemeral; you probably don't expect its contents to persist for a
+long time.  IOW, you won't find it unexpected that it mutates automatically.
 
 ##
 ## Consider this assignment:
@@ -1375,6 +1385,32 @@ you need (and even more thanks to  the `isunnamed` key), and avoids this pitfall
 because  it always  return the  contents of  a register  as a  list (never  as a
 string).
 
+## I need to use the contents of the register `r` as a pattern.  How should I refer to the latter?
+
+    getreg('r', 1, 1)->join('\n')
+
+---
+
+Do *not* write `@r`.
+
+If `"r` contains a newline, it would be translated into a NUL when expanding `@r`.
+
+    vim -Nu NONE -i NONE -S <(cat <<'EOF'
+        call setreg('r', ['a', 'b'], 'l')
+        call setline(1, ['a', 'b', "a\nb\n"])
+        call matchadd('ErrorMsg', @r)
+        "                         ^^
+        "                         ✘
+        call matchadd('Search', getreg('r', 1, 1)->join('\n'))
+    EOF
+    )
+
+This is  similar to  Vim inserting  a NUL on  the command-line  when you  try to
+insert a NL by pressing `C-v C-j`.
+
+Exceptions:  The  search and  expression registers can't  contain more  than one
+item.  See `:h E883`.  So, it's ok to write `@/` or `@=` inside a pattern.
+
 ##
 ## `@@` does not replay my last macro as expected!
 
@@ -1478,11 +1514,11 @@ Solution:
 Replace any  escape character which is  not part of a  terminal escape sequence,
 with a `<c-\><c-n>` sequence:
 
-    " bad
+    ✘
     let @q = "ia.\ef.ac\e"
                  ^-^
 
-    " good
+    ✔
     let @q = "ia.\<c-\>\<c-n>f.ac\e"
                  ^----------^
 
@@ -1565,44 +1601,6 @@ See also:
 
 - <https://github.com/vim/vim/issues/3021#issuecomment-639978098>
 - <https://github.com/vim/vim/issues/3678#issuecomment-639992731>
-
-##
-# Todo
-## Replace `getreg()` with `getreginfo()` everywhere (vimrc, plugins, ...).
-
-    :copen | Crestore getreg
-
-##
-## Make sure you've never
-### used a string as a second argument of `setreg()`.
-
-Always use a list or a dictionary.
-In the case of the unnamed register, use a dictionary to preserve the pointer.
-
-### set the unnamed register via a list.
-
-Always via a dictionary to be sure that the text is written in the same register
-as the unnamed register was originally pointing to.
-
-Pay attention to cases  where the first argument of `setreg()`  is a variable or
-an expression.   You probably have  no guarantee that  the latter will  never be
-`"`; iow, use a dictionary in those cases too.
-
-##
-## Is it wrong to write `@"` or `@@` to refer to the contents of a register?
-
-More generally, is it wrong to write `@x` (`x` being any register name)?
-
-    :vim /\m\C\<\%(let\>\|setreg(\).*\c@[-*+/=abcdefghijklmnopqrstuvwxyz]/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
-
-## Is this an issue?
-
-<https://github.com/vim/vim/pull/3370#issuecomment-647174322>
-
-    ./vim --clean +"let @0=0 | echo getreginfo('0') | echo getreginfo('\"')"
-
-    {'regcontents': ['0'], 'isunnamed': v:false, 'regtype': 'v'}
-    {'regcontents': ['0'], 'regtype': 'v', 'points_to': '"'}
 
 ##
 # Reference

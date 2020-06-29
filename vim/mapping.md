@@ -2643,66 +2643,6 @@ practice, it doesn't seem to raise any error:
 So there  is no need  to check  the validity of  the positions before  trying to
 restore the marks.
 
----
-
-Contrary to what this answer seems to imply:
-<https://vi.stackexchange.com/a/21817/17449>
-
-I don't think you need to temporarily remove the `y` flag from `'cpo'`.
-
-The dot command keeps its original behavior:
-
-    set cpo+=y
-    norm! dd
-    fu Func()
-        norm! yy
-    endfu
-    call Func()
-    norm! .
-    " dot keeps removing the current line
-
-See `:h function-search-undo`, and `register.md`; in particular this question:
-
-    ### What about the dot register?  Is it restored?
-
-As for the dot register, it contains the last inserted text (see `:h quote_.`).
-But a yank does not insert any  text, so it can't alter the register, regardless
-of whether `y` is in `'cpo'`.
-
----
-
-Make sure to save  and restore the unnamed register; the text,  the type and the
-register to which it points; use `getreginfo()` to get all of this info.
-
-If you only save & restore the text and type, Vim will automatically redirect it to `"0`.
-
-If you  want to  restore the  `"0` register,  Vim will  – again  – automatically
-redirect the unnamed register to the  latter.
-*sure? can't reproduce*
-
-If it pointed to another register originally, you might want to run:
-
-    :call setreg('x', {'isunnamed': v:true})
-                  ^
-                  name of the register which the unnamed register pointed to originally
-
-Also, answer  the next  question to popularize  `getreginfo()` and  solidify our
-understanding of the functions, and of registers in general:
-
-<https://vi.stackexchange.com/q/20005/17449>
-
----
-
-This is too verbose:
-
-    set cb-=unnamed cb-=unnamedplus
-
-Can't we make it shorter?
-
-    set cb=
-
-How does ingo handle this in his library functions?
-
 ### ?
 
 Review our snippet `op`.
