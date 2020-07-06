@@ -296,7 +296,7 @@ But the slave `editor.1.gz` will be kept; only its path will be updated:
 
     /usr/share/man/man1/editor.1.gz → /etc/alternatives/editor.1.gz
     /etc/alternatives/editor.1.gz   → /usr/share/man/man1/vim.1.gz
-                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                      ^--------------------------^
                                       new path
 
 ###
@@ -533,7 +533,7 @@ Example using `--force`:
 
     $ sudo update-alternatives --remove-all ee
     $ echo 'hello' | sudo tee /usr/local/bin/file
-                               vvvvvvv
+                               v-----v
     $ sudo update-alternatives --force --install /usr/local/bin/file ee /usr/bin/make 123
     update-alternatives: using /usr/bin/make to provide /usr/local/bin/file (ee) in auto mode~
     $ ls -l /usr/local/bin/file

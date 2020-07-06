@@ -12,13 +12,13 @@ In vim-toggle-settings, you've written things like:
     let color = escape(a:color, '#')
     let seq = "\033]12;".color."\007"
     exe 'sil !printf '.string(seq)
-                              ^^^
+                              ^-^
 
 This would probably be better:
 
     let color = escape(a:color, '#')
     exe 'sil !tput '..string(color)
-              ^^^^           ^^^^^
+              ^--^           ^---^
 
 # Document how we can get the number of colors supported by the terminal.
 

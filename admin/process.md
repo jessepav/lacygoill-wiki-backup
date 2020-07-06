@@ -391,7 +391,7 @@ the parent of an orphan process to init (or a subreaper).
 The term can be used in a sentence like so:
 
     The orphan process has been re-parented to the init process.
-                                ^^^^^^^^^^^ ^^
+                                ^---------^ ^^
 
 ### What's a subreaper process?
 
@@ -495,14 +495,14 @@ You  can populate  a  column header  with  an arbitrary  text  by suffixing  the
 relevant keyword with `=mytext`:
 
     $ ps axfo user,pid,tty=TTY,stat,args
-                          ^^^^
+                          ^--^
 
 #### And how to make the column 13 cells wide?
 
 Specify the desired width after a colon:
 
     $ ps axfo user,pid,tty:13=TTY,stat,args
-                          ^^^
+                          ^-^
 
 ---
 
@@ -511,7 +511,7 @@ be wrongly interpreted as being part of the text in the column header:
 
     ✘
     $ ps axfo user,pid,tty=TTY:13,stat,args
-                              ^^^
+                              ^-^
                               would be  interpreted literally  as being  part of
                               the column header for the tty keyword
 
@@ -532,7 +532,7 @@ and the header is just noise:
 Include the `wchan` keyword in your format:
 
     $ ps xo pid,wchan,args
-                ^^^^^
+                ^---^
 
 #### What does it mean for `-` to be printed instead of a kernel function name?
 
@@ -714,7 +714,7 @@ It  does only  if the  signal  handler for  SIGPIPE  has been  set to  `SIG_IGN`
     15
 
     SIGTERM
-       ^^^^
+       ^--^
        TERMination
 
 ### What are the 4 other signals I can send to kill a process?  (name + number)
@@ -1066,7 +1066,7 @@ It's less useful with big processes such as Vim or zsh, but you can still try...
 ## How to trace an existing Vim process?
 
     $ strace -o log -p $(pidof vim) &!
-                    ^^^^^^^^^^^^^^^
+                    ^-------------^
 
     $ less +F log
 
@@ -1103,7 +1103,7 @@ Warning: This can create big files.
 ## How to log the system calls of each process in a dedicated file?
 
     $ strace -o log -ff firefox
-                    ^^^
+                    ^-^
                     each process's trace is written to `log.<pid>`
                     where pid is the pid of the process
 
@@ -1123,7 +1123,7 @@ Warning: This can create big files.
 ### accessing files?
 
     $ strace -o log -e trace=file vim
-                    ^^^^^^^^^^^^^
+                    ^-----------^
 
 Useful when a  program fails because it can't find/read  its configuration file,
 but doesn't tell you where it's supposed to be.
@@ -1131,12 +1131,12 @@ but doesn't tell you where it's supposed to be.
 ### `open()`?
 
     $ strace -o log -e trace=open vim
-                    ^^^^^^^^^^^^^
+                    ^-----------^
 
 ### `open()` and `read()`?
 
     $ strace -o log -e trace=open,read vim
-                    ^^^^^^^^^^^^^^^^^^
+                    ^----------------^
 
 ##
 ## How to get statistics about the system calls (time, count, number of errors...)?
@@ -1182,7 +1182,7 @@ See `man 2 open`.
 So, to be more thorough, you should execute:
 
     $ strace -o log -e trace=open,openat,creat cmd
-                             ^^^^^^^^^^^^^^^^^
+                             ^---------------^
 
 It's also possible that the process started by your command spawns child processes.
 And maybe it's one of them which opens 'foo'.
@@ -1437,7 +1437,7 @@ MWE:
     $ (sleep 100 &)
     $ pstree -lsp $(pidof sleep)
     systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───sleep(8274)~
-                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                ^-------------------------^
 
 ---
 
@@ -1460,7 +1460,7 @@ If the job contains several commands:
     $ ({ cmd1; cmd2 ;} &)
     $ pstree -lsp $(pidof sleep)
     systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───bash(11880)───sleep(11881)~
-                                                                ^^^^^^^^^^^
+                                                                ^---------^
                                                                 this time, the subshell doesn't die~
 
 ---
@@ -1511,7 +1511,7 @@ However, if you kill the shell from which the script was started, then `sleep` i
 
     $ pstree -lsp $(pidof sleep)
     systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───tmux: server(2784)───zsh(29746)───sh.sh(32569)───sh1.sh(32+~
-                                                                                     ^^^
+                                                                                     ^-^
     $ kill -1 29746
             │
             └ TERM is not enough

@@ -214,7 +214,7 @@ long form of the option, `--in-place`.
 
     $ cd /tmp; mkdir dir 2>/dev/null; \
       sed --in-place='dir/*.bak' 's/bar/XXX/' file
-          ^^^^^^^^^^^
+          ^---------^
 
 ##
 ## Which commands can *not* be terminated by a semicolon?
@@ -783,7 +783,7 @@ Use the `p` flag:
 
 Use the `w` flag and the path to a file:
 
-                                                  vvvvvvvvvvv
+                                                  v---------v
     $ printf '%s\n' 1 a 2 b | sed -n 's/[0-9]/[&]/w /tmp/file'
 
     $ cat file

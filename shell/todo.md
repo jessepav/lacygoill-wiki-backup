@@ -20,7 +20,7 @@ Example:
 
             v                           v v                                v
     fpath=( "${HOME}/.zsh/my-completions" "${HOME}/.zsh/zsh-completions/src" $fpath )
-                                                                              ^^^^^^
+                                                                              ^----^
                                                                               what about that?
                                                                               ${fpath}?
                                                                               "${fpath}"?

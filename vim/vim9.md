@@ -45,7 +45,7 @@ So it's only a theoretical pitfall.
 So that its execution is faster.
 In practice, it's often 10 to 100 times faster.
 
-You can't get that kinf of performance with a `:fu` function.
+You can't get that kind of performance with a `:fu` function.
 
 ### When is it compiled?
 
@@ -53,34 +53,91 @@ When the  function is  first called,  or when `:defcompile`  is executed  in the
 script where the function is defined.
 
 ##
-# Issues
-## a Vim9 comment must start with a space to be correctly highlighted
+# Pitfalls
+## Vim unexpectedly close the current window when I invoke a function where I omit to declare an `x` variable!
 
-     # some comment
-    ^
-    there must be at least one space before '#'
+`x` is a valid Ex command (it's the abbreviated form of `:xit`).
+So this is expected:
 
-The issue comes from `$VIMRUNTIME/syntax/vim.vim:632`:
+    vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def Func()
+            x = 1
+        enddef
+        Func()
+    EOF
+    )
 
-    syn match   vim9LineComment +^[ \t:]\+#.*$+ contains=@vimCommentGroup,vimCommentString,vimCommentTitle
-                                        ^^
-                                        should be '*'
+Solution: don't forget to declare your variable:
 
-It looks like a  bug, because there is nothing in the  help which documents this
-requirement.  And if `#` is not preceded  by a space, the line is still ignored;
-meaning that Vim does not need a space before `#` to correctly parse the line as
-a comment.
+    vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def Func()
+            let x = 1
+        enddef
+        Func()
+    EOF
+    )
 
-## cannot use a bar
+##
+# Todo
+## Document that you need to declare the type of a function argument.
 
-Source this:
+    vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def Func(x)
+        enddef
+        defcompile
+    EOF
+    )
 
-    def! Func()
-        let x = 123
-        redraw! | echo x
-    enddef
-    call Func()
-    Error detected while processing function Func:~
-    line    1:~
-    E121: Undefined variable: x~
+    Error detected while processing /proc/22267/fd/11:~
+    line    2:~
+    E1077: Missing argument type for x~
+    line    3:~
+    E193: :enddef not inside a function~
 
+Exception: You don't need to if it's an optional argument; because in that case,
+you need to assign it a default value, and Vim can infer a type from the latter.
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def Func(x = 3)
+        enddef
+        defcompile
+    EOF
+    )
+
+---
+
+You may find this unexpected.  After all,  you don't need to declare the type of
+all your variables in a `:def` function:
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def Func()
+            let x = 1
+        enddef
+        defcompile
+    EOF
+    )
+
+But that's because  – again – you  assign values to your variables,  and Vim can
+use them to infer their type.  See `:h type-inference`.
+
+Bottom line: Without a value, Vim *needs* a type.
+
+## Document the Vim9 equivalent of `let x = get(a:, 1, 3)`
+
+It's:
+
+    def Func(x = 3)
+             ^---^
+
+Remember that an argument can be specified in 3 ways:
+
+    {name}: {type}
+    {name} = {value}
+    {name}: {type} = {value}
+
+The first one is for mandatory arguments; the last two for optional ones.

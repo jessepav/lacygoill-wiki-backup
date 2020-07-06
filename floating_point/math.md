@@ -101,13 +101,13 @@ numbers; IOW, there exists a method which:
 For example, this enumeration of the natural numbers proves that the set is countable:
 
     1 3 2 5 4 7 6 ...
-                  ^^^
+                  ^-^
                   allowed
 
 But not this one:
 
     2 4 6 8 ... 1 3 5 7 ...
-            ^^^
+            ^-^
             forbidden
 
 ---

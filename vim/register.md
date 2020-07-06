@@ -1018,9 +1018,9 @@ In command-line mode, use `:put`.
 
 In a script, use `setreg()` to reset the type of the register:
 
-    :call setreg('"', [''], 'al')
-                              ^
-                              linewise
+    :call getreginfo('"')->extend({'regtype': 'l'})->setreg('"')
+                                               ^
+                                               linewise
 
 ---
 

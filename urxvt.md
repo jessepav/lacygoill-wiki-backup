@@ -75,7 +75,7 @@ The last patch raises this error:
 Enter this:
 
     /home/user/Vcs/rxvt-unicode/src/perl/selection-popup
-          ^^^^
+          ^--^
           replace with your user name
 
 ---

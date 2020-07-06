@@ -49,7 +49,7 @@ In all other cases, `printf` does *not* translate an escape sequence:
 # How to do the same, but also print the name of the scripts which produce an output?
 
     $ run-parts --report /path/to/dir
-                ^^^^^^^^
+                ^------^
 
 The script's name is  printed to whichever of stdout or  stderr the script first
 produces output on.
@@ -225,7 +225,7 @@ Note that the alias must be defined BEFORE the function.
 Use the `builtin` command:
 
     % builtin alias_name
-      ^^^^^^^
+      ^-----^
 
 ##
 # Options
@@ -379,7 +379,7 @@ Example:
         for dir in $(tr ':' ' ' <<<"${PATH}"); do
           echo "I got the name ${dir}"
         done >file
-             ^^^^^
+             ^---^
 
 This loop writes the names of all the directories of PATH inside a file.
 
@@ -397,7 +397,7 @@ Example:
         for dir in $(tr ':' ' ' <<<"${PATH}"); do
           ls "${dir}" 2>/dev/null
         done | sort >file
-             ^^^^^^
+             ^----^
 
 This loop writes the SORTED names of all the programs in the directories of PATH
 inside a file.

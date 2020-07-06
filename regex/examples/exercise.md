@@ -38,7 +38,7 @@ the order in which they are checked.
 The solution is to use the possessive quantifier `\@>`:
 
         %s/\(\.\d\d\%([1-9]\?\)\@>\)\d\+/\1/gc
-                               ^^^
+                               ^-^
 
 When  a possessive  quantifier  is  applied to  an  atomic  grouping (like  here
 `\%([1-9]\?\)`), whatever  text was  matched within it  is now  one unchangeable

@@ -118,7 +118,7 @@ you double left-click.
 Incidentally, it will also change the active pane; but you could prevent this with a `last-pane`:
 
     $ tmux bind -Troot DoubleClick1Pane display -t= '#D' \\\; last-pane
-                                                              ^^^^^^^^^
+                                                              ^-------^
 
 ##
 ## What's the purpose of the `-M` flag for `send-keys`?
@@ -135,7 +135,7 @@ It fails.
 Now repeat the same experiment after modifying the key binding like so:
 
     $ tmux bind -n MouseDown1Pane selectp -t= \\\; send -M \; set mouse on ; vim -Nu NONE +'set mouse=a | tabnew'
-                                              ^^^^^^^^^^^^
+                                              ^----------^
 
 This time it works.
 
@@ -150,7 +150,7 @@ to Vim:
     # we can't simply unbind it because we need tmux to consume the keypress
     $ tmux bind -n MouseDown1Pane if -F 0 ''
     $ tmux bind -n DoubleClick1Pane selectp -t= \\\; send -M \; set mouse on ; vim -Nu NONE +'set mouse=a | tabnew'
-                                                ^^^^^^^^^^^^
+                                                ^----------^
 
 ##
 # Todo

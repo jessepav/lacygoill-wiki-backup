@@ -76,7 +76,7 @@
 The cursor must be inside the opening tag (excluding the `>`):
 
         <div>foo</div>
-        ^^^^
+        ^--^
 
 ## 7
 

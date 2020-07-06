@@ -142,7 +142,7 @@ More specifically, this line:
 I found one – weird – solution:
 
     ZSH_HIGHLIGHT_STYLES[default]='fg=white'
-                                      ^^^^^
+                                      ^---^
 
 Or:
 

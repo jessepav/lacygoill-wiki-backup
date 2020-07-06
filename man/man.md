@@ -295,7 +295,7 @@ Or `\f[B]` and `\f[P]`.
 # Document how to open a man page in a webbrowser.
 
     $ man --html man
-          ^^^^^^
+          ^----^
 
 `man(1)` uses `$BROWSER` to determine which webbrowser to start.
 Atm, we've set the latter with the value `firefox`.

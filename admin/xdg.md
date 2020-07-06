@@ -1,7 +1,7 @@
 # How to set firefox as the default web browser?
 
     $ xdg-settings set default-web-browser firefox.desktop
-      ^^^^^^^^^^^^
+      ^----------^
       != xdg-mime
 
 ##

@@ -97,7 +97,7 @@ An expression can contain any of the following types of primaries:
 
        > Remember that the  precedence of `-a` is higher than  that of `-o`, and
        > when there is no operator specified between tests, `-a` is assumed.
-                                                     ^^^^^
+                                                     ^---^
 
        The documentation considers, implicitly, that `-print` is a test.
 

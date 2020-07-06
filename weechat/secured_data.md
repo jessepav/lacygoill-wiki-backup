@@ -176,11 +176,11 @@ Then try to find a MWE:
     $ echo 'this is my passphrase' >/tmp/passphrase
     $ weechat -d /tmp/.weechat
     /server add freenode chat.freenode.net -nicks=mynick
-                                                  ^^^^^^
+                                                  ^----^
     /secure passphrase this is my passphrase
     /set sec.crypt.passphrase_file /tmp/passphrase
     /secure set freenodepass mypassword_on_freenode
-                             ^^^^^^^^^^^^^^^^^^^^^^
+                             ^--------------------^
     /set irc.server.freenode.password "${sec.data.freenodepass}"
 
 Also,  run `/fset  autoconnect` to  disable all  networks to  which you  connect

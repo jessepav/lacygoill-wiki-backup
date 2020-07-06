@@ -264,7 +264,7 @@ Move it inside the argument passed to `copy-pipe`.
 ### Will the next key binding work as expected?
 
     $ tmux bind -T copy-mode-vi x send -X copy-pipe-and-cancel 'cat >/tmp/file' \\\; deleteb
-                                                                                     ^^^^^^^
+                                                                                     ^-----^
 
 ↣
 Yes, you can remove  the tmux buffer as soon as you want,  it won't interfere in
@@ -783,7 +783,7 @@ The placeholder `%%` will be replaced by the user input.
 Use the `-I` flag:
 
     $ tmux command-prompt -I 'my default input' -p '(my prompt)' 'display %%'
-                          ^^^^^^^^^^^^^^^^^^^^^
+                          ^-------------------^
 
 ###
 ### How to limit the user input to only
@@ -831,7 +831,7 @@ This doesn't seem to escape single quotes though:
 Pass a comma separated list of prompts to `-p`:
 
     $ tmux command-prompt -I 'my input1,my input2' -p '(my prompt1),(my prompt2)' 'display "%1 and %2"'
-                                                                   ^^^^^^^^^^^^^
+                                                                   ^-----------^
 
 If you press Enter twice, without changing the default inputs, the command will output:
 
@@ -848,7 +848,7 @@ Use the `-t` flag,  followed by the path to the pty(4) file  to which the client
 is connected:
 
     $ tmux command-prompt -t /dev/pts/123  'display "%%%"'
-                          ^^^^^^^^^^^^^^^
+                          ^-------------^
 
 #### run the command *every time* I press a key?  (not just once when I press Enter)
 

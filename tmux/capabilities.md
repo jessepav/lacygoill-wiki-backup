@@ -26,11 +26,11 @@ They are taken from the terminfo description of the outer terminal.
     # start xterm
 
     $ tic -sx -e xterm-256color <(infocmp -x xterm-256color | sed 's/smxx=\\E\[9m/smxx=\\E\[123m/')
-                                                                                            ^^^
+                                                                                            ^-^
     $ tmux -Lx -f/dev/null
     $ tmux info | grep smxx
     203: smxx: (string) \033[123m~
-                             ^^^
+                             ^-^
 
 ##
 ## How to customize the output of `$ tmux info`?
@@ -296,12 +296,12 @@ This sequence is specific to tmux.
 ## How to set `Ms` correctly?
 
     set -as terminal-overrides 'yourTERMname:Ms=...'
-                    ^^^^^^^^^^                 ^^^^
+                    ^--------^                 ^--^
 
 Starting from tmux 3.2, you could also write:
 
     set -as terminal-features 'yourTERMname:clipboard'
-                    ^^^^^^^^^               ^^^^^^^^^
+                    ^-------^               ^-------^
 
 ##
 # Issues

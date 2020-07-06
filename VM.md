@@ -58,7 +58,7 @@ Here's an example of fingerprint:
 
     $ aptitude search virtualbox | grep -E '[0-9]\.[0-9]'
     $ aptitude update && aptitude install virtualbox-x.y
-                                                     ^^^
+                                                     ^-^
     replace with the values found in the previous command
 
 ---
@@ -210,7 +210,7 @@ If you don't care about fullscreen, then no.
 ### How to give it more ram?
 
     $ vboxmanage modifyvm ubuntu --memory 1024 --vram 128
-                                               ^^^^^^^^^^
+                                               ^--------^
 
 ##
 ## How to add an IDE controller to the VM?
@@ -224,12 +224,12 @@ If you don't care about fullscreen, then no.
 ### How to rename it?
 
     $ vboxmanage storagectl ubuntu --name 'IDE controller' --rename 'Other name'
-                                                           ^^^^^^^^^^^^^^^^^^^^^
+                                                           ^-------------------^
 
 ### How to remove it?
 
     $ vboxmanage storagectl ubuntu --name 'IDE controller' --remove
-                                                           ^^^^^^^^
+                                                           ^------^
 
 ##
 ## How to use my ISO file as a disk inserted in the dvd drive of the VM?

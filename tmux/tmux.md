@@ -47,7 +47,7 @@ Then, tmux will *immediately* run `cmd2`.
 Three.
 
     $ tmux bind <key> cmd1 \\\; cmd2
-                           ^^^
+                           ^-^
 
 This  is because  the semicolon  is  also special  for the  shell; the  latter
 automatically removes one level of  backslashes; after this removal, tmux will
@@ -465,7 +465,7 @@ Recompile one with our zsh snippet:
 And use it to extract a backtrace from the core:
 
     $ gdb -n -ex 'thread apply all bt full' -batch ~/Vcs/tmux/tmux /path/to/core >backtrace.txt
-                                                   ^^^^^^^^^^^^^^^
+                                                   ^-------------^
 
 ---
 
@@ -569,7 +569,7 @@ server (kill any existing server if necessary).
 
     $ tmux -Lx kill-server
     $ strace -ttt -ff -ostrace.txt tmux -Lx -f/dev/null new
-                        ^^^^^^^^^^
+                        ^--------^
                         output file
 
 <https://github.com/tmux/tmux/issues/1603#issuecomment-462955045>
@@ -590,7 +590,7 @@ Or, if you can, run this before reproducing the issue:
 Then, still from another terminal, run:
 
              make sure it's the same tmux than the one currently hanging
-             vvvvvvvvvvvvvvvvvvvvv
+             v-------------------v
     $ gdb -q /path/to/running/tmux PID
     (gdb) set logging on
     (gdb) bt full
@@ -694,7 +694,7 @@ doesn't exist in sh; instead, use `[` or `test`.
          ✔
 
     run 'test -d $XDG_RUNTIME_DIR/tmux || mkdir $XDG_RUNTIME_DIR/tmux'
-         ^^^^
+         ^--^
          ✔
 
 ### It doesn't help!
@@ -702,7 +702,7 @@ doesn't exist in sh; instead, use `[` or `test`.
 Then redirect the standard error of the shell command to a file:
 
     run-shell 'my buggy command 2>/tmp/debug'
-                                ^^^^^^^^^^^^
+                                ^----------^
 
 And read the error message written in the file to get more information.
 

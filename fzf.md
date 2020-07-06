@@ -5,7 +5,7 @@ How to update fzf?
 In your vimrc, write:
 
     :Plug 'junegunn/fzf', {'dir': '~/.fzf', 'do': './install ...'}
-                                            ^^^^^^^^^^^^^^^^^^^^
+                                            ^------------------^
                                             this invokes the fzf installer
                                             whenever there's an update
 

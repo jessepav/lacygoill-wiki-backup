@@ -722,7 +722,7 @@ The more specific the option is, the more priority it has.
 #### for any scope?
 
     $ git config --get-all user.name
-                 ^^^^^^^^^
+                 ^-------^
 
 ####
 ### How to read
@@ -1197,7 +1197,7 @@ It should still narrow down the search to only a few candidates.
                        │    │
     $ git bisect start v3.4 v1.2
     $ git bisect run /path/to/custom-script
-                     ^^^^^^^^^^^^^^^^^^^^^^
+                     ^--------------------^
                      make sure it's executable
 
 The custom script must exit with the error code:
@@ -1249,7 +1249,7 @@ you can navigate between the commits with the arrow keys.
 #### That's too verbose!
 
     $ git bisect visualize --oneline
-                           ^^^^^^^^^
+                           ^-------^
 
 This time, `git-log(1)` is invoked no matter what.
 
@@ -1997,6 +1997,7 @@ VIDÉOS:
 
 DIVERS:
 
+- <https://gitolite.com/gcs.html>
 - <https://tom.preston-werner.com/2009/05/19/the-git-parable.html>
 - <https://jwiegley.github.io/git-from-the-bottom-up/>
 - <https://eagain.net/articles/git-for-computer-scientists/>
@@ -2056,7 +2057,7 @@ The big files are at the end of the output.
 You can remove one by running:
 
     $ git filter-branch --index-filter 'git rm --cached --ignore-unmatch my/big/file' HEAD
-                                                                         ^^^^^^^^^^^
+                                                                         ^---------^
                                                                          replace with the path to the file
                                                                          you want to remove
 

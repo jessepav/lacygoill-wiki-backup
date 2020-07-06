@@ -225,7 +225,7 @@ With the name of a capability (2-5 char).
       wy50|WY50| Wyse Technology WY-50,
           am, cols#80, lines#24, cuu1=^K, clear=^Z,
           home=^^, cuf1=^L, cup=\E=%p1%'\s'%+%c%p2%'\s'%+%c,
-    # ^^^^                                                 ^
+    # ^--^                                                 ^
     # tab                                                  don't forget this last comma!
 
 #

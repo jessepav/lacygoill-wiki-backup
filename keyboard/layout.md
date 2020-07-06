@@ -413,7 +413,7 @@ once) before the console layout is set up.
 ## How to set it for X11 only?
 
     $ localectl --no-convert set-x11-keymap fr
-                ^^^^^^^^^^^^
+                ^----------^
 
 Bug:
 
@@ -431,7 +431,7 @@ Alternative: try to manually update the file `/etc/default/keyboard`.
 ## How to set it for the console only?
 
     $ localectl --no-convert set-keymap fr
-                ^^^^^^^^^^^^
+                ^----------^
 
 Bug:
 
@@ -592,7 +592,7 @@ Alternative:
 Use the `-print` option:
 
     $ setxkbmap -model pc105 -layout fr -variant latin9 -option terminate:ctrl_alt_bksp -print
-                                                                                        ^^^^^^
+                                                                                        ^----^
 
 ---
 
@@ -634,7 +634,7 @@ For example, the parameter:
 is translated into:
 
     xkb_symbols   { include "...+terminate(ctrl_alt_bksp)"  };
-                                ^^^^^^^^^^^^^^^^^^^^^^^^^
+                                ^-----------------------^
 
 ## What are `%m`, `%l` and `%v` in the rule file?
 
@@ -910,7 +910,7 @@ Y chercher le pattern `! option`.
 ## How to make the key whose keycode is `56` generate the keysym whose code point in Unicode is `1234`?
 
     $ xmodmap -e 'keycode 56 = U1234'
-                               ^^^^^
+                               ^---^
 
 Illustrate that you can describe a keysym via its code point in Unicode
 

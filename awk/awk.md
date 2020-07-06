@@ -849,7 +849,7 @@ You can even grep the buildlog directly from the shell:
 
     $ git describe --tags
     gawk-4.2.1-722-g7081~
-         ^^^^^^^^^
+         ^-------^
 
 Including the patch number.
 
@@ -899,7 +899,7 @@ Note the ID of the public key which was used to sign the archive:
 
     gpg: assuming signed data in `gawk-4.2.1.tar.xz'
     gpg: Signature made Sun 25 Feb 2018 08:03:55 PM CET using RSA key ID 937EC0D2
-                                                                         ^^^^^^^^
+                                                                         ^------^
 
 Then, import it:
 
@@ -1202,7 +1202,7 @@ Yes, as many as you want.
 
     $ cat <<'EOF' >/tmp/awk.awk
     { printf "%s   ", "a'''b" }
-    #                   ^^^
+    #                   ^-^
     EOF
 
     $ awk -f /tmp/awk.awk /tmp/file
@@ -1787,7 +1787,7 @@ Ex:
     $ awk -f /tmp/awk.awk /tmp/file
     This|old|house|is|a|great|show.|||~
     I|like|old|things.|||~
-                      ^^^
+                      ^-^
                       there are 3 new empty fields at the end
 
 ## How to print the input records, reversing the order of their fields?
@@ -2160,7 +2160,7 @@ Separate the two groups with several spaces.
                      │     ┌ optional parameters
                      │     ├──┐
     function reverse(x,    temp) {
-                       ^^^^
+                       ^--^
                        multi-space separation between the two groups of parameters
 
 ##

@@ -24,13 +24,13 @@ Besides it requires the package `debconf-utils` to be installed.
 ### How to interact with readline instead of ncurses?
 
     $ sudo DEBIAN_FRONTEND=readline dpkg-reconfigure <package>
-           ^^^^^^^^^^^^^^^^^^^^^^^^
+           ^----------------------^
 
 ##
 # How to install a package and make APT ask us all possible questions to configure it?
 
     $ sudo DEBIAN_PRIORITY=low apt-get install <package>
-           ^^^^^^^^^^^^^^^^^^^
+           ^-----------------^
 
 Note that you need `apt-get` or `apt`; it doesn't work with `aptitude`.
 

@@ -395,7 +395,7 @@ Write your additional directives in:
                                │ you would need to change this accordingly
                                ├─────┐
     /etc/systemd/system/<name>.service.d/my_extra_directives.conf
-                                      ^^                    ^^^^^
+                                      ^^                    ^---^
 
 ## ?
 
@@ -601,7 +601,7 @@ Source:
     $ journalctl -u my_service
     <date> ubuntu systemd[1]: Started My Application.~
     <date> ubuntu printf[1234]: We have been triggered~
-                         ^^^^
+                         ^--^
                          pid~
 
     $ cat <<'EOF' | sudo tee -a /etc/systemd/system/my_service.path
@@ -708,13 +708,13 @@ So, for example, if you have this section in a unit file:
 
     [Install]
     WantedBy=multi-user.target
-             ^^^^^^^^^^
+             ^--------^
 
 And you edit it like so:
 
     [Install]
     WantedBy=graphical.target
-             ^^^^^^^^^
+             ^-------^
 
 Then execute `$ systemctl enable <name>`, a new symlink would be created in:
 
@@ -750,7 +750,7 @@ As a result, if you disable a service while it's running, it will still run:
     $ systemctl is-enabled whoopsie; systemctl is-active whoopsie
     disabled~
     active~
-    ^^^^^^
+    ^----^
     even though `whoopsie` has been disabled, it's still running~
 
 ###
@@ -2258,7 +2258,7 @@ If that's the case, and you need to clean the output:
 ## Talk about the `--no-hostname` option:
 
     $ journalctl -b --no-hostname
-                    ^^^^^^^^^^^^^
+                    ^-----------^
 
 It's not available in ubuntu 16.04, but it is in 18.04.
 

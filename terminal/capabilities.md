@@ -64,7 +64,7 @@ Since the syntax of  the sequence contains Pm (and not Ps),  you can combine the
 codes of multiple attributes by separating them with semicolons:
 
     $ printf '\e[1;4;5m bold + underline + blinking\n'
-                 ^^^^^
+                 ^---^
 
 #### How to reset a specific attribute out of multiple ones?
 
@@ -82,7 +82,7 @@ addition of 20 with the code of the attribute you want to reset.
 Use the sequence `CSI 0 m`.
 
     $ printf '\e[1;4;5m bold + underline + blinking \e[0m no more attributes\n'
-                                                    ^^^^^
+                                                    ^---^
 
 ##
 ## How to test whether my terminal supports common sequences to set character attributes?
@@ -550,7 +550,7 @@ reply from the terminal.
     ✘
     $ printf ...
     $ terminal_reply read ...
-      ^^^^^^^^^^^^^^
+      ^------------^
 
     ✔
     $ printf ... ; read ...

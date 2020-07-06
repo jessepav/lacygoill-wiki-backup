@@ -135,7 +135,7 @@ The idea of using a guard was suggested here:
 For example, you need to change your `xbindkeys_restart` alias like this:
 
     alias xbindkeys_restart='killall xbindkeys; unset MY_ENVIRONMENT_HAS_BEEN_SET; xbindkeys -f ...'
-                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                ^-------------------------------^
 
 #### Why?
 
@@ -260,7 +260,7 @@ You can measure how much time your `~/.zshenv` takes to be sourced by running:
 
     $ time zsh -c 'repeat 1000 source ~/.zshenv'
     zsh -c 'repeat 1000 source ~/.zshenv'  1,80s user 0,30s system 99% cpu 2,099 total~
-                                                                           ^^^^^
+                                                                           ^---^
 
 Read the `total` field, and divide by 1000.
 Right now, it takes around 2ms, which is good enough for me.

@@ -63,7 +63,7 @@ You could also edit the file manually...
 For the current session only:
 
     $ setxkbmap -model pc105 -layout fr -variant latin9 -option terminate:ctrl_alt_bksp
-                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                        ^-----------------------------^
 
 ## Who is the parent of the X server?
 
@@ -71,7 +71,7 @@ The display manager:
 
     $ pstree -lsp $(pidof Xorg)
     systemd(1)───lightdm(996)───Xorg(1011)───{Xorg}(1018)~
-                 ^^^^^^^
+                 ^-----^
 
 ## How to restart the X server (with a shell command)?
 

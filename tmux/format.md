@@ -80,7 +80,7 @@ No.
     EOF
     ) \; lsk | grep -i ' c-g '
     bind-key  -T prefix  C-g  display-message "#{window_id}"~
-                                               ^^^^^^^^^^^^
+                                               ^----------^
                                                has not been expanded
 
 Rationale:
@@ -91,7 +91,7 @@ So, if tmux expanded a format in `var=val`, it would be inconsistent with the sh
     $ window_id='#{window_id}'
     $ tmux bind C-g display "$window_id" \; lsk | grep -i ' c-g '
     bind-key  -T prefix  C-g  display-message "#{window_id}"~
-                                               ^^^^^^^^^^^^
+                                               ^----------^
                                                has not been expanded
 
 ###
@@ -257,7 +257,7 @@ Use either of the `-eq`, `-ne`, `-gt`, `-ge`, `-lt`, `-le` shell operators.
 Example:
 
     $ tmux if '[ #{pane_height} -lt 12 ]' 'display -p "fewer than 12 lines"' 'display -p "more than 12 lines"'
-                                ^^^
+                                ^-^
 
 ---
 
@@ -341,7 +341,7 @@ Pass the `i` flag to the `m` modifier:
     $ tmux set @foo 'ABCD' \; display -p '#{m/i:a*d,#{@foo}}'
     1~
 
-                                             vvv
+                                             v-v
     $ tmux set @foo 'ABCD' \; display -p '#{m/ri:^a.*d$,#{@foo}}'
     1~
 
@@ -511,14 +511,14 @@ In the pattern, you can use the metacharacters documented at `man 3 fnmatch`.
 
 Use a negative number:
 
-                         vvv
+                         v-v
     $ tmux display -p '#{=-8:client_termname}'
     256color~
 
 #### and replace the truncated text with `...`?
 
     #{=/N/...:string}
-       ^ ^^^^
+       ^ ^--^
 
 `...` needs to be separated from `N` with a slash, because it could be any text,
 and so  could begin  with a digit;  in that  case, tmux needs  to know  when `N`
@@ -907,7 +907,7 @@ And pass it to `-t`.
 Even though the synopsis of `display-message` refers to `target-pane`:
 
     display-message [-aIpv] [-c target-client] [-t target-pane] [message]
-                                                   ^^^^^^^^^^^
+                                                   ^---------^
 
 ... you can still use a description of a session or window if needed.
 
@@ -1033,12 +1033,12 @@ TODO: Read this: <https://github.com/tmux/tmux/issues/2179#issuecomment-61902569
 ### all panes in the window `@123`?
 
     $ tmux lsp -t @123
-               ^^^^^^^
+               ^-----^
 
 ### all panes in the session 'my session'?
 
     $ tmux lsp -s -t '=my session'
-               ^^^^^^^^^^^^^^^^^^^
+               ^-----------------^
 
 ##
 ### ?
@@ -1129,7 +1129,7 @@ Prepend `if -F 1` to your braces:
 
     ✔
     $ tmux bind x 'if -F 1 { display test }'
-                   ^^^^^^^
+                   ^-----^
 
 ---
 
@@ -1193,7 +1193,7 @@ Also, note that  in the case of a  key binding, instead of using `if  -F 1`, you
 could also repeat the command and the lhs:
 
     $ tmux bind x 'bind x { display test }'
-                   ^^^^^^
+                   ^----^
 
 But `display test` would not be run until you press `x` twice.
 Because the first time you press `x`, the key binding would redefine itself:

@@ -94,7 +94,7 @@ Use the `-q` flag:
 Use the `-t` argument:
 
     $ tmux set -t:2 clock-mode-colour green
-                ^^^
+                ^-^
 
 ## I have 2 sessions, and I'm in the first one.  How to get the value of an option local to the second one?
 
@@ -197,7 +197,7 @@ In the other panes, A doesn't apply, so B is used.
 
     $ tmux set -w     window-style bg=green
     $ tmux set -pt:.1 window-style bg=red
-               ^^^^^^
+               ^----^
 
 #
 ## How is `-g` interpreted in `$ tmux set -gp <pane option>`?
@@ -489,7 +489,7 @@ Pass `-R` to `set-hook`:
 Use `-t`:
 
     set-hook -t =<session> -R <hook>
-             ^^^^^^^^^^^^^
+             ^-----------^
 
 Example:
 
@@ -584,7 +584,7 @@ A process has not written any new output since the time given to the
 `'monitor-silence'` option:
 
     $ tmux set -w monitor-silence 123
-                                  ^^^
+                                  ^-^
 
 ##
 ## When the bell rings in a window,
@@ -605,7 +605,7 @@ See here for an example with `window_activity_flag`:
 
     $ tmux set -gw monitor-bell on
     $ tmux set -g  visual-bell  both
-                                ^^^^
+                                ^--^
 
 You'll also need to configure your window manager/terminal/audio server/... appropriately.
 <https://forum.xfce.org/viewtopic.php?id=12031>
@@ -651,7 +651,7 @@ Its value can be:
 But it does  *not* control whether the  colors of the window in  the status line
 window list will be reversed:
 
-                                vv                       vvvv                       vvv
+                                vv                       v--v                       v-v
     $ tmux set -gw monitor-bell on \; set -g bell-action none \; set -g visual-bell off \
         ; sleep 1 ; tput bel
 

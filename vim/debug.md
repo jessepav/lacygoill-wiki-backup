@@ -751,6 +751,7 @@ I found `ABORT_CFLAGS` here: <https://github.com/vim/vim/issues/3177#issue-33924
 
 Again, you don't have to do that manually; use our zsh snippet to compile Vim.
 
+###
 ### I want my backtrace to contain as much info as possible (no <optimized out>)!
 
 Edit the file `src/Makefile`, and look for the first line like this:
@@ -772,6 +773,7 @@ core file in your working directory which prevented Vim from dumping a new one:
    2. reproduce the crash again, to get a new core
    3. extract a backtrace from the latter
 
+###
 ### I need a valgrind log!
 
 Run this:
@@ -789,13 +791,11 @@ Valgrind doesn't work atm on Ubuntu 16.04, but it works on Ubuntu 18.04 in a VM.
 
 ### I need an asan log!
 
-    $ git stash -a
+    $ git stash -a; git stash clear
     $ make clean; make distclean
     $ sed -i '/fsanitize=address/s/^#//' src/Makefile
     $ ./configure
     $ make
-
-    $ ./src/vim -Nu NONE 2>asan.log
 
 After reproducing the issue, the log should be written in `./asan.log`.
 

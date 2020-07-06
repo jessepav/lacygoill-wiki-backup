@@ -115,20 +115,20 @@ From “C Programming A Modern Approach”, page 7:
 Use the `-std=c89` option:
 
     $ gcc -std=c89 -o pun pun.c
-          ^^^^^^^^
+          ^------^
 
 ### How to issue all the mandatory diagnostics listed in the C standard?
 
 Use the `-pedantic` option:
 
     $ gcc -std=c89 -pedantic -o pun pun.c
-                   ^^^^^^^^^
+                   ^-------^
 
 Or the `-pedantic-errors` option, if you  want to turn the mandatory diagnostics
 into errors:
 
     $ gcc -std=c89 -pedantic-errors -o pun pun.c
-                   ^^^^^^^^^^^^^^^^
+                   ^--------------^
 
 ##
 # Syntax

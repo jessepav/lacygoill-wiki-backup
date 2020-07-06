@@ -576,7 +576,7 @@ You can confirm that a job is executed in a subshell with these commands:
     $ { sleep 1000; echo finished ;} &
     $ pstree -lsp $(pidof sleep)
     ... zsh───zsh───sleep~
-              ^^^
+              ^-^
               subshell~
 
 # Why does a shell fork to execute an external command?
@@ -1440,7 +1440,7 @@ The next one(s), if any, occupy 8 cells.
 ## These commands assume that my columns are separated by whitespace.  But they are separated by colons!
 
         $ cmd | column -t -s:
-                          ^^^
+                          ^-^
 
 ##
 ## My command output is a whitespace separated list of 12 words.  How to format it into a 3 rows x 4 columns table?

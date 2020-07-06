@@ -409,7 +409,7 @@ messages.
 
     :command-prompt 'display %%'
     (display) hello~
-              ^^^^^
+              ^---^
               type that
 
       press this
@@ -433,7 +433,7 @@ that we can run:
 It would be useful to write sth like this:
 
     command-prompt -I 1 -p 'number of commands:' { send -X -N (%1 + 1) search-backward '٪' }
-                                                                  ^^^
+                                                                  ^-^
 
 ## make tmux print the keys pressed so far (like what Vim does when 'showcmd' is set)
 
@@ -562,7 +562,7 @@ Compare:
 
     $ time tmux neww 'echo foo;sleep 3'
     ... 0,011 total~
-        ^^^^^
+        ^---^
 
 Vs:
     ~
@@ -571,7 +571,7 @@ Vs:
                                             ├───────────────────┐     ├────────────────┐
     $ time tmux neww 'echo foo;sleep 3;tmux wait-for -S neww-done' \; wait-for neww-done
     ... 3,019 total~
-        ^^^^^
+        ^---^
 
 <https://unix.stackexchange.com/a/137547/289772>
 
@@ -1132,7 +1132,7 @@ Also document the effect of `-c` alone:
     $ tmux lsc
     /dev/pts/4: study [119x34 st-256color] (utf8) ~
     /dev/pts/10: fun [80x24 xterm-256color] (utf8) ~
-                            ^^^^^^^^^^^^^^
+                            ^------------^
                             second terminal attached to the second session
 
 From the xterm terminal, and the 'fun' session, run:

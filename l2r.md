@@ -361,10 +361,10 @@ Thus, it would be better to reformulate it in one of the following ways:
 
         (1)
 
->                                         vvvvv
+>                                         v---v
 >     the system menu is loaded, and only later, the gvimrc is sourced,
 >     which is too late to disable the menu
->     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>     ^-----------------------------------^
 
         (2)
 

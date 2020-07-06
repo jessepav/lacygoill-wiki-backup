@@ -931,7 +931,7 @@ First naive attempt:
 Second attempt:
 
         { ls /tmp /foo | less ;} 2>&1 | wc -m
-        ^^                   ^^^ ^^^^
+        ^^                   ^-^ ^--^
 
             ✔: the stderr of `ls` is written on the stdin of `wc`
             ✘: the stdout of `ls` is written on the stdin of `wc`
@@ -944,7 +944,7 @@ Which fd is connected to the input of `wc`? The stdout of `less`.
 So, we need to redirect the errors to the stdout of `less`:
 
         ls /tmp /foo | less 2>&1 | wc -m
-                            ^^^^
+                            ^--^
                             ✘ this doesn't redirect the errors of `ls`, but of `less`
 
 We need a way to refer to the stderr of `ls` from the `less` command.
@@ -961,7 +961,7 @@ Third attempt:
 
         # ✔
         { { ls /tmp /foo | less >&3 ;} 2>&1 | wc -m ;} 3>&1
-        ^^                      ^^^                ^^^ ^^^^
+        ^^                      ^-^                ^-^ ^--^
 
 Why `{ ... ;} 3>&1`?
 
@@ -972,7 +972,7 @@ But we don't have a fd for the terminal, so we create a duplicate with `{ ... ;}
 # How to close the fd 3 for all commands where it's unused?
 
         { { ls /tmp /foo 3>&- | less >&3 3>&- ;} 2>&1 | wc -l 3>&- ;} 3>&1
-                         ^^^^            ^^^^                 ^^^^
+                         ^--^            ^--^                 ^--^
 
 # If the `less` command raises an error, it will be sent to `wc`.  How to send it to the terminal instead?
 
@@ -981,7 +981,7 @@ because we know it's connected to what we need: the terminal.
 And use it to reconnect the errors of `less` to the terminal:
 
         { { ls /tmp /foo | less >&3 2>&4 ;} 2>&1 | wc -l ;} 3>&1 4>&2
-        ^^                          ^^^^^^^             ^^^      ^^^^
+        ^^                          ^-----^             ^-^      ^--^
 
 ##
 # How to save the contents of a file in a variable?

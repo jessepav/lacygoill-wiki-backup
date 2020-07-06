@@ -115,7 +115,7 @@ They're made empty, but they still exist.
 Use the `reorder` subcommand:
 
     /server reorder freenode,abjects,criten
-            ^^^^^^^
+            ^-----^
 
 # How to print all the values of the options local to the freenode network, in the core buffer?
 

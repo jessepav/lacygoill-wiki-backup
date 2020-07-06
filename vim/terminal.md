@@ -1,3 +1,58 @@
+# How to send an OSC or CSI sequence to the host terminal?
+
+Use `echoraw()`:
+
+    let seq = '...'
+    call echoraw(seq)
+
+Example:
+
+    # open an xterm terminal *outside* tmux
+    vim -Nu NONE -S <(cat <<'EOF'
+        let seq = "\033]52;c;" .. system('printf -- "%s" "test" | base64 | tr -d "\n"') .. "\007"
+        call echoraw(seq)
+        qa!
+    EOF
+    )
+
+    # press:  C-S-v
+    # 'test' is inserted
+
+---
+
+You could also try `!printf`:
+
+    let seq = '...'
+    exe '!printf -- '..string(seq)
+
+But if the sequence contains characters  which are special on Vim's command-line
+(like  `#`), you  need  escape them.   This is  not  necessary with  `echoraw()`
+because the sequence  is sent directly to the terminal,  without passing through
+Vim's command-line.
+
+---
+
+You could also try `writefile()`:
+
+    let seq = '...'
+    call writefile([seq], '/dev/tty', 'b')
+
+But it's more verbose, and it doesn't work in the GUI:
+
+    $ vim -g
+    :call writefile([''], '/dev/tty', 'b')
+    E482: Can't create file /dev/tty~
+
+---
+
+Note that you still need double quotes to make Vim translate control characters:
+
+    call echoraw("\033]12;"..color.."\007")
+                 ^        ^         ^    ^
+
+You could use single quotes if you used `:!printf`; probably because `printf(1)`
+takes care of the translation regardless of the type of quotes.
+
 # How to paste a register in a terminal buffer in Vim?
 
 You must be in Terminal-Job mode, and temporarily switch to Terminal-Normal mode

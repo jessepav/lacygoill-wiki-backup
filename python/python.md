@@ -22,7 +22,7 @@ IOW, it would mix the default python (3.5 atm) with your locally compiled versio
 So that `/usr/bin` appears before `/usr/local/bin`:
 
     PATH=/usr/bin:$PATH ./configure ...
-    ^^^^^^^^^^^^^^^^^^^
+    ^-----------------^
 
 By  moving  `/usr/bin`  at  the  start  of `PATH`,  you  would  make  sure  that
 Vim  finds the  default  python  (`/usr/bin/python3`), and  not  your local  one
@@ -80,7 +80,7 @@ paths programmatically, try this:
 #### `vi_cv_path_python3` with the path to the default python:
 
     vi_cv_path_python3=/usr/bin/python3.5 ./configure ...
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ^-----------------------------------^
 
 But I don't understand what it does, and I don't know where it's documented.
 I found it here:
@@ -508,7 +508,7 @@ Indeed, atm, when I execute:
 The output contains:
 
         Location: /home/user/.local/lib/python3.7/site-packages
-                                              ^^^
+                                              ^-^
 
 ---
 
@@ -532,7 +532,7 @@ the issue comes from.
 Example:
 
     $ python3 -m pip -vvv install --user <package>
-                     ^^^^
+                     ^--^
 
 ---
 
@@ -584,7 +584,7 @@ In that case repeat the process:
 Alternatively, try to use pip via a proxy:
 
     $ https_proxy=<IP Address>:<Port> python3 -m pip install --user <package>
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      ^-----------------------------^
 
 See here for more info: <https://stackoverflow.com/a/19962913/9780968>
 And here for a list of proxies: <https://www.us-proxy.org/>

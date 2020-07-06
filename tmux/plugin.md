@@ -55,7 +55,7 @@ Basically, it finds any lhs of key binding whose rhs contains the pattern `cance
 And our current `Y` key binding *does* contain `cancel`:
 
     bind -T copy-mode-vi Y send -X copy-selection-and-cancel \; paste-buffer -p
-                                                      ^^^^^^
+                                                      ^----^
 
 ---
 

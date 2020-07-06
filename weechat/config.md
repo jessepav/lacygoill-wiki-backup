@@ -150,7 +150,7 @@ Take the name afterwards, and use it in its lowercase form.
 
 Example:
 
-               vvv
+               v-v
         RLIMIT_CPU
     →
         cpu

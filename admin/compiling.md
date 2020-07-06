@@ -30,7 +30,7 @@ Example:
       ...~
            1.4-2 500~
               500 http://fr.archive.ubuntu.com/ubuntu xenial/universe amd64 Packages~
-                                                      ^^^^^^^^^^^^^^^
+                                                      ^-------------^
 
 Then, run `$ sudo aptitude update`.
 
@@ -41,7 +41,7 @@ It depends on the program you're compiling.
 Often, the `configure` script supports a `--prefix` option:
 
     $ ./configure --prefix=/usr/local ...
-                  ^^^^^^^^^^^^^^^^^^^
+                  ^-----------------^
 
 Otherwise, try to  uncomment and edit the relevant line  in the Makefile, before
 running `./configure`.
@@ -94,7 +94,7 @@ With `--abbrev=0`, the output is truncated to:
 If you need to remove a non-numerical prefix, like `v`, use a parameter expansion:
 
     $ echo ${$(git describe --abbrev=0)#v}
-           ^^                          ^^^
+           ^^                          ^-^
 
 See `man bash /Parameter Expansion/;/${parameter#word}`.
 
@@ -538,7 +538,7 @@ be `--infodir`.
 Example:
 
     $ ./configure --infodir=/usr/local/share
-                    ^^^^^^^^^^^^^^^^^^^^^^^^
+                    ^----------------------^
                     move the info file from `/usr/share/info` to `/usr/local/share/info`
 
 ##

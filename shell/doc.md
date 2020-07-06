@@ -67,7 +67,7 @@ And after closing a page, we would have to press:
 ## whose contents matches a regex?
 
     $ man -s1 -Kw --regex 'your regex'
-                  ^^^^^^^
+                  ^-----^
 
 ##
 # How to print the list of builtin commands for which there's a help page?

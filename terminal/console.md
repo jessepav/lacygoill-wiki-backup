@@ -173,7 +173,7 @@ This can be confirmed by looking at the output of:
 This service starts `agetty` to let you login from a virtual console:
 
     ExecStart=-/sbin/agetty --noclear %I $TERM
-               ^^^^^^^^^^^^
+               ^----------^
 
 To turn  the Numlock  key on,  we extend  the configuration  of the  template by
 including the following directive:
