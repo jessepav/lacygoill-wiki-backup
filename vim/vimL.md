@@ -1162,6 +1162,25 @@ The `complete` "event" is a nice and probably useful sound:
 
 As an example, it could be played after an async command has finished populating the qfl.
 
+## How to clear the undotree of a file?
+
+Perform some edit while `'undolevel'` is set to `-1`:
+
+    setl ul=-1
+    exe 'norm! "=""' .. "\r" .. 'p'
+
+In a script:
+
+    let [ul_save, bufnr] = [&l:ul, bufnr('%')]
+    setl ul=-1
+    try
+        exe 'norm! "=""' .. "\r" .. 'p'
+    finally
+        call setbufvar(bufnr, '&ul', ul_save)
+    endtry
+
+For more info, see `:h clear-undo`.
+
 ##
 # Pitfalls
 ## Do *not* use a function which has a side effect as the third argument of `get()`!

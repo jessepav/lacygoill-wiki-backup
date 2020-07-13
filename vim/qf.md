@@ -1614,6 +1614,82 @@ updated).
 
 <https://github.com/vim/vim/pull/3701>
 
+## Document that the `module` property is ignored if you set the `quickfixtextfunc` one.
+
+##
+## Document that if you return `[]` from the function assigned to `'qftf'`, the lines are displayed unchanged.
+
+## Document how to disable the *global option* `'qftf'` for one particular qfl.
+
+Just set the `'qftf'` *property* of the qfl to a function which returns an empty list.
+
+## Document that if the value assigned to `'qftf'` is a script local function, you need a funcref.
+
+To illustrate the pitfall, write this in `/tmp/a.vim`:
+
+    let items = [{'filename': $VIMRUNTIME..'/doc/index.txt',
+        \ 'lnum': 1124, 'valid': 1, 'text': 'You found it, Arthur!'}]
+    call setqflist([], ' ', {'items': items, 'quickfixtextfunc': 's:func'})
+    fu s:func(_)
+        return []
+    endfu
+    cw
+    so /tmp/b.vim
+
+Write this in `/tmp/b.vim`:
+
+    nno cd :copen<cr>
+    nno ci :call Func()<cr>
+    fu Func()
+        copen
+    endfu
+
+Start Vim like this:
+
+    vim -Nu NONE -S /tmp/a.vim
+
+    :q
+    " press:  'cd'
+    E120: Using <SID> not in a script context: s:func~
+
+    :q
+    " press:  'ci'
+    Error detected while processing function Func:~
+    line    1:~
+    E117: Unknown function: s:func~
+
+I think  that the  code which handles  the `'quickfixtextfunc'`  property shares
+some  code with  the  one  code which  handles  the `'quickfixtextfunc'`  global
+option.  And you can't write `s:` in an option value.
+
+The initial `:cw` from `/tmp/a.vim`  doesn't raise any error, because `s:func()`
+is defined in the same script as the `setqflist()` call.
+OTOH, `cd` and `ci` are installed in  another script, so when they run `:copen`,
+Vim fails to find `s:func()`.
+
+---
+
+Solution1: Use a funcref.
+
+    let items = ...
+    call setqflist([], ' ', {'items': items, 'quickfixtextfunc': function(s:'func')})
+                                                                 ^----------------^
+    ...
+
+Solution2: Translate `s:` manually.
+
+    fu s:snr() abort
+        return matchstr(expand('<sfile>'), '.*\zs<SNR>\d\+_')
+    endfu
+    let s:snr = get(s:, 'snr', s:snr())
+    let items = ...
+    call setqflist([], ' ', {'items': items, 'quickfixtextfunc': s:snr..'func'})
+                                                                 ^-----------^
+    ...
+
+But it's more verbose.
+
+##
 ## Talk about the 'filewinid' property of a location window.
 
 See `:h getloclist()`.

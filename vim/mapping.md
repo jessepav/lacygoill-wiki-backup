@@ -123,7 +123,7 @@ Don't use it for a visual mode mapping.  For the latter, just use `g@`:
         if !a:0
             let &opfunc = 'Op'
             return 'g@'..(mode() is# 'n' ? 'l' : '')
-                         ^-------------------------^
+            "            ^-------------------------^
         endif
         ...
     endfu
@@ -2658,15 +2658,63 @@ you omit `:keepj`  for *any* edition performed by your  opfunc, then *one* entry
 is added in the changelist.
 
 tommy uses it here: <https://vi.stackexchange.com/a/8748/17449>
+But I don't see why...
 
 ---
 
 Dirvish uses `keepj` for `tabnext` and `wincmd w`:
 <https://github.com/justinmk/vim-dirvish/blob/fa6197150dbffe0f93028c46cd229bcca83105a9/autoload/dirvish.vim#L4>
 
+    exe s:noau 'tabnext' a:tnr
+    exe s:noau wnr.'wincmd w'
+    exe s:noau origwinalt.'wincmd w|' s:noau origwin.'wincmd w'
+    exe s:noau 'tabnext '.curtab
+    exe s:noau curwinalt.'wincmd w|' s:noau curwin.'wincmd w'
+
 Why?
+
+Update: It seems  that creating  a new  window /  tabpage adds  an entry  in the
+jumplist of the latter, which points to  the last cursor location in the file of
+the  previous window.   Unless  you do  a simple  split  (`:sp`).  And  `:keepj`
+prevents that.
+
 Should we do the same?
 Are there other commands for which we should have used `keepj` in the past?
+Tpope uses `:keepj` in only 2 plugins:
+
+    " fugitive
+    silent keepjumps $delete _
+    silent keepjumps 2delete _
+    silent keepjumps %delete_
+    keepjumps 1
+    keepjumps call search('^parent ')
+    silent keepjumps delete_
+    silent exe (exists(':keeppatterns') ? 'keeppatterns' : '') 'keepjumps s/\m\C\%(^parent\)\@<! /\rparent /e' . (&gdefault ? '' : 'g')
+    keepjumps let lnum = search('^encoding \%(<unknown>\)\=$','W',line('.')+3)
+    silent exe (exists(':keeppatterns') ? 'keeppatterns' : '') 'keepjumps 1,/^diff --git\|\%$/s/\r$//e'
+    keepjumps call setpos('.',pos)
+    exe 'silent keepjumps ' . (lnum + 1) . ',' . lnum2 . 'delete _'
+    keepjumps syncbind
+
+    " vim-rails
+    exe 'keepjumps djump' def
+
+You can check this by going to github, then looking for:
+
+    keepjumps user:tpope
+
+then clicking on the `code` tab button.
+
+---
+
+Check whether we've used `:keepj` in the right places in the past:
+
+    vim /keepj/gj  $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
+
+Tpope seems to use `:keepj` whenever he runs `:delete`.
+Check whether we've done the same:
+
+    vim /\C\%(g:\)\@2<!\%([^[:keyword:]]\|\d\)\@<=d_\%(ebug\|count\)\@!/gj  $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
 
 ### ?
 
@@ -2823,15 +2871,6 @@ That's because `dii` executes 2 operations: `dTX` and `dtY`.
 `.` only repeats the last one, i.e. `dtY`.
 
 ###
-### ?
-
-I *think* that `<esc>` raises an error when using in operator-pending mode.
-As a result, any key written after it inside an omap is ignored.
-That doesn't seem to happen in a visual mapping; weird...
-
-Anyway, one workaround is to use  `<c-\><c-n>` instead (which you should use for
-other reasons too).
-
 ### ?
 
 How to filter a custom text-object without the command-line not being redrawn?
@@ -3243,6 +3282,11 @@ But the one which is fed is never recorded, because it ends the recording.
 
 Find usage examples for the `!` and `L` flags of `feedkeys()`.
 
+                                 v
+    rg 'feedkeys.*[''"][mntLix!]*L[mntLix!]*[''"]' ~/Vcs/vim/src/testdir/
+    rg 'feedkeys.*[''"][mntLix!]*![mntLix!]*[''"]' ~/Vcs/vim/src/testdir/
+                                 ^
+
 ### ?
 
 Move as many comments from `vim-freekeys` here.
@@ -3260,19 +3304,6 @@ Ne fonctionne que lorsqu'on édite la ligne de commande:
 
    - en y insérant l'évaluation d'une expression via C-r
    - en la remplaçant entièrement par l'évaluation d'une expression via C-\ e
-
-Je  n'ai pas  réussi  à l'utiliser  directement au  sein  du (pseudo?)  registre
-expression dans  lequel on entre  qd on  tape `C-r` ou  `C-\ e`.  En  revanche, elle
-fonctionne correctement qd on évalue une fonction custom juste après.
-
-Qd on évalue une fonction custom:
-
-   - via `C-\ e`, `setcmdpos()` permet de positionner le curseur sur la nouvelle
-     ligne de commande, l'ancienne étant remplacée par l'évaluation
-
-   - via `C-r`, `setcmdpos()`  permet  de positionner  le curseur  sur
-     l'ancienne ligne  de commande (qui n'est  pas remplacée), avant que
-     l'évaluation ne soit insérée là où se trouve le curseur
 
 Qd on utilise `C-\ e` ou `C-r =`  pour évaluer une fonction custom, il ne sert à
 rien de  demander à cette  dernière de retourner  des caractères de  contrôle tq

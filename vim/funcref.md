@@ -416,6 +416,10 @@ Results:
     -----
     avg: 0.57
 
+---
+
+Update: In a `:def` function, the opposite is true.
+
 # ?
 
 Document that you can use `get()` to get some "properties" of a funcref.

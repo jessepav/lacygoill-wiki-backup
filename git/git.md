@@ -1173,8 +1173,7 @@ Example:
 
     $ git bisect reset
     $ git bisect start --term-old error --term-new ok
-    $ git bisect error v8.1.1888
-    $ git bisect ok master
+    $ git bisect error v8.1.1888 && git bisect ok master
     # test
     $ git bisect error
     # test

@@ -510,13 +510,10 @@ Note that even though you've asked `feedkeys()`  to insert the text `ICP` at the
 This is  only possible if  `v:char` has already  left the typeahead  buffer when
 `InsertCharPre` is fired and `feedkeys()` is invoked.
 
-## When I start Vim with the next command, and press `ab` in insert mode, I get `efCD` instead of `CDef`:
+## When I start Vim with the next minimal vimrc, and press `ab` in insert mode, I get `efCD` instead of `CDef`:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        ino ab ef
-        au InsertCharPre * ++once call feedkeys('CD', 'n')
-    EOF
-    )
+    ino ab ef
+    au InsertCharPre * ++once call feedkeys('CD', 'n')
 
 ### How to get `CDef`?
 

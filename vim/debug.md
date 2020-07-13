@@ -795,7 +795,9 @@ Valgrind doesn't work atm on Ubuntu 16.04, but it works on Ubuntu 18.04 in a VM.
     $ make clean; make distclean
     $ sed -i '/fsanitize=address/s/^#//' src/Makefile
     $ ./configure
-    $ make
+    $ make; tput bel
+
+    $ ./src/vim -Nu NONE 2>asan.log
 
 After reproducing the issue, the log should be written in `./asan.log`.
 

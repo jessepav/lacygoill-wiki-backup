@@ -194,4 +194,12 @@ For more info, see:
 To read:
 
 >     In zsh, how can I dump all configuration?
+
 <https://unix.stackexchange.com/a/117344/289772>
+
+---
+
+>     This is a vim omnicompletion  which captures completions from zsh's completion
+>     engine. This is an application of this zsh completion capturing method.
+
+<https://github.com/Valodim/vim-zsh-completion> 97 sloc

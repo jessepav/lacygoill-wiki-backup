@@ -22,7 +22,7 @@ If the page is written in russian, click on the button labeled 'EN' in the toolb
     /server irc.irchighway.net
     /j #ebooks
 
-Wait 30 seconds after joining to send to channel (`+d`).
+Maybe wait 30 seconds after joining to send to channel.
 Run `@search your_book_title` to get a list of results in a zip archive.
 Unzip the archive, and search a line containing the book you're looking for.
 Finally, copy the bang command, and run in the channel.
