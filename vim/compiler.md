@@ -99,7 +99,7 @@ Probably to prevent a guard from stopping the sourcing in step 3.
 
 3. execute:
 
-        :runtime! compiler/foo.vim
+         :runtime! compiler/foo.vim
 
 The plugin `foo.vim` is expected to set options with `:CompilerSet`, and set the
 `current_compiler` variable to the name of the compiler.
@@ -1747,9 +1747,9 @@ directory in the form "Making all in dir".
 
 1. Let's assume you have the following directories and files:
 
-        ./dir1
-        ./dir1/file1.c
-        ./file1.c
+         ./dir1
+         ./dir1/file1.c
+         ./file1.c
 
 If `make` processes  `dir1/` before the current directory and  there is an error
 in `./file1.c`, you will end up with Vim loading `./dir1/file1.c`.
@@ -1758,9 +1758,9 @@ This can only be solved with a "leave directory" message.
 
 2. Let's assume you have the following directories and files:
 
-        ./dir1
-        ./dir1/dir2
-        ./dir2
+         ./dir1
+         ./dir1/dir2
+         ./dir2
 
 You get the following:
 

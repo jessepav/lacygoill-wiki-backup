@@ -259,14 +259,14 @@ The 2's complement method provides three benefits:
 
      Compare:
 
-            1110 (negative two, in four bits, using the 2's complement method)
-        11111110 (negative two, in eight bits, using the 2's complement method)
+             1110 (negative two, in four bits, using the 2's complement method)
+         11111110 (negative two, in eight bits, using the 2's complement method)
 
      To go from `1110`  to `11111110`, all the computer has to  do is repeat the
      most significant bit: that requires 4 operations.
 
-            1010 (negative two, in four bits, using the sign-and-modulus method)
-        10000010 (negative two, in eight bits, using the sign-and-modulus method)
+             1010 (negative two, in four bits, using the sign-and-modulus method)
+         10000010 (negative two, in eight bits, using the sign-and-modulus method)
 
      This time,  to go from  `1010` to `10000010`,  the computer *first*  has to
      clear the most  significant bit:

@@ -1607,7 +1607,7 @@ dossiers sont untracked, ou staged mais pas committed.
 
    3. create a topic branch (new branch with telling name):
 
-        $ git checkout -b my-branch
+         $ git checkout -b my-branch
 
       this makes it easier to push follow-up commits if you need to update your proposed changes
 
@@ -1615,16 +1615,16 @@ dossiers sont untracked, ou staged mais pas committed.
 
    5. commit the changes with a telling message:
 
-        $ git add .
-        $ git commit -v
+         $ git add .
+         $ git commit -v
 
    6. push the commit to the fork repo:
 
-        $ git push origin my-branch
+         $ git push origin my-branch
 
    7. on github, switch to `my-branch`, and check this kind of message is displayed:
 
-        This branch is 1 commit ahead of <project>:master
+         This branch is 1 commit ahead of <project>:master
 
    8. click on the `Compare` button (not on `Compare & pull request`)
 

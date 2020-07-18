@@ -435,7 +435,7 @@ Play with:
    - `argc()` + `argv()`
      They can now access the global arglist and the local arglist of another window:
 
-        https://github.com/vim/vim/releases/tag/v8.1.0493
+         https://github.com/vim/vim/releases/tag/v8.1.0493
 
    - `getcompletion('*', 'arglist')`
      +

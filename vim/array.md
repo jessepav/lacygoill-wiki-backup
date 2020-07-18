@@ -662,11 +662,11 @@ It allows the usage of:
 
    - a key whose name is the evaluation a variable
 
-        ✘
-        dict.var
+         ✘
+         dict.var
 
-        ✔
-        dict[var]
+         ✔
+         dict[var]
 
 ##
 ## Getting info

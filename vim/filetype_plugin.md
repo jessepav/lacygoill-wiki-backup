@@ -981,7 +981,7 @@ Installs filetype detection (autocmds setting 'filetype').
 
    5. execute this autocmd for all buffers by executing:
 
-        doautoall syntaxset FileType
+         doautoall syntaxset FileType
 
 For each  buffer, this will set  'syntax', which will fire  `Syntax`, which will
 load the appropriate syntax plugins.

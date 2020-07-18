@@ -93,7 +93,7 @@ numbers; IOW, there exists a method which:
 
    - can enumerate all of its elements
 
-        s₁, s₂, s₃, ...
+         s₁, s₂, s₃, ...
 
    - doesn't contain any infinity  in the middle, so that  you can reach any
      element  in a finite amount of time

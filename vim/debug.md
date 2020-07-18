@@ -1200,7 +1200,7 @@ To enter debugging mode use one of these methods:
 
 1. Start Vim with the `-D` argument:
 
-        $ vim -D file.txt
+         $ vim -D file.txt
 
    Debugging will start as soon as the first vimrc file is sourced.
    This is useful to find out what is happening when Vim is starting up.
@@ -1216,12 +1216,12 @@ To enter debugging mode use one of these methods:
    And for scripts and functions used by autocommands.
    Example:
 
-        :debug edit test.txt.gz
+         :debug edit test.txt.gz
 
 3. Set a breakpoint in a sourced file or user function.
    You could do this in the command-line:
 
-        $ vim -c 'breakadd file */explorer.vim' .
+         $ vim -c 'breakadd file */explorer.vim' .
 
    This will run Vim and stop in the first line of the 'explorer.vim' script.
    Breakpoints can also be set while in debugging mode.

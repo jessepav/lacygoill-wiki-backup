@@ -151,10 +151,10 @@ via leurs tags. Les tags sont stockés dans une bdd sqlite.
 
 
     ls mp/tags/
-        epic mp3 music
+         epic mp3 music
 
     ls mp/tags/epic
-        file1 … mp3/ music/
+         file1 … mp3/ music/
 
             Dans `tags/`, se trouve des sous-dossiers correspondant aux tags.
             Dans `tags/epic`, se trouve les fichiers portant le tag `epic`, ainsi que des dossiers
@@ -162,10 +162,10 @@ via leurs tags. Les tags sont stockés dans une bdd sqlite.
 
 
     cd mp/tags/
-        mkdir jazz
-        mv epic inspiration
-        rm epic/file.mp3
-        rmdir unused/
+         mkdir jazz
+         mv epic inspiration
+         rm epic/file.mp3
+         rmdir unused/
 
             Crée le tag `jazz`.
             Renomme le tag `epic` en `inspiration`.

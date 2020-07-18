@@ -542,8 +542,8 @@ Options:
       □ type: color
 
       □ values: a WeeChat color name (default, black, (dark)gray, white, (light)red, (light)green, brown, yellow,
-        (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
-        color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
+         (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
+         color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
 
       □ default value: lightgreen
 
@@ -554,8 +554,8 @@ Options:
       □ type: color
 
       □ values: a WeeChat color name (default, black, (dark)gray, white, (light)red, (light)green, brown, yellow,
-        (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
-        color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
+         (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
+         color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
 
       □ default value: yellow
 
@@ -566,8 +566,8 @@ Options:
       □ type: color
 
       □ values: a WeeChat color name (default, black, (dark)gray, white, (light)red, (light)green, brown, yellow,
-        (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
-        color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
+         (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
+         color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
 
       □ default value: lightblue
 
@@ -578,8 +578,8 @@ Options:
       □ type: color
 
       □ values: a WeeChat color name (default, black, (dark)gray, white, (light)red, (light)green, brown, yellow,
-        (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
-        color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
+         (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
+         color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
 
       □ default value: lightcyan
 
@@ -590,8 +590,8 @@ Options:
       □ type: color
 
       □ values: a WeeChat color name (default, black, (dark)gray, white, (light)red, (light)green, brown, yellow,
-        (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
-        color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
+         (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
+         color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
 
       □ default value: lightmagenta
 
@@ -602,8 +602,8 @@ Options:
       □ type: color
 
       □ values: a WeeChat color name (default, black, (dark)gray, white, (light)red, (light)green, brown, yellow,
-        (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
-        color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
+         (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
+         color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
 
       □ default value: white
 
@@ -614,8 +614,8 @@ Options:
       □ type: color
 
       □ values: a WeeChat color name (default, black, (dark)gray, white, (light)red, (light)green, brown, yellow,
-        (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
-        color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
+         (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
+         color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
 
       □ default value: cyan
 
@@ -626,8 +626,8 @@ Options:
       □ type: color
 
       □ values: a WeeChat color name (default, black, (dark)gray, white, (light)red, (light)green, brown, yellow,
-        (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
-        color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
+         (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
+         color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
 
       □ default value: green
 
@@ -638,8 +638,8 @@ Options:
       □ type: color
 
       □ values: a WeeChat color name (default, black, (dark)gray, white, (light)red, (light)green, brown, yellow,
-        (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
-        color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
+         (light)blue, (light)magenta, (light)cyan), a terminal color number or an alias; attributes are allowed before
+         color (for text color only, not background): "*" for bold, "!" for reverse, "/" for italic, "_" for underline
 
       □ default value: red
 

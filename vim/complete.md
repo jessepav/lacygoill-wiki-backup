@@ -304,17 +304,17 @@ On peut trouver le début du texte à compléter de 2 façons:
 
      Ex: pour compléter du curseur jusqu'au précédent double quote:
 
-        return searchpos('"', 'bcnW', line('.'))[1] - 1
+         return searchpos('"', 'bcnW', line('.'))[1] - 1
 
    - une boucle `while`
 
      Ex: pour compléter du curseur jusqu'au précédent caractère absent de la classe `\k`:
 
-        let start = col('.') - 1
-        while start > 0 && getline('.')[start - 1] =~ '\k'
-            let start -= 1
-        endwhile
-        return start
+         let start = col('.') - 1
+         while start > 0 && getline('.')[start - 1] =~ '\k'
+             let start -= 1
+         endwhile
+         return start
 
 Qu'est-ce que `start` ?
 Initialement, il s'agit  de l'index du 1er octet  suivant le curseur

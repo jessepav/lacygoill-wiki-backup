@@ -852,21 +852,21 @@ On peut représenter un état de la machine via une chaîne contenant:
 
      On peut l'obtenir, pex, via join():
 
-        join([&op1, ...], ',')
+         join([&op1, ...], ',')
 
   - un nb
 
     Si les options sont  des booléens et que leurs valeurs  sont donc 0 ou
     1, on peut l'obtenir directement:
 
-        &op1 . &op2 . ...
+         &op1 . &op2 . ...
 
     Les nb seront convertis automatiquement en chaîne et concaténés.
 
     Autrement,  si les  options ont  des valeurs  plus complexes,  on peut
     obtenir le nb représentant un état de la machine, via index():
 
-        index(states, [&op1, ...])
+         index(states, [&op1, ...])
 
     Où states est une liste de listes.
 
@@ -880,15 +880,15 @@ On peut représenter un état de la machine via une chaîne contenant:
     Le mapping n'a plus qu'à exécuter la commande permettant la transition
     vers un autre état:
 
-        :exe mydic[index(states, [&op1, ...])]
+         :exe mydic[index(states, [&op1, ...])]
 
     La dernière commande :exe peut se décomposer comme ceci:
 
-        states                liste de tous les états possibles
-        [&op1, ...]           état courant
-        index(states, [...])  position de l'état courant au sein de la fsm (clé du dico)
-        mydic[index(...)]     commande pour activer la transition vers le prochain état
-        exe mydic[...]        activer la transition
+         states                liste de tous les états possibles
+         [&op1, ...]           état courant
+         index(states, [...])  position de l'état courant au sein de la fsm (clé du dico)
+         mydic[index(...)]     commande pour activer la transition vers le prochain état
+         exe mydic[...]        activer la transition
 
 ---
 

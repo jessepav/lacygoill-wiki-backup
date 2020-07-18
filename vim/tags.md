@@ -611,13 +611,13 @@ There are three different types of searching:
 
     Thus `/usr/**2` can match:
 
-        /usr
-        /usr/include
-        /usr/include/sys
-        /usr/include/g++
-        /usr/lib
-        /usr/lib/X11
-        ....
+         /usr
+         /usr/include
+         /usr/include/sys
+         /usr/include/g++
+         /usr/lib
+         /usr/lib/X11
+         ....
 
     It does NOT match `/usr/include/g++/std` as this would be three levels.
     The allowed number range is 0 (`**0`  is removed) to 100 If the given number

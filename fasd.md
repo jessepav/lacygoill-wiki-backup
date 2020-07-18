@@ -238,7 +238,7 @@ Use the `-b` option:
 
    - recently-used: GTK's recently-used file
 
-        ~/.local/share/recently-used.xbel
+         ~/.local/share/recently-used.xbel
 
      The path to this file can be controlled via `_FASD_RECENTLY_USED_XBEL`.
 

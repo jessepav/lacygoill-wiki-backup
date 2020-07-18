@@ -2004,7 +2004,7 @@ ipsum dolor sit amet, consectetuer adipiscing elit.
 
 *   A list item with a code block:
 
-        <code goes here>
+         <code goes here>
 
     the item goes on here
 

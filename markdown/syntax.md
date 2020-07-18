@@ -371,7 +371,7 @@ twice, 8 spaces or two tabs:
 
 *   A list item with a code block:
 
-        <code goes here>
+         <code goes here>
 
 It's worth noting that it's possible to  trigger an ordered list by accident, by
 writing something like this:

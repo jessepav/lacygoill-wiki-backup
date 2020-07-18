@@ -102,8 +102,8 @@ Because of two things:
 
    1. `0123` comes from the input data, and so is given the `strnum` attribute:
 
-        $ awk '{ print typeof($0) }' <<<'0123'
-        strnum~
+         $ awk '{ print typeof($0) }' <<<'0123'
+         strnum~
 
       As a result, `0123` has two values: a numeric one and a string one.
 
@@ -182,14 +182,14 @@ In Vim, it:
 
    - takes care of converting it into decimal
 
-        :echo '0b101' + 0
-        5~
+         :echo '0b101' + 0
+         5~
 
-        :echo '0123' + 0
-        83~
+         :echo '0123' + 0
+         83~
 
-        :echo '0x123' + 0
-        291~
+         :echo '0x123' + 0
+         291~
 
 In awk, it does no such things:
 

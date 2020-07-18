@@ -1524,63 +1524,63 @@ about `b:changedtick` for a special buffer.
 
    - on `BufReadPre` when you reload a buffer
 
-        $ touch /tmp/file{1..2}; vim -Nu NONE -S <(cat <<'EOF'
-            let g:abuf = 'expand("<abuf>")'
-            call getcompletion('buf*', 'event')
-                \->filter({_,v -> v !~# 'Cmd$'})
-                \->map({_,v -> execute(printf(
-                \ 'au %s * unsilent echom "%s in buf "..%s..": tick is "..getbufvar(%s, "changedtick")'
-                \ , v, v, g:abuf, g:abuf))})
-        EOF
-        ) /tmp/file1
+         $ touch /tmp/file{1..2}; vim -Nu NONE -S <(cat <<'EOF'
+             let g:abuf = 'expand("<abuf>")'
+             call getcompletion('buf*', 'event')
+                 \->filter({_,v -> v !~# 'Cmd$'})
+                 \->map({_,v -> execute(printf(
+                 \ 'au %s * unsilent echom "%s in buf "..%s..": tick is "..getbufvar(%s, "changedtick")'
+                 \ , v, v, g:abuf, g:abuf))})
+         EOF
+         ) /tmp/file1
 
-        :echo b:changedtick
-        3~
-        :e
-        ...~
-        BufRead in buf 1: tick is 4~
-        ...~
+         :echo b:changedtick
+         3~
+         :e
+         ...~
+         BufRead in buf 1: tick is 4~
+         ...~
 
      Remember that  `BufReadPre` is  fired only  if the buffer  is read  from an
      existing file.
 
    - on the *first* `BufEnter` (the one fired right after `BufReadPre`)
 
-        $ touch /tmp/file{1..2}; vim -Nu NONE -S <(cat <<'EOF'
-            let g:abuf = 'expand("<abuf>")'
-            call getcompletion('buf*', 'event')
-                \->filter({_,v -> v !~# 'Cmd$'})
-                \->map({_,v -> execute(printf(
-                \ 'au %s * unsilent echom "%s in buf "..%s..": tick is "..getbufvar(%s, "changedtick")'
-                \ , v, v, g:abuf, g:abuf))})
-        EOF
-        ) /tmp/file1
+         $ touch /tmp/file{1..2}; vim -Nu NONE -S <(cat <<'EOF'
+             let g:abuf = 'expand("<abuf>")'
+             call getcompletion('buf*', 'event')
+                 \->filter({_,v -> v !~# 'Cmd$'})
+                 \->map({_,v -> execute(printf(
+                 \ 'au %s * unsilent echom "%s in buf "..%s..": tick is "..getbufvar(%s, "changedtick")'
+                 \ , v, v, g:abuf, g:abuf))})
+         EOF
+         ) /tmp/file1
 
-        :e /tmp/file2
-        BufNew in buf 2: tick is 1~
-        ...~
-        BufEnter in buf 2: tick is 2~
-        ...~
+         :e /tmp/file2
+         BufNew in buf 2: tick is 1~
+         ...~
+         BufEnter in buf 2: tick is 2~
+         ...~
 
    - on `BufWritePost` provided that the buffer is modified
 
-        $ touch /tmp/file && vim -Nu NONE -S <(cat <<'EOF'
-            au BufWritePre * echom 'BufWritePre: '..b:changedtick
-            au BufWritePost * echom 'BufWritePost: '..b:changedtick
-        EOF
-        ) /tmp/file
+         $ touch /tmp/file && vim -Nu NONE -S <(cat <<'EOF'
+             au BufWritePre * echom 'BufWritePre: '..b:changedtick
+             au BufWritePost * echom 'BufWritePost: '..b:changedtick
+         EOF
+         ) /tmp/file
 
-        :echo b:changedtick
-        3~
-        :w
-        BufWritePre: 3~
-        BufWritePost: 3~
-        "='' CR p
-        :echo b:changedtick
-        4~
-        :w
-        BufWritePre: 4~
-        BufWritePost: 5~
+         :echo b:changedtick
+         3~
+         :w
+         BufWritePre: 3~
+         BufWritePost: 3~
+         "='' CR p
+         :echo b:changedtick
+         4~
+         :w
+         BufWritePre: 4~
+         BufWritePost: 5~
 
 ##
 # Pitfalls
@@ -3274,7 +3274,7 @@ retournés par la fonction custom aient été insérés, il faut utiliser soit:
 
    - des `<left>`, `<right>` après que la fonction custom ait été évaluée; pex au sein d'un mapping:
 
-        cno <f8> <c-\>e Func()<cr><left><left>
+         cno <f8> <c-\>e Func()<cr><left><left>
 
 On ne  rencontrerait pas ce  pb avec un  mapping auquel on  passerait l'argument
 `<expr>`,  et auquel  on demanderait  de taper  les touches  retournées par  une
@@ -4271,18 +4271,18 @@ Toutefois, il y a 3 exceptions qui empêchent un développement infini:
 
    - la répétition a lieu dans un mode différent
 
-        nmap cd acd
-                │
-                └ fait passer en mode insertion, mais le mapping travaille en mode normal
+         nmap cd acd
+                 │
+                 └ fait passer en mode insertion, mais le mapping travaille en mode normal
 
    - la répétition se produit au début du rhs
 
-        nmap ge geb
+         nmap ge geb
 
    - la répétition est le préfixe d'un autre mapping
 
-        nmap ge   y#geb
-        nno  geb  <nop>
+         nmap ge   y#geb
+         nno  geb  <nop>
 
 Pour plus d'infos, lire `:h recursive_mapping`.
 

@@ -460,7 +460,7 @@ assimiler plus :
       voix pour vérifier qu'on comprend bien et si besoin les éditer / modifier
       pour les rendre plus claires
 
-        Condenser
+         Condenser
 
 Qd on  prend ses  notes, il faut  aller à l'essentiel  et toujours  chercher une
 formulation qui prend un minimum de caractères.

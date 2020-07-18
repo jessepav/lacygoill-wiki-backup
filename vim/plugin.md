@@ -1823,22 +1823,22 @@ And it even works from gvim or MacVim!
 - <https://gist.github.com/blueyed/6856354>
 - <https://github.com/Osse/dotfiles/blob/master/.zfunctions/tmux_complete>
 
-        local -A panes
-        panes=($(tmux list-panes -F '#{pane_index} #{pane_active}'))
+         local -A panes
+         panes=($(tmux list-panes -F '#{pane_index} #{pane_active}'))
 
-        local -a words
-        words=(${(f)"$(
-            for pane active in ${(kv)panes}; do
-                if (( active )); then
-                    tmux capture-pane -J -p -t $pane | sed '/^$/d' | head -n -1
-                else
-                    tmux capture-pane -J -p -t $pane
-                fi
-            done | grep -o '\<\w\+\>'
-        )"})
+         local -a words
+         words=(${(f)"$(
+             for pane active in ${(kv)panes}; do
+                 if (( active )); then
+                     tmux capture-pane -J -p -t $pane | sed '/^$/d' | head -n -1
+                 else
+                     tmux capture-pane -J -p -t $pane
+                 fi
+             done | grep -o '\<\w\+\>'
+         )"})
 
-        _wanted values expl 'words from visible tmux panes' compadd -a words
-        bindkey -M menuselect '^T' menu-complete
+         _wanted values expl 'words from visible tmux panes' compadd -a words
+         bindkey -M menuselect '^T' menu-complete
 
 <https://github.com/Osse/dotfiles/blob/master/.zfunctions/tmux_complete_path>
 

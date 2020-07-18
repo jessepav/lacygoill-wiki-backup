@@ -318,22 +318,22 @@ Method to understand this sentence:
 
 2. draw a time axis
 
-        ──────────────────────────
+         ──────────────────────────
 
 3. position the event of the first proposition on the axis
 
-        ────────|─────────────────
-                ^
-                the gvimrc file is sourced
+         ────────|─────────────────
+                 ^
+                 the gvimrc file is sourced
 
 4. position the event of the second proposition before or after
   (the choice doesn't matter)
 
-        ────────|────────|────────
-                │        │
-                │        └ the system menu is loaded
-                │
-                └ the gvimrc file is sourced
+         ────────|────────|────────
+                 │        │
+                 │        └ the system menu is loaded
+                 │
+                 └ the gvimrc file is sourced
 
 5. re-read the original sentence
 

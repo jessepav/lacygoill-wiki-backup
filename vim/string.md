@@ -1041,34 +1041,34 @@ Why only 9? Why `-4` and `-3`?
 
    - `str2nr()` can only do 3 conversions, all towards decimal:
 
-        " bin → dec
-        echo str2nr('101010', 2)
-        42~
+         " bin → dec
+         echo str2nr('101010', 2)
+         42~
 
-        " oct → dec
-        echo str2nr('123', 8)
-        83~
+         " oct → dec
+         echo str2nr('123', 8)
+         83~
 
-        " hex → dec
-        echo str2nr('123', 16)
-        291~
+         " hex → dec
+         echo str2nr('123', 16)
+         291~
 
    - `printf()`  interprets  a  number  differently depending  on  whether  it's
      prefixed by `0` or `0x`.
 
      `str2nr()` doesn't care about the prefix; it cares about its second argument:
 
-        " the octal prefix is ignored
-        echo str2nr('0101010')
-        101010~
+         " the octal prefix is ignored
+         echo str2nr('0101010')
+         101010~
 
-        " the octal prefix is ignored
-        echo str2nr('0101010', 2)
-        42~
+         " the octal prefix is ignored
+         echo str2nr('0101010', 2)
+         42~
 
-        " the second argument needs to be 8 for the number to be recognized as octal
-        echo str2nr('0101010', 8)
-        33288~
+         " the second argument needs to be 8 for the number to be recognized as octal
+         echo str2nr('0101010', 8)
+         33288~
 
 ####
 ### Can it coerce an expression into another type?

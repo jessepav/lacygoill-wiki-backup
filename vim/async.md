@@ -106,34 +106,34 @@ command output and update a qfl:
 
    1. Create an empty quickfix list:
 
-        call setqflist([], ' ', {'title' : 'Output from command abc'})
+         call setqflist([], ' ', {'title' : 'Output from command abc'})
 
    2. Save the newly created quickfix list identifier:
 
-        let qfid = getqflist({'id' : 0}).id
+         let qfid = getqflist({'id' : 0}).id
 
    3. Start a command in the background using `job_start()`
 
    4. In the job callback function, check if the quickfix list is still present:
 
-        if getqflist({'id' : qfid}).id == qfid
-            " Still present
-            " Update the list
-        else
-            " List is removed. Stop the background job.
-            call job_stop(....)
-        endif
+         if getqflist({'id' : qfid}).id == qfid
+             " Still present
+             " Update the list
+         else
+             " List is removed. Stop the background job.
+             call job_stop(....)
+         endif
 
    5. Process the command output and update the quickfix list using one of the
       following calls:
 
-        call setqflist([], 'a', {'id' : qfid, 'lines' : cmdoutput, 'efm' : myefm})
-        ^
-        should we add `noa`? (same question for the command below)
+         call setqflist([], 'a', {'id' : qfid, 'lines' : cmdoutput, 'efm' : myefm})
+         ^
+         should we add `noa`? (same question for the command below)
 
       or
 
-        call setqflist([], 'a', {'id' : qfid, 'items' : newitems})
+         call setqflist([], 'a', {'id' : qfid, 'items' : newitems})
 
 ##
 # async

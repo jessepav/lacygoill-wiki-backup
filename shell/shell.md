@@ -3316,7 +3316,7 @@ Also, review their lhs so that they're as consistent as possible across bash and
 - <https://grml.org/zsh/>
 - <https://grml.org/zsh/zsh-lovers.pdf>
 
-        cd /tmp ; wget -O .zshrc http://git.grml.org/f/grml-etc-core/etc/zsh/zshrc
+         cd /tmp ; wget -O .zshrc http://git.grml.org/f/grml-etc-core/etc/zsh/zshrc
 
 - <http://www.bash2zsh.com/>
 - <http://www.bash2zsh.com/zsh_refcard/refcard.pdf>

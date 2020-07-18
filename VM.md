@@ -922,5 +922,5 @@ for a network setting.
 
 2. Start VB by executing:
 
-        $ virtualbox &!
+         $ virtualbox &!
 

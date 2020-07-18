@@ -866,11 +866,11 @@ Both (chain of) processes are started by:
 
    - the init process in console:
 
-        systemd
+         systemd
 
    - the display manager in X:
 
-        systemd───lightdm───lightdm───upstart
+         systemd───lightdm───lightdm───upstart
 
 You can check this with the following commands:
 
