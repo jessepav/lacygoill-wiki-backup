@@ -19,51 +19,51 @@ The parsing step during the compilation of a `:def` function when Vim checks whe
    - you've specified a type for each function argument
      (not needed for an argument which is assigned a default value)
 
-        $ vim -Nu NONE -S <(cat <<'EOF'
-            def Func(x)
-            enddef
-            defcompile
-        EOF
-        )
+         $ vim -Nu NONE -S <(cat <<'EOF'
+             def Func(x)
+             enddef
+             defcompile
+         EOF
+         )
 
-        E1077: Missing argument type for x~
+         E1077: Missing argument type for x~
 
    - you've specified the return type of the function if it returns sth
 
-        $ vim -Nu NONE -S <(cat <<'EOF'
-            def Func()
-                return 123
-            enddef
-            defcompile
-        EOF
-        )
+         $ vim -Nu NONE -S <(cat <<'EOF'
+             def Func()
+                 return 123
+             enddef
+             defcompile
+         EOF
+         )
 
-        E1096: Returning a value in a function without a return type~
+         E1096: Returning a value in a function without a return type~
 
    - the return type of the function matches the type of the returned expression
 
-        $ vim -Nu NONE -S <(cat <<'EOF'
-            def Func(): string
-                return 123
-            enddef
-            defcompile
-        EOF
-        )
+         $ vim -Nu NONE -S <(cat <<'EOF'
+             def Func(): string
+                 return 123
+             enddef
+             defcompile
+         EOF
+         )
 
-        E1013: type mismatch, expected string but got number~
+         E1013: type mismatch, expected string but got number~
 
    - the type of a declared variable matches the type of the expression that you assign it later
 
-        $ vim -Nu NONE -S <(cat <<'EOF'
-            def Func()
-                let x: string
-                x = 123
-            enddef
-            defcompile
-        EOF
-        )
+         $ vim -Nu NONE -S <(cat <<'EOF'
+             def Func()
+                 let x: string
+                 x = 123
+             enddef
+             defcompile
+         EOF
+         )
 
-        E1013: type mismatch, expected string but got number~
+         E1013: type mismatch, expected string but got number~
 
 ### When is type checking performed
 #### for a legacy `:fu` function?
@@ -494,7 +494,7 @@ But at the script level, lambdas are significantly slower:
     1.225 seconds to run lambdas~
     0.566 seconds to run eval strings~
 
-Conclusion: always use lambdas, but make to write them inside `:def` functions.
+Conclusion: always use lambdas, but make sure to write them inside `:def` functions.
 
 ##
 ## The line number given in an error message looks wrong!
@@ -696,6 +696,4 @@ Report?
 ## Try to finish rewriting `ccomplete#Complete()` in Vim9 script
 
     $ vim +'so ~/Desktop/ccomplete.vim' ~/Vcs/vim/src/evalfunc.c
-
-Right now, we can't go any further because of: <https://github.com/vim/vim/issues/6434>
 
