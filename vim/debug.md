@@ -724,43 +724,37 @@ first wildcard.
 ## I'm writing a bug report for a Vim issue.
 ### I need the Vim binary to include debugging symbols!
 
-When you configure – before compiling – edit the file `src/Makefile`.
-In it, uncomment these lines:
+When you configure – before compiling – edit the file `src/Makefile`, to include
+the `-g` flag in the `CFLAGS` variable, so that it's sent to the compiler.
 
-    CFLAGS = -g -DSINIXN
-    STRIP = /bin/true
+    CFLAGS = -g
+             ^^
 
-I don't think the second line is necessary, but better be safe than sorry.
+See:
 
-See `:h debug-gcc`.
+   - `:h debug-gcc`
+   - <https://stackoverflow.com/a/1937428/9780968>
 
 ---
 
 You don't  have to  do that manually;  we have  a zsh snippet  to compile  a Vim
 binary with debugging symbols; use it.
 
-### I need Vim to crash when an internal error (`:h E315`) is detected – to get a core file!
+#### It doesn't work!
 
-In `src/Makefile`, uncomment this line:
+Make sure  the `STRIP` variable is  not set to  the `strip(1)` binary, but  to a
+dummy one like `/bin/true`:
 
-    ABORT_CFLAGS = -DABORT_ON_INTERNAL_ERROR
-
-I found `ABORT_CFLAGS` here: <https://github.com/vim/vim/issues/3177#issue-339241917>
-
----
-
-Again, you don't have to do that manually; use our zsh snippet to compile Vim.
+    STRIP = /bin/true
 
 ###
 ### I want my backtrace to contain as much info as possible (no <optimized out>)!
 
-Edit the file `src/Makefile`, and look for the first line like this:
-
-    #CFLAGS = -O
-
-Replace it with:
+Edit `src/Makefile`  to pass  the `-O0`  flag to the  compiler via  the `CFLAGS`
+variable:
 
     CFLAGS = -g -O0
+                ^-^
 
 ### When extracting a backtrace, I get a warning message!
 
@@ -804,6 +798,19 @@ After reproducing the issue, the log should be written in `./asan.log`.
 Source: <https://github.com/vim/vim/issues/5410#issuecomment-569516803>
 
 ##
+### I need Vim to crash when an internal error (`:h E315`) is detected – to get a core file!
+
+In `src/Makefile`, uncomment this line:
+
+    ABORT_CFLAGS = -DABORT_ON_INTERNAL_ERROR
+
+I found `ABORT_CFLAGS` here: <https://github.com/vim/vim/issues/3177#issue-339241917>
+
+---
+
+Again, you don't have to do that manually; use our zsh snippet to compile Vim.
+
+###
 ## Some global variable is created, but I don't know which script did it!
 
     $ vim -V15/tmp/log
@@ -1193,7 +1200,7 @@ To enter debugging mode use one of these methods:
 
 1. Start Vim with the `-D` argument:
 
-        vim -D file.txt
+        $ vim -D file.txt
 
    Debugging will start as soon as the first vimrc file is sourced.
    This is useful to find out what is happening when Vim is starting up.
@@ -1214,7 +1221,7 @@ To enter debugging mode use one of these methods:
 3. Set a breakpoint in a sourced file or user function.
    You could do this in the command-line:
 
-        vim -c 'breakadd file */explorer.vim' .
+        $ vim -c 'breakadd file */explorer.vim' .
 
    This will run Vim and stop in the first line of the 'explorer.vim' script.
    Breakpoints can also be set while in debugging mode.

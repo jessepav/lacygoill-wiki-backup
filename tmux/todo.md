@@ -1256,10 +1256,10 @@ This would be more clear:
 If you  need to  test the option:
 
     $ tmux -Lx -f =(cat <<'EOF'
-      set -g status-keys vi
-      set -g message-command-style fg=white,bg=colour31
-      EOF
-      )
+        set -g status-keys vi
+        set -g message-command-style fg=white,bg=colour31
+    EOF
+    )
 
      # press `C-b :` to enter command prompt
      # insert some text

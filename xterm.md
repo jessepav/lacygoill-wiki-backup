@@ -40,8 +40,8 @@ Install:
 
 In case you wonder where the previous configuration options come from:
 
-    cd /tmp
-    apt-get source xterm
-    cd xterm-123
-    vim debian/rules +'/override_dh_auto_configure'
+    $ cd /tmp
+    $ apt-get source xterm
+    $ cd xterm-123
+    $ vim debian/rules +'/override_dh_auto_configure'
 

@@ -1207,7 +1207,7 @@ shell, and thus known to cause issues in general.
 
 If you want to practice, run this:
 
-    vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(cat <<'EOF'
         %d_
         " populate listing A
         pu!='/path/to/file1'
@@ -1248,15 +1248,15 @@ If you've mapped something to `C-j`, it will have unexpected effects.
 
 Example when CR is pressed in command-line mode:
 
-    vim -Nu NONE +'let @q = ":\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
+    $ vim -Nu NONE +'let @q = ":\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
     " press @q: the C-j mapping is executed (the message is logged)
 
 Example when CR is pressed in normal mode:
 
-    vim -Nu NONE +"pu=''" +'let @q = "\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
-                  ^-----^
-                  there needs to be a line after the one from which we press `@q`,
-                  otherwise, `^M` would fail and Vim would stop executing the macro
+    $ vim -Nu NONE +"pu=''" +'let @q = "\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
+                    ^-----^
+                    there needs to be a line after the one from which we press `@q`,
+                    otherwise, `^M` would fail and Vim would stop executing the macro
 
 This issue is explained at `:h :let-@`:
 
@@ -1309,7 +1309,7 @@ Later,  when you'll  try to  restore  the original  contents, this  NL won't  be
 translated back into a NUL, because Vim has no way to distinguish between a real
 NL and one which results from the translation of a NUL.
 
-    vim -es -Nu NONE -i NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -i NONE -S <(cat <<'EOF'
         call setline(1, "original:  a\x0ab\x0ac")
         norm! ^fa"ry$
         let save = [getreg('r'), getregtype('r')]
@@ -1344,7 +1344,7 @@ See also: <https://github.com/vim/vim/pull/3370#issuecomment-415975411>
 OTOH, if you save the register as a  list, and it contains a NUL, Vim will still
 translate it as a NL:
 
-    vim -es -Nu NONE -i NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -i NONE -S <(cat <<'EOF'
         call setline(1, "a\x0ab")
         norm! ^"ry$
         set vbs=1 | echo getreg('r', 1, 1)
@@ -1361,7 +1361,7 @@ inside  a single  list item;  and a  list item  describes *one*  text line,  not
 several, which  – by definition  – can't  contain a NL.   As a result,  Vim will
 translate it back into a NUL.
 
-    vim -es -Nu NONE -i NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -i NONE -S <(cat <<'EOF'
         call setline(1, "original:  a\x0ab\x0ac")
         norm! ^fa"ry$
         let save = [getreg('r', 1, 1), getregtype('r')]
@@ -1395,15 +1395,12 @@ Do *not* write `@r`.
 
 If `"r` contains a newline, it would be translated into a NUL when expanding `@r`.
 
-    vim -Nu NONE -i NONE -S <(cat <<'EOF'
-        call setreg('r', ['a', 'b'], 'l')
-        call setline(1, ['a', 'b', "a\nb\n"])
-        call matchadd('ErrorMsg', @r)
-        "                         ^^
-        "                         ✘
-        call matchadd('Search', getreg('r', 1, 1)->join('\n'))
-    EOF
-    )
+    call setreg('r', ['a', 'b'], 'l')
+    call setline(1, ['a', 'b', "a\nb\n"])
+    call matchadd('ErrorMsg', @r)
+    "                         ^^
+    "                         ✘
+    call matchadd('Search', getreg('r', 1, 1)->join('\n'))
 
 This is  similar to  Vim inserting  a NUL on  the command-line  when you  try to
 insert a NL by pressing `C-v C-j`.
@@ -1418,7 +1415,7 @@ The last macro is not necessarily the one you've executed interactively.
 Indeed, the latter could have executed another (nested) macro.  If so, then this
 other macro *is* the last one.
 
-    vim -Nu NONE +'let @a = "a@a\e@b" | let @b = "a @b \e"'
+    $ vim -Nu NONE +'let @a = "a@a\e@b" | let @b = "a @b \e"'
     " press @a: '@a @b ' is inserted
     " press @@: ' @b'    is inserted
 
@@ -1437,24 +1434,21 @@ macro to be  reset to `@=`. Which  means that – subsequently –  `@@` will re
 You could  install wrapper mappings around  `@` and `@@` to  save/re-execute the
 last register which was executed *interactively*.
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        let @a = "a@a\e@b" | let @b = "a @b \e"
+    let @a = "a@a\e@b" | let @b = "a @b \e"
 
-        nmap <expr><unique> @ <sid>fix_macro_execution()
-        fu s:fix_macro_execution() abort
-            let char = nr2char(getchar(), 1)
-            if empty(reg_executing())
-                let s:last_register_executed_interactively = char
-            endif
-            return '@'..char
-        endfu
+    nmap <expr> @ <sid>fix_macro_execution()
+    fu s:fix_macro_execution() abort
+        let char = getchar()->nr2char(1)
+        if reg_executing()->empty()
+            let s:last_register_executed_interactively = char
+        endif
+        return '@'..char
+    endfu
 
-        nmap <expr><unique> @@ <sid>atat()
-        fu s:atat() abort
-            return '@'..get(s:, 'last_register_executed_interactively', '@')
-        endfu
-    EOF
-    )
+    nmap <expr> @@ <sid>atat()
+    fu s:atat() abort
+        return '@'..get(s:, 'last_register_executed_interactively', '@')
+    endfu
 
 ##
 ## During a recording, after `o` or `O`, do *not* press `C-u` to remove all the indentation of the current line.
@@ -1465,7 +1459,7 @@ Rationale: there  is no  guarantee that  the next time  you execute  your macro,
 there will be an indentation; it depends from where you open a new line.  And if
 there's no indentation, `C-u` may remove the previous newline.
 
-    vim -Nu NONE <(cat <<'EOF'
+    $ vim -Nu NONE <(cat <<'EOF'
         indented
     NOT indented
     EOF
@@ -1483,7 +1477,7 @@ Cause:
 When you  execute the register, Vim  wrongly translates the sequence  `\ex` into
 the terminal key `<M-x>`:
 
-    vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(cat <<'EOF'
         set ttm=10
         exe "set <m-f>=\ef"
         0pu=['b.', 'b.']
@@ -1534,7 +1528,7 @@ though, maybe because you don't type as fast as Vim...  It looks like a bug.
 
 Examples:
 
-    vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(cat <<'EOF'
         let @q = 'Vr-x'
         xno <expr> x Func()
         fu Func()
@@ -1549,7 +1543,7 @@ Examples:
     :mess
     x mapping is used~
 
-    vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(cat <<'EOF'
         ono foo bar
         let @q = "ctdfoo\<esc>"
         pu!='abcd'
@@ -1566,7 +1560,7 @@ Examples:
 As a workaround, try to press `Esc` to be sure that the rest of the commands are
 processed in the mode you expect:
 
-    vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(cat <<'EOF'
         let @q = "Vr-\ex"
         "            ^^
         xno <expr> x Func()
@@ -1584,7 +1578,7 @@ processed in the mode you expect:
 
 If the mode you expect is not normal, use a no-op instead of `Esc`:
 
-    vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(cat <<'EOF'
         ono foo bar
         let @q = "ctd\<c-r>=''\<cr>foo\<esc>"
         "            ^------------^

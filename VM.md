@@ -24,7 +24,7 @@ In particular, the chapter 8 describes the command-line interface:
 ##
 ## How to add a repository to get a more up-to-date VB package?
 
-    sudo bash -c 'cat <<EOF >/etc/apt/sources.list.d/virtualbox.list
+    $ sudo bash -c 'cat <<EOF >/etc/apt/sources.list.d/virtualbox.list
     # repository to have a more up-to-date virtualbox package
     deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -sc) contrib
     EOF'

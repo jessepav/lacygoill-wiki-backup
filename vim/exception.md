@@ -1575,7 +1575,7 @@ Is it wrong to run `:throw` without a `:catch`?
 
 It seems it can cause unexpected results:
 
-    vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(cat <<'EOF'
         fu Throw()
             try
                 throw 'some error'

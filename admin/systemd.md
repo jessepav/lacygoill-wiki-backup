@@ -2107,13 +2107,13 @@ This link is also interesting: <https://superuser.com/a/1128905/913143>
 It explains how to install an xbindkeys service.
 Basically, it gives sth like:
 
-    cat <<EOF >~/.config/systemd/user/xsession.target
+    $ cat <<EOF >~/.config/systemd/user/xsession.target
     [Unit]
     Description=Xsession running
     BindsTo=graphical-session.target
     EOF
 
-    cat <<EOF >~/.config/systemd/user/xbindkeys.service
+    $ cat <<EOF >~/.config/systemd/user/xbindkeys.service
     [Unit]
     Description=xbindkeys
     PartOf=graphical-session.target
@@ -2126,7 +2126,7 @@ Basically, it gives sth like:
     WantedBy=xsession.target
     EOF
 
-    cat <<EOF >>~/bin/keyboard.sh
+    $ cat <<EOF >>~/bin/keyboard.sh
     systemctl --user import-environment PATH DBUS_SESSION_BUS_ADDRESS
     systemctl --no-block --user start xsession.target
     EOF

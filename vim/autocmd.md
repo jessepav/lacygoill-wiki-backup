@@ -500,8 +500,8 @@ which still gives you a chance to change the character.
 
 ---
 
-    vim -Nu NONE +'au InsertCharPre * if v:char is# "x" | call feedkeys(" ICP ", "in") | endif'
-    " press: x
+    $ vim -Nu NONE +'au InsertCharPre * if v:char is# "x" | call feedkeys(" ICP ", "in") | endif'
+    " insert: x
     " you get: x ICP
 
 Note that even though you've asked `feedkeys()`  to insert the text `ICP` at the
@@ -523,11 +523,9 @@ This is  only possible if  `v:char` has already  left the typeahead  buffer when
 
 New code:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        ino ab ef
-        au InsertCharPre * ++once call feedkeys("\<bs>CD"..v:char, 'in')
-    EOF
-    )
+    ino ab ef
+    au InsertCharPre * ++once call feedkeys("\<bs>CD" .. v:char, 'in')
+                                             ^---^       ^----^   ^
 
 ---
 

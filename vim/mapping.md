@@ -152,7 +152,7 @@ Inside the opfunc, call this other  function by prefixing `:call` with the range
 
 Example:
 
-    vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(cat <<'EOF'
         nno <expr> <c-b>      OpSetup()
         nno <expr> <c-b><c-b> OpSetup()..'_'
 
@@ -165,7 +165,7 @@ Example:
         endfu
 
         fu Op()
-            call setline('.', substitute(getline('.'), 'pat', 'rep', 'g'))
+            call setline('.', getline('.')->substitute('pat', 'rep', 'g'))
         endfu
         let text =<< trim END
             " pat pat pat
@@ -178,6 +178,7 @@ Example:
         1
     EOF
     )
+
     " press:  3 C-b C-b
     " result:  'pat' is replaced on line 1 and 3
 
@@ -279,7 +280,7 @@ which you probably don't want.
 MWE:
 
     ✘
-    vim -Nu NONE +'nno <expr> <c-b> feedkeys("ix\<esc>", "int")[-1]'
+    $ vim -Nu NONE +'nno <expr> <c-b> feedkeys("ix\<esc>", "int")[-1]'
     " press:  qq
     "         C-b
     "         q
@@ -288,8 +289,8 @@ MWE:
     " expected line:   xx
 
     ✔
-    vim -Nu NONE +'nno <expr> <c-b> feedkeys("ix\<esc>", "in"..(empty(reg_recording()) ? "t" : ""))[-1]'
-                                                                ^-------------------------------^
+    $ vim -Nu NONE +'nno <expr> <c-b> feedkeys("ix\<esc>", "in"..(empty(reg_recording()) ? "t" : ""))[-1]'
+                                                                  ^-------------------------------^
 
 ---
 
@@ -503,7 +504,7 @@ In contrast, `feedkeys()` executes the keys immediately only if you pass it the 
 
 Use an empty string:
 
-    vim -Nu NONE +'noremap <c-e> :echom "test"<cr>'
+    $ vim -Nu NONE +'noremap <c-e> :echom "test"<cr>'
     :echo maparg('<c-e>', '')
                           ^^
 
@@ -511,7 +512,7 @@ Use an empty string:
 
 With a space:
 
-    vim -Nu NONE +'noremap <c-e> :echom "test"<cr>'
+    $ vim -Nu NONE +'noremap <c-e> :echom "test"<cr>'
     :echo maparg('<c-e>', '', 0, 1).mode is# ' '
                                               ^
 
@@ -520,7 +521,7 @@ With a space:
 
 Use 'o':
 
-    vim -Nu NONE +'ono <c-e> :echom "test"<cr>'
+    $ vim -Nu NONE +'ono <c-e> :echom "test"<cr>'
     :echo maparg('<c-e>', 'o')
                           ^-^
 
@@ -528,14 +529,13 @@ Use 'o':
 
 With 'n':
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        ono <expr> <c-e> Func()
-        fu Func()
-            echom mode()
-        endfu
-    EOF
-    )
-    " press y C-e: n is printed
+    ono <expr> <c-e> Func()
+    fu Func()
+        echom mode()
+    endfu
+
+    " press:  y C-e
+    " 'n' is printed
 
 Which is the same as for normal mode.
 IOW, `mode()`  is useless to detect  operator-pending mode; you need  to pass it
@@ -545,13 +545,11 @@ the optional argument `1` for its output to be reliable.
 
 Then, `mode(1)` evaluates to 'no', or 'nov', or 'noV' or 'no^V'.
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        ono <expr> <c-e> Func()
-        fu Func()
-            echom mode(1)
-        endfu
-    EOF
-    )
+    ono <expr> <c-e> Func()
+    fu Func()
+        echom mode(1)
+    endfu
+
     " press y C-e: no
     " press y v C-e: nov
     " press y V C-e: noV
@@ -839,19 +837,16 @@ operator.
 
 Yes.
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        nno <expr> <c-b> Op()
-        fu Op(...)
-            if !a:0
-                set opfunc=Op
-                return 'g@'
-            endif
-            echom 'the count is '..v:count
-            echom 'the register is '..v:register
-            norm! "b4yl
-        endfu
-    EOF
-    )
+    nno <expr> <c-b> Op()
+    fu Op(...)
+        if !a:0
+            set opfunc=Op
+            return 'g@'
+        endif
+        echom 'the count is '..v:count
+        echom 'the register is '..v:register
+        norm! "b4yl
+    endfu
 
     " press:  "a 3 C-b l
     " press:  .
@@ -1040,16 +1035,13 @@ That's because at the latter, mappings are ignored.  From `:h pager`:
 
 ## I'm trying to install a mapping triggered when I'm at the hit-enter prompt.
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        nno <expr> <c-b> Func()
-        fu Func()
-            if mode(1) is# 'r'
-                echom 'I''m at the hit-enter prompt'
-            endif
-            return ''
-        endfu
-    EOF
-    )
+    nno <expr> <c-b> Func()
+    fu Func()
+        if mode(1) is# 'r'
+            echom 'I''m at the hit-enter prompt'
+        endif
+        return ''
+    endfu
 
     :ls
     " press:  C-b
@@ -1077,22 +1069,20 @@ You can't test whether  the pager is open when you press your  key.  But you can
 test it before.  Indeed,  for the pager to be opened, an Ex  command needs to be
 run, so you know that `CmdlineLeave` is always fired right before.
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        let s:is_pager_open = v:false
-        au CmdlineLeave : call timer_start(0, {-> mode() is# 'r' && SetFlag()})
-        fu SetFlag()
-            let s:is_pager_open = v:true
-            au SafeState * ++once let s:is_pager_open = v:false
-        endfu
-        nno <expr> <c-b> {-> C_b()}()
-        fu C_b()
-            if s:is_pager_open
-                echom "C-b has been pressed while the pager was open"
-            endif
-            return ''
-        endfu
-    EOF
-    )
+    let s:is_pager_open = v:false
+    au CmdlineLeave : call timer_start(0, {-> mode() is# 'r' && SetFlag()})
+    fu SetFlag()
+        let s:is_pager_open = v:true
+        au SafeState * ++once let s:is_pager_open = v:false
+    endfu
+    nno <expr> <c-b> {-> C_b()}()
+    fu C_b()
+        if s:is_pager_open
+            echom "C-b has been pressed while the pager was open"
+        endif
+        return ''
+    endfu
+
     " press C-b:  nothing happens
     :ls
     " press C-b:  the message is printed on the command-line
@@ -1309,13 +1299,10 @@ Vim uses the first one in its internal termcap db (`:set termcap`).
 What matters is the  order of the keys in the db; not  the order in which you've
 run your `:set <...>` commands.
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        exe "set <F10>=\ed"
-        nno <F10> :echo 'F10 was pressed'<cr>
-        exe "set <F5>=\ed"
-        nno <F5> :echo 'F5 was pressed'<cr>
-    EOF
-    )
+    exe "set <F10>=\ed"
+    nno <F10> :echo 'F10 was pressed'<cr>
+    exe "set <F5>=\ed"
+    nno <F5> :echo 'F5 was pressed'<cr>
     " press 'Esc' + 'd': 'F5 was pressed' is printed
 
 In the last example, the `F5` mapping was used even though the `F10` key and the
@@ -1328,7 +1315,7 @@ When processing mappings; right before trying to expand the keys.
 It doesn't matter whether the keys *will be* remapped; what matters is that they
 *can* be remapped.
 
-    vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(cat <<'EOF'
         exe "set <m-d>=\ed"
         call feedkeys("i\<esc>d", 'x')
         %p
@@ -1349,7 +1336,7 @@ There was no mapping  in the mappings table, and yet  Vim did translate `<esc>d`
 into `<m-d>`.  This is because `<esc>d` was fed without the `n` flag, so Vim had
 to try to expand the keys; but before doing so, it had to try to translate them.
 
-    vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(cat <<'EOF'
         exe "set <m-d>=\ed"
         ino <m-d> <esc>dd
         0pu=['a', 'b', 'c']
@@ -1371,7 +1358,7 @@ explained  if the  terminal  keys  (here `<esc>d`)  were  translated (here  into
 This  is confirmed  by  yet 2  other  experiments where  `<esc>d`  is not  typed
 directly but expanded from a `<c-b>` mapping:
 
-    vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(cat <<'EOF'
         exe "set <m-d>=\ed"
         imap <c-b> <esc>dd
         0pu='x'
@@ -1382,7 +1369,7 @@ directly but expanded from a `<c-b>` mapping:
     )
     ädx~
 
-    vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(cat <<'EOF'
         exe "set <m-d>=\ed"
         ino <c-b> <esc>dd
         0pu='x'
@@ -1607,12 +1594,12 @@ The shift modifier must be explicit:
 Example:
 
     ✘
-    vim -Nu NONE +'nno <m-g> :echo "m-g"<cr>' +'nno <m-G> :echo "m-G"<cr>'
+    $ vim -Nu NONE +'nno <m-g> :echo "m-g"<cr>' +'nno <m-G> :echo "m-G"<cr>'
     " press m-g and m-G: no difference
 
     ✔
-    vim -Nu NONE +'nno <m-g> :echo "m-g"<cr>' +'nno <m-s-g> :echo "m-G"<cr>'
-                                                       ^^
+    $ vim -Nu NONE +'nno <m-g> :echo "m-g"<cr>' +'nno <m-s-g> :echo "m-G"<cr>'
+                                                         ^^
     " press m-g and m-G: Vim makes the difference
 
 ##
@@ -1666,7 +1653,7 @@ could be refactored into a recursive one in the future).
 
 Example to illustrate the pitfall:
 
-    vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(cat <<'EOF'
         exe "set <F31>=\ed"
         imap <c-b> <esc>ddi
         0pu=['a', 'b', 'c']
@@ -1830,7 +1817,7 @@ In those cases, capture the variable at the start of the function definition.
 
 The limit size of a lhs is 50 bytes.
 
-    vim -Nu NONE +'nno xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx abc'
+    $ vim -Nu NONE +'nno xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx abc'
     E474: Invalid argument~
 
 Make the lhs shorter.
@@ -1959,8 +1946,8 @@ Solution: install this mapping:
 
 Test it like this:
 
-    vim -Nu NONE +'set showcmd | tno <c-w>a bbb' +'tno <c-w><c-w> <c-w><c-w>' +term
-                                                   ^-----------------------^
+    $ vim -Nu NONE +'set showcmd | tno <c-w>a bbb' +'tno <c-w><c-w> <c-w><c-w>' +term
+                                                     ^-----------------------^
 
 ---
 
@@ -2017,8 +2004,8 @@ Or:
 ##
 ## How to use a chord with the meta modifier in my mappings?
 
-If you use gVim,  you don't need anything special either, but  you need at least
-the patch [8.2.0851][3].
+If you use the  GUI, you don't need anything special, but you  need at least the
+patch [8.2.0851][3].
 
 If  you  use Vim  in  a  terminal  which  supports the  modifyOtherKeys  feature
 (typically xterm), again,  you don't need anything special.   The feature should
@@ -2070,12 +2057,9 @@ modifyOtherKeys feature, or you didn't enable the feature.
 
 In that case, if you have the mapping `ino <m-d> <c-o>de`, you can't insert `ä`:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        exe "set <M-d>=\ed"
-        ino <M-d> <c-o>de
-        startinsert
-    EOF
-    )
+    exe "set <M-d>=\ed"
+    ino <M-d> <c-o>de
+    startinsert
     " press the dead key '¨' followed by 'a':  'ä' is not inserted
 
 Workarounds:
@@ -2106,7 +2090,7 @@ Or use an equivalence class in a search command (`[[=a=]]`).
 When you try to insert `ä`, it's first written in the typeahead buffer.
 But internally, Vim encodes `ä` exactly as `<M-d>`:
 
-    vim -Nu NONE
+    $ vim -Nu NONE
     :echo "\<m-d>"
     ä~
 
@@ -2170,16 +2154,13 @@ Try this:
     nno <F30> ...
          ├─┘
          └ arbitrary function key
-          (you want to choose one which you'll never use interactively, so forget about F1-F12)
+          (you want to choose one which you'll never press interactively, so forget about F1-F12)
 
 Example:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        exe "set <F30>=\ed"
-        nno <F30> :echom 'I pressed M-d'<cr>
-    EOF
-    )
-    " press M-d: Vim logs the message 'I pressed M-d'
+    exe "set <F30>=\ed"
+    nno <F30> :echom 'I pressed M-d'<cr>
+    " press M-d:  Vim logs the message 'I pressed M-d'
 
 ---
 
@@ -2192,7 +2173,7 @@ Note that you can use function keys up to the number 37.
     E518: Unknown option: <f38>~
 
 And you  can combine  a function  key with  the shift  modifier to  decrease the
-probability you'll ever need to use it interactively:
+probability you'll ever press it interactively:
 
     nno <S-F30> ...
          ^^
@@ -2211,7 +2192,7 @@ It works, but in practice it's cumbersome  to use because it's only necessary in
 Vim and only if modifyOtherKeys is not enabled,  so you have to use this kind of
 template when installing your meta mappings:
 
-    if has('gui_running') || &t_TI =~# "\e[>4;2m"
+    if has('gui_running') || &t_TI =~# "\e[>4;[12]m"
         nno <m-d> ...
     else
         nno <f30> ...
@@ -2296,7 +2277,7 @@ Try to install your mapping later.
 
 The installation order of your mappings matters:
 
-    vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(cat <<'EOF'
         set showcmd timeoutlen=3000
         nno <nowait> <c-b>  :echo "c-b was pressed"<cr>
         nno          <c-b>x <nop>
@@ -2304,7 +2285,7 @@ The installation order of your mappings matters:
     )
     " press C-b: you need to wait 3s for the message to be printed
 
-    vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(cat <<'EOF'
         set showcmd timeoutlen=3000
         nno          <c-b>x <nop>
         nno <nowait> <c-b>  :echo "c-b was pressed"<cr>
@@ -2338,13 +2319,13 @@ the server option `terminal-features`:
 
 Usage example:
 
-    tmux -Lx -f <(cat <<'EOF'
+    $ tmux -Lx -f <(cat <<'EOF'
         set -s extended-keys on
         set -as terminal-features 'xterm*:extkeys'
     EOF
     )
 
-    vim -Nu NONE --cmd 'let [&t_TI, &t_TE] = ["\e[>4;1m", "\e[>4;m"]' \
+    $ vim -Nu NONE --cmd 'let [&t_TI, &t_TE] = ["\e[>4;1m", "\e[>4;m"]' \
       +'nno <C-Enter> :echom "C-Enter was pressed"<cr>'
     " press:  C-Enter
     C-Enter was pressed~
@@ -2435,14 +2416,11 @@ produced by `<up>` in xterm).
 Without `<expr>`, the count and register are not passed naturally to the opfunc,
 and by the time the opfunc is processed, they have been reset to resp. 0 and `"`.
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        nno <c-b> :<c-u>set opfunc=Op<cr>g@
-        fu Op(_)
-            echom 'the count is '..v:count
-            echom 'the register is '..v:register
-        endfu
-    EOF
-    )
+    nno <c-b> :<c-u>set opfunc=Op<cr>g@
+    fu Op(_)
+        echom 'the count is '..v:count
+        echom 'the register is '..v:register
+    endfu
 
     " press:  "a 3 C-b l
     :mess
@@ -2454,15 +2432,12 @@ But both come with pitfalls.
 For example, `:norm` can break an  interactive command by pressing `Esc` when an
 input is asked:
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        "                                           v---v
-        nno <c-b><c-b> :<c-u>set opfunc=Op<bar>exe 'norm! '..(v:count ? v:count : '')..'g@_'<cr>
-        call setline(1, ["a\x01b"])
-        fu Op(_)
-            '[,']s/[[:cntrl:]]//c
-        endfu
-    EOF
-    )
+    "                                           v---v
+    nno <c-b><c-b> :<c-u>set opfunc=Op<bar>exe 'norm! '..(v:count ? v:count : '')..'g@_'<cr>
+    call setline(1, ["a\x01b"])
+    fu Op(_)
+        '[,']s/[[:cntrl:]]//c
+    endfu
 
     " press:     C-b C-b
     " result:    nothing happens
@@ -2479,21 +2454,18 @@ Not  that  from *inside*  the  opfunc,  you could  still  access  the count  via
 
 Besides, the operator would not work as expected when preceded by a count.
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        nno <c-b> :<c-u>set opfunc=Op<cr>g@
-        fu Op(type)
-            if a:type is# 'line'
-                sil norm! '[V']y
-            elseif a:type is# 'char'
-                sil norm! `[v`]y
-            elseif a:type is# 'block'
-                sil exe "norm! `[\<c-v>`]y"
-            endif
-            echom @@
-        endfu
-        call setline(1, ['aaa', 'bbb', 'ccc'])
-    EOF
-    )
+    nno <c-b> :<c-u>set opfunc=Op<cr>g@
+    fu Op(type)
+        if a:type is# 'line'
+            sil norm! '[V']y
+        elseif a:type is# 'char'
+            sil norm! `[v`]y
+        elseif a:type is# 'block'
+            sil exe "norm! `[\<c-v>`]y"
+        endif
+        echom @@
+    endfu
+    call setline(1, ['aaa', 'bbb', 'ccc'])
 
     " ✔
     " press:  C-b 2 j
@@ -2507,18 +2479,15 @@ Besides, the operator would not work as expected when preceded by a count.
 With `<expr>`,  all these issues are  fixed, because the count  and register are
 passed naturally:
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        nno <expr> <c-b> Op()
-        fu Op(...)
-            if !a:0
-                set opfunc=Op
-                return 'g@'
-            endif
-            echom 'the count is '..v:count
-            echom 'the register is '..v:register
-        endfu
-    EOF
-    )
+    nno <expr> <c-b> Op()
+    fu Op(...)
+        if !a:0
+            set opfunc=Op
+            return 'g@'
+        endif
+        echom 'the count is '..v:count
+        echom 'the register is '..v:register
+    endfu
 
     " press:  "a 3 C-b l
     :mess
@@ -2709,16 +2678,24 @@ then clicking on the `code` tab button.
 
 Check whether we've used `:keepj` in the right places in the past:
 
-    vim /keepj/gj  $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
+    :vim /keepj/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
 
 Tpope seems to use `:keepj` whenever he runs `:delete`.
 Check whether we've done the same:
 
-    vim /\C\%(g:\)\@2<!\%([^[:keyword:]]\|\d\)\@<=d_\%(ebug\|count\)\@!/gj  $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
+    :vim /\C\%(g:\)\@2<!\%([^[:keyword:]]\|\d\)\@<=d_\%(ebug\|count\)\@!/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
 
 ### ?
 
 Have you used `:s`, while you should have used `setline()`?
+
+### ?
+
+Check whether we should have set `g:opfunc.yank` to `v:false` for some of our custom operators:
+
+    :vim /lg#opfunc/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
+
+Have a look at our `dr` operator for an example where we need to do that.
 
 ##
 ## text-objects
@@ -2926,41 +2903,32 @@ fixed by `:echo`...
 
 Reciprocally, some issues can be fixed by `:redraw` but not by `:echo`:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        nno <c-b> :call Func()<cr>
-        fu Func()
-            call input('prompt: ')
-            echo
-        endfu
-    EOF
-    )
+    nno <c-b> :call Func()<cr>
+    fu Func()
+        call input('prompt: ')
+        echo
+    endfu
     " press:  C-b Enter
     " :echo doesn't clear the command-line
 
 I think that's because `input()` behaves like `:echon`:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        nno <c-b> :call Func()<cr>
-        fu Func()
-            echon 'prompt: '
-            echo
-        endfu
-    EOF
-    )
+    nno <c-b> :call Func()<cr>
+    fu Func()
+        echon 'prompt: '
+        echo
+    endfu
     " press:  C-b Enter
     " again, :echo doesn't clear the command-line
 
 Other example:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        nno <c-b> :call Func()<cr>
-        fu Func()
-            echo 'abc'
-            echo
-            echo 'def'
-        endfu
-    EOF
-    )
+    nno <c-b> :call Func()<cr>
+    fu Func()
+        echo 'abc'
+        echo
+        echo 'def'
+    endfu
     " press:  C-b
     " result: both 'abc' and 'def' are printed (hit-enter prompt)
     " expected: only 'def' is printed (no hit-enter prompt)
@@ -3031,21 +2999,18 @@ Watch:
 
 It seems the count is reset one more time:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        set showcmd
-        fu Opfunc(...)
-            if !a:0
-                let &opfunc = 'Opfunc'
-                return 'g@'
-            endif
-            echom v:prevcount
-        endfu
-        nno <expr> <c-b> Opfunc()
-        xno io iw
-        ono io :normal 3vio<cr>
-        pu='foo bar baz'
-    EOF
-    )
+    set showcmd
+    fu Opfunc(...)
+        if !a:0
+            let &opfunc = 'Opfunc'
+            return 'g@'
+        endif
+        echom v:prevcount
+    endfu
+    nno <expr> <c-b> Opfunc()
+    xno io iw
+    ono io :normal 3vio<cr>
+    pu='foo bar baz'
 
     " press:  C-b io
     " 3 is echo'ed
@@ -3081,64 +3046,52 @@ The count is lost  when using a custom text-object (only  when it's defined with
 
 Test 1:
 
-    vim -Nu NONE -i NONE -S <(cat <<'EOF'
-        set showcmd
-        pu='aaa bbb ccc ddd'
-    EOF
-    )
+    set showcmd
+    pu='aaa bbb ccc ddd'
 
     " press:  3daw
     " 3 words are deleted ✔
 
 Test 2:
 
-    vim -Nu NONE -i NONE -S <(cat <<'EOF'
-        set showcmd
-        pu='aaa bbb ccc ddd'
-        xno io iw
-        ono io :norm vio<cr>
-    EOF
-    )
+    set showcmd
+    pu='aaa bbb ccc ddd'
+    xno io iw
+    ono io :norm vio<cr>
 
     " press:  3dio
     " only 1 word is deleted ✘
 
 Test 3:
 
-    vim -Nu NONE -i NONE -S <(cat <<'EOF'
-        set showcmd
-        pu='aaa bbb ccc ddd'
-        fu Opfunc(...)
-            if !a:0
-                let &opfunc = 'Opfunc'
-                return 'g@'
-            endif
-            pu=printf('v:count: %d, v:prevcount: %d', v:count, v:prevcount)
-        endfu
-        nno <expr> <c-b> Opfunc()
-    EOF
-    )
+    set showcmd
+    pu='aaa bbb ccc ddd'
+    fu Opfunc(...)
+        if !a:0
+            let &opfunc = 'Opfunc'
+            return 'g@'
+        endif
+        pu=printf('v:count: %d, v:prevcount: %d', v:count, v:prevcount)
+    endfu
+    nno <expr> <c-b> Opfunc()
 
     " press:  3 C-b iw
     " Vim puts the text 'v:count: 3, v:prevcount: 0' ✔
 
 Test 4:
 
-    vim -Nu NONE -i NONE -S <(cat <<'EOF'
-        set showcmd
-        pu='aaa bbb ccc ddd'
-        fu Opfunc(...)
-            if !a:0
-                let &opfunc = 'Opfunc'
-                return 'g@'
-            endif
-            pu=printf('v:count: %d, v:prevcount: %d', v:count, v:prevcount)
-        endfu
-        nno <expr> <c-b> Opfunc()
-        xno io iw
-        ono io :norm vio<cr>
-    EOF
-    )
+    set showcmd
+    pu='aaa bbb ccc ddd'
+    fu Opfunc(...)
+        if !a:0
+            let &opfunc = 'Opfunc'
+            return 'g@'
+        endif
+        pu=printf('v:count: %d, v:prevcount: %d', v:count, v:prevcount)
+    endfu
+    nno <expr> <c-b> Opfunc()
+    xno io iw
+    ono io :norm vio<cr>
 
     " press:  3 C-b io
     " Vim puts the text 'v:count: 0, v:prevcount: 0' ✘
@@ -3163,8 +3116,8 @@ If you disagree, try this:
     nno <expr> <c-b> Opfunc()
     xno io iw
     omap <expr> io '<c-\><c-n>vio' .. (v:register == '"' ? '' : '"'..v:register) .. (v:count ? v:count : '') .. v:operator
-                                      ^-----------------------^
-                                      necessary because of our `nno "" "+` mapping
+    "                                 ^-----------------------^
+    "                                 necessary because of our `nno "" "+` mapping
 
 Although, this omap doesn't work as expected when repeated with `.`.
 It seems we need `:norm` for `.` to work; do we?

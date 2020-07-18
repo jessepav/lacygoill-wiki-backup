@@ -532,26 +532,20 @@ palette, which will be ugly/flashy.
 Document that  for `CursorLine`  not to  completely override  `Diff*`, `Search`,
 `IncSearch`, you should define the latter with the `reverse` attribute.
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        hi clear CursorLine | hi CursorLine ctermbg=white
-        hi DiffChange ctermfg=235 ctermbg=108
-        nos e /tmp/file1 | pu='some text'
-        nos vs /tmp/file2 | pu='some other text'
-        windo set cul | diffthis
-    EOF
-    )
+    hi clear CursorLine | hi CursorLine ctermbg=white
+    hi DiffChange ctermfg=235 ctermbg=108
+    nos e /tmp/file1 | pu='some text'
+    nos vs /tmp/file2 | pu='some other text'
+    windo set cul | diffthis
 
 When you select the changed line, `CursorLine` overrides `DiffChange`.
 Now, try this:
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        hi clear CursorLine | hi CursorLine ctermbg=white
-        hi DiffChange cterm=reverse ctermfg=108 ctermbg=235
-        nos e /tmp/file1 | pu='some text'
-        nos vs /tmp/file2 | pu='some other text'
-        windo set cul | diffthis
-    EOF
-    )
+    hi clear CursorLine | hi CursorLine ctermbg=white
+    hi DiffChange cterm=reverse ctermfg=108 ctermbg=235
+    nos e /tmp/file1 | pu='some text'
+    nos vs /tmp/file2 | pu='some other text'
+    windo set cul | diffthis
 
 This time, it looks like `DiffChange` overrides `CursorLine`.
 
@@ -607,22 +601,22 @@ You need to make sure they're removed.
 
 It seems the issue is specific to `:hi`:
 
-https://www.reddit.com/r/vim/comments/aikx7g/utility_function_to_extendoverride_highlight/eep49gk/
+<https://www.reddit.com/r/vim/comments/aikx7g/utility_function_to_extendoverride_highlight/eep49gk/>
 
 Still, maybe there are other commands which behave like that.
 
 Make sure we haven't made this kind of mistake elsewhere:
 
-Vim /\C\s\<execute(/gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
+    :vim /\C\s\<execute(/gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
 
 Also, should we remove the newline, or replace it  with a space?
 If we remove it, is it enough, or does Vim still add an extra space?
 
 When you know what to do, review what we did in:
 
-~/.vim/autoload/colorscheme.vim
-/colorscheme#customize(
-/hi Underlined
+    ~/.vim/autoload/colorscheme.vim
+    /colorscheme#customize(
+    /hi Underlined
 
 ## ?
 

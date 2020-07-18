@@ -370,30 +370,6 @@ Les noms des scripts peuvent être précédés d'un ou plusieurs flags (statuts)
 
     /foo                lance le script foo
 
-# Buffers.pl
-
-This script is deprecated.
-It has been merged as the `buflist` plugin:
-
-        https://weechat.org/files/releasenotes/ReleaseNotes-devel.html#v1.8_buflist_plugin
-
-
-Script permettant d'afficher la liste des chans auxquels on est connecté dans une barre.
-
-Pour changer la position de cette barre :
-
-1. vim ~/.config/weechat/weechat.conf
-2. affecter la valeur bottom à la variable buffers.position
-
-Pour changer la couleur des infos affichées dans la barre :
-
-vim ~/.config/weechat/buffers.conf
-
-    current_bg, current_fg      couleur du fond et de la police du titre de la fenêtre ayant le focus
-    default_bg, default_fg      couleur du fond et de la police du titre des fenêtres n'ayant pas le focus
-    number              couleur du numéro d'index des fenêtres
-    number_char         couleur du point séparant l'index du nom des fenêtres
-
 ##
 # Todo
 ## To Read

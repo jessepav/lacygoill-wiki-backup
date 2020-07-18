@@ -59,7 +59,7 @@ To determine whether the terminal supports:
 
 Look for all the places where we wrote a raw sequence in our plugins:
 
-    vim /\%(\\033\|\\e\)[[\]P]/gj ~/.vim/**/*.vim ~/.vim/**/vim.snippets ~/.vim/vimrc
+    :vim /\%(\\033\|\\e\)[[\]P]/gj ~/.vim/**/*.vim ~/.vim/**/vim.snippets ~/.vim/vimrc
 
 When possible, try to use `tput` instead.
 

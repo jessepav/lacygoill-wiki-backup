@@ -1014,19 +1014,39 @@ When it was written, `setpos()` could not  set `curswant`; but now it can, hence
 the first paragraph, which was added later.
 
 Anyway, in my limited testing, `setpos()` *can* correctly set `curswant`.
-For example, run this command:
+For example, try this minimal vimrc:
 
-    $ vim -Nu <(cat <<'EOF'
     pu! =join(map(range(97, 122), {_,v -> nr2char(v)}), '')
     t.
     call setpos('.', [bufnr(), line('.'), col('.'), 0, 12])
     norm! k
-    EOF
-    )
 
 Notice that the  `k` motion has made  the cursor move onto the  character `l` of
-the first  line of text;  this is because `setpos()`  has set `curswant`  to the
-value 12, and `l` is the 12th character on the line.
+the first  line of  text, instead  of `a`;  this is  because `setpos()`  has set
+`curswant` to the value 12, and `l` is the 12th character on the line.
+
+## How to break the undo sequence without entering insert mode?
+
+    let &ul = &ul
+
+Test:
+
+    $ vim -Nu NONE +"call setline(1, ['a', 'b'])"
+
+    :1d | 1d
+    :undo
+    a~
+    b~
+
+    $ vim -Nu NONE +"call setline(1, ['a', 'b'])"
+    :1d | let &ul = &ul | 1d
+    :undo
+    b~
+    :undo
+    a~
+    b~
+
+Source: <https://vi.stackexchange.com/a/26475/17449>
 
 ##
 ## How to get the full command with which was executed to start Vim?

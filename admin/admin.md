@@ -789,7 +789,7 @@ contenant plusieurs fichiers.
 
 ### grep
 
-    cat <<'EOF' >file
+    $ cat <<'EOF' >file
     this line has !bangs!
     this one has -dashes-
     this one has .dots.
@@ -856,7 +856,7 @@ contenant plusieurs fichiers.
                     -F  ⇔  \V
 
 
-    cat <<-'EOF' >file
+    $ cat <<-'EOF' >file
 	toto
 	root
 	video

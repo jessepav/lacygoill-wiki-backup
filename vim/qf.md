@@ -1623,7 +1623,9 @@ updated).
 
 Just set the `'qftf'` *property* of the qfl to a function which returns an empty list.
 
-## Document that if the value assigned to `'qftf'` is a script local function, you need a funcref.
+Note that you can't use a funcref.
+
+## Document that if the value assigned to `'qftf'` is a script local function, you need to translate `s:`.
 
 To illustrate the pitfall, write this in `/tmp/a.vim`:
 
@@ -1646,7 +1648,7 @@ Write this in `/tmp/b.vim`:
 
 Start Vim like this:
 
-    vim -Nu NONE -S /tmp/a.vim
+    $ vim -Nu NONE -S /tmp/a.vim
 
     :q
     " press:  'cd'
@@ -1669,14 +1671,7 @@ Vim fails to find `s:func()`.
 
 ---
 
-Solution1: Use a funcref.
-
-    let items = ...
-    call setqflist([], ' ', {'items': items, 'quickfixtextfunc': function(s:'func')})
-                                                                 ^----------------^
-    ...
-
-Solution2: Translate `s:` manually.
+Solution: Translate `s:` manually.
 
     fu s:snr() abort
         return matchstr(expand('<sfile>'), '.*\zs<SNR>\d\+_')
@@ -1687,7 +1682,17 @@ Solution2: Translate `s:` manually.
                                                                  ^-----------^
     ...
 
-But it's more verbose.
+---
+
+It would be nice if we could use a funcref:
+
+    let items = ...
+    call setqflist([], ' ', {'items': items, 'quickfixtextfunc': function(s:'func')})
+                                                                 ^----------------^
+    ...
+
+But it doesn't work.
+You must provide the *name* of a function, just like for the global option.
 
 ##
 ## Talk about the 'filewinid' property of a location window.

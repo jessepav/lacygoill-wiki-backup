@@ -8,7 +8,7 @@ Use `echoraw()`:
 Example:
 
     # open an xterm terminal *outside* tmux
-    vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(cat <<'EOF'
         let seq = "\033]52;c;" .. system('printf -- "%s" "test" | base64 | tr -d "\n"') .. "\007"
         call echoraw(seq)
         qa!

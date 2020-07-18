@@ -10,20 +10,17 @@ The mappings are processed *before* the filters.
 
 ---
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        fu s:popup_filter(winid, key)
-            if a:key is# '+'
-                call popup_setoptions(a:winid, #{minheight: 3})
-                return v:true
-            endif
-            return v:false
-        endfu
-        call popup_create('test', #{filter: function('s:popup_filter')})
-        pedit /tmp/file
-        nno z<c-k> <c-w>+
-        set showcmd
-    EOF
-    )
+    fu s:popup_filter(winid, key)
+        if a:key is# '+'
+            call popup_setoptions(a:winid, #{minheight: 3})
+            return v:true
+        endif
+        return v:false
+    endfu
+    call popup_create('test', #{filter: function('s:popup_filter')})
+    pedit /tmp/file
+    nno z<c-k> <c-w>+
+    set showcmd
 
     " press `z C-k` to increase the height of the current window:
     " it's the popup's height which is increased
@@ -356,12 +353,9 @@ If  your popup  was  created to  display  a regular  buffer  (i.e. the  `{what}`
 argument was a buffer number), then it's tied to this buffer forever.
 `popup_settext()` will not create a new one:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        call writefile(['main window'], '/tmp/file')
-        e /tmp/file
-        let winid = popup_create(bufnr(), {})
-    EOF
-    )
+    call writefile(['main window'], '/tmp/file')
+    e /tmp/file
+    let winid = popup_create(bufnr(), {})
     " the main window displays 'main window'
 
     :call popup_settext(winid, 'popup')
@@ -372,15 +366,12 @@ which displays a regular buffer.
 
 Instead, close the popup and create a new one:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        call writefile(['main window'], '/tmp/file')
-        e /tmp/file
-        let winid = popup_create(bufnr(), {})
-    EOF
-    )
+    call writefile(['main window'], '/tmp/file')
+    e /tmp/file
+    let winid = popup_create(bufnr(), {})
 
     :call popup_close(winid) | call popup_create('popup', {})
-     ^------------------------------------------------------^
+    "^------------------------------------------------------^
 
 ##
 # Todo

@@ -19,7 +19,7 @@ The parsing step during the compilation of a `:def` function when Vim checks whe
    - you've specified a type for each function argument
      (not needed for an argument which is assigned a default value)
 
-        vim -Nu NONE -S <(cat <<'EOF'
+        $ vim -Nu NONE -S <(cat <<'EOF'
             def Func(x)
             enddef
             defcompile
@@ -30,7 +30,7 @@ The parsing step during the compilation of a `:def` function when Vim checks whe
 
    - you've specified the return type of the function if it returns sth
 
-        vim -Nu NONE -S <(cat <<'EOF'
+        $ vim -Nu NONE -S <(cat <<'EOF'
             def Func()
                 return 123
             enddef
@@ -42,7 +42,7 @@ The parsing step during the compilation of a `:def` function when Vim checks whe
 
    - the return type of the function matches the type of the returned expression
 
-        vim -Nu NONE -S <(cat <<'EOF'
+        $ vim -Nu NONE -S <(cat <<'EOF'
             def Func(): string
                 return 123
             enddef
@@ -54,7 +54,7 @@ The parsing step during the compilation of a `:def` function when Vim checks whe
 
    - the type of a declared variable matches the type of the expression that you assign it later
 
-        vim -Nu NONE -S <(cat <<'EOF'
+        $ vim -Nu NONE -S <(cat <<'EOF'
             def Func()
                 let x: string
                 x = 123
@@ -79,7 +79,7 @@ At compile time.
 
 Whenever you need to specify a type, use `any`:
 
-    vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(cat <<'EOF'
         def Func(x: any)
         #         ^---^
         enddef
@@ -87,7 +87,7 @@ Whenever you need to specify a type, use `any`:
     EOF
     )
 
-    vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(cat <<'EOF'
         def Func(): any
         #         ^---^
             return 123
@@ -96,7 +96,7 @@ Whenever you need to specify a type, use `any`:
     EOF
     )
 
-    vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(cat <<'EOF'
         def Func()
             let x: any
             #    ^---^
@@ -115,7 +115,7 @@ It does not raise any error at runtime, because its whole body is then emptied.
 
 Example of a function containing a type error:
 
-    vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
         def g:Func()
             let x = 1 + {}
@@ -173,6 +173,43 @@ Remember that an argument can be specified in 3 ways:
 The first one is for mandatory arguments; the last two for optional ones.
 
 ##
+## What's the default scope of
+### a function?
+
+It's local to the current script.
+
+    vim9script
+    def Func()
+        echo expand('<sfile>')
+    enddef
+    Func()
+
+    function <SNR>1_Func~
+             ^-----^
+
+### a *nested* function?
+
+It's local to the outer function.
+
+    vim9script
+    def FuncA()
+        def FuncB()
+        enddef
+    enddef
+    FuncB()
+
+    E117: Unknown function: FuncB~
+
+    vim9script
+    def FuncA()
+        def FuncB()
+        enddef
+        FuncB()
+    enddef
+    FuncA()
+    ✔
+
+##
 # Comments
 ## Which comment leader should I write to start a comment in a Vim9 script code?
 
@@ -208,46 +245,32 @@ Anyway, you should always add a space after `#` to make the comment more readabl
 So it's only a theoretical pitfall.
 
 ##
-## Where can't I use `"` as a comment leader?
+## Which comment leader can I use
+### at the start of a line or at the end of a line of code?
 
-When you're writing an *inline* comment inside a `:def` function.
+It's simple:  you can use `"`  in (and only in)  legacy script, and `#`  in (and
+only in) Vim9 script.
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            let x = 1 " Error!
+Legacy script = script which does not start with `vim9script` or inside `:fu` function.
+Vim9 script = script which *does* start with `vim9script` or inside `:def` function.
+
+### at the start of an automatic line continuation?
+
+Right now, you can only use `#` inside a `:def` function.
+
+    vim9script
+    def Func()
+        let mylist = [
+                'one',
+                # some comment
+                'two',
+                ]
         enddef
-        defcompile
-    EOF
-    )
+    defcompile
 
-    Error detected while processing function <SNR>1_Func:~
-    line    1:~
-    E488: Trailing characters: " Error!~
+Everywhere else, neither `"` nor `#` work.
 
-Instead, you must use `#`:
-
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            let x = 1 # works
-            #         ^-----^
-        enddef
-        defcompile
-    EOF
-    )
-
-Note that this limitation does *not* apply to the function header:
-
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func(): void "{{{1
-        #                ^
-        #                ✔
-        enddef
-        defcompile
-    EOF
-    )
+The fact that `#` doesn't work at the script level may be a bug.
 
 ##
 # Misc
@@ -263,48 +286,53 @@ When you assign it a value, because in that case Vim can infer the type from the
 
 Here, `E1077` is raised because `x` is not assigned a value:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func(x)
-        enddef
-        defcompile
-    EOF
-    )
+    vim9script
+    def Func(x)
+    enddef
+    defcompile
 
     E1077: Missing argument type for x~
 
 Solution: declare the type.
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func(x: number)
-        enddef
-        defcompile
-    EOF
-    )
+    vim9script
+    def Func(x: number)
+    enddef
+    defcompile
 
-But this time, no error is raised, because `x` is assigned a default value:
+---
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func(x = 3)
-        enddef
-        defcompile
-    EOF
-    )
+Here, no error is raised, because `x` is assigned a default value:
+
+    vim9script
+    def Func(x = 3)
+    enddef
+    defcompile
 
 And here again, no error is raised, because `x` is assigned a value:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            let x = 3
-        enddef
-        defcompile
-    EOF
-    )
+    vim9script
+    def Func()
+        let x = 3
+    enddef
+    defcompile
 
 See `:h type-inference`.
+
+## How to prevent a variable from being accessible in a later statement?
+
+Put it inside a `{}` block:
+
+    vim9script
+    def Func()
+        {
+            let n = 123
+        }
+        echo n
+    enddef
+    defcompile
+
+    E1001: variable not found: n~
 
 ##
 # Pitfalls
@@ -312,44 +340,35 @@ See `:h type-inference`.
 
 Maybe you have a folding marker at the end of the `:def` line:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func() #{{{1
-        enddef
-        defcompile
-    EOF
-    )
+    vim9script
+    def Func() #{{{1
+    enddef
+    defcompile
 
     E488: Trailing characters~
 
 If so, make sure you specify a return type.  Use `void` if the function does not
 return anything:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func(): void #{{{1
-        enddef
-        defcompile
-    EOF
-    )
+    vim9script
+    def Func(): void #{{{1
+    enddef
+    defcompile
 
 ## If I specify the return type of a custom function, what should I pay attention to?
 
 If your function  returns a variable, make  sure that it was set  with the exact
 same type:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func(): list<string>
-        #           ^----------^
-            let l = []
-        #   ^--------^
-        #   ✘
-            return l
-        enddef
-        defcompile
-    EOF
-    )
+    vim9script
+    def Func(): list<string>
+    #           ^----------^
+        let l = []
+    #   ^--------^
+    #   ✘
+        return l
+    enddef
+    defcompile
 
     Error detected while processing function <SNR>1_Func:~
     line    2:~
@@ -363,57 +382,45 @@ it probably infers the type `list<any>`.
 
 Fix:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func(): list<string>
-            let l: list<string> = []
-            #    ^------------^
-            #          ✔
-            return l
-        enddef
-        defcompile
-    EOF
-    )
+    vim9script
+    def Func(): list<string>
+        let l: list<string> = []
+        #    ^------------^
+        #          ✔
+        return l
+    enddef
+    defcompile
 
 ## Vim unexpectedly close the current window when I call a function where I omit to declare an `x` variable!
 
 `x` is a valid Ex command (it's the abbreviated form of `:xit`).
 So this is expected:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            x = 1
-        enddef
-        Func()
-    EOF
-    )
+    vim9script
+    def Func()
+        x = 1
+    enddef
+    Func()
 
 Solution: don't forget to declare your variable:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            let x = 1
-        enddef
-        Func()
-    EOF
-    )
+    vim9script
+    def Func()
+        let x = 1
+    enddef
+    Func()
 
 ##
 ## My eval string can't access variables in the outer function scope!
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            let l = ['aaa', 'bbb', 'ccc', 'ddd']
-            range(1, 2)->map('l[v:val]')
-            #                ^--------^
-            #                    ✘
-        enddef
-        Func()
-    EOF
-    )
+    vim9script
+    def Func()
+        let l = ['aaa', 'bbb', 'ccc', 'ddd']
+        range(1, 2)->map('l[v:val]')
+        #                ^--------^
+        #                    ✘
+    enddef
+    Func()
 
     Error detected while processing function <SNR>1_Func:~
     line    2:~
@@ -421,15 +428,12 @@ Solution: don't forget to declare your variable:
 
 Solution: use a lambda.
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            let l = ['aaa', 'bbb', 'ccc', 'ddd']
-            range(1, 2)->map({_,v -> v})
-        enddef
-        Func()
-    EOF
-    )
+    vim9script
+    def Func()
+        let l = ['aaa', 'bbb', 'ccc', 'ddd']
+        range(1, 2)->map({_, v -> v})
+    enddef
+    Func()
 
 ---
 
@@ -444,12 +448,12 @@ Source: <https://github.com/vim/vim/issues/6401#issuecomment-655071515>
 
 Inside a `:def` function, lambdas are significantly faster:
 
-    vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(cat <<'EOF'
         vim9script
 
         def Lambda()
             let time = reltime()
-            map(range(999999), {_,v-> v + 1})
+            map(range(999999), {_, v-> v + 1})
             setline(1, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run lambdas')
         enddef
         Lambda()
@@ -471,11 +475,11 @@ Inside a `:def` function, lambdas are significantly faster:
 
 But at the script level, lambdas are significantly slower:
 
-    vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(cat <<'EOF'
         vim9script
 
         let time = reltime()
-        map(range(999999), {_,v-> v + 1})
+        map(range(999999), {_, v-> v + 1})
         setline(1, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run lambdas')
 
         let _time = reltime()
@@ -508,17 +512,14 @@ Or is it raised while processing a function?
 
 Here is an example where you may find the line number of the error unexpected:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        set qftf=QuickFixTextFunc
-        def QuickFixTextFunc(info: dict<number>): list<any>
-            let qfl: list<any>
-            qfl = [{}]
-            return qfl
-        enddef
-        helpg grail
-        copen
-    EOF
-    )
+    set qftf=QuickFixTextFunc
+    def QuickFixTextFunc(info: dict<number>): list<any>
+        let qfl: list<any>
+        qfl = [{}]
+        return qfl
+    enddef
+    helpg grail
+    copen
 
     Error detected while processing /proc/2212/fd/11:~
     line    8:~
@@ -552,17 +553,14 @@ function:
 Here's  another example,  where  the  line number  of  the  error looks  correct
 immediately:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        set qftf=QuickFixTextFunc
-        def QuickFixTextFunc(info: dict<number>): list<any>
-            let qfl: list<any>
-            qfl = v:true
-            return qfl
-        enddef
-        helpg grail
-        copen
-    EOF
-    )
+    set qftf=QuickFixTextFunc
+    def QuickFixTextFunc(info: dict<number>): list<any>
+        let qfl: list<any>
+        qfl = v:true
+        return qfl
+    enddef
+    helpg grail
+    copen
 
     Error detected while processing function QuickFixTextFunc:~
     line    2:~
@@ -577,8 +575,56 @@ expected list type, hence the error.
 Now, notice how –  this time – the first line in the  error messages refers to a
 function:
 
-    Error detected while processing function QuickFixTextFunc:
+    Error detected while processing function QuickFixTextFunc:~
                                     ^-----------------------^
+
+## Vim complains that it doesn't know the variable I'm referring to!
+
+    vim9script
+    def Func()
+        if 1
+           let n = 123
+        endif
+        echo n
+    enddef
+    defcompile
+
+    Error detected while processing function <SNR>1_Func:~
+    line    4:~
+    E1001: variable not found: n~
+
+A variable is local to its current block.
+
+Solution:  Declare it *before* the block where it's assigned a value.
+
+    vim9script
+    def Func()
+        let n: number
+        if 1
+           n = 123
+        endif
+        echo n
+    enddef
+    defcompile
+
+This makes  the variable  accessible in  the block where  it's declared  (and in
+nested blocks).  Not in outer blocks:
+
+    vim9script
+    def Func()
+        if 1
+            let n: number
+            if 1
+               n = 123
+            endif
+        endif
+        echo n
+    enddef
+    defcompile
+
+    Error detected while processing function <SNR>1_Func:~
+    line    7:~
+    E1001: variable not found: n~
 
 ##
 # Todo
@@ -588,19 +634,16 @@ But make sure they're inside a `:def` function first.
 Don't worry, a lambda in a `:def` function is not slower than an eval string; on
 the contrary, it's faster.
 
-    vim /v:val/gj  $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
-    Cfilter! -other_plugins
+    :vim /v:val/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
+    :Cfilter! -other_plugins
 
 ## How to change the type of a variable?
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        let time = reltime()
-        sleep 1
-        let time = reltime(time)->reltimestr()->matchstr('.*\..\{,3}')
-        echom printf('we slept for %s seconds', time)
-    EOF
-    )
+    vim9script
+    let time = reltime()
+    sleep 1
+    let time = reltime(time)->reltimestr()->matchstr('.*\..\{,3}')
+    echom printf('we slept for %s seconds', time)
 
     Error detected while processing /proc/9723/fd/11:~
     line    4:~
@@ -610,25 +653,19 @@ the contrary, it's faster.
 
 For the moment, the only workaround I can think of, is to use an extra variable:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        let time = reltime()
-        sleep 1
-        let _time = reltime(time)->reltimestr()->matchstr('.*\..\{,3}')
-        echom printf('we slept for %s seconds', _time)
-    EOF
-    )
+    vim9script
+    let time = reltime()
+    sleep 1
+    let _time = reltime(time)->reltimestr()->matchstr('.*\..\{,3}')
+    echom printf('we slept for %s seconds', _time)
 
 ## Document that some single-letter variable names can't be used in a declaration inside a `:def` function
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            let w: number
-        enddef
-        defcompile
-    EOF
-    )
+    vim9script
+    def Func()
+        let w: number
+    enddef
+    defcompile
 
     Error detected while processing function <SNR>1_Func:~
     line    1:~
@@ -637,14 +674,11 @@ For the moment, the only workaround I can think of, is to use an extra variable:
 Same thing for `g`, `s`, `t` and `w`.
 Also for `v`, although the error message is a bit different:
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            let v: number
-        enddef
-        defcompile
-    EOF
-    )
+    vim9script
+    def Func()
+        let v: number
+    enddef
+    defcompile
 
     Error detected while processing function <SNR>1_Func:~
     line    1:~
@@ -661,7 +695,7 @@ Report?
 
 ## Try to finish rewriting `ccomplete#Complete()` in Vim9 script
 
-    vim +'so ~/Desktop/ccomplete.vim' ~/Vcs/vim/src/evalfunc.c
+    $ vim +'so ~/Desktop/ccomplete.vim' ~/Vcs/vim/src/evalfunc.c
 
 Right now, we can't go any further because of: <https://github.com/vim/vim/issues/6434>
 

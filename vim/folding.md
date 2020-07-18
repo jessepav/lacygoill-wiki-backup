@@ -259,7 +259,7 @@ Technically, these commands set/reset/toggle `'foldenable'`.
 
 The view may be altered.
 
-    vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(cat <<'EOF'
         setl fml=0 fdm=expr fde=getline(v:lnum)=~#'^#'?'>1':'='
         %d|sil pu=repeat(['#'], &lines)+['#']+repeat([''], &lines)+['#', '']
         norm! zo
@@ -281,7 +281,7 @@ If that's an issue, save and restore the view:
 
 In a script, it seems the issue is not always triggered:
 
-    vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(cat <<'EOF'
         setl fml=0 fdm=expr fde=getline(v:lnum)=~#'^#'?'>1':'='
         %d|sil pu=repeat(['#'], &lines)+['#']+repeat([''], &lines)+['#', '']
         norm! zo
