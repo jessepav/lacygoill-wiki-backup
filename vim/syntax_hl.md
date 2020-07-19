@@ -2445,6 +2445,83 @@ Could/Should we  have leveraged this  feature to make  some of our  syntax rules
 shorter and more future-proof?  Actually,  you could make the opposite argument:
 with a pattern you don't know exactly what will be matched in the future...
 
+## ?
+
+Fix syntax highlighting inside Vim fenced code blocks in markdown files.
+
+Example:
+```vim
+vim9script
+let var1: number
+let var2: number
+def Foo(): list<number>
+    return [1, 2]
+enddef
+def Bar()
+    [var1,
+        var2] =
+        Foo()
+    echo var1
+    echo var2
+enddef
+Bar()
+```
+Notice how `<number>` is highlighted by:
+
+    vimCommand vimIsCommand markdownHighlightvim
+
+It should be:
+
+    vimSynType vimFuncBody  markdownHighlightvim
+
+It's not the right fix, but you can get the desired syntax by clearing `vimCommand` and `vimIsCommand`:
+
+    syn clear vimCommand vimIsCommand
+
+Once you find a fix, check whether there are other similar issues.
+
+Btw, the issue  is not specific to  our markdown syntax plugin;  I can reproduce
+with the default one too:
+
+    $ cat <<'EOF' >/tmp/md.md
+    ```vim
+    vim9script
+    let var1: number
+    let var2: number
+    def Foo(): list<number>
+        return [1, 2]
+    enddef
+    def Bar()
+        [var1,
+            var2] =
+            Foo()
+        echo var1
+        echo var2
+    enddef
+    Bar()
+    ```
+    EOF
+
+    $ cat <<'EOF' >/tmp/vim.vim
+
+    vim9script
+    let var1: number
+    let var2: number
+    def Foo(): list<number>
+        return [1, 2]
+    enddef
+    def Bar()
+        [var1,
+            var2] =
+            Foo()
+        echo var1
+        echo var2
+    enddef
+    Bar()
+    EOF
+
+    $ vim --clean -O /tmp/md.md /tmp/vim.vim --cmd 'let g:markdown_fenced_languages = ["vim"]'
+
 ##
 # Reference
 

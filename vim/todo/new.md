@@ -15,7 +15,7 @@
    - `:h reduce()`
    - `:h searchcount()`
    - `:h str2list()` + `:h list2str()`
-   - `:h strptime()`
+   - `:h strptime()` (*str*ing *p*arse *time* ?)
    - `:h term_setansicolors()` + `:h term_getansicolors()`
    - `:h term_setsize()`
    - `:h terminalprops()`
@@ -50,6 +50,13 @@ Answer: with `:wall`:
 
 Look for `eval(.*join(` everywhere.
 For every match, check whether we could use `reduce()` instead.
+
+---
+
+I  think  `strptime()`  is  useful  to convert  a  human-readable  date  into  a
+machine-readable form.  Useful when you need  to do some computation on it.  For
+example, you  may want to  sort human-readable  dates; `strptime()` may  help by
+temporarily converting the dates into simple integers.
 
 ## arguments of functions
 
