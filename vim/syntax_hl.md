@@ -2222,6 +2222,8 @@ Read our comments above the statement:
 
 inside `lg#styled_comment#syntax()`
 
+Relevant issue: https://github.com/vim/vim/issues/1265
+
 ## ?
 
 Document `:h synconcealed()`.

@@ -170,48 +170,6 @@ Should we remove it everywhere?
 I think  the only thing `:call`  has over `:eval`,  is that it supports  a range
 (`:h e132`).
 
-## `:h optional-function-argument`
-
-You can now set a default value to an argument passed to a function.
-
-    fu Func(a = 10, b = 20, c = 30)
-
----
-
-I *think* you should refactor things like:
-
-    fu Func(...)
-        let foo = get(a:, 1, 12)
-        let bar = get(a:, 2, 34)
-        ...
-
-Into:
-
-    fu Func(foo = 12, bar = 34)
-        ...
-
----
-
-This makes function signatures more readable; but what about function call sites?
-
-Try this:
-
-    fu Func(opts)
-        let opts = a:opts
-        ...
-
-
-    call Func(#{foo: 1, bar: 2, ...})
-
-And if you want the arguments to be optional:
-
-    fu Func(opts)
-        let opts = extend(a:opts, #{foo: 1, bar: 2, ...}, 'keep')
-        ...
-
-Should we refactor our vimrc/plugins to  make function calls with many arguments
-more readable?
-
 ## `:h prompt-buffer`
 
 ##

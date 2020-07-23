@@ -1,3 +1,319 @@
+# Minor documentation errors at `:h vim9`
+
+Whenever you  add an item  here, update the documentation  in your Vim  fork, in
+the  `fix-vim9-doc` branch.   Then,  redirect  the output  of  `$  git diff`  in
+`~/Desktop/patch.txt`.  Suggest the final patch in a report.
+
+## 134
+
+> In all cases the function must be defined before used.  That is when it is
+> first called or when `:defcompile` causes **the call** to be compiled.
+
+Should be "the function".
+
+## 141
+
+> Global functions can be still be defined and deleted at nearly any time.  In
+> Vim9 script script-local functions are defined once when the script is sourced
+> and cannot be deleted or replaced.
+
+Maybe add a comma  after "In Vim9 script", to avoid  having script written twice
+consecutively.
+
+## 167
+
+From `:h vim9-declaration /echo inner  " Error!`:
+
+    echo inner  " Error!
+
+You can't use `"` as an inline  comment leader after `:echo`, because the latter
+parses `"`  as the  start of  a string.  Instead,  the doc  should write  one of
+these:
+
+    echo inner  # Error!
+    echo inner  |" Error!
+
+More generally, there are a lot of inline comments at `:h vim9` using `"` as the
+comment leader:
+
+    167
+    echo inner  " Error!
+
+    184
+    echo temp  " Error!
+
+    212-220
+    myList->add(123)		" works
+    g:myList->add(123)		" works
+    [1, 2, 3]->Process()		" works
+    #{a: 1, b: 2}->Process()	" works
+    {'a': 1, 'b': 2}->Process()	" works
+    "foobar"->Process()		" does NOT work
+    ("foobar")->Process()		" works
+    'foobar'->Process()		" does NOT work
+    ('foobar')->Process()		" works
+
+    351-353
+    let var=234	" Error!
+    let var= 234	" Error!
+    let var =234	" Error!
+
+    355
+    let var = 234	" OK
+
+    365-373
+    call Func (arg)	   " Error!
+    call Func
+         \ (arg)	   " Error!
+    call Func(arg)	   " OK
+    call Func(
+         \ arg)	   " OK
+    call Func(
+         \ arg	   " OK
+         \ )
+
+    425-434
+    ->		" legacy Vim: shifts the previous line to the right
+    ->func()	" Vim9: method call
+    :->		" Vim9: shifts the previous line to the right
+
+    %s/a/b          " legacy Vim: substitute on all lines
+    x = alongname
+         % another  " Vim9: line continuation without a backslash
+    :%s/a/b         " Vim9: substitute on all lines
+    'text'->func()  " Vim9: method call
+    :'t             " legacy Vim: jump to mark m
+
+    449
+    use-feature  " May give compilation error
+
+    620-621
+    let var = 0		" infers number type
+    let var = 'hello'	" infers string type
+
+    832
+    const greeting = 'hello'  " string type is inferred
+
+    842
+    return result || 0	" returns 1
+
+    847
+    return result || 0	" returns 44
+
+I think they're  all wrong, because only  `#` works as an  inline comment leader
+inside a `:def` function (since 8.2.1125?).
+
+## 191
+
+> Variables may shadow Ex commands, rename the variable if needed.
+                                ^
+                                ✘
+
+Should be a semicolon; better than a comma splice.
+<https://en.wikipedia.org/wiki/Comma_splice>
+
+## 231
+
+> This is required to be able have cyclic dependencies between functions.
+
+I think it should be:
+
+> This is required to be able to have cyclic dependencies between functions.
+                            ^^
+
+## 268
+
+> For **binary** operators in expressions not in [], {} or () a line break is
+> possible just before or after the operator.  For example: >
+> 	let text = lead
+> 		   .. middle
+> 		   .. end
+> 	let total = start +
+> 	            end -
+> 		    correction
+> 	let result = positive
+> 			**?** PosFunc(arg)
+> 			**:** NegFunc(arg)
+
+`?:` is not a binary operator; it's a ternary one.
+So, this would be better:
+
+> For **binary and ternary** operators ...
+
+## 294
+
+> This will assign "start" and print a line: >
+                                   ^
+                                   ✘
+
+And print "the next" line.
+
+## 451
+
+> For a workaround, split it in two functions: >
+>         func Maybe()
+>           if has('feature')
+>             call MaybyInner()
+>           endif
+>         endfunc
+>         if has('feature')
+>           def MaybeInner()
+>             use-feature
+>           enddef
+>         endif
+
+There is a typo:
+
+>            call MaybyInner()
+                    ^
+                    ✘
+
+I think it should be:
+
+           call MaybeInner()
+                    ^
+                    ✔
+
+## 470
+
+From `:h :def`:
+
+    :def[!] {name}([arguments])[: {return-type}
+
+I think a closing bracket is missing:
+
+    :def[!] {name}([arguments])[: {return-type}]
+                                               ^
+
+## 496
+
+> [!] is used as with `:function`.  Note that in Vim9
+> script**,** script-local functions cannot be deleted or
+> redefined later in the same script.
+
+The comma  makes the second sentence  a little more readable;  no awkward double
+"script".
+
+## 566
+
+                                                                      v
+> There is no array type, use list<{type}> instead.  For a list constant**,** an
+> efficient implementation is used that avoids allocating lot of small pieces of
+> memory.
+
+Add a comma to improve the readability.
+
+## 570
+
+> A partial and function can be declared in more or less specific ways:
+> func                            any kind of function reference**;** no type
+>                                 checking for arguments or return value
+> func: {type}                    any number and type of arguments with specific
+>                                 return type
+> func({type})                    function with argument type**;** does not return
+>                                 a value
+> func({type}): {type}            function with argument type and return type
+> func(?{type})                   function with type of optional argument**;** does
+>                                 not return a value
+> func(...{type})                 function with type of variable number of
+>                                 arguments**;** does not return a value
+> func({type}, ?{type}, ...{type}): {type}
+>                                 function with:
+>                                 - type of mandatory argument
+>                                 - type of optional argument
+>                                 - type of variable number of arguments
+>                                 - return type
+
+Notice how we've replaced the commas with semicolons.
+I *think* it's more correct.
+>
+> If the return type is "void"**,** the function does not return a value.
+                            ^
+
+More readable.
+
+## 592
+
+> The reference can also be a |Partial|, in which case it stores extra arguments
+> and/or a dictionary, which are not visible to the caller.  Since they are
+> called in the same way**,** the declaration is the same.
+                      ^
+
+## 638
+
+                                            v
+>     To recognize a file that can be imported**,** the `vim9script` statement must
+>     appear as the first statement in the file.
+
+## 666
+
+>     export let someValue = ...
+
+`someValue` is a poorly chosen name.  It evokes a value, while it should evoke a
+variable.  This would be better:
+
+>     export let someVariable = ...
+
+Note that `someValue` is used on other lines.
+
+Line 675:
+
+>     export {EXPORTED_CONST, someValue, MyFunc, MyClass}
+                            ^-------^
+
+Line 688:
+
+>     import {someValue, MyClass} from "thatscript.vim"
+            ^-------^
+
+Line 692:
+
+>     import {someValue, MyClass as ThatClass} from "myclass.vim"
+            ^-------^
+
+Line 697:
+
+                                                  v-------v
+>     Then you can use "That.EXPORTED_CONST", "That.someValue", etc.  You are free
+>     to choose the name "That", but it is highly recommended to use the name of the
+>     script file to avoid confusion.
+
+## 702
+
+> - A relative path, starting **with** "." or "..".  This finds a file relative to the
+
+## 731
+
+>     2. In the autocommand script do the actual work.  You can import items from
+              ^---------^
+              ✘
+              it should be "autoload"
+
+## 782
+
+>     When compiling lines of Vim commands into instructions as much as possible
+>     should be done at compile time.
+
+Maybe it's just me, but I find the sentence easier to understand with a comma:
+
+                                                          v
+>     When compiling lines of Vim commands into instructions, as much as possible
+>     should be done at compile time.
+
+## 789
+
+>     The error can be given at compile time**;** no error handling is needed at runtime.
+                                          ^
+
+## 876
+
+> When sourcing a Vim9 script from a legacy script, only the items defined
+> globally can be used, not the exported items.
+
+Actually, I think you can also use any item defined in the `b:`, `t:`, and `w:` namespace;
+but not one defined in the `s:` namespace.
+
+##
 # provide a "sid()" function to manually translate the "s:" function scope or the pseudo-key "<SID>"
 
 **Is your feature request about something that is currently impossible or hard to do? Please describe the problem.**
@@ -155,9 +471,44 @@ And when you need to invoke a script-local function from a command-line populate
 
 If such a function was provided, I think it should accept an optional argument to additionally make Vim translate the pseudo key `<SNR>` into a byte sequence (e.g. `<80><fd>R`).  Most of the time, it's either not needed (e.g. in a timer's callback, or in an option setting), or not desirable (e.g. when invoking a script-local function from a command-line populated by a script).  But sometimes, it *is* needed.  See [here](https://github.com/machakann/vim-Verdin/blob/7ff7c1a42f5c60848dacda9f2c03347bd0a81500/autoload/Verdin/Completer.vim#L711) and [there](https://github.com/machakann/vim-Verdin/blob/7ff7c1a42f5c60848dacda9f2c03347bd0a81500/autoload/Verdin/Verdin.vim#L289) for 2 examples.
 
-# Vim9: blocks don't work at the script level
+---
+
+Update: In the future, we may not need `sid()` to set options:
+<https://github.com/vim/vim/pull/6499#issuecomment-661119363>
+
+We may be able to use lambdas, funcrefs and partials.
+Incidentally, this  should also allow us  to pass arbitrary data  to `'opfunc'`,
+which is  awkward/cumbersome right now (you  need to use global  or script-local
+variables...).
+
+---
+
+Update: If you post a report, mention that  you also need to expand `s:` for the
+third optional argument of `input()`.
+```vim
+if !exists('s:SID')
+    fu s:SID() abort
+        return expand('<sfile>')->matchstr('<SNR>\zs\d\+\ze_SID$')->str2nr()
+    endfu
+    const s:SID = s:SID()->printf('<SNR>%d_')
+    delfu s:SID
+endif
+
+fu s:CompleteWords(_a, _l, _p) abort
+    return getline(1, '$')->join(' ')->split('\s\+')
+        \ ->filter('v:val =~# "^\\a\\k\\+$"')
+        \ ->sort()->uniq()->join("\n")
+endfu
+
+let word = input('word: ', '', 'custom,'..s:SID..'CompleteWords')
+```
+
+##
+# Vim9: `:def` can't be followed by "!"
 
 **Describe the bug**
+
+`:def` can't be followed by `!`.
 
 **To Reproduce**
 
@@ -165,21 +516,18 @@ Run this shell command:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
-        {
-            echo 'inside'
-        }
-        echo 'outside'
+        def! Func()
+        enddef
     EOF
     )
 
-`E121` and `E492` are raised:
+`E477` and `E193` are raised:
 
     Error detected while processing ...
+    line    2:
+    E477: No ! allowed
     line    3:
-    E121: Undefined variable: echo
-    line    4:
-    E492: Not an editor command:     }
-    outside
+    E193: :enddef not inside a function
 
 **Expected behavior**
 
@@ -187,23 +535,24 @@ No error is raised.
 
 **Environment**
 
- - Vim version: 8.2 Included patches: 1-1233
+ - Vim version: 8.2 Included patches: 1-1253
  - OS: Ubuntu 16.04.6 LTS
  - Terminal: XTerm(356)
 
 **Additional context**
 
-The issue disappears inside a `:def` function:
-```vim
-vim9script
-def Func()
-    {
-        echo 'inside'
-    }
-    echo 'outside'
-enddef
-defcompile
-```
+According to `:h :def`, `:def` can be followed by `!`:
+
+> [!] is used as with `:function`.  Note that in Vim9
+> script script-local functions cannot be deleted or
+> redefined later in the same script.
+
+# Vim9: name of `:def` function can't start with a lowercase alphabetic character
+
+Since a `:def` function is script-local  by default, and a script-local `:fu` or
+`:def`  function *can*  start with  a  lowercase alphabetic  character, I  would
+expect  being able  to start  the name  of a  `:def` function  with a  lowercase
+alphabetic character.
 
 # Vim9: can't nest a global ":def" function
 
@@ -237,7 +586,7 @@ No error is raised.
 
 **Environment**
 
- - Vim version: 8.2 Included patches: 1-1233
+ - Vim version: 8.2 Included patches: 1-1253
  - OS: Ubuntu 16.04.6 LTS
  - Terminal: XTerm(356)
 
@@ -269,264 +618,6 @@ Could be on the todo list.  From `:h todo`:
 
    - <https://github.com/vim/vim/blob/d032f34a51c6722101626c4167dffecc427ac343/runtime/doc/todo.txt#L58-L60>
    - <https://github.com/vim/vim/blob/d032f34a51c6722101626c4167dffecc427ac343/runtime/doc/todo.txt#L116-L117>
-
-# Vim9: `:def` can't be followed by "!"
-
-**Describe the bug**
-
-`:def` can't be followed by `!`.
-
-**To Reproduce**
-
-Run this shell command:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def! Func()
-        enddef
-    EOF
-    )
-
-`E477` and `E193` are raised:
-
-    Error detected while processing ...
-    line    2:
-    E477: No ! allowed
-    line    3:
-    E193: :enddef not inside a function
-
-**Expected behavior**
-
-No error is raised.
-
-**Environment**
-
- - Vim version: 8.2 Included patches: 1-1233
- - OS: Ubuntu 16.04.6 LTS
- - Terminal: XTerm(356)
-
-**Additional context**
-
-According to `:h :def`, `:def` can be followed by `!`:
-
-> [!] is used as with `:function`.  Note that in Vim9
-> script script-local functions cannot be deleted or
-> redefined later in the same script.
-
-# Vim9: name of `:def` function can't start with a lowercase alphabetic character
-
-Since a `:def` function is script-local  by default, and a script-local `:fu` or
-`:def`  function *can*  start with  a  lowercase alphabetic  character, I  would
-expect  being able  to start  the name  of a  `:def` function  with a  lowercase
-alphabetic character.
-
-# Vim9: can't use line break after method call operator at script level
-
-**Describe the bug**
-
-In Vim9 script, we can't use a line break after the method operator at the script level.
-
-**To Reproduce**
-
-Run this shell command:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        let result = 'abcdefghi'->
-            split('\zs')->
-            filter('v:val !~# "[aei]"')->
-            join('')
-        echo result
-    EOF
-    )
-
-`E260` is raised:
-
-    Error detected while processing ...
-    line    2:
-    E260: Missing name after ->
-    line    3:
-    E260: Missing name after ->
-    line    4:
-    E119: Not enough arguments for function: filter
-    line    5:
-    E714: List required
-    line    6:
-    E121: Undefined variable: result
-
-**Expected behavior**
-
-No error is raised.
-
-**Environment**
-
- - Vim version: 8.2 Included patches: 1-1238
- - OS: Ubuntu 16.04.6 LTS
- - Terminal: XTerm(356)
-
-**Additional context**
-
-According to `:h vim9-declaration`, it should be possible to put a line break after a binary operator such as `->`:
-
-> For binary operators in expressions not in [], {} or () a line break is
-> possible just before or after the operator.
-
----
-
-The issue is specific to the method call operator.  As an example, `..` works fine:
-```vim
-vim9script
-let result = 'foo' ..
-    'bar' ..
-    'baz'
-echo result
-```
----
-
-The code works fine when the line break is *before* `->` instead of after:
-```vim
-vim9script
-let result = 'abcdefghi'
-    ->split('\zs')
-    ->filter('v:val !~# "[aei]"')
-    ->join('')
-echo result
-```
----
-
-The issue disappears in a `:def` function:
-```vim
-vim9script
-def Func()
-    let result = 'abcdefghi'->
-        split('\zs')->
-        filter('v:val !~# "[aei]"')->
-        join('')
-    echo result
-enddef
-Func()
-```
----
-
-Non-automatic line continuations fix the error:
-```vim
-vim9script
-let result = 'abcdefghi'
-    \->split('\zs')
-    \->filter('v:val !~# "[aei]"')
-    \->join('')
-echo result
-```
-```vim
-vim9script
-let result = 'abcdefghi'->
-    \split('\zs')->
-    \filter('v:val !~# "[aei]"')->
-    \join('')
-echo result
-```
-
-# Vim9: can't unpack list items to variables in ":def" function
-
-**Describe the bug**
-
-In Vim9 script, we can't unpack the items from a list to variables, while inside a `:def` function.
-
-**To Reproduce**
-
-Run this shell command:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            let [a, b, c] = [1, 2, 3]
-        enddef
-        defcompile
-    EOF
-    )
-
-`E1092` is raised:
-
-    Error detected while processing function Func:
-    line    1:
-    E1092: Cannot use a list for a declaration
-
-**Expected behavior**
-
-No error is raised.  `1`, `2` and `3` are assigned to the variables `a`, `b` and `c`.
-
-**Environment**
-
- - Vim version: 8.2 Included patches: 1-1238
- - OS: Ubuntu 16.04.6 LTS
- - Terminal: XTerm(356)
-
-**Additional context**
-
-The issue disappears at the script level:
-```vim
-vim9script
-def Func(): any
-    return [1, 2, 3]
-enddef
-let [a, b, c] = Func()
-```
----
-
-`:h list-unpack` doesn't work to merge multiple declarations on a single line, but it does work to merge multiple assignments:
-```vim
-vim9script
-def Func(): any
-    return [1, 2, 3]
-enddef
-let a: number
-let b: number
-let c: number
-[a, b, c] = Func()
-```
----
-
-I found this test which suggests that the error is to be expected:
-
-https://github.com/vim/vim/blob/6434fc574dfbde11461e70e5a62712370edf38e6/src/testdir/test_vim9_script.vim#L166
-
-If it is working as intended, then maybe the documentation at `:h vim9-declaration` should be updated to let the user know of this limitation.
-
-# Vim9: ":def" function not found when called from legacy function
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        fu Foo()
-            call Bar()
-        endfu
-        def Bar()
-            echo 'bar'
-        enddef
-        defcompile
-        Foo()
-    EOF
-    )
-
-    Error detected while processing function <SNR>1_Foo:~
-    line    1:~
-    E117: Unknown function: Bar~
-
-The issue disappears when `Foo()` is refactored into a `:def` function:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Foo()
-            call Bar()
-        enddef
-        def Bar()
-            echo 'bar'
-        enddef
-        defcompile
-        Foo()
-    EOF
-    )
-
-    bar~
 
 ##
 ##
@@ -617,23 +708,11 @@ function one.  The current sentence implies that there is one – which is true 
 Vim9 script – without  specifying what it is.  It's explained  a little later at
 `:h vim9-declaration`, but imo `:h vim9-scopes` should be understandable on its own.
 
-## 134
-
-> In all cases the function must be defined before used.  That is when it is
-> first called or when `:defcompile` causes **the call** to be compiled.
-
-Should be "the function".
-
 ## 141
 
 > Global functions can be still be defined and deleted at nearly any time.  In
 > Vim9 script script-local functions are defined once when the script is sourced
 > and cannot be deleted or replaced.
-
-Maybe add a comma  after "In Vim9 script", to avoid  having script written twice
-consecutively.
-
----
 
 Global functions can – indeed – be deleted with `:delfu`:
 ```vim
@@ -658,97 +737,6 @@ What about the other scopes?  buffer-local, window-local, ...
 vim9script
 b:var = 123
 ```
-
-## 167
-
-From `:h vim9-declaration /echo inner  " Error!`:
-
-    echo inner  " Error!
-
-You can't use `"` as an inline  comment leader after `:echo`, because the latter
-parses `"`  as the  start of  a string.  Instead,  the doc  should write  one of
-these:
-
-    echo inner  # Error!
-    echo inner  |" Error!
-
-More generally, there are a lot of inline comments at `:h vim9` using `"` as the
-comment leader:
-
-    167
-    echo inner  " Error!
-
-    184
-    echo temp  " Error!
-
-    212-220
-    myList->add(123)		" works
-    g:myList->add(123)		" works
-    [1, 2, 3]->Process()		" works
-    #{a: 1, b: 2}->Process()	" works
-    {'a': 1, 'b': 2}->Process()	" works
-    "foobar"->Process()		" does NOT work
-    ("foobar")->Process()		" works
-    'foobar'->Process()		" does NOT work
-    ('foobar')->Process()		" works
-
-    351-353
-    let var=234	" Error!
-    let var= 234	" Error!
-    let var =234	" Error!
-
-    355
-    let var = 234	" OK
-
-    365-373
-    call Func (arg)	   " Error!
-    call Func
-         \ (arg)	   " Error!
-    call Func(arg)	   " OK
-    call Func(
-         \ arg)	   " OK
-    call Func(
-         \ arg	   " OK
-         \ )
-
-    425-434
-    ->		" legacy Vim: shifts the previous line to the right
-    ->func()	" Vim9: method call
-    :->		" Vim9: shifts the previous line to the right
-
-    %s/a/b          " legacy Vim: substitute on all lines
-    x = alongname
-         % another  " Vim9: line continuation without a backslash
-    :%s/a/b         " Vim9: substitute on all lines
-    'text'->func()  " Vim9: method call
-    :'t             " legacy Vim: jump to mark m
-
-    449
-    use-feature  " May give compilation error
-
-    620-621
-    let var = 0		" infers number type
-    let var = 'hello'	" infers string type
-
-    832
-    const greeting = 'hello'  " string type is inferred
-
-    842
-    return result || 0	" returns 1
-
-    847
-    return result || 0	" returns 44
-
-I think they're  all wrong, because only  `#` works as an  inline comment leader
-inside a `:def` function (since 8.2.1125?).
-
-Suggest a patch?
-
----
-
-Btw, we can't use  `#` in the header of a legacy function,  but we *can* use `"`
-in the header of a `:def` function.  Is this working as intended?
-
 ## 186
 
 From `:h vim9-declaration /exception`:
@@ -767,6 +755,12 @@ And from `:h vim9-declaration /value`
 >             let Funcref = g:ThatFunction
 
 Something is wrong; while you can declare a global variable without `:let`, you can't with `:let` (nor can you assign it a value if it already exists):
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        let g:global = 'value'
+    EOF
+    )
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
@@ -838,20 +832,11 @@ And you can even use `:unlet`:
     EOF
     )
 
-## 191
-
-> Variables may shadow Ex commands, rename the variable if needed.
-                                ^
-                                ✘
-
-Should be a semicolon.
-
----
-
-Btw, what does this mean?
+## 190
 
 > Variables cannot shadow previously defined variables.
 
+Btw, what does this mean?
 Does it mean that you can't re-declare a variable?
 
 ## 217
@@ -877,7 +862,6 @@ def Process(l: string): number
 enddef
 echo 'foobar'->Process()
 ```
-
 ---
 
 Since `'foobar'->Process` and `"foobar"->Process()` both work, are those 2 lines still relevant:
@@ -905,17 +889,6 @@ enddef
 ```
     E117: Unknown function: A
 
----
-
-Also:
-
-> This is required to be able have cyclic dependencies between functions.
-
-I think it should be:
-
-> This is required to be able to have cyclic dependencies between functions.
-                            ^^
-
 ## 236
 
   > Omitting function() ~
@@ -936,33 +909,6 @@ let Funcref = MyFunction
 ```
 Could be on the todo list:
 <https://github.com/vim/vim/blob/d032f34a51c6722101626c4167dffecc427ac343/runtime/doc/todo.txt#L113-L115>
-
-## 268
-
-> For **binary** operators in expressions not in [], {} or () a line break is
-> possible just before or after the operator.  For example: >
-> 	let text = lead
-> 		   .. middle
-> 		   .. end
-> 	let total = start +
-> 	            end -
-> 		    correction
-> 	let result = positive
-> 			**?** PosFunc(arg)
-> 			**:** NegFunc(arg)
-
-`?:` is not a binary operator; it's a ternary one.
-So, this would be better:
-
-> For **binary and ternary** operators ...
-
-## 294
-
-> This will assign "start" and print a line: >
-                                   ^
-                                   ✘
-
-And print "the next" line.
 
 ## 287
 
@@ -1027,6 +973,16 @@ Bar()
     line    3:
     E1004: white space required before and after '='
 
+---
+
+I reported the issue here:
+<https://github.com/vim/vim/issues/6494#issuecomment-660781609>
+
+But it was not fixed.
+Sth else was fixed (list-unpacking at the script level).
+Wait for the next update of the runtime  files; if the issue is not mentioned in
+the todo list by that time, open a report.
+
 ## 316
 
 > - No line break is allowed in between arguments of an `:echo`, `:execute` and
@@ -1042,7 +998,6 @@ echo [1,
         2] [3,
               4]
 ```
-
     Error detected while processing /proc/15664/fd/11:
     line    3:
     E111: Missing ']'
@@ -1167,36 +1122,17 @@ And for `v`:
 
 This is inconsistent.  Either it should work in a `:def` function, or it should fail at the script level.
 
+Also, maybe Vim should raise a more telling error message.  It's not clear what's wrong.  This would be more clear:
+
+    E1234: Cannot declare a variable whose name matches a valid variable scope~
+
+Maybe not that *exact* message, but something similar.
+
 ## 343
 
 > Comparators ~
 >
 > The 'ignorecase' option is not used for comparators that use strings.
-
-That's not the case at the script level:
-```vim
-vim9script
-set ic
-let str = 'aBc'
-echo str =~ 'abc'
-```
-    1
-
-If `'ic'` was really ignored, the output should be 0.
-
-But, it *is* the case in a `:def` function:
-```vim
-vim9script
-set ic
-def Func()
-    let str = 'aBc'
-    echo str =~ 'abc'
-enddef
-Func()
-```
-    v:false
-
----
 
 We can still use `=~#` and `=~?`:
 ```vim
@@ -1214,112 +1150,6 @@ Isn't `=~#` redundant in Vim9 script?  It seems to give the same results as `=~`
 
 Maybe `=~#` and `=~?` should be disallowed in Vim9 script.
 I think it would be in line with the secondary goal of Vim9 script which is to avoid Vim-specific constructs.
-
-## 350
-
-> White space ~
-
-> Vim9 script enforces proper use of white space.  This is no longer allowed: >
-> 	let var=234	" Error!
-> 	let var= 234	" Error!
-> 	let var =234	" Error!
-
-That doesn't seem to be the case.
-Neither at the script level:
-```vim
-vim9script
-let var=234
-```
-```vim
-vim9script
-let var= 234
-```
-```vim
-vim9script
-let var =234
-```
-Nor in a `:def` function:
-```vim
-vim9script
-def Func()
-    let var=234
-enddef
-```
-```vim
-vim9script
-def Func()
-    let var= 234
-enddef
-```
-```vim
-vim9script
-def Func()
-    let var =234
-enddef
-```
-
-## 363
-
-> White space is not allowed:
-> - Between a function name and the "(": >
->         call Func (arg)	   " Error!
-
-This is not the case when `:call` is at the script level:
-```vim
-vim9script
-def Func(n: number)
-    echo n
-enddef
-let arg = 123
-call Func (arg)
-```
-    123
-
-But it is the case when `:call` is inside a `:def` function:
-```vim
-vim9script
-def Foo(n: number)
-    echo n
-enddef
-def Bar()
-    let arg = 123
-    call Foo (arg)
-enddef
-Bar()
-```
-    Error detected while processing function <SNR>1_Bar:
-    line    2:
-    E476: Invalid command: Foo (arg)
-
----
-
-Removing `:call` makes Vim  raise an error when `:call` is  at the script level,
-which is more consistent with the documentation:
-```vim
-vim9script
-def Func(n: number)
-    echo n
-enddef
-let arg = 123
-Func (arg)
-```
-    Error detected while processing ...
-    line    6:
-    E492: Not an editor command: Func (arg)
-```vim
-vim9script
-def Foo(n: number)
-    echo n
-enddef
-def Bar()
-    let arg = 123
-    Foo (arg)
-enddef
-Bar()
-```
-    Error detected while processing function <SNR>1_Bar:
-    line    2:
-    E476: Invalid command: Foo (arg)
 
 ## 401
 
@@ -1386,7 +1216,7 @@ endif
 >   	->		" legacy Vim: shifts the previous line to the right
 > 	->func()	" Vim9: method call in continuation line
 > 	:->		" Vim9: shifts the previous line to the right
-> 
+>
 > 	%s/a/b		" legacy Vim: substitute on all lines
 > 	x = alongname
 > 	     % another	" Vim9: line continuation without a backslash
@@ -1407,7 +1237,7 @@ I would rewrite the paragraph like this:
 >   	->		" legacy Vim: shifts the previous line to the right
 > 	->func()	" Vim9: method call in continuation line
 > 	:->		" Vim9: shifts the previous line to the right
-> 
+>
 > 	%s/a/b		" legacy Vim: substitute on all lines
 > 	x = alongname
 > 	     % another	" Vim9: **modulo in continuation line**
@@ -1452,6 +1282,33 @@ Func()
     line    3:
     E476: Invalid command: 't
 
+---
+
+I would add a gotcha about the fact  that you can *not* omit `s:` when calling a
+script-local function from a `:fu` function.
+It sounds  obvious, but in  practice, I bet you  may sometimes forget  and don't
+understand why your code doesn't work.
+```vim
+vim9script
+fu Foo()
+    call Bar()
+endfu
+def Bar()
+    echo 'bar'
+enddef
+Foo()
+```
+    Error detected while processing function <SNR>1_Foo:
+    line    1:
+    E117: Unknown function: Bar
+
+The reason why  you may forget, is because  in Vim9 script you can  omit `s:` in
+front of a function name most of the time; that is when:
+
+   - defining a `:def` function
+   - defining a `:fu` function
+   - calling a script-local function from a `:def` function
+
 ## 444
 
 > Vim9 functions are compiled as a whole: >
@@ -1486,20 +1343,7 @@ Maybe()
 >             use-feature
 >           enddef
 >         endif
-```vim
-vim9script
-func Maybe()
-    if has('ruby')
-        call MaybeInner()
-    endif
-endfunc
-if has('ruby')
-    def MaybeInner()
-        ruby print('Hello')
-    enddef
-endif
-Maybe()
-```
+
 Why mixing a legacy `:fu` function and a `:def` function?
 Why not 2 `:def`?
 
@@ -1515,75 +1359,107 @@ Why not 2 `:def`?
 >           enddef
 >         endif
 
-Also, there is a typo:
-
->            call MaybyInner()
-                    ^
-                    ✘
-
-I think it should be:
-
-           call MaybeInner()
-                    ^
-                    ✔
-
 ---
 
-## ?
+I don't understand how the workaround works.
+If  Vim  doesn't  support  `feature`,  then  why  isn't  there  any  error  when
+`MaybeInner()` is compiled?   One explanation would be  that `if has('feature')`
+is evaluated at compile time, and if it fails, `MaybeInner()` is not compiled.
+But watch this:
+```vim
+vim9script
+def Func()
+    ruby print('Hello')
+enddef
+defcompile
+```
+This doesn't raise any error, even though my Vim doesn't support the ruby interface.
 
-## 470
+## 492
 
-From `:h :def`:
+> NOTE: It is possible to nest `:def` inside another
+> `:def`, but it is not possible to nest `:def` inside
+> `:function`, for backwards compatibility.
 
-    :def[!] {name}([arguments])[: {return-type}
+I *can* nest `:def` inside `:fu`:
+```vim
+vim9script
+fu Foo()
+    def Bar()
+        echo 'bar'
+    enddef
+    call Bar()
+endfu
+Foo()
+```
+    bar
+```vim
+vim9script
+fu Foo()
+    def Bar()
+        echo 'bar'
+    enddef
+endfu
+Foo()
+Bar()
+```
+    bar
 
-I think a closing bracket is missing:
+## 504
 
-    :def[!] {name}([arguments])[: {return-type}]
-                                               ^
+> If the script the function is defined in is Vim9 script, then script-local
+> variables can be accessed without the "s:" prefix.  They must be defined
+> before the function is compiled.  If the script the function is defined in is
+> legacy script, then script-local variables must be accessed with the "s:"
+> prefix.
 
-## 561
+I would re-write this paragraph like so:
 
->     These types can be used in declarations, but no value will have this type:
->             {type}|{type}
->             void
->             any
+> If the function is defined in a Vim9 script, then script-local variables can
+> be accessed without the "s:" prefix.  They must be defined before the function
+> is compiled.  If the function is defined in a legacy script, then script-local
+> variables must be accessed with the "s:" prefix.
 
-Doesn't seem to work right now:
+Easier to understand.
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func(x: number|string)
-        #           ^-----------^
-        #                 ✘
-            echo x
-        enddef
-        Func(3)
-    EOF
-    )
+## 543
 
-    Error detected while processing /proc/21638/fd/11:
-    line    2:
-    E475: Invalid argument: x: number|string)
-    line    3:
-    E121: Undefined variable: x
-    line    4:
-    E193: :enddef not inside a function
-    line    5:
-    E117: Unknown function: Func
+> The following builtin types are supported:
 
-The documentation should probably include:
+Maybe the doc should mention that composite types can be nested up to 2 levels:
+```vim
+vim9script
+def Func(arg: list<list<any>>)
+enddef
+Func([[0]])
+```
+✔
+```vim
+vim9script
+def Func(arg: list<list<list<any>>>)
+enddef
+Func([[[0]]])
+```
+    Error detected while processing function <SNR>1_Func:
+    line    1:
+    E1013: type mismatch, expected list<list<list<any>>> but got list<list<any>>
+                                                             ^-----------------^
 
-    {not implemented yet}
+Note that if  you nest a composite type,  it must declare the type  of its items
+with `<any>`; nothing else:
+```vim
+vim9script
+def Func(arg: list<list<number>>)
+enddef
+Func([[0]])
+```
+    Error detected while processing function <SNR>1_Func:
+    line    1:
+    E1013: type mismatch, expected list<list<number>> but got list<list<any>>
 
->     These types can be used in declarations, but no value will have this type:
->             {type}|{type} **{not implemented yet}**
->             void
->             any
-
-Btw, the documentation already contains 2 `{not implemented yet}`.
-But they're concealed by our help syntax customizations.
-To see them, press `coc` to reset `'cole'` to 0.
+Is all of this working as intended?
+That is, the fact that the maximum level of nesting is 2, and a nested composite
+type must use `<any>`.
 
 ## 651
 
@@ -1595,23 +1471,82 @@ From `:h :vim9 /common`:
 
 Maybe environment variables should be mentioned as well.
 
-## 731
+Also, I would rewrite the whole paragraph like this:
 
->     2. In the autocommand script do the actual work.  You can import items from
-              ^---------^
-              ✘
-              it should be "autoload"
+>     In Vim9 script the global "g:" namespace can still be used as before.  And the
+>     "w:", "b:", "t:", and "$" namespaces.  These have in common that their
+>     variables cannot be declared but can be deleted.
+>     For variables which are local to a script, function or code block, the opposite
+>     is true.  They can be declared but cannot be deleted.
 
-## 782
+## 674
 
->     When compiling lines of Vim commands into instructions as much as possible
->     should be done at compile time.
+>     Alternatively, an export statement can be used to export several already
+>     defined (otherwise script-local) items: >
+>             export {EXPORTED_CONST, someValue, MyFunc, MyClass}
 
-Maybe it's just me, but I find the sentence easier to understand with a comma:
+Does not work:
+```vim
+vim9script
+const EXPORTED_CONST = 123
+let someVariable = 'test'
+export {EXPORTED_CONST, someVariable}
+```
+    E1043: Invalid command after :export
 
-                                                          v
->     When compiling lines of Vim commands into instructions, as much as possible
->     should be done at compile time.
+```vim
+vim9script
+let someVariable = 'test'
+export someVariable
+```
+    E1043: Invalid command after :export
+
+There is a test which suggests that `E1043` is expected when trying to export one item:
+https://github.com/vim/vim/blob/bc6fcbe4ce52bc48c3d77b24086acc61ed3333bc/src/testdir/test_vim9_script.vim#L1143
+
+But I didn't find any test suggesting that `E1043` was expected when trying to export *several* items.  If it is working as intended, then the documentation looks wrong.
+
+---
+
+Also, I don't understand what "(otherwise script-local)" means here.
+
+## 714
+
+> The `import` commands are executed when encountered.
+> If that script  (directly or indirectly) imports the current  script, then items
+> defined after the `import` won't be processed yet.
+> Therefore, cyclic imports can exist, but may result in undefined items.
+
+What is "that script"?  The current script, or the script from which we import items?
+
+I *think* it's the script from which we import items.
+
+What are "items defined after the `import`"?
+Items defined after the `import` in  the current script?  Or items defined after
+the `import` in the script from which we import items?
+
+I *think* it's the items defined after the import in the current script.
+
+The paragraph would really benefit from an example.
+Does the following commands do a good job illustrating the pitfall?
+
+    $ cat <<'EOF' >/tmp/bar.vim
+        vim9script
+        export const FOO = 123
+        import BAR from './foo.vim'
+    EOF
+
+    $ cat <<'EOF' >/tmp/foo.vim
+        vim9script
+        import FOO from './bar.vim'
+        export const BAR = 456
+    EOF
+
+    $ vim -Nu NONE -S /tmp/foo.vim
+
+    Error detected while processing /tmp/bar.vim:~
+    line    3:~
+    E1048: Item not found in script: BAR~
 
 ## 789
 
@@ -1624,11 +1559,6 @@ This is neat, and maybe it should be documented.
 If a  legacy function  contains syntax/type errors,  and was  invoked frequently
 (e.g. `InsertCharPre` autocmd),  the same  errors were raised  repeatedly.  This
 shoud not happen with a `:def` function.
-
-Also, wouldn't a semicolon be better?
-
->     The error can be given at compile time**;** no error handling is needed at runtime.
-                                          ^
 
 ##
 # missing doc at `:h vim9`
@@ -1716,6 +1646,10 @@ Can we?  Last time I tried, it didn't work.
 It's working as intended.
 Maybe `:breakadd` doesn't work because it can't work with a compiled function...
 If so, it should be documented at `:h vim9-differences`.
+
+---
+
+And what about `:profile`?
 
 ## can't declare a register inside a ":def" function
 

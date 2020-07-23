@@ -246,17 +246,18 @@ So it's only a theoretical pitfall.
 
 ##
 ## Which comment leader can I use
-### at the start of a line or at the end of a line of code?
+### at the start of a line (whole comment) or at the end of a line of code (inline comment)?
 
-It's simple:  you can use `"`  in (and only in)  legacy script, and `#`  in (and
+It's simple: you can use `"` in (and only in) legacy Vim script, and `#` in (and
 only in) Vim9 script.
 
-Legacy script = script which does not start with `vim9script` or inside `:fu` function.
+Legacy Vim script = script which does not start with `vim9script` or inside `:fu` function.
 Vim9 script = script which *does* start with `vim9script` or inside `:def` function.
 
 ### at the start of an automatic line continuation?
 
-Right now, you can only use `#` inside a `:def` function.
+You can  only use `#` inside  a `:def` function, or  at the script level  if the
+latter starts with `:vim9script`.
 
     vim9script
     def Func()
@@ -265,12 +266,402 @@ Right now, you can only use `#` inside a `:def` function.
                 # some comment
                 'two',
                 ]
-        enddef
-    defcompile
+        echo mylist
+    enddef
+    Func()
+
+    ['one', 'two']~
+
+    def Func()
+        let mylist = [
+                'one',
+                # some comment
+                'two',
+                ]
+        echo mylist
+    enddef
+    call Func()
+
+    ['one', 'two']~
+
+    vim9script
+    let mylist = [
+            'one',
+            # some comment
+            'two',
+            ]
+    echo mylist
+
+    ['one', 'two']~
 
 Everywhere else, neither `"` nor `#` work.
 
-The fact that `#` doesn't work at the script level may be a bug.
+##
+# Export
+## Which items can be exported?  (4)
+
+   - constants
+   - variables
+   - functions
+   - classes
+
+## How to export one item?
+
+Prefix the command which defines it with `:export`:
+
+Example for a constant:
+
+    vim9script
+    export const MYCONST = 123
+    ^----^
+
+Example for a variable:
+
+    vim9script
+    export let var = 'test'
+    ^----^
+
+Example for a function:
+
+    vim9script
+    # v--v
+    export def Func()
+        # ...
+    enddef
+
+## How to export several items in a single command?
+
+First, define them as usual.
+Then,  export  all of  them  after  wrapping  them  inside curly  brackets,  and
+separating them with commas:
+
+    vim9script
+
+    const MYCONST = 123
+    let var = 'test'
+    def Func()
+        # ...
+    enddef
+
+    export {MYCONST, var, Func}
+           ^------------------^
+
+Note: It doesn't work at the moment:
+
+    E1043: Invalid command after :export~
+
+Probably a bug, or the feature has not been implemented yet.
+
+##
+## On which condition can I export items in a script?
+
+The script must start with `:vim9script`.
+
+    export const MYCONST = 123
+
+    E1042: export can only be used in vim9script~
+
+    vim9script
+    export const MYCONST = 123
+    ✔
+
+## On which condition can I import items from a script?
+
+None.
+In particular, you can import items even while you're in a legacy Vim script.
+IOW, your script doesn't need to start with `:vim9script`.
+
+    $ cat <<'EOF' >/tmp/.a.vim
+      vim9script
+      export const MYCONST = 123
+    EOF
+
+    $ cat <<'EOF' >/tmp/.b.vim
+        import MYCONST from '/tmp/.a.vim'
+        echo s:MYCONST
+    EOF
+
+    $ vim -Nu NONE -S /tmp/.a.vim -S /tmp/.b.vim
+
+    123~
+
+##
+## After sourcing a Vim9 script from a legacy script, which items can I refer to?
+
+Only the items defined in the `b:`, `g:`, `t:`, `w:` namespaces can be used; not
+the ones defined in the `s:` namespace, nor the exported items.
+
+    $ cat <<'EOF' >/tmp/exported.vim
+        vim9script
+        export const MYCONST = 123
+    EOF
+
+    $ cat <<'EOF' >/tmp/legacy.vim
+        source /tmp/exported.vim
+        echo MYCONST
+    EOF
+
+    $ vim -Nu NONE -S /tmp/legacy.vim
+
+    E121: Undefined variable: MYCONST~
+
+Here, the legacy script fails to refer  to `MYCONST`, even after sourcing a Vim9
+script which  exports the latter  variable; that's because  it was local  to the
+Vim9 script.
+
+    $ cat <<'EOF' >/tmp/exported.vim
+        vim9script
+        g:global = 456
+    EOF
+
+    $ cat <<'EOF' >/tmp/legacy.vim
+        source /tmp/exported.vim
+        echo g:global
+    EOF
+
+    $ vim -Nu NONE -S /tmp/legacy.vim
+
+    456~
+
+Here,  the legacy  script  *can*  refer to  `g:global`,  because  it's a  global
+variable; not a variable local to the Vim9 script.
+
+##
+# Import
+## How to import one item from a file which is
+### in the same directory as the current script?
+
+           name of the item you want to import
+           v-----v
+    import MYCONST from './foo.vim'
+                        ^---------^
+                        location of the script where the item is defined,
+                        relative to the directory of the current script
+
+Example:
+
+    $ cat <<'EOF' >/tmp/foo.vim
+        vim9script
+        export const MYCONST = 'from a script in current directory'
+    EOF
+
+    $ cat <<'EOF' >/tmp/bar.vim
+        vim9script
+        import MYCONST from './foo.vim'
+        echo MYCONST
+    EOF
+
+    $ vim -Nu NONE -S /tmp/foo.vim -S /tmp/bar.vim
+
+    from a script in current directory~
+
+### in the *parent* directory of the current script?
+
+    import MYCONST from '../foo.vim'
+                         ^^
+
+Example:
+
+    $ mkdir -p /tmp/dir
+
+    $ cat <<'EOF' >/tmp/foo.vim
+        vim9script
+        export const MYCONST = 'from a script in parent directory'
+    EOF
+
+    $ cat <<'EOF' >/tmp/dir/bar.vim
+        vim9script
+        import MYCONST from '../foo.vim'
+        echo MYCONST
+    EOF
+
+    $ vim -Nu NONE -S /tmp/foo.vim -S /tmp/dir/bar.vim
+
+    from a script in parent directory~
+
+### at an arbitrary location?
+
+Use a full file path:
+
+    import MYCONST from '/path/to/script.vim'
+                         ^-----------------^
+
+Example:
+
+    $ cat <<'EOF' >/tmp/foo.vim
+        vim9script
+        export const MYCONST = 'from /tmp/foo.vim'
+    EOF
+
+    $ cat <<'EOF' >/tmp/bar.vim
+        vim9script
+        import MYCONST from '/tmp/foo.vim'
+        echo MYCONST
+    EOF
+
+    $ vim -Nu NONE -S /tmp/foo.vim -S /tmp/bar.vim
+
+    from /tmp/foo.vim~
+
+###
+### Suppose I write this:
+
+    import MYCONST from 'foo.vim'
+                         ^-----^
+
+#### Where will Vim look for `foo.vim`?
+
+In an import subdirectory of the runtimepath.
+
+Example:
+
+    $ mkdir -p /tmp/import
+
+    $ cat <<'EOF' >/tmp/import/foo.vim
+        vim9script
+        export const MYCONST = 'from foo.vim in import/ subdir'
+    EOF
+
+    $ cat <<'EOF' >/tmp/bar.vim
+        vim9script
+        set rtp^=/tmp
+        import MYCONST from 'foo.vim'
+        echo MYCONST
+    EOF
+
+    $ vim -Nu NONE -S /tmp/bar.vim
+
+    from foo.vim in import/ subdir~
+
+---
+
+Note that  you're not limited  to scripts directly at  the root of  an `import/`
+subdirectory.  You can  put your scripts under an arbitrarily  deep hierarchy of
+subdirectories.
+
+Example:
+
+    $ mkdir -p /tmp/import/foo/bar
+
+    $ cat <<'EOF' >/tmp/import/foo/bar/baz.vim
+        vim9script
+        export const MYCONST = 'from foo/bar/baz.vim in import/ subdir'
+    EOF
+
+    $ cat <<'EOF' >/tmp/qux.vim
+        vim9script
+        set rtp^=/tmp
+        import MYCONST from 'foo/bar/baz.vim'
+        echo MYCONST
+    EOF
+
+    $ vim -Nu NONE -S /tmp/qux.vim
+
+    from foo/bar/baz.vim in import/ subdir~
+
+#### Which pitfall should I be aware of when choosing a name for `foo.vim`?
+
+You want a name  which is unique across all the  `import/` subdirectories of the
+runtimepath.  Otherwise, there is a risk for Vim to load the wrong file.
+
+###
+## In practice, on which occasion will I import items from a script which is
+### in the same directory as the current script, or in the parent directory?
+
+When you want to split up a large plugin into several files.
+
+### in an arbitrary location?
+
+Rarely if ever.
+
+### in an `import/` subdirectory?
+
+When you want the items to be available from different plugins.
+This is useful to implement library functions.
+
+###
+## How to import multiple items at the same time?
+
+Wrap their names inside curly brackets:
+
+    import {MYCONST, var, Func} from 'foo.vim'
+           ^------------------^
+
+## How to import an item under a new arbitrary name?
+
+Use the keyword `as` followed by the desired new name:
+
+    import MYCONST as NEWCONST from 'foo.vim'
+                   ^---------^
+
+This is  useful when  the original  name can  collide with  the name  of another
+existing item.
+
+---
+
+Note that this has not been implemented yet.
+See `:h todo /as Name`:
+
+>     - Implement "as Name" in "import Item as Name from ..."
+
+Also, this is supposed to work even inside curly brackets.
+So, you should be able to write something like:
+
+    import {MYCONST, var, Func as NewFunc} from 'foo.vim'
+                               ^--------^
+
+## How to import all exported items under a specific identifier?
+
+Use the `*` wildcard and the `as` keyword:
+
+    import * as foo from 'foo.vim'
+           ^------^
+
+Then,  you  can  refer  to  the imported  items  via  `foo.MYCONST`,  `foo.var`,
+`foo.Func`, etc.
+
+You are free to import the exported items under any arbitrary identifier, but it
+is highly recommended  to use the name  of the script from which  the items were
+imported, to avoid confusion.
+
+##
+## What happens if I use `:import` in a legacy Vim script?
+
+It will be automatically put inside the script-local `s:` namespace.
+
+So, to refer to it later, you'll need to specify `s:`:
+
+    import MYCONST from './exported.vim'
+    echo MYCONST
+         ^-----^
+         ✘
+
+    import MYCONST from './exported.vim'
+    echo s:MYCONST
+         ^-------^
+         ✔
+
+Working example:
+
+    $ cat <<'EOF' >/tmp/exported.vim
+        vim9script
+        export const MYCONST = 123
+    EOF
+
+    $ cat <<'EOF' >/tmp/import.vim
+        import MYCONST from './exported.vim'
+        echo s:MYCONST
+        "    ^^
+    EOF
+
+    $ vim -Nu NONE -S /tmp/import.vim
+
+    123~
+
+Notice how we had to prefix `MYCONST` with `s:` in `import.vim`.
+Without, when executing  `:echo MYCONST` afterward, Vim would  have searched for
+the constant in the global namespace; and after failing to find it, `E121` would
+have been raised.
 
 ##
 # Misc
@@ -280,6 +671,105 @@ In a function defined with the `:def` command (instead of `:function`).
 
 Or, in a file whose first command is `:vim9script`.
 
+## What are the effects of `:vim9script`?  (2)
+
+It  makes Vim  put all  variables  and functions  defined  in the  script, in  a
+namespace specific  to the latter.   As a result, you  don't need to  write `s:`
+anymore; it's implicit:
+
+    " legacy
+    let s:var = 123
+    fu s:Func()
+    endfu
+
+    " Vim9
+    vim9script
+    let var = 123
+    def Func()
+    enddef
+
+---
+
+It makes Vim temporarily reset `'cpo'` to its default Vim value.
+It's somewhat equivalent to:
+
+    let s:cpo_save = &cpo
+    set cpo&vim
+    ...
+    let &cpo = s:cpo_save
+    unlet s:cpo_save
+
+##
+## Which difference is there between a legacy `s:var` and a Vim9 `var` defined at the script level?
+
+Legacy's `s:var` can be unlet; not Vim9's `var`:
+
+    vim9script
+    let var = 123
+    unlet var
+
+    E1081: Cannot unlet var~
+
+## In Vim9 script, what's the main difference between a `b:`, `g:`, `t:`, `w:`, `$` variable and other variables?
+
+Variables which are prefixed by a prefix denoting a scope can't be declared, but
+can be deleted:
+
+    vim9script
+    let b:var = 123
+
+    E1016: Cannot declare a buffer variable: b:var~
+
+    vim9script
+    b:var = 123
+    unlet b:var
+    ✔
+
+Variables  which are  *not* prefixed  by a  scope (block-local,  function-local,
+script-local) *can* be declared, but can't be deleted.
+
+    vim9script
+    def Func()
+        if 1
+            let var = 'block-local'
+            unlet var
+        endif
+    enddef
+    defcompile
+
+    E1081: Cannot unlet var~
+
+    vim9script
+    def Func()
+        let var = 'function-local'
+        unlet var
+    enddef
+    defcompile
+
+    E1081: Cannot unlet var~
+
+    vim9script
+    let var = 'script-local'
+    unlet var
+
+    E1081: Cannot unlet var~
+
+## How to prevent a variable from being accessible in a later statement?
+
+Put it inside a `{}` block:
+
+    vim9script
+    def Func()
+        {
+            let n = 123
+        }
+        echo n
+    enddef
+    defcompile
+
+    E1001: variable not found: n~
+
+##
 ## When can I omit the type of a variable?
 
 When you assign it a value, because in that case Vim can infer the type from the latter.
@@ -319,20 +809,24 @@ And here again, no error is raised, because `x` is assigned a value:
 
 See `:h type-inference`.
 
-## How to prevent a variable from being accessible in a later statement?
+##
+## What's the evaluation of `123 || 0` in
+### legacy Vim script?
 
-Put it inside a `{}` block:
+1
+
+    echo 123 || 0
+
+    1~
+
+### Vim9 script?
+
+123
 
     vim9script
-    def Func()
-        {
-            let n = 123
-        }
-        echo n
-    enddef
-    defcompile
+    echo 123 || 0
 
-    E1001: variable not found: n~
+    123~
 
 ##
 # Pitfalls
@@ -497,6 +991,85 @@ But at the script level, lambdas are significantly slower:
 Conclusion: always use lambdas, but make sure to write them inside `:def` functions.
 
 ##
+## Vim complains that it doesn't know the function-local variable I'm referring to!
+
+    vim9script
+    def Func()
+        if 1
+           let n = 123
+        endif
+        echo n
+    enddef
+    defcompile
+
+    Error detected while processing function <SNR>1_Func:~
+    line    4:~
+    E1001: variable not found: n~
+
+A variable is local to its current block.
+
+Solution:  Declare it *before* the block where it's assigned a value.
+
+    vim9script
+    def Func()
+        let n: number
+        if 1
+           n = 123
+        endif
+        echo n
+    enddef
+    defcompile
+
+This makes  the variable  accessible in  the block where  it's declared  (and in
+nested blocks).  Not in outer blocks:
+
+    vim9script
+    def Func()
+        if 1
+            let n: number
+            if 1
+               n = 123
+            endif
+        endif
+        echo n
+    enddef
+    defcompile
+
+    Error detected while processing function <SNR>1_Func:~
+    line    7:~
+    E1001: variable not found: n~
+
+### Now it complains about a script-local variable!
+
+    vim9script
+    def Func()
+        echo s:var
+    enddef
+    defcompile
+    s:var = 123
+
+    Error detected while processing function <SNR>1_Func:~
+    line    1:~
+    E1050: Item not found: var~
+
+Make sure your script-local variable is defined *before* the function – in which
+it's referred to – is compiled.
+
+    vim9script
+    def Func()
+        echo s:var
+    enddef
+    s:var = 123
+    defcompile
+    ✔
+
+From `:h fast-functions /prefix`:
+
+>     If the script the function is defined in is Vim9 script, then script-local
+>     variables can be accessed without the "s:" prefix.  **They must be defined**
+>     **before the function is compiled**.
+
+##
 ## The line number given in an error message looks wrong!
 
 It's not wrong.
@@ -578,53 +1151,83 @@ function:
     Error detected while processing function QuickFixTextFunc:~
                                     ^-----------------------^
 
-## Vim complains that it doesn't know the variable I'm referring to!
+## I can't call a `:def` function from a `:fu` one.  The function is not found!
 
     vim9script
-    def Func()
-        if 1
-           let n = 123
-        endif
-        echo n
+    fu Foo()
+        call Bar()
+    endfu
+    def Bar()
+        echo 'bar'
     enddef
-    defcompile
+    Foo()
 
-    Error detected while processing function <SNR>1_Func:~
-    line    4:~
-    E1001: variable not found: n~
+    Error detected while processing function <SNR>1_Foo:~
+    line    1:~
+    E117: Unknown function: Bar~
 
-A variable is local to its current block.
+You forgot the `s:` scope in your legacy function:
 
-Solution:  Declare it *before* the block where it's assigned a value.
+        call s:Bar()
+             ^^
+
+Fixed code:
 
     vim9script
-    def Func()
-        let n: number
-        if 1
-           n = 123
-        endif
-        echo n
+    fu Foo()
+        call s:Bar()
+    endfu
+    def Bar()
+        echo 'bar'
     enddef
-    defcompile
+    Foo()
 
-This makes  the variable  accessible in  the block where  it's declared  (and in
-nested blocks).  Not in outer blocks:
+    bar~
 
-    vim9script
-    def Func()
-        if 1
-            let n: number
-            if 1
-               n = 123
-            endif
-        endif
-        echo n
-    enddef
-    defcompile
+Explanation: you can omit `s:` when:
 
-    Error detected while processing function <SNR>1_Func:~
-    line    7:~
-    E1001: variable not found: n~
+   - defining a `:def` function
+   - defining a `:fu` function
+   - calling a script-local function from a `:def` function
+
+But you can *not*  omit `s:` when calling a script-local  function from a legacy
+function.
+
+##
+## After importing items from a script, I've updated the latter and re-imported the items.
+
+    $ cat <<'EOF' >/tmp/exported.vim
+        vim9script
+        export const MYCONST = 123
+    EOF
+
+    $ cat <<'EOF' >/tmp/import.vim
+        vim9script
+        import MYCONST from './exported.vim'
+        echo MYCONST
+    EOF
+
+    $ cat <<'EOF' >/tmp/update.vim
+        sil e /tmp/exported.vim
+        %s/123/456/
+        sil w
+    EOF
+
+    $ vim -Nu NONE -S /tmp/import.vim -S /tmp/update.vim -S /tmp/import.vim
+
+    123~
+    123~
+
+### Their definitions has not changed!  Why?
+
+Once a  Vim9 script file has  been imported, the  result is cached and  used the
+next time the same script is imported.  It will not be read again.
+
+To see the effects of your update, simply restart Vim:
+
+    $ vim -Nu NONE -S /tmp/import.vim
+
+    456~
 
 ##
 # Todo
@@ -659,41 +1262,50 @@ For the moment, the only workaround I can think of, is to use an extra variable:
     let _time = reltime(time)->reltimestr()->matchstr('.*\..\{,3}')
     echom printf('we slept for %s seconds', _time)
 
-## Document that some single-letter variable names can't be used in a declaration inside a `:def` function
+## Try to finish rewriting `ccomplete#Complete()` in Vim9 script.
 
-    vim9script
-    def Func()
-        let w: number
-    enddef
-    defcompile
+    ~/.vim/autoload/ccomplete.vim
 
-    Error detected while processing function <SNR>1_Func:~
-    line    1:~
-    E1016: Cannot declare a buffer variable: b~
+Test:
 
-Same thing for `g`, `s`, `t` and `w`.
-Also for `v`, although the error message is a bit different:
+    $ vim ~/Vcs/vim/src/evalfunc.c
+    " press:  gg O e_a C-x C-o
 
-    vim9script
-    def Func()
-        let v: number
-    enddef
-    defcompile
+---
 
-    Error detected while processing function <SNR>1_Func:~
-    line    1:~
-    E1001: variable not found: v: number~
+<https://vi.stackexchange.com/questions/26406/how-does-ft-c-omni-work-and-how-can-i-make-it-faster>
 
-Btw, maybe Vim should raise a more telling error message.
-It's not clear what's wrong.
-This would be more clear:
+---
 
-    E1234: Cannot declare a variable whose name matches a valid variable scope~
+There is an issue with a Vim9 fold marker:
 
-Well, maybe not that *exact* message, but sth similar.  You get the idea.
-Report?
+    #{{{1
 
-## Try to finish rewriting `ccomplete#Complete()` in Vim9 script
+It breaks the syntax highlighting of everything which comes afterward.
+I think it has to do with `:h literal-Dict`.
+Workaround:
 
-    $ vim +'so ~/Desktop/ccomplete.vim' ~/Vcs/vim/src/evalfunc.c
+    # {{{1
+     ^
+     add a space
+
+Report, document, integrate, ...
+
+## Try to move all our library functions (`vim-lg`) into an `import/` subdirectory.
+
+Benefit: our function calls would no longer be littered with noisy prefix.
+
+Before:
+
+    call lg#textprop#ansi()
+         ^----------^
+         noise
+
+After:
+
+    call ansi()
+
+Obviously, you would need to prefix the functions definitions with `:export`.
+And you would need to import them in any plugin where they are required.
+But the end result will still be much more readable.
 

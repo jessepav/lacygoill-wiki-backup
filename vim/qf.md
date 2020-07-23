@@ -1673,13 +1673,16 @@ Vim fails to find `s:func()`.
 
 Solution: Translate `s:` manually.
 
-    fu s:snr() abort
-        return matchstr(expand('<sfile>'), '.*\zs<SNR>\d\+_')
-    endfu
-    let s:snr = get(s:, 'snr', s:snr())
+    if !exists('s:SID')
+        fu s:SID() abort
+            return expand('<sfile>')->matchstr('<SNR>\zs\d\+\ze_SID$')->str2nr()
+        endfu
+        const s:SID = s:SID()->printf('<SNR>%d_')
+        delfu s:SID
+    endif
     let items = ...
-    call setqflist([], ' ', {'items': items, 'quickfixtextfunc': s:snr..'func'})
-                                                                 ^-----------^
+    call setqflist([], ' ', {'items': items, 'quickfixtextfunc': s:SID .. 'func'})
+                                                                 ^-------------^
     ...
 
 ---
@@ -1687,11 +1690,12 @@ Solution: Translate `s:` manually.
 It would be nice if we could use a funcref:
 
     let items = ...
-    call setqflist([], ' ', {'items': items, 'quickfixtextfunc': function(s:'func')})
+    call setqflist([], ' ', {'items': items, 'quickfixtextfunc': function('s:func')})
                                                                  ^----------------^
     ...
 
-But it doesn't work.
+But it doesn't work  (it works when the qf window is opened  for the first time,
+but not the subsequent times).
 You must provide the *name* of a function, just like for the global option.
 
 ##

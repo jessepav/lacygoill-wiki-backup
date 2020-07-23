@@ -401,13 +401,15 @@ qui est décrit par un glob contenu dans une option tq `'wig'`.
 
 Document that you can set a custom completion for `input()`:
 
-    " can't use a script-local function
     fu CompleteWords(_a, _l, _p) abort
         return getline(1, '$')->join(' ')->split('\s\+')
             \ ->filter('v:val =~# "^\\a\\k\\+$"')
             \ ->sort()->uniq()->join("\n")
     endfu
     let word = input('word: ', '', 'custom,CompleteWords')
+
+You can use a  script-local function, but you need to  expand `s:` manually (via
+`expand('<sfile>')` in a function).
 
 ##
 # vim-vint
@@ -426,19 +428,62 @@ Document that you can set a custom completion for `input()`:
 ##
 # Function calls
 ## I have a function call with many arguments
-### how to make it more readable?
+### how to make it more readable?  (2)
 
 Break the arguments on multiple lines:
 
     call Func(
-        \ arg1,
-        \ arg2,
+        \ foo,
+        \ bar,
+        \ baz,
         \ ...
         \ )
 
-This kind of syntax is probably portable across many other programming languages
-(C, python, ...).
+This  kind of  formatting is  probably  portable across  many other  programming
+languages (C, python, ...).
 
+---
+
+You can  also "name"  the values  at the call  site, by  wrapping them  inside a
+dictionary:
+
+    fu Func(opts)
+        let opts = a:opts
+    endfu
+
+    call Func(#{foo: 1, bar: 2, baz: 3})
+                     ^       ^       ^
+
+Here, the  values `1`, `2`  and `3`  are mapped to  the names `foo`,  `bar`, and
+`baz`, which can help to make them more readable.
+
+#### How to adapt the second technique to optional arguments?
+
+Use `extend()` and the optional third argument `keep`.
+
+    fu Func(opts)
+        "                              default values
+        "                         v-----------------------v
+        let opts = extend(a:opts, #{foo: 1, bar: 2, baz: 3}, 'keep')
+        "          ^-----^                                   ^----^
+        echo opts
+    endfu
+    call Func(#{bar: 4})
+
+    {'foo': 1, 'baz': 3, 'bar': 4}~
+
+Notice how in the function's body, the dictionary `opts` includes the keys `foo`
+and `baz` with the values `1` and `3`, even though we didn't specify them in the
+function call.  This shows that, in effect, any argument is optional.
+
+Note that this is an ad-hoc mechanism.
+In the future, Vim may provide a builtin one; see `:h todo /named arguments`:
+
+>     Implement named arguments for functions with optional arguments:
+>         func Foo(start, count = 1, all = 1)
+>         call Foo(12, all = 0)
+
+###
 ### how to reduce their number (knowing that some of them can be derived from a single expression)?
 
 Pass the expression from which some of the arguments can be derived, and let the
@@ -514,7 +559,6 @@ Assign them to a list, and pass the latter to the function with `call()`:
         let [a, b, c] = a:000
     endfu
 
-
 Without `call()`, you would had to write:
 
     call FuncA(1, 2, 3)
@@ -535,9 +579,300 @@ Btw, `call()` is useful even if there are non-repeating arguments before/after:
 
 ---
 
-Analogy: Just like you can put several  drawings inside a packaging to send them
-to a person, you can "package" arguments in a list and pass it to a function via
+Analogy: Just like you can put several gifts  inside a packaging to send them to
+a person, you  can "package" arguments in a  list and pass it to  a function via
 `call()`.
+
+##
+## Optional arguments
+### What are the different kinds of arguments which I can specify in a function header?
+
+   - mandatory arguments
+   - optional named arguments
+   - optional unnamed arguments
+
+#### In which order should I specify them?
+
+First, the mandatory arguments:
+
+            mandatory
+            v------v
+    fu Func(foo, bar)
+    endfu
+
+Second, the optional named arguments:
+
+                      optional named
+                      v--------------v
+    fu Func(foo, bar, baz = 2, qux = 3)
+    endfu
+
+Finally, the optional *un*named arguments:
+
+                                        optional *un*named
+                                        v-v
+    fu Func(foo, bar, baz = 2, qux = 3, ...)
+    endfu
+
+---
+
+If you don't respect this order, an issue will be raised.
+
+                           ✘
+                   v----------------v
+    fu Order(food, howmany = 10, when)
+        echo printf('I need %d %s before %s', a:howmany, a:food, a:when)
+    endfu
+
+    E989: Non-default argument follows default argument~
+
+Here, the  issue is that you  specify the mandatory `when`  argument *after* the
+optional argument `howmany`.  Fix:
+
+                           ✔
+                   v----------------v
+    fu Order(food, when, howmany = 10)
+        echo printf('I need %d %s before %s', a:howmany, a:food, a:when)
+    endfu
+
+Here's another issue which is due to `...` being specified before optional named
+arguments:
+
+                             ✘
+                            v-v
+    fu Order(food, howmany, ..., when = 'tomorrow')
+        echo printf('I need %d %s and %s before %s',
+            \ a:howmany,
+            \ a:food,
+            \ reduce(a:000, {a, c -> a .. ' and ' .. c}),
+            \ a:when)
+    endfu
+
+    E475: Invalid argument: food, howmany, ..., when = 'tomorrow')~
+
+                                                ✔
+                                               v-v
+    fu Order(food, howmany, when = 'tomorrow', ...)
+        echo printf('I need %d %s and %s before %s',
+            \ a:howmany,
+            \ a:food,
+            \ reduce(a:000, {a, c -> a .. ' and ' .. c}),
+            \ a:when)
+    endfu
+    call Order('carrots', 3, v:none, 'a tomato', 'a potato')
+
+    I need 3 carrots and a tomato and a potato before tomorrow~
+
+###
+### How to specify a default expression to a function argument, and make it optional at the call site?
+
+In the function header, assign it the default expression after an equal sign:
+
+    fu Func(mandatory arg, optional arg = default expression)
+                                        ^------------------^
+
+Example:
+
+    fu Order(food, howmany = 10)
+        echo printf('I need %d %s', a:howmany, a:food)
+    endfu
+    call Order('carrots', 3)
+    call Order('onions')
+
+    I need 3 carrots~
+    I need 10 onions~
+
+For more info, see `:h optional-function-argument`.
+
+#### When is a default expression evaluated:
+##### at the time of:  the function definition, or the function call?
+
+At the time of the function call.  This allows you to use an expression which is
+invalid the moment the function is defined.
+
+    "                        not defined yet
+    "                        v---v
+    fu Order(food, howmany = s:var)
+        echo printf('I need %d %s', a:howmany, a:food)
+    endfu
+    call Order('carrots', 3)
+    let s:var = 10
+    call Order('onions')
+
+    I need 3 carrots~
+    I need 10 onions~
+
+Here, notice how no error is raised,  even though `s:var` did not exist when the
+function was defined.
+
+##### all the time, or only when no matching argument was specified during a call?
+
+Only when no matching argument was specified during a call.
+
+    let s:list = [1, 2, 3]
+    fu Func(l = map(s:list, {_, v -> v + 1}))
+    endfu
+    call Func([])
+    echo s:list
+    [1, 2, 3]~
+
+    let s:list = [1, 2, 3]
+    fu Func(l = map(s:list, {_, v -> v + 1}))
+    endfu
+    call Func()
+    echo s:list
+    [2, 3, 4]~
+
+Notice how  in the first  example, `s:list` is not  altered, because a  list was
+passed to `Func()` when the latter was called, thus Vim did not have to evaluate
+the default expression to get a value.
+
+OTOH, in the second example, `s:list` *is* altered because no list was passed to
+`Func()`, thus Vim had to evaluate the default expression to get a value.
+
+####
+#### On which condition can I refer to an argument in a default expression?
+
+The argument you want  to refer to must be positioned  *before* the one matching
+your default expression.
+
+So, this works:
+
+    fu Order(food, howmany = a:food ==# 'carrots' ? 3 : 5)
+        echo printf('I need %d %s', a:howmany, a:food)
+    endfu
+    call Order('carrots')
+
+    I need 3 carrots~
+           ^
+
+    fu Order(food, howmany = a:food ==# 'carrot' ? 3 : 5)
+        echo printf('I need %d %s', a:howmany, a:food)
+    endfu
+    call Order('tomatoes')
+
+    I need 5 tomatoes~
+           ^
+
+But not this:
+
+    fu Order(food = a:howmany == 3 ? 'carrots' : 'tomatoes', howmany = 3)
+        echo printf('I need %d %s', a:howmany, a:food)
+    endfu
+    call Order()
+
+    E121: Undefined variable: a:howmany~
+
+####
+### My function accepts 2 optional named arguments.
+
+    fu Order(food, howmany = 10, when = 'tomorrow')
+        echo printf('I need %d %s before %s', a:howmany, a:food, a:when)
+    endfu
+
+#### How to specify a value for the 2nd argument, without re-specifying the default expression of the 1st one?
+
+Use the special value `v:none`.
+
+    fu Order(food, howmany = 10, when = 'tomorrow')
+        echo printf('I need %d %s before %s', a:howmany, a:food, a:when)
+    endfu
+
+    call Order('carrots', v:none, 'tomorrow')
+                          ^----^
+
+    I need 10 carrots before tomorrow~
+           ^^
+
+---
+
+Note that  this means  you cannot  pass `v:none`  as an  ordinary value  when an
+argument  has a  default expression.   Being able  to use  named arguments  in a
+function call could work around this issue.  See `:h todo /named arguments`:
+
+>     Implement named arguments for functions with optional arguments:
+>         func Foo(start, count = 1, all = 1)
+>         call Foo(12, all = 0)
+
+###
+### Why should I never write something like `get(a:, '1', {expr})`?
+
+First, optional named arguments are easier to read.
+
+They don't  require you  to invoke  `get()` multiple times,  nor to  write `...`
+which always triggers many questions in the reader's mind:
+
+   - how many optional arguments does the function expect?
+   - how will the function name them in its body?
+   - will the function assign them default values?  if so, which ones?
+
+As an example, compare this:
+
+    fu Func(...)
+        let var1 = get(a:, '1', 'foo')
+        let var2 = get(a:, '2', 'bar')
+        let var3 = get(a:, '3', 'baz')
+    endfu
+
+To this:
+
+    fu Func(var1 = 'foo', var2 = 'bar', var3 = 'baz')
+    endfu
+
+Or even to this:
+
+    fu Func(var1 = 'foo',
+          \ var2 = 'bar',
+          \ var3 = 'baz')
+    endfu
+
+---
+
+Second, at a call site, suppose you want to specify a non-default value just for
+one of the  *middle* optional arguments.  Using the previous  example; let's say
+we  want to  specify the  value `abc`  for the  optional `var2`  argument.  With
+`...`, we would have to write:
+
+    fu Func(...)
+        let var1 = get(a:, '1', 'foo')
+        let var2 = get(a:, '2', 'bar')
+        let var3 = get(a:, '3', 'baz')
+    endfu
+    call Func('foo', 'abc')
+              ^---^
+
+Notice how we've been  forced to repeat the default value  of the first argument
+at the  call site.   And we've  lost an information:  when reading  the function
+call, we don't know  that `foo` is the default value of  the first argument.  We
+have to compare it to the default value assigned in the function's body:
+
+    fu Func(...)
+        let var1 = get(a:, '1', 'foo')
+        "                       ^---^
+        let var2 = get(a:, '2', 'bar')
+        let var3 = get(a:, '3', 'baz')
+    endfu
+    call Func('foo', 'abc')
+              ^---^
+
+Here, it looks trivial; but in practice, it may not:
+
+   - the function could be defined in another file
+
+   - the assignment could be hard to find (written in the middle of a long function's body)
+
+   - without reading the function's header, there's no reason to assume that
+     `foo` is  the default value  of an  optional argument; thus,  you'll rarely
+     make the comparison
+
+OTOH, with an optional named argument, we could simply write:
+
+    fu Func(var1 = 'foo', var2 = 'bar', var3 = 'baz')
+    endfu
+    call Func(v:none, 'abc')
+              ^----^
+
+Here, no repetition, and no loss of information.
 
 ##
 # Heredoc
@@ -1539,6 +1874,13 @@ that  its purpose  is to  remove items;  and when  it does  remove one  item, it
 necessarily alters the next ones, because their indexes are not updated as we've
 just seen before.
 
+## Refactor our vimrc/plugins to make function calls with many arguments more readable.
+
+Look at the `Function calls` section in this file; one of its questions is:
+"I have a function call with many arguments how to make it more readable?"
+
+##
+##
 ##
 ##
 ##
@@ -1832,47 +2174,6 @@ compte.
 En vimscript, une procédure est appelée via la commande Ex `:call`.
 
 ## Arguments
-
-On  peut  définir  une  fonction  qui attend  des  arguments  identifiés  (named
-arguments) limités à  20, ainsi que des arguments  supplémentaires et optionnels
-(représenté par '...').
-
----
-
-Les arguments  optionnels sont utiles pour  permettre de modifier la  valeur par
-défaut de certaines variables utilisées au sein de la fonction.
-
-Ex:
-
-    fu MyFunc(...)
-        let var1 = get(a:, '1', 'foo')
-        let var2 = get(a:, '2', 'bar')
-        let var3 = get(a:, '3', 'baz')
-    endfu
-
-Ici MyFunc() attribue par défaut les valeurs 'foo', 'bar' et 'baz' aux variables
-var1, var2 et  var3, mais permet de  modifier certaines d'entre elles  si on lui
-passe des valeurs en argument (a:1, a:2, a:3).
-Toutefois, on ne peut pas modifier n'importe quel sous-ensemble de variables.
-Seulement, [var1], [var1, var2] et [var1, var2, var3].
-IOW, seulement un sous-ensemble continu qui débute par var1.
-Pex on ne pourrait pas modifier:
-
-   - [var1, var3] car il n'est pas continu; il manque var2
-   - [var2, var3] car bien que continu il ne commence pas par var1
-
-De ce fait, qd on écrit MyFunc() il faut veiller à affecter a:1 à la variable la
-plus susceptible d'être modifiée.
-a:2 à la 2e ayant le + de chances d'être modifiée.
-a:3 à celle ayant le moins de chances d'être modifiée.
-Pk ?
-Supposons qu'on  affecte a:3 à  la variable  var1, qui est  celle ayant le  + de
-chances d'être modifiée.
-À chaque fois qu'on voudra modifier var1,  il faudra passer 3 valeurs à MyFunc()
-donc modifier aussi var2 et var3, qui n'en auront peut-être pas besoin.
-Auquel cas, il faudra passer à MyFunc() les valeurs par défaut de var2 et var3.
-
----
 
 Depuis une fonction on peut accéder en lecture à un argument (a:bar) mais pas en
 écriture.

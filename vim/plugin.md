@@ -1521,6 +1521,18 @@ Offers the following default keybindings, which can be customized:
 
 <https://github.com/AndrewRadev/splitjoin.vim> 5165 sloc
 
+---
+
+Alternative limited to function arguments, lists and dictionaries:
+<https://github.com/FooSoft/vim-argwrap> 405 sloc
+
+ArgWrap is an industrial strength argument wrapping and unwrapping extension for
+the Vim text editor.
+It can  be used for collapsing  and expanding everything from  function calls to
+array and dictionary definitions.
+All operations are  easily reversible and correctly preserve  the indentation of
+the surrounding code.
+
 ## stable-windows
 
 Keeps vim windows stable when layout changes.
