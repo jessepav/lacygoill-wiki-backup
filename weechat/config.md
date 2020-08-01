@@ -281,8 +281,8 @@ Remap all of them, so that they use a different prefix.
 
 Study the differences between `/set` and `/fset`.
 Whenever we've used  some `/set` commands in our notes,  make sure `/fset` would
-not have been more appropriate; in  particular, maybe `/fset` allows us to avoid
-some wildcards...
+not have been more appropriate; in  particular, maybe `/fset` lets us avoid some
+wildcards...
 
 I think that  when you have two  wildcards and a `/set` command,  you should use
 `/fset` instead:

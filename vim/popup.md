@@ -332,21 +332,6 @@ The job associated to the terminal buffer has probably finished (`F` flag in the
 output of `:ls`); the restriction has been lifted.
 
 ##
-## `'signcolumn'` is sometimes reset in my popup!
-
-Check whether your plugin invokes `popup_setoptions()`.
-If it does, you'll need to reset `'signcolumn'` right afterward.
-
-MWE:
-
-    " source this
-    let id = popup_create('some text', {})
-    call setwinvar(id, '&signcolumn', 'yes')
-    echom 'in the popup, ''signcolumn'' is set to '..getwinvar(id, '&signcolumn')
-    call popup_setoptions(id, {})
-    echom 'in the popup, ''signcolumn'' is set to '..getwinvar(id, '&signcolumn')
-    " check the output of :messages
-
 ## `popup_settext()` alters the contents of a regular buffer (buftype != "popup")!
 
 If  your popup  was  created to  display  a regular  buffer  (i.e. the  `{what}`

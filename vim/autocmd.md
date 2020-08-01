@@ -1277,7 +1277,7 @@ le flag `nested` juste avant la commande de A.  Exemple:
 
 Document that you can use a regular pattern, and not just a file pattern, as the
 pattern of an autocmd.
-This allows you to use lookarounds:
+This lets you use lookarounds:
 
 From `:h file-pattern`:
 

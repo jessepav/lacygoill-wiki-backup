@@ -929,7 +929,7 @@ Example:
 
 ### What's the purpose of a style?
 
-It allows you to configure a mechanism, such as the completion.
+It lets you configure a mechanism, such as the completion.
 In particular, a style can configure  how the matches are generated, similarly
 to shell options but with much more control.
 
@@ -1103,7 +1103,7 @@ it will additionally complete directory names.
 Let's now create a similar completion definition for zsh.
 To achieve this, you already run into the need to write a shell function.
 File completion is handled by a `_files` function.
-This supports a -g option that allows  you to specify a glob pattern to restrict
+This supports  a -g  option that  lets you  specify a  glob pattern  to restrict
 completion to certain types of files.
 In zsh 4.0, you can't specify these arguments with compdef.
 1 It is still very simple, however:

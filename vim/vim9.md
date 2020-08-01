@@ -8,8 +8,32 @@ You can't get that kind of performance with a `:fu` function.
 
 ### When is it compiled?
 
-When the  function is  first called,  or when `:defcompile`  is executed  in the
-script where the function is defined.
+   - when the function is first called
+   - when `:defcompile` is executed in the script where the function is defined (*)
+   - when it's disassembled by `:disassemble`
+
+(*) Note that this is true only if the function was defined earlier:
+```vim
+vim9script
+defcompile
+def Func()
+    let x: string
+    let x: number
+enddef
+```
+The previous doesn't raise any error, even though we try to change the type of a
+variable which is not allowed.  This means that `Func()` was not compiled.
+Had you  moved `:defcompile` *after* `Func()`,  an error would have  been raised
+during type checking which itself occurs during the compilation:
+```vim
+vim9script
+def Func()
+    let x: string
+    let x: number
+enddef
+defcompile
+```
+    E1017: Variable already declared: x~
 
 ##
 ## What is type checking?
@@ -173,41 +197,172 @@ Remember that an argument can be specified in 3 ways:
 The first one is for mandatory arguments; the last two for optional ones.
 
 ##
-## What's the default scope of
-### a function?
+## Where does Vim look for a function whose name is not prefixed with `s:` nor `g:`?
 
-It's local to the current script.
+Vim looks in:
 
-    vim9script
-    def Func()
-        echo expand('<sfile>')
+   - the current block, if there is one
+   - the outer block, if there is one; the process repeats itself as long as there is an outer block
+   - the outer function, if there is one
+   - the script
+   - the imported functions
+
+For more info, see `:h vim9-scopes`:
+
+>     When referring to a function and no "s:" or "g:" prefix is used, Vim will
+>     search for the function in this order:
+>     - Local to the current scope and outer scopes up to the function scope.
+>     - Local to the current script file.
+>     - Imported functions, see `:import`.
+
+---
+```vim
+vim9script
+def Func()
+enddef
+fu Func
+```
+        v-----v
+    def <SNR>1_Func()
     enddef
-    Func()
 
-    function <SNR>1_Func~
-             ^-----^
-
-### a *nested* function?
-
-It's local to the outer function.
-
-    vim9script
-    def FuncA()
-        def FuncB()
-        enddef
+This shows that  Vim looks for a  function invoked from the script  level in the
+script namespace.
+```vim
+vim9script
+def Inner()
+    echo 'script level'
+enddef
+def Outer()
+    def Inner()
+        echo 'local to Outer()'
     enddef
-    FuncB()
+    Inner()
+enddef
+Outer()
+```
+    script level
 
-    E117: Unknown function: FuncB~
+TODO: The output should be `local to Outer()`.  Probably a bug.
+Revisit this snippet if this issue is fixed: <https://github.com/vim/vim/issues/6586>
+```vim
+vim9script
+mkdir('/tmp/import', 'p')
+let lines =<< trim END
+vim9script
+export def Func()
+    echo 'imported'
+enddef
+END
+writefile(lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+def Func()
+echo 'script level'
+enddef
+import Func from 'foo.vim'
+Func()
+```
+script level
 
-    vim9script
-    def FuncA()
-        def FuncB()
-        enddef
-        FuncB()
-    enddef
-    FuncA()
-    ✔
+This shows that Vim searches for a  function in the script *before* searching in
+the imported ones.   It doesn't matter whether the function  at the script level
+is legacy or not.
+
+####
+## When can I delete a `:def` function?
+
+Always, except if it's local to a Vim9 script.
+```vim
+vim9script
+def s:Func()
+enddef
+delfu s:Func
+```
+    E1084: Cannot delete Vim9 script function s:Func
+```vim
+vim9script
+def g:Func()
+enddef
+delfu g:Func
+```
+✔
+```vim
+def s:Func()
+enddef
+delfu s:Func
+```
+✔
+```vim
+def g:Func()
+enddef
+delfu g:Func
+```
+✔
+
+### What about a `:fu` function?
+
+Same answer: always, except if it's local to a Vim9 script.
+```vim
+vim9script
+fu s:Func()
+endfu
+delfu s:Func
+```
+    E1084: Cannot delete Vim9 script function s:Func
+```vim
+vim9script
+fu g:Func()
+endfu
+delfu g:Func
+```
+✔
+```vim
+fu s:Func()
+endfu
+delfu s:Func
+```
+✔
+```vim
+fu g:Func()
+endfu
+delfu g:Func
+```
+✔
+
+##
+## The following snippet raises `E477` and `E193`:
+```vim
+vim9script
+def Func()
+    echom 'one'
+enddef
+def! Func()
+    echom 'two'
+enddef
+Func()
+```
+    E477: No ! allowed~
+    two~
+    E193: :enddef not inside a function~
+    one~
+
+### Why?
+
+You can't replace a script-local function.
+
+>     In Vim9 script, script-local functions are defined once when the script is sourced
+>     and cannot be deleted or replaced.
+
+This explains why `E477` is raised.
+As  a  result, `:def!`  does  not  start a  function  definition,  and the  next
+`:enddef` does not match any `:def`; this explains `E193`.
+
+### Ok.  But why are the bodies of the 2 function definitions executed in reverse order?
+
+The second  `echom` is *not*  parsed inside  a function (because  `:def!` raised
+`E477`); it's parsed at the script level, and executed immediately.
+
+Later, `Func()` is run.
 
 ##
 # Comments
@@ -302,10 +457,12 @@ Everywhere else, neither `"` nor `#` work.
 
    - constants
    - variables
-   - functions
+   - `:def` functions
    - classes
 
-## How to export one item?
+See `:h :export`.
+
+## How to export an item?
 
 Prefix the command which defines it with `:export`:
 
@@ -329,31 +486,9 @@ Example for a function:
         # ...
     enddef
 
-## How to export several items in a single command?
-
-First, define them as usual.
-Then,  export  all of  them  after  wrapping  them  inside curly  brackets,  and
-separating them with commas:
-
-    vim9script
-
-    const MYCONST = 123
-    let var = 'test'
-    def Func()
-        # ...
-    enddef
-
-    export {MYCONST, var, Func}
-           ^------------------^
-
-Note: It doesn't work at the moment:
-
-    E1043: Invalid command after :export~
-
-Probably a bug, or the feature has not been implemented yet.
-
 ##
-## On which condition can I export items in a script?
+## On which condition can I
+### export items in a script?
 
 The script must start with `:vim9script`.
 
@@ -365,7 +500,7 @@ The script must start with `:vim9script`.
     export const MYCONST = 123
     ✔
 
-## On which condition can I import items from a script?
+### import items from a script?
 
 None.
 In particular, you can import items even while you're in a legacy Vim script.
@@ -425,6 +560,31 @@ Vim9 script.
 
 Here,  the legacy  script  *can*  refer to  `g:global`,  because  it's a  global
 variable; not a variable local to the Vim9 script.
+
+## Which items can be exported without being script-local?
+
+Only functions and classes.
+
+Indeed, you can't  export a public constant or variable,  because you can't even
+declare it:
+```vim
+vim9script
+let g:var = 123
+```
+    E1016: Cannot declare a global variable: g:var
+
+So you can't export it either:
+```vim
+vim9script
+export let g:var = 123
+```
+    E1016: Cannot declare a global variable: g:var
+    E1044: export with invalid argument
+
+Btw, when I said "public constant or variable", I meant any constant or variable
+that is  not in a  namespace restricted to one  single script (i.e.  `b:`, `g:`,
+`t:`, `w:`); as  a result, your script has  no guarantee that if it  sets such a
+constant/variable, it won't be overwritten by another script.
 
 ##
 # Import
@@ -572,7 +732,7 @@ When you want to split up a large plugin into several files.
 
 ### in an arbitrary location?
 
-Rarely if ever.
+Rarely, if ever.
 
 ### in an `import/` subdirectory?
 
@@ -675,18 +835,57 @@ Or, in a file whose first command is `:vim9script`.
 
 It  makes Vim  put all  variables  and functions  defined  in the  script, in  a
 namespace specific  to the latter.   As a result, you  don't need to  write `s:`
-anymore; it's implicit:
+anymore; it's implicit.
 
-    " legacy
+In Vim script legacy:
+
     let s:var = 123
-    fu s:Func()
+    fu s:LegacyFunc()
     endfu
+    def s:Vim9Func()
+    enddef
 
-    " Vim9
+    echo s:var
+    fu s:LegacyFunc
+    def s:Vim9Func
+
+In Vim9:
+
     vim9script
     let var = 123
-    def Func()
+    fu LegacyFunc()
+    endfu
+    def Vim9Func()
     enddef
+
+    echo var
+    fu LegacyFunc
+    def Vim9Func
+
+Unless you explicitly specify another namespace:
+
+    vim9script
+    g:var = 123
+    def g:Func()
+    enddef
+
+Or a function name contains a `#`:
+
+    $ mkdir -p /tmp/some/autoload
+
+    $ cat <<'EOF' >/tmp/some/autoload/some.vim
+        vim9script
+        def some#func()
+        enddef
+    EOF
+
+    $ vim -Nu NORC --cmd 'set rtp^=/tmp/some'
+    :call some#func()
+    :def some#func
+    def some#func~
+    enddef~
+    " notice how we didn't need <SNR> when calling the function,
+    " and how there is no <SNR> in the header of the function definition as reported by ":def"
 
 ---
 
@@ -754,6 +953,14 @@ script-local) *can* be declared, but can't be deleted.
 
     E1081: Cannot unlet var~
 
+---
+
+See `:h vim9-declaration /Global`:
+
+>     Global, window, tab, buffer and Vim variables can only be used
+>     without `:let`, because they are are not really declared, they can also be
+>     deleted with `:unlet`.
+
 ## How to prevent a variable from being accessible in a later statement?
 
 Put it inside a `{}` block:
@@ -813,15 +1020,11 @@ See `:h type-inference`.
 ## What's the evaluation of `123 || 0` in
 ### legacy Vim script?
 
-1
-
     echo 123 || 0
 
     1~
 
 ### Vim9 script?
-
-123
 
     vim9script
     echo 123 || 0
@@ -829,25 +1032,71 @@ See `:h type-inference`.
     123~
 
 ##
+## How is `expr1 && expr2` evaluated in Vim9 script?
+
+Some types have a "neutral" value:
+
+   - Number: 0
+   - Float: 0.0
+   - String: ''
+   - List: []
+   - Dictionary: {}
+   - None: v:none
+
+The second operand always wins, unless the first one is neutral; then the latter
+wins.
+
+### What about `expr1 || expr2`?
+
+The first operand always wins, unless the second one is neutral; then the latter
+wins.
+
+##
+## `:h vim9` says that `'ignorecase'` is not used for comparators that use strings.
+
+From `:h vim9 /comparators`:
+
+>     Comparators ~
+>
+>     The 'ignorecase' option is not used for comparators that use strings.
+
+### And yet, we can still use `=~#` and `=~?`.  Doesn't this contradict the previous help excerpt?
+
+No, because neither `=~#` nor `=~?` inspect the value of `'ignorecase'`.
+They don't care how the user configured the option.
+```vim
+vim9script
+set noic
+def Func()
+    echo 'abc' =~? 'ABC'
+enddef
+Func()
+```
+    v:true
+
+##
 # Pitfalls
-## My `:def` function raises `E488`.  I don't understand why!
+## When I try to assign a value to a list or a dictionary, `E696` is raised!
+```vim
+vim9script
+let l = [1 , 2 , 3]
+```
+    E696: Missing comma in List: , 2, 3]
 
-Maybe you have a folding marker at the end of the `:def` line:
+You can no longer separate a list or dictionary item from the next comma with whitespace.
 
-    vim9script
-    def Func() #{{{1
-    enddef
-    defcompile
+    let l = [1 , 2 , 3]
+              ^   ^
+              ✘   ✘
 
-    E488: Trailing characters~
+Remove the whitespace:
+```vim
+vim9script
+let l = [1, 2, 3]
+```
+    ✔
 
-If so, make sure you specify a return type.  Use `void` if the function does not
-return anything:
-
-    vim9script
-    def Func(): void #{{{1
-    enddef
-    defcompile
+This requirement was introduced in 8.2.1326.
 
 ## If I specify the return type of a custom function, what should I pay attention to?
 
@@ -885,24 +1134,58 @@ Fix:
     enddef
     defcompile
 
-## Vim unexpectedly close the current window when I call a function where I omit to declare an `x` variable!
+## Vim unexpectedly populates the arglist when I call a function where I omit to declare an `n` variable!
 
-`x` is a valid Ex command (it's the abbreviated form of `:xit`).
+`n` is a valid Ex command (it's the abbreviated form of `:next`).
 So this is expected:
 
     vim9script
     def Func()
-        x = 1
+        n = 123
     enddef
     Func()
+    args
 
 Solution: don't forget to declare your variable:
 
     vim9script
     def Func()
-        let x = 1
+        let n = 123
     enddef
     Func()
+    args
+
+---
+
+The same issue applies to other single-letter variable names:
+
+    ┌───┬───────────────────────────────────────────┐
+    │ b │ E94: No matching buffer for = 123         │
+    ├───┼───────────────────────────────────────────┤
+    │ e │ edit file '= 123'                         │
+    ├───┼───────────────────────────────────────────┤
+    │ f │ E95: Buffer with this name already exists │
+    ├───┼───────────────────────────────────────────┤
+    │ g │ global command (equivalent to 'g/123')    │
+    ├───┼───────────────────────────────────────────┤
+    │ h │ E149: Sorry, no help for = 123            │
+    ├───┼───────────────────────────────────────────┤
+    │ m │ E16: Invalid range                        │
+    ├───┼───────────────────────────────────────────┤
+    │ o │ edit file '= 123'                         │
+    ├───┼───────────────────────────────────────────┤
+    │ r │ E484: Can't open file = 123               │
+    ├───┼───────────────────────────────────────────┤
+    │ s │ E486: Pattern not found:  123             │
+    ├───┼───────────────────────────────────────────┤
+    │ t │ E16: Invalid range                        │
+    ├───┼───────────────────────────────────────────┤
+    │ v │ vglobal command                           │
+    ├───┼───────────────────────────────────────────┤
+    │ w │ E139: File is loaded in another buffer    │
+    ├───┼───────────────────────────────────────────┤
+    │ z │ E144: non-numeric argument to :z          │
+    └───┴───────────────────────────────────────────┘
 
 ##
 ## My eval string can't access variables in the outer function scope!
@@ -1269,27 +1552,14 @@ For the moment, the only workaround I can think of, is to use an extra variable:
 Test:
 
     $ vim ~/Vcs/vim/src/evalfunc.c
-    " press:  gg O e_a C-x C-o
+    " press:  gg O e C-x C-o
+                   ^
+                   inserted text: don't write too much; it could prevent some functions
+                   from being invoked (we want to test as many functions as possible)
 
 ---
 
 <https://vi.stackexchange.com/questions/26406/how-does-ft-c-omni-work-and-how-can-i-make-it-faster>
-
----
-
-There is an issue with a Vim9 fold marker:
-
-    #{{{1
-
-It breaks the syntax highlighting of everything which comes afterward.
-I think it has to do with `:h literal-Dict`.
-Workaround:
-
-    # {{{1
-     ^
-     add a space
-
-Report, document, integrate, ...
 
 ## Try to move all our library functions (`vim-lg`) into an `import/` subdirectory.
 
@@ -1308,4 +1578,110 @@ After:
 Obviously, you would need to prefix the functions definitions with `:export`.
 And you would need to import them in any plugin where they are required.
 But the end result will still be much more readable.
+
+##
+## To document:
+### cannot redefine a script-local or block-local or imported function
+
+Wait for these issues to be fixed before documenting this:
+
+- <https://github.com/vim/vim/issues/6581>
+- <https://github.com/vim/vim/issues/6583>
+
+### a block-local function is inherited by all nested blocks
+```vim
+vim9script
+def Outer()
+    if 1
+        def Inner()
+            echo 'inner'
+        enddef
+        if 1
+            Inner()
+        endif
+    endif
+enddef
+Outer()
+```
+    inner
+
+Just like a variable:
+```vim
+vim9script
+def Func()
+    if 1
+        let n = 123
+        if 1
+            echo n
+        endif
+    endif
+enddef
+Func()
+```
+    123
+
+### cannot nest a script-local function
+
+Wait for this issue to be fixed before documenting this:
+
+<https://github.com/vim/vim/issues/6582>
+
+### imported items are local to the script
+
+This is suggested at `:h vim9-scopes`:
+
+>     The result is that functions and variables without a namespace can always be
+>     found in the script, either defined there or imported.
+
+---
+
+    imported constant
+```vim
+vim9script
+let lines =<< trim END
+    vim9script
+    export const s:MYCONST = 123
+END
+writefile(g:lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+import MYCONST from 'foo.vim'
+echo s:MYCONST
+```
+    123
+
+---
+
+    imported variable
+```vim
+vim9script
+let lines =<< trim END
+    vim9script
+    export let s:var = 123
+END
+writefile(g:lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+import var from 'foo.vim'
+echo s:var
+```
+    123
+
+---
+
+    imported function
+```vim
+vim9script
+let lines =<< trim END
+    vim9script
+    export def Imported()
+        echo 'imported'
+    enddef
+END
+writefile(lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+import Imported from 'foo.vim'
+fu Imported
+```
+       def <SNR>2_Imported()
+    1      echo 'imported'
+       enddef
 

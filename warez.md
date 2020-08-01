@@ -223,8 +223,8 @@ This example could name a file like so:
         │    └ %(title)s
         └ %(autonumber)02d
 
-The  item `%(autonumber)0Nd`  allows you  to number  the downloaded  files, when
-there are several (e.g. playlist); 2 specifies the number of digits to use.
+The item `%(autonumber)0Nd` lets you number the downloaded files, when there are
+several (e.g. playlist); 2 specifies the number of digits to use.
 
 If you think you're going to download between 10 and 99 videos, use 2.
 Between 100 and 999 videos, use 3.

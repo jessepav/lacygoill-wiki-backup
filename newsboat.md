@@ -147,8 +147,8 @@ It’s  even possible  to  integrate  the output  of  external  commands into  t
 configuration.
 The text between two backticks (`) is evaluated as shell command, and its output
 is put on its place instead.
-This works like backtick evaluation in Bourne-compatible shells and allows users
-to use external information from the system within the configuration.
+This works like  backtick evaluation in Bourne-compatible shells  and lets users
+use external information from the system within the configuration.
 Backticks  can be  escaped  with a  backslash  (\`); in  that  case, they’ll  be
 replaced with a literal backtick in the configuration.
 

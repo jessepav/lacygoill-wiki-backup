@@ -377,7 +377,7 @@ You can find it in the `format_replace()` function from the `format.c` file.
             modifiers |= FORMAT_LITERAL;
             break;
 
-It allows you to prevent characters in a string from being interpreted specially.
+It lets you prevent characters in a string from being interpreted specially.
 
 You can find several usage examples in tmux codebase:
 

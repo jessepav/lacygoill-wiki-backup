@@ -650,7 +650,7 @@ You can try it on this text:
 To  prevent the  parentheses  of  a contained  region  from  matching where  the
 parentheses of the containing region matched.
 
-### What in the snippet allows Vim to find the right closing parentheses?
+### What in the snippet lets Vim find the right closing parentheses?
 
 The fact that the regions form a cycle:
 
@@ -1884,19 +1884,19 @@ MWE:
 The output of the last command should be empty, but it's not.
 
 From `:h 44.9`:
+
 >     The `:syntax  include` command is  clever enough  to ignore a  `:syntax clear`
 >     command in the included file.
 
 Solution:
 Clear (then customize if you want) the syntax group from an autocmd listening to `Syntax`.
 
-    augroup syntax_fix_embedding
-        au!
-        au Syntax markdown call s:fix_embedding()
+    augroup markdown_fix_fenced_code_block | au!
+        au Syntax markdown call s:markdown_fix_fenced_code_block()
     augroup END
 
-    fu s:fix_embedding() abort
-        if execute('syn list @markdownEmbedzsh', 'silent!') !~# 'markdownEmbedzsh'
+    fu s:markdown_fix_fenced_code_block() abort
+        if execute('syn list @markdownHighlightzsh', 'silent!') !~# 'markdownHighlightzsh'
             return
         endif
         syn clear zshBrackets
@@ -2523,6 +2523,22 @@ with the default one too:
     EOF
 
     $ vim --clean -O /tmp/md.md /tmp/vim.vim --cmd 'let g:markdown_fenced_languages = ["vim"]'
+
+---
+
+And here:
+```vim
+MyCmd
+```
+Notice how `MyCmd` is highlighted with `vimVar`; it should be highlighted with `vimUsrCmd`.
+
+---
+
+And here:
+```vim
+Func()
+```
+Notice how `Func` is highlighted with `vimCommand`; it should be highlighted with `vimUserFunc`.
 
 ##
 # Reference

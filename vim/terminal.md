@@ -169,8 +169,8 @@ There seems to be a limit size on the sequence you can send via OSC 51.
 
 If  you have  to execute  a very  long command  (e.g. if  it includes  many file
 paths), write most of it inside a temporary file, and let the outer Vim read it.
-This allows you  to shorten the sequence;  you just have to include  the name of
-the temporary file.
+This lets  you shorten the sequence;  you just have  to include the name  of the
+temporary file.
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         term

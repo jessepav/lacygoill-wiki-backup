@@ -278,8 +278,8 @@ Its tty is `/dev/console` (device type 5:1).
 Combination of a database and a subroutine library.
 
 The database describes the capabilities of different terminals.
-The subroutine  allows programs  to query  the database  and use  the capability
-values it contains.
+The subroutine lets programs query the database and use the capability values it
+contains.
 
 It  controls visual  attributes of  the  terminal, and  tells a  screen-oriented
 program (as opposed to a line-oriented program like `sed`):

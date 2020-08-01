@@ -186,8 +186,8 @@ Source: <https://github.com/zsh-users/zsh/blob/master/Functions/Example/pushd>
 
     man zshcontrib /REMEMBERING RECENT DIRECTORIES
 
-The  function cdr  allows you  to  change the  working directory  to a  previous
-working directory from a list maintained automatically.
+The function  cdr lets you  change the working  directory to a  previous working
+directory from a list maintained automatically.
 It is similar  in concept to the  directory stack controlled by  the pushd, popd
 and dirs  builtins, but is  more configurable, and as  it stores all  entries in
 files  it  is maintained  across  sessions  and  (by default)  between  terminal
@@ -248,7 +248,7 @@ Nothing is printed and the directory is not changed.
 
 #### -e
 
-Allows you to edit the list of directories, one per line.
+Lets you edit the list of directories, one per line.
 The list can be edited to any extent you like; no sanity checking is performed.
 Completion is available.
 

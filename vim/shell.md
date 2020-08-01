@@ -169,7 +169,7 @@ Old comment:
     "
     " `:CGrep` (and `|g`) relies on `rg(1)` and `'efm'` (because we use `:cgetexpr`).
     " `:PQ` gives us more control on the grep program.
-    " For example, it allows us to pass the argument `-w` to `rg(1)`:
+    " For example, it lets us pass the argument `-w` to `rg(1)`:
     "
     "    ┌─────────────────────────┬──────────────────────────────────────────────────────┐
     "    │ :CGrep              pat │ search any `pat` using   `$ ripgrep --vimgrep -i -L` │

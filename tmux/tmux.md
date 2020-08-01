@@ -255,7 +255,7 @@ meaning:
          it has been preserved because the previous backslash removed its special meaning;
          so now, it's treated as a regular character, and as such, is kept in the output
 
-That's also what allows you to make a key binding run several commands:
+That's also what lets you make a key binding run several commands:
 
     bind C-g display -p hello \; display -p world
                               ^^
@@ -826,7 +826,7 @@ For more info: <https://github.com/tmux/tmux/issues/1755>
 Update: I think it has been fixed by:
 <https://github.com/tmux/tmux/commit/c284ebe0ade7cc85ad6c3fe5ce7ed5108119222d>
 
-This commit also allows `source-file` to read its stdin:
+This commit also lets `source-file` read its stdin:
 <https://github.com/tmux/tmux/commit/5134666702ce972390f39e34bed9b60fe566263a>
 
 ##
@@ -933,7 +933,7 @@ Heytmux can read STDIN, so:
 
     $ cat workspace.yml | heytmux
 
-... is also valid. It may seem pointless, but it allows you to do:
+... is also valid. It may seem pointless, but it lets you do:
 
     :w !heytmux
 

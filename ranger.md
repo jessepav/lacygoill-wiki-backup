@@ -695,7 +695,7 @@ The image preview methods `urxvt` and `urxvt_full` can be used with the urxvt te
 
 **NOTE: Requires modification of ranger itself.**
 
-The mpv image preview method allows ranger to control an external client for viewing media. The benefit of this approach is that both images and videos share a single, separate window. Some changes are planned, so this method is not included in ranger yet. If you would like to make the changes youself, here are the steps. The rest of this section assumes `$ranger` is the location of your copy of ranger, not your configuration.
+The mpv image preview method lets ranger control an external client for viewing media. The benefit of this approach is that both images and videos share a single, separate window. Some changes are planned, so this method is not included in ranger yet. If you would like to make the changes youself, here are the steps. The rest of this section assumes `$ranger` is the location of your copy of ranger, not your configuration.
 
 * Add the following lines to the end of `$ranger/ext/img_display.py`:
 ```
@@ -905,7 +905,7 @@ directory path may be seen at the top.
 If you're familiar with `mc` ([Midnight Commander][11]) the first thing you
 may notice is the lack of the second panel for the file navigation. It
 may seem like a limitation but in most cases people use only one panel
-at a time. `ranger` allows you to create new tabs (like in a web
+at a time. `ranger` lets you create new tabs (like in a web
 browser) and switch between them with either `Alt-number` or `Tab`. If
 you open just two tabs, `ranger's` tabs effectively behave just like
 `mc's` panels. And you can even open more if such need arises.
@@ -963,7 +963,7 @@ copied/moved before pasting them.
 (Note that the copy/cut buffers can be used for other operations as
 well, by using the "%c" macro in your commands. For example, adding
 files to the cut/copy buffer using "ya"/"da" then using the `:shell -w
-printf %c | xargs rm` command allows you to delete multiple files in
+printf %c | xargs rm` command lets you delete multiple files in
 multiple directories. Remember to clear the buffer once you're done
 using "ud"/"uy".)
 

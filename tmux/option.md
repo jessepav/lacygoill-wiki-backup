@@ -129,8 +129,8 @@ The option is toggled between on and off.
 
 Yes.
 
-This  is what  allows you  to set  a  pane option  in a  given pane  differently
-compared to all the other panes of the window:
+This is what lets you set a pane  option in a given pane differently compared to
+all the other panes of the window:
 
     $ tmux set -w allow-rename off \; set -p allow-rename on
     $ tmux show -wv allow-rename \; show -pv allow-rename

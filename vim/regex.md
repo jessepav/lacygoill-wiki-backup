@@ -458,7 +458,7 @@ The regex will find `DEF` and `JKL`.
 
 This shows how the atom `\@>` can be useful.
 Here, without it, we would find `AB`, `DEF`, `GH` and `JKL`.
-`\@>` allows us to prevent the backtracking into `\u\{2,}`.
+`\@>` lets us prevent the backtracking into `\u\{2,}`.
 
 ##
 ## all commas outside a double-quoted string?

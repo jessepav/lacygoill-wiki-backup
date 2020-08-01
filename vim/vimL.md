@@ -687,7 +687,7 @@ For more info, see `:h optional-function-argument`.
 #### When is a default expression evaluated:
 ##### at the time of:  the function definition, or the function call?
 
-At the time of the function call.  This allows you to use an expression which is
+At the  time of the  function call.   This lets you  use an expression  which is
 invalid the moment the function is defined.
 
     "                        not defined yet
@@ -1535,6 +1535,44 @@ In a script:
     endtry
 
 For more info, see `:h clear-undo`.
+
+##
+## What happens if
+### I refer to the variable `foo#bar#var` while it doesn't exist?
+
+Vim looks for an autoload file `bar` in a directory `bar`.
+If one is found,  it's sourced, and if `foo#bar#var` is set  in the latter, your
+variable reference won't raise any error.
+
+    $ mkdir -p /tmp/some/autoload/foo
+
+    $ cat <<'EOF' >/tmp/some/autoload/foo/bar.vim
+        let foo#bar#var = 123
+        echom 'all the script is sourced'
+    EOF
+
+    $ vim -Nu NORC --cmd 'set rtp^=/tmp/some' +'echo foo#bar#var'
+    123~
+
+The message "all the script is sourced" shows that Vim sources the entire script.
+It doesn't merely look for a `foo#bar#var` assignment.
+
+For more info, see `:h autoload`.
+
+### I assign a value to the variable `foo#bar#var`?
+
+Aside from the variable being assigned a value, nothing.
+In particular, no autoload script is sourced.
+
+    $ mkdir -p /tmp/some/autoload/foo
+
+    $ cat <<'EOF' >/tmp/some/autoload/foo/bar.vim
+        unsilent echom 'all the script is sourced'
+    EOF
+
+    $ vim -Nu NORC --cmd 'set rtp^=/tmp/some' +'let foo#bar#var = 123'
+
+This time, the message "all the script is sourced" is not printed.
 
 ##
 # Pitfalls
@@ -3447,6 +3485,8 @@ exécution.
            Even if searching from column 0, then ignoring the matches before the
            cursor, gives the same result as  searching from the cursor, it costs
            more time.
+
+           See also: https://github.com/vim/vim/issues/6572#issuecomment-666670144
 
 
                                      NOTE:

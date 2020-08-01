@@ -594,8 +594,8 @@ To avoid:
 The `t` option lists the contents `foo.deb`.
 
 The `v` modifier makes the operations verbose.
-With `t`, it allows  you to see the modes, timestamp, owner,  group, and size of
-the members.
+With `t`, it  lets you see the  modes, timestamp, owner, group, and  size of the
+members.
 
 ---
 

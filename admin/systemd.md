@@ -265,27 +265,27 @@ it omits 'snapshot', and includes 'busname' (no idea what this stands for).
 ## What's the purpose of
 ### a device unit?
 
-It allows  systemd to  start a  service when  a particular  type of  hardware is
-plugged in or becomes available.
+It lets systemd start a service when a particular type of hardware is plugged in
+or becomes available.
 
 ### a mount unit?
 
-It allows systemd to automatically mount a partition during the system boot.
+It lets systemd automatically mount a partition during the system boot.
 
 ### an automount unit?
 
-It allows  systemd to automatically mount  a partition when you  enter its mount
-point via a graphical file manager, or via `cd`.
+It lets systemd  automatically mount a partition when you  enter its mount point
+via a graphical file manager, or via `cd`.
 
 ### a path unit?
 
-It  allows  systemd   to  automatically  start  a  service   when  a  particular
-file/directory is accessed.
+It lets systemd  automatically start a service when  a particular file/directory
+is accessed.
 systemd uses `inotify` to monitor the file/directory.
 
 ### a socket unit?
 
-It allows systemd to create a socket for socket activation.
+It lets systemd create a socket for socket activation.
 However, it doesn't actually start the related service.
 This will be done by a service unit that is associated with the socket unit.
 When  a connection  request  is received,  systemd starts  the  service that  is
@@ -965,7 +965,7 @@ that's not what happens:
                       │
                       └ abbreviation of `--host`
 
-More generally, `-H user@machine` allows you to execute an arbitrary `systemctl`
+More  generally, `-H  user@machine` lets  you execute  an arbitrary  `systemctl`
 command on a remote machine:
 
     $ sudo systemctl -H user@machine <subcommand> <arguments>
@@ -1251,8 +1251,8 @@ Targets can also build or depend on each other.
 For example, graphical.target will wait for multi-user.target to start before it
 launches the graphical user interface.
 
-Where  necessary, the  addition of  "wants" to  the unit  files allows  users to
-manually define dependencies between units.
+Where necessary, the  addition of "wants" to the unit  files lets users manually
+define dependencies between units.
 This can be relevant for services such as the Apache web server, which expects a
 fully configured network environment when it is started.
 These services should depend on the network.target.

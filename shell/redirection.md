@@ -1160,7 +1160,7 @@ With `>(cmd)`, `cmd` is passed the file on its stdin.
 # zsh
 ## What does the MULTIOS option control?
 
-When set, it allows you to redirect standard streams of a process to several files.
+When set, it lets you redirect standard streams of a process to several files.
 Example:
 
     % echo hello >foo >bar

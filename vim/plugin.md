@@ -59,7 +59,7 @@ Vim.
 This allows  for displaying  warnings and  errors in files  being edited  in Vim
 before files have been saved back to a filesystem.
 
-In other words, this plugin allows you to lint while you type.
+In other words, this plugin lets you lint while you type.
 
 <https://github.com/w0rp/ale> 8614 sloc
 
@@ -152,7 +152,7 @@ Apathy sets the five path  searching options — 'path', 'suffixesadd', 'include
 'includeexpr', and 'define' — for file types I don't care about enough to bother
 with creating a proper plugin.
 
-<https://github.com/tpope/vim-apathy> 229 sloc
+<https://github.com/tpope/vim-apathy> 234 sloc
 
 ## argumentative
 
@@ -248,11 +248,11 @@ Text objects, folding, and more for Python and other indented languages.
 
 Live browser editing for Vim.
 
-Browserlink allows you to live edit CSS  files, which are sent to the browser on
+Browserlink lets  you live  edit CSS  files, which  are sent  to the  browser on
 change, without reloading or changing the state of the page.
 
-Browserlink allows you to evaluate buffers or selections of JavaScript directly,
-or even call individual functions within the buffer, for instant feedback in the
+Browserlink lets you  evaluate buffers or selections of  JavaScript directly, or
+even call  individual functions within the  buffer, for instant feedback  in the
 browser.
 
 <https://github.com/jaxbot/browserlink.vim/issues> 2904 sloc
@@ -559,8 +559,8 @@ Highlights and sets error markers for lines with compile errors.
 
 ## expand-region
 
-vim-expand-region  is  a   Vim  plugin  that  allows  you   to  visually  select
-increasingly larger regions of text using the same key combination.
+vim-expand-region is  a Vim  plugin that lets  you visually  select increasingly
+larger regions of text using the same key combination.
 
 - <https://github.com/terryma/vim-expand-region> 226 sloc
 - <https://github.com/landock/vim-expand-region> 231 sloc
@@ -699,7 +699,7 @@ more useful, because each commit has a clearer purpose:
 
 >     I keep track of remaining work by navigating over remaining code chunks.
 >     If I consider a chunk to be completed, I stage it and forget about it.
->     This allows me to easily ignore finished code.
+>     This lets me easily ignore finished code.
 
 >     Staging occurs when my cursor is placed on top of the code to be staged.
 >     That  way I  know  exactly what  code  goes into  the  staging area,  implicitly
@@ -1087,8 +1087,8 @@ Highlight on the fly.
 
 Vim commands to use mathpix from your screen
 
-This  is useful  if you  work with  LaTeX; it  allows you  to convert  a picture
-containing a diagram or an equation into LaTeX source code, and paste it in Vim.
+This is useful if you work with  LaTeX; it lets you convert a picture containing
+a diagram or an equation into LaTeX source code, and paste it in Vim.
 
 <https://github.com/ekiim/vim-mathpix> 37 sloc
 
@@ -1206,8 +1206,12 @@ The wanted outliner!
 
 ---
 
-Also, study this:
+Alternative:
+<https://github.com/msuperdock/vim-foldout> 730 sloc
 
+---
+
+Also, study this:
 <https://github.com/rlue/vim-getting-things-down/> 258 sloc
 
 ---
@@ -1561,6 +1565,8 @@ options for fine-grained customization.
 See also:
 <http://vi.stackexchange.com/a/715/6960>
 
+<https://github.com/hardcoreplayers/dashboard-nvim> 1080 sloc
+
 ## startuptime
 
 Everybody knows  that 1ms could  mean the difference  between life and  death in
@@ -1652,7 +1658,7 @@ Une alternative naïve consiste à utiliser `C-x C-t` et un fichier spécial de 
 
 ## swoop
 
-Allows you to  find and replace occurrences  in many buffers being  aware of the
+Lets  you find  and  replace occurrences  in  many buffers  being  aware of  the
 context.
 
 You can edit  the swoopBuffer and the  changes you applied will be  save for all

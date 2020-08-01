@@ -101,7 +101,7 @@ Example:
      → mv: cannot stat 'x': No such file or directory
        ^^
 
-This is  useful when  you execute  it in a  pipeline, because  it allows  you to
+This  is  useful  when you  execute  it  in  a  pipeline, because  it  lets  you
 immediately know from which simple command in the pipeline the error comes.
 
 However, don't write the name literally.

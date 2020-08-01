@@ -45,3 +45,10 @@ In case you wonder where the previous configuration options come from:
     $ cd xterm-123
     $ vim debian/rules +'/override_dh_auto_configure'
 
+##
+# Todo
+## Find a way to get notified whenever a new version is available.
+
+Try to convert this link into a rss feed:
+
+<https://invisible-island.net/xterm/xterm.log.html>

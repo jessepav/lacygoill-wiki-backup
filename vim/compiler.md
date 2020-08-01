@@ -336,7 +336,7 @@ In practice, this rule is especially useful for this format:
 
     %C%.%#
 
-It allows you to make Vim overread any line in a multi-line output.
+It lets you make Vim overread any line in a multi-line output.
 However, it doesn't extract any information (`%f`, `%l`, `%c`, ...), so you must
 move it at the end of `'efm'`, because Vim should use it as a last resort.
 
@@ -1456,7 +1456,7 @@ Without `%-G`, this line would not be matched by any format:
 So,  Vim would  use the  last format  to  parse this  line, which  would give  a
 non-interactive entry in the qfl.
 
-`%-G` allows you to eliminate that kind of noise.
+`%-G` lets you eliminate that kind of noise.
 
 ##
 # Issues

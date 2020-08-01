@@ -4,7 +4,7 @@
           ^
           notice that there's no slash in front of the name
 
-# Which command allows me to call built-in WeeChat functions from a key binding?
+# Which command lets me call built-in WeeChat functions from a key binding?
 
     /input
 

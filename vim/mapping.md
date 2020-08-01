@@ -3123,6 +3123,17 @@ Although, this omap doesn't work as expected when repeated with `.`.
 It seems we need `:norm` for `.` to work; do we?
 Why though?  I mean `:norm vio` also enters visual mode...
 
+### ?
+
+In the rhs of an `:ono` mapping, should we always use `:h c^u`?
+
+    xno <silent> i- :<c-u>call <sid>horizontal_rules_textobject('inside')<cr>
+    ono <silent> i- :<c-u>norm vi-<cr>
+                     ^---^
+                     ???
+
+Whatever rule you come up with, make sure to enforce it everywhere.
+
 ##
 ## Misc.
 ### ?
@@ -3282,6 +3293,9 @@ fonction custom.
 
 Dans ce cas,  les touches de contrôle  ne seraient pas insérées sur  la ligne de
 commande, mais interprétées comme des actions (validation, mouvement).
+
+Update:  I think that's only true in command-line mode.
+In insert mode, you can use `<c-r>=` to return `<left>`, `<right>`, `<bs>`, ...
 
 ---
 

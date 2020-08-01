@@ -6,7 +6,7 @@ subsections, ... very carefully.
 
 ## use an FAQ format
 
-This allows you to test your memory when reviewing your notes.
+This lets you test your memory when reviewing your notes.
 When you can't remember an info, it may be because the question or the answer is
 not properly written; you can then rephrase it, which in turn improves your notes.
 

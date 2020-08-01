@@ -446,8 +446,8 @@ Network-specific rules:
 
 ## learn how to use cursor mode
 
-Cursor mode  allows you to interact  with some pieces of  information present in
-the buffer more easily.
+Cursor mode  lets you interact  with some pieces  of information present  in the
+buffer more easily.
 For example,  you can  quote someone by  moving your cursor  over a  message and
 pressing `m`.
 

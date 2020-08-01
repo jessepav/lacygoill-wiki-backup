@@ -320,7 +320,7 @@ You can still install the binary with `checkinstall(8)`, and it will work fine.
 
     https://github.com/regnarg/urxvt-config-reload
 
-            This plugin allows you to reload  urxvt configuration at run time by
+            This plugin lets you reload  urxvt configuration at run time by
             sending SIGHUP to the urxvt process.
 
 

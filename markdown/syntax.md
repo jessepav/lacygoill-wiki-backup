@@ -85,7 +85,7 @@ http://images.google.com/images?num=30&amp;q=larry+bird
 Needless to say, this is easy to  forget, and is probably the single most common
 source of HTML validation errors in otherwise well-marked-up web sites.
 
-Markdown allows  you to use these  characters naturally, taking care  of all the
+Markdown  lets you  use  these  characters naturally,  taking  care  of all  the
 necessary escaping for you.
 If  you use  an ampersand  as  part of  an  HTML entity,  it remains  unchanged;
 otherwise it will be translated into &amp;.
@@ -194,7 +194,7 @@ It looks best if you hard wrap the text and put a > before every line:
 > Donec sit amet nisl. Aliquam semper ipsum sit amet velit. Suspendisse
 > id sem consectetuer libero luctus adipiscing.
 
-Markdown allows  you to be lazy  and only put the  > before the first  line of a
+Markdown  lets you  be lazy  and  only put  the >  before  the first  line of  a
 hard-wrapped paragraph:
 
 > This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
@@ -553,8 +553,8 @@ E.g. these two links:
 
 are equivalent.
 
-The implicit  link name shortcut  allows you  to omit the  name of the  link, in
-which case the link text itself is used as the name.
+The implicit  link name shortcut lets  you omit the  name of the link,  in which
+case the link text itself is used as the name.
 Just use an empty set of square brackets.
 E.g., to  link the word  “Google” to the google.com  web site, you  could simply
 write:
@@ -684,8 +684,8 @@ which will produce this:
 
 The backtick  delimiters surrounding a code  span may include spaces,  one after
 the opening, one before the closing.
-This allows you to place literal backtick  characters at the beginning or end of
-a code span:
+This lets  you place literal  backtick characters at the  beginning or end  of a
+code span:
 
 A single backtick in a code span: `` ` ``
 
@@ -791,8 +791,8 @@ eventually start receiving spam.
 
 ## Backslash Escapes
 
-Markdown  allows you  to use  backslash escapes  to generate  literal characters
-which would otherwise have special meaning in Markdown's formatting syntax.
+Markdown lets  you use  backslash escapes to  generate literal  characters which
+would otherwise have special meaning in Markdown's formatting syntax.
 E.g., if  you wanted to  surround a word with  literal asterisks (instead  of an
 HTML `<em>` tag), you could use backslashes before the asterisks, like this:
 

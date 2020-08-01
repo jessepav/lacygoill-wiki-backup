@@ -623,7 +623,7 @@ If you use its name, and it contains spaces, you must quote it.
                             └ name of your VM
 
 ###
-### Which subcommand allows me to change the configuration of a VM?
+### Which subcommand lets me change the configuration of a VM?
 
     modifyvm
 
@@ -761,8 +761,7 @@ This is useful because the VM settings may change from a snapshot to another.
       --description 'my first snapshot' \
       --live
         │
-        └ allows you to create a snapshot
-          while the VM is running
+        └ lets you create a snapshot while the VM is running
 
 `snap1` is inserted  in the snapshots tree  as a child of  the current snapshot,
 and automatically becomes the new current snapshot.

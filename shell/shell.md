@@ -1153,7 +1153,7 @@ For the same reason, don't omit the `-p` option passed to `ps(1)`:
     $ env
 
 You could also use `printenv`, but `env`  is POSIX and more powerful, because it
-also allows you to set an environment variable.
+also lets you set an environment variable.
 
 ## How to get the environment of a shell started from a graphical application?
 

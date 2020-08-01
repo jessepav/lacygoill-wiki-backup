@@ -603,7 +603,7 @@ control in the script.
 
 When debugging a script.
 
-It allows you to  inspect the state of the pattern space  right before running a
+It  lets you  inspect the  state of  the pattern  space right  before running  a
 command.
 
 It's the equivalent of `:echom` in a Vimscript.
@@ -614,7 +614,7 @@ It's the equivalent of `:echom` in a Vimscript.
     $ printf '%s\n' a b c | sed -n '2p'
     b~
 
-The `p` command allows you to print arbitrary lines from sed's input.
+The `p` command lets you print arbitrary lines from sed's input.
 
 ### What's the output of the next command?
 

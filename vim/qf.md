@@ -224,7 +224,7 @@ But you won't get the key `'all'` in the dictionary output.
 ##
 ## What's the 'context' property of a qfl?
 
-It allows you to bind an arbitrary data (string, list, dictionary, ...) to a qfl:
+It lets you bind an arbitrary data (string, list, dictionary, ...) to a qfl:
 
 Usage example:
 
@@ -645,7 +645,7 @@ Then, use the special characters `##` to refer to it:
     :vim /pat2/gj ##
     ...
 
-`##`  allows  you  to abstract  a  complex  set  of  files, and  focus  on  what
+`##`  lets  you abstract  a  complex  set  of  files, and  focus  on  what
 varies/matters:    the pattern.
 
 ## What rarely-mentioned commands are necessary to look for several patterns SIMULTANEOUSLY in a codebase?
@@ -678,7 +678,7 @@ And at any  moment, in case of an  error, you could have moved in  the stack via
 `:colder` and `:cnewer`.
 
 
-The qf stack allows you to bind to each pattern a separate qfl.
+The qf stack lets you bind to each pattern a separate qfl.
 
 ##
 ## How to create a new qfl at the end of the stack?
@@ -1158,10 +1158,10 @@ Use the `'module'` and `'items'` key:
     call setqflist([], 'r',
         \ {'items': map(getqflist(), {_,v -> extend(v, {'module': fnamemodify(bufname(v.bufnr), ':t')})})})
 
-`'module'` allows you to change the text displayed in the filename column.
+`'module'` lets you change the text displayed in the filename column.
 
-`'items'` allows you to update the items in the qfl without affecting its title,
-in a single invocation of `setqflist()`.
+`'items'` lets you update the items in the qfl without affecting its title, in a
+single invocation of `setqflist()`.
 Without `'items'`, you would need two:
 
     let new_qfl = map(getqflist(), {_,v -> extend(v, {'module': fnamemodify(bufname(v.bufnr), ':t')})
@@ -1524,7 +1524,7 @@ much.
 ## ?
 
 Document that `:[cl]history` can be prefixed by a count.
-Doing so allows you to select an arbitrary qfl in the stack.
+Doing so lets you select an arbitrary qfl in the stack.
 
 ## Add a flag in the tab line to warn us when an async command has terminated populating a qfl.
 
@@ -1913,7 +1913,7 @@ It seems we could without it (`:h setqflist-examples`):
     ??? (no equivalent here)
 
     I think we couldn't extract the items of a non-current qfl without 'items'.
-    Also, I think 'items' allows you to replace the items in a qfl without affecting
+    Also, I think 'items' lets you replace  the items in a qfl without affecting
     its title.
 
 

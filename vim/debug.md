@@ -32,8 +32,8 @@ Then read the log.
     EOF
     )
 
-This allows  you to avoid  writing the vimrc  in a file,  which you would  do by
-running 2 commands:
+This lets you avoid writing the vimrc in a file, which you would do by running 2
+commands:
 
     $ cat <<'EOF' >/tmp/vimrc
     cmd1

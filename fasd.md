@@ -1,7 +1,7 @@
 # What's the purpose of fasd?
 
-It  allows  you  to  *quickly  reference*  a file  or  directory  while  on  the
-command-line, provided that you accessed it in the past.
+It lets you  *quickly reference* a file or directory  while on the command-line,
+provided that you accessed it in the past.
 
 ##
 # Installation
@@ -356,7 +356,7 @@ a query:
 
 ---
 
-This allows you to do things like:
+This lets you do things like:
 
     # move `file` to the most frecent directory matching `www`
     $ mv file `d www`

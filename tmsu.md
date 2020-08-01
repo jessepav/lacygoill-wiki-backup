@@ -708,7 +708,7 @@ TMSU will look for a database named `.tmsu/db` under the current working directo
     /home/.tmsu/db
     /.tmsu/db
 
-This allows you to have a TMSU database for a particular set of files. To set up such a database, use the `init` subcommand, which will create a new database under the current working directory:
+This lets you have a TMSU database for a particular set of files. To set up such a database, use the `init` subcommand, which will create a new database under the current working directory:
 
     $ cd /some/path
     $ tmsu init
@@ -1002,8 +1002,7 @@ If you *do* hit this problem, it is possible to use a bigger stack by changing v
 The virtual filesystem (VFS) provides a filesystem from which you can browse
 your tagged files. It provides virtual directories to represent the tags and
 symbolic links for the tagged files: linking back to their original file
-locations. It allows you to access your files by way of tags from any other
-program.
+locations. It lets you access your files by way of tags from any other program.
 
 ## Mounting The VFS
 
@@ -1214,7 +1213,7 @@ This allows the filesystem to be mounted more simply:
 
     $ mount /home/paul/mp
 
-(For some reason FUSE only allows root to unmount the filesystem: the 'users'
+(For some reason, FUSE only lets root unmount the filesystem: the 'users'
 option appears not to be valid for a FUSE filesystem.)
 
 To have the TMSU VFS automatically mount at start up, change `noauto` to `auto`

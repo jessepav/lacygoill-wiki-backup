@@ -388,7 +388,7 @@ White space is skipped before checking for the character.
     :folddoclosed y A
 
 `:folddoclosed` is similar to `:g`.
-It allows you to execute a command on a set of lines; the lines in closed folds.
+It lets you execute a command on a set of lines; the lines in closed folds.
 
 ### And for lines in open folds?
 

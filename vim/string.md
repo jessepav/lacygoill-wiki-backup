@@ -1218,7 +1218,7 @@ Combined with the types `o`, `x` and `X`, it prefixes the number with `0`, `0x` 
     echo printf('%#X', 123)
     0X7B~
 
-This allows you to make the base of the number explicit.
+This lets you make the base of the number explicit.
 
 #### `+`?
 

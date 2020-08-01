@@ -406,10 +406,10 @@ inside a file.
 # Pattern
 ## What's the difference between `[[ str == pat ]]` and  `[[ str =~ pat ]]`?
 
-The `==` operator allows you to use the metacharacters documented in
-`man fnmatch` (fn = filename), i.e. the ones you use in a glob.
+The `==`  operator lets you use  the metacharacters documented in  `man fnmatch`
+(fn = filename), i.e. the ones you use in a glob.
 
-The `=~` operator allows you to use any metacharacter valid in an extended regex.
+The `=~` operator lets you use any metacharacter valid in an extended regex.
 
 ## What's the output of `[[ abc =~ b ]]`?  `[[ abc == b ]]`?  `[[ abc == *b* ]]`?
 

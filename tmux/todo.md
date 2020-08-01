@@ -597,7 +597,7 @@ You can pass the `FNM_EXTMATCH` flag to the C function `fnmatch()`:
 >     nicm    look for fnmatch in format.c
 >     nicm    and change the 0 to FNM_EXTMATCH
 
-This allows you to write sth like:
+This lets you write sth like:
 
     $ tmux display -p '#{m:+(foo|bar|baz),bar}'
 

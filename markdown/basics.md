@@ -8,7 +8,7 @@ The examples on  this page are written in a  before/after style, showing example
 syntax and the HTML output produced by Markdown.
 
 It's also helpful  to simply try Markdown  out; the Dingus is  a web application
-that allows you type your own Markdown-formatted text and translate it to XHTML.
+that lets you type your own Markdown-formatted text and translate it to XHTML.
 
 Note: This document is itself written using Markdown; you can see the source for
 it by adding ‘.text' to the URL.

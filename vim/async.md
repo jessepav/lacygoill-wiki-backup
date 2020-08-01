@@ -1,7 +1,3 @@
-# To document
-
-<https://vi.stackexchange.com/questions/22596/job-start-command-only-works-with-seemingly-random-job-options>
-
 # How to send `a b` as an argument to an external process started from Vim?  (2)
 
 Use `system()` and quote `a b`:
@@ -203,3 +199,14 @@ MakeJob implements  asynchronous versions of  the builtin commands in  just over
 
 208 sloc
 
+##
+# Todo
+## document that Vim deletes a job object once it's no longer referenced
+
+That may cause unexpected  issues if the only reference is  local to a function,
+and the latter has finished its execution:
+<https://vi.stackexchange.com/questions/22596/job-start-command-only-works-with-seemingly-random-job-options>
+
+Solution: save the job object into a script-local variable.
+
+## make `vim-fex` async

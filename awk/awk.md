@@ -820,7 +820,7 @@ An awk utility is a binary you run from the command-line (like `/usr/local/bin/g
 
 ### Configure, compile and check the compilation
 
-    # `--enable-mpfr` allows you to use the `-M` command-line option
+    # `--enable-mpfr` lets you use the `-M` command-line option
     $ ./bootstrap.sh &&
       ./configure --enable-mpfr &&
       make &&
@@ -4512,6 +4512,11 @@ But it's documented in the manpage.
 <https://github.com/HiPhish/awk-ward.nvim>:221 sloc
 
 ## <https://lwn.net/Articles/820829/>
+
+## interesting third-party projects
+
+- plot.awk: <https://gist.github.com/katef/fb4cb6d47decd8052bd0e8d88c03a102>
+- <https://github.com/patsie75/awk-graph>
 
 ##
 # Reference

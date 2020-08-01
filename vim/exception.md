@@ -405,7 +405,7 @@ Yes.
 If you press C-c to interrupt a script while some settings have been temporarily
 changed, the latter will remain in an inconsistent state.
 
-A finally clause allows you to make sure they're restored no matter what happens:
+A finally clause lets you make sure they're restored no matter what happens:
 
    - normal control flow
    - error
