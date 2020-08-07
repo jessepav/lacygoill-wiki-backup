@@ -1929,7 +1929,7 @@ Document how to quickly debug some syntax highlighting code:
 
     augroup debug_syntax
       au!
-      au CursorMoved <buffer> echo join(reverse(map(synstack(line('.'), col('.')), {_,v -> synIDattr(v, 'name')})))
+      au CursorMoved <buffer> echo synstack('.', col('.'))->map({_, v -> synIDattr(v, 'name')})->reverse()->join()
       au BufEnter <buffer> so /tmp/vimrc
     augroup END
     EOF

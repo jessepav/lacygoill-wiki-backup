@@ -20,7 +20,7 @@ bind -r ) switchc -n
 
 I frequently want to have a look at a window in another session, so I press the prefix key followed by `)` to focus the next session, then I press `)` again to focus my main session again (I only have 2 sessions).
 
-Update: Ah crap. It's more complex. You don't want `-R` to repeat only 1 key, but a particular subset of keys.
+Update: Ah crap.  It's more complex.  You don't want `-R` to repeat only 1 key, but a particular subset of keys.
 Do we want sth like `vim-submode` but for Tmux?
 
 ##
@@ -75,7 +75,7 @@ The Vim command:
 
     :echo repeat('x', 370) . ' this text should not be truncated'
 
-will output a string of 370 `x` characters on the command-line, followed by the text ` this text should not be truncated`. The purpose of the motions in copy-mode (`kvkkkkk`) is to select all the characters in this string.
+will output a string of 370 `x` characters on the command-line, followed by the text ` this text should not be truncated`.  The purpose of the motions in copy-mode (`kvkkkkk`) is to select all the characters in this string.
 
 When I try to paste the contents of the X clipboard (in a Vim compiled with the clipboard feature, one can do so by pressing `"+p`), I correctly get 370 characters `x`, but ` this text should not be truncated` is truncated right after ` this`.
 
@@ -94,11 +94,11 @@ And it's specific to st, because I can't reproduce in xterm.
 ## Wrong hypotheses
 ### The issue is in `xsel(1X)`
 
-At first, I thought that the issue was due to `xsel(1x)`, because the latter had [a bug](https://github.com/kfish/xsel/issues/13) in the past, which truncated the selection after 4000 characters. It was fixed by [this PR](https://github.com/kfish/xsel/pull/16).
+At first, I thought that the issue was due to `xsel(1x)`, because the latter had [a bug](https://github.com/kfish/xsel/issues/13) in the past, which truncated the selection after 4000 characters.  It was fixed by [this PR](https://github.com/kfish/xsel/pull/16).
 
-But this old bug can't be the cause of the current issue, because I've recompiled `xsel(1x)` to get the most recent version. Besides, I can reproduce with `xclip(1)` too.
+But this old bug can't be the cause of the current issue, because I've recompiled `xsel(1x)` to get the most recent version.  Besides, I can reproduce with `xclip(1)` too.
 
-In fact, it doesn't even matter to which command you pipe the tmux selection. You can use a non existing command, and tmux will send it to the X clipboard selection (but still truncate it after around 375 characters).
+In fact, it doesn't even matter to which command you pipe the tmux selection.  You can use a non existing command, and tmux will send it to the X clipboard selection (but still truncate it after around 375 characters).
 I checked this with the following key binding:
 
     $ tmux bind -T copy-mode-vi y send -X copy-pipe-and-cancel 'not_a_command'
@@ -188,7 +188,7 @@ the value of the `mode-keys` option.
 Also, the motions to select the text depend  on the font size and the width of
 the terminal window (and don't press `v` to start the selection, but `V`).
 Finally, `tee(1)`  is provided  by the  coreutils package, which  seems to  be a
-fundamental package. So, it should be ok to use it in a MWE.
+fundamental package.  So, it should be ok to use it in a MWE.
 
 ### ?
 
@@ -219,13 +219,13 @@ I found a workaround:
     bind-key -T copy-mode-vi y run "tmux send -X copy-pipe-and-cancel 'xsel -i --clipboard';"
                                                                                            ^
 
-Notice the semicolon at the end. It fixes the issue.
+Notice the semicolon at the end.  It fixes the issue.
 This key binding should be roughly equivalent:
 
     bind-key -T copy-mode-vi y send -X copy-pipe-and-cancel 'xsel -i --clipboard' \; run ':'
                                                                                           ^
 
-And yet, it doesn't fix the issue. Why?
+And yet, it doesn't fix the issue.  Why?
 And why do we need `;` in the first working key binding?
 
 Note that we can't use `;` in the second key binding, because tmux would complain:
@@ -303,7 +303,7 @@ Btw, where does this max come from?
 
 Answer: Read the script.
 It says that the sequence has a header of 7 bytes (`\e]52;c;`) plus a footer of 1 byte (`\a`) – btw, that's not true in tmux, where those are a little longer – so 99992 bytes remains out of a max of 100000 bytes.
-And it mentions a formula (`4 * ceil(n/3)`) which I think gives the size of the base64 encoding of an input string of size `n`. So, 74994 is the input size to which the encoding is 99992 bytes.
+And it mentions a formula (`4 * ceil(n/3)`) which I think gives the size of the base64 encoding of an input string of size `n`.  So, 74994 is the input size to which the encoding is 99992 bytes.
 
 And if you wonder where does the 100000 come from, I think it's an arbitrary max size followed by tmux.
 <https://www.mail-archive.com/tmux-users%40lists.sourceforge.net/msg05950.html>
@@ -330,7 +330,7 @@ Update: Yes, it's confirmed.
 Run tmux in st, then run `ls(1)`, and copy the output in tmux copy mode.
 Finally, run `$ ps aux | grep xsel`: there's no xsel process.
 
-Repeat the experiment in urxvt. This time, there is a xsel process.
+Repeat the experiment in urxvt.  This time, there is a xsel process.
 
 ### ?
 

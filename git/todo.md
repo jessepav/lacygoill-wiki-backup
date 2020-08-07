@@ -113,7 +113,7 @@ l'archive et en exécutant le script d'installation:
 
     $ sudo ./install
 
-Ça devrait aussi installer les pages man du pgm. Les lire:
+Ça devrait aussi installer les pages man du pgm.  Les lire:
 
     man hub
 

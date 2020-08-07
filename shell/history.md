@@ -74,7 +74,7 @@ si ce dernier commence par un des caractères suivants: `^$*`
     history | grep curl    bash
 
             Affiche les commandes `curl` au sein de l'historique, ainsi que leur index.
-            Utile pour s'y référer ensuite dans un développement d'historique. Ex:
+            Utile pour s'y référer ensuite dans un développement d'historique.  Ex:
 
                     !42:s/foo/bar
 

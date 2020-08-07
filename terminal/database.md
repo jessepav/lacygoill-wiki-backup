@@ -1,7 +1,7 @@
 # Terminfo database
 ## Can a machine use several terminfo db?
 
-Yes. Each of these directories can be a db:
+Yes.  Each of these directories can be a db:
 
    - $HOME/.terminfo
    - /etc/terminfo
@@ -179,7 +179,7 @@ ones if necessary).
 
 No.
 
-A terminal can have a capability which is absent from its description. Ex:
+A terminal can have a capability which is absent from its description.  Ex:
 
     $ infocmp -1x xfce | grep smxx
     ''

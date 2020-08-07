@@ -160,7 +160,7 @@ If  the  new  fold has  a  greater  level  than  `'foldlevel'`, it  gets  closed
 automatically; otherwise, it stays open.
 
     $ vim -Nu NONE -S <(cat <<'EOF'
-        setl fdl=1 fml=0 fdm=manual fde=getline(v:lnum)=~#'^#'?'>'..len(matchstr(getline(v:lnum),'^#*')):'='
+        setl fdl=1 fml=0 fdm=manual fde=getline(v:lnum)=~#'^#'?'>' .. getline(v:lnum)->matchstr('^#*')->len():'='
         au BufWritePost * setl fdm=expr | eval foldlevel(1) | setl fdm=manual
         %d|sil pu=repeat(['x'], 5)|1
     EOF
@@ -436,7 +436,7 @@ recompute all folds; it has to, so that the function can give a correct value.
 
 Alternatively, you could execute:
 
-    exe winnr()..'windo "'
+    exe winnr() .. 'windo "'
     setl fdm=manual
 
 Or:
@@ -457,7 +457,7 @@ But note that `:call foldlevel(1)` is the fastest method:
     :10000Time call foldlevel(1)
     0.055 seconds to run ...~
 
-    :10000Time exe winnr()..'windo "'
+    :10000Time exe winnr() .. 'windo "'
     0.080 seconds to run ...~
 
     :10000Time let [g:curwin, g:curbuf] = [win_getid(), bufnr('%')] | call timer_start(0, {-> winbufnr(g:curwin) == g:curbuf && setwinvar(g:curwin, '&fdm', 'manual')})

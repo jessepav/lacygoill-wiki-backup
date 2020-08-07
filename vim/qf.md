@@ -141,7 +141,7 @@ You can set it:
 
 But not get it:
 
-    :echo keys(getqflist()[0])
+    :echo getqflist()[0]->keys()
     ['lnum', 'bufnr', 'col', 'pattern', 'valid', 'vcol', 'nr', 'type', 'module', 'text']~
       no 'filename' key~
 
@@ -369,7 +369,7 @@ It can inspect the `'changedtick'` property:
 
 
 Don't use `b:changedtick`;  the latter tracks the number of  times the qf buffer
-has been modified. The qf buffer is NOT the qfl (data structure).
+has been modified.  The qf buffer is NOT the qfl (data structure).
 
 ##
 # Populate a qfl from Vim
@@ -392,8 +392,8 @@ It's slower than `:grep` because each searched file is loaded in memory.
 
 Pro:
 
-It can search any Vim regex. Including multi-line patterns, because newlines and
-the encoding are automatically recognized.
+It can  search any Vim  regex.  Including multi-line patterns,  because newlines
+and the encoding are automatically recognized.
 
 ## What are the three main characteristics defining the commands such as `:cgetexpr`?
 
@@ -574,7 +574,7 @@ For example, assuming your lines look like this:
 
 And you want them to be parsable by the format `'%f:%l:%m'`, you could try:
 
-    :noa g/pat/caddexpr substitute(getline('.'), '@', ':', 'g')
+    :noa g/pat/caddexpr getline('.')->substitute('@', ':', 'g')
 
 ## How to parse the output of a shell command and get a qfl, without modifying the qf stack?
 
@@ -607,7 +607,7 @@ Without the `'efm'` key, Vim will use the `'efm'` option.
 ## How to populate a valid qfl with `$ find /etc -name '*.conf'` without altering the 'efm' option?
 
     let qfl = getqflist({'lines': systemlist('find /etc/ -name "*.conf"'), 'efm': '%f'})
-    call setqflist(get(qfl, 'items', []))
+    call get(qfl, 'items', [])->setqflist()
     cw
 
 ---
@@ -636,7 +636,7 @@ Use the `'filename'` property:
     call setqflist([], 'r', {'id':123, 'lines': systemlist('your shell cmd')})
 
 ##
-## I have a long-to-type set of files. How to effectively and CONSECUTIVELY look for different patterns in it?
+## I have a long-to-type set of files.  How to effectively and CONSECUTIVELY look for different patterns in it?
 
 Populate the arglist with the set of files (`:args`).
 Then, use the special characters `##` to refer to it:
@@ -833,7 +833,7 @@ As  such, they  must do  one thing  and  one thing  only, to  let the  developer
 implement the exact behavior they want.
 
 OTOH, built-in commands  (`:make`, `:grep`, ...) are for users,  who most of the
-time want the qf window to be  opened automatically. To do so, they need to have
+time want the qf window to be opened automatically.  To do so, they need to have
 an event to listen to, and install an autocmd.
 
 IOW, if  `:make` didn't fire  `QuickFixCmdPost`, the user  would have no  way to
@@ -1093,7 +1093,7 @@ This will yank in the register `a`, the line of the first entry in:
 This works because  `:cfdo` moves the cursor on  the first entry
 of each file in the qfl.
 
-## I want to repeat a command for each entry in the qfl. How to make it more reliable?
+## I want to repeat a command for each entry in the qfl.  How to make it more reliable?
 
 If you execute a command which modifies the buffer, update it afterwards:
 
@@ -1156,7 +1156,7 @@ command may raise an error, prefix the whole command with `silent!`:
 Use the `'module'` and `'items'` key:
 
     call setqflist([], 'r',
-        \ {'items': map(getqflist(), {_,v -> extend(v, {'module': fnamemodify(bufname(v.bufnr), ':t')})})})
+        \ {'items': getqflist()->map({_, v -> extend(v, {'module': bufname(v.bufnr)->fnamemodify(':t')})})})
 
 `'module'` lets you change the text displayed in the filename column.
 
@@ -1164,9 +1164,9 @@ Use the `'module'` and `'items'` key:
 single invocation of `setqflist()`.
 Without `'items'`, you would need two:
 
-    let new_qfl = map(getqflist(), {_,v -> extend(v, {'module': fnamemodify(bufname(v.bufnr), ':t')})
+    let new_qfl = getqflist()->map({_, v -> extend(v, {'module': bufname(v.bufnr)->fnamemodify(':t')})
     call setqflist(new_qfl, 'r')
-    call setqflist([], 'a', {'title': get(getqflist({'title': 0}), 'title', ':setqflist()')})
+    call setqflist([], 'a', {'title': getqflist({'title': 0})->get('title', ':setqflist()')})
 
 Because:
 
@@ -1236,11 +1236,11 @@ The second solution is more reliable:
 
 For the qf windows:
 
-    :echo filter(getwininfo(), {_,v -> v.quickfix && !v.loclist})
+    :echo getwininfo()->filter({_, v -> v.quickfix && !v.loclist})
 
 For the location windows:
 
-    :echo filter(getwininfo(), {_,v -> v.quickfix &&  v.loclist})
+    :echo getwininfo()->filter({_, v -> v.quickfix &&  v.loclist})
 
 ## How to programmatically detect whether Vim was started with the `-q` argument?
 
@@ -1271,7 +1271,12 @@ If you wipe the buffer before restoring the qfl, it will raise an error.
 
 For each entry, add the `'filename'` key, and then remove the `'bufnr'` key:
 
-    let qfl = map(getqflist(), {_,v -> extend(v, {'filename': fnamemodify(bufname(remove(v, 'bufnr')), ':p')})})
+    let qfl = getqflist()
+        \ ->map({_, v -> extend(v, {
+        \ 'filename': remove(v, 'bufnr')
+        \     ->bufname()
+        \     ->fnamemodify(':p')
+        \ })})
 
 ##
 ## When does a newly created window have a location list?
@@ -1416,11 +1421,11 @@ Example 2:
     " This will probably capture only the first line where `pat` matches,
     " because when the qf window is opened, the focus is changed.
 
-    :    g/pat/caddexpr substitute(getline('.'), '@', ':', 'g')
+    :    g/pat/caddexpr getline('.')->substitute('@', ':', 'g')
 
     " ✔
 
-    :noa g/pat/caddexpr substitute(getline('.'), '@', ':', 'g')
+    :noa g/pat/caddexpr getline('.')->substitute('@', ':', 'g')
      ^-^
 
 ##
@@ -1601,7 +1606,7 @@ parsed as environment variables:
     /my pattern
     q .... q
     :vim //gj {files}
-    :call setqflist(reverse(getqflist()))
+    :call getqflist()->reverse()->setqflist()
     :cno norm! @q
 
 You need to reverse the qfl because each  run of the `q` macro may transform the
@@ -1629,7 +1634,7 @@ Note that you can't use a funcref.
 
 To illustrate the pitfall, write this in `/tmp/a.vim`:
 
-    let items = [{'filename': $VIMRUNTIME..'/doc/index.txt',
+    let items = [{'filename': $VIMRUNTIME .. '/doc/index.txt',
         \ 'lnum': 1124, 'valid': 1, 'text': 'You found it, Arthur!'}]
     call setqflist([], ' ', {'items': items, 'quickfixtextfunc': 's:func'})
     fu s:func(_)
@@ -1656,8 +1661,6 @@ Start Vim like this:
 
     :q
     " press:  'ci'
-    Error detected while processing function Func:~
-    line    1:~
     E117: Unknown function: s:func~
 
 I think  that the  code which handles  the `'quickfixtextfunc'`  property shares
@@ -1704,7 +1707,7 @@ You must provide the *name* of a function, just like for the global option.
 See `:h getloclist()`.
 
 ## If I remove `tee`  from 'sp', the output of the shell  command is still echoed...
-to the screen, when I execute `:grep! pat /etc`. Why?
+to the screen, when I execute `:grep! pat /etc`.  Why?
 
 Update:
 Because we haven't redirected the errors to the temp file:
@@ -1712,8 +1715,8 @@ Because we haven't redirected the errors to the temp file:
     set sp=>%s\ 2>&1
 
 However, we still have the hit-enter prompt.
-You can't avoid its printing. But you can avoid to have to press Enter,
-with `:sil`.
+You can't avoid  its printing.  But you  can avoid to have to  press Enter, with
+`:sil`.
 
 ## How to remove errors from `:grep`?
 
@@ -1778,7 +1781,7 @@ We can use it to communicate some info to the autocmd opening the qf window:
    - do we want to open the qf window or the location window?
 
 Document somewhere  the fact that  the pattern used  in a `:do`  command doesn't
-have to be valid. It can be (ab)used to pass arbitrary info.
+have to be valid.  It can be (ab)used to pass arbitrary info.
 
 ---
 

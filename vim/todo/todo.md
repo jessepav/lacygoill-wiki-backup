@@ -87,7 +87,7 @@ I think that if you use `search()` to:
 
 Do *not* try to use `win_execute()`; it doesn't work:
 
-    $ vim -Nu NONE +'set wmh=0|sp|call win_execute(win_getid(2), "resize 0")'
+    $ vim -Nu NONE +'set wmh=0|sp|call win_getid(2)->win_execute("resize 0")'
 
 Instead:
 

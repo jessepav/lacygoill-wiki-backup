@@ -36,7 +36,7 @@ Run `os.exit()`.
 
     https://en.wikipedia.org/wiki/Category:Lua-scriptable_software
 
-            Liste des programmes scriptables via Lua. Entre autres:
+            Liste des programmes scriptables via Lua.  Entre autres:
 
                     - conky
                     - mpv
@@ -48,7 +48,7 @@ Run `os.exit()`.
 
     https://www.reddit.com/r/lua/
 
-            Subreddit Lua. Jeter un oeil à la sidebar.
+            Subreddit Lua.  Jeter un oeil à la sidebar.
 
 
     https://www.lua.org/manual/5.3/readme.html
@@ -79,7 +79,7 @@ Run `os.exit()`.
     https://luarocks.org/modules/gvvaughan/lpeg
 
             LPeg is  a new pattern-matching  library for Lua,  based on Parsing  Expression Grammars
-            (PEGs). The  nice thing about PEGs  is that it has  a formal basis (instead  of being an
+            (PEGs).  The  nice thing about PEGs  is that it has  a formal basis (instead  of being an
             ad-hoc set  of features), allows an  efficient and simple implementation,  and does most
             things we  expect from  a pattern-matching library  (and more, as  we can  define entire
             grammars).
@@ -135,10 +135,10 @@ Run `os.exit()`.
 
             libuv bindings for luajit and lua 5.1/ 5.2/ 5.3.
 
-            This library makes libuv available to lua scripts. It was made for the luvit project but
+            This library makes libuv available to lua scripts.  It was made for the luvit project but
             should usable from nearly any lua project.
 
-            The best docs currently  are the libuv docs themselves. Hopfully soon  we'll have a copy
+            The best docs currently  are the libuv docs themselves.  Hopfully soon  we'll have a copy
             locally tailored for lua.
 
 
@@ -169,7 +169,7 @@ Run `os.exit()`.
     https://github.com/duncanc/icu4lua
 
             Lua has  no Unicode  support (at  the very least  you don't  get string.len  and pattern
-            matching functions to recognize Unicode characters). This link provides a binding to ICU
+            matching functions to recognize Unicode characters).  This link provides a binding to ICU
             library that implements full Unicode support.
 
             To read the doc, save the next link in `/tmp/html.html` and open in Firefox:
@@ -186,7 +186,7 @@ Run `os.exit()`.
     https://stevedonovan.github.io/Penlight/api/manual/01-introduction.md.html
 
             Penlight  is a  collection of  useful  libraries, partly  based on  the Python  standard
-            libraries,  but  also  providing useful  ways  to  process  input  data. The  only  real
+            libraries,  but  also  providing useful  ways  to  process  input  data.  The  only  real
             prerequisite is LuaFileSystem (for some libraries), although Alien is also needed if you
             wish pl.dir.copyfile to work properly on Windows.
 

@@ -248,11 +248,11 @@ For the second solution, you would need to call a function looking like this:
     fu Func() abort
         let s:wfh_save = {}
         let winnr = range(1, winnr('$'))
-        call map(copy(winnr), {_,v -> extend(s:wfh_save, {v : getwinvar(v, '&wfh', 0)})})
+        call copy(winnr)->map({_, v -> extend(s:wfh_save, {v : getwinvar(v, '&wfh', 0)})})
         echo s:wfh_save
-        call map(copy(winnr), {_,v -> setwinvar(v, '&wfh', 1)})
+        call copy(winnr)->map({_, v -> setwinvar(v, '&wfh', 1)})
         q
-        call timer_start(0, {-> map(copy(winnr), {_,v -> setwinvar(v, '&wfh', s:wfh_save[v])})})
+        call timer_start(0, {-> copy(winnr)->map({_, v -> setwinvar(v, '&wfh', s:wfh_save[v])})})
     endfu
 
 Notice the timer; for some reason, it doesn't work without.

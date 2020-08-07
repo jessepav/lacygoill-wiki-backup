@@ -587,7 +587,7 @@ It should match the first line but not the second one.
 
 ### Why can't I use `.\{-}`?
 
-You could try. It would give:
+You could try.  It would give:
 
     A.\{-}B.\{-}C
 
@@ -646,7 +646,7 @@ not inside "from `A` up to the next `C`", but right before).
 
 ### What if A = C?
 
-It  depends  on whether  you  allow  matches  in-between two  consecutive  texts
+It  depends  on whether  you  allow  matches  in between two  consecutive  texts
 surrounded by pairs of As.
 
 If you do, then use this regex:
@@ -700,7 +700,7 @@ For example, in this text:
 
 It wrongly matches the second `AxA`.
 
-Besides, I don't understand how the atomic group prevents a match in-between two
+Besides, I don't understand how the atomic group prevents a match in between two
 consecutive texts surrounded by pairs of As.
 
 Without it, the regex becomes:
@@ -1099,7 +1099,7 @@ This happens because in a help buffer, `'isk'` contains this value:
 
 It includes the parentheses:
 
-    :echo map(range(char2nr('!'), char2nr('~')), {_,v -> nr2char(v)})
+    :echo range(char2nr('!'), char2nr('~'))->map({_, v -> nr2char(v)})
     ['!', ..., '(', ')' ..., '~']~
                 ^    ^
                 ✘    ✘
@@ -1181,7 +1181,7 @@ For example, if your pattern is:
 You can rewrite it like so:
 
     let col = col('.')
-    let pat = '\k*\%'..col..'c\k*'
+    let pat = '\k*\%' .. col .. 'c\k*'
 
 ---
 
@@ -1274,7 +1274,7 @@ multi limitée à un nb restreint d'octets:
             Le & demande à Vim de vérifier qu'il peut matcher .*foo depuis le même début de ligne
             à partir duquel il a déjà réussi à matcher .*bar.
 
-            Attention, le texte matché est .*bar. Il peut contenir 'foo' ou pas.
+            Attention, le texte matché est .*bar.  Il peut contenir 'foo' ou pas.
             En effet, il se peut qu'il ne contienne pas 'foo' si ce dernier se trouve après 'bar'.
 
             .*foo n'est présent que pour vérifier que le match .*bar est possible ou non, comme une ancre.
@@ -1311,7 +1311,7 @@ multi limitée à un nb restreint d'octets:
 
             Dans le cas présent, on peut utiliser un lookbehind à la place du concat, uniquement
             car la description supplémentaire dont on a besoin, concerne du texte situé à l'extérieur
-            du match. Quel texte?
+            du match.  Quel texte?
             Le début de la ligne où bar se trouve; on veut qu'il soit le début d'une ligne contenant foo.
 
 
@@ -1773,7 +1773,7 @@ Quelques classes (:h /character-classes) :
 
             Mais une collection ne peut contenir que des caractères, pas de classes tq \u ou \d.
             Ces notations sont donc libres et peuvent être utilisées pour représenter un caractère
-            d'un point de code donné. Raison pour laquelle on n'utilise pas `%` dans une collection.
+            d'un point de code donné.  Raison pour laquelle on n'utilise pas `%` dans une collection.
 
             De la même façon, seul le moteur de regex interprète:
 
@@ -2004,17 +2004,17 @@ se réfère ensuite?
 
     let pattern_broad  = '...'
     let col            = col('.')
-    let pattern_narrow = pattern_broad..'\%(.*\%'..col..'c\)\@!'
+    let pattern_narrow = pattern_broad .. '\%(.*\%' .. col .. 'c\)\@!'
 
             `pattern_narrow` permet  de trouver le  1er match décrit  par `pattern_broad`
             contenant le caractère où se trouve le curseur.
 
             Décomposition:
 
-                    1. pattern_broad              pattern sans restriction
+                    1. pattern_broad                  pattern sans restriction
 
-                    2. '\%(.*\%'..col..'c\)\@!'   restriction:
-                                                  le curseur ne doit pas se trouver après le match
+                    2. '\%(.*\%' .. col .. 'c\)\@!'   restriction:
+                                                      le curseur ne doit pas se trouver après le match
 
 
             Cette syntaxe permet de facilement exprimer la condition:
@@ -2030,8 +2030,8 @@ se réfère ensuite?
             et qu'on les veut tous, on  pourrait préfixer le pattern avec une 2e
             restriction comme ceci:
 
-                    '\v%(%'..col..'c.*)@<!'.pattern_broad.'%(.*%'..col..'c)@!'
-                     ├───────────────────┘
+                    '\v%(%' .. col .. 'c.*)@<!' .. pattern_broad .. '%(.*%' .. col .. 'c)@!'
+                     ├───────────────────────┘
                      └ le curseur ne doit pas se trouver avant le match.
 
 

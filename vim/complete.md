@@ -9,9 +9,9 @@ Did we use a timer or a one-shot autocmd in the past where it was not needed?
 Are there occasions where we could have delayed the execution of the code simply
 by "moving" it later; e.g.:
 
-    ino <expr> <key> <c-r>=FuncA()..FuncB()<cr>
-                                    ^-----^
-                                    contains the code to be delayed
+    ino <expr> <key> <c-r>=FuncA() .. FuncB()<cr>
+                                      ^-----^
+                                      contains the code to be delayed
 
 IOW, when is a timer or a one-shot autocmd really needed?
 
@@ -351,7 +351,7 @@ Pour peupler les matchs on utilisera pex le code suivant:
 
     let matches = []
     sil keepj keepp %s/pat/\=add(matches, submatch(0))/gne
-    return filter(matches, {_,v -> v[:strlen(a:base)-1] is# a:base})
+    return filter(matches, {_, v -> v[:strlen(a:base)-1] is# a:base})
 
 #
 # What can `C-x C-v` complete in addition to Ex commands?

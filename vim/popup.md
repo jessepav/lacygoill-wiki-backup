@@ -153,7 +153,7 @@ Only one.  Just like you you can only have one regular preview window per tab pa
 Yes:
 
     $ vim +'set pvp=height:10,width:60' +'pedit /tmp/file'
-    :echo getwinvar(popup_findpreview(), '&pvw')
+    :echo popup_findpreview()->getwinvar('&pvw')
     1~
 
 ##
@@ -163,7 +163,7 @@ Yes:
 
     $ vim +'set pvp=height:10,width:60' +'pedit /tmp/file'
     :set pvw
-    :echo map([1000, 1001], {_,v -> getwinvar(v, '&pvw')})
+    :echo map([1000, 1001], {_, v -> getwinvar(v, '&pvw')})
     [1, 1]~
 
 ##
@@ -323,8 +323,8 @@ Note that in this particular example, the issue can only be reproduced if:
 
 It's forbidden in a popup terminal; use this instead:
 
-    :call popup_close(win_getid())
-          ^---------^
+    :call win_getid()->popup_close()
+                       ^---------^
 
 ### Wait.  Now I have a popup terminal which I *can* close with `:close`.  What gives?
 
@@ -637,7 +637,7 @@ from reading the end of long lines when previewing a help tag in a popup.
 
     " Implementation {{{1
 
-    exe 'nno <silent> '..s:KEYMAPPING..' :<c-u>call <sid>calendar_widget()<cr>'
+    exe 'nno <silent> ' .. s:KEYMAPPING .. ' :<c-u>call <sid>calendar_widget()<cr>'
 
     fu s:calendar_widget() abort
         let lines = systemlist('cal')[:-2]
@@ -662,7 +662,7 @@ from reading the end of long lines when previewing a help tag in a popup.
     endfu
 
     fu s:current() abort
-        let [month, year] = matchlist(getline(1), '\(\a\+\)\s\+\(\d\+\)')[1:2]
+        let [month, year] = getline(1)->matchlist('\(\a\+\)\s\+\(\d\+\)')[1:2]
         let month = {
             \ 'January': 1,
             \ 'February': 2,
@@ -681,16 +681,16 @@ from reading the end of long lines when previewing a help tag in a popup.
     endfu
 
     fu s:trim(lines) abort
-        call map(a:lines, {_,v -> substitute(v, '\s\+$', '', '')})
+        call map(a:lines, {_, v -> substitute(v, '\s\+$', '', '')})
     endfu
 
     fu s:highlight_current_day() abort
         let id = nvim_create_namespace('cal')
         let ctrl_seq = '_\b _\b'
-        call search(ctrl_seq..'\d\+')
+        call search(ctrl_seq .. '\d\+')
         call nvim_buf_add_highlight(0, id, 'CalCurrentDay',
-            \ line('.')-1, col('.'), searchpos(ctrl_seq..'\d\+\zs', 'cn')[1]-1)
-        sil exe 'keepj keepp lockm %s/'..ctrl_seq..'//ge'
+            \ line('.') - 1, col('.'), searchpos(ctrl_seq .. '\d\+\zs', 'cn')[1] - 1)
+        sil exe 'keepj keepp lockm %s/' .. ctrl_seq .. '//ge'
     endfu
 
     fu s:another_month(which) abort
@@ -704,7 +704,7 @@ from reading the end of long lines when previewing a help tag in a popup.
             let s:current.month += a:which is# 'next' ? 1 : -1
         endif
         sil %d_
-        let lines = systemlist('cal -m '..s:current.month..' '..s:current.year)[:-2]
+        let lines = systemlist('cal -m ' .. s:current.month .. ' ' .. s:current.year)[:-2]
         call s:trim(lines)
         call nvim_buf_set_lines(0, 0, -1, v:true, lines)
         if s:current == s:orig
@@ -713,14 +713,14 @@ from reading the end of long lines when previewing a help tag in a popup.
     endfu
 
     fu s:insert_date() abort
-        let number_under_cursor = '\%(.*\%'..col('.')..'c\)\@=\d\+'..'\%(\%'..col('.')..'c.*\)\@<='
-        let day = matchstr(getline('.'), number_under_cursor)
-        if day is# '' | return | endif
-        let [month, year] = matchlist(getline(1), '\(\a\+\)\s\+\(\d\+\)')[1:2]
-        let date = system(printf('date -d "%s %d %d" +"%s"', month, day, year, s:FORMAT))[:-2]
+        let number_under_cursor = '\%(.*\%' .. col('.') .. 'c\)\@=\d\+' .. '\%(\%' .. col('.') .. 'c.*\)\@<='
+        let day = getline('.')->matchstr(number_under_cursor)
+        if day == '' | return | endif
+        let [month, year] = getline(1)->matchlist('\(\a\+\)\s\+\(\d\+\)')[1:2]
+        let date = printf('date -d "%s %d %d" +"%s"', month, day, year, s:FORMAT)->system()->trim("\n", 2)
         call nvim_win_close(0, 1)
         let line = nvim_get_current_line()
-        let new_line = substitute(line, '\%'..col('.')..'c', date, '')
+        let new_line = substitute(line, '\%' .. col('.') .. 'c', date, '')
         call nvim_set_current_line(new_line)
     endfu
 

@@ -127,10 +127,10 @@ Official User Guide : https://github.com/hut/ranger/wiki/Official-user-guide
             Description:
 
             tool for  managing file archives of  various types atool  is a script for  managing file
-            archives  of various  types  (tar, tar+gzip,  zip  etc). The  main  command is  probably
-            aunpack, extracting files  from an archive. It overcomes the  dreaded "multiple files in
+            archives  of various  types  (tar, tar+gzip,  zip  etc).  The  main  command is  probably
+            aunpack, extracting files  from an archive.  It overcomes the  dreaded "multiple files in
             archive root" problem by first extracting to a unique subdirectory, and then moving back
-            the  files if  possible. aunpack  also prevents  local files  from being  overwritten by
+            the  files if  possible.  aunpack  also prevents  local files  from being  overwritten by
             mistake.  Other commands  provided  are  apack (create  archives),  als  (list files  in
             archives), and acat (extract files to standard out).
 
@@ -192,7 +192,8 @@ Official User Guide : https://github.com/hut/ranger/wiki/Official-user-guide
 # Commands.md
 Here's a place for your custom commands!
 
-Add the commands you want into `~/.config/ranger/commands.py`. Note: You always need to import the `Command` class at the top of your `commands.py`:
+Add the commands you want into `~/.config/ranger/commands.py`.  Note: You always
+need to import the `Command` class at the top of your `commands.py`:
 
 ```python
 from ranger.api.commands import Command
@@ -365,7 +366,9 @@ class tmsu_tag(Command):
 
 ## OSX - Reveal selected files in Finder
 
-The following command is useful if you need to select files and drag-and-drop them. For example, as an attachment to gmail message composer. Simply select the files, and run the command:
+The following  command is useful if  you need to select  files and drag-and-drop
+them. For example,  as an attachment  to gmail message composer.   Simply select
+the files, and run the command:
 
 ```python
 class show_files_in_finder(Command):
@@ -541,7 +544,9 @@ export PAGER=more
 It is fairly easy to implement a custom linemode (see [this section][1] of the ranger guide for an explanation what is a linemode).
 
 
-Let's try to implement a linemode displaying a filename with a comment (added via `:meta`) on the left side and the file owner on the right. So it would look like this:
+Let's try  to implement a linemode  displaying a filename with  a comment (added
+via `:meta`) on the left side and the file owner on the right.  So it would look
+like this:
 
     my_video.mp4 (sweet cats)                             john
 
@@ -569,7 +574,8 @@ We may use `required_metadata` list to specify which metadata tags are necessary
     required_metadata = ["comment"]
 ```
 
-Now we will define two methods, one for each side of the line. Each takes two arguments: a file object (`FSObject`) and an object with the metadata.
+Now we will define  two methods, one for each side of the  line.  Each takes two
+arguments: a file object (`FSObject`) and an object with the metadata.
 
 ```Python
     def filetitle(self, file, metadata):
@@ -578,7 +584,7 @@ Now we will define two methods, one for each side of the line. Each takes two ar
         return file.user
 ```
 
-It's almost over. What's left is registering the brand new linemode:
+It's almost over.  What's left is registering the brand new linemode:
 
 ```Python
 register_linemode(MyLinemode)
@@ -615,11 +621,16 @@ You may also set the default linemode in your `rc.conf` with `:default_linemode`
 
 Your editor of choice (EoC) likely does not support the `--` flag.
 
-The `--` flag tells most programs that everything following it is a filename. This is as security feature to prevent accidental application of flags when they are not wanted _(Example: `$EDITOR -- -V` will open a new file named `-V`)_.
+The `--`  flag tells most programs  that everything following it  is a filename.
+This is as security feature to prevent accidental application of flags when they
+are not wanted _(Example: `$EDITOR -- -V` will open a new file named `-V`)_.
 
-If your EoC is opening `--` as a file, you can either change rifle.conf to not use `--`, or you could submit a patch to your EoC to support use of the `--` flag. It is highly recommended to submit a patch to your EoC.
+If your EoC is  opening `--` as a file, you can either  change rifle.conf to not
+use `--`,  or you could submit  a patch to your  EoC to support use  of the `--`
+flag.  It is highly recommended to submit a patch to your EoC.
 
-**[BEWARE]** Should you choose to edit your rifle.conf, know that you are putting yourself at some level of risk of unforeseen bugs with rifle/ranger!
+**[BEWARE]**  Should you  choose  to edit  your rifle.conf,  know  that you  are
+putting yourself at some level of risk of unforeseen bugs with rifle/ranger!
 
 ### Editing rifle.conf
 The configuration option you are looking for is in the rifle.conf file in the config directory (default is `~/.config/ranger/rifle.conf`).
@@ -674,11 +685,13 @@ Steps to enable it:
 
 ### With urxvt
 
-The image preview methods `urxvt` and `urxvt_full` can be used with the urxvt terminal and are typically more reliable. They use a special escape sequence to change the background of the terminal in order to render the image.
+The image  preview methods `urxvt` and  `urxvt_full` can be used  with the urxvt
+terminal and are typically more reliable.  They use a special escape sequence to
+change the background of the terminal in order to render the image.
 
 * Run urxvt with pixbuf support (some operating systems ship it without pixbuf support, but for example ArchLinux has an AUR package called `rxvt-unicode-pixbuf` which should work)
 * Add the line `set preview_images true` to your `~/.config/ranger/rc.conf`.
-* Add the line `set preview_images_method urxvt` to your `~/.config/ranger/rc.conf`. You can also choose `urxvt_full` if you would like the image to fill the whole terminal rather than just the preview pane.
+* Add the line `set preview_images_method urxvt` to your `~/.config/ranger/rc.conf`.  You can also choose `urxvt_full` if you would like the image to fill the whole terminal rather than just the preview pane.
 * Restart ranger and navigate to an image file. \o/
 
 ### With iTerm2
@@ -695,7 +708,12 @@ The image preview methods `urxvt` and `urxvt_full` can be used with the urxvt te
 
 **NOTE: Requires modification of ranger itself.**
 
-The mpv image preview method lets ranger control an external client for viewing media. The benefit of this approach is that both images and videos share a single, separate window. Some changes are planned, so this method is not included in ranger yet. If you would like to make the changes youself, here are the steps. The rest of this section assumes `$ranger` is the location of your copy of ranger, not your configuration.
+The mpv image preview method lets  ranger control an external client for viewing
+media.  The  benefit of  this approach is  that both images  and videos  share a
+single,  separate window.   Some  changes are  planned, so  this  method is  not
+included in ranger yet.  If you would like to make the changes youself, here are
+the steps.  The rest  of this section assumes `$ranger` is  the location of your
+copy of ranger, not your configuration.
 
 * Add the following lines to the end of `$ranger/ext/img_display.py`:
 ```
@@ -789,15 +807,21 @@ If you want mpv to support common image viewing features, see [this gist][6] for
 
 ### Troubleshooting
 
-If the w3m program doesn't show images itself, then ranger won't show them either in the w3mimgdisplay mode. Try `w3m xkcd.com` for example.
+If  the w3m  program doesn't  show images  itself, then  ranger won't  show them
+either in the w3mimgdisplay mode.  Try `w3m xkcd.com` for example.
 
-Sometimes black stripes are drawn over the images when using w3mimgdisplay.  This is due to the unreliable drawing mechanism, and for some people it helps to set the option `draw_borders` to true.
+Sometimes  black stripes  are drawn  over the  images when  using w3mimgdisplay.
+This is due to the unreliable drawing mechanism, and for some people it helps to
+set the option `draw_borders` to true.
 
 Sometimes it helps trying a different terminal emulator or a different displaying method.
 
 w3mimgdisplay appears not to work with compositing managers like xcompmgr.
 
-If your image previews broke after upgrading ranger's git after september 2015, you need to update scope.sh for image previews to work.  See https://github.com/hut/ranger/wiki/Upgrading#image-previews-stopped-working-after-updating-ranger-git
+If your image previews broke after  upgrading ranger's git after september 2015,
+you need to update scope.sh for image previews to work.  See
+
+<https://github.com/hut/ranger/wiki/Upgrading#image-previews-stopped-working-after-updating-ranger-git>
 
 ### ASCII previews
 
@@ -841,13 +865,15 @@ See also [Visit frequently used directories][8] for using fasd inside ranger.
 
 # vim / neovim
 
-The following plugin let you use ranger in place of the builtin `netrw`. It's a nice alternative to the popular `NERDTree`: https://github.com/francoiscabrol/ranger.vim
+The   following  plugin   let  you   use  ranger   in  place   of  the   builtin
+`netrw`.     It's   a    nice   alternative    to   the    popular   `NERDTree`:
+<https://github.com/francoiscabrol/ranger.vim>
 
 # kakoune
 
 This text editor has commands to quickly open ranger in tmux panes or X11 windows: https://github.com/mawww/kakoune/blob/master/rc/extra/ranger.kak
 # Keybindings.md
-Here is a place for useful custom key bindings. Share what you got!
+Here is a place for useful custom key bindings.  Share what you got!
 
 ### Quick editing rc.conf
 
@@ -891,9 +917,9 @@ The main window consists of three panels by default (it's called [Miller columns
 
 If you're familiar with [vim][10], you should feel right at home with
 `ranger's` UI conventions. `ranger` uses the "hjkl" keys for navigation
-and borrows many idioms from `vim`. For example: "yy" (copy line in
+and borrows many idioms from `vim`.  For example: "yy" (copy line in
 `vim`) copies a file, "pp" pastes it and "dd" prepares a file to be
-moved (by being pasted somewhere else later, like with copy). The more
+moved (by being pasted somewhere else later, like with copy).  The more
 complex functions may be called from the command-line invoked with ":"
 (a colon).
 
@@ -902,20 +928,20 @@ directory path may be seen at the top.
 
 ### For the `mc` users
 
-If you're familiar with `mc` ([Midnight Commander][11]) the first thing you
-may notice is the lack of the second panel for the file navigation. It
-may seem like a limitation but in most cases people use only one panel
-at a time. `ranger` lets you create new tabs (like in a web
-browser) and switch between them with either `Alt-number` or `Tab`. If
-you open just two tabs, `ranger's` tabs effectively behave just like
-`mc's` panels. And you can even open more if such need arises.
+If you're familiar with `mc`  ([Midnight Commander][11]) the first thing you may
+notice is  the lack of the  second panel for  the file navigation.  It  may seem
+like  a limitation  but in  most cases  people  use only  one panel  at a  time.
+`ranger` lets  you create new  tabs (like in a  web browser) and  switch between
+them with either  `Alt-number` or `Tab`.  If you open  just two tabs, `ranger's`
+tabs effectively behave just like `mc's` panels.   And you can even open more if
+such need arises.
 
 ## Movement
 
-The basic movement keys are inspired by `vim`: "jk" moves up and down,
-"l" enters the selected directory or opens a file and "h" returns to the
-parent directory. Many other navigation keys known from `vim` work too,
-feel free to try them.
+The basic  movement keys  are inspired  by `vim`:  "jk" moves  up and  down, "l"
+enters the  selected directory  or opens a  file and "h"  returns to  the parent
+directory.  Many other  navigation keys known from `vim` work  too, feel free to
+try them.
 
 ## Configuration files
 
@@ -929,12 +955,12 @@ feel free to try them.
 -   `scope.sh` is a shell script used to generate the previews for
     various file types.
 
-It's quite common to use `ranger --copy-config=all` to copy the
-default config files to `~/.config/ranger` and modify them there. Be
-aware that for `rc.conf` and `commands.py`, ranger reads *both* the global *and*
-the user's config (in that order). It allows the user to maintain only a small
-config which sets only the things not set in the default one.  For `scope.sh`
-and `rifle.conf`, ranger reads *either* the users *or* the global config.
+It's quite common  to use `ranger --copy-config=all` to copy  the default config
+files to `~/.config/ranger` and modify them  there.  Be aware that for `rc.conf`
+and `commands.py`,  ranger reads *both* the  global *and* the user's  config (in
+that order).  It allows the user to maintain only a small config which sets only
+the things not set in the  default one.  For `scope.sh` and `rifle.conf`, ranger
+reads *either* the users *or* the global config.
 
 The best practice is to only add the options/keybindings you actually want to
 change to your rc.conf, rather than to have a complete copy of the default
@@ -956,15 +982,15 @@ Moving a file differs very little from copying it: just use "dd" instead
 of "yy" at the beginning.
 
 To copy/move multiple files, just mark them with `Space` then use
-"dd/yy". If you want to operate on multiple files stored in different
+"dd/yy".  If you want to operate on multiple files stored in different
 directories, you may use "ya/da" to add them to the list of files to be
 copied/moved before pasting them.
 
 (Note that the copy/cut buffers can be used for other operations as
-well, by using the "%c" macro in your commands. For example, adding
+well, by using the "%c" macro in your commands.  For example, adding
 files to the cut/copy buffer using "ya"/"da" then using the `:shell -w
 printf %c | xargs rm` command lets you delete multiple files in
-multiple directories. Remember to clear the buffer once you're done
+multiple directories.  Remember to clear the buffer once you're done
 using "ud"/"uy".)
 
 If you'd like to copy files from one ranger instance to another, type
@@ -974,114 +1000,117 @@ saved in the file `~/.config/ranger/copy_buffer`.
 
 ## Tabs
 
-If you're working in more than one directory at a time -- and you most
-likely do -- you may create tabs for each directory to which you want to
-have a quick access. The tabs are numbered. To switch to the N-th tab,
-press `Alt-N`, where `N` is the tab number. If such tab does not exist
-yet, it will be created. To close a tab, press "q" (if you close the
-last tab, the entire `ranger` process will close).
+If you're working in more than one directory at a time -- and you most likely do
+-- you  may create tabs  for each directory  to which you  want to have  a quick
+access.  The tabs are numbered.  To switch to the N-th tab, press `Alt-N`, where
+`N` is the tab number.  If such tab  does not exist yet, it will be created.  To
+close a tab, press  "q" (if you close the last tab,  the entire `ranger` process
+will close).
 
 ## Previews
 
-I've mentioned the previews in the right column of `ranger`. I believe
-they deserve a separate section in this guide.
+I've mentioned  the previews in  the right column  of `ranger`.  I  believe they
+deserve a separate section in this guide.
 
-All file previews are supplied by the `scope.sh` config file. It is a
-regular shell script and it's behavior is documented in detail inside of
-it.
+All file previews are  supplied by the `scope.sh` config file.   It is a regular
+shell script and it's behavior is documented in detail inside of it.
 
 ### Image previews
 
-A very special case of the previews are the image previews. Yes,
-`ranger` can display images in your terminal. It uses an utility
-supplied with the `w3m` web browser (sometimes packaged in a separate
-package, like `w3m-img` in Debian). While it's reliable most of the
-time, please be aware that it is a hack and may behave very strangely at
-times.
+A very special case  of the previews are the image  previews.  Yes, `ranger` can
+display images in your terminal.  It uses an utility supplied with the `w3m` web
+browser (sometimes  packaged in a  separate package, like `w3m-img`  in Debian).
+While it's reliable most of the time, please  be aware that it is a hack and may
+behave very strangely at times.
 
-Since the commit `9b73aeb` (merged around 10 October 2016) `ranger` supports reliable image previews in `urxvt` and `iTerm2` terminal emulators. To enable it, set `preview_images_method` to either `urxvt` or `iTerm2`. Please refer to the documentation for further information. For the `urxvt` method to work on Arch Linux it might be needed to install the `rxvt-unicode-pixbuf` package instead of the regular `rxvt-unicode`.
+Since the  commit `9b73aeb`  (merged around 10  October 2016)  `ranger` supports
+reliable image previews  in `urxvt` and `iTerm2` terminal  emulators.  To enable
+it, set `preview_images_method` to either  `urxvt` or `iTerm2`.  Please refer to
+the documentation  for further information.  For  the `urxvt` method to  work on
+Arch  Linux it  might be  needed  to install  the `rxvt-unicode-pixbuf`  package
+instead of the regular `rxvt-unicode`.
 
 ### Custom image previews
 
 In the recent versions of `ranger`, the mechanism of the image previews
-was extended and generalized. When calling `scope.sh`, `ranger` sets the
+was extended and generalized.  When calling `scope.sh`, `ranger` sets the
 `$cached` environmental variable containing a unique path to a file
 where the image preview may be generated if needed. `scope.sh` may then
 save an image to that path and exit with the exitcode "6" (documented
 inside `scope.sh`, may be a subject to some changes) to tell `ranger` to
-use it. Simply saying: if you can convert a file to a jpg, `ranger` is
-able to show a graphical preview for it. Videos, PDFs, all sort of
+use it.  Simply saying: if you can convert a file to a jpg, `ranger` is
+able to show a graphical preview for it.  Videos, PDFs, all sort of
 files.
 
 ## Rifle
 
-`rifle` is a powerful smart file opener bundled with `ranger`. It
+`rifle` is a powerful smart file opener bundled with `ranger`.  It
 tries to guess with what program it should open a given file based on
 its MIME type, extension, the available programs and a few other
-factors. It is configured with the `rifle.conf` file. It is used by
+factors.  It is configured with the `rifle.conf` file.  It is used by
 `ranger` internally but may be used as a standalone program too.
 
 ## More tips
 ### File tagging
 
-By pressing "t" you may mark a file with an asterisk ("\*"). It is
-persistent and will be there until you remove it manually. It may be
+By pressing "t" you may mark a file with an asterisk ("\*").  It is
+persistent and will be there until you remove it manually.  It may be
 used for example for marking the already read e-books, or files that
 need some action.
 
 You can actually mark files with almost any other character besides the
-asterisk. Pressing a quotation mark (' " ') followed by any other
+asterisk.  Pressing a quotation mark (' " ') followed by any other
 character marks the file with that character.
 
 The tags may also be used to automatically enable some options in
-certain directories. Refer to the documentation of the `:setintag`
+certain directories.  Refer to the documentation of the `:setintag`
 command.
 
 ### Metadata
 
-Storing the file metadata is a brand new feature of `ranger`. It may
-be used to add arbitrary key-value data to any file. Calling `:meta
+Storing the file metadata is a brand new feature of `ranger`.  It may
+be used to add arbitrary key-value data to any file.  Calling `:meta
 title a very interesting title` will set the tag "title" of the
 current file to "a very interesting title".
 
-`:meta` is most commonly used in conjunction with `:linemode`. The
-built-in linemodes are bound to "M" followed by some letter. At the
-moment of writing this guide, there are 3 built-in linemodes:
+`:meta` is  most commonly  used in conjunction  with `:linemode`.   The built-in
+linemodes are bound  to "M" followed by  some letter.  At the  moment of writing
+this guide, there are 3 built-in linemodes:
 
 -   `filename`: no metadata, the default mode of ranger,
 -   `permissions`: file permissions are displayed next to the files,
 -   `metatitle`: see below.
 
-The last line mode, `metatitle`, is extremely handy for organizing all
-sorts of documents: books, movies, pictures and more. It displays the
-files based on their metadata. The current format is:
-`[[year - ]title] alignment [authors]`. Bracketed content is ignored
-if empty. The `title` field is mandatory for this to work. To define
-a custom linemode, please refer to this page:
-[[Custom linemodes|Custom linemodes]].
+The last line mode, `metatitle`, is  extremely handy for organizing all sorts of
+documents: books,  movies, pictures and  more.  It  displays the files  based on
+their metadata.  The current format  is: `[[year - ]title] alignment [authors]`.
+Bracketed content is ignored if empty.   The `title` field is mandatory for this
+to work.   To define  a custom  linemode, please refer  to this  page:  [[Custom
+linemodes|Custom linemodes]].
 
 `:meta` stores the metadata in the ".metadata.json" file for each
 directory in which it is used.
 
 ### Directory flattening
 
-If you're browsing a moderetely nested directory tree, you may find
-`:flat` useful. It allows to browse a directory tree in a linear
-fashion: all the files up to the n-th level are shown together. It's a
-bit hard to explain so just call `:flat 1` and observe what happens.
-The argument is the maximum number of directories to flatten. Pass -1
-for no limit (use with caution!) and 0 to disable `:flat`.
+If you're  browsing a  moderetely nested  directory tree,  you may  find `:flat`
+useful.  It allows to browse a directory tree in a linear fashion: all the files
+up to  the n-th level are  shown together.  It's a  bit hard to explain  so just
+call `:flat 1` and observe what happens.   The argument is the maximum number of
+directories to  flatten.  Pass  -1 for  no limit  (use with  caution!) and  0 to
+disable `:flat`.
 
 ### Bulk renaming
 
-`ranger` supports bulk file renaming with the `:bulkrename` command.
-Mark the files that you want to rename and call `:bulkrename`. It
-should open a file containing a list of these files in your text
-editor (determined with `rifle`). You may freely change the names in
-that file. When you are done, save the file and close the editor.
-`ranger` will show you a preview of what will happen in a few moments.
+`ranger` supports bulk  file renaming with the `:bulkrename`  command.  Mark the
+files that  you want to  rename and call `:bulkrename`.   It should open  a file
+containing a list of these files  in your text editor (determined with `rifle`).
+You may freely change the names in that  file.  When you are done, save the file
+and close the editor. `ranger` will show you  a preview of what will happen in a
+few moments.
 
 `:bulkrename` works great with `:flat`!
+
 # Plugins.md
 Here's a place for your custom plugins!
 
@@ -1095,7 +1124,10 @@ https://github.com/alex8866/eranger/blob/master/ranger/config/plugins/plugin_dir
 ## Ranger Devicons plugin ( file icon glyphs for ranger)
 https://github.com/alexanderjeurissen/ranger_devicons
 # Shell-aliases.md
-Creating `r.shell` script somewhere in your PATH (like at `/usr/local/bin`) will allow you to expand your shell aliases inside `:shell ...` command. It's certainly useful, when you have several hundreds of them.
+
+Creating `r.shell` script somewhere in your PATH (like at `/usr/local/bin`) will
+allow  you to  expand  your shell  aliases inside  `:shell  ...` command.   It's
+certainly useful, when you have several hundreds of them.
 
 Script `r.shell`:
 
@@ -1197,8 +1229,8 @@ Since 1.7.0, ranger supports video previews.  More generally, you can define rul
 
 Video previews are disabled by default.  To turn them on:
 
-1. install w3mimgdisplay. It's used to draw images into the terminal.  On archlinux, the package is called "w3m", on debian it's "w3m-img"
-2. install ffmpegthumbnailer. It's used to generate a thumbnail of a video
+1. install w3mimgdisplay.  It's used to draw images into the terminal.  On archlinux, the package is called "w3m", on debian it's "w3m-img"
+2. install ffmpegthumbnailer.  It's used to generate a thumbnail of a video
 3. get a recent scope.sh config file, e.g. by typing `ranger --copy-config=scope`
 4. Uncomment the rule in the scope.sh below the line "Image preview for videos, disabled by default:"
 

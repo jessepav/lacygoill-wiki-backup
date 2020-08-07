@@ -377,8 +377,8 @@ findfile({name} [, {path} [, {count}]])
             La raison est ce fichier:
 
                     ~/.vim/tmp/undo/%home%user%.vim%plugged%vim-sneak%autoload%sneak%hl.vim
-                                                                └─┤
-                                                                  └ match le `sne` dans le pattern précédent
+                                                                ├─┘
+                                                                └ match le `sne` dans le pattern précédent
 
             À cause de lui, la plus longue partie commune à tous les matchs est:
 

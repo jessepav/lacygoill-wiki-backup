@@ -28,7 +28,7 @@ currently  loaded, with  `deletebufline()`,  `setbufline()`,  ... and  *without*
 side effects (e.g. no window opened/closed which could alter the layout).
 
     " buffer gets `u` flag in `:ls` output
-    let bufnr = bufadd(expand('~/.shrc'))
+    let bufnr = expand('~/.shrc')->bufadd()
     " buffer gets `u` and `h` flag in `:ls` output
     call bufload(bufnr)
     call appendbufline(bufnr, 1, ['some', 'text'])
@@ -37,7 +37,7 @@ side effects (e.g. no window opened/closed which could alter the layout).
 Answer: with `:wall`:
 
     $ echo ''>/tmp/file
-    $ vim +'let bufnr = bufadd(expand("/tmp/file"))' \
+    $ vim +'let bufnr = expand("/tmp/file")->bufadd()' \
           +'call bufload(bufnr)' \
           +'call setbufline(bufnr, 1, ["some", "text"])' \
           +'sil wall' \
@@ -130,35 +130,26 @@ Could be useful for our `vim-selection-ring` plugin...
 
 ## `:h method` and `:h :eval`
 
-This new syntax can improve the readability of nested function calls:
-
-    funcA(funcB(funcC(arg)))
-
-  vs
-
-    arg->funcA()->funcB()->funcC()
-
-Surprisingly, there are not that many  refactorings atm (only ≈ 600); search for
-this pattern:
-
-    )\_s*\\\=\s*))\@!
-
----
-
 You can't write that:
 
     :call expr->func()
 
-Where `func()` is  a function which mutates  `expr` or has a  side effect on Vim
-(option, buffer, ...).
+Where `expr` is not a function (custom or builtin; doesn't matter).
 
-You could write that:
+Example:
+
+    :call 'some string'->strlen()
+    E129: Function name required~
+
+You *could* write that:
 
     :sil echo expr->func()
 
 But that's awkward; that's where `:eval` comes in:
 
     :eval expr->func()
+
+Obviously, that's only useful if `func()` has a side-effect.
 
 ---
 
@@ -167,8 +158,10 @@ In fact, `:call func()` can be replaced with `:eval func()`.
 Does that mean that `:call` is useless now?
 Should we remove it everywhere?
 
-I think  the only thing `:call`  has over `:eval`,  is that it supports  a range
-(`:h e132`).
+I think `:call` has 2 benefits over `:eval`:
+
+   - it can be followed by a bar (`:eval` consumes it)
+   - it supports a range (`:h E132`)
 
 ## `:h prompt-buffer`
 

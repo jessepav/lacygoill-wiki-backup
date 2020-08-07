@@ -66,7 +66,7 @@ When possible, try to use `tput` instead.
 # Try to always use \033, instead of \e.
 
 Why?
-Easier to grep. Fewer matches when we have an issue with a terminal capability.
+Easier to grep.  Fewer matches when we have an issue with a terminal capability.
 
 # Study: `:lh \cterm\%(info\|cap\)`
 
@@ -79,12 +79,12 @@ Easier to grep. Fewer matches when we have an issue with a terminal capability.
 
    [breakdown 1][2]
 
-A user  types at a  terminal (a  physical teletype). This terminal  is connected
+A user  types at a terminal  (a physical teletype).  This  terminal is connected
 through  a  pair  of  wires  to a  UART  (Universal  Asynchronous  Receiver  and
-Transmitter) on the computer. The operating  system contains a UART driver which
+Transmitter) on the computer.  The operating system contains a UART driver which
 manages the  physical transmission  of bytes, including  parity checks  and flow
-control. In a  naïve system, the  UART driver  would then deliver  the incoming
-bytes directly to some application process. But  such an approach would lack the
+control.  In  a naïve system,  the UART driver  would then deliver  the incoming
+bytes directly to some application process.  But such an approach would lack the
 following features:
 
    - line editing
@@ -94,20 +94,20 @@ Line editing.
 
 Think of it as a primitive kernel-level `sed`.
 
-Most users make mistakes while typing,  so a backspace key is often useful. This
+Most users make mistakes while typing, so a backspace key is often useful.  This
 could be implemented by the applications  themselves, but in accordance with the
 UNIX design philosophy, applications should be kept as simple as possible.
 
 So as  a convenience, the operating  system provides an editing  buffer and some
-rudimentary editing commands (backspace, erase word, clear line, …), which are
-enabled by default inside the line discipline. Advanced applications may disable
-these features by putting the line discipline in raw mode instead of the default
-cooked mode.
+rudimentary editing commands  (backspace, erase word, clear line,  …), which are
+enabled  by  default inside  the  line  discipline.  Advanced  applications  may
+disable these features by putting the line discipline in raw mode instead of the
+default cooked mode.
 
 Most interactive applications  (editors, mail user agents,  shells, all programs
 relying on curses or readline) run in  raw mode, and handle all the line editing
-commands  themselves. The line  discipline also  contains options  for character
-echoing and  automatic conversion between carriage  returns and linefeeds.
+commands themselves.   The line discipline  also contains options  for character
+echoing and automatic conversion between carriage returns and linefeeds.
 
 
 Session management.
@@ -125,9 +125,9 @@ Session management.
 
 The operating system implements all these features in the TTY driver.
 
-The TTY driver  is a passive object. It  contains some data and  methods, but it
+The TTY driver is  a passive object.  It contains some data  and methods, but it
 can only do  something when one of its  methods gets called from a  process or a
-kernel interrupt handler. The line discipline is likewise a passive entity.
+kernel interrupt handler.  The line discipline is likewise a passive entity.
 
 The combination of a:
 
@@ -138,31 +138,31 @@ The combination of a:
 may be referred to as a TTY (device).
 
 A  user  process  can affect  the  behaviour  of  any  TTY by  manipulating  the
-corresponding device file under `/dev`. Write permissions to the device file are
-required, so when a user logs in on  a particular TTY, that user must become the
-owner of  the device file. This  is traditionally  done by the  `login` program,
-which runs with root privileges.
+corresponding device  file under `/dev`.   Write permissions to the  device file
+are required, so when a user logs in  on a particular TTY, that user must become
+the  owner of  the  device file.   This  is traditionally  done  by the  `login`
+program, which runs with root privileges.
 
-Let's move on to a typical desktop  system. This is how the Linux console works:
+Let's move on to a typical desktop  system.  This is how the Linux console works:
 
    [breakdown 2][3]
 
 The TTY  driver and line discipline  behave just like in  the previous examples,
-but there  is no UART  or physical  terminal involved anymore. Instead,  a video
+but there  is no UART or  physical terminal involved anymore.   Instead, a video
 terminal (a  complex state machine  including a  frame buffer of  characters and
 graphical character attributes)  is emulated in software, and rendered  to a VGA
 display.
 
-The console subsystem is somewhat rigid. Things get more flexible (and abstract)
-if we  move the terminal emulation  into userland. This is how  xterm(1) and its
-clones work:
+The  console  subsystem  is  somewhat  rigid.  Things  get  more  flexible  (and
+abstract) if we move the terminal emulation into userland.  This is how xterm(1)
+and its clones work:
 
     breakdown 3
 
 To facilitate moving  the terminal emulation into userland,  while still keeping
 the TTY  subsystem (session management  and line discipline) intact,  the pseudo
-terminal or pty was invented. And as you  may have guessed, things get even more
-complicated when you start running  pseudo terminals inside pseudo terminals, à
+terminal or pty was invented.  And as you may have guessed, things get even more
+complicated when you  start running pseudo terminals inside  pseudo terminals, à
 la screen(1) or ssh(1).
 
 Now let's take a step back and see how all of this fits into the process model.

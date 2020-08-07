@@ -9,20 +9,19 @@ A function allows a set of commands to be executed with a simple word.
 From the shell's point of view, everything is an argument.
 For example:
 
-        $ ls -I README -l foo 'bar car' baz
+    $ ls -I README -l foo 'bar car' baz
 
 The shell parses this command-line into 7 arguments passed to `execve()`:
 
-        1. ls           command name
-        2. -I           option
-        3. README       parameter to the `-I` option
-        4. -l           option
-        5. foo          positional parameter
-        6. 'bar car'    positional parameter
-        7. baz          positional parameter
+   1. ls           command name
+   2. -I           option
+   3. README       parameter to the `-I` option
+   4. -l           option
+   5. foo          positional parameter
+   6. 'bar car'    positional parameter
+   7. baz          positional parameter
 
-For more:
-        https://stackoverflow.com/a/40654885/9780968
+For more info: <https://stackoverflow.com/a/40654885/9780968>
 
 ## associative array
 
@@ -111,6 +110,7 @@ can't write any arbitrary option name), and whose possible values are hard coded
 in the program.
 
 A boolean option is sometimes called “flag” or “switch”.
+
 ##
 # p
 ## parameter

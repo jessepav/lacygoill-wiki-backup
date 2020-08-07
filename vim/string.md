@@ -315,15 +315,15 @@ Or `strcharpart()`:
 
 Or `strgetchar()` + `nr2char()`:
 
-    echo nr2char(strgetchar(str, n-1))
-                                 ├─┘
-                                 └ {index}
+    echo strgetchar(str, n - 1)->nr2char()
+                         ├───┘
+                         └ {index}
 
 ---
 
-    echo matchstr('résumé', '..\zs.')
+    echo matchstr('résumé', ' .. \zs.')
     echo strcharpart('résumé', 2, 1)
-    echo nr2char(strgetchar('résumé', 2))
+    echo strgetchar('résumé', 2)->nr2char()
     s~
 
 ##
@@ -380,7 +380,7 @@ And execute:
 
 Use `matchstr()`, `col('.')` and `\%123c`:
 
-    echo matchstr(getline('.'), '\%'.col('.').'c.')
+    echo getline('.')->matchstr('\%'.col('.').'c.')
 
 `\%123c` means that the byte index of the next character is `123`.
 `col('.')` returns the byte index of the character under the cursor.
@@ -696,7 +696,7 @@ Most of the time, no.
 However, there's one exception.
 If you use `silent!`, the error messages won't be included in the output.
 
-    echo execute('abcd', 'silent!') is# ''
+    echo execute('abcd', 'silent!') == ''
     1~
 
 ### during the evaluation of the first argument?
@@ -810,7 +810,7 @@ The hour is not `00:00:00` because of our timezone; where we live, we must add 1
 
 Use `reltimestr()`:
 
-    echo reltimestr(reltime())
+    echo reltime()->reltimestr()
 
 ##
 ## How to get the time passed between
@@ -861,7 +861,7 @@ When provided, `reltime()` computes the time passed between `{start}` and `{end}
 ## Splitting
 ### How to get the list of words on the line?
 
-    echo split(getline('.'), '\%(\k\@!.\)\+')
+    echo getline('.')->split('\%(\k\@!.\)\+')
 
 ### Is the output of `split()` different if the pattern matches at the very beginning/end of the string?
 
@@ -1364,7 +1364,7 @@ But a single trailing zero is kept if necessary to prevent a float from becoming
 For a string, it means that it's made empty (total truncation).
 For a float, it means that it becomes an integer.
 
-    echo printf('%.s', 'foobar') is# ''
+    echo printf('%.s', 'foobar') == ''
     1~
 
     echo printf('%.f', 123.456)
@@ -1406,7 +1406,7 @@ format.
 You could also use a string concatenation, but it would be less readable.
 
     let prec = 9
-    echo printf('%.' . prec . 'f', 1/3.0)
+    echo printf('%.' .. prec .. 'f', 1/3.0)
     0.333333333~
 
 ##
@@ -1415,8 +1415,8 @@ You could also use a string concatenation, but it would be less readable.
 The `%s` item of `printf()` can do that automatically.
 
     let dict = {'a': 1, 'b': 2}
-    echo 'my dictionary is '..string(dict)
-                              ^----^
+    echo 'my dictionary is ' .. string(dict)
+                                ^----^
     ⇔
 
     let dict = {'a': 1, 'b': 2}
@@ -1445,7 +1445,7 @@ The latter is more readable than:
 
     let F = function('len')
     let b = 0zaabbcc
-    echo 'my funcref is '..string(function('len'))..', and my blob is '..string(0zaabbcc)
+    echo 'my funcref is ' .. function('len')->string() .. ', and my blob is ' .. string(0zaabbcc)
 
 #### What's the limitation of this syntax?
 
@@ -1455,15 +1455,15 @@ concatenation; they don't magically convert its contents into a valid command.
 Example:
 
     fu Func(str)
-        echom 'the string '..a:str..' contains '..strchars(a:str)..' characters'
+        echom 'the string ' .. a:str .. ' contains ' .. strchars(a:str) .. ' characters'
     endfu
     let arg = 'test'
-    let cmd = 'call Func('..string(arg)..')'
+    let cmd = 'call Func(' .. string(arg) .. ')'
     exe cmd
 
 Here, you could be tempted to replace this line:
 
-    let cmd = 'call Func('..string(arg)..')'
+    let cmd = 'call Func(' .. string(arg) .. ')'
 
 With this line:
 
@@ -1475,8 +1475,8 @@ But it won't work; it will raise:
 
 You still need `string()`:
 
-    let cmd = printf('call Func(%s)', string(arg))
-                                      ^----^
+    let cmd = string(arg)->printf('call Func(%s)')
+              ^----^
 
 In this example, `arg`  still has to be quoted when  passed to `Func()`, because
 the latter expects a string, not a variable name.

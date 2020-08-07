@@ -271,7 +271,7 @@ operator-pending).
 
             On remarque que `:write` doit être précédée de l'adresse `.` (ligne courante).
             En effet, `:write` est une des rares commandes Ex qui par défaut utilise comme rangée
-            tout le buffer. D'habitude une commande Ex utilise par défaut la ligne courante.
+            tout le buffer.  D'habitude une commande Ex utilise par défaut la ligne courante.
 
             On fait également connaissance avec le token `>>` qui permet d'append des lignes à la fin
             d'un fichier.
@@ -293,7 +293,7 @@ operator-pending).
             On peut s'apercevoir que les octets utilisés pour les 256 premiers caractères sont
             identiques au point de code de ces derniers.
 
-            En revanche, au-delà, les 2 diffèrent.  Même leur taille peuvent différer. Ex:
+            En revanche, au-delà, les 2 diffèrent.  Même leur taille peuvent différer.  Ex:
 
                     ―    \u2015      2 octets
                          e2 80 95    3 octets
@@ -438,7 +438,7 @@ operator-pending).
 
             Ceci illustre 2 conventions respectées par les opérateurs:
 
-                    - qd on répète 2 fois un opérateur, il agit sur toute la ligne. Ex:
+                    - qd on répète 2 fois un opérateur, il agit sur toute la ligne.  Ex:
 
                             cc
                             dd
@@ -800,7 +800,7 @@ courante.
                                                NOTE:
 
             Qd la commande exécutée par :g est une succession de commandes Ex dont plusieurs utilisent
-            des adresses relatives à la ligne courante, on risque des effets inattendus. Pex:
+            des adresses relatives à la ligne courante, on risque des effets inattendus.  Pex:
 
                     :g/^$/-s/$/END/ | ++s/^/BEGINNING
 
@@ -814,9 +814,9 @@ courante.
             d'une ligne.
             La 2e substitution (++s/…) ne va donc pas se faire sur la 1e ligne du paragraphe, mais la 2e.
 
-            La 2e erreur aurait pu être évitée. Comment?
+            La 2e erreur aurait pu être évitée.  Comment?
             En marquant la ligne courante dès le début (:mark a), puis en se référant constamment
-            à cette position. Ainsi, au lieu d'écrire ++s/…, on préférera 'a+s/…
+            à cette position.  Ainsi, au lieu d'écrire ++s/…, on préférera 'a+s/…
 
 ## Corriger
 
@@ -972,7 +972,7 @@ spell), il n'est pas colorisé et souligné dans la même couleur que les mots f
                     - 11 à 20
 
 
-    :g/^/exe 'm -'..(line('.')%4 ? line('.')%4 : 4)
+    :g/^/exe 'm -' .. (line('.') % 4 ? line('.') % 4 : 4)
 
             Inverser l'ordre de tri toutes les 4 lignes.
 
@@ -1254,7 +1254,7 @@ Infographie résumant les différents types d'interaction possibles entre Vim et
                     setl fex=MyFormatExpr(v:lnum,v:lnum+v:count-1)
 
                     fu MyFormatExpr(start, end)
-                        sil! exe a:start . ',' . a:end . 's/[.!?]\zs /\r/g'
+                        sil! exe a:start .. ',' .. a:end .. 's/[.!?]\zs /\r/g'
                     endfu
 
             Ici, la fonction casse les lignes après chaque caractère de ponctuation (.!?).
@@ -1347,11 +1347,11 @@ Pex, si on a la ligne 'abcde', un tab inséré après:
 Modifier l'alignement de colonnes de texte utilisant des tabs s'avère souvent pénible car il est difficile
 de prévoir le résultat de l'insertion / suppression d'un tab au milieu d'une ligne.
 Raison pour laquelle on ne devrait jamais aligner du texte avec des tabs.
-De toute façon, les tabs n'ont pas été pensés pour l'alignement. Ex:
+De toute façon, les tabs n'ont pas été pensés pour l'alignement.  Ex:
                                                                         var x = 10,
                                                                             y = 0;
 
-La 2e ligne ne peut être alignée qu'à condition que &ts = 4. Pour toute autre valeur, on perd l'alignement.
+La 2e ligne ne peut être alignée qu'à condition que &ts = 4.  Pour toute autre valeur, on perd l'alignement.
 
 
     =
@@ -1555,7 +1555,7 @@ La 2e ligne ne peut être alignée qu'à condition que &ts = 4. Pour toute autre
     v_|g
 
             Recherche le texte couvert par  {motion} récursivement dans tous les
-            fichiers du cwd. Fonctionne aussi en mode visuel.
+            fichiers du cwd.  Fonctionne aussi en mode visuel.
 
 
     :g/
@@ -1870,7 +1870,7 @@ See `:h include-search` and `:h :search-args`.
 :h visual-repeat
 
 Qd on sélectionne du  texte puis qu'on agit dessus avec un opérateur,  la commande dot se souvient
-non seulement de  l'opérateur mais aussi des dimensions  (nb lignes x nb colonnes) du  texte. Qd on
+non seulement de  l'opérateur mais aussi des dimensions  (nb lignes x nb colonnes) du  texte.  Qd on
 appuiera sur dot, depuis la position courante du curseur, elle sélectionnera la zone de texte ayant
 les même dimensions, puis appellera le même opérateur.
 
@@ -1881,7 +1881,7 @@ se  déplace au  milieu d'un  autre paragraphe,  dot  ne l'indentera  pas, elle 
 courante et les 4 suivantes.
 
 De la même façon, si  on sélectionne un mot (viw) de 10 caractères et  qu'on le supprime, dot ne
-mémorise pas une suppression de mot, mais une suppression de 10 caractères. Donc, si ensuite on se
+mémorise pas une suppression de mot, mais une suppression de 10 caractères.  Donc, si ensuite on se
 déplace au  milieu d'un autre  mot, dot ne  le supprimera pas,  elle supprimera les  10 caractères
 suivants.
 
@@ -2100,7 +2100,7 @@ ligne de la marque a (les 2 lignes incluses).
             iw est un objet qu'on pourrait considérer comme un mouvement characterwise inclusif.
             Qd on le fait précéder d'un opérateur, il inclut les caractères de début et de fin du mot.
             Toutefois, qd on intercale v entre un opérateur et un mouvement characterwise inclusif,
-            il devient exclusif. Raison pour laquelle cviw ne change pas la dernière lettre du mot.
+            il devient exclusif.  Raison pour laquelle cviw ne change pas la dernière lettre du mot.
 
             On peut aussi considérer gn et gN comme des mappings systèmes.
             Si le curseur se trouve:
@@ -2234,7 +2234,7 @@ ligne de la marque a (les 2 lignes incluses).
 
                     If the motion was linewise, it will become exclusive.
 
-            Ceci explique pourquoi il reste une ligne vide. C'est la dernière, qui a été exclue.
+            Ceci explique pourquoi il reste une ligne vide.  C'est la dernière, qui a été exclue.
 
 
     :g/foo/v/bar/d_
@@ -2266,8 +2266,8 @@ ligne de la marque a (les 2 lignes incluses).
             Autrement toutes les lignes du buffer seraient supprimées (sauf la 1e?).
 
             Comment fonctionne la commande :norm ?
-            Depuis la ligne 1, elle supprime 9 lignes. La dernière ligne du 1er bloc devient la ligne 1.
-            Depuis la ligne 2, elle supprime 9 autres lignes. La dernière ligne du 2e bloc devient la ligne 2.
+            Depuis la ligne 1, elle supprime 9 lignes.  La dernière ligne du 1er bloc devient la ligne 1.
+            Depuis la ligne 2, elle supprime 9 autres lignes.  La dernière ligne du 2e bloc devient la ligne 2.
             Etc.
 
             À un moment donné, :norm est probablement appelée pour des (adresses de) lignes qui n'existent plus.
@@ -2278,7 +2278,7 @@ ligne de la marque a (les 2 lignes incluses).
             s'en foutre (pas de message d'erreur).
 
             On n'est pas obligé de passer la rangée % à :norm:
-            1,N suffit (N correspondant au nb de blocs dans le fichier). Mais % est + simple et rapide à taper.
+            1,N suffit (N correspondant au nb de blocs dans le fichier).  Mais % est + simple et rapide à taper.
 
 
     g/^/5s/\v^(.*$)\_.*\zs\n\1$/
@@ -2386,11 +2386,11 @@ ligne de la marque a (les 2 lignes incluses).
             Mais cette fois, la condition reste vraie.
 
             Dans la logique précédente, si on remplace les termes prochain(e) par précédent(e),
-            la logique reste valide. Donc l'ajout du flag 'b' ne pose pas de pb.
+            la logique reste valide.  Donc l'ajout du flag 'b' ne pose pas de pb.
 
             Pk le .* dans la recherche de 'end' ?
             Parce que lorsque :g est sur une ligne contenant 'end', on veut que la recherche trouve
-            la ligne courante. Or, :g positionne le curseur sur la 1e colonne de la ligne, et donc,
+            la ligne courante.  Or, :g positionne le curseur sur la 1e colonne de la ligne, et donc,
             si jamais du texte se trouve avant 'end' ('some text end'), search() ne trouvera pas 'end'
             sur la ligne courante mais sur une précédente.
 
@@ -2721,7 +2721,7 @@ On peut se rendre à une marque de 4 façons différentes, en la préfixant avec
                                                NOTE:
 
             Vim considère comme un saut, tout mouvement pour lequel on ne connaît pas à l'avance
-            la distance entre le départ et l'arrivée. Ex:
+            la distance entre le départ et l'arrivée.  Ex:
 
                    5j        on connaît la distance dc Vim ne marque pas le départ
 
@@ -2853,7 +2853,7 @@ On peut se rendre à une marque de 4 façons différentes, en la préfixant avec
                 - le buffer correspondant à un fichier s'ils ont le même nom
 
             Attention: bien vérifier que le nom qu'on choisit n'est pas déjà pris par un buffer existant.
-            Autrement erreur. Pour ce faire:
+            Autrement erreur.  Pour ce faire:
 
                     if !bufexists('bufname') | silent file bufname | endif
 
@@ -3023,7 +3023,7 @@ Ouvre dirvish pour laisser l'utilisateur choisir un fichier:
                     :e /long/path/to/{fname}
 
             Toutefois,  en  pratique, il  vaut  mieux  faire en  sorte  que  le dossier  de  travail
-            corresponde  à  la  racine  du  projet. Puis,  d'utiliser  des  mappings  qui  taperont
+            corresponde  à  la  racine  du  projet.  Puis,  d'utiliser  des  mappings  qui  taperont
             automatiquement le  chemin vers la  racine du projet ou  le dossier du  fichier courant.
             Cette  méthode présente  l'avantage de  s'adapter  à n'importe  quel sous-dossier  du
             projet, sans avoir à changer le dossier de travail.

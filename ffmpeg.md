@@ -95,7 +95,7 @@ copy` argument passed to `ffmpeg`.
 
             Au préalable, il faut lancer le mixer du serveur pulse (`pavucontrol`), sélectionner l'onglet
             'recording', et dans le menu déroulant sélectionner 'Monitor of Built-in Audio Analog Sound'.
-            Pas besoin de le refaire à chaque fois qu'on enregistre du son. Une fois suffit, car ffmpeg
+            Pas besoin de le refaire à chaque fois qu'on enregistre du son.  Une fois suffit, car ffmpeg
             mémorisera ce réglage.
 
 
@@ -129,8 +129,8 @@ copy` argument passed to `ffmpeg`.
 
             L'ordre des options est important.
 
-            `-ss` et `-t` sont des options propres à un fichier d'entrée. Elles doivent donc se trouver avant `-i`.
-            `-vf` est une option propre à un fichier de sortie. Elle doit donc se trouver après `-i`.
+            `-ss` et `-t` sont des options propres à un fichier d'entrée.  Elles doivent donc se trouver avant `-i`.
+            `-vf` est une option propre à un fichier de sortie.  Elle doit donc se trouver après `-i`.
 
 
                                      NOTE:
@@ -225,12 +225,12 @@ copy` argument passed to `ffmpeg`.
        width, w
        height, h
 
-           Set the output video dimension expression. Default value is the input dimension.
+           Set the output video dimension expression.  Default value is the input dimension.
 
            If the value is 0, the input width is used for the output.
 
            If one of the values  is -1, the scale filter will use a  value that maintains the aspect
-           ratio of the input image, calculated from  the other specified dimension. If both of them
+           ratio of the input image, calculated from  the other specified dimension.  If both of them
            are -1, the input size is used
 
            If one  of the values  is -n  with n >  1, the scale  filter will  also use a  value that
@@ -242,8 +242,8 @@ copy` argument passed to `ffmpeg`.
 
        flags
 
-           Set  libswscale scaling  flags. See  the ffmpeg-scaler  manual for  the complete  list of
-           values. If not explicitly specified the filter applies the default flags.
+           Set  libswscale scaling  flags.  See  the ffmpeg-scaler  manual for  the complete  list of
+           values.  If not explicitly specified the filter applies the default flags.
 
 # DOCUMENTATION
 
@@ -317,7 +317,7 @@ https://trac.ffmpeg.org/wiki ; lire les pages des sections suivantes:
                                      NOTE:
 
             Qd la profondeur des couleurs d'une image est de 8 bpp, 3 sont alloués au rouge, 3 au vert
-            et seulement 2 au bleu. En effet, l'oeil humain est moins sensible au bleu (2/3 des récepteurs
+            et seulement 2 au bleu.  En effet, l'oeil humain est moins sensible au bleu (2/3 des récepteurs
             de l'oeil traitent des longueurs d'ondes plus grandes).
             Plus généralement, l'oeil distingue d'avantage de nuances de certaines couleurs suivant
             l'ordre de priorité suivante:

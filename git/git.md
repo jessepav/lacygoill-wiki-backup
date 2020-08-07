@@ -1011,7 +1011,7 @@ La valeur est un entier correspondant à une durée en dizièmes de seconde.
 
     user.signingkey <gpg-key-id>
 
-ID de la clé GPG à utiliser pour signer un tag. Facilite la signature d'un tag:
+ID de la clé GPG à utiliser pour signer un tag.  Facilite la signature d'un tag:
 
     git tag -s <tag-name>
 
@@ -1700,7 +1700,7 @@ For more info, see: <https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pu
 ##
 # Github
 
-Chaque projet peut être cloné via https ou ssh. Pour plus d'infos:
+Chaque projet peut être cloné via https ou ssh.  Pour plus d'infos:
 
 - <https://help.github.com/articles/which-remote-url-should-i-use/>
 - <https://help.github.com/articles/generating-an-ssh-key/>

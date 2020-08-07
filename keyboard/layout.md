@@ -137,7 +137,7 @@ J'ai le même pb avec `xcape`:
 
     xcape -e 'Alt_L=Alt_L|Q'
 
-Cette commande  traduit un `Alt_L`,  tapé seul, en  `M-q`. Je n'arrive pas  à la
+Cette commande traduit  un `Alt_L`, tapé seul,  en `M-q`.  Je n'arrive  pas à la
 faire exécuter automatiquement.
 
 Update:
@@ -161,7 +161,7 @@ Si M2 a le même comportement que  M1 (ex: `Control_R` a le même comportement q
 courant qu'un nouveau keycode est capable de générer M0, via la commande `add`.
 
 En  revanche, si  M2  a un  comportement  différent, il  faut  alors changer  sa
-signification via 2 commandes (`remove` et `add`). Ex:
+signification via 2 commandes (`remove` et `add`).  Ex:
 
     xmodmap -e 'remove mod4 = Hyper_L'
     xmodmap -e 'add control = Hyper_L'

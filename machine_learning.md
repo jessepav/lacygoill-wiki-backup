@@ -6,11 +6,13 @@
 
 # Neural Network
 
-Considérons une image de taille 28 x 28 pixels (784 pixels), et un réseau de neurones de même géométrie.
-Cette image contient la représentation d'un nombre, par exemple “9“.
+Considérons une  image de taille 28  x 28 pixels  (784 pixels), et un  réseau de
+neurones de même géométrie.  Cette image contient la représentation d'un nombre,
+par exemple “9“.
 
-On alimente le réseau de neurone avec cette image. Chaque neurone stocke un nombre compris entre 0 et 1
-correspondant au niveau de gris (0 = noir, 1 = blanc) du pixel d'origine.
+On alimente  le réseau de  neurone avec cette  image.  Chaque neurone  stocke un
+nombre compris  entre 0  et 1 correspondant  au niveau  de gris (0  = noir,  1 =
+blanc) du pixel d'origine.
 
 # VOCA
 

@@ -94,7 +94,7 @@ So, if you want to include a copyright symbol in your article, you can write:
 
 &copy;
 
-... and Markdown will leave it alone. But if you write:
+... and Markdown will leave it alone.  But if you write:
 
 AT&T
 
@@ -626,8 +626,9 @@ can add links without interrupting the narrative flow of your prose.
 
 ## Emphasis
 
-    Markdown treats asterisks (*) and underscores (_) as indicators of emphasis. Text wrapped with one * or _ will be
-    wrapped with an HTML <em> tag; double *'s or _'s will be wrapped with an HTML <strong> tag. E.g., this input:
+    Markdown treats asterisks (*) and underscores (_) as indicators of emphasis.
+    Text wrapped with one  * or _ will be wrapped with an  HTML <em> tag; double
+    *'s or _'s will be wrapped with an HTML <strong> tag.  E.g., this input:
 
     *single asterisks*
 
@@ -665,7 +666,7 @@ otherwise be used as an emphasis delimiter, you can backslash escape it:
 
 To indicate a span of code, wrap it with backtick quotes (`).
 Unlike a  pre-formatted code block, a  code span indicates code  within a normal
-paragraph. E.g.:
+paragraph.  E.g.:
 
 Use the `printf()` function.
 

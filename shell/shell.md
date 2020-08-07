@@ -320,9 +320,10 @@ pas encore sûr.
 ##
 # brace expansion
 
-Il s'agit d'une  fonctionnalité permettant de développer  un série de chaînes,  en les combinant
-éventuellement avec  un préambule et  / ou  post-scriptum. Utile pour  passer + rapidement  à une
-commande une longue série d'arguments dont le nom est proche.
+Il s'agit d'une fonctionnalité permettant de  développer un série de chaînes, en
+les combinant  éventuellement avec  un préambule et  / ou  post-scriptum.  Utile
+pour passer + rapidement à une commande une longue série d'arguments dont le nom
+est proche.
 
 
     echo {foo,bar,baz}
@@ -1950,7 +1951,7 @@ Use `return`.
             Affiche 1.
 
             Pour le  shell, 0  est vrai  et n'importe  quel nombre compris  entre 1  et 255  est une
-            erreur. En cela, il diffère de  nombreux languages de programmation, qui considèrent 0
+            erreur.  En cela, il diffère de  nombreux languages de programmation, qui considèrent 0
             comme faux et 1 comme vrai.
 
 
@@ -1994,7 +1995,7 @@ Use `return`.
     │ s1 > s2       │ "           après "                                │
     └───────────────┴────────────────────────────────────────────────────┘
 
-    `[[ s == p ]]` fonctionne dans bash, mais n'est pas POSIX. Voici une syntaxe plus portable:
+    `[[ s == p ]]` fonctionne dans bash, mais n'est pas POSIX.  Voici une syntaxe plus portable:
 
             case "s" in
               p) echo 'match' ;;
@@ -2201,16 +2202,16 @@ Use `return`.
             Si on écrit la  fonction `echopid()` dans un fichier sourcé par  le shell, on constate
             qu'elle affiche le même pid que la commande `echo $$` exécutée dans le shell courant.
             Ceci montre  qu'une fonction custom est  exécutée dans le processus  du shell courant.
-            Elle est donc capable  de modifier son environnement. En particulier,  si elle change le
+            Elle est donc capable  de modifier son environnement.  En particulier,  si elle change le
             répertoire courant, il faudra penser à le lui faire restaurer à la fin.
 
             De la  même façon,  si on  écrit `echo  $$` dans un  fichier et  qu'on le  source, on
-            remarque qu'il  affiche le même pid  que celui du  shell. Là encore, ça  prouve qu'un
+            remarque qu'il  affiche le même pid  que celui du  shell.  Là encore, ça  prouve qu'un
             fichier sourcé est exécuté dans le processus du shell.
 
             En revanche,  si on  écrit `echo $$`  dans un  script, avec ou  sans shebang,  et qu'on
             l'exécute, on  remarque qu'il affiche un  pid qui ne  correspond pas à celui  du shell
-            courant, et qu'il est  incrémenté à chaque fois qu'on appelle  le script. Ceci prouve
+            courant, et qu'il est  incrémenté à chaque fois qu'on appelle  le script.  Ceci prouve
             qu'un script est exécuté dans un sous-shell.
 
 
@@ -2223,7 +2224,7 @@ Use `return`.
             C'est donc une commande pratique pour, pex, activer un nouvel alias qu'on vient de définir
             dans un fichier de conf.
 
-            Cette commande ne lance pas un nouveau shell enfant. Elle remplace le shell courant.
+            Cette commande ne lance pas un nouveau shell enfant.  Elle remplace le shell courant.
             Même le pid reste inchangé (echo $$).
 
             `exec` est une commande intégrée à bash/zsh permettant de remplacer le processus courant
@@ -2364,7 +2365,7 @@ La localisation (abrégée en `l10n`) s'oppose à l'internationalisation (`i18n`
 
             `LC_ALL` permet de s'assurer qu'on travaille avec une localisation totalement connue
             (généralement on choisit C), de sorte que le format de la sortie des commandes soit
-            connu d'avance. Utile dans un script, ou pour une commande tq `grep` ou `sort`:
+            connu d'avance.  Utile dans un script, ou pour une commande tq `grep` ou `sort`:
 
                     LC_ALL=C grep ...
 
@@ -2382,7 +2383,7 @@ La localisation (abrégée en `l10n`) s'oppose à l'internationalisation (`i18n`
             https://unix.stackexchange.com/questions/87745/what-does-lc-all-c-do
 
             You generally run a command with LC_ALL=C to avoid the user's settings to interfere with
-            your script. For instance, if you want [a-z]  to match the 26 ASCII characters from a to
+            your script.  For instance, if you want [a-z]  to match the 26 ASCII characters from a to
             z, you have to set LC_ALL=C.
 
             On GNU systems,  LC_ALL=C and LC_ALL=POSIX (or  LC_MESSAGES=C|POSIX) override $LANGUAGE,
@@ -2391,7 +2392,7 @@ La localisation (abrégée en `l10n`) s'oppose à l'internationalisation (`i18n`
             A few cases where you typically need to set LC_ALL=C:
 
     sort -u or sort ... | uniq.... In many locales other than C, on some systems (notably GNU ones),
-    some characters  have the same sorting  order. sort -u doesn't  report unique lines, but  one of
+    some characters  have the same sorting  order.  sort -u doesn't  report unique lines, but  one of
     each group of  lines that have equal sorting order.  So if you do want unique  lines, you need a
     locale where characters  are byte and all  characters have different sorting order  (which the C
     locale guarantees).
@@ -2400,17 +2401,17 @@ La localisation (abrégée en `l10n`) s'oppose à l'internationalisation (`i18n`
     awks (mawk  and gawk are  not POSIX in  that regard), that don't  check whether two  strings are
     identical but whether they sort the same.
 
-    Character ranges like  in grep. If you mean to  match a letter in the user's  language, use grep
-    '[[:alpha:]]' and don't modify LC_ALL. But if you want to match the a-zA-Z ASCII characters, you
+    Character ranges like  in grep.  If you mean to  match a letter in the user's  language, use grep
+    '[[:alpha:]]' and don't modify LC_ALL.  But if you want to match the a-zA-Z ASCII characters, you
     need  either  LC_ALL=C  grep  '[[:alpha:]]'  or LC_ALL=C  grep  '[a-zA-Z]'.  [a-z]  matches  the
     characters that  sort after a  and before z  (though with many  APIs it's more  complicated than
-    that). In  other locales, you  generally don't  know what those  are. For instance  some locales
+    that).  In  other locales, you  generally don't  know what those  are.  For instance  some locales
     ignore case for sorting so [a-z] in some  APIs like bash patterns, could include [B-Z] or [A-Y].
     In many  UTF-8 locales  (including en_US.UTF-8 on  most systems), [a-z]  will include  the latin
     letters from a to y with diacritics but not those of z (since z sorts before them) which I can't
     imagine would be what you want (why would you want to include é and not ź?).
 
-    floating point  arithmetic in ksh93. ksh93  honours the decimal_point setting  in LC_NUMERIC. If
+    floating point  arithmetic in ksh93.  ksh93  honours the decimal_point setting  in LC_NUMERIC.  If
     you write  a script that contains  a=$((1.2/7)), it will stop  working when run by  a user whose
     locale has comma as the decimal separator:
 
@@ -2433,18 +2434,18 @@ La localisation (abrégée en `l10n`) s'oppose à l'internationalisation (`i18n`
     even more confusion.
 
     When  you need  characters to  be bytes.  Nowadays,  most locales  are UTF-8  based which  means
-    characters can take up from 1 to 6 bytes. When dealing with data that is meant to be bytes, with
-    text utilities,  you'll want  to set  LC_ALL=C. It will  also improve  performance significantly
+    characters can take up from 1 to 6 bytes.  When dealing with data that is meant to be bytes, with
+    text utilities,  you'll want  to set  LC_ALL=C.  It will  also improve  performance significantly
     because parsing UTF-8 data has a cost.
     a corollary of the previous point: when processing  text where you don't know what character set
     the input is  written in, but can assume  it's compatible with ASCII (as  virtually all charsets
-    are). For instance grep '<.*>'  to look for lines containing a <, > pair  will no work if you're
+    are).  For instance grep '<.*>'  to look for lines containing a <, > pair  will no work if you're
     in a UTF-8 locale and the input is encoded in a single-byte 8-bit character set like iso8859-15.
     That's because . only  matches characters and non-ASCII characters in  iso8859-15 are likely not
-    to form a  valid character in UTF-8. On  the other hand, LC_ALL=C grep '<.*>'  will work because
+    to form a  valid character in UTF-8.  On  the other hand, LC_ALL=C grep '<.*>'  will work because
     any byte value forms a valid character in the C locale.
 
-    Any time where you process  input data or output data that is not  intended from/for a human. If
+    Any time where you process  input data or output data that is not  intended from/for a human.  If
     you're talking to a  user, you may want to use their convention  and language, but for instance,
     if you generate some  numbers to feed some other application that  expects English style decimal
     points, or English month names, you'll want to set LC_ALL=C:
@@ -2459,11 +2460,11 @@ La localisation (abrégée en `l10n`) s'oppose à l'internationalisation (`i18n`
             Aug
 
     That  also applies  to  things like  case  insensitive comparison  (like in  grep  -i) and  case
-    conversion (awk's toupper(), dd conv=ucase...). For instance:
+    conversion (awk's toupper(), dd conv=ucase...).  For instance:
 
             grep -i i
 
-    is not guaranteed to match  on I in the user's locale. In some  Turkish locales for instance, it
+    is not guaranteed to match  on I in the user's locale.  In some  Turkish locales for instance, it
     doesn't as  upper-case i is İ  (note the dot)  there and lower-case  I is ı (note  the missing
     dot).
 
@@ -2787,7 +2788,7 @@ Grouper des commandes permet de:
         N'affiche rien.
 
         En effet,  echo est exécutée  dans un shell  enfant, et un  shell enfant n'hérite  pas de
-        l'environnement du parent. Pour que le shell enfant sh voit $var, il faudrait l'exporter.
+        l'environnement du parent.  Pour que le shell enfant sh voit $var, il faudrait l'exporter.
 
 
     var='hello'; (echo $var)
@@ -2810,7 +2811,7 @@ Grouper des commandes permet de:
 
                 1.  L'affectation de  variable est  suivie d'un  ; Ça  implique qu'il  s'agit d'une
                 instruction à part  entière qui modifie l'environnement du shell  dans lequel elle
-                est exécutée. Et non simplement l'environnement de la commande qui suit.
+                est exécutée.  Et non simplement l'environnement de la commande qui suit.
 
                 2. Les  parenthèses permettent  de confiner cette  modification dans  un sous-shell
                 pour éviter de polluer le shell courant.
@@ -2821,7 +2822,7 @@ Grouper des commandes permet de:
                                      NOTE:
 
         Une  affectation de  variable n'est  valable que  pour la  commande qui  suit. Pas  pour ses
-        arguments, ni pour d'autres éventuelles commandes (après un pipe pex). Ainsi:
+        arguments, ni pour d'autres éventuelles commandes (après un pipe pex).  Ainsi:
 
                 FOO=bar  echo $FOO
 
@@ -2899,9 +2900,9 @@ Une commande simple est:
    3. des arguments
    4. un ensemble de redirections
 
-Tous ces éléments sont optionnels. Le nom de commande est passé au shell en tant qu'argument 0.
-Une commande simple a un code de sortie allant de 0 (ok) à 255 (diverses erreurs), auquel on peut
-accéder depuis le shell via $?
+Tous ces  éléments sont optionnels.   Le nom de commande  est passé au  shell en
+tant qu'argument 0.  Une commande simple a un  code de sortie allant de 0 (ok) à
+255 (diverses erreurs), auquel on peut accéder depuis le shell via $?
 
 Exemple de commande simple:
 
@@ -2915,7 +2916,7 @@ Avant d'exécuter une commande simple, bash effectue 3 opérations:
 
 ### fonction
 
- A shell function definition makes a compound command available via a new name. When the function runs, it has its own "private" set of positional parameters and I/O descriptors. It acts like a script-within-the-script. Simply stated: You've created a new command.
+ A shell function definition makes a compound command available via a new name.  When the function runs, it has its own "private" set of positional parameters and I/O descriptors.  It acts like a script-within-the-script.  Simply stated: You've created a new command.
 
 The definition is easy (one of many possibilities):
 
@@ -2925,13 +2926,13 @@ which is usually used with the {...; } compound command, and thus looks like:
 
 print_help() { echo "Sorry, no help available"; }
 
-As above, a function definition can have any compound command as a body. Structures like
+As above, a function definition can have any compound command as a body.  Structures like
 
 countme() for ((x=1;x<=9;x++)); do echo $x; done
 
 are unusual, but perfectly valid, since the for loop construct is a compound command!
 
-If redirection is specified, the redirection is not performed when the function is defined. It is performed when the function runs:
+If redirection is specified, the redirection is not performed when the function is defined.  It is performed when the function runs:
 
  # this will NOT perform the redirection (at definition time)
 f() { echo ok ; } > file
@@ -2947,7 +2948,7 @@ function NAME    <COMPOUND_COMMAND> <REDIRECTIONS>
 
 The space between NAME and () is optional, usually you see it without the space.
 
-I suggest using the first form. It's specified in POSIX and all Bourne-like shells seem to support it.
+I suggest using the first form.  It's specified in POSIX and all Bourne-like shells seem to support it.
 
 Note: Before version 2.05-alpha1, Bash only recognized the definition using curly braces (name() { ... }), other shells allow the definition using any command (not just the compound command set).
 
@@ -2969,7 +2970,7 @@ exit 0
 
 Just informational(1):
 
-Internally, for forking, Bash stores function definitions in environment variables. Variables with the content "() ...".
+Internally, for forking, Bash stores function definitions in environment variables.  Variables with the content "() ...".
 
 Something similar to the following works without "officially" declaring a function:
 
@@ -3010,9 +3011,9 @@ Sortir de la fonction avec un code de sortie 0.
     return 0
 Le code de sortie peut être analysé hors de la fonction via $?
 
-Création d'une fonction dont le nom est déjà utilisé par une fonction préexistante.
-On parle de wrapper. On utilise pour ce faire l'instruction command.
-Exemple avec ls :
+Création  d'une  fonction  dont  le  nom  est  déjà  utilisé  par  une  fonction
+préexistante.   On parle  de wrapper.   On utilise  pour ce  faire l'instruction
+command.  Exemple avec ls :
 
     ls () {
     command ls -lh
@@ -3064,7 +3065,7 @@ La dernière commande du pipeline définit le code de sortie.
         - = active, + = désactive
 
         Qd pipefail est activée,  le code de sortie d'un pipeline n'est plus  celui de la dernière
-        commande mais de la dernière ayant échoué. Ou 0 si aucune n'a échoué.
+        commande mais de la dernière ayant échoué.  Ou 0 si aucune n'a échoué.
 
 
     shopt -s lastpipe    shopt -u lastpipe

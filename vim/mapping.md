@@ -99,9 +99,9 @@ If your custom operator is *not* a pseudo operator, and you implement it like th
 
     nno <expr> <key> Op()
     xno <expr> <key> Op()
-    nno <expr> <key><key> Op()..'l'
-                                 ^
-                                 ✘
+    nno <expr> <key><key> Op() .. 'l'
+                                   ^
+                                   ✘
 
     fu Op(...)
         if !a:0
@@ -122,8 +122,8 @@ Don't use it for a visual mode mapping.  For the latter, just use `g@`:
     fu Op(...)
         if !a:0
             let &opfunc = 'Op'
-            return 'g@'..(mode() is# 'n' ? 'l' : '')
-            "            ^-------------------------^
+            return 'g@' .. (mode() is# 'n' ? 'l' : '')
+            "              ^-------------------------^
         endif
         ...
     endfu
@@ -154,7 +154,7 @@ Example:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         nno <expr> <c-b>      OpSetup()
-        nno <expr> <c-b><c-b> OpSetup()..'_'
+        nno <expr> <c-b><c-b> OpSetup() .. '_'
 
         fu OpSetup(...)
             if !a:0
@@ -165,7 +165,7 @@ Example:
         endfu
 
         fu Op()
-            call setline('.', getline('.')->substitute('pat', 'rep', 'g'))
+            call getline('.')->substitute('pat', 'rep', 'g')->setline('.')
         endfu
         let text =<< trim END
             " pat pat pat
@@ -289,8 +289,8 @@ MWE:
     " expected line:   xx
 
     ✔
-    $ vim -Nu NONE +'nno <expr> <c-b> feedkeys("ix\<esc>", "in"..(empty(reg_recording()) ? "t" : ""))[-1]'
-                                                                  ^-------------------------------^
+    $ vim -Nu NONE +'nno <expr> <c-b> feedkeys("ix\<esc>", "in" .. (reg_recording()->empty() ? "t" : ""))[-1]'
+                                                                    ^---------------------------------^
 
 ---
 
@@ -320,7 +320,7 @@ and this function:
 
     fu window#quit#main() abort
         ...
-        if reg_recording() isnot# ''
+        if reg_recording() != ''
             return feedkeys('q', 'nt')[-1]
                                    ^
                                    ✘
@@ -493,7 +493,7 @@ In contrast, `feedkeys()` executes the keys immediately only if you pass it the 
     3~
 
     $ vim -es -Nu NONE -i NONE +"pu='some text'" \
-      +'set vbs=1 | echo b:changedtick | call feedkeys("dd", "nx") | echo "\n"..b:changedtick | qa!'
+      +'set vbs=1 | echo b:changedtick | call feedkeys("dd", "nx") | echo "\n" .. b:changedtick | qa!'
                                          ^-----------------------^
     3~
     4~
@@ -576,7 +576,7 @@ This doesn't prevent you from saving/restoring a mapping:
     nno <m-b> :echo 'm-b'<cr>
     let save = maparg('<m-b>', 'n', 0, 1)
     nunmap <m-b>
-    exe 'nno '..save.lhs..' '..save.rhs
+    exe 'nno ' .. save.lhs .. ' ' .. save.rhs
 
     nno <m-b>
     No mapping found~
@@ -610,9 +610,9 @@ boolean flags, so there's nothing to translate.
     endfu
 
     v------------------------------------------------------------------v
-    let fix = {'lhs': '<m-b>', 'rhs': escape(maparg('<m-b>', 'n'), '|')}
-    let save = extend(maparg('<m-b>', 'n', 0, 1), fix)
-               ^----^                             ^-^
+    let fix = {'lhs': '<m-b>', 'rhs': maparg('<m-b>', 'n')->escape('|')}
+    let save = maparg('<m-b>', 'n', 0, 1)->extend(fix)
+                                           ^----^ ^-^
 
 Note that  the fix relies  on the fact  that `maparg()`, *without*  the `{dict}`
 argument, *does* translate pseudo-keys.
@@ -772,7 +772,7 @@ then `maparg()` outputs the mapping which was installed last.
 ## My plugin needs to install a mapping on `abc`.
 ### How to check whether it will cause a timeout for some other mapping?
 
-    if empty(mapcheck('abc', 'n'))
+    if mapcheck('abc', 'n')->empty()
         " can install mapping on `abc`
     endif
 
@@ -789,7 +789,7 @@ In the second case, `mapcheck('abc')` will return the rhs of the `abcd` mapping.
 
 ### How to check whether `abc` is already mapped?
 
-    if empty(maparg('abc', 'n'))
+    if maparg('abc', 'n')->empty()
         " `abc` is not mapped
     endif
 
@@ -843,8 +843,8 @@ Yes.
             set opfunc=Op
             return 'g@'
         endif
-        echom 'the count is '..v:count
-        echom 'the register is '..v:register
+        echom 'the count is ' .. v:count
+        echom 'the register is ' .. v:register
         norm! "b4yl
     endfu
 
@@ -885,7 +885,7 @@ Example:
 
     fu s:duplicate_and_comment(...)
         if !a:0
-            let &opfunc = matchstr(expand('<sfile>'), '<SNR>\w*$')
+            let &opfunc = expand('<sfile>')->matchstr('<SNR>\w*$')
             return 'g@'
         endif
         norm! '[y']
@@ -1149,12 +1149,12 @@ Create a wrapper around it.
 Example with the `gq` operator:
 
     nno <expr> gq  <sid>gq()
-    nno <expr> gqq <sid>gq()..'_'
+    nno <expr> gqq <sid>gq() .. '_'
     xno <expr> gq  <sid>gq()
 
     fu s:gq(...)
         if !a:0
-            let &opfunc = matchstr(expand('<sfile>'), '<SNR>\w*$')
+            let &opfunc = expand('<sfile>')->matchstr('<SNR>\w*$')
         endif
         " tweak some setting which alters the behavior of `gq`
         ...
@@ -1173,8 +1173,8 @@ Example:
 
 Use the `<expr>` argument:
 
-    nno <expr> cd "\e"..repeat('xlx', v:count1)
-        ^----^     ^^                 ^------^
+    nno <expr> cd "\e" .. repeat('xlx', v:count1)
+        ^----^     ^^                   ^------^
 
 Note that the escape is only needed to cancel a possible count.
 Basically,  it tells  Vim: "forget  the  first count,  I need  to reposition  it
@@ -1242,7 +1242,7 @@ want to write sth like this instead:
 
     let leader = get(g:, 'user_leader', '<space>')
     for [lhs, rhs] in [['a', ':echo "foo"<cr>'], ['b', ':echo "bar"<cr>'], ['c', ':echo "baz"<cr>']]
-        exe 'nno '..leader..lhs..' '..rhs
+        exe 'nno ' .. leader .. lhs .. ' ' .. rhs
     endfor
 
 ##
@@ -1445,10 +1445,10 @@ On `BufNew`, it is initialized to 1:
     $ touch /tmp/file{1..2}; vim -Nu NONE -S <(cat <<'EOF'
         let g:abuf = 'expand("<abuf>")'
         call getcompletion('buf*', 'event')
-            \->filter({_,v -> v !~# 'Cmd$'})
-            \->map({_,v -> execute(printf(
-            \ 'au %s * unsilent echom "%s in buf "..%s..": tick is "..getbufvar(%s, "changedtick")'
-            \ , v, v, g:abuf, g:abuf))})
+            \->filter({_, v -> v !~# 'Cmd$'})
+            \->map({_, v -> printf(
+            \ 'au %s * unsilent echom "%s in buf " .. %s .. ": tick is " .. getbufvar(%s, "changedtick")'
+            \ , v, v, g:abuf, g:abuf)->execute()})
     EOF
     ) /tmp/file1
 
@@ -1478,10 +1478,10 @@ load, is unnamed.
     $ touch /tmp/file; vim -Nu NONE -S <(cat <<'EOF'
         let g:abuf = 'expand("<abuf>")'
         call getcompletion('buf*', 'event')
-            \->filter({_,v -> v !~# 'Cmd$'})
-            \->map({_,v -> execute(printf(
-            \ 'au %s * unsilent echom "%s in buf "..%s..": tick is "..getbufvar(%s, "changedtick")'
-            \ , v, v, g:abuf, g:abuf))})
+            \->filter({_, v -> v !~# 'Cmd$'})
+            \->map({_, v -> printf(
+            \ 'au %s * unsilent echom "%s in buf " .. %s .. ": tick is " .. getbufvar(%s, "changedtick")'
+            \ , v, v, g:abuf, g:abuf)->execute()})
     EOF
     )
     :e /tmp/file
@@ -1501,10 +1501,10 @@ load, is unnamed.
     $ touch /tmp/file; vim -Nu NONE -S <(cat <<'EOF'
         let g:abuf = 'expand("<abuf>")'
         call getcompletion('buf*', 'event')
-            \->filter({_,v -> v !~# 'Cmd$'})
-            \->map({_,v -> execute(printf(
-            \ 'au %s * unsilent echom "%s in buf "..%s..": tick is "..getbufvar(%s, "changedtick")'
-            \ , v, v, g:abuf, g:abuf))})
+            \->filter({_, v -> v !~# 'Cmd$'})
+            \->map({_, v -> printf(
+            \ 'au %s * unsilent echom "%s in buf " .. %s ..": tick is " .. getbufvar(%s, "changedtick")'
+            \ , v, v, g:abuf, g:abuf)->execute()})
     EOF
     ) /tmp/file
     :new
@@ -1527,10 +1527,10 @@ about `b:changedtick` for a special buffer.
          $ touch /tmp/file{1..2}; vim -Nu NONE -S <(cat <<'EOF'
              let g:abuf = 'expand("<abuf>")'
              call getcompletion('buf*', 'event')
-                 \->filter({_,v -> v !~# 'Cmd$'})
-                 \->map({_,v -> execute(printf(
-                 \ 'au %s * unsilent echom "%s in buf "..%s..": tick is "..getbufvar(%s, "changedtick")'
-                 \ , v, v, g:abuf, g:abuf))})
+                 \->filter({_, v -> v !~# 'Cmd$'})
+                 \->map({_, v -> printf(
+                 \ 'au %s * unsilent echom "%s in buf " .. %s .. ": tick is " .. getbufvar(%s, "changedtick")'
+                 \ , v, v, g:abuf, g:abuf)->execute()})
          EOF
          ) /tmp/file1
 
@@ -1549,10 +1549,10 @@ about `b:changedtick` for a special buffer.
          $ touch /tmp/file{1..2}; vim -Nu NONE -S <(cat <<'EOF'
              let g:abuf = 'expand("<abuf>")'
              call getcompletion('buf*', 'event')
-                 \->filter({_,v -> v !~# 'Cmd$'})
-                 \->map({_,v -> execute(printf(
-                 \ 'au %s * unsilent echom "%s in buf "..%s..": tick is "..getbufvar(%s, "changedtick")'
-                 \ , v, v, g:abuf, g:abuf))})
+                 \->filter({_, v -> v !~# 'Cmd$'})
+                 \->map({_, v -> printf(
+                 \ 'au %s * unsilent echom "%s in buf " .. %s .. ": tick is " .. getbufvar(%s, "changedtick")'
+                 \ , v, v, g:abuf, g:abuf)->execute()})
          EOF
          ) /tmp/file1
 
@@ -1565,8 +1565,8 @@ about `b:changedtick` for a special buffer.
    - on `BufWritePost` provided that the buffer is modified
 
          $ touch /tmp/file && vim -Nu NONE -S <(cat <<'EOF'
-             au BufWritePre * echom 'BufWritePre: '..b:changedtick
-             au BufWritePost * echom 'BufWritePost: '..b:changedtick
+             au BufWritePre * echom 'BufWritePre: ' .. b:changedtick
+             au BufWritePost * echom 'BufWritePost: ' .. b:changedtick
          EOF
          ) /tmp/file
 
@@ -1706,7 +1706,7 @@ Now, this is what happens:
 
 The reason  why non-recursive mappings should  not be affected by  an `<esc>` in
 the rhs  is because Vim only  translates terminal keys *right  before* trying to
-expand them via mappings. If  the keys have been produced by  a mapping, and the
+expand them via mappings.  If the keys  have been produced by a mapping, and the
 latter is non-recursive,  then Vim can't expand them a  second time, and there's
 no need to translate terminal keys; so it just executes them.
 
@@ -1734,7 +1734,7 @@ commands, use `<expr>` instead:
     nno <silent> cd @='xlx'<cr>
 
     " after
-    nno <expr> cd "\e"..repeat('xlx', v:count1)
+    nno <expr> cd "\e" .. repeat('xlx', v:count1)
 
 ---
 
@@ -1745,8 +1745,8 @@ combination of `:exe` and another command:
     nno <buffer><nowait><silent> q <c-w><c-p>@=winnr('#')<cr><c-w>c
 
     " after
-    nno <buffer><nowait><silent> q :<c-u>wincmd p <bar> exe winnr('#')..'wincmd c'<cr>
-                                                        ^-^              ^----^
+    nno <buffer><nowait><silent> q :<c-u>wincmd p <bar> exe winnr('#') .. 'wincmd c'<cr>
+                                                        ^-^                ^----^
 
 ###
 ## When should I avoid `<c-r>=` in a command-line mode mapping?
@@ -1995,7 +1995,7 @@ focus another window.  For something more reliable, try this:
 Or:
 
     augroup termwinkey_no_timeout | au!
-        au TerminalWinOpen * let b:_twk = getbufvar(str2nr(expand('<abuf>')), '&twk')
+        au TerminalWinOpen * let b:_twk = expand('<abuf>')->str2nr()->getbufvar('&twk')
           \ | if b:_twk == '' | let b:_twk = '<c-w>' | endif
           \ | exe printf('tno <buffer><nowait> %s<c-w> %s<c-w>', b:_twk , b:_twk)
           \ | unlet! b:_twk
@@ -2418,8 +2418,8 @@ and by the time the opfunc is processed, they have been reset to resp. 0 and `"`
 
     nno <c-b> :<c-u>set opfunc=Op<cr>g@
     fu Op(_)
-        echom 'the count is '..v:count
-        echom 'the register is '..v:register
+        echom 'the count is ' .. v:count
+        echom 'the register is ' .. v:register
     endfu
 
     " press:  "a 3 C-b l
@@ -2433,7 +2433,7 @@ For example, `:norm` can break an  interactive command by pressing `Esc` when an
 input is asked:
 
     "                                           v---v
-    nno <c-b><c-b> :<c-u>set opfunc=Op<bar>exe 'norm! '..(v:count ? v:count : '')..'g@_'<cr>
+    nno <c-b><c-b> :<c-u>set opfunc=Op<bar>exe 'norm! ' .. (v:count ? v:count : '') .. 'g@_'<cr>
     call setline(1, ["a\x01b"])
     fu Op(_)
         '[,']s/[[:cntrl:]]//c
@@ -2485,8 +2485,8 @@ passed naturally:
             set opfunc=Op
             return 'g@'
         endif
-        echom 'the count is '..v:count
-        echom 'the register is '..v:register
+        echom 'the count is ' .. v:count
+        echom 'the register is ' .. v:register
     endfu
 
     " press:  "a 3 C-b l
@@ -2545,13 +2545,13 @@ The mappings are easier to read.  Compare:
 
     nno <silent> <c-b> :<c-u>set opfunc=CountSpaces<cr>g@
     xno <silent> <c-b> :<c-u>call CountSpaces(visualmode(), 1)<cr>
-    nno <silent> <c-b><c-b> :<c-u>set opfunc=CountSpaces<bar>exe 'norm! '..(v:count ? v:count : '')..'g@_'<cr>
+    nno <silent> <c-b><c-b> :<c-u>set opfunc=CountSpaces<bar>exe 'norm! ' .. (v:count ? v:count : '') .. 'g@_'<cr>
 
 Versus:
 
     nno <expr> <c-b> CountSpaces()
     xno <expr> <c-b> CountSpaces()
-    nno <expr> <c-b><c-b> CountSpaces()..'_'
+    nno <expr> <c-b><c-b> CountSpaces() .. '_'
 
 ---
 
@@ -2566,11 +2566,11 @@ Use the second one to implement the operator.
 
     nno <expr> <c-a> OpSetup('some arg')
     xno <expr> <c-a> OpSetup('some arg')
-    nno <expr> <c-a><c-a> OpSetup('some arg')..'_'
+    nno <expr> <c-a><c-a> OpSetup('some arg') .. '_'
 
     nno <expr> <c-b> OpSetup('another arg')
     xno <expr> <c-b> OpSetup('another arg')
-    nno <expr> <c-b><c-b> OpSetup('another arg')..'_'
+    nno <expr> <c-b><c-b> OpSetup('another arg') .. '_'
 
     fu OpSetup(arg)
         let s:arg = a:arg
@@ -2658,11 +2658,11 @@ Tpope uses `:keepj` in only 2 plugins:
     keepjumps 1
     keepjumps call search('^parent ')
     silent keepjumps delete_
-    silent exe (exists(':keeppatterns') ? 'keeppatterns' : '') 'keepjumps s/\m\C\%(^parent\)\@<! /\rparent /e' . (&gdefault ? '' : 'g')
-    keepjumps let lnum = search('^encoding \%(<unknown>\)\=$','W',line('.')+3)
+    silent exe (exists(':keeppatterns') ? 'keeppatterns' : '') 'keepjumps s/\m\C\%(^parent\)\@<! /\rparent /e' .. (&gdefault ? '' : 'g')
+    keepjumps let lnum = search('^encoding \%(<unknown>\)\=$', 'W', line('.') + 3)
     silent exe (exists(':keeppatterns') ? 'keeppatterns' : '') 'keepjumps 1,/^diff --git\|\%$/s/\r$//e'
     keepjumps call setpos('.',pos)
-    exe 'silent keepjumps ' . (lnum + 1) . ',' . lnum2 . 'delete _'
+    exe 'silent keepjumps ' .. (lnum + 1) .. ',' .. lnum2 .. 'delete _'
     keepjumps syncbind
 
     " vim-rails
@@ -2735,7 +2735,7 @@ the subsequent keys are executed in command-line mode.
 ###
 ### Consider the next mapping which should operate on the text between an `X` and a `Y`:
 
-    ono ii :<c-u>exe 'norm! TX'..v:operator..'tY'<cr>
+    ono ii :<c-u>exe 'norm! TX' .. v:operator .. 'tY'<cr>
 
 #### It doesn't work as expected on this text:
 
@@ -2809,12 +2809,12 @@ which in turn causes the cursor to move 1 character backward *on* the `X`.
 
 Cancel the original operator before re-invoking it with `v:operator`:
 
-    ono ii <esc>:exe 'norm! TX'..v:operator..'tY'<cr>
+    ono ii <esc>:exe 'norm! TX' .. v:operator .. 'tY'<cr>
            ^---^
 
 Or better yet, use an `<expr>` mapping:
 
-    ono <expr> ii 'TX'..v:operator..'tY'
+    ono <expr> ii 'TX' .. v:operator .. 'tY'
 
 In both cases, the sequence of commands `TXdtY` is no longer processed as a motion.
 
@@ -2825,7 +2825,7 @@ It's probably not repeatable with `.`.
 
 For example, consider this omap:
 
-    ono <expr> ii 'TX'..v:operator..'tY'
+    ono <expr> ii 'TX' .. v:operator .. 'tY'
 
 And this text:
 
@@ -2860,7 +2860,7 @@ MWE:
 
 We could try sth like this:
 
-    ono <silent> ie :<c-u>exe 'norm vie'..(v:operator is# '!' ? '<space>' : '')<cr>
+    ono <silent> ie :<c-u>exe 'norm vie' .. (v:operator is# '!' ? '<space>' : '')<cr>
 
 But, why does the issue occur with `![m`, but not with `![z`?
 
@@ -3115,7 +3115,7 @@ If you disagree, try this:
     endfu
     nno <expr> <c-b> Opfunc()
     xno io iw
-    omap <expr> io '<c-\><c-n>vio' .. (v:register == '"' ? '' : '"'..v:register) .. (v:count ? v:count : '') .. v:operator
+    omap <expr> io '<c-\><c-n>vio' .. (v:register == '"' ? '' : '"' .. v:register) .. (v:count ? v:count : '') .. v:operator
     "                                 ^-----------------------^
     "                                 necessary because of our `nno "" "+` mapping
 
@@ -3219,14 +3219,14 @@ Solution:
 
 In `window#quit#main()`, replace this line:
 
-    if reg_recording() isnot# '' | return feedkeys('q', 'in')[-1] | endif
+    if reg_recording() != '' | return feedkeys('q', 'in')[-1] | endif
 
 with this block:
 
     let regname = reg_recording()
-    if regname isnot# ''
+    if regname != ''
         call feedkeys('q', 'in')[-1]
-        call timer_start(0, {-> setreg(regname, substitute(getreg(regname), 'q$', '', ''), 'c')})
+        call timer_start(0, {-> setreg(regname, getreg(regname)->substitute('q$', '', ''), 'c')})
         return ''
     endif
 
@@ -3327,7 +3327,7 @@ In an `<expr>` mapping, it depends:
     fu Func(str)
         return ''
     endfu
-    " nno <expr> cd ':call '..Func('foo <c-j> bar')
+    " nno <expr> cd ':call ' .. Func('foo <c-j> bar')
     nno <expr> cd Func('foo <c-j> bar')
     norm cd
 
@@ -3335,7 +3335,7 @@ In an `<expr>` mapping, it depends:
     fu Func(str)
         return a:str
     endfu
-    nno <expr> cd ':call '..Func('foo <c-j> bar')
+    nno <expr> cd ':call ' .. Func('foo <c-j> bar')
     norm cd
 
 However, they *can* in a regular mapping:
@@ -3389,7 +3389,7 @@ E.g.:
    - `gc` (vim-commentary)
 
 Or choose a syntax which doesn't make sense to Vim.
-Use an operator then a command. E.g.:
+Use an operator then a command.  E.g.:
 
    - `cx`    vim-exchange; exchange the position of 2 text-objects
    - `ys`    vim-surround; surround a text-object with some character
@@ -3399,9 +3399,9 @@ the text covered by a motion.
 You can use any command, except `a` and `i` because those are commonly used as a
 prefix to create text-objects (`iw`, `ap`, ...).
 
-Use an operator than a prefix. E.g.: `cz`, `dgb`
+Use an operator than a prefix.  E.g.: `cz`, `dgb`
 
-Use 2 operators. E.g.: `cd`, `cu`, `y=`
+Use 2 operators.  E.g.: `cd`, `cu`, `y=`
 
 Note that  `op1 + op2` doesn't make sense  only if there's no  text-object using
 `op2` as its lhs.
@@ -3502,7 +3502,7 @@ You can check whether a key sequence  is already bound to some default action in
 Vim, by looking at the output of:
 
     :echo taglist('^<keys>')
-    :echo map(taglist('^<keys>'), 'v:val.name')
+    :echo taglist('^<keys>')->map('v:val.name')
 
 Output example when `<keys>` = `g CTRL-`
 
@@ -3588,7 +3588,7 @@ Otherwise, you don't need `<silent>`.
 ##
 ## <expr>
 
-    cno <f7> <c-\>e escape(getcmdline(), ' \')<cr>
+    cno <f7> <c-\>e getcmdline()->escape(' \')<cr>
 
 `<f7>` échappe tous les espaces et les backslash sur la ligne de commande.
 
@@ -3681,17 +3681,17 @@ dernières.
     fu Reminder(cmd)
         " erase the input before displaying next message
         redraw
-        echohl WarningMsg | echo '['..a:cmd..'] was equivalent' | echohl NONE
+        echohl WarningMsg | echo '[' .. a:cmd .. '] was equivalent' | echohl NONE
     endfu
 
-    nno <silent> <plug>(reminder) :call Reminder(input(''))<cr>
+    nno <silent> <plug>(reminder) :call input('')->Reminder()<cr>
 
-                                     ┌ appelle la fonction
-                                     │               ┌ passe-lui cet argument
-                                     │               │    ┌ termine/valide la saisie
-                                     ├──────────────┐├───┐├──┐
-    cnorea <expr> vs 'vs'..feedkeys('<plug>(reminder)C-w v<cr>')[-1]
-    cnorea <expr> sp 'sp'..feedkeys('<plug>(reminder)C-w s<cr>')[-1]
+                                       ┌ appelle la fonction
+                                       │               ┌ passe-lui cet argument
+                                       │               │    ┌ termine/valide la saisie
+                                       ├──────────────┐├───┐├──┐
+    cnorea <expr> vs 'vs' .. feedkeys('<plug>(reminder)C-w v<cr>')[-1]
+    cnorea <expr> sp 'sp' .. feedkeys('<plug>(reminder)C-w s<cr>')[-1]
 
 Ce snippet  illustre qu'on peut  passer un  argument arbitraire à  une fonction,
 même si elle est appelée depuis un mapping `<plug>`.
@@ -3711,7 +3711,7 @@ Pk utiliser ce genre de mapping? Il peut y avoir plusieurs raisons:
    - permet d'appeler une fonction locale à un script depuis un autre script
      (`<plug>(...)` est une forme d'interface publique)
 
-Mais  `<plug>(...)`  peut poser  un  pb. Si  on doit  passer  un  argument à  la
+Mais  `<plug>(...)` peut  poser un  pb.   Si on  doit  passer un  argument à  la
 fonction, comment faire?  On pourrait créer un mapping `<plug>(...)` pour chaque
 valeur d'argument valide, mais que faire s'il y en a trop?
 
@@ -3742,13 +3742,13 @@ On aurait pu déplacer `input()` au sein même de `Reminder()`:
     fu Reminder()
         let cmd = input('')
         redraw
-        echohl WarningMsg | echo '['..cmd..'] was equivalent' | echohl NONE
+        echohl WarningMsg | echo '[' .. cmd .. '] was equivalent' | echohl NONE
     endfu
 
     nno <silent> <plug>(reminder) :call Reminder()<cr>
 
-    cnorea <expr> vs 'vs'..feedkeys("<plug>(reminder)C-w v<cr>")[-1]
-    cnorea <expr> sp 'sp'..feedkeys("<plug>(reminder)C-w s<cr>")[-1]
+    cnorea <expr> vs 'vs' .. feedkeys("<plug>(reminder)C-w v<cr>")[-1]
+    cnorea <expr> sp 'sp' .. feedkeys("<plug>(reminder)C-w s<cr>")[-1]
 
 ## <script>
 
@@ -3839,7 +3839,7 @@ Avantages `mapcheck()`:
    - vérifie  non seulement que le lhs n'est pas utilisé,
      mais en plus qu'il ne provoquera pas de lag
 
-   - `if empty(mapcheck())|...|endif`  ne soulève aucun message d'erreur
+   - `if mapcheck()->empty()|...|endif`  ne soulève aucun message d'erreur
      car le mapping n'est pas installé en cas de conflit
 
 Inconvénients `mapcheck()`:
@@ -3860,10 +3860,10 @@ Conseils:
 ##
 # lhs
 
-    if empty(mapcheck('<key>', 'n')) && !hasmapto('<Plug>(plugin_some_func)', 'n')
-        nno      <key>                       <Plug>(plugin_some_func)
+    if mapcheck('<key>', 'n')->empty() && !hasmapto('<Plug>(plugin_some_func)', 'n')
+        nno <key> <Plug>(plugin_some_func)
     endif
-    nno <silent> <Plug>(plugin_some_func)    :<c-u>call SomeFunc()<cr>
+    nno <silent> <Plug>(plugin_some_func) :<c-u>call SomeFunc()<cr>
 
 Définit un mapping appelant `SomeFunc()`.
 
@@ -3929,7 +3929,7 @@ minimum, il y a 3 conditions qu'il pourrait vérifier avant de l'installer:
 Exemple d'installation d'un mapping vérifiant ces 3 conditions:
 
     if !exists('g:mappings_disabled') || !g:mappings_disabled
-        if empty(mapcheck('<key>', 'n')) && !hasmapto('<Plug>(plugin_some_func)', 'n')
+        if mapcheck('<key>', 'n')->empty() && !hasmapto('<Plug>(plugin_some_func)', 'n')
             nmap <silent> <key> <Plug>(plugin_some_func)
         endif
     endif
@@ -4049,7 +4049,7 @@ which in turn consumes whatever is in the typeahead buffer (here `hello`).
 
     nno <silent><expr> <cr> !empty(&buftype) ?
         \ ? '<cr>'
-        \ : ':'..getbufvar('%', 'cr_command', 'norm! 80<bar>')..'<cr>'
+        \ : ':' .. getbufvar('%', 'cr_command', 'norm! 80<bar>') .. '<cr>'
 
 Ce mapping remap CR différemment suivant le type de fichiers où l'on se trouve.
 
@@ -4103,7 +4103,7 @@ fin du rhs, une fois que le texte a été sélectionné.
 
 On pourrait remplacer le mapping `:ono` par celui-ci:
 
-    :omap <expr> {object} '<Esc>'..'v{object}'..v:operator
+    :omap <expr> {object} '<Esc>' .. 'v{object}' .. v:operator
 
    - `<Esc>`       revenir en mode normal
    - `v{object}`   sélectionner l'objet
@@ -4410,7 +4410,7 @@ whenever we run the command `:update`.
 
 So, we write this:
 
-    cnorea <expr> update 'update'..feedkeys(":echo 'hello'\r", 'i')[-1]
+    cnorea <expr> update 'update' .. feedkeys(":echo 'hello'\r", 'i')[-1]
 
 Instead of printing `hello`, after executing `:update`, Vim executes this:
 
@@ -4420,7 +4420,7 @@ What's the fix?
 
 Answer: don't pass the `i` flag to `feedkeys()`.
 
-    cnorea <expr> update 'update'..feedkeys(":echo 'hello'\r")[-1]
+    cnorea <expr> update 'update' .. feedkeys(":echo 'hello'\r")[-1]
 
 How does this work?
 

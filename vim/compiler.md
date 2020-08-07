@@ -157,7 +157,7 @@ and testing.
 ##
 ## Does `:make` alter the output of the shell command?
 
-Yes. It replaces all NUL characters with SOH (Start Of Heading: 0x01).
+Yes.  It replaces all NUL characters with SOH (Start Of Heading: 0x01).
 
 Same thing for `:grep`, btw.
 
@@ -537,8 +537,8 @@ For example, if the error looks like this:
 This can be parsed with:
 
     :CompilerSet efm=%-Gunknown%.%#
-                  \,%E%>Error\ in\ line\ %l\ of\ %f:
-                  \,%Z%m
+        \,%E%>Error\ in\ line\ %l\ of\ %f:
+        \,%Z%m
 
 The resulting qfl will be:
 
@@ -547,8 +547,8 @@ The resulting qfl will be:
 Without `%>`:
 
     :CompilerSet efm=%-Gunknown%.%#
-                  \,%EError\ in\ line\ %l\ of\ %f:
-                  \,%Z%m
+        \,%EError\ in\ line\ %l\ of\ %f:
+        \,%Z%m
 
 The qfl would be:
 
@@ -733,7 +733,7 @@ The first entry is not a valid entry anymore, which is expected.
 
 Not necessarily.
 
-It matches ANY string of text. Even a pointer line:
+It matches ANY string of text.  Even a pointer line:
 
     ----------^
 
@@ -1197,8 +1197,8 @@ Given a compiler that produces the following error logfile:
 It can be properly parsed by this `'efm'`:
 
     CompilerSet efm=%-P[%f]
-                  \,(%l\\,%c)%*[\ ]%t%*[^:]:%m
-                  \,%-Q
+        \,(%l\\,%c)%*[\ ]%t%*[^:]:%m
+        \,%-Q
 
 A call to `:clist` writes the errors with their correct filenames:
 
@@ -1233,9 +1233,9 @@ Given a compiler that produces the following error logfile:
 It can be properly parsed by this `'efm'`:
 
     CompilerSet efm=%-O(%f)%r
-                  \,%-P%[%^()]%#[%f]
-                  \,(%l\\,%c)\ %m
-                  \,%-Q
+        \,%-P%[%^()]%#[%f]
+        \,(%l\\,%c)\ %m
+        \,%-Q
 
 A call to `:clist` writes the errors with their correct filenames:
 
@@ -1401,9 +1401,9 @@ Suppose your compiler writes errors in the following format:
 Set `'efm'` like this:
 
     CompilerSet efm=%E%trror\ %n
-                  \,%Cline\ %l
-                  \,%Ccolumn\ %c
-                  \,%Z%m
+        \,%Cline\ %l
+        \,%Ccolumn\ %c
+        \,%Z%m
 
 ---
 
@@ -1424,9 +1424,9 @@ And you want to parse all these lines to populate the qfl with this single entry
 Set `'efm'` like this:
 
     CompilerSet efm=%C\ %.%#
-                  \,%A\ \ File\ \"%f\"\\,\ line\ %l%.%#
-                  \,%Z%[%^\ ]%\\@=%m
-                  \,%-GTraceback%.%#
+        \,%A\ \ File\ \"%f\"\\,\ line\ %l%.%#
+        \,%Z%[%^\ ]%\\@=%m
+        \,%-GTraceback%.%#
 
 
 Note that the format using `%C` is given before the one using `%A`.
@@ -1674,7 +1674,7 @@ Here's how it works.
 
 1. Check if the given directory is a subdirectory of the compiler's working
    directory (i.e. a subdirectory of the top of the Quickfix Internal Directory
-   Stack aka QIDS). If it IS, push it on the QIDS.
+   Stack aka QIDS).  If it IS, push it on the QIDS.
 
 Example:
 

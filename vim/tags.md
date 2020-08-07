@@ -317,7 +317,7 @@ FIXME: Est-ce que cette remarque explique la différence de comportement entre `
 
     3pp[op]
 
-Does `:3pop` in the preview window. See `:h pop` and `:h ptag`.
+Does `:3pop` in the preview window.  See `:h pop` and `:h ptag`.
 
 # ?
 

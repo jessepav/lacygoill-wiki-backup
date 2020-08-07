@@ -170,7 +170,7 @@ The resulting funcref binds the function to the dictionary.
 
     let adict = {'name': 'toto'}
     fu Func() dict
-        return 'my name is: '..self['name']
+        return 'my name is: ' .. self['name']
     endfu
     let Fn = function('Func', adict)
                               ^---^
@@ -327,7 +327,7 @@ For more info, see: <https://github.com/LucHermitte/lh-vim-lib/blob/master/doc/O
 
 #### ?
 
-Document that you can't write `eval(string(dict))` if `dict` contains a numbered
+Document that you can't write `string(dict)->eval()` if `dict` contains a numbered
 function.
 
 Visit `~/.vim/plugged/vim-quickhl/autoload/quickhl.vim` and look for `a:func` to
@@ -341,6 +341,341 @@ you can't *write* it in an executed command:
     E475: Invalid argument: 123~
 
 ##
+# Expression lambda / closure
+
+Document that  when you define  a lambda which refers  to some variables  in the
+rhs, absent  from the  lhs, they should  all be assigned  before the  lambda (at
+least one).
+
+MWE:
+
+        fu Func()
+            let l:Test = { -> foo + bar == 3 }
+            let foo  = 1
+            let bar  = 2
+            return l:Test()
+        endfu
+        echo Func()
+        E121~
+
+        fu Func()
+            let foo  = 1
+            let l:Test = { -> foo + bar == 3 }
+            let bar  = 2
+            return l:Test()
+        endfu
+        echo Func()
+        1~
+
+Explanation: <https://github.com/vim/vim/issues/2643#issuecomment-366954582>
+
+---
+
+The name of a variable storing a  lambda or funcref must begin with an uppercase
+character, because  you could  drop the  `l:`, in  which case  there could  be a
+conflict with a builtin function (e.g. you've used the variable name `len`).
+The name **must** start with an uppercase character.
+
+But now that your variable starts with  an uppercase character, there could be a
+conflict with a global custom function.
+So, the name **should** be scoped with `l:` to avoid E705.
+From `:h E705`:
+
+>     You cannot have both a Funcref variable and a function with the same name.
+
+Indeed, without `l:`, if you run this inside a function:
+
+    let Lambda = {-> 123}
+    echo Lambda()
+
+and you have  a global custom function  named `Lambda`, Vim will  not know which
+definition to use.
+
+Review this section, and add `l:` whenever it makes sense.
+
+Note that the  reason why we use  the word "should" regarding the  `l:` scope is
+because `E705` is only  raised if an existing custom function  has the same name
+as the variable.
+In  contrast,  an error  is  *always*  raised if  your  variable  starts with  a
+lowercase character.
+
+---
+
+    {args -> expr}
+
+Il  s'agit d'une  expression lambda,  qui crée  une nouvelle  fonction numérotée
+retournant l'évaluation d'une expression.
+Elle diffère d'une fonction régulière de 2 façons:
+
+   - Le corps de l'expression lambda est une expression et non une séquence de
+     commandes Ex.
+
+   - Les arguments ne sont pas dans le scope `a:`.
+
+---
+
+    let F = {arg1, arg2 -> arg1 + arg2}
+    echo F(1,2)
+    3~
+
+---
+
+    fu A()
+        return 'i am A'
+    endfu
+    fu B()
+        let A = {-> 42}
+        return A()
+    endfu
+    echo B()
+    E705: Variable name conflicts with existing function: A~
+
+    fu A()
+        return 'i am A'
+    endfu
+    fu B()
+        let l:A = { -> 42 }
+        return l:A()
+    endfu
+    echo B()
+    42~
+
+Qd  on  se trouve  à  l'intérieur  d'une fonction,  et  qu'on  doit stocker  une
+expression  lambda, ou  une funcref,  dans une  variable, il  faut toujours  lui
+donner le scope `l:`.
+En effet, le nom doit commencer par  une majuscule, ce qui pourrait provoquer un
+conflit entre avec une fonction publique de même nom.
+
+---
+
+    let F = { -> 'hello'.42 }
+    echo F()
+    hello42~
+
+Une expression lambda peut ne pas avoir d'arguments.
+
+---
+
+    {'<lambda>42'}
+
+Le nom de la fonction numérotée créée par une expression lambda suit ce schéma.
+En cas d'erreur au sein de cette dernière, on pourra donc exécuter:
+
+    fu {'<lambda>42'}
+
+... pour lire son code:
+
+                    let F = {-> 'hello'.[42]}
+                    echo F()
+                    E15: Invalid expression: <lambda>15    ✘~
+
+---
+
+    echo map([1, 2, 3], {_, v -> v + 1})
+    [2, 3, 4]~
+
+    echo sort([3,7,2,1,4], {a,b -> a - b})
+    [1, 2, 3, 4, 7]~
+
+On peut,  entre autres,  utiliser des  expressions lambda  comme 2e  argument de
+`filter()`, `map()` et `sort()`.
+
+---
+
+    let timer = timer_start(500, {-> execute("echo 'Handler called'", '')}, {'repeat': 3})
+    Handler called~
+    Handler called~
+    Handler called~
+
+Les expressions lambda sont aussi utiles pour des timers, canaux, jobs.
+
+---
+
+Si un timer est  exécuté au moment où on se trouve sur  la ligne de commande, le
+curseur peut temporairement quitter cette dernière et s'afficher dans le buffer.
+
+    nno <expr> cd Func()
+    fu Func()
+        let my_timer = timer_start(2000, { -> execute('sleep 1', '') })
+        return ''
+    endfu
+
+Taper `cd`, puis écrire qch sur la ligne de commande et attendre.
+
+---
+
+    ✘
+    call timer_start(0, {-> execute('call FuncA() | call FuncB()')})
+    ✔
+    call timer_start(0, {-> [FuncA(), FuncB()]})
+
+    ✘
+    call timer_start(0, {-> execute('if expr | call Func() | endif')})
+    ✔
+    call timer_start(0, {-> expr && Func()->type()})
+                                            ^--^
+                                    not necessary if the output of `Func()` is:
+                                        - a boolean
+                                        - a number
+                                        - a string
+
+    ✘
+    call timer_start(0, {-> execute('if expr | call FuncA() | endif | call FuncB()})
+    ✔
+    call timer_start(0, {-> [expr && FuncA()->type(), FuncB()]})
+
+On  n'a  pratiquement  jamais  besoin d'utiliser  `execute()`  et  `:call`  pour
+exécuter une fonction via un lambda.
+
+`:call` est nécessaire sur la ligne de  commande car Vim s'attend à exécuter une
+commande.
+`:call` n'est pas toujours nécessaire dans un lambda, car Vim s'attend à évaluer
+une expression, et une fonction EST un type d'expression.
+
+---
+
+Qd  on exécute  une fonction  via  un lambda,  sa  valeur de  sortie n'a  aucune
+importance.
+
+---
+
+N'utilise `||` et `&&` comme connecteur  logique que lorsque c'est nécessaire et
+qu'ils correspondent réellement à ce que tu veux faire.
+Autrement, préfère un opérateur plus simple tq `+`:
+
+                           exécute 2 fonctions
+    ┌────────────────────┬─────────────────────────────────────────┐
+    │ FuncA() && FuncB() │ à condition que la 1e ait réussi        │
+    ├────────────────────┼─────────────────────────────────────────┤
+    │ FuncA() || FuncB() │ à condition que la 1e ait échoué        │
+    ├────────────────────┼─────────────────────────────────────────┤
+    │ FuncA() + FuncB()  │ peu importe que la 1e ait réussi ou non │
+    └────────────────────┴─────────────────────────────────────────┘
+
+---
+
+        expr && FuncA() + FuncB()
+    ⇔
+        exécute `FuncA` ET `FuncB` à condition que `expr` soit vraie
+
+
+        (expr && FuncA()) + FuncB()
+    ⇔
+        exécute `FuncA` à condition que `expr` soit vraie, PUIS `FuncB`
+
+
+Cette différence découle du fait que l'opérateur `+` a priorité sur `&&`.
+
+Confirmation via:
+
+    echo 0 && 1 + 1
+    0~
+
+    echo (0 && 1) + 1
+    1~
+
+---
+
+    echo range(65, 90)->map({x -> nr2char(x)})
+    [ 'A', 'B', ... ]          attendu~
+    [ '', '^A', '^B', ... ]    obtenu~
+
+Pk n'obtient-on pas la liste des lettres majuscules ?
+Car  qd  le 2e  argument  de  `map()` est  une  funcref,  `map()` lui  envoit  2
+arguments:
+
+   1. l'index (pour une liste) ou la clé (pour un dico) de l'item courant
+   2. la valeur de l'item courant
+
+`map()` utilise ensuite la fonction associée  à la funcref pour remplacer chaque
+item de la liste.
+
+Donc, dans l'exemple précédent, pour remplacer les nbs 65 à 90, `map()` envoit à
+`nr2char()` les valeurs suivantes:
+
+   - nr2char(0, 65)
+   - nr2char(1, 66)
+     ...
+   - nr2char(25, 90)
+
+Or, pour `nr2char()`, le 2e argument est un simple flag:
+
+   - 0 signifie qu'on veut utiliser l'encodage courant
+
+   - 1 l'encodage utf-8
+
+`65` ... `90` sont interprétés comme un `1`.
+
+De plus, `nr2char()` ne reçoit pas les bons codepoints:
+
+    65 ... 90  ✔ ce qu'ell devrait recevoir
+    0  ... 25  ✘ ce qu'elle reçoit
+
+Solution:
+
+    range(65, 90)->map({_, v -> nr2char(v)})
+                        ^^
+
+Conclusion:
+
+Pour pouvoir se  référer à un argument  reçu par une expression  lambda, il faut
+correctement tous les déclarer.
+Donc,  qd une  fonction  accepte  une expression  lambda  en argument,  toujours
+regarder quels arguments elle envoit à cette dernière.
+Ici, `map()` n'en envoit pas 1 (`x`), mais 2 (`_`, `v`).
+
+
+    fu Foo(arg)
+        let i = 3
+        return {x -> x + i - a:arg}
+    endfu
+    let Bar = Foo(4)
+    echo Bar(6)
+    5~
+
+L'expression lambda utilise dans son calcul les variables `i` et `a:arg`.
+
+`i` appartient  à la portée  locale à `Foo()`,  tandis que `a:arg`  appartient à
+celle des arguments de `Foo()`.
+L'expression lambda ne se plaint pas que les variables ne sont pas définies :
+
+    E121: Undefined variable: i~
+    E121: Undefined variable: a:arg~
+
+... car elle  a la particularité de  pouvoir accéder aux variables  de la portée
+extérieur; on parle de “closure“ (clôture).
+
+
+    fu Foo()
+        let x = 0
+        fu! Bar() closure
+            let x += 1 " pas d'erreur, grâce à `closure`
+            return x
+        endfu
+        return funcref('Bar')
+    endfu
+
+    let F = Foo()
+    echo F()
+    1~
+    echo F()
+    2~
+    echo F()
+    3~
+
+L'incrémentation  de `x` au sein de `Bar()` ne soulève pas d'erreur:
+
+    E121: Undefined variable: x~
+
+...  car  `Bar()`  porte  l'attribut  `closure` qui  lui  permet  d'accéder  aux
+variables de la portée extérieure (`Foo()`).
+
+La sortie de `F()` est incrémentée à chaque appel.
+Ceci prouve  qu'une fonction  portant l'attribut `closure`  peut continuer  à se
+référer à la portée d'une fonction  extérieur même après qu'elle ait terminé son
+exécution.
+
+##
 # ?
 
 Document that expression strings are faster than lambdas.
@@ -349,8 +684,8 @@ Test lambdas:
 
     $ for i in {1..10}; do vim -es -i NONE -Nu <(cat <<'EOF'
       let time = reltime()
-      call map(range(999999), {_,v-> v+1})
-      pu=matchstr(reltimestr(reltime(time)), '\v.*\..{,3}')..' seconds to run the command'
+      call range(999999)->map({_, v-> v+1})
+      pu=reltime(time)->reltimestr()->matchstr('\v.*\..{,3}') .. ' seconds to run the command'
       %p
       qa!
     EOF
@@ -394,8 +729,8 @@ Test expression strings:
 
     $ for i in {1..10}; do vim -es -i NONE -Nu <(cat <<'EOF'
       let time = reltime()
-      call map(range(999999), 'v:val+1')
-      pu=matchstr(reltimestr(reltime(time)), '\v.*\..{,3}')..' seconds to run the command'
+      call range(999999)->map('v:val+1')
+      pu=reltime(time)->reltimestr()->matchstr('\v.*\..{,3}') .. ' seconds to run the command'
       %p
       qa!
     EOF
@@ -442,7 +777,7 @@ Although, it doesn't seem to be really needed in the answer (nor `call()`, nor `
     fu Func() abort
         echom 'called from Func()'
     endfu
-    call InstallMapping(function('Func'))
+    call function('Func')->InstallMapping()
     " press cd
 
 # ?
@@ -710,7 +1045,7 @@ IOW, la funcref produite par:
 
 ---
 
-    :echo type(function('system')) == v:t_string
+    :echo function('system')->type() == v:t_string
     0~
 
 Confirme que  la sortie  de `function()`  qui s'affiche à  l'écran est  bien une
@@ -803,7 +1138,7 @@ en ne fournissant à une autre fonction qu'une partie de ses arguments.
 ---
 
     fu Describe() dict
-        echo 'here are some ' . self.name
+        echo 'here are some ' .. self.name
     endfu
     let object = {'name': 'fruits'}
     let Description = function('Describe', object)
@@ -820,7 +1155,7 @@ Elle peut alors se référer au dico via sa variable locale `self`.
 ---
 
     fu Describe(count, adj) dict
-        echo a:count.' '.a:adj.' '. self.name
+        echo a:count .. ' ' .. a:adj .. ' ' .. self.name
     endfu
     let object = {'name': 'piggies'}
     let Description = function('Describe', [3], object)
@@ -837,14 +1172,14 @@ San partiel, l'exemple précédent se ré-écrirait de la façon suivante:
 
     let object = {'name': 'piggies'}
     fu object.Describe(count, adj)
-        echo a:count.' '.a:adj.' '. self.name
+        echo a:count .. ' ' .. a:adj .. ' ' .. self.name
     endfu
     call object.Describe(3, 'little')
 
 ---
 
     fu Describe(i, j, object)
-        echo (a:i + a:j).' '.a:object
+        echo (a:i + a:j) .. ' ' .. a:object
     endfu
     let Desc = function('Describe', [1])
     let NewDesc = function(Desc, [2])

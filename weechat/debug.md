@@ -66,7 +66,7 @@ This is an issue, for example, if you try to compile WeeChat on this commit:
     $ git checkout f15a24b2ec14e279d15bd509be79176ee3c4d5c9
 
 ##
-# WeeChat just crashed. What should I do to help the developers fix the bug?
+# WeeChat just crashed.  What should I do to help the developers fix the bug?
 
 Before going further, try to reproduce the crash with no scripts:
 

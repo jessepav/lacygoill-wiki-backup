@@ -75,7 +75,7 @@ More generally, describing an optional text before or after something is useless
               bar(baz)?    ✘ saying that `baz` could be after `bar`, or not, doesn't add any info;
                              in both cases, any text could be after
 
-An optional text is only useful IN-BETWEEN two other texts:
+An optional text is only useful *in between* two other texts:
 
          foo(bar)?baz      ✔ saying that `bar` could be between `foo` and `baz` ADDS info
 

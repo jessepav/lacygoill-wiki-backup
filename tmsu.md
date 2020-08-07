@@ -6,7 +6,7 @@ Interface for Rapidly Tagging Many Small Files
     https://golang.org/dl/
 
             `go` est une dépendance de `tmsu` (car ce dernier est écrit en `go`).
-            Cette url permet de dl un binaire `go`. Exemple de description à chercher:
+            Cette url permet de dl un binaire `go`.  Exemple de description à chercher:
 
                     Linux
                     Linux 2.6.23 or later, Intel 64-bit processor
@@ -79,9 +79,9 @@ Interface for Rapidly Tagging Many Small Files
 # Home
 ## Overview
 
-TMSU est un programme qui permet d'associer des tags à des fichiers.
-Il fournit un outil pour gérer ces tags et un système de fichiers virtuel pour accéder aux fichiers
-via leurs tags. Les tags sont stockés dans une bdd sqlite.
+TMSU est un programme qui permet d'associer des tags à des fichiers.  Il fournit
+un outil pour gérer ces tags et  un système de fichiers virtuel pour accéder aux
+fichiers via leurs tags.  Les tags sont stockés dans une bdd sqlite.
 
 ## Tour
 
@@ -208,19 +208,21 @@ See also:
 
 # Repairing
 
-TMSU does  not watch  the filesystem for  changes at this  time. This  is partly because  this would
-require a daemon process to be running at all times to monitor these events andpartly because such a
-solution would not work on certain filesystems (such as remote filesystems).
+TMSU does  not watch the  filesystem for changes at  this time.  This  is partly
+because  this would  require a  daemon process  to be  running at  all times  to
+monitor these events andpartly because such a solution would not work on certain
+filesystems (such as remote filesystems).
 
 As a  result, whenever  you move or  alter files  that have  been tagged in  the TMSU  database, the
 database will be out-of-date with respect to the actual files on disk.
 
 ## Status
 
-TMSU  includes a  command,  `status`, which  can  be  used to  find  where the  database  is out  of
-synchronicity. This command, in its simplest form (with  no arguments), it will look at each file in
-the database and compare it with the corresponding file on disk, listing whether the file is in sync
-(show as `T` for tagged), missing (`!`) or modified (`M`).
+TMSU includes a command, `status`, which can  be used to find where the database
+is  out  of  synchronicity.   This  command,  in  its  simplest  form  (with  no
+arguments), it will  look at each file  in the database and compare  it with the
+corresponding file on disk, listing whether the file is in sync (show as `T` for
+tagged), missing (`!`) or modified (`M`).
 
 If  paths  are  given as  arguments,  the  `status`  command  will  look  at these  paths  (and  any
 files/directories  beneath  them) and  show  the  status  of these  files.  As  such, files  may  be
@@ -239,10 +241,11 @@ for files that have been modified but still reside at the same path.
 
 ### Moved Files
 
-By specifying  paths as arguments to  `repair`, TMSU will (additionally  to correcting fingerprints)
-search in these paths for  any files that can no longer be found at the  path when they were tagged.
-It will search  under the specified paths  for files with the  same file size, and  then confirm any
-match by comparing the  file`s fingerprint with that in the database. If  a match is confirmed, then
+By  specifying  paths as  arguments  to  `repair`,  TMSU will  (additionally  to
+correcting fingerprints) search in these paths  for any files that can no longer
+be found at the path when they  were tagged.  It will search under the specified
+paths for files with the same file size, and then confirm any match by comparing
+the file`s fingerprint with that in the database.  If a match is confirmed, then
 TMSU will correct the path in the database.
 
 ### Manual Repair
@@ -366,10 +369,11 @@ You should also look at:
 ## Functionality
 ### Why does TMSU not detect file moves and renames?
 
-To detect file moves/renames would require a daemon process watching the file system for changes and
-support from  the file system  for these events.  As some file  systems cannot provide  these events
-(e.g. remote  file systems) a  universal solution cannot  be offered. Such  a function may  be added
-later for those  file systems that do  provide file move/modification events but  adding support for
+To detect  file moves/renames would require  a daemon process watching  the file
+system for changes and  support from the file system for  these events.  As some
+file systems cannot provide these events  (e.g. remote file systems) a universal
+solution cannot be offered.   Such a function may be added  later for those file
+systems that  do provide  file move/modification events  but adding  support for
 this to TMSU is not a priority at this time.
 
 The current  solution is to  periodically use the `repair`  command which will  detect moved/renamed
@@ -378,8 +382,8 @@ are both moved/renamed and modified cannot be detected.)
 
 ### How do I exclude tags when listing files?
 
-TMSU supports a simple query language consisting of  the operators `and`, `or` and `not`. To exclude
-tags, simply prefix them with `not`:
+TMSU supports  a simple query language  consisting of the operators  `and`, `or`
+and `not`.  To exclude tags, simply prefix them with `not`:
 
 For example, pull out your audio books:
 
@@ -397,7 +401,7 @@ Excluding multiple tags is easiest with parentheses and the `or` operator:
 ## Compatibility
 ### Is a package available for my GNU/Linux distribution's package manager?
 
-At this time probably not. Help with creating these would be very much appreciated.
+At this time probably not.  Help with creating these would be very much appreciated.
 
 - Arch Linux [package is available](https://aur.archlinux.org/packages/tmsu/) in the AUR.
 - Ubuntu [stable](https://launchpad.net/%7Etmsu/+archive/ubuntu/ppa) and [daily](https://launchpad.net/%7Etmsu/+archive/ubuntu/daily) PPAs are available for Ubuntu 16.04.1+.
@@ -410,28 +414,29 @@ If your shell is Zsh then yes, completion is in the `misc` directory of the sour
 ## Database
 ### Where is the database stored?
 
-Whenever you  run `tmsu init`, a  database file is created  at `.tmsu/db` under the  current working
-directory and will be used  whenever you're at or beneath that path. For  example, if you run `init`
-in your home  directory, then you will get a  database at `$HOME/.tmsu/db` and any files  you tag in
-your home directory (or sub-directories) will go into this database.
+Whenever you run `tmsu init`, a database file is created at `.tmsu/db` under the
+current working  directory and will be  used whenever you're at  or beneath that
+path.  For example, if you run `init`  in your home directory, then you will get
+a database at `$HOME/.tmsu/db` and any files  you tag in your home directory (or
+sub-directories) will go into this database.
 
-To find out which database you are currently using,  run `tmsu info`. This will show you the current
-database (if one can be found), amongst other details.
+To find out which database you are  currently using, run `tmsu info`.  This will
+show you the current database (if one can be found), amongst other details.
 
 *Note: Prior to v0.7.0, TMSU would create a default database at `~/.tmsu/default.db` when you first use it.*
 
 ### How does TMSU find the database
 
-Whenever  you run  TMSU,  it will  look  for a  database  at `.tmsu/db`  under  the current  working
-directory. If none can be found, TMSU will look  for `.tmsu/db` in each parent directory in turn, up
-to and including the root directory.
+Whenever you  run TMSU,  it will  look for  a database  at `.tmsu/db`  under the
+current working directory.  If none can  be found, TMSU will look for `.tmsu/db`
+in each parent directory in turn, up to and including the root directory.
 
 If a database is not found in the current or a parent directory, TMSU will then look for the default
 database created by earlier (<v0.7.0) versions of TMSU at `~/.tmsu/default.db`.
 
 ### Can I specify the database explicitly?
 
-Yes. See [Switching Databases](Switching Databases).
+Yes.  See [Switching Databases](Switching Databases).
 
 ### What format is the database?
 
@@ -447,8 +452,8 @@ The database is a SQLite3 database and can be read with the regular SQLite tooli
 
 ### How do I export my data?
 
-The database  is a standard Sqlite3  database. There are several  tools available that can  read the
-database and which can export the rows as CSV, SQL, &c.
+The database is a standard Sqlite3  database.  There are several tools available
+that can read the database and which can export the rows as CSV, SQL, &c.
 
 To dump to SQL text, you can use the Sqlite3 tooling:
 
@@ -457,10 +462,11 @@ To dump to SQL text, you can use the Sqlite3 tooling:
 # Fingerprint-Algorithms
 ### What's a Fingerprint?
 
-When you tag  a file, TMSU will create a  *fingerprint* of the file and store  that in the database.
-Just as  a person's  fingerprint can  uniquely identify them  within the  global population,  a file
-fingerprint  can uniquely  identify a  file from  all  the files  in the  world. The  chance of  two
-different files generating the same fingerprint is statistically extremely unlikely.
+When you tag a file, TMSU will create a *fingerprint* of the file and store that
+in the  database.  Just  as a  person's fingerprint  can uniquely  identify them
+within the  global population, a file  fingerprint can uniquely identify  a file
+from all the files  in the world.  The chance of  two different files generating
+the same fingerprint is statistically extremely unlikely.
 
 (You may also see file fingerprints referred to as 'hashes' or 'digests'.)
 
@@ -471,9 +477,9 @@ TMSU uses the saved file fingerprints for two purposes:
   - Database repairs
   - Duplicate file identification
 
-TMSU  can find  the new  path of  moved and  rename  files by  finding the  new path  with the  same
-fingerprint. Duplicate files  can be identified within  the database as having  the same fingerprint
-and therefore contents.
+TMSU can  find the new path  of moved and rename  files by finding the  new path
+with  the  same fingerprint.   Duplicate  files  can  be identified  within  the
+database as having the same fingerprint and therefore contents.
 
 ### Algorithms
 
@@ -491,17 +497,20 @@ Several different file algorithms are supported:
   - dynamic:MD5
   - dynamic:SHA1
 
-SHA1, SHA256  and MD5 are  well known cryptographic  hash functions, all  of which are  adequate for
-uniquely  identifying tagged  files.  MD5 is  known  to  be compromised  and  SHA1 is  theoretically
-compromised but for tagging purposes this is unlikely to pose a problem.
+SHA1, SHA256 and  MD5 are well known cryptographic hash  functions, all of which
+are  adequate  for uniquely  identifying  tagged  files.   MD5  is known  to  be
+compromised and SHA1 is theoretically  compromised but for tagging purposes this
+is unlikely to pose a problem.
 
-The dynamic versions of  the above algorithms behave differently for files  larger than 5MB. Instead
-of calculating a  fingerprint for the whole  file's contents, instead they create  a fingerprint for
-three  512kB portions  of the  file at  its beginning,  middle and  end. This  dramatically improves
-performance on slow  filesystems, such as remote filesystems,  but at the risk of  not detecting all
-file modifications. This does not normally cause a problem as larger files tend to be music or video
-files, which are  rarely if ever modified.  If you do happen  to modify larger files  and would like
-TMSU to be able to identify them properly as moved then use one of the non-dynamic algorithms.
+The dynamic versions of the above algorithms behave differently for files larger
+than 5MB.  Instead  of calculating a fingerprint for the  whole file's contents,
+instead they create  a fingerprint for three  512kB portions of the  file at its
+beginning,  middle and  end.   This dramatically  improves  performance on  slow
+filesystems, such  as remote filesystems, but  at the risk of  not detecting all
+file modifications.  This does not normally cause a problem as larger files tend
+to be music or video files, which are rarely if ever modified.  If you do happen
+to modify larger files and would like  TMSU to be able to identify them properly
+as moved then use one of the non-dynamic algorithms.
 
 ### Which File Algorithm Should I Use?
 
@@ -513,7 +522,7 @@ Use the following as a guide to which algorithm you should use:
   - For optimum performance whilst maintaining the ability to repair moved
     files and detect duplicates, choose `dynamic:MD5`.
 
-  - For maximum compatibility with other tooling choose `SHA256`. Although this
+  - For maximum compatibility with other tooling choose `SHA256`.  Although this
     may perform badly with larger files, especially on a remote filesystem.
 
   - `dynamic:SHA256` is the default because this provides acceptable
@@ -526,7 +535,8 @@ Before changing  the algorithm, ensure  you run a  'tmsu repair' to  fix any fil
 moves  as otherwise  it will  not be  possible to  make these  repairs once  a new  algorithm is  in
 operation.
 
-To change algorithm, use the `config` subcommand. For example, to use the MD5 algorithm for files:
+To change algorithm,  use the `config` subcommand.  For example,  to use the MD5
+algorithm for files:
 
     tmsu config fileFingerprintAlgorithm=MD5
 
@@ -551,10 +561,10 @@ are options available to use the target file's name instead of its digest.
 The `follow` option, which is the default, uses  the fingerprint of the target file/directory as per
 the configured file/directory fingerprint algorithm, respectively.
 
-`targetName` and `targetNameNoExt`  use the symbolic link's  target file or directory's  name as the
-fingerprint. This is beneficial if  the target file is some kind of identifier,  as is the case when
-integrating with Git Annex. The `targetNameNoExt` variant will lop off the extension from the target
-filename.
+`targetName`  and  `targetNameNoExt` use  the  symbolic  link's target  file  or
+directory's name as  the fingerprint.  This is beneficial if  the target file is
+some kind of  identifier, as is the  case when integrating with  Git Annex.  The
+`targetNameNoExt` variant will lop off the extension from the target filename.
 
 ### Directories
 
@@ -572,8 +582,10 @@ TMSU, by default, does not tag a directory's contents.
 
     $ tmsu tag /tmp temporary-files
 
-This adds only the `/tmp` directory to the database. TMSU does not look inside the directory.
-This makes the tagging operation fast and the database smaller. However, querying the database will show only the directory entry and not the files contents:
+This adds only the `/tmp` directory to  the database.  TMSU does not look inside
+the directory.  This makes the tagging  operation fast and the database smaller.
+However, querying  the database will show  only the directory entry  and not the
+files contents:
 
     $ tmsu files temporary-files
     /tmp
@@ -603,7 +615,10 @@ directly, it is still possible to navigate to the files via the directory symbol
 
     $ tmsu tag --recursive /tmp temporary-files
 
-Tagging the directory recursively adds every file from that directory to the database, so it can be slow and results in a considerably larger database than tagging the directory entries alone. However that cost is borne only once: subsequent queries do not need to consult the filesystem:
+Tagging the  directory recursively adds  every file  from that directory  to the
+database, so it can  be slow and results in a  considerably larger database than
+tagging the  directory entries  alone.  However  that cost  is borne  only once:
+subsequent queries do not need to consult the filesystem:
 
     $ tmsu files temporary-files
     /tmp
@@ -611,7 +626,10 @@ Tagging the directory recursively adds every file from that directory to the dat
     /tmp/cucumber
     /tmp/cucumber/kirby
 
-In addition, because the files are in the database it means they are shown directly in the virtual filesystem, though this may clutter the tag directories. TMSU is also able to identify duplicate files as a fingerprint of each file is taken when it is added.
+In addition,  because the  files are  in the  database it  means they  are shown
+directly in the virtual filesystem, though this may clutter the tag directories.
+TMSU is also able  to identify duplicate files as a fingerprint  of each file is
+taken when it is added.
 
 - Slower to tag
 - Larger database
@@ -627,7 +645,9 @@ per-database settings can be entered.
 
 ## Making Changes
 
-To change a setting use the 'config' subcommand. Without arguments 'config' will list the current settings from the database, if present, or from the defaults.
+To change  a setting  use the 'config'  subcommand.  Without  arguments 'config'
+will  list the  current settings  from  the database,  if present,  or from  the
+defaults.
 
     $ tmsu config
     autoCreateTags=yes
@@ -635,7 +655,8 @@ To change a setting use the 'config' subcommand. Without arguments 'config' will
     fileFingerprintAlgorithm=dynamic:SHA256
     directoryFingerprintAlgorithm=none
 
-To change a setting, assign a new value using '='. For example, to turn off automatic tag creation:
+To change  a setting, assign  a new  value using '='.  For example, to  turn off
+automatic tag creation:
 
     $ tmsu config autoCreateTags=no
 
@@ -665,7 +686,7 @@ Permitted values:
   - `dynamic:sumSizes`
   - `sumSizes`
 
-*Note: directory fingerprinting is a work in progress. Whilst fingerprints can be calculated for directories they cannot currently identified when moved by 'repair'.*
+*Note: directory fingerprinting is a work in progress.  Whilst fingerprints can be calculated for directories they cannot currently identified when moved by 'repair'.*
 
 ### Automatic Tag Creation
 
@@ -700,7 +721,10 @@ The recommended way is to initialise a local database.
 
 ## Local Database
 
-TMSU will look for a database named `.tmsu/db` under the current working directory or any parent directory of the current working directory. For example, if the current working directory is `/home/on/the/range` then TMSU will look for a database file at the following paths, using the first it finds:
+TMSU  will look  for  a  database named  `.tmsu/db`  under  the current  working
+directory  or  any parent  directory  of  the  current working  directory.   For
+example, if the current working directory is `/home/on/the/range` then TMSU will
+look for a database file at the following paths, using the first it finds:
 
     /home/on/the/range/.tmsu/db
     /home/on/the/.tmsu/db
@@ -708,7 +732,9 @@ TMSU will look for a database named `.tmsu/db` under the current working directo
     /home/.tmsu/db
     /.tmsu/db
 
-This lets you have a TMSU database for a particular set of files. To set up such a database, use the `init` subcommand, which will create a new database under the current working directory:
+This lets  you have a TMSU  database for a particular  set of files.  To  set up
+such a  database, use the  `init` subcommand, which  will create a  new database
+under the current working directory:
 
     $ cd /some/path
     $ tmsu init
@@ -716,7 +742,8 @@ This lets you have a TMSU database for a particular set of files. To set up such
 
 ## Environment Variable
 
-TMSU will look for an environment variable called `TMSU_DB`. This will override use of the default and local databases.
+TMSU will look for an environment variable called `TMSU_DB`.  This will override
+use of the default and local databases.
 
     $ export TMSU_DB=~/mydb
     $ tmsu tags --all
@@ -733,7 +760,9 @@ The database to use can be specified as a command-line option:
     fish
     chips
 
-Use of the command-line option has the highest precedence and overrides all of the other options. If this database file does not exist when TMSU is run then it will be created automatically.
+Use of the  command-line option has the highest precedence  and overrides all of
+the other options.  If  this database file does not exist when  TMSU is run then
+it will be created automatically.
 
 To save specifying it each time, you can alias `tmsu`:
 
@@ -763,7 +792,7 @@ longer creates such a database, but for backwards  compatibility it will still p
     - Evaluate Dokan for Windows support
     - Ensure 'repair' file move detection works (as it uses / for root)
 * Split out API so TMSU can be embedded in other programs
-    - I'm thinking, now, that the 'storage' layer is already an API. Perhaps it would be better
+    - I'm thinking, now, that the 'storage' layer is already an API.  Perhaps it would be better
       renamed and marketed as such.
     - Reposition database layer
     - Move core and CLI into separate sub-projects
@@ -834,13 +863,14 @@ longer creates such a database, but for backwards  compatibility it will still p
             new one
             - Copying symbolic link from one tag directory to another should add that tag
         * Way to pull tags to parent directory up or push them down to child files
-        * Storage level operations should ensure database consistency. E.g. deleting a tag should result in corresponding taggings being deleted
+        * Storage level operations should ensure database consistency.  E.g. deleting a tag should result in corresponding taggings being deleted
         # Tag-and-Value-Names
         Valid Tag Names
         ---------------
 
-As of TMSU v0.6.0, the restrictions on tag and  value names have been relaxed. The following are the
-current rule: please see the page history for restrictions applicable to earlier versions.
+As of TMSU  v0.6.0, the restrictions on  tag and value names  have been relaxed.
+The following are the current rule: please see the page history for restrictions
+applicable to earlier versions.
 
 A legal tag name consists of one or more characters from the following Unicode categories:
 
@@ -873,15 +903,17 @@ The following characters are not allowed anywhere within a tag name:
         - Slash (/)
         - Backslash (\\)
 
-The slash and backslash character is illegal as it clashes with the path separator character on many
-operating systems. Likewise '.'  and '..' are illegal as these could not  be used as directory names
-due to many operating systems using them already for the current and parent directories aliases.
+The  slash and  backslash  character is  illegal  as it  clashes  with the  path
+separator  character on  many  operating  systems.  Likewise  '.'  and '..'  are
+illegal as  these could  not be used  as directory names  due to  many operating
+systems using them already for the current and parent directories aliases.
 
 ### Escaping Problematic Characters
 
-Some characters, such as  the comparison operators and space characters, need to  be escaped if they
-are to be used within  a tag name. To escape a character precede it with  a backslash. (You may also
-need to additionally using quotes to hide the escaping from your shell.)
+Some characters, such as the comparison  operators and space characters, need to
+be escaped  if they are  to be used  within a tag  name.  To escape  a character
+precede it with a backslash. (You may  also need to additionally using quotes to
+hide the escaping from your shell.)
 
 Working  with  the comparison  operator  and  space  characters can  be  tricky,  as the  number  of
 backslashes you need may not be immediately obvious.
@@ -940,7 +972,10 @@ particular tag or tags, you may want to include untagged files:
 
 ## Filesystem Operations
 
-TMSU does not make any changes to your files in the filesystem (other than to its own database). As such, TMSU does not include any functionality for moving or renaming files. To make these operations easier, TMSU now includes a set of scripts for performing these operations:
+TMSU does not  make any changes to  your files in the filesystem  (other than to
+its own database). As  such, TMSU does not include any  functionality for moving
+or renaming files.  To make these operations  easier, TMSU now includes a set of
+scripts for performing these operations:
 
 ### Delete a file
 
@@ -960,7 +995,9 @@ Or manually:
 
 ### Merge files
 
-Sometimes you may wish to remove duplicates of a file, e.g. as identified by `tmsu dupes`. To combine multiple files into one, preserving all of the taggings:
+Sometimes you  may wish to  remove duplicates of a  file, e.g. as  identified by
+`tmsu  dupes`.  To  combine  multiple  files into  one,  preserving  all of  the
+taggings:
 
     $ tmsu-fs-merge path/to/file1 path/to/keep
 
@@ -987,7 +1024,10 @@ This either indicates that you have a corrupt library on your system or that a 3
 
 ### `Parser stack overflow` when querying the files
 
-This is a Sqlite3 error that indicates that the SQL parser has built up a stack that is over its maximum limit. By default the maximum limit is 100 items which you are unlikely to hit in practice unless you are performing some very complex queries.
+This is a Sqlite3 error that indicates that  the SQL parser has built up a stack
+that is over its maximum limit.  By default the maximum limit is 100 items which
+you are unlikely to hit in practice  unless you are performing some very complex
+queries.
 
 If you *do* hit this problem, it is possible to use a bigger stack by changing value in the Sqlite3 source code:
 
@@ -999,10 +1039,10 @@ If you *do* hit this problem, it is possible to use a bigger stack by changing v
 # Virtual-Filesystem
 ## Overview
 
-The virtual filesystem (VFS) provides a filesystem from which you can browse
-your tagged files. It provides virtual directories to represent the tags and
-symbolic links for the tagged files: linking back to their original file
-locations. It lets you access your files by way of tags from any other program.
+The virtual  filesystem (VFS) provides  a filesystem  from which you  can browse
+your tagged  files.  It provides virtual  directories to represent the  tags and
+symbolic  links for  the  tagged  files: linking  back  to  their original  file
+locations.  It lets you access your files by way of tags from any other program.
 
 ## Mounting The VFS
 
@@ -1025,9 +1065,9 @@ highly unlikely event that TMSU crashes.)
 ## Tags Directory
 
 The virtual file system's `tags` directory contains virtual directories for each
-tag you have created. Within these directories are symbolic links to the files
-that have that particular tag applied. In addition, each tag directory contains
-directories for the other tags applied to the set of files visible so that you
+tag you have created.  Within these  directories are symbolic links to the files
+that have that particular tag applied.  In addition, each tag directory contains
+directories for the other  tags applied to the set of files  visible so that you
 can hone in on the file you want.
 
 For example:
@@ -1050,14 +1090,14 @@ tagged files and see how our `mp3` files have been further tagged.
     drwxr-xr-x 0 paul...07:03 rock
     drwxr-xr-x 0 paul...07:03 trance
 
-You'll probably notice that the filenames contain a number where the originals
-did not. This number is TMSU's internal file identifier: it's present in the
-filename as otherwise there will be a name clash if you tag two files that have
+You'll probably notice  that the filenames contain a number  where the originals
+did not.   This number is TMSU's  internal file identifier: it's  present in the
+filename as otherwise there will be a name  clash if you tag two files that have
 the same name with the same tag.
 
-We also have further tag directories indicating that our MP3 files have been
-further (and variously) tagged `good`, `music`, `rock` and `trance`. If we
-change into one of these directories we can get a view of the files that have
+We also  have further tag  directories indicating that  our MP3 files  have been
+further  (and variously)  tagged `good`,  `music`, `rock`  and `trance`.   If we
+change into one  of these directories we can  get a view of the  files that have
 both `mp3` and this further tag (e.g. `rock`) applied:
 
     $ cd rock
@@ -1105,8 +1145,9 @@ To rename a tag, simply rename the tag directory:
 
 ### Untagging a File
 
-Files can be untagged by removing the symbolic link from the tag directory you
-wish to remove. For example, to remove a `panorama` tag from file `mountain.jpg`:
+Files  can be  untagged by  removing the  symbolic link  from the  tag directory
+you  wish  to  remove.  For  example,  to  remove  a  `panorama` tag  from  file
+`mountain.jpg`:
 
     $ ls -l mp/tags/panorama
     total 0
@@ -1128,8 +1169,8 @@ If you remove a symbolic link from a nested tag directory, e.g.
 
 ### Deleting Tags
 
-A tag can be deleted by removing the tag directory. A tag directory can only be
-deleted if the tag is no longer applied so it is necessary to first delete any
+A tag can be deleted by removing the tag directory.  A tag directory can only be
+deleted if the tag  is no longer applied so it is necessary  to first delete any
 symbolic links *immediately* under the tag directory.
 
 It is not necessary to delete the symbolic links under any nested tag
@@ -1162,18 +1203,18 @@ example:
 
 Currently it is not possible to tag a file via the virtual filesystem.
 
-(The technical reason for this is that TMSU adds an identifier to the symbolic
-link names to avoid name clashes within the tag directories. In order to create
+(The technical reason for  this is that TMSU adds an  identifier to the symbolic
+link names to avoid name clashes within the tag directories.  In order to create
 a symbolic link in a tag directory you would have to know, in advance, what that
-number should be. I hope to work around this problem in a subsequent version.)
+number should be.  I hope to work around this problem in a subsequent version.)
 
 ## Queries Directory
 
 Whilst the `tags` directory provides an immediately view of your tags and files,
-it does have some limits: it is not possible to exclude tags or perform more
-complicated tag queries. The `queries` directory lets you access a query-based
+it does  have some limits: it  is not possible  to exclude tags or  perform more
+complicated tag queries.  The `queries`  directory lets you access a query-based
 view of your files instead using the same query language as the `files` command.
-Simply access the directory with the query text as the directory name to view
+Simply access the  directory with the query  text as the directory  name to view
 the set of files:
 
     $ cd mp/queries
@@ -1185,16 +1226,16 @@ the set of files:
     $ ls "good and (music or photo) and not rainy"
     ...
 
-Note that any accessed query directory is created and saved automatically so it
-is not necessary to first create them. The directories can be removed using
+Note that any accessed query directory  is created and saved automatically so it
+is not  necessary to first  create them.  The  directories can be  removed using
 `rmdir` when you are finished with them or left to ease subsequent access.
 
 ## Advanced Mounting
 
 It is also possible to mount the VFS using regular `mount` command.
 
-First, ensure that the `mount.tmsu` helper script is installed in `/sbin`. This
-script is included with the TMSU binary in the `bin` directory or is available
+First, ensure that the `mount.tmsu` helper script is installed in `/sbin`.  This
+script is included with  the TMSU binary in the `bin`  directory or is available
 in the repository at `misc/bin`.
 
 Check that a TMSU filesystem can be mounted with `mount`. (This must be done as
@@ -1222,7 +1263,7 @@ in `/etc/fstab`.
 ## Allowing Other Users Access
 
 FUSE allows only root and the mounting user access to the mounted filesystem by
-default. To grant access to other users you must edit `/etc/fuse.conf` and
+default.  To grant access to other users you must edit `/etc/fuse.conf` and
 enable this functionality:
 
     user_allow_other

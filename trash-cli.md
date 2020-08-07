@@ -66,7 +66,7 @@ It seems that the menu will  only let you choose files/directories deleted below
 the current directory.
 
 And only if there aren't several  partitions mounted somewhere below the current
-directory. In which case  I suppose there's an ambiguity on  the identity of the
+directory.  In which case I suppose there's  an ambiguity on the identity of the
 trash can  you want to restore  something from, because each  partition probably
 has its own independent trash can.
 
@@ -85,7 +85,7 @@ Note that you must  NOT supply a full path to `trash-rm`,  only a filename (last
 component in the path).
 
 Contrary to `trash-put`, if you supply  a pattern containing a glob qualifier to
-`trash-rm`, you MUST quote it. The shell must NOT expand the glob qualifier.
+`trash-rm`, you MUST quote it.  The shell must NOT expand the glob qualifier.
 
 ## How to remove the files in the trash can, only if they've been there more than a week?
 

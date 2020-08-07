@@ -922,7 +922,7 @@ Bottom line: terminals lie to the programs they're running about their identity.
 ## Why should I use raw sequences as little as possible?
 
 A raw sequence may work on one terminal but not on another.
-Use `$ tput` instead. It's more portable.
+Use `$ tput` instead.  It's more portable.
 
 `tput` will query the terminfo db and return the right sequence (if any) for any
 given terminal:

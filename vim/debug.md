@@ -694,7 +694,7 @@ Before the last component of the path, ONE directory:
 ## Are the two wildcards necessary in
 ### `:{breakadd|prof} file */*foo.vim`?
 
-No. One is enough:
+No.  One is enough:
 
                            ┌ useless, because a single star can match two things at the same time:
                            │
@@ -838,7 +838,7 @@ Vim did, and why.
 Alternatively, you can try to `:vimgrep` your config files.
 
 ##
-## I'm trying to profile a script, but nothing is written in the profile file. Why?
+## I'm trying to profile a script, but nothing is written in the profile file.  Why?
 
 The script must be sourced *after* `:prof`.
 So, pay attention to the relative order  in which you execute `:prof` and source
@@ -1101,7 +1101,7 @@ there are various things that may clobber the results:
 
     count  total (s)   self (s)
         2              2.216045     let output = execute(a:range.'s///gen')
-        2              0.000046     return str2nr(matchstr(output, '\d\+'))
+        2              0.000046     return matchstr(output, '\d\+')->str2nr()
 
 
             Un  rapport de  profilage  ne  permet pas  seulement  de trouver  la
@@ -1146,8 +1146,8 @@ After a profiling, maybe we should always run `:prof pause` then `:noa qa!`.
 
 ---
 
-We've lost time debugging dirvish, because the issue was not in vimrc
-but in filetype plugin. How to avoid it in the future?
+We've lost  time debugging dirvish,  because the issue was  not in vimrc  but in
+filetype plugin.  How to avoid it in the future?
 
 Update:
 You should find a succession of commands loading more and more files.
@@ -1261,7 +1261,7 @@ displayed separately.
 :breaka[dd] expr {expression}
 
                 Sets a breakpoint, that will break whenever the {expression}
-                evaluates to a different value. Example:
+                evaluates to a different value.  Example:
 
                         :breakadd expr g:lnum
 

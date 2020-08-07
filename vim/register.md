@@ -179,9 +179,9 @@ It doesn't preserve the original type of the register `r`.
 
 Use the third argument of `setreg()` to preserve the type:
 
-    call setreg('r', ['appended'], 'a'..getregtype('r'))
-                                    │   │
-                                    │   └ preserve the current type
+    call setreg('r', ['appended'], 'a' .. getregtype('r'))
+                                    │     │
+                                    │     └ preserve the current type
                                     └ append, don't overwrite
 
 Example:
@@ -190,7 +190,7 @@ Example:
     echo getregtype('r')
     V~
 
-    call setreg('r', ['appended'], 'a'..getregtype('r'))
+    call setreg('r', ['appended'], 'a' .. getregtype('r'))
     echo getregtype('r')
     V~
 
@@ -642,7 +642,7 @@ automatically positioned on the first non-whitespace character.
 
     $ vim -Nu NONE -i NONE -S <(cat <<'EOF'
         set list showcmd ai
-        let lines = range(1,8)->map({_,v -> repeat(' ', v)..repeat("\t", v < 5 ? 1 : 2)..'some line'})
+        let lines = range(1,8)->map({_, v -> repeat(' ', v) .. repeat("\t", v < 5 ? 1 : 2) .. 'some line'})
         call setline(1, lines)
         g/^\s/pu=''
         norm! 1G1|
@@ -701,7 +701,7 @@ Execute the macro via `:norm!`:
 Remember that  we have a  mapping to execute  a macro on  each line in  a visual
 selection:
 
-    :xno <silent> @ :<c-u>exe "'<,'>norm @"..nr2char(getchar())<cr>
+    :xno <silent> @ :<c-u>exe "'<,'>norm @" .. getchar()->nr2char()<cr>
 
 Use it to repeat a macro on an arbitrary range of lines.
 
@@ -1156,7 +1156,7 @@ This will affect the behavior of `:b#` and `C-^`.
 
 Note that the new alternate file must match an existing buffer.
 
-    sil! exe 'bw! '..$MYVIMRC
+    sil! exe 'bw! ' .. $MYVIMRC
     let @# = $MYVIMRC
     E94: No matching buffer for ...~
 
@@ -1195,7 +1195,7 @@ But if a file from the listing A is missing in B, then `E486` should be raised:
 ---
 
 Note that it's important to look for the file path with the `?` command, and not
-`/`. Since  file paths in Linux  use the slash  as a delimiter, the  `/` command
+`/`.  Since  file paths in Linux  use the slash  as a delimiter, the  `/` command
 would not be able to find a file path without the delimiters being escaped.
 
 And note  that the `?` command  suffers from a  similar issue; i.e. it  won't be
@@ -1211,7 +1211,7 @@ If you want to practice, run this:
         %d_
         " populate listing A
         pu!='/path/to/file1'
-        exe 'norm! yy'..(winheight(0)-1).."p2GVGg\<c-a>gg"
+        exe 'norm! yy' .. (winheight(0)-1) .. "p2GVGg\<c-a>gg"
         update
         " focus file B
         wincmd w
@@ -1221,7 +1221,7 @@ If you want to practice, run this:
         " remove random existing line whose address is above or equal to 5
         let seed = srand()
         let random = 5 + rand(seed) % (winheight(0)-4)
-        exe random..'d_'
+        exe random .. 'd_'
         wincmd w
     EOF
     ) -O /tmp/listingA /tmp/fileB
@@ -1315,7 +1315,7 @@ NL and one which results from the translation of a NUL.
         let save = [getreg('r'), getregtype('r')]
         "           ^---------^
         call setreg('r', save[0], save[1])
-        pu='restored:  '..execute('reg r')->split('\n')[1]->matchstr(':\s*\zs.*')
+        pu='restored:  ' .. execute('reg r')->split('\n')[1]->matchstr(':\s*\zs.*')
         %p
         qa!
     EOF
@@ -1367,7 +1367,7 @@ translate it back into a NUL.
         let save = [getreg('r', 1, 1), getregtype('r')]
         "                          ^
         call setreg('r', save[0], save[1])
-        pu='restored:  '..execute('reg r')->split('\n')[1]->matchstr(':\s*\zs.*')
+        pu='restored:  ' .. execute('reg r')->split('\n')[1]->matchstr(':\s*\zs.*')
         %p
         qa!
     EOF
@@ -1426,7 +1426,7 @@ interactively was `@a`.
 
 During a recording, if  you use a mapping whose rhs contains  `@=` , when you'll
 execute the resulting register (let's say  `q`), the mapping will cause the last
-macro to be  reset to `@=`. Which  means that – subsequently –  `@@` will replay
+macro to be  reset to `@=`.  Which  means that – subsequently –  `@@` will replay
 `@=` and not `@q`.
 
 ### How to avoid this pitfall in the future?
@@ -1442,12 +1442,12 @@ last register which was executed *interactively*.
         if reg_executing()->empty()
             let s:last_register_executed_interactively = char
         endif
-        return '@'..char
+        return '@' .. char
     endfu
 
     nmap <expr> @@ <sid>atat()
     fu s:atat() abort
-        return '@'..get(s:, 'last_register_executed_interactively', '@')
+        return '@' .. get(s:, 'last_register_executed_interactively', '@')
     endfu
 
 ##

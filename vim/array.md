@@ -192,7 +192,7 @@ Use `map()` + `range()`:
 
                        ┌ a number is allowed (in addition to a string)
                        │
-    echo map(range(5), 0)
+    echo range(5)->map(0)
     [0, 0, 0, 0, 0]~
 
 Or `repeat()`:
@@ -204,7 +204,7 @@ Or `repeat()`:
 
 Use `map()` + `range()`:
 
-    echo map(range(4), 'map(range(3), 0)')
+    echo range(4)->map('range(3)->map(0)')
     [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]~
 
 ##
@@ -481,12 +481,12 @@ Use an assignment.
 In the  lhs, use  the index of  the item you  want to  change; and use  the `.=`
 operator.
 
-    let list[idx] .= str
+    let list[idx] ..= str
 
 ---
 
     let list = ['ab', 'c']
-    let list[1] .= 'd'
+    let list[1] ..= 'd'
     echo list
     ['ab', 'cd']~
 
@@ -512,7 +512,7 @@ operator.
     let counts = [0, 0, 0]
     let patterns = ['a_word', 'b_word', 'c_word']
     for i in range(3)
-        exe '%s/'..patterns[i]..'/\=Increment(counts,'..i..')/gn'
+        exe '%s/' .. patterns[i] .. '/\=Increment(counts,' .. i .. ')/gn'
     endfor
     echo counts
 
@@ -598,7 +598,7 @@ If the items of the list are non-scalars, use `deepcopy()`:
 #### The next code mutates a dictionary so that the numbers in its list values are doubled.
 
     let dict = {'A': [1,2], 'B': [3,4], 'C': [5,6]}
-    call map(dict, {_,v -> map(v, {_,v -> v * 2})})
+    call map(dict, {_, v -> map(v, {_, v -> v * 2})})
     echo dict
     {'A': [2, 4], 'B': [6, 8], 'C': [10, 12]}~
 
@@ -606,7 +606,7 @@ If the items of the list are non-scalars, use `deepcopy()`:
 
     let dict = {'A': [1,2], 'B': [3,4], 'C': [5,6]}
     for [k,v] in items(dict)
-        call map(v, {_,v -> v * 2})
+        call map(v, {_, v -> v * 2})
     endfor
     echo dict
     {'A': [2, 4], 'B': [6, 8], 'C': [10, 12]}~
@@ -763,12 +763,12 @@ The *value* (!= item) of the removed key.
 
 Use `filter()` and a condition inspecting the value (`v`):
 
-    call filter(dict, {k,v -> cond(v)})
+    call filter(dict, {k, v -> cond(v)})
 
 ---
 
     let dict = {'ab': 1, 'cd': 2, 'abcd': 3}
-    echo filter(dict, {k,v -> v > 1})
+    echo filter(dict, {k, v -> v > 1})
     {'abcd': 3, 'cd': 2}~
 
 Here, you removed all the items whose values were not greater than `1`.
@@ -777,12 +777,12 @@ Here, you removed all the items whose values were not greater than `1`.
 
 Use `filter()` and a condition inspecting the key (`k`):
 
-    call filter(dict, {k,v -> cond(k)})
+    call filter(dict, {k, v -> cond(k)})
 
 ---
 
     let dict = {'ab': 1, 'cd': 2, 'abcd': 3}
-    echo filter(dict, {k,v -> k =~# '^a'})
+    echo filter(dict, {k, v -> k =~# '^a'})
     {'abcd': 3, 'ab': 1}~
 
 Here, you removed all the items whose keys didn't begin with `a`.
@@ -817,7 +817,7 @@ Don't use `count()`; it would be less effecient:
         let words = []
         %s/\<\k\+\>/\=add(words, submatch(0))/gn
         let freq = {}
-        for word in uniq(sort(copy(words)))
+        for word in copy(words)->sort()->uniq()
             let freq[word] = count(words, word)
         endfor
         echo freq

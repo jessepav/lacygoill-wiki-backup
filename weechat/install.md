@@ -30,7 +30,7 @@ Install some optional dependencies:
 
         $ sudo aptitude install asciidoctor libcpputest-dev
 
-There may be more. See:
+There may be more.  See:
 
         https://weechat.org/files/doc/devel/weechat_user.en.html#dependencies
 

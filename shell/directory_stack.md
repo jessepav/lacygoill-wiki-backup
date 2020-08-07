@@ -254,7 +254,7 @@ Completion is available.
 
 No  quoting is  necessary (except  for newlines,  where I  have in  any case  no
 sympathy); directories are  in unabbreviated from and contain  an absolute path,
-i.e. they start with `/`. Usually the  first entry should be left as the current
+i.e. they start with `/`.  Usually the  first entry should be left as the current
 directory.
 
 #### -p 'pattern'

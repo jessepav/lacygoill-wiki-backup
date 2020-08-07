@@ -92,11 +92,11 @@ On peut également définir 𝑒 via la relation suivante:
 
             Qd `(d/2)^2 - (c/3)^3` est négatif, on obtient à nouveau des racines carrés de nombres négatifs.
             Et à nouveau, il semble qu'on ait une formule qui peut échouer pour certains coef `c` et `d`
-            bien choisis. C'est par exemple le cas pour l'équation:
+            bien choisis.  C'est par exemple le cas pour l'équation:
 
                     x^3 = 15x + 4
 
-            Mais cette fois, on sait qu'il doit y avoir au moins une solution. En effet, la représentation
+            Mais cette fois, on sait qu'il doit y avoir au moins une solution.  En effet, la représentation
             d'une fonction cubique, peu importe les coef choisis, coupe tjrs l'axe des abscisses en au moins
             un point.
             Ceci contraste avec la parabole d'une fonction quadratique, qui peut ne jamais couper l'axe
@@ -166,7 +166,7 @@ On peut également définir 𝑒 via la relation suivante:
         Il s'agit de l'ensemble de tous les ensembles inclus dans E, noté P(E).
 
         On peut considérer P comme un opérateur prenant comme opérande un ensemble E, auquel il associe
-        un nouvel ensemble P(E) (appelé 'power set' en anglais). Ex:
+        un nouvel ensemble P(E) (appelé 'power set' en anglais).  Ex:
 
                 P({0,1}) = {∅, {0}, {1}, {0,1}}
 

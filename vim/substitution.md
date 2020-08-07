@@ -100,7 +100,7 @@ See `:h e769`.
                                                NOTE:
 
             Parmi les différentes commandes permettant de répéter une substitution, :& et :s sont
-            les  seules  à réutiliser  le  pattern  de la  dernière  commande  :s/:g. Les  autres
+            les  seules  à réutiliser  le  pattern  de la  dernière  commande  :s/:g.  Les  autres
             utilisent le registre recherche.
             Pour corriger ça, on peut leur ajouter le flag r:
 
@@ -154,13 +154,13 @@ See `:h e769`.
     :%s/\v\\u(\x+)/\=nr2char('0x'.submatch(1), 1)/g
 
             Traduire tous les caractères spéciaux (\u ou \U) suivis de points de code en leurs équivalents
-            littéraux. Ex:    \u20ac    →    €
+            littéraux.  Ex:    \u20ac    →    €
 
             submatch(0) est une chaîne, et la concaténation a pour effet d'inclure des double quotes
             au sein de cette dernière.
-            Puis on appelle eval() qui les enlève qd elle évalue le contenu de la double chaîne '" … "':
+            Puis on appelle eval() qui les enlève qd elle évalue le contenu de la double chaîne '" ... "':
 
-                    '…'    →    '" … "'    →    "…"
+                    '...'    →    '" ... "'    →    "..."
                      concaténation       eval()
 
             Les 2 opérations s'annulent, à ceci près que la sortie de eval() n'est plus une chaîne
@@ -170,7 +170,7 @@ See `:h e769`.
 
     :%s/\v\n(\s+)/\1/
 
-            fusionne des blocs de code en une seule ligne. Ex:
+            fusionne des blocs de code en une seule ligne.  Ex:
 
                     foo
                       bar    →    foo  bar  baz
@@ -297,7 +297,7 @@ See `:h e769`.
             opération arbitraire sur tous les matchs d'un pattern.
 
 
-    :%s/\w\+/\=len(add(words, submatch(0))) ? submatch(0) : submatch(0)/g
+    :%s/\w\+/\=add(words, submatch(0))->len() ? submatch(0) : submatch(0)/g
 
             crée une liste words contenant tous les mots du buffer
 
@@ -309,19 +309,19 @@ See `:h e769`.
 
             L'expression:
 
-                    len(…) ? submatch(0) : submatch(0)
+                    len(...) ? submatch(0) : submatch(0)
 
-            … évalue la fonction add() qui ajoute un item à words.
+            ... évalue la fonction add() qui ajoute un item à words.
 
             Pk l'appel à len() ?
 
                     add(words, submatch(0))
 
-            … ne retourne pas un nb mais la liste words.
+            ... ne retourne pas un nb mais la liste words.
 
             On ne peut pas tester directement une liste comme ceci:     if list    ✘
             En revanche on peut tester un nb comme ceci:                if n       ✔
-            len(…) permet de convertir la liste words en un nb (sa taille) qui peut être directement testé.
+            len(...) permet de convertir la liste words en un nb (sa taille) qui peut être directement testé.
 
 
     :%s/".\{-1,}"/"foo"/g
@@ -393,14 +393,14 @@ See `:h e769`.
             remplacement d'une commande de substitution.
 
 
-    :%s:\d\+:\=str2nr(submatch(0))+5:g
+    :%s:\d\+:\=submatch(0)->str2nr()+5:g
 
             Ajouter 5 à tous les nb du buffer.
 
             Cette commande illustre le fait  que lorsqu'on évalue une expression
             dans la chaîne de remplacement  de la commande de substitution (\=),
             pour se  référer à tout  ou partie du match,  il faut passer  par la
-            fonction submatch() (équivalent de \0, \1 … \9)
+            fonction submatch() (équivalent de \0, \1 ... \9)
 
             Attention: si le nb auquel se  réfère submatch() débute par un 0, il
             est converti en un nb octal.
@@ -415,7 +415,7 @@ See `:h e769`.
             Sans ce 2e argument, la base 10 est choisie par défaut.
 
 
-    :exe '*s/' . join(keys(mydict), '\|') . '/\=mydict[submatch(0)]/g'
+    :exe '*s/' .. keys(mydict)->join('\|') .. '/\=mydict[submatch(0)]/g'
 
             Au sein de la sélection  visuelle, substituer toutes les occurrences
             des clés du dico `mydic` par leurs valeurs.
@@ -429,7 +429,7 @@ See `:h e769`.
             regrouper un ensemble de substitutions.
 
 
-    :let c=0 | 10,20g//let c += 1 | s/^/\=c . "\t"
+    :let c=0 | 10,20g//let c += 1 | s/^/\=c .. "\t"
 
             Numéroter les lignes 10 à 20 à partir de 1.
 
@@ -438,21 +438,21 @@ See `:h e769`.
             fonctions.
 
 
-    :*s/^*/\=line('.') - line("'<") + 1 . '.'
+    :*s/^*/\=line('.') - line("'<") + 1 .. '.'
 
             Remplace une  liste dont les  lignes commencent par  des astérisques
             par une liste numérotée à condition d'avoir sélectionné visuellement
             la liste.
 
 
-    :let [c,d]=[0,0] | g/^* /let [c,d]=[line('.')==d+1? c+1: 1, line('.')] | s//\=c.'. '
+    :let [c,d] = [0,0] | g/^* /let [c,d] = [line('.') == d + 1 ? c + 1 : 1, line('.')] | s//\=c .. '. '
 
             Transforme  toutes  les  listes  dont  les  items  débutent  par  un
             astérisque en listes numérotées.
 
             La variable c sert d'incrément.
             La variable d sert  à déterminer si on est tjrs  dans la même liste,
-            si c'est  le cas (line('.')==d+1)  on incrémente c, autrement  on la
+            si c'est  le cas (line('.') == d + 1)  on incrémente c, autrement  on la
             réinitialise à 1
 
 
@@ -463,13 +463,13 @@ See `:h e769`.
                                         baz
 
 
-    :%s/^/\=line('.') . "\t"
+    :%s/^/\=line('.') .. "\t"
 
             Numéroter  chaque ligne  en  remplaçant  son début  (^)  par son  n°
             (line('.')) et un caractère tab ("\t").
 
 
-    :%s:foo\zs\_.\{-}\zebar:\=insert(readfile('note.txt'), ''):g
+    :%s:foo\zs\_.\{-}\zebar:\=readfile('note.txt')->insert(''):g
 
             Remplacer le texte encadré par foo  et bar par le contenu du fichier
             note.txt.
@@ -486,9 +486,9 @@ See `:h e769`.
               des newlines
 
             - on appelle insert() pour ajouter une chaîne vide à la liste
-              readfile(…) de sorte que lorsque la fusion ait lieue, un newline
+              readfile(...) de sorte que lorsque la fusion ait lieue, un newline
               soit ajouté au tout début et que le texte de remplacement débute
-              sur une nouvelle ligne. Pas obligé mais peut être utile.
+              sur une nouvelle ligne.  Pas obligé mais peut être utile.
 
 
     foo          foo1          foo1
@@ -503,14 +503,14 @@ See `:h e769`.
                  baz2
                  baz3
 
-            :%s/.*/\=map(range(1,3), 'submatch(0) . v:val')                    1e transfo
+            :%s/.*/\=range(1, 3)->map('submatch(0) .. v:val')                    1e transfo
 
-            :%s/.*/\=join(map(range(1,3), 'submatch(0) . v:val'), "\n")        2e transfo
+            :%s/.*/\=range(1, 3)->map('submatch(0) .. v:val')->join("\n")        2e transfo
 
                                                NOTE:
 
             La 1e substitution insère sur une ligne différente chaque item de la
-            liste ( map(range(1,3), …) ), en insérant automatiquement un newline
+            liste ( range(1, 3)->map(...) ), en insérant automatiquement un newline
             à la fin.
             Raison pour  laquelle on a  une ligne vide  toutes les 4  lignes: il
             s'agit du newline ajouté au dernier item de la liste.

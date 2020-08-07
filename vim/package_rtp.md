@@ -155,7 +155,7 @@ Look for the pattern `sourcing`.
    4. plugins inside  `after/` and inside  packages
 
 All directories in `'rtp'` (except the ones ending in `after/`) are searched for
-a `plugin/`  subdirectory. Inside, all  files ending in  `.vim` are  sourced (in
+a `plugin/`  subdirectory.  Inside, all  files ending in  `.vim` are  sourced (in
 alphabetical order per directory), also in subdirectories.
 
 Directories in  `'rtp'` ending  in `after/`  are skipped  here, and  only loaded

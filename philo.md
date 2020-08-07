@@ -3,7 +3,7 @@
     métaphysique
 
         À l'origine, la métaphysique s'occupait des questions autour de l'existence, des causes premières,
-        et des choses qui ne changent pas. Depuis, de nombreux autres domaines se sont ajoutés.
+        et des choses qui ne changent pas.  Depuis, de nombreux autres domaines se sont ajoutés.
 
         Pour illustrer les préoccupations modernes de la métaphysique, considérons un ordinateur.
         Voici quelques questions que des philosophes pourraient se poser à son sujet, en fonction

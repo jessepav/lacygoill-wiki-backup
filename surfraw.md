@@ -4,7 +4,7 @@ After studying surfraw, study `locate`.
 It's documented in our pdf about `find`.
 Also, see `man locate`, `man updatedb`, `man updatedb.conf`.
 
-Also, study `fd`. They complete each other.
+Also, study `fd`.  They complete each other.
 `locate` to find anything older than a day, `fd` for the rest.
 
 ---

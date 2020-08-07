@@ -12,7 +12,7 @@ When you need to do some tests while editing this file, use this code:
 You can switch from the local arglist to the global one with `:argg`.
 How to do the reverse?
 `:argl` doesn't work because it creates a new copy of the global one.
-That's not what I want. I want to get back to the old local one.
+That's not what I want.  I want to get back to the old local one.
 
 Maybe it's lost after `:argg`.
 In that case, we may need a mapping/command which saves the local arglist before

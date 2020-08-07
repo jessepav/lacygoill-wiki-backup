@@ -1368,32 +1368,32 @@ There  are several  ways  to  set environment  variables  for  the systemd  user
 instance:
 
 1. For users with a $HOME directory, create a .conf file in the
-   ~/.config/environment.d/ directory with lines of the form NAME=VAL. Affects
-   only that user's user unit. See environment.d(5) for more information.
+   ~/.config/environment.d/ directory with lines of the form NAME=VAL.  Affects
+   only that user's user unit.  See environment.d(5) for more information.
 
-2. Use the DefaultEnvironment option in /etc/systemd/user.conf file. Affects all
+2. Use the DefaultEnvironment option in /etc/systemd/user.conf file.  Affects all
    user units.
 
-3. Add a drop-in config file in /etc/systemd/system/user@.service.d/. Affects
+3. Add a drop-in config file in /etc/systemd/system/user@.service.d/.  Affects
    all user units; see #Service example
 
 4. At any time, use systemctl --user set-environment or systemctl --user
-   import-environment. Affects all user units started after setting the
+   import-environment.  Affects all user units started after setting the
    environment variables, but not the units that were already running.
 
 5. Using the dbus-update-activation-environment --systemd --all command provided
-   by dbus. Has the same effect as systemctl --user import-environment, but also
-   affects the D-Bus session. You can add this to the end of your shell
+   by dbus.  Has the same effect as systemctl --user import-environment, but also
+   affects the D-Bus session.  You can add this to the end of your shell
    initialization file.
 
 6. For "global" environment variables for the user environment you can use the
-   environment.d directories which are parsed by systemd generators. See
+   environment.d directories which are parsed by systemd generators.  See
    environment.d(5) for more information.
 
 7. You can also write an environment generator script which can produce
    environment variables that vary from user to user, this is probably the best
    way if you need per-user environments (this is the case for XDG_RUNTIME_DIR,
-   DBUS_SESSION_BUS_ADDRESS, etc). See systemd.environment-generator(7).
+   DBUS_SESSION_BUS_ADDRESS, etc).  See systemd.environment-generator(7).
 
 One variable you may want to set is PATH.
 
@@ -1769,7 +1769,7 @@ This parameter can be specified multiple times.
 
 ## -b [ID][±offset], --boot=[ID][±offset]
 
-Show messages from a specific boot. This will add a match for `_BOOT_ID=`.
+Show messages from a specific boot.  This will add a match for `_BOOT_ID=`.
 
 The argument may be empty, in which case logs for the current boot will be shown.
 
@@ -1898,7 +1898,7 @@ disabled.
 If this is desired,  either --now should be used together  with this command, or
 an additional stop command should be executed afterwards.
 
-This command will print the actions executed. This output may be suppressed by passing --quiet.
+This command will print the actions executed.  This output may be suppressed by passing --quiet.
 
 This command honors --system, --user, --runtime and --global in a similar way as enable.
 
@@ -2219,7 +2219,7 @@ You can check this by running:
     /bin/sh~
 
 You need to make `machinectl shell` start sh with the `-E` flag, to enable emacs
-key bindings. I don't know how atm.
+key bindings.  I don't know how atm.
 But even if you manage to do it, there's another issue:
 our sh has been compiled without `--with-libedit`.
 You would need to make `machinectl shell` start our custom sh installed in `~/.local/bin/dash`.

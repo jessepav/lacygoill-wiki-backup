@@ -500,7 +500,7 @@ Je me confronte aux autres.
 
        - factorisant le + possible
 
-   3. Déduire des règles. Puis revenir à l'étape 2. Répéter jusqu'à ce qu'il n'y
+   3. Déduire des règles.  Puis revenir à l'étape 2.  Répéter jusqu'à ce qu'il n'y
       ait plus qu'un minimum d'infos et un max de règles.
 
 ---
@@ -551,7 +551,7 @@ changes, to get a better understanding of the documentation.
 This implies two things:
 
    1. For every group of commands you run, you need to find the opposite
-      commands which will undo all their effects. You need it so that the second
+      commands which will undo all their effects.  You need it so that the second
       time you run your commands, their effects won't be affected by the
       previous run.
 
@@ -559,8 +559,8 @@ This implies two things:
       `update-alternatives --remove all ...`.
 
    2. You need to write a temporary script to avoid having to run the same long
-      commands over and over. With it,  all you'll have to  do is edit a  script
-      to add your  change and re-run it. It's much quicker to change a word in
+      commands over and over.  With it,  all you'll have to  do is edit a  script
+      to add your  change and re-run it.  It's much quicker to change a word in
       a command, then to retype several long commands just for one little
       change.
 

@@ -239,7 +239,7 @@ The cursor must be inside the opening tag (excluding the `>`):
 
                     div>header>ul>li*2>a^^footer>p
 
-            Avec les parenthèses on peut se passer de ^. Pk?
+            Avec les parenthèses on peut se passer de ^.  Pk?
             Car lorsqu'on ferme les parenthèses, on se retrouve dans le contexte dans lequel on se
             trouvait au moment de les ouvrir (ici à la racine du <div>).
             Ainsi, qd on écrit `+footer`, footer est considéré comme un frère du sous-arbre entre parenthèses.
@@ -288,7 +288,7 @@ The cursor must be inside the opening tag (excluding the `>`):
     i_C-g i
 
             ajouter les attributs `width` et `height` à un élément <img> avec les valeurs adaptées:
-            largeur et hauteur en pixels de l'image en question. Ex:
+            largeur et hauteur en pixels de l'image en question.  Ex:
 
                     <img src="/path/to/pic">    →    <img src="/path/to/pic" width="1600" height="900">
 

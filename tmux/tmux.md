@@ -575,7 +575,7 @@ server (kill any existing server if necessary).
 <https://github.com/tmux/tmux/issues/1603#issuecomment-462955045>
 
 Don't  use the  `.out` extension;  it  seems GitHub  doesn't like  that kind  of
-filename when you try to attach it in an issue. Prefer `.txt`.
+filename when you try to attach it in an issue.  Prefer `.txt`.
 
 ##
 ## How to debug tmux when it's hanging?
@@ -840,8 +840,8 @@ The tmux server is automatically stopped when all sessions are killed.
 ---
 
 When you want to attach a tmux client  to a tmux server, you don't start it from
-the local  machine. The server  AND the  client are always  running on  the same
-machine. The procedure consists in 2 steps:
+the local machine.  The  server *and* the client are always  running on the same
+machine.  The procedure consists in 2 steps:
 
    1. log in to the remote (for example via ssh)
    2. start a tmux client to attach it to a running tmux server
@@ -933,7 +933,7 @@ Heytmux can read STDIN, so:
 
     $ cat workspace.yml | heytmux
 
-... is also valid. It may seem pointless, but it lets you do:
+... is also valid.  It may seem pointless, but it lets you do:
 
     :w !heytmux
 
@@ -996,7 +996,7 @@ depuis un shell hors de la session.
             Au cas où le message d'erreur suivant apparaît :
 
                     Unable to attach to pid xxxx: Operation not permitted
-                    The kernel denied permission while attaching. If your uid matches
+                    The kernel denied permission while attaching.  If your uid matches
                     the target's, check the value of /proc/sys/kernel/yama/ptrace_scope.
                     For more information, see /etc/sysctl.d/10-ptrace.conf
 
@@ -1046,7 +1046,7 @@ depuis un shell hors de la session.
             Par défaut `escape-time` vaut 500ms.
 
             Qd cette valeur est >0 on peut expérimenter du lag dans Vim chaque fois qu'on tape
-            Escape. En effet, tmux "retient" escape, le temps défini par l'option, avant de l'envoyer
+            Escape.  En effet, tmux "retient" escape, le temps défini par l'option, avant de l'envoyer
             à Vim.
 
 
@@ -1199,7 +1199,7 @@ depuis un shell hors de la session.
 
     remain-on-exit [on | off]
 
-            A window with this  flag set is not destroyed when the program  running in it exits. The
+            A window with this  flag set is not destroyed when the program  running in it exits.  The
             window may be reactivated with the respawn-window command.
 
 
@@ -1216,25 +1216,25 @@ depuis un shell hors de la session.
 
     window-status-activity-style style
 
-            Set status line style for windows with an  activity alert. For how to specify style, see
+            Set status line style for windows with an  activity alert.  For how to specify style, see
             the message-command-style option.
 
 
     window-status-current-style my_style
 
-            Set status line style for the currently active window. For how to specify style, see the
+            Set status line style for the currently active window.  For how to specify style, see the
             message-command-style option.
 
 
     window-status-last-style my_style
 
-            Set status  line style for  the last active  window. For how  to specify style,  see the
+            Set status  line style for  the last active  window.  For how  to specify style,  see the
             message-command-style option.
 
 
     window-status-separator string
 
-            Sets the  separator drawn between windows  in the status  line. The default is  a single
+            Sets the  separator drawn between windows  in the status  line.  The default is  a single
             space character.
 
 
@@ -1246,7 +1246,7 @@ depuis un shell hors de la session.
 
     window-style my_style
 
-            Set the  default window style. For  how to specify style,  see the message-command-style
+            Set the  default window style.  For  how to specify style,  see the message-command-style
             option.
 
 
@@ -1261,23 +1261,23 @@ depuis un shell hors de la session.
     assume-paste-time milliseconds
 
             If keys  are entered  faster than  one in milliseconds,  they are  assumed to  have been
-            pasted rather  than typed and tmux  key bindings are  not processed. The default  is one
+            pasted rather  than typed and tmux  key bindings are  not processed.  The default  is one
             millisecond and zero disables.
 
 
     base-index index
 
             Set the base index  from which an unused index should be searched  when a new window is
-            created. The default is zero.
+            created.  The default is zero.
 
 
 
     default-shell path
 
-            Specify the  default shell. This  is used as  the login shell  for new windows  when the
+            Specify the  default shell.  This  is used as  the login shell  for new windows  when the
             default-command option  is set to empty,  and must be  the full path of  the executable.
             When started  tmux tries to  set a default  value from the  first suitable of  the SHELL
-            environment variable, the shell returned by  getpwuid(3), or /bin/sh. This option should
+            environment variable, the shell returned by  getpwuid(3), or /bin/sh.  This option should
             be configured when tmux is used as a login shell.
 
 
@@ -1311,13 +1311,13 @@ depuis un shell hors de la session.
 
     lock-after-time number
 
-            Lock the session (like the lock-session command) after number seconds of inactivity. The
+            Lock the session (like the lock-session command) after number seconds of inactivity.  The
             default is not to lock (set to 0).
 
 
     lock-command shell-command
 
-            Command to run when locking each client. The default is to run lock(1) with -np.
+            Command to run when locking each client.  The default is to run lock(1) with -np.
 
 
     message-command-style my_style
@@ -1431,7 +1431,7 @@ depuis un shell hors de la session.
                     - message-fg
                     - message-bg
 
-            Il ne s'agit pas de vraies options. Elles ne sont pas listées qd on tape `show-options -g`.
+            Il ne s'agit pas de vraies options.  Elles ne sont pas listées qd on tape `show-options -g`.
             Elles ne servent qu'à permettre de modifier les attributs ’fg’ et ’bg’ de `message-style`,
             sans devoir redéfinir tous les autres attributs.
 
@@ -1443,7 +1443,7 @@ depuis un shell hors de la session.
 
     status-left-length length
 
-            Set the maximum length of the left component of the status bar. The default is 10.
+            Set the maximum length of the left component of the status bar.  The default is 10.
 
 
     status-left-style my_style
@@ -1459,19 +1459,19 @@ depuis un shell hors de la session.
 
     status-right-length length
 
-            Set the maximum length of the right component of the status bar. The default is 40.
+            Set the maximum length of the right component of the status bar.  The default is 40.
 
 
     status-right-style my_style
 
-            Set the style  of the right part of the  status line. For how to specify  style, see the
+            Set the style  of the right part of the  status line.  For how to specify  style, see the
             message-command-style option.
 
 
     word-separators string
 
             Sets the session's conception of what characters are considered word separators, for the
-            purposes  of the next and  previous word commands in  copy mode. The default  is ‘
+            purposes  of the next and  previous word commands in  copy mode.  The default  is ‘
             -_@’.
 
 ##
@@ -1627,14 +1627,14 @@ Les liens sont dépourvus de contexte.
     bind-key [-nr] [-t mode-table] [-T key-table] key command [arguments]
     bind
 
-            Bind key key to command. Keys are bound in a key table. By default (without -T), the key
-            is bound in the  prefix key table. This table is used for  keys pressed after the prefix
+            Bind key key to command.  Keys are bound in a key table.  By default (without -T), the key
+            is bound in the  prefix key table.  This table is used for  keys pressed after the prefix
             key (for  example, by default  ‘c’ is  bound to new-window  in the prefix  table, so
-            ‘C-b c’ creates a  new window). The root ta‐ ble is used  for keys pressed without
+            ‘C-b c’ creates a  new window).  The root ta‐ ble is used  for keys pressed without
             the prefix key: binding ‘c’ to new-window  in the root table (not recommended) means
-            a plain ‘c’ will create  a new window. -n is an alias for -T  root. Keys may also be
+            a plain ‘c’ will create  a new window. -n is an alias for -T  root.  Keys may also be
             bound in custom key tables and the switch-client  -T command used to switch to them from
-            a key binding. The -r flag indicates this key may repeat, see the repeat-time option.
+            a key binding.  The -r flag indicates this key may repeat, see the repeat-time option.
 
             If -t is present, key is bound in mode-table.
 
@@ -1649,10 +1649,10 @@ Les liens sont dépourvus de contexte.
     send-keys [-lMRX] [-N repeat-count] [-t target-pane] key ...
     send
 
-            Send a  key or  keys to a  window. Each  argument key is  the name of  the key  (such as
+            Send a  key or  keys to a  window.  Each  argument key is  the name of  the key  (such as
             ‘C-a’ or ‘npage’ ) to send; if the string is not recognised as a key, it is sent
-            as a  series of  characters. The -l  flag disables  key name lookup  and sends  the keys
-            literally. All arguments  are sent sequentially from  first to last. The  -R flag causes
+            as a  series of  characters.  The -l  flag disables  key name lookup  and sends  the keys
+            literally.  All arguments  are sent sequentially from  first to last.  The  -R flag causes
             the terminal state to be reset.
 
             -M passes through a mouse event (only valid if bound to a mouse key binding, see MOUSE SUPPORT).
@@ -1669,15 +1669,15 @@ Les liens sont dépourvus de contexte.
     unbind-key [-an] [-t mode-table] [-T key-table] key
     unbind
 
-            Unbind the command  bound to key. -n, -T and  -t are the same as for  bind-key. If -a is
+            Unbind the command  bound to key. -n, -T and  -t are the same as for  bind-key.  If -a is
             present, all key bindings are removed.
 
 
-    tmux allows a  command to be bound to most  keys, with or without a prefix  key. When specifying
-    keys, most represent themselves (for example ‘A’ to ‘Z’). Ctrl keys may be prefixed with
-    ‘C-’ or ‘^’, and Alt (meta) with  ‘M-’. In addition, the following special key names
+    tmux allows a  command to be bound to most  keys, with or without a prefix  key.  When specifying
+    keys, most represent themselves (for example ‘A’ to ‘Z’).  Ctrl keys may be prefixed with
+    ‘C-’ or ‘^’, and Alt (meta) with  ‘M-’.  In addition, the following special key names
     are accepted: Up, Down,  Left, Right, BSpace, BTab, DC (Delete), End, Enter,  Escape, F1 to F12,
-    Home, IC (Insert), NPage/PageDown/PgDn, PPage/PageUp/PgUp, Space, and Tab. Note that to bind the
+    Home, IC (Insert), NPage/PageDown/PgDn, PPage/PageUp/PgUp, Space, and Tab.  Note that to bind the
     ‘"’ or ‘'’ keys, quotation marks are necessary, for example:
 
             bind-key '"' split-window

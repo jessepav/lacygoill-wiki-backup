@@ -2,9 +2,9 @@
 
 Vim permet d'organiser son travail via 3 niveaux d'abstraction:
 
-    1. buffers
-    2. fenêtres
-    3. onglets
+   1. buffers
+   2. fenêtres
+   3. onglets
 
 Un buffer correspond à peu près à un fichier.
 
@@ -222,7 +222,7 @@ onglets via des mappings (gt / gT).
 
             À la place de fenêtres horizontales, on peut demander à afficher les buffers dans des
             fenêtres verticales ou des onglets, en préfixant les commandes avec le modificateur
-            :vert ou :tab. Ex:
+            :vert ou :tab.  Ex:
 
                     :vert all    buffers de l'arglist dans des fenêtres verticales
                     :tab ball    buffers de la buffer list dans des onglets

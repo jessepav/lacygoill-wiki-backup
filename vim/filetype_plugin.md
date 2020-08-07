@@ -699,7 +699,7 @@ including the syntax ones.
 If you have some autocmds listening to  `FileType`, and you want them to be run,
 the previous commands won't be enough; in that case, use this:
 
-    :exe 'do filetype '..&ft
+    :exe 'do filetype ' .. &ft
              │
              └ event name
 
@@ -765,9 +765,9 @@ But make sure to avoid a trailing whitespace:
 
 Be aware that if another filetype plugin updates `b:undo_ftplugin` and adds sth like:
 
-    let b:undo_ftplugin .= ' | some_command'
-                            ^
-                            ✘
+    let b:undo_ftplugin ..= ' | some_command'
+                             ^
+                             ✘
 
 While you added  an `:nunmap` command at the end  of `b:undo_ftplugin`, it could
 result in a trailing whitespace being passed to your `:nunmap`.
@@ -781,7 +781,7 @@ You could also use `:exe`:
 ---
 
 Note that  `:exe` is not  useful to prevent `:nunmap`  or `:nno` to  consume the
-next commands. These commands work fine:
+next commands.  These commands work fine:
 
     if 1 | nno cd :echo 'hello'<cr> | endif
     nunmap cd| echo 'hello'

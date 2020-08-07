@@ -34,7 +34,7 @@
     api w3m w3m-img w3m-el
 
             `w3m-img` permet d'afficher les images trouvées sur le web au sein d'un terminal compatible.
-            `w3m-el` est optionnel. Il permet de surfer via w3m au sein d'un buffer Emacs:
+            `w3m-el` est optionnel.  Il permet de surfer via w3m au sein d'un buffer Emacs:
 
                     simple Emacs interface of w3m
                     Emacs-w3m is an interface program of w3m, a pager with WWW capability.
@@ -106,7 +106,7 @@ Suggestion de Gotbletu.
 
     Voici un certain nombres de raccourcis intéressants.
     Beaucoup sont customs: à l'origine les fonctions étaient associées à des touches peu intuitives.
-    Malheureusement, certains sont encore peu intuitifs. Ils sont préfixés par le caractère `✘`.
+    Malheureusement, certains sont encore peu intuitifs.  Ils sont préfixés par le caractère `✘`.
     Leur trouver de meilleurs alternatives à l'occasion.
 
 
@@ -253,7 +253,7 @@ Suggestion de Gotbletu.
                     update-alternatives --get-selections | vipe
                     /browser
 
-            Puis, configurer l'alternative qui pose pb. Pex:
+            Puis, configurer l'alternative qui pose pb.  Pex:
 
                     sudo update-alternatives x-www-browser
 
@@ -262,7 +262,7 @@ Suggestion de Gotbletu.
 
         Comment avancer dans l'historique d'un onglet ?
         J'ai tenté d'utiliser la fonction `NEXT` dont la description est “Move to next buffer“.
-        Ça ne fonctionne pas. Aucun effet. Que fait `NEXT` ?
+        Ça ne fonctionne pas.  Aucun effet.  Que fait `NEXT` ?
 
 
                                      FIXME:
@@ -297,7 +297,7 @@ Suggestion de Gotbletu.
 
                 http://w3m.sourceforge.net/MANUAL
 
-        … sans rien trouver d'utile. Comment passer un compte à une fonction pour la répéter ?
+        … sans rien trouver d'utile.  Comment passer un compte à une fonction pour la répéter ?
 
 
                                      FIXME:

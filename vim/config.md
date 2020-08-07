@@ -200,7 +200,7 @@ It also prints the local options whose *local* value is different than the defau
     :setg
 
 ##
-## When I execute `:setl ar?`, `--autoread` is displayed. What does `--` mean?
+## When I execute `:setl ar?`, `--autoread` is displayed.  What does `--` mean?
 
 This prefix is only used for a global-local boolean option.
 When displayed,  it means there's no  local value in the  current buffer/window,
@@ -551,7 +551,7 @@ Les options `'cdpath'`, `'path'`, `'tags'` raisonnent en terme de buffer.
 
 ##
 # Issues
-## 'foo' is a global option used by a normal/Ex command. I need it to be local to a buffer!
+## 'foo' is a global option used by a normal/Ex command.  I need it to be local to a buffer!
 
 In a filetype plugin, assign the value you would want to give to the local value
 of `'foo'` (if it could have one) to a buffer-local variable:
@@ -727,9 +727,9 @@ Si on veut intégrer dans sa status line :
 ... il faudra écrire dans `MyFunc()` qch comme:
 
     let string = '%n'
-    let string .= '%f'
-    let string .= '%l'
-    let string .= "%{&mod ? '+' : ''}"
+    let string ..= '%f'
+    let string ..= '%l'
+    let string ..= "%{&mod ? '+' : ''}"
     return string
 
 `MyFunc()` va alors  procéder à diverses concaténations et  retourner une grande
@@ -739,7 +739,7 @@ chaîne qui sera ensuite évaluée.
 
 On ne pourrait pas écrire:
 
-    let string .= &mod ? '+' : ''
+    let string ..= &mod ? '+' : ''
 
 En effet, `MyFunc()` (et  donc l'expression `&mod ? '+' :  ''`) est évaluée dans
 le contexte du buffer de la fenêtre ayant le focus.
@@ -754,7 +754,7 @@ affichaient des buffers non modifiés.
     set option=<SID>MyFunc
 
     " ✔
-    let &option = s:snr() . 'MyFunc'
+    let &option = s:snr() .. 'MyFunc'
 
 Si on veut attribuer à la valeur d'une  option le nom d'une fonction locale à un
 script, on ne peut pas toujours utiliser `<SID>`.
@@ -765,16 +765,16 @@ mapping.
 
 Une solution consiste à utiliser la 2e syntaxe:
 
-    let &option = s:snr() . 'MyFunc()'
+    let &option = s:snr() .. 'MyFunc()'
 
 ... où `s:snr()` est définie comme suit:
 
     fu s:snr()
-        return matchstr(expand('<sfile>'), '.*\zs<SNR>\d\+_')
+        return expand('<sfile>')->matchstr('.*\zs<SNR>\d\+_')
     endfu
 
 Btw, integrate  here the  comments from  our vim snippets  file where  the `snr`
-snippet is defined. It explains why we must use `.*\zs`.
+snippet is defined.  It explains why we must use `.*\zs`.
 
 ---
 
@@ -833,7 +833,7 @@ est l'état courant.
 
 Pex, si `op1` et `op2` sont des options dont les valeurs sont des booléens:
 
-    :exe mydic[&op1 . &op2]
+    :exe mydic[&op1 .. &op2]
 
 D'un point de vue théorique:
 
@@ -859,7 +859,7 @@ On peut représenter un état de la machine via une chaîne contenant:
     Si les options sont  des booléens et que leurs valeurs  sont donc 0 ou
     1, on peut l'obtenir directement:
 
-         &op1 . &op2 . ...
+         &op1 .. &op2 ..    ...
 
     Les nb seront convertis automatiquement en chaîne et concaténés.
 
@@ -894,13 +894,13 @@ On peut représenter un état de la machine via une chaîne contenant:
 
 Exemple de mapping illustrant la méthode:
 
-    exe 'set ve=' . {
-                    \ ''        : 'block',
-                    \ 'block'   : 'all',
-                    \ 'insert'  : 'block',
-                    \ 'all'     : '',
-                    \ 'onemore' : 'block',
-                    \ }[&ve]
+    exe 'set ve=' .. {
+        \ '': 'block',
+        \ 'block': 'all',
+        \ 'insert': 'block',
+        \ 'all': '',
+        \ 'onemore': 'block',
+        \ }[&ve]
 
 Au passage, on note  qu'ici on n'a pas eu besoin de  `join()` car les différents
 états sont contrôlés par une seule option (`'ve'`).
@@ -1101,7 +1101,7 @@ Ajoute l'espace à l'option `'isf'`.
 
     set isf+=\ 
     " ou
-    let &isf .= ' '
+    let &isf ..= ' '
 
 ne fonctionnent pas,  sans doute parce qu'il est impossible  d'avoir un espace à
 la fin de la valeur d'une option.
@@ -1719,7 +1719,7 @@ If you really wanted to restore it, you could try to run sth like:
         let [tabnr, winnr] = win_id2tabwin(winid)
         call settabwinvar(tabnr, winnr, '&wrap', wrap_save)
     else
-        call win_execute(winid, 'e '..bufnr)
+        call win_execute(winid, 'e ' .. bufnr)
         call settabwinvar(tabnr, winnr, '&wrap', wrap_save)
         call win_execute(winid, 'b#')
     endif
@@ -1866,7 +1866,7 @@ which is still a shorthand for `&l:`:
 ---
 
 Imo,  `setbufvar()` should  support  `&g:`, because  it  can be  used  to set  a
-window-local option. From `:h local-option`:
+window-local option.  From `:h local-option`:
 
 >     This also works for a global or local window option, but it
 >     doesn't work for a global or local window variable.

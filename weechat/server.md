@@ -151,7 +151,7 @@ IP addresses can change without notice:
 
 ##
 # Issues
-## I can't connect to the server. It says I'm K:lined. What does it mean?
+## I can't connect to the server.  It says I'm K:lined.  What does it mean?
 
 Your address  matches an entry  on the server's  internal list of  addresses not
 permitted to use it.
@@ -173,7 +173,7 @@ closer to you in terms of either network topology or geographical location.
 
 Remove the server from your list and try to connect to a different one.
 
-## I can't connect to the server. It says I'm G:lined. What does it mean?
+## I can't connect to the server.  It says I'm G:lined.  What does it mean?
 
 Some  IRC  networks   that  have  a  global  abuse   policy  implement  G:lines:
 network-wide K:lines (also called “global K:lines”).

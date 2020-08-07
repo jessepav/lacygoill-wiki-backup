@@ -616,7 +616,7 @@ Le réimplémenter pour pouvoir facilement continuer son développement par la s
 
     https://aptitude.alioth.debian.org/doc/en/ch02s04s03.html
 
-            Manuel aptitude. Intéressant pour apprendre à affiner nos recherches de paquets.
+            Manuel aptitude.  Intéressant pour apprendre à affiner nos recherches de paquets.
 
 
     https://github.com/gotbletu/dotfiles
@@ -629,7 +629,7 @@ Le réimplémenter pour pouvoir facilement continuer son développement par la s
     https://www.reddit.com/r/commandline/comments/6hnygr/going_full_command_line_what_are_some_underrated/
 
             Reddit thread titled:
-            Going full command-line. What are some underrated yet extremely useful Terminal packages?
+            Going full command-line.  What are some underrated yet extremely useful Terminal packages?
 
     https://inconsolation.wordpress.com/index/
     https://inconsolation.wordpress.com/index-l-z/
@@ -738,7 +738,7 @@ contenant plusieurs fichiers.
     atool -x arc.zip -D
 
             Extrait une archive en forçant la création d'un dossier d'extraction même si l'archive
-            ne contient qu'un fichier. Illustre l'utilisation du flag `-D` (`--subdir`).
+            ne contient qu'un fichier.  Illustre l'utilisation du flag `-D` (`--subdir`).
 
 
     atool -x arc.zip -f
@@ -750,7 +750,7 @@ contenant plusieurs fichiers.
 
 ### curl
 
-`curl` accept plusieurs arguments. En voici quelques-uns:
+`curl` accept plusieurs arguments.  En voici quelques-uns:
 
 
     -f, --fail
@@ -758,7 +758,7 @@ contenant plusieurs fichiers.
             Échoue silencieusement en cas d'erreurs côté serveur.
             Utile pour ne pas dl une page d'erreur expliquant pourquoi le document est inaccessible.
             `curl` retourne alors le code d'erreur 22.
-            Ne fonctionne pas tjrs. En particulier qd l'échec vient d'une erreur d'authentification (401 et 407).
+            Ne fonctionne pas tjrs.  En particulier qd l'échec vient d'une erreur d'authentification (401 et 407).
 
 
     -L, --location
@@ -801,7 +801,7 @@ contenant plusieurs fichiers.
                                                NOTE:
 
             On  a  quoté  le  délimiteur  EOF  pour éviter  que  bash  ne  procède  à  certains
-            développements au sein de l'input saisie. En particulier, on ne veut pas qu'il tente de
+            développements au sein de l'input saisie.  En particulier, on ne veut pas qu'il tente de
             développer `backticks` comme s'il s'agissait d'une substitution de commande (ex: `ls`).
 
 
@@ -890,7 +890,7 @@ contenant plusieurs fichiers.
 
             Sans `-e`, grep penserait que `-foo` est une option.
             Pour être plus précis, il penserait qu'il s'agit de l'option `-f` à laquelle on donne
-            la valeur `oo`. IOW, il chercherait à générer un pattern à partir d'un fichier `oo`.
+            la valeur `oo`.  IOW, il chercherait à générer un pattern à partir d'un fichier `oo`.
 
             `-e` est utile qd on cherche un pattern commençant par un tiret.
 
@@ -985,7 +985,7 @@ contenant plusieurs fichiers.
                                                NOTE:
 
             La plupart du temps, les dossiers n'ont  pas d'extension, `ls -X` est donc pratique pour
-            séparer rapidement les  dossiers des fichiers. Attention, un dossier  peut malgré tout
+            séparer rapidement les  dossiers des fichiers.  Attention, un dossier  peut malgré tout
             avoir une extension (`ls -X /etc`), comme par exemple `folder.d` ou `folder.conf`.
 
 
@@ -1005,7 +1005,7 @@ contenant plusieurs fichiers.
             n'est pas mis à jour au-delà d'une certaine limite (une fois par jour pex).
 
             On peut voir les  options qui ont été activées au moment de  monter une partition via
-            la commande `mount`. Pour plus d'infos: https://unix.stackexchange.com/a/8842/232487
+            la commande `mount`.  Pour plus d'infos: https://unix.stackexchange.com/a/8842/232487
 
 ### ls++
 
@@ -1030,7 +1030,7 @@ contenant plusieurs fichiers.
     ~/.config/ls++/ls++.conf
 
             On peut configurer l'apparence de la sortie de `ls++` via ce fichier.
-            Il est écrit en Perl. Pour plus d'infos, lire `man ls++.conf`.
+            Il est écrit en Perl.  Pour plus d'infos, lire `man ls++.conf`.
 
 
                                                NOTE:
@@ -1046,7 +1046,7 @@ contenant plusieurs fichiers.
             sortie de `ls++`.
 
             @c est une  array contenant 16 codes  de couleur décimaux pour  configurer les couleurs
-            d'un color scheme. Exemple de configuration:
+            d'un color scheme.  Exemple de configuration:
 
                     elsif($colorscheme eq 'my_colorscheme') {
                       $c[0]  = 237; # ???
@@ -1124,7 +1124,7 @@ contenant plusieurs fichiers.
             En effet, elle est passée d'abord à `ls`, pour être interprétée.
 
             En revanche, `ls++` ne fonctionne pas comme prévu au sein d'un pipeline, comme le montre
-            la 2e commande. Peut-être en raison des codes couleurs ANSI produits en sortie.
+            la 2e commande.  Peut-être en raison des codes couleurs ANSI produits en sortie.
 
             Un bug report existe, mais le bug n'a jamais été corrigé:
 
@@ -1219,7 +1219,7 @@ contenant plusieurs fichiers.
     https://github.com/nodejs/LTS/
 
             Page listant les différentes version du programme.
-            Chercher la version LTS active la plus récente. Atm, c'est `6.11.0`.
+            Chercher la version LTS active la plus récente.  Atm, c'est `6.11.0`.
             On va se servir de ce n° de version dans une commande `git checkout`.
 
 
@@ -1284,7 +1284,7 @@ contenant plusieurs fichiers.
                            └ 4 jobs
 
             Toutefois, ça augmente la consommation de ressources de manière drastique. À éviter sur une machine
-            peu puissante. Voici ce que rapporte la commande `make -j4` sur ma machine atm:
+            peu puissante.  Voici ce que rapporte la commande `make -j4` sur ma machine atm:
 
                     make -j4  2160.75s user 97.62s system 363% cpu 10:21.56 total
                                                                    ├────────────┘
@@ -1336,7 +1336,7 @@ contenant plusieurs fichiers.
             Il y a un conflit entre la version du binaire `parallel` présent dans `moreutils`, et
             celle fournie par le paquet `parallel`.
 
-            (*) Tab pour compléter le nom du paquet. Ex:
+            (*) Tab pour compléter le nom du paquet.  Ex:
 
                     parallel  →  parallel_20141022+ds1-1_all.deb
 
@@ -1349,7 +1349,7 @@ contenant plusieurs fichiers.
                                          /usr/share/man/man1/parallel.moreutils.1.gz by parallel'
 
             Une diversion consiste à déplacer un fichier qd il est en conflit avec un autre lors d'une
-            installation. Elle est réalisée par `dpkg-divert`.
+            installation.  Elle est réalisée par `dpkg-divert`.
             On peut lister toutes les diversions ayant été réalisées sur le système, et par quels programmes:
 
                     dpkg-divert --list
@@ -1375,7 +1375,7 @@ contenant plusieurs fichiers.
                     You might want to run 'apt-get -f install' to correct these.~
                     The following packages have unmet dependencies:~
                     parallel: Conflicts: moreutils but 0.57-1 is installed~
-                    E: Unmet dependencies. Try using -f.~
+                    E: Unmet dependencies.  Try using -f.~
 
 
             Il semble que bientôt (?) la procédure ne sera plus utile, car tout ceci sera fait automatiquement
@@ -1707,7 +1707,7 @@ et 'baz'.
             Édite un fichier dans `/etc/sudoers.d/`.
 
             Il est conseillé d'utiliser ce dernier pour modifier le comportement de `sudo`,
-            plutôt que `/etc/sudoers`. Probablement car ce dernier est reset à chaque mise à jour
+            plutôt que `/etc/sudoers`.  Probablement car ce dernier est reset à chaque mise à jour
             du paquet `sudo`.
 
             `visudo` crée un fichier temporaire, et une fois qu'on quitte l'éditeur, il vérifie la validité
@@ -1723,7 +1723,7 @@ et 'baz'.
                                                NOTE:
 
             Les droits, proprio, groupe du dossier et de ses fichiers doivent respecter certaines
-            valeurs. Atm, sous Ubuntu:
+            valeurs.  Atm, sous Ubuntu:
 
                     drwxr-xr-x  root  root  /etc/sudoers.d
                     -r--r-----  root  root  my_modifications
@@ -1736,7 +1736,7 @@ et 'baz'.
             qd `sudo` nous demande notre mdp.
 
             Augmente la durée pendant laquelle notre identification est mise en cache, en la faisant
-            passer à 30 minutes. Par défaut, c'est 15.
+            passer à 30 minutes.  Par défaut, c'est 15.
 
             On peut vider ce cache via `sudo -k`, ou au contraire le réinitialiser via `sudo -v`.
 
@@ -2413,7 +2413,7 @@ rbenv, pyenv and phpenv.
 
                 https://github.com/tstack/lnav/issues/270
 
-        Une PR est en préparation. Elle pourrait résoudre le pb:
+        Une PR est en préparation.  Elle pourrait résoudre le pb:
 
                 https://github.com/tstack/lnav/pull/468
 
@@ -2487,7 +2487,7 @@ rbenv, pyenv and phpenv.
     opinionated UI logic, delegating instead to the capabilities of shell commands like git log with
     its --pretty and --graph options.
 
-    Shell commands  are executed and  the output is  captured and displayed  in pagers. Configurable
+    Shell commands  are executed and  the output is  captured and displayed  in pagers.  Configurable
     annotators parse  through the output,  adding annotations  that can be  acted upon to  run other
     shell commands.
 
@@ -2579,7 +2579,7 @@ But there would still be 2 issues:
 
     -f, --file file
 
-       Split file  into words  and add  them to the  completion word  list. This
+       Split file  into words  and add  them to the  completion word  list.  This
        option can  be given more than  once, and adds to  the default completion
        list in $RLWRAP_HOME or /usr/share/rlwrap/completions.
 
@@ -2588,13 +2588,13 @@ But there would still be 2 issues:
 
 With the -r and  -f options you can specify the list of  words which rlwrap will
 use  as possible  completions,  taking them  from  a file  (-f  option) or  from
-<command>'s standard  in/output. rlwrap monitors <command>'s  terminal settings,
+<command>'s standard  in/output.  rlwrap monitors <command>'s  terminal settings,
 so that it can do the right thing when command asks for single keypresses or for
 a password.  Commands that already  use readline will  always ask for  (and get)
-single keypresses, which makes rlwrapping them rather pointless. However, if one
+single keypresses, which makes rlwrapping them rather pointless.  However, if one
 uses  the  -a  option,  rlwrap  will  use its  own  line  editing  and  history.
 Unforunately, in  this case, rlwrap cannot  detect whether <command> asks  for a
-password. This can be remedied by giving the password prompt (excluding trailing
+password.  This can be remedied by giving the password prompt (excluding trailing
 space and possibly the first few letters) as an argument to the -a option.
 
 * EXAMPLES:
@@ -2628,7 +2628,7 @@ quality.
 
     Se créer un alias `cpv` pour copier des fichiers / dossiers en ayant une barre de progression,
     pour pouvoir reprendre la copie en cas d'interruption, et pour ne pas avoir besoin de créer
-    le dossier de destination (qd la destination est un dossier). Le `v` dans `cpv` est pour “verbeux“.
+    le dossier de destination (qd la destination est un dossier).  Le `v` dans `cpv` est pour “verbeux“.
 
     Se créer aussi un alias `mvv` pour déplacer des fichiers/dossiers, avec barre de progression.
     Encore une fois, on appellera `rsync`, mais en plus on supprimera la source une fois la copie
@@ -2639,7 +2639,7 @@ quality.
     met bien un '/'  à la fin, auquel cas les fichiers/dossiers contenus  ds la source sont copiés
     mais pas le dossier source lui-même.
 
-    L'option `--info=progress2` peut être utile. La chercher dans le man.
+    L'option `--info=progress2` peut être utile.  La chercher dans le man.
 
     Lire les réponses à cette question:
     https://unix.stackexchange.com/questions/65077/is-it-possible-to-see-cp-speed-and-percent-copied

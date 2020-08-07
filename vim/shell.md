@@ -43,7 +43,7 @@ Example:
 
     :e /tmp/foo
     :b#
-    :exe 'sp '..fnameescape('/tmp/foo#bar')
+    :exe 'sp ' .. fnameescape('/tmp/foo#bar')
     :echo expand('%:p')
     /tmp/foo#bar~
     ✔
@@ -70,7 +70,7 @@ Use it if your argument will be parsed by the shell.
 
 Example:
 
-    :exe 'grep! '..shellescape('==#')..' $VIMRUNTIME'
+    :exe 'grep! ' .. shellescape('==#') .. ' $VIMRUNTIME'
 
 Wait...
 Why is `#` replaced by the alternate filename?
@@ -79,7 +79,7 @@ Answer:
 Because `:grep` runs the shell command set by `'grepprg'` via `:!`.
 Check this:
 
-    :4verb exe 'grep! '..shellescape('==#')..' $VIMRUNTIME'
+    :4verb exe 'grep! ' .. shellescape('==#') .. ' $VIMRUNTIME'
     :!rg -LS --vimgrep 2>/dev/null '==/tmp/foo#bar' $VIMRUNTIME 2>&1| tee /tmp/v6WVFDZ/45~
      ^
 
@@ -101,10 +101,10 @@ From `~/.vim/autoload/myfuncs.vim:848`:
 
     " Old Interesting Alternative:
     "
-    "     sil! exe 'grep! '..shellescape(@")..' .'
+    "     sil! exe 'grep! ' .. shellescape(@") .. ' .'
     "
     " Even though `:grep` is a Vim command, we really need to use `shellescape()`
-    " and NOT `fnameescape()`. Check this:
+    " and NOT `fnameescape()`.  Check this:
     "
     "                         ; is special             % is special
     "                         on shell's               on Vim's
@@ -140,8 +140,8 @@ From `~/.vim/autoload/myfuncs.vim:848`:
     "
     "                             MWE:
     "                             :sp /tmp/foo\%bar
-    "                             :sil call system('echo '.shellescape(expand('%')).' >>/tmp/log')
-    "                             :sil call system('echo '.shellescape(expand('%'),1).' >>/tmp/log')
+    "                             :sil call system('echo ' .. expand('%')->shellescape() .. ' >>/tmp/log')
+    "                             :sil call system('echo ' .. expand('%')->shellescape(1) .. ' >>/tmp/log')
     "
     "                                       $ cat /tmp/log
     "                                           /tmp/foo%bar

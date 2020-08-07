@@ -915,9 +915,9 @@ it will prevent readline from considering the colon as a word separator.
 ## zstyle
 ### Which arguments must I pass to the `zstyle` command?
 
-        1. a style pattern
-        2. a name
-        3. a value
+   1. a style pattern
+   2. a name
+   3. a value
 
 Example:
 
@@ -962,12 +962,12 @@ determine whether the style should be applied.
 
 #### Into which fields can a context be broken down?
 
-        1. the system used, such as 'completion', 'filter-select', 'zle'
-        2. a function
-        3. a completer
-        4. a command
-        5. an argument
-        6. a tag
+   1. the system used, such as 'completion', 'filter-select', 'zle'
+   2. a function
+   3. a completer
+   4. a command
+   5. an argument
+   6. a tag
 
 ####
 #### In case of conflicting styles, which one wins?
@@ -984,9 +984,9 @@ specific.
 
 #### How would those patterns be ordered, according to their specifity?:  `*foo*`, `*`, `some string`
 
-        1. some string
-        2. *foo*
-        3. *
+   1. some string
+   2. `*foo*`
+   3. `*`
 
 A simple string is considered to be  more specific than a pattern, and a complex
 pattern is considered to be more specific than a simple one.

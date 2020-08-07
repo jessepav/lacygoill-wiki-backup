@@ -1164,7 +1164,7 @@ succeeds:
 
 Anyway, when tmux parses the key binding and finds that the rhs is `'{display test}'`,
 it cancels the installation because it realizes that the command you're trying to bind
-is `{display test}`. But this is not a valid tmux command; it's a string.
+is `{display test}`.  But this is not a valid tmux command; it's a string.
 So tmux complains in the exact same way it would complain if you had run:
 
     $ tmux bind x '"display test"'
@@ -1219,7 +1219,7 @@ This also gives the benefit of making the code more readable.
 
 ---
 
-Do *not* try to add a space in-between the brackets.
+Do *not* try to add a space in between the brackets.
 It would break the meaning of the formats.
 Indeed, any character inside `#{}` is syntaxic, including a space:
 

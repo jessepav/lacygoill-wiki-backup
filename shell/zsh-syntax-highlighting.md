@@ -113,9 +113,9 @@ Chaque valeur dans `zle_highlight` suit le schéma suivant:
 Qd `region_highlight` est configurée, les styles de `zle_highlight` et `region_highlight` sont appliqués
 dans cet ordre:
 
-        1. styles `zle_highlight` associés aux contextes isearch, region, suffix, paste
-        2. styles `region_highlight`
-        3. styles `zle_highlight` associés aux contextes default et special
+   1. styles `zle_highlight` associés aux contextes isearch, region, suffix, paste
+   2. styles `region_highlight`
+   3. styles `zle_highlight` associés aux contextes default et special
 
 Si un caractère est affecté par plusieurs styles, le dernier appliqué l'emporte.
 
@@ -157,8 +157,8 @@ bg_end_code (m)
         The end of the escape sequence for the background colour.
 
 
-The available types of  highlighting are the following. Note that not all  types of highlighting are
-available on all terminals:
+The available types of highlighting are  the following.  Note that not all types
+of highlighting are available on all terminals:
 
 none
 
@@ -220,8 +220,8 @@ underline
         Some terminals  show the  foreground in a  different colour  instead; in
         this case whitespace will not be highlighted.
 
-The characters described  above as `special` are  as follows. The formatting described  here is used
-irrespective of whether the characters are highlighted:
+The  characters described  above as  `special` are  as follows.   The formatting
+described here is used irrespective of whether the characters are highlighted:
 
 ASCII control characters
 
@@ -270,11 +270,12 @@ equivalent to
 
 i.e. both the region and special characters are shown in standout mode.
 
-Within  widgets,  arbitrary regions  may  be  highlighted by  setting  the  special array  parameter
-region_highlight; see above.
+Within  widgets, arbitrary  regions may  be highlighted  by setting  the special
+array parameter region_highlight; see above.
 
-zle peuple automatiquement un certain nb de paramètres spéciaux, qu'on peut utiliser au sein des
-fonctions custom invoqués par nos widgets. En voici une liste non exhaustive:
+zle  peuple automatiquement  un certain  nb de  paramètres spéciaux,  qu'on peut
+utiliser au  sein des fonctions custom  invoqués par nos widgets.   En voici une
+liste non exhaustive:
 
 BUFFER (scalaire)
 
@@ -359,7 +360,7 @@ La création d'un highlighter, foo, se fait en 5 étapes:
                                                           │
                                                           └ predicate = qd le highlighter doit être actif
 
-       Elle doit retourner 0 qd on veut que le highlighter soit actif, un autre nb autrement. Ex:
+       Elle doit retourner 0 qd on veut que le highlighter soit actif, un autre nb autrement.  Ex:
 
                 _zsh_highlight_highlighter_foo_predicate() {
                   # notre highlighter ne doit être actif que dans un repot git

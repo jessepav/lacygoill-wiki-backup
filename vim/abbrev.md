@@ -43,7 +43,7 @@ Insert the trigger literally:
 
 After.
 
-    $ vim -Nu NONE +'inorea <expr> a "b"..feedkeys("c", "n")[-1]'
+    $ vim -Nu NONE +'inorea <expr> a "b" .. feedkeys("c", "n")[-1]'
     " press:  i a SPC
     " result: 'b c'
 
@@ -87,7 +87,7 @@ In the rhs of the abbreviation, consume the space with `getchar()`.
 Example:
 
     fu s:eat_space()
-       let c = nr2char(getchar(0))
+       let c = getchar(0)->nr2char()
        return c =~# '\s' ? '' : c
     endfu
     inorea <silent> if if ()<left><c-r>=<sid>eat_space()<cr>
@@ -145,8 +145,8 @@ Besides, from where else would `getchar()` consume a key?
 
 ### Why the `0` argument?
 
-                            v
-    let c = nr2char(getchar(0))
+                    v
+    let c = getchar(0)->nr2char()
 
 It  prevents `getchar()`  from waiting  for  a character  to be  written in  the
 typeahead buffer when the latter is empty:
@@ -169,7 +169,7 @@ triggering space in the typeahead.
 
 But this is ruled out by this experiment:
 
-    $ vim -Nu NONE +'inorea <expr> a "b"..feedkeys("c", "in")[-1]'
+    $ vim -Nu NONE +'inorea <expr> a "b" .. feedkeys("c", "in")[-1]'
     " press: i a SPC
     " result: 'bc '
 

@@ -166,7 +166,7 @@ différentes, et donc d'avoir un bloc dont le bord droit est irrégulier.
 
             insérer foo à la fin de la ligne et des 5 suivantes, les 6 foo étant alignés
 
-            La magie opère lorsqu'on tape C. On coupe alors un bloc et non des lignes.
+            La magie opère lorsqu'on tape C.  On coupe alors un bloc et non des lignes.
             Dans le registre par défaut si les lignes n'ont pas la même longueur, Vim ajoute des
             espaces à la fin des + courtes pour toutes les égaliser et bien obtenir un bloc.
 
@@ -204,7 +204,7 @@ différentes, et donc d'avoir un bloc dont le bord droit est irrégulier.
                                                NOTE:
 
             Les digraphes sont pratiques pour insérer des caractères compliqués à taper voire absent
-            du clavier. Ex:
+            du clavier.  Ex:
 
                     ss       ß
                     =e       €
@@ -233,7 +233,7 @@ différentes, et donc d'avoir un bloc dont le bord droit est irrégulier.
             Qd on utilise ces commandes, on passe en mode Ex.
             On écrit les lignes qu'on souhaite ajouter au buffer, en validant chacune via CR.
             Pour revenir au mode normal et voir le résultat de l'insertion, entrer une ligne contenant
-            un seul point. Ou appuyer sur C-c.
+            un seul point.  Ou appuyer sur C-c.
 
 ## ?
 

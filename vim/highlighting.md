@@ -442,7 +442,7 @@ Each value follows one the following syntax:
                   │
                   └ highlight group to color the element of the UI
 
-The default values all use the 2nd syntax. They all use a HG.
+The default values all use the 2nd syntax.  They all use a HG.
 But you could also use a mode:
 
     ┌───┬─────────────────┐
@@ -628,8 +628,8 @@ Document the fact that for a HG, the only relevant attributes are:
 
 Btw, the style `term` is used in console:
 
-hi MyGroup term=standout cterm=italic gui=bold ctermfg=4 ctermbg=6
-call matchadd('MyGroup', '\d\+')
+    hi MyGroup term=standout cterm=italic gui=bold ctermfg=4 ctermbg=6
+    call matchadd('MyGroup', '\d\+')
 
 It means that  Vim considers the console  as a normal terminal (as  opposed to a
 color terminal).
@@ -827,9 +827,9 @@ and run:
 ##
 ## hlID() and synID()
 
-        :echo hlID('NonText')
+    :echo hlID('NonText')
 
-        :echo synID(line('.'), col('.'), 1)
+    :echo synID('.', col('.'), 1)
 
 Returns the id of:
 
@@ -842,10 +842,10 @@ L'ID d'un élément syntaxique est identique à celui du HG qui le colorise.
 On peut le vérifier en positionnant le curseur sur du texte dans un bloc de code
 markdown et en tapant:
 
-        :echo synID(line('.'), col('.'), 1)
+        :echo synID('.', col('.'), 1)
         120 ~
 
-        :echo synIDattr(synID(line('.'), col('.'), 1), 'name')
+        :echo synID('.', col('.'), 1)->synIDattr('name')
         markdownCodeBlock ~
 
         :echo hlID('markdownCodeBlock')
@@ -870,8 +870,8 @@ s'assurer que les liens sont suivis.
 
 ## synIDattr()
 
-        :echo synIDattr(hlID('Comment'), 'fg')
-        :echo synIDattr(synID(line('.'), col('.'), 1), 'name')
+    :echo hlID('Comment')->synIDattr('fg')
+    :echo synID('.', col('.'), 1)->synIDattr('name')
 
 Retourne:
 
@@ -883,8 +883,8 @@ Retourne:
 Si on  veut s'assurer que  les liens entre HGs  soient suivis, il  faut utiliser
 `synIDtrans()`:
 
-        :echo synIDattr(synIDtrans(hlID('Comment')), 'fg')
-        :echo synIDattr(synIDtrans(synID(line('.'), col('.'), 1)), 'name')
+    :echo hlID('Comment')->synIDtrans()->synIDattr('fg')
+    :echo synID('.', col('.'), 1)->synIDtrans()->synIDattr('name')
 
 ## synstack()
 

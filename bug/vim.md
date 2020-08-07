@@ -1,7 +1,67 @@
 <https://github.com/vim/vim/blob/master/runtime/doc/vim9.txt>
 <https://github.com/vim/vim/blob/master/runtime/doc/todo.txt>
 
-# bug: imported constants and variables are not added to the "s:" dictionary
+# Vim9
+## Plan
+
+Re-read the whole Vim9 documentation in your Vim fork.
+Make sure there is no typo, no missing comma/semicolon, no wrong word...
+
+Once you've reviewed the documentation, make sure all the minor errors mentioned
+in this  file have  been correctly  fixed in your  fork.  Then,  save a  diff in
+`~/Desktop/patch.txt`.
+
+Next, review the remaining Vim9 items in this file.
+Refactor anything which looks like a bug into a proper dedicated report.
+
+Finally, submit a PR for the patch,  and explain the various changes; no need to
+repeat yourself for similar  errors, but do give an explanation  for a family of
+errors (like comma splices).
+
+Also, review the  remaining Vim9 items in  this file; for each of  them, leave a
+remark in the OP of your PR.
+
+---
+
+Also,  submit a  report  regarding the  `:h  todo` items  related  to Vim9  (and
+possibly a few others from the current file).
+
+In this report, mention the fact that this issue is absent from the todo list:
+<https://github.com/vim/vim/issues/6496>
+
+And maybe that it would be nice for `:def` to have a completion.
+Useful when you  want to get the  definition of a function  while debugging some
+issue; like: what does that function where an error was raised?
+Sure, you can use `:fu` instead; but it's inconsistent to define a function with
+`:def` then ask for its definition with `:fu`.
+Although, I'm reluctant to mention this because  we already did it in #6525, and
+closed the issue.
+But look at it this way:  `:def` is the *most important* command in Vim9 script.
+Indeed, the main goal  of the latter is to provide  better performance, which is
+achieved by compiling functions, which can only be done in a `:def` function.
+And yet, right now, there is no completion for `:def`; this is really unexpected.
+I could understand for a more obscure command, however `:def` is anything but obscure.
+
+Temporary workaround:
+
+    cnorea <expr> def getcmdtype() is# ':' && getcmdpos() == 4 ? 'Def' : 'def'
+    com! -bar -complete=customlist,s:def_complete -nargs=? Def exe s:def(<q-args>)
+    fu s:def_complete(argLead, _l, _p) abort
+        let argLead = substitute(a:argLead, '^\Cs:', '<SNR>[0-9]\\\\\\{1,}_', '')
+        return getcompletion(argLead, 'function')->map('substitute(v:val, "($\\|()$", "", "")')
+    endfu
+    fu s:def(name) abort
+        let name = trim(a:name, '()')
+        try
+            exe 'def ' .. name
+        catch
+            return 'echoerr ' .. string(v:exception)
+        endtry
+        return ''
+    endfu
+
+##
+## bug: imported constants and variables are not added to the "s:" dictionary
 
     imported constant
 ```vim
@@ -47,7 +107,7 @@ echo get(s:, 'var', 456)
     456
     ✘
 
-# bug: function nested in a legacy function can be invoked with the "s:" prefix
+## bug: function nested in a legacy function can be invoked with the "s:" prefix
 ```vim
 vim9script
 fu Outer()
@@ -71,29 +131,7 @@ script-local one.
 It doesn't matter whether `Inner()` is a legacy function or not.
 The results are the same.
 
-# bug: imported function can be invoked with the "g:" prefix
-```vim
-vim9script
-let lines =<< trim END
-    vim9script
-    export def Imported()
-        echo 'imported'
-    enddef
-END
-writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
-import Imported from 'foo.vim'
-fu Imported
-g:Imported()
-```
-       def <SNR>2_Imported()
-    1      echo 'imported'
-       enddef
-    imported
-
-`g:Imported()` should raise `E117`, because `Imported()` is script-local, not global.
-
-# bug: can delete a function-local or block-local function nested in a legacy function
+## bug: can delete a function-local or block-local function nested in a legacy function
 
 MWE for a function-local function:
 
@@ -166,11 +204,12 @@ To this:
 >     is defined when the latter is run, and cannot be deleted or replaced.
 >     The same is true fo a function local to a block.
 
-# bug: inconsistent error message when trying to delete local function nested in ":def" function
+## bug: inconsistent error message when trying to delete local function nested in ":def" function
 
 The issue also affects an imported function:
 ```vim
 vim9script
+mkdir('/tmp/import', 'p')
 let lines =<< trim END
     vim9script
     export def Imported()
@@ -218,7 +257,7 @@ After all, the function should be known to Vim:
 it should look for the function in the function scope according to `:h vim9-scopes`.
 
 Note: the error is only raised for a `:def` inside a `:def`.
-If the  outer function is  a `:fu`, no  error is raised;  no matter the  type of
+If the outer function is a `:fu`, no  error is raised; no matter the type of the
 inner function.
 
 ---
@@ -244,41 +283,1260 @@ After all, the function should be known to Vim:
 it should look for the function in the block scope according to `:h vim9-scopes`.
 
 Note: the error is only raised for a `:def` inside a `:def`.
-If the  outer function is  a `:fu`, no  error is raised;  no matter the  type of
+If the outer function is a `:fu`, no  error is raised; no matter the type of the
 inner function.
 
+## ?
+```vim
+vim9script
+mkdir('/tmp/ftplugin', 'p')
+let export_lines =<< trim END
+  vim9script
+  export let That = 'yes'
+END
+writefile(export_lines, '/tmp/ftplugin/Xexport_that.vim')
+mkdir('/tmp/syntax', 'p')
+let import_lines =<< trim END
+  vim9script
+  import That from './Xexport_that.vim'
+END
+writefile(import_lines, '/tmp/syntax/qf.vim')
+&rtp = '/tmp' .. ',' .. &rtp
+filetype plugin on
+syn on
+feedkeys('q:', 't')
+```
+
 ##
-# missing documentation: we cannot define a ":def" function inside a ":fu" function
+## highlight issues
+### ?
 
-We can nest a `:def` inside a `:fu`:
+In the "rhs" of a custom command, and of an autocmd, `call` is highlighted as a function
+even when used as an Ex command.
+
+### ?
+
+    do <nomodeline> QuickFixCmdPost copen
+                    ^-------------^
+                    not highlighted
+
+### ?
+
+    let x: list<dict<any>>
+           ^-------------^
+           not correctly highlighted
+
+### ?
+
+    vim9script
+    let winid = 1
+        ? getloclist(0, {'winid': 0}).winid
+        : getqflist({'winid': 0}).winid
+
+`getqflist()` is not highlighted as a function.
+Dirty fix:
+
+    syn clear vimCmdSep
+
+The whole `getloclist()` line is wrongly highlighted.
+Dirty fix:
+
+    syn clear vimSearch
+
+##
+## ?
+
+So, it turns out that we should not  be able to define 2 functions with the same
+name in 2 different namespaces (shadowing):
+<https://github.com/vim/vim/issues/6585#issuecomment-667580469>
+
+Check that's true.
+
+The following subsections are a little old now, and they had a different purpose.
+They were  trying to check  whether Vim  respected a particular  order seemingly
+documented in the help when looking for a function with no `s:` or `g:` prefix.
+Still, the snippets they contain could be used to quickly test that shadowing is
+indeed correctly disallowed.
+
+In particular, check whether we can shadow a global function.
+
+### ✔ import vs script
 ```vim
 vim9script
-fu Legacy()
-    def Vim9()
+mkdir('/tmp/import', 'p')
+let lines =<< trim END
+    vim9script
+    export def Func()
+        echo 'imported'
     enddef
-endfu
-Legacy()
+END
+writefile(lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+def Func()
+    echo 'script level'
+enddef
+import Func from 'foo.vim'
+Func()
 ```
-This is documented at `:def`.
+    script level
+    ✔
 
-But we cannot nest a `:fu` inside a `:def`:
+This proves that Vim searches for a function in the script *before* searching in
+the imported ones.   It doesn't matter whether the function  at the script level
+is legacy or not.
+
+### ✔ import vs script block
 ```vim
 vim9script
-def Vim9()
-    fu Legacy()
-    endfu
-enddef
-Vim9()
+mkdir('/tmp/import', 'p')
+let lines =<< trim END
+    vim9script
+    export def Func()
+        echo 'imported'
+    enddef
+END
+writefile(lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+if 1
+    def Func()
+        echo 'block at script level'
+    enddef
+endif
+import Func from 'foo.vim'
+Func()
 ```
-    E1086: Cannot use :function inside :def
+    block at script level
+    ✔
 
-It's not documented; neither at `:h def`, nor at `:h :fu`.
-It should be (at `:h :fu`?).
+This proves  that Vim searches  for a  function in a  block at the  script level
+*before* searching in the imported ones.  It doesn't matter whether the function
+in the block at the script level is legacy or not.
 
-Trick  to memorize  the rule:  we can  progress (legacy  → Vim9),  but we  can't
-regress (Vim9 → legacy).
+###
+### ✘ import vs function
+```vim
+vim9script
+mkdir('/tmp/import', 'p')
+let lines =<< trim END
+    vim9script
+    export def Func()
+        echo 'imported'
+    enddef
+END
+writefile(lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+import Func from 'foo.vim'
+def Outer()
+    def Func()
+        echo 'nested'
+    enddef
+    Func()
+enddef
+Outer()
+```
+    imported
+    ✘
 
-# documentation error: a nested function is not always local to the outer function
+This looks like a bug.
+Vim should first look  for `Func()` in the current scope  which is the `Outer()`
+function scope.
+
+---
+
+The issue is specific a function nested in a `:def` function.
+There is no issue if the function is nested in a `:fu` function:
+```vim
+vim9script
+mkdir('/tmp/import', 'p')
+let lines =<< trim END
+    vim9script
+    export def Func()
+        echo 'imported'
+    enddef
+END
+writefile(lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+import Func from 'foo.vim'
+fu Outer()
+    def Func()
+        echo 'nested'
+    enddef
+    call Func()
+endfu
+Outer()
+```
+    nested
+    ✔
+```vim
+vim9script
+mkdir('/tmp/import', 'p')
+let lines =<< trim END
+    vim9script
+    export def Func()
+        echo 'imported'
+    enddef
+END
+writefile(lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+import Func from 'foo.vim'
+fu Outer()
+    fu Func()
+        echo 'nested'
+    endfu
+    call Func()
+endfu
+Outer()
+```
+    nested
+    ✔
+
+### ✘ import vs function block
+```vim
+vim9script
+mkdir('/tmp/import', 'p')
+let lines =<< trim END
+    vim9script
+    export def Func()
+        echo 'imported'
+    enddef
+END
+writefile(lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+import Func from 'foo.vim'
+def Outer()
+    if 1
+        def Func()
+            echo 'nested'
+        enddef
+    endif
+    Func()
+enddef
+Outer()
+```
+    imported
+    ✘
+```vim
+vim9script
+mkdir('/tmp/import', 'p')
+let lines =<< trim END
+    vim9script
+    export def Func()
+        echo 'imported'
+    enddef
+END
+writefile(lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+import Func from 'foo.vim'
+fu Outer()
+    if 1
+        fu Func()
+            echo 'nested'
+        endfu
+    endif
+    call Func()
+endfu
+Outer()
+```
+    nested
+    ✔
+```vim
+vim9script
+mkdir('/tmp/import', 'p')
+let lines =<< trim END
+    vim9script
+    export def Func()
+        echo 'imported'
+    enddef
+END
+writefile(lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+import Func from 'foo.vim'
+fu Outer()
+    if 1
+        def Func()
+            echo 'nested'
+        enddef
+    endif
+    call Func()
+endfu
+Outer()
+```
+    nested
+    ✔
+
+###
+### ✘ script vs function
+```vim
+vim9script
+def Func()
+    echo 'script level'
+enddef
+def Outer()
+    def Func()
+        echo 'nested'
+    enddef
+    Func()
+enddef
+Outer()
+```
+    script level
+    ✘
+```vim
+vim9script
+def Func()
+    echo 'script level'
+enddef
+fu Outer()
+    fu Func()
+        echo 'nested'
+    endfu
+    call Func()
+endfu
+Outer()
+```
+    nested
+    ✔
+```vim
+vim9script
+def Func()
+    echo 'script level'
+enddef
+fu Outer()
+    def Func()
+        echo 'nested'
+    enddef
+    call Func()
+endfu
+Outer()
+```
+    nested
+    ✔
+
+The first `Func()` can be legacy or not; it doesn't change the results.
+
+### ✘ script vs function block
+```vim
+vim9script
+def Func()
+    echo 'script level'
+enddef
+def Outer()
+    if 1
+        def Func()
+            echo 'nested inside block'
+        enddef
+        Func()
+    endif
+enddef
+Outer()
+```
+    script level
+    ✘
+```vim
+vim9script
+def Func()
+    echo 'script level'
+enddef
+fu Outer()
+    if 1
+        fu Func()
+            echo 'nested inside block'
+        endfu
+        call Func()
+    endif
+endfu
+Outer()
+```
+    nested inside block
+    ✔
+```vim
+vim9script
+def Func()
+    echo 'script level'
+enddef
+fu Outer()
+    if 1
+        def Func()
+            echo 'nested inside block'
+        enddef
+        call Func()
+    endif
+endfu
+Outer()
+```
+    nested inside block
+    ✔
+
+###
+### ✘ function vs function block
+```vim
+vim9script
+def Outer()
+    def Func()
+        echo 'nested'
+    enddef
+    if 1
+        def Func()
+            echo 'nested inside block'
+        enddef
+        Func()
+    endif
+enddef
+Outer()
+```
+    nested
+    ✘
+```vim
+vim9script
+fu Outer()
+    fu Func()
+        echo 'nested'
+    endfu
+    if 1
+        fu Func()
+            echo 'nested inside block'
+        endfu
+        call Func()
+    endif
+endfu
+Outer()
+```
+    E122: Function Func already exists, add ! to replace it
+    ✘
+    nested
+    ✘
+```vim
+vim9script
+fu Outer()
+    def Func()
+        echo 'nested'
+    enddef
+    if 1
+        fu Func()
+            echo 'nested inside block'
+        endfu
+        call Func()
+    endif
+endfu
+Outer()
+```
+    E122: Function Func already exists, add ! to replace it
+    ✘
+    nested
+    ✘
+```vim
+vim9script
+fu Outer()
+    fu Func()
+        echo 'nested'
+    endfu
+    if 1
+        def Func()
+            echo 'nested inside block'
+        enddef
+        call Func()
+    endif
+endfu
+Outer()
+```
+    E122: Function Func already exists, add ! to replace it
+    ✘
+    nested
+    ✘
+```vim
+vim9script
+fu Outer()
+    def Func()
+        echo 'nested'
+    enddef
+    if 1
+        def Func()
+            echo 'nested inside block'
+        enddef
+        call Func()
+    endif
+endfu
+Outer()
+```
+    E122: Function Func already exists, add ! to replace it
+    ✘
+    nested
+    ✘
+
+##
+### ✘ script block vs script
+```vim
+vim9script
+def Func()
+    echo 'script level'
+enddef
+if 1
+    def Func()
+        echo 'inside block at script level'
+    enddef
+    Func()
+endif
+```
+    E122: Function <SNR>1_Func already exists, add ! to replace it
+    ✘
+
+Vim should  print "inside block at  script level" or "script  level"; preferably
+the former rather than the latter.
+
+But it  prints neither  of them.   That's because  the script-local  block scope
+doesn't exists  in Vim9  script.  It should  exist, if Vim9  script wants  to be
+consistent between the script level and the `:def` function contexts.
+
+Although, it's not necessarily a good idea; would such a scope be useful?
+How  would the  user react  when  seeing that  their function  no longer  exists
+outside a block at the script level?
+
+Btw, here's a simpler MWE:
+```vim
+vim9script
+if 1
+    def Func()
+        echo 'test'
+    enddef
+endif
+Func()
+```
+    test
+
+No error is raised, but `E117` should be raised if the function was local to the
+block.
+
+---
+
+Related todo item:
+
+> - At the script level, keep script variables local to the block they are
+>   declared in?  Need to remember what variables were declared and delete them
+>   when leaving the block.
+
+Although, this one is dedicated to variables; not functions.
+
+Related issue: <https://github.com/vim/vim/issues/6498>
+
+### ✘ script block vs function
+```vim
+vim9script
+if 1
+    def Func()
+        echo 'block at script level'
+    enddef
+    def Outer()
+        def Func()
+            echo 'nested'
+        enddef
+        Func()
+    enddef
+    Outer()
+endif
+```
+    block at script level
+    ✘
+```vim
+vim9script
+if 1
+    def Func()
+        echo 'block at script level'
+    enddef
+    fu Outer()
+        fu Func()
+            echo 'nested'
+        endfu
+        call Func()
+    endfu
+    Outer()
+endif
+```
+    nested
+    ✔
+```vim
+vim9script
+if 1
+    def Func()
+        echo 'block at script level'
+    enddef
+    fu Outer()
+        def Func()
+            echo 'nested'
+        enddef
+        call Func()
+    endfu
+    Outer()
+endif
+```
+    nested
+    ✔
+
+### ✘ script block vs function block
+```vim
+vim9script
+if 1
+    def Func()
+        echo 'block at script level'
+    enddef
+    def Outer()
+        if 1
+            def Func()
+                echo 'nested inside block'
+            enddef
+            Func()
+        endif
+    enddef
+    Outer()
+endif
+```
+    block at script level
+    ✘
+```vim
+vim9script
+if 1
+    def Func()
+        echo 'block at script level'
+    enddef
+    fu Outer()
+        if 1
+            fu Func()
+                echo 'nested inside block'
+            endfu
+            call Func()
+        endif
+    endfu
+    Outer()
+endif
+```
+    nested inside block
+    ✔
+```vim
+vim9script
+if 1
+    def Func()
+        echo 'block at script level'
+    enddef
+    fu Outer()
+        if 1
+            def Func()
+                echo 'nested inside block'
+            enddef
+            call Func()
+        endif
+    endfu
+    Outer()
+endif
+```
+    nested inside block
+    ✔
+
+##
+## inconsistency: when we ask for the definition of a Vim9 function, comments are sometimes included, but not always.
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        def g:Func()
+            echo 'one' # inline comment
+            # whole comment
+            echo 'two' # inline comment
+        enddef
+        def Func
+    EOF
+    )
+
+        def Func()~
+     1          echo 'one' # inline comment~
+     2          # whole comment~
+     3          echo 'two' # inline comment~
+        enddef~
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def g:Func()
+            echo 'one' # inline comment
+            # whole comment
+            echo 'two' # inline comment
+        enddef
+        def Func
+    EOF
+    )
+
+        def Func()~
+     1          echo 'one' # inline comment~
+     3          echo 'two' # inline comment~
+        enddef~
+
+`:vim9script` filters out whole commented lines in definitions of `:def` functions.
+Same thing for empty lines.
+
+Is it intended?
+If so, should it be documented at `:h vim9`?
+
+---
+
+Note that this doesn't cause any  issue for our vim-stacktrace plugin because it
+doesn't need  the *definition* of  a buggy function;  the plugin just  needs the
+name of the script  where it's defined.  In fact, even if  the plugin needed the
+definition, it couldn't have  it, because in Vim9 script, as  soon as a function
+raises an error, its body is emptied.
+
+## ?
+
+Should Vim9 script implement the concept of a block at the script level?
+```vim
+vim9script
+if 1
+    def Func()
+        echo 'test'
+    enddef
+endif
+Func()
+```
+    test
+
+No error is raised, but `E117` should be raised if the function was local to the
+block.
+
+---
+
+Related todo item:
+
+> - At the script level, keep script variables local to the block they are
+>   declared in?  Need to remember what variables were declared and delete them
+>   when leaving the block.
+
+Although, this one is dedicated to variables; not functions.
+
+Related issue: <https://github.com/vim/vim/issues/6498>
+
+## ?
+
+Can't use ":breakadd func" with a `:def` function.
+Maybe it can't work with a compiled function.
+If so, it should be documented at `:h vim9-differences`.
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def g:Func()
+            echo 'inside'
+        enddef
+        breakadd func Func
+        g:Func()
+    EOF
+    )
+
+---
+
+Why does it not work for a legacy function in a Vim9 script?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        fu Func()
+            echo 'inside'
+        endfu
+        breakadd func Func
+        call Func()
+    EOF
+    )
+    ✔
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        fu Func()
+            echo 'inside'
+        endfu
+        breakadd func Func
+        Func()
+    EOF
+    )
+    ✘
+
+Probably because `Func()` is now script-local.
+But then, why isn't this enough to fix the issue:
+
+    breakadd func s:Func
+                  ^^
+
+The issue disappears if we use a global function everywhere:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        fu g:Func()
+            echo 'inside'
+        endfu
+        breakadd func Func
+        g:Func()
+    EOF
+    )
+
+---
+
+What about `:profile`?
+
+## ?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def Func()
+            let d = {}
+            d.key = 0
+        enddef
+        Func()
+    EOF
+    )
+
+    Not supported yet: d.key = 0~
+
+This  error  is  annoying.   It  prevents  us  from  refactoring  the  start  of
+the  autoload script  in  `vim-search`;  it also  prevents  us from  eliminating
+`strpart()` in `ccomplete.vim`.
+
+It may be a known limitation, listed at `:h todo`:
+
+> - Assignment to dict doesn't work:
+>       let ret: dict<string> = #{}
+>       ret[i] = string(i)
+
+## ?
+
+https://github.com/vim/vim/issues/6553
+
+OTOH, the current documentation is correct when it says that `g:` is needed for a global *variable*, even when the name of the latter contains `#`:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        let foo#bar = 123
+    EOF
+    )
+
+    :echo foo#bar
+    E121: Undefined variable: g:foo#bar~
+
+Note how an error is raised because `g:` is missing in the assignment.
+
+Why do we need `g:` for an autoload variable, but not for an autoload function?
+<https://github.com/vim/vim/issues/6553#issuecomment-665878820>
+
+>     Normally, in Vim9 script all functions are local.
+>     To use a function outside of the script, it either has to be exported/imported, or made global.
+>     Autoload scripts are different; they define a third type of function: "autoloadable".
+>     Those are recognized by the "name#" prefix.
+>     It's like these are exported to this autoload namespace.
+>     These functions are not global, in the sense that the g: prefix is not used,
+>     neither where it's defined nor where it is called.
+
+---
+
+Also, watch this:
+```vim
+vim9script
+let foo#bar = 123
+echo s:
+```
+    {'foo#bar': 123}
+```vim
+vim9script
+let foo#bar = 123
+echo s:foo#bar
+```
+    E121: Undefined variable: s:foo#bar
+
+If an autoload variable is script-local, why can't we refer to it with an explicit `s:` scope?
+
+## ?
+
+By default, a function is local to the current script, right?
+
+Does that remain true for:
+
+   - `function('Func')`
+   - `:breakadd func Func`
+   - `:prof func Func`
+   ...
+
+If not, is this a bug?
+
+## Vim9: name of `:def` function can't start with a lowercase alphabetic character
+
+Since a `:def` function is script-local  by default, and a script-local `:fu` or
+`:def`  function *can*  start with  a  lowercase alphabetic  character, I  would
+expect  being able  to start  the name  of a  `:def` function  with a  lowercase
+alphabetic character.
+
+---
+
+> Using the "s:" prefix is optional.
+<https://github.com/vim/vim/blob/37394ff75270877a032422abcd079a6732a29730/runtime/doc/vim9.txt#L120>
+
+If it  was completely optional, then  I should be able  to drop it even  when it
+prefixes a function name starting with a lowercase character.
+That's not the case; if you drop `s:`  in front of a function name starting with
+a lowercase character, you also have to capitalize the name.
+
+---
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def func()
+        enddef
+    EOF
+    )
+
+    E128: Function name must start with a capital or "s:": func()~
+    E193: :enddef not inside a function~
+
+---
+
+Update: Wait.  That  would open the possibility  of a clash between  one of your
+custom function and a builtin one.
+
+Indeed, suppose that:
+
+   - you name your function `len`
+   - you call `len()` at the script level
+   - there is no `len()` function in the script-local namespace, nor in the imported functions
+
+Vim will probably look for your function in the global namespace.
+If a custom `len()` is allowed, it will shadow the builtin `len()`.
+
+I think  that what prevents  what you had  in mind is  the fact that  a function
+without a `s:` prefix is not necessarily script-local; it can be global.
+
+## Vim9: should Vim's help include its own Vim9 script style guide similar to ":h coding-style"?
+
+Maybe it could be based on the one provided by Google.
+
+## ?
+
+Should we enforce the usage of full names of commands and options?
+
+Would this make it easier for Vim developers to write new Vim9 features, and fix Vim9 bugs?
+
+Would it provide other technical benefits?  Like maybe this would make it easier to write a [Vim9 parser](https://github.com/vim/vim/issues/6372), which in turn could be used to write other tools for Vim9, like a [full optimizer](https://github.com/vim/vim/issues/6372#issuecomment-652634882)?
+
+---
+
+FWIW, the Vimscript [style guide from Google](https://google.github.io/styleguide/vimscriptfull.xml?showone=Settings#Settings) recommends using full names:
+
+>    Prefer long names of built in settings (i.e. tabstop over ts).
+
+---
+
+This would also have the obvious benefits of making people write code which is both more readable, and more consistent.  For example, there would be only a single way to execute `:nnoremap`, compared to 6 right now:
+
+    :nno
+    :nnor
+    :nnore
+    :nnorem
+    :nnorema
+    :nnoremap
+
+---
+
+As a side benefit, there would be no extra unexpected behavior when we forget to declare a single-letter variable.  For example, if we forget to declare the variable `n`, instead of Vim populating the arglist with the file paths `=` and `123` when running the following snippet:
+```vim
+vim9script
+n = 123
+```
+An error would be raised, such as:
+
+    E488: Trailing characters: = 123: n = 123
+    E1100: Missing :let: n = 123
+
+Because Vim would not parse `n` as the Ex command `:next`.
+
+## ?
+```vim
+vim9script
+b = 123
+```
+    ┌───┬───────────────────────────────────────────┐
+    │ b │ E94: No matching buffer for = 123         │
+    ├───┼───────────────────────────────────────────┤
+    │ e │ edit file '= 123'                         │
+    ├───┼───────────────────────────────────────────┤
+    │ f │ E95: Buffer with this name already exists │
+    ├───┼───────────────────────────────────────────┤
+    │ g │ global command (equivalent to 'g/123')    │
+    ├───┼───────────────────────────────────────────┤
+    │ h │ E149: Sorry, no help for = 123            │
+    ├───┼───────────────────────────────────────────┤
+    │ m │ E16: Invalid range                        │
+    ├───┼───────────────────────────────────────────┤
+    │ n │ populate arglist with '=' and '123'       │
+    ├───┼───────────────────────────────────────────┤
+    │ o │ edit file '= 123'                         │
+    ├───┼───────────────────────────────────────────┤
+    │ r │ E484: Can't open file = 123               │
+    ├───┼───────────────────────────────────────────┤
+    │ s │ E486: Pattern not found:  123             │
+    ├───┼───────────────────────────────────────────┤
+    │ t │ E16: Invalid range                        │
+    ├───┼───────────────────────────────────────────┤
+    │ v │ vglobal command                           │
+    ├───┼───────────────────────────────────────────┤
+    │ w │ E139: File is loaded in another buffer    │
+    ├───┼───────────────────────────────────────────┤
+    │ z │ E144: non-numeric argument to :z          │
+    └───┴───────────────────────────────────────────┘
+
+All these pitfalls could be fixed if Vim forced the user to prefix these commands with a colon.
+
+Alternatively, the pitfall related to `t` could be fixed by disallowing the commands, just like `:a`, `:c`, `:i`, `:x` are disallowed, in favor of `:copy` which is more readable anyway.
+
+## ?
+
+Those errors are present in the Vim9 tests, but are not documented:
+
+`:h E451`
+`:h E654`
+
+`:h E1001`
+`:h E1002`
+`:h E1003`
+`:h E1004`
+`:h E1006`
+`:h E1007`
+`:h E1008`
+`:h E1009`
+`:h E1010`
+`:h E1011`
+`:h E1013`
+`:h E1014`
+`:h E1015`
+`:h E1016`
+`:h E1017`
+`:h E1018`
+`:h E1019`
+`:h E1020`
+`:h E1021`
+`:h E1022`
+`:h E1023`
+`:h E1025`
+`:h E1026`
+`:h E1027`
+`:h E1029`
+`:h E1030`
+`:h E1031`
+`:h E1032`
+`:h E1033`
+`:h E1034`
+`:h E1035`
+`:h E1036`
+`:h E1039`
+`:h E1040`
+`:h E1041`
+`:h E1043`
+`:h E1045`
+`:h E1046`
+`:h E1048`
+`:h E1049`
+`:h E1052`
+`:h E1053`
+`:h E1054`
+`:h E1055`
+`:h E1056`
+`:h E1057`
+`:h E1059`
+`:h E1060`
+`:h E1061`
+`:h E1062`
+`:h E1066`
+`:h E1067`
+`:h E1068`
+`:h E1069`
+`:h E1070`
+`:h E1071`
+`:h E1072`
+`:h E1073`
+`:h E1074`
+`:h E1075`
+`:h E1077`
+`:h E1081`
+`:h E1084`
+`:h E1085`
+`:h E1086`
+`:h E1090`
+`:h E1093`
+`:h E1095`
+`:h E1096`
+`:h E1097`
+`:h E1100`
+`:h E1101`
+`:h E1103`
+
+---
+
+Those errors are present in our Vim9 notes and in this file, but are not documented:
+
+`:h E1001`
+`:h E1013`
+`:h E1016`
+`:h E1017`
+`:h E1041`
+`:h E1044`
+`:h E1048`
+`:h E1051`
+`:h E1066`
+`:h E1073`
+`:h E1075`
+`:h E1077`
+`:h E1081`
+`:h E1084`
+`:h E1086`
+`:h E1088`
+`:h E1096`
+`:h E1100`
+
+## ?
+
+We can omit `s:` when the function starts with an uppercase character:
+```vim
+vim9script
+def Func()
+enddef
+Func()
+```
+But not when it starts with a lowercase character:
+```vim
+vim9script
+def s:func()
+enddef
+func()
+```
+    E117: Unknown function: func
+
+Is it working as intended?  Should it be documented at `:h vim9-gotchas`?
+
+Same thing with imported functions.
+
+---
+
+I think that's the  reason why you should always name your  def functions with a
+name starting with a lowercase character.
+
+## ?
+
+A builtin function can shadow a script-local one:
+```vim
+vim9script
+def s:len(): number
+    return 123
+enddef
+echo len('abc')
+```
+Should Vim raise  an error when we  try to define a function  whose name clashes
+with a builtin one?  I don't think so, because we can already define a `s:len()`
+function in legacy...
+
+## ?
+```vim
+vim9script
+def FuncA(n)
+    if n == 123
+        FuncB(123)
+    endif
+enddef
+def FuncB(n: number)
+    echo n
+enddef
+FuncA(123)
+```
+    Error detected while processing command line..script /proc/30492/fd/11:~
+    line    2:~
+    E1077: Missing argument type for n~
+    line    3:~
+    E121: Undefined variable: n~
+    line    6:~
+    E193: :enddef not inside a function~
+    line   10:~
+    E117: Unknown function: FuncA~
+
+This is way too verbose.
+Couldn't Vim just report the first error?
+
+## ?
+
+Should Vim9 define custom commands with `-bar` by default?
+Would require a new `-nobar` argument.
+
+##
+## documentation
+### 61
+
+You can't use `.` for concatenation.
+
+You must use `..`:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        let str = 'a' . 'b'
+    EOF
+    )
+
+    E15: Invalid expression: 'a' . 'b'
+
+This is not documented at `:h vim9-differences`.
+
+Although, there is this somewhere in the middle of the help:
+
+>     When using `..` for string concatenation the arguments are always converted to
+>     string. >
+>             'hello ' .. 123  == 'hello 123'
+>             'hello ' .. v:true  == 'hello true'
+
+But this makes it seem as if `.` was still ok.
+It is not.
+
+I would write this instead:
+
+>     `.` can no longer be used for string concatenation.  Instead, `..` must be used.
+>     Note that `..` always converts its operands to string. >
+>             'hello ' .. 123  == 'hello 123'
+>             'hello ' .. v:true  == 'hello true'
+
+### 99
+
+>     `:def` has no options like `:function` does: "range", "abort", "dict" or
+>     "closure".  A `:def` function always aborts on an error, does not get a range
+>     passed and cannot be a "dict" function.
+
+The first sentence mentions closures, but not the second one.
+Support for closures is in the todo list:
+
+>     - Make closures work:
+>       - Create closure in a loop.  Need to make a list of them.
+
+Maybe the doc could say:
+
+>     A `:def` function always aborts on an error, does not get a range
+>     passed, cannot be a "dict" function, and may be a closure.
+
+Although, it depends on how it will be implemented.
+Here's how it works in python:
+<https://stackoverflow.com/a/4020443/9780968>
+
+It seems that there's  nothing special to do to make a  closure work; no special
+argument  like  `:h :func-closure`.   However,  the  technical definition  of  a
+closure is a bit tricky; for a function to be considered a closure, it must:
+
+   - be nested in another function
+   - access at least one variable from the outer scope
+   - do so while the outer function has finised its execution
+
+You could argue that  it's too early to be documented,  but `:type` and `:class`
+*are* documented even though they haven't been implemented yet.
+
+### 103
+
+>     The argument types and return type need to be specified.  The "any" type can
+>     be used; type checking will then be done at runtime, like with legacy
+>     functions.
+
+If it  can have a  negative impact on the  function's performance, it  should be
+mentioned, so that users don't abuse the `any` type.
+
+### 129
+
+A nested function is not always local to the outer function
 
 >     When using `:function` or `:def` to specify a new function inside a function,
 >     the function is local to the function.
@@ -356,11 +1614,12 @@ fu Inner
     1          echo 'inner'
        enddef
 
-# documentation error: it is possible to define a script-local function inside another function
+### 130
 
 >     It is not possible to define a script-local function inside a function.
 
-This should be rephrased like this:
+It *is* possible to define a script-local function inside another function.
+The sentence should be rephrased like this:
 
 >     It is not possible to define a script-local function inside a `:def` function.
 
@@ -391,391 +1650,7 @@ s:Inner()
 ```
     inner
 
-# inconsistency: when we ask for the definition of a Vim9 function, comments are sometimes included, but not always.
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        def g:Func()
-            echo 'one' # inline comment
-            # whole comment
-            echo 'two' # inline comment
-        enddef
-        def Func
-    EOF
-    )
-
-        def Func()~
-     1          echo 'one' # inline comment~
-     2          # whole comment~
-     3          echo 'two' # inline comment~
-        enddef~
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def g:Func()
-            echo 'one' # inline comment
-            # whole comment
-            echo 'two' # inline comment
-        enddef
-        def Func
-    EOF
-    )
-
-        def Func()~
-     1          echo 'one' # inline comment~
-     3          echo 'two' # inline comment~
-        enddef~
-
-`:vim9script` filters out whole comments in definitions of `:def` functions.
-Is it intended?
-If so, should it be documented at `:h vim9`?
-
-##
-# ?
-
-Should Vim9 script implement the concept of a block at the script level?
-```vim
-vim9script
-if 1
-    def Func()
-        echo 'test'
-    enddef
-endif
-Func()
-```
-    test
-
-No error is raised, but `E117` should be raised if the function was local to the
-block.
-
----
-
-Related todo item:
-
-> - At the script level, keep script variables local to the block they are
->   declared in?  Need to remember what variables were declared and delete them
->   when leaving the block.
-
-Although, this one is dedicated to variables; not functions.
-
-Related issue: <https://github.com/vim/vim/issues/6498>
-
-# ?
-
-Can't use ":breakadd func" with a `:def` function.
-Maybe it can't work with a compiled function.
-If so, it should be documented at `:h vim9-differences`.
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def g:Func()
-            echo 'inside'
-        enddef
-        breakadd func Func
-        g:Func()
-    EOF
-    )
-
----
-
-Why does it not work for a legacy function in a Vim9 script?
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        fu Func()
-            echo 'inside'
-        endfu
-        breakadd func Func
-        call Func()
-    EOF
-    )
-    ✔
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        fu Func()
-            echo 'inside'
-        endfu
-        breakadd func Func
-        Func()
-    EOF
-    )
-    ✘
-
-Probably because `Func()` is now script-local.
-But then, why isn't this enough to fix the issue:
-
-    breakadd func s:Func
-                  ^^
-
-The issue disappears if we use a global function everywhere:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        fu g:Func()
-            echo 'inside'
-        endfu
-        breakadd func Func
-        g:Func()
-    EOF
-    )
-
----
-
-What about `:profile`?
-
-# ?
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        # applies to other scopes too
-        s:d = {}
-        def Func()
-            s:d['key'] = 'val'
-        enddef
-        Func()
-    EOF
-    )
-
-    E1088: cannot use an index on s:d~
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            let d = {}
-            d.key = 0
-        enddef
-        Func()
-    EOF
-    )
-
-    Not supported yet: d.key = 0~
-
-These  errors are  annoying.   They prevent  us from  refactoring  the start  of
-the  autoload script  in `vim-search`;  they  also prevent  us from  eliminating
-`strpart()` in `ccomplete.vim`.
-
-I suspect the 2 error messages come from the same limitation.
-It may be a known limitation, listed at `:h todo`:
-
-> - Assignment to dict doesn't work:
->       let ret: dict<string> = #{}
->       ret[i] = string(i)
-
-# ?
-
-https://github.com/vim/vim/issues/6553
-
-OTOH, the current documentation is correct when it says that `g:` is needed for a global *variable*, even when the name of the latter contains `#`:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        let foo#bar = 123
-    EOF
-    )
-
-    :echo foo#bar
-    E121: Undefined variable: g:foo#bar~
-
-Note how an error is raised because `g:` is missing in the assignment.
-
-Why do we need `g:` for an autoload variable, but not for an autoload function?
-<https://github.com/vim/vim/issues/6553#issuecomment-665878820>
-
->     Normally, in Vim9 script all functions are local.
->     To use a function outside of the script, it either has to be exported/imported, or made global.
->     Autoload scripts are different; they define a third type of function: "autoloadable".
->     Those are recognized by the "name#" prefix.
->     It's like these are exported to this autoload namespace.
->     These functions are not global, in the sense that the g: prefix is not used,
->     neither where it's defined nor where it is called.
-
----
-
-Also, watch this:
-```vim
-vim9script
-let foo#bar = 123
-echo s:
-```
-    {'foo#bar': 123}
-```vim
-vim9script
-let foo#bar = 123
-echo s:foo#bar
-```
-    E121: Undefined variable: s:foo#bar
-
-If an autoload variable is script-local, why can't we refer to it with an explicit `s:` scope?
-
-# ?
-
-By default, a function is local to the current script, right?
-
-Does that remain true for:
-
-   - `function('Func')`
-   - `:breakadd func Func`
-   - `:prof func Func`
-   ...
-
-If not, is this a bug?
-
-# Vim9: name of `:def` function can't start with a lowercase alphabetic character
-
-Since a `:def` function is script-local  by default, and a script-local `:fu` or
-`:def`  function *can*  start with  a  lowercase alphabetic  character, I  would
-expect  being able  to start  the name  of a  `:def` function  with a  lowercase
-alphabetic character.
-
----
-
-> Using the "s:" prefix is optional.
-<https://github.com/vim/vim/blob/37394ff75270877a032422abcd079a6732a29730/runtime/doc/vim9.txt#L120>
-
-If it  was completely optional, then  I should be able  to drop it even  when it
-prefixes a function name starting with a lowercase character.
-That's not the case; if you drop `s:`  in front of a function name starting with
-a lowercase character, you also have to capitalize the name.
-
----
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def func()
-        enddef
-    EOF
-    )
-
-    E128: Function name must start with a capital or "s:": func()~
-    E193: :enddef not inside a function~
-
-# Vim9: should Vim's help include its own Vim9 script style guide similar to ":h coding-style"?
-
-Maybe it could be based on the one provided by Google.
-
-# ?
-
-Should we enforce the usage of full names of commands and options?
-
-Would this make it easier for Vim developers to write new Vim9 features, and fix Vim9 bugs?
-
-Would it provide other technical benefits?  Like maybe this would make it easier to write a [Vim9 parser](https://github.com/vim/vim/issues/6372), which in turn could be used to write other tools for Vim9, like a [full optimizer](https://github.com/vim/vim/issues/6372#issuecomment-652634882)?
-
----
-
-FWIW, the Vimscript [style guide from Google](https://google.github.io/styleguide/vimscriptfull.xml?showone=Settings#Settings) recommends using full names:
-
->    Prefer long names of built in settings (i.e. tabstop over ts).
-
----
-
-This would also have the obvious benefits of making people write code which is both more readable, and more consistent. For example, there would be only a single way to execute `:nnoremap`, compared to 6 right now:
-
-    :nno
-    :nnor
-    :nnore
-    :nnorem
-    :nnorema
-    :nnoremap
-
----
-
-As a side benefit, there would be no extra unexpected behavior when we forget to declare a single-letter variable.  For example, if we forget to declare the variable `n`, instead of Vim populating the arglist with the file paths `=` and `123` when running the following snippet:
-```vim
-vim9script
-n = 123
-```
-An error would be raised, such as:
-
-    E488: Trailing characters: = 123: n = 123
-    E1100: Missing :let: n = 123
-
-Because Vim would not parse `n` as the Ex command `:next`.
-
-# ?
-```vim
-vim9script
-b = 123
-```
-    ┌───┬───────────────────────────────────────────┐
-    │ b │ E94: No matching buffer for = 123         │
-    ├───┼───────────────────────────────────────────┤
-    │ e │ edit file '= 123'                         │
-    ├───┼───────────────────────────────────────────┤
-    │ f │ E95: Buffer with this name already exists │
-    ├───┼───────────────────────────────────────────┤
-    │ g │ global command (equivalent to 'g/123')    │
-    ├───┼───────────────────────────────────────────┤
-    │ h │ E149: Sorry, no help for = 123            │
-    ├───┼───────────────────────────────────────────┤
-    │ m │ E16: Invalid range                        │
-    ├───┼───────────────────────────────────────────┤
-    │ n │ populate arglist with '=' and '123'       │
-    ├───┼───────────────────────────────────────────┤
-    │ o │ edit file '= 123'                         │
-    ├───┼───────────────────────────────────────────┤
-    │ r │ E484: Can't open file = 123               │
-    ├───┼───────────────────────────────────────────┤
-    │ s │ E486: Pattern not found:  123             │
-    ├───┼───────────────────────────────────────────┤
-    │ t │ E16: Invalid range                        │
-    ├───┼───────────────────────────────────────────┤
-    │ v │ vglobal command                           │
-    ├───┼───────────────────────────────────────────┤
-    │ w │ E139: File is loaded in another buffer    │
-    ├───┼───────────────────────────────────────────┤
-    │ z │ E144: non-numeric argument to :z          │
-    └───┴───────────────────────────────────────────┘
-
-All these pitfalls could be fixed if Vim forced the user to prefix these commands with a colon.
-
-Alternatively, the pitfall related to `t` could be fixed by disallowing the commands, just like `:a`, `:c`, `:i`, `:x` are disallowed, in favor of `:copy` which is more readable anyway.
-
-##
-##
-##
-# errors at `:h vim9`
-## 98
-
->     `:def` has no options like `:function` does: "range", "abort", "dict" or
->     "closure".  A `:def` function always aborts on an error, does not get a range
->     passed and cannot be a "dict" function.
-
-The first sentence mentions closures, but not the second one.
-Support for closures is in the todo list:
-
->     - Make closures work:
->       - Create closure in a loop.  Need to make a list of them.
-
-Maybe the doc could say:
-
->     A `:def` function always aborts on an error, does not get a range
->     passed, cannot be a "dict" function, and may be a closure.
-
-Although, it depends on how it will be implemented.
-Here's how it works in python:
-<https://stackoverflow.com/a/4020443/9780968>
-
-It seems that there's  nothing special to do to make a  closure work; no special
-argument  like  `:h :func-closure`.   However,  the  technical definition  of  a
-closure is a bit tricky; for a function to be considered a closure, it must:
-
-   - be nested in another function
-   - access at least one variable from the outer scope
-   - do so while the outer function has finised its execution
-
-You could argue that  it's too early to be documented,  but `:type` and `:class`
-*are* documented even though they haven't been implemented yet.
-
-## 102
-
->     The argument types and return type need to be specified.  The "any" type can
->     be used; type checking will then be done at runtime, like with legacy
->     functions.
-
-If it  can have a  negative impact on the  function's performance, it  should be
-mentioned, so that users don't abuse the `any` type.
-
-## 131
+### 136
 
 >     - Local to **the current scope and outer scopes** up to the function scope.
 
@@ -787,7 +1662,7 @@ function one.  The current sentence implies that there is one – which is true 
 Vim9 script – without  specifying what it is.  It's explained  a little later at
 `:h vim9-declaration`, but imo `:h vim9-scopes` should be understandable on its own.
 
-## 151
+### 156
 
 >     Variables can be local to a script, function or code block:
 
@@ -796,7 +1671,7 @@ What about the other scopes?  buffer-local, window-local, ...
 vim9script
 b:var = 123
 ```
-## 186
+### 192
 
 From `:h vim9-declaration /Global`:
 
@@ -866,14 +1741,38 @@ Once this is fixed, integrate the previous github comments in our notes:
 
 Update: I think the help has been fixed/updated.
 
-## 191
+### 196
 
 >     Variables cannot shadow previously defined variables.
 
 What does this mean?
 Does it mean that you can't re-declare a variable?
 
-## 237
+### 208
+
+We cannot declare a register inside a `:def` function.
+
+Suggested patch:
+```diff
+diff --git a/runtime/doc/vim9.txt b/runtime/doc/vim9.txt
+index 2c4d1dbc1..05456870d 100644
+--- a/runtime/doc/vim9.txt
++++ b/runtime/doc/vim9.txt
+@@ -206,6 +206,12 @@ at the script level. >
+ Since "&opt = value" is now assigning a value to option "opt", ":&" cannot be
+ used to repeat a `:substitute` command.
+
++							*E1066*
++It is not allowed to assign a value to a register with `:let`. >
++	let @a = 'my register'		# Error!
++	@a = 'my register'		# OK
++	setreg('a', 'my register')	# OK
++
+ 							*E1092*
+ Declaring more than one variable at a time, using the unpack notation, is
+ currently not supported: >
+```
+### 242
 
 From `:h vim9-declaration /cyclic`
 
@@ -903,7 +1802,7 @@ enddef
 ```
     E117: Unknown function: B
 
-## 244
+### 249
 
   > Omitting function() ~
   >
@@ -924,7 +1823,7 @@ let Funcref = MyFunction
 Could be on the todo list:
 <https://github.com/vim/vim/blob/d032f34a51c6722101626c4167dffecc427ac343/runtime/doc/todo.txt#L113-L115>
 
-## 299
+### 304
 
 From `:h E1050`:
 
@@ -940,8 +1839,6 @@ def Func()
 enddef
 Func()
 ```
-    Error detected while processing function <SNR>1_Func:
-    line    1:
     E1050: Colon required before a range
 
 Shouldn't `:silent`  be enough to prevent  Vim from parsing/confusing `%`  as an
@@ -950,7 +1847,14 @@ operator?
 Maybe it's because modifiers have not been implemented yet.
 <https://github.com/vim/vim/issues/6530#issuecomment-663903048>
 
-## 413
+### 367
+
+Something should be said about the new  rule which disallows white space in most
+places inside  a list or  dictionary.  I think the  only place where  it's still
+allowed,  is after  a comma  separating 2  consecutive items,  or after  a colon
+separating a key from its value in a dictionary.
+
+### 420
 
 I would rewrite this whole paragraph:
 
@@ -1011,10 +1915,10 @@ Also, at `:h expr2`, I would briefly explain how `expr1 && expr2` and
     expr1 && expr2  ==  expr2  (except if expr1 is 0, 0.0, '', [], {}, v:none)
     expr1 || expr2  ==  expr1  (except if expr2 is 0, 0.0, '', [], {}, v:none)
 
-## 430
+### 438
 
 At `:h  vim9-gotchas`, I would add  a gotcha about  the fact that you  can *not*
-omit `s:` when calling a script-local function from a `:fu` function.
+omit `s:` when calling a script-local or imported function from a `:fu` function.
 It sounds  obvious, but in  practice, I bet you  may sometimes forget  and don't
 understand why your code doesn't work.
 ```vim
@@ -1027,8 +1931,6 @@ def Bar()
 enddef
 Foo()
 ```
-    Error detected while processing function <SNR>1_Foo:
-    line    1:
     E117: Unknown function: Bar
 
 The reason why  you may forget, is because  in Vim9 script you can  omit `s:` in
@@ -1038,7 +1940,47 @@ front of a function name most of the time; that is when:
    - defining a `:fu` function
    - calling a script-local function from a `:def` function
 
-## 450
+---
+
+Also, we can drop `:call` in commands and autocommands but not in mappings
+```vim
+vim9script
+set ut=500
+augroup test | au!
+    au CursorHold * Func()
+augroup END
+def Func()
+    echom 'test'
+enddef
+```
+    test
+```vim
+vim9script
+com Cmd Func()
+def Func()
+    echom 'test'
+enddef
+Cmd
+```
+    test
+```vim
+vim9script
+nno cd :<sid>Func()<cr>
+def Func()
+    echom 'test'
+enddef
+feedkeys('cd', 'it')
+```
+    E488: Trailing characters: SNR>1_Func()
+
+Again,  it might  be considered  as  a pitfall  which would  benefit from  being
+documented at `:h vim9-gotchas`.
+
+Btw, the leading `<` is missing because it was parsed as the `:<` Ex command; as
+a result, the rest of the line is parsed as an argument, but `:<` doesn't accept
+this kind of argument (only a number).
+
+### 463
 
 > Vim9 functions are compiled as a whole: >
 >         def Maybe()
@@ -1104,7 +2046,58 @@ defcompile
 ```
 This doesn't raise any error, even though my Vim doesn't support the ruby interface.
 
-## 520
+### 518
+
+We can nest `:def` inside `:fu`, but not the reverse.
+```vim
+vim9script
+def Vim9()
+    fu Legacy()
+    endfu
+enddef
+Vim9()
+```
+    E1086: Cannot use :function inside :def
+
+Suggested patch:
+```diff
+diff --git a/runtime/doc/eval.txt b/runtime/doc/eval.txt
+index d8994ef00..4555603b8 100644
+--- a/runtime/doc/eval.txt
++++ b/runtime/doc/eval.txt
+@@ -11575,8 +11575,10 @@ See |:verbose-cmd| for more information.
+ 			NOTE: Use ! wisely.  If used without care it can cause
+ 			an existing function to be replaced unexpectedly,
+ 			which is hard to debug.
+-			NOTE: In Vim9 script script-local functions cannot be
++			NOTE: In Vim9 script, script-local functions cannot be
+ 			deleted or redefined.
++			NOTE: In Vim9 script, `:function` can not be nested
++			inside `:def`.
+
+ 			For the {arguments} see |function-argument|.
+
+diff --git a/runtime/doc/vim9.txt b/runtime/doc/vim9.txt
+index 2c4d1dbc1..d11cf72a7 100644
+--- a/runtime/doc/vim9.txt
++++ b/runtime/doc/vim9.txt
+@@ -516,6 +516,9 @@ THIS IS STILL UNDER DEVELOPMENT - ANYTHING CAN BREAK - ANYTHING CAN CHANGE
+ 			script script-local functions cannot be deleted or
+ 			redefined later in the same script.
+
++							*E1086*
++			It is not allowed to nest `:function` inside `:def`.
++
+ 							*:enddef*
+ :enddef			End of a function defined with `:def`. It should be on
+ 			a line by its own.
+```
+---
+
+Trick to  memorize the  rules: we can  progress (legacy →  Vim9), but  we cannot
+regress (Vim9 → legacy).
+
+### 524
 
 >     If the script the function is defined in is Vim9 script, then script-local
 >     variables can be accessed without the "s:" prefix.  They must be defined
@@ -1121,7 +2114,7 @@ I would re-write this paragraph like so:
 
 Easier to understand.
 
-## 558
+### 563
 
 > The following builtin types are supported:
 
@@ -1139,8 +2132,6 @@ def Func(arg: list<list<list<any>>>)
 enddef
 Func([[[0]]])
 ```
-    Error detected while processing function <SNR>1_Func:
-    line    1:
     E1013: type mismatch, expected list<list<list<any>>> but got list<list<any>>
                                                              ^-----------------^
 
@@ -1152,15 +2143,13 @@ def Func(arg: list<list<number>>)
 enddef
 Func([[0]])
 ```
-    Error detected while processing function <SNR>1_Func:
-    line    1:
     E1013: type mismatch, expected list<list<number>> but got list<list<any>>
 
 Is all of this working as intended?
 That is, the fact that the maximum level of nesting is 2, and a nested composite
 type must use `<any>`.
 
-## 666
+### 671
 
 From `:h :vim9 /common`:
 
@@ -1181,7 +2170,7 @@ Also, I would rewrite the whole paragraph like this:
 >     For variables which are local to a script, function or code block, the opposite
 >     is true.  They can be declared but cannot be deleted.
 
-## 725
+### 730
 
 >     The `import` commands are executed when encountered.
 >     If that script  (directly or indirectly) imports the current  script, then items
@@ -1215,11 +2204,9 @@ Does the following commands do a good job illustrating the pitfall?
 
     $ vim -Nu NONE -S /tmp/foo.vim
 
-    Error detected while processing /tmp/bar.vim:~
-    line    3:~
     E1048: Item not found in script: BAR~
 
-## 800
+### 805
 
 >     The error can be given at compile time, no error handling is needed at runtime.
 
@@ -1231,7 +2218,7 @@ If a  legacy function  contains syntax/type errors,  and was  invoked frequently
 (e.g. `InsertCharPre` autocmd),  the same  errors were raised  repeatedly.  This
 shoud not happen with a `:def` function.
 
-## 887
+### 892
 
 >     When sourcing a Vim9 script from a legacy script, only the items defined
 >     globally can be used; not the exported items.
@@ -1239,112 +2226,8 @@ shoud not happen with a `:def` function.
 Actually, I think you can also use any item defined in the `b:`, `t:`, and `w:` namespace;
 but not one defined in the `s:` namespace.
 
-##
-# missing doc at `:h vim9`
-## can't use `.` for concatenation
-
-You must use `..`:
-
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        let str = 'a' . 'b'
-    EOF
-    )
-
-    E15: Invalid expression: 'a' . 'b'
-
-This is not documented at `:h vim9-differences`.
-Although, there is this:
-
->     When using `..` for string concatenation the arguments are always converted to
->     string. >
->             'hello ' .. 123  == 'hello 123'
->             'hello ' .. v:true  == 'hello true'
-
-But this makes it seem as if `.` was still ok.
-It is not.
-
-I would write this instead:
-
->     `.` can no longer be used for string concatenation.  Instead, `..` must be used.
->     Note that `..` always converts its operands to string. >
->             'hello ' .. 123  == 'hello 123'
->             'hello ' .. v:true  == 'hello true'
-
-## can drop ":call" in commands and autocommands but not in mappings
-
-Maybe this should be documented at `:h vim9-gotchas`?
-```vim
-vim9script
-set ut=500
-augroup test | au!
-    au CursorHold * Func()
-augroup END
-def Func()
-    echom 'test'
-enddef
-```
-    test
-```vim
-vim9script
-com Cmd Func()
-def Func()
-    echom 'test'
-enddef
-Cmd
-```
-    test
-```vim
-vim9script
-nno cd :<sid>Func()<cr>
-def Func()
-    echom 'test'
-enddef
-feedkeys('cd', 'it')
-```
-    E488: Trailing characters: SNR>1_Func()
-
-Btw, the leading `<` is missing because it was parsed as the `:<` Ex command; as
-a result, the rest of the line is parsed as an argument, but `:<` doesn't accept
-this kind of argument (only a number).
-
-## can't declare a register inside a ":def" function
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            let @a = 'text'
-        enddef
-        Func()
-    EOF
-    )
-
-    E1066: Cannot declare a register: @a
-
-This – as well as `E1066` – should be documented at `:h vim9-declaration`.
-
-Drop the `let`:
-```vim
-vim9script
-def Func()
-    @a = 'text'
-enddef
-Func()
-reg a
-```
-Or use `getreg()` and `setreg()` when you need to refer to the contents of a register.
-
-## concept of block-local function
-
-There is this at `:h vim9-declaration`:
-
->     The variables are only visible in the block where they are defined and nested
->     blocks.  Once the block ends the variable is no longer accessible: >
-
-But it's about variables; there is nothing about functions.
-
-##
-# error at `:h autoload`
+###
+### `:h autoload`
 
 `:h vim9` was correctly updated, but not `:h autoload`:
 <https://github.com/vim/vim/issues/6553>
@@ -1358,69 +2241,519 @@ don't need to use the `export` command to export it?
 And we  can automatically  import it  under whatever name  we want  from another
 script?  Make some tests.
 
-#
-# Plan
+###
+### concept of block-local function
 
-Re-read the whole Vim9 documentation in your Vim fork.
-Make sure there is no typo, no missing comma/semicolon, no wrong word...
+There is this at `:h vim9-declaration`:
 
-Once you've reviewed the documentation, make sure all the minor errors mentioned
-in this  file have  been correctly  fixed in your  fork.  Then,  save a  diff in
-`~/Desktop/patch.txt`.
+>     The variables are only visible in the block where they are defined and nested
+>     blocks.  Once the block ends the variable is no longer accessible: >
 
-Next, review the remaining Vim9 items in this file.
-Refactor anything which looks like a bug into a proper dedicated report.
+But it's about variables; there is nothing about functions.
 
-Finally, submit a PR for the patch,  and explain the various changes; no need to
-repeat yourself for similar  errors, but do give an explanation  for a family of
-errors (like comma splices).
+##
+# Todo list
+## some todo items are stale
 
-Also, review the  remaining Vim9 items in  this file; for each of  them, leave a
-remark in the OP of your PR.
+I had a look at the first half of the todo list, and found some items which could be stale.  I don't submit a PR, because I'm not sure for all of them.
 
 ---
 
-Also,  submit a  report  regarding the  `:h  todo` items  related  to Vim9  (and
-possibly a few others from the current file).
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L137-L140):
 
-In this report, mention the fact that this issue is absent from the todo list:
-<https://github.com/vim/vim/issues/6496>
+> - With some sequence get get hidden finished terminal buffer. (#5768)
+>     Cannot close popup terminal (#5744)
+>     Buffer can't be wiped, gets status "aF". (#5764)
+>     Is buf->nwindows incorrect?
 
-And maybe that it would be nice for `:def` to have a completion.
-Useful when you  want to get the  definition of a function  while debugging some
-issue; like: what does that function where an error was raised?
-Sure, you can use `:fu` instead; but it's inconsistent to define a function with
-`:def` then ask for its definition with `:fu`.
-Although, I'm reluctant to mention this because  we already did it in #6525, and
-closed the issue.
-But look at it this way:  `:def` is the *most important* command in Vim9 script.
-Indeed, the main goal  of the latter is to provide  better performance, which is
-achieved by compiling functions, which can only be done in a `:def` function.
-And yet, right now, there is no completion for `:def`; this is really unexpected.
-I could understand for a more obscure command, however `:def` is anything but obscure.
+No longer relevant since [8.2.0743](https://github.com/vim/vim/releases/tag/v8.2.0743).
 
-Temporary workaround:
+Actually, I'm not sure that `#5768` is no longer relevant since 8.2.0743.  Maybe it was fixed by another patch; but it is fixed anyway.
 
-    cnorea <expr> def getcmdtype() is# ':' && getcmdpos() == 4 ? 'Def' : 'def'
-    com -bar -complete=custom,s:def_complete -nargs=? Def exe s:def(<q-args>)
-    fu s:def_complete(argLead, _l, _p) abort
-        return getcompletion(a:argLead, 'function')->join("\n")
-    endfu
-    fu s:def(name) abort
-        let name = trim(a:name, '()')
-        try
-            exe 'def ' .. name
-        catch
-            return 'echoerr ' .. string(v:exception)
-        endtry
-        return ''
-    endfu
+---
 
-Limitation: contrary to `:fu`, `:Def` can't complete script-local functions.
-That's because `getcompletion()` can't either.  Is it a bug?
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L141-L142):
+
+> - popup_clear() and popup_close() should close the terminal popup, and
+>    make the buffer hidden. #5745
+
+No longer relevant since [8.2.0747](https://github.com/vim/vim/releases/tag/v8.2.0747).
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L498-L499):
+
+> v:register isn't reset early enough, may be used by next command.
+> (Andy Massimino, #5294, possible fix in #5305)
+
+No longer relevant since [8.2.0929](https://github.com/vim/vim/releases/tag/v8.2.0929):
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L583-L584):
+
+> Add a way to create an empty, hidden buffer.  Like doing ":new|hide".
+> ":let buf = bufcreate('name')
+
+*Maybe* no longer relevant since Vim supports `bufadd()` and `bufload()`.  Now, one can run:
+
+    vim -Nu NONE +'let buf = bufadd("name") | call bufload(buf) | call setbufvar(buf, "&buflisted", 1)'
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1202-L1204):
+
+> Implement named arguments for functions:
+>     func Foo(start, count = 1 all = 1)
+>     call Foo(12, all = 0)
+
+No longer relevant since [8.1.1310](https://github.com/vim/vim/releases/tag/v8.1.1310).
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1396):
+
+> Cannot delete a file with square brackets with delete(). (#696)
+
+No longer relevant since [8.1.1378](https://github.com/vim/vim/releases/tag/v8.1.1378).
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1406):
+
+> 'hlsearch' interferes with a Conceal match. (Rom Grk, 2016 Aug 9)
+
+*Maybe* no longer relevant since [8.1.1082](https://github.com/vim/vim/releases/tag/v8.1.1082).
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1419):
+
+> Possibly wrong value for seq_cur. (Florent Fayolle, 2016 May 15, #806)
+
+No longer relevant since [8.0.1290](https://github.com/vim/vim/releases/tag/v8.0.1290).
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1439):
+
+> Add redrawtabline command. (Naruhiko Nishino, 2016 Jun 11)
+
+No longer relevant since [8.1.0706](https://github.com/vim/vim/releases/tag/v8.1.0706).
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1510):
+
+> Patch to show search statistics. (Christian Brabandt, 2016 Jul 22)
+
+No longer relevant since [8.1.1270](https://github.com/vim/vim/releases/tag/v8.1.1270).
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1516-L1522):
+
+> Using ":windo" to set options in all windows has the side effect that it
+> changes the window layout and the current window.  Make a variant that saves
+> and restores.  Use in the matchparen plugin.
+> Perhaps we can use ":windo <restore> {cmd}"?
+> Patch to add <restore> to :windo, :bufdo, etc. (Christian Brabandt, 2015 Jan
+> 6, 2nd message)
+> Alternative: ":keeppos" command modifier: ":keeppos windo {cmd}".
+
+*Maybe* no longer relevant since [8.1.1418](https://github.com/vim/vim/releases/tag/v8.1.1418).
+
+Rationale: you can now use `map()` + `win_execute()` to emulate `:windo` without side-effects:
+
+    :call range(1, winnr('$'))->map({_, v -> win_execute(v, '" set some option')})
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1553):
+
+> Add "===" to have a strict comparison (type and value match).
+
+*Maybe* no longer relevant since Vim supports `is#`.
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1726):
+
+> Patch to add :arglocal and :arglists. (Marcin Szamotulski, 2014 Aug 6)
+
+`:arglocal` already exists, so this item seems at least partially stale.
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1754-L1755):
+
+> Include a plugin manager with Vim? Neobundle seems to be the best currently.
+> Also Vundle: https://github.com/gmarik/vundle
+
+Right now, I think the most popular plugin manager is [vim-plug](https://github.com/junegunn/vim-plug), not Neobundle.
+
+Although, one could make the argument that it would be better to include [minpac](https://github.com/k-takata/minpac) since it leverages the builtin package feature.
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1808-L1809):
+
+> Patch for XDG base directory support. (Jean François Bignolles, 2014 Mar 4)
+> Remark on the docs.  Should not be a compile time feature.  But then what?
+
+Maybe this item should be updated to reference the issue #2034 which is relevant (the [last comment](https://github.com/vim/vim/issues/2034#issuecomment-559254363) is imo especially interesting).
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1869-L1870):
+
+> Exception caused by argument of return is not caught by try/catch.
+> (David Barnett, 2013 Nov 19)
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L2093-L2094):
+
+> Bug in try/catch: return with invalid compare throws error that isn't caught.
+> (ZyX, 2011 Jan 26)
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L2687):
+
+> try/catch not working for argument of return. (Matt Wozniski, 2008 Sep 15)
+
+Some of these items *could* be duplicate.
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1905):
+
+> patch to add "combine" flag to  syntax commands. (so8res, 2012 Dec 6)
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L2284-L2285):
+
+> Patch to add "combine" to :syntax, combines highlight attributes. (Nate
+> Soares, 2012 Dec 3)
+
+These items *could* be duplicate.
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L2479-L2480):
+
+> Consider making YankRing or something else that keeps a list of yanked text
+> part of standard Vim.  The "1 to "9 registers are not sufficient.
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L5982-L5984):
+
+> 6   When yanking into the unnamed registers several times, somehow make the
+>     previous contents also available (like it's done for deleting).  What
+>     register names to use?  g"1, g"2, etc.?
+
+These items *could* be duplicate.
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3259-L3260):
+
+> 7   Add a command that goes back to the position from before jumping to the
+>     first quickfix location.  ":cbefore"?
+
+The name `:cbefore` is already taken.
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3297):
+
+> 7   Implement 'prompt' option.	Init to off when stdin is not a tty.
+
+Maybe no longer relevant since the `'prompt'` option exists.
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3475-L3476):
+
+> 8   X11 GUI: When menu is disabled by excluding 'm' from 'guioptions', ALT key
+>     should not be used to trigger a menu (like the Win32 version).
+
+Maybe no longer relevant.  Test with:
+
+    vim -Nu NONE -g --cmd 'set go-=m' +startinsert
+
+Press `M-f`: the `File` menu is not opened, and a character is inserted.
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3515-L3516):
+
+> 8   A dead circumflex followed by a space should give the '^' character
+>     (Rommel).  Look how xterm does this.
+
+Maybe no longer relevant as it works for me.
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3615-L3616):
+
+> -   Can't disable terminal flow control, to enable the use of CTRL-S and
+>     CTRL-Q.  Add an option for it?
+
+No longer relevant since [8.2.0852](https://github.com/vim/vim/releases/tag/v8.2.0852) and [8.2.0856](https://github.com/vim/vim/releases/tag/v8.2.0856).
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3619-L3625):
+
+> -   When the quickfix window is open and executing ":echo 'hello'" using the
+>     Command-line window, the text is immediately removed by the redrawing.
+>     (Michael Henry, 2008 Nov 1)
+>     Generic solution: When redrawing while there is a message on the
+>     cmdline, don't erase the display but draw over the existing text.
+>     Other solution, redraw after closing the cmdline window, before executing
+>     the command.
+
+No longer relevant since [8.1.0698](https://github.com/vim/vim/releases/tag/v8.1.0698).
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L4085-L4086):
+
+> -   Support spelling words in CamelCase as if they were two separate words.
+>     Requires some option to enable it. (Timothy Knox)
+
+No longer relevant since [8.2.0953](https://github.com/vim/vim/releases/tag/v8.2.0953).
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L4693-L4694):
+
+    8   When reading from stdin allow suppressing the "reading from stdin"
+        message.
+
+No longer relevant since [7.4.1453](https://github.com/vim/vim/releases/tag/v7.4.1453) which provides `--not-a-term`.
+
+---
+
+[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L4461-L4462):
+
+> 8   Add referring to key options with "&t_xx".  Both for "echo &t_xx" and
+>     ":let &t_xx =".  Useful for making portable mappings.
+
+No longer relevant since [8.0.0302](https://github.com/vim/vim/releases/tag/v8.0.0302).
+
+---
+
+Closing as *if* some of those items are stale, they'll be removed in the next update of the runtime files.
+
+### new batch of stale items
+
+> Completion for :!cmd shows each match twice. #1435
+
+Fixed by: <https://github.com/vim/vim/releases/tag/v8.1.0017>
+
+---
+
+> When 'keywordprg' starts with ":" the argument is still escaped as a shell
+> command argument. (Romain Lafourcade, 2016 Oct 16, #1175)
+
+Fixed by: <https://github.com/vim/vim/releases/tag/v8.0.0060>
+
+---
+
+From `:h map-<expr>`
+
+> Note that there are some tricks to make special keys work and escape CSI bytes
+> in the text.  The |:map| command also does this, thus you must avoid that it
+> is done twice.  This does not work: >
+>         :imap <expr> <F3> "<Char-0x611B>"
+> Because the <Char- sequence is escaped for being a |:imap| argument and then
+> again for using <expr>.  This does work: >
+>         :imap <expr> <F3> "\u611B"
+> Using 0x80 as a single byte before other text does not work, it will be seen
+> as a special key.
+
+Most of this (if not all) is no longer relevant since [7.3.283](https://github.com/vim/vim/releases/tag/v7.3.283).
+
+###
+## line 1189
+
+This could be very useful to make `/tmp/.vimkeys` human-readable:
+
+    Add a "keytrans()" function, which turns the internal byte representation of a
+    key into a form that can be used for :map.  E.g.
+        let xx = "\<C-Home>"
+        echo keytrans(xx)
+        <C-Home>
+
+Report it here?  <https://github.com/vim/vim/issues/4725>
+
+Also, this issue looks similar: <https://github.com/vim/vim/issues/4029>
+Are they duplicate?
+
+Also, read this: <https://vi.stackexchange.com/a/22312/17449>
+
+## line 3289
+
+Can't reproduce.
+
+    7   The ":undo" command works differently in Ex mode.  Edit a file, make some
+        changes, "Q", "undo" and _all_ changes are undone, like the ":visual"
+        command was one command.
+        On the other hand, an ":undo" command in an Ex script only undoes the last
+        change (e.g., use two :append commands, then :undo).
+
+Related: <https://github.com/vim/vim/issues/1662>
+
+## line 3311
+
+Can't reproduce.
+
+    7   This Vi-trick doesn't work: "Q" to go to Ex mode, then "g/pattern/visual".
+        In Vi you can edit in visual mode, and when doing "Q" you jump to the next
+        match.  Nvi can do it too.
+
+## line 3628
+
+Can't reproduce:
+
+    9   When the last edited file is a help file, using '0 in a new Vim doesn't
+        edit the file as a help file.  'filetype' is OK, but 'iskeyword' isn't,
+        file isn't readonly, etc.
+
+`git-bisect(1)` tells us one of these fixed the issue:
+
+    b3d17a20d243f65bcfe23de08b7afd948c5132c2
+    56a63120992cc3e1f50d654a3f8aeace40bf12ef
+
+But they seem irrelevant...
+
+## We've stopped looking for errors here:
+
+    8   When an ":edit" is inside a try command and the ATTENTION prompt is used,
+        the :catch commands are always executed, also when the file is edited
+        normally.  Should reset did_emsg and undo side effects.  Also make sure
+        the ATTENTION message shows up.  Servatius Brandt works on this.
 
 ##
-# try finish @andymass patch regarding "setreg()" so that it gets merged
+# Misc.
+## wrong highlighting of `->`, `(`, `)` in an `:echo` command
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        let lines =<< trim END
+            fu Func()
+                echo substitute('aaa', 'b', 'c', '')->OtherFunc()
+            endfu
+        END
+        call setline(1, lines)
+        syn on
+        set ft=vim
+    EOF
+    )
+
+Wrong highlighting:
+
+    echo substitute('aaa', 'b', 'c', '')->OtherFunc()
+                                        ^^
+                                        ✘
+
+Can be fixed by allowing `vimOper` to be contained in the `vimEcho` region:
+
+    syn region	vimEcho	... contains=vimFunc,vimFuncVar,vimString,vimVar,vimOper
+                                                                         ^-----^
+
+Other wrong highlighting:
+
+    echo substitute('aaa', 'b', 'c', '')->OtherFunc()
+                   ^                   ^
+                   ✘                   ✘
+
+Can be fixed by allowing `vimOperParen` to be contained in the `vimEcho` region:
+
+    syn region	vimEcho	... contains=vimFunc,vimFuncVar,vimString,vimVar,vimOperParen
+                                                                         ^----------^
+
+## The descriptions of the local plugins are not aligned in the main help file:
+
+    vim -Nu NORC -S <(cat <<'EOF'
+        set rtp-=~/.vim
+        set rtp-=~/.vim/after
+        set rtp^=~/.vim/plugged/asyncmake
+        set rtp^=~/.vim/plugged/vim-autoread
+        set rtp^=~/.vim
+        set rtp+=~/.vim/after
+    EOF
+    )
+
+## duplicate runtime bugs
+
+Those reports all have in common a  wrong syntax highlighting in a bash file due
+to a curly brace:
+
+    https://github.com/vim/vim/issues/2949
+
+        var="${var/#/"${new_prefix}"}"
+
+    https://github.com/vim/vim/issues/1750
+
+        if [ -n "${arg%{*}" ]; then
+          echo $arg
+        fi
+
+    https://github.com/vim/vim/issues/5085
+
+        #!/usr/bin/bash
+
+        echo "${1//\${/dollar curly}"
+        echo "The rest of this file is shDerefPPSleft inside double quotes"
+        echo and shDoubleQuote _outside_ double quotes
+
+## C-e does not always get back the originally typed text
+
+According to `:h complete_CTRL-E`, `C-e` can be pressed while the pum is open to get back the originally typed text:
+
+>                                                             *complete_CTRL-E*
+>     When completion is active you can use CTRL-E to stop it and go back to the
+>     originally typed text.  The CTRL-E will not be inserted.
+
+## `no_mail_maps`
+
+Hello,
+
+According to `:h no_mail_maps` and `:h no_plugin_maps`, the user should be able to prevent the definition of filetype specific mappings by setting the variable `no_{filetype}_maps` (for a given filetype) or `no_plugin_maps` (for all filetypes).
+
+So, I wrote this PR to prevent the installation of the mappings in case the user set one of the variables `g:no_plugin_maps` or `g:no_python_maps`.
+
+Thank you very much for your plugin.
+
+---
+
+Don't forget to update the date of last change in the files.
+
+---
+
+    if !exists("no_plugin_maps") && !exists("no_vim_maps")
+        ...
+    endif
+
+https://github.com/vim/vim/pull/2409
+
+Default filetype plugins installing mappings and NOT respecting `g:no...map`:
+
+    $VIMRUNTIME/ftplugin/abaqus.vim
+    $VIMRUNTIME/ftplugin/ada.vim
+    $VIMRUNTIME/ftplugin/context.vim
+    $VIMRUNTIME/ftplugin/fortran.vim
+    $VIMRUNTIME/ftplugin/gitcommit.vim
+    $VIMRUNTIME/ftplugin/hamster.vim
+    $VIMRUNTIME/ftplugin/hog.vim
+    $VIMRUNTIME/ftplugin/j.vim
+    $VIMRUNTIME/ftplugin/mf.vim
+    $VIMRUNTIME/ftplugin/mp.vim
+    $VIMRUNTIME/ftplugin/vb.vim
+    $VIMRUNTIME/ftplugin/vhdl.vim
+
+    $VIMRUNTIME/ftplugin/rust.vim
+    $VIMRUNTIME/ftplugin/changelog.vim
+    $VIMRUNTIME/ftplugin/php.vim
+
+## try finish @andymass patch regarding "setreg()" so that it gets merged
 
 I think all that is missing is some documentation.
 <https://github.com/vim/vim/pull/3370>
@@ -2129,7 +3462,7 @@ That being said, I *think* I tested all the possibilities, and here is a summary
 
 The tricky part to explain is the "if necessary".
 
-Each line of the register is going to be put on some line of the buffer. And the cursor has a column position. Those 2 numbers *may* give a valid position in the buffer; one for each register line. I think Vim adds trailing spaces if, and only if, that position is valid and there exists a character in the buffer *after* it.
+Each line of the register is going to be put on some line of the buffer.  And the cursor has a column position.  Those 2 numbers *may* give a valid position in the buffer; one for each register line.  I think Vim adds trailing spaces if, and only if, that position is valid and there exists a character in the buffer *after* it.
 
 Since `1.` and `2.` don't describe anything unexpected, I'm not sure they need to be documented.
 `3.` is already documented.
@@ -2208,7 +3541,7 @@ I did already make [some tests](https://gist.github.com/lacygoill/4f4922b19dea44
 
 True, it doesn't change the register, but it changes what will be put in a buffer when using the `p` or `P` normal command.  I thought it should be documented, but I'm not sure anymore.
 
-# abbreviation sometimes unexpectedly expanded inside a word
+## abbreviation sometimes unexpectedly expanded inside a word
 
 **Describe the bug**
 
@@ -2274,469 +3607,4 @@ Assuming it can be considered as a bug, I don't know whether it can be fixed.  F
     endfu
 
 So far, it seems to work.
-
-# some todo items are stale
-
-I had a look at the first half of the todo list, and found some items which could be stale.  I don't submit a PR, because I'm not sure for all of them.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L137-L140):
-
-> - With some sequence get get hidden finished terminal buffer. (#5768)
->     Cannot close popup terminal (#5744)
->     Buffer can't be wiped, gets status "aF". (#5764)
->     Is buf->nwindows incorrect?
-
-No longer relevant since [8.2.0743](https://github.com/vim/vim/releases/tag/v8.2.0743).
-
-Actually, I'm not sure that `#5768` is no longer relevant since 8.2.0743.  Maybe it was fixed by another patch; but it is fixed anyway.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L141-L142):
-
-> - popup_clear() and popup_close() should close the terminal popup, and
->    make the buffer hidden. #5745
-
-No longer relevant since [8.2.0747](https://github.com/vim/vim/releases/tag/v8.2.0747).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L498-L499):
-
-> v:register isn't reset early enough, may be used by next command.
-> (Andy Massimino, #5294, possible fix in #5305)
-
-No longer relevant since [8.2.0929](https://github.com/vim/vim/releases/tag/v8.2.0929):
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L583-L584):
-
-> Add a way to create an empty, hidden buffer.  Like doing ":new|hide".
-> ":let buf = bufcreate('name')
-
-*Maybe* no longer relevant since Vim supports `bufadd()` and `bufload()`.  Now, one can run:
-
-    vim -Nu NONE +'let buf = bufadd("name") | call bufload(buf) | call setbufvar(buf, "&buflisted", 1)'
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1202-L1204):
-
-> Implement named arguments for functions:
->     func Foo(start, count = 1 all = 1)
->     call Foo(12, all = 0)
-
-No longer relevant since [8.1.1310](https://github.com/vim/vim/releases/tag/v8.1.1310).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1396):
-
-> Cannot delete a file with square brackets with delete(). (#696)
-
-No longer relevant since [8.1.1378](https://github.com/vim/vim/releases/tag/v8.1.1378).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1406):
-
-> 'hlsearch' interferes with a Conceal match. (Rom Grk, 2016 Aug 9)
-
-*Maybe* no longer relevant since [8.1.1082](https://github.com/vim/vim/releases/tag/v8.1.1082).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1419):
-
-> Possibly wrong value for seq_cur. (Florent Fayolle, 2016 May 15, #806)
-
-No longer relevant since [8.0.1290](https://github.com/vim/vim/releases/tag/v8.0.1290).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1439):
-
-> Add redrawtabline command. (Naruhiko Nishino, 2016 Jun 11)
-
-No longer relevant since [8.1.0706](https://github.com/vim/vim/releases/tag/v8.1.0706).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1510):
-
-> Patch to show search statistics. (Christian Brabandt, 2016 Jul 22)
-
-No longer relevant since [8.1.1270](https://github.com/vim/vim/releases/tag/v8.1.1270).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1516-L1522):
-
-> Using ":windo" to set options in all windows has the side effect that it
-> changes the window layout and the current window.  Make a variant that saves
-> and restores.  Use in the matchparen plugin.
-> Perhaps we can use ":windo <restore> {cmd}"?
-> Patch to add <restore> to :windo, :bufdo, etc. (Christian Brabandt, 2015 Jan
-> 6, 2nd message)
-> Alternative: ":keeppos" command modifier: ":keeppos windo {cmd}".
-
-*Maybe* no longer relevant since [8.1.1418](https://github.com/vim/vim/releases/tag/v8.1.1418).
-
-Rationale: you can now use `map()` + `win_execute()` to emulate `:windo` without side-effects:
-
-    :call range(1, winnr('$'))->map({_, v -> win_execute(v, '" set some option')})
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1553):
-
-> Add "===" to have a strict comparison (type and value match).
-
-*Maybe* no longer relevant since Vim supports `is#`.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1726):
-
-> Patch to add :arglocal and :arglists. (Marcin Szamotulski, 2014 Aug 6)
-
-`:arglocal` already exists, so this item seems at least partially stale.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1754-L1755):
-
-> Include a plugin manager with Vim? Neobundle seems to be the best currently.
-> Also Vundle: https://github.com/gmarik/vundle
-
-Right now, I think the most popular plugin manager is [vim-plug](https://github.com/junegunn/vim-plug), not Neobundle.
-
-Although, one could make the argument that it would be better to include [minpac](https://github.com/k-takata/minpac) since it leverages the builtin package feature.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1808-L1809):
-
-> Patch for XDG base directory support. (Jean François Bignolles, 2014 Mar 4)
-> Remark on the docs.  Should not be a compile time feature.  But then what?
-
-Maybe this item should be updated to reference the issue #2034 which is relevant (the [last comment](https://github.com/vim/vim/issues/2034#issuecomment-559254363) is imo especially interesting).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1869-L1870):
-
-> Exception caused by argument of return is not caught by try/catch.
-> (David Barnett, 2013 Nov 19)
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L2093-L2094):
-
-> Bug in try/catch: return with invalid compare throws error that isn't caught.
-> (ZyX, 2011 Jan 26)
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L2687):
-
-> try/catch not working for argument of return. (Matt Wozniski, 2008 Sep 15)
-
-Some of these items *could* be duplicate.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1905):
-
-> patch to add "combine" flag to  syntax commands. (so8res, 2012 Dec 6)
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L2284-L2285):
-
-> Patch to add "combine" to :syntax, combines highlight attributes. (Nate
-> Soares, 2012 Dec 3)
-
-These items *could* be duplicate.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L2479-L2480):
-
-> Consider making YankRing or something else that keeps a list of yanked text
-> part of standard Vim.  The "1 to "9 registers are not sufficient.
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L5982-L5984):
-
-> 6   When yanking into the unnamed registers several times, somehow make the
->     previous contents also available (like it's done for deleting).  What
->     register names to use?  g"1, g"2, etc.?
-
-These items *could* be duplicate.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3259-L3260):
-
-> 7   Add a command that goes back to the position from before jumping to the
->     first quickfix location.  ":cbefore"?
-
-The name `:cbefore` is already taken.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3297):
-
-> 7   Implement 'prompt' option.	Init to off when stdin is not a tty.
-
-Maybe no longer relevant since the `'prompt'` option exists.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3475-L3476):
-
-> 8   X11 GUI: When menu is disabled by excluding 'm' from 'guioptions', ALT key
->     should not be used to trigger a menu (like the Win32 version).
-
-Maybe no longer relevant.  Test with:
-
-    vim -Nu NONE -g --cmd 'set go-=m' +startinsert
-
-Press `M-f`: the `File` menu is not opened, and a character is inserted.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3515-L3516):
-
-> 8   A dead circumflex followed by a space should give the '^' character
->     (Rommel).  Look how xterm does this.
-
-Maybe no longer relevant as it works for me.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3615-L3616):
-
-> -   Can't disable terminal flow control, to enable the use of CTRL-S and
->     CTRL-Q.  Add an option for it?
-
-No longer relevant since [8.2.0852](https://github.com/vim/vim/releases/tag/v8.2.0852) and [8.2.0856](https://github.com/vim/vim/releases/tag/v8.2.0856).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3619-L3625):
-
-> -   When the quickfix window is open and executing ":echo 'hello'" using the
->     Command-line window, the text is immediately removed by the redrawing.
->     (Michael Henry, 2008 Nov 1)
->     Generic solution: When redrawing while there is a message on the
->     cmdline, don't erase the display but draw over the existing text.
->     Other solution, redraw after closing the cmdline window, before executing
->     the command.
-
-No longer relevant since [8.1.0698](https://github.com/vim/vim/releases/tag/v8.1.0698).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L4085-L4086):
-
-> -   Support spelling words in CamelCase as if they were two separate words.
->     Requires some option to enable it. (Timothy Knox)
-
-No longer relevant since [8.2.0953](https://github.com/vim/vim/releases/tag/v8.2.0953).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L4693-L4694):
-
-    8   When reading from stdin allow suppressing the "reading from stdin"
-        message.
-
-No longer relevant since [7.4.1453](https://github.com/vim/vim/releases/tag/v7.4.1453) which provides `--not-a-term`.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L4461-L4462):
-
-> 8   Add referring to key options with "&t_xx".  Both for "echo &t_xx" and
->     ":let &t_xx =".  Useful for making portable mappings.
-
-No longer relevant since [8.0.0302](https://github.com/vim/vim/releases/tag/v8.0.0302).
-
----
-
-Closing as *if* some of those items are stale, they'll be removed in the next update of the runtime files.
-
-## new batch of stale items
-
-> Completion for :!cmd shows each match twice. #1435
-
-Fixed by: <https://github.com/vim/vim/releases/tag/v8.1.0017>
-
----
-
-> When 'keywordprg' starts with ":" the argument is still escaped as a shell
-> command argument. (Romain Lafourcade, 2016 Oct 16, #1175)
-
-Fixed by: <https://github.com/vim/vim/releases/tag/v8.0.0060>
-
----
-
-From `:h map-<expr>`
-
-> Note that there are some tricks to make special keys work and escape CSI bytes
-> in the text.  The |:map| command also does this, thus you must avoid that it
-> is done twice.  This does not work: >
->         :imap <expr> <F3> "<Char-0x611B>"
-> Because the <Char- sequence is escaped for being a |:imap| argument and then
-> again for using <expr>.  This does work: >
->         :imap <expr> <F3> "\u611B"
-> Using 0x80 as a single byte before other text does not work, it will be seen
-> as a special key.
-
-Most of this (if not all) is no longer relevant since [7.3.283](https://github.com/vim/vim/releases/tag/v7.3.283).
-
-##
-# Vim todo list
-## line 1189
-
-This could be very useful to make `/tmp/.vimkeys` human-readable:
-
-    Add a "keytrans()" function, which turns the internal byte representation of a
-    key into a form that can be used for :map.  E.g.
-        let xx = "\<C-Home>"
-        echo keytrans(xx)
-        <C-Home>
-
-Report it here?  <https://github.com/vim/vim/issues/4725>
-
-Also, this issue looks similar: <https://github.com/vim/vim/issues/4029>
-Are they duplicate?
-
-Also, read this: <https://vi.stackexchange.com/a/22312/17449>
-
-## line 3289
-
-Can't reproduce.
-
-    7   The ":undo" command works differently in Ex mode.  Edit a file, make some
-        changes, "Q", "undo" and _all_ changes are undone, like the ":visual"
-        command was one command.
-        On the other hand, an ":undo" command in an Ex script only undoes the last
-        change (e.g., use two :append commands, then :undo).
-
-Related: <https://github.com/vim/vim/issues/1662>
-
-## line 3311
-
-Can't reproduce.
-
-    7   This Vi-trick doesn't work: "Q" to go to Ex mode, then "g/pattern/visual".
-        In Vi you can edit in visual mode, and when doing "Q" you jump to the next
-        match.  Nvi can do it too.
-
-## line 3628
-
-Can't reproduce:
-
-    9   When the last edited file is a help file, using '0 in a new Vim doesn't
-        edit the file as a help file.  'filetype' is OK, but 'iskeyword' isn't,
-        file isn't readonly, etc.
-
-`git-bisect(1)` tells us one of these fixed the issue:
-
-    b3d17a20d243f65bcfe23de08b7afd948c5132c2
-    56a63120992cc3e1f50d654a3f8aeace40bf12ef
-
-But they seem irrelevant...
-
-## We've stopped looking for errors here:
-
-    8   When an ":edit" is inside a try command and the ATTENTION prompt is used,
-        the :catch commands are always executed, also when the file is edited
-        normally.  Should reset did_emsg and undo side effects.  Also make sure
-        the ATTENTION message shows up.  Servatius Brandt works on this.
-
-##
-# The descriptions of the local plugins are not aligned in the main help file:
-
-    vim -Nu NORC -S <(cat <<'EOF'
-        set rtp-=~/.vim
-        set rtp-=~/.vim/after
-        set rtp^=~/.vim/plugged/asyncmake
-        set rtp^=~/.vim/plugged/vim-autoread
-        set rtp^=~/.vim
-        set rtp+=~/.vim/after
-    EOF
-    )
-
-# duplicate runtime bugs
-
-Those reports all have in common a  wrong syntax highlighting in a bash file due
-to a curly brace:
-
-    https://github.com/vim/vim/issues/2949
-
-        var="${var/#/"${new_prefix}"}"
-
-    https://github.com/vim/vim/issues/1750
-
-        if [ -n "${arg%{*}" ]; then
-          echo $arg
-        fi
-
-    https://github.com/vim/vim/issues/5085
-
-        #!/usr/bin/bash
-
-        echo "${1//\${/dollar curly}"
-        echo "The rest of this file is shDerefPPSleft inside double quotes"
-        echo and shDoubleQuote _outside_ double quotes
-
-##
-# C-e does not always get back the originally typed text
-
-According to `:h complete_CTRL-E`, `C-e` can be pressed while the pum is open to get back the originally typed text:
-
->                                                             *complete_CTRL-E*
->     When completion is active you can use CTRL-E to stop it and go back to the
->     originally typed text.  The CTRL-E will not be inserted.
-
-# `no_mail_maps`
-
-Hello,
-
-According to `:h no_mail_maps` and `:h no_plugin_maps`, the user should be able to prevent the definition of filetype specific mappings by setting the variable `no_{filetype}_maps` (for a given filetype) or `no_plugin_maps` (for all filetypes).
-
-So, I wrote this PR to prevent the installation of the mappings in case the user set one of the variables `g:no_plugin_maps` or `g:no_python_maps`.
-
-Thank you very much for your plugin.
-
----
-
-Don't forget to update the date of last change in the files.
-
----
-
-    if !exists("no_plugin_maps") && !exists("no_vim_maps")
-        ...
-    endif
-
-https://github.com/vim/vim/pull/2409
-
-Default filetype plugins installing mappings and NOT respecting `g:no...map`:
-
-    $VIMRUNTIME/ftplugin/abaqus.vim
-    $VIMRUNTIME/ftplugin/ada.vim
-    $VIMRUNTIME/ftplugin/context.vim
-    $VIMRUNTIME/ftplugin/fortran.vim
-    $VIMRUNTIME/ftplugin/gitcommit.vim
-    $VIMRUNTIME/ftplugin/hamster.vim
-    $VIMRUNTIME/ftplugin/hog.vim
-    $VIMRUNTIME/ftplugin/j.vim
-    $VIMRUNTIME/ftplugin/mf.vim
-    $VIMRUNTIME/ftplugin/mp.vim
-    $VIMRUNTIME/ftplugin/vb.vim
-    $VIMRUNTIME/ftplugin/vhdl.vim
-
-    $VIMRUNTIME/ftplugin/rust.vim
-    $VIMRUNTIME/ftplugin/changelog.vim
-    $VIMRUNTIME/ftplugin/php.vim
 

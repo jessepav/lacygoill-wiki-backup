@@ -80,17 +80,17 @@ I tried in the past:
     au CmdWinLeave : au WinEnter * ++once call s:update_history()
 
     fu s:update_history() abort
-        let new_hist = filter(getline(1, '$'), {_,v -> v !~# '^\s*$' && v !~# '^.\{,5}$'})
+        let new_hist = getline(1, '$')->filter({_, v -> v !~# '^\s*$' && v !~# '^.\{,5}$'})
         call histdel(':')
         for line in new_hist
             call histadd(':', line)
         endfor
-        let viminfo = expand($HOME..'/.viminfo')
+        let viminfo = expand($HOME .. '/.viminfo')
         if !filereadable(viminfo) | return | endif
         let info = readfile(viminfo)
-        let deleted_entries = filter(copy(s:old_cmd_hist), {_,v -> index(new_hist, v) == -1})
-        call map(deleted_entries, {_,v -> index(info, ':'..v)})
-        call sort(filter(deleted_entries, {_,v -> v >= 0}))
+        let deleted_entries = copy(s:old_cmd_hist)->filter({_, v -> index(new_hist, v) == -1})
+        call map(deleted_entries, {_, v -> index(info, ':' .. v)})
+        call filter(deleted_entries, {_, v -> v >= 0})->sort()
         if empty(deleted_entries) | return | endif
         for entry in reverse(deleted_entries)
             call remove(info, entry, entry + 1)

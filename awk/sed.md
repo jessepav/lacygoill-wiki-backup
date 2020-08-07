@@ -410,7 +410,7 @@ Suffix it with a bang:
     2~
 
 ##
-## How to combine ranges? i.e. How to operate on lines matching two specified ranges simultaneously?
+## How to combine ranges?  i.e. How to operate on lines matching two specified ranges simultaneously?
 
 Write the command prefixed by the inner range inside curly braces.
 Outside the braces, write the outer range.
@@ -1341,7 +1341,7 @@ Use the special value of filename `/dev/stdout`.
     2~
     3~
 
-#### `p` is equivalent to writing on the standard output. So, how is the previous answer useful?
+#### `p` is equivalent to writing on the standard output.  So, how is the previous answer useful?
 
 When you use `-i`, `p` doesn't write on stdout, but on the file:
 
@@ -1484,7 +1484,7 @@ Here are other examples:
 
 ##
 # Pitfalls
-## A pattern input by the user is unpredictable. How to avoid a conflict with the delimiter of a `s` command?
+## A pattern input by the user is unpredictable.  How to avoid a conflict with the delimiter of a `s` command?
 
 Use a literal ‘C-a’ for the delimiter.
 

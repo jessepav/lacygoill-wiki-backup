@@ -8,7 +8,7 @@ Use `system()` and quote `a b`:
 More generally, if your argument may contain any kind of quotes, use `shellescape()`:
 
     :let arg = "a'b\"c"
-    :call system('tmux command-prompt -I '. shellescape(arg))
+    :call system('tmux command-prompt -I ' .. shellescape(arg))
     a'b"c~
 
 ---
@@ -116,7 +116,7 @@ command output and update a qfl:
              " Still present
              " Update the list
          else
-             " List is removed. Stop the background job.
+             " List is removed.  Stop the background job.
              call job_stop(....)
          endif
 

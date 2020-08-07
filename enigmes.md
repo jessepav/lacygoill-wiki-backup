@@ -41,7 +41,7 @@
             Ce peut être "Je", "Vous", "Ceci/Cela", "maintenant"…
 
             Tous ces mots peuvent être interprétés différemment selon le contexte.
-            Aucun n'est absolu. Ils sont donc tous variables.
+            Aucun n'est absolu.  Ils sont donc tous variables.
 
             On a découvert ce principe à l'occasion d'une énigme où il fallait trouver la bonne route
             pour arriver à destination d'une ville, en interrogeant une personne qui dit tjrs la vérité,
@@ -86,7 +86,7 @@ Que pouvez-vous dire sur A, B et C ?
         Donc B est un domestique.
         Donc C a dit la vérité, et C est un chevalier.
 
-        On ne peut rien dire à propos de A. Il a forcément dit "Je suis un chevalier", mais
+        On ne peut rien dire à propos de A.  Il a forcément dit "Je suis un chevalier", mais
         rien ne garantit qu'il a dit la vérité.
 
 
@@ -380,7 +380,7 @@ et qu'il pourrait prononcer peu importe son statut ?
         2. Il faut que ça prouve l'innocence du client.
 
         La condition 1. implique que le fait à énoncer doit être perçu différemment du point de vue
-        d'un chevalier ou d'un domestique. Il faut donc qu'il contienne un élément variable.
+        d'un chevalier ou d'un domestique.  Il faut donc qu'il contienne un élément variable.
         Le pronom "Je" est un élément variable, car il ne désigne pas la même chose selon la personne
         qui le prononce.
         On devrait sans doute conseiller à notre client de dire qch à propos de lui-même.
@@ -410,7 +410,7 @@ et qu'il pourrait prononcer peu importe son statut ?
                                 Il est donc un innocent chevalier.
 
                 - domestique  car il ment, il n'est donc ni un innocent chevalier (évident),
-                                ni un coupable domestique. Il est donc un innocent domestique.
+                                ni un coupable domestique.  Il est donc un innocent domestique.
 
 
 ## le maire de Lem
@@ -458,7 +458,7 @@ Quelle phrase pouvez-vous prononcer pour devenir candidat à l'élection ?
                 "Je suis un domestique OU un ordinaire qui a pris une douche ce matin"
 
         La 1e phrase ne peut être prononcée ni par un chevalier, ni par un domestique car il s'agit
-        d'un paradoxe. On peut pas dire de cette phrase qu'elle est vraie ou fausse.
+        d'un paradoxe.  On peut pas dire de cette phrase qu'elle est vraie ou fausse.
         On en déduit que vous êtes un ordinaire, et on ne sait pas si vous dites la vérité ou si vous mentez.
 
         La 2e phrase ne peut être prononcée ni par un chevalier, ni par un domestique, à cause de la 1e
@@ -545,7 +545,7 @@ Réponse:
 
         Pour rappel, une implication est fausse ssi son antécédent est vrai, mais son conséquent est faux.
         (I1) ne peut pas être fausse, car C est un domestique, par hypothèse.
-        Donc (I2) doit être fausse. Donc A et B ont le même statut.
+        Donc (I2) doit être fausse.  Donc A et B ont le même statut.
 
                 On aurait aussi pu se rendre compte qu'une équivalence entre 2 propositions
                 signifie que ces dernières ont tjrs la même valeur de vérité.
@@ -607,7 +607,7 @@ Quelle porte devez-vous choisir pour survivre ?
 ## les prisons de Lem
 
 Après le procès, et choisi la bonne porte, vous finissez dans une cellule de prison.
-4 prisonniers s'y trouvent déjà. Un chevalier et 3 autres: A, B et C
+4 prisonniers s'y trouvent déjà.  Un chevalier et 3 autres: A, B et C
 
 Le chevalier vous apprend qu'il sait que les prisonniers A, B et C savent si oui ou non il existe
 un moyen de s'échapper de la cellule.
@@ -654,7 +654,7 @@ ou non il est possible de s'échapper ?
 
 
         Si A répond "non", soit il n'y a pas d'ordinaire parmi A et B, soit A est un ordinaire.
-        Dans les 2 cas, B n'est pas un ordinaire. Car il ne peut pas y en avoir plus qu'un.
+        Dans les 2 cas, B n'est pas un ordinaire.  Car il ne peut pas y en avoir plus qu'un.
 
         Si A répond "oui", soit B est un ordinaire, soit A est un ordinaire.
         Dans les 2 cas, C n'est pas un ordinaire.
@@ -673,7 +673,7 @@ ou non il est possible de s'échapper ?
 
         En interrogeant un prisonnier non ordinaire (B ou C), la 2e question doit nous permettre
         de savoir s'il y a un moyen de s'échapper.
-        Supposons qu'on interroge B. La question à lui poser devra être:
+        Supposons qu'on interroge B.  La question à lui poser devra être:
 
                 Êtes-vous un chevalier ssi il y a un moyen de s'échapper ?
 
@@ -997,7 +997,7 @@ exclamation, qu'ils n'avaient pas déjà ?
 
         Réponse:
 
-        Supposons qu'il n'y ait que 2 BEP. Alice et Bob.
+        Supposons qu'il n'y ait que 2 BEP.  Alice et Bob.
 
                 Alice savait déjà qu'il y avait un BEP sur l'île, mais elle ne savait pas si Bob
                 lui-aussi savait qu'il y avait un BEP.
@@ -1014,12 +1014,12 @@ exclamation, qu'ils n'avaient pas déjà ?
 
                         il y a au moins un BEP sur l'île
 
-                … vous ne lui apprendriez rien. Il le sait déjà.
+                … vous ne lui apprendriez rien.  Il le sait déjà.
 
                 Sans une exclamation publique, rien ne se passerait sur l'île après votre départ.
 
 
-        Supposons qu'il n'y ait que 3 BEPs. Alice, Bob et Charlie.
+        Supposons qu'il n'y ait que 3 BEPs.  Alice, Bob et Charlie.
 
                 Alice savait déjà qu'il y avait 2 BEPs sur l'île, mais elle ne savait pas si Bob
                 savait que Charlie savait qu'il y avait un BEP.
@@ -1033,7 +1033,7 @@ exclamation, qu'ils n'avaient pas déjà ?
                 sait qu'il y a un BEP sur l'île.
 
 
-        Supposons qu'il n'y ait que 4 BEPs. Alice, Bob, Charlie et Dan.
+        Supposons qu'il n'y ait que 4 BEPs.  Alice, Bob, Charlie et Dan.
 
                 Alice savait déjà qu'il y avait 3 BEPs sur l'île, mais elle ne savait pas si Bob
                 savait que Charlie savait que Dan savait qu'il y avait un BEP.
@@ -1050,7 +1050,7 @@ exclamation, qu'ils n'avaient pas déjà ?
 
 
         À chaque fois que qn se projète dans l'esprit de qn d'autre, if fait l'hypothèse qu'il n'a
-        pas les yeux bleus. Ces hypothèses s'enchaînent dans l'esprit d'Alice.
+        pas les yeux bleus.  Ces hypothèses s'enchaînent dans l'esprit d'Alice.
 
         La 1e est:    Je n'ai pas les yeux bleus
 
@@ -1204,8 +1204,8 @@ Quelle affirmation pourriez-vous prononcer qui m'obligerait à vous donner A ?
 
                 (P) Vous ne me donnerez pas B.
 
-        Si je vous donne C, alors (P) était vraie. Donc, j'aurai dû vous donner A ou B.
-        Si je vous donne B, alors (P) était fausse. Donc, j'aurai dû vous donner C.
+        Si je vous donne C, alors (P) était vraie.  Donc, j'aurai dû vous donner A ou B.
+        Si je vous donne B, alors (P) était fausse.  Donc, j'aurai dû vous donner C.
 
         Je suis obligé de vous donner A.
 
@@ -1224,8 +1224,8 @@ Quelle affirmation pourriez-vous prononcer qui m'obligerait à vous donner C ?
 
                 (P) Vous me donnerez D.
 
-        Si je vous donne A ou B, alors (P) était fausse. Donc, j'aurai dû vous donner C ou D.
-        Si je vous donne D, alors (P) était vraie. Donc, j'aurai dû vous donner A ou B.
+        Si je vous donne A ou B, alors (P) était fausse.  Donc, j'aurai dû vous donner C ou D.
+        Si je vous donne D, alors (P) était vraie.  Donc, j'aurai dû vous donner A ou B.
 
         Je suis obligé de vous donner C.
 
@@ -1239,8 +1239,8 @@ Quelle affirmation pourriez-vous prononcer qui m'obligerait à violer la règle 
 
                 (P) Vous me donnerez C ou D.
 
-        Si je vous donne A ou B, alors (P) était fausse. Donc, j'aurai dû vous donner C ou D.
-        Si je vous donne C ou D, alors (P) était vraie. Donc, j'aurai dû vous donner A ou B.
+        Si je vous donne A ou B, alors (P) était fausse.  Donc, j'aurai dû vous donner C ou D.
+        Si je vous donne C ou D, alors (P) était vraie.  Donc, j'aurai dû vous donner A ou B.
 
         Peu importe le prix que je vous offrirai, je violerai la règle du jeu.
 
@@ -1251,7 +1251,7 @@ Dans une certaine ville, un décret a été voté qui dit la chose suivante:
 
         Tout étranger franchissant le pont pour entrer dans la ville doit être arrêté, et doit fournir
         une affirmation (P).
-        Si (P) est vraie, il peut passer. Si (P) est fausse, il doit être pendu.
+        Si (P) est vraie, il peut passer.  Si (P) est fausse, il doit être pendu.
 
 Quelle affirmation l'étranger pourrait-il prononcer qui empêcherait le décret de lui être appliqué ?
 
@@ -1289,10 +1289,10 @@ Quelle question devriez-vous lui poser ?
 
         Conclusion:
 
-        Si A répond oui, je sais qu'il s'agit de John. Autrement, ce n'est pas lui.
+        Si A répond oui, je sais qu'il s'agit de John.  Autrement, ce n'est pas lui.
 
 
-On change les conditions précédentes. Cette fois, John et James disent la vérité, et Williams ment.
+On change les conditions précédentes.  Cette fois, John et James disent la vérité, et Williams ment.
 Vous rencontrez à nouveau l'un des 3 frères.
 Quelle question de 3 mots pourriez-vous lui poser pour savoir s'il s'agit de John ?
 
@@ -1308,7 +1308,7 @@ Quelle question de 3 mots pourriez-vous lui poser pour savoir s'il s'agit de Joh
 
         Conclusion:
 
-        Si A répond non, je sais qu'il s'agit de John. Autrement, ce n'est pas lui.
+        Si A répond non, je sais qu'il s'agit de John.  Autrement, ce n'est pas lui.
 
 
 #### Arthur et son frère
@@ -1371,7 +1371,7 @@ Quelle question de 3 mots vous permettrez d'obtenir cette info ?
 
 
 Cette fois, vous devez trouver une question contenant au plus 4 mots, à laquelle la personne que vous
-interrogerez répondra oui à coup sûr. Quelle question poser ?
+interrogerez répondra oui à coup sûr.  Quelle question poser ?
 
 
         Réponse:
@@ -1506,7 +1506,7 @@ Quelle question pourriez-vous poser ?
         Aucune.
 
         On peut être marié à Teresa ou à Lenore (2 possibilités), et la personne en face de nous peut
-        être Teresa ou Lenore (2 possibilités). Il existe donc 4 univers possibles.
+        être Teresa ou Lenore (2 possibilités).  Il existe donc 4 univers possibles.
 
         Une question n'ayant pour réponses possibles que oui ou non, ne permet de faire la différence
         qu'entre au plus 2 univers, pas 4.
@@ -1615,7 +1615,7 @@ Ces règles conduisent-elles à un paradoxe ?
                           ¬(E6)    ⇔    (¬ArA  ⇔  ¬ArR  ⇔  ¬RrR  ⇔  RrA)
 
         Pour qu'il y ait paradoxe, il aurait fallu que nos 2 hypothèses aboutissent à des contradictions,
-        ce qui n'est pas le cas. Aucune n'aboutit à une contradiction.
+        ce qui n'est pas le cas.  Aucune n'aboutit à une contradiction.
 
         On a trouvé un univers dans lequel il n'y a pas contradiction, donc l'énoncé ne contient pas de paradoxe.
 
@@ -1638,7 +1638,7 @@ Comment déduire de cet énoncé que chaque jour de l'année, il existe au moins
 
                 (P1):   ∀D: ∃E: ∀X:       X rase X' le jour E  ⇒  X' rase X' le jour D
 
-        X' est la 1e personne à être rasée par X le jour E. Donc, il est vrai que:
+        X' est la 1e personne à être rasée par X le jour E.  Donc, il est vrai que:
 
                 (P2)    X rase X' le jour E
 
@@ -1719,7 +1719,7 @@ Comment prouver que c'est impossible ?
         Supposons que Cardano fasse partie du club.
         Il ne rase donc personne qui le rase.
         Mais Cardano se vante de raser tous les membres du club, donc il devrait se raser, puisqu'il
-        fait partie du club. Contradiction.
+        fait partie du club.  Contradiction.
 
         Supposons que Cardano ne fasse pas partie du club.
         Il existe donc au moins une personne que Cardano rase et qui rase Cardano.
@@ -1812,7 +1812,7 @@ De quelle couleur était-elle ?
                 (X) ⇒ la perruque du barbier est grise
 
         La seule info qu'on a à propos de la couleur grise est qu'il s'agit de la couleur de perruque
-        de Benito (B2). Il est donc probable que (X) parle de Benito.
+        de Benito (B2).  Il est donc probable que (X) parle de Benito.
         Exemples de propositions parlant du barbier et de Benito:
 
                 (X) qd le barbier porte une perruqe, Benito aussi
@@ -1991,7 +1991,7 @@ Quelle question totale pourriez-vous poser à l'un d'eux pour l'identifier ?
 
                                      NOTE:
 
-        Ceci est la réponse du livre. Perso, j'avais pensé à:
+        Ceci est la réponse du livre.  Perso, j'avais pensé à:
 
                 Votre jugement est-il exact ?
 
@@ -2032,7 +2032,7 @@ Quel est le nb de minimums de questions totales à lui poser, et quelles sont ce
 
                                      NOTE:
 
-        Ceci est la réponse du livre. Perso, j'avais pensé à:
+        Ceci est la réponse du livre.  Perso, j'avais pensé à:
 
         Votre jugement est-il exact ?
 
@@ -2144,37 +2144,31 @@ Si on demande aux 4 frères si 2+2 fait bien 4, quelle sera la réponse de chacu
         │ David   │ non         │ oui        │ non     │
         └─────────┴─────────────┴────────────┴─────────┘
 
-        Pour pouvoir répondre, chaque frère doit passer par 3 étapes:
+Pour pouvoir répondre, chaque frère doit passer par 3 étapes:
 
+   1. évaluer la proposition "2+2=4"; ceci va produire une pensée
+   2. évaluer la pensée précédente
+   3. répondre
 
-                1. évaluer la proposition "2+2=4"; ceci va produire une pensée
-                2. évaluer la pensée précédente
-                3. répondre
-
-        Le résultat des étapes 1 et 2 dépend de l'exactitude du frère.
-        Le résultat de l'étape 3 dépend de son honnêteté.
-
+Le résultat des étapes 1 et 2 dépend de l'exactitude du frère.
+Le résultat de l'étape 3 dépend de son honnêteté.
 
                                      NOTE:
 
-        On remarque que cette question permet de distinguer les menteurs des diseurs de vérité,
-        en faisant abstraction de leur exactitude.
-
-
+On remarque que cette question permet de distinguer les menteurs des diseurs de vérité,
+en faisant abstraction de leur exactitude.
 
 Vous posez les 2 questions suivantes à l'un des 4 frères:
 
-        Est-ce que 2+2=4 ?
-        Pensez-vous que 2+2=4 ?
+>     Est-ce que 2+2=4 ?
+>     Pensez-vous que 2+2=4 ?
 
-Il répond resp. non et oui. De quel frère s'agit-il ?
+Il répond resp. non et oui.  De quel frère s'agit-il ?
 
+Puisqu'il répond non à la 1e question, on sait que son jugement est incorrect.
+Et comme il répond oui à la 2e question, on sait qu'il dit la vérité.
 
-        Puisqu'il répond non à la 1e question, on sait que son jugement est incorrect.
-        Et comme il répond oui à la 2e question, on sait qu'il dit la vérité.
-
-        Donc, il s'agit de Bernard.
-
+Donc, il s'agit de Bernard.
 
 #### Metapuzzle des 4 frères
 
@@ -2301,7 +2295,7 @@ Qui est sur la photo ?
         et seulement un répondrait "non".
 
         On peut facilement montrer que si B ou C se trouve sur la photo, alors 3 frères sur 4 répondraient
-        "non" et un répondrait "oui". Si B est sur la photo, seul C répondrait "oui", et inversement,
+        "non" et un répondrait "oui".  Si B est sur la photo, seul C répondrait "oui", et inversement,
         si C est sur la photo, seul B répondrait "oui".
 
         +----------------------------------+
@@ -2336,7 +2330,7 @@ Qui est sur la photo ?
         et seulement un répondrait "non".
 
         On peut facilement montrer que si C ou D se trouve sur la photo, alors 3 frères sur 4 répondraient
-        "non" et un répondrait "oui". Si C est sur la photo, seul D répondrait "oui", et inversement,
+        "non" et un répondrait "oui".  Si C est sur la photo, seul D répondrait "oui", et inversement,
         si D est sur la photo, seul C répondrait "oui".
 
         ┌──────────────────────────────────┐

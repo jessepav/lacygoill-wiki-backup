@@ -193,7 +193,7 @@ Le pb est le suivant:
 
    1. on a aucune idée de ce que vaut un appartement individuellement dans
       l'absolu, mais on peut facilement les comparer entre eux et trouver qu'on
-      en préfère un plutôt qu'un autre. En maths, on pourrait dire qu'on a accès
+      en préfère un plutôt qu'un autre.  En maths, on pourrait dire qu'on a accès
       aux nombres ordinaux (rangs relatifs des appartements), mais pas aux
       cardinaux (leur note sur une échelle générale).
 

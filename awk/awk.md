@@ -4060,7 +4060,7 @@ L'array obtenue est `b`.
     ├─────────────┼──────────────────────────────────────────────────────────────────────────────────┤
     │ RSTART      │ index du 1er caractère d'une sous-chaîne matchée par `match()`                   │
     │             │                                                                                  │
-    │             │ Vaut 0 s'il n'y pas de match. Implique que l'index du 1er caractère est 1        │
+    │             │ Vaut 0 s'il n'y pas de match.  Implique que l'index du 1er caractère est 1       │
     │             │ et non 0.                                                                        │
     ├─────────────┼──────────────────────────────────────────────────────────────────────────────────┤
     │ RT          │ RS peut être un caractère ou une regex.                                          │

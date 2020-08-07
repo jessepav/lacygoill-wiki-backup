@@ -1,7 +1,7 @@
 Nonlinear thinking means *which way you should go depends on where you already are*.
 [...]
 in the *Nicomachean Ethics*, Aritstotle observes that either too much or too little
-is troubling to  the constitution. The optimum is somewhere  in between; because
+is troubling to  the constitution.  The optimum is somewhere  in between; because
 the  relation between  eating  and health  isn't linear,  but  curved, with  bad
 outcomes on both ends.
 

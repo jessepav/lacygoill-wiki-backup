@@ -6,7 +6,7 @@ Use:
 
          fu Func()
             let var = 'defined in outer scope'
-            exe 'au SafeState * ++once echo '..string(var)
+            exe 'au SafeState * ++once echo ' .. string(var)
          endfu
          call Func()
          defined in outer scope~
@@ -57,7 +57,7 @@ The solution using a lambda can sometimes seem awkward:
 
     fu Func()
        let var = 'defined in outer scope'
-       let s:lambda = {-> execute('echo '..string(var), '')}
+       let s:lambda = {-> execute('echo ' .. string(var), '')}
        au SafeState * ++once call s:lambda()
     endfu
     call Func()
@@ -70,19 +70,19 @@ Although, it seems to work, even if the variable contains quotes:
 
     fu Func()
        let var = "a'b\"c"
-       let s:lambda = {-> execute('echo '..string(var), '')}
+       let s:lambda = {-> execute('echo ' .. string(var), '')}
        au SafeState * ++once call s:lambda()
     endfu
     call Func()
     a'b"c~
 
 Note that you could  avoid `string()` in the lambda, by  moving `var` inside the
-lambda scope. But you would still need `string()` to pass `var` to the lambda:
+lambda scope.  But you would still need `string()` to pass `var` to the lambda:
 
     fu Func()
        let var = 'defined in outer scope'
        let s:lambda = {var -> execute('echo var', '')}
-       exe 'au SafeState * ++once call s:lambda('..string(var)..')'
+       exe 'au SafeState * ++once call s:lambda(' .. string(var) .. ')'
     endfu
     call Func()
     defined in outer scope~
@@ -166,7 +166,7 @@ If that's an issue, use an `:exe` instead of a lambda/closure/partial:
 
     fu Func()
        let msg = bufname('%')
-       exe 'au WinEnter <buffer> echom '..string(msg)
+       exe 'au WinEnter <buffer> echom ' .. string(msg)
     endfu
 
 ##
@@ -321,7 +321,7 @@ You could be tempted to use a guard:
         \ |     " do sth just once
         \ | endif
 
-Don't. It's tricky; you need to:
+Don't.  It's tricky; you need to:
 
    - set a custom flag (e.g. `s:did_shoot`)
 
@@ -659,7 +659,7 @@ For a real example, see `$VIMRUNTIME/ftplugin/rust.vim`.
 
 There is no guarantee that the current buffer is a terminal buffer:
 
-    $ vim -Nu NONE +"au TerminalOpen * echom 'buftype is: '..(&bt is# '' ? 'regular' : &bt)"
+    $ vim -Nu NONE +"au TerminalOpen * echom 'buftype is: ' .. (&bt == '' ? 'regular' : &bt)"
     :call popup_create(term_start(&shell, #{hidden: 1}), {})
     " press C-\ C-n
     :mess
@@ -715,7 +715,7 @@ That is, don't write this:
 
 But this:
 
-    str2nr(expand('<abuf>'))
+    expand('<abuf>')->str2nr()
 
 Alternatively, cast the string into a number like this:
 
@@ -813,7 +813,7 @@ From `:h file-pattern`:
 
 You want the literal meaning, to only match a backward search command-line.
 You  don't want  `?` to  match  any character,  which  would cause  any type  of
-command-line to be affected including a regular one (`:`). See `:h cmdwin-char`.
+command-line to be affected including a regular one (`:`).  See `:h cmdwin-char`.
 
 ##
 ##
@@ -949,7 +949,7 @@ Exemples d'évènements :
             Si on avait utilisé `<amatch>` au lieu de `<afile>`, il aurait fallu également utiliser
             `fnamemodify()`:
 
-                    au CmdUndefined * let g:myvar = fnamemodify(expand('<amatch>'), ':t')
+                    au CmdUndefined * let g:myvar = expand('<amatch>')->fnamemodify(':t')
 
             … car `<amatch>` ne contient pas juste le nom de la commande, mais aussi le chemin vers le cwd.
 
@@ -1071,11 +1071,12 @@ Une autocmd ne  se déclenche que lorsque l'évènement qu'elle  surveille se pr
 pas  s'il est  la  conséquence  d'une autre  autocmd.   Par défaut,  il  n'y  a pas  d'imbrication
 d'autocmds (autocmds do not nest).
 
-IOW, qd la commande exécutée par une autocmd  A déclenche un évènement surveillé par une autre
-autocmd B, par défaut Vim n'exécute pas la commande de B. Pour lui forcer la main, il faut ajouter
-le flag `nested` juste avant la commande de A.  Exemple:
+IOW, qd la commande exécutée par  une autocmd A déclenche un évènement surveillé
+par une autre  autocmd B, par défaut  Vim n'exécute pas la commande  de B.  Pour
+lui forcer la main, il faut ajouter  le flag `nested` juste avant la commande de
+A.  Exemple:
 
-    autocmd BufNewFile * nested call s:default_extension(expand('<afile>:p'))
+    autocmd BufNewFile * nested call expand('<afile>:p')->s:default_extension()
 
             Qd on crée un nouveau fichier, cette autocmd appelle une fonction qui ajoute
             automatiquement une extension si il n'y en a pas (uniquement dans certains dossiers).
@@ -1083,7 +1084,7 @@ le flag `nested` juste avant la commande de A.  Exemple:
             Si elle renomme le fichier, elle crée un nouveau buffer (nouvel évènement `BufNewFile`).
             Certaines autocmd surveillent cet évènement pour configurer correctement le type de fichier.
             Mais, sans le flag `nested` dans la définition de la 1e autocmd, elles ne seront pas
-            exécutées en cas de renommage du fichier. Pex, si on tape:
+            exécutées en cas de renommage du fichier.  Pex, si on tape:
 
                     $ vim foo
 
@@ -1176,16 +1177,16 @@ le flag `nested` juste avant la commande de A.  Exemple:
             fenêtre.
 
             Elle illustre comment  une autocmd en appelant une autre  permet de simuler l'opérateur
-            logique ET  entre 2 évènements. En  temps normal, les évènements  sont reliés entre
+            logique ET  entre 2 évènements.  En  temps normal, les évènements  sont reliés entre
             eux via un OU.
 
             Le pattern spécial <buffer> passé à la 2e autocmd est nécessaire pour que sa portée
-            soit limitée au  buffer courant. Sans lui, à  partir du moment où un  fichier de type
+            soit limitée au  buffer courant.  Sans lui, à  partir du moment où un  fichier de type
             C/shell aurait été  détecté pendant la session, Func() serait  appelée ensuite pour
             n'importe quel type de buffer (python, markdown …).
 
             La 1e  instruction au! empêche la  duplication de l'autocmd lorsqu'on  source plusieurs
-            fois le fichier où  est défini l'autocmd. Mais elle ne protège  pas de la duplication
+            fois le fichier où  est défini l'autocmd.  Mais elle ne protège  pas de la duplication
             de la 2e autocmd, à chaque fois  que l'évènement `FileType c,shell` se reproduit pour
             un même buffer.  Ceci se produit, par  exemple, après un :bd suivi  d'un :b# (reload).
             Pour cette raison, il faut vider my_group une 2e fois (au! my_group).
@@ -1221,7 +1222,7 @@ le flag `nested` juste avant la commande de A.  Exemple:
 
                                                FIXME:
 
-            J'ai copié cette info de `:h :au`. Mais si c'est vrai, alors la dernière commande,
+            J'ai copié cette info de `:h :au`.  Mais si c'est vrai, alors la dernière commande,
             dans le code qui suit, devrait fonctionner:
 
                     augroup mine

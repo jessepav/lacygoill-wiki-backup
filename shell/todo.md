@@ -218,7 +218,7 @@ associated with the command).
 When you select a command, make fzf write  it in the clipboard, so that we can
 paste it immediately on the shell's command-line.
 
-## Add a preview window for our zsh snippets. Like what we did with `:Rg`.
+## Add a preview window for our zsh snippets.  Like what we did with `:Rg`.
 
 ## Think about how we could better leverage our zsh history.
 

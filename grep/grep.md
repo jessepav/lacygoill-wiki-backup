@@ -128,7 +128,7 @@ This will show: "file:line my research"
     grep -rnw 'directory' -e "pattern"
 
 Exclude grep from your grepped output of ps.
-Add [] to the first letter. Ex: sshd -> [s]shd
+Add [] to the first letter.  Ex: sshd -> [s]shd
     ps aux | grep '[h]ttpd'
 
 Colour in red {bash} and keep all other lines

@@ -290,11 +290,11 @@ Words that have a special meaning to the shell.
 
 It must satisfy these 2 conditions:
 
-        - be unquoted
-          (i.e. not any of these: \word, 'word', "word")
+   - be unquoted
+     (i.e. not any of these: \word, 'word', "word")
 
-        - be the first word of a simple command,
-          or the `in` word used in a `case` or `for` command
+   - be the first word of a simple command,
+     or the `in` word used in a `case` or `for` command
 
 ##
 # Shell grammar

@@ -21,7 +21,7 @@ autoformat
 
 The built-in `:sort` command is powerful, but it still is line-based.
 It doesn't take  into account folded lines,  nor can it sort  entire blocks like
-function definitions, paragraphs, etc. But often, one needs to sort exactly such
+function definitions, paragraphs, etc.  But often, one needs to sort exactly such
 areas as single entities, i.e. without changing the line order within them.
 A workaround in Vim is condensing each  block into a single line, performing the
 sorting, and then expanding again.
@@ -603,14 +603,14 @@ ou snakecase:
              like 'did_load_filetypes'
 
 Il faudrait toutefois changer les raccourcis.
-Peut-être utiliser  `C-g f`  comme préfixe  au lieu de  `f`. Puis rendre  le mouvement
-répétable.  Ou créer un sous-mode.
+Peut-être  utiliser `C-g  f`  comme préfixe  au  lieu de  `f`.   Puis rendre  le
+mouvement répétable.  Ou créer un sous-mode.
 
 <https://github.com/fcpg/vim-flattery> 570 sloc
 
 ## floobits
 
-Real-time collaborative editing. Think Etherpad, but with native editors.
+Real-time collaborative editing.  Think Etherpad, but with native editors.
 
 - <https://github.com/Floobits/floobits-vim> 113 sloc
 - <https://floobits.com/>
@@ -671,9 +671,18 @@ Alternatively, use `:Gblame` and press O.
 
 Or try one of these `:GB` commands:
 
-    command! -range GB echo join(systemlist("git -C " . shellescape(expand('%:p:h')) . " blame -L <line1>,<line2> " . expand('%')), "\n")
+    com -range GB echo systemlist(
+        \ 'git -C ' .. expand('%:p:h')->shellescape() .. ' blame -L <line1>,<line2> ' .. expand('%')
+        \ )->join("\n")
 
-    command! -range GB echo substitute(join(systemlist("git -C " . shellescape(expand('%:p:h')) . " blame -L <line1>,<line2> " . expand('%')), "\n"), '^\([a-z0-9]\+\)[^)]\+\zs) .*$', '\=") " . system("git log -1 --pretty=%s " . submatch(1))', '')
+    com -range GB echo systemlist(
+       \ 'git -C ' .. expand('%:p:h')->shellescape()
+       \ .. ' blame -L <line1>,<line2> '
+       \ .. expand('%')
+       \ )->join("\n")
+       \ ->substitute('^\([a-z0-9]\+\)[^)]\+\zs) .*$',
+       \ '\=") " .. system("git log -1 --pretty=%s " .. submatch(1))',
+       \ '')
 
 Source: <https://www.reddit.com/r/vim/comments/dmi2qo/display_commit_message_for_line_in_file/f5168y8/>
 
@@ -756,7 +765,7 @@ git repository.
 
 Alternative:
 
-gitv is  nice. But I needed  a faster, and possibly  simpler alternative that I  can use
+gitv is  nice.  But I needed  a faster, and possibly  simpler alternative that I  can use
 with a project with thousands of commits.
 
 <https://github.com/junegunn/gv.vim> 298 sloc
@@ -1030,7 +1039,7 @@ Liens intéressants:
 
 This is a plugin for folks  who think that Vim's quickfix feature is
 great, but  who don't like how  calls to :make and  :grep freeze the
-editor. MakeJob  implements  asynchronous  versions of  the  builtin
+editor.  MakeJob  implements  asynchronous  versions of  the  builtin
 commands in just over 150 lines of Vimscript.
 
 <https://github.com/foxik/vim-makejob> 197 sloc
@@ -1143,7 +1152,7 @@ Maybe try `json_encode()` and `json_decode()`, or `js_encode()` and `js_decode()
 
 A (Neo)vim plugin for formatting code.
 
-Neoformat uses a variety  of formatters for many filetypes. Currently,  Neoformat will run a
+Neoformat uses a variety  of formatters for many filetypes.  Currently,  Neoformat will run a
 formatter using the  current buffer data, and  on success it will update  the current buffer
 with the  formatted text.  On a  formatter failure,  Neoformat will  try the  next formatter
 defined for the filetype.
@@ -1170,7 +1179,7 @@ there is no general way to operate from the cursor to the beginning or end of th
 objects.
 
 Well, now there is. ninja-feet.vim lets you do so by putting [ or ] between the operator
-and the text object. For example, d]i) deletes from the cursor to the end of the current
+and the text object.  For example, d]i) deletes from the cursor to the end of the current
 parenthetical term. c[ip changes from the cursor to the beginning of the paragraph.
 
 You  can  also  jump into  Insert  mode  at  the  beginning  or  end of  a  text  object
@@ -1192,8 +1201,8 @@ Alternative:
 ## opex
 
 Opex  is a  simple plugin  that  defines two  custom  operators to  execute motions  (:h
-motion.txt) with  builtin interpreters. Execution  operator (opex-execute)  executes the
-code  and displays  any output  in  the message  line. Appending operator  (opex-append)
+motion.txt) with  builtin interpreters.  Execution  operator (opex-execute)  executes the
+code  and displays  any output  in  the message  line.  Appending operator  (opex-append)
 executes the code and appends any output as a comment below the code.
 
 <https://github.com/gokcehan/vim-opex> 345 sloc
@@ -1373,7 +1382,7 @@ de la ligne via `f{char}`.
 
 ## rhubarb   merginal
 
-If fugitive.vim is the Git, rhubarb.vim is the Hub. Here's the full list of features:
+If fugitive.vim is the Git, rhubarb.vim is the Hub.  Here's the full list of features:
 
 Enables :Gbrowse from fugitive.vim to open GitHub URLs.
 
@@ -1416,7 +1425,7 @@ Le plugin permet aussi de poser 10 types de marqueurs visuels en utilisant les s
 Contrairement aux marques, il semble qu'on puisse poser un même marqueur sur plusieurs
 lignes différentes.
 
-Par défaut, le plugin installe un certain nb de mappings. Parmi eux,
+Par défaut, le plugin installe un certain nb de mappings.  Parmi eux,
 4 posent pb, car ils changent des mappings par défaut:
 
     `]           se rend à la prochaine marque dans l'ordre alphabétique
@@ -2153,7 +2162,7 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
             Les autres sont exclusivement locaux aux buffers Dirvish.
 
             Par défaut, `-` tape `<Plug>(dirvish_up)`.
-            Ils acceptent un count. Pex:
+            Ils acceptent un count.  Pex:
 
                     3-    ouvre le dossier arrière-grand parent du fichier courant
 
@@ -2573,7 +2582,7 @@ Do the same with `crc` and `crC`, `crm` and `crM`, ...
 
             `:FzfLocate` attend un argument obligatoire (PATTERN).
             `:FzfBLines` et `:FzfLines` attendent un argument optionnel (QUERY).
-            Des mappings ne permettraient pas de les fournir. Une abréviation est + flexible.
+            Des mappings ne permettraient pas de les fournir.  Une abréviation est + flexible.
 
 
     Tab    S-Tab
@@ -2682,9 +2691,10 @@ La 2e variable:
           cherchera pas de snippets dans `&rtp` ce qui peut améliorer les performances.
 
 
-À l'intérieur de ces dossiers, le nom d'un fichier de snippets doit suivre un certain schéma parmi
-plusieurs possibles. Tous dépendent du type de fichiers courant.
-Pex, si le buffer courant est de type vim, UltiSnips cherchera dans un fichier nommé:
+À l'intérieur de  ces dossiers, le nom  d'un fichier de snippets  doit suivre un
+certain schéma  parmi plusieurs possibles.   Tous dépendent du type  de fichiers
+courant.  Pex, si le buffer courant est de type vim, UltiSnips cherchera dans un
+fichier nommé:
 
         - vim.snippets
 
@@ -2811,8 +2821,8 @@ comme pex l'insertion d'une date.
 
 ## Syntaxe basique
 
-Dans un fichier où des snippets sont définis, on peut faire commencer une ligne par un mot-clé pour
-exécuter une directive. Parmi ces mots-clés, on trouve:
+Dans un fichier où des snippets sont  définis, on peut faire commencer une ligne
+par un mot-clé pour exécuter une directive.  Parmi ces mots-clés, on trouve:
 
             - extends
             - priority
@@ -2852,7 +2862,7 @@ exécuter une directive. Parmi ces mots-clés, on trouve:
                                                NOTE:
 
             Si le tab trigger contient un espace, il faut l'encadrer avec un caractère qui n'apparaît
-            pas en son sein, comme des guillemets. Ex:
+            pas en son sein, comme des guillemets.  Ex:
 
                     snippet "tab trigger"
 
@@ -2862,7 +2872,7 @@ exécuter une directive. Parmi ces mots-clés, on trouve:
 
             Qd plusieurs snippets ont le même tab trigger et la même priorité, UltiSnips affiche
             la liste des snippets possibles, chacun avec leur description.
-            C'est à ce moment-là que la description est utile. Elle permet à l'utilisateur de choisir
+            C'est à ce moment-là que la description est utile.  Elle permet à l'utilisateur de choisir
             le bon.
 
             Exception:
@@ -2875,7 +2885,7 @@ exécuter une directive. Parmi ces mots-clés, on trouve:
                                                NOTE:
 
             Pour augmenter le niveau d'indentation d'une ligne au sein du snippet, il faut la préfixer
-            avec un caractère littéral. Qd le snippet sera développé, le caractère tab sera inséra
+            avec un caractère littéral.  Qd le snippet sera développé, le caractère tab sera inséra
             littéralement ou remplacé par des espaces suivant la valeur de 'expandtab'.
 
             Dans un snippet, on peut voir le caractère tab comme l'appui sur la touche tab.
@@ -2958,7 +2968,7 @@ exécuter une directive. Parmi ces mots-clés, on trouve:
 
             Ici il s'agit d'une simple chaîne de caractères, mais on pourrait aussi utiliser:
 
-                    - une interpolation d'une commande shell/VimL/python… entre des backticks. Ex:
+                    - une interpolation d'une commande shell/VimL/python… entre des backticks.  Ex:
 
                             ${1:`date`}
 
@@ -2987,7 +2997,7 @@ exécuter une directive. Parmi ces mots-clés, on trouve:
             Imbriquer 2 tabstops permet d'exprimer une relation de dépendance entre eux:
             l'un est une partie de l'autre.
 
-            Ici, si  on supprime l'attribut,  la valeur est  automatiquement supprimée. Ce  qui est
+            Ici, si  on supprime l'attribut,  la valeur est  automatiquement supprimée.  Ce  qui est
             souhaitable, car  on ne pourrait  pas avoir un attribut  (`class`) HTML sans  valeur, ni
             l'inverse, une valeur sans attribut.
 
@@ -3050,9 +3060,9 @@ exécuter une directive. Parmi ces mots-clés, on trouve:
 
                     ${2:${1:`date +%d`}.`date +%m`}
                         │   │          │
-                        │   │          └── ce n'est pas un opérateur de concaténation (juste un point)
-                        │   └── début du placeholder du 1er tabstop:    `date +%d`
-                        └── début du placeholder du 2e tabstop:         ${1:…}.`date +%m`
+                        │   │          └ ce n'est pas un opérateur de concaténation (juste un point)
+                        │   └ début du placeholder du 1er tabstop:    `date +%d`
+                        └ début du placeholder du 2e tabstop:         ${1:…}.`date +%m`
 
             Cette déclaration exprime que le jour dépend du mois.
             Ainsi, si on supprime le mois, le jour sera lui-aussi automatiquement supprimé.
@@ -3117,7 +3127,7 @@ exécuter une directive. Parmi ces mots-clés, on trouve:
             Sans valeur par défaut,  le placeholder fonctionne toujours même qd  on appuie sur Tab
             en mode insertion: il est alors développé en une chaîne vide.
 
-            Les  accolades au  sein du  placeholder  sont obligatoires. En  leur absence,  UltiSnips
+            Les  accolades au  sein du  placeholder  sont obligatoires.  En  leur absence,  UltiSnips
             interpréterait `$VISUAL` comme une simple chaîne littérale.
 
 
@@ -3159,7 +3169,7 @@ On peut également effectuer une substitution au sein du tabstop miroir.
             Il s'agit de la substitution:    :s/(\w+).*/$1/
 
             Le  $1 au  sein de  la substitution  ne correspond  pas au  1er tabstop,  mais à  la 1e
-            sous-expression capturée  dans le pattern  (\w+). L'expression régulière  est gérée
+            sous-expression capturée  dans le pattern  (\w+).  L'expression régulière  est gérée
             par python et non par Vim.
 
 
@@ -3195,7 +3205,7 @@ On peut également effectuer une substitution au sein du tabstop miroir.
 
             Le token `?1` permet de tester si le groupe 1 a capturé qch ou pas.
             Le token `()` permet de demander à Ultisnips de traiter le remplacement comme
-            une expression à évaluer. Similaire à `\=` pour la commande `:s` dans Vim.
+            une expression à évaluer.  Similaire à `\=` pour la commande `:s` dans Vim.
 
 
     ${1/(a)|(b)|.*/(?1:foo)(?2:bar)/}
@@ -3275,8 +3285,8 @@ On peut également effectuer une substitution au sein du tabstop miroir.
 
             Quelle différence entre `!p` et `#!/usr/bin/python`?
             Qd une interpolation débute par un shebang, la sortie du script est insérée dans le buffer.
-            Mais `!p` est différent. Avec `!p`, UltiSnips ignore la sortie de l'expression python qu'on
-            écrit. Il ne fait que l'évaluer. Pour insérer sa sortie dans le buffer, il faut l'affecter
+            Mais `!p` est différent.  Avec `!p`, UltiSnips ignore la sortie de l'expression python qu'on
+            écrit.  Il ne fait que l'évaluer.  Pour insérer sa sortie dans le buffer, il faut l'affecter
             à `snip.rv`.
 
 
@@ -3306,8 +3316,8 @@ How can I use several triggers for the same snippet?
 ##
 # Unicode.vim
 
-Qd on parle de digraphe, on fait référence aux caractères à taper après C-k pour produire
-un caractère spécial. Par exemple, le digraphe de `✔` est `xv`.
+Qd on parle de digraphe, on fait référence aux caractères à taper après C-k pour
+produire un caractère spécial.  Par exemple, le digraphe de `✔` est `xv`.
 
 
     :UnicodeName
@@ -3383,7 +3393,7 @@ un caractère spécial. Par exemple, le digraphe de `✔` est `xv`.
     :UnicodeDownload
 
 
-            Dl les données Unicode. Utile si on veut mettre à jour la bdd locale.
+            Dl les données Unicode.  Utile si on veut mettre à jour la bdd locale.
             Elles sont téléchargées à partir d'une url, qu'on peut changer via une option:
 
                     :let g:Unicode_URL='http:....'
@@ -3405,7 +3415,7 @@ un caractère spécial. Par exemple, le digraphe de `✔` est `xv`.
                     math C-x C-z (pour insérer un symbole mathématique)
 
             On peut afficher toutes les infos le concernant (codepoint, nom, digraphe, glyphe)
-            dans la fenêtre preview. Pour ce faire, il faut activer une option:
+            dans la fenêtre preview.  Pour ce faire, il faut activer une option:
 
                     let g:Unicode_ShowPreviewWindow = 1
 
@@ -3589,7 +3599,7 @@ En mode interactif, pour appliquer une règle d'alignement, il faudra frapper la
             Qu'est-ce que le shallow cloning.
 
             Pour réduire  la consommation  de bande  passante et  les temps  de dl,  vim-plug passe
-            l'option '--depth 1' à la commande 'git clone' qd il doit cloner un repo. Cela signifie
+            l'option '--depth 1' à la commande 'git clone' qd il doit cloner un repo.  Cela signifie
             qu'il ne dl que  la version la + récente de chaque fichier,  et non pas l'intégralité
             du repo avec toutes les versions passées.
 
@@ -3603,7 +3613,7 @@ Commandes lançables depuis n'importe quelle fenêtre Vim :
 
     :PlugClean[!]
 
-            Supprimer les dossiers inutilisés. Le bang bypasse la demande de confirmation.
+            Supprimer les dossiers inutilisés.  Le bang bypasse la demande de confirmation.
 
 
     :PlugDiff
@@ -3787,7 +3797,7 @@ Plusieurs syntaxes sont possibles suivant la façon dont on souhaite charger un 
 
                     Plug 'foo', { 'opt1': val1, 'opt2': val2 … }
 
-            Une valeur est généralement une chaîne. Elle peut aussi être:
+            Une valeur est généralement une chaîne.  Elle peut aussi être:
 
                     - une liste de chaînes pour les options 'on' et 'for'
                     - une funcref          "                'do'
@@ -3804,7 +3814,7 @@ Plusieurs syntaxes sont possibles suivant la façon dont on souhaite charger un 
                                                NOTE:
 
             vim-plug ne va ni ajouter le plugin au rtp, ni sourcer son interface (dossier `plugin/`)
-            à cause du lazy loading. En revanche, il va créer une sorte de wrapper autour de `:WTF`.
+            à cause du lazy loading.  En revanche, il va créer une sorte de wrapper autour de `:WTF`.
 
             Sans l'option `on`, `:WTF` aurait été définie de la façon suivante:
 
@@ -3821,7 +3831,7 @@ Plusieurs syntaxes sont possibles suivant la façon dont on souhaite charger un 
 
             Attention, ça implique qu'il ne faut pas écrire l'interface du plugin dans notre vimrc.
             En effet, cette dernière écraserait le wrapper de vim-plug, et sans le wrapper jamais notre
-            plugin ne serait ajouté au rtp. Donc, même si `:WTF` était bien définie dans notre vimrc,
+            plugin ne serait ajouté au rtp.  Donc, même si `:WTF` était bien définie dans notre vimrc,
             Vim ne trouverait pas la fonction publique définie dans le dossier `autoload/` de notre plugin.
 
 
@@ -3838,7 +3848,7 @@ Plusieurs syntaxes sont possibles suivant la façon dont on souhaite charger un 
                     autoload/
 
             Toutefois, 'on' peut être utile pour un gros plugin n'ayant pas pris soin d'utiliser
-            `autoload/`. Exemple, `mbbill/undotree`.
+            `autoload/`.  Exemple, `mbbill/undotree`.
             Avant de recourir à 'on', penser à mesure le temps qu'il prend à être sourcé (--startuptime).
 
 
@@ -3847,7 +3857,7 @@ Plusieurs syntaxes sont possibles suivant la façon dont on souhaite charger un 
             Plug 'foo' { 'on': 'Cmd' }
 
             Si `:Cmd` a été définie avec l'attribut `-complete=completelist,Func`, le wrapper installé
-            initialement par vim-plug n'en tient pas compte. Il utilise toujours `-complete=file`.
+            initialement par vim-plug n'en tient pas compte.  Il utilise toujours `-complete=file`.
 
             Ça implique que la 1e fois qu'on utiliser `:Cmd`, si on appuie sur Tab pour obtenir des
             suggestions, on obtiendra des noms de fichiers / dossiers du cwd.
@@ -3871,7 +3881,7 @@ Plusieurs syntaxes sont possibles suivant la façon dont on souhaite charger un 
             un buffer `python`, ou `html`/`markdown`.
 
             En effet, vim-plug  n'ajoutera au rtp le  chemin vers le plugin, qu'une  fois qu'on aura
-            chargé un buffer  avec le type de  fichier spécifié dans la condition  'for'. Et tant
+            chargé un buffer  avec le type de  fichier spécifié dans la condition  'for'.  Et tant
             que le rtp n'inclut pas le chemin vers le plugin, Vim ne peut pas trouver son fichier de
             tags (présent dans `/path/to/plugin/doc/`).
 

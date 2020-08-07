@@ -201,7 +201,7 @@ discarded.
 ## In which of the following snippets is the finally clause executed?
 
 ↣
-In all of them. The finally clause is ALWAYS executed.
+In all of them.  The finally clause is ALWAYS executed.
 Even when the try  block or a catch clause includes a  statement which makes the
 execution jump like:
 
@@ -219,7 +219,7 @@ BCFR in try block:
     while 1
         try
             let answer = input('?')
-            if answer is# ''
+            if answer == ''
                 break
             endif
         finally
@@ -232,7 +232,7 @@ BCFR in try block:
     fu Func()
         try
             let answer = input('?')
-            if answer is# ''
+            if answer == ''
                 return
             endif
         finally
@@ -251,7 +251,7 @@ BCFR in catch clause:
             abcd
         catch /abcd/
             let answer = input('?')
-            if answer is# ''
+            if answer == ''
                 continue
             endif
         finally
@@ -266,7 +266,7 @@ BCFR in catch clause:
         abcd
     catch /abcd/
         let answer = input('?')
-        if answer is# ''
+        if answer == ''
             finish
         endif
     finally
@@ -432,7 +432,7 @@ It may hide from you the presence of an unknown bug which should be fixed:
 
 Here, the  catch clause will  catch the error  `E108` caused by  `:unlet novar`,
 triggered by the autocmd.
-But this  isn't an error  due to `:write`. You probably  want to be  informed of
+But this isn't  an error due to  `:write`.  You probably want to  be informed of
 `E108` to fix the autocmd.
 
 So prefer this:
@@ -547,7 +547,7 @@ If you press C-c at the prompt, the script is terminated.
 
 For testing what  happens when C-c would  be pressed on a specific  line in your
 script, use  the debug mode and  execute the |>quit| or  |>interrupt| command on
-that line. See |debug-scripts|.
+that line.  See |debug-scripts|.
 
 # Cleanup code
 
@@ -1171,7 +1171,7 @@ Even though the `:throw` in `:throw  Foo...` has encountered an exception during
 the evaluation of its argument, it hasn't thrown a new exception.
 
 Has the command been entirely abandoned?
-It  seems so. Anyway,  we can  still  catch the  original exception  with a  try
+It seems  so.  Anyway,  we can  still catch  the original  exception with  a try
 conditional try around the `:throw Foo...`.
 
 ---
@@ -1363,7 +1363,7 @@ or autocommand invocations.
 When  an error  or  interrupt is  detected  and there  is  a `:finally`  command
 following, execution continues after the ':finally'.
 Otherwise, or when  the ':endtry' is reached thereafter,  the next (dynamically)
-surrounding  ':try' is  checked  for a  corresponding  ':finally' etc. Then  the
+surrounding  ':try' is  checked for  a corresponding  ':finally' etc.   Then the
 script processing is terminated.
 Whether a function definition has an 'abort' argument does not matter.
 
@@ -1515,9 +1515,9 @@ Read `:h echoerr`.
 
 Are there other possibilities?
 What's the use of `v:errmsg`?
-It  contains the  last error  message produced. It  can even  capture messages
-which were  silent.  The last  error message could  have happened a  long time
-ago, and it could be irrelevant to what we're doing:
+It contains the last error message produced.  It can even capture messages which
+were silent.  The last error message could have happened a long time ago, and it
+could be irrelevant to what we're doing:
 
       v:errormsg   :  large scope
       v:exception  :  local to a try conditional (empty outside)
@@ -1548,7 +1548,7 @@ MWE:
         try
             qall
         catch
-            return 'echoerr '..string(v:exception)
+            return 'echoerr ' .. string(v:exception)
         endtry
         return ''
     endfu

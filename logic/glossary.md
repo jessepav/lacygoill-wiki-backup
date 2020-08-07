@@ -93,7 +93,7 @@
                 Différences entre logique catégorique et propositionnelle:
 
                         - En logique catégorique, les symboles (ici H, M, x)
-                          représentent des catégories/membres. Par convention,
+                          représentent des catégories/membres.  Par convention,
                           on utilise des maj pour les catégories, et des
                           minuscules pour les membres.
 

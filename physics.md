@@ -95,7 +95,7 @@ est fixe dans un référentiel:
           De la même façon, un point blanc en rotation autour d'un disque noir, lui-même en translation
           horizontale aura un mouvement circulaire dans un référentiel attaché au disque, mais un mouvement
           bien + complexe dans le référentiel terrestre (succession de demi-cercles connectés par de petites
-          larmes). Là encore, le cerveau humain se placera automatiquement dans le référentiel du disque.
+          larmes).  Là encore, le cerveau humain se placera automatiquement dans le référentiel du disque.
 
           Conclusion: le cerveau humain "se place" tjrs dans le référentiel dans lequel le mouvement
           est le plus simple.

@@ -300,7 +300,7 @@ You can still install the binary with `checkinstall(8)`, and it will work fine.
 
     ctrl + clic molette    les 2 maintenus enfoncés
 
-            Affiche les options dispo. Celles activées sont préfixées par un astérisque.
+            Affiche les options dispo.  Celles activées sont préfixées par un astérisque.
             On peut toggle l'état d'une option, en déplaçant la souris (tout en maintenant ctrl+clic molette),
             pour sélectionner une option, puis en relâchant la molette.
 

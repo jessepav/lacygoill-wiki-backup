@@ -402,7 +402,7 @@ Otherwise, the keyboard is probably the issue:
    - On laptops, the `Fn` key may need to be pressed to use the magic `SysRq` key.
 
    - Some keyboards have  `SysRq` on another key than `PrtSc`,  which must be
-     pressed with a function key. For example, it could be `Fn+End`.
+     pressed with a function key.  For example, it could be `Fn+End`.
 
    - Some keyboards  don't like 4  keys to be pressed  at the same  time, and
      stop being a keyboard until you release some.

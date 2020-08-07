@@ -23,7 +23,7 @@ Example:
 You could also try `!printf`:
 
     let seq = '...'
-    exe '!printf -- '..string(seq)
+    exe '!printf -- ' .. string(seq)
 
 But if the sequence contains characters  which are special on Vim's command-line
 (like  `#`), you  need  escape them.   This is  not  necessary with  `echoraw()`
@@ -47,8 +47,8 @@ But it's more verbose, and it doesn't work in the GUI:
 
 Note that you still need double quotes to make Vim translate control characters:
 
-    call echoraw("\033]12;"..color.."\007")
-                 ^        ^         ^    ^
+    call echoraw("\033]12;" .. color .. "\007")
+                 ^        ^             ^    ^
 
 You could use single quotes if you used `:!printf`; probably because `printf(1)`
 takes care of the translation regardless of the type of quotes.
@@ -77,8 +77,8 @@ Write an OSC 51 sequence on the tty:
     $ vim -Nu NONE -S <(cat <<'EOF'
         term
         fu Tapi_func(buf, arglist)
-            echom 'arbitrary command run from buffer '..a:buf
-            echom 'the function received the arguments '..join(a:arglist)
+            echom 'arbitrary command run from buffer ' .. a:buf
+            echom 'the function received the arguments ' .. join(a:arglist)
         endfu
     EOF
     )
@@ -154,14 +154,14 @@ Make sure your sequence is not too long.
     $ vim -Nu NONE -S <(cat <<'EOF'
         term
         fu Tapi_drop(_, files)
-            exe 'tabnew | drop '..join(a:files)
+            exe 'tabnew | drop ' .. join(a:files)
         endfu
     EOF
     )
 
     " in Vim's terminal
     $ vim -Nu NONE
-    :let files = map(range(1, 279), {_,v -> '/tmp/file'..v})
+    :let files = range(1, 279)->map({_, v -> '/tmp/file' .. v})
     :call writefile([printf('%s]51;["call", "Tapi_drop", %s]%s', "\033", json_encode(files), "\007")], '/dev/tty', 'b')
     " fails for 279 or more files, but succeeds for 278 or fewer
 
@@ -175,14 +175,14 @@ temporary file.
     $ vim -Nu NONE -S <(cat <<'EOF'
         term
         fu Tapi_drop(_, filelist)
-            exe 'tabnew | drop '..join(readfile(a:filelist))
+            exe 'tabnew | drop ' .. readfile(a:filelist)->join()
         endfu
     EOF
     )
 
     " in Vim's terminal
     $ vim -Nu NONE
-    :let files = map(range(1, 279), {_,v -> '/tmp/file'..v})
+    :let files = range(1, 279)->map({_, v -> '/tmp/file' .. v})
     :call writefile(files, '/tmp/filelist', 'b')
     :call writefile([printf('%s]51;["call", "Tapi_drop", "/tmp/filelist"]%s', "\033", "\007")], '/dev/tty', 'b')
 

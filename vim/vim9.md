@@ -155,8 +155,6 @@ Example of a function containing a type error:
         enddef~
 
     :call Func()
-    Error detected while processing function Func:~
-    line    1:~
     E1051: wrong argument type for +~
 
     :def Func
@@ -173,8 +171,6 @@ Example of a function containing a syntax error:
         enddef~
 
     :call Func()
-    Error detected while processing function Func:~
-    line    2:~
     E476: Invalid command: invalid~
 
     :def Func
@@ -218,6 +214,60 @@ For more info, see `:h vim9-scopes`:
 ---
 ```vim
 vim9script
+def Outer()
+    if 1
+        def Inner()
+            echo 'inner'
+        enddef
+        Inner()
+    endif
+enddef
+Outer()
+```
+    inner
+
+This shows that Vim  looks for a function invoked from a  function block, in the
+block namespace.
+
+---
+```vim
+vim9script
+def Outer()
+    if 1
+        def Inner()
+            echo 'inner'
+        enddef
+        if 1
+            Inner()
+        endif
+    endif
+enddef
+Outer()
+```
+    inner
+
+This shows  that Vim can  look for a function  invoked from a  *nested* function
+block, in the outer block namespace.
+
+---
+```vim
+vim9script
+def Outer()
+    def Inner()
+        echo 'inner'
+    enddef
+    Inner()
+enddef
+Outer()
+```
+    inner
+
+This shows that Vim  looks for a function invoked from  another function, in the
+immediate outer function namespace.
+
+---
+```vim
+vim9script
 def Func()
 enddef
 fu Func
@@ -228,45 +278,90 @@ fu Func
 
 This shows that  Vim looks for a  function invoked from the script  level in the
 script namespace.
-```vim
-vim9script
-def Inner()
-    echo 'script level'
-enddef
-def Outer()
-    def Inner()
-        echo 'local to Outer()'
-    enddef
-    Inner()
-enddef
-Outer()
-```
-    script level
 
-TODO: The output should be `local to Outer()`.  Probably a bug.
-Revisit this snippet if this issue is fixed: <https://github.com/vim/vim/issues/6586>
+---
 ```vim
 vim9script
 mkdir('/tmp/import', 'p')
 let lines =<< trim END
+    vim9script
+    export def Func()
+        echo 'imported'
+    enddef
+END
+writefile(lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+import Func from 'foo.vim'
+Func()
+```
+This shows that Vim can look for a function invoked from the script level in the
+imported namespace.
+
+## ?
+
+Find examples to document  that we can't shadow a function  from a less specific
+namespace.  For example, a function-local  function cannot shadow a script-local
+function even in the context of the function where it's defined.
+
+However, I think it is allowed to shadow a global function.
+After all, we can  already do that in Vim script legacy;  so maybe this decision
+was done for consistency...
+
+---
+```vim
 vim9script
-export def Func()
-    echo 'imported'
+def Outer()
+    def Func()
+        echo 'function-local'
+    enddef
+    if 1
+        def Func()
+            echo 'block-local'
+        enddef
+    endif
 enddef
+Outer()
+```
+    E1073: name already defined: Func()
+
+---
+
+We can't shadow a script-level function with a function-local one:
+```vim
+vim9script
+def Func()
+    echo 'script level'
+enddef
+def Outer()
+    def Func()
+        echo 'function-local'
+    enddef
+    Func()
+enddef
+Outer()
+```
+    E1073: name already defined: Func()
+
+---
+
+We can't shadow an imported function with a script-local one:
+```vim
+vim9script
+mkdir('/tmp/import', 'p')
+let lines =<< trim END
+    vim9script
+    export def Func()
+        echo 'imported'
+    enddef
 END
 writefile(lines, '/tmp/import/foo.vim')
 set rtp+=/tmp
 def Func()
-echo 'script level'
+    echo 'script level'
 enddef
 import Func from 'foo.vim'
-Func()
 ```
-script level
-
-This shows that Vim searches for a  function in the script *before* searching in
-the imported ones.   It doesn't matter whether the function  at the script level
-is legacy or not.
+    E1073: name already defined: Func
 
 ####
 ## When can I delete a `:def` function?
@@ -1113,8 +1208,6 @@ same type:
     enddef
     defcompile
 
-    Error detected while processing function <SNR>1_Func:~
-    line    2:~
     E1013: type mismatch, expected list<string> but got list<any>~
 
 The error probably comes from the fact that when Vim parses this line:
@@ -1199,8 +1292,6 @@ The same issue applies to other single-letter variable names:
     enddef
     Func()
 
-    Error detected while processing function <SNR>1_Func:~
-    line    2:~
     E121: Undefined variable: l~
 
 Solution: use a lambda.
@@ -1230,14 +1321,14 @@ Inside a `:def` function, lambdas are significantly faster:
 
         def Lambda()
             let time = reltime()
-            map(range(999999), {_, v-> v + 1})
+            range(999999)->map({_, v-> v + 1})
             setline(1, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run lambdas')
         enddef
         Lambda()
 
         def EvalString()
             let time = reltime()
-            map(range(999999), 'v:val+1')
+            range(999999)->map('v:val+1')
             setline(2, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run eval strings')
         enddef
         EvalString()
@@ -1256,11 +1347,11 @@ But at the script level, lambdas are significantly slower:
         vim9script
 
         let time = reltime()
-        map(range(999999), {_, v-> v + 1})
+        range(999999)->map({_, v-> v + 1})
         setline(1, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run lambdas')
 
         let _time = reltime()
-        map(range(999999), 'v:val+1')
+        range(999999)->map('v:val+1')
         setline(2, reltime(_time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run eval strings')
 
         :%p
@@ -1285,8 +1376,6 @@ Conclusion: always use lambdas, but make sure to write them inside `:def` functi
     enddef
     defcompile
 
-    Error detected while processing function <SNR>1_Func:~
-    line    4:~
     E1001: variable not found: n~
 
 A variable is local to its current block.
@@ -1318,8 +1407,6 @@ nested blocks).  Not in outer blocks:
     enddef
     defcompile
 
-    Error detected while processing function <SNR>1_Func:~
-    line    7:~
     E1001: variable not found: n~
 
 ### Now it complains about a script-local variable!
@@ -1331,8 +1418,6 @@ nested blocks).  Not in outer blocks:
     defcompile
     s:var = 123
 
-    Error detected while processing function <SNR>1_Func:~
-    line    1:~
     E1050: Item not found: var~
 
 Make sure your script-local variable is defined *before* the function – in which
@@ -1445,8 +1530,6 @@ function:
     enddef
     Foo()
 
-    Error detected while processing function <SNR>1_Foo:~
-    line    1:~
     E117: Unknown function: Bar~
 
 You forgot the `s:` scope in your legacy function:
@@ -1513,6 +1596,40 @@ To see the effects of your update, simply restart Vim:
     456~
 
 ##
+## My global command is wrongly parsed as the `g:` global namespace!
+
+You've probably used a colon to surround the pattern of your global command:
+
+    ✘
+    g:pat:do sth
+     ^   ^
+
+And you  probably did that  because your pattern contained  one or a  few colons
+which you didn't want to escape.
+
+Solutions:
+
+Prefix the global command with a colon:
+
+    ✔
+    :g:pat:do sth
+    ^
+
+Or add a space in between `g` and `:`:
+
+    g :pat:do sth
+     ^
+
+Or use the full name of the command:
+
+    global:pat:do sth
+    ^----^
+
+---
+
+It's a known issue which won't be fixed: <https://github.com/vim/vim/issues/6593>
+
+##
 # Todo
 ## Refactor all eval strings into lambdas.
 
@@ -1531,8 +1648,6 @@ the contrary, it's faster.
     let time = reltime(time)->reltimestr()->matchstr('.*\..\{,3}')
     echom printf('we slept for %s seconds', time)
 
-    Error detected while processing /proc/9723/fd/11:~
-    line    4:~
     E1041: Redefining script item time~
 
 ---
@@ -1579,14 +1694,105 @@ Obviously, you would need to prefix the functions definitions with `:export`.
 And you would need to import them in any plugin where they are required.
 But the end result will still be much more readable.
 
+---
+
+Also, try to refactor imports from the same script into a single command:
+
+    ✘
+    import This from 'foo.vim'
+    import That from 'foo.vim'
+
+    ✔
+    import {This,That} from 'foo.vim'
+
+## Prefix all `:import` commands with `:silent!`?
+
+And what about the imported functions?
+When we call them,  should we prefix the calls with `:silent!`  too, in case the
+import failed?
+
+Or maybe we should use a try conditional.
+If the imported functions are not available,  bail out at the top of the script,
+because there is no guarantee it will work as expected.
+
+See what we did in:
+
+    ~/.vim/plugged/vim-repmap/autoload/repmap/make.vim
+
+If you do use try conditionals, you can remove `:silent!` everywhere.
+
 ##
 ## To document:
-### cannot redefine a script-local or block-local or imported function
+### cannot redefine a block-local or function-local or script-local or imported function
+```vim
+ # block-local
+vim9script
+def Outer()
+    if 1
+        def Inner()
+            echo 'first'
+        enddef
+        def Inner()
+            echo 'second'
+        enddef
+        Inner()
+    endif
+enddef
+Outer()
+```
+    E1073: name already defined: Inner()
+```vim
+ # function-local
+vim9script
+def Outer()
+    def Inner()
+        echo 'first'
+    enddef
+    def Inner()
+        echo 'second'
+    enddef
+    Inner()
+enddef
+Outer()
+```
+    E1073: name already defined: Inner()
+```vim
+ # script-local
+vim9script
+def Func()
+    echo 'first'
+enddef
+def Func()
+    echo 'second'
+enddef
+```
+    E1073: name already defined: <SNR>1_Func
+```vim
+ # imported
+vim9script
+mkdir('/tmp/import', 'p')
 
-Wait for these issues to be fixed before documenting this:
+let lines =<< trim END
+    vim9script
+    export def Func()
+        echo 'first'
+    enddef
+END
+writefile(lines, '/tmp/import/a.vim')
 
-- <https://github.com/vim/vim/issues/6581>
-- <https://github.com/vim/vim/issues/6583>
+lines =<< trim END
+    vim9script
+    export def Func()
+        echo 'second'
+    enddef
+END
+writefile(lines, '/tmp/import/b.vim')
+
+set rtp+=/tmp
+import Func from 'a.vim'
+import Func from 'b.vim'
+```
+    E1073: name already defined: Func
 
 ### a block-local function is inherited by all nested blocks
 ```vim
@@ -1621,11 +1827,17 @@ Func()
     123
 
 ### cannot nest a script-local function
+```vim
+vim9script
+def Outer()
+    def s:Inner()
+    enddef
+enddef
+Outer()
+```
+    E1075: Namespace not supported: s:Inner()
 
-Wait for this issue to be fixed before documenting this:
-
-<https://github.com/vim/vim/issues/6582>
-
+###
 ### imported items are local to the script
 
 This is suggested at `:h vim9-scopes`:
@@ -1638,11 +1850,12 @@ This is suggested at `:h vim9-scopes`:
     imported constant
 ```vim
 vim9script
+mkdir('/tmp/import', 'p')
 let lines =<< trim END
     vim9script
     export const s:MYCONST = 123
 END
-writefile(g:lines, '/tmp/import/foo.vim')
+writefile(lines, '/tmp/import/foo.vim')
 set rtp+=/tmp
 import MYCONST from 'foo.vim'
 echo s:MYCONST
@@ -1654,11 +1867,12 @@ echo s:MYCONST
     imported variable
 ```vim
 vim9script
+mkdir('/tmp/import', 'p')
 let lines =<< trim END
     vim9script
     export let s:var = 123
 END
-writefile(g:lines, '/tmp/import/foo.vim')
+writefile(lines, '/tmp/import/foo.vim')
 set rtp+=/tmp
 import var from 'foo.vim'
 echo s:var
@@ -1670,6 +1884,7 @@ echo s:var
     imported function
 ```vim
 vim9script
+mkdir('/tmp/import', 'p')
 let lines =<< trim END
     vim9script
     export def Imported()
@@ -1684,4 +1899,124 @@ fu Imported
        def <SNR>2_Imported()
     1      echo 'imported'
        enddef
+
+#### but they're still tied to their original script
+```vim
+vim9script
+let lines =<< trim END
+    vim9script
+    export def Imported()
+        echo 'imported'
+    enddef
+END
+writefile(lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+import Imported from 'foo.vim'
+fu Imported
+echo expand('<SID>')
+```
+           v----v
+       def <SNR>2_Imported()
+    1      echo 'imported'
+       enddef
+    <SNR>1_
+    ^-----^
+
+You're used to  `s:` being expanded into  a unique script ID.   That's no longer
+true in Vim9 script; now, `s:` can  be expanded into one of multiple script IDs;
+the  one of  the current  script, or  the one  of any  script from  which you've
+imported a function.
+
+You can see the Vim9 `s:` namespace  as a superset of the legacy `s:` namespace.
+It contains  the items local  to the current  script, *and* items  imported from
+other scripts.
+
+And btw, `expand('<SID>')` will always give you the ID of the current script.
+If you need the ID of a script fom which you've imported a function, use this:
+
+    const s:SID = execute('fu s:Opfunc')->matchstr('\C\<def\s\+\zs<SNR>\d\+_')
+
+You may need this in some circumstances; typically where you write code which is
+not run in the context of the script, and when you can't use a funcref.
+As an example, when you set the `'opfunc'` option.
+
+###
+### cannot create script-local variable from `:def` function
+```vim
+vim9script
+def Func()
+    s:foo = 123
+    echo s:foo
+enddef
+defcompile
+```
+    E1089: unknown variable: s:foo
+
+---
+
+This pitfall is specific to the script-local namespace:
+```vim
+vim9script
+def Func()
+    g:foo = 123
+    echo g:foo
+enddef
+Func()
+```
+    123
+```vim
+vim9script
+def Func()
+    b:foo = 123
+    echo b:foo
+enddef
+Func()
+```
+    123
+
+---
+
+The pitfall only affects  a *new* script-local variable which you  refer to in a
+`:def` function.  You can refer to an *existing* script-local variable just fine:
+```vim
+vim9script
+s:foo = 123
+def Func()
+    echo s:foo
+enddef
+Func()
+```
+    123
+
+### as soon as a function raises an error, its body is emptied
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def g:FuncA()
+            if 1
+                # some comment
+                FuncB('string')
+            endif
+        enddef
+        def FuncB(n: number)
+            echo n
+        enddef
+    EOF
+    )
+
+    :fu FuncA
+        def FuncA()~
+     1          if 1~
+     3              FuncB('string')~
+     4          endif~
+        enddef~
+
+    :call FuncA()
+    Error detected while processing function FuncA:~
+    line    3:~
+    E1013: argument 1: type mismatch, expected number but got string~
+
+    :fu FuncA
+    function FuncA()~
+    endfunction~
 

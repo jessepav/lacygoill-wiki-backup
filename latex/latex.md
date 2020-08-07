@@ -406,14 +406,14 @@ It has at least three distinct meanings in different areas.
    1. It can mean upright instead of italic, and potentially of regular weight
       as well (as opposed to light or bold).
 
-   2. It can mean the style of Roman inscriptions. The typefaces Trajan, Weiss
+   2. It can mean the style of Roman inscriptions.  The typefaces Trajan, Weiss
       and Optima are Roman in this sense.
 
    3. When talking about character sets, it can refer to Latin (as opposed to
       Greek, Cyrillic or other alphabets) and even specifically a Latin-1 or
       Western European character set of some sort.
 
-So, don't use the term “roman”. Instead write:
+So, don't use the term “roman”.  Instead write:
 
    1. upright
 
@@ -704,7 +704,7 @@ It should have been fixed:
         https://github.com/lervag/vimtex/issues/963
 
 But I  can still  reproduce the  issue if I  install an  autocmd opening  the qf
-window. I can fix the issue if I delay the opening though.
+window.  I can fix the issue if I delay the opening though.
 
 Try to submit a bug report.
 If it's fixed one day, remove the delay we've introduced in:
@@ -729,8 +729,8 @@ To use it:
         let g:vimtex_quickfix_method = 'pplatex'
 
 You  may  need  to  tweak  `g:vimtex_compiler_latexmk`  and  remove  the  option
-`-file-line-error`  from the  dictionary. Maybe `vimtex`  does it  automatically
-though. See :h g:vimtex_quickfix_method.
+`-file-line-error` from  the dictionary.   Maybe `vimtex` does  it automatically
+though.  See `:h g:vimtex_quickfix_method`.
 
 
 Or  try to  write a  filter  which would  replace  all the  relative paths  with
@@ -791,14 +791,14 @@ Document these commands:
 
 
 Also, document the  fact that when you  compile a visual selection,  it must NOT
-include the  preamble. Otherwise, you won't  get the expected result.   It seems
+include the preamble.   Otherwise, you won't get the expected  result.  It seems
 vimtex adds the preamble at the beginning of the file automatically.
 
 Also, according to  `:h VimtexCompileSelected`, you could add  a custom operator
 to compile a text-object:
 
         When  used  as  a normal  mode  mapping,  the  mapping  will act  as  an
-        |operator| on the following motion or text object. Finally, when used as
+        |operator| on the following motion or text object.  Finally, when used as
         a visual mode mapping, it will act on the selected lines.
 
 Try sth like this:

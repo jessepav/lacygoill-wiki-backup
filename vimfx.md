@@ -99,7 +99,7 @@ On peut donc passer en mode ignore dans un onglet, tout en continuant à utilise
                                      NOTE:
 
 Qd plusieurs éléments cliquables sont proches les uns  des autres, il est difficile de cliquer sur
-l'un d'eux au milieu. Pour éliminer les éléments indésirables, on peut taper une partie du texte
+l'un d'eux au milieu.  Pour éliminer les éléments indésirables, on peut taper une partie du texte
 contenu par  celui qui  nous intéresse.  Après chaque  frappe, VimFx  met à  jour et  réduit les
 éléments cliquables.  En revanche, il ne  faut jamais taper  un caractère qui est  utilisé comme
 indice d'un autre élément, même s'il est présent au sein du texte de l'élément intéressant.
@@ -108,4 +108,4 @@ indice d'un autre élément, même s'il est présent au sein du texte de l'élé
                                      FIXME:
 
 Il semble que plusieurs commandes censées accepter un count, ne le font pas.
-Ex, `5d` devrait fermer 5 onglets. `3gJ` devrait déplacer l'onglet courant après le 3e qui suit. Etc.
+Ex, `5d` devrait fermer 5 onglets. `3gJ` devrait déplacer l'onglet courant après le 3e qui suit.  Etc.

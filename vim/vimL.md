@@ -122,7 +122,7 @@ the cwd.  And yet, `:e` has not been executed.
 ##
 ## The following command fails:
 
-    :setl gp&vim | exe 'grep '..shellescape('<cWORD>')..' %'
+    :setl gp&vim | exe 'grep ' .. shellescape('<cWORD>') .. ' %'
 
 When it's run while the cursor is on this text:
 
@@ -142,7 +142,7 @@ it's too late for `shellescape()` to properly escape the quote in the text.
 
 To check this yourself, increase the verbosity to 4:
 
-    :setl gp&vim | 4verb exe 'grep '..shellescape('<cWORD>')..' %'
+    :setl gp&vim | 4verb exe 'grep ' .. shellescape('<cWORD>') .. ' %'
                    ^---^
 
 It fails because the shell runs `grep -n 'a'b' ...`:
@@ -161,8 +161,8 @@ was the case, then it would have raised E116 (try `:echo shellescape('a'b')`).
 
 Use `expand()`:
 
-                                                      v----v
-        :setl gp&vim | 4verb exe 'grep '..shellescape(expand('<cWORD>'))..' %'
+                                            v----v
+        :setl gp&vim | 4verb exe 'grep ' .. expand('<cWORD>')->shellescape() .. ' %'
         Calling shell to execute: "grep -n 'a'\''b' ...~
                                            ^------^
 
@@ -234,10 +234,10 @@ So, Vim expands special characters for `:make`, and similarly for `:grep`.
 
 Or:
 
-    :echo expand(expand('<cfile>'))
-          │      │
-          │      └ expand '<cfile>'
-          └ expand a possible tilde in the expansion of '<cfile>'
+    :echo expand('<cfile>')->expand()
+          │                  │
+          │                  └ expand a possible tilde in the expansion of '<cfile>'
+          └ expand '<cfile>'
 
 ##
 ## ?
@@ -320,7 +320,8 @@ Noms des fichiers / dossiers du cwd.
 
 Si le dossier de travail est  vide, `expand()` retourne `'*'`, `glob()` retourne
 `''`.  `glob()` est  donc  plus  fiable.  Ceci  est  une  propriété générale  de
-`expand()`. Qd elle ne parvient pas à développer qch, elle le retourne tel quel:
+`expand()`.  Qd  elle ne  parvient pas  à développer qch,  elle le  retourne tel
+quel:
 
     echo expand('$FOOBAR')
     $FOOBAR~
@@ -390,7 +391,7 @@ Vim filetype plugins, C syntax plugins, lua indent plugins, keymap files, ...
 
 ## ?
 
-    :echo substitute(glob2regpat(&wig), ',', '\\|', 'g')
+    :echo glob2regpat(&wig)->substitute(',', '\\|', 'g')
     \.bak\|.*\.swo\|.*\.swp\|.*\~\|.*\.mp3\|.*\.png,...~
 
 `glob2regpat()` convertit un pattern de fichier en un pattern de recherche.
@@ -1203,7 +1204,7 @@ on what was the last command (`/`, `?`, `n`, `N` vs `:call searchcount()`).
 
 ##
 # Antipatterns
-## When can I simplify `empty(filter(...))`?
+## When can I simplify `filter(...)->empty()`?
 
 When the condition passed to `filter()` is a simple regex or string comparison.
 
@@ -1221,21 +1222,21 @@ For example, to express that a list contains an item matching a pattern, write t
 
 and not this:
 
-    !empty(filter(copy(list), {_,v -> v =~# pat}))
+    !copy(list)->filter({_, v -> v =~# pat})->empty()
 
 ---
 
 As another example, to express that there's no location window anywhere, write this:
 
-    index(map(getwininfo(), {_,v -> v.loclist}), 1) == -1
+    getwininfo()->map({_, v -> v.loclist})->index(1) == -1
 
 and not this:
 
-    !empty(filter(map(getwininfo(), {_,v -> v.loclist}), {_,v -> v}))
+    !getwininfo()->map({_, v -> v.loclist})->filter({_, v -> v})->empty()
 
 You could even write:
 
-    match(getwininfo(), "'loclist': 1") == -1
+    getwininfo()->match("'loclist': 1") == -1
 
 This works  because each item in  the output of `getwininfo()`  is a dictionary,
 and in that case `match()` uses a dictionary as a string.
@@ -1257,9 +1258,9 @@ in-place, which often requires you not to forget to use `copy()` or `deepcopy()`
 When the condition passed  to `filter()` is more complex than  a simple regex or
 string comparison:
 
-    empty(filter(copy(list), {_,v -> v.foo == 1 && v.bar != 2}))
-                                     ^----------------------^
-                                     assume that `list` contains dictionaries with the keys `foo` and `bar`
+    copy(list)->filter({_, v -> v.foo == 1 && v.bar != 2})->empty()
+                                ^----------------------^
+                                assume that `list` contains dictionaries with the keys `foo` and `bar`
 
 ##
 ## The next expression uses a ternary conditional:
@@ -1351,7 +1352,7 @@ the first paragraph, which was added later.
 Anyway, in my limited testing, `setpos()` *can* correctly set `curswant`.
 For example, try this minimal vimrc:
 
-    pu! =join(map(range(97, 122), {_,v -> nr2char(v)}), '')
+    pu! =range(97, 122)->map({_, v -> nr2char(v)})->join('')
     t.
     call setpos('.', [bufnr(), line('.'), col('.'), 0, 12])
     norm! k
@@ -1392,7 +1393,7 @@ Source: <https://vi.stackexchange.com/a/26475/17449>
 
 If your Vim doesn't support the variable, try this:
 
-    :echo system('ps -o command= -p '..getpid())
+    :echo system('ps -o command= -p ' .. getpid())
 
 ---
 
@@ -1429,12 +1430,12 @@ Usage example:
 ##
 ## How to get the length of the longest line in the current buffer?
 
-    echo max(map(getline(1, '$'), 'strchars(v:val, 1)'))
+    echo getline(1, '$')->map('strchars(v:val, 1)')->max()
 
 Or:
 
-    echo max(map(range(1, line('$')), 'virtcol([v:val, "$"])')) - 1
-                                                                ^-^
+    echo range(1, line('$'))->map('virtcol([v:val, "$"])')->max() - 1
+                                                                  ^-^
 
 Note that the reason for `-1` is explained at `:h virtcol()`:
 
@@ -1454,14 +1455,14 @@ Use `fnamemodify()` and `:p:h`:
 
 Use `fnamemodify()` and `:p:h`:
 
-    echo fnamemodify($HOME . '/.vam', ':p:h')
+    echo fnamemodify($HOME .. '/.vam', ':p:h')
     /home/user~
 
 ### an existing directory?
 
 Use `fnamemodify()` and `:p:h:h`:
 
-    echo fnamemodify($HOME . '/.vim', ':p:h:h')
+    echo fnamemodify($HOME .. '/.vim', ':p:h:h')
     /home/user~
 
 ---
@@ -1469,10 +1470,10 @@ Use `fnamemodify()` and `:p:h:h`:
 You  need two  `:h`  because `:p`  adds  a trailing  slash to  the  path if  the
 directory exists.
 
-    echo fnamemodify($HOME . '/.vim', ':p')
+    echo fnamemodify($HOME .. '/.vim', ':p')
     /home/user/.vim/~
                    ^
-    echo fnamemodify($HOME . '/.vam', ':p')
+    echo fnamemodify($HOME .. '/.vam', ':p')
     /home/user/.vam~
                    ^
 
@@ -1482,7 +1483,7 @@ slash as a (empty) path component.
 ##
 ## How to get the width of the number column (whether it's visible doesn't matter)?
 
-    :echo max([strlen(line('$')), &l:numberwidth-1])
+    :echo max([line('$')->strlen(), &l:numberwidth-1])
 
 ## How to get the width of all the *currently visible* fold/number/sign columns?
 
@@ -1573,6 +1574,52 @@ In particular, no autoload script is sourced.
     $ vim -Nu NORC --cmd 'set rtp^=/tmp/some' +'let foo#bar#var = 123'
 
 This time, the message "all the script is sourced" is not printed.
+
+##
+## On which condition(s) does Vim source an autoload script?
+
+When you call an autoload function which  is not defined, *and* you never called
+any function with the same prefix in the past (e.g. `some#prefix#func()`).
+
+That fact that the  function you call is already defined is  not a guarantee for
+its autoload script not to be sourced.
+In particular, if  you've manually sourced an autoload script,  then call one of
+its functions, the script will be sourced *twice*, not once.
+
+    $ vim -Nu <(cat <<'EOF'
+        call mkdir('/tmp/some/plugin', 'p')
+        call mkdir('/tmp/some/autoload', 'p')
+        let lines =<< trim END
+            let g:counter = get(g:, 'counter', 0) + 1
+            fu some#func()
+            endfu
+        END
+        call writefile(lines, '/tmp/some/autoload/some.vim')
+        let lines =<< trim END
+            nno <c-b> :call some#func()<cr>
+        END
+        call writefile(lines, '/tmp/some/plugin/some.vim')
+        set rtp^=/tmp/some
+        so /tmp/some/autoload/some.vim
+        au VimEnter * call feedkeys("\<c-b>", 'xt') | echo g:counter
+    EOF
+    )
+
+    2~
+
+This seems to contradict `:h autoload`:
+
+>     When such a function is called, and it is not defined yet, Vim will search the
+>     "autoload" directories in 'runtimepath' for a script file called
+
+But  it does  not.  The  help says  that  A implies  B, where  A and  B are  the
+following statements:
+
+   - (A) an autoload function is called but not defined
+   - (B) Vim searches the autoload script where it's defined, and sources it
+
+Which is correct.  If the help also said that B implies A, then there would be a
+contradiction; but it does *not* say that.
 
 ##
 # Pitfalls
@@ -1857,7 +1904,7 @@ indexes of the next ones:
     fu Func() abort
         let list = ['a', 'foo', '%', 'b', 'bar', '%', 'c']
         call filter(list,
-            \ {i,_ -> (writefile(['index ' . i . ' | next index ' . (i+1)], '/tmp/log', 'a') + 2)
+            \ {i,_ -> (writefile(['index ' .. i .. ' | next index ' .. (i+1)], '/tmp/log', 'a') + 2)
             \ && get(list, i+1, '') isnot# '%'})
         echo list
     endfu
@@ -1950,19 +1997,19 @@ Une expression peut être :
     echo MyFunc{idx}()
 
 On  peut développer  une expression  au sein  même d'un  nom de  variable ou  de
-fonction. Cf. `:h curly-braces-names`.
+fonction.  Cf. `:h curly-braces-names`.
 
 Il peut s'agir d'une alternative à eval():
 
     let myvar42 = 'hello'
     let idx=42
-    echo eval('myvar' . idx)
+    echo eval('myvar' .. idx)
 
     fu MyFunc42()
        return 'world'
     endfu
     let idx=42
-    echo eval('MyFunc' . idx . '()')
+    echo eval('MyFunc' .. idx .. '()')
 
 `eval()` est moins lisible:
 
@@ -1986,7 +2033,7 @@ It works even if there's nothing outside the curly braces:
         let matchline = search('\<\k\+\>', 'cW')
 
         while matchline && guard < 999
-            let words += [matchstr(getline('.'), '\%' . col('.') . 'c\<\k\+\>')]
+            let words += [getline('.')->matchstr('\%' .. col('.') .. 'c\<\k\+\>')]
             let matchline = search('\<\k\+\>', 'W')
         endwhile
         return words
@@ -1999,7 +2046,7 @@ tous les mots du buffer courant dans la liste words.
 
 On pourrait aussi utiliser:
 
-    let words = split(join(getline(1, '$'), "\n"), '\W\+')
+    let words = getline(1, '$')->join("\n")->split('\W\+')
 
 ... qui est encore + rapide.
 
@@ -2018,19 +2065,19 @@ J'ai tenté:
 
 dans:
 
-    :echo split(join(getline(1, '$'), "\n"), 'reverse pattern')
+    :echo getline(1, '$')->join("\n")->split('reverse pattern')
 
 Ça semble marcher sauf pour le  dernier foobar (dernière branche dans le pattern
 inversé).  J'ai aussi tenté:
 
-    :echo split(join(getline(1, '$'), "\n"), '\v((foobar)@!\_.){-1,}')
+    :echo getline(1, '$')->join("\n")->split('\v((foobar)@!\_.){-1,}')
 
 ---
 
 Si on sait  que le pattern ne peut  être présent qu'une fois par  ligne, on peut
 aussi utiliser:
 
-    :g/pattern/call add(list, matchstr(getline('.'), 'pattern'))
+    :g/pattern/call add(list, getline('.')->matchstr('pattern'))
 
 ---
 
@@ -2252,13 +2299,13 @@ semble.
 
     Teste l'existence d'un buffer dont:
 
-    ┌───────────────────────────────┬────────────────────────────────┐
-    │ bufexists(42)                 │ le n° est '2                   │
-    ├───────────────────────────────┼────────────────────────────────┤
-    │ bufexists('foo')              │ le nom est 'foo'               │
-    ├───────────────────────────────┼────────────────────────────────┤
-    │ bufexists(expand('~/.vimrc')) │ le nom est '/home/user/.vimrc' │
-    └───────────────────────────────┴────────────────────────────────┘
+    ┌─────────────────────────────────┬────────────────────────────────┐
+    │ bufexists(42)                   │ le n° est '2                   │
+    ├─────────────────────────────────┼────────────────────────────────┤
+    │ bufexists('foo')                │ le nom est 'foo'               │
+    ├─────────────────────────────────┼────────────────────────────────┤
+    │ expand('~/.vimrc')->bufexists() │ le nom est '/home/user/.vimrc' │
+    └─────────────────────────────────┴────────────────────────────────┘
 
             On peut utiliser un chemin absolu ou relatif par rapport au cwd.
             Mais si on utilise un chemin absolu, il ne doit pas contenir le tilde du home.
@@ -2288,7 +2335,7 @@ semble.
     └────────────────┴───────────────────────────────────────┘
 
 
-    if !empty(bufname('%'))
+    if !bufname('%')->empty()
 
             Teste si le buffer courant a bien un nom.
 
@@ -2322,7 +2369,7 @@ semble.
             Then, start Vim like this:
 
                     $ vim -Nu NONE +'norm! 13l' +'lefta 20vs | setl wrap lbr' /tmp/file
-                    :echo strcharpart(getline('.'), virtcol('.') - 1, 3)
+                    :echo getline('.')->strcharpart(virtcol('.') - 1, 3)
                     l SPC i~
 
             You probably expected `SPC u s`.
@@ -2440,17 +2487,17 @@ semble.
             (les newlines sont inclus)
 
 
-    line2byte(line('$')+1)
+    line2byte(line('$') + 1)
 
             retourne le poids total en octets du buffer courant + 1
 
             Cette expression est utile pour vérifier qu'un buffer est vide de contenu:
 
-                    if line2byte(line('$')+1) <= 2
+                    if line2byte(line('$') + 1) <= 2
                     ...
 
-            Pk `line('$')+1` et pas `line('$')` tout court?
-            Parce que `line2byte(line('$'))` retournerait le poids en octets depuis le début du buffer
+            Pk `line('$') + 1` et pas `line('$')` tout court?
+            Parce que `line('$')->line2byte()` retournerait le poids en octets depuis le début du buffer
             jusqu'à la fin de l'avant-dernière ligne, et non pas jusqu'à la fin de la dernière ligne.
 
             Ainsi, si le buffer contient une seule ligne et qu'elle est non vide, cette expression
@@ -2485,7 +2532,7 @@ semble.
 
                             remplace les 3 derniers caractères
 
-                    - col('.') - len(matchstr(getline('.')[:col('.')-2], '\S\+$'))
+                    - col('.') - getline('.')[:col('.') - 2]->matchstr('\S\+$')->strlen()
 
                             remplace le texte devant le curseur;
                             le texte étant défini comme une séquence de non-whitespace
@@ -2522,7 +2569,7 @@ semble.
             Retourne 0 si l'utilisateur appuie sur C-c ou Esc.
 
 
-    let password = inputsecret('Enter sudo password:') . "\n"
+    let password = inputsecret('Enter sudo password:') .. "\n"
     echo system('sudo -S aptitude install package', password)
 
             inputsecret() est similaire à input() à ceci près que les caractères tapés sont affichés
@@ -2608,7 +2655,7 @@ semble.
 
     taglist('pattern')[0].name
     taglist('pattern')[0].filename
-    map(taglist('pattern'), 'v:val.name')
+    taglist('pattern')->map('v:val.name')
 
             retourne le nom:
 
@@ -2624,334 +2671,6 @@ semble.
             agir sur cette dernière.
             Par exemple , si visualmode() retourne 'v' la fonction utilisera les marques `< et `>,
             et si elle retourne 'V' la fonction utilisera les marques '< et '>.
-
-## Expression lambda / closure
-
-Document that  when you define  a lambda which refers  to some variables  in the
-rhs, absent  from the  lhs, they should  all be assigned  before the  lambda (at
-least one).
-
-MWE:
-
-        fu Func()
-            let l:Test = { -> foo + bar ==# 3 }
-            let foo  = 1
-            let bar  = 2
-            return l:Test()
-        endfu
-        echo Func()
-        E121~
-
-        fu Func()
-            let foo  = 1
-            let l:Test = { -> foo + bar ==# 3 }
-            let bar  = 2
-            return l:Test()
-        endfu
-        echo Func()
-        1~
-
-Explanation: <https://github.com/vim/vim/issues/2643#issuecomment-366954582>
-
----
-
-The name of a variable storing a  lambda or funcref must begin with an uppercase
-character, because  you could  drop the  `l:`, in  which case  there could  be a
-conflict with a builtin function (e.g. you've used the variable name `len`).
-The name **must** start with an uppercase character.
-
-But now that your variable starts with  an uppercase character, there could be a
-conflict with a global custom function.
-So, the name **should** be scoped with `l:` to avoid E705.
-From `:h e705`:
-
->     You cannot have both a Funcref variable and a function with the same name.
-
-Indeed, without `l:`, if you run this inside a function:
-
-    let Lambda = {-> 123}
-    echo Lambda()
-
-and you have  a global custom function  named `Lambda`, Vim will  not know which
-definition to use.
-
-Review this section, and add `l:` whenever it makes sense.
-
----
-
-    {args -> expr}
-
-Il  s'agit d'une  expression lambda,  qui crée  une nouvelle  fonction numérotée
-retournant l'évaluation d'une expression.
-Elle diffère d'une fonction régulière de 2 façons:
-
-   - Le corps de l'expression lambda est une expression et non une séquence de
-     commandes Ex.
-
-   - Les arguments ne sont pas dans le scope `a:`.
-
----
-
-    let F = {arg1, arg2 -> arg1 + arg2}
-    echo F(1,2)
-    3~
-
----
-
-    fu A()
-        return 'i am A'
-    endfu
-    fu B()
-        let A = {-> 42}
-        return A()
-    endfu
-    echo B()
-    E705: Variable name conflicts with existing function: A~
-
-    fu A()
-        return 'i am A'
-    endfu
-    fu B()
-        let l:A = { -> 42 }
-        return l:A()
-    endfu
-    echo B()
-    42~
-
-Qd  on  se trouve  à  l'intérieur  d'une fonction,  et  qu'on  doit stocker  une
-expression  lambda, ou  une funcref,  dans une  variable, il  faut toujours  lui
-donner le scope `l:`.
-En effet, le nom doit commencer par  une majuscule, ce qui pourrait provoquer un
-conflit entre avec une fonction publique de même nom.
-
----
-
-    let F = { -> 'hello'.42 }
-    echo F()
-    hello42~
-
-Une expression lambda peut ne pas avoir d'arguments.
-
----
-
-    {'<lambda>42'}
-
-Le nom de la fonction numérotée créée par une expression lambda suit ce schéma.
-En cas d'erreur au sein de cette dernière, on pourra donc exécuter:
-
-    fu {'<lambda>42'}
-
-... pour lire son code:
-
-                    let F = {-> 'hello'.[42]}
-                    echo F()
-                    E15: Invalid expression: <lambda>15    ✘~
-
----
-
-    echo map([1, 2, 3], {_,v -> v + 1})
-    [2, 3, 4]~
-
-    echo sort([3,7,2,1,4], {a,b -> a - b})
-    [1, 2, 3, 4, 7]~
-
-On peut,  entre autres,  utiliser des  expressions lambda  comme 2e  argument de
-`filter()`, `map()` et `sort()`.
-
----
-
-    let timer = timer_start(500, {-> execute("echo 'Handler called'", '')}, {'repeat': 3})
-    Handler called~
-    Handler called~
-    Handler called~
-
-Les expressions lambda sont aussi utiles pour des timers, canaux, jobs.
-
----
-
-Si un timer est  exécuté au moment où on se trouve sur  la ligne de commande, le
-curseur peut temporairement quitter cette dernière et s'afficher dans le buffer.
-
-    nno <expr> cd Func()
-    fu Func()
-        let my_timer = timer_start(2000, { -> execute('sleep 1', '') })
-        return ''
-    endfu
-
-Taper `cd`, puis écrire qch sur la ligne de commande et attendre.
-
----
-
-    ✘
-    call timer_start(0, {-> execute('call FuncA() | call FuncB()')})
-    ✔
-    call timer_start(0, {-> [FuncA(), FuncB()]})
-
-    ✘
-    call timer_start(0, {-> execute('if expr | call Func() | endif')})
-    ✔
-    call timer_start(0, {-> expr && type(Func())})
-                                    ^--^
-                                    not necessary if the output of `Func()` is:
-                                        - a boolean
-                                        - a number
-                                        - a string
-
-    ✘
-    call timer_start(0, {-> execute('if expr | call FuncA() | endif | call FuncB()})
-    ✔
-    call timer_start(0, {-> [expr && type(FuncA()), FuncB()]})
-
-On  n'a  pratiquement  jamais  besoin d'utiliser  `execute()`  et  `:call`  pour
-exécuter une fonction via un lambda.
-
-`:call` est nécessaire sur la ligne de  commande car Vim s'attend à exécuter une
-commande.
-`:call` n'est pas toujours nécessaire dans un lambda, car Vim s'attend à évaluer
-une expression, et une fonction EST un type d'expression.
-
----
-
-Qd  on exécute  une fonction  via  un lambda,  sa  valeur de  sortie n'a  aucune
-importance.
-
----
-
-N'utilise `||` et `&&` comme connecteur  logique que lorsque c'est nécessaire et
-qu'ils correspondent réellement à ce que tu veux faire.
-Autrement, préfère un opérateur plus simple tq `+`:
-
-                           exécute 2 fonctions
-    ┌────────────────────┬─────────────────────────────────────────┐
-    │ FuncA() && FuncB() │ à condition que la 1e ait réussi        │
-    ├────────────────────┼─────────────────────────────────────────┤
-    │ FuncA() || FuncB() │ à condition que la 1e ait échoué        │
-    ├────────────────────┼─────────────────────────────────────────┤
-    │ FuncA() + FuncB()  │ peu importe que la 1e ait réussi ou non │
-    └────────────────────┴─────────────────────────────────────────┘
-
----
-
-        expr && FuncA() + FuncB()
-    ⇔
-        exécute `FuncA` ET `FuncB` à condition que `expr` soit vraie
-
-
-        (expr && FuncA()) + FuncB()
-    ⇔
-        exécute `FuncA` à condition que `expr` soit vraie, PUIS `FuncB`
-
-
-Cette différence découle du fait que l'opérateur `+` a priorité sur `&&`.
-
-Confirmation via:
-
-    echo 0 && 1 + 1
-    0~
-
-    echo (0 && 1) + 1
-    1~
-
----
-
-    echo map(range(65, 90), {x -> nr2char(x)})
-    [ 'A', 'B', ... ]          attendu~
-    [ '', '^A', '^B', ... ]    obtenu~
-
-Pk n'obtient-on pas la liste des lettres majuscules ?
-Car  qd  le 2e  argument  de  `map()` est  une  funcref,  `map()` lui  envoit  2
-arguments:
-
-   1. l'index (pour une liste) ou la clé (pour un dico) de l'item courant
-   2. la valeur de l'item courant
-
-`map()` utilise ensuite la fonction associée  à la funcref pour remplacer chaque
-item de la liste.
-
-Donc, dans l'exemple précédent, pour remplacer les nbs 65 à 90, `map()` envoit à
-`nr2char()` les valeurs suivantes:
-
-   - nr2char(0, 65)
-   - nr2char(1, 66)
-     ...
-   - nr2char(25, 90)
-
-Or, pour `nr2char()`, le 2e argument est un simple flag:
-
-   - 0 signifie qu'on veut utiliser l'encodage courant
-
-   - 1 l'encodage utf-8
-
-`65` ... `90` sont interprétés comme un `1`.
-
-De plus, `nr2char()` ne reçoit pas les bons codepoints:
-
-    65 ... 90  ✔ ce qu'ell devrait recevoir
-    0  ... 25  ✘ ce qu'elle reçoit
-
-Solution:
-
-    map(range(65,90), {_,v -> nr2char(v)})
-                       ^^
-
-Conclusion:
-
-Pour pouvoir se  référer à un argument  reçu par une expression  lambda, il faut
-correctement tous les déclarer.
-Donc,  qd une  fonction  accepte  une expression  lambda  en argument,  toujours
-regarder quels arguments elle envoit à cette dernière.
-Ici, `map()` n'en envoit pas 1 (`x`), mais 2 (`_`, `v`).
-
-
-    fu Foo(arg)
-        let i = 3
-        return {x -> x + i - a:arg}
-    endfu
-    let Bar = Foo(4)
-    echo Bar(6)
-    5~
-
-L'expression lambda utilise dans son calcul les variables `i` et `a:arg`.
-
-`i` appartient  à la portée  locale à `Foo()`,  tandis que `a:arg`  appartient à
-celle des arguments de `Foo()`.
-L'expression lambda ne se plaint pas que les variables ne sont pas définies :
-
-    E121: Undefined variable: i~
-    E121: Undefined variable: a:arg~
-
-... car elle  a la particularité de  pouvoir accéder aux variables  de la portée
-extérieur; on parle de “closure“ (clôture).
-
-
-    fu Foo()
-        let x = 0
-        fu! Bar() closure
-            let x += 1 " pas d'erreur, grâce à `closure`
-            return x
-        endfu
-        return funcref('Bar')
-    endfu
-
-    let F = Foo()
-    echo F()
-    1~
-    echo F()
-    2~
-    echo F()
-    3~
-
-L'incrémentation  de `x` au sein de `Bar()` ne soulève pas d'erreur:
-
-    E121: Undefined variable: x~
-
-...  car  `Bar()`  porte  l'attribut  `closure` qui  lui  permet  d'accéder  aux
-variables de la portée extérieure (`Foo()`).
-
-La sortie de `F()` est incrémentée à chaque appel.
-Ceci prouve  qu'une fonction  portant l'attribut `closure`  peut continuer  à se
-référer à la portée d'une fonction  extérieur même après qu'elle ait terminé son
-exécution.
 
 ## Fenêtres / Onglets
 
@@ -2993,7 +2712,7 @@ exécution.
             Teste si le buffer n°42 est affiché dans une fenêtre de l'onglet courant.
 
 
-    if !empty(win_findbuf(42))
+    if !win_findbuf(42)->empty()
 
             Teste si le buffer n°42 est affiché dans une fenêtre qcq (dans n'importe quel onglet).
 
@@ -3068,8 +2787,8 @@ exécution.
             Parler aussi de tabpagewinnr(): retourne le n° d'une fenêtre dans un onglet de son choix.
 
 
-    @=winnr('#') CR C-w c      mode normal
-    :exe winnr('#')..'close'    mode Ex
+    @=winnr('#') CR C-w c         mode normal
+    :exe winnr('#') .. 'close'    mode Ex
 
             Fermer la dernière fenêtre qu'on a visité dans l'onglet courant.
 
@@ -3111,12 +2830,12 @@ exécution.
             Un lien symbolique est supprimé, mais pas ce sur quoi il pointe.
 
 
-    if !empty(glob('/path/to/file'))
+    if !glob('/path/to/file')->empty()
 
             teste L'EXISTENCE de /path/to/file (fonctionne même si on n'a pas les droits pour le lire)
 
             Ce test peut s'écrire simplement comme ça car le code de retour de empty()
-            en cas d'échec est 0. Si c'était -1, il faudrait obligatoirement comparer la sortie à -1.
+            en cas d'échec est 0.  Si c'était -1, il faudrait obligatoirement comparer la sortie à -1.
 
             Pour tester l'existence d'un fichier, il faut utiliser cette syntaxe, et non `filereadable()`.
 
@@ -3198,7 +2917,7 @@ exécution.
             But the last path component can be empty, if the last character of the path is `/`.
 
 
-    :exe 'e '..fnameescape('fname')
+    :exe 'e ' .. fnameescape('fname')
 
             Exécute la commande  Ex ':edit fname' en ayant  échappé les symboles
             spéciaux que fname contient.
@@ -3206,15 +2925,15 @@ exécution.
             développe ces symboles.
 
 
-    !isdirectory(expand('$HOME')..'/dir')
+    !isdirectory(expand('$HOME') .. '/dir')
 
             teste la non-existence du dossier /home/user/dir
 
             Ce test peut s'écrire simplement comme ça car le code de retour de isdirectory()
-            en cas d'échec est 0. Si c'était -1, il faudrait obligatoirement comparer la sortie à -1.
+            en cas d'échec est 0.  Si c'était -1, il faudrait obligatoirement comparer la sortie à -1.
 
 
-    mkdir(expand('$HOME')..'foo/bar', 'p')
+    mkdir(expand('$HOME') .. 'foo/bar', 'p')
 
             crée le dossier /home/user/foo/bar, en créant les dossiers intermédiaires si nécessaire
             (2e argument 'p')
@@ -3231,12 +2950,12 @@ exécution.
                     - les 10 dernières
 
 
-    let words = split(join(readfile('/tmp/foo'), "\n"), '\W\+')
+    let words = readfile('/tmp/foo')->join("\n")->split('\W\+')
 
             stocke dans la variable words une liste contenant le 1er mot de chaque ligne du fichier /tmp/foo
 
             Ceci illustre comment on peut utiliser la fonction split() pour récupérer toutes les occurrences
-            d'un pattern. Ne fonctionne que si on peut facilement décrire l'inverse du pattern.
+            d'un pattern.  Ne fonctionne que si on peut facilement décrire l'inverse du pattern.
             Ici on cherche des mots (\w\+), l'inverse est donc facile à décrire \W\+.
 
             On aurait aussi pu utiliser:    [^a-zA-Z_0-9\d192-\d255]
@@ -3270,10 +2989,10 @@ exécution.
             `fname` pourrait être autre chose qu'un nom de fichier: pex un nb en hexa
             (commençant donc par un dièse), qu'on souhaite passer à une commande shell:
 
-                    exe '!shell_cmd ' . shellescape('#' . l:mycolor, 1)
+                    exe '!shell_cmd ' .. shellescape('#' .. l:mycolor, 1)
 
 
-    :let @" = 'foo;ls'     | exe 'grep! '.shellescape(@",1).' .'
+    :let @" = 'foo;ls'     | exe 'grep! '.shellescape(@",1) .. ' .'
     :let @" = "that's"     | ...
     :let @" = 'foo%bar'    | ...
 
@@ -3301,7 +3020,7 @@ exécution.
             Au lieu de chercher "foo;rm -rf", le shell exécuterait `$ grep foo`, PUIS `rm -rf`.
 
 
-    system('chmod +x -- '..shellescape(expand('%')))
+    system('chmod +x -- ' .. expand('%')->shellescape())
 
             retourne la sortie de la commande shell:
 
@@ -3333,7 +3052,7 @@ exécution.
     tempname()
     let tmpfile = tempname()
 
-            Retourne / capture le nom d'un fichier temporaire. Ex:
+            Retourne / capture le nom d'un fichier temporaire.  Ex:
 
                     /tmp/abcd123/0
 
@@ -3361,7 +3080,7 @@ exécution.
 
 ## Historique
 
-    histadd('/', strftime('%c'))
+    strftime('%c')->histadd('/')
 
             ajouter dans l'historique de recherche la date du jour
 
@@ -3513,7 +3232,7 @@ exécution.
             (*) Cette fois, 'norm! gv' restaure la sélection visuelle avant d'invoquer `search()`.
 
 
-    getline(search('foo', 'bcnW'))
+    search('foo', 'bcnW')->getline()
 
             retourne le contenu de la précédente ligne où se trouve le pattern 'foo' sans faire
             bouger le curseur
@@ -3528,7 +3247,7 @@ exécution.
             cherche la chaîne 'END' en s'arrêtant à la dernière ligne actuellement visible dans la fenêtre
             retourne le n° de ligne du match
 
-    search('\v<' . nr2char(getchar()), 'W', line('.'))
+    search('\v<' .. getchar()->nr2char(), 'W', line('.'))
 
             demande une frappe au clavier, et déplace le curseur sur le prochain mot commençant
             par la lettre tapée

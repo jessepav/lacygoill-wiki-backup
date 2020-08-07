@@ -36,7 +36,7 @@ command:
     fu Func(...) abort
         for i in a:000
             " replace a trailing whitespace with `S`
-            echo substitute(i, '\s\+$', '\=repeat("S", len(submatch(0)))', '')
+            echo substitute(i, '\s\+$', '\=repeat("S", submatch(0)->len())', '')
         endfor
     endfu
 
@@ -584,7 +584,7 @@ If the arguments are not sane, print an error message:
         echo 'you did not provide a valid kind; choose:  ftplugin, indent, or syntax'
         return
 
-    elseif index(getcompletion('*', 'filetype'), filetype) == -1
+    elseif getcompletion('*', 'filetype')->index(filetype) == -1
         echo 'you did not provide a valid filetype'
         return
     endif
@@ -704,7 +704,7 @@ Source: <https://github.com/vim/vim/issues/5102#issuecomment-545163473>
 
 ##
 # Issues
-## I've executed `:bufdo e`. Now all my buffers have lost their syntax highlighting!
+## I've executed `:bufdo e`.  Now all my buffers have lost their syntax highlighting!
 
 If you haven't executed `:bufdo e` yet, try this:
 
@@ -1027,7 +1027,7 @@ Voici qques exemples de spécificateurs de lignes:
                                      NOTE:
 
             On peut  s'en servir  seules pour  se déplacer  avant éventuellement
-            d'exécuter une commande. Ex:
+            d'exécuter une commande.  Ex:
 
                     :\/ | d
 
@@ -1086,7 +1086,7 @@ Voici qques exemples de spécificateurs de lignes:
             Lignes entre la précédente et prochaine ligne contenant `pat`.
 
             // et ?? désignent l'adresse de la ligne où la précédente/prochaine occurrence
-            du registre recherche est trouvée. Juste après ?pat?, le registre recherche est peuplé
+            du registre recherche est trouvée.  Juste après ?pat?, le registre recherche est peuplé
             avec 'pat'.
 
 
@@ -1337,14 +1337,14 @@ Parmi les commandes Ex après lesquelles on peut écrire ces caractères spécia
     :Foo    à condition qu'elle ait été définie avec l'attribut `-complete=file{_in_path}`
 
 En revanche, on ne peut pas les utiliser après des commandes qui écrivent dans un fichier.
-En effet, dans ce cas on provoquerait l'erreur E139. Pex:
+En effet, dans ce cas on provoquerait l'erreur E139.  Pex:
 
     :w #42    ✘
 
 :w #42 demande à écrire le buffer courant dans le fichier dont le nom est celui du buffer 42.
 Ceci n'est pas permis, car on obtiendrait un fichier qui serait alors différent du buffer 42.
 
-On peut modifier le développement de ces caractères spéciaux via des filename-modifiers. Ex:
+On peut modifier le développement de ces caractères spéciaux via des filename-modifiers.  Ex:
 
     :!echo %:h    echo le chemin vers le dossier contenant le fichier courant
 
@@ -1544,7 +1544,7 @@ un viewport horizontal.
         [s][b]first
         [s][b]last
 
-La signification de N varie. Le plus souvent il décrit:
+La signification de N varie.  Le plus souvent il décrit:
 
         - un index absolu (de buffer dans la buffer list/arglist):
 
@@ -1552,7 +1552,7 @@ La signification de N varie. Le plus souvent il décrit:
                 :4[s]argument
 
         - un index relatif
-          avec les commandes utilisant le suffixe `next` ou `previous`. Ex:
+          avec les commandes utilisant le suffixe `next` ou `previous`.  Ex:
 
                 :3[s]bnext
                 :4[s]previous
@@ -1638,7 +1638,7 @@ même façon que la chaîne de caractère précédant le curseur (custom).
             dans le nom d'un fichier qu'on  veut passer au shell, il faut passer
             par `shellescape()`:
 
-                    :exe '!chmod +x -- ' . shellescape(expand('%'), 1)
+                    :exe '!chmod +x -- ' .. expand('%')->shellescape(1)
 
             `expand()` force  le développement de '%'  avant que `shellescape()`
             ne soit appelée, autrement cette dernière recevrait la chaîne '%' au
@@ -1994,7 +1994,7 @@ même façon que la chaîne de caractère précédant le curseur (custom).
     :sign place 9999 line=10 name=foo file=/tmp/bar
 
             place le signe foo sur la 10e ligne du fichier /tmp/bar
-            Ici, on a choisi l'id 9999. Il nous permettra de manipuler le signe par la suite.
+            Ici, on a choisi l'id 9999.  Il nous permettra de manipuler le signe par la suite.
 
     :sign unplace 9999 file=/tmp/bar
 
@@ -2005,7 +2005,7 @@ même façon que la chaîne de caractère précédant le curseur (custom).
             Affiche le chemin absolu vers le fichier d'échange du buffer courant.
             On peut sauvegarder son nom via execute() et fnamemodify():
 
-                    let swapfile = fnamemodify(execute(':swapname'), ':t')
+                    let swapfile = execute(':swapname')->fnamemodify(':t')
 
 
     :10,40TOhtml
@@ -2079,7 +2079,7 @@ même façon que la chaîne de caractère précédant le curseur (custom).
 
     fu CompleteFunc(arglead, _cmdline, _pos)
         let candidates = ['foo', 'bar', 'baz']
-        return filter(candidates, {_,v -> stridx(v, a:arglead) == 0})
+        return filter(candidates, {_, v -> stridx(v, a:arglead) == 0})
     endfu
 
             définit la commande :MyCom qui appelle la fonction MyFunc()

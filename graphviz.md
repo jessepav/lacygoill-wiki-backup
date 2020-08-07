@@ -149,7 +149,7 @@ Here are some common attributes:
             which can't be included in an id (example: newline).
 
             If the value of `label` contains  a backslash or a double quote, you
-            must escape it. To include a newline, write `\n`.
+            must escape it.  To include a newline, write `\n`.
 
             And if  it contains multiple  lines, you can  justify a line  to the
             left or right, by surrounding it with `\l` or `\r`.
@@ -201,7 +201,7 @@ Here are some common attributes:
 
         [E]
 
-            Weight  of  edge. In  dot,  the heavier  the  weight,  the  shorter,
+            Weight  of  edge.  In  dot,  the heavier  the  weight,  the  shorter,
             straighter and more vertical the edge is.
 
 # Examples
@@ -247,20 +247,20 @@ Here are some common attributes:
     DOT
 
             DOT is a  declarative language in which you express  nodes and their
-            relations in a graph. You can label the nodes and their edges (links
+            relations in a graph.  You can label the nodes and their edges (links
             between nodes) and you can use a lot of styling and shaping tools.
 
 
     dot
 
             `dot` is  a cli tool  able to draw a  graph, which can  be described
-            with the DOT language. It belongs to the `graphviz` package.
+            with the DOT language.  It belongs to the `graphviz` package.
 
 
     graph
     digraph
 
-            A  graph  is  just  a  collection  of  connected  nodes. There's  no
+            A  graph  is  just  a  collection  of  connected  nodes.  There's  no
             “parent-child” relationship between 2 nodes.
 
             A digraph is a graph where the connections have a direction.

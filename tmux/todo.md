@@ -54,7 +54,7 @@ Update: It seems to be thanks to our `PS1` line.
 
 There seems  to be a  regular percent sign  (not the special  one we use  in our
 prompt), which is added on a dedicated line after every output.  Why?
-Update: again, run `unsetopt PROMPT_SP`. I think it will remove it.
+Update: again, run `unsetopt PROMPT_SP`.  I think it will remove it.
 However, unsetting this option would clear the output of a command which doesn't
 terminate by a newline:
 

@@ -125,7 +125,7 @@ Yes.
 No.
 
 #
-# My directory contains a symlink. I've executed `ls -H`, but the listing still refers to the link, not its target!
+# My directory contains a symlink.  I've executed `ls -H`, but the listing still refers to the link, not its target!
 
 The options `-P`, `-H`, `-L` only affect the arguments passed to `ls(1)`.
 

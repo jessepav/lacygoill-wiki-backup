@@ -277,7 +277,7 @@ First, you need to get rid of lightdm.
 It's not that lightweight.
 
 Ok, but replace it with what?
-Nothing. We don't need a display manager.
+Nothing.  We don't need a display manager.
 
 Read this:
 <https://wiki.gentoo.org/wiki/X_without_Display_Manager>
@@ -342,7 +342,7 @@ and when you'll quit the latter, you won't get back to the shell.
 Con: IOW, you'll have to log in again.
 Pro: This should simplify  the output of `pstree(1)` (and maybe  reduce the risk
 of issues, because one less process?).
-Update: I made some tests in a VM. I can't much of a difference betwen `exec` and no `exec`.
+Update: I made some tests in a VM.  I can't much of a difference betwen `exec` and no `exec`.
 If you use `exec`, here's the tree of process as reported by `$ pstree -lsp $$`:
 
     systemd

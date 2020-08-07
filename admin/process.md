@@ -984,7 +984,7 @@ The sleep process won't terminate.
 ---
 
 TODO: For some  reason, you  can't set  a trap to  make a  command run  from zsh
-ignore SIGTERM. Why?
+ignore SIGTERM.  Why?
 
 ### What does resetting a trap mean?
 
@@ -1594,7 +1594,7 @@ However, there are several solutions to the orphan process problem:
      processes are killed.
 
    - Expiration is a technique where each process is allotted a certain amount
-     of time to finish before being killed. If need be a  process may "ask" for
+     of time to finish before being killed.  If need be a  process may "ask" for
      more time to  finish before the allotted time expires.
 
 ## Zombie process
@@ -1834,7 +1834,7 @@ SystemStarter script, involves:
    - Optionally removing unnecessary variables from environment.
 
    - Executing as a background task by  forking and exiting (in the parent
-     "half" of the fork). This  allows daemon's  parent (shell  or  startup
+     "half" of the fork).  This  allows daemon's  parent (shell  or  startup
      process)  to receive  exit notification and continue its normal execution.
 
    - Dissociating from  the controlling tty
@@ -1848,7 +1848,7 @@ SystemStarter script, involves:
    - If  the daemon  wants  to  ensure that  it  won't  acquire a  new
      controlling  tty even  by  accident  (which happens  when  a session
      leader without a controlling tty opens a free tty), it may fork and exit
-     again. This means  that it is no  longer a session  leader in the new
+     again.  This means  that it is no  longer a session  leader in the new
      session, and can't acquire a controlling tty.
 
    - Setting the root directory (/) as  the current working directory so that
@@ -1861,7 +1861,7 @@ SystemStarter script, involves:
 
    - Closing all inherited files  at the time of execution that are left open
      by the  parent process, including file descriptors 0,  1 and 2 for the
-     standard streams (stdin, stdout and stderr). Required files will be opened
+     standard streams (stdin, stdout and stderr).  Required files will be opened
      later.
 
    - Using a logfile, the console, or /dev/null as stdin, stdout, and stderr
