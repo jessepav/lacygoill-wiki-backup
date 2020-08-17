@@ -290,8 +290,8 @@ The search register.
 
 See `:h function-search-undo`.
 
->     The last used search pattern and the redo command "."
->     will not be changed by the function.
+   > The last used search pattern and the redo command "."
+   > will not be changed by the function.
 
     s/outside func call//ne
     fu! Func()
@@ -578,8 +578,8 @@ This exception does not affect a big change/deletion:
 
 Which seems to contradict the documentation at `:h quote_number`:
 
->     Numbered register 1 contains the text deleted by the most recent delete or
->     change command, **unless the command specified another register**
+   > Numbered register 1 contains the text deleted by the most recent delete or
+   > change command, **unless the command specified another register**
 
 But, oh well...
 
@@ -777,12 +777,12 @@ default.  If it does not, you'll need to press CR manually.
 
 From `:h cpo-e`:
 
->     *cpo-e*
->     ...
->               If this flag is not present, the register
->     is not linewise and the last line does not end in a
->     <CR>, then the last line is put on the command-line
->     and can be edited before hitting <CR>.
+   > *cpo-e*
+   > ...
+   >           If this flag is not present, the register
+   > is not linewise and the last line does not end in a
+   > <CR>, then the last line is put on the command-line
+   > and can be edited before hitting <CR>.
 
 ##
 ## How to execute a recursive macro?
@@ -1260,9 +1260,9 @@ Example when CR is pressed in normal mode:
 
 This issue is explained at `:h :let-@`:
 
->     If the result of {expr1} ends in a <CR> or <NL>, the
->     register will be linewise, otherwise it will be set to
->     characterwise.
+   > If the result of {expr1} ends in a <CR> or <NL>, the
+   > register will be linewise, otherwise it will be set to
+   > characterwise.
 
 `:let` sets a register ending with CR to linewise; and in a linewise register, a
 line must always end with `C-j`.
@@ -1328,16 +1328,16 @@ NL and one which results from the translation of a NUL.
 
 See `:h getreg() /NL`:
 
->     If {list} is present and |TRUE|, the result type is changed
->     to |List|. Each list item is one text line. Use it if you care
->     about zero bytes possibly present inside register: without
->     third argument both NLs and zero bytes are represented as NLs
->     (see |NL-used-for-Nul|).
+   > If {list} is present and |TRUE|, the result type is changed
+   > to |List|. Each list item is one text line. Use it if you care
+   > about zero bytes possibly present inside register: without
+   > third argument both NLs and zero bytes are represented as NLs
+   > (see |NL-used-for-Nul|).
 
 See also: <https://github.com/vim/vim/pull/3370#issuecomment-415975411>
 
->     It is  essential that  it must  be a  list of  strings, you  can't restore
->     registers which have embedded NUL otherwise.
+   > It is  essential that  it must  be a  list of  strings, you  can't restore
+   > registers which have embedded NUL otherwise.
 
 ---
 

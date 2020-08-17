@@ -52,11 +52,11 @@ will have been set by the default plugin in `$VIMRUNTIME/compiler/`.
 
 See the end of `:h CompilerSet`:
 
->     When you  write a compiler  plugin to overrule  settings from a  default plugin,
->     don't check "current_compiler".
->     This plugin is supposed  to be loaded last, thus it should be  in a directory at
->     the end of 'runtimepath'.
->     For Unix that could be ~/.vim/after/compiler.
+   > When you  write a compiler  plugin to overrule  settings from a  default plugin,
+   > don't check "current_compiler".
+   > This plugin is supposed  to be loaded last, thus it should be  in a directory at
+   > the end of 'runtimepath'.
+   > For Unix that could be ~/.vim/after/compiler.
 
 OTOH, as  the help says,  if you put your  plugin in `~/.vim/compiler`,  you can
 include a guard.
@@ -266,8 +266,8 @@ Where F₁, F₂, F₃ are formats.
 Each line  in the output of  the compiler will  be matched against F₁,  then F₂,
 then F₃.
 Just because F₂ matches  a compiler's output line does NOT mean  that F₃ will be
-tried first  on the next line,  even if F₂  and F₃ are multi-line  formats using
-`%C` or `%Z`.
+tried first on the next line, even if F₂ and F₃ are multiline formats using `%C`
+or `%Z`.
 
 ## Is the comparison case-sensitive?
 
@@ -301,7 +301,7 @@ the line will simply be ignored.
     │                                  │ the item is %m    │ the item is NOT %m          │
     ├──────────────────────────────────┼───────────────────┼─────────────────────────────┤
     │ the items are spread across      │ the matched texts │ the first matched text wins │
-    │ several multi-line formats       │ are concatenated  │                             │
+    │ several multiline formats        │ are concatenated  │                             │
     ├──────────────────────────────────┼───────────────────┼─────────────────────────────┤
     │ the items are in a single format │ E372              │ E372                        │
     └──────────────────────────────────┴───────────────────┴─────────────────────────────┘
@@ -325,8 +325,8 @@ IOW, the more  compilers' output your format  matches, the more to  the right of
 
 That's my interpretation of this recommendation in `:h efm-entries`:
 
->     If there is a pattern that  may match output from several compilers (but
->     not in a right way), put it after one that is more restrictive.
+   > If there is a pattern that  may match output from several compilers (but
+   > not in a right way), put it after one that is more restrictive.
 
 I could be wrong.
 
@@ -336,7 +336,7 @@ In practice, this rule is especially useful for this format:
 
     %C%.%#
 
-It lets you make Vim overread any line in a multi-line output.
+It lets you make Vim overread any line in a multiline output.
 However, it doesn't extract any information (`%f`, `%l`, `%c`, ...), so you must
 move it at the end of `'efm'`, because Vim should use it as a last resort.
 
@@ -378,24 +378,24 @@ move it at the end of `'efm'`, because Vim should use it as a last resort.
 
 ### % [A-Z]
 
-You can read the output of programs that produce multi-line messages.
+You can read the output of programs that produce multiline messages.
 Possible prefixes are:
 
-    ┌────┬──────────────────────────────────────────────────┐
-    │ %A │ start of a multi-line message (unspecified type) │
-    ├────┼──────────────────────────────────────────────────┤
-    │ %E │ start of a multi-line error message              │
-    ├────┼──────────────────────────────────────────────────┤
-    │ %I │ start of a multi-line informational message      │
-    ├────┼──────────────────────────────────────────────────┤
-    │ %N │ start of a multi-line note message               │
-    ├────┼──────────────────────────────────────────────────┤
-    │ %W │ start of a multi-line warning message            │
-    ├────┼──────────────────────────────────────────────────┤
-    │ %C │ continuation of a multi-line message             │
-    ├────┼──────────────────────────────────────────────────┤
-    │ %Z │ end of a multi-line message                      │
-    └────┴──────────────────────────────────────────────────┘
+    ┌────┬─────────────────────────────────────────────────┐
+    │ %A │ start of a multiline message (unspecified type) │
+    ├────┼─────────────────────────────────────────────────┤
+    │ %E │ start of a multiline error message              │
+    ├────┼─────────────────────────────────────────────────┤
+    │ %I │ start of a multiline informational message      │
+    ├────┼─────────────────────────────────────────────────┤
+    │ %N │ start of a multiline note message               │
+    ├────┼─────────────────────────────────────────────────┤
+    │ %W │ start of a multiline warning message            │
+    ├────┼─────────────────────────────────────────────────┤
+    │ %C │ continuation of a multiline message             │
+    ├────┼─────────────────────────────────────────────────┤
+    │ %Z │ end of a multiline message                      │
+    └────┴─────────────────────────────────────────────────┘
 
     ┌────┬─────────────────────────────────┐
     │ %D │ 'enter directory' format string │
@@ -574,7 +574,7 @@ like:
 
 to indicate the column of the error.
 
-Usually,  `%p` is  used  in a  multi-line  error message,  and  followed by  the
+Usually,  `%p`  is used  in  a  multiline error  message,  and  followed by  the
 character(s):
 
     ┌──────────────┬─────────────────────────┐
@@ -897,18 +897,18 @@ MWE:
 
 However in `:h quickfix-valid`:
 
->     Some examples for C compilers that produce single-line error outputs:
->
->     `%f:%l:\ %t%*[^0123456789]%n:\ %m`    for Manx/Aztec C error messages
->                                         **(scanf() doesn't understand [0-9])**
+   > Some examples for C compilers that produce single-line error outputs:
+   >
+   > `%f:%l:\ %t%*[^0123456789]%n:\ %m`    for Manx/Aztec C error messages
+   >                                     **(scanf() doesn't understand [0-9])**
 
 It seems to indicate that, in order to  parse the output of a compiler, Vim uses
 the  `scanf()` function  of  the latter,  which  seems to  be  confirmed by  `:h
 error-file-format`:
 
->     Each entry in 'errorformat' is a scanf-like string that describes the format.
->     First, you need to know how scanf works.
->     Look in the documentation of YOUR C compiler.
+   > Each entry in 'errorformat' is a scanf-like string that describes the format.
+   > First, you need to know how scanf works.
+   > Look in the documentation of YOUR C compiler.
 
 To see all  the locations where a  collection of digits is written  in a default
 compiler plugin, run:
@@ -921,7 +921,7 @@ No.
 
 Every SINGLE  line of the compiler's  output is matched against  every format in
 `'efm'`.
-So, don't try to include `\n` in a format to match a multi-line message, it will
+So, don't try to include `\n` in a  format to match a multiline message, it will
 never work.
 
 ### a tilde?
@@ -1073,7 +1073,7 @@ The more  contexts (`n`)  a token  is special in,  the more  backslashes (`2^n`)
 you'll need to match it literally.
 
 ##
-# Multi-line error messages
+# Multiline error messages
 ## What's the purpose of `%D` and `%X`?
 
 Some compilers produce messages that consist  of directory names that have to be
@@ -1247,7 +1247,7 @@ A call to `:clist` writes the errors with their correct filenames:
 
 ## How to ignore a line?
 
-If it's inside a multi-line message, use `%-C`, otherwise `%-G`.
+If it's inside a multiline message, use `%-C`, otherwise `%-G`.
 In both cases, don't include any item extracting info (`%m`, `%l`, `%p`, ...).
 
 The more specific the format you use to  match the line is, the more to the left
@@ -1262,7 +1262,7 @@ Where  `{fmt}` is  a  format which  matches  the  2nd, 3rd,  ...  errors in  the
 stacktrace, but doesn't  contain any item populating the qfl  entry (`%m`, `%p`,
 ...).
 
-It will make Vim ignore all errors between the beginning of a multi-line message
+It will make Vim ignore all errors  between the beginning of a multiline message
 (`%[AEIW]`) and its end (`%Z`).
 
 ## How to prevent an output line from creating any entry in the qfl?
@@ -1296,7 +1296,7 @@ Not necessarily.
 
 It can be anywhere inside `'efm'`.
 Same thing for `%[AEIWCG]`.
-There's  no obvious  relation between  the position  of a  line in  a multi-line
+There's  no obvious  relation between  the  position of  a line  in a  multiline
 message, and the position of its format in `'efm'`.
 
 Usually, the formats in  `'efm'` are ordered from the most  specific to the less
@@ -1316,9 +1316,9 @@ The `%Z` format is less specific, because  it contains less info, but still some
 (`%Z`, `%p`, `^`).
 The `%C` format is less specific, (only `%C` is an info).
 The `%G` format  is the least specific (all  we know is that it's  a random line
-outside a multi-line message).
+outside a multiline message).
 
-## Must a multi-line message be parsed in this order: beginning-continuation-end?
+## Must a multiline message be parsed in this order: beginning-continuation-end?
 
 Yes.
 
@@ -1389,7 +1389,7 @@ No.
 Any uppercase item must appear at the very beginning of a format.
 
 ##
-## What are some examples of 'efm' values to parse multi-line messages?
+## What are some examples of 'efm' values to parse multiline messages?
 
 Suppose your compiler writes errors in the following format:
 
@@ -1435,11 +1435,11 @@ Necessary to ignore the 2nd error:
     File "/usr/lib/python2.2/unittest.py", line 286, in
 
 Indeed, when the first line beginning with 'File' will be parsed, it won't match
-the `%C` format, because Vim won't  have found a beginning of multi-line message
+the `%C` format,  because Vim won't have found a  beginning of multiline message
 yet.
 So, it will be matched by the `%A` format instead.
 OTOH, the  2nd line beginning  with 'File' will be  matched by the  `%C` format,
-because at  that point in  time, Vim WILL have  found a beginning  of multi-line
+because at  that point  in time, Vim  WILL have found  a beginning  of multiline
 message.
 
 
@@ -1449,9 +1449,9 @@ Also, note that the format using `%-G` is useful to ignore the 1st line:
 
 Without `%-G`, this line would not be matched by any format:
 
-   - the 1st format describes the continuation of a multi-line message  (Traceback... is not ✘)
-   - the 2nd format describes the beginning of a multi-line message     (" ✘ )
-   - the 3rd format describes the end of a multi-line message           (" ✘ )
+   - the 1st format describes the continuation of a multiline message  (Traceback... is not ✘)
+   - the 2nd format describes the beginning of a multiline message     (" ✘ )
+   - the 3rd format describes the end of a multiline message           (" ✘ )
 
 So,  Vim would  use the  last format  to  parse this  line, which  would give  a
 non-interactive entry in the qfl.
@@ -1496,7 +1496,7 @@ Same thing  for the  compiler's output  lines and  the list  of lines  passed to
 
 ---
 
-Alternative (better suited for multi-lines compiler's outputs):
+Alternative (better suited for multilines compiler's outputs):
 
                      ┌ write the output of a compiler you want to parse
                      │
@@ -1508,7 +1508,7 @@ Alternative (better suited for multi-lines compiler's outputs):
 
 ---
 
-When you debug a multi-line output, and your qfl contains too much noise because
+When you debug a multiline output, and  your qfl contains too much noise because
 of invalid entries, use `:cl` (`:clist`), to only see the valid entries.
 Use `:cl!` to see them all.
 
@@ -1651,8 +1651,8 @@ IOW, this script moves the line with the filename, line number, error message to
 just AFTER the pointer line.
 
 That  way,  the unused  error  text  between doesn't  break  Vim's  notion of  a
-multi-line message and also doesn't force us  to include it as a continuation of
-a multi-line message.
+multiline message and also doesn't force us to include it as a continuation of a
+multiline message.
 
 ## How does Vim deal with a compiler which doesn't print enough info for `%D` and `%X`?
 
@@ -1784,11 +1784,11 @@ message or by printing "leave directory" messages.
 - <https://github.com/reviewdog/errorformat>
 - <https://reviewdog.github.io/errorformat-playground/>
 
->     It's basically for practicing and checking errorformat with ease in browsers.
->     I expect users can write erroformats in playground first, validate them, and use
->     it for vim's  quickfix list or other use cases  like reviewdog or efm-langserver
->     outside vim too.
->     https://github.com/reviewdog/errorformat#use-cases-of-errorformat-outside-vim
+   > It's basically for practicing and checking errorformat with ease in browsers.
+   > I expect users can write erroformats in playground first, validate them, and use
+   > it for vim's  quickfix list or other use cases  like reviewdog or efm-langserver
+   > outside vim too.
+   > https://github.com/reviewdog/errorformat#use-cases-of-errorformat-outside-vim
 
 Source: <https://www.reddit.com/r/vim/comments/d7vdbk/erroformat_playground/>
 

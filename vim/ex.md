@@ -158,14 +158,14 @@ Otherwise, plugins are not skipped:
 ###
 ## What's its benefit over `$ sed -i`?
 
->     Some sed(1)s have -i which claims to "modify" files.
->     It does not: sed is not a FILE editor.
->     The -i flag re-writes the entire file and replaces the original with the new.
->     This breaks open handles and hard-link sets, and fails to follow symlinks.
->     -i  is also  unportable: valid  sed on  one system  will write  broken files  on
->     another.
->     Use ed(1) or ex(1) instead: eg.
->     ex -sc '%s/a/b/|wq' file
+   > Some sed(1)s have -i which claims to "modify" files.
+   > It does not: sed is not a FILE editor.
+   > The -i flag re-writes the entire file and replaces the original with the new.
+   > This breaks open handles and hard-link sets, and fails to follow symlinks.
+   > -i  is also  unportable: valid  sed on  one system  will write  broken files  on
+   > another.
+   > Use ed(1) or ex(1) instead: eg.
+   > ex -sc '%s/a/b/|wq' file
 
 Source: <http://wooledge.org/~greybot/meta/sed-i>
 Also, connect to the irc server freenode, then run this command:
@@ -320,8 +320,8 @@ processed *after* `+cmd`; to allow the latter to be processed.
 
 This behavior probably comes from the POSIX vi specification:
 
->     if the  editor detects an  end-of-file condition  from the standard  input, it
->     shall be equivalent to a SIGHUP asynchronous event.
+   > if the  editor detects an  end-of-file condition  from the standard  input, it
+   > shall be equivalent to a SIGHUP asynchronous event.
 
 <https://pubs.opengroup.org/onlinepubs/9699919799/utilities/vi.html>
 
@@ -356,8 +356,8 @@ redirecting stderr to `/dev/null` with `2>/dev/null` or `2</dev/null`.
 
 It could be due to `man vim /^\s*-\s`:
 
->     -           The  file  to  edit  is read from stdin.  **Commands are read**
->                 **from stderr**, which should be a tty.
+   > -           The  file  to  edit  is read from stdin.  **Commands are read**
+   >             **from stderr**, which should be a tty.
 
 ##
 ## When do I need `--not-a-term`?
@@ -447,8 +447,8 @@ to manually compile and install Vim from source.
 
 From `:h exim`:
 
->     exim  vim -E      Start in improved Ex mode (see |Ex-mode|).      *exim*
->                             (**normally not installed**)
+   > exim  vim -E      Start in improved Ex mode (see |Ex-mode|).      *exim*
+   >                         (**normally not installed**)
 
 ### I get a whole bunch of errors when I run `ex`!
 
@@ -537,8 +537,8 @@ But it can't edit both at the same time.
 
 See `:h vim-arguments`:
 
->     Exactly one out of the following five items may be used to choose how to
->     start editing:
+   > Exactly one out of the following five items may be used to choose how to
+   > start editing:
 
 ##
 ## I'm running a shell pipeline whose exit status is non-zero.  What's the issue?
@@ -588,9 +588,9 @@ was written for.
 
 From `:h persistent-undo`:
 
->    Vim will detect if an undo file  is no longer synchronized with the file it
->    was written for (with  a hash of the file contents) and  ignore it when the
->    file was changed after the undo file was written, to prevent corruption.
+   > Vim will detect if an undo file  is no longer synchronized with the file it
+   > was written for (with  a hash of the file contents) and  ignore it when the
+   > file was changed after the undo file was written, to prevent corruption.
 
 You  need to  manually  "undo" (can't  use `:undo`  nor  `u`) the  modifications
 applied since the last time the undo file was saved.

@@ -342,18 +342,18 @@ i.e. it's not updated whenever you change the working directory (`:cd`).
 
 See `:h special-buffers`:
 
->    directory   Displays directory contents. [...]
->                The buffer is created with these settings:
->                            :setlocal buftype=nowrite
->                            ...
->                The buffer name is the name of the directory and is adjusted
->                when using the |:cd| command.
+   > directory   Displays directory contents. [...]
+   >             The buffer is created with these settings:
+   >                         :setlocal buftype=nowrite
+   >                         ...
+   >             The buffer name is the name of the directory and is adjusted
+   >             when using the |:cd| command.
 
 See also `:h 'bt`:
 
->    nofile only:    The buffer name is fixed, it is not handled like a
->                    file name.  It is not modified in response to a |:cd|
->                    command.
+   > nofile only:    The buffer name is fixed, it is not handled like a
+   >                 file name.  It is not modified in response to a |:cd|
+   >                 command.
 
 ##
 ## by default, the window should be opened with either `:leftabove` or `:topleft`

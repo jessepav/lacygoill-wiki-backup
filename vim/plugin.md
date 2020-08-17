@@ -702,32 +702,32 @@ chunks in a file, which have changed the author workflow for the better.
 In particular,  they claim that  their git history is  much more atomic,  and so
 more useful, because each commit has a clearer purpose:
 
->     Almost all of my commits are now partial commits.
->     My git  history ends  up being  much more  atomic, each  commit having  a clear,
->     singular purpose.
+   > Almost all of my commits are now partial commits.
+   > My git  history ends  up being  much more  atomic, each  commit having  a clear,
+   > singular purpose.
 
->     I keep track of remaining work by navigating over remaining code chunks.
->     If I consider a chunk to be completed, I stage it and forget about it.
->     This lets me easily ignore finished code.
+   > I keep track of remaining work by navigating over remaining code chunks.
+   > If I consider a chunk to be completed, I stage it and forget about it.
+   > This lets me easily ignore finished code.
 
->     Staging occurs when my cursor is placed on top of the code to be staged.
->     That  way I  know  exactly what  code  goes into  the  staging area,  implicitly
->     enforcing a last-time quality check of the code.
->     No more git add -a or similar blunders  which result in bad code being pushed to
->     a remote repository.
+   > Staging occurs when my cursor is placed on top of the code to be staged.
+   > That  way I  know  exactly what  code  goes into  the  staging area,  implicitly
+   > enforcing a last-time quality check of the code.
+   > No more git add -a or similar blunders  which result in bad code being pushed to
+   > a remote repository.
 
->     All my  written content  must now  be version controlled  since this  plugin has
->     become such a crucial part of my mental model of editing text.
->     My work is therefore  mostly backed up to GitHub, while  giving me the necessary
->     tools to revert changes, and so on.
+   > All my  written content  must now  be version controlled  since this  plugin has
+   > become such a crucial part of my mental model of editing text.
+   > My work is therefore  mostly backed up to GitHub, while  giving me the necessary
+   > tools to revert changes, and so on.
 
->     It is much easier to do “non-linear” experimentation.
->     What  I mean  with this  is that  it enables  you to  safely edit  some code  at
->     location A, then  make some permanent changes over at  B, and finally completely
->     reverse the first change at A without altering location B.
->     This detaches  your changes from  the concept of  time and rather  associates it
->     with source code location instead, which I think is much more useful as a mental
->     model for source code changes.
+   > It is much easier to do “non-linear” experimentation.
+   > What  I mean  with this  is that  it enables  you to  safely edit  some code  at
+   > location A, then  make some permanent changes over at  B, and finally completely
+   > reverse the first change at A without altering location B.
+   > This detaches  your changes from  the concept of  time and rather  associates it
+   > with source code location instead, which I think is much more useful as a mental
+   > model for source code changes.
 
 Although, beware, it could make Vim slow:
 <https://www.reddit.com/r/vim/comments/bqtvk8/tightly_integrating_git_into_vim/eo88srq/>
@@ -1023,10 +1023,10 @@ Résumé (pas sûr; juste mon intuition):
 
 Commentaire de l'auteur des précédents plugins:
 
->     asyncomplete.vim paired with vim-lsp.
->     Language Server Protocol  (LSP) provides more than  just autocompletion features
->     like go to definition, rename find symbols, format and so on.
->     Since it runs in a separate process using jobs, it doesn’t slow down vim.
+   > asyncomplete.vim paired with vim-lsp.
+   > Language Server Protocol  (LSP) provides more than  just autocompletion features
+   > like go to definition, rename find symbols, format and so on.
+   > Since it runs in a separate process using jobs, it doesn’t slow down vim.
 
 ---
 
@@ -1123,12 +1123,12 @@ Why is minpac interesting:
 
 <https://www.reddit.com/r/vim/comments/6x64oh/vim_8_any_reason_to_use_the_buildin_package/dmdqeec/>
 
->     Because it doesn't need to be loaded every time you start Vim.
->     Only when you call one of its function to install / update / delete a plugin.
->     Indeed,  since  it uses  the  packadd  feature,  the  rtp manipulation  is  done
->     automatically by Vim.
->     In contrast, vim-plug  needs to be loaded  every time you start  Vim, because it
->     has to do the rtp manipulation manually.
+   > Because it doesn't need to be loaded every time you start Vim.
+   > Only when you call one of its function to install / update / delete a plugin.
+   > Indeed,  since  it uses  the  packadd  feature,  the  rtp manipulation  is  done
+   > automatically by Vim.
+   > In contrast, vim-plug  needs to be loaded  every time you start  Vim, because it
+   > has to do the rtp manipulation manually.
 
 Alternative:
 
@@ -1975,15 +1975,15 @@ This idea comes from:
 
 <https://medium.com/usevim/what-is-modern-vim-2591f6b1ec04>
 
->     Any command-line tool that you enjoy using alongside Vim can be used in Neovim’s
->     split terminal.
->     For example, if  you like using tig,  the text-mode Git interface,  then you can
->     open a panel that runs tig!
->     This instantly gives you the power of integrated Git, without waiting for Neovim
->     or a plugin author to add this functionality.
->     Again,  this  usage  is  similar  to   the  benefits  of  using  tmux  alongside
->     command-line Vim, but you might prefer the integrated approach because it adds a
->     modal layer for movement and yank/paste over tig.
+   > Any command-line tool that you enjoy using alongside Vim can be used in Neovim’s
+   > split terminal.
+   > For example, if  you like using tig,  the text-mode Git interface,  then you can
+   > open a panel that runs tig!
+   > This instantly gives you the power of integrated Git, without waiting for Neovim
+   > or a plugin author to add this functionality.
+   > Again,  this  usage  is  similar  to   the  benefits  of  using  tmux  alongside
+   > command-line Vim, but you might prefer the integrated approach because it adds a
+   > modal layer for movement and yank/paste over tig.
 
 Youtube video demo for tig:
 
@@ -2125,12 +2125,12 @@ Could be useful for this reason:
 
 <https://www.reddit.com/r/vim/comments/9dyu5w/vimcaser_easily_change_word_casing_with_motions/e5l6s0m/>
 
->     Yes, that  was the inspiration,  and some  part of the  code is based  on that
->     plugin.
->     The problem with it is that it  doesn't allow for coercion of text with motions,
->     text objects or visual mode.
->     That makes it impossible  to, for instance, press crc in  front of a kebab-cased
->     word and have it become camelCased.
+   > Yes, that  was the inspiration,  and some  part of the  code is based  on that
+   > plugin.
+   > The problem with it is that it  doesn't allow for coercion of text with motions,
+   > text objects or visual mode.
+   > That makes it impossible  to, for instance, press crc in  front of a kebab-cased
+   > word and have it become camelCased.
 
 Idea:
 
@@ -3511,10 +3511,10 @@ Elle est associée à une touche délimitrice, tq:
         space | alignement général autour de whitespaces                                   |
         =     | opérateurs contenant le symbole = ( = ,  ==,  != ,  += ,  &&= , …)         |
         :     | dico                                                                       |
-        .     | concaténation multi-lignes                                                 |
+        .     | concaténation multilignes                                                  |
         bar   | tableau markdown                                                           |
         #     | lignes de commentaires bash/python/… avec différents niveaux d'indentation |
-        ,     | arguments multi-lignes                                                     |
+        ,     | arguments multilignes                                                      |
         "     | commentaires Vim                                                           |
 
 Ces 8 touches sont associées à des règles d'alignements prédéfinies par le plugin lui-même.

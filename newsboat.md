@@ -204,7 +204,7 @@ Example:
 It's not maintained anymore.
 From [the repo][1]:
 
->     ABANDONED! An actively maintained fork is available in newsboat repo
+   > ABANDONED! An actively maintained fork is available in newsboat repo
 
 ##
 # Reference

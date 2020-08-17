@@ -12,10 +12,10 @@ containing an arbitrary pattern:
 
 ## `-c`
 
->     -c, --count
->            Suppress  normal output; instead print a count of matching lines
->            for each input file.  With the -v,  --invert-match  option  (see
->            below), count non-matching lines.
+   > -c, --count
+   >        Suppress  normal output; instead print a count of matching lines
+   >        for each input file.  With the -v,  --invert-match  option  (see
+   >        below), count non-matching lines.
 
 So, it seems that this is an anti-pattern:
 

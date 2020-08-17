@@ -31,10 +31,10 @@ And look for “numeric string”.
 
 Update: <https://unix.stackexchange.com/a/364116/289772>
 
->     To clarify, only  strings that are coming  from a few sources  (here quoting the
->     POSIX spec): [...] are to be considered  a numeric string if their value happens
->     to be numerical  (allowing leading and trailing blanks,  **with variations between**
->     **implementations in support for hex**, octal, inf, nan...).
+   > To clarify, only  strings that are coming  from a few sources  (here quoting the
+   > POSIX spec): [...] are to be considered  a numeric string if their value happens
+   > to be numerical  (allowing leading and trailing blanks,  **with variations between**
+   > **implementations in support for hex**, octal, inf, nan...).
 
 ##
 # Can I use `0x123` and `0123` as hex and octal numbers?  (two cases to distinguish)
@@ -82,9 +82,9 @@ Note that you can't rely on `+ 0`:
 
 Page 196 of the user's guide:
 
->     Using the  `strtonum()` function is  not the same as  adding zero to  a string
->     value; the  automatic coercion of  strings to  numbers works only  for decimal
->     data, not  for octal or  hexadecimal.
+   > Using the  `strtonum()` function is  not the same as  adding zero to  a string
+   > value; the  automatic coercion of  strings to  numbers works only  for decimal
+   > data, not  for octal or  hexadecimal.
 
 However, `+ 0` would work with `--non-decimal-data`:
 
@@ -1824,9 +1824,9 @@ The reason  why you can omit  `\n` is because, at  the end of an  output record,
 `print`  automatically adds  the contents  of `ORS`,  whose default  value is  a
 newline.
 
->     print expr-list      Print expressions.  Each expression is  separated
->                          by the value of OFS.  **The output record is termi‐**
->                          **nated with the value of ORS.**
+   > print expr-list      Print expressions.  Each expression is  separated
+   >                      by the value of OFS.  **The output record is termi‐**
+   >                      **nated with the value of ORS.**
 
 ### anywhere?
 
@@ -4258,8 +4258,8 @@ consécutifs, mais aussi après le dernier record.
 
 From the gawk user's guide, `4.1.1 Record Splitting with Standard awk`, page 63:
 
->     Reaching the end of  an input file terminates the current  input record, even if
->     the last character in the file is not the character in RS.
+   > Reaching the end of  an input file terminates the current  input record, even if
+   > the last character in the file is not the character in RS.
 
 `RT` est décrit par le caractère / la regex contenu(e) dans `RS`.
 

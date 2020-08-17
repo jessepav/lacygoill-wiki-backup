@@ -125,6 +125,7 @@ Edit top window          «C-w»«C-t»    N
 Edit bottom window       «C-w»«C-b»    N
 Tabs  {{{1
 Go to tab n              ‹n›gt         N
+Go to previous tab       g‹tab›        N
 Close all other tabs     :tabo         N
 List tabs                :tabs         N
 Move window to new tab   «C-w»T        N

@@ -874,8 +874,8 @@ It's just a wrapper around `shellescape()` which also supports Windows.
 
 For more info about `fzf#wrap()`, see `:h fzf#wrap`:
 
->     By "wrapping" your options dictionary with `fzf#wrap` before passing it to
->     `fzf#run`, you can make your command also support the options.
+   > By "wrapping" your options dictionary with `fzf#wrap` before passing it to
+   > `fzf#run`, you can make your command also support the options.
 
 ##
 ##
@@ -1197,8 +1197,8 @@ Use fzf (and/or fzf.vim) to create a mapping which would fuzzy search inside our
 abbreviations (including their {rhs}).
 It would be useful in a case such as this:
 
->     What's the abbreviation which expands into  a command to search a character in
->     the unicode table?
+   > What's the abbreviation which expands into  a command to search a character in
+   > the unicode table?
 
     {fzf mapping} → type keyword `unicode` → look for the right abbreviation
                                            → `:ucs`

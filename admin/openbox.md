@@ -417,15 +417,15 @@ the current desktop.
 According to this:
 <https://wiki.gentoo.org/wiki/Openbox/Guide>
 
->     If problems are  experienced with automounting, or if dbus  and ConsoleKit are
->     being used, exec ck-launch-session dbus-launch --sh-syntax --exit-with-session
->     openbox-session should be  placed in each user's .xinitrc file  instead of the
->     simple exec openbox-session command mentioned above.
+   > If problems are  experienced with automounting, or if dbus  and ConsoleKit are
+   > being used, exec ck-launch-session dbus-launch --sh-syntax --exit-with-session
+   > openbox-session should be  placed in each user's .xinitrc file  instead of the
+   > simple exec openbox-session command mentioned above.
 
 But according to this:
 <http://blog.falconindy.com/articles/back-to-basics-with-x-and-systemd.html>
 
->     There's no “ck-session-launch” equivalent, sure, but it isn't needed.
+   > There's no “ck-session-launch” equivalent, sure, but it isn't needed.
 
 And then the page proceeds to explain a shell script.
 
@@ -518,10 +518,10 @@ It may not increase the latency, but it may increase the jitter.
 
 Test this WM:
 
->     twm is a window manager for the X Window System.
->     It  provides title  bars,  shaped  windows, several  forms  of icon  management,
->     user-defined macro  functions, click-to-type and pointer-driven  keyboard focus,
->     and user-specified key and pointer button bindings.
+   > twm is a window manager for the X Window System.
+   > It  provides title  bars,  shaped  windows, several  forms  of icon  management,
+   > user-defined macro  functions, click-to-type and pointer-driven  keyboard focus,
+   > and user-specified key and pointer button bindings.
 
 Log out and log back to choose it.
 It's a very lightweight package, so it could be useful when we need to make some
@@ -545,8 +545,8 @@ it later.
 
 <https://github.com/pavelfatin/typometer/issues/2#issuecomment-232727288>
 
->     the  option to  open  a file  is  intended only  for  importing of  previously
->     exported results
+   > the  option to  open  a file  is  intended only  for  importing of  previously
+   > exported results
 
 # ?
 

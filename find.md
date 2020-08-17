@@ -95,9 +95,9 @@ An expression can contain any of the following types of primaries:
        1. they return a true/false value
        2. `man find /NON-BUGS` says:
 
-       > Remember that the  precedence of `-a` is higher than  that of `-o`, and
-       > when there is no operator specified between tests, `-a` is assumed.
-                                                     ^---^
+    > Remember that the  precedence of `-a` is higher than  that of `-o`, and
+    > when there is no operator specified between tests, `-a` is assumed.
+                                                  ^---^
 
        The documentation considers, implicitly, that `-print` is a test.
 
@@ -193,8 +193,8 @@ Issue:
 
 It seems to contradict `man find`:
 
->     If  the whole  expression contains  no actions  other than  -prune or  -print,
->     -print is performed on all files for which the whole expression is true.
+   > If  the whole  expression contains  no actions  other than  -prune or  -print,
+   > -print is performed on all files for which the whole expression is true.
 
 # ?
 
@@ -202,8 +202,8 @@ Understand this:
 
     $ find \! -name '.?*' -o \! -prune
 
->     The command  line I posted  will still print out  all the matching  files, but
->     it'll skip any dotfiles.
+   > The command  line I posted  will still print out  all the matching  files, but
+   > it'll skip any dotfiles.
 
 Theory:
 

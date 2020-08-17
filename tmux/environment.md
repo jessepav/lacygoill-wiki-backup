@@ -245,7 +245,7 @@ is automatically updated – unless you consider switching to another session as
 special  (?)  case of  attaching  to  a  session –  but  it  is implied  in  the
 documentation about `switch-client`:
 
->     If -E is used, update-environment option will not be applied.
+   > If -E is used, update-environment option will not be applied.
 
 ---
 
@@ -357,9 +357,9 @@ environment, not the session one.
 
 From `man tmux /PARSING SYNTAX`:
 
->     -   Environment variables preceded by $ are replaced with their
->         value from the **global environment** (see the GLOBAL AND SESSION
->         ENVIRONMENT section).
+   > -   Environment variables preceded by $ are replaced with their
+   >     value from the **global environment** (see the GLOBAL AND SESSION
+   >     ENVIRONMENT section).
 
 ##
 ## I've run `:set @foo "a$EDITORb"`.  What's the output of `:show -v @foo`?

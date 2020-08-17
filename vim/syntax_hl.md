@@ -233,8 +233,8 @@ The last one.
 
 From `:h syn-priority`:
 
->     1. When multiple  Match or Region items  start in the same  position, the item
->     defined last has priority.
+   > 1. When multiple  Match or Region items  start in the same  position, the item
+   > defined last has priority.
 
 ---
 
@@ -881,11 +881,11 @@ inside `A`.
 
 `contains=A` does *not* mean:
 
->     MUST contain A
+   > MUST contain A
 
 And `containedin=A` does *not* mean:
 
->     MUST be contained in A
+   > MUST be contained in A
 
 ### On which condition can a syntax item B start in another A?
 
@@ -1176,8 +1176,8 @@ Why doesn't the command produce this stack:
 Well,  I  don't  think  it's  possible  because  `xWord`  is  not  defined  with
 `contains=xVim`, but even if it was, according to `:h syn-transparent`:
 
->     ... a contained  match doesn't match inside itself in  the same position, thus
->     the "xVim" match doesn't overrule the "xWord" match here.
+   > ... a contained  match doesn't match inside itself in  the same position, thus
+   > the "xVim" match doesn't overrule the "xWord" match here.
 
 The first match due to `xVim` is contained in a syntax item (`xString`).
 As a result,  it can't be used to  match inside itself a second  time **in the**
@@ -1297,7 +1297,7 @@ We assign the value `250` to `'smc'` which should be more than enough for any li
 
 An example of this issue occurs when you draw a wide table.
 
-If you use multi-byte characters to draw a table, an edge line will have a big weight.
+If you use multibyte characters to draw a table, an edge line will have a big weight.
 It may exceed `&smc`, and make the line highlighted as a comment instead of a table.
 
 ## My syntax item has a negative impact on Vim's performance!
@@ -1885,8 +1885,8 @@ The output of the last command should be empty, but it's not.
 
 From `:h 44.9`:
 
->     The `:syntax  include` command is  clever enough  to ignore a  `:syntax clear`
->     command in the included file.
+   > The `:syntax  include` command is  clever enough  to ignore a  `:syntax clear`
+   > command in the included file.
 
 Solution:
 Clear (then customize if you want) the syntax group from an autocmd listening to `Syntax`.
@@ -2195,9 +2195,9 @@ And yet, I found one example where it's needed to prevent a bug:
 Btw, the description given at `:h :syn-match` is copied from the one
 at `:h :syn-region`, and doesn't make sense in the context of a match:
 
->     keepend
->
->     Don't allow contained matches to go past a match with the end pattern.
+   > keepend
+   >
+   > Don't allow contained matches to go past a match with the end pattern.
 
 ## ?
 
@@ -2248,13 +2248,13 @@ the highlighting is broken in some locations.
 And `synstack()` doesn't report anything in some other locations even though the
 text is highlighted under the cursor.
 
-These issues only occur with the first multi-line text, not with single line one.
+These issues only occur with the first multiline text, not with single line one.
 
 `=d` seems to fix them.
 It may be a  problem of synchronizing... Or we should never  use `:syn match` to
-highlight a multi-line text, and prefer `:syn region`.
+highlight a multiline text, and prefer `:syn region`.
 
-Besides, it seems that `:syn match` is rarely used to match a multi-line text in
+Besides, it seems that `:syn match` is  rarely used to match a multiline text in
 `$VIMRUNTIME`:
 
     :noa vim /\C\<syn\%[tax]\>\s\+match\>.*\%(\\n\|\\_\.\)/gj $VIMRUNTIME/**/*.vim | cw
@@ -2292,7 +2292,7 @@ Why?
 The beginning of a nested item must be inside the containing item.
 From `:h syn-contains`:
 
->     These groups will be allowed to begin **inside** the item...
+   > These groups will be allowed to begin **inside** the item...
 
 In particular,  a nested item can  *not* begin before the  containing item
 has begun.
@@ -2433,15 +2433,15 @@ Document the fact that `contained=` and `containedin=` accept patterns.
 
 From `:h :syn-contains /pattern`:
 
->     The {group-name} in the "contains" list can be a pattern.  All group names
->     that match the pattern will be included (or excluded, if "ALLBUT" is used).
->     The pattern cannot contain white space or a ','.  Example:
+   > The {group-name} in the "contains" list can be a pattern.  All group names
+   > that match the pattern will be included (or excluded, if "ALLBUT" is used).
+   > The pattern cannot contain white space or a ','.  Example:
 
->        ... contains=Comment.*,Keyw[0-3]
+   > ... contains=Comment.*,Keyw[0-3]
 
->     The matching will be done at moment the syntax command is executed.  Groups
->     that are defined later will not be matched.  Also, if the current syntax
->     command defines a new group, it is not matched.
+   > The matching will be done at moment the syntax command is executed.  Groups
+   > that are defined later will not be matched.  Also, if the current syntax
+   > command defines a new group, it is not matched.
 
 Could/Should we  have leveraged this  feature to make  some of our  syntax rules
 shorter and more future-proof?  Actually,  you could make the opposite argument:
@@ -2539,6 +2539,16 @@ And here:
 Func()
 ```
 Notice how `Func` is highlighted with `vimCommand`; it should be highlighted with `vimUserFunc`.
+
+---
+```vim
+vim9script
+eval !copy([1, 2, 3])->reduce({a, v -> a + v})
+```
+Notice how the  function names are highlighted with `vimFilter`;  they should be
+highlighted with `vimFuncName`.
+
+The issue disappears if `:eval` is replaced with `:echo`.
 
 ##
 # Reference

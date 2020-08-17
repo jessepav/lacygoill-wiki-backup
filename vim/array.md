@@ -582,7 +582,7 @@ If the items of the list are scalars, use `copy()`:
 
 If the items of the list are non-scalars, use `deepcopy()`:
 
-    let alist = [1, [2,3]]
+    let alist = [1, [2, 3]]
     let blist = deepcopy(alist)
     let blist[1][1] += 1
     echo alist
@@ -647,10 +647,10 @@ Imo, `+=` should work just like `add()`...
 
 See `:h E742`:
 
->     The a: scope and the variables in it cannot be changed, they are fixed.
->     However, if a composite type is used, such as |List| or |Dictionary| , you can
->     change their contents.  Thus you can pass a |List| to a function and have the
->     function add an item to it.
+   > The a: scope and the variables in it cannot be changed, they are fixed.
+   > However, if a composite type is used, such as |List| or |Dictionary| , you can
+   > change their contents.  Thus you can pass a |List| to a function and have the
+   > function add an item to it.
 
 ###
 # Dictionaries

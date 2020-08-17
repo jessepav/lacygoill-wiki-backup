@@ -235,7 +235,7 @@ Etc.
 ## tpb is unavailable!
 
 Try to visit the tor site:
-<http://www.uj3wazyk5u4hnvtk.onion/>
+<http://piratebayztemzmv.onion/>
 
 If you can't click on a magnet, search  for the text 'magnet' in the source code
 of the webpage; copy the link and paste it in transmission.

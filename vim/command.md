@@ -303,14 +303,14 @@ So, you can't make a literal bar become a command termination.
 
 Yes, from `:command-completion-custom`:
 
->     For the  "custom" argument, it is  not necessary to filter  candidates against
->     the (implicit pattern in) ArgLead.
+   > For the  "custom" argument, it is  not necessary to filter  candidates against
+   > the (implicit pattern in) ArgLead.
 
->     Vim will filter the candidates with its regexp engine after function return, and
->     this is probably more efficient in most cases.
+   > Vim will filter the candidates with its regexp engine after function return, and
+   > this is probably more efficient in most cases.
 
->     For  the "customlist"  argument, Vim  will  not filter  the returned  completion
->     candidates and the user supplied function should filter the candidates.
+   > For  the "customlist"  argument, Vim  will  not filter  the returned  completion
+   > candidates and the user supplied function should filter the candidates.
 
 This is a basic filtering over which you have no control.
 
@@ -345,7 +345,7 @@ on.
 
 Characters which are special on Vim's command-line will be automatically expanded:
 
-    com -complete=file -nargs=1 Cmd call Func(<args>)
+    com -nargs=1 -complete=file Cmd call Func(<args>)
     fu Func(arg)
         echo a:arg
     endfu
@@ -446,8 +446,8 @@ You can then embed a whitespace inside an argument by escaping it.
 
 From `:h <f-args>`:
 
->     To embed whitespace into an argument of <f-args>, prepend a backslash.
->     <f-args> replaces every pair of backslashes (\\) with one backslash.
+   > To embed whitespace into an argument of <f-args>, prepend a backslash.
+   > <f-args> replaces every pair of backslashes (\\) with one backslash.
 
 You could use another escape sequence,  but the manual parsing would probably be
 non-trivial; `<f-args>` give it to you for free.
@@ -673,8 +673,8 @@ Yes, by prefixing it with a count, you can send the latter to the program stored
 You could  think that Vim would  stop iterating over  the buffers as soon  as an
 error is raised in one of them, because according to `:h :bufdo`:
 
->     When an error is detected on one buffer, further
->     buffers will not be visited.
+   > When an error is detected on one buffer, further
+   > buffers will not be visited.
 
 But in reality, an error stops `:bufdo` only when it's raised while visiting the
 next buffer, not when executing `cmd`:
@@ -691,19 +691,19 @@ The same is true for all the `:xdo` commands (e.g. `:argdo`, `:windo`, ...).
 
 ---
 
->     I would say this works as intended, since it's the same as with other
->     commands that loop over a list.  But the documentation should say:
+   > I would say this works as intended, since it's the same as with other
+   > commands that loop over a list.  But the documentation should say:
 
->             When going to the next entry fails execution stops.
+   > "When going to the next entry fails execution stops."
 
->     This is so it doesn't get stuck in one position and loop forever.
->     If you use ":argdo s/xxx/yyy" you get as many failures as you have
->     arguments.
+   > This is so it doesn't get stuck in one position and loop forever.
+   > If you use ":argdo s/xxx/yyy" you get as many failures as you have
+   > arguments.
 
 Source: <https://github.com/vim/vim/issues/5102#issuecomment-545163473>
 
 ##
-# Issues
+# Pitfalls
 ## I've executed `:bufdo e`.  Now all my buffers have lost their syntax highlighting!
 
 If you haven't executed `:bufdo e` yet, try this:
@@ -839,6 +839,44 @@ If that is an issue, use `:exe`:
 See also: <https://github.com/neovim/neovim/issues/11136#issuecomment-537253732>
 
 ##
+# Todo
+## To document:
+### In a completion function, the column position is indexed from 0, not from 1.
+
+This is inconsistent with `col()`, `virtcol()`, `getcmdpos()`, `\%c`, `\%v` (and
+possibly other functions and atoms).  All of them index from 1, not 0.
+
+From `:h col()`:
+
+   > The first column is 1.  0 is returned for an error.
+
+From `:h \%c`:
+
+   > ...  The first column is 1.
+
+I don't  know whether  it's a  bug.  If  it is, I  doubt it  would be  fixed now
+because of backwards compatibility.
+
+It's important you take this inconsistency into account.
+For example, if you want to capture the text before the cursor, usually, you would write:
+
+    " insert mode
+    echo getline('.')->matchstr('.*\%' .. col('.') .. 'c')
+
+    " command-line mode
+    echo getcmdline()->matchstr('.*\%' .. getcmdpos() .. 'c')
+
+But in a completion function, you need to increase the column position by 1:
+
+    fu MyCompletionFunction(arglead, cmdline, pos)
+        ...
+        let text_before_cursor = matchstr(a:cmdline, '.*\%' .. (a:pos + 1) .. 'c')
+                                                                      ^-^
+                                                                      surprise!
+
+That's because `\%c` index from 1, while `pos` index from 0.
+
+##
 # ?
 
 Document that, in practice, you don't need to combine `:update` and `:argdo`:
@@ -925,21 +963,21 @@ Read this:
 When is `%:{filename-modifier}` expanded after pressing Tab?
 Make some tests:
 
-    com -nargs=1 -complete=file  Test  echo <q-args>
+    com -nargs=1 -complete=file Test echo <q-args>
     :cd ~/Downloads
     :Test %:h
     :Test %:t
     :Test %:r
     :Test %:e
 
-    com -nargs=1 -complete=file_in_path  Test  echo <q-args>
+    com -nargs=1 -complete=file_in_path Test echo <q-args>
     :cd ~/Downloads
     :Test %:h
     :Test %:t
     :Test %:r
     :Test %:e
 
-    com -nargs=1 -complete=file_in_path  Test  echo <q-args>
+    com -nargs=1 -complete=file_in_path Test echo <q-args>
 
 It seems to depend on various things:
 
@@ -2055,7 +2093,7 @@ même façon que la chaîne de caractère précédant le curseur (custom).
             `:exe` pour invoquer une routine si cette dernière peut échouer.
 
             En effet, en cas d'erreur au sein d'une fonction, l'écran est pollué
-            par une stacktrace multi-ligne.
+            par une stacktrace multiligne.
             C'est perturbant,  et incohérent avec  les commandes Ex  par défaut,
             qui, en cas d'erreur n'affiche qu'un message mono-ligne.
 

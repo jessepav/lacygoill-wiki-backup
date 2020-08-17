@@ -16,11 +16,11 @@ Run `os.exit()`.
 
 # How to get the value of π?
 
-        > math.pi
+    > math.pi
 
 # How to assign the value `15` to the variable `a`?
 
-        > a = 15
+    > a = 15
 
 ##
 ##

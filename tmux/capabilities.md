@@ -193,14 +193,14 @@ Source:
 
 Relevant excerpt:
 
->    Support passing through  escape sequences to the  underlying terminal by
->    using DCS with a "tmux;" prefix. Escape characters in the sequences must
->    be doubled. For example:
->
->        $ printf '\ePtmux;\e\e]12;red\e\e\\\e\\'
->
->    Will  pass \ePtmux;\e\e]12;red\e\e\\\e\\  to the  terminal
->    (and change the cursor colour in xterm).
+   > Support passing through  escape sequences to the  underlying terminal by
+   > using DCS with a "tmux;" prefix. Escape characters in the sequences must
+   > be doubled. For example:
+   >
+   >     $ printf '\ePtmux;\e\e]12;red\e\e\\\e\\'
+   >
+   > Will  pass \ePtmux;\e\e]12;red\e\e\\\e\\  to the  terminal
+   > (and change the cursor colour in xterm).
 
 Note that you really need the DCS sequence to end with ST (`\e\\`) not BEL (`\a`).
 OTOH, since you need to double all  the escape characters in the sequence you're

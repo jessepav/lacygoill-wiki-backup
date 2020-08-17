@@ -362,9 +362,9 @@ It will make sure you don't set the filetype twice.
 
 This is recommended at `:h 43.2`:
 
->     The "setf" command  will set the 'filetype' option to  its argument, unless it
->     was set already.
->     This will make sure that 'filetype' isn't set twice.
+   > The "setf" command  will set the 'filetype' option to  its argument, unless it
+   > was set already.
+   > This will make sure that 'filetype' isn't set twice.
 
 ### How to set the filetype of all files, in a directory, which don't have an extension (and only them!) to 'sh'?
 
@@ -409,10 +409,10 @@ command, instead of true.
 
 From `:h :setf`:
 
->    When  the  optional FALLBACK  argument  is  present, a  later  :setfiletype
->    command will override the 'filetype'.
->    This is to used for filetype detections that are just a guess.
->    |did_filetype()| will return false after this command.
+   > When  the  optional FALLBACK  argument  is  present, a  later  :setfiletype
+   > command will override the 'filetype'.
+   > This is to used for filetype detections that are just a guess.
+   > |did_filetype()| will return false after this command.
 
 ---
 
@@ -477,8 +477,8 @@ It depends on whether they have a guard.
 
 From `:h 'syntax`:
 
->     Note that the second one must be prepared to be loaded as an addition,
->     otherwise it will be skipped.
+   > Note that the second one must be prepared to be loaded as an addition,
+   > otherwise it will be skipped.
 
 ### What should I do instead?  What's the benefit?
 
@@ -889,10 +889,10 @@ always the same:
 Sources:
 
 From `:h syn_cmd`:
->     Only define colors for groups that don't have highlighting yet
+   > Only define colors for groups that don't have highlighting yet
 
 From `:h syntax_loading`:
->     ":syntax enable" only sets groups that weren't set yet
+   > ":syntax enable" only sets groups that weren't set yet
 
 ---
 

@@ -151,21 +151,21 @@ Don't confuse the delete character with the delete key.
 
 Although, according to `:h Linux-backspace`, this is wrong:
 
->     Note about Linux: By default the backspace key
->     produces CTRL-?, which is wrong.  You can fix it by
->     putting this line in your rc.local:
+   > Note about Linux: By default the backspace key
+   > produces CTRL-?, which is wrong.  You can fix it by
+   > putting this line in your rc.local:
 
->             echo "keycode 14 = BackSpace" | loadkeys
+   > echo "keycode 14 = BackSpace" | loadkeys
 
 The backspace key should emit the backspace character.
 
 See also: <http://tldp.org/HOWTO/Keyboard-and-Console-HOWTO-5.html>
 
->     Why doesn't the Backspace key generate BackSpace by default?
->
->     (i) Because the VT100 had a Delete key above the Enter key.
->
->     (ii) Because Linus decided so.
+   > Why doesn't the Backspace key generate BackSpace by default?
+   >
+   > (i) Because the VT100 had a Delete key above the Enter key.
+   >
+   > (ii) Because Linus decided so.
 
 You could fix that at the OS level, by using `loadkeys` in the console and `xkb`
 in Xorg; but I'm not sure it's worth it, and I don't know whether there would be
@@ -281,7 +281,7 @@ Or index the string directly:
 ---
 
 Those methods are unreliable to get  the `n`-th *character* of a string, because
-the latter may contain multi-byte characters:
+the latter may contain multibyte characters:
 
     echo strpart('résumé', 2, 1)
     <a9>~
@@ -344,7 +344,7 @@ Without `{len}`, `strcharpart()` goes until the end.
 ## What's the evaluation of `getline('.')[col('.')]`?
 
 The character right *after* the cursor.
-If the  latter is multi-byte, then,  the expression evaluates to  its first byte
+If the  latter is multibyte,  then, the expression  evaluates to its  first byte
 instead.
 
 ### Why is it not the character under the cursor?
@@ -352,7 +352,7 @@ instead.
 `col('.')` adds `1` to the byte index of the character under the cursor;
 probably because `0` is already used for an error:
 
->     The first column is 1.  0 is returned for an error.
+   > The first column is 1.  0 is returned for an error.
 
 ---
 
@@ -361,7 +361,7 @@ To match the first character on a line, you must use `\%1c.` and not `\%0c.`.
 
 ### Why can't the expression be tweaked to get it?
 
-Because it could be a multi-byte character.
+Because it could be a multibyte character.
 
 So you can't know how much you must remove from `col('.')`.
 
@@ -422,8 +422,8 @@ An empty string.
 
 From `:h expr-[]`:
 
->     A negative index always results in an empty string (reason: backward
->     compatibility).
+   > A negative index always results in an empty string (reason: backward
+   > compatibility).
 
 #### `str[-i:-j]` with `0 < i < j`?
 
@@ -1425,9 +1425,9 @@ The `%s` item of `printf()` can do that automatically.
 
 From `:h printf-s`:
 
->     If the argument is not a String type, it is
->     automatically converted to text with the same format
->     as ":echo".
+   > If the argument is not a String type, it is
+   > automatically converted to text with the same format
+   > as ":echo".
 
 ---
 

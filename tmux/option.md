@@ -149,9 +149,9 @@ It inherits its value from its window counterpart.
 
 From `man tmux /OPTIONS`:
 
->     Pane options inherit from window options.
->     This means any pane option may be set  as a window option to apply the option to
->     all panes in the window without the option set, [...]
+   > Pane options inherit from window options.
+   > This means any pane option may be set  as a window option to apply the option to
+   > all panes in the window without the option set, [...]
 
 ## When a window option has a pane counterpart, what benefit do you get?
 
@@ -400,7 +400,7 @@ and from the faq:
 
 I think that before 2.3, `terminal-overrides` was a string option.
 
->     * terminal-overrides and update-environment are now array options
+   > * terminal-overrides and update-environment are now array options
 <https://github.com/tmux/tmux/blob/8382ae65b7445a70e8a24b541cf104eedadd7265/CHANGES#L575>
 
 And maybe a comma was needed for a string option.

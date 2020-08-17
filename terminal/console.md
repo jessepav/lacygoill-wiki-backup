@@ -189,9 +189,9 @@ Because of the stdin redirection.
 
 From `man systemd.service`:
 
->     redirection using "<", "<<", ">", and  ">>", pipes using "|", running programs
->     in  the background  using "&",  and  other elements  of shell  syntax are  not
->     supported.
+   > redirection using "<", "<<", ">", and  ">>", pipes using "|", running programs
+   > in  the background  using "&",  and  other elements  of shell  syntax are  not
+   > supported.
 
 #### Is there an alternative?
 

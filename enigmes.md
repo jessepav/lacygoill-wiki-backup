@@ -2160,8 +2160,8 @@ en faisant abstraction de leur exactitude.
 
 Vous posez les 2 questions suivantes à l'un des 4 frères:
 
->     Est-ce que 2+2=4 ?
->     Pensez-vous que 2+2=4 ?
+   > Est-ce que 2+2=4 ?
+   > Pensez-vous que 2+2=4 ?
 
 Il répond resp. non et oui.  De quel frère s'agit-il ?
 

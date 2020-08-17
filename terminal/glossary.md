@@ -19,12 +19,12 @@ See:
 
 See also `man tmux /alternate-screen`:
 
->     This  option configures  whether  programs  running inside  the  pane may  use
->     the  terminal alternate  screen  feature,  which allows  the  smcup and  rmcup
->     terminfo(5) capabilities.
->     The  alternate screen  feature  preserves the  contents of  the  window when  an
->     interactive  application starts  and restores  it on  exit, so  that any  output
->     visible before the application starts reappears unchanged after it exits.
+   > This  option configures  whether  programs  running inside  the  pane may  use
+   > the  terminal alternate  screen  feature,  which allows  the  smcup and  rmcup
+   > terminfo(5) capabilities.
+   > The  alternate screen  feature  preserves the  contents of  the  window when  an
+   > interactive  application starts  and restores  it on  exit, so  that any  output
+   > visible before the application starts reappears unchanged after it exits.
 
 ##
 # b
@@ -380,7 +380,7 @@ If a program  with no controlling terminal tries to  open `/dev/tty`, the result
 (on Linux, at least) will be ENXIO.
 From `man 2 open`:
 
->    ENXIO [...] the file is a device special file and no corresponding device exists.
+   > ENXIO [...] the file is a device special file and no corresponding device exists.
 
 #### /dev/tty0
 

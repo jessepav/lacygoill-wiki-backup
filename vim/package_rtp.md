@@ -365,22 +365,22 @@ Document this.
 
 From nickspoon on `#vim`:
 
->     The benefit of vim-plug (and the older Vundle) is that it does the plugin cloning and updating for you
->     Also, vim-plug is handy for testing plugins, because you can easily disable them temporarily by simply
->     commenting them out of your .vimrc. **With packages you need to delete the dir** (with pathogen you could
->     rename it with a prefix and it would be ignored)
->     Another alternative is minpac, which works like vim-plug except it uses vim's packages under the hood.
+   > The benefit of vim-plug (and the older Vundle) is that it does the plugin cloning and updating for you
+   > Also, vim-plug is handy for testing plugins, because you can easily disable them temporarily by simply
+   > commenting them out of your .vimrc. **With packages you need to delete the dir** (with pathogen you could
+   > rename it with a prefix and it would be ignored)
+   > Another alternative is minpac, which works like vim-plug except it uses vim's packages under the hood.
 
 If we use packages instead of plugins, will it be a pain in the ass to bisect an
 issue located in an arbitrary plugin?
 
 ## ?
 
->     One annoyance with packages is `:helptags ALL` does not consider `opt` directories. Personally, I like having help documentation tags built for all packages, even optional ones.
+   > One annoyance with packages is `:helptags ALL` does not consider `opt` directories. Personally, I like having help documentation tags built for all packages, even optional ones.
 
->     Here is an "enhanced" command, `:Helptags`:
+   > Here is an "enhanced" command, `:Helptags`:
 
->          command! -nargs=0 -bar Helptags for p in glob('~/.vim/pack/*/opt/*', 1, 1) | exe 'packadd '.fnamemodify(p, ':t') | endfor | silent! helptags ALL
+   > command! -nargs=0 -bar Helptags for p in glob('~/.vim/pack/*/opt/*', 1, 1) | exe 'packadd '.fnamemodify(p, ':t') | endfor | silent! helptags ALL
 
 <https://www.reddit.com/r/vim/comments/g68bf6/pathogen_is_dead_or_should_be_long_live_vim_8/fo861i8/>
 
@@ -389,19 +389,19 @@ issue located in an arbitrary plugin?
 Could  we use  Vim packages  to eliminate  the separation  of plugins'  config
 between `~/.vim/plugin` and `~/.vim/after/plugin/`?
 
->     What  I like  about packadd  is  that **you  can actually  put the  before**
->     **and  after  config**  and  the  loading of  the  plugin  **in  a  single**
->     **file**.  That's because packadd loads the plugin right when it's called as
->     apposed to most plugin managers that collect the list of all plugins to load
->     before loading  them.  (For  that to  work plugins need  to be  installed in
->     a  pack/**/opt  directory  i.e.  when  using  the  minpac  package  manager:
->     minpac#add(url, {'type': 'opt'}))
+   > What  I like  about packadd  is  that **you  can actually  put the  before**
+   > **and  after  config**  and  the  loading of  the  plugin  **in  a  single**
+   > **file**.  That's because packadd loads the plugin right when it's called as
+   > apposed to most plugin managers that collect the list of all plugins to load
+   > before loading  them.  (For  that to  work plugins need  to be  installed in
+   > a  pack/**/opt  directory  i.e.  when  using  the  minpac  package  manager:
+   > minpac#add(url, {'type': 'opt'}))
 
->     Oh that's  a neat idea. I  think at  the moment though  I prefer to  see all
->     external plugins that will be loaded  in the one place. I use :packadd! (the
->     ! version) which adds the plugins to  the runtime path but doesn't load them
->     immediately. Also, that  way the plugins are  loaded when they expect  to be
->     loaded (ie. in the usual place in the startup order).
+   > Oh that's  a neat idea. I  think at  the moment though  I prefer to  see all
+   > external plugins that will be loaded  in the one place. I use :packadd! (the
+   > ! version) which adds the plugins to  the runtime path but doesn't load them
+   > immediately. Also, that  way the plugins are  loaded when they expect  to be
+   > loaded (ie. in the usual place in the startup order).
 
 Source:
 

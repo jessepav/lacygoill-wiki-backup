@@ -271,9 +271,9 @@ Use this regex to find all non ascii characters:
 
 Read `man zshzle`, section `special widgets`:
 
->     zle-line-pre-redraw
->            Executed  whenever  the  input  line  is  about  to be redrawn,
->            providing an opportunity to update the region_highlight array.
+   > zle-line-pre-redraw
+   >        Executed  whenever  the  input  line  is  about  to be redrawn,
+   >        providing an opportunity to update the region_highlight array.
 
 Also read this:
 <https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/docs/highlighters/regexp.md>

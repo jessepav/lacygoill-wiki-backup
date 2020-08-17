@@ -202,16 +202,16 @@ No:
 First, `++once`  is clearly  meant, among  other things, to  make the  code less
 verbose, and to get rid of the augroup:
 
->     Before:
+   > Before:
 
->         augroup FooGroup
->           autocmd!
->           autocmd FileType foo call Foo() | autocmd! FooGroup FileType foo
->         augroup END
+   > augroup FooGroup
+   >   autocmd!
+   >   autocmd FileType foo call Foo() | autocmd! FooGroup FileType foo
+   > augroup END
 
->     After:
+   > After:
 
->         autocmd FileType foo ++once call Foo()
+   > autocmd FileType foo ++once call Foo()
 
 Source: <https://github.com/vim/vim/pull/4100>
 
@@ -444,15 +444,15 @@ Do *not* conflate a **type** of event with an **occurrence** of event.
 
 When you think:
 
->     `BufReadPost` comes before `FileType`
+   > `BufReadPost` comes before `FileType`
 
 it does not mean:
 
->     ANY occurrence of `BufReadPost` comes before ANY occurrence of `FileType`
+   > ANY occurrence of `BufReadPost` comes before ANY occurrence of `FileType`
 
 but:
 
->     there is ONE occurrence of `BufReadPost` which triggers ONE occurrence of `FileType`
+   > there is ONE occurrence of `BufReadPost` which triggers ONE occurrence of `FileType`
 
 # What are the best events to automatically create/remove a match in a window?
 
@@ -600,8 +600,8 @@ get a complete command.  When you insert  a register, each key inside the latter
 is already a complete command because mappings and abbreviations are ignored.
 From `:h i^r`:
 
->     The text is inserted as if you typed it, but mappings and
->     abbreviations are not used.
+   > The text is inserted as if you typed it, but mappings and
+   > abbreviations are not used.
 
 Each key simply means:  "type this character in the user  buffer"; so there's no
 need for it to be written in the typeahead buffer.
@@ -673,14 +673,14 @@ the current window does not display a buffer terminal.
 
 From `:h TerminalOpen`:
 
->     This event is triggered even if the buffer is created without a window, with the
->     ++hidden option.
+   > This event is triggered even if the buffer is created without a window, with the
+   > ++hidden option.
 
 Solution: Listen to `TerminalWinOpen`.
 
 From `:h TerminalWinOpen`:
 
->     This event is triggered only if the buffer is created with a window.
+   > This event is triggered only if the buffer is created with a window.
 
 ### using `expand('<abuf>')`?
 
@@ -689,10 +689,10 @@ You get a string containing a number, not a number.
 A function may interpret its argument differently depending on its type.
 That's the case for `bufname()`:
 
->     If {expr} is a Number, that buffer number's name is given.
->     ...
->     If {expr} is a String, it is used as a |file-pattern| to match
->     with the buffer names.
+   > If {expr} is a Number, that buffer number's name is given.
+   > ...
+   > If {expr} is a String, it is used as a |file-pattern| to match
+   > with the buffer names.
 
     $ vim /tmp/file{1..99}
     :echo bufname(3)
@@ -738,9 +738,9 @@ For example, when you write this:
 You probably expect Vim to echo the path to the file whose buffer gets hidden.
 That's not always the case; from `:h BufHidden`:
 
->     NOTE: When this autocommand is executed, the
->     current buffer "%" may be different from the
->     buffer being unloaded "<afile>".
+   > NOTE: When this autocommand is executed, the
+   > current buffer "%" may be different from the
+   > buffer being unloaded "<afile>".
 
 When  you need  to  refer  to the  file  for which  an  event  is fired,  prefer
 `<afile>`; according to  the help, only these events should  be affected by this
@@ -809,7 +809,7 @@ But it doesn't work on Windows:
 To suppress the special meaning of `?` in the pattern field of an autocmd.
 From `:h file-pattern`:
 
->     ?     matches any single character
+   > ?     matches any single character
 
 You want the literal meaning, to only match a backward search command-line.
 You  don't want  `?` to  match  any character,  which  would cause  any type  of
@@ -1282,8 +1282,8 @@ This lets you use lookarounds:
 
 From `:h file-pattern`:
 
->     It is possible to use |pattern| items, but they may not work as expected,
->     because of the translation done for the above.
+   > It is possible to use |pattern| items, but they may not work as expected,
+   > because of the translation done for the above.
 
 See: <https://vi.stackexchange.com/a/19385/17449>
 

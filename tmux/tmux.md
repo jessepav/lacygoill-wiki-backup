@@ -17,12 +17,12 @@ As a command termination (like the shell).
 
 From `man tmux /COMMANDS`:
 
->     Multiple commands may be specified together as part of a command sequence.
->     Each  command should  be  separated  by spaces  and  a  semicolon; commands  are
->     executed  sequentially from  left to  right and  lines ending  with a  backslash
->     continue on to the next line, except when escaped by another backslash.
->     A  literal semicolon  may  be included  by  escaping it  with  a backslash  (for
->     example, when specifying a command sequence to bind-key).
+   > Multiple commands may be specified together as part of a command sequence.
+   > Each  command should  be  separated  by spaces  and  a  semicolon; commands  are
+   > executed  sequentially from  left to  right and  lines ending  with a  backslash
+   > continue on to the next line, except when escaped by another backslash.
+   > A  literal semicolon  may  be included  by  escaping it  with  a backslash  (for
+   > example, when specifying a command sequence to bind-key).
 
 ### When do I need to escape a semicolon?
 
@@ -503,18 +503,18 @@ Use the compiled binary to reproduce the crash, *and* to extract a backtrace fro
 
 See `man gcc` for more info:
 
->     The output is sensitive to the effects of previous command-line
->     options, so for example it is possible to find out which
->     optimizations are enabled at -O2 by using:
->
->             -Q -O2 --help=optimizers
->
->     Alternatively you can discover which binary optimizations are
->     enabled by -O3 by using:
->
->             gcc -c -Q -O3 --help=optimizers > /tmp/O3-opts
->             gcc -c -Q -O2 --help=optimizers > /tmp/O2-opts
->             diff /tmp/O2-opts /tmp/O3-opts | grep enabled
+   > The output is sensitive to the effects of previous command-line
+   > options, so for example it is possible to find out which
+   > optimizations are enabled at -O2 by using:
+   >
+   >         -Q -O2 --help=optimizers
+   >
+   > Alternatively you can discover which binary optimizations are
+   > enabled by -O3 by using:
+   >
+   >         gcc -c -Q -O3 --help=optimizers > /tmp/O3-opts
+   >         gcc -c -Q -O2 --help=optimizers > /tmp/O2-opts
+   >         diff /tmp/O2-opts /tmp/O3-opts | grep enabled
 
 ---
 
@@ -624,18 +624,18 @@ Example:
 
 For a real example:
 
->     if-shell  and  run-shell  will  block  the  client  command  queue  where  the
->     source-file happens  until the child  process exits  so the hanging  but being
->     able to  attach a new  client is consistent with  tmux not realising  that the
->     process has exited.
+   > if-shell  and  run-shell  will  block  the  client  command  queue  where  the
+   > source-file happens  until the child  process exits  so the hanging  but being
+   > able to  attach a new  client is consistent with  tmux not realising  that the
+   > process has exited.
 <https://github.com/tmux/tmux/issues/1854#issuecomment-524910268>
 
->     You can see the same if you have a file that does 'run "sleep 10"' then do C-b
->     : source myfile - the client won't respond until the sleep is finished.
+   > You can see the same if you have a file that does 'run "sleep 10"' then do C-b
+   > : source myfile - the client won't respond until the sleep is finished.
 <https://github.com/tmux/tmux/issues/1854#issuecomment-524912247>
 
->     If it isn't getting SIGCHLD it will never know the processes have exited so it
->     will never let the client continue.
+   > If it isn't getting SIGCHLD it will never know the processes have exited so it
+   > will never let the client continue.
 <https://github.com/tmux/tmux/issues/1854#issuecomment-524930364>
 
 ## When writing a bug report, which terminal geometry should I use?
@@ -652,11 +652,11 @@ The goal is to reproduce with a “standard” geometry.
 
 See `man tmux /^\s*default-size`:
 
->     The default is 80x24.
+   > The default is 80x24.
 
 See also `:h window-size`:
 
->     If everything fails a default size of 24 lines and 80 columns is assumed.
+   > If everything fails a default size of 24 lines and 80 columns is assumed.
 
 ##
 # Issues

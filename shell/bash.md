@@ -5618,8 +5618,8 @@ There may be only one active coprocess at a time.
 
 bash uses an internal pager, which is not configurable:
 
->     Readline does not use `more', or any other external program; it uses its
->     own internal pager.  There is no user-configurable hook to change that.
+   > Readline does not use `more', or any other external program; it uses its
+   > own internal pager.  There is no user-configurable hook to change that.
 
 Source: <https://lists.gnu.org/archive/html/help-bash/2014-03/msg00018.html>
 
@@ -5635,7 +5635,7 @@ The only keys which seem to work are:
 
 Solution: If it bothers you, use zsh instead.
 
->     I think switching to zsh or fish is the answer. Bash isn't as sophisticated. – Gilles
+   > I think switching to zsh or fish is the answer. Bash isn't as sophisticated. – Gilles
 
 Source:
 <https://unix.stackexchange.com/questions/158269/can-we-use-something-better-than-more-for-tab-completion#comment259278_158269>

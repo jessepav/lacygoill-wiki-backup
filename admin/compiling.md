@@ -71,9 +71,9 @@ Assuming it's version-controlled by git:
 
 From `man git-describe`:
 
->     --tags
->        Instead of  using only the annotated  tags, use any tag  found in refs/tags
->        namespace. This option enables matching a lightweight (non-annotated) tag.
+   > --tags
+   >    Instead of  using only the annotated  tags, use any tag  found in refs/tags
+   >    namespace. This option enables matching a lightweight (non-annotated) tag.
 
 ---
 
@@ -114,12 +114,12 @@ which looks like this:
 
 The `2:` is called the **epoch**:
 
->     This is a single (generally small) unsigned integer.
->     It may be omitted, in which case zero is assumed.
->     If it is omitted then the `upstream_version` may not contain any colons.
->     It  is provided  to  allow  mistakes in  the  version  numbers of  older
->     versions of a  package, and also a package's  previous version numbering
->     schemes, to be left behind.
+   > This is a single (generally small) unsigned integer.
+   > It may be omitted, in which case zero is assumed.
+   > If it is omitted then the `upstream_version` may not contain any colons.
+   > It  is provided  to  allow  mistakes in  the  version  numbers of  older
+   > versions of a  package, and also a package's  previous version numbering
+   > schemes, to be left behind.
 
 Source: <https://serverfault.com/a/604549>
 

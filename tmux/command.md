@@ -21,9 +21,9 @@ string; it's *included* in the string.
 
 From `man tmux /COMMAND PARSING AND EXECUTION/;/twice`:
 
->     This means that arguments can be parsed twice or more - once when the parent
->     command (such as  if-shell) is parsed and again when  it parses and executes
->     its command.
+   > This means that arguments can be parsed twice or more - once when the parent
+   > command (such as  if-shell) is parsed and again when  it parses and executes
+   > its command.
 
 ### More generally, what can you infer from this?
 
@@ -111,18 +111,18 @@ shell command `true` is instantaneous.
 `displayp` blocks until you press a key.
 From `man tmux /COMMAND PARSING AND EXECUTION/;/subsequent`:
 
->     Commands like if-shell, run-shell and display-panes stop execution of subsequent
->     commands on the  queue until something happens - if-shell  and run-shell until a
->     shell command finishes and display-panes until a key is pressed.
+   > Commands like if-shell, run-shell and display-panes stop execution of subsequent
+   > commands on the  queue until something happens - if-shell  and run-shell until a
+   > shell command finishes and display-panes until a key is pressed.
 
 ### Which commands do *not*?
 
 All the other ones.
 This includes `copy-pipe` and its variants.
 
->     nicm │ tmux only guarantees a command is started, it doesn't wait for it
->     ...
->     nicm │ someone talked about making copy-pipe also block but we didn't do it
+   > nicm │ tmux only guarantees a command is started, it doesn't wait for it
+   > ...
+   > nicm │ someone talked about making copy-pipe also block but we didn't do it
 
 ---
 
@@ -170,10 +170,10 @@ tmux won't respond anymore, until `run` has finished its job.
 Afterward, tmux will relay to the foreground process any key pressed while `run`
 was running.
 
->     If you run with if-shell -b then the command is run in the context of the
->     attached client, not the command client you started by typing "tmux if ..."
->     into the shell. So run-shell will block the attached client not the command
->     client. That's why you get the shell prompt back immediately.
+   > If you run with if-shell -b then the command is run in the context of the
+   > attached client, not the command client you started by typing "tmux if ..."
+   > into the shell. So run-shell will block the attached client not the command
+   > client. That's why you get the shell prompt back immediately.
 
 <https://github.com/tmux/tmux/issues/1843#issuecomment-512512304>
 
@@ -281,10 +281,10 @@ with the tmux buffer which is put on the stack.
 No, you can't remove the buffer from the shell command passed to `copy-pipe`.
 The buffer might not exist yet.
 
->     nicm    the shell command is forked and the text is buffered to go to its stdin
->             before the new tmux buffer is created
->     nicm    so there is no way to tell whether the buffer will exist
->             by the time the shell command starts reading the text
+   > nicm    the shell command is forked and the text is buffered to go to its stdin
+   >         before the new tmux buffer is created
+   > nicm    so there is no way to tell whether the buffer will exist
+   >         by the time the shell command starts reading the text
 
 *This is not exactly what nicm said.*
 *I've fixed what I think were a few typos.*
@@ -579,7 +579,7 @@ A window can have a name.
 It can't have its own title, but it automatically gets the one of its active pane.
 
 From `man tmux /NAMES AND TITLES`:
->     Windows themselves do not have titles - a window's title is the title of its active pane.
+   > Windows themselves do not have titles - a window's title is the title of its active pane.
 
 ###
 
@@ -590,7 +590,7 @@ From `man tmux /NAMES AND TITLES`:
 This is due to what seems to be an undocumented effect of `-s`.
 Indeed, `-s` is meant to change the meaning of `-t`:
 
->     If -s is given, target is a session (or the current ses‐ sion).
+   > If -s is given, target is a session (or the current ses‐ sion).
 
 But there's no `-t` here.
 I guess that in the absence of `-t`, when you use `-s`, tmux assumes `-t ''`.
@@ -1026,15 +1026,15 @@ You need to escape the commas to remove this special meaning.
 # join-pane
 ## ?
 
->         join-pane [-bdhv] [-l size | -p percentage] [-s src-pane] [-t dst-pane]
->                       (alias: joinp)
+   > join-pane [-bdhv] [-l size | -p percentage] [-s src-pane] [-t dst-pane]
+   >               (alias: joinp)
 
->     Split dst-pane, and move src-pane into the newly created pane.
->     This can be used to reverse break-pane.
->     The -b option causes src-pane to be joined to left of or above dst-pane.
+   > Split dst-pane, and move src-pane into the newly created pane.
+   > This can be used to reverse break-pane.
+   > The -b option causes src-pane to be joined to left of or above dst-pane.
 
->     If -s is omitted and a marked pane is present (see select-pane -m), the marked
->     pane is used rather than the current pane.
+   > If -s is omitted and a marked pane is present (see select-pane -m), the marked
+   > pane is used rather than the current pane.
 
 ## Which pane is joined to the current window if I run `:join-pane -s 3`?
 
@@ -1068,200 +1068,200 @@ So, you'll probably want to take the habit of using the third syntax:
 ##
 # break-pane
 
->         break-pane [-dP] [-F format] [-n window-name] [-s src-pane] [-t dst-window]
+   > break-pane [-dP] [-F format] [-n window-name] [-s src-pane] [-t dst-window]
 
->               (alias: breakp)
+   > (alias: breakp)
 
->     Break src-pane  off from  its containing window  to make it  the only  pane in
->     dst-window.
+   > Break src-pane  off from  its containing window  to make it  the only  pane in
+   > dst-window.
 
->     If -d is given, the new window does not become the current window.
+   > If -d is given, the new window does not become the current window.
 
->     The -P option prints information about the new window after it has been created.
->     By default, it uses the format ‘#{session_name}:#{window_index}' but a different
->     format may be specified with -F.
+   > The -P option prints information about the new window after it has been created.
+   > By default, it uses the format ‘#{session_name}:#{window_index}' but a different
+   > format may be specified with -F.
 
 #
 # swap-pane
 
->         swap-pane [-dDU] [-s src-pane] [-t dst-pane]
->               (alias: swapp)
+   > swap-pane [-dDU] [-s src-pane] [-t dst-pane]
+   >       (alias: swapp)
 
->     Swap two panes.
->     If -U is used and no source pane  is specified with -s, dst-pane is swapped with
->     the previous pane (before it numerically); -D swaps with the next pane (after it
->     numerically).
->     -d instructs tmux not to change the active pane.
+   > Swap two panes.
+   > If -U is used and no source pane  is specified with -s, dst-pane is swapped with
+   > the previous pane (before it numerically); -D swaps with the next pane (after it
+   > numerically).
+   > -d instructs tmux not to change the active pane.
 
->     If -s is omitted and a marked pane is present (see select-pane -m), the marked
->     pane is used rather than the current pane.
+   > If -s is omitted and a marked pane is present (see select-pane -m), the marked
+   > pane is used rather than the current pane.
 
 # swap-window
 
->         swap-window [-d] [-s src-window] [-t dst-window]
->               (alias: swapw)
+   > swap-window [-d] [-s src-window] [-t dst-window]
+   >       (alias: swapw)
 
->     This is similar to link-window, except  the source and destination windows are
->     swapped.
->     It is an error if no window exists at src-window.
+   > This is similar to link-window, except  the source and destination windows are
+   > swapped.
+   > It is an error if no window exists at src-window.
 
->     Like swap-pane, if -s is omitted and a marked pane is present (see select-pane
->     -m), the  window containing the  marked pane is  used rather than  the current
->     window.
+   > Like swap-pane, if -s is omitted and a marked pane is present (see select-pane
+   > -m), the  window containing the  marked pane is  used rather than  the current
+   > window.
 
 #
 # split-window
 
->     split-window [-bdfhIvP] [-c start-directory] [-e environment] [-l size |
->             -p percentage] [-t target-pane] [shell-command] [-F format]
->                   (alias: splitw)
+   > split-window [-bdfhIvP] [-c start-directory] [-e environment] [-l size |
+   >         -p percentage] [-t target-pane] [shell-command] [-F format]
+   >               (alias: splitw)
 
->     Create a new pane by splitting target-pane:  -h does a horizontal split and -v
->     a vertical split; if neither is specified, -v is assumed.
->     The -l and  -p options specify the size  of the new pane in  lines (for vertical
->     split) or in cells (for horizontal split), or as a percentage, respectively.
->     The  -b option  causes the  new  pane to  be created  to  the left  of or  above
->     target-pane.
->     The -f option  creates a new pane  spanning the full window height  (with -h) or
->     full window width (with -v), instead of splitting the active pane.
+   > Create a new pane by splitting target-pane:  -h does a horizontal split and -v
+   > a vertical split; if neither is specified, -v is assumed.
+   > The -l and  -p options specify the size  of the new pane in  lines (for vertical
+   > split) or in cells (for horizontal split), or as a percentage, respectively.
+   > The  -b option  causes the  new  pane to  be created  to  the left  of or  above
+   > target-pane.
+   > The -f option  creates a new pane  spanning the full window height  (with -h) or
+   > full window width (with -v), instead of splitting the active pane.
 
->     An empty shell-command ('') will create a pane with no command running in it.
->     Output can be sent to such a pane with the display-message command.
->     The -I flag  (if shell-command is not  specified or empty) will  create an empty
->     pane and forward any output from stdin to it.
->     For example:
+   > An empty shell-command ('') will create a pane with no command running in it.
+   > Output can be sent to such a pane with the display-message command.
+   > The -I flag  (if shell-command is not  specified or empty) will  create an empty
+   > pane and forward any output from stdin to it.
+   > For example:
 
->           $ make 2>&1|tmux splitw -dI &
+   > $ make 2>&1|tmux splitw -dI &
 
->     All other options have the same meaning as for the new-window command.
+   > All other options have the same meaning as for the new-window command.
 
 # link-window
 
->         link-window [-adk] [-s src-window] [-t dst-window]
->               (alias: linkw)
+   > link-window [-adk] [-s src-window] [-t dst-window]
+   >       (alias: linkw)
 
->     Link the window at src-window to the specified dst-window.
->     If dst-window is  specified and no such window exists,  the src-window is linked
->     there.
->     With -a, the window  is moved to the next index up  (following windows are moved
->     if necessary).
->     If  -k is  given and  dst-window exists,  it is  killed, otherwise  an error  is
->     generated.
->     If -d is given, the newly linked window is not selected.
+   > Link the window at src-window to the specified dst-window.
+   > If dst-window is  specified and no such window exists,  the src-window is linked
+   > there.
+   > With -a, the window  is moved to the next index up  (following windows are moved
+   > if necessary).
+   > If  -k is  given and  dst-window exists,  it is  killed, otherwise  an error  is
+   > generated.
+   > If -d is given, the newly linked window is not selected.
 
 # new-window
 
->         new-window [-adkP] [-c start-directory] [-e environment] [-F format] [-n
->         window-name] [-t target-window] [shell-command]
->               (alias: neww)
+   > new-window [-adkP] [-c start-directory] [-e environment] [-F format] [-n
+   > window-name] [-t target-window] [shell-command]
+   >       (alias: neww)
 
->     Create a new window.
->     With -a,  the new window  is inserted  at the next  index up from  the specified
->     target-window, moving  windows up if  necessary, otherwise target-window  is the
->     new window location.
+   > Create a new window.
+   > With -a,  the new window  is inserted  at the next  index up from  the specified
+   > target-window, moving  windows up if  necessary, otherwise target-window  is the
+   > new window location.
 
->     If -d is given, the session does not make the new window the current window.
->     target-window represents the window to be  created; if the target already exists
->     an error is shown, unless the -k flag is used, in which case it is destroyed.
->     shell-command is the command to execute.
->     If shell-command  is not specified, the  value of the default-command  option is
->     used.
->     -c specifies the working directory in which the new window is created.
+   > If -d is given, the session does not make the new window the current window.
+   > target-window represents the window to be  created; if the target already exists
+   > an error is shown, unless the -k flag is used, in which case it is destroyed.
+   > shell-command is the command to execute.
+   > If shell-command  is not specified, the  value of the default-command  option is
+   > used.
+   > -c specifies the working directory in which the new window is created.
 
->     When the shell command completes, the window closes.
->     See the remain-on-exit option to change this behaviour.
+   > When the shell command completes, the window closes.
+   > See the remain-on-exit option to change this behaviour.
 
->     -e takes  the form ‘VARIABLE=value' and  sets an environment variable  for the
->     newly created window; it may be specified multiple times.
+   > -e takes  the form ‘VARIABLE=value' and  sets an environment variable  for the
+   > newly created window; it may be specified multiple times.
 
->     The  TERM environment  variable must  be  set to  ‘screen' or  ‘tmux' for  all
->     programs running inside tmux.
->     New windows  will automatically have  ‘TERM=screen' added to  their environment,
->     but care must  be taken not to reset  this in shell start-up files or  by the -e
->     option.
+   > The  TERM environment  variable must  be  set to  ‘screen' or  ‘tmux' for  all
+   > programs running inside tmux.
+   > New windows  will automatically have  ‘TERM=screen' added to  their environment,
+   > but care must  be taken not to reset  this in shell start-up files or  by the -e
+   > option.
 
->     The  -P option  prints information  about  the new  window after  it has  been
->     created.
->     By default, it uses the format ‘#{session_name}:#{window_index}' but a different
->     format may be specified with -F.
+   > The  -P option  prints information  about  the new  window after  it has  been
+   > created.
+   > By default, it uses the format ‘#{session_name}:#{window_index}' but a different
+   > format may be specified with -F.
 
 # new-session
 
->         new-session [-AdDEPX] [-c start-directory] [-F format] [-n window-name]
->         [-s session-name] [-t group-name] [-x width] [-y height]
->         [shell-command]
->               (alias: new)
+   > new-session [-AdDEPX] [-c start-directory] [-F format] [-n window-name]
+   > [-s session-name] [-t group-name] [-x width] [-y height]
+   > [shell-command]
+   >       (alias: new)
 
->     Create a new session with name session-name.
+   > Create a new session with name session-name.
 
->     The new session is attached to the current terminal unless -d is given.
->     window-name and  shell-command are the name  of and shell command  to execute in
->     the initial window.
->     With -d, the initial  size comes from the global default-size  option; -x and -y
->     can be used to specify a different size.
->     ‘-' uses the size of the current client if any.
->     If -x or -y is given, the default-size option is set for the session.
+   > The new session is attached to the current terminal unless -d is given.
+   > window-name and  shell-command are the name  of and shell command  to execute in
+   > the initial window.
+   > With -d, the initial  size comes from the global default-size  option; -x and -y
+   > can be used to specify a different size.
+   > ‘-' uses the size of the current client if any.
+   > If -x or -y is given, the default-size option is set for the session.
 
->     If run from  a terminal, any termios(4) special characters  are saved and used
->     for new windows in the new session.
+   > If run from  a terminal, any termios(4) special characters  are saved and used
+   > for new windows in the new session.
 
->     The  -A flag  makes  new-session behave  like  attach-session if  session-name
->     already exists;  in this case,  -D behaves like  -d to attach-session,  and -X
->     behaves like -x to attach-session.
+   > The  -A flag  makes  new-session behave  like  attach-session if  session-name
+   > already exists;  in this case,  -D behaves like  -d to attach-session,  and -X
+   > behaves like -x to attach-session.
 
->     If -t is given, it specifies a session group.
->     Sessions in  the same  group share  the same set  of windows  - new  windows are
->     linked to  all sessions  in the group  and any windows  closed removed  from all
->     sessions.
->     The current and  previous window and any session options  remain independent and
->     any session in a group may be killed without affecting the others.
->     The group-name argument may be:
+   > If -t is given, it specifies a session group.
+   > Sessions in  the same  group share  the same set  of windows  - new  windows are
+   > linked to  all sessions  in the group  and any windows  closed removed  from all
+   > sessions.
+   > The current and  previous window and any session options  remain independent and
+   > any session in a group may be killed without affecting the others.
+   > The group-name argument may be:
 
->     1.      the name of an existing group, in which case the new ses‐
->             sion is added to that group;
+   > 1.      the name of an existing group, in which case the new ses‐
+   >         sion is added to that group;
 
->     2.      the name of an existing session - the new session is
->             added to the same group as that session, creating a new
->             group if necessary;
+   > 2.      the name of an existing session - the new session is
+   >         added to the same group as that session, creating a new
+   >         group if necessary;
 
->     3.      the name for a new group containing only the new session.
+   > 3.      the name for a new group containing only the new session.
 
->     -n and shell-command are invalid if -t is used.
+   > -n and shell-command are invalid if -t is used.
 
->     The  -P option  prints information  about the  new session  after it  has been
->     created.
->     By default, it uses the format  ‘#{session_name}:' but a different format may be
->     specified with -F.
+   > The  -P option  prints information  about the  new session  after it  has been
+   > created.
+   > By default, it uses the format  ‘#{session_name}:' but a different format may be
+   > specified with -F.
 
->     If -E is used, the update-environment option will not be applied.
+   > If -E is used, the update-environment option will not be applied.
 
 # respawn-pane
 
->         respawn-pane [-k] [-c start-directory] [-e environment] [-t target-pane] [shell-command]
->               (alias: respawnp)
+   > respawn-pane [-k] [-c start-directory] [-e environment] [-t target-pane] [shell-command]
+   >       (alias: respawnp)
 
->     Reactivate a  pane in  which the  command has  exited (see  the remain-on-exit
->     window option).
->     If shell-command  is not given,  the command used when  the pane was  created is
->     executed.
->     The  pane must  be already  inactive,  unless -k  is  given, in  which case  any
->     existing command is killed.
->     -c specifies a new working directory for the pane.
->     The -e option has the same meaning as for the new-window command.
+   > Reactivate a  pane in  which the  command has  exited (see  the remain-on-exit
+   > window option).
+   > If shell-command  is not given,  the command used when  the pane was  created is
+   > executed.
+   > The  pane must  be already  inactive,  unless -k  is  given, in  which case  any
+   > existing command is killed.
+   > -c specifies a new working directory for the pane.
+   > The -e option has the same meaning as for the new-window command.
 
 # respawn-window
 
->         respawn-window [-k] [-c start-directory] [-e environment] [-t target-window] [shell-command]
->               (alias: respawnw)
+   > respawn-window [-k] [-c start-directory] [-e environment] [-t target-window] [shell-command]
+   >       (alias: respawnw)
 
->     Reactivate a  window in which the  command has exited (see  the remain-on-exit
->     window option).
->     If shell-command is not  given, the command used when the  window was created is
->     executed.
->     The window  must be  already inactive,  unless -k  is given,  in which  case any
->     existing command is killed.
->     -c specifies a new working directory for the window.
->     The -e option has the same meaning as for the new-window command.
+   > Reactivate a  window in which the  command has exited (see  the remain-on-exit
+   > window option).
+   > If shell-command is not  given, the command used when the  window was created is
+   > executed.
+   > The window  must be  already inactive,  unless -k  is given,  in which  case any
+   > existing command is killed.
+   > -c specifies a new working directory for the window.
+   > The -e option has the same meaning as for the new-window command.
 
 # send-keys
 
@@ -1519,58 +1519,58 @@ split-window and kill-session in that order.
 
 ## ?
 
->     shell-command arguments are sh(1) commands.
->     This may be a single argument passed to the shell, for example:
+   > shell-command arguments are sh(1) commands.
+   > This may be a single argument passed to the shell, for example:
 
->       new-window 'vi /etc/passwd'
+   > new-window 'vi /etc/passwd'
 
->     Will run:
+   > Will run:
 
->           /bin/sh -c 'vi /etc/passwd'
+   > /bin/sh -c 'vi /etc/passwd'
 
->     Additionally,  the new-window,  new-session, split-window,  respawn-window and
->     respawn-pane commands  allow shell-command to  be given as  multiple arguments
->     and executed directly (without ‘sh -c').
->     This can avoid issues with shell quoting.
->     For example:
+   > Additionally,  the new-window,  new-session, split-window,  respawn-window and
+   > respawn-pane commands  allow shell-command to  be given as  multiple arguments
+   > and executed directly (without ‘sh -c').
+   > This can avoid issues with shell quoting.
+   > For example:
 
->       $ tmux new-window vi /etc/passwd
+   > $ tmux new-window vi /etc/passwd
 
->     Will run vi(1) directly without invoking the shell.
-
-## ?
-
->     command [arguments] refers  to a tmux command, either passed  with the command
->     and arguments separately, for example:
-
->       bind-key F1 set-option status off
-
->     Or passed as a single string argument in .tmux.conf, for example:
-
->       bind-key F1 { set-option status off }
+   > Will run vi(1) directly without invoking the shell.
 
 ## ?
 
->     Example tmux commands include:
+   > command [arguments] refers  to a tmux command, either passed  with the command
+   > and arguments separately, for example:
 
->       refresh-client -t/dev/ttyp2
+   > bind-key F1 set-option status off
 
->       rename-session -tfirst newname
+   > Or passed as a single string argument in .tmux.conf, for example:
 
->       set-option -wt:0 monitor-activity on
+   > bind-key F1 { set-option status off }
 
->       new-window ; split-window -d
+## ?
 
->       bind-key R source-file ~/.tmux.conf \; \
->               display-message "source-file done"
+   > Example tmux commands include:
 
->     Or from sh(1):
+   > refresh-client -t/dev/ttyp2
 
->       $ tmux kill-window -t :1
+   > rename-session -tfirst newname
 
->       $ tmux new-window \; split-window -d
+   > set-option -wt:0 monitor-activity on
 
->       $ tmux new-session -d 'vi /etc/passwd' \; split-window -d \; attach
+   > new-window ; split-window -d
+
+   > bind-key R source-file ~/.tmux.conf \; \
+   >         display-message "source-file done"
+
+   > Or from sh(1):
+
+   > $ tmux kill-window -t :1
+
+   > $ tmux new-window \; split-window -d
+
+   > $ tmux new-session -d 'vi /etc/passwd' \; split-window -d \; attach
 
 ##
 # study

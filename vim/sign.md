@@ -35,7 +35,7 @@ But if you do,  and the popup had a sign column, the  latter disappears, even if
 
 What does this sentence from `:h sign-group` mean:
 
->     The group name "PopUpMenu" is used by popup windows where 'cursorline' is set.
+   > The group name "PopUpMenu" is used by popup windows where 'cursorline' is set.
 
 Does it mean we must use this prefix when 'cursorline' is set?
 Or does it mean we must use this prefix for a popup menu created with `popup_menu()`?

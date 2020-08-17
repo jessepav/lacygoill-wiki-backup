@@ -236,21 +236,21 @@ Note that we can't use `;` in the second key binding, because tmux would complai
 But `:` should have the same effect; i.e. none.
 From `man bash /SHELL BUILTIN COMMANDS`:
 
-> : [arguments]
->        No effect; the command does nothing beyond  expanding  arguments
->        and  performing any specified redirections.  A zero exit code is
->        returned.
+   > : [arguments]
+   >        No effect; the command does nothing beyond  expanding  arguments
+   >        and  performing any specified redirections.  A zero exit code is
+   >        returned.
 
 ### ?
 
 Ask this question to nicm:
 
-> If it's not a bug in tmux, could you explain:
+   > If it's not a bug in tmux, could you explain:
 
->    - why do I need to add a trailing `true(1)` statement?
->    - why does the seemingly equivalent workaround fail?
->    - is it a general issue;
->      i.e. do I need a trailing `true(1)` statement + a `run-shell`, every time I use copy-pipe?
+   > - why do I need to add a trailing `true(1)` statement?
+   > - why does the seemingly equivalent workaround fail?
+   > - is it a general issue;
+   >   i.e. do I need a trailing `true(1)` statement + a `run-shell`, every time I use copy-pipe?
 
 ### ?
 
@@ -368,16 +368,16 @@ Relevant excerpts from the original issue:
 
 Question:
 
->     However, since the maximum length of an OSC 52 escape sequence is
->     **100,000** bytes[1] and the patched tmux's DCS escape sequence length
->     limit is 32772 bytes (as observed above), how would you recommend
->     sending a maximum-length OSC 52 escape sequence through tmux?
+   > However, since the maximum length of an OSC 52 escape sequence is
+   > **100,000** bytes[1] and the patched tmux's DCS escape sequence length
+   > limit is 32772 bytes (as observed above), how would you recommend
+   > sending a maximum-length OSC 52 escape sequence through tmux?
 
 Answer:
 
->     Actually looking at xterm it doesn't have a limit for this escape
->     sequence, we can probably make tmux's a lot bigger so long as we reduce
->     it back to 32 bytes after the sequence is done.
+   > Actually looking at xterm it doesn't have a limit for this escape
+   > sequence, we can probably make tmux's a lot bigger so long as we reduce
+   > it back to 32 bytes after the sequence is done.
 
 <https://www.mail-archive.com/tmux-users%40lists.sourceforge.net/msg05949.html>
 <https://www.mail-archive.com/tmux-users%40lists.sourceforge.net/msg05950.html>

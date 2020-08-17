@@ -88,8 +88,8 @@ I found it here:
 
 From `:h python-building`:
 
->     If you have more than one version  of Python 3, you need to link python3
->     to the one you prefer, before running configure.
+   > If you have more than one version  of Python 3, you need to link python3
+   > to the one you prefer, before running configure.
 
 I have no idea how to “link python3 to the one I prefer” though.
 
@@ -117,8 +117,8 @@ When you start WeeChat, this message would be printed in the core buffer:
 
 According to this message from a dev, the issue is due to our custom python:
 
->     I think your compilation problem is caused by your custom install of Python, so
->     as I can not reproduce the problem, I close the issue.
+   > I think your compilation problem is caused by your custom install of Python, so
+   > as I can not reproduce the problem, I close the issue.
 
 <https://github.com/weechat/weechat/issues/1383#issuecomment-520126339>
 
@@ -391,7 +391,7 @@ been removed in the process.
 ##
 ## How to print “Hello world!”?
 
-        >>> print("Hello world!")
+    >>> print("Hello world!")
 
 ## How to leave the Python prompt?
 

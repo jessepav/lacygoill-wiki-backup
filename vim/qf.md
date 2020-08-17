@@ -155,14 +155,14 @@ an equivalence (i.e. only one filename matches this module name and vice versa).
 As a result, the module name is used only for displaying purposes.
 The file name is still used when jumping to the file.
 
->     For some languages the file paths can be really long.
->     For example in PureScript we often have locations as long as:
->
->         ./src/bower_components/purescript-free/src/Control/Comonad/Cofree.purs
->
->     And it might get even longer when it expands to a fullpath.
->     This might  be helpful for  other languages where  there is a  clear mapping
->     between file system and **module name space** (Haskell, Python, NodeJs, etc).
+   > For some languages the file paths can be really long.
+   > For example in PureScript we often have locations as long as:
+   >
+   >     ./src/bower_components/purescript-free/src/Control/Comonad/Cofree.purs
+   >
+   > And it might get even longer when it expands to a fullpath.
+   > This might  be helpful for  other languages where  there is a  clear mapping
+   > between file system and **module name space** (Haskell, Python, NodeJs, etc).
 
 <https://github.com/vim/vim/pull/1757#issuecomment-325200776>
 
@@ -306,21 +306,21 @@ Assign the value `'$'` to its `'nr'` property.
 ##
 ## How to get the identifier of the third qfl in the stack?
 
-    :echo getqflist({'nr':3, 'id':0}).id
-                                  ^
-                                  do NOT give `1`
+    :echo getqflist({'nr': 3, 'id': 0}).id
+                                    ^
+                                    do NOT give `1`
 
-                                  If you do, you probably won't get any valid info, because
-                                  there's no qfl whose id and position in the stack are 1 and 3:
+                                    If you do, you probably won't get any valid info, because
+                                    there's no qfl whose id and position in the stack are 1 and 3:
 
-                                      :echo getqflist({'nr':3, 'id':1}).id
-                                      {'nr': 0, 'id': 0} ✘~
+                                        :echo getqflist({'nr': 3, 'id': 1}).id
+                                        {'nr': 0, 'id': 0} ✘~
 
 ## How to get the position in the stack of the qfl whose identifier is `3`?
 
-    :echo getqflist({'nr':0, 'id':3}).nr
+    :echo getqflist({'nr': 0, 'id': 3}).nr
 
-Here, the purpose of `'nr':0` is not to describe the qfl in which we're interested;
+Here, the purpose of `'nr': 0` is not to describe the qfl in which we're interested;
 it's to force `getqflist()` to include the `'nr'` key in the output dictionary.
 
 ## How to get the entries of the first qfl in the stack?
@@ -331,7 +331,7 @@ it's to force `getqflist()` to include the `'nr'` key in the output dictionary.
 
 Size of the third qfl:
 
-    :echo getqflist({'nr': 3, 'size': 1}).size
+    :echo getqflist({'nr': 3, 'size': 0}).size
 
 Size of the qf stack:
 
@@ -340,7 +340,7 @@ Size of the qf stack:
 ##
 ## How to check whether the qfl whose ID is 123 exists?
 
-    if getqflist({'id':123}).id == 123
+    if getqflist({'id': 123}).id == 123
 
 ## Why is it important for a plugin to be able to detect whether the qfl has been modified?
 
@@ -358,10 +358,10 @@ time it inspected the qfl.
 It can inspect the `'changedtick'` property:
 
     " populate a qfl
-    let last_change = getqflist({'changedtick':0}).changedtick
+    let last_change = getqflist({'changedtick': 0}).changedtick
     ...
 
-    let new_change = getqflist({'changedtick':0})changedtick
+    let new_change = getqflist({'changedtick': 0})changedtick
     if new_change != last_change
         return
     endif
@@ -392,8 +392,8 @@ It's slower than `:grep` because each searched file is loaded in memory.
 
 Pro:
 
-It can  search any Vim  regex.  Including multi-line patterns,  because newlines
-and the encoding are automatically recognized.
+It can search any Vim regex.  Including multiline patterns, because newlines and
+the encoding are automatically recognized.
 
 ## What are the three main characteristics defining the commands such as `:cgetexpr`?
 
@@ -633,7 +633,7 @@ Use the `'filename'` property:
 
 ## How to populate the qfl whose id is `123` with the output of a shell command?   (in one line)
 
-    call setqflist([], 'r', {'id':123, 'lines': systemlist('your shell cmd')})
+    call setqflist([], 'r', {'id': 123, 'lines': systemlist('your shell cmd')})
 
 ##
 ## I have a long-to-type set of files.  How to effectively and CONSECUTIVELY look for different patterns in it?
@@ -1339,7 +1339,7 @@ This will raise the error:
 
 From `:h :helpg`:
 
->     The pattern does not support line breaks, it must match within one line.
+   > The pattern does not support line breaks, it must match within one line.
 
 ---
 
@@ -1562,7 +1562,62 @@ there are some qf entries, sometimes, when jumping to a qfl entry, you end up in
 an unexpected  location, which  doesn't match the  pattern which  was originally
 used to populate the qfl.
 
-## Document that curly brackets in the file pattern of a `:vim` command break the expansion of environment variables.
+##
+## To document:
+### Vim always re-uses the *same* quickfix buffer since 8.1.0877
+
+    $ vim -Nu NONE +'sil helpg foo' +'echom bufnr() | close' +'sil helpg bar' +'echom bufnr()'
+    2
+    2
+
+It doesn't matter  whether you close and then re-open  the same quickfix window,
+or you  open a  new quickfix  window in  a new  tab page,  or you  stack several
+quickfix lists, or whatever... Vim *always* re-uses the *same* buffer.
+
+Obviously, the contents of that buffer is updated whenever you use a new command
+to populate a  new quickfix list; but  the quickfix list is  always displayed in
+the same buffer.
+
+Same thing for  the location list buffer;  but with one twist:   Vim re-uses the
+same buffer  *per window*.   Remember that  a location  list is  bound to  a Vim
+window.
+
+All of this matters if you try to  limit the scope of an autocmd to a particular
+qf list.  As a result, this doesn't work anymore:
+
+    au BufWinEnter <buffer> " do sth
+
+Solution:  Inspect the quickfix id:
+
+    let s:qfid = get(s:, 'qfid', []) + [getqflist({'id': 0})]
+    au BufWinEnter <buffer> if index(s:qfid, getqflist({'id': 0})) >= 0 | call s:conceal_noise() | endif
+                            ^-----------------------------------------^
+                                                 ✔
+
+See what we  did in `autoload/cookbook.vim` to  conceal a double bar,  only in a
+`:Cookbook` qf window.
+
+---
+
+OTOH, the winid is incremented every time you open a new qf window:
+
+    $ vim -Nu NONE +'sil helpg foo' +'echom win_getid() | close' +'sil helpg bar' +'echom win_getid()'
+
+    1001~
+    1002~
+
+But you can't use that info like this:
+
+    let t:_my_qf_window = win_getid()
+    au BufWinEnter <buffer> if win_getid() == t:_my_qf_window | do sth | endif
+                            ^-------------------------------^
+                                            ✘
+
+If you do, the autocmd won't be executed  when you display a new qfl (✔), but it
+won't be  executed either  when you  re-display the same  qfl after  closing and
+re-opening its window (✘).
+
+### curly brackets in the file pattern of a `:vim` command break the expansion of environment variables.
 
     " grep for 'pattern' in all conf or sh files under /etc
     :vim /pat/ /etc/**/*.{conf,sh}
@@ -1601,7 +1656,7 @@ parsed as environment variables:
                │      └ ... because this is parsed in a regex-like way, so everything is parsed similarly
                └ can't be parsed as an environment variable...
 
-## Document how `:cdo` can be used to repeat a macro on an arbitrary set of locations.
+### `:cdo` can be used to repeat a macro on an arbitrary set of locations
 
     /my pattern
     q .... q
@@ -1615,22 +1670,22 @@ updated).
 
 <https://vi.stackexchange.com/a/21579/17449>
 
-## Document that you can set the current entry in the qfl via `setqflist()` and the 'idx' property.
+### we can set the current entry in the qfl via `setqflist()` and the 'idx' property
 
 <https://github.com/vim/vim/pull/3701>
 
-## Document that the `module` property is ignored if you set the `quickfixtextfunc` one.
+### the `module` property is ignored if you set the `quickfixtextfunc` one
 
 ##
-## Document that if you return `[]` from the function assigned to `'qftf'`, the lines are displayed unchanged.
+### if you return `[]` from the function assigned to `'qftf'`, the lines are displayed unchanged
 
-## Document how to disable the *global option* `'qftf'` for one particular qfl.
+### how to disable the *global option* `'qftf'` for one particular qfl
 
 Just set the `'qftf'` *property* of the qfl to a function which returns an empty list.
 
 Note that you can't use a funcref.
 
-## Document that if the value assigned to `'qftf'` is a script local function, you need to translate `s:`.
+### if the value assigned to `'qftf'` is a script local function, you need to use a funcref
 
 To illustrate the pitfall, write this in `/tmp/a.vim`:
 
@@ -1674,32 +1729,14 @@ Vim fails to find `s:func()`.
 
 ---
 
-Solution: Translate `s:` manually.
-
-    if !exists('s:SID')
-        fu s:SID() abort
-            return expand('<sfile>')->matchstr('<SNR>\zs\d\+\ze_SID$')->str2nr()
-        endfu
-        const s:SID = s:SID()->printf('<SNR>%d_')
-        delfu s:SID
-    endif
-    let items = ...
-    call setqflist([], ' ', {'items': items, 'quickfixtextfunc': s:SID .. 'func'})
-                                                                 ^-------------^
-    ...
-
----
-
-It would be nice if we could use a funcref:
+Solution: Use a funcref.
 
     let items = ...
     call setqflist([], ' ', {'items': items, 'quickfixtextfunc': function('s:func')})
                                                                  ^----------------^
     ...
 
-But it doesn't work  (it works when the qf window is opened  for the first time,
-but not the subsequent times).
-You must provide the *name* of a function, just like for the global option.
+This requires that `s:func` is defined *before* you call `function()` and `setqflist()`.
 
 ##
 ## Talk about the 'filewinid' property of a location window.

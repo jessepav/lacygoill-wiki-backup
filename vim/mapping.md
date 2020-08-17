@@ -187,8 +187,8 @@ Example:
 I  guess the  other messages  are cleared  because Vim  has redrawn  the screen;
 similar to what this comment explains:
 
->     The messages are actually output, but the screen is redrawn right away
->     afterwards.  Try adding a sleep after the messages.
+   > The messages are actually output, but the screen is redrawn right away
+   > afterwards.  Try adding a sleep after the messages.
 
 <https://github.com/vim/vim/issues/3960#issuecomment-463769646>
 
@@ -392,8 +392,8 @@ Similar issue: <https://github.com/tpope/vim-repeat/issues/23>
 
 Btw, @chrisbra has the same opinion:
 
->     After thinking a bit more, I think,  when the keys have not been typed, they
->     should **always** be inserted at the current position.
+   > After thinking a bit more, I think,  when the keys have not been typed, they
+   > should **always** be inserted at the current position.
 
 Source: <https://github.com/vim/vim/issues/212#issuecomment-132351526>
 
@@ -864,7 +864,7 @@ been executed, they are reset to resp. 0 and `"`.
 But Vim remembers the last count/register which was passed to the operator.
 See `:h .`:
 
->   Without a count, the count of the last change is used.
+   > Without a count, the count of the last change is used.
 
 ## After executing an operator from visual mode, on what text does `.` operate?
 
@@ -1030,8 +1030,8 @@ hit-enter prompt is visible:
 Only when you're  at the hit-enter prompt;  not when you're at  the more prompt.
 That's because at the latter, mappings are ignored.  From `:h pager`:
 
->     Note: The typed key is directly obtained from the terminal, it is not mapped
->     and typeahead is ignored.
+   > Note: The typed key is directly obtained from the terminal, it is not mapped
+   > and typeahead is ignored.
 
 ## I'm trying to install a mapping triggered when I'm at the hit-enter prompt.
 
@@ -1127,16 +1127,16 @@ the pager has many lines to display.
 At the more-prompt, only a small number of commands are valid.
 From `:h pager /other`:
 
->     Any other key causes the meaning of the keys to be displayed.
+   > Any other key causes the meaning of the keys to be displayed.
 
 `q` is one of them; it stops the listing:
 
->     q, <Esc> or CTRL-C                    stop the listing
+   > q, <Esc> or CTRL-C                    stop the listing
 
 OTOH, at the hit-enter prompt, `q` gets back its default meaning (i.e. start/end
 a recording):
 
->    -> Press ':' or any other Normal mode command character to start that command.
+   > -> Press ':' or any other Normal mode command character to start that command.
 
 As a workaround, you could try [this code][1].
 
@@ -1630,15 +1630,15 @@ This can lead to unexpected behaviors such as the one reported [here][2].
 
 From `LeoNerd` on the `#vim` irc channel.
 
->     Yeah.. that's because vim's keyboard input system is stupid
->     In vim- raw bytes arrive from the terminal, go into the map engine (which just looks to see if the
->     headofqueue bytes match any of its mappings, and replace them if so), then bytes come out directly into
->     the command system
->     Whereas in nvim, raw bytes go into the termkey instance, which turns them into *keys*, and those *keys*
->     are what goes into the map engine
->     So the map engine is never confused by the individual component bytes that formed those keypresses
->     Just like it isn't confused by the individual bytes that came across the X11 unix socket when in gvim
->     mode, or.. any other stupid crazy things that wouldn't be possible if it was actually sensible
+   > Yeah.. that's because vim's keyboard input system is stupid
+   > In vim- raw bytes arrive from the terminal, go into the map engine (which just looks to see if the
+   > headofqueue bytes match any of its mappings, and replace them if so), then bytes come out directly into
+   > the command system
+   > Whereas in nvim, raw bytes go into the termkey instance, which turns them into *keys*, and those *keys*
+   > are what goes into the map engine
+   > So the map engine is never confused by the individual component bytes that formed those keypresses
+   > Just like it isn't confused by the individual bytes that came across the X11 unix socket when in gvim
+   > mode, or.. any other stupid crazy things that wouldn't be possible if it was actually sensible
 
 ### What if `<Esc>` is used in the rhs of a mapping?
 
@@ -1894,9 +1894,9 @@ result, it presses Escape which prevents you from providing any input.
 
 From `:h norm`:
 
->     {commands} should be a complete command.  If
->     {commands} does not finish a command, the last one
->     will be aborted as if <Esc> or <C-C> was typed.
+   > {commands} should be a complete command.  If
+   > {commands} does not finish a command, the last one
+   > will be aborted as if <Esc> or <C-C> was typed.
 
 Solution: Find a way to execute your command without `:norm`, via `feedkeys()` if needed.
 
@@ -2073,7 +2073,7 @@ Or press `C-v` to suppress mappings:
 
 From `:h i^v`:
 
->     The characters typed right after CTRL-V are not considered for mapping.
+   > The characters typed right after CTRL-V are not considered for mapping.
 
 Or use a digraph:
 
@@ -2363,21 +2363,21 @@ The latter would be tricky to implement:
 
 From `man xterm /^\s*modifyOtherKeys`:
 
->     modifyOtherKeys (class ModifyOtherKeys)
->             Like modifyCursorKeys,  tells  xterm  to  construct  an  escape
->             sequence  for  other  keys  (such as “2”) when modified by Con‐
->             trol-, Alt- or Meta-modifiers.  This feature does not apply  to
->             function  keys and well-defined keys such as ESC or the control
->             keys.  The default is “0”:
->
->             0    disables this feature.
->
->             1    enables this feature for keys except for those with  well-
->                  known behavior, e.g., Tab, Backarrow and some special con‐
->                  trol character cases, e.g., Control-Space to make a NUL.
->
->             2    enables this feature for  keys  including  the  exceptions
->                  listed.
+   > modifyOtherKeys (class ModifyOtherKeys)
+   >         Like modifyCursorKeys,  tells  xterm  to  construct  an  escape
+   >         sequence  for  other  keys  (such as “2”) when modified by Con‐
+   >         trol-, Alt- or Meta-modifiers.  This feature does not apply  to
+   >         function  keys and well-defined keys such as ESC or the control
+   >         keys.  The default is “0”:
+   >
+   >         0    disables this feature.
+   >
+   >         1    enables this feature for keys except for those with  well-
+   >              known behavior, e.g., Tab, Backarrow and some special con‐
+   >              trol character cases, e.g., Control-Space to make a NUL.
+   >
+   >         2    enables this feature for  keys  including  the  exceptions
+   >              listed.
 
 ---
 
@@ -2797,7 +2797,7 @@ You may wonder why column 3 is included but not 5.
 That's because a `:cmd` motion is exclusive.
 From `:h exclusive /Note.*:`:
 
->     Note that when using ":" any motion becomes characterwise exclusive.
+   > Note that when using ":" any motion becomes characterwise exclusive.
 
 ---
 
@@ -3174,10 +3174,10 @@ Unless they really need to update the visual marks.
 
 See `:h line()`:
 
->     v       In Visual mode: the start of the Visual area (the
->             cursor is the end).  When not in Visual mode
->             returns the cursor position.  Differs from |'<| in
->             that it's updated right away.
+   > v       In Visual mode: the start of the Visual area (the
+   >         cursor is the end).  When not in Visual mode
+   >         returns the cursor position.  Differs from |'<| in
+   >         that it's updated right away.
 
 Note that  the start of the  selection does not necessarily  match the character
 which will be  marked with `'<`; if you're controlling  `'<`, then `getpos('v')`
@@ -3208,9 +3208,9 @@ the selection:
 
 This is documented at `:h q`:
 
->     q                     Stops recording.  (Implementation note: The 'q' that
->                           stops recording is not stored in the register, **unless**
->                           **it was the result of a mapping**)
+   > q                     Stops recording.  (Implementation note: The 'q' that
+   >                       stops recording is not stored in the register, **unless**
+   >                       **it was the result of a mapping**)
 
 The issue is  due to the existence of  a custom mapping on `q`,  which feeds `q`
 into the typeahead.
@@ -3544,6 +3544,29 @@ disappears:
         nno <plug>(b) n
     EOF
     ) +"pu=repeat(['some text'], &lines)"
+
+### ?
+
+Maybe we  should document  here that if  we press `C-c`  to interrupt  a mapping
+which takes a long time to be  processed and is followed by `<c-r>=`, the latter
+(and everything which follows?) is literally dumped into the buffer.
+
+See this question in `config.md`:
+
+    ## Document that restoring an option after `CompleteDone` is not reliable.
+    ### Why not
+    #### saving and restoring the option with 2 `C-r = Func()`?
+
+MWE:
+
+    $ vim -Nu NONE +"ino <c-z> <c-x><c-k><c-r>=''<cr>" +'set dict=/usr/share/dict/words' +startinsert
+    C-z
+    C-c
+    AA=''~
+      ^-^
+
+Btw, try  to understand why that  happens, and check  whether there is a  way to
+prevent it.
 
 ##
 ##
@@ -4015,7 +4038,7 @@ whole rhs.  That's not true:
     " result:    E121
     " expected:  1 is printed
 
-I think it just works for `:norm`...
+I think it only works for `:norm`...
 
 In any case, as a workaround, use `:exe`:
 
@@ -4217,7 +4240,7 @@ Pk?
 Probablement car le lhs (`N`) est répété au début du rhs.
 Extrait de `:h recursive_mapping`:
 
->     If the {rhs} starts with {lhs}, the first character is not mapped again.
+   > If the {rhs} starts with {lhs}, the first character is not mapped again.
 
 Donc, Vim ne veut en aucune manière remap `N`.
 En revanche, il peut remap le reste `<plug>(one)`, ce qu'il fait en utilisant le

@@ -289,32 +289,32 @@ custom function.
 Read “Termcap and Terminfo”, page 89 (156 of the original book).
 
 I think this excerpt applies to capabilities prefixed by `k`:
->     [...] not listing  a key may cause  serious problems while running  a program if
->     the unlisted key were accidentally hit.
->     The  program will  not be  able to  translate the  sequence into  a recognizable
->     function key  sequence and will  be forced to interpret  the sequence as  if the
->     characters had been typed, which may be disastrous.
+   > [...] not listing  a key may cause  serious problems while running  a program if
+   > the unlisted key were accidentally hit.
+   > The  program will  not be  able to  translate the  sequence into  a recognizable
+   > function key  sequence and will  be forced to interpret  the sequence as  if the
+   > characters had been typed, which may be disastrous.
 
->     Many of these  capabilities have "twin" capabilities elsewhere  in termcap and
->     terminfo.
->     For example, in  termcap, kC= specifies the  code sent by the  CLEAR SCREEN key,
->     and cl= is the string that programs use to clear the screen.
->     The capabilities in this section describe what is sent when a key is pressed, so
->     that programs know what  special keys are available and to  realize when one has
->     been pressed.
->     The twin capabilities for each of  these keys (described elsewhere in this book)
->     are the  functional capabilities, which  is how  programs learn what  strings to
->     send to produce the desired action.
+   > Many of these  capabilities have "twin" capabilities elsewhere  in termcap and
+   > terminfo.
+   > For example, in  termcap, kC= specifies the  code sent by the  CLEAR SCREEN key,
+   > and cl= is the string that programs use to clear the screen.
+   > The capabilities in this section describe what is sent when a key is pressed, so
+   > that programs know what  special keys are available and to  realize when one has
+   > been pressed.
+   > The twin capabilities for each of  these keys (described elsewhere in this book)
+   > are the  functional capabilities, which  is how  programs learn what  strings to
+   > send to produce the desired action.
 
->     Although  in most  cases the  twins will  be identical  twins, there  are a  few
->     reasons and special cases where the twins will not be identical.
->     [...] you might want to [...] use the keys to indicate something other than they
->     say on them (for  example, using the arrow keys for  something other than moving
->     the cursor in application programs).
->     In these cases, your program would turn  off echoing and watch the input for the
->     characters sent by the redefined keys.
->     [...] Thus,  while it is  often redundant to  have twin capabilities,  there are
->     cases when it is useful, and it is historically ingrained.
+   > Although  in most  cases the  twins will  be identical  twins, there  are a  few
+   > reasons and special cases where the twins will not be identical.
+   > [...] you might want to [...] use the keys to indicate something other than they
+   > say on them (for  example, using the arrow keys for  something other than moving
+   > the cursor in application programs).
+   > In these cases, your program would turn  off echoing and watch the input for the
+   > characters sent by the redefined keys.
+   > [...] Thus,  while it is  often redundant to  have twin capabilities,  there are
+   > cases when it is useful, and it is historically ingrained.
 
 When the  excerpt uses  the word  “echo”, I think  it refers  to the  fact that,
 often, when you press a non-function key  like `a`, the terminal sends it to the
@@ -359,11 +359,11 @@ I think that's because the shell is not a TUI application.
 This is explained here:
 <https://invisible-island.net/xterm/xterm.faq.html#xterm_arrows>
 
->     Since   termcaps  and   terminfo  descriptions   are  written   for  full-screen
->     applications,  shells and  similar programs  often  rely on  **built-in tables**  of
->     escape sequences which they use instead.
->     Defining keys  in terms of  the termcap/terminfo  entry (e.g., by  capturing the
->     string sent by tputs) is apt to confuse the shell.
+   > Since   termcaps  and   terminfo  descriptions   are  written   for  full-screen
+   > applications,  shells and  similar programs  often  rely on  **built-in tables**  of
+   > escape sequences which they use instead.
+   > Defining keys  in terms of  the termcap/terminfo  entry (e.g., by  capturing the
+   > string sent by tputs) is apt to confuse the shell.
 
 ##
 # Clipboard
@@ -447,8 +447,8 @@ If you're inside tmux, make sure `set-clipboard` is set to 'on'.
 
 'external' should also be a good value, because:
 
->     If set to external, tmux will attempt to set the terminal clipboard but ignore
->     attempts by applications to set tmux buffers.
+   > If set to external, tmux will attempt to set the terminal clipboard but ignore
+   > attempts by applications to set tmux buffers.
 
 But in practice, for some reason, it doesn't work:
 <https://github.com/tmux/tmux/issues/1864>
@@ -483,8 +483,8 @@ Use the `OSC 52` sequence with `?` as the second parameter:
 
 See `OSC Ps ; Pt BEL/;/Ps = 5 2/;/.*?`.
 
->     If the second parameter is a ? , xterm replies to the host
->     with the selection data encoded using the same protocol.
+   > If the second parameter is a ? , xterm replies to the host
+   > with the selection data encoded using the same protocol.
 
 ---
 
@@ -682,8 +682,8 @@ Besides, upon  receiving it,  st clears  its clipboard; this  is similar  to how
 xterm reacts  when receiving an  `OSC52;c;Pt` sequence  where `Pt` is  neither a
 base64 string nor `?`.
 
->     If the second parameter is neither a base64 string nor ? ,
->     then the selection is cleared.
+   > If the second parameter is neither a base64 string nor ? ,
+   > then the selection is cleared.
 
 ###
 ##
@@ -770,8 +770,8 @@ In the terminal description, append the character `@` to the name of the capabil
 
 See `man terminfo /Similar Terminals/;/canceled`:
 
->     A capability can be  canceled by placing xx@ to the left  of the use reference
->     that imports it, where xx is the capability.
+   > A capability can be  canceled by placing xx@ to the left  of the use reference
+   > that imports it, where xx is the capability.
 
 ---
 

@@ -151,7 +151,7 @@ consistent.
 
 If you've got difficulty to remember which spelling is american, remember this:
 
->     E for England, A for America.
+   > E for England, A for America.
 
 <https://english.stackexchange.com/questions/255435/gray-or-grey-which-one-should-i-use/255437#comment558850_255436>
 
@@ -327,9 +327,9 @@ Example:
 
 See `OSC Ps ; Pt BEL`:
 
->     If a "?" is given rather than  a name or RGB specification, xterm replies with
->     a control sequence of the same form which can be used to set the corresponding
->     color.
+   > If a "?" is given rather than  a name or RGB specification, xterm replies with
+   > a control sequence of the same form which can be used to set the corresponding
+   > color.
 
 ---
 
@@ -418,19 +418,19 @@ The syntax of the sequence can be found here:
 
 <http://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Functions-using-CSI-_-ordered-by-the-final-character_s_>
 
->    CSI Pm m  Character Attributes (SGR).
->
->    ...
->
->    This variation on ISO-8613-6 is supported for compatibility with KDE konsole:
->
->>       Pm = 3 8 ; 2 ; Pr; Pg; Pb
->>       Set foreground color to the closest match in xterm's palette for
->>       the given RGB Pr/Pg/Pb.
->>
->>       Pm = 4 8 ; 2 ; Pr; Pg; Pb
->>       Set background color to the closest match in xterm's palette for
->>       the given RGB Pr/Pg/Pb.
+   > CSI Pm m  Character Attributes (SGR).
+   >
+   > ...
+   >
+   > This variation on ISO-8613-6 is supported for compatibility with KDE konsole:
+   >
+   >>   Pm = 3 8 ; 2 ; Pr; Pg; Pb
+   >>   Set foreground color to the closest match in xterm's palette for
+   >>   the given RGB Pr/Pg/Pb.
+   >>
+   >>   Pm = 4 8 ; 2 ; Pr; Pg; Pb
+   >>   Set background color to the closest match in xterm's palette for
+   >>   the given RGB Pr/Pg/Pb.
 
 ## Does true color work in xterm, urxvt, xfce4-terminal?
 
@@ -439,8 +439,8 @@ intended ones.
 
 It may be due to:
 
->     it uses nearest colour in RGB colour space, with a usual false assumption
->     about orthogonal axes
+   > it uses nearest colour in RGB colour space, with a usual false assumption
+   > about orthogonal axes
 
 <https://github.com/neovim/neovim/issues/793#issuecomment-48106948>
 

@@ -323,8 +323,8 @@ patterns.
 
 I think that there are 2 kinds of tags ('man compsys' > 'standard tags'):
 
->     Some of the following  are only used when looking up  particular styles and do
->     not refer to a type of match.
+   > Some of the following  are only used when looking up  particular styles and do
+   > not refer to a type of match.
 
 There's a category of tags which seem to be applied to matches.
 And another category which is only used to configure some settings...
@@ -1015,8 +1015,8 @@ underscore and with other underscores converted to hyphens.
 
 #### Where can I find a list of completers?
 
-        % man zshcompsys
-          > section `Control Functions`
+    % man zshcompsys
+      > section `Control Functions`
 
 ##
 # Todo

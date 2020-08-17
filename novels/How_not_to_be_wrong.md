@@ -11,8 +11,8 @@ There's nothing wrong with the Laffer curve – only with the uses people put it
 Wanniski and  the politicians who followed  his panpipe fell prey  to the oldest
 false syllogism in the book:
 
->     It *could* be the case that lowering taxes will increase government revenue;
->     I *want it* to be the case that lowering taxes will increase government revenue;
->     Therefore, *it is* the case that lowering taxes will increase government revenue.
+   > It *could* be the case that lowering taxes will increase government revenue;
+   > I *want it* to be the case that lowering taxes will increase government revenue;
+   > Therefore, *it is* the case that lowering taxes will increase government revenue.
 
 p. 28

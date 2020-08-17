@@ -8,9 +8,9 @@
             Display the variants of the `png` output format.
             The 1st one is the default:
 
->                   Format: "png:" not recognized. Use one of: png:cairo:cairo png:cairo:gd png:gd:gd
->                                                              └─────────────┤
->                                                                            └ default
+   > Format: "png:" not recognized. Use one of: png:cairo:cairo png:cairo:gd png:gd:gd
+   >                                            └─────────────┤
+   >                                                          └ default
 
 
                ┌ automatically generate an output filename based on the input filename

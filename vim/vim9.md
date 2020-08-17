@@ -205,11 +205,11 @@ Vim looks in:
 
 For more info, see `:h vim9-scopes`:
 
->     When referring to a function and no "s:" or "g:" prefix is used, Vim will
->     search for the function in this order:
->     - Local to the current scope and outer scopes up to the function scope.
->     - Local to the current script file.
->     - Imported functions, see `:import`.
+   > When referring to a function and no "s:" or "g:" prefix is used, Vim will
+   > search for the function in this order:
+   > - Local to the current scope and outer scopes up to the function scope.
+   > - Local to the current script file.
+   > - Imported functions, see `:import`.
 
 ---
 ```vim
@@ -297,72 +297,6 @@ Func()
 This shows that Vim can look for a function invoked from the script level in the
 imported namespace.
 
-## ?
-
-Find examples to document  that we can't shadow a function  from a less specific
-namespace.  For example, a function-local  function cannot shadow a script-local
-function even in the context of the function where it's defined.
-
-However, I think it is allowed to shadow a global function.
-After all, we can  already do that in Vim script legacy;  so maybe this decision
-was done for consistency...
-
----
-```vim
-vim9script
-def Outer()
-    def Func()
-        echo 'function-local'
-    enddef
-    if 1
-        def Func()
-            echo 'block-local'
-        enddef
-    endif
-enddef
-Outer()
-```
-    E1073: name already defined: Func()
-
----
-
-We can't shadow a script-level function with a function-local one:
-```vim
-vim9script
-def Func()
-    echo 'script level'
-enddef
-def Outer()
-    def Func()
-        echo 'function-local'
-    enddef
-    Func()
-enddef
-Outer()
-```
-    E1073: name already defined: Func()
-
----
-
-We can't shadow an imported function with a script-local one:
-```vim
-vim9script
-mkdir('/tmp/import', 'p')
-let lines =<< trim END
-    vim9script
-    export def Func()
-        echo 'imported'
-    enddef
-END
-writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
-def Func()
-    echo 'script level'
-enddef
-import Func from 'foo.vim'
-```
-    E1073: name already defined: Func
-
 ####
 ## When can I delete a `:def` function?
 
@@ -445,8 +379,8 @@ Func()
 
 You can't replace a script-local function.
 
->     In Vim9 script, script-local functions are defined once when the script is sourced
->     and cannot be deleted or replaced.
+   > In Vim9 script, script-local functions are defined once when the script is sourced
+   > and cannot be deleted or replaced.
 
 This explains why `E477` is raised.
 As  a  result, `:def!`  does  not  start a  function  definition,  and the  next
@@ -857,7 +791,7 @@ existing item.
 Note that this has not been implemented yet.
 See `:h todo /as Name`:
 
->     - Implement "as Name" in "import Item as Name from ..."
+   > - Implement "as Name" in "import Item as Name from ..."
 
 Also, this is supposed to work even inside curly brackets.
 So, you should be able to write something like:
@@ -1052,9 +986,9 @@ script-local) *can* be declared, but can't be deleted.
 
 See `:h vim9-declaration /Global`:
 
->     Global, window, tab, buffer and Vim variables can only be used
->     without `:let`, because they are are not really declared, they can also be
->     deleted with `:unlet`.
+   > Global, window, tab, buffer and Vim variables can only be used
+   > without `:let`, because they are are not really declared, they can also be
+   > deleted with `:unlet`.
 
 ## How to prevent a variable from being accessible in a later statement?
 
@@ -1151,9 +1085,9 @@ wins.
 
 From `:h vim9 /comparators`:
 
->     Comparators ~
->
->     The 'ignorecase' option is not used for comparators that use strings.
+   > Comparators ~
+   >
+   > The 'ignorecase' option is not used for comparators that use strings.
 
 ### And yet, we can still use `=~#` and `=~?`.  Doesn't this contradict the previous help excerpt?
 
@@ -1171,27 +1105,152 @@ Func()
 
 ##
 # Pitfalls
-## When I try to assign a value to a list or a dictionary, `E696` is raised!
+## My function prints an unexpected error message!  (an error is missing, the order of the errors looks wrong, ...)
+
+Your error message is probably correct.
+You have to remember that an error can  be raised at compile time or at runtime,
+and that the latter step occurs after the former.
+
+To be sure, write `:defcompile` at the end of your script.
+
+---
+
+As an example, consider this snippet:
+```vim
+vim9script
+def Func(numbers: float)
+    for n in numbers
+    endfor
+enddef
+Func([1, 2, 3])
+```
+    E1013: type mismatch, expected list<any> but got float
+                          ^------------------------------^
+
+You might think the error message is wrong, and instead expect this one:
+
+    E1013: type mismatch, expected list<any> but got float
+                          ^------------------------------^
+
+But the error message is fine.  It's raised at compile time, not at runtime.
+You can check this by writing `:defcompile` at the end:
+```vim
+vim9script
+def Func(numbers: float)
+    for n in numbers
+    endfor
+enddef
+defcompile
+```
+    E1013: type mismatch, expected list<any> but got float
+                          ^------------------------------^
+
+And at compile  time, `Func()` hasn't been passed any  value yet.  Besides, when
+Vim has  to compile the `:for`  command, it detects  an error: `for ...  in` can
+only iterate over a  list, but `numbers` is declared with  the float type, which
+doesn't match.
+
+## My try conditional does not catch an error!
+
+Does it look like this?
+```vim
+vim9script
+def Func()
+    try
+        invalid
+    catch
+        echom 'caught'
+    endtry
+enddef
+Func()
+```
+    E476: Invalid command: invalid
+
+If so, it's not a bug.  The error is raised at compile time, not at runtime.
+You can check this by replacing `Func()` with `:defcompile`:
+```vim
+vim9script
+def Func()
+    try
+        invalid
+    catch
+        echom 'caught'
+    endtry
+enddef
+defcompile
+```
+    E476: Invalid command: invalid
+
+Notice how the error is raised again, even though `Func()` was not executed.
+
+Explanation:
+At compile time, Vim  doesn't care about the logic of  your code; *all* commands
+are  parsed and  compiled.  And  if  Vim finds  a  command which  it can  easily
+determine as invalid (unknown, wrong syntax, wrong argument type, ...), an error
+must be raised.  You  can only catch such an error  from *outside* the function;
+so that the function's compilation  (explicit via `:defcompile`, or implicit via
+`Func()`) is inside the `try` conditional.
+```vim
+vim9script
+def Func()
+    invalid
+enddef
+try
+    defcompile
+catch
+    echom 'caught'
+endtry
+```
+Note that Vim  cannot detect *any* type  of invalid command; only  some of them.
+For example, at compile time, Vim does not detect that a command is invalid even
+if it refers to a non-existing member from a list:
+```vim
+vim9script
+def Func()
+    echo [1, 2, 3][4]
+enddef
+defcompile
+```
+Even though the `:echo` command is wrong – i.e. it will always raise an error at
+runtime – no error is raised by the previous snippet.
+Vim will only raise an error at runtime.
+
+##
+## When I try to assign a value to a list or a dictionary, an error is raised unexpectedly!
 ```vim
 vim9script
 let l = [1 , 2 , 3]
 ```
     E696: Missing comma in List: , 2, 3]
 
-You can no longer separate a list or dictionary item from the next comma with whitespace.
+In a list or dictionary, the usage of white space is strict:
 
-    let l = [1 , 2 , 3]
-              ^   ^
-              ✘   ✘
+   - you *can* write a white space after the opening `[` or `{`, and before the closing `]` or `}`
 
-Remove the whitespace:
+   - you *cannot* write a white space before a comma separating two consecutive items,
+     nor after a colon separating a key from its value in a dictionary
+
+   - you *must* write a white space after a comma separating two consecutive items
+
+Example:
+
+                ok but useless
+                v                 v
+    let dict = { 'a' : 1 , 'b' : 2 }
+                    ^ ^ ^ ^   ^ ^
+                    ✘ ✔ ✘ ✔   ✘ ✔
+
+                    ✘ = cannot be written
+                    ✔ = must be written
+
+Remove the wrong white space:
 ```vim
 vim9script
-let l = [1, 2, 3]
+let dict = {'a': 1, 'b': 2}
 ```
     ✔
 
-This requirement was introduced in 8.2.1326.
+Some (all?) of these rules were introduced in 8.2.1326.
 
 ## If I specify the return type of a custom function, what should I pay attention to?
 
@@ -1307,8 +1366,8 @@ Solution: use a lambda.
 
 The issue is due to:
 
->    The local variables are on the stack  and cannot be accessed outside of the
->    compiled function.
+   > The local variables are on the stack  and cannot be accessed outside of the
+   > compiled function.
 
 Source: <https://github.com/vim/vim/issues/6401#issuecomment-655071515>
 
@@ -1433,9 +1492,9 @@ it's referred to – is compiled.
 
 From `:h fast-functions /prefix`:
 
->     If the script the function is defined in is Vim9 script, then script-local
->     variables can be accessed without the "s:" prefix.  **They must be defined**
->     **before the function is compiled**.
+   > If the script the function is defined in is Vim9 script, then script-local
+   > variables can be accessed without the "s:" prefix.  **They must be defined**
+   > **before the function is compiled**.
 
 ##
 ## The line number given in an error message looks wrong!
@@ -1631,52 +1690,8 @@ It's a known issue which won't be fixed: <https://github.com/vim/vim/issues/6593
 
 ##
 # Todo
-## Refactor all eval strings into lambdas.
-
-But make sure they're inside a `:def` function first.
-Don't worry, a lambda in a `:def` function is not slower than an eval string; on
-the contrary, it's faster.
-
-    :vim /v:val/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
-    :Cfilter! -other_plugins
-
-## How to change the type of a variable?
-
-    vim9script
-    let time = reltime()
-    sleep 1
-    let time = reltime(time)->reltimestr()->matchstr('.*\..\{,3}')
-    echom printf('we slept for %s seconds', time)
-
-    E1041: Redefining script item time~
-
----
-
-For the moment, the only workaround I can think of, is to use an extra variable:
-
-    vim9script
-    let time = reltime()
-    sleep 1
-    let _time = reltime(time)->reltimestr()->matchstr('.*\..\{,3}')
-    echom printf('we slept for %s seconds', _time)
-
-## Try to finish rewriting `ccomplete#Complete()` in Vim9 script.
-
-    ~/.vim/autoload/ccomplete.vim
-
-Test:
-
-    $ vim ~/Vcs/vim/src/evalfunc.c
-    " press:  gg O e C-x C-o
-                   ^
-                   inserted text: don't write too much; it could prevent some functions
-                   from being invoked (we want to test as many functions as possible)
-
----
-
-<https://vi.stackexchange.com/questions/26406/how-does-ft-c-omni-work-and-how-can-i-make-it-faster>
-
-## Try to move all our library functions (`vim-lg`) into an `import/` subdirectory.
+## To refactor:
+### try to move all our library functions (`vim-lg`) into an `import/` subdirectory
 
 Benefit: our function calls would no longer be littered with noisy prefix.
 
@@ -1705,7 +1720,16 @@ Also, try to refactor imports from the same script into a single command:
     ✔
     import {This,That} from 'foo.vim'
 
-## Prefix all `:import` commands with `:silent!`?
+### eval strings into lambdas
+
+But make sure they're inside a `:def` function first.
+Don't worry, a lambda in a `:def` function is not slower than an eval string; on
+the contrary, it's faster.
+
+    :vim /v:val/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
+    :Cfilter! -other_plugins
+
+### prefix all `:import` commands with `:silent!`?
 
 And what about the imported functions?
 When we call them,  should we prefix the calls with `:silent!`  too, in case the
@@ -1721,8 +1745,133 @@ See what we did in:
 
 If you do use try conditionals, you can remove `:silent!` everywhere.
 
+Update:  It might not be necessary in the future:
+
+   > - Error in any command in "vim9script" aborts sourcing.
+
+Source: `:h todo /abort`
+Although, that  would require that  the script from which  you import is  a Vim9
+script (i.e. first statement is `vim9script`).
+
+### should we refactor every manual sourcing of an autoload script into an autoload function call?
+
+    ✘
+    :ru autoload/path/to/script.vim
+    :so autoload/path/to/script.vim
+
+    ✔
+    :call path#to#script#_()
+
+Rationale: It could avoid this issue:
+<https://github.com/vim/vim/issues/6644>
+
+Update: no longer needed.  The issue was fixed.
+
+---
+
+In any case, manually sourcing an autoload script looks wrong.
+At the very  least, we should consider  moving anything which is  not a function
+into a separate directory which is not automatically sourced (`macros/`?).
+That would apply to our function calls installing mappings in `vim-toggle-settings`.
+
+##
+## To understand:
+### How to change the type of a variable?
+
+    vim9script
+    let time = reltime()
+    sleep 1
+    let time = reltime(time)->reltimestr()->matchstr('.*\..\{,3}')
+    echom printf('we slept for %s seconds', time)
+
+    E1041: Redefining script item time~
+
+---
+
+For the moment, the only workaround I can think of, is to use an extra variable:
+
+    vim9script
+    let time = reltime()
+    sleep 1
+    let _time = reltime(time)->reltimestr()->matchstr('.*\..\{,3}')
+    echom printf('we slept for %s seconds', _time)
+
+### Can we import a global function?
+
+Last time I tried, it didn't work.
+
 ##
 ## To document:
+### string indexes are counted in characters
+
+<https://github.com/vim/vim/commit/e3c37d8ebf9dbbf210fde4a5fb28eb1f2a492a34>
+
+### cannot shadow a function from a less specific namespace
+
+For example,  a function-local  function cannot  shadow a  script-local function
+even in the context of the function where it's defined.
+Find examples.
+
+However, I think it is allowed to shadow a global function.
+After all, we can  already do that in Vim script legacy;  so maybe this decision
+was done for consistency...
+
+---
+```vim
+vim9script
+def Outer()
+    def Func()
+        echo 'function-local'
+    enddef
+    if 1
+        def Func()
+            echo 'block-local'
+        enddef
+    endif
+enddef
+Outer()
+```
+    E1073: name already defined: Func()
+
+---
+
+We can't shadow a script-level function with a function-local one:
+```vim
+vim9script
+def Func()
+    echo 'script level'
+enddef
+def Outer()
+    def Func()
+        echo 'function-local'
+    enddef
+    Func()
+enddef
+Outer()
+```
+    E1073: name already defined: Func()
+
+---
+
+We can't shadow an imported function with a script-local one:
+```vim
+vim9script
+mkdir('/tmp/import', 'p')
+let lines =<< trim END
+    vim9script
+    export def Func()
+        echo 'imported'
+    enddef
+END
+writefile(lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+def Func()
+    echo 'script level'
+enddef
+import Func from 'foo.vim'
+```
+    E1073: name already defined: Func
+
 ### cannot redefine a block-local or function-local or script-local or imported function
 ```vim
  # block-local
@@ -1837,13 +1986,27 @@ Outer()
 ```
     E1075: Namespace not supported: s:Inner()
 
+### `:silent` is ignored before `:execute`
+
+See: <https://github.com/vim/vim/issues/6530>
+
+Solution: use `:silent` *after* `:execute`.
+
+    silent noautocmd execute "normal! `[\<c-v>`]y"
+    ^----^
+      ✘
+
+    noautocmd execute "silent normal! `[\<c-v>`]y"
+                       ^----^
+                         ✔
+
 ###
 ### imported items are local to the script
 
 This is suggested at `:h vim9-scopes`:
 
->     The result is that functions and variables without a namespace can always be
->     found in the script, either defined there or imported.
+   > The result is that functions and variables without a namespace can always be
+   > found in the script, either defined there or imported.
 
 ---
 
@@ -1945,8 +2108,17 @@ As an example, when you set the `'opfunc'` option.
 ```vim
 vim9script
 def Func()
-    s:foo = 123
-    echo s:foo
+    let s:var = 123
+enddef
+defcompile
+```
+    E1101: Cannot declare a script variable in a function: s:var
+
+---
+```vim
+vim9script
+def Func()
+    s:var = 123
 enddef
 defcompile
 ```
@@ -1954,12 +2126,21 @@ defcompile
 
 ---
 
+The issue disappears in a legacy script:
+```vim
+def Func()
+    s:var = 123
+enddef
+defcompile
+```
+---
+
 This pitfall is specific to the script-local namespace:
 ```vim
 vim9script
 def Func()
-    g:foo = 123
-    echo g:foo
+    g:var = 123
+    echo g:var
 enddef
 Func()
 ```
@@ -1967,8 +2148,8 @@ Func()
 ```vim
 vim9script
 def Func()
-    b:foo = 123
-    echo b:foo
+    b:var = 123
+    echo b:var
 enddef
 Func()
 ```
@@ -1980,43 +2161,124 @@ The pitfall only affects  a *new* script-local variable which you  refer to in a
 `:def` function.  You can refer to an *existing* script-local variable just fine:
 ```vim
 vim9script
-s:foo = 123
+s:var = 123
 def Func()
-    echo s:foo
+    echo s:var
 enddef
 Func()
 ```
     123
 
-### as soon as a function raises an error, its body is emptied
+---
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def g:FuncA()
-            if 1
-                # some comment
-                FuncB('string')
-            endif
+All of this seems too inconsistent.  Is there some bug?
+
+### when a function raises an error at compile time, its body is emptied
+```vim
+vim9script
+def g:Func()
+    invalid
+enddef
+
+fu Func
+
+defcompile
+
+fu Func
+```
+        def Func()
+     1              invalid
         enddef
-        def FuncB(n: number)
-            echo n
-        enddef
-    EOF
-    )
 
-    :fu FuncA
-        def FuncA()~
-     1          if 1~
-     3              FuncB('string')~
-     4          endif~
-        enddef~
+    Error detected while processing ...:
+    line    1:
+    E476: Invalid command: invalid
 
-    :call FuncA()
-    Error detected while processing function FuncA:~
-    line    3:~
-    E1013: argument 1: type mismatch, expected number but got string~
+    function Func()
+    endfunction
 
-    :fu FuncA
-    function FuncA()~
-    endfunction~
+---
+
+This is limited to compile time.
+If an error is detected at runtime, the body of the function remains the same.
+```vim
+vim9script
+def g:Func()
+    echo [1, 2, 3][4]
+enddef
+
+fu Func
+
+Func()
+
+fu Func
+```
+       def Func()
+    1      echo [1, 2, 3][4]
+       enddef
+
+    Error detected while processing ...:
+    line    1:
+    E684: list index out of range: 4
+
+       def Func()
+    1      echo [1, 2, 3][4]
+       enddef
+
+### a `:def` function does not need a return type in its header just because it includes a return statement
+
+But it must contain one if it includes a return statement *which returns a value*.
+Otherwise, `E1096` is raised:
+
+    E1096: Returning a value in a function without a return type
+
+---
+```vim
+vim9script
+def Func()
+    return
+enddef
+defcompile
+```
+    ✔
+```vim
+vim9script
+def Func()
+    return 123
+enddef
+defcompile
+```
+    E1096: Returning a value in a function without a return type
+
+---
+
+Also, note that even though a function returns 0 by default:
+
+```vim
+vim9script
+def Func()
+enddef
+let x = Func()
+echom x
+```
+    0
+
+You can not omit a return statement, even if the function's return type is `number`:
+```vim
+vim9script
+def Func(): number
+enddef
+defcompile
+```
+    E1027: Missing return statement
+
+Nor can you omit the return value:
+```vim
+vim9script
+def Func(): number
+    return
+enddef
+defcompile
+```
+    E1003: Missing return value
 

@@ -79,7 +79,7 @@ The latest version atm is:
 <https://st.suckless.org/patches/xresources/st-xresources-20190105-3be4cf1.diff>
 
 The header of the patch reads:
->     Subject: [PATCH] Update base patch to 0.8.1
+   > Subject: [PATCH] Update base patch to 0.8.1
 
 Which means that it should work on st version 0.8.1.
 I've tested it against 0.8.2, and it still works.
@@ -289,17 +289,17 @@ Why don't you trust this terminfo description?
 
 When you look at the terminfo.src from invisible-island, you can read this:
 
->     Se and Ss are implemented in the source-code, but the terminfo
->     provided with the source is incorrect, since Se/Ss are mis-coded
->     as booleans rather than strings.
+   > Se and Ss are implemented in the source-code, but the terminfo
+   > provided with the source is incorrect, since Se/Ss are mis-coded
+   > as booleans rather than strings.
 
 ...
 
->     The source includes two entries which are not useful here:
->           st-meta| simpleterm with meta key,
->           st-meta-256color| simpleterm with meta key and 256 colors,
->     because st's notion of "meta" does not correspond to the terminfo definition.
->     Rather, it acts like xterm - when the meta feature is disabled.
+   > The source includes two entries which are not useful here:
+   >       st-meta| simpleterm with meta key,
+   >       st-meta-256color| simpleterm with meta key and 256 colors,
+   > because st's notion of "meta" does not correspond to the terminfo definition.
+   > Rather, it acts like xterm - when the meta feature is disabled.
 
 It seems to indicate that the  terminfo description which comes with st's source
 code is  not always correct... Search  for `\C\<st\>` in terminfo.src,  and read
@@ -313,7 +313,7 @@ I wonder whether we should stick with the terminfo description from st source co
 And if you read this:
 <https://github.com/tmux/tmux/issues/1593#issuecomment-460063051>
 You may, yet again, change your mind:
->     The upstream st (which I've seen more than once comment suggesting as an improvement) also is incorrect.
+   > The upstream st (which I've seen more than once comment suggesting as an improvement) also is incorrect.
 
 ---
 

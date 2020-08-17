@@ -139,7 +139,7 @@ practice.
 The  fact  that  `getchar()`  consumes   the  typeahead  buffer  is  not  really
 documented, but it's briefly mentioned at `:h :map-<expr> /typeahead`:
 
->     You can use getchar(), it consumes typeahead if there is any.
+   > You can use getchar(), it consumes typeahead if there is any.
 
 Besides, from where else would `getchar()` consume a key?
 

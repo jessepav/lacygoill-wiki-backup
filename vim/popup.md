@@ -63,12 +63,12 @@ The easiest solution is to use `win_execute()` + `:norm!`.
 
 In theory, you should only tweak the `firstline` key:
 
->     The "firstline" value is the main way how to specify what text to show
->     in a popup window that scrolls.  Using Normal mode commands is a bit of
->     a strange way.  Instead of that you could increment or decrement
->     "firstline".
->     ...
->     The idea is that "firstline" is changed to scroll the window.
+   > The "firstline" value is the main way how to specify what text to show
+   > in a popup window that scrolls.  Using Normal mode commands is a bit of
+   > a strange way.  Instead of that you could increment or decrement
+   > "firstline".
+   > ...
+   > The idea is that "firstline" is changed to scroll the window.
 
 Source: <https://github.com/vim/vim/issues/4882#issuecomment-526954273>
 
@@ -83,12 +83,12 @@ last line of the buffer via `line('$', winid)`.
 See the MWE in this bug report for an example:
 <https://github.com/vim/vim/issues/5170#issue-516875178>
 
-In any case, Bram agrees that `win_execute()` + `norm!` *may* be ok:
+In any case, Bram agrees that `win_execute()` + `norm!` *might* be ok:
 
->     What I mentioned was that the scrolling should normally be implemented
->     by setting "firstline".  But if that somehow doesn't work, using normal
->     mode commands may be a way out.  But I would avoid normal mode commands
->     if possible.
+   > What I mentioned was that the scrolling should normally be implemented
+   > by setting "firstline".  But if that somehow doesn't work, using normal
+   > mode commands may be a way out.  But I would avoid normal mode commands
+   > if possible.
 
 Source: <https://github.com/vim/vim/issues/5170#issuecomment-549566321>
 
@@ -105,8 +105,8 @@ It doesn't care what is the current topline in the popup at that moment.
 
 The value `0` is documented at `:h popup_create-arguments /firstline`:
 
->     firstline       ...
->                     Set to zero to leave the position as set by commands.
+   > firstline       ...
+   >                 Set to zero to leave the position as set by commands.
 
 ##
 ## How to scroll to the bottom?  (2)
@@ -232,9 +232,9 @@ filter which is meant to consume all the keys.
 
 From `:h popup-mapping`:
 
->     If the filter consumes  all the keys, set the "mapping"  property to zero so
->     that mappings do not get in the way.
->     This is default for |popup_menu()| and |popup_dialog()|.
+   > If the filter consumes  all the keys, set the "mapping"  property to zero so
+   > that mappings do not get in the way.
+   > This is default for |popup_menu()| and |popup_dialog()|.
 
 ## My filter doesn't work.  When I press a key, it's not handled as expected!
 
@@ -606,11 +606,11 @@ Is it a bug?
 Maybe not a bug.
 From `:h popup-buffer`.
 
->     If a popup function is called to create a popup from text, **a new buffer** is
->     created to hold the text and text properties of the popup window.
->     [...]
->     - all other buffer-local and window-local options are set to their Vim default
->       value.
+   > If a popup function is called to create a popup from text, **a new buffer** is
+   > created to hold the text and text properties of the popup window.
+   > [...]
+   > - all other buffer-local and window-local options are set to their Vim default
+   >   value.
 
 Maybe it only applies to only  ad-hoc buffers, created to display some arbitrary
 text (!= existing buffers read from files).

@@ -201,9 +201,9 @@ In the ones defined in a file sourced by an interactive shell (e.g. `~/.zshrc`).
 If the function is defined in a script, there's no alias expansion.
 From `man bash` (`ALIASES`):
 
->  Aliases  are not  expanded  when the  shell is  not  interactive, unless  the
->  expand_aliases shell option is set using  shopt (see the description of shopt
->  under SHELL BUILTIN COMMANDS below).
+   > Aliases  are not  expanded  when the  shell is  not  interactive, unless  the
+   > expand_aliases shell option is set using  shopt (see the description of shopt
+   > under SHELL BUILTIN COMMANDS below).
 
 MWE:
 

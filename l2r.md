@@ -226,38 +226,38 @@ connected parts are separated by a long text.
 
 From `:h try-conditionals`:
 
->    When  a ":break"  or  ":continue"  for a  ":while"  loop enclosing  the
->    complete try conditional or when a ":return" or ":finish" is encountered
->    in the  finally clause, the rest  of the finally clause  is skipped, and
->    the ":break", ":continue", ":return" or ":finish" is executed as usual.
+   > When  a ":break"  or  ":continue"  for a  ":while"  loop enclosing  the
+   > complete try conditional or when a ":return" or ":finish" is encountered
+   > in the  finally clause, the rest  of the finally clause  is skipped, and
+   > the ":break", ":continue", ":return" or ":finish" is executed as usual.
 
 Here:
 
->    When a ":break"
+   > When a ":break"
 
 ... is logically connected to :
 
->    is encountered in the finally clause, ...
+   > is encountered in the finally clause, ...
 
 But they are separated by:
 
->    or  ":continue"  for   a  ":while"  loop  enclosing   the  complete  try
->    conditional or when a ":return" or ":finish"
+   > or  ":continue"  for   a  ":while"  loop  enclosing   the  complete  try
+   > conditional or when a ":return" or ":finish"
 
 Don't waste your time reading this kind of sentence over and over again.
 Reformulate it immediately to make the logical parts *directly* connected.
 Example:
 
->    When a `:break`  [1] is encountered in the finally  clause, the rest of
->    the clause is skipped, and `:break` is executed as usual.
->    If the finally  clause has been taken because of  an exception [2], this
->    pending exception (or command) is discarded.
->
->    [1]  or `:continue`  for  a  `:while` loop  enclosing  the complete  try
->    conditional or when a `:return` or `:finish` ...
->
->    [2] or  an earlier ":break",  ":continue", ":return", or  ":finish" from
->    the try block or a catch clause
+   > When a `:break`  [1] is encountered in the finally  clause, the rest of
+   > the clause is skipped, and `:break` is executed as usual.
+   > If the finally  clause has been taken because of  an exception [2], this
+   > pending exception (or command) is discarded.
+   >
+   > [1]  or `:continue`  for  a  `:while` loop  enclosing  the complete  try
+   > conditional or when a `:return` or `:finish` ...
+   >
+   > [2] or  an earlier ":break",  ":continue", ":return", or  ":finish" from
+   > the try block or a catch clause
 
 Here, we  remove the separation  between the logical  parts and replace  it with
 [1], which we use as a kind of annotation reference.
@@ -276,23 +276,23 @@ complex sentences.
 Also, if the sentence is still too long, you could use acronyms to shorten a list
 of items:
 
->    When a `:break`  [1] is encountered in the finally  clause, the rest of
->    the clause is skipped, and `:break` is executed as usual.
->    If the finally  clause has been taken because of  an exception [2], this
->    pending exception (or command) is discarded.
->
->    [1]  or `:continue`  for  a  `:while` loop  enclosing  the complete  try
->    conditional or when a `:return` or `:finish` ...
->
->    [2] or an earlier BCFR from  the try block or a catch clause
+   > When a `:break`  [1] is encountered in the finally  clause, the rest of
+   > the clause is skipped, and `:break` is executed as usual.
+   > If the finally  clause has been taken because of  an exception [2], this
+   > pending exception (or command) is discarded.
+   >
+   > [1]  or `:continue`  for  a  `:while` loop  enclosing  the complete  try
+   > conditional or when a `:return` or `:finish` ...
+   >
+   > [2] or an earlier BCFR from  the try block or a catch clause
 
 Here, we've replaced:
 
->    ":break", ":continue", ":return",  or ":finish"
+   > ":break", ":continue", ":return",  or ":finish"
 
 With:
 
->    BCFR
+   > BCFR
 
 It works really well when this list of items is often repeated in the text.
 Use  some quotation  marks around  the  acronym to  make  it stand  out, and  to
@@ -304,16 +304,16 @@ indicate it's not an existing word.
 
 From `:h 'go-M`:
 
->    when the gvimrc file is sourced the system menu has already been loaded
+   > when the gvimrc file is sourced the system menu has already been loaded
 
 Method to understand this sentence:
 
 1. express, in the present tense, the event related in each proposition:
 
->     when the gvimrc file is sourced
+   > when the gvimrc file is sourced
     the gvimrc file is sourced~
 
->     the system menu has already been loaded
+   > the system menu has already been loaded
     the system menu is loaded~
 
 2. draw a time axis
@@ -337,7 +337,7 @@ Method to understand this sentence:
 
 5. re-read the original sentence
 
->    when the gvimrc file is sourced the system menu has already been loaded
+   > when the gvimrc file is sourced the system menu has already been loaded
 
 Ask yourself whether it fits with the axis you just drew.
 If the answer is no, reposition the event of the second proposition:
@@ -351,7 +351,7 @@ If the answer is no, reposition the event of the second proposition:
 6. reformulate the sentence describing the events in their chronological order
    as displayed on the previous axis
 
->    the system menu is loaded, then, the gvimrc is sourced
+   > the system menu is loaded, then, the gvimrc is sourced
 
 7. if necessary, edit the sentence to better preserve the original meaning
 
@@ -361,24 +361,24 @@ Thus, it would be better to reformulate it in one of the following ways:
 
         (1)
 
->                                         v---v
->     the system menu is loaded, and only later, the gvimrc is sourced,
->     which is too late to disable the menu
->     ^-----------------------------------^
+   >                                     v---v
+   > the system menu is loaded, and only later, the gvimrc is sourced,
+   > which is too late to disable the menu
+   > ^-----------------------------------^
 
         (2)
 
->     the gvimrc is sourced after the menu  has been loaded, so it can't be
->     used to disable the latter
+   > the gvimrc is sourced after the menu  has been loaded, so it can't be
+   > used to disable the latter
 
 Even if the last reformulation mentions the events in a non-chronological order,
 it's still easier to understand than the original one.
 Indeed, after having understood the original sentence, thanks to the first reformulation,
 you should have understood its real purpose; something was implicit:
 
->     you can't use gvimrc to disable the menu because it's sourced too late
+   > you can't use gvimrc to disable the menu because it's sourced too late
 
 In the last reformulation, this idea isn't implicit anymore but explicit:
 
->     ... so it can't be used to disable the latter
+   > ... so it can't be used to disable the latter
 

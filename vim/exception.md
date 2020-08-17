@@ -1537,7 +1537,7 @@ When  an  instruction  causes  several  errors,  and  it's  executed  in  a  try
 conditional, the first error can be catched and converted into an exception with
 `v:exception` (`:h except-several-errors`).
 However, for some reason, I can't display its message.
-All  I have  is the  hit-enter prompt,  which usually  accompanies a  multi-line
+All  I have  is  the hit-enter  prompt, which  usually  accompanies a  multiline
 message (as if Vim was trying to display all the error messages).
 
 MWE:
@@ -1604,8 +1604,8 @@ anymore.  But it still persists in the case of `:throw`.
 
 Is it a known bug?  From `:h todo`:
 
->     Problem that a previous silent ":throw" causes a following try/catch not to
->     work. (ZyX, 2013 Sep 28) With examples: (Malcolm Rowe, 2015 Dec 24)
+   > Problem that a previous silent ":throw" causes a following try/catch not to
+   > work. (ZyX, 2013 Sep 28) With examples: (Malcolm Rowe, 2015 Dec 24)
 
 If so, report  it on github, so that  it has a better visibility,  and the issue
 can be properly referenced in the todo list.

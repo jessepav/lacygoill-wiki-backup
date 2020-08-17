@@ -550,6 +550,51 @@ size to avoid trying at all positions in the current and previous lines:
 
 ##
 #
+# Pitfalls
+## Why should I always press Enter at the hit-enter prompt when an error is raised while I'm debugging some issue?
+
+To be sure that you don't miss any error message.
+
+Indeed, if:
+
+   1. your errors are raised from a function evaluated in the rhs of an `<expr>` mapping
+   2. this function is not defined with `abort`
+   3. its body raises several errors
+
+Then,  the errors  are printed  separately.  That  is, *each*  error message  is
+followed by a its own hit-enter prompt.
+
+    nno <expr> <c-b> Func()
+    fu Func()
+        invalid1
+        invalid2
+        invalid3
+        return ''
+    endfu
+    call feedkeys("\<C-b>")
+
+    Error detected while processing function Func:~
+    line    1:~
+    E492: Not an editor command:     invalid1~
+    Press ENTER or type command to continue~
+    Error detected while processing function Func:~
+    line    2:~
+    E492: Not an editor command:     invalid2~
+    Press ENTER or type command to continue~
+    Error detected while processing function Func:~
+    line    3:~
+    E492: Not an editor command:     invalid3~
+    Press ENTER or type command to continue~
+
+If at any point you press any key  other than Enter, like `Esc`, `C-c` or `C-l`,
+you won't see the next errors.
+
+Actually, if you press  `Esc`, it seems all error messages  are printed, but you
+probably won't see  them (it depends on your `'timeout*'`  settings); if so, you
+can still  retrieve them  with `:mess`,  but chances are  you won't  think about
+doing it, and just wrongly assume that there is only one error.
+
+##
 # Miscellaneous
 ## What's the difference between `--cmd` and `-c`/`+`?
 
@@ -566,11 +611,11 @@ After.
 
 From `:h startup`:
 
->     12. Execute startup commands
->     ...
->             The commands given with the |-c| and |+cmd| arguments are executed.
->             The |v:vim_did_enter| variable is set to 1.
->             The |VimEnter| autocommands are executed.
+   > 12. Execute startup commands
+   > ...
+   >         The commands given with the |-c| and |+cmd| arguments are executed.
+   >         The |v:vim_did_enter| variable is set to 1.
+   >         The |VimEnter| autocommands are executed.
 
 Try this:
 

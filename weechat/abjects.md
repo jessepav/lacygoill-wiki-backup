@@ -573,8 +573,8 @@ Syntax:
 
 Here's the description given by the help:
 
->     Listing  current  average   pretimes,  either  globally  or   for  a  specific
->     section/moviename/releasename.
+   > Listing  current  average   pretimes,  either  globally  or   for  a  specific
+   > section/moviename/releasename.
 
 But what is a “pretime”?
 
@@ -582,22 +582,22 @@ But what is a “pretime”?
 
 Here's what the help says:
 
->     To start a download via SSL, you will need:
->
->             - KVIrc (4.3.1 or higher)
->             - our SSL-cert/keyfile
->             - to use XDCC SSEND instead of XDCC SEND
->
->     You can get kvirc from here:
->
->             !search KvIRC.v4.3.1.v6322_DCC_SSL_Support.tar
->
->     If you're using mirc, you can try our own mirc SSL DCC script.
->     Get it from here:
->
->             !search MG_SSL_DCC_MIRC.tar
->     Or:
->             http://forums.mirc.com/ubbthreads.php/topics/240129/Secure_DCC_File_Transfers_aka_#Post240129
+   > To start a download via SSL, you will need:
+   >
+   >         - KVIrc (4.3.1 or higher)
+   >         - our SSL-cert/keyfile
+   >         - to use XDCC SSEND instead of XDCC SEND
+   >
+   > You can get kvirc from here:
+   >
+   >         !search KvIRC.v4.3.1.v6322_DCC_SSL_Support.tar
+   >
+   > If you're using mirc, you can try our own mirc SSL DCC script.
+   > Get it from here:
+   >
+   >         !search MG_SSL_DCC_MIRC.tar
+   > Or:
+   >         http://forums.mirc.com/ubbthreads.php/topics/240129/Secure_DCC_File_Transfers_aka_#Post240129
 
 The help mentions a “SSL-cert/keyfile”.
 Where can I dl it?
@@ -607,28 +607,28 @@ Where can I dl it?
 According  to  the help,  a  dcc  rollback  decreases  the probability  of  data
 corruption when aborting/resuming transfers.
 
->     To maintain a 5mb dcc rollback, add this line to your remote:
->
->             on *:getfail:*: /btrunc $filename $iif($calc($file($filename).size - 5120000 ) > 0, $ifmatch, 0)
+   > To maintain a 5mb dcc rollback, add this line to your remote:
+   >
+   >         on *:getfail:*: /btrunc $filename $iif($calc($file($filename).size - 5120000 ) > 0, $ifmatch, 0)
 
 ## How to place my downloaded files in different folders, according to their names?
 
 According to the help, it's possible in Mirc:
 
->     To place  your downloads automatically in  different folders each, go  into your
->     options: DCC/folders.
->     Add an entry for each desired "category".
->     E.g.:
->
->             *XXX* ->c:\xxx\
->         OR
->             *HDTV*x264* ->C:\tvx264
->         OR
->             *Bluray*,*Blu?Ray* -> C:\Blurays
->
->     Or for games:
->
->         *SKIDROW*,*RELOADED*,*-FLT*,*-HI2U*,*-GENESIS* -> C:\GAMES
+   > To place  your downloads automatically in  different folders each, go  into your
+   > options: DCC/folders.
+   > Add an entry for each desired "category".
+   > E.g.:
+   >
+   >         *XXX* ->c:\xxx\
+   >     OR
+   >         *HDTV*x264* ->C:\tvx264
+   >     OR
+   >         *Bluray*,*Blu?Ray* -> C:\Blurays
+   >
+   > Or for games:
+   >
+   >     *SKIDROW*,*RELOADED*,*-FLT*,*-HI2U*,*-GENESIS* -> C:\GAMES
 
 ##
 ##

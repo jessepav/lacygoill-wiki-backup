@@ -751,9 +751,9 @@ processes deliver their output to the controlling terminal by default.
 
 They reload their config.
 
->     SIGHUP   also   has   a   completely  different   conventional   meaning   for
->     non-user-facing applications (daemons), which is to reload their configuration
->     file.
+   > SIGHUP   also   has   a   completely  different   conventional   meaning   for
+   > non-user-facing applications (daemons), which is to reload their configuration
+   > file.
 
 <https://unix.stackexchange.com/a/251267/289772>
 
@@ -1248,13 +1248,13 @@ Finally, the kernel removes the pid of the zombie from the process table.
 
 See `man 2 exit`:
 
->    The  function _exit()  terminates the  calling process  "immediately".  Any
->    open file descriptors belonging to the  process are closed; any children of
->    the process are  inherited by process 1, init, and  the process's parent is
->    sent a SIGCHLD signal.
+   > The  function _exit()  terminates the  calling process  "immediately".  Any
+   > open file descriptors belonging to the  process are closed; any children of
+   > the process are  inherited by process 1, init, and  the process's parent is
+   > sent a SIGCHLD signal.
 
->    The value  status is returned to  the parent process as  the process's exit
->    status, and can be collected using one of the wait(2) family of calls.
+   > The value  status is returned to  the parent process as  the process's exit
+   > status, and can be collected using one of the wait(2) family of calls.
 
 ## Document the difference between a task, a process and a thread
 
@@ -1290,19 +1290,19 @@ I think sometimes, it's a tid (thread id):
 Notice how all  the lines show the  same PID, but not the  same LWP (LightWeight
 Process id); see `man ps /lwp\s*LWP`.
 
->     lwp         LWP       light weight process (thread) ID of the
->                           dispatchable entity (alias spid, tid).  See tid
->                           for additional information.
+   > lwp         LWP       light weight process (thread) ID of the
+   >                       dispatchable entity (alias spid, tid).  See tid
+   >                       for additional information.
 
 However, things are confusing, because it seems that a tid can appear as a pid:
 
->     tid         TID       the unique number representing a dispatchable
->                           entity (alias lwp, spid).  This value may also
->                           appear as: a process ID (pid); a process group ID
->                           (pgrp); a session ID for the session leader
->                           (sid); a thread group ID for the thread group
->                           leader (tgid); and a tty process group ID for the
->                           process group leader (tpgid).
+   > tid         TID       the unique number representing a dispatchable
+   >                       entity (alias lwp, spid).  This value may also
+   >                       appear as: a process ID (pid); a process group ID
+   >                       (pgrp); a session ID for the session leader
+   >                       (sid); a thread group ID for the thread group
+   >                       leader (tgid); and a tty process group ID for the
+   >                       process group leader (tpgid).
 
 Difference between PID and TID: <https://stackoverflow.com/a/8787888/9780968>
 
@@ -1473,9 +1473,9 @@ Explain why none of these work:
 
 Note that according to [Gilles](https://unix.stackexchange.com/a/88235/289772):
 
->   Parentheses  create a  subshell whereas  braces  don't, but  this is  irrelevant
->   (except as a micro-optimization in some  shells) since a backgrounded command is
->   in a subshell anyway.
+   > Parentheses  create a  subshell whereas  braces  don't, but  this is  irrelevant
+   > (except as a micro-optimization in some  shells) since a backgrounded command is
+   > in a subshell anyway.
 
 ## ?
 
@@ -1731,46 +1731,46 @@ Document that there are at least two other ways:
 
 From `man 2 wait`:
 
->    A child that terminates, but has not been waited for becomes a "zombie".
->    The kernel maintains a minimal set of information about the zombie process (PID,
->    termination status, resource usage information) in  order to allow the parent to
->    later perform a wait to obtain information about the child.
->    As long as a zombie is not removed from the system via a wait, it will consume a
->    slot  in the  kernel process  table, and  if this  table fills,  it will  not be
->    possible to create further processes.
->    If a parent process terminates, then  its "zombie" children (if any) are adopted
->    by init(1), which automatically performs a wait to remove the zombies.
+   > A child that terminates, but has not been waited for becomes a "zombie".
+   > The kernel maintains a minimal set of information about the zombie process (PID,
+   > termination status, resource usage information) in  order to allow the parent to
+   > later perform a wait to obtain information about the child.
+   > As long as a zombie is not removed from the system via a wait, it will consume a
+   > slot  in the  kernel process  table, and  if this  table fills,  it will  not be
+   > possible to create further processes.
+   > If a parent process terminates, then  its "zombie" children (if any) are adopted
+   > by init(1), which automatically performs a wait to remove the zombies.
 
 ---
 
->     processes that stay zombies for a long time are generally an error and cause a **resource leak**.
+   > processes that stay zombies for a long time are generally an error and cause a **resource leak**.
 <https://en.wikipedia.org/wiki/Zombie_process>
 
->     In  computer  science,  a  resource  leak  is  a  particular  type  of  resource
->     consumption by a  computer program where the program does  not release resources
->     it has acquired.
->     This condition is normally the result of a bug in a program.
+   > In  computer  science,  a  resource  leak  is  a  particular  type  of  resource
+   > consumption by a  computer program where the program does  not release resources
+   > it has acquired.
+   > This condition is normally the result of a bug in a program.
 
->     Examples  of resources  available in  limited  numbers to  the operating  system
->     include  internet sockets,  file  handles, **process  table  entries, and  process**
->     **identifiers (PIDs)**.
->     Resource leaks  are often a  minor problem, causing  at most minor  slowdown and
->     being recovered from after processes terminate.
->     In  other  cases  resource  leaks  can be  a  major  problem,  causing  resource
->     starvation  and severe  system  slowdown or  instability,  crashing the  leaking
->     process, other processes, or even the system.
->     Resource leaks often go unnoticed under light load and short runtimes, and these
->     problems only manifest themselves under heavy system load or systems that remain
->     running for long periods of time.
+   > Examples  of resources  available in  limited  numbers to  the operating  system
+   > include  internet sockets,  file  handles, **process  table  entries, and  process**
+   > **identifiers (PIDs)**.
+   > Resource leaks  are often a  minor problem, causing  at most minor  slowdown and
+   > being recovered from after processes terminate.
+   > In  other  cases  resource  leaks  can be  a  major  problem,  causing  resource
+   > starvation  and severe  system  slowdown or  instability,  crashing the  leaking
+   > process, other processes, or even the system.
+   > Resource leaks often go unnoticed under light load and short runtimes, and these
+   > problems only manifest themselves under heavy system load or systems that remain
+   > running for long periods of time.
 
 <https://en.wikipedia.org/wiki/Resource_leak>
 
->     In computing,  a (system)  resource is  any physical  or virtual  component of
->     limited availability within a computer system.
->     Every device connected to a computer system is a resource.
->     Every internal system component is a resource.
->     Virtual  system  resources  include  files (concretely  file  handles),  network
->     connections (concretely network sockets), and memory areas.
+   > In computing,  a (system)  resource is  any physical  or virtual  component of
+   > limited availability within a computer system.
+   > Every device connected to a computer system is a resource.
+   > Every internal system component is a resource.
+   > Virtual  system  resources  include  files (concretely  file  handles),  network
+   > connections (concretely network sockets), and memory areas.
 
 <https://en.wikipedia.org/wiki/System_resource>
 

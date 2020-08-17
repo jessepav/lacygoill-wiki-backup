@@ -45,8 +45,8 @@ For a permanent solution:
 It will ask you some questions.
 The relevant one is the last one:
 
->        Use Control+Alt+Backspace to terminate the X server?
->               Yes
+   > Use Control+Alt+Backspace to terminate the X server?
+   >        Yes
 
 After that, you need to restart the OS.
 
@@ -177,20 +177,20 @@ may still disable it at boot time, using `/etc/sysctl.conf`.
 
 From `man 5 proc`:
 
->      0    Disable sysrq completely
->
->      1    Enable all functions of sysrq
->
->      >1   Bit mask of allowed sysrq functions:
->
->             2  Enable control of console logging level
->             4  Enable control of keyboard (SAK, unraw)
->             8  Enable debugging dumps of processes etc.
->            16  Enable sync command
->            32  Enable remount read-only
->            64  Enable signaling of processes (term, kill, oom-kill)
->           128  Allow reboot/poweroff
->           256  Allow nicing of all real-time tasks
+   > 0    Disable sysrq completely
+   >
+   > 1    Enable all functions of sysrq
+   >
+   > >1   Bit mask of allowed sysrq functions:
+   >
+   >        2  Enable control of console logging level
+   >        4  Enable control of keyboard (SAK, unraw)
+   >        8  Enable debugging dumps of processes etc.
+   >       16  Enable sync command
+   >       32  Enable remount read-only
+   >       64  Enable signaling of processes (term, kill, oom-kill)
+   >      128  Allow reboot/poweroff
+   >      256  Allow nicing of all real-time tasks
 
 If the value is bigger than 1, it's a bitmask.
 Its decimal representation is obtained by  adding the decimal code associated to
@@ -319,18 +319,18 @@ For more information, see:
 
     man systemd /SIGINT
 
->     SIGINT
->
->     Upon  receiving  this   signal  the  systemd  system  manager   will  start  the
->     ctrl-alt-del.target unit.
->     This is mostly equivalent to systemctl start ctl-alt-del.target.
->     If this  signal is received  more than  7 times per  2s, an immediate  reboot is
->     triggered.
->     Note that pressing Ctrl-Alt-Del on the console will trigger this signal.
->     Hence, if a reboot is hanging, pressing  Ctrl-Alt-Del more than 7 times in 2s is
->     a relatively safe way to trigger an immediate reboot.
->
->     systemd user managers treat this signal the same way as SIGTERM.
+   > SIGINT
+   >
+   > Upon  receiving  this   signal  the  systemd  system  manager   will  start  the
+   > ctrl-alt-del.target unit.
+   > This is mostly equivalent to systemctl start ctl-alt-del.target.
+   > If this  signal is received  more than  7 times per  2s, an immediate  reboot is
+   > triggered.
+   > Note that pressing Ctrl-Alt-Del on the console will trigger this signal.
+   > Hence, if a reboot is hanging, pressing  Ctrl-Alt-Del more than 7 times in 2s is
+   > a relatively safe way to trigger an immediate reboot.
+   >
+   > systemd user managers treat this signal the same way as SIGTERM.
 
 See also: <https://askubuntu.com/questions/763887/how-do-we-disable-ctrl-alt-del-on-ubuntu-16-04>
 
@@ -368,11 +368,11 @@ display manager.
 
 According to the [archwiki](https://wiki.archlinux.org/index.php/Keyboard_shortcuts#Kernel), it should not prevent the “reisub” sequence from working:
 
->     If you  are using a  display manager and  after Alt+SysRq+e you  are presented
->     with the login  screen (or full desktop  if autologin is enabled),  it is most
->     likely caused by Restart=always directive in the relevant service file.
->     If  necessary, edit  the  unit, however  this should  not  prevent the  "REISUB"
->     sequence from working.
+   > If you  are using a  display manager and  after Alt+SysRq+e you  are presented
+   > with the login  screen (or full desktop  if autologin is enabled),  it is most
+   > likely caused by Restart=always directive in the relevant service file.
+   > If  necessary, edit  the  unit, however  this should  not  prevent the  "REISUB"
+   > sequence from working.
 
 Nevertheless,  if   you  wish  to   prevent  the  display  manager   from  being
 automatically restarted, you need to comment out the directive:

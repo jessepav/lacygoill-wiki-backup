@@ -172,11 +172,11 @@ See here for more info:
 
 Here's how the book ‘Sed & Awk’ introduces the concept of collation:
 
->     Additionally, the standard provides for sequences of characters that should be
->     treated as a single unit when matching and collating (sorting) string data.
->     POSIX also changed what had been common terminology.
->     What we've been calling a "character  class" is called a "bracket expression" in
->     the POSIX standard.
+   > Additionally, the standard provides for sequences of characters that should be
+   > treated as a single unit when matching and collating (sorting) string data.
+   > POSIX also changed what had been common terminology.
+   > What we've been calling a "character  class" is called a "bracket expression" in
+   > the POSIX standard.
 
 Page 56 of the pdf.
 
@@ -348,11 +348,11 @@ Relational or matching operator.
 
 Output from an entire print statement.
 
->     The output from an entire print statement is called an output record.
->     Each print statement outputs one output record, and then outputs a string called
->     the output record separator (or ORS).
->     The initial value of ORS is the string "\n" (i.e., a newline character).
->     Thus, each print statement normally makes a separate line.
+   > The output from an entire print statement is called an output record.
+   > Each print statement outputs one output record, and then outputs a string called
+   > the output record separator (or ORS).
+   > The initial value of ORS is the string "\n" (i.e., a newline character).
+   > Thus, each print statement normally makes a separate line.
 
 Source: A User’s Guide for GNU Awk Edition 4.2
 

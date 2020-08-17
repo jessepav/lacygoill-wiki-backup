@@ -420,9 +420,9 @@ sources.
 
 From `:h 'complete /k{dict}`:
 
->     k{dict}     scan the file {dict}.  Several "k" flags can be given,
->                 patterns are valid too.  For example: >
->                     :set cpt=k/usr/dict/*,k~/spanish
+   > k{dict}     scan the file {dict}.  Several "k" flags can be given,
+   >             patterns are valid too.  For example: >
+   >                 :set cpt=k/usr/dict/*,k~/spanish
 
 ## ?
 
@@ -448,9 +448,9 @@ It's because we include `longest` in `'cot'`, in `vim-completion`.
 MWE:
 
     $ cat <<'EOF' >/tmp/dict
-    fooxxa
-    fooxxb
-    fooxxc
+        fooxxa
+        fooxxb
+        fooxxc
     EOF
 
     $ vim -Nu NONE =(echo foo) +'setl cot+=longest dict=/tmp/dict' +'startinsert!'
@@ -468,16 +468,16 @@ And even if you can save it, restoring it would probably break the dot command.
 Update: I think it could be considered as a bug.
 Here is what `:h popupmenu-keys` says:
 
->     CTRL-E    End completion, go back to what was there before selecting a
->               match (what was typed **or longest common string**).
+   > CTRL-E    End completion, go back to what was there before selecting a
+   >           match (what was typed **or longest common string**).
 
 I can see why `C-e` behaves like it does (see bold text).
 And most of the time, it's probably desirable.
 But  I still  think  that  in some  cases  (when you  want  to  try a  different
 completion command next) the behavior is undesirable.
-Try to ask for `C-e` to restore the original text.
-Or for an option to do so.
-Or for a function to give the original text.
+Try to ask for a new command (`C-o`? "o" for "original") to restore the original text.
+
+Or you could ask for a function to give the original text.
 I guess that the `inserted` item from `:h complete_info(` could help.
 But not entirely (what if the case of the text has changed too?).
 Also, whatever fix you implement, it would probably break the dot command.

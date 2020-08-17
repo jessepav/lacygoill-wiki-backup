@@ -269,9 +269,9 @@ Up to the beginning of the previous line.
 
 From `:h /\@<=`:
 
->     But to  limit the  time needed, only  the line where  what follows  matches is
->     searched, and one line before that (if there is one).
->     This should be sufficient to match most things and not be too slow.
+   > But to  limit the  time needed, only  the line where  what follows  matches is
+   > searched, and one line before that (if there is one).
+   > This should be sufficient to match most things and not be too slow.
 
 Example:
 
@@ -297,7 +297,7 @@ at all possible positions, from the beginning of the previous line.
 
 When:
 
-   - the subexpression is multi-line
+   - the subexpression is multiline
    - there are less than 123 bytes before the current position on the current line
 
 In that  case, when Vim  reaches the  start of the  current line, it  resets the
@@ -305,9 +305,9 @@ number of backtracked bytes to 0.
 
 From `:h \@123<=`:
 
->     After crossing a line boundary, the limit is relative to the end of the line.
->     Thus the  characters at the  start of  the line with  the match are  not counted
->     (this is just to keep it simple).
+   > After crossing a line boundary, the limit is relative to the end of the line.
+   > Thus the  characters at the  start of  the line with  the match are  not counted
+   > (this is just to keep it simple).
 
 ---
 
@@ -319,7 +319,7 @@ For example, consider this text file:
 `\%(a\_.*\)\@10<=b` matches even though there are more than 10 bytes between `a` and `b`.
 The match is possible because:
 
-   - the subexpression is multi-line (thanks to `\_.`)
+   - the subexpression is multiline (thanks to `\_.`)
    - there are less than 10 bytes before `b` on the line
    - Vim resets the number of backtracked bytes to 0 when it reaches the start
      of the line
@@ -342,7 +342,7 @@ But in practice, Vim *does* find the `a` character.
 Theory: The regex engine searches for *characters* not bytes.
 So, when you say:
 
->     don't search back for more than 5 bytes
+   > don't search back for more than 5 bytes
 
 Vim searches  back for  the least amount  of characters which  weigh 5  bytes or
 more; here, it means 2 characters.
@@ -384,8 +384,8 @@ than a vowel (`[^aeiou]`).
 
 From `:h [:upper:]`:
 
->     These items  only work  for 8-bit characters,  except [:lower:]  and [:upper:]
->     also work for multi-byte characters when using the new regexp engine.
+   > These items  only work  for 8-bit characters,  except [:lower:]  and [:upper:]
+   > also work for multibyte characters when using the new regexp engine.
 
 ## a sequence of non-keyword characters?
 
@@ -617,7 +617,7 @@ expression (`.\{-}` is not enough).
 But, it can't be used reliably to express sth like “the text between the pattern
 A and the next pattern B *with* a pattern C in the middle”.
 
-### How to adapt the regex when C is a multi-character text, like `PAT`?
+### How to adapt the regex when C is a text with multiple characters, like `PAT`?
 
 Replace `[^C]*` with `\%(\%(PAT\)\@!.\)*`
 
@@ -855,7 +855,7 @@ For more info, have a look  at the book “Mastering Regular Expressions”, cha
 4, section “Is Alternation Greedy?” (page 198 of the pdf).
 
 ###
-## My regex matches a multi-line text.
+## My regex matches a multiline text.
 ### Which text does Vim ignore when looking for the start of the next match?
 
 Only the first line of the previous match.
@@ -1036,7 +1036,7 @@ Prefix your regex with `\%#=1`.
 This will force Vim to use its old regex engine, which "supports everything".
 From `:h two-engines`:
 
->     1. An old, backtracking engine that **supports everything**.
+   > 1. An old, backtracking engine that **supports everything**.
 
 If your  regex now works as  expected, it means that  Vim was using the  new NFA
 engine, and you were using some feature not supported by the latter.

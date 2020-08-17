@@ -32,7 +32,7 @@ However, so  far, we  only saw  functions whose  semantics changed  according to
 their arity; `function()` is the first  one whose semantics changes according to
 the type of its arguments.
 
->     The functions must differ either by the arity or types of their parameters
+   > The functions must differ either by the arity or types of their parameters
 
 Source: [Function overloading][1]
 
@@ -381,7 +381,7 @@ conflict with a global custom function.
 So, the name **should** be scoped with `l:` to avoid E705.
 From `:h E705`:
 
->     You cannot have both a Funcref variable and a function with the same name.
+   > You cannot have both a Funcref variable and a function with the same name.
 
 Indeed, without `l:`, if you run this inside a function:
 
@@ -760,13 +760,13 @@ Update: In a `:def` function, the opposite is true.
 Document that you can use `get()` to get some "properties" of a funcref.
 See `:h get() /func`:
 
->     get({func}, {what})
->                     Get an item with from Funcref {func}.  Possible values for
->                     {what} are:
->                             "name"      The function name
->                             "func"      The function
->                             "dict"      The dictionary
->                             "args"      The list with arguments
+   > get({func}, {what})
+   >                 Get an item with from Funcref {func}.  Possible values for
+   >                 {what} are:
+   >                         "name"      The function name
+   >                         "func"      The function
+   >                         "dict"      The dictionary
+   >                         "args"      The list with arguments
 
 Found it used here: <https://vi.stackexchange.com/a/24654/17449>
 Although, it doesn't seem to be really needed in the answer (nor `call()`, nor `string()`):

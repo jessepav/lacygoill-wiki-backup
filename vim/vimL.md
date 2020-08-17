@@ -50,7 +50,7 @@ included in the arglist.
 
 When you're interested in *existing* filenames:
 
->     A name for a non-existing file is not included.
+   > A name for a non-existing file is not included.
 
 ### What happens if I use it in other circumstances?
 
@@ -219,12 +219,12 @@ To expand them, you need `expand()` and `:exe`.
 
 OTOH, from `:h :grep`:
 
->     **Just like ":make"**, but use 'grepprg' instead of
->     'makeprg' and 'grepformat' instead of 'errorformat'.
+   > **Just like ":make"**, but use 'grepprg' instead of
+   > 'makeprg' and 'grepformat' instead of 'errorformat'.
 
 Then, from `:h :make`:
 
->     Characters '%' and '#' are expanded as usual on a command-line.
+   > Characters '%' and '#' are expanded as usual on a command-line.
 
 So, Vim expands special characters for `:make`, and similarly for `:grep`.
 
@@ -248,15 +248,15 @@ I think `*` can match a dot in a `:e` or `:sp` command.
 But not in a `'wig'` setting.
 And probably not in other contexts; from `h file-searching`:
 
->     The file searching is currently used for the 'path', 'cdpath' and 'tags'
->     options, for |finddir()| and |findfile()|.  Other commands use |wildcards|
->     which is slightly different.
->
->     ...
->
->     The usage of '*' is quite simple: It matches 0 or more characters.  In a
->     search pattern this would be ".*".
->     **Note that the "." is not used for file searching.**
+   > The file searching is currently used for the 'path', 'cdpath' and 'tags'
+   > options, for |finddir()| and |findfile()|.  Other commands use |wildcards|
+   > which is slightly different.
+   >
+   > ...
+   >
+   > The usage of '*' is quite simple: It matches 0 or more characters.  In a
+   > search pattern this would be ".*".
+   > **Note that the "." is not used for file searching.**
 
 ## ?
 
@@ -480,9 +480,9 @@ function call.  This shows that, in effect, any argument is optional.
 Note that this is an ad-hoc mechanism.
 In the future, Vim may provide a builtin one; see `:h todo /named arguments`:
 
->     Implement named arguments for functions with optional arguments:
->         func Foo(start, count = 1, all = 1)
->         call Foo(12, all = 0)
+   > Implement named arguments for functions with optional arguments:
+   >     func Foo(start, count = 1, all = 1)
+   >     call Foo(12, all = 0)
 
 ###
 ### how to reduce their number (knowing that some of them can be derived from a single expression)?
@@ -791,9 +791,9 @@ Note that  this means  you cannot  pass `v:none`  as an  ordinary value  when an
 argument  has a  default expression.   Being able  to use  named arguments  in a
 function call could work around this issue.  See `:h todo /named arguments`:
 
->     Implement named arguments for functions with optional arguments:
->         func Foo(start, count = 1, all = 1)
->         call Foo(12, all = 0)
+   > Implement named arguments for functions with optional arguments:
+   >     func Foo(start, count = 1, all = 1)
+   >     call Foo(12, all = 0)
 
 ###
 ### Why should I never write something like `get(a:, '1', {expr})`?
@@ -1021,7 +1021,7 @@ You get an empty line, 'foo', then 'bar'.
 Where does the empty line come from?
 Think like this:
 
->     “append() INSERTS lines between 2 existing lines”
+   > “append() INSERTS lines between 2 existing lines”
 
 When  you pass  it the  address  `0`, it  inserts  'foo' and  'bar' between  the
 UNexisting line 0 and the existing line 1.
@@ -1334,16 +1334,16 @@ The help at `:h setpos()` seems contradictory.
 
 On the one hand, it says:
 
->     The "curswant" number is only used when setting the cursor
->     position.  It sets the preferred column for when moving the
->     cursor vertically.
+   > The "curswant" number is only used when setting the cursor
+   > position.  It sets the preferred column for when moving the
+   > cursor vertically.
 
 then later, it says:
 
->     This does not restore the preferred column for moving
->     vertically; if you set the cursor position with this, |j| and
->     |k| motions will jump to previous columns!  Use |cursor()| to
->     also set the preferred column.
+   > This does not restore the preferred column for moving
+   > vertically; if you set the cursor position with this, |j| and
+   > |k| motions will jump to previous columns!  Use |cursor()| to
+   > also set the preferred column.
 
 I think the second paragraph is older.
 When it was written, `setpos()` could not  set `curswant`; but now it can, hence
@@ -1406,15 +1406,15 @@ depending on the flags which were passed to Vim on the shell's command-line.
 
 From `man bash /^\s*_`:
 
->     _      ...
->            Also set  to the full pathname  used to invoke each  command executed
->            and placed in the environment exported to that command.
+   > _      ...
+   >        Also set  to the full pathname  used to invoke each  command executed
+   >        and placed in the environment exported to that command.
 
 From `man zshparam /^\s*_`:
 
->     _ <S> ...
->           Also,  this parameter  is  set  in the  environment  of every  command
->           executed to the full pathname of the command.
+   > _ <S> ...
+   >       Also,  this parameter  is  set  in the  environment  of every  command
+   >       executed to the full pathname of the command.
 
 Usage example:
 
@@ -1439,9 +1439,9 @@ Or:
 
 Note that the reason for `-1` is explained at `:h virtcol()`:
 
->     $	    the end of the cursor line (the result is the
->             number of displayed characters in the cursor line
->             **plus one**)
+   > $	    the end of the cursor line (the result is the
+   >         number of displayed characters in the cursor line
+   >         **plus one**)
 
 ## How to get the path to the parent of
 ### a given file?
@@ -1574,52 +1574,6 @@ In particular, no autoload script is sourced.
     $ vim -Nu NORC --cmd 'set rtp^=/tmp/some' +'let foo#bar#var = 123'
 
 This time, the message "all the script is sourced" is not printed.
-
-##
-## On which condition(s) does Vim source an autoload script?
-
-When you call an autoload function which  is not defined, *and* you never called
-any function with the same prefix in the past (e.g. `some#prefix#func()`).
-
-That fact that the  function you call is already defined is  not a guarantee for
-its autoload script not to be sourced.
-In particular, if  you've manually sourced an autoload script,  then call one of
-its functions, the script will be sourced *twice*, not once.
-
-    $ vim -Nu <(cat <<'EOF'
-        call mkdir('/tmp/some/plugin', 'p')
-        call mkdir('/tmp/some/autoload', 'p')
-        let lines =<< trim END
-            let g:counter = get(g:, 'counter', 0) + 1
-            fu some#func()
-            endfu
-        END
-        call writefile(lines, '/tmp/some/autoload/some.vim')
-        let lines =<< trim END
-            nno <c-b> :call some#func()<cr>
-        END
-        call writefile(lines, '/tmp/some/plugin/some.vim')
-        set rtp^=/tmp/some
-        so /tmp/some/autoload/some.vim
-        au VimEnter * call feedkeys("\<c-b>", 'xt') | echo g:counter
-    EOF
-    )
-
-    2~
-
-This seems to contradict `:h autoload`:
-
->     When such a function is called, and it is not defined yet, Vim will search the
->     "autoload" directories in 'runtimepath' for a script file called
-
-But  it does  not.  The  help says  that  A implies  B, where  A and  B are  the
-following statements:
-
-   - (A) an autoload function is called but not defined
-   - (B) Vim searches the autoload script where it's defined, and sources it
-
-Which is correct.  If the help also said that B implies A, then there would be a
-contradiction; but it does *not* say that.
 
 ##
 # Pitfalls
@@ -1963,6 +1917,51 @@ just seen before.
 
 Look at the `Function calls` section in this file; one of its questions is:
 "I have a function call with many arguments how to make it more readable?"
+
+## Write a custom style guide that we should follow.
+
+In the meantime, write some ideas of rules here.
+
+---
+
+Don't write this:
+
+    a:items[idx:]
+              ^^
+              ✘
+
+But this:
+
+    a:items[idx :]
+               ^
+               ✔
+
+Rule: In a slice, avoid appending a  colon directly after an expression which is
+not a number.
+
+Rationale:  Again, that's what seems to do in `$VIMRUNTIME/autoload/ccomplete.vim`.
+Also,  it's  useful to  prevent  Vim  from parsing  the  last  character of  the
+expression as a scope (`a:`, `b:`, `g:`, ...).
+Even if the last character of the expression does not match a scope, it could be
+in the future after a refactoring.
+
+---
+
+Don't write this:
+
+    getline('.')[:col('.') - 2]
+                 ^^
+                 ✘
+
+But this:
+
+    getline('.')[: col('.') - 2]
+                  ^
+                  ✔
+
+Rule: In a slice, avoid appending a colon directly before an expression which is not a number.
+
+Rationale:  Less ugly.  Also, it's consistent with the previous rule.
 
 ##
 ##
@@ -2542,7 +2541,7 @@ semble.
             Pex, la liste des contenus des registres.
 
             Toutefois, si ceux-ci contiennent des LF, le menu les traduit en NUL.
-            Peut-être car `complete()` n'est pas censée accueillir des items multi-lignes.
+            Peut-être car `complete()` n'est pas censée accueillir des items multilignes.
 
             On notera également l'instruction return '' qui est nécessaire pour éviter que `CustomMenu()`
             ne retourne le code de sortie 0 qui serait alors automatiquement inséré à la suite du 1er
@@ -3194,8 +3193,8 @@ semble.
             What's the use of 'z'?
             It seems that if we omit it, Vim does the same thing:
 
->                   When the 'z' flag is not given, searching always starts in
->                   column zero **and then matches before the cursor are skipped**.
+   > When the 'z' flag is not given, searching always starts in
+   > column zero **and then matches before the cursor are skipped**.
 
             If  the matches  before  the  cursor are  skipped,  then why  bother
             searching from column zero?

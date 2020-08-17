@@ -167,9 +167,9 @@ Pass the `-o` flag to `xargs(1)`:
 
 From `man xargs`:
 
->     Reopen stdin as /dev/tty in the child process  before  executing
->     the  command.  This is useful if you want xargs to run an inter‐
->     active application.
+   > Reopen stdin as /dev/tty in the child process  before  executing
+   > the  command.  This is useful if you want xargs to run an inter‐
+   > active application.
 
 Note that `-o` flag was added [a few years ago][1].
 If your `xargs(1)` doesn't support the flag; you'll need to update the program.
@@ -2308,7 +2308,7 @@ ligne de la marque a (les 2 lignes incluses).
 
                                                NOTE:
 
-            Ceci montre que lorsqu'on donne un pattern multi-lignes à :g, lorsqu'elle trouve
+            Ceci montre que lorsqu'on donne un pattern multilignes à :g, lorsqu'elle trouve
             un match, elle ne marque que la 1e ligne de ce dernier.
             Si c'était pas le cas, cette commande ne supprimerait pas juste les doublons, mais carrément
             toutes les lignes entre 2 doublons.

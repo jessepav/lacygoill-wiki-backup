@@ -286,9 +286,9 @@ This should turn on execution tracing for `some_func`, and turns off tracing for
 any named (not anonymous) function called  from the latter, unless that function
 has the `-t` or `-T` flag.
 
->     The flag -T does  the same, but turns off tracing for  any named (not anonymous)
->     function called from the present one, unless that function also has the -t or -T
->     flag.
+   > The flag -T does  the same, but turns off tracing for  any named (not anonymous)
+   > function called from the present one, unless that function also has the -t or -T
+   > flag.
 
 Otherwise the -T option requires zero, two, or three arguments to be present.
 

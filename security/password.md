@@ -95,8 +95,8 @@ guesses, and:
 
 At least 6.
 
->     However, starting  in 2014, Reinhold  recommends that  at least six  words (77
->     bits) should be used.
+   > However, starting  in 2014, Reinhold  recommends that  at least six  words (77
+   > bits) should be used.
 
 Source: <https://en.wikipedia.org/wiki/Diceware>
 

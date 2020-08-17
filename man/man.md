@@ -347,15 +347,15 @@ at the bottom.
 
 For example, in `$ info groff`, one can read this after searching for `\.ti`:
 
->     This request causes a break; its value is associated with the
->     current environment (*note Environments::).  The default scaling
->     indicator is 'm'.  A call of 'ti' without an argument is ignored.
+   > This request causes a break; its value is associated with the
+   > current environment (*note Environments::).  The default scaling
+   > indicator is 'm'.  A call of 'ti' without an argument is ignored.
 
 What is a “scaling indicator”?
 
 Jump to the bottom of the page, and search backward for `scaling indicator`:
 
->     * scaling indicator:                     Measurements.        (line   6)
+   > * scaling indicator:                     Measurements.        (line   6)
 
 Now, you know that the info is at `$ info -n Measurements groff`.
 
