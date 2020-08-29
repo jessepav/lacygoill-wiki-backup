@@ -188,8 +188,8 @@ In this example, the delimiter used is "==" because there is a "/" in the regula
 The command is executed after replacement of text with the regular expression.
 Many commands can be separated by semicolons.
 
-It is evaluated  (see `/eval`), and the text replaced  with a regular expression
-can be used in the command.
+It is evaluated (see `/eval`), and the text replaced by a regular expression can
+be used in the command.
 
 Example: default beep trigger uses this command to make a beep (BEL):
 

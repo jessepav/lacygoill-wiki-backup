@@ -235,6 +235,10 @@ Why?
     EOF
     )
     ✔
+    no error even though "g:two" was not cast to a number;
+    Shouldn't "[1, g:two]" contain a mix of "<number>" and "<any>"?
+
+    If it is a bug, note that a similar issue was fixed:  https://github.com/vim/vim/issues/6712
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
@@ -246,7 +250,8 @@ Why?
     EOF
     )
 
-    E1013: type mismatch, expected list<number> but got list<any>~
+    E1012: type mismatch, expected list<number> but got list<any>~
+    this is expected
 
 It can't be due to the fact there is no type checking at the script level.
 There *is*:
@@ -257,11 +262,845 @@ There *is*:
     EOF
     )
 
-    E1013: type mismatch, expected number but got string~
+    E1012: type mismatch, expected number but got string~
 
-I think that – at the script level – Vim only checks the type of the first item in a list.
-And I think it was partially fixed in a `:def` function by the patch 8.2.1407.
-I said *partially*, because this issue is still not fixed: <https://github.com/vim/vim/issues/6650>
+I think that – at the script level –  Vim only checks the type of the first item
+in a list.  That was fixed – in a `:def` function – by the patch 8.2.1407.
+
+---
+
+I'm not sure this is a bug, because `:h type-casting` only mentions compiled code.
+Still, it would be more consistent if it also worked at the script level.
+Although, would it make sense?
+
+##
+## ?
+
+According to the help, these functions accept a funcref as an argument:
+
+  - `:h call()`
+  - `:h eval()`
+  - `:h filter()`
+  - `:h map()`
+  - `:h search()`
+  - `:h searchpair()`
+  - `:h setqflist()`
+  - `:h sort()`
+  - `:h substitute()`
+  - `:h timer_start()`
+
+Do they also accept a function name?
+```vim
+fu Func()
+    echo 'working'
+endfu
+call call('Func', [])
+```
+    working
+```vim
+fu Func()
+    return 'working'
+endfu
+echo 'Func'->string()->eval()()
+```
+    E15: Invalid expression: )
+```vim
+fu MyFilter(i, v)
+    return a:v =~ 'keep'
+endfu
+echo ['removeme', 'keepme', 'deleteme']->filter('MyFilter')
+```
+    E121: Undefined variable: MyFilter
+```vim
+fu MyMap(i, v)
+    return a:v * 100
+endfu
+echo [1, 2, 3]->map('MyMap')
+```
+    E121: Undefined variable: MyMap
+```vim
+call setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+fu MySkip()
+    return synstack('.', col('.'))
+        \ ->map({_, v -> synIDattr(v, 'name')})
+        \ ->match('\ccomment') != -1
+endfu
+echo search('\<endif\>', '', 'MySkip')
+```
+    2
+    ✘
+    should be 3
+```vim
+call setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+fu MySkip()
+    return synstack('.', col('.'))
+        \ ->map({_, v -> synIDattr(v, 'name')})
+        \ ->match('\ccomment') != -1
+endfu
+echo searchpair('\<if\>', '', '\<endif\>', '', 'MySkip')
+```
+    E121: Undefined variable: MySkip
+    btw, why is "MySkip" evaluated as a variable name here, but not in search()
+```vim
+fu Func(info)
+    return repeat(['test'], 100)
+endfu
+call setqflist([], 'r', {'lines': v:oldfiles, 'efm': '%f', 'quickfixtextfunc': 'Func'})
+cw
+```
+    ✔
+```vim
+fu Func()
+    echo ['bbb', 'aaa']->sort('MySort')
+endfu
+fu MySort(line1, line2)
+    return a:line1 > a:line2 ? 1 : -1
+endfu
+call Func()
+```
+    ['aaa', 'bbb']
+```vim
+fu MyRep()
+    return 1
+endfu
+echo substitute('aaa', '.', MyRep, 'g')
+```
+    E121: Undefined variable: MyRep
+```vim
+fu MyCb(_)
+    echom 'my callback'
+endfu
+call timer_start(0, 'MyCb')
+```
+    my callback
+
+Conclusion:  Out of the 10 functions, only 4 accept a function name instead of a funcref:
+
+   - `call()`
+   - `setqflist()`
+   - `sort()`
+   - `timer_start()`
+
+## ?
+
+When a function accepts a function name as an argument, how does it work in Vim9
+script?  That is, does it work *without* quotes?  Does it work *with* quotes?
+```vim
+vim9script
+def MyCall()
+    echo 'my call'
+enddef
+def Func()
+    call('MyCall', [])
+enddef
+Func()
+```
+    my call
+```vim
+vim9script
+def MyCall()
+    echo 'my call'
+enddef
+def Func()
+    call(MyCall, [])
+enddef
+Func()
+```
+    my call
+```vim
+vim9script
+def MyQftf(info: any): any
+    return repeat(['test'], 100)
+enddef
+def Func()
+    setqflist([], 'r', {'lines': v:oldfiles, 'efm': '%f', 'quickfixtextfunc': 'MyQftf'})
+    cw
+enddef
+Func()
+```
+    ✔
+```vim
+vim9script
+def MyQftf(info: any): any
+    return repeat(['test'], 100)
+enddef
+def Func()
+    setqflist([], 'r', {'lines': v:oldfiles, 'efm': '%f', 'quickfixtextfunc': MyQftf})
+    cw
+enddef
+Func()
+```
+    ✔
+```vim
+vim9script
+def Func()
+    echo ['bbb', 'aaa']->sort('MySort')
+enddef
+def MySort(line1: string, line2: string): number
+    return line1 > line2 ? 1 : -1
+enddef
+Func()
+```
+    E1030: Using a String as a Number
+```vim
+vim9script
+def Func()
+    echo ['bbb', 'aaa']->sort(MySort)
+enddef
+def MySort(line1: string, line2: string): number
+    return line1 > line2 ? 1 : -1
+enddef
+Func()
+```
+    ['aaa', 'bbb']
+```vim
+vim9script
+def MyCb(_: number)
+    echom 'my callback'
+enddef
+def Func()
+    timer_start(0, expand('<SID>') .. 'MyCb')
+enddef
+Func()
+```
+    my callback
+```vim
+vim9script
+def MyCb(_: number)
+    echom 'my callback'
+enddef
+def Func()
+    timer_start(0, MyCb)
+enddef
+Func()
+```
+    my callback
+
+---
+
+Repeat the tests at the script level.
+```vim
+vim9script
+def MyCall()
+    echo 'my call'
+enddef
+call('MyCall', [])
+```
+    my call
+```vim
+vim9script
+def MyCall()
+    echo 'my call'
+enddef
+call(MyCall, [])
+```
+    my call
+```vim
+vim9script
+def MyQftf(info: any): any
+    return repeat(['test'], 100)
+enddef
+setqflist([], 'r', {'lines': v:oldfiles, 'efm': '%f', 'quickfixtextfunc': 'MyQftf'})
+cw
+```
+    ✔
+```vim
+vim9script
+def MyQftf(info: any): any
+    return repeat(['test'], 100)
+enddef
+setqflist([], 'r', {'lines': v:oldfiles, 'efm': '%f', 'quickfixtextfunc': MyQftf})
+cw
+```
+    ✔
+```vim
+vim9script
+def MySort(line1: string, line2: string): number
+    return line1 > line2 ? 1 : -1
+enddef
+echo ['bbb', 'aaa']->sort('MySort')
+```
+    E1030: Using a String as a Number
+```vim
+vim9script
+def MySort(line1: string, line2: string): number
+    return line1 > line2 ? 1 : -1
+enddef
+echo ['bbb', 'aaa']->sort(MySort)
+```
+    ['aaa', 'bbb']
+```vim
+vim9script
+def MyCb(_: number)
+    echom 'my callback'
+enddef
+timer_start(0, expand('<SID>') .. 'MyCb')
+```
+    my callback
+```vim
+vim9script
+def MyCb(_: number)
+    echom 'my callback'
+enddef
+timer_start(0, MyCb)
+```
+    my callback
+
+---
+
+Conclusions:
+
+   - we *can* omit the quotes for `call()`, `setqflist()`, `timer_start()`
+   - we can *not* omit the quotes for `sort()`
+
+Let's assume that the quotes are meant to be still allowed (that's my impression
+after reading `:h vim9 /Omitting function()`):  we should be able to omit quotes
+for `sort()` (at the script level, and in a `:def` function).
+
+## ?
+
+When a function which  accepts a funcref as argument but not  a function name is
+used in Vim9 script, what happens?  Can we now pass it a function name *without*
+quotes?  *With* quotes?
+
+Tests inside a `:def` function:
+```vim
+vim9script
+def Foo(): string
+    return 'working'
+enddef
+def Func()
+    echo 'Foo'->string()->eval()()
+enddef
+Func()
+```
+    E117: Unknown function: [unknown]
+```vim
+vim9script
+def Foo(): string
+    return 'working'
+enddef
+def Func()
+    echo Foo->string()->eval()()
+enddef
+Func()
+```
+    working
+```vim
+vim9script
+def MyFilter(i: number, v: string): bool
+    return v =~ 'keep'
+enddef
+def Func()
+    echo ['removeme', 'keepme', 'deleteme']->filter('MyFilter')
+enddef
+Func()
+```
+    ['removeme', 'keepme', 'deleteme']
+```vim
+vim9script
+def MyFilter(i: number, v: string): bool
+    return v =~ 'keep'
+enddef
+def Func()
+    echo ['removeme', 'keepme', 'deleteme']->filter(MyFilter)
+enddef
+Func()
+```
+    ['keepme']
+```vim
+vim9script
+def MyMap(i: number, v: number): number
+    return v * 100
+enddef
+def Func()
+    echo [1, 2, 3]->map('MyMap')
+enddef
+Func()
+```
+    [function('<80><fd>R1_MyMap'), function('<80><fd>R1_MyMap'), function('<80><fd>R1_MyMap')]
+```vim
+vim9script
+def MyMap(i: number, v: number): number
+    return v * 100
+enddef
+def Func()
+    echo [1, 2, 3]->map(MyMap)
+enddef
+Func()
+```
+    [100, 200, 300]
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+def MySkip(): bool
+    return synstack('.', col('.'))
+        \ ->map({_, v -> synIDattr(v, 'name')})
+        \ ->match('\ccomment') != -1
+enddef
+def Func()
+    echo search('\<endif\>', '', 'MySkip')
+enddef
+Func()
+```
+    E1030: Using a String as a Number
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+def MySkip(): bool
+    return synstack('.', col('.'))
+        \ ->map({_, v -> synIDattr(v, 'name')})
+        \ ->match('\ccomment') != -1
+enddef
+def Func()
+    echo search('\<endif\>', '', MySkip)
+enddef
+Func()
+```
+    E703: Using a Funcref as a Number
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+def MySkip(): bool
+    return synstack('.', col('.'))
+        \ ->map({_, v -> synIDattr(v, 'name')})
+        \ ->match('\ccomment') != -1
+enddef
+def Func()
+    echo searchpair('\<if\>', '', '\<endif\>', '', 'MySkip')
+enddef
+Func()
+```
+    E703: Using a Funcref as a Number
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+def MySkip(): bool
+    return synstack('.', col('.'))
+        \ ->map({_, v -> synIDattr(v, 'name')})
+        \ ->match('\ccomment') != -1
+enddef
+def Func()
+    echo searchpair('\<if\>', '', '\<endif\>', '', MySkip)
+enddef
+Func()
+```
+    3
+```vim
+vim9script
+def MyRep(): string
+    return '1'
+enddef
+def Func()
+    echo substitute('aaa', '.', 'MyRep', 'g')
+enddef
+Func()
+```
+    MyRepMyRepMyRep
+    ✘
+```vim
+vim9script
+def MyRep(): string
+    return '1'
+enddef
+def Func()
+    echo substitute('aaa', '.', MyRep, 'g')
+enddef
+Func()
+```
+    111
+    ✔
+
+---
+
+Tests at script level:
+```vim
+vim9script
+def Foo(): string
+    return 'working'
+enddef
+echo 'Foo'->string()->eval()()
+```
+    E15: Invalid expression: )
+```vim
+vim9script
+def Foo(): string
+    return 'working'
+enddef
+echo Foo->string()->eval()()
+```
+    working
+```vim
+vim9script
+def MyFilter(i: number, v: string): bool
+    return v =~ 'keep'
+enddef
+echo ['removeme', 'keepme', 'deleteme']->filter('MyFilter')
+```
+    ['removeme', 'keepme', 'deleteme']
+```vim
+vim9script
+def MyFilter(i: number, v: string): bool
+    return v =~ 'keep'
+enddef
+echo ['removeme', 'keepme', 'deleteme']->filter(MyFilter)
+```
+    ['keepme']
+```vim
+vim9script
+def MyMap(i: number, v: number): number
+    return v * 100
+enddef
+echo [1, 2, 3]->map('MyMap')
+```
+    [function('<80><fd>R1_MyMap'), function('<80><fd>R1_MyMap'), function('<80><fd>R1_MyMap')]
+```vim
+vim9script
+def MyMap(i: number, v: number): number
+    return v * 100
+enddef
+echo [1, 2, 3]->map(MyMap)
+```
+    [100, 200, 300]
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+def MySkip(): bool
+    return synstack('.', col('.'))
+        \ ->map({_, v -> synIDattr(v, 'name')})
+        \ ->match('\ccomment') != -1
+enddef
+echo search('\<endif\>', '', 'MySkip')
+```
+    E1030: Using a String as a Number
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+def MySkip(): bool
+    return synstack('.', col('.'))
+        \ ->map({_, v -> synIDattr(v, 'name')})
+        \ ->match('\ccomment') != -1
+enddef
+echo search('\<endif\>', '', MySkip)
+```
+    E703: Using a Funcref as a Number
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+def MySkip(): bool
+    return synstack('.', col('.'))
+        \ ->map({_, v -> synIDattr(v, 'name')})
+        \ ->match('\ccomment') != -1
+enddef
+echo searchpair('\<if\>', '', '\<endif\>', '', 'MySkip')
+```
+    E703: Using a Funcref as a Number
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+def MySkip(): bool
+    return synstack('.', col('.'))
+        \ ->map({_, v -> synIDattr(v, 'name')})
+        \ ->match('\ccomment') != -1
+enddef
+echo searchpair('\<if\>', '', '\<endif\>', '', MySkip)
+```
+    3
+```vim
+vim9script
+def MyRep(): string
+    return '1'
+enddef
+echo substitute('aaa', '.', 'MyRep', 'g')
+```
+    MyRepMyRepMyRep
+    ✘
+```vim
+vim9script
+def MyRep(): string
+    return '1'
+enddef
+echo substitute('aaa', '.', MyRep, 'g')
+```
+    111
+
+---
+
+Conclusions:
+
+   - we can use a function name instead of a funcref, but only *without* quotes
+   - for `search()`, we can't use a function name instead of a funcref (inconsistent)
+
+To be consistent with `call()`, `setqflist()` and `timer_start()`:
+
+   - we should be able to use a function name instead of a funcref *also* with quotes
+   - for `search()`, we should be able to use a function name instead of a funcref
+
+## ?
+
+What about  builtin functions?   Can they  be used whenever  a function  name is
+expected?
+
+Tests inside a `:def` function:
+```vim
+vim9script
+def Func()
+    echo 'reltime'->string()->eval()()
+enddef
+Func()
+```
+    E117: Unknown function: [unknown]
+```vim
+vim9script
+def Func()
+    echo reltime->string()->eval()()
+enddef
+Func()
+```
+    E1001: variable not found: reltime
+```vim
+vim9script
+def Func()
+    echo ['removeme', 'keepme', 'deleteme']->filter('reltime')
+enddef
+Func()
+```
+    E121: Undefined variable: reltime
+```vim
+vim9script
+def Func()
+    echo ['removeme', 'keepme', 'deleteme']->filter(reltime)
+enddef
+Func()
+```
+    E1001: variable not found: reltime
+```vim
+vim9script
+def Func()
+    echo [1, 2, 3]->map('reltime')
+enddef
+Func()
+```
+    E121: Undefined variable: reltime
+```vim
+vim9script
+def Func()
+    echo [1, 2, 3]->map(reltime)
+enddef
+Func()
+```
+    E1001: variable not found: reltime
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+def Func()
+    echo search('\<endif\>', '', 'reltime')
+enddef
+Func()
+```
+    E1030: Using a String as a Number
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+def Func()
+    echo search('\<endif\>', '', reltime)
+enddef
+Func()
+```
+    E1001: variable not found: reltime
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+def Func()
+    echo searchpair('\<if\>', '', '\<endif\>', '', 'reltime')
+enddef
+Func()
+```
+    E121: Undefined variable: reltime
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+def Func()
+    echo searchpair('\<if\>', '', '\<endif\>', '', reltime)
+enddef
+Func()
+```
+    E1001: variable not found: reltime
+```vim
+vim9script
+def Func()
+    echo substitute('aaa', '.', 'reltime', 'g')
+enddef
+Func()
+```
+    reltimereltimereltime
+    ✘
+```vim
+vim9script
+def Func()
+    echo substitute('aaa', '.', reltime, 'g')
+enddef
+Func()
+```
+    E1001: variable not found: reltime
+
+---
+
+Tests at script level:
+```vim
+vim9script
+echo 'reltime'->string()->eval()()
+```
+    E15: Invalid expression: )
+```vim
+vim9script
+echo reltime->string()->eval()()
+```
+    E121: Undefined variable: reltime
+```vim
+vim9script
+echo ['removeme', 'keepme', 'deleteme']->filter('reltime')
+```
+    E121: Undefined variable: reltime
+```vim
+vim9script
+echo ['removeme', 'keepme', 'deleteme']->filter(reltime)
+```
+    E121: Undefined variable: reltime
+```vim
+vim9script
+echo [1, 2, 3]->map('reltime')
+```
+    E121: Undefined variable: reltime
+```vim
+vim9script
+echo [1, 2, 3]->map(reltime)
+```
+    E121: Undefined variable: reltime
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+echo search('\<endif\>', '', 'reltime')
+```
+    E1030: Using a String as a Number
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+echo search('\<endif\>', '', reltime)
+```
+    E121: Undefined variable: reltime
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+echo searchpair('\<if\>', '', '\<endif\>', '', 'reltime')
+```
+    E121: Undefined variable: reltime
+```vim
+vim9script
+setline(1, ['if', '" endif', 'endif'])
+syn on
+set ft=vim
+echo searchpair('\<if\>', '', '\<endif\>', '', reltime)
+```
+    E121: Undefined variable: reltime
+```vim
+vim9script
+echo substitute('aaa', '.', 'reltime', 'g')
+```
+    reltimereltimereltime
+    ✘
+```vim
+vim9script
+echo substitute('aaa', '.', reltime, 'g')
+```
+    E121: Undefined variable: reltime
+
+---
+
+Conclusion:  Nothing works.
+
+##
+## ?
+```vim
+vim9script
+def Func()
+    let s:d = 123
+enddef
+defcompile
+```
+    E1101: Cannot declare a script variable in a function: s:d
+```vim
+vim9script
+def Func()
+    s:d = 123
+enddef
+defcompile
+```
+    E1089: unknown variable: s:d
+
+Why can we define a variable with any scope in a `:def` function, *except* with the scope `s:`?
+Is this documented?
+
+Update: Yes, it's documented at `:h :def`:
+
+   > If the script the function is defined in is Vim9 script, then script-local
+   > variables can be accessed without the "s:" prefix.  **They must be defined**
+   > **before the function is compiled.**
+
+This behavior was introduced in 8.2.1320.
+But  the commit  message does  not  seem to  have  the goal  of disallowing  the
+definition of a  script-local variable in a `:def` function.   Does this suggest
+it's a regression?
+
+When was the quoted sentence in bold added to the help?
+Before or after 8.2.1320?
+If it was before, then it could be a regression.
+Update: I think this paragraph was added in 8.2.0294.
+
+Update: Actually, this behavior was not introduced in 8.2.1320.
+On 8.2.1319, an error was already raised; although a different one:
+
+    E1054: Variable already declared in the script: s:var
+
+This error was raised starting from 8.2.0285.
+
+---
+
+I don't think it's a bug.  But you should document it in our notes.
 
 ## Vim9: cannot use the s: namespace in a :def function
 
@@ -320,7 +1159,7 @@ Outer()
 ```
     E1075: Namespace not supported: s:Inner()
 
-However, in the first example, I'm not trying to define a nested script-local function.  I'm not even trying to create a script-local variable.
+However, in the first example, I'm not trying to define a nested script-local function.  I'm not even trying to define a script-local variable.
 
 ---
 
@@ -344,117 +1183,18 @@ It would help if it was supported:
 
 If it can't be made to work, maybe this limitation should be documented (`:h vim9-gotchas`).
 
-## ?
-```vim
-vim9script
-def Func()
-    let s:d = 123
-enddef
-defcompile
-```
-    E1101: Cannot declare a script variable in a function: s:d
-```vim
-vim9script
-def Func()
-    s:d = 123
-enddef
-defcompile
-```
-    E1089: unknown variable: s:d
-
-Why can we create a variable with any scope in a `:def` function, *except* with the scope `s:`?
-Is this documented?
-
-This behavior was introduced in 8.2.1320.
-Actually, it's complicated.  Whether an error is raised, and with which message,
-depends on the code you run:
-
-    vim9script
-    def Func()
-        let s:d = 123
-    enddef
-    defcompile
-
-    vim9script
-    def Func()
-        s:d = 123
-    enddef
-    defcompile
-
-    vim9script
-    def Func()
-        s:d = 123
-        echo s:d
-    enddef
-    defcompile
-
-    ...
-
-Bisect again.  But bisect with which code exactly?
-
-##
-## ?
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        let s = 3
-        let line = 'abcdef'
-        echo line[s:]
-    EOF
-    )
-
-    E731: using Dictionary as a String
-
-Not easy to understand the error.
-First, it is not obvious that `s:` was parsed as a dictionary (the one containing all the script-local variables).
-Second, it is unexpected to see the word `String` mentioned in the message; in a string slice, we typically use numbers, not strings, to index some bytes (legacy) or characters (Vim9).
-
-This would be better:
-
-    E1234: cannot use s: Dictionary as an index
-
-Because this message suggests that `s:` was parsed as a dictionary.
-
-I was thinking that maybe Vim could be smarter and parse `s:` differently depending on whether it's followed by a variable name or not, but I don't think that's possible:
-
-    'foobar'[s:var]
-
-In this example, does `s:var` stand for a slice of one byte indexed by the variable `s:var`?
-Or does it stand for a slice of several bytes, from the one indexed by `s` to the one indexed by `var`?
-Right now, Vim uses the first interpretation.
-However, to avoid any kind of confusion, maybe Vim9 script should enforce white space around `:` in a slice?
-Actually, no, that's a bad idea.  I think it would make Vim raise an error when we use a script-local variable as a byte index.  The issue is that `:` is used both as a delimiter between indexes in a slice, *and* inside a scope.
-
 ---
 
-It's much more complicated.
-The code could be run in a Vim9 script or in a legacy script.
-In a `:def` function or in a `:fu` function.
-The variable could be used in a Vim9 scope (`b`, `g`, `s`, `t`, `v`, `w`), or in a legacy scope (`a`, `l`).
+It might be documented at `:h :def`:
 
-Make more tests.
-I've made a few, and there are unexpected results.
-Examples:
-```vim
-let l = 3
-let line = 'abcdef'
-echo line[l:]
-```
-    E121: Undefined variable: l:
+   > If the script the function is defined in is Vim9 script, then script-local
+   > variables can be accessed without the "s:" prefix.  **They must be defined**
+   > **before the function is compiled.**
 
-Why is this error message different than the first one?
-```vim
-vim9script
-let l = 3
-let line = 'abcdef'
-echo line[l:]
-```
-    E121: Undefined variable: l:
+But there's nothing  in there which says that we  cannot access the script-local
+dictionary.
 
-Why does the error persist in a Vim9 script?  It should not, `l:` is not a valid scope in Vim9 script.
-
-I think there are separate issue reports to open.
-At least one for Vim script legacy, and one for Vim9...
-
+##
 ## ?
 ```vim
 vim9script
@@ -571,11 +1311,6 @@ This time,  `still running` *was* executed,  even though `B()` raised  an error.
 You  can fix  the issue  by defining  `B()` with  abort, but  why the  different
 behavior?  Should it be  fixed?  Maybe it's a bug which  cannot be fixed because
 of backwards compatibility.
-
-## ?
-
-It seems we can create a script-local variable with or without `:let`.
-This is confusing.  I think omitting `:let` should be disallowed, or using `:let` should raise an error.
 
 ##
 ## bug: imported constants and variables not added to the "s:" dictionary
@@ -952,593 +1687,6 @@ Try to fix all those issues, and try to find a method to quickly find the origin
 of an error.   I'm tired of seeing  Vim9 errors and having to  find their origin
 manually.  We should be  able to press `!w` and get the error(s)  in a qfl, just
 like we could in Vim legacy.
-
-##
-## ?
-
-So, it turns out that we should not  be able to define 2 functions with the same
-name in 2 different namespaces (shadowing):
-<https://github.com/vim/vim/issues/6585#issuecomment-667580469>
-
-Check that's true.
-
-The following subsections are a little old now, and they had a different purpose.
-They were  trying to check  whether Vim  respected a particular  order seemingly
-documented in the help when looking for a function with no `s:` or `g:` prefix.
-Still, the snippets they contain could be used to quickly test that shadowing is
-indeed correctly disallowed.
-
-In particular, check whether we can shadow a global function.
-
-### ✔ import vs script
-```vim
-vim9script
-mkdir('/tmp/import', 'p')
-let lines =<< trim END
-    vim9script
-    export def Func()
-        echo 'imported'
-    enddef
-END
-writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
-def Func()
-    echo 'script level'
-enddef
-import Func from 'foo.vim'
-Func()
-```
-    script level
-    ✔
-
-This proves that Vim searches for a function in the script *before* searching in
-the imported ones.   It doesn't matter whether the function  at the script level
-is legacy or not.
-
-### ✔ import vs script block
-```vim
-vim9script
-mkdir('/tmp/import', 'p')
-let lines =<< trim END
-    vim9script
-    export def Func()
-        echo 'imported'
-    enddef
-END
-writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
-if 1
-    def Func()
-        echo 'block at script level'
-    enddef
-endif
-import Func from 'foo.vim'
-Func()
-```
-    block at script level
-    ✔
-
-This proves  that Vim searches  for a  function in a  block at the  script level
-*before* searching in the imported ones.  It doesn't matter whether the function
-in the block at the script level is legacy or not.
-
-###
-### ✘ import vs function
-```vim
-vim9script
-mkdir('/tmp/import', 'p')
-let lines =<< trim END
-    vim9script
-    export def Func()
-        echo 'imported'
-    enddef
-END
-writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
-import Func from 'foo.vim'
-def Outer()
-    def Func()
-        echo 'nested'
-    enddef
-    Func()
-enddef
-Outer()
-```
-    imported
-    ✘
-
-This looks like a bug.
-Vim should first look  for `Func()` in the current scope  which is the `Outer()`
-function scope.
-
----
-
-The issue is specific a function nested in a `:def` function.
-There is no issue if the function is nested in a `:fu` function:
-```vim
-vim9script
-mkdir('/tmp/import', 'p')
-let lines =<< trim END
-    vim9script
-    export def Func()
-        echo 'imported'
-    enddef
-END
-writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
-import Func from 'foo.vim'
-fu Outer()
-    def Func()
-        echo 'nested'
-    enddef
-    call Func()
-endfu
-Outer()
-```
-    nested
-    ✔
-```vim
-vim9script
-mkdir('/tmp/import', 'p')
-let lines =<< trim END
-    vim9script
-    export def Func()
-        echo 'imported'
-    enddef
-END
-writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
-import Func from 'foo.vim'
-fu Outer()
-    fu Func()
-        echo 'nested'
-    endfu
-    call Func()
-endfu
-Outer()
-```
-    nested
-    ✔
-
-### ✘ import vs function block
-```vim
-vim9script
-mkdir('/tmp/import', 'p')
-let lines =<< trim END
-    vim9script
-    export def Func()
-        echo 'imported'
-    enddef
-END
-writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
-import Func from 'foo.vim'
-def Outer()
-    if 1
-        def Func()
-            echo 'nested'
-        enddef
-    endif
-    Func()
-enddef
-Outer()
-```
-    imported
-    ✘
-```vim
-vim9script
-mkdir('/tmp/import', 'p')
-let lines =<< trim END
-    vim9script
-    export def Func()
-        echo 'imported'
-    enddef
-END
-writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
-import Func from 'foo.vim'
-fu Outer()
-    if 1
-        fu Func()
-            echo 'nested'
-        endfu
-    endif
-    call Func()
-endfu
-Outer()
-```
-    nested
-    ✔
-```vim
-vim9script
-mkdir('/tmp/import', 'p')
-let lines =<< trim END
-    vim9script
-    export def Func()
-        echo 'imported'
-    enddef
-END
-writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
-import Func from 'foo.vim'
-fu Outer()
-    if 1
-        def Func()
-            echo 'nested'
-        enddef
-    endif
-    call Func()
-endfu
-Outer()
-```
-    nested
-    ✔
-
-###
-### ✘ script vs function
-```vim
-vim9script
-def Func()
-    echo 'script level'
-enddef
-def Outer()
-    def Func()
-        echo 'nested'
-    enddef
-    Func()
-enddef
-Outer()
-```
-    script level
-    ✘
-```vim
-vim9script
-def Func()
-    echo 'script level'
-enddef
-fu Outer()
-    fu Func()
-        echo 'nested'
-    endfu
-    call Func()
-endfu
-Outer()
-```
-    nested
-    ✔
-```vim
-vim9script
-def Func()
-    echo 'script level'
-enddef
-fu Outer()
-    def Func()
-        echo 'nested'
-    enddef
-    call Func()
-endfu
-Outer()
-```
-    nested
-    ✔
-
-The first `Func()` can be legacy or not; it doesn't change the results.
-
-### ✘ script vs function block
-```vim
-vim9script
-def Func()
-    echo 'script level'
-enddef
-def Outer()
-    if 1
-        def Func()
-            echo 'nested inside block'
-        enddef
-        Func()
-    endif
-enddef
-Outer()
-```
-    script level
-    ✘
-```vim
-vim9script
-def Func()
-    echo 'script level'
-enddef
-fu Outer()
-    if 1
-        fu Func()
-            echo 'nested inside block'
-        endfu
-        call Func()
-    endif
-endfu
-Outer()
-```
-    nested inside block
-    ✔
-```vim
-vim9script
-def Func()
-    echo 'script level'
-enddef
-fu Outer()
-    if 1
-        def Func()
-            echo 'nested inside block'
-        enddef
-        call Func()
-    endif
-endfu
-Outer()
-```
-    nested inside block
-    ✔
-
-###
-### ✘ function vs function block
-```vim
-vim9script
-def Outer()
-    def Func()
-        echo 'nested'
-    enddef
-    if 1
-        def Func()
-            echo 'nested inside block'
-        enddef
-        Func()
-    endif
-enddef
-Outer()
-```
-    nested
-    ✘
-```vim
-vim9script
-fu Outer()
-    fu Func()
-        echo 'nested'
-    endfu
-    if 1
-        fu Func()
-            echo 'nested inside block'
-        endfu
-        call Func()
-    endif
-endfu
-Outer()
-```
-    E122: Function Func already exists, add ! to replace it
-    ✘
-    nested
-    ✘
-```vim
-vim9script
-fu Outer()
-    def Func()
-        echo 'nested'
-    enddef
-    if 1
-        fu Func()
-            echo 'nested inside block'
-        endfu
-        call Func()
-    endif
-endfu
-Outer()
-```
-    E122: Function Func already exists, add ! to replace it
-    ✘
-    nested
-    ✘
-```vim
-vim9script
-fu Outer()
-    fu Func()
-        echo 'nested'
-    endfu
-    if 1
-        def Func()
-            echo 'nested inside block'
-        enddef
-        call Func()
-    endif
-endfu
-Outer()
-```
-    E122: Function Func already exists, add ! to replace it
-    ✘
-    nested
-    ✘
-```vim
-vim9script
-fu Outer()
-    def Func()
-        echo 'nested'
-    enddef
-    if 1
-        def Func()
-            echo 'nested inside block'
-        enddef
-        call Func()
-    endif
-endfu
-Outer()
-```
-    E122: Function Func already exists, add ! to replace it
-    ✘
-    nested
-    ✘
-
-##
-### ✘ script block vs script
-```vim
-vim9script
-def Func()
-    echo 'script level'
-enddef
-if 1
-    def Func()
-        echo 'inside block at script level'
-    enddef
-    Func()
-endif
-```
-    E122: Function <SNR>1_Func already exists, add ! to replace it
-    ✘
-
-Vim should  print "inside block at  script level" or "script  level"; preferably
-the former rather than the latter.
-
-But it  prints neither  of them.   That's because  the script-local  block scope
-doesn't exists  in Vim9  script.  It should  exist, if Vim9  script wants  to be
-consistent between the script level and the `:def` function contexts.
-
-Although, it's not necessarily a good idea; would such a scope be useful?
-How  would the  user react  when  seeing that  their function  no longer  exists
-outside a block at the script level?
-
-Btw, here's a simpler MWE:
-```vim
-vim9script
-if 1
-    def Func()
-        echo 'test'
-    enddef
-endif
-Func()
-```
-    test
-
-No error is raised, but `E117` should be raised if the function was local to the
-block.
-
----
-
-Related todo item:
-
-   > - At the script level, keep script variables local to the block they are
-   >   declared in?  Need to remember what variables were declared and delete them
-   >   when leaving the block.
-
-Although, this one is dedicated to variables; not functions.
-
-Related issue: <https://github.com/vim/vim/issues/6498>
-
-### ✘ script block vs function
-```vim
-vim9script
-if 1
-    def Func()
-        echo 'block at script level'
-    enddef
-    def Outer()
-        def Func()
-            echo 'nested'
-        enddef
-        Func()
-    enddef
-    Outer()
-endif
-```
-    block at script level
-    ✘
-```vim
-vim9script
-if 1
-    def Func()
-        echo 'block at script level'
-    enddef
-    fu Outer()
-        fu Func()
-            echo 'nested'
-        endfu
-        call Func()
-    endfu
-    Outer()
-endif
-```
-    nested
-    ✔
-```vim
-vim9script
-if 1
-    def Func()
-        echo 'block at script level'
-    enddef
-    fu Outer()
-        def Func()
-            echo 'nested'
-        enddef
-        call Func()
-    endfu
-    Outer()
-endif
-```
-    nested
-    ✔
-
-### ✘ script block vs function block
-```vim
-vim9script
-if 1
-    def Func()
-        echo 'block at script level'
-    enddef
-    def Outer()
-        if 1
-            def Func()
-                echo 'nested inside block'
-            enddef
-            Func()
-        endif
-    enddef
-    Outer()
-endif
-```
-    block at script level
-    ✘
-```vim
-vim9script
-if 1
-    def Func()
-        echo 'block at script level'
-    enddef
-    fu Outer()
-        if 1
-            fu Func()
-                echo 'nested inside block'
-            endfu
-            call Func()
-        endif
-    endfu
-    Outer()
-endif
-```
-    nested inside block
-    ✔
-```vim
-vim9script
-if 1
-    def Func()
-        echo 'block at script level'
-    enddef
-    fu Outer()
-        if 1
-            def Func()
-                echo 'nested inside block'
-            enddef
-            call Func()
-        endif
-    endfu
-    Outer()
-endif
-```
-    nested inside block
-    ✔
 
 ##
 ## inconsistency: when we ask for the definition of a Vim9 function, comments are sometimes included, but not always.
@@ -2037,6 +2185,48 @@ FuncA(123)
 This is way too verbose.
 Couldn't Vim just report the first error?
 
+## ?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        let s = 3
+        let line = 'abcdef'
+        echo line[s:]
+    EOF
+    )
+
+    E731: using Dictionary as a String
+
+Not easy to understand the error.
+First, it is not obvious that `s:` was parsed as a dictionary (the one containing all the script-local variables).
+Second, it is unexpected to see the word `String` mentioned in the message; in a string slice, we typically use numbers, not strings, to index some bytes (legacy) or characters (Vim9).
+
+This would be better:
+
+    E1234: cannot use s: Dictionary as an index
+
+Because this message suggests that `s:` was parsed as a dictionary.
+
+I was thinking that maybe Vim could be smarter and parse `s:` differently depending on whether it's followed by a variable name or not, but I don't think that's possible:
+
+    'foobar'[s:var]
+
+In this example, does `s:var` stand for a slice of one byte indexed by the variable `s:var`?
+Or does it stand for a slice of several bytes, from the one indexed by `s` to the one indexed by `var`?
+Right now, Vim uses the first interpretation.
+However, to avoid any kind of confusion, maybe Vim9 script should enforce white space around `:` in a slice?
+Actually, no, that's a bad idea.  I think it would make Vim raise an error when we use a script-local variable as a byte index.  The issue is that `:` is used both as a delimiter between indexes in a slice, *and* inside a scope.
+
+---
+```vim
+let l = 3
+let line = 'abcdef'
+echo line[l:]
+```
+    E121: Undefined variable: l:
+
+This is expected.  And the reason why the error message is different, is because
+the code is not run inside a function; so there is no `l:` dictionary.
+
 ##
 ## documentation
 ### 61
@@ -2367,6 +2557,30 @@ variable in the function-local namespace.
 In  contrast, in  the previous  snippet,  when you  refer  to `x`,  there is  an
 ambiguity; Vim can look for the variable in 2 different namespaces.
 
+Update: Ok.  Is your explanation still invalidated by these snippets?
+```vim
+vim9script
+def g:Func()
+    let Func = 0
+enddef
+defcompile
+```
+    E1073: name already defined: Func = 0
+```vim
+vim9script
+def Func()
+    g:Func = 0
+enddef
+defcompile
+```
+    ✔
+
+In our Vim9 notes, we have a fold whose title is:
+
+    cannot use the name of a function as a variable name
+
+I think it's relevant.
+
 ### 208
 
 We cannot declare a register inside a `:def` function.
@@ -2423,24 +2637,27 @@ enddef
 
 ### 249
 
+We can pass a function name to  functions which accept a funcref as an argument,
+*without* quotes.
+
+It's not documented.  There is this:
+
    > Omitting function() ~
-   >
+
    > A user defined function can be used as a function reference in an expression
    > without `function()`. The argument types and return type will then be checked.
    > The function must already have been defined. >
-   >
+
    >         let Funcref = MyFunction
 
-Does not seem to work:
-```vim
-vim9script
-def MyFunction()
-    echo 'test'
-enddef
-let Funcref = MyFunction
-```
-Could be on the todo list:
-<https://github.com/vim/vim/blob/d032f34a51c6722101626c4167dffecc427ac343/runtime/doc/todo.txt#L113-L115>
+   > When using `function()` the resulting type is "func", a function with any
+   > number of arguments and any return type.  The function can be defined later.
+
+But  it's about  the fact  that `function()`  *can* be  dropped, it  doesn't say
+anything about the fact that the quotes *can* or *must* be dropped.  This should
+be documented at `:h vim9-differences`.
+
+<https://github.com/vim/vim/issues/6788>
 
 ### 304
 
@@ -2723,21 +2940,6 @@ Maybe()
    >           enddef
    >         endif
 
-Why mixing a legacy `:fu` function and a `:def` function?
-Why not 2 `:def`?
-
-   > For a workaround, split it in two functions: >
-   >         **def** Maybe()
-   >           if has('feature')
-   >             call MaybyInner()
-   >           endif
-   >         **enddef**
-   >         if has('feature')
-   >           def MaybeInner()
-   >             use-feature
-   >           enddef
-   >         endif
-
 ---
 
 I don't understand how the workaround works.
@@ -2821,41 +3023,6 @@ I would re-write this paragraph like so:
    > variables must be accessed with the "s:" prefix.
 
 Easier to understand.
-
-### 563
-
-   > The following builtin types are supported:
-
-Maybe the doc should mention that composite types can be nested up to 2 levels:
-```vim
-vim9script
-def Func(arg: list<list<any>>)
-enddef
-Func([[0]])
-```
-✔
-```vim
-vim9script
-def Func(arg: list<list<list<any>>>)
-enddef
-Func([[[0]]])
-```
-    E1013: type mismatch, expected list<list<list<any>>> but got list<list<any>>
-                                                             ^-----------------^
-
-Note that if  you nest a composite type,  it must declare the type  of its items
-with `<any>`; nothing else:
-```vim
-vim9script
-def Func(arg: list<list<number>>)
-enddef
-Func([[0]])
-```
-    E1013: type mismatch, expected list<list<number>> but got list<list<any>>
-
-Is all of this working as intended?
-That is, the fact that the maximum level of nesting is 2, and a nested composite
-type must use `<any>`.
 
 ### 671
 
@@ -4320,7 +4487,7 @@ An abbreviation is sometimes unexpectedly expanded in the middle of a word.
 
 Run this shell command:
 
-    vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(cat <<'EOF'
         set bs=start
         inorea ab cd
         pu!='yyyy'

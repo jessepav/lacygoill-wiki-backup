@@ -74,7 +74,7 @@ The parsing step during the compilation of a `:def` function when Vim checks whe
          EOF
          )
 
-         E1013: type mismatch, expected string but got number~
+         E1012: type mismatch, expected string but got number~
 
    - the type of a declared variable matches the type of the expression that you assign it later
 
@@ -87,7 +87,7 @@ The parsing step during the compilation of a `:def` function when Vim checks whe
          EOF
          )
 
-         E1013: type mismatch, expected string but got number~
+         E1012: type mismatch, expected string but got number~
 
 ### When is type checking performed
 #### for a legacy `:fu` function?
@@ -1124,12 +1124,12 @@ def Func(numbers: float)
 enddef
 Func([1, 2, 3])
 ```
-    E1013: type mismatch, expected list<any> but got float
+    E1012: type mismatch, expected list<any> but got float
                           ^------------------------------^
 
 You might think the error message is wrong, and instead expect this one:
 
-    E1013: type mismatch, expected list<any> but got float
+    E1012: type mismatch, expected list<any> but got float
                           ^------------------------------^
 
 But the error message is fine.  It's raised at compile time, not at runtime.
@@ -1691,43 +1691,13 @@ It's a known issue which won't be fixed: <https://github.com/vim/vim/issues/6593
 ##
 # Todo
 ## To refactor:
-### try to move all our library functions (`vim-lg`) into an `import/` subdirectory
-
-Benefit: our function calls would no longer be littered with noisy prefix.
-
-Before:
-
-    call lg#textprop#ansi()
-         ^----------^
-         noise
-
-After:
-
-    call ansi()
-
-Obviously, you would need to prefix the functions definitions with `:export`.
-And you would need to import them in any plugin where they are required.
-But the end result will still be much more readable.
-
----
-
-Also, try to refactor imports from the same script into a single command:
-
-    ✘
-    import This from 'foo.vim'
-    import That from 'foo.vim'
-
-    ✔
-    import {This,That} from 'foo.vim'
-
 ### eval strings into lambdas
 
 But make sure they're inside a `:def` function first.
 Don't worry, a lambda in a `:def` function is not slower than an eval string; on
 the contrary, it's faster.
 
-    :vim /v:val/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
-    :Cfilter! -other_plugins
+Look for the pattern `v:val`.
 
 ### prefix all `:import` commands with `:silent!`?
 
@@ -1750,8 +1720,6 @@ Update:  It might not be necessary in the future:
    > - Error in any command in "vim9script" aborts sourcing.
 
 Source: `:h todo /abort`
-Although, that  would require that  the script from which  you import is  a Vim9
-script (i.e. first statement is `vim9script`).
 
 ### should we refactor every manual sourcing of an autoload script into an autoload function call?
 
@@ -1773,6 +1741,22 @@ In any case, manually sourcing an autoload script looks wrong.
 At the very  least, we should consider  moving anything which is  not a function
 into a separate directory which is not automatically sourced (`macros/`?).
 That would apply to our function calls installing mappings in `vim-toggle-settings`.
+
+### remove useless "s:" scope in vimrc once it's fully refactored
+
+Right now,  it's written in front  of some function names  and possibly variable
+names, because we haven't yet written `vim9script` at the top.
+
+Do  the same  in  all scripts  you  progressively refactor  in  Vim9; i.e.  once
+finished, remove any useless `s:`.
+
+---
+
+Also, replace `v:true` with `true`, and `v:false` with `false` when possible.
+
+---
+
+Also, remove `:call` in autocmds, at script level, ... (but not in mappings).
 
 ##
 ## To understand:
@@ -1806,17 +1790,11 @@ Last time I tried, it didn't work.
 
 <https://github.com/vim/vim/commit/e3c37d8ebf9dbbf210fde4a5fb28eb1f2a492a34>
 
-### cannot shadow a function from a less specific namespace
+### cannot define 2 functions with same name in 2 different namespaces (shadowing)
 
-For example,  a function-local  function cannot  shadow a  script-local function
-even in the context of the function where it's defined.
-Find examples.
+<https://github.com/vim/vim/issues/6585#issuecomment-667580469>
 
-However, I think it is allowed to shadow a global function.
-After all, we can  already do that in Vim script legacy;  so maybe this decision
-was done for consistency...
-
----
+For example, we can't shadow a function-local function with a block-local one.
 ```vim
 vim9script
 def Outer()
@@ -1871,6 +1849,23 @@ enddef
 import Func from 'foo.vim'
 ```
     E1073: name already defined: Func
+
+---
+
+However, it is allowed to shadow a global function:
+```vim
+vim9script
+def g:Global()
+    echom 'global'
+enddef
+def s:ScriptLocal()
+    echom 'script-local'
+enddef
+defcompile
+```
+    ✔
+
+We can already do that in Vim script legacy; so this design decision is consistent.
 
 ### cannot redefine a block-local or function-local or script-local or imported function
 ```vim
@@ -1943,6 +1938,81 @@ import Func from 'b.vim'
 ```
     E1073: name already defined: Func
 
+### cannot index a number
+```vim
+vim9script
+echo 0[-1]
+```
+    E1062: Cannot index a Number
+
+This matters when you write something like this:
+
+    ✘
+    return feedkeys('q', 'in')[-1]
+
+It no longer works.  Instead, write this:
+
+    ✔
+    return feedkeys('q', 'in') ? '' : ''
+
+### cannot use the name of a function as a variable name
+```vim
+vim9script
+def Func()
+    let Func = 0
+enddef
+defcompile
+```
+    E1073: name already defined: Func = 0
+```vim
+vim9script
+def FuncA()
+    let FuncB = 0
+enddef
+def FuncB()
+enddef
+defcompile
+```
+    E1073: name already defined: FuncB = 0
+
+Is it working as  intended?  I guess it is.  Using the same  name for a function
+and a  variable is confusing,  and Vim9  script try to  be as less  confusing as
+possible.
+
+But why doesn't this raise any error?
+```vim
+vim9script
+let Func = 12
+def Func(): number
+    return 34
+enddef
+echo Func
+echo Func()
+```
+I guess it's because the variable assignment `Func` is not compiled.
+To be consistent, I think it should also raise an error at the script level.
+
+---
+
+What happens if we use different scopes?
+Make more tests.
+```vim
+vim9script
+def g:Func()
+    let Func = 0
+enddef
+defcompile
+```
+    E1073: name already defined: Func = 0
+```vim
+vim9script
+def Func()
+    g:Func = 0
+enddef
+defcompile
+```
+    ✔
+
 ### a block-local function is inherited by all nested blocks
 ```vim
 vim9script
@@ -1999,6 +2069,160 @@ Solution: use `:silent` *after* `:execute`.
     noautocmd execute "silent normal! `[\<c-v>`]y"
                        ^----^
                          ✔
+
+###
+### when we can declare a script-local item (variable or function) in a `:def` function in a legacy script
+```vim
+def Func()
+    let s:var = 123
+enddef
+call Func()
+```
+    E1101: Cannot declare a script variable in a function: s:var~
+
+    same error in a Vim9 script
+```vim
+def Func()
+    s:var = 123
+    echo s:var
+enddef
+call Func()
+```
+    123~
+
+    in a Vim9 script, an error would be raised "E1089: unknown variable: s:var"
+    https://github.com/vim/vim/issues/6771#issuecomment-678657763
+```vim
+def Outer()
+    def s:Inner()
+    enddef
+enddef
+call Outer()
+```
+    E1075: Namespace not supported: s:Inner()~
+
+    same error in a Vim9 script
+
+### when `s:` scope can be omitted
+
+It can be omitted – for a function name – when:
+
+   - at the script level in a Vim9 script
+   - in the header of a :def function defined in a Vim9 script
+   - in the body of a :def function (no matter the type of script)
+
+You can *not* omit `s:` in the header of a Vim9 function defined in a legacy script.
+
+For a variable name, it can be omitted:
+
+   - at the script level in a Vim9 script
+   - in a :def function in a Vim9 script
+
+Note that  – if you  drop `s:` –  there still can't  be any ambiguity  between a
+function-local variable, and a script-local one  which would have the same name;
+that's because a function-local variable cannot shadow a script-local one.
+```vim
+vim9script
+let var = 12
+def Func()
+    let var = 34
+enddef
+Func()
+```
+    E1054: Variable already declared in the script: var~
+
+---
+
+For a `:def` function in a legacy script,  you can *not* omit `s:` in front of a
+variable name, regardless of whether it was defined at the script level:
+
+    let s:var = 123
+    def Func()
+        echo var
+    enddef
+    call Func()
+
+    E1001: variable not found: var~
+
+Or in a `:def` function:
+
+    def Func()
+        s:var = 123
+        echo var
+    enddef
+    call Func()
+
+    E1001: variable not found: var~
+
+However, you *can* omit `s:` in front  of a function name, regardless of whether
+it's a `:def` function:
+```vim
+def s:ScriptLocalDef(): number
+    return 123
+enddef
+def Func()
+    echo ScriptLocalDef()
+enddef
+call Func()
+```
+    123
+
+Or a `:fu` function:
+```vim
+fu s:ScriptLocalFu()
+    return 123
+endfu
+def Func()
+    echo ScriptLocalFu()
+enddef
+call Func()
+```
+    123
+
+This seems inconsistent.  Should it be disallowed to omit `s:` before a function
+name in a `:def` function in a legacy script?
+Answer: no.  See: <https://github.com/vim/vim/issues/6771#issuecomment-678775221>
+
+---
+
+See also:
+
+   - <https://github.com/vim/vim/issues/6771#issuecomment-678657763>
+   - `:h :enddef`:
+
+   > If the script the function is defined in is Vim9 script, then script-local
+   > variables can be accessed without the "s:" prefix.  They must be defined
+   > before the function is compiled.  If the script the function is defined in is
+   > legacy script, then script-local variables must be accessed with the "s:"
+   > prefix.
+
+---
+
+If all of this sounds confusing, remember only this:
+inside a  `:def` function  defined in a  legacy script, we  cannot omit  `s:` in
+front of a variable name.
+
+The other rules are more obvious.
+
+---
+
+Note however that you can only omit `s:` in the Vim9 context.
+```vim
+vim9script
+def Func()
+    job_start(['/bin/bash', '-c', ':'], #{exit_cb: function('Callback')})
+enddef
+def Callback(_j: job, _e: number)
+    echom 'callback'
+enddef
+Func()
+```
+    E117: Unknown function: Callback
+
+Here, an error is raised, because:
+
+   - the funcref returned by `function('Callback')` can only work in the Vim9 context
+   - when the callback is processed, and the funcref is used, we are no longer in the Vim9 context
 
 ###
 ### imported items are local to the script

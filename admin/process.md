@@ -1268,7 +1268,7 @@ it has itself spawned.
 
 When you view an image such as:
 <https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Multithreaded_process.svg/1024px-Multithreaded_process.svg.png>
-I think that the text "process" should be replaced with "task".
+I think that the text "process" should be replaced by "task".
 From the  kernel point  of view,  there's no (or  little?) difference  between a
 process and a thread.
 So saying that a process is a group of threads is misleading.

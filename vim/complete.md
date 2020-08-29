@@ -440,8 +440,8 @@ And the text has been changed to `Ruby`.
 Press `C-j`  to try another  completion command;  you don't get  any different
 results, and yo don't get `rubyinterp`.
 
-Also,  press `C-q`  to quit  the  pum: `Ruby` stays  in the  buffer, it's  not
-replaced with the original text `ruby`.
+Also, press `C-q` to quit the pum: `Ruby` stays in the buffer, it's not replaced
+by the original text `ruby`.
 
 It's because we include `longest` in `'cot'`, in `vim-completion`.
 

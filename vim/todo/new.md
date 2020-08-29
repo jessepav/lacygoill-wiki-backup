@@ -1,6 +1,7 @@
 # functions
 
    - `:h appendbufline()` + `:h deletebufline()`
+   - `:h charclass()`
    - `:h chdir()`
    - `:h complete_info()` + 'user_data' entry in completion item
    - `:h environ()` + `:h getenv()` + `:h setenv()`
@@ -10,10 +11,9 @@
    - `:h listener_add()`
    - `:h listener_remove()`
    - `:h pum_getpos()`
-   - `:h rand()` + `:h srand()`
    - `:h readdir()` + `:h readdirex()`
    - `:h reduce()`
-   - `:h searchcount()`
+   - `:h setcellwidths()`
    - `:h str2list()` + `:h list2str()`
    - `:h strptime()` (*str*ing *p*arse *time* ?)
    - `:h term_setansicolors()` + `:h term_getansicolors()`
@@ -60,6 +60,7 @@ temporarily converting the dates into simple integers.
 
 ## arguments of functions
 
+   - `:h expand()` supports a new `<stack>` argument `{N}[hjkl]` since 8.2.1297
    - `:h getbufinfo()` includes a `linecount` key in the output dictionary since 8.2.0019
    - `:h getcompletion()` supports the `cmdline` argument since 8.2.0925
    - `:h getloclist()` supports a `filewinid` key in the optional dictionary argument since 8.1.0345
@@ -154,7 +155,7 @@ Obviously, that's only useful if `func()` has a side-effect.
 ---
 
 Maybe we should refactor all `:call func(expr)` into `:eval expr->func()`.
-In fact, `:call func()` can be replaced with `:eval func()`.
+In fact, `:call func()` can be replaced by `:eval func()`.
 Does that mean that `:call` is useless now?
 Should we remove it everywhere?
 

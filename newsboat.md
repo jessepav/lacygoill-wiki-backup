@@ -150,7 +150,7 @@ is put on its place instead.
 This works like  backtick evaluation in Bourne-compatible shells  and lets users
 use external information from the system within the configuration.
 Backticks  can be  escaped  with a  backslash  (\`); in  that  case, they’ll  be
-replaced with a literal backtick in the configuration.
+replaced by a literal backtick in the configuration.
 
 Searching for articles is possible in newsboat, too.
 Just press the "/"  key, enter your search phrase, and the  title and content of

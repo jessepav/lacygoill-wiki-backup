@@ -269,19 +269,18 @@ In contrast, `:echo` would add a space or a newline:
 
 Use `strpart()`:
 
-    echo strpart(str, n-1, 1)
-                      ├─┘  │
-                      │    └ {len}
-                      └ {start}
+    strpart(str, n - 1, 1)
+                 ├───┘  │
+                 │      └ {len}
+                 └ {start}
 
-Or index the string directly:
+Or a subscript:
 
-    echo str[n-1]
+    str[n - 1]
 
----
+#### Why shouldn't I use any of these expressions to get a character?
 
-Those methods are unreliable to get  the `n`-th *character* of a string, because
-the latter may contain multibyte characters:
+They won't work as expected if the string contains multibyte characters:
 
     echo strpart('résumé', 2, 1)
     <a9>~
@@ -289,8 +288,8 @@ the latter may contain multibyte characters:
     echo 'aéb'[1]
     <c3>~
 
-`str[n-1]` is not evaluated into the character of index `n-1`, but the *byte* of
-index `n-1`.
+`str[n - 1]` is not evaluated into the character of index `n - 1`, but the *byte* of
+index `n - 1`.
 
 Here, the  byte of index `1`  is not a  complete character, because `é`  takes 2
 bytes instead of 1.
@@ -300,28 +299,40 @@ representation of the first byte of `é`:
     $ xxd -p -l2 <<<'é'
     c3a9~
 
+###
 ### character of a string?  (3)
 
-Use `matchstr()`:
+Use `strcharpart()`:
 
-    echo matchstr(str, '.\{n-1}\zs.')
-
-Or `strcharpart()`:
-
-    echo strcharpart(str, n-1, 1)
-                          ├─┘  │
-                          │    └ {len}
-                          └ {start}
+    strcharpart(str, n - 1, 1)
+                     ├───┘  │
+                     │      └ {len}
+                     └ {start}
 
 Or `strgetchar()` + `nr2char()`:
 
-    echo strgetchar(str, n - 1)->nr2char()
-                         ├───┘
-                         └ {index}
+    strgetchar(str, n - 1)->nr2char()
+                    ├───┘
+                    └ {index}
 
 ---
 
-    echo matchstr('résumé', ' .. \zs.')
+You could use `matchstr()`:
+
+    matchstr(str, '.', byteidx(str, n - 1))
+
+But it's a bit slower.
+
+Do *not* use that:
+
+    matchstr(str, '.\{n - 1}\zs.')
+
+The bigger `n`, the *much* slower it is.
+
+---
+
+Examples:
+
     echo strcharpart('résumé', 2, 1)
     echo strgetchar('résumé', 2)->nr2char()
     s~
@@ -331,7 +342,7 @@ Or `strgetchar()` + `nr2char()`:
 
 Use `strcharpart()`, but don't provide the last optional argument `{len}`:
 
-    echo strcharpart(str, n-1)
+    echo strcharpart(str, n - 1)
 
 Without `{len}`, `strcharpart()` goes until the end.
 
@@ -341,6 +352,79 @@ Without `{len}`, `strcharpart()` goes until the end.
     cde~
 
 ###
+## How to get the character
+### under the cursor?
+
+In Vim9 script:
+
+    getline('.')->strpart(col('.') - 1)[0]
+                                   ^-^
+                                   to compensate for the fact that "col()" starts indexing from 1
+                                   while "strpart()" starts indexing from 0
+
+In Vim script legacy:
+
+    getline('.')->strpart(col('.') - 1, 1, v:true)
+    getline('.')->strpart(col('.') - 1)->strcharpart(0, 1)
+
+---
+
+You could also use `matchstr()`, but it's a bit slower:
+
+    getline('.')->matchstr('.', col('.') - 1)
+                                ^----------^
+                                3rd optional argument: start the search from the byte index
+                                `col('.') - 1`
+
+Or this:
+
+    getline('.')->matchstr('\%' .. col('.') .. 'c.')
+
+Which is even slower.
+
+#### Why the difference between Vim9 and legacy?
+
+In Vim script legacy, an index used in a string slice refers to a *byte*.
+In Vim9 script, an index used in a string slice refers to a *character*.
+
+From `:h expr-[]`:
+
+   > In Vim9 script:
+   > If expr8 is a String this results in a String that contains the expr1'th
+   > single character from expr8.  To use byte indexes use |strpart()|.
+
+So, the subscript `[0]` refers to:
+
+   - the first *character* in the string it's applied to in Vim script legacy
+   - the first *byte* in the string it's applied to in Vim9 script
+
+If  you want  to extract  a character,  `[0]` is  reliable in  Vim9, but  not in
+legacy; for the latter `strcharpart()` is necessary.
+
+###
+### after the cursor?
+
+In Vim9 script:
+
+    getline('.')->strpart(col('.') - 1)[1]
+
+In Vim script legacy:
+
+    getline('.')->strpart(col('.') - 1)->strcharpart(1, 1)
+
+### before the cursor?
+
+In Vim9:
+
+    getline('.')->strpart(0, col('.') - 1)[-1:-1]
+                                      ^-^
+                                      to exclude the first byte of the character under the cursor
+
+In legacy:
+
+    getline('.')->strcharpart(getline('.')->strpart(0, col('.') - 1)->strchars(1) - 1, 1)
+
+#
 ## What's the evaluation of `getline('.')[col('.')]`?
 
 The character right *after* the cursor.
@@ -372,20 +456,11 @@ As an example, position your cursor on the first `é` in this text:
 
 And execute:
 
-                              vv
-    echo getline('.')[col('.')-1]
+                               vvv
+    echo getline('.')[col('.') - 1]
     <c3>~
 
-### How to get it then?
-
-Use `matchstr()`, `col('.')` and `\%123c`:
-
-    echo getline('.')->matchstr('\%'.col('.').'c.')
-
-`\%123c` means that the byte index of the next character is `123`.
-`col('.')` returns the byte index of the character under the cursor.
-
-#
+##
 ## Negative index
 ### How is a negative index argument interpreted by
 #### most functions handling a string?
@@ -1275,9 +1350,11 @@ to format.
 ####
 #### When is a string aligned in its field?
 
-When you used `%123s` and the weight of the converted value is bigger than `123`.
+When you used `%123s` and the weight of the converted value is lower than `123`.
 
-When you used `%123S` and the converted value occupies more than `123` display cells.
+When you used `%123S` and the converted value occupies less than `123` display cells.
+
+    echo printf('%10S', 'ççç')
 
 #### What happens if `field-width` is lower than the weight of the converted value?
 

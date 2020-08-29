@@ -512,7 +512,7 @@ but that's not what you want.
 
 The output of `printf` is not the contents of the base64-encoded clipboard (`aGVsbG8=`).
 It's just  the string of  characters `\033]52;c;?\007`, where `\033`  and `\007`
-have been replaced with an ESC and a BEL.
+have been replaced by an ESC and a BEL.
 
 What you  can read on  the shell's command-line  – `52;c;aGVsbG8=` –  does *not*
 belong to `printf`'s output; it's a reply from the terminal *process* which is
@@ -905,7 +905,7 @@ You must *manually* send it via `printf`, or `echo [-e]`.
 
 `echo` is a shell builtin command.
 `-e` enables the interpretation of some backslash-escaped characters.
-`-e` is necessary in bash, so that `\e` is replaced with a real escape character.
+`-e` is necessary in bash, so that `\e` is replaced by a real escape character.
 `-e` is useless in zsh, because its builtin `echo` command already uses `-e` by default.
 
 It's impossible to *programmatically* detect  whether a sequence is supported by

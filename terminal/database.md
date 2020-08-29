@@ -229,7 +229,7 @@ With the name of a capability (2-5 char).
     # tab                                                  don't forget this last comma!
 
 #
-# (Neo)Vim's builtin terminfo db
+# Vim's builtin terminfo db
 ## How to view it?
 
 In Vim:

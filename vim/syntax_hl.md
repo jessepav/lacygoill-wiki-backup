@@ -2548,7 +2548,7 @@ eval !copy([1, 2, 3])->reduce({a, v -> a + v})
 Notice how the  function names are highlighted with `vimFilter`;  they should be
 highlighted with `vimFuncName`.
 
-The issue disappears if `:eval` is replaced with `:echo`.
+The issue disappears if `:eval` is replaced by `:echo`.
 
 ##
 # Reference

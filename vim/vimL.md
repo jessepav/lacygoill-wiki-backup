@@ -116,7 +116,7 @@ Write this on the command-line:
 
 Then press `Tab`.
 
-The percent character is replaced with the path of the current file, relative to
+The percent character is  replaced by the path of the  current file, relative to
 the cwd.  And yet, `:e` has not been executed.
 
 ##
@@ -161,10 +161,10 @@ was the case, then it would have raised E116 (try `:echo shellescape('a'b')`).
 
 Use `expand()`:
 
-                                            v----v
-        :setl gp&vim | 4verb exe 'grep ' .. expand('<cWORD>')->shellescape() .. ' %'
-        Calling shell to execute: "grep -n 'a'\''b' ...~
-                                           ^------^
+                                        v----v
+    :setl gp&vim | 4verb exe 'grep ' .. expand('<cWORD>')->shellescape() .. ' %'
+    Calling shell to execute: "grep -n 'a'\''b' ...~
+                                       ^------^
 
 Note  that  the quotes  around  `<cWORD>`  are only  necessary  to  get a  valid
 expression to pass to `expand()`.
@@ -428,6 +428,99 @@ You can use a  script-local function, but you need to  expand `s:` manually (via
 
 ##
 # Function calls
+## I have many nested function calls.
+
+    strcharpart(strpart(getline('.'), col('.') - 1), 0, 1)
+
+### How to make them more readable?
+
+Unnest the calls using the method call `->` token:
+
+    getline('.')->strpart(col('.') - 1)->strcharpart(0, 1)
+                ^^                     ^^
+
+#### For which type of functions does this work?
+
+Any: builtin functions, custom functions, lambdas, ...
+
+Example:
+
+    "     builtin
+    "     v------v
+    echo 3->pow(2)
+
+    9.0~
+
+    fu Pow(x, y)
+        return repeat([a:x], a:y)->reduce({a, v -> a * v})
+    endfu
+    "     custom
+    "     v------v
+    echo 3->Pow(2)
+
+    9~
+
+    "          lambda
+    "     v--------------v
+    echo 3->{x -> x * x}()
+
+    9~
+
+Note that when  a non-builtin function is  used as a method, the  base is always
+passed as the first argument.  That is,  the expression to the left of the arrow
+("the base"), is passed  to the function on the right of the  arrow as its first
+argument.
+
+####
+#### When can I pass such an expression to the `:call` command?
+
+Only when it starts with a function name.
+
+    ✔
+    :call FuncA()->FuncB()
+
+    ✘
+    :call 'some string'->Func('.')
+    E129: Function name required~
+
+That's because `:call` expects a function name (it doesn't matter whether it's a
+builtin or a custom one), and nothing else.
+
+---
+
+Note that `:call` must be followed by a function name *immediately*:
+
+          ✘
+          v
+    :call !FuncA()->FuncB()
+    E129: Function name required~
+
+##### What to do when I can't?
+
+Use `:eval`:
+
+    :eval 'some string'->append('.')
+     ^--^
+      ✔
+
+####
+#### If I write `!` at the start of the expression, what is it applied to?
+
+It's applied to the whole chain:
+
+    !Funca()->Funcb()
+    ⇔
+    !(Funca()->Funcb())
+     ^                ^
+
+##### But I just want to inverse the value of the *first* function!
+
+Use explicit parentheses to limit the scope of the `!` operator:
+
+    (!Funca())->Funcb()
+    ^        ^
+
+##
 ## I have a function call with many arguments
 ### how to make it more readable?  (2)
 

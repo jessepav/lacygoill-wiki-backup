@@ -352,7 +352,7 @@ Characters which are special on Vim's command-line will be automatically expande
     Cmd 'A%B'
     Acommand.mdB~
      ^--------^
-       `%` has been expanded into the name of the current file
+    " `%` has been expanded into the name of the current file
 
 ---
 
@@ -454,7 +454,7 @@ non-trivial; `<f-args>` give it to you for free.
 
 ### How is `<f-args>` replaced if I provide no argument to the command?
 
-It's replaced with nothing.
+It's replaced by nothing.
 
     com -nargs=* Cmd  call Func(<f-args>)
     fu Func(...) abort
@@ -517,7 +517,7 @@ It's replaced by `-1`.
 
 ### How are `<line1>` and `<line2>` replaced if I use `-range` without any value, and don't pass any range?
 
-They're both replaced with the current line address:
+They're both replaced by the current line address:
 
     com -range -nargs=*  Test  echo '<line1>,<line2>'
     :Test
@@ -874,7 +874,7 @@ But in a completion function, you need to increase the column position by 1:
                                                                       ^-^
                                                                       surprise!
 
-That's because `\%c` index from 1, while `pos` index from 0.
+That's because `\%c` index from 1, while `a:pos` index from 0.
 
 ##
 # ?

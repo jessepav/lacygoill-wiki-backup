@@ -742,7 +742,7 @@ The server keeps running in the background.
 In contrast, if you  had pressed `C-d` to kill the current  shell, and there was
 no other shell handled by the tmux server, this would have killed the latter.
 
-## I have a pane running Vim.  `#{pane_current_command}` is not replaced with `vim`!
+## I have a pane running Vim.  `#{pane_current_command}` is not replaced by `vim`!
 
 Are you running Vim in a pipeline?
 
@@ -761,7 +761,7 @@ For example, if you know that Vim opens an unnamed buffer, you can use:
 
     #{C:\[No Name\]}
 
-It should be replaced  with a number different than `0`  (the screen line number
+It should  be replaced by  a number different than  `0` (the screen  line number
 where `[No Name]` matches).
 You can then use `if -F` to react accordingly:
 

@@ -442,7 +442,7 @@ according to [Install] unit file options or at run time based on [Unit] options.
 ---
 
 Many unit file options can be set using the so called unit specifiers – wildcard
-strings that are dynamically replaced with unit parameters when the unit file is
+strings that are  dynamically replaced by unit parameters when  the unit file is
 loaded.
 This  enables  creation of  generic  unit  files  that  serve as  templates  for
 generating instantiated units.

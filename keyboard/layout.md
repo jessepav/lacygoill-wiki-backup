@@ -638,7 +638,7 @@ is translated into:
 
 ## What are `%m`, `%l` and `%v` in the rule file?
 
-Probably placeholders which will be replaced  with resp. the keyboard model, the
+Probably placeholders  which will be replaced  by resp. the keyboard  model, the
 language and the variant.
 
 ## How are the include directives, contained in the output of `setxkbmap`, resolved?

@@ -131,7 +131,7 @@ Run this:
     :echo repeat('a', 375) . 'bb'
 
 Enter copy-mode and try to copy the 377 characters.
-Paste it in a buffer (`""p`), and you'll see that the last `b` is replaced with a backtick.
+Paste it in a buffer (`""p`), and you'll see that the last `b` is replaced by a backtick.
 You can add as many `b` as you want; when you paste, you'll only get one `b` + a backtick.
 Weirdly enough, if  you try to reproduce  by writing the text in  a file, then
 cat'ing  it in  the shell,  you'll  see that  the  limit is  increased to  379

@@ -1469,8 +1469,8 @@ Let's see another example, where it's used as an address for the `p` command:
     21~
 
 Here, `//` refers to 1.
-The output contains  only 21, because 12  and 13 have been replaced  with 22 and
-23, none of which contains 1.
+The output contains only 21, because 12 and  13 have been replaced by 22 and 23,
+none of which contains 1.
 
 Here are other examples:
 

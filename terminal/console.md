@@ -217,7 +217,7 @@ So,  we need  to  reconnect the  stdin  of  `setleds(1)` to  the  tty for  which
 
 #### What's `%I`?
 
-A specifier which is replaced with  the unescaped instance name (`tty1`, `tty2`,
+A specifier  which is replaced by  the unescaped instance name  (`tty1`, `tty2`,
 ...) of the instantiated service.
 
 See `man systemd.unit`.

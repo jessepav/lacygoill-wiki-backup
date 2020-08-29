@@ -588,6 +588,8 @@ When  asked to  open such  a file,  in- or  outside Vim  or via  `gF`, Vim  with
 vim-fetch will  jump to  the specified  line (and column,  if given)  instead of
 displaying an empty, new file.
 
+See also: <https://github.com/lervag/file-line> 41 sloc
+
 ## flattery
 
 Flattery provides  targets for f/t searches,  either as a conveniency  [eg. fb searching
@@ -2085,6 +2087,25 @@ very simple vim plugin for easy resizing of your vim windows
 
 It could be useful and easier than what  we do currently, to create a submode in
 which we can resize/move windows with `hjkl`, and move them.
+
+## xrange
+
+X-range is  a plugin allowing to  execute source code within  text documents. It
+can run  part of  a buffer,  process it  through an  external shell  command and
+inject the result somewhere else in the buffer. It attempts to be an alternative
+to Emacs org-babel.
+
+The main use cases are:
+
+   - to store local macros in a buffer. Such macros can for example, launch
+     tests, and modify the buffer itself, to generate and keep up to date
+     a table of content
+
+   - to use a vim buffer as a REPL by evaluting code in different languages and
+     collecting the results in the same buffer. This is sometimes called
+     reproductible research' as is in Emacs org-babel or Jupyter Notebook
+
+<https://github.com/maxigit/vim-xrange> 789 sloc
 
 ##
 # Abolish

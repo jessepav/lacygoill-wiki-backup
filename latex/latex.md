@@ -168,8 +168,8 @@ Some of them contain upper case alphabetic characters (ex: \LaTeX).
                                you can provide any integer between 1 and 9
 
 
-`#1`, `#2`,  `#3` will be replaced  with the first, second,  third arguments you
-pass to `\mymacro`:
+`#1`, `#2`, `#3` will be replaced by the first, second, third arguments you pass
+to `\mymacro`:
 
         \mymacro{foo}{bar}{baz}
 

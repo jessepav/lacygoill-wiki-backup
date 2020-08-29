@@ -357,9 +357,8 @@ environment, not the session one.
 
 From `man tmux /PARSING SYNTAX`:
 
-   > -   Environment variables preceded by $ are replaced with their
-   >     value from the **global environment** (see the GLOBAL AND SESSION
-   >     ENVIRONMENT section).
+   > - Environment variables preceded by $  are replaced by their value from the
+   > **global environment** (see the GLOBAL AND SESSION ENVIRONMENT section).
 
 ##
 ## I've run `:set @foo "a$EDITORb"`.  What's the output of `:show -v @foo`?
@@ -367,7 +366,7 @@ From `man tmux /PARSING SYNTAX`:
     a
 
 There's nothing  after `a`, because tmux  tried to expand `EDITORb`;  it doesn't
-exist, and so was replaced with an empty string.
+exist, and so was replaced by an empty string.
 
 ### How to get `avimb`?
 

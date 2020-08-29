@@ -2039,6 +2039,18 @@ DIVERS:
    > From there, `g?` to see available mappings,  and `:q` to quit, as you would from
    > a commit buffer.
 
+### How to recover a cleared stash.
+
+<https://stackoverflow.com/a/57095939/9780968>
+
+    $ git fsck --unreachable | grep commit | cut -d ' ' -f3 | xargs git log --merges --no-walk
+
+    $ git update-ref --create-reflog refs/stash 4b3fc45... -m 'My recover stash'
+                                                ^--------^
+                                                commit hash copied from the output of the previous command
+
+    $ git stash apply 'stash@{0}'
+
 ##
 ## Find a way to remove all the binary/big files we've committed by accident in our config repo.
 

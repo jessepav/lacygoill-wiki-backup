@@ -837,7 +837,7 @@ If you press Enter twice, without changing the default inputs, the command will 
 
     my input1 and my input2~
 
-`%1` and `%2` will be replaced with respectively the first and second user input.
+`%1` and `%2` will be replaced by respectively the first and second user input.
 You're limited to 9 user inputs, so you can only go up to `%9`.
 
 Note that `-I` is optional; only `-p` is required to get several prompts.
@@ -1434,9 +1434,8 @@ Strings cannot span multiple lines except with line continuation.
 
 Outside of single quotes and inside double quotes, these replacements are performed:
 
-   - Environment variables preceded by $ are replaced with their
-     value from the global environment (see the GLOBAL AND SESSION
-     ENVIRONMENT section).
+   - Environment variables preceded by $ are replaced by their value from the
+     global environment (see the GLOBAL AND SESSION ENVIRONMENT section).
 
    - A leading ~ or ~user is expanded to the home directory of the
      current or specified user.

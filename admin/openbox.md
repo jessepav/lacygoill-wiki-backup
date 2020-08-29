@@ -337,8 +337,8 @@ Why is there no `fi` in the zsh snippet? Where is this syntax documented?
 
 In the previous snippets, what are the pros and cons of using the `exec` command?
 
-If you use it,  the login shell will immediately be replaced  with an X session,
-and when you'll quit the latter, you won't get back to the shell.
+If you use it, the login shell will immediately be replaced by an X session, and
+when you'll quit the latter, you won't get back to the shell.
 Con: IOW, you'll have to log in again.
 Pro: This should simplify  the output of `pstree(1)` (and maybe  reduce the risk
 of issues, because one less process?).

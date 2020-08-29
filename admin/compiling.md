@@ -270,7 +270,7 @@ Finally, on the button “buildlog”:
 ##
 ## What happens if I pass the name of a binary package to `$ apt-get source`?
 
-It will be replaced with the source package from which it can be compiled.
+It will be replaced by the source package from which it can be compiled.
 
     $ apt-get source vim-gtk
     ...~

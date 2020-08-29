@@ -180,8 +180,8 @@ format
 
 If this style is set for the descriptions  tag, its value is used as a string to
 display above matches in completion lists.
-The sequence `%d`  in this string will  be replaced with a  short description of
-what these matches are.
+The sequence `%d` in this string will be replaced by a short description of what
+these matches are.
 This  string  may  also  contain  the  following  sequences  to  specify  output
 attributes  as  described  in  the  section EXPANSION  OF  PROMPT  SEQUENCES  in
 zshmisc(1): `%B`, `%S`, `%U`,  `%F`, `%K` and their lower  case counterparts, as
@@ -199,13 +199,13 @@ These are described for the completer functions that make use of them.
 
 Some completion  functions display  messages that may  be customised  by setting
 this style for the messages tag.
-Here, the `%d` is replaced with a message given by the completion function.
+Here, the `%d` is replaced by a message given by the completion function.
 
 Finally, the format string  is looked up with the warnings tag,  for use when no
 matches could be generated at all.
-In this  case the `%d`  is replaced with the  descriptions for the  matches that
-were expected separated by spaces.
-The sequence `%D` is replaced with the same descriptions separated by newlines.
+In this case the `%d` is replaced  by the descriptions for the matches that were
+expected separated by spaces.
+The sequence `%D` is replaced by the same descriptions separated by newlines.
 
 # ?
 
@@ -294,7 +294,7 @@ If no `:tag` is given the `files` tag will be used.
 The tag  may also  be followed by  an optional second  colon and  a description,
 which will  be used for the  `%d` in the value  of the format style  (if that is
 set) instead of the default description supplied by the completion function.
-If the description given here contains itself  a `%d`, that is replaced with the
+If the description  given here contains itself  a `%d`, that is  replaced by the
 description supplied by the completion function.
 
 For example, to  make the rm command  first complete only names  of object files

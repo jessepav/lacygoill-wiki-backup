@@ -4457,7 +4457,7 @@ carriage return typed interactively to execute `:update`:
     d                   | d
     ...                 | ...
     e                   | e
-    CR                  | update is replaced with: 'update' .. feedkeys(":echo 'hello'\r", 'i')[-1]
+    CR                  | update is replaced by: 'update' .. feedkeys(":echo 'hello'\r", 'i')[-1]
     :echo 'hello' CR CR | update
                         | update :echo 'hello' CR CR
 
@@ -4470,7 +4470,7 @@ carriage return typed interactively to execute `:update`:
     d                   | d
     ...                 | ...
     e                   | e
-    CR                  | update is replaced with: 'update' .. feedkeys(":echo 'hello'\r")[-1]
+    CR                  | update is replaced by: 'update' .. feedkeys(":echo 'hello'\r")[-1]
     CR :echo 'hello' CR | update
                         | update CR :echo 'hello' CR
 

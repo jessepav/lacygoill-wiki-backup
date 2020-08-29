@@ -1599,7 +1599,7 @@ If set, the value is executed as a command prior to issuing each primary prompt.
 If  set to  a number  greater than  zero, the  value is  used as  the number  of
 trailing directory  components to  retain when  expanding the  \w and  \W prompt
 string escapes (see PROMPTING below).
-Characters removed are replaced with an ellipsis.
+Characters removed are replaced by an ellipsis.
 
        PS0
 
@@ -1901,11 +1901,11 @@ preceding the first  unquoted slash (or all characters, if  there is no unquoted
 slash) are considered a tilde-prefix.
 If none of the characters in the  tilde-prefix are quoted, the characters in the
 tilde-prefix following the tilde are treated as a possible login name.
-If this login name  is the null string, the tilde is replaced  with the value of
-the shell parameter HOME.
+If this login name is the null string, the tilde is replaced by the value of the
+shell parameter HOME.
 If  HOME is  unset,  the home  directory  of  the user  executing  the shell  is
 substituted instead.
-Otherwise, the tilde-prefix is replaced  with the home directory associated with
+Otherwise, the  tilde-prefix is replaced  by the home directory  associated with
 the specified login name.
 
 If the tilde-prefix is a `~+`, the  value of the shell variable PWD replaces the
@@ -1913,7 +1913,7 @@ tilde-prefix.
 If the tildeprefix is  a `~-`, the value of the shell variable  OLDPWD, if it is
 set, is substituted.
 If the characters following the tilde in the tilde-prefix consist of a number N,
-optionally prefixed  by a `+`  or a `-`, the  tilde-prefix is replaced  with the
+optionally prefixed  by a  `+` or  a `-`,  the tilde-prefix  is replaced  by the
 corresponding element from the directory stack,  as it would be displayed by the
 dirs builtin invoked with the tilde-prefix as an argument.
 If the  characters following the tilde  in the tilde-prefix consist  of a number
@@ -2055,8 +2055,8 @@ Omitting the colon results in a test only for a parameter that is unset.
 
        ${parameter/pattern/string}
               Pattern  substitution.   The  pattern  is expanded to produce a pattern just as in pathname expansion.
-              Parameter is expanded and the longest match of pattern against its value is replaced with string.   If
-              pattern begins with /, all matches of pattern are replaced with string.  Normally only the first match
+              Parameter is expanded and the longest match of pattern against its value is replaced by string.   If
+              pattern begins with /, all matches of pattern are replaced by string.  Normally only the first match
               is replaced.  If pattern begins with #, it must match at the beginning of the expanded value of param‐
               eter.   If  pattern  begins  with  %, it must match at the end of the expanded value of parameter.  If
               string is null, matches of pattern are deleted and the / following pattern may  be  omitted.   If  the
@@ -2177,7 +2177,7 @@ Omitting the colon results in a test only for a parameter that is unset.
 
    Pathname Expansion
        After word splitting, unless the -f option has been set, bash scans each word for the characters *, ?, and [.
-       If one of these characters appears, then the word is regarded as a pattern, and replaced with  an  alphabeti‐
+       If one of these characters appears, then the word is regarded as a pattern, and replaced by  an  alphabeti‐
        cally  sorted  list of filenames matching the pattern (see Pattern Matching below).  If no matching filenames
        are found, and the shell option nullglob is not enabled, the word is left unchanged.  If the nullglob  option
        is  set,  and no matches are found, the word is removed.  If the failglob shell option is set, and no matches
@@ -3359,7 +3359,7 @@ matching and completion.
 The length in characters of the common  prefix of a list of possible completions
 that is displayed without modification.
 When set to  a value greater than  zero, common prefixes longer  than this value
-are replaced with an ellipsis when displaying possible completions.
+are replaced by an ellipsis when displaying possible completions.
 
        completion-query-items (100)
 
@@ -4038,7 +4038,7 @@ There are four parser directives used.
        escape a newline, if necessary.
 
        After all of the possible completions are generated, any filter specified with the -X option  is  applied  to
-       the  list.   The  filter is a pattern as used for pathname expansion; a & in the pattern is replaced with the
+       the  list.   The  filter is a pattern as used for pathname expansion; a & in the pattern is replaced by the
        text of the word being completed.  A literal & may be escaped with a  backslash;  the  backslash  is  removed
        before attempting a match.  Any completion that matches the pattern will be removed from the list.  A leading
        ! negates the pattern; in this case any completion not matching the pattern will be removed.  If the  nocase‐
