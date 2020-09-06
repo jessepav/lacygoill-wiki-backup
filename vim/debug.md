@@ -549,6 +549,35 @@ size to avoid trying at all positions in the current and previous lines:
     \%(foo.*\)\@123<=bar    ✔
 
 ##
+# Testing
+## Where can I learn how to write tests for Vim?
+
+   - `:h testing`
+   - `~/Vcs/vim/src/testdir/README.txt`
+   - `~/Vcs/vim/src/testdir/runtest.vim`
+   - `~/Vcs/vim/src/testdir/test_assert.vim`
+
+## How can I run a specific test?
+
+If you want to run all the tests in a particular file, use `make(1)`:
+
+    $ cd ~/Vcs/vim/src/testdir; make test_vim9_func
+                                     │
+                                     └ name of the script testing the feature you're interested in
+
+If you want to run a particular test in a particular file, use `vim(1)`:
+
+    $ cd ~/Vcs/vim/src/testdir
+    $ vim -u NONE -S runtest.vim test_vim9_func.vim bufname
+                                                    │
+                                                    └ name of the testing function without the "Test_" prefix
+                                                      (e.g. "Test_bufname()")
+
+### Where can I read the results?
+
+    ~/Vcs/vim/src/testdir/test.log
+    ~/Vcs/vim/src/testdir/messages
+
 #
 # Pitfalls
 ## Why should I always press Enter at the hit-enter prompt when an error is raised while I'm debugging some issue?

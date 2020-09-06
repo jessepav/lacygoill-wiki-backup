@@ -2302,6 +2302,10 @@ And a buffer-local mapping is typically installed from a filetype plugin while a
 global mapping  is installed from a  regular plugin; regular plugins  are always
 sourced before any filetype plugin.
 
+---
+
+See also: <https://github.com/vim/vim/issues/6810#issuecomment-683425978>
+
 ## `:h modifyOtherKeys` doesn't work when Vim runs inside tmux!
 
 Make sure to set the server option `extended-keys`:
@@ -3577,7 +3581,7 @@ prevent it.
 Any mapping in command-line mode.
 
 First, it doesn't make sense.
-`<silent>` is useful to  prevent Vim from displaying an Ex  command which is run
+`<silent>` is  useful to prevent  Vim from printing an  Ex command which  is run
 after entering the command-line from the rhs of the mapping:
 
         v------v

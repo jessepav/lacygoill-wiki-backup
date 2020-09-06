@@ -138,13 +138,13 @@ Normalize async job control api for vim and neovim.
 
 <https://github.com/prabirshrestha/async.vim>
 
-204 sloc
+299 sloc
 
 # asyncmake
 
 Plugin for asynchronously running make
 
-<https://github.com/yegappan/asyncmake>
+<https://github.com/yegappan/asyncmake> 125 sloc
 
 To start make in the background, run the following command:
 
@@ -184,9 +184,7 @@ This plugin uses Vim 8 async jobs to append new buffer content.
 Internally, it  works by running `$  tail -f` on a  file and the output  will be
 appended to the buffer, which displays this buffer.
 
-<https://github.com/chrisbra/vim-autoread>
-
-141 sloc
+<https://github.com/chrisbra/vim-autoread> 173 sloc
 
 # makejob
 
@@ -195,9 +193,9 @@ who don't like how calls to :make and :grep freeze the editor.
 MakeJob implements  asynchronous versions of  the builtin commands in  just over
 150 lines of Vimscript.
 
-<https://github.com/djmoch/vim-makejob>
+<https://github.com/foxik/vim-makejob>
 
-208 sloc
+197 sloc
 
 ##
 # Todo

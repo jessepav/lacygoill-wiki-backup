@@ -501,6 +501,8 @@ Then a window option:
 
 Finally a session option.
 
+## install a key binding which restores a closed pane/window/session
+
 #
 # study how v, V, C-v behave in Vim when we're already in visual mode; try to make tmux copy-mode consistent
 
@@ -915,6 +917,10 @@ the location: left part? right part? window list?
 # try to install custom key bindings in the choose modes
 
 <https://github.com/tmux/tmux/issues/2118#issuecomment-599901207>
+
+# study the `-w` flag of `set-buffer` and `load-buffer`
+
+<https://github.com/tmux/tmux/commit/37b1600d9cf7076498760372dcc20f021e4c181a>
 
 ##
 # document

@@ -2224,6 +2224,17 @@ Here, an error is raised, because:
    - the funcref returned by `function('Callback')` can only work in the Vim9 context
    - when the callback is processed, and the funcref is used, we are no longer in the Vim9 context
 
+Similar pitfall with `listener_add()`:
+```vim
+vim9script
+def Listener(bufnr: number, start: number, end: number, added: number, changes: list<dict<number>>)
+  echo 'lines ' .. start .. ' until ' .. end .. ' changed'
+enddef
+listener_add(function('Listener'), '%')
+feedkeys('aaa', 'nt')
+```
+    E117: Unknown function: Listener
+
 ###
 ### imported items are local to the script
 

@@ -510,7 +510,7 @@ Git support for dirvish.vim
 (Do)cumentation (Ge)nerator  (10+ languages) Generate proper  code documentation
 skeletons with a single keypress.
 
-<https://github.com/kkoomen/vim-doge>:2234 sloc
+<https://github.com/kkoomen/vim-doge> 2977 sloc
 
 ---
 
@@ -518,6 +518,12 @@ Even if we don't use this plugin,  it could be useful to implement some mappings
 to ease the process of writing good documentation at the start of our functions.
 We  should also  agree on  some convention;  e.g. always  write a  `Synopsis` or
 `Signature` line, an `Input` and `Output` section, ...
+
+---
+
+Alternative:
+
+<https://github.com/mg979/docgen.vim> 733 sloc
 
 ## echodoc
 

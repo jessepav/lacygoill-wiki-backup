@@ -61,7 +61,7 @@ Temporary workaround:
     endfu
 
 ##
-## bug: can delete a function-local or block-local function nested in a legacy function
+## can delete a function-local or block-local function nested in a legacy function
 
 MWE for a function-local function:
 
@@ -134,7 +134,7 @@ To this:
    > is defined when the latter is run, and cannot be deleted or replaced.
    > The same is true fo a function local to a block.
 
-## bug: inconsistent error message when trying to delete local function nested in ":def" function
+## inconsistent error message when trying to delete local function nested in ":def" function
 
     function-local function
 ```vim
@@ -214,7 +214,7 @@ delfu s:Func
 ```
     E1084: Cannot delete Vim9 script function s:Imported
 
-## bug: type casting doesn't work at the script level
+## type casting doesn't work at the script level
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
@@ -272,6 +272,139 @@ in a list.  That was fixed – in a `:def` function – by the patch 8.2.1407.
 I'm not sure this is a bug, because `:h type-casting` only mentions compiled code.
 Still, it would be more consistent if it also worked at the script level.
 Although, would it make sense?
+
+## cannot use ":breakadd func" with a `:def` function
+
+Maybe it can't work with a compiled function.
+If so, it should be documented at `:h vim9-differences`.
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def g:Func()
+            echo 'inside'
+        enddef
+        breakadd func g:Func
+        g:Func()
+    EOF
+    )
+
+---
+
+It keeps working for a legacy function, but remember to translate `s:` into `<SNR>123_`:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        fu Func()
+            echo 'inside'
+        endfu
+        exe 'breakadd func ' .. expand('<SID>') .. 'Func'
+        Func()
+    EOF
+    )
+    ✔
+
+---
+
+What about `:profile`?
+
+##
+## Ideas to make Vim script less weird.
+### Mappings
+
+Mapping commands  could automatically add  `<sid>` in  front of a  function name
+when it can't be found in the global namespace, but can in the script-local one.
+
+---
+
+Mapping commands could interpret a bar as part of their argument.
+
+---
+
+A bar at the  start of a line could be parsed as  an automatic continuation line
+when it follows a mapping command.
+
+---
+
+A local mapping could use `<nowait>` by default.
+
+---
+
+Vim could stop writing an automatic range when `:` is pressed from a normal mode
+mapping.  This forces us to constantly write `:<c-u>`.
+
+If the user wants a visual range, they should write it explicitly:
+
+    xnoremap <F3> :*call Func()<CR>
+                   ^
+
+    xnoremap <F3> :'<,'>call Func()<CR>
+                   ^---^
+
+If the range is implicit, it leads to unexpected results for new users.
+
+Although, it would be tricky to implement.
+Vim would  probably have  to automatically  add `<c-u>` after  a colon;  but how
+would it know which colons?
+Idea: a mapping installed from a Vim9 script could be run in the Vim9 context.
+And when a mapping is run in the Vim9 context, Vim would never automatically add
+a range.
+
+---
+
+Inline comments could be disallowed in mappings:
+
+    nno cd :echo 'foo'<cr> " some comment
+                           ^------------^
+                                 ✘
+
+    nno ci :echo 'bar'<cr> # some comment
+                           ^------------^
+                                 ✘
+
+Although, how Vim would know it's an inline comment?
+*I remember people having issues because of inline comments; find an example of such issues.*
+
+### Autocmds
+
+An augroup could clear itself automatically (especially useful for buffer-local autocmds):
+
+    augroup my_group
+        au!
+        au Event * " do sth
+    augroup END
+
+    →
+
+    augroup my_group
+        au Event * " do sth
+    augroup END
+
+### Misc
+
+Allow `'.'` as a shorthand for `col('.')` whenever a function argument expects a
+column number.
+
+---
+
+Allow `'.'` as a shorthand for  `line('.')` and `col('.')` regardless of whether
+the function can work on other buffers.  For example, this doesn't work:
+
+    call prop_type_add('number', {'highlight': 'Constant'})
+    call prop_add('.', '.', {'length': 3, 'type': 'number'})
+                  ^------^
+                     ✘
+
+That's because `prop_add()`  can work on inactive buffers, where  the concept of
+"current" line or column doesn't make sense.
+Still, it would be nice if it worked.
+
+---
+
+Look for which functions:
+
+   - support `'.'` as a shorthand
+   - don't support `'.'` as a shorthand, but would benefit from it
+   - expect a `{row}` and/or `{col}` argument which describe *cells* positions
 
 ##
 ## ?
@@ -385,10 +518,23 @@ Conclusion:  Out of the 10 functions, only 4 accept a function name instead of a
    - `sort()`
    - `timer_start()`
 
+To be more consistent, maybe these 6 functions should also accept a function name?
+
+  - `:h eval()`
+  - `:h filter()`
+  - `:h map()`
+  - `:h search()`
+  - `:h searchpair()`
+  - `:h substitute()`
+
+Although, it would be tricky for `substitute()`.
+How would it know whether `"Func"` should  be parsed as a function name, or just
+a literal text?
+
 ## ?
 
 When a function accepts a function name as an argument, how does it work in Vim9
-script?  That is, does it work *without* quotes?  Does it work *with* quotes?
+script?  That is, does it still work *with* quotes?  Can it work *without* quotes?
 ```vim
 vim9script
 def MyCall()
@@ -554,7 +700,8 @@ timer_start(0, MyCb)
 
 Conclusions:
 
-   - we *can* omit the quotes for `call()`, `setqflist()`, `timer_start()`
+   - we can still use quotes for the 4 functions
+   - we can omit quotes for `call()`, `setqflist()`, `timer_start()`
    - we can *not* omit the quotes for `sort()`
 
 Let's assume that the quotes are meant to be still allowed (that's my impression
@@ -1294,15 +1441,14 @@ A()
 
 `still running` was not executed, which seems correct.  Now, watch this:
 ```vim
-vim9script
 fu A() abort
-    call s:B()
+    call B()
     echom 'still running'
 endfu
 fu B()
     eval [][0]
 endfu
-A()
+call A()
 ```
     E684: list index out of range: 0
     still running
@@ -1788,69 +1934,6 @@ Related issue: <https://github.com/vim/vim/issues/6498>
 
 ## ?
 
-Can't use ":breakadd func" with a `:def` function.
-Maybe it can't work with a compiled function.
-If so, it should be documented at `:h vim9-differences`.
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def g:Func()
-            echo 'inside'
-        enddef
-        breakadd func Func
-        g:Func()
-    EOF
-    )
-
----
-
-Why does it not work for a legacy function in a Vim9 script?
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        fu Func()
-            echo 'inside'
-        endfu
-        breakadd func Func
-        call Func()
-    EOF
-    )
-    ✔
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        fu Func()
-            echo 'inside'
-        endfu
-        breakadd func Func
-        Func()
-    EOF
-    )
-    ✘
-
-Probably because `Func()` is now script-local.
-But then, why isn't this enough to fix the issue:
-
-    breakadd func s:Func
-                  ^^
-
-The issue disappears if we use a global function everywhere:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        fu g:Func()
-            echo 'inside'
-        endfu
-        breakadd func Func
-        g:Func()
-    EOF
-    )
-
----
-
-What about `:profile`?
-
-## ?
-
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
         def Func()
@@ -1935,84 +2018,6 @@ without a `s:` prefix is not necessarily script-local; it can be global.
 ## Vim9: should Vim's help include its own Vim9 script style guide similar to ":h coding-style"?
 
 Maybe it could be based on the one provided by Google.
-
-## ?
-
-Should we enforce the usage of full names of commands and options?
-
-Would this make it easier for Vim developers to write new Vim9 features, and fix Vim9 bugs?
-
-Would it provide other technical benefits?  Like maybe this would make it easier to write a [Vim9 parser](https://github.com/vim/vim/issues/6372), which in turn could be used to write other tools for Vim9, like a [full optimizer](https://github.com/vim/vim/issues/6372#issuecomment-652634882)?
-
----
-
-FWIW, the Vimscript [style guide from Google](https://google.github.io/styleguide/vimscriptfull.xml?showone=Settings#Settings) recommends using full names:
-
-   > Prefer long names of built in settings (i.e. tabstop over ts).
-
----
-
-This would also have the obvious benefits of making people write code which is both more readable, and more consistent.  For example, there would be only a single way to execute `:nnoremap`, compared to 6 right now:
-
-    :nno
-    :nnor
-    :nnore
-    :nnorem
-    :nnorema
-    :nnoremap
-
----
-
-As a side benefit, there would be no extra unexpected behavior when we forget to declare a single-letter variable.  For example, if we forget to declare the variable `n`, instead of Vim populating the arglist with the file paths `=` and `123` when running the following snippet:
-```vim
-vim9script
-n = 123
-```
-An error would be raised, such as:
-
-    E488: Trailing characters: = 123: n = 123
-    E1100: Missing :let: n = 123
-
-Because Vim would not parse `n` as the Ex command `:next`.
-
-## ?
-```vim
-vim9script
-b = 123
-```
-    ┌───┬───────────────────────────────────────────┐
-    │ b │ E94: No matching buffer for = 123         │
-    ├───┼───────────────────────────────────────────┤
-    │ e │ edit file '= 123'                         │
-    ├───┼───────────────────────────────────────────┤
-    │ f │ E95: Buffer with this name already exists │
-    ├───┼───────────────────────────────────────────┤
-    │ g │ global command (equivalent to 'g/123')    │
-    ├───┼───────────────────────────────────────────┤
-    │ h │ E149: Sorry, no help for = 123            │
-    ├───┼───────────────────────────────────────────┤
-    │ m │ E16: Invalid range                        │
-    ├───┼───────────────────────────────────────────┤
-    │ n │ populate arglist with '=' and '123'       │
-    ├───┼───────────────────────────────────────────┤
-    │ o │ edit file '= 123'                         │
-    ├───┼───────────────────────────────────────────┤
-    │ r │ E484: Can't open file = 123               │
-    ├───┼───────────────────────────────────────────┤
-    │ s │ E486: Pattern not found:  123             │
-    ├───┼───────────────────────────────────────────┤
-    │ t │ E16: Invalid range                        │
-    ├───┼───────────────────────────────────────────┤
-    │ v │ vglobal command                           │
-    ├───┼───────────────────────────────────────────┤
-    │ w │ E139: File is loaded in another buffer    │
-    ├───┼───────────────────────────────────────────┤
-    │ z │ E144: non-numeric argument to :z          │
-    └───┴───────────────────────────────────────────┘
-
-All these pitfalls could be fixed if Vim forced the user to prefix these commands with a colon.
-
-Alternatively, the pitfall related to `t` could be fixed by disallowing the commands, just like `:a`, `:c`, `:i`, `:x` are disallowed, in favor of `:copy` which is more readable anyway.
 
 ## ?
 
@@ -2158,32 +2163,6 @@ echo len('abc')
 Should Vim raise  an error when we  try to define a function  whose name clashes
 with a builtin one?  I don't think so, because we can already define a `s:len()`
 function in legacy...
-
-## ?
-```vim
-vim9script
-def FuncA(n)
-    if n == 123
-        FuncB(123)
-    endif
-enddef
-def FuncB(n: number)
-    echo n
-enddef
-FuncA(123)
-```
-    Error detected while processing command line..script /proc/30492/fd/11:~
-    line    2:~
-    E1077: Missing argument type for n~
-    line    3:~
-    E121: Undefined variable: n~
-    line    6:~
-    E193: :enddef not inside a function~
-    line   10:~
-    E117: Unknown function: FuncA~
-
-This is way too verbose.
-Couldn't Vim just report the first error?
 
 ## ?
 
@@ -3141,301 +3120,6 @@ But it's about variables; there is nothing about functions.
 
 ##
 # Todo list
-## some todo items are stale
-
-I had a look at the first half of the todo list, and found some items which could be stale.  I don't submit a PR, because I'm not sure for all of them.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L137-L140):
-
-   > - With some sequence get get hidden finished terminal buffer. (#5768)
-   >     Cannot close popup terminal (#5744)
-   >     Buffer can't be wiped, gets status "aF". (#5764)
-   >     Is buf->nwindows incorrect?
-
-No longer relevant since [8.2.0743](https://github.com/vim/vim/releases/tag/v8.2.0743).
-
-Actually, I'm not sure that `#5768` is no longer relevant since 8.2.0743.  Maybe it was fixed by another patch; but it is fixed anyway.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L141-L142):
-
-   > - popup_clear() and popup_close() should close the terminal popup, and
-   >    make the buffer hidden. #5745
-
-No longer relevant since [8.2.0747](https://github.com/vim/vim/releases/tag/v8.2.0747).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L498-L499):
-
-   > v:register isn't reset early enough, may be used by next command.
-   > (Andy Massimino, #5294, possible fix in #5305)
-
-No longer relevant since [8.2.0929](https://github.com/vim/vim/releases/tag/v8.2.0929):
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L583-L584):
-
-   > Add a way to create an empty, hidden buffer.  Like doing ":new|hide".
-   > ":let buf = bufcreate('name')
-
-*Maybe* no longer relevant since Vim supports `bufadd()` and `bufload()`.  Now, one can run:
-
-    vim -Nu NONE +'let buf = bufadd("name") | call bufload(buf) | call setbufvar(buf, "&buflisted", 1)'
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1202-L1204):
-
-   > Implement named arguments for functions:
-   >     func Foo(start, count = 1 all = 1)
-   >     call Foo(12, all = 0)
-
-No longer relevant since [8.1.1310](https://github.com/vim/vim/releases/tag/v8.1.1310).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1396):
-
-   > Cannot delete a file with square brackets with delete(). (#696)
-
-No longer relevant since [8.1.1378](https://github.com/vim/vim/releases/tag/v8.1.1378).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1406):
-
-   > 'hlsearch' interferes with a Conceal match. (Rom Grk, 2016 Aug 9)
-
-*Maybe* no longer relevant since [8.1.1082](https://github.com/vim/vim/releases/tag/v8.1.1082).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1419):
-
-   > Possibly wrong value for seq_cur. (Florent Fayolle, 2016 May 15, #806)
-
-No longer relevant since [8.0.1290](https://github.com/vim/vim/releases/tag/v8.0.1290).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1439):
-
-   > Add redrawtabline command. (Naruhiko Nishino, 2016 Jun 11)
-
-No longer relevant since [8.1.0706](https://github.com/vim/vim/releases/tag/v8.1.0706).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1510):
-
-   > Patch to show search statistics. (Christian Brabandt, 2016 Jul 22)
-
-No longer relevant since [8.1.1270](https://github.com/vim/vim/releases/tag/v8.1.1270).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1516-L1522):
-
-   > Using ":windo" to set options in all windows has the side effect that it
-   > changes the window layout and the current window.  Make a variant that saves
-   > and restores.  Use in the matchparen plugin.
-   > Perhaps we can use ":windo <restore> {cmd}"?
-   > Patch to add <restore> to :windo, :bufdo, etc. (Christian Brabandt, 2015 Jan
-   > 6, 2nd message)
-   > Alternative: ":keeppos" command modifier: ":keeppos windo {cmd}".
-
-*Maybe* no longer relevant since [8.1.1418](https://github.com/vim/vim/releases/tag/v8.1.1418).
-
-Rationale: you can now use `map()` + `win_execute()` to emulate `:windo` without side-effects:
-
-    :call range(1, winnr('$'))->map({_, v -> win_execute(v, '" set some option')})
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1553):
-
-   > Add "===" to have a strict comparison (type and value match).
-
-*Maybe* no longer relevant since Vim supports `is#`.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1726):
-
-   > Patch to add :arglocal and :arglists. (Marcin Szamotulski, 2014 Aug 6)
-
-`:arglocal` already exists, so this item seems at least partially stale.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1869-L1870):
-
-   > Exception caused by argument of return is not caught by try/catch.
-   > (David Barnett, 2013 Nov 19)
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L2093-L2094):
-
-   > Bug in try/catch: return with invalid compare throws error that isn't caught.
-   > (ZyX, 2011 Jan 26)
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L2687):
-
-   > try/catch not working for argument of return. (Matt Wozniski, 2008 Sep 15)
-
-Some of these items *could* be duplicate.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L1905):
-
-   > patch to add "combine" flag to  syntax commands. (so8res, 2012 Dec 6)
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L2284-L2285):
-
-   > Patch to add "combine" to :syntax, combines highlight attributes. (Nate
-   > Soares, 2012 Dec 3)
-
-These items *could* be duplicate.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L2479-L2480):
-
-   > Consider making YankRing or something else that keeps a list of yanked text
-   > part of standard Vim.  The "1 to "9 registers are not sufficient.
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L5982-L5984):
-
-   > 6   When yanking into the unnamed registers several times, somehow make the
-   >     previous contents also available (like it's done for deleting).  What
-   >     register names to use?  g"1, g"2, etc.?
-
-These items *could* be duplicate.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3259-L3260):
-
-   > 7   Add a command that goes back to the position from before jumping to the
-   >     first quickfix location.  ":cbefore"?
-
-The name `:cbefore` is already taken.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3297):
-
-   > 7   Implement 'prompt' option.	Init to off when stdin is not a tty.
-
-Maybe no longer relevant since the `'prompt'` option exists.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3475-L3476):
-
-   > 8   X11 GUI: When menu is disabled by excluding 'm' from 'guioptions', ALT key
-   >     should not be used to trigger a menu (like the Win32 version).
-
-Maybe no longer relevant.  Test with:
-
-    vim -Nu NONE -g --cmd 'set go-=m' +startinsert
-
-Press `M-f`: the `File` menu is not opened, and a character is inserted.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3515-L3516):
-
-   > 8   A dead circumflex followed by a space should give the '^' character
-   >     (Rommel).  Look how xterm does this.
-
-Maybe no longer relevant as it works for me.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3615-L3616):
-
-   > -   Can't disable terminal flow control, to enable the use of CTRL-S and
-   >     CTRL-Q.  Add an option for it?
-
-No longer relevant since [8.2.0852](https://github.com/vim/vim/releases/tag/v8.2.0852) and [8.2.0856](https://github.com/vim/vim/releases/tag/v8.2.0856).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L3619-L3625):
-
-   > -   When the quickfix window is open and executing ":echo 'hello'" using the
-   >     Command-line window, the text is immediately removed by the redrawing.
-   >     (Michael Henry, 2008 Nov 1)
-   >     Generic solution: When redrawing while there is a message on the
-   >     cmdline, don't erase the display but draw over the existing text.
-   >     Other solution, redraw after closing the cmdline window, before executing
-   >     the command.
-
-No longer relevant since [8.1.0698](https://github.com/vim/vim/releases/tag/v8.1.0698).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L4085-L4086):
-
-   > -   Support spelling words in CamelCase as if they were two separate words.
-   >     Requires some option to enable it. (Timothy Knox)
-
-No longer relevant since [8.2.0953](https://github.com/vim/vim/releases/tag/v8.2.0953).
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L4693-L4694):
-
-    8   When reading from stdin allow suppressing the "reading from stdin"
-        message.
-
-No longer relevant since [7.4.1453](https://github.com/vim/vim/releases/tag/v7.4.1453) which provides `--not-a-term`.
-
----
-
-[Source](https://github.com/vim/vim/blob/df069eec3b90401e880e9b0e258146d8f36c474d/runtime/doc/todo.txt#L4461-L4462):
-
-   > 8   Add referring to key options with "&t_xx".  Both for "echo &t_xx" and
-   >     ":let &t_xx =".  Useful for making portable mappings.
-
-No longer relevant since [8.0.0302](https://github.com/vim/vim/releases/tag/v8.0.0302).
-
-### new batch of stale items
-
-   > Completion for :!cmd shows each match twice. #1435
-
-Fixed by: <https://github.com/vim/vim/releases/tag/v8.1.0017>
-
----
-
-   > When 'keywordprg' starts with ":" the argument is still escaped as a shell
-   > command argument. (Romain Lafourcade, 2016 Oct 16, #1175)
-
-Fixed by: <https://github.com/vim/vim/releases/tag/v8.0.0060>
-
----
-
-From `:h map-<expr>`
-
-   > Note that there are some tricks to make special keys work and escape CSI bytes
-   > in the text.  The |:map| command also does this, thus you must avoid that it
-   > is done twice.  This does not work: >
-   >         :imap <expr> <F3> "<Char-0x611B>"
-   > Because the <Char- sequence is escaped for being a |:imap| argument and then
-   > again for using <expr>.  This does work: >
-   >         :imap <expr> <F3> "\u611B"
-   > Using 0x80 as a single byte before other text does not work, it will be seen
-   > as a special key.
-
-Most of this (if not all) is no longer relevant since [7.3.283](https://github.com/vim/vim/releases/tag/v7.3.283).
-
-###
 ## line 1189
 
 This could be very useful to make `/tmp/.vimkeys` human-readable:
@@ -3587,8 +3271,8 @@ Dirty fix:
     syn clear vimCmdSep
 
 Update: Actually, it's  correctly highlighted when  inside the body of  a custom
-function.  How  does that  happen?  Understand  how could help  us fix  the next
-issue.
+function.  How does  that happen?  If you  understand how, it could  help us fix
+the next issue.
 
 ---
 
@@ -3613,6 +3297,122 @@ Also, look at this snippet:
 Here `<nomodeline>` is highlighted with `vimOption`.
 
 ##
+## ?
+
+According to `:h channel-demo`:
+
+   > Instead of giving a callback with every send call, it can also be specified
+   > when opening the channel: >
+   >         call ch_close(channel)
+   >         let channel = ch_open('localhost:8765', {'callback': "MyHandler"})
+   >         call ch_sendexpr(channel, 'hello!')
+
+It doesn't work with the python demo server.
+
+---
+
+I've found a way to "fix" it.
+First, import it in `/tmp/demo.py`:
+
+    :sp /tmp/demo.py
+    :r $VIMRUNTIME/tools/demoserver.py
+
+Then apply this patch (`$ cd /tmp; patch </tmp/patch.txt`):
+```diff
+diff --git a/usr/local/share/vim/vim82/tools/demoserver.py b/tmp/demo.py
+index a9eed5e..00fe8bf 100755
+--- a/usr/local/share/vim/vim82/tools/demoserver.py
++++ b/tmp/demo.py
+@@ -64,7 +64,7 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
+                     response = "got it"
+                 else:
+                     response = "what?"
+-                encoded = json.dumps([decoded[0], response])
++                encoded = json.dumps([0, response])
+                 print("sending {0}".format(encoded))
+                 self.request.sendall(encoded.encode('utf-8'))
+         thesocket = None
+```
+To test the fix, start the updated demo server:
+
+    $ /tmp/demo.py
+
+Now source this from the current Vim instance:
+
+    mess clear
+
+    fu! MyHandler(channel, msg)
+        echom 'from the handler: ' .. a:msg
+    endfu
+    let channel = ch_open('localhost:8765', #{callback: 'MyHandler'})
+    call ch_sendexpr(channel, 'hello!')
+
+You should see this message in `:mess`:
+
+    from the handler: got it
+
+Which means the callback was correctly invoked.
+
+What was wrong in the original demo server?
+
+Apparently, `json.dumps()` converts this:
+
+    ✔
+    [0,"got it"]
+
+into this:
+
+    ✘
+    [1, "got it"]
+
+I think the  issue comes from the  first number which has  been incremented (not
+from the extra space).
+
+   > If your server sends  back multiple responses you need to  send them with ID
+   > zero, they will be passed to the channel callback.
+
+   ...
+
+   > When the process wants to send a message to Vim without first receiving a
+   > message, it must use the number zero:
+   >     [0,{response}]
+
+---
+
+And if you want to terminate the server, just run:
+
+    call ch_close(channel)
+
+Then type `quit` or press `C-c` while in the demo server.
+
+As a last resort, run:
+
+    $ kill $(pidof python)
+
+But bear  in mind that you  won't be able to  restart the server for  one or two
+minutes:
+
+    socket.error: [Errno 98] Address already in use
+
+---
+
+According to Bram:
+
+   > Read :help channel-use, it will explain about using ch_sendexpr().
+   > The callback is for NL or raw messages, you are using JSON here.
+
+But the demo server encodes its reply in json.
+
+Make tests to better understand *when* we can use a callback.
+Here are the parameters to consider:
+
+   - the channel can be in raw, nl, json or js mode
+   - the callback can be passed to `ch_sendexpr()`, specified when opening the channel, or both
+   - the server can send its reply without encoding, or it can encode it with nl, json or js
+
+Where  is it  documented that  a  channel callback  can only  handle a  response
+received after calling `ch_sendexpr()` if it's *not* encoded in json (raw or nl)?
+
 ## The descriptions of the local plugins are not aligned in the main help file:
 
     vim -Nu NORC -S <(cat <<'EOF'
@@ -4530,17 +4330,17 @@ Assuming it can be considered as a bug, I don't know whether it can be fixed.  F
 
     augroup restrict_abbreviations | au!
         au InsertEnter * let s:start_insertion = col('.')
-        au InsertCharPre * call s:restrict_abbreviations()
+        au InsertCharPre * call s:Restrict_abbreviations()
     augroup END
-    fu s:restrict_abbreviations() abort
-        if v:char =~# '\k'
-            \ || s:start_insertion -1 <= searchpos('[^[:keyword:]]', 'bn')[1]
-            \ || state() =~# 'm'
+    def s:Restrict_abbreviations()
+        if v:char =~ '\k'
+            || s:start_insertion - 1 <= searchpos('[^[:keyword:]]', 'bn')[1]
+            || state() =~ 'm'
             return
         endif
-        call feedkeys("\<c-v>"..v:char, 't')
-        let v:char = ''
-    endfu
+        feedkeys("\<c-v>" .. v:char)
+        v:char = ''
+    enddef
 
 So far, it seems to work.
 
