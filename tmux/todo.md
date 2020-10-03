@@ -992,6 +992,16 @@ Another example:
 
 Tweaked from: <https://github.com/tmux/tmux/issues/1842#issuecomment-611618853>
 
+---
+
+I have a key binding to capture the terminal scrollback buffer in a Vim instance run in a tmux popup:  https://0x0.st/iURD.txt
+How can I enter tmux copy-mode while the popup is active?
+My usual key binding doesn't work ( bind -T root M-s copy-mode ).
+
+---
+
+<https://blog.meain.io/2020/tmux-flating-scratch-terminal/>
+
 ## the `search-forward` and `search-backward` commands
 
 They support regexes.

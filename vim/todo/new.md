@@ -10,6 +10,7 @@
    - `:h interrupt()`
    - `:h listener_add()`
    - `:h listener_remove()`
+   - `:h matchfuzzy()` + `:h matchfuzzypos()`
    - `:h pum_getpos()`
    - `:h readdir()` + `:h readdirex()`
    - `:h reduce()`
@@ -58,11 +59,17 @@ machine-readable form.  Useful when you need  to do some computation on it.  For
 example, you  may want to  sort human-readable  dates; `strptime()` may  help by
 temporarily converting the dates into simple integers.
 
+---
+
+To learn how to use `matchfuzzy()`, study this plugin:
+<https://github.com/yegappan/fileselect>
+
 ## arguments of functions
 
    - `:h expand()` supports a new `<stack>` argument `{N}[hjkl]` since 8.2.1297
    - `:h getbufinfo()` includes a `linecount` key in the output dictionary since 8.2.0019
    - `:h getcompletion()` supports the `cmdline` argument since 8.2.0925
+   - `:h getcurpos()` supports a new argument `winid` since 8.2.1727
    - `:h getloclist()` supports a `filewinid` key in the optional dictionary argument since 8.1.0345
    - `:h line()` supports an optional `{winid}` argument since 8.1.1967
 

@@ -680,12 +680,12 @@ verbosity level.
 ##
 # `:breakadd`  `:profile`  `:runtime`    ‘bpr’
 ## Do ‘bpr’ accept
-### ABSOLUTE file paths?
+### *absolute* file paths?
 
 `:breakadd` and `:profile`, yes.
 `:runtime`, no.
 
-### RELATIVE file paths?   If so, how do they complete the path?
+### *relative* file paths?   If so, how do they complete the path?
 
 Yes, all of them.
 
@@ -709,7 +709,7 @@ Yes, all of them.
 
 Where dir1, dir2, are in the rtp.
 
-### PATTERNS?   If so, which metacharacters can be used?
+### *patterns*?   If so, which metacharacters can be used?
 
 Yes, all of them.
 
@@ -789,9 +789,16 @@ And if  it can be located  anywhere below a directory  of the rtp, you  need the
 first wildcard.
 
     :runtime! */*foo.vim
-              └┤
-               └ NOT useless,  because with `:ru`, a star can  NOT match the
-                 path to a directory and a part of a filename at the same time
+              ├┘
+              └ NOT useless,  because with `:ru`, a star can  NOT match the
+                path to a directory and a part of a filename at the same time
+
+##
+## In a script, why doesn't this work:  `breakadd func s:Func`?
+
+You need to translate `s:` manually:
+
+    :exe 'breakadd func ' .. expand('<SID>') .. 'Func'
 
 #
 # Issues
@@ -889,6 +896,7 @@ Again, you don't have to do that manually; use our zsh snippet to compile Vim.
 
     $ vim -V15/tmp/log
     :q
+
     $ vim /tmp/log
     /g:your_variable
 
@@ -900,7 +908,7 @@ Again, you don't have to do that manually; use our zsh snippet to compile Vim.
     /YourCommand
 
 Yes, this is (almost) the same answer as the previous one.
-The point is, when some interface is wrong:
+The point is, when some interface is wrong because:
 
    - it contains an incorrect value
    - it should exist, but it does not

@@ -74,6 +74,20 @@ No.
 
 Yes.
 
+Update: You sure?
+
+Then, how do you explain this:
+
+    $ vim --clean foo
+    :setl culopt=number
+    :sp bar
+    :echo &l:culopt
+    both~
+
+If the  local value was  inherited, the output of  the last command  should have
+been `number` not `both`.  I thin the title of this question is misleading.
+When you wrote it, you probably meant a simple new split created with `:sp` or `:vs`...
+
 ##
 ## global-local
 ### What are the 21 global-local options?

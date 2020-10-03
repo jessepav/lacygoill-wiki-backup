@@ -816,6 +816,47 @@ You  don't want  `?` to  match  any character,  which  would cause  any type  of
 command-line to be affected including a regular one (`:`).  See `:h cmdwin-char`.
 
 ##
+## My autocmd is 100% correct.  And yet, it's not triggered!
+
+Maybe it's temporarily cleared by another autocmd installed earlier.
+```vim
+au CursorHold * call InstallAutocmd()
+fu InstallAutocmd()
+    augroup group | au!
+        au CursorHold * unsilent echom 'fired'
+    augroup END
+endfu
+call InstallAutocmd()
+do CursorHold
+```
+Here, notice how `fired` is not echo'ed.
+That's because the very first `CursorHold` autocmd clears the second one.
+Indeed, it calls `InstallAutocmd()` which executes `au!`.
+Sure, the second autocmd is re-installed immediately afterward, but that's still
+too late.   I guess that Vim  doesn't actually re-install the  autocmd until the
+current event  has been fully processed  (i.e. all the autocmds  listening to it
+have been executed).
+
+---
+
+Note that for the issue to be triggered, 3 conditions need to be met:
+
+   - another autocmd must have been installed *before*
+   - it must listen to the same event as the second one
+   - it must temporarily clear the second one
+
+---
+
+Tip: When you suspect  that you're affected by  this issue, ask Vim  to list the
+other autocmds listening to the same event:
+
+    au CursorHold
+
+In  the output,  the autocmds  are listed  in the  order in  which they've  been
+installed.  Your buggy autocmd should be somewhere  in there; find it and try to
+temporarily disable all the other autocmds above.
+
+##
 ##
 ##
 # Syntaxe

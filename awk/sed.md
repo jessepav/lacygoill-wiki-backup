@@ -28,7 +28,7 @@ Without `--without-included-regex`, sed doesn't support equivalence classes:
 
 If you want the very latest version:
 
-    $ git clone git://git.sv.gnu.org/sed
+    $ git clone git://git.sv.gnu.org/sed && cd sed
     $ ./bootstrap
 
     # To use the  most-recent gnulib (as opposed to the  gnulib version that the

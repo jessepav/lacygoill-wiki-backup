@@ -2051,6 +2051,10 @@ DIVERS:
 
     $ git stash apply 'stash@{0}'
 
+### `:DiffOrig` but smarter
+
+<https://gist.github.com/romainl/7198a63faffdadd741e4ae81ae6dd9e6>
+
 ##
 ## Find a way to remove all the binary/big files we've committed by accident in our config repo.
 

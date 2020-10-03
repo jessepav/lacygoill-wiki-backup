@@ -3761,6 +3761,13 @@ Exécute `pgm` sur `<input>` en utilisant:
 La syntaxe  `-v var=val`  permet de configurer  n'importe quelle  variable avant
 l'exécution d'un programme awk; `-F<fs>` ne permet de configurer que `FS`.
 
+Update: Comment from `#awk` (irc channel):
+
+> │ I also find passing in variables via ENV["..."] seems to be better than -v variables in terms of user input
+> │ not being able to do weird things
+> │ I have this example floating around:         link) command ln -vs -- "$(n=$3 awk -F "\t" '$1==ENVIRON["n"]
+> │ {print $5}' manifest)" "$pkgdir"/"$target"
+
 ---
 
     $ awk -f progfile f1 FS=: f2
@@ -4169,14 +4176,14 @@ Can I change the index of a record?
 Yes, `NR` is writable.
 
     $ cat <<'EOF' >/tmp/file
-    a
-    b
-    c
+        a
+        b
+        c
     EOF
 
     $ cat <<'EOF' >/tmp/awk.awk
-    /a/ { NR += 2 }
-        { print $0, NR }
+        /a/ { NR += 2 }
+            { print $0, NR }
     EOF
 
     $ awk -f /tmp/awk.awk /tmp/file

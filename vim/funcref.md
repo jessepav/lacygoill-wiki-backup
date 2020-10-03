@@ -349,23 +349,23 @@ least one).
 
 MWE:
 
-        fu Func()
-            let l:Test = { -> foo + bar == 3 }
-            let foo  = 1
-            let bar  = 2
-            return l:Test()
-        endfu
-        echo Func()
-        E121~
+    fu Func()
+        let l:Test = { -> foo + bar == 3 }
+        let foo  = 1
+        let bar  = 2
+        return l:Test()
+    endfu
+    echo Func()
+    E121~
 
-        fu Func()
-            let foo  = 1
-            let l:Test = { -> foo + bar == 3 }
-            let bar  = 2
-            return l:Test()
-        endfu
-        echo Func()
-        1~
+    fu Func()
+        let foo  = 1
+        let l:Test = { -> foo + bar == 3 }
+        let bar  = 2
+        return l:Test()
+    endfu
+    echo Func()
+    1~
 
 Explanation: <https://github.com/vim/vim/issues/2643#issuecomment-366954582>
 

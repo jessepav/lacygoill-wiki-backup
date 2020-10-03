@@ -273,40 +273,6 @@ I'm not sure this is a bug, because `:h type-casting` only mentions compiled cod
 Still, it would be more consistent if it also worked at the script level.
 Although, would it make sense?
 
-## cannot use ":breakadd func" with a `:def` function
-
-Maybe it can't work with a compiled function.
-If so, it should be documented at `:h vim9-differences`.
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def g:Func()
-            echo 'inside'
-        enddef
-        breakadd func g:Func
-        g:Func()
-    EOF
-    )
-
----
-
-It keeps working for a legacy function, but remember to translate `s:` into `<SNR>123_`:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        fu Func()
-            echo 'inside'
-        endfu
-        exe 'breakadd func ' .. expand('<SID>') .. 'Func'
-        Func()
-    EOF
-    )
-    ✔
-
----
-
-What about `:profile`?
-
 ##
 ## Ideas to make Vim script less weird.
 ### Mappings
@@ -379,12 +345,26 @@ An augroup could clear itself automatically (especially useful for buffer-local 
         au Event * " do sth
     augroup END
 
-### Misc
-
-Allow `'.'` as a shorthand for `col('.')` whenever a function argument expects a
-column number.
-
 ---
+
+In an autocmd, we can refer to a script-local variable / function.
+But we can't refer to a function-local variable (and probably function).
+Could it be made possible in Vim9 script?
+
+### Misc
+#### provide a construct to evaluate an expression and discard its value in an <expr> or `C-r =` mapping
+
+Right now we need to use `[-1]` which looks weird.
+Besides, I think it doesn't work anymore in Vim9 script.
+So, we'll have to which `? '': ''`, which looks cumbersome.
+
+Update:
+
+   > Besides, I think it doesn't work anymore in Vim9 script.
+
+You sure?  Find an example.
+
+#### Allow `'.'` as a shorthand for `col('.')` whenever a function argument expects a column number.
 
 Allow `'.'` as a shorthand for  `line('.')` and `col('.')` regardless of whether
 the function can work on other buffers.  For example, this doesn't work:
@@ -414,6 +394,7 @@ According to the help, these functions accept a funcref as an argument:
   - `:h call()`
   - `:h eval()`
   - `:h filter()`
+  - `:h function()`
   - `:h map()`
   - `:h search()`
   - `:h searchpair()`
@@ -445,6 +426,10 @@ echo ['removeme', 'keepme', 'deleteme']->filter('MyFilter')
 ```
     E121: Undefined variable: MyFilter
 ```vim
+echo function('strlen')('working')
+```
+    7
+```vim
 fu MyMap(i, v)
     return a:v * 100
 endfu
@@ -460,11 +445,9 @@ fu MySkip()
         \ ->map({_, v -> synIDattr(v, 'name')})
         \ ->match('\ccomment') != -1
 endfu
-echo search('\<endif\>', '', 'MySkip')
+echo search('\<endif\>', '', 0, 0, 'MySkip')
 ```
-    2
-    ✘
-    should be 3
+    E121: Undefined variable: MySkip
 ```vim
 call setline(1, ['if', '" endif', 'endif'])
 syn on
@@ -477,7 +460,6 @@ endfu
 echo searchpair('\<if\>', '', '\<endif\>', '', 'MySkip')
 ```
     E121: Undefined variable: MySkip
-    btw, why is "MySkip" evaluated as a variable name here, but not in search()
 ```vim
 fu Func(info)
     return repeat(['test'], 100)
@@ -511,25 +493,27 @@ call timer_start(0, 'MyCb')
 ```
     my callback
 
-Conclusion:  Out of the 10 functions, only 4 accept a function name instead of a funcref:
+Conclusion:  Out of the 11 functions, 5 accept a function name instead of a funcref:
 
    - `call()`
+   - `function()`
    - `setqflist()`
    - `sort()`
    - `timer_start()`
 
-To be more consistent, maybe these 6 functions should also accept a function name?
+It would  not be possible for  the other 6  functions to accept a  function name
+with quotes, because they already accept  arbitrary strings, and parse them in a
+certain way.   For example,  `map()` accepts an  eval string  containing `v:val`
+and/or `v:key`,  while `substitute()`  accepts a string  whose contents  is used
+literally to replace a pattern.
 
-  - `:h eval()`
-  - `:h filter()`
-  - `:h map()`
-  - `:h search()`
-  - `:h searchpair()`
-  - `:h substitute()`
+You might wonder why that's an  issue; after all, `sort()` also accepts strings,
+and yet,  it also accepts  function names.  That's  true, but `sort()`  does not
+accept *arbitrary* strings.   Only a limited set of strings.   And out of those,
+only  1 could  be ambiguous  (`'N'` is  parsed  as a  flag, while  it's a  valid
+function name).
 
-Although, it would be tricky for `substitute()`.
-How would it know whether `"Func"` should  be parsed as a function name, or just
-a literal text?
+I think you should document this in our Vim notes.
 
 ## ?
 
@@ -557,6 +541,28 @@ enddef
 Func()
 ```
     my call
+```vim
+vim9script
+def Strlen(str: string): number
+    return strlen(str)
+enddef
+def Func()
+    echo function('Strlen')('working')
+enddef
+Func()
+```
+    7
+```vim
+vim9script
+def Strlen(str: string): number
+    return strlen(str)
+enddef
+def Func()
+    echo function(Strlen)('working')
+enddef
+Func()
+```
+    7
 ```vim
 vim9script
 def MyQftf(info: any): any
@@ -591,7 +597,7 @@ def MySort(line1: string, line2: string): number
 enddef
 Func()
 ```
-    E1030: Using a String as a Number
+    ['aaa', 'bbb']
 ```vim
 vim9script
 def Func()
@@ -647,6 +653,22 @@ call(MyCall, [])
     my call
 ```vim
 vim9script
+def Strlen(str: string): number
+    return strlen(str)
+enddef
+echo function('Strlen')('working')
+```
+    7
+```vim
+vim9script
+def Strlen(str: string): number
+    return strlen(str)
+enddef
+echo function(Strlen)('working')
+```
+    7
+```vim
+vim9script
 def MyQftf(info: any): any
     return repeat(['test'], 100)
 enddef
@@ -670,7 +692,7 @@ def MySort(line1: string, line2: string): number
 enddef
 echo ['bbb', 'aaa']->sort('MySort')
 ```
-    E1030: Using a String as a Number
+    ['aaa', 'bbb']
 ```vim
 vim9script
 def MySort(line1: string, line2: string): number
@@ -700,13 +722,20 @@ timer_start(0, MyCb)
 
 Conclusions:
 
-   - we can still use quotes for the 4 functions
-   - we can omit quotes for `call()`, `setqflist()`, `timer_start()`
-   - we can *not* omit the quotes for `sort()`
+   - we can still use quotes
+   - we can now also omit the quotes
 
-Let's assume that the quotes are meant to be still allowed (that's my impression
-after reading `:h vim9 /Omitting function()`):  we should be able to omit quotes
-for `sort()` (at the script level, and in a `:def` function).
+You should document that the quotes can now be omitted in our Vim9 notes.
+Also, it should be documented at `:h vim9`; I don't think it is.
+There is  something at `:h vim9  /omitting function()`, but it's  about the fact
+that we  can drop `function()`.  It  doesn't explicitly tell us  that the quotes
+can be dropped.  Although, I guess it can be guessed from the example:
+
+    var Funcref = MyFunction
+                  ^--------^
+                  no quotes
+
+Still, I think it would be better if it was written explicitly.
 
 ## ?
 
@@ -792,11 +821,11 @@ def MySkip(): bool
         \ ->match('\ccomment') != -1
 enddef
 def Func()
-    echo search('\<endif\>', '', 'MySkip')
+    echo search('\<endif\>', '', 0, 0, 'MySkip')
 enddef
 Func()
 ```
-    E1030: Using a String as a Number
+    E703: Using a Funcref as a Number
 ```vim
 vim9script
 setline(1, ['if', '" endif', 'endif'])
@@ -808,11 +837,11 @@ def MySkip(): bool
         \ ->match('\ccomment') != -1
 enddef
 def Func()
-    echo search('\<endif\>', '', MySkip)
+    echo search('\<endif\>', '', 0, 0, MySkip)
 enddef
 Func()
 ```
-    E703: Using a Funcref as a Number
+    3
 ```vim
 vim9script
 setline(1, ['if', '" endif', 'endif'])
@@ -931,9 +960,9 @@ def MySkip(): bool
         \ ->map({_, v -> synIDattr(v, 'name')})
         \ ->match('\ccomment') != -1
 enddef
-echo search('\<endif\>', '', 'MySkip')
+echo search('\<endif\>', '', 0, 0, 'MySkip')
 ```
-    E1030: Using a String as a Number
+    E703: Using a Funcref as a Number
 ```vim
 vim9script
 setline(1, ['if', '" endif', 'endif'])
@@ -944,9 +973,9 @@ def MySkip(): bool
         \ ->map({_, v -> synIDattr(v, 'name')})
         \ ->match('\ccomment') != -1
 enddef
-echo search('\<endif\>', '', MySkip)
+echo search('\<endif\>', '', 0, 0, MySkip)
 ```
-    E703: Using a Funcref as a Number
+    3
 ```vim
 vim9script
 setline(1, ['if', '" endif', 'endif'])
@@ -993,15 +1022,17 @@ echo substitute('aaa', '.', MyRep, 'g')
 
 ---
 
-Conclusions:
+Conclusion:
+We can now use a function name instead of a funcref, but only *without* quotes.
+They don't  accept function  names with quotes,  for the same  reason as  in Vim
+script legacy; they already accept strings, which they parse in a specific way.
 
-   - we can use a function name instead of a funcref, but only *without* quotes
-   - for `search()`, we can't use a function name instead of a funcref (inconsistent)
+To document in our notes (and at `:h vim9`?).
 
-To be consistent with `call()`, `setqflist()` and `timer_start()`:
+## ?
 
-   - we should be able to use a function name instead of a funcref *also* with quotes
-   - for `search()`, we should be able to use a function name instead of a funcref
+Did we miss some tests about `function()`?
+Read what we wrote about `function()` in our Vim9 notes.
 
 ## ?
 
@@ -1199,6 +1230,159 @@ echo substitute('aaa', '.', reltime, 'g')
 ---
 
 Conclusion:  Nothing works.
+
+## ?
+```vim
+vim9script
+
+def FuncWithForwardCall()
+    let Funcref = function('DefinedLater')
+    echo Funcref
+enddef
+
+def DefinedLater()
+enddef
+
+FuncWithForwardCall()
+```
+    DefinedLater
+```vim
+vim9script
+
+def FuncWithForwardCall()
+    let Funcref = DefinedLater
+    echo Funcref
+enddef
+
+def DefinedLater()
+enddef
+
+FuncWithForwardCall()
+```
+    <80><fd>R1_DefinedLater
+    ^---------^
+        bug?
+
+##
+## ?
+
+Vim9: cannot use "true" for "border" key in "{opts}" dictionary of "popup_create()"
+
+**Describe the bug**
+
+In Vim9 script, we cannot use `true` for the `border` key in the `{opts}` dictionary of `popup_create()`.
+
+**To Reproduce**
+
+Run this shell command:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        popup_create('', #{border: [false, true, false, true]})
+    EOF
+    )
+
+`E611` is raised 4 times:
+
+    E611: Using a Special as a Number
+
+**Expected behavior**
+
+No error is raised.
+
+**Environment**
+
+ - Vim version: 8.2 Included patches: 1-1712
+ - OS: Ubuntu 16.04.7 LTS
+ - Terminal: xterm(360)
+
+**Additional context**
+
+Regression introduced in 8.2.1465.
+
+---
+
+Same issue with the `cursorline` key:
+```vim
+vim9script
+popup_create('', #{cursorline: true})
+```
+    E475: Invalid value for argument cursorline
+
+Although, the error is different, and it's not a regression (at least not the same one).
+Still, IMO it should work.
+
+---
+
+Send a patch fixing the issue with a test.
+To get some help, see how this commit fixed a similar issue:
+<https://github.com/vim/vim/commit/6c542f77eba73a95447f285149b3fcb011aa9675>
+
+## ?
+
+Source this:
+
+    vim9script
+    def g:A()
+    enddef
+    A()
+
+It works.
+Now, remove `g:` in front of `A()`:
+
+    def g:A()
+    →
+    def A()
+
+And source the script a second time.
+It still works.
+Now, add `g:` back (undo), and source again:
+
+    E117: Unknown function: A
+
+Why?
+
+It seems the  last time we sourced  the script, the script-local  `A()` has been
+removed.  I  guess that  right before  sourcing a script,  Vim first  clears the
+script-local namespace.
+But what is weird is that Vim does not look in the global namespace anymore.
+Why?
+
+## ?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        let mylist = [1, 2, 3]
+        mylist
+            ->len()
+    EOF
+    )
+
+    Error detected while processing command line..script /proc/31782/fd/11:
+    line    3:
+    E492: Not an editor command:     mylist
+    line    4:
+    E492: Not an editor command:         ->len()
+
+Is it a bug?  Should Vim look for `->` on the next line before raising `E492`?
+
+## ?
+
+Recently, Vim9 has introduced the `:var` keyword for declarations.
+It's probably inspired from JS/TS.
+
+Right now, `:let` and `:var` are still interchangeable.
+That might change.
+
+Read this: <https://www.typescriptlang.org/docs/handbook/variable-declarations.html>
+
+Maybe we  should open  a report to  ask that the  difference between  `:var` and
+`:let` which are present in JS/TS are reproduced in Vim9.
+
+---
+
+Also, there is no help tag for `:var`.
+When you run `:h :var`, you jump to the help tag for `a:var`.
 
 ##
 ## ?
@@ -1835,54 +2019,6 @@ manually.  We should be  able to press `!w` and get the error(s)  in a qfl, just
 like we could in Vim legacy.
 
 ##
-## inconsistency: when we ask for the definition of a Vim9 function, comments are sometimes included, but not always.
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        def g:Func()
-            echo 'one' # inline comment
-            # whole comment
-            echo 'two' # inline comment
-        enddef
-        def Func
-    EOF
-    )
-
-        def Func()~
-     1          echo 'one' # inline comment~
-     2          # whole comment~
-     3          echo 'two' # inline comment~
-        enddef~
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def g:Func()
-            echo 'one' # inline comment
-            # whole comment
-            echo 'two' # inline comment
-        enddef
-        def Func
-    EOF
-    )
-
-        def Func()~
-     1          echo 'one' # inline comment~
-     3          echo 'two' # inline comment~
-        enddef~
-
-`:vim9script` filters out whole commented lines in definitions of `:def` functions.
-Same thing for empty lines.
-
-Is it intended?
-If so, should it be documented at `:h vim9`?
-
----
-
-Note that this doesn't cause any  issue for our vim-stacktrace plugin because it
-doesn't need  the *definition* of  a buggy function;  the plugin just  needs the
-name of the script  where it's defined.  In fact, even if  the plugin needed the
-definition, it couldn't have  it, because in Vim9 script, as  soon as a function
-raises an error, its body is emptied.
-
 ## ?
 ```vim
 vim9script
@@ -2206,6 +2342,50 @@ echo line[l:]
 This is expected.  And the reason why the error message is different, is because
 the code is not run inside a function; so there is no `l:` dictionary.
 
+## ?
+
+<https://github.com/vim/vim/issues/7019>
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var to_x: number
+        to_x = 0
+    EOF
+    )
+
+    E492: Not an editor command:     to_x = 0~
+
+## ?
+
+How do we ask for the definition of a nested function?
+Can't use `:def`:
+```vim
+vim9script
+def Outer()
+    def Inner()
+        echo 'inner'
+    enddef
+    def Inner
+enddef
+defcompile
+```
+    E1073: Name already defined: Inner
+
+Can't use `:fu` because it's disallowed in a `:def` function:
+```vim
+vim9script
+def Outer()
+    def Inner()
+        echo 'inner'
+    enddef
+    fu Inner
+enddef
+defcompile
+```
+    E1086: Cannot use :function inside :def
+
+Bug?
+
 ##
 ## documentation
 ### 61
@@ -2256,7 +2436,7 @@ Support for closures is in the todo list:
 Maybe the doc could say:
 
    > A `:def` function always aborts on an error, does not get a range
-   > passed, cannot be a "dict" function, and may be a closure.
+   > passed, cannot be a "dict" function, and can be a closure.
 
 Although, it depends on how it will be implemented.
 Here's how it works in python:
@@ -2290,122 +2470,6 @@ too?
 
 If `any` can have a negative impact  on the function's performance, it should be
 mentioned, so that users don't abuse the `any` type.
-
-### 129
-
-A nested function is not always local to the outer function
-
-   > When using `:function` or `:def` to specify a new function inside a function,
-   > the function is local to the function.
-
-This should be rephrased like this:
-
-   > When using `:function` or `:def` to define a nested function inside a `:def` function,
-   > the nested function is local to the outer function.
-
----
-
-Explanation:
-
-First, the repetition of the word "function" without any qualifier is confusing.
-
-Second, the original sentence is only true for a `:def` function inside a `:def`
-function.  Not for a `:fu` or `:def` function inside a `:fu` function.
-In the latter cases, the nested function is global by default:
-```vim
-vim9script
-fu Outer()
-    fu Inner()
-        echo 'inner'
-    endfu
-endfu
-call Outer()
-fu Inner
-```
-       function Inner()
-    1          echo 'inner'
-       endfunction
-```vim
-vim9script
-fu Outer()
-    def Inner()
-        echo 'inner'
-    enddef
-endfu
-call Outer()
-fu Inner
-```
-       def Inner()
-    1          echo 'inner'
-       enddef
-
-This is still true when the nested function is inside a block:
-```vim
-vim9script
-fu Outer()
-    if 1
-        fu Inner()
-            echo 'inner'
-        endfu
-    endif
-endfu
-call Outer()
-fu Inner
-```
-       function Inner()
-    1          echo 'inner'
-       endfunction
-```vim
-vim9script
-fu Outer()
-    if 1
-        def Inner()
-            echo 'inner'
-        enddef
-    endif
-endfu
-call Outer()
-fu Inner
-```
-       def Inner()
-    1          echo 'inner'
-       enddef
-
-### 130
-
-   > It is not possible to define a script-local function inside a function.
-
-It *is* possible to define a script-local function inside another function.
-The sentence should be rephrased like this:
-
-   > It is not possible to define a script-local function inside a `:def` function.
-
-Explanation:
-
-The original sentence is only true for a function inside a `:def` function.
-Not for a function inside a `:fu` function.
-```vim
-vim9script
-fu Outer()
-    fu s:Inner()
-        echo 'inner'
-    endfu
-endfu
-Outer()
-s:Inner()
-```
-    inner
-```vim
-vim9script
-fu Outer()
-    def s:Inner()
-        echo 'inner'
-    enddef
-endfu
-Outer()
-s:Inner()
-```
-    inner
 
 ### 136
 
@@ -2681,7 +2745,7 @@ Something else cannot be used anymore in Vim9 script:
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
         def Func()
-            exe 'let n = 123'
+            exe 'var n = 123'
             echo n
         enddef
         Func()
@@ -2692,18 +2756,18 @@ Something else cannot be used anymore in Vim9 script:
 
 I suspect it's working as intended, because this "assignment":
 
-    exe 'let n = 123'
+    exe 'var n = 123'
 
 is similar to:
 
-    let var = 'n'
-    let {var} = 123
+    var name = 'n'
+    let {name} = 123
 
 Example:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
-        let var = 'n'
-        let {var} = 123
+        let name = 'n'
+        let {name} = 123
         echo n
     EOF
     )
@@ -3296,8 +3360,487 @@ Also, look at this snippet:
 
 Here `<nomodeline>` is highlighted with `vimOption`.
 
+### ?
+
+    hi def link manCFuncDefinition Function
+       ^^^
+        ✔
+       vimCommand vimHiLink
+
+    hi def manUnderline cterm=underline gui=underline
+       ^^^
+        ✘
+       expected:  vimCommand vimHiLink
+       actual:    vimHiGroup vimHiKeyList
+
+### ?
+
+    fu Func()
+        try
+        catch /wont match anything/
+        endtry
+    endfu
+
+Starting from `match`, everything is wrongly highlighted up to the end of the file.
+
+### ?
+
+    augroup some_group
+        au!
+        au CursorHold * call Func()
+        def Func()
+        enddef
+    augroup END
+
+`def` is highlighted as an option:
+
+    def Func()
+    ^^^
+     ✘
+     vimOption
+
+I think  that's because  the keyword  `def` is in  the `vimOption`  syntax group
+(`'define'`), while `fu` is not.
+
+    " $VIMRUNTIME/syntax/vim.vim
+    syn keyword vimOption contained ... def ...
+                                        ^^^
+
+As  a temporary  workaround,  you can  prefix  `def`  with a  colon  to fix  the
+highlighting.
+
+A similar issue applies to `call`:
+
+    au CursorHold * call Func()
+                    ^--^
+                     ✘
+                     VimFuncName
+
 ##
 ## ?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        set lines=24
+        let opts = #{
+            pos: 'topleft',
+            line: 13,
+            minheight: 10,
+            maxheight: 10,
+            }
+        let what = ['aaa', 'bbb', 'ccc']
+        popup_menu(what, opts)
+    EOF
+    )
+
+Notice how the bottom of the popup reaches the bottom of the terminal window.
+Now, let's increment `line` by 1:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        set lines=24
+        let opts = #{
+            pos: 'topleft',
+            line: 14,
+            minheight: 10,
+            maxheight: 10,
+            }
+        let what = ['aaa', 'bbb', 'ccc']
+        popup_menu(what, opts)
+    EOF
+    )
+
+Notice how the popup unexpectedly starts from the top of the terminal window.
+Is it documented or is it a bug?
+Is it specific to a popup menu, or to any regular popup window?
+If it is specific to a popup  menu, which properties trigger this behavior (pos,
+cursorline, filter, ...)?
+
+## ?
+```vim
+let id = range(1, 15)->map({_, v -> string(v)})
+    \ ->popup_create(#{
+    \     minheight: 5,
+    \     maxheight: 5,
+    \     cursorline: 1,
+    \     filter: 'popup_filter_menu',
+    \     })
+call win_execute(id, 'norm! 10G')
+```
+Expected: `10` is selected.
+Actual: `1` is selected.
+
+Workaround: use `cursor()`:
+```vim
+let id = range(1, 15)->map({_, v -> string(v)})->popup_create(#{
+    \ minheight: 5,
+    \ maxheight: 5,
+    \ cursorline: 1,
+    \ filter: 'popup_filter_menu',
+    \ })
+call win_execute(id, 'call cursor(10, 1)')
+```
+
+## searchcount() can make Vim lag when the buffer contains a very long line
+
+    vim9script
+    @/ = 'x'
+    repeat(['x'], 1000)
+        ->map({_, v -> v .. repeat('_', 99)})
+        ->reduce({a, v -> a .. v})
+        ->setline(1)
+    nno <expr> n Func()
+    def g:Func(): string
+        searchcount({'maxcount': 1000, 'timeout': 500})
+        return 'n'
+    enddef
+
+Keep pressing n for a few seconds, then stop: Vim still needs several seconds to
+process the keypresses.
+
+---
+
+Note that the issue is not merely caused by the size of the buffer or the number
+of matches.  Here is the exact same text, but splitted on 1000 lines:
+
+    vim9script
+    @/ = 'x'
+    repeat(['x'], 1000)
+        ->map({_, v -> v .. repeat('_', 99)})
+        ->setline(1)
+    nno <expr> n Func()
+    def g:Func(): string
+        searchcount({'maxcount': 1000, 'timeout': 500})
+        return 'n'
+    enddef
+    set nu
+
+Notice how this time, keeping `n` pressed doesn't cause Vim to lag.
+
+Why does it matter for `searchcount()` whether a line is long or not?
+Splitting short lines  into a single long one doesn't  change change the overall
+text, nor the statistics about the search pattern...
+
+---
+
+Also note that the  number of matches must be high enough.   For example, in the
+previous snippet, if we reduce the number  of matches from 1000 down to 500, Vim
+lags a little less:
+
+    vim9script
+    @/ = 'x'
+    repeat(['x'], 500)
+        ->map({_, v -> v .. repeat('_', 199)})
+        ->reduce({a, v -> a .. v})
+        ->setline(1)
+    nno <expr> n Func()
+    def g:Func(): string
+        searchcount({'maxcount': 1000, 'timeout': 500})
+        return 'n'
+    enddef
+
+Reduced further from 500 down to 250, it lags even less:
+
+    vim9script
+    @/ = 'x'
+    repeat(['x'], 250)
+        ->map({_, v -> v .. repeat('_', 399)})
+        ->reduce({a, v -> a .. v})
+        ->setline(1)
+    nno <expr> n Func()
+    def g:Func(): string
+        searchcount({'maxcount': 1000, 'timeout': 500})
+        return 'n'
+    enddef
+
+And from 250 down to 125, the lag can no longer be perceived:
+
+    vim9script
+    @/ = 'x'
+    repeat(['x'], 125)
+        ->map({_, v -> v .. repeat('_', 799)})
+        ->reduce({a, v -> a .. v})
+        ->setline(1)
+    nno <expr> n Func()
+    def g:Func(): string
+        searchcount({'maxcount': 1000, 'timeout': 500})
+        return 'n'
+    enddef
+
+---
+
+You can't just refactor  `search#index()` so that it bails out  when you're on a
+long line.  *Any* long line (even before or after) can make Vim lag.
+
+---
+
+<https://github.com/vim/vim/pull/4446#issuecomment-702825238>
+
+## cannot select and center arbitrary line in popup menu
+```vim
+vim9script
+set lines=16
+let lines = range(1, &lines * 2)->map({_, v -> string(v)})
+let id = popup_menu(lines, #{
+    minheight: &lines - 5,
+    maxheight: &lines - 5,
+    })
+win_execute(id, ['cursor(17, 1)', 'norm! zz', 'redraw'])
+```
+    ✘
+    line 17 is not centered
+```vim
+vim9script
+set lines=16
+let lines = range(1, &lines * 2)->map({_, v -> string(v)})
+let id = popup_menu(lines, #{
+    minheight: &lines - 5,
+    maxheight: &lines - 5,
+    })
+win_execute(id, ['cursor(18, 1)', 'norm! zz', 'redraw'])
+```
+    ✔
+    line 18 is centered
+
+---
+
+It seems that the issue is somehow triggered by the `filter` key.
+When   you  use   `popup_menu()`  instead   of  `popup_create()`,   `filter`  is
+automatically set to `popup_filter_menu`.
+If you use `popup_create()` without a filter, the issue disappears.
+Note:  it's not  just `filter`  which triggers  the issue;  it's also  the value
+`popup_filter_menu`.
+
+---
+
+Update: You should not use `cursor(...)` to select a line.
+You should set `firstline`.
+```vim
+vim9script
+set lines=16
+let lines = range(1, &lines * 2)->map({_, v -> string(v)})
+popup_create(lines, #{
+    minheight: &lines - 5,
+    maxheight: &lines - 5,
+    firstline: 17,
+    })
+```
+However, `norm! zz` still fails, even with a `redraw`:
+```vim
+vim9script
+set lines=16
+let lines = range(1, &lines * 2)->map({_, v -> string(v)})
+let id = popup_create(lines, #{
+    minheight: &lines - 5,
+    maxheight: &lines - 5,
+    firstline: 17,
+    cursorline: 1,
+    })
+win_execute(id, ['norm! zz', 'redraw'])
+```
+As a workaround, we can use a timer:
+```vim
+vim9script
+set lines=16
+let lines = range(1, &lines * 2)->map({_, v -> string(v)})
+g:id = popup_create(lines, #{
+    minheight: &lines - 5,
+    maxheight: &lines - 5,
+    firstline: 17,
+    cursorline: 1,
+    })
+timer_start(0, {-> win_execute(g:id, 'norm! zz')})
+```
+But it fails again if `filter` is set:
+```vim
+vim9script
+set lines=16
+let lines = range(1, &lines * 2)->map({_, v -> string(v)})
+g:id = popup_create(lines, #{
+    minheight: &lines - 5,
+    maxheight: &lines - 5,
+    firstline: 17,
+    filter: 'popup_filter_menu',
+    cursorline: 1,
+    })
+timer_start(0, {-> win_execute(g:id, 'norm! zz')})
+```
+Unless `filter` is set via a *later* timer:
+```vim
+vim9script
+set lines=16
+let lines = range(1, &lines * 2)->map({_, v -> string(v)})
+g:id = popup_create(lines, #{
+    minheight: &lines - 5,
+    maxheight: &lines - 5,
+    cursorline: 1,
+    })
+timer_start(0, {-> win_execute(g:id, 'norm! zz')})
+timer_start(5, {-> popup_setoptions(g:id, #{filter: 'popup_filter_menu'})})
+```
+Note that you need a long enough waiting time before setting `filter`.
+Otherwise, `zz` might sometimes fail.
+5ms seems enough in practice.
+
+## conceal character of matchadd() displayed too many times
+
+**Describe the bug**
+
+Sometimes, the conceal character used in a match installed by `matchadd()` is displayed too many times.
+
+**To Reproduce**
+
+Run this shell command:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        let lines =<< trim END
+            aaa|bbb|ccc
+            aaa|bbb|ccc
+            aaa|bbb|ccc
+        END
+        call setline(1, lines)
+        call matchadd('Conceal', '^..', 10, -1, #{conceal: 'X'})
+        syn match foobar '^.'
+        setl cocu=n cole=1
+    EOF
+    )
+
+The conceal character `X` is displayed twice.
+
+**Expected behavior**
+
+The conceal character `X` is displayed once.
+
+**Environment**
+
+ - Vim version: 8.2 Included patches: 1-1712
+ - OS: Ubuntu 16.04.7 LTS
+ - Terminal: xterm(359)
+
+**Additional context**
+
+Regression introduced in [8.0.0672](https://github.com/vim/vim/releases/tag/v8.0.0672).
+
+---
+
+I found this issue while trying to conceal the middle column in a location window, when the location list has been set by an `:ltag` command.
+```vim
+syn on
+let items = [#{lnum: 1, col: 1, filename: '/tmp/file', text: 'some text'}]
+call setqflist([], ' ', #{items: items})
+copen
+call matchadd('Conceal', '|.\{-}|', 10, -1, #{conceal: '|'})
+setl cocu=n cole=1
+```
+This time, the conceal character (`|`) is displayed 3 times, instead of once.
+
+---
+
+Patch adding a test:
+
+    ~/Vcs/vim/src/testdir/test_conceal.vim
+
+## ":g" can use an alphabetic delimiter
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        setline(1, ['aaa', 'bbb']->repeat(3))
+        sil g x^bxd_
+        getline(1, '$')->assert_equal(['aaa', 'aaa', 'aaa'])
+        echo v:errors
+    EOF
+    )
+
+It works but it should not.
+Instead, this error should be raised:
+
+    E146: Regular expressions can't be delimited by letters
+
+Just like with `:s`:
+
+    :%s x^bxrepx
+
+It  seems that  if  `:g` (not  `:s`)  is followed  by  a space,  we  can use  an
+alphabetic delimiter.
+
+## mapping regression
+
+Test this code:
+
+    $ vim -u NONE -U NONE -N -g -S <(cat <<'EOF'
+        set guioptions=
+        inoremap <c-e> export
+        inoremap <c-e><c-s> extends
+        startinsert
+    EOF
+    )
+
+Press `C-e` then `l`.
+We should get `exportl`.
+In the GUI and in xterm, we get `l`.
+
+I think it's a regression caused by 8.2.0851.
+Here are issues where this patch is mentioned:
+<https://github.com/vim/vim/issues?q=is%3Aissue+is%3Aopen+8.2.0851>
+
+## cannot scroll to bottom of popup window using builtin popup filter menu when height equal to terminal window
+
+<https://vi.stackexchange.com/questions/27320/scrolling-down-in-popup-window-not-working-as-intended>
+
+As a workaround, you can use a custom filter:
+
+    call range(50)
+        \ ->map({_, i -> string(i)})
+        \ ->popup_create(#{
+        \ line: 1,
+        \ col: 1,
+        \ minwidth: 1,
+        \ minheight: 1,
+        \ cursorline: 1,
+        \ wrap: 0,
+        \ mapping: 0,
+        \ filter: 'MyMenuFilter',
+        \ firstline: 1,
+        \ })
+
+    fu MyMenuFilter(id, key)
+        if a:key == 'j'
+            call win_execute(a:id, 'norm! j')
+            call popup_setoptions(a:id, #{firstline: 0})
+            return 1
+        endif
+        return popup_filter_menu(a:id, a:key)
+    endfu
+
+It looks  like a bug.   If a custom  filter can make  Vim scroll a  popup window
+whose height  is `&lines`,  the builtin filter  should be able  to do  the same.
+Unless it's a design choice?  Is it documented?
+
+## cannot use dictionary function as a method
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        let Funcref = function('strlen')
+        echo 'string'->g:Funcref()
+    EOF
+    )
+
+    6
+    ✔
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        let Funcref = #{key: function('strlen')}
+        echo 'string'->g:Funcref.key()
+    EOF
+    )
+
+    E107: Missing parentheses: g:Funcref.key()~
+
+Bug?  Feature request?
+
+Update: It might be working as intended:
+<https://github.com/vim/vim/issues/4768#issuecomment-518006514>
+
+## channel-demo
 
 According to `:h channel-demo`:
 
@@ -3413,6 +3956,7 @@ Here are the parameters to consider:
 Where  is it  documented that  a  channel callback  can only  handle a  response
 received after calling `ch_sendexpr()` if it's *not* encoded in json (raw or nl)?
 
+##
 ## The descriptions of the local plugins are not aligned in the main help file:
 
     vim -Nu NORC -S <(cat <<'EOF'
@@ -4329,12 +4873,14 @@ But I find it unexpected to persist even after you've deleted some text before t
 Assuming it can be considered as a bug, I don't know whether it can be fixed.  For the moment, I'm experimenting this code:
 
     augroup restrict_abbreviations | au!
-        au InsertEnter * let s:start_insertion = col('.')
+        au InsertEnter * let s:start_insertion = #{lnum: line('.'), col: col('.')}
         au InsertCharPre * call s:Restrict_abbreviations()
     augroup END
     def s:Restrict_abbreviations()
+        let curlnum = line('.')
         if v:char =~ '\k'
-            || s:start_insertion - 1 <= searchpos('[^[:keyword:]]', 'bn')[1]
+            || s:start_insertion.col - 1 <= searchpos('[^[:keyword:]]', 'bn', curlnum)[1]
+            || curlnum != s:start_insertion.lnum
             || state() =~ 'm'
             return
         endif

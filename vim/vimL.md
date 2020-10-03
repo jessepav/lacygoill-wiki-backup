@@ -274,45 +274,21 @@ développée.  Pour ce faire, elle lance un shell pour l'occasion.
 
 `expand()` n'est pas limitée à des fichiers, elle peut développer:
 
-   - des caractères spéciaux (:h cmdline-special)
+   - des caractères spéciaux (`:h cmdline-special`)
    - des commandes shell
    - des globs
    - des variables d'environnement
 
 ## ?
 
-    ┌──────────────────┬────────────────────────────────────────────────────────────────────────┐
-    │ expand('%')      │ chemin vers le vers fichier courant, relatif au cwd                    │
-    ├──────────────────┼────────────────────────────────────────────────────────────────────────┤
-    │ ...('%:t')       │ nom du fichier courant (tail of path)                                  │
-    ├──────────────────┼────────────────────────────────────────────────────────────────────────┤
-    │ ...('<cfile>:t') │ nom du fichier sous le curseur                                         │
-    ├──────────────────┼────────────────────────────────────────────────────────────────────────┤
-    │ ...('%:h:t')     │ chemin vers le dossier parent du fichier courant (la queue de la tête) │
-    └──────────────────┴────────────────────────────────────────────────────────────────────────┘
-
-## ?
-
-    expand('<sfile>')
-
-À l'intérieur d'une fonction, retourne le nom de la fonction, sous la forme:
-
-    function MyFunc
-        ou
-    function <SNR>3_MyFunc
-
-À l'intérieur d'un script (mais à l'extérieur d'une fonction), retourne le chemin vers le script.
-
-## ?
-
                 ┌ respecte 'su' et 'wig'
-                │  ┌ résultat sous forme de liste et non de chaîne
-                │  │
-    expand('*', 0, 1)
-    glob('*', 0, 1, 1)
-                    │
-                    └ inclut tous les liens symboliques,
-                      même ceux qui pointent sur des fichiers non-existants
+                │        ┌ résultat sous forme de liste et non de chaîne
+                │        │
+    expand('*', v:false, v:true)
+    glob('*', v:false, v:true, v:true)
+                               │
+                               └ inclut tous les liens symboliques,
+                                 même ceux qui pointent sur des fichiers non-existants
 
 Noms des fichiers / dossiers du cwd.
 
@@ -326,10 +302,51 @@ quel:
     echo expand('$FOOBAR')
     $FOOBAR~
 
+---
+
+                                                            *suffixes*
+    For file name completion you can use the 'suffixes' option to set a priority
+    between files with almost the same name.  If there are multiple matches,
+    those files with an extension that is in the 'suffixes' option are ignored.
+    The default is ".bak,~,.o,.h,.info,.swp,.obj", which means that files ending
+    in ".bak", "~", ".o", ".h", ".info", ".swp" and ".obj" are sometimes ignored.
+
+    An empty entry, two consecutive commas, match a file name that does not
+    contain a ".", thus has no suffix.  This is useful to ignore "prog" and prefer
+    "prog.c".
+
+    Examples:
+
+      pattern:	files:				match:	~
+       test*	test.c test.h test.o		test.c
+       test*	test.h test.o			test.h and test.o
+       test*	test.i test.h test.c		test.i and test.c
+
+    It is impossible to ignore suffixes with two dots.
+
+    If there is more than one matching file (after ignoring the ones matching
+    the 'suffixes' option) the first file name is inserted.  You can see that
+    there is only one match when you type 'wildchar' twice and the completed
+    match stays the same.  You can get to the other matches by entering
+    'wildchar', CTRL-N or CTRL-P.  All files are included, also the ones with
+    extensions matching the 'suffixes' option.
+
+    To completely ignore files with some extension use 'wildignore'.
+
+    To match only files that end at the end of the typed text append a "$".  For
+    example, to match only files that end in ".c": >
+            :e *.c$
+    This will not match a file ending in ".cpp".  Without the "$" it does match.
+
+    The old value of an option can be obtained by hitting 'wildchar' just after
+    the '='.  For example, typing 'wildchar' after ":set dir=" will insert the
+    current value of 'dir'.  This overrules file name completion for the options
+    that take a file name.
+
 ## ?
 
-    expand('**/README', 0, 1)
-    glob('**/README', 0, 1, 1)
+    expand('**/README', v:false, v:true)
+    glob('**/README', v:false, v:true, v:true)
 
 Liste des  chemins vers des fichiers  README situés dans  le cwd ou l'un  de ses
 sous-dossiers.
@@ -339,7 +356,7 @@ tandis que `glob()` retourne `[]`.  `glob()` est donc plus fiable.
 
 ## ?
 
-    glob("`find . -name '*.conf' | grep input`", 0, 1, 1)
+    glob("`find . -name '*.conf' | grep input`", v:false, v:true, v:true)
     systemlist("find . -name '*.conf' | grep input")
 
 Sortie de la commande shell:
@@ -357,16 +374,16 @@ Quelles différences? :
 
 ## ?
 
-    globpath(&rtp, 'syntax/c.vim', 0, 1, 1)
+    globpath(&rtp, 'syntax/c.vim', v:false, v:true, v:true)
 
 Le chemin relatif `syntax/c.vim` est ajouté en suffixe à chaque chemin absolu du
 rtp.  Si  le résultat  correspond à  un fichier  existant, il  est ajouté  à une
-liste. `globpath()` retourne  la liste finale, une fois que  tous les chemins du
+liste.  `globpath()` retourne  la liste finale, une fois que  tous les chemins du
 rtp ont été utilisés.
 
 ---
 
-    globpath(&rtp, '**/README.txt', 0, 1, 1)
+    globpath(&rtp, '**/README.txt', v:false, v:true, v:true)
 
 Idem, sauf que  cette fois, le suffixe  contient un wildcard, qui  à chaque fois
 est développé en une liste de 0, 1 ou plusieurs fichiers correspondant.
@@ -388,29 +405,6 @@ Vim filetype plugins, C syntax plugins, lua indent plugins, keymap files, ...
     echo globpath(&rtp, 'syntax/c.vim')
     echo globpath(&rtp, 'indent/lua.vim')
     echo globpath(&rtp, 'keymap/*.vim')
-
-## ?
-
-    :echo glob2regpat(&wig)->substitute(',', '\\|', 'g')
-    \.bak\|.*\.swo\|.*\.swp\|.*\~\|.*\.mp3\|.*\.png,...~
-
-`glob2regpat()` convertit un pattern de fichier en un pattern de recherche.
-Utile qd on cherche un nom de fichier,  dont le nom est écrit dans un buffer, et
-qui est décrit par un glob contenu dans une option tq `'wig'`.
-
-## ?
-
-Document that you can set a custom completion for `input()`:
-
-    fu CompleteWords(_a, _l, _p) abort
-        return getline(1, '$')->join(' ')->split('\s\+')
-            \ ->filter('v:val =~# "^\\a\\k\\+$"')
-            \ ->sort()->uniq()->join("\n")
-    endfu
-    let word = input('word: ', '', 'custom,CompleteWords')
-
-You can use a  script-local function, but you need to  expand `s:` manually (via
-`expand('<sfile>')` in a function).
 
 ##
 # vim-vint
@@ -1583,6 +1577,40 @@ slash as a (empty) path component.
     :echo wincol() - virtcol('.')
 
 ##
+## How to get the name of the current script, from the script itself?
+
+    expand('<sfile>')
+
+Note that this must be evaluated at the script level, not from a function.
+
+## How to get the stack of function calls which lead to the calling of the current function?
+
+    expand('<stack>')
+
+Usually, the stack is displayed with the following template:
+
+    function FuncA[123]..function FuncB[456]..function CurrentFunction
+
+If a script is sourced at the start, it is printed in the stack:
+
+    /path/to/some/scrippt[123]..function FuncA[456]..function FuncB[789]..function CurrentFunction
+    ^------------------------^
+
+If a script is sourced at any other point, it is printed in the stack, *and* its
+name is preceded by `script `:
+
+    function FuncA[123]..function FuncB[456]..script /path/to/some/scrippt[789]..function CurrentFunction
+                                              ^-----^
+
+### What's the difference between the last two special sequence of characters?
+
+`<sfile>` can print the call stack only from a function.
+`<stack>` can print the call stack from a function *and* at the script level.
+
+In general, it's better to always use `<stack>` to get the call stack; it's more
+readable and more reliable.
+
+##
 ## How to play a sound?
 
 Use `sound_playfile()` or `sound_playevent()`.
@@ -1667,6 +1695,31 @@ In particular, no autoload script is sourced.
     $ vim -Nu NORC --cmd 'set rtp^=/tmp/some' +'let foo#bar#var = 123'
 
 This time, the message "all the script is sourced" is not printed.
+
+##
+## How to implement a custom completion for `input()`?
+
+Use its third optional argument.
+Give it the value `custom,CompletionFunc`.
+
+    def s:CompleteWords(_a: any, _l: any, _p: any): string
+        return getline(1, '$')
+            ->join(' ')
+            ->split('\s\+')
+            ->filter({_, v -> v =~# '^\a\k\+$'})
+            ->sort()
+            ->uniq()
+            ->join("\n")
+    enddef
+    let word = input('word: ', '', 'custom,' .. expand('<SID>') .. 'CompleteWords')
+
+---
+
+Note that you are not limited to a custom completion function.
+You  can leverage  any type  of completion  which is  available in  a custom  Ex
+command, like `file` for file completion (as used in `-complete=file`).
+
+    let fname = input('File: ', '', 'file')
 
 ##
 # Pitfalls
@@ -2641,13 +2694,6 @@ semble.
             item (foo0), sans que le menu ne s'affiche.
 
 
-    if [!]empty(expr)
-
-            teste si expr est vide en retournant le nombre 1 si expr est vide, 0 autrement (! inverse le test)
-
-            expr peut être une chaîne, une liste, un dictionnaire ou un nb (vide = 0)
-
-
     confirm('Are you sure?', "&yes\n&no\n&quit", 2)
 
             Affiche une ligne affichant le message 'Are you sure?', propose à l'utilisateur
@@ -2730,12 +2776,6 @@ semble.
             Alternativement, on peut remplacer '\=expr' par une expression lambda :
 
                     substitute('text', 'pattern', {-> expr}, 'flags')
-
-
-    system('cmd')
-    system('cmd', 'input')
-
-            retourne la sortie de la commande shell cmd (en écrivant 'input' sur son entrée standard)
 
 
     taglist('pattern')
@@ -3218,7 +3258,7 @@ semble.
 
 ## Recherche / curseur
 
-    cursor(5,10)
+    cursor(5, 10)
 
             positionne le curseur sur la 10e colonne de la 5e ligne du buffer
             retourne 0 si le curseur a pu être positionné, -1 autrement
@@ -3354,11 +3394,4 @@ semble.
     searchpos()
 
             similaire à search() à ceci près qu'elle retourne une liste [lnum, cnum]
-
-    setpos('.', save_cursor)
-
-            restaure la position du curseur sauvegardée dans la variable save_cursor via la fonction getcurpos()
-
-            le 1er argument de setpos() détermine de quel objet la fonction va définir la position:
-            le curseur = . ou une marque = 'x
 

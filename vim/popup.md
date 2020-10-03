@@ -244,6 +244,8 @@ Mappings are processed before filters.
 Solution: Pass `mapping: v:false` to `popup_create()`.
 Downside: This will break all your mappings as long as the popup is visible.
 
+---
+
 Alternatively, if you  know you'll interact with the popup  only from a specific
 buffer, you could  try to install a buffer-local mapping  which replaces the key
 with itself:
@@ -255,6 +257,10 @@ prevent the latter from replacing the key with something else.
 
 After the mapping has been applied, the  key will pass to the filter, which will
 handle it as if the global mapping had been ignored.
+
+Note that this won't  help if you don't press `<key>`  directly, but rather it's
+written in the typeahead buffer after expanding a mapping.
+See the example in this file using a `z<c-k>` mapping.
 
 ### It doesn't help!
 
@@ -392,17 +398,6 @@ over-engineered); and rewrite this file using the library function:
 Update: Actually, I think you should try to assimilate `vim-submode`.
 Also, try to assimilate `vim-tradewinds`, and install a mapping which would stop
 `vim-window` from maximizing windows' height in the current tab page.
-
-## Stop the timer which clears the cache when you scroll in a popup window, and start a new one.
-
-See what we did here:
-
-    " ~/.vim/plugged/vim-window/autoload/window.vim
-    /window#resize
-
-This should improve  the perf even more, and probably  make the whole experience
-more consistent (there  is no reason to  change the last focused  popup right in
-the middle of a series of scrolling motions).
 
 ## Customize the appearance of the preview popup.
 

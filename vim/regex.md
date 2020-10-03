@@ -936,7 +936,21 @@ the text you're interested in.
    - <http://perldoc.perl.org/perlre.html#extended-patterns>
 
 ##
-# Issues
+## How to convert a file pattern (e.g. used in an autocmd) into a regex?
+
+Use `glob2regpat()`:
+
+    echo glob2regpat('*')
+    .*~
+
+    echo map(['*.lock', '*~', '*/build/*', '*.'], {_, v -> glob2regpat(v)})
+    ['\.lock$', '\~$', '/build/', '\.$']~
+
+    echo glob2regpat(&wig)->substitute(',', '\\|', 'g')
+    \.bak\|.*\.swo\|.*\.swp\|.*\~\|.*\.mp3\|.*\.png,...~
+
+##
+# Pitfalls
 ## What is the first thing I should do when my regex doesn't produce the expected matches?
 
 Use it as the pattern of a substitution command with a confirmation flag:
@@ -1197,6 +1211,40 @@ But it doesn't work in sth like:
 because `matchstr()`  doesn't search directly  in the  current buffer, but  on a
 copy of the current line provided by `getline('.')`.
 In this copy, the cursor position is lost.
+
+## `\ze` doesn't work when it's followed by `\@>`!
+
+For example, suppose you want to  match the `s:` prefix in script-local variable
+names in a legacy Vim script,  while ignoring script-local functions.  You could
+be tempted to use this pattern:
+
+    s:\ze\%(\w*\)\@>(\@!
+
+But this will wrongly match the whole `s:var`, instead of just `s:`.
+IOW, `\ze` is ignored.
+```vim
+vim9script
+setline(1, ['s:var', 's:func()'])
+s/s:\ze\%(\w*\)\@>(\@!//c
+```
+Solution: Use the old regex engine.
+
+    \%#=1s:\ze\%(\w*\)\@>(\@!
+    ^---^
+```vim
+vim9script
+setline(1, ['s:var', 's:func()'])
+s/\%#=1s:\ze\%(\w*\)\@>(\@!//c
+```
+Or use `\@=`:
+
+    s:\%(\%(\w*\)\@>(\@!\)\@=
+      ^-^               ^---^
+```vim
+vim9script
+setline(1, ['s:var', 's:func()'])
+s/s:\%(\%(\w*\)\@>(\@!\)\@=//c
+```
 
 ##
 ##

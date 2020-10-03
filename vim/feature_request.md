@@ -50,6 +50,12 @@ The issue only arises in the second window counting from the bottom:
 highlight the title of a fold with special colors, but not the rest of the line.
 
 ##
+# Provide a mechanism to annotate mappings (like tmux)?
+
+I'm not sure it's  a good idea.  We need to experiment with  the feature in tmux
+to see how it works, how useful it is, and how it could be ported into Vim.
+
+##
 # Issues
 ## can't customize `C-k` when a dictionary completion is active
 
