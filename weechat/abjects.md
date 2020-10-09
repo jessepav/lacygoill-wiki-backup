@@ -532,7 +532,7 @@ Available tokens:
 
 ## How to reset the layout?
 
-        !resetsearch
+    !resetsearch
 
 ##
 ## My tar file unpacks without any error message, but the extracted file is incomplete/corrupted.  What to do?

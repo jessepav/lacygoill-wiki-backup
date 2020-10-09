@@ -4,9 +4,9 @@ About {{{1
   N    Type in Normal or Fullscreen mode
   I    Type in Index mode
 Move around  {{{1
-Backward in jumplist     «C-o»        N
-Forward in jumplist      «C-i»        N
+Backward in jumplist               «C-o»        N
+Forward in jumplist                «C-i»        N
 Index {{{1
-Open the index           Tab           N
-collapse all entries     H             I
-expand all entries       L             I
+Open the index                     Tab           N
+collapse all entries               H             I
+expand all entries                 L             I

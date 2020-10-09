@@ -173,6 +173,47 @@ I think `:call` has 2 benefits over `:eval`:
 
 ## `:h prompt-buffer`
 
+## `:h falsy-operator`
+
+Also known as "null coalescing operator".
+
+Example:
+
+    :echo 0 ?? 'str'
+    str~
+
+    :echo 0 ?? '' ?? [0]
+    [0]~
+
+    :echo 0 ?? '' ?? [] ?? #{key: 123}
+    {'key': 123}~
+
+Not sure,  but maybe the expression  "null coalescing" comes from  the fact that
+this operator lets you ignore/reduce/coalesce  an arbitrary number of null/false
+values.
+
+It can be somewhat emulated with `?:`:
+
+    const a = b ?? 3
+    ⇔
+    const a = b ? b : 3
+
+But actually, the two are not really equivalent.
+With `?:`, `b` is evaluated twice.
+With `??`, `b` is evaluated only once.
+This difference matters if the evaluation has side-effects.
+
+The operator was introduced in 8.2.1794.
+
+---
+
+Note that it doesn't work with an undefined variable:
+
+    :echo var ?? 123
+    E121: Undefined variable: var~
+
+Should we ask for this to work as a feature request?
+
 ##
 # Review `https://arp242.net/vimlog/`
 

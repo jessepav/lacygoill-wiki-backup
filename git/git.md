@@ -1,35 +1,3 @@
-# How to get all the changes introduced by a commit?
-
-    $ git diff COMMIT~ COMMIT
-
-Source: <https://stackoverflow.com/a/17563740/9780968>
-
----
-
-This is useful when you're looking for  the first commit which has added a given
-line of code in a project, but you don't understand its purpose.
-
-Note the commit hash and use the previous command.
-You will see all the changes introduced by the commit, in *all* the files of the
-project, not just the one file where the line of code was added.
-It gives you more context, and may help you better understand the purpose of the
-change.
-
-# How to get a url selecting a range of lines in a file hosted on GitHub?
-
-   1. open your file in Vim
-   2. visually select the lines
-   3. run `:Gbrowse!`
-
-The url should now be in your system clipboard (and printed on the command-line).
-
-This requires the plugins:
-
-   - vim-fugitive
-   - vim-rhubarb
-   - netrw
-
-##
 # gitignore
 ## Sources
 ### When Git must decide whether to ignore a path, from which sources does it check gitignore patterns?  (3)
@@ -216,7 +184,7 @@ Note that in this case you need the `-f` argument:
 
 To avoid:
 
-       error: the following file has staged content different from both the file and the HEAD:
+    error: the following file has staged content different from both the file and the HEAD:
 
 ## ?
 
@@ -397,43 +365,43 @@ There's always a copy of the changes (in the version of the working tree).
 ##
 ## EXAMPLES
 
-       $ git status
-       [...]
-       # Untracked files:
-       [...]
-       #       Documentation/foo.html
-       #       Documentation/gitignore.html
-       #       file.o
-       #       lib.a
-       #       src/internal.o
-       [...]
+    $ git status
+    [...]
+    # Untracked files:
+    [...]
+    #       Documentation/foo.html
+    #       Documentation/gitignore.html
+    #       file.o
+    #       lib.a
+    #       src/internal.o
+    [...]
 
-       $ cat .git/info/exclude
-       # ignore objects and archives, anywhere in the tree.
-       *.[oa]
+    $ cat .git/info/exclude
+    # ignore objects and archives, anywhere in the tree.
+    *.[oa]
 
-       $ cat Documentation/.gitignore
-       # ignore generated html files,
-       *.html
-       # except foo.html which is maintained by hand
-       !foo.html
+    $ cat Documentation/.gitignore
+    # ignore generated html files,
+    *.html
+    # except foo.html which is maintained by hand
+    !foo.html
 
-       $ git status
-       [...]
-       # Untracked files:
-       [...]
-       #       Documentation/foo.html
-       [...]
+    $ git status
+    [...]
+    # Untracked files:
+    [...]
+    #       Documentation/foo.html
+    [...]
 
 Another example:
 
-       $ cat .gitignore
-       vmlinux*
+    $ cat .gitignore
+    vmlinux*
 
-       $ ls arch/foo/kernel/vm*
-       arch/foo/kernel/vmlinux.lds.S
+    $ ls arch/foo/kernel/vm*
+    arch/foo/kernel/vmlinux.lds.S
 
-       $ echo '!/vmlinux*' >arch/foo/kernel/.gitignore
+    $ echo '!/vmlinux*' >arch/foo/kernel/.gitignore
 
 The second `.gitignore` prevents Git from ignoring `arch/foo/kernel/vmlinux.lds.S`.
 
@@ -441,12 +409,12 @@ Example to  exclude everything except  a specific directory `foo/bar`  (note the
 `/*`  without the  slash,  the  wildcard would  also  exclude everything  within
 `foo/bar`):
 
-       $ cat .gitignore
-       # exclude everything except directory foo/bar
-       /*
-       !/foo
-       /foo/*
-       !/foo/bar
+    $ cat .gitignore
+    # exclude everything except directory foo/bar
+    /*
+    !/foo
+    /foo/*
+    !/foo/bar
 
 ##
 ##
@@ -618,7 +586,7 @@ A file which is safely stored in `.git/`.
 # Config
 ## Where can I find information about how to config Git?
 
-    man git-config
+    $ man git-config
 
 ##
 ## How to change the location of the base of the repository (`.git/`)?
@@ -962,6 +930,42 @@ The file has been removed from the working tree.
 #### `?` in both columns?
 
 The file is untracked.
+
+##
+# Misc.
+## How to get all the changes introduced by a commit?
+
+    $ git diff abc123~ abc123
+               │       │
+               │       └ commit "abc123"
+               └ ancestor of commit "abc123"
+
+Source: <https://stackoverflow.com/a/17563740/9780968>
+
+---
+
+This is useful when you're looking for  the first commit which has added a given
+line of code in a project, but you don't understand its purpose.
+
+Note the commit hash and use the previous command.
+You will see all the changes introduced by the commit, in *all* the files of the
+project, not just the one file where the line of code was added.
+It gives you more context, and may help you better understand the purpose of the
+change.
+
+## How to get a url selecting a range of lines in a file hosted on GitHub?
+
+   1. open your file in Vim
+   2. visually select the lines
+   3. run `:Gbrowse!`
+
+The url should now be in your system clipboard (and printed on the command-line).
+
+This requires the plugins:
+
+   - vim-fugitive
+   - vim-rhubarb
+   - netrw
 
 ##
 ##
@@ -1737,16 +1741,7 @@ changes`.
 
 Mastering issues (10 min read)
 
-
-Pour obtenir un permalink vers une suite de lignes de code d'un repo:
-
-   - clic-gauche sur la 1e ligne
-   - Shift-clic-gauche sur la dernière ligne
-   - (optionnel) taper `S-Esc` pour désactiver temporairement Vimperator
-   - taper `y`
-
 ---
-
     créer un repo sur github (sans readme, license, .cvsignore)
 
     $ git init
@@ -1787,192 +1782,6 @@ TODO:
 
 Vérifier que c'est une bonne méthode.
 Ça a pas l'air en lisant certains commentaires.
-
-# Théorie
-
-Un  _pointeur_ est  une  association hash  -  nom (de  branche,  de dossier,  de
-fichier...) stockée dans un fichier.
-
-Les _branches_ sont des pointeurs.
-
-Git utilise 3 types d'objets (blob, tree, commit), tous stockés dans:
-
-    .git/objects/<2 premiers caractères de leur sha1>
-
-... et ayant tous pour nom les 38 derniers caractères de leur sha1.
-
-En effet, le  sha1 sert de clé  pour retrouver n'importe quel  objet; ainsi Git
-identifie un fichier par son contenu et non pas par son nom.
-
-    $ git cat-file -t <sha1>
-
-Affiche le type d'objet de l'objet dont l'empreinte est `<sha1>`.
-
-    $ git cat-file -p <sha1>
-
-Affiche le contenu de l'objet dont l'empreinte est `<sha1>`.
-
-Un _blob_ est un fichier compressé stockant des données qcq.
-
-Un  _tree_ est  la représentation  du contenu  d'un dossier  à un  instant donné
-(snapshot) sous la forme d'un fichier composé d'une ou plusieurs entrées.
-
-Chaque entrée correspond à un fichier / dossier et contient 4 infos :
-
-   - droits
-   - type (blob ou tree)
-   - chemin vers le fichier (ou dossier)
-
-   - sha1 du fichier (ou du tree représentant le dossier dans le cas où le
-     chemin mène à un dossier) qui sert de pointeur
-
-Un _commit_ est un fichier contenant un ensemble d'infos, dont les 5 suivantes:
-
-   - un message
-   - une date
-   - un auteur
-
-   - le sha1 du tree sur lequel le commit pointe (l'arborescence du
-     snapshot de fichiers qu'il représente)
-
-   - le sha1 du commit parent (celui qui précède dans l'historique)
-
-L'index (binaire `.git/index`) est un tree  spécial; il représente le contenu du
-prochain snapshot.
-Quand on fait un:
-
-    $ git add <file>
-
-... Git ajoute à l'index une entrée contenant entre autres:
-
-   - les droits du fichier
-   - son chemin d'accès (pour savoir où le recréer si besoin)
-   - son sha1 (pour pouvoir le retrouver dans ses objets)
-
-Quand on fait un `git checkout`, Git met à jour l'index pour qu'il représente le
-contenu du nouveau working directory.
-
-Quand on fait un `$  git add <dir>`, Git fait la même chose,  à ceci près que le
-sha1 n'est pas celui  du dossier (un dossier ne peut pas en  avoir), mais de son
-tree.
-
-Le principe est  récursif: de la même  façon que Git peut créer  un manifeste du
-working / root tree, il peut en créer un pour un sous-dossier.
-
-Quand on crée  un commit, Git enregistre  un message associé au  hash de l'index
-actuel.
-
-Le commit  pointe sur  le manifeste qui  pointe sur les  fichiers /  dossiers du
-working tree.
-
-
-Git est un VCS (Version Control System) distribué.
-
-Pas de serveur central contrairement à svn ou cvs.
-
-Il y a un dépôt central / upstream, mais tlm peut accéder à tout l'historique du
-code; le  dépôt central n'est  pas différent des  autres pairs, c'est  juste une
-machine à laquelle tout le monde a un accès en lecture / écriture.
-
-
-Il facilite 3  choses: backup, partage, revenir à une  ancienne version du code
-en cas de régression.
-
-Git considère les données qu'il gère comme un flux de snapshots (à ceci près que
-lorsqu'un  fichier  ne  change  pas,  il  est  sauvegardé  sous  forme  de  lien
-symbolique).
-
-En ce  sens il  peut être  vu comme  un mini fs  auquel on  a ajouté  des outils
-propres aux VCSs.
-
-Un commit  est un ensemble  de modifications apportées  à un projet  (création /
-suppression d'un fichier, ajout de texte, etc.) associé à un message lui donnant
-du sens (quel était  le but de ces modifications) et stocké  dans un dépôt local
-(.git/ ; bdd de Git).
-
-Il peut être vu comme la création d'un snapshot.
-
-Chaque commit  crée une  nouvelle version  du code, on  dit qu'on  versionne son
-code.
-
-L'ensemble des commits constitue l'historique du projet.
-
-Pour Git, un fichier peut être dans 4 états :
-
-   - untracked    le fichier est nouveau     `git add` pour que le fichier soit tracké et indexé
-                                             par la même occasion
-
-   - unstaged     il n'est pas nouveau mais modifié et non indexé (`git add` pour que ça change)
-
-   - staged       il est indexé mais pas commited (`git commit` ")
-
-   - unchanged    il est dans le dépôt et n'a pas changé depuis qu'il y est
-
-Dans un projet Git, le workflow se  décompose en 3 étapes : modification d'un ou
-plusieurs  fichiers  / dossiers,  indexation  (staging)  de certaines  nouvelles
-versions des fichiers / dossiers, commit (ajout dans son dépôt Git local).
-
-L'indexation  permet  de  choisir  parmi toutes  les  modifications,  lesquelles
-devront être ajoutées au dépôt lors du prochain commit.
-
-L'index  ou staging  area est  un fichier  dans le  dépôt local  qui stocke  des
-informations  déterminant ce  qui  sera ajouté  à ce  dernier  lors du  prochain
-commit.
-
-L'intérêt de  l'index est  de permettre de  ne pas ajouter  au dépôt  toutes les
-modifications qu'on effectue dans son dossier, uniquement celles qu'on veut.
-
-Quand on veut  faire une expérimentation ou tester  une nouvelle fonctionnalité,
-on crée une nouvelle branche (légère divergence de la base de code principale).
-
-Par défaut, quand on crée un dépôt Git, la branche initiale se nomme master.
-
-Si au bout  d'un moment on est  satisfait du résultat, on la  fusionnera avec la
-branche principale.
-
-
-Un dépôt Git est un DAG (Directed Acyclic Graph) + des post-its.
-Les nœuds du DAG sont de 3 types : blob, tree et commit.
-
-Un blob stocke un tas d'octets, le + svt un fichier ou un symlink.
-
-Un tree est un dossier.
-
-Il fait référence à des blobs et/ou à d'autres trees.
-
-Un tree  contient des noms de  fichiers, des droits d'accès...  (métadonnées)
-Un nœud du DAG ne peut pas exister seul, il faut qu'un autre nœud pointe sur lui
-(ou que lui pointe sur un autre nœud).
-
-On peut supprimer les nœuds isolés via:
-
-    $ git gc --auto
-
-... ou récupérer via:
-
-    $ git fsck --full
-
----
-
-Un commit stocke  un message et fait  référence à un tree  qui représente l'état
-des fichiers à un instant donné.
-
-Il peut avoir un ou plusieurs commits parents.
-
-S'il en a plusieurs, le commit est un  merge ; s'il n'en a aucun, il s'agit d'un
-commit initial.
-
-Il peut y avoir  plusieurs commits initiaux dans le cas  où deux projets séparés
-ont fusionné.
-
-Les références (heads, tags) peuvent être vus comme des post-it ou des bookmarks
-associés à des nœuds du DAG.
-
-Ils  ne sont  pas stockés  dans l'historique  (.git/) ni  transférés directement
-entre repos.
-
-Contrairement  aux nœuds  du DAG  qui ne  peuvent être  supprimés ou  mutés, les
-références peuvent être déplacées librement.
 
 # Ressources
 
@@ -2023,13 +1832,68 @@ DIVERS:
 - <https://github.com/jessfraz/branch-cleanup-action>
 - <https://sethrobertson.github.io/GitBestPractices/>
 
-- <https://jonas.github.io/tig/doc/manual.html>
-- `man tig`
-- `man tigrc`
-- `man tigmanual`
-
 ##
 # Todo
+## demistify `git reset` and `git checkout`
+
+<https://git-scm.com/book/en/v2/Git-Tools-Reset-Demystified>
+
+Git as a system manages and manipulates three trees in its normal operation:
+
+    ┌───────────────────┬───────────────────────────────────┐
+    │ tree              │ Role                              │
+    ├───────────────────┼───────────────────────────────────┤
+    │ HEAD              │ Last commit snapshot, next parent │
+    ├───────────────────┼───────────────────────────────────┤
+    │ Index             │ Proposed next commit snapshot     │
+    │ aka staging area  │                                   │
+    ├───────────────────┼───────────────────────────────────┤
+    │ Working Directory │ Sandbox                           │
+    │ aka working tree  │                                   │
+    └───────────────────┴───────────────────────────────────┘
+
+HEAD is the snapshot of your last commit on the current branch.
+Technically, it's the pointer to the  current branch reference, which in turn is
+a pointer to the last commit made on that branch.
+
+Here is an  example of getting the actual directory  listing and SHA-1 checksums
+for each file in the HEAD snapshot:
+
+    $ git cat-file -p HEAD
+                   ^^
+                   pretty-print the contents of <object> based on its type
+
+    $ git ls-tree -r HEAD
+                  ^^
+                  recurse into sub-trees
+
+Git populates  the index with  a list  of all the  file contents that  were last
+checked out into your working directory and what they looked like when they were
+originally checked out.  You then replace  some of those files with new versions
+of them, and git commit converts that into the tree for a new commit.
+
+Here is a command to see the contents of the index:
+
+    $ git ls-files -s
+                   ^^
+                   --staged
+
+                   show staged contents' mode bits,
+                   object name and stage number in the output
+
+Finally,  you have  your working  directory.  The  other two  trees store  their
+content  in  an  *efficient*  but  *inconvenient*  manner;  inside  the  `.git/`
+directory.  The working directory unpacks them into actual files, which makes it
+much easier for you to edit them.   Think of the working directory as a sandbox,
+where  you can  try changes  out  before committing  them to  your staging  area
+(index) and then to history.
+
+---
+
+<https://medium.com/@tommasi.v/git-enhanced-with-tig-9eb07fc30168>
+<https://opensource.com/article/19/6/what-tig>
+
+##
 ## Document
 ### `$ vim +'Gedit :'`
 
@@ -2039,7 +1903,7 @@ DIVERS:
    > From there, `g?` to see available mappings,  and `:q` to quit, as you would from
    > a commit buffer.
 
-### How to recover a cleared stash.
+### How to recover a stash cleared by accident.
 
 <https://stackoverflow.com/a/57095939/9780968>
 

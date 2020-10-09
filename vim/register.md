@@ -644,7 +644,7 @@ automatically positioned on the first non-whitespace character.
         set list showcmd ai
         let lines = range(1,8)->map({_, v -> repeat(' ', v) .. repeat("\t", v < 5 ? 1 : 2) .. 'some line'})
         call setline(1, lines)
-        g/^\s/pu=''
+        g/^\s/pu_
         norm! 1G1|
     EOF
     )
@@ -1253,8 +1253,8 @@ Example when CR is pressed in command-line mode:
 
 Example when CR is pressed in normal mode:
 
-    $ vim -Nu NONE +"pu=''" +'let @q = "\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
-                    ^-----^
+    $ vim -Nu NONE +"pu_" +'let @q = "\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
+                    ^---^
                     there needs to be a line after the one from which we press `@q`,
                     otherwise, `^M` would fail and Vim would stop executing the macro
 

@@ -669,12 +669,6 @@ why, you could stay in Vim and  make the commit message – introducing the chan
 
 ---
 
-Similar:
-
-- <https://teukka.tech/vimtip-gitlens.html> 35 sloc
-
----
-
 Alternatively, use `:Gblame` and press O.
 
 Or try one of these `:GB` commands:
@@ -992,7 +986,7 @@ or functions:
    - autoload#foo#func()
    - 'autoload#foo#func'
 
-<https://github.com/mhinz/vim-lookup> 124 sloc
+<https://github.com/mhinz/vim-lookup> 114 sloc
 
 ## lsp
 

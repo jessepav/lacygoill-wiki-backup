@@ -1,0 +1,166 @@
+generic bindings {{{1
+View switching {{{2
+
+Show main view                     m
+Show diff view                     d
+Show log view                      l
+Show reflog view                   L
+Show tree view                     t
+Show blob view                     f
+Show blame view                    b
+Show refs view                     r
+Show status view                   s  S
+Show stage view                    c
+Show stash view                    y
+Show grep view                     g
+Show pager view                    p
+Show help view                     h
+
+View manipulation {{{2
+
+Enter and open selected line       «Enter»
+Go back to previous view state     <
+Move to next                       «Down» «C-n» J
+Move to previous                   «Up»   «C-p» K
+Move to parent                     ,
+Move focus to the next view        «Tab»
+Reload and refresh view            R  «F5»
+Maximize the current view          O
+Close the current view             q
+Close all views and quit           Q  «C-c»
+
+Cursor navigation {{{2
+
+Move cursor one line up            k
+Move cursor one line down          j
+Move cursor one page down          «PageDown»  «SPC»
+Move cursor half a page up         «PageUp»  -
+Move cursor half a page down       «C-d»
+Move cursor one page up            «C-u»
+Move cursor to first line          «Home»
+Move cursor to last line           «End»
+
+Scrolling {{{2
+
+Scroll one line up                 «Insert»  «C-y»
+Scroll one line down               «Delete»  «C-e»
+Scroll one page up                 «ScrollBack»
+Scroll one page down               «ScrollFwd»
+Scroll to the first line columns   |
+Scroll two columns left            «Left»
+Scroll two columns right           «Right»
+
+Searching {{{2
+
+Search the view                    /
+Search backwards in the view       ?
+Find next search match             n
+Find previous search match         N
+
+Misc {{{2
+
+Open in editor                     e
+Open the prompt                    :
+Open the options menu              o
+Redraw the screen                  «C-l»
+Stop all loading views             z
+Show version information           v
+
+Option toggling {{{2
+
+:toggle sort-order                 I
+:toggle sort-field                 i
+:toggle line-number                #
+:toggle date                       D
+:toggle author                     A
+:toggle line-graphics              ~
+:toggle file-name                  F
+:toggle ignore-space               W
+:toggle id                         X
+:toggle commit-title-overflow      $
+:toggle file-filter                %
+
+search bindings {{{1
+View manipulation {{{2
+
+Close the current view             «C-c»
+
+Searching {{{2
+
+Find next search match             «Down» «C-n» «C-j»
+Find previous search match         «Up»   «C-p» «C-k»
+
+main bindings {{{1
+Option toggling {{{2
+
+:toggle commit-title-graph         G
+:toggle commit-title-refs          F
+
+Internal commands {{{2
+
+:goto HEAD                         H
+
+External commands {{{2
+
+?git cherry-pick %(commit)         C
+
+diff bindings {{{1
+Option toggling {{{2
+
+:toggle diff-context -1            [
+:toggle diff-context +1            ]
+
+Internal commands {{{2
+
+:/^@@                              @
+
+reflog bindings {{{1
+Option toggling {{{2
+
+:toggle commit-title-refs          F
+
+External commands {{{2
+
+?git checkout %(branch)            C
+?git reset --hard %(commit)        !
+
+refs bindings {{{1
+External commands {{{2
+
+?git checkout %(branch)            C
+?git branch -D %(branch)           !
+
+status bindings {{{1
+View-specific actions {{{2
+
+Stage/unstage chunk/file changes   u
+Revert chunk/file changes          !
+Merge file using external tool     M
+
+External commands {{{2
+
+!git commit                        C
+
+stage bindings {{{1
+View-specific actions {{{2
+
+Stage/unstage chunk/file changes   u
+Revert chunk/file file changes     !
+Stage/unstage single line          1
+Split current diff chunk           \
+
+Option toggling {{{2
+
+:toggle diff-context -1            [
+:toggle diff-context +1            ]
+
+Internal commands {{{2
+
+:/^@@                              @
+
+stash bindings {{{1
+External commands {{{2
+
+?git stash apply %(stash)          A
+?git stash pop %(stash)            P
+?git stash drop %(stash)           !

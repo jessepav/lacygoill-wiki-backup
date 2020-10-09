@@ -503,6 +503,20 @@ Finally a session option.
 
 ## install a key binding which restores a closed pane/window/session
 
+## capture more than the current screen in a TUI program
+
+For example:
+
+    $ tig
+    # press 'h' to display the help
+    # press 'M-c' to capture the help
+
+We only get the start of tig's help.  Not the rest.
+
+Could we write some  script which would make tmux capture the  pane, then send a
+key to tig to scroll down 1 screen, then capture the new screen and append it to
+the previous capture, etc. until the end of the help is reached?
+
 #
 # study how v, V, C-v behave in Vim when we're already in visual mode; try to make tmux copy-mode consistent
 

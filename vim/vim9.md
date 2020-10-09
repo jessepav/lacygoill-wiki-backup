@@ -1083,39 +1083,24 @@ Otherwise, if you just write `var x = []`, it's exactly as if you had written:
 Which might prevent some optimizations at compile time.
 
 ##
-## What's the evaluation of `123 || 0` in
-### legacy Vim script?
+## Which operands are accepted by the logical operators:
+### && and ||
 
-    echo 123 || 0
-
-    1~
-
-### Vim9 script?
+Only booleans and the numbers 0 and 1.
 
     vim9script
     echo 123 || 0
 
-    123~
+    E1023: Using a Number as a Bool: 123~
 
-##
-## How is `expr1 && expr2` evaluated in Vim9 script?
+---
 
-Some types have a "neutral" value:
+In Vim script legacy, `&&` and `||`  accept any number, as well as strings which
+are automatically coerced into numbers.
 
-   - Number: 0
-   - Float: 0.0
-   - String: ''
-   - List: []
-   - Dictionary: {}
-   - None: v:none
+### ! and ??
 
-The second operand always wins, unless the first one is neutral; then the latter
-wins.
-
-### What about `expr1 || expr2`?
-
-The first operand always wins, unless the second one is neutral; then the latter
-wins.
+Any type of value.
 
 ##
 ## `:h vim9` says that `'ignorecase'` is not used for comparators that use strings.

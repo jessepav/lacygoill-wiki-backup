@@ -4,21 +4,21 @@ About {{{1
   N    Type in Normal mode
   C    Type in Copy mode
 Open {{{1
-Selected url             gx            C
-Selected file path       gf            C
+Selected url                       gx            C
+Selected file path                 gf            C
 Search {{{1
-Selected text            S             C
+Selected text                      S             C
 Yank {{{1
-current command-line     «pfx» y       N
-path of cwd              «pfx» Y       N
-hinted text              «pfx» f       N
+current command-line               «pfx» y       N
+path of cwd                        «pfx» Y       N
+hinted text                        «pfx» f       N
 # Press the hint in uppercase
 # Doesn't pollute system clipboard
 Paste {{{1
-Paste buffer             «pfx» «C-p»   N
-Choose&Paste buffer      «pfx» p       N
-Yank&Paste selected text p             C
-Paste hinted text        «pfx» f       N
+Paste buffer                       «pfx» «C-p»   N
+Choose&Paste buffer                «pfx» p       N
+Yank&Paste selected text           p             C
+Paste hinted text                  «pfx» f       N
 # Press the hint in lowercase
 Move {{{1
-Start of previous prompt !             C
+Start of previous prompt !                       C

@@ -192,7 +192,7 @@ No issue for an imported function:
 ```vim
 vim9script
 mkdir('/tmp/import', 'p')
-let lines =<< trim END
+var lines =<< trim END
     vim9script
     export def Imported()
         echo 'imported'
@@ -219,7 +219,7 @@ delfu s:Func
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
         g:two = 2
-        let l: list<number> = [1, <number>g:two]
+        var l: list<number> = [1, <number>g:two]
     EOF
     )
 
@@ -231,7 +231,7 @@ Why?
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
         g:two = 2
-        let l: list<number> = [1, g:two]
+        var l: list<number> = [1, g:two]
     EOF
     )
     ✔
@@ -244,7 +244,7 @@ Why?
         vim9script
         g:two = 2
         def Func()
-            let l: list<number> = [1, g:two]
+            var l: list<number> = [1, g:two]
         enddef
         Func()
     EOF
@@ -258,7 +258,7 @@ There *is*:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
-        let l: number = 'string'
+        var l: number = 'string'
     EOF
     )
 
@@ -386,7 +386,202 @@ Look for which functions:
    - don't support `'.'` as a shorthand, but would benefit from it
    - expect a `{row}` and/or `{col}` argument which describe *cells* positions
 
+#### Vim9: should we make the second index in a slice exclusive?
+
+This is not a bug report nor a feature request.  Just a discussion about whether it would be beneficial for Vim9 to change how the second index in a slice is parsed.
+
+    ┌──────────────────────────────┬────────────┐
+    │ count referrences at :h Vim9 │ language   │
+    ├──────────────────────────────┼────────────┤
+    │ 14                           │ TypeScript │
+    ├──────────────────────────────┼────────────┤
+    │ 09                           │ JavaScript │
+    ├──────────────────────────────┼────────────┤
+    │ 07                           │ Java       │
+    ├──────────────────────────────┼────────────┤
+    │ 04                           │ Python     │
+    └──────────────────────────────┴────────────┘
+
+Update: I'm not sure this is such a good idea anymore:
+<https://stackoverflow.com/a/50209705/9780968>
+
+---
+
+In a slice, make the second index exclusive
+
+In python and javascript, it seems that the second index in a slice is exclusive.
+In Vim script legacy, it's inclusive.
+
+Should it be made exclusive in Vim9?
+
+Note that Vim9 has already changed the meaning of indexes in a string slice.
+In Vim script legacy, they described byte indexes.
+In Vim9, they describe character indexes.
+See:
+
+   - `:h expr-[]`
+   - <https://github.com/vim/vim/issues/6563#issuecomment-667587072>
+
+If it was  ok to change the meaning  of string indexes, maybe it's  ok to change
+the inclusive property of the second index?   And if it's ok for a string slice,
+then maybe it's ok for a list slice as well?
+
+Maybe it's something which users familiar with other programming languages would like?
+
+Also, to illustrate how it can simplify  the code a little, read this code whose
+purpose is to generate all permutations of items in a list:
+
+    def Addperm(x: number, l: list<number>): list<list<number>>
+        var ret = []
+        for i in range(len(l) + 1)
+            ret += [ (i == 0 ? [] : l[0:i - 1]) + [x] + l[i :] ]
+        endfor
+        return ret
+    enddef
+
+    def Perm(l: list<number>): list<list<number>>
+        if len(l) == 0
+            return [[]]
+        endif
+        var ret = []
+        for x in Perm(l[1:])
+            for y in Addperm(l[0], x)
+                ret += [y]
+            endfor
+        endfor
+        return ret
+    enddef
+
+    echo range(3)->Perm()
+
+Same code in python:
+
+    def Addperm(x, l):
+        ret = []
+        for i in range(len(l) + 1):
+            ret += [ l[0:i] + [x] + l[i:] ]
+        return ret
+
+    def Perm(l):
+        if len(l) == 0:
+            return [[]]
+        ret = []
+        for y in Perm(l[1:]):
+            for x in Addperm(l[0], y):
+                ret += [x]
+        return ret
+
+    print Perm([0, 1, 2])
+
+Notice how the 4th line is simpler in python:
+
+    ret += [ l[0:i] + [x] + l[i:] ]
+
+Compared to Vim9:
+
+    ret += [ (i == 0 ? [] : l[0:i - 1]) + [x] + l[i :] ]
+
+Also, note that we have to add an extra space:
+
+    ret += [ (i == 0 ? [] : l[0:i - 1]) + [x] + l[i :] ]
+                                                   ^
+
+This is to suppress `E1075`:
+
+    E1075: Namespace not supported: i:] ]
+
+Could Vim9 be smarter here?
+Suggestion:  Make `:` be always parsed as a separator between 2 indexes, unless it's doubled.
+If someone wants to use `:` for a variable scope inside a slice, they should double it:
+
+    l[b:c]
+       ^
+       separator between 2 indexes whose values are the variables "b" and "c"
+
+    l[b::c]
+       ^^
+       separator between the buffer namespace and the "c" variable in that namespace
+
+I think it would fix inconsistencies.  In particular, I think the error messages
+would be easier to understand.
+Find inconsistencies in the way ":" is currently parsed in a slice, and examples
+of error messages which are hard to understand.
+Make sure the new design would not suffer from other issues.
+
+---
+
+If this  is changed, and you  need to refactor  your Vim9 script, look  for this
+pattern:
+
+    \C\<def\>\%(\%(enddef\)\@!\_.\)*\zs\[[^:\]]*:[^:\]]\+\]
+
+Note that it gives some false positives.
+
 ##
+## ?
+
+   > <							*E1092*
+   > Declaring more than one variable at a time, using the unpack notation, is
+   > currently not supported: >
+   >         var [v1, v2] = GetValues()  # Error!
+   > That is because the type needs to be inferred from the list item type, which
+   > isn't that easy.
+
+It works at the script level:
+
+    vim9script
+    var [x, y] = [123, 'string']
+    echom x y
+    123 string~
+
+---
+
+    vim9script
+    def Func()
+        var [x, y] = [123, 'string']
+        echom x y
+    enddef
+    Func()
+    E1092: Cannot use a list for a declaration~
+
+Expected.
+
+    vim9script
+    def Func()
+        var [a, b]: [number, string]
+        [a, b] = [123, 'string']
+        echom a b
+    enddef
+    Func()
+    E1092: Cannot use a list for a declaration~
+
+Expected, but could it be made to work.
+
+Rationale: Sometimes, it would make the code much less verbose.
+
+Compare:
+
+    vim9script
+    def Func()
+        var a: number
+        var b: string
+        var c: list<number>
+        var d: dict<string>
+        [a, b, c, d] = [12, 'hello', [3, 4], #{key: 'world'}]
+        echom a b c d
+    enddef
+    Func()
+
+Vs:
+
+    vim9script
+    def Func()
+        var [a, b, c, d]: [number, string, list<number>, dict<string>]
+        [a, b, c, d] = [12, 'hello', [3, 4], #{key: 'world'}]
+        echom a b c d
+    enddef
+    Func()
+
 ## ?
 
 According to the help, these functions accept a funcref as an argument:
@@ -1236,7 +1431,7 @@ Conclusion:  Nothing works.
 vim9script
 
 def FuncWithForwardCall()
-    let Funcref = function('DefinedLater')
+    var Funcref = function('DefinedLater')
     echo Funcref
 enddef
 
@@ -1250,7 +1445,7 @@ FuncWithForwardCall()
 vim9script
 
 def FuncWithForwardCall()
-    let Funcref = DefinedLater
+    var Funcref = DefinedLater
     echo Funcref
 enddef
 
@@ -1352,7 +1547,7 @@ Why?
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
-        let mylist = [1, 2, 3]
+        var mylist = [1, 2, 3]
         mylist
             ->len()
     EOF
@@ -1366,30 +1561,12 @@ Why?
 
 Is it a bug?  Should Vim look for `->` on the next line before raising `E492`?
 
-## ?
-
-Recently, Vim9 has introduced the `:var` keyword for declarations.
-It's probably inspired from JS/TS.
-
-Right now, `:let` and `:var` are still interchangeable.
-That might change.
-
-Read this: <https://www.typescriptlang.org/docs/handbook/variable-declarations.html>
-
-Maybe we  should open  a report to  ask that the  difference between  `:var` and
-`:let` which are present in JS/TS are reproduced in Vim9.
-
----
-
-Also, there is no help tag for `:var`.
-When you run `:h :var`, you jump to the help tag for `a:var`.
-
 ##
 ## ?
 ```vim
 vim9script
 def Func()
-    let s:d = 123
+    var s:d = 123
 enddef
 defcompile
 ```
@@ -1529,15 +1706,15 @@ dictionary.
 ## ?
 ```vim
 vim9script
-let s:d = {'key': 0}
-let s:d.key = 123
+var s:d = {'key': 0}
+var s:d.key = 123
 ```
     ✔
 ```vim
 vim9script
-let s:d = {'key': 0}
+var s:d = {'key': 0}
 def Func()
-    let s:d.key = 123
+    var s:d.key = 123
 enddef
 defcompile
 ```
@@ -1547,7 +1724,7 @@ I'm not trying to declare a script variable; I'm trying to add a key in a dictio
 The error message is misleading.  Bug?
 ```vim
 vim9script
-let s:d = {'key': 0}
+var s:d = {'key': 0}
 def Func()
     s:d.key = 123
 enddef
@@ -1674,7 +1851,7 @@ echo get(s:, 'MYCONST', 456)
 vim9script
 g:lines =<< trim END
     vim9script
-    export let s:var = 123
+    export var s:var = 123
 END
 writefile(g:lines, '/tmp/import/foo.vim')
 set rtp+=/tmp
@@ -1696,7 +1873,7 @@ Vim9: the scope of an autoload variable is confusing
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
-        let foo#bar = 123
+        var foo#bar = 123
         echo g:
         echo s:
     EOF
@@ -1727,7 +1904,7 @@ But we *cannot* omit `g:` for an autoload variable:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
-        let foo#bar = 123
+        var foo#bar = 123
     EOF
     )
 
@@ -1987,7 +2164,7 @@ Start Vim like this:
 
     $ vim +"pu=[1, 2, 3]" +'exe "norm! gg\<c-v>G"' +'norm -m'
     :mess
-    Vim(let):E1072: Cannot compare bool with number~
+    Vim(var):E1072: Cannot compare bool with number~
 
 This error message is useless: no script name, no function name, no line number, ...
 It has  been caught  by a `catch`  clause in a  `try` conditional  in `Opfunc()`
@@ -1995,7 +2172,7 @@ which is exported in `vim-lg-lib`.
 
 Now, press `coV`, and repeat the process.  The same error is raised:
 
-    Vim(let):E1072: Cannot compare bool with number
+    Vim(var):E1072: Cannot compare bool with number
 
 It looks  like there is still  not enough info,  but if you run  `:mess`, you'll
 that we have a  whole stack trace.  Why was it not fully  printed when the error
@@ -2073,7 +2250,7 @@ Related issue: <https://github.com/vim/vim/issues/6498>
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
         def Func()
-            let d = {}
+            var d = {}
             d.key = 0
         enddef
         Func()
@@ -2089,7 +2266,7 @@ the  autoload script  in  `vim-search`;  it also  prevents  us from  eliminating
 It may be a known limitation, listed at `:h todo`:
 
    > - Assignment to dict doesn't work:
-   >       let ret: dict<string> = #{}
+   >       var ret: dict<string> = #{}
    >       ret[i] = string(i)
 
 ## ?
@@ -2396,7 +2573,7 @@ You must use `..`:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
-        let str = 'a' . 'b'
+        var str = 'a' . 'b'
     EOF
     )
 
@@ -2575,9 +2752,9 @@ Maybe  it means  that  we can't  have  2 variables  with the  same  name in  the
 script-local namespace and the function-local (or block-local) one?
 ```vim
 vim9script
-let x = 123
+var x = 123
 def Func()
-    let x = 456
+    var x = 456
 enddef
 defcompile
 ```
@@ -2589,7 +2766,7 @@ namespaces, like the global one and the function-local one:
 vim9script
 g:x = 123
 def Func()
-    let x = 456
+    var x = 456
 enddef
 defcompile
 ```
@@ -2604,7 +2781,7 @@ Update: Ok.  Is your explanation still invalidated by these snippets?
 ```vim
 vim9script
 def g:Func()
-    let Func = 0
+    var Func = 0
 enddef
 defcompile
 ```
@@ -2639,8 +2816,8 @@ index 2c4d1dbc1..05456870d 100644
  used to repeat a `:substitute` command.
 
 +							*E1066*
-+It is not allowed to assign a value to a register with `:let`. >
-+	let @a = 'my register'		# Error!
++It is not allowed to assign a value to a register with `:var`. >
++	var @a = 'my register'		# Error!
 +	@a = 'my register'		# OK
 +	setreg('a', 'my register')	# OK
 +
@@ -2691,7 +2868,7 @@ It's not documented.  There is this:
    > without `function()`. The argument types and return type will then be checked.
    > The function must already have been defined. >
 
-   >         let Funcref = MyFunction
+   >         var Funcref = MyFunction
 
    > When using `function()` the resulting type is "func", a function with any
    > number of arguments and any return type.  The function can be defined later.
@@ -2760,7 +2937,7 @@ I suspect it's working as intended, because this "assignment":
 
 is similar to:
 
-    var name = 'n'
+    let name = 'n'
     let {name} = 123
 
 Example:
@@ -3078,7 +3255,7 @@ From `:h :vim9 /common`:
 Maybe environment variables should be mentioned as well.
 
 And maybe registers (like `@r`).
-Indeed, you can't use `:let` with them; but you can't you use `:unlet` either.
+Indeed, you can't use `:var` with them; but you can't you use `:unlet` either.
 
 Also, I would rewrite the whole paragraph like this:
 
@@ -3325,7 +3502,7 @@ Some highlighting is wrong inside a block.
 ### ?
 
     vim9script
-    let winid = 1
+    var winid = 1
         ? getloclist(0, {'winid': 0}).winid
         : getqflist({'winid': 0}).winid
 
@@ -3422,13 +3599,13 @@ A similar issue applies to `call`:
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
         set lines=24
-        let opts = #{
+        var opts = #{
             pos: 'topleft',
             line: 13,
             minheight: 10,
             maxheight: 10,
             }
-        let what = ['aaa', 'bbb', 'ccc']
+        var what = ['aaa', 'bbb', 'ccc']
         popup_menu(what, opts)
     EOF
     )
@@ -3439,13 +3616,13 @@ Now, let's increment `line` by 1:
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
         set lines=24
-        let opts = #{
+        var opts = #{
             pos: 'topleft',
             line: 14,
             minheight: 10,
             maxheight: 10,
             }
-        let what = ['aaa', 'bbb', 'ccc']
+        var what = ['aaa', 'bbb', 'ccc']
         popup_menu(what, opts)
     EOF
     )
@@ -3455,31 +3632,6 @@ Is it documented or is it a bug?
 Is it specific to a popup menu, or to any regular popup window?
 If it is specific to a popup  menu, which properties trigger this behavior (pos,
 cursorline, filter, ...)?
-
-## ?
-```vim
-let id = range(1, 15)->map({_, v -> string(v)})
-    \ ->popup_create(#{
-    \     minheight: 5,
-    \     maxheight: 5,
-    \     cursorline: 1,
-    \     filter: 'popup_filter_menu',
-    \     })
-call win_execute(id, 'norm! 10G')
-```
-Expected: `10` is selected.
-Actual: `1` is selected.
-
-Workaround: use `cursor()`:
-```vim
-let id = range(1, 15)->map({_, v -> string(v)})->popup_create(#{
-    \ minheight: 5,
-    \ maxheight: 5,
-    \ cursorline: 1,
-    \ filter: 'popup_filter_menu',
-    \ })
-call win_execute(id, 'call cursor(10, 1)')
-```
 
 ## searchcount() can make Vim lag when the buffer contains a very long line
 
@@ -3575,112 +3727,6 @@ long line.  *Any* long line (even before or after) can make Vim lag.
 ---
 
 <https://github.com/vim/vim/pull/4446#issuecomment-702825238>
-
-## cannot select and center arbitrary line in popup menu
-```vim
-vim9script
-set lines=16
-let lines = range(1, &lines * 2)->map({_, v -> string(v)})
-let id = popup_menu(lines, #{
-    minheight: &lines - 5,
-    maxheight: &lines - 5,
-    })
-win_execute(id, ['cursor(17, 1)', 'norm! zz', 'redraw'])
-```
-    ✘
-    line 17 is not centered
-```vim
-vim9script
-set lines=16
-let lines = range(1, &lines * 2)->map({_, v -> string(v)})
-let id = popup_menu(lines, #{
-    minheight: &lines - 5,
-    maxheight: &lines - 5,
-    })
-win_execute(id, ['cursor(18, 1)', 'norm! zz', 'redraw'])
-```
-    ✔
-    line 18 is centered
-
----
-
-It seems that the issue is somehow triggered by the `filter` key.
-When   you  use   `popup_menu()`  instead   of  `popup_create()`,   `filter`  is
-automatically set to `popup_filter_menu`.
-If you use `popup_create()` without a filter, the issue disappears.
-Note:  it's not  just `filter`  which triggers  the issue;  it's also  the value
-`popup_filter_menu`.
-
----
-
-Update: You should not use `cursor(...)` to select a line.
-You should set `firstline`.
-```vim
-vim9script
-set lines=16
-let lines = range(1, &lines * 2)->map({_, v -> string(v)})
-popup_create(lines, #{
-    minheight: &lines - 5,
-    maxheight: &lines - 5,
-    firstline: 17,
-    })
-```
-However, `norm! zz` still fails, even with a `redraw`:
-```vim
-vim9script
-set lines=16
-let lines = range(1, &lines * 2)->map({_, v -> string(v)})
-let id = popup_create(lines, #{
-    minheight: &lines - 5,
-    maxheight: &lines - 5,
-    firstline: 17,
-    cursorline: 1,
-    })
-win_execute(id, ['norm! zz', 'redraw'])
-```
-As a workaround, we can use a timer:
-```vim
-vim9script
-set lines=16
-let lines = range(1, &lines * 2)->map({_, v -> string(v)})
-g:id = popup_create(lines, #{
-    minheight: &lines - 5,
-    maxheight: &lines - 5,
-    firstline: 17,
-    cursorline: 1,
-    })
-timer_start(0, {-> win_execute(g:id, 'norm! zz')})
-```
-But it fails again if `filter` is set:
-```vim
-vim9script
-set lines=16
-let lines = range(1, &lines * 2)->map({_, v -> string(v)})
-g:id = popup_create(lines, #{
-    minheight: &lines - 5,
-    maxheight: &lines - 5,
-    firstline: 17,
-    filter: 'popup_filter_menu',
-    cursorline: 1,
-    })
-timer_start(0, {-> win_execute(g:id, 'norm! zz')})
-```
-Unless `filter` is set via a *later* timer:
-```vim
-vim9script
-set lines=16
-let lines = range(1, &lines * 2)->map({_, v -> string(v)})
-g:id = popup_create(lines, #{
-    minheight: &lines - 5,
-    maxheight: &lines - 5,
-    cursorline: 1,
-    })
-timer_start(0, {-> win_execute(g:id, 'norm! zz')})
-timer_start(5, {-> popup_setoptions(g:id, #{filter: 'popup_filter_menu'})})
-```
-Note that you need a long enough waiting time before setting `filter`.
-Otherwise, `zz` might sometimes fail.
-5ms seems enough in practice.
 
 ## conceal character of matchadd() displayed too many times
 
@@ -4877,7 +4923,7 @@ Assuming it can be considered as a bug, I don't know whether it can be fixed.  F
         au InsertCharPre * call s:Restrict_abbreviations()
     augroup END
     def s:Restrict_abbreviations()
-        let curlnum = line('.')
+        var curlnum = line('.')
         if v:char =~ '\k'
             || s:start_insertion.col - 1 <= searchpos('[^[:keyword:]]', 'bn', curlnum)[1]
             || curlnum != s:start_insertion.lnum

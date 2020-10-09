@@ -1,6 +1,6 @@
 Moving around {{{1
-Down                     C-n
-Up                       C-p
+Down                               C-n
+Up                                 C-p
 # You can also use M-[hjkl]. {{{
 
 # But it works only:
@@ -14,61 +14,61 @@ Up                       C-p
 #      (e.g. it doesn't work in the list
 #      of opened files)
 }}}
-To process PID 1234      1234
-Find by name             /
+To process PID 1234                1234
+Find by name                       /
 # While in search mode, pressing F3 will
 # cycle through matching occurrences
-Follow                   F
+Follow                             F
 # Useful when process moves up/down
-Start of line            ^     C-a
-End of line              $     C-e
-First line               «Home»
-Last line                «End»
+Start of line                      ^     C-a
+End of line                        $     C-e
+First line                         «Home»
+Last line                          «End»
 Sorting {{{1
-Based on cpu             P
-Based on memory          M
-Based on time            T
+Based on cpu                       P
+Based on memory                    M
+Based on time                      T
 # Minutes:Seconds.Hundredths of seconds
-Based on chosen column   .
-Reverse sorting order    I
+Based on chosen column             .
+Reverse sorting order              I
 # Mnemonic: *I*nverse
 Filtering {{{1
-Toggle user threads      H
-Toggle kernel threads    K
-Filter by user           u
-Filter by name           \ pat Enter
+Toggle user threads                H
+Toggle kernel threads              K
+Filter by user                     u
+Filter by name                     \ pat Enter
 # Only show processes with 'pat' in name
-Edit name filtering      \ C-h ...
-Cancel name filtering    \ Esc
+Edit name filtering                \ C-h ...
+Cancel name filtering              \ Esc
 Tagging {{{1
-Tag/Untag process        «Spc»
+Tag/Untag process                  «Spc»
 # Useful to send a signal to multiple
 # processes; the currently highlighted
 # process is then ignored
-Tag process + children   c
-Untag all processes      U
+Tag process + children             c
+Untag all processes                U
 Extra Information {{{1
   Tree view {{{
-Toggle tree view         t
-Collapse node            -
-Expand node              +
+Toggle tree view                   t
+Collapse node                      -
+Expand node                        +
 }}}
-Help                     ?
-Toggle full path program p
-List opened files        l
-Environment              e
-Trace system calls       s
+Help                               ?
+Toggle full path program           p
+List opened files                  l
+Environment                        e
+Trace system calls                 s
 Setting priorities {{{1
-Increase CPU priority    ]
+Increase CPU priority              ]
 # This can only be done by the superuser
-Decrease CPU priority    [
+Decrease CPU priority              [
 # To renice process to 0 from command-line:
 #     $ sudo renice -n 0 $(pidof ...)
-Set IO priority          i
+Set IO priority                    i
 # io_priority = (cpu_nice + 20) / 5
 # See also `man ionice`
 Configure {{{1
-Setup screen             S
+Setup screen                       S
 
 # To move 'PID' column:
 #

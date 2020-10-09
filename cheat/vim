@@ -52,86 +52,86 @@ About {{{1
        before a motion or a text object)
   *    Acts on text under/after cursor
 File {{{1
-Reopen last opened file  «C-o»«C-o»    N
-Convert buffer to HTML   :TOhtml       N
-Print document           :hardcopy     N
+Reopen last opened file            «C-o»«C-o»    N
+Convert buffer to HTML             :TOhtml       N
+Print document                     :hardcopy     N
   File Explorer (Netrw) {{{
-Open file/directory      «CR»         *N
-Open in horizontal split o            *N
-Open in vertical split   v            *N
-Open in a new tab        t            *N
-Open with external app   x            *N
-New file here            %             N
-New directory here       d             N
-Mark file                mf           *N
-Mark using shell glob    mr            N
-Unmark all               mu            N
-Edit marked files        me            N
-Rename file(s)           R            *N
-Delete file(s)           D            *N
-Refresh file list        «C-l»         N
-File info                qf           *N
-Toggle hidden files      a             N
-Switch file list format  i             N
-Exit file explorer       :Rex          N
+Open file/directory                «CR»         *N
+Open in horizontal split           o            *N
+Open in vertical split             v            *N
+Open in a new tab                  t            *N
+Open with external app             x            *N
+New file here                      %             N
+New directory here                 d             N
+Mark file                          mf           *N
+Mark using shell glob              mr            N
+Unmark all                         mu            N
+Edit marked files                  me            N
+Rename file(s)                     R            *N
+Delete file(s)                     D            *N
+Refresh file list                  «C-l»         N
+File info                          qf           *N
+Toggle hidden files                a             N
+Switch file list format            i             N
+Exit file explorer                 :Rex          N
 }}}
 Edit {{{1
-Paste after and align    ]p           VN
-Paste before and align   ]P           VN
+Paste after and align              ]p           VN
+Paste before and align             ]P           VN
 Text {{{1
   Objects {{{
-Around (XML) tags        at            T
-Inside (XML) tags        it            T
-Around < and >           a<            T
-Inside < and >           i<            T
-Around backticks         a`            T
-Inside backticks         i`            T
+Around (XML) tags                  at            T
+Inside (XML) tags                  it            T
+Around < and >                     a<            T
+Inside < and >                     i<            T
+Around backticks                   a`            T
+Inside backticks                   i`            T
 }}}
-Hard-wrap (cursor moves) gq            O
-Hard-wrap (cursor stays) gw            O
-Format current line      gww           N
-Join with next line      J             N
-Ditto, preserve spaces   gJ            N
-Sort+remove duplicates   :sort u       V
+Hard-wrap (cursor moves)           gq            O
+Hard-wrap (cursor stays)           gw            O
+Format current line                gww           N
+Join with next line                J             N
+Ditto, preserve spaces             gJ            N
+Sort+remove duplicates             :sort u       V
 View {{{1
   Scrolling {{{
-Scroll right             ‹n›zl         N
-Scroll left              ‹n›zh         N
-Scroll » half a screen   zL            N
-Scroll « half a screen   zH            N
+Scroll right                       ‹n›zl         N
+Scroll left                        ‹n›zh         N
+Scroll » half a screen             zL            N
+Scroll « half a screen             zH            N
 }}}
-Edit buffer ‹n›          ‹n›«C-^»      N
-Get file info            «C-g»         N
-Line/word/char count     g«C-g»       VN
+Edit buffer ‹n›                    ‹n›«C-^»      N
+Get file info                      «C-g»         N
+Line/word/char count               g«C-g»       VN
 Go {{{1
-Jump to next blank line  }             M
-Jump to prev blank line  {             M
-Jump to begin of block   [{            M
-Jump to end of block     ]}            M
-Jump to end of section   ]]            M
-Jump to beg. of section  [[            M
-Jump to specified tag    :tag …        N
-Jump to tag definition   «C-]»        *N
-Ditto, but show choices  g]           *N
-Jump or show choices     g«C-]»       *N
-To next matching tag     :tn           N
-To prev matching tag     :tp           N
-View all marks           :marks        N
-Remove marks             :delmarks …   N
+Jump to next blank line            }             M
+Jump to prev blank line            {             M
+Jump to begin of block             [{            M
+Jump to end of block               ]}            M
+Jump to end of section             ]]            M
+Jump to beg. of section            [[            M
+Jump to specified tag              :tag …        N
+Jump to tag definition             «C-]»        *N
+Ditto, but show choices            g]           *N
+Jump or show choices               g«C-]»       *N
+To next matching tag               :tn           N
+To prev matching tag               :tp           N
+View all marks                     :marks        N
+Remove marks                       :delmarks …   N
 Window {{{1
-New horizontal split     :new          N
-Ditto                    «C-w»«C-n»    N
-Edit top window          «C-w»«C-t»    N
-Edit bottom window       «C-w»«C-b»    N
+New horizontal split               :new          N
+Ditto                              «C-w»«C-n»    N
+Edit top window                    «C-w»«C-t»    N
+Edit bottom window                 «C-w»«C-b»    N
 Tabs  {{{1
-Go to tab n              ‹n›gt         N
-Go to previous tab       g‹tab›        N
-Close all other tabs     :tabo         N
-List tabs                :tabs         N
-Move window to new tab   «C-w»T        N
-Open one tab per buffer  :tab ball     N
+Go to tab n                        ‹n›gt         N
+Go to previous tab                 g‹tab›        N
+Close all other tabs               :tabo         N
+List tabs                          :tabs         N
+Move window to new tab             «C-w»T        N
+Open one tab per buffer            :tab ball     N
 Help {{{1
-Help on highlight test   :h hitest.vim N
-List of digraphs         :digraphs     N
-List all syntax items    :syn          N
+Help on highlight test             :h hitest.vim N
+List of digraphs                   :digraphs     N
+List all syntax items              :syn          N
 Misc {{{1
