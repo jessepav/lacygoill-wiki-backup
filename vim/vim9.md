@@ -1359,16 +1359,17 @@ The issue is due to:
 
 Source: <https://github.com/vim/vim/issues/6401#issuecomment-655071515>
 
-## I hesitate between writing a lambda and an eval string.  Which one is the fastest?
+## What's the fastest between
+### a lambda and an eval string?
 
-Inside a `:def` function, lambdas are significantly faster:
+Inside a `:def` function, a lambda is significantly faster:
 
     $ vim -es -Nu NONE -i NONE -U NONE -S <(cat <<'EOF'
         vim9script
 
         def Lambda()
             var time = reltime()
-            range(999999)->map({_, v-> v + 1})
+            range(999999)->map({_, v -> v + 1})
             setline(1, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run lambdas')
         enddef
         Lambda()
@@ -1388,13 +1389,13 @@ Inside a `:def` function, lambdas are significantly faster:
     0.467 seconds to run lambdas~
     0.706 seconds to run eval strings~
 
-But at the script level, lambdas are significantly slower:
+But at the script level, a lambda is significantly slower:
 
     $ vim -es -Nu NONE -S <(cat <<'EOF'
         vim9script
 
         var time = reltime()
-        range(999999)->map({_, v-> v + 1})
+        range(999999)->map({_, v -> v + 1})
         setline(1, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run lambdas')
 
         var _time = reltime()
@@ -1410,6 +1411,105 @@ But at the script level, lambdas are significantly slower:
     0.669 seconds to run eval strings~
 
 Conclusion: always use lambdas, but make sure to write them inside `:def` functions.
+
+### a `map()` and a for loop?
+
+Inside a `:def` function, a for loop is significantly faster:
+
+    $ vim -es -Nu NONE -i NONE -U NONE -S <(cat <<'EOF'
+        vim9script
+        var mylist = pow(10, 6)->float2nr()->range()
+
+        def Lambda()
+            var time = reltime()
+            map(mylist, {_, v -> v + 1})
+            setline(1, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run Lambda()')
+        enddef
+        Lambda()
+
+        def ForLoop()
+            var time = reltime()
+            var i = 0
+            for _ in mylist
+                mylist[i] = mylist[i] + 1
+                i += 1
+            endfor
+            setline(2, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run ForLoop()')
+        enddef
+        ForLoop()
+
+        :%p
+        qa!
+    EOF
+    )
+
+    0.417 seconds to run Lambda()~
+    0.235 seconds to run ForLoop()~
+
+But at the script level, a for loop is significantly slower:
+
+    $ vim -es -Nu NONE -i NONE -U NONE -S <(cat <<'EOF'
+        vim9script
+        var mylist = pow(10, 6)->float2nr()->range()
+
+        var time = reltime()
+        map(mylist, {_, v -> v + 1})
+        setline(1, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run Lambda()')
+
+        time = reltime()
+        var i = 0
+        for _ in mylist
+            mylist[i] = mylist[i] + 1
+            i += 1
+        endfor
+        setline(2, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run ForLoop()')
+
+        :%p
+        qa!
+    EOF
+    )
+
+    0.868 seconds to run Lambda()~
+    5.891 seconds to run ForLoop()~
+
+Conclusion: on huge lists (>= 10^4 items), prefer a `for` loop, but make sure to
+write it  inside a  `:def` function.
+
+However, note  that the performance  gain brought by a  `for` loop might  not be
+always as significant as in the previous simple test.  Example:
+
+    $ vim -es -Nu NONE -i NONE -U NONE -S <(cat <<'EOF'
+        vim9script
+        var mylistlist = pow(10, 6)->float2nr()->range()->map({_, v -> [0, 0, 0, 0, 0]})
+
+        def Lambda()
+            var time = reltime()
+            map(mylistlist, {_, v -> map(v, {_, w -> w + 1})})
+            setline(1, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run Lambda()')
+        enddef
+        Lambda()
+
+        def ForLoop()
+            var time = reltime()
+            var i = 0
+            for item in mylistlist
+                map(item, {_, v -> v + 1})
+                i += 1
+            endfor
+            setline(2, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run ForLoop()')
+        enddef
+        ForLoop()
+
+        :%p
+        qa!
+    EOF
+    )
+
+    2.743 seconds to run Lambda()~
+    2.490 seconds to run ForLoop()~
+
+The results might  also depend on the size of  the inner lists/dictionaries, and
+the type of transformation you perform...
 
 ##
 ## Vim complains that it doesn't know the function-local variable I'm referring to!
@@ -1701,6 +1801,21 @@ enddef
 Func()
 ```
     v:true
+
+##
+## I can't declare multiple variables on a single line, using the unpack notation!
+
+There is no way around that.
+
+At some point in the future, it might be implemented though:
+
+   > I don't like it, too complicated.  Either type inferrence should work,
+   > or the types should be declared separately.
+
+Source: <https://github.com/vim/vim/issues/6494#issuecomment-661320805>
+
+Note that this limitation is specific to declarations; not to assignments.  IOW,
+you *can* use the unpack notation to *assign* multiple variables on a single line.
 
 ##
 # Todo
@@ -2086,6 +2201,116 @@ Solution: use `:silent` *after* `:execute`.
     noautocmd execute "silent normal! `[\<c-v>`]y"
                        ^----^
                          ✔
+
+### nested closures don't always work
+```vim
+vim9script
+def Func()
+    var n = 123
+    echo {-> {-> n}()}()
+enddef
+Func()
+```
+    1
+    ^
+    ✘
+    it should be 123
+
+Workaround:
+
+Move the definition of the nested lambda outside the outer lambda:
+```vim
+vim9script
+def Func()
+    var n = 123
+    var Inner = {-> n}
+    echo {-> Inner()}()
+enddef
+Func()
+```
+    123
+
+You can keep the nested reference; but not the nested definition.
+```vim
+vim9script
+def Func()
+    var j = 34
+    echo {i -> {-> [i, j]}()}(12)
+enddef
+Func()
+```
+    [12, 1]
+
+---
+
+For more info, see: <https://github.com/vim/vim/issues/7150>
+
+### why we have "inconsistent" messages when using a wrong type of argument with the "-" and "+" operators
+```vim
+vim9script
+eval '' - 1
+```
+    at runtime:
+    E1030: Using a String as a Number
+```vim
+vim9script
+def Func()
+    eval '' - 1
+enddef
+Func()
+```
+    at compile time:
+    E1036: - requires number or float arguments
+```vim
+vim9script
+def Func()
+    eval '' + 1
+enddef
+Func()
+```
+    at compile time:
+    E1051: Wrong argument type for +
+
+First, the context is different in the  first snippet.  In the latter, the error
+occurs at runtime.  In the next snippets, the error occurs at compile time.  Vim
+knows more about the  types at runtime than at compile time;  so, it kinda makes
+sense that the error messages are different.
+
+Second, `+` has 2 meanings: it can  be used as an arithmetic operator to perform
+an addition,  or as a  list concatenation operator.   So, again, it  kinda makes
+sense that Vim raises a different error for `+` than for `-`.
+
+<https://github.com/vim/vim/issues/7167#issuecomment-714620921>
+
+### a function-local function is implemented as a lambda function
+
+At least,  that's what  it seems  when reading  an error  message raised  from a
+function-local function:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def Func()
+            def Nested()
+                eval [][0]
+            enddef
+            Nested()
+        enddef
+        Func()
+    EOF
+    )
+
+    Error detected while compiling command line..script /proc/3556/fd/11[8]..function <SNR>1_Func[4]..<lambda>1:
+
+It's not a bug and it can't be fixed.
+The concept of function local to another function didn't exist in Vim script legacy.
+A function-local function can't have a public name like "Nested".
+It would mean that you can invoke it from the command-line.  That's not possible.
+
+Fortunately, that's not an issue for `vim-stacktrace`.
+That's because we can still retrieve the definition site of such a function:
+
+    " still works
+    :verb function {'<lambda>123'}
 
 ###
 ### the difference between using or omitting `function()` when saving a funcref in a variable
@@ -2504,6 +2729,16 @@ timer_start(0, {-> win_execute(s:id, '')})
 I guess  that's because the callback  is not run  in the context of  the current
 script.  Still, shouldn't/couldn't Vim9 be smarter?
 
+### workarounds to unlet a script-local variable
+
+If you  use a script-local  variable as some sort  of cache, and  you're worried
+that it  might consume too  much memory,  you can simply  reset the cache  to an
+empty value (list, dictionary, blob...).
+
+Otherwise,  if you  really want  the reference  not to  exist anymore,  the only
+workaround I  can think  of is to  turn your variable  into a  dictionary's key.
+Then, when you want to delete the reference, remove the key from the dictionary.
+
 ###
 ### imported items are local to the script
 
@@ -2785,3 +3020,68 @@ defcompile
 ```
     E1003: Missing return value
 
+###
+### in a composite value, "function()" suppresses type checking at compile time
+```vim
+vim9script
+def Func()
+    var l: list<number>
+    l = ['', function('len')]
+enddef
+defcompile
+```
+    no error
+```vim
+vim9script
+def Func()
+    var d: dict<number>
+    d = #{aa: '', bb: function('len')}
+enddef
+defcompile
+```
+    no error
+
+That's because `function()` is not considered a constant:
+<https://github.com/vim/vim/issues/7171#issuecomment-712315593>
+
+Not sure what that means...
+
+---
+
+Anyway, as a result, this might cause an error to be shadowed:
+```vim
+vim9script
+def Func()
+    var l: list<string>
+    l = ['', function('len')]
+    eval l[0] - 1
+enddef
+Func()
+```
+    line 3:
+    E1036: - requires number or float arguments
+
+The first error is not this one.
+The first error is:
+
+    line 2:
+    E1012: Type mismatch; expected list<string> but got list<any>
+
+This might make debugging harder; especially when the lines are far away from each other:
+```vim
+vim9script
+def Func()
+    var l: list<string>
+    # ...
+    # many lines of code
+    # ...
+    # FIRST ERROR
+    l = ['', function('len')]
+    # ...
+    # many lines of code
+    # ...
+    # REPORTED ERROR
+    eval l[0] - 1
+enddef
+Func()
+```

@@ -356,7 +356,7 @@ Could it be made possible in Vim9 script?
 
 Right now we need to use `[-1]` which looks weird.
 Besides, I think it doesn't work anymore in Vim9 script.
-So, we'll have to which `? '': ''`, which looks cumbersome.
+So, we'll have to use `? '': ''`, which looks cumbersome.
 
 Update:
 
@@ -517,70 +517,86 @@ pattern:
 
 Note that it gives some false positives.
 
-##
-## ?
+#### Prevent all commands from parsing a bar as part of their argument.
 
-   > <							*E1092*
-   > Declaring more than one variable at a time, using the unpack notation, is
-   > currently not supported: >
-   >         var [v1, v2] = GetValues()  # Error!
-   > That is because the type needs to be inferred from the list item type, which
-   > isn't that easy.
+For the list of commands which parse a bar as part of their argument, see `:h :bar`.
 
-It works at the script level:
+It would make Vim's behavior easier to understand and predict, and avoid this kind of pitfalls:
+<https://vi.stackexchange.com/questions/10954/vimception-why-does-reading-the-output-of-executing-the-current-file-cause-recu>
 
-    vim9script
-    var [x, y] = [123, 'string']
-    echom x y
-    123 string~
+And if one needs to group a sequence of commands, make them use a block `{}`.  Instead of writing this:
+
+    :g/pat/d | t$
+
+We would write this:
+
+    :g/pat/{d | t$}
+
+The idea comes from:
+<https://vi.stackexchange.com/questions/27234/what-are-the-benefits-of-using-vi-or-vim-over-ides-and-other-text-editors/27236#comment49005_27236>
 
 ---
 
-    vim9script
-    def Func()
-        var [x, y] = [123, 'string']
-        echom x y
-    enddef
-    Func()
-    E1092: Cannot use a list for a declaration~
+This would be useful in a script, but even more useful in an interactive usage.
+However, on the command-line, the Vim9 syntax is not available.
+How about  adding a boolean option  (`'cmdlinevim9'`?) which – when  set – would
+parse a command-line typed interactively with the Vim9 syntax?
 
-Expected.
+##
+## ?
 
-    vim9script
-    def Func()
-        var [a, b]: [number, string]
-        [a, b] = [123, 'string']
-        echom a b
-    enddef
-    Func()
-    E1092: Cannot use a list for a declaration~
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        writefile([''], '/tmp/file')
+        au BufWinEnter * sil! invalid
+        def Func()
+            setqflist([], ' ', #{lines: ['/tmp/file'], efm: '%f'})
+            copen
+        enddef
+        Func()
+        cclose
+        Func()
+    EOF
+    )
 
-Expected, but could it be made to work.
+Expected: The qf window is open.
+Actual: The qf window is not open.
 
-Rationale: Sometimes, it would make the code much less verbose.
+---
 
-Compare:
+The issue disappears when `Func()` is re-written in Vim script legacy:
 
-    vim9script
-    def Func()
-        var a: number
-        var b: string
-        var c: list<number>
-        var d: dict<string>
-        [a, b, c, d] = [12, 'hello', [3, 4], #{key: 'world'}]
-        echom a b c d
-    enddef
-    Func()
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        writefile([''], '/tmp/file')
+        au BufWinEnter * sil! invalid
+        fu Func()
+            call setqflist([], ' ', #{lines: ['/tmp/file'], efm: '%f'})
+            copen
+        endfu
+        Func()
+        cclose
+        Func()
+    EOF
+    )
 
-Vs:
+---
 
-    vim9script
-    def Func()
-        var [a, b, c, d]: [number, string, list<number>, dict<string>]
-        [a, b, c, d] = [12, 'hello', [3, 4], #{key: 'world'}]
-        echom a b c d
-    enddef
-    Func()
+Workaround:
+
+Use `:noa` before `setqflist()`:
+```vim
+vim9script
+writefile([''], '/tmp/file')
+au BufWinEnter * sil! invalid
+def Func()
+    noa setqflist([], ' ', #{lines: ['/tmp/file'], efm: '%f'})
+    copen
+enddef
+Func()
+cclose
+Func()
+```
 
 ## ?
 
@@ -2521,19 +2537,6 @@ the code is not run inside a function; so there is no `l:` dictionary.
 
 ## ?
 
-<https://github.com/vim/vim/issues/7019>
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var to_x: number
-        to_x = 0
-    EOF
-    )
-
-    E492: Not an editor command:     to_x = 0~
-
-## ?
-
 How do we ask for the definition of a nested function?
 Can't use `:def`:
 ```vim
@@ -2562,6 +2565,106 @@ defcompile
     E1086: Cannot use :function inside :def
 
 Bug?
+
+## ?
+
+```vim
+vim9script
+def Func()
+    var mylist = [1, 2, 3]
+    mylist
+        ->copy()
+        ->setline(1)
+enddef
+Func()
+```
+This snippet raises `E476`:
+
+    E476: Invalid command: mylist
+```vim
+vim9script
+def Func()
+    var mylist = [1, 2, 3]
+    mylist->copy()
+        ->setline(1)
+enddef
+Func()
+```
+This snippet doesn't raise any error.
+
+If Vim is able to look for `->` on the next line in the second snippet, could it do the same in the first snippet?
+
+---
+
+Workaround: use `:eval`.
+```vim
+vim9script
+def Func()
+    var mylist = [1, 2, 3]
+    eval mylist
+        ->copy()
+        ->setline(1)
+enddef
+Func()
+```
+## ?
+```vim
+vim9script
+def Func()
+    var l: list<number>
+    extend(l, ['x'])
+enddef
+Func()
+```
+    no error
+
+<https://github.com/vim/vim/issues/7160#issuecomment-712327173>
+
+## cannot suppress nor catch error in custom popup filter
+```vim
+vim9script
+def Filter(winid: number, key: string)
+    if key == 'o'
+        silent! invalid
+        return true
+    endif
+    return popup_filter_menu(winid, key)
+enddef
+popup_create('TEST', #{filter: Filter})
+feedkeys("o\r\r", 'nt')
+```
+    ✘ the 'o' keypress has not been discarded
+    ✘ E476 has been logged in ":mess"
+```vim
+vim9script
+def Filter(winid: number, key: string)
+    if key == 'o'
+        try
+            invalid
+        catch
+        endtry
+        return true
+    endif
+    return popup_filter_menu(winid, key)
+enddef
+popup_create('TEST', #{filter: Filter})
+feedkeys("o\r\r", 'nt')
+```
+    ✘ the 'o' keypress has not been discarded
+    ✘ E476 has been logged in ":mess"
+
+<https://github.com/vim/vim/issues/7178#issuecomment-714442958>
+
+Update: Since  8.2.1894, Vim9  supports `silent`  and `silent!`,  but the  first
+snippet still doesn't work as expected.  Bug?
+
+## ?
+
+How to get proper syntax highlighting for Vim9 code on github?
+
+   1. <https://stackoverflow.com/a/8886392/9780968>
+   2. <https://github.com/github/linguist/issues/1874#issuecomment-66876794>
+   3. <https://github.com/SalGnt/Sublime-VimL>
 
 ##
 ## documentation
@@ -3632,6 +3735,44 @@ Is it documented or is it a bug?
 Is it specific to a popup menu, or to any regular popup window?
 If it is specific to a popup  menu, which properties trigger this behavior (pos,
 cursorline, filter, ...)?
+
+## make popup_filter_menu() support C-n and C-p to select neighbor items
+
+Patch (untested):
+```diff
+diff --git a/src/popupwin.c b/src/popupwin.c
+index ed964568d..b6dfcd849 100644
+--- a/src/popupwin.c
++++ b/src/popupwin.c
+@@ -2380,9 +2380,9 @@ f_popup_filter_menu(typval_T *argvars, typval_T *rettv)
+     res.v_type = VAR_NUMBER;
+ 
+     old_lnum = wp->w_cursor.lnum;
+-    if ((c == 'k' || c == 'K' || c == K_UP) && wp->w_cursor.lnum > 1)
++    if ((c == 'k' || c == 'K' || c == K_UP || c == Ctrl_P) && wp->w_cursor.lnum > 1)
+ 	--wp->w_cursor.lnum;
+-    if ((c == 'j' || c == 'J' || c == K_DOWN)
++    if ((c == 'j' || c == 'J' || c == K_DOWN || c == Ctrl_N)
+ 		       && wp->w_cursor.lnum < wp->w_buffer->b_ml.ml_line_count)
+ 	++wp->w_cursor.lnum;
+     if (old_lnum != wp->w_cursor.lnum)
+```
+Submit a PR.
+
+But how would we justify this change?  Is it a widely adopted convention?
+Aside  from emacs  (and readline  where  `C-n`, `C-p`  lets us  navigate in  the
+history), which programs support these shortcuts?
+
+Suggestion:  `C-n`  and `C-p` are useful  when you implement a  popup menu which
+reacts to all printable characters (e.g.  fuzzy finder).  In that case, we can't
+use `j` and  `k` to select another item.   We need to use `Up`  and `Down`.  But
+those keys are not on the homerow.  OTOH,  `n` and `p` are still on the homerow.
+although,  you  need  to press  a  modifier;  but  the  keyboard layout  can  be
+configured for the control keysym to be more accessible.
+And even if it's not, I would argue  that moving a hand to reach control is less
+cumbersome, then moving the hand to reach an arrow key.
+
+Question:  Should we support `C-j` and `C-k` too?
 
 ## searchcount() can make Vim lag when the buffer contains a very long line
 

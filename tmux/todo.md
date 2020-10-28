@@ -517,6 +517,11 @@ Could we write some  script which would make tmux capture the  pane, then send a
 key to tig to scroll down 1 screen, then capture the new screen and append it to
 the previous capture, etc. until the end of the help is reached?
 
+## get support for hyperlinks
+
+Apparently, a recent `ls(1)` supports this in some way:
+<https://github.com/tmux/tmux/pull/2403#issuecomment-710684858>
+
 #
 # study how v, V, C-v behave in Vim when we're already in visual mode; try to make tmux copy-mode consistent
 

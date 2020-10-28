@@ -2222,7 +2222,10 @@ Read our comments above the statement:
 
 inside `lg#styled_comment#syntax()`
 
-Relevant issue: https://github.com/vim/vim/issues/1265
+Relevant issue: <https://github.com/vim/vim/issues/1265>
+
+See also:
+<https://github.com/vim/vim/issues/7199#issuecomment-716140895>
 
 ## ?
 

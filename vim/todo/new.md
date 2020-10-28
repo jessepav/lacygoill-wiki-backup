@@ -111,9 +111,13 @@ To learn how to use `matchfuzzy()`, study this plugin:
    - `:h DiffUpdated`
    - `:h DirChanged`
    - `:h ExitPre`
+   - `:h InsertLeavePre`
    - `:h SigUSR1`
    - `:h SourcePost`
    - `:h TextChangedP`
+
+Note: `InsertLeave` is fired right *after* leaving insert mode.
+`InsertLeavePre` is fired right *before* leaving insert mode.
 
 # options
 

@@ -355,6 +355,66 @@ But  the  path `tmp`  can't  match  the pattern  `/tmp`,  so  `find` can't  find
 anything.
 
 ##
+# locate(1)
+## What's the difference between `locate(1)` and `mlocate(1)`?
+
+`locate(1)` is the GNU findutils implementation.
+`mlocate(1)` is another implementation.
+
+`locate(1)` builds an index of world-readable files only (unless you run it from
+your account), whereas  `mlocate(1)` builds an index of all  files but only lets
+the calling user  see files that it could access.   This makes `mlocate(1)` more
+useful in most circumstances.
+
+For more info, see: <https://unix.stackexchange.com/a/273283/289772>
+
+### Which one is installed by default on Ubuntu?
+
+`mlocate(1)`; it should be installed at:
+
+    /usr/bin/mlocate
+
+#### How is its db updated?
+
+Through a cron job:
+
+    /etc/cron.daily/mlocate
+
+##
+## What controls which binary is invoked when I execute `$ locate`?  (2)
+
+First `$PATH`, then – possibly – the alternatives system.
+
+To see how the `locate` command is configured in the latter:
+
+    $ update-alternatives --list locate
+    $ update-alternatives --display locate
+    $ update-alternatives --query locate
+
+## What should I do if I install a locally compiled `locate(1)`?
+
+Make sure its db is updated regularly.
+
+---
+
+By default, Ubuntu will only update  `mlocate(1)`'s db.  If necessary, install a
+custom cron job to update the db of your locally compiled `locate(1)`.
+
+## How to find out where is the db of the utility?
+
+Use `strace(1)`:
+
+    $ strace -o /tmp/locate.trace locate pattern
+
+Last time I checked, `mlocate(1)` looked for its db at:
+
+    /var/lib/mlocate/mlocate.db
+
+While `locate(1)` looked at:
+
+    /var/lib/slocate/slocate.db
+
+##
 # Todo
 
 Read this: <http://mywiki.wooledge.org/UsingFind>

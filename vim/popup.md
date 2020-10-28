@@ -721,6 +721,8 @@ from reading the end of long lines when previewing a help tag in a popup.
 
 Write some recipe/plugin.
 
+## Refactor the "p" mapping in help buffers so that it uses a popup window
+
 ## Read `:h popup` in its entirety?
 
 Or maybe just document the main concepts and functions.

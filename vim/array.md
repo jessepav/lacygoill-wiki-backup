@@ -580,7 +580,7 @@ If the items of the list are scalars, use `copy()`:
     echo alist
     [1, 2]~
 
-If the items of the list are non-scalars, use `deepcopy()`:
+If the items of the list have a composite type, use `deepcopy()`:
 
     let alist = [1, [2, 3]]
     let blist = deepcopy(alist)
@@ -593,6 +593,11 @@ If the items of the list are non-scalars, use `deepcopy()`:
     let blist[1].n += 1
     echo alist
     [1, {'n': 2}]~
+
+TODO: I think you should revisit this answer.
+We need `deepcopy()` if and only if we make *mutate* at least one item in the list.
+If we simply *replace* items, `copy()` is still enough.
+This matters when you want to optimize your code; `deepcopy()` is a bit slower.
 
 ####
 #### The next code mutates a dictionary so that the numbers in its list values are doubled.
