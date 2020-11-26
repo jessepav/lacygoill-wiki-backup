@@ -32,7 +32,7 @@ Open a help buffer, then run:
     ''~
 
     :setl bt?
-    ''~
+    help~
 
 The values are different because `'buftype'` has a local and a global value.
 
@@ -139,8 +139,7 @@ The only exceptions are `'stl'`, `'so'`, and `'siso'`, which are global or local
 ---
 
 In the  next answers, whenever  we mention a buffer,  in reality we  should have
-written “buffer or window”.
-But it makes the sentences too cumbersome.
+written “buffer or window”.  But it makes the sentences too cumbersome.
 
 ###
 ### How is a global-local option different compared to a buffer-local one?
@@ -157,8 +156,7 @@ The global value is applied in the buffer.
 ### What's the difference between removing the local value, and making it copy the global value?
 
 Suppose that you are in a buffer A, and you make the local value copy the global
-value.
-Then, later, you change the global value from another buffer B, via `:set`.
+value.  Then, later, you change the global value from another buffer B, via `:set`.
 
 The change will *not* affect A.
 It will only affect how the option is initialized in new buffers.

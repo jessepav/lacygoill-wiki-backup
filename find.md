@@ -402,17 +402,36 @@ custom cron job to update the db of your locally compiled `locate(1)`.
 
 ## How to find out where is the db of the utility?
 
-Use `strace(1)`:
+             --statistics
+             vv
+    $ locate -S
+    Database /var/lib/mlocate/mlocate.db:~
+            146,450 directories~
+            1,341,910 files~
+            93,700,044 bytes in file names~
+            36,545,111 bytes used to store database~
 
-    $ strace -o /tmp/locate.trace locate pattern
+##
+## How to force the pattern to be matched against the filename, not the whole path?
 
-Last time I checked, `mlocate(1)` looked for its db at:
+    $ locate -b PATTERN
+             ^^
+             --basename
 
-    /var/lib/mlocate/mlocate.db
+## How to find the file(s) whose name is exactly 'foobar'?
 
-While `locate(1)` looked at:
+    $ locate -b '\foobar'
+                 ^
 
-    /var/lib/slocate/slocate.db
+From `man mlocate`:
+
+   > If any PATTERN contains no globbing characters, locate  behaves  as  if
+   > the pattern were `*`PATTERN`*`.
+
+So, to disable this behavior, all you need is a globbing character which doesn't
+change the pattern.  A backslash seems to fit the bill.
+
+For more info, see `man mlocate /EXAMPLES`.
 
 ##
 # Todo

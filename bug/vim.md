@@ -1,6 +1,63 @@
 <https://github.com/vim/vim/blob/master/runtime/doc/vim9.txt>
 <https://github.com/vim/vim/blob/master/runtime/doc/todo.txt>
 
+# ?
+
+I suspect that invoking `map()` to turn source lines into dictionaries is costly.
+But we only need to do that for 3 sources:
+
+    ┌──────────┬─────────────────────┐
+    │ sources  │ extra info needed   │
+    ├──────────┼─────────────────────┤
+    │ Commands │ trailing + location │
+    ├──────────┼─────────────────────┤
+    │ HelpTags │            location │
+    ├──────────┼─────────────────────┤
+    │ Mappings │ trailing + location │
+    └──────────┴─────────────────────┘
+
+Notice that those sources should be rather short.
+From a few hundreds to – at most – 10 to 20 thousands (for help tags).
+As a result, it should not be too costly to turn their lines into dictionaries.
+
+OTOH,  for a  source like  `Files`,  which can  include millions  of lines,  the
+process might  be too  costly (in  addition to  being useless;  we don't  need a
+`trailing` key,  nor a `location`  key, when we fuzzy  search through a  list of
+files).
+
+Conclusion: One  way  to  optimize  our  code   would  be  to  turn  lines  into
+dictionaries *only* when really necessary.
+
+---
+
+For sources which require a `trailing` and/or a `location` key, could we get rid
+of those keys?
+
+---
+
+In the future, we might also have other sources:
+
+    BCommits (git commits for the current buffer)
+    BLines (lines in the current buffer)
+    BTags (tags in the current buffer)
+    Buffers (open buffers)
+    Commits (git commits)
+    GFiles (git files; `git ls-files`)
+    GFiles? (git files; `git status`)
+    Lines (lines in loaded buffers)
+    Marks
+    RecentExCommands
+    RecentSearchCommands
+    Registers
+    Rg
+    Snippets
+    Tags (tags in the project)
+    Unichar (unicode characters)
+    Windows (open windows)
+
+For which ones would we need a `trailing` key and/or a `location` one?
+
+##
 # Vim9
 ## Plan
 
@@ -352,17 +409,30 @@ But we can't refer to a function-local variable (and probably function).
 Could it be made possible in Vim9 script?
 
 ### Misc
-#### provide a construct to evaluate an expression and discard its value in an <expr> or `C-r =` mapping
+#### provide a construct to evaluate an expression and discard its value in an `<expr>` or `C-r =` mapping
 
 Right now we need to use `[-1]` which looks weird.
-Besides, I think it doesn't work anymore in Vim9 script.
+Besides, it  doesn't work anymore in  Vim9 script when applied  to an expression
+which evaluates to a number:
+```vim
+vim9script
+def Func(): any
+    feedkeys('q', 'in')[-1]
+enddef
+Func()
+```
+    E1107: String, List, Dict or Blob required
+
 So, we'll have to use `? '': ''`, which looks cumbersome.
 
-Update:
+---
 
-   > Besides, I think it doesn't work anymore in Vim9 script.
-
-You sure?  Find an example.
+Btw, why is the error different at the script level?
+```vim
+vim9script
+feedkeys('q', 'in')[-1]
+```
+    E1062: Cannot index a Number
 
 #### Allow `'.'` as a shorthand for `col('.')` whenever a function argument expects a column number.
 
@@ -386,7 +456,7 @@ Look for which functions:
    - don't support `'.'` as a shorthand, but would benefit from it
    - expect a `{row}` and/or `{col}` argument which describe *cells* positions
 
-#### Vim9: should we make the second index in a slice exclusive?
+#### should we make the second index in a slice exclusive?
 
 This is not a bug report nor a feature request.  Just a discussion about whether it would be beneficial for Vim9 to change how the second index in a slice is parsed.
 
@@ -543,61 +613,6 @@ How about  adding a boolean option  (`'cmdlinevim9'`?) which – when  set – w
 parse a command-line typed interactively with the Vim9 syntax?
 
 ##
-## ?
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        writefile([''], '/tmp/file')
-        au BufWinEnter * sil! invalid
-        def Func()
-            setqflist([], ' ', #{lines: ['/tmp/file'], efm: '%f'})
-            copen
-        enddef
-        Func()
-        cclose
-        Func()
-    EOF
-    )
-
-Expected: The qf window is open.
-Actual: The qf window is not open.
-
----
-
-The issue disappears when `Func()` is re-written in Vim script legacy:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        writefile([''], '/tmp/file')
-        au BufWinEnter * sil! invalid
-        fu Func()
-            call setqflist([], ' ', #{lines: ['/tmp/file'], efm: '%f'})
-            copen
-        endfu
-        Func()
-        cclose
-        Func()
-    EOF
-    )
-
----
-
-Workaround:
-
-Use `:noa` before `setqflist()`:
-```vim
-vim9script
-writefile([''], '/tmp/file')
-au BufWinEnter * sil! invalid
-def Func()
-    noa setqflist([], ' ', #{lines: ['/tmp/file'], efm: '%f'})
-    copen
-enddef
-Func()
-cclose
-Func()
-```
-
 ## ?
 
 According to the help, these functions accept a funcref as an argument:
@@ -2263,30 +2278,6 @@ Related issue: <https://github.com/vim/vim/issues/6498>
 
 ## ?
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            var d = {}
-            d.key = 0
-        enddef
-        Func()
-    EOF
-    )
-
-    Not supported yet: d.key = 0~
-
-This  error  is  annoying.   It  prevents  us  from  refactoring  the  start  of
-the  autoload script  in  `vim-search`;  it also  prevents  us from  eliminating
-`strpart()` in `ccomplete.vim`.
-
-It may be a known limitation, listed at `:h todo`:
-
-   > - Assignment to dict doesn't work:
-   >       var ret: dict<string> = #{}
-   >       ret[i] = string(i)
-
-## ?
-
 By default, a function is local to the current script, right?
 
 Does that remain true for:
@@ -2536,38 +2527,6 @@ This is expected.  And the reason why the error message is different, is because
 the code is not run inside a function; so there is no `l:` dictionary.
 
 ## ?
-
-How do we ask for the definition of a nested function?
-Can't use `:def`:
-```vim
-vim9script
-def Outer()
-    def Inner()
-        echo 'inner'
-    enddef
-    def Inner
-enddef
-defcompile
-```
-    E1073: Name already defined: Inner
-
-Can't use `:fu` because it's disallowed in a `:def` function:
-```vim
-vim9script
-def Outer()
-    def Inner()
-        echo 'inner'
-    enddef
-    fu Inner
-enddef
-defcompile
-```
-    E1086: Cannot use :function inside :def
-
-Bug?
-
-## ?
-
 ```vim
 vim9script
 def Func()
@@ -2608,63 +2567,163 @@ enddef
 Func()
 ```
 ## ?
-```vim
-vim9script
-def Func()
-    var l: list<number>
-    extend(l, ['x'])
-enddef
-Func()
-```
-    no error
-
-<https://github.com/vim/vim/issues/7160#issuecomment-712327173>
-
-## cannot suppress nor catch error in custom popup filter
-```vim
-vim9script
-def Filter(winid: number, key: string)
-    if key == 'o'
-        silent! invalid
-        return true
-    endif
-    return popup_filter_menu(winid, key)
-enddef
-popup_create('TEST', #{filter: Filter})
-feedkeys("o\r\r", 'nt')
-```
-    ✘ the 'o' keypress has not been discarded
-    ✘ E476 has been logged in ":mess"
-```vim
-vim9script
-def Filter(winid: number, key: string)
-    if key == 'o'
-        try
-            invalid
-        catch
-        endtry
-        return true
-    endif
-    return popup_filter_menu(winid, key)
-enddef
-popup_create('TEST', #{filter: Filter})
-feedkeys("o\r\r", 'nt')
-```
-    ✘ the 'o' keypress has not been discarded
-    ✘ E476 has been logged in ":mess"
-
-<https://github.com/vim/vim/issues/7178#issuecomment-714442958>
-
-Update: Since  8.2.1894, Vim9  supports `silent`  and `silent!`,  but the  first
-snippet still doesn't work as expected.  Bug?
-
-## ?
 
 How to get proper syntax highlighting for Vim9 code on github?
 
    1. <https://stackoverflow.com/a/8886392/9780968>
    2. <https://github.com/github/linguist/issues/1874#issuecomment-66876794>
    3. <https://github.com/SalGnt/Sublime-VimL>
+
+## ?
+```vim
+vim9script
+var d: dict<any>
+def Func()
+    extend(d, {'key': 123})
+    echom d
+enddef
+Func()
+```
+    E1133: Cannot extend a null dict
+    <https://github.com/vim/vim/issues/7251#issuecomment-721652873>
+```vim
+vim9script
+def Func()
+    var d: dict<any>
+    extend(d, {'key': 123})
+    echom d
+enddef
+Func()
+```
+    {'key': 123}
+
+Why  can  we extend  a  null  dictionary when  it's  used  for a  function-local
+variable, but not when it's used for a script-local variable?
+
+---
+```vim
+vim9script
+var l: list<any>
+def Func()
+    extend(l, [123])
+    echom l
+enddef
+Func()
+```
+    E1134: Cannot extend a null list
+```vim
+vim9script
+var l: list<any>
+def Func()
+    l += [123]
+    echom l
+enddef
+Func()
+```
+    [123]
+
+Why can we extend a null list with `+=` but not with `extend()`?
+
+## ?
+
+    vim9script
+    echo 123 || 0
+
+    E1023: Using a Number as a Bool: 123~
+    E1050: Colon required before a range~
+
+The first error is expected, but not the second one.
+Is it a regression?
+
+## ?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var lines =<< trim END
+            one
+            two
+            three
+        END
+        setline(1, lines)
+        cursor('2', 1)
+    EOF
+    )
+
+    expected: an error is raised because cursor() expects numbers, not strings;
+              or the cursor jumps on line 2
+    actual: no error is raised; the cursor stays on line 1
+
+Relevant todo item at `:h todo /builtin`:
+
+   > - Check many more builtin function arguments at compile time.
+
+## ?
+
+Can't refer to a function-local function in the replacement field of a substitution command.
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def Func()
+            def Rep(): string
+                return 'replacement'
+            enddef
+            s/.*/\=Rep()/
+        enddef
+        Func()
+    EOF
+    )
+
+    E117: Unknown function: Rep~
+
+Should/Could it work?
+It would be nice if it could work.
+
+Workaround: use `:exe`
+```vim
+vim9script
+def Func()
+    def Rep(): string
+        return 'replacement'
+    enddef
+    exe 's/.*/' .. Rep() .. '/'
+enddef
+Func()
+```
+Limitation:  Doesn't work if the replacement refers to a capturing group.
+```vim
+vim9script
+setline(1, 'order reversed')
+def Func()
+    def Rep(): string
+        return submatch(2) .. submatch(1)
+    enddef
+    s/\(\w*\) \(\w*\)/\=Rep()/
+enddef
+Func()
+```
+    E117: Unknown function: Rep~
+
+## ?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def Func(): job
+            return map(['a', 'b'], {_, v -> 'string'})
+        enddef
+        defcompile
+    EOF
+    )
+
+    E1012: Type mismatch; expected job but got list<any>
+                                               ^-------^
+                                                   ✘
+
+
+I would expect this error instead:
+
+    E1012: Type mismatch; expected job but got list<string>
+                                               ^----------^
+                                                     ✔
 
 ##
 ## documentation
@@ -2750,6 +2809,11 @@ too?
 
 If `any` can have a negative impact  on the function's performance, it should be
 mentioned, so that users don't abuse the `any` type.
+
+---
+
+Note  that since  [8.2.1956](https://github.com/vim/vim/releases/tag/v8.2.1956),
+we can also specify the types of the arguments in a lambda.
 
 ### 136
 
@@ -3002,17 +3066,14 @@ Func()
 ```vim
 vim9script
 def Func()
-    :sil %d
+    sil :%d
 enddef
 Func()
 ```
     ✔
 
-Shouldn't `:silent`  be enough to prevent  Vim from parsing/confusing `%`  as an
+Shouldn't `silent`  be enough to  prevent Vim  from parsing/confusing `%`  as an
 operator?
-
-Maybe it's because modifiers have not been implemented yet.
-<https://github.com/vim/vim/issues/6530#issuecomment-663903048>
 
 ### 350
 
@@ -3746,7 +3807,7 @@ index ed964568d..b6dfcd849 100644
 +++ b/src/popupwin.c
 @@ -2380,9 +2380,9 @@ f_popup_filter_menu(typval_T *argvars, typval_T *rettv)
      res.v_type = VAR_NUMBER;
- 
+
      old_lnum = wp->w_cursor.lnum;
 -    if ((c == 'k' || c == 'K' || c == K_UP) && wp->w_cursor.lnum > 1)
 +    if ((c == 'k' || c == 'K' || c == K_UP || c == Ctrl_P) && wp->w_cursor.lnum > 1)
@@ -3869,86 +3930,44 @@ long line.  *Any* long line (even before or after) can make Vim lag.
 
 <https://github.com/vim/vim/pull/4446#issuecomment-702825238>
 
-## conceal character of matchadd() displayed too many times
+## global command can use alphabetic delimiter
 
 **Describe the bug**
-
-Sometimes, the conceal character used in a match installed by `matchadd()` is displayed too many times.
 
 **To Reproduce**
 
 Run this shell command:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
-        let lines =<< trim END
-            aaa|bbb|ccc
-            aaa|bbb|ccc
-            aaa|bbb|ccc
-        END
-        call setline(1, lines)
-        call matchadd('Conceal', '^..', 10, -1, #{conceal: 'X'})
-        syn match foobar '^.'
-        setl cocu=n cole=1
+        vim9script
+        setline(1, ['aaa', 'bbb']->repeat(3))
+        g x^bxd_
     EOF
     )
 
-The conceal character `X` is displayed twice.
+The `bbb` lines have been deleted.
 
 **Expected behavior**
 
-The conceal character `X` is displayed once.
+No line is deleted, and the global command fails because a space is an alphanumeric character, which should be disallowed as a delimiter.  It is for substitution commands (as documented at `:h pattern-delimiter`); it would make sense to be also disallowed for global commands.
 
 **Environment**
 
- - Vim version: 8.2 Included patches: 1-1712
+ - Vim version: 8.2 Included patches: 1-1962
  - OS: Ubuntu 16.04.7 LTS
- - Terminal: xterm(359)
+ - Terminal: xterm(361)
 
 **Additional context**
 
-Regression introduced in [8.0.0672](https://github.com/vim/vim/releases/tag/v8.0.0672).
-
----
-
-I found this issue while trying to conceal the middle column in a location window, when the location list has been set by an `:ltag` command.
+If we try to use a space as a delimiter in a substitution command, `E146` is raised:
 ```vim
-syn on
-let items = [#{lnum: 1, col: 1, filename: '/tmp/file', text: 'some text'}]
-call setqflist([], ' ', #{items: items})
-copen
-call matchadd('Conceal', '|.\{-}|', 10, -1, #{conceal: '|'})
-setl cocu=n cole=1
+vim9script
+setline(1, ['aaa', 'bbb']->repeat(3))
+:%s x^bxrepx
 ```
-This time, the conceal character (`|`) is displayed 3 times, instead of once.
-
----
-
-Patch adding a test:
-
-    ~/Vcs/vim/src/testdir/test_conceal.vim
-
-## ":g" can use an alphabetic delimiter
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        setline(1, ['aaa', 'bbb']->repeat(3))
-        sil g x^bxd_
-        getline(1, '$')->assert_equal(['aaa', 'aaa', 'aaa'])
-        echo v:errors
-    EOF
-    )
-
-It works but it should not.
-Instead, this error should be raised:
-
     E146: Regular expressions can't be delimited by letters
 
-Just like with `:s`:
-
-    :%s x^bxrepx
-
-It  seems that  if  `:g` (not  `:s`)  is followed  by  a space,  we  can use  an
-alphabetic delimiter.
+Maybe the same error should be raised with a global command.
 
 ## mapping regression
 

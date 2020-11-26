@@ -99,7 +99,7 @@ At runtime.
 At compile time.
 
 ###
-### How to postpone type checking for a `:def` function to runtime?
+### How to postpone type checking for a `:def` function until runtime?
 
 Whenever you need to specify a type, use `any`:
 
@@ -294,16 +294,113 @@ This shows that Vim can look for a function invoked from the script level in the
 imported namespace.
 
 ####
-## When can I delete a `:def` function?
+## When can I
+### redefine a `:def` function?
 
-Always, except if it's local to a Vim9 script.
+Only if it's global:
 ```vim
 vim9script
+def g:Func()
+    echo 'first'
+enddef
+def! g:Func()
+    echo 'second'
+enddef
+g:Func()
+```
+    second
+
+Note that you need to append a bang to the second `:def`.
+
+---
+
+For all other scopes, a function can't be redefined, even after appending a bang to `:def`:
+```vim
+vim9script
+ # block-local
+def Outer()
+    if 1
+        def Inner()
+            echo 'first'
+        enddef
+        def! Inner()
+            echo 'second'
+        enddef
+        Inner()
+    endif
+enddef
+Outer()
+```
+    E1117: Cannot use ! with nested :def
+```vim
+vim9script
+ # function-local
+def Outer()
+    def Inner()
+        echo 'first'
+    enddef
+    def! Inner()
+        echo 'second'
+    enddef
+    Inner()
+enddef
+Outer()
+```
+    E1117: Cannot use ! with nested :def
+```vim
+vim9script
+ # script-local
+def Func()
+    echo 'first'
+enddef
+def! Func()
+    echo 'second'
+enddef
+```
+    E477: No ! allowed
+```vim
+vim9script
+ # imported
+mkdir('/tmp/import', 'p')
+
+var lines =<< trim END
+    vim9script
+    export def Func()
+        echo 'first'
+    enddef
+END
+writefile(lines, '/tmp/import/a.vim')
+
+lines =<< trim END
+    vim9script
+    export def! Func()
+        echo 'second'
+    enddef
+END
+writefile(lines, '/tmp/import/b.vim')
+
+set rtp+=/tmp
+import Func from 'a.vim'
+import Func from 'b.vim'
+```
+    E477: No ! allowed
+    E1044: Export with invalid argument
+
+### delete a `:def` function?
+
+When it's global or local to a legacy script:
+```vim
 def s:Func()
 enddef
 delfu s:Func
 ```
-    E1084: Cannot delete Vim9 script function s:Func
+    ✔
+```vim
+def g:Func()
+enddef
+delfu g:Func
+```
+    ✔
 ```vim
 vim9script
 def g:Func()
@@ -311,29 +408,66 @@ enddef
 delfu g:Func
 ```
     ✔
-```vim
-def s:Func()
-enddef
-delfu s:Func
-```
-    ✔
-```vim
-def g:Func()
-enddef
-delfu g:Func
-```
-    ✔
 
-### What about a `:fu` function?
-
-Same answer: always, except if it's local to a Vim9 script.
+But not if it's local to a Vim9 script:
 ```vim
 vim9script
+def Func()
+enddef
+delfu Func
+```
+    E1084: Cannot delete Vim9 script function Func
+
+Nor if it's local to a function or a block:
+```vim
+vim9script
+def Outer()
+    def Inner()
+        echo 'Inner'
+    enddef
+    delfu Inner
+enddef
+Outer()
+```
+    E130: Unknown function: Inner
+```vim
+vim9script
+def Outer()
+    if 1
+        def Inner()
+            echo 'Inner'
+        enddef
+        delfu Inner
+    endif
+enddef
+Outer()
+```
+    E130: Unknown function: Inner
+
+#### What about a `:fu` function?
+
+Always, except when the function is local to a Vim9 script:
+```vim
+vim9script
+fu Func()
+endfu
+delfu Func
+```
+    E1084: Cannot delete Vim9 script function Func
+
+---
+```vim
 fu s:Func()
 endfu
 delfu s:Func
 ```
-    E1084: Cannot delete Vim9 script function s:Func
+    ✔
+```vim
+fu g:Func()
+endfu
+delfu g:Func
+```
+    ✔
 ```vim
 vim9script
 fu g:Func()
@@ -342,15 +476,27 @@ delfu g:Func
 ```
     ✔
 ```vim
-fu s:Func()
+vim9script
+fu Outer()
+    fu Inner()
+        echo 'Inner'
+    endfu
+    delfu Inner
 endfu
-delfu s:Func
+Outer()
 ```
     ✔
 ```vim
-fu g:Func()
+vim9script
+fu Outer()
+    if 1
+        fu Inner()
+            echo 'Inner'
+        endfu
+        delfu Inner
+    endif
 endfu
-delfu g:Func
+Outer()
 ```
     ✔
 
@@ -1043,7 +1189,7 @@ And here again, no error is raised, because `x` is assigned a value:
 
 See `:h type-inference`.
 
-### When should I not omit the type, even though it's allowed?
+### When should I *not* omit the type, even though it's allowed?
 
 When you declare a variable by assigning it an empty list or dictionary.
 
@@ -1077,10 +1223,11 @@ And when you do so, Vim automatically assigns an empty list.
 
 Otherwise, if you just write `var x = []`, it's exactly as if you had written:
 
-    var x: any
-           ^^^
+    var x: list<any>
+                ^^^
 
-Which might prevent some optimizations at compile time.
+Which might  prevent some  optimizations to  be performed or  some errors  to be
+caught, at compile time.
 
 ##
 ## Which operands are accepted by the logical operators:
@@ -1101,6 +1248,30 @@ are automatically coerced into numbers.
 ### ! and ??
 
 Any type of value.
+
+##
+## What's the evaluation of `'bàr'[1]`
+### in Vim script legacy?
+
+A byte:
+
+    <c3>
+
+That's because:
+
+   - `à` is a multibyte character (press `g8` on `à`, and you'll read `c3 a0`)
+
+   - in Vim script legacy, a string index refers to bytes;
+     thus, `[1]` refers to the 2nd *byte* in the string `bàr`
+
+### in Vim9 script?
+
+A character:
+
+    à
+
+That's because in Vim9 script, a string  index refers to a character; thus `[1]`
+refers to the 2nd *character* in the string `bàr`.
 
 ##
 ## `:h vim9` says that `'ignorecase'` is not used for comparators that use strings.
@@ -1125,6 +1296,116 @@ Func()
 ```
     v:true
 
+###
+## What's shadowing?
+
+If you  *try* to  use the  same name  to define  2 variables  or 2  functions in
+different  namespaces, then  we say  that the  one in  the most  local namespace
+*shadows* the other one.
+
+Shadowing is disallowed in Vim9 script, although this restriction could be relaxed
+in some cases in the future: <https://github.com/vim/vim/issues/6585#issuecomment-667580469>
+
+---
+
+For example:
+```vim
+vim9script
+var name = 'script-local'
+def Func()
+    var name = 'function-local'
+enddef
+defcompile
+```
+    E1054: Variable already declared in the script: name
+
+Here, the function-local variable `name` shadows the script-local variable `name`.
+```vim
+vim9script
+def Outer()
+    def Func()
+        echo 'function-local'
+    enddef
+    if 1
+        def Func()
+            echo 'block-local'
+        enddef
+    endif
+enddef
+Outer()
+```
+    E1073: name already defined: Func()
+
+Here, the block-local `Func()` shadows the function-local `Func()`.
+```vim
+vim9script
+def Func()
+    echo 'script level'
+enddef
+def Outer()
+    def Func()
+        echo 'function-local'
+    enddef
+    Func()
+enddef
+Outer()
+```
+    E1073: name already defined: Func()
+
+Here, the function-local `Func()` shadows the script-local `Func()`.
+```vim
+vim9script
+mkdir('/tmp/import', 'p')
+var lines =<< trim END
+    vim9script
+    export def Func()
+        echo 'imported'
+    enddef
+END
+writefile(lines, '/tmp/import/foo.vim')
+set rtp+=/tmp
+def Func()
+    echo 'script level'
+enddef
+import Func from 'foo.vim'
+```
+    E1073: name already defined: Func
+
+And here, the script-local `Func()` shadows the imported `Func()`.
+
+### I can use the name of a global item for an item in another namespace:
+```vim
+vim9script
+g:name = 'global'
+var name = 'script-local'
+echo name
+```
+    script-local
+```vim
+vim9script
+def g:Func()
+    echom 'global'
+enddef
+def Func()
+    echom 'script-local'
+enddef
+Func()
+```
+    script-local
+
+### Doesn't this contradict the rule that shadowing is disallowed?
+
+No, because it's not a "real" shadowing; you need to write the prefix `g:` for a
+global item; thus,  the names are not exactly identical  (`name` != `g:name` and
+`Func` != `g:Func`): <https://github.com/vim/vim/issues/7170#issuecomment-712386861>
+
+Besides, we can already do that in Vim script legacy; so this design decision is
+consistent.
+
+Finally, no matter which name you choose  for a non-global item, there is always
+the  possibility that  it's  already  used in  the  global  namespace; thus,  it
+wouldn't make much sense to disallow this type of shadowing.
+
 ##
 # Pitfalls
 ## My function prints an unexpected error message!  (an error is missing, the order of the errors looks wrong, ...)
@@ -1133,7 +1414,15 @@ Your error message is probably correct.
 You have to remember that an error can  be raised at compile time or at runtime,
 and that the latter step occurs after the former.
 
-To be sure, write `:defcompile` at the end of your script.
+Check whether the error message contains the keyword "processing" or "compiling":
+
+    Error detected while processing ...
+                         ^--------^
+
+    Error detected while compiling ...
+                         ^-------^
+
+Or, write `:defcompile` at the end of your script.
 
 ---
 
@@ -1151,8 +1440,8 @@ Func([1, 2, 3])
 
 You might think the error message is wrong, and instead expect this one:
 
-    E1012: type mismatch, expected list<any> but got float
-                          ^------------------------------^
+    E1012: type mismatch, expected float but got list<number>
+                          ^---------------------------------^
 
 But the error message is fine.  It's raised at compile time, not at runtime.
 You can check this by writing `:defcompile` at the end:
@@ -1820,15 +2109,118 @@ you *can* use the unpack notation to *assign* multiple variables on a single lin
 ##
 # Todo
 ## To refactor:
+### maybe make sure a variable name starting with an underscore is not used
+
+    \C\<var _\S\|\<def.*\%(, \|(\)_\S
+
+Sometimes, we have created and used a variable name starting with an underscore.
+This  looks wrong,  because it  goes against  a convention  which I  think we've
+followed so far; i.e. a variable name  starting with an underscore should not be
+used.
+
+Sometimes, we've  used a variable  name starting with  an underscore to  avoid a
+clash with a function argument:
+
+    def Func(name: number)
+        var _name = ...
+            ^
+            ✘
+
+In those cases, I suggest you use the prefix `arg` for the argument:
+
+              ✔
+             v--v
+    def Func(arg_name: number)
+        var name = ...
+
 ### eval strings into lambdas
 
 But make sure they're inside a `:def` function first.
 Don't worry, a lambda in a `:def` function is not slower than an eval string; on
 the contrary, it's faster.
 
-Look for the pattern `v:val`.
+Look for the pattern `v:val\|v:key`.
 
-### prefix all `:import` commands with `:silent!`?
+Update: We have very few `v:val` and `v:key` in our config.
+Refactor all  `:fu` functions which include  a `v:val` or `v:key`  into a `:def`
+function, then refactor the eval strings into lambdas.
+
+Also, consider updating `:RefVim9` so that  it populates a location list for all
+the `v:val` and `v:key`.
+
+---
+
+While I was  trying to refactor a legacy function  (`s:next_fold()`) into a Vim9
+function to get rid of `v:val`:
+
+    ~/.vim/plugged/vim-fold/autoload/fold/motion.vim:136
+
+I've come across a bug in `:RefVim9`:
+
+    ~/.vim/plugged/vim-vim/autoload/vim/refactor/vim9.vim:551
+
+The issue is that the `assignments`  loclist is missing some assignments and has
+duplicate entries.
+
+Here is what I think is a MWE:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var lines =<< trim END
+            foo xxx
+            xxx foo
+            foo xxx
+            xxx foo
+        END
+        writefile(lines, '/tmp/file')
+        sil e /tmp/file
+        vim /\_.*\zsfoo/gj %
+        cw
+    EOF
+    )
+
+I think the issue comes from the `*` quantifier:
+
+    vim /\_.*\zsfoo/gj %
+            ^
+            ✘
+
+We should use a lazy quantifier:
+
+    vim /\_.\{-}\zsfoo/gj %
+            ^--^
+             ✔
+```vim
+vim9script
+var lines =<< trim END
+    foo xxx
+    xxx foo
+    foo xxx
+    xxx foo
+END
+writefile(lines, '/tmp/file')
+sil e /tmp/file
+vim /\_.\{-}\zsfoo/gj %
+cw
+```
+It's better, but we still have a few duplicate entries.
+Why?
+
+Once you understand everything, fix the issue in `:RefVim9`.
+Also, check whether we've made the kind of mistake elsewhere.
+
+### check whether we could remove a few `extend()` in our Vim9 scripts
+
+Now that Vim9 provides a better support for dictionaries...
+
+### eliminate the `#{}` syntax for literal dictionaries
+
+Refactor as many legacy functions/scripts in Vim9 so that we don't use the `#{}`
+syntax for literal dictionaries anymore.  It is confusing to read 2 syntaxes for
+dictionaries.  In  Vim9 script,  since 8.2.2015  and 8.2.2017,  there is  only 1
+syntax left: `{}`. If you need a key to be evaluated, use square brackets.
+
+### maybe prefix all `:import` commands with `:silent!`
 
 And what about the imported functions?
 When we call them,  should we prefix the calls with `:silent!`  too, in case the
@@ -1887,6 +2279,23 @@ Also, replace `v:true` with `true`, and `v:false` with `false` when possible.
 
 Also, remove `:call` in autocmds, at script level, ... (but not in mappings).
 
+### should we make sure to never declare a null dictionary / list?
+
+    # ✘
+    var somedict: dict<any>
+
+    # ✔
+    var somedict: dict<any> = {}
+                            ^--^
+
+Rationale:  We've often triggered bugs because of null dictionaries / lists.
+Also, we can't extend a null dictionary / list in a `:def` function:
+<https://github.com/vim/vim/issues/7251#issuecomment-721652873>
+
+### should we specify the types of the arguments in a lambda?
+
+This is possible since [8.2.1956](https://github.com/vim/vim/releases/tag/v8.2.1956).
+
 ##
 ## To understand:
 ### How to change the type of a variable?
@@ -1915,175 +2324,6 @@ Last time I tried, it didn't work.
 
 ##
 ## To document:
-### string indexes are counted in characters
-
-<https://github.com/vim/vim/commit/e3c37d8ebf9dbbf210fde4a5fb28eb1f2a492a34>
-
-### cannot define 2 functions with same name in 2 different namespaces (shadowing)
-
-<https://github.com/vim/vim/issues/6585#issuecomment-667580469>
-
-For example, we can't shadow a function-local function with a block-local one.
-```vim
-vim9script
-def Outer()
-    def Func()
-        echo 'function-local'
-    enddef
-    if 1
-        def Func()
-            echo 'block-local'
-        enddef
-    endif
-enddef
-Outer()
-```
-    E1073: name already defined: Func()
-
----
-
-We can't shadow a script-level function with a function-local one:
-```vim
-vim9script
-def Func()
-    echo 'script level'
-enddef
-def Outer()
-    def Func()
-        echo 'function-local'
-    enddef
-    Func()
-enddef
-Outer()
-```
-    E1073: name already defined: Func()
-
----
-
-We can't shadow an imported function with a script-local one:
-```vim
-vim9script
-mkdir('/tmp/import', 'p')
-var lines =<< trim END
-    vim9script
-    export def Func()
-        echo 'imported'
-    enddef
-END
-writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
-def Func()
-    echo 'script level'
-enddef
-import Func from 'foo.vim'
-```
-    E1073: name already defined: Func
-
----
-
-However, it is allowed to shadow a global function with a script-local one:
-```vim
-vim9script
-def g:Func()
-    echom 'global'
-enddef
-def Func()
-    echom 'script-local'
-enddef
-Func()
-```
-    script-local
-
-We can already do that in Vim script legacy; so this design decision is consistent.
-
-### cannot redefine a block-local or function-local or script-local or imported function
-```vim
-vim9script
- # block-local
-def Outer()
-    if 1
-        def Inner()
-            echo 'first'
-        enddef
-        def Inner()
-            echo 'second'
-        enddef
-        Inner()
-    endif
-enddef
-Outer()
-```
-    E1073: name already defined: Inner()
-```vim
-vim9script
- # function-local
-def Outer()
-    def Inner()
-        echo 'first'
-    enddef
-    def Inner()
-        echo 'second'
-    enddef
-    Inner()
-enddef
-Outer()
-```
-    E1073: name already defined: Inner()
-```vim
-vim9script
- # script-local
-def Func()
-    echo 'first'
-enddef
-def Func()
-    echo 'second'
-enddef
-```
-    E1073: name already defined: <SNR>1_Func
-```vim
-vim9script
- # imported
-mkdir('/tmp/import', 'p')
-
-var lines =<< trim END
-    vim9script
-    export def Func()
-        echo 'first'
-    enddef
-END
-writefile(lines, '/tmp/import/a.vim')
-
-lines =<< trim END
-    vim9script
-    export def Func()
-        echo 'second'
-    enddef
-END
-writefile(lines, '/tmp/import/b.vim')
-
-set rtp+=/tmp
-import Func from 'a.vim'
-import Func from 'b.vim'
-```
-    E1073: name already defined: Func
-
-### cannot index a number
-```vim
-vim9script
-echo 0[-1]
-```
-    E1062: Cannot index a Number
-
-This matters when you write something like this:
-
-    ✘
-    return feedkeys('q', 'in')[-1]
-
-It no longer works.  Instead, write this:
-
-    ✔
-    return feedkeys('q', 'in') ? '' : ''
-
 ### cannot use the name of a function as a variable name
 ```vim
 vim9script
@@ -2188,20 +2428,6 @@ Outer()
 ```
     E1075: Namespace not supported: s:Inner()
 
-### `:silent` is ignored before `:execute`
-
-See: <https://github.com/vim/vim/issues/6530>
-
-Solution: use `:silent` *after* `:execute`.
-
-    silent noautocmd execute "normal! `[\<c-v>`]y"
-    ^----^
-      ✘
-
-    noautocmd execute "silent normal! `[\<c-v>`]y"
-                       ^----^
-                         ✔
-
 ### nested closures don't always work
 ```vim
 vim9script
@@ -2300,6 +2526,7 @@ function-local function:
     )
 
     Error detected while compiling command line..script /proc/3556/fd/11[8]..function <SNR>1_Func[4]..<lambda>1:
+                                                                                                      ^-------^
 
 It's not a bug and it can't be fixed.
 The concept of function local to another function didn't exist in Vim script legacy.
@@ -2311,6 +2538,36 @@ That's because we can still retrieve the definition site of such a function:
 
     " still works
     :verb function {'<lambda>123'}
+
+### we don't need `s:` in a lambda at the script level anymore in Vim9 script
+
+Since [8.2.2018](https://github.com/vim/vim/releases/tag/v8.2.2018).
+
+### the `#{}` syntax (literal dictionary) is going to be dropped in Vim9 script
+
+See `:h vim9 /Dictionary literals`.
+
+### trick to get the right type in a declaration without too much thinking/guessing
+
+Whenever you  wonder with which type  you should declare a  variable, function's
+argument, or function's return value, first use `any`.
+
+Once your code compiles, progressively  replace those `any` with obviously wrong
+types; e.g. `job`.
+
+You'll get an error such as:
+
+    E1013: Argument 1: type mismatch, expected job but got number
+
+Or:
+
+    E1013: Argument 1: type mismatch, expected job but got list<any>
+
+One of the types before or after "but got" will be different than `job`.
+If it is:
+
+   - not composite, then use it instead of the obviously wrong `job`
+   - composite, then replace `job` with `list<job>`, and repeat the process
 
 ###
 ### the difference between using or omitting `function()` when saving a funcref in a variable
@@ -2706,28 +2963,17 @@ be found.
 ---
 
 And what about `:var`?  When can we omit it?
-It seems we can when `s:` is explicit.
-Otherwise, we can't.
-
----
-
-I found what seems to be an exception  to the rule which states that we can omit
-`s:` in front of a variable name iff the current script is a Vim9 script:
+It seems we can when `s:` is explicit:
 ```vim
 vim9script
-var id = win_getid()
-timer_start(0, {-> win_execute(id, '')})
+s:name = 'string'
 ```
-    E121: Undefined variable: id
+Otherwise, we can't:
 ```vim
 vim9script
-var id = win_getid()
-timer_start(0, {-> win_execute(s:id, '')})
+name = 'string'
 ```
-    ✔
-
-I guess  that's because the callback  is not run  in the context of  the current
-script.  Still, shouldn't/couldn't Vim9 be smarter?
+    E492: Not an editor command: name = 'string'
 
 ### workarounds to unlet a script-local variable
 
@@ -2811,6 +3057,7 @@ var lines =<< trim END
         echo 'imported'
     enddef
 END
+mkdir('/tmp/import', 'p')
 writefile(lines, '/tmp/import/foo.vim')
 set rtp+=/tmp
 import Imported from 'foo.vim'

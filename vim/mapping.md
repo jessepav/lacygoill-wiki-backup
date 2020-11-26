@@ -3146,7 +3146,7 @@ How to get the coordinates of the start/end of the current visual selection with
 
 Use `getpos('v')` and `getcurpos()`:
 
-    xno <expr> <c-b> GetVisualSelectionGeometry()
+    xno <c-b> <cmd>call GetVisualSelectionGeometry()<cr>
     fu GetVisualSelectionGeometry() abort
         let [curpos, pos_v] = [getcurpos()[1:2], getpos('v')[1:2]]
         let control_end = curpos[0] > pos_v[0] || curpos[0] == pos_v[0] && curpos[1] >= pos_v[1]
@@ -3155,9 +3155,9 @@ Use `getpos('v')` and `getcurpos()`:
         else
             let [start, end] = [curpos, pos_v]
         endif
+        set noshowmode
         echom printf('the visual selection starts at line %d column %d and ends at line %d column %d',
             \ start[0], start[1], end[0], end[1])
-        return ''
     endfu
 
 Note  that if  you've  pressed `O`,  the  reported positions  do  not match  the
@@ -3169,10 +3169,10 @@ In any case, the  given coordinates always match the ones of  the marks `'<` and
 ---
 
 Try to use this technique in your plugin(s) instead of escaping.
-Unless they really need to update the visual marks.
+Unless they really  need to update the  visual marks, or you really  want to get
+back to normal mode.
 
-    :vim /\m\C\\e/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
-    :Cfilter! -other_plugins
+    \m\C\\e
 
 ---
 

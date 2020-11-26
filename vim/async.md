@@ -207,4 +207,7 @@ and the latter has finished its execution:
 
 Solution: save the job object into a script-local variable.
 
+Update:  Read  the original  post.  There are  still some  inconsistencies which
+might be reported as bugs.
+
 ## make `vim-fex` async

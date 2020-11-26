@@ -10,6 +10,7 @@
    - `:h interrupt()`
    - `:h listener_add()`
    - `:h listener_remove()`
+   - `:h mapnew()`
    - `:h matchfuzzy()` + `:h matchfuzzypos()`
    - `:h pum_getpos()`
    - `:h readdir()` + `:h readdirex()`

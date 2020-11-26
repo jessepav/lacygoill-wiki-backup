@@ -378,9 +378,24 @@ More generally, make  sure that any custom  command that we have  created in the
 past, and which opens a window to display some information, supports a modifier.
 
 ##
-## make sure no error is raised when we reload a scratch buffer which is in a tab page containing only 1 window
+## make sure no error is raised when
+### we reload a scratch buffer which is in a tab page containing only 1 window
 
 Find a design which prevents this possible issue.
+
+### we try to open a scratch buffer while another one is already open
+
+For example, right now, if you run:
+
+    :WordFrequency
+
+It opens a preview window.
+
+Now, if you're also debugging some code, have a `g:d_` variable, and press `!d`, this error is raised:
+
+    E590: A preview window already exists: pvw
+
+That should not happen.
 
 ##
 ## once you've come up with a design

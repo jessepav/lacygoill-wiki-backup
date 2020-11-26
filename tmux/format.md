@@ -264,6 +264,9 @@ Example:
 Do *not* use `#{>=:}` & similar.
 They are for string comparisons only.
 
+Update: Is it still true?
+<https://github.com/tmux/tmux/commit/ac5045a00f1fee2ca94aef063e6a5a3d2efce3f1>
+
 ###
 ### the equality between two strings?
 
