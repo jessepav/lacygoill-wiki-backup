@@ -1543,7 +1543,7 @@ message (as if Vim was trying to display all the error messages).
 MWE:
 
     $ touch /tmp/file && vim -Nu NONE -S <(cat <<'EOF'
-    nno cd :exe Func()<cr>
+    nno cd <cmd>exe Func()<cr>
     fu Func() abort
         try
             qall

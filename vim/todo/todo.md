@@ -12,8 +12,7 @@ I'm not sure for the rest of the time.
 I  tend to  think that  `W` should  always be  passed, but  there may  be a  few
 exceptions...
 
-    :vim /\m\Csearch\%(pos\|pair\|pairpos\)\=(\%(.*W\)\@!)\@!/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
-    Cfilter! -other_plugins
+    \m\Csearch\%(pos\|pair\|pairpos\)\=(\%(.*W\)\@!)\@!
 
 As for `z`, does it improve the perf?
 If so, should we have passed it to `search()` and `searchpos()` all the time?
@@ -57,11 +56,11 @@ In both cases, it won't wrap; `W` tells us that.
 
 Make sure we have not used `W` when we should not have in the past.
 
-    :vim /\m\Csearch\%(pos\|pair\|pairpos\)\=(\%(.*W\)\@=/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
-                                             │├─────────┘
-                                             ││
-                                             │└ there must be a W flag
-                                             └ there must be an open parenthesis
+    \m\Csearch\%(pos\|pair\|pairpos\)\=(\%(.*W\)\@=
+                                       │├─────────┘
+                                       ││
+                                       │└ there must be a W flag
+                                       └ there must be an open parenthesis
 
 ---
 
@@ -75,87 +74,10 @@ I think that if you use `search()` to:
      respect its behavior.
      For example, `}` does not wrap, so if you customize it, it should still not wrap.
 
-### use `mapnew()` instead of `map()` + `[deep]copy()`?
-
-What is the most effective?
-
-Make tests with huge nested lists/dictionaries.
-
 ##
 ## use <cmd> whenever possible
 
-    \C\<\%(map(\@!\|nm\%[ap]\|vm\%[ap]\|xm\%[ap]\|smap\|om\%[ap]\|map!\|im\%[ap]\|lm\%[ap]\|cm\%[ap]\|tma\%[p]\|nore\%[map]\|nn\%[oremap]\|vn\%[oremap]\|xn\%[oremap]\|snor\%[emap]\|ono\%[remap]\|no\%[remap]!\|ino\%[remap]\|ln\%[oremap]\|cno\%[remap]\|tno\%[remap]\)\>\c\%(.*<cmd>\)\@!\%(.*\%(<expr>\|<c-\\>e\|:.*<cr>\)\)\@=
-
----
-
-Note that:
-
-   - you don't need `<silent>` when you use `<cmd>`
-
-   - a prefix count is not translated into a range (e.g.: 3 → .,.+2); so no need of `<c-u>`
-     (`:h N:`)
-
-   - for a visual mapping, you might want to press `<esc>` before `<cmd>` so that the visual marks are set
-
-   - for a visual mode mapping starting with `:`,
-     the visual range is not automatically put at the start of the command
-
-         xno <F3> :s/pat/rep/<cr>
-         →
-         xno <F3> <cmd>*s/pat/rep/<cr>
-                       ^
-                       necessary
-
-   - you can't use `<cmd>` if the rhs contains keycodes such as `<c-r><c-w>`
-     (because they are interpreted as plain, unmapped keys)
-     note that, for some reason, `<cmd>` works fine with `<bar>` (and `<lt>`?)
-
----
-
-Cannot use `setcmdpos()` with `<cmd>`.  To document.
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        " ✔
-        " nno <F3> :abCde<c-r>=setcmdpos(3)[-1]<cr>
-        " ✘
-        nno <F3> :abCde<cmd>call setcmdpos(3)<cr>
-        call feedkeys("\<F3>")
-    EOF
-    )
-
-Also, cannot use `<plug>` with `<cmd>`:
-```vim
-vim9script
-nmap <plug>(test) :echom 'test'<cr>
-nno <F3> <cmd>call feedkeys('<plug>(test)')<cr>
-call feedkeys("\<F3>")
-```
-    E1137: <Cmd> mapping must not include <Plug> key
-
-But it can be used if it's not directly in the rhs:
-```vim
-vim9script
-nmap <plug>(test) :echom 'test'<cr>
-nno <F3> <cmd>call Func()<cr>
-def Func()
-    call feedkeys("\<plug>(test)")
-enddef
-call feedkeys("\<F3>")
-```
-    test
-
-To document.
-
----
-
-Refactor our Vim notes to use `<cmd>` as much as possible.
-
----
-
-Check whether we could remove some:
-
-   - `<silent>`
-   - `norm! gv`, `gv`
+Check whether we could remove some `norm! gv` or `gv`.
 
 ---
 

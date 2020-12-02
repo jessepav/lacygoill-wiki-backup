@@ -1904,7 +1904,7 @@ même façon que la chaîne de caractère précédant le curseur (custom).
             Utile aussi  pour redessiner l'écran  au milieu de  l'exécution d'un
             script / mapping / fonction:
 
-                    nno <key>    :call MyFunc()<cr>
+                    nno <key> <cmd>call MyFunc()<cr>
 
                     fu MyFunc()
                         let char = ''

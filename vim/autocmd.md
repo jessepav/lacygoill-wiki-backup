@@ -783,7 +783,7 @@ It may not be necessary, but it's more consistent with what we wrote here.
 Example:
 
                                     v--v
-    $ vim -Nu NONE +"au CmdWinEnter /,\? nno <buffer> cd :echom 'only for a search command-line'<cr>"
+    $ vim -Nu NONE +"au CmdWinEnter /,\? nno <buffer> cd <cmd>echom 'only for a search command-line'<cr>"
 
     " press:  q:
     "         cd

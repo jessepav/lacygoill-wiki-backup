@@ -34,7 +34,7 @@ A sequence of keys and/or Vim key codes used as the lhs of a mapping.
 
 Example:
 
-    inoremap jk <Esc>:nohl<CR>
+    inoremap jk <Esc><cmd>nohl<CR>
              ^^
              this is a mapped key sequence
 
@@ -211,7 +211,7 @@ another function invoked before/after your opfunc, but not directly from it:
     " press:  C-b
     " bar~
 
-    nno <c-b> :set opfunc=Func<bar>exe 'norm! g@_'<bar>:call FuncA()<cr>
+    nno <c-b> <cmd>set opfunc=Func<bar>exe 'norm! g@_'<bar>call FuncA()<cr>
     fu Func(_)
     endfu
     fu FuncA() abort
@@ -255,11 +255,11 @@ When a key doesn't behave exactly as expected.
 For example, witouth `t`, `Tab` and  `S-Tab` don't interact with the wildmenu in
 command-line mode (open it or cycle to the next/previous entry):
 
-    $ vim -Nu NONE +'cno <expr> <c-q> feedkeys("<tab>", "n")[-1]'
+    $ vim -Nu NONE +'cno <c-q> <cmd>call feedkeys("<tab>", "n")<cr>'
     " press ':', then 'C-q' repeatedly:  Vim inserts literal tab characters
 
-                                                          v
-    $ vim -Nu NONE +'cno <expr> <c-q> feedkeys("<tab>", "nt")[-1]'
+                                                             v
+    $ vim -Nu NONE +'cno <c-q> <cmd>call feedkeys("<tab>", "nt")<cr>'
     " press ':', then 'C-q' repeatedly:  Vim iterates over Ex commands
 
 And without  `t`, `u` doesn't automatically  open the fold where  the change was
@@ -280,7 +280,7 @@ which you probably don't want.
 MWE:
 
     ✘
-    $ vim -Nu NONE +'nno <expr> <c-b> feedkeys("ix\<esc>", "int")[-1]'
+    $ vim -Nu NONE +'nno <expr> <c-b> feedkeys("ix<esc>", "int")[-1]'
     " press:  qq
     "         C-b
     "         q
@@ -289,8 +289,8 @@ MWE:
     " expected line:   xx
 
     ✔
-    $ vim -Nu NONE +'nno <expr> <c-b> feedkeys("ix\<esc>", "in" .. (reg_recording()->empty() ? "t" : ""))[-1]'
-                                                                    ^---------------------------------^
+    $ vim -Nu NONE +'nno <expr> <c-b> feedkeys("ix<esc>", "in" .. (reg_recording()->empty() ? "t" : ""))[-1]'
+                                                                   ^---------------------------------^
 
 ---
 
@@ -301,20 +301,20 @@ Indeed, `feedkeys()` + `t` flag has no effect when invoked from `:norm`.
 
 MWE:
 
-    $ vim -Nu NONE +'nno cd :exe "norm! :call feedkeys(\"aaa\",\"t\")\r"<cr>'
+    $ vim -Nu NONE +'nno cd <cmd>exe "norm! :call feedkeys(\"aaa\",\"t\")\r"<cr>'
     " press 'cd': nothing is inserted in the buffer
 
-    $ vim -Nu NONE +'nno cd :exe "norm! :call feedkeys(\"aaa\")\r"<cr>'
+    $ vim -Nu NONE +'nno cd <cmd>exe "norm! :call feedkeys(\"aaa\")\r"<cr>'
     " press 'cd': 'aa' is inserted in the buffer
 
 This is  a contrived example, but  the issue can  be encountered in a  real life
 scenario.  For example, in the past, we had these mappings:
 
     " ~/.vim/plugged/vim-help/after/ftplugin/help.vim
-    nno <buffer><nowait><silent> q :<c-u>norm 1<space>q<cr>
+    nno <buffer><nowait> q <cmd>norm 1<space>q<cr>
 
     " ~/.vim/plugged/vim-window/plugin/window.vim
-    nno <silent><unique> <space>q :<c-u>call lg#window#quit()<cr>
+    nno <unique> <space>q <cmd>call lg#window#quit()<cr>
 
 and this function:
 
@@ -336,14 +336,14 @@ Note that you really need `:norm` to reproduce this last issue.
 For example, if you try to replace `:norm` with a second `feedkeys()`, the issue
 disappears (no matter whether you use the `t` flag in any function call):
 
-    nno cd :call feedkeys('gh', 't')<cr>
-    nno gh :call feedkeys('aaa', 'nt')<cr>
+    nno cd <cmd>call feedkeys('gh', 't')<cr>
+    nno gh <cmd>call feedkeys('aaa', 'nt')<cr>
     " press `cd`: 'aa' is inserted
 
 Also, the issue disappears if you use the `x` flag:
 
-                                                                  v
-    $ vim -Nu NONE +'nno cd :exe "norm! :call feedkeys(\"aaa\",\"tx\")\r"<cr>'
+                                                                      v
+    $ vim -Nu NONE +'nno cd <cmd>exe "norm! :call feedkeys(\"aaa\",\"tx\")\r"<cr>'
     " press 'cd': 'aa' is inserted in the buffer
 
 ##
@@ -427,7 +427,7 @@ with  a  0ms  waiting time  (or  to  emulate  a  one-shot autocmd  listening  to
 
     fu Func()
         echom 'start of Func'
-        nno <plug>(func) :echom 'delayed after Func'<cr>
+        nno <plug>(func) <cmd>echom 'delayed after Func'<cr>
         call feedkeys("\<plug>(func)")
         echom 'end of Func'
     endfu
@@ -442,8 +442,11 @@ But the `i` flag was undesirable when the typeahead was not empty:
 
                                                                         ✘
                                                                         v
-    nno cd :echom 'start rhs' \| call feedkeys("\<plug>(not_delayed)", 'i')<cr>:echom 'end rhs'<cr>
-    nno <plug>(not_delayed) :echom 'not delayed'<cr>
+    nno cd :echom 'start rhs' \| call feedkeys("\<plug>(not_delayed)", 'i')<cr><cmd>echom 'end rhs'<cr>
+    nno <plug>(not_delayed) <cmd>echom 'not delayed'<cr>
+
+    " press 'cd'
+    :mess
     start rhs~
     not delayed~
     end rhs~
@@ -504,7 +507,7 @@ In contrast, `feedkeys()` executes the keys immediately only if you pass it the 
 
 Use an empty string:
 
-    $ vim -Nu NONE +'noremap <c-e> :echom "test"<cr>'
+    $ vim -Nu NONE +'noremap <c-e> <cmd>echom "test"<cr>'
     :echo maparg('<c-e>', '')
                           ^^
 
@@ -512,7 +515,7 @@ Use an empty string:
 
 With a space:
 
-    $ vim -Nu NONE +'noremap <c-e> :echom "test"<cr>'
+    $ vim -Nu NONE +'noremap <c-e> <cmd>echom "test"<cr>'
     :echo maparg('<c-e>', '', 0, 1).mode is# ' '
                                               ^
 
@@ -521,7 +524,7 @@ With a space:
 
 Use 'o':
 
-    $ vim -Nu NONE +'ono <c-e> :echom "test"<cr>'
+    $ vim -Nu NONE +'ono <c-e> <cmd>echom "test"<cr>'
     :echo maparg('<c-e>', 'o')
                           ^-^
 
@@ -529,7 +532,7 @@ Use 'o':
 
 With 'n':
 
-    ono <expr> <c-e> Func()
+    ono <c-e> <cmd>call Func()<cr>
     fu Func()
         echom mode()
     endfu
@@ -545,7 +548,7 @@ the optional argument `1` for its output to be reliable.
 
 Then, `mode(1)` evaluates to 'no', or 'nov', or 'noV' or 'no^V'.
 
-    ono <expr> <c-e> Func()
+    ono <c-e> <cmd>call Func()<cr>
     fu Func()
         echom mode(1)
     endfu
@@ -558,7 +561,7 @@ Then, `mode(1)` evaluates to 'no', or 'nov', or 'noV' or 'no^V'.
 ##
 ## I'm saving information about this mapping:
 
-    nno <m-b> :call <sid>func()<cr>
+    nno <m-b> <cmd>call <sid>func()<cr>
     fu s:func()
         echo 'mapping is working'
     endfu
@@ -573,7 +576,7 @@ The `lhs` key is translated:
 
 This doesn't prevent you from saving/restoring a mapping:
 
-    nno <m-b> :echo 'm-b'<cr>
+    nno <m-b> <cmd>echo 'm-b'<cr>
     let save = maparg('<m-b>', 'n', 0, 1)
     nunmap <m-b>
     exe 'nno ' .. save.lhs .. ' ' .. save.rhs
@@ -604,7 +607,7 @@ boolean flags, so there's nothing to translate.
 
 ### How to fix it?
 
-    nno <m-b> :call <sid>func()<cr>
+    nno <m-b> <cmd>call <sid>func()<cr>
     fu s:func()
         echo 'mapping is working'
     endfu
@@ -806,7 +809,7 @@ the rhs of a mapping.  It doesn't need to be *exactly* the rhs of a mapping.
 
 Example:
 
-    nno <plug>(abc) :echo 'some feature'<cr>
+    nno <plug>(abc) <cmd>echo 'some feature'<cr>
     nmap cd "_yy<plug>(abc)"_yy
     echo hasmapto('<plug>(abc)', 'n')
     1~
@@ -930,12 +933,12 @@ where you restore `'opfunc'`.
 Or:
 
     nmap          {lhs}                  <plug>(named_mapping)
-    nno <silent>  <plug>(named_mapping)  {rhs}:call repeat#set("\<plug>(named_mapping)")<cr>
+    nno <silent>  <plug>(named_mapping)  {rhs}:call repeat#set('<plug>(named_mapping)')<cr>
 
 Or:
 
-    nmap          {lhs}                  <plug>(named_mapping)
-    nno <silent>  <plug>(named_mapping)  :<c-u>call Func()<cr>
+    nmap  {lhs}                  <plug>(named_mapping)
+    nno   <plug>(named_mapping)  <cmd>call Func()<cr>
 
     fu Func()
         ...
@@ -1035,12 +1038,11 @@ That's because at the latter, mappings are ignored.  From `:h pager`:
 
 ## I'm trying to install a mapping triggered when I'm at the hit-enter prompt.
 
-    nno <expr> <c-b> Func()
+    nno <c-b> <cmd>call Func()<cr>
     fu Func()
         if mode(1) is# 'r'
             echom 'I''m at the hit-enter prompt'
         endif
-        return ''
     endfu
 
     :ls
@@ -1075,12 +1077,11 @@ run, so you know that `CmdlineLeave` is always fired right before.
         let s:is_pager_open = v:true
         au SafeState * ++once let s:is_pager_open = v:false
     endfu
-    nno <expr> <c-b> {-> C_b()}()
+    nno <c-b> <cmd>eval {-> C_b()}()<cr>
     fu C_b()
         if s:is_pager_open
             echom "C-b has been pressed while the pager was open"
         endif
-        return ''
     endfu
 
     " press C-b:  nothing happens
@@ -1092,7 +1093,7 @@ run, so you know that `CmdlineLeave` is always fired right before.
 It seems that  `<expr>` is not necessary  here, but it makes the  code easier to
 understand and possibly more reliable.  If you wrote this instead:
 
-    nno <silent> <c-b> :call C_b()<cr>
+    nno <c-b> <cmd>call C_b()<cr>
 
 When pressing `C-b`, you would enter and leave the command-line which would fire
 `CmdlineLeave`  a second  time.   Then  you have  to  wonder,  when this  second
@@ -1211,9 +1212,9 @@ Or execute the commands via `@=`:
     nno <plug>(myLeader) <nop>
 
     " you can use your leader key
-    nno <plug>(myLeader)a :echo 'foo'<cr>
-    nno <plug>(myLeader)b :echo 'bar'<cr>
-    nno <plug>(myLeader)c :echo 'baz'<cr>
+    nno <plug>(myLeader)a <cmd>echo 'foo'<cr>
+    nno <plug>(myLeader)b <cmd>echo 'bar'<cr>
+    nno <plug>(myLeader)c <cmd>echo 'baz'<cr>
     ...
 
 <http://vi.stackexchange.com/a/9711/6960>
@@ -1222,17 +1223,17 @@ Or execute the commands via `@=`:
 
 `<plug>(myLeader)a` fails to override a mapping whose lhs is `<space>a`:
 
-    nno <space>a :echo 'original'<cr>
+    nno <space>a <cmd>echo 'original'<cr>
 
     nmap <space> <plug>(myLeader)
     nno <plug>(myLeader) <nop>
-    nno <plug>(myLeader)a :echo 'redefined'<cr>
+    nno <plug>(myLeader)a <cmd>echo 'redefined'<cr>
 
 In contrast, `<leader>a` would succeed:
 
     let mapleader = ' '
-    nno <space>a :echo 'original'<cr>
-    nno <leader>a :echo 'overridden'<cr>
+    nno <space>a <cmd>echo 'original'<cr>
+    nno <leader>a <cmd>echo 'overridden'<cr>
 
 ### When is it useful?
 
@@ -1247,6 +1248,104 @@ want to write sth like this instead:
 
 ##
 # Miscellaneous
+## What are 3 extra benefits of the pseudo-key `<cmd>`?
+
+It does not trigger `CmdlineEnter` nor `CmdlineLeave`.
+
+---
+
+It makes  a mapping silent, without  having to use `<silent>`;  the latter comes
+with its own pitfalls.
+
+---
+
+You don't need `<c-u>` at the start of a command-line anymore (`:h N:`).
+That's because  `<cmd>` prevents Vim  from automatically inserting a  range when
+entering  the  command-line; usually,  that  happens  when the  command-line  is
+entered from visual  mode (`:'<,'>`), or a count was  pressed (`:.,.+123`) right
+before.
+
+Note that  as a consequence, in  a visual mapping,  you might need to  write the
+visual range explicitly:
+
+    " before
+    xno <F3> :s/pat/rep/<cr>
+
+    " after
+    xno <F3> <cmd>*s/pat/rep/<cr>
+    "             ^
+    "             necessary
+
+## Between `<cmd>` and the next mandatory `<cr>`, which keycodes
+### lose their special meaning?
+
+Any keycode whose  purpose is to interact with the  command-line in some special
+way (i.e. other than just inserting a character).
+For  example,  `<c-r>=` (evaluate  expression  and  insert result),  or  `<c-w>`
+(delete previous word).
+
+That's because they are interpreted as plain, unmapped keys.
+This is documented at `:h <cmd>`:
+
+   > no user interaction is expected.
+
+---
+
+Exception:
+
+`<C-v>` keeps its special meaning (`:h c^v`).
+```vim
+nno <F3> <cmd>echo '<c-v>'<cr>
+call feedkeys("\<F3>")
+```
+    nothing is echo'ed
+```vim
+nno <F3> <cmd>echo '<c-v><c-v>'<cr>
+call feedkeys("\<F3>")
+```
+    ^V
+```vim
+### are disallowed?
+
+Most keycodes which don't have a glyph:
+
+   - function keys
+   - arrow keys
+   - `<plug>`
+   ...
+
+Presumably because they're meant to interact with Vim which is not expected.
+
+Exception: keycodes using the control or meta modifiers.
+
+#### What if I still want to write one of them between `<cmd>` and `<cr>`?
+
+Delay its translation with `<lt>`:
+```vim
+" ✘
+norm! o
+nno <F3> <cmd>call feedkeys("atest\<up>")<cr>
+call feedkeys("\<F3>")
+```
+    E1137: <Cmd> mapping must not include <Up> key
+```vim
+" ✔
+norm! o
+nno <F3> <cmd>call feedkeys("atest\<lt>up>")<cr>
+call feedkeys("\<F3>")
+```
+    'test' is inserted, and the cursor is moved 1 line up
+
+This works because the limitation only exists when the mapping is being read.
+Not afterward, when it's being typed.
+
+---
+
+Alternatively, for some keycodes, you might use another notation.
+For example, in a double-quoted string, `\<esc>` can be replaced with `\e`.
+The latter notation is also able to work around the limitation.
+
+##
 ## What's the exact effect of `set <M-d>=^[d`?
 
 It changes  how the  keys in the  typeahead buffer are  processed; it  makes Vim
@@ -1300,9 +1399,9 @@ What matters is the  order of the keys in the db; not  the order in which you've
 run your `:set <...>` commands.
 
     exe "set <F10>=\ed"
-    nno <F10> :echo 'F10 was pressed'<cr>
+    nno <F10> <cmd>echo 'F10 was pressed'<cr>
     exe "set <F5>=\ed"
-    nno <F5> :echo 'F5 was pressed'<cr>
+    nno <F5> <cmd>echo 'F5 was pressed'<cr>
     " press 'Esc' + 'd': 'F5 was pressed' is printed
 
 In the last example, the `F5` mapping was used even though the `F10` key and the
@@ -1582,6 +1681,63 @@ about `b:changedtick` for a special buffer.
          BufWritePre: 4~
          BufWritePost: 5~
 
+###
+## How to get the count given for the previous normal command?
+
+Check the value of `v:prevcount`.
+
+---
+```vim
+" v:count holds the count given for the currently executed normal command
+call feedkeys("3d:echom v:count\r")
+```
+    3~
+```vim
+" v:count is reset to 0 immediately after the normal command has been executed
+call feedkeys("3d:\r:echom v:count\r")
+```
+    0~
+```vim
+" but v:prevcount still holds the count which was given
+call feedkeys("3d:\r:echom v:prevcount\r")
+```
+    3~
+
+### The following snippet outputs 0:
+```vim
+set showcmd
+fu Opfunc(...)
+    if !a:0
+        let &opfunc = 'Opfunc'
+        return 'g@'
+    endif
+    echom v:prevcount
+endfu
+nno <expr> <c-b> Opfunc()
+ono io <cmd>norm! viw<cr>
+pu='foo bar baz'
+call feedkeys("3\<c-b>io")
+```
+    0~
+
+#### Why is it not 3?
+
+`:norm` resets the count to 0, and  when Vim processes the bottom of the opfunc,
+`:norm` has been  fully executed; which means  that the count it has  set is now
+assigned to `v:prevcount`.
+
+MWE:
+```vim
+call feedkeys("12d:norm! 34\"\r", 'n')
+call feedkeys(":echom v:prevcount\r", 'n')
+```
+    34~
+
+You might wonder why `:norm` resets the count to 0, and not to 1:
+for the same reason that `v:count` is 0 when no count was given.
+IOW, when  no count was  given, `v:prevcount`  behaves like `v:count`,  not like
+`v:count1`.
+
 ##
 # Pitfalls
 ## In xterm, Vim doesn't make the difference between `<m-g>` and `<m-G>`!
@@ -1594,12 +1750,12 @@ The shift modifier must be explicit:
 Example:
 
     ✘
-    $ vim -Nu NONE +'nno <m-g> :echo "m-g"<cr>' +'nno <m-G> :echo "m-G"<cr>'
+    $ vim -Nu NONE +'nno <m-g> <cmd>echo "m-g"<cr>' +'nno <m-G> <cmd>echo "m-G"<cr>'
     " press m-g and m-G: no difference
 
     ✔
-    $ vim -Nu NONE +'nno <m-g> :echo "m-g"<cr>' +'nno <m-s-g> :echo "m-G"<cr>'
-                                                         ^^
+    $ vim -Nu NONE +'nno <m-g> <cmd>echo "m-g"<cr>' +'nno <m-s-g> <cmd>echo "m-G"<cr>'
+                                                             ^^
     " press m-g and m-G: Vim makes the difference
 
 ##
@@ -1607,21 +1763,24 @@ Example:
 
 The terminal uses `Esc` to encode some special keys (e.g. arrow keys, function keys, ...).
 
-Now suppose you have this mapping:
+Now suppose you have these mappings:
 
-    nno <c-b><esc> :echo 'C-b Esc'<cr>
-    nno <c-b><up>  :echo 'C-b Up'<cr>
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        nno <c-b><esc> <cmd>echo 'C-b Esc'<cr>
+        nno <c-b><up>  <cmd>echo 'C-b Up'<cr>
+    EOF
+    )
 
 And you  press `C-b Up`;  instead of  using your 2nd  mapping, Vim will  use the
 first one, and insert `A` in the buffer.
 
 Here's what happens:
 
-    typed  | typeahead              | executed
-    ------------------------------------------
-    C-b Up | C-b Esc O A            |
-           | :echo 'C-b Esc' CR O A |
-           |                        | :echo 'C-b Esc' CR O A
+    typed  | typeahead                  | executed
+    ----------------------------------------------
+    C-b Up | C-b Esc O A                |
+           | <cmd>echo 'C-b Esc' CR O A |
+           |                            | <cmd>echo 'C-b Esc' CR O A
 
 Vim conflates the `Esc`  produced by the terminal when `Up`  is pressed, with an
 `Esc` typed interactively.
@@ -1745,8 +1904,8 @@ combination of `:exe` and another command:
     nno <buffer><nowait><silent> q <c-w><c-p>@=winnr('#')<cr><c-w>c
 
     " after
-    nno <buffer><nowait><silent> q :<c-u>wincmd p <bar> exe winnr('#') .. 'wincmd c'<cr>
-                                                        ^-^                ^----^
+    nno <buffer><nowait> q <cmd>wincmd p <bar> exe winnr('#') .. 'wincmd c'<cr>
+                                               ^^^                ^----^
 
 ###
 ## When should I avoid `<c-r>=` in a command-line mode mapping?
@@ -1783,13 +1942,13 @@ You need to take that into account when writing your mapping.
 ##
 ## My mapping ignores the count I prefixed it with!
 
-You may have a `:norm!` command somewhere which resets `v:count[1]` to 1.
+You may have a `:norm!` command somewhere which resets `v:count[1]` to 0/1.
 Try to  capture `v:count[1]`  as soon  as possible in  a variable;  then, always
 refer to the latter in your code (never refer to `v:count[1]`).
 
 Capture it either at the very start of the function definition:
 
-    nno cd :call Func()
+    nno cd <cmd>call Func()
     fu Func()
         let cnt = v:count1
         " refer to `cnt` when needed
@@ -1798,7 +1957,7 @@ Capture it either at the very start of the function definition:
 
 Or at the function call site:
 
-    nno cd :call Func(v:count1)
+    nno cd <cmd>call Func(v:count1)
     fu Func(cnt)
         " refer to `a:cnt` when needed
         ...
@@ -1831,7 +1990,7 @@ Note that the weight of `<plug>` is 3 bytes:
 
 ## My mapping invokes `input()`.  But the latter consumes the end of the rhs!
 
-    nno cd :call Func()<cr>bbb
+    nno cd <cmd>call Func()<cr>bbb
     fu Func() abort
         call input('>')
     endfu
@@ -1843,7 +2002,7 @@ Solution:
 
 Surround `input()` with `inputsave()` and `inputrestore()`:
 
-    nno cd :call Func()<cr>bbb
+    nno cd <cmd>call Func()<cr>bbb
     fu Func() abort
         call inputsave()
         call input('>')
@@ -1855,7 +2014,7 @@ Surround `input()` with `inputsave()` and `inputrestore()`:
 Alternatively, you could use `:norm` to execute the end of the rhs before the CR
 which invokes `input()`.
 
-    nno cd :call Func()<bar>norm! bbb<cr>
+    nno cd <cmd>call Func()<bar>norm! bbb<cr>
     fu Func() abort
         call input('>')
     endfu
@@ -1865,9 +2024,9 @@ Besides, it makes the code less readable: "why did I use :norm ?".
 In the future, you may forget the purpose of `:norm`, and think you can simplify
 the code by getting rid of it:
 
-    nno cd :call Func()<bar>norm! bbb<cr>
+    nno cd <cmd>call Func()<bar>norm! bbb<cr>
     →
-    nno cd :call Func()<cr>bbb
+    nno cd <cmd>call Func()<cr>bbb
 
 So, I recommend you avoid this solution; don't be clever, be explicit.
 
@@ -1905,7 +2064,7 @@ Solution: Find a way to execute your command without `:norm`, via `feedkeys()` i
 The issue persists even if `:norm` executes your command indirectly:
 
     ✘
-    nno z= :set opfunc=Z_equal<bar>norm! g@l<cr>
+    nno z= <cmd>set opfunc=Z_equal<bar>norm! g@l<cr>
     fu Z_equal(_)
         setl spell
         call feedkeys('z=', 'in')
@@ -2001,6 +2160,51 @@ Or:
           \ | unlet! b:_twk
     augroup END
 
+## My visual mapping uses `<cmd>`.  It doesn't work as expected!
+
+Check whether it refers  to the visual marks `'<` and `'>` (or  to the range `*`
+which is an alias for `'<,'>`).
+
+Remember  that those  are updated  only  when leaving  visual mode;  but if  you
+execute an Ex command  with `<cmd>`, you stay in visual mode,  and the marks are
+not updated.
+
+Solution 1:
+
+Press `<c-\><c-n>`  right before `<cmd>` to  force Vim to leave  visual mode and
+update the marks.
+
+    xno <key> <c-\><c-n><cmd>call Func()<cr>
+              ^--------^
+
+Solution 2:
+
+Use these expressions to get the coordinates of the starting mark:
+
+   - line('v')
+   - col('v')
+
+And these for the ending mark:
+
+   - line('.')
+   - col('.')
+
+Example:
+```vim
+xno <F3> <cmd>call Func()<cr>
+def Func()
+    " ✘
+    :*s/pat/rep/g
+enddef
+```
+```vim
+xno <F3> <cmd>call Func()<cr>
+def Func()
+    " ✔
+    var range = line('v') .. ',' .. line('.')
+    exe range .. 's/pat/rep/g'
+enddef
+```
 ##
 ## How to use a chord with the meta modifier in my mappings?
 
@@ -2159,7 +2363,7 @@ Try this:
 Example:
 
     exe "set <F30>=\ed"
-    nno <F30> :echom 'I pressed M-d'<cr>
+    nno <F30> <cmd>echom 'I pressed M-d'<cr>
     " press M-d:  Vim logs the message 'I pressed M-d'
 
 ---
@@ -2279,7 +2483,7 @@ The installation order of your mappings matters:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         set showcmd timeoutlen=3000
-        nno <nowait> <c-b>  :echo "c-b was pressed"<cr>
+        nno <nowait> <c-b>  <cmd>echo "c-b was pressed"<cr>
         nno          <c-b>x <nop>
     EOF
     )
@@ -2288,7 +2492,7 @@ The installation order of your mappings matters:
     $ vim -Nu NONE -S <(cat <<'EOF'
         set showcmd timeoutlen=3000
         nno          <c-b>x <nop>
-        nno <nowait> <c-b>  :echo "c-b was pressed"<cr>
+        nno <nowait> <c-b>  <cmd>echo "c-b was pressed"<cr>
     EOF
     )
     " press C-b: the message is printed immediately
@@ -2330,7 +2534,7 @@ Usage example:
     )
 
     $ vim -Nu NONE --cmd 'let [&t_TI, &t_TE] = ["\e[>4;1m", "\e[>4;m"]' \
-      +'nno <C-Enter> :echom "C-Enter was pressed"<cr>'
+      +'nno <C-Enter> <cmd>echom "C-Enter was pressed"<cr>'
     " press:  C-Enter
     C-Enter was pressed~
     " note that 'Enter' is really the 'Enter' key, not 'C-m'
@@ -2396,6 +2600,42 @@ Instead of this:
                            ^
 
 ##
+## I have an `<expr>` mapping calling a `:def` function which invokes `getchar()` and `nr2char()`:
+```vim
+vim9script
+set ut=50
+au CursorHold * #
+nno <expr> <F3> <sid>Func()
+def Func(): string
+    getchar()->nr2char()
+    return ''
+enddef
+feedkeys("\<F3>")
+```
+### It raises E1030: Using a String as a Number: "<80><fd>`"!
+
+When a function is invoked in an `<expr>` mapping, the `<CursorHold>` key is pressed.
+This is documented at `:h <cursorhold>`:
+
+   > Internally the autocommand is triggered by the
+   > <CursorHold> key. In an expression mapping
+   > |getchar()| may see this character.
+
+This is not an issue in a legacy function because there's no type checking there.
+But it *is* in a `:def` function.
+
+Anyway, use `<cmd>` instead of `<expr>`:
+```vim
+vim9script
+set ut=50
+au CursorHold * #
+nno <F3> <cmd>call <sid>Func()<cr>
+def Func()
+    getchar()->nr2char()
+enddef
+feedkeys("\<F3>")
+```
+##
 # Issues
 ## When I press some special key (`<f1>`, `<up>`, `<M-b>`, ...) it doesn't behave as expected!
 
@@ -2420,7 +2660,7 @@ produced by `<up>` in xterm).
 Without `<expr>`, the count and register are not passed naturally to the opfunc,
 and by the time the opfunc is processed, they have been reset to resp. 0 and `"`.
 
-    nno <c-b> :<c-u>set opfunc=Op<cr>g@
+    nno <c-b> <cmd>set opfunc=Op<cr>g@
     fu Op(_)
         echom 'the count is ' .. v:count
         echom 'the register is ' .. v:register
@@ -2436,8 +2676,8 @@ But both come with pitfalls.
 For example, `:norm` can break an  interactive command by pressing `Esc` when an
 input is asked:
 
-    "                                           v---v
-    nno <c-b><c-b> :<c-u>set opfunc=Op<bar>exe 'norm! ' .. (v:count ? v:count : '') .. 'g@_'<cr>
+    "                                          v---v
+    nno <c-b><c-b> <cmd>set opfunc=Op<bar>exe 'norm! ' .. (v:count ? v:count : '') .. 'g@_'<cr>
     call setline(1, ["a\x01b"])
     fu Op(_)
         '[,']s/[[:cntrl:]]//c
@@ -2458,7 +2698,7 @@ Not  that  from *inside*  the  opfunc,  you could  still  access  the count  via
 
 Besides, the operator would not work as expected when preceded by a count.
 
-    nno <c-b> :<c-u>set opfunc=Op<cr>g@
+    nno <c-b> <cmd>set opfunc=Op<cr>g@
     fu Op(type)
         if a:type is# 'line'
             sil norm! '[V']y
@@ -2504,8 +2744,8 @@ See also: <https://vi.stackexchange.com/a/12557/17449>
 
 Without `<expr>`, visual mode needs to be handled specially:
 
-    nno <silent> <c-b> :<c-u>set opfunc=CountSpaces<cr>g@
-    xno <silent> <c-b> :<c-u>call CountSpaces(visualmode(), 1)<cr>
+    nno <c-b> <cmd>set opfunc=CountSpaces<cr>g@
+    xno <c-b> <cmd>call CountSpaces(visualmode(), 1)<cr>
     fu CountSpaces(type, ...)
         if a:0
             set opfunc=CountSpaces
@@ -2547,9 +2787,9 @@ like normal mode:
 
 The mappings are easier to read.  Compare:
 
-    nno <silent> <c-b> :<c-u>set opfunc=CountSpaces<cr>g@
-    xno <silent> <c-b> :<c-u>call CountSpaces(visualmode(), 1)<cr>
-    nno <silent> <c-b><c-b> :<c-u>set opfunc=CountSpaces<bar>exe 'norm! ' .. (v:count ? v:count : '') .. 'g@_'<cr>
+    nno <c-b> <cmd>set opfunc=CountSpaces<cr>g@
+    xno <c-b> <cmd>call CountSpaces(visualmode(), 1)<cr>
+    nno <c-b><c-b> <cmd>set opfunc=CountSpaces<bar>exe 'norm! ' .. (v:count ? v:count : '') .. 'g@_'<cr>
 
 Versus:
 
@@ -2691,13 +2931,13 @@ Check whether we've done the same:
 
 ### ?
 
-Have you used `:s`, while you should have used `setline()`?
+Have we used `:s`, where `setline()` would have been better?
 
 ### ?
 
 Check whether we should have set `g:opfunc.yank` to `v:false` for some of our custom operators:
 
-    :vim /lg#opfunc/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
+    :vim /\COpfunc/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
 
 Have a look at our `dr` operator for an example where we need to do that.
 
@@ -2705,7 +2945,7 @@ Have a look at our `dr` operator for an example where we need to do that.
 ## text-objects
 ### These 2 omaps give different results:
 
-    ono ii :norm! TXctY<cr>
+    ono ii <cmd>norm! TXctY<cr>
     ono ii TXctY
 
 Tested against this text:
@@ -2739,7 +2979,7 @@ the subsequent keys are executed in command-line mode.
 ###
 ### Consider the next mapping which should operate on the text between an `X` and a `Y`:
 
-    ono ii :<c-u>exe 'norm! TX' .. v:operator .. 'tY'<cr>
+    ono ii <cmd>exe 'norm! TX' .. v:operator .. 'tY'<cr>
 
 #### It doesn't work as expected on this text:
 
@@ -2813,8 +3053,8 @@ which in turn causes the cursor to move 1 character backward *on* the `X`.
 
 Cancel the original operator before re-invoking it with `v:operator`:
 
-    ono ii <esc>:exe 'norm! TX' .. v:operator .. 'tY'<cr>
-           ^---^
+    ono ii <c-\><c-n><cmd>exe 'norm! TX' .. v:operator .. 'tY'<cr>
+           ^--------^
 
 Or better yet, use an `<expr>` mapping:
 
@@ -2852,174 +3092,118 @@ That's because `dii` executes 2 operations: `dTX` and `dtY`.
 `.` only repeats the last one, i.e. `dtY`.
 
 ###
-### ?
+### In the rhs of an `:ono` mapping, should I use `:h c^u` at the start of a command-line?
 
-How to filter a custom text-object without the command-line not being redrawn?
+No.
 
-MWE:
+Whether you use `<cmd>` or not, `<c-u>` is useless:
 
-    !iE SPC
-    ![m SPC
-    ...
+    ono ix <cmd>eval 0<cr>
+    call feedkeys('123dix')
+    E481 is not raised~
 
-We could try sth like this:
+    ono ix :eval 0<cr>
+    call feedkeys('123dix')
+    E481 is not raised~
 
-    ono <silent> ie :<c-u>exe 'norm vie' .. (v:operator is# '!' ? '<space>' : '')<cr>
+### My text-object is noisy when reused with the dot command.  The rhs is printed on the command-line!
+```vim
+ono <silent> ix :eval 0<cr>
+call feedkeys('dix.')
+```
+    "eval 0" is printed on the command-line
+    ✘
 
-But, why does the issue occur with `![m`, but not with `![z`?
 
-Update: It probably has sth to do with these functions:
+Solution: Use `<cmd>`:
+```vim
+ono ix <cmd>eval 0<cr>
+call feedkeys('dix.')
+```
+    nothing is printed on the command-line
+    ✔
 
-   - `s:jump()`  (✔)  ~/.vim/plugged/vim-fold/autoload/fold/motion.vim:101
-   - `s:jump()`  (✘)  ~/.vim/plugged/vim-brackets/autoload/brackets/move.vim:178
+---
 
-Update:
-It has to do with the `<silent>` argument in the mapping.
-We need it in all modes except in operator-pending mode.
-Alternatively, we could include at the end of `s:jump()`:
+The issue may  not be visible if  the operation has changed  more than `&report`
+lines; that's because in that case, Vim prints some message on the command-line,
+such as:
 
-    exe "norm! \<c-\>\<c-n>"
+    3 fewer lines
 
-It causes the command-line to be redrawn.
-More generally, it seems executing any `:norm` command at the end fixes the issue.
+---
 
-MWE:
+There  are  other   solutions,  like  using  `<expr>`  to   avoid  entering  the
+command-line, or writing  a command which causes the command-line  to be erased,
+at the end of the code implementing the text-object, like:
 
-    ono <silent> ]g :call search('pat')<cr>
-        !]g → command-line not redrawn
+    :echo
+    :exe "norm! \<c-\>\<c-n>"
 
-    ono <silent> ]g :call search('pat')<bar>exe "norm! \<lt>c-\>\<lt>c-n>"<cr>
-        !]g → command-line redrawn
+But those solutions look like hacks.
 
-Btw, to make Vim redraw the command-line, press `SPC` then `BS`.
+### When I use my text-object with the "!" operator, the command-line is not drawn immediately!
+```vim
+ono <silent> ix :call search('pat')<cr>
+call feedkeys('!ix')
+```
+    the command-line is not redrawn
 
-See here for a possible fix:
-<https://github.com/wellle/targets.vim/pull/210>
+To make Vim redraw the command-line, press `SPC` then `BS`.
 
-Update: I think the best solution is to drop `<silent>` and use a dummy `:echo` at the end.
-`:echo` fixes the issue (just like `<silent>`), and another one (unlike `<silent>`).
-This other issue is related to the dot command; the rhs is sometimes printed.
+Solution:
 
-Update: You keep saying that the command-line is "redrawn" or "not redrawn".
-Is that the correct term?
-Because some of  those pitfalls (all?) can't  be fixed by `:redraw`,  but can be
-fixed by `:echo`...
+Drop `<silent>` and use `<cmd>`:
+```vim
+ono ix <cmd>call search('pat')<cr>
+call feedkeys('!ix')
+```
+    the command-line *is* redrawn
 
-Reciprocally, some issues can be fixed by `:redraw` but not by `:echo`:
-
-    nno <c-b> :call Func()<cr>
-    fu Func()
-        call input('prompt: ')
-        echo
-    endfu
-    " press:  C-b Enter
-    " :echo doesn't clear the command-line
-
-I think that's because `input()` behaves like `:echon`:
-
-    nno <c-b> :call Func()<cr>
-    fu Func()
-        echon 'prompt: '
-        echo
-    endfu
-    " press:  C-b Enter
-    " again, :echo doesn't clear the command-line
-
-Other example:
-
-    nno <c-b> :call Func()<cr>
-    fu Func()
-        echo 'abc'
-        echo
-        echo 'def'
-    endfu
-    " press:  C-b
-    " result: both 'abc' and 'def' are printed (hit-enter prompt)
-    " expected: only 'def' is printed (no hit-enter prompt)
-
+###
 ### ?
 
 Review all  custom text-objects: make sure  they all position the  cursor on the
 end  of the  selection, to  be consistent  with what  Vim seems  to do  with its
 builtin text-objects (e.g. try `vi{` in a shell function).
 
+    \C\<\%(ono\%[remap]\|omap\|noremap\|map\)\>(\@!
+
 ### ?
 
-Make sure  your text-objects handle a  count.  For example, right  now, it looks
-like `il` does not; `5dil` deletes only the current line.  Shouldn't it delete 5
-lines?  Study  how builtin objects  handle counts; check whether  their behavior
-differ depending on whether the start with `i` or `a` (e.g. `iw` vs `aw`).
+Make sure that none of your text-objects force a particular type of visual mode.
+
+For example, in the past, when we pressed  `C-v ]z`, we ended up with a linewise
+selection:
+
+    exe 'norm! ' .. fixed_corner .. 'GV' .. line('.') .. 'G'
+                                      ^
+                                      ✘
+
+We've fixed that.  Now, we preserve the blockwise mode:
+
+    exe 'norm! ' .. fixed_corner .. 'G' .. a:mode .. line('.') .. 'G'
+                                           ^----^
+                                             ✔
 
 ### ?
 
 Make sure your text-objects correctly handle a `v`, `V`, `C-v` prefix, by inspecting the
 output of `mode(1)`: <https://github.com/vim/vim/releases/tag/v8.1.0648>
 
-I  guess that  it means  that  all our  text-objects should  be implemented  via
-`<expr>` mappings...  Otherwise, the output of `mode(1)` is unreliable.
+It  means that  all  our  text-objects should  be  implemented  with `<cmd>`  or
+`<expr>`.  Otherwise, the output of `mode(1)` is unreliable.
+
+    \C\<\%(ono\%[remap]\|omap\|noremap\|map\)\>(\@!
 
 ### ?
 
-Press `dio` on one column then `.` on another; this is printed on the command-line:
+Make sure  your text-objects handle a  count.  For example, right  now, it looks
+like `il` does not; `5dil` deletes only the current line.  Shouldn't it delete 5
+lines?  Study  how builtin objects  handle counts; check whether  their behavior
+differ depending on whether they start with `i` or `a` (e.g. `iw` vs `aw`).
 
-    :call column_object#main('iw')
-
-Why are our custom text-objects non-silent when repeated by `.`?
-Even though we define them with `<silent>`...
-
-Does kana's plugin suffer from the same pitfall?
-If no, how is it fixed?
-
-Idea: redefine  all your  text-objects with `<expr>`  to avoid  the command-line
-from being entered.
-
-Note:  the issue  may not  be visible  if the  operation has  changed more  than
-`&report` lines;  that's because in  that case, Vim  prints some message  on the
-command-line, such as:
-
-    3 fewer lines
-
-### ?
-
-Study and document `:h v:prevcount`.
-
-Watch:
-
-    " press:  3 d : C-r = v:count CR
-    :3~
-
-    " press:  3 d : CR : C-r = v:count CR
-    :0~
-
-    " press:  3 d : C-r = v:prevcount CR
-    :0~
-
-    " press:  3 d : CR : C-r = v:prevcount CR
-    :3~
-
----
-
-`v:prevcount` seems to be always 0 from an opfunc.  Why?
-
-It seems the count is reset one more time:
-
-    set showcmd
-    fu Opfunc(...)
-        if !a:0
-            let &opfunc = 'Opfunc'
-            return 'g@'
-        endif
-        echom v:prevcount
-    endfu
-    nno <expr> <c-b> Opfunc()
-    xno io iw
-    ono io :normal 3vio<cr>
-    pu='foo bar baz'
-
-    " press:  C-b io
-    " 3 is echo'ed
-
-Why?
+    \C\<\%(ono\%[remap]\|omap\|noremap\|map\)\>(\@!
 
 ### ?
 
@@ -3028,10 +3212,10 @@ Refactor your  text-objects so that  `v:register` is always correctly  passed to
 the opfunc.
 
     xno io iw
-    ono io :normal vio"<c-r>=v:register<cr><cr>
-                      ^-------------------^
+    ono io <cmd>exe 'normal vio"' .. v:register<cr>
+                               ^--------------^
 
-Note that  when `<c-r>`  is processed,  Vim is  *not* in  visual mode.   It's in
+Note that when `v:register` is evaluated, Vim  is *not* in visual mode.  It's in
 command-line mode; `:norm` has not been executed  yet; btw, this is why the last
 register has not yet been reset and you can still access it with `v:register`.
 
@@ -3061,7 +3245,7 @@ Test 2:
     set showcmd
     pu='aaa bbb ccc ddd'
     xno io iw
-    ono io :norm vio<cr>
+    ono io <cmd>norm vio<cr>
 
     " press:  3dio
     " only 1 word is deleted ✘
@@ -3095,7 +3279,7 @@ Test 4:
     endfu
     nno <expr> <c-b> Opfunc()
     xno io iw
-    ono io :norm vio<cr>
+    ono io <cmd>norm vio<cr>
 
     " press:  3 C-b io
     " Vim puts the text 'v:count: 0, v:prevcount: 0' ✘
@@ -3119,64 +3303,32 @@ If you disagree, try this:
     endfu
     nno <expr> <c-b> Opfunc()
     xno io iw
-    omap <expr> io '<c-\><c-n>vio' .. (v:register == '"' ? '' : '"' .. v:register) .. (v:count ? v:count : '') .. v:operator
-    "                                 ^-----------------------^
-    "                                 necessary because of our `nno "" "+` mapping
+    omap <expr> io '<c-\><c-n>vio'
+        "\   necessary because of our `nno "" "+` mapping
+        "\   v-----------------------v
+        \ .. (v:register == '"' ? '' : '"' .. v:register)
+        \ .. (v:count ? v:count : '') .. v:operator
 
 Although, this omap doesn't work as expected when repeated with `.`.
 It seems we need `:norm` for `.` to work; do we?
 Why though?  I mean `:norm vio` also enters visual mode...
 
-### ?
-
-In the rhs of an `:ono` mapping, should we always use `:h c^u`?
-
-    xno <silent> i- :<c-u>call <sid>horizontal_rules_textobject('inside')<cr>
-    ono <silent> i- :<c-u>norm vi-<cr>
-                     ^---^
-                     ???
-
-Whatever rule you come up with, make sure to enforce it everywhere.
-
 ##
 ## Misc.
 ### ?
 
-How to get the coordinates of the start/end of the current visual selection without quitting visual mode?
+Try to use `GetSelectionCoords()` in your plugin(s) instead of escaping.
 
-Use `getpos('v')` and `getcurpos()`:
+    ~/.vim/plugged/vim-lg-lib/import/lg.vim
 
-    xno <c-b> <cmd>call GetVisualSelectionGeometry()<cr>
-    fu GetVisualSelectionGeometry() abort
-        let [curpos, pos_v] = [getcurpos()[1:2], getpos('v')[1:2]]
-        let control_end = curpos[0] > pos_v[0] || curpos[0] == pos_v[0] && curpos[1] >= pos_v[1]
-        if control_end
-            let [start, end] = [pos_v, curpos]
-        else
-            let [start, end] = [curpos, pos_v]
-        endif
-        set noshowmode
-        echom printf('the visual selection starts at line %d column %d and ends at line %d column %d',
-            \ start[0], start[1], end[0], end[1])
-    endfu
-
-Note  that if  you've  pressed `O`,  the  reported positions  do  not match  the
-upper-left and bottom-right corners, but the upper-right and bottom-left ones.
-
-In any case, the  given coordinates always match the ones of  the marks `'<` and
-`'>` if you were to quit visual mode so that Vim sets them.
-
----
-
-Try to use this technique in your plugin(s) instead of escaping.
 Unless they really  need to update the  visual marks, or you really  want to get
 back to normal mode.
 
-    \m\C\\e
+    \C\\e\|\c<esc>
 
 ---
 
-See `:h line()`:
+Also, document this (from `:h line()`):
 
    > v       In Visual mode: the start of the Visual area (the
    >         cursor is the end).  When not in Visual mode
@@ -3191,7 +3343,7 @@ gives  the  position of  `'>`,  and  vice  versa;  if you're  controlling  `'>`,
 I think "start of the Visual area" in the help means "controlled corner"...
 
 If you want an expression which tells  you whether you're controlling the end of
-the selection:
+the selection or its start:
 
     line('.') > getpos('v')[1] || line('.') == getpos('v')[1] && col('.') >= getpos('v')[2]
 
@@ -3319,28 +3471,22 @@ qu'on utilise `C-r =` ou `C-\ e` / `C-r C-r =`:
      bar~
 
 In an `<expr>` mapping, it depends:
-
-    " ✔
-    fu Func(str)
-        return ''
-    endfu
-    nno <expr> cd Func('foo <c-j> bar')
-    norm cd
-
-    " ✔
-    fu Func(str)
-        return ''
-    endfu
-    " nno <expr> cd ':call ' .. Func('foo <c-j> bar')
-    nno <expr> cd Func('foo <c-j> bar')
-    norm cd
-
-    " ✘
-    fu Func(str)
-        return a:str
-    endfu
-    nno <expr> cd ':call ' .. Func('foo <c-j> bar')
-    norm cd
+```vim
+fu Func(str)
+    return ''
+endfu
+nno <expr> cd Func('foo <c-j> bar')
+norm cd
+```
+    ✔
+```vim
+fu Func(str)
+    return a:str
+endfu
+nno <expr> cd ':call ' .. Func('foo <c-j> bar')
+norm cd
+```
+    E107: Missing parentheses: foo
 
 However, they *can* in a regular mapping:
 
@@ -3567,7 +3713,7 @@ MWE:
     C-z
     C-c
     AA=''~
-      ^-^
+      ^^^
 
 Btw, try  to understand why that  happens, and check  whether there is a  way to
 prevent it.
@@ -3711,12 +3857,12 @@ dernières.
         echohl WarningMsg | echo '[' .. a:cmd .. '] was equivalent' | echohl NONE
     endfu
 
-    nno <silent> <plug>(reminder) :call input('')->Reminder()<cr>
+    nno <plug>(reminder) <cmd>call input('')->Reminder()<cr>
 
-                                       ┌ appelle la fonction
-                                       │               ┌ passe-lui cet argument
-                                       │               │    ┌ termine/valide la saisie
-                                       ├──────────────┐├───┐├──┐
+    "                         ┌ appelle la fonction
+    "                         │               ┌ passe-lui cet argument
+    "                         │               │    ┌ termine/valide la saisie
+    "                         ├──────────────┐├───┐├──┐
     cnorea <expr> vs 'vs' .. feedkeys('<plug>(reminder)C-w v<cr>')[-1]
     cnorea <expr> sp 'sp' .. feedkeys('<plug>(reminder)C-w s<cr>')[-1]
 
@@ -3772,17 +3918,20 @@ On aurait pu déplacer `input()` au sein même de `Reminder()`:
         echohl WarningMsg | echo '[' .. cmd .. '] was equivalent' | echohl NONE
     endfu
 
-    nno <silent> <plug>(reminder) :call Reminder()<cr>
+    nno <plug>(reminder) <cmd>call Reminder()<cr>
 
     cnorea <expr> vs 'vs' .. feedkeys("<plug>(reminder)C-w v<cr>")[-1]
     cnorea <expr> sp 'sp' .. feedkeys("<plug>(reminder)C-w s<cr>")[-1]
+
+Update:  These snippets work as expected when we press Enter right after `:vs` or `:sp`.
+But they don't work as expected when we insert a space after `:vs` or `:sp`.
 
 ## <script>
 
     nno    <script>     ,dt                <SID>(FindTopic)dd
     nno                <SID>(FindTopic)    /Topic<cr>
 
-    nno                 dd                 :call Func()<cr>
+    nno                 dd                 <cmd>call Func()<cr>
 
 Ces 3 mappings  illustrent l'utilité de l'argument `<script>`  dans une commande
 de mapping.  Par défaut, on peut autoriser  ou interdire le remap de tout le rhs
@@ -3835,20 +3984,20 @@ Mais on doit écrire une ligne de code supplémentaire, et on perd en lisibilit�
 
 ## <unique>
 
-    nno <unique> cd :echo 'hello'<cr>
+    nno <unique> cd <cmd>echo 'hello'<cr>
 
 `<unique>` ne créera le mapping que si aucun autre mapping n'utilise `cd` comme lhs.
 
 La vérification portera à la fois sur les mappings globaux et locaux.
 Donc, les 2 cas de figure suivants échoueront:
 
-    nno                    cd  :echo 'hello'<cr>
+    nno                    cd  <cmd>echo 'hello'<cr>
     " ✘
-    nno  <buffer><unique>  cd  :echo 'world'<cr>
+    nno  <buffer><unique>  cd  <cmd>echo 'world'<cr>
 
     " ✘
-    nno  <buffer>          cd  :echo 'hello'<cr>
-    nno          <unique>  cd  :echo 'world'<cr>
+    nno  <buffer>          cd  <cmd>echo 'hello'<cr>
+    nno          <unique>  cd  <cmd>echo 'world'<cr>
 
 
 ---
@@ -3890,7 +4039,7 @@ Conseils:
     if mapcheck('<key>', 'n')->empty() && !hasmapto('<Plug>(plugin_some_func)', 'n')
         nno <key> <Plug>(plugin_some_func)
     endif
-    nno <silent> <Plug>(plugin_some_func) :<c-u>call SomeFunc()<cr>
+    nno <Plug>(plugin_some_func) <cmd>call SomeFunc()<cr>
 
 Définit un mapping appelant `SomeFunc()`.
 
@@ -3957,7 +4106,7 @@ Exemple d'installation d'un mapping vérifiant ces 3 conditions:
 
     if !exists('g:mappings_disabled') || !g:mappings_disabled
         if mapcheck('<key>', 'n')->empty() && !hasmapto('<Plug>(plugin_some_func)', 'n')
-            nmap <silent> <key> <Plug>(plugin_some_func)
+            nmap <key> <Plug>(plugin_some_func)
         endif
     endif
 
@@ -3982,7 +4131,7 @@ In that case, `C-d` will fail to scroll, and Vim won't focus back the original w
 
 Solution:
 
-    nno <key> :sil! exe "norm! \<lt>c-w>w\<lt>c-d>\<lt>c-w>w"<cr>
+    nno cd <cmd>sil! exe "norm! \<lt>c-w>w\<lt>c-d>\<lt>c-w>w"<cr>
 
 `:silent!` makes Vim ignore any error raised by `:norm`.
 
@@ -3996,15 +4145,15 @@ You  can  use multiple  `<lt>`'s  to  prevent  a  control character  from  being
 translated, as many times as necessary:
 
     nno cd :echo "\<c-w>"<cr>
-    " press cd
+    call feedkeys('cd')
     E115: Missing quote: "~
 
     nno cd :echo "\<lt>c-w>"<cr>
-    " press cd
+    call feedkeys('cd')
     ^W~
 
     nno cd :echo "\<lt>lt>c-w>"<cr>
-    " press cd
+    call feedkeys('cd')
     <c-w>~
 
 Here, `<lt>lt>` prevents the translation of  `<c-w>` twice (once by `:nno`, once
@@ -4013,18 +4162,36 @@ Note that this  is a contrived example;  if all you wanted was  to echo `<c-w>`,
 you could just write:
 
     nno cd :echo '<lt>c-w>'<cr>
+    call feedkeys('cd')
+    <c-w>~
+
+Update: Now that we have `<cmd>`, it *seems* that this is irrelevant.
+
+    nno cd <cmd>echo '<c-w>'<cr>
+    call feedkeys('cd')
+    <c-w>~
+
+But it's not:
+
+    nno cd <cmd>echo '<up>'<cr>
+    call feedkeys('cd')
+    E1137: <Cmd> mapping must not include <Up> key~
+
+    nno cd <cmd>echo '<lt>up>'<cr>
+    call feedkeys('cd')
+    <up>~
 
 ---
 
 But `:silent!` does *not* make Vim ignore errors raised by other commands, like `:call`:
 
-    nno <silent> cd :sil! call UnknownFunc() <bar> let g:d_var = 1<cr>
+    nno cd <cmd>sil! call UnknownFunc() <bar> let g:d_var = 1<cr>
     " press:  cd
     " run:  :echo g:d_var
     " result:    E121
     " expected:  1 is printed
 
-    nno <silent> cd :sil! 999999d <bar> let g:d_var = 1<cr>
+    nno cd <cmd>sil! 999999d <bar> let g:d_var = 1<cr>
     " press:  cd
     " run:  :echo g:d_var
     " result:    E121
@@ -4036,7 +4203,7 @@ Is it because of this:
 You may think it's because for `silent!` to  work, it needs to be applied to the
 whole rhs.  That's not true:
 
-    nno <silent> cd :sil! exe 'call UnknownFunc() <bar> let g:d_var = 1'<cr>
+    nno cd <cmd>sil! exe 'call UnknownFunc() <bar> let g:d_var = 1'<cr>
     " press:  cd
     " run:  :echo g:d_var
     " result:    E121
@@ -4046,12 +4213,12 @@ I think it only works for `:norm`...
 
 In any case, as a workaround, use `:exe`:
 
-                     v-v
-    nno <silent> cd :exe 'sil! call UnknownFunc()' <bar> echom 'processed'<cr>
+                vvv
+    nno cd <cmd>exe 'sil! call UnknownFunc()' <bar> echom 'processed'<cr>
 
 ---
 
-    nno cd :let msg = input('') <bar> echo ' bye'<cr>hello
+    nno cd <cmd>let msg = input('') <bar> echo ' bye'<cr>hello
 
 Why does `input()` consume `hello`, but not `echo 'bye'`?
 
@@ -4072,44 +4239,20 @@ When that happens, `<bar> echo ' bye'` has already been executed.
 When `<cr>` is executed, the  command-line is executed, which invokes `input()`,
 which in turn consumes whatever is in the typeahead buffer (here `hello`).
 
----
-
-    nno <silent><expr> <cr> !empty(&buftype) ?
-        \ ? '<cr>'
-        \ : ':' .. getbufvar('%', 'cr_command', 'norm! 80<bar>') .. '<cr>'
-
-Ce mapping remap CR différemment suivant le type de fichiers où l'on se trouve.
-
-    !empty(&buftype)
-
-... condition testant si le buffer est spécial.
-Nécessaire car  CR a souvent une  fonction unique dans un  buffer spécial, qu'il
-faut préserver.
-Pex dans un buffer `qf`, CR charge l'entrée sous le curseur.
-
-    getbufvar('%', '...', '...')
-
-... on ne peut pas créer la variable pour tous les types de fichiers existants.
-`getbufvar()`  permet   de  donner   une  valeur  par   défaut  à   la  variable
-`b:cr_command`, afin que le mapping n'échoue pas dans les buffers où la variable
-n'a pas été créée.
-
 # Objets
 
     xno {object} {motion}
-    ono {object} :norm v{object}<cr>
+    ono {object} <cmd>norm v{object}<cr>
 
 Définit un nouvel objet dont les caractères sont couverts par `{motion}`.
-
-Ajouter `<silent>` pour que les opérations sur l'objet soient silencieuses.
 
 ---
 
 Si le rhs du mapping `:xno` n'est pas un mouvement, mais l'appel à une fonction,
 on peut le réutiliser pour le mapping `:ono`:
 
-    xno {object} :<c-u>call MyFunc()<cr>
-    ono {object} :<c-u>call MyFunc()<cr>
+    xno {object} <cmd>call MyFunc()<cr>
+    ono {object} <cmd>call MyFunc()<cr>
 
 Si le  rhs du mapping `:xno`  est un mouvement,  pk ne peut-on pas  lui-aussi le
 réutiliser dans `:ono`?
@@ -4155,8 +4298,8 @@ The original code was (unnecessarily?) more complex.
 
 ---
 
-    ono Ob) :norm! vib``<cr>
-    ono Oe) :norm! vibo``<cr>
+    ono Ob) <cmd>norm! vib``<cr>
+    ono Oe) <cmd>norm! vibo``<cr>
 
 Crée  l'objet allant  du  curseur jusqu'au  début  / à  la fin  de  la paire  de
 parenthèses à l'intérieur desquelles il se situe.
@@ -4192,7 +4335,7 @@ Voici qques exemples, ainsi qu'une description de leur traitement par Vim.
 
     nmap <expr>  N               FuncA()
     nno  <expr>    <plug>(one)   FuncB()
-    nno          ge<plug>(one)  :echo 'world'<cr>
+    nno          ge<plug>(one)   <cmd>echo 'world'<cr>
 
     fu FuncA()
         return "ge\<plug>(one)"
@@ -4216,7 +4359,7 @@ Ce qui affiche la chaîne `world`.
 
     nmap  <expr>  N              FuncA()
     nno   <expr>   <plug>(one)   FuncB()
-    nno           N<plug>(one)  :echo 'world'<cr>
+    nno           N<plug>(one)   <cmd>echo 'world'<cr>
 
     fu FuncA()
         return "N\<plug>(one)"
@@ -4256,7 +4399,7 @@ Mais pendant l'évaluation, il est amené à afficher `hello`.
 
     nmap <expr> cd              FuncA()
     nmap <expr>   <plug>(one)   FuncB()
-    nno         cd<plug>(one)  :echo 'world'<cr>
+    nno         cd<plug>(one)   <cmd>echo 'world'<cr>
 
     fu FuncA()
         return "cd\<plug>(one)"
@@ -4343,7 +4486,7 @@ Pour plus d'infos, lire `:h recursive_mapping`.
     endfu
 
     nno <expr> cd Func()
-    nno <plug>(put_123) :-pu=123<cr>
+    nno <plug>(put_123) <cmd>-pu=123<cr>
     fu Func()
         " ✔
         call feedkeys("\<plug>(put_123)")
@@ -4394,7 +4537,7 @@ Bottom line:
 Note that we can observe the same results when replacing `<expr>` with `@=`:
 
      nno cd @=Func()<cr>
-     nno <plug>(put_123) :-pu=123<cr>
+     nno <plug>(put_123) <cmd>-pu=123<cr>
      fu Func()
          call feedkeys("\<plug>(put_123)")
          return 'dd'
@@ -4416,8 +4559,8 @@ buffer; there's no need to, since the keys are not checked for remapping.
 Watch this:
 
     nmap cd @='cD'<cr>
-    nno cD :echom 'test'<cr>
-    " press cd: nothing happens
+    nno cD <cmd>echom 'test'<cr>
+    " press cd:  'test' is not printed
 
 In this  last example,  if `cD`  was remapped after  pressing `cd`,  then `test`
 would be printed.  That's not the case.

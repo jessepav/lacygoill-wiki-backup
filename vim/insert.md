@@ -322,7 +322,9 @@ différentes, et donc d'avoir un bloc dont le bord droit est irrégulier.
     :*norm .    V{motion}.
 
             répéter la dernière édition sur toutes les lignes de la sélection visuelle
-            La 2e commande n'est possible que grâce au mapping custom:    xnoremap . :norm .<cr>
+            La 2e commande n'est possible que grâce au mapping custom:
+
+                    xno . <c-\><c-n><cmd>*norm! .<cr>
 
 ## ?
 

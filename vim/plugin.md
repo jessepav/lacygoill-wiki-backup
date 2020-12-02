@@ -1120,6 +1120,7 @@ This uses the packages feature and the  jobs feature which have been newly added
 on Vim 8.
 
 <https://github.com/k-takata/minpac> 1103 sloc
+<https://github.com/bennyyip/plugpac.vim> 149 sloc
 
 Why is minpac interesting:
 

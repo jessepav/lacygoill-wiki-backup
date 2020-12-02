@@ -1,6 +1,6 @@
 When you need to do some tests while editing this file, use this code:
 
-    nno  <silent> cd :<c-u>call <sid>study_arglist()<cr>
+    nno cd <cmd>call <sid>study_arglist()<cr>
     fu s:study_arglist() abort
         sp
         args /etc/*.conf

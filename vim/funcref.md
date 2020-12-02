@@ -494,10 +494,9 @@ Les expressions lambda sont aussi utiles pour des timers, canaux, jobs.
 Si un timer est  exécuté au moment où on se trouve sur  la ligne de commande, le
 curseur peut temporairement quitter cette dernière et s'afficher dans le buffer.
 
-    nno <expr> cd Func()
+    nno cd <cmd>call Func()<cr>
     fu Func()
-        let my_timer = timer_start(2000, { -> execute('sleep 1', '') })
-        return ''
+        let my_timer = timer_start(2000, {-> execute('sleep 1', '')})
     endfu
 
 Taper `cd`, puis écrire qch sur la ligne de commande et attendre.
@@ -772,7 +771,7 @@ Found it used here: <https://vi.stackexchange.com/a/24654/17449>
 Although, it doesn't seem to be really needed in the answer (nor `call()`, nor `string()`):
 
     fu InstallMapping(funcref) abort
-        exe printf('nno <buffer><nowait><silent> cd :<c-u>call %s()<cr>', a:funcref)
+        exe printf('nno <buffer><nowait> cd <cmd>call %s()<cr>', a:funcref)
     endfu
     fu Func() abort
         echom 'called from Func()'

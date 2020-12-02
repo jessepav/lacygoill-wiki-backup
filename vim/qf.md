@@ -1700,8 +1700,8 @@ To illustrate the pitfall, write this in `/tmp/a.vim`:
 
 Write this in `/tmp/b.vim`:
 
-    nno cd :copen<cr>
-    nno ci :call Func()<cr>
+    nno cd <cmd>copen<cr>
+    nno ci <cmd>call Func()<cr>
     fu Func()
         copen
     endfu

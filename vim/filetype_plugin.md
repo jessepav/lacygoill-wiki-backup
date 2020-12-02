@@ -783,7 +783,7 @@ You could also use `:exe`:
 Note that  `:exe` is not  useful to prevent `:nunmap`  or `:nno` to  consume the
 next commands.  These commands work fine:
 
-    if 1 | nno cd :echo 'hello'<cr> | endif
+    if 1 | nno cd <cmd>echo 'hello'<cr> | endif
     nunmap cd| echo 'hello'
              ^
              again, no trailing whitespace

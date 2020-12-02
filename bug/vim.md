@@ -615,6 +615,106 @@ parse a command-line typed interactively with the Vim9 syntax?
 ##
 ## ?
 
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var d = {12: 34}
+    EOF
+    )
+    ✔
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def Func()
+            var d = {12: 34}
+        enddef
+        defcompile
+    EOF
+    )
+    E1012: Type mismatch; expected string but got number~
+    ✘
+
+---
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var mydict = #{zero: 0, one_key: 1, two-key: 2, 333: 3}
+    EOF
+    )
+    ✔
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var mydict = {zero: 0, one_key: 1, two-key: 2, 333: 3}
+    EOF
+    )
+    E121: Undefined variable: two~
+    ✘
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var mydict = {zero: 0, one_key: 1, two_key: 2, 333: 3}
+    EOF
+    )
+    ✔
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def Func()
+            var mydict = {zero: 0, one_key: 1, two_key: 2, 333: 3}
+        enddef
+        defcompile
+    EOF
+    )
+    E1012: Type mismatch; expected string but got number~
+    ✘
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var nestdict = {1: {11: 'a', 12: 'b'}, 2: {21: 'c'}}
+    EOF
+    )
+    ✔
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def Func()
+            var nestdict = {1: {11: 'a', 12: 'b'}, 2: {21: 'c'}}
+        enddef
+        defcompile
+    EOF
+    )
+    E1012: Type mismatch; expected string but got number
+    ✘
+
+## ?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        def Func()
+            [@a, @z] =
+                ['aa', 'zz']
+        enddef
+        defcompile
+    EOF
+    )
+
+    ✔
+    works only since 8.2.2072
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        def Func()
+            @a =
+                'aa'
+        enddef
+        defcompile
+    EOF
+    )
+
+    E1015: Name expected:~
+
+Bug? (at least it's inconsistent)
+
+## ?
+
 According to the help, these functions accept a funcref as an argument:
 
   - `:h call()`
@@ -3794,8 +3894,8 @@ Now, let's increment `line` by 1:
 Notice how the popup unexpectedly starts from the top of the terminal window.
 Is it documented or is it a bug?
 Is it specific to a popup menu, or to any regular popup window?
-If it is specific to a popup  menu, which properties trigger this behavior (pos,
-cursorline, filter, ...)?
+If  it is  specific to  a  popup menu,  which properties  trigger this  behavior
+(`pos`, `cursorline`, `filter`, ...)?
 
 ## make popup_filter_menu() support C-n and C-p to select neighbor items
 

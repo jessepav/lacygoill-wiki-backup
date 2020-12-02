@@ -701,7 +701,7 @@ Execute the macro via `:norm!`:
 Remember that  we have a  mapping to execute  a macro on  each line in  a visual
 selection:
 
-    :xno <silent> @ :<c-u>exe "'<,'>norm @" .. getchar()->nr2char()<cr>
+    :xno @ <c-\><c-n><cmd>exe '*norm @' .. getchar()->nr2char()<cr>
 
 Use it to repeat a macro on an arbitrary range of lines.
 
@@ -957,7 +957,7 @@ You need the error *not* to be ignored for `@b` to stop.
 
 No, unless you pass the `t` flag to `feedkeys()`:
 
-    $ vim -Nu NONE +'nno <expr> <c-a> feedkeys("<c-b>")[-1]'
+    $ vim -Nu NONE +'nno <c-a> <cmd>call feedkeys("<c-b>")<cr>'
     " press:
              qq
              C-a
@@ -965,8 +965,8 @@ No, unless you pass the `t` flag to `feedkeys()`:
     :reg q
     c  "q   ^A~
 
-                                                         v
-    $ vim -Nu NONE +'nno <expr> <c-a> feedkeys("<c-b>", "t")[-1]'
+                                                            v
+    $ vim -Nu NONE +'nno <c-a> <cmd>call feedkeys("<c-b>", "t")<cr>'
     " press:
              qq
              C-a
@@ -983,7 +983,7 @@ mapping, and Vim records it.
 For this reason, use the `t` flag only when it's really necessary.
 Otherwise, the replay of a macro may give an unexpected result:
 
-    $ vim -Nu NONE +'set wcm=9 | cno <expr> <s-tab> feedkeys("<s-tab>", "int")[-1]' +"pu='some text'"
+    $ vim -Nu NONE +'set wcm=9 | cno <s-tab> <cmd>call feedkeys("\<lt>s-tab>", "int")<cr>' +"pu='some text'"
     " press:
     "        qq : Tab Tab Tab S-Tab CR
     "        q
@@ -1248,12 +1248,12 @@ If you've mapped something to `C-j`, it will have unexpected effects.
 
 Example when CR is pressed in command-line mode:
 
-    $ vim -Nu NONE +'let @q = ":\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
+    $ vim -Nu NONE +'let @q = ":\<cr>"' +'nno <c-j> <cmd>echom "this should NOT be executed"<cr>'
     " press @q: the C-j mapping is executed (the message is logged)
 
 Example when CR is pressed in normal mode:
 
-    $ vim -Nu NONE +"pu_" +'let @q = "\<cr>"' +'nno <c-j> :echom "this should NOT be executed"<cr>'
+    $ vim -Nu NONE +"pu_" +'let @q = "\<cr>"' +'nno <c-j> <cmd>echom "this should NOT be executed"<cr>'
                     ^---^
                     there needs to be a line after the one from which we press `@q`,
                     otherwise, `^M` would fail and Vim would stop executing the macro
@@ -1530,10 +1530,9 @@ Examples:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         let @q = 'Vr-x'
-        xno <expr> x Func()
+        xno x <cmd>call Func()<cr>
         fu Func()
             echom 'x mapping is used'
-            return ''
         endfu
         pu!='some text'
         au VimEnter * call feedkeys('@q')
@@ -1554,7 +1553,7 @@ Examples:
     )
 
     bard~
-    ^-^
+    ^^^
     should be foo
 
 As a workaround, try to press `Esc` to be sure that the rest of the commands are
@@ -1563,10 +1562,9 @@ processed in the mode you expect:
     $ vim -Nu NONE -S <(cat <<'EOF'
         let @q = "Vr-\ex"
         "            ^^
-        xno <expr> x Func()
+        xno x <cmd>call Func()<cr>
         fu Func()
             echom 'x mapping is used'
-            return ''
         endfu
         pu!='some text'
         au VimEnter * call feedkeys('@q')

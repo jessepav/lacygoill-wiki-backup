@@ -573,6 +573,13 @@ If you want to run a particular test in a particular file, use `vim(1)`:
                                                     └ name of the testing function without the "Test_" prefix
                                                       (e.g. "Test_bufname()")
 
+Or set the `$TEST_FILTER` environment variable.  See `~/Vcs/vim/src/Makefile`:
+
+   > # Set $TEST_FILTER to select what test function to invoke, e.g.:
+   > #	export TEST_FILTER=Test_terminal_wipe_buffer
+   > # A partial match also works:
+   > #	export TEST_FILTER=wipe_buffer
+
 ### Where can I read the results?
 
     ~/Vcs/vim/src/testdir/test.log
@@ -1638,7 +1645,7 @@ There is no way to see the command at the current line yet.
             Ça implique  que nos  mappings custom en  ligne de  commande peuvent
             interférer: ceux dont le rhs appelle une fonction custom.
 
-                    nno cd :call Func()<cr>
+                    nno cd <cmd>call Func()<cr>
                     fu Func()
                     endfu
 
@@ -1646,7 +1653,7 @@ There is no way to see the command at the current line yet.
                     Debug call Func()    ✔ `:Debug` tente de désactiver temporairement nos mappings custom
 
 
-                    nno cd :call Func()<cr>
+                    nno cd <cmd>call Func()<cr>
                     fu Func()
                         let var1 = 'foo'
                         Breakadd here

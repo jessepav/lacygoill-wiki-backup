@@ -10,11 +10,8 @@
    - `:h interrupt()`
    - `:h listener_add()`
    - `:h listener_remove()`
-   - `:h mapnew()`
-   - `:h matchfuzzy()` + `:h matchfuzzypos()`
    - `:h pum_getpos()`
    - `:h readdir()` + `:h readdirex()`
-   - `:h reduce()`
    - `:h setcellwidths()`
    - `:h str2list()` + `:h list2str()`
    - `:h strptime()` (*str*ing *p*arse *time* ?)
@@ -50,20 +47,10 @@ Answer: with `:wall`:
 
 ---
 
-Look for `eval(.*join(` everywhere.
-For every match, check whether we could use `reduce()` instead.
-
----
-
 I  think  `strptime()`  is  useful  to convert  a  human-readable  date  into  a
 machine-readable form.  Useful when you need  to do some computation on it.  For
 example, you  may want to  sort human-readable  dates; `strptime()` may  help by
 temporarily converting the dates into simple integers.
-
----
-
-To learn how to use `matchfuzzy()`, study this plugin:
-<https://github.com/yegappan/fileselect>
 
 ## arguments of functions
 
@@ -131,6 +118,7 @@ Note: `InsertLeave` is fired right *after* leaving insert mode.
 # `v:` variables
 
    - `v:collate`
+   - `v:exiting`
 
 ---
 

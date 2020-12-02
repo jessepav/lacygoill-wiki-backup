@@ -632,7 +632,7 @@ from reading the end of long lines when previewing a help tag in a popup.
 
     " Implementation {{{1
 
-    exe 'nno <silent> ' .. s:KEYMAPPING .. ' :<c-u>call <sid>calendar_widget()<cr>'
+    exe 'nno ' .. s:KEYMAPPING .. ' <cmd>call <sid>calendar_widget()<cr>'
 
     fu s:calendar_widget() abort
         let lines = systemlist('cal')[:-2]
@@ -651,9 +651,9 @@ from reading the end of long lines when previewing a help tag in a popup.
         call nvim_open_win(bufnr, 1, opts)
         let s:current = s:current() | let s:orig = deepcopy(s:current)
         call s:highlight_current_day()
-        nno <buffer><nowait><silent> <cr> :<c-u>call <sid>insert_date()<cr>
-        nno <buffer><nowait><silent> H :<c-u>call <sid>another_month('prev')<cr>
-        nno <buffer><nowait><silent> L :<c-u>call <sid>another_month('next')<cr>
+        nno <buffer><nowait> <cr> <cmd>call <sid>insert_date()<cr>
+        nno <buffer><nowait> H <cmd>call <sid>another_month('prev')<cr>
+        nno <buffer><nowait> L <cmd>call <sid>another_month('next')<cr>
     endfu
 
     fu s:current() abort
