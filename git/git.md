@@ -1952,7 +1952,9 @@ To undo the removal of the big file, run:
 
     $ git reset --hard origin/master
 
-## Study/document quilt
+##
+## Utilities
+### quilt(1)
 
 From `$ aptitude show quilt`:
 
@@ -1980,3 +1982,7 @@ From `$ aptitude show quilt`:
 To integrate quilt into your prompt, read:
 
     man zshcontrib /GATHERING INFORMATION FROM VERSION CONTROL SYSTEMS/;/^\s*Quilt Support
+
+### delta
+
+<https://github.com/dandavison/delta>

@@ -2758,3 +2758,9 @@ choosing.
             Traduit une phrase en français vers l'anglais (langue système).
             Idem mais en moins verbeux.
 
+#### visidata
+
+A terminal interface for exploring and arranging tabular data.
+
+<https://github.com/saulpw/visidata>
+<https://www.visidata.org/docs/>

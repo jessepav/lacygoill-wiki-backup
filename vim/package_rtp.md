@@ -376,6 +376,16 @@ issue located in an arbitrary plugin?
 
 ## ?
 
+`-u NORC` doesn't disable packages, only plugins.
+Should we ask for `--nopackage` (similar to `--noplugin`) as a feature request?
+
+Workaround:
+
+    $ vim -Nu NORC --cmd 'set pp-=~/.vim'
+                   ^--------------------^
+
+## ?
+
    > One annoyance with packages is `:helptags ALL` does not consider `opt` directories. Personally, I like having help documentation tags built for all packages, even optional ones.
 
    > Here is an "enhanced" command, `:Helptags`:

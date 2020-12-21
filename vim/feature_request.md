@@ -50,10 +50,39 @@ The issue only arises in the second window counting from the bottom:
 highlight the title of a fold with special colors, but not the rest of the line.
 
 ##
-# Provide a mechanism to annotate mappings (like tmux)?
+# Miscellaneous
+## Provide a mechanism to annotate mappings (like tmux)?
 
 I'm not sure it's  a good idea.  We need to experiment with  the feature in tmux
 to see how it works, how useful it is, and how it could be ported into Vim.
+
+## Suppress hit-enter prompt when looking for a very long pattern.
+```vim
+vim9script
+setline(1, repeat(['the quick brown fox jumps over the lazy dog'], 3))
+:%j
+('/' .. repeat(['the weird brown fox jumps over the lazy dog'], 3)->join() .. "\r")->feedkeys()
+```
+Notice the hit-enter prompt.
+```vim
+vim9script
+setline(1, repeat(['the quick brown fox jumps over the lazy dog'], 3))
+:%j
+('/' .. repeat(['the quick brown fox jumps over the lazy dog'], 3)->join() .. "\r")->feedkeys()
+set shm-=S
+```
+Again, notice the hit-enter prompt.
+
+Press  Enter, then  `n`; notice  that this  time, there's  no hit-enter  prompt,
+because the pattern is truncated in the middle:
+
+    /the quick brown fox jumps over the la...x jumps over the lazy dog        [1/1]
+                                          ^^^
+                                          truncation
+
+This is neat.  Could  Vim do the same thing in the 2  previous cases, so that we
+never have  this annoying  hit-enter prompt?  If  it breaks  compatibility, then
+maybe we could ask for a new flag in `'shortmess'`...
 
 ##
 # Issues

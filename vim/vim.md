@@ -217,6 +217,35 @@ For more info, see:
 <https://vi.stackexchange.com/a/1892/17449>
 
 ##
+# Todo
+## To document:
+### :grep is much faster in the GUI when prefixed with `:silent` *and* `!` is not in `'go'`
+
+You can make tests with:
+
+    $ vim -g -f -Nu NONE -i NONE -S <(cat <<'EOF'
+        vim9script
+        set go-=!
+        cd $VIMRUNTIME
+        var time1 = reltime()
+        sil grep the **/*
+        var time2 = reltime(time1)->reltimestr()->matchstr('.*\..\{,3}')
+        var msg = time2 .. ' seconds to run :grep'
+        writefile([msg], '/tmp/vim.grep.log', 'a')
+        qa!
+    EOF
+    )
+
+    $ cat /tmp/vim.grep.log
+
+---
+
+By default, `!` is  not `'go'`.  In our vimrc, we include it  because it lets us
+interrupt an external command with `C-c`.
+Unfortunately, when `!` is in `'go'`, `:sil` no longer works in front of `:grep`
+(and because of that the latter is much slower).  Is it a bug?
+
+##
 ##
 ##
 # Édition

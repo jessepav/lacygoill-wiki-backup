@@ -1968,7 +1968,75 @@ So, it's probably not well-tested.
 
 ##
 # Todo
-## Document the fact that when we filter a list, for some conditions, we may need to make a copy of the list.
+## To document
+### mapnew() uses a shallow copy
+
+See: <https://github.com/vim/vim/issues/7400#issuecomment-737411165>
+
+This matters if:
+
+   - you pass a list or dictionary to `mapnew()`
+   - the items are themselves composite
+   - you *mutate* the items
+
+In that case, you will need `deepcopy()` + `map()`:
+```vim
+let ld = [{'x': 12}]
+call mapnew(ld, {_, v -> extend(v, {'y': 34})})
+echo ld
+```
+    [{'x': 12, 'y': 34}]
+    ✘
+```vim
+let ld = [{'x': 12}]
+call deepcopy(ld)->map({_, v -> extend(v, {'y': 34})})
+echo ld
+```
+    [{'x': 12]
+    ✔
+
+But not if you just *replace* the items:
+```vim
+let ld = [{'x': 12}]
+call mapnew(ld, {_, v -> 0})
+echo ld
+```
+    [{'x': 12]
+    ✔
+
+### `v:none` can be useful as a kind of sentinel value
+
+For example, if you want to check the existence of a buffer-local variable in an
+inactive buffer, you can't write this:
+
+              ✘
+       v--------------v
+    if exists('b:name')
+        ...
+    endif
+
+But you could write this:
+
+                                      ✔
+                              v---------------v
+    if getbufvar(123, 'name', v:none) != v:none
+        ...
+    endif
+
+See: <https://vi.stackexchange.com/a/28366/17449>
+
+---
+
+A sentinel value makes it possible to detect the end of some data.
+For it to work as intended, its value must be invalid for the data.
+
+In the  previous example,  I don't  think `v:none` is  really a  sentinel value,
+because it's not used to detect the *end* of some data, but its *existence*.
+But the usage is similar, so I guess it's close enough.
+
+See: <https://en.wikipedia.org/wiki/Sentinel_value>
+
+### when we filter a list, for some conditions, we may need to make a copy of the list
 
 As an example, suppose that you want to filter this list:
 
@@ -2059,6 +2127,7 @@ that  its purpose  is to  remove items;  and when  it does  remove one  item, it
 necessarily alters the next ones, because their indexes are not updated as we've
 just seen before.
 
+##
 ## Refactor our vimrc/plugins to make function calls with many arguments more readable.
 
 Look at the `Function calls` section in this file; one of its questions is:

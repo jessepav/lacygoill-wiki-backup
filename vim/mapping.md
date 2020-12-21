@@ -225,7 +225,17 @@ another function invoked before/after your opfunc, but not directly from it:
 
 ---
 
-Note that the same issue exists for timers:
+Note that the same issue exists for autocmds:
+
+    augroup test_echo | au!
+        au CursorHold * ++once call Func() | au! test_echo
+    augroup END
+    fu Func()
+        echom 'foo'
+        echom 'bar'
+    endfu
+
+And for timers:
 
     " ✔
     :echom 'foo' | echom 'bar'
@@ -236,15 +246,12 @@ Note that the same issue exists for timers:
     :call timer_start(0, {-> execute('echom "foo" | echom "bar"', '')})
     bar~
 
-And for autocmds:
+   > Not sure if you really want to do this, the user may be doing something
+   > that should not be interrupted by a list of messages. The callback
+   > functions are not really intended to output a list of messages, that
+   > would mess up the screen.
 
-    augroup test_echo | au!
-        au CursorHold * ++once call Func() | au! test_echo
-    augroup END
-    fu Func()
-        echom 'foo'
-        echom 'bar'
-    endfu
+Source: <https://github.com/vim/vim/issues/836#issuecomment-221404233>
 
 ##
 # feedkeys()
@@ -1248,7 +1255,7 @@ want to write sth like this instead:
 
 ##
 # Miscellaneous
-## What are 3 extra benefits of the pseudo-key `<cmd>`?
+## What are 3 benefits of the pseudo-key `<cmd>`?
 
 It does not trigger `CmdlineEnter` nor `CmdlineLeave`.
 

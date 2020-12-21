@@ -1,4 +1,29 @@
 # Refactoring
+## finish reviewing our "deep" qfl
+
+I think its purpose was to refactor as many `deepcopy()` + `map()` and `copy()` + `map()`
+into `mapnew()` as possible.
+
+Did we make some mistake(s)?
+
+Remember that `mapnew()` only makes a shallow copy...
+
+## remove unnecessary quotes around keys in Vim9 dictionaries
+
+    ^\C\s*\%(export\s\+\)\=\%(def\)\%(\%(enddef\)\@!\_.\)*{\zs\_s*['"]
+
+## ?
+
+If the change suggested in this report is considered and accepted:
+<https://github.com/vim/vim/issues/7409>
+
+and you need to refactor your Vim9 scripts, look for this pattern:
+
+    \C\<def\>\%(\%(enddef\)\@!\_.\)*\zs\[[^:\]]*:[^:\]]\+\]
+
+Note that it gives some false positives.
+
+##
 ## When should we
 ### pass `W`, `c` or `z` to `search()`?
 

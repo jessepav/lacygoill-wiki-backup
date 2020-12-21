@@ -192,9 +192,7 @@ The popup is closed.
 # Pitfalls
 ## When writing a popup filter, which keys should I avoid consuming?
 
-Any key  which has  a meaning  for Vim;  unless you  pass `mapping:  v:false` to
-`popup_create()`, in which case, your filter can consume any key.
-
+Any key which has a meaning for Vim.
 Otherwise, as long as  your popup is visible, you can't press  this key with its
 default meaning, neither directly, nor in the rhs of a mapping.
 
@@ -212,6 +210,12 @@ default meaning, neither directly, nor in the rhs of a mapping.
 
 Press `C-x`: it fails, the number is not decreased because `C-x` was consumed by the filter.
 Press `cd`: again, it fails, for the same reason.
+
+---
+
+If you pass `mapping: v:false` to  `popup_create()`, your filter can consume any
+key, because  if you don't  care about losing  mappings then you  probably don't
+care about losing default commands either.
 
 ## None of my mappings work while a popup is open!
 

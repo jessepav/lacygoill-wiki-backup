@@ -1,7 +1,7 @@
 <https://github.com/vim/vim/blob/master/runtime/doc/vim9.txt>
 <https://github.com/vim/vim/blob/master/runtime/doc/todo.txt>
 
-# ?
+# vim-fuzzy
 
 I suspect that invoking `map()` to turn source lines into dictionaries is costly.
 But we only need to do that for 3 sources:
@@ -456,137 +456,6 @@ Look for which functions:
    - don't support `'.'` as a shorthand, but would benefit from it
    - expect a `{row}` and/or `{col}` argument which describe *cells* positions
 
-#### should we make the second index in a slice exclusive?
-
-This is not a bug report nor a feature request.  Just a discussion about whether it would be beneficial for Vim9 to change how the second index in a slice is parsed.
-
-    ┌──────────────────────────────┬────────────┐
-    │ count referrences at :h Vim9 │ language   │
-    ├──────────────────────────────┼────────────┤
-    │ 14                           │ TypeScript │
-    ├──────────────────────────────┼────────────┤
-    │ 09                           │ JavaScript │
-    ├──────────────────────────────┼────────────┤
-    │ 07                           │ Java       │
-    ├──────────────────────────────┼────────────┤
-    │ 04                           │ Python     │
-    └──────────────────────────────┴────────────┘
-
-Update: I'm not sure this is such a good idea anymore:
-<https://stackoverflow.com/a/50209705/9780968>
-
----
-
-In a slice, make the second index exclusive
-
-In python and javascript, it seems that the second index in a slice is exclusive.
-In Vim script legacy, it's inclusive.
-
-Should it be made exclusive in Vim9?
-
-Note that Vim9 has already changed the meaning of indexes in a string slice.
-In Vim script legacy, they described byte indexes.
-In Vim9, they describe character indexes.
-See:
-
-   - `:h expr-[]`
-   - <https://github.com/vim/vim/issues/6563#issuecomment-667587072>
-
-If it was  ok to change the meaning  of string indexes, maybe it's  ok to change
-the inclusive property of the second index?   And if it's ok for a string slice,
-then maybe it's ok for a list slice as well?
-
-Maybe it's something which users familiar with other programming languages would like?
-
-Also, to illustrate how it can simplify  the code a little, read this code whose
-purpose is to generate all permutations of items in a list:
-
-    def Addperm(x: number, l: list<number>): list<list<number>>
-        var ret = []
-        for i in range(len(l) + 1)
-            ret += [ (i == 0 ? [] : l[0:i - 1]) + [x] + l[i :] ]
-        endfor
-        return ret
-    enddef
-
-    def Perm(l: list<number>): list<list<number>>
-        if len(l) == 0
-            return [[]]
-        endif
-        var ret = []
-        for x in Perm(l[1:])
-            for y in Addperm(l[0], x)
-                ret += [y]
-            endfor
-        endfor
-        return ret
-    enddef
-
-    echo range(3)->Perm()
-
-Same code in python:
-
-    def Addperm(x, l):
-        ret = []
-        for i in range(len(l) + 1):
-            ret += [ l[0:i] + [x] + l[i:] ]
-        return ret
-
-    def Perm(l):
-        if len(l) == 0:
-            return [[]]
-        ret = []
-        for y in Perm(l[1:]):
-            for x in Addperm(l[0], y):
-                ret += [x]
-        return ret
-
-    print Perm([0, 1, 2])
-
-Notice how the 4th line is simpler in python:
-
-    ret += [ l[0:i] + [x] + l[i:] ]
-
-Compared to Vim9:
-
-    ret += [ (i == 0 ? [] : l[0:i - 1]) + [x] + l[i :] ]
-
-Also, note that we have to add an extra space:
-
-    ret += [ (i == 0 ? [] : l[0:i - 1]) + [x] + l[i :] ]
-                                                   ^
-
-This is to suppress `E1075`:
-
-    E1075: Namespace not supported: i:] ]
-
-Could Vim9 be smarter here?
-Suggestion:  Make `:` be always parsed as a separator between 2 indexes, unless it's doubled.
-If someone wants to use `:` for a variable scope inside a slice, they should double it:
-
-    l[b:c]
-       ^
-       separator between 2 indexes whose values are the variables "b" and "c"
-
-    l[b::c]
-       ^^
-       separator between the buffer namespace and the "c" variable in that namespace
-
-I think it would fix inconsistencies.  In particular, I think the error messages
-would be easier to understand.
-Find inconsistencies in the way ":" is currently parsed in a slice, and examples
-of error messages which are hard to understand.
-Make sure the new design would not suffer from other issues.
-
----
-
-If this  is changed, and you  need to refactor  your Vim9 script, look  for this
-pattern:
-
-    \C\<def\>\%(\%(enddef\)\@!\_.\)*\zs\[[^:\]]*:[^:\]]\+\]
-
-Note that it gives some false positives.
-
 #### Prevent all commands from parsing a bar as part of their argument.
 
 For the list of commands which parse a bar as part of their argument, see `:h :bar`.
@@ -615,104 +484,251 @@ parse a command-line typed interactively with the Vim9 syntax?
 ##
 ## ?
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var d = {12: 34}
-    EOF
-    )
-    ✔
+We cannot  use `#`  as a shorthand  for the alternate  file in  various commands
+which expect a filename (like `:e` and `:w`).  Same issue with `##` for the arglist.
+That's because `#` is always handled as a comment leader.
+Should the help warn the user about that?
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            var d = {12: 34}
-        enddef
-        defcompile
-    EOF
-    )
-    E1012: Type mismatch; expected string but got number~
-    ✘
+Workaround:
+```vim
+vim9script
+e /tmp/file1
+e /tmp/file2
+e #
+```
+    expected: /tmp/file2 is displayed
+    actual:   /tmp/file1 is displayed
+```vim
+vim9script
+e /tmp/file1
+e /tmp/file2
+exe 'e ' .. bufname('#')->fnamemodify(':p')
+```
+    ✔
 
 ---
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var mydict = #{zero: 0, one_key: 1, two-key: 2, 333: 3}
-    EOF
-    )
-    ✔
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var mydict = {zero: 0, one_key: 1, two-key: 2, 333: 3}
-    EOF
-    )
-    E121: Undefined variable: two~
-    ✘
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var mydict = {zero: 0, one_key: 1, two_key: 2, 333: 3}
-    EOF
-    )
-    ✔
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            var mydict = {zero: 0, one_key: 1, two_key: 2, 333: 3}
-        enddef
-        defcompile
-    EOF
-    )
-    E1012: Type mismatch; expected string but got number~
-    ✘
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var nestdict = {1: {11: 'a', 12: 'b'}, 2: {21: 'c'}}
-    EOF
-    )
-    ✔
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            var nestdict = {1: {11: 'a', 12: 'b'}, 2: {21: 'c'}}
-        enddef
-        defcompile
-    EOF
-    )
-    E1012: Type mismatch; expected string but got number
-    ✘
+Btw, why doesn't `:e#` raise any error:
+```vim
+vim9script
+e /tmp/file1
+e /tmp/file2
+e#
+```
+And why does it work?  That is, why is `/tmp/file2` correctly displayed?
+Is the `#` argument handled specially?  Should it be allowed to continue to be special?
 
 ## ?
 
     $ vim -Nu NONE -S <(cat <<'EOF'
-        def Func()
-            [@a, @z] =
-                ['aa', 'zz']
-        enddef
-        defcompile
+        vim9script
+        const g:NAME = 123
     EOF
     )
 
-    ✔
-    works only since 8.2.2072
+    E1016: Cannot declare a global variable: g:NAME
+
+Should it work?
+
+Workaround:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
-        def Func()
-            @a =
-                'aa'
-        enddef
-        defcompile
+        vim9script
+        g:NAME = 123
+        lockvar g:NAME
     EOF
     )
 
-    E1015: Name expected:~
+## ?
+```vim
+def Func()
+    d[''] = 0
+enddef
+let s:d = {}
+call Func()
+```
+    E1073: Name already defined: d[''] = 0
+```vim
+def Func()
+    s:d[''] = 0
+enddef
+let s:d = {}
+call Func()
+```
+    ✔
 
-Bug? (at least it's inconsistent)
+The error in the first snippet looks weird.
+Shouldn't it be:
 
+    E492: Not an editor command:     d[''] = 0
+
+Or maybe:
+
+    E476: Invalid command: d[''] = 0
+
+Is it a bug?  (It's not a regression).
+
+---
+
+Simpler example:
+```vim
+let s:name = ''
+def FuncA()
+    name = 'test'
+enddef
+call FuncA()
+```
+    E1073: Name already defined: name = 'test'
+
+Update: This  last example  looks like  another bug.   Because this  time, there
+shouldn't be any error at all, right?
+
+## ?
+
+From: <https://github.com/vim/vim/issues/7468>
+```vim
+vim9script
+
+eval #{some comment
+eval # {some comment
+
+echo #{some comment
+echo # {some comment
+```
+> Each of these commands raise `E121`:
+>
+>     E121: Undefined variable: #
+>
+> Except the last one which doesn't raise any error.
+>
+> This is unexpected for 2 reasons:
+>
+>  - Why is `#` parsed as a variable name? In Vim9 script, `#` should always be parsed as a comment leader (at least since [8.2.2082](https://github.com/vim/vim/releases/tag/v8.2.2082)).
+>  - Why doesn't the last command raise any error?  If the last but one raises an error, then the last one should too.
+>
+> I think they should all raise `E1015`, because that's the error raised when `:eval` (or `:echo`) is executed in a `:def` function without argument.
+> And because # always starts a comment, therefore everything which follows should be ignored (including #), and :echo as well as :eval should be executed without argument.
+
+Open a separate issue.
+
+Also, here is a similar issue when the code is compiled:
+```vim
+vim9script
+
+def Func()
+    eval #{some comment
+enddef
+defcompile
+```
+    E1143: Empty expression: "#{some comment"
+```vim
+vim9script
+
+def Func()
+    eval # {some comment
+enddef
+defcompile
+```
+    E1143: Empty expression: "# {some comment"
+```vim
+vim9script
+
+def Func()
+    echo #{some comment
+enddef
+defcompile
+```
+    E1143: Empty expression: "#{some comment"
+```vim
+vim9script
+
+def Func()
+    echo # {some comment
+enddef
+defcompile
+```
+    ✔
+
+First, the fact that the last snippet does not raise any error is inconsistent.
+
+Second, the fact  that the first 3  snippets raise `E1143` in  a `:def` function
+while they raise `E121` at the script level is another inconsistency.
+
+---
+```vim
+vim9script
+eval
+```
+    E15: Invalid expression:
+```vim
+vim9script
+def Func()
+    eval
+enddef
+defcompile
+```
+    E1143: Empty expression: ""
+
+Different errors = inconsistency?
+We've reported this, but Bram didn't fix it; should we report again?
+
+## ?
+```vim
+vim9script
+def Func()
+    if exists('name')
+        echo name
+    endif
+enddef
+defcompile
+```
+    E1001: Variable not found: name
+```vim
+vim9script
+def Func()
+    if exists('g:name')
+        echo g:name
+    endif
+enddef
+defcompile
+```
+    ✔
+```vim
+vim9script
+if exists('name')
+    echo name
+endif
+```
+    ✔
+
+Why an error in the first snippet?
+
+Workaround:
+```vim
+vim9script
+def Func()
+    if exists('name')
+        echo name
+    endif
+enddef
+var name: string
+defcompile
+```
+    ✔
+
+Update: I  don't think  it's a  bug.   I think  you  should rarely  if ever  use
+`exists()` (or `get()`) with a script-local  variable.
+
+Indeed, if you check the existence of such a variable, you probably have written
+some code which deletes it.  But that's not allowed in Vim9 script.
+
+Instead of deleting a  variable, try to make it "empty"  (`''`, `[]`, `{}`, `0`,
+...), or give it an invalid value.
+
+Using an empty value  is especially convenient because it lets  you use the null
+coalescing operator `??`.
+
+##
 ## ?
 
 According to the help, these functions accept a funcref as an argument:
@@ -1608,9 +1624,9 @@ Run this shell command:
     EOF
     )
 
-`E611` is raised 4 times:
+`E1138` is raised 4 times:
 
-    E611: Using a Special as a Number
+    E1138: Using a Bool as a Number
 
 **Expected behavior**
 
@@ -1618,9 +1634,9 @@ No error is raised.
 
 **Environment**
 
- - Vim version: 8.2 Included patches: 1-1712
+ - Vim version: 8.2 Included patches: 1-2081
  - OS: Ubuntu 16.04.7 LTS
- - Terminal: xterm(360)
+ - Terminal: xterm(362)
 
 **Additional context**
 
@@ -1673,24 +1689,6 @@ removed.  I  guess that  right before  sourcing a script,  Vim first  clears the
 script-local namespace.
 But what is weird is that Vim does not look in the global namespace anymore.
 Why?
-
-## ?
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var mylist = [1, 2, 3]
-        mylist
-            ->len()
-    EOF
-    )
-
-    Error detected while processing command line..script /proc/31782/fd/11:
-    line    3:
-    E492: Not an editor command:     mylist
-    line    4:
-    E492: Not an editor command:         ->len()
-
-Is it a bug?  Should Vim look for `->` on the next line before raising `E492`?
 
 ##
 ## ?
@@ -1814,14 +1812,26 @@ To:
     E1075: Namespace not supported: s:
 
 Maybe ask on #6480 why `s:` is not supported.
-It would help if it was supported:
-
-   - to refactor vim-search (see comment at the top of the autoload script)
-   - to refactor future Vim script legacy functions where we've written `get(s:, ...)`
-     (we have a few dozens of those)
+It would help if it was supported to refactor future Vim script legacy functions
+where we've written `get(s:, ...)` (we have a few dozens of those).
 
 If it can't be made to work, maybe this limitation should be documented (`:h vim9-gotchas`).
 
+Update:  I found a workaround which relies on the null coalescing operator.
+```vim
+" old code using get(s:, ...)
+fu Func()
+    echo get(s:, 'name', 123)
+endfu
+```
+```vim
+" new code using ??
+vim9script
+def Func()
+    echo name ?? 123
+enddef
+var name: number
+```
 ---
 
 It might be documented at `:h :def`:
@@ -1853,17 +1863,6 @@ defcompile
 
 I'm not trying to declare a script variable; I'm trying to add a key in a dictionary.
 The error message is misleading.  Bug?
-```vim
-vim9script
-var s:d = {'key': 0}
-def Func()
-    s:d.key = 123
-enddef
-defcompile
-```
-    Not supported yet: s:d.key = 123
-
-To document: cannot use `d.key` in a `:def` function.
 
 ## ?
 
@@ -1998,92 +1997,6 @@ echo get(s:, 'var', 456)
     456
     ✘
 
-## ?
-
-Vim9: the scope of an autoload variable is confusing
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var foo#bar = 123
-        echo g:
-        echo s:
-    EOF
-    )
-
-    {}
-    {'foo#bar': 123}
-
-This suggests that without an explicit prefix, an autoload variable is local to the script.
-But watch this:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        s:foo#bar = 123
-    EOF
-    )
-
-    E461: Illegal variable name: s:foo#bar
-
-This suggests that an autoload variable *cannot* be script-local.
-Either an autoload variable is script-local by default, and the second snippet should not raise an error, or it is *not* script-local by default and in the first snippet `s:` should *not* include a `foo#bar` key.
-
----
-
-[We can omit the `g:` prefix](https://github.com/vim/vim/issues/6553) in front of the name of an autoload function in its header, and at any call site.
-
-But we *cannot* omit `g:` for an autoload variable:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var foo#bar = 123
-    EOF
-    )
-
-    :echo foo#bar
-    E121: Undefined variable: foo#bar
-
-    :echo g:foo#bar
-    E121: Undefined variable: g:foo#bar
-
-Notice how an error is raised because `g:` is missing in the assignment.
-
-To be consistent, I think one of these statements should be true:
-
-   1. `g:` is enforced for autoload functions
-   2. `g:` is disallowed for autoload functions
-   3. `g:` is allowed for autoload variables
-
-If `1.` is chosen, we need to write `g:` all the time:
-
-   - when defining an autoload function
-   - when calling an autoload function
-   - when assigning a value to an autoload variable
-   - when evaluating an autoload variable
-
-If `2.` is chosen, we never need to write `g:`, but the help at `:h autoload` should be updated.
-If `3.` is chosen, it never matters whether we write `g:` or omit it, but – again – the help at `:h autoload` should be updated.
-
-FWIW, I would prefer `3.`, because it's more consistent with legacy Vim script.
-
----
-
-   > Normally, in Vim9 script all functions are local.
-   > To use a function outside of the script, it either has to be exported/imported, or made global.
-   > Autoload scripts are different; they define a third type of function: "autoloadable".
-   > Those are recognized by the "name#" prefix.
-   > It's like these are exported to this autoload namespace.
-   > These functions are not global, in the sense that the g: prefix is not used,
-   > neither where it's defined nor where it is called.
-
-Source: <https://github.com/vim/vim/issues/6553#issuecomment-665878820>
-
-I think this suggests that autoload functions are automatically exported to some
-autoload  namespace, and  can  be  used without  being  imported (maybe  they're
-automatically imported when called).
-
-Is the same true about autoload variables?
-If so, does it make our previous analyses wrong?
-
 ##
 ## ?
 ```vim
@@ -2102,12 +2015,12 @@ call feedkeys("\<C-b>")
 ```
     E476: Invalid command: invalid
 
-Why doesn't Vim raise any error for the missing return type in `Map()`'s header?
+`E476` is correctly raised at compile time.
+But why doesn't Vim raise any error for the missing return type in `Map()`'s header?
 
     E1096: Returning a value in a function without a return type
 
-Update:  I think that `E476` is raised at compile time, not at runtime.
-And at compile time, `E1096` is also raised:
+---
 ```vim
 def Map()
     A()
@@ -2122,7 +2035,8 @@ defcompile
     E476: Invalid command: invalid
     E1096: Returning a value in a function without a return type
 
-But why doesn't Vim raise `E1096` in the first snippet, at compile time?
+This time, both errors are correctly raised.
+But why doesn't Vim raise `E1096` in the first snippet?
 It's not because of the `<expr>` argument:
 ```vim
 vim9script
@@ -2185,6 +2099,8 @@ enddef
 
 Map()
 ```
+    E476: Invalid command: invalid
+
 ## ?
 ```vim
 vim9script
@@ -2268,12 +2184,12 @@ def A()
 enddef
 
 def B()
-    echom 'still alive'
+    echom 'still running'
 enddef
 
 call feedkeys("\<C-b>")
 ```
-Why doesn't Vim print `still alive` after we press Enter?
+Why doesn't Vim print `still running` after we press Enter?
 
 ## ?
 
@@ -2283,7 +2199,7 @@ Look at this script:
 
 In the `Max()` function, look at this line:
 
-    elseif copy(numbers)->map({_, v -> type(v)})->index(v:t_float) == -1
+    elseif mapnew(numbers, {_, v -> type(v)})->index(v:t_float) == -1
 
 Temporarily refactor to introduce an error:
 
@@ -2327,26 +2243,6 @@ manually.  We should be  able to press `!w` and get the error(s)  in a qfl, just
 like we could in Vim legacy.
 
 ##
-## ?
-```vim
-vim9script
-def Func()
-    echo range(9)->map({_, v->v + 1})
-enddef
-Func()
-```
-    no error
-
-Should we enforce proper use of whitespace around the `->` inside a lambda?
-
-    echo range(9)->map({_, v->v + 1})
-                           ^--^
-                            ✘
-
-    echo range(9)->map({_, v - >v + 1})
-                           ^----^
-                             ✔
-
 ## ?
 
 Should Vim9 script implement the concept of a block at the script level?
@@ -2435,7 +2331,7 @@ If a custom `len()` is allowed, it will shadow the builtin `len()`.
 I think  that what prevents  what you had  in mind is  the fact that  a function
 without a `s:` prefix is not necessarily script-local; it can be global.
 
-## Vim9: should Vim's help include its own Vim9 script style guide similar to ":h coding-style"?
+## Vim9: should Vim's help include its own Vim9 script style guide similar to `:h coding-style`?
 
 Maybe it could be based on the one provided by Google.
 
@@ -2466,7 +2362,6 @@ Those errors are present in the Vim9 tests, but are not documented:
 `:h E1020`
 `:h E1021`
 `:h E1022`
-`:h E1023`
 `:h E1025`
 `:h E1026`
 `:h E1027`
@@ -2585,48 +2480,6 @@ with a builtin one?  I don't think so, because we can already define a `s:len()`
 function in legacy...
 
 ## ?
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        let s = 3
-        let line = 'abcdef'
-        echo line[s:]
-    EOF
-    )
-
-    E731: using Dictionary as a String
-
-Not easy to understand the error.
-First, it is not obvious that `s:` was parsed as a dictionary (the one containing all the script-local variables).
-Second, it is unexpected to see the word `String` mentioned in the message; in a string slice, we typically use numbers, not strings, to index some bytes (legacy) or characters (Vim9).
-
-This would be better:
-
-    E1234: cannot use s: Dictionary as an index
-
-Because this message suggests that `s:` was parsed as a dictionary.
-
-I was thinking that maybe Vim could be smarter and parse `s:` differently depending on whether it's followed by a variable name or not, but I don't think that's possible:
-
-    'foobar'[s:var]
-
-In this example, does `s:var` stand for a slice of one byte indexed by the variable `s:var`?
-Or does it stand for a slice of several bytes, from the one indexed by `s` to the one indexed by `var`?
-Right now, Vim uses the first interpretation.
-However, to avoid any kind of confusion, maybe Vim9 script should enforce white space around `:` in a slice?
-Actually, no, that's a bad idea.  I think it would make Vim raise an error when we use a script-local variable as a byte index.  The issue is that `:` is used both as a delimiter between indexes in a slice, *and* inside a scope.
-
----
-```vim
-let l = 3
-let line = 'abcdef'
-echo line[l:]
-```
-    E121: Undefined variable: l:
-
-This is expected.  And the reason why the error message is different, is because
-the code is not run inside a function; so there is no `l:` dictionary.
-
-## ?
 ```vim
 vim9script
 def Func()
@@ -2637,8 +2490,6 @@ def Func()
 enddef
 Func()
 ```
-This snippet raises `E476`:
-
     E476: Invalid command: mylist
 ```vim
 vim9script
@@ -2649,7 +2500,7 @@ def Func()
 enddef
 Func()
 ```
-This snippet doesn't raise any error.
+    ✔
 
 If Vim is able to look for `->` on the next line in the second snippet, could it do the same in the first snippet?
 
@@ -2675,156 +2526,375 @@ How to get proper syntax highlighting for Vim9 code on github?
    3. <https://github.com/SalGnt/Sublime-VimL>
 
 ## ?
-```vim
-vim9script
-var d: dict<any>
-def Func()
-    extend(d, {'key': 123})
-    echom d
-enddef
-Func()
-```
-    E1133: Cannot extend a null dict
-    <https://github.com/vim/vim/issues/7251#issuecomment-721652873>
-```vim
-vim9script
-def Func()
-    var d: dict<any>
-    extend(d, {'key': 123})
-    echom d
-enddef
-Func()
-```
-    {'key': 123}
 
-Why  can  we extend  a  null  dictionary when  it's  used  for a  function-local
-variable, but not when it's used for a script-local variable?
+[We can omit the `g:` prefix](https://github.com/vim/vim/issues/6553) in front of the name of an autoload function in its header, and at any call site.
+
+But we *cannot* omit `g:` for an autoload variable:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var foo#bar = 123
+    EOF
+    )
+
+    E461: Illegal variable name: foo#bar
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        foo#bar = 123
+    EOF
+    )
+
+    E492: Not an editor command:     foo#bar = 123
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        g:foo#bar = 123
+    EOF
+    )
+
+    ✔
+
+To document?
 
 ---
+
+   > Normally, in Vim9 script all functions are local.
+   > To use a function outside of the script, it either has to be exported/imported, or made global.
+   > Autoload scripts are different; they define a third type of function: "autoloadable".
+   > Those are recognized by the "name#" prefix.
+   > It's like these are exported to this autoload namespace.
+   > These functions are not global, in the sense that the g: prefix is not used,
+   > neither where it's defined nor where it is called.
+
+Source: <https://github.com/vim/vim/issues/6553#issuecomment-665878820>
+
+I think this suggests that autoload functions are automatically exported to some
+autoload  namespace, and  can  be  used without  being  imported (maybe  they're
+automatically imported when called).
+
+Is the same true about autoload variables?
+
+---
+
+`:h vim9` was correctly updated, but not `:h autoload`:
+<https://github.com/vim/vim/issues/6553>
+
+---
+
+   > It's like these are exported to this autoload namespace.
+
+If an autoload  function is really exported  to some namespace, does  it mean we
+don't need to use the `export` command to export it?
+And we  can automatically  import it  under whatever name  we want  from another
+script?  Make some tests.
+
+## ?
+
+We can't access a function-local variable from the replacement field of a substitution:
 ```vim
 vim9script
-var l: list<any>
 def Func()
-    extend(l, [123])
-    echom l
+    setline(1, 'xord')
+    var name = 'w'
+    s/x/\=name/
 enddef
 Func()
 ```
-    E1134: Cannot extend a null list
+    E121: Undefined variable: name
+
+In Vim script legacy, we can:
+```vim
+fu Func()
+    call setline(1, 'xord')
+    let name = 'w'
+    s/x/\=name/
+endfu
+call Func()
+```
+I *think* this issue  is due to the fact that the  expression in the replacement
+field is evaluated in the global context, and thus can't find `name` which is on
+the stack.
+
+I base this analysis on this explanation:
+
+   > For Ex  commands that evaluate  an expression we  already have code  to not
+   > call the  normal handling,  but compile  it, so that  the variables  on the
+   > stack can be found.
+
+Source: <https://github.com/vim/vim/issues/6868#issuecomment-687284964>
+
+If so, this todo item should fix the issue:
+
+   > - Compile replacement of :s command: s/pat/\=expr/
+
+Once the todo item is fixed, check that the first snippet works correctly.
+
+---
+
+Same issue when `:put`ting an expression from a global command:
 ```vim
 vim9script
-var l: list<any>
 def Func()
-    l += [123]
-    echom l
+    var name = 'word'
+    g/^/pu =name
 enddef
 Func()
 ```
-    [123]
+    E121: Undefined variable: name
 
-Why can we extend a null list with `+=` but not with `extend()`?
+And again, the equivalent in Vim script legacy works just fine:
+```vim
+fu Func()
+    let name = 'word'
+    g/^/pu =name
+endfu
+call Func()
+```
+But this time, I can't find a possibly relevant todo item.
+Report the issue?
+
+Update: Actually, it's worse than that.
+In Vim script legacy, the command run by `:g` can access any variable from the local function:
+```vim
+fu Func() abort
+    let name = 'test'
+    g/^/echo name
+endfu
+call Func()
+```
+    test
+
+But not in Vim9:
+```vim
+vim9script
+def Func()
+    var name = 'test'
+    g/^/echo name
+enddef
+Func()
+```
+    E121: Undefined variable: name
+
+Should/Could  Vim9 compile  the  command executed  by `:g`,  just  like it  will
+compile `\=expr` for a substitution command?  If so, would it fix the issue?
+In any case, report this limitation.
+If it's working as intended, it should be documented at `:h vim9 /Limitations`.
+Note that  it's not  the same  issue than #7410;  the latter  was about  a local
+*function*,  and was  fixed in  8.2.2170.  The  current issue  is about  a local
+*variable*.
+
+Also:
+
+   > In legacy Vim script it works because the function Offset() is defined as a global function.
+
+Source: <https://github.com/vim/vim/issues/7410#issuecomment-748627284>
+
+That's true.  But in Vim script legacy,  there was a special case which can't be
+reproduced in Vim9: a local funcref.
+```vim
+fu Func()
+    let l:Funcref = {-> 'local funcref'}
+    g/^/echo Funcref()
+endfu
+call Func()
+```
+    local funcref
+```vim
+vim9script
+def Func()
+    var Funcref = {-> 'local funcref'}
+    g/^/echo Funcref()
+enddef
+Func()
+```
+    E117: Unknown function: Funcref
+
+Is it the same issue?
+If the command executed by `:g` was compiled, would it be fixed too?
+Anyway, include this (other?) issue in your report.
+
+## ?
+```vim
+vim9script
+def Func()
+enddef
+var d = {func: Func}
+d.func(0)
+```
+    E118: Too many arguments for function: <SNR>1_Func
+```vim
+vim9script
+def Func()
+enddef
+var d: dict<func> = {func: Func}
+d.func(0)
+```
+    E118: Too many arguments for function: <SNR>1_Func
+```vim
+vim9script
+def Func()
+enddef
+def Test()
+    var d = {func: Func}
+    d.func(0)
+enddef
+Test()
+```
+    E118: Too many arguments for function: d.func(0)
+
+To be consistent, shouldn't the error message print `<SNR>1_Func` rather than `d.func(0)`?
+Besides, `(0)` should not even be printed; it's not part of the function name...
+```vim
+vim9script
+def Func()
+enddef
+def Test()
+    var d: dict<func> = {func: Func}
+    d.func(0)
+enddef
+Test()
+```
+    E118: Too many arguments for function: <80><fd>R1_Func
+
+The byte sequence `<80><fd>R` in the last error message looks weird.
 
 ## ?
 
-    vim9script
-    echo 123 || 0
+Since 8.2.2182, 'magic' is ignored in Vim9 script.
 
-    E1023: Using a Number as a Bool: 123~
-    E1050: Colon required before a range~
+But right now, it's not documented.
+Wait until the next update of the runtime files; check whether it gets documented.
+If necessary, submit a patch.
+Make sure it's documented:
 
-The first error is expected, but not the second one.
-Is it a regression?
+   - below `:h vim9 /Comparators`
+   - somewhere at `:h 'magic'`
+   - somewhere at `:h /magic`
 
-## ?
+Same thing for 'gdefault' and 'edcompatible'.
+They are ignored since 8.2.2183.
+Make sure it gets documented:
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+   - below `:h vim9 /Comparators`
+   - somewhere at `:h 'gd'`
+   - somewhere at `:h 'edcompatible'`
+   - somewhere at `:h 'edcompatible'`
+   - somewhere at `:h :s_c`
+   - somewhere at `:h :s_g`
+
+## Vim9: should 'clipboard' and 'selection' be considered to be set with their default values
+
+**Describe the bug**
+
+In Vim9 script, should `'clipboard'` and `'selection'` be considered to be set with their default values when a script starts being sourced or a `:def` function starts being run?  Just like `'cpo'`:
+
+https://github.com/vim/vim/blob/8f22f5c3aa0aa96e3843a57f29405625d8514c74/runtime/doc/vim9.txt#L879-L881
+
+This would avoid issues which arise when we implement operators.
+
+**To Reproduce**
+
+Run this shell command:
+
+    vim -Nu NONE -S <(cat <<'EOF'
         vim9script
-        var lines =<< trim END
-            one
-            two
-            three
-        END
-        setline(1, lines)
-        cursor('2', 1)
-    EOF
-    )
+        # suppose this is set in the user's vimrc
+        set cb=unnamedplus selection=exclusive
 
-    expected: an error is raised because cursor() expects numbers, not strings;
-              or the cursor jumps on line 2
-    actual: no error is raised; the cursor stays on line 1
-
-Relevant todo item at `:h todo /builtin`:
-
-   > - Check many more builtin function arguments at compile time.
-
-## ?
-
-Can't refer to a function-local function in the replacement field of a substitution command.
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            def Rep(): string
-                return 'replacement'
-            enddef
-            s/.*/\=Rep()/
+        # suppose this is a plugin
+        nno <expr> <F3> CountLetters()
+        def g:CountLetters(type = ''): string
+            if type == ''
+                set opfunc=CountLetters
+                return 'g@'
+            endif
+            var commands = {line: "'[V']y", char: "`[v`]y", block: "`[\<c-v>`]y"}
+            exe 'norm! ' .. get(commands, type, '"')
+            echom getreg('"')->strlen()
+            return ''
         enddef
-        Func()
+        setline(1, 'some text')
+        @+ = ''
+        feedkeys("\<F3>iw")
     EOF
     )
 
-    E117: Unknown function: Rep~
+It echo'es 3, and the `"+` register has been altered.
 
-Should/Could it work?
-It would be nice if it could work.
+**Expected behavior**
 
-Workaround: use `:exe`
+It echo'es 4, and the `"+` register has not been altered.
+
+**Environment**
+
+ - Vim version: 8.2 Included patches: 1-2165
+ - OS: Ubuntu 16.04.7 LTS
+ - Terminal: xterm(362)
+
+**Additional context**
+
+To avoid this pitfall, a plugin's author must take care of saving and restoring the options:
 ```vim
 vim9script
-def Func()
-    def Rep(): string
-        return 'replacement'
-    enddef
-    exe 's/.*/' .. Rep() .. '/'
+set cb=unnamedplus selection=exclusive
+
+nno <expr> <F3> CountLetters()
+def g:CountLetters(type = ''): string
+    if type == ''
+      set opfunc=CountLetters
+      return 'g@'
+    endif
+    var selection_save = &selection
+    var clipboard_save = &clipboard
+    try
+        set clipboard= selection=inclusive
+        var commands = {line: "'[V']y", char: "`[v`]y", block: "`[\<c-v>`]y"}
+        exe 'norm! ' .. get(commands, type, '"')
+        echom getreg('"')->strlen()
+    finally
+        &clipboard = clipboard_save
+        &selection = selection_save
+    endtry
+    return ''
 enddef
-Func()
+setline(1, 'some text')
+@+ = ''
+feedkeys("\<F3>iw")
 ```
-Limitation:  Doesn't work if the replacement refers to a capturing group.
-```vim
-vim9script
-setline(1, 'order reversed')
-def Func()
-    def Rep(): string
-        return submatch(2) .. submatch(1)
-    enddef
-    s/\(\w*\) \(\w*\)/\=Rep()/
-enddef
-Func()
-```
-    E117: Unknown function: Rep~
+---
 
-## ?
+Although, I'm not sure it's possible or desireable.
+There could be some overhead each time a function is invoked to reset and restore the options.
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func(): job
-            return map(['a', 'b'], {_, v -> 'string'})
-        enddef
-        defcompile
-    EOF
-    )
+Besides, isn't this an example of more general issues?
+When you implement a command (in particular an opfunc), you want:
 
-    E1012: Type mismatch; expected job but got list<any>
-                                               ^-------^
-                                                   ✘
+   - the logic of your code to be immune from the user's settings
+   - your code to have as fewer side-effects as possible (e.g. no register mutation)
 
+Could Vim9 do sth to address these?
+Or should we ask for helper functions?
+Asan example, see `:h todo /option_save`.
 
-I would expect this error instead:
+Note that even with  the helper functions mentioned in this  todo item, it would
+still  be a  lot of  work in  each opfunc.   You would  still need  to know  the
+existence of these options, and that they might influence an opfunc.
+You would  still need  to temporarily reset  them.  You would  still need  a try
+conditional.
 
-    E1012: Type mismatch; expected job but got list<string>
-                                               ^----------^
-                                                     ✔
+Would it make sense to ask for `'cb'` and `'sel'` to be temporarily reset *only*
+in opfuncs?
 
+### ?
+
+What about:
+
+   - `'isident'`
+   - `'langremap'`
+   - `'virtualedit'`
+
+##
 ##
 ## documentation
 ### 61
@@ -3145,35 +3215,6 @@ anything about the fact that the quotes *can* or *must* be dropped.  This should
 be documented at `:h vim9-differences`.
 
 <https://github.com/vim/vim/issues/6788>
-
-### 304
-
-From `:h E1050`:
-
-   > recognized, it is required to put a colon before a range.  This will add
-   > "start" and print: >
-
-Why do  we have to  write a colon  before a range even  when it's preceded  by a
-modifier like `:silent`?
-```vim
-vim9script
-def Func()
-    sil %d
-enddef
-Func()
-```
-    E1050: Colon required before a range
-```vim
-vim9script
-def Func()
-    sil :%d
-enddef
-Func()
-```
-    ✔
-
-Shouldn't `silent`  be enough to  prevent Vim  from parsing/confusing `%`  as an
-operator?
 
 ### 350
 
@@ -3599,21 +3640,6 @@ Actually, I think you can also use any item defined in the `b:`, `t:`, and `w:` 
 but not one defined in the `s:` namespace.
 
 ###
-### `:h autoload`
-
-`:h vim9` was correctly updated, but not `:h autoload`:
-<https://github.com/vim/vim/issues/6553>
-
----
-
-   > It's like these are exported to this autoload namespace.
-
-If an autoload  function is really exported  to some namespace, does  it mean we
-don't need to use the `export` command to export it?
-And we  can automatically  import it  under whatever name  we want  from another
-script?  Make some tests.
-
-###
 ### concept of block-local function
 
 There is this at `:h vim9-declaration`:
@@ -3860,17 +3886,117 @@ A similar issue applies to `call`:
 ##
 ## ?
 
+This bug has probably been fixed in upstream:
+<https://github.com/vim/vim/issues/6943>
+
+See here:
+<https://github.com/rohieb/vim/commit/a753912aa762dbd87fff4720eb8d76f0e8c46222>
+
+But it hasn't been merged in Vim yet.
+When it's done, leave a comment on #6943.
+
+## ?
+
+Since this commit, the matchparen plugin  has a `WinLeave` autocmd which removes
+matches when leaving a window:
+<https://github.com/vim/vim/commit/73fef33014dbf21fc59e7e47fb091117868d82fb>
+
+So, does it still make sense for the plugin to execute `:windo`?
+If it does:
+
+   - shouldn't we also use `:tabdo`?
+   - we should replace `:windo` (+ `:tabdo`) with `win_execute()` for fewer
+     side-effects (especially to avoid unminimizing squased windows):
+
+         :call getwininfo()->map({_, v -> win_execute(v.winid, 'silent! call matchdelete(3)')})
+
+---
+```diff
+diff --git a/runtime/plugin/matchparen.vim b/runtime/plugin/matchparen.vim
+index 162430ecd..e48c5a318 100644
+--- a/runtime/plugin/matchparen.vim
++++ b/runtime/plugin/matchparen.vim
+@@ -202,22 +202,18 @@ endfunc
+
+
+ " Define commands that will disable and enable the plugin.
+-command DoMatchParen call s:DoMatchParen()
+-command NoMatchParen call s:NoMatchParen()
++command -bar DoMatchParen call s:DoMatchParen()
++command -bar NoMatchParen call s:NoMatchParen()
+
+ func s:NoMatchParen()
+-  let w = winnr()
+-  noau windo silent! call matchdelete(3)
++  call getwininfo()->map({_, v -> win_execute(v.winid, 'silent! call matchdelete(3)')})
+   unlet! g:loaded_matchparen
+-  exe "noau ". w . "wincmd w"
+   au! matchparen
+ endfunc
+
+ func s:DoMatchParen()
+   runtime plugin/matchparen.vim
+-  let w = winnr()
+-  silent windo doau CursorMoved
+-  exe "noau ". w . "wincmd w"
++  call getwininfo()->map({_, v -> win_execute(v.winid, 'doau CursorMoved')})
+ endfunc
+
+ let &cpo = s:cpo_save
+```
+Or:
+```diff
+diff --git a/runtime/plugin/matchparen.vim b/runtime/plugin/matchparen.vim
+index 162430ecd..b33fbd600 100644
+--- a/runtime/plugin/matchparen.vim
++++ b/runtime/plugin/matchparen.vim
+@@ -202,22 +202,18 @@ endfunc
+
+
+ " Define commands that will disable and enable the plugin.
+-command DoMatchParen call s:DoMatchParen()
+-command NoMatchParen call s:NoMatchParen()
++command -bar DoMatchParen call s:DoMatchParen()
++command -bar NoMatchParen call s:NoMatchParen()
+
+ func s:NoMatchParen()
+-  let w = winnr()
+-  noau windo silent! call matchdelete(3)
++  silent! call matchdelete(3)
+   unlet! g:loaded_matchparen
+-  exe "noau ". w . "wincmd w"
+   au! matchparen
+ endfunc
+
+ func s:DoMatchParen()
+   runtime plugin/matchparen.vim
+-  let w = winnr()
+-  silent windo doau CursorMoved
+-  exe "noau ". w . "wincmd w"
++  doau CursorMoved
+ endfunc
+
+ let &cpo = s:cpo_save
+```
+
+---
+
+Btw, why `:silent` before `:windo doau CursorMoved`?
+It comes from this commit:
+<https://github.com/vim/vim/commit/01164a6546b4c635daf96a1f17d1cb2d07f32a66>
+
+## ?
+
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
         set lines=24
-        var opts = #{
-            pos: 'topleft',
+        var opts = {
             line: 13,
             minheight: 10,
             maxheight: 10,
+            border: [],
             }
-        var what = ['aaa', 'bbb', 'ccc']
-        popup_menu(what, opts)
+        popup_create(['aaa', 'bbb', 'ccc'], opts)
     EOF
     )
 
@@ -3880,22 +4006,18 @@ Now, let's increment `line` by 1:
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
         set lines=24
-        var opts = #{
-            pos: 'topleft',
+        var opts = {
             line: 14,
             minheight: 10,
             maxheight: 10,
+            border: [],
             }
-        var what = ['aaa', 'bbb', 'ccc']
-        popup_menu(what, opts)
+        popup_create(['aaa', 'bbb', 'ccc'], opts)
     EOF
     )
 
 Notice how the popup unexpectedly starts from the top of the terminal window.
 Is it documented or is it a bug?
-Is it specific to a popup menu, or to any regular popup window?
-If  it is  specific to  a  popup menu,  which properties  trigger this  behavior
-(`pos`, `cursorline`, `filter`, ...)?
 
 ## make popup_filter_menu() support C-n and C-p to select neighbor items
 

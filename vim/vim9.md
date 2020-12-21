@@ -1407,6 +1407,24 @@ the  possibility that  it's  already  used in  the  global  namespace; thus,  it
 wouldn't make much sense to disallow this type of shadowing.
 
 ##
+## This snippet raises a mismatch error:
+```vim
+vim9script
+def Func(): job
+    return map(['a', 'b'], {_, v -> 'string'})
+enddef
+defcompile
+```
+    E1012: Type mismatch; expected job but got list<any>
+                                               ^-------^
+
+### Why does it give `list<any>`, and not `list<string>`?
+
+`map()` could convert your list of strings into a list of anything.
+I  don't think  Vim  can infer  the  actual type  resulting  from the  arbitrary
+transformation performed by `map()`; so it falls back on `any`.
+
+##
 # Pitfalls
 ## My function prints an unexpected error message!  (an error is missing, the order of the errors looks wrong, ...)
 
@@ -2106,6 +2124,115 @@ Source: <https://github.com/vim/vim/issues/6494#issuecomment-661320805>
 Note that this limitation is specific to declarations; not to assignments.  IOW,
 you *can* use the unpack notation to *assign* multiple variables on a single line.
 
+## I can't use the Vim9 syntax in a custom (auto)command which is run in the Vim9 context!
+
+It doesn't matter in which context you're when you run a (auto)command.
+What matters is the context where it's defined.
+```vim
+vim9script
+
+fu InstallCmd()
+    com -nargs=1 Cmd call s:Func(<args>)
+endfu
+def Func(d: dict<any>)
+    echo d
+enddef
+InstallCmd()
+
+Cmd {key: 123}
+```
+    E121: Undefined variable: key
+
+Here, the error is caused by the usage of the `{}` syntax which is only valid in
+Vim9 script.  In legacy Vim script, you need to use `#{}`.
+But `:Cmd` was defined  in a legacy context, so you can't  use `{}`, even though
+you're in the Vim9 context when you call `:Cmd`.
+
+---
+
+This pitfall is documented at `:h <f-args>` (almost at the very end):
+
+   > If  the  command  is  defined  in   Vim9  script  (a  script  that  starts  with
+   > `:vim9script` and in a `:def` function) then  {repl} will be executed as in Vim9
+   > script.  Thus this depends on where the command is defined, not where it is used.
+
+Similarly, from `:h autocmd-define`:
+
+   > If the `:autocmd` is in Vim9 script (a script that starts with `:vim9script` and
+   > in a `:def` function) then {cmd} will be executed as in Vim9 script.
+   > Thus this depends on where the autocmd is defined, not where it is triggered.
+
+## I want to use a closure in a global command or in the replacement of a substitution.  It doesn't work!
+
+Your closure needs to be global.  It can't be local to the outer function:
+
+    ✘
+    def Closure()
+        ...
+    enddef
+    s/pat/\=Closure()/
+
+        ✔
+        vv
+    def g:Closure()
+        ...
+    enddef
+    s/pat/\=Closure()/
+
+This is consistent with Vim script legacy, where a closure must also be global:
+```vim
+fu Func()
+    fu Closure() closure
+    endfu
+endfu
+call Func()
+fu /Closure
+```
+    function Closure() closure
+             ^-------^
+             this is global
+
+---
+
+Usage example:
+```vim
+vim9script
+
+def ReverseEveryNLines(n: number, line1: number, line2: number)
+    var mods = 'sil keepj keepp lockm '
+    var range = ':' .. line1 .. ',' .. line2
+    #   vv
+    def g:Offset(): number
+        var offset = (line('.') - line1 + 1) % n
+        return offset != 0 ? offset : n
+    enddef
+    exe mods .. range .. 'g/^/exe "m .-" .. Offset()'
+enddef
+repeat(['aaa', 'bbb', 'ccc'], 3)->setline(1)
+ReverseEveryNLines(3, 1, 9)
+```
+---
+
+You could also invoke a script-local function:
+```vim
+vim9script
+
+def ReverseEveryNLines(n: number, line1: number, line2: number)
+    var mods = 'sil keepj keepp lockm '
+    var range = ':' .. line1 .. ',' .. line2
+    exe mods .. range .. printf('g/^/exe "m .-" .. Offset(%d, %d)', line1, n)
+enddef
+
+def Offset(line1: number, n: number): number
+    var offset = (line('.') - line1 + 1) % n
+    return offset != 0 ? offset : n
+enddef
+
+repeat(['aaa', 'bbb', 'ccc'], 3)->setline(1)
+ReverseEveryNLines(3, 1, 9)
+```
+But it's less pretty.
+
 ##
 # Todo
 ## To refactor:
@@ -2126,11 +2253,11 @@ clash with a function argument:
             ^
             ✘
 
-In those cases, I suggest you use the prefix `arg` for the argument:
+In those cases, I suggest you use the prefix `a` for the argument (reminiscent of `a:`):
 
-              ✔
-             v--v
-    def Func(arg_name: number)
+             ✔
+             v
+    def Func(aname: number)
         var name = ...
 
 ### eval strings into lambdas
@@ -2278,6 +2405,17 @@ Also, replace `v:true` with `true`, and `v:false` with `false` when possible.
 ---
 
 Also, remove `:call` in autocmds, at script level, ... (but not in mappings).
+
+---
+
+    =~#
+      ^
+      ✘
+      to remove
+
+---
+
+Same thing for myfuncs.vim.
 
 ### should we make sure to never declare a null dictionary / list?
 
@@ -2543,9 +2681,11 @@ That's because we can still retrieve the definition site of such a function:
 
 Since [8.2.2018](https://github.com/vim/vim/releases/tag/v8.2.2018).
 
-### the `#{}` syntax (literal dictionary) is going to be dropped in Vim9 script
+### the `#{}` syntax (literal dictionary) is deprecated in Vim9 script
 
 See `:h vim9 /Dictionary literals`.
+
+Now, `#` should *always* be parsed as a comment leader.
 
 ### trick to get the right type in a declaration without too much thinking/guessing
 
@@ -3158,6 +3298,42 @@ Func()
 ---
 
 All of this seems too inconsistent.  Is there some bug?
+
+### cannot use `-=` when lhs is key from dictionary
+```vim
+vim9script
+def Func()
+    var d = {key: 123}
+    d.key -= 1
+enddef
+defcompile
+```
+    Index with operation not supported yet
+
+Same issue with:
+
+    +=
+    *=
+    /=
+    %=
+
+---
+
+Another error is raised atm for `..=`:
+```vim
+vim9script
+def Func()
+    var d = {key: 'string'}
+    d.key ..= ' abc'
+enddef
+defcompile
+```
+    E1019: Can only concatenate to string
+
+I think it's on the todo list (`:h todo /\.\.=`):
+
+   > - Appending to dict item doesn't work:
+   >     let d[i] ..= value
 
 ### when a function raises an error at compile time, its body is emptied
 ```vim
