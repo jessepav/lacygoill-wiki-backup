@@ -630,6 +630,99 @@ probably won't see  them (it depends on your `'timeout*'`  settings); if so, you
 can still  retrieve them  with `:mess`,  but chances are  you won't  think about
 doing it, and just wrongly assume that there is only one error.
 
+## An exception has been thrown, and caught.  I can't see from where the error is raised!
+
+First, increase the verbosity level to 2; then to 13.
+
+Starting from  2, Vim will give  a message whenever  it sources a file;  it will
+also print a message to tell you what causes the sourcing (e.g. autocmd).
+
+Starting from 16, Vim  will give you the number of the line  in the script which
+throws an error.   Be careful: with this level of  verbosity, Vim gets difficult
+to use.  So, make sure to set `'verbosefile'` too:
+
+                       v------------------v
+    $ vim +'set vbs=16 vfile=/tmp/debug.log' -S /tmp/error_repro.vim +'qa!'
+    $ vim /tmp/debug.log
+    " /^Exception thrown
+
+---
+
+As an example, you might find something like this in the logfile:
+
+    line 12: const FILTER_CMD = {
+    Exception thrown: Vim(const):E15: Invalid expression: ]},
+
+    finished sourcing ~/.vim/plugged/vim-qf/autoload/qf/preview.vim
+
+This says that the error was raised from the line 12 in `autoload/qf/preview.vim`.
+Then, you might read:
+
+    continuing in FileType Autocommands for "qf"
+
+This says that  the autoload script was sourced because  of an autocmd listening
+to `FileType qf`.
+
+Then, you might read:
+
+    line 52:     catch
+    Exception caught: Vim(const):E15: Invalid expression: ]},
+
+    line 53:         return s:Catch()
+    line 16:     echohl ErrorMsg
+                                Vim(const):E15: Invalid expression: ]},
+    line 23:     echohl NONE
+    Exception finished: Vim(const):E15: Invalid expression: ]},
+
+    :return  made pending
+
+    line 54:     endtry
+    :return  resumed
+
+    <SNR>159_open returning ''
+
+This says that the exception was caught on line 52 in the function `s:open()`.
+The `:catch` clause has invoked `s:Catch()`, which has echo'ed the error message
+on its lines 16 and 23.
+
+Finally, you might read:
+
+    continuing in qf#open_auto
+
+    line 23:     endif
+    qf#open_auto returning #0
+
+    continuing in QuickFixCmdPost Autocommands for "*"
+
+This says  that `s:open()` was  invoked from `qf#open_auto()`, which  itself was
+run from a `QuickFixCmdPost` autocmd.
+
+In this example, here is what could have happened:
+
+   - `:helpg` is run interactively
+   - `QuickFixCmdPost` is fired right afterward
+   - a `QuickFixCmdPost` autocmd calls `qf#open_auto()`
+   - `qf#open_auto()` calls `s:open()`
+   - `s:open()` executes `:try | copen | catch | call s:Catch() | endtry`
+   - `:copen` triggers `FileType qf`
+   - an autocmd listening to `FileType qf` calls `qf#preview#mappings()`
+   - to find the latter function Vim executes `:ru autoload/qf/preview.vim`
+
+Finally,  `autoload/qf/preview.vim`  is sourced,  but  contains  an error  which
+throws an exception.
+
+Tip: Whenever you find a message like:
+
+    continuing in FileType Autocommands for "qf"
+    continuing in QuickFixCmdPost Autocommands for "*"
+    ...
+
+You can find out from where the autocmd has been installed with:
+
+    :new|0pu=execute('verb au FileType qf')
+    :new|0pu=execute('verb au QuickFixCmdPost *')
+    ...
+
 ##
 # Miscellaneous
 ## What's the difference between `--cmd` and `-c`/`+`?

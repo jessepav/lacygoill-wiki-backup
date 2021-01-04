@@ -1979,6 +1979,33 @@ mappings/commands (DRY, DIE).
 
 In those cases, capture the variable at the start of the function definition.
 
+## My mapping ignores the backslashes in the rhs!
+
+Make sure `'cpo'` contains the `B` flag when your mapping is installed:
+```vim
+set cpo-=B
+nno <F3> <cmd>echo '\x'<cr>
+call feedkeys("\<F3>")
+```
+    x
+
+That should  be the case by  default.  If it's  not, you probably have  a plugin
+which temporarily resets the option, but doesn't correctly restore it.
+Or you've found a Vim bug such as: <https://github.com/vim/vim/issues/7608>.
+
+If you want the guarantee that the backslashes are not ignored, use `<Bslash>`:
+
+    nno <F3> <cmd>echo '<blsash>x'<cr>
+                        ^------^
+
+Example:
+```vim
+set cpo-=B
+nno <F3> <cmd>echo '<bslash>x'<cr>
+call feedkeys("\<F3>")
+```
+    \x
+
 ## My mapping raises E474 when I try to install it!
 
 The limit size of a lhs is 50 bytes.
@@ -3319,6 +3346,34 @@ If you disagree, try this:
 Although, this omap doesn't work as expected when repeated with `.`.
 It seems we need `:norm` for `.` to work; do we?
 Why though?  I mean `:norm vio` also enters visual mode...
+
+### ?
+
+For some text-objects, we expect to operate on a linewise selection.
+For example, our custom `o_if` is meant to let us operate on a function's body.
+For any of those objects, make sure that we always select a linewise area:
+
+    ono if <cmd>norm vif<cr>
+                     ^
+                     ✘
+
+    ono if <cmd>norm Vif<cr>
+                     ^
+                     ✔
+
+And if  your `:ono`  mapping relies on  a visual mapping,  make sure  the latter
+selects a linewise area, even if we use it from a characterwise selection.
+For example, if we press `vif`, we want a *linewise* selection of the function's
+body, not a characterwise selection:
+
+    xno if <cmd>call <sid>Func()<cr>
+    def Func()
+        # if current visual mode is not linewise, you might need to force it:
+        #
+        #     if mode() != 'V'
+        #         norm! V
+        #     endif
+    enddef
 
 ##
 ## Misc.

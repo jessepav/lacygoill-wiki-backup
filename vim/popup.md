@@ -513,6 +513,15 @@ I never liked this function; too complex; simplify it.
 Create a dummy text property at the desired position in the buffer, then use the
 `textprop` key in the options passed to `popup_create()`.
 
+## Document that `:nos` is useful to suppress E325.
+
+Necessary when previewing a file in a  popup in one Vim instance, while the file
+is already edited in another Vim instance.
+
+    $ vim -Nu NONE /tmp/file
+    $ vim -Nu NONE +"nos call bufadd('/tmp/file')->popup_create({})"
+                     ^^^
+
 ## I don't understand this excerpt from `:h preview-popup`:
 
     A few peculiarities:
@@ -557,6 +566,10 @@ editing the file:
 
 I'm not sure you should have closed this issue: <https://github.com/vim/vim/issues/5822>
 It *seems* to contradict what is documented in the previous excerpt.
+
+---
+
+Update: Remember that you can use `:noswapfile` to suppress E325.
 
 ## Find out why the width of the popup sometimes changes so much in a popup displaying a help buffer.
 

@@ -358,7 +358,7 @@ Without `{len}`, `strcharpart()` goes until the end.
 In Vim9 script:
 
     getline('.')->strpart(col('.') - 1)[0]
-                                   ^-^
+                                   ^^^
                                    to compensate for the fact that "col()" starts indexing from 1
                                    while "strpart()" starts indexing from 0
 
@@ -366,6 +366,8 @@ In Vim script legacy:
 
     getline('.')->strpart(col('.') - 1, 1, v:true)
     getline('.')->strpart(col('.') - 1)->strcharpart(0, 1)
+
+    éàê foo éàê bar éàê
 
 ---
 
@@ -417,7 +419,7 @@ In Vim script legacy:
 In Vim9:
 
     getline('.')->strpart(0, col('.') - 1)[-1:-1]
-                                      ^-^
+                                      ^^^
                                       to exclude the first byte of the character under the cursor
 
 In legacy:
@@ -1260,11 +1262,11 @@ Like `%g`, but uses `E` instead of `e` in scientific notation.
 
 ###
 ### What's the effect of these flags?
-#### `-`?
+#### `-`
 
 Move the padding, if any, to the right (instead of the left).
 
-#### `0`?
+#### `0`
 
 Instead of using spaces to build a padding, zeros are used.
 
@@ -1295,7 +1297,7 @@ Combined with the types `o`, `x` and `X`, it prefixes the number with `0`, `0x` 
 
 This lets you make the base of the number explicit.
 
-#### `+`?
+#### `+`
 
 Prefix a positive number with `+`:
 
@@ -1305,7 +1307,7 @@ Prefix a positive number with `+`:
     echo printf('%+.2f', 12.34)
     +12.34~
 
-#### ` `?
+#### ` ` (space)
 
 Prefix a positive number with a space:
 

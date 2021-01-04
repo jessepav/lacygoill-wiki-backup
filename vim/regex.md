@@ -422,7 +422,7 @@ Test the regex against:
     ^-----^
 
     a b
-    ^-^
+    ^^^
 
 ---
 

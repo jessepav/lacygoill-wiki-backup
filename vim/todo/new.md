@@ -2,6 +2,7 @@
 
    - `:h appendbufline()` + `:h deletebufline()`
    - `:h charclass()`
+   - `:h charidx()`
    - `:h chdir()`
    - `:h complete_info()` + 'user_data' entry in completion item
    - `:h environ()` + `:h getenv()` + `:h setenv()`

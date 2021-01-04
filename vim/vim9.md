@@ -996,6 +996,71 @@ the constant in the global namespace; and after failing to find it, `E121` would
 have been raised.
 
 ##
+# Refactoring
+## Vim9 doesn't support curly braces expansion anymore.  How do I refactor one of these?
+
+Case 1: your curly brace expansion is used in an expression.
+
+That's easy; just use a ternary conditional:
+```vim
+let mode = 'i'
+" let's assume that "mode" can only be 'i' or 'c'
+let name_i = 123
+let name_c = 456
+echo name_{mode}
+```
+    123
+```vim
+vim9script
+var mode = 'i'
+var name_i = 123
+var name_c = 456
+echo mode == 'i' ? name_i : name_c
+```
+    123
+
+Case 2: your curly brace is in the lhs of an assignment.
+
+You have to bite the bullet; use an `if/else` block:
+```vim
+let mode = 'i'
+let name_{mode} = 123
+echo g:
+```
+    {'name_i': 123, 'mode': 'i'}
+```vim
+vim9script
+var mode = 'i'
+var name_i: number
+var name_c: number
+if mode == 'i'
+    name_i = 123
+else
+    name_c = 123
+endif
+echo s:
+```
+    {'name_i': 123, 'mode': 'i'}
+
+Note that if the expression in the  rhs of the assignment is complex, you better
+save  it in  an intermediate  variable  to reduce  code duplication  as much  as
+possible:
+```vim
+vim9script
+var mode = 'i'
+var name_i: number
+var name_c: number
+var expr = 1 + 2 + 3 + 5 + 6 + 7 + 8 + 9 + 10 + 11 + 12 + 13 + 14 + 15 + 16
+if mode == 'i'
+    name_i = expr
+else
+    name_c = expr
+endif
+echo s:
+```
+    {'name_i': 132, 'expr': 132, 'mode': 'i', 'name_c': 0}
+
+##
 # Misc
 ## Where can I write Vim9 script code?  (2)
 
@@ -2427,12 +2492,60 @@ Same thing for myfuncs.vim.
                             ^--^
 
 Rationale:  We've often triggered bugs because of null dictionaries / lists.
-Also, we can't extend a null dictionary / list in a `:def` function:
-<https://github.com/vim/vim/issues/7251#issuecomment-721652873>
 
 ### should we specify the types of the arguments in a lambda?
 
 This is possible since [8.2.1956](https://github.com/vim/vim/releases/tag/v8.2.1956).
+
+### should we specify the return type void in the header of a function which doesn't return anything?
+
+              v----v
+    def Func(): void
+        ...
+        # no ":return value" statement anywhere
+        ...
+    enddef
+
+### should we use `: void` for the return type of a function which doesn't return anything?
+
+That's what is done in vim-fileselect.
+
+### should we rename all the autoload functions which have an underscore in their name?
+
+Because they're in a file which contains an underscore.
+
+    ^\s*\Cdef\s\+[^ (_]*_
+
+### our Vim `gd` snippet should expand into a different guard when used at the top of a Vim9 script file
+
+In Vim9 script, it should be:
+
+    if exists('loaded') | finish | endif
+    var loaded = true
+
+Also in legacy Vim script, we probably don't need that:
+
+    if exists('g:myplugin_loaded')
+        finish
+    endif
+    let g:myplugin_loaded
+
+Use this instead:
+
+    if exists('s:loaded') | finish | endif
+    let s:loaded = v:true
+
+See:
+
+    ~/.vim/plugged/vim-snippets/pythonx/snippet_helpers.py
+    /def plugin_guard(
+
+#### more generally, all our Vim snippets use the legacy syntax
+
+Should we update them to support only the Vim9 syntax?
+
+Or should we  make them smart and use  one syntax or the other  depending on the
+current context?
 
 ##
 ## To understand:
@@ -2708,6 +2821,84 @@ If it is:
 
    - not composite, then use it instead of the obviously wrong `job`
    - composite, then replace `job` with `list<job>`, and repeat the process
+
+### backtick expansion is necessary to refer to function-local variable from global context (`:s`, `:g`, ...)
+
+This was not an issue in Vim script legacy:
+```vim
+fu Func()
+    let name = 'function-local'
+    g/^/echo name
+endfu
+call Func()
+```
+    function-local
+
+But this is not possible in Vim9:
+```vim
+vim9script
+def Func()
+    var name = 'function-local'
+    g/^/echo name
+enddef
+Func()
+```
+    E121: Undefined variable: name
+
+Because:
+
+   > It is simply not possible to access the compiled code and variables from interpreted code.
+
+Source: <https://github.com/vim/vim/issues/7541#issuecomment-751274709>
+
+Solution: Use a backtick expansion:
+
+    g/^/echo name
+             ^--^
+              ✘
+
+             the value of the variable is inserted in place; if you need quotes, write them explicitly
+             v       v
+    g/^/echo '`=name`'
+              ^^
+              ✔
+```vim
+vim9script
+def Func()
+    var name = 'function-local'
+    g/^/echo '`=name`'
+enddef
+Func()
+```
+    function-local
+
+See `:h vim9 /newText`.
+
+---
+
+Note that it might not always work:
+
+   > I'm not sure it fully works, since any command may follow :g/pattern/
+
+Source: <https://github.com/vim/vim/issues/7541#issuecomment-751285484>
+
+If so, consider opening an issue report to make a backtick expansion expanded in
+more places.
+
+Alternatively, use  a script-local  funcref, which is  more powerful  and should
+work all the time (but is more verbose):
+```vim
+vim9script
+var Name: func
+def Func()
+    Name = () => 'function-local'
+    g/^/echo Name()
+enddef
+Func()
+```
+    function-local
+
+See: <https://github.com/vim/vim/issues/7541#issuecomment-751285484>
 
 ###
 ### the difference between using or omitting `function()` when saving a funcref in a variable
