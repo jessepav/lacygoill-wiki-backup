@@ -1125,7 +1125,7 @@ If you  execute a command  which MAY change the  focused window, prefix  it with
 
     " ✔
     :sil! noa bufdo vimgrepadd /pat/gj %
-          ^-^
+          ^^^
 
 ---
 
@@ -1412,7 +1412,7 @@ Example 1:
     " ✔
 
     :sil! noa bufdo vimgrepadd /pat/gj %
-          ^-^
+          ^^^
 
 
 Example 2:
@@ -1426,7 +1426,58 @@ Example 2:
     " ✔
 
     :noa g/pat/caddexpr getline('.')->substitute('@', ':', 'g')
-     ^-^
+     ^^^
+
+### ?
+
+You've just recommended to use `:noa`.
+However, `:noa` is problematic for other reasons.
+
+First, it suppresses `Syntax`, which in turn prevents the files in which `:lvim`
+looks for from being highlighted:
+
+    $ vim -Nu NONE --cmd 'syn on' +'noa lvim /autocmd/ $VIMRUNTIME/filetype.vim'
+
+Second, it might prevent `E325` from  being visible, which is confusing, because
+it looks like Vim is blocked.
+The issue is actually triggered by a combination of `:sil` and `try/catch`.
+But you can work  around it with an autocmd listening  to `SwapExists`, which we
+currently have in our vimrc.  Unfortunately, `:noa` suppresses it.
+
+See this MWE:
+
+    # in a terminal
+    $ vim -Nu NONE --cmd 'set directory=$HOME/.vim/tmp/swap//' /tmp/file
+
+    # in another terminal
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9
+        set directory=$HOME/.vim/tmp/swap//
+        au SwapExists * v:swapchoice = 'o'
+        def Func()
+            try
+                 sil noa lvim /x/ /tmp/file
+                 #   ^^^
+                 #    ✘
+            catch /E325/
+                echom 'E325 was caught'
+            endtry
+        enddef
+        Func()
+    EOF
+    )
+
+For more info, see `exception.md /unblock`.
+
+So, what should we do in the general case?
+We could keep using `:noa`, but avoid `:silent`; however that would only fix the
+second issue; not the one with the lost syntax highlighting.
+
+I   think   the   best   solution  is   temporarily   set   `'eventignore'`   to
+`QuickFixCmdPost`, or maybe `QuickFixCmdPre,QuickFixCmdPost`.   But that's a bit
+cumbersome, because you need  to save the option, then set  it, then restore it;
+all of this requires a try/catch with  a `finally` clause in case something goes
+wrong.  How about asking for a new modifier?  `:noquickfixcmd`?
 
 ##
 ##

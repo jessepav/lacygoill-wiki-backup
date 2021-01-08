@@ -1499,6 +1499,47 @@ parsing to skip the whole line and not see the '|' that separates the commands.
 # Todo
 ## ?
 
+In a terminal, run this:
+
+    $ vim /tmp/file +"pu='xxx' | w"
+
+In a second terminal, run this:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9
+        set directory=$HOME/.vim/tmp/swap//
+        au SwapExists * v:swapchoice = 'o'
+        def Func()
+            try
+                sil noa lvim /x/ /tmp/file
+            catch /E325/
+                echom 'E325 was caught'
+            endtry
+        enddef
+        Func()
+    EOF
+    )
+
+It looks like Vim is blocked, which is confusing.
+In fact,  `E325` has been raised,  but we can't  see the message because  of the
+combination of `:sil` and try/catch.
+
+To "unblock" Vim, you need to press one of those keys:
+
+   - `a`:  Abort
+   - `e`:  Edit anyway
+   - `o`:  Open read-only
+   - `q`:  Quit
+   - `r`:  Recover
+
+Is it a bug?  If not, document that we should avoid `:sil` + try/catch.
+Unless:
+
+   - we have an autocmd listening to `SwapExists` *and* we don't use `:noa`
+   - we use `:nos` (which I don't think is a good idea)
+
+## ?
+
 Compare:
 
     echoerr v:exception

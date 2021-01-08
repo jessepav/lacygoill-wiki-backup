@@ -467,6 +467,18 @@ Although, how Vim would know it's an inline comment?
 
 ### Autocmds
 
+This doesn't work as expected:
+
+    au CursorMoved <buffer> echo synstack('.', col('.'))
+        ->map((_, v) => synIDattr(v, 'name'))
+        ->reverse()
+        ->join()
+
+That's because Vim doesn't concatenate the next line if it starts with `->`; but
+it does if the next line starts with `|`.  Could/Should it handle `->` just like `|`?
+
+---
+
 An augroup could clear itself automatically (especially useful for buffer-local autocmds):
 
     augroup my_group
@@ -536,173 +548,35 @@ Look for which functions:
 
 ##
 ## ?
-
-**Describe the bug**
-
-In Vim9 script, type checking might ignore a wrong type in a lambda assigned to a variable declared with the `func` type.
-
-**To Reproduce**
-
-Run this shell command:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var Ref: func(job)
-        Ref = (j) => !j
-        echo Ref(false)
-    EOF
-    )
-
-No error is raised.  `true` is echo'ed:
-
-    true
-
-**Expected behavior**
-
-`E1013` is raised:
-
-    E1013: Argument 1: type mismatch, expected job but got bool
-
-**Environment**
-
- - Vim version: 8.2 Included patches: 1-2269
- - OS: Ubuntu 16.04.7 LTS
- - Terminal: xterm(363)
-
-**Additional context**
-
-The same code correctly raises an error when run in a `:def` function:
 ```vim
-vim9script
-def Func()
-    var Ref: func(job)
-    Ref = (j) => !j
-    echo Ref(false)
+vim9
+com -range=% Cmd Func(<line1>,<line2>)
+def Func(line1: number, line2: number)
+    echo line1
+    echo line2
 enddef
-defcompile
+Cmd
 ```
-    E1012: Type mismatch; expected func(job) but got func(any): bool
+    Error detected while processing command line..script /proc/23837/fd/11:
+    line    7:
+    E1069: White space required after ','
+    E116: Invalid arguments for function Func(1,1)
 
-Which seems inconsistent.  I would expect that it fails in both contexts (script level + `:def` function), or that it succeeds in both contexts.
+Should Vim give the address of the command definition, rather than the command execution?
 
-Although, the error is raised at compile time.  But a script is not compiled, so the inconsistency might be warranted.  However, here is another inconsistent snippet:
-```vim
-vim9script
-var Ref: func(job)
-def Func(j: job)
-enddef
-Ref = Func
-echo Ref(false)
-```
-    E1013: Argument 1: type mismatch, expected job but got bool
+The error comes from here:
 
-Notice that Vim correctly raises an error at runtime because we didn't pass a value with the right type.
-If Vim type checks the argument of a funcref at runtime, I would expect it does the same for a lambda.
+    com -range=% Cmd Func(<line1>,<line2>)
+                                ^^^
+                                 ✘
 
----
+But the message gives this origin for the error:
 
-Specifying the lambda's argument type in the assignment still does not trigger an error from the type checking:
-```vim
-vim9script
-var Ref: func(job)
-Ref = (j: job) => !j
-echo Ref(false)
-```
-    true
+    Cmd
 
----
+This would be especially useful for commands calling autoloaded functions.
+Because then, the command and the function are in different scripts.
 
-I'm not sure it's a bug.  I suspect no error is raised because specifying the arguments of a lambda is optional, and was only introduced fairly recently ([8.2.1956](https://github.com/vim/vim/releases/tag/v8.2.1956)).  Obviously, Vim can't raise an error at compile time since the lambda assignment doesn't specify any type.  Still, shouldn't `Ref(false)` raise an error at runtime?
-
----
-
-If this is working as intended, then it means that – at the script level – it is useless to specify the types of the arguments and the return value of a variable which we intend to use to save a lambda.  It's only in the lambda's definition that types matter.
-
-So, if we fix the previous example to make it work:
-```vim
-vim9script
-var Ref: func(bool): bool
-Ref = (b: bool): bool => !b
-echo Ref(false)
-```
-    ✔
-
-The types on the second line are useless:
-
-    var Ref: func(bool): bool
-                 ^----------^
-
-### ?
-
-In `qf#cfilter()`, the issue can only be triggered at runtime.
-That's because Vim can't  parse the body of the lambda to infer  the type of the
-arguments, if you omit them.  However, this is not enough to reproduce the issue
-which we found in this particular function:
-```vim
-vim9script
-def Func()
-    var Ref: func(job): bool
-    Ref = (v) => true
-    Ref('')
-enddef
-Func()
-```
-    E1013: Argument 1: type mismatch, expected job but got string
-
-The issue can only be reproduced when  the lambda is passed to `filter()` (and I
-assume other  functions with a  similar syntax; i.e.  which accept a  funcref as
-argument):
-```vim
-vim9script
-def Func()
-    var list = []
-    var Ref: func(job): bool
-    Ref = (v) => true
-    list->filter(Ref)
-enddef
-Func()
-```
-    ✔
-
----
-```vim
-vim9script
-var Ref: func(bool)
-Ref = (b: bool) => !b
-echo Ref(false)
-```
-    true
-```vim
-vim9script
-def Func()
-    var Ref: func(bool)
-    Ref = (b: bool) => !b
-    echo Ref(false)
-enddef
-defcompile
-```
-    E1012: Type mismatch; expected func(bool) but got func(bool): bool
-
-Inconsistent.
-Also, not sure the error is warranted: we didn't violate any type specification.
-We just omitted the return type in the declaration.
-Should that be an error?
-If the answer is yes, then why doesn't this snippet raise any error:
-```vim
-vim9script
-def Func()
-    var Ref: func(number)
-    Ref = (n) => n + 1
-    echo Ref(2)
-enddef
-defcompile
-```
-    ✔
-
-Notice that – again – we didn't specify the return type in the declaration.
-And yet, this time, no error is raised.
-
-##
 ## Vim9: :echo parses # inconsistently
 
 **Describe the bug**
@@ -731,20 +605,21 @@ Now, run this other shell command:
     EOF
     )
 
-This time, no error is raised, which is inconsistent.
+This time, no error is raised.
 
 **Expected behavior**
 
-The first command doesn't raise any error because:
+The first command doesn't raise any error because this is consistent with:
 
-   - this is consistent with the second command
-   - this is consistent with any type of comment which can follow `:echo`
+   - the second command
+   - other comments after `:echo`
+   - other comments after `:exe`
 
 **Environment**
 
- - Vim version: 8.2 Included patches: 1-2201
+ - Vim version: 8.2 Included patches: 1-2301
  - OS: Ubuntu 16.04.7 LTS
- - Terminal: xterm(362)
+ - Terminal: xterm(363)
 
 **Additional context**
 
@@ -822,16 +697,155 @@ Second, the fact  that the first 3  snippets raise `E1143` in  a `:def` function
 while they raise `E121` at the script level is another inconsistency.
 
 ## ?
+```vim
+vim9
+def Func()
+    var x = ''
+    if x = ''
+    endif
+enddef
+defcompile
+```
+    E1012: Type mismatch; expected bool but got string
 
-In `vim-statusline`, implement  a `=o` mapping to fix an  option whose value has
-been wrongly altered by some plugin.
-Display the options in a popup menu; selecting an entry in the menu should reset
-the option to its original value (the one it had on `VimEnter`).
-For each option, add the path to the file which unexpectedly altered it.
-When pressing `Enter` on an entry, we should  jump to the line in the file which
-altered the option.  When pressing `=`, the option should be fixed.
-For local options, make sure to fix the option in the right buffer/window.
+But the error message is confusing.  Upon reading this, my first reaction is to try and fix the type of `x`.  But that's not the issue.  The issue is comes from the `=` assignment operator on the third line, which should be replaced with the `==` comparison operator.
 
+    if x = ''
+         ^
+         ✘
+
+    if x == ''
+         ^^
+         ✔
+
+---
+
+It would be less confusing and/or more consistent if `E15` was raised instead of `E1012`:
+```vim
+vim9
+var x = 0
+if x = ''
+endif
+```
+    E15: Invalid expression: x = ''
+
+Or `E488`:
+```vim
+vim9
+def Func()
+    var x = 0
+    if x = ''
+    endif
+enddef
+defcompile
+```
+    E488: Trailing characters: = ''
+
+Ideally, the same error would always be raised, and it would be `E15`.
+
+## ?
+
+<https://github.com/vim/vim/issues/7629>
+
+I'm not sure it's a bug.  I suspect no error is raised because specifying the arguments of a lambda is optional, and was only introduced fairly recently ([8.2.1956](https://github.com/vim/vim/releases/tag/v8.2.1956)).  Obviously, Vim can't raise an error at compile time since the lambda assignment doesn't specify any type.  Still, shouldn't `Ref(false)` raise an error at runtime?
+
+---
+
+If this is working as intended, then it means that – at the script level – it is useless to specify the types of the arguments and the return value of a variable which we intend to use to save a lambda.  It's only in the lambda's definition that types matter.
+
+So, if we fix the previous example to make it work:
+```vim
+vim9script
+var Ref: func(bool): bool
+Ref = (b: bool): bool => !b
+echo Ref(false)
+```
+    ✔
+
+The types on the second line are useless:
+
+    var Ref: func(bool): bool
+                 ^----------^
+
+---
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9
+        var Ref: func(any, job): bool
+        Ref = (_, v) => true
+        [{n: 0}]->filter(Ref)
+    EOF
+    )
+
+### ?
+
+In `qf#cfilter()`, the issue can only be triggered at runtime.
+That's because Vim can't  parse the body of the lambda to infer  the type of the
+arguments, if you omit them.  However, this is not enough to reproduce the issue
+which we found in this particular function:
+```vim
+vim9script
+def Func()
+    var Ref: func(job): bool
+    Ref = (v) => true
+    Ref('')
+enddef
+Func()
+```
+    E1013: Argument 1: type mismatch, expected job but got string
+
+The issue can only be reproduced when  the lambda is passed to `filter()` (and I
+assume other  functions with a  similar syntax; i.e.  which accept a  funcref as
+argument):
+```vim
+vim9script
+def Func()
+    var list = []
+    var Ref: func(job): bool
+    Ref = (v) => true
+    list->filter(Ref)
+enddef
+Func()
+```
+    no error
+
+---
+```vim
+vim9
+def Func()
+    var Filter: func(job, dict<job>): bool
+    Filter = (_, v) => v.n == 0 || v.s =~ 'x'
+    [{n: 2, s: 'x'}]->filter(Filter)
+enddef
+Func()
+```
+    no error: there should be an error
+```vim
+vim9
+var Filter: func(job, dict<job>): bool
+Filter = (_, v) => v.n == 0 || v.s =~ 'x'
+[{n: 2, s: 'x'}]->filter(Filter)
+```
+    E1012: Type mismatch; expected func(job, dict<job>): bool but got func(any, any): any
+    expected
+
+---
+
+The previous comments are old, possibly stale, and might be hard to understand.
+The gist is that something looks wrong in the type checking mechanism.
+
+Play with these lines in `qf#cfilter()`:
+
+    var Filter: func(number, dict<any>): bool
+    ...
+    Filter = (_, v) =>
+        bufname(v.bufnr)->fnamemodify(':p') !~? pat && v.text !~? pat
+
+Try to declare wrong types either in the declaration or the assignment.
+You'll find  out that  in some  cases, type checking  doesn't complain  while it
+should.
+
+##
 ## ?
 
 Try to fix the 2 fixmes in vim-fuzzy.
@@ -1230,25 +1244,6 @@ required because it improves readability:
 
 Unless we can  find another example where  the space between a  command name and
 its argument prevents an issue...
-
-## ?
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        g:d = {}
-        def Func()
-            var k = 1
-            if exists('g:d')
-                unlet! g:d[k]
-            endif
-        enddef
-        defcompile
-    EOF
-    )
-
-    E121: Undefined variable: k
-
-This error message is confusing.  Bug?
 
 ##
 ## ?
@@ -2998,14 +2993,11 @@ Those errors are present in our Vim9 notes and in this file, but are not documen
 ```vim
 vim9script
 def Func()
-    var mylist = [1, 2, 3]
-    mylist
-        ->copy()
-        ->setline(1)
+    getwininfo()
+        ->len()
 enddef
 Func()
 ```
-    E476: Invalid command: mylist
 ```vim
 vim9script
 def Func()
@@ -3016,8 +3008,20 @@ enddef
 Func()
 ```
     ✔
+```vim
+vim9script
+def Func()
+    var mylist = [1, 2, 3]
+    mylist
+        ->copy()
+        ->setline(1)
+enddef
+Func()
+```
+    E476: Invalid command: mylist
 
-If Vim is able to look for `->` on the next line in the second snippet, could it do the same in the first snippet?
+If Vim  is able to  look for `->`  on the next line  in the first  two snippets,
+could it do the same in the last snippet?
 
 ---
 
@@ -3504,27 +3508,6 @@ Func()
 
 ## ?
 
-We can omit the type of a lambda argument:
-```vim
-vim9script
-echo ['aaa', 'b', 'cc']->map((_, v) => strlen(v))
-```
-    [3, 1, 2]
-
-But not the type of a function's argument:
-```vim
-vim9script
-def Func(l): list<number>
-    return l->map((_, v) => strlen(v))
-enddef
-echo ['aaa', 'b', 'cc']->Func()
-```
-    E1077: Missing argument type for l
-
-Too inconsistent?
-
-## ?
-
 We cannot create a global constant from a function:
 ```vim
 vim9script
@@ -3540,6 +3523,93 @@ Is it working as intended?
 I suspect  the issue is  that `:lockvar` has not  been implemented yet  inside a
 `:def` function.   Once it  is, check  whether we can  create a  global constant
 inside a function.
+
+## ?
+
+<https://github.com/vim/vim/issues/7467#issuecomment-753894407>
+
+## ?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9
+        def Func(n: number)
+            return Func(n) .. ''
+        enddef
+        defcompile
+    EOF
+    )
+
+    E1105: Cannot convert void to string
+
+This error message comes  from the fact that `Func()` is has  no return type, in
+which case Vim assumes the special  type "void".  So, `Func(n)` returns a "void"
+value, but needs to be converted to a string to be concatenated with `''`.
+But that's impossible, hence the error.
+
+So, this error is correct; but it's still confusing.
+For the programmer,  it would be easier  to fix the issue if  `E1096` was raised
+instead; just like here:
+```vim
+vim9
+def Func(n: number)
+    return ''
+enddef
+defcompile
+```
+    E1096: Returning a value in a function without a return type
+
+## ?
+
+Do you remember our  trick which consists in using the wrong  type `job` to make
+Vim give an error, and copy the right type from the message?
+And, do you  remember that when the  message gives a composite  type with `any`,
+like `dict<any>` or `list<any>`, we can never trust the `any` part?
+So we have to first use sth wrong again, like `dict<job>` or `list<job>`...
+
+Well, the  issue *could*  come –  at least  in part  – from  the fact  that some
+builtin functions have a too generic return type.
+See here for how this issue was fixed for `winsaveview()`:
+<https://github.com/vim/vim/commit/43b69b39acb85a2aab2310cba5a2dbac338a4eb9>
+
+Have a look at `~/Vcs/vim/src/evalfunc.c` and look for this pattern:
+
+    /ret_\S\+any
+
+Check whether the return type of some functions could be made more accurate.
+For example, I think that would be the case for:
+
+   - `popup_getoptions()`
+   - `searchcount()`
+
+Send a patch.
+
+## ?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9
+        def Func( # comment
+            a: any,
+            b: any
+            e: any,
+            f: any
+            )
+            echo 123
+        enddef
+        Func()
+    EOF
+    )
+
+These errors are noisy and confusing:
+
+    E475: Invalid argument:  # comment
+    E121: Undefined variable: f
+    E492: Not an editor command:         )
+    E193: :enddef not inside a function
+    E117: Unknown function: Func
+
+The noise could be  fixed once Vim aborts sourcing a script as  soon as an error
+is raised.  But could Vim  tell us that we forgot a comma at  the end of the `b:
+any` line?
 
 ##
 ##
@@ -3577,38 +3647,6 @@ I would write this instead:
    >         'hello ' .. 123  == 'hello 123'
    >         'hello ' .. v:true  == 'hello true'
 
-### 99
-
-   > `:def` has no options like `:function` does: "range", "abort", "dict" or
-   > "closure".  A `:def` function always aborts on an error, does not get a range
-   > passed and cannot be a "dict" function.
-
-The first sentence mentions closures, but not the second one.
-Support for closures is in the todo list:
-
-   > - Make closures work:
-   >   - Create closure in a loop.  Need to make a list of them.
-
-Maybe the doc could say:
-
-   > A `:def` function always aborts on an error, does not get a range
-   > passed, cannot be a "dict" function, and can be a closure.
-
-Although, it depends on how it will be implemented.
-Here's how it works in python:
-<https://stackoverflow.com/a/4020443/9780968>
-
-It seems that there's  nothing special to do to make a  closure work; no special
-argument  like  `:h :func-closure`.   However,  the  technical definition  of  a
-closure is a bit tricky; for a function to be considered a closure, it must:
-
-   - be nested in another function
-   - access at least one variable from the outer scope
-   - do so while the outer function has finised its execution
-
-You could argue that  it's too early to be documented,  but `:type` and `:class`
-*are* documented even though they haven't been implemented yet.
-
 ### 103
 
    > The argument types and return type need to be specified.  The "any" type can
@@ -3626,11 +3664,6 @@ too?
 
 If `any` can have a negative impact  on the function's performance, it should be
 mentioned, so that users don't abuse the `any` type.
-
----
-
-Note  that since  [8.2.1956](https://github.com/vim/vim/releases/tag/v8.2.1956),
-we can also specify the types of the arguments in a lambda.
 
 ### 136
 
@@ -4245,6 +4278,52 @@ should be used here too.
 Actually, I think you can also use any item defined in the `b:`, `t:`, and `w:` namespace;
 but not one defined in the `s:` namespace.
 
+### ?
+
+Make sure that it is documented that in Vim9 script, there is no automatic octal
+to decimal  conversion anymore, when  a number starts  with 0 and  contains only
+octal digits:
+```vim
+echo 017
+```
+    15
+```vim
+vim9
+echo 017
+```
+    17
+
+To get this conversion, you *must* explicitly prefix the number with `0o`:
+```vim
+vim9
+echo 0o17
+```
+    15
+
+---
+
+Also make  sure it  is documented  that we now  use single  quotes to  make long
+numbers more readable:
+```vim
+vim9
+echo 1'234'567'890
+```
+    1234567890
+
+All of this is documented at `:h  scriptversion-4` and `:h octal`, but it should
+also be readable at `:h vim9`.  Those  are benefits; they should be more clearly
+advertised.
+
+---
+
+Make sure the help at `:h mkdir()` is updated.
+All the values that it mentions for the `{prot}` argument start with a 0.
+In legacy, it means that the number is parsed as an octal number.
+That should be documented.
+
+That's no longer the case in Vim9; so we need the `0o` prefix.
+That should also be documented.
+
 ###
 ### concept of block-local function
 
@@ -4354,6 +4433,43 @@ Can be fixed by allowing `vimOperParen` to be contained in the `vimEcho` region:
 
     syn region	vimEcho	... contains=vimFunc,vimFuncVar,vimString,vimVar,vimOperParen
                                                                          ^----------^
+
+### ?
+
+In Vim9, we can use quotes to make a long number more readable:
+```vim
+vim9
+echo 1'234'577
+```
+But the syntax highlighting gets confused,  and wrongly highlights a part of the
+number as a string.  This can even completely  break the syntax up to the end of
+the file.
+
+One way to fix the issue is to tweak this rule at `$VIMRUNTIME/syntax/vim.vim`:
+
+    syn region	vimString	oneline keepend	start=+[^a-zA-Z>!\\@]'+lc=1 end=+'+
+
+And disallow a digit in front of the opening quote:
+
+    syn region	vimString	oneline keepend	start=+[^a-zA-Z0-9>!\\@]'+lc=1 end=+'+
+                                                               ^^^
+
+I don't know whether it has undesirable side-effects.
+Make tests.
+
+### ?
+
+In a command definition, the command name is not highlighted correctly.
+It should be  highlighted with `vimUsrCmd`, just  like when the name  is used to
+execute the command.
+
+    com -nargs=1 Cmd eval 0
+                 ^^^
+                  ✘
+
+    Cmd 123
+    ^^^
+     ✔
 
 ### ?
 
@@ -4490,6 +4606,11 @@ A similar issue applies to `call`:
                      VimFuncName
 
 ##
+## ?
+
+When we set `'debug'` to `throw`, no error is thrown if the expression evaluated
+by `'foldtext'` is buggy.  It would help if it did.
+
 ## ?
 
 <https://superuser.com/q/1612861/913143>
@@ -4774,44 +4895,6 @@ enddef
 AddVirtualText()
 ```
 
-## make popup_filter_menu() support C-n and C-p to select neighbor items
-
-Patch (untested):
-```diff
-diff --git a/src/popupwin.c b/src/popupwin.c
-index ed964568d..b6dfcd849 100644
---- a/src/popupwin.c
-+++ b/src/popupwin.c
-@@ -2380,9 +2380,9 @@ f_popup_filter_menu(typval_T *argvars, typval_T *rettv)
-     res.v_type = VAR_NUMBER;
-
-     old_lnum = wp->w_cursor.lnum;
--    if ((c == 'k' || c == 'K' || c == K_UP) && wp->w_cursor.lnum > 1)
-+    if ((c == 'k' || c == 'K' || c == K_UP || c == Ctrl_P) && wp->w_cursor.lnum > 1)
- 	--wp->w_cursor.lnum;
--    if ((c == 'j' || c == 'J' || c == K_DOWN)
-+    if ((c == 'j' || c == 'J' || c == K_DOWN || c == Ctrl_N)
- 		       && wp->w_cursor.lnum < wp->w_buffer->b_ml.ml_line_count)
- 	++wp->w_cursor.lnum;
-     if (old_lnum != wp->w_cursor.lnum)
-```
-Submit a PR.
-
-But how would we justify this change?  Is it a widely adopted convention?
-Aside  from emacs  (and readline  where  `C-n`, `C-p`  lets us  navigate in  the
-history), which programs support these shortcuts?
-
-Suggestion:  `C-n`  and `C-p` are useful  when you implement a  popup menu which
-reacts to all printable characters (e.g.  fuzzy finder).  In that case, we can't
-use `j` and  `k` to select another item.   We need to use `Up`  and `Down`.  But
-those keys are not on the homerow.  OTOH,  `n` and `p` are still on the homerow.
-although,  you  need  to press  a  modifier;  but  the  keyboard layout  can  be
-configured for the control keysym to be more accessible.
-And even if it's not, I would argue  that moving a hand to reach control is less
-cumbersome, then moving the hand to reach an arrow key.
-
-Question:  Should we support `C-j` and `C-k` too?
-
 ## searchcount() can make Vim lag when the buffer contains a very long line
 
     vim9script
@@ -4916,8 +4999,7 @@ long line.  *Any* long line (even before or after) can make Vim lag.
 Run this shell command:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        setline(1, ['aaa', 'bbb']->repeat(3))
+        call setline(1, ['aaa', 'bbb']->repeat(3))
         g x^bxd_
     EOF
     )
@@ -4938,9 +5020,8 @@ No line is deleted, and the global command fails because a space is an alphanume
 
 If we try to use a space as a delimiter in a substitution command, `E146` is raised:
 ```vim
-vim9script
-setline(1, ['aaa', 'bbb']->repeat(3))
-:%s x^bxrepx
+call setline(1, ['aaa', 'bbb']->repeat(3))
+%s x^bxrepx
 ```
     E146: Regular expressions can't be delimited by letters
 

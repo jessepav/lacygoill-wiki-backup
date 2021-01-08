@@ -2227,6 +2227,47 @@ Similarly, from `:h autocmd-define`:
    > in a `:def` function) then {cmd} will be executed as in Vim9 script.
    > Thus this depends on where the autocmd is defined, not where it is triggered.
 
+## I can't install a custom Ex command then use it right away in the same function!
+```vim
+vim9
+def Func()
+    com -nargs=1 Cmd echom <args>
+    Cmd 123
+enddef
+Func()
+```
+    E476: Invalid command: Cmd 123
+
+Use `:exe`; that is, don't write this:
+
+    Cmd 123
+
+But this:
+
+    exe 'Cmd 123'
+```vim
+vim9
+def Func()
+    com -nargs=1 Cmd echom <args>
+    exe 'Cmd 123'
+enddef
+Func()
+```
+    123
+
+Explanation: When compiling a  function, Vim only knows the  commands which were
+defined before.  When it checks the validity  of `:Cmd 123`, it doesn't know yet
+about `:Cmd`, therefore an error is raised.
+
+Using `:exe` postpones the check to until the function is executed.
+At that time, Vim has full knowledge of all the installed commands.
+
+There are other workarounds, which all  boil down to: "don't execute your custom
+Ex  command in  the same  function where  you defined  it".  But  `:exe` is  the
+simplest one.
+
+For more info, see: <https://github.com/vim/vim/issues/7618#issuecomment-754089952>
+
 ## I want to use a closure in a global command or in the replacement of a substitution.  It doesn't work!
 
 Your closure needs to be global.  It can't be local to the outer function:
@@ -2301,6 +2342,105 @@ But it's less pretty.
 ##
 # Todo
 ## To refactor:
+### `:fu` functions into `:def` functions
+
+To get the list of plugins with the most legacy functions to refactor:
+
+    $ vim -S <(cat <<'EOF'
+        vim9
+        Vim /\<endfu\>$/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
+        au QuickFixCmdPost * ++once Func()
+        def Func()
+            feedkeys('cof', 'x')
+            Cfilter! -other_plugins
+            sil :%y r
+            wincmd w
+            new
+            sil put r
+            sil :%s/|.*//
+            exe 'sil :%s/' .. ('^' .. $HOME .. '/.vim/plugged/\([^/]\+\)/.*')->escape('/') .. '/\1/'
+            :%!uniq -c
+            sil :%s/\s\zs\d\ze /0\0/g
+            feedkeys('gsipgrip', 'x')
+            only
+        enddef
+    EOF
+    )
+
+Results at the moment:
+
+    53 vim-vim
+    42 vim-abolish
+    40 vim-tmux
+    39 vim-quickhl
+    36 vim-fex
+    34 vim-cmdline
+    29 vim-unix
+    29 vim-cookbook
+    28 vim-doc
+    25 vim-repmap
+    24 vim-completion
+    22 vim-logevents
+    20 vim-toggle-settings
+    20 vim-brackets
+    20 goyo.vim
+    19 vim-draw
+    18 vim-freekeys
+    18 vim-exchange
+    18 limelight.vim
+    17 vim-par
+    16 vim-breakdown
+    15 vim-iabbrev
+    14 vim-hydra
+    14 vim-comment
+    11 vim-tmuxify
+    11 vim-repeat
+    10 vim-math
+    10 vim-graph
+     09 vim-interactive-lists
+     09 vim-git
+     09 asyncmake
+     08 vim-stacktrace
+     08 vim-source
+     08 vim-help
+     08 vim-cwd
+     07 vim-unichar
+     07 vim-submode
+     07 vim-reorder
+     07 vim-autoread
+     06 vim-xterm
+     06 vim-snippets
+     06 vim-snippets
+     06 /home/jean/.vim/indent/matlab.vim
+     05 vim-gx
+     05 vim-cheat
+     05 /home/jean/.vim/macros/hitest.vim
+     04 vim-sh
+     04 vim-capslock
+     04 vim-debug
+     04 /home/jean/.vim/indent/mymatlab.vim
+     03 vim-save
+     03 vim-column-object
+     03 vim-bullet-list
+     02 vim-tradewinds
+     02 vim-titlecase
+     02 vim-statusline
+     02 vim-man
+     02 vim-latex
+     02 /home/jean/.vim/macros/indent_object.vim
+     02 /home/jean/.vim/macros/colortest.vim
+     02 /home/jean/.vim/autoload/plugin/undotree.vim
+     02 /home/jean/.vim/autoload/colorscheme.vim
+     02 /home/jean/.vim/after/ftplugin/help.vim
+     01 vim-readline
+     01 vim-lg-lib
+     01 vim-fold
+     01 /home/jean/.vim/plugin/undotree.vim
+     01 /home/jean/.vim/plugin/matchup.vim
+     01 /home/jean/.vim/plugin/fzf.vim
+     01 /home/jean/.vim/autoload/plugin/matchparen.vim
+     01 
+
 ### maybe make sure a variable name starting with an underscore is not used
 
     \C\<var _\S\|\<def.*\%(, \|(\)_\S
@@ -2851,42 +2991,7 @@ Because:
 
 Source: <https://github.com/vim/vim/issues/7541#issuecomment-751274709>
 
-Solution: Use a backtick expansion:
-
-    g/^/echo name
-             ^--^
-              ✘
-
-             the value of the variable is inserted in place; if you need quotes, write them explicitly
-             v       v
-    g/^/echo '`=name`'
-              ^^
-              ✔
-```vim
-vim9script
-def Func()
-    var name = 'function-local'
-    g/^/echo '`=name`'
-enddef
-Func()
-```
-    function-local
-
-See `:h vim9 /newText`.
-
----
-
-Note that it might not always work:
-
-   > I'm not sure it fully works, since any command may follow :g/pattern/
-
-Source: <https://github.com/vim/vim/issues/7541#issuecomment-751285484>
-
-If so, consider opening an issue report to make a backtick expansion expanded in
-more places.
-
-Alternatively, use  a script-local  funcref, which is  more powerful  and should
-work all the time (but is more verbose):
+Solution: use a script-local funcref.
 ```vim
 vim9script
 var Name: func
@@ -2899,6 +3004,27 @@ Func()
     function-local
 
 See: <https://github.com/vim/vim/issues/7541#issuecomment-751285484>
+
+### to write an octal number, you need the prefix `0o`
+```vim
+vim9
+echo 0o7
+echo 0o10
+echo 0o17
+echo 0o20
+echo 0o177
+echo 0o200
+```
+    7
+    8
+    15
+    16
+    127
+    128
+
+See `:h octal` and `:h scriptversion-4`.
+
+This matters for the third argument of `mkdir()`, which is parsed as an octal number.
 
 ###
 ### the difference between using or omitting `function()` when saving a funcref in a variable
