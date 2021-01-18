@@ -2477,6 +2477,10 @@ Note that it could be on a different line than `:def`:
         ^----------^
         )
 
+Look for this pattern:
+
+    ^\s*\C\<def\>\%()\@!\_.\)*\zs =
+
 ##
 ## To refactor:
 ### `:fu` functions into `:def` functions
@@ -2546,11 +2550,11 @@ Total of `:def`s (`^\s*\<\Cenddef\>\s*$`):
 
 Remaining `:fu`s:
 
-    176
+    177
 
 Proportion of `:def`s:
 
-    1351 / (1351 + 176)
+    1351 / (1351 + 177)
     ≈ 88%
 
 ### maybe make sure a variable name starting with an underscore is not used

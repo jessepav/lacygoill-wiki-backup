@@ -707,58 +707,20 @@ eval 0
 The line number is wrong; it should be `2`.
 
 ## ?
+```vim
+vim9
+def Func()
+    var l: list<number> = winnr() == 1
+        ?     [1, min([2, 3])]
+        :     [1, 2]
+enddef
+defcompile
+```
+    E1012: Type mismatch; expected list<number> but got list<any>
 
-In this script:
-
-    ~/.vim/plugged/vim-repmap/autoload/repmap/make.vim
-
-We  need  to  declare  that  the  return  type  of  `repmap#make#shareEnv()`  is
-`list<string>`, for `:RepeatableMotions` to work:
-
-    def repmap#make#shareEnv(): list<string>
-                                ^----------^
-
-In reality, the function returns `list<dict<any>>`.
-But if we write `list<dict<any>>`, `:RepeatableMotions` raises this error:
-
-    Error detected while compiling ... repmap#make# shareEnv:
-    line    1:
-    E1012: Type mismatch; expected list<dict<any>> but got list<string>
-                                                           ^----------^
-                                                           where does this come from?
-
-What is going on here?
-
-## ?
-
-In this script:
-
-    ~/.vim/plugged/vim-window/plugin/window.vim
-
-Inside `IfSpecialGetNrHeightTopline()`, we cannot declare `info` with `list<number>`:
-
-                     ✘
-                   v----v
-    var info: list<number> = getwinvar(v, '&pvw', false)
-        ?     [v, &pvh]
-        : index(R_FT, winbufnr(v)->getbufvar('&ft', '')) >= 0
-        ?     [v, R_HEIGHT]
-        : &l:diff
-        ?     [v, GetDiffHeight(v)]
-        : winbufnr(v)->getbufvar('&bt', '') == 'terminal' && !window#util#isPopup(v)
-        ?     [v, T_HEIGHT]
-        : winbufnr(v)->getbufvar('&bt', '') == 'quickfix'
-        ?     [v, [Q_HEIGHT, [&wmh + 2, winbufnr(v)->getbufline(1, Q_HEIGHT)->len()]->max()]->min()]
-        :     []
-
-We need `list<any>`.
+Why an error?
 
 We should be able to write `list<number>`.
-The issue comes from this line:
-
-    ?     [v, [Q_HEIGHT, [&wmh + 2, winbufnr(v)->getbufline(1, Q_HEIGHT)->len()]->max()]->min()]
-
-More specifically, I think it comes from `min()` and/or `max()`.
 
 Note that in the source code, `min()` and `max()` might have a too generic return type:
 
@@ -787,7 +749,7 @@ Func()
 Why?  Bug?  Do we need `flattennew()`?
 
 Update:  Ah no.  I think the issue  is that `flatten()` tries to change the type
-of `l` which  is disallowed.  Still, the  issue is confusing.  It  makes it seem
+of `l` which is disallowed.  Still, the  message is confusing.  It makes it seem
 that we passed the  wrong type of value to `flatten()`, or  that we assigned the
 wrong type of value to `flattened`.
 
