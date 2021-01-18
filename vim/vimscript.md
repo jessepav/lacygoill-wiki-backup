@@ -1923,6 +1923,94 @@ original position where you set the mark; you lose the column position.
     5~
     " the original column was 8
 
+### ?
+
+concatenating commands in an `:if` or `:try` block on a single line with bars
+
+Because if the test following `:if` is false, and if the parsing of the commands
+inside the block  fails (syntax error, unknown command,  unknown variable, ...),
+the rest of the line is ignored, which includes `| endif`.
+This can change the logic of your code.
+```vim
+if 0 | d a b | endif
+```
+
+        # Why `:exe`?
+        #
+        # `:SignifyToggle` does not need it; it's correctly defined with `-bar`.
+        # However, if the command does not exist, `E171: Missing :endif` will be raised.
+        # That's probably because Vim fails to parse an unknown command:
+        #
+        #     $ vim -Nu NONE -S <(echo 'if 0 | not_a_cmd | endif')
+        #     E171: Missing :endif~
+        #
+        # See: https://github.com/neovim/neovim/issues/11136#issuecomment-537253732
+
+> Consider this:
+> if has('nothing') | let x = doesnotexist | endif
+> Here you do not want to give an error for "doesnotexist".
+> Many conditions with has() depend on this.
+> Obviously, this doesn't work very well for a syntax error. But it's hard to make a difference.
+> And the example for using "->" also shows that you do want to skip expressions, and errors in expressions, in a version of Vim that doesn't support that.
+>
+> So, we can only document that the "endif" should be on a separate line.
+
+See: <https://github.com/neovim/neovim/issues/12009#issuecomment-599021395>
+And `:h has() /this->breaks`.
+
+---
+
+As an example:
+```vim
+try | invalid | catch | endtry
+```
+    E492: Not an editor command:  invalid | catch | endtry
+
+Moving `| catch | endtry` on a dedicated line fixes the issue:
+```vim
+try | invalid
+catch | endtry
+```
+    ✔
+Another workaround is to delay the parsing of `:invalid` with an `:exe`:
+```vim
+try | exe 'invalid' | catch | endtry
+```
+    ✔
+
+Here is  another example,  the following snippet  unexpectedly removes  the file
+`do_NOT_delete_me`,  and keeps  the file  `delete_me`, without  any error  being
+raised:
+```vim
+vim9
+var files = ['/tmp/do_NOT_delete_me', '/tmp/delete_me']
+mapnew(files, (_, v ) => delete(v))
+mapnew(files, (_, v ) => writefile([], v))
+if 1
+    if has('missing_feature') | use_missing_feature | endif
+    filter(files, (_, v) => v !~ 'NOT')
+endif
+delete(files[0])
+if 1
+    finish
+endif
+```
+Moving `| endif` on a dedicated line fixes the issue.
+```vim
+vim9
+var files = ['/tmp/do_NOT_delete_me', '/tmp/delete_me']
+mapnew(files, (_, v ) => delete(v))
+mapnew(files, (_, v ) => writefile([], v))
+if 1
+    if has('missing_feature') | use_missing_feature
+    endif
+    filter(files, (_, v) => v !~ 'NOT')
+endif
+delete(files[0])
+if 1
+    finish
+endif
+```
 ##
 # Issues
 ## Why does  `:call system('grep -IRn pat * | grep -v garbage >file')`  fail to capture the standard error in `file`?
@@ -1981,28 +2069,32 @@ This matters if:
 
 In that case, you will need `deepcopy()` + `map()`:
 ```vim
-let ld = [{'x': 12}]
-call mapnew(ld, {_, v -> extend(v, {'y': 34})})
+vim9
+var ld = [{x: 12}]
+mapnew(ld, (_, v) => extend(v, {y: 34}))
 echo ld
 ```
     [{'x': 12, 'y': 34}]
-    ✘
+             ^-------^
+                 ✘
 ```vim
-let ld = [{'x': 12}]
-call deepcopy(ld)->map({_, v -> extend(v, {'y': 34})})
+vim9
+var ld = [{x: 12}]
+deepcopy(ld)->map((_, v) => extend(v, {y: 34}))
 echo ld
 ```
     [{'x': 12]
-    ✔
+         ✔
 
 But not if you just *replace* the items:
 ```vim
-let ld = [{'x': 12}]
-call mapnew(ld, {_, v -> 0})
+vim9
+var ld = [{x: 12}]
+mapnew(ld, () => 0)
 echo ld
 ```
     [{'x': 12]
-    ✔
+         ✔
 
 ### `v:none` can be useful as a kind of sentinel value
 

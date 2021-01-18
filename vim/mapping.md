@@ -253,6 +253,22 @@ And for timers:
 
 Source: <https://github.com/vim/vim/issues/836#issuecomment-221404233>
 
+---
+
+Note that you *can* echo a multiline message, but it must be done in a single `:echo`:
+
+    nno <expr> <c-b> Func()
+    fu Func(...)
+        if !a:0
+            let &opfunc = 'Func'
+            return 'g@_'
+        endif
+        echo "foo\nbar"
+    endfu
+    " press:  C-b
+    " foo~
+    " bar~
+
 ##
 # feedkeys()
 ## When is it useful to use the `t` flag?

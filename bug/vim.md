@@ -332,6 +332,58 @@ Although, would it make sense?
 
 ##
 ## Ideas to make Vim script less weird.
+### Make all builtin functions immune to user settings
+
+   - `byte2line()` depends on `'fileformat'`
+   - `byteidxcomp()` depends on `'encoding'`
+   - `char2nr()` depends on `'encoding'` (can be overridden by optional 2nd argument)
+
+   - `cindent()` depends on `'cindent'` and `'tabstop'` (we don't want to change that, right?)
+   - `indent()` depends on `'tabstop'` (idem)
+   - `lispindent()` depends on `'lisp'`, `'tabstop'` (idem)
+
+   - `col()` depends on `'virtualedit'`
+   - `confirm()` depends on `'guioptions'`
+   - `cursor()` depends on `'virtualedit'`
+   - `executable()` depends on `'shell'`
+
+   - `expand()` depends on `'wildignorecase'`, `'wildignore'` and `'suffixes'`
+     (those last 2 can be overridden by optional 2nd argument)
+
+   - `findfile()` depends on `'suffixesadd'`
+   - `fnameescape()` depends on `'isfname'`
+   - `garbagecollect()` depends on `'updatetime'`
+   - `getcompletion()` depends on `'wildignorecase'`
+   - `getpos()` depends on `'virtualedit'`
+
+   - `glob()` depends on `'wildignorecase'`, `'wildignore'` and `'suffixes'`
+     (those last 2 can be overridden by optional 2nd argument)
+
+   - `globpath()` depends on `'wildignore'` and `'suffixes'` (not `'wildignorecase'`?)
+   - `line2byte()` depends on `'fileformat'`, `'encoding'`
+   - `list2str()` depends on `'encoding'` (can be overridden by 2 optional argument)
+   - `match()` depends on `'ignorecase'`
+   - `nr2char()` depends on `'encoding'`
+   - `py3eval()` depends on `'encoding'`
+   - `readfile()` depends on `'encoding'`
+
+   - `search()` depends on `'ignorecase'`, `'smartcase'`, `'magic'`, `'cpo'`, `'wrapscan'`
+     (the latter can be overridden by an optional flag; `'cpo'` is really BAD, right?)
+
+   - `searchpair()` depends on `'ignorecase'`
+   - `setpos()` depends on `'virtualedit'`
+   - `shellescape()` depends on `'shellslash'` and `'shell'`
+
+I've stopped looking at `shellescape()` ...
+If you want to go on, look for this pattern:
+
+    '[a-z]\{2,\}'
+
+Remember that not all functions are documented at `:h eval`.
+Some of them are in other pages; execute this to find the links:
+
+    :g/functions.*documented/#
+
 ### Continuation lines
 
 Those are annoying.  We can omit them in most places, but not everywhere.
@@ -546,7 +598,428 @@ Look for which functions:
    - don't support `'.'` as a shorthand, but would benefit from it
    - expect a `{row}` and/or `{col}` argument which describe *cells* positions
 
+#### Introduce syntax to reduce the need to ":exe" commands with dynamic arguments
+
+   > Eval'ed   strings   run   in   unexpected  contexts   and   don't   go   through
+   > parsing/expansion when you think it would.
+   > And you cannot catch errors when the  script is parsed because you don't get the
+   > AST until the very execution.  And let's not get into performance.
+
+<https://www.reddit.com/r/vim/comments/54224o/why_is_there_so_much_hate_for_vimscript/d8135xm/>
+
+---
+
+This edits the file `myfile`:
+```vim
+vim9
+var myfile =  '/tmp/file'
+edit myfile
+```
+If you want to edit `/tmp/file`, you need `:exe`:
+```vim
+vim9
+var myfile =  '/tmp/file'
+exe 'edit ' .. myfile
+```
+What if we  made Vim parse all the  arguments of an Ex command, and  for each of
+them try to  expand it as a variable?   In this case, the first –  and simpler –
+snippet would work.
+You could argue  that's bad, because now,  we can't edit the file  whose name is
+literally `myfile`.
+
+But it was ok to let us shadow  Ex commands with custom variables:
+
+   > Variables may shadow **Ex commands**, rename the variable if needed.
+
+So maybe it's also ok to let us shadow a command argument?
+We could add this in the help:
+
+   > Variables may shadow **Ex command arguments**, rename the variable if needed.
+
+#### Introduce syntax to reduce comment a regex more easily
+
+Take inspiration from perl:
+
+<https://perldoc.perl.org/perlfaq6#How-can-I-hope-to-use-regular-expressions-without-creating-illegible-and-unmaintainable-code%3f>
+
+Add an `x` flag to:
+
+    :g
+    :lvimgrep
+    :lvimgrepadd
+    :match
+    :s
+    :sort
+    :syn match
+    :syn region
+    :vimgrep
+    :vimgrepadd
+    matchadd()
+    pattern used in range
+    search()
+    searchpair()
+    searchpairpos()
+    searchpos()
+
+---
+
+We could rewrite this:
+
+    :s/<\%([^>'"]*\|\%(".*"\)\@>\|\%('.*'\)\@>\)\+>//g
+
+Into this:
+
+    :s/ <                    # opening angle bracket
+         \%(                 # Non-backreffing grouping paren
+             [^>'"] *        # 0 or more things that are neither > nor ' nor "
+                 \|          #    or else
+             \%(".*"\)\@>    # a section between double quotes (stingy match)
+                 \|          #    or else
+             \%('.*'\)\@>    # a section between single quotes (stingy match)
+          \)\+               #   all occurring one or more times
+          >                  # closing angle bracket
+    //gx                     # replace with nothing, i.e. delete
+       ^
+       new flag which lets us comment a regex
+
+But this requires a new feature: the ability to break a regex on multiple lines.
+If this is made to work, it should be disallowed to omit the last delimiters.
+Otherwise, there's ambiguity:
+
+    :s/ <
+
+Does the previous substitution removes a space followed by an opening angle bracket?
+Or does it continue on the next line?
+
+Also, we can't provide a flag to some commands like `:g`...
+
 ##
+## ?
+```vim
+vim9
+var name: number = true
+
+eval 0
+```
+    line    3:
+    E1012: Type mismatch; expected number but got bool
+
+The line number is wrong; it should be `2`.
+
+## ?
+
+In this script:
+
+    ~/.vim/plugged/vim-repmap/autoload/repmap/make.vim
+
+We  need  to  declare  that  the  return  type  of  `repmap#make#shareEnv()`  is
+`list<string>`, for `:RepeatableMotions` to work:
+
+    def repmap#make#shareEnv(): list<string>
+                                ^----------^
+
+In reality, the function returns `list<dict<any>>`.
+But if we write `list<dict<any>>`, `:RepeatableMotions` raises this error:
+
+    Error detected while compiling ... repmap#make# shareEnv:
+    line    1:
+    E1012: Type mismatch; expected list<dict<any>> but got list<string>
+                                                           ^----------^
+                                                           where does this come from?
+
+What is going on here?
+
+## ?
+
+In this script:
+
+    ~/.vim/plugged/vim-window/plugin/window.vim
+
+Inside `IfSpecialGetNrHeightTopline()`, we cannot declare `info` with `list<number>`:
+
+                     ✘
+                   v----v
+    var info: list<number> = getwinvar(v, '&pvw', false)
+        ?     [v, &pvh]
+        : index(R_FT, winbufnr(v)->getbufvar('&ft', '')) >= 0
+        ?     [v, R_HEIGHT]
+        : &l:diff
+        ?     [v, GetDiffHeight(v)]
+        : winbufnr(v)->getbufvar('&bt', '') == 'terminal' && !window#util#isPopup(v)
+        ?     [v, T_HEIGHT]
+        : winbufnr(v)->getbufvar('&bt', '') == 'quickfix'
+        ?     [v, [Q_HEIGHT, [&wmh + 2, winbufnr(v)->getbufline(1, Q_HEIGHT)->len()]->max()]->min()]
+        :     []
+
+We need `list<any>`.
+
+We should be able to write `list<number>`.
+The issue comes from this line:
+
+    ?     [v, [Q_HEIGHT, [&wmh + 2, winbufnr(v)->getbufline(1, Q_HEIGHT)->len()]->max()]->min()]
+
+More specifically, I think it comes from `min()` and/or `max()`.
+
+Note that in the source code, `min()` and `max()` might have a too generic return type:
+
+    " ~/Vcs/vim/src/evalfunc.c
+
+    {"max",		1, 1, FEARG_1,	    NULL,
+                        ret_any,	    f_max},
+                        ^-----^
+    ...
+    {"min",		1, 1, FEARG_1,	    NULL,
+                        ret_any,	    f_min},
+                        ^-----^
+
+## ?
+```vim
+vim9
+def Func()
+    var l: list<list<string>> = mapnew(['buff*'], (_, v) => getcompletion(v, 'event'))
+    var flattened: list<string> = l->flatten()
+    echo flattened
+enddef
+Func()
+```
+    E1012: Type mismatch; expected list<string> but got string
+
+Why?  Bug?  Do we need `flattennew()`?
+
+Update:  Ah no.  I think the issue  is that `flatten()` tries to change the type
+of `l` which  is disallowed.  Still, the  issue is confusing.  It  makes it seem
+that we passed the  wrong type of value to `flatten()`, or  that we assigned the
+wrong type of value to `flattened`.
+
+---
+
+Workaround: use `copy()`:
+```vim
+vim9
+def Func()
+    var l: list<list<string>> = mapnew(['buff*'], (_, v) => getcompletion(v, 'event'))
+    var flattened: list<string> = l->copy()->flatten()
+    echo flattened
+enddef
+Func()
+```
+## ?
+```vim
+vim9
+def FuncA()
+    var l: list<any> = [{}]
+    FuncB(1, l)
+enddef
+def FuncB(n: number, l: list<string>)
+enddef
+FuncA()
+```
+    E1012: Type mismatch; expected list<string> but got list<dict<unknown>>
+
+The error message  should include the position of the  argument which received a
+value with a wrong type.  Just like here:
+```vim
+vim9
+def FuncA()
+    var l = [{}]
+    FuncB(1, l)
+enddef
+def FuncB(n: number, l: list<string>)
+enddef
+FuncA()
+```
+    E1013: Argument 2: type mismatch, expected list<string> but got list<dict<unknown>>
+           ^--------^
+
+Although, notice  that the first error  occurs at runtime, while  the second one
+occurs at compile time.  So, maybe not a bug.
+Still, it would be nice if we could get the problematic argument position.
+
+## ?
+```vim
+vim9
+def Func()
+    echo str2nr(123)
+enddef
+Func()
+```
+    123
+
+An error should have been raised:
+
+    E1234: using Number as a String
+
+Just like here:
+```vim
+vim9
+def Func()
+    echo str2float(1.23)
+enddef
+Func()
+```
+    E806: using Float as a String
+
+I guess that Vim automatically coerces a number into a string when passing it to `str2nr()`.
+If so, that's wrong, right?
+
+## Do we need `nr2float()`?
+```vim
+vim9
+var f: float
+var n = 123
+f = n
+```
+    E1012: Type mismatch; expected float but got number
+
+Workaround:
+```vim
+vim9
+var f: float
+var n = 123
+f = n + 0.0
+```
+    ✔
+
+## E1010: Type not recognized:
+```vim
+vim9
+sil helpg grail
+getqflist()
+    ->map((_, v: job): job =>
+        printf('%s:%d:%d:%s',
+       bufname(v.bufnr)->fnamemodify(':p'),
+       v.lnum,
+       v.col,
+       substitute(v.text, '.*', 'REPLACEMENT', '')
+       ))
+```
+    E1010: Type not recognized:
+
+Why can't Vim parse the (wrong) types?
+
+Note: `:eval` doesn't help.
+And joining `->map(...)` with the previous line fixes the issue.
+
+## no error when extend() changes type of dictionary at script level
+```vim
+vim9
+extend({a: 0}, {b: 'x', c: true})
+```
+    no error
+```vim
+vim9
+extend({a: 0}, {b: 'x'})
+```
+    no error
+
+An error should be raised, because `extend()` changes the type of the dictionary
+from `dict<number>` to `dict<any>`.
+
+We've reported the issue, and it's on the todo list.
+Wait for a fix, then re-test these snippets.
+
+## no error when writing wrong types in lambda at script level
+```vim
+vim9
+filter([1, 2, 3], (_, v: string): job => v + 1)
+```
+    no error
+
+An error should be raised because the types are wrong.
+
+I think this is one of the 2 inconsistencies we mentioned here:
+<https://github.com/vim/vim/issues/7646#issuecomment-757297388>
+
+## no error when map() makes type of list/dictionary more specific (probably not a bug)
+
+Right now, no error is raised if `map()` changes `dict<any>` into `dict<string>`.
+Should it?  I don't think so...
+
+    " ~/.vim/autoload/ccomplete.vim
+    return map(res, (_, v: dict<any>): dict<string> => Tagline2item(v, brackets))
+                           ^-------^   ^----------^
+
+## unexpected error when omitting type in variable declaration (probably not a bug)
+```vim
+vim9
+def Func()
+    var x = getloclist(0)->map((_, v) => v.text->matchstr('.*'))
+    var y = x[0]
+    echo y[:]
+enddef
+defcompile
+```
+    E719: Cannot slice a Dictionary
+
+There is indeed an error in the code, but not this one.
+The error  occurred earlier:  `map()` changes the  type of  `getloclist(0)` from
+`list<dict<any>>` to `list<string>`.
+
+Similar issue here:
+```vim
+vim9
+def Func()
+    for key in (range(char2nr('a'), char2nr('z'))
+            + range(char2nr('A'), char2nr('Z')))
+        ->map((_, v) => nr2char(v))
+        toupper(key) == key
+    endfor
+enddef
+Func()
+```
+    E1072: Cannot compare string with number
+
+There is indeed an error in the code, but not this one.
+The  error occurred  earlier:  `map()`  changes the  type  of `range(...)`  from
+`list<number>` to `list<string>`.
+
+Update: I don't think it can be fixed.
+I think  these issues are  raised at compile time,  while the `map()`  error can
+only be raised later, at runtime.
+
+##
+## [enhancement] when assigning value with wrong type in unpack notation, include variable position in error message
+```vim
+vim9
+def GetVal(): list<any>
+    return [false, 0]
+enddef
+var x: bool
+var y: string
+[x, y] = GetVal()
+```
+    E1012: Type mismatch; expected string but got number
+```vim
+vim9
+def GetVal(): list<any>
+    return [false, 0]
+enddef
+def Func()
+    var x: bool
+    var y: string
+    [x, y] = GetVal()
+enddef
+Func()
+```
+    E1012: Type mismatch; expected string but got number
+
+Could Vim give us  the position of the variable which has  been assigned a value
+with a wrong type?
+
+    E1012: Variable 2: Type mismatch; expected string but got number
+           ^---------^
+
+This would be similar to what happens when  we pass a value with a wrong type in
+a function call:
+```vim
+vim9
+def Func(x: bool, y: string)
+enddef
+Func(false, 0)
+```
+    E1013: Argument 2: type mismatch, expected string but got number
+           ^---------^
+
 ## ?
 ```vim
 vim9
@@ -777,79 +1250,6 @@ The types on the second line are useless:
     EOF
     )
 
-### ?
-
-In `qf#cfilter()`, the issue can only be triggered at runtime.
-That's because Vim can't  parse the body of the lambda to infer  the type of the
-arguments, if you omit them.  However, this is not enough to reproduce the issue
-which we found in this particular function:
-```vim
-vim9script
-def Func()
-    var Ref: func(job): bool
-    Ref = (v) => true
-    Ref('')
-enddef
-Func()
-```
-    E1013: Argument 1: type mismatch, expected job but got string
-
-The issue can only be reproduced when  the lambda is passed to `filter()` (and I
-assume other  functions with a  similar syntax; i.e.  which accept a  funcref as
-argument):
-```vim
-vim9script
-def Func()
-    var list = []
-    var Ref: func(job): bool
-    Ref = (v) => true
-    list->filter(Ref)
-enddef
-Func()
-```
-    no error
-
----
-```vim
-vim9
-def Func()
-    var Filter: func(job, dict<job>): bool
-    Filter = (_, v) => v.n == 0 || v.s =~ 'x'
-    [{n: 2, s: 'x'}]->filter(Filter)
-enddef
-Func()
-```
-    no error: there should be an error
-```vim
-vim9
-var Filter: func(job, dict<job>): bool
-Filter = (_, v) => v.n == 0 || v.s =~ 'x'
-[{n: 2, s: 'x'}]->filter(Filter)
-```
-    E1012: Type mismatch; expected func(job, dict<job>): bool but got func(any, any): any
-    expected
-
----
-
-The previous comments are old, possibly stale, and might be hard to understand.
-The gist is that something looks wrong in the type checking mechanism.
-
-Play with these lines in `qf#cfilter()`:
-
-    var Filter: func(number, dict<any>): bool
-    ...
-    Filter = (_, v) =>
-        bufname(v.bufnr)->fnamemodify(':p') !~? pat && v.text !~? pat
-
-Try to declare wrong types either in the declaration or the assignment.
-You'll find  out that  in some  cases, type checking  doesn't complain  while it
-should.
-
-##
-## ?
-
-Try to fix the 2 fixmes in vim-fuzzy.
-
 ##
 ## ?
 
@@ -873,7 +1273,6 @@ Run this shell command:
     E1068: No white space allowed before ','
 
 **Expected behavior**
-
 
 **Environment**
 
@@ -2998,12 +3397,23 @@ def Func()
 enddef
 Func()
 ```
+    ✔
 ```vim
 vim9script
 def Func()
-    var mylist = [1, 2, 3]
-    mylist->copy()
+    var l = [1, 2, 3]
+    l->copy()
         ->setline(1)
+enddef
+Func()
+```
+    ✔
+```vim
+vim9script
+def Func()
+    var l = [1, 2, 3]
+    var x = l
+        ->copy()
 enddef
 Func()
 ```
@@ -3020,7 +3430,7 @@ Func()
 ```
     E476: Invalid command: mylist
 
-If Vim  is able to  look for `->`  on the next line  in the first  two snippets,
+If Vim is  able to look for `->`  on the next line in the  first three snippets,
 could it do the same in the last snippet?
 
 ---
@@ -3049,29 +3459,20 @@ How to get proper syntax highlighting for Vim9 code on github?
 [We can omit the `g:` prefix](https://github.com/vim/vim/issues/6553) in front of the name of an autoload function in its header, and at any call site.
 
 But we *cannot* omit `g:` for an autoload variable:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var foo#bar = 123
-    EOF
-    )
-
+```vim
+vim9
+var foo#bar = 123
+```
     E461: Illegal variable name: foo#bar
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        foo#bar = 123
-    EOF
-    )
-
+```vim
+vim9
+foo#bar = 123
+```
     E492: Not an editor command:     foo#bar = 123
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        g:foo#bar = 123
-    EOF
-    )
-
+```vim
+vim9
+g:foo#bar = 123
+```
     ✔
 
 To document?
@@ -3152,30 +3553,6 @@ Test()
     E118: Too many arguments for function: <80><fd>R1_Func
 
 The byte sequence `<80><fd>R` in the last error message looks weird.
-
-## ?
-
-Since 8.2.2182, 'magic' is ignored in Vim9 script.
-
-But right now, it's not documented.
-Wait until the next update of the runtime files; check whether it gets documented.
-If necessary, submit a patch.
-Make sure it's documented:
-
-   - below `:h vim9 /Comparators`
-   - somewhere at `:h 'magic'`
-   - somewhere at `:h /magic`
-
-Same thing for 'gdefault' and 'edcompatible'.
-They are ignored since 8.2.2183.
-Make sure it gets documented:
-
-   - below `:h vim9 /Comparators`
-   - somewhere at `:h 'gd'`
-   - somewhere at `:h 'edcompatible'`
-   - somewhere at `:h 'edcompatible'`
-   - somewhere at `:h :s_c`
-   - somewhere at `:h :s_g`
 
 ## ?
 
@@ -3360,11 +3737,6 @@ script-local function name starting with a lowercase character, because:
      (and that won't change if I understood the previous first link correctly)
 
 ## ?
-
-Once the old lambda syntax is deprecated, send a patch to vim-fileselect so that
-it uses the new one.
-
-## ?
 ```vim
 vim9
 exe 'var name = 123'
@@ -3526,10 +3898,6 @@ inside a function.
 
 ## ?
 
-<https://github.com/vim/vim/issues/7467#issuecomment-753894407>
-
-## ?
-
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9
         def Func(n: number)
@@ -3610,6 +3978,196 @@ These errors are noisy and confusing:
 The noise could be  fixed once Vim aborts sourcing a script as  soon as an error
 is raised.  But could Vim  tell us that we forgot a comma at  the end of the `b:
 any` line?
+
+## ?
+```vim
+vim9
+def Func()
+    var x: number
+    x = 0
+enddef
+Func()
+```
+    ✔
+```vim
+vim9
+def Func()
+    var x: number
+    x == 0
+enddef
+Func()
+```
+    E1004: White space required before and after '=' at "== 0"
+
+Could Vim give a better error here?
+
+## ?
+
+<https://github.com/vim/vim/issues/7646#issuecomment-757297388>
+
+The original  report was not  a bug, but what  about the inconsistencies  at the
+script level in this comment?
+
+## ?
+```vim
+vim9
+def Func()
+    NAME += ['']
+enddef
+var NAME: list<string>
+Func()
+lockvar! NAME
+Func()
+```
+    no error
+```vim
+vim9
+def Func()
+    NAME += ['']
+enddef
+var NAME: list<string>
+Func()
+lockvar! NAME
+Func()
+```
+    E741: Value is locked: NAME
+```vim
+let s:NAME = []
+fu Func()
+    let s:NAME += ['']
+endfu
+call Func()
+lockvar! s:NAME
+call Func()
+```
+    E741: Value is locked: s:NAME
+
+The first snippet should raise an error.  It's probably a bug.
+Wait for this todo item to be fixed:
+
+   > - Implement :lockvar and :unlockvar.  How about local variables?  Perhaps only
+   >   allow this for global variables.  Use :final or :const otherwise.
+
+When it is, make sure the first snippet correctly raises an error.
+
+## ?
+
+This issue was not addressed:
+<https://github.com/vim/vim/issues/7671#issuecomment-759587852>
+
+Is it a bug?
+
+## ?
+
+In Vim9 script, we cannot put a comment on the header
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9
+        def Func( # some comment
+            n: number,
+            ...l = []
+            )
+        enddef
+    EOF
+    )
+
+    E475: Invalid argument:  # some comment
+
+The issue is that you can't assign a default value to unnamed optional arguments:
+
+    ...l: any = []
+              ^--^
+               ✘
+
+I don't think it's a bug, however, the error message is confusing.
+It looks like the issue comes from  the comment, while the latter has nothing to
+do with the issue.
+
+I think there should  be a proper error number for this kind  of mistake, with a
+proper error line number.
+
+## ?
+```vim
+vim9
+def GetExpansion(...l: any): string
+    return 'bbb'
+enddef
+def Func()
+    var abbr = 'aaa'
+    exe 'inorea <silent> ' .. abbr
+         .. ' <c-r>=<sid>ExpandAdj(' .. string(abbr)
+         .. ', ' .. GetExpansion(abbr,'adj')->string() .. ')<cr>'
+enddef
+Func()
+```
+    E1069: White space required after ','
+
+This is expected, but the error message is not specific enough.
+Where is the whitespace missing?
+
+It's here:
+
+    .. ', ' .. GetExpansion(abbr,'adj')->string() .. ')<cr>'
+                                ^
+                                ✘
+
+Not easy to find.  Especially because there is another comma before.
+
+    .. ', ' .. GetExpansion(abbr,'adj')->string() .. ')<cr>'
+        ^
+        irrelevant
+
+## ?
+
+This commit tried  to make it possible to  assign the output of a  function to a
+boolean variable, if it can only return a boolean number:
+
+<https://github.com/vim/vim/commit/3af15ab7888033fdfae0ae7085172aab794339a2>
+
+Check it didn't omit any relevant function.
+
+Also, try to write tests:
+
+<https://github.com/vim/vim/issues/7693#issuecomment-761823852>
+
+## ?
+
+<https://github.com/vim/vim/issues/7694#issuecomment-761723816>
+
+## unexpected E1095 when unclosed string below :return
+```vim
+vim9
+def Func(): number
+    if 1
+        " wrong legacy comment
+        return 0
+    endif
+    return 0
+enddef
+defcompile
+```
+    E114: Missing quote: " wrong legacy comment
+```vim
+vim9
+def Func(): number
+    if 1
+        return 0
+        " wrong legacy comment
+    endif
+    return 0
+enddef
+defcompile
+```
+    E1095: Unreachable code after :return
+
+It would be easier to fix the issue if `E114` was raised in the second snippet.
+It's  not really  a  bug; `"  wrong  ...`  is parsed  as  unclosed string  which
+technically  is code  (remember that  a  string is  an expression,  and you  can
+evaluate an expression without `:eval`).
+Still,  could  Vim  first  check  for unclosed  strings  *before*  checking  for
+unreachable code after a `:return`?
+
+I guess not.  Worth asking?
 
 ##
 ##
@@ -4069,6 +4627,9 @@ However, maybe it should be documented:
     !Func() # Error!
     eval !Func() # OK
 
+Update: Not sure it's a good idea that `!` is parsed as `:!`.
+I mean, `!` is now ambiguous.  And ambiguity is bad.
+
 ### 463
 
    > Vim9 functions are compiled as a whole: >
@@ -4277,52 +4838,6 @@ should be used here too.
 
 Actually, I think you can also use any item defined in the `b:`, `t:`, and `w:` namespace;
 but not one defined in the `s:` namespace.
-
-### ?
-
-Make sure that it is documented that in Vim9 script, there is no automatic octal
-to decimal  conversion anymore, when  a number starts  with 0 and  contains only
-octal digits:
-```vim
-echo 017
-```
-    15
-```vim
-vim9
-echo 017
-```
-    17
-
-To get this conversion, you *must* explicitly prefix the number with `0o`:
-```vim
-vim9
-echo 0o17
-```
-    15
-
----
-
-Also make  sure it  is documented  that we now  use single  quotes to  make long
-numbers more readable:
-```vim
-vim9
-echo 1'234'567'890
-```
-    1234567890
-
-All of this is documented at `:h  scriptversion-4` and `:h octal`, but it should
-also be readable at `:h vim9`.  Those  are benefits; they should be more clearly
-advertised.
-
----
-
-Make sure the help at `:h mkdir()` is updated.
-All the values that it mentions for the `{prot}` argument start with a 0.
-In legacy, it means that the number is parsed as an octal number.
-That should be documented.
-
-That's no longer the case in Vim9; so we need the `0o` prefix.
-That should also be documented.
 
 ###
 ### concept of block-local function
@@ -4606,6 +5121,76 @@ A similar issue applies to `call`:
                      VimFuncName
 
 ##
+## ?
+
+Use vim-quickhl to apply some highlighting on `test_text_properties` on the following line:
+
+        cursor before space in insert mode
+        v
+    some test_text_properties afterward
+         ^------------------^
+         highlight this
+
+From insert mode, position your cursor right before the space and press Enter.
+You should get this:
+
+    some
+    test_text_properties afterward
+     ^------------------^
+     text which is now highlighted
+
+Notice that the highlighting is off by 1 character.
+Is it a bug?
+
+## ?
+```vim
+vim9
+timer_start(1'000, () => 0)
+exe 'verb ' .. timer_info()[0].callback
+    ->string()
+    ->substitute("('\\|')", ' ', 'g')
+```
+    function <lambda>1(...)
+         Last set from /proc/26385/fd/11 line 1
+    1  return 0
+    endfunction
+
+The line number of the definition is off by 1.
+The lambda was not defined on line 1, but on line 2.
+The issue is not specific to Vim9:
+```vim
+eval 1
+eval 2
+eval 3
+let Ref = {-> 0}
+verb function <lambda>1
+```
+        function <lambda>1(...)
+             Last set from /proc/26909/fd/11 line 3
+     1  return 0
+        endfunction
+
+Here, `:verb` tells us that the lambda was defined on line 3, which is wrong; it
+was defined on line 4.
+
+---
+
+Also, if necessary, send this patch:
+```diff
+diff --git a/runtime/doc/eval.txt b/runtime/doc/eval.txt
+index 750448dfc..6ab09b6e5 100644
+--- a/runtime/doc/eval.txt
++++ b/runtime/doc/eval.txt
+@@ -1572,7 +1572,7 @@ Note how execute() is used to execute an Ex command.  That's ugly though.
+ 
+ Lambda expressions have internal names like '<lambda>42'.  If you get an error
+ for a lambda expression, you can find what it is with the following command: >
+-	:function {'<lambda>42'}
++	:function <lambda>42
+ See also: |numbered-function|
+ 
+ ==============================================================================
+```
 ## ?
 
 When we set `'debug'` to `throw`, no error is thrown if the expression evaluated
@@ -4894,6 +5479,107 @@ def AddVirtualText()
 enddef
 AddVirtualText()
 ```
+---
+
+How about a library function to simplify adding virtual text:
+```vim
+vim9
+var lines: list<string> =<< trim END
+    I met a traveller from an antique land,
+    Who said—“Two vast and trunkless legs of stone
+    Stand in the desert. . . . Near them, on the sand,
+    Half sunk a shattered visage lies, whose frown,
+    And wrinkled lip, and sneer of cold command,
+    Tell that its sculptor well those passions read
+    Which yet survive, stamped on these lifeless things,
+    The hand that mocked them, and the heart that fed;
+    And on the pedestal, these words appear:
+    My name is Ozymandias, King of Kings;
+    Look on my Works, ye Mighty, and despair!
+    Nothing beside remains. Round the decay
+    Of that colossal Wreck, boundless and bare
+    The lone and level sands stretch far away.”
+END
+setline(1, lines)
+set ruler
+
+var lnum2popup_id: dict<dict<number>> = {}
+
+def AddVirtualText(props: dict<any>): number
+    var lnum: number = props.lnum
+    var col: number = props.col
+    var length: number = props.length
+    var text: string = props.text
+    var highlight_text: string = has_key(props, 'highlight_text')
+        ? props.highlight_text
+        : 'Normal'
+    var highlight_virtualtext: string = has_key(props, 'highlight_virtualtext')
+        ? props.highlight_virtualtext
+        : 'Normal'
+    if has_key(props, 'highlight_virtualtext')
+        highlight_virtualtext = props.highlight_virtualtext
+    endif
+
+    var buf: number = bufnr('%')
+    if prop_type_list({bufnr: buf})->index('virtualText' .. lnum) == -1
+        prop_type_add('virtualText' .. lnum, {bufnr: buf, highlight: highlight_text})
+    endif
+    if has_key(lnum2popup_id, buf) && has_key(lnum2popup_id[buf], lnum)
+        popup_close(lnum2popup_id[buf][lnum])
+    endif
+    prop_add(lnum, col, {
+        type: 'virtualText' .. lnum,
+        length: length,
+        bufnr: buf,
+        })
+    var left_padding: number = col([lnum, '$'])
+    var popup_id: number = popup_create(text, {
+        textprop: 'virtualText' .. lnum,
+        highlight: highlight_virtualtext,
+        line: -1,
+        wrap: false,
+        pos: 'topright',
+        })
+    if !has_key(lnum2popup_id, buf)
+        extend(lnum2popup_id, {[buf->string()]: {}})
+    endif
+    extend(lnum2popup_id[buf], {[lnum->string()]: popup_id})
+    return popup_id
+enddef
+var ozymandias_pos: list<number> = searchpos('Ozymandias')
+AddVirtualText({
+    lnum: ozymandias_pos[0],
+    col: ozymandias_pos[1],
+    length: 10,
+    text: 'Greek name for Ramesses II, pharaoh of Egypt',
+    highlight_text: 'Search',
+    highlight_virtualtext: 'MoreMsg',
+    })
+```
+Issue: If you  insert text on  the line where there  is virtual text,  some real
+text at the end of the line disappears behind the virtual text.
+I *think* that's because `left_padding` needs to be updated.
+We would need to re-invoke the function every time we insert or remove text on a
+line where there is virtual text.  We could try an autocmd:
+
+    au TextChanged,TextChangedI,TextChangedP * AddVirtualText({
+        \ lnum: ozymandias_pos[0],
+        \ col: ozymandias_pos[1],
+        \ length: 10,
+        \ text: 'Greek name for Ramesses II, pharaoh of Egypt',
+        \ highlight_text: 'Search',
+        \ highlight_virtualtext: 'MoreMsg',
+        \ })
+
+But this one is wrong; because `ozymandias_pos` might also need to be updated.
+
+If  you  end up  with  some  good  code, maybe  it  would  be  nice for  Vim  to
+provide  it  via  a  builtin  wrapper  function,  similar  to  `popup_dialog()`,
+`popup_notification()`, ... We could name it `popup_virtual_text()`?
+
+## Is the `col` key ignored when invoking `popup_create()` and using the `textprop` key?
+
+<https://github.com/vim/vim/issues/7553#issuecomment-761715667>
 
 ## searchcount() can make Vim lag when the buffer contains a very long line
 

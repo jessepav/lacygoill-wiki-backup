@@ -1499,6 +1499,17 @@ parsing to skip the whole line and not see the '|' that separates the commands.
 # Todo
 ## ?
 
+Document how `:silent!` and `:throw` interact:
+
+- <https://github.com/vim/vim/issues/7682#issuecomment-761183658>
+- <https://github.com/vim/vim/issues/7682#issuecomment-761199670>
+
+Summary: Sometimes, `silent!` suppresses `throw`, but not always.
+I *think* `silent!` is never intended to suppress `throw`.
+When it does, it might lead to unexpected results later.
+
+## ?
+
 In a terminal, run this:
 
     $ vim /tmp/file +"pu='xxx' | w"

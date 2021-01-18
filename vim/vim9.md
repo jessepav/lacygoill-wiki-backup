@@ -2341,6 +2341,143 @@ But it's less pretty.
 
 ##
 # Todo
+## We should specify the types in *all* declarations.
+
+    \C\<\%(var\|const\|final\)\>\s\+[^:]\+\zs\s\+=\%(<<\)\=\%(\s\|$\)
+    :Cfilter! /var loaded = true/
+
+At least you might want to do this in this kind of declarations:
+
+    var l = Func()
+
+Suppose `Func()`  returns an  expression of type  `list<number>`, but  later you
+need to invoke `extend()` to include strings inside `l`.
+It will probably raise a type mismatch error.
+
+So, instead, you need to write this:
+
+    var l: list<any> = Func()
+           ^-------^
+
+Beyond that, what about future refactorings?
+Suppose you have this:
+
+    var x = true
+
+Here, specifying `: bool` seems useless.  But maybe one day you'll refactor the line into:
+
+    var x = Func()
+
+And maybe `Func()` will return `list<number>`.
+And maybe you'll need to include strings in `x` later.
+Again, same issue.
+
+So, you might be tempted to specify the type all the time...
+
+---
+
+Also, it might give better error messages.
+Watch this:
+```vim
+vim9
+def Func()
+    var lines = getline(1, '$')
+        ->map((i, v) => ({lnum: i + 1, text: v}))
+    var lastlnum = line('$')
+    map(lines, (i, v) =>
+            i < lastlnum - 1
+                && lines[i + 1].text =~ '^-\+$'
+                && v.text =~ '\S'
+            ? extend(v, {text: "\x01" .. v.text})
+            : v
+            )
+enddef
+Func()
+```
+    E715: Dictionary required
+    WTF? (hard to understand)
+```vim
+vim9
+def Func()
+    var lines: list<dict<any>> = getline(1, '$')
+        ->map((i, v) => ({lnum: i + 1, text: v}))
+    var lastlnum = line('$')
+    map(lines, (i, v) =>
+            i < lastlnum - 1
+                && lines[i + 1].text =~ '^-\+$'
+                && v.text =~ '\S'
+            ? extend(v, {text: "\x01" .. v.text})
+            : v
+            )
+enddef
+Func()
+```
+    E1012: Type mismatch; expected list<dict<any>> but got list<string>
+    ✔ (easier to understand)
+
+Here is another example:
+```vim
+vim9
+var d: dict<string>
+def Func(): string
+    return d.a['b']
+enddef
+Func()
+```
+    E1012: Type mismatch; expected number but got string
+    WTF? (hard to understand)
+
+    From the `d` declaration, Vim infers that `d.a` is a string.
+    So, Vim thinks you're trying to index the string `d.a` with the string 'b'.
+```vim
+vim9
+var d: dict<dict<string>>
+def Func(): string
+    return d.a['b']
+enddef
+Func()
+```
+    E716: Key not present in Dictionary: "a"
+    ✔ (makes sense)
+
+I think this is a fundamental principle: you should feed as much info as you can
+to the compiler, so  that it can catch errors earlier,  and better optimize your
+code.
+
+In practice, I think you should look for this pattern everywhere:
+
+    \C\<\%(var\|const\|final\)\>\s\+[^:]\+\zs\s\+=\%(<<\)\=\%(\s\|$\)
+    :Cfilter! /var loaded = true/
+
+And always specify a type, unless the assigned value is an irreducible scalar.
+A scalar is any expression which is not a list/dictionary.
+"Irreducible" means that the expression can't be simplified:
+
+    var n = 123
+            ^^^
+            cannot be simplified
+
+    var n = ReturnNumber()
+            ^------------^
+            can be simplified into a number
+
+Update: Let's be consistent; do it *all* the time.
+Exception: not in a guard, because it's useless (a guard won't be refactored).
+
+Update: What about assignments in the header of a `:def` function?
+
+    def Func(arg = value)
+             ^---------^
+
+Note that it could be on a different line than `:def`:
+
+    def Func(
+        arg1,
+        arg2 = value
+        ^----------^
+        )
+
+##
 ## To refactor:
 ### `:fu` functions into `:def` functions
 
@@ -2348,7 +2485,7 @@ To get the list of plugins with the most legacy functions to refactor:
 
     $ vim -S <(cat <<'EOF'
         vim9
-        Vim /\<endfu\>$/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
+        Vim /^\s*\C\<endfu\>\s*$/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
         au QuickFixCmdPost * ++once Func()
         def Func()
             feedkeys('cof', 'x')
@@ -2369,77 +2506,52 @@ To get the list of plugins with the most legacy functions to refactor:
 
 Results at the moment:
 
-    53 vim-vim
     42 vim-abolish
-    40 vim-tmux
-    39 vim-quickhl
-    36 vim-fex
-    34 vim-cmdline
-    29 vim-unix
-    29 vim-cookbook
-    28 vim-doc
-    25 vim-repmap
-    24 vim-completion
-    22 vim-logevents
-    20 vim-toggle-settings
-    20 vim-brackets
-    20 goyo.vim
-    19 vim-draw
-    18 vim-freekeys
-    18 vim-exchange
-    18 limelight.vim
-    17 vim-par
-    16 vim-breakdown
-    15 vim-iabbrev
-    14 vim-hydra
-    14 vim-comment
+    38 vim-quickhl
+    09 asyncmake
+    06 ~/.vim/indent/matlab.vim
+
+    13 vim-hydra
     11 vim-tmuxify
-    11 vim-repeat
-    10 vim-math
     10 vim-graph
-     09 vim-interactive-lists
-     09 vim-git
-     09 asyncmake
-     08 vim-stacktrace
-     08 vim-source
-     08 vim-help
-     08 vim-cwd
-     07 vim-unichar
-     07 vim-submode
-     07 vim-reorder
-     07 vim-autoread
-     06 vim-xterm
-     06 vim-snippets
-     06 vim-snippets
-     06 /home/jean/.vim/indent/matlab.vim
-     05 vim-gx
-     05 vim-cheat
-     05 /home/jean/.vim/macros/hitest.vim
-     04 vim-sh
-     04 vim-capslock
-     04 vim-debug
-     04 /home/jean/.vim/indent/mymatlab.vim
-     03 vim-save
-     03 vim-column-object
-     03 vim-bullet-list
-     02 vim-tradewinds
-     02 vim-titlecase
-     02 vim-statusline
-     02 vim-man
-     02 vim-latex
-     02 /home/jean/.vim/macros/indent_object.vim
-     02 /home/jean/.vim/macros/colortest.vim
-     02 /home/jean/.vim/autoload/plugin/undotree.vim
-     02 /home/jean/.vim/autoload/colorscheme.vim
-     02 /home/jean/.vim/after/ftplugin/help.vim
-     01 vim-readline
-     01 vim-lg-lib
-     01 vim-fold
-     01 /home/jean/.vim/plugin/undotree.vim
-     01 /home/jean/.vim/plugin/matchup.vim
-     01 /home/jean/.vim/plugin/fzf.vim
-     01 /home/jean/.vim/autoload/plugin/matchparen.vim
-     01 
+
+    04 vim-sh
+    04 vim-debug
+    04 ~/.vim/indent/mymatlab.vim
+    03 vim-save
+    03 vim-column-object
+    03 vim-xterm
+    02 vim-tradewinds
+    02 vim-titlecase
+    02 vim-statusline
+    02 vim-man
+    02 vim-latex
+    02 ~/.vim/macros/indent_object.vim
+    02 ~/.vim/macros/colortest.vim
+    02 ~/.vim/autoload/plugin/undotree.vim
+    02 ~/.vim/autoload/colorscheme.vim
+    02 ~/.vim/after/ftplugin/help.vim
+    01 vim-readline
+    01 vim-lg-lib
+    01 vim-fold
+    01 vim-vim
+    01 ~/.vim/plugin/undotree.vim
+    01 ~/.vim/plugin/matchup.vim
+    01 ~/.vim/plugin/fzf.vim
+    01 ~/.vim/autoload/plugin/matchparen.vim
+
+Total of `:def`s (`^\s*\<\Cenddef\>\s*$`):
+
+    1351
+
+Remaining `:fu`s:
+
+    176
+
+Proportion of `:def`s:
+
+    1351 / (1351 + 176)
+    ≈ 88%
 
 ### maybe make sure a variable name starting with an underscore is not used
 
@@ -2819,49 +2931,6 @@ Outer()
 ```
     E1075: Namespace not supported: s:Inner()
 
-### nested closures don't always work
-```vim
-vim9script
-def Func()
-    var n = 123
-    echo {-> {-> n}()}()
-enddef
-Func()
-```
-    1
-    ^
-    ✘
-    it should be 123
-
-Workaround:
-
-Move the definition of the nested lambda outside the outer lambda:
-```vim
-vim9script
-def Func()
-    var n = 123
-    var Inner = {-> n}
-    echo {-> Inner()}()
-enddef
-Func()
-```
-    123
-
-You can keep the nested reference; but not the nested definition.
-```vim
-vim9script
-def Func()
-    var j = 34
-    echo {i -> {-> [i, j]}()}(12)
-enddef
-Func()
-```
-    [12, 1]
-
----
-
-For more info, see: <https://github.com/vim/vim/issues/7150>
-
 ### why we have "inconsistent" messages when using a wrong type of argument with the "-" and "+" operators
 ```vim
 vim9script
@@ -2918,7 +2987,6 @@ function-local function:
 
     Error detected while compiling command line..script /proc/3556/fd/11[8]..function <SNR>1_Func[4]..<lambda>1:
                                                                                                       ^-------^
-
 It's not a bug and it can't be fixed.
 The concept of function local to another function didn't exist in Vim script legacy.
 A function-local function can't have a public name like "Nested".
@@ -2928,7 +2996,7 @@ Fortunately, that's not an issue for `vim-stacktrace`.
 That's because we can still retrieve the definition site of such a function:
 
     " still works
-    :verb function {'<lambda>123'}
+    :verb function <lambda>123
 
 ### we don't need `s:` in a lambda at the script level anymore in Vim9 script
 
@@ -2962,23 +3030,25 @@ If it is:
    - not composite, then use it instead of the obviously wrong `job`
    - composite, then replace `job` with `list<job>`, and repeat the process
 
-### backtick expansion is necessary to refer to function-local variable from global context (`:s`, `:g`, ...)
+### use the script-local namespace when you need to access a function-local variable from the global context
+
+"Global context" = `:s`, `:g`, `:*do`, `win_execute()` ...
 
 This was not an issue in Vim script legacy:
 ```vim
 fu Func()
-    let name = 'function-local'
+    let name = 'set in function'
     g/^/echo name
 endfu
 call Func()
 ```
-    function-local
+    set in function
 
 But this is not possible in Vim9:
 ```vim
 vim9script
 def Func()
-    var name = 'function-local'
+    var name = 'set in function'
     g/^/echo name
 enddef
 Func()
@@ -2991,17 +3061,17 @@ Because:
 
 Source: <https://github.com/vim/vim/issues/7541#issuecomment-751274709>
 
-Solution: use a script-local funcref.
+Solution: use a script-local variable:
 ```vim
 vim9script
-var Name: func
+var name: string
 def Func()
-    Name = () => 'function-local'
-    g/^/echo Name()
+    name = 'set in function'
+    g/^/echo name
 enddef
 Func()
 ```
-    function-local
+    set in function
 
 See: <https://github.com/vim/vim/issues/7541#issuecomment-751285484>
 
@@ -3025,6 +3095,149 @@ echo 0o200
 See `:h octal` and `:h scriptversion-4`.
 
 This matters for the third argument of `mkdir()`, which is parsed as an octal number.
+
+### cannot use the output of `str2nr()` as a bool directly
+```vim
+vim9
+def Func(): bool
+    var s = '0'
+    return s->str2nr()
+enddef
+defcompile
+```
+    E1012: Type mismatch; expected bool but got number
+
+Workaround 1:
+```vim
+vim9
+def Func(): bool
+    var s = '0'
+    return s->str2nr() ? true : false
+enddef
+defcompile
+```
+Workaround 2:
+```vim
+vim9
+def Func(): bool
+    var s = '0'
+    return !!s->str2nr()
+enddef
+defcompile
+```
+This works because:
+
+   - `!` is the only operator (with `??`) to be able to handle *any* value as a boolean
+   - `!` considers any "empty"/"null" value as falsy, and everything else as truthy
+   - the second `!` cancels the first one
+
+---
+
+See: <https://github.com/vim/vim/issues/7644#issuecomment-757228802>
+
+I think the bottom  line of this post is that Vim can't  know in advance whether
+the output of `str2nr()` is 0 or 1, at least in the general case.
+Also, when  you explicitly  specify the  type `number`, you  tell Vim  that it's
+*really* a number, and that it should never be used as a boolean.
+OTOH, if you rely on type inferrence, then  you can use the number as a boolean,
+provided it's 0 or 1.
+
+### `mapnew()` is *not* the equivalent of `copy()` + `map()`
+
+If it was, this would work:
+```vim
+vim9
+def Func()
+    var ld = [{a: 1}]
+    copy(ld)->map((_, v) => extend(v, {b: 's'}))
+enddef
+Func()
+```
+    E1012: Type mismatch; expected list<dict<number>> but got list<dict<any>>
+
+But it doesn't.
+
+The main purpose  of `mapnew()` is to work around  the limitation which prevents
+`map()` from changing the type of the list/dictionary on which it operates.
+Indeed, in  Vim9, `map()`  can still  change the  *values* of  a list/dictionary
+(just like in legacy), but not their *types*.
+
+### `silent!` can only suppress an error at runtime, NOT at compile time
+```vim
+vim9
+silent! invalid
+```
+    ✔
+```vim
+vim9
+def Func()
+    silent! invalid
+enddef
+Func()
+```
+    E476: Invalid command: invalid
+
+### `silent!` cannot always suppress a thrown error
+
+Sometimes, it can:
+```vim
+vim9
+def Func()
+    throw 'error'
+enddef
+sil! Func()
+```
+    ✔
+
+Sometimes, it cannot:
+```vim
+vim9
+au TerminalWinOpen * sil! Func()
+def Func()
+    throw 'error'
+enddef
+try
+    term
+catch /E123/
+endtry
+```
+    E605: Exception not caught: error
+
+See:
+
+- <https://github.com/vim/vim/issues/7672>
+- <https://github.com/vim/vim/issues/7682#issuecomment-761183658>
+
+### cannot always use variable in unpack notation in :for loop directly
+```vim
+vim9
+def Func()
+    var l: list<number> = [1, 2]
+    for  [x, y, _]
+    in  [[0, 1, ''], [0, 1, '']]
+        l[x] = l[x] + y
+    endfor
+enddef
+defcompile
+```
+    E39: Number expected
+
+In such issues, try to use an intermediate variable to correctly specify its type:
+```vim
+vim9
+def Func()
+    var l: list<number> = [1, 2]
+    for  [x, y, _]
+    in  [[0, 1, ''], [0, 1, '']]
+        var n: number = x
+        l[n] = l[n] + y
+    endfor
+enddef
+defcompile
+```
+    ✔
+
+See: <https://github.com/vim/vim/issues/7694#issuecomment-761723816>
 
 ###
 ### the difference between using or omitting `function()` when saving a funcref in a variable

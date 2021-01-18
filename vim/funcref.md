@@ -448,7 +448,7 @@ conflit entre avec une fonction publique de même nom.
 
 ---
 
-    let F = { -> 'hello'.42 }
+    let F = { -> 'hello' .. 42 }
     echo F()
     hello42~
 
@@ -456,18 +456,18 @@ Une expression lambda peut ne pas avoir d'arguments.
 
 ---
 
-    {'<lambda>42'}
+    <lambda>123
 
 Le nom de la fonction numérotée créée par une expression lambda suit ce schéma.
 En cas d'erreur au sein de cette dernière, on pourra donc exécuter:
 
-    fu {'<lambda>42'}
+    fu <lambda>123
 
 ... pour lire son code:
 
-                    let F = {-> 'hello'.[42]}
-                    echo F()
-                    E15: Invalid expression: <lambda>15    ✘~
+    let F = {-> 'hello' .. [42]}
+    echo F()
+    E15: Invalid expression: <lambda>123    ✘~
 
 ---
 

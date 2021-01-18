@@ -2,11 +2,14 @@
 
    - `:h appendbufline()` + `:h deletebufline()`
    - `:h charclass()`
+   - `:h charcol()`
    - `:h charidx()`
    - `:h chdir()`
    - `:h complete_info()` + 'user_data' entry in completion item
    - `:h environ()` + `:h getenv()` + `:h setenv()`
    - `:h expandcmd()`
+   - `:h getcharpos()`
+   - `:h getcursorcharpos()`
    - `:h gettagstack()` + `:h settagstack()`
    - `:h interrupt()`
    - `:h listener_add()`
@@ -14,11 +17,15 @@
    - `:h pum_getpos()`
    - `:h readdir()` + `:h readdirex()`
    - `:h setcellwidths()`
+   - `:h setcharpos()`
+   - `:h setcursorcharpos()`
+   - `:h slice()`
    - `:h str2list()` + `:h list2str()`
    - `:h strptime()` (*str*ing *p*arse *time* ?)
    - `:h term_setansicolors()` + `:h term_getansicolors()`
    - `:h term_setsize()`
    - `:h terminalprops()`
+   - `:h typename()`
    - `:h win_splitmove()`
 
 ---
@@ -52,6 +59,30 @@ I  think  `strptime()`  is  useful  to convert  a  human-readable  date  into  a
 machine-readable form.  Useful when you need  to do some computation on it.  For
 example, you  may want to  sort human-readable  dates; `strptime()` may  help by
 temporarily converting the dates into simple integers.
+
+---
+
+Don't try to use `typename()` to blindly replace every `v:t_*` variable, like this:
+Should we do this kind of refactoring?
+
+    if type(expr) == v:t_number
+    →
+    if typename(expr) == 'number'
+
+First, it's more verbose.
+Second, for composite types, it makes the code less readable:
+
+    if type(expr) == v:t_dict
+    →
+    if typename(expr)[: 3] == 'dict'
+                     ^---^
+                     ugly
+
+However, `typename()` is useful when you need to get more info about the type of
+a composite type.  For example, if you  want to check whether an expression is a
+list of dictionaries of jobs, you can simply write:
+
+    if typename(expr) == 'list<dict<job>>'
 
 ## arguments of functions
 

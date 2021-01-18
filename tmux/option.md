@@ -94,7 +94,7 @@ Use the `-q` flag:
 Use the `-t` argument:
 
     $ tmux set -t:2 clock-mode-colour green
-                ^-^
+                ^^^
 
 ## I have 2 sessions, and I'm in the first one.  How to get the value of an option local to the second one?
 
@@ -107,7 +107,7 @@ Again, use the `-t` argument:
 ## What happens if I
 ### omit `-g` when I set a session, window, or pane option in `~/.config/tmux/tmux.conf`?
 
-tmux will complain with one of these error messages:
+Tmux will complain with one of these error messages:
 
     no current session
     no current window

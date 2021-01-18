@@ -529,6 +529,17 @@ palette, which will be ugly/flashy.
 # Todo
 ## ?
 
+In `vim-exchange`, we really need the `def` argument in the `:hi` command.
+Without, the  highlighting which is applied  when we use the  `cx` operator does
+not persist across changes of the color scheme.
+
+See: <https://github.com/tommcdo/vim-exchange/commit/e797a2118ad116ca59d3858159e211b2cb635e41>
+
+Why is it necessary?
+Did we miss it in other highlight groups definitions?
+
+## ?
+
 Document that  for `CursorLine`  not to  completely override  `Diff*`, `Search`,
 `IncSearch`, you should define the latter with the `reverse` attribute.
 
