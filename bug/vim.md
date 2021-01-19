@@ -697,6 +697,57 @@ Also, we can't provide a flag to some commands like `:g`...
 ## ?
 ```vim
 vim9
+var name1 = 'at script level'
+for i in [1]
+   var name2 = 'block-local'
+endfor
+```
+    ✔
+```vim
+vim9
+var name1 = 'at script level'
+for i in [1, 2]
+   var name2 = 'block-local'
+endfor
+```
+    E1041: Redefining script item name2
+    Not expected
+
+Since  8.2.1826, variables  in a  block at  the script  level are  automatically
+deleted when the block is left.  So, *maybe* this should let us work around that
+issue?  I mean, after  each iteration of the loop, we could  expect `name2` to be
+automatically removed, just like it is removed when the `:if` block is left.
+
+This would make the behavior more consistent with a `:def` function:
+```vim
+vim9
+def Func()
+    var name1 = 'function-local'
+    for i in [1, 2]
+       var name2 = 'block-local'
+    endfor
+enddef
+Func()
+```
+    ✔
+
+---
+```vim
+vim9
+{
+    for i in [1, 2]
+        var name = ''
+    endfor
+}
+```
+    E1041: Redefining script item name
+    E171: Missing :endif
+
+Why `E171` here?  Looks like another bug.
+
+## ?
+```vim
+vim9
 var name: number = true
 
 eval 0
@@ -5083,7 +5134,8 @@ A similar issue applies to `call`:
                      VimFuncName
 
 ##
-## ?
+## text properties
+### ?
 
 Use vim-quickhl to apply some highlighting on `test_text_properties` on the following line:
 
@@ -5104,6 +5156,11 @@ You should get this:
 Notice that the highlighting is off by 1 character.
 Is it a bug?
 
+### Is the `col` key ignored when invoking `popup_create()` and using the `textprop` key?
+
+<https://github.com/vim/vim/issues/7553#issuecomment-761715667>
+
+##
 ## ?
 ```vim
 vim9
@@ -5538,10 +5595,6 @@ But this one is wrong; because `ozymandias_pos` might also need to be updated.
 If  you  end up  with  some  good  code, maybe  it  would  be  nice for  Vim  to
 provide  it  via  a  builtin  wrapper  function,  similar  to  `popup_dialog()`,
 `popup_notification()`, ... We could name it `popup_virtual_text()`?
-
-## Is the `col` key ignored when invoking `popup_create()` and using the `textprop` key?
-
-<https://github.com/vim/vim/issues/7553#issuecomment-761715667>
 
 ## searchcount() can make Vim lag when the buffer contains a very long line
 

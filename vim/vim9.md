@@ -2512,50 +2512,32 @@ Results at the moment:
 
     42 vim-abolish
     38 vim-quickhl
-    09 asyncmake
-    06 ~/.vim/indent/matlab.vim
 
-    13 vim-hydra
     11 vim-tmuxify
     10 vim-graph
-
     04 vim-sh
-    04 vim-debug
-    04 ~/.vim/indent/mymatlab.vim
-    03 vim-save
-    03 vim-column-object
-    03 vim-xterm
-    02 vim-tradewinds
-    02 vim-titlecase
+
+    06 vim-snippets
     02 vim-statusline
     02 vim-man
     02 vim-latex
-    02 ~/.vim/macros/indent_object.vim
-    02 ~/.vim/macros/colortest.vim
     02 ~/.vim/autoload/plugin/undotree.vim
     02 ~/.vim/autoload/colorscheme.vim
-    02 ~/.vim/after/ftplugin/help.vim
-    01 vim-readline
-    01 vim-lg-lib
     01 vim-fold
     01 vim-vim
-    01 ~/.vim/plugin/undotree.vim
-    01 ~/.vim/plugin/matchup.vim
-    01 ~/.vim/plugin/fzf.vim
-    01 ~/.vim/autoload/plugin/matchparen.vim
 
 Total of `:def`s (`^\s*\<\Cenddef\>\s*$`):
 
-    1351
+    1406
 
 Remaining `:fu`s:
 
-    177
+    126
 
 Proportion of `:def`s:
 
-    1351 / (1351 + 177)
-    ≈ 88%
+    1406 / (1406 + 126)
+    ≈ 92%
 
 ### maybe make sure a variable name starting with an underscore is not used
 
@@ -3242,6 +3224,43 @@ defcompile
     ✔
 
 See: <https://github.com/vim/vim/issues/7694#issuecomment-761723816>
+
+### don't write that:  "com Cmd exe Func()"
+```vim
+vim9
+def Func(): string
+    eval [][123]
+    return ''
+enddef
+com Cmd exe Func()
+Cmd
+```
+    E684: list index out of range: 123
+    E1050: Colon required before a range: 0
+
+The extra error is noise/confusing.
+
+---
+
+This technique is used  by tpope to make his commands  behave like Vim's builtin
+commands:
+
+    com Cmd exe Func()
+    def Func(): string
+        ...
+        if issue
+            return 'echoerr ' .. string(v:exception)
+        endif
+        ...
+        return ''
+    enddef
+
+That is, when the command encounters an issue, an error is given, yes, but there
+is no multiline stacktrace.
+
+But it looks like a hack, and cause the aforementioned issue.
+It's better to use an `Error()`  utility function which `:echom` the message, if
+you don't want a stacktrace; or `:echoerr` if you do want one.
 
 ###
 ### the difference between using or omitting `function()` when saving a funcref in a variable
