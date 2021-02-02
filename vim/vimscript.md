@@ -1702,16 +1702,17 @@ This time, the message "all the script is sourced" is not printed.
 Use its third optional argument.
 Give it the value `custom,CompletionFunc`.
 
-    def s:CompleteWords(_a: any, _l: any, _p: any): string
+    vim9
+    def CompleteWords(_a: any, _l: any, _p: any): string
         return getline(1, '$')
             ->join(' ')
             ->split('\s\+')
-            ->filter({_, v -> v =~# '^\a\k\+$'})
+            ->filter((_, v) => v =~ '^\a\k\+$')
             ->sort()
             ->uniq()
             ->join("\n")
     enddef
-    let word = input('word: ', '', 'custom,' .. expand('<SID>') .. 'CompleteWords')
+    var word: string = input('word: ', '', 'custom,' .. expand('<SID>') .. 'CompleteWords')
 
 ---
 

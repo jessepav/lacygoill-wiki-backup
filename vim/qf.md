@@ -1071,8 +1071,8 @@ Relevant help section:
                       ┌ avoid E486
                       │
     :cfdo %s/pat/rep/ge | update
-                        └──────┤
-                               └ avoid E37 and E89 if 'hidden' is reset
+                        ├──────┘
+                        └ avoid E37 and E89 if 'hidden' is reset
 
 ## How to delete all the lines containing an entry in the qfl, except the first ten?
 

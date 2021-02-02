@@ -227,7 +227,6 @@ So this will work in C99, but not in C89:
         return 0;
     }
 ```
-
 While this will work in C89, *and* in C99:
 ```c
     #include <stdio.h>
@@ -242,7 +241,6 @@ While this will work in C89, *and* in C99:
         return 0;
     }
 ```
-
 ---
 
 This is true for functions *and* for blocks:

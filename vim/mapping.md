@@ -1271,7 +1271,13 @@ want to write sth like this instead:
 
 ##
 # Miscellaneous
-## What are 3 benefits of the pseudo-key `<cmd>`?
+## What are 4 benefits of the pseudo-key `<cmd>`?
+
+It preserves the current mode.
+For example, if your mapping is in insert mode, your command will be executed in
+insert mode.
+
+---
 
 It does not trigger `CmdlineEnter` nor `CmdlineLeave`.
 
@@ -1327,7 +1333,7 @@ nno <F3> <cmd>echo '<c-v><c-v>'<cr>
 call feedkeys("\<F3>")
 ```
     ^V
-```vim
+
 ### are disallowed?
 
 Most keycodes which don't have a glyph:

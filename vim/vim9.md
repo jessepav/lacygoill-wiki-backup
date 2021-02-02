@@ -14,7 +14,7 @@ You can't get that kind of performance with a `:fu` function.
 
 (*) Note that this is true only if the function was defined earlier:
 ```vim
-vim9script
+vim9
 defcompile
 def Func()
     var x: string
@@ -26,7 +26,7 @@ variable which is not allowed.  This means that `Func()` was not compiled.
 Had you  moved `:defcompile` *after* `Func()`,  an error would have  been raised
 during type checking which itself occurs during the compilation:
 ```vim
-vim9script
+vim9
 def Func()
     var x: string
     var x: number
@@ -140,7 +140,7 @@ It does not raise any error at runtime, because its whole body is then emptied.
 Example of a function containing a type error:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
+        vim9
         def g:Func()
             var x = 1 + {}
             echo x
@@ -207,7 +207,7 @@ For more info, see `:h vim9-scopes`.
 
 ---
 ```vim
-vim9script
+vim9
 def Outer()
     if 1
         def Inner()
@@ -225,7 +225,7 @@ block namespace.
 
 ---
 ```vim
-vim9script
+vim9
 def Outer()
     if 1
         def Inner()
@@ -245,7 +245,7 @@ block, in the outer block namespace.
 
 ---
 ```vim
-vim9script
+vim9
 def Outer()
     def Inner()
         echo 'inner'
@@ -261,7 +261,7 @@ immediate outer function namespace.
 
 ---
 ```vim
-vim9script
+vim9
 def Func()
 enddef
 fu Func
@@ -275,10 +275,10 @@ script namespace.
 
 ---
 ```vim
-vim9script
+vim9
 mkdir('/tmp/import', 'p')
 var lines =<< trim END
-    vim9script
+    vim9
     export def Func()
         echo 'imported'
     enddef
@@ -299,7 +299,7 @@ imported namespace.
 
 Only if it's global:
 ```vim
-vim9script
+vim9
 def g:Func()
     echo 'first'
 enddef
@@ -316,7 +316,7 @@ Note that you need to append a bang to the second `:def`.
 
 For all other scopes, a function can't be redefined, even after appending a bang to `:def`:
 ```vim
-vim9script
+vim9
  # block-local
 def Outer()
     if 1
@@ -333,7 +333,7 @@ Outer()
 ```
     E1117: Cannot use ! with nested :def
 ```vim
-vim9script
+vim9
  # function-local
 def Outer()
     def Inner()
@@ -348,7 +348,7 @@ Outer()
 ```
     E1117: Cannot use ! with nested :def
 ```vim
-vim9script
+vim9
  # script-local
 def Func()
     echo 'first'
@@ -359,12 +359,12 @@ enddef
 ```
     E477: No ! allowed
 ```vim
-vim9script
+vim9
  # imported
 mkdir('/tmp/import', 'p')
 
 var lines =<< trim END
-    vim9script
+    vim9
     export def Func()
         echo 'first'
     enddef
@@ -372,7 +372,7 @@ END
 writefile(lines, '/tmp/import/a.vim')
 
 lines =<< trim END
-    vim9script
+    vim9
     export def! Func()
         echo 'second'
     enddef
@@ -402,7 +402,7 @@ delfu g:Func
 ```
     ✔
 ```vim
-vim9script
+vim9
 def g:Func()
 enddef
 delfu g:Func
@@ -411,7 +411,7 @@ delfu g:Func
 
 But not if it's local to a Vim9 script:
 ```vim
-vim9script
+vim9
 def Func()
 enddef
 delfu Func
@@ -420,7 +420,7 @@ delfu Func
 
 Nor if it's local to a function or a block:
 ```vim
-vim9script
+vim9
 def Outer()
     def Inner()
         echo 'Inner'
@@ -431,7 +431,7 @@ Outer()
 ```
     E130: Unknown function: Inner
 ```vim
-vim9script
+vim9
 def Outer()
     if 1
         def Inner()
@@ -448,7 +448,7 @@ Outer()
 
 Always, except when the function is local to a Vim9 script:
 ```vim
-vim9script
+vim9
 fu Func()
 endfu
 delfu Func
@@ -469,14 +469,14 @@ delfu g:Func
 ```
     ✔
 ```vim
-vim9script
+vim9
 fu g:Func()
 endfu
 delfu g:Func
 ```
     ✔
 ```vim
-vim9script
+vim9
 fu Outer()
     fu Inner()
         echo 'Inner'
@@ -487,7 +487,7 @@ Outer()
 ```
     ✔
 ```vim
-vim9script
+vim9
 fu Outer()
     if 1
         fu Inner()
@@ -503,7 +503,7 @@ Outer()
 ##
 ## The following snippet raises `E477` and `E193`:
 ```vim
-vim9script
+vim9
 def Func()
     echom 'one'
 enddef
@@ -548,29 +548,6 @@ Later, `Func()` is run.
 
 It can also be the start of a string, so it can't be used in many places.
 
-### Which pitfall should I avoid?
-
-Don't write `{` right after `#`:
-
-    #{some comment
-    ^^
-    ✘
-
-It would raise `E488` because `#{` is  the start of a "literal" dictionary (i.e.
-a dictionary whose keys must not be quoted).
-
-Anyway, you should always add a space after `#` to make the comment more readable:
-
-    #some comment
-    ^^
-    hard to read
-
-    # some comment
-    ^^
-    easy to read
-
-So it's only a theoretical pitfall.
-
 ##
 ## Which comment leader can I use
 ### at the start of a line (whole comment) or at the end of a line of code (inline comment)?
@@ -586,7 +563,7 @@ Vim9 script = script which *does* start with `vim9script` or inside `:def` funct
 You can  only use `#` inside  a `:def` function, or  at the script level  if the
 latter starts with `:vim9script`.
 
-    vim9script
+    vim9
     def Func()
         var mylist = [
                 'one',
@@ -611,7 +588,7 @@ latter starts with `:vim9script`.
 
     ['one', 'two']~
 
-    vim9script
+    vim9
     var mylist = [
             'one',
             # some comment
@@ -640,19 +617,19 @@ Prefix the command which defines it with `:export`:
 
 Example for a constant:
 
-    vim9script
+    vim9
     export const MYCONST = 123
     ^----^
 
 Example for a variable:
 
-    vim9script
+    vim9
     export var name = 'test'
     ^----^
 
 Example for a function:
 
-    vim9script
+    vim9
     # v--v
     export def Func()
         # ...
@@ -668,7 +645,7 @@ The script must start with `:vim9script`.
 
     E1042: export can only be used in vim9script~
 
-    vim9script
+    vim9
     export const MYCONST = 123
     ✔
 
@@ -679,7 +656,7 @@ In particular, you can import items even while you're in a legacy Vim script.
 IOW, your script doesn't need to start with `:vim9script`.
 
     $ cat <<'EOF' >/tmp/.a.vim
-      vim9script
+      vim9
       export const MYCONST = 123
     EOF
 
@@ -699,7 +676,7 @@ Only the items defined in the `b:`, `g:`, `t:`, `w:` namespaces can be used; not
 the ones defined in the `s:` namespace, nor the exported items.
 
     $ cat <<'EOF' >/tmp/exported.vim
-        vim9script
+        vim9
         export const MYCONST = 123
     EOF
 
@@ -717,7 +694,7 @@ script which  exports the latter  variable; that's because  it was local  to the
 Vim9 script.
 
     $ cat <<'EOF' >/tmp/exported.vim
-        vim9script
+        vim9
         g:global = 456
     EOF
 
@@ -740,14 +717,14 @@ Only functions and classes.
 Indeed, you can't  export a public constant or variable,  because you can't even
 declare it:
 ```vim
-vim9script
+vim9
 var g:name = 123
 ```
     E1016: Cannot declare a global variable: g:name
 
 So you can't export it either:
 ```vim
-vim9script
+vim9
 export var g:name = 123
 ```
     E1016: Cannot declare a global variable: g:name
@@ -773,12 +750,12 @@ constant/variable, it won't be overwritten by another script.
 Example:
 
     $ cat <<'EOF' >/tmp/foo.vim
-        vim9script
+        vim9
         export const MYCONST = 'from a script in current directory'
     EOF
 
     $ cat <<'EOF' >/tmp/bar.vim
-        vim9script
+        vim9
         import MYCONST from './foo.vim'
         echo MYCONST
     EOF
@@ -797,12 +774,12 @@ Example:
     $ mkdir -p /tmp/dir
 
     $ cat <<'EOF' >/tmp/foo.vim
-        vim9script
+        vim9
         export const MYCONST = 'from a script in parent directory'
     EOF
 
     $ cat <<'EOF' >/tmp/dir/bar.vim
-        vim9script
+        vim9
         import MYCONST from '../foo.vim'
         echo MYCONST
     EOF
@@ -821,12 +798,12 @@ Use a full file path:
 Example:
 
     $ cat <<'EOF' >/tmp/foo.vim
-        vim9script
+        vim9
         export const MYCONST = 'from /tmp/foo.vim'
     EOF
 
     $ cat <<'EOF' >/tmp/bar.vim
-        vim9script
+        vim9
         import MYCONST from '/tmp/foo.vim'
         echo MYCONST
     EOF
@@ -850,12 +827,12 @@ Example:
     $ mkdir -p /tmp/import
 
     $ cat <<'EOF' >/tmp/import/foo.vim
-        vim9script
+        vim9
         export const MYCONST = 'from foo.vim in import/ subdir'
     EOF
 
     $ cat <<'EOF' >/tmp/bar.vim
-        vim9script
+        vim9
         set rtp^=/tmp
         import MYCONST from 'foo.vim'
         echo MYCONST
@@ -876,12 +853,12 @@ Example:
     $ mkdir -p /tmp/import/foo/bar
 
     $ cat <<'EOF' >/tmp/import/foo/bar/baz.vim
-        vim9script
+        vim9
         export const MYCONST = 'from foo/bar/baz.vim in import/ subdir'
     EOF
 
     $ cat <<'EOF' >/tmp/qux.vim
-        vim9script
+        vim9
         set rtp^=/tmp
         import MYCONST from 'foo/bar/baz.vim'
         echo MYCONST
@@ -976,7 +953,7 @@ So, to refer to it later, you'll need to specify `s:`:
 Working example:
 
     $ cat <<'EOF' >/tmp/exported.vim
-        vim9script
+        vim9
         export const MYCONST = 123
     EOF
 
@@ -1011,7 +988,7 @@ echo name_{mode}
 ```
     123
 ```vim
-vim9script
+vim9
 var mode = 'i'
 var name_i = 123
 var name_c = 456
@@ -1029,7 +1006,7 @@ echo g:
 ```
     {'name_i': 123, 'mode': 'i'}
 ```vim
-vim9script
+vim9
 var mode = 'i'
 var name_i: number
 var name_c: number
@@ -1046,7 +1023,7 @@ Note that if the expression in the  rhs of the assignment is complex, you better
 save  it in  an intermediate  variable  to reduce  code duplication  as much  as
 possible:
 ```vim
-vim9script
+vim9
 var mode = 'i'
 var name_i: number
 var name_c: number
@@ -1088,7 +1065,7 @@ In Vim script legacy:
 
 In Vim9:
 
-    vim9script
+    vim9
     var name = 123
     fu LegacyFunc()
     endfu
@@ -1101,7 +1078,7 @@ In Vim9:
 
 Unless you explicitly specify another namespace:
 
-    vim9script
+    vim9
     g:name = 123
     def g:Func()
     enddef
@@ -1111,7 +1088,7 @@ Or a function name contains a `#`:
     $ mkdir -p /tmp/some/autoload
 
     $ cat <<'EOF' >/tmp/some/autoload/some.vim
-        vim9script
+        vim9
         def some#func()
         enddef
     EOF
@@ -1140,7 +1117,7 @@ It's somewhat equivalent to:
 
 Legacy's `s:name` can be unlet; not Vim9's `name`:
 
-    vim9script
+    vim9
     var name = 123
     unlet name
 
@@ -1151,12 +1128,12 @@ Legacy's `s:name` can be unlet; not Vim9's `name`:
 Variables which are prefixed by a prefix denoting a scope can't be declared, but
 can be deleted:
 
-    vim9script
+    vim9
     var b:name = 123
 
     E1016: Cannot declare a buffer variable: b:name~
 
-    vim9script
+    vim9
     b:name = 123
     unlet b:name
     ✔
@@ -1164,7 +1141,7 @@ can be deleted:
 Variables  which are  *not* prefixed  by a  scope (block-local,  function-local,
 script-local) *can* be declared, but can't be deleted.
 
-    vim9script
+    vim9
     def Func()
         if 1
             var name = 'block-local'
@@ -1175,7 +1152,7 @@ script-local) *can* be declared, but can't be deleted.
 
     E1081: Cannot unlet name~
 
-    vim9script
+    vim9
     def Func()
         var name = 'function-local'
         unlet name
@@ -1184,7 +1161,7 @@ script-local) *can* be declared, but can't be deleted.
 
     E1081: Cannot unlet name~
 
-    vim9script
+    vim9
     var name = 'script-local'
     unlet name
 
@@ -1203,7 +1180,7 @@ See `:h vim9-declaration /unlet`:
 
 Put it inside a `{}` block:
 
-    vim9script
+    vim9
     def Func()
         {
             var n = 123
@@ -1221,7 +1198,7 @@ When you assign it a value, because in that case Vim can infer the type from the
 
 Here, `E1077` is raised because `x` is not assigned a value:
 
-    vim9script
+    vim9
     def Func(x)
     enddef
     defcompile
@@ -1230,7 +1207,7 @@ Here, `E1077` is raised because `x` is not assigned a value:
 
 Solution: declare the type.
 
-    vim9script
+    vim9
     def Func(x: number)
     enddef
     defcompile
@@ -1239,14 +1216,14 @@ Solution: declare the type.
 
 Here, no error is raised, because `x` is assigned a default value:
 
-    vim9script
+    vim9
     def Func(x = 3)
     enddef
     defcompile
 
 And here again, no error is raised, because `x` is assigned a value:
 
-    vim9script
+    vim9
     def Func()
         var x = 3
     enddef
@@ -1300,7 +1277,7 @@ caught, at compile time.
 
 Only booleans and the numbers 0 and 1.
 
-    vim9script
+    vim9
     echo 123 || 0
 
     E1023: Using a Number as a Bool: 123~
@@ -1352,7 +1329,7 @@ From `:h vim9 /comparators`:
 No, because neither `=~#` nor `=~?` inspect the value of `'ignorecase'`.
 They don't care how the user configured the option.
 ```vim
-vim9script
+vim9
 set noic
 def Func()
     echo 'abc' =~? 'ABC'
@@ -1375,7 +1352,7 @@ in some cases in the future: <https://github.com/vim/vim/issues/6585#issuecommen
 
 For example:
 ```vim
-vim9script
+vim9
 var name = 'script-local'
 def Func()
     var name = 'function-local'
@@ -1386,7 +1363,7 @@ defcompile
 
 Here, the function-local variable `name` shadows the script-local variable `name`.
 ```vim
-vim9script
+vim9
 def Outer()
     def Func()
         echo 'function-local'
@@ -1403,7 +1380,7 @@ Outer()
 
 Here, the block-local `Func()` shadows the function-local `Func()`.
 ```vim
-vim9script
+vim9
 def Func()
     echo 'script level'
 enddef
@@ -1419,10 +1396,10 @@ Outer()
 
 Here, the function-local `Func()` shadows the script-local `Func()`.
 ```vim
-vim9script
+vim9
 mkdir('/tmp/import', 'p')
 var lines =<< trim END
-    vim9script
+    vim9
     export def Func()
         echo 'imported'
     enddef
@@ -1440,14 +1417,14 @@ And here, the script-local `Func()` shadows the imported `Func()`.
 
 ### I can use the name of a global item for an item in another namespace:
 ```vim
-vim9script
+vim9
 g:name = 'global'
 var name = 'script-local'
 echo name
 ```
     script-local
 ```vim
-vim9script
+vim9
 def g:Func()
     echom 'global'
 enddef
@@ -1474,7 +1451,7 @@ wouldn't make much sense to disallow this type of shadowing.
 ##
 ## This snippet raises a mismatch error:
 ```vim
-vim9script
+vim9
 def Func(): job
     return map(['a', 'b'], {_, v -> 'string'})
 enddef
@@ -1511,7 +1488,7 @@ Or, write `:defcompile` at the end of your script.
 
 As an example, consider this snippet:
 ```vim
-vim9script
+vim9
 def Func(numbers: float)
     for n in numbers
     endfor
@@ -1529,7 +1506,7 @@ You might think the error message is wrong, and instead expect this one:
 But the error message is fine.  It's raised at compile time, not at runtime.
 You can check this by writing `:defcompile` at the end:
 ```vim
-vim9script
+vim9
 def Func(numbers: float)
     for n in numbers
     endfor
@@ -1548,7 +1525,7 @@ doesn't match.
 
 Does it look like this?
 ```vim
-vim9script
+vim9
 def Func()
     try
         invalid
@@ -1563,7 +1540,7 @@ Func()
 If so, it's not a bug.  The error is raised at compile time, not at runtime.
 You can check this by replacing `Func()` with `:defcompile`:
 ```vim
-vim9script
+vim9
 def Func()
     try
         invalid
@@ -1585,7 +1562,7 @@ must be raised.  You  can only catch such an error  from *outside* the function;
 so that the function's compilation  (explicit via `:defcompile`, or implicit via
 `Func()`) is inside the `try` conditional.
 ```vim
-vim9script
+vim9
 def Func()
     invalid
 enddef
@@ -1599,7 +1576,7 @@ Note that Vim  cannot detect *any* type  of invalid command; only  some of them.
 For example, at compile time, Vim does not detect that a command is invalid even
 if it refers to a non-existing member from a list:
 ```vim
-vim9script
+vim9
 def Func()
     echo [1, 2, 3][4]
 enddef
@@ -1612,7 +1589,7 @@ Vim will only raise an error at runtime.
 ##
 ## When I try to assign a value to a list or a dictionary, an error is raised unexpectedly!
 ```vim
-vim9script
+vim9
 var l = [1 , 2 , 3]
 ```
     E1068: No white space allowed before ','
@@ -1639,7 +1616,7 @@ Example:
 
 Remove the wrong white space:
 ```vim
-vim9script
+vim9
 var dict = {'a': 1, 'b': 2}
 ```
     ✔
@@ -1651,7 +1628,7 @@ Some (all?) of these rules were introduced in 8.2.1326.
 `n` is a valid Ex command (it's the abbreviated form of `:next`).
 So this is expected:
 
-    vim9script
+    vim9
     def Func()
         n = 123
     enddef
@@ -1660,7 +1637,7 @@ So this is expected:
 
 Solution: don't forget to declare your variable:
 
-    vim9script
+    vim9
     def Func()
         var n = 123
     enddef
@@ -1702,7 +1679,7 @@ The same issue applies to other single-letter variable names:
 ##
 ## My eval string can't access variables in the outer function scope!
 
-    vim9script
+    vim9
     def Func()
         var l = ['aaa', 'bbb', 'ccc', 'ddd']
         range(1, 2)->map('l[v:val]')
@@ -1715,7 +1692,7 @@ The same issue applies to other single-letter variable names:
 
 Solution: use a lambda.
 
-    vim9script
+    vim9
     def Func()
         var l = ['aaa', 'bbb', 'ccc', 'ddd']
         range(1, 2)->map({_, v -> v})
@@ -1737,7 +1714,7 @@ Source: <https://github.com/vim/vim/issues/6401#issuecomment-655071515>
 Inside a `:def` function, a lambda is significantly faster:
 
     $ vim -es -Nu NONE -i NONE -U NONE -S <(cat <<'EOF'
-        vim9script
+        vim9
 
         def Lambda()
             var time = reltime()
@@ -1764,7 +1741,7 @@ Inside a `:def` function, a lambda is significantly faster:
 But at the script level, a lambda is significantly slower:
 
     $ vim -es -Nu NONE -S <(cat <<'EOF'
-        vim9script
+        vim9
 
         var time = reltime()
         range(999999)->map({_, v -> v + 1})
@@ -1789,7 +1766,7 @@ Conclusion: always use lambdas, but make sure to write them inside `:def` functi
 Inside a `:def` function, a for loop is significantly faster:
 
     $ vim -es -Nu NONE -i NONE -U NONE -S <(cat <<'EOF'
-        vim9script
+        vim9
         var mylist = pow(10, 6)->float2nr()->range()
 
         def Lambda()
@@ -1821,7 +1798,7 @@ Inside a `:def` function, a for loop is significantly faster:
 But at the script level, a for loop is significantly slower:
 
     $ vim -es -Nu NONE -i NONE -U NONE -S <(cat <<'EOF'
-        vim9script
+        vim9
         var mylist = pow(10, 6)->float2nr()->range()
 
         var time = reltime()
@@ -1851,7 +1828,7 @@ However, note  that the performance  gain brought by a  `for` loop might  not be
 always as significant as in the previous simple test.  Example:
 
     $ vim -es -Nu NONE -i NONE -U NONE -S <(cat <<'EOF'
-        vim9script
+        vim9
         var mylistlist = pow(10, 6)->float2nr()->range()->map({_, v -> [0, 0, 0, 0, 0]})
 
         def Lambda()
@@ -1886,7 +1863,7 @@ the type of transformation you perform...
 ##
 ## Vim complains that it doesn't know the function-local variable I'm referring to!
 
-    vim9script
+    vim9
     def Func()
         if 1
            var n = 123
@@ -1901,7 +1878,7 @@ A variable is local to its current block.
 
 Solution:  Declare it *before* the block where it's assigned a value.
 
-    vim9script
+    vim9
     def Func()
         var n: number
         if 1
@@ -1914,7 +1891,7 @@ Solution:  Declare it *before* the block where it's assigned a value.
 This makes  the variable  accessible in  the block where  it's declared  (and in
 nested blocks).  Not in outer blocks:
 
-    vim9script
+    vim9
     def Func()
         if 1
             var n: number
@@ -1930,7 +1907,7 @@ nested blocks).  Not in outer blocks:
 
 ### Now it complains about a script-local variable!
 
-    vim9script
+    vim9
     def Func()
         echo s:name
     enddef
@@ -1942,7 +1919,7 @@ nested blocks).  Not in outer blocks:
 Make sure your script-local variable is defined *before* the function – in which
 it's referred to – is compiled.
 
-    vim9script
+    vim9
     def Func()
         echo s:name
     enddef
@@ -2040,7 +2017,7 @@ function:
 
 ## I can't call a `:def` function from a `:fu` one.  The function is not found!
 
-    vim9script
+    vim9
     fu Foo()
         call Bar()
     endfu
@@ -2058,7 +2035,7 @@ You forgot the `s:` scope in your legacy function:
 
 Fixed code:
 
-    vim9script
+    vim9
     fu Foo()
         call s:Bar()
     endfu
@@ -2082,12 +2059,12 @@ function.
 ## After importing items from a script, I've updated the latter and re-imported the items.
 
     $ cat <<'EOF' >/tmp/exported.vim
-        vim9script
+        vim9
         export const MYCONST = 123
     EOF
 
     $ cat <<'EOF' >/tmp/import.vim
-        vim9script
+        vim9
         import MYCONST from './exported.vim'
         echo MYCONST
     EOF
@@ -2151,7 +2128,7 @@ It's a known issue which won't be fixed: <https://github.com/vim/vim/issues/6593
 ##
 ## The following snippet raises an error:
 ```vim
-vim9script
+vim9
 def Func()
   var name: any
   eval name == []
@@ -2165,7 +2142,7 @@ Func()
 If  a variable  is declared  with the  type `any`,  but without  any value,  Vim
 automatically assigns it the value `0`:
 ```vim
-vim9script
+vim9
 def Func()
   var name: any
   echo name == 0
@@ -2194,7 +2171,7 @@ you *can* use the unpack notation to *assign* multiple variables on a single lin
 It doesn't matter in which context you're when you run a (auto)command.
 What matters is the context where it's defined.
 ```vim
-vim9script
+vim9
 
 fu InstallCmd()
     com -nargs=1 Cmd call s:Func(<args>)
@@ -2302,7 +2279,7 @@ fu /Closure
 
 Usage example:
 ```vim
-vim9script
+vim9
 
 def ReverseEveryNLines(n: number, line1: number, line2: number)
     var mods = 'sil keepj keepp lockm '
@@ -2321,7 +2298,7 @@ ReverseEveryNLines(3, 1, 9)
 
 You could also invoke a script-local function:
 ```vim
-vim9script
+vim9
 
 def ReverseEveryNLines(n: number, line1: number, line2: number)
     var mods = 'sil keepj keepp lockm '
@@ -2522,7 +2499,7 @@ Results at the moment:
     02 vim-man
     02 vim-latex
     02 ~/.vim/autoload/plugin/undotree.vim
-    02 ~/.vim/autoload/colorscheme.vim
+    01 ~/.vim/autoload/colorscheme.vim
     01 vim-fold
     01 vim-vim
 
@@ -2532,11 +2509,11 @@ Total of `:def`s (`^\s*\<\Cenddef\>\s*$`):
 
 Remaining `:fu`s:
 
-    126
+    125
 
 Proportion of `:def`s:
 
-    1406 / (1406 + 126)
+    1407 / (1407 + 125)
     ≈ 92%
 
 ### maybe make sure a variable name starting with an underscore is not used
@@ -2595,7 +2572,7 @@ duplicate entries.
 Here is what I think is a MWE:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
+        vim9
         var lines =<< trim END
             foo xxx
             xxx foo
@@ -2621,7 +2598,7 @@ We should use a lazy quantifier:
             ^--^
              ✔
 ```vim
-vim9script
+vim9
 var lines =<< trim END
     foo xxx
     xxx foo
@@ -2642,13 +2619,6 @@ Also, check whether we've made the kind of mistake elsewhere.
 ### check whether we could remove a few `extend()` in our Vim9 scripts
 
 Now that Vim9 provides a better support for dictionaries...
-
-### eliminate the `#{}` syntax for literal dictionaries
-
-Refactor as many legacy functions/scripts in Vim9 so that we don't use the `#{}`
-syntax for literal dictionaries anymore.  It is confusing to read 2 syntaxes for
-dictionaries.  In  Vim9 script,  since 8.2.2015  and 8.2.2017,  there is  only 1
-syntax left: `{}`. If you need a key to be evaluated, use square brackets.
 
 ### maybe prefix all `:import` commands with `:silent!`
 
@@ -2692,33 +2662,6 @@ In any case, manually sourcing an autoload script looks wrong.
 At the very  least, we should consider  moving anything which is  not a function
 into a separate directory which is not automatically sourced (`macros/`?).
 That would apply to our function calls installing mappings in `vim-toggle-settings`.
-
-### remove useless "s:" scope in vimrc once it's fully refactored
-
-Right now,  it's written in front  of some function names  and possibly variable
-names, because we haven't yet written `vim9script` at the top.
-
-Do  the same  in  all scripts  you  progressively refactor  in  Vim9; i.e.  once
-finished, remove any useless `s:`.
-
----
-
-Also, replace `v:true` with `true`, and `v:false` with `false` when possible.
-
----
-
-Also, remove `:call` in autocmds, at script level, ... (but not in mappings).
-
----
-
-    =~#
-      ^
-      ✘
-      to remove
-
----
-
-Same thing for myfuncs.vim.
 
 ### should we make sure to never declare a null dictionary / list?
 
@@ -2786,36 +2729,10 @@ Or should we  make them smart and use  one syntax or the other  depending on the
 current context?
 
 ##
-## To understand:
-### How to change the type of a variable?
-
-    vim9script
-    var time = reltime()
-    sleep 1
-    var time = reltime(time)->reltimestr()->matchstr('.*\..\{,3}')
-    echom printf('we slept for %s seconds', time)
-
-    E1041: Redefining script item time~
-
----
-
-For the moment, the only workaround I can think of, is to use an extra variable:
-
-    vim9script
-    var time = reltime()
-    sleep 1
-    var _time = reltime(time)->reltimestr()->matchstr('.*\..\{,3}')
-    echom printf('we slept for %s seconds', _time)
-
-### Can we import a global function?
-
-Last time I tried, it didn't work.
-
-##
 ## To document:
 ### cannot use the name of a function as a variable name
 ```vim
-vim9script
+vim9
 def Func()
     var Func = 0
 enddef
@@ -2823,7 +2740,7 @@ defcompile
 ```
     E1073: name already defined: Func = 0
 ```vim
-vim9script
+vim9
 def FuncA()
     var FuncB = 0
 enddef
@@ -2839,7 +2756,7 @@ possible.
 
 But why doesn't this raise any error?
 ```vim
-vim9script
+vim9
 var Func = 12
 def Func(): number
     return 34
@@ -2858,7 +2775,7 @@ To be consistent, I think it should also raise an error at the script level.
 What happens if we use different scopes?
 Make more tests.
 ```vim
-vim9script
+vim9
 def g:Func()
     var Func = 0
 enddef
@@ -2866,7 +2783,7 @@ defcompile
 ```
     ✔
 ```vim
-vim9script
+vim9
 def Func()
     g:Func = 0
 enddef
@@ -2876,7 +2793,7 @@ defcompile
 
 ### a block-local function is inherited by all nested blocks
 ```vim
-vim9script
+vim9
 def Outer()
     if 1
         def Inner()
@@ -2893,7 +2810,7 @@ Outer()
 
 Just like a variable:
 ```vim
-vim9script
+vim9
 def Func()
     if 1
         var n = 123
@@ -2908,7 +2825,7 @@ Func()
 
 ### cannot nest a script-local function
 ```vim
-vim9script
+vim9
 def Outer()
     def s:Inner()
     enddef
@@ -2919,13 +2836,13 @@ Outer()
 
 ### why we have "inconsistent" messages when using a wrong type of argument with the "-" and "+" operators
 ```vim
-vim9script
+vim9
 eval '' - 1
 ```
     at runtime:
     E1030: Using a String as a Number
 ```vim
-vim9script
+vim9
 def Func()
     eval '' - 1
 enddef
@@ -2934,7 +2851,7 @@ Func()
     at compile time:
     E1036: - requires number or float arguments
 ```vim
-vim9script
+vim9
 def Func()
     eval '' + 1
 enddef
@@ -2960,7 +2877,7 @@ At least,  that's what  it seems  when reading  an error  message raised  from a
 function-local function:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
+        vim9
         def Func()
             def Nested()
                 eval [][0]
@@ -2983,16 +2900,6 @@ That's because we can still retrieve the definition site of such a function:
 
     " still works
     :verb function <lambda>123
-
-### we don't need `s:` in a lambda at the script level anymore in Vim9 script
-
-Since [8.2.2018](https://github.com/vim/vim/releases/tag/v8.2.2018).
-
-### the `#{}` syntax (literal dictionary) is deprecated in Vim9 script
-
-See `:h vim9 /Dictionary literals`.
-
-Now, `#` should *always* be parsed as a comment leader.
 
 ### trick to get the right type in a declaration without too much thinking/guessing
 
@@ -3032,7 +2939,7 @@ call Func()
 
 But this is not possible in Vim9:
 ```vim
-vim9script
+vim9
 def Func()
     var name = 'set in function'
     g/^/echo name
@@ -3049,7 +2956,7 @@ Source: <https://github.com/vim/vim/issues/7541#issuecomment-751274709>
 
 Solution: use a script-local variable:
 ```vim
-vim9script
+vim9
 var name: string
 def Func()
     name = 'set in function'
@@ -3148,6 +3055,51 @@ The main purpose  of `mapnew()` is to work around  the limitation which prevents
 Indeed, in  Vim9, `map()`  can still  change the  *values* of  a list/dictionary
 (just like in legacy), but not their *types*.
 
+---
+
+Also, watch this:
+```vim
+vim9
+def Map()
+    var l: list<any> = [0]
+    map(l, () => '')
+enddef
+Map()
+```
+    E1012: Type mismatch; expected number but got string
+
+An error is raised even though we declared `l` with `list<any>`.
+I think that's because it's raised at runtime.
+At that stage, Vim doesn't check whether the types are correct in theory.
+It checks whether the types of the *values* are actually correct.
+
+This is briefly documented  at `:h vim9 /mapnew()`.
+
+   > One consequence is that the item type of a list or dict given to map() must
+   > not change.  This will give an error in compiled code: >
+   >         map([1, 2, 3], (i, v) => 'item ' .. i)
+   >         E1012: Type mismatch; expected list<number> but got list<string>
+   > Instead use |mapnew()|.
+
+But I'm not sure that it's well  explained that the error persists even when the
+first argument of `map()` is a variable name (not a simple value).
+Also, it's not clear from this paragraph that the error is raised at runtime.
+Send a patch to improve the doc.
+
+Same issue with `extend()`:
+```vim
+vim9
+def Extend()
+    var d: dict<any> = {n: 0}
+    extend(d, {s: ''})
+enddef
+Extend()
+```
+    E1013: Argument 2: type mismatch, expected dict<number> but got dict<string>
+
+Similarly, the solution is to use `extendnew()`.
+The latter is not documented at `:h vim9`.  It should; send a patch.
+
 ### `silent!` can only suppress an error at runtime, NOT at compile time
 ```vim
 vim9
@@ -3194,38 +3146,7 @@ See:
 - <https://github.com/vim/vim/issues/7672>
 - <https://github.com/vim/vim/issues/7682#issuecomment-761183658>
 
-### cannot always use variable in unpack notation in :for loop directly
-```vim
-vim9
-def Func()
-    var l: list<number> = [1, 2]
-    for  [x, y, _]
-    in  [[0, 1, ''], [0, 1, '']]
-        l[x] = l[x] + y
-    endfor
-enddef
-defcompile
-```
-    E39: Number expected
-
-In such issues, try to use an intermediate variable to correctly specify its type:
-```vim
-vim9
-def Func()
-    var l: list<number> = [1, 2]
-    for  [x, y, _]
-    in  [[0, 1, ''], [0, 1, '']]
-        var n: number = x
-        l[n] = l[n] + y
-    endfor
-enddef
-defcompile
-```
-    ✔
-
-See: <https://github.com/vim/vim/issues/7694#issuecomment-761723816>
-
-### don't write that:  "com Cmd exe Func()"
+### don't write this:  "com Cmd exe Func()"
 ```vim
 vim9
 def Func(): string
@@ -3262,6 +3183,16 @@ But it looks like a hack, and cause the aforementioned issue.
 It's better to use an `Error()`  utility function which `:echom` the message, if
 you don't want a stacktrace; or `:echoerr` if you do want one.
 
+---
+
+Update: Actually, there is a way to keep using this trick without the issue:
+
+    com Cmd exe ':' .. Func()
+                ^----^
+
+Note that,  if an error is  raised and the  function returns 0, the  cursor will
+jump on the first line.
+
 ###
 ### the difference between using or omitting `function()` when saving a funcref in a variable
 
@@ -3276,32 +3207,32 @@ you don't want a stacktrace; or `:echoerr` if you do want one.
 
 The first bold sentence is correct:
 ```vim
-vim9script
-def MyFunction(n: number, s: string): list<string>
+vim9
+def MyFunction(n: number, s: string): string
     return repeat(s, n)
 enddef
-var Funcref: func(number, string): list<string> = MyFunction
+var Funcref: func(number, string): string = MyFunction
 ```
     ✔
 ```vim
-vim9script
-def MyFunction(n: number, s: string): list<number>
+vim9
+def MyFunction(n: number, s: string): number
     return repeat(s, n)
 enddef
-var Funcref: func(number, string): list<string> = MyFunction
+var Funcref: func(number, string): string = MyFunction
 ```
-    E1012: Type mismatch; expected func(number, string): list<string> but got func(number, string): list<number>
+    E1012: Type mismatch; expected number but got string
 
 But the second bold sentence seems wrong:
 ```vim
-vim9script
-def MyFunction(n: number, s: string): list<string>
+vim9
+def MyFunction(n: number, s: string): string
     return repeat(s, n)
 enddef
-var Funcref: func(number, string): list<number> = function('MyFunction')
+var Funcref: func(number, string): number = function('MyFunction')
 ```
-    E1012: Type mismatch; expected func(number, string): list<number> but got func(number, string): list<string>
-                                                                          ^^^                     ^------------^
+    E1012: Type mismatch; expected func(number, string): number but got func(number, string): string
+                                                                    ^^^                     ^------^
 
 According to the help, it should have gotten the return type `any` (because of `function()`).
 Although, even if the  return type was correct, I guess an  error would still be
@@ -3332,14 +3263,16 @@ What does it mean?
 
 This doesn't work:
 ```vim
-vim9script
+vim9
 var Funcref = function('MyFunction')
 def MyFunction()
 enddef
 ```
+    E700: Unknown function: MyFunction
+
 This works while the help *seems* (not sure) to say that it shouldn't:
 ```vim
-vim9script
+vim9
 
 def FuncWithForwardRef()
     var Funcref = DefinedLater
@@ -3352,6 +3285,8 @@ enddef
 
 FuncWithForwardRef()
 ```
+    yes
+
 ---
 
 Maybe this difference can only be observed at compile time, not at runtime?
@@ -3424,7 +3359,7 @@ Note that  – if you  drop `s:` –  there still can't  be any ambiguity  betwe
 function-local variable, and a script-local one  which would have the same name;
 that's because a function-local variable cannot shadow a script-local one.
 ```vim
-vim9script
+vim9
 var name = 12
 def Func()
     var name = 34
@@ -3512,12 +3447,12 @@ The other rules are more obvious.
 
 Note however that you can only omit `s:` in the Vim9 context.
 ```vim
-vim9script
+vim9
 def Callback(_j: job, _e: number)
     echom 'callback'
 enddef
 def Func()
-    job_start(['/bin/bash', '-c', ':'], #{exit_cb: function('Callback')})
+    job_start(['/bin/bash', '-c', ':'], {exit_cb: function('Callback')})
 enddef
 Func()
 ```
@@ -3530,7 +3465,7 @@ Here, an error is raised, because:
 
 Similar pitfall with `listener_add()`:
 ```vim
-vim9script
+vim9
 def Listener(bufnr: number, start: number, end: number, added: number, changes: list<dict<number>>)
   echom 'lines ' .. start .. ' until ' .. end .. ' changed'
 enddef
@@ -3541,18 +3476,18 @@ feedkeys('aaa', 'nt')
 
 Solution: Don't use `function()` at all.
 ```vim
-vim9script
+vim9
 def Callback(_j: job, _e: number)
     echom 'callback'
 enddef
 def Func()
-    job_start(['/bin/bash', '-c', ':'], #{exit_cb: Callback})
+    job_start(['/bin/bash', '-c', ':'], {exit_cb: Callback})
 enddef
 Func()
 ```
     callback
 ```vim
-vim9script
+vim9
 def Listener(bufnr: number, start: number, end: number, added: number, changes: list<dict<number>>)
   echom 'lines ' .. start .. ' until ' .. end .. ' changed'
 enddef
@@ -3563,11 +3498,11 @@ feedkeys('aaa', 'nt')
 
 But why does this work?
 ```vim
-vim9script
+vim9
 def Callback(...l: list<any>)
     echom 'callback'
 enddef
-popup_create('', #{callback: function('Callback')})
+popup_create('', {callback: function('Callback')})
 ```
 Maybe  the  difference is  somehow  explained  by  the  fact that  the  previous
 functions (`job_start()` and `listener_add()`) are async, while `popup_create()`
@@ -3575,11 +3510,11 @@ is not.
 
 But watch this:
 ```vim
-vim9script
+vim9
 def Filter(...l: list<any>)
     echom 'filter'
 enddef
-popup_create('', #{filter: function('Filter')})
+popup_create('', {filter: function('Filter')})
 feedkeys('j')
 ```
     E117: Unknown function: Filter
@@ -3612,9 +3547,9 @@ will fail to jump to the function's definition.
 
 Besides, if you press `C-c`, then the callback function won't be found either:
 
-    vim9script
+    vim9
     def Popup()
-        var id = popup_menu(['aaa', 'bbb', 'ccc'], #{
+        var id = popup_menu(['aaa', 'bbb', 'ccc'], {
             filter: Filter,
             callback: function('Callback'),
             })
@@ -3631,9 +3566,9 @@ Besides, if you press `C-c`, then the callback function won't be found either:
 
 Same issue if the filter function cannot be found:
 
-    vim9script
+    vim9
     def Popup()
-        var id = popup_menu(['aaa', 'bbb', 'ccc'], #{
+        var id = popup_menu(['aaa', 'bbb', 'ccc'], {
             filter: function('Filter'),
             callback: function('Callback'),
             })
@@ -3658,12 +3593,12 @@ be found.
 And what about `:var`?  When can we omit it?
 It seems we can when `s:` is explicit:
 ```vim
-vim9script
+vim9
 s:name = 'string'
 ```
 Otherwise, we can't:
 ```vim
-vim9script
+vim9
 name = 'string'
 ```
     E492: Not an editor command: name = 'string'
@@ -3690,10 +3625,10 @@ This is suggested at `:h vim9-scopes /result`:
 
     imported constant
 ```vim
-vim9script
+vim9
 mkdir('/tmp/import', 'p')
 var lines =<< trim END
-    vim9script
+    vim9
     export const s:MYCONST = 123
 END
 writefile(lines, '/tmp/import/foo.vim')
@@ -3707,10 +3642,10 @@ echo s:MYCONST
 
     imported variable
 ```vim
-vim9script
+vim9
 mkdir('/tmp/import', 'p')
 var lines =<< trim END
-    vim9script
+    vim9
     export var s:name = 123
 END
 writefile(lines, '/tmp/import/foo.vim')
@@ -3724,10 +3659,10 @@ echo s:name
 
     imported function
 ```vim
-vim9script
+vim9
 mkdir('/tmp/import', 'p')
 var lines =<< trim END
-    vim9script
+    vim9
     export def Imported()
         echo 'imported'
     enddef
@@ -3743,9 +3678,9 @@ fu Imported
 
 #### but they're still tied to their original script
 ```vim
-vim9script
+vim9
 var lines =<< trim END
-    vim9script
+    vim9
     export def Imported()
         echo 'imported'
     enddef
@@ -3776,85 +3711,16 @@ other scripts.
 And btw, `expand('<SID>')` will always give you the ID of the current script.
 If you need the ID of a script fom which you've imported a function, use this:
 
-    const s:SID = execute('fu s:Opfunc')->matchstr('\C\<def\s\+\zs<SNR>\d\+_')
+    const SID = execute('fu Opfunc')->matchstr('\C\<def\s\+\zs<SNR>\d\+_')
 
 You may need this in some circumstances; typically where you write code which is
 not run in the context of the script, and when you can't use a funcref.
 As an example, when you set the `'opfunc'` option.
 
 ###
-### cannot create script-local variable from `:def` function
-```vim
-vim9script
-def Func()
-    var s:name = 123
-enddef
-defcompile
-```
-    E1101: Cannot declare a script variable in a function: s:name
-
----
-```vim
-vim9script
-def Func()
-    s:name = 123
-enddef
-defcompile
-```
-    E1089: unknown variable: s:name
-
----
-
-The issue disappears in a legacy script:
-```vim
-def Func()
-    s:name = 123
-enddef
-defcompile
-```
----
-
-This pitfall is specific to the script-local namespace:
-```vim
-vim9script
-def Func()
-    g:name = 123
-    echo g:name
-enddef
-Func()
-```
-    123
-```vim
-vim9script
-def Func()
-    b:name = 123
-    echo b:name
-enddef
-Func()
-```
-    123
-
----
-
-The pitfall only affects  a *new* script-local variable which you  refer to in a
-`:def` function.  You can refer to an *existing* script-local variable just fine:
-```vim
-vim9script
-s:name = 123
-def Func()
-    echo s:name
-enddef
-Func()
-```
-    123
-
----
-
-All of this seems too inconsistent.  Is there some bug?
-
 ### cannot use `-=` when lhs is key from dictionary
 ```vim
-vim9script
+vim9
 def Func()
     var d = {key: 123}
     d.key -= 1
@@ -3874,7 +3740,7 @@ Same issue with:
 
 Another error is raised atm for `..=`:
 ```vim
-vim9script
+vim9
 def Func()
     var d = {key: 'string'}
     d.key ..= ' abc'
@@ -3890,7 +3756,7 @@ I think it's on the todo list (`:h todo /\.\.=`):
 
 ### when a function raises an error at compile time, its body is emptied
 ```vim
-vim9script
+vim9
 def g:Func()
     invalid
 enddef
@@ -3917,7 +3783,7 @@ fu Func
 This is limited to compile time.
 If an error is detected at runtime, the body of the function remains the same.
 ```vim
-vim9script
+vim9
 def g:Func()
     echo [1, 2, 3][4]
 enddef
@@ -3949,7 +3815,7 @@ Otherwise, `E1096` is raised:
 
 ---
 ```vim
-vim9script
+vim9
 def Func()
     return
 enddef
@@ -3957,7 +3823,7 @@ defcompile
 ```
     ✔
 ```vim
-vim9script
+vim9
 def Func()
     return 123
 enddef
@@ -3969,7 +3835,7 @@ defcompile
 
 Also, note that even though a function returns 0 by default:
 ```vim
-vim9script
+vim9
 def Func()
 enddef
 var x = Func()
@@ -3979,7 +3845,7 @@ echom x
 
 You can not omit a return statement, even if the function's return type is `number`:
 ```vim
-vim9script
+vim9
 def Func(): number
 enddef
 defcompile
@@ -3988,7 +3854,7 @@ defcompile
 
 Nor can you omit the return value:
 ```vim
-vim9script
+vim9
 def Func(): number
     return
 enddef
@@ -3999,7 +3865,7 @@ defcompile
 ###
 ### in a composite value, "function()" suppresses type checking at compile time
 ```vim
-vim9script
+vim9
 def Func()
     var l: list<number>
     l = ['', function('len')]
@@ -4008,10 +3874,10 @@ defcompile
 ```
     no error
 ```vim
-vim9script
+vim9
 def Func()
     var d: dict<number>
-    d = #{aa: '', bb: function('len')}
+    d = {aa: '', bb: function('len')}
 enddef
 defcompile
 ```
@@ -4026,7 +3892,7 @@ Not sure what that means...
 
 Anyway, as a result, this might cause an error to be shadowed:
 ```vim
-vim9script
+vim9
 def Func()
     var l: list<string>
     l = ['', function('len')]
@@ -4045,7 +3911,7 @@ The first error is:
 
 This might make debugging harder; especially when the lines are far away from each other:
 ```vim
-vim9script
+vim9
 def Func()
     var l: list<string>
     # ...

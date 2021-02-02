@@ -4524,6 +4524,13 @@ But it's documented in the manpage.
 
 - plot.awk: <https://gist.github.com/katef/fb4cb6d47decd8052bd0e8d88c03a102>
 - <https://github.com/patsie75/awk-graph>
+- <https://github.com/patsie75/awk-videoplayer>
+
+## Code Testing and its Role in Teaching
+
+<https://www.cs.princeton.edu/~bwk/testing.html>
+
+Could this be used to build our own testing framework?
 
 ##
 # Reference

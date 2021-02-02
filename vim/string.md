@@ -418,7 +418,7 @@ In Vim script legacy:
 
 In Vim9:
 
-    getline('.')->strpart(0, col('.') - 1)[-1:-1]
+    getline('.')->strpart(0, col('.') - 1)[-1]
                                       ^^^
                                       to exclude the first byte of the character under the cursor
 

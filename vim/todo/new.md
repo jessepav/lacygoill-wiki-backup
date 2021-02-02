@@ -25,7 +25,6 @@
    - `:h term_setansicolors()` + `:h term_getansicolors()`
    - `:h term_setsize()`
    - `:h terminalprops()`
-   - `:h typename()`
    - `:h win_splitmove()`
 
 ---
@@ -111,6 +110,7 @@ list of dictionaries of jobs, you can simply write:
 ##
 # commands
 
+   - `:h :balt`
    - `:h :scriptversion`
    - `:h :swapname`
 
