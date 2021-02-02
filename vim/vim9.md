@@ -3100,6 +3100,19 @@ Extend()
 Similarly, the solution is to use `extendnew()`.
 The latter is not documented at `:h vim9`.  It should; send a patch.
 
+Same issue with `flatten()`:
+```vim
+vim9
+def Func()
+    var l: list<list<number>> = [[1], [2]]
+    [[1], [2]]->flatten()
+enddef
+Func()
+```
+    E1158: Cannot use flatten() in Vim9 script
+
+Need to use `flattennew()`.
+
 ### `silent!` can only suppress an error at runtime, NOT at compile time
 ```vim
 vim9

@@ -618,21 +618,13 @@ index 94770f2e3..d55de7052 100644
 +char_u *get_filetype_arg(expand_T *xp, int idx);
  /* vim: set ft=c : */
 diff --git a/src/testdir/test_options.vim b/src/testdir/test_options.vim
-index c8b2700dd..3d76d6f69 100644
+index c8b2700dd..19c62cc7b 100644
 --- a/src/testdir/test_options.vim
 +++ b/src/testdir/test_options.vim
-@@ -332,6 +332,22 @@ func Test_set_completion()
+@@ -332,6 +332,14 @@ func Test_set_completion()
    call feedkeys(":set key=\<Tab>\<C-B>\"\<CR>", 'xt')
    call assert_equal('"set key=*****', @:)
    set key=
-+
-+  " Expand filetypes for 'filetype'
-+  call feedkeys(":set filetype=a\<C-A>\<C-B>\"\<CR>", 'xt')
-+  call assert_equal('"set filetype=' .. getcompletion('a*', 'filetype')->join(), @:)
-+
-+  " Expand :filetype arguments
-+  call feedkeys(":filetype \<C-A>\<C-B>\"\<CR>", 'xt')
-+  call assert_equal('"filetype indent off on plugin', @:)
 +
 +  " Expand filetypes for 'filetype'
 +  call feedkeys(":set filetype=a\<C-A>\<C-B>\"\<CR>", 'xt')

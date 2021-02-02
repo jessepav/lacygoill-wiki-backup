@@ -793,45 +793,6 @@ It should be:
 ## ?
 ```vim
 vim9
-def Func()
-    var l: list<list<string>> = mapnew(['buff*'], (_, v) => getcompletion(v, 'event'))
-    echo l
-    var flattened: list<string> = l->flatten()
-    echo flattened
-enddef
-Func()
-```
-    E1012: Type mismatch; expected list<string> but got string
-
-Why?  Bug?  Do we need `flattennew()`?
-
-Update:  Ah no.  I think the issue  is that `flatten()` tries to change the type
-of `l` which is disallowed.  Still, the  message is confusing.  It makes it seem
-that we passed the  wrong type of value to `flatten()`, or  that we assigned the
-wrong type of value to `flattened`.
-
----
-
-Workaround: use `copy()`:
-```vim
-vim9
-def Func()
-    var l: list<list<string>> = mapnew(['buff*'], (_, v) => getcompletion(v, 'event'))
-    var flattened: list<string> = l->copy()->flatten()
-    echo flattened
-enddef
-Func()
-```
-Update: I think this is a bug.  It should not work.
-If it's disallowed for `map()` and `extend()`  to change the type of a variable,
-it should also be disallowed for `flatten()`.
-I think we *do* need `flattennew()`.
-
-We'll see: <https://github.com/vim/vim/issues/7666#issuecomment-770978950>
-
-## ?
-```vim
-vim9
 g:name = 123
 echo name
 ```
