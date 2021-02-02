@@ -494,10 +494,10 @@ index d51f5c642..ad162a235 100644
  	    {EXPAND_LANGUAGE, get_lang_arg, TRUE, FALSE},
  	    {EXPAND_LOCALES, get_locales, TRUE, FALSE},
 diff --git a/src/ex_docmd.c b/src/ex_docmd.c
-index 8b9db6812..929789829 100644
+index 8b9db6812..920a39f4b 100644
 --- a/src/ex_docmd.c
 +++ b/src/ex_docmd.c
-@@ -9089,6 +9089,77 @@ ex_filetype(exarg_T *eap)
+@@ -9089,6 +9089,69 @@ ex_filetype(exarg_T *eap)
  	semsg(_(e_invarg2), arg);
  }
  
@@ -568,13 +568,16 @@ index 8b9db6812..929789829 100644
   * ":setfiletype [FALLBACK] {name}"
   */
 diff --git a/src/option.c b/src/option.c
-index b4893a10a..402289e6b 100644
+index b4893a10a..7a79d2e97 100644
 --- a/src/option.c
 +++ b/src/option.c
-@@ -6209,6 +6209,9 @@ set_context_in_set_cmd(
+@@ -6209,6 +6209,12 @@ set_context_in_set_cmd(
  	    else
  		xp->xp_backslash = XP_BS_ONE;
  	}
++	else if (p == (char_u *)&p_ft) {
++	    xp->xp_context = EXPAND_FILETYPE;
++	}
 +	else if (p == (char_u *)&p_ft) {
 +	    xp->xp_context = EXPAND_FILETYPE;
 +	}
@@ -615,13 +618,21 @@ index 94770f2e3..d55de7052 100644
 +char_u *get_filetype_arg(expand_T *xp, int idx);
  /* vim: set ft=c : */
 diff --git a/src/testdir/test_options.vim b/src/testdir/test_options.vim
-index c8b2700dd..19c62cc7b 100644
+index c8b2700dd..3d76d6f69 100644
 --- a/src/testdir/test_options.vim
 +++ b/src/testdir/test_options.vim
-@@ -332,6 +332,14 @@ func Test_set_completion()
+@@ -332,6 +332,22 @@ func Test_set_completion()
    call feedkeys(":set key=\<Tab>\<C-B>\"\<CR>", 'xt')
    call assert_equal('"set key=*****', @:)
    set key=
++
++  " Expand filetypes for 'filetype'
++  call feedkeys(":set filetype=a\<C-A>\<C-B>\"\<CR>", 'xt')
++  call assert_equal('"set filetype=' .. getcompletion('a*', 'filetype')->join(), @:)
++
++  " Expand :filetype arguments
++  call feedkeys(":filetype \<C-A>\<C-B>\"\<CR>", 'xt')
++  call assert_equal('"filetype indent off on plugin', @:)
 +
 +  " Expand filetypes for 'filetype'
 +  call feedkeys(":set filetype=a\<C-A>\<C-B>\"\<CR>", 'xt')
