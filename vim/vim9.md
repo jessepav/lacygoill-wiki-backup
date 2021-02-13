@@ -2837,14 +2837,14 @@ Outer()
 ### why we have "inconsistent" messages when using a wrong type of argument with the "-" and "+" operators
 ```vim
 vim9
-eval '' - 1
+'' - 1
 ```
     at runtime:
     E1030: Using a String as a Number
 ```vim
 vim9
 def Func()
-    eval '' - 1
+    '' - 1
 enddef
 Func()
 ```
@@ -2853,7 +2853,7 @@ Func()
 ```vim
 vim9
 def Func()
-    eval '' + 1
+    '' + 1
 enddef
 Func()
 ```
@@ -2880,7 +2880,7 @@ function-local function:
         vim9
         def Func()
             def Nested()
-                eval [][0]
+                [][0]
             enddef
             Nested()
         enddef
@@ -3163,7 +3163,7 @@ See:
 ```vim
 vim9
 def Func(): string
-    eval [][123]
+    [][123]
     return ''
 enddef
 com Cmd exe Func()
@@ -3909,7 +3909,7 @@ vim9
 def Func()
     var l: list<string>
     l = ['', function('len')]
-    eval l[0] - 1
+    l[0] - 1
 enddef
 Func()
 ```
@@ -3936,7 +3936,7 @@ def Func()
     # many lines of code
     # ...
     # REPORTED ERROR
-    eval l[0] - 1
+    l[0] - 1
 enddef
 Func()
 ```

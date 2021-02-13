@@ -1924,69 +1924,29 @@ original position where you set the mark; you lose the column position.
     5~
     " the original column was 8
 
-### ?
+### concatenating commands in an `:if` or `:try` block on a single line with bars
 
-concatenating commands in an `:if` or `:try` block on a single line with bars
-
-Because if the test following `:if` is false, and if the parsing of the commands
-inside the block  fails (syntax error, unknown command,  unknown variable, ...),
-the rest of the line is ignored, which includes `| endif`.
-This can change the logic of your code.
+Because if  the command inside  the block  is unknown, the  rest of the  line is
+ignored, which includes `| endif`; this causes an unexpected `E171` error:
 ```vim
-if 0 | d a b | endif
+if 0 | unknown | endif
 ```
+    E171: Missing :endif
 
-        # Why `:exe`?
-        #
-        # `:SignifyToggle` does not need it; it's correctly defined with `-bar`.
-        # However, if the command does not exist, `E171: Missing :endif` will be raised.
-        # That's probably because Vim fails to parse an unknown command:
-        #
-        #     $ vim -Nu NONE -S <(echo 'if 0 | not_a_cmd | endif')
-        #     E171: Missing :endif~
-        #
-        # See: https://github.com/neovim/neovim/issues/11136#issuecomment-537253732
-
-> Consider this:
-> if has('nothing') | let x = doesnotexist | endif
-> Here you do not want to give an error for "doesnotexist".
-> Many conditions with has() depend on this.
-> Obviously, this doesn't work very well for a syntax error. But it's hard to make a difference.
-> And the example for using "->" also shows that you do want to skip expressions, and errors in expressions, in a version of Vim that doesn't support that.
->
-> So, we can only document that the "endif" should be on a separate line.
-
-See: <https://github.com/neovim/neovim/issues/12009#issuecomment-599021395>
-And `:h has() /this->breaks`.
+Similar issue with `:try`:
+```vim
+try | unknown | catch | endtry
+```
+    E492: Not an editor command:  unknown | catch | endtry
 
 ---
 
-As an example:
-```vim
-try | invalid | catch | endtry
-```
-    E492: Not an editor command:  invalid | catch | endtry
-
-Moving `| catch | endtry` on a dedicated line fixes the issue:
-```vim
-try | invalid
-catch | endtry
-```
-    ✔
-Another workaround is to delay the parsing of `:invalid` with an `:exe`:
-```vim
-try | exe 'invalid' | catch | endtry
-```
-    ✔
-
-Here is  another example,  the following snippet  unexpectedly removes  the file
-`do_NOT_delete_me`,  and keeps  the file  `delete_me`, without  any error  being
-raised:
+This can even change the logic of your code.
 ```vim
 vim9
 var files = ['/tmp/do_NOT_delete_me', '/tmp/delete_me']
-mapnew(files, (_, v ) => delete(v))
-mapnew(files, (_, v ) => writefile([], v))
+writefile([], files[0])
+writefile([], files[1])
 if 1
     if has('missing_feature') | use_missing_feature | endif
     filter(files, (_, v) => v !~ 'NOT')
@@ -1996,22 +1956,43 @@ if 1
     finish
 endif
 ```
-Moving `| endif` on a dedicated line fixes the issue.
+Here, the  snippet has removed  the file  `do_NOT_delete_me`, and kept  the file
+`delete_me`, without any error being raised.  That was *not* its purpose at all.
+
+---
+
+   > Consider this:
+   > if has('nothing') | let x = doesnotexist | endif
+   > Here you do not want to give an error for "doesnotexist".
+   > Many conditions with has() depend on this.
+   > Obviously, this doesn't work very well for a syntax error.
+   > But it's hard to make a difference.
+   > And the example for using "->" also shows that you do want to skip expressions,
+   > and errors in expressions, in a version of Vim that doesn't support that.
+   >
+   > So, we can only document that the "endif" should be on a separate line.
+
+See: <https://github.com/neovim/neovim/issues/12009#issuecomment-599021395>
+And `:h has() /this->breaks`.
+
+#### What should I do instead?
+
+Make sure to break the line at least right after the unknown command:
 ```vim
-vim9
-var files = ['/tmp/do_NOT_delete_me', '/tmp/delete_me']
-mapnew(files, (_, v ) => delete(v))
-mapnew(files, (_, v ) => writefile([], v))
-if 1
-    if has('missing_feature') | use_missing_feature
-    endif
-    filter(files, (_, v) => v !~ 'NOT')
-endif
-delete(files[0])
-if 1
-    finish
+if 0 | unknown
 endif
 ```
+    no error
+```vim
+try | unknown
+catch | endtry
+```
+Alternatively, delay the parsing of `:unknown` with an `:exe`:
+```vim
+try | exe 'unknown' | catch | endtry
+```
+    no error
+
 ##
 # Issues
 ## Why does  `:call system('grep -IRn pat * | grep -v garbage >file')`  fail to capture the standard error in `file`?

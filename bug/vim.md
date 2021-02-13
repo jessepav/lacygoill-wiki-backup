@@ -676,11 +676,112 @@ Or does it continue on the next line?
 Also, we can't provide a flag to some commands like `:g`...
 
 ##
-## Vim9: cannot break expression starting with variable name before "->"
+## ?
+
+   - <https://vi.stackexchange.com/questions/21423/is-it-possible-to-replace-tildes-representing-empty-lines-with-another-character>
+   - <https://vi.stackexchange.com/questions/28994/can-i-change-the-ugly-indicator-after-eol>
+
+   [8.2.2508](https://github.com/vim/vim/releases/tag/v8.2.2508)  cannot change the character displayed in non existing lines
+
+## ?
+
+Vim9: a function argument name with "->" in the next line doesn't work
+```vim
+vim9
+def Func(_arg: string)
+    _arg
+        ->setline(1)
+enddef
+Func('string')
+```
+    E476: Invalid command: _arg
+```vim
+vim9
+def Func(arg: string)
+    arg
+        ->setline(1)
+enddef
+Func('string')
+```
+    E1050: Colon required before a range: ->setline(1)
+
+Both these snippets are wrong.  No error should be raised.
+Just like here, no error is raised:
+```vim
+vim9
+def Func()
+    var _arg = 'string'
+    _arg
+        ->setline(1)
+enddef
+Func()
+```
+```vim
+vim9
+def Func()
+    var arg = 'string'
+    arg
+        ->setline(1)
+enddef
+Func()
+```
+Related issue: <https://github.com/vim/vim/issues/7770>
+
+## ?
+```vim
+vim9
+{a: 1, b: 2, c: 3}
+    ->setline(1)
+```
+    no error
+```vim
+vim9
+{
+    a: 1, b: 2, c: 3}
+    ->setline(1)
+```
+    E121: Undefined variable: a:
+
+This is confusing.
+If the second snippet has to fail, then the first one should fail too.
+IOW, using parentheses – to disambiguate the  a dictionary from a block – should
+be enforced.
+
+## ?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9
+        def Func( # comment
+            a: any,
+            b: any
+            e: any,
+            f: any
+            )
+            echo 123
+        enddef
+        Func()
+    EOF
+    )
+
+These errors are noisy and confusing:
+
+    E475: Invalid argument:  # comment
+    E121: Undefined variable: f
+    E492: Not an editor command:         )
+    E193: :enddef not inside a function
+    E117: Unknown function: Func
+
+The noise could be  fixed once Vim aborts sourcing a script as  soon as an error
+is raised.  But could Vim tell us that we forgot a comma at the end of the `b: any`
+line?
+
+## ?
+
+Vim9: cannot use "true" for "border" key in "{opts}" dictionary of "popup_create()"
 
 **Describe the bug**
 
-In Vim9 script, we cannot break an expression starting with a variable name before the `->` method token.
+In Vim9 script, we cannot use `true` for the `border` key in the `{opts}` dictionary of `popup_create()`.
 
 **To Reproduce**
 
@@ -688,106 +789,226 @@ Run this shell command:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9
-        def Func()
-            var name = [1, 2, 3]
-            name
-                ->copy()
-                ->setline(1)
-        enddef
-        defcompile
+        popup_create('', {border: [false, true, false, true]})
     EOF
     )
 
-`E476` is raised:
+`E1138` is raised 4 times:
 
-    E476: Invalid command: name
+    E1138: Using a Bool as a Number
 
 **Expected behavior**
 
-No error is raised.  `1`, `2` and `3` are written on the first 3 lines of the buffer.
+No error is raised.
 
 **Environment**
 
- - Vim version: 8.2 Included patches: 1-2389
+ - Vim version: 8.2 Included patches: 1-2081
  - OS: Ubuntu 16.04.7 LTS
- - Terminal: xterm(363)
+ - Terminal: xterm(362)
 
 **Additional context**
 
-We can break an expression starting with a function name:
-```vim
-vim9
-def Func()
-    getwininfo()
-        ->len()
-enddef
-Func()
-```
-    no error
-
-We can break an expression starting with a value:
-```vim
-vim9
-def Func()
-    {a: 1, b: 2, c: 3}
-        ->len()
-        ->setline(1)
-enddef
-Func()
-```
-    3
-
-We can break an expression starting with a variable name passed to a function via a method on the same line:
-```vim
-vim9
-def Func()
-    var l = [1, 2, 3]
-    l->copy()
-        ->setline(1)
-enddef
-Func()
-```
-    no error
-
-We can break an expression starting with a variable name assigned to another variable:
-```vim
-vim9
-def Func()
-    var l = [1, 2, 3]
-    var x = l
-        ->copy()
-enddef
-Func()
-```
-    no error
-
-If Vim is able to look for `->` on the next line in these last four snippets, could it do the same in the very first one, which currently raises `E476`?
+Regression introduced in 8.2.1465.
 
 ---
 
-The current workaround is to use `:eval`:
+Same issue with the `cursorline` key:
 ```vim
 vim9
-def Func()
-    var mylist = [1, 2, 3]
-    eval mylist
-        ->copy()
-        ->setline(1)
-enddef
-Func()
+popup_create('', {cursorline: true})
 ```
-If it can't be fixed then maybe the help should be updated to document this pitfall:
+    E475: Invalid value for argument cursorline
 
-https://github.com/vim/vim/blob/9b6344613eecfcf77c510d7b63fcc4b7b51aefbc/runtime/doc/vim9.txt#L330-L345
+Although, the error is different, and it's not a regression (at least not the same one).
+Still, IMO it should work.
 
-   > A method call without `eval` is possible, so long as the start is an
-   > identifier or can't be an Ex command.  Examples: >
+---
 
-It should be:
+Send a patch fixing the issue with a test.
+To get some help, see how this commit fixed a similar issue:
+<https://github.com/vim/vim/commit/6c542f77eba73a95447f285149b3fcb011aa9675>
 
-   > A method call without `eval` is possible, so long as the start is an
-   > identifier or can't be an Ex command (if it is, the first method
-   > call needs to be on the same line).  Examples: >
+## ?
+
+Vim does not abort a script when an error is raised.
+It really should:
+```vim
+vim9
+var v: number
+echo printf(' %*d%s%s%s%s%s %s',
+                bufnr('$')->len(),v,
+               !buflisted(v) ? 'u' : ' ',
+               v == bufnr('%') ? '%' : v == bufnr('#') ? '#' : ' ',
+               win_findbuf(v)->empty() ? 'h' : 'a',
+               getbufvar(v, '&ma', 0) ? ' ' : '-',
+               getbufvar(v, '&mod', 0) ? '+' : ' ',
+               bufname(v)->empty()
+                 ?    '[No Name]'
+                 :     bufname(v)->fnamemodify(':t'))
+```
+
+    zsh:1: unknown file attribute: v
+
+An error is raised from this line (because of a missing whitespace):
+
+    bufnr('$')->len(),v,
+                     ^^
+                     ✘
+
+At that point, Vim should stop sourcing the script.
+But it does not, and source the next line as a *separate* command:
+
+    !buflisted(v) ? 'u' : ' ',
+
+Here, `!` is not parsed as the logical operator (NOT), but as the Ex command `:!`.
+And thus, `buflisted` is not parsed as a Vim function but as a shell command.
+This looks dangerous, because it could make the shell run destructive commands.
+
+Note that the same pitfall exists in Vim script legacy:
+```vim
+echo 'before error'
+eval [][0]
+echo 'after error'
+```
+    before error
+    Error detected while processing ...
+    line    2:
+    E684: list index out of range: 0
+    after error
+
+But it seems less  dangerous.  What makes this more dangerous  in Vim9 script is
+the automatic line continuations.
+
+This is on the todo list (`:h todo /abort`):
+
+   > - Error in any command in "vim9script" aborts sourcing.
+
+But make sure it's fixed at some point.
+
+BTW, this issue is mentioned at `:h E1050 /exit_cb`:
+
+   > Since a continuation line cannot be easily recognized the parsing of commands
+   > has been made stricter.  E.g., because of the error in the first line, the
+   > second line is seen as a separate command: >
+   >         popup_create(some invalid expression, {
+   >            exit_cb: Func})
+   > Now "exit_cb: Func})" is actually a valid command: save any changes to the
+   > file "_cb: Func})" and exit.  To avoid this kind of mistake in Vim9 script
+   > there must be white space between most command names and the argument.
+
+However, once the issue is fixed, the example won't be relevant anymore.
+I think that, then, it will need to be removed.
+We could  still say  that a  whitespace between  a command  and its  argument is
+required because it improves readability:
+
+    d_
+    ^^
+    what's this "_"? is it part of the command name
+
+    d _
+      ^
+      ok, it's not part of the command name, so it must be an argument
+
+Unless we can  find another example where  the space between a  command name and
+its argument prevents an issue...
+
+## ?
+
+Cannot easily break dictionary member accessed via multiple keys:
+```vim
+vim9
+var d = {a: {b: {c: 0}}}
+d
+['a']
+['b']
+['c'] =
+123
+echo d
+```
+    E475: Invalid argument: 'c'] =
+    E1050: Colon required before a range: 123
+```vim
+vim9
+var d = {a: {b: {c: 0}}}
+d
+.a
+.b
+.c =
+123
+echo d
+```
+    E15: Invalid expression: d
+    line    7:
+    E1050: Colon required before a range: 123
+
+`.` could be considered as a binary operator whose operands are a dictionary and a key.  Under that view, one would expect to be able to break the expression before the dot, just like we can with any other binary operator like `..`, `+`, ...
+
+> For binary operators in expressions not in [], {} or () a line break is
+> possible just before or after the operator.  For example: >
+>         var text = lead
+>                    .. middle
+>                    .. end
+>         var total = start +
+>                     end -
+>                     correction
+>         var result = positive
+>                         ? PosFunc(arg)
+>                         : NegFunc(arg)
+
+## ?
+```vim
+vim9
+if search('pat')
+endif
+```
+    ✔
+```vim
+vim9
+if !search('pat')
+endif
+```
+    ✔
+```vim
+vim9
+setline(1, ['pat', 'xxx'])
+if search('pat')
+endif
+```
+    ✔
+```vim
+vim9
+setline(1, ['pat', 'xxx'])
+if !search('pat')
+endif
+```
+    ✔
+```vim
+vim9
+setline(1, ['xxx', 'pat'])
+if !search('pat')
+endif
+```
+    ✔
+```vim
+vim9
+setline(1, ['xxx', 'pat'])
+if search('pat')
+endif
+```
+    E1023: Using a Number as a Bool: 2
+
+The last snippet looks inconsistent.  It's not a bug, but still, maybe Vim should:
+
+   - consider any non-zero number as `true`, just for `search()` (& friends like `searchpair()`)
+
+   - raise an error for *all* snippets, not just the last one;
+     except for the ones using the logical `!` because (from `:h vim9`):
+
+        > When using "!" for inverting, there is no error for using any type and the
+        > result is a boolean.
+
+     and if possible at compile time, not at runtime
 
 ##
 ## ?
@@ -949,266 +1170,9 @@ I think  these issues are  raised at compile time,  while the `map()`  error can
 only be raised later, at runtime.
 
 ##
-## [enhancement] when assigning value with wrong type in unpack notation, include variable position in error message
-```vim
-vim9
-def GetVal(): list<any>
-    return [false, 0]
-enddef
-var x: bool
-var y: string
-[x, y] = GetVal()
-```
-    E1012: Type mismatch; expected string but got number
-```vim
-vim9
-def GetVal(): list<any>
-    return [false, 0]
-enddef
-def Func()
-    var x: bool
-    var y: string
-    [x, y] = GetVal()
-enddef
-Func()
-```
-    E1012: Type mismatch; expected string but got number
-
-Could Vim give us  the position of the variable which has  been assigned a value
-with a wrong type?
-
-    E1012: Variable 2: Type mismatch; expected string but got number
-           ^---------^
-
-This would be similar to what happens when  we pass a value with a wrong type in
-a function call:
-```vim
-vim9
-def Func(x: bool, y: string)
-enddef
-Func(false, 0)
-```
-    E1013: Argument 2: type mismatch, expected string but got number
-           ^---------^
-
 ## ?
-```vim
-vim9
-com -range=% Cmd Func(<line1>,<line2>)
-def Func(line1: number, line2: number)
-    echo line1
-    echo line2
-enddef
-Cmd
-```
-    Error detected while processing command line..script /proc/23837/fd/11:
-    line    7:
-    E1069: White space required after ','
-    E116: Invalid arguments for function Func(1,1)
 
-Should Vim give the address of the command definition, rather than the command execution?
-
-The error comes from here:
-
-    com -range=% Cmd Func(<line1>,<line2>)
-                                ^^^
-                                 ✘
-
-But the message gives this origin for the error:
-
-    Cmd
-
-This would be especially useful for commands calling autoloaded functions.
-Because then, the command and the function are in different scripts.
-
-## Vim9: :echo parses # inconsistently
-
-**Describe the bug**
-
-In Vim9 script, `:echo` parses `#` inconsistently.
-
-**To Reproduce**
-
-Run this shell command:
-
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9
-        echo #{
-    EOF
-    )
-
-`E121` is raised:
-
-    E121: Undefined variable: #
-
-Now, run this other shell command:
-
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9
-        echo # {
-    EOF
-    )
-
-This time, no error is raised.
-
-**Expected behavior**
-
-The first command doesn't raise any error because this is consistent with:
-
-   - the second command
-   - other comments after `:echo`
-   - other comments after `:exe`
-
-**Environment**
-
- - Vim version: 8.2 Included patches: 1-2301
- - OS: Ubuntu 16.04.7 LTS
- - Terminal: xterm(363)
-
-**Additional context**
-
----
-
-From: <https://github.com/vim/vim/issues/7468>
-```vim
-vim9
-
-eval #{some comment
-eval # {some comment
-
-echo #{some comment
-echo # {some comment
-```
-> Each of these commands raise `E121`:
->
->     E121: Undefined variable: #
->
-> Except the last one which doesn't raise any error.
->
-> This is unexpected for 2 reasons:
->
->  - Why is `#` parsed as a variable name? In Vim9 script, `#` should always be parsed as a comment leader (at least since [8.2.2082](https://github.com/vim/vim/releases/tag/v8.2.2082)).
->  - Why doesn't the last command raise any error?  If the last but one raises an error, then the last one should too.
->
-> I think they should all raise `E1015`, because that's the error raised when `:eval` (or `:echo`) is executed in a `:def` function without argument.
-> And because # always starts a comment, therefore everything which follows should be ignored (including #), and :echo as well as :eval should be executed without argument.
-
-Open a separate issue.
-
----
-
-Here is a similar issue when the code is compiled:
-```vim
-vim9
-
-def Func()
-    eval #{some comment
-enddef
-defcompile
-```
-    E1143: Empty expression: "#{some comment"
-```vim
-vim9
-
-def Func()
-    eval # {some comment
-enddef
-defcompile
-```
-    E1143: Empty expression: "# {some comment"
-```vim
-vim9
-
-def Func()
-    echo #{some comment
-enddef
-defcompile
-```
-    E1143: Empty expression: "#{some comment"
-```vim
-vim9
-
-def Func()
-    echo # {some comment
-enddef
-defcompile
-```
-    ✔
-
-First, the fact that the last snippet does not raise any error is inconsistent.
-
-Second, the fact  that the first 3  snippets raise `E1143` in  a `:def` function
-while they raise `E121` at the script level is another inconsistency.
-
-## confusing error message when we wrongly use "=" instead of "==" in a comparison
-```vim
-vim9
-def Func()
-    var x = ''
-    if x = ''
-    endif
-enddef
-defcompile
-```
-    E1012: Type mismatch; expected bool but got string
-
-But the error message is confusing.  Upon reading this, my first reaction is to try and fix the type of `x`.  But that's not the issue.  The issue is comes from the `=` assignment operator on the third line, which should be replaced with the `==` comparison operator.
-
-    if x = ''
-         ^
-         ✘
-
-    if x == ''
-         ^^
-         ✔
-
----
-
-It would be less confusing and/or more consistent if `E15` was raised instead of `E1012`:
-```vim
-vim9
-var x = 0
-if x = ''
-endif
-```
-    E15: Invalid expression: x = ''
-
-Or `E488`:
-```vim
-vim9
-def Func()
-    var x = 0
-    if x = ''
-    endif
-enddef
-defcompile
-```
-    E488: Trailing characters: = ''
-
-Ideally, the same error would always be raised, and it would be `E15`.
-
-## confusing error message when we wrongly use "==" instead of "=" in an assignment
-```vim
-vim9
-def Func()
-    var x: number
-    x = 0
-enddef
-Func()
-```
-    ✔
-```vim
-vim9
-def Func()
-    var x: number
-    x == 0
-enddef
-Func()
-```
-    E1004: White space required before and after '=' at "== 0"
-
-Could Vim give a better error here?
-
+<https://github.com/vim/vim/issues/7625#issuecomment-774636059>
 
 ## ?
 
@@ -1243,68 +1207,6 @@ The types on the second line are useless:
         [{n: 0}]->filter(Ref)
     EOF
     )
-
-##
-## ?
-
-**Describe the bug**
-
-In Vim9 script, it is not always easy to find where a whitespace is disallowed.
-
-**To Reproduce**
-
-Run this shell command:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        def Func(l: any)
-        enddef
-        Func(['a', 'd', 'gj', 'gqq' , 'i', 'o', 'r', 'u', 'x'])
-    EOF
-    )
-
-`E1068` is raised:
-
-    E1068: No white space allowed before ','
-
-**Expected behavior**
-
-**Environment**
-
- - Vim version: 8.2 Included patches: 1-2283
- - OS: Ubuntu 16.04.7 LTS
- - Terminal: xterm(363)
-
-**Additional context**
-
-No info is given to let us find the disallowed whitespace.
-It's here:
-
-    Func(['a', 'd', 'gj', 'gqq' , 'i', 'o', 'r', 'u', 'x'])
-                               ^
-                               ✘
-
-This error message would be better:
-
-    E1068: No white space allowed before ", 'i', 'o', 'r', 'u', 'x'"
-
-Try to find a fix after reading this patch:
-<https://github.com/vim/vim/commit/e7a73e07625b64a40671a0007ad38a34cbe9d1ee>
-
----
-```vim
-vim9
-echo {a: 1 ? 'b': 'c'}
-```
-    E1004: White space required before and after ':' at ": 'c'}"
-                                                 ^-------------^
-                                                        ✔
-```vim
-vim9
-echo {a: 1, b:2, c: 3}
-```
-    E1069: White space required after ':'
-
-No context here.  Report?
 
 ## ?
 ```vim
@@ -1396,7 +1298,6 @@ I think these are known issues.  From `:h todo /assign`:
 
 Although, maybe Vim should print a "not implemented yet" message?
 
-##
 ## ?
 
 Study these tests:
@@ -1407,123 +1308,6 @@ Study these tests:
 
 Make sure you understand all the syntaxes they use.
 
----
-
-A new lambda can be used as a method in a `:def` function:
-```vim
-vim9
-def Func()
-    echo 'string'->((s) => strlen(s))()
-enddef
-Func()
-```
-    6
-
-But not at the script level:
-```vim
-vim9
-echo 'string'->((s) -> strlen(s))()
-```
-    E15: Invalid expression: ((s) -> strlen(s))()
-    E260: Missing name after ->
-
-Bug?
-
-Workaround: Use old syntax:
-```vim
-vim9
-echo 'string'->{s -> strlen(s)}()
-```
-    6
-
-Also, notice how  we need extra parens  around the lambda's body  when using the
-new syntax.  It seems obvious, but I don't think it's documented.
-
-## ?
-
-Vim does not abort a script when an error is raised.
-It really should:
-```vim
-vim9
-var v: number
-echo printf(' %*d%s%s%s%s%s %s',
-                bufnr('$')->len(),v,
-               !buflisted(v) ? 'u' : ' ',
-               v == bufnr('%') ? '%' : v == bufnr('#') ? '#' : ' ',
-               win_findbuf(v)->empty() ? 'h' : 'a',
-               getbufvar(v, '&ma', 0) ? ' ' : '-',
-               getbufvar(v, '&mod', 0) ? '+' : ' ',
-               bufname(v)->empty()
-                 ?    '[No Name]'
-                 :     bufname(v)->fnamemodify(':t'))
-```
-
-    zsh:1: unknown file attribute: v
-
-An error is raised from this line (because of a missing whitespace):
-
-    bufnr('$')->len(),v,
-                     ^^
-                     ✘
-
-At that point, Vim should stop sourcing the script.
-But it does not, and source the next line as a *separate* command:
-
-    !buflisted(v) ? 'u' : ' ',
-
-Here, `!` is not parsed as the logical operator (NOT), but as the Ex command `:!`.
-And thus, `buflisted` is not parsed as a Vim function but as a shell command.
-This looks dangerous, because it could make the shell run destructive commands.
-
-Note that the same pitfall exists in Vim script legacy:
-```vim
-echo 'before error'
-eval [][0]
-echo 'after error'
-```
-    before error
-    Error detected while processing ...
-    line    2:
-    E684: list index out of range: 0
-    after error
-
-But it seems less  dangerous.  What makes this more dangerous  in Vim9 script is
-the automatic line continuations.
-
-This is on the todo list (`:h todo /abort`):
-
-   > - Error in any command in "vim9script" aborts sourcing.
-
-But make sure it's fixed at some point.
-
-BTW, this issue is mentioned at `:h E1050 /exit_cb`:
-
-   > Since a continuation line cannot be easily recognized the parsing of commands
-   > has been made stricter.  E.g., because of the error in the first line, the
-   > second line is seen as a separate command: >
-   >         popup_create(some invalid expression, {
-   >            exit_cb: Func})
-   > Now "exit_cb: Func})" is actually a valid command: save any changes to the
-   > file "_cb: Func})" and exit.  To avoid this kind of mistake in Vim9 script
-   > there must be white space between most command names and the argument.
-
-However, once the issue is fixed, the example won't be relevant anymore.
-I think that, then, it will need to be removed.
-We could  still say  that a  whitespace between  a command  and its  argument is
-required because it improves readability:
-
-    d_
-    ^^
-    what's this "_"? is it part of the command name
-
-    d _
-      ^
-      ok, it's not part of the command name, so it must be an argument
-
-Unless we can  find another example where  the space between a  command name and
-its argument prevents an issue...
-
-##
 ## ?
 ```vim
 def Func()
@@ -1540,7 +1324,7 @@ enddef
 let s:d = {}
 call Func()
 ```
-    ✔
+    no error
 
 The error in the first snippet looks weird.
 Shouldn't it be:
@@ -1630,14 +1414,14 @@ def Func()
 enddef
 defcompile
 ```
-    ✔
+    no error
 ```vim
 vim9
 if exists('name')
     echo name
 endif
 ```
-    ✔
+    no error
 
 Why an error in the first snippet?
 
@@ -1652,7 +1436,7 @@ enddef
 var name: string
 defcompile
 ```
-    ✔
+    no error
 
 Update: I  don't think  it's a  bug.   I think  you  should rarely  if ever  use
 `exists()` (or `get()`) with a script-local  variable.
@@ -2542,61 +2326,6 @@ FuncWithForwardCall()
     ^---------^
         bug?
 
-##
-## ?
-
-Vim9: cannot use "true" for "border" key in "{opts}" dictionary of "popup_create()"
-
-**Describe the bug**
-
-In Vim9 script, we cannot use `true` for the `border` key in the `{opts}` dictionary of `popup_create()`.
-
-**To Reproduce**
-
-Run this shell command:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9
-        popup_create('', {border: [false, true, false, true]})
-    EOF
-    )
-
-`E1138` is raised 4 times:
-
-    E1138: Using a Bool as a Number
-
-**Expected behavior**
-
-No error is raised.
-
-**Environment**
-
- - Vim version: 8.2 Included patches: 1-2081
- - OS: Ubuntu 16.04.7 LTS
- - Terminal: xterm(362)
-
-**Additional context**
-
-Regression introduced in 8.2.1465.
-
----
-
-Same issue with the `cursorline` key:
-```vim
-vim9
-popup_create('', {cursorline: true})
-```
-    E475: Invalid value for argument cursorline
-
-Although, the error is different, and it's not a regression (at least not the same one).
-Still, IMO it should work.
-
----
-
-Send a patch fixing the issue with a test.
-To get some help, see how this commit fixed a similar issue:
-<https://github.com/vim/vim/commit/6c542f77eba73a95447f285149b3fcb011aa9675>
-
 ## ?
 
 Source this:
@@ -2626,55 +2355,6 @@ removed.  I  guess that  right before  sourcing a script,  Vim first  clears the
 script-local namespace.
 But what is weird is that Vim does not look in the global namespace anymore.
 Why?
-
-##
-## ?
-```vim
-vim9
-def Func()
-    var s:d = 123
-enddef
-defcompile
-```
-    E1101: Cannot declare a script variable in a function: s:d
-```vim
-vim9
-def Func()
-    s:d = 123
-enddef
-defcompile
-```
-    E1089: unknown variable: s:d
-
-Why can we define a variable with any scope in a `:def` function, *except* with the scope `s:`?
-Is this documented?
-
-Update: Yes, it's documented at `:h :def`:
-
-   > If the script the function is defined in is Vim9 script, then script-local
-   > variables can be accessed without the "s:" prefix.  **They must be defined**
-   > **before the function is compiled.**
-
-This behavior was introduced in 8.2.1320.
-But  the commit  message does  not  seem to  have  the goal  of disallowing  the
-definition of a  script-local variable in a `:def` function.   Does this suggest
-it's a regression?
-
-When was the quoted sentence in bold added to the help?
-Before or after 8.2.1320?
-If it was before, then it could be a regression.
-Update: I think this paragraph was added in 8.2.0294.
-
-Update: Actually, this behavior was not introduced in 8.2.1320.
-On 8.2.1319, an error was already raised; although a different one:
-
-    E1054: Variable already declared in the script: s:var
-
-This error was raised starting from 8.2.0285.
-
----
-
-I don't think it's a bug.  But you should document it in our notes.
 
 ## Vim9: cannot use the s: namespace in a :def function
 
@@ -2780,26 +2460,25 @@ It might be documented at `:h :def`:
 But there's nothing  in there which says that we  cannot access the script-local
 dictionary.
 
-##
 ## ?
 ```vim
 vim9
-var s:d = {'key': 0}
-var s:d.key = 123
+var s:d = {k: 0}
+var s:d.k = 1
 ```
-    ✔
+    E1017: Variable already declared: s:d.k = 1
 ```vim
 vim9
-var s:d = {'key': 0}
+var s:d = {k: 0}
 def Func()
-    var s:d.key = 123
+    var s:d.k = 1
 enddef
 defcompile
 ```
     E1101: Cannot declare a script variable in a function: s:d
 
 I'm not trying to declare a script variable; I'm trying to add a key in a dictionary.
-The error message is misleading.  Bug?
+The error messages are misleading.  Bug?
 
 ## ?
 
@@ -2867,6 +2546,7 @@ A()
     E684: list index out of range: 0
 
 `still running` was not executed, which seems correct.  Now, watch this:
+Update: Nope; now `still running` *is* executed.  Did it change?
 ```vim
 fu A() abort
     call B()
@@ -2885,8 +2565,7 @@ You  can fix  the issue  by defining  `B()` with  abort, but  why the  different
 behavior?  Should it be  fixed?  Maybe it's a bug which  cannot be fixed because
 of backwards compatibility.
 
-##
-## bug: imported constants and variables not added to the "s:" dictionary
+## imported constants and variables not added to the "s:" dictionary
 
     imported constant
 ```vim
@@ -3655,34 +3334,6 @@ Send a patch.
 
 ## ?
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9
-        def Func( # comment
-            a: any,
-            b: any
-            e: any,
-            f: any
-            )
-            echo 123
-        enddef
-        Func()
-    EOF
-    )
-
-These errors are noisy and confusing:
-
-    E475: Invalid argument:  # comment
-    E121: Undefined variable: f
-    E492: Not an editor command:         )
-    E193: :enddef not inside a function
-    E117: Unknown function: Func
-
-The noise could be  fixed once Vim aborts sourcing a script as  soon as an error
-is raised.  But could Vim tell us that we forgot a comma at the end of the `b: any`
-line?
-
-## ?
-
 <https://github.com/vim/vim/issues/7646#issuecomment-757297388>
 
 The original  report was not  a bug, but what  about the inconsistencies  at the
@@ -3739,66 +3390,6 @@ Is it a bug?
 
 ## ?
 
-In Vim9 script, we cannot put a comment on the header
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9
-        def Func( # some comment
-            n: number,
-            ...l = []
-            )
-        enddef
-    EOF
-    )
-
-    E475: Invalid argument:  # some comment
-
-The issue is that you can't assign a default value to unnamed optional arguments:
-
-    ...l: any = []
-              ^--^
-               ✘
-
-I don't think it's a bug, however, the error message is confusing.
-It looks like the issue comes from  the comment, while the latter has nothing to
-do with the issue.
-
-I think there should  be a proper error number for this kind  of mistake, with a
-proper error line number.
-
-## ?
-```vim
-vim9
-def GetExpansion(...l: any): string
-    return 'bbb'
-enddef
-def Func()
-    var abbr = 'aaa'
-    exe 'inorea <silent> ' .. abbr
-         .. ' <c-r>=<sid>ExpandAdj(' .. string(abbr)
-         .. ', ' .. GetExpansion(abbr,'adj')->string() .. ')<cr>'
-enddef
-Func()
-```
-    E1069: White space required after ','
-
-This is expected, but the error message is not specific enough.
-Where is the whitespace missing?
-
-It's here:
-
-    .. ', ' .. GetExpansion(abbr,'adj')->string() .. ')<cr>'
-                                ^
-                                ✘
-
-Not easy to find.  Especially because there is another comma before.
-
-    .. ', ' .. GetExpansion(abbr,'adj')->string() .. ')<cr>'
-        ^
-        irrelevant
-
-## ?
-
 This commit tried  to make it possible to  assign the output of a  function to a
 boolean variable, if it can only return a boolean number:
 
@@ -3816,7 +3407,7 @@ Also, try to write tests:
 
 Make sure to also generate snippets to test builtin functions at the script level.
 
----
+## ?
 
 <https://github.com/vim/vim/issues/7759#issuecomment-770317126>
 
@@ -3830,6 +3421,44 @@ echo str2float(123)
 An error should be raised at compile time:
 
     E1013: Argument 1: type mismatch, expected string but got number
+
+## ?
+```vim
+vim9
+
+eval # some comment
+```
+    E121: Undefined variable: #
+
+I think a different error should be raised.  Maybe `E1143`?
+```vim
+vim9
+
+def Func()
+    eval # some comment
+enddef
+defcompile
+```
+    E1143: Empty expression: "# some comment"
+```vim
+vim9
+
+def Func()
+    eval # some comment
+enddef
+defcompile
+```
+    E1143: Empty expression: "# some comment"
+
+## ?
+```vim
+vim9
+echo 'string'->((s) => strlen(s))()
+```
+    6
+
+Notice how  we need  extra parens around  the lambda's body  when using  the new
+syntax.  It seems obvious, but I don't think it's documented.
 
 ## unexpected E1095 when unclosed string below :return
 ```vim
@@ -4642,6 +4271,117 @@ But they seem irrelevant...
         the ATTENTION message shows up.  Servatius Brandt works on this.
 
 ##
+# Popups
+## [NULL] in E937 is confusing
+```vim
+vim9
+var what: list<string> = ['foo', 'bar', 'baz']
+var opts: dict<any> = {
+    line: 5,
+    col: 10,
+    minwidth: 20,
+    maxwidth: 20,
+    minheight: 15,
+    maxheight: 15,
+    highlight: 'Visual',
+    }
+popup_create(what, opts)
+:%bd
+```
+    E937: Attempt to delete a buffer that is in use: [NULL]
+
+The  error  message would  be  less  confusing  if  `[NULL]` was  replaced  with
+`[Popup]`, which is the name given to popup buffers in the output of `:ls`.
+
+## cannot hide popup attached to text property
+```vim
+vim9
+setline(1, 'some text')
+prop_type_add('textprop', {})
+prop_add(1, 9, {type: 'textprop', length: 5})
+var id = popup_create('attached to "text"', {
+    textprop: 'textprop',
+    highlight: 'ErrorMsg',
+    line: -1,
+    })
+popup_hide(id)
+```
+
+## Improve `:h popup-examples /TODO`
+
+   > TODO: more interesting examples
+
+What about a mapping which allows to annotate?
+Useful while reading the Vim user manual.
+It could illustrate how to replicate the virtual text feature in Vim.
+The example should  automatically create an editable copy of  a user manual page
+(similar to vimtutor):
+
+    new | r $VIMRUNTIME/doc/usr_01.txt
+
+If the  code gets too complex,  maybe we could  write a small package  (like for
+`:Cfilter`) and submit a PR.
+
+Update: It's an interesting idea, but not for virtual text.
+An annotation might be too long for an end of line.
+
+I have another idea: a command which adds virtual text based on the qf list.
+
+    vim9
+    helpg foobar
+    def Func()
+        var qfl = getqflist()
+        var i = 1
+        for entry in qfl
+            prop_type_add('markendofline' .. i, {})
+            prop_add(entry.lnum, col([entry.lnum, '$']), {type: 'markendofline' .. i})
+            popup_create(entry.text, {
+                textprop: 'markendofline' .. i,
+                highlight: 'ErrorMsg',
+                line: -1,
+                col: 2,
+                zindex: 49,
+                })
+            i += 1
+        endfor
+    enddef
+    Func()
+
+## ?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9
+        set lines=24
+        var opts = {
+            line: 13,
+            minheight: 10,
+            maxheight: 10,
+            border: [],
+            }
+        popup_create(['aaa', 'bbb', 'ccc'], opts)
+    EOF
+    )
+
+Notice how the bottom of the popup reaches the bottom of the terminal window.
+Now, let's increment `line` by 1:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9
+        set lines=24
+        var opts = {
+            line: 14,
+            minheight: 10,
+            maxheight: 10,
+            border: [],
+            }
+        popup_create(['aaa', 'bbb', 'ccc'], opts)
+    EOF
+    )
+
+Notice how the popup unexpectedly starts from the top of the terminal window.
+Is it documented or is it a bug?
+
+##
 # Misc.
 ## highlighting
 ### `->`, `(`, `)` in `:echo` command
@@ -4892,13 +4632,13 @@ index 750448dfc..6ab09b6e5 100644
 --- a/runtime/doc/eval.txt
 +++ b/runtime/doc/eval.txt
 @@ -1572,7 +1572,7 @@ Note how execute() is used to execute an Ex command.  That's ugly though.
- 
+
  Lambda expressions have internal names like '<lambda>42'.  If you get an error
  for a lambda expression, you can find what it is with the following command: >
 -	:function {'<lambda>42'}
 +	:function <lambda>42
  See also: |numbered-function|
- 
+
  ==============================================================================
 ```
 ## ?
@@ -5036,224 +4776,6 @@ index 162430ecd..b33fbd600 100644
 Btw, why `:silent` before `:windo doau CursorMoved`?
 It comes from this commit:
 <https://github.com/vim/vim/commit/01164a6546b4c635daf96a1f17d1cb2d07f32a66>
-
-## ?
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9
-        set lines=24
-        var opts = {
-            line: 13,
-            minheight: 10,
-            maxheight: 10,
-            border: [],
-            }
-        popup_create(['aaa', 'bbb', 'ccc'], opts)
-    EOF
-    )
-
-Notice how the bottom of the popup reaches the bottom of the terminal window.
-Now, let's increment `line` by 1:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9
-        set lines=24
-        var opts = {
-            line: 14,
-            minheight: 10,
-            maxheight: 10,
-            border: [],
-            }
-        popup_create(['aaa', 'bbb', 'ccc'], opts)
-    EOF
-    )
-
-Notice how the popup unexpectedly starts from the top of the terminal window.
-Is it documented or is it a bug?
-
-## Improve `:h popup-examples /TODO`
-
-   > TODO: more interesting examples
-
-What about a mapping which allows to annotate?
-Useful while reading the Vim user manual.
-It could illustrate how to replicate the virtual text feature in Vim.
-The example should  automatically create an editable copy of  a user manual page
-(similar to vimtutor):
-
-    new | r $VIMRUNTIME/doc/usr_01.txt
-
-If the  code gets too complex,  maybe we could  write a small package  (like for
-`:Cfilter`) and submit a PR.
-
-Update: It's an interesting idea, but not for virtual text.
-An annotation might be too long for an end of line.
-
-I have another idea: a command which adds virtual text based on the qf list.
-
-    vim9
-    helpg foobar
-    def Func()
-        var qfl = getqflist()
-        var i = 1
-        for entry in qfl
-            prop_type_add('markendofline' .. i, {})
-            prop_add(entry.lnum, col([entry.lnum, '$']), {type: 'markendofline' .. i})
-            popup_create(entry.text, {
-                textprop: 'markendofline' .. i,
-                highlight: 'ErrorMsg',
-                line: -1,
-                col: 2,
-                zindex: 49,
-                })
-            i += 1
-        endfor
-    enddef
-    Func()
-
----
-
-Base your work on this code:
-```vim
-vim9
-def AddVirtualText()
-    var lines =<< trim END
-        fn main() {
-            println!("Hello, world!");
-        }
-
-        fn add(a: u32, b: u32) -> u32 {
-            a + b
-        }
-
-        fn sub(a: u32, b: u32) -> u32 {
-            a - b
-        }
-    END
-    setline(1, lines)
-
-    for [lnum, col, length, virtual_text]
-        in [[5, 4, 3, 'function is never used: `add`^@`#[warn(dead_code)]` on by default'],
-            [9, 4, 3, 'function is never used: `sub`']]
-        prop_type_add('virtualText' .. lnum, {})
-        prop_add(lnum, col, {
-            type: 'virtualText' .. lnum,
-            length: length,
-            })
-        var offset = 2
-        var left_padding = col([lnum, '$']) - col + length + offset
-        popup_create(virtual_text, {
-            textprop: 'virtualText' .. lnum,
-            highlight: 'Comment',
-            line: -1,
-            col: offset,
-            zindex: 50 - 1,
-            wrap: false,
-            mask: [[1, left_padding, 1, 1]],
-            padding: [0, 0, 0, left_padding],
-            pos: 'topright',
-            })
-    endfor
-enddef
-AddVirtualText()
-```
----
-
-How about a library function to simplify adding virtual text:
-```vim
-vim9
-var lines: list<string> =<< trim END
-    I met a traveller from an antique land,
-    Who said—“Two vast and trunkless legs of stone
-    Stand in the desert. . . . Near them, on the sand,
-    Half sunk a shattered visage lies, whose frown,
-    And wrinkled lip, and sneer of cold command,
-    Tell that its sculptor well those passions read
-    Which yet survive, stamped on these lifeless things,
-    The hand that mocked them, and the heart that fed;
-    And on the pedestal, these words appear:
-    My name is Ozymandias, King of Kings;
-    Look on my Works, ye Mighty, and despair!
-    Nothing beside remains. Round the decay
-    Of that colossal Wreck, boundless and bare
-    The lone and level sands stretch far away.”
-END
-setline(1, lines)
-set ruler
-
-var lnum2popup_id: dict<dict<number>> = {}
-
-def AddVirtualText(props: dict<any>): number
-    var lnum: number = props.lnum
-    var col: number = props.col
-    var length: number = props.length
-    var text: string = props.text
-    var highlight_text: string = has_key(props, 'highlight_text')
-        ? props.highlight_text
-        : 'Normal'
-    var highlight_virtualtext: string = has_key(props, 'highlight_virtualtext')
-        ? props.highlight_virtualtext
-        : 'Normal'
-    if has_key(props, 'highlight_virtualtext')
-        highlight_virtualtext = props.highlight_virtualtext
-    endif
-
-    var buf: number = bufnr('%')
-    if prop_type_list({bufnr: buf})->index('virtualText' .. lnum) == -1
-        prop_type_add('virtualText' .. lnum, {bufnr: buf, highlight: highlight_text})
-    endif
-    if has_key(lnum2popup_id, buf) && has_key(lnum2popup_id[buf], lnum)
-        popup_close(lnum2popup_id[buf][lnum])
-    endif
-    prop_add(lnum, col, {
-        type: 'virtualText' .. lnum,
-        length: length,
-        bufnr: buf,
-        })
-    var left_padding: number = col([lnum, '$'])
-    var popup_id: number = popup_create(text, {
-        textprop: 'virtualText' .. lnum,
-        highlight: highlight_virtualtext,
-        line: -1,
-        wrap: false,
-        pos: 'topright',
-        })
-    if !has_key(lnum2popup_id, buf)
-        extend(lnum2popup_id, {[buf->string()]: {}})
-    endif
-    extend(lnum2popup_id[buf], {[lnum->string()]: popup_id})
-    return popup_id
-enddef
-var ozymandias_pos: list<number> = searchpos('Ozymandias')
-AddVirtualText({
-    lnum: ozymandias_pos[0],
-    col: ozymandias_pos[1],
-    length: 10,
-    text: 'Greek name for Ramesses II, pharaoh of Egypt',
-    highlight_text: 'Search',
-    highlight_virtualtext: 'MoreMsg',
-    })
-```
-Issue: If you  insert text on  the line where there  is virtual text,  some real
-text at the end of the line disappears behind the virtual text.
-I *think* that's because `left_padding` needs to be updated.
-We would need to re-invoke the function every time we insert or remove text on a
-line where there is virtual text.  We could try an autocmd:
-
-    au TextChanged,TextChangedI,TextChangedP * AddVirtualText({
-        \ lnum: ozymandias_pos[0],
-        \ col: ozymandias_pos[1],
-        \ length: 10,
-        \ text: 'Greek name for Ramesses II, pharaoh of Egypt',
-        \ highlight_text: 'Search',
-        \ highlight_virtualtext: 'MoreMsg',
-        \ })
-
-But this one is wrong; because `ozymandias_pos` might also need to be updated.
-
-If  you  end up  with  some  good  code, maybe  it  would  be  nice for  Vim  to
-provide  it  via  a  builtin  wrapper  function,  similar  to  `popup_dialog()`,
-`popup_notification()`, ... We could name it `popup_virtual_text()`?
 
 ## searchcount() can make Vim lag when the buffer contains a very long line
 

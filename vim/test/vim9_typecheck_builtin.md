@@ -92,6 +92,7 @@ Source this script to generate snippets for the `abs()` function:
         endfor
     enddef
     GenerateSnippets('abs')
+    qa!
 
 Run this shell command to test each snippet:
 
