@@ -3,7 +3,7 @@ possible types of values.
 
 We need to test these functions:
 
-    vim9
+    vim9script
 
     var IsCustomFunc: func = (v) => v[0] !~ '[a-z]'
     var AcceptArg: func = (v) => v[-1] == '('
@@ -32,7 +32,7 @@ Let's start with the first ten ones:
 
 Source this script to generate snippets for the `abs()` function:
 
-    vim9
+    vim9script
     const TESTDIR: string = '/tmp/test'
     delete(TESTDIR, 'rf')
     def GenerateSnippets(funcname: string)
@@ -52,7 +52,7 @@ Source this script to generate snippets for the `abs()` function:
           'job_start('':'')->job_getchannel()',
           ]
             lines = [
-                'vim9',
+                'vim9script',
                 printf('echom "%s"', 'in def function'),
                 printf('echom "%s(%s) = "', funcname, value),
                 'echom " "'
@@ -78,7 +78,7 @@ Source this script to generate snippets for the `abs()` function:
                 scriptname,
                 ))
             lines = [
-                'vim9',
+                'vim9script',
                 printf('echom "%s"', 'at script level'),
                 printf('echom "%s(%s) = "', funcname, value),
                 'echom " "'

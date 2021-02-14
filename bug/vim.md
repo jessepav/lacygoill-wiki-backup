@@ -678,77 +678,6 @@ Also, we can't provide a flag to some commands like `:g`...
 ##
 ## ?
 
-   - <https://vi.stackexchange.com/questions/21423/is-it-possible-to-replace-tildes-representing-empty-lines-with-another-character>
-   - <https://vi.stackexchange.com/questions/28994/can-i-change-the-ugly-indicator-after-eol>
-
-   [8.2.2508](https://github.com/vim/vim/releases/tag/v8.2.2508)  cannot change the character displayed in non existing lines
-
-## ?
-
-Vim9: a function argument name with "->" in the next line doesn't work
-```vim
-vim9
-def Func(_arg: string)
-    _arg
-        ->setline(1)
-enddef
-Func('string')
-```
-    E476: Invalid command: _arg
-```vim
-vim9
-def Func(arg: string)
-    arg
-        ->setline(1)
-enddef
-Func('string')
-```
-    E1050: Colon required before a range: ->setline(1)
-
-Both these snippets are wrong.  No error should be raised.
-Just like here, no error is raised:
-```vim
-vim9
-def Func()
-    var _arg = 'string'
-    _arg
-        ->setline(1)
-enddef
-Func()
-```
-```vim
-vim9
-def Func()
-    var arg = 'string'
-    arg
-        ->setline(1)
-enddef
-Func()
-```
-Related issue: <https://github.com/vim/vim/issues/7770>
-
-## ?
-```vim
-vim9
-{a: 1, b: 2, c: 3}
-    ->setline(1)
-```
-    no error
-```vim
-vim9
-{
-    a: 1, b: 2, c: 3}
-    ->setline(1)
-```
-    E121: Undefined variable: a:
-
-This is confusing.
-If the second snippet has to fail, then the first one should fail too.
-IOW, using parentheses – to disambiguate the  a dictionary from a block – should
-be enforced.
-
-## ?
-
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9
         def Func( # comment
@@ -912,49 +841,6 @@ required because it improves readability:
 
 Unless we can  find another example where  the space between a  command name and
 its argument prevents an issue...
-
-## ?
-
-Cannot easily break dictionary member accessed via multiple keys:
-```vim
-vim9
-var d = {a: {b: {c: 0}}}
-d
-['a']
-['b']
-['c'] =
-123
-echo d
-```
-    E475: Invalid argument: 'c'] =
-    E1050: Colon required before a range: 123
-```vim
-vim9
-var d = {a: {b: {c: 0}}}
-d
-.a
-.b
-.c =
-123
-echo d
-```
-    E15: Invalid expression: d
-    line    7:
-    E1050: Colon required before a range: 123
-
-`.` could be considered as a binary operator whose operands are a dictionary and a key.  Under that view, one would expect to be able to break the expression before the dot, just like we can with any other binary operator like `..`, `+`, ...
-
-> For binary operators in expressions not in [], {} or () a line break is
-> possible just before or after the operator.  For example: >
->         var text = lead
->                    .. middle
->                    .. end
->         var total = start +
->                     end -
->                     correction
->         var result = positive
->                         ? PosFunc(arg)
->                         : NegFunc(arg)
 
 ## ?
 ```vim

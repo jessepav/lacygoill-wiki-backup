@@ -1702,7 +1702,7 @@ This time, the message "all the script is sourced" is not printed.
 Use its third optional argument.
 Give it the value `custom,CompletionFunc`.
 
-    vim9
+    vim9script
     def CompleteWords(_a: any, _l: any, _p: any): string
         return getline(1, '$')
             ->join(' ')
@@ -1943,7 +1943,7 @@ try | unknown | catch | endtry
 
 This can even change the logic of your code.
 ```vim
-vim9
+vim9script
 var files = ['/tmp/do_NOT_delete_me', '/tmp/delete_me']
 writefile([], files[0])
 writefile([], files[1])
@@ -2051,7 +2051,7 @@ This matters if:
 
 In that case, you will need `deepcopy()` + `map()`:
 ```vim
-vim9
+vim9script
 var ld = [{x: 12}]
 mapnew(ld, (_, v) => extend(v, {y: 34}))
 echo ld
@@ -2060,7 +2060,7 @@ echo ld
              ^-------^
                  ✘
 ```vim
-vim9
+vim9script
 var ld = [{x: 12}]
 deepcopy(ld)->map((_, v) => extend(v, {y: 34}))
 echo ld
@@ -2070,7 +2070,7 @@ echo ld
 
 But not if you just *replace* the items:
 ```vim
-vim9
+vim9script
 var ld = [{x: 12}]
 mapnew(ld, () => 0)
 echo ld

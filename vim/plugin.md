@@ -2108,6 +2108,12 @@ The main use cases are:
 
 <https://github.com/maxigit/vim-xrange> 789 sloc
 
+## yadi
+
+Yet Another Detect Indent.
+
+<https://github.com/timakro/vim-yadi> 63 sloc
+
 ##
 # Abolish
 

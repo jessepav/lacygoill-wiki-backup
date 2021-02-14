@@ -1517,7 +1517,7 @@ In a terminal, run this:
 In a second terminal, run this:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9
+        vim9script
         set directory=$HOME/.vim/tmp/swap//
         au SwapExists * v:swapchoice = 'o'
         def Func()
