@@ -679,6 +679,53 @@ Also, we can't provide a flag to some commands like `:g`...
 ## ?
 
     $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def Func(): func(any): dict<any>
+            return () => ({})
+        enddef
+        defcompile
+    EOF
+    )
+
+    E1012: Type mismatch; expected func(any): dict<any> but got func(): dict<unknown>
+                                                                             ^-----^
+
+Shouldn't it be rather:
+
+    E1012: Type mismatch; expected func(any): dict<any> but got func(): dict<any>
+                                                                             ^^^
+
+---
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var Ref: func(): dict<any> = () => ({})
+    EOF
+    )
+
+    E1012: Type mismatch; expected func(): dict<any> but got func(): any
+                                                                     ^^^
+
+Shouldn't it be rather:
+
+    E1012: Type mismatch; expected func(): dict<any> but got func(): dict<any>
+                                                                     ^^^^^^^^^
+
+Update: Actually, why is there an error in the first place?
+
+The exact same code doesn't raise any error in a `:def` function:
+```vim
+vim9script
+def Func()
+    var Ref: func(): dict<any> = () => ({})
+enddef
+Func()
+```
+Relevant issue: <https://github.com/vim/vim/issues/7843>
+
+## ?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
         vim9
         def Func( # comment
             a: any,
@@ -4064,6 +4111,24 @@ should be used here too.
 
 Actually, I think you can also use any item defined in the `b:`, `t:`, and `w:` namespace;
 but not one defined in the `s:` namespace.
+
+### 1030
+
+   > One consequence is that the item type of a list or dict given to map() must
+   > not change.  This will give an error **in compiled code**: >
+   > 	map([1, 2, 3], (i, v) => 'item ' .. i)
+   > 	E1012: Type mismatch; expected **list<number> but got list<string>**
+   > Instead use |mapnew()|.
+
+It should be:
+
+   > One consequence is that the item type of a list or dict given to map() must
+   > not change.  This will give an error **at runtime**: >
+   > 	map([1, 2, 3], (i, v) => 'item ' .. i)
+   > 	E1012: Type mismatch; expected **number but got string**
+   > Instead use |mapnew()|.
+
+Also, maybe we should mention `extendnew()` and `flattennew()`.
 
 ### ?
 
