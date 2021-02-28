@@ -1,18 +1,18 @@
 # get info about someone
 ## How to query information about user(s)?
 
-        /whois  [<nick>[,<nick>...]]
-                  │
-                  └ may be a mask
+    /whois  [<nick>[,<nick>...]]
+              │
+              └ may be a mask
 
 ## What happens when you use the previous command without any argument?
 
 Without argument, `/whois` will target:
 
-        - your own nick if the current buffer belongs to a network/channel
+   - your own nick if the current buffer belongs to a network/channel
 
-        - the remote nick if the current buffer is a private one
-          (discussion between 2 people)
+   - the remote nick if the current buffer is a private one
+     (discussion between 2 people)
 
 ##
 # nicklist bar
@@ -24,41 +24,41 @@ Press `F11` or `F12`.
 # my nick
 ## How to change it for the current network?   For all networks on which I'm connected?
 
-        /nick        my_new_nick
-        /nick  -all  my_new_nick
+    /nick        my_new_nick
+    /nick  -all  my_new_nick
 
 ##
 # ignore people
 ## How to ignore the nick 'toto'?
 
-        /ignore add toto
+    /ignore add toto
 
 ## How to ignore the host 'toto@domain.com' on the network freenode?
 
-        /ignore add toto@domain.com freenode
+    /ignore add toto@domain.com freenode
 
 ## How to ignore the host 'toto@domain.com' on the channel #weechat on the network freenode?
 
-        /ignore add toto*@*.domain.com freenode #weechat
+    /ignore add toto*@*.domain.com freenode #weechat
 
 ## How to ignore all nicks beginning with 'toto'?   (with and without a regex)
 
-                    ┌ the following text is not a literal nick/hostname;
-                    │ it's a regex
-                    ├─┐
-        /ignore add re:toto.*
-                       ├────┘
-                       └ POSIX extended regular expression
+                ┌ the following text is not a literal nick/hostname;
+                │ it's a regex
+                ├─┐
+    /ignore add re:toto.*
+                   ├────┘
+                   └ POSIX extended regular expression
 
-        /ignore add toto*
-                    ├───┘
-                    └ mask (!= regex)
+    /ignore add toto*
+                ├───┘
+                └ mask (!= regex)
 
 In a mask, `*` can match 0 or more characters.
 
 ## How to ignore all nicks beginning with 'toto', case-sensitively?
 
-        /ignore add re:(?-i)toto.*
+    /ignore add re:(?-i)toto.*
 
 FIXME: It doesn't work.
 Why?
@@ -67,24 +67,24 @@ case-sensitive.
 
 ## What's the general syntax of the `/ignore add` command?
 
-        /ignore add [re:]<nick> [<network> [<#channel>]]
+    /ignore add [re:]<nick> [<network> [<#channel>]]
 
 ###
 ## How to list all the nicks ignored?
 
-        /ignore list
+    /ignore list
 
 ###
 ## How to remove a nick from my ignore list?
 
-        # note the id of the entry you want to remove
-        /ignore list
+    # note the id of the entry you want to remove
+    /ignore list
 
-        /ignore del <id>
+    /ignore del <id>
 
 ## How to empty my ignore list?
 
-        /ignore del -all
+    /ignore del -all
 
 ##
 # Issues

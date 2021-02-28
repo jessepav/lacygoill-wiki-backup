@@ -22,10 +22,10 @@ If the page is written in russian, click on the button labeled 'EN' in the toolb
     /server irc.irchighway.net
     /j #ebooks
 
-Maybe wait 30 seconds after joining to send to channel.
+Maybe wait 30 seconds after joining to send to the channel.
 Run `@search your_book_title` to get a list of results in a zip archive.
 Unzip the archive, and search a line containing the book you're looking for.
-Finally, copy the bang command, and run in the channel.
+Finally, copy the bang command, and run it in the channel.
 Example:
 
     !temerut Nick Cutter - The Troop (epub).rar
@@ -44,52 +44,52 @@ For more info, see:
 
 Google custom search using this list of predefined urls: <http://pastebin.com/62tKNmm1>
 
-   - <http://gen.lib.rus.ec/*>
-   - <http://en.bookfi.org/*>
-   - <http://bookzz.org/*>
-   - <http://forum.mobilism.org/*>
-   - <http://tuebl.ca/books/*>
-   - <http://avxhome.se/ebooks/*>
-   - <http://www.4shared.com/*>
-   - <http://mediafire.com/*>
-   - <http://ipmart-forum.com/*>
-   - <http://ebook3000.com/*>
-   - <http://freebookspot.es/*>
-   - <http://demonoid.ph/*>
-   - <http://ebookee.org/*>
-   - <http://kat.cr/*>
-   - <http://www.downeu.org/ebook/*>
-   - <https://onebigtorrent.org/torrents/*>
-   - <http://manybooks.net/titles/*>
-   - <http://freshwrap.ws/*>
-   - <http://www.plentyofebooks.net/*>
-   - <http://book.pdfchm.net/*>
-   - <http://www.freebookspot.es/*>
-   - <http://www.feedurbrain.com/forum/*>
-   - <http://ebookbrowsee.net/*>
-   - <http://2020ok.com/books/*>
-   - <http://librs.net/*>
-   - <http://thepiratebay.la/torrent/*>
-   - <http://bitsnoop.com/*>
-   - <http://www.giuciao.com/books/*>
-   - <http://books.tr200.org/*>
-   - <http://booksc.org/*>
-   - <http://club.topsage.com/*>
-   - <http://ebookjunkie.com/*>
-   - <http://nips.djvuzone.org/*>
-   - <http://pdf-giant.com/*>
-   - <http://manybooks.net/*>
-   - <https://www.scribd.com/*>
-   - <http://freecomputerbooks.com/*>
-   - <http://www.freetechbooks.com/*>
-   - <http://www.onlinefreeebooks.net/*>
-   - <http://www.onlineprogrammingbooks.com/*>
-   - <http://www.ebooklobby.com/*>
-   - <http://bookboon.com/*>
-   - <https://www.reddit.com/r/eebooks/*>
-   - <https://www.reddit.com/r/mathbooks/*>
-   - <https://www.reddit.com/r/csbooks/*>
-   - <https://www.reddit.com/r/physicsbooks/*>
+   - <http://gen.lib.rus.ec/>
+   - <http://en.bookfi.org/>
+   - <http://bookzz.org/>
+   - <http://forum.mobilism.org/>
+   - <http://tuebl.ca/books/>
+   - <http://avxhome.se/ebooks/>
+   - <http://www.4shared.com/>
+   - <http://mediafire.com/>
+   - <http://ipmart-forum.com/>
+   - <http://ebook3000.com/>
+   - <http://freebookspot.es/>
+   - <http://demonoid.ph/>
+   - <http://ebookee.org/>
+   - <http://kat.cr/>
+   - <http://www.downeu.org/ebook/>
+   - <https://onebigtorrent.org/torrents/>
+   - <http://manybooks.net/titles/>
+   - <http://freshwrap.ws/>
+   - <http://www.plentyofebooks.net/>
+   - <http://book.pdfchm.net/>
+   - <http://www.freebookspot.es/>
+   - <http://www.feedurbrain.com/forum/>
+   - <http://ebookbrowsee.net/>
+   - <http://2020ok.com/books/>
+   - <http://librs.net/>
+   - <http://thepiratebay.la/torrent/>
+   - <http://bitsnoop.com/>
+   - <http://www.giuciao.com/books/>
+   - <http://books.tr200.org/>
+   - <http://booksc.org/>
+   - <http://club.topsage.com/>
+   - <http://ebookjunkie.com/>
+   - <http://nips.djvuzone.org/>
+   - <http://pdf-giant.com/>
+   - <http://manybooks.net/>
+   - <https://www.scribd.com/>
+   - <http://freecomputerbooks.com/>
+   - <http://www.freetechbooks.com/>
+   - <http://www.onlinefreeebooks.net/>
+   - <http://www.onlineprogrammingbooks.com/>
+   - <http://www.ebooklobby.com/>
+   - <http://bookboon.com/>
+   - <https://www.reddit.com/r/eebooks/>
+   - <https://www.reddit.com/r/mathbooks/>
+   - <https://www.reddit.com/r/csbooks/>
+   - <https://www.reddit.com/r/physicsbooks/>
    - <https://www.reddit.com/r/econbooks/>
 
 ## See also

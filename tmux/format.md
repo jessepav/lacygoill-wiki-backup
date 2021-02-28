@@ -996,6 +996,11 @@ TODO: Read this: <https://github.com/tmux/tmux/issues/2179#issuecomment-61902569
     $ tmux display -a
 
 ###
+### loaded configuration files
+
+    $ tmux display -p '#{config_files}'
+
+###
 ### clients attached to the running tmux server?
 
     $ tmux lsc

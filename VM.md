@@ -744,11 +744,11 @@ Its child.
 ##
 ## How to list all snapshots of the VM?
 
-        $ VBoxManage snapshot ubuntu list
+    $ VBoxManage snapshot ubuntu list
 
 ## How to view the VM settings that were stored with the snapshot?
 
-        $ VBoxManage snapshot ubuntu showvminfo snap1
+    $ VBoxManage snapshot ubuntu showvminfo snap1
 
 This is useful because the VM settings may change from a snapshot to another.
 
@@ -786,12 +786,12 @@ Alternatively, you can press Host + t.
 
 ## How to change the name or the description of the snapshot 'foo'?
 
-                                          ┌ if 'foo' is the current snapshot,
-                                          │ you could also use `--current`
-                                          │
-        $ VBoxManage snapshot ubuntu edit foo \
-            --name 'new name' \
-            --description 'new description'
+                                      ┌ if 'foo' is the current snapshot,
+                                      │ you could also use `--current`
+                                      │
+    $ VBoxManage snapshot ubuntu edit foo \
+        --name 'new name' \
+        --description 'new description'
 
 ##
 # To read

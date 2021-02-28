@@ -563,47 +563,47 @@ Comment savoir quel serveur de clés utiliser ?
 - <https://www.reddit.com/r/linux/comments/mi80x/give_me_that_one_command_you_wish_you_knew_years/>
 - <https://www.reddit.com/r/linux/comments/389mnk/what_are_your_favourite_not_well_known_cli/>
 
+---
 
 What is a bitmask and a mask?
-        https://stackoverflow.com/a/31576303
+<https://stackoverflow.com/a/31576303>
 
+---
 
 Lire toute la documentation de:
 
-        - fasd
-        - fzf
-        - ifne
-        - ranger
-        - rofi
-        - strace
-        - xsel (`xsel <file`:  écrit file dans le presse-papier)
-        - utilitaires fournis par le paquet moreutils
+   - fasd
+   - fzf
+   - ifne
+   - ranger
+   - rofi
+   - strace
+   - xsel (`xsel <file`:  écrit file dans le presse-papier)
+   - utilitaires fournis par le paquet moreutils
 
+---
 
+<https://github.com/peco/peco>
 
-    https://github.com/peco/peco
+Alternative à fzf:
 
-            Alternative à fzf:
+   - a l'air plus configurable
+   - plus puissant au niveau des regex
+   - moins de documentation? less battery included? moins bonne synergie avec Vim?
 
-                    - a l'air plus configurable
-                    - plus puissant au niveau des regex
-                    - moins de documentation? less battery included? moins bonne synergie avec Vim?
+---
 
-
-    https://www.booleanworld.com/guide-linux-top-command/
-
-            Guide pour la commande `top`.
+<https://www.booleanworld.com/guide-linux-top-command/>
+Guide pour la commande `top`.
 
 
 `fasd` semble être un simple fichier shell avec peu de code (533 sloc):
+<https://github.com/clvv/fasd/blob/master/fasd>
 
-        https://github.com/clvv/fasd/blob/master/fasd
-
-Il y a très peu d'activité sur le projet, et le dernier commit remonte à un an et demi:
-
-        https://github.com/clvv/fasd/commits/master
+Il y a très peu d'activité sur le projet, et le dernier commit remonte à 5 ans.
 
 Le réimplémenter pour pouvoir facilement continuer son développement par la suite?
+
 ##
 ## Utilities
 
@@ -700,10 +700,10 @@ contenant plusieurs fichiers.
 
     atool -a -F.tar.gz -e path/to/d1 path/to/d2 path/to/d3
 
-            Crée 3 archives `d1.tar.gz`, `d2.tar.gz`, `d3.tar.gz`, à partir du contenu
-            des 3 dossiers d1, d2 et d3.
+        Crée 3 archives `d1.tar.gz`, `d2.tar.gz`, `d3.tar.gz`, à partir du contenu
+        des 3 dossiers d1, d2 et d3.
 
-            Chaque archive est créée dans le dossier parent (de d1, d2, d3).
+        Chaque archive est créée dans le dossier parent (de d1, d2, d3).
 
 
     arepack -F.tar.7z -e *.tar.gz
@@ -2308,7 +2308,7 @@ rbenv, pyenv and phpenv.
 
 #### findmnt
 
-        findmnt - find a filesystem
+    findmnt - find a filesystem
 
 #### khal
 
@@ -2372,16 +2372,15 @@ rbenv, pyenv and phpenv.
 
 #### insect
 
-        High precision scientific calculator with support for physical units.
-
-        https://github.com/sharkdp/insect
+High precision scientific calculator with support for physical units.
+<https://github.com/sharkdp/insect>
 
 #### lnav
 
-        Log file navigator http://lnav.org
+Log file navigator http://lnav.org
 
-        https://github.com/tstack/lnav
-        https://www.youtube.com/watch?v=D9Tox1ysPXE
+- <https://github.com/tstack/lnav>
+- <https://www.youtube.com/watch?v=D9Tox1ysPXE>
 
 
                                                NOTE:

@@ -1245,6 +1245,95 @@ vim9script
 setline(1, ['s:var', 's:func()'])
 s/s:\%(\%(\w*\)\@>(\@!\)\@=//c
 ```
+###
+## Why should I use a lazy quantifier in a multiline pattern, instead of a greedy one?
+
+To avoid this kind of unexpected results:
+```vim
+vim9script
+var lines =<< trim END
+    ___ xxx
+    xxx foo
+    ___ xxx
+    xxx foo
+END
+writefile(lines, '/tmp/file')
+sil e /tmp/file
+vim /___\_.*\zsfoo/gj %
+cw
+```
+    /tmp/file|4 col 5| xxx foo
+    /tmp/file|4 col 5| xxx foo
+
+You probably wanted this instead:
+
+    /tmp/file|2 col 5| xxx foo
+    /tmp/file|4 col 5| xxx foo
+
+### Ok, but with a lazy quantifier, sometimes, I still get a few duplicates:
+```vim
+vim9script
+var lines =<< trim END
+    ___ xxx
+    ___ foo
+END
+writefile(lines, '/tmp/file')
+sil e /tmp/file
+vim /___\_.\{-}\zsfoo/gj %
+cw
+```
+    /tmp/file|2 col 5| ___ foo
+    /tmp/file|2 col 5| ___ foo
+
+#### Why?
+
+Because `foo` can be reached from different locations:
+
+   - line 1, column 1
+   - line 2, column 1
+
+You might  find this unexpected,  because usually, 2 consecutive  matches cannot
+overlap.  Thus, the match  from line 2 column 1 should  be disallowed because it
+shares some text with the previous match from line 1 column 1.
+
+It seems that if the match is multiline, then the rule is a bit different: there
+can be some overlap.   But the latter must start on a  different line.  IOW, the
+next match must start after the *nearest* location between:
+
+   - the end of the previous match (like for a pattern limited to a single line)
+   - the end of the line where the previous match is (specific to multiline patterns)
+
+---
+
+If you  know that the lookbehind  does not start too  far away, you can  fix the
+issue by replacing `\zs` with `\@<=`:
+```vim
+vim9script
+var lines =<< trim END
+    ___ xxx
+    ___ foo
+END
+writefile(lines, '/tmp/file')
+sil e /tmp/file
+vim /\%(___\_.\{-}\)\@<=foo/gj %
+cw
+```
+    /tmp/file|2 col 5| ___ foo
+
+But it doesn't work if the lookbehind starts more than 1 line before:
+```vim
+vim9script
+var lines =<< trim END
+    ___ xxx
+    xxx xxx
+    xxx foo
+END
+writefile(lines, '/tmp/file')
+sil e /tmp/file
+vim /\%(___\_.\{-}\)\@<=foo/gj %
+cw
+```
+    E480: No match: \%(___\_.\{-}\)\@<=foo
 
 ##
 ##

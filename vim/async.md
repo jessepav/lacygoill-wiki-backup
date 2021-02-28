@@ -210,4 +210,10 @@ Solution: save the job object into a script-local variable.
 Update:  Read  the original  post.  There are  still some  inconsistencies which
 might be reported as bugs.
 
+## document how to get more info about the job which has started the process of ID 1234
+
+    vim9 echo job_info()
+        ->mapnew((_, v: job): dict<any> => job_info(v))
+        ->filter((_, v: dict<any>): bool => v.process == 1234)
+
 ## make `vim-fex` async

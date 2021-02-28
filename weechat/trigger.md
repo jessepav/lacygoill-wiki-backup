@@ -1,4 +1,4 @@
-https://weechat.org/files/doc/stable/weechat_user.en.html#trigger_plugin
+<https://weechat.org/files/doc/stable/weechat_user.en.html#trigger_plugin>
 
 Trigger is the  Swiss Army knife for  WeeChat: it can hook  many things (signal,
 modifier,  print, …),  change  the content  of  data, and  execute  one or  more
@@ -12,50 +12,50 @@ So you might consider reading the WeeChat plugin API reference / Hooks.
 
 A trigger has the following options:
 
-┌─────────────┬──────────────────────────────┬────────────────────────────────────────────────────────────────────┐
-│ Option      │ Values                       │ Description                                                        │
-├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
-│ enabled     │ on, off                      │ When option is off, the trigger is disabled                        │
-│             │                              │ and actions are not executed any more.                             │
-├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
-│             │ signal, hsignal, modifier,   │ The hook used in trigger. For more information, see WeeChat        │
-│ hook        │ print, command, command_run, │ plugin API reference / Hooks.                                      │
-│             │ timer, config, focus         │                                                                    │
-├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
-│ arguments   │ string                       │ The arguments for the hook, it depends on the hook type used.      │
-├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
-│ conditions  │ string                       │ Conditions to execute the trigger; they are evaluated              │
-│             │                              │ see /eval).                                                        │
-├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
-│             │                              │ One or more POSIX extended regular expressions, to change data     │
-│ regex       │ string                       │ received in the hook callback (and some stuff added by trigger     │
-│             │                              │ plugin), see regular expression.                                   │
-├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
-│ command     │ string                       │ Command to execute (many commands can be separated by semicolons); │
-│             │                              │ it is evaluated (see /eval).                                       │
-├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
-│ return_code │ ok, ok_eat, error            │ The return code of callback (default is ok, which should be used   │
-│             │                              │ in almost all triggers, the other values are rarely used).         │
-├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
-│             │                              │ Action to take on the trigger after execution                      │
-│ post_action │ none, disable, delete        │ (default is none which should be used in almost all triggers,      │
-│             │                              │ the other values are rarely used).                                 │
-└─────────────┴──────────────────────────────┴────────────────────────────────────────────────────────────────────┘
+    ┌─────────────┬──────────────────────────────┬────────────────────────────────────────────────────────────────────┐
+    │ Option      │ Values                       │ Description                                                        │
+    ├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
+    │ enabled     │ on, off                      │ When option is off, the trigger is disabled                        │
+    │             │                              │ and actions are not executed any more.                             │
+    ├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
+    │             │ signal, hsignal, modifier,   │ The hook used in trigger. For more information, see WeeChat        │
+    │ hook        │ print, command, command_run, │ plugin API reference / Hooks.                                      │
+    │             │ timer, config, focus         │                                                                    │
+    ├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
+    │ arguments   │ string                       │ The arguments for the hook, it depends on the hook type used.      │
+    ├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
+    │ conditions  │ string                       │ Conditions to execute the trigger; they are evaluated              │
+    │             │                              │ see /eval).                                                        │
+    ├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
+    │             │                              │ One or more POSIX extended regular expressions, to change data     │
+    │ regex       │ string                       │ received in the hook callback (and some stuff added by trigger     │
+    │             │                              │ plugin), see regular expression.                                   │
+    ├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
+    │ command     │ string                       │ Command to execute (many commands can be separated by semicolons); │
+    │             │                              │ it is evaluated (see /eval).                                       │
+    ├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
+    │ return_code │ ok, ok_eat, error            │ The return code of callback (default is ok, which should be used   │
+    │             │                              │ in almost all triggers, the other values are rarely used).         │
+    ├─────────────┼──────────────────────────────┼────────────────────────────────────────────────────────────────────┤
+    │             │                              │ Action to take on the trigger after execution                      │
+    │ post_action │ none, disable, delete        │ (default is none which should be used in almost all triggers,      │
+    │             │                              │ the other values are rarely used).                                 │
+    └─────────────┴──────────────────────────────┴────────────────────────────────────────────────────────────────────┘
 
 The full name of a trigger option is:
 
-        trigger.trigger.<trigger_name>.<option>
+    trigger.trigger.<trigger_name>.<option>
 
 For example, the default beep trigger has the following options:
 
-        trigger.trigger.beep.enabled = on
-        trigger.trigger.beep.hook = print
-        trigger.trigger.beep.arguments = ""
-        trigger.trigger.beep.conditions = "${tg_highlight} || ${tg_msg_pv}"
-        trigger.trigger.beep.regex = ""
-        trigger.trigger.beep.command = "/print -beep"
-        trigger.trigger.beep.return_code = ok
-        trigger.trigger.beep.post_action = none
+    trigger.trigger.beep.enabled = on
+    trigger.trigger.beep.hook = print
+    trigger.trigger.beep.arguments = ""
+    trigger.trigger.beep.conditions = "${tg_highlight} || ${tg_msg_pv}"
+    trigger.trigger.beep.regex = ""
+    trigger.trigger.beep.command = "/print -beep"
+    trigger.trigger.beep.return_code = ok
+    trigger.trigger.beep.post_action = none
 
 # Execution
 
@@ -127,7 +127,7 @@ callbacks and command /eval).
 Example: the  default beep trigger  uses this condition to  make a beep  only on
 highlight or private message:
 
-        ${tg_highlight} || ${tg_msg_pv}
+    ${tg_highlight} || ${tg_msg_pv}
 
 # Regular expression
 
@@ -173,13 +173,13 @@ Matching groups can be used in "replace":
 
 Example: use bold for words between "*":
 
-        /\*(\S+)\*/*${color:bold}${re:1}${color:-bold}*/
+    /\*(\S+)\*/*${color:bold}${re:1}${color:-bold}*/
 
 Example:  default  trigger server_pass  uses  this  regular expression  to  hide
 password in  commands /server and /connect  (chars in passwords are  replaced by
 \*):
 
-        ==^(/(server|connect) .*-(sasl_)?password=)(\S+)(.*)==${re:1}${hide:*,${re:4}}${re:5}
+    ==^(/(server|connect) .*-(sasl_)?password=)(\S+)(.*)==${re:1}${hide:*,${re:4}}${re:5}
 
 In this example, the delimiter used is "==" because there is a "/" in the regular expression.
 
@@ -193,7 +193,7 @@ be used in the command.
 
 Example: default beep trigger uses this command to make a beep (BEL):
 
-        /print -beep
+    /print -beep
 
 # Data in callbacks
 
@@ -209,7 +209,7 @@ The content of hashtables depend on the hook type.
 
 A convenient way to see data in a trigger is to open trigger monitor buffer, using the command:
 
-        /trigger monitor
+    /trigger monitor
 
 Signal
 
@@ -669,5 +669,5 @@ Options:
 ##
 # How to delete a trigger?
 
-        /trigger del my_trigger
+    /trigger del my_trigger
 

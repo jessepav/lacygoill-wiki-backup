@@ -964,6 +964,18 @@ See also `:h debug-leaks`.
 
 Valgrind doesn't work atm on Ubuntu 16.04, but it works on Ubuntu 18.04 in a VM.
 
+You can also try to compile it from source:
+
+    $ git clone git://sourceware.org/git/valgrind.git
+    $ cd valgrind
+    $ ./autogen.sh
+    $ ./configure
+    $ make
+    $ sudo make install
+
+But for  some reason, with  a compiled  valgrind, the logfile  contains spurious
+errors.  Also, there are a lot of `???` (missing debugging symbols?).
+
 ### I need an asan log!
 
     $ git stash -a; git stash clear

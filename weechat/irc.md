@@ -3,9 +3,9 @@
 Let's  say Jack  wishes to  send a  message to  Jill, but  their machines  don't
 connect directly, instead:
 
-        - Jack is connected to the server A
-        - Jill is connected to the server B
-        - the servers A and B are connected
+   - Jack is connected to the server A
+   - Jill is connected to the server B
+   - the servers A and B are connected
 
 Therefore, Jack can make  use of the indirect route that  exists between him and
 Jill.

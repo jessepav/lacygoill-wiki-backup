@@ -80,14 +80,13 @@ It contains the timestamps and the nicks.
 To easily open multi-line urls.
 
 Alternatively, you could install the `urlserver.py` script to shorten long urls:
-
-        https://weechat.org/scripts/source/urlserver.py.html/
+<https://weechat.org/scripts/source/urlserver.py.html/>
 
 Although, I'm concerned about the security:
 
-        - you have to trust the script author
-        - you have to trust to secure the http server embedded into the script
-        - urls are obfuscated, you can't have a look at them and see whether they're suspicious
+   - you have to trust the script author
+   - you have to trust to secure the http server embedded into the script
+   - urls are obfuscated, you can't have a look at them and see whether they're suspicious
 
 # How to toggle the filter in the current buffer?
 
@@ -286,7 +285,7 @@ NickServ permet d'enregistrer un pseudo dans une bdd afin d'empêcher les autres
         Il semble que ce soit un  tag spécial permettant de filtrer les messages
         join/part/quit sauf si ça concerne qn qui a parlé récemment:
 
-            https://weechat.org/files/doc/weechat_faq.en.html#filter_irc_join_part_quit
+            <https://weechat.org/files/doc/weechat_faq.en.html#filter_irc_join_part_quit>
 
 
     /filter add irc_smart *,!*#weechat* irc_smart_filter *
@@ -420,29 +419,29 @@ Network-specific rules:
 
 4 key bindings added or redefined for context "default":
 
-        meta-meta-OP => /bar scroll buflist * b
-        meta-meta-OQ => /bar scroll buflist * e
-        meta-OP => /bar scroll buflist * -100%
-        meta-OQ => /bar scroll buflist * +100%
+    meta-meta-OP => /bar scroll buflist * b
+    meta-meta-OQ => /bar scroll buflist * e
+    meta-OP => /bar scroll buflist * -100%
+    meta-OQ => /bar scroll buflist * +100%
 
 16 key bindings added or redefined for context "mouse":
 
-        @bar(buflist):ctrl-wheeldown => hsignal:buflist_mouse
-        @bar(buflist):ctrl-wheelup => hsignal:buflist_mouse
-        @chat(fset.fset):button1 => /window ${_window_number};/fset -go ${_chat_line_y}
-        @chat(fset.fset):button2* => hsignal:fset_mouse
-        @chat(fset.fset):wheeldown => /fset -down 5
-        @chat(fset.fset):wheelup => /fset -up 5
-        @chat(script.scripts):button1 => /window ${_window_number};/script go ${_chat_line_y}
-        @chat(script.scripts):button2 => /window ${_window_number};/script go ${_chat_line_y};/script installremove -q ${script_name_with_extension}
-        @chat(script.scripts):wheeldown => /script down 5
-        @chat(script.scripts):wheelup => /script up 5
-        @item(buflist):button1* => hsignal:buflist_mouse
-        @item(buflist):button2* => hsignal:buflist_mouse
-        @item(buflist2):button1* => hsignal:buflist_mouse
-        @item(buflist2):button2* => hsignal:buflist_mouse
-        @item(buflist3):button1* => hsignal:buflist_mouse
-        @item(buflist3):button2* => hsignal:buflist_mouse
+    @bar(buflist):ctrl-wheeldown => hsignal:buflist_mouse
+    @bar(buflist):ctrl-wheelup => hsignal:buflist_mouse
+    @chat(fset.fset):button1 => /window ${_window_number};/fset -go ${_chat_line_y}
+    @chat(fset.fset):button2* => hsignal:fset_mouse
+    @chat(fset.fset):wheeldown => /fset -down 5
+    @chat(fset.fset):wheelup => /fset -up 5
+    @chat(script.scripts):button1 => /window ${_window_number};/script go ${_chat_line_y}
+    @chat(script.scripts):button2 => /window ${_window_number};/script go ${_chat_line_y};/script installremove -q ${script_name_with_extension}
+    @chat(script.scripts):wheeldown => /script down 5
+    @chat(script.scripts):wheelup => /script up 5
+    @item(buflist):button1* => hsignal:buflist_mouse
+    @item(buflist):button2* => hsignal:buflist_mouse
+    @item(buflist2):button1* => hsignal:buflist_mouse
+    @item(buflist2):button2* => hsignal:buflist_mouse
+    @item(buflist3):button1* => hsignal:buflist_mouse
+    @item(buflist3):button2* => hsignal:buflist_mouse
 
 ## learn how to use cursor mode
 

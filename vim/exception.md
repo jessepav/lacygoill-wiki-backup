@@ -1499,6 +1499,61 @@ parsing to skip the whole line and not see the '|' that separates the commands.
 # Todo
 ## ?
 
+Is it wrong to run `:throw` without a `:catch`?
+
+It seems it can cause unexpected results:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        fu Throw()
+            try
+                throw 'some error'
+            endtry
+        endfu
+        sil! call Throw()
+        try
+            call Unknown()
+        catch
+        endtry
+    EOF
+    )
+    ...~
+    E117: Unknown function: Unknown~
+    " result:   'E117' is raised
+    " expected: 'E117' is caught
+
+Check out where we've run `:throw` without a catch.
+Whenever you find one, consider removing it or adding a `:catch`.
+Check out whether tpope sometimes runs `:throw` without a `:catch`.
+
+Also,   `E117`  is   still   raised   even  when   we   replace  `:throw`   with
+`:echoerr`  or  `:not_a_cmd`.  However,  if  we  remove the  `:try`  surrounding
+`:echoerr`/`:not_a_cmd`, then the  issue disappears; i.e.  `E117`  is not raised
+anymore.  But it still persists in the case of `:throw`.
+
+It looks like a known bug; from `:h todo` (`:h todo /throw/;/2013 Sep 28`)::
+
+   > Problem that a previous silent ":throw" causes a following try/catch not to
+   > work. (ZyX, 2013 Sep 28) With examples: (Malcolm Rowe, 2015 Dec 24)
+
+Relevant google conversations:
+
+   - <https://groups.google.com/g/vim_dev/c/9QqE1nDQY78/m/wo2PRv8KnxEJ>
+   - <https://groups.google.com/g/vim_dev/c/hZSr9ClS4FU/m/EP3bN-DMCQAJ>
+
+In the meantime, what rule should we follow?
+
+Never use `:throw`?  That sounds too drastic.
+Never use `:throw` in a public function?  That sounds better.
+
+Rationale: we have no knowledge of how a public function will be called (i.e. it
+could  be prefixed  with `silent!`).   But we  have total  control over  private
+functions; for those, we can avoid `silent!`, and keep using `:throw`.
+Although, in the  end, all private functions are called  from a public function,
+via nested function  calls, right?  Does it  mean that we can't  use `:throw` in
+private functions either?
+
+## ?
+
 Document how `:silent!` and `:throw` interact:
 
 - <https://github.com/vim/vim/issues/7682#issuecomment-761183658>
@@ -1620,45 +1675,4 @@ What gives?
 
 I wonder whether this issue is specific to `:qall`...
 Can you find other similar issues which don't make Vim quit?
-
-## ?
-
-Is it wrong to run `:throw` without a `:catch`?
-
-It seems it can cause unexpected results:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        fu Throw()
-            try
-                throw 'some error'
-            endtry
-        endfu
-        sil! call Throw()
-        try
-            call Unknown()
-        catch
-        endtry
-    EOF
-    )
-    ...~
-    E117: Unknown function: Unknown~
-    " result:   'E117' is raised
-    " expected: 'E117' is caught
-
-Check out where we've run `:throw` without a catch.
-Whenever you find one, consider removing it or adding a `:catch`.
-Check out whether tpope sometimes runs `:throw` without a `:catch`.
-
-Also,   `E117`  is   still   raised   even  when   we   replace  `:throw`   with
-`:echoerr`  or  `:not_a_cmd`.  However,  if  we  remove the  `:try`  surrounding
-`:echoerr`/`:not_a_cmd`, then the  issue disappears; i.e.  `E117`  is not raised
-anymore.  But it still persists in the case of `:throw`.
-
-Is it a known bug?  From `:h todo`:
-
-   > Problem that a previous silent ":throw" causes a following try/catch not to
-   > work. (ZyX, 2013 Sep 28) With examples: (Malcolm Rowe, 2015 Dec 24)
-
-If so, report  it on github, so that  it has a better visibility,  and the issue
-can be properly referenced in the todo list.
 

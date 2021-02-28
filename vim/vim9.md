@@ -36,101 +36,6 @@ defcompile
     E1017: Variable already declared: x~
 
 ##
-## What is type checking?
-
-The parsing step during the compilation of a `:def` function when Vim checks whether:
-
-   - you've specified a type for each function argument
-     (not needed for an argument which is assigned a default value)
-
-         $ vim -Nu NONE -S <(cat <<'EOF'
-             def Func(x)
-             enddef
-             defcompile
-         EOF
-         )
-
-         E1077: Missing argument type for x~
-
-   - you've specified the return type of the function if it returns sth
-
-         $ vim -Nu NONE -S <(cat <<'EOF'
-             def Func()
-                 return 123
-             enddef
-             defcompile
-         EOF
-         )
-
-         E1096: Returning a value in a function without a return type~
-
-   - the return type of the function matches the type of the returned expression
-
-         $ vim -Nu NONE -S <(cat <<'EOF'
-             def Func(): string
-                 return 123
-             enddef
-             defcompile
-         EOF
-         )
-
-         E1012: type mismatch, expected string but got number~
-
-   - the type of a declared variable matches the type of the expression that you assign it later
-
-         $ vim -Nu NONE -S <(cat <<'EOF'
-             def Func()
-                 var x: string
-                 x = 123
-             enddef
-             defcompile
-         EOF
-         )
-
-         E1012: type mismatch, expected string but got number~
-
-### When is type checking performed
-#### for a legacy `:fu` function?
-
-At runtime.
-
-#### for a `:def` function?
-
-At compile time.
-
-###
-### How to postpone type checking for a `:def` function until runtime?
-
-Whenever you need to specify a type, use `any`:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        def Func(x: any)
-        #         ^---^
-        enddef
-        defcompile
-    EOF
-    )
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        def Func(): any
-        #         ^---^
-            return 123
-        enddef
-        defcompile
-    EOF
-    )
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        def Func()
-            var x: any
-            #    ^---^
-            x = 123
-        enddef
-        defcompile
-    EOF
-    )
-
-##
 ## If a `:def` function contains a syntax or type error, when does Vim raise an error?
 
 At compile time.  That is, when `:defcompile` is run, or when the function is first called.
@@ -536,6 +441,451 @@ The second  `echom` is *not*  parsed inside  a function (because  `:def!` raised
 
 Later, `Func()` is run.
 
+##
+# type checking
+## What is it?
+
+The parsing step during the compilation of a `:def` function when Vim checks whether:
+
+   - you've specified a type for each function argument
+     (not needed for an argument which is assigned a default value)
+
+         $ vim -Nu NONE -S <(cat <<'EOF'
+             def Func(x)
+             enddef
+             defcompile
+         EOF
+         )
+
+         E1077: Missing argument type for x~
+
+   - you've specified the return type of the function if it returns sth
+
+         $ vim -Nu NONE -S <(cat <<'EOF'
+             def Func()
+                 return 123
+             enddef
+             defcompile
+         EOF
+         )
+
+         E1096: Returning a value in a function without a return type~
+
+   - the return type of the function matches the type of the returned expression
+
+         $ vim -Nu NONE -S <(cat <<'EOF'
+             def Func(): string
+                 return 123
+             enddef
+             defcompile
+         EOF
+         )
+
+         E1012: type mismatch, expected string but got number~
+
+   - the type of a declared variable matches the type of the expression that you assign it later
+
+         $ vim -Nu NONE -S <(cat <<'EOF'
+             def Func()
+                 var x: string
+                 x = 123
+             enddef
+             defcompile
+         EOF
+         )
+
+         E1012: type mismatch, expected string but got number~
+
+##
+## When is it performed
+### for a legacy `:fu` function?
+
+At runtime.
+
+### for a `:def` function?
+
+At compile time.
+
+###
+## How to postpone it for a `:def` function until runtime?
+
+Whenever you need to specify a type, use `any`:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        def Func(x: any)
+        #         ^---^
+        enddef
+        defcompile
+    EOF
+    )
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        def Func(): any
+        #         ^---^
+            return 123
+        enddef
+        defcompile
+    EOF
+    )
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        def Func()
+            var x: any
+            #    ^---^
+            x = 123
+        enddef
+        defcompile
+    EOF
+    )
+
+##
+## When can I omit the type of a variable?
+
+When you assign it a value, because in that case Vim can infer the type from the latter.
+
+Here, `E1077` is raised because `x` is not assigned a value:
+
+    vim9script
+    def Func(x)
+    enddef
+    defcompile
+
+    E1077: Missing argument type for x~
+
+Solution: declare the type.
+
+    vim9script
+    def Func(x: number)
+    enddef
+    defcompile
+
+---
+
+Here, no error is raised, because `x` is assigned a default value:
+
+    vim9script
+    def Func(x = 3)
+    enddef
+    defcompile
+
+And here again, no error is raised, because `x` is assigned a value:
+
+    vim9script
+    def Func()
+        var x = 3
+    enddef
+    defcompile
+
+See `:h type-inference`.
+
+### When should I *not* omit the type, even though it's allowed?
+
+When you declare a variable by assigning it an empty list or dictionary.
+
+    var x = []
+        ^----^
+          ✘
+
+    var x = {}
+        ^----^
+          ✘
+
+    def Func(x = [])
+             ^----^
+               ✘
+        ...
+    enddef
+
+#### Why?
+
+When you write sth like:
+
+    var x = []
+
+You don't really want to assign an empty list to `x`.
+What you really want is to declare the existence of the variable.
+So, what you really want is sth like:
+
+    var x: list<string>
+
+And when you do so, Vim automatically assigns an empty list.
+
+Otherwise, if you just write `var x = []`, it's exactly as if you had written:
+
+    var x: list<any>
+                ^^^
+
+Which might  prevent some  optimizations to  be performed or  some errors  to be
+caught, at compile time.
+
+##
+## What's the value of a boolean option
+### in Vim script legacy?
+
+A boolean *number*:
+
+    :echo getwinvar(winnr(), '&pvw')
+    0~
+
+### in Vim9 script?
+
+A *boolean*:
+
+    :vim9 echo getwinvar(winnr(), '&pvw')
+    false~
+
+##
+## When does Vim use the subtype `<unknown>`?
+
+When it gets an *expression* whose value is an empty list or dictionary.
+Because in that case, Vim can't know what its future items (if any) will be.
+```vim
+vim9script
+var d: dict<any>
+echo typename(d)
+```
+    dict<unknown>
+
+Here, `dict<unknown>` is echo'ed even though `d` was declared with `dict<any>`.
+That's because  `typename()` doesn't  care about  `d`; it  only cares  about its
+value which here is an empty dictionary.
+
+---
+
+Note that  using the subtype `<any>`  would be wrong.  Vim  doesn't know whether
+you'll use a mix of values in your list/dictionary.
+
+##
+## Why should I specify the types in *all* declarations?
+
+Feeding as much info  as you can to the compiler lets  Vim catch errors earlier,
+which makes their resolution easier.
+
+Example:
+```vim
+vim9script
+def Func()
+    var lines = getline(1, '$')
+        ->map((i, v) => ({text: v}))
+    map(lines, (i, v) => lines[i].text =~ '')
+enddef
+defcompile
+```
+    E715: Dictionary required
+
+This error looks weird, and is hard to understand.
+```vim
+vim9script
+def Func()
+    var lines: list<dict<string>> = getline(1, '$')
+        ->map((i, v) => ({text: v}))
+    map(lines, (i, v) => lines[i].text =~ '')
+enddef
+defcompile
+```
+    E1012: Type mismatch; expected list<dict<string>> but got list<string>
+
+This error is easier to understand, thanks to the explicit type:
+
+    var lines: list<dict<string>> = getline(1, '$')
+               ^----------------^
+
+---
+
+Besides, type inferrence might give a problematic type:
+
+    var l = Func()
+
+Suppose `Func()`  returns an  expression of type  `list<number>`, but  later you
+need to invoke `extend()`  to include strings inside `l`.  It  will raise a type
+mismatch error.
+
+So, instead, you need to write an explicit type:
+
+    var l: list<any> = Func()
+           ^-------^
+
+Even if type inferrence gives the right  type now, it doesn't mean it will still
+give the right type after a future refactoring.
+
+---
+
+Finally, explicit types let the compiler optimize your code as much as possible.
+
+### Where can I omit a type?
+
+In a guard, because it's useless (you'll never refactor a guard):
+
+    var loaded = true
+
+Also in an optional argument in a  function's header, if the default value is an
+"irreducible" scalar:
+
+    def Func(name = 123)
+        ...
+
+A scalar is any expression which is not a list/dictionary.
+"Irreducible" means that the expression can't be simplified.
+
+In the next  example, `win_getid()` is not irreducible, so  you might still want
+to specify the `number` type:
+
+                   v----v
+    def Func(name: number = win_getid())
+        ...
+
+##
+## These 3 very similar snippets give different type error messages:
+```vim
+vim9script
+'' - 1
+```
+    E1030: Using a String as a Number
+```vim
+vim9script
+def Func()
+    '' - 1
+enddef
+defcompile
+```
+    E1036: - requires number or float arguments
+```vim
+vim9script
+def Func()
+    '' + 1
+enddef
+defcompile
+```
+    E1051: Wrong argument type for +
+
+### Why not the same message?
+
+First, the context is different in the  first snippet.  In the latter, the error
+occurs at runtime.  In the next snippets, the error occurs at compile time.  Vim
+knows more about the  types at runtime than at compile time;  so, it makes sense
+that the error messages are different.
+
+Second, `+` has 2 meanings: it can  be used as an arithmetic operator to perform
+an addition,  or as a  list concatenation operator.   So, again, it  makes sense
+that Vim raises a different error for `+` than for `-`.
+
+See: <https://github.com/vim/vim/issues/7167#issuecomment-714620921>
+
+##
+## This snippet raises a type mismatch error:
+```vim
+vim9script
+var d: dict<any> = {a: 0}
+extend(d, {b: 0, c: ''})
+```
+    E1013: Argument 2: type mismatch, expected dict<number> but got dict<any>
+
+### I thought that declaring the dictionary with the type `dict<any>` would avoid this issue.  It doesn't.  Why?
+
+The error is not raised at compile time, but at runtime.
+And at runtime, no  function which operates in-place can change  the type of the
+items of a composite type value.
+This breaks functions such as `extend()`, `flatten()` and `map()`.
+Instead, you must use a `*new()` function like `extendnew()`, `flattennew()` or `mapnew()`:
+```vim
+vim9script
+var d: dict<any> = {a: 0}
+d = extendnew(d, {b: 0, c: ''})
+echo d
+```
+    {'a': 0, 'b': 0, 'c': ''}
+
+##
+## How to get the right type in a declaration without too much thinking/guessing?
+
+First use `any` so that your code at least compiles.
+
+Then, use `echom typename(name)`  to make Vim print the exact  type of the value
+(which is assigned to a variable or returned from a function).
+
+Use this information to replace `any`.
+
+---
+
+Alternatively, you can also replace `any` with a wrong type; e.g. `job`.
+
+You'll get an error such as:
+
+    E1013: Argument 1: type mismatch, expected job but got number
+
+One of the types before or after "but got" will be different than `job`.
+If it is:
+
+   - not composite, then use it to replace `job`
+   - composite, then replace `job` with `list<job>` or `dict<job>`, and repeat the process
+
+##
+## Which pitfall should I be aware of when storing a funcref in a list/dictionary?
+
+It might suppress type checking at compile time:
+```vim
+vim9script
+def Func()
+    var l: list<number>
+    l = ['', function('len')]
+enddef
+defcompile
+```
+    no error
+```vim
+vim9script
+def Func()
+    var d: dict<number>
+    d = {aa: '', bb: function('len')}
+enddef
+defcompile
+```
+    no error
+
+That's because `function()` is not considered a constant:
+<https://github.com/vim/vim/issues/7171#issuecomment-712315593>
+
+Not sure what that means...
+
+### Which issue can it cause?
+
+An error can might be shadowed:
+```vim
+vim9script
+def Func()
+    var l: list<string>
+    l = ['', function('len')]
+    l[0] - 1
+enddef
+defcompile
+```
+    line 3:
+    E1036: - requires number or float arguments
+
+The first error is not this one.  It's:
+
+    line 2:
+    E1012: Type mismatch; expected list<string> but got list<any>
+
+The fact that the real first error  is not reported might make debugging harder;
+especially when the lines involved are far away from each other:
+```vim
+vim9script
+def Func()
+    var l: list<string>
+    # ...
+    # many lines of code
+    # ...
+    # FIRST ERROR
+    l = ['', function('len')]
+    # ...
+    # many lines of code
+    # ...
+    # REPORTED ERROR
+    l[0] - 1
+enddef
+defcompile
+```
 ##
 # Comments
 ## Which comment leader should I write to start a comment in a Vim9 script code?
@@ -1027,7 +1377,7 @@ vim9script
 var mode = 'i'
 var name_i: number
 var name_c: number
-var expr = 1 + 2 + 3 + 5 + 6 + 7 + 8 + 9 + 10 + 11 + 12 + 13 + 14 + 15 + 16
+var expr = 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10 + 11 + 12 + 13 + 14 + 15
 if mode == 'i'
     name_i = expr
 else
@@ -1035,7 +1385,7 @@ else
 endif
 echo s:
 ```
-    {'name_i': 132, 'expr': 132, 'mode': 'i', 'name_c': 0}
+    {'name_i': 120, 'expr': 120, 'mode': 'i', 'name_c': 0}
 
 ##
 # Misc
@@ -1190,86 +1540,6 @@ Put it inside a `{}` block:
     defcompile
 
     E1001: variable not found: n~
-
-##
-## When can I omit the type of a variable?
-
-When you assign it a value, because in that case Vim can infer the type from the latter.
-
-Here, `E1077` is raised because `x` is not assigned a value:
-
-    vim9script
-    def Func(x)
-    enddef
-    defcompile
-
-    E1077: Missing argument type for x~
-
-Solution: declare the type.
-
-    vim9script
-    def Func(x: number)
-    enddef
-    defcompile
-
----
-
-Here, no error is raised, because `x` is assigned a default value:
-
-    vim9script
-    def Func(x = 3)
-    enddef
-    defcompile
-
-And here again, no error is raised, because `x` is assigned a value:
-
-    vim9script
-    def Func()
-        var x = 3
-    enddef
-    defcompile
-
-See `:h type-inference`.
-
-### When should I *not* omit the type, even though it's allowed?
-
-When you declare a variable by assigning it an empty list or dictionary.
-
-    var x = []
-        ^----^
-          ✘
-
-    var x = {}
-        ^----^
-          ✘
-
-    def Func(x = [])
-             ^----^
-               ✘
-        ...
-    enddef
-
-#### Why?
-
-When you write sth like:
-
-    var x = []
-
-You don't really want to assign an empty list to `x`.
-What you really want is to declare the existence of the variable.
-So, what you really want is sth like:
-
-    var x: list<string>
-
-And when you do so, Vim automatically assigns an empty list.
-
-Otherwise, if you just write `var x = []`, it's exactly as if you had written:
-
-    var x: list<any>
-                ^^^
-
-Which might  prevent some  optimizations to  be performed or  some errors  to be
-caught, at compile time.
 
 ##
 ## Which operands are accepted by the logical operators:
@@ -1435,7 +1705,7 @@ Func()
 ```
     script-local
 
-### Doesn't this contradict the rule that shadowing is disallowed?
+#### Doesn't this contradict the rule that shadowing is disallowed?
 
 No, because it's not a "real" shadowing; you need to write the prefix `g:` for a
 global item; thus,  the names are not exactly identical  (`name` != `g:name` and
@@ -1711,14 +1981,14 @@ Source: <https://github.com/vim/vim/issues/6401#issuecomment-655071515>
 ## What's the fastest between
 ### a lambda and an eval string?
 
-Inside a `:def` function, a lambda is significantly faster:
+At the moment, an eval string is a bit faster in a `:def` function:
 
     $ vim -es -Nu NONE -i NONE -U NONE -S <(cat <<'EOF'
         vim9script
 
         def Lambda()
             var time = reltime()
-            range(999999)->map({_, v -> v + 1})
+            range(999999)->map((_, v) => v + 1)
             setline(1, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run lambdas')
         enddef
         Lambda()
@@ -1735,16 +2005,16 @@ Inside a `:def` function, a lambda is significantly faster:
     EOF
     )
 
-    0.467 seconds to run lambdas~
-    0.706 seconds to run eval strings~
+    0.623 seconds to run lambdas~
+    0.555 seconds to run eval strings~
 
-But at the script level, a lambda is significantly slower:
+And at the script level:
 
     $ vim -es -Nu NONE -S <(cat <<'EOF'
         vim9script
 
         var time = reltime()
-        range(999999)->map({_, v -> v + 1})
+        range(999999)->map((_, v) => v + 1)
         setline(1, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run lambdas')
 
         var _time = reltime()
@@ -1756,10 +2026,8 @@ But at the script level, a lambda is significantly slower:
     EOF
     )
 
-    1.503 seconds to run lambdas~
-    0.669 seconds to run eval strings~
-
-Conclusion: always use lambdas, but make sure to write them inside `:def` functions.
+    0.596 seconds to run lambdas~
+    0.571 seconds to run eval strings~
 
 ### a `map()` and a for loop?
 
@@ -1771,7 +2039,7 @@ Inside a `:def` function, a for loop is significantly faster:
 
         def Lambda()
             var time = reltime()
-            map(mylist, {_, v -> v + 1})
+            map(mylist, (_, v) => v + 1)
             setline(1, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run Lambda()')
         enddef
         Lambda()
@@ -1802,7 +2070,7 @@ But at the script level, a for loop is significantly slower:
         var mylist = pow(10, 6)->float2nr()->range()
 
         var time = reltime()
-        map(mylist, {_, v -> v + 1})
+        map(mylist, (_, v) => v + 1)
         setline(1, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run Lambda()')
 
         time = reltime()
@@ -1829,11 +2097,11 @@ always as significant as in the previous simple test.  Example:
 
     $ vim -es -Nu NONE -i NONE -U NONE -S <(cat <<'EOF'
         vim9script
-        var mylistlist = pow(10, 6)->float2nr()->range()->map({_, v -> [0, 0, 0, 0, 0]})
+        var mylistlist = pow(10, 6)->float2nr()->range()->mapnew((_, v) => [0, 0, 0, 0, 0])
 
         def Lambda()
             var time = reltime()
-            map(mylistlist, {_, v -> map(v, {_, w -> w + 1})})
+            map(mylistlist, (_, v) => map(v, (_, w) => w + 1))
             setline(1, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run Lambda()')
         enddef
         Lambda()
@@ -1842,7 +2110,7 @@ always as significant as in the previous simple test.  Example:
             var time = reltime()
             var i = 0
             for item in mylistlist
-                map(item, {_, v -> v + 1})
+                map(item, (_, v) => v + 1)
                 i += 1
             endfor
             setline(2, reltime(time)->reltimestr()->matchstr('.*\..\{,3}') .. ' seconds to run ForLoop()')
@@ -1854,8 +2122,8 @@ always as significant as in the previous simple test.  Example:
     EOF
     )
 
-    2.743 seconds to run Lambda()~
-    2.490 seconds to run ForLoop()~
+    4.070 seconds to run Lambda()~
+    3.286 seconds to run ForLoop()~
 
 The results might  also depend on the size of  the inner lists/dictionaries, and
 the type of transformation you perform...
@@ -2339,330 +2607,110 @@ But it's less pretty.
 
 ##
 # Todo
-## We should specify the types in *all* declarations.
+## Once Vim9 supports assignment to nested list and dict members, remove `extend()` whenever possible
 
-    \C\<\%(var\|const\|final\)\>\s\+[^:]\+\zs\s\+=\%(<<\)\=\%(\s\|$\)
-    :Cfilter! /var loaded = true/
+Look for an `extend()` used outside a lambda, and outside the rhs of an assignment.
+Exception: leave an `extend()` alone if its 2nd argument is a dictionary with several keys.
 
-At least you might want to do this in this kind of declarations:
+Examples of refactorings:
 
-    var l = Func()
+    extend(categories.commands, l)
+    →
+    categories.commands += l
 
-Suppose `Func()`  returns an  expression of type  `list<number>`, but  later you
-need to invoke `extend()` to include strings inside `l`.
-It will probably raise a type mismatch error.
 
-So, instead, you need to write this:
-
-    var l: list<any> = Func()
-           ^-------^
-
-Beyond that, what about future refactorings?
-Suppose you have this:
-
-    var x = true
-
-Here, specifying `: bool` seems useless.  But maybe one day you'll refactor the line into:
-
-    var x = Func()
-
-And maybe `Func()` will return `list<number>`.
-And maybe you'll need to include strings in `x` later.
-Again, same issue.
-
-So, you might be tempted to specify the type all the time...
+    extend(listing[scope], lines)
+    →
+    listing[scope] += lines
 
 ---
 
-Also, it might give better error messages.
-Watch this:
-```vim
-vim9script
-def Func()
-    var lines = getline(1, '$')
-        ->map((i, v) => ({lnum: i + 1, text: v}))
-    var lastlnum = line('$')
-    map(lines, (i, v) =>
-            i < lastlnum - 1
-                && lines[i + 1].text =~ '^-\+$'
-                && v.text =~ '\S'
-            ? extend(v, {text: "\x01" .. v.text})
-            : v
-            )
-enddef
-Func()
-```
-    E715: Dictionary required
-    WTF? (hard to understand)
-```vim
-vim9script
-def Func()
-    var lines: list<dict<any>> = getline(1, '$')
-        ->map((i, v) => ({lnum: i + 1, text: v}))
-    var lastlnum = line('$')
-    map(lines, (i, v) =>
-            i < lastlnum - 1
-                && lines[i + 1].text =~ '^-\+$'
-                && v.text =~ '\S'
-            ? extend(v, {text: "\x01" .. v.text})
-            : v
-            )
-enddef
-Func()
-```
-    E1012: Type mismatch; expected list<dict<any>> but got list<string>
-    ✔ (easier to understand)
+Relevant (?) todo item from `:h todo /dict`:
 
-Here is another example:
-```vim
-vim9script
-var d: dict<string>
-def Func(): string
-    return d.a['b']
-enddef
-Func()
-```
-    E1012: Type mismatch; expected number but got string
-    WTF? (hard to understand)
+   >  - Appending to dict item doesn't work:
+   > var d[i] ..= value
 
-    From the `d` declaration, Vim infers that `d.a` is a string.
-    So, Vim thinks you're trying to index the string `d.a` with the string 'b'.
-```vim
-vim9script
-var d: dict<dict<string>>
-def Func(): string
-    return d.a['b']
-enddef
-Func()
-```
-    E716: Key not present in Dictionary: "a"
-    ✔ (makes sense)
-
-I think this is a fundamental principle: you should feed as much info as you can
-to the compiler, so  that it can catch errors earlier,  and better optimize your
-code.
-
-In practice, I think you should look for this pattern everywhere:
-
-    \C\<\%(var\|const\|final\)\>\s\+[^:]\+\zs\s\+=\%(<<\)\=\%(\s\|$\)
-    :Cfilter! /var loaded = true/
-
-And always specify a type, unless the assigned value is an irreducible scalar.
-A scalar is any expression which is not a list/dictionary.
-"Irreducible" means that the expression can't be simplified:
-
-    var n = 123
-            ^^^
-            cannot be simplified
-
-    var n = ReturnNumber()
-            ^------------^
-            can be simplified into a number
-
-Update: Let's be consistent; do it *all* the time.
-Exception: not in a guard, because it's useless (a guard won't be refactored).
-
-Update: What about assignments in the header of a `:def` function?
-
-    def Func(arg = value)
-             ^---------^
-
-Note that it could be on a different line than `:def`:
-
-    def Func(
-        arg1,
-        arg2 = value
-        ^----------^
-        )
+### Similarly, remove duplicate expressions around `=` assignment operator whenever possible
 
 Look for this pattern:
 
-    ^\s*\C\<def\>\%()\@!\_.\)*\zs =
+    \C\<\(\S\+\)\s\+=\s\+\1
+
+Examples of refactorings:
+
+    d['cmd'] = d['cmd'] .. '  ' .. l[n]
+    →
+    d['cmd'] ..= '  ' .. l[n]
+
+
+    boundaries[0] = boundaries[0] + 1
+    →
+    boundaries[0] += 1
+
+
+    w:bd_marks.coords = w:bd_marks.coords + [{
+        line: line('.'),
+        col: virtcol('.'),
+        }]
+    →
+    w:bd_marks.coords += [{
+        line: line('.'),
+        col: virtcol('.'),
+        }]
 
 ##
-## To refactor:
-### `:fu` functions into `:def` functions
+## In the future, check that a failed `:import` aborts the sourcing of a script
 
-To get the list of plugins with the most legacy functions to refactor:
-
-    $ vim -S <(cat <<'EOF'
-        vim9script
-        Vim /^\s*\C\<endfu\>\s*$/gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**
-        au QuickFixCmdPost * ++once Func()
-        def Func()
-            feedkeys('cof', 'x')
-            Cfilter! -other_plugins
-            sil :%y r
-            wincmd w
-            new
-            sil put r
-            sil :%s/|.*//
-            exe 'sil :%s/' .. ('^' .. $HOME .. '/.vim/plugged/\([^/]\+\)/.*')->escape('/') .. '/\1/'
-            :%!uniq -c
-            sil :%s/\s\zs\d\ze /0\0/g
-            feedkeys('gsipgrip', 'x')
-            only
-        enddef
-    EOF
-    )
-
-Results at the moment:
-
-    42 vim-abolish
-    38 vim-quickhl
-
-    11 vim-tmuxify
-    10 vim-graph
-    04 vim-sh
-
-    06 vim-snippets
-    02 vim-statusline
-    02 vim-man
-    02 vim-latex
-    02 ~/.vim/autoload/plugin/undotree.vim
-    01 ~/.vim/autoload/colorscheme.vim
-    01 vim-fold
-    01 vim-vim
-
-Total of `:def`s (`^\s*\<\Cenddef\>\s*$`):
-
-    1406
-
-Remaining `:fu`s:
-
-    125
-
-Proportion of `:def`s:
-
-    1407 / (1407 + 125)
-    ≈ 92%
-
-### maybe make sure a variable name starting with an underscore is not used
-
-    \C\<var _\S\|\<def.*\%(, \|(\)_\S
-
-Sometimes, we have created and used a variable name starting with an underscore.
-This  looks wrong,  because it  goes against  a convention  which I  think we've
-followed so far; i.e. a variable name  starting with an underscore should not be
-used.
-
-Sometimes, we've  used a variable  name starting with  an underscore to  avoid a
-clash with a function argument:
-
-    def Func(name: number)
-        var _name = ...
-            ^
-            ✘
-
-In those cases, I suggest you use the prefix `a` for the argument (reminiscent of `a:`):
-
-             ✔
-             v
-    def Func(aname: number)
-        var name = ...
-
-### eval strings into lambdas
-
-But make sure they're inside a `:def` function first.
-Don't worry, a lambda in a `:def` function is not slower than an eval string; on
-the contrary, it's faster.
-
-Look for the pattern `v:val\|v:key`.
-
-Update: We have very few `v:val` and `v:key` in our config.
-Refactor all  `:fu` functions which include  a `v:val` or `v:key`  into a `:def`
-function, then refactor the eval strings into lambdas.
-
-Also, consider updating `:RefVim9` so that  it populates a location list for all
-the `v:val` and `v:key`.
-
----
-
-While I was  trying to refactor a legacy function  (`s:next_fold()`) into a Vim9
-function to get rid of `v:val`:
-
-    ~/.vim/plugged/vim-fold/autoload/fold/motion.vim:136
-
-I've come across a bug in `:RefVim9`:
-
-    ~/.vim/plugged/vim-vim/autoload/vim/refactor/vim9.vim:551
-
-The issue is that the `assignments`  loclist is missing some assignments and has
-duplicate entries.
-
-Here is what I think is a MWE:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var lines =<< trim END
-            foo xxx
-            xxx foo
-            foo xxx
-            xxx foo
-        END
-        writefile(lines, '/tmp/file')
-        sil e /tmp/file
-        vim /\_.*\zsfoo/gj %
-        cw
-    EOF
-    )
-
-I think the issue comes from the `*` quantifier:
-
-    vim /\_.*\zsfoo/gj %
-            ^
-            ✘
-
-We should use a lazy quantifier:
-
-    vim /\_.\{-}\zsfoo/gj %
-            ^--^
-             ✔
-```vim
-vim9script
-var lines =<< trim END
-    foo xxx
-    xxx foo
-    foo xxx
-    xxx foo
-END
-writefile(lines, '/tmp/file')
-sil e /tmp/file
-vim /\_.\{-}\zsfoo/gj %
-cw
-```
-It's better, but we still have a few duplicate entries.
-Why?
-
-Once you understand everything, fix the issue in `:RefVim9`.
-Also, check whether we've made the kind of mistake elsewhere.
-
-### check whether we could remove a few `extend()` in our Vim9 scripts
-
-Now that Vim9 provides a better support for dictionaries...
-
-### maybe prefix all `:import` commands with `:silent!`
-
-And what about the imported functions?
-When we call them,  should we prefix the calls with `:silent!`  too, in case the
-import failed?
-
-Or maybe we should use a try conditional.
-If the imported functions are not available,  bail out at the top of the script,
-because there is no guarantee it will work as expected.
-
-See what we did in:
-
-    ~/.vim/plugged/vim-repmap/autoload/repmap/make.vim
-
-If you do use try conditionals, you can remove `:silent!` everywhere.
-
-Update:  It might not be necessary in the future:
+Once this todo item is fixed (`:h todo /abort`):
 
    > - Error in any command in "vim9script" aborts sourcing.
 
-Source: `:h todo /abort`
+### Should we use a try conditional for some of our imports, and bail out when they fail?
 
+Because if  an import fails,  there might be no  guarantee that the  script will
+work as expected.
+
+For example:
+
+    try
+        import Func from 'script.vim'
+    catch /^Vim\%((\a\+)\)\=:E\%(1048\|1053\):/
+        echohl ErrorMsg
+        unsilent echom 'Could not import "Func()" from "script.vim"'
+        echohl NONE
+        finish
+    endtry
+
+---
+
+`E1048` matches this error:
+
+    E1048: Item not found in script: Func
+
+`E1053` matches this error:
+
+    E1053: Could not import "script.vim"
+
+---
+
+`:unsilent` is necessary in case your script is loaded from a filetype plugin.
+Because in that case, messages are silent.
+
+---
+
+For a real example, see what we did in:
+
+    ~/.vim/plugged/vim-repmap/autoload/repmap/make.vim
+
+---
+
+Alternatively, we could prefix all `:import` with `silent!`, but I don't like that.
+We would also need to prefix any command which uses an imported item with `silent!`.
+That's  too much.   Also, when  your  code contains  a bug,  `silent!` can  make
+debugging harder, because it can hide the real cause of an issue.
+
+##
+## To refactor:
 ### should we refactor every manual sourcing of an autoload script into an autoload function call?
 
     ✘
@@ -2684,33 +2732,16 @@ At the very  least, we should consider  moving anything which is  not a function
 into a separate directory which is not automatically sourced (`macros/`?).
 That would apply to our function calls installing mappings in `vim-toggle-settings`.
 
-### should we make sure to never declare a null dictionary / list?
+---
 
-    # ✘
-    var somedict: dict<any>
+    \C^\%(\s*["#]\)\@!.*\zs\<\%(so\%[urce]\|ru\%[ntime]\)\>.*\%(autoload\|macro\)
 
-    # ✔
-    var somedict: dict<any> = {}
-                            ^--^
+    ~/.vim/plugged/vim-unichar/macros/unichar.awk
+    ~/.vim/plugged/vim-lg-lib/macros/ansi.vim
 
-Rationale:  We've often triggered bugs because of null dictionaries / lists.
-
-### should we specify the types of the arguments in a lambda?
-
-This is possible since [8.2.1956](https://github.com/vim/vim/releases/tag/v8.2.1956).
-
-### should we specify the return type void in the header of a function which doesn't return anything?
-
-              v----v
-    def Func(): void
-        ...
-        # no ":return value" statement anywhere
-        ...
-    enddef
-
-### should we use `: void` for the return type of a function which doesn't return anything?
-
-That's what is done in vim-fileselect.
+    runtime autoload/toggle_settings.vim
+    runtime! autoload/slow_call/*.vim
+    ru autoload/readline.vim
 
 ### should we rename all the autoload functions which have an underscore in their name?
 
@@ -2718,100 +2749,8 @@ Because they're in a file which contains an underscore.
 
     ^\s*\Cdef\s\+[^ (_]*_
 
-### our Vim `gd` snippet should expand into a different guard when used at the top of a Vim9 script file
-
-In Vim9 script, it should be:
-
-    if exists('loaded') | finish | endif
-    var loaded = true
-
-Also in legacy Vim script, we probably don't need that:
-
-    if exists('g:myplugin_loaded')
-        finish
-    endif
-    let g:myplugin_loaded
-
-Use this instead:
-
-    if exists('s:loaded') | finish | endif
-    let s:loaded = v:true
-
-See:
-
-    ~/.vim/plugged/vim-snippets/pythonx/snippet_helpers.py
-    /def plugin_guard(
-
-#### more generally, all our Vim snippets use the legacy syntax
-
-Should we update them to support only the Vim9 syntax?
-
-Or should we  make them smart and use  one syntax or the other  depending on the
-current context?
-
 ##
 ## To document:
-### cannot use the name of a function as a variable name
-```vim
-vim9script
-def Func()
-    var Func = 0
-enddef
-defcompile
-```
-    E1073: name already defined: Func = 0
-```vim
-vim9script
-def FuncA()
-    var FuncB = 0
-enddef
-def FuncB()
-enddef
-defcompile
-```
-    E1073: name already defined: FuncB = 0
-
-Is it working as  intended?  I guess it is.  Using the same  name for a function
-and a  variable is confusing,  and Vim9  script try to  be as less  confusing as
-possible.
-
-But why doesn't this raise any error?
-```vim
-vim9script
-var Func = 12
-def Func(): number
-    return 34
-enddef
-echo Func
-echo Func()
-```
-    12
-    34
-
-I guess it's because the variable assignment `Func` is not compiled.
-To be consistent, I think it should also raise an error at the script level.
-
----
-
-What happens if we use different scopes?
-Make more tests.
-```vim
-vim9script
-def g:Func()
-    var Func = 0
-enddef
-defcompile
-```
-    ✔
-```vim
-vim9script
-def Func()
-    g:Func = 0
-enddef
-defcompile
-```
-    ✔
-
 ### a block-local function is inherited by all nested blocks
 ```vim
 vim9script
@@ -2855,43 +2794,6 @@ Outer()
 ```
     E1075: Namespace not supported: s:Inner()
 
-### why we have "inconsistent" messages when using a wrong type of argument with the "-" and "+" operators
-```vim
-vim9script
-'' - 1
-```
-    at runtime:
-    E1030: Using a String as a Number
-```vim
-vim9script
-def Func()
-    '' - 1
-enddef
-Func()
-```
-    at compile time:
-    E1036: - requires number or float arguments
-```vim
-vim9script
-def Func()
-    '' + 1
-enddef
-Func()
-```
-    at compile time:
-    E1051: Wrong argument type for +
-
-First, the context is different in the  first snippet.  In the latter, the error
-occurs at runtime.  In the next snippets, the error occurs at compile time.  Vim
-knows more about the  types at runtime than at compile time;  so, it kinda makes
-sense that the error messages are different.
-
-Second, `+` has 2 meanings: it can  be used as an arithmetic operator to perform
-an addition,  or as a  list concatenation operator.   So, again, it  kinda makes
-sense that Vim raises a different error for `+` than for `-`.
-
-<https://github.com/vim/vim/issues/7167#issuecomment-714620921>
-
 ### a function-local function is implemented as a lambda function
 
 At least,  that's what  it seems  when reading  an error  message raised  from a
@@ -2909,8 +2811,12 @@ function-local function:
     EOF
     )
 
-    Error detected while compiling command line..script /proc/3556/fd/11[8]..function <SNR>1_Func[4]..<lambda>1:
-                                                                                                      ^-------^
+    Error detected while processing command line
+    ..script /proc/17649/fd/11[8]
+    ..function <SNR>1_Func[4]
+    ..<lambda>1:
+      ^-------^
+
 It's not a bug and it can't be fixed.
 The concept of function local to another function didn't exist in Vim script legacy.
 A function-local function can't have a public name like "Nested".
@@ -2921,28 +2827,6 @@ That's because we can still retrieve the definition site of such a function:
 
     " still works
     :verb function <lambda>123
-
-### trick to get the right type in a declaration without too much thinking/guessing
-
-Whenever you  wonder with which type  you should declare a  variable, function's
-argument, or function's return value, first use `any`.
-
-Once your code compiles, progressively  replace those `any` with obviously wrong
-types; e.g. `job`.
-
-You'll get an error such as:
-
-    E1013: Argument 1: type mismatch, expected job but got number
-
-Or:
-
-    E1013: Argument 1: type mismatch, expected job but got list<any>
-
-One of the types before or after "but got" will be different than `job`.
-If it is:
-
-   - not composite, then use it instead of the obviously wrong `job`
-   - composite, then replace `job` with `list<job>`, and repeat the process
 
 ### use the script-local namespace when you need to access a function-local variable from the global context
 
@@ -3055,84 +2939,6 @@ Also, when  you explicitly  specify the  type `number`, you  tell Vim  that it's
 *really* a number, and that it should never be used as a boolean.
 OTOH, if you rely on type inferrence, then  you can use the number as a boolean,
 provided it's 0 or 1.
-
-### `mapnew()` is *not* the equivalent of `copy()` + `map()`
-
-If it was, this would work:
-```vim
-vim9script
-def Func()
-    var ld = [{a: 1}]
-    copy(ld)->map((_, v) => extend(v, {b: 's'}))
-enddef
-Func()
-```
-    E1012: Type mismatch; expected list<dict<number>> but got list<dict<any>>
-
-But it doesn't.
-
-The main purpose  of `mapnew()` is to work around  the limitation which prevents
-`map()` from changing the type of the list/dictionary on which it operates.
-Indeed, in  Vim9, `map()`  can still  change the  *values* of  a list/dictionary
-(just like in legacy), but not their *types*.
-
----
-
-Also, watch this:
-```vim
-vim9script
-def Map()
-    var l: list<any> = [0]
-    map(l, () => '')
-enddef
-Map()
-```
-    E1012: Type mismatch; expected number but got string
-
-An error is raised even though we declared `l` with `list<any>`.
-I think that's because it's raised at runtime.
-At that stage, Vim doesn't check whether the types are correct in theory.
-It checks whether the types of the *values* are actually correct.
-
-This is briefly documented  at `:h vim9 /mapnew()`.
-
-   > One consequence is that the item type of a list or dict given to map() must
-   > not change.  This will give an error in compiled code: >
-   >         map([1, 2, 3], (i, v) => 'item ' .. i)
-   >         E1012: Type mismatch; expected list<number> but got list<string>
-   > Instead use |mapnew()|.
-
-But I'm not sure that it's well  explained that the error persists even when the
-first argument of `map()` is a variable name (not a simple value).
-Also, it's not clear from this paragraph that the error is raised at runtime.
-Send a patch to improve the doc.
-
-Same issue with `extend()`:
-```vim
-vim9script
-def Extend()
-    var d: dict<any> = {n: 0}
-    extend(d, {s: ''})
-enddef
-Extend()
-```
-    E1013: Argument 2: type mismatch, expected dict<number> but got dict<string>
-
-Similarly, the solution is to use `extendnew()`.
-The latter is not documented at `:h vim9`.  It should; send a patch.
-
-Same issue with `flatten()`:
-```vim
-vim9script
-def Func()
-    var l: list<list<number>> = [[1], [2]]
-    [[1], [2]]->flatten()
-enddef
-Func()
-```
-    E1158: Cannot use flatten() in Vim9 script
-
-Need to use `flattennew()`.
 
 ### `silent!` can only suppress an error at runtime, NOT at compile time
 ```vim
@@ -3247,7 +3053,7 @@ def MyFunction(n: number, s: string): string
 enddef
 var Funcref: func(number, string): string = MyFunction
 ```
-    ✔
+    no error
 ```vim
 vim9script
 def MyFunction(n: number, s: string): number
@@ -3330,6 +3136,43 @@ Maybe this difference can only be observed at compile time, not at runtime?
 This paragraph was added in this commit:
 
 <https://github.com/vim/vim/commit/d1caa941d876181aae0ebebc6ea954045bf0da24#diff-85b42c1fb69f74ec09315a12804fc50e>
+
+#### ?
+
+Since 8.2.2527, an error is raised when a lambda is used at the script level and
+it refers to a function which is defined later:
+```vim
+vim9script
+var Foo = () => Bar()
+def Bar()
+enddef
+defcompile
+```
+    E117: Unknown function: Bar
+
+The same code doesn't raise any error if the lambda is refactored into a `:def` function:
+```vim
+vim9script
+def Foo()
+    Bar()
+enddef
+def Bar()
+enddef
+defcompile
+```
+    no error
+
+In practice, the solution is usually to move the funcrefs assignment at the end of the script:
+```vim
+vim9script
+def Bar()
+enddef
+var Foo = () => Bar()
+defcompile
+```
+    no error
+
+Bug?
 
 #### ?
 
@@ -3752,42 +3595,6 @@ not run in the context of the script, and when you can't use a funcref.
 As an example, when you set the `'opfunc'` option.
 
 ###
-### cannot use `-=` when lhs is key from dictionary
-```vim
-vim9script
-def Func()
-    var d = {key: 123}
-    d.key -= 1
-enddef
-defcompile
-```
-    Index with operation not supported yet
-
-Same issue with:
-
-    +=
-    *=
-    /=
-    %=
-
----
-
-Another error is raised atm for `..=`:
-```vim
-vim9script
-def Func()
-    var d = {key: 'string'}
-    d.key ..= ' abc'
-enddef
-defcompile
-```
-    E1019: Can only concatenate to string
-
-I think it's on the todo list (`:h todo /\.\.=`):
-
-   > - Appending to dict item doesn't work:
-   >     let d[i] ..= value
-
 ### when a function raises an error at compile time, its body is emptied
 ```vim
 vim9script
@@ -3840,124 +3647,3 @@ fu Func
     1      echo [1, 2, 3][4]
        enddef
 
-### a `:def` function does not need a return type in its header just because it includes a return statement
-
-But it must contain one if it includes a return statement *which returns a value*.
-Otherwise, `E1096` is raised:
-
-    E1096: Returning a value in a function without a return type
-
----
-```vim
-vim9script
-def Func()
-    return
-enddef
-defcompile
-```
-    ✔
-```vim
-vim9script
-def Func()
-    return 123
-enddef
-defcompile
-```
-    E1096: Returning a value in a function without a return type
-
----
-
-Also, note that even though a function returns 0 by default:
-```vim
-vim9script
-def Func()
-enddef
-var x = Func()
-echom x
-```
-    0
-
-You can not omit a return statement, even if the function's return type is `number`:
-```vim
-vim9script
-def Func(): number
-enddef
-defcompile
-```
-    E1027: Missing return statement
-
-Nor can you omit the return value:
-```vim
-vim9script
-def Func(): number
-    return
-enddef
-defcompile
-```
-    E1003: Missing return value
-
-###
-### in a composite value, "function()" suppresses type checking at compile time
-```vim
-vim9script
-def Func()
-    var l: list<number>
-    l = ['', function('len')]
-enddef
-defcompile
-```
-    no error
-```vim
-vim9script
-def Func()
-    var d: dict<number>
-    d = {aa: '', bb: function('len')}
-enddef
-defcompile
-```
-    no error
-
-That's because `function()` is not considered a constant:
-<https://github.com/vim/vim/issues/7171#issuecomment-712315593>
-
-Not sure what that means...
-
----
-
-Anyway, as a result, this might cause an error to be shadowed:
-```vim
-vim9script
-def Func()
-    var l: list<string>
-    l = ['', function('len')]
-    l[0] - 1
-enddef
-Func()
-```
-    line 3:
-    E1036: - requires number or float arguments
-
-The first error is not this one.
-The first error is:
-
-    line 2:
-    E1012: Type mismatch; expected list<string> but got list<any>
-
-This might make debugging harder; especially when the lines are far away from each other:
-```vim
-vim9script
-def Func()
-    var l: list<string>
-    # ...
-    # many lines of code
-    # ...
-    # FIRST ERROR
-    l = ['', function('len')]
-    # ...
-    # many lines of code
-    # ...
-    # REPORTED ERROR
-    l[0] - 1
-enddef
-Func()
-```

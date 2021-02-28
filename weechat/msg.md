@@ -8,7 +8,7 @@ Use the `-server` argument:
 ## to someone which is not connected right now?
 
     /msg memoserv send bob I hope you'll read this when you're connected again
-                       ^-^
+                       ^^^
                        replace with the nick you want to send a memo to
 
 To get a complete list of all the commands you can send to the bot:
