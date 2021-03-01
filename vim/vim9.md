@@ -836,7 +836,7 @@ defcompile
 vim9script
 def Func()
     var d: dict<number>
-    d = {aa: '', bb: function('len')}
+    d = {a: '', b: function('len')}
 enddef
 defcompile
 ```
@@ -2472,6 +2472,56 @@ Similarly, from `:h autocmd-define`:
    > in a `:def` function) then {cmd} will be executed as in Vim9 script.
    > Thus this depends on where the autocmd is defined, not where it is triggered.
 
+## I can't use the output of a function as a bool, even when it returns a boolean number!
+```vim
+vim9script
+def Func(): bool
+    var s = '0'
+    return s->str2nr()
+enddef
+defcompile
+```
+    E1012: Type mismatch; expected bool but got number
+
+Workaround 1:
+```vim
+vim9script
+def Func(): bool
+    var s = '0'
+    return s->str2nr() ? true : false
+enddef
+defcompile
+```
+Workaround 2:
+```vim
+vim9script
+def Func(): bool
+    var s = '0'
+    return !!s->str2nr()
+enddef
+defcompile
+```
+This works because:
+
+   - `!` is the only operator (with `??`) to be able to handle *any* value as a boolean
+   - `!` considers any "empty"/"null" value as falsy, and everything else as truthy
+   - the second `!` cancels the first one
+
+---
+
+For more info, see: <https://github.com/vim/vim/issues/7644#issuecomment-757228802>
+
+I think the bottom  line of this post is that Vim can't  know in advance whether
+the output of `str2nr()` is 0 or 1, at least in the general case.
+Also, when  you explicitly  specify the  type `number`, you  tell Vim  that it's
+*really* a number, and that it should never be used as a boolean.
+OTOH, if you rely on type inferrence, then  you can use the number as a boolean,
+provided it's 0 or 1.
+
+Also, note  that this  pitfall is limited  to compiled code;  not at  the script
+level.  For the  latter, everything is done  at runtime, when Vim  has much more
+info and can test whether the number given by a function is a boolean or not.
+
 ## I can't install a custom Ex command then use it right away in the same function!
 ```vim
 vim9script
@@ -2710,46 +2760,6 @@ That's  too much.   Also, when  your  code contains  a bug,  `silent!` can  make
 debugging harder, because it can hide the real cause of an issue.
 
 ##
-## To refactor:
-### should we refactor every manual sourcing of an autoload script into an autoload function call?
-
-    ✘
-    :ru autoload/path/to/script.vim
-    :so autoload/path/to/script.vim
-
-    ✔
-    :call path#to#script#_()
-
-Rationale: It could avoid this issue:
-<https://github.com/vim/vim/issues/6644>
-
-Update: no longer needed.  The issue was fixed.
-
----
-
-In any case, manually sourcing an autoload script looks wrong.
-At the very  least, we should consider  moving anything which is  not a function
-into a separate directory which is not automatically sourced (`macros/`?).
-That would apply to our function calls installing mappings in `vim-toggle-settings`.
-
----
-
-    \C^\%(\s*["#]\)\@!.*\zs\<\%(so\%[urce]\|ru\%[ntime]\)\>.*\%(autoload\|macro\)
-
-    ~/.vim/plugged/vim-unichar/macros/unichar.awk
-    ~/.vim/plugged/vim-lg-lib/macros/ansi.vim
-
-    runtime autoload/toggle_settings.vim
-    runtime! autoload/slow_call/*.vim
-    ru autoload/readline.vim
-
-### should we rename all the autoload functions which have an underscore in their name?
-
-Because they're in a file which contains an underscore.
-
-    ^\s*\Cdef\s\+[^ (_]*_
-
-##
 ## To document:
 ### a block-local function is inherited by all nested blocks
 ```vim
@@ -2893,52 +2903,6 @@ echo 0o200
 See `:h octal` and `:h scriptversion-4`.
 
 This matters for the third argument of `mkdir()`, which is parsed as an octal number.
-
-### cannot use the output of `str2nr()` as a bool directly
-```vim
-vim9script
-def Func(): bool
-    var s = '0'
-    return s->str2nr()
-enddef
-defcompile
-```
-    E1012: Type mismatch; expected bool but got number
-
-Workaround 1:
-```vim
-vim9script
-def Func(): bool
-    var s = '0'
-    return s->str2nr() ? true : false
-enddef
-defcompile
-```
-Workaround 2:
-```vim
-vim9script
-def Func(): bool
-    var s = '0'
-    return !!s->str2nr()
-enddef
-defcompile
-```
-This works because:
-
-   - `!` is the only operator (with `??`) to be able to handle *any* value as a boolean
-   - `!` considers any "empty"/"null" value as falsy, and everything else as truthy
-   - the second `!` cancels the first one
-
----
-
-See: <https://github.com/vim/vim/issues/7644#issuecomment-757228802>
-
-I think the bottom  line of this post is that Vim can't  know in advance whether
-the output of `str2nr()` is 0 or 1, at least in the general case.
-Also, when  you explicitly  specify the  type `number`, you  tell Vim  that it's
-*really* a number, and that it should never be used as a boolean.
-OTOH, if you rely on type inferrence, then  you can use the number as a boolean,
-provided it's 0 or 1.
 
 ### `silent!` can only suppress an error at runtime, NOT at compile time
 ```vim

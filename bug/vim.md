@@ -698,6 +698,117 @@ Also, we can't provide a flag to some commands like `:g`...
 ## ?
 ```vim
 vim9script
+if search('pat')
+endif
+```
+    ✔
+```vim
+vim9script
+if !search('pat')
+endif
+```
+    ✔
+```vim
+vim9script
+setline(1, ['pat', 'xxx'])
+if search('pat')
+endif
+```
+    ✔
+```vim
+vim9script
+setline(1, ['pat', 'xxx'])
+if !search('pat')
+endif
+```
+    ✔
+```vim
+vim9script
+setline(1, ['xxx', 'pat'])
+if !search('pat')
+endif
+```
+    ✔
+```vim
+vim9script
+setline(1, ['xxx', 'pat'])
+if search('pat')
+endif
+```
+    E1023: Using a Number as a Bool: 2
+
+The last snippet looks inconsistent.  It's not a bug, but still, maybe Vim should:
+
+   - consider any non-zero number as `true`, just for `search()` (& friends like `searchpair()`)
+
+   - raise an error for *all* snippets, not just the last one;
+     except for the ones using the logical `!` because (from `:h vim9`):
+
+        > When using "!" for inverting, there is no error for using any type and the
+        > result is a boolean.
+
+     and if possible at compile time, not at runtime
+
+Update: actually,  it looks  like a  bug; because  we cannot  use the  output of
+`str2nr()` as a bool directly.
+```vim
+vim9script
+def Func(): bool
+    var s = '0'
+    return s->str2nr()
+enddef
+defcompile
+```
+    E1012: Type mismatch; expected bool but got number
+
+---
+
+See: <https://github.com/vim/vim/issues/7644#issuecomment-757228802>
+
+I think the bottom  line of this post is that Vim can't  know in advance whether
+the output of `str2nr()` is 0 or 1, at least in the general case.
+Also, when  you explicitly  specify the  type `number`, you  tell Vim  that it's
+*really* a number, and that it should never be used as a boolean.
+OTOH, if you rely on type inferrence, then  you can use the number as a boolean,
+provided it's 0 or 1.
+
+##
+## ?
+```vim
+vim9script
+def F(x: number): number
+  return x
+enddef
+def G(g: func): dict<func>
+  return {f: g}
+enddef
+def H(d: dict<func: string>): string
+  return d.f('')
+enddef
+G(F)->H()
+```
+    E1013: Argument 1: type mismatch, expected dict<func(...): string> but got dict<func(number): number>
+```vim
+vim9script
+def F(x: number): number
+  return x
+enddef
+def G(g: func): dict<func>
+  return {f: g}
+enddef
+def H(d: dict<func: string>): string
+  return d.f('')
+enddef
+def Func()
+    G(F)->H()
+enddef
+Func()
+```
+Why no error in compiled code?
+
+## ?
+```vim
+vim9script
 var d: list<dict<any>> = [{a: 0}]
 for e in d
     e = {a: 0, b: ''}
@@ -718,7 +829,43 @@ Func()
 
 Why an error in the first snippet, but not in the second one?
 
+## ?
+
+<https://github.com/vim/vim/issues/7770#issuecomment-787774799>
+
 ##
+## ?
+```vim
+vim9script
+[{a: 1, b: ''}]->filter((_, v: dict<number>): bool =>
+    true
+    # some comment
+    )
+```
+    line    5:
+    E1013: Argument 2: type mismatch, expected dict<number> but got dict<any>
+
+I don't  think the line number  is technically wrong  (5), but it would  be more
+useful if it matched  the start of the `filter()` call  (2), where the arguments
+types are declared, rather than its end.
+
+Simpler MWE:
+```vim
+vim9script
+def Func(n: number)
+enddef
+Func(
+
+    ''
+
+    )
+```
+    line    7:
+    E1013: Argument 1: type mismatch, expected number but got string
+
+Actually, could Vim be  smarter and give the actual line  number where the wrong
+argument is received (i.e. here 6)?
+
 ## ?
 ```vim
 vim9script
@@ -928,60 +1075,6 @@ required because it improves readability:
 
 Unless we can  find another example where  the space between a  command name and
 its argument prevents an issue...
-
-## ?
-```vim
-vim9script
-if search('pat')
-endif
-```
-    ✔
-```vim
-vim9script
-if !search('pat')
-endif
-```
-    ✔
-```vim
-vim9script
-setline(1, ['pat', 'xxx'])
-if search('pat')
-endif
-```
-    ✔
-```vim
-vim9script
-setline(1, ['pat', 'xxx'])
-if !search('pat')
-endif
-```
-    ✔
-```vim
-vim9script
-setline(1, ['xxx', 'pat'])
-if !search('pat')
-endif
-```
-    ✔
-```vim
-vim9script
-setline(1, ['xxx', 'pat'])
-if search('pat')
-endif
-```
-    E1023: Using a Number as a Bool: 2
-
-The last snippet looks inconsistent.  It's not a bug, but still, maybe Vim should:
-
-   - consider any non-zero number as `true`, just for `search()` (& friends like `searchpair()`)
-
-   - raise an error for *all* snippets, not just the last one;
-     except for the ones using the logical `!` because (from `:h vim9`):
-
-        > When using "!" for inverting, there is no error for using any type and the
-        > result is a boolean.
-
-     and if possible at compile time, not at runtime
 
 ##
 ## ?

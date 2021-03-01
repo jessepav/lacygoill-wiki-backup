@@ -120,6 +120,36 @@ Further reading:
 - <https://www.reddit.com/r/vim/comments/a9zzv5/last_character_end_of_file/ecnwnln/>
 
 ##
+## Where should I put a Vim script which I need to be able to source on-demand
+### possibly several times?
+
+In a `tools/` directory of your runtime path.
+
+That's where Vim puts similar scripts by default:
+
+    $VIMRUNTIME/tools/
+
+For example:
+
+    $VIMRUNTIME/tools/emoji_list.vim
+
+### only once?
+
+Turn the script into an optional package.
+
+For example, put it into:
+
+    ~/.vim/pack/myPack/opt/myPack/plugin/myPack.vim
+
+Then to source it, run:
+
+    packadd myPack
+
+That's what Vim does for similar scripts by default:
+
+    $VIMRUNTIME/pack/
+
+##
 # Pitfalls
 ## I've lost all the undo history of my file!
 
