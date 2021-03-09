@@ -56,14 +56,10 @@ It is asked by WeeChat on startup.
 
 Set the environment variable `WEECHAT_PASSPHRASE`.
 
-Or set the option `sec.crypt.passphrase_file` to read the passphrase from a file.
-Note that only the first line of the file is read.
+Or set the option `sec.crypt.passphrase_command` to read the passphrase from the
+output of a system command.  Note that only the first line is used.
 
-Also, even  if you  use a passphrase  file, it  seems that you  need to  set the
-passphrase manually with  `/secure passphrase`, otherwise the  password would be
-saved in plain text in sec.conf.
-
-The environment variable has priority over the file.
+The environment variable has priority over the system command.
 
 ###
 ## How to add secured data?
@@ -113,7 +109,7 @@ Set your passphrase:
     $ echo 'this is my passphrase' >~/.weechat-passphrase
     $ chmod 600 ~/.weechat-passphrase
     /secure passphrase this is my passphrase
-    /set sec.crypt.passphrase_file ~/.weechat-passphrase
+    /set sec.crypt.passphrase_command 'cat ~/.weechat-passphrase'
 
 If you choose a different file location, make sure the parent directory can't be
 written by any user except you.
@@ -159,7 +155,7 @@ Make sure `WEECHAT_PASSPHRASE` is not set:
 
     $ echo $WEECHAT_PASSPHRASE
 
-Read `/help secure` and `/help sec.crypt.passphrase_file`.
+Read `/help secure` and `/help sec.crypt.passphrase_command`.
 
 Also, read this:
 
@@ -178,7 +174,7 @@ Then try to find a MWE:
     /server add freenode chat.freenode.net -nicks=mynick
                                                   ^----^
     /secure passphrase this is my passphrase
-    /set sec.crypt.passphrase_file /tmp/passphrase
+    /set sec.crypt.passphrase_command 'cat /tmp/passphrase'
     /secure set freenodepass mypassword_on_freenode
                              ^--------------------^
     /set irc.server.freenode.password "${sec.data.freenodepass}"

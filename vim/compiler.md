@@ -1796,6 +1796,6 @@ Source: <https://www.reddit.com/r/vim/comments/d7vdbk/erroformat_playground/>
 # Reference
 
 [1]: https://en.wikipedia.org/wiki/Build_automation
-[2]: https://github.com/lacygoill/config/blob/master/.vim/template/by_name/compiler.txt
-[3]: https://github.com/lacygoill/vim-unix/blob/4e4f339a8709cd2012934db7dab45c97dc4050e3/plugin/unix.vim#L234-L240
+[2]: https://github.com/nicsig/config/blob/master/.vim/template/byName/compiler.txt
+[3]: https://github.com/nicsig/vim-unix/blob/ad7bc6d8809bca851622fb1cd34b0c45834a23ad/plugin/unix.vim#L256-L262
 

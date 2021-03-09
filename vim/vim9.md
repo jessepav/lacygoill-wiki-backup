@@ -33,7 +33,7 @@ def Func()
 enddef
 defcompile
 ```
-    E1017: Variable already declared: x~
+    E1017: Variable already declared: x
 
 ##
 ## If a `:def` function contains a syntax or type error, when does Vim raise an error?
@@ -417,10 +417,10 @@ def! Func()
 enddef
 Func()
 ```
-    E477: No ! allowed~
-    two~
-    E193: :enddef not inside a function~
-    one~
+    E477: No ! allowed
+    two
+    E193: :enddef not inside a function
+    one
 
 ### Why?
 
@@ -544,38 +544,38 @@ Whenever you need to specify a type, use `any`:
 When you assign it a value, because in that case Vim can infer the type from the latter.
 
 Here, `E1077` is raised because `x` is not assigned a value:
-
-    vim9script
-    def Func(x)
-    enddef
-    defcompile
-
-    E1077: Missing argument type for x~
+```vim
+vim9script
+def Func(x)
+enddef
+defcompile
+```
+    E1077: Missing argument type for x
 
 Solution: declare the type.
-
-    vim9script
-    def Func(x: number)
-    enddef
-    defcompile
-
+```vim
+vim9script
+def Func(x: number)
+enddef
+defcompile
+```
 ---
 
 Here, no error is raised, because `x` is assigned a default value:
-
-    vim9script
-    def Func(x = 3)
-    enddef
-    defcompile
-
+```vim
+vim9script
+def Func(x = 3)
+enddef
+defcompile
+```
 And here again, no error is raised, because `x` is assigned a value:
-
-    vim9script
-    def Func()
-        var x = 3
-    enddef
-    defcompile
-
+```vim
+vim9script
+def Func()
+    var x = 3
+enddef
+defcompile
+```
 See `:h type-inference`.
 
 ### When should I *not* omit the type, even though it's allowed?
@@ -912,41 +912,41 @@ Vim9 script = script which *does* start with `vim9script` or inside `:def` funct
 
 You can  only use `#` inside  a `:def` function, or  at the script level  if the
 latter starts with `:vim9script`.
-
-    vim9script
-    def Func()
-        var mylist = [
-                'one',
-                # some comment
-                'two',
-                ]
-        echo mylist
-    enddef
-    Func()
-
-    ['one', 'two']~
-
-    def Func()
-        var mylist = [
-                'one',
-                # some comment
-                'two',
-                ]
-        echo mylist
-    enddef
-    call Func()
-
-    ['one', 'two']~
-
-    vim9script
+```vim
+vim9script
+def Func()
     var mylist = [
             'one',
             # some comment
             'two',
             ]
     echo mylist
-
-    ['one', 'two']~
+enddef
+Func()
+```
+    ['one', 'two']
+```vim
+def Func()
+    var mylist = [
+            'one',
+            # some comment
+            'two',
+            ]
+    echo mylist
+enddef
+call Func()
+```
+    ['one', 'two']
+```vim
+vim9script
+var mylist = [
+        'one',
+        # some comment
+        'two',
+        ]
+echo mylist
+```
+    ['one', 'two']
 
 Everywhere else, neither `"` nor `#` work.
 
@@ -990,14 +990,15 @@ Example for a function:
 ### export items in a script?
 
 The script must start with `:vim9script`.
-
-    export const MYCONST = 123
-
-    E1042: export can only be used in vim9script~
-
-    vim9script
-    export const MYCONST = 123
-    ✔
+```vim
+export const MYCONST = 123
+```
+    E1042: export can only be used in vim9script
+```vim
+vim9script
+export const MYCONST = 123
+```
+    no error
 
 ### import items from a script?
 
@@ -1258,13 +1259,7 @@ existing item.
 
 ---
 
-Note that this has not been implemented yet.
-See `:h todo /as Name`:
-
-   > - Implement "as Name" in "import Item as Name from ..."
-
-Also, this is supposed to work even inside curly brackets.
-So, you should be able to write something like:
+Note that it keeps working even inside curly brackets:
 
     import {MYCONST, var, Func as NewFunc} from 'foo.vim'
                                ^--------^
@@ -1293,12 +1288,12 @@ So, to refer to it later, you'll need to specify `s:`:
     import MYCONST from './exported.vim'
     echo MYCONST
          ^-----^
-         ✘
+            ✘
 
     import MYCONST from './exported.vim'
     echo s:MYCONST
          ^-------^
-         ✔
+             ✔
 
 Working example:
 
@@ -1466,56 +1461,56 @@ It's somewhat equivalent to:
 ## Which difference is there between a legacy `s:name` and a Vim9 `name` variable defined at the script level?
 
 Legacy's `s:name` can be unlet; not Vim9's `name`:
-
-    vim9script
-    var name = 123
-    unlet name
-
-    E1081: Cannot unlet name~
+```vim
+vim9script
+var name = 123
+unlet name
+```
+    E1081: Cannot unlet name
 
 ## In Vim9 script, what's the main difference between a `b:`, `g:`, `t:`, `w:`, `$` variable and other variables?
 
 Variables which are prefixed by a prefix denoting a scope can't be declared, but
 can be deleted:
-
-    vim9script
-    var b:name = 123
-
-    E1016: Cannot declare a buffer variable: b:name~
-
-    vim9script
-    b:name = 123
-    unlet b:name
-    ✔
+```vim
+vim9script
+var b:name = 123
+```
+    E1016: Cannot declare a buffer variable: b:name
+```vim
+b:name = 123
+unlet b:name
+```
+    no error
 
 Variables  which are  *not* prefixed  by a  scope (block-local,  function-local,
 script-local) *can* be declared, but can't be deleted.
-
-    vim9script
-    def Func()
-        if 1
-            var name = 'block-local'
-            unlet name
-        endif
-    enddef
-    defcompile
-
-    E1081: Cannot unlet name~
-
-    vim9script
-    def Func()
-        var name = 'function-local'
+```vim
+vim9script
+def Func()
+    if 1
+        var name = 'block-local'
         unlet name
-    enddef
-    defcompile
-
-    E1081: Cannot unlet name~
-
-    vim9script
-    var name = 'script-local'
+    endif
+enddef
+defcompile
+```
+    E1081: Cannot unlet name
+```vim
+vim9script
+def Func()
+    var name = 'function-local'
     unlet name
-
-    E1081: Cannot unlet name~
+enddef
+defcompile
+```
+    E1081: Cannot unlet name
+```vim
+vim9script
+var name = 'script-local'
+unlet name
+```
+    E1081: Cannot unlet name
 
 ---
 
@@ -1529,28 +1524,28 @@ See `:h vim9-declaration /unlet`:
 ## How to prevent a variable from being accessible in a later statement?
 
 Put it inside a `{}` block:
-
-    vim9script
-    def Func()
-        {
-            var n = 123
-        }
-        echo n
-    enddef
-    defcompile
-
-    E1001: variable not found: n~
+```vim
+vim9script
+def Func()
+    {
+        var n = 123
+    }
+    echo n
+enddef
+defcompile
+```
+    E1001: variable not found: n
 
 ##
 ## Which operands are accepted by the logical operators:
 ### && and ||
 
 Only booleans and the numbers 0 and 1.
-
-    vim9script
-    echo 123 || 0
-
-    E1023: Using a Number as a Bool: 123~
+```vim
+vim9script
+echo 123 || 0
+```
+    E1023: Using a Number as a Bool: 123
 
 ---
 
@@ -1606,7 +1601,7 @@ def Func()
 enddef
 Func()
 ```
-    v:true
+    true
 
 ###
 ## What's shadowing?
@@ -1848,7 +1843,7 @@ if it refers to a non-existing member from a list:
 ```vim
 vim9script
 def Func()
-    echo [1, 2, 3][4]
+    eval [][0]
 enddef
 defcompile
 ```
@@ -1864,14 +1859,14 @@ var l = [1 , 2 , 3]
 ```
     E1068: No white space allowed before ','
 
-In a list or dictionary, the usage of white space is strict:
+In a list or dictionary, the usage of whitespace is strict:
 
-   - you *can* write a white space after the opening `[` or `{`, and before the closing `]` or `}`
+   - you *can* write a whitespace after the opening `[` or `{`, and before the closing `]` or `}`
 
-   - you *cannot* write a white space before a comma separating two consecutive items,
+   - you *cannot* write a whitespace before a comma separating two consecutive items,
      nor after a colon separating a key from its value in a dictionary
 
-   - you *must* write a white space after a comma separating two consecutive items
+   - you *must* write a whitespace after a comma separating two consecutive items
 
 Example:
 
@@ -1884,7 +1879,7 @@ Example:
                     ✘ = cannot be written
                     ✔ = must be written
 
-Remove the wrong white space:
+Remove the wrong whitespace:
 ```vim
 vim9script
 var dict = {'a': 1, 'b': 2}
@@ -1948,27 +1943,27 @@ The same issue applies to other single-letter variable names:
 
 ##
 ## My eval string can't access variables in the outer function scope!
-
-    vim9script
-    def Func()
-        var l = ['aaa', 'bbb', 'ccc', 'ddd']
-        range(1, 2)->map('l[v:val]')
-        #                ^--------^
-        #                    ✘
-    enddef
-    Func()
-
-    E121: Undefined variable: l~
+```vim
+vim9script
+def Func()
+    var l = ['aaa', 'bbb', 'ccc', 'ddd']
+    range(1, 2)->map('l[v:val]')
+    #                ^--------^
+    #                    ✘
+enddef
+Func()
+```
+    E121: Undefined variable: l
 
 Solution: use a lambda.
-
-    vim9script
-    def Func()
-        var l = ['aaa', 'bbb', 'ccc', 'ddd']
-        range(1, 2)->map({_, v -> v})
-    enddef
-    Func()
-
+```vim
+vim9script
+def Func()
+    var l = ['aaa', 'bbb', 'ccc', 'ddd']
+    range(1, 2)->map((_, v) => v)
+enddef
+Func()
+```
 ---
 
 The issue is due to:
@@ -2130,70 +2125,71 @@ the type of transformation you perform...
 
 ##
 ## Vim complains that it doesn't know the function-local variable I'm referring to!
-
-    vim9script
-    def Func()
-        if 1
-           var n = 123
-        endif
-        echo n
-    enddef
-    defcompile
-
-    E1001: variable not found: n~
+```vim
+vim9script
+def Func()
+    if 1
+       var n = 123
+    endif
+    echo n
+enddef
+defcompile
+```
+    E1001: variable not found: n
 
 A variable is local to its current block.
 
 Solution:  Declare it *before* the block where it's assigned a value.
-
-    vim9script
-    def Func()
+```vim
+vim9script
+def Func()
+    var n: number
+    if 1
+       n = 123
+    endif
+    echo n
+enddef
+defcompile
+```
+This makes  the variable  accessible in  the block where  it's declared  (and in
+nested blocks).  Not in outer blocks:
+```vim
+vim9script
+def Func()
+    if 1
         var n: number
         if 1
            n = 123
         endif
-        echo n
-    enddef
-    defcompile
-
-This makes  the variable  accessible in  the block where  it's declared  (and in
-nested blocks).  Not in outer blocks:
-
-    vim9script
-    def Func()
-        if 1
-            var n: number
-            if 1
-               n = 123
-            endif
-        endif
-        echo n
-    enddef
-    defcompile
-
-    E1001: variable not found: n~
+    endif
+    echo n
+enddef
+defcompile
+```
+    E1001: variable not found: n
 
 ### Now it complains about a script-local variable!
-
-    vim9script
-    def Func()
-        echo s:name
-    enddef
-    defcompile
-    s:name = 123
-
-    E1050: Item not found: name~
+```vim
+vim9script
+def Func()
+    echo name
+enddef
+defcompile
+var name = 123
+```
+    E1050: Item not found: name
 
 Make sure your script-local variable is defined *before* the function – in which
 it's referred to – is compiled.
-
-    vim9script
-    def Func()
-        echo s:name
-    enddef
-    s:name = 123
-    defcompile
-    ✔
+```vim
+vim9script
+def Func()
+    echo name
+enddef
+var name = 123
+defcompile
+```
+    no error
 
 From `:h fast-functions /prefix`:
 
@@ -2208,29 +2204,30 @@ It's not wrong.
 
 You need to pay attention to the context in which the error is raised:
 
-    Error detected while processing ...:~
-                                    ^-^
+    Error detected while processing ...:
+                                    ^^^
                                     context
 
 Is it raised while processing a file?
 Or is it raised while processing a function?
 
-Here is an example where you may find the line number of the error unexpected:
+Here is an example where you might find the line number of the error unexpected:
+```vim
+vim9script
+set qftf=QuickFixTextFunc
+def QuickFixTextFunc(info: dict<number>): list<any>
+    var qfl: list<any>
+    qfl = [{}]
+    return qfl
+enddef
+helpg grail
+copen
+```
+    Error detected while processing /proc/2212/fd/11:
+    line    8:
+    E731: using Dictionary as a String
 
-    set qftf=QuickFixTextFunc
-    def QuickFixTextFunc(info: dict<number>): list<any>
-        var qfl: list<any>
-        qfl = [{}]
-        return qfl
-    enddef
-    helpg grail
-    copen
-
-    Error detected while processing /proc/2212/fd/11:~
-    line    8:~
-    E731: using Dictionary as a String~
-
-Instead of line 8, you may have expected line 2, which is the address of:
+Instead of line 8, you might have expected line 2, which is the address of:
 
     qfl = [{}]
 
@@ -2250,26 +2247,26 @@ raised from `:copen`, which is on line 8 *in the script*.
 Notice how the  first line in the  error messages refers to the  script, not the
 function:
 
-    Error detected while processing /proc/2212/fd/11:~
+    Error detected while processing /proc/2212/fd/11:
                                     ^--------------^
 
 ---
 
 Here's  another example,  where  the  line number  of  the  error looks  correct
 immediately:
-
-    set qftf=QuickFixTextFunc
-    def QuickFixTextFunc(info: dict<number>): list<any>
-        var qfl: list<any>
-        qfl = v:true
-        return qfl
-    enddef
-    helpg grail
-    copen
-
-    Error detected while processing function QuickFixTextFunc:~
-    line    2:~
-    E1013: type mismatch, expected list<any> but got bool~
+```vim
+set qftf=QuickFixTextFunc
+def QuickFixTextFunc(info: dict<number>): list<any>
+    var qfl: list<any>
+    qfl = true
+    return qfl
+enddef
+helpg grail
+copen
+```
+    Error detected while processing function QuickFixTextFunc:
+    line    2:
+    E1013: type mismatch, expected list<any> but got bool
 
 Again, let's first explain the error.
 
@@ -2280,21 +2277,21 @@ expected list type, hence the error.
 Now, notice how –  this time – the first line in the  error messages refers to a
 function:
 
-    Error detected while processing function QuickFixTextFunc:~
+    Error detected while processing function QuickFixTextFunc:
                                     ^-----------------------^
 
 ## I can't call a `:def` function from a `:fu` one.  The function is not found!
-
-    vim9script
-    fu Foo()
-        call Bar()
-    endfu
-    def Bar()
-        echo 'bar'
-    enddef
-    Foo()
-
-    E117: Unknown function: Bar~
+```vim
+vim9script
+fu Foo()
+    call Bar()
+endfu
+def Bar()
+    echo 'bar'
+enddef
+Foo()
+```
+    E117: Unknown function: Bar
 
 You forgot the `s:` scope in your legacy function:
 
@@ -2302,17 +2299,17 @@ You forgot the `s:` scope in your legacy function:
          ^^
 
 Fixed code:
-
-    vim9script
-    fu Foo()
-        call s:Bar()
-    endfu
-    def Bar()
-        echo 'bar'
-    enddef
-    Foo()
-
-    bar~
+```vim
+vim9script
+fu Foo()
+    call s:Bar()
+endfu
+def Bar()
+    echo 'bar'
+enddef
+Foo()
+```
+    bar
 
 Explanation: you can omit `s:` when:
 
@@ -2417,7 +2414,7 @@ def Func()
 enddef
 Func()
 ```
-    v:true
+    true
 
 ##
 ## I can't declare multiple variables on a single line, using the unpack notation!
@@ -2472,7 +2469,9 @@ Similarly, from `:h autocmd-define`:
    > in a `:def` function) then {cmd} will be executed as in Vim9 script.
    > Thus this depends on where the autocmd is defined, not where it is triggered.
 
-## I can't use the output of a function as a bool, even when it returns a boolean number!
+## ?
+
+I can't use the output of a function as a bool, even when it returns a boolean number!
 ```vim
 vim9script
 def Func(): bool
@@ -2522,6 +2521,97 @@ Also, note  that this  pitfall is limited  to compiled code;  not at  the script
 level.  For the  latter, everything is done  at runtime, when Vim  has much more
 info and can test whether the number given by a function is a boolean or not.
 
+---
+```vim
+vim9script
+def Func()
+    if search('pat')
+    endif
+enddef
+defcompile
+```
+    no error
+```vim
+vim9script
+setline(1, ['pat', 'xxx'])
+def Func()
+    if search('pat')
+    endif
+enddef
+defcompile
+```
+    no error
+```vim
+vim9script
+setline(1, ['xxx', 'pat'])
+def Func()
+    if search('pat')
+    endif
+enddef
+defcompile
+```
+    no error
+
+These three snippets should raise an error.
+It doesn't matter that `search()` might return a boolean number.
+Just like here, it doesn't matter that `str2nr()` returns a boolean number:
+```vim
+vim9script
+def Func(): bool
+    var s = '0'
+    return s->str2nr()
+enddef
+defcompile
+```
+    E1012: Type mismatch; expected bool but got number
+
+---
+```vim
+vim9script
+def Func()
+    var s = '123'
+    if s->str2nr()
+    endif
+enddef
+defcompile
+```
+     no error
+
+Why no error?
+
+---
+
+Note  that no  error is  raised  when `search()`  is prefixed  with the  logical
+operator `!`:
+```vim
+vim9script
+if !search('pat')
+endif
+```
+    no error
+```vim
+vim9script
+setline(1, ['pat', 'xxx'])
+if !search('pat')
+endif
+```
+    no error
+```vim
+vim9script
+setline(1, ['xxx', 'pat'])
+if !search('pat')
+endif
+```
+    no error
+
+That's expected.  From `:h vim9-differences /invert`:
+
+   > When using "!" for inverting, there is no error for using any type and the
+   > result is a boolean.
+
+To document (?).
+
+##
 ## I can't install a custom Ex command then use it right away in the same function!
 ```vim
 vim9script
@@ -2584,7 +2674,38 @@ vim9script
 ```
     no error
 
-## I want to use a closure in a global command or in the replacement of a substitution.  It doesn't work!
+## I can't copy-paste a legacy function in a Vim9 script.  Suddenly, it gives an `E15` error!
+
+In  a  legacy   function  in  a  Vim9  script,  the   highest  scriptversion  is
+automatically used.  From `:h Vim9-script /scriptversion`:
+
+   > When using `:function` in a Vim9 script file the legacy syntax is used, **with**
+   > **the highest |scriptversion|**.  However, this can be confusing and is therefore
+   > discouraged.
+
+See `:h scriptversion`.  In particular, see `:h scriptversion-2`:
+
+   >  :scriptversion 2
+   >       String concatenation with "." is not supported, use ".." instead.
+   >       This avoids the ambiguity using "." for Dict member access and
+   >       floating point numbers.  Now ".5" means the number 0.5.
+```vim
+fu Func()
+    eval 'a'.'b'
+endfu
+call Func()
+```
+    no error
+```vim
+vim9script
+fu Func()
+    eval 'a'.'b'
+endfu
+Func()
+```
+    E15: Invalid expression: 'a'.'b'
+
+## I can't use a closure in a global command (nor in the replacement of a substitution)!
 
 Your closure needs to be global.  It can't be local to the outer function:
 
@@ -2758,6 +2879,55 @@ Alternatively, we could prefix all `:import` with `silent!`, but I don't like th
 We would also need to prefix any command which uses an imported item with `silent!`.
 That's  too much.   Also, when  your  code contains  a bug,  `silent!` can  make
 debugging harder, because it can hide the real cause of an issue.
+
+###
+## Should we refactor "if typename(type) == 'string' && type == ''" into "if type is ''"?
+
+Sometimes, we had to write something like this:
+
+    if typename(type) == 'string' && type == ''
+
+Instead of just this:
+
+    if type == ''
+
+Because `type` was a variable of type `any`.
+It turns out that we could also simplify the line like this:
+
+    if type is ''
+
+However, I'm not  sure it's working as  intended, because an error  is raised at
+the script level.  In any case, this is inconsistent:
+<https://github.com/vim/vim/issues/7931>
+
+Once the issue is fixed, *if* you can simplify these kind of lines, do it.
+Look for this pattern:
+
+    \<type\%(name\)\=(.*&&.*[!=]=
+
+Also, *if* it works, document that the  `is` operator can be useful when doing a
+comparison with an operand of type `any`.  Although, it seems only true for some
+types of operands:
+
+    let x = 0 | echo x is 0
+    1
+
+    let x = 0.0 | echo x is 0.0
+    1
+
+    let x = '' | echo x is ''
+    1
+
+    let x = [] | echo x is []
+    0
+
+    let x = {} | echo x is {}
+    0
+
+    let x = 0z1234 | echo x is 0z1234
+    0
+
+Is it really a good idea to use `is` (and `isnot`)?
 
 ##
 ## To document:
@@ -3160,9 +3330,9 @@ def Func()
 enddef
 call Func()
 ```
-    E1101: Cannot declare a script variable in a function: s:name~
+    E1101: Cannot declare a script variable in a function: s:name
 
-    same error in a Vim9 script
+    # same error in a Vim9 script
 ```vim
 def Func()
     s:name = 123
@@ -3170,10 +3340,10 @@ def Func()
 enddef
 call Func()
 ```
-    123~
+    123
 
-    in a Vim9 script, an error would be raised "E1089: unknown variable: s:name"
-    https://github.com/vim/vim/issues/6771#issuecomment-678657763
+    # in a Vim9 script, an error would be raised "E1089: unknown variable: s:name"
+    # https://github.com/vim/vim/issues/6771#issuecomment-678657763
 ```vim
 def Outer()
     def s:Inner()
@@ -3181,9 +3351,9 @@ def Outer()
 enddef
 call Outer()
 ```
-    E1075: Namespace not supported: s:Inner()~
+    E1075: Namespace not supported: s:Inner()
 
-    same error in a Vim9 script
+    # same error in a Vim9 script
 
 ### when `s:` scope can be omitted
 
@@ -3207,30 +3377,30 @@ def Func()
 enddef
 Func()
 ```
-    E1054: Variable already declared in the script: name~
+    E1054: Variable already declared in the script: name
 
 ---
 
 For a `:def` function in a legacy script,  you can *not* omit `s:` in front of a
 variable name, regardless of whether it was defined at the script level:
-
-    let s:name = 123
-    def Func()
-        echo name
-    enddef
-    call Func()
-
-    E1001: variable not found: name~
+```vim
+let s:name = 123
+def Func()
+    echo name
+enddef
+call Func()
+```
+    E1001: variable not found: name
 
 Or in a `:def` function:
-
-    def Func()
-        s:name = 123
-        echo name
-    enddef
-    call Func()
-
-    E1001: variable not found: name~
+```vim
+def Func()
+    s:name = 123
+    echo name
+enddef
+call Func()
+```
+    E1001: variable not found: name
 
 However, you *can* omit `s:` in front  of a function name, regardless of whether
 it's a `:def` function:
@@ -3387,43 +3557,43 @@ will fail to jump to the function's definition.
                          that's because `Job_handler()` is defined without `s:` in its header
 
 Besides, if you press `C-c`, then the callback function won't be found either:
-
-    vim9script
-    def Popup()
-        var id = popup_menu(['aaa', 'bbb', 'ccc'], {
-            filter: Filter,
-            callback: function('Callback'),
-            })
-    enddef
-    def Filter(winid: number, key: string): bool
-        return popup_filter_menu(winid, key)
-    enddef
-    def Callback(winid: number, choice: number)
-    enddef
-    Popup()
-    feedkeys("\<c-c>")
-
-    E117: Unknown function: Callback~
+```vim
+vim9script
+def Popup()
+    var id = popup_menu(['aaa', 'bbb', 'ccc'], {
+        filter: Filter,
+        callback: function('Callback'),
+        })
+enddef
+def Filter(winid: number, key: string): bool
+    return popup_filter_menu(winid, key)
+enddef
+def Callback(winid: number, choice: number)
+enddef
+Popup()
+feedkeys("\<c-c>")
+```
+    E117: Unknown function: Callback
 
 Same issue if the filter function cannot be found:
-
-    vim9script
-    def Popup()
-        var id = popup_menu(['aaa', 'bbb', 'ccc'], {
-            filter: function('Filter'),
-            callback: function('Callback'),
-            })
-    enddef
-    def Filter(winid: number, key: string): bool
-        return popup_filter_menu(winid, key)
-    enddef
-    def Callback(winid: number, choice: number)
-    enddef
-    Popup()
-    feedkeys('j')
-
-    E117: Unknown function: Filter~
-    E117: Unknown function: Callback~
+```vim
+vim9script
+def Popup()
+    var id = popup_menu(['aaa', 'bbb', 'ccc'], {
+        filter: function('Filter'),
+        callback: function('Callback'),
+        })
+enddef
+def Filter(winid: number, key: string): bool
+    return popup_filter_menu(winid, key)
+enddef
+def Callback(winid: number, choice: number)
+enddef
+Popup()
+feedkeys('j')
+```
+    E117: Unknown function: Filter
+    E117: Unknown function: Callback
 
 Notice how  – this time  – an  error is also  raised for the  callback function.
 It's because of the previous error  caused by the filter function which couldn't
@@ -3554,8 +3724,8 @@ If you need the ID of a script fom which you've imported a function, use this:
 
     const SID = execute('fu Opfunc')->matchstr('\C\<def\s\+\zs<SNR>\d\+_')
 
-You may need this in some circumstances; typically where you write code which is
-not run in the context of the script, and when you can't use a funcref.
+You might need this in some  circumstances; typically where you write code which
+is not run in the context of the script, and when you can't use a funcref.
 As an example, when you set the `'opfunc'` option.
 
 ###

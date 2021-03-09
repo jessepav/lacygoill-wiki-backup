@@ -990,22 +990,22 @@ Read this comment, and all the subsequent ones:
 
 As a simple example, try this:
 
-    $ tmux popup -xC -yC -w60 -h10 -R 'fzf <~/.shrc' -K -E
+    $ tmux popup -E -xC -yC -w60 -h10 'fzf <~/.shrc'
 
 ---
 
 Another example:
 
     bind -n DoubleClick1Pane if -F '#{m/r:^[^:]*:[0-9]+:,#{mouse_word}}' {
-            popup -w90% -h90% -KE -d '#{pane_current_path}' -R {
+            popup -w90% -h90% -E -d '#{pane_current_path}' {
                     vim $(echo #{mouse_word}|awk -F: '{print "+" $2,$1}')
             }
     } {
             if -F '#{m/r:https?://([a-z0-9A-Z]+(:[a-zA-Z0-9]+)?@)?([a-z0-9A-Z][-a-z0-9A-Z]*\.)+[A-Za-z][-A-Za-z]*((:[0-9]+)?)(/[a-zA-Z0-9;/\.\-_+%\
     ?&@=#\(\)~]*)?,#{mouse_word}}' {
-                    popup -w90% -h90% -KE -d '#{pane_current_path}' -R { w3m "#{mouse_word}" }
+                    popup -w90% -h90% -E -d '#{pane_current_path}' { w3m "#{mouse_word}" }
             } {
-                    popup -w90% -h90% -KE -d '#{pane_current_path}' -R { vim "#{mouse_word}" }
+                    popup -w90% -h90% -E -d '#{pane_current_path}' { vim "#{mouse_word}" }
             }
     }
 
@@ -1233,6 +1233,13 @@ session (I think).
 ## how to get the index of the last window
 
     $ tmux display -p '#{W:#{?window_end_flag,#I,}}'
+
+## how to get the full command currently running in a pane
+
+From nicm on #tmux:
+
+   > │ you will need to write a script that figures it out from #{pane_pid} or #{pane_tty} and gets it from
+   > │ /proc/cmdline in that case, tmux does not have the arguments for running commands
 
 ##
 # typos in manpage

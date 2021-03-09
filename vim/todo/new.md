@@ -2,15 +2,11 @@
 
    - `:h appendbufline()` + `:h deletebufline()`
    - `:h charclass()`
-   - `:h charcol()`
-   - `:h charidx()`
    - `:h chdir()`
    - `:h complete_info()` + 'user_data' entry in completion item
    - `:h environ()` + `:h getenv()` + `:h setenv()`
    - `:h expandcmd()`
    - `:h fullcommand()`
-   - `:h getcharpos()`
-   - `:h getcursorcharpos()`
    - `:h gettagstack()` + `:h settagstack()`
    - `:h interrupt()`
    - `:h listener_add()`
@@ -18,8 +14,6 @@
    - `:h pum_getpos()`
    - `:h readdir()` + `:h readdirex()`
    - `:h setcellwidths()`
-   - `:h setcharpos()`
-   - `:h setcursorcharpos()`
    - `:h slice()`
    - `:h str2list()` + `:h list2str()`
    - `:h strptime()` (*str*ing *p*arse *time* ?)
@@ -27,6 +21,13 @@
    - `:h term_setsize()`
    - `:h terminalprops()`
    - `:h win_splitmove()`
+
+   - `:h charcol()` (alternative to `col()` based on characters instead of bytes)
+   - `:h charidx()`
+   - `:h getcharpos()` (alternative to `getpos()` based on characters instead of bytes)
+   - `:h setcharpos()` (alternative to `setpos()` based on characters instead of bytes)
+   - `:h getcursorcharpos()` (alternative to `getcurpos()` based on characters instead of bytes)
+   - `:h setcursorcharpos()`
 
 ---
 

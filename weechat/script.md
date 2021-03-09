@@ -96,7 +96,7 @@ script is unloaded.
 
 Example:
 
-    weechat.register('test_python', 'lacygoill', '1.0', 'GPL3', 'Test script', '', '')
+    weechat.register('test_python', 'nicsig', '1.0', 'GPL3', 'Test script', '', '')
 
 ## How do I get the value of a string option?
 

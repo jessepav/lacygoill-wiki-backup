@@ -1,6 +1,6 @@
 # How do I write a togglable popup terminal?
 
-See: <https://gist.github.com/lacygoill/0bfef0a2e70ac7015aaee56a670c124b>
+See: <https://gist.github.com/nicsig/798ad620d6002574718e000ce9050965>
 
 ##
 # Filters
@@ -437,18 +437,9 @@ preview popup for a help buffer:
 We've already started to customize the preview popup in `vim-window`:
 
     " ~/.vim/plugged/vim-window/plugin/window.vim
-    /s:customize_preview_popup
+    /CustomizePreviewPopup
 
 Are there still some options we want to set?
-
-FIXME: The title  of a  help preview popup  is still visible  when we've  run an
-`:edit` command with a file argument matching an existing file.
-
-    $ vim
-    :e $MYVIMRC
-    :h
-    " press )
-    " press p
 
 ## Are there settings which we want to apply in all popups?
 
@@ -639,7 +630,7 @@ from reading the end of long lines when previewing a help tag in a popup.
 
 ## Port calendar.vim to Vim.
 
-<https://gist.github.com/lacygoill/c9ce255ff5026505e8cbfa7ceb7de6ba>
+<https://gist.github.com/nicsig/69e71da365cf69228670ed202a9d19f2>
 
     " Config {{{1
 

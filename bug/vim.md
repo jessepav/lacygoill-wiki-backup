@@ -696,117 +696,8 @@ Also, we can't provide a flag to some commands like `:g`...
 
 ##
 ## ?
-```vim
-vim9script
-if search('pat')
-endif
-```
-    ✔
-```vim
-vim9script
-if !search('pat')
-endif
-```
-    ✔
-```vim
-vim9script
-setline(1, ['pat', 'xxx'])
-if search('pat')
-endif
-```
-    ✔
-```vim
-vim9script
-setline(1, ['pat', 'xxx'])
-if !search('pat')
-endif
-```
-    ✔
-```vim
-vim9script
-setline(1, ['xxx', 'pat'])
-if !search('pat')
-endif
-```
-    ✔
-```vim
-vim9script
-setline(1, ['xxx', 'pat'])
-if search('pat')
-endif
-```
-    E1023: Using a Number as a Bool: 2
 
-The last snippet looks inconsistent.  It's not a bug, but still, maybe Vim should:
-
-   - consider any non-zero number as `true`, just for `search()` (& friends like `searchpair()`)
-
-   - raise an error for *all* snippets, not just the last one;
-     except for the ones using the logical `!` because (from `:h vim9`):
-
-        > When using "!" for inverting, there is no error for using any type and the
-        > result is a boolean.
-
-     and if possible at compile time, not at runtime
-
-Update: actually,  it looks  like a  bug; because  we cannot  use the  output of
-`str2nr()` as a bool directly.
-```vim
-vim9script
-def Func(): bool
-    var s = '0'
-    return s->str2nr()
-enddef
-defcompile
-```
-    E1012: Type mismatch; expected bool but got number
-
----
-
-See: <https://github.com/vim/vim/issues/7644#issuecomment-757228802>
-
-I think the bottom  line of this post is that Vim can't  know in advance whether
-the output of `str2nr()` is 0 or 1, at least in the general case.
-Also, when  you explicitly  specify the  type `number`, you  tell Vim  that it's
-*really* a number, and that it should never be used as a boolean.
-OTOH, if you rely on type inferrence, then  you can use the number as a boolean,
-provided it's 0 or 1.
-
-##
-## ?
-```vim
-vim9script
-def F(x: number): number
-  return x
-enddef
-def G(g: func): dict<func>
-  return {f: g}
-enddef
-def H(d: dict<func: string>): string
-  return d.f('')
-enddef
-G(F)->H()
-```
-    E1013: Argument 1: type mismatch, expected dict<func(...): string> but got dict<func(number): number>
-```vim
-vim9script
-def F(x: number): number
-  return x
-enddef
-def G(g: func): dict<func>
-  return {f: g}
-enddef
-def H(d: dict<func: string>): string
-  return d.f('')
-enddef
-def Func()
-    G(F)->H()
-enddef
-Func()
-```
-Why no error in compiled code?
-
-## ?
+Inconsistent type checking when changing dictionary in :for loop.
 ```vim
 vim9script
 var d: list<dict<any>> = [{a: 0}]
@@ -829,9 +720,12 @@ Func()
 
 Why an error in the first snippet, but not in the second one?
 
-## ?
+From `:h vim9 /endfor`:
 
-<https://github.com/vim/vim/issues/7770#issuecomment-787774799>
+   > Generally, you should not change the list that is iterated over.  Make a copy
+   > first if needed.
+
+Is that relevant?  How would it help?
 
 ##
 ## ?
@@ -849,7 +743,9 @@ I don't  think the line number  is technically wrong  (5), but it would  be more
 useful if it matched  the start of the `filter()` call  (2), where the arguments
 types are declared, rather than its end.
 
-Simpler MWE:
+---
+
+Same issue in a function call:
 ```vim
 vim9script
 def Func(n: number)
@@ -865,6 +761,52 @@ Func(
 
 Actually, could Vim be  smarter and give the actual line  number where the wrong
 argument is received (i.e. here 6)?
+
+---
+
+Similar issue when the error is in the body of the lambda:
+```vim
+vim9script
+def Func()
+    var Rep: func = (m): string =>
+                         m[0]->str2nr() > 99
+                         ? ''
+                         : m[0]->str2nr()
+    'pat'->substitute('pat', Rep, '')
+enddef
+Func()
+```
+                         v--------v
+    Error detected while processing command line..script /proc/17291/fd/11[9]..function <SNR>1_Func[5]..<lambda>1:
+    line    1:
+    E1012: Type mismatch; expected string but got number
+
+It would be more useful if the reported line number was 3 (or 4?), rather than 1.
+I'm not sure that can be done though; it seems Vim concatenates all the lines in
+the lambda's definition:
+
+    :fu <lambda>1
+        def <lambda>1(m: any, ...): string~
+     1  return m[0]->str2nr() > 99                         ? ''                         : m[0]->str2nr()~
+        enddef~
+
+If it can't be  improved when the error is raised at runtime,  could it still be
+improved when the error is raised at compile time?
+```vim
+vim9script
+def Func()
+    var Rep: func = (m): string =>
+                         false
+                         ? ''
+                         : m[0]->str2nr()
+    'pat'->substitute('pat', Rep, '')
+enddef
+defcompile
+```
+                         v-------v
+    Error detected while compiling command line..script /proc/17876/fd/11[9]..function <SNR>1_Func[4]..<lambda>1:
+    line    1:
+    E1012: Type mismatch; expected string but got number
 
 ## ?
 ```vim
@@ -3485,9 +3427,39 @@ syntax.  It seems obvious, but I don't think it's documented.
 
 ## ?
 
-Should we deprecate `:o`?
+<https://github.com/vim/vim/issues/7905#issuecomment-786695893>
 
-<https://github.com/vim/vim/issues/7874#issuecomment-782380362>
+## ?
+```vim
+vim9script
+var l = [1, 2, 3]
+l->map(4)
+echo l
+```
+    [4, 4, 4]
+
+An error  should be  raised because  the second  argument of  `map()` must  be a
+string or a funcref; not a number.
+
+---
+```vim
+vim9script
+var l = [1, 2, 3]
+l->filter(4)
+echo l
+```
+    [1, 2, 3]
+
+An error should  be raised because the  second argument of `filter()`  must be a
+string or a funcref; not a number.
+
+---
+
+Is it related to this todo item:
+
+   > - Check many more builtin function arguments at compile time.
+
+Although, here, the issue is also present at the script level...
 
 ## unexpected E1095 when unclosed string below :return
 ```vim
@@ -4679,6 +4651,14 @@ Btw, why `:silent` before `:windo doau CursorMoved`?
 It comes from this commit:
 <https://github.com/vim/vim/commit/01164a6546b4c635daf96a1f17d1cb2d07f32a66>
 
+## ?
+
+These issues should probably be closed:
+
+- <https://github.com/vim/vim/issues/262>
+- <https://github.com/vim/vim/issues/355>
+- <https://github.com/vim/vim/issues/373>
+
 ## searchcount() can make Vim lag when the buffer contains a very long line
 
     vim9script
@@ -5080,794 +5060,6 @@ Default filetype plugins installing mappings and NOT respecting `g:no...map`:
     $VIMRUNTIME/ftplugin/rust.vim
     $VIMRUNTIME/ftplugin/changelog.vim
     $VIMRUNTIME/ftplugin/php.vim
-
-## try finish @andymass patch regarding "setreg()" so that it gets merged
-
-I think all that is missing is some documentation.
-<https://github.com/vim/vim/pull/3370>
-
-   > OK, then it would be good to write the help for this, and cover the corner cases. Should cover all possible types of contents and what happens when the register type is changed. Esp. from/to block.
-
----
-
-There are 9 tests to conduct.
-
-Note: when changing the type of the register *to* blockwise, make several subtests.
-Make the width of the block vary across all numbers between 1 and 15.
-
-                           ┌──────────────────────────────────────┐
-                           │                  to                  │
-                           ├───────────────┬──────────┬───────────┤
-                           │ characterwise │ linewise │ blockwise │
-    ┌──────┬───────────────┼───────────────┼──────────┼───────────┤
-    │      │ characterwise │               │          │           │
-    │      ├───────────────┼───────────────┼──────────┼───────────┤
-    │ from │ linewise      │               │          │           │
-    │      ├───────────────┼───────────────┼──────────┼───────────┤
-    │      │ blockwise     │               │          │           │
-    └──────┴───────────────┴───────────────┴──────────┴───────────┘
-
-TODO: Add a highlight for the character from which we put.
-Convert all matches into text-properties.
-
-    11: no change
-```vim
-call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil norm! 2G4|v4G5|"ry
-call Matchadd()
-bo vnew
-norm! "rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'c'})
-bo vnew
-norm! "rp
-call Matchadd()
-```
-    12: new empty line above when putting
-```vim
-call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil norm! 2G4|v4G5|"ry
-call Matchadd()
-bo vnew
-norm! "rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'l'})
-bo vnew
-norm! "rp
-call Matchadd()
-```
-    13: no change, regardless of the width of the block
-```vim
-call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil norm! 2G4|v4G5|"ry
-call Matchadd()
-bo vnew
-norm! "rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'b20'})
-bo vnew
-norm! "rp
-call Matchadd()
-```
-    21: *no* new empty line above when putting
-```vim
-call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil norm! 2G"r3yy
-call Matchadd()
-bo vnew
-norm! "rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'c'})
-bo vnew
-norm! "rp
-call Matchadd()
-```
-    22: no change
-```vim
-call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil norm! 2G"r3yy
-call Matchadd()
-bo vnew
-norm! "rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'l'})
-bo vnew
-norm! "rp
-call Matchadd()
-```
-    23: *no* new empty line added above when putting
-```vim
-call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil norm! 2G"r3yy
-call Matchadd()
-bo vnew
-norm! "rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'b20'})
-bo vnew
-norm! "rp
-call Matchadd()
-```
-    31: no change
-```vim
-call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil exe "norm! 2G3|\<c-v>4G8|" .. '"ry'
-call Matchadd()
-bo vnew
-norm! "rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'c'})
-bo vnew
-norm! "rp
-call Matchadd()
-```
-    32: new empty line above when putting
-```vim
-call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil exe "norm! 2G3|\<c-v>4G8|" .. '"ry'
-call Matchadd()
-bo vnew
-norm! "rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'l'})
-bo vnew
-norm! "rp
-call Matchadd()
-```
-    33: no change, regardless of the width of the block
-```vim
-call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil exe "norm! 2G3|\<c-v>4G8|" .. '"ry'
-call Matchadd()
-bo vnew
-norm! "rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'b20'})
-bo vnew
-norm! "rp
-call Matchadd()
-```
-Conclusion:
-
-   - if the type is unchanged, the register is unchanged
-
-         11: no change
-         22: no change
-         33: no change, regardless of the width of the block
-
-   - if the type is changed *from* linewise, there is no longer an empty line left
-     above when putting
-
-         21: *no* new empty line above when putting
-         23: *no* new empty line added above when putting
-
-   - if the type is changed *to* linewise, there *is* an empty line left
-     above when putting
-
-         12: new empty line above when putting
-         32: new empty line above when putting
-
-   - if the type is changed from or to blockwise, the register is unchanged
-
-         13: no change, regardless of the width of the block
-         31: no change
-
----
-
-Reconduct the same tests, but this time, put the register right in the middle of
-an existing text.  When changing the type  of a register to blockwise, we should
-sometimes see that Vim adds spaces.
-
-    11: no change
-```vim
-fu Setline()
-    call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-    let &l:ul = &l:ul
-endfu
-call Setline()
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil norm! 2G4|v4G5|"ry
-call Matchadd()
-bo vnew
-call Setline()
-norm! 3G5|"rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'c'})
-bo vnew
-call Setline()
-norm! 3G5|"rp
-call Matchadd()
-```
-    12: reset to linewise
-```vim
-fu Setline()
-    call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-    let &l:ul = &l:ul
-endfu
-call Setline()
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil norm! 2G4|v4G5|"ry
-call Matchadd()
-bo vnew
-call Setline()
-norm! 3G5|"rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'l'})
-bo vnew
-call Setline()
-norm! 3G5|"rp
-call Matchadd()
-```
-    13: if necessary, Vim adds trailing whitespace to compensate for lines which are shorter
-        than the width of the block
-```vim
-fu Setline()
-    call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-    let &l:ul = &l:ul
-endfu
-call Setline()
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil norm! 2G4|v4G5|"ry
-call Matchadd()
-bo vnew
-call Setline()
-norm! 3G5|"rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'b20'})
-bo vnew
-call Setline()
-norm! 3G5|"rp
-call Matchadd()
-```
-    21: reset to characterwise
-```vim
-fu Setline()
-    call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-    let &l:ul = &l:ul
-endfu
-call Setline()
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil norm! 2G"r3yy
-call Matchadd()
-bo vnew
-call Setline()
-norm! 3G5|"rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'c'})
-bo vnew
-call Setline()
-norm! 3G5|"rp
-call Matchadd()
-```
-    22: no change
-```vim
-fu Setline()
-    call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-    let &l:ul = &l:ul
-endfu
-call Setline()
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil norm! 2G"r3yy
-call Matchadd()
-bo vnew
-call Setline()
-norm! 3G5|"rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'l'})
-bo vnew
-call Setline()
-norm! 3G5|"rp
-call Matchadd()
-```
-    23: if necessary, Vim adds trailing whitespace to compensate for lines which are shorter
-        than the width of the block
-```vim
-fu Setline()
-    call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-    let &l:ul = &l:ul
-endfu
-call Setline()
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil norm! 2G"r3yy
-call Matchadd()
-bo vnew
-call Setline()
-norm! 3G5|"rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'b20'})
-bo vnew
-call Setline()
-norm! 3G5|"rp
-call Matchadd()
-```
-    31: reset to characterwise
-```vim
-fu Setline()
-    call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-    let &l:ul = &l:ul
-endfu
-call Setline()
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil exe "norm! 2G3|\<c-v>4G8|" .. '"ry'
-call Matchadd()
-bo vnew
-call Setline()
-norm! 3G5|"rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'c'})
-bo vnew
-call Setline()
-norm! 3G5|"rp
-call Matchadd()
-```
-    32: reset to linewise
-```vim
-fu Setline()
-    call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-    let &l:ul = &l:ul
-endfu
-call Setline()
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil exe "norm! 2G3|\<c-v>4G8|" .. '"ry'
-call Matchadd()
-bo vnew
-call Setline()
-norm! "rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'l'})
-bo vnew
-call Setline()
-norm! "rp
-call Matchadd()
-```
-    33: if necessary, Vim adds trailing whitespace to compensate for lines which are shorter
-        than the width of the block
-```vim
-fu Setline()
-    call setline(1, ['abcdefghij', 'klmnopqrst', 'uvwxyzABCD', 'EFGHIJKLMN', 'OPQRSTUVWX'])
-    let &l:ul = &l:ul
-endfu
-call Setline()
-
-fu Matchadd()
-    call matchadd('ErrorMsg', ' ', 100, -1)
-    let type = getregtype('r')
-    let text = getreg('r', 1, 1)
-    if type is# 'v'
-        let text = join(text, "\n")
-        let pat = '\%' .. line('.') .. 'l\%' .. virtcol('.') .. 'v\_.\{' .. strchars(text, 1) .. '}'
-    elseif type is# 'V'
-        let pat = '\%' .. line('.') .. 'l\_.*\%' .. (line('.') + len(text) - 1) .. 'l'
-    elseif type =~# "\<c-v>" .. '\d\+'
-        let [line, vcol] = [line('.'), virtcol('.')]
-        let pat = map(text, {i -> '\%' .. (line + i) .. 'l\%' .. vcol .. 'v.\{' .. strchars(text[i], 1) .. '}'})->join('\|')
-    endif
-    call matchadd('Search', pat, 90, -1)
-endfu
-
-sil exe "norm! 2G3|\<c-v>4G8|" .. '"ry'
-call Matchadd()
-bo vnew
-call Setline()
-norm! "rp
-call Matchadd()
-
-call setreg('r', #{regtype: 'b20'})
-bo vnew
-call Setline()
-norm! "rp
-call Matchadd()
-```
-Conclusion:
-
-   - no change from characterwise to characterwise, nor from linewise to linewise
-
-   - from any type to characterwise or linewise, the type is simply reset
-
-   - from any type to blockwise, if necessary, Vim adds trailing whitespace to
-     compensate for lines which are shorter than the width of the block;
-     if a line is shorter than the specified block width, it is not truncated
-
----
-
-Just to be clear, the patch does not add any new feature.  We can already reset the type of a register from any type to any type.  For example, if the register `r` contains a characterwise text, and we want to reset its type to `^V123`, we can do so with:
-
-    :call getreginfo('r')->extend({'regtype': 'b123'})->setreg('r')
-
-The patch simply provides a simpler way to do the same thing:
-
-    :call setreg('r', {'regtype': 'b123'})
-
-That being said, I *think* I tested all the possibilities, and here is a summary of what I observed:
-
-   1. if the register type is reset from characterwise to characterwise, or from linewise to linewise, no attribute of the register changes
-
-   2. when the register is put from normal mode, if its type has been changed and reset to either characterwise or linewise, it's correctly put as a characterwise or linewise register
-
-   3. when the register is put from command-line mode (via `:put`) or inserted via `CTRL-R`, the register is put as if it was linewise; which is equivalent to either `1.` or `2.`
-
-   4. if the register type is reset to blockwise, and one of its line is shorter or longer than the specified block width, the line is neither truncated nor extended
-
-   5. when the register is put from normal mode, if its type has been reset to blockwise, and one of its line is shorter than the specified block width, Vim adds as many trailing spaces as necessary to compensate if necessary
-
-The tricky part to explain is the "if necessary".
-
-Each line of the register is going to be put on some line of the buffer.  And the cursor has a column position.  Those 2 numbers *may* give a valid position in the buffer; one for each register line.  I think Vim adds trailing spaces if, and only if, that position is valid and there exists a character in the buffer *after* it.
-
-Since `1.` and `2.` don't describe anything unexpected, I'm not sure they need to be documented.
-`3.` is already documented.
-`4.` and `5.` may be unexpected, therefore need to be documented.
-`4.` is easy to document, but `5.` is not.
-
-Here is my first attempt:
-```diff
-diff --git a/runtime/doc/eval.txt b/runtime/doc/eval.txt
-index ed4f8aab0..b17654b49 100644
---- a/runtime/doc/eval.txt
-+++ b/runtime/doc/eval.txt
-@@ -9265,8 +9265,20 @@ setreg({regname}, {value} [, {options}])
- 		You can also change the type of a register by appending
- 		nothing: >
- 			:call setreg('a', '', 'al')
-+<
-+		Or by using a dictionary which includes the "regtype" key: >
-
--<		Can also be used as a |method|, the base is passed as the
-+                        :call setreg('a', {'regtype': 'l'})
-+<
-+		Note: If you reset the type of a register to blockwise, and one
-+		of its line is longer or shorter than the specified width of the
-+		block, the line is neither truncated nor extended.  When you put
-+		the register from normal mode, if one of its line is shorter
-+		than the specified width of the block, Vim adds as many trailing
-+		spaces as necessary to compensate, if necessary; that is, if
-+		they are needed to reach an existing character in the buffer.
-+
-+		Can also be used as a |method|, the base is passed as the
- 		second argument: >
- 			GetText()->setreg('a')
-
-```
-@andymass: What is your opinion regarding these observations; did I miss anything?  And what about the help, can you rephrase it in a more understandable way?
-
----
-
-Oh I see; I misunderstood what was required.  I thought we only needed to document the usage of a dictionary.  But you're right; it would be better to document everything: dictionary, list, string.  I'll try to make more tests when I have the time, but it's not going to be easy, because there are so many parameters to consider:
-
-   - which conversion type do we perform? (3 x 3 = 9 possibilities)
-   - do we use a dictionary or a list/string as the second argument of `setreg()` (2 possibilities)
-   - do we put from normal mode or insert/command-line mode (2 possibilities)
-
-That's already 9 x 2 x 2 = 36 possibilities.
-And then, there's the special case of resetting a register to blockwise:
-
-   - are there some lines which are shorter than the specified size?  (2 possibilities)
-   - are there some lines which are longer than the specified size?  (2 possibilities)
-   - do we specify a size or not? (2 possibilities)
-
-This means that each of the 12 previous possibilities which convert to blockwise:
-
-   - characterwise to blockwise using a dictionary, but without a specified size
-   - linewise to blockwise using a dictionary, but without a specified size
-   - blockwise to blockwise using a dictionary, but without a specified size
-
-   - characterwise to blockwise using a list/string, but without a specified size
-   - linewise to blockwise using a list/string, but without a specified size
-   - blockwise to blockwise using a list/string, but without a specified size
-
-   - characterwise to blockwise using a dictionary, and with a specified size
-   - linewise to blockwise using a dictionary, and with a specified size
-   - blockwise to blockwise using a dictionary, and with a specified size
-
-   - characterwise to blockwise using a list/string, and with a specified size
-   - linewise to blockwise using a list/string, and with a specified size
-   - blockwise to blockwise using a list/string, and with a specified size
-
-must be multiplied by 2 x 2 x 2 = 8 additional possibilities.  Which makes 8 x 12 + 36 = 132 possibilities to test.
-
-I did already make [some tests](https://gist.github.com/lacygoill/4f4922b19dea44497da9dc9ed962da7b), but nowhere near enough.
-
-   > Block size doesn't really depend on contents, and with a specified size
-
-True, it doesn't change the register, but it changes what will be put in a buffer when using the `p` or `P` normal command.  I thought it should be documented, but I'm not sure anymore.
 
 ## abbreviation sometimes unexpectedly expanded inside a word
 

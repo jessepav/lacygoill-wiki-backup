@@ -465,9 +465,16 @@ En cas d'erreur au sein de cette dernière, on pourra donc exécuter:
 
 ... pour lire son code:
 
-    let F = {-> 'hello' .. [42]}
-    echo F()
-    E15: Invalid expression: <lambda>123    ✘~
+    :let F = {-> 'hello' .. [42]}
+    :echo F()
+    Error detected while processing function <lambda>123:~
+    line    1:~
+    E730: using List as a String~
+
+    :fu <lambda>123
+        function <lambda>123(...)~
+     1  return 'hello' .. [42]~
+        endfunction~
 
 ---
 

@@ -6,84 +6,172 @@ Outside, it can be used to separate 2 commands.
 
 ## What happens if I escape a bar?
 
-In a magic (`\m`) regex, it becomes SPECIAL (alternation).
+In a magic (`\m`) regex, it becomes special (alternation).
 
-Outside, it becomes a REGULAR character.
+Outside, it becomes a regular character.
 It makes  the bar  (and what follows)  included in the  argument of  the current
 command:
 
-    :e abc|def
-    E492: Not an editor command: def    ✘~
+    :e abcd|efgh
+    E492: Not an editor command: efgh~
 
-    :e abc\|def
-    edits the file 'abc|def' ✔~
+    :e abcd\|efgh
+    " edits the file 'abcd|efgh'
 
 ##
-## When does Vim remove a backslash outside of a quoted string?
+# Special characters
+## What are they?
 
-    ┌──────────────────┬────────────────────────────────────────┐
-    │ your command use │ a backslash is removed in front of any │
-    ├──────────────────┼────────────────────────────────────────┤
-    │ -bar             │ |                                      │
-    ├──────────────────┼────────────────────────────────────────┤
-    │ <f-args>         │ whitespace, backslash                  │
-    ├──────────────────┼────────────────────────────────────────┤
-    │ -bar + <f-args>  │ |, whitespace, backslash               │
-    └──────────────────┴────────────────────────────────────────┘
+Sequence of characters which Vim expands automatically when executing some commands.
+For example, `%` or `<cword>`.  See `:h cmdline-special`.
 
-## What's the output of these commands?
+## Do quotes prevent their expansion?
 
-    fu Func(...) abort
-        for i in a:000
-            " replace a trailing whitespace with `S`
-            echo substitute(i, '\s\+$', '\=repeat("S", submatch(0)->len())', '')
-        endfor
-    endfu
+No.
 
-    com -nargs=* Cmd  call Func(<q-args>)
+    :sp '<cword>'
 
-    Cmd ab         ↣ 'ab' ↢
-    Cmd a\b        ↣ 'a\b' ↢
-    Cmd a\ b       ↣ 'a\ b' ↢
-    Cmd a\  b      ↣ 'a\  b' ↢
-    Cmd a\\b       ↣ 'a\\b' ↢
-    Cmd a\\ b      ↣ 'a\\ b' ↢
-    Cmd a\\\b      ↣ 'a\\\b' ↢
-    Cmd a\\\ b     ↣ 'a\\\ b' ↢
-    Cmd a\\\\b     ↣ 'a\\\\b' ↢
-    Cmd a\\\\ b    ↣ 'a\\\\ b' ↢
+Assuming your cursor  is on the word  `foo`, the previous command  will edit the
+file `'foo'`.  It will not edit the file `'<cword>'`.
 
-    com -nargs=* Cmd  call Func(<f-args>)
+## Are they expanded by the command itself or by Vim?
 
-    Cmd ab         ↣ 'ab' ↢
-    Cmd a\b        ↣ 'a\b' ↢
-    Cmd a\ b       ↣ 'a b' ↢
-    Cmd a\  b      ↣ 'a ', 'b' ↢
-    Cmd a\\b       ↣ 'a\b' ↢
-    Cmd a\\ b      ↣ 'a\', 'b' ↢
-    Cmd a\\\b      ↣ 'a\\b' ↢
-    Cmd a\\\ b     ↣ 'a\ b' ↢
-    Cmd a\\\\b     ↣ 'a\\b' ↢
-    Cmd a\\\\ b    ↣ 'a\\', 'b' ↢
+I think they are expanded by Vim.
 
-    com -bar -nargs=* Cmd  call Func(<f-args>)
+Write this on the command-line:
 
-    Cmd a|b         ↣ 'a'    `:b` is executed separately and has no visible effect ↢
-    Cmd a\|b        ↣ 'a|b' ↢
-    Cmd a\| b       ↣ 'a|' 'b' ↢
-    Cmd a\|  b      ↣ 'a|', 'b' ↢
-    Cmd a\\|b       ↣ 'a\|b' ↢
-    Cmd a\\| b      ↣ 'a\|', 'b' ↢
-    Cmd a\\\|b      ↣ 'a\|b' ↢
-    Cmd a\\\| b     ↣ 'a\|', 'b' ↢
-    Cmd a\\\\|b     ↣ 'a\\|b' ↢
-    Cmd a\\\\| b    ↣ 'a\\|', 'b' ↢
+    :e %
+
+Then press `Tab`.
+
+The percent character is  replaced by the path of the  current file, relative to
+the cwd.  And yet, `:e` has not been executed.
+
+##
+## The following command fails:
+
+    :setl gp&vim | exe 'grep ' .. shellescape('<cWORD>') .. ' %'
+
+When it's run while the cursor is on this text:
+
+    a'b
+
+### Why?
+
+Vim does not  expand special characters automatically for  *all* commands.  Only
+for *some*  of them, for which  it's useful to do  so; and `:exe` is  not one of
+them.  So,  `shellescape()` does  not have  any effect:  it receives  the string
+`'<cWORD>'`, and outputs the same string.
+
+Yes, `<cWORD>` is expanded when `:grep` is finally run later, but at that point,
+it's too late for `shellescape()` to properly escape the quote in the text.
+
+---
+
+To check this yourself, increase the verbosity to 4:
+
+    :setl gp&vim | 4verb exe 'grep ' .. shellescape('<cWORD>') .. ' %'
+                   ^---^
+
+It fails because the shell runs `grep -n 'a'b' ...`:
+
+                                       v---v
+    Calling shell to execute: "grep -n 'a'b' ...~
+    zsh:1: unmatched '~
+    ^----------------^
+
+---
+
+The issue is *not* that `shellescape()` did  not receive a valid string; if that
+was the case, then it would have raised E116 (try `:echo shellescape('a'b')`).
+
+### How to fix it?
+
+Use `expand()`:
+
+                                        v----v
+    :setl gp&vim | 4verb exe 'grep ' .. expand('<cWORD>')->shellescape() .. ' %'
+    Calling shell to execute: "grep -n 'a'\''b' ...~
+                                       ^------^
+
+Note  that  the quotes  around  `<cWORD>`  are only  necessary  to  get a  valid
+expression to pass to `expand()`.
+
+##
+## Why should I never use special characters in the pattern field of a `:vim` command without delimiters?
+
+It's hard to predict how it will be parsed.
+
+Consider this text:
+
+    foo !x!bar
+         ^
+         cursor here
+
+And run this command while on it:
+
+    :vim <cWORD> %
+
+Vim looks for `x` in the file `bar` and in the current file.
+While you probably expected for Vim to look for `!x!bar` in the current file.
+
+That's because Vim ran this:
+
+    :vim !x!bar %
+         ^ ^
+         parsed as delimiters, not as pattern
+
+More generally, any character in the expansion may be parsed as anything:
+delimiter, pattern, flag, filename...
+
+---
+
+A similar issue can affect `<cword>`.
+
+    foo !
+        ^
+        cursor here
+
+`:vim <cword> !` raises `E682` because `!` is parsed as a delimiter instead of a
+pattern.
+
+### What's the effect of the delimiters on the expansion of special characters?
+
+The latter is suppressed by the delimiters.
+To expand them, you need `expand()` and `:exe`.
+
+##
+## Why does Vim expand `<cword>` for `:grep` but not for `:echo`?
+
+`:echo` expects an expression, and `<cword>` is not one.
+
+OTOH, from `:h :grep`:
+
+   > **Just like ":make"**, but use 'grepprg' instead of
+   > 'makeprg' and 'grepformat' instead of 'errorformat'.
+
+Then, from `:h :make`:
+
+   > Characters '%' and '#' are expanded as usual on a command-line.
+
+So, Vim expands special characters for `:make`, and similarly for `:grep`.
+
+## How to get the path to the file under the cursor?
+
+    :echo glob('<cfile>')
+
+Or:
+
+    :echo expand('<cfile>')->expand()
+          │                  │
+          │                  └ expand a possible tilde in the expansion of '<cfile>'
+          └ expand '<cfile>'
 
 ##
 # Custom command
 ## What's the name of everything written after `Test` in `com Test call Func()`?
 
-It's called the replacement text:
+It's called the "replacement text":
 
     com Test call Func()
              ^---------^
@@ -91,6 +179,182 @@ It's called the replacement text:
 ## How to list the help tags useful to create a custom command?
 
     :h :command- C-d
+
+##
+## In an unquoted argument of a custom Ex command
+### what are the 3 characters which lose their special meaning when preceded with a backslash?
+
+A whitespace, a bar, and a backslash.
+
+#### when are they special?
+
+A whitespace is special when the arguments are processed with `<f-args>`.
+In that case, it's used to split them into a list of arguments.
+
+---
+
+A bar is special when the command is defined with `-bar`.
+In that case, it's parsed as a command termination.
+
+---
+
+A backslash is special in front of a bar if the command is defined with `-bar`.
+In  that  case,  the following  bar  is  consumed  by  the command,  instead  of
+terminating it.
+
+A  backslash is  also  special in  front  of  a whitespace  if  the argument  is
+processed with `<f-args>`.
+
+###
+### ?
+
+In a custom command argument, when does Vim automatically remove a backslash outside of a quoted string?
+
+    ┌───────────────────┬────────────────────────────────────────┐
+    │ your command uses │ a backslash is removed in front of any │
+    ├───────────────────┼────────────────────────────────────────┤
+    │ -bar              │              |                         │
+    ├───────────────────┼────────────────────────────────────────┤
+    │        <f-args>   │                  \   SPC               │
+    ├───────────────────┼────────────────────────────────────────┤
+    │ -bar + <f-args>   │              |   \   SPC               │
+    └───────────────────┴────────────────────────────────────────┘
+
+### when is a bar parsed as a command termination?
+
+When  the  command  is defined  with  `-bar`  *and*  it's  not preceded  with  a
+backslash.  Note that – if a command is defined with `-bar` and is preceded with
+backslashes –  it doesn't  matter how many  of them there  are.  The  bar always
+loses its special meaning.
+
+###
+### when does Vim automatically remove a backslash if
+#### the command is defined without `-bar` and the argument is processed with `<q-args>`?
+
+Never.
+
+    "                          v------v
+    com -nargs=* Cmd call Func(<q-args>)
+    fu Func(...)
+        echo a:000
+    endfu
+
+    # not removed in front of random character
+    Cmd a\b
+    ['a\b']~
+
+    # not removed in front of whitespace
+    Cmd a\ b
+    ['a\ b']~
+
+    # not removed in front of bar
+    Cmd a\|b
+    ['a\|b']~
+
+    # not removed in front of other backslash
+    Cmd a\\b
+    ['a\\b']~
+
+#### the command is defined with `-bar` and the argument is processed with `<q-args>`?
+
+Only when directly in front of a backslash.
+
+    "   v--v                        v------v
+    com -bar -nargs=* Cmd call Func(<q-args>)
+    fu Func(...)
+        echo a:000
+    endfu
+
+    Cmd a\|b
+    ['a|b']~
+
+    Cmd a\\|b
+    ['a\|b']~
+
+    Cmd a\\\|b
+    ['a\\|b']~
+
+Notice that it doesn't matter how many  backslashes there are in front of a bar;
+only the last one is removed.  Vim  does not reduce every pair of consecutive of
+backslashes into a single backslash.
+
+#### ?
+
+the command is defined without `-bar` and the argument is processed with `<f-args>`?
+
+    "                          v------v
+    com -nargs=* Cmd call Func(<f-args>)
+    fu Func(...)
+        echo a:000
+    endfu
+
+    Cmd a\b
+    ['a\b']~
+
+    Cmd a\ b
+    ['a b']~
+
+    Cmd a\  b
+    ['a ', 'b']~
+
+    Cmd a\\b
+    ['a\b']~
+
+    Cmd a\\ b
+    ['a\', 'b']~
+
+    Cmd a\\\b
+    ['a\\b']~
+
+    Cmd a\\\ b
+    ['a\ b']~
+
+    Cmd a\\\\b
+    ['a\\b']~
+
+    Cmd a\\\\ b
+    ['a\\', 'b']~
+
+#### ?
+
+the command is defined with `-bar` and the argument is processed with `<f-args>`?
+
+    "   v--v                        v------v
+    com -bar -nargs=* Cmd call Func(<f-args>)
+    fu Func(...)
+        echo a:000
+    endfu
+
+    Cmd a|b
+    ['a']~
+    " :b is executed separately and has no visible effect
+
+    Cmd a\|b
+    ['a|b']~
+
+    Cmd a\| b
+    ['a|' 'b']~
+
+    Cmd a\|  b
+    ['a|', 'b']~
+
+    Cmd a\\|b
+    ['a\|b']~
+
+    Cmd a\\| b
+    ['a\|', 'b']~
+
+    Cmd a\\\|b
+    ['a\|b']~
+
+    Cmd a\\\| b
+    ['a\|', 'b']~
+
+    Cmd a\\\\|b
+    ['a\\|b']~
+
+    Cmd a\\\\| b
+    ['a\\|', 'b']~
 
 ##
 ## Attributes
@@ -137,7 +401,7 @@ Use `-range=0`, or `-range=-1`.
 In practice, the user would probably never use -1 or 0 as a count.
 
 Note that  if you just  use `-range`,  and you don't  provide any count  to your
-command, `<count>` will be replaced by `-1`.
+command, `<count>` will be replaced with `-1`.
 
 MWE:
 
@@ -158,7 +422,7 @@ MWE:
 
 ### Why should I avoid `-count=N` and prefer `-range=N` instead?
 
-`<count>`  is  replaced  by  the  last  number  between  the  beginning  of  the
+`<count>`  is  replaced with  the  last  number  between  the beginning  of  the
 command-line and the first non-digit of the first argument.
 
 So, if the first argument can be a number or can begin with a number, the latter
@@ -454,10 +718,10 @@ non-trivial; `<f-args>` give it to you for free.
 
 ### How is `<f-args>` replaced if I provide no argument to the command?
 
-It's replaced by nothing.
+With an empty list:
 
-    com -nargs=* Cmd  call Func(<f-args>)
-    fu Func(...) abort
+    com -nargs=* Cmd call Func(<f-args>)
+    fu Func(...)
         echo a:000
     endfu
 
@@ -479,48 +743,51 @@ But not with:
 
 MWE:
 
-    fu Func(...) abort
+    fu Func(...)
         echo a:000
     endfu
 
-    com -nargs=* Cmd  call Func(<f-args>)
+    com -nargs=* Cmd call Func(<f-args>)
     Cmd a b c
     ['a', 'b', 'c']~
 
-    com -nargs=+ Cmd  call Func(<f-args>)
+    com -nargs=+ Cmd call Func(<f-args>)
     Cmd a b c
     ['a', 'b', 'c']~
 
-    com -nargs=1 Cmd  call Func(<f-args>)
+    com -nargs=1 Cmd call Func(<f-args>)
     Cmd a b c
     ['a b c']~
 
-    com -nargs=? Cmd  call Func(<f-args>)
+    com -nargs=? Cmd call Func(<f-args>)
     Cmd a b c
     ['a b c']~
 
 ###
 ### How is `<count>` replaced if I use `-count` without any value, and I don't give a count to my command?
 
-It's replaced by `0`:
+With `0`:
 
     com -count -nargs=*  Test  echo <count>
     :Test
     0~
 
-### Same question if I use `-range`?
+#### Same question if I use `-range`?
 
-It's replaced by `-1`.
+With `-1`:
 
     com -range -nargs=*  Test  echo <count>
     :Test
+    -1~
 
+###
 ### How are `<line1>` and `<line2>` replaced if I use `-range` without any value, and don't pass any range?
 
-They're both replaced by the current line address:
+They're both replaced with the current line address:
 
     com -range -nargs=*  Test  echo '<line1>,<line2>'
     :Test
+    123,123~
 
 ### How is `<count>` replaced if I use `-count`, and pass the count `12` as a prefix, and the count `34` as a suffix?
 
@@ -651,10 +918,11 @@ And to get a boolean option use `split()` and `index()`:
 
 #
 # Built-in commands
-## Can I pass an argument to the command invoked by the normal command `K`?
+## How can I pass a numerical argument to the command invoked by the normal command `K`?
 
-Yes, by prefixing it with a count, you can send the latter to the program stored in `'kp'`.
+Prefix it with a count; it will be sent to the program stored in `'kp'`:
 
+    unmap K
     set kp=:Test
     com -nargs=* Test echo <q-args>
     " press 3K on the word 'hello'
@@ -907,7 +1175,7 @@ They don't seem to do anything wrong if there's no syntax.
 Make  sure  you don't  have  other  such  commands  which behave  badly  without
 highlighting:
 
-    :Vim /\m\C\<synstack(/gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
+    \m\C\<synstack(
 
 # ?
 
@@ -937,7 +1205,7 @@ Replacing `-count` with `-range` doesn't change the results.
 ---
 
 Document  the fact  that you  must use  `-addr=other` whenever  you want  to use
--range for some arbitrary count, not tied to any specific type (line address,
+`-range` for some arbitrary count, not  tied to any specific type (line address,
 buffer number, window number, ...).
 
 Before the patch 8.1.1241, you didn't have  to, but this has changed, because by
@@ -945,6 +1213,7 @@ default Vim checks whether the count matches the address of an existing line.
 The patch  may have introduced a  regression, but it doesn't  matter, you should
 use `-addr=other`.
 <https://github.com/tpope/vim-scriptease/issues/43>
+<https://github.com/vim/vim/issues/7934>
 
 # ?
 
@@ -1019,16 +1288,6 @@ L'absence de rangée peut être interprétée par une commande de 2 façons:
    - ligne courante    .    .,.    Les autres...
 
 
-Lorsqu'une rangée est inversée (a,b avec a > b), Vim demande s'il peut la remettre dans l'ordre:
-
-    Backwards range given, OK to swap (y/n)?
-
-Pour auto-accepter cette demande, il suffit de faire précéder la commande Ex préfixée d'une rangée
-par la commande :silent.  Ex:
-
-    :sil 5,1s/foo/bar/g
-
-
 Qd  on  utilise un  pattern  comme  spécificateur  de  ligne, la  recherche  est
 influencée par l'option 'wrapscan' comme pour une recherche habituelle.
 Elle ne peut “wrapper“  autour de la fin/début du fichier  que si 'wrapscan' est
@@ -1042,16 +1301,6 @@ autres spécificateurs, ne sont exécutés.
 Voici qques exemples de spécificateurs de lignes:
 
     ┌─────┬──────────────────────────────────────────────────────────────────────────────────────┐
-    │ .   │ adresse de la ligne courante (implicite par défaut)                                  │
-    ├─────┼──────────────────────────────────────────────────────────────────────────────────────┤
-    │ %   │ toutes les lignes du buffer; tous les buffers (1,$)                                  │
-    ├─────┼──────────────────────────────────────────────────────────────────────────────────────┤
-    │ *   │ la sélection visuelle (équivaut à '<,'>)                                             │
-    ├─────┼──────────────────────────────────────────────────────────────────────────────────────┤
-    │ .+1 │ adresse de la ligne suivant la ligne courante                                        │
-    │  +1 │ +1 est un offset                                                                     │
-    │  +  │ un signe + ou - seul (sans nb qui suit) est automatiquement interprété comme +1 / -1 │
-    ├─────┼──────────────────────────────────────────────────────────────────────────────────────┤
     │ \/  │ la prochaine ligne contenant le registre recherche                                   │
     │ //  │                                                                                      │
     ├─────┼──────────────────────────────────────────────────────────────────────────────────────┤
@@ -1102,21 +1351,6 @@ Voici qques exemples de spécificateurs de lignes:
 
                 4. remonte de 3 lignes
                         on pourrait écrire -3 aussi; les - et + sont cumulatifs
-
-
-    .+3,$-1
-     +3,$-1
-
-            3e ligne qui suit la ligne courante jusqu'à l'avant-dernière.
-
-
-    ?pat1?+1,/pat2/-1
-
-            Rangée de lignes.
-            La 1e est trouvée en cherchant `pat1` vers l'arrière, et en avançant d'une ligne.
-            La 2e est trouvée en cherchant `pat2` vers l'avant, et en reculant d'une ligne.
-
-            Les recherches commencent à partir de la ligne courante.
 
 
     ?pat?,//
@@ -1278,7 +1512,7 @@ Petit rappel de vocabulaire:
     
                                 :e %:t    le développement de %:t dépend du nom du buffer courant
     
-     on *interprète*   un caractère ou un groupe de caractères pour déterminer quel comportement adopter
+   - on *interprète*   un caractère ou un groupe de caractères pour déterminer quel comportement adopter
 
                         Une  cmd, une fonction, le  parser de Vim, ou  + généralement n'importe
                         quel bout de code peut interpréter certains caractères.
@@ -1635,7 +1869,7 @@ Un bang est parfois nécessaire pour permettre à une des commandes précédente
 
    - écraser un fichier existant (:wnext file, :saveas file)
 
-# Commandes système
+# Commandes builtin
 
 Les commandes Ex n'acceptent pas toutes le même type d'argument.
 Pex,  :exe attend  une expression,  :normal des  commandes, et  :edit un  nom de
@@ -1773,10 +2007,6 @@ même façon que la chaîne de caractère précédant le curseur (custom).
                     `:filter` ne fonctionne pas avec `:exe`~
 
 
-    :fu[nction]
-
-            lister les fonctions
-
     :fu /pattern
 
             lister les fonctions qui matchent pattern  (ex : :fu /foo$ liste les
@@ -1840,12 +2070,6 @@ même façon que la chaîne de caractère précédant le curseur (custom).
     :marks
 
             afficher les marques
-
-    :noautocmd {cmd}
-
-            exécute {cmd} sans déclencher aucune autocmd
-            le temps de l'exécution, l'option 'eventignore'/'ei' vaut 'all'
-
 
     :nohlsearch
 
@@ -1980,7 +2204,8 @@ même façon que la chaîne de caractère précédant le curseur (custom).
             l'écran qui a été corrompu.
 
 
-    :rviminfo    :wviminfo
+    :rviminfo
+    :wviminfo
 
             lire / écrire dans le fichier .viminfo
 
@@ -2051,18 +2276,7 @@ même façon que la chaîne de caractère précédant le curseur (custom).
             Convertit  les lignes  10 à  40 du  buffer courant  en html  dans un
             nouveau fichier (foo.html).
 
-
-    :exe 'TOhtml' | wq
-
-            Convertit le buffer courant en html, écrit et quitte.
-
-            :TOhtml n'a pas été définie avec l'attribut -bar, donc si on écrivait directement:
-
-                :TOhtml | wq
-
-            Elle interprèterait '| wq' comme faisant partie de son argument.
-
-# Commandes utilisateur
+# Commandes custom
 
 `:Next` et `:X` sont les seules commandes système commençant par une majuscule.
 

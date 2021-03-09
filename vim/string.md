@@ -265,7 +265,7 @@ In contrast, `:echo` would add a space or a newline:
 ##
 # Extract characters
 ## How to get the `n`-th
-### byte of a string?  (2)
+### byte of a string?
 
 Use `strpart()`:
 
@@ -274,33 +274,11 @@ Use `strpart()`:
                  │      └ {len}
                  └ {start}
 
-Or a subscript:
+In legacy Vim script, you can also use a subscript:
 
     str[n - 1]
 
-#### Why shouldn't I use any of these expressions to get a character?
-
-They won't work as expected if the string contains multibyte characters:
-
-    echo strpart('résumé', 2, 1)
-    <a9>~
-
-    echo 'aéb'[1]
-    <c3>~
-
-`str[n - 1]` is not evaluated into the character of index `n - 1`, but the *byte* of
-index `n - 1`.
-
-Here, the  byte of index `1`  is not a  complete character, because `é`  takes 2
-bytes instead of 1.
-So,  Vim   prints  the  special   sequence  `<c3>`  which  is   the  hexadecimal
-representation of the first byte of `é`:
-
-    $ xxd -p -l2 <<<'é'
-    c3a9~
-
-###
-### character of a string?  (3)
+### character of a string?  (2)
 
 Use `strcharpart()`:
 
@@ -357,15 +335,20 @@ Without `{len}`, `strcharpart()` goes until the end.
 
 In Vim9 script:
 
-    getline('.')->strpart(col('.') - 1)[0]
-                                   ^^^
-                                   to compensate for the fact that "col()" starts indexing from 1
-                                   while "strpart()" starts indexing from 0
+    getline('.')[charcol('.') - 1]
+                              ^^^
+                              to compensate for the fact that "charcol()" starts indexing from 1
+                              while Vim starts indexing a string from 0
 
 In Vim script legacy:
 
     getline('.')->strpart(col('.') - 1, 1, v:true)
     getline('.')->strpart(col('.') - 1)->strcharpart(0, 1)
+                                   ^^^
+                                   to compensate for the fact that "col()" starts indexing from 1
+                                   while "strpart()" starts indexing from 0
+
+You can test on this line:
 
     éàê foo éàê bar éàê
 
@@ -395,28 +378,28 @@ From `:h expr-[]`:
    > If expr8 is a String this results in a String that contains the expr1'th
    > single character from expr8.  To use byte indexes use |strpart()|.
 
-So, the subscript `[0]` refers to:
-
-   - the first *character* in the string it's applied to in Vim script legacy
-   - the first *byte* in the string it's applied to in Vim9 script
-
-If  you want  to extract  a character,  `[0]` is  reliable in  Vim9, but  not in
-legacy; for the latter `strcharpart()` is necessary.
-
 ###
 ### after the cursor?
 
 In Vim9 script:
 
-    getline('.')->strpart(col('.') - 1)[1]
+    getline('.')[charcol('.')]
 
 In Vim script legacy:
 
     getline('.')->strpart(col('.') - 1)->strcharpart(1, 1)
+                                                     ^
+                                                     in insert mode, write 0 instead
 
-### before the cursor?
+### before the cursor?  (2)
 
 In Vim9:
+
+    charcol('.') == 1 ? '' : getline('.')[charcol('.') - 2]
+    ^---------------^
+    special case which can't be handled with a subscript
+
+Or:
 
     getline('.')->strpart(0, col('.') - 1)[-1]
                                       ^^^
@@ -1561,7 +1544,70 @@ In this example, `arg`  still has to be quoted when  passed to `Func()`, because
 the latter expects a string, not a variable name.
 
 ##
-# Issues
+# Antipatterns
+## `matchstr()` + `strlen()` might be inefficient.
+
+    getline('.')->matchstr('.*\%' .. col('.') .. 'c.')->strlen()
+
+### How should I refactor the previous snippet?
+
+↣
+    getline('.')->byteidx(charcol('.'))
+↢
+
+It's much faster, and more readable.
+
+### How about this one?
+
+    matchstr(string, '^some pattern')->strlen()
+
+↣
+    matchend(string, '^some pattern')
+↢
+
+Again, it's faster, and more readable.
+
+Note that the 2 are not entirely  equivalent.  If the pattern doesn't match, the
+first expression returns 0; the second one returns -1.
+
+##
+## `matchstr()` invoked multiple times to extract a bunch of substrings out of a string might be inefficient.
+
+    var text = 'hello world'
+    var word1 = matchstr(text, '^\S\+')
+    var word2 = matchstr(text, '^\S\+\s\+\zs\S\+')
+
+### How could I refactor the previous snippet?
+
+    var text = 'hello world'
+    var matchlist = matchlist(text, '^\(\S\+\)\s\+\(\S\+\)')
+    var word1: string
+    var word2: string
+    if matchlist == []
+        [word1, word2] = ['', '']
+    else
+        [word1, word2] = matchlist
+    endif
+
+---
+
+As you can see, it makes the code more verbose.
+Use `matchlist()` only if it improves the performance of your code significantly.
+There's no easy way to know that in advance, so you'll have to make some quick tests.
+
+---
+
+Note that being able to use `matchlist()` assumes that:
+
+   - the substrings are all extracted from the same string
+
+   - they can't overlap
+
+   - they are always ordered in the same way
+     (otherwise writing a pattern gets too complex)
+
+##
+# Pitfalls
 ## `:echo 'hello' " some comment` raises `E114`!
 
     echo 'hello' " some comment

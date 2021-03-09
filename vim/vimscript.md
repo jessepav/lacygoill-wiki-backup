@@ -1,3 +1,70 @@
+# Positions
+## What's the meaning of the number output by `virtcol('.')`?
+
+It's the index of the screen cell under the cursor.
+
+Note that  if the cursor is  on a multicell  character, like a tab,  and virtual
+edit is not enabled, then the reported index is the one of the last cell:
+```vim
+vim9script
+setline(1, "foo\tbar")
+norm! 4|
+echom virtcol('.')
+```
+    8
+```vim
+vim9script
+set ve=all
+setline(1, "foo\tbar")
+norm! 4|
+echom virtcol('.')
+```
+    4
+
+###
+### ?
+
+    # Try to remove as many `virtcol()` as possible everywhere.
+    # Same thing for `\%v`; they don't mean what we thought.
+    #
+    # `virtcol('.')` and `\%v` take into account cells between the last character on
+    # a screen line of a long wrapped text line, and the first character of the next
+    # screen line (this includes 1 cell for the "virtual" newline).
+    # And so,  `virtcol()` and  `\%v` are  influenced by  `'wrap'` (and  all options
+    # related to the latter like `'linebreak'` and `'showbreak'`).
+    #
+    # Also, `virtcol('.')` outputs the index of  the last cell used by the character
+    # under the cursor:
+    #
+    #      literal control characters
+    #      vv vv
+    #     a^Bc^De
+    #      │  │
+    #      │  └ virtcol('.') is 6 not 4
+    #      └ virtcol('.') is 3 not 2
+    #
+    # ---
+    #
+    # The same can be true for `:norm! 123|`.
+    #
+    # If `123`  is obtained by `matchstr(line,  pat)->strchars()`), `:norm! 123|` will
+    # position the cursor unexpectedly on a long wrapped line.
+    #
+    # Solution: temporarily disable 'wrap'.
+    #
+    # Try to find other locations where we  have made a similar mistake; if you find
+    # anything, fix it.
+    #
+    # ---
+    #
+    # I  think  you  can  reliably  save  the column  position  of  the  cursor  via
+    # `virtcol()` and restore it with  `:norm`, because both take into consideration
+    # virtual characters which  are added when a long line  gets wrapped; they agree
+    # on what the position of a character is on a long wrapped line.
+    # However, it's much simpler to just save the cursor position with `getpos()` or
+    # `getcurpos()` and restore it via `setpos()`.
+
+##
 # Filename expansion
 ## In a command which expects a filename as argument, how to represent
 ### any single character?
@@ -89,336 +156,6 @@ current working directory.
     sil cd /tmp | echo expand('%:t')
 
     echo expand('<cword>')
-
-##
-# Special characters
-## What are they?
-
-Sequence of characters which Vim expands automatically when executing some commands.
-For example, `%` or `<cword>`.  See `:h cmdline-special`.
-
-## Do quotes prevent their expansion?
-
-No.
-
-    :sp '<cword>'
-
-Assuming your cursor  is on the word  `foo`, the previous command  will edit the
-file `'foo'`.  It will not edit the file `'<cword>'`.
-
-## Are they expanded by the command itself or by Vim?
-
-I think they are expanded by Vim.
-
-Write this on the command-line:
-
-    :e %
-
-Then press `Tab`.
-
-The percent character is  replaced by the path of the  current file, relative to
-the cwd.  And yet, `:e` has not been executed.
-
-##
-## The following command fails:
-
-    :setl gp&vim | exe 'grep ' .. shellescape('<cWORD>') .. ' %'
-
-When it's run while the cursor is on this text:
-
-    a'b
-
-### Why?
-
-Vim does not  expand special characters automatically for  *all* commands.  Only
-for *some*  of them, for which  it's useful to do  so; and `:exe` is  not one of
-them.  So,  `shellescape()` does  not have  any effect:  it receives  the string
-`'<cWORD>'`, and outputs the same string.
-
-Yes, `<cWORD>` is expanded when `:grep` is finally run later, but at that point,
-it's too late for `shellescape()` to properly escape the quote in the text.
-
----
-
-To check this yourself, increase the verbosity to 4:
-
-    :setl gp&vim | 4verb exe 'grep ' .. shellescape('<cWORD>') .. ' %'
-                   ^---^
-
-It fails because the shell runs `grep -n 'a'b' ...`:
-
-                                       v---v
-    Calling shell to execute: "grep -n 'a'b' ...~
-    zsh:1: unmatched '~
-    ^----------------^
-
----
-
-The issue is *not* that `shellescape()` did  not receive a valid string; if that
-was the case, then it would have raised E116 (try `:echo shellescape('a'b')`).
-
-### How to fix it?
-
-Use `expand()`:
-
-                                        v----v
-    :setl gp&vim | 4verb exe 'grep ' .. expand('<cWORD>')->shellescape() .. ' %'
-    Calling shell to execute: "grep -n 'a'\''b' ...~
-                                       ^------^
-
-Note  that  the quotes  around  `<cWORD>`  are only  necessary  to  get a  valid
-expression to pass to `expand()`.
-
-##
-## Why should I never use special characters in the pattern field of a `:vim` command without delimiters?
-
-It's hard to predict how it will be parsed.
-
-Consider this text:
-
-    foo !x!bar
-         ^
-         cursor here
-
-And run this command while on it:
-
-    :vim <cWORD> %
-
-Vim looks for `x` in the file `bar` and in the current file.
-While you probably expected for Vim to look for `!x!bar` in the current file.
-
-That's because Vim ran this:
-
-    :vim !x!bar %
-         ^ ^
-         parsed as delimiters, not as pattern
-
-More generally, any character in the expansion may be parsed as anything:
-delimiter, pattern, flag, filename...
-
----
-
-A similar issue can affect `<cword>`.
-
-    foo !
-        ^
-        cursor here
-
-`:vim <cword> !` raises `E682` because `!` is parsed as a delimiter instead of a
-pattern.
-
-### What's the effect of the delimiters on the expansion of special characters?
-
-The latter is suppressed by the delimiters.
-To expand them, you need `expand()` and `:exe`.
-
-##
-## Why does Vim expand `<cword>` for `:grep` but not for `:echo`?
-
-`:echo` expects an expression, and `<cword>` is not one.
-
-OTOH, from `:h :grep`:
-
-   > **Just like ":make"**, but use 'grepprg' instead of
-   > 'makeprg' and 'grepformat' instead of 'errorformat'.
-
-Then, from `:h :make`:
-
-   > Characters '%' and '#' are expanded as usual on a command-line.
-
-So, Vim expands special characters for `:make`, and similarly for `:grep`.
-
-## How to get the path to the file under the cursor?
-
-    :echo glob('<cfile>')
-
-Or:
-
-    :echo expand('<cfile>')->expand()
-          │                  │
-          │                  └ expand a possible tilde in the expansion of '<cfile>'
-          └ expand '<cfile>'
-
-##
-## ?
-
-Study when a wildcard can match a dot.
-I think `*` can match a dot in a `:e` or `:sp` command.
-
-But not in a `'wig'` setting.
-And probably not in other contexts; from `h file-searching`:
-
-   > The file searching is currently used for the 'path', 'cdpath' and 'tags'
-   > options, for |finddir()| and |findfile()|.  Other commands use |wildcards|
-   > which is slightly different.
-   >
-   > ...
-   >
-   > The usage of '*' is quite simple: It matches 0 or more characters.  In a
-   > search pattern this would be ".*".
-   > **Note that the "." is not used for file searching.**
-
-## ?
-
-    expand('$LANG')
-
-Retourne la valeur de la variable d'environnement `$LANG` du shell courant.
-
-Si la session Vim connaît déjà la  variable d'environnement, il n'y a pas besoin
-d'appeler `expand()`: `:echo $LANG` fonctionnera.
-
-Mais si elle ne la connaît pas, `expand()` permet de s'assurer qu'elle sera bien
-développée.  Pour ce faire, elle lance un shell pour l'occasion.
-
----
-
-`expand()` n'est pas limitée à des fichiers, elle peut développer:
-
-   - des caractères spéciaux (`:h cmdline-special`)
-   - des commandes shell
-   - des globs
-   - des variables d'environnement
-
-## ?
-
-                ┌ respecte 'su' et 'wig'
-                │        ┌ résultat sous forme de liste et non de chaîne
-                │        │
-    expand('*', v:false, v:true)
-    glob('*', v:false, v:true, v:true)
-                               │
-                               └ inclut tous les liens symboliques,
-                                 même ceux qui pointent sur des fichiers non-existants
-
-Noms des fichiers / dossiers du cwd.
-
----
-
-Si le dossier de travail est  vide, `expand()` retourne `'*'`, `glob()` retourne
-`''`.  `glob()` est  donc  plus  fiable.  Ceci  est  une  propriété générale  de
-`expand()`.  Qd  elle ne  parvient pas  à développer qch,  elle le  retourne tel
-quel:
-
-    echo expand('$FOOBAR')
-    $FOOBAR~
-
----
-
-                                                            *suffixes*
-    For file name completion you can use the 'suffixes' option to set a priority
-    between files with almost the same name.  If there are multiple matches,
-    those files with an extension that is in the 'suffixes' option are ignored.
-    The default is ".bak,~,.o,.h,.info,.swp,.obj", which means that files ending
-    in ".bak", "~", ".o", ".h", ".info", ".swp" and ".obj" are sometimes ignored.
-
-    An empty entry, two consecutive commas, match a file name that does not
-    contain a ".", thus has no suffix.  This is useful to ignore "prog" and prefer
-    "prog.c".
-
-    Examples:
-
-      pattern:	files:				match:	~
-       test*	test.c test.h test.o		test.c
-       test*	test.h test.o			test.h and test.o
-       test*	test.i test.h test.c		test.i and test.c
-
-    It is impossible to ignore suffixes with two dots.
-
-    If there is more than one matching file (after ignoring the ones matching
-    the 'suffixes' option) the first file name is inserted.  You can see that
-    there is only one match when you type 'wildchar' twice and the completed
-    match stays the same.  You can get to the other matches by entering
-    'wildchar', CTRL-N or CTRL-P.  All files are included, also the ones with
-    extensions matching the 'suffixes' option.
-
-    To completely ignore files with some extension use 'wildignore'.
-
-    To match only files that end at the end of the typed text append a "$".  For
-    example, to match only files that end in ".c": >
-            :e *.c$
-    This will not match a file ending in ".cpp".  Without the "$" it does match.
-
-    The old value of an option can be obtained by hitting 'wildchar' just after
-    the '='.  For example, typing 'wildchar' after ":set dir=" will insert the
-    current value of 'dir'.  This overrules file name completion for the options
-    that take a file name.
-
-## ?
-
-    expand('**/README', v:false, v:true)
-    glob('**/README', v:false, v:true, v:true)
-
-Liste des  chemins vers des fichiers  README situés dans  le cwd ou l'un  de ses
-sous-dossiers.
-
-À nouveau,  si aucun  fichier n'est  trouvé, `expand()`  retourne `['**/README']`,
-tandis que `glob()` retourne `[]`.  `glob()` est donc plus fiable.
-
-## ?
-
-    glob("`find . -name '*.conf' | grep input`", v:false, v:true, v:true)
-    systemlist("find . -name '*.conf' | grep input")
-
-Sortie de la commande shell:
-
-    $ find . -name '*.conf' | grep input
-
-Quelles différences? :
-
-   - `glob()` ne retourne que des noms de fichier existants.
-     Elle filtre tout ce qui n'est pas exactement un nom de fichier exact.
-     Les messages d'erreurs sont donc supprimés.
-
-   - `system()` aussi, mais ajoute un newline à la fin, ce qui fait qu'on a une
-     ligne vide en bas du pager.
-
-## ?
-
-    globpath(&rtp, 'syntax/c.vim', v:false, v:true, v:true)
-
-Le chemin relatif `syntax/c.vim` est ajouté en suffixe à chaque chemin absolu du
-rtp.  Si  le résultat  correspond à  un fichier  existant, il  est ajouté  à une
-liste.  `globpath()` retourne  la liste finale, une fois que  tous les chemins du
-rtp ont été utilisés.
-
----
-
-    globpath(&rtp, '**/README.txt', v:false, v:true, v:true)
-
-Idem, sauf que  cette fois, le suffixe  contient un wildcard, qui  à chaque fois
-est développé en une liste de 0, 1 ou plusieurs fichiers correspondant.
-
----
-
-Plus  généralement, `globpath()`  attend  2 arguments,  tous  2 des  expressions
-évaluées en chaînes:
-
-   - la 1e doit stocker des chemins séparés par des virgules
-   - la 2e un chemin relatif vers un fichier, incluant éventuellement des wildcards
-
----
-
-`globpath()` is useful to get an overview of a type of files.
-Vim filetype plugins, C syntax plugins, lua indent plugins, keymap files, ...
-
-    echo globpath(&rtp, 'ftplugin/vim.vim')
-    echo globpath(&rtp, 'syntax/c.vim')
-    echo globpath(&rtp, 'indent/lua.vim')
-    echo globpath(&rtp, 'keymap/*.vim')
-
-##
-# vim-vint
-## How to install it?
-
-    $ git clone https://github.com/Kuniwak/vint
-    $ cd !$:t
-    $ python3 -m pip install --user --upgrade .
-
-    $ cd ..
-
-    $ git clone https://github.com/pypa/setuptools_scm
-    $ cd !$:t
-    $ python3 -m pip install --user --upgrade .
 
 ##
 # Function calls
@@ -1521,12 +1258,13 @@ Usage example:
 
 Or:
 
+    " 'nowrap' needs to be off
     echo range(1, line('$'))->map('virtcol([v:val, "$"])')->max() - 1
-                                                                  ^-^
+                                                                  ^^^
 
 Note that the reason for `-1` is explained at `:h virtcol()`:
 
-   > $	    the end of the cursor line (the result is the
+   > $       the end of the cursor line (the result is the
    >         number of displayed characters in the cursor line
    >         **plus one**)
 
@@ -1722,6 +1460,18 @@ command, like `file` for file completion (as used in `-complete=file`).
 
     let fname = input('File: ', '', 'file')
 
+## How to install vim-vint?
+
+    $ git clone https://github.com/Kuniwak/vint
+    $ cd !$:t
+    $ python3 -m pip install --user --upgrade .
+
+    $ cd ..
+
+    $ git clone https://github.com/pypa/setuptools_scm
+    $ cd !$:t
+    $ python3 -m pip install --user --upgrade .
+
 ##
 # Pitfalls
 ## Do *not* use a function which has a side effect as the third argument of `get()`!
@@ -1894,6 +1644,36 @@ When the list is the left operand of an assignment (`:h :let-unpack`):
     E475: Invalid argument: ] = [1,2,3]~
 
 ##
+## Sometimes, `getpos()` reports 2147483647 for the column position of the `'>` or `']` mark!
+```vim
+vim9script
+setline(1, 'some text')
+exe "norm! V\e"
+echom getpos("'>")
+```
+    [0, 1, 2147483647, 0]
+
+   > That's intentional. Vim defines a MAXCOL value which is used to
+   > indicate the cursor is at the end of the line without specifically
+   > requiring knowing the line length ahead of time. This allows the
+   > behavior to stay the same even if the line length changes. Some of its
+   > uses are purely internal, but it does have external visibility in the
+   > case of commands like getpos().
+
+Source: <https://groups.google.com/g/vim_dev/c/oCUQzO3y8XE/m/opuczWwCtCsJ>
+
+Workaround:
+```vim
+vim9script
+setline(1, 'some text')
+exe "norm! V\e"
+var pos: list<number> = getpos("'>")
+pos[2] = col([pos[1], '$'])
+echom pos
+```
+    [0, 1, 10, 0]
+
+##
 ## Why should I avoid
 ### replacing `matchstr()->len()` with `matchend()`?
 
@@ -2035,6 +1815,180 @@ This has only a few relevant matches:
     :helpg \%(expand\|glob\)(['"]`
 
 So, it's probably not well-tested.
+
+## `virtcol()` is influenced by some window-local options like 'wrap' and 'linebreak'!
+
+I think it's a known bug, mentioned at `:h todo /virtcol()`.
+
+   > Value returned by virtcol() changes depending on how lines wrap.  This is
+   > inconsistent with the documentation.
+
+See also: <https://github.com/vim/vim/issues/5713>
+
+---
+```vim
+vim9script
+lefta :25vnew
+setl wrap lbr
+setline(1, 'the quick brown fox jumps over the lazy dog')
+norm! 19l
+echom virtcol('.')
+```
+    25
+
+Here's what is displayed in the window:
+
+                       ┌ this cell displays a space which is in the text; that's also where the cursor is
+                       │┌ these cells are actually empty; they don't display any space in the text
+                       │├───┐
+    the quick brown fox      |
+    jumps over the lazy dog  |
+                             ^
+                             right border of the left split
+
+It seems that,  when you're on the  last real character of  a soft-wrapped line,
+`virtcol('.')` gives the  index of the last  screen cell on that  line.  IOW, it
+also counts the virtual cells at the end of the screen line.
+
+Even more confusing, in later positions, `virtcol()` still counts these cells:
+```vim
+vim9script
+lefta :25vnew
+setl wrap lbr
+setline(1, 'the quick brown fox jumps over the lazy dog')
+norm! 29l
+echom virtcol('.')
+```
+    35
+    # it should be 30
+
+### ?
+
+Is there a workaround?
+
+Try to use `charcol()` if possible.
+
+Update: Actually, we should only use `virtcol()` in combination with `|` (normal
+command), and  `\%v` (atom in  regex).  And with  those, it doesn't  matter that
+`virtcol()` outputs bullshit; because they agree with this bullshit anyway.
+IOW, `charcol()` is  not a workaround to `virtcol()`.  But  you should still use
+`charcol()` whenever possible.
+
+##
+## ?
+
+Document the fact  that `virtcol('.')` gives the  index of the last  cell of the
+character under the cursor (if 've' is empty).
+
+If the character occupies multiple cells (like a tab), that number can't be used
+in a `\%v` atom; well, it can,  but it won't match anything.  That's because the
+regex engine will never  be able to match the first cell of  a character in that
+position; that  would mean that  there exists a cell  position which is  the the
+last of a character, and the first of another character, which is impossible.
+
+A cell position can be the last and  the first of the same character though, but
+this assumes that  the character occupies only 1 cell  (which violates our prior
+assertion: "the character occupies multiple cells").
+
+Update: Actually, your explanation is only valid if you try to match `\%123v` on
+the same – unchanged – line.  It  could very well match something on a different
+line.
+
+---
+
+The same  kind of issue  exists with `col('.')`.  It  might give a  number which
+doesn't match anything on a line containing multibyte characters.
+For example, if `col('.')` gives 4, and you use it in `\%4c` against this line:
+
+    ééé
+
+It won't match anything.
+The first byte of the first character has the index 1.
+The first byte of the second character has the index 3.
+The first byte of the third character has the index 5.
+Conclusion: There's no character whose first byte has the index 4.
+
+## ?
+
+Did we  use `matchstr()`  with a  (slow) regex  to get  the character  under the
+cursor (or right before/after), while we could have used sth simpler like:
+
+    getline('.')[charcol('.') - 1]
+
+Look for this pattern:
+
+    \C\<matchstr(\%(&l:cms\|.*<SNR>\)\@!\|\<strpart(
+
+## ?
+
+In  the past,  we might  have used  `glob*()` +  `filter()/match()` to  test the
+presence of  a file  in a  directory; or to  find some  file(s) in  a directory.
+That's inefficient.  Use `readdir()` instead.
+
+    \C\<glob\S*(
+
+A `glob()` whose first  argument is a file pattern containing  a wildcard in the
+last path component is a good candidate for a refactoring.
+
+Example:
+
+    glob('~/.config/keyboard/*', false, true)
+    readdir($HOME .. '/.config/keyboard/')->map((_, v) => $HOME .. '/.config/keyboard/' .. v)
+
+Although, note  that `readdir()` might make  the code more verbose  (if you need
+absolute file  paths).  In that  case, you can  keep `glob()`, provided  that it
+doesn't have a  too bad impact on performance (i.e.  not invoked too frequently,
+and expands a directory with not too many files).
+
+Other example:
+
+    # test that a file containing "some_name" is in the directory of the current file
+    if !glob(expand('%:p:h') .. '/*', false, true)
+        ->filter((_, v) => v =~ 'some_name')
+        ->empty()
+
+        # do sth
+    endif
+
+    if !expand('%:p:h')
+        ->readdir((n: string): bool => n =~ 'some_name')
+        ->empty()
+
+        # do sth
+    endif
+
+It is *much* faster.
+
+---
+
+Usage example for `readdir()`:
+
+    vim9 echo readdir('/etc', (n: string): bool => n =~ 'network', {sort: 'none'})
+    ['network', 'networks']~
+
+---
+
+If you  need to filter out  entries based on  something else than the  name, use
+`readdirex()`:
+
+    vim9 echo readdirex('/etc', (e: dict<any>): bool => e.name =~ 'network' && e.user == 'root', {sort: 'none'})
+    [{~
+      'group': 'root',~
+      'perm': 'rwxr-xr-x',~
+      'name': 'network',~
+      'user': 'root',~
+      'type': 'dir',~
+      'time': 1468960975,~
+      'size': 0},~
+    {~
+      'group': 'root',~
+      'perm': 'rw-r--r--',~
+      'name': 'networks',~
+      'user': 'root',~
+      'type': 'file',~
+      'time': 1445534121,~
+      'size': 91,~
+    }]~
 
 ##
 # Todo
@@ -2253,142 +2207,236 @@ Rule: In a slice, avoid appending a colon directly before an expression which is
 Rationale:  Less ugly.  Also, it's consistent with the previous rule.
 
 ##
+## ?
+
+Study when a wildcard can match a dot.
+I think `*` can match a dot in a `:e` or `:sp` command.
+
+But not in a `'wig'` setting.
+And probably not in other contexts; from `h file-searching`:
+
+   > The file searching is currently used for the 'path', 'cdpath' and 'tags'
+   > options, for |finddir()| and |findfile()|.  Other commands use |wildcards|
+   > which is slightly different.
+   >
+   > ...
+   >
+   > The usage of '*' is quite simple: It matches 0 or more characters.  In a
+   > search pattern this would be ".*".
+   > **Note that the "." is not used for file searching.**
+
+## ?
+
+    expand('$LANG')
+
+Retourne la valeur de la variable d'environnement `$LANG` du shell courant.
+
+Si la session Vim connaît déjà la  variable d'environnement, il n'y a pas besoin
+d'appeler `expand()`: `:echo $LANG` fonctionnera.
+
+Mais si elle ne la connaît pas, `expand()` permet de s'assurer qu'elle sera bien
+développée.  Pour ce faire, elle lance un shell pour l'occasion.
+
+---
+
+`expand()` n'est pas limitée à des fichiers, elle peut développer:
+
+   - des caractères spéciaux (`:h cmdline-special`)
+   - des commandes shell
+   - des globs
+   - des variables d'environnement
+
+## ?
+
+                ┌ respecte 'su' et 'wig'
+                │        ┌ résultat sous forme de liste et non de chaîne
+                │        │
+    expand('*', v:false, v:true)
+    glob('*', v:false, v:true, v:true)
+                               │
+                               └ inclut tous les liens symboliques,
+                                 même ceux qui pointent sur des fichiers non-existants
+
+Noms des fichiers / dossiers du cwd.
+
+---
+
+Si le dossier de travail est  vide, `expand()` retourne `'*'`, `glob()` retourne
+`''`.  `glob()` est  donc  plus  fiable.  Ceci  est  une  propriété générale  de
+`expand()`.  Qd  elle ne  parvient pas  à développer qch,  elle le  retourne tel
+quel:
+
+    echo expand('$FOOBAR')
+    $FOOBAR~
+
+---
+
+                                                            *suffixes*
+    For file name completion you can use the 'suffixes' option to set a priority
+    between files with almost the same name.  If there are multiple matches,
+    those files with an extension that is in the 'suffixes' option are ignored.
+    The default is ".bak,~,.o,.h,.info,.swp,.obj", which means that files ending
+    in ".bak", "~", ".o", ".h", ".info", ".swp" and ".obj" are sometimes ignored.
+
+    An empty entry, two consecutive commas, match a file name that does not
+    contain a ".", thus has no suffix.  This is useful to ignore "prog" and prefer
+    "prog.c".
+
+    Examples:
+
+      pattern:	files:				match:	~
+       test*	test.c test.h test.o		test.c
+       test*	test.h test.o			test.h and test.o
+       test*	test.i test.h test.c		test.i and test.c
+
+    It is impossible to ignore suffixes with two dots.
+
+    If there is more than one matching file (after ignoring the ones matching
+    the 'suffixes' option) the first file name is inserted.  You can see that
+    there is only one match when you type 'wildchar' twice and the completed
+    match stays the same.  You can get to the other matches by entering
+    'wildchar', CTRL-N or CTRL-P.  All files are included, also the ones with
+    extensions matching the 'suffixes' option.
+
+    To completely ignore files with some extension use 'wildignore'.
+
+    To match only files that end at the end of the typed text append a "$".  For
+    example, to match only files that end in ".c": >
+            :e *.c$
+    This will not match a file ending in ".cpp".  Without the "$" it does match.
+
+    The old value of an option can be obtained by hitting 'wildchar' just after
+    the '='.  For example, typing 'wildchar' after ":set dir=" will insert the
+    current value of 'dir'.  This overrules file name completion for the options
+    that take a file name.
+
+## ?
+
+    expand('**/README', v:false, v:true)
+    glob('**/README', v:false, v:true, v:true)
+
+Liste des  chemins vers des fichiers  README situés dans  le cwd ou l'un  de ses
+sous-dossiers.
+
+À nouveau,  si aucun  fichier n'est  trouvé, `expand()`  retourne `['**/README']`,
+tandis que `glob()` retourne `[]`.  `glob()` est donc plus fiable.
+
+## ?
+
+    glob("`find . -name '*.conf' | grep input`", v:false, v:true, v:true)
+    systemlist("find . -name '*.conf' | grep input")
+
+Sortie de la commande shell:
+
+    $ find . -name '*.conf' | grep input
+
+Quelles différences? :
+
+   - `glob()` ne retourne que des noms de fichier existants.
+     Elle filtre tout ce qui n'est pas exactement un nom de fichier exact.
+     Les messages d'erreurs sont donc supprimés.
+
+   - `system()` aussi, mais ajoute un newline à la fin, ce qui fait qu'on a une
+     ligne vide en bas du pager.
+
+## ?
+
+    globpath(&rtp, 'syntax/c.vim', v:false, v:true, v:true)
+
+Le chemin relatif `syntax/c.vim` est ajouté en suffixe à chaque chemin absolu du
+rtp.  Si  le résultat  correspond à  un fichier  existant, il  est ajouté  à une
+liste.  `globpath()` retourne  la liste finale, une fois que  tous les chemins du
+rtp ont été utilisés.
+
+---
+
+    globpath(&rtp, '**/README.txt', v:false, v:true, v:true)
+
+Idem, sauf que  cette fois, le suffixe  contient un wildcard, qui  à chaque fois
+est développé en une liste de 0, 1 ou plusieurs fichiers correspondant.
+
+---
+
+Plus  généralement, `globpath()`  attend  2 arguments,  tous  2 des  expressions
+évaluées en chaînes:
+
+   - la 1e doit stocker des chemins séparés par des virgules
+   - la 2e un chemin relatif vers un fichier, incluant éventuellement des wildcards
+
+---
+
+`globpath()` is useful to get an overview of a type of files.
+Vim filetype plugins, C syntax plugins, lua indent plugins, keymap files, ...
+
+    echo globpath(&rtp, 'ftplugin/vim.vim')
+    echo globpath(&rtp, 'syntax/c.vim')
+    echo globpath(&rtp, 'indent/lua.vim')
+    echo globpath(&rtp, 'keymap/*.vim')
+
 ##
 ##
 ##
 ##
-# Expressions
-
-Une expression peut être :
-
-   - un nb
-   - une chaîne
-   - un dictionnaire
-   - une variable
-   - une variable d'environnement     préfixe $
-   - une option                       préfixe &
-   - un registre                      préfixe @
-   - une expression conditionnelle    a ? b : c
-   - la sortie d'une fonction
-   - le résultat d'une opération entre 2 expressions (+, -, *, /, %, .)
-
----
-
-    let myvar42 = 'hello'
-    let idx=42
-    echo myvar{idx}
-
-    fu MyFunc42()
-        return 'world'
-    endfu
-    let idx=42
-    echo MyFunc{idx}()
-
-On  peut développer  une expression  au sein  même d'un  nom de  variable ou  de
-fonction.  Cf. `:h curly-braces-names`.
-
-Il peut s'agir d'une alternative à eval():
-
-    let myvar42 = 'hello'
-    let idx=42
-    echo eval('myvar' .. idx)
-
-    fu MyFunc42()
-       return 'world'
-    endfu
-    let idx=42
-    echo eval('MyFunc' .. idx .. '()')
-
-`eval()` est moins lisible:
-
-    echo eval('myvar'.idx)
-    echo myvar{idx}
-
-It works even if there's nothing outside the curly braces:
-
-    let var = 'hello'
-    let {var} = 'world'
-    echo hello
-    world ~
-
-# For / While
-
-    fu s:grab_words()
-        call cursor(1, 1)
-
-        let guard = 0
-        let words = []
-        let matchline = search('\<\k\+\>', 'cW')
-
-        while matchline && guard < 999
-            let words += [getline('.')->matchstr('\%' .. col('.') .. 'c\<\k\+\>')]
-            let matchline = search('\<\k\+\>', 'W')
-        endwhile
-        return words
-    endfu
-
-Définit la  fonction `s:grab_words()`  qui lance une  boucle while  pour stocker
-tous les mots du buffer courant dans la liste words.
-
----
-
-On pourrait aussi utiliser:
-
-    let words = getline(1, '$')->join("\n")->split('\W\+')
-
-... qui est encore + rapide.
-
-En revanche, le principe sur lequel repose cette commande nécessite qu'on puisse
-facilement décrire l'inverse du pattern recherché.  Facile pour un mot (`\W\+`),
-mais plus difficile pour un pattern arbitraire (! foobar = ?).
-
----
-
-FIXME:
-
-Existe-t-il un moyen simple d'inverser un pattern arbitraire (ex: foobar)?
-J'ai tenté:
-
-    foobar\zs\_.\{-}\zefoobar\|^\_.\{-}\zefoobar\|\_.*foobar\zs\_.\{-}$
-
-dans:
-
-    :echo getline(1, '$')->join("\n")->split('reverse pattern')
-
-Ça semble marcher sauf pour le  dernier foobar (dernière branche dans le pattern
-inversé).  J'ai aussi tenté:
-
-    :echo getline(1, '$')->join("\n")->split('\v((foobar)@!\_.){-1,}')
-
----
-
-Si on sait  que le pattern ne peut  être présent qu'une fois par  ligne, on peut
-aussi utiliser:
-
-    :g/pattern/call add(list, getline('.')->matchstr('pattern'))
-
----
-
-On peut  imaginer que `:while` teste  toujours une condition en  fonction de qch
-qui se situe au-dessus d'elle.
-Ex, ici, `:while` teste si matchline est non nulle.
-Elle le fait initialement en se basant sur:
-
-    let matchline = search('\w\+', 'cW')
-
-... qui est juste au-dessus.
-
-Puis, elle le fait en se basant sur:
-
-    let matchline = search('\w\+', 'W')
-
-... qui,  certes, se situe après  `:while` au sein  de la fonction, mais  est bien
-exécutée AVANT le prochain retour vers `:while`.
-Donc, c'est un peu comme si ce 2e let se situait juste avant `:while` (JUSTE avant
-car il n'y a  rien entre ce :let et `:endwhile`, et  que `:endwhile` signifie retour
-vers `:while`).
-
 ##
+# Nombres
+
+How to represent an hexadecimal number?
+
+Use the `0x` prefix:
+
+    echo 0x9a
+    154~
+
+---
+
+How to represent an octal number?
+
+Use the `0o` prefix:
+
+    echo 0o17
+    15~
+
+---
+
+Why should I never prefix a number with `0` (unless followed by `o`, `x`, `z`)?
+
+Because it's  too ambiguous.   It might  be parsed  as an  octal number  or not,
+depending on various parameters:
+
+    # decimal
+    echo 019
+    19~
+
+    # octal
+    echo 017
+    15~
+
+    # decimal
+    scriptversion 4
+    echo 017
+    17~
+
+    # octal
+    scriptversion 2
+    echo 017
+    15~
+
+    # decimal
+    vim9script
+    echo 017
+    17~
+
+---
+
+    echo 5.45e3
+    5450.0~
+
+En notation exponentielle, il faut obligatoirement un point et un chiffre après.
+Ainsi 5e10 n'est pas valide, mais 5.0e10 est valide.
+
+    echo 15.45e-2
+    0.1545~
+
 # Let
 
     let
@@ -2399,124 +2447,97 @@ Affiche l'ensemble des variables actuellement définies.
 
     let list2 = list1
 
-            Affecter à la variable list1 la référence de list2.
+Affecter à la variable list1 la référence de list2.
 
-            On peut vérifier que list1 et list2 partagent la même référence via:
+On peut vérifier que list1 et list2 partagent la même référence via:
 
-                    :echo list2 is list1
+        :echo list2 is list1
 
-            Il est probable que pour Vim une donnée soit décomposée en 3 parties (comme dans un fs):
+Il est probable que pour Vim une donnée soit décomposée en 3 parties (comme dans un fs):
 
-                - son nom (associé à une référence dans une sorte d'annuaire)
-                - une référence (pointant vers l'adresse mémoire de la donnée)
-                - la donnée elle-même
+   - son nom (associé à une référence dans une sorte d'annuaire)
+   - une référence (pointant vers l'adresse mémoire de la donnée)
+   - la donnée elle-même
 
-            Il  ne faut  pas  croire que  dans  la commande  qui  précède, on  a
-            dupliqué la donnée stockée dans list1.
-            On a simplement créé un nouveau nom pointant vers la référence d'une
-            même donnée.
-            Ceci explique  pourquoi si on modifie  un item de list1,  on modifie
-            par la même occasion list2 ; car les 2 noms d'objets sont associés à
-            la même donnée.
-            Et réciproquement,  modifier list2  a pour  effet de  modifier aussi
-            list1.
+Il ne faut pas croire que dans la  commande qui précède, on a dupliqué la donnée
+stockée dans list1.
+On  a simplement  créé un  nouveau  nom pointant  vers la  référence d'une  même
+donnée.
+Ceci explique pourquoi  si on modifie un  item de list1, on modifie  par la même
+occasion list2 ; car les 2 noms d'objets sont associés à la même donnée.
+Et réciproquement, modifier list2 a pour effet de modifier aussi list1.
 
-            Pour dupliquer la liste stockée dans list1, il faut utiliser la fonction copy() ou deepcopy().
+Pour  dupliquer la  liste  stockée  dans list1,  il  faut  utiliser la  fonction
+`copy()` ou `deepcopy()`.
 
+---
 
     let [var1, var2; rest] = mylist
 
-            affecter à var1 mylist[0], à var2 mylist[1] et tous les autres items de mylist à la liste rest
-            utile pour éviter d'avoir une erreur si la taille de mylist pourrait être plus grand que
-            le nb de variables
+Affecter à `var1` la valeur `mylist[0]`, à `var2` la valeur `mylist[1]`, et tous
+les autres  items de  `mylist` à  la liste  rest utile  pour éviter  d'avoir une
+erreur si la taille de `mylist` pourrait être plus grand que le nb de variables.
 
+---
 
     let s:myflag = exists('s:myflag') ? !s:myflag : 1
     let s:myflag = !get(s:, 'myflag', 1)
 
-            stocke 1 dans la variable s:myflag si elle vaut 0, 1 autrement
+Stocke 1 dans la variable `s:myflag` si elle vaut 0, 1 autrement.
 
-            L'affectation prend en charge le cas où s:myflag n'a pas encore de valeur.
-            s:myflag peut être utilisée comme un flag booléen permettant d'exécuter alternativement
-            2 actions différentes A, B, A, B... (toggle)
+L'affectation prend  en charge le  cas où `s:myflag`  n'a pas encore  de valeur.
+`s:myflag`  peut  être utilisée  comme  un  flag booléen  permettant  d'exécuter
+alternativement 2 actions différentes A, B, A, B... (toggle)
 
-            Utile pex, pour (dés)activer la mise en surbrillance d'un pattern via :match.
+Utile pex, pour (dés)activer la mise en surbrillance d'un pattern via :match.
 
-                    let s:myflag = ...
-                    if s:myflag
-                        match /pattern/
-                    else
-                        match none
-                    endif
+    let s:myflag = ...
+    if s:myflag
+        match /pattern/
+    else
+        match none
+    endif
 
-            Si B n'est pas une action  fixe et dépend d'une valeur, le précédent
-            code n'est plus suffisant.
-            Dans ce  cas, au lieu  de tester  si s:myflag vaut  0 ou 1,  on peut
-            tester si elle  existe ou non et lui affecter  la valeur dont dépend
-            B.
+Si B n'est pas  une action fixe et dépend d'une valeur,  le précédent code n'est
+plus suffisant.
+Dans ce cas, au lieu  de tester si s:myflag vaut 0 ou 1,  on peut tester si elle
+existe ou non et lui affecter la valeur dont dépend B.
 
-            Utile pex,  pour (dés)activer la  mise en surbrillance  d'un pattern
-            via matchadd().
-            En effet,  cette fois, la  désactivation de la mise  en surbrillance
-            n'est  plus  fixe   (:match  none),  mais  dépend   d'un  id  (:call
-            matchdelete(id)).
+Utile  pex,  pour  (dés)activer  la   mise  en  surbrillance  d'un  pattern  via
+matchadd().
+En effet,  cette fois, la  désactivation de la  mise en surbrillance  n'est plus
+fixe (:match none), mais dépend d'un id (:call matchdelete(id)).
 
-                    if !exists('id')
-                        let id = matchadd('SpellBad', 'pattern')
-                    else
-                        call matchdelete(id)
-                        unlet id
-                    endif
+    if !exists('id')
+        let id = matchadd('SpellBad', 'pattern')
+    else
+        call matchdelete(id)
+        unlet id
+    endif
 
-            L'existence/absence de id répond à la question:    Qu'a-t-on fait la dernière fois, A ou B ?
-                                                               Et donc que faire à présent, B ou A ?
-            La valeur de id répond à la question:              Comment faire B ?
+L'existence/absence de id répond à la question:
 
-            Une alternative utilisant le 1er code serait:
+    Qu'a-t-on fait la dernière fois, A ou B ?
+    Et donc que faire à présent, B ou A ?
 
-                    let s:myflag = exists('s:myflag') ? !s:myflag : 1
-                    if s:myflag
-                        let id = matchadd('SpellBad', 'pattern')
-                    else
-                        call matchdelete(id)
-                        unlet id    " facultatif
-                    endif
+La valeur de id répond à la question:
 
-            L'inconvénient de cette  2e version est qu'elle crée  2 variables au
-            lieu d'une, une pour le flag et une pour l'id.
+    Comment faire B ?
 
-# Nombres
+Une alternative utilisant le 1er code serait:
 
-Vim gère 2 types de nombres, les entiers (signés sur 32 bits, +-2 milliards) et les flottants.
+    let s:myflag = exists('s:myflag') ? !s:myflag : 1
+    if s:myflag
+        let id = matchadd('SpellBad', 'pattern')
+    else
+        call matchdelete(id)
+        unlet id    " facultatif
+    endif
 
-    echo 100            affiche le nombre 100
-    echo 0xff           affiche le nb 255 (0x introduit la notation hexadécimale)
-    echo 017            affiche le nb 15 (le 1er 0 introduit la notation octale)
-    echo 019            affiche le nb 19
+L'inconvénient de cette  2e version est qu'elle crée 2  variables au lieu d'une,
+une pour le flag et une pour l'id.
 
-                        Au lieu de produire une erreur, Vim ignore silencieusement la notation octale
-                        car le chiffre 9 n'existe pas en base 8.
-                        De ce fait, il vaut mieux éviter la notation octale quand c'est possible.
-
-    echo 5.45e3         affiche 5450.0 (notation exponentielle)
-
-                        En notation exponentielle, il faut obligatoirement un point et un chiffre après.
-                        Ainsi 5e10 n'est pas valide, mais 5.0e10 est valide.
-
-    echo 15.45e-2       affiche 0.1545
-
-    echo 2 * 2.0        affiche 4.0
-
-                        Qd on réalise un calcul ou une comparaison contenant un flottant, Vim convertit
-                        les entiers en flottant.
-
-    echo 3 / 2          affiche 1
-
-                        Les deux nb de la division étant des entiers, la division retourne le quotient
-                        pour avoir le nb exact, il suffit d'utiliser un flottant qq part (ex: echo 3 / 2.0).
-
-    echo 13 % 5         affiche le reste dans la division de 13 par 5
-
+##
 # Fonctions
 ## Théorie
 
@@ -2538,40 +2559,6 @@ Elle ne sera jamais trouvée:
 
 ... car Vim s'arrêtera de chercher  dès qu'il trouvera un fichier `foo.vim` dans
 un dossier `autoload/` du rtp.
-
----
-
-En programmation, on  appelle subroutine (sous-programme/routine/procédure), une
-fonction  dont le  code de  sortie ne  nous intéresse  pas, seule  son exécution
-compte.
-En vimscript, une procédure est appelée via la commande Ex `:call`.
-
-## Arguments
-
-Depuis une fonction on peut accéder en lecture à un argument (a:bar) mais pas en
-écriture.
-On  ne peut  donc pas  modifier la  valeur d'un  argument, en  revanche on  peut
-affecter sa  valeur à une autre  variable qu'on pourra manipuler  comme bon nous
-semble.
-
-    :function Foo(bar) ^@ echom a:bar ^@ endfu
-    :call Foo("qux")
-
-            définit  la fonction  Foo(), qui  une fois  appelée, echo  la chaîne
-            "qux" (bar est le nom du paramètre) qu'on lui passe
-
-    :function Foo(...) ^@ cmd ^@ endfu
-
-            définit la fonction  Foo() qui attend un groupe  d'arguments dont le
-            nb est indéterminé (mais limité à 20)
-
-    :function Foo(bar, ...) ^@ cmd ^@ endfu
-
-            définit la fonction Foo() qui attend l'argument bar et un groupe d'arguments
-
-            a:bar    (est évalué à) contenu de l'argument bar
-            a:0      nb d'arguments du groupe ... (n'inclut donc pas bar)
-            a:1      1er argument du groupe ... (!= bar)
 
 ## Buffers
 
@@ -2641,67 +2628,6 @@ semble.
 
             En cas d'échec, retourne -1, et non 0.
 
-
-    virtcol('.')
-
-            Number of the last screen column occupied by the character under the
-            cursor.
-
-                                     NOTE:
-
-            The value of this expression can sometimes be surprising.
-            Write this sentence in `/tmp/file`:
-
-                    they would be useful if they were here
-
-            Then, start Vim like this:
-
-                    $ vim -Nu NONE +'norm! 13l' +'lefta 20vs | setl wrap lbr' /tmp/file
-                    :echo getline('.')->strcharpart(virtcol('.') - 1, 3)
-                    l SPC i~
-
-            You probably expected `SPC u s`.
-
-            Here's what should be displayed:
-
-                                 the cursor should be on this column where a real space resides
-                                 v
-                    they would be
-                    useful if they were
-                    here
-
-            From  this position,  `virtcol('.')`  evaluates to  `20`, while  you
-            probably expected `14`.
-            To better understand what happens, set `'ve'` like this:
-
-                    set ve=all
-
-            And press `g$`, then evaluate `virtcol('.')`; you'll get `20`.
-            Maybe  `virtcol('.')` should  evaluate to  `14` when  the cursor  is
-            right  before the  space, but  as soon  as you  move the  cursor one
-            character forward again  to reach the beginning of  the second line,
-            it makes complete sense for `virtcol('.')` to return `21`.
-
-            `virtcol('.')` doesn't  make the difference between  a screen column
-            where there is a real character, and one where there is none.
-            It includes all of them.
-
-            IOW, if  there is a  column where no  real character resides  in the
-            file, between 2 other columns where there *are* real characters, the
-            column in the middle is *not* ignored.
-
-            For this reason,  you should prefer `col()` which  is not influenced
-            by any option which may change how the text of a file is displayed:
-
-                    - breakat
-                    - breakindent
-                    - linebreak
-                    - showbreak
-                    - wrap
-                    ...
-
-            Although, I guess it's ok to use  it when you're sure your lines are
-            NOT wrapped.
 
     col('.')
 
@@ -2897,30 +2823,6 @@ semble.
             elle ne sert qu'à informer l'utilisateur des nb qu'il peut taper et leur conséquence.
 
 
-    submatch()
-
-            À l'intérieur d'une expression de remplacement, permet d'accéder à tout ou partie texte
-            matché par le pattern.
-
-            submatch(0) = tout le texte
-            submatch(1) = 1ère sous-expression capturée
-
-            On peut utiliser une expression de remplacement (et donc submatch()) dans une commande de substitution:
-
-                    :s:pattern:\=expression:
-
-            ou dans la fonction substitute():
-
-                    substitute('text', 'pattern', '\=expr', 'flags')
-
-
-                                               NOTE:
-
-            Alternativement, on peut remplacer '\=expr' par une expression lambda :
-
-                    substitute('text', 'pattern', {-> expr}, 'flags')
-
-
     taglist('pattern')
 
             Retourne la liste des tags matchant pattern.
@@ -2937,15 +2839,6 @@ semble.
                     - du 1er tag                         matchant pattern
                     - du fichier contenant le 1er tag    "
                     - des noms de tous les tags          "
-
-    visualmode()
-
-            retourne le type de la dernière sélection visuelle dans le buffer courant ('v', 'V', '^V')
-
-            Utile pour passer en argument le type de la dernière sélection à une fonction souhaitant
-            agir sur cette dernière.
-            Par exemple , si visualmode() retourne 'v' la fonction utilisera les marques `< et `>,
-            et si elle retourne 'V' la fonction utilisera les marques '< et '>.
 
 ## Fenêtres / Onglets
 
@@ -3208,12 +3101,6 @@ semble.
             en cas d'échec est 0.  Si c'était -1, il faudrait obligatoirement comparer la sortie à -1.
 
 
-    mkdir(expand('$HOME') .. 'foo/bar', 'p')
-
-            crée le dossier /home/user/foo/bar, en créant les dossiers intermédiaires si nécessaire
-            (2e argument 'p')
-
-
     readfile('/tmp/foo')
     readfile(fname, '', 10)
     readfile(fname, '', -10)
@@ -3346,13 +3233,6 @@ semble.
             les fichiers suivants dans le même dossier.
             De plus, qd on quittera Vim, il supprimera automatiquement le dossier.
 
-
-    writefile(['foo', 'bar'], 'file', 'a')
-
-            ajoute à la fin du fichier file les chaînes 'foo' et 'bar', séparé par un newline
-            le 3e argument 'a' est un flag qui indique à la fonction d'ajouter (append) les chaînes
-            au fichier sans écraser son contenu
-
 ## Historique
 
     strftime('%c')->histadd('/')
@@ -3369,7 +3249,9 @@ semble.
                 @ ou input     dernières valeurs fournies à la fonction input()
                 > ou debug     commandes de déboguage
 
-    histdel('/')    histdel('/', -1)    histdel('/', '^a.*b$')
+    histdel('/')
+    histdel('/', -1)
+    histdel('/', '^a.*b$')
 
             supprimer de l'historique de recherche:
 
@@ -3377,7 +3259,8 @@ semble.
                     - la dernière entrée
                     - toutes les entrées commençant par a et finissant par b
 
-    histget('/', 5)    histget('/')
+    histget('/', 5)
+    histget('/')
 
             retourne la 5e entrée de l'historique de recherche; la dernière entrée
 
@@ -3399,142 +3282,24 @@ semble.
             supprime la dernière recherche, et restocke dans le registre recherche l'avant-dernière
             utile après une recherche dont on ne souhaite laisser aucune trace (ou alors utiliser :keeppatterns)
 
-## Recherche / curseur
+## Recherche
 
-    cursor(5, 10)
+What's the use of the `z` flag for `search()`?
 
-            positionne le curseur sur la 10e colonne de la 5e ligne du buffer
-            retourne 0 si le curseur a pu être positionné, -1 autrement
-
-            si le n° de ligne est nul le curseur ne change pas de ligne (idem pour la colonne)
-            si le n° de ligne est supérieur au nb de lignes du buffer, le curseur se déplace sur la dernière (idem pour la colonne)
-
-            Utile pour positionner le curseur avant de débuter une recherche avec search().
-
-    getcurpos()
-
-            Retourne une liste de 5 nb correspondant aux coordonnées du curseur.
-
-            Le retour est généralement sauvegardé  dans un variable pour pouvoir
-            restaurer la position du curseur plus tard.  Ex:
-
-                    let save_cursor = getcurpos()
-
-
-                                     NOTE:
-
-            Ne  jamais utiliser  `getpos()` pour  sauvegarder puis  restaurer la
-            position du curseur. `getpos()` ne sauvegarde pas l'attribut 'curswant'.
-
-            https://vi.stackexchange.com/a/15566/16670
-
-
-    search(pattern, [flags, stopline])
-
-            Cherche pattern à partir du curseur.
-            Retourne le n° de ligne du match s'il y en a un, 0 autrement.
-
-            Le curseur se déplace jusqu'au match.
-            stopline est un n° de ligne au-delà duquel la recherche doit s'arrêter.
-            On peut passer des flags modifiant le comportement de search(), entre autres:
-
-            ┌─────┬─────────────────────────────────────────────────────────────────────────────┐
-            │ 'b' │ recherche vers l'arrière                                                    │
-            ├─────┼─────────────────────────────────────────────────────────────────────────────┤
-            │ 'c' │ accepte un match à l'endroit où se trouve le curseur                        │
-            │     │ le curseur ne se déplace pas                                                │
-            ├─────┼─────────────────────────────────────────────────────────────────────────────┤
-            │ 'e' │ déplace le curseur à la fin du match (au lieu du début)                     │
-            ├─────┼─────────────────────────────────────────────────────────────────────────────┤
-            │ 'n' │ ne déplace pas le curseur                                                   │
-            ├─────┼─────────────────────────────────────────────────────────────────────────────┤
-            │ 's' │ pose la marque ' à l'endroit où se trouve le curseur avant la recherche     │
-            ├─────┼─────────────────────────────────────────────────────────────────────────────┤
-            │ 'w' │ wrap / boucle à la fin du fichier                                           │
-            ├─────┼─────────────────────────────────────────────────────────────────────────────┤
-            │ 'W' │ ne wrap pas à la fin du fichier                                             │
-            ├─────┼─────────────────────────────────────────────────────────────────────────────┤
-            │ 'z' │ cherche à partir du curseur et non de la colonne 0                          │
-            │     │ Même si on omet 'z', et que la recherche commence à partir de la colonne 0, │
-            │     │ search() skip les matchs précédant le curseur.                              │
-            └─────┴─────────────────────────────────────────────────────────────────────────────┘
-
-                                     NOTE:
-
-            Always use the `W` flag when you use `search()` in a while loop.
-            Otherwise, you may end up in an infinite loop.
-
-                                     NOTE:
-
-            What's the use of 'z'?
-            It seems that if we omit it, Vim does the same thing:
+It seems that if we omit it, Vim does the same thing:
 
    > When the 'z' flag is not given, searching always starts in
    > column zero **and then matches before the cursor are skipped**.
 
-            If  the matches  before  the  cursor are  skipped,  then why  bother
-            searching from column zero?
+If the  matches before the  cursor are skipped,  then why bother  searching from
+column zero?
 
-           Answer: The purpose of 'z' is probably to increase performance.
-           Even if searching from column 0, then ignoring the matches before the
-           cursor, gives the same result as  searching from the cursor, it costs
-           more time.
+Answer: Its purpose might be to increase performance.
+Even if  searching from column 0,  then ignoring the matches  before the cursor,
+gives the same result as searching from the cursor, it costs more time.
 
-           See also: https://github.com/vim/vim/issues/6572#issuecomment-666670144
+See also:
 
-
-                                     NOTE:
-
-            Une commande Ex exécutée depuis le mode visuel nous fait toujours quitter ce dernier.
-            On ne peut donc pas directement invoquer `search()` pour étendre la sélection jusqu'à
-            la prochaine occurrence d'un pattern arbitraire:
-
-                call search('pat')                     ✘ cherche `pat` depuis le mode normal
-
-                                                         Pk le mode normal?
-                                                         Car après après avoir appuyé sur Enter pour
-                                                         exécuter une commande Ex, on est immédiatement
-                                                         en mode normal.
-
-                call search('pat') | norm! gv          ✘ cherche `pat` depuis le mode normal
-                                                         et restaure la dernière sélection visuelle
-
-                call search('pat') | norm! m'gv``      ✔
-
-                exe 'norm! gv' | call search('pat')    ✔ cherche `pat` depuis le mode visuel (*)
-                                                         et ce faisant met à jour la sélection
-
-            (*) Cette fois, 'norm! gv' restaure la sélection visuelle avant d'invoquer `search()`.
-
-
-    search('foo', 'bcnW')->getline()
-
-            retourne le contenu de la précédente ligne où se trouve le pattern 'foo' sans faire
-            bouger le curseur
-
-    search('(', 'b', line("w0"))
-
-            cherche vers l'arrière le caractère '(' en s'arrêtant à la 1e ligne de la fenêtre
-            retourne le n° de ligne du match
-
-    search('END', '', line("w$"))
-
-            cherche la chaîne 'END' en s'arrêtant à la dernière ligne actuellement visible dans la fenêtre
-            retourne le n° de ligne du match
-
-    search('\v<' .. getchar()->nr2char(), 'W', line('.'))
-
-            demande une frappe au clavier, et déplace le curseur sur le prochain mot commençant
-            par la lettre tapée
-
-            line('.') indique à Vim d'arrêter sa recherche au-delà de la ligne courante (stopline)
-
-                                               NOTE:
-
-            search() retourne le n° de ligne d'un match, mais il déplace aussi le curseur.
-            Ici, c'est le déplacement qui nous intéresse (pas le code de retour).
-
-    searchpos()
-
-            similaire à search() à ceci près qu'elle retourne une liste [lnum, cnum]
+   - <https://github.com/vim/vim/issues/6572#issuecomment-666670144>
+   - <https://vi.stackexchange.com/questions/29489/what-does-the-z-flag-for-search-do>
 
