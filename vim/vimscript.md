@@ -175,27 +175,27 @@ Unnest the calls using the method call `->` token:
 Any: builtin functions, custom functions, lambdas, ...
 
 Example:
-
-    "     builtin
-    "     v------v
-    echo 3->pow(2)
-
-    9.0~
-
-    fu Pow(x, y)
-        return repeat([a:x], a:y)->reduce({a, v -> a * v})
-    endfu
-    "     custom
-    "     v------v
-    echo 3->Pow(2)
-
-    9~
-
-    "          lambda
-    "     v--------------v
-    echo 3->{x -> x * x}()
-
-    9~
+```vim
+echo 3->pow(2)
+```
+    9.0
+```vim
+vim9script
+def Pow(x: number, y: number): number
+    return repeat([x], y)->reduce((a, v) => a * v)
+enddef
+ #    custom
+ #    v------v
+echo 3->Pow(2)
+```
+    9
+```vim
+vim9script
+ #         lambda
+ #    v--------------v
+echo 3->((x) => x * x)()
+```
+    9
 
 Note that when  a non-builtin function is  used as a method, the  base is always
 passed as the first argument.  That is,  the expression to the left of the arrow
@@ -257,12 +257,12 @@ Use explicit parentheses to limit the scope of the `!` operator:
 
 Break the arguments on multiple lines:
 
-    call Func(
-        \ foo,
-        \ bar,
-        \ baz,
-        \ ...
-        \ )
+    Func(
+        foo,
+        bar,
+        baz,
+        ...
+        )
 
 This  kind of  formatting is  probably  portable across  many other  programming
 languages (C, python, ...).
@@ -272,12 +272,11 @@ languages (C, python, ...).
 You can  also "name"  the values  at the call  site, by  wrapping them  inside a
 dictionary:
 
-    fu Func(opts)
-        let opts = a:opts
-    endfu
-
-    call Func(#{foo: 1, bar: 2, baz: 3})
-                     ^       ^       ^
+    def Func(arg_opts: dict<any>)
+        var opts = arg_opts
+    enddef
+    Func({foo: 1, bar: 2, baz: 3})
+               ^       ^       ^
 
 Here, the  values `1`, `2`  and `3`  are mapped to  the names `foo`,  `bar`, and
 `baz`, which can help to make them more readable.
@@ -285,17 +284,18 @@ Here, the  values `1`, `2`  and `3`  are mapped to  the names `foo`,  `bar`, and
 #### How to adapt the second technique to optional arguments?
 
 Use `extend()` and the optional third argument `keep`.
-
-    fu Func(opts)
-        "                              default values
-        "                         v-----------------------v
-        let opts = extend(a:opts, #{foo: 1, bar: 2, baz: 3}, 'keep')
-        "          ^-----^                                   ^----^
-        echo opts
-    endfu
-    call Func(#{bar: 4})
-
-    {'foo': 1, 'baz': 3, 'bar': 4}~
+```vim
+vim9script
+def Func(arg_opts: dict<any>)
+    #                                default values
+    #                           v-----------------------v
+    var opts = extend(arg_opts, {foo: 1, bar: 2, baz: 3}, 'keep')
+    #          ^-----^                                    ^----^
+    echo opts
+enddef
+Func({bar: 4})
+```
+    {'foo': 1, 'baz': 3, 'bar': 4}
 
 Notice how in the function's body, the dictionary `opts` includes the keys `foo`
 and `baz` with the values `1` and `3`, even though we didn't specify them in the
@@ -533,26 +533,30 @@ function was defined.
 ##### all the time, or only when no matching argument was specified during a call?
 
 Only when no matching argument was specified during a call.
+```vim
+vim9script
+var list = [1, 2, 3]
+def Func(l = map(list, (_, v) => v + 1))
+enddef
+Func([])
+echo list
+```
+    [1, 2, 3]
+```vim
+vim9script
+var list = [1, 2, 3]
+def Func(l = map(list, (_, v) => v + 1))
+enddef
+Func()
+echo list
+```
+    [2, 3, 4]
 
-    let s:list = [1, 2, 3]
-    fu Func(l = map(s:list, {_, v -> v + 1}))
-    endfu
-    call Func([])
-    echo s:list
-    [1, 2, 3]~
-
-    let s:list = [1, 2, 3]
-    fu Func(l = map(s:list, {_, v -> v + 1}))
-    endfu
-    call Func()
-    echo s:list
-    [2, 3, 4]~
-
-Notice how  in the first  example, `s:list` is not  altered, because a  list was
+Notice how  in the  first example,  `list` is  not altered,  because a  list was
 passed to `Func()` when the latter was called, thus Vim did not have to evaluate
 the default expression to get a value.
 
-OTOH, in the second example, `s:list` *is* altered because no list was passed to
+OTOH, in the second  example, `list` *is* altered because no  list was passed to
 `Func()`, thus Vim had to evaluate the default expression to get a value.
 
 ####
@@ -1046,17 +1050,17 @@ For example, to express that a list contains an item matching a pattern, write t
 
 and not this:
 
-    !copy(list)->filter({_, v -> v =~# pat})->empty()
+    !copy(list)->filter((_, v) => v =~ pat)->empty()
 
 ---
 
 As another example, to express that there's no location window anywhere, write this:
 
-    getwininfo()->map({_, v -> v.loclist})->index(1) == -1
+    getwininfo()->map((_, v) => v.loclist)->index(1) == -1
 
 and not this:
 
-    !getwininfo()->map({_, v -> v.loclist})->filter({_, v -> v})->empty()
+    !getwininfo()->map((_, v) => v.loclist)->filter((_, v) => v)->empty()
 
 You could even write:
 
@@ -1082,31 +1086,141 @@ in-place, which often requires you not to forget to use `copy()` or `deepcopy()`
 When the condition passed  to `filter()` is more complex than  a simple regex or
 string comparison:
 
-    copy(list)->filter({_, v -> v.foo == 1 && v.bar != 2})->empty()
-                                ^----------------------^
-                                assume that `list` contains dictionaries with the keys `foo` and `bar`
+    copy(list)->filter((_, v) => v.foo == 1 && v.bar != 2)->empty()
+                                 ^----------------------^
+                                 assume that `list` contains dictionaries with the keys `foo` and `bar`
+
+##
+## ?
+
+In  the past,  we might  have  used `glob()`  + `filter()/match()`  to test  the
+presence of a file in a directory; or to find some file(s) in a directory.
+That's inefficient.  Use `readdir()` instead.
+
+    \C\<glob(
+
+A `glob()` whose first  argument is a file pattern containing  a wildcard in the
+last path component is a good candidate for a refactoring.
+
+Example:
+
+    glob('~/.config/keyboard/*', false, true)
+
+    →
+
+    readdir($HOME .. '/.config/keyboard/')
+        ->map((_, v) => $HOME .. '/.config/keyboard/' .. v)
+
+Although, note  that `readdir()` might make  the code more verbose  (if you need
+absolute file  paths).  In that  case, you can  keep `glob()`, provided  that it
+doesn't have a  too bad impact on performance (i.e.  not invoked too frequently,
+and expands a directory with not too many files).
+
+Other example:
+
+    # test that a file containing "some_name" is in the directory of the current file
+    if !glob(expand('%:p:h') .. '/*', false, true)
+        ->filter((_, v) => v =~ 'some_name')
+        ->empty()
+
+        # do sth
+    endif
+
+    if !expand('%:p:h')
+        ->readdir((n: string): bool => n =~ 'some_name')
+        ->empty()
+
+        # do sth
+    endif
+
+It is *much* faster.
+
+### ?
+
+Usage example for `readdir()`:
+
+    vim9 echo readdir('/etc', (n: string): bool => n =~ 'network', {sort: 'none'})
+    ['network', 'networks']~
+
+---
+
+If you  need to filter out  entries based on  something else than the  name, use
+`readdirex()`:
+
+    vim9 echo readdirex('/etc', (e: dict<any>): bool => e.name =~ 'network' && e.user == 'root', {sort: 'none'})
+    [{~
+      'group': 'root',~
+      'perm': 'rwxr-xr-x',~
+      'name': 'network',~
+      'user': 'root',~
+      'type': 'dir',~
+      'time': 1468960975,~
+      'size': 0},~
+    {~
+      'group': 'root',~
+      'perm': 'rw-r--r--',~
+      'name': 'networks',~
+      'user': 'root',~
+      'type': 'file',~
+      'time': 1445534121,~
+      'size': 91,~
+    }]~
+
+### ?
+
+There is an extra benefit for using `readdir()` instead of `glob()`.
+It gives you the hidden entries too.
+
+With `glob()`, you would need 2 invocations:
+
+      glob(dir .. '/.*', false, true)
+    + glob(dir .. '/*', false, true)
+
+But even then, you would still need to remove 2 garbage entries:
+```vim
+vim9script
+mkdir('/tmp/dir', 'p')
+writefile([], '/tmp/dir/.hidden')
+echo glob('/tmp/dir/.*')
+```
+    /tmp/dir/.
+    /tmp/dir/..
+    /tmp/dir/.hidden
+
+To document.
+
+### ?
+
+`readdir()` ignores `'wildignore'` (and `'suffixes'`).
+`glob()` does not; unless you pass it a second `true` argument.
+
+### ?
+
+`glob()` is much slower when it has to honor `'wildignore'` (and `'suffixes'`).
+If you  have to use `glob()`,  pass it `true`  as a second argument,  unless you
+really need to honor those options.  Same remark for `globpath()` (probably).
 
 ##
 ## The next expression uses a ternary conditional:
 
-    var is# 'foo'
-    \ ?     1
-    \ : var is# 'bar'
-    \ ?     2
-    \ :     3
+    name == 'foo'
+    ?     1
+    : name == 'bar'
+    ?     2
+    :     3
 
 ### How should I rewrite it?
 
-    {'foo': 1, 'bar': 2, 'baz': 3}[var]
+    {foo: 1, bar: 2, baz: 3}[name]
 
 Or:
 
-    get({'foo': 1, 'bar': 2}, var, 3)
+    get({foo: 1, bar: 2}, name, 3)
 
 ---
 
-Use the first expression if you know the third value which can be assigned to `var`.
-Use the second one if you don't know what other value(s) can be assigned to `var`.
+Use the first expression if you know the third value which can be assigned to `name`.
+Use the second one if you don't know what other value(s) can be assigned to `name`.
 
 #### Why?
 
@@ -1176,7 +1290,7 @@ the first paragraph, which was added later.
 Anyway, in my limited testing, `setpos()` *can* correctly set `curswant`.
 For example, try this minimal vimrc:
 
-    pu! =range(97, 122)->map({_, v -> nr2char(v)})->join('')
+    pu! =range(97, 122)->map((_, v) => nr2char(v))->join('')
     t.
     call setpos('.', [bufnr(), line('.'), col('.'), 0, 12])
     norm! k
@@ -1921,74 +2035,59 @@ Look for this pattern:
 
 ## ?
 
-In  the past,  we might  have used  `glob*()` +  `filter()/match()` to  test the
-presence of  a file  in a  directory; or to  find some  file(s) in  a directory.
-That's inefficient.  Use `readdir()` instead.
+Have we used a slow `matchstr()`:
+```vim
+vim9script
+var str = 'the,quick,brown,fox'
+echo matchstr(str, '.*,\zs.*')
+```
+    fox
 
-    \C\<glob\S*(
+when `strridx()` would have been faster:
+```vim
+vim9script
+var str = 'the,quick,brown,fox'
+echo str->strpart(strridx(str, ',') + 1)
+```
+    fox
 
-A `glob()` whose first  argument is a file pattern containing  a wildcard in the
-last path component is a good candidate for a refactoring.
+## ?
 
-Example:
+Inside  a string  slice, if  you use  an index  obtained with  `strchars()`, you
+probably don't want to count composing characters separately.
+IOW, I think you should *not* pass `true` as a 2nd argument:
+```vim
+vim9script
+var str = 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆'
+echom 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆getthis'[strchars(str, true) :]
+```
+    ̬̹͈ D͗̃Iͯ̀T̞Ŏ̆R̓͆getthi
+    ✘
+```vim
+vim9script
+var str = 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆'
+echom 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆getthis'[strchars(str) :]
+```
+    getthis
+    ✔
 
-    glob('~/.config/keyboard/*', false, true)
-    readdir($HOME .. '/.config/keyboard/')->map((_, v) => $HOME .. '/.config/keyboard/' .. v)
+OTOH, you still want it to repeat an atom in a regex:
+```vim
+vim9script
+var str = 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆'
+echom 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆getthis'->matchstr('.\{' .. strchars(str) .. '}\zs.*')
+```
+    nothing
+    ✘
+```vim
+vim9script
+var str = 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆'
+echom 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆getthis'->matchstr('.\{' .. strchars(str, true) .. '}\zs.*')
+```
+    getthis
+    ✔
 
-Although, note  that `readdir()` might make  the code more verbose  (if you need
-absolute file  paths).  In that  case, you can  keep `glob()`, provided  that it
-doesn't have a  too bad impact on performance (i.e.  not invoked too frequently,
-and expands a directory with not too many files).
-
-Other example:
-
-    # test that a file containing "some_name" is in the directory of the current file
-    if !glob(expand('%:p:h') .. '/*', false, true)
-        ->filter((_, v) => v =~ 'some_name')
-        ->empty()
-
-        # do sth
-    endif
-
-    if !expand('%:p:h')
-        ->readdir((n: string): bool => n =~ 'some_name')
-        ->empty()
-
-        # do sth
-    endif
-
-It is *much* faster.
-
----
-
-Usage example for `readdir()`:
-
-    vim9 echo readdir('/etc', (n: string): bool => n =~ 'network', {sort: 'none'})
-    ['network', 'networks']~
-
----
-
-If you  need to filter out  entries based on  something else than the  name, use
-`readdirex()`:
-
-    vim9 echo readdirex('/etc', (e: dict<any>): bool => e.name =~ 'network' && e.user == 'root', {sort: 'none'})
-    [{~
-      'group': 'root',~
-      'perm': 'rwxr-xr-x',~
-      'name': 'network',~
-      'user': 'root',~
-      'type': 'dir',~
-      'time': 1468960975,~
-      'size': 0},~
-    {~
-      'group': 'root',~
-      'perm': 'rw-r--r--',~
-      'name': 'networks',~
-      'user': 'root',~
-      'type': 'file',~
-      'time': 1445534121,~
-      'size': 91,~
-    }]~
+Or to repeat a keypress like `<BS>`, `<Left>`, `<Right>`, ...
 
 ##
 # Todo
