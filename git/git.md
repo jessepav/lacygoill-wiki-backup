@@ -1107,7 +1107,7 @@ If this environment  variable is set to  0, git will not prompt  on the terminal
     $ config status
     $ config add ~/.vim/vimrc
     $ config commit -m 'add vimrc'
-    $ config remote add origin https://github.com/nicsig/config.git
+    $ config remote add origin https://github.com/lacygoill/config.git
     $ config push -u origin master
 
 Source:
@@ -1287,14 +1287,14 @@ Exemple d'annotation:
 
     ┌ sha1 partiel
     │         ┌ auteur
-    │         │      ┌ date
-    │         │      │
-    b66520f2 (nicsig 2017-07-05 22) " some comment
-                                │   │
-                                │   └ contenu
-                                └ n° de ligne
+    │         │         ┌ date
+    │         │         │
+    b66520f2 (lacygoill 2017-07-05 22) " some comment
+                                   │   │
+                                   │   └ contenu
+                                   └ n° de ligne
 
-    ^bfeb373 (nicsig 2017-02-16 23) "
+    ^bfeb373 (lacygoill 2017-02-16 23) "
     │
     └ la ligne est là depuis le début
 
@@ -1647,7 +1647,7 @@ On the top line, make sure the settings in dropdown menus are correct:
     ├─────────────────┼───────────────────────────────────────┤
     │ base            │ remote branch (e.g. `master`)         │
     ├─────────────────┼───────────────────────────────────────┤
-    │ head repository │ fork repo (e.g. `nicsig/vim`)         │
+    │ head repository │ fork repo (e.g. `lacygoill/vim`)      │
     ├─────────────────┼───────────────────────────────────────┤
     │ compare         │ branch on fork repo (e.g. `fix-typo`) │
     └─────────────────┴───────────────────────────────────────┘

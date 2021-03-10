@@ -1,6 +1,6 @@
 # How do I write a togglable popup terminal?
 
-See: <https://gist.github.com/nicsig/798ad620d6002574718e000ce9050965>
+See: <https://gist.github.com/lacygoill/0bfef0a2e70ac7015aaee56a670c124b>
 
 ##
 # Filters
@@ -630,7 +630,7 @@ from reading the end of long lines when previewing a help tag in a popup.
 
 ## Port calendar.vim to Vim.
 
-<https://gist.github.com/nicsig/69e71da365cf69228670ed202a9d19f2>
+<https://gist.github.com/lacygoill/c9ce255ff5026505e8cbfa7ceb7de6ba>
 
     " Config {{{1
 

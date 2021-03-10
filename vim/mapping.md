@@ -428,7 +428,7 @@ This is typically  the case when the  purpose of `feedkeys()` is  not to emulate
 some interactive key press, but to postpone some arbitrary code.
 
 Example:
-<https://gist.github.com/nicsig/231071001c2c571292b20d85ba953f82>
+<https://gist.github.com/lacygoill/88437bcbbe90d1d2e2787695e1c1c6a9>
 Here, passing the `i` flag to `feedkeys()` would break the code.
 
 Before timers were added to Vim, `feedkeys()`  was a good way to emulate a timer
