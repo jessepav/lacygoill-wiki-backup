@@ -1510,7 +1510,7 @@ with a `<c-\><c-n>` sequence:
 
     ✘
     let @q = "ia.\ef.ac\e"
-                 ^-^
+                 ^^^
 
     ✔
     let @q = "ia.\<c-\>\<c-n>f.ac\e"

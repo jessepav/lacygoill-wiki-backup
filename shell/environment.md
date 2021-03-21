@@ -31,15 +31,14 @@ xbindkeys.
 
 In `~/.zshenv`, we have this line:
 
-    export MYMANSECT="${MANSECT}"
+    export MYMANSECT="$MANSECT"
 
 And in Vim:
 
-    call setenv('MANSECT', $MYMANSECT)
+    setenv('MANSECT', $MYMANSECT)
 
 We use `$MYMANSECT` as a backup of  `$MANSECT`, to restore its value when we run
-a `man(1)` command.
-Without this, the following would fail:
+a `man(1)` command.  Without this, the following would fail:
 
     $ man man
     :Man mount

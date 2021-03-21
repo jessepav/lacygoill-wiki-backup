@@ -51,13 +51,13 @@ It must begin with an uppercase character, if it's global:
 
           ✘
           v
-    let g:length = function(exists('*strchars') ? 'strchars' : 'strlen')
+    let g:length = function(exists('*strcharlen') ? 'strcharlen' : 'strlen')
     echo g:length('hello')
     E704: Funcref variable name must start with a capital: g:length~
 
           ✔
           v
-    let g:Length = function(exists('*strchars') ? 'strchars' : 'strlen')
+    let g:Length = function(exists('*strcharlen') ? 'strcharlen' : 'strlen')
     echo g:Length('hello')
     5~
 
@@ -67,7 +67,7 @@ or if it's local to a function:
     fu Length(string) abort
         "     ✘
         "     v
-        let l:length = function(exists('*strchars') ? 'strchars' : 'strlen')
+        let l:length = function(exists('*strcharlen') ? 'strcharlen' : 'strlen')
         return l:length(a:string)
     endfu
     echo Length('hello')
@@ -77,7 +77,7 @@ or if it's local to a function:
     fu Length(string) abort
         "     ✔
         "     v
-        let l:Length = function(exists('*strchars') ? 'strchars' : 'strlen')
+        let l:Length = function(exists('*strcharlen') ? 'strcharlen' : 'strlen')
         return l:Length(a:string)
     endfu
     echo Length('hello')
@@ -87,7 +87,7 @@ or if it's local to a function:
 
 There's no such requirement if the variable is local to sth else than a function:
 
-    let t:length = function(exists('*strchars') ? 'strchars' : 'strlen')
+    let t:length = function(exists('*strcharlen') ? 'strcharlen' : 'strlen')
     echo t:length('hello')
     5~
 
@@ -104,7 +104,7 @@ there could be a conflict with a builtin function.
 
     let g:Length = function('toupper')
     fu Length(string) abort
-        let l:Length = function(exists('*strchars') ? 'strchars' : 'strlen')
+        let l:Length = function(exists('*strcharlen') ? 'strcharlen' : 'strlen')
         return l:Length(a:string)
     endfu
 
@@ -122,7 +122,7 @@ But the definition of the function is weird:
     fu Length
                 v-------------v
        function toupper(string) abort~
-    1          let l:Length = function(exists('*strchars') ? 'strchars' : 'strlen')~
+    1          let l:Length = function(exists('*strcharlen') ? 'strcharlen' : 'strlen')~
     2          return l:Length(a:string)~
        endfunction~
 
@@ -132,7 +132,7 @@ It would raise `E705`.
 
     unlet! g:Length
     fu Length(string) abort
-        let l:Length = function(exists('*strchars') ? 'strchars' : 'strlen')
+        let l:Length = function(exists('*strcharlen') ? 'strcharlen' : 'strlen')
         return l:Length(a:string)
     endfu
     let g:Length = function('toupper')

@@ -1,70 +1,3 @@
-# Positions
-## What's the meaning of the number output by `virtcol('.')`?
-
-It's the index of the screen cell under the cursor.
-
-Note that  if the cursor is  on a multicell  character, like a tab,  and virtual
-edit is not enabled, then the reported index is the one of the last cell:
-```vim
-vim9script
-setline(1, "foo\tbar")
-norm! 4|
-echom virtcol('.')
-```
-    8
-```vim
-vim9script
-set ve=all
-setline(1, "foo\tbar")
-norm! 4|
-echom virtcol('.')
-```
-    4
-
-###
-### ?
-
-    # Try to remove as many `virtcol()` as possible everywhere.
-    # Same thing for `\%v`; they don't mean what we thought.
-    #
-    # `virtcol('.')` and `\%v` take into account cells between the last character on
-    # a screen line of a long wrapped text line, and the first character of the next
-    # screen line (this includes 1 cell for the "virtual" newline).
-    # And so,  `virtcol()` and  `\%v` are  influenced by  `'wrap'` (and  all options
-    # related to the latter like `'linebreak'` and `'showbreak'`).
-    #
-    # Also, `virtcol('.')` outputs the index of  the last cell used by the character
-    # under the cursor:
-    #
-    #      literal control characters
-    #      vv vv
-    #     a^Bc^De
-    #      │  │
-    #      │  └ virtcol('.') is 6 not 4
-    #      └ virtcol('.') is 3 not 2
-    #
-    # ---
-    #
-    # The same can be true for `:norm! 123|`.
-    #
-    # If `123`  is obtained by `matchstr(line,  pat)->strchars()`), `:norm! 123|` will
-    # position the cursor unexpectedly on a long wrapped line.
-    #
-    # Solution: temporarily disable 'wrap'.
-    #
-    # Try to find other locations where we  have made a similar mistake; if you find
-    # anything, fix it.
-    #
-    # ---
-    #
-    # I  think  you  can  reliably  save  the column  position  of  the  cursor  via
-    # `virtcol()` and restore it with  `:norm`, because both take into consideration
-    # virtual characters which  are added when a long line  gets wrapped; they agree
-    # on what the position of a character is on a long wrapped line.
-    # However, it's much simpler to just save the cursor position with `getpos()` or
-    # `getcurpos()` and restore it via `setpos()`.
-
-##
 # Filename expansion
 ## In a command which expects a filename as argument, how to represent
 ### any single character?
@@ -99,8 +32,6 @@ Use the wildcard `**`:
 
 Here, without  the second star,  only the files and  directories at the  root of
 `/etc/apt` would be included in the arglist.
-
-Les wildcards suivants sont développés automatiquement dans les noms de fichier (`:h wildcard`):
 
 ### the character 'a' or 'b' or 'c'?
 
@@ -161,13 +92,13 @@ current working directory.
 # Function calls
 ## I have many nested function calls.
 
-    strcharpart(strpart(getline('.'), col('.') - 1), 0, 1)
+    slice(strpart(getline('.'), col('.') - 1), 0, 1)
 
 ### How to make them more readable?
 
 Unnest the calls using the method call `->` token:
 
-    getline('.')->strpart(col('.') - 1)->strcharpart(0, 1)
+    getline('.')->strpart(col('.') - 1)->slice(0, 1)
                 ^^                     ^^
 
 #### For which type of functions does this work?
@@ -240,7 +171,9 @@ Use `:eval`:
 It's applied to the whole chain:
 
     !Funca()->Funcb()
+
     ⇔
+
     !(Funca()->Funcb())
      ^                ^
 
@@ -253,9 +186,22 @@ Use explicit parentheses to limit the scope of the `!` operator:
 
 ##
 ## I have a function call with many arguments
-### how to make it more readable?  (2)
+### How can I name them to make the code more readable?
 
-Break the arguments on multiple lines:
+Wrap them inside a dictionary:
+
+    def Func(arg_opts: dict<any>)
+        var opts = arg_opts
+    enddef
+    Func({foo: 1, bar: 2, baz: 3})
+               ^       ^       ^
+
+Here, the  values `1`, `2`  and `3`  are mapped to  the names `foo`,  `bar`, and
+`baz`, which can help to make them more readable.
+
+---
+
+Note that you could also break the arguments on multiple lines:
 
     Func(
         foo,
@@ -267,39 +213,30 @@ Break the arguments on multiple lines:
 This  kind of  formatting is  probably  portable across  many other  programming
 languages (C, python, ...).
 
----
-
-You can  also "name"  the values  at the call  site, by  wrapping them  inside a
-dictionary:
-
-    def Func(arg_opts: dict<any>)
-        var opts = arg_opts
-    enddef
-    Func({foo: 1, bar: 2, baz: 3})
-               ^       ^       ^
-
-Here, the  values `1`, `2`  and `3`  are mapped to  the names `foo`,  `bar`, and
-`baz`, which can help to make them more readable.
-
-#### How to adapt the second technique to optional arguments?
+#### How to adapt this technique to set default values to arguments which might be omitted in a function call?
 
 Use `extend()` and the optional third argument `keep`.
 ```vim
 vim9script
 def Func(arg_opts: dict<any>)
-    #                                default values
-    #                           v-----------------------v
-    var opts = extend(arg_opts, {foo: 1, bar: 2, baz: 3}, 'keep')
-    #          ^-----^                                    ^----^
+    #                             default values
+    #                           v----------------v
+    var opts = extend(arg_opts, {a: 1, b: 2, c: 3}, 'keep')
+    #          ^-----^                              ^----^
     echo opts
 enddef
-Func({bar: 4})
+Func({b: 4})
 ```
-    {'foo': 1, 'baz': 3, 'bar': 4}
+    {'a': 1, 'b': 4, 'c': 3}
 
-Notice how in the function's body, the dictionary `opts` includes the keys `foo`
-and `baz` with the values `1` and `3`, even though we didn't specify them in the
+Notice how in  the function's body, the dictionary `opts`  includes the keys `a`
+and `c` with the  values `1` and `3`, even though we didn't  specify them in the
 function call.  This shows that, in effect, any argument is optional.
+
+Technically, we extend the dictionary argument with options from another one.
+The latter contains our default options, in case the former lacks some of them.
+The third argument `keep` is necessary to give the priority to a supplied option
+in case it conflicts with a default one.
 
 Note that this is an ad-hoc mechanism.
 In the future, Vim may provide a builtin one; see `:h todo /named arguments`:
@@ -315,92 +252,104 @@ Pass the expression from which some of the arguments can be derived, and let the
 function compute the arguments inside its body.
 
 Example:
-
-    let view = winsaveview()
-    call Func(lnum, col)
-              ^-------^
-              2 arguments
-
+```vim
+vim9script
+def Foo()
+    var view = winsaveview()
+    var lnum = view.lnum
+    var col = view.col
+    Bar(lnum, col)
+    #   ^-------^
+    #   2 arguments
+enddef
+def Bar(...l: any)
+enddef
+```
     →
-
-    let view = winsaveview()
-    call Func(view)
-              ^--^
-              1 argument
-
-    fu Func(view)
-        let [lnum, col] = [a:view.lnum, a:view.col]
-    endfu
-
+```vim
+vim9script
+def Foo()
+    var view = winsaveview()
+    Bar(view)
+    #   ^--^
+    #   1 argument
+enddef
+def Bar(v: dict<number>)
+enddef
+```
 ##
 ## How to avoid
-### passing the same argument(s) in several calls to the same function?
+### repeating the same argument(s) in several calls to the same function?
 
 Use a partial:
-
-    fu Func(a, b, ...)
-        if a:0
-            echom printf('received 4 arguments: %d, %d, %d, %d', a:a, a:b, a:1, a:2)
-        else
-            echom printf('received 2 arguments: %d, %d', a:a, a:b)
-        endif
-    endfu
-    let b:partial = function('Func', [1, 2])
-
-Now you can make those 2 function calls:
-
-    call b:partial()
-    call b:partial(3, 4)
+```vim
+vim9script
+def Func(a: number, b: number, c: any = v:none, d = 0)
+    if typename(c) == 'number'
+        echom printf('received 4 arguments: %d, %d, %d, %d', a, b, c, d)
+    else
+        echom printf('received 2 arguments: %d, %d', a, b)
+    endif
+enddef
+var Partial = function(Func, [1, 2])
+Partial()
+Partial(3, 4)
+```
+    received 2 arguments: 1, 2
+    received 4 arguments: 1, 2, 3, 4
 
 ---
 
 Without a partial, you would have to write:
 
-    call Func(1, 2)
-    call Func(1, 2, 3, 4)
-
-Note that  we used  `b:` here to  make the example  easily reproducible,  but in
-practice,  you'll  probably make  your  function  calls  inside  the body  of  a
-function; in which  case, you can use  `l:` instead, but you  need to capitalize
-the name of the partial:
-
-    let l:Partial = function('Func', [1, 2])
-        ^-^
+    Func(1, 2)
+    Func(1, 2, 3, 4)
 
 ---
 
 Analogy: Just like you can tattoo some  drawing(s) on a person, you can "tattoo"
 arguments on a function; it then becomes a partial.
 
-### passing the same arguments in several calls to different functions?
+### repeating the same arguments in several calls to different functions?
 
 Assign them to a list, and pass the latter to the function with `call()`:
-
-    let args = [1, 2, 3]
-    call call('FuncA', args)
-    call call('FuncB', args)
-    ...
-    fu FuncA()
-        let [a, b, c] = a:000
-    endfu
+```vim
+vim9script
+def Add(...l: list<number>)
+    echo l->reduce((a, v) => a + v)
+enddef
+def Multiply(...l: list<number>)
+    echo l->reduce((a, v) => a * v)
+enddef
+var args = [1, 2, 3]
+call(Add, args)
+call(Multiply, args)
+```
+    6
+    6
 
 Without `call()`, you would had to write:
 
-    call FuncA(1, 2, 3)
-    call FuncB(1, 2, 3)
-    ...
+    Add(1, 2, 3)
+    Multiply(1, 2, 3)
 
 ---
 
 Btw, `call()` is useful even if there are non-repeating arguments before/after:
-
-    let args = [1, 2, 3]
-    call call('FuncA', args + [4, 5])
-    call call('FuncB', [6, 7] + args)
-    ...
-    fu FuncA()
-        let [a, b, c] = a:000
-    endfu
+```vim
+vim9script
+def Add(...l: list<number>)
+    echo l->reduce((a, v) => a + v)
+enddef
+def Multiply(...l: list<number>)
+    echo l->reduce((a, v) => a * v)
+enddef
+var args = [1, 2, 3]
+call(Add, args + [4, 5])
+call(Multiply, [6, 7] + args)
+```
+    15
+    252
 
 ---
 
@@ -410,124 +359,40 @@ a person, you  can "package" arguments in a  list and pass it to  a function via
 
 ##
 ## Optional arguments
-### What are the different kinds of arguments which I can specify in a function header?
-
-   - mandatory arguments
-   - optional named arguments
-   - optional unnamed arguments
-
-#### In which order should I specify them?
-
-First, the mandatory arguments:
-
-            mandatory
-            v------v
-    fu Func(foo, bar)
-    endfu
-
-Second, the optional named arguments:
-
-                      optional named
-                      v--------------v
-    fu Func(foo, bar, baz = 2, qux = 3)
-    endfu
-
-Finally, the optional *un*named arguments:
-
-                                        optional *un*named
-                                        v-v
-    fu Func(foo, bar, baz = 2, qux = 3, ...)
-    endfu
-
----
-
-If you don't respect this order, an issue will be raised.
-
-                           ✘
-                   v----------------v
-    fu Order(food, howmany = 10, when)
-        echo printf('I need %d %s before %s', a:howmany, a:food, a:when)
-    endfu
-
-    E989: Non-default argument follows default argument~
-
-Here, the  issue is that you  specify the mandatory `when`  argument *after* the
-optional argument `howmany`.  Fix:
-
-                           ✔
-                   v----------------v
-    fu Order(food, when, howmany = 10)
-        echo printf('I need %d %s before %s', a:howmany, a:food, a:when)
-    endfu
-
-Here's another issue which is due to `...` being specified before optional named
-arguments:
-
-                             ✘
-                            v-v
-    fu Order(food, howmany, ..., when = 'tomorrow')
-        echo printf('I need %d %s and %s before %s',
-            \ a:howmany,
-            \ a:food,
-            \ reduce(a:000, {a, c -> a .. ' and ' .. c}),
-            \ a:when)
-    endfu
-
-    E475: Invalid argument: food, howmany, ..., when = 'tomorrow')~
-
-                                                ✔
-                                               v-v
-    fu Order(food, howmany, when = 'tomorrow', ...)
-        echo printf('I need %d %s and %s before %s',
-            \ a:howmany,
-            \ a:food,
-            \ reduce(a:000, {a, c -> a .. ' and ' .. c}),
-            \ a:when)
-    endfu
-    call Order('carrots', 3, v:none, 'a tomato', 'a potato')
-
-    I need 3 carrots and a tomato and a potato before tomorrow~
-
-###
-### How to specify a default expression to a function argument, and make it optional at the call site?
+### I've specified a default expression to a function argument to make it optional at the call site:
 
 In the function header, assign it the default expression after an equal sign:
+```vim
+vim9script
+def Order(food: string, howmany = 10)
+    echo printf('I need %d %s', howmany, food)
+enddef
+Order('carrots', 3)
+Order('onions')
+```
+    I need 3 carrots
+    I need 10 onions
 
-    fu Func(mandatory arg, optional arg = default expression)
-                                        ^------------------^
-
-Example:
-
-    fu Order(food, howmany = 10)
-        echo printf('I need %d %s', a:howmany, a:food)
-    endfu
-    call Order('carrots', 3)
-    call Order('onions')
-
-    I need 3 carrots~
-    I need 10 onions~
-
-For more info, see `:h optional-function-argument`.
-
-#### When is a default expression evaluated:
+#### The default expression is evaluated
 ##### at the time of:  the function definition, or the function call?
 
 At the  time of the  function call.   This lets you  use an expression  which is
 invalid the moment the function is defined.
+```vim
+vim9script
+ #                                not defined yet
+ #                                v
+def Order(food: string, howmany = n)
+    echo printf('I need %d %s', howmany, food)
+enddef
+var n = 10
+Order('carrots', 3)
+Order('onions')
+```
+    I need 3 carrots
+    I need 10 onions
 
-    "                        not defined yet
-    "                        v---v
-    fu Order(food, howmany = s:var)
-        echo printf('I need %d %s', a:howmany, a:food)
-    endfu
-    call Order('carrots', 3)
-    let s:var = 10
-    call Order('onions')
-
-    I need 3 carrots~
-    I need 10 onions~
-
-Here, notice how no error is raised,  even though `s:var` did not exist when the
+Here, notice  how no error  is raised,  even though `n`  did not exist  when the
 function was defined.
 
 ##### all the time, or only when no matching argument was specified during a call?
@@ -566,53 +431,55 @@ The argument you want  to refer to must be positioned  *before* the one matching
 your default expression.
 
 So, this works:
-
-    fu Order(food, howmany = a:food ==# 'carrots' ? 3 : 5)
-        echo printf('I need %d %s', a:howmany, a:food)
-    endfu
-    call Order('carrots')
-
-    I need 3 carrots~
+```vim
+vim9script
+def Order(food: string, howmany = food == 'carrots' ? 3 : 5)
+    echo printf('I need %d %s', howmany, food)
+enddef
+Order('carrots')
+```
+    I need 3 carrots
            ^
-
-    fu Order(food, howmany = a:food ==# 'carrot' ? 3 : 5)
-        echo printf('I need %d %s', a:howmany, a:food)
-    endfu
-    call Order('tomatoes')
-
-    I need 5 tomatoes~
+```vim
+vim9script
+def Order(food: string, howmany = food == 'carrot' ? 3 : 5)
+    echo printf('I need %d %s', howmany, food)
+enddef
+Order('tomatoes')
+```
+    I need 5 tomatoes
            ^
 
 But not this:
-
-    fu Order(food = a:howmany == 3 ? 'carrots' : 'tomatoes', howmany = 3)
-        echo printf('I need %d %s', a:howmany, a:food)
-    endfu
-    call Order()
-
-    E121: Undefined variable: a:howmany~
+```vim
+vim9script
+def Order(food = howmany == 3 ? 'carrots' : 'tomatoes', howmany = 3)
+    echo printf('I need %d %s', howmany, food)
+enddef
+Order()
+```
+    E121: Undefined variable: howmany
 
 ####
 ### My function accepts 2 optional named arguments.
-
-    fu Order(food, howmany = 10, when = 'tomorrow')
-        echo printf('I need %d %s before %s', a:howmany, a:food, a:when)
-    endfu
-
+```vim
+vim9script
+def Order(food: string, howmany = 10, when = 'tomorrow')
+    echo printf('I need %d %s before %s', howmany, food, when)
+enddef
+```
 #### How to specify a value for the 2nd argument, without re-specifying the default expression of the 1st one?
 
 Use the special value `v:none`.
-
-    fu Order(food, howmany = 10, when = 'tomorrow')
-        echo printf('I need %d %s before %s', a:howmany, a:food, a:when)
-    endfu
-
-    call Order('carrots', v:none, 'tomorrow')
-                          ^----^
-
-    I need 10 carrots before tomorrow~
+```vim
+fu Order(food, howmany = 10, when = 'tomorrow')
+    echo printf('I need %d %s before %s', a:howmany, a:food, a:when)
+endfu
+call Order('carrots', v:none, 'tomorrow')
+ "                    ^----^
+```
+    I need 10 carrots before tomorrow
            ^^
-
 ---
 
 Note that  this means  you cannot  pass `v:none`  as an  ordinary value  when an
@@ -622,86 +489,6 @@ function call could work around this issue.  See `:h todo /named arguments`:
    > Implement named arguments for functions with optional arguments:
    >     func Foo(start, count = 1, all = 1)
    >     call Foo(12, all = 0)
-
-###
-### Why should I never write something like `get(a:, '1', {expr})`?
-
-First, optional named arguments are easier to read.
-
-They don't  require you  to invoke  `get()` multiple times,  nor to  write `...`
-which always triggers many questions in the reader's mind:
-
-   - how many optional arguments does the function expect?
-   - how will the function name them in its body?
-   - will the function assign them default values?  if so, which ones?
-
-As an example, compare this:
-
-    fu Func(...)
-        let var1 = get(a:, '1', 'foo')
-        let var2 = get(a:, '2', 'bar')
-        let var3 = get(a:, '3', 'baz')
-    endfu
-
-To this:
-
-    fu Func(var1 = 'foo', var2 = 'bar', var3 = 'baz')
-    endfu
-
-Or even to this:
-
-    fu Func(var1 = 'foo',
-          \ var2 = 'bar',
-          \ var3 = 'baz')
-    endfu
-
----
-
-Second, at a call site, suppose you want to specify a non-default value just for
-one of the  *middle* optional arguments.  Using the previous  example; let's say
-we  want to  specify the  value `abc`  for the  optional `var2`  argument.  With
-`...`, we would have to write:
-
-    fu Func(...)
-        let var1 = get(a:, '1', 'foo')
-        let var2 = get(a:, '2', 'bar')
-        let var3 = get(a:, '3', 'baz')
-    endfu
-    call Func('foo', 'abc')
-              ^---^
-
-Notice how we've been  forced to repeat the default value  of the first argument
-at the  call site.   And we've  lost an information:  when reading  the function
-call, we don't know  that `foo` is the default value of  the first argument.  We
-have to compare it to the default value assigned in the function's body:
-
-    fu Func(...)
-        let var1 = get(a:, '1', 'foo')
-        "                       ^---^
-        let var2 = get(a:, '2', 'bar')
-        let var3 = get(a:, '3', 'baz')
-    endfu
-    call Func('foo', 'abc')
-              ^---^
-
-Here, it looks trivial; but in practice, it may not:
-
-   - the function could be defined in another file
-
-   - the assignment could be hard to find (written in the middle of a long function's body)
-
-   - without reading the function's header, there's no reason to assume that
-     `foo` is  the default value  of an  optional argument; thus,  you'll rarely
-     make the comparison
-
-OTOH, with an optional named argument, we could simply write:
-
-    fu Func(var1 = 'foo', var2 = 'bar', var3 = 'baz')
-    endfu
-    call Func(v:none, 'abc')
-              ^----^
-
-Here, no repetition, and no loss of information.
 
 ##
 # Heredoc
@@ -864,8 +651,8 @@ Unlike the previous `append()`, the cursor moves on the 'bar' line.
 ###
 ## How to use `append()` and make the cursor move like `:pu=`?
 
-        :let lines = [...]
-        :call append('.', lines) | exe '+'.len(lines)
+    :let lines = [...]
+    :call append('.', lines) | exe '+'.len(lines)
 
 ## What happens if I use `setline()` to replace 10 lines while there're only 5 below?
 
@@ -926,7 +713,7 @@ Same reason as previously.
 ##
 # How to get the number of matches of an arbitrary pattern in the current buffer?
 
-    :echo searchcount(#{pattern: 'pat'}).total
+    :echo searchcount({'pattern': 'pat'}).total
 
 ## What happens if I don't provide a pattern?
 
@@ -1233,24 +1020,6 @@ Use the second one if you don't know what other value(s) can be assigned to `nam
 
 ##
 # Miscellaneous
-## How can the following assignment be simplified?
-
-    let test = var == 123 ? 1 : 0
-↣
-    let test = var == 123
-↢
-
-### Why is it possible?
-
-A  comparison  is an  expression,  whose  value is  `1`  when  it succeeds,  `0`
-otherwise; as such, it can be used (alone) in the rhs of an assignment.
-
-    let var = 123
-    let test = var == 123
-    echo test
-    1~
-
-##
 ## How to save/restore the cursor position?
 
 Use `getcurpos()` and `setpos()`:
@@ -1323,21 +1092,6 @@ Test:
 Source: <https://vi.stackexchange.com/a/26475/17449>
 
 ##
-## How to get the full command with which was executed to start Vim?
-
-    :echo v:argv
-
----
-
-If your Vim doesn't support the variable, try this:
-
-    :echo system('ps -o command= -p ' .. getpid())
-
----
-
-Useful  if you  want to  parse the  command-line to  install some  configuration
-depending on the flags which were passed to Vim on the shell's command-line.
-
 ## Vim has been started by another process.  How can I get the full pathname of its command?
 
     :echo $_
@@ -1366,22 +1120,6 @@ Usage example:
     /usr/bin/git~
 
 ##
-## How to get the length of the longest line in the current buffer?
-
-    echo getline(1, '$')->map('strchars(v:val, 1)')->max()
-
-Or:
-
-    " 'nowrap' needs to be off
-    echo range(1, line('$'))->map('virtcol([v:val, "$"])')->max() - 1
-                                                                  ^^^
-
-Note that the reason for `-1` is explained at `:h virtcol()`:
-
-   > $       the end of the cursor line (the result is the
-   >         number of displayed characters in the cursor line
-   >         **plus one**)
-
 ## How to get the path to the parent of
 ### a given file?
 
@@ -1420,12 +1158,21 @@ This has an effect on the `:h` modifier, because the latter considers a trailing
 slash as a (empty) path component.
 
 ##
-## How to get the width of the number column (whether it's visible doesn't matter)?
+## How to get the width of the number column?  (whether it's visible doesn't matter)
 
-    :echo max([line('$')->strlen(), &l:numberwidth-1])
+    :echo max([line('$')->len(), &l:numberwidth - 1])
 
 ## How to get the width of all the *currently visible* fold/number/sign columns?
 
+    :echo wincol() - virtcol('.')
+
+This assumes that  the text before the  cursor is shorter than the  width of the
+window.  It doesn't  matter whether the line  is wrapped or not;  in both cases,
+`virtcol('.')` will be too big.
+
+If you need a workaround, try to evaluate the expression from the first column:
+
+    :norm! 0
     :echo wincol() - virtcol('.')
 
 ##
@@ -1930,165 +1677,6 @@ This has only a few relevant matches:
 
 So, it's probably not well-tested.
 
-## `virtcol()` is influenced by some window-local options like 'wrap' and 'linebreak'!
-
-I think it's a known bug, mentioned at `:h todo /virtcol()`.
-
-   > Value returned by virtcol() changes depending on how lines wrap.  This is
-   > inconsistent with the documentation.
-
-See also: <https://github.com/vim/vim/issues/5713>
-
----
-```vim
-vim9script
-lefta :25vnew
-setl wrap lbr
-setline(1, 'the quick brown fox jumps over the lazy dog')
-norm! 19l
-echom virtcol('.')
-```
-    25
-
-Here's what is displayed in the window:
-
-                       ┌ this cell displays a space which is in the text; that's also where the cursor is
-                       │┌ these cells are actually empty; they don't display any space in the text
-                       │├───┐
-    the quick brown fox      |
-    jumps over the lazy dog  |
-                             ^
-                             right border of the left split
-
-It seems that,  when you're on the  last real character of  a soft-wrapped line,
-`virtcol('.')` gives the  index of the last  screen cell on that  line.  IOW, it
-also counts the virtual cells at the end of the screen line.
-
-Even more confusing, in later positions, `virtcol()` still counts these cells:
-```vim
-vim9script
-lefta :25vnew
-setl wrap lbr
-setline(1, 'the quick brown fox jumps over the lazy dog')
-norm! 29l
-echom virtcol('.')
-```
-    35
-    # it should be 30
-
-### ?
-
-Is there a workaround?
-
-Try to use `charcol()` if possible.
-
-Update: Actually, we should only use `virtcol()` in combination with `|` (normal
-command), and  `\%v` (atom in  regex).  And with  those, it doesn't  matter that
-`virtcol()` outputs bullshit; because they agree with this bullshit anyway.
-IOW, `charcol()` is  not a workaround to `virtcol()`.  But  you should still use
-`charcol()` whenever possible.
-
-##
-## ?
-
-Document the fact  that `virtcol('.')` gives the  index of the last  cell of the
-character under the cursor (if 've' is empty).
-
-If the character occupies multiple cells (like a tab), that number can't be used
-in a `\%v` atom; well, it can,  but it won't match anything.  That's because the
-regex engine will never  be able to match the first cell of  a character in that
-position; that  would mean that  there exists a cell  position which is  the the
-last of a character, and the first of another character, which is impossible.
-
-A cell position can be the last and  the first of the same character though, but
-this assumes that  the character occupies only 1 cell  (which violates our prior
-assertion: "the character occupies multiple cells").
-
-Update: Actually, your explanation is only valid if you try to match `\%123v` on
-the same – unchanged – line.  It  could very well match something on a different
-line.
-
----
-
-The same  kind of issue  exists with `col('.')`.  It  might give a  number which
-doesn't match anything on a line containing multibyte characters.
-For example, if `col('.')` gives 4, and you use it in `\%4c` against this line:
-
-    ééé
-
-It won't match anything.
-The first byte of the first character has the index 1.
-The first byte of the second character has the index 3.
-The first byte of the third character has the index 5.
-Conclusion: There's no character whose first byte has the index 4.
-
-## ?
-
-Did we  use `matchstr()`  with a  (slow) regex  to get  the character  under the
-cursor (or right before/after), while we could have used sth simpler like:
-
-    getline('.')[charcol('.') - 1]
-
-Look for this pattern:
-
-    \C\<matchstr(\%(&l:cms\|.*<SNR>\)\@!\|\<strpart(
-
-## ?
-
-Have we used a slow `matchstr()`:
-```vim
-vim9script
-var str = 'the,quick,brown,fox'
-echo matchstr(str, '.*,\zs.*')
-```
-    fox
-
-when `strridx()` would have been faster:
-```vim
-vim9script
-var str = 'the,quick,brown,fox'
-echo str->strpart(strridx(str, ',') + 1)
-```
-    fox
-
-## ?
-
-Inside  a string  slice, if  you use  an index  obtained with  `strchars()`, you
-probably don't want to count composing characters separately.
-IOW, I think you should *not* pass `true` as a 2nd argument:
-```vim
-vim9script
-var str = 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆'
-echom 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆getthis'[strchars(str, true) :]
-```
-    ̬̹͈ D͗̃Iͯ̀T̞Ŏ̆R̓͆getthi
-    ✘
-```vim
-vim9script
-var str = 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆'
-echom 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆getthis'[strchars(str) :]
-```
-    getthis
-    ✔
-
-OTOH, you still want it to repeat an atom in a regex:
-```vim
-vim9script
-var str = 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆'
-echom 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆getthis'->matchstr('.\{' .. strchars(str) .. '}\zs.*')
-```
-    nothing
-    ✘
-```vim
-vim9script
-var str = 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆'
-echom 'Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆getthis'->matchstr('.\{' .. strchars(str, true) .. '}\zs.*')
-```
-    getthis
-    ✔
-
-Or to repeat a keypress like `<BS>`, `<Left>`, `<Right>`, ...
-
 ##
 # Todo
 ## To document
@@ -2258,61 +1846,27 @@ just seen before.
 ## Refactor our vimrc/plugins to make function calls with many arguments more readable.
 
 Look at the `Function calls` section in this file; one of its questions is:
-"I have a function call with many arguments how to make it more readable?"
-
-## Write a custom style guide that we should follow.
-
-In the meantime, write some ideas of rules here.
-
----
-
-Don't write this:
-
-    a:items[idx:]
-              ^^
-              ✘
-
-But this:
-
-    a:items[idx :]
-               ^
-               ✔
-
-Rule: In a slice, avoid appending a  colon directly after an expression which is
-not a number.
-
-Rationale:  Again, that's what seems to do in `$VIMRUNTIME/autoload/ccomplete.vim`.
-Also,  it's  useful to  prevent  Vim  from parsing  the  last  character of  the
-expression as a scope (`a:`, `b:`, `g:`, ...).
-Even if the last character of the expression does not match a scope, it could be
-in the future after a refactoring.
-
----
-
-Don't write this:
-
-    getline('.')[:col('.') - 2]
-                 ^^
-                 ✘
-
-But this:
-
-    getline('.')[: col('.') - 2]
-                  ^
-                  ✔
-
-Rule: In a slice, avoid appending a colon directly before an expression which is not a number.
-
-Rationale:  Less ugly.  Also, it's consistent with the previous rule.
+"How can I name them to make the code more readable?"
 
 ##
 ## ?
 
 Study when a wildcard can match a dot.
-I think `*` can match a dot in a `:e` or `:sp` command.
+I think `*` can match a dot in a `:e` or `:sp` command:
+```vim
+vim9script
+writefile([], '/tmp/some.unique.name')
+sil e /tmp/som*niqu*ame
+echom expand('%:p')
+bw!
+sil sp /tmp/som*niqu*ame
+echom expand('%:p')
+```
+    /tmp/some.unique.name
+    /tmp/some.unique.name
 
 But not in a `'wig'` setting.
-And probably not in other contexts; from `h file-searching`:
+And probably not in other contexts; from `:h file-searching`:
 
    > The file searching is currently used for the 'path', 'cdpath' and 'tags'
    > options, for |finddir()| and |findfile()|.  Other commands use |wildcards|
@@ -2323,6 +1877,31 @@ And probably not in other contexts; from `h file-searching`:
    > The usage of '*' is quite simple: It matches 0 or more characters.  In a
    > search pattern this would be ".*".
    > **Note that the "." is not used for file searching.**
+
+Update:  Wrong.
+
+`*` can match a dot in `'wig'`:
+```vim
+vim9script
+cd /tmp
+set wig=*obj
+writefile([], '/tmp/some.unique.obj')
+feedkeys(':e some.unique' .. "\t", 'nt')
+```
+    :e some.unique
+
+And in other contexts listed at `:h file-searching`:
+```vim
+vim9script
+var path: string = '/tmp/so.me/long/path/to/a/dir'
+mkdir(path, 'p')
+&path = '/tmp/*/long'
+set hidden
+writefile(['TEST'], path .. '/file')
+setline(1, 'path/to/a/dir/file')
+feedkeys('gf', 'n')
+```
+Why did you write that `*` could not match a dot in `'wig'`?
 
 ## ?
 
@@ -2348,13 +1927,13 @@ développée.  Pour ce faire, elle lance un shell pour l'occasion.
 ## ?
 
                 ┌ respecte 'su' et 'wig'
-                │        ┌ résultat sous forme de liste et non de chaîne
-                │        │
-    expand('*', v:false, v:true)
-    glob('*', v:false, v:true, v:true)
-                               │
-                               └ inclut tous les liens symboliques,
-                                 même ceux qui pointent sur des fichiers non-existants
+                │      ┌ résultat sous forme de liste et non de chaîne
+                │      │
+    expand('*', false, true)
+    glob('*', false, true, true)
+                           │
+                           └ inclut tous les liens symboliques,
+                             même ceux qui pointent sur des fichiers non-existants
 
 Noms des fichiers / dossiers du cwd.
 
@@ -2411,8 +1990,8 @@ quel:
 
 ## ?
 
-    expand('**/README', v:false, v:true)
-    glob('**/README', v:false, v:true, v:true)
+    expand('**/README', false, true)
+    glob('**/README', false, true, true)
 
 Liste des  chemins vers des fichiers  README situés dans  le cwd ou l'un  de ses
 sous-dossiers.
@@ -2422,7 +2001,7 @@ tandis que `glob()` retourne `[]`.  `glob()` est donc plus fiable.
 
 ## ?
 
-    glob("`find . -name '*.conf' | grep input`", v:false, v:true, v:true)
+    glob("`find . -name '*.conf' | grep input`", false, true, true)
     systemlist("find . -name '*.conf' | grep input")
 
 Sortie de la commande shell:
@@ -2845,7 +2424,7 @@ un dossier `autoload/` du rtp.
 
                             remplace les 3 derniers caractères
 
-                    - col('.') - getline('.')[:col('.') - 2]->matchstr('\S\+$')->strlen()
+                    - col('.') - getline('.')[: col('.') - 2]->matchstr('\S\+$')->strlen()
 
                             remplace le texte devant le curseur;
                             le texte étant défini comme une séquence de non-whitespace
@@ -3376,7 +2955,9 @@ un dossier `autoload/` du rtp.
             retourne le n° d'index de la dernière entrée dans l'historique de recherche
 
 
-    :search something | call histdel('/', -1) | let @/ = histget('/')
+    " search something
+    call histdel('/', -1)
+    let @/ = histget('/')
 
             supprime la dernière recherche, et restocke dans le registre recherche l'avant-dernière
             utile après une recherche dont on ne souhaite laisser aucune trace (ou alors utiliser :keeppatterns)

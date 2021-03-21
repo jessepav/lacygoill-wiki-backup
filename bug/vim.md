@@ -171,7 +171,7 @@ fu Outer()
 endfu
 Outer()
 ```
-    ✔
+    no error
 
 ---
 
@@ -1048,7 +1048,7 @@ for i in [1]
    var name2 = 'block-local'
 endfor
 ```
-    ✔
+    no error
 ```vim
 vim9script
 var name1 = 'at script level'
@@ -1075,7 +1075,7 @@ def Func()
 enddef
 Func()
 ```
-    ✔
+    no error
 
 ---
 ```vim
@@ -1128,7 +1128,7 @@ var f: float
 var n = 123
 f = n + 0.0
 ```
-    ✔
+    no error
 
 ## unexpected error when omitting type in variable declaration (probably not a bug)
 ```vim
@@ -1495,7 +1495,7 @@ endfu
 call setqflist([], 'r', {'lines': v:oldfiles, 'efm': '%f', 'quickfixtextfunc': 'Func'})
 cw
 ```
-    ✔
+    no error
 ```vim
 fu Func()
     echo ['bbb', 'aaa']->sort('MySort')
@@ -1602,7 +1602,7 @@ def Func()
 enddef
 Func()
 ```
-    ✔
+    no error
 ```vim
 vim9script
 def MyQftf(info: any): any
@@ -1614,7 +1614,7 @@ def Func()
 enddef
 Func()
 ```
-    ✔
+    no error
 ```vim
 vim9script
 def Func()
@@ -1703,7 +1703,7 @@ enddef
 setqflist([], 'r', {'lines': v:oldfiles, 'efm': '%f', 'quickfixtextfunc': 'MyQftf'})
 cw
 ```
-    ✔
+    no error
 ```vim
 vim9script
 def MyQftf(info: any): any
@@ -1712,7 +1712,7 @@ enddef
 setqflist([], 'r', {'lines': v:oldfiles, 'efm': '%f', 'quickfixtextfunc': MyQftf})
 cw
 ```
-    ✔
+    no error
 ```vim
 vim9script
 def MySort(line1: string, line2: string): number
@@ -2835,7 +2835,7 @@ foo#bar = 123
 vim9script
 g:foo#bar = 123
 ```
-    ✔
+    no error
 
 To document?
 
@@ -3345,13 +3345,6 @@ Wait for this todo item to be fixed:
    >   allow this for global variables.  Use :final or :const otherwise.
 
 When it is, make sure the first snippet correctly raises an error.
-
-## ?
-
-This issue was not addressed:
-<https://github.com/vim/vim/issues/7671#issuecomment-759587852>
-
-Is it a bug?
 
 ## ?
 
@@ -4560,6 +4553,17 @@ See here:
 
 But it hasn't been merged in Vim yet.
 When it's done, leave a comment on #6943.
+
+---
+
+This bug has probably been fixed in upstream:
+<https://github.com/vim/vim/issues/6777>
+
+See here:
+<https://github.com/tpope/vim-markdown/commit/276524ed9c8aec415d3c6dbeec7c05fbd31c95ce>
+
+But it hasn't been merged in Vim yet.
+When it's done, leave a comment on #6777.
 
 ## ?
 

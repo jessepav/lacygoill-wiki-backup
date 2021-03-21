@@ -12,7 +12,452 @@ Any character or set of characters used to represent a new line:
 
 `'ignorecase'`
 
-If your pattern may be influenced by it, use `\c` or `\C`.
+If your pattern might be influenced by it, use `\c` or `\C`.
+
+##
+# Positions
+## What's the meaning of the number given by `virtcol('.')`?
+
+It's the index of the screen cell under the cursor.
+
+Note that  if the cursor is  on a multicell character,  like a tab or  a literal
+control character, then the reported index is the one of the *last* cell:
+```vim
+vim9script
+setline(1, "foo\tbar")
+setline(2, "foo\<c-a>bar")
+norm! 1G4|
+echom virtcol('.')
+norm! 2G4|
+echom virtcol('.')
+```
+    8
+    5
+
+Unless virtual edit is enabled, in which case the exact cell index is given:
+```vim
+vim9script
+set ve=all
+setline(1, "foo\tbar")
+setline(2, "foo\<c-a>bar")
+norm! 1G4|
+echom virtcol('.')
+norm! 2G4|
+echom virtcol('.')
+```
+    4
+    4
+
+### Which options does it unexpectedly ignore?
+
+The ones which deal with the conceal mechanism:
+
+   - `'conceallevel'`
+   - `'concealcursor'`
+
+---
+
+The same is true for `strdisplaywidth()` btw:
+```vim
+vim9script
+setline(1, 'a bbbbbb c')
+matchadd('Conceal', 'b\+')
+set cole=3 cocu=n
+norm! $
+echo virtcol('.')
+echo getline('.')->strdisplaywidth()
+```
+    10
+    10
+
+Here,  the  output is  10  while  you might  expect  4,  because the  "b"'s  are
+concealed, and only 4 cells are visible:
+
+    a  c
+    ^^^^
+
+### Which options can unexpectedly alter its value?
+
+The ones which deal with soft-wrapping:
+
+   - `'wrap'`
+   - `'linebreak'`
+   - `'breakat'`
+   - `'breakindent'`
+   - `'showbreak'`
+
+But only when you're  on a long soft-wrapped line, and the  cursor is beyond the
+last character of the first screen line.
+
+That's because  `virtcol()` takes into into  account *all* the cells  on a line;
+from the first character up to the last one.
+This includes empty cells  between the end of a soft-wrapped  line and the right
+border of the window, even if they don't match any whitespace in the file.
+That can only happen if `'linebreak'` is set (and `'breakat'` contains the space
+character, which it does by default).
+
+Example:
+```vim
+vim9script
+lefta :25vnew
+setl wrap lbr
+setline(1, 'the quick brown fox jumps over the lazy dog')
+norm! 19l
+echom virtcol('.')
+norm! 029l
+echom virtcol('.')
+```
+    25
+    35
+
+`25` is unexpected, because when `virtcol('.')` is evaluated the cursor is here:
+
+    the quick brown fox      |
+                       ^
+
+That's the cell 20, not 25; but  `virtcol('.')` gives 25 because it counts those
+five cells:
+
+    the quick brown fox      |
+                        ^---^
+
+`35` is unexpected, because when `virtcol('.')` is evaluated the cursor is here:
+
+    the quick brown fox      |
+    jumps over the lazy dog  |
+             ^
+
+That's the  cell 30, not 35;  but `virtcol('.')` gives  35 because – again  – it
+counts those five cells:
+
+    the quick brown fox      |
+                        ^---^
+
+Similarly, `virtcol('.')` counts the virtual character displayed at the start of
+a soft-wrapped line when `'showbreak'` is set:
+```vim
+vim9script
+lefta :25vnew
+setl wrap showbreak=+
+setline(1, 'the quick brown fox jumps over the lazy dog')
+norm! 29l
+echom virtcol('.')
+```
+    31
+
+`31` is unexpected, because the cursor is here:
+
+    the quick brown fox jumps|
+    + over the lazy dog      |
+         ^
+
+If we ignore the  cell displaying the virtual `+`, the cursor is  on the cel 30,
+not 31.  But `virtcol('.')` does take into account the virtual `+`.
+
+A similar issue exists with `'breakindent'`.
+
+---
+
+All of  this is inconsistent  with `:h virtcol()`  which says that  the position
+should be computed like if the line was of unlimited width:
+
+   > That is, the last screen position occupied by the character at that
+   > position, when the screen would be of unlimited width.
+
+IOW, whether the line is soft-wrapped or not, and how it is soft-wrapped, should
+not matter.  It's a known issue; from `:h todo /virtcol`:
+
+   > Value returned by virtcol() changes depending on how lines wrap.  This is
+   > inconsistent with the documentation.
+
+See also github issue #5713.
+
+#### When is it still ok to use it?
+
+When you use its value in a `\%v` atom:
+```vim
+vim9script
+lefta :25vnew
+setl wrap lbr showbreak=+
+setline(1, 'the quick brown fox jumps over the lazy dog')
+norm! 29l
+var vcol = virtcol('.')
+norm! 0
+search('\%' .. vcol .. 'v')
+```
+    the cursor is back on the "r" in "over"
+
+Or in a normal `|` command:
+```vim
+vim9script
+lefta :25vnew
+setl wrap lbr showbreak=+
+setline(1, 'the quick brown fox jumps over the lazy dog')
+matchadd('Conceal', 'brown')
+set cole=3 cocu=n
+norm! 29l
+var vcol = virtcol('.')
+norm! 0
+exe 'norm! ' .. vcol .. '|'
+```
+    the cursor is back on the "r" in "over"
+
+That's because  `virtcol()`, `\%v` and  `|` *all* agree  that all cells  must be
+counted;  including  unexpected  ones.   They  also  *all*  ignore  the  conceal
+mechanism entirely.
+
+##
+## ?
+
+Make sure we've never used `virtcol()` for anything else than a `\%v` atom, or a
+normal `|` command.
+
+And when we've  used `virtcol()` for a  `\%v` atom, make sure  it always matched
+the first cell of a character,  not the last one.  Import `VircolFirstCell()` if
+necessary.
+
+## ?
+
+Did we  use `matchstr()`  with a  (slow) regex  to get  the character  under the
+cursor (or right before/after), while we could have used sth simpler like:
+
+    getline('.')[charcol('.') - 1]
+
+Look for this pattern:
+
+    \C\<matchstr(\%(&l:cms\|.*<SNR>\)\@!\|\<strpart(
+
+---
+
+Same issue with all the text after the cursor:
+
+    getline('.')[charcol('.') - 1 :]
+
+And with all the text before the cursor:
+
+    getline('.')->strpart(0, col('.') - 1)
+
+## ?
+
+Have we used a slow `matchstr()`:
+```vim
+vim9script
+var str = 'the,quick,brown,fox,jumps,over,the,lazy,dog'
+def Func()
+    for i in range(100'000)
+        matchstr(str, '.*,\zs.*')
+    endfor
+enddef
+var time = reltime()
+Func()
+(reltime(time)
+    ->reltimestr()
+    ->matchstr('.*\..\{,3}')
+        .. ' seconds for matchstr() to get "' .. matchstr(str, '.*,\zs.*') .. '"'
+)->setline(1)
+```
+    0.871 seconds for matchstr() to get "dog"
+
+when `strridx()` would have been much faster:
+```vim
+vim9script
+var str = 'the,quick,brown,fox,jumps,over,the,lazy,dog'
+def Func()
+    for i in range(100'000)
+        str->strpart(strridx(str, ',') + 1)
+    endfor
+enddef
+var time = reltime()
+Func()
+(reltime(time)
+    ->reltimestr()
+    ->matchstr('.*\..\{,3}')
+        .. ' seconds for strpart() to get "' .. str->strpart(strridx(str, ',') + 1) .. '"'
+)->setline(1)
+```
+    0.046 seconds for strpart() to get "dog"
+
+---
+
+Same issue with `stridx()`:
+```vim
+vim9script
+var str = 'the,quick,brown,fox,jumps,over,the,lazy,dog'
+def Func()
+    for i in range(100'000)
+        matchstr(str, ',\zs.*')
+    endfor
+enddef
+var time = reltime()
+Func()
+(reltime(time)
+    ->reltimestr()
+    ->matchstr('.*\..\{,3}')
+        .. ' seconds for matchstr() to get "' .. matchstr(str, ',\zs.*') .. '"'
+)->setline(1)
+```
+    0.511 seconds for matchstr() to get "quick,brown,fox,jumps,over,the,lazy,dog"
+
+→
+```vim
+vim9script
+var str = 'the,quick,brown,fox,jumps,over,the,lazy,dog'
+def Func()
+    for i in range(100'000)
+        str->strpart(stridx(str, ',') + 1)
+    endfor
+enddef
+var time = reltime()
+Func()
+(reltime(time)
+    ->reltimestr()
+    ->matchstr('.*\..\{,3}')
+        .. ' seconds for strpart() to get "' .. str->strpart(stridx(str, ',') + 1) .. '"'
+)->setline(1)
+```
+    0.047 seconds for strpart() to get "quick,brown,fox,jumps,over,the,lazy,dog"
+
+---
+
+Same issue with `match()`.
+```vim
+vim9script
+var str = 'the,quick;brown,fox;jumps,over;the,lazy;dog'
+def Func()
+    for i in range(100'000)
+        matchstr(str, '[,;]\zs.*')
+    endfor
+enddef
+var time = reltime()
+Func()
+(reltime(time)
+    ->reltimestr()
+    ->matchstr('.*\..\{,3}')
+        .. ' seconds for matchstr() to get "' .. matchstr(str, '[,;]\zs.*') .. '"'
+)->setline(1)
+```
+    0.529 seconds for matchstr() to get "quick;brown,fox;jumps,over;the,lazy;dog"
+```vim
+vim9script
+var str = 'the,quick;brown,fox;jumps,over;the,lazy;dog'
+def Func()
+    for i in range(100'000)
+        str->strpart(match(str, '[;,]') + 1)
+    endfor
+enddef
+var time = reltime()
+Func()
+(reltime(time)
+    ->reltimestr()
+    ->matchstr('.*\..\{,3}')
+        .. ' seconds for strpart() to get "' .. str->strpart(match(str, '[;,]') + 1) .. '"'
+)->setline(1)
+```
+    0.182 seconds for strpart() to get "quick;brown,fox;jumps,over;the,lazy;dog"
+
+---
+
+So, which conditions must be satisfied for an optimization to be possible?
+
+Answer: you're  using `matchstr()`  to extract  a substring  for which  both the
+start  and the  end are  the first  occurrence of  a "simple"  pattern (i.e.  no
+quantifier; e.g.  a collection), or  the last  occurrence of a  character.  Note
+that a simple pattern can be `^` or `$`.
+
+The index  of the  first occurrence  of a  simple pattern  can be  obtained with
+`match()` or `stridx()`.  The index of the last occurrence of a character can be
+obtained with `strridx()`.
+
+Note that for `match()`, `stridx()`, `strridx()`  to be usable, there must be no
+extra requirement; for example:
+
+    matchstr(s, '^\s*X\zs.*')
+                 ^---^
+
+This is *not* the first occurrence of any  X.  This is the first occurence of an
+X which is only preceded by whitespace.  So, you couldn't write this:
+
+    strpart(s, match(s, 'X') + 1)
+
+Update: Actually, that's a bit more complex.
+The 2 solutions are not always equivalent.
+```vim
+vim9script
+var str = 'the quick brown fox'
+echo matchstr(str, '.*,\zs.*') == ''
+```
+    true
+```vim
+vim9script
+var str = 'the quick brown fox'
+echo str->strpart(strridx(str, ',') + 1)
+```
+    the quick brown fox
+
+You must handle the case where your simple pattern doesn't match separately:
+```vim
+vim9script
+var str = 'the quick brown fox'
+var i = strridx(str, ',')
+echo i == - 1 ? "''" : str->strpart(i + 1)
+str = 'the,quick,brown,fox'
+i = strridx(str, ',')
+echo i == - 1 ? '' : str->strpart(i + 1)
+```
+    ''
+    fox
+
+All in all, it seems quite complex to replace `matchstr()`...
+Consider doing it only when you need to optimize some code.
+
+Note that what really makes Vim slow  is *not* `matchstr()` itself; it's the `*`
+quantifier (and possibly other ones) which you  often have to use when passing a
+regex to `matchstr()`.
+
+##
+## How to get the length of the longest line in the current buffer?
+
+    echo getline(1, '$')->map('strcharlen(v:val)')->max()
+
+Or:
+
+    " 'nowrap' needs to be off
+    echo range(1, line('$'))->map('virtcol([v:val, "$"])')->max() - 1
+                                                                  ^^^
+
+Note that the reason for `-1` is explained at `:h virtcol()`:
+
+   > $       the end of the cursor line (the result is the
+   >         number of displayed characters in the cursor line
+   >         **plus one**)
+
+##
+## `'\%' .. col('.') .. 'c'` matches a character on the current line.  It does not match anything on a different line!
+
+There is probably at least one multibyte character on one of those lines.
+```vim
+vim9script
+setline(1, 'aei')
+search('i')
+var col: number = col('.')
+setline(1, 'aéi')
+norm! 0
+exe ':/\%' .. col .. 'c.'
+```
+    E486: Pattern not found: \%3c.
+
+On the `aéi` line:
+
+   - the first byte of the first character has the index 1
+   - the first byte of the second character has the index 2
+   - the first byte of the third character has the index 4
+
+There's no character whose first byte has the index 3.
+
+Bottom line: There is never the guarantee  that `\%123c.` matches a character on
+a line, even if it does match one on another line.
+You only have this guarantee if you use it on the *same* line from where you got
+the byte index `123`, *and* if that line didn't change in the meantime.
 
 ##
 # Coercion
@@ -110,7 +555,7 @@ the output of:
 ### When should I be conscious of it?
 
 Whenever you work on user data.
-User data is unpredictable; you have to assume a decimal number may begin with `0`.
+User data is unpredictable; you have to assume a decimal number might begin with `0`.
 
 As an example, when you perform a  substitution, and you use `submatch()` in the
 replacement part to refer to a capturing group matching a number.
@@ -278,56 +723,74 @@ In legacy Vim script, you can also use a subscript:
 
     str[n - 1]
 
-### character of a string?  (2)
+### character of a string?
 
-Use `strcharpart()`:
+In Vim9, use a subscript:
 
-    strcharpart(str, n - 1, 1)
-                     ├───┘  │
+    str[n - 1]
+
+In legacy, use `slice()` (also works in Vim9):
+
+    slice(str, n - 1, n)
+
+---
+```vim
+vim9script
+var str: string = 'résumé'
+echo str[3 - 1]
+echo slice(str, 3 - 1, 3)
+
+str = "\u0061\u0300\u0065\u0301\u0075\u0302"
+echo str[3 - 1]
+echo slice(str, 3 - 1, 3)
+```
+    s
+    s
+    û
+    û
+
+---
+
+You could also use `strcharpart()`:
+
+    strcharpart(str, n - 1, 1, true)
+                     ├───┘  │  │
+                     │      │  └ {skipcc}: don't count composing characters separately
                      │      └ {len}
                      └ {start}
 
-Or `strgetchar()` + `nr2char()`:
+But that's more complex than it needs to be.
+
+Same thing for `strgetchar()` + `nr2char()`:
 
     strgetchar(str, n - 1)->nr2char()
                     ├───┘
                     └ {index}
 
----
-
-You could use `matchstr()`:
-
-    matchstr(str, '.', byteidx(str, n - 1))
-
-But it's a bit slower.
-
-Do *not* use that:
-
-    matchstr(str, '.\{n - 1}\zs.')
-
-The bigger `n`, the *much* slower it is.
-
----
-
-Examples:
-
-    echo strcharpart('résumé', 2, 1)
-    echo strgetchar('résumé', 2)->nr2char()
-    s~
+Note  that this  one doesn't  even  work as  expected when  the string  contains
+composing characters  (because `strgetchar()`  counts them separately,  which is
+most probably not what you want).
 
 ##
 ## How to get the last characters of a string, from the `n`-th one?
 
-Use `strcharpart()`, but don't provide the last optional argument `{len}`:
+In Vim9, use a `[]` slice:
 
-    echo strcharpart(str, n - 1)
+    str[n :]
 
-Without `{len}`, `strcharpart()` goes until the end.
+In legacy, use `slice()` (also works in Vim9):
 
----
+    slice(str, n - 1)
 
-    echo strcharpart('abcde', 2)
-    cde~
+Without `{end}`, `slice()` goes until the end.
+
+Example:
+
+    vim9 echo 'résumé'[2 :]
+    sumé~
+
+    echo slice('résumé', 2)
+    sumé~
 
 ###
 ## How to get the character
@@ -337,35 +800,18 @@ In Vim9 script:
 
     getline('.')[charcol('.') - 1]
                               ^^^
-                              to compensate for the fact that "charcol()" starts indexing from 1
+                              to make up for the fact that "charcol()" starts indexing from 1
                               while Vim starts indexing a string from 0
 
 In Vim script legacy:
 
+                                           the previous length counts characters; not bytes
+                                           v----v
     getline('.')->strpart(col('.') - 1, 1, v:true)
-    getline('.')->strpart(col('.') - 1)->strcharpart(0, 1)
+    getline('.')->strpart(col('.') - 1)->slice(0, 1)
                                    ^^^
-                                   to compensate for the fact that "col()" starts indexing from 1
+                                   to make up for the fact that "col()" starts indexing from 1
                                    while "strpart()" starts indexing from 0
-
-You can test on this line:
-
-    éàê foo éàê bar éàê
-
----
-
-You could also use `matchstr()`, but it's a bit slower:
-
-    getline('.')->matchstr('.', col('.') - 1)
-                                ^----------^
-                                3rd optional argument: start the search from the byte index
-                                `col('.') - 1`
-
-Or this:
-
-    getline('.')->matchstr('\%' .. col('.') .. 'c.')
-
-Which is even slower.
 
 #### Why the difference between Vim9 and legacy?
 
@@ -383,23 +829,23 @@ From `:h expr-[]`:
 
 In Vim9 script:
 
+    # in normal mode
     getline('.')[charcol('.')]
+
+    # in insert mode
+    getline('.')[charcol('.') - 1]
 
 In Vim script legacy:
 
-    getline('.')->strpart(col('.') - 1)->strcharpart(1, 1)
-                                                     ^
-                                                     in insert mode, write 0 instead
+    # in normal mode
+    getline('.')->slice(charcol('.'), charcol('.') + 1)
 
-### before the cursor?  (2)
+    # in insert mode
+    getline('.')->slice(charcol('.') - 1, charcol('.'))
+
+### before the cursor?
 
 In Vim9:
-
-    charcol('.') == 1 ? '' : getline('.')[charcol('.') - 2]
-    ^---------------^
-    special case which can't be handled with a subscript
-
-Or:
 
     getline('.')->strpart(0, col('.') - 1)[-1]
                                       ^^^
@@ -407,7 +853,18 @@ Or:
 
 In legacy:
 
-    getline('.')->strcharpart(getline('.')->strpart(0, col('.') - 1)->strchars(1) - 1, 1)
+    getline('.')->slice(charcol('.') - 2, charcol('.') - 1)
+
+---
+
+In Vim9, you could also write this:
+
+    charcol('.') == 1 ? '' : getline('.')[charcol('.') - 2]
+    ^---------------^
+    special case which can't be handled with a subscript
+
+But it's less pretty, and probably harder  to use in practice due to the ternary
+conditional.
 
 #
 ## What's the evaluation of `getline('.')[col('.')]`?
@@ -452,19 +909,23 @@ And execute:
 
 `0`
 
-#### `strcharpart()`?
+#### `slice()`?
 
-A negative index is *not* replaced by  `0`, but since there is no character with
-a negative index in a string, it produces an empty string.
+It matches a character from the end of the string:
 
-    echo strcharpart(str, -i, j)
+    echo slice(str, -i)
     ⇔
-    echo strcharpart(str, 0, j-i)
+    echo str[-i]
 
 ---
 
-    echo strcharpart('abcd', 0, 2)
-    ab~
+If you pass  a second index to  `slice()`, while the first one  is negative, the
+second one must also be negative.  Otherwise, you get an empty string.
+
+#### `strcharpart()`?
+
+It's *not* replaced by `0`; but  `strcharpart()` considers that no character can
+be matched by a negative index:
 
     echo strcharpart('abcd', -2, 4)
     ab~
@@ -485,13 +946,13 @@ From `:h expr-[]`:
    > A negative index always results in an empty string (reason: backward
    > compatibility).
 
-#### `str[-i:-j]` with `0 < i < j`?
+#### `str[-i : -j]` with `0 < i < j`?
 
 An empty string.
 
 When you do a slicing, the first index must be lower than the second one.
 
-#### `str[-i:-j]` with `0 < j < i`?
+#### `str[-i : -j]` with `0 < j < i`?
 
 The last bytes of the string.
 
@@ -698,18 +1159,44 @@ Pass a non-zero value as a third optional argument:
 ###
 ## How to get the number of characters stored in a string?
 
-    echo strchars(str, 1)
+    echo strcharlen(str)
 
 ---
 
-The second  argument is optional,  but it's necessary  if the string  contains a
-composing character:
+Don't use `strchars()`.
+The latter counts composing characters separately by default.
+Unless you provide it a second non-zero (or true) argument:
 
     echo strchars('Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆')
     51~
 
     echo strchars('Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆', 1)
     6~
+
+##
+## The cursor being on a character, how to get the index of
+### its last cell?
+
+    virtcol('.')
+
+That's because –  when `'virtualedit'` is empty  (which it is by  default) – the
+cursor is always on the last cell of a multicell character.
+
+---
+
+Remember that `virtcol()` starts indexing from 1 (not 0).
+
+### its first cell?
+
+    virtcol([line('.'), getline('.')->byteidx(charcol('.') - 2) + 1]) + 1
+
+Here, `virtcol(...)` gives the index of the last cell of the previous character.
+And the last `+ 1` gets us what we  really want, the index of the next cell i.e.
+the first cell of the character under the cursor.
+
+The first  `+ 1` is necessary  to make up  for the fact that  `byteidx()` starts
+indexing from `0`, while `virtcol()` expects  an index counted from `1` (like if
+it was given by `col()`).
 
 ##
 ## How to get the number of cells a character occupy?
@@ -720,14 +1207,26 @@ composing character:
 
     echo strdisplaywidth(char, virtcol)
 
+`virtcol` must be the index of the screen cell where `char` starts.
+It can be omitted, in which case 0 is assumed.
+The first screen cell is indexed with 0 (not 1).
+
+#### How to get the length of a tab which would be inserted at the current cursor position?
+
+    strdisplaywidth("\t", virtcol([line('.'), getline('.')->byteidx(charcol('.') - 2) + 1]))
+
+The second argument must be the index  of the first screen cell of the character
+under the cursor (the count start from  0).  Only `virtcol()` can give this kind
+of info.
+
 ---
 
-This is useful for a tab:
-
-    echo strdisplaywidth("\t", virtcol('.'))
-                               │
-                               └ the cursor needs to be positioned on the character
-                                 just *before* the tab
+Actually, we should  also add `1` to  `virtcol()` to get the index  of the first
+screen cell  after the  previous character  (i.e. the first  screen cell  of the
+character under the cursor).  And we should subtract `1` to make up for the fact
+that  `strdisplaywidth()` starts  indexing  from `0`,  while `virtcol()`  starts
+indexing from `1`.  But since both operations cancel each other out, they can be
+omitted.
 
 ##
 ## I have a string and a pattern.  How to get the list of substrings matching the capturing groups?
@@ -1517,7 +2016,7 @@ concatenation; they don't magically convert its contents into a valid command.
 Example:
 
     fu Func(str)
-        echom 'the string ' .. a:str .. ' contains ' .. strchars(a:str) .. ' characters'
+        echom 'the string ' .. a:str .. ' contains ' .. strcharlen(a:str) .. ' characters'
     endfu
     let arg = 'test'
     let cmd = 'call Func(' .. string(arg) .. ')'
@@ -1552,10 +2051,11 @@ the latter expects a string, not a variable name.
 ### How should I refactor the previous snippet?
 
 ↣
-    getline('.')->byteidx(charcol('.'))
+    col('.')
 ↢
 
-It's much faster, and more readable.
+NOTE: Yeah, it's  obvious.  But  apparently, lucidity is  not our  strong point,
+because I think we wrote such code in the past.
 
 ### How about this one?
 
@@ -1572,23 +2072,25 @@ first expression returns 0; the second one returns -1.
 
 ##
 ## `matchstr()` invoked multiple times to extract a bunch of substrings out of a string might be inefficient.
-
-    var text = 'hello world'
-    var word1 = matchstr(text, '^\S\+')
-    var word2 = matchstr(text, '^\S\+\s\+\zs\S\+')
-
+```vim
+vim9script
+var text = 'hello world'
+var word1 = matchstr(text, '^\S\+')
+var word2 = matchstr(text, '^\S\+\s\+\zs\S\+')
+```
 ### How could I refactor the previous snippet?
-
-    var text = 'hello world'
-    var matchlist = matchlist(text, '^\(\S\+\)\s\+\(\S\+\)')
-    var word1: string
-    var word2: string
-    if matchlist == []
-        [word1, word2] = ['', '']
-    else
-        [word1, word2] = matchlist
-    endif
-
+```vim
+vim9script
+var text = 'hello world'
+var matchlist = matchlist(text, '^\(\S\+\)\s\+\(\S\+\)')
+var word1: string
+var word2: string
+if matchlist == []
+    [word1, word2] = ['', '']
+else
+    [word1, word2] = matchlist
+endif
+```
 ---
 
 As you can see, it makes the code more verbose.
@@ -1597,7 +2099,7 @@ There's no easy way to know that in advance, so you'll have to make some quick t
 
 ---
 
-Note that being able to use `matchlist()` assumes that:
+Note that being able to use `matchlist()` requires that:
 
    - the substrings are all extracted from the same string
 

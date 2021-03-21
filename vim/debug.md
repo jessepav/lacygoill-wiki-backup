@@ -452,6 +452,10 @@ If you want to include the commands inside functions, you must use a bang:
     :prof! file */foo.vim
          ^
 
+TODO: To get as much info as possible, you might also need to temporarily remove
+an anti-reinclusion guard.  Make further tests and better document this pitfall.
+Do we need `:Runtime` from `vim-scriptease`?
+
 ###
 ### From Vim, which commands should I execute to profile a script named `search.vim` in the rtp?
 
