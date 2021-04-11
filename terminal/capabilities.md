@@ -94,6 +94,8 @@ Useful to test whether we can send sequences to:
    - change the color of the text / background
    - set some styles (bold, italic, underlined)
 
+See `info gettext /=test`.
+
 ##
 # Cursor
 ## What are the coordinates of "home" for an X terminal?

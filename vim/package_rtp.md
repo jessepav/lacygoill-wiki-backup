@@ -374,6 +374,24 @@ From nickspoon on `#vim`:
 If we use packages instead of plugins, will it be a pain in the ass to bisect an
 issue located in an arbitrary plugin?
 
+Update: We could  make all our packages  optional; this way, they  would only be
+loaded if  we execute `:packadd`.   The latter  statements can be  commented out
+when debugging an issue.
+
+Alternatively, you could install a custom command which would temporarily move a
+package  from  `start/` to  `opt/`.   For  a  real example,  see  `:PackDisable`
+provided by the `plugpac.vim` plugin: <https://github.com/bennyyip/plugpac.vim>
+
+   > PackDisable: Move a plugin to minpac/opt.
+   > (minpac#update would move plugin back to minpac/start,
+   > unless the plugin is explicitly optional.
+   > Useful for disabling a plugin temporarily)
+
+---
+
+For the equivalent of `:PlugInstall` (`:PackInstall`), see this:
+<https://github.com/k-takata/minpac/issues/38#issuecomment-416160413>
+
 ## ?
 
 `-u NORC` doesn't disable packages, only plugins.

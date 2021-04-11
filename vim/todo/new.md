@@ -9,21 +9,14 @@
    - `:h fullcommand()`
    - `:h gettagstack()` + `:h settagstack()`
    - `:h interrupt()`
-   - `:h listener_add()`
-   - `:h listener_remove()`
    - `:h pum_getpos()`
-   - `:h readdir()` + `:h readdirex()`
    - `:h setcellwidths()`
-   - `:h slice()`
    - `:h str2list()` + `:h list2str()`
    - `:h strptime()` (*str*ing *p*arse *time* ?)
    - `:h term_setansicolors()` + `:h term_getansicolors()`
    - `:h term_setsize()`
    - `:h terminalprops()`
-   - `:h win_splitmove()`
 
-   - `:h charcol()` (alternative to `col()` based on characters instead of bytes)
-   - `:h charidx()`
    - `:h getcharpos()` (alternative to `getpos()` based on characters instead of bytes)
    - `:h setcharpos()` (alternative to `setpos()` based on characters instead of bytes)
    - `:h getcursorcharpos()` (alternative to `getcurpos()` based on characters instead of bytes)
@@ -77,8 +70,6 @@ temporarily converting the dates into simple integers.
    - `:h mode()` can output `n_ov`, `n_oV`, `n_oC-v` since 8.1.0648
    - `:h readdir()` and `:h readdirex()` support a new optional `{dict}` argument
    - `:h search()` supports a new `{skip}` argument
-   - `:h setqflist()` supports a new `quickfixtextfunc` key inside the `{what}` dictionary since 8.2.0869
-   - `:h trim()` can trim only at the start or end thanks to the third optional argument `{dir}` since 8.2.0868
    - `:h winnr()` supports a new argument `{N}[hjkl]` since 8.1.1140
 
 ## output of functions
@@ -89,6 +80,7 @@ temporarily converting the dates into simple integers.
 # commands
 
    - `:h :balt`
+   - `:h :echoconsole`
    - `:h :scriptversion`
    - `:h :swapname`
 
@@ -118,6 +110,8 @@ Note: `InsertLeave` is fired right *after* leaving insert mode.
 `InsertLeavePre` is fired right *before* leaving insert mode.
 
 # options
+
+   - `:h 'autoshelldir'`
 
    - `:h 'quickfixtextfunc'`
 

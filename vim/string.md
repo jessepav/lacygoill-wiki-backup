@@ -34,7 +34,8 @@ echom virtcol('.')
     8
     5
 
-Unless virtual edit is enabled, in which case the exact cell index is given:
+Because the cursor is on the last cell; unless virtual edit is enabled, in which
+the cursor could be on any cell:
 ```vim
 vim9script
 set ve=all
@@ -206,15 +207,90 @@ That's because  `virtcol()`, `\%v` and  `|` *all* agree  that all cells  must be
 counted;  including  unexpected  ones.   They  also  *all*  ignore  the  conceal
 mechanism entirely.
 
+###
+### Which options alter the cursor position on a multicell character (and thus `virtcol('.')` too)?
+
+`'list'` and `'virtualedit'`.
+
+If `'list'`  is true, the cursor  is always on  the *first* cell of  a multicell
+character.
+If `'virtualedit'`  has the  value `all`,  the cursor can  be on  any cell  of a
+multicell character; otherwise, it's always on the *last* cell.
+
+##
+### I'm using `virtcol('.')` in a `\%v` atom.  It doesn't match anything!
+```vim
+vim9script
+setline(1, "the\tquick\tbrown\tfox")
+norm! 22|
+var vcol: number = virtcol('.')
+norm! 0
+exe ':/\%' .. vcol .. 'v'
+```
+    E486: Pattern not found: \%24v
+
+#### Why?
+
+`\%v` can only  match the *first* cell of a  character, but `virtcol('.')` gives
+the index of the last one.
+
+Usually, that's  not an issue,  because most characters  occupy only 1  cell, in
+which case there's no difference between the  first and last cells; they are the
+same.  But it *is* an issue if your cursor is on a multicell character.
+
+#### How to work around this issue?
+
+Make sure to compute the index of the *first* cell:
+
+    # ✘
+    virtcol('.')
+
+    # ✔
+    virtcol([line('.'), col('.') - 1]) + 1
+    ^--------------------------------^
+    index of the last cell of the previous character
+
+Test:
+```vim
+vim9script
+setline(1, "the\tquick\tbrown\tfox")
+norm! 22|
+var vcol: number = virtcol([line('.'), col('.') - 1]) + 1
+norm! 0
+exe ':/\%' .. vcol .. 'v'
+```
+    no error
+
 ##
 ## ?
 
-Make sure we've never used `virtcol()` for anything else than a `\%v` atom, or a
-normal `|` command.
+Have we  used a useless and  costly quantifier, where a  simple `\%>123c` and/or
+`\%<123c` would have sufficed (and been faster)?
 
-And when we've  used `virtcol()` for a  `\%v` atom, make sure  it always matched
-the first cell of a character,  not the last one.  Import `VircolFirstCell()` if
-necessary.
+    # slow
+    getline('.') =~ '\%12c.\{-}\S.\{-}\%34c'
+
+    # fast
+    getline('.') =~ '\%>11c\%<35c\S'
+
+Look for this pattern (I guess):
+
+    \\{-\|\.\*\|\.\\+
+
+We've stopped somewhere in our readline plugin.
+
+---
+
+Look for this pattern:
+
+    \\%[<>]
+
+Each time, check whether there is some rule to infer.
+Note it in an "antipattern" or "optimization" section in `vim/regex.md`.
+
+## ?
+
+Have we used `charcol()` + `line()` when `getcharpos()` would have been simpler/faster?
 
 ## ?
 
@@ -847,9 +923,9 @@ In Vim script legacy:
 
 In Vim9:
 
-    getline('.')->strpart(0, col('.') - 1)[-1]
-                                      ^^^
-                                      to exclude the first byte of the character under the cursor
+    charcol('.') == 1 ? '' : getline('.')[charcol('.') - 2]
+    ^---------------^
+    special case which can't be handled with a subscript
 
 In legacy:
 
@@ -859,12 +935,11 @@ In legacy:
 
 In Vim9, you could also write this:
 
-    charcol('.') == 1 ? '' : getline('.')[charcol('.') - 2]
-    ^---------------^
-    special case which can't be handled with a subscript
+    getline('.')->strpart(0, col('.') - 1)[-1]
+                                      ^^^
+                                      to exclude the first byte of the character under the cursor
 
-But it's less pretty, and probably harder  to use in practice due to the ternary
-conditional.
+But it might be slower on very long lines.
 
 #
 ## What's the evaluation of `getline('.')[col('.')]`?

@@ -131,6 +131,31 @@ Also, try  to use `:h optional-function-argument`  to reduce noise; i.e.  it can
 help you omit a boolean at various call sites.
 
 ##
+# Plugins
+## Write tests for matchparen
+
+We had an issue in the past with our matchparen plugin.
+Sometimes, the highlights were not removed.
+For example, suppose the buffer contains this text:
+
+    a (
+    )
+
+Press `V` to select the first line.
+Press `j` to include the 2nd line inside the selection; at that point, I suspect
+the parens were highlighted (although, not easy to notice).
+Press `>` to increase the lines indentation.
+Press `u` to undo.
+The parens were wrongly highlighted.
+
+*Maybe* the issue could also be reproduced without entering visual mode:
+
+    G>ku
+
+Anyway, try to write a test for this issue.
+Also, write tests for all the other matchparen issues you've fixed.
+
+##
 # Document
 ## how to squash a non-focused window
 

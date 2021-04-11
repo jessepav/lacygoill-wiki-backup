@@ -874,11 +874,12 @@ Before the last component of the path, ONE directory:
 
 No.  One is enough:
 
-                           ┌ useless, because a single star can match two things at the same time:
-                           │
-                           │       - the path to a directory
-                           │       - a part of a filename
-                          ┌┤
+                          ┌ useless, because a single star can match two things at the same time:
+                          │
+                          │     - the path to a directory
+                          │     - a part of a filename
+                          │
+                          ├┐
     :{breakadd|prof} file */*foo.vim
 
                     ⇔
@@ -939,7 +940,7 @@ Edit `src/Makefile`  to pass  the `-O0`  flag to the  compiler via  the `CFLAGS`
 variable:
 
     CFLAGS = -g -O0
-                ^-^
+                ^^^
 
 ### When extracting a backtrace, I get a warning message!
 

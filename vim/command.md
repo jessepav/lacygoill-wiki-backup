@@ -1139,10 +1139,13 @@ But in a completion function, you need to increase the column position by 1:
     fu MyCompletionFunction(arglead, cmdline, pos)
         ...
         let text_before_cursor = matchstr(a:cmdline, '.*\%' .. (a:pos + 1) .. 'c')
-                                                                      ^-^
+                                                                      ^^^
                                                                       surprise!
 
 That's because `\%c` index from 1, while `a:pos` index from 0.
+
+Update: Actually, I think indexing from 0 is more common than indexing from 1.
+IOW, `col()` (and `\%c`), `virtcol()` (and `\%v`), `getcmdpos()` are the exception.
 
 ##
 # ?

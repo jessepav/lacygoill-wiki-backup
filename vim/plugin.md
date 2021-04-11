@@ -361,7 +361,7 @@ In most programming  languages this context will show you  which function you're
 looking at, and  within that function which loops or  conditions are surrounding
 the visible code.
 
-<https://github.com/wellle/context.vim> 383 sloc
+<https://github.com/wellle/context.vim> 1068 sloc
 
 ## cosco
 

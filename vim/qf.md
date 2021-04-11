@@ -437,9 +437,9 @@ It depends on the middle part of its name.
 
 If it's:
 
-    - 'expr'    the command expects an expression
-    - 'file'    "                   a file name
-    - 'buffer'  "                   a buffer number
+   - 'expr'    the command expects an expression
+   - 'file'    "                   a file name
+   - 'buffer'  "                   a buffer number
 
 ##
 ## What are the seven steps occurring when I execute `:make`?
@@ -875,9 +875,9 @@ should be opened, you can rely on the latter via `:doautocmd`:
 
 ## How to automate the execution of a command after a command populating the qfl (!= loclist) has been executed?
 
-                        ┌ all the commands populating a loclist begin with an `l`
-                        │ so all the ones populating a qfl begin with `[^l]`
-                     ┌──┤
+                     ┌ all the commands populating a loclist begin with an `l`
+                     │ so all the ones populating a qfl begin with `[^l]`
+                     ├──┐
     QuickFixCmdPost  [^l]*  Your_command
                          │
                          └ a star is not equivalent to the quantifier `*` in a file pattern
