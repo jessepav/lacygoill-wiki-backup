@@ -363,37 +363,6 @@ Document this.
 
 ## ?
 
-From nickspoon on `#vim`:
-
-   > The benefit of vim-plug (and the older Vundle) is that it does the plugin cloning and updating for you
-   > Also, vim-plug is handy for testing plugins, because you can easily disable them temporarily by simply
-   > commenting them out of your .vimrc. **With packages you need to delete the dir** (with pathogen you could
-   > rename it with a prefix and it would be ignored)
-   > Another alternative is minpac, which works like vim-plug except it uses vim's packages under the hood.
-
-If we use packages instead of plugins, will it be a pain in the ass to bisect an
-issue located in an arbitrary plugin?
-
-Update: We could  make all our packages  optional; this way, they  would only be
-loaded if  we execute `:packadd`.   The latter  statements can be  commented out
-when debugging an issue.
-
-Alternatively, you could install a custom command which would temporarily move a
-package  from  `start/` to  `opt/`.   For  a  real example,  see  `:PackDisable`
-provided by the `plugpac.vim` plugin: <https://github.com/bennyyip/plugpac.vim>
-
-   > PackDisable: Move a plugin to minpac/opt.
-   > (minpac#update would move plugin back to minpac/start,
-   > unless the plugin is explicitly optional.
-   > Useful for disabling a plugin temporarily)
-
----
-
-For the equivalent of `:PlugInstall` (`:PackInstall`), see this:
-<https://github.com/k-takata/minpac/issues/38#issuecomment-416160413>
-
-## ?
-
 `-u NORC` doesn't disable packages, only plugins.
 Should we ask for `--nopackage` (similar to `--noplugin`) as a feature request?
 
@@ -410,29 +379,16 @@ Workaround:
 
    > command! -nargs=0 -bar Helptags for p in glob('~/.vim/pack/*/opt/*', 1, 1) | exe 'packadd '.fnamemodify(p, ':t') | endfor | silent! helptags ALL
 
+Updated version:
+
+       vim9script
+       com -nargs=0 -bar Helptags Helptags()
+       def Helptags()
+           for p in glob($HOME .. '/.vim/pack/*/opt/*', true, true)
+               exe 'packadd ' .. fnamemodify(p, ':t')
+           endfor
+           silent! helptags ALL
+       enddef
+
 <https://www.reddit.com/r/vim/comments/g68bf6/pathogen_is_dead_or_should_be_long_live_vim_8/fo861i8/>
-
-## ?
-
-Could  we use  Vim packages  to eliminate  the separation  of plugins'  config
-between `~/.vim/plugin` and `~/.vim/after/plugin/`?
-
-   > What  I like  about packadd  is  that **you  can actually  put the  before**
-   > **and  after  config**  and  the  loading of  the  plugin  **in  a  single**
-   > **file**.  That's because packadd loads the plugin right when it's called as
-   > apposed to most plugin managers that collect the list of all plugins to load
-   > before loading  them.  (For  that to  work plugins need  to be  installed in
-   > a  pack/**/opt  directory  i.e.  when  using  the  minpac  package  manager:
-   > minpac#add(url, {'type': 'opt'}))
-
-   > Oh that's  a neat idea. I  think at  the moment though  I prefer to  see all
-   > external plugins that will be loaded  in the one place. I use :packadd! (the
-   > ! version) which adds the plugins to  the runtime path but doesn't load them
-   > immediately. Also, that  way the plugins are  loaded when they expect  to be
-   > loaded (ie. in the usual place in the startup order).
-
-Source:
-
-- <https://www.reddit.com/r/vim/comments/a5ngap/debugging_your_vim_config_vimways_1224/eboufag/>
-- <https://www.reddit.com/r/vim/comments/a5ngap/debugging_your_vim_config_vimways_1224/ebow7d5/>
 

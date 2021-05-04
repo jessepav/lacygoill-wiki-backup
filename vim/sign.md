@@ -46,16 +46,16 @@ What happens if we don't use this prefix?
 For the moment, the best way I've found to remove signs in popups is `sign_undefine()`.
 But it requires `sil!`.
 Is there sth better?
-If you find sth better, fix `s:set_sign()` in:
+If you find sth better, fix `SetSign()` in:
 
-    ~/.vim/plugged/vim-qf/autoload/qf/preview.vim
+    ~/.vim/pack/mine/opt/qf/autoload/qf/preview.vim
 
 I don't think we can test the existence of the signs.
 It would be possible if `sign_getplaced()` returned an empty list once the signs
 are undefined, but that's not the case...
 
 Anyway,  once   you  better   understand  the  situation,   consider  commenting
-`sign_undefine()` in `s:set_sign()` in `preview.vim`.
+`sign_undefine()` in `SetSign()` in `preview.vim`.
 
 ---
 

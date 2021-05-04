@@ -2803,20 +2803,23 @@ defcompile
 The first workaround is more readable; the second one is less verbose.
 
 ###
-### But at the script level, there is no issue:
+### But there is no issue
+#### at the script level:
 ```vim
 vim9script
 var b: bool = str2nr('0')
 ```
-#### Why?
+    no error
+
+##### Why?
 
 At the script level, there is no compilation; everything is done at runtime.
 
 At runtime Vim has much more info;  it can evaluate all the expressions and test
-their types.  Here, when Vim evaluate  `str2nr('0')`, it sees that the result is
+their types.  Here, when Vim evaluates `str2nr('0')`, it sees that the result is
 0 which is a valid value for a bool.
 
-### And here, there is no issue either:
+#### in compiled code (sometimes):
 ```vim
 vim9script
 def Func()
@@ -2827,7 +2830,7 @@ defcompile
 ```
     no error
 
-#### Why?
+##### Why?
 
 It's a special case.
 
@@ -2849,69 +2852,70 @@ defcompile
 ```
     E1012: Type mismatch; expected bool but got number
 
-###
-## I can't install a custom Ex command then use it right away in the same function!
+#### in a condition:
 ```vim
 vim9script
 def Func()
-    com -nargs=1 Cmd echom <args>
-    Cmd 123
+    var n: number = 1
+    echo n ? 'no error' : ''
 enddef
 Func()
 ```
-    E476: Invalid command: Cmd 123
-
-Use `:exe`; that is, don't write this:
-
-    Cmd 123
-
-But this:
-
-    exe 'Cmd 123'
+    no error
 ```vim
 vim9script
 def Func()
-    com -nargs=1 Cmd echom <args>
-    exe 'Cmd 123'
+    var n: number = 1
+    if n
+        echo 'no error'
+    endif
 enddef
 Func()
-```
-    123
-
-Explanation: When compiling a  function, Vim only knows the  commands which were
-defined before.  When it checks the validity  of `:Cmd 123`, it doesn't know yet
-about `:Cmd`, therefore an error is raised.
-
-Using `:exe` postpones the check to until the function is executed.
-At that time, Vim has full knowledge of all the installed commands.
-
-There are other workarounds, which all  boil down to: "don't execute your custom
-Ex  command in  the same  function where  you defined  it".  But  `:exe` is  the
-simplest one.
-
-For more info, see: <https://github.com/vim/vim/issues/7618#issuecomment-754089952>
-
-## I can't break a line before after a dictionary at the start of a line and before `->`!
-```vim
-vim9script
-{
-   a: 1, b: 2, c: 3
-}
-   ->setline(1)
-```
-    E121: Undefined variable: a:
-
-A `{` at the start of a line, and alone on that line, starts a block.
-To remove the ambiguity, wrap the dictionary inside parentheses:
-```vim
-vim9script
-({
-   a: 1, b: 2, c: 3
-})
-   ->setline(1)
 ```
     no error
 
+##### Why?
+
+A condition is a different context, in which the numbers 0 and 1 are accepted.
+
+   > When an expression is used as a condition we allow for zero and one.
+
+Source: <https://github.com/vim/vim/issues/7644#issuecomment-817353833>
+
+##### even when I'm using a non-boolean number!
+```vim
+vim9script
+def Func()
+    var n: number = 3
+    if true || n
+        echo 'true'
+    endif
+enddef
+Func()
+```
+    true
+
+###### Why?
+
+We need to explain  why there is no error at compile time,  then why there is no
+error at runtime.  The explanations are different.
+
+Since some numbers are  accepted (0 and 1), Vim can't raise  an error at compile
+time when a number used in a condition is not 0 or 1.
+That's because Vim has to wait until  runtime to determine what the value of `n`
+is.  In some cases, the value of `n`  might seem obvious at compile time, but in
+the general case, it could be computed with an arbitrarily complex expression.
+
+Now, at runtime, no error is raised either because of the `||` logical operator:
+
+    if true || n
+            ^^
+
+Since the left  operand is `true`, Vim  doesn't need to evaluate  the right one;
+the overall condition is necessarily true.  IOW, no error is raised, because Vim
+doesn't need to evaluate `n`.
+
+###
 ## I can't copy-paste a legacy function in a Vim9 script.  Suddenly, it gives an `E15` error!
 
 In  a  legacy   function  in  a  Vim9  script,  the   highest  scriptversion  is
@@ -2943,22 +2947,26 @@ Func()
 ```
     E15: Invalid expression: 'a'.'b'
 
-## I can't use a closure in a global command (nor in the replacement of a substitution)!
+## I can't use a closure in a global command!
+```vim
+vim9script
+def Func()
+    def Closure()
+    enddef
+    g/^/Closure()
+enddef
+Func()
+```
+    E117: Unknown function: Closure
 
 Your closure needs to be global.  It can't be local to the outer function:
 
     ✘
-    def Closure()
-        ...
-    enddef
-    s/pat/\=Closure()/
+    g/pat/Closure()
 
-        ✔
-        vv
-    def g:Closure()
-        ...
-    enddef
-    s/pat/\=Closure()/
+          ✔
+          vv
+    g/pat/g:Closure()
 
 This is consistent with Vim script legacy, where a closure must also be global:
 ```vim
@@ -2992,27 +3000,215 @@ enddef
 repeat(['aaa', 'bbb', 'ccc'], 3)->setline(1)
 ReverseEveryNLines(3, 1, 9)
 ```
----
+## I can't refer to a function-local item in the replacement of a substitution command!
+```vim
+vim9script
+com -range Retab Retab(<line1>, <line2>)
+def Retab(
+    line1: number,
+    line2: number,
+)
+    var range: string = ':' .. line1 .. ',' .. line2
+    var Rep: func = (): string => repeat(' ', &ts * submatch(0)->strcharlen())
+    exe range .. 's/^\t\+/\=Rep()/'
+enddef
 
-You could also invoke a script-local function:
+["\txxx", "\there, the tab should be expanded into spaces", "\txxx"]->setline(1)
+:2Retab
+set list
+```
+    E117: Unknown function: Rep
+
+### Why?
+
+Because you use `:exe`.
+
+`:exe` itself is compiled,  but not the command it executes.   The latter is run
+as a regular interpreted command (i.e. not compiled).
+
+A  function-local item  is  in  compiled code,  which  non-compiled code  cannot
+access:
+
+   > It is simply not possible to access the compiled code and variables from interpreted code.
+
+Source: <https://github.com/vim/vim/issues/7541#issuecomment-751274709>
+
+### How do I work around this issue?
+
+Move  your  item  in  the  script-local   namespace,  by  declaring  it  at  the
+script-level (rather  than in a  function).  You'll still  be able to  assign it
+anywhere (including in a function):
 ```vim
 vim9script
 
-def ReverseEveryNLines(n: number, line1: number, line2: number)
-    var mods = 'sil keepj keepp lockm '
-    var range = ':' .. line1 .. ',' .. line2
-    exe mods .. range .. printf('g/^/exe "m .-" .. Offset(%d, %d)', line1, n)
+com -range Retab Retab(<line1>, <line2>)
+def Retab(
+    line1: number,
+    line2: number,
+)
+    var range: string = ':' .. line1 .. ',' .. line2
+    Rep = (): string => repeat(' ', &ts * submatch(0)->strcharlen())
+    exe range .. 's/^\t\+/\=Rep()/'
 enddef
 
-def Offset(line1: number, n: number): number
-    var offset = (line('.') - line1 + 1) % n
-    return offset != 0 ? offset : n
-enddef
+var Rep: func
 
-repeat(['aaa', 'bbb', 'ccc'], 3)->setline(1)
-ReverseEveryNLines(3, 1, 9)
+["\txxx", "\there, the tab should be expanded into spaces", "\txxx"]->setline(1)
+:2Retab
+set list
 ```
-But it's less pretty.
+    no error
+
+It works because  any command executed by  `:exe` is run in  the script context,
+and therefore can access any item in the script-local namespace.
+
+### Does this issue affect other commands?
+
+Yes.  Any Ex command which is executed  by another Ex command or function is not
+compiled.
+
+So in all these examples, `cmd` is never compiled:
+
+   - `:g/pat/cmd`
+   - `:windo cmd`
+   - `execute('cmd')`
+   - `win_execute('cmd')`
+
+---
+
+You can check this with `:disassemble`:
+```vim
+vim9script
+def Func()
+    if rand() % 2 | echo 'odd' | else | echo 'even' | endif
+enddef
+disa Func
+```
+    <SNR>1_Func
+        if rand() % 2 | echo 'odd' | else | echo 'even' | endif
+       0 BCALL rand(argc 0)
+       1 PUSHNR 2
+       2 OPNR %
+       3 COND2BOOL
+       4 JUMP_IF_FALSE -> 8
+       5 PUSHS "odd"
+       6 ECHO 1
+       7 JUMP -> 10
+       8 PUSHS "even"
+       9 ECHO 1
+      10 RETURN 0
+```vim
+vim9script
+def Func()
+    g/^/if rand() % 2 | echo 'odd' | else | echo 'even' | endif
+enddef
+disa Func
+```
+    <SNR>1_Func
+        g/^/if rand() % 2 | echo 'odd' | else | echo 'even' | endif
+       0 EXEC     g/^/if rand() % 2 | echo 'odd' | else | echo 'even' | endif
+       1 RETURN 0
+
+Notice that the whole `:if` block has been compiled in the first snippet into 10
+instructions.  That's because it's executed directly.
+
+But also notice that the same `:if`  block has *not* been compiled in the second
+snippet; only 1 `EXEC` instruction has  been generated for the `:global` command
+itself (not for the `:if` block  it executes).  That's because `:if` is executed
+by another command (`:g`).
+
+---
+
+Anyway, the  solution is always the  same.  If `cmd`  needs to refer to  a local
+item (function/variable), make sure it's not local to a function:
+```vim
+vim9script
+def Func()
+    var n: number = 123
+    g/^/if n % 2 | echo 'odd' | else | echo 'even' | endif
+enddef
+Func()
+```
+    E121: Undefined variable: n
+
+Instead, it should be local to the script.
+```vim
+vim9script
+var n: number
+def Func()
+    n = 123
+    g/^/if n % 2 | echo 'odd' | else | echo 'even' | endif
+enddef
+Func()
+```
+    odd
+
+##
+## I can't install a custom Ex command then use it right away in the same function!
+```vim
+vim9script
+def Func()
+    com -nargs=1 Cmd echom <args>
+    Cmd 123
+enddef
+Func()
+```
+    E476: Invalid command: Cmd 123
+
+Use `:exe`.  That is, don't write this:
+
+    Cmd 123
+
+But this:
+
+    exe 'Cmd 123'
+```vim
+vim9script
+def Func()
+    com -nargs=1 Cmd echom <args>
+    exe 'Cmd 123'
+enddef
+Func()
+```
+    123
+
+Explanation: When compiling a  function, Vim only knows the  commands which were
+defined before.  When it checks the validity  of `:Cmd 123`, it doesn't know yet
+about `:Cmd`, therefore an error is raised.
+
+Using `:exe`  suppresses the check  at compile time;  because at that  time, Vim
+only  checks the  validity of  the  `:exe` command  itself; that  is, it  checks
+whether you  passed it a  string, and that's it.   It doesn't check  whether the
+contents of that string (`'Cmd 123'`) is a valid Ex command yet.
+Obviously, at  runtime, `:exe` will  execute `:Cmd 123`;  so you must  make sure
+that your `:Cmd` exists at that time.
+
+There are other workarounds, which all  boil down to: "don't execute your custom
+Ex  command in  the same  function where  you defined  it".  But  `:exe` is  the
+simplest one.
+
+For more info, see: <https://github.com/vim/vim/issues/7618#issuecomment-754089952>
+
+## I can't break a line before after a dictionary at the start of a line and before `->`!
+```vim
+vim9script
+{
+   a: 1, b: 2, c: 3
+}
+   ->setline(1)
+```
+    E121: Undefined variable: a:
+
+A `{` at the start of a line, and alone on that line, starts a block.
+To remove the ambiguity, wrap the dictionary inside parentheses:
+```vim
+vim9script
+({
+   a: 1, b: 2, c: 3
+})
+   ->setline(1)
+```
+    no error
 
 ## I can't use `is` to compare any type of operands at the script level, but I can in compiled code!
 ```vim
@@ -3040,15 +3236,195 @@ At the script level, the type *from the value* is used; here `string`.
 In compiled code, the type *from the variable* is used; here, it's `any`.
 The assignment with a value isn't used there.
 
-   > It's very hard to change this  without introducing other problems. We could just
-   > accept any two types for "is", but then a comparison that will always fail won't
-   > generate an error. Since "is" is usually  used to compare identity between Lists
-   > or  Dicts,  I  think  it's  more  useful  to  give  the  error  than  to  permit
-   > everything. So let's leave it as is, even though it might seem inconsistent.
+For more info, see: <https://github.com/vim/vim/issues/7931#issuecomment-791989913>
+
+###
+## I can't use a heredoc when its first line starts with a bar!
+```vim
+vim9script
+var l =<< trim END
+    |xxx
+END
+```
+    E488: Trailing characters:  |xxx
+
+### Why?
+
+In Vim9 script, a bar can sometimes be used as a line continuation symbol:
+```vim
+vim9script
+  echo 'one'
+| echo 'two'
+| echo 'three'
+```
+    one
+    two
+    three
+
+And the line continuation is used *before* your heredoc command is parsed.
+So, in your broken snippet, Vim actually executes this:
+```vim
+vim9script
+var l =<< trim END |xxx
+END
+```
+Which is obviously wrong.
+
+### How to work around the issue?
+
+Temporarily include the `C` flag in `'cpo'` to suppress the concatenation:
+```vim
+vim9script
+set cpo+=C
+var l =<< trim END
+    |xxx
+END
+set cpo-=C
+echo l
+```
+    ['|xxx']
+
+See `:h :let-heredoc /cpo` and `:h cpo-C`.
+
+#### It doesn't work inside a function!
+```vim
+vim9script
+def Func()
+    set cpo+=C
+    var l =<< trim END
+        |xxx
+    END
+    set cpo-=C
+enddef
+defcompile
+```
+    E488: Trailing characters:  |xxx
+
+##### Why?
+
+The  concatenation step  (when the  line continuation  symbols are  used) occurs
+*before* the compilation step.
+
+##### How to work around the issue?
+
+You need to include the flag *before* the function is compiled; i.e. `:set` must
+be moved outside the function:
+```vim
+vim9script
+set cpo+=C
+def Func()
+    var l =<< trim END
+        |xxx
+    END
+    echo l
+enddef
+set cpo-=C
+Func()
+```
+    ['|xxx']
+
+##
+# Style (subjective)
+## For a script-local function, why should I always choose a name starting with an *uppercase* character?
+
+If you choose a name starting with a *lowercase* character, you'll need to write
+the `s:` prefix in the header:
+```vim
+vim9script
+ # fail to define lower() without s: prefix
+def lower()
+enddef
+```
+    E128: Function name must start with a capital or "s:": lower()
+
+*And* at any call site:
+```vim
+vim9script
+def s:lower()
+enddef
+ # fail to run lower() at script-level without s: prefix
+lower()
+```
+    E117: Unknown function: lower
+```vim
+vim9script
+def s:lower()
+enddef
+def Func()
+    # fail to run lower() in compiled code without s: prefix
+    lower()
+enddef
+defcompile
+```
+    E117: Unknown function: lower
+
+But `s:` is a weird syntax which  has no equivalent in other popular programming
+languages; it also makes the code a bit more verbose.
 
 ##
 # Todo
 ## To document:
+### ?
+
+`:exe` is  bad because  it suppresses  the compilation step;  so it  gives worse
+performance, and no early type checking.
+
+Something like this:
+
+    sil exe ':' .. range_first_block .. 'd'
+    sil exe ':' .. end_first_block .. 'put'
+
+Should be refactored into this:
+
+    deletebufline('%', range_first_block)
+    getreg('"')->append(end_first_block)
+
+Find some nice MWEs showing that the second kind of snippets is much faster, and
+can detect some errors before runtime.
+
+Other similar refactorings:
+
+    var n = 123
+    keepj exe ':' .. n
+    →
+    var n = 123
+    cursor(n, 1)
+
+
+    exe ':/' .. pat
+    →
+    search(pat)
+
+
+    exe ':' .. n .. 'wincmd w'
+    →
+    win_getid(n)->win_gotoid()
+
+
+    exe ':' .. winnr('#') .. 'windo diffthis'
+    →
+    winnr('#')->win_getid()->win_gotoid()
+    diffthis
+
+
+    exe ':' .. line("'<") .. ',' .. line("'>") .. 'cgetbuffer'
+    cw
+    →
+    # what should the title be?
+    setqflist([], ' ', {lines: getline("'<", "'>"), title: '...'})
+    cw
+
+
+    var fname = '/tmp/file'
+    exe ':0r ' .. fname
+    →
+    var fname = '/tmp/file'
+    readfile(fname)->append(0)
+
+Complete this list by looking for `:exe` in all our config/plugins.
+Try to get rid of it whenever you can.
+
+###
 ### ?
 
 Since 8.2.2527, an error is raised when a lambda is used at the script level and
@@ -3129,13 +3505,63 @@ And that we did so correctly.
 
 ### ?
 
-   > Global functions must be prefixed with "g:" when defining them, but can be
-   > called without "g:".
-   >         vim9script
-   >         def g:GlobalFunc(): string
-   >           return 'text'
-   >         enddef
-   >         echo GlobalFunc()
+   > Closures defined in a loop will share the same context.  For example: >
+   > 	var flist: list<func>
+   > 	for i in range(10)
+   > 	  var inloop = i
+   > 	  flist[i] = () => inloop
+   > 	endfor
+   >
+   > The "inloop" variable will exist only once, all closures put in the list refer
+   > to the same instance, which in the end will have the value 9.  This is
+   > efficient.  If you do want a separate context for each closure call a function
+   > to define it: >
+   > 	def GetFunc(i: number): func
+   > 	  var inloop = i
+   > 	  return () => inloop
+   > 	enddef
+   >
+   > 	var flist: list<func>
+   > 	for i in range(10)
+   > 	  flist[i] = GetFunc(i)
+   > 	endfor
+
+I think it works because every call to `GetFunc()` is run in a different context.
+Yes, each time, the same code is run:
+
+    var inloop = i
+    return () => inloop
+
+But it's run by different invocations, thus different contexts.
+
+In contrast,  the code in the  loop is run by  the same invocation, thus  in the
+same context:
+
+    for i in range(10)
+      var inloop = i
+      flist[i] = () => inloop
+    endfor
+
+### ?
+
+We cannot omit quotes around the name of an autoload function when passing it as
+a funcref argument to another function.
+
+This kinda makes sense, because the help  says that `function()` (as well as the
+quotes implicitly, I guess) can be omitted only if the function has already been
+defined.  You have no such guarantee with an autoload function.
+Although, the fact that we can still  not omit the quotes even when the autoload
+function  has been  called looks  like a  bug; but  that's a  corner case  which
+doesn't look important.
+
+---
+
+Note that we *might* omit the quotes in the future:
+<https://github.com/vim/vim/issues/8124#issuecomment-822568891>
+
+With quotes, the function would not be loaded until it's actually called.
+Without quotes, the function would be loaded right away, at compile time
+(which would defeat the purpose of autoloading, so don't use it).
 
 ###
 ### ?
@@ -3302,18 +3728,10 @@ var Ref = function('s:Func')
 The first bold sentence is correct:
 ```vim
 vim9script
-def MyFunction(n: number, s: string): string
-    return repeat(s, n)
-enddef
-var Funcref: func(number, string): string = MyFunction
-```
-    no error
-```vim
-vim9script
 def MyFunction(n: number, s: string): number
     return repeat(s, n)
 enddef
-var Funcref: func(number, string): string = MyFunction
+var Funcref = MyFunction
 ```
     E1012: Type mismatch; expected number but got string
 
@@ -3323,10 +3741,10 @@ vim9script
 def MyFunction(n: number, s: string): string
     return repeat(s, n)
 enddef
-var Funcref: func(number, string): number = function('MyFunction')
+var Funcref = function('MyFunction')
+echo typename(Funcref)
 ```
-    E1012: Type mismatch; expected func(number, string): number but got func(number, string): string
-                                                                    ^^^                     ^------^
+    func(number, string): string
 
 According to the help, it should have gotten the return type `any` (because of `function()`).
 Although, even if the  return type was correct, I guess an  error would still be
@@ -3334,6 +3752,20 @@ raised; the message should just be different:
 
     E1012: Type mismatch; expected func(number, string): list<number> but got func(number, string): any
                                                                                                     ^^^
+Also:
+```vim
+vim9script
+def MyFunction(n: number, s: string): string
+    return repeat(s, n)
+enddef
+var Funcref = function('MyFunction')
+echo typename(Funcref)
+```
+    func(number, string): string
+
+According to the help, it should be:
+
+    func(...list<any>): any
 
 ---
 
@@ -3405,7 +3837,56 @@ This paragraph was added in this commit:
 If I use a  function name as a funcref for the  `{skip}` argument of `search()`,
 the argument types and return type of the function will be checked against what?
 
+Answer:  I think  it just means that  the function is compiled  to check whether
+there is an easy-to-detect type mismatch error in your function.
+For example, you could declare in the  function's header that it should return a
+string, while actually you return a number.
+Or you could  declare that the function  expects a dictionary, then  use it with
+the `+` operator (which doesn't accept a dictionary as an operand).
+In both cases, Vim raise an error when checking the types.
+
 ####
+### the first things to do after pasting a legacy function into a Vim9 script
+
+Whenever `.` is used as a concatenation operator, replace it with `..`; and make
+sure it's surrounded by whitespace.
+
+Whenever `:function` is followed by a bang, remove it.
+
+### the fastest syntax to iterate over a string
+
+Make comparisons between:
+
+    for c in string
+
+    for c in string->split('\zs')
+
+    var i = 0
+    var c: string
+    while i < strcharlen(string)
+        c = string[i]
+        i += 1
+    endwhile
+
+Make comparisons between Vim9 and legacy.
+
+### we should always (?) execute a custom buffer-local Ex command with `:exe`
+
+To suppress a spurious error at compile time.
+
+Because Vim could complain that the  command is invalid (in an autoload function
+it's obvious why), or it could think  you're trying to execute a shorter command
+with some argument which is not  separated by whitespace (the error is confusing
+then).
+
+For a real example:
+
+    # ~/.vim/pack/mine/opt/vim9asm/autoload/vim9asm.vim
+    if autofocus
+        # `:exe` is necessary to suppress error at compile time
+        exe 'Vim9asmFocus'
+    endif
+
 ### a lambda does not ignore an unexpected argument
 ```vim
 vim9script
@@ -3414,7 +3895,7 @@ echo Ref('optional')
 ```
     E118: Too many arguments for function: <lambda>1
 
-That's a difference from legacy Vim script:
+This is not the case in legacy Vim script:
 ```vim
 let Ref = {-> 'no error'}
 echo Ref('optional')
@@ -3485,51 +3966,6 @@ That's because we can still retrieve the definition site of such a function:
 
     " still works
     :verb function <lambda>123
-
-### use the script-local namespace when you need to access a function-local variable from the global context
-
-"Global context" = `:s`, `:g`, `:*do`, `win_execute()` ...
-
-This was not an issue in Vim script legacy:
-```vim
-fu Func()
-    let name = 'set in function'
-    g/^/echo name
-endfu
-call Func()
-```
-    set in function
-
-But this no longer works in Vim9:
-```vim
-vim9script
-def Func()
-    var name = 'set in function'
-    g/^/echo name
-enddef
-Func()
-```
-    E121: Undefined variable: name
-
-Because:
-
-   > It is simply not possible to access the compiled code and variables from interpreted code.
-
-Source: <https://github.com/vim/vim/issues/7541#issuecomment-751274709>
-
-Solution: use a script-local variable:
-```vim
-vim9script
-var name: string
-def Func()
-    name = 'set in function'
-    g/^/echo name
-enddef
-Func()
-```
-    set in function
-
-See: <https://github.com/vim/vim/issues/7541#issuecomment-751285484>
 
 ### to write an octal number, you need the prefix `0o`
 ```vim
@@ -3655,6 +4091,31 @@ Otherwise,  if you  really want  the reference  not to  exist anymore,  the only
 workaround I  can think  of is to  turn your variable  into a  dictionary's key.
 Then, when you want to delete the reference, remove the key from the dictionary.
 
+### difference between new inline-function syntax and execute() in a timer
+
+<https://github.com/vim/vim/issues/8136#issuecomment-826173901>
+
+It seems to be working as intended:
+
+<https://github.com/vim/vim/issues/8136#issuecomment-826337780>
+
+### in every script, move all declarations in a dedicated section
+
+    ✘
+    def Func()
+        ...
+    enddef
+    var name: string
+
+    ✔
+    # section for declarations
+    var name: string
+    ...
+    # section for functions
+    def Func()
+        ...
+    enddef
+
 ### imported items are local to the script
 
 This is suggested at `:h vim9-scopes /result`:
@@ -3752,7 +4213,7 @@ other scripts.
 And btw, `expand('<SID>')` will always give you the ID of the current script.
 If you need the ID of a script fom which you've imported a function, use this:
 
-    const SID = execute('fu Opfunc')->matchstr('\C\<def\s\+\zs<SNR>\d\+_')
+    const SID = execute('fu MyFunc')->matchstr('\C\<def\s\+\zs<SNR>\d\+_')
 
 You might need this in some  circumstances; typically where you write code which
 is not run in the context of the script, and when you can't use a funcref.
@@ -3800,7 +4261,7 @@ Because in that case, messages are silent.
 
 For a real example, see what we did in:
 
-    ~/.vim/plugged/vim-repmap/autoload/repmap/make.vim
+    ~/.vim/pack/mine/opt/repmap/autoload/repmap/make.vim
 
 ---
 

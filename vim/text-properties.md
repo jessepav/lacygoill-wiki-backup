@@ -415,7 +415,7 @@ First in the chronological meaning of the term.
 ### when we should use text-properties.
 
 As an example,  we use them in `vim-quickhl`,  as well as for the  `]e` and `[e`
-mappings, and in `~/.vim/plugged/vim-lg-lib/macros/ansi.vim`.
+mappings, and in `~/.vim/pack/mine/opt/lg-lib/tools/ansi.vim`.
 
 More generally,  I think text  properties are useful when  the text you  want to
 highlight (or  mark) can't be directly  described with a regex.   Or rather, the

@@ -330,8 +330,8 @@ For more info, see: <https://github.com/LucHermitte/lh-vim-lib/blob/master/doc/O
 Document that you can't write `string(dict)->eval()` if `dict` contains a numbered
 function.
 
-Visit `~/.vim/plugged/vim-quickhl/autoload/quickhl.vim` and look for `a:func` to
-see why this can be an issue.
+Visit `~/.vim/pack/mine/opt/quickhl/autoload/quickhl.vim` and  look for `a:func`
+to see why this can be an issue.
 
 Also, document that you can *read* `function('123')` in some command output, but
 you can't *write* it in an executed command:

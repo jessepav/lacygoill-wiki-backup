@@ -579,3 +579,33 @@ I've always wondered why I had locale environment variables with french values:
 Once you've switched to openbox, try to understand.
 Use `$ pstree -lsp $$`, and watch `/proc/PID/environ` as well as `/proc/PID/cmdline`.
 
+Update: They seem to be inherited from the upstart process:
+
+    systemd(1)---lightdm(1070)---lightdm(1246)---upstart(1255)---xterm(6169)---zsh(6170)-+-pstree(7772)
+                                                 ^-----------^
+
+It's the oldest process which has these variables in its environment:
+
+    $ tr '\0' '\n' </proc/1255/environ | grep FR
+    LC_PAPER=fr_FR.UTF-8~
+    LC_ADDRESS=fr_FR.UTF-8~
+    LC_MONETARY=fr_FR.UTF-8~
+    LC_NUMERIC=fr_FR.UTF-8~
+    LC_TELEPHONE=fr_FR.UTF-8~
+    LC_IDENTIFICATION=fr_FR.UTF-8~
+    LC_MEASUREMENT=fr_FR.UTF-8~
+    LC_TIME=fr_FR.UTF-8~
+    LC_NAME=fr_FR.UTF-8~
+
+I suspect upstart gets these from this config file:
+
+    /etc/default/locale
+
+Which can be set with the update-locale program:
+
+    $ update-locale LANG=en_US.UTF-8
+
+This last command should remove these  variables from the environment of all our
+processes.  But do we  really want that?  Maybe it would be  better to keep some
+of them; and/or some of them should be set with US values.
+

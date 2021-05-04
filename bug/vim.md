@@ -384,49 +384,87 @@ Some of them are in other pages; execute this to find the links:
 
     :g/functions.*documented/#
 
-### Continuation lines
+### Add more functions to reduce the need to ":exe" commands with dynamic arguments
 
-Those are annoying.  We can omit them in most places, but not everywhere.
-How about we leverage the new `{}` syntax to get rid of them.
+   > Eval'ed   strings   run   in   unexpected  contexts   and   don't   go   through
+   > parsing/expansion when you think it would.
+   > And you cannot catch errors when the  script is parsed because you don't get the
+   > AST until the very execution.  And let's not get into performance.
 
-Here is a real example taken from our vimrc:
+<https://www.reddit.com/r/vim/comments/54224o/why_is_there_so_much_hate_for_vimscript/d8135xm/>
+
+---
+
+This edits the file `myfile`:
+```vim
+vim9script
+var myfile =  '/tmp/file'
+edit myfile
+```
+If you want to edit `/tmp/file`, you need `:exe`:
+```vim
+vim9script
+var myfile =  '/tmp/file'
+exe 'edit ' .. myfile
+```
+But `:exe` has multiple drawbacks:
+
+   - `:exe` prevents Vim from compiling the command,
+     which in turn causes worse performance and no early type checking at compile time
+   - `:exe` makes us lose syntax highlighting in the literal parts of the command
+   - `:exe` might require to nest a quote inside a string, which can be tricky
+   - `:exe` makes it difficult to determine what's literal and what's evaluated (and when it's evaluated)
+
+There would be no such issue with a function:
+```vim
+vim9script
+var myfile = '/tmp/file'
+edit(myfile)
+```
+Also, a function  can be used as a  method which is nice to  read/write when the
+first argument is obtained via another function or chain of functions.
+
+Also, some  commands parse  a bar as  part of their  argument (e.g.  `:g`) which
+often creates an ambiguity:
+
+    g/pat/Cmd | OtherCmd
+              ^
+              will this bar terminate `:g` or `:Cmd`; only way to find out is to read :h :bar
+
+With a function, no such ambiguity:
+
+    global(lnum1, lnum2, 'pat', 'Cmd') | OtherCmd
+
+Also, for some commands like `:au`,  `:com`, `:nno`, ... this would let us
+remove  some undesirable  explicit continuation  lines  which we  need when  the
+command  is  too  long to  fit  on  a  single  screen line  (which  does  happen
+sometimes).
+
+Also,  it would  make it  easier to  add new  arguments; like  one to  bind some
+documentation  to mappings/commands/autocmds...  similar  to  the `-N`  argument
+which can be  passed to the tmux  command `bind-key` which attaches a  note to a
+newly installed key binding.
+Relevant feature request: <https://github.com/vim/vim/issues/8039>
+
+Also, it would  let us remove the  last few explicit continuation  lines that we
+still need to write here and there:
 
     syn region xLinkText matchgroup=xLinkTextDelimiter
         \ start=/!\=\[\ze\_[^]]*] \=[[\x28]/ end=/\]\ze \=[[\x28]/
         \ nextgroup=xLink keepend concealends skipwhite
 
-Notice the 2 backslashes.
-With a block, *maybe* we could omit them:
+    →
 
-    syn {
-        region xLinkText matchgroup=xLinkTextDelimiter
-        start=/!\=\[\ze\_[^]]*] \=[[\x28]/ end=/\]\ze \=[[\x28]/
-        nextgroup=xLink keepend concealends skipwhite
-        }
+    syntax('region', 'xLinkText', {
+        matchgroup: 'xLinkTextDelimiter'
+        start: '/!\=\[\ze\_[^]]*] \=[[\x28]/ end=/\]\ze \=[[\x28]/',
+        nextgroup: 'xLink',
+        keepend: true,
+        concealends: true,
+        skipwhite: true,
+    })
 
-You could argue that there is no  benefit: we've removed 2 characters, and added
-back 2 others.  However:
-
-   - with a block, we can edit the command as we like;
-     splitting and joining lines doesn't require any further edit
-     (i.e. no backslash to remove or to add)
-
-   - it scales better when there are more than 2 continuation lines
-
-It will need to be implemented on a per-command basis.
-Indeed, you can't write this:
-
-    {
-        syn
-            region xLinkText matchgroup=xLinkTextDelimiter
-            start=/!\=\[\ze\_[^]]*] \=[[\x28]/ end=/\]\ze \=[[\x28]/
-            nextgroup=xLink keepend concealends skipwhite
-    }
-
-That's because `{}` already has a meaning when it starts *before* a command name.
-However, *maybe* it can have a different meaning *afterwards*.
-
-Here are other real examples:
+Here are other real examples where we still have explicit continuation lines:
 
     au User MyFlags statusline#hoist('global',
         \ '%{&ve isnot# "' .. &ve .. '" && mode(1) is# "n" ? "[ve=" .. &ve .. "]" : ""}', 8,
@@ -440,27 +478,63 @@ Here are other real examples:
         \ ?     '<cr>'
         \ :     '<cmd>' .. getbufvar('%', 'cr_command', 'norm! 80<bar>') .. '<cr>'
 
-So, this new `{}` syntax would be useful for:
+With functions, we  could edit the statements as we  like; splitting and joining
+lines wouldn't require any further edit (i.e. no backslash to remove or to add).
 
-   - `:au`
-   - `:com`
-   - `:map`
-   - `:syn`
+---
 
-There might be more.  That's what I found so far while refactoring my config.
+Try to get statistics on what are the most frequent Ex commands for which we need `:exe`.
+Those would be good candidates for introducing equivalent functions.
 
-Update: Or we could create a new and more powerful syntax: `{{ ... }}`.
-Example:
+Session files use a lot of `:exe` for `:resize`:
 
-    {{
-        my
-        very
-        long
-        command
-    }}
+    exe '1resize ' .. ((&lines * 23 + 16) / 33)
 
-Anything between `{{` and `}}` is automatically concatenated during the sourcing of the script.
-No need of any backslash at the start of a line.
+And a few for `:bwipe` and `:source`:
+
+    silent exe 'bwipe ' . s:wipebuf
+    exe "source " . fnameescape(s:sx)
+
+---
+
+    \%(^\s*#\s.*\)\@<!\C\<exe\%[cute]\>(\@!
+
+    868 matches in total
+
+    b:undo_* = ?
+    :set = ? (for keycodes which don't have matching option name)
+
+    :norm = ?
+    :hi = ?
+    :syn = ? (match = ?, region = ?, keyword = ?, clear = ?, cluster = ?, include = ?, list = ?)
+
+    :s = ?
+    :g/v = ?
+
+    :! = ?
+    :[nx]no = ?
+    :au = ?
+    :[s]b = ?
+    :bw = ?
+    :cgetbuffer = ?
+    :def = ?
+    :do = ?
+    :e = ?
+    :j = ?
+    :helptags = ?
+    :m = ?
+    :q = ?
+    :r = ?
+    :so = ?
+    :sp = ?
+    :tabe = ?
+    :tabnew = ?
+    :tabnext = ?
+    :undo = ?
+    :[l]vim = ?
+    :vnew = ?
+    :windo = ?
+    :wundo = ?
 
 ### Mappings
 
@@ -645,44 +719,6 @@ echo search('some', 'n', line('.'))
     0
     ✔
 
-#### Introduce syntax to reduce the need to ":exe" commands with dynamic arguments
-
-   > Eval'ed   strings   run   in   unexpected  contexts   and   don't   go   through
-   > parsing/expansion when you think it would.
-   > And you cannot catch errors when the  script is parsed because you don't get the
-   > AST until the very execution.  And let's not get into performance.
-
-<https://www.reddit.com/r/vim/comments/54224o/why_is_there_so_much_hate_for_vimscript/d8135xm/>
-
----
-
-This edits the file `myfile`:
-```vim
-vim9script
-var myfile =  '/tmp/file'
-edit myfile
-```
-If you want to edit `/tmp/file`, you need `:exe`:
-```vim
-vim9script
-var myfile =  '/tmp/file'
-exe 'edit ' .. myfile
-```
-What if we  made Vim parse all the  arguments of an Ex command, and  for each of
-them try to  expand it as a variable?   In this case, the first –  and simpler –
-snippet would work.
-You could argue  that's bad, because now,  we can't edit the file  whose name is
-literally `myfile`.
-
-But it was ok to let us shadow  Ex commands with custom variables:
-
-   > Variables may shadow **Ex commands**, rename the variable if needed.
-
-So maybe it's also ok to let us shadow a command argument?
-We could add this in the help:
-
-   > Variables may shadow **Ex command arguments**, rename the variable if needed.
-
 #### Introduce syntax to reduce comment a regex more easily
 
 Take inspiration from perl:
@@ -741,6 +777,115 @@ Or does it continue on the next line?
 Also, we can't provide a flag to some commands like `:g`...
 
 ##
+## Indentation related issues
+### ?
+
+The default Vim indent plugin indents the closing brace/bracket/parenthesis on a
+multiline construct under the first non-whitespace character of the last line.
+
+    vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var lines =<< END
+        return {
+            expandtab: 0,
+            shiftwidth: &tabstop
+        }
+    END
+    setline(1, lines)
+    filetype indent on
+    set ft=vim
+    norm! gg=G
+    EOF
+    )
+
+Resulting buffer:
+
+    return {
+            expandtab: 0,
+            shiftwidth: &tabstop
+            }
+
+It's not wrong, but I think it would be better for the buffer to be this instead:
+
+    return {
+            expandtab: 0,
+            shiftwidth: &tabstop
+    }
+
+That is,  the closing brace  on a multiline construct  should line up  under the
+first character of the line that starts the multiline construct.
+
+Rationale:
+
+ - Both styles are recommended in PEP 8: <https://www.python.org/dev/peps/pep-0008/#indentation>
+ - our latter style seems more popular in javascript, Java, C++: <https://stackoverflow.com/a/51016662>
+
+Implementation:
+
+Not sure it's correct, but in `$VIMRUNTIME/indent/vim.vim`, there is this block:
+
+    " A line ending in "{" or "[" is most likely the start of a dict/list literal,
+    " indent the next line more.  Not for a continuation line or {{{.
+    if !ends_in_comment && prev_text_end =~ '\s[{[]\s*$' && !found_cont
+      let ind = ind + shiftwidth()
+    endif
+
+Inside, include this `elseif`:
+
+    elseif getline(v:lnum) =~ '^\s*[\]})]\+\s*$'
+      let ind -= shiftwidth()
+
+---
+
+There are other issues with the default Vim indent plugin.
+For example, it relies on the user `%` mapping, which is wrong.
+There is a todo, which recommends to use `searchpair()` instead.
+
+Also, try to rewrite the whole thing in Vim9.
+
+---
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        packadd matchit
+        filetype indent on
+        var lines =<< trim END
+            vim9script
+            def Func()
+              var d = dd
+                ->extend({
+              })
+              eval 0
+            enddef
+        END
+        lines->setline(1)
+        set ft=vim
+        norm! gg=G
+    EOF
+    )
+
+Expected:
+
+    vim9script
+    def Func()
+            var d = dd
+            ->extend({
+            })
+            eval 0
+    enddef
+
+Actual:
+
+    vim9script
+    def Func()
+            var d = dd
+            ->extend({
+            })
+    eval 0
+    enddef
+    7 lines indented
+
+##
 ## Issues specific to the script level
 ### ?
 ```vim
@@ -781,96 +926,20 @@ block.
 
 Related issue: <https://github.com/vim/vim/issues/6498>
 
-### ?
+---
 
-Inconsistent type checking when changing dictionary in :for loop.
-```vim
-vim9script
-var d: list<dict<any>> = [{a: 0}]
-for e in d
-    e = {a: 0, b: ''}
-endfor
-```
-    E1012: Type mismatch; expected dict<number> but got dict<any>
-```vim
-vim9script
-def Func()
-    var d: list<dict<any>> = [{a: 0}]
-    for e in d
-        e = {a: 0, b: ''}
-    endfor
-enddef
-Func()
-```
-    no error
+Although, if possible, it should not break sth like this:
 
-Why an error in the first snippet, but not in the second one?
+    if stridx(&rtp, '/lg-lib,') != -1
+        import Derive from 'lg/syntax.vim'
+    endif
+    Derive(...)
 
-From `:h vim9 /endfor`:
-
-   > Generally, you should not change the list that is iterated over.  Make a copy
-   > first if needed.
-
-Is that relevant?  How would it help?
+That is, `Derive()` should be still local to the script, not to the `if` block.
 
 ### ?
 
-Vim does not abort a script when an error is raised.
-It really should:
-```vim
-vim9script
-var v: number
-echo printf(' %*d%s%s%s%s%s %s',
-                bufnr('$')->len(),v,
-               !buflisted(v) ? 'u' : ' ',
-               v == bufnr('%') ? '%' : v == bufnr('#') ? '#' : ' ',
-               win_findbuf(v)->empty() ? 'h' : 'a',
-               getbufvar(v, '&ma', 0) ? ' ' : '-',
-               getbufvar(v, '&mod', 0) ? '+' : ' ',
-               bufname(v)->empty()
-                 ?    '[No Name]'
-                 :     bufname(v)->fnamemodify(':t'))
-```
-
-    zsh:1: unknown file attribute: v
-
-An error is raised from this line (because of a missing whitespace):
-
-    bufnr('$')->len(),v,
-                     ^^
-                     ✘
-
-At that point, Vim should stop sourcing the script.
-But it does not, and source the next line as a *separate* command:
-
-    !buflisted(v) ? 'u' : ' ',
-
-Here, `!` is not parsed as the logical operator (NOT), but as the Ex command `:!`.
-And thus, `buflisted` is not parsed as a Vim function but as a shell command.
-This looks dangerous, because it could make the shell run destructive commands.
-
-Note that the same pitfall exists in Vim script legacy:
-```vim
-echo 'before error'
-eval [][0]
-echo 'after error'
-```
-    before error
-    Error detected while processing ...
-    line    2:
-    E684: list index out of range: 0
-    after error
-
-But it seems less  dangerous.  What makes this more dangerous  in Vim9 script is
-the automatic line continuations.
-
-This is on the todo list (`:h todo /abort`):
-
-   > - Error in any command in "vim9script" aborts sourcing.
-
-But make sure it's fixed at some point.
-
-BTW, this issue is mentioned at `:h E1050 /exit_cb`:
+From `:h E1050 /exit_cb`:
 
    > Since a continuation line cannot be easily recognized the parsing of commands
    > has been made stricter.  E.g., because of the error in the first line, the
@@ -881,8 +950,11 @@ BTW, this issue is mentioned at `:h E1050 /exit_cb`:
    > file "_cb: Func})" and exit.  To avoid this kind of mistake in Vim9 script
    > there must be white space between most command names and the argument.
 
-However, once the issue is fixed, the example won't be relevant anymore.
-I think that, then, it will need to be removed.
+I *think* this explanation was relevant when Vim didn't abort after encountering
+an error while sourcing a script; it kept sourcing until the end.
+However, this issue has been fixed in 8.2.2817.
+So, is the example given in this excerpt from the help still relevant?
+Maybe it needs to be removed.
 We could  still say  that a  whitespace between  a command  and its  argument is
 required because it improves readability:
 
@@ -976,720 +1048,329 @@ defcompile
     E1143: Empty expression: "# some comment"
 
 ##
-## Vim9: "?:" operator can suppress error at compile time
+## ?
 
-**Describe the bug**
+Mini vimrc:
 
-In Vim9 script, the `?:` operator can suppress an error at compile time.
+    vim9script
 
-**To Reproduce**
+    set rtp^=~/vim-bug/ultisnips/
+    mkdir($HOME .. '/vim-bug/ultisnips/plugin', 'p')
+    mkdir($HOME .. '/vim-bug/ultisnips/autoload', 'p')
+    mkdir($HOME .. '/vim-bug/ultisnips/pythonx/UltiSnips', 'p')
 
-Run this shell command:
+    var lines =<< trim END
+        au TextChangedI * call UltiSnips#TrackChange()
+    END
+    writefile(lines, $HOME .. '/vim-bug/ultisnips/plugin/UltiSnips.vim')
 
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            [{k: 1}, {k: 2}]
-                ->sort((a: dict<float>, b: dict<float>): number => a.k > b.k ? a.k - b.k : 0)
-        enddef
-        defcompile
-    EOF
-    )
+    lines =<< trim END
+        py3 from UltiSnips import UltiSnips_Manager
+        fu UltiSnips#TrackChange()
+            py3 UltiSnips_Manager._track_change()
+        endfu
+    END
+    writefile(lines, $HOME .. '/vim-bug/ultisnips/autoload/UltiSnips.vim')
 
-No error is raised.
+    lines =<< trim END
+        #!/usr/bin/env python3
+        from UltiSnips.snippet_manager import UltiSnips_Manager
+    END
+    writefile(lines, $HOME .. '/vim-bug/ultisnips/pythonx/UltiSnips/__init__.py')
 
-**Expected behavior**
+    lines =<< trim END
+        #!/usr/bin/env python3
 
-`E1012` is raised:
+        class SnippetManager:
+            def __init__(self):
+                pass
+            def _track_change(self):
+                pass
+        UltiSnips_Manager = SnippetManager()
+    END
+    writefile(lines, $HOME .. '/vim-bug/ultisnips/pythonx/UltiSnips/snippet_manager.py')
 
-    E1012: Type mismatch; expected number but got float
+    sil e /tmp/file
+    sp
 
-Update:  Wait.  Shouldn't the error rather be:
+Start Vim like this:
 
-    E1013: Argument 1: type mismatch, expected dict<float> but got dict<number>
+    vim -Nu /tmp/t.vim
 
-**Environment**
+Modify the file, then press `ZZ` twice: asan reports memory leaks.
 
- - Vim version: 8.2 Included patches: 1-2739
- - OS: Ubuntu 16.04.7 LTS
- - Terminal: xterm(366)
+## ?
 
-**Additional context**
+Matchparen is sometimes too slow.
 
-If `?:` is removed, an error is correctly raised at compile time:
-```vim
-vim9script
-def Func()
-    [{k: 1}, {k: 2}]
-        ->sort((a: dict<float>, b: dict<float>): number => a.k - b.k)
-enddef
-defcompile
-```
-    E1012: Type mismatch; expected number but got float
+Above this line:
+
+    if before > 0
+
+Write this line:
+
+    return max([5, min([winheight(0), winnr('#')->winheight() / 2])])
+                                                                    ^
+                                                               cursor
+
+Press `i` to enter insert mode.
+Keep pressing `i` to enter a bunch of `i` characters.
+Vim lags *a lot*.
+To get some profiling, run:
+
+    profile start /run/user/1000/vim/profile.log
+    prof! file ~/.vim/plugin/matchparen.vim
+    unlet g:loaded_matchparen
+    so ~/.vim/plugin/matchparen.vim
+    e
+
+The issue seems to come from the `Skip` expression, and `prop_add()`.
+With regards to `Skip`, would this todo item help?:
+
+   > - compile "skip" argument of searchpair()
+
+It  should not  because `Skip`  is  a funcref  to  a function  which is  already
+compiled...  But why is `Skip` slow here, and not in the original plugin?
+
+With regards to `prop_add()`, use `gprof(1)` to get some profiling.
 
 ---
 
-I think the issue comes from the fact that the first expression passed to the `?:` operator can't be tested at compile time.  That is, Vim doesn't know whether `a.k` is bigger than `b.k` at compile time.  And if it's false, then the expression evaluates to 0 which is a number whose type is valid.  Therefore, there is a *possibility* that the type is correct.
-
-Still, shouldn't Vim be more strict by inspecting the type of *both* values at compile time, to make sure that all of them respect the return type specified for the lambda?
-
-    a.k > b.k ? a.k - b.k : 0
-                ^-------^   ^
-                value 1     value 2
+If these issues can't  be fixed in Vim, try to use a  timer again, to reduce the
+frequency of the highlights updates.
 
 ---
 
-Try to simplify the MWE; get rid of `sort()`.
-Just keep the lambda.
+Update: Wait.  When we disable the syntax with `:syn off`, the issue disappears.
+I can understand for `Skip`, but what about `prop_add()`?
+Why does it make the latter faster?
+I guess Vim must recompute the syntax whenever a text property is added.
+Could this recomputation be optimized somehow?
+At least for some special simple cases...
+Or maybe  it's –  again –  a redraw issue.   Maybe Vim  redraws whenever  a text
+property  is added  and syntax  highlighting is  enabled.  If  so, I'm  not sure
+anything can be optimized.
 
-Update:  It seems the issue disappears when we get rid of `sort()`:
+---
+
+Update:  Make tests with a Vim binary compiled with optimizations.
+
+## ?
+
+"`=expr`" is not expanded in enough contexts
 ```vim
 vim9script
 def Func()
-    ((a: dict<float>, b: dict<float>): number => a.k > b.k ? a.k - b.k : 0)({k: 1}, {k: 2})
-enddef
-defcompile
-```
-## unexpected error when omitting type in variable declaration (probably not a bug)
-```vim
-vim9script
-def Func()
-    var x = getqflist()->map((_, v) => v.text->matchstr('.*'))
-    var y = x[0]
-    echo y[:]
-enddef
-defcompile
-```
-    E719: Cannot slice a Dictionary
-
-There is indeed an error in the code, but not this one.
-The error  occurred earlier:  `map()` changes the  type of  `getloclist(0)` from
-`list<dict<any>>` to `list<string>`.
-
-Similar issue here:
-```vim
-vim9script
-def Func()
-    for key in (range(char2nr('a'), char2nr('z'))
-            + range(char2nr('A'), char2nr('Z')))
-        ->map((_, v) => nr2char(v))
-        toupper(key) == key
-    endfor
+    var name = '/tmp/file'
+    windo e `=name`
 enddef
 Func()
-```
-    E1072: Cannot compare string with number
-
-There is indeed an error in the code, but not this one.
-The  error occurred  earlier:  `map()`  changes the  type  of `range(...)`  from
-`list<number>` to `list<string>`.
-
-Update: I don't think it can be fixed.
-I think  these issues are  raised at compile time,  while the `map()`  error can
-only be raised later, at runtime.
-
----
-
-Wait.  Why no error here:
-```vim
-vim9script
-def Func()
-    [1, 2, 3]->map((_, v: float) => 0)
-enddef
-defcompile
-```
-## ?
-```vim
-vim9script
-def Func()
-    getbufinfo()
-        ->map((_, v): dict<float> => v)
-enddef
-Func()
-```
-    E1012: Type mismatch; expected dict<float> but got dict<any>
-
-This is expected.
-(Although, why not at compile time? <https://github.com/vim/vim/issues/8092>)
-```vim
-vim9script
-def Func()
-    getbufinfo()
-        ->sort((a: dict<float>, b: dict<float>) => 0)
-enddef
-Func()
-```
-    no error
-
-Shouldn't Vim raise an error, just like in the previous snippet?
-We're telling `sort()`  that it should receive dictionaries of  *floats*, but in
-reality, we  pass it `getbufinfo()`  which outputs  a list of  dictionaries with
-*mixed* values:
-
-    :echo getbufinfo()->typename()
-    list<dict<any>>~
-
----
-```vim
-vim9script
-def Func()
-    getbufinfo()
-        ->map((_, v): dict<number> => ({k: 0}))
-        ->sort((a: dict<float>, b: dict<float>) => 0)
-enddef
-Func()
-```
-    no error
-
-Shouldn't Vim raise an error?
-In `map()`, we've declared that the list was transformed into a list of dictionaries of *numbers*.
-But in `sort()`, we declare that it should expect a list of dictionaries of *floats*.
-Those declarations are contradictory.  And yet Vim does not complain.  Why?
-
-## ?
-```vim
-vim9script
-def Func()
-    var tags: list<dict<any>> = [{kind: 'a'}, {key: 123}, {kind: 'm'}]
-    echo tags->filter((_, v: job) => v->has_key('kind') ? v.kind != 'm' : true)
-enddef
-defcompile
-```
-    E715: Dictionary required
-```vim
-vim9script
-def Func()
-    var tags: list<dict<any>> = [{kind: 'a'}, {key: 123}, {kind: 'm'}]
-    echo tags->filter((_, v: dict<job>) => v->has_key('kind') ? v.kind != 'm' : true)
-enddef
-defcompile
-```
-    E1072: Cannot compare job with string
-
-Why doesn't type checking warn us about the wrong type in the second argument of
-the lambda?
-
-Hypothesis:  Vim first  checks that the declared type of  the lambda's arguments
-is compatible  with the expression  on the right of  `=>`. Later, it  will check
-whether those types are compatible with what the filtered expression.
-
-But this hypothesis is wrong:
-```vim
-vim9script
-def Func()
-    var tags: list<dict<any>> = [{kind: 'a'}, {key: 123}, {kind: 'm'}]
-    echo tags->filter((_, v: job) => !v)
-enddef
-defcompile
-```
-    no error
-
-## ?
-```vim
-vim9script
-def Func()
-    if search('pat')
-    endif
-enddef
-defcompile
-```
-    no error
-```vim
-vim9script
-setline(1, 'pat')
-def Func()
-    if search('pat')
-    endif
-enddef
-defcompile
-```
-    no error
-```vim
-vim9script
-setline(1, ['xxx', 'pat'])
-def Func()
-    if search('pat')
-    endif
-enddef
-defcompile
-```
-    no error
-
-These three snippets should raise an error.
-It doesn't matter that `search()` might return a boolean number.
-Just like here, it doesn't matter that `search()` might return a boolean number:
-```vim
-vim9script
-setline(1, 'pat')
-def Func(): bool
-    return search('pat')
-enddef
-defcompile
-```
-    E1012: Type mismatch; expected bool but got number
-
----
-
-I think the same issue affects all builtin functions returning a number:
-```vim
-vim9script
-def Func(): bool
-    var s = '123'
-    return s->str2nr()
-enddef
-defcompile
-```
-    E1012: Type mismatch; expected bool but got number
-    # expected
-```vim
-vim9script
-def Func()
-    var s = '123'
-    if s->str2nr()
-    endif
-enddef
-defcompile
-```
-    no error
-    # UNexpected
-
-## ?
-```vim
-vim9script
-def Func(): bool
-    var d: dict<number> = {key: 0}
-    return d.key
-enddef
-defcompile
-```
-    E1012: Type mismatch; expected bool but got number
-```vim
-vim9script
-def Func(): bool
-    var d: dict<number> = {key: 0}
-    return get(d, 'key', 0)
-enddef
-defcompile
-```
-    no error
-
-Should an error be raised in the second snippet?
-
-##
-## ?
-```vim
-vim9script
-[{a: 1, b: ''}]->filter((_, v: dict<number>): bool =>
-    true
-    # some comment
-    )
-```
-    line    5:
-    E1013: Argument 2: type mismatch, expected dict<number> but got dict<any>
-
-I don't  think the line number  is technically wrong  (5), but it would  be more
-useful if it matched  the start of the `filter()` call  (2), where the arguments
-types are declared, rather than its end.
-
----
-
-Same issue in a function call:
-```vim
-vim9script
-def Func(n: number)
-enddef
-Func(
-
-    ''
-
-    )
-```
-    line    8:
-    E1013: Argument 1: type mismatch, expected number but got string
-
-Actually, could Vim be  smarter and give the actual line  number where the wrong
-argument is received (i.e. here 6)?
-
----
-
-Similar issue when the error is in the body of the lambda:
-```vim
-vim9script
-def Func()
-    var Rep: func = (m): string =>
-                         m[0]->str2nr() > 99
-                         ? ''
-                         : m[0]->str2nr()
-    'pat'->substitute('pat', Rep, '')
-enddef
-Func()
-```
-                         v--------v
-    Error detected while processing command line..script /proc/17291/fd/11[9]..function <SNR>1_Func[5]..<lambda>1:
-    line    1:
-    E1012: Type mismatch; expected string but got number
-
-It would be more useful if the reported line number was 3, rather than 1.
-I'm not sure that can be done though; it seems Vim concatenates all the lines in
-the lambda's definition:
-
-    :fu <lambda>1
-        def <lambda>1(m: any, ...): string~
-     1  return m[0]->str2nr() > 99                         ? ''                         : m[0]->str2nr()~
-        enddef~
-
-If it can't be  improved when the error is raised at runtime,  could it still be
-improved when the error is raised at compile time?
-```vim
-vim9script
-def Func()
-    var Rep: func = (m): string =>
-                         false
-                         ? ''
-                         : m[0]->str2nr()
-    'pat'->substitute('pat', Rep, '')
-enddef
-defcompile
-```
-                         v-------v
-    Error detected while compiling command line..script /proc/17876/fd/11[9]..function <SNR>1_Func[4]..<lambda>1:
-    line    1:
-    E1012: Type mismatch; expected string but got number
-
-## ?
-```vim
-vim9script
-var s = 'asdf'->((a) => a)('x')
-```
-    E118: Too many arguments for function: <lambda>1
-```vim
-vim9script
-def Func()
-    var s = 'asdf'->((a) => a)('x')
-enddef
-defcompile
-```
-    E118: Too many arguments for function: [expression]
-
-Useless (because `:def <lambda>1` gives nothing) and inconsistent.
-It would  be more useful  for the message  to directly give  us the body  of the
-lambda:
-
-    E118: Too many arguments for function: (a) => a
-
-## ?
-```vim
-vim9script
-def Func()
-    lockvar unknown
-enddef
-Func()
-```
-    no error
-
-Should we give an error?
-
-## ?
-```vim
-vim9script
-append(-1, 'text')
-```
-    no error
-
-Shouldn't an error be raised?  Like one of these:
-
-    E1174: Positive number required for argument 1
-    E1174: Positive number or String required for argument 1
-
-Also:
-```vim
-vim9script
-append({}, 'text')
-```
-    E728: Using a Dictionary as a Number
-    E1174: String required for argument 1
-
-The 2 error messages seem contradictory:
-
-   - the first one implies that we should have used a number
-   - the second one says that we should have used a string
-
----
-```vim
-vim9script
-append('.aa', 'text')
-```
-    "text" is appended
-```vim
-vim9script
-append('a.a', 'text')
-```
-    "text" is NOT appended
-
-Same issue with `setline()`.
-Only valid strings should be accepted.
-Test all builtin functions which accept a string with a special meaning as argument.
-
-Also, check how builtin functions handle invalid numbers.
-For example, a negative number is invalid for `append()`.
-
-##
-## ?
-```vim
-vim9script
-g:name = 123
-echo name
 ```
     E121: Undefined variable: name
 
-Shouldn't Vim look in the global namespace even without `g:`?
-It's not a regression.
+---
 
-Note that Vim does look in the global namespace for a function:
-```vim
-vim9script
-def g:Func()
-    echo 'test'
-enddef
-Func()
-```
-    test
-
-## `getchar()->nr2char()` doesn't always work
+In a global command, a backtick expansion works:
 ```vim
 vim9script
 def Func()
-   var char: string = getchar()->nr2char()
-   # press the Right cursor key
+    var name = '/tmp/file'
+    g/^/e `=name`
 enddef
 Func()
-```
-    E1030: Using a String as a Number: "<80>kr"
-
-Solution:
-```vim
-vim9script
-def Func()
-   var c: any = getchar()
-   if typename(c) != 'number'
-      return
-   endif
-   var char: string = nr2char(c)
-   # press the Right cursor key
-enddef
-Func()
-```
-But it's cumbersome.
-Should `nr2char()` accept a string?
-
-Or maybe `getchar()` should never return a string in Vim9?
-(introduce a new function if necessary...)
-
-Or maybe  we need a new  `getcharstr()` function, which would  always return the
-pressed key as a string?
-The name might sound confusing with `strgetchar()` though...
-Add a new optional argument to `getchar()` instead?
-
-## Do we need `nr2float()`?
-```vim
-vim9script
-var f: float
-var n = 123
-f = n
-```
-    E1012: Type mismatch; expected float but got number
-
-Workaround:
-```vim
-vim9script
-var f: float
-var n = 123
-f = n + 0.0
 ```
     no error
 
-##
-## ?
-```vim
-vim9 exe 'var x = 0'
-```
-    E1124: ":var" cannot be used in legacy Vim script
-
-It would be nice if it worked.
-This way, we could apply a single `:vim9` to multiple commands:
-```vim
-vim9 execute(['var l = range(5)', 'l->filter((_, v) => v % 2)'])
-```
-    E1124: ":var" cannot be used in legacy Vim script
-    E488: Trailing characters: ->filter((_, v) => v % 2): l->filter((_, v) => v % 2)
-
-Although, having to nest the statements inside strings is awkward...
-
-In any case, if it's working as intended, should the help at `:h vim9` and/or at
-`:h :exe` document  this limitation?  That is, should it  say that `:exe` always
-executes a command in the legacy  context, regardless of whether it was prefixed
-with `:vim9`?
-
-## ?
-
-<https://github.com/vim/vim/issues/7629>
-
-I'm not sure it's a bug.  I suspect no error is raised because specifying the arguments of a lambda is optional, and was only introduced fairly recently ([8.2.1956](https://github.com/vim/vim/releases/tag/v8.2.1956)).  Obviously, Vim can't raise an error at compile time since the lambda assignment doesn't specify any type.  Still, shouldn't `Ref(false)` raise an error at runtime?
-
----
-
-If this is working as intended, then it means that – at the script level – it is useless to specify the types of the arguments and the return value of a variable which we intend to use to save a lambda.  It's only in the lambda's definition that types matter.
-
-So, if we fix the previous example to make it work:
-```vim
-vim9script
-var Ref: func(bool): bool
-Ref = (b: bool): bool => !b
-echo Ref(false)
-```
-    true
-
-The types on the second line are useless:
-
-    var Ref: func(bool): bool
-                 ^----------^
-
----
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var Ref: func(any, job): bool
-        Ref = (_, v) => true
-        [{n: 0}]->filter(Ref)
-    EOF
-    )
-
-## ?
-```vim
-vim9script
-var s = 3
-var line = 'abcdef'
-echo line[s:]
-```
-    E731: using Dictionary as a String
-
-Why "String"?
-It should be:  "E123: using Dictionary as a Number".
-
-Same thing when `s` is replaced with `b`, `g`, `t`, `v`, `w`.
-
----
-```vim
-vim9script
-var a = 3
-var line = 'abcdef'
-echo line[a:]
-```
-    E121: Undefined variable: a:
-
-It should be:  "E1004: White space required before and after ':'".
-
-Same thing when we replace `a` with `l`.
-
----
+Same thing in a `:v` command:
 ```vim
 vim9script
 def Func()
-    var a = 3
-    var line = 'abcdef'
-    echo line[a:]
+    var name = '/tmp/file'
+    v/not found/e `=name`
 enddef
 Func()
 ```
-    E1075: Namespace not supported: a:]
+    no error
 
-It should be:  "E1004: White space required before and after ':'".
-
-Same thing when `a` is replaced with any character, except `b`, `g`, `t`, `w`.
-
-Here is a – maybe less-contrived – example:
+And in a `:folddoopen` command:
 ```vim
 vim9script
 def Func()
-    var mylist = [5, 4, 3, 2, 1]
-    var v = 1
-    var count = 3
-    var otherlist = mylist[v: count]
-    echo otherlist
+    var name = '/tmp/file'
+    folddoopen e `=name`
 enddef
 Func()
 ```
-    E1075: Namespace not supported: v: count]
+    no error
 
-This error message will probably look confusing to a new Vim user.
-More generally, I suspect that `E1075` should never be raised for a sublist.
-
-## ?
-
-Study these tests:
-
-- <https://github.com/vim/vim/commit/65c4415276394c871c7a8711c7633c19ec9235b1#diff-38c87bcbc3bdd4cd44544298e1942ce03bcfece8fbead0d19f9c7abf592fcef4>
-- <https://github.com/vim/vim/commit/9e68c32563d8c9ffe1ac04ecd4ccd730af66b97c#diff-38c87bcbc3bdd4cd44544298e1942ce03bcfece8fbead0d19f9c7abf592fcef4>
-- <https://github.com/vim/vim/commit/7e3682068bebc53a5d1e9eaaba61bb4fa9c612da#diff-38c87bcbc3bdd4cd44544298e1942ce03bcfece8fbead0d19f9c7abf592fcef4>
-
-Make sure you understand all the syntaxes they use.
-
-##
-## ?
+And in a `:folddoclosed` command:
 ```vim
 vim9script
 def Func()
-    if exists('name')
-        echo name
-    endif
+    var name = '/tmp/file'
+    folddoclosed e `=name`
+enddef
+Func()
+```
+    no error
+
+This seems inconsistent.  I think a backtick expansion should work in – at least
+– all the frequently used commands/functions which execute other Ex commands.
+
+That is `:bufdo`:
+```vim
+vim9script
+def Func()
+    var name = '/tmp/file'
+    bufdo e `=name`
+enddef
+Func()
+```
+    E121: Undefined variable: name
+
+`:argdo`:
+```vim
+vim9script
+def Func()
+    var name = '/tmp/file'
+    args /tmp/file
+    argdo e `=name`
+enddef
+Func()
+```
+    E121: Undefined variable: name
+
+`:cdo`:
+```vim
+vim9script
+def Func()
+    var name = '/tmp/file'
+    sil helpg grail
+    cdo e `=name`
+enddef
+Func()
+```
+    E121: Undefined variable: name
+
+`:cfdo`:
+```vim
+vim9script
+def Func()
+    var name = '/tmp/file'
+    sil helpg grail
+    cfdo e `=name`
+enddef
+Func()
+```
+    E121: Undefined variable: name
+
+`:ldo`:
+```vim
+vim9script
+def Func()
+    var name = '/tmp/file'
+    sil lh grail
+    ldo e `=name`
+enddef
+Func()
+```
+    E121: Undefined variable: name
+
+`:lfdo`:
+```vim
+vim9script
+def Func()
+    var name = '/tmp/file'
+    sil lh grail
+    lfdo e `=name`
+enddef
+Func()
+```
+    E121: Undefined variable: name
+
+`execute()`:
+```vim
+vim9script
+def Func()
+    var name = '/tmp/file'
+    execute('e `=name`')
+enddef
+Func()
+```
+    E121: Undefined variable: name
+
+`win_execute()`:
+```vim
+vim9script
+def Func()
+    var name = '/tmp/file'
+    win_execute(win_getid(), 'e `=name`')
+enddef
+Func()
+```
+    E121: Undefined variable: name
+
+---
+
+Also, it  is not clear  whether "`=expr`" is intended  to be expanded  for *any*
+command,  including  ones  which  expect  an expression  as  an  argument  (like
+`:echo`), or only for commands which expect a filename (like `:edit`).
+
+The help suggests that it's intended for more than just commands expecting a filename:
+
+   > The same is true for commands that are not compiled, such as `:global`.
+   > For these the backtick expansion can be used.  Example: >
+   >         def Replace()
+   >           var newText = 'blah'
+   >           g/pattern/s/^/`=newText`/
+   >         enddef
+
+But this seems to contradict this comment:
+
+   > I don't think `=expr` is evaluated for an :echo command.  But the
+
+Source: <https://github.com/vim/vim/issues/7621#issuecomment-754800855>
+
+And this other comment:
+
+    // TODO: should only expand when appropriate for the command
+
+Source: <https://github.com/vim/vim/blob/9ce47ec0b65f81358febacbd9b808ac8ef7af85c/src/vim9compile.c#L8434>
+
+I think it  should be limited to  commands which expect a  filename as argument,
+because:
+
+   - it's consistent with legacy Vim script, where "`=expr`" only works for
+     commands expecting a filename
+
+   - it only seems to work with simple types; not with lists, dictionaries, functions:
+
+```vim
+vim9script
+def Func()
+    var d: dict<number>
+    g/^/echo `=d`
 enddef
 defcompile
 ```
-    E1001: Variable not found: name
-```vim
-vim9script
-def Func()
-    if exists('g:name')
-        echo g:name
-    endif
-enddef
-defcompile
-```
-    no error
-```vim
-vim9script
-if exists('name')
-    echo name
-endif
-```
-    no error
+    E1105: Cannot convert dict to string
 
-Why an error in the first snippet?
+   - I think people will find it's a weird syntax anyway
 
-Workaround:
-```vim
-vim9script
-def Func()
-    if exists('name')
-        echo name
-    endif
-enddef
-var name: string
-defcompile
-```
-    no error
+Instead, maybe the  help should explain that  when an Ex command  is executed by
+another command/function:
 
-Update: I  don't think  it's a  bug.   I think  you  should rarely  if ever  use
-`exists()` (or `get()`) with a script-local  variable.
+   - it's never compiled, therefore it can't access items in compiled code, like
+     function-local variables
 
-Indeed, if you check the existence of such a variable, you probably have written
-some code which deletes it.  But that's not allowed in Vim9 script.
+   - it's always run in the script context, therefore it *can* access any item
+     in that namespace
 
-Instead of deleting a  variable, try to make it "empty"  (`''`, `[]`, `{}`, `0`,
-...), or give it an invalid value.
+   - if it needs to refer to an item, the latter should be in a "public"
+     namespace (public = accessible by any script, like `g:`, `b:`, `w:`, ...),
+     or in the script namespace
 
-Using an empty value  is especially convenient because it lets  you use the null
-coalescing operator `??`.
+See also: <https://github.com/vim/vim/issues/7621#issuecomment-755085800>
 
 ## ?
 
@@ -2121,8 +1802,8 @@ syn on
 set ft=vim
 def MySkip(): bool
     return synstack('.', col('.'))
-        \ ->map({_, v -> synIDattr(v, 'name')})
-        \ ->match('\ccomment') != -1
+        ->mapnew((_, v) => synIDattr(v, 'name'))
+        ->match('\ccomment') != -1
 enddef
 def Func()
     echo search('\<endif\>', '', 0, 0, 'MySkip')
@@ -2137,8 +1818,8 @@ syn on
 set ft=vim
 def MySkip(): bool
     return synstack('.', col('.'))
-        \ ->map({_, v -> synIDattr(v, 'name')})
-        \ ->match('\ccomment') != -1
+        ->mapnew((_, v) => synIDattr(v, 'name'))
+        ->match('\ccomment') != -1
 enddef
 def Func()
     echo search('\<endif\>', '', 0, 0, MySkip)
@@ -2153,8 +1834,8 @@ syn on
 set ft=vim
 def MySkip(): bool
     return synstack('.', col('.'))
-        \ ->map({_, v -> synIDattr(v, 'name')})
-        \ ->match('\ccomment') != -1
+        ->mapnew((_, v) => synIDattr(v, 'name'))
+        ->match('\ccomment') != -1
 enddef
 def Func()
     echo searchpair('\<if\>', '', '\<endif\>', '', 'MySkip')
@@ -2169,8 +1850,8 @@ syn on
 set ft=vim
 def MySkip(): bool
     return synstack('.', col('.'))
-        \ ->map({_, v -> synIDattr(v, 'name')})
-        \ ->match('\ccomment') != -1
+        ->mapnew((_, v) => synIDattr(v, 'name'))
+        ->match('\ccomment') != -1
 enddef
 def Func()
     echo searchpair('\<if\>', '', '\<endif\>', '', MySkip)
@@ -2261,8 +1942,8 @@ syn on
 set ft=vim
 def MySkip(): bool
     return synstack('.', col('.'))
-        \ ->map({_, v -> synIDattr(v, 'name')})
-        \ ->match('\ccomment') != -1
+        ->mapnew((_, v) => synIDattr(v, 'name'))
+        ->match('\ccomment') != -1
 enddef
 echo search('\<endif\>', '', 0, 0, 'MySkip')
 ```
@@ -2274,8 +1955,8 @@ syn on
 set ft=vim
 def MySkip(): bool
     return synstack('.', col('.'))
-        \ ->map({_, v -> synIDattr(v, 'name')})
-        \ ->match('\ccomment') != -1
+        ->mapnew((_, v) => synIDattr(v, 'name'))
+        ->match('\ccomment') != -1
 enddef
 echo search('\<endif\>', '', 0, 0, MySkip)
 ```
@@ -2287,8 +1968,8 @@ syn on
 set ft=vim
 def MySkip(): bool
     return synstack('.', col('.'))
-        \ ->map({_, v -> synIDattr(v, 'name')})
-        \ ->match('\ccomment') != -1
+        ->mapnew((_, v) => synIDattr(v, 'name'))
+        ->match('\ccomment') != -1
 enddef
 echo searchpair('\<if\>', '', '\<endif\>', '', 'MySkip')
 ```
@@ -2300,8 +1981,8 @@ syn on
 set ft=vim
 def MySkip(): bool
     return synstack('.', col('.'))
-        \ ->map({_, v -> synIDattr(v, 'name')})
-        \ ->match('\ccomment') != -1
+        ->mapnew((_, v) => synIDattr(v, 'name'))
+        ->match('\ccomment') != -1
 enddef
 echo searchpair('\<if\>', '', '\<endif\>', '', MySkip)
 ```
@@ -2567,6 +2248,717 @@ FuncWithForwardCall()
     ^---------^
         bug?
 
+##
+## ?
+```vim
+vim9script
+def Func()
+    if 3 || true
+        echo 'true'
+    endif
+enddef
+defcompile
+```
+    no error
+```vim
+vim9script
+def Func()
+    if 3 && true
+        echo 'true'
+    endif
+enddef
+defcompile
+```
+    no error
+```vim
+vim9script
+def Func()
+    if 3
+        echo 'true'
+    endif
+enddef
+defcompile
+```
+    E1023: Using a Number as a Bool: 3
+
+Shouldn't Vim raise an error at compile time in the first two snippets?
+
+## ?
+
+<https://github.com/vim/vim/commit/a3589a0d6cdb314e70421c0f2e5a2d1abf68e597>
+
+Try to add types in our for loops; at least when it makes sense.
+
+---
+
+Also, consider removing our guards in autoload scripts; they should not be needed anymore.
+
+## ?
+
+To document.
+```vim
+vim9script
+def Func()
+    var d: list<dict<any>> = [{a: 0}]
+    for e in d
+        e = {}
+    endfor
+enddef
+Func()
+```
+    E1018: Cannot assign to a constant: e
+```vim
+vim9script
+def Func()
+    var l: list<dict<any>> = [{a: 0}]
+    for e in l
+        e.b = ''
+    endfor
+    echo l
+enddef
+Func()
+```
+    [{'a': 0, 'b': ''}]
+
+This might explain the rationale behind the different results:
+<https://stackoverflow.com/a/7838212>
+
+## ?
+
+Refactor `:MatchparenOn`, `:MatchparenOff`, `:MatchparenToggle`
+into `:Matchparen -on`, `:Matchparen -off`, `:Matchparen -toggle`.
+
+Update the doc.
+
+---
+
+Rename `old_commands` into `compatible`.
+
+## Vim9: "?:" operator can suppress error at compile time
+
+**Describe the bug**
+
+In Vim9 script, the `?:` operator can suppress an error at compile time.
+
+**To Reproduce**
+
+Run this shell command:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def Func()
+            [{k: 1}, {k: 2}]
+                ->sort((a: dict<float>, b: dict<float>): number => a.k > b.k ? a.k - b.k : 0)
+        enddef
+        defcompile
+    EOF
+    )
+
+No error is raised.
+
+**Expected behavior**
+
+`E1012` is raised:
+
+    E1012: Type mismatch; expected number but got float
+
+Update:  Wait.  Shouldn't the error rather be:
+
+    E1013: Argument 1: type mismatch, expected dict<float> but got dict<number>
+
+**Environment**
+
+ - Vim version: 8.2 Included patches: 1-2739
+ - OS: Ubuntu 16.04.7 LTS
+ - Terminal: xterm(366)
+
+**Additional context**
+
+If `?:` is removed, an error is correctly raised at compile time:
+```vim
+vim9script
+def Func()
+    [{k: 1}, {k: 2}]
+        ->sort((a: dict<float>, b: dict<float>): number => a.k - b.k)
+enddef
+defcompile
+```
+    E1012: Type mismatch; expected number but got float
+
+---
+
+I think the issue comes from the fact that the first expression passed to the `?:` operator can't be tested at compile time.  That is, Vim doesn't know whether `a.k` is bigger than `b.k` at compile time.  And if it's false, then the expression evaluates to 0 which is a number whose type is valid.  Therefore, there is a *possibility* that the type is correct.
+
+Still, shouldn't Vim be more strict by inspecting the type of *both* values at compile time, to make sure that all of them respect the return type specified for the lambda?
+
+    a.k > b.k ? a.k - b.k : 0
+                ^-------^   ^
+                value 1     value 2
+
+---
+
+Try to simplify the MWE; get rid of `sort()`.
+Just keep the lambda.
+
+Update:  It seems the issue disappears when we get rid of `sort()`:
+```vim
+vim9script
+def Func()
+    ((a: dict<float>, b: dict<float>): number => a.k > b.k ? a.k - b.k : 0)({k: 1}, {k: 2})
+enddef
+defcompile
+```
+## unexpected error when omitting type in variable declaration (probably not a bug)
+```vim
+vim9script
+def Func()
+    var x = getqflist()->map((_, v) => v.text->matchstr('.*'))
+    var y = x[0]
+    echo y[:]
+enddef
+defcompile
+```
+    E719: Cannot slice a Dictionary
+
+There is indeed an error in the code, but not this one.
+The error  occurred earlier:  `map()` changes the  type of  `getloclist(0)` from
+`list<dict<any>>` to `list<string>`.
+
+Similar issue here:
+```vim
+vim9script
+def Func()
+    for key in (range(char2nr('a'), char2nr('z'))
+            + range(char2nr('A'), char2nr('Z')))
+        ->map((_, v) => nr2char(v))
+        toupper(key) == key
+    endfor
+enddef
+Func()
+```
+    E1072: Cannot compare string with number
+
+There is indeed an error in the code, but not this one.
+The  error occurred  earlier:  `map()`  changes the  type  of `range(...)`  from
+`list<number>` to `list<string>`.
+
+Update: I don't think it can be fixed.
+I think  these issues are  raised at compile time,  while the `map()`  error can
+only be raised later, at runtime.
+
+---
+
+Wait.  Why no error here:
+```vim
+vim9script
+def Func()
+    [1, 2, 3]->map((_, v: float) => 0)
+enddef
+defcompile
+```
+## ?
+```vim
+vim9script
+def Func()
+    getbufinfo()
+        ->map((_, v): dict<float> => v)
+enddef
+Func()
+```
+    E1012: Type mismatch; expected dict<float> but got dict<any>
+
+This is expected.
+(Although, why not at compile time? <https://github.com/vim/vim/issues/8092>)
+```vim
+vim9script
+def Func()
+    getbufinfo()
+        ->sort((a: dict<float>, b: dict<float>) => 0)
+enddef
+Func()
+```
+    no error
+
+Shouldn't Vim raise an error, just like in the previous snippet?
+We're telling `sort()`  that it should receive dictionaries of  *floats*, but in
+reality, we  pass it `getbufinfo()`  which outputs  a list of  dictionaries with
+*mixed* values:
+
+    :echo getbufinfo()->typename()
+    list<dict<any>>~
+
+---
+```vim
+vim9script
+def Func()
+    getbufinfo()
+        ->map((_, v): dict<number> => ({k: 0}))
+        ->sort((a: dict<float>, b: dict<float>) => 0)
+enddef
+Func()
+```
+    no error
+
+Shouldn't Vim raise an error?
+In `map()`, we've declared that the list was transformed into a list of dictionaries of *numbers*.
+But in `sort()`, we declare that it should expect a list of dictionaries of *floats*.
+Those declarations are contradictory.  And yet Vim does not complain.  Why?
+
+## ?
+```vim
+vim9script
+def Func()
+    var tags: list<dict<any>> = [{kind: 'a'}, {key: 123}, {kind: 'm'}]
+    echo tags->filter((_, v: job) => v->has_key('kind') ? v.kind != 'm' : true)
+enddef
+defcompile
+```
+    E715: Dictionary required
+```vim
+vim9script
+def Func()
+    var tags: list<dict<any>> = [{kind: 'a'}, {key: 123}, {kind: 'm'}]
+    echo tags->filter((_, v: dict<job>) => v->has_key('kind') ? v.kind != 'm' : true)
+enddef
+defcompile
+```
+    E1072: Cannot compare job with string
+
+Why doesn't type checking warn us about the wrong type in the second argument of
+the lambda?
+
+Hypothesis:  Vim first  checks that the declared type of  the lambda's arguments
+is compatible  with the expression  on the right of  `=>`. Later, it  will check
+whether those types are compatible with what the filtered expression.
+
+But this hypothesis is wrong:
+```vim
+vim9script
+def Func()
+    var tags: list<dict<any>> = [{kind: 'a'}, {key: 123}, {kind: 'm'}]
+    echo tags->filter((_, v: job) => !v)
+enddef
+defcompile
+```
+    no error
+
+## ?
+```vim
+vim9script
+def Func(): bool
+    var d: dict<number> = {key: 0}
+    return d.key
+enddef
+defcompile
+```
+    E1012: Type mismatch; expected bool but got number
+```vim
+vim9script
+def Func(): bool
+    var d: dict<number> = {key: 0}
+    return get(d, 'key', 0)
+enddef
+defcompile
+```
+    no error
+
+Should an error be raised in the second snippet?
+
+##
+## ?
+```vim
+vim9script
+[{a: 1, b: ''}]->filter((_, v: dict<number>): bool =>
+    true
+    # some comment
+    )
+```
+    line    5:
+    E1013: Argument 2: type mismatch, expected dict<number> but got dict<any>
+
+I don't  think the line number  is technically wrong  (5), but it would  be more
+useful if it matched  the start of the `filter()` call  (2), where the arguments
+types are declared, rather than its end.
+
+---
+
+Same issue in a function call:
+```vim
+vim9script
+def Func(n: number)
+enddef
+Func(
+
+    ''
+
+    )
+```
+    line    8:
+    E1013: Argument 1: type mismatch, expected number but got string
+
+Actually, could Vim be  smarter and give the actual line  number where the wrong
+argument is received (i.e. here 6)?
+
+---
+
+Similar issue when the error is in the body of the lambda:
+```vim
+vim9script
+def Func()
+    var Rep: func = (m): string =>
+                         m[0]->str2nr() > 99
+                         ? ''
+                         : m[0]->str2nr()
+    'pat'->substitute('pat', Rep, '')
+enddef
+Func()
+```
+                         v--------v
+    Error detected while processing command line..script /proc/17291/fd/11[9]..function <SNR>1_Func[5]..<lambda>1:
+    line    1:
+    E1012: Type mismatch; expected string but got number
+
+It would be more useful if the reported line number was 3, rather than 1.
+I'm not sure that can be done though; it seems Vim concatenates all the lines in
+the lambda's definition:
+
+    :fu <lambda>1
+        def <lambda>1(m: any, ...): string~
+     1  return m[0]->str2nr() > 99                         ? ''                         : m[0]->str2nr()~
+        enddef~
+
+If it can't be  improved when the error is raised at runtime,  could it still be
+improved when the error is raised at compile time?
+```vim
+vim9script
+def Func()
+    var Rep: func = (m): string =>
+                         false
+                         ? ''
+                         : m[0]->str2nr()
+    'pat'->substitute('pat', Rep, '')
+enddef
+defcompile
+```
+                         v-------v
+    Error detected while compiling command line..script /proc/17876/fd/11[9]..function <SNR>1_Func[4]..<lambda>1:
+    line    1:
+    E1012: Type mismatch; expected string but got number
+
+## ?
+```vim
+vim9script
+def Func()
+    lockvar unknown
+enddef
+Func()
+```
+    no error
+
+Should we give an error?
+
+## ?
+```vim
+vim9script
+append(-1, 'text')
+```
+    no error
+
+Shouldn't an error be raised?  Like one of these:
+
+    E1174: Positive number required for argument 1
+    E1174: Positive number or String required for argument 1
+
+Also:
+```vim
+vim9script
+append({}, 'text')
+```
+    E728: Using a Dictionary as a Number
+    E1174: String required for argument 1
+
+The 2 error messages seem contradictory:
+
+   - the first one implies that we should have used a number
+   - the second one says that we should have used a string
+
+---
+```vim
+vim9script
+append('.aa', 'text')
+```
+    "text" is appended
+```vim
+vim9script
+append('a.a', 'text')
+```
+    "text" is NOT appended
+
+Same issue with `setline()`.
+Only valid strings should be accepted.
+Test all builtin functions which accept a string with a special meaning as argument.
+
+Also, check how builtin functions handle invalid numbers.
+For example, a negative number is invalid for `append()`.
+
+##
+## ?
+```vim
+vim9script
+g:name = 123
+echo name
+```
+    E121: Undefined variable: name
+
+Shouldn't Vim look in the global namespace even without `g:`?
+It's not a regression.
+
+Note that Vim does look in the global namespace for a function:
+```vim
+vim9script
+def g:Func()
+    echo 'test'
+enddef
+Func()
+```
+    test
+
+## `getchar()->nr2char()` doesn't always work
+```vim
+vim9script
+def Func()
+   var char: string = getchar()->nr2char()
+   # press the Right cursor key
+enddef
+Func()
+```
+    E1030: Using a String as a Number: "<80>kr"
+
+Solution:
+```vim
+vim9script
+def Func()
+   var c: any = getchar()
+   if typename(c) != 'number'
+      return
+   endif
+   var char: string = nr2char(c)
+   # press the Right cursor key
+enddef
+Func()
+```
+But it's cumbersome.
+Should `nr2char()` accept a string?
+
+Or maybe `getchar()` should never return a string in Vim9?
+(introduce a new function if necessary...)
+
+Or maybe  we need a new  `getcharstr()` function, which would  always return the
+pressed key as a string?
+The name might sound confusing with `strgetchar()` though...
+Add a new optional argument to `getchar()` instead?
+
+## Do we need `nr2float()`?
+```vim
+vim9script
+var f: float
+var n = 123
+f = n
+```
+    E1012: Type mismatch; expected float but got number
+
+Workaround:
+```vim
+vim9script
+var f: float
+var n = 123
+f = n + 0.0
+```
+    no error
+
+##
+## ?
+```vim
+vim9 exe 'var x = 0'
+```
+    E1124: ":var" cannot be used in legacy Vim script
+
+It would be nice if it worked.
+This way, we could apply a single `:vim9` to multiple commands:
+```vim
+vim9 execute(['var l = range(5)', 'l->filter((_, v) => v % 2)'])
+```
+    E1124: ":var" cannot be used in legacy Vim script
+    E488: Trailing characters: ->filter((_, v) => v % 2): l->filter((_, v) => v % 2)
+
+Although, having to nest the statements inside strings is awkward...
+
+In any case, if it's working as intended, should the help at `:h vim9` and/or at
+`:h :exe` document  this limitation?  That is, should it  say that `:exe` always
+executes a command in the legacy  context, regardless of whether it was prefixed
+with `:vim9`?
+
+## ?
+
+<https://github.com/vim/vim/issues/7629>
+
+I'm not sure it's a bug.  I suspect no error is raised because specifying the arguments of a lambda is optional, and was only introduced fairly recently ([8.2.1956](https://github.com/vim/vim/releases/tag/v8.2.1956)).  Obviously, Vim can't raise an error at compile time since the lambda assignment doesn't specify any type.  Still, shouldn't `Ref(false)` raise an error at runtime?
+
+---
+
+If this is working as intended, then it means that – at the script level – it is useless to specify the types of the arguments and the return value of a variable which we intend to use to save a lambda.  It's only in the lambda's definition that types matter.
+
+So, if we fix the previous example to make it work:
+```vim
+vim9script
+var Ref: func(bool): bool
+Ref = (b: bool): bool => !b
+echo Ref(false)
+```
+    true
+
+The types on the second line are useless:
+
+    var Ref: func(bool): bool
+                 ^----------^
+
+---
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var Ref: func(any, job): bool
+        Ref = (_, v) => true
+        [{n: 0}]->filter(Ref)
+    EOF
+    )
+
+## ?
+```vim
+vim9script
+var s = 3
+var line = 'abcdef'
+echo line[s:]
+```
+    E731: using Dictionary as a String
+
+Why "String"?
+It should be:  "E123: using Dictionary as a Number".
+
+Same thing when `s` is replaced with `b`, `g`, `t`, `v`, `w`.
+
+---
+```vim
+vim9script
+var a = 3
+var line = 'abcdef'
+echo line[a:]
+```
+    E121: Undefined variable: a:
+
+It should be:  "E1004: White space required before and after ':'".
+
+Same thing when we replace `a` with `l`.
+
+---
+```vim
+vim9script
+def Func()
+    var a = 3
+    var line = 'abcdef'
+    echo line[a:]
+enddef
+Func()
+```
+    E1075: Namespace not supported: a:]
+
+It should be:  "E1004: White space required before and after ':'".
+
+Same thing when `a` is replaced with any character, except `b`, `g`, `t`, `w`.
+
+Here is a – maybe less-contrived – example:
+```vim
+vim9script
+def Func()
+    var mylist = [5, 4, 3, 2, 1]
+    var v = 1
+    var count = 3
+    var otherlist = mylist[v: count]
+    echo otherlist
+enddef
+Func()
+```
+    E1075: Namespace not supported: v: count]
+
+This error message will probably look confusing to a new Vim user.
+More generally, I suspect that `E1075` should never be raised for a sublist.
+
+## ?
+
+Study these tests:
+
+- <https://github.com/vim/vim/commit/65c4415276394c871c7a8711c7633c19ec9235b1#diff-38c87bcbc3bdd4cd44544298e1942ce03bcfece8fbead0d19f9c7abf592fcef4>
+- <https://github.com/vim/vim/commit/9e68c32563d8c9ffe1ac04ecd4ccd730af66b97c#diff-38c87bcbc3bdd4cd44544298e1942ce03bcfece8fbead0d19f9c7abf592fcef4>
+- <https://github.com/vim/vim/commit/7e3682068bebc53a5d1e9eaaba61bb4fa9c612da#diff-38c87bcbc3bdd4cd44544298e1942ce03bcfece8fbead0d19f9c7abf592fcef4>
+
+Make sure you understand all the syntaxes they use.
+
+##
+## ?
+```vim
+vim9script
+def Func()
+    if exists('name')
+        echo name
+    endif
+enddef
+defcompile
+```
+    E1001: Variable not found: name
+```vim
+vim9script
+def Func()
+    if exists('g:name')
+        echo g:name
+    endif
+enddef
+defcompile
+```
+    no error
+```vim
+vim9script
+if exists('name')
+    echo name
+endif
+```
+    no error
+
+Why an error in the first snippet?
+
+Workaround:
+```vim
+vim9script
+def Func()
+    if exists('name')
+        echo name
+    endif
+enddef
+var name: string
+defcompile
+```
+    no error
+
+Update: I  don't think  it's a  bug.   I think  you  should rarely  if ever  use
+`exists()` (or `get()`) with a script-local  variable.
+
+Indeed, if you check the existence of such a variable, you probably have written
+some code which deletes it.  But that's not allowed in Vim9 script.
+
+Instead of deleting a  variable, try to make it "empty"  (`''`, `[]`, `{}`, `0`,
+...), or give it an invalid value.
+
+Using an empty value  is especially convenient because it lets  you use the null
+coalescing operator `??`.
+
 ## ?
 
 Source this:
@@ -2783,96 +3175,6 @@ echo get(s:, 'var', 456)
     ✘
 
 ## ?
-```vim
-vim9script
-exe 'var name = 123'
-echo name
-```
-    123
-```vim
-vim9script
-def Func()
-    exe 'var name = 123'
-    echo name
-enddef
-defcompile
-```
-    E1001: Variable not found: name
-
-Why does it work at the script level, but not in a `:def` function?
-
-Answer: The  assignment  executed by  `:exe`  creates  a script-local  variable,
-*even* when run inside a `:def` function.
-```vim
-vim9script
-def Func()
-    exe 'var name = 123'
-enddef
-Func()
-echo s:
-```
-    {'name': 123}
-
-But this variable is not be created until runtime; at compile time, the variable
-doesn't exist yet, hence the error.
-
-Should the help should document this?
-
-BTW, if you need the second snippet not to raise any error, declare the variable
-at the script level:
-```vim
-vim9script
-var name: number
-def Func()
-    exe 'name = 123'
-    echo name
-enddef
-Func()
-```
-    123
-
----
-
-We can't declare a variable from a `:def` function:
-```vim
-vim9script
-def Func()
-    var s:name = 123
-enddef
-defcompile
-```
-    E1101: Cannot declare a script variable in a function: s:name
-
-It seems that `:exe` lets us work around this limitation.
-Is it a bug?
-
-If it is  a bug, and it's fixed, it  would be nice if the fix  didn't break this
-kind of code:
-```vim
-vim9script
-setline(1, ['xxx', 'pat', 'xxx']->repeat(3))
-def Rep(): string
-    return 'rep'
-enddef
-sil :%s/pat/\=Rep()/
-```
-That is, it would be nice if we could still access script-local items (variables
-or functions) from the global context in a substitution or global command.
-
-### ?
-
-The same observations apply to `win_execute()`:
-```vim
-vim9script
-def Func()
-    win_execute(win_getid(), 'var name = 123')
-enddef
-Func()
-echo s:
-```
-    {'name': 123}
-
-### ?
 
 The help says that curly braces names cannot be used in Vim9.
 But what's the equivalent if we're refactoring a legacy script,
@@ -3331,61 +3633,6 @@ What about:
 
 ## ?
 
-In the future, it might be possible to  drop the `s:` prefix at the start of the
-header of  a script-local function, *even*  if its name starts  with a lowercase
-character.  From `:h todo /lower`:
-
-   > - Allow function names that will be script-local to start with lower case
-   >   letter?
-
-If so, we'll be able to write:
-```vim
-vim9script
-def myfunc()
-enddef
-```
-We should then be able to save a  funcref in a variable whose name starts with a
-lowercase character, right?
-```vim
-vim9script
-var myfuncref = function('len')
-```
-Check  whether that's  allowed.  It  it's  still disallowed,  report the  issue,
-because either it's a bug, or maybe it should be documented.
-
----
-
-But what  will happen if we  choose a function name  which is already used  by a
-builtin function?  Will the custom one shadow the builtin one? Or the reverse?
-
-See:
-
- - <https://github.com/vim/vim/commit/4072ba571babd733d1800c082416fe8fe3c28ed7#r45375881>
- - <https://github.com/vim/vim/commit/4072ba571babd733d1800c082416fe8fe3c28ed7#r45375882>
-
-After reading the first link, I *think*  Vim will let the custom function shadow
-the builtin one.
-
-BTW, regarding the second link containing a quote of something I wrote: I made a
-mistake; I thought that it was impossible to call a custom script-local function
-without `s:`  if its name started  with a lowercase character.   I was obviously
-wrong: you  can do this at  a *call* site.  But  – currently – you  can't do the
-same in the *header*.  I also think that  what confused me is that I never use a
-script-local function name starting with a lowercase character, because:
-
-   - it forces you to write `s:` in the header, and I want to avoid `s:` as much
-     as possible
-
-   - it creates an ambiguity when calling a function (custom vs builtin)
-
-   - I find the code easier to read when naming all custom functions with an
-     uppercase character at the start; this way you can quickly distinguish
-     custom functions from builtin functions; also, it's more consistent with
-     global functions whose name must still start with an uppercase character
-     (and that won't change if I understood the previous first link correctly)
-
-## ?
-
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
         def Func(n: number)
@@ -3465,6 +3712,21 @@ Make sure to also generate snippets to test builtin functions at the script leve
 ## ?
 ```vim
 vim9script
+echo (s) => strlen(s)('string')
+```
+    E1085: Not a callable type: strlen(s)('string')
+```vim
+vim9script
+echo 'string'->(s) => strlen(s)()
+```
+    E121: Undefined variable: s
+```vim
+vim9script
+echo ((s) => strlen(s))('string')
+```
+    6
+```vim
+vim9script
 echo 'string'->((s) => strlen(s))()
 ```
     6
@@ -3505,8 +3767,6 @@ string or a funcref; not a number.
 Is it related to this todo item:
 
    > - Check many more builtin function arguments at compile time.
-
-Although, here, the issue is also present at the script level...
 
 ## ?
 ```vim
@@ -3566,71 +3826,6 @@ This would be more readable:
 This would also be more consistent with other error messages.
 I think `E1004` is the only one which uses quotes to separate the context from the error.
 I think all the other ones use a colon.
-
-## ?
-
-The default Vim indent plugin indents the closing brace/bracket/parenthesis on a
-multiline construct under the first non-whitespace character of the last line.
-
-    vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var lines =<< END
-        return {
-            expandtab: 0,
-            shiftwidth: &tabstop
-        }
-    END
-    setline(1, lines)
-    filetype indent on
-    set ft=vim
-    norm! gg=G
-    EOF
-    )
-
-Resulting buffer:
-
-    return {
-            expandtab: 0,
-            shiftwidth: &tabstop
-            }
-
-It's not wrong, but I think it would be better for the buffer to be this instead:
-
-    return {
-            expandtab: 0,
-            shiftwidth: &tabstop
-    }
-
-That is,  the closing brace  on a multiline construct  should line up  under the
-first character of the line that starts the multiline construct.
-
-Rationale:
-
- - Both styles are recommended in PEP 8: <https://www.python.org/dev/peps/pep-0008/#indentation>
- - our latter style seems more popular in javascript, Java, C++: <https://stackoverflow.com/a/51016662>
-
-Implementation:
-
-Not sure it's correct, but in `$VIMRUNTIME/indent/vim.vim`, there is this block:
-
-    " A line ending in "{" or "[" is most likely the start of a dict/list literal,
-    " indent the next line more.  Not for a continuation line or {{{.
-    if !ends_in_comment && prev_text_end =~ '\s[{[]\s*$' && !found_cont
-      let ind = ind + shiftwidth()
-    endif
-
-Inside, include this `elseif`:
-
-    elseif getline(v:lnum) =~ '^\s*[\]})]\+\s*$'
-      let ind -= shiftwidth()
-
----
-
-There are other issues with the default Vim indent plugin.
-For example, it relies on the user `%` mapping, which is wrong.
-There is a todo, which recommends to use `searchpair()` instead.
-
-Also, try to rewrite the whole thing in Vim9.
 
 ## ?
 ```vim
@@ -3707,6 +3902,78 @@ The same issue will affect the tags generated for variables declared with `:var`
 
 Watch the derek banas playlist on C  to have just enough knowledge to understand
 the code and refactor it.
+
+## ?
+
+In a for loop, the iteration variable is locked:
+```vim
+vim9script
+def Func()
+    for i in [1, 2, 3]
+        i = 4
+    endfor
+enddef
+defcompile
+```
+    E1018: Cannot assign to a constant: i
+
+Could we make an exception for when we assign a new value with the same type?
+Otherwise, we have to create an extra variable which copies the iteration value.
+See `vim-man`:
+
+    # ~/.vim/pack/mine/opt/man/autoload/man.vim
+    for char in Gmatch(line, '[^\d128-\d191][\d128-\d191]*')
+        ...
+        var c: string = char
+        ^------------------^
+
+This looks a bit awkward (the fact that `char` is written twice...).
+Also, this locking doesn't exist in lua.
+Does it exist in typescript?
+
+## ?
+```vim
+vim9script
+def Func()
+    var l = range(3)
+    lockvar l
+enddef
+defcompile
+```
+    E1178: Cannot lock or unlock a local variable
+```vim
+vim9script
+def Func()
+    var l = range(3)
+    lockvar 1 l
+enddef
+defcompile
+```
+    E488: Trailing characters: 1 l
+
+Maybe the second snippet should raise the same error as the first one.
+
+## ?
+```vim
+vim9script
+com Cmd eval 0
+def Func()
+    Cmd
+enddef
+disa Func
+```
+    <SNR>1_Func
+        Cmd
+       0 EXEC     Cmd
+       1 RETURN 0
+
+At compile time, should Vim expand a custom command and expand the result?
+
+    <SNR>1_Func
+        eval 0
+       0 PUSHNR 0
+       1 DROP
+       2 RETURN 0
 
 ## unexpected E1095 when unclosed string below :return
 ```vim
@@ -3895,6 +4162,40 @@ anything about the fact that the quotes *can* or *must* be dropped.  This should
 be documented at `:h vim9-differences`.
 
 <https://github.com/vim/vim/issues/6788>
+
+### 326
+
+   > Global functions must be prefixed with "g:" when defining them, but can be
+   > called without "g:".
+   >         vim9script
+   >         def g:GlobalFunc(): string
+   >           return 'text'
+   >         enddef
+   >         echo GlobalFunc()
+
+I would argue that it would be better for Vim to require `g:` when calling a function.
+This would be consistent with variables, and this would make the code more readable.
+In fact, it's even recommended a little earlier:
+
+   > When referring to a function and no "s:" or "g:" prefix is used, Vim will
+   > search for the function:
+   > - in the function scope, in block scopes
+   > - in the script scope, possibly imported
+   > - in the list of global functions
+   > **However, it is recommended to always use "g:" to refer to a global function**
+   > **for clarity.**
+
+Anyway, I think the recommendation should be written in the previous excerpt too.
+
+   > Global functions must be prefixed with "g:" when defining them, but can be
+   > called without "g:".
+   >         vim9script
+   >         def g:GlobalFunc(): string
+   >           return 'text'
+   >         enddef
+   >         echo GlobalFunc()
+   > **However, it is recommended to always use "g:" to refer to a global function**
+   > **for clarity.**
 
 ### 362
 
@@ -4284,6 +4585,31 @@ execution time.
 
 Actually, I think you can also use any item defined in the `b:`, `t:`, and `w:` namespace;
 but not one defined in the `s:` namespace.
+
+### 1244
+
+   > {not implemented yet: using "This as That"}
+
+This line should be removed because `This as That` is available since 8.2.2556.
+
+### 1519
+
+   > In Vim9 type checking is stricter to avoid mistakes.  Where a condition is
+   > used, e.g. with the `:if` command **and the `||` operator**, only boolean-like
+   > values are accepted:
+
+I think it should be:
+
+   > and the `?:` operator
+
+`||` doesn't expect a condition; it expects expressions:
+
+    echo 0 > 9 || 1
+         ├───┘    │
+         │        └ that's not a condition either
+         └ that's not a condition
+
+OTOH, the first argument of `?:` is indeed used as a condition.
 
 ###
 ### concept of block-local function
@@ -4701,6 +5027,19 @@ A similar issue applies to `call`:
                      VimFuncName
 
 ##
+## help for `:vimgrep` command is missing explanation about `f` flag (fuzzy algorithm)
+
+The help is missing this paragraph:
+
+   > When the 'f' flag is specified, fuzzy string matching
+   > is used to find matching lines. In this case,
+   > {pattern} is treated as a literal string instead of a
+   > regular expression.
+
+<https://github.com/vim/vim/pull/8152/files>
+
+Wait for the next update of the runtime files and see whether it's included.
+
 ## ?
 
 Matchparen issue:
@@ -4977,12 +5316,12 @@ It comes from this commit:
     vim9script
     @/ = 'x'
     repeat(['x'], 1000)
-        ->map({_, v -> v .. repeat('_', 99)})
-        ->reduce({a, v -> a .. v})
+        ->map((_, v) => v .. repeat('_', 99))
+        ->reduce((a, v) => a .. v)
         ->setline(1)
     nno <expr> n Func()
     def g:Func(): string
-        searchcount({'maxcount': 1000, 'timeout': 500})
+        searchcount({maxcount: 1000, timeout: 500})
         return 'n'
     enddef
 
@@ -4997,11 +5336,11 @@ of matches.  Here is the exact same text, but splitted on 1000 lines:
     vim9script
     @/ = 'x'
     repeat(['x'], 1000)
-        ->map({_, v -> v .. repeat('_', 99)})
+        ->map((_, v) => v .. repeat('_', 99))
         ->setline(1)
     nno <expr> n Func()
     def g:Func(): string
-        searchcount({'maxcount': 1000, 'timeout': 500})
+        searchcount({maxcount: 1000, timeout: 500})
         return 'n'
     enddef
     set nu
@@ -5021,12 +5360,12 @@ lags a little less:
     vim9script
     @/ = 'x'
     repeat(['x'], 500)
-        ->map({_, v -> v .. repeat('_', 199)})
-        ->reduce({a, v -> a .. v})
+        ->map((_, v) => v .. repeat('_', 199))
+        ->reduce((a, v) => a .. v)
         ->setline(1)
     nno <expr> n Func()
     def g:Func(): string
-        searchcount({'maxcount': 1000, 'timeout': 500})
+        searchcount({maxcount: 1000, timeout: 500})
         return 'n'
     enddef
 
@@ -5035,12 +5374,12 @@ Reduced further from 500 down to 250, it lags even less:
     vim9script
     @/ = 'x'
     repeat(['x'], 250)
-        ->map({_, v -> v .. repeat('_', 399)})
-        ->reduce({a, v -> a .. v})
+        ->map((_, v) => v .. repeat('_', 399))
+        ->reduce((a, v) => a .. v)
         ->setline(1)
     nno <expr> n Func()
     def g:Func(): string
-        searchcount({'maxcount': 1000, 'timeout': 500})
+        searchcount({maxcount: 1000, timeout: 500})
         return 'n'
     enddef
 
@@ -5049,12 +5388,12 @@ And from 250 down to 125, the lag can no longer be perceived:
     vim9script
     @/ = 'x'
     repeat(['x'], 125)
-        ->map({_, v -> v .. repeat('_', 799)})
-        ->reduce({a, v -> a .. v})
+        ->map((_, v) => v .. repeat('_', 799))
+        ->reduce((a, v) => a .. v)
         ->setline(1)
     nno <expr> n Func()
     def g:Func(): string
-        searchcount({'maxcount': 1000, 'timeout': 500})
+        searchcount({maxcount: 1000, timeout: 500})
         return 'n'
     enddef
 
@@ -5303,12 +5642,15 @@ received after calling `ch_sendexpr()` if it's *not* encoded in json (raw or nl)
     vim -Nu NORC -S <(cat <<'EOF'
         set rtp-=~/.vim
         set rtp-=~/.vim/after
-        set rtp^=~/.vim/plugged/asyncmake
-        set rtp^=~/.vim/plugged/vim-autoread
+        set rtp^=~/.vim/pack/mine/opt/abolish
+        set rtp^=~/.vim/pack/mine/opt/asyncmake
         set rtp^=~/.vim
         set rtp+=~/.vim/after
     EOF
     )
+
+    :h
+    :norm! G
 
 ## duplicate runtime bugs
 

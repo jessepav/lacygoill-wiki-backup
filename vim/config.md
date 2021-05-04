@@ -1736,7 +1736,7 @@ Instead, you must write:
     ...
     call setbufvar(bufnr, '&isk', isk_save)
 
-Have a look  at `vim#jump_to_tag()` in `~/.vim/plugged/vim-vim/autoload/vim.vim`
+Have a look  at `vim#jumpToTag()` in `~/.vim/pack/mine/opt/vim/autoload/vim.vim`
 for an example where it is really necessary.
 
 ---

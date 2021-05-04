@@ -286,16 +286,16 @@ It also requires that you have exported the environment variables `LESSOPEN` and
 
 ### a video?
 
-    $ mpv -vo drm my_video.mkv
+    $ mpv --vo=drm --profile=sw-fast --really-quiet my_video.mkv
 
 `drm` stands for Direct Rendering.
 It seems  to be a  method allowing the  graphics driver to  communicate directly
 with the kernel rather than with Xorg.
 
 For more info:
-<https://unix.stackexchange.com/a/301402/232487>
 
-    man mpv /drm
+   - <https://unix.stackexchange.com/a/301402/232487>
+   - `man mpv /drm`
 
 ### an image?
 

@@ -1852,6 +1852,8 @@ See:
 - <https://github.com/chrisbra/vim-zsh/issues/21#issuecomment-568958828>
 - <https://github.com/vim/vim/blob/5666fcd0bd794dd46813824cce63a38bcae63794/src/syntax.c#L6134>
 
+Update: This might have been fixed in 8.2.2761.
+
 ---
 
 Document that you can't clear a syntax group in `~/.vim/after/syntax/x.vim` when
@@ -2393,7 +2395,7 @@ Otherwise, if your file contains more  than one embedded language, the next time
 you'll  run `:syn  include`,  the contained  groups won't  be  defined, and  the
 cluster will contain nothing.
 
-See `~/.vim/plugged/vim-markdown/autoload/markdown.vim` for an example.
+See `~/.vim/pack/mine/opt/markdown/autoload/markdown.vim` for an example.
 
 ## ?
 

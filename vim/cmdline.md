@@ -355,39 +355,21 @@ findfile({name} [, {path} [, {count}]])
 
 
 
-                          ┌── hit C-l
-                          │
-    e ~/.vim/**/vim-sn    →    ~/.vim/plugged/vim-sn
-    e ~/.vim/**/vim-sn    →    ~/.vim/plugged/vim-sneak ~/.vim/plugged/vim-snippets
-                          │
-                          └── hit C-x C-a
+                      ┌ hit C-l
+                      │
+    e ~/.vim/**/sne   →   e ~/.vim/p
+    e ~/.vim/**/sne   →   e ~/.vim/pack/minpac/opt/vim-sneak/autoload/sneak/ ...
+                      │
+                      └ hit C-x C-a
 
             Contrairement à `C-x C-a` qui développe un glob en le remplaçant par
             tous  les  matchs possibles,  C-l  ne  développe  un glob  qu'en  le
             remplaçant par la plus longue partie commune à tous les matchs.
+            Ici, la plus  longue partie commune est plus courte  que prévu; elle
+            ne contient pas le pattern `sne`.
+            Ainsi, C-l peut aussi supprimer du texte.
 
-
-                                               NOTE:
-
-            Si on tente:
-
-                    e ~/.vim/**/*sne  +  C-l
-
-            ... non seulement rien n'est développé mais en plus `**/*sne` est supprimé.
-            La raison est ce fichier:
-
-                    ~/.vim/tmp/undo/%home%user%.vim%plugged%vim-sneak%autoload%sneak%hl.vim
-                                                                ├─┘
-                                                                └ match le `sne` dans le pattern précédent
-
-            À cause de lui, la plus longue partie commune à tous les matchs est:
-
-                    ~/.vim/
-
-            Conclusion:    C-l peut aussi supprimer du texte.
-
-
-                                               NOTE:
+                                     NOTE:
 
             Il peut être intéressant de combiner C-l et C-d.
             C-l pour  insérer la partie  la plus longue  à tous les  matchs d'un

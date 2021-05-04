@@ -35,10 +35,6 @@ Note that there would be no issue if we scrolled (!= moved) with `C-e` and `C-y`
 But that doesn't work well with `zMzv` which we use to open just enough folds to
 see the current line.
 
-At the  moment, we  set `'cul'` in  the `window#scroll_preview()`  function from
-`~/plugged/vim-window/autoload/window.vim`, so you don't have  to set it in your
-implementation of a scratch buffer.
-
 ---
 
 Update:

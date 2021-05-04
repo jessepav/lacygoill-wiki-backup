@@ -1,16 +1,5 @@
 # ?
 
-How to update fzf?
-
-In your vimrc, write:
-
-    :Plug 'junegunn/fzf', {'dir': '~/.fzf', 'do': './install ...'}
-                                            ^------------------^
-                                            this invokes the fzf installer
-                                            whenever there's an update
-
-# ?
-
 How to control what interface fzf installs?
 
 You can tweak the installer command by passing other arguments.
@@ -936,7 +925,7 @@ the cursor before.
 
 The issue comes from the fact that `WinLeave` is not fired:
 
-    ~/.vim/plugged/vim-sneak/plugin/sneak.vim:254
+    ~/.vim/pack/minpac/opt/vim-sneak/plugin/sneak.vim:254
     autocmd InsertEnter,WinLeave,BufLeave * call sneak#cancel()
 
 We don't have this issue if we open our togglable popup terminal.
@@ -1101,7 +1090,7 @@ preview the files where the old commit messages are saved).
 
 See our todo in:
 
-    ~/.vim/plugged/vim-git/after/ftplugin/gitcommit.vim
+    ~/.vim/pack/mine/opt/git/after/ftplugin/gitcommit.vim
 
 ## Fix E861 when fzf is invoked from popup terminal
 

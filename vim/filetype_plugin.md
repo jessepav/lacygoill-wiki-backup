@@ -13,15 +13,15 @@
     │ 5. ~/.vim/after        │ same thing for the user                                │
     └────────────────────────┴────────────────────────────────────────────────────────┘
 
-## Which directories does `vim-plug` add to the rtp?  In which position exactly?
+## Which directories does `:packadd!` add to the rtp?  In which position exactly?
 
 It adds 2 new FAMILIES (one directory per third-party plugin) of directories:
 
-   - ~/.vim/plugged/{plugin}
+   - ~/.vim/pack/{minpac,mine}/{start,opt}/{plugin}
 
     just after `~/.vim`
 
-   - ~/.vim/plugged/{plugin}/after
+   - ~/.vim/pack/{minpac,mine}/{start,opt}/{plugin}/after
 
     just before `~/.vim/after`
 
@@ -32,12 +32,12 @@ In their alphabetical order.
 
 Same thing for the plugins in `$VIMRUNTIME/plugin`.
 
-## In which order does `vim-plug` add my plugins to the rtp?
+## In which order does Vim add plugins which are inside optional packages to the rtp?
 
-In the same order you declared them with your `:Plug` statements.
+In the same order you added them with your `:packadd!` statements.
 
 ###
-## Why is `~/.vim/plugged/{plugin}` added after `~/.vim` in the rtp?
+## Why is `~/.vim/pack/{minpac,mine}/{start,opt}/{plugin}` added after `~/.vim` in the rtp?
 
 To give the user a chance to disable it before it's sourced.
 
@@ -46,7 +46,7 @@ They could do so by creating a file such as:
     $ cat ~/.vim/plugin/foo.vim
           let g:loaded_foo = 1
 
-## Why is `~/.vim/plugged/{plugin}/after` added before `~/.vim/after` in the rtp?
+## Why is `~/.vim/pack/{minpac,mine}/{start,opt}/{plugin}/after` added before `~/.vim/after` in the rtp?
 
 To give the user a chance to override some of its settings.
 
@@ -190,7 +190,7 @@ This allows plugin authors to use this  mechanism, and in case of conflict, give
 the priority to the autocmds in `$VIMRUNTIME/filetype.vim`.
 
 ###
-### When is the autocmd from `plugged/abc/ftdetect/` sourced compared to the ones from `plugged/def/filetype.vim`?
+### When is the autocmd from `abc/ftdetect/` sourced compared to the ones from `def/filetype.vim`?
 
 `def/filetype.vim` is sourced BEFORE `abc/ftdetect/`.
 
@@ -611,8 +611,8 @@ In the one using the simplest naming scheme.
 
 Example:
 
-    ~/.vim/plugged/potion/ftplugin/potion.vim
-    ~/.vim/plugged/potion/ftplugin/potion/folding.vim
+    ~/.vim/pack/mine/opt/potion/ftplugin/potion.vim
+    ~/.vim/pack/mine/opt/potion/ftplugin/potion/folding.vim
 
 Write it only in `ftplugin/potion.vim`.
 
@@ -1036,7 +1036,7 @@ Example:
 
     " this third-party plugin containing a guard `if exists('b:did_ftplugin') ...`
     " won't be sourced entirely
-    ~/.vim/plugged/vim-foo/ftplugin/foo.vim
+    ~/.vim/pack/mine/opt/foo/ftplugin/foo.vim
 
 It  can also  prevent  2  plugins, with  the  same  purpose (filetype  settings,
 indentation, syntax highlighting), from being sourced for the same buffer.

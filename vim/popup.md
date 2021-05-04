@@ -436,7 +436,7 @@ preview popup for a help buffer:
 
 We've already started to customize the preview popup in `vim-window`:
 
-    " ~/.vim/plugged/vim-window/plugin/window.vim
+    " ~/.vim/pack/mine/opt/window/plugin/window.vim
     /CustomizePreviewPopup
 
 Are there still some options we want to set?
@@ -445,7 +445,7 @@ Are there still some options we want to set?
 
 For example, right now, we reset `'scl'` and `'wrap'` in help popups:
 
-    " ~/.vim/plugged/vim-help/after/ftplugin/help.vim
+    " ~/.vim/pack/mine/opt/help/after/ftplugin/help.vim
     au BufWinEnter <buffer> if win_gettype() is# 'popup' | setl scl&vim wrap&vim cole&vim | endif
 
 Do we want that only in *help* popups?  Or in *all* popups?
@@ -467,7 +467,7 @@ I think you should make `:Verb` use a regular window, to get more interactivity.
 We've started some refactoring here and there.
 For example, we fixed `!d` by invoking a new `lg#window#scratch()` function:
 
-    " ~/.vim/plugged/vim-debug/autoload/debug/capture.vim
+    " ~/.vim/pack/mine/opt/debug/autoload/debug/capture.vim
     call lg#window#scratch(vars)
 
 Review this new function, and read `~/wiki/vim/todo/scratch.md`.
@@ -623,7 +623,7 @@ If that's the case, the rule does not apply to help buffers which are read from 
 
 For now, I've fixed the issue with a `BufWinEnter` autocmd here:
 
-    ~/.vim/plugged/vim-help/after/ftplugin/help.vim
+    ~/.vim/pack/mine/opt/help/after/ftplugin/help.vim
 
 It also  resets 'wrap' which  is not correctly reset  to 'on'; this  prevents us
 from reading the end of long lines when previewing a help tag in a popup.

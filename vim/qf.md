@@ -1921,7 +1921,7 @@ For more info:
 MWE:
 
     " disable `vim-cwd`
-    :cd ~/.vim/plugged/vim-completion/
+    :cd ~/.vim/pack/mine/opt/completion/
     :sil CFreeStack | noa vim /timer_start/gj ~/.vim/**/*.vim | cw
     SPC R
     :cd ~/wiki/

@@ -1,3 +1,88 @@
+# Installation
+## Compiling from source
+### download
+
+Download  the  latest  tagged  release  tarball  (`git-X.YY.Z.tar.xz`)  and  its
+signature (`git-X.YY.Z.tar.sign`) from one of those links:
+
+- <https://mirrors.edge.kernel.org/pub/software/scm/git/>
+- <https://github.com/git/git/releases>
+
+Github doesn't provide signatures, but makes it easier to find the number of the
+latest release.
+
+### check the signature of the tarball
+
+          ┌ write the decompressed data to STDOUT instead of a file
+          │
+          │┌ decompress
+          ││                           ┌ assume that:
+          ││                           │     - the next argument is a detached signature
+          ││                           │     - the next one is the signed data
+          ││                           │
+          ││                           │ verify the signed data using the signature
+          ││                           │
+          ││                           │                           ┌ read the signed data from STDIN
+          ││                           │                           │
+    $ xz -cd git-2.19.2.tar.xz | gpg --verify git-2.19.2.tar.sign  -
+    gpg: Signature made Wed 21 Nov 2018 04:04:41 PM CET using RSA key ID 96AFE6CB
+    gpg: Can't check signature: public key not found
+
+If the signature can't be verified, note the ID of the public key which was used
+to sign the tarball (here it's `96AFE6CB`).
+Use the ID to import the public key:
+
+    $ gpg --keyserver hkp://keys.gnupg.net --recv-keys 96AFE6CB
+    gpg: requesting key 96AFE6CB from hkp server keys.gnupg.net~
+    gpg: key 713660A7: public key "Junio C Hamano <gitster@pobox.com>" imported~
+    gpg: no ultimately trusted keys found~
+    gpg: Total number processed: 1~
+    gpg:               imported: 1  (RSA: 1)~
+
+Try again to verify the signature:
+
+    $ xz -cd git-2.19.2.tar.xz | gpg --verify git-2.19.2.tar.sign -
+    gpg: Signature made Wed 21 Nov 2018 04:04:41 PM CET using RSA key ID 96AFE6CB~
+    gpg: Good signature from "Junio C Hamano <gitster@pobox.com>"~
+    gpg:                 aka "Junio C Hamano <jch@google.com>"~
+    gpg:                 aka "Junio C Hamano <junio@pobox.com>"~
+    gpg: WARNING: This key is not certified with a trusted signature!~
+    gpg:          There is no indication that the signature belongs to the owner.~
+    Primary key fingerprint: 96E0 7AF2 5771 9559 80DA  D100 20D0 4E5A 7136 60A7~
+         Subkey fingerprint: E1F0 36B1 FEE7 221F C778  ECEF B0B5 E886 96AF E6CB~
+
+This time, you should read “Good signature from ...”.
+
+### configure
+
+    $ xt git-X.YY.Z.tar.xz
+
+    $ make configure
+
+    $ ./configure --prefix=/usr/local
+
+### compile and install
+
+    $ make
+
+    $ sudo make install
+
+### update
+
+Now, you can get the latest updates with your compiled `git`:
+
+    $ git clone git://git.kernel.org/pub/scm/git/git.git
+
+##
+## How to get a more recent version of Git on Ubuntu, without compiling?
+
+    $ sudo add-apt-repository ppa:git-core/ppa
+    $ sudo aptitude update
+    $ sudo aptitude safe-upgrade
+
+Source: <https://launchpad.net/~git-core/+archive/ubuntu/ppa>
+
+##
 # gitignore
 ## Sources
 ### When Git must decide whether to ignore a path, from which sources does it check gitignore patterns?  (3)
@@ -118,15 +203,20 @@ No.
     $ git rm --cached <file>
 
 FIXME: Are you sure?
-https://stackoverflow.com/a/6919257/9780968
+<https://stackoverflow.com/a/6919257/9780968>
 
 ---
 
-If the `<file>` has  just been added to the repo (via `$  git add`), then `$ git
-rm --cached <file>` unstages the file.
+If the  `<file>` has just been  added to the repo  (via `$ git add`),  then this
+command unstages the file:
 
-Otherwise, `$  git rm --cached  <file>` unstages the  file, and the  next commit
-will remove it from the repo.
+    $ git rm --cached <file>
+
+Otherwise, this command unstages the file:
+
+    $ git rm --cached <file>
+
+And the next commit will remove it from the repo.
 
 ---
 
@@ -362,6 +452,64 @@ There's always a copy of the changes (in the version of the working tree).
     'abc' is removed from the working tree and from the index~
 
 ##
+## I've created a global gitignore file.  From which directory of the project is it applied?
+
+From the root of the project.
+
+This matters for example, if you write `/pattern`.
+The slash stands for “only in the current directory”.
+The notion of current directory is affected by where the gitignore file lives.
+A global gitignore lives  outside the project, but is processed as  if it was at
+its root.
+
+## I wrote `tags` in a gitignore file.  In which directory of the project will a `tags` entry be ignored?
+
+Any.
+
+A pattern is applied recursively throughout the entire working directory.
+
+##
+## How to ignore
+### a `tags` entry but only in the current directory (the one where the gitignore file lives)?
+
+Prefix `tags` with a slash:
+
+    /tags
+
+### any directory named `tags/`?
+
+Append `tags` with a slash:
+
+    tags/
+
+### any file named `tags`?
+
+    tags
+    !tags/
+
+The first pattern  makes Git ignore any file  named tags (✔), and any  file in a
+directory named tags (✘).
+The second pattern makes Git NOT ignore any file in a directory named tags (✔).
+
+##
+## What's the difference between the patterns `tags` and `tags/`?
+
+`tags/` makes Git ignore any file in a `tags/` directory.
+
+`tags` makes Git ignore any file in a `tags/` directory, but also any file named `tags`.
+
+##
+## Does Git track
+### an empty directory?
+
+No.
+
+### a non-empty directory in which there are only ignored files?
+
+No.
+
+##
+##
 ##
 ## EXAMPLES
 
@@ -418,89 +566,6 @@ Example to  exclude everything except  a specific directory `foo/bar`  (note the
 
 ##
 ##
-##
-# How to get a more recent version of Git on Ubuntu, without compiling?
-
-    $ sudo add-apt-repository ppa:git-core/ppa
-    $ sudo aptitude update
-    $ sudo aptitude safe-upgrade
-
-Source: <https://launchpad.net/~git-core/+archive/ubuntu/ppa>
-
-##
-# Compiling Git from source
-## download
-
-Download  the  latest  tagged  release  tarball  (`git-X.YY.Z.tar.xz`)  and  its
-signature (`git-X.YY.Z.tar.sign`) from one of those links:
-
-- <https://mirrors.edge.kernel.org/pub/software/scm/git/>
-- <https://github.com/git/git/releases>
-
-Github doesn't provide signatures, but is easier to find the latest release.
-
-## check the signature of the tarball
-
-          ┌ write the decompressed data to STDOUT instead of a file
-          │
-          │┌ decompress
-          ││                           ┌ assume that:
-          ││                           │     - the next argument is a detached signature
-          ││                           │     - the next one is the signed data
-          ││                           │
-          ││                           │ verify the signed data using the signature
-          ││                           │
-          ││                           │                           ┌ read the signed data from STDIN
-          ││                           │                           │
-    $ xz -cd git-2.19.2.tar.xz | gpg --verify git-2.19.2.tar.sign  -
-    gpg: Signature made Wed 21 Nov 2018 04:04:41 PM CET using RSA key ID 96AFE6CB
-    gpg: Can't check signature: public key not found
-
-If the signature can't be verified, note the ID of the public key which was used
-to sign the tarball (here it's `96AFE6CB`).
-Use the ID to import the public key:
-
-    $ gpg --keyserver hkp://keys.gnupg.net --recv-keys 96AFE6CB
-    gpg: requesting key 96AFE6CB from hkp server keys.gnupg.net~
-    gpg: key 713660A7: public key "Junio C Hamano <gitster@pobox.com>" imported~
-    gpg: no ultimately trusted keys found~
-    gpg: Total number processed: 1~
-    gpg:               imported: 1  (RSA: 1)~
-
-Try again to verify the signature:
-
-    $ xz -cd git-2.19.2.tar.xz | gpg --verify git-2.19.2.tar.sign -
-    gpg: Signature made Wed 21 Nov 2018 04:04:41 PM CET using RSA key ID 96AFE6CB~
-    gpg: Good signature from "Junio C Hamano <gitster@pobox.com>"~
-    gpg:                 aka "Junio C Hamano <jch@google.com>"~
-    gpg:                 aka "Junio C Hamano <junio@pobox.com>"~
-    gpg: WARNING: This key is not certified with a trusted signature!~
-    gpg:          There is no indication that the signature belongs to the owner.~
-    Primary key fingerprint: 96E0 7AF2 5771 9559 80DA  D100 20D0 4E5A 7136 60A7~
-         Subkey fingerprint: E1F0 36B1 FEE7 221F C778  ECEF B0B5 E886 96AF E6CB~
-
-This time, you should read “Good signature from ...”.
-
-## configure
-
-    $ xt git-X.YY.Z.tar.xz
-
-    $ make configure
-
-    $ ./configure --prefix=/usr/local
-
-## compile and install
-
-    $ make
-
-    $ sudo checkinstall
-
-## update
-
-Now, you can get the latest updates with your compiled `git`:
-
-    $ git clone git://git.kernel.org/pub/scm/git/git.git
-
 ##
 # Concepts
 ## What's the difference between an author and a committer?
@@ -777,62 +842,6 @@ OTOH, there's no need to, if the value doesn't contain any whitespace:
 ### What happens if I execute `$ git config user.name John` outside a git repo?
 
 It fails, because Git uses the `--local` scope by default.
-
-##
-## Ignoring files
-### I've created a global gitignore file.  From which directory of the project is it applied?
-
-From the root of the project.
-
-This matters for example, if you write `/pattern`.
-The slash stands for “only in the current directory”.
-The notion of current directory is affected by where the gitignore file lives.
-A global gitignore lives  outside the project, but is processed as  if it was at
-its root.
-
-### I wrote `tags` in a gitignore file.  In which directory of the project will a `tags` entry be ignored?
-
-Any.
-
-A pattern is applied recursively throughout the entire working directory.
-
-###
-### How to ignore a `tags` entry but only in the current directory (the one where the gitignore file lives)?
-
-Prefix `tags` with a slash:
-
-    /tags
-
-### How to ignore any directory named `tags/`?
-
-Append `tags` with a slash:
-
-    tags/
-
-### How to ignore any file named `tags`?
-
-    tags
-    !tags/
-
-The first pattern  makes Git ignore any file  named tags (✔), and any  file in a
-directory named tags (✘).
-The second pattern makes Git NOT ignore any file in a directory named tags (✔).
-
-###
-### What's the difference between the patterns `tags` and `tags/`?
-
-`tags/` makes Git ignore any file in a `tags/` directory.
-
-`tags` makes Git ignore any file in a `tags/` directory, but also any file named `tags`.
-
-###
-### Does Git track an empty directory?
-
-No.
-
-### Does Git track a non-empty directory in which there are only ignored files?
-
-No.
 
 ##
 # Usage
@@ -1750,6 +1759,7 @@ changes`.
 Mastering issues (10 min read)
 
 ---
+
     créer un repo sur github (sans readme, license, .cvsignore)
 
     $ git init

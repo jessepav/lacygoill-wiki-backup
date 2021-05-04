@@ -1263,15 +1263,11 @@ Remember that `virtcol()` starts indexing from 1 (not 0).
 
 ### its first cell?
 
-    virtcol([line('.'), getline('.')->byteidx(charcol('.') - 2) + 1]) + 1
+    virtcol([line('.'), col('.') - 1]) + 1
 
 Here, `virtcol(...)` gives the index of the last cell of the previous character.
 And the last `+ 1` gets us what we  really want, the index of the next cell i.e.
 the first cell of the character under the cursor.
-
-The first  `+ 1` is necessary  to make up  for the fact that  `byteidx()` starts
-indexing from `0`, while `virtcol()` expects  an index counted from `1` (like if
-it was given by `col()`).
 
 ##
 ## How to get the number of cells a character occupy?
@@ -1288,20 +1284,16 @@ The first screen cell is indexed with 0 (not 1).
 
 #### How to get the length of a tab which would be inserted at the current cursor position?
 
-    strdisplaywidth("\t", virtcol([line('.'), getline('.')->byteidx(charcol('.') - 2) + 1]))
+    strdisplaywidth("\t", virtcol([line('.'), col('.') - 1]))
 
-The second argument must be the index  of the first screen cell of the character
-under the cursor (the count start from  0).  Only `virtcol()` can give this kind
-of info.
+The  second argument  must  be the  index  of  the *first*  screen  cell of  the
+character under the cursor (the count start from 0).
 
----
-
-Actually, we should  also add `1` to  `virtcol()` to get the index  of the first
-screen cell  after the  previous character  (i.e. the first  screen cell  of the
-character under the cursor).  And we should subtract `1` to make up for the fact
-that  `strdisplaywidth()` starts  indexing  from `0`,  while `virtcol()`  starts
-indexing from `1`.  But since both operations cancel each other out, they can be
-omitted.
+Here, `virtcol()` gives us  the index of the *last* screen  cell of the previous
+character; so, we should add 1.
+But `strdisplaywidth()`  indexes cells  from 0,  while `virtcol()`  indexes them
+from `1`; so, we should remove 1.
+Both operations cancel themselves, so we don't need to apply any offset.
 
 ##
 ## I have a string and a pattern.  How to get the list of substrings matching the capturing groups?

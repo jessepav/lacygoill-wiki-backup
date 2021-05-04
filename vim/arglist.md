@@ -444,7 +444,7 @@ Play with:
 
 ---
 
-See our fixme in `~/.vim/plugged/vim-brackets/plugin/brackets.vim`.
+See our fixme in `~/.vim/pack/mine/opt/brackets/plugin/brackets.vim`.
 It's about  `]a` which behaves  unexectedly when we  try to visit  an unreadable
 argument (this  is due  to `:next` –  and probably `:prev`  too –  which behaves
 differently inside a `try` conditional).

@@ -22,6 +22,8 @@ file with the desired program.
 
     $ xdg-mime query filetype <file>
 
+Example:
+
     $ xdg-mime query filetype ~/.vim/vimrc
 
 ###
@@ -29,11 +31,15 @@ file with the desired program.
 
     $ xdg-mime query default <mimetype>
 
+Example:
+
     $ xdg-mime query default text/plain
 
 ### How to set it?
 
     $ xdg-mime default <app.desktop> <mimetype> ...
+
+Example:
 
     $ xdg-mime default gvim.desktop text/plain text/x-c application/x-shellscript
 
@@ -61,8 +67,14 @@ There may be other files (like `~/.local/share/applications/mimeapps.list`), use
 ###
 ## How to set gVim as the default handler for all known text files?
 
+                                                        remove trailing suffix extension
+                                                        v--------------v
     $ find /usr/share/mime/text -iname '*.xml' -execdir basename -s .xml -- '{}' ';' \
         | xargs xdg-mime default gvim.desktop
+
+NOTE: `-execdir` executes the specified command from the subdirectory containing
+the found  file.  It's  much more  secure than `-exec`,  because it  avoids race
+conditions during the resolution of found the paths.
 
 ### How to configure the handler to pass arbitrary options to the gVim command?
 
@@ -70,7 +82,7 @@ You can use your own `gvim.desktop` in your home:
 
     $ cp /usr/local/share/applications/gvim.desktop ~/.local/share/applications/gvim.desktop
 
-If you do so, it has the priority over the system one.
+If you do so, it has priority over the system one.
 
 Edit the `Exec` directive to pass the desired options.
 

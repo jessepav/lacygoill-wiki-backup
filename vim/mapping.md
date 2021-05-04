@@ -333,10 +333,10 @@ MWE:
 This is  a contrived example, but  the issue can  be encountered in a  real life
 scenario.  For example, in the past, we had these mappings:
 
-    " ~/.vim/plugged/vim-help/after/ftplugin/help.vim
+    " ~/.vim/pack/mine/opt/help/after/ftplugin/help.vim
     nno <buffer><nowait> q <cmd>norm 1<space>q<cr>
 
-    " ~/.vim/plugged/vim-window/plugin/window.vim
+    " ~/.vim/pack/mine/opt/window/plugin/window.vim
     nno <unique> <space>q <cmd>call lg#window#quit()<cr>
 
 and this function:
@@ -3403,7 +3403,7 @@ body, not a characterwise selection:
 
 Try to use `GetSelectionCoords()` in your plugin(s) instead of escaping.
 
-    ~/.vim/plugged/vim-lg-lib/import/lg.vim
+    ~/.vim/pack/mine/opt/lg-lib/import/lg.vim
 
 Unless they really  need to update the  visual marks, or you really  want to get
 back to normal mode.

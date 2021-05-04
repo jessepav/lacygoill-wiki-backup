@@ -1005,7 +1005,7 @@ assignment, and inside a `:set efm` assignment.
 
 `%s` refers to a string used to locate an error.
 
-`%\s` and  `%\\s`refer to a whitespace,  resp. inside a `:let  &efm` assignment,
+`%\s` and `%\\s`  refer to a whitespace, resp. inside  a `:let &efm` assignment,
 and inside a `:set efm` assignment.
 
 ##

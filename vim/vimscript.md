@@ -2229,8 +2229,8 @@ une pour le flag et une pour l'id.
 
 Il ne faut jamais créer 2 fichiers dont le chemin depuis un dossier `autoload/` est identique:
 
-    ~/.vim/plugged/a_plugin/autoload/foo.vim
-    ~/.vim/plugged/b_plugin/autoload/foo.vim
+    ~/.vim/pack/mine/opt/a_plugin/autoload/foo.vim
+    ~/.vim/pack/mine/opt/b_plugin/autoload/foo.vim
 
 En effet, si on définit une fonction dans le 2e fichier:
 

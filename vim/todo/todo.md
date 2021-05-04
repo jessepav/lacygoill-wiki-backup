@@ -1,4 +1,113 @@
 # Refactoring
+## `&l:` → `&`
+
+    &l:cms → &cms
+
+There are 2 cases to consider:
+
+   - writing an option
+   - reading an option
+
+When you write an  option, you probably want to keep  `&l:`; otherwise, you also
+alter the global value which is most probably not what you want.
+
+When you read an option, you can probably drop `l:`.
+But there is one special case to consider; if you omit `l:`, the global value is
+used when:
+
+   - the option value is a string
+   - the local value is an empty string
+   - the option is global-local
+
+Example:
+```vim
+vim9script
+&l:keywordprg = ''
+&g:keywordprg = 'global'
+echo &keywordprg
+```
+    global
+
+This is not the case for a simple local option:
+```vim
+vim9script
+&l:cinkeys = ''
+&g:cinkeys = 'global'
+echo &cinkeys == ''
+```
+    true
+
+Is that an issue?
+Do we need `l:` when reading the value of a global-local?
+I don't think so.
+Usually (always?), when we read the value  of an option, we're interested in the
+value which takes  effect.  In the case  of a global-local option,  if the local
+value is an empty string, the global value takes effect.
+
+## `setl foo` → `&l:foo = true`,  `setl nofoo` → `&l:foo = false`
+
+Would it be more readable like this?
+
+Relevant pattern to look for:
+
+    \C\<set\%[local]\s\+no
+
+## use `&` syntax instead of `:set` whenever possible
+
+The only times where it won't be possible or too difficult is for `-=`, `+=`, `^=`.
+For example, you can't use `&` to refactor this:
+
+    set cpoptions-=aA
+
+Also, make sure to expand `~`:
+
+                  ✘
+                  v
+    &backupdir = '~/.vim/tmp/backup//'
+
+    &backupdir = $HOME .. '/.vim/tmp/backup//'
+                 ^---^
+                   ✔
+
+Otherwise, Vim will treat `~` as a literal character, and the path as relative.
+IOW, instead of using this directory:
+
+    /home/user/.vim/tmp/backup
+
+Vim will use this one:
+
+    /home/user/.vim/~/.vim/tmp/backup
+
+But for some reason, this issue doesn't seem to affect `'packpath'`.
+This works as expected:
+
+    &packpath = '~/.vim'
+
+Weird...
+
+##
+## use more functions as methods:
+```vim
+vim9script
+var funcnames =<< trim END
+    charidx
+    complete
+    escape
+    shellescape
+    extendnew
+    get
+    index
+    match
+    matchend
+    remove
+    split
+    stridx
+    string
+    tolower
+END
+@+ = '\C\%(->\)\@2<!\<\%(' .. funcnames->join('\|') ..  '\)('
+echo @+
+```
 ## finish reviewing our "deep" qfl
 
 I think its purpose was to refactor as many `deepcopy()` + `map()` and `copy()` + `map()`
@@ -11,17 +120,6 @@ Remember that `mapnew()` only makes a shallow copy...
 ## remove unnecessary quotes around keys in Vim9 dictionaries
 
     ^\C\s*\%(export\s\+\)\=\%(def\)\%(\%(enddef\)\@!\_.\)*{\zs\_s*['"]
-
-## ?
-
-If the change suggested in this report is considered and accepted:
-<https://github.com/vim/vim/issues/7409>
-
-and you need to refactor your Vim9 scripts, look for this pattern:
-
-    \C\<def\>\%(\%(enddef\)\@!\_.\)*\zs\[[^:\]]*:[^:\]]\+\]
-
-Note that it gives some false positives.
 
 ##
 ## When should we
@@ -185,7 +283,7 @@ There may be other locations where we could have used a heredoc:
 
     :vim /[a-z](\[/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
           ^------^
-          there may be other patterns to test
+          there might be other patterns to test
 
 ##
 # Reference

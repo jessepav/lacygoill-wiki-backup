@@ -1457,9 +1457,7 @@ Des tags ayant un thème commun commencent par un même préfixe:
             On peut lister tous les tags commençant par un même préfixe via `C-d`.
 
 
-                     ┌ plugin géré par `vim-plug`
-                     │
-    :helptags ~/.vim/plugged/foo/doc/
+    :helptags ~/.vim/pack/minpac/opt/foo/doc/
 
             (Re)Génère le fichier de tags du plugin foo.
 

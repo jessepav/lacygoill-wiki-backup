@@ -418,9 +418,9 @@ automatically terminated when we start it from Vim and quit the latter:
 
 <https://unix.stackexchange.com/q/523255/289772>
 
-See our comments inside `tmux#capture_pane#main()`:
+See our comments inside `tmux#capturePane#main()`:
 
-    ~/.vim/plugged/vim-tmux/autoload/tmux/capture_pane.vim:2
+    ~/.vim/pack/mine/opt/tmux/autoload/tmux/capturePane.vim
 
 ## Document `realpath(1)`
 

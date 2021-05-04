@@ -122,7 +122,16 @@ Google custom search using this list of predefined urls: <http://pastebin.com/62
 
 #### How to stream it in mpv?
 
-    $ mpv $(youtube-dl -g 'url')
+With a recent enough `mpv(1)`, you can pass it the url directly:
+
+    $ mpv 'url'
+
+This is possible thanks to the youtube-dl hook-script.
+The latter looks at  the input URL, and plays the video  located on the website.
+It works with many streaming sites, not just youtube.
+
+The youtube-dl hook-script is enabled by  default; `--ytdl` is assumed even when
+omitted.
 
 ###
 ### How to get the final name of the file which would be downloaded from an url?
@@ -244,8 +253,8 @@ of the webpage; copy the link and paste it in transmission.
 
 TODO: Watch and document these videos:
 
-torsocks - Access The Tor Network - Linux CLI: <https://www.youtube.com/watch?v=0uXFffq-UPU>
-W3M Magnet Links Handler - Linux CLI: <https://www.youtube.com/watch?v=euk_LMdXNOU>
+- torsocks - Access The Tor Network - Linux CLI: <https://www.youtube.com/watch?v=0uXFffq-UPU>
+- W3M Magnet Links Handler - Linux CLI: <https://www.youtube.com/watch?v=euk_LMdXNOU>
 
 ##
 # Todo

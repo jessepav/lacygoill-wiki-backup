@@ -1210,7 +1210,7 @@ A.  Exemple:
 
     augroup my_group
         au!
-        au FileType c,shell au! my_group BufEnter,BufWritePre <buffer> call Func()
+        au FileType c,shell au! my_group BufEnter,BufWritePre <buffer=abuf> call Func()
     augroup END
 
             Cette autocmd appelle automatiquement Func() pour un  buffer dont le type de fichier est
@@ -1221,7 +1221,7 @@ A.  Exemple:
             logique ET  entre 2 évènements.  En  temps normal, les évènements  sont reliés entre
             eux via un OU.
 
-            Le pattern spécial <buffer> passé à la 2e autocmd est nécessaire pour que sa portée
+            Le pattern spécial <buffer=abuf> passé à la 2e autocmd est nécessaire pour que sa portée
             soit limitée au  buffer courant.  Sans lui, à  partir du moment où un  fichier de type
             C/shell aurait été  détecté pendant la session, Func() serait  appelée ensuite pour
             n'importe quel type de buffer (python, markdown …).
@@ -1315,6 +1315,48 @@ A.  Exemple:
 
 ##
 # Todo
+## ?
+
+Document that for certain events, you should  not use `%`, `&`, `b:` to refer to
+a property of the buffer for which the event is being fired.
+Instead, you should use `expand('<abuf>')` and `getbufvar()` or `setbufvar()`.
+*Actually, `&` is always necessary for an option, but you still need getbufvar()*
+*or setbufvar().  `&` alone is wrong.*
+
+These events are:
+
+   - `BufAdd`, `BufCreate`
+   - `BufDelete`
+   - `BufHidden`
+   - `BufNew`
+   - `BufUnload`
+   - `BufWinleave`
+   - `BufWipeout`
+   - `FileChangedShell`
+
+Because for each of them, the help mentions something like:
+
+   > NOTE: When this autocommand is executed, the
+   > current buffer "%" may be different from the
+   > buffer being created "<afile>".
+
+Find a MWE to illustrate the pitfall.
+
+## ?
+
+Document  that `<buffer>`  is *probably*  wrong when  installing a  buffer-local
+autocmd from another autocmd:
+
+    au EventA * au EventB <buffer> ++once # do sth
+                          ^------^
+                             ✘
+
+You probably need `<buffer=abuf>` instead:
+
+    au EventA * au EventB <buffer=abuf> ++once # do sth
+                          ^-----------^
+                                ✔
+
 ## ?
 
 Document that you can use a regular pattern, and not just a file pattern, as the

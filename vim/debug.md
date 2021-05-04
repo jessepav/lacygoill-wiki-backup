@@ -7,11 +7,11 @@
     profd file */search.vim
 
     " ✘
-    prof start /tmp/log | prof! file ~/.vim/plugged/vim-search/autoload/search.vim | so ~/.vim/plugged/vim-search/autoload/search.vim
-    profd file ~/.vim/plugged/vim-search/autoload/search.vim
+    prof start /tmp/log | prof! file ~/.vim/pack/mine/opt/search/autoload/search.vim | so ~/.vim/pack/mine/opt/search/autoload/search.vim
+    profd file ~/.vim/pack/mine/opt/search/autoload/search.vim
 
     " ✔
-    prof start /tmp/log | prof! func search#wrap_n | so ~/.vim/plugged/vim-search/autoload/search.vim
+    prof start /tmp/log | prof! func search#wrap_n | so ~/.vim/pack/mine/opt/search/autoload/search.vim
     profd func search#wrap_n
 
     " ✔
@@ -47,45 +47,51 @@ commands:
 # Startup
 ## What are the locations from which Vim sources files when I start it with `$ vim -Nu NORC`?
 
-   1. ~/.vim/plugin/**/*.vim
-   2. $VIMRUNTIME/plugin/**/*.vim
-   3. ~/.vim/after/plugin/**/*.vim
+   1. `~/.vim/plugin/**/*.vim`
+   2. `$VIMRUNTIME/plugin/**/*.vim`
+   3. `~/.vim/pack/*/start/*/plugin/**/*.vim`
+   4. `~/.vim/pack/*/start/*/after/plugin/**/*.vim`
+   5. `~/.vim/after/plugin/**/*.vim`
+
+TODO:  Shouldn't the step 3 come *before* 2?
 
 ### And if I
 #### start it with `$ vim -Nu /tmp/empty_vimrc.vim`?
 
- 1. /tmp/empty_vimrc.vim
- 2. ~/.vim/plugin/**/*.vim
- 3. $VIMRUNTIME/plugin/**/*.vim
- 4. ~/.vim/after/plugin/**/*.vim
+ 1. `/tmp/empty_vimrc.vim`
+ 2. `~/.vim/plugin/**/*.vim`
+ 3. `$VIMRUNTIME/plugin/**/*.vim`
+ 4. `~/.vim/pack/*/start/*/plugin/**/*.vim`
+ 5. `~/.vim/pack/*/start/*/after/plugin/**/*.vim`
+ 6. `~/.vim/after/plugin/**/*.vim`
 
 #### write `filetype plugin indent on` in the vimrc?
 
 During the sourcing of the vimrc, and before `~/.vim/plugin/`, Vim sources:
 
-   1. $VIMRUNTIME/ftplugin.vim
-   2. $VIMRUNTIME/indent.vim
-   3. $VIMRUNTIME/syntax/{syntax,synload,syncolor}.vim
+   1. `$VIMRUNTIME/ftplugin.vim`
+   2. `$VIMRUNTIME/indent.vim`
+   3. `$VIMRUNTIME/syntax/{syntax,synload,syncolor}.vim`
 
 #### write `colo default` at the end of the vimrc?
 
 During the sourcing of the  vimrc, after the filetype/indent/syntax plugins, and
 before `~/.vim/plugin/`, Vim sources:
 
-   1. $VIMRUNTIME/colors/default.vim
+   1. `$VIMRUNTIME/colors/default.vim`
 
-#### add `Plug ...` statements?
+#### add `:packadd!` statements?
 
-Right after `~/.vim/plugin/`, Vim sources the files in `~/.vim/plugged/*/plugin/`.
+Right after `~/.vim/plugin/`, Vim sources the files in `~/.vim/pack/{minpac,mine}/opt/plugin/`.
 
 And right before `~/.vim/after/plugin/`, Vim sources the files in
-`~/.vim/plugged/*/after/plugin/`.
+`~/.vim/pack/{minpac,mine}/opt/*/after/plugin/`.
 Those are rare.
 The only directory matching this pattern atm on my machine is
-`~/.vim/plugged/ultisnips/after/plugin/`.
+`~/.vim/pack/minpac/opt/ultisnips/after/plugin/`.
 
 ##
-## If I start `$ vim --noplugin`, is `~/.vim/plugged/vim-foo/ftdetect/foo.vim` still sourced?
+## If I start `$ vim --noplugin`, is `~/.vim/plugin/vim-foo/ftdetect/foo.vim` still sourced?
 
 Yes.
 
@@ -204,25 +210,16 @@ Which is why we always also use this guard:
     endif
 
 ##
-## `:Scriptnames` show me Vim sourced files which are not plugins.  Which reasons did it have to source them?
+## `:Scriptnames` tells me that some sourced files are not plugins.  Which reasons did Vim have to source them?
 
 They've been sourced by either:
 
    - an autocmd
 
-   - an element of interface (mapping, command, ...)
+   - some interface (mapping, custom Ex command, ...)
      which triggered the sourcing of an autoloaded script
 
     - a filetype/syntax/indent plugin for a buffer
-                               ^----^
-                               Yes,  I  know,  the question  mentions  files
-                               which are  NOT plugins, but  filetype plugins
-                               are not local  plugins (`~/.vim/plugin`), nor
-                               third-party plugins (`~/.vim/plugged/*`).
-
-                               I   felt  the   necessity  to   mention  them
-                               separately as they can cause a lot of scripts
-                               to be sourced when a session is restored.
 
 ##
 # Verbosity
@@ -657,7 +654,7 @@ As an example, you might find something like this in the logfile:
     line 12: const FILTER_CMD = {
     Exception thrown: Vim(const):E15: Invalid expression: ]},
 
-    finished sourcing ~/.vim/plugged/vim-qf/autoload/qf/preview.vim
+    finished sourcing ~/.vim/pack/mine/opt/qf/autoload/qf/preview.vim
 
 This says that the error was raised from the line 12 in `autoload/qf/preview.vim`.
 Then, you might read:
@@ -907,7 +904,7 @@ You need to translate `s:` manually:
 
 #
 # Issues
-## I'm writing a bug report for a Vim issue.
+## I'm writing a bug report for a Vim crash.
 ### I need the Vim binary to include debugging symbols!
 
 When you configure – before compiling – edit the file `src/Makefile`, to include
@@ -934,6 +931,25 @@ dummy one like `/bin/true`:
     STRIP = /bin/true
 
 ###
+### Vim doesn't dump a core!
+
+Make sure you didn't set any limit on the size of core files which the OS can write:
+
+    ulimit -c unlimited
+
+---
+
+Also, make  sure there  is no mismatch  between the version  of the  Vim process
+which crashes, and the one of the installed binary.
+
+That is,  when you  have such an  issue, restart your  Vim process  whenever you
+update the Vim binary.  Otherwise, your OS  might not write a core file.  In the
+system log  files, e.g.  in `/var/log/apport.log`, you  might find  some message
+like this one:
+
+    ERROR: apport (pid 1234) <some date>: executable was modified after program start, ignoring
+                                          ^---------------------------------------------------^
+
 ### I want my backtrace to contain as much info as possible (no <optimized out>)!
 
 Edit `src/Makefile`  to pass  the `-O0`  flag to the  compiler via  the `CFLAGS`
@@ -1204,7 +1220,7 @@ there are various things that may clobber the results:
             On ne peut donc pas exécuter:
 
                     ✘
-                    prof!   file plugged/vim-search/autoload/search.vim
+                    prof!   file pack/mine/opt/search/autoload/search.vim
                     profdel file */search.vim
 
             Car `:prof!  file` a reçu en  argument un chemin absolu,  tandis que
@@ -1212,8 +1228,8 @@ there are various things that may clobber the results:
             En revanche, on peut exécuter:
 
                     ✔
-                    prof!   file plugged/vim-search/autoload/search.vim
-                    profdel file plugged/vim-search/autoload/search.vim
+                    prof!   file pack/mine/opt/search/autoload/search.vim
+                    profdel file pack/mine/opt/search/autoload/search.vim
 
                     ✔
                     prof!   file */search.vim
@@ -1520,7 +1536,7 @@ pass an absolute path to `:breakadd`:
     :ru plugin/search.vim
 
     " ✔
-    :breakadd ~/.vim/plugged/vim-search/plugin/search.vim
+    :breakadd ~/.vim/pack/mine/opt/search/plugin/search.vim
     :ru plugin/search.vim
 
 Probably because `:ru`  expands the argument it receives into  an absolute path,
