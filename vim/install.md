@@ -64,20 +64,19 @@ Later, you can check the lua interface has been compiled by running:
 ##
 ##configure the compilation
 
-    ./configure --enable-fail-if-missing \
-                --enable-gui=gtk2 \
-                --enable-luainterp=dynamic \
-                --enable-python3interp=yes \
-                --prefix=/usr/local \
-                --with-compiledby=user \
-                --with-luajit
+    ./configure  \
+      --enable-fail-if-missing       \
+      --enable-gui=gtk2              \
+      --enable-python3interp=dynamic \
+      --prefix=/usr/local            \
+      --with-compiledby=user
 
 ### Why should I avoid the perl and ruby interfaces?
 
 First, you probably don't need them; I  have never found a plugin which requires
 the ruby or perl interface to work.
 
-Second, the less code, the less bugs.
+Second, the less code, the fewer bugs.
 
 ---
 
@@ -92,36 +91,17 @@ If yoy really need them, pass these options to `configure`:
 
 ###
 ### What is the effect of
-#### `--with-features=huge`?
-
-Enable all the  features documented at `:h +feature-list` which  are prefixed by
-the flag `T`, `S`, `N`, `B` or `H`.
-
-See `:h :ve` for the meaning of these flags.
-
-####
-#### `--enable-luainterp=dynamic`, `--enable-python3interp=yes`?
-
-Enable the lua/perl/python3 interfaces.
-See `:h if_lua` and `:h if_pyth`.
-
 #### `--enable-fail-if-missing`?
 
 Make the configuration script stop if it finds that an interface won't work.
 
-####
-#### `--enable-gui=gtk2`?
+#### `--enable-gui=gtk3`?
 
-According to `:h gui-x11-compiling`, it's not necessary, because it's enabled by
-default:
+It lets you build the GTK+ 3 GUI.
 
-   > The GTK+ 2 GUI is built by default. Therefore, you usually don't
-   > need to pass any options  such as --enable-gui=gtk2 to configure
-   > and build that.
+---
 
-Nevertheless, better be explicit.
-
-In particular, we don't want to use gtk3, because the latter can increase the latency.
+Warning: It can increase the latency.
 
    > We can also  note that Vim using GTK3 is slower  than its GTK2 counterpart
    > by  an order  of magnitude. It  might therefore  be possible  that the  GTK3
@@ -131,12 +111,13 @@ In particular, we don't want to use gtk3, because the latter can increase the la
 
 Source: <https://lwn.net/Articles/751763/>
 
-I can confirm what the article states.
-In my limited testing with typometer, the latency doubles after compiling with gtk3.
+If you  want to measure  how much  more latency gtk3  gives, do some  tests with
+typometer.
 
-#### `--enable-multibyte`?
+#### `--enable-python3interp=dynamic`?
 
-Add support for multibyte characters (16 and 32 bits).
+Enable the python3 interface.
+See `:h if_pyth`.
 
 #### `--with-compiledby=user`?
 

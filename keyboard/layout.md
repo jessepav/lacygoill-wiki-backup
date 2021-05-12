@@ -103,6 +103,20 @@ With xmodmap:
 
       *I think xcape also needs to be delayed... because of xmodmap?*
 
+---
+
+Document why `caps2esc` and `enter2ctrl` are better than `xcape(1)`.
+
+- <https://gitlab.com/interception/linux/tools>
+- <https://gitlab.com/interception/linux/plugins/caps2esc>
+
+First, they should work with Wayland too, while `xcape(1)` can only work with Xorg.
+
+Second,  on  our machine,  when  we  use `xcape(1)`  and  we  briefly press  the
+`Capslock` key  to generate  an `Escape` keysym,  the X.Org  process temporarily
+consumes more cpu than usual (from 1/2% to 5/6% or even more).  This causes some
+lag in Vim, which is very distracting.
+
 # ?
 
 Il semble que le moment où les commandes `xmodmap` et `xcape` sont exécutées, et
@@ -928,19 +942,9 @@ console.
 
 # Links
 
-- <https://askubuntu.com/questions/325272/permanent-xmodmap-in-ubuntu-13-04>
-- <https://bugs.launchpad.net/ubuntu/+bug/1243642>
 - <https://help.ubuntu.com/community/Custom%20keyboard%20layout%20definitions>
-- <https://askubuntu.com/q/254424/698276>
 
-Sources d'infos  à lire, un  jour, si notre  solution actuelle (alias  `fxk`) ne
-fonctionne plus.
-Certaines solutions en bas du 1er lien sont très intéressantes.
-
-J'y ai notamment trouvé un  lien vers un script python `~/bin/python/xkbmapd.py`
-qui  est  censé  charger  automatiquement  la conf  de  `xmodmap`  après  chaque
-démarrage, mise en veille, hibernation, changement de disposition de clavier ...
-
+---
 
 - <https://gitlab.com/interception/linux/tools>
 - <https://gitlab.com/interception/linux/plugins/caps2esc>
@@ -954,6 +958,117 @@ Il fonctionne donc en console.
 
 De plus, il a moins de chances d'être désactivé (comme après une déconnexion).
 
+Update:  We really need to learn how to use these interception tools.
+We can no longer use xcape on Ubuntu 20.04:
+
+    # old code from `~/.config/keyboard/setup`:
+    killall xcape
+    xcape -e 'Control_L=Escape'
+    xcape -e 'Control_R=Return'
+
+The  latter has  an undesirable  interaction with  the new  Xorg driver  used by
+default (`modesetting`).   When we tap  the capslock  key to generate  an escape
+keysym, the Xorg process temporarily consumes  more cpu than usual (from 1/2% to
+5/6% or even more).  This causes some lag in Vim.
+
+These interceptions tools use yaml for their config files.
+To learn more about YAML, see:
+
+   - <https://blog.codemagic.io/what-you-can-do-with-yaml/>
+   - <https://learnxinyminutes.com/docs/yaml/>
+
+YAML is a superset of JSON.
+As such, learning about the latter might help.
+For more info about JSON, see:
+
+   - <https://learnxinyminutes.com/docs/json/>
+   - <https://www.youtube.com/watch?v=wI1CWzNtE-M>
+   - <https://www.json.org/json-en.html>
+
+We've installed the `caps2esc` plugin like this:
+
+    $ sudo add-apt-repository ppa:deafmute/interception
+    $ sudo apt install interception-caps2esc
+
+During the installation, we were asked this question:
+
+    Would you like to update the recomended config for your interception plugins
+    (at /etc/interception/udevmon.d/deafmute-ppa-*.yaml)? [y/n]:
+
+We've answered yes.
+
+`udevmon(1)` is automatically started as a systemd service thanks to this file:
+
+    /etc/systemd/system/multi-user.target.wants/udevmon.service
+
+Which is a symlink to:
+
+    /usr/lib/systemd/system/udevmon.service
+
+It seems that `udevmon(1)` only sources 1 config file.
+At the moment, it's this one:
+
+    /etc/interception/udevmon.d/deafmute-ppa-caps2esc.yaml
+
+Whose contents is:
+
+    - JOB: intercept -g $DEVNODE | caps2esc -m 1 | uinput -d $DEVNODE
+      DEVICE:
+        EVENTS:
+          EV_KEY: [KEY_CAPSLOCK]
+
+If you want  to perform other transformations, like generating  the Enter keysym
+when the Enter key is briefly pressed, then write this:
+
+                                                 v-----------v
+    - JOB: intercept -g $DEVNODE | caps2esc -m 1 | enter2enter | uinput -d $DEVNODE
+      DEVICE:
+        EVENTS:
+          EV_KEY: [KEY_CAPSLOCK, KEY_ENTER]
+                                 ^-------^
+
+`enter2enter` should be a custom binary inspired by `caps2esc`.
+The readme of interception gives this starting point:
+
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <linux/input.h>
+
+    int main(void) {
+        setbuf(stdin, NULL), setbuf(stdout, NULL);
+
+        struct input_event event;
+        while (fread(&event, sizeof(event), 1, stdin) == 1) {
+            if (event.type == EV_KEY && event.code == KEY_X)
+                event.code = KEY_Y;
+
+            fwrite(&event, sizeof(event), 1, stdout);
+        }
+    }
+
+It works, but it's not what we want.
+We don't want to  replace a key *unconditionally*; we want to  replace it on the
+condition it was briefly pressed.  That's what `caps2esc` does.  Read its code.
+Or read this one:
+<https://gitlab.com/interception/linux/plugins/space2meta/-/blob/master/space2meta.c>
+
+As for the names of the key that you should write in your code
+(e.g. `KEY_CAPSLOCK`), look in this file:
+
+    /usr/include/linux/input-event-codes.h
+
+In  the future,  when  you  turn your  `keyboard/setup`  script  into a  systemd
+service, make sure it's started *after* caps2esc and similar plugins.
+Otherwise, you could  face issues such as your custom  key repeat settings could
+be reset:
+
+    sleep 1; xset r rate 175 40
+
+See: <https://github.com/oblitum/caps2esc/issues/1>
+
+    $ systemctl status udevmon
+
+---
 
 - <http://bepo.fr/wiki/Utilisateur:Kaze/B%C3%A9po-intl#Variante_.C2.AB.C2.A0d.C3.A9veloppeur.C2.A0.C2.BB>
 - <https://wayback.archive.org/web/20160322103150/http://bepo.fr/wiki/Utilisateur:Kaze/B%C3%A9po-intl#Variante_.C2.AB.C2.A0d.C3.A9veloppeur.C2.A0.C2.BB>
@@ -963,6 +1078,7 @@ Ces liens mènent à une page affichant un layout de clavier bépo intéressant.
 On peut s'en inspirer pour trouver  des emplacements judicieux pour des symboles
 de programmation.
 
+---
 
 - <https://github.com/tmk/tmk_keyboard>
 
@@ -972,6 +1088,7 @@ Si un  jour la customization du  clavier devenait trop complexe  ou insuffisante
 via les outils traditionnels (xmodmap, xcape, autokey), on pourrait tenter de le
 customizer directement au niveau du firmware.
 
+---
 
 - <http://efod.se/writings/linuxbook/html/caps-lock-to-ctrl.html>
 - <http://www.economyofeffort.com/2014/08/11/beyond-ctrl-remap-make-that-caps-lock-key-useful/>
@@ -983,103 +1100,6 @@ Procédure pour remap CapsLock à Control avec:
 
 ##
 # Utilities
-## xmodmap
-
-<https://wiki.archlinux.org/index.php/Xmodmap>
-
-Source d'infos à propos de `xmodmap`.
-
----
-
-    keycode 42 = k1 k2 k3 k4 k5 k6
-                 │  │  │  │  │  │
-                 │  │  │  │  │  └ ISO_Level3_Shift + Shift
-                 │  │  │  │  └ ISO_Level3_Shift
-                 │  │  │  └ Mode_switch + Shift
-                 │  │  └ Mode_switch
-                 │  └ Shift
-                 └ keysym when the key whose keycode is 42 is pressed without any modifier
-
-Syntaxe  basique  pour  configurer  les   keysyms  générés  par  une  touche  en
-combinaison avec certains modificateurs, via `xmodmap`.
-
-`Mode_switch` est  le nom d'un modificateur  qui était généré autrefois  `par la
-touche physique AltGr`.
-
-De nos jours, `AltGr` génère `ISO_Level3_Shift`.
-
-<https://unix.stackexchange.com/questions/55076/what-is-the-mode-switch-modifier-for/55154#55154>
-
----
-
-    keycode 42 <modifier1> <modifier2> … = <keysym1> <keysym2> …
-
-Autre syntaxe valide.
-
-<http://askubuntu.com/a/303966>
-
----
-
-    keycode 47 Shift_L Control_L = m M Return
-
-La touche    m    génèrera    le keysym    m
-`shift + m`       "                        M
-`control + m`     "                        Return
-
-
-WARNING:
-
-`C-m`  sera  traduit  en  `Return`  seulement dans  le  terminal,  et  dans  les
-applications GUI utilisant la biblio graphique Xt.
-
-Mais il  ne sera pas  traduit dans les applications  en GUI utilisant  une autre
-biblio tq Qt ou Gtk.
-
-La solution pour Gtk est d'utiliser un autre outil, `autokey-gtk`.
-
-Mais pour Qt ...
-
-Ceci pose une autre question:
-est-ce que toutes les modifications apportées au layout du clavier, et réalisées
-à l'aide de `xmodmap` fonctionnent dans les applications en GUI?
-
-Si  la  réponse  est  non,   c'est  une  raison  supplémentaire  d'utiliser  une
-description de clavier custom.
-
----
-
-    xmodmap -e 'remove shift = Shift_R'
-    xmodmap -e 'add mod1 = Shift_R'
-
-Change la signification du keysym `Shift_R`, de `shift` à `mod1` (alt).
-
-Il est  nécessaire de supprimer `Shift_R`  de la ligne logique  `shift` avant de
-l'ajouter  dans la  ligne  `mod1`,  autrement la  2e  commande provoquerait  une
-erreur.
-
-En effet, un même keysym ne peut pas se trouver sur plusieurs lignes logiques.
-Ça n'aurait pas de sens.
-Un keysym ne peut avoir qu'une seule signification.
-
----
-
-    xmodmap -e 'keycode 36 = Control_R'
-    xmodmap -e 'add control = Control_R'
-
-Crée une nouvelle touche générant `Control_R`.
-
-La 1e demande  à la touche Enter  (identifiée par son keycode 36)  de générer le
-keysym `Control_R`.
-
-La 2e  s'assure que la  modifier map est au  courant qu'un nouveau  keycode peut
-générer `Control_R`.
-
-Un même  keysym (ex: `Control_R`, `Alt_L`, ...)  peut être généré par  autant de
-touches qu'on veut.
-
-La seule  restriction qui s'impose  à eux, est qu'ils  doivent tous être  sur la
-même ligne logique de la modifier map.
-
 ## xcape
 
     xcape -e 'Control_L=Escape'
@@ -1122,30 +1142,6 @@ Afin  de choisir  un bon  keycode  pour la  touche inexistante,  lire la  keymap
 
 ##
 # Issues
-## `xcape` works only with Xorg, not with Wayland!
-
-Have a look at these utilities:
-
-- <https://gitlab.com/interception/linux/tools>
-- <https://gitlab.com/interception/linux/plugins/caps2esc>
-
-They should work with Wayland.
-They may be more powerful than `xcape`.
-If you learn how to use them, document them in this file.
-
----
-
-Alternatively, use a display manager which supports Xorg, and enable it by default.
-For example, for gdm, you need to uncomment the line:
-
-    #WaylandEnable=false
-
-In `/etc/gdm/custom.conf`.
-
-For more info, see:
-
-<https://wiki.archlinux.org/index.php/GDM#Use_Xorg_backend>
-
 ## AltGr + space generates a space, instead of an underscore!
 
 If you use xmodmap:
@@ -1222,12 +1218,4 @@ journal, to see which issue the latter has encountered:
 Alternatively, trace the `localectl` process:
 
     $ strace -o /tmp/log localectl <subcommand> <args>
-
-##
-## I've installed `usrmerge` on Ubuntu 16.04.  Because of a conflict, the `kbd` package has been removed!
-
-Install a newer version of kbd:
-
-- <https://packages.ubuntu.com/bionic/kbd>
-- <https://github.com/legionus/kbd>
 

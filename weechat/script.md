@@ -141,3 +141,16 @@ For more info:
    - <https://weechat.org/files/doc/stable/weechat_scripting.en.html#hook_command>
    - <https://weechat.org/files/doc/stable/weechat_plugin_api.en.html#_hook_command>
 
+##
+# Todo
+## Document how to install a script from weechat itself.
+
+Example:
+
+    /set script.scripts.download_enabled on
+    /script install autosort.py
+    /set script.scripts.download_enabled off
+
+Do we want to include these commands in `~/.config/weechat/script/rc.conf`?
+Can we trust weechat not to download any malicious script?
+

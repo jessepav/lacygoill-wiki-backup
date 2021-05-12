@@ -112,38 +112,6 @@ Autoload the function, and load it by passing the `-U` option to `autoload`.
 
 ##
 # Issues
-## zsh takes too much time to start!
-
-You may have installed it from the official repositories.
-In this case, `zsh-common` may have been installed as a dependency.
-The latter installs the file:
-
-    /etc/zsh/zshrc
-
-Which contains a `compinit` command.
-If you  already executed this  command in your  `~/.zshrc`, it will  probably be
-executed twice.
-In any case, it  increases zsh startup time by approximately  `.5s` (but only if
-you  tweak `fpath`  to include  a custom  directory where  you put  a completion
-function file).
-
-Solution:
-
-Purge `zsh-common` (and `zsh`), then re-install zsh by compiling from source.
-
----
-
-Alternatively, you could  try to unset the options `RCS`  and/or `GLOBAL_RCS` in
-`~/.zshrc`.
-It would prevent zsh from sourcing some remaining startup files.
-However, even though  `~/.zshrc` is sourced early,  it may still be  too late to
-prevent `/etc/zsh/zshrc`...
-
-Also,  this may  be undesirable,  because you  may want  to source  some of  the
-remaining startup files like:
-
-    /etc/zsh_command_not_found
-
 ## Some commands work fine in bash, but fail in zsh:  “zsh: no matches found: <some pattern>”!
 
 You probably have passed an argument to your command which contains wildcards:

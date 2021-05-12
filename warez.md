@@ -1,15 +1,3 @@
-# Animes
-
-<https://animetorrents.me/>
-
-# Reddit
-
-   - <https://www.reddit.com/r/Piracy/>
-   - <https://www.reddit.com/r/TPB/>
-   - <https://www.reddit.com/r/megalinks/>
-   - <https://www.reddit.com/r/trackers/>
-
-##
 # Ebooks
 ## Library Genesis
 
@@ -105,6 +93,19 @@ Google custom search using this list of predefined urls: <http://pastebin.com/62
    - <https://www.reddit.com/r/antilibrary/comments/6ow6tq/antilibrary_faq/>
    - <https://www.reddit.com/r/Piracy/comments/3i9y7n/guide_for_finding_textbooks/>
    - <https://www.reddit.com/r/trackers/comments/hrgmv/tracker_with_pdfsebooks_of_college_textbooks/c1xrq44>
+
+##
+# Animes
+
+   - <https://nyaa.si/>
+   - <https://animetorrents.me/>
+
+# Reddit
+
+   - <https://www.reddit.com/r/Piracy/>
+   - <https://www.reddit.com/r/TPB/>
+   - <https://www.reddit.com/r/megalinks/>
+   - <https://www.reddit.com/r/trackers/>
 
 ##
 # Youtube-dl
@@ -249,16 +250,14 @@ Try to visit the tor site:
 If you can't click on a magnet, search  for the text 'magnet' in the source code
 of the webpage; copy the link and paste it in transmission.
 
----
-
-TODO: Watch and document these videos:
-
-- torsocks - Access The Tor Network - Linux CLI: <https://www.youtube.com/watch?v=0uXFffq-UPU>
-- W3M Magnet Links Handler - Linux CLI: <https://www.youtube.com/watch?v=euk_LMdXNOU>
-
 ##
 # Todo
 
-Review the quality of the sites given here:
+## Review the quality of the sites given here:
+
 <https://github.com/Igglybuff/awesome-piracy#courses-and-tutorials>
 
+## Watch and document these videos:
+
+- torsocks - Access The Tor Network - Linux CLI: <https://www.youtube.com/watch?v=0uXFffq-UPU>
+- W3M Magnet Links Handler - Linux CLI: <https://www.youtube.com/watch?v=euk_LMdXNOU>

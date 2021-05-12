@@ -133,7 +133,7 @@ Make sure these options are enabled in grub's config file:
 
     $ sudoedit /etc/default/grub
 
-    :s/GRUB_CMDLINE_LINUX_DEFAULT="\zsquiet splash\ze"//c
+    :%s/GRUB_CMDLINE_LINUX_DEFAULT="\zsquiet splash\ze"//c
 
     $ sudo update-grub
 

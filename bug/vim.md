@@ -5027,18 +5027,14 @@ A similar issue applies to `call`:
                      VimFuncName
 
 ##
-## help for `:vimgrep` command is missing explanation about `f` flag (fuzzy algorithm)
+## ?
 
-The help is missing this paragraph:
+    $ cd /tmp && MANPAGER='vim -Nu NONE +"set wic" -' man man
+    :find *
+    # press Tab
 
-   > When the 'f' flag is specified, fuzzy string matching
-   > is used to find matching lines. In this case,
-   > {pattern} is treated as a literal string instead of a
-   > regular expression.
-
-<https://github.com/vim/vim/pull/8152/files>
-
-Wait for the next update of the runtime files and see whether it's included.
+    expected: * is replaced with some text (the first directory in `/usr/include`)
+    actual:   * is not replaced
 
 ## ?
 

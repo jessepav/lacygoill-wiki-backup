@@ -53,7 +53,40 @@ novel into a pdf before being able to read it.
 
 ###
 ### How to install it?
-#### compile a recent version of `libmupdf-dev`
+
+Use a PPA:
+
+    $ sudo add-apt-repository ppa:spvkgn/zathura-mupdf
+    $ sudo aptitude update
+    $ sudo aptitude install zathura-pdf-mupdf
+
+See: <https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf>
+
+
+NOTE: The last `install` command will remove `zathura-pdf-poppler` (because they
+provide the same functionality).
+
+---
+
+Alternatively, you can simply download the package from here:
+<https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf/+sourcepub/8048474/+listing-archive-extra>
+And its custom dependency `libmupdf-pic-dev` from here:
+<https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf/+sourcepub/8048472/+listing-archive-extra>
+Click on the file below the section "Package files" with the extension `amd64.deb`.
+
+And install `libmupdf-pic-dev` then `zathura-pdf-mupdf` with `$ dpkg -i`.
+Again, it will purge `zathura-pdf-poppler`:
+
+    ...~
+    dpkg: considering removing zathura-pdf-poppler in favour of zathura-pdf-mupdf ...~
+    dpkg: yes, will remove zathura-pdf-poppler in favour of zathura-pdf-mupdf~
+    ...~
+
+#### How to compile it from source?
+
+*What follows only applies to Ubuntu 16.04 and 18.04.*
+
+First, you need to compile a recent version of `libmupdf-dev`:
 
     $ git clone --recursive git://git.ghostscript.com/mupdf.git
     $ cd mupdf
@@ -74,7 +107,7 @@ If  the  compilation   fails  because  of  a  missing  file,   have  a  look  at
 `docs/building.html`, header “Compiling on Linux”  (switch to master if the file
 doesn't exist).
 
-#### compile the plugin
+Now, you can finally compile the plugin:
 
     $ git clone https://git.pwmt.org/pwmt/zathura-pdf-mupdf.git
     $ cd zathura-pdf-mupdf
@@ -97,105 +130,16 @@ Note that  you can't easily  go beyond  certain versions for  `libmupdf-dev` and
 
 Otherwise the compilation of the plugin fails.
 
-##### Don't use checkinstall!
-
-You could try with:
-
-    $ sudo checkinstall \
-      --maintainer='root@ubuntu' \
-      --pkgname='zathura-pdf-mupdf' \
-      --pkgversion=0.3.1 \
-      --provides='pdf-viewer,zathura-pdf-poppler'
-
-And with this summary: “PDF support (mupdf backend) for zathura”
-
-But the  installation will fail  because the package  tries to overwrite  a file
-installed by another package (`zathura-pdf-poppler`).
-
-You will have to force the installation by running sth like:
-
-    $ sudo dpkg -i --force-overwrite zathura-pdf-mupdf*.deb
-
-Then later, if you decide to purge the package, it won't be easy.
-Indeed, zathura needs a plugin to read a pdf; it has to be `zathura-pdf-poppler`
-or `zathura-pdf-mupdf`.
-If you try to purge the latter, apt will first try to reinstall the former.
-This again will cause an issue, because both packages share a same file location
-(`/usr/lib/zathura/pdf.so`),  and apt  can't  overwrite a  file  installed by  a
-package which is currently installed.
-So, you'll have to force the installation of the poppler plugin:
-
-    $ aptitude download zathura-pdf-poppler
-    $ sudo dpkg -i --force-overwrite zathura-pdf-mupdf*.deb
-    $ sudo aptitude purge zathura-pdf-mupdf
-
-Besides, the deb package would contain only these files:
-
-    /usr/share/doc/zathura-pdf-mupdf/AUTHORS
-    /usr/share/doc/zathura-pdf-mupdf/LICENSE
-    /usr/share/doc/zathura-pdf-mupdf/README
-    /usr/share/applications/zathura-pdf-mupdf.desktop
-    /usr/lib/zathura/pdf.so
-
-And only the last two are useful.
-
-####
-#### This is too complex!  Can I use a PPA?
-
-Yes: <https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf>
-
-    $ sudo add-apt-repository ppa:spvkgn/zathura-mupdf
-    $ sudo aptitude update
-    $ sudo aptitude install zathura-pdf-mupdf
-
-It will remove `zathura-pdf-poppler` (because they provide the same functionality).
+For more info, see: <https://askubuntu.com/a/1134907>
 
 ---
 
-Alternatively, you can simply download the package from here:
-<https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf/+sourcepub/8048474/+listing-archive-extra>
-And its custom dependency `libmupdf-pic-dev` from here:
-<https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf/+sourcepub/8048472/+listing-archive-extra>
-Click on the file below the section "Package files" with the extension `amd64.deb`.
-
-And install `libmupdf-pic-dev` then `zathura-pdf-mupdf` with `$ dpkg -i`.
-Again, it will purge `zathura-pdf-poppler`:
-
-    ...~
-    dpkg: considering removing zathura-pdf-poppler in favour of zathura-pdf-mupdf ...~
-    dpkg: yes, will remove zathura-pdf-poppler in favour of zathura-pdf-mupdf~
-    ...~
-
-##### It doesn't work on Ubuntu 18.04!
-
-Yes, the previous PPA only works for 16.04.
-
-Try this:
-
-    $ git clone https://git.pwmt.org/pwmt/zathura-pdf-mupdf.git
-    $ cd zathura-pdf-mupdf
-    $ git checkout 0.3.1
-    $ sudo aptitude update
-    $ sudo aptitude install libjbig2dec0-dev libjpeg-dev libopenjp2-7-dev libssl-dev zathura-dev
-    $ wget https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf/+files/libmupdf-pic-dev_1.11+ds1-0ubuntu1ppa1~xenial_amd64.deb
-    $ sudo dpkg -i libmupdf-pic-dev*.deb
-    $ sudo make install
-
-If the link passed to `wget(1)` doesn't work, try to find another one from this webpage:
-<https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf/+sourcepub/8048472/+listing-archive-extra>
-
----
-
-Note that this time, you can only go up to 0.3.1.
-If you compiled libmupdf-dev, you could go up to 0.3.2.
-
-###
-### How to remove it?
+If you later decide to remove the plugin with:
 
     $ sudo make uninstall
 
-It  will  remove  the  `/usr/lib/zathura/pdf.so`  from  zathura-pdf-poppler,  so
-reinstall the latter:
+It will remove the `/usr/lib/zathura/pdf.so` library from zathura-pdf-poppler.
+So reinstall the latter:
 
     $ sudo aptitude reinstall zathura-pdf-poppler
 
@@ -206,6 +150,10 @@ If you have  installed zathura *after* the plugin, you  may have overwritten the
 `pdf.so` file, in which case your backend is not mupdf but still poppler.
 
 Reinstall the plugin:
+
+    $ sudo aptitude reinstall zathura-pdf-mupdf
+
+Or (if you compiled the plugin):
 
     $ sudo make install
 

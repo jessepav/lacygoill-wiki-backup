@@ -131,7 +131,7 @@ The kernel will respond immediately, unless it's completely locked.
 
 It must have been compiled with the `CONFIG_MAGIC_SYSRQ` option enabled.
 
-## How to check it satisfies the condition?
+### How to check it satisfies the condition?
 
     $ grep -i config_magic_sysrq "/boot/config-$(uname -r)"
 
@@ -154,7 +154,7 @@ The decimal representation of the latter tell  you which commands can be sent to
 the kernel.
 
 Note that even if the kernel has  a function enabled at compile-time, the distro
-may still disable it at boot time, using `/etc/sysctl.conf`.
+might still disable it at boot time, using `/etc/sysctl.conf`.
 
 ### by the distro?  (2)
 
@@ -165,6 +165,8 @@ may still disable it at boot time, using `/etc/sysctl.conf`.
       │       └ print all parameters currently available
       │
       └ configure kernel parameters at run time
+
+Or:
 
     $ cat /proc/sys/kernel/sysrq
 

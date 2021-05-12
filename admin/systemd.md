@@ -9,7 +9,7 @@ From `man systemctl`:
 
 # ?
 
-       disable NAME...
+    disable NAME...
 
 Disables one or more units.
 This  removes  all   symlinks  to  the  specified  unit  files   from  the  unit
@@ -31,7 +31,7 @@ enable.
 
 ---
 
-       enable NAME...
+    enable NAME...
 
 Enable  one or  more unit  files or  unit file  instances, as  specified on  the
 command-line.
@@ -79,7 +79,7 @@ Using enable on masked units results in an error.
 
 ---
 
-       --runtime
+    --runtime
 
 When used with enable, disable, edit,  (and related commands), make changes only
 temporarily, so that they are lost on the next reboot.
@@ -92,7 +92,7 @@ they are lost on the next reboot.
 
 ---
 
-       --global
+    --global
 
 When used  with enable  and disable,  operate on  the global  user configuration
 directory, thus enabling or disabling a unit file globally for all future logins
@@ -100,14 +100,14 @@ of all users.
 
 ---
 
-       --user
+    --user
 
 Talk to the service manager of the calling user, rather than the service manager
 of the system.
 
 ---
 
-       --system
+    --system
 
 Talk to the service manager of the system.
 This is the implied default.
@@ -130,8 +130,7 @@ It must configure the userland, i.e.:
 ## Why is the old sysvinit system not well suited to a modern Linux distribution?
 
 Linux is  now used on  a wide variety of  devices (mobile devices,  desktop PCs,
-TVs, ...).
-This has changed the requirements for the init process.
+TVs, ...). This has changed the requirements for the init process.
 
 ##
 ## What are the main characteristics of systemd (compared to other init systems)?
@@ -141,9 +140,8 @@ As a  result, it can start  them **in parallel**, which  uses hardware resources
 more efficiently and allows the system to start quicker.
 
 It   also   handles   various   tasks  that   were   previously   performed   by
-distribution-specific scripts.
-As  a  side effect,  it  eliminates  various configuration  differences  between
-distributions.
+distribution-specific  scripts.   As  a   side  effect,  it  eliminates  various
+configuration differences between distributions.
 
 ## What does systemd do after the system has boot up?
 
@@ -167,13 +165,13 @@ A and B are started simultaneously.
 # Systemd
 ## What's the command executed by the first process?
 
-Atm, on ubuntu, it's:
+Atm, on Ubuntu, it's:
 
-    /sbin/init splash
+    /sbin/init
 
 ## It doesn't contain the word 'systemd'!  Why?
 
-`/sbin/init` is a symlink to `[/usr]/lib/systemd/systemd`.
+`/sbin/init` is a symlink to `/lib/systemd/systemd`.
 
 ## Where is the default config of systemd?
 
@@ -196,7 +194,7 @@ For systemd running in `--system` mode, it's located in:
     │ /etc/systemd/system/     │ where system-wide user units are placed              │    |
     │                          │ by the system administrator                          │    |
     ├──────────────────────────┼──────────────────────────────────────────────────────┤    | descending order
-    │ /run/systemd/system/     │ units created at run time                            │    | of priority
+    │ /run/systemd/system/     │ units created at runtime                             │    | of priority
     ├──────────────────────────┼──────────────────────────────────────────────────────┤    |
     │ /usr/lib/systemd/system/ │ where units of packages installed system-wide belong │    v
     └──────────────────────────┴──────────────────────────────────────────────────────┘
@@ -209,9 +207,9 @@ For systemd running in `--user` mode, it's located in:
     │ /etc/systemd/user/           │ system-wide user units placed                     │    |
     │                              │ by the system administrator                       │    |
     ├──────────────────────────────┼───────────────────────────────────────────────────┤    | descending
-    │ /run/user/1000/systemd/user/ │ units created at run time (for the current user?) │    | order
+    │ /run/user/1000/systemd/user/ │ units created at runtime (for the current user?)  │    | order
     ├──────────────────────────────┼───────────────────────────────────────────────────┤    | of
-    │ /run/systemd/user/           │ units created at run time (for all users?)        │    | priority
+    │ /run/systemd/user/           │ units created at runtime (for all users?)         │    | priority
     ├──────────────────────────────┼───────────────────────────────────────────────────┤    |
     │ ~/.local/share/systemd/user/ │ units of packages                                 │    |
     │                              │ that have been installed in the home directory    │    |
@@ -258,9 +256,6 @@ Or shorter:
 
     $ systemctl -t help
 
-Atm, it doesn't give the exact same list:
-it omits 'snapshot', and includes 'busname' (no idea what this stands for).
-
 ##
 ## What's the purpose of
 ### a device unit?
@@ -280,8 +275,7 @@ via a graphical file manager, or via `cd`.
 ### a path unit?
 
 It lets systemd  automatically start a service when  a particular file/directory
-is accessed.
-systemd uses `inotify` to monitor the file/directory.
+is accessed.  systemd uses `inotify` to monitor the file/directory.
 
 ### a socket unit?
 
@@ -342,50 +336,13 @@ It's `list-units`:
 
 ###
 # Unit file configuration
-## Why should I install the package `usrmerge`?
-
-For the general case, see:
-
-- <https://www.freedesktop.org/wiki/Software/systemd/TheCaseForTheUsrMerge/>
-- <https://wiki.debian.org/UsrMerge>
-
-For systemd in particular, it makes things simpler to understand, otherwise unit
-files may be in one of:
-
-    /lib/systemd/system
-    /usr/lib/systemd/system
-
-And they don't have the exact same  contents, so whenever you have an issue with
-a unit file installed from a package, you have to look in 2 directories.
-
-After installing `usrmerge`, the 2 paths lead to the exact same set of files.
-Indeed the package seems  to move the existing binaries from  `/` to `/usr/` and
-installs these symlinks for backward compatibility:
-
-    /bin   → /usr/bin
-    /sbin  → /usr/sbin
-    /lib   → /usr/lib
-    /lib64 → /usr/lib64
-
-Btw, a backronym  for `usr` is “Universal System Resources”  (but originally, it
-really stood for “USeR”):
-<https://unix.stackexchange.com/a/103348/289772>
-
----
-
-Note that you shouldn't  need to install the package for  Ubuntu 19.04 and later
-versions.
-Also, in  Debian, merged  /usr has  been the  default since  debootstrap 1.0.85,
-reverted in 1.0.87 and re-enabled in 1.0.102.
-
-##
 ## What's the name of a line in a unit file?
 
 A directive.
 
 ## Where can I find information about all possible lines I can write in a unit file?
 
-    man systemd.directives
+    $ man systemd.directives
 
 ## How can I extend the configuration of a service unit file without modifying it directly?
 
@@ -403,23 +360,23 @@ Which files are created/removed because of a `WantedBy` or `RequiredBy` directiv
 
 If you write the directive:
 
-        WantedBy=foo.service
+    WantedBy=foo.service
 
 inside the unit file `bar.service`, then,  when you'll execute:
 
-        $ systemctl enable bar.service
+    $ systemctl enable bar.service
 
 systemd will create a symlink in:
 
-        /etc/systemd/system/foo.service.wants/bar.service
+    /etc/systemd/system/foo.service.wants/bar.service
 
 For `RequiredBy`, the symlink would be created in:
 
-        /etc/systemd/system/foo.service.requires/bar.service
+    /etc/systemd/system/foo.service.requires/bar.service
 
 The symlink will be removed when you execute:
 
-        $ systemctl disable bar.service
+    $ systemctl disable bar.service
 
 ---
 
@@ -427,7 +384,7 @@ What's the effect of the `Wants` and `Requires` directives in the `[Unit]` secti
 
 Same effect as the `WantedBy` and `RequiredBy` directives.
 But the effect is not obtained  at installation time (`$ systemctl enable ...`),
-but when the unit file is loaded at run time.
+but when the unit file is loaded at runtime.
 
 ---
 
@@ -437,7 +394,7 @@ These directories contain symbolic links to  unit files that are dependencies of
 the sshd service.
 
 The  symbolic  links  are   automatically  created  either  during  installation
-according to [Install] unit file options or at run time based on [Unit] options.
+according to [Install] unit file options or at runtime based on [Unit] options.
 
 ---
 
@@ -482,7 +439,7 @@ unit files, and have no effect.
 
 Unit  files  may include  an  "[Install]"  section, which  carries  installation
 information for the unit.
-This section is not interpreted by systemd(1) during run time; it is used by the
+This section is not interpreted by systemd(1)  during runtime; it is used by the
 enable and  disable commands of the  systemctl(1) tool during installation  of a
 unit.
 Note that settings in the "[Install]" section may not appear in `.d/*.conf` unit
@@ -490,8 +447,8 @@ file drop-ins (see above).
 
 ---
 
-       WantedBy=
-       RequiredBy=
+    WantedBy=
+    RequiredBy=
 
 This option may be used more than  once, or a space-separated list of unit names
 may be given.
@@ -509,7 +466,7 @@ listed unit.
 E.g. if  you write `WantedBy=getty.target`  in a service  `getty@.service`, then
 execute:
 
-        $ systemctl enable getty@tty2.service
+    $ systemctl enable getty@tty2.service
 
 systemd will  create a  symlink from  `getty.target.wants/getty@tty2.service` to
 `getty@.service`.
@@ -530,12 +487,12 @@ to the unit filename.
 
 How do I know whether a drop-in file exists for a given service?
 
-        $ systemctl status <name>
+    $ systemctl status <name>
 
 In the output, look for a line beginning with `Drop-In:`.
 
-        Drop-In: /usr/lib/systemd/system/ssh.service.d
-                 └─bar.conf, foo.conf
+    Drop-In: /usr/lib/systemd/system/ssh.service.d
+             └─bar.conf, foo.conf
 
 In this example, we can see that  the ssh service has 2 drop-in files `foo.conf`
 and `bar.conf`, inside `/usr/lib/systemd/system/ssh.service.d/`.
@@ -544,7 +501,7 @@ and `bar.conf`, inside `/usr/lib/systemd/system/ssh.service.d/`.
 
 Which extension must I use when writing a drop-in configuration file for a service?
 
-        .conf
+    .conf
 
 It's not `.service`!  How can systemd know which type of unit I'm configuring?
 
@@ -555,13 +512,13 @@ in the parent directory name.
 
 Which command must I execute after creating/modifying a drop-in configuration file?
 
-        $ systemctl daemon-reload
+    $ systemctl daemon-reload
 
 ---
 
 What's the difference between the subcommands `reload` and `daemon-reload`?
 
-       reload PATTERN...
+    reload PATTERN...
 
 Asks all units listed on the command-line to reload their configuration.
 Note  that this  will reload  the service-specific  configuration, not  the unit
@@ -572,7 +529,7 @@ In  other words:  for the  example  case of  Apache, this  will reload  Apache's
 httpd.conf in the web server, not the apache.service systemd unit file.
 
 
-        daemon-reload
+    daemon-reload
 
 Reload the systemd manager configuration.
 This  will rerun  all  generators (see  systemd.generator(7)),  reload all  unit
@@ -682,8 +639,7 @@ So, when systemd  restarts A, B can  still send its requests to  the socket: the
 connection is preserved.
 
 The kernel  will buffer the client  requests it receives from  the socket during
-the restart.
-The new A process will take over where the old one left off.
+the restart.  The new A process will take over where the old one left off.
 
 ## What's the difference between a service and a daemon?
 
@@ -802,13 +758,16 @@ services are conflicting and cannot run on the same port.
 
 A loaded service is a service whose definition has been loaded in the ram.
 But it doesn't mean that it's currently running.
-It may, or it may have run in the past, or it may have failed.
+It might:
+
+   - be running
+   - have run in the past
+   - have failed to run in the past
 
 ## What's an enabled service?
 
-A  service which  will  be  automatically started  when  the  current target  (≈
-runlevel) changes.
-This includes at boot time.
+A  service which  will be  automatically started  when the  current target  (≈
+runlevel) changes.  This includes at boot time.
 
 ## How to print
 ### the status of all loaded services (i.e. are they running or not)?
@@ -1267,19 +1226,20 @@ time.
 
     $ systemctl status
 
-# How to list the active units?
+# How to list
+##the active units?
 
     $ systemctl
 
-# How to list all units?
+## all units?
 
     $ systemctl -a
 
-# How to list the failed units?
+## the failed units?
 
     $ systemctl --state failed
 
-# How to list the installed unit files?
+## the installed unit files?
 
     $ systemctl list-unit-files
 
@@ -1978,7 +1938,7 @@ The service must have written why it failed.
 Read:
 
    - `/usr/share/doc/systemd/README.Debian.gz`
-     (press `-l` to get folding; read section "Debugging boot/shutdown problems")
+     (press `za` to get custom folding; read section "Debugging boot/shutdown problems")
    - <https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1464917>
    - <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=788303>
    - <https://freedesktop.org/wiki/Software/systemd/Debugging/>
@@ -2045,11 +2005,11 @@ In conclusion, it seems our hanging issue is related to the swap.
 
 Document how to start a debug shell during the boot process.
 
-I   think  you   need  to   edit  `/etc/default/grub`,   and  append   the  item
-`systemd.debug-shell`  in  the  value   assigned  to  `GRUB_CMDLINE_LINUX`  (see
+I think you need to edit `/etc/default/grub`, and append the item
+`systemd.debug-shell` in the value assigned to `GRUB_CMDLINE_LINUX` (see
 `/usr/share/doc/systemd/README.Debian.gz`), then run `$ sudo update-grub`.
 
-For   more  info   about   the  difference   between  `GRUB_CMDLINE_LINUX`   and
+For more info about the difference between `GRUB_CMDLINE_LINUX` and
 `GRUB_CMDLINE_LINUX_DEFAULT`, see `info -f grub -n 'Simple configuration'`.
 
 ##
@@ -2078,8 +2038,8 @@ You could try this code in `~/.config/systemd/user/xbindkeys.service`:
     WantedBy=graphical.target
 
 Then, you would need to run `$ systemctl --user enable xbindkeys` and restart the system.
-It seems to work on Ubuntu 16.04; but maybe not on Ubuntu 18.04, for the latter you may
-need to replace `graphical.target` with `default.target`.
+It seems to work on Ubuntu 16.04; but  maybe not on Ubuntu 18.04, for the latter
+you might need to replace `graphical.target` with `default.target`.
 
 Note that  you need to  pass the `-n` flag  to xbindkeys; otherwise  the process
 fails to be started.
@@ -2177,7 +2137,7 @@ For example, the files in:
 
     /etc/systemd/system/getty@.service.d/
 
-## Convert `~/.config/keyboard/setup` as a systemd service/timer.
+## Turn `~/.config/keyboard/setup` into a systemd service/timer.
 
 Maybe we should do the same for everything in `~/bin/autostartrc`.
 
@@ -2194,36 +2154,7 @@ Source:
 - <https://github.com/systemd/systemd/issues/825#issuecomment-127957710>
 - <https://github.com/systemd/systemd/issues/825#issuecomment-127917622>
 
-However, the readline key bindings don't work.
-Why?
-I think the command starts this service:
-
-    /usr/lib/systemd/system/rescue.service
-
-It executes these commands:
-
-    /bin/plymouth quit
-    /bin/echo -e 'Welcome to rescue mode! After logging in, type "journalctl -xb" to view\\nsystem logs, "systemctl reboot" to reboot, "systemctl default" or ^D to\\nboot into default mode.'
-    /bin/sh -c "/sbin/sulogin; /bin/systemctl --job-mode=fail --no-block default"
-
-None of them suffer from this issue.
-Where does the issue come from?
-Try to remove as many directives as possible until the issue disappears.
-Find a MWE.
-
-Update: I think  that's because `sudo  machinectl shell`  starts sh (which  is a
-symlink to dash).
-You can check this by running:
-
-    $ echo $SHELL
-    /bin/sh~
-
-You need to make `machinectl shell` start sh with the `-E` flag, to enable emacs
-key bindings.  I don't know how atm.
-But even if you manage to do it, there's another issue:
-our sh has been compiled without `--with-libedit`.
-You would need to make `machinectl shell` start our custom sh installed in `~/.local/bin/dash`.
-To understand how we produced this binary, in zshrc, read our comments above the `sh` alias.
+You might need to install the `systemd-container` package.
 
 ## ?
 
@@ -2237,35 +2168,25 @@ To understand how we produced this binary, in zshrc, read our comments above the
     $ systemd-analyze dot 'avahi-daemon.*' | dot -Tsvg > avahi.svg
     $ display avahi.svg
 
-## We can't redirect the output of a service into a file.
+## How to redirect the output of a service into a file.
 
-We need a more recent version of systemd to use the StandardOutput directive.
+Use the `StandardOutput` directive:
 <https://stackoverflow.com/a/43830129/9780968>
 
-Otherwise, you may use a hack (`/bin/sh -c 'cmd >redir'`):
+Otherwise, you might use a hack (`/bin/sh -c 'cmd >redir'`):
 <https://stackoverflow.com/a/37595720/9780968>
 
 ## ?
 
     $ systemd-delta
 
-It has a lot of output.
-I wonder whether all those `[OVERRIDDEN]` are due to `usrmerge`.
-If that's the case, and you need to clean the output:
-
-    :sil exe 'g/ are identical$/.-2,.d_' | g/^$/d_
-
 ## Talk about the `--no-hostname` option:
 
     $ journalctl -b --no-hostname
                     ^-----------^
 
-It's not available in ubuntu 16.04, but it is in 18.04.
-
 It makes the  output more readable, because it removes  the hostname which gives
 more room for the messages.
-
-## Convert all commands inside `/etc/rc.local` into systemd services
 
 ## Document the purpose of the tor daemon which may be running on your machine
 
