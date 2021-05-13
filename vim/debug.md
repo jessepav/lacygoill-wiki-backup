@@ -904,8 +904,9 @@ You need to translate `s:` manually:
 
 #
 # Issues
-## I'm writing a bug report for a Vim crash.
-### I need the Vim binary to include debugging symbols!
+## I'm writing a bug report for
+### a crash
+#### I need the Vim binary to include debugging symbols!
 
 When you configure – before compiling – edit the file `src/Makefile`, to include
 the `-g` flag in the `CFLAGS` variable, so that it's sent to the compiler.
@@ -923,15 +924,15 @@ See:
 You don't  have to  do that manually;  we have  a zsh snippet  to compile  a Vim
 binary with debugging symbols; use it.
 
-#### It doesn't work!
+##### It doesn't work!
 
 Make sure  the `STRIP` variable is  not set to  the `strip(1)` binary, but  to a
 dummy one like `/bin/true`:
 
     STRIP = /bin/true
 
-###
-### Vim doesn't dump a core!
+####
+#### Vim doesn't dump a core!
 
 Make sure you didn't set any limit on the size of core files which the OS can write:
 
@@ -950,7 +951,7 @@ like this one:
     ERROR: apport (pid 1234) <some date>: executable was modified after program start, ignoring
                                           ^---------------------------------------------------^
 
-### I want my backtrace to contain as much info as possible (no <optimized out>)!
+#### I want my backtrace to contain as much info as possible (no <optimized out>)!
 
 Edit `src/Makefile`  to pass  the `-O0`  flag to the  compiler via  the `CFLAGS`
 variable:
@@ -958,7 +959,7 @@ variable:
     CFLAGS = -g -O0
                 ^^^
 
-### When extracting a backtrace, I get a warning message!
+#### When extracting a backtrace, I get a warning message!
 
     warning: exec file is newer than core file.
 
@@ -969,8 +970,8 @@ core file in your working directory which prevented Vim from dumping a new one:
    2. reproduce the crash again, to get a new core
    3. extract a backtrace from the latter
 
-###
-### I need a valgrind log!
+####
+#### I need a valgrind log!
 
 Run this:
 
@@ -997,7 +998,7 @@ You can also try to compile it from source:
 But for  some reason, with  a compiled  valgrind, the logfile  contains spurious
 errors.  Also, there are a lot of `???` (missing debugging symbols?).
 
-### I need an asan log!
+#### I need an asan log!
 
     $ git stash -a; git stash clear
     $ make clean; make distclean
@@ -1012,7 +1013,10 @@ After reproducing the issue, the log should be written in `./asan.log`.
 Source: <https://github.com/vim/vim/issues/5410#issuecomment-569516803>
 
 ##
-### I need Vim to crash when an internal error (`:h E315`) is detected – to get a core file!
+### an internal error
+#### How to get a backtrace?
+
+You can try to make Vim crash.
 
 In `src/Makefile`, uncomment this line:
 
@@ -1020,9 +1024,29 @@ In `src/Makefile`, uncomment this line:
 
 I found `ABORT_CFLAGS` here: <https://github.com/vim/vim/issues/3177#issue-339241917>
 
----
+You don't have to do that manually; use our zsh snippet to compile Vim.
 
-Again, you don't have to do that manually; use our zsh snippet to compile Vim.
+##### It doesn't work!
+
+Then try this:
+
+   - start Vim in a terminal
+   - in another terminal start gdb
+   - in gdb, attach to the Vim process:
+
+         (gdb) attach <PID>
+
+   - set a break point to where the internal error is raised and continue execution
+
+         (gdb) br file.c:1234
+         (gdb) cont
+
+   - in Vim, reproduce the internal error; it should reach the breakpoint in gdb
+   - in gdb, when the breakpoint is reached, look at the stack using the `bt` command
+
+         (gdb) bt
+
+Source: <https://github.com/vim/vim/issues/5674#issuecomment-838653020>
 
 ###
 ## Some global variable is created, but I don't know which script did it!

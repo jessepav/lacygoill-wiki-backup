@@ -1020,14 +1020,14 @@ Whose contents is:
 If you want  to perform other transformations, like generating  the Enter keysym
 when the Enter key is briefly pressed, then write this:
 
-                                                 v-----------v
-    - JOB: intercept -g $DEVNODE | caps2esc -m 1 | enter2enter | uinput -d $DEVNODE
+                                                 v----------v
+    - JOB: intercept -g $DEVNODE | caps2esc -m 1 | enter2ctrl | uinput -d $DEVNODE
       DEVICE:
         EVENTS:
           EV_KEY: [KEY_CAPSLOCK, KEY_ENTER]
                                  ^-------^
 
-`enter2enter` should be a custom binary inspired by `caps2esc`.
+`enter2ctrl` should be a custom binary inspired by `caps2esc`.
 The readme of interception gives this starting point:
 
     #include <stdio.h>
@@ -1067,6 +1067,17 @@ be reset:
 See: <https://github.com/oblitum/caps2esc/issues/1>
 
     $ systemctl status udevmon
+
+Update: We've written a first version of `enter2ctrl`.
+But there are 2 issues.
+
+First, when  pressing `C-x`, `Ctrl`  and `x` must be  pressed in a  too specific
+manner; for  example, it is not  enough for `x` to  be pressed, it must  also be
+released (and it must be released while  `Ctrl` is held). `caps2esc` is not that
+restrictive.
+
+Second, it doesn't work in the console.  `caps2esc` does work in the console, so
+it should be possible for `enter2ctrl` to work too.
 
 ---
 

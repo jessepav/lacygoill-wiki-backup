@@ -2208,3 +2208,7 @@ If it's not running, you need to start the service manually:
 
 torsocks - Access The Tor Network - Linux CLI: <https://www.youtube.com/watch?v=0uXFffq-UPU>
 
+## Read these pages from: UNIX and Linux System Administration Handbook
+
+    30, 31, 43-57, 61, 93, 113, 117, 295, 298-302, 319, 971, 1169
+
