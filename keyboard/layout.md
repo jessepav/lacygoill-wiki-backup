@@ -1079,6 +1079,9 @@ restrictive.
 Second, it doesn't work in the console.  `caps2esc` does work in the console, so
 it should be possible for `enter2ctrl` to work too.
 
+Also, there is an issue with `caps2esc` *and* `enter2ctrl`:
+in firefox, `Ctrl+mousewheel` does not change the zoom level of the current webpage.
+
 ---
 
 - <http://bepo.fr/wiki/Utilisateur:Kaze/B%C3%A9po-intl#Variante_.C2.AB.C2.A0d.C3.A9veloppeur.C2.A0.C2.BB>
