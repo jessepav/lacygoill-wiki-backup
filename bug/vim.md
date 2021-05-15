@@ -271,65 +271,6 @@ delfu s:Func
 ```
     E1084: Cannot delete Vim9 script function s:Imported
 
-## type casting doesn't work at the script level
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        g:two = 2
-        var l: list<number> = [1, <number>g:two]
-    EOF
-    )
-
-    E15: Invalid expression: <number>g:two]
-
-Update:  It's not necessary right now.
-Why?
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        g:two = 2
-        var l: list<number> = [1, g:two]
-    EOF
-    )
-    ✔
-    no error even though "g:two" was not cast to a number;
-    Shouldn't "[1, g:two]" contain a mix of "<number>" and "<any>"?
-
-    If it is a bug, note that a similar issue was fixed:  https://github.com/vim/vim/issues/6712
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        g:two = 2
-        def Func()
-            var l: list<number> = [1, g:two]
-        enddef
-        Func()
-    EOF
-    )
-
-    E1012: type mismatch, expected list<number> but got list<any>~
-    this is expected
-
-It can't be due to the fact there is no type checking at the script level.
-There *is*:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var l: number = 'string'
-    EOF
-    )
-
-    E1012: type mismatch, expected number but got string~
-
-I think that – at the script level –  Vim only checks the type of the first item
-in a list.  That was fixed – in a `:def` function – by the patch 8.2.1407.
-
----
-
-I'm not sure this is a bug, because `:h type-casting` only mentions compiled code.
-Still, it would be more consistent if it also worked at the script level.
-Although, would it make sense?
-
 ##
 ## Ideas to make Vim script less weird.
 ### Make all builtin functions immune to user settings
@@ -888,26 +829,6 @@ Actual:
 ##
 ## Issues specific to the script level
 ### ?
-```vim
-vim9script
-{
-    eval [][0]
-}
-```
-    E684: list index out of range: 0
-    E171: Missing :endif
-```vim
-vim9script
-{
-    var x = 0 }
-```
-    E15: Invalid expression: 0 }
-    E171: Missing :endif
-
-Why `E171`?
-It should be "Missing }" or "Missing end of block".
-
-### ?
 
 Should Vim9 script implement the concept of a block at the script level?
 ```vim
@@ -985,24 +906,22 @@ its argument prevents an issue...
     EOF
     )
 
-These errors are noisy and confusing:
-
     E475: Invalid argument:  # comment
-    E121: Undefined variable: f
-    E492: Not an editor command:         )
-    E193: :enddef not inside a function
-    E117: Unknown function: Func
 
-The noise could be  fixed once Vim aborts sourcing a script as  soon as an error
-is raised.  But could Vim tell us that we forgot a comma at the end of the `b: any`
-line?
+The error message is confusing.
+Could Vim tell us that we forgot a comma at the end of the `b: any` line?
 
-### ?
+---
+```vim
+vim9script
+def Func(a: any, b: any e: any, f: any)
+    echo 123
+enddef
+Func()
+```
+    E475: Invalid argument: a: any, b: any e: any, f: any)
 
-<https://github.com/vim/vim/issues/7646#issuecomment-757297388>
-
-The original  report was not  a bug, but what  about the inconsistencies  at the
-script level in this comment?
+Again, could Vim be more accurate regarding where the error is coming from?
 
 ### ?
 
@@ -1046,6 +965,68 @@ enddef
 defcompile
 ```
     E1143: Empty expression: "# some comment"
+
+##
+## ?
+
+Matchparen is sometimes too slow.
+
+Above this line:
+
+    if before > 0
+
+Write this line:
+
+    return max([5, min([winheight(0), winnr('#')->winheight() / 2])])
+                                                                    ^
+                                                               cursor
+
+Press `i` to enter insert mode.
+Keep pressing `i` to enter a bunch of `i` characters.
+Vim lags *a lot*.
+To get some profiling, run:
+
+    profile start /run/user/1000/vim/profile.log
+    prof! file ~/.vim/plugin/matchparen.vim
+    unlet g:loaded_matchparen
+    so ~/.vim/plugin/matchparen.vim
+    e
+
+The issue seems to come from the `Skip` expression, and `prop_add()`.
+Why is `Skip` slow here, and not in the original plugin?
+With regards to `prop_add()`, use `gprof(1)` to get some profiling.
+
+---
+
+If these issues can't  be fixed in Vim, try to use a  timer again, to reduce the
+frequency of the highlights updates.
+
+---
+
+Update: Wait.  When we disable the syntax with `:syn off`, the issue disappears.
+I can understand for `Skip`, but what about `prop_add()`?
+Why does it make the latter faster?
+I guess Vim must recompute the syntax whenever a text property is added.
+Could this recomputation be optimized somehow?
+At least for some special simple cases...
+Or maybe  it's –  again –  a redraw issue.   Maybe Vim  redraws whenever  a text
+property  is added  and syntax  highlighting is  enabled.  If  so, I'm  not sure
+anything can be optimized.
+
+---
+
+Update:  Make tests with a Vim binary compiled with optimizations.
+
+## ?
+
+Refactor `:MatchparenOn`, `:MatchparenOff`, `:MatchparenToggle`
+into `:Matchparen -on`, `:Matchparen -off`, `:Matchparen -toggle`.
+
+Update the doc.
+
+---
+
+Rename `old_commands` into `compatible`.
 
 ##
 ## ?
@@ -1098,62 +1079,6 @@ Start Vim like this:
     vim -Nu /tmp/t.vim
 
 Modify the file, then press `ZZ` twice: asan reports memory leaks.
-
-## ?
-
-Matchparen is sometimes too slow.
-
-Above this line:
-
-    if before > 0
-
-Write this line:
-
-    return max([5, min([winheight(0), winnr('#')->winheight() / 2])])
-                                                                    ^
-                                                               cursor
-
-Press `i` to enter insert mode.
-Keep pressing `i` to enter a bunch of `i` characters.
-Vim lags *a lot*.
-To get some profiling, run:
-
-    profile start /run/user/1000/vim/profile.log
-    prof! file ~/.vim/plugin/matchparen.vim
-    unlet g:loaded_matchparen
-    so ~/.vim/plugin/matchparen.vim
-    e
-
-The issue seems to come from the `Skip` expression, and `prop_add()`.
-With regards to `Skip`, would this todo item help?:
-
-   > - compile "skip" argument of searchpair()
-
-It  should not  because `Skip`  is  a funcref  to  a function  which is  already
-compiled...  But why is `Skip` slow here, and not in the original plugin?
-
-With regards to `prop_add()`, use `gprof(1)` to get some profiling.
-
----
-
-If these issues can't  be fixed in Vim, try to use a  timer again, to reduce the
-frequency of the highlights updates.
-
----
-
-Update: Wait.  When we disable the syntax with `:syn off`, the issue disappears.
-I can understand for `Skip`, but what about `prop_add()`?
-Why does it make the latter faster?
-I guess Vim must recompute the syntax whenever a text property is added.
-Could this recomputation be optimized somehow?
-At least for some special simple cases...
-Or maybe  it's –  again –  a redraw issue.   Maybe Vim  redraws whenever  a text
-property  is added  and syntax  highlighting is  enabled.  If  so, I'm  not sure
-anything can be optimized.
-
----
-
-Update:  Make tests with a Vim binary compiled with optimizations.
 
 ## ?
 
@@ -1327,7 +1252,7 @@ The help suggests that it's intended for more than just commands expecting a fil
 
 But this seems to contradict this comment:
 
-   > I don't think `=expr` is evaluated for an :echo command.  But the
+   > I don't think `=expr` is evaluated for an :echo command.
 
 Source: <https://github.com/vim/vim/issues/7621#issuecomment-754800855>
 
@@ -2322,17 +2247,6 @@ Func()
 
 This might explain the rationale behind the different results:
 <https://stackoverflow.com/a/7838212>
-
-## ?
-
-Refactor `:MatchparenOn`, `:MatchparenOff`, `:MatchparenToggle`
-into `:Matchparen -on`, `:Matchparen -off`, `:Matchparen -toggle`.
-
-Update the doc.
-
----
-
-Rename `old_commands` into `compatible`.
 
 ## Vim9: "?:" operator can suppress error at compile time
 
@@ -3735,10 +3649,6 @@ Notice how  we need  extra parens around  the lambda's body  when using  the new
 syntax.  It seems obvious, but I don't think it's documented.
 
 ## ?
-
-<https://github.com/vim/vim/issues/7905#issuecomment-786695893>
-
-## ?
 ```vim
 vim9script
 var l = [1, 2, 3]
@@ -3967,7 +3877,7 @@ disa Func
        0 EXEC     Cmd
        1 RETURN 0
 
-At compile time, should Vim expand a custom command and expand the result?
+At compile time, should Vim expand a custom command and compile the result?
 
     <SNR>1_Func
         eval 0
@@ -4610,6 +4520,14 @@ I think it should be:
          └ that's not a condition
 
 OTOH, the first argument of `?:` is indeed used as a condition.
+
+### ?
+
+We cannot use `:legacy` in front of `:return`:
+<https://github.com/vim/vim/issues/8213>
+
+I don't think it can work (it would make type checking more complex).  It's not important anyway.
+But it should be documented.
 
 ###
 ### concept of block-local function

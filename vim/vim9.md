@@ -2270,7 +2270,7 @@ Source: <https://github.com/vim/vim/issues/6401#issuecomment-655071515>
 ## What's the fastest between
 ### a lambda and an eval string?
 
-At the moment, an eval string is a bit faster in a `:def` function:
+At the moment, an eval string is a bit slower in a `:def` function:
 
     $ vim -es -Nu NONE -i NONE -U NONE -S <(cat <<'EOF'
         vim9script
@@ -2294,8 +2294,8 @@ At the moment, an eval string is a bit faster in a `:def` function:
     EOF
     )
 
-    0.623 seconds to run lambdas~
-    0.555 seconds to run eval strings~
+    0.533 seconds to run lambdas~
+    0.607 seconds to run eval strings~
 
 And at the script level:
 
@@ -2315,8 +2315,8 @@ And at the script level:
     EOF
     )
 
-    0.596 seconds to run lambdas~
-    0.571 seconds to run eval strings~
+    0.529 seconds to run lambdas~
+    0.602 seconds to run eval strings~
 
 ### a `map()` and a for loop?
 
@@ -3391,11 +3391,6 @@ Other similar refactorings:
     cursor(n, 1)
 
 
-    exe ':/' .. pat
-    →
-    search(pat)
-
-
     exe ':' .. n .. 'wincmd w'
     →
     win_getid(n)->win_gotoid()
@@ -3423,6 +3418,22 @@ Other similar refactorings:
 
 Complete this list by looking for `:exe` in all our config/plugins.
 Try to get rid of it whenever you can.
+
+Warning: `search(pat)` is *not* always equivalent to `/pat`.
+
+It is, if `pat` only contains 1 line specifier:
+
+    exe ':/' .. pat
+    →
+    search(pat)
+
+But not if it contains several, separated by semicolons (or commas?):
+
+    exe ':/' .. pat
+    →
+    for line_spec in pat->split('/[,;]/')
+        search(line_spec, 'c')
+    endfor
 
 ###
 ### ?

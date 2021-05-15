@@ -18,6 +18,7 @@ Programs use it to determine how to handle the data they receive.
 When you double-click on  a file, or use `xdg-open(1)`, and  it doesn't open the
 file with the desired program.
 
+##
 ## How to get the mimetype of a file?
 
     $ xdg-mime query filetype <file>
@@ -74,7 +75,7 @@ There may be other files (like `~/.local/share/applications/mimeapps.list`), use
 
 NOTE: `-execdir` executes the specified command from the subdirectory containing
 the found  file.  It's  much more  secure than `-exec`,  because it  avoids race
-conditions during the resolution of found the paths.
+conditions during the resolution of the found paths.
 
 ### How to configure the handler to pass arbitrary options to the gVim command?
 
