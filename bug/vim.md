@@ -971,19 +971,39 @@ defcompile
 
 Matchparen is sometimes too slow.
 
-Above this line:
+Testing text  (make sure to  be in a fullscreen  Vim window inside  a fullscreen
+tmux pane, and the last line of the  buffer is the last line of the window; i.e.
+press `zb`):
 
-    if before > 0
+    vim9script noclear
 
-Write this line:
-
-    return max([5, min([winheight(0), winnr('#')->winheight() / 2])])
-                                                                    ^
-                                                               cursor
+    def UpdateHighlight()
+      var charcol: number = charcol('.')
+      var c: string = text[charcol - 1]
+      var c_before: string = charcol == 1 ? '' : text[charcol - 2]
+      var in_insert_mode: bool = mode() == 'i' || mode() == 'R'
+      before = 0
+      if !pairs->has_key(c)
+        if c_col > 1 && in_insert_mode
+          before = strlen(c_before)
+          c = c_before
+        endif
+        if !pairs->has_key(c)
+          return
+        endif
+      endif
+      var c2: string
+      var s_flags: string
+      var stopline: string
+      [c, c2, s_flags, stopline] = pairs[c]
+      var save_cursor: list<number>
+      return max([5, min([winheight(0), winnr('#')->winheight() / 2])])
+                                                                      ^
+                                                                      cursor here
 
 Press `i` to enter insert mode.
-Keep pressing `i` to enter a bunch of `i` characters.
-Vim lags *a lot*.
+Keep pressing `i` to enter a bunch of `i` characters; Vim lags.
+
 To get some profiling, run:
 
     profile start /run/user/1000/vim/profile.log
@@ -992,30 +1012,22 @@ To get some profiling, run:
     so ~/.vim/plugin/matchparen.vim
     e
 
-The issue seems to come from the `Skip` expression, and `prop_add()`.
-Why is `Skip` slow here, and not in the original plugin?
-With regards to `prop_add()`, use `gprof(1)` to get some profiling.
+To profile the old plugin:
+
+    profile start /run/user/1000/vim/profile.log
+    prof! file $VIMRUNTIME/plugin/matchparen.vim
+    unlet g:loaded_matchparen
+    delfu *Highlight_Matching_Pair (press Tab before Enter)
+    so $VIMRUNTIME/plugin/matchparen.vim
+    e
+
+I think  the issue  comes from  an interaction  between `prop_remove()`  and the
+syntax highlighting.
 
 ---
 
 If these issues can't  be fixed in Vim, try to use a  timer again, to reduce the
 frequency of the highlights updates.
-
----
-
-Update: Wait.  When we disable the syntax with `:syn off`, the issue disappears.
-I can understand for `Skip`, but what about `prop_add()`?
-Why does it make the latter faster?
-I guess Vim must recompute the syntax whenever a text property is added.
-Could this recomputation be optimized somehow?
-At least for some special simple cases...
-Or maybe  it's –  again –  a redraw issue.   Maybe Vim  redraws whenever  a text
-property  is added  and syntax  highlighting is  enabled.  If  so, I'm  not sure
-anything can be optimized.
-
----
-
-Update:  Make tests with a Vim binary compiled with optimizations.
 
 ## ?
 
@@ -1029,6 +1041,18 @@ Update the doc.
 Rename `old_commands` into `compatible`.
 
 ##
+## ?
+```vim
+vim9script
+setline(1, '()')
+searchpairpos('(', '', ')', 'nW', '[0]->map(''synIDattr(v:val, "name")'')->filter(''v:val =~? "string\\|character\\|singlequote\\|escape\\|symbol\\|comment"'')->empty()')
+```
+    E1012: Type mismatch; expected number but got string
+
+The issue is caused by `map()` which must be replaced with `mapnew()`.
+But it's not easy to understand where the error is coming from.
+Could we get more context?
+
 ## ?
 
 Mini vimrc:
@@ -3694,6 +3718,8 @@ Notice that there are no quotes in the first error message.
 But then, there *are* quotes in the second one.
 Inconsistent.
 Which would be better?  I think no quotes...
+Update: Although, quotes are are useful when an error contains an expression.
+Without, if the expression is an empty string, the message gets confusing.
 
 Are there other inconsistent error messages regarding the usage of quotes?
 
@@ -3884,6 +3910,10 @@ At compile time, should Vim expand a custom command and compile the result?
        0 PUSHNR 0
        1 DROP
        2 RETURN 0
+
+## ?
+
+<https://github.com/vim/vim/issues/8214#issuecomment-841828387>
 
 ## unexpected E1095 when unclosed string below :return
 ```vim
