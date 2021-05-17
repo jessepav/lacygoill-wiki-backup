@@ -969,68 +969,6 @@ defcompile
 ##
 ## ?
 
-Matchparen is sometimes too slow.
-
-Testing text  (make sure to  be in a fullscreen  Vim window inside  a fullscreen
-tmux pane, and the last line of the  buffer is the last line of the window; i.e.
-press `zb`):
-
-    vim9script noclear
-
-    def UpdateHighlight()
-      var charcol: number = charcol('.')
-      var c: string = text[charcol - 1]
-      var c_before: string = charcol == 1 ? '' : text[charcol - 2]
-      var in_insert_mode: bool = mode() == 'i' || mode() == 'R'
-      before = 0
-      if !pairs->has_key(c)
-        if c_col > 1 && in_insert_mode
-          before = strlen(c_before)
-          c = c_before
-        endif
-        if !pairs->has_key(c)
-          return
-        endif
-      endif
-      var c2: string
-      var s_flags: string
-      var stopline: string
-      [c, c2, s_flags, stopline] = pairs[c]
-      var save_cursor: list<number>
-      return max([5, min([winheight(0), winnr('#')->winheight() / 2])])
-                                                                      ^
-                                                                      cursor here
-
-Press `i` to enter insert mode.
-Keep pressing `i` to enter a bunch of `i` characters; Vim lags.
-
-To get some profiling, run:
-
-    profile start /run/user/1000/vim/profile.log
-    prof! file ~/.vim/plugin/matchparen.vim
-    unlet g:loaded_matchparen
-    so ~/.vim/plugin/matchparen.vim
-    e
-
-To profile the old plugin:
-
-    profile start /run/user/1000/vim/profile.log
-    prof! file $VIMRUNTIME/plugin/matchparen.vim
-    unlet g:loaded_matchparen
-    delfu *Highlight_Matching_Pair (press Tab before Enter)
-    so $VIMRUNTIME/plugin/matchparen.vim
-    e
-
-I think  the issue  comes from  an interaction  between `prop_remove()`  and the
-syntax highlighting.
-
----
-
-If these issues can't  be fixed in Vim, try to use a  timer again, to reduce the
-frequency of the highlights updates.
-
-## ?
-
 Refactor `:MatchparenOn`, `:MatchparenOff`, `:MatchparenToggle`
 into `:Matchparen -on`, `:Matchparen -off`, `:Matchparen -toggle`.
 
@@ -1039,6 +977,32 @@ Update the doc.
 ---
 
 Rename `old_commands` into `compatible`.
+
+## ?
+```vim
+vim9script
+def Func()
+    ['a', 'b', 'c']->map((_, v) => {
+        echo v
+    })
+enddef
+Func()
+```
+    a
+    Error detected while processing command line..script /proc/37313/fd/17[7]..function <SNR>1_Func:
+    line    3:
+    E1012: Type mismatch; expected string but got void
+
+Why is `a` echo'ed?
+Why is the error raised at runtime, and not earlier at compile time?
+```vim
+vim9script
+def Func()
+    ['']->map((_, v) => 0)
+enddef
+defcompile
+```
+    no error
 
 ##
 ## ?

@@ -1,8 +1,16 @@
 # How to make zathura the default reader for pdfs and epubs?
 
-    $ xdg-mime default zathura-pdf-mupdf.desktop application/pdf application/epub+zip
-                                                                 ├──────────────────┘
-                                                                 └ handle epubs as well, while we're at it
+    $ xdg-mime default "$(basename "$(locate -r '.*zathura.*pdf.*\.desktop')")" \
+        application/pdf \
+        application/epub+zip
+
+Tip: Prefix the  command with `echo` first,  to check the validity  of the final
+command which is going to be executed.
+
+      v--v
+    $ echo xdg-mime default "$(basename "$(locate -r '.*zathura.*pdf.*\.desktop')")" \
+            application/pdf \
+            application/epub+zip
 
 # Where is zathura's issue tracker?
 

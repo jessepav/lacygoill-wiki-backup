@@ -4231,16 +4231,10 @@ is not run in the context of the script, and when you can't use a funcref.
 As an example, when you set the `'opfunc'` option.
 
 ##
-## In the future, check that a failed `:import` aborts the sourcing of a script
+## Should we use a try conditional for some of our imports, to give some message before bailing out when they fail?
 
-Once this todo item is fixed (`:h todo /abort`):
-
-   > - Error in any command in "vim9script" aborts sourcing.
-
-### Should we use a try conditional for some of our imports, and bail out when they fail?
-
-Because if  an import fails,  there might be no  guarantee that the  script will
-work as expected.
+Note that  any error  – including  a failing  import –  causes Vim  to abort
+sourcing a script.
 
 For example:
 
