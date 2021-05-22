@@ -123,17 +123,17 @@ You probably have passed an argument to your command which contains wildcards:
 MWE:
 
     $ shopt -u nofailglob; echo ?
-    ?~
+    ?˜
 
     $ shopt -s nofailglob; echo ?
-    bash: no match: ?~
-    (because there's no file/directory in the cwd whose name contains only 1 character)~
+    bash: no match: ?˜
+    (because there's no file/directory in the cwd whose name contains only 1 character)˜
 
     % unsetopt nomatch; echo ?
-    ?~
+    ?˜
 
     % setopt nomatch; echo ?
-    zsh: no matches found: ?~
+    zsh: no matches found: ?˜
 
 Both shells try to expand a glob pattern.
 The difference is how they react to a glob pattern which they fail to expand.

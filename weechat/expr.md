@@ -23,7 +23,7 @@ You need the `${if:}` part to evaluate the expression as a condition.
 Otherwise, WeeChat would just evaluate `${type}`:
 
     /eval -n ${type}==channel
-    [channel==channel]~
+    [channel==channel]˜
 
 Alternatively if you use `/eval`, you could add the `-c` option:
 

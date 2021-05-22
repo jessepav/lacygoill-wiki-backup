@@ -120,10 +120,10 @@ si ce dernier commence par un des caractères suivants: `^$*`
                     echo    /foo/bar.txt    /qux/norf.md
 
                     echo    !^:h    !$:t
-                    /foo        norf.md~
+                    /foo        norf.md˜
 
                     echo    !^:r    !$:e
-                    /foo/bar    md~
+                    /foo/bar    md˜
 
 
     echo foo\ bar baz
@@ -236,17 +236,17 @@ si ce dernier commence par un des caractères suivants: `^$*`
             Exemples d'utilisation:
 
                     echo foo bar baz
-                    foo bar baz~
+                    foo bar baz˜
 
 
                     echo !*:s/b/c
-                    foo car baz~
+                    foo car baz˜
                         ^
                     echo !*:gs/b/c
-                    foo car caz~
+                    foo car caz˜
                         ^   ^
                     echo !*:g&
-                    "~
+                    "˜
 
 ##
 # Glossary

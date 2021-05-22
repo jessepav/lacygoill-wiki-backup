@@ -9,7 +9,7 @@ A non-scalar data: a list or a dictionary.
 The process of getting a sublist by appending a list with a range of indexes:
 
     echo range(1,5)[1:-2]
-    [2, 3, 4]~
+    [2, 3, 4]˜
 
 ### On which conditions does it work as expected?  (2)
 
@@ -17,7 +17,7 @@ The first index must describe an item  which comes *before* the one described by
 the second index.
 
     echo range(1,5)[-1:0]
-    []~
+    []˜
 
 In this example, the output is `[]`, instead of `[1, 2, 3]`, because the item of
 index `-1` comes *after* the item of index `0`.
@@ -25,7 +25,7 @@ index `-1` comes *after* the item of index `0`.
 OTOH, in this example, the slicing works:
 
     echo ['a', 'b', 'c'][-2:2]
-    ['b', 'c']~
+    ['b', 'c']˜
 
 because the item of index `-2` (`b`) comes before the item of index `2` (`c`).
 
@@ -37,14 +37,14 @@ with a space; otherwise, Vim may wrongly interpret it as a scope.
     let [s, e] = [0, 2]
 
     echo range(1,3)[s:e]
-    E121: Undefined variable: s:e~
+    E121: Undefined variable: s:e˜
 
     echo range(1,3)[s: e]
-    E731: using Dictionary as a String~
+    E731: using Dictionary as a String˜
 
     echo range(1,3)[s :e]
     echo range(1,3)[s : e]
-    [1, 2, 3]~
+    [1, 2, 3]˜
 
 ###
 ## How is a negative index argument interpreted by a function handling a list?
@@ -73,7 +73,7 @@ Vim does no coercion when comparing lists.
 ---
 
     echo count({'a': 1, 'b': 123, 'c': 123}, 123)
-    2~
+    2˜
 
 ####
 #### a list?
@@ -83,7 +83,7 @@ Vim does no coercion when comparing lists.
 ---
 
     echo count(['a', 'b', 'a'], 'a')
-    2~
+    2˜
 
 ##### ignoring the case?
 
@@ -94,14 +94,14 @@ Use the third optional argument:
 ---
 
     echo count(['a', 'b', 'A'], 'a', 1)
-    2~
+    2˜
 
 ---
 
 It works with dictionaries as well:
 
     echo count({'one': 'a', 'two': 'b', 'three': 'A'}, 'a', 1)
-    2~
+    2˜
 
 ##### counting from `{start}` items after the beginning of the list?
 
@@ -112,10 +112,10 @@ Use the fourth optional argument:
 ---
 
     echo count(['a', 'a', 'a'], 'a')
-    3~
+    3˜
 
     echo count(['a', 'a', 'a'], 'a', 0, 1)
-    2~
+    2˜
 
 ###
 ### How to get the first item in `list` which matches `pat`?
@@ -125,7 +125,7 @@ Use the fourth optional argument:
 ---
 
     echo matchstr(['foo', 'bar', 'baz'], '^b')
-    bar~
+    bar˜
 
 Note that you get the whole item, not just the part matching the pattern.
 
@@ -136,7 +136,7 @@ Note that you get the whole item, not just the part matching the pattern.
 ---
 
     echo matchstr(['-a', '_', '-b'], '-', 1)
-    -b~
+    -b˜
 
 ##### and only the `{count}`-th item matching the pattern?
 
@@ -145,7 +145,7 @@ Note that you get the whole item, not just the part matching the pattern.
 ---
 
     echo matchstr(['-a', '_', '-b', '-c'], '-', 1, 2)
-    -c~
+    -c˜
 
 ####
 #### Instead of the item, how could I have got its index?
@@ -159,13 +159,13 @@ Replace `matchstr()` with `match()`:
 ---
 
     echo match(['_', '-a'], '-')
-    1~
+    1˜
 
     echo match(['-a', '_', '-b'], '-', 1)
-    2~
+    2˜
 
     echo match(['-a', '_', '-b', '-c'], '-', 1, 2)
-    3~
+    3˜
 
 ###
 ### How to get the byte index of the start and end of a match in the first matching item of a list?
@@ -177,7 +177,7 @@ Use `matchstrpos()`:
 ---
 
     echo matchstrpos(['_', '__x'], '\a')
-    ['x', 1, 2, 3]~
+    ['x', 1, 2, 3]˜
       │   │  │  │
       │   │  │  └ byte index of the end of the match +1
       │   │  └ byte index of the start of the match inside the item
@@ -193,19 +193,19 @@ Use `map()` + `range()`:
                        ┌ a number is allowed (in addition to a string)
                        │
     echo range(5)->map(0)
-    [0, 0, 0, 0, 0]~
+    [0, 0, 0, 0, 0]˜
 
 Or `repeat()`:
 
     echo repeat([0], 5)
-    [0, 0, 0, 0, 0]~
+    [0, 0, 0, 0, 0]˜
 
 ### How to initialize a table whose size is `4` rows times `3` columns, all items being `0`?
 
 Use `map()` + `range()`:
 
     echo range(4)->map('range(3)->map(0)')
-    [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]~
+    [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]]˜
 
 ##
 ### How to get the list of numbers
@@ -216,12 +216,12 @@ Use `map()` + `range()`:
                │   │   ┌ step
                │   │   │
     echo range(20, 40, 5)
-    [20, 25, 30, 35, 40]~
+    [20, 25, 30, 35, 40]˜
 
 #### from `2` to `-2`, in descending order?
 
     echo range(2, -2, -1)
-    [2, 1, 0, -1, -2]~
+    [2, 1, 0, -1, -2]˜
 
 ##
 ## Removing
@@ -238,12 +238,12 @@ Use `map()` + `range()`:
     let list = ['a', 'garbage', 'b']
     unlet list[1]
     echo list
-    ['a', 'b']~
+    ['a', 'b']˜
 
     let list = ['a', 'garbage', 'b']
     call remove(list, 1)
     echo list
-    ['a', 'b']~
+    ['a', 'b']˜
 
 ### How to remove all the items from `list` beyond the index `2`?  (2)
 
@@ -256,12 +256,12 @@ Use `map()` + `range()`:
     let list = ['a', 'b', 'foo', 'bar', 'baz']
     unlet list[2:]
     echo list
-    ['a', 'b']~
+    ['a', 'b']˜
 
     let list = ['a', 'b', 'foo', 'bar', 'baz']
     call remove(list, 2, -1)
     echo list
-    ['a', 'b']~
+    ['a', 'b']˜
 
 ### How to remove the item `garbage` from a list, not knowing its index?  (2)
 
@@ -276,12 +276,12 @@ Use `index()` + `remove()`:
     let list = ['a', 'garbage', 'b']
     call remove(list, index(list, 'garbage'))
     echo list
-    ['a', 'b']~
+    ['a', 'b']˜
 
     let list = ['a', 'garbage', 'b']
     unlet list[index(list, 'garbage')]
     echo list
-    ['a', 'b']~
+    ['a', 'b']˜
 
 ### What's the output of `remove()`?
 
@@ -300,7 +300,7 @@ Use `insert()`:
 
     let list = [1, 2]
     echo insert(list, 'a')
-    ['a', 1, 2]~
+    ['a', 1, 2]˜
 
 #### in the middle of a list?
 
@@ -313,7 +313,7 @@ inserted:
 
     let list = ['a', 'c']
     echo insert(list, 'b', 1)
-    ['a', 'b', 'c']~
+    ['a', 'b', 'c']˜
 
 #### before the last item of a list?
 
@@ -323,7 +323,7 @@ inserted:
 
     let list = ['a', 'b', 'd']
     echo insert(list, 'c', -1)
-    ['a', 'b', 'c', 'd']~
+    ['a', 'b', 'c', 'd']˜
 
 #### at the end of a list?
 
@@ -336,7 +336,7 @@ Use `add()`:
     let list = ['a', 'b']
     call add(list, 'c')
     echo list
-    ['a', 'b', 'c']~
+    ['a', 'b', 'c']˜
 
 Note that `add()` operates in-place.
 
@@ -348,7 +348,7 @@ the first list.
     let list = [1, 2]
     call add(list, [3, 4])
     echo list
-    [1, 2, [3, 4]]~
+    [1, 2, [3, 4]]˜
 
 ###
 ### How to concatenate lists?  (2)
@@ -363,11 +363,11 @@ Use the `+` operator or `extend()`.
 
     let list = [1, 2, 3]
     echo list + [4, 5]
-    [1, 2, 3, 4, 5]~
+    [1, 2, 3, 4, 5]˜
 
     let list = [1, 2, 3]
     echo extend(list, [4, 5])
-    [1, 2, 3, 4, 5]~
+    [1, 2, 3, 4, 5]˜
 
 #### What's the difference between the 2 methods?
 
@@ -375,26 +375,26 @@ The `+` operator doesn't make mutate any list:
 
     let list = [1, 2]
     echo list + [3, 4]
-    [1, 2, 3, 4]~
+    [1, 2, 3, 4]˜
     echo list
-    [1, 2]~
+    [1, 2]˜
 
 OTOH, `extend()` makes the first list mutate:
 
     let list = [1, 2]
     echo extend(list, [3, 4])
-    [1, 2, 3, 4]~
+    [1, 2, 3, 4]˜
     echo list
-    [1, 2, 3, 4]~
+    [1, 2, 3, 4]˜
 
 But not the second one:
 
     let alist = [1, 2]
     let blist = [3, 4]
     echo extend(alist, blist)
-    [1, 2, 3, 4]~
+    [1, 2, 3, 4]˜
     echo blist
-    [3, 4]~
+    [3, 4]˜
 
 Remember: the  first argument **m**utates, the  second one **w**ins (in  case of
 conflict) **w**ithout **k**eep being used (as third argument).
@@ -413,7 +413,7 @@ which you want the items of the second list to be inserted.
     let alist = ['a', 'd']
     let blist = ['b', 'c']
     echo extend(alist, blist, 1)
-    ['a', 'b', 'c', 'd']~
+    ['a', 'b', 'c', 'd']˜
 
 ##
 ## Transforming
@@ -428,7 +428,7 @@ Use an assignment: in the lhs, use slicing; in the rhs, use a list of values.
     let list = ['a', 'x', 'y', 'd']
     let list[1:2] = ['b', 'c']
     echo list
-    ['a', 'b', 'c', 'd']~
+    ['a', 'b', 'c', 'd']˜
 
 ###
 ### How to rotate the items of a list to the left?
@@ -473,7 +473,7 @@ operator:
     let list = [1, 2, 3]
     let list[2] += 99
     echo list
-    [1, 2, 102]~
+    [1, 2, 102]˜
 
 ### How to concatenate a string to a string item?
 
@@ -488,7 +488,7 @@ operator.
     let list = ['ab', 'c']
     let list[1] ..= 'd'
     echo list
-    ['ab', 'cd']~
+    ['ab', 'cd']˜
 
 ###
 ### Mutation
@@ -517,7 +517,7 @@ operator.
     echo counts
 
 ↣
-    [1, 1, 1]~
+    [1, 1, 1]˜
 
 Note that the list name changed inside the function (`counts` → `list`).
 But it doesn't matter: `counts` has still mutated.
@@ -568,7 +568,7 @@ Any change you perform on `blist` will affect `alist`.
     let blist = alist
     let blist[1] += 1
     echo alist
-    [1, 3]~
+    [1, 3]˜
 
 ##### How to make a copy of `alist`?
 
@@ -578,7 +578,7 @@ If the items of the list are scalars, use `copy()`:
     let blist = copy(alist)
     let blist[1] += 1
     echo alist
-    [1, 2]~
+    [1, 2]˜
 
 If the items of the list have a composite type, use `deepcopy()`:
 
@@ -586,13 +586,13 @@ If the items of the list have a composite type, use `deepcopy()`:
     let blist = deepcopy(alist)
     let blist[1][1] += 1
     echo alist
-    [1, [2, 3]]~
+    [1, [2, 3]]˜
 
     let alist = [1, {'n': 2}]
     let blist = deepcopy(alist)
     let blist[1].n += 1
     echo alist
-    [1, {'n': 2}]~
+    [1, {'n': 2}]˜
 
 TODO: I think you should revisit this answer.
 We need `deepcopy()` if and only if we make *mutate* at least one item in the list.
@@ -605,7 +605,7 @@ This matters when you want to optimize your code; `deepcopy()` is a bit slower.
     let dict = {'A': [1,2], 'B': [3,4], 'C': [5,6]}
     call map(dict, {_, v -> map(v, {_, v -> v * 2})})
     echo dict
-    {'A': [2, 4], 'B': [6, 8], 'C': [10, 12]}~
+    {'A': [2, 4], 'B': [6, 8], 'C': [10, 12]}˜
 
 ##### Rewrite it using `items()`, a single `map()`, and without any additional `:let` assignment.
 
@@ -614,7 +614,7 @@ This matters when you want to optimize your code; `deepcopy()` is a bit slower.
         call map(v, {_, v -> v * 2})
     endfor
     echo dict
-    {'A': [2, 4], 'B': [6, 8], 'C': [10, 12]}~
+    {'A': [2, 4], 'B': [6, 8], 'C': [10, 12]}˜
 
 Since the values of the dictionary are lists, Vim does not assign copies to `v`,
 but references.
@@ -628,7 +628,7 @@ but references.
         return map(a:000, 'v:val+1')
     endfu
     echo Func(1, 2, 3)
-    E742: Cannot change value of map() argument~
+    E742: Cannot change value of map() argument˜
 
 #### I can't append a new item to a list argument with `+=`!
 
@@ -637,7 +637,7 @@ but references.
         echo a:list
     endfu
     call Func([1])
-    E46: Cannot change read-only variable "a:list"~
+    E46: Cannot change read-only variable "a:list"˜
 
 Use `add()` instead of `+=`:
 
@@ -646,7 +646,7 @@ Use `add()` instead of `+=`:
         echo a:list
     endfu
     call Func([1])
-    [1, 2]~
+    [1, 2]˜
 
 Imo, `+=` should work just like `add()`...
 
@@ -685,7 +685,7 @@ Use `count()`:
 
     let dict = {'a': 1, 'b': 2, 'c': 3}
     echo count(dict, 3)
-    1~
+    1˜
 
 The value `3` is present once in the the dictionary.
 
@@ -702,7 +702,7 @@ Use `extend()`:
     let adict = {'one': 1, 'two': 2}
     let bdict = {'three': 3, 'four': 4}
     echo extend(adict, bdict)
-    {'four': 4, 'one': 1, 'two': 2, 'three': 3}~
+    {'four': 4, 'one': 1, 'two': 2, 'three': 3}˜
 
 ### In case of conflict between two keys with different values, how to
 #### make the value of the first dictionary win?
@@ -716,7 +716,7 @@ Use the optional third argument `keep`:
     let adict = {'one': 1, 'two': 2}
     let bdict = {'one': 4, 'three': 3}
     echo extend(adict, bdict, 'keep')
-    {'one': 1, 'two': 2, 'three': 3}~
+    {'one': 1, 'two': 2, 'three': 3}˜
 
 #### raise an error?
 
@@ -729,7 +729,7 @@ Use the optional third argument `error`:
     let adict = {'one': 1, 'two': 2}
     let bdict = {'one': 4, 'three': 3}
     echo extend(adict, bdict, 'error')
-    E737: Key already exists: one~
+    E737: Key already exists: one˜
 
 ##
 ## Removing
@@ -746,12 +746,12 @@ Use `:unlet` or `remove()`:
     let dict = {'one': 1, 'two': 2}
     unlet dict.two
     echo dict
-    {'one': 1}~
+    {'one': 1}˜
 
     let dict = {'one': 1, 'two': 2}
     call remove(dict, 'two')
     echo dict
-    {'one': 1}~
+    {'one': 1}˜
 
 ### What is the output of `remove()`?
 
@@ -760,7 +760,7 @@ The *value* (!= item) of the removed key.
     let dict = {'one': 1, 'two': 2}
     let var = remove(dict, 'two')
     echo var
-    2~
+    2˜
 
 ##
 ### How to remove all the items of a dictionary, based on a condition on
@@ -774,7 +774,7 @@ Use `filter()` and a condition inspecting the value (`v`):
 
     let dict = {'ab': 1, 'cd': 2, 'abcd': 3}
     echo filter(dict, {k, v -> v > 1})
-    {'abcd': 3, 'cd': 2}~
+    {'abcd': 3, 'cd': 2}˜
 
 Here, you removed all the items whose values were not greater than `1`.
 
@@ -788,7 +788,7 @@ Use `filter()` and a condition inspecting the key (`k`):
 
     let dict = {'ab': 1, 'cd': 2, 'abcd': 3}
     echo filter(dict, {k, v -> k =~# '^a'})
-    {'abcd': 3, 'ab': 1}~
+    {'abcd': 3, 'ab': 1}˜
 
 Here, you removed all the items whose keys didn't begin with `a`.
 
@@ -803,7 +803,7 @@ Iterate over the words of the list, to build the dictionary.
         let freq[word] = get(freq, word, 0) + 1
     endfor
     echo freq
-    {'one': 1, 'two': 2, 'three': 3}~
+    {'one': 1, 'two': 2, 'three': 3}˜
 
 Note that you can't write one of these statements:
 

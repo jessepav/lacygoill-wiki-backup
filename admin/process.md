@@ -317,10 +317,10 @@ programs are terminated when a user “hangs up” the terminal connection.
 On our machine, atm, it seems the session leader is `upstart`:
 
     $ pstree -lsp $(pgrep upstart | head -n1)
-    systemd(1)---lightdm(980)---lightdm(1086)---upstart(1096)...~
-                                                             │~
-                  all the programs we start during a session ┘~
-                  are children of this `upstart` process~
+    systemd(1)---lightdm(980)---lightdm(1086)---upstart(1096)...˜
+                                                             │˜
+                  all the programs we start during a session ┘˜
+                  are children of this `upstart` process˜
 
 If the  session leader  is absent,  the processes  in the  terminal's foreground
 process group are expected to handle hangups.
@@ -610,10 +610,10 @@ It may be that a process and/or its parent can set the name arbitrarily:
 <https://unix.stackexchange.com/q/279782/289772>
 
     $ pgrep -fl firefox
-    3111 firefox~
-    3157 Web Content~
-    3202 WebExtensions~
-    7177 Web Content~
+    3111 firefox˜
+    3157 Web Content˜
+    3202 WebExtensions˜
+    7177 Web Content˜
 
 ###
 ## What are the three differences between `pidof(8)` and `pgrep(1)`?
@@ -635,15 +635,15 @@ You probably have several firefox processes,  but only one contains 'firefox' in
 its name:
 
     $ ps xo fname | grep firefox
-    firefox~
+    firefox˜
 
 So `pgrep(1)` only prints the pid of the latter.
 However, all of them were started from the 'firefox' executable:
 
     $ ps xo args | grep firefox
-    /usr/lib/firefox/firefox ...~
-    ...~
-    ...~
+    /usr/lib/firefox/firefox ...˜
+    ...˜
+    ...˜
 
 So `pidof(8)` prints all of their pids.
 
@@ -799,12 +799,12 @@ the end of the optional arguments:
 #### the number of the signal INT?
 
     $ kill -l int
-    2~
+    2˜
 
 #### the name of the signal 8?
 
     $ kill -l 8
-    FPE~
+    FPE˜
 
 #### the name of the signal which has terminated or stopped my process?
 
@@ -817,7 +817,7 @@ Example:
     # the exit status is 130
 
     $ kill -l 130
-    INT~
+    INT˜
 
 ###
 ### What does it mean for a process to “catch” a signal?
@@ -840,7 +840,7 @@ The numbers on the right are bitmasks written in hexadecimal.
 To understand their meaning, you must convert them in binary:
 
     $ echo 'ibase=16;obase=2;ABC123' | bc
-    101010111100000100100011~
+    101010111100000100100011˜
 
 The *index* of each non-zero bit stands for the number of a signal.
 
@@ -1003,11 +1003,11 @@ Example:
 
     $ trap '' HUP
     $ trap
-    trap -- '' HUP~
+    trap -- '' HUP˜
 
     $ trap - HUP
     $ trap
-    ''~
+    ''˜
 
 In zsh, you can reset all traps by omitting the sigspec:
 
@@ -1436,7 +1436,7 @@ MWE:
 
     $ (sleep 100 &)
     $ pstree -lsp $(pidof sleep)
-    systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───sleep(8274)~
+    systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───sleep(8274)˜
                                                 ^-------------------------^
 
 ---
@@ -1459,9 +1459,9 @@ If the job contains several commands:
 
     $ ({ cmd1; cmd2 ;} &)
     $ pstree -lsp $(pidof sleep)
-    systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───bash(11880)───sleep(11881)~
+    systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───bash(11880)───sleep(11881)˜
                                                                 ^---------^
-                                                                this time, the subshell doesn't die~
+                                                                this time, the subshell doesn't die˜
 
 ---
 
@@ -1490,7 +1490,7 @@ Note that according to [Gilles](https://unix.stackexchange.com/a/88235/289772):
     $ /tmp/sh.sh &
 
     $ pstree -lsp $(pidof sleep)
-    systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───tmux: server(2784)───zsh(29746)───sh.sh(32569)───sh1.sh(32+~
+    systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───tmux: server(2784)───zsh(29746)───sh.sh(32569)───sh1.sh(32+˜
 
 If you kill `sh.sh`, you get this new process tree:
 
@@ -1510,7 +1510,7 @@ Again, the orphan (`sleep`) is re-apparented to the session leader.
 However, if you kill the shell from which the script was started, then `sleep` is killed too.
 
     $ pstree -lsp $(pidof sleep)
-    systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───tmux: server(2784)───zsh(29746)───sh.sh(32569)───sh1.sh(32+~
+    systemd(1)───lightdm(980)───lightdm(1086)───upstart(1096)───tmux: server(2784)───zsh(29746)───sh.sh(32569)───sh1.sh(32+˜
                                                                                      ^-^
     $ kill -1 29746
             │
@@ -1712,13 +1712,13 @@ You can test this solution like so:
     $ cc /tmp/zombie.c -o /tmp/zombie
     $ /tmp/zombie &!
     $ ps ax -o pid,ppid,stat,args | grep defunct
-    22511 22510 ZN   [zombie] <defunct>~
+    22511 22510 ZN   [zombie] <defunct>˜
 
     $ gdb -p 22510
     (gdb) call waitpid(22511, 0, 0)
     (gdb) quit
     $ ps ax -o pid,ppid,stat,args | grep defunct
-    ''~
+    ''˜
 
     $ killall zombie
 

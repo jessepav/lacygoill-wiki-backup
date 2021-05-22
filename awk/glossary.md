@@ -158,12 +158,12 @@ characters ‘ch’ must be treated as a single character:
 
     $ sudo locale-gen cs_CZ.UTF-8
     $ LC_ALL=cs_CZ.UTF-8 grep '^[[.ch.]]o$' <<<'cho'
-    cho~
+    cho˜
 
 It comes after ‘h’ but before ‘i’:
 
     $ LC_ALL=cs_CZ.UTF-8 grep '^[h-i]o$' <<<'cho'
-    cho~
+    cho˜
 
 See here for more info:
 <https://unix.stackexchange.com/questions/254811/what-does-ch-mean-in-a-regex>

@@ -13,7 +13,7 @@ It makes  the bar  (and what follows)  included in the  argument of  the current
 command:
 
     :e abcd|efgh
-    E492: Not an editor command: efgh~
+    E492: Not an editor command: efgh˜
 
     :e abcd\|efgh
     " edits the file 'abcd|efgh'
@@ -76,8 +76,8 @@ To check this yourself, increase the verbosity to 4:
 It fails because the shell runs `grep -n 'a'b' ...`:
 
                                        v---v
-    Calling shell to execute: "grep -n 'a'b' ...~
-    zsh:1: unmatched '~
+    Calling shell to execute: "grep -n 'a'b' ...˜
+    zsh:1: unmatched '˜
     ^----------------^
 
 ---
@@ -91,7 +91,7 @@ Use `expand()`:
 
                                         v----v
     :setl gp&vim | 4verb exe 'grep ' .. expand('<cWORD>')->shellescape() .. ' %'
-    Calling shell to execute: "grep -n 'a'\''b' ...~
+    Calling shell to execute: "grep -n 'a'\''b' ...˜
                                        ^------^
 
 Note  that  the quotes  around  `<cWORD>`  are only  necessary  to  get a  valid
@@ -241,19 +241,19 @@ Never.
 
     # not removed in front of random character
     Cmd a\b
-    ['a\b']~
+    ['a\b']˜
 
     # not removed in front of whitespace
     Cmd a\ b
-    ['a\ b']~
+    ['a\ b']˜
 
     # not removed in front of bar
     Cmd a\|b
-    ['a\|b']~
+    ['a\|b']˜
 
     # not removed in front of other backslash
     Cmd a\\b
-    ['a\\b']~
+    ['a\\b']˜
 
 #### the command is defined with `-bar` and the argument is processed with `<q-args>`?
 
@@ -266,13 +266,13 @@ Only when directly in front of a backslash.
     endfu
 
     Cmd a\|b
-    ['a|b']~
+    ['a|b']˜
 
     Cmd a\\|b
-    ['a\|b']~
+    ['a\|b']˜
 
     Cmd a\\\|b
-    ['a\\|b']~
+    ['a\\|b']˜
 
 Notice that it doesn't matter how many  backslashes there are in front of a bar;
 only the last one is removed.  Vim  does not reduce every pair of consecutive of
@@ -289,31 +289,31 @@ the command is defined without `-bar` and the argument is processed with `<f-arg
     endfu
 
     Cmd a\b
-    ['a\b']~
+    ['a\b']˜
 
     Cmd a\ b
-    ['a b']~
+    ['a b']˜
 
     Cmd a\  b
-    ['a ', 'b']~
+    ['a ', 'b']˜
 
     Cmd a\\b
-    ['a\b']~
+    ['a\b']˜
 
     Cmd a\\ b
-    ['a\', 'b']~
+    ['a\', 'b']˜
 
     Cmd a\\\b
-    ['a\\b']~
+    ['a\\b']˜
 
     Cmd a\\\ b
-    ['a\ b']~
+    ['a\ b']˜
 
     Cmd a\\\\b
-    ['a\\b']~
+    ['a\\b']˜
 
     Cmd a\\\\ b
-    ['a\\', 'b']~
+    ['a\\', 'b']˜
 
 #### ?
 
@@ -326,35 +326,35 @@ the command is defined with `-bar` and the argument is processed with `<f-args>`
     endfu
 
     Cmd a|b
-    ['a']~
+    ['a']˜
     " :b is executed separately and has no visible effect
 
     Cmd a\|b
-    ['a|b']~
+    ['a|b']˜
 
     Cmd a\| b
-    ['a|' 'b']~
+    ['a|' 'b']˜
 
     Cmd a\|  b
-    ['a|', 'b']~
+    ['a|', 'b']˜
 
     Cmd a\\|b
-    ['a\|b']~
+    ['a\|b']˜
 
     Cmd a\\| b
-    ['a\|', 'b']~
+    ['a\|', 'b']˜
 
     Cmd a\\\|b
-    ['a\|b']~
+    ['a\|b']˜
 
     Cmd a\\\| b
-    ['a\|', 'b']~
+    ['a\|', 'b']˜
 
     Cmd a\\\\|b
-    ['a\\|b']~
+    ['a\\|b']˜
 
     Cmd a\\\\| b
-    ['a\\|', 'b']~
+    ['a\\|', 'b']˜
 
 ##
 ## Attributes
@@ -365,11 +365,11 @@ line address:
 
     com -count  Test  echo <count>
     :-1 Test
-    101~
+    101˜
 
     com -range  Test  echo <count>
     :-1 Test
-    105~
+    105˜
 
 #### As a suffix?
 
@@ -377,11 +377,11 @@ If raises `E488`:
 
     com -range Test echo <count>
     :Test -123
-    E488: Trailing characters~
+    E488: Trailing characters˜
 
     com -count Test echo <count>
     :Test -123
-    E488: Trailing characters~
+    E488: Trailing characters˜
 
 ###
 ### How to pass a DEFAULT negative count to a command?
@@ -390,7 +390,7 @@ Use `-range=-N`:
 
     com -range=-123 Test echo <count>
     :Test
-    -123~
+    -123˜
 
 Note that `-count` can't pass a default negative count.
 
@@ -415,10 +415,10 @@ MWE:
     endfu
 
     :Test hello
-    the command was executed WITHOUT count~
+    the command was executed WITHOUT count˜
 
     :123Test
-    the command was executed WITH the count 123~
+    the command was executed WITH the count 123˜
 
 ### Why should I avoid `-count=N` and prefer `-range=N` instead?
 
@@ -430,8 +430,8 @@ will be consumed to replace `<count>`:
 
     com -count -nargs=+ Test echo printf("count: %s\n<lt>q-args>: %s", <count>, <q-args>)
     :12Test 34abc
-    count: 34~
-    <q-args>: abc~
+    count: 34˜
+    <q-args>: abc˜
 
 OTOH, `-range` doesn't allow you to pass  a count after the command name, and so
 is immune to this issue.
@@ -447,10 +447,10 @@ None.
     endfu
 
     Cmd pat1 \| pat2
-    pat1 | pat2~
+    pat1 | pat2˜
 
     Cmd pat1 \\| pat2
-    pat1 \| pat2~
+    pat1 \| pat2˜
 
 To send an unescaped bar to the function, the user would have to escape it.
 And to send an alternation, the user would have to double the backslash.
@@ -535,7 +535,7 @@ It mimics `cp(1)`.
 The shell interprets a bar as a pipe:
 
     $ cp foo bar|baz
-    ✘ zsh: command not found: baz~
+    ✘ zsh: command not found: baz˜
 
     $ cp foo bar\|baz
     ✔
@@ -614,7 +614,7 @@ Characters which are special on Vim's command-line will be automatically expande
         echo a:arg
     endfu
     Cmd 'A%B'
-    Acommand.mdB~
+    Acommand.mdB˜
      ^--------^
     " `%` has been expanded into the name of the current file
 
@@ -639,15 +639,15 @@ Use the attribute `-addr=buffers` or `-addr=windows`.
 
     com Test echo <line1>
     :Test
-    line 355~
+    line 355˜
 
     com -addr=buffers Test echo <line1>
     :Test
-    buffer 11~
+    buffer 11˜
 
     com -addr=windows Test echo <line1>
     :Test
-    window 1~
+    window 1˜
 
 In all the previous commands, the line specifier `.` was implicit (i.e. `Test` ⇔ `.Test`).
 
@@ -726,7 +726,7 @@ With an empty list:
     endfu
 
     :Cmd
-    []~
+    []˜
 
 ### Does `<f-args>` always split the arguments passed to a custom command at spaces and tabs?
 
@@ -749,19 +749,19 @@ MWE:
 
     com -nargs=* Cmd call Func(<f-args>)
     Cmd a b c
-    ['a', 'b', 'c']~
+    ['a', 'b', 'c']˜
 
     com -nargs=+ Cmd call Func(<f-args>)
     Cmd a b c
-    ['a', 'b', 'c']~
+    ['a', 'b', 'c']˜
 
     com -nargs=1 Cmd call Func(<f-args>)
     Cmd a b c
-    ['a b c']~
+    ['a b c']˜
 
     com -nargs=? Cmd call Func(<f-args>)
     Cmd a b c
-    ['a b c']~
+    ['a b c']˜
 
 ###
 ### How is `<count>` replaced if I use `-count` without any value, and I don't give a count to my command?
@@ -770,7 +770,7 @@ With `0`:
 
     com -count -nargs=*  Test  echo <count>
     :Test
-    0~
+    0˜
 
 #### Same question if I use `-range`?
 
@@ -778,7 +778,7 @@ With `-1`:
 
     com -range -nargs=*  Test  echo <count>
     :Test
-    -1~
+    -1˜
 
 ###
 ### How are `<line1>` and `<line2>` replaced if I use `-range` without any value, and don't pass any range?
@@ -787,7 +787,7 @@ They're both replaced with the current line address:
 
     com -range -nargs=*  Test  echo '<line1>,<line2>'
     :Test
-    123,123~
+    123,123˜
 
 ### How is `<count>` replaced if I use `-count`, and pass the count `12` as a prefix, and the count `34` as a suffix?
 
@@ -795,10 +795,10 @@ The last line specifier is used, here `34`:
 
     com -count -nargs=*  Test  echo <count>
     :12Test 34
-    34~
+    34˜
 
     :12,34Test 56
-    56~
+    56˜
 
 ##
 ### How to get the number of line specifiers used in the range of the command?
@@ -807,13 +807,13 @@ Use the `<range>` escape sequence:
 
     com -range  Test  echo <range>
     :Test
-    0~
+    0˜
 
     :12Test
-    1~
+    1˜
 
     :12,34Test
-    2~
+    2˜
 
 ##
 ## Function called by the custom command
@@ -868,7 +868,7 @@ cursor would still jump to the first line in the range.
         echo ''
     endfu
     1,3call Func()
-    the cursor jumps on the first line of the buffer~
+    the cursor jumps on the first line of the buffer˜
 
 The jump occurs BEFORE the function is called.
 So, you wouldn't be able to save and restore the view inside the function.
@@ -885,7 +885,7 @@ The address of the current line.
         echo a:firstline == line('.') && a:lastline == line('.')
     endfu
     call Func()
-    1~
+    1˜
 
 ### My command includes `<q-args>`.  Which built-in functions should I use to extract its arguments?
 
@@ -926,17 +926,17 @@ Prefix it with a count; it will be sent to the program stored in `'kp'`:
     set kp=:Test
     com -nargs=* Test echo <q-args>
     " press 3K on the word 'hello'
-    3 hello~
+    3 hello˜
 
 ## When I run `:bufdo cmd`, why is `cmd` executed in *every* buffer even if `cmd` raises an error in one of them?
 
     $ vim -Nu NONE +"bufdo echo x" /tmp/file{1..3}
 
-    E121: Undefined variable: x~
-    "/tmp/file2" 0 lines, 0 characters~
-    E121: Undefined variable: x~
-    "/tmp/file3" 0 lines, 0 characters~
-    E121: Undefined variable: x~
+    E121: Undefined variable: x˜
+    "/tmp/file2" 0 lines, 0 characters˜
+    E121: Undefined variable: x˜
+    "/tmp/file3" 0 lines, 0 characters˜
+    E121: Undefined variable: x˜
 
 You could  think that Vim would  stop iterating over  the buffers as soon  as an
 error is raised in one of them, because according to `:h :bufdo`:
@@ -948,10 +948,10 @@ But in reality, an error stops `:bufdo` only when it's raised while visiting the
 next buffer, not when executing `cmd`:
 
     $ vim -Nu NONE +"bn|pu='text'|set hidden|bp|set nohidden|bufdo echo 'msg'" /tmp/file{1..3}
-    msg~
-    msg~
-    Error detected while processing command line:~
-    E37: No write since last change (add ! to override)~
+    msg˜
+    msg˜
+    Error detected while processing command line:˜
+    E37: No write since last change (add ! to override)˜
 
 Notice how `msg` is printed only twice.
 
@@ -1096,8 +1096,8 @@ When Vim parses  a *known* command with  a *wrong* syntax in  a *skipped* block,
 the command is not run, *but* an error is raised:
 
     $ vim -Nu NONE +'if 0 | clear foo | endif'
-    Error detected while processing command line:~
-    E488: Trailing characters: clear foo~
+    Error detected while processing command line:˜
+    E488: Trailing characters: clear foo˜
 
 If that is an issue, use `:exe`:
 
@@ -1193,13 +1193,13 @@ See:
     com -count -addr=quickfix Test echo <count>
     :vim /the/j %
     :-1 Test
-    E16: Invalid range~
+    E16: Invalid range˜
     Why?
     Because, there's no previous entry in the qfl before the first one.
 
     :cnext
     :-1 Test
-    1~
+    1˜
     What does this number mean?
     Answer: it's the index of the previous qf entry
 
@@ -1263,11 +1263,11 @@ an existing file.  For example:
     $ touch /tmp/new_file
     $ vim /tmp/new_file
     :e %Tab
-    ∅~
+    ∅˜
     ihello
     :w
     :e %Tab
-    /tmp/new_file~
+    /tmp/new_file˜
 
 Also, some Tab-expansions  give wrong results, like `%:r`  which often (always?)
 doesn't remove the extension.
@@ -1850,15 +1850,15 @@ Pex:
 Avec :find et ses dérivées, sa signification est inconsistante:
 
         :2find foo
-        charger le 2e match s'il y en a plusieurs~
+        charger le 2e match s'il y en a plusieurs˜
 
         :3sfind foo
-        fenêtre de hauteur 3~
+        fenêtre de hauteur 3˜
         :vert 3sfind foo
-        fenêtre de largeur 3~
+        fenêtre de largeur 3˜
 
         :4tabfind foo
-        afficher `foo` dans un onglet positionné après le 4e~
+        afficher `foo` dans un onglet positionné après le 4e˜
 
 
 Un bang est parfois nécessaire pour permettre à une des commandes précédentes de:
@@ -1997,15 +1997,15 @@ même façon que la chaîne de caractère précédant le curseur (custom).
 
                     e foo.vim
                     ls
-                    1 %a   "foo.vim"                      line 1~
+                    1 %a   "foo.vim"                      line 1˜
                     filter /vim$/ ls
-                    1 %a   "foo.vim"                      line 1~
+                    1 %a   "foo.vim"                      line 1˜
 
             De plus, ne fonctionne pas avec toutes les commandes Ex:
 
                     :filter /garbage/ exe 'ls'
-                    rien n'est filtré, toute la sortie de `ls` est affichée~
-                    `:filter` ne fonctionne pas avec `:exe`~
+                    rien n'est filtré, toute la sortie de `ls` est affichée˜
+                    `:filter` ne fonctionne pas avec `:exe`˜
 
 
     :fu /pattern

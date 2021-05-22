@@ -38,14 +38,14 @@ Example:
     :b#
     :sp /tmp/foo#bar
     :echo expand('%:p')
-    /tmp/foo/tmp/foobar~
+    /tmp/foo/tmp/foobar˜
     ✘
 
     :e /tmp/foo
     :b#
     :exe 'sp ' .. fnameescape('/tmp/foo#bar')
     :echo expand('%:p')
-    /tmp/foo#bar~
+    /tmp/foo#bar˜
     ✔
 
 ### Which alternative can I use?
@@ -56,7 +56,7 @@ Expand backticks as a Vim expression:
     :b#
     :sp `='/tmp/foo#bar'`
     :echo expand('%:p')
-    /tmp/foo#bar~
+    /tmp/foo#bar˜
     ✔
 
 See `:h backtick-expansion /=`.
@@ -80,7 +80,7 @@ Because `:grep` runs the shell command set by `'grepprg'` via `:!`.
 Check this:
 
     :4verb exe 'grep! ' .. shellescape('==#') .. ' $VIMRUNTIME'
-    :!rg -LS --vimgrep 2>/dev/null '==/tmp/foo#bar' $VIMRUNTIME 2>&1| tee /tmp/v6WVFDZ/45~
+    :!rg -LS --vimgrep 2>/dev/null '==/tmp/foo#bar' $VIMRUNTIME 2>&1| tee /tmp/v6WVFDZ/45˜
      ^
 
 Are there other Ex commands which invoke `:!` (see `:h :index`)?

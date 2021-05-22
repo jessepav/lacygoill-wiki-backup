@@ -447,25 +447,25 @@ The other keywords describe the type in more detail:
 In bash, it works as expected:
 the variable contains an array with a single element whose value is the string.
 
-        $ var='hello'
-        $ typeset -a var
-        $ typeset -p var
-        declare -a var='([0]="hello")'~
+    $ var='hello'
+    $ typeset -a var
+    $ typeset -p var
+    declare -a var='([0]="hello")'˜
 
-        $ echo $var
-        hello~
+    $ echo $var
+    hello˜
 
 ---
 
 In zsh, the variable contains an empty array.
 
-        % var='hello'
-        % typeset -a var
-        % typeset -p var
-        typeset -a var=(  )~
-                        ^^
-        % echo $var
-        ∅~
+    % var='hello'
+    % typeset -a var
+    % typeset -p var
+    typeset -a var=(  )˜
+                    ^^
+    % echo $var
+    ∅˜
 
 It seems that changing the type of a variable empties its value.
 
@@ -667,17 +667,17 @@ which uses the same name with different cases.
 
 Change the type of the scalar to an array, then assign it a string:
 
-        % typeset -T FOO foo
-        % typeset -a FOO
-        % FOO='hi'
+    % typeset -T FOO foo
+    % typeset -a FOO
+    % FOO='hi'
 
 Result:
 
-        % typeset -p FOO
-        typeset FOO=hi~
+    % typeset -p FOO
+    typeset FOO=hi˜
 
-        % typeset -p foo
-        typeset: no such variable: foo~
+    % typeset -p foo
+    typeset: no such variable: foo˜
 
 ## How to change the separator used by an existing tied scalar?
 
@@ -706,18 +706,18 @@ In zsh, yes.
 
 In bash, yes, but:
 
-      - only the last index in the range will be used
+   - only the last index in the range will be used
 
-            $ arr=( a b c )
-            $ arr[1,2]=d
-            $ echo ${arr[@]}
-            a b d~
+         $ arr=( a b c )
+         $ arr[1,2]=d
+         $ echo ${arr[@]}
+         a b d˜
 
-      - you can't assign a list to (an) array member(s):
+   - you can't assign a list to (an) array member(s):
 
-            $ arr=( a b c )
-            $ arr[1]=( B )
-                bash: arr[1]: cannot assign list to array member
+         $ arr=( a b c )
+         $ arr[1]=( B )
+             bash: arr[1]: cannot assign list to array member
 
 ## How to get all the elements, except the first one and the last one?
 
@@ -767,7 +767,7 @@ is indeed considered as a single value:
 
     % arr=( a b c )
     % print -l "$arr[*]"
-    a b c~
+    a b c˜
 
 Remember:
 quote an expansion, if you don't want it to be altered by a field splitting.

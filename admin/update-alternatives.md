@@ -151,14 +151,14 @@ Usage example:
     $ sudo update-alternatives --set awk /usr/bin/mawk
     $ sudo update-alternatives --set editor /bin/nano
     $ update-alternatives --get-selections | grep 'awk\|^editor'
-    awk                            manual   /usr/bin/mawk~
-    editor                         manual   /bin/nano~
+    awk                            manual   /usr/bin/mawk˜
+    editor                         manual   /bin/nano˜
 
     # restore state info
     $ sudo update-alternatives --set-selections </tmp/state_info
     $ update-alternatives --get-selections | grep 'awk\|^editor'
-    awk                            manual   /usr/local/bin/gawk~
-    editor                         manual   /usr/local/bin/vim~
+    awk                            manual   /usr/local/bin/gawk˜
+    editor                         manual   /usr/local/bin/vim˜
 
 ##
 ## I've installed a master alternative with 2 choices for the path, and some slave alternatives:
@@ -175,18 +175,18 @@ Usage example:
 ### Here's the output of `update-alternatives --display`:
 
     $ update-alternatives --display ee
-    ee - manual mode~
-      link best version is /usr/bin/paste~
-      link currently points to /usr/bin/make~
-      link ee is /usr/local/bin/AA~
-      slave ff is /usr/local/bin/BB~
-      slave gg is /usr/local/bin/CC~
-      slave hh is /usr/local/bin/DD~
-    /usr/bin/make - priority 123~
-      slave ff: /usr/bin/nmap~
-    /usr/bin/paste - priority 456~
-      slave gg: /usr/bin/qmv~
-      slave hh: /usr/bin/rar~
+    ee - manual mode˜
+      link best version is /usr/bin/paste˜
+      link currently points to /usr/bin/make˜
+      link ee is /usr/local/bin/AA˜
+      slave ff is /usr/local/bin/BB˜
+      slave gg is /usr/local/bin/CC˜
+      slave hh is /usr/local/bin/DD˜
+    /usr/bin/make - priority 123˜
+      slave ff: /usr/bin/nmap˜
+    /usr/bin/paste - priority 456˜
+      slave gg: /usr/bin/qmv˜
+      slave hh: /usr/bin/rar˜
 
 #### What is its general structure?
 
@@ -201,8 +201,8 @@ slaves associated to each of them.
 
 For the master alternative, the third and fourth lines are the most important ones:
 
-      link currently points to /usr/bin/make~
-      link ee is /usr/local/bin/AA~
+      link currently points to /usr/bin/make˜
+      link ee is /usr/local/bin/AA˜
 
 This tells you that:
 
@@ -213,17 +213,17 @@ This tells you that:
 Which perfectly matches the links managed by update-alternatives:
 
     $ ls -l /usr/local/bin/AA
-    lrwxrwxrwx 1 root root ... /usr/local/bin/AA -> /etc/alternatives/ee~
+    lrwxrwxrwx 1 root root ... /usr/local/bin/AA -> /etc/alternatives/ee˜
     $ ls -l /etc/alternatives/ee
-    lrwxrwxrwx 1 root root ... /etc/alternatives/ee -> /usr/bin/make~
+    lrwxrwxrwx 1 root root ... /etc/alternatives/ee -> /usr/bin/make˜
 
 ##### How to read the other blocks?
 
 For a  slave alternative, the  two lines beginning  with `slave <name>`  – where
 `<name>` is the name of the alternative – are the most important ones:
 
-    slave ff is /usr/local/bin/BB~
-    slave ff: /usr/bin/nmap~
+    slave ff is /usr/local/bin/BB˜
+    slave ff: /usr/bin/nmap˜
 
 This tells you that:
 
@@ -234,9 +234,9 @@ This tells you that:
 Which, again, perfectly matches the links managed by update-alternatives:
 
     $ ls -l /usr/local/bin/BB
-    lrwxrwxrwx 1 root root ... /usr/local/bin/BB -> /etc/alternatives/ff~
+    lrwxrwxrwx 1 root root ... /usr/local/bin/BB -> /etc/alternatives/ff˜
     $ ls -l /etc/alternatives/ff
-    lrwxrwxrwx 1 root root ... /etc/alternatives/ff -> /usr/bin/nmap~
+    lrwxrwxrwx 1 root root ... /etc/alternatives/ff -> /usr/bin/nmap˜
 
 ####
 #### Why are the slaves `gg` and `hh` present in the first block, even though they're not used?
@@ -249,8 +249,8 @@ Its link and name will be removed.
 
     $ sudo update-alternatives --set ee /usr/bin/make
     $ ls -l /usr/local/bin/BB /etc/alternatives/ff
-    ls: cannot access '/usr/local/bin/BB': No such file or directory~
-    ls: cannot access '/etc/alternatives/ff': No such file or directory~
+    ls: cannot access '/usr/local/bin/BB': No such file or directory˜
+    ls: cannot access '/etc/alternatives/ff': No such file or directory˜
 
 #### On which condition are the link and name of a slave removed when I change the path of a master alternative?
 
@@ -260,31 +260,31 @@ and name.
 Consider this:
 
     $ update-alternatives --query editor
-    Name: editor~
-    Link: /usr/bin/editor~
-    Slaves:~
-     editor.1.gz /usr/share/man/man1/editor.1.gz~
-     editor.fr.1.gz /usr/share/man/fr/man1/editor.1.gz~
-     editor.it.1.gz /usr/share/man/it/man1/editor.1.gz~
-     editor.pl.1.gz /usr/share/man/pl/man1/editor.1.gz~
-     editor.ru.1.gz /usr/share/man/ru/man1/editor.1.gz~
-    Status: auto~
-    Best: /usr/bin/vim.basic~
-    Value: /usr/bin/vim.basic~
+    Name: editor˜
+    Link: /usr/bin/editor˜
+    Slaves:˜
+     editor.1.gz /usr/share/man/man1/editor.1.gz˜
+     editor.fr.1.gz /usr/share/man/fr/man1/editor.1.gz˜
+     editor.it.1.gz /usr/share/man/it/man1/editor.1.gz˜
+     editor.pl.1.gz /usr/share/man/pl/man1/editor.1.gz˜
+     editor.ru.1.gz /usr/share/man/ru/man1/editor.1.gz˜
+    Status: auto˜
+    Best: /usr/bin/vim.basic˜
+    Value: /usr/bin/vim.basic˜
 
-    Alternative: /bin/ed~
-    Priority: -100~
-    Slaves:~
-     editor.1.gz /usr/share/man/man1/ed.1.gz~
+    Alternative: /bin/ed˜
+    Priority: -100˜
+    Slaves:˜
+     editor.1.gz /usr/share/man/man1/ed.1.gz˜
 
-    Alternative: /usr/bin/vim.basic~
-    Priority: 50~
-    Slaves:~
-     editor.1.gz /usr/share/man/man1/vim.1.gz~
-     editor.fr.1.gz /usr/share/man/fr/man1/vim.1.gz~
-     editor.it.1.gz /usr/share/man/it/man1/vim.1.gz~
-     editor.pl.1.gz /usr/share/man/pl/man1/vim.1.gz~
-     editor.ru.1.gz /usr/share/man/ru/man1/vim.1.gz~
+    Alternative: /usr/bin/vim.basic˜
+    Priority: 50˜
+    Slaves:˜
+     editor.1.gz /usr/share/man/man1/vim.1.gz˜
+     editor.fr.1.gz /usr/share/man/fr/man1/vim.1.gz˜
+     editor.it.1.gz /usr/share/man/it/man1/vim.1.gz˜
+     editor.pl.1.gz /usr/share/man/pl/man1/vim.1.gz˜
+     editor.ru.1.gz /usr/share/man/ru/man1/vim.1.gz˜
 
 If you choose `/bin/ed` instead of `/usr/bin/vim.basic`, the slaves `editor.{fr,it,pl,ru}`
 will be removed, because the new master path has no such slaves:
@@ -363,8 +363,8 @@ Example:
     $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123
 
     $ ls -l /usr/local/bin/AA /etc/alternatives/ee
-    lrwxrwxrwx 1 root root ... /etc/alternatives/ee -> /usr/bin/make~
-    lrwxrwxrwx 1 root root ... /usr/local/bin/AA -> /etc/alternatives/ee~
+    lrwxrwxrwx 1 root root ... /etc/alternatives/ee -> /usr/bin/make˜
+    lrwxrwxrwx 1 root root ... /usr/local/bin/AA -> /etc/alternatives/ee˜
 
 ### How to associate slave alternatives to this path?
 
@@ -388,7 +388,7 @@ Example:
 It fails:
 
     $ sudo update-alternatives --install /usr/local/bin/AA xx /usr/bin/a2ping 789
-    update-alternatives: error: alternative link /usr/local/bin/AA is already managed by ee~
+    update-alternatives: error: alternative link /usr/local/bin/AA is already managed by ee˜
 
 A link can *not* point to a new name.
 
@@ -397,9 +397,9 @@ A link can *not* point to a new name.
 The old link is removed, and the new one is installed:
 
     $ sudo update-alternatives --install /usr/local/bin/XX ee /usr/bin/a2ping 789
-    update-alternatives: renaming ee link from /usr/local/bin/AA to /usr/local/bin/XX~
+    update-alternatives: renaming ee link from /usr/local/bin/AA to /usr/local/bin/XX˜
     $ ls -l /usr/local/bin/AA
-    ls: cannot access '/usr/local/bin/AA': No such file or directory~
+    ls: cannot access '/usr/local/bin/AA': No such file or directory˜
 
 A name *can* be targeted by a new link.
 
@@ -414,20 +414,20 @@ Example:
     $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/paste 456
 
     $ update-alternatives --display ee
-    ee - auto mode~
-      link best version is /usr/bin/paste~
-      link currently points to /usr/bin/paste~
-      link ee is /usr/local/bin/AA~
-    /usr/bin/make - priority 123~
-    /usr/bin/paste - priority 456~
+    ee - auto mode˜
+      link best version is /usr/bin/paste˜
+      link currently points to /usr/bin/paste˜
+      link ee is /usr/local/bin/AA˜
+    /usr/bin/make - priority 123˜
+    /usr/bin/paste - priority 456˜
 
     $ sudo update-alternatives --remove ee /usr/bin/make
     $ update-alternatives --display ee
-    ee - auto mode~
-      link best version is /usr/bin/paste~
-      link currently points to /usr/bin/paste~
-      link ee is /usr/local/bin/AA~
-    /usr/bin/paste - priority 456~
+    ee - auto mode˜
+      link best version is /usr/bin/paste˜
+      link currently points to /usr/bin/paste˜
+      link ee is /usr/local/bin/AA˜
+    /usr/bin/paste - priority 456˜
 
 ### What happens to the associated slave links?
 
@@ -448,18 +448,18 @@ Otherwise it's removed:
         --slave /usr/local/bin/DD hh /usr/bin/rar
 
     $ ls -l /usr/local/bin/{CC,DD} /etc/alternatives/{gg,hh}
-    lrwxrwxrwx 1 root root ... /etc/alternatives/gg -> /usr/bin/qmv~
-    lrwxrwxrwx 1 root root ... /etc/alternatives/hh -> /usr/bin/rar~
-    lrwxrwxrwx 1 root root ... /usr/local/bin/CC -> /etc/alternatives/gg~
-    lrwxrwxrwx 1 root root ... /usr/local/bin/DD -> /etc/alternatives/hh~
+    lrwxrwxrwx 1 root root ... /etc/alternatives/gg -> /usr/bin/qmv˜
+    lrwxrwxrwx 1 root root ... /etc/alternatives/hh -> /usr/bin/rar˜
+    lrwxrwxrwx 1 root root ... /usr/local/bin/CC -> /etc/alternatives/gg˜
+    lrwxrwxrwx 1 root root ... /usr/local/bin/DD -> /etc/alternatives/hh˜
     # the slaves `gg` and `hh` have been correctly installed
 
     $ sudo update-alternatives --remove ee /usr/bin/paste
     $ ls -l /usr/local/bin/{CC,DD} /etc/alternatives/{gg,hh}
-    ls: cannot access '/usr/local/bin/CC': No such file or directory~
-    ls: cannot access '/usr/local/bin/DD': No such file or directory~
-    ls: cannot access '/etc/alternatives/gg': No such file or directory~
-    ls: cannot access '/etc/alternatives/hh': No such file or directory~
+    ls: cannot access '/usr/local/bin/CC': No such file or directory˜
+    ls: cannot access '/usr/local/bin/DD': No such file or directory˜
+    ls: cannot access '/etc/alternatives/gg': No such file or directory˜
+    ls: cannot access '/etc/alternatives/hh': No such file or directory˜
     # the slaves `gg` and `hh` don't exist anymore
 
 ### What happens if the master name currently points to this path?
@@ -499,12 +499,12 @@ The last command should have the same effect as:
 The path of the master alternative must exist, otherwise the command will fail:
 
     $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/not_a_binary 123
-    update-alternatives: error: alternative path /usr/bin/not_a_binary doesn't exist~
+    update-alternatives: error: alternative path /usr/bin/not_a_binary doesn't exist˜
 
 OTOH, its link and name don't have to exist:
 
     $ sudo update-alternatives --install /usr/local/bin/not_a_binary not_a_name /usr/bin/make 123
-    update-alternatives: using /usr/bin/make to provide /usr/local/bin/AA (ee) in auto mode~
+    update-alternatives: using /usr/bin/make to provide /usr/local/bin/AA (ee) in auto mode˜
 
 ---
 
@@ -513,8 +513,8 @@ succeed, but the corresponding slave link won't be installed.
 
     $ sudo update-alternatives --install /usr/local/bin/AA ee /usr/bin/make 123 \
         --slave /usr/local/bin/BB ff /usr/bin/not_a_binary
-    update-alternatives: using /usr/bin/make to provide /usr/local/bin/AA (ee) in auto mode~
-    update-alternatives: warning: skip creation of /usr/local/bin/BB because associated file /usr/bin/not_a_binary (of link group ee) doesn't exist~
+    update-alternatives: using /usr/bin/make to provide /usr/local/bin/AA (ee) in auto mode˜
+    update-alternatives: warning: skip creation of /usr/local/bin/BB because associated file /usr/bin/not_a_binary (of link group ee) doesn't exist˜
 
 ## How to overwrite a file located where I want an alternative link to be installed?
 
@@ -524,10 +524,10 @@ Example without `--force`:
 
     $ echo 'hello' | sudo tee /usr/local/bin/file
     $ sudo update-alternatives --install /usr/local/bin/file ee /usr/bin/make 123
-    update-alternatives: using /usr/bin/make to provide /usr/local/bin/file (ee) in auto mode~
-    update-alternatives: warning: not replacing /usr/local/bin/file with a link~
+    update-alternatives: using /usr/bin/make to provide /usr/local/bin/file (ee) in auto mode˜
+    update-alternatives: warning: not replacing /usr/local/bin/file with a link˜
     $ ls -l /usr/local/bin/file
-    -rw-r--r-- 1 root root ... /usr/local/bin/file~
+    -rw-r--r-- 1 root root ... /usr/local/bin/file˜
 
 Example using `--force`:
 
@@ -535,9 +535,9 @@ Example using `--force`:
     $ echo 'hello' | sudo tee /usr/local/bin/file
                                v-----v
     $ sudo update-alternatives --force --install /usr/local/bin/file ee /usr/bin/make 123
-    update-alternatives: using /usr/bin/make to provide /usr/local/bin/file (ee) in auto mode~
+    update-alternatives: using /usr/bin/make to provide /usr/local/bin/file (ee) in auto mode˜
     $ ls -l /usr/local/bin/file
-    lrwxrwxrwx 1 root root ... /usr/local/bin/file -> /etc/alternatives/ee~
+    lrwxrwxrwx 1 root root ... /usr/local/bin/file -> /etc/alternatives/ee˜
 
 ---
 

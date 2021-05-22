@@ -27,9 +27,9 @@ from which the program can be installed; you can get it by running:
 Example:
 
       $ apt-cache policy weechat
-      ...~
-           1.4-2 500~
-              500 http://fr.archive.ubuntu.com/ubuntu xenial/universe amd64 Packages~
+      ...˜
+           1.4-2 500˜
+              500 http://fr.archive.ubuntu.com/ubuntu xenial/universe amd64 Packages˜
                                                       ^-------------^
 
 Then, run `$ sudo aptitude update`.
@@ -154,10 +154,10 @@ Download the source package:
 
 This will download the source code in a directory, as well as a few other files:
 
-    vim-7.4.1689~
-    vim_7.4.1689-3ubuntu1.debian.tar.xz~
-    vim_7.4.1689-3ubuntu1.dsc~
-    vim_7.4.1689.orig.tar.gz~
+    vim-7.4.1689˜
+    vim_7.4.1689-3ubuntu1.debian.tar.xz˜
+    vim_7.4.1689-3ubuntu1.dsc˜
+    vim_7.4.1689.orig.tar.gz˜
 
 If  `$  apt-cache policy`  reports  several  versions,  you  can target  one  in
 particular with:
@@ -182,16 +182,16 @@ More specifically the subchapter 15.1.3. “Starting the Rebuild”.
 No, they've been automatically applied by `$ apt-get source`:
 
     $ apt-get source vim
-    ...~
-    dpkg-source: info: applying 0001-Detect-the-rst-filetype-using-the-contents-of-the-fi.patch~
-    dpkg-source: info: applying 0002-Support-sourcing-a-vimrc.tiny-when-Vim-is-invoked-as.patch~
-    dpkg-source: info: applying 0003-Add-recognition-of-more-LaTeX-commands-for-tex-filet.patch~
-    dpkg-source: info: applying 0004-Document-Debian-s-decision-to-disable-modelines-by-d.patch~
-    dpkg-source: info: applying 0005-Support-defining-compilation-date-in-SOURCE_DATE_EPO.patch~
-    dpkg-source: info: applying 0006-debsources.vim-Move-trusty-to-unsupported.patch~
-    dpkg-source: info: applying ubuntu-grub-syntax.patch~
-    dpkg-source: info: applying update-upstart-syntax.patch~
-    dpkg-source: info: applying ubuntu-releases.patch~
+    ...˜
+    dpkg-source: info: applying 0001-Detect-the-rst-filetype-using-the-contents-of-the-fi.patch˜
+    dpkg-source: info: applying 0002-Support-sourcing-a-vimrc.tiny-when-Vim-is-invoked-as.patch˜
+    dpkg-source: info: applying 0003-Add-recognition-of-more-LaTeX-commands-for-tex-filet.patch˜
+    dpkg-source: info: applying 0004-Document-Debian-s-decision-to-disable-modelines-by-d.patch˜
+    dpkg-source: info: applying 0005-Support-defining-compilation-date-in-SOURCE_DATE_EPO.patch˜
+    dpkg-source: info: applying 0006-debsources.vim-Move-trusty-to-unsupported.patch˜
+    dpkg-source: info: applying ubuntu-grub-syntax.patch˜
+    dpkg-source: info: applying update-upstart-syntax.patch˜
+    dpkg-source: info: applying ubuntu-releases.patch˜
 
 #### Which package(s) will be compiled by the previous command?
 
@@ -273,9 +273,9 @@ Finally, on the button “buildlog”:
 It will be replaced by the source package from which it can be compiled.
 
     $ apt-get source vim-gtk
-    ...~
-    Reading package lists... Done~
-    Picking 'vim' as source package instead of 'vim-gtk'~
+    ...˜
+    Reading package lists... Done˜
+    Picking 'vim' as source package instead of 'vim-gtk'˜
 
 ## I found a PPA.  Why do the names of its packages on the web differ from the packages I install on my system?
 
@@ -289,22 +289,22 @@ For example, from the Vim source code, you can compile `vim-gtk` or `vim-tiny`.
 
     $ apt-get source vim
     $ vim -es vim-*/debian/control +'g/^Package/p' +'qa!'
-    Package: vim-common~
-    Package: vim-gui-common~
-    Package: vim-runtime~
-    Package: vim-doc~
-    Package: vim-tiny~
-    Package: vim~
-    Package: vim-gtk~
-    Package: vim-gtk3~
-    Package: vim-nox~
-    Package: vim-athena~
-    Package: vim-gnome~
-    Package: vim-gtk-py2~
-    Package: vim-gtk3-py2~
-    Package: vim-nox-py2~
-    Package: vim-athena-py2~
-    Package: vim-gnome-py2~
+    Package: vim-common˜
+    Package: vim-gui-common˜
+    Package: vim-runtime˜
+    Package: vim-doc˜
+    Package: vim-tiny˜
+    Package: vim˜
+    Package: vim-gtk˜
+    Package: vim-gtk3˜
+    Package: vim-nox˜
+    Package: vim-athena˜
+    Package: vim-gnome˜
+    Package: vim-gtk-py2˜
+    Package: vim-gtk3-py2˜
+    Package: vim-nox-py2˜
+    Package: vim-athena-py2˜
+    Package: vim-gnome-py2˜
 
 ##
 # checkinstall
@@ -314,10 +314,10 @@ For example, from the Vim source code, you can compile `vim-gtk` or `vim-tiny`.
 Atm, shellcheck only finds one error:
 
     $ shellcheck -f gcc $(which checkinstall)
-    /usr/bin/checkinstall:1364:10: note: The mentioned syntax error was in this if expression. [SC1009]~
-    /usr/bin/checkinstall:1364:13: error: Couldn't parse this test expression. Fix to allow more checks. [SC1073]~
-    /usr/bin/checkinstall:1364:24: error: You need a space before the ]. [SC1020]~
-    /usr/bin/checkinstall:1364:24: error: Missing space before ]. Fix any mentioned problems and try again. [SC1072]~
+    /usr/bin/checkinstall:1364:10: note: The mentioned syntax error was in this if expression. [SC1009]˜
+    /usr/bin/checkinstall:1364:13: error: Couldn't parse this test expression. Fix to allow more checks. [SC1073]˜
+    /usr/bin/checkinstall:1364:24: error: You need a space before the ]. [SC1020]˜
+    /usr/bin/checkinstall:1364:24: error: Missing space before ]. Fix any mentioned problems and try again. [SC1072]˜
 
 But that's because this error prevents shellcheck from parsing the file correctly.
 If you correct it:
@@ -330,7 +330,7 @@ If you correct it:
 shellcheck finds 636 errors:
 
     $ shellcheck -f gcc /usr/bin/checkinstall | wc -l
-    636~
+    636˜
 
 ### It leaves a deb package behind.
 
@@ -395,8 +395,8 @@ This will prevent checkinstall from using any `.spec` file.
 You may think that checkinstall will still fall back on some other default `.spec` file.
 For example, when running checkinstall to install Vim, its output contains these lines:
 
-    Warning: .spec file path "/dev/null" not found.~
-    Warning: Defaulting to "vim.spec".~
+    Warning: .spec file path "/dev/null" not found.˜
+    Warning: Defaulting to "vim.spec".˜
 
 But in reality,  it seems that `/dev/null` *does* work  even though checkinstall
 says that if falls back on a `.spec` file.
@@ -498,9 +498,9 @@ a different version.
 checkinstall may fail to install your  local package, because it can't overwrite
 some file(s) belonging to the `zsh` package:
 
-    dpkg: error processing archive /home/user/Vcs/zsh/zsh_9999.9999-1_amd64.deb (--install):~
-     trying to overwrite '/usr/share/man/man1/zshmodules.1.gz', which is also in package myzsh 999-1~
-    dpkg-deb: error: subprocess paste was killed by signal (Broken pipe)~
+    dpkg: error processing archive /home/user/Vcs/zsh/zsh_9999.9999-1_amd64.deb (--install):˜
+     trying to overwrite '/usr/share/man/man1/zshmodules.1.gz', which is also in package myzsh 999-1˜
+    dpkg-deb: error: subprocess paste was killed by signal (Broken pipe)˜
 
 ##
 ## Which `make(1)` command does checkinstall run by default?
@@ -552,7 +552,7 @@ Example:
 auto-apt can find missing dependencies:
 
     $ auto-apt search Xlib.h
-    usr/include/X11/Xlib.h  libdevel/libx11-dev~
+    usr/include/X11/Xlib.h  libdevel/libx11-dev˜
 
 But you need to update its database.
 

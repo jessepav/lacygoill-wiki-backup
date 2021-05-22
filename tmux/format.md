@@ -34,12 +34,12 @@ It depends on the command, and even on the argument of the command.
 `run-shell` does expand formats:
 
     $ tmux run 'echo #S'
-    study~
+    study˜
 
 `if-shell` too:
 
     $ tmux if '[ "#S" = "study" ]' 'display -p "you are in the study session"'
-    you are in the study session~
+    you are in the study session˜
 
 `pipe-pane` too:
 
@@ -52,18 +52,18 @@ But not `detach-client`:
 `new-window` doesn't expand a format in 'shell-command':
 
     $ tmux neww 'echo #S >/tmp/log' ; cat /tmp/log
-    #S~
+    #S˜
 
 But it does in the argument of `-F`:
 
     $ tmux neww -P -F '#W'
-    zsh~
+    zsh˜
 
 And it does in the argument of `-c`:
 
     $ cd /tmp && tmux neww -c '#{pane_current_path}' && cd
     $ pwd
-    /tmp~
+    /tmp˜
 
 ### When do they expand formats?
 
@@ -79,7 +79,7 @@ No.
     bind C-g display "$window_id"
     EOF
     ) \; lsk | grep -i ' c-g '
-    bind-key  -T prefix  C-g  display-message "#{window_id}"~
+    bind-key  -T prefix  C-g  display-message "#{window_id}"˜
                                                ^----------^
                                                has not been expanded
 
@@ -90,7 +90,7 @@ So, if tmux expanded a format in `var=val`, it would be inconsistent with the sh
 
     $ window_id='#{window_id}'
     $ tmux bind C-g display "$window_id" \; lsk | grep -i ' c-g '
-    bind-key  -T prefix  C-g  display-message "#{window_id}"~
+    bind-key  -T prefix  C-g  display-message "#{window_id}"˜
                                                ^----------^
                                                has not been expanded
 
@@ -163,12 +163,12 @@ Etc.
 Without `-F`, it's run and considered success if the *exit status* is 0:
 
     $ tmux if '[ "$TERM" = "#{default-terminal}" ]' 'display -p "your tmux.conf has already been sourced once"'
-    your tmux.conf has already been sourced once~
+    your tmux.conf has already been sourced once˜
 
 Without `-F`, it's *not* run, and is considered succes if neither empty nor 0:
 
     $ tmux if -F '#{alternate_on}' 'display -p "the pane is in alternate screen"'
-    the pane is in alternate screen~
+    the pane is in alternate screen˜
 
 In both cases, formats are expanded before `if-shell` is run, at parse time.
 
@@ -178,12 +178,12 @@ In both cases, formats are expanded before `if-shell` is run, at parse time.
 
     $ tmux set @foo '#S'
     $ tmux show -v @foo
-    #S~
+    #S˜
 
                vv
     $ tmux set -F @foo '#S'
     $ tmux show -v @foo
-    study~
+    study˜
 
 #### When should I pass `-F` to `set-option`?
 
@@ -213,12 +213,12 @@ alternative, otherwise the second one.
 Example:
 
     $ tmux display -p '#{?session_attached,attached,not attached}'
-    attached~
+    attached˜
 
 And:
 
     $ tmux display -p '#{?automatic-rename,yes,no}'
-    no~
+    no˜
 
 ### Which variable can I use?
 
@@ -229,9 +229,9 @@ However, you  can't use  a variable  which is  only in  the tmux  server process
 environment, and not in the global environment:
 
     $ tmux setenv -gu EDITOR ; echo $EDITOR
-    vim~
+    vim˜
     $ tmux display -p '#{?EDITOR,set,not set}'
-    not set~
+    not set˜
 
 ### Which value wins in case of conflict between
 #### a variable in the global environment and session environment?
@@ -239,14 +239,14 @@ environment, and not in the global environment:
 The value in the session environment.
 
     $ tmux setenv -g foo 1 \; setenv foo 0 \; display -p '#{?foo,set,not set}'
-    not set~
+    not set˜
 
 #### the global value of an option and its local counterpart?
 
 The local value wins.
 
     $ tmux set -g automatic-rename 1 \; set automatic-rename 0 \; display -p '#{?automatic-rename,set,not set}'
-    not set~
+    not set˜
 
 ##
 ## How to compare
@@ -279,10 +279,10 @@ Use one of these syntaxes:
 Examples:
 
     $ tmux display -p '#{==:#{host},ubuntu}'
-    1~
+    1˜
 
     $ tmux display -p '#{!=:#{client_termname},rxvt-unicode-256color}'
-    1~
+    1˜
 
 ### the lexicographical order between two strings?
 
@@ -296,7 +296,7 @@ Use `>=`, `>`, `<=` or `<`:
 Example:
 
     $ tmux display -p '#{<:a,b}'
-    1~
+    1˜
 
 ###
 ### a shell wildcard pattern to a string?
@@ -306,7 +306,7 @@ Example:
 ---
 
     $ tmux display -p '#{m:*256*,#{client_termname}}'
-    1~
+    1˜
 
 In the pattern, you can use the metacharacters documented at `man 3 fnmatch`.
 
@@ -324,7 +324,7 @@ Pass the `r` flag to the `m` modifier:
 
                                              vv
     $ tmux set @foo 'abcd' \; display -p '#{m/r:^[aA].*[dD]$,#{@foo}}'
-    1~
+    1˜
 
 #### How to write a quantifier such as `{1,4}`?
 
@@ -333,7 +333,7 @@ However, in a format, `,` and `}` are special, so you need to escape them with `
 
                                  v  v
     $ tmux display -p '#{m/r:^.{1#,4#}$,test}'
-    1~
+    1˜
 
 ###
 ### how to ignore the case, when doing a shell wildcard pattern or regex comparison?
@@ -342,11 +342,11 @@ Pass the `i` flag to the `m` modifier:
 
                                              vv
     $ tmux set @foo 'ABCD' \; display -p '#{m/i:a*d,#{@foo}}'
-    1~
+    1˜
 
                                              v-v
     $ tmux set @foo 'ABCD' \; display -p '#{m/ri:^a.*d$,#{@foo}}'
-    1~
+    1˜
 
 ##
 ## How to check if
@@ -365,7 +365,7 @@ Pass the `i` flag to the `m` modifier:
 ---
 
     $ tmux display -p '#{&&:#{pane_active},#{alternate_on}}'
-    1~
+    1˜
 
 ##
 # Modifiers
@@ -406,7 +406,7 @@ contrary you may need to remove some escape sequences.
 OTOH, `#{l:}` is simpler to use and more future-proof:
 
     $ tmux display -p '#{l:{?pane_in_mode,#{?#{==:#{session_name},Summer},ABC,XYZ},xyz}}'
-    {?pane_in_mode,#{?#{==:#{session_name},Summer},ABC,XYZ},xyz}~
+    {?pane_in_mode,#{?#{==:#{session_name},Summer},ABC,XYZ},xyz}˜
 
 ---
 
@@ -425,21 +425,21 @@ Indeed, `%if` expects a format as an argument.
 When your text contains braces.
 
     $ tmux command-prompt -I "#{l:{a} {b}}"
-    {a {b}}~
+    {a {b}}˜
           ^
           ✘
 
 Note that the issue is specific to braces, not formats; so this would work as expected:
 
     $ tmux command-prompt -I "#{l:#{a} #{b}}"
-    #{a} #{b}~
+    #{a} #{b}˜
 
 ---
 
 Here's a less contrived example illustrating the issue:
 
     $ tmux command-prompt -I "#{l:if 'true' {display #{pane_id}} {display 'x'}}"
-    :if 'true' {display #{pane_id} { display 'x' }}~
+    :if 'true' {display #{pane_id} { display 'x' }}˜
                                                   ^
                                                   ✘
 
@@ -448,7 +448,7 @@ Here's a less contrived example illustrating the issue:
 Double all the number signs:
 
     $ tmux command-prompt -I "if 'true' {display ##{pane_id}} {display 'x'}"
-    :if 'true' {display #{pane_id}} { display 'x' }~
+    :if 'true' {display #{pane_id}} { display 'x' }˜
 
 ###
 ## How to write a literal `#`, `,`, or `}`?
@@ -466,7 +466,7 @@ Escape them with `#`:
 Just include its name inside `#{}`:
 
     $ tmux display -p '#{buffer-limit}'
-    10~
+    10˜
 
 ###
 ### the address of the line where
@@ -477,7 +477,7 @@ Just include its name inside `#{}`:
 ---
 
     $ tmux display -p '#{C:needle}'
-    24~
+    24˜
 
 If the string is not found, `#{C:pat}` evaluates to 0.
 
@@ -493,12 +493,12 @@ In the pattern, you can use the metacharacters documented at `man 3 fnmatch`.
 ---
 
     $ echo needle ; tmux display -p '#{C/r:^n.*le}'
-    needle~
-    2~
+    needle˜
+    2˜
 
     $ echo NEEDLE ; tmux display -p '#{C/ri:^n.*le}'
-    needle~
-    2~
+    needle˜
+    2˜
 
 ##
 ## How to truncate a string after the first `N` characters?
@@ -508,7 +508,7 @@ In the pattern, you can use the metacharacters documented at `man 3 fnmatch`.
 ---
 
     $ tmux display -p '#{=2:client_termname}'
-    st~
+    st˜
 
 ### before the last `N` characters?
 
@@ -516,7 +516,7 @@ Use a negative number:
 
                          v-v
     $ tmux display -p '#{=-8:client_termname}'
-    256color~
+    256color˜
 
 #### and replace the truncated text with `...`?
 
@@ -532,10 +532,10 @@ OTOH, I don't know why `N` needs to be separated from `=` with a slash.
 ---
 
     $ tmux set @foo 'one two three' \; display -p '#{=/7/...:@foo}'
-    one two...~
+    one two...˜
 
     $ tmux set @foo 'one two three' \; display -p '#{=/-9/...:@foo}'
-    ...two three~
+    ...two three˜
 
 ##
 ## How to convert a Unix time in a human-readable form?
@@ -547,7 +547,7 @@ Use the `t:` modifier:
 ---
 
     $ tmux display -p '#{t:start_time}'
-    Wed Jun 12 12:28:00 2019~
+    Wed Jun 12 12:28:00 2019˜
 
 ## How to extract the basename or dirname of a path?
 
@@ -561,10 +561,10 @@ Use the `b:` or `d:` modifier:
 
     $ tmux set -g @foo /tmp/file.txt
     $ tmux display -p '#{b:@foo}'
-    file.txt~
+    file.txt˜
 
     $ tmux display -p '#{d:@foo}'
-    /tmp~
+    /tmp˜
 
 ## How to escape characters which are special to the sh shell?
 
@@ -574,7 +574,7 @@ Use the `q:` modifier:
 
                          v
     $ tmux display -p '#{q:@foo}'
-    a\$b\"c\`d\&e\>f\;g\|h\(i~
+    a\$b\"c\`d\&e\>f\;g\|h\(i˜
 
 ##
 ## How to expand the *content* of an option, rather than the option itself?
@@ -584,10 +584,10 @@ Use the `E:` modifier:
     $ tmux set -g @foo '#[fg=colour15]#{?client_prefix,#[bold],}#S#{?client_prefix,,#[bold]}'
 
     $ tmux display -p '#{@foo}'
-    #[fg=colour15]#{?client_prefix,#[bold],}#S#{?client_prefix,,#[bold]}~
+    #[fg=colour15]#{?client_prefix,#[bold],}#S#{?client_prefix,,#[bold]}˜
 
     $ tmux display -p '#{E:@foo}'
-    #[fg=colour15]study#[bold]~
+    #[fg=colour15]study#[bold]˜
 
 ### My option contains a strftime(3) specifier (e.g. `%Y`).  How to expand it as well?
 
@@ -596,11 +596,11 @@ Use `T:`:
     $ tmux set @foo '#S %Y'
 
     $ tmux display -p '#{@foo}'
-    #S %Y~
+    #S %Y˜
     $ tmux display -p '#{E:@foo}'
-    study %Y~
+    study %Y˜
     $ tmux display -p '#{T:@foo}'
-    study 2019~
+    study 2019˜
 
 #### What are the two options whose value can include a strftime(3) specifier?
 
@@ -614,10 +614,10 @@ Use `T:`:
 Use the prefix `s/pat/rep/:`:
 
     $ tmux set @foo 'pat a pat b' \; display -p '#{s/pat/rep/:@foo}'
-    rep a rep b~
+    rep a rep b˜
 
     $ tmux set @foo 'pat a pat b' \; display -p '#{s/[^ ]*/rep/:@foo}'
-    rep rep rep rep~
+    rep rep rep rep˜
 
 ### ignoring the case?
 
@@ -625,7 +625,7 @@ Use the `i` flag:
 
                                                              v
     $ tmux set @foo 'PAT a PAT b' \; display -p '#{s/pat/rep/i:@foo}'
-    rep a rep b~
+    rep a rep b˜
 
 ### How to write a quantifier such as `{12,34}` inside a `#{C/r:}`, `#{m/r:}`, `#{s/pat/rep/:}` format?
 
@@ -642,14 +642,14 @@ The last syntax works in the 3 contexts.
 ---
 
     $ echo suuuper >/tmp/file ; clear ; cat /tmp/file ; tmux display -p '#{C/r:^su{1,3#}per$}'
-    suuuper~
-    1~
+    suuuper˜
+    1˜
 
     $ tmux set @foo 'suuuper' \; display -p '#{m/r:u{1#,3#},#{@foo}}'
-    1~
+    1˜
 
     $ tmux set @foo 'suuuper' \; display -p '#{s/u{1,3#}/u/:@foo}'
-    super~
+    super˜
 
 ####
 ## What are the two modifiers for which I need to use `#{}` a second time to expand a variable they contain?
@@ -657,17 +657,17 @@ The last syntax works in the 3 contexts.
 `m` and `C`:
 
     $ tmux set @foo 'abc' \; display -p '#{m:a*,@foo}'
-    0~
+    0˜
     $ tmux set @foo 'abc' \; display -p '#{m:a*,#{@foo}}'
-    1~
+    1˜
 
     $ echo abc >/tmp/file ; tmux set @foo abc ; clear
     $ cat /tmp/file ; tmux display -p '#{C:@foo}'
-    abc~
-    1~
+    abc˜
+    1˜
     $ cat /tmp/file ; tmux display -p '#{C:#{@foo}}'
-    abc~
-    2~
+    abc˜
+    2˜
 
 Rationale:
 
@@ -687,7 +687,7 @@ the literal text `@foo`.
                            ┌ alias for `#{session_name}`
                            ├┐
     $ tmux display -p '#{S:#S }'
-    my_session_1 my_session_2 ... ~
+    my_session_1 my_session_2 ... ˜
 
 ### each window of the current session?
 
@@ -698,7 +698,7 @@ the literal text `@foo`.
                            ┌ alias for `#{window_name}`
                          v ├┐
     $ tmux display -p '#{W:#W }'
-    my_window_1 my_window_2 ... ~
+    my_window_1 my_window_2 ... ˜
 
 ### each pane of the current window?
 
@@ -709,7 +709,7 @@ the literal text `@foo`.
                            ┌ alias for `#{pane_index}`
                            ├┐
     $ tmux display -p '#{P:#P }'
-    1 2 ...~
+    1 2 ...˜
 
 ###
 ### How to make tmux perform a different expansion in the context of the current window or active pane?
@@ -1107,10 +1107,10 @@ Yes.
 You can't have 2 sessions with the same name.
 
     $ tmux display -p '#S'
-    study~
+    study˜
 
     $ tmux new -s study
-    Duplicate session: study~
+    Duplicate session: study˜
 
 ###
 # Issues
@@ -1133,7 +1133,7 @@ Prepend `if -F 1` to your braces:
 
     ✘
     $ tmux bind x '{ display test }'
-    unknown command:  display test~
+    unknown command:  display test˜
 
     ✔
     $ tmux bind x 'if -F 1 { display test }'
@@ -1176,7 +1176,7 @@ is `{display test}`.  But this is not a valid tmux command; it's a string.
 So tmux complains in the exact same way it would complain if you had run:
 
     $ tmux bind x '"display test"'
-    unknown command: display test~
+    unknown command: display test˜
 
 ---
 
@@ -1232,11 +1232,11 @@ It would break the meaning of the formats.
 Indeed, any character inside `#{}` is syntaxic, including a space:
 
     $ tmux display -p '#{==:vim,#{pane_current_command}}'
-    1~
+    1˜
 
                                                        v
     $ tmux display -p '#{==:vim,#{pane_current_command} }'
-    0~
+    0˜
 
 ##
 # Todo

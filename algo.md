@@ -402,10 +402,10 @@ existent déjà; n'ajoute pas d'incohérence.
 Exemple:
 
     :mksession file
-    échoue car `:mksession` refuse d'écraser un fichier existant~
+    échoue car `:mksession` refuse d'écraser un fichier existant˜
 
     :STrack file
-    échoue car on copie le comportement de `:mksession`~
+    échoue car on copie le comportement de `:mksession`˜
 
 ---
 

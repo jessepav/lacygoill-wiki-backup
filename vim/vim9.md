@@ -667,14 +667,14 @@ caught, at compile time.
 A boolean *number*:
 
     :echo getwinvar(winnr(), '&pvw')
-    0~
+    0˜
 
 ### in Vim9 script?
 
 A *boolean*:
 
     :vim9 echo getwinvar(winnr(), '&pvw')
-    false~
+    false˜
 
 ##
 ## When does Vim use the subtype `<unknown>`?
@@ -1191,7 +1191,7 @@ IOW, your script doesn't need to start with `:vim9script`.
 
     $ vim -Nu NONE -S /tmp/.a.vim -S /tmp/.b.vim
 
-    123~
+    123˜
 
 ##
 ## After sourcing a Vim9 script from a legacy script, which items can I refer to?
@@ -1211,7 +1211,7 @@ the ones defined in the `s:` namespace, nor the exported items.
 
     $ vim -Nu NONE -S /tmp/legacy.vim
 
-    E121: Undefined variable: MYCONST~
+    E121: Undefined variable: MYCONST˜
 
 Here, the legacy script fails to refer  to `MYCONST`, even after sourcing a Vim9
 script which  exports the latter  variable; that's because  it was local  to the
@@ -1229,7 +1229,7 @@ Vim9 script.
 
     $ vim -Nu NONE -S /tmp/legacy.vim
 
-    456~
+    456˜
 
 Here,  the legacy  script  *can*  refer to  `g:global`,  because  it's a  global
 variable; not a variable local to the Vim9 script.
@@ -1286,7 +1286,7 @@ Example:
 
     $ vim -Nu NONE -S /tmp/foo.vim -S /tmp/bar.vim
 
-    from a script in current directory~
+    from a script in current directory˜
 
 ### in the *parent* directory of the current script?
 
@@ -1310,7 +1310,7 @@ Example:
 
     $ vim -Nu NONE -S /tmp/foo.vim -S /tmp/dir/bar.vim
 
-    from a script in parent directory~
+    from a script in parent directory˜
 
 ### at an arbitrary location?
 
@@ -1334,7 +1334,7 @@ Example:
 
     $ vim -Nu NONE -S /tmp/foo.vim -S /tmp/bar.vim
 
-    from /tmp/foo.vim~
+    from /tmp/foo.vim˜
 
 ###
 ### Suppose I write this:
@@ -1364,7 +1364,7 @@ Example:
 
     $ vim -Nu NONE -S /tmp/bar.vim
 
-    from foo.vim in import/ subdir~
+    from foo.vim in import/ subdir˜
 
 ---
 
@@ -1390,7 +1390,7 @@ Example:
 
     $ vim -Nu NONE -S /tmp/qux.vim
 
-    from foo/bar/baz.vim in import/ subdir~
+    from foo/bar/baz.vim in import/ subdir˜
 
 #### Which pitfall should I be aware of when choosing a name for `foo.vim`?
 
@@ -1483,7 +1483,7 @@ Working example:
 
     $ vim -Nu NONE -S /tmp/import.vim
 
-    123~
+    123˜
 
 Notice how we had to prefix `MYCONST` with `s:` in `import.vim`.
 Without, when executing  `:echo MYCONST` afterward, Vim would  have searched for
@@ -1638,8 +1638,8 @@ Or a function name contains a `#`:
     $ vim -Nu NORC --cmd 'set rtp^=/tmp/some'
     :call some#func()
     :def some#func
-    def some#func~
-    enddef~
+    def some#func˜
+    enddef˜
     " notice how we didn't need <SNR> when calling the function,
     " and how there is no <SNR> in the header of the function definition as reported by ":def"
 
@@ -2294,8 +2294,8 @@ At the moment, an eval string is a bit slower in a `:def` function:
     EOF
     )
 
-    0.533 seconds to run lambdas~
-    0.607 seconds to run eval strings~
+    0.533 seconds to run lambdas˜
+    0.607 seconds to run eval strings˜
 
 And at the script level:
 
@@ -2315,8 +2315,8 @@ And at the script level:
     EOF
     )
 
-    0.529 seconds to run lambdas~
-    0.602 seconds to run eval strings~
+    0.529 seconds to run lambdas˜
+    0.602 seconds to run eval strings˜
 
 ### a `map()` and a for loop?
 
@@ -2349,8 +2349,8 @@ Inside a `:def` function, a for loop is significantly faster:
     EOF
     )
 
-    0.417 seconds to run Lambda()~
-    0.235 seconds to run ForLoop()~
+    0.417 seconds to run Lambda()˜
+    0.235 seconds to run ForLoop()˜
 
 But at the script level, a for loop is significantly slower:
 
@@ -2375,8 +2375,8 @@ But at the script level, a for loop is significantly slower:
     EOF
     )
 
-    0.868 seconds to run Lambda()~
-    5.891 seconds to run ForLoop()~
+    0.868 seconds to run Lambda()˜
+    5.891 seconds to run ForLoop()˜
 
 Conclusion: on huge lists (>= 10^4 items), prefer a `for` loop, but make sure to
 write it  inside a  `:def` function.
@@ -2411,8 +2411,8 @@ always as significant as in the previous simple test.  Example:
     EOF
     )
 
-    4.070 seconds to run Lambda()~
-    3.286 seconds to run ForLoop()~
+    4.070 seconds to run Lambda()˜
+    3.286 seconds to run ForLoop()˜
 
 The results might  also depend on the size of  the inner lists/dictionaries, and
 the type of transformation you perform...
@@ -2636,8 +2636,8 @@ function.
 
     $ vim -Nu NONE -S /tmp/import.vim -S /tmp/update.vim -S /tmp/import.vim
 
-    123~
-    123~
+    123˜
+    123˜
 
 ### Their definitions has not changed!  Why?
 
@@ -2648,7 +2648,7 @@ To see the effects of your update, simply restart Vim:
 
     $ vim -Nu NONE -S /tmp/import.vim
 
-    456~
+    456˜
 
 ##
 ## My global command is wrongly parsed as the `g:` global namespace!

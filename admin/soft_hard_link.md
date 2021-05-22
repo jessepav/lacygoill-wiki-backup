@@ -10,11 +10,11 @@ No, it operates on the link itself:
     $ cd /tmp
     $ sudo ln -s ~/.bashrc /tmp/link2bashrc
     $ ls -l link2bashrc
-    lrwxrwxrwx 1 root root <small size> <recent date> link2bashrc → /home/user/.bashrc~
+    lrwxrwxrwx 1 root root <small size> <recent date> link2bashrc → /home/user/.bashrc˜
     ^
 
     $ ls -lL link2bashrc
-    -rw-r--r-- 1 john john <big size> <old date> link2bashrc~
+    -rw-r--r-- 1 john john <big size> <old date> link2bashrc˜
     ^
 
 Between the 2 listings, you will notice that:
@@ -78,7 +78,7 @@ The contents of the file are still accessible:
       ln file hlink       && \
       rm file             && \
       cat hlink
-      hello~
+      hello˜
 
 ## a soft link referring to it?
 
@@ -88,7 +88,7 @@ The contents of the file are lost:
     $ ln -s file slink
     $ rm file
     $ cat slink
-    cat: slink: No such file or directory~
+    cat: slink: No such file or directory˜
 
 #
 # What happens to a hard link, if I rename or move the original file?

@@ -254,14 +254,14 @@ Technically, this command sets two options:
 `:verb` only applies to the command up to the next bar, so this doesn't work:
 
     :2verb set vbs | set vbs
-    verbose=2  ✔~
-    verbose=0  ✘~
+    verbose=2  ✔˜
+    verbose=0  ✘˜
 
 You muse also use `:exe`:
 
     :2verb exe 'set vbs | set vbs'
-    verbose=2  ✔~
-    verbose=2  ✔~
+    verbose=2  ✔˜
+    verbose=2  ✔˜
 
 ##
 ## What's the maximum verbosity level above which you shouldn't go without redirecting the messages in a file?
@@ -375,8 +375,8 @@ Status.
 Yes:
 
     :sil verb ru foobar.vim
-    no message displayed~
-    no message added in `:mess`~
+    no message displayed˜
+    no message added in `:mess`˜
 
 ## How to react to a message given by `:verb cmd` without displaying any message?
 
@@ -610,18 +610,18 @@ followed by a its own hit-enter prompt.
     endfu
     call feedkeys("\<C-b>")
 
-    Error detected while processing function Func:~
-    line    1:~
-    E492: Not an editor command:     invalid1~
-    Press ENTER or type command to continue~
-    Error detected while processing function Func:~
-    line    2:~
-    E492: Not an editor command:     invalid2~
-    Press ENTER or type command to continue~
-    Error detected while processing function Func:~
-    line    3:~
-    E492: Not an editor command:     invalid3~
-    Press ENTER or type command to continue~
+    Error detected while processing function Func:˜
+    line    1:˜
+    E492: Not an editor command:     invalid1˜
+    Press ENTER or type command to continue˜
+    Error detected while processing function Func:˜
+    line    2:˜
+    E492: Not an editor command:     invalid2˜
+    Press ENTER or type command to continue˜
+    Error detected while processing function Func:˜
+    line    3:˜
+    E492: Not an editor command:     invalid3˜
+    Press ENTER or type command to continue˜
 
 If at any point you press any key  other than Enter, like `Esc`, `C-c` or `C-l`,
 you won't see the next errors.
@@ -750,7 +750,7 @@ From `:h startup`:
 Try this:
 
     $ vim -es -Nu NONE +'pu=v:vim_did_enter|%p' +'qa!'
-    0~
+    0˜
 
 When the  `+` command was  processed, `v:vim_did_enter`  was not set  yet; which
 means that `VimEnter` had not been fired.
@@ -831,10 +831,10 @@ In the last component of the path, a part of the filename:
 Before the last component of the path, ONE directory:
 
     :ru! */foo.vim
-    could source `plugin/foo.vim`~
+    could source `plugin/foo.vim`˜
 
     :ru! */*/foo.vim
-    could source `plugin/bar/foo.vim`~
+    could source `plugin/bar/foo.vim`˜
 
 ##
 ## How do ‘bpr’ interpret `*foo.vim`?   What about `*/foo.vim`?
@@ -1767,10 +1767,10 @@ There is no way to see the command at the current line yet.
             les commandes Ex habituelles:
 
                     :echo   myvar
-                    valeur de la variable `myvar` locale à la fonction~
+                    valeur de la variable `myvar` locale à la fonction˜
 
                     :echo g:myvar
-                    valeur de la variable globale `myvar`~
+                    valeur de la variable globale `myvar`˜
 
             Les commandes  sont exécutées dans le  contexte de la fonction  / du
             script.

@@ -359,15 +359,15 @@ Pour peupler les matchs on utilisera pex le code suivant:
 Their arguments.
 
     com - C-x C-v
-    addr~
-    bang~
-    bar~
-    buffer~
-    complete~
-    count~
-    nargs~
-    range~
-    register~
+    addr˜
+    bang˜
+    bar˜
+    buffer˜
+    complete˜
+    count˜
+    nargs˜
+    range˜
+    register˜
 
 # Why doesn't `C-x C-v` complete `com` when the line is `foo com`?
 
@@ -395,9 +395,9 @@ MWE:
     " press C-x C-k
     " keep pressing C-k
     :mess
-    match in file /usr/share/dict/words~
-    match in file /usr/share/dict/words~
-    ...~
+    match in file /usr/share/dict/words˜
+    match in file /usr/share/dict/words˜
+    ...˜
 
 Same issue with the `C-n` (and `C-p`) completion.
 

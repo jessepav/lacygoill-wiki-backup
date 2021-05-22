@@ -501,17 +501,17 @@ include the ID of the script from where each mapping has been installed?
 Before:
 
     :map
-    ...~
-    n  <key>    * <Cmd>call <SNR>123_func()<CR>~
-    ...~
+    ...˜
+    n  <key>    * <Cmd>call <SNR>123_func()<CR>˜
+    ...˜
 
 After:
 
     :map
-    ...~
-    n  <key>    * <Cmd>call <SID>func()<CR>~
-        SID = 123~
-    ...~
+    ...˜
+    n  <key>    * <Cmd>call <SID>func()<CR>˜
+        SID = 123˜
+    ...˜
 
 ---
 
@@ -999,6 +999,42 @@ defcompile
     E1143: Empty expression: "# some comment"
 
 ##
+## ?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        set pp=/tmp/.vim rtp=/tmp/.vim
+        delete('/tmp/.vim', 'rf')
+        mkdir('/tmp/.vim/pack/unicode/opt/unicode.vim', 'p')
+        system('git clone https://github.com/chrisbra/unicode.vim /tmp/.vim/pack/unicode/opt/unicode.vim')
+        packadd unicode.vim
+        Digraphs!
+    EOF
+    )
+
+Press Enter to download the missing file.
+Press G to jump at the end of the pager.
+Finally, run:
+
+    :echo 'TEST'
+
+`TEST` is highlighted with the `Title` HG.
+It should not.
+```diff
+diff --git a/autoload/unicode.vim b/autoload/unicode.vim
+index 9516464..dd22ee2 100644
+--- a/autoload/unicode.vim
++++ b/autoload/unicode.vim
+@@ -1024,6 +1024,7 @@ fu! <sid>ScreenOutput(...) abort "{{{2
+         endif
+         let i+=1
+     endfor
++    echohl Normal
+ endfu
+ fu! <sid>WarningMsg(msg) abort "{{{2
+     echohl WarningMsg
+```
+
 ## ?
 
 Refactor `:MatchparenOn`, `:MatchparenOff`, `:MatchparenToggle`
@@ -2462,7 +2498,7 @@ reality, we  pass it `getbufinfo()`  which outputs  a list of  dictionaries with
 *mixed* values:
 
     :echo getbufinfo()->typename()
-    list<dict<any>>~
+    list<dict<any>>˜
 
 ---
 ```vim
@@ -2600,9 +2636,9 @@ I'm not sure that can be done though; it seems Vim concatenates all the lines in
 the lambda's definition:
 
     :fu <lambda>1
-        def <lambda>1(m: any, ...): string~
-     1  return m[0]->str2nr() > 99                         ? ''                         : m[0]->str2nr()~
-        enddef~
+        def <lambda>1(m: any, ...): string˜
+     1  return m[0]->str2nr() > 99                         ? ''                         : m[0]->str2nr()˜
+        enddef˜
 
 If it can't be  improved when the error is raised at runtime,  could it still be
 improved when the error is raised at compile time?
@@ -4566,7 +4602,7 @@ Does the following commands do a good job illustrating the pitfall?
 
     $ vim -Nu NONE -S /tmp/foo.vim
 
-    E1048: Item not found in script: BAR~
+    E1048: Item not found in script: BAR˜
 
 ### 805
 
@@ -5531,7 +5567,7 @@ Unless it's a design choice?  Is it documented?
     EOF
     )
 
-    E107: Missing parentheses: g:Funcref.key()~
+    E107: Missing parentheses: g:Funcref.key()˜
 
 Bug?  Feature request?
 

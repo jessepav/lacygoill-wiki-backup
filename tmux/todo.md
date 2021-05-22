@@ -408,14 +408,14 @@ messages.
 ## prevent the command-prompt history from polluting the regular history
 
     :command-prompt 'display %%'
-    (display) hello~
+    (display) hello˜
               ^---^
               type that
 
       press this
       vv
     : Up
-    hello~
+    hello˜
 
 ## name a buffer created by `copy-selection`, `copy-pipe` and friends
 
@@ -487,17 +487,17 @@ This matters if we have several user options with the same name but different sc
 By default, tmux gives the priority to a server option:
 
     $ tmux set -s @my_option 0 \; set @my_option 1 \; set -w @my_option 1 \; set -p @my_option 1 \; if -F '#{@my_option}' 'display -p yes' 'display -p no'
-    no~
+    no˜
 
 Then a pane option:
 
     $ tmux set -us @my_option \; set -p @my_option 0 \; set -w @my_option 0 \; set -s @my_option 0 \; if -F '#{@my_option}' 'display -p yes' 'display -p no'
-    no~
+    no˜
 
 Then a window option:
 
     $ tmux set -us @my_option \; set -up @my_option \; set -s @my_option 0 \; set -w @my_option 1 \; if -F '#{@my_option}' 'display -p yes' 'display -p no'
-    no~
+    no˜
 
 Finally a session option.
 
@@ -582,16 +582,16 @@ It begins with fairly basic information, but ends with advanced ones.
 Compare:
 
     $ time tmux neww 'echo foo;sleep 3'
-    ... 0,011 total~
+    ... 0,011 total˜
         ^---^
 
 Vs:
-    ~
+
                                             ┌ my interpretation: emit the “signal” ‘neww-done’
                                             │                         ┌ wait for the signal ‘neww-done’
                                             ├───────────────────┐     ├────────────────┐
     $ time tmux neww 'echo foo;sleep 3;tmux wait-for -S neww-done' \; wait-for neww-done
-    ... 3,019 total~
+    ... 3,019 total˜
         ^---^
 
 <https://unix.stackexchange.com/a/137547/289772>
@@ -911,10 +911,10 @@ None of them match `#{=/number:...}`.
 I think the semicolon is a way to combine several modifiers:
                                                                       v
     $ tmux set -g @foo 'some long text' \; display -p '#{s/long/short/;=/10/...:@foo}'
-    some short...~
+    some short...˜
                                                                  v
     $ tmux set -g @foo 'some long text' \; display -p '#{=/10/...;s/long/short/:@foo}'
-    some short...~
+    some short...˜
 
 And what about this `range` token?
 I think you can use it to define when the left part of the status line begins and when it ends.
@@ -1123,7 +1123,7 @@ it doesn't exist, without having to test the output of some command like `$ tmux
     EOF
 
     $ tmux source /tmp/.tmux.conf
-    you are NOT in a shell~
+    you are NOT in a shell˜
 
 This may seem unexpected, because if the same command is run from a key binding,
 then the current command is the shell (and not 'bind'):
@@ -1135,7 +1135,7 @@ then the current command is the shell (and not 'bind'):
 
     $ tmux source /tmp/.tmux.conf
     # press pfx + x
-    you are in a shell~
+    you are in a shell˜
 
 Although, now  that I  think about it,  it wouldn't make  sense for  the current
 command to be 'bind',  because `bind` doesn't run the command  when we press pfx +x;
@@ -1165,8 +1165,8 @@ the active pane of the client passed to `-c`.
 Also document the effect of `-c` alone:
 
     $ tmux lsc
-    /dev/pts/4: study [119x34 st-256color] (utf8) ~
-    /dev/pts/10: fun [80x24 xterm-256color] (utf8) ~
+    /dev/pts/4: study [119x34 st-256color] (utf8) ˜
+    /dev/pts/10: fun [80x24 xterm-256color] (utf8) ˜
                             ^------------^
                             second terminal attached to the second session
 
@@ -1266,7 +1266,7 @@ interpreted as resp. the stdin and the stdout:
 
     $ printf 'test' | tmux loadb -
     $ tmux saveb - | wc -m
-    4~
+    4˜
 
 This is not documented.
 
@@ -1317,10 +1317,10 @@ It also controls the style of the status line messages.
 The possibility of combining 2 format modifiers with a semicolon is not documented.
 
     $ tmux set -g @foo 'some long text' \; display -p '#{s/long/short/;=/10/...:@foo}'
-    some short...~
+    some short...˜
 
     $ tmux display -p '#{t;s/^.../XXX/:start_time}'
-    XXX Aug  8 13:11:27 2019~
+    XXX Aug  8 13:11:27 2019˜
 
 You can also combine more than 2 modifiers:
 

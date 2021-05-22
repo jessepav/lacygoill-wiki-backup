@@ -95,8 +95,8 @@ To get the name of the directory to enter, execute:
                                replace with the version you installed previously
                                vvv
     $ aptitude show virtualbox-x.y | grep Version
-    Version: x.y.ab-cdefgh...~
-             ^^^^^^
+    Version: x.y.ab-cdefgh...˜
+             ^----^
 
 Enter  the directory  `x.y.ab/`;  then,  download the  file  whose extension  is
 `.vbox-extpack`, and whose name includes `cdefgh`.

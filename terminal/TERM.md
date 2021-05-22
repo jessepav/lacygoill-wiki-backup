@@ -53,7 +53,7 @@ When a terminal type is marked with:
 ## the terminal type `screen-256color`?
 
     $ tput -Ttmux-256color longname
-    tmux with 256 colors~
+    tmux with 256 colors˜
 
 ##
 # Why shouldn't I use a file sourced by the shell to set `$TERM`?

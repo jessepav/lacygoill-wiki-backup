@@ -311,10 +311,10 @@ Method to understand this sentence:
 1. express, in the present tense, the event related in each proposition:
 
    > when the gvimrc file is sourced
-    the gvimrc file is sourced~
+    the gvimrc file is sourced˜
 
    > the system menu has already been loaded
-    the system menu is loaded~
+    the system menu is loaded˜
 
 2. draw a time axis
 

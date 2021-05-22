@@ -587,15 +587,15 @@ Update: They seem to be inherited from the upstart process:
 It's the oldest process which has these variables in its environment:
 
     $ tr '\0' '\n' </proc/1255/environ | grep FR
-    LC_PAPER=fr_FR.UTF-8~
-    LC_ADDRESS=fr_FR.UTF-8~
-    LC_MONETARY=fr_FR.UTF-8~
-    LC_NUMERIC=fr_FR.UTF-8~
-    LC_TELEPHONE=fr_FR.UTF-8~
-    LC_IDENTIFICATION=fr_FR.UTF-8~
-    LC_MEASUREMENT=fr_FR.UTF-8~
-    LC_TIME=fr_FR.UTF-8~
-    LC_NAME=fr_FR.UTF-8~
+    LC_PAPER=fr_FR.UTF-8˜
+    LC_ADDRESS=fr_FR.UTF-8˜
+    LC_MONETARY=fr_FR.UTF-8˜
+    LC_NUMERIC=fr_FR.UTF-8˜
+    LC_TELEPHONE=fr_FR.UTF-8˜
+    LC_IDENTIFICATION=fr_FR.UTF-8˜
+    LC_MEASUREMENT=fr_FR.UTF-8˜
+    LC_TIME=fr_FR.UTF-8˜
+    LC_NAME=fr_FR.UTF-8˜
 
 I suspect upstart gets these from this config file:
 

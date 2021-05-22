@@ -20,7 +20,7 @@ Warning: If your command expects only one filename (like `:e` or `:sp`), and the
 expansion generates more than one filename, an error may be raised:
 
     :sp /etc/bash*
-    E77: Too many file names~
+    E77: Too many file names˜
 
 ### any sequence of characters including a slash?
 
@@ -143,7 +143,7 @@ Only when it starts with a function name.
 
     ✘
     :call 'some string'->Func('.')
-    E129: Function name required~
+    E129: Function name required˜
 
 That's because `:call` expects a function name (it doesn't matter whether it's a
 builtin or a custom one), and nothing else.
@@ -155,7 +155,7 @@ Note that `:call` must be followed by a function name *immediately*:
           ✘
           v
     :call !FuncA()->FuncB()
-    E129: Function name required~
+    E129: Function name required˜
 
 ##### What to do when I can't?
 
@@ -502,7 +502,7 @@ Not for the first one:
         b
         c
     END
-    E990: Missing end marker 'ENDa'~
+    E990: Missing end marker 'ENDa'˜
 
 That's because the line continuation is used before the command is parsed.
 
@@ -516,7 +516,7 @@ If your first item needs to start with a backslash, do this:
     END
     let &cpo = cpo_save
     echo lines
-    ['\a', 'b', 'c']~
+    ['\a', 'b', 'c']˜
 
 Or this:
 
@@ -526,7 +526,7 @@ Or this:
     END
     let lines = ['\a'] + lines
     echo lines
-    ['\a', 'b', 'c']~
+    ['\a', 'b', 'c']˜
 
 The other lines can start with a backslash:
 
@@ -537,7 +537,7 @@ The other lines can start with a backslash:
         \c
     END
     echo lines
-    ['a', '\b', '\c']~
+    ['a', '\b', '\c']˜
 
 ## If I use the `trim` argument, how much leading whitespace does Vim trim?
 
@@ -550,7 +550,7 @@ Vim trims any leading whitespace matching the indentation of the first non-empty
         xx
     END
     echo list
-    ['xx', 'xx', '  xx']~
+    ['xx', 'xx', '  xx']˜
                   ^^
                   there were 4 spaces initially,
                   but 2 were trimmed because there were 2 on the first text line
@@ -570,7 +570,7 @@ line than on the first line:
     vv
       END
         echo list
-        E990: Missing end marker 'END'~
+        E990: Missing end marker 'END'˜
 
 ##
 # Pasting text
@@ -727,12 +727,12 @@ be  found.   And  set  `timeout`  to  0 to  disable  the  time  out  during  the
 recomputing.
 
     :echo searchcount(#{pattern: '.'})
-    {'exact_match': 0, 'current': 100, 'incomplete': 2, 'maxcount': 99, 'total': 100}~
-                                                                                 ^-^
+    {'exact_match': 0, 'current': 100, 'incomplete': 2, 'maxcount': 99, 'total': 100}˜
+                                                                                 ^^^
 
                                                 v           v
     :echo searchcount(#{pattern: '.', maxcount: 0, timeout: 0})
-    {'exact_match': 1, 'current': 1000, 'incomplete': 0, 'maxcount': 0, 'total': 4913}~
+    {'exact_match': 1, 'current': 1000, 'incomplete': 0, 'maxcount': 0, 'total': 4913}˜
                                                                                  ^--^
 
 ## What happens to `total` if there are more matches than `maxcount`?
@@ -740,8 +740,8 @@ recomputing.
 It's set to `maxcount + 1`.
 
     :echo searchcount(#{pattern: '.'})
-    {'exact_match': 0, 'current': 100, 'incomplete': 2, 'maxcount': 99, 'total': 100}~
-                                                                                 ^-^
+    {'exact_match': 0, 'current': 100, 'incomplete': 2, 'maxcount': 99, 'total': 100}˜
+                                                                                 ^^^
                                                                                  99 + 1
 
 ###
@@ -764,7 +764,7 @@ describing the position you're interested in:
     $ vim -Nu NONE +"let @/ = 'pat' | sil pu!=['xxx', 'pat']->repeat(3)"
                         v---------v
     :echo searchcount(#{pos: [4,1,0]}).current
-    2~
+    2˜
 
 Here, `searchcount()` tells you that the index of the match on line 4 column 1 is 2.
 If you had not passed the dictionary, `searchcount()` would have returned 3, because
@@ -803,10 +803,10 @@ absent from `'shm'`.
     $ vim -Nu NONE +"set shm-=S | let @/ = '.' | pu!='xxxxx'"
     " press:  n $
     :echo searchcount(#{recompute: 0})
-    {'exact_match': 1, 'current': 2, 'incomplete': 0, 'maxcount': 99, 'total': 5}~
+    {'exact_match': 1, 'current': 2, 'incomplete': 0, 'maxcount': 99, 'total': 5}˜
                                   ^
     :echo searchcount()
-    {'exact_match': 1, 'current': 5, 'incomplete': 0, 'maxcount': 99, 'total': 5}~
+    {'exact_match': 1, 'current': 5, 'incomplete': 0, 'maxcount': 99, 'total': 5}˜
                                   ^
 
 If `S` is in `'shm'`, then it  gives the results relevant for the current cursor
@@ -927,7 +927,7 @@ It is *much* faster.
 Usage example for `readdir()`:
 
     vim9 echo readdir('/etc', (n: string): bool => n =~ 'network', {sort: 'none'})
-    ['network', 'networks']~
+    ['network', 'networks']˜
 
 ---
 
@@ -935,23 +935,23 @@ If you  need to filter out  entries based on  something else than the  name, use
 `readdirex()`:
 
     vim9 echo readdirex('/etc', (e: dict<any>): bool => e.name =~ 'network' && e.user == 'root', {sort: 'none'})
-    [{~
-      'group': 'root',~
-      'perm': 'rwxr-xr-x',~
-      'name': 'network',~
-      'user': 'root',~
-      'type': 'dir',~
-      'time': 1468960975,~
-      'size': 0},~
-    {~
-      'group': 'root',~
-      'perm': 'rw-r--r--',~
-      'name': 'networks',~
-      'user': 'root',~
-      'type': 'file',~
-      'time': 1445534121,~
-      'size': 91,~
-    }]~
+    [{˜
+      'group': 'root',˜
+      'perm': 'rwxr-xr-x',˜
+      'name': 'network',˜
+      'user': 'root',˜
+      'type': 'dir',˜
+      'time': 1468960975,˜
+      'size': 0},˜
+    {˜
+      'group': 'root',˜
+      'perm': 'rw-r--r--',˜
+      'name': 'networks',˜
+      'user': 'root',˜
+      'type': 'file',˜
+      'time': 1445534121,˜
+      'size': 91,˜
+    }]˜
 
 ### ?
 
@@ -1078,16 +1078,16 @@ Test:
 
     :1d | 1d
     :undo
-    a~
-    b~
+    a˜
+    b˜
 
     $ vim -Nu NONE +"call setline(1, ['a', 'b'])"
     :1d | let &ul = &ul | 1d
     :undo
-    b~
+    b˜
     :undo
-    a~
-    b~
+    a˜
+    b˜
 
 Source: <https://vi.stackexchange.com/a/26475/17449>
 
@@ -1112,12 +1112,12 @@ Usage example:
 
     $ ls | vipe
     :echo $_
-    /usr/bin/vipe~
+    /usr/bin/vipe˜
 
     $ cd ~/Vcs/vim
     $ git commit --amend
     :echo $_
-    /usr/bin/git~
+    /usr/bin/git˜
 
 ##
 ## How to get the path to the parent of
@@ -1126,21 +1126,21 @@ Usage example:
 Use `fnamemodify()` and `:p:h`:
 
     echo fnamemodify($MYVIMRC, ':p:h')
-    /home/user/.vim~
+    /home/user/.vim˜
 
 ### a non-existing directory?
 
 Use `fnamemodify()` and `:p:h`:
 
     echo fnamemodify($HOME .. '/.vam', ':p:h')
-    /home/user~
+    /home/user˜
 
 ### an existing directory?
 
 Use `fnamemodify()` and `:p:h:h`:
 
     echo fnamemodify($HOME .. '/.vim', ':p:h:h')
-    /home/user~
+    /home/user˜
 
 ---
 
@@ -1148,10 +1148,10 @@ You  need two  `:h`  because `:p`  adds  a trailing  slash to  the  path if  the
 directory exists.
 
     echo fnamemodify($HOME .. '/.vim', ':p')
-    /home/user/.vim/~
+    /home/user/.vim/˜
                    ^
     echo fnamemodify($HOME .. '/.vam', ':p')
-    /home/user/.vam~
+    /home/user/.vam˜
                    ^
 
 This has an effect on the `:h` modifier, because the latter considers a trailing
@@ -1281,7 +1281,7 @@ variable reference won't raise any error.
     EOF
 
     $ vim -Nu NORC --cmd 'set rtp^=/tmp/some' +'echo foo#bar#var'
-    123~
+    123˜
 
 The message "all the script is sourced" shows that Vim sources the entire script.
 It doesn't merely look for a `foo#bar#var` assignment.
@@ -1423,24 +1423,24 @@ Here's what I recommend:
 Note that you can't use `is#` if the operands are lists/dictionaries:
 
     :echo ['a'] is# ['a']
-    0~
+    0˜
 
     :echo {'k': 'v'} is# {'k': 'v'}
-    0~
+    0˜
 
 But you *can* if one of the operands is the *member* of a list/dictionary:
 
     :echo ['a'][0] is# 'a'
-    1~
+    1˜
 
     :echo ['a'][0] is# ['a'][0]
-    1~
+    1˜
 
     :echo {'k': 'v'}.k is# 'v'
-    1~
+    1˜
 
     :echo {'k': 'v'}.k is# {'k': 'v'}.k
-    1~
+    1˜
 
 ---
 
@@ -1497,11 +1497,11 @@ MWE:
 
     :call system('sleep 3')
     " smash the 'l' key
-    " ✘ `l` is printed on the command-line~
+    " ✘ `l` is printed on the command-line˜
 
     :sil call system('sleep 3')
     " smash the 'l' key
-    " ✔ nothing is printed on the command-line~
+    " ✔ nothing is printed on the command-line˜
 
 ## When can I *not* add a comma after the last item of a list?
 
@@ -1510,7 +1510,7 @@ When the list is the left operand of an assignment (`:h :let-unpack`):
     let [a,b,c,] = [1,2,3]
     "         ^
     "         ✘
-    E475: Invalid argument: ] = [1,2,3]~
+    E475: Invalid argument: ] = [1,2,3]˜
 
 ##
 ## Sometimes, `getpos()` reports 2147483647 for the column position of the `'>` or `']` mark!
@@ -1550,15 +1550,15 @@ They are not always equivalent:
 
     " equivalent
     :echo matchend('### title', '^#\+')
-    3~
+    3˜
     :echo matchstr('### title', '^#\+')->len()
-    3~
+    3˜
 
     " NOT equivalent
     :echo matchend('title', '^#\+')
-    -1~
+    -1˜
     :echo matchstr('title', '^#\+')->len()
-    0~
+    0˜
 
 ### `:k` or `:mark` to set a mark on the current position, and prefer `:norm! m` instead?
 
@@ -1570,7 +1570,7 @@ original position where you set the mark; you lose the column position.
     " execute this command while your cursor is on the `a` character
     :k a
     :echo getpos("'a")[2]
-    5~
+    5˜
     " the original column was 8
 
 ### concatenating commands in an `:if` or `:try` block on a single line with bars
@@ -1662,19 +1662,19 @@ MWE:
 
     $ mkdir -p /tmp/foo; cd /tmp/foo; \
       vim -es -Nu NONE +"pu=expand(\\\"`pidof vim | awk '{print $1}'`\\\")" +'%p|qa!'
-      1234~
+      1234˜
 
     $ mkdir -p /tmp/foo; cd /tmp/foo; \
       vim -es -Nu NONE +'set wig+=*/foo/*' +"pu=expand(\\\"`pidof vim | awk '{print $1}'`\\\")" +'%p|qa!'
                        ^-----------------^
-      ''~
+      ''˜
 
 To avoid this pitfall, you need to pass a non-zero value as a second argument to `expand()`:
 
     $ mkdir -p /tmp/foo; cd /tmp/foo; \
       vim -es -Nu NONE +'set wig+=*/foo/*' +"pu=expand(\\\"`pidof vim | awk '{print $1}'`\\\", v:true)" +'%p|qa!'
                                                                                                ^----^
-      1234~
+      1234˜
 
 ---
 
@@ -1776,7 +1776,7 @@ You could naively run this:
         echo list
     endfu
     call Func()
-    ['a', '%', 'bar', '%', 'c']~
+    ['a', '%', 'bar', '%', 'c']˜
 
 But it doesn't work as expected, because 'b' has been wrongly removed, and 'bar'
 has not been removed.
@@ -1802,13 +1802,13 @@ indexes of the next ones:
     call Func()
 
     $ cat /tmp/log
-    index 0 | next index 1~
-    index 1 | next index 2~
-    index 2 | next index 3~
-    index 3 | next index 4~
-    index 4 | next index 5~
-    index 5 | next index 6~
-    index 6 | next index 7~
+    index 0 | next index 1˜
+    index 1 | next index 2˜
+    index 2 | next index 3˜
+    index 3 | next index 4˜
+    index 4 | next index 5˜
+    index 5 | next index 6˜
+    index 6 | next index 7˜
 
 In  the original  example, after  removing 'foo',  `filter()` inspects  the next
 item, whose index is `2`.
@@ -1830,7 +1830,7 @@ The solution is to make the condition work on a *copy* of the list.
         echo list
     endfu
     call Func()
-    ['a', '%', 'b', '%', 'c']~
+    ['a', '%', 'b', '%', 'c']˜
 
 If the test involved the current item, there would be no need for `copy()`.
 
@@ -1953,7 +1953,7 @@ Si le dossier de travail est  vide, `expand()` retourne `'*'`, `glob()` retourne
 quel:
 
     echo expand('$FOOBAR')
-    $FOOBAR~
+    $FOOBAR˜
 
 ---
 
@@ -2071,7 +2071,7 @@ How to represent an hexadecimal number?
 Use the `0x` prefix:
 
     echo 0x9a
-    154~
+    154˜
 
 ---
 
@@ -2080,7 +2080,7 @@ How to represent an octal number?
 Use the `0o` prefix:
 
     echo 0o17
-    15~
+    15˜
 
 ---
 
@@ -2091,37 +2091,37 @@ depending on various parameters:
 
     # decimal
     echo 019
-    19~
+    19˜
 
     # octal
     echo 017
-    15~
+    15˜
 
     # decimal
     scriptversion 4
     echo 017
-    17~
+    17˜
 
     # octal
     scriptversion 2
     echo 017
-    15~
+    15˜
 
     # decimal
     vim9script
     echo 017
-    17~
+    17˜
 
 ---
 
     echo 5.45e3
-    5450.0~
+    5450.0˜
 
 En notation exponentielle, il faut obligatoirement un point et un chiffre après.
 Ainsi 5e10 n'est pas valide, mais 5.0e10 est valide.
 
     echo 15.45e-2
-    0.1545~
+    0.1545˜
 
 # Let
 
@@ -2241,7 +2241,7 @@ En effet, si on définit une fonction dans le 2e fichier:
 Elle ne sera jamais trouvée:
 
     call foo#bar()
-    E117: Unknown function: foo#bar~
+    E117: Unknown function: foo#bar˜
 
 ... car Vim s'arrêtera de chercher  dès qu'il trouvera un fichier `foo.vim` dans
 un dossier `autoload/` du rtp.
@@ -2761,11 +2761,11 @@ un dossier `autoload/` du rtp.
 
 
     echo fnamemodify('/foo/bar/baz/', ':t')
-    ''~
+    ''˜
     echo fnamemodify('/foo/bar/baz/', ':h:t')
-    baz~
+    baz˜
     echo fnamemodify('/foo/bar/baz', ':t')
-    baz~
+    baz˜
 
             `:h` removes the last path component.
             But the last path component can be empty, if the last character of the path is `/`.
@@ -2913,7 +2913,7 @@ un dossier `autoload/` du rtp.
             dossier temporaire par Vim:
 
                     call system('mktemp -d /tmp/.pgm.XXXXXXXXXX')
-                    /tmp/abcd123/ + /tmp/.pgm.abcdef12345~
+                    /tmp/abcd123/ + /tmp/.pgm.abcdef12345˜
 
             Toutefois, on préfèrera utiliser `tempname()`, car qd on le réinvoquera, Vim créera tous
             les fichiers suivants dans le même dossier.

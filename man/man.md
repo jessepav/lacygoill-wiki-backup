@@ -199,12 +199,12 @@ Text Header
 They construct the page headers and footers in the formatted output document:
 
     $ zcat /usr/share/man/man1/bash.1.gz | grep '\.TH'
-    .TH BASH 1 "2014 February 2" "GNU Bash 4.3"~
+    .TH BASH 1 "2014 February 2" "GNU Bash 4.3"˜
 
     $ man bash
-    BASH(1)                     General Commands Manual                    BASH(1)~
-    ...~
-    GNU Bash 4.3          2014 February 2          BASH(1)~
+    BASH(1)                     General Commands Manual                    BASH(1)˜
+    ...˜
+    GNU Bash 4.3          2014 February 2          BASH(1)˜
 
 ###
 ## What's the name of the request which starts a section?

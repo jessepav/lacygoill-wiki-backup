@@ -456,9 +456,9 @@ It may be a bug, caused by the lack of a `systemd-vconsole-setup` service on deb
 
     $ journalctl -u systemd-localed --since '5m ago' --no-hostname
 
-        systemd-localed[1234]: Changed virtual console keymap to 'fr' toggle ''~
-        systemd-localed[1234]: Failed to issue method call: Unit systemd-vconsole-setup.service not found.~
-        systemd-localed[1234]: Failed to request keymap reload: No such file or directory~
+        systemd-localed[1234]: Changed virtual console keymap to 'fr' toggle ''˜
+        systemd-localed[1234]: Failed to issue method call: Unit systemd-vconsole-setup.service not found.˜
+        systemd-localed[1234]: Failed to request keymap reload: No such file or directory˜
 
 For more info, see:
 

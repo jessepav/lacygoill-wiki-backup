@@ -749,7 +749,7 @@ updated as necessary.
 ###
 ##
 ##
-# TODO
+# Todo
 ## ?
 
 Talk  about  the  biased  representation  as  opposed  to  the  sign-and-modulus

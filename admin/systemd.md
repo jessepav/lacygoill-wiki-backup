@@ -556,10 +556,10 @@ Source:
 
     $ systemctl start my_service
     $ journalctl -u my_service
-    <date> ubuntu systemd[1]: Started My Application.~
-    <date> ubuntu printf[1234]: We have been triggered~
+    <date> ubuntu systemd[1]: Started My Application.˜
+    <date> ubuntu printf[1234]: We have been triggered˜
                          ^--^
-                         pid~
+                         pid˜
 
     $ cat <<'EOF' | sudo tee -a /etc/systemd/system/my_service.path
     [Unit]
@@ -575,24 +575,24 @@ Source:
     EOF
 
     $ systemctl enable my_service.path
-    Created symlink from /etc/systemd/system/multi-user.target.wants/my_service.path~
-                    to   /etc/systemd/system/my_service.path~
+    Created symlink from /etc/systemd/system/multi-user.target.wants/my_service.path˜
+                    to   /etc/systemd/system/my_service.path˜
 
     $ systemctl start my_service.path
 
     $ journalctl -u my_service.path
-    <date> ubuntu systemd[1]: Started My Application.~
-    <date> ubuntu printf[1234]: We have been triggered~
+    <date> ubuntu systemd[1]: Started My Application.˜
+    <date> ubuntu printf[1234]: We have been triggered˜
 
               no new entries
 
     $ touch /tmp/crash.log
 
     $ journalctl -u my_service.path
-    <date>       ubuntu systemd[1]: Started My Application.~
-    <date>       ubuntu printf[1234]: We have been triggered~
-    <other_date> ubuntu systemd[1]: Started My Application.      ← new entry~
-    <other_date> ubuntu printf[5678]: We have been triggered     ← new entry~
+    <date>       ubuntu systemd[1]: Started My Application.˜
+    <date>       ubuntu printf[1234]: We have been triggered˜
+    <other_date> ubuntu systemd[1]: Started My Application.      ← new entry˜
+    <other_date> ubuntu printf[5678]: We have been triggered     ← new entry˜
 
 ##
 # Service
@@ -698,16 +698,16 @@ Also, these 2 categories of commands are orthogonal.
 As a result, if you disable a service while it's running, it will still run:
 
     $ systemctl is-enabled whoopsie; systemctl is-active whoopsie
-    enabled~
-    active~
+    enabled˜
+    active˜
 
     $ sudo systemctl disable whoopsie
 
     $ systemctl is-enabled whoopsie; systemctl is-active whoopsie
-    disabled~
-    active~
+    disabled˜
+    active˜
     ^----^
-    even though `whoopsie` has been disabled, it's still running~
+    even though `whoopsie` has been disabled, it's still running˜
 
 ###
 ## What happens when
@@ -795,16 +795,16 @@ runlevel) changes.  This includes at boot time.
                      ┌ limit display to the `Names` property
                      ├──────┐
     $ systemctl show -p Names lightdm.service
-    lightdm.service  display-manager.service~
+    lightdm.service  display-manager.service˜
     ^                ^
-    alias 1          alias 2~
+    alias 1          alias 2˜
 
 Another example:
 
     $ systemctl show -p Names rsyslog.service
-    rsyslog.service  syslog.service~
+    rsyslog.service  syslog.service˜
     ^                ^
-    alias 1          alias 2~
+    alias 1          alias 2˜
 
 ###
 ## How to
@@ -901,13 +901,13 @@ that's not what happens:
 
     $ sudo systemctl stop ssh
     $ systemctl status ssh
-    loaded and inactive~
+    loaded and inactive˜
 
     $ sudo systemctl start 'ss*'
     $ systemctl status ssh
-    loaded and inactive~
+    loaded and inactive˜
                ^^
-               ✘ it should be loaded and active~
+               ✘ it should be loaded and active˜
 
 ## How to see the status of all services whose name begin with `vbox`?
 
@@ -1254,7 +1254,7 @@ When you log in for the first time, systemd automatically launches a
 `$ systemd --user` instance:
 
     $ pstree -lsp $(pidof systemd)
-    systemd(1)───systemd(1150)───(sd-pam)(1151)~
+    systemd(1)───systemd(1150)───(sd-pam)(1151)˜
 
 This process will be killed when you log out.
 

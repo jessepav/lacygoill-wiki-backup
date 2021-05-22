@@ -79,7 +79,7 @@ didn't find it in `$PATH`.
 
     $ tmux bind -T copy-mode-vi Y run "tmux send -X copy-selection-and-cancel ; paste-buffer -p"
     # press pfx Y in copy-mode
-    'tmux send -X copy-selection-and-cancel ; paste-buffer -p' returned 127~
+    'tmux send -X copy-selection-and-cancel ; paste-buffer -p' returned 127˜
 
 ##
 # Reference

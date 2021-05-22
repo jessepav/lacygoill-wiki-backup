@@ -154,7 +154,7 @@ Yes:
 
     $ vim +'set pvp=height:10,width:60' +'pedit /tmp/file'
     :echo popup_findpreview()->getwinvar('&pvw')
-    1~
+    1˜
 
 ##
 ## Can I have a preview window and a preview popup in the same tab page?
@@ -164,7 +164,7 @@ Yes:
     $ vim +'set pvp=height:10,width:60' +'pedit /tmp/file'
     :set pvw
     :echo map([1000, 1001], {_, v -> getwinvar(v, '&pvw')})
-    [1, 1]~
+    [1, 1]˜
 
 ##
 ## What happens if I run `:wincmd P` while the tab page contains

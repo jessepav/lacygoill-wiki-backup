@@ -9,12 +9,12 @@ specifier, which may be unexpected; you probably want it to be printed verbatim.
 
     ✘
     $ printf "Unit test coverage: $coverage\n"
-    printf: %\n: invalid directive~
-    Unit test coverage: 96%~
+    printf: %\n: invalid directive˜
+    Unit test coverage: 96%˜
 
     ✔
     $ printf "Unit test coverage: %s\n" "$coverage"
-    Unit test coverage: 96%~
+    Unit test coverage: 96%˜
 
 For more info, see:
 <https://github.com/koalaman/shellcheck/wiki/SC2059>
@@ -24,22 +24,22 @@ For more info, see:
 When it's written inside the format:
 
     $ printf 'a\007b'
-    ab~
+    a^Gb˜
 
     $ var='\007' ; printf "a${var}b"
-    ab~
+    a^Gb˜
 
 or in an argument bound to the format specifier `%b`:
 
     $ printf '%b' 'a\007b'
-    ab~
+    a^Gb˜
 
 ---
 
 In all other cases, `printf` does *not* translate an escape sequence:
 
     $ printf '%s' 'a\007b'
-    a\007b~
+    a\007b˜
 
 ##
 # How to execute all the scripts in a directory?
@@ -70,10 +70,10 @@ So you have to use `--regex` to manually include it inside the set of valid char
 # How to get all the positional parameters passed to the current script/function?  (2)
 
     echo $*
-    "$1 $2 ..."~
+    "$1 $2 ..."˜
 
     echo $@
-    "$1" "$2" ...~
+    "$1" "$2" ...˜
 
 ##
 # Which status code should my function/script use when the user makes a mistake trying to invoke it?
@@ -216,7 +216,7 @@ MWE:
 
     % source ~/.zshrc
     % func
-    I am an alias~
+    I am an alias˜
 
 Note that the alias must be defined BEFORE the function.
 
@@ -268,14 +268,14 @@ Use this parameter expansion:
 Example:
 
     $ if [[ "${TERM:-none}" == 'none' ]]; then echo 'the parameter is NOT set'; else echo 'the parameter is set'; fi
-    the parameter is set~
+    the parameter is set˜
     $ if [[ "${foo:-none}" == 'none' ]]; then echo 'the parameter is NOT set'; else echo 'the parameter is set'; fi
-    the parameter is NOT set~
+    the parameter is NOT set˜
 
     $ case ${TERM:-none} in none) echo 'the parameter is NOT set';; *) echo 'the parameter is set';; esac
-    the parameter is set~
+    the parameter is set˜
     $ case ${foo:-none} in none) echo 'the parameter is NOT set';; *) echo 'the parameter is set';; esac
-    the parameter is NOT set~
+    the parameter is NOT set˜
 
 ### a directory is empty?
 
@@ -304,7 +304,7 @@ MWE:
 
     $ alias -s md=vim
     $ if command -v md.md >/dev/null 2>&1; then echo 'md.md is a valid command!'; fi
-    md.md is a valid command!~
+    md.md is a valid command!˜
 
 #### Which alternative may be more reliable?
 
@@ -318,10 +318,10 @@ FIXME:
 Why doesn't `setopt no_aliases` work?
 
     % alias -s md=vim && setopt no_aliases && md.md
-    zsh: command not found: md.md (✔ expected)~
+    zsh: command not found: md.md (✔ expected)˜
 
     % alias -s md=vim && setopt no_aliases && command -v md.md
-    vim (✘ it shouldn't output anything)~
+    vim (✘ it shouldn't output anything)˜
 
 ##
 ### I'm in a console?
@@ -414,13 +414,13 @@ The `=~` operator lets you use any metacharacter valid in an extended regex.
 ## What's the output of `[[ abc =~ b ]]`?  `[[ abc == b ]]`?  `[[ abc == *b* ]]`?
 
     [[ abc =~ b ]]
-    0, true because 'abc' contains 'b'~
+    0, true because 'abc' contains 'b'˜
 
     [[ abc == b ]]
-    1, false because 'abc' is not 'b'~
+    1, false because 'abc' is not 'b'˜
 
     [[ abc == *b* ]]
-    0, true because 'abc' contains 'b'~
+    0, true because 'abc' contains 'b'˜
 
 Bottom line:
 When you use `==`, the pattern must  describe the entire string, not just a part
@@ -487,23 +487,23 @@ See: <https://github.com/koalaman/shellcheck/wiki/SC2070>
 
 MWE:
 
-        #!/bin/bash
-        echo '' | tee /tmp/file &
+    #!/bin/bash
+    echo '' | tee /tmp/file &
 
 Invoke the wait command to discover the termination status of the job.
 
-        #!/bin/bash
-        echo '' | tee /tmp/file &
-        wait
+    #!/bin/bash
+    echo '' | tee /tmp/file &
+    wait
 
 ---
 
 Another MWE:
 
-        % tty
-        /dev/pts/10~
-        # open another terminal
-        % echo 'written from another terminal' >/dev/pts/10
+    % tty
+    /dev/pts/10˜
+    # open another terminal
+    % echo 'written from another terminal' >/dev/pts/10
 
 ---
 

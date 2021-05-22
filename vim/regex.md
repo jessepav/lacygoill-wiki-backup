@@ -144,11 +144,11 @@ Suppose you want to split `abXcd` into `['ab', 'X', 'cd']` using `split()`:
 
     ✘
     echo split('abXcd', 'X\zs\|\zeX')
-    ['abX', 'cd']~
+    ['abX', 'cd']˜
 
     ✔
     echo split('abXcd', 'X\@<=\|\zeX')
-    ['ab', 'X', 'cd']~
+    ['ab', 'X', 'cd']˜
 
 ---
 
@@ -283,9 +283,9 @@ Example:
 
     :sp /tmp/file
     /\%(foo\_.*\)\@<=baz
-    E486~
+    E486˜
     /\%(foo\_.*\)\@<=bar
-    [1/1] \%(foo\_.*\)\@<=bar~
+    [1/1] \%(foo\_.*\)\@<=bar˜
 
 Theory: Vim  is  unable  to  distinguish   a  pattern  containing  only  literal
 characters from a pattern containing metacharacters.
@@ -328,7 +328,7 @@ The match is possible because:
 ## The character `𞹼` weighs 4 bytes.
 
     $ echo '𞹼' | xxd -p
-     f09eb9bc0a~
+     f09eb9bc0a˜
      ├──────┘├┘
      │       └ ending newline
      └ 4 bytes
@@ -941,13 +941,13 @@ the text you're interested in.
 Use `glob2regpat()`:
 
     echo glob2regpat('*')
-    .*~
+    .*˜
 
     echo map(['*.lock', '*~', '*/build/*', '*.'], {_, v -> glob2regpat(v)})
-    ['\.lock$', '\~$', '/build/', '\.$']~
+    ['\.lock$', '\~$', '/build/', '\.$']˜
 
     echo glob2regpat(&wig)->substitute(',', '\\|', 'g')
-    \.bak\|.*\.swo\|.*\.swp\|.*\~\|.*\.mp3\|.*\.png,...~
+    \.bak\|.*\.swo\|.*\.swp\|.*\~\|.*\.mp3\|.*\.png,...˜
 
 ##
 # Pitfalls
@@ -1100,21 +1100,21 @@ MWE:
     endfu
 
     :Test
-    Some_name~
-      in most buffers (✔ expected)~
+    Some_name˜
+      in most buffers (✔ expected)˜
 
-    Some_name()~
-      in a help buffer (✘ UNexpected)~
+    Some_name()˜
+      in a help buffer (✘ UNexpected)˜
 
 
 This happens because in a help buffer, `'isk'` contains this value:
 
-    !-~
+    !-
 
 It includes the parentheses:
 
     :echo range(char2nr('!'), char2nr('~'))->map({_, v -> nr2char(v)})
-    ['!', ..., '(', ')' ..., '~']~
+    ['!', ..., '(', ')' ..., '~']˜
                 ^    ^
                 ✘    ✘
 
@@ -1635,7 +1635,7 @@ Quelques ancres/atomes ordinaires de largeur nulle (:h /zero-width) :
             Confirmée par:
 
                     :echo getpos("'>")
-                    2147483647~
+                    2147483647˜
 
             Cette position est fausse, et Vim ne trouvera jamais autant de caractères sur une ligne.
 
@@ -1704,7 +1704,7 @@ Quelques ancres/atomes ordinaires de largeur nulle (:h /zero-width) :
             `\%123c` commence à indexer à partir de 1, et non de 0, comme `col()`.
 
                     /\%0c
-                    E486: Pattern not found: \%0c~
+                    E486: Pattern not found: \%0c˜
 
 
     \%42v.

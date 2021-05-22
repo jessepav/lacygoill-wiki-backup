@@ -29,11 +29,11 @@ Install these plugins:
 ## How to see the paths to all the plugins used by zathura?
 
     $ zathura --version
-    zathura 0.3.5~
-    (plugin) ps (0.2.3) (/usr/lib/zathura/ps.so)~
-    (plugin) djvu (0.2.5) (/usr/lib/zathura/djvu.so)~
-    (plugin) pdf-mupdf (0.3.1) (/usr/lib/zathura/pdf.so)~
-    (plugin) cb (0.1.5) (/usr/lib/zathura/cb.so)~
+    zathura 0.3.5˜
+    (plugin) ps (0.2.3) (/usr/lib/zathura/ps.so)˜
+    (plugin) djvu (0.2.5) (/usr/lib/zathura/djvu.so)˜
+    (plugin) pdf-mupdf (0.3.1) (/usr/lib/zathura/pdf.so)˜
+    (plugin) cb (0.1.5) (/usr/lib/zathura/cb.so)˜
 
 Here, you can see that we have 4 plugins, to read:
 
@@ -85,10 +85,10 @@ Click on the file below the section "Package files" with the extension `amd64.de
 And install `libmupdf-pic-dev` then `zathura-pdf-mupdf` with `$ dpkg -i`.
 Again, it will purge `zathura-pdf-poppler`:
 
-    ...~
-    dpkg: considering removing zathura-pdf-poppler in favour of zathura-pdf-mupdf ...~
-    dpkg: yes, will remove zathura-pdf-poppler in favour of zathura-pdf-mupdf~
-    ...~
+    ...˜
+    dpkg: considering removing zathura-pdf-poppler in favour of zathura-pdf-mupdf ...˜
+    dpkg: yes, will remove zathura-pdf-poppler in favour of zathura-pdf-mupdf˜
+    ...˜
 
 #### How to compile it from source?
 
@@ -173,7 +173,7 @@ These are some notes about our experience in compiling zathura.
 
     $ git clone https://github.com/pwmt/zathura
     $ meson build
-    meson.build:40:0: ERROR: Native dependency 'girara-gtk3' not found~
+    meson.build:40:0: ERROR: Native dependency 'girara-gtk3' not found˜
 
 ---
 
@@ -191,7 +191,7 @@ meson's ninja backend:
     $ ninja
 
     $ ninja install
-    meson.build:34:0: ERROR: Invalid version of dependency, need 'glib-2.0' ['>=2.50'] found '2.48.2'.~
+    meson.build:34:0: ERROR: Invalid version of dependency, need 'glib-2.0' ['>=2.50'] found '2.48.2'.˜
 
 ---
 
@@ -201,23 +201,23 @@ meson's ninja backend:
     $ aunpack glib-2.56.1.tar.xz
 
     $ ./configure
-    configure: error: Package requirements (libffi >= 3.0.0) were not met:~
+    configure: error: Package requirements (libffi >= 3.0.0) were not met:˜
 
-    No package 'libffi' found~
+    No package 'libffi' found˜
 
-    Consider adjusting the PKG_CONFIG_PATH environment variable if you~
-    installed software in a non-standard prefix.~
+    Consider adjusting the PKG_CONFIG_PATH environment variable if you˜
+    installed software in a non-standard prefix.˜
 
-    Alternatively, you may set the environment variables LIBFFI_CFLAGS~
-    and LIBFFI_LIBS to avoid the need to call pkg-config.~
-    See the pkg-config man page for more details.~
+    Alternatively, you may set the environment variables LIBFFI_CFLAGS˜
+    and LIBFFI_LIBS to avoid the need to call pkg-config.˜
+    See the pkg-config man page for more details.˜
 
 ---
 
     $ sudo aptitude install libffi-dev
 
     $ ./configure
-    configure: error: *** Could not find libmount~
+    configure: error: *** Could not find libmount˜
 
     $ sudo aptitude install libmount-dev
     $ ./configure
@@ -229,15 +229,15 @@ meson's ninja backend:
 Get back to girara/:
 
     $ meson build
-    meson.build:35:0: ERROR: Native dependency 'gtk+-3.0' not found~
+    meson.build:35:0: ERROR: Native dependency 'gtk+-3.0' not found˜
 
 ---
 
     $ wget http://ftp.gnome.org/pub/gnome/sources/gtk+/3.22/gtk+-3.22.30.tar.xz
     $ aunpack gtk+-3.22.30.tar.xz
     $ ./configure --prefix=/usr/local
-    configure: error: Package requirements (glib-2.0 >= 2.49.4    atk >= 2.15.1    pango >= 1.37.3    cairo >= 1.14.0    cairo-gobject >= 1.14.0    gdk-pixbuf-2.0 >= 2.30.0) were not met:~
-    No package 'pango' found~
+    configure: error: Package requirements (glib-2.0 >= 2.49.4    atk >= 2.15.1    pango >= 1.37.3    cairo >= 1.14.0    cairo-gobject >= 1.14.0    gdk-pixbuf-2.0 >= 2.30.0) were not met:˜
+    No package 'pango' found˜
 
     $ sudo aptitude install libpango1.0-dev
     $ ./configure --prefix=/usr/local
@@ -249,9 +249,9 @@ Get back to girara/:
 Get back to girara/:
 
     $ meson build
-        Dependency libnotify found: NO~
-        Program doxygen found: NO~
-        Dependency check found: NO~
+        Dependency libnotify found: NO˜
+        Program doxygen found: NO˜
+        Dependency check found: NO˜
 
     $ rm -rf build
     $ sudo aptitude install doxygen libnotify-dev check
@@ -265,13 +265,13 @@ Get back to girara/:
 Get back to zathura/:
 
     $ meson build
-    Dependency synctex found: NO~
-    Library magic found: NO~
-    Dependency libseccomp found: NO~
-    Program appstream-util found: NO~
-    Program sphinx-build found: NO~
+    Dependency synctex found: NO˜
+    Library magic found: NO˜
+    Dependency libseccomp found: NO˜
+    Program appstream-util found: NO˜
+    Program sphinx-build found: NO˜
 
-    doc/meson.build:1:0: ERROR: Program(s) ['sphinx-build'] not found or not executable~
+    doc/meson.build:1:0: ERROR: Program(s) ['sphinx-build'] not found or not executable˜
 
     $ rm -rf build
     $ sudo aptitude install libsynctex-dev libmagic-dev libseccomp-dev appstream-util python3-sphinx
@@ -283,8 +283,8 @@ Get back to zathura/:
 
 zathura can be started but it can't open a pdf.
 
-    error: could not open plugin directory: /usr/local/lib/x86_64-linux-gnu/zathura~
-    error: Unknown file type: 'application/pdf'~
+    error: could not open plugin directory: /usr/local/lib/x86_64-linux-gnu/zathura˜
+    error: Unknown file type: 'application/pdf'˜
 
 We need to install this:
 
@@ -295,7 +295,7 @@ We need to install this:
     $ git checkout --track -b develop origin/develop
     $ mkdir build
     $ meson build
-    meson.build:21:0: ERROR: Native dependency 'poppler-glib' not found~
+    meson.build:21:0: ERROR: Native dependency 'poppler-glib' not found˜
 
     $ sudo aptitude install libpoppler-glib-dev
     $ rm -rf build && mkdir build

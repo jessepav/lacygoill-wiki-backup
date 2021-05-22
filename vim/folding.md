@@ -455,16 +455,16 @@ But note that `:call foldlevel(1)` is the fastest method:
 
     " open vimrc
     :10000Time call foldlevel(1)
-    0.055 seconds to run ...~
+    0.055 seconds to run ...˜
 
     :10000Time exe winnr() .. 'windo "'
-    0.080 seconds to run ...~
+    0.080 seconds to run ...˜
 
     :10000Time let [g:curwin, g:curbuf] = [win_getid(), bufnr('%')] | call timer_start(0, {-> winbufnr(g:curwin) == g:curbuf && setwinvar(g:curwin, '&fdm', 'manual')})
-    0.150 seconds to run ...~
+    0.150 seconds to run ...˜
 
     :10000Time let view = winsaveview() | exe 'norm! zizi' | call winrestview(view)
-    0.270 seconds to run ...~
+    0.270 seconds to run ...˜
 
 Besides, the fact that `:123windo "` makes Vim recompute folds is not documented.
 It would be brittle to rely on such an undocumented feature, because there is no

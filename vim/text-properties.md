@@ -68,11 +68,11 @@ text, e.g. for a function name.
 Using  false  is  useful when  the  text  starts  and/or  ends with  a  specific
 character, such as the quote surrounding a string.
 
-    func FuncName(arg) ~
+    func FuncName(arg) ˜
          ^------^
     property with "start_incl" and "end_incl" set
 
-    var = "text"; ~
+    var = "text"; ˜
           ^----^
     property with "start_incl" and "end_incl" NOT set
 

@@ -70,7 +70,7 @@ For the current session only:
 The display manager:
 
     $ pstree -lsp $(pidof Xorg)
-    systemd(1)───lightdm(996)───Xorg(1011)───{Xorg}(1018)~
+    systemd(1)───lightdm(996)───Xorg(1011)───{Xorg}(1018)˜
                  ^-----^
 
 ## How to restart the X server (with a shell command)?
@@ -246,7 +246,7 @@ functions via command keys, for security reasons.
 In `/etc/sysctl.d/10-magic-sysrq.conf`:
 
     $ grep ^kernel.sysrq /etc/sysctl.d/10-magic-sysrq.conf
-    kernel.sysrq = 176~
+    kernel.sysrq = 176˜
 
 ###
 ## How to allow all SysRq functions to be invoked by command keys

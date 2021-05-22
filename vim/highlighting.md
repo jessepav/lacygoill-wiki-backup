@@ -195,7 +195,7 @@ Yes:
 
     :hi MyGroup ctermbg=green guibg=green
     :hi mygroup
-    MyGroup        xxx ctermbg=10 guibg=green~
+    MyGroup        xxx ctermbg=10 guibg=green˜
 
 ##
 ## Why shouldn't a syntax plugin author set the attributes of a HG in their plugin?  (2)
@@ -355,7 +355,7 @@ with its own attributes:
 
     :hi MyGroup ctermbg=green guibg=green
     :hi link MyGroup Search
-    E414~
+    E414˜
 
     " ✔
     :hi! link MyGroup Search
@@ -685,9 +685,9 @@ Make sure it's true.
 
 MWE:
 
-:colo elflord
-:hi EndOfBuffer ctermfg=bg
-E420: BG color unknown ~
+    :colo elflord
+    :hi EndOfBuffer ctermfg=bg
+    E420: BG color unknown˜
 
 It doesn't matter whether you start Vim or gVim.
 It seems only `ctermbg` matters, not `guibg` (weird...).
@@ -716,10 +716,10 @@ Document that running a  `:hi` command to (re)set an attribute  has no effect on
 the other ones.
 
     :hi SpecialKey
-    SpecialKey     xxx term=bold ctermfg=145 guifg=#afafaf~
+    SpecialKey     xxx term=bold ctermfg=145 guifg=#afafaf˜
     :hi SpecialKey guifg=#121212
     :hi SpecialKey
-    SpecialKey     xxx term=bold ctermfg=145 guifg=#121212~
+    SpecialKey     xxx term=bold ctermfg=145 guifg=#121212˜
                        ^-------------------^
                        did not change
 
@@ -854,13 +854,13 @@ On peut le vérifier en positionnant le curseur sur du texte dans un bloc de cod
 markdown et en tapant:
 
         :echo synID('.', col('.'), 1)
-        120 ~
+        120 ˜
 
         :echo synID('.', col('.'), 1)->synIDattr('name')
-        markdownCodeBlock ~
+        markdownCodeBlock ˜
 
         :echo hlID('markdownCodeBlock')
-        120 ~
+        120 ˜
 
 ---
 

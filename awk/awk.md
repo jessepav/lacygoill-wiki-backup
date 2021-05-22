@@ -4,11 +4,11 @@ Weird results:
 
     # expected result
     $ awk '{ print strtonum($1) }' <<<'0x11'
-    17~
+    17˜
 
     # I would expect `9`
     $ awk '{ print strtonum($1) }' <<<'011'
-    11~
+    11˜
 
 Why the difference?
 Why doesn't `strtonum()` treat `011` as an octal number?
@@ -18,10 +18,10 @@ Why doesn't `strtonum()` treat `011` as an octal number?
 May be related to the attribute:
 
     $ awk '{ print typeof($1) }' <<<'0x11'
-    string~
+    string˜
 
     $ awk '{ print typeof($1) }' <<<'011'
-    strnum~
+    strnum˜
 
 Why does awk consider `0x11` as a string even though it looks like an hex number,
 and thus should be considered a numeric string with the strnum attribute?
@@ -42,43 +42,43 @@ Update: <https://unix.stackexchange.com/a/364116/289772>
 Outside a string, yes:
 
     $ awk '{ print 0x123 }' <<<''
-    291~
+    291˜
 
     $ awk '{ print 0123 == 83 }' <<<''
-    1~
+    1˜
 
 Inside a string, no:
 
     $ awk '{ print "0x123" + 0 }' <<<''
-    0~
+    0˜
 
     $ awk '{ print "0123" + 0 }' <<<''
-    123~
+    123˜
 
 This differs from VimL:
 
     :echo "0x123" + 0
-    291~
+    291˜
 
     :echo "0123" + 0
-    83~
+    83˜
 
 # How to convert a hex or octal number contained in a string into a decimal one?
 
 Use `strtonum()`:
 
     $ awk '{ print strtonum($0) }' <<<'0x123'
-    291~
+    291˜
 
 ---
 
 Note that you can't rely on `+ 0`:
 
     $ awk '{ print $0 + 0 }' <<<'0x123'
-    0~
+    0˜
 
     $ awk '{ print $0 + 0 }' <<<'0123'
-    123~
+    123˜
 
 Page 196 of the user's guide:
 
@@ -89,21 +89,21 @@ Page 196 of the user's guide:
 However, `+ 0` would work with `--non-decimal-data`:
 
     $ awk -n '{ print $0 + 0 }' <<<'0x123'
-    291~
+    291˜
 
 But this option is not recommended by the user's guide.
 
 # Why does `print strtonum($0)` outputs `123` when `$0` is `0123`?
 
     $ awk '{ print strtonum($0) }' <<<'0123'
-    123~
+    123˜
 
 Because of two things:
 
    1. `0123` comes from the input data, and so is given the `strnum` attribute:
 
          $ awk '{ print typeof($0) }' <<<'0123'
-         strnum~
+         strnum˜
 
       As a result, `0123` has two values: a numeric one and a string one.
 
@@ -118,7 +118,7 @@ Because of two things:
 Use a dummy string concatenation:
 
     $ awk '{ print strtonum($0 "") }' <<<'0123'
-    83~
+    83˜
 
 The concatenation will  coerce the numeric string into a  regular string, and so
 `strtonum()` will receive a data with only one value (not two).
@@ -142,17 +142,17 @@ Finally, the  concatenation operator expects  strings, so it coerces  the number
 It's true:
 
     $ awk '{ print "0" ? "true" : "false" }' <<<''
-    true~
+    true˜
 
 That's because for awk, *any* non-empty string is true:
 
     $ awk '{ print "hello" ? "true" : "false" }' <<<''
-    true~
+    true˜
 
 Python behaves like awk, btw:
 
     $ python3 -c "print('true' if '0' else 'false')"
-    true~
+    true˜
 
 ---
 
@@ -161,7 +161,7 @@ makes the result of a test less predictable:
 
     :echo '0' ? 'true' : 'false'
     :echo 'hello' ? 'true' : 'false'
-    false~
+    false˜
 
 ## What's the output of the next command?
 
@@ -183,21 +183,21 @@ In Vim, it:
    - takes care of converting it into decimal
 
          :echo '0b101' + 0
-         5~
+         5˜
 
          :echo '0123' + 0
-         83~
+         83˜
 
          :echo '0x123' + 0
-         291~
+         291˜
 
 In awk, it does no such things:
 
     $ awk '{ print "0123" + 0 }' <<<''
-    123~
+    123˜
 
     $ awk '{ print "0x123" + 0 }' <<<''
-    0~
+    0˜
 
 ##
 # Regex
@@ -210,12 +210,12 @@ Gawk only recognizes a superset of the ERE syntax.
 Specially:
 
     $ awk '/ ^ /' <<<'a ^ b'
-    ''~
+    ''˜
 
 To match a literal `^` in an awk pattern, you need to backslash it:
-    ~
+
     $ awk '/ \^ /' <<<'a ^ b'
-    a ^ b~
+    a ^ b˜
 
 From this point of view, awk is different than Vim.
 
@@ -224,7 +224,7 @@ From this point of view, awk is different than Vim.
 OTOH, sed interprets `^` and `$` literally even in the middle of a pattern:
 
     $ sed 's/ ^ /X/' <<<'a ^ b'
-    aXb~
+    aXb˜
 
 ##
 # ?
@@ -233,52 +233,52 @@ For which operators may a strnum data need a dummy concatenation or `+ 0`?
 
     # `!` parses '0' as a number
     $ awk '{ print !($0) }' <<<'0'
-    1~
+    1˜
 
     # if you want `!` to parses '0' as a string, you need a dummy concatenation
     $ awk '{ print !($0 "") }' <<<'0'
-    0~
+    0˜
 
 ---
 
     # contrary to VimL, can't use `printf()` to convert to decimal
     $ awk '{ printf("%d", "0123") }' <<<''
-    123~
+    123˜
 
     # contrary to VimL, can't use `printf()` to convert to decimal
     $ awk '{ printf("%d", "0x123") }' <<<''
-    123~
+    123˜
 
     # but you can use `printf()` to convert from decimal
     $ awk '{ printf("%#x", "291") }' <<<''
-    0x123~
+    0x123˜
     # same thing in python
     $ python -c "print('{:#x}'.format(291))"
 
     $ awk '{ printf("%#o", "83") }' <<<''
-    0123~
+    0123˜
     $ python -c "print('{:#o}'.format(83))"
-    0o123~
+    0o123˜
 
 # ?
 
 `3` sorts lexicographically after `1`:
 
     $ awk '{ x = "3.14"; print (x < 12) }' <<<''
-    0~
+    0˜
 
 `CONVFMT` is used whenever a number needs to be coerced into a string:
 
     $ awk '{ CONVFMT="%.6e"; x = 3.14; print x "" }' <<<''
-    3.140000e+00~
+    3.140000e+00˜
 
 As a result, a comparison with a string may be influenced by `CONVFMT`:
 
     $ awk '{ x = 3.14; print (x == "3.14") }' <<<''
-    1~
+    1˜
 
     $ awk '{ CONVFMT = "%.6e"; x = 3.14; print (x == "3.14") }' <<<''
-    0~
+    0˜
 
 # ?
 
@@ -408,35 +408,35 @@ Talk about the similarities and difference between awk's `strtonum()` and VimL's
     #     $ awk '{ print (strtonum("cd") > strtonum("ab")) }' <<<''
     #     0
     $ awk '{ print ("cd" > "ab") }' <<<''
-    1~
+    1˜
 
     # STRING NUMERIC: string comparison
     # if 'ab' had been converted into 0, the test would have failed;
     # it succeeds because digits come before letters in the lexicographical order
     $ awk '{ print ("ab" > 123) }' <<<''
-    1~
+    1˜
 
     # STRING STRNUM: string comparison
     # if 'ab' had been converted into 0, the test would have failed
     $ awk '{ print ("ab" > $1) }' <<<'123'
-    1~
+    1˜
 
 
 
     # NUMERIC NUMERIC: numeric comparison
     # if 089 and 89 had been treated as strings, the test would have failed
     $ awk '{ print (089 == 89) }' <<<''
-    1~
+    1˜
 
     # STRNUM STRNUM: numeric comparison
     # if 089 and 89 had been treated as strings, the test would have failed
     $ awk '{ print ($1 == $2) }' <<<'089 89'
-    1~
+    1˜
 
     # NUMERIC STRNUM: numeric comparison
     # if 089 and 89 had been treated as strings, the test would have failed
     $ awk '{ print ($1 == 89) }' <<<'089'
-    1~
+    1˜
 
 # ?
 
@@ -456,11 +456,11 @@ An hexadecimal number can't contain digits beyond `f`, and so `0128` is evaluate
 ---
 
     print (031 < 30)
-    1~
+    1˜
     print (310 < 30)
-    0~
+    0˜
     print (0318 < 300)
-    0~
+    0˜
 
 Le 1er test réussit car `031` est interprété comme un nombre octal:
 
@@ -493,22 +493,22 @@ in a program text?
 Prefix it with `0`, `0x` or `0X`:
 
     $ awk '{ print 0123 }' <<<''
-    83~
+    83˜
 
     $ awk '{ print 0x123 }' <<<''
-    291~
+    291˜
 
 in the input data?  (2)
 
 Use `strtonum()` and a dummy concatenation:
 
     $ awk '{ print strtonum($1 "") }' <<<'0123'
-    83~
+    83˜
 
 Or (not recommended), use `-n/--non-decimal-data`:
 
     $ awk -n '{ print $1 + 0 }' <<<'0123'
-    83~
+    83˜
 
 ---
 
@@ -529,7 +529,7 @@ strings, so `print` does not try to treat them numerically.
 You need to add zero to a field to force it to be treated as a number:
 
     $ awk -n '{ print $1 + 0 }' <<<'0123'
-    83~
+    83˜
 
 ---
 
@@ -538,16 +538,16 @@ Can an octal/hexadecimal number be used in a decimal fraction or in scientific n
 No, you won't get the expected result:
 
     $ awk '{ print 012.34 }' <<<''
-    12.34~
+    12.34˜
 
     $ awk '{ print 0x12.34 }' <<<''
-    18~
+    18˜
 
     $ awk '{ print 012.34e-1 }' <<<''
-    1.234~
+    1.234˜
 
     $ awk '{ print 0x12.34e-1 }' <<<''
-    18~
+    18˜
 
 IOW, the base of a number is *not* orthogonal to its form.
 You can't use a non-decimal base with any form; only with the integer form.
@@ -584,7 +584,7 @@ Pour chacune de ces catégories, une coercition peut avoir lieue:
 Ex1:
 
     $ awk '{ print $1 $2, $3 + 123 }' <<<'123 foo bar'
-    123foo 123~
+    123foo 123˜
 
 Dans cet exemple, le premier champ est un  nb converti en chaîne, et le 3e champ
 est une chaîne convertie en nb.
@@ -595,7 +595,7 @@ Ex2:
     # To be sure the number is not parsed as octal, and some unexpected
     # conversion alters the test.
     $ awk '{ print $1 == "89" }' <<<'089'
-    0~
+    0˜
 
 Dans cet exemple, le 1er champ est un nb converti en chaîne.
 
@@ -612,26 +612,26 @@ convertir le nombre en chaîne.
 Contrairement à Vim:
 
     $ awk '$1 == "089" { print "match!" }' <<<'89'
-    ''~
+    ''˜
 
     $ awk '$1 == "089" { print "match!" }' <<<'089'
-    match!~
+    match!˜
 
     :echo "89" == 089
-    1~
+    1˜
 
 En cas d'ambiguïté, awk donne la priorité aux chaînes, Vim aux nombres.
 
 ---
 
     $ awk '$1 == 042 { print "match!" }' <<<'042'
-    ''~
+    ''˜
 
     $ awk '$1 == 142 { print "match!" }' <<<'142'
-    match!~
+    match!˜
 
     $ awk '$1 == 0428 { print "match!" }' <<<'0428'
-    match!~
+    match!˜
 
 Dans du code (!= input), awk interprète `042` comme un nb octal.
 
@@ -642,21 +642,21 @@ Qd awk doit convertir une chaîne en nb, il le fait comme Vim.
 Rappel, pour Vim:
 
     :echo 'string'   + 10
-    10~
+    10˜
     :echo 'string10' + 10
-    10~
+    10˜
     :echo '10string' + 10
-    20~
+    20˜
 
 Exception (chaîne commençant par un flottant):
 
     " VimL
     :echo '10.10' + 10
-    20~
+    20˜
 
     # awk
     $ awk '{ print 10 + $0 }' <<<'10.10string'
-    20.1~
+    20.1˜
 
 ---
 
@@ -749,9 +749,9 @@ ou des chaînes.
 ---
 
     print ("11" < 12)
-    1~
+    1˜
     print ("1a" < 12)
-    0~
+    0˜
 
 Retournent resp. 1 (vrai) et 0 (faux).
 
@@ -848,7 +848,7 @@ You can even grep the buildlog directly from the shell:
 ### Note the version
 
     $ git describe --tags
-    gawk-4.2.1-722-g7081~
+    gawk-4.2.1-722-g7081˜
          ^-------^
 
 Including the patch number.
@@ -862,7 +862,7 @@ Including the patch number.
 If you use checkinstall, use the previously noted version to fill in the version
 (`3: Version`):
 
-    9:4.2.1-722~
+    9:4.2.1-722˜
     ^^
 
 Don't forget to use  an epoch which is higher than the one  used in your default
@@ -1003,10 +1003,10 @@ split+glob operator after the expansion (`$@` → `$1 $2 ...`):
     $ chmod +x /tmp/sh.sh
 
     $ /tmp/sh.sh file1 'file 2'
-    awk~
-    file1~
-    file~
-    2~
+    awk˜
+    file1˜
+    file˜
+    2˜
 
 ### What's the benefit of `awk -f progfile` compared to the other ways?
 
@@ -1162,10 +1162,10 @@ No, it's a syntax error.
     EOF
 
     $ awk -f /tmp/awk.awk <<<''
-    awk: /tmp/awk.awk:1: { printf '%d', 1 }~
-    awk: /tmp/awk.awk:1:          ^ invalid char ''' in expression~
-    awk: /tmp/awk.awk:1: { printf '%d', 1 }~
-    awk: /tmp/awk.awk:1:          ^ syntax error~
+    awk: /tmp/awk.awk:1: { printf '%d', 1 }˜
+    awk: /tmp/awk.awk:1:          ^ invalid char ''' in expression˜
+    awk: /tmp/awk.awk:1: { printf '%d', 1 }˜
+    awk: /tmp/awk.awk:1:          ^ syntax error˜
 
 ---
 
@@ -1176,10 +1176,10 @@ No, it's a syntax error.
     EOF
 
     $ awk -f /tmp/awk.awk <<<''
-    awk: /tmp/awk.awk:1: { printf "%s", 'word' }~
-    awk: /tmp/awk.awk:1:                ^ invalid char ''' in expression~
-    awk: /tmp/awk.awk:1: { printf "%s", 'word' }~
-    awk: /tmp/awk.awk:1:                ^ syntax error~
+    awk: /tmp/awk.awk:1: { printf "%s", 'word' }˜
+    awk: /tmp/awk.awk:1:                ^ invalid char ''' in expression˜
+    awk: /tmp/awk.awk:1: { printf "%s", 'word' }˜
+    awk: /tmp/awk.awk:1:                ^ syntax error˜
 
 ---
 
@@ -1188,7 +1188,7 @@ No, it's a syntax error.
     EOF
 
     $ awk -f /tmp/awk.awk <<<''
-    word~
+    word˜
 
 ### contains single quotes?
 
@@ -1206,7 +1206,7 @@ Yes, as many as you want.
     EOF
 
     $ awk -f /tmp/awk.awk /tmp/file
-    a'''b   a'''b   a'''b   ~
+    a'''b   a'''b   a'''b   ˜
 
 ###
 ## What are the three possible forms of number that awk is able to recognize?
@@ -1236,7 +1236,7 @@ It's  not  the  [normalized][1]  scientific  notation, because  you  can  use  a
 [significand][2] bigger than 10.
 
     $ awk '{ print $1 + 1 }' <<<'1220e-1'
-    123~
+    123˜
 
 But it's still a scientific notation.
 
@@ -1245,10 +1245,10 @@ But it's still a scientific notation.
 As a float (the precision of which is machine dependent).
 
     $ awk '$1 == $2' <<<'123 123.0'
-    123 123.0~
+    123 123.0˜
 
     $ awk '$1 == $2' <<<'123.0 1.23e2'
-    123.0 1.23e2~
+    123.0 1.23e2˜
 
 The fact that awk prints back the input  line means that the test `$1 == $2` has
 succeeded; which means that the first  and second fields are identical, and that
@@ -1277,7 +1277,7 @@ A comparison is an expression, whose value is `1` when true, `0` otherwise.
 As such, it can be used (alone) in the rhs of an assignment.
 
     $ awk '{ var = 123 ; test = var == 123; print test }' <<<''
-    1~
+    1˜
 
 ##
 ## What happens if I refer to a non-existent
@@ -1296,14 +1296,14 @@ Awk automatically adds the necessary key in the array and associates it to the v
     EOF
 
     $ awk -f /tmp/awk.awk <<<''
-    ''~
+    ''˜
 
 In contrast,  in VimL,  you would first  need to  add the key  in the  array, or
 declare the array with the right size if it's a list:
 
     :let a = repeat([''], 3)
     :echo a[2]
-    ''~
+    ''˜
 
 ##
 ## How to refer to a field whose index is stored in a variable?
@@ -1317,9 +1317,9 @@ Use the `$` operator in `$var`.
     EOF
 
     $ awk '{ var++; print $var }' /tmp/file
-    THE~
-    JUMPS~
-    DOG~
+    THE˜
+    JUMPS˜
+    DOG˜
 
 This command prints the  first, second and third field of  the first, second and
 third record.
@@ -1330,10 +1330,10 @@ third record.
 When this other statement includes an expression.
 
     $ awk '{ print (n = 2) + 1, n }' <<<''
-    3 2~
+    3 2˜
 
     $ awk '{ if ((n = length($1)) > 2) print "has", n, "characters" }' <<<'hello'
-    has 5 characters~
+    has 5 characters˜
 
 ### How is it possible?
 
@@ -1529,9 +1529,9 @@ You can't combine them with another pattern inside a range:
 MWE:
 
     $ awk '/Susie/,END' <<<''
-    awk: cmd. line:1: /Susie/,END~
-    awk: cmd. line:1:         ^ syntax error~
-    awk: cmd. line:1: END blocks must have an action part~
+    awk: cmd. line:1: /Susie/,END˜
+    awk: cmd. line:1:         ^ syntax error˜
+    awk: cmd. line:1: END blocks must have an action part˜
 
 ##
 ## These expressions are syntactic sugar for what?
@@ -1576,9 +1576,9 @@ Use the pattern `$0 > "e"`.
     EOF
 
     $ awk '$0 > "e"' /tmp/file
-    gh~
-    ef~
-    ij~
+    gh˜
+    ef˜
+    ij˜
 
 We didn't  need `>=` (in place  of `>`) because `eX`  – no matter what  `X` is –
 always come after `e`.
@@ -1589,10 +1589,10 @@ always come after `e`.
 Resp. as a literal dot and as a metacharacter.
 
     $ awk '"Hello" ~ "Hel.o"' <<<'match!'
-    match!~
+    match!˜
 
     $ awk '"Hel.o" ~ "Hello"' <<<'match!'
-    ''~
+    ''˜
 
 ##
 ## What's the output of the next command?
@@ -1634,9 +1634,9 @@ The range includes all the records from `R1` until the end of the input.
     EOF
 
     $ awk '/two/,/five/' /tmp/file
-    two~
-    three~
-    four~
+    two˜
+    three˜
+    four˜
 
 ##
 ## Why are the following patterns different?
@@ -1724,14 +1724,14 @@ precedence than `-`).
     EOF
 
     $ awk '{ print $(NF-1) }' /tmp/file
-    22~
-    55~
-    88~
+    22˜
+    55˜
+    88˜
 
     $ awk '{ print $NF-1 }' /tmp/file
-    32~
-    65~
-    98~
+    32˜
+    65˜
+    98˜
 
 Note that if one  of the last fields began with a  non-digit character, it would
 be automatically coerced into the number  `0`; and so `$NF-1` would be evaluated
@@ -1744,7 +1744,7 @@ Refer  to the  field whose  index is  `NF +  1`, and  assign to  it the  desired
 contents.
 
     $ awk '{ $(NF + 1) = "baz"; print }' <<<'foo bar'
-    foo bar baz~
+    foo bar baz˜
 
 ## What's the side effect of a field modification?
 
@@ -1762,8 +1762,8 @@ then replaces every `FS` with `OFS` to create the output record.
     EOF
 
     $ awk -f /tmp/awk.awk /tmp/file
-    This|old|house|is|a|great|show.|~
-    I|like|old|things.|~
+    This|old|house|is|a|great|show.|˜
+    I|like|old|things.|˜
                       ^
                       separates the previous field (`things.`)
                       from the new last empty field
@@ -1785,9 +1785,9 @@ Ex:
     EOF
 
     $ awk -f /tmp/awk.awk /tmp/file
-    This|old|house|is|a|great|show.|||~
-    I|like|old|things.|||~
-                      ^-^
+    This|old|house|is|a|great|show.|||˜
+    I|like|old|things.|||˜
+                      ^^^
                       there are 3 new empty fields at the end
 
 ## How to print the input records, reversing the order of their fields?
@@ -1807,9 +1807,9 @@ Ex:
     EOF
 
     $ awk -f /tmp/awk.awk /tmp/file
-    1 2 3 ~
-    4 5 6 ~
-    7 8 9 ~
+    1 2 3 ˜
+    4 5 6 ˜
+    7 8 9 ˜
 
 The purpose of `print ""` is to add a newline at the end of a record.
 
@@ -1854,7 +1854,7 @@ The three columns contain:
 #### the last line?
 
     $ awk 'END { print $0 }' /tmp/emp.data
-    Susie   4.25   18~
+    Susie   4.25   18˜
 
 gawk preserves the value of `$0` from the last record for use in an END rule.
 
@@ -1871,30 +1871,30 @@ Alternatively, you could write:
 #### the *lines* containing the names of the employees which have not worked?
 
     $ awk '$3 == 0' /tmp/emp.data
-    Beth    4.00   0~
-    Dan     3.75   0~
+    Beth    4.00   0˜
+    Dan     3.75   0˜
 
 #### the names of all the employees?
 
     $ awk '{ print $1 }' /tmp/emp.data
-    Beth~
-    Dan~
-    Kathy~
-    Mark~
-    Mary~
-    Susie~
+    Beth˜
+    Dan˜
+    Kathy˜
+    Mark˜
+    Mary˜
+    Susie˜
 
 #### the lines prefixed with increasing numbers?
 
 Use the `NR` variable:
 
     $ awk '{ print NR, $0 }' /tmp/emp.data
-    1 Beth    4.00   0~
-    2 Dan     3.75   0~
-    3 Kathy   4.00   10~
-    4 Mark    5.00   20~
-    5 Mary    5.50   22~
-    6 Susie   4.25   18~
+    1 Beth    4.00   0˜
+    2 Dan     3.75   0˜
+    3 Kathy   4.00   10˜
+    4 Mark    5.00   20˜
+    5 Mary    5.50   22˜
+    6 Susie   4.25   18˜
 
 ####
 #### the names of the employees which have worked more than 0 hours, and their total pay?
@@ -1907,28 +1907,28 @@ Use the `NR` variable:
            │
            └ only consider the employees which have worked
 
-    Kathy 40~
-    Mark 100~
-    Mary 121~
-    Susie 76.5~
+    Kathy 40˜
+    Mark 100˜
+    Mary 121˜
+    Susie 76.5˜
 
 ##### same thing, but adding the text `total pay for` before the name, and `is` before the pay?
 
     $ awk '$3 > 0 { print "total pay for", $1, "is", $2 * $3 }' /tmp/emp.data
-    total pay for Kathy is 40~
-    total pay for Mark is 100~
-    total pay for Mary is 121~
-    total pay for Susie is 76.5~
+    total pay for Kathy is 40˜
+    total pay for Mark is 100˜
+    total pay for Mary is 121˜
+    total pay for Susie is 76.5˜
 
 ###### same thing, but aligning the names and the pays?
 
 To get more control over the formatting, you need `printf`:
 
     $ awk '$3 > 0 { printf "total pay for %-8s is %6.2f\n", $1, $2 * $3 }' /tmp/emp.data
-    total pay for Kathy    is  40.00~
-    total pay for Mark     is 100.00~
-    total pay for Mary     is 121.00~
-    total pay for Susie    is  76.50~
+    total pay for Kathy    is  40.00˜
+    total pay for Mark     is 100.00˜
+    total pay for Mary     is 121.00˜
+    total pay for Susie    is  76.50˜
 
 ###
 ### How to print and sort the names of the employees in reverse order?
@@ -1936,12 +1936,12 @@ To get more control over the formatting, you need `printf`:
 Write the names on a pipe connected to the `sort` command:
 
     $ awk '{ print $1 | "sort -r" }' /tmp/emp.data
-    Susie~
-    Mary~
-    Mark~
-    Kathy~
-    Dan~
-    Beth~
+    Susie˜
+    Mary˜
+    Mark˜
+    Kathy˜
+    Dan˜
+    Beth˜
 
 It seems that the rhs of a pipe  inside an action is not processed like the lhs.
 The lhs is executed once for each record matching the pattern.
@@ -1958,12 +1958,12 @@ Instead of using a built-in pipe, you could also have used an external one:
 ### How to sort the lines according to the total pay?
 
     $ awk '{ printf("%6.2f  %s\n", $2 * $3, $0) | "sort -n" }' /tmp/emp.data
-      0.00  Beth    4.00   0~
-      0.00  Dan     3.75   0~
-     40.00  Kathy   4.00   10~
-     76.50  Susie   4.25   18~
-    100.00  Mark    5.00   20~
-    121.00  Mary    5.50   22~
+      0.00  Beth    4.00   0˜
+      0.00  Dan     3.75   0˜
+     40.00  Kathy   4.00   10˜
+     76.50  Susie   4.25   18˜
+    100.00  Mark    5.00   20˜
+    121.00  Mary    5.50   22˜
 
 ### How to save all records inside a list?
 
@@ -1979,7 +1979,7 @@ Use `NR` to uniquely index them in an array.
     EOF
 
     $ awk -f /tmp/awk.awk /tmp/emp.data
-    Dan     3.75   0~
+    Dan     3.75   0˜
 
 ##
 ## I have the following file, and the following code:
@@ -2012,21 +2012,21 @@ Use `NR` to uniquely index them in an array.
     EOF
 
     $ awk -f /tmp/awk.awk /tmp/countries
-    COUNTRY   AREA   POP   CONTINENT~
+    COUNTRY   AREA   POP   CONTINENT˜
 
-       USSR   8649   275   Asia~
-     Canada   3852    25   North America~
-      China   3705  1032   Asia~
-        USA   3615   237   North America~
-     Brazil   3286   134   South America~
-      India   1267   746   Asia~
-     Mexico    762    78   North America~
-     France    211    55   Europe~
-      Japan    144   120   Asia~
-    Germany     96    61   Europe~
-    England     94    56   Europe~
+       USSR   8649   275   Asia˜
+     Canada   3852    25   North America˜
+      China   3705  1032   Asia˜
+        USA   3615   237   North America˜
+     Brazil   3286   134   South America˜
+      India   1267   746   Asia˜
+     Mexico    762    78   North America˜
+     France    211    55   Europe˜
+      Japan    144   120   Asia˜
+    Germany     96    61   Europe˜
+    England     94    56   Europe˜
 
-      TOTAL  25681  2819~
+      TOTAL  25681  2819˜
 
 ### Why do the `printf` statements use `%10s`, `%6d`, `%5d` and `%s` with these particular widths?
 
@@ -2097,7 +2097,7 @@ The missing parameters are initialized with `""`.
     EOF
 
     $ awk -f /tmp/awk.awk <<<''
-    ''~
+    ''˜
 
 ##
 ## What's the scope of a variable created in a function whose signature contains no parameter?
@@ -2112,7 +2112,7 @@ Global.
     EOF
 
     $ awk -f /tmp/awk.awk <<<''
-    hello~
+    hello˜
 
 If the `var` assignment was local to `myfunc()`, `print var` would print a null string.
 
@@ -2135,7 +2135,7 @@ Include it inside the parameters of the function signature.
     EOF
 
     $ awk -f /tmp/awk.awk <<<''
-    ''~
+    ''˜
 
 The purpose of `reverse()` is to reverse  the order of the first two elements of
 an array; to do so, it needs a temporary variable `temp`.
@@ -2217,7 +2217,7 @@ Use the `length()` function:
 ---
 
     $ awk '{ print length($1) }' <<<'a bc'
-    1~
+    1˜
 
 ### the current record?
 
@@ -2226,7 +2226,7 @@ Use `length()`, but without any argument.
 ---
 
     $ awk '{ print length() }' <<<'a bc'
-    4~
+    4˜
 
 ##
 # Operators
@@ -2246,7 +2246,7 @@ except for the assignment, conditional,  and exponentiation operators, which are
 Example:
 
     $ awk '{ print 2^3^4 }' <<<''
-    2417851639229258349412352~
+    2417851639229258349412352˜
 
 Here, we can see that:
 
@@ -2404,22 +2404,22 @@ several tabs to align some fields.
         EOF
 
         $ awk 'BEGIN { FS = "\t+"; OFS = "\t" }; { $3 = "foo"; print }' /tmp/emp.data
-        Beth	4.00	foo~
-        Dan	3.75	foo~
-        KathySomeVeryLongName	4.00	foo~
-        Mark	5.00	foo~
-        Mary	5.50	foo~
-        Susie	4.25	foo~
+        Beth	4.00	foo˜
+        Dan	3.75	foo˜
+        KathySomeVeryLongName	4.00	foo˜
+        Mark	5.00	foo˜
+        Mary	5.50	foo˜
+        Susie	4.25	foo˜
 
 Note that playing with `FS` and `OFS` is still useful to preserve some alignment:
 
         $ awk '{ $3 = "foo"; print }' /tmp/emp.data
-        Beth 4.00 foo~
-        Dan 3.75 foo~
-        KathySomeVeryLongName 4.00 foo~
-        Mark 5.00 foo~
-        Mary 5.50 foo~
-        Susie 4.25 foo~
+        Beth 4.00 foo˜
+        Dan 3.75 foo˜
+        KathySomeVeryLongName 4.00 foo˜
+        Mark 5.00 foo˜
+        Mary 5.50 foo˜
+        Susie 4.25 foo˜
 
 But it's not always perfect.
 
@@ -2446,17 +2446,17 @@ But when an integer  is printed, it remains an integer, no  matter the values of
 `OFMT` and `CONVFMT`:
 
     $ awk '{ OFMT = CONVFMT = "%.2f"; print 1E2 }' <<<''
-    100~
+    100˜
 
     $ awk '{ OFMT = CONVFMT = "%.2f"; print 1E2 "" }' <<<''
-    100~
+    100˜
 
 
 
     { printf "%.6g", 12E-2 }
-    0.12~
+    0.12˜
     { printf "%.6g", 123.456789 }
-    123.457~
+    123.457˜
 
 Il  semble  que les  spécificateurs  de  conversion  `%e`,  `%f`, et  `%g`  sont
 identiques entre les fonctions `printf()` de Vim et awk, à deux exceptions près.
@@ -2468,9 +2468,9 @@ Celui de Vim ne supprime pas les 0 non significatifs, et interprète la précisi
 comme le nb de chiffres après la virgule:
 
     :echo printf("%.6g", 12*pow(10,-2))
-    0.120000~
+    0.120000˜
     :echo printf("%.6g", 123.456789)
-    123.456789~
+    123.456789˜
 
 ---
 
@@ -2497,7 +2497,7 @@ L'expression `var > 1.234` retourne `1`  (réussite), ce qui signifie que `var` 
 ... mais *avant* d'afficher le résultat:
 
     print (var - 1.234)
-    0.00 (au lieu de 0.00056789)~
+    0.00 (au lieu de 0.00056789)˜
 
 Conclusion: qd  une expression  arithmétique est  affichée, elle  n'est formatée
 qu'après son évaluation.
@@ -2628,12 +2628,12 @@ lhs et le rhs d'une affectation.
 ---
 
     printf "total pay for %-8s is $%6.2f\n", $1, $2*$3
-    total pay for Beth     is $  0.00~
-    total pay for Dan      is $  0.00~
-    total pay for Kathy    is $ 40.00~
-    total pay for Mark     is $100.00~
-    total pay for Mary     is $121.00~
-    total pay for Susie    is $ 76.50~
+    total pay for Beth     is $  0.00˜
+    total pay for Dan      is $  0.00˜
+    total pay for Kathy    is $ 40.00˜
+    total pay for Mark     is $100.00˜
+    total pay for Mary     is $121.00˜
+    total pay for Susie    is $ 76.50˜
 
 On peut utiliser la commande `printf` pour formater un record.
 
@@ -2681,11 +2681,11 @@ on veut écrire sur la sortie d'erreur ou standard du shell.
 # Calcul
 
     atan2(0,-1)
-    π~
+    π˜
     exp(1)
-    𝑒~
+    𝑒˜
     log(42)/log(10)
-    logarithme de 42 en base 10~
+    logarithme de 42 en base 10˜
 
 Illustre comment utiliser  les fonctions arithmétiques de awk  pour exprimer des
 constantes célèbres en maths.
@@ -2739,7 +2739,7 @@ Affiche le plus grand nombre de la 1e colonne.
 
     # ✔
     $ awk '{ x = 1.2 - 1.1 - 0.1 ; print (x < 0.001 && x > 0 || x > -0.001 && x < 0) }' <<<''
-    1~
+    1˜
 
 Il se  peut que 2  expressions arithmétiques  diffèrent pour awk  alors qu'elles
 devraient être identiques.
@@ -2767,11 +2767,11 @@ arbitraire.
 
     # ✔
     $ awk '1e50 == 1.0e50 { print 1 }' <<<''
-    1~
+    1˜
 
     # ✘
     $ awk '1e500 == 1.0e500 { print 1 }' <<<''
-    1~
+    1˜
 
 Le problème peut venir de nombres trop grands, pex:
 
@@ -2779,19 +2779,19 @@ Le problème peut venir de nombres trop grands, pex:
     1e500 == 1.0e500    ✘
 
     1.2 == 1.1 + 0.1 { print }
-    ✘ devrait afficher tous les records de l'input mais atm n'affiche rien car la comparaison échoue~
+    ✘ devrait afficher tous les records de l'input mais atm n'affiche rien car la comparaison échoue˜
 
     { print 1.2 - 1.1 - 0.1 }
-    retourne -1.38778e-16, mais devrait retourner 0~
+    retourne -1.38778e-16, mais devrait retourner 0˜
     D'où vient cette différence non nulle ???
 
     On a le même problème dans Vim!
     :echo 1.2 - 1.1 - 0.1
-    -1.387779e-16~
+    -1.387779e-16˜
 
     Autre problème:
     :echo 1.3 - 1.1 - 0.1 == 0.1
-    0~
+    0˜
 
     Bottom line:
     Don't make a float comparison in VimL, nor in awk.
@@ -3423,7 +3423,7 @@ save it in a variable.
     EOF
 
     $ awk -f /tmp/awk.awk /tmp/file
-    a 1 1~
+    a 1 1˜
 
 Here, even though we've invoked `getline`:
 
@@ -3830,14 +3830,14 @@ Ex:
 ---
 
     $ awk '{ print $1 }; /M/ { print $2 }' /tmp/emp.data
-    Beth~
-    Dan~
-    Kathy~
-    Mark~
-    5.00~
-    Mary~
-    5.50~
-    Susie~
+    Beth˜
+    Dan˜
+    Kathy˜
+    Mark˜
+    5.00˜
+    Mary˜
+    5.50˜
+    Susie˜
 
 Dans cet exemple, la sortie de awk mélange des prénoms et des nombres.
 À chaque fois qu'un record est traité, son premier champ est affiché.
@@ -4187,9 +4187,9 @@ Yes, `NR` is writable.
     EOF
 
     $ awk -f /tmp/awk.awk /tmp/file
-    a 3~
-    b 4~
-    c 5~
+    a 3˜
+    b 4˜
+    c 5˜
 
 ---
 
@@ -4288,10 +4288,10 @@ commande shell.
 
     $ echo '' >/tmp/file
     $ xxd -p /tmp/file
-    0a~
+    0a˜
 
     $ echo '' | xxd -p
-    0a~
+    0a˜
 
 Donc, sur le dernier  record de l'input ou d'un fichier,  ce newline fait partie
 du record, et awk ajoute `ORS` *après*.
@@ -4357,10 +4357,10 @@ Ex:
 ### Fields
 
     $ awk '{ print ($1 < $2) }' <<<'31 30'
-    0~
+    0˜
 
     $ awk '{ print ($1 < $2) }' <<<'31 3z'
-    1~
+    1˜
 
 Ces 2 commandes  illustrent que lorsqu'un champ est numérique,  awk affecte à la
 variable correspondante une valeur numérique et une valeur chaîne.

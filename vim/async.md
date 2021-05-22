@@ -3,13 +3,13 @@
 Use `system()` and quote `a b`:
 
     :call system('tmux command-prompt -I "a b"')
-    :a b~
+    :a b˜
 
 More generally, if your argument might contain any kind of quotes, use `shellescape()`:
 
     :let arg = "a'b\"c"
     :call system('tmux command-prompt -I ' .. shellescape(arg))
-    a'b"c~
+    a'b"c˜
 
 ---
 
@@ -23,10 +23,10 @@ Because Vim  will split the arguments  at any whitespace outside  double quotes,
 which might seem unexpected:
 
     :call job_start('tmux command-prompt -I "foo bar"')
-    :foo bar~
+    :foo bar˜
 
     :call job_start("tmux command-prompt -I 'foo bar'")
-    (bar') foo'~
+    (bar') foo'˜
 
 In the last command, tmux receives this:
 

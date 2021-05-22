@@ -33,9 +33,9 @@ your config in `~/.config/weechat/`.
 
 ### When I'm running it, it complains about some libraries!
 
-    Error: API mismatch for plugin "/usr/local/lib/weechat/plugins/xfer.so" (current API: "20190615-01",~
-    plugin API: "20190624-01"), failed to load~
-    If plugin "xfer" is old/obsolete, you can delete this file.~
+    Error: API mismatch for plugin "/usr/local/lib/weechat/plugins/xfer.so" (current API: "20190615-01",˜
+    plugin API: "20190624-01"), failed to load˜
+    If plugin "xfer" is old/obsolete, you can delete this file.˜
 
 The local binary may use some libraries from the installed WeeChat package.
 If that's an  issue, don't just run  the compiled binary; install it  first as a

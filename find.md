@@ -30,17 +30,17 @@ is no operator specified between tests, `-a` is assumed.
 Without any action, `find` assumes `-print`:
 
     $ cd ~/wiki; find . -name algo.md
-    ./algo.md~
+    ./algo.md˜
 
 ---
 
 Explain this:
 
     $ cd ~/wiki; find . -name algo.md -o -name bc.md -print
-    ./bc.md~
+    ./bc.md˜
 
     $ find . -name algo.md -print -o -name bc.md
-    ./algo.md~
+    ./algo.md˜
 
 Theory:
 The “branch” in which there's an action doesn't matter.
@@ -51,13 +51,13 @@ If one branch contains an action, `find` doesn't assume anything in the others.
 Explain this:
 
     $ find /etc -path '*/.*'        -o -path 'conf$'  -prune          2>/dev/null | wc -l
-    26~
+    26˜
 
     $ find /etc -path '*/.*' -print -o -path 'conf$'  -prune          2>/dev/null | wc -l
-    26~
+    26˜
 
     $ find /etc -path '*/.*'        -o -path 'conf$'  -prune  -print  2>/dev/null | wc -l
-    0~
+    0˜
 
 ---
 
@@ -142,10 +142,10 @@ Numeric arguments can be specified as:
 Why the difference:
 
     $ find /etc -path '*X11*' -prune -o -name '*' 2>/dev/null | wc -l
-    3485~
+    3485˜
 
     $ find /etc -path '*X11*' -prune -o -print 2>/dev/null | wc -l
-    3484~
+    3484˜
 
 Why is `/etc/X11` correctly pruned in the first command (✔), but still printed (✘)?
 
@@ -168,24 +168,24 @@ So, `find` doesn't alter the command.
 This would also explain the output of:
 
     $ find /etc \( -path '*/.*' \) -prune 2>/dev/null |vipe
-    /etc/apparmor.d/cache/.features~
-    /etc/cron.hourly/.placeholder~
-    /etc/.pwd.lock~
-    /etc/init.d/.depend.boot~
-    /etc/init.d/.depend.stop~
-    /etc/init.d/.depend.start~
-    /etc/cron.daily/.placeholder~
-    /etc/cron.d/.placeholder~
-    /etc/cron.monthly/.placeholder~
-    /etc/cron.weekly/.placeholder~
-    /etc/.java~
-    /etc/skel/.profile~
-    /etc/skel/.bashrc~
-    /etc/skel/.xscreensaver~
-    /etc/skel/.Xdefaults~
-    /etc/skel/.config~
-    /etc/skel/.bash_logout~
-    /etc/sensors.d/.placeholder~
+    /etc/apparmor.d/cache/.features˜
+    /etc/cron.hourly/.placeholder˜
+    /etc/.pwd.lock˜
+    /etc/init.d/.depend.boot˜
+    /etc/init.d/.depend.stop˜
+    /etc/init.d/.depend.start˜
+    /etc/cron.daily/.placeholder˜
+    /etc/cron.d/.placeholder˜
+    /etc/cron.monthly/.placeholder˜
+    /etc/cron.weekly/.placeholder˜
+    /etc/.java˜
+    /etc/skel/.profile˜
+    /etc/skel/.bashrc˜
+    /etc/skel/.xscreensaver˜
+    /etc/skel/.Xdefaults˜
+    /etc/skel/.config˜
+    /etc/skel/.bash_logout˜
+    /etc/sensors.d/.placeholder˜
 
 Note that `.java` is a directory with a hidden subdirectory and hidden files.
 
@@ -405,11 +405,11 @@ custom cron job to update the db of your locally compiled `locate(1)`.
              --statistics
              vv
     $ locate -S
-    Database /var/lib/mlocate/mlocate.db:~
-            146,450 directories~
-            1,341,910 files~
-            93,700,044 bytes in file names~
-            36,545,111 bytes used to store database~
+    Database /var/lib/mlocate/mlocate.db:˜
+            146,450 directories˜
+            1,341,910 files˜
+            93,700,044 bytes in file names˜
+            36,545,111 bytes used to store database˜
 
 ##
 ## How to force the pattern to be matched against the filename, not the whole path?

@@ -692,8 +692,8 @@ In the above example you might want to set path to:
 
 This searches:
 
-    /u/user_x/work/release/** ~
-    /u/user_x/** ~
+    /u/user_x/work/release/** ˜
+    /u/user_x/** ˜
 
 This searches the same directories, but in a different order.
 

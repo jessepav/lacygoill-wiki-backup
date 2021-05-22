@@ -22,7 +22,7 @@ This may break your scripts, if their shebang refers to `/usr/bin/sed` instead.
 Without `--without-included-regex`, sed doesn't support equivalence classes:
 
     $ /usr/bin/sed 's/[[=e=]]/X/g' <<<'a é b e c è'
-    a é b X c è~
+    a é b X c è˜
 
 ---
 
@@ -173,14 +173,14 @@ input file exactly as provided on the command-line.
                  placeholder which will be expanded into `file`
 
     $ cat /tmp/file
-    a~
-    X~
-    c~
+    a˜
+    X˜
+    c˜
 
     $ cat /tmp/dir/file.bak
-    a~
-    b~
-    c~
+    a˜
+    b˜
+    c˜
 
 ---
 
@@ -190,9 +190,9 @@ given prefix instead of a given extension:
     $ cd /tmp; sed -i'bak_*' 's/b/X/' file
 
     $ cat /tmp/bak_file
-    a~
-    b~
-    c~
+    a˜
+    b˜
+    c˜
 
 #### Which pitfalls should I avoid?
 
@@ -202,7 +202,7 @@ So, this wouldn't work:
 
     $ cd /tmp; mkdir dir 2>/dev/null; \
       sed -i'dir/*.bak' 's/bar/XXX/' /tmp/file
-    sed: cannot rename /tmp/file: No such file or directory~
+    sed: cannot rename /tmp/file: No such file or directory˜
 
 Here, `*`  is expanded  into `/tmp/file`, and  sed tries to  create a  backup in
 `dir/tmp/file.bak`, but `dir/tmp/` doesn't exist.
@@ -235,10 +235,10 @@ pattern space.
 ---
 
     $ seq 3 | sed '2i hello; 3s/./X/'
-    1~
-    hello; 3s/./X/~
-    2~
-    3~
+    1˜
+    hello; 3s/./X/˜
+    2˜
+    3˜
 
 The previous command will insert the line `hello; 3s/./X/`.
 While  you may  have expected  `hello` to  be inserted,  then `s`  to perform  a
@@ -249,12 +249,12 @@ substitution on the third line.
 Use several `-e` expressions:
 
     $ seq 3 | sed -e '2 {w /tmp/file' -e 's/.*/[&]/}'
-    1~
-    [2]~
-    3~
+    1˜
+    [2]˜
+    3˜
 
     $ cat /tmp/file
-    2~
+    2˜
 
 Or insert a literal newline:
 
@@ -341,7 +341,7 @@ Note that all of this also applies to grep, gawk and Vim.
 Literally:
 
     $ sed 's/ ^ /X/' <<<'a ^ b'
-    aXb~
+    aXb˜
 
 From this point of view, sed is similar to Vim (but different from awk).
 
@@ -393,21 +393,21 @@ Group them inside curly braces:
 
                             v              v
     $ seq 11 13 | sed '/2$/ {s/1/3/; s/2/4/}'
-    11~
-    34~
-    13~
+    11˜
+    34˜
+    13˜
 
 ## How to reverse the meaning of an address/range?
 
 Suffix it with a bang:
 
     $ printf '%s\n' 1 a b 2 | sed -n '/a/,/b/p'
-    a~
-    b~
+    a˜
+    b˜
                                              v
     $ printf '%s\n' 1 a b 2 | sed -n '/a/,/b/!p'
-    1~
-    2~
+    1˜
+    2˜
 
 ##
 ## How to combine ranges?  i.e. How to operate on lines matching two specified ranges simultaneously?
@@ -434,17 +434,17 @@ In the following example, we use this syntax to remove *some* empty lines:
     EOF
 
     $ sed '/^There/,/^in/ {/^$/d}' /tmp/file
-    Here, there can be~
-    ~
-    empty lines.~
-    ~
-    There should be~
-    no empty lines~
-    in this block.~
-    ~
-    Here, there can also be~
-    ~
-    empty lines.~
+    Here, there can be˜
+    ˜
+    empty lines.˜
+    ˜
+    There should be˜
+    no empty lines˜
+    in this block.˜
+    ˜
+    Here, there can also be˜
+    ˜
+    empty lines.˜
 
 Note that you could write several commands inside the curly braces.
 Each of them would be executed on  the condition that the address of the current
@@ -456,7 +456,7 @@ Nest as many curly braces blocks as needed.
 
                         v       v
     $ printf '%s\n' a b c b a b c b | sed -n '/a/,/a/ { /b/,/b/ { /c/ p } }'
-    c~
+    c˜
 
 In this example, we ask sed to print  the lines containing a `c`, inside a range
 of lines whose first and last contain a `b`, inside a range of lines whose first
@@ -503,7 +503,7 @@ range; in *all* other cases, it's considered to be inside:
 
     $ printf '%s\n' a b a b a | sed -n '/a/,/a/ { /b/p }'
 ↣
-    b~
+    b˜
 ↢
 
 #### Explain what happened.
@@ -535,16 +535,16 @@ If the first address  matches a line, sed will operate on  all the lines between
 this line and the last one.
 
     $ printf '%s\n' foo bar baz | sed -n '1,/not_found/p'
-    foo~
-    bar~
-    baz~
+    foo˜
+    bar˜
+    baz˜
 
 This differs from Vim, where the same command would bail out:
 
     :new
     :call setline(1, ['foo', 'bar', 'baz'])
     :1,/not_found/p
-    E486: Pattern not found: not_found~
+    E486: Pattern not found: not_found˜
 
 Explanation:
 
@@ -564,8 +564,8 @@ Instead, it operates  on all the lines until  the last line in the  range of the
 current block:
 
     $ printf '%s\n' a b a c | sed -n '/a/,/a/ { /b/,/x/ p }'
-    b~
-    a~
+    b˜
+    a˜
 
 Here, even though the regex `x` fails to match a line, `p` doesn't print all the
 lines until the end of the input – if it did, it would also print `c`.
@@ -580,8 +580,8 @@ As the start of the range, but not its end.
 sed does *not* re-use the same line to match both ends of the range.
 
     $ printf '%s\n' a b a | sed -n '/b/,/b/ p'
-    b~
-    a~
+    b˜
+    a˜
 
 Here, the second  input line `b` matches  the start of the  range `/b/,/b/`, but
 sed doesn't re-use it to match the end of the range.
@@ -612,7 +612,7 @@ It's the equivalent of `:echom` in a Vimscript.
 ## How to print the 2nd line of a file?
 
     $ printf '%s\n' a b c | sed -n '2p'
-    b~
+    b˜
 
 The `p` command lets you print arbitrary lines from sed's input.
 
@@ -620,10 +620,10 @@ The `p` command lets you print arbitrary lines from sed's input.
 
     $ printf '%s\n' a b c | sed '2p'
 ↣
-    a~
-    b~
-    b~
-    c~
+    a˜
+    b˜
+    b˜
+    c˜
 ↢
 
 #### Why the difference with the previous command?
@@ -639,7 +639,7 @@ Use the special symbol `$`:
 
                                     v
     $ printf '%s\n' a b c | sed -n '$p'
-    c~
+    c˜
 
 ### its first and last line?
 
@@ -651,17 +651,17 @@ Use the special symbol `$`:
 Use the `-s` option:
 
     $ sed -n -s '1p; $p' <(printf '%s\n' a b c) <(printf '%s\n' d e f)
-    a~
-    c~
-    d~
-    f~
+    a˜
+    c˜
+    d˜
+    f˜
 
 ### What's the output of the next command?
 
     $ sed -n '1p; $p' <(printf '%s\n' a b c) <(printf '%s\n' d e f)
 ↣
-    a~
-    f~
+    a˜
+    f˜
 ↢
 
 #### Why the difference with the previous command?
@@ -676,7 +676,7 @@ Use sed's `-n` option and the `p` flag of the `s` command:
 
                                 vv        v
     $ printf '%s\n' a b c | sed -n 's/a/X/p'
-    X~
+    X˜
 
 ##
 ## How to print the pattern space replacing non-printable characters with C-style escaped form?
@@ -684,31 +684,31 @@ Use sed's `-n` option and the `p` flag of the `s` command:
 Use the `l` command.
 
     $ printf '\e' | sed -n 'l' <<<'\e'
-    \033$~
+    \033$˜
 
 ### What's the default line-wrap length?
 
 70
 
     $ sed -n 'l' <<<$'this is a very very very very very very long line with an \e character'
-    this is a very very very very very very long line with an \033 charac\~
-    ter$~
+    this is a very very very very very very long line with an \033 charac\˜
+    ter$˜
 
 ### How to wrap the output line after 10 characters?  (2)
 
 Pass the numerical argument `10` to `l`:
 
     $ sed -n 'l 10' <<<$'this is an \e character'
-    this is a\~
-    n \033 ch\~
-    aracter$~
+    this is a\˜
+    n \033 ch\˜
+    aracter$˜
 
 Or use the `-l` shell option:
 
     $ sed -l10 -n 'l' <<<$'this is an \e character'
-    this is a\~
-    n \033 ch\~
-    aracter$~
+    this is a\˜
+    n \033 ch\˜
+    aracter$˜
 
 ### How to prevent the output line from being wrapped?
 
@@ -716,7 +716,7 @@ Pass the value `0` to the `l` command or to the `-l` option:
 
     $ sed -n 'l0' <<<$'this is a very very very very very very long line with an \e character'
     $ sed -l0 -n 'l' <<<$'this is a very very very very very very long line with an \e character'
-    this is a very very very very very very long line with an \033 character$~
+    this is a very very very very very very long line with an \033 character$˜
 
 ##
 ## How to print the current input line ADDRESS (with a trailing newline)?
@@ -724,32 +724,32 @@ Pass the value `0` to the `l` command or to the `-l` option:
 Use the `=` command:
 
     $ printf '%s\n' aaa bbb ccc | sed =
-    1~
-    aaa~
-    2~
-    bbb~
-    3~
-    ccc~
+    1˜
+    aaa˜
+    2˜
+    bbb˜
+    3˜
+    ccc˜
 
 `=` supports a range too:
 
     $ printf '%s\n' aaa bbb ccc | sed 1,2=
-    1~
-    aaa~
-    2~
-    bbb~
-    ccc~
+    1˜
+    aaa˜
+    2˜
+    bbb˜
+    ccc˜
 
 ### What happens if this command is run while the pattern space contains multiple lines?
 
 `=` prints the address of the *last* line:
 
     $ printf '%s\n' a b c d | sed -n 'N; ='
-    2~
-    4~
+    2˜
+    4˜
 
     $ printf '%s\n' a b c d | sed -n 'N; N; ='
-    3~
+    3˜
 
 ##
 # Substitution
@@ -776,8 +776,8 @@ Use the `=` command:
 Use the `p` flag:
 
     $ printf '%s\n' a 1 b 2 | sed -n 's/[0-9]/[&]/p'
-    [1]~
-    [2]~
+    [1]˜
+    [2]˜
 
 ### write the pattern space?
 
@@ -787,8 +787,8 @@ Use the `w` flag and the path to a file:
     $ printf '%s\n' 1 a 2 b | sed -n 's/[0-9]/[&]/w /tmp/file'
 
     $ cat file
-    [1]~
-    [2]~
+    [1]˜
+    [2]˜
 
 `s` has  replaced `1` with  `[1]` and written the  result into `file`,  then has
 replaced `2` with `[2]` and *appended* the result into `file`.
@@ -801,7 +801,7 @@ Write the index of the occurrence in the flag field of the substitution command:
 
                  v
     $ sed 's/a/X/2' <<<'a a a'
-    a X a~
+    a X a˜
 
 ### all the occurrences beyond the `n`th occurrence of the pattern?
 
@@ -809,7 +809,7 @@ In the flag field, combine the index `n` with the `g` flag:
 
                  vv
     $ sed 's/a/X/2g' <<<'a a a'
-    a X X~
+    a X X˜
 
 ##
 ## When can a substitution command be broken on multiple lines?
@@ -823,8 +823,8 @@ By  prefixing the  newline  with a  backslash to  suppress  its special  meaning
 
     $ sed 's/pat/b\
     c/' <<<'a pat d'
-    a b~
-    c d~
+    a b˜
+    c d˜
 
 ##
 # Appending and inserting
@@ -835,10 +835,10 @@ Use the `i` command:
                      ignored, but improves the readability
                      v
     $ seq 3 | sed '2i inserted before 2'
-    1~
-    inserted before 2~
-    2~
-    3~
+    1˜
+    inserted before 2˜
+    2˜
+    3˜
 
 All the whitespace between  the command and the line of text  is ignored, so the
 space  between  `i`  and `inserted  before  2`  is  just  there to  improve  the
@@ -849,10 +849,10 @@ readability of the code.
 Use the `a` command:
 
     $ seq 3 | sed '2a appended after 2'
-    1~
-    2~
-    appended after 2~
-    3~
+    1˜
+    2˜
+    appended after 2˜
+    3˜
 
 ##
 ## When is the text added by `a` or `i` printed exactly?
@@ -860,10 +860,10 @@ Use the `a` command:
 At the very end of the current cycle:
 
     $ printf '%s\n' aa bb cc | sed -n -e '2a appended' -e '='
-    1~
-    2~
-    appended~
-    3~
+    1˜
+    2˜
+    appended˜
+    3˜
 
 Notice that  the address 2  is printed *before*  `appended`, because `=`  is run
 before the end of the cycle.
@@ -874,11 +874,11 @@ before the end of the cycle.
 The added text is printed immediately, along the current pattern space.
 
     $ printf '%s\n' aa bb cc | sed -e '1a appended' -e 'n;='
-    aa~
-    appended~
-    2~
-    bb~
-    cc~
+    aa˜
+    appended˜
+    2˜
+    bb˜
+    cc˜
 
 Notice that `appended` is printed *before* the line address of the next line (2).
 It's printed right  after `aa`; both are printed because  `n` causes a premature
@@ -896,11 +896,11 @@ exits immediately.
 The added text is still printed:
 
     $ sed -e '1a appended' -e 'c changed' <<<'x'
-    changed~
-    appended~
+    changed˜
+    appended˜
 
     $ sed -e '1i inserted' -e 'd' <<<'x'
-    inserted~
+    inserted˜
 
 This further indicates that the added text is not part of the pattern space.
 
@@ -913,15 +913,15 @@ Yes.
 In this regard, they are similar to `p` which also ignores `-n`.
 
     $ seq 3 | sed -ne '2a hello'
-    hello~
+    hello˜
 
 ##
 ## What's the output of the next command?
 
     $ printf '%s\n' aa bb | sed -e '2a appended' -e 'n'
 ↣
-    aa~
-    bb~
+    aa˜
+    bb˜
 ↢
 
 ### Why hasn't `appended` been added?
@@ -956,11 +956,11 @@ to suppress the special meaning of the newline (i.e. command termination).
     world'
 
     $ seq 3 | sed '2i hello\nworld'
-    1~
-    hello~
-    world~
-    2~
-    3~
+    1˜
+    hello˜
+    world˜
+    2˜
+    3˜
 
 Note that the first syntax is the original one.
 In old  sed versions, you *had*  to write a  backslash and continue on  the next
@@ -979,15 +979,15 @@ Prefer the first syntax, because:
 They will repeat their operation on every line in the range.
 
     $ seq 5 | sed '3,4i hello\nworld'
-    1~
-    2~
-    hello~
-    world~
-    3~
-    hello~
-    world~
-    4~
-    5~
+    1˜
+    2˜
+    hello˜
+    world˜
+    3˜
+    hello˜
+    world˜
+    4˜
+    5˜
 
 Here, `a` appends the lines `hello` and `world` after the lines 2 and 3.
 
@@ -1000,10 +1000,10 @@ Prefix the whitespace with a backslash.
                      │ ┌ won't be ignored
                      │ ├──┐
     $ seq 3 | sed '2a \    hello'
-    1~
-    2~
-        hello~
-    3~
+    1˜
+    2˜
+        hello˜
+    3˜
 
 ###
 ## What's the only way to terminate an `a`, `i` or `c` command?
@@ -1015,10 +1015,10 @@ Write a literal newline (!= `\n`).
 Yes, use several `-e` options:
 
     $ seq 3 | sed -e '2i hello' -e 'w /tmp/file'
-    1~
-    hello~
-    2~
-    3~
+    1˜
+    hello˜
+    2˜
+    3˜
 
 sed will concatenate the statements by adding newlines.
 
@@ -1029,10 +1029,10 @@ first line of text, when using their  original syntax (the one where the command
 is immediately followed by a backslash):
 
     $ seq 3 | sed -e '2i\' -e hello
-    1~
-    hello~
-    2~
-    3~
+    1˜
+    hello˜
+    2˜
+    3˜
 
 This works because  sed will concatenate the statements by  adding newlines, and
 because the backslash  at the end of a statement  suppresses the special meaning
@@ -1043,10 +1043,10 @@ of the newline (command termination).
 
     $ seq 3 | sed -e '2a hello' -e '3s/./X/'
 ↣
-    1~
-    2~
-    hello~
-    X~
+    1˜
+    2˜
+    hello˜
+    X˜
 ↢
 
 ### Why wasn't the substitution applied on the third line of the output?
@@ -1061,8 +1061,8 @@ While `s` operates on the third *input* line.
 The same thing would happen if instead of adding text to the output, we removed text:
 
     $ seq 3 | sed -e '2d; 3s/./X/'
-    1~
-    X~
+    1˜
+    X˜
 
 Here, even though `d` removes a line,  which leaves us with only 2 output lines,
 `s` still  performs its substitution  on the third  input line; it  doesn't care
@@ -1084,16 +1084,16 @@ a previous command, it would make thinking about the code more difficult.
 Use the `c` command:
 
     $ seq 3 | sed '2c changed line 2'
-    1~
-    changed line 2~
-    3~
+    1˜
+    changed line 2˜
+    3˜
 
 ## Is the changed text still printed if sed was invoked with `-n`?
 
 Yes, for the same reason as `a` and `i`.
 
     $ sed -n -e 'c changed' <<<'x'
-    changed~
+    changed˜
 
 ##
 ## Which commands following a `d` command are processed?
@@ -1104,8 +1104,8 @@ None.
 IOW, the rest of the commands of the script are ignored.
 
     $ printf '%s\n' a b | sed '1d; ='
-    2~
-    b~
+    2˜
+    b˜
 
 Here, `=` was not run against the  first line `a`, otherwise 1 would be included
 in the output.
@@ -1120,9 +1120,9 @@ None.
 For the same reason as `d` (`c` also deletes the pattern space).
 
     $ printf '%s\n' a b c | sed -n -e '2c changed' -e '='
-    1~
-    changed~
-    3~
+    1˜
+    changed˜
+    3˜
 
 Notice that `=` was not run on the second line; otherwise 2 would be in the output.
 
@@ -1130,8 +1130,8 @@ Notice that `=` was not run on the second line; otherwise 2 would be in the outp
 
     $ seq 3 | sed -e '2c hello' -e 'w /tmp/file'
     $ cat /tmp/file
-    1~
-    3~
+    1˜
+    3˜
 
 ##
 ## What happens if I prefix a `c` command with a range?
@@ -1143,19 +1143,19 @@ Instead, it  operates just once, after  removing (cutting) all the  lines in the
 range.
 
     $ seq 4 | sed '2,3c hello\nworld'
-    1~
-    hello~
-    world~
-    4~
+    1˜
+    hello˜
+    world˜
+    4˜
 
 ## What's the output of the next `c` command?
 
     $ seq 4 | sed -e '2,3 { c hello' -e '}'
 ↣
-    1~
-    hello~
-    hello~
-    4~
+    1˜
+    hello˜
+    hello˜
+    4˜
 ↢
 
 ### Why did `c` repeat its operation several times?
@@ -1176,7 +1176,7 @@ set of characters to another one:
 Example:
 
     $ sed 'y/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/' <<<'hello world'
-    HELLO WORLD~
+    HELLO WORLD˜
 
 ---
 
@@ -1184,8 +1184,8 @@ Note that `source-chars`  and `dest-chars` can contain escape  sequences such as
 `\n` or `\t`.
 
     $ sed 'y/abcdefghijklmnopqrstuvwxyz\t/ABCDEFGHIJKLMNOPQRSTUVWXYZ\n/' <<<'hello	world'
-    HELLO~
-    WORLD~
+    HELLO˜
+    WORLD˜
 
 ##
 # Reading, Writing
@@ -1201,11 +1201,11 @@ stream.
 Example:
 
     $ seq 4 | sed '2r/etc/hostname'
-    1~
-    2~
-    ubuntu~
-    3~
-    4~
+    1˜
+    2˜
+    ubuntu˜
+    3˜
+    4˜
 
 ### How to import it after every line in a range?
 
@@ -1213,13 +1213,13 @@ Prefix `r` with the appropriate range.
 The file will then be re-read and appended after each of the addressed lines.
 
     $ seq 5 | sed '2,3r /etc/hostname'
-    1~
-    2~
-    ubuntu~
-    3~
-    ubuntu~
-    4~
-    5~
+    1˜
+    2˜
+    ubuntu˜
+    3˜
+    ubuntu˜
+    4˜
+    5˜
 
 ##
 ## When is run
@@ -1228,24 +1228,24 @@ The file will then be re-read and appended after each of the addressed lines.
 At the end of the current cycle:
 
     $ sed -n -e 'r /etc/hostname' -e '=' <<<'x'
-    1~
-    ubuntu~
+    1˜
+    ubuntu˜
 
 Or when the next input line is read with `n`:
 
     $ sed -n -e 'r /etc/hostname' -e 'n; =' <<<$'a\nb'
-    ubuntu~
-    2~
+    ubuntu˜
+    2˜
 
 ### a write command?
 
 Immediately :
 
     $ sed -e 'w /tmp/file' -e 's/./Y/' <<<'x'
-    Y~
+    Y˜
 
     $ cat /tmp/file
-    x~
+    x˜
 
 ##
 ## How to read the standard input, when the sed command has been passed a filename as argument?
@@ -1253,18 +1253,18 @@ Immediately :
 Use the special value `/dev/stdin`:
 
     $ seq 3 | sed 'r /dev/stdin' /etc/hostname
-    ubuntu~
-    1~
-    2~
-    3~
+    ubuntu˜
+    1˜
+    2˜
+    3˜
 
 Here's another  example, where the  stdin is  not connected to  a pipe but  to a
 regular file thanks to the `<` operator:
 
                                        v
     $ sed 'r /dev/stdin' /etc/hostname </etc/environment
-    ubuntu~
-    PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"~
+    ubuntu˜
+    PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"˜
 
 ##
 ## How to extract all the lines containing the word `BUG` inside `/tmp/bugs`?
@@ -1281,8 +1281,8 @@ Use the `w` command to write any line matching `BUG`:
     $ sed -n -e '/BUG/w /tmp/bugs' /tmp/file
 
     $ cat /tmp/bugs
-    2. this line has a BUG~
-    4. this line has also a BUG~
+    2. this line has a BUG˜
+    4. this line has also a BUG˜
 
 ### How to only extract a certain field?
 
@@ -1305,16 +1305,16 @@ Use a substitution command before `w` to remove all the noise.
           /tmp/file
 
     $ cat /tmp/.region.northeast
-    Adams,     Henrietta~
-    Garvey,    Bill~
+    Adams,     Henrietta˜
+    Garvey,    Bill˜
     $ cat /tmp/.region.south
-    Banks,     Freda~
-    Sommes,    Tom~
+    Banks,     Freda˜
+    Sommes,    Tom˜
     $ cat /tmp/.region.midwest
-    Dennis,    Jim~
-    Madison,   Sylvia~
+    Dennis,    Jim˜
+    Madison,   Sylvia˜
     $ cat /tmp/.region.west
-    Jeffries,  Jane~
+    Jeffries,  Jane˜
 
 ##
 ## How to write a file on the standard error?
@@ -1324,12 +1324,12 @@ Use the special value of filename `/dev/stderr`.
     $ seq 3 | sed -n 'w /dev/stderr' >/tmp/out 2>/tmp/err
 
     $ cat /tmp/out
-    ''~
+    ''˜
 
     $ cat /tmp/err
-    1~
-    2~
-    3~
+    1˜
+    2˜
+    3˜
 
 ### On the standard output?
 
@@ -1337,9 +1337,9 @@ Use the special value of filename `/dev/stdout`.
 
     $ seq 3 | sed -n 'w /dev/stdout' >/tmp/out
     $ cat /tmp/out
-    1~
-    2~
-    3~
+    1˜
+    2˜
+    3˜
 
 #### `p` is equivalent to writing on the standard output.  So, how is the previous answer useful?
 
@@ -1359,12 +1359,12 @@ After that, all the written texts will be appended to the file.
 
     $ seq 3 | sed -n -e 'w /tmp/file' -e 's/./X/w /tmp/file'
     $ cat /tmp/file
-    1~
-    X~
-    2~
-    X~
-    3~
-    X~
+    1˜
+    X˜
+    2˜
+    X˜
+    3˜
+    X˜
 
 ##
 # Changing the Normal Flow of Control
@@ -1402,24 +1402,24 @@ rest of the commands.
 Proof:
 
     $ printf '%s\n' a b c | sed -n 'N;p'
-    a~
-    b~
+    a˜
+    b˜
 
 If sed didn't exit, `p` would be processed when `c` is in the pattern space, and
 the output would contain it:
 
-    a~
-    b~
-    c~
+    a˜
+    b˜
+    c˜
 
 ## How to remove the next line after any line matching `foo`?
 
 Use the `n` command and `d` commands:
 
     $ printf '%s\n' foo xxx bar baz | sed '/foo/ {n; d}'
-    foo~
-    bar~
-    baz~
+    foo˜
+    bar˜
+    baz˜
 
 ##
 # Misc
@@ -1452,12 +1452,12 @@ regex was used (in a range, in the pattern field of a substitution, ...).
 
                                     vv
     $ seq 11 13 | sed -n -e '/./=; s//X/p'
-    1~
-    X1~
-    2~
-    X2~
-    3~
-    X3~
+    1˜
+    X1˜
+    2˜
+    X2˜
+    3˜
+    X3˜
 
 In  the previous  command, an  empty regex  is used  in the  pattern field  of a
 substitution command.
@@ -1466,7 +1466,7 @@ Let's see another example, where it's used as an address for the `p` command:
 
                                      vv
     $ seq 11 13 | sed -n -e 's/1/2/; //p'
-    21~
+    21˜
 
 Here, `//` refers to 1.
 The output contains only 21, because 12 and  13 have been replaced by 22 and 23,
@@ -1475,12 +1475,12 @@ none of which contains 1.
 Here are other examples:
 
     $ sed '/foo/s//bar/' <<<'foo'
-    bar~
+    bar˜
 
                    ┌ hold command
                    │
     $ sed -n '/foo/h; //p' <<<'foo'
-    foo~
+    foo˜
 
 ##
 # Pitfalls
@@ -1499,7 +1499,7 @@ Save it in a variable:
 And use it in your `s` command like so:
 
     $ sed "s${A}/bar/${A}${A}" <<<'foo /bar/ baz'
-    foo  baz~
+    foo  baz˜
 
 ## I need to replace `three` with `two` and `two` with `one`.  It fails: the output contains only `one`!
 
@@ -1508,7 +1508,7 @@ Your input text is `two three two three`, and you want the output `one two one t
 You try:
 
     $ sed 's/three/two/g; s/two/one/g' <<<'two three two three'
-    one one one one~
+    one one one one˜
 
 The issue is that after the  first substitution, you can't distinguish between a
 `two` which was there originally in the input, and a `two` which has appeared as
@@ -1521,7 +1521,7 @@ Solution:
 Reverse the order of the substitutions:
 
     $ sed 's/two/one/g; s/three/two/g' <<<'two three two three'
-    one two one two~
+    one two one two˜
 
 Remember:
 
@@ -1544,13 +1544,13 @@ The short form of options must be concatenated and `-f` must be at the end:
 None of these would work:
 
     #!/usr/bin/sed -n -f
-    /usr/bin/sed: invalid option -- ' '~
+    /usr/bin/sed: invalid option -- ' '˜
 
     #!/usr/bin/sed -f -n
-    /usr/bin/sed: couldn't open file  -n: No such file or directory~
+    /usr/bin/sed: couldn't open file  -n: No such file or directory˜
 
     #!/usr/bin/sed -fn
-    /usr/bin/sed: couldn't open file n: No such file or directory~
+    /usr/bin/sed: couldn't open file n: No such file or directory˜
 
 Maybe the  first command fails because  the shell only splits  the command after
 the path to the  binary; so, it passes the space between `-n`  and `-f` to `sed`
@@ -1619,7 +1619,7 @@ multiple lines and cannot be specified on the same line.
 Remove all newlines.
 
     $ printf '%s\n' 1 2 3 | sed ':a;N;$!ba;s/\n//g'
-    123~
+    123˜
 
 ## ?
 

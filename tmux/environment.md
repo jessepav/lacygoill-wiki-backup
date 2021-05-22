@@ -60,7 +60,7 @@ Write this in tmux.conf:
 Reload it, and run:
 
     :show -gv @foo
-    ''~
+    ''˜
 
 The output  is empty because `$myvar`  was not in the  tmux process environment,
 and so was not expanded.
@@ -111,11 +111,11 @@ Or use `var=val` in a file sourced by tmux:
      EOF
      )
      $ tmux showenv -g | grep hello
-     var=hello~
+     var=hello˜
 
      $ tmux source =(echo 'var=world')
      $ tmux showenv -g | grep world
-     var=world~
+     var=world˜
 
 ## What happens if I write `var=val`
 ### in my tmux.conf?
@@ -155,7 +155,7 @@ After running  the command, tmux adds  the variable to the  session environment,
 prefixed with a minus sign:
 
     $ tmux showenv | grep VAR
-    -VAR~
+    -VAR˜
     ^
 
 This removes the old value that the variable had in the session environment, and
@@ -178,14 +178,14 @@ current session, even if it's in the tmux global environment.
     $ tmux setenv -r WINDOWID
     $ tmux splitw
     $ echo $WINDOWID
-    ''~
+    ''˜
 
 `-u` can't do that.
 
     $ tmux setenv -u WINDOWID
     $ tmux splitw
     $ echo $WINDOWID
-    1234~
+    1234˜
 
 If a variable  is in the tmux  global environment, `-u` will remove  it from the
 session environment,  but not from  the global one;  as a result,  the processes
@@ -223,19 +223,19 @@ It doesn't matter how you create a new session, its environment is always update
     $ export KRB5CCNAME=foo
     $ tmux -Lx
     $ tmux showenv | grep KRB5CCNAME
-    KRB5CCNAME=foo~
+    KRB5CCNAME=foo˜
 
     # from outside a tmux session, into a running tmux server
     $ export KRB5CCNAME=foo
     $ tmux new-session -s test
     $ tmux showenv | grep KRB5CCNAME
-    KRB5CCNAME=foo~
+    KRB5CCNAME=foo˜
 
     # from inside a tmux session
     $ export KRB5CCNAME=foo
     $ S=$(tmux new-session -d -P -F '#{session_id}')
     $ tmux showenv -t $S | grep KRB5CCNAME
-    KRB5CCNAME=foo~
+    KRB5CCNAME=foo˜
 
 ---
 
@@ -381,7 +381,7 @@ exist, and so was replaced by an empty string.
 Yes for `run-shell`:
 
     $ tmux run 'pstree -lsp $$ >/tmp/.out' ; cat /tmp/.out
-    systemd(1)---lightdm(1001)---lightdm(1086)---upstart(1095)---tmux: server(3253)---sh(18687)---pstree(18688)~
+    systemd(1)---lightdm(1001)---lightdm(1086)---upstart(1095)---tmux: server(3253)---sh(18687)---pstree(18688)˜
 
 Yes for `if-shell`:
 
@@ -389,14 +389,14 @@ Yes for `if-shell`:
     if "pstree -lsp $$ >/tmp/.out" ""
     EOF
     ) ; cat /tmp/.out
-    systemd(1)---lightdm(954)---lightdm(1098)---upstart(1110)---tmux: server(3750)---sh(27584)---pstree(27585)~
+    systemd(1)---lightdm(954)---lightdm(1098)---upstart(1110)---tmux: server(3750)---sh(27584)---pstree(27585)˜
 
 Yes for `#()`:
 
                                                                ┌ for some reason, `cat(1)` doesn't always work without
                                                                ├──────┐
     $ tmux set -g status-left '#(pstree -lsp $$ >/tmp/.out)' ; sleep .1; cat /tmp/.out
-    systemd(1)---lightdm(943)---lightdm(1100)---upstart(1110)---tmux: server(11803)---sh(12884)---pstree(12887)~
+    systemd(1)---lightdm(943)---lightdm(1100)---upstart(1110)---tmux: server(11803)---sh(12884)---pstree(12887)˜
 
 ### the global and session environment?
 
@@ -404,8 +404,8 @@ Yes for `run-shell`:
 
     $ tmux setenv var_session 123 \; setenv -g var_global 456
     $ tmux run 'env | grep "var_\(session\|global\)"'
-    var_session=123~
-    var_global=456~
+    var_session=123˜
+    var_global=456˜
 
 Yes for `if-shell`:
 
@@ -414,16 +414,16 @@ Yes for `if-shell`:
     if "env | grep 'var_\\(session\\|global\\)' >/tmp/.out" ""
     EOF
     ) ; cat /tmp/.out
-    var_session=123~
-    var_global=456~
+    var_session=123˜
+    var_global=456˜
 
 For `#()`, only the global environment is inherited:
 
     $ tmux setenv -g foo bar \; set -g status-left '#(env | grep foo >/tmp/.out)' ; cat /tmp/.out
-    foo=bar~
+    foo=bar˜
 
     $ tmux setenv -gu foo \; setenv foo bar \; set -g status-left '#(env | grep foo >/tmp/.out)' ; cat /tmp/.out
-    ''~
+    ''˜
 
 ##
 # Reference

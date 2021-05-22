@@ -3020,37 +3020,37 @@ par un mot-clé pour exécuter une directive.  Parmi ces mots-clés, on trouve:
                     endsnippet
 
                         a Tab
-                        foo bar()~
-                            └─┤~
-                              └ sélectionné~
+                        foo bar()˜
+                            ├─┘˜
+                            └ sélectionné˜
 
                         C-h
-                        foo |()~
+                        foo |()˜
                             ^
-                            curseur~
+                            curseur˜
 
                         Tab
-                        foo |()~
-                            ✘ le 2e tabstop n'a pas été automatiquement supprimé~
-                              raison pour laquelle le curseur reste sur place~
+                        foo |()˜
+                            ✘ le 2e tabstop n'a pas été automatiquement supprimé˜
+                              raison pour laquelle le curseur reste sur place˜
 
                     snippet a
                     foo ${1:bar $2 baz}($3)
                     endsnippet
 
                         a Tab
-                        foo bar()~
-                        foo bar  baz()~
-                            └──────┤~
-                                   └ sélectionné~
+                        foo bar()˜
+                        foo bar  baz()˜
+                            ├──────┘˜
+                            └ sélectionné˜
 
                         C-h
-                        foo |()~
+                        foo |()˜
                             ^
-                            curseur~
+                            curseur˜
 
                         Tab
-                        foo (|)~
+                        foo (|)˜
                              ✔
 
 

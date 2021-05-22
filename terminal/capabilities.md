@@ -406,7 +406,7 @@ Example:
 
     $ printf '\e]52;c;%s\x07' $(printf 'hello' | base64)
     $ xsel -b
-    hello~
+    hello˜
 
 See `OSC Ps ; Pt BEL/;/Ps = 5 2`.
 
@@ -416,7 +416,7 @@ Make sure your terminal supports the sequence.
 Check whether its description includes the `Ms` capability:
 
     $ infocmp -1x | grep Ms
-    Ms=\E]52;%p1%s;%p2%s\007,~
+    Ms=\E]52;%p1%s;%p2%s\007,˜
 
 ---
 
@@ -497,18 +497,18 @@ Usage example:
 
     # read the clipboard
     $ printf '\033]52;c;?\007'
-    52;c;aGVsbG8=~
+    52;c;aGVsbG8=˜
 
     # decode the clipboard
     $ base64 -d <<<'aGVsbG8='
-    hello~
+    hello˜
 
 ### I can't redirect the output of `printf` to `base64(1)` and get a one-liner!
 
 You can:
 
     $ printf '\033]52;c;?\007' | base64 -d
-    base64: invalid input~
+    base64: invalid input˜
 
 but that's not what you want.
 

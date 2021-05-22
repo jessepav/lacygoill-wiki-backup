@@ -4,10 +4,10 @@
 Yes.
 
     $ tmux show mouse
-    ''~
+    ''˜
 
     $ tmux show -g mouse
-    mouse on~
+    mouse on˜
 
 ### Its type?
 
@@ -22,7 +22,7 @@ Use the `-v` flag:
 
                   v
     $ tmux show -gv clock-mode-colour
-    blue~
+    blue˜
 
 ## What are the two differences between `show-options` and `show-options -v`?
 
@@ -32,10 +32,10 @@ Use the `-v` flag:
 string, while `show -v` shows it as if it was stored in a single-quoted string.
 
     $ tmux set @foo '\z' \; show @foo
-    @foo \\z~
+    @foo \\z˜
 
     $ tmux set @foo '\z' \; show -v @foo
-    \z~
+    \z˜
 
 ##
 # Setting an option
@@ -76,17 +76,17 @@ A server option has no global value; in this case, just unset the value.
 Use the `-o` flag:
 
     $ tmux set @foo bar \; show @foo
-    @foo bar~
+    @foo bar˜
 
     $ tmux set -o @foo qux
-    already set: @foo~
+    already set: @foo˜
 
 ### How to make it quietly?
 
 Use the `-q` flag:
 
     $ tmux set -qo @foo qux
-    ''~
+    ''˜
 
 ##
 ## I have 2 windows, and I'm in the first one.  How to set the color of the clock in the second window?
@@ -118,10 +118,10 @@ Tmux will complain with one of these error messages:
 The option is toggled between on and off.
 
     $ tmux set -g mouse \; show -g mouse
-    mouse off~
+    mouse off˜
 
     $ tmux set -g mouse \; show -g mouse
-    mouse on~
+    mouse on˜
 
 ##
 # Pane options
@@ -134,8 +134,8 @@ all the other panes of the window:
 
     $ tmux set -w allow-rename off \; set -p allow-rename on
     $ tmux show -wv allow-rename \; show -pv allow-rename
-    off~
-    on~
+    off˜
+    on˜
 
 ## For every window option, is there a pane counterpart?
 
@@ -207,11 +207,11 @@ It's ignored.
 Watch:
 
     $ tmux -Lx -f =(echo 'set -gp allow-rename on')
-    no current pane~
+    no current pane˜
     $ tmux show -gw allow-rename \; show -w allow-rename \; show -p allow-rename
-    off~
-    ''~
-    ''~
+    off˜
+    ''˜
+    ''˜
 
 The first command seems to show that `set -gp` was processed like `set -p`.
 This is confirmed by  the second command which shows that  the `set -gp` command
@@ -237,19 +237,19 @@ Besides, there are already less ambiguous alternatives for both possible meaning
 
     $ tmux set -p allow-rename on \; set -w allow-rename off \; \
       show -v allow-rename
-    off~
+    off˜
 
     $ tmux set -p allow-rename on \; set -wu allow-rename \; \
       show allow-rename
-    ''~
+    ''˜
 
 Same thing for `$ tmux set`.
 
     $ tmux set -p allow-rename on \; set -w allow-rename on \; \
       set allow-rename off \; \
       show -pv allow-rename \; show -wv allow-rename
-      on~
-      off~
+      on˜
+      off˜
 
 ###
 # User options
@@ -258,16 +258,16 @@ Same thing for `$ tmux set`.
 It can be any of them.
 
     $ tmux set -p @foo bar \; show -p @foo
-    @foo bar~
+    @foo bar˜
 
     $ tmux set -w @foo bar \; show -w @foo
-    @foo bar~
+    @foo bar˜
 
     $ tmux set @foo bar \; show @foo
-    @foo bar~
+    @foo bar˜
 
     $ tmux set -s @foo bar \; show -s @foo
-    @foo bar~
+    @foo bar˜
 
 The concept is orthogonal to the type of the option.
 
@@ -312,7 +312,7 @@ Search for the pattern `[]`.
 With the `-a` flag:
 
     $ tmux set -a user-keys "\e[123" \; show user-keys \; set -u user-keys
-    user-keys[0] \\e[123~
+    user-keys[0] \\e[123˜
 
 ---
 
@@ -321,7 +321,7 @@ Or with an `[123]` index:
                necessary for zsh, where `[` and `]` have a special meaning
                v            v
     $ tmux set 'user-keys[0]' "\e[123" \; show user-keys \; set -u user-keys
-    user-keys[0] \\e[123~
+    user-keys[0] \\e[123˜
 
 ### What's the benefit of the first method?
 
@@ -363,7 +363,7 @@ And you may need `-s`, `-w`, `-p` if you're working with a user option.
 Don't use `-a` nor `[123]`.
 
     $ tmux set user-keys "\e[123" \; show user-keys \; set -u user-keys
-    user-keys[0] "\\e[123"~
+    user-keys[0] "\\e[123"˜
 
 ##
 ## Comma
@@ -373,8 +373,8 @@ When you want to set several items of the array in a single command.
 In this case, the comma tells tmux when an item ends, and when the next one starts.
 
     $ tmux set user-keys 'foo,bar' \; show user-keys \; set -u user-keys
-    user-keys[0] foo~
-    user-keys[1] bar~
+    user-keys[0] foo˜
+    user-keys[1] bar˜
 
 #### But a comma is used in other contexts in `example_tmux.conf` and in the faq!
 
@@ -429,8 +429,8 @@ No.
 
     $ tmux -Lx -f/dev/null new
     $ tmux show terminal-overrides
-    terminal-overrides[0] "xterm*:XT:Ms=\\E]52;%p1%s;%p2%s\\007:Cs=\\E]12;%p1%s\\007:Cr=\\E]112\\007:Ss=\\E[%p1%d q:Se=\\E[2 q"~
-    terminal-overrides[1] "screen*:XT"~
+    terminal-overrides[0] "xterm*:XT:Ms=\\E]52;%p1%s;%p2%s\\007:Cs=\\E]12;%p1%s\\007:Cr=\\E]112\\007:Ss=\\E[%p1%d q:Se=\\E[2 q"˜
+    terminal-overrides[1] "screen*:XT"˜
 
 Notice how the Ms, Cs, Cr, Ss, Se capabilities:
 
@@ -482,7 +482,7 @@ Pass `-R` to `set-hook`:
 
                     vv
     $ tmux set-hook -R window-renamed
-    test~
+    test˜
 
 ##### what if it's a hook local to another session?
 
@@ -497,8 +497,8 @@ Example:
            set-hook -t =fun -a session-renamed 'display -p one' \; \
            set-hook -t =fun -a session-renamed 'display -p two' \; \
            set-hook -t =fun -R session-renamed
-    one~
-    two~
+    one˜
+    two˜
 
 ####
 ### How to remove
@@ -515,7 +515,7 @@ Example:
            set-hook -ga  session-renamed 'display -p remove_me' \; \
            set-hook -gu 'session-renamed[1]' \; \
            set-hook -R   session-renamed
-    test~
+    test˜
 
 #### a command bound to a hook local to another session?
 
@@ -528,7 +528,7 @@ Use `-u` and `-t`:
            set-hook -t =fun -a  session-renamed 'display -p remove_me' \; \
            set-hook -t =fun -u 'session-renamed[1]' \; \
            set-hook -t =fun -R  session-renamed
-    test~
+    test˜
 
 ###
 ### Can I manually make a hook run *one* of its commands?
@@ -539,7 +539,7 @@ It seems you can't.
            set-hook -ga  session-renamed 'display -p one' \; \
            set-hook -ga  session-renamed 'display -p two' \; \
            set-hook -gR 'session-renamed[1]'
-    ''~
+    ''˜
 
 ###
 ### Can I run a command bound to
@@ -558,7 +558,7 @@ So, a session hook has priority over a global hook.
            set-hook     session-renamed '' \; \
            set-hook -a  session-renamed 'display -p session\ hook' \; \
            set-hook -gR session-renamed
-    session hook~
+    session hook˜
 
 ##
 # activity, bell, silence
@@ -749,10 +749,10 @@ Does the value contain a double quote?
 If so, you may need to escape it more than what you thought.
 
     $ tmux set -g status-right "#(echo a\"b)"
-    ''~
+    ''˜
 
     $ tmux set -g status-right "#(echo a\\\"b)"
-    a"b~
+    a"b˜
 
 In the first command, when the shell receives `a"b`, the quote is interpreted as
 the start of a string which is  never closed; hence why the status line contains
@@ -761,7 +761,7 @@ nothing.
 Run this in sh:
 
     $ echo a"b
-    >~
+    >˜
 
 You get the secondary prompt string (`>`  by default), because sh expects you to
 type more text and close the string with a second `"`.

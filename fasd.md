@@ -23,29 +23,29 @@ provided that you accessed it in the past.
 They are aliases using the fasd command:
 
     $ type f
-    f is an alias for fasd -f~
+    f is an alias for fasd -f˜
 
     $ type a
-    ... fasd -a~
+    ... fasd -a˜
 
     $ type s
-    ... fasd -si~
+    ... fasd -si˜
 
     $ type d
-    ... fasd -d~
+    ... fasd -d˜
 
 ## What does `j` execute? `jj`?
 
 They are aliases using the `fasd_cd` shell function:
 
     $ type j
-    ... fasd_cd -d~
+    ... fasd_cd -d˜
 
     $ type jj
-    ... fasd_cd -d -i~
+    ... fasd_cd -d -i˜
 
     $ type fasd_cd
-    fasd_cd is a shell function from ~/.fasd-init-zsh ~
+    fasd_cd is a shell function from ~/.fasd-init-zsh ˜
 
 ## Why aren't they using the same command/function?
 
@@ -115,9 +115,9 @@ entries:
 
     # only 3 entries instead of 4
     $ d
-    5.4        /opt~
-    5.4        /var~
-    9.72       /media~
+    5.4        /opt˜
+    5.4        /var˜
+    9.72       /media˜
 
 ##
 ## How to disable fasd entirely?
@@ -162,12 +162,12 @@ Example:
     $ mkdir /tmp/.dir{1,2}
     $ fasd -A /tmp/.dir{1,2}
     $ fasd | grep '.dir[12]'
-    6          /tmp/.dir1~
-    6          /tmp/.dir2~
+    6          /tmp/.dir1˜
+    6          /tmp/.dir2˜
 
     $ fasd -D /tmp/.dir{1,2}
     $ fasd | grep '.dir[12]'
-    ''~
+    ''˜
 
 Note that the paths must match existing files or directories.
 
@@ -178,13 +178,13 @@ Use `` `a | grep pat` `` to get the relevant paths, and feed them to `fasd -D`:
     $ touch /tmp/.pat{1..3}
     $ fasd -A /tmp/.pat{1..3}
     $ a | grep pat
-    6          /tmp/.pat1~
-    6          /tmp/.pat2~
-    6          /tmp/.pat3~
+    6          /tmp/.pat1˜
+    6          /tmp/.pat2˜
+    6          /tmp/.pat3˜
 
     $ fasd -D `a | grep pat`
     $ a | grep pat
-    ''~
+    ''˜
 
 ##
 ## How to create the alias `x` to run `cmd` on
@@ -334,23 +334,23 @@ a query:
 
     # only passing a query will not limit the listing to the best match
     $ f file
-    6          /tmp/.file1~
-    6          /tmp/.file2~
-    6          /tmp/.file3~
+    6          /tmp/.file1˜
+    6          /tmp/.file2˜
+    6          /tmp/.file3˜
 
     # same thing when only using a subshell
     $ echo `f`
-    ...~
+    ...˜
 
     # finally the listing is limited to the best match
     $ echo `f file`
-    /tmp/.file3~
+    /tmp/.file3˜
 
     # but not if fasd is called interactively
     $ echo `f -i file`
-    6          /tmp/.file1~
-    6          /tmp/.file2~
-    6          /tmp/.file3~
+    6          /tmp/.file1˜
+    6          /tmp/.file2˜
+    6          /tmp/.file3˜
 
     $ fasd -D /tmp/.file{1..3}
 
@@ -404,9 +404,9 @@ Append `/` to the last query.
     $ mkdir -p /tmp/.foo/bar && touch /tmp/.foo/bar/baz && fasd -A /tmp/.foo/bar/baz
 
     $ f foo bar
-    ''~
+    ''˜
     $ f foo bar/
-    6          /tmp/.foo/bar/baz~
+    6          /tmp/.foo/bar/baz˜
 
     $ fasd -D /tmp/.foo/bar/baz
 
@@ -414,7 +414,7 @@ Note that the trailing slash does *not* force you to use a full component path.
 So, this would work too:
 
     $ f foo br/
-    6          /tmp/.foo/bar/baz~
+    6          /tmp/.foo/bar/baz˜
 
 ### Which limitation exists on these last two syntaxes?
 
@@ -435,7 +435,7 @@ characters with 2 limitations:
         fasd -A /tmp/.directory/file && \
         f ectory/ && \
         fasd -D /tmp/.directory/file
-     12         /tmp/.directory/file~
+     12         /tmp/.directory/file˜
     # works even though 4 characters were omitted at the start of `f ectory/` ('.', 'd', 'i', 'r')
 
     $ mkdir -p /tmp/.directory \
@@ -443,7 +443,7 @@ characters with 2 limitations:
         fasd -A /tmp/.directory/file && \
         f .direcry/ && \
         fasd -D /tmp/.directory/file
-     12         /tmp/.directory/file~
+     12         /tmp/.directory/file˜
     # works even though 2 characters were omitted in the middle of `f .direcry/` ('t', 'o')
 
     $ mkdir -p /tmp/.directory \
@@ -451,7 +451,7 @@ characters with 2 limitations:
         fasd -A /tmp/.directory/file && \
         f .direry/ && \
         fasd -D /tmp/.directory/file
-    ''~
+    ''˜
     # fails because more than 2 characters were omitted in the middle of `f .direry/` ('c', 't', 'o')
 
 ##
@@ -463,10 +463,10 @@ Append `$` to the last query.
     $ fasd -A /tmp/.foo{,bar}
 
     $ a foo
-    14.1334    /tmp/.foobar~
-    15         /tmp/.foo~
+    14.1334    /tmp/.foobar˜
+    15         /tmp/.foo˜
     $ a foo$
-    15         /tmp/.foo~
+    15         /tmp/.foo˜
 
     $ fasd -D /tmp/.foo{,bar}
 
@@ -608,19 +608,19 @@ zsh's path completion may interfere if your query is not specific enough.
     # atm, I can reproduce in `~/wiki/`, but not in `~`
     $ cd ~/wiki/
     $ o ,awk, Tab
-    awk/~
+    awk/˜
 
     $ cd ~/wiki/
     $ o f,awk Tab
-    awk/~
+    awk/˜
 
 If that  happens, use a  prefix like `f,`  and 2 commas,  even if you  only have
 *one* query:
 
     $ cd ~/wiki/
     $ o f,awk, Tab
-    /path/to/gawk.pdf~
-    ...~
+    /path/to/gawk.pdf˜
+    ...˜
 
 ---
 
@@ -628,8 +628,8 @@ If you're looking for a second query, and  you're trying to open a file, use its
 extension (if it has one):
 
     $ o ,awk,pdf Tab
-    /path/to/gawk.pdf~
-    ...~
+    /path/to/gawk.pdf˜
+    ...˜
 
 ##
 # Ranger Integration

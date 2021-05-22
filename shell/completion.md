@@ -848,10 +848,10 @@ way to get smart completions.
 Example:
 
     % echo C-d
-    suggests filenames~
+    suggests filenames˜
 
     % aptitude C-d
-    suggests subcommands for `aptitude`~
+    suggests subcommands for `aptitude`˜
 
 ## What's the equivalent in bash?
 
@@ -884,15 +884,15 @@ It  splits the  command-line into  chunks whenever  it finds  a whitespace  or a
 character in `$COMP_WORDBREAKS`.
 The default value of the latter is:
 
-        "'@><=;|&(:
+    "'@><=;|&(:
 
 Then, it completes from the beginning of the chunk where the cursor is.
 
 ---
 
-        $ COMP_WORDBREAKS='"'\''><=;|&('
-        PATH=/bin:/usr/b Tab
-        ∅~
+    $ COMP_WORDBREAKS='"'\''><=;|&('
+    PATH=/bin:/usr/b Tab
+    ∅˜
 
 Here,   no  match   is  suggested   because   we've  removed   the  colon   from
 `COMP_WORDBREAKS`, which makes readline break the line up to the previous `=`.
@@ -905,11 +905,11 @@ Escape it.
 It won't have any  influence on the resulting command once  you press Enter, but
 it will prevent readline from considering the colon as a word separator.
 
-        $ PATH=/bin:/usr/b Tab
-        /usr/bin~
+    $ PATH=/bin:/usr/b Tab
+    /usr/bin˜
 
-        $ PATH=/bin\:/usr/b Tab
-        ∅~
+    $ PATH=/bin\:/usr/b Tab
+    ∅˜
 
 ##
 ## zstyle

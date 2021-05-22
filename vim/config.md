@@ -29,10 +29,10 @@ From `:h local-options`:
 Open a help buffer, then run:
 
     :setg bt?
-    ''~
+    ''˜
 
     :setl bt?
-    help~
+    help˜
 
 The values are different because `'buftype'` has a local and a global value.
 
@@ -57,10 +57,10 @@ Execute:
     :setl nu
 
     :setg nu?
-    nonumber~
+    nonumber˜
 
     :setl nu?
-    number~
+    number˜
 
 The last 2 commands have different outputs because `'number'` has a global and a
 local value.
@@ -82,7 +82,7 @@ Then, how do you explain this:
     :setl culopt=number
     :sp bar
     :echo &l:culopt
-    both~
+    both˜
 
 If the  local value was  inherited, the output of  the last command  should have
 been `number` not `both`.  I thin the title of this question is misleading.
@@ -358,10 +358,10 @@ This will remove the local value, which is how Vim is configured by default:
     $ vim -Nu NONE
 
     :echo &l:path
-    ∅~
+    ∅˜
 
     :echo &g:path
-    .,/usr/include,,~
+    .,/usr/include,,˜
 
 ---
 
@@ -997,7 +997,7 @@ On peut le vérifier comme ceci:
     :let [&g:cul, &l:cul] = [1, 0]
     :e bar
     :echo &l:cul
-    1~
+    1˜
 
 La dernière commande affiche 1 et non pas 0.
 
@@ -1428,12 +1428,12 @@ it would usually be when `'spr'` is set, but on the far right.
     $ vim -Nu NONE +'set spr stl=%{&l:cc}|setl cc=10|vs|setl cc=20' /tmp/file
     :vnew | e /tmp/file
     :echo &l:cc
-    10~
+    10˜
 
     $ vim -Nu NONE +'set spr stl=%{&l:cc}|setl cc=10|vs|setl cc=20' /tmp/file
     :vnew /tmp/file
     :echo &l:cc
-    20~
+    20˜
 
 When executed from a window displaying `/tmp/file`, Vim processes
 `:vnew /tmp/file` like `:vs /tmp/file`; i.e. like a splitting command.
@@ -1452,7 +1452,7 @@ window-local option *and* the global value.
 
     $ vim -Nu NONE +'set spr|setl cc=10|setg cc=20|vs' /tmp/file
     :echo [&l:cc, &g:cc]
-    ['10', '20']~
+    ['10', '20']˜
 
 ---
 
@@ -1462,7 +1462,7 @@ being displayed elsewhere, or was displayed elsewhere in the past).
 
     $ vim -Nu NONE +'set spr|setl cc=10|setg cc=20|vnew' /tmp/file
     :echo [&l:cc, &g:cc]
-    ['20', '20']~
+    ['20', '20']˜
 
 ---
 
@@ -1500,7 +1500,7 @@ There can be some weird exceptions:
     EOF
     )
     :echo &l:cc
-    ''~
+    ''˜
     " ✘ it should be 10
 
 It can only be reproduced when starting Vim with `-O` (and probably `-o`, `-p`),
@@ -1518,7 +1518,7 @@ subsequent windows:
     EOF
     )
     :echo &l:cc
-    30~
+    30˜
     " ✔
 
 ---
@@ -1617,8 +1617,8 @@ MWE:
     $ vim -Nu NONE +"ino <c-z> <c-x><c-k><c-r>=''<cr>" +'set dict=/usr/share/dict/words' +startinsert
     C-z
     C-c
-    AA=''~
-      ^-^
+    AA=''˜
+      ^^^
 
 ###
 ### Why
@@ -1811,9 +1811,9 @@ Document that you should use `&option` instead of `&l:option`, when you use:
         +"pu!=[getbufvar(2, '&sw'), getbufvar(2, '&l:sw'), getbufvar(2, '&g:sw')]" \
         +'1,3p|qa!' \
         x y
-    1~
-    1~
-    10~
+    1˜
+    1˜
+    10˜
 
     # getwinvar()
     $ vim -es -Nu NONE \
@@ -1821,9 +1821,9 @@ Document that you should use `&option` instead of `&l:option`, when you use:
         +"pu!=[getwinvar(2, '&sw'), getwinvar(2, '&l:sw'), getwinvar(2, '&g:sw')]" \
         +'1,3p|qa!' \
         -O x y
-    1~
-    1~
-    10~
+    1˜
+    1˜
+    10˜
 
     # gettabwinvar()
     $ vim -es -Nu NONE \
@@ -1831,9 +1831,9 @@ Document that you should use `&option` instead of `&l:option`, when you use:
         +"pu!=[gettabwinvar(2, 1, '&sw'), gettabwinvar(2, 1, '&l:sw'), gettabwinvar(2, 1, '&g:sw')]" \
         +'1,3p|qa!' \
         -p x y
-    1~
-    1~
-    10~
+    1˜
+    1˜
+    10˜
 
 ---
 
@@ -1846,10 +1846,10 @@ Document that you should use `&option` instead of `&l:option`, when you use:
         +"pu!=[setbufvar(2, '&sw', 1), setbufvar(2, '&l:sw', 1), setbufvar(2, '&g:sw', 10)]" \
         +'qa!' \
         x y
-    ...~
-    Error detected while processing command line:~
-    E355: Unknown option: l:sw~
-    E355: Unknown option: g:sw~
+    ...˜
+    Error detected while processing command line:˜
+    E355: Unknown option: l:sw˜
+    E355: Unknown option: g:sw˜
 
     # setwinvar()
     $ vim -es -Nu NONE -i NONE \
@@ -1858,10 +1858,10 @@ Document that you should use `&option` instead of `&l:option`, when you use:
        +"pu!=[setwinvar(2, '&sw', 1), setwinvar(2, '&l:sw', 1), setwinvar(2, '&g:sw', 10)]" \
        +'qa!' \
        -O x y
-    ...~
-    Error detected while processing command line:~
-    E355: Unknown option: l:sw~
-    E355: Unknown option: g:sw~
+    ...˜
+    Error detected while processing command line:˜
+    E355: Unknown option: l:sw˜
+    E355: Unknown option: g:sw˜
 
     # settabwinvar()
     $ vim -es -Nu NONE -i NONE \
@@ -1870,10 +1870,10 @@ Document that you should use `&option` instead of `&l:option`, when you use:
        +"pu!=[settabwinvar(2, 1, '&sw', 1), settabwinvar(2, 1, '&l:sw', 1), settabwinvar(2, 1, '&g:sw', 10)]" \
        +'qa!' \
        -p x y
-    ...~
-    Error detected while processing command line:~
-    E355: Unknown option: l:sw~
-    E355: Unknown option: g:sw~
+    ...˜
+    Error detected while processing command line:˜
+    E355: Unknown option: l:sw˜
+    E355: Unknown option: g:sw˜
 
 which is still a shorthand for `&l:`:
 
@@ -1883,8 +1883,8 @@ which is still a shorthand for `&l:`:
         +"pu!=[setbufvar(2, '&sw', 12), getbufvar(2, '&l:sw', 12)]" \
         +'1,2p|qa!' \
         x y
-    0~
-    12~
+    0˜
+    12˜
 
     # setwinvar()
     $ vim -es -Nu NONE \
@@ -1892,8 +1892,8 @@ which is still a shorthand for `&l:`:
         +"pu!=[setbufvar(2, '&sw', 12), getbufvar(2, '&l:sw', 12)]" \
         +'1,2p|qa!' \
         -O x y
-    0~
-    12~
+    0˜
+    12˜
 
     # settabwinvar()
     $ vim -es -Nu NONE \
@@ -1901,8 +1901,8 @@ which is still a shorthand for `&l:`:
         +"pu!=[setbufvar(2, '&sw', 12), getbufvar(2, '&l:sw', 12)]" \
         +'1,2p|qa!' \
         -p x y
-    0~
-    12~
+    0˜
+    12˜
 
 ---
 

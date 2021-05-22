@@ -10,13 +10,13 @@ Examples:
           new function
           v-------------v
     :echo getfilepatterns('python')
-    ['*.py', '*.pyw', '.pythonstartup', '.pythonrc', '*.ptl', '*.pyi', 'SConstruct']~
+    ['*.py', '*.pyw', '.pythonstartup', '.pythonrc', '*.ptl', '*.pyi', 'SConstruct']˜
 
 
           another new function
           v---------v
     :echo getfiletype('*.py')
-    python~
+    python˜
 
 Although, this new `getfiletype()` might be confused with the existing `getftype()`.
 

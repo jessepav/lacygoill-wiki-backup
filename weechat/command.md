@@ -14,7 +14,7 @@ When you execute the `/help command`,  the plugin providing the command is given
 (inside brackets):
 
     /help nick
-    [irc]  /nick  [-all] <nick>~
+    [irc]  /nick  [-all] <nick>˜
     ^---^
 
 # How to read the output of a shell command in the current buffer?   In a new buffer?

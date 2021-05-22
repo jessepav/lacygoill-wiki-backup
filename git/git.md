@@ -33,23 +33,23 @@ to sign the tarball (here it's `96AFE6CB`).
 Use the ID to import the public key:
 
     $ gpg --keyserver hkp://keys.gnupg.net --recv-keys 96AFE6CB
-    gpg: requesting key 96AFE6CB from hkp server keys.gnupg.net~
-    gpg: key 713660A7: public key "Junio C Hamano <gitster@pobox.com>" imported~
-    gpg: no ultimately trusted keys found~
-    gpg: Total number processed: 1~
-    gpg:               imported: 1  (RSA: 1)~
+    gpg: requesting key 96AFE6CB from hkp server keys.gnupg.net˜
+    gpg: key 713660A7: public key "Junio C Hamano <gitster@pobox.com>" imported˜
+    gpg: no ultimately trusted keys found˜
+    gpg: Total number processed: 1˜
+    gpg:               imported: 1  (RSA: 1)˜
 
 Try again to verify the signature:
 
     $ xz -cd git-2.19.2.tar.xz | gpg --verify git-2.19.2.tar.sign -
-    gpg: Signature made Wed 21 Nov 2018 04:04:41 PM CET using RSA key ID 96AFE6CB~
-    gpg: Good signature from "Junio C Hamano <gitster@pobox.com>"~
-    gpg:                 aka "Junio C Hamano <jch@google.com>"~
-    gpg:                 aka "Junio C Hamano <junio@pobox.com>"~
-    gpg: WARNING: This key is not certified with a trusted signature!~
-    gpg:          There is no indication that the signature belongs to the owner.~
-    Primary key fingerprint: 96E0 7AF2 5771 9559 80DA  D100 20D0 4E5A 7136 60A7~
-         Subkey fingerprint: E1F0 36B1 FEE7 221F C778  ECEF B0B5 E886 96AF E6CB~
+    gpg: Signature made Wed 21 Nov 2018 04:04:41 PM CET using RSA key ID 96AFE6CB˜
+    gpg: Good signature from "Junio C Hamano <gitster@pobox.com>"˜
+    gpg:                 aka "Junio C Hamano <jch@google.com>"˜
+    gpg:                 aka "Junio C Hamano <junio@pobox.com>"˜
+    gpg: WARNING: This key is not certified with a trusted signature!˜
+    gpg:          There is no indication that the signature belongs to the owner.˜
+    Primary key fingerprint: 96E0 7AF2 5771 9559 80DA  D100 20D0 4E5A 7136 60A7˜
+         Subkey fingerprint: E1F0 36B1 FEE7 221F C778  ECEF B0B5 E886 96AF E6CB˜
 
 This time, you should read “Good signature from ...”.
 
@@ -243,7 +243,7 @@ Effects of `$ git rm --cached <file>`:
 If the file was just added to the index:
 
     A  file
-    ?? file~
+    ?? file
 
 
 If the file was already committed:
@@ -257,15 +257,15 @@ If the file was just modified:
     M  file
       or
      M file
-    D  file~
-    ?? file~
+    D  file
+    ?? file
 
 
 If the file was modified and staged, then modified again:
 
     MM file
-    D  file~
-    ?? file~
+    D  file
+    ?? file
 
 
 Note that in this case you need the `-f` argument:
@@ -357,12 +357,12 @@ There's always a copy of the changes (in the version of the working tree).
     $ git add abc
     $ git commit -m 'msg'
     $ git rm [-f] abc
-    'abc' is removed from the working tree and deleted from the index~
-    (i.e. it will be removed from the repo in the next commit)~
+    'abc' is removed from the working tree and deleted from the index˜
+    (i.e. it will be removed from the repo in the next commit)˜
 
     $ git rm --cached abc
-    D  abc~
-    ?? abc~
+    D  abc˜
+    ?? abc˜
 
         the current version of 'abc' becomes untracked
         the version in the repo is removed from the index
@@ -380,12 +380,12 @@ There's always a copy of the changes (in the version of the working tree).
         (use --cached to keep the file, or -f to force removal)
 
     $ git rm -f abc
-    'abc' is removed from the working tree and from the index~
+    'abc' is removed from the working tree and from the index˜
 
     $ touch abc
     $ git add abc
     $ git rm --cached abc
-    'abc' is removed from the index (it's untracked)~
+    'abc' is removed from the index (it's untracked)˜
 
 ### 3.
 
@@ -402,12 +402,12 @@ There's always a copy of the changes (in the version of the working tree).
         (use --cached to keep the file, or -f to force removal)
 
     $ git rm --cached abc
-    D  abc~
-    ?? abc~
+    D  abc˜
+    ?? abc˜
 
     $ git add abc
     $ git rm -f abc
-    'abc' is removed from the working tree and from the index~
+    'abc' is removed from the working tree and from the index˜
 
 ### 4.
 
@@ -424,12 +424,12 @@ There's always a copy of the changes (in the version of the working tree).
         (use --cached to keep the file, or -f to force removal)
 
     $ git rm --cached abc
-    D  abc~
-    ?? abc~
+    D  abc˜
+    ?? abc˜
 
     $ git add abc
     $ git rm -f abc
-    'abc' is removed from the working tree and from the index~
+    'abc' is removed from the working tree and from the index˜
 
 ### 5.
 
@@ -449,7 +449,7 @@ There's always a copy of the changes (in the version of the working tree).
         (use -f to force removal)
 
     $ git rm -f abc
-    'abc' is removed from the working tree and from the index~
+    'abc' is removed from the working tree and from the index˜
 
 ##
 ## I've created a global gitignore file.  From which directory of the project is it applied?

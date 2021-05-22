@@ -46,10 +46,10 @@ If so, does it need `-` to “reconnect” the stdin as a regular file?
 Update: Yes, `-` can be useful:
 
     $ echo 'print("hello")' | python -c 'import sys'
-    ''~
+    ''˜
 
     $ echo 'print("hello")' | python - -c 'import sys'
-    hello~
+    hello˜
 
 It seems that some command-line  arguments/options (all of them?) disconnect the
 python command from its stdin.
@@ -346,7 +346,7 @@ findfile({name} [, {path} [, {count}]])
     Position cursor on it.
     Type:
         : C-r C-p
-        E447~
+        E447˜
 
     Do the same experiment in `~/.vim/vimrc`.
     It works.
@@ -391,11 +391,11 @@ findfile({name} [, {path} [, {count}]])
 
 
     :next *C-x C-a
-    :next foo bar baz~
+    :next foo bar baz˜
     :bd  b*C-x C-a
-    :bd bar baz~
+    :bd bar baz˜
     :r %C-x C-a
-    :r { set of files whose path begins like the one of the current file }~
+    :r { set of files whose path begins like the one of the current file }˜
 
             Exemple  de développement  de caractères  spéciaux sur  la ligne  de
             commande de Vim (le dossier de travail contenant les fichiers `foo`,

@@ -10,7 +10,7 @@ Because `display \\b` is parsed twice.
 
     :confirm-before "display \\"
     y
-    Syntax error~
+    Syntax error˜
 
 Once for `confirm-before`, the other for `display-message`.
 After   the  parsing   of   `confirm-before`,  `\\`   becomes   `\`,  and   when
@@ -87,14 +87,14 @@ Any command which accepts another tmux command as argument:
     $ tmux if 'sleep 1' '' \; display test
     $ tmux run 'sleep 1' \; display test
     $ tmux displayp -d0 \; display test
-    test~
+    test˜
 
 Unless you pass them the `-b` flag:
 
     $ rm /tmp/file ; tmux if -b 'sleep 1' 'run "echo test >/tmp/file"' ; cat /tmp/file
     $ rm /tmp/file ; tmux run -b 'sleep 1 ; echo test >/tmp/file' ; cat /tmp/file
     $ rm /tmp/file ; tmux displayp -b -d0 'run "echo test >/tmp/file"' ; cat /tmp/file
-    cat: /tmp/file: No such file or directory~
+    cat: /tmp/file: No such file or directory˜
 
 ---
 
@@ -140,7 +140,7 @@ it's displayed immediately.
 
     # test is printed in the status line immediately, not after 3 seconds
     $ tmux neww 'sleep 3' \; display test
-    test~
+    test˜
 
 Same thing for `splitw`, `new` and `confirm`:
 
@@ -203,7 +203,7 @@ Therefore, it's entirely possible for `tmux_cmd` to be run *before* `shell_cmd`.
     # enter copy mode and press x
 
     $ cat /tmp/file
-    cat: /tmp/file: No such file or directory~
+    cat: /tmp/file: No such file or directory˜
 
 When we pressed  `x`, `/tmp/file` was not created, because  the previous command
 in the rhs – `tmux deleteb` – failed.
@@ -249,7 +249,7 @@ In both cases, if you run these commands afterward:
     # enter copy mode and press x
 
     $ cat /tmp/file
-    test~
+    test˜
 
 You'll see that `/tmp/file` is correctly created.
 
@@ -316,14 +316,14 @@ In the active pane of the second window, in copy mode.
 Because if the command fails, tmux will still print its exit status.
 
     $ tmux run 'not_a_command 2>/dev/null'
-    'not_a_command 2>/dev/null' returned 127~
+    'not_a_command 2>/dev/null' returned 127˜
 
 ### can I include a format variable?
 
 Yes:
 
     $ tmux run 'echo #I'
-    1~
+    1˜
 
 ##
 # Targetting
@@ -410,7 +410,7 @@ It's an error.
 
     $ tmux new -d -s a_sess_1 \; new -d -s b_sess_2
     $ tmux lsw -t '*sess*'
-    can't find session: *sess*~
+    can't find session: *sess*˜
 
 ---
 
@@ -419,7 +419,7 @@ the pattern;  if your  pattern only  matches one session,  then, there'll  be no
 error:
 
     $ tmux lsw -t 'a*sess*'
-    1: zsh* (1 panes) [80x24] [layout 2ce7,80x24,0,0,155] @56 (active)~
+    1: zsh* (1 panes) [80x24] [layout 2ce7,80x24,0,0,155] @56 (active)˜
 
 ##
 ## windows
@@ -621,7 +621,7 @@ A pane which was not started to run a command, but simply to print some text.
 An empty pane is characterized by a 0 pid:
 
     :display -p '#{pane_pid}'
-    0~
+    0˜
 
 Although weirdly enough, `:display -p '#{pane_current_command}'` still outputs `zsh`.
 
@@ -818,13 +818,13 @@ Use the `%%%` placeholder instead of `%%`.
 
     :command-prompt "display %%%"
     # press a"b
-    a"b~
+    a"b˜
 
 This doesn't seem to escape single quotes though:
 
     :command-prompt "display %%%"
     # press a'b
-    Syntax error~
+    Syntax error˜
 
 #### prompts me several times?
 
@@ -835,7 +835,7 @@ Pass a comma separated list of prompts to `-p`:
 
 If you press Enter twice, without changing the default inputs, the command will output:
 
-    my input1 and my input2~
+    my input1 and my input2˜
 
 `%1` and `%2` will be replaced by respectively the first and second user input.
 You're limited to 9 user inputs, so you can only go up to `%9`.
@@ -858,9 +858,9 @@ Use the `-i` flag (i for interactive?):
     :command-prompt -i {run 'echo "%%%" >>/tmp/log'}
     # press a, then b, then c
     $ cat /tmp/log
-    =a~
-    =ab~
-    =abc~
+    =a˜
+    =ab˜
+    =abc˜
 
 ##
 ### What happens if I don't provide
@@ -903,7 +903,7 @@ Otherwise, the other flag(s) would be interpreted as the text to write in the pr
 For example, combined with `-1`, this would either raise an error:
 
     $ tmux command-prompt -p1 '(my prompt)' 'display "%%%"'
-    usage: command-prompt [-1Ni] [-I inputs] [-p prompts] [-t target-client] [template]~
+    usage: command-prompt [-1Ni] [-I inputs] [-p prompts] [-t target-client] [template]˜
 
 ... or `-1` would not limit the user  input to 1 keypress, but instead simply be
 written in the prompt:
@@ -930,14 +930,14 @@ Otherwise, all the commands which precede.
 ---
 
     $ tmux display -p foo \; not_a_cmd \; display -p bar 2>/dev/null
-    ''~
+    ''˜
 
 Here,  no  command  is  run  because   tmux  has  detected  an  invalid  command
 (`not_a_cmd`) at parse time.
 
     $ tmux lsb -F '#{buffer_name}' | xargs -I{} tmux deleteb -b {} ; \
       tmux display -p foo \; deleteb \; display -p bar 2>/dev/null
-      foo~
+      foo˜
 
 And here, the first `display` is run because – at parse time – tmux was not able
 to detect that `deleteb` would fail.

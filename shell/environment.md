@@ -183,7 +183,7 @@ They seem to have a big impact on performance.
 You can measure how much time your `~/.zshenv` takes to be sourced by running:
 
     $ time zsh -c 'repeat 1000 source ~/.zshenv'
-    zsh -c 'repeat 1000 source ~/.zshenv'  1,80s user 0,30s system 99% cpu 2,099 total~
+    zsh -c 'repeat 1000 source ~/.zshenv'  1,80s user 0,30s system 99% cpu 2,099 total˜
                                                                            ^---^
 
 Read the `total` field, and divide by 1000.

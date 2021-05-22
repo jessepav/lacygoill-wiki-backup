@@ -551,7 +551,7 @@ the byte index `123`, *and* if that line didn't change in the meantime.
 ---
 
     echo 'hello' + 123
-    123~
+    123˜
 
 #### an integer?
 
@@ -560,7 +560,7 @@ This integer.
 ---
 
     echo '12hello' + 3
-    15~
+    15˜
 
 #### a float?
 
@@ -569,7 +569,7 @@ Its integer part.
 ---
 
     echo '12.34hello' + 5
-    17~
+    17˜
 
 ##### how to fix this broken coercion?
 
@@ -580,10 +580,10 @@ Use `str2float()`:
 ---
 
     echo str2float('1.2') + 3
-    4.2~
+    4.2˜
 
     echo str2float('1.2foo') + 3
-    4.2~
+    4.2˜
 
 ##
 ## Can I use a number as a key in a dictionary?
@@ -592,11 +592,11 @@ Yes.
 
           v
     echo {1: 'one'}
-    {'1': 'one'}~
+    {'1': 'one'}˜
 
                       v
     echo {'1': 'one'}[1]
-    one~
+    one˜
 
 Whether you use  the number when you  define the dictionary, or when  you try to
 access some of its value, Vim will coerce it into a string.
@@ -608,12 +608,12 @@ If the  number inside the  string begins  with `0`, and  if its digits  don't go
 beyond `7`, it will be interpreted as octal.
 
     echo '017' + 1
-    16~
+    16˜
 
 To fix this, use `str2nr()`:
 
     echo str2nr('017') + 1
-    18~
+    18˜
 
 ---
 
@@ -626,7 +626,7 @@ Without it, `str2nr()` assumes that your input number is decimal; which explains
 the output of:
 
     echo str2nr('017')
-    17~
+    17˜
 
 ### When should I be conscious of it?
 
@@ -735,7 +735,7 @@ of the character.
     echo "a \x26 b"
     echo "a \u26 b"
     echo "a \U26 b"
-    a & b~
+    a & b˜
 
 In this string, you can use 2 digits only, even with `\u` and `\U`.
 But that's only because the next character is a space, which is not a hex digit.
@@ -743,21 +743,21 @@ If the next character *was* a hex digit, you would have to add a padding of `0`'
 
     echo "a \u00261b"
     echo "a \U000000261b"
-    a &1b~
+    a &1b˜
 
 ##
 # echo
 ## What's the output of
 ### `:echo "ab\rc"`?
 
-    cb~
+    cb˜
 
 `:echo`  has printed  `ab`,  then `\r`  made  it  move the  cursor  back to  the
 beginning of the line, then it has printed `c`.
 
 ### `:echom "ab\rc"`?
 
-    ab^Mc~
+    ab^Mc˜
 
 `:echom` never interprets anything, so `\r` doesn't make it move the cursor.
 
@@ -767,21 +767,21 @@ beginning of the line, then it has printed `c`.
 Use `:echon`:
 
     echon 'foo' 'bar'
-    foobar~
+    foobar˜
 
     echon 'foo' | echon 'bar'
-    foobar~
+    foobar˜
 
 ---
 
 In contrast, `:echo` would add a space or a newline:
 
     :echo 'foo' 'bar'
-    foo bar~
+    foo bar˜
 
     :echo 'foo' | echo 'bar'
-    foo~
-    bar~
+    foo˜
+    bar˜
 
 ##
 # Extract characters
@@ -863,10 +863,10 @@ Without `{end}`, `slice()` goes until the end.
 Example:
 
     vim9 echo 'résumé'[2 :]
-    sumé~
+    sumé˜
 
     echo slice('résumé', 2)
-    sumé~
+    sumé˜
 
 ###
 ## How to get the character
@@ -975,7 +975,7 @@ And execute:
 
                                vvv
     echo getline('.')[col('.') - 1]
-    <c3>~
+    <c3>˜
 
 ##
 ## Negative index
@@ -1003,7 +1003,7 @@ It's *not* replaced by `0`; but  `strcharpart()` considers that no character can
 be matched by a negative index:
 
     echo strcharpart('abcd', -2, 4)
-    ab~
+    ab˜
 
    - character of index -2 = ''
    - character of index -1 = ''
@@ -1032,7 +1032,7 @@ When you do a slicing, the first index must be lower than the second one.
 The last bytes of the string.
 
     echo 'abc'[-2:-1]
-    'bc'~
+    'bc'˜
 
 ##
 # Getting info
@@ -1046,7 +1046,7 @@ Use the third optional argument of `matchstr()`:
 ---
 
     echo matchstr('-a -b -c', '-.', 3)
-    -b~
+    -b˜
 
 Here, we start the search 3 bytes after the beginning of the string:
 
@@ -1063,7 +1063,7 @@ Use the fourth optional argument: `{count}`:
 ---
 
     echo matchstr('-a -b -c', '-.', 3, 2)
-    -c~
+    -c˜
 
 Here, the  first match  is `-b`, but  we ask  for the second  match, so  `-c` is
 returned.
@@ -1079,7 +1079,7 @@ returned.
 ---
 
     echo match('-a -b -c', '-.', 3, 2)
-    6~
+    6˜
 
 Here, we ignore the first 3 bytes (index 0, 1 and 2), and the first match (`-b`).
 
@@ -1094,7 +1094,7 @@ Use `match()`:
 ---
 
     echo match('Starting point', '\cstart')
-    0~
+    0˜
 
 `start` was found at the very beginning.
 
@@ -1107,7 +1107,7 @@ Use `matchend()`:
 ---
 
     echo matchend('Starting point', '\cstart')
-    5~
+    5˜
 
 ####
 ### the first occurrence of a literal text inside a string?
@@ -1119,7 +1119,7 @@ Use `stridx()`:
 ---
 
     echo stridx('Starting point', 'start')
-    -1~
+    -1˜
 
 `start` was not found.
 
@@ -1132,10 +1132,10 @@ Use the optional third argument, `{start}`:
 ---
 
     echo stridx('abc abc', 'b')
-    1~
+    1˜
 
     echo stridx('abc abc', 'b', 2)
-    5~
+    5˜
 
 ###
 ### the last occurrence of a literal text inside a string?
@@ -1147,7 +1147,7 @@ Use `strridx()`:
 ---
 
     echo strridx('a:b:c', ':')
-    3~
+    3˜
 
 #### and ignore the bytes after the `n`-th one?
 
@@ -1165,7 +1165,7 @@ The second time, you can use this info to ignore the the last occurrence.
     let colon_last = strridx(str, ':')
     let colon_before_last = strridx(str, ':', colon_last - 1)
     echo colon_before_last
-    3~
+    3˜
 
 ###
 ## How to get the byte index of the start and end of a match inside a string?
@@ -1177,13 +1177,13 @@ Use `matchstrpos()`:
 ---
 
     echo matchstrpos('-a -b -c', '-.')
-    ['-a', 0, 2]~
+    ['-a', 0, 2]˜
 
     echo matchstrpos('-a -b -c', '-.', 3)
-    ['-b', 3, 5]~
+    ['-b', 3, 5]˜
 
     echo matchstrpos('-a -b -c', '-.', 3, 2)
-    ['-c', 6, 8]~
+    ['-c', 6, 8]˜
 
 ---
 
@@ -1197,14 +1197,14 @@ The last number in the output is the byte index of the end of the match **plus**
 ---
 
     echo count('-a -b -c', '-')
-    3~
+    3˜
 
 ### Can it work with a regex?
 
 No.
 
     echo count('-a -b -c', '-.')
-    0~
+    0˜
 
 ### How to ignore the case?
 
@@ -1216,20 +1216,20 @@ Pass a non-zero value as a third optional argument:
 ---
 
     echo count('abA', 'a')
-    1~
+    1˜
 
     echo count('abA', 'a', 1)
-    2~
+    2˜
 
 ### What happens if the string contains overlapping occurrences of the substring?
 
 `count()` only considers *non* overlapping occurrences.
 
     echo count('aaa', 'aa')
-    1~
+    1˜
 
     echo count('aaaa', 'aa')
-    2~
+    2˜
 
 ###
 ## How to get the number of characters stored in a string?
@@ -1243,10 +1243,10 @@ The latter counts composing characters separately by default.
 Unless you provide it a second non-zero (or true) argument:
 
     echo strchars('Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆')
-    51~
+    51˜
 
     echo strchars('Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆', 1)
-    6~
+    6˜
 
 ##
 ## The cursor being on a character, how to get the index of
@@ -1305,7 +1305,7 @@ Use `matchlist()`:
 ---
 
     echo matchlist('abcd', '\v(.(.))(.)')
-    ['abc', 'ab', 'b', 'c', '', '', '', '', '', '']~
+    ['abc', 'ab', 'b', 'c', '', '', '', '', '', '']˜
       │      │     │    │
       │      │     │    └ \3
       │      │     └ \2
@@ -1323,7 +1323,7 @@ However, there's one exception.
 If you use `silent!`, the error messages won't be included in the output.
 
     echo execute('abcd', 'silent!') == ''
-    1~
+    1˜
 
 ### during the evaluation of the first argument?
 
@@ -1331,11 +1331,11 @@ Yes.
 It can be used to allow or prevent Vim from printing any message:
 
     :call execute('echom "hello"', '')
-    hello~
+    hello˜
 
     :call execute('echom "hello"', 'silent')
     :call execute('echom "hello"', 'silent!')
-    ∅~
+    ∅˜
 
 ##
 ## In which context is `execute()` run?
@@ -1347,14 +1347,14 @@ The current one.
 `execute()` can access variables in the current scope:
 
     :call execute('let var = 12') | echo g:var
-    12~
+    12˜
 
     fu Func()
         call execute('let var = 34')
         echo var
     endfu
     call Func()
-    34~
+    34˜
 
 ##
 ## How to make `execute()` execute several commands, without any bar?
@@ -1381,7 +1381,7 @@ Pass it a list of commands:
 ## How to get the local time in seconds since the epoch?
 
     echo localtime()
-    1548170168~
+    1548170168˜
 
 ### How to make it human-readable?
 
@@ -1396,13 +1396,13 @@ Here,  you  don't  need  `localtime()`,   because  without  a  second  argument,
 
     echo strftime('%F')
     echo strftime('%Y-%m-%d')
-    2019-01-22~
+    2019-01-22˜
 
 #### with the format `hour:min:sec`?  (2)
 
     echo strftime('%T')
     echo strftime('%H:%M:%S')
-    16:16:28~
+    16:16:28˜
 
 #### Where can I find all the possible formats?
 
@@ -1412,7 +1412,7 @@ Here,  you  don't  need  `localtime()`,   because  without  a  second  argument,
 ## How to get a human-readable date of the epoch?
 
     echo strftime('%c', 0)
-    Thu 01 Jan 1970 01:00:00 AM CET~
+    Thu 01 Jan 1970 01:00:00 AM CET˜
 
 ---
 
@@ -1421,13 +1421,13 @@ The hour is not `00:00:00` because of our timezone; where we live, we must add 1
                    ┌ The +hhmm or -hhmm numeric timezone (that is, the hour and minute offset from UTC
                    ├┐
     echo strftime('%z')
-    +0100~
+    +0100˜
 
 ##
 ## How to get more precision (up to a millionth of a second)?
 
     echo reltime()
-    [1548170958, 895512]~
+    [1548170958, 895512]˜
      ├────────┘  ├────┘
      │           └ millionths of a second
      └ seconds since epoch
@@ -1454,7 +1454,7 @@ When provided, `reltime()` computes the time passed between this date and now.
     let date = reltime()
     let duration = reltime(date)
     echo reltimestr(duration)
-    0.000009~
+    0.000009˜
 
 ### two dates?
 
@@ -1471,16 +1471,16 @@ When provided, `reltime()` computes the time passed between `{start}` and `{end}
     let date2 = reltime()
     let duration = reltime(date1, date2)
     echo reltimestr(duration)
-    0.000007~
+    0.000007˜
 
 ##
 ## How to get the date of the last modification of `file`?
 
     echo getftime('file')
-    1548170113~
+    1548170113˜
 
     echo strftime('%c', getftime('file'))
-    Tue 22 Jan 2019 04:18:26 PM CET~
+    Tue 22 Jan 2019 04:18:26 PM CET˜
 
 ##
 # Transforming
@@ -1497,21 +1497,21 @@ But it can be if you add the optional argument `{keepempty}`:
 
                             v
     echo split(':a:b', ':', 1)
-    ['', 'a', 'b']~
+    ['', 'a', 'b']˜
 
     echo split('a:b:', ':', 1)
-    ['a', 'b', '']~
+    ['a', 'b', '']˜
 
     echo split(':a:b:', ':', 1)
-    ['', 'a', 'b', '']~
+    ['', 'a', 'b', '']˜
 
 ### Why do `join()` and `split()` process `\n` differently, when passed as a second argument?
 
     echo split("a\nb", '\n')
-    ['a', 'b']~
+    ['a', 'b']˜
 
     echo join(['a', 'b'], '\n')
-    a\nb~
+    a\nb˜
 
 Theory:
 
@@ -1522,15 +1522,15 @@ Theory:
 
     ✘
     echo split('abXcd', 'X\zs\|\zeX')
-    ['abX', 'cd']~
+    ['abX', 'cd']˜
     echo split('abXcd', '\zeX\|X\zs')
-    ['ab', 'Xcd']~
+    ['ab', 'Xcd']˜
 
     ✔
     echo split('abXcd', 'X\@<=\|\zeX')
-    ['ab', 'X', 'cd']~
+    ['ab', 'X', 'cd']˜
     echo split('abXcd', '\zeX\|X\@<=')
-    ['ab', 'X', 'cd']~
+    ['ab', 'X', 'cd']˜
 
 ##
 ## Translating
@@ -1543,10 +1543,10 @@ Use `tr()`:
 ---
 
     echo tr('big bad wolf', 'bw', 'BW')
-    Big Bad Wolf~
+    Big Bad Wolf˜
 
     echo tr('<blob>', '<>', '{}')
-    {blob}~
+    {blob}˜
 
 ### How to make Vim translate special sequences such as `\<tab>` or `\x26` in a literal string?
 
@@ -1555,11 +1555,11 @@ Then use `eval()`.
 
     let string = 'foo \x26 bar'
     echo eval('"'.string.'"')
-    foo & bar~
+    foo & bar˜
 
     let string = 'foo\<tab>bar'
     echo eval('"'.string.'"')
-    foo    bar~
+    foo    bar˜
 
 ---
 
@@ -1579,17 +1579,17 @@ surrounding quotes removed and the special characters translated.
 ---
 
     echo strtrans("a\nb")
-    a^@b~
+    a^@b˜
 
 ### How to convert an ascii codepoint into its corresponding character?  (2)
 
 Use `nr2char()` or `printf()` + `%c`.
 
     echo printf('this char is %c', 97)
-    this char is a~
+    this char is a˜
 
     echo 'this char is '.nr2char(97)
-    this char is a~
+    this char is a˜
 
 ##
 ## Formatting with `printf()`
@@ -1623,25 +1623,25 @@ The input and output base can be:
 This makes 9 possible conversions (`4*4 - 4 - 3`):
 
     echo printf('%b', 0123)
-    1010011~
+    1010011˜
     echo printf('%b', 123)
-    1111011~
+    1111011˜
     echo printf('%b', 0x123)
-    100100011~
+    100100011˜
 
     echo printf('%o', 0b1111)
-    17~
+    17˜
     echo printf('%o', 123)
-    173~
+    173˜
     echo printf('%o', 0x123)
-    443~
+    443˜
 
     echo printf('%x', 0b1111)
-    f~
+    f˜
     echo printf('%x', 0123)
-    53~
+    53˜
     echo printf('%X', 123)
-    7B~
+    7B˜
 
 Why only 9? Why `-4` and `-3`?
 
@@ -1651,17 +1651,17 @@ Why only 9? Why `-4` and `-3`?
     echo printf('%d', 0b1111)
     ⇔
     echo 0b1111
-    15~
+    15˜
 
     echo printf('%d', 0123)
     ⇔
     echo 0123
-    83~
+    83˜
 
     echo printf('%d', 0x123)
     ⇔
     echo 0x123
-    291~
+    291˜
 
 #### `str2nr()` can also convert numbers from one base to another.  How is it different?  (2)
 
@@ -1669,15 +1669,15 @@ Why only 9? Why `-4` and `-3`?
 
          " bin → dec
          echo str2nr('101010', 2)
-         42~
+         42˜
 
          " oct → dec
          echo str2nr('123', 8)
-         83~
+         83˜
 
          " hex → dec
          echo str2nr('123', 16)
-         291~
+         291˜
 
    - `printf()`  interprets  a  number  differently depending  on  whether  it's
      prefixed by `0` or `0x`.
@@ -1686,15 +1686,15 @@ Why only 9? Why `-4` and `-3`?
 
          " the octal prefix is ignored
          echo str2nr('0101010')
-         101010~
+         101010˜
 
          " the octal prefix is ignored
          echo str2nr('0101010', 2)
-         42~
+         42˜
 
          " the second argument needs to be 8 for the number to be recognized as octal
          echo str2nr('0101010', 8)
-         33288~
+         33288˜
 
 ####
 ### Can it coerce an expression into another type?
@@ -1711,19 +1711,19 @@ When necessary, it can perform 4 conversions:
 
     " the integer `123` is initially coerced into the string `'123'`
     echo printf('%s',  123)
-    123~
+    123˜
 
     " the string `'123'` is initially coerced into the integer `123`
     echo printf('%d', '123')
-    123~
+    123˜
 
     " the integer `123` is initially coerced into the float `123.0`
     echo printf('%f',  123)
-    123.000000~
+    123.000000˜
 
     " the float `123.456` is initially coerced into the string `'123.456'`
     echo printf('%s',  123.456)
-    123.456~
+    123.456˜
 
 ###
 ### What's the purpose of a `%` character?
@@ -1779,21 +1779,21 @@ As a string.
 As a float:
 
     echo printf('%f', 123)
-    123.000000~
+    123.000000˜
 
 #### `%e`
 
 As a float written in scientific notation:
 
     echo printf('%e', 123.456)
-    1.234560e+02~
+    1.234560e+02˜
 
 #### `%E`
 
 Same thing as `%e`, but the exponent is `E` instead of `e`:
 
     echo printf('%E', 123.456)
-    1.234560E+02~
+    1.234560E+02˜
 
 #### `%g`
 
@@ -1821,7 +1821,7 @@ Instead of using spaces to build a padding, zeros are used.
 
                   v
     echo printf('%05d', '123')
-    00123~
+    00123˜
 
 ---
 
@@ -1829,20 +1829,20 @@ This works only when the padding is on the left, not on the right.
 
                   vv
     echo printf('%-05d', '123')
-    123~
+    123˜
 
 #### `#`
 
 Combined with the types `o`, `x` and `X`, it prefixes the number with `0`, `0x` or `0X`.
 
     echo printf('%#o', 123)
-    0173~
+    0173˜
 
     echo printf('%#x', 123)
-    0x7b~
+    0x7b˜
 
     echo printf('%#X', 123)
-    0X7B~
+    0X7B˜
 
 This lets you make the base of the number explicit.
 
@@ -1851,17 +1851,17 @@ This lets you make the base of the number explicit.
 Prefix a positive number with `+`:
 
     echo printf('%+d', 123)
-    +123~
+    +123˜
 
     echo printf('%+.2f', 12.34)
-    +12.34~
+    +12.34˜
 
 #### ` ` (space)
 
 Prefix a positive number with a space:
 
     echo printf('% d', 123)
-     123~
+     123˜
     ^
 
 ---
@@ -1870,7 +1870,7 @@ In case of conflict with `+`, the latter wins:
 
                   vv
     echo printf('%+ .2f', 12.34)
-    +12.34~
+    +12.34˜
     ^
 
 ###
@@ -1896,7 +1896,7 @@ to format.
 
     let width = 15
     echo printf('%d: %*s', 123, width, 'hello world')
-    123:     hello world~
+    123:     hello world˜
 
 ####
 #### When is a string aligned in its field?
@@ -1936,12 +1936,12 @@ You can also  use it to add a padding  of zeros to an integer, but  the flag `0`
 and `field-width` seem more appropriate in this case.
 
     echo printf('%.6d', 123)
-    000123~
+    000123˜
 
     ⇔
 
     echo printf('%06d', 123)
-    000123~
+    000123˜
 
 This  way,  you  can  consider that  `field-width`  (padding)  and  `.precision`
 (truncation) have completely distinct usages.
@@ -1957,7 +1957,7 @@ If you don't use a float, nothing.
 If you use a float, and the decimal part has more than 6 digits, only 6 are kept.
 
     echo printf('%f', 123.456789123)
-    123.456789~
+    123.456789˜
 
 ---
 
@@ -1965,25 +1965,25 @@ If you use  a type of float different  than `%g` and `%G`, and  the decimal part
 has less than 6 digits, trailing zeros are added:
 
     echo printf('%f', 123.456)
-    123.456000~
-           ^-^
+    123.456000˜
+           ^^^
 
 ---
 
 If you use `%g` or `%G`, and the decimal part has less than 6 digits, nothing happens:
 
     echo printf('%g', 123.456)
-    123.456~
+    123.456˜
 
 Unless the decimal part has trailing zeros; in this case they're removed:
 
     echo printf('%g', 123.456000)
-    123.456~
+    123.456˜
 
 But a single trailing zero is kept if necessary to prevent a float from becoming an integer:
 
     echo printf('%g', 123.000)
-    123.0~
+    123.0˜
 
 ##### I use it, but without any value (e.g. `%.s` or `%.f`)?
 
@@ -1993,23 +1993,23 @@ For a string, it means that it's made empty (total truncation).
 For a float, it means that it becomes an integer.
 
     echo printf('%.s', 'foobar') == ''
-    1~
+    1˜
 
     echo printf('%.f', 123.456)
-    123~
+    123˜
 
 ##### I use it with a value which is bigger than the size of the expression (e.g. `%.4f` and `1.23`)?
 
 Trailing zeros are added.
 
     echo printf('%.4f', 1.23)
-    1.2300~
+    1.2300˜
 
 As you can see, `.precision` does not always truncate.
 But this is an exception; usually `.precision` can only truncate:
 
     echo printf('%.10s', 'hello')
-    hello~
+    hello˜
          ^---^
          no trailing spaces are added
 
@@ -2027,7 +2027,7 @@ format.
 
     let prec = 9
     echo printf('%.*f', prec, 1/3.0)
-    0.333333333~
+    0.333333333˜
 
 ---
 
@@ -2035,7 +2035,7 @@ You could also use a string concatenation, but it would be less readable.
 
     let prec = 9
     echo printf('%.' .. prec .. 'f', 1/3.0)
-    0.333333333~
+    0.333333333˜
 
 ##
 ### Which syntax can replace `string(dict)` or `string(list)` in a string concatenation?
@@ -2180,7 +2180,7 @@ Note that being able to use `matchlist()` requires that:
 ## `:echo 'hello' " some comment` raises `E114`!
 
     echo 'hello' " some comment
-    E114: Missing quote: " some comment~
+    E114: Missing quote: " some comment˜
 
 `:echo[m]` sees a double quote as part of its argument.
 Therefore, you can't append a comment like you could with other commands:
@@ -2191,5 +2191,5 @@ You need a bar to explicitly tell  `:echo[m]` that what follows is *not* part of
 its argument; see `:h :comment`.
 
     echo 'hello' | " some comment
-    hello~
+    hello˜
 

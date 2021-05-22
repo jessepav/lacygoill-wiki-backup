@@ -7,27 +7,27 @@ And download the archive and the signature.
 Check the signature:
 
     $ gpg --verify less-550.sig less-550.tar.gz
-    gpg: Signature made Sat 16 Feb 2019 11:24:15 PM CET using DSA key ID 33235259~
-    gpg: Can't check signature: public key not found~
+    gpg: Signature made Sat 16 Feb 2019 11:24:15 PM CET using DSA key ID 33235259˜
+    gpg: Can't check signature: public key not found˜
 
     $ gpg --keyserver x-hkp://pool.sks-keyservers.net --recv-keys 33235259
-    gpg: requesting key 33235259 from hkp server pool.sks-keyservers.net~
-    gpg: key 33235259: public key "Mark Nudelman <markn@greenwoodsoftware.com>" imported~
-    gpg: Total number processed: 1~
-    gpg:               imported: 1~
+    gpg: requesting key 33235259 from hkp server pool.sks-keyservers.net˜
+    gpg: key 33235259: public key "Mark Nudelman <markn@greenwoodsoftware.com>" imported˜
+    gpg: Total number processed: 1˜
+    gpg:               imported: 1˜
 
     $ gpg --edit-key 33235259
     > trust
         5 = I trust ultimately
 
     $ gpg --verify less-550.sig less-550.tar.gz
-    gpg: Signature made Sat 16 Feb 2019 11:24:15 PM CET using DSA key ID 33235259~
-    gpg: checking the trustdb~
-    gpg: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model~
-    gpg: depth: 0  valid:   4  signed:   3  trust: 0-, 0q, 0n, 0m, 0f, 4u~
-    gpg: depth: 1  valid:   3  signed:   2  trust: 3-, 0q, 0n, 0m, 0f, 0u~
-    gpg: next trustdb check due at 2023-09-25~
-    gpg: Good signature from "Mark Nudelman <markn@greenwoodsoftware.com>"~
+    gpg: Signature made Sat 16 Feb 2019 11:24:15 PM CET using DSA key ID 33235259˜
+    gpg: checking the trustdb˜
+    gpg: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model˜
+    gpg: depth: 0  valid:   4  signed:   3  trust: 0-, 0q, 0n, 0m, 0f, 4u˜
+    gpg: depth: 1  valid:   3  signed:   2  trust: 3-, 0q, 0n, 0m, 0f, 0u˜
+    gpg: next trustdb check due at 2023-09-25˜
+    gpg: Good signature from "Mark Nudelman <markn@greenwoodsoftware.com>"˜
 
 Configure, compile and install:
 
@@ -55,10 +55,10 @@ Useful to view the contents of compressed files or archives.
     # TODO: maybe you should set `LESS_ADVANCED_PREPROCESSOR` in `~/.zshenv`
     $ make clean
     $ ./configure
-    Activate syntax highlighting code [y/N] ? y~
+    Activate syntax highlighting code [y/N] ? y˜
 
-    interpret html, ps and other mostly ASCII files only if the~
-    ENV variable LESS_ADVANCED_PREPROCESSOR is set [y/N] ? y~
+    interpret html, ps and other mostly ASCII files only if the˜
+    ENV variable LESS_ADVANCED_PREPROCESSOR is set [y/N] ? y˜
 
     $ make
     $ sudo checkinstall --spec /dev/null

@@ -322,7 +322,7 @@ Source: <https://github.com/zpm-zsh/undollar/blob/master/undollar.plugin.zsh>
 
 We can't do it now, because it would raise this error:
 
-    zsh-syntax-highlighting: BUG: _zsh_highlight_main_highlighter_expand_path: called without argument~
+    zsh-syntax-highlighting: BUG: _zsh_highlight_main_highlighter_expand_path: called without argument˜
 
 This is due to: <https://github.com/zsh-users/zsh-syntax-highlighting/issues/565>
 Wait for this other issue to be fixed, then add the alias.

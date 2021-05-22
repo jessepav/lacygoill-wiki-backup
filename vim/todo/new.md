@@ -144,7 +144,7 @@ Where `expr` is not a function (custom or builtin; doesn't matter).
 Example:
 
     :call 'some string'->strlen()
-    E129: Function name required~
+    E129: Function name required˜
 
 You *could* write that:
 
@@ -177,13 +177,13 @@ Also known as "null coalescing operator".
 Example:
 
     :echo 0 ?? 'str'
-    str~
+    str˜
 
     :echo 0 ?? '' ?? [0]
-    [0]~
+    [0]˜
 
     :echo 0 ?? '' ?? [] ?? #{key: 123}
-    {'key': 123}~
+    {'key': 123}˜
 
 Not sure,  but maybe the expression  "null coalescing" comes from  the fact that
 this operator lets you ignore/reduce/coalesce  an arbitrary number of null/false
@@ -207,7 +207,7 @@ The operator was introduced in 8.2.1794.
 Note that it doesn't work with an undefined variable:
 
     :echo var ?? 123
-    E121: Undefined variable: var~
+    E121: Undefined variable: var˜
 
 Should we ask for this to work as a feature request?
 

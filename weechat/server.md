@@ -225,9 +225,9 @@ Try to connect using only telnet.
 
 You should see something like:
 
-    :leguin.freenode.net NOTICE * :*** Looking up your hostname...~
-    :leguin.freenode.net NOTICE * :*** Checking Ident~
-    :leguin.freenode.net NOTICE * :*** Couldn't look up your hostname~
+    :leguin.freenode.net NOTICE * :*** Looking up your hostname...˜
+    :leguin.freenode.net NOTICE * :*** Checking Ident˜
+    :leguin.freenode.net NOTICE * :*** Couldn't look up your hostname˜
 
 If that's not the case, weechat is not the issue.
 The irc server is unavailable.

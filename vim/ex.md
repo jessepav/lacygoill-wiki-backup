@@ -26,8 +26,8 @@ shell command for further processing:
 
                                v
     $ echo 'a\nb\nc' | vim - -es +'2d|%p|qa!' --not-a-term | tr '[ac]' '[AC]'
-    A~
-    C~
+    A˜
+    C˜
 
 Here, without `-s`, the output would be empty.
 This is because Vim would write directly  to the terminal, to draw the output in
@@ -86,8 +86,8 @@ Example:
 
     $ vim -es </tmp/filter /tmp/file && \
       cat /tmp/file
-    hello~
-    world~
+    hello˜
+    world˜
 
 ##
 ## How to make Vim print the messages output by all Ex commands in this mode?
@@ -102,25 +102,25 @@ It's better to set `'verbose'` via `:set`:
 
             v-------v
     $ echo 'set vbs=1|2d' | vim -es =(printf 'one\ntwo\nthree\nfour\nfive')
-    three~
+    three˜
 
 than via `-V1` which produces much more noise:
 
                     v-v
     $ echo 2d | vim -V1 -es =(printf 'one\ntwo\nthree\nfour\nfive')
-    XSMP opening connection~
-    not found in 'packpath': "pack/*/start/*"~
-    GetLatestVimScripts is not vi-compatible; not loaded (you need to set nocp)~
-    not found in 'packpath': "pack/*/start/*"~
-    Opening the X display took 0 msec~
-    Opening the X display took 1 msec~
-    "/tmp/zshgrd5so"~
-    "/tmp/zshgrd5so" [Incomplete last line] 5 lines, 23 characters~
-    Entering Ex mode.  Type "visual" to go to Normal mode.~
-    :~
-    XSMP handling save-yourself request2d~
-    three~
-    :% ~
+    XSMP opening connection˜
+    not found in 'packpath': "pack/*/start/*"˜
+    GetLatestVimScripts is not vi-compatible; not loaded (you need to set nocp)˜
+    not found in 'packpath': "pack/*/start/*"˜
+    Opening the X display took 0 msec˜
+    Opening the X display took 1 msec˜
+    "/tmp/zshgrd5so"˜
+    "/tmp/zshgrd5so" [Incomplete last line] 5 lines, 23 characters˜
+    Entering Ex mode.  Type "visual" to go to Normal mode.˜
+    :˜
+    XSMP handling save-yourself request2d˜
+    three˜
+    :% ˜
 
 ### I can't redirect these messages to another shell command!
 
@@ -129,12 +129,12 @@ also redirect stderr:
 
     ✘
     $ vim +'set vbs=1|echo "test"|qa!' -es | wc -m
-    test0~
+    test0˜
 
                                            ✔
                                            v--v
     $ vim +'set vbs=1|echo "test"|qa!' -es 2>&1 | wc -m
-    4~
+    4˜
 
 ##
 ## How to skip *all* initializations?
@@ -143,17 +143,17 @@ You need to reset `'loadplugins'` (e.g. via `--noplugin` or `-Nu NONE`):
 
           v--------v
     $ vim --noplugin -es +'set vbs=1|scriptnames|qa!'
-    ''~
+    ''˜
 
 Otherwise, plugins are not skipped:
 
     $ vim -es +'set vbs=1|scriptnames|qa!'
-     1: ~/.vim/plugin/emmet.vim~
-     ...~
-    12: /usr/local/share/vim/vim81/plugin/getscriptPlugin.vim~
-    ...~
-    24: ~/.vim/after/plugin/abolish.vim~
-    ...~
+     1: ~/.vim/plugin/emmet.vim˜
+     ...˜
+    12: /usr/local/share/vim/vim81/plugin/getscriptPlugin.vim˜
+    ...˜
+    24: ~/.vim/after/plugin/abolish.vim˜
+    ...˜
 
 ###
 ## What's its benefit over `$ sed -i`?
@@ -222,12 +222,12 @@ Before, it's read as literal text:
                           │      │    ┌ remove `Vim: Reading from stdin...` message from output
                           │      ├─┐  ├──────────┐
     $ echo text | vim - -es +'%p|qa!' --not-a-term
-    text~
+    text˜
 
 After, it's read as an Ex command:
 
     $ echo "pu!='text'|%p" | vim -es -
-    text~
+    text˜
 
 ###
 ### What if I omit it
@@ -236,10 +236,10 @@ After, it's read as an Ex command:
 Vim errors out:
 
     $ echo foo | vim
-    Vim: Warning: Input is not from a terminal~
-    Vim: Error reading input, exiting...~
-    Vim: preserving files...~
-    Vim: Finished.~
+    Vim: Warning: Input is not from a terminal˜
+    Vim: Error reading input, exiting...˜
+    Vim: preserving files...˜
+    Vim: Finished.˜
 
 Rationale: Vim thinks  that you  made an  error, because it's  rarely used  in a
 shell pipeline.
@@ -266,8 +266,8 @@ When you start Vim in Ex mode with `-e`  (or `-E`), and you want the stdin to be
 read as an Ex command:
 
     $ echo '%s/X/l/|%p' | vim -es <(echo "helXo\nworXd")
-    hello~
-    world~
+    hello˜
+    world˜
 
 It's probably assumed at the end of the command-line.
 But in practice, it's better to use it explicitly to improve readibility.
@@ -367,7 +367,7 @@ When you feed *text* to Vim via its stdin (`$ cmd | vim -` or `$ <file vim -`).
 But you don't need it when you feed an Ex command:
 
     $ echo "pu!='text'|%p" | vim -es -
-    text~
+    text˜
 
 ##
 ## In `$ echo cmd  | vim +cmd`, in which order are `echo cmd` and `+cmd` processed?
@@ -375,8 +375,8 @@ But you don't need it when you feed an Ex command:
 `+cmd` is processed before `echo cmd |`, even though it's written afterward.
 
     $ echo 'set vbs=1 number?' | vim -es +'%p' <(echo text)
-    text~
-    nonumber~
+    text˜
+    nonumber˜
 
 Notice that the  value of `'number'` is printed *after*  'text' (which itself is
 due to `%p`).
@@ -385,12 +385,12 @@ This also explains why this command has no output:
 
     # `qa!` makes Vim quit before printing the value of the 'number' option
     $ echo 'set vbs=1 number?' | vim -es +'qa!'
-    ''~
+    ''˜
 
 While this one has:
 
     $ echo 'set vbs=1 number?|qa!' | vim -es
-      nonumber~
+      nonumber˜
 
 ## In `$ echo text | vim +cmd`, in which order are `echo text` and `+cmd` processed?
 
@@ -420,7 +420,7 @@ Use a process substitution:
 You can't use a shell pipeline:
 
     $ echo ifoo | vim -s -
-    Cannot open for reading: "-"~
+    Cannot open for reading: "-"˜
 
 ##
 # Miscellaneous
@@ -433,10 +433,10 @@ Shell command names equivalent to `$ vim -e` and `$ vim -E`.
 `ex` is a symlink to the Vim binary:
 
     $ type ex
-    ex is /usr/local/bin/ex~
+    ex is /usr/local/bin/ex˜
 
     $ ls -lh  /usr/local/bin/ex
-    lrwxrwxrwx 1 root root ... /usr/local/bin/ex -> vim~
+    lrwxrwxrwx 1 root root ... /usr/local/bin/ex -> vim˜
 
 When Vim is invoked under the name `ex`, it automatically starts in Ex mode.
 
@@ -474,17 +474,17 @@ Run `if has('python3')` in Vim's silent mode.
 And if the test succeeds, quit with `:0cq`; the exit status should be 0:
 
     $ vim -es +'0cq' ; echo $?
-    0~
+    0˜
 
 Otherwise, quit with `:cq`; the exit status will be 1:
 
     $ vim -es +'cq' ; echo $?
-    1~
+    1˜
 
 Finally, test the exit status of the Vim command with the shell keyword `if`:
 
     $ if vim -es +'if has("python3")|0cq|else|1cq|endif'; then echo 'Vim has python3'; else echo 'Vim does not have python3'; fi
-    Vim has python3~
+    Vim has python3˜
 
 ####
 # Issues
@@ -553,7 +553,7 @@ Increase the verbosity level to get more information:
 It's the contents of the current line in the buffer:
 
     $ echo 'set vbs=1|2d' | vim -es =(printf 'one\ntwo\nthree\nfour\nfive')
-    three~
+    three˜
 
 Here, `2d` makes Vim move the cursor on the second line and remove it.
 At that point, the current line is the one containing 'three'.

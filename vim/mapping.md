@@ -209,7 +209,7 @@ another function invoked before/after your opfunc, but not directly from it:
     endfu
     " ✘
     " press:  C-b
-    " bar~
+    " bar˜
 
     nno <c-b> <cmd>set opfunc=Func<bar>exe 'norm! g@_'<bar>call FuncA()<cr>
     fu Func(_)
@@ -220,8 +220,8 @@ another function invoked before/after your opfunc, but not directly from it:
     endfu
     " ✔
     " press:  C-b
-    " foo~
-    " bar~
+    " foo˜
+    " bar˜
 
 ---
 
@@ -239,12 +239,12 @@ And for timers:
 
     " ✔
     :echom 'foo' | echom 'bar'
-    foo~
-    bar~
+    foo˜
+    bar˜
 
     " ✘
     :call timer_start(0, {-> execute('echom "foo" | echom "bar"', '')})
-    bar~
+    bar˜
 
    > Not sure if you really want to do this, the user may be doing something
    > that should not be interrupted by a list of messages. The callback
@@ -266,8 +266,8 @@ Note that you *can* echo a multiline message, but it must be done in a single `:
         echo "foo\nbar"
     endfu
     " press:  C-b
-    " foo~
-    " bar~
+    " foo˜
+    " bar˜
 
 ##
 # feedkeys()
@@ -379,7 +379,7 @@ To make the replay of a macro more reliable.
               : Tab Tab Tab S-Tab Enter
               q
               @q
-    E33: No previous substitute regular expression~
+    E33: No previous substitute regular expression˜
     " '@q' should have executed ':#'; instead it has executed ':&'
 
 When you replay the macro, here's what happens:
@@ -442,9 +442,9 @@ with  a  0ms  waiting time  (or  to  emulate  a  one-shot autocmd  listening  to
     endfu
     :call Func()
     :mess
-    start of Func~
-    end of Func~
-    delayed after Func~
+    start of Func˜
+    end of Func˜
+    delayed after Func˜
 
     ⇔
 
@@ -456,9 +456,9 @@ with  a  0ms  waiting time  (or  to  emulate  a  one-shot autocmd  listening  to
     endfu
     :call Func()
     :mess
-    start of Func~
-    end of Func~
-    delayed after Func~
+    start of Func˜
+    end of Func˜
+    delayed after Func˜
 
 It worked with or without the `i` flag.
 But the `i` flag was undesirable when the typeahead was not empty:
@@ -470,9 +470,9 @@ But the `i` flag was undesirable when the typeahead was not empty:
 
     " press 'cd'
     :mess
-    start rhs~
-    not delayed~
-    end rhs~
+    start rhs˜
+    not delayed˜
+    end rhs˜
 
 ##
 ## comparison with `:norm`
@@ -507,22 +507,22 @@ Yes:
     $ vim -es -Nu NONE -i NONE +"pu='some text'" \
       +'set vbs=1 | echo b:changedtick | exe "norm! dd" | echo b:changedtick | qa!'
                                          ^------------^
-    3~
-    4~
+    3˜
+    4˜
 
 In contrast, `feedkeys()` executes the keys immediately only if you pass it the `x` flag:
 
     $ vim -es -Nu NONE -i NONE +"pu='some text'" \
       +'set vbs=1 | echo b:changedtick | call feedkeys("dd", "n") | echo b:changedtick | qa!'
                                          ^----------------------^
-    3~
-    3~
+    3˜
+    3˜
 
     $ vim -es -Nu NONE -i NONE +"pu='some text'" \
       +'set vbs=1 | echo b:changedtick | call feedkeys("dd", "nx") | echo "\n" .. b:changedtick | qa!'
                                          ^-----------------------^
-    3~
-    4~
+    3˜
+    4˜
 
 ##
 # `maparg()`
@@ -595,7 +595,7 @@ Then, `mode(1)` evaluates to 'no', or 'nov', or 'noV' or 'no^V'.
 The `lhs` key is translated:
 
     echo save.lhs
-    â~
+    â˜
 
 This doesn't prevent you from saving/restoring a mapping:
 
@@ -605,7 +605,7 @@ This doesn't prevent you from saving/restoring a mapping:
     exe 'nno ' .. save.lhs .. ' ' .. save.rhs
 
     nno <m-b>
-    No mapping found~
+    No mapping found˜
 
     " press M-b: 'm-b' is displayed
 
@@ -617,7 +617,7 @@ notation in a `:map` command, which is unexpected.
 Pseudo-keys (like `<sid>`) are *not* translated in the `rhs` key:
 
     echo save.rhs
-    :call <sid>func()<cr>~
+    :call <sid>func()<cr>˜
 
 When you  later try to  restore the mapping, `<sid>`  will be translated  in the
 context of the current script, which  will probably be different than the script
@@ -663,28 +663,28 @@ matching normal mode, visual/select mode, and operator-pending mode:
 
     noremap <c-q> <esc>
     map <c-q>
-       <C-Q>       * <Esc>~
+       <C-Q>       * <Esc>˜
     ^
     echo maparg('<c-q>', '', 0, 1).mode is# ' '
-    1~
+    1˜
 
 Similarly, `:map!` and  `maparg()` use `!` to describe  the pseudo-mode matching
 insert mode and command-line mode:
 
     noremap! <c-q> <esc>
     imap <c-q>
-    !  <C-Q>       * <Esc>~
+    !  <C-Q>       * <Esc>˜
     echo maparg('<c-q>', 'i', 0, 1).mode
-    !~
+    !˜
 
 And `:vmap` and  `maparg()` use `v` to describe the  pseudo-mode matching visual
 and select mode:
 
     vnoremap <c-q> <esc>
     vmap <c-q>
-    v  <C-Q>       * <Esc>~
+    v  <C-Q>       * <Esc>˜
     echo maparg('<c-q>', 'i', 0, 1).mode
-    v~
+    v˜
 
 ### In the next snippet, what is the pseudo-mode in the output of `:map` and `maparg()`?
 
@@ -693,13 +693,13 @@ and select mode:
 
     map <c-q>
 ↣
-    ov <C-Q>       * <Esc>~
+    ov <C-Q>       * <Esc>˜
     ^^
 ↢
 
     echo maparg('<c-q>', '', 0, 1).mode
 ↣
-    ov~
+    ov˜
 ↢
 
 #### Explain the result.
@@ -717,36 +717,36 @@ installed via a single mapping command (you always need an extra `:unmap` comman
     map <c-q> <nop>
     nunmap <c-q>
     map <c-q>
-    ov <C-Q>         <Esc>~
+    ov <C-Q>         <Esc>˜
     ^^
 
     sil! unmap <c-q>
     map <c-q> <nop>
     vunmap <c-q>
     map <c-q>
-    no <C-Q>         <Esc>~
+    no <C-Q>         <Esc>˜
     ^^
 
     sil! unmap <c-q>
     map <c-q> <nop>
     ounmap <c-q>
     map <c-q>
-    nv <C-Q>         <Esc>~
+    nv <C-Q>         <Esc>˜
     ^^
 
     sil! unmap <c-q>
     map <c-q> <nop>
     xunmap <c-q>
     map <c-q>
-    nos<C-Q>         <Esc>~
-    ^-^
+    nos<C-Q>         <Esc>˜
+    ^^^
 
     sil! unmap <c-q>
     map <c-q> <nop>
     sunmap <c-q>
     map <c-q>
-    nox<C-Q>         <Esc>~
-    ^-^
+    nox<C-Q>         <Esc>˜
+    ^^^
 
 ### What about this snippet?
 
@@ -756,13 +756,13 @@ installed via a single mapping command (you always need an extra `:unmap` comman
 
     map <c-q>
 ↣
-    n  <C-Q>       * <Esc>~
-    ov <C-Q>       * <Esc>~
+    n  <C-Q>       * <Esc>˜
+    ov <C-Q>       * <Esc>˜
 ↢
 
     echo maparg('<c-q>', '', 0, 1).mode
 ↣
-    n~
+    n˜
 ↢
 
 #### Explain the result.
@@ -780,7 +780,7 @@ into a single one (using a "bigger" pseudo-mode).
 
     echo maparg('<c-q>', '')
 ↣
-    <Esc><Esc><Esc><Esc>~
+    <Esc><Esc><Esc><Esc>˜
 ↢
 
 #### Explain the result.
@@ -835,7 +835,7 @@ Example:
     nno <plug>(abc) <cmd>echo 'some feature'<cr>
     nmap cd "_yy<plug>(abc)"_yy
     echo hasmapto('<plug>(abc)', 'n')
-    1~
+    1˜
 
 ##
 # repetition
@@ -877,10 +877,10 @@ Yes.
     " press:  "a 3 C-b l
     " press:  .
     :mess
-    the count is 3~
-    the register is a~
-    the count is 3~
-    the register is a~
+    the count is 3˜
+    the register is a˜
+    the count is 3˜
+    the register is a˜
 
 Notice how `"b4yl` did not reset the count  to 4, nor the register to `"b`, when
 the dot command was executed.
@@ -1382,7 +1382,7 @@ translate the sequence `Esc` + `d` into `<M-d>`.
 
 This is confirmed by the output of `set termcap`:
 
-    <ä>        ^[d~
+    <ä>        ^[d˜
      ^
      notice how Vim does not write <M-d>
 
@@ -1400,9 +1400,9 @@ But it does *not* change the way Vim encodes `<M-d>` internally:
         qa!
     EOF
     )
-    a~
-    b~
-    c~
+    a˜
+    b˜
+    c˜
 
 Here, you may have thought that  `feedkeys()` would have written `<esc>d` in the
 typeahead buffer because of `set <m-d>=^[d`,  and as a result, the mapping would
@@ -1450,7 +1450,7 @@ It doesn't matter whether the keys *will be* remapped; what matters is that they
         qa!
     EOF
     )
-    ä~
+    ä˜
 
 Here is what happened:
 
@@ -1474,8 +1474,8 @@ to try to expand the keys; but before doing so, it had to try to translate them.
         qa!
     EOF
     )
-    a~
-    c~
+    a˜
+    c˜
 
 This time,  there *was* a mapping,  and Vim used  it; the result can  only be
 explained  if the  terminal  keys  (here `<esc>d`)  were  translated (here  into
@@ -1495,7 +1495,7 @@ directly but expanded from a `<c-b>` mapping:
         qa!
     EOF
     )
-    ädx~
+    ädx˜
 
     $ vim -es -Nu NONE -S <(cat <<'EOF'
         exe "set <m-d>=\ed"
@@ -1506,7 +1506,7 @@ directly but expanded from a `<c-b>` mapping:
         qa!
     EOF
     )
-    ''~
+    ''˜
 
 Here's what happened in the first experiment:
 
@@ -1535,10 +1535,10 @@ time.
 
     $ vim -Nu NONE +"pu='some text'"
     :echo b:changedtick
-    3~
+    3˜
     " press:  dd
     :echo b:changedtick
-    4~
+    4˜
 
 Notice that  the size  of a  deletion does not  matter; `b:changedtick`  is only
 incremented by 1.
@@ -1546,7 +1546,7 @@ incremented by 1.
     $ vim -Nu NONE +"pu='some text'"
     " press:  cc new text
     :echo b:changedtick
-    12~
+    12˜
 
 Notice that  the size  of the  inserted text  *does* matter;  `b:changedtick` is
 incremented by 1 as  soon as the text is cut, then by  1 more for every inserted
@@ -1554,14 +1554,14 @@ character.
 
     $ vim -Nu NONE +"pu='some text'"
     :echo b:changedtick
-    3~
+    3˜
     " press:  dd
     :echo b:changedtick
-    4~
+    4˜
     " press:  u
-    6~
+    6˜
     " press:  C-r
-    8~
+    8˜
 
 Notice that the size of an undone/redone change does not matter, `b:changedtick`
 by always incremented by 2.
@@ -1582,8 +1582,8 @@ On `BufNew`, it is initialized to 1:
 
     :e /tmp/file2
     :mess
-    BufNew in buf 2: tick is 1~
-    ...~
+    BufNew in buf 2: tick is 1˜
+    ...˜
 
 Btw, yes, you really need `expand('<abuf>')`.
 If you just write `bufnr('')` and `b:changedtick`, you'll get wrong results.
@@ -1595,7 +1595,7 @@ but in the context of the one from which it's being created.
 
     :e /tmp/file2
     :mess
-    bufnr: 1, <abuf>: 2~
+    bufnr: 1, <abuf>: 2˜
 
 ---
 
@@ -1613,17 +1613,17 @@ load, is unnamed.
     EOF
     )
     :e /tmp/file
-    BufDelete in buf 1: tick is~
-    BufWipeout in buf 1: tick is~
-    BufUnload in buf 1: tick is~
-    BufNew in buf 1: tick is~
-    BufAdd in buf 1: tick is~
-    BufCreate in buf 1: tick is~
-    "/tmp/file" 0L, 0C~
-    BufRead in buf 1: tick is~
-    BufReadPost in buf 1: tick is~
-    BufEnter in buf 1: tick is~
-    BufWinEnter in buf 1: tick is~
+    BufDelete in buf 1: tick is˜
+    BufWipeout in buf 1: tick is˜
+    BufUnload in buf 1: tick is˜
+    BufNew in buf 1: tick is˜
+    BufAdd in buf 1: tick is˜
+    BufCreate in buf 1: tick is˜
+    "/tmp/file" 0L, 0C˜
+    BufRead in buf 1: tick is˜
+    BufReadPost in buf 1: tick is˜
+    BufEnter in buf 1: tick is˜
+    BufWinEnter in buf 1: tick is˜
 
     # special case where new buffer is unnamed
     $ touch /tmp/file; vim -Nu NONE -S <(cat <<'EOF'
@@ -1636,12 +1636,12 @@ load, is unnamed.
     EOF
     ) /tmp/file
     :new
-    BufNew in buf 2: tick is~
-    BufAdd in buf 2: tick is~
-    BufCreate in buf 2: tick is~
-    BufLeave in buf 1: tick is~
-    BufEnter in buf 2: tick is~
-    BufWinEnter in buf 2: tick is~
+    BufNew in buf 2: tick is˜
+    BufAdd in buf 2: tick is˜
+    BufCreate in buf 2: tick is˜
+    BufLeave in buf 1: tick is˜
+    BufEnter in buf 2: tick is˜
+    BufWinEnter in buf 2: tick is˜
 
 Not sure what to make of these results, but those are special cases.
 Most of the time, you deal with buffers which are read from files.
@@ -1663,11 +1663,11 @@ about `b:changedtick` for a special buffer.
          ) /tmp/file1
 
          :echo b:changedtick
-         3~
+         3˜
          :e
-         ...~
-         BufRead in buf 1: tick is 4~
-         ...~
+         ...˜
+         BufRead in buf 1: tick is 4˜
+         ...˜
 
      Remember that  `BufReadPre` is  fired only  if the buffer  is read  from an
      existing file.
@@ -1685,10 +1685,10 @@ about `b:changedtick` for a special buffer.
          ) /tmp/file1
 
          :e /tmp/file2
-         BufNew in buf 2: tick is 1~
-         ...~
-         BufEnter in buf 2: tick is 2~
-         ...~
+         BufNew in buf 2: tick is 1˜
+         ...˜
+         BufEnter in buf 2: tick is 2˜
+         ...˜
 
    - on `BufWritePost` provided that the buffer is modified
 
@@ -1699,16 +1699,16 @@ about `b:changedtick` for a special buffer.
          ) /tmp/file
 
          :echo b:changedtick
-         3~
+         3˜
          :w
-         BufWritePre: 3~
-         BufWritePost: 3~
+         BufWritePre: 3˜
+         BufWritePost: 3˜
          "='' CR p
          :echo b:changedtick
-         4~
+         4˜
          :w
-         BufWritePre: 4~
-         BufWritePost: 5~
+         BufWritePre: 4˜
+         BufWritePost: 5˜
 
 ###
 ## How to get the count given for the previous normal command?
@@ -1720,17 +1720,17 @@ Check the value of `v:prevcount`.
 " v:count holds the count given for the currently executed normal command
 call feedkeys("3d:echom v:count\r")
 ```
-    3~
+    3˜
 ```vim
 " v:count is reset to 0 immediately after the normal command has been executed
 call feedkeys("3d:\r:echom v:count\r")
 ```
-    0~
+    0˜
 ```vim
 " but v:prevcount still holds the count which was given
 call feedkeys("3d:\r:echom v:prevcount\r")
 ```
-    3~
+    3˜
 
 ### The following snippet outputs 0:
 ```vim
@@ -1747,7 +1747,7 @@ ono io <cmd>norm! viw<cr>
 pu='foo bar baz'
 call feedkeys("3\<c-b>io")
 ```
-    0~
+    0˜
 
 #### Why is it not 3?
 
@@ -1760,7 +1760,7 @@ MWE:
 call feedkeys("12d:norm! 34\"\r", 'n')
 call feedkeys(":echom v:prevcount\r", 'n')
 ```
-    34~
+    34˜
 
 You might wonder why `:norm` resets the count to 0, and not to 1:
 for the same reason that `v:count` is 0 when no count was given.
@@ -2033,7 +2033,7 @@ call feedkeys("\<F3>")
 The limit size of a lhs is 50 bytes.
 
     $ vim -Nu NONE +'nno xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx abc'
-    E474: Invalid argument~
+    E474: Invalid argument˜
 
 Make the lhs shorter.
 
@@ -2042,7 +2042,7 @@ Make the lhs shorter.
 Note that the weight of `<plug>` is 3 bytes:
 
     :echo len("\<plug>")
-    3~
+    3˜
 
 ## My mapping invokes `input()`.  But the latter consumes the end of the rhs!
 
@@ -2099,7 +2099,7 @@ Make sure your command is not executed via `:norm`:
     " can't get a character interactively
     :exe "norm! :let g:char = getchar()\r"
     :echo g:char
-    27~
+    27˜
     ^^
     escape
 
@@ -2293,7 +2293,7 @@ insert mode `C-S-v` followed by `C-v`.
 
 If Vim inserts this key code:
 
-    ^[[27;5;118~
+    ^[[27;5;118˜
 
 Then it's enabled; otherwise, if you just get:
 
@@ -2352,7 +2352,7 @@ But internally, Vim encodes `ä` exactly as `<M-d>`:
 
     $ vim -Nu NONE
     :echo "\<m-d>"
-    ä~
+    ä˜
 
 So, it's as if you had press `<M-d>`, which is then remapped according to your mappings.
 
@@ -2393,17 +2393,17 @@ Btw, you can check that all  the previous binary/decimal codes are correct, from
 Vim, by running:
 
     :echo char2nr('d')
-    100~
+    100˜
                                             decimal code of 'd'
                                             v-v
     :echo system('bc <<<"ibase=10; obase=2; 100"')[:-2]
-    1100100~
+    1100100˜
                                               binary code of 'd' with an extra bit set on the left
                                               v------v
     :echo system('bc <<<"ibase=2; obase=1010; 11100100"')[:-2]
-    228~
+    228˜
     :echo nr2char('228')
-    ä~
+    ä˜
 
 ####
 #### I don't want to change my terminal, and I want a fix which doesn't require any extra input!
@@ -2427,10 +2427,10 @@ Example:
 Note that you can use function keys up to the number 37.
 
     :set <f37>
-    E846: Key code not set: <f37>~
+    E846: Key code not set: <f37>˜
 
     :set <f38>
-    E518: Unknown option: <f38>~
+    E518: Unknown option: <f38>˜
 
 And you  can combine  a function  key with  the shift  modifier to  decrease the
 probability you'll ever press it interactively:
@@ -2441,10 +2441,10 @@ probability you'll ever press it interactively:
 But you can't use any other modifier:
 
     :set <c-f1>
-    E518: Unknown option: <c-f1>~
+    E518: Unknown option: <c-f1>˜
 
     :set <m-f1>
-    E518: Unknown option: <m-f1>~
+    E518: Unknown option: <m-f1>˜
 
 ---
 
@@ -2526,7 +2526,7 @@ another key.  IOW, it must be alone.
 
     $ vim -Nu NONE -i NONE +'nno <c-b> <nop>x'
     " press:  C-b
-    E35: No previous regular expression~
+    E35: No previous regular expression˜
     " this error is raised by the 'n' in '<nop>'
 
 ## `<nowait>` doesn't work!
@@ -2592,7 +2592,7 @@ Usage example:
     $ vim -Nu NONE --cmd 'let [&t_TI, &t_TE] = ["\e[>4;1m", "\e[>4;m"]' \
       +'nno <C-Enter> <cmd>echom "C-Enter was pressed"<cr>'
     " press:  C-Enter
-    C-Enter was pressed~
+    C-Enter was pressed˜
     " note that 'Enter' is really the 'Enter' key, not 'C-m'
 
 ---
@@ -2601,8 +2601,8 @@ Technically,  enabling the  `extkeys`  feature  makes Vim  set  the `Dseks`  and
 `Eneks` capabilities in `$ tmux info`.
 
     $ tmux info | grep '\(Ds\|En\)eks'
-    31: Dseks: (string) \033[>4m~
-    41: Eneks: (string) \033[>4;1m~
+    31: Dseks: (string) \033[>4m˜
+    41: Eneks: (string) \033[>4;1m˜
 
 It's equivalent to:
 
@@ -2724,8 +2724,8 @@ and by the time the opfunc is processed, they have been reset to resp. 0 and `"`
 
     " press:  "a 3 C-b l
     :mess
-    the count is 0~
-    the register is "~
+    the count is 0˜
+    the register is "˜
 
 You'll need to pass them manually, either via `:norm` or `feedkeys()`.
 But both come with pitfalls.
@@ -2769,11 +2769,11 @@ Besides, the operator would not work as expected when preceded by a count.
 
     " ✔
     " press:  C-b 2 j
-    aaa^@bbb^@ccc^@~
+    aaa^@bbb^@ccc^@˜
 
     " ✘
     " press:  2 C-b j
-    aaa^@bbb^@~
+    aaa^@bbb^@˜
     " '2 C-b j' should behave like '2dj'; i.e. operate on 3 lines, not 2
 
 With `<expr>`,  all these issues are  fixed, because the count  and register are
@@ -2791,8 +2791,8 @@ passed naturally:
 
     " press:  "a 3 C-b l
     :mess
-    the count is 3~
-    the register is a~
+    the count is 3˜
+    the register is a˜
 
 See also: <https://vi.stackexchange.com/a/12557/17449>
 
@@ -3156,11 +3156,11 @@ Whether you use `<cmd>` or not, `<c-u>` is useless:
 
     ono ix <cmd>eval 0<cr>
     call feedkeys('123dix')
-    E481 is not raised~
+    E481 is not raised˜
 
     ono ix :eval 0<cr>
     call feedkeys('123dix')
-    E481 is not raised~
+    E481 is not raised˜
 
 ### My text-object is noisy when reused with the dot command.  The rhs is printed on the command-line!
 ```vim
@@ -3442,7 +3442,7 @@ the selection or its start:
     ll
     q
     :reg q
-    c  "q   ll^@llq~
+    c  "q   ll^@llq˜
                   ^
                   ✘
 
@@ -3551,8 +3551,8 @@ qu'on utilise `C-r =` ou `C-\ e` / `C-r C-r =`:
 `C-j` (or a NUL) and `C-m` don't make a string end prematurely:
 
     echo "foo \<c-j> bar"
-    foo ~
-     bar~
+    foo ˜
+     bar˜
 
 In an `<expr>` mapping, it depends:
 ```vim
@@ -3579,7 +3579,7 @@ However, they *can* in a regular mapping:
     endfu
     nno cd :call Func('foo <c-j> bar')<cr>
     norm cd
-    E115: Missing quote: 'foo ~
+    E115: Missing quote: 'foo ˜
 
 This  is probably  because  the keys  in  the  rhs are  processed  while on  the
 command-line;  and on  the  command-line, when  `C-j` or  `C-m`  is pressed,  it
@@ -3740,7 +3740,7 @@ Vim, by looking at the output of:
 
 Output example when `<keys>` = `g CTRL-`
 
-    ['g_CTRL-A', 'g_CTRL-G', 'g_CTRL-H', 'g_CTRL-]'~
+    ['g_CTRL-A', 'g_CTRL-G', 'g_CTRL-H', 'g_CTRL-]'˜
 
 FIXME: I think the output of `taglist()` is influenced by the current buffer.
 Because it must look  in tags files, and those are set  by a buffer-local option
@@ -3796,7 +3796,7 @@ MWE:
     $ vim -Nu NONE +"ino <c-z> <c-x><c-k><c-r>=''<cr>" +'set dict=/usr/share/dict/words' +startinsert
     C-z
     C-c
-    AA=''~
+    AA=''˜
       ^^^
 
 Btw, try  to understand why that  happens, and check  whether there is a  way to
@@ -4230,15 +4230,15 @@ translated, as many times as necessary:
 
     nno cd :echo "\<c-w>"<cr>
     call feedkeys('cd')
-    E115: Missing quote: "~
+    E115: Missing quote: "˜
 
     nno cd :echo "\<lt>c-w>"<cr>
     call feedkeys('cd')
-    ^W~
+    ^W˜
 
     nno cd :echo "\<lt>lt>c-w>"<cr>
     call feedkeys('cd')
-    <c-w>~
+    <c-w>˜
 
 Here, `<lt>lt>` prevents the translation of  `<c-w>` twice (once by `:nno`, once
 by Vim when evaluating the double-quoted string).
@@ -4247,23 +4247,23 @@ you could just write:
 
     nno cd :echo '<lt>c-w>'<cr>
     call feedkeys('cd')
-    <c-w>~
+    <c-w>˜
 
 Update: Now that we have `<cmd>`, it *seems* that this is irrelevant.
 
     nno cd <cmd>echo '<c-w>'<cr>
     call feedkeys('cd')
-    <c-w>~
+    <c-w>˜
 
 But it's not:
 
     nno cd <cmd>echo '<up>'<cr>
     call feedkeys('cd')
-    E1137: <Cmd> mapping must not include <Up> key~
+    E1137: <Cmd> mapping must not include <Up> key˜
 
     nno cd <cmd>echo '<lt>up>'<cr>
     call feedkeys('cd')
-    <up>~
+    <up>˜
 
 ---
 
@@ -4430,7 +4430,7 @@ Voici qques exemples, ainsi qu'une description de leur traitement par Vim.
     endfu
 
     norm N
-    world~
+    world˜
 
 Qd `N` est tapé, il n'y a  aucune ambigüité, car aucun autre mapping ne commence
 par `N`; `N` est donc développé en la sortie de `FuncA()`: `ge<plug>(one)`
@@ -4455,7 +4455,7 @@ Ce qui affiche la chaîne `world`.
     endfu
 
     call feedkeys('N')
-    hello + timeout~
+    hello + timeout˜
     NOTE: `norm N` ne reproduit pas le timeout, taper N, ou utiliser `feedkeys()`
 
 Qd `N` est frappé, il y a ambigüité, car Vim ne sait pas si on tente de taper le
@@ -4495,7 +4495,7 @@ Mais pendant l'évaluation, il est amené à afficher `hello`.
     endfu
 
     call feedkeys('cd')
-    ∅ + timeout~
+    ∅ + timeout˜
 
 Qd on tape `cd`, il y a ambigüité: 1er ou 3e mapping?
 Vim attend jusqu'au timeout.

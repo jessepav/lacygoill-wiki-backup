@@ -5,8 +5,8 @@
 
 The info will be printed in the buffer of `#chan`:
 
-    Mode #weechat [+Ccntj 6:10]~
-    Channel created on Sun, 26 Nov 2006 07:42:51~
+    Mode #weechat [+Ccntj 6:10]˜
+    Channel created on Sun, 26 Nov 2006 07:42:51˜
 
 ## How to get the meaning of a given mode?
 

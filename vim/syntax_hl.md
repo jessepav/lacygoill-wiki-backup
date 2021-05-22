@@ -67,19 +67,19 @@ Yes.
     :sp /tmp/lua1.lua
     :e /tmp/lua2.lua
     :syn list luaOperator
-        luaOperator    xxx and or not~
-                           links to Operator~
+        luaOperator    xxx and or not˜
+                           links to Operator˜
 
     :syn match luaOperator /abc/
     :syn list luaOperator
-        luaOperator    xxx and or not~
-                           match /abc/~
-                           links to Operator~
+        luaOperator    xxx and or not˜
+                           match /abc/˜
+                           links to Operator˜
 
     :e#
     :syn list luaOperator
-        luaOperator    xxx contained not and or~
-                           links to Operator~
+        luaOperator    xxx contained not and or˜
+                           links to Operator˜
 
 The new `match` item is *not* in the `luaOperator` syntax group of `lua1.lua`.
 This is because a syntax group is local to the buffer where it was defined.
@@ -90,11 +90,11 @@ Yes.
 
     " in a markdown buffer
     :syn list @Spell
-    Spell          cluster=NONE~
+    Spell          cluster=NONE˜
 
     " in a help buffer
     :syn list @Spell
-    E392: No such syntax cluster: @Spell~
+    E392: No such syntax cluster: @Spell˜
 
 ##
 ## Is the name of a syntax group case-sensitive?
@@ -105,8 +105,8 @@ No.
     :syn match xfoo /lowercase/
     :syn match xFOO /uppercase/
     :syn list xfoo
-    xfoo           xxx match /lowercase/ ~
-                       match /uppercase/ ~
+    xfoo           xxx match /lowercase/ ˜
+                       match /uppercase/ ˜
 
 If Vim considered `xfoo` as a different  group than `xFOO`, it would not contain
 the second match.
@@ -173,7 +173,7 @@ Try to execute this command:
 Then, in another buffer:
 
     :syn list xFoo
-        xFoo           xxx links to Bar~
+        xFoo           xxx links to Bar˜
 
 Here, `:syn list` tells us that the  syntax group `xFoo` is empty in the current
 buffer (because  no item  is reported), but  that if there  were, they  would be
@@ -186,7 +186,7 @@ Real Example:
     $ vim /tmp/lua.lua
     :e /tmp/py.py
     :syn list luaOperator
-        luaOperator    xxx links to Operator~
+        luaOperator    xxx links to Operator˜
 
 When Vim has loaded the lua buffer, it has added the HG `luaOperator`.
 
@@ -571,11 +571,11 @@ MWE:
 
 Notice that when the cursor is on `Foo`, the stack of syntax items is:
 
-    xMatchgroup xRegion~
+    xMatchgroup xRegion˜
 
 But without `matchgroup`, it would be:
 
-          xWord xRegion~
+          xWord xRegion˜
 
 ---
 
@@ -591,11 +591,11 @@ So, in the previous example, if you had written:
 
 And your cursor was on `Foo`, the stack of syntax items would still have been:
 
-          xMatchgroup xRegion~
+          xMatchgroup xRegion˜
 
 And not:
 
-    xWord xMatchgroup xRegion~
+    xWord xMatchgroup xRegion˜
     ^---^
 
 ### What happens to the text matched by `end` if it's affected by a `matchgroup=xMatchgroup`?
@@ -605,13 +605,13 @@ It's excluded from the region.
 In the previous example, you'll notice that when the cursor is on `Bar`, the stack
 of syntax items is:
 
-    xMatchgroup~
+    xMatchgroup˜
                 ^-----^
                 no xRegion
 
 Instead of:
 
-    xMatchgroup xRegion~
+    xMatchgroup xRegion˜
 
 ### How to limit its effects to the start pattern (not the end one)?
 

@@ -3,31 +3,31 @@ Purpose:
 We have a text containing numbers whose precision can be too big.
 We want to limit the precision to 2 or 3 digits after the comma:
 
-        1.23456789
-        1.234~
+    1.23456789
+    1.234˜
 
-        1.23000000
-        1.23~
+    1.23000000
+    1.23˜
 
 In Vim, we could execute:
 
-        %s/\(\.\d\d[1-9]\?\)\d*/\1/gc
+    %s/\(\.\d\d[1-9]\?\)\d*/\1/gc
 
 But if the  regex engine finds a  number which has already  the right precision,
 like `1.234`, it will still do a - useless - substitution.
 
 To prevent it, we could be tempted to replace the quantifier `*` with `+`:
 
-        %s/\(\.\d\d[1-9]\?\)\d\+/\1/gc
+    %s/\(\.\d\d[1-9]\?\)\d\+/\1/gc
 
 But it would wrongly replace `1.234` with `1.23`.
 
 The issue is not due to `?` being greedy.
 Even if it was lazy, the wrong substitution would still be performed:
 
-        %s/\(\.\d\d[1-9]\{-,1}\)\d\+/\1/gc
-                        └────┤
-                             └  non-greedy equivalent of `?`
+    %s/\(\.\d\d[1-9]\{-,1}\)\d\+/\1/gc
+                    ├────┘
+                    └ non-greedy equivalent of `?`
 
 The issue is that an overall match takes precedence over an overall non-match.
 IOW,  with lazy/greedy  quantifiers, you  can't  prevent the  regex engine  from

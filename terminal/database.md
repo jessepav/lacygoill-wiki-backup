@@ -185,7 +185,7 @@ A terminal can have a capability which is absent from its description.  Ex:
     ''
 
     $ printf '\e[9m strikethrough \e[0m\n'
-    ✔ strikes through the text in `xfce4-terminal`~
+    ✔ strikes through the text in `xfce4-terminal`˜
 
 #
 # Syntax to write an entry

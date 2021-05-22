@@ -242,10 +242,10 @@ FIXME:
 Dans zsh, il semble que l'indexage commence depuis la fin des arguments, au lieu du début:
 
     (bash): M-2 M-.
-    2e argument~
+    2e argument˜
 
     (zsh):  M-2 M-.
-    avant-dernier argument~
+    avant-dernier argument˜
 
 
 FIXME:
@@ -576,9 +576,9 @@ You can confirm that a job is executed in a subshell with these commands:
 
     $ { sleep 1000; echo finished ;} &
     $ pstree -lsp $(pidof sleep)
-    ... zsh───zsh───sleep~
-              ^-^
-              subshell~
+    ... zsh───zsh───sleep˜
+              ^^^
+              subshell˜
 
 # Why does a shell fork to execute an external command?
 
@@ -607,7 +607,7 @@ MWE:
 
     $ find / -name '*' | wc -l
     $ pstree -lsp $(pidof find)
-    ... bash───find~
+    ... bash───find˜
         │      │
         │      └ Initially this was a subshell started because `find` was part of a pipeline.
         │
@@ -635,17 +635,17 @@ OTOH, if the command is not the last one, the subshell WILL fork a sub-sub-shell
 
     $ ( find / -name '*'; true ) | wc -l
     $ pstree -lsp $(pidof find)
-    ... bash───bash───find~
-        │      │~
-        │      └ subshell~
-        │~
-        └ current shell from which the pipeline is executed~
+    ... bash───bash───find˜
+        │      │˜
+        │      └ subshell˜
+        │˜
+        └ current shell from which the pipeline is executed˜
 
 Similarly:
 
     $ while true; do find / -name '*'; done | wc -l
     $ pstree -lsp $(pidof find)
-    ... bash───bash───find~
+    ... bash───bash───find˜
 
 In the last example, the subshell is asked to execute a single `while` loop.
 But  a  loop may  execute  several  commands,  so  the subshell  considers  that
@@ -759,7 +759,7 @@ So, even though you could expect the following commands to succeed, they will fa
     % mkdir -p /tmp/old/path/to/new/dir
     % cd /tmp/old/path/to/old/dir
     % cd old new
-    ✘ cd: no such file or directory: /tmp/new/path/to/old/dir~
+    ✘ cd: no such file or directory: /tmp/new/path/to/old/dir˜
 
 ##
 # How to list all entries under the current directory?  all files?  all directories?  all links?
@@ -859,26 +859,26 @@ Outside quotes, always, unless it's quoted by another backslash.
 This is similar to what VimL and tmux do with non-literal strings.
 
     $ printf '%s' a \z b
-    azb~
+    azb˜
 
     $ printf '%s' a \\z b
-    a\zb~
+    a\zb˜
 
 Inside single quotes, never:
 
     $ printf '%s' 'a \z b'
-    a \z b~
+    a \z b˜
 
     $ printf '%s' 'a \\z b'
-    a \\z b~
+    a \\z b˜
 
 Inside double quotes, whenever it's used to remove the special meaning of the next character.
 
     $ printf '%s' "a \$$ b"
-    a $$ b~
+    a $$ b˜
 
     $ printf '%s' "a \z b"
-    a \z b~
+    a \z b˜
 
 ### What is the exception?
 
@@ -886,17 +886,17 @@ Inside double quotes, the backslash is not removed in front of `!`, in bash and 
 
     $ bash
     $ printf '%s' "\!\!"
-    \!\!~
+    \!\!˜
 
     $ sh
     $ printf '%s' "\!\!"
-    \!\!~
+    \!\!˜
 
 Although, it is in zsh:
 
     $ zsh
     $ echo '%s' "\!\!"
-    !!~
+    !!˜
 
 ##
 ## Why should I use `printf` instead of `echo` when testing how the shell processes a string?  (2)
@@ -910,25 +910,25 @@ should be.
 Besides, `echo` is inconsistent across various shells:
 
     $ bash -c 'echo "a\u00e9b"'
-    a\u00e9b~
+    a\u00e9b˜
 
     $ sh -c 'echo "a\u00e9b"'
-    a\u00e9b~
+    a\u00e9b˜
 
     $ zsh -c 'echo "a\u00e9b"'
-    aéb~
+    aéb˜
 
 OTOH, by default,  `printf` never translates anything, and  is consistent across
 all popular shells:
 
     $ bash -c 'printf "%s" "a\u00e9b"'
-    a\u00e9b~
+    a\u00e9b˜
 
     $ sh -c 'printf "%s" "a\u00e9b"'
-    a\u00e9b~
+    a\u00e9b˜
 
     $ zsh -c 'printf "%s" "a\u00e9b"'
-    a\u00e9b~
+    a\u00e9b˜
 
 ---
 
@@ -941,15 +941,15 @@ Inside a format `printf` removes  any backslash considered to be special, like
 the shell does in a double-quoted string.
 
     $ printf 'a \\z b'
-    a \z b~
+    a \z b˜
 
     $ printf 'a \t b'
-    a 	 b~
+    a 	 b˜
 
 OTOH, if you use a format, the string won't be altered by `printf`:
 
     $ printf '%s' 'a \\z b'
-    a \\z b~
+    a \\z b˜
 
 ### What happens if I have more arguments than `%` directives?
 
@@ -979,11 +979,11 @@ permet une approche plus granulaire.
 
     ls
     echo "hello world!!"
-    hello worldls    ✘~
+    hello worldls    ✘˜
 
     ls
     echo 'hello world!!'
-    hello world      ✔~
+    hello world      ✔˜
 
             Les double quotes ne sont pas aussi strictes que les single quotes.
             Ils autorisent le développement de:
@@ -1000,12 +1000,12 @@ permet une approche plus granulaire.
     > baz"
 
     echo $myvar
-    foo bar baz~
+    foo bar baz˜
 
     echo "$myvar"
-    foo~
-    bar~
-    baz~
+    foo˜
+    bar˜
+    baz˜
 
             Illustre que bash réalise un field  splitting sur la chaîne issue du
             développement d'une variable.
@@ -1029,9 +1029,9 @@ permet une approche plus granulaire.
             Dans zsh, il n'y a donc pas besoin de quoter `myvar`:
 
                     echo $myvar
-                    foo~
-                    bar~
-                    baz~
+                    foo˜
+                    bar˜
+                    baz˜
 
 
                                      NOTE:
@@ -1091,11 +1091,11 @@ permet une approche plus granulaire.
 ### the name of the shell I'm using?
 
     ps -p $$
-    PID TTY          TIME CMD~
-    21107 pts/11   00:00:00 zsh~
+    PID TTY          TIME CMD˜
+    21107 pts/11   00:00:00 zsh˜
 
     ps -p $$ -o comm=
-    zsh~
+    zsh˜
 
 Note that, with `-o comm=`, the name of the command is truncated to 15 characters.
 But it shouldn't be an issue, as a shell name should be shorter.
@@ -1106,15 +1106,15 @@ But it shouldn't be an issue, as a shell name should be shorter.
 
     $ ARGV0=sh zsh
     $ echo $0
-    sh~
+    sh˜
     ^ ✘
 
 For the same reason, don't omit the `-p` option passed to `ps(1)`:
 
     $ ARGV0=sh zsh
     $ ps $$
-    PID  TTY      STAT   TIME COMMAND~
-    1234 pts/10   S      0:00 sh~
+    PID  TTY      STAT   TIME COMMAND˜
+    1234 pts/10   S      0:00 sh˜
                               ^
                               ✘
 
@@ -1289,16 +1289,16 @@ Example:
       chmod +x ~/.local/bin/sh.sh
 
     $ sh.sh
-    from ~/.local/bin    ✔~
+    from ~/.local/bin    ✔˜
 
     $ printf -- "#\!/bin/bash\necho 'from ~/bin'" >~/bin/sh.sh && \
       chmod +x ~/bin/sh.sh
 
     $ sh.sh
-    from ~/.local/bin    ✘~
+    from ~/.local/bin    ✘˜
 
     $ hash -r && sh.sh
-    from ~/bin     ✔~
+    from ~/bin     ✔˜
 
     # clean up the useless scripts
     $ rm ~/{,.local/}bin/sh.sh
@@ -1338,13 +1338,13 @@ the script.
 MWE:
 
     printf "shopt -s failglob ; echo *.foo ; echo afterwards"  | bash
-    bash: line 2: no match: *.foo~
+    bash: line 2: no match: *.foo˜
 
     bash -c 'shopt -s failglob; echo *.foo; echo afterwards'
-    bash: no match: *.foo~
+    bash: no match: *.foo˜
 
     printf "setopt nomatch; echo *.foo \n echo afterwards" | zsh
-    zsh: no matches found: *.foo~
+    zsh: no matches found: *.foo˜
 
 
 None  of these  commands print  'afterwards', which  illustrates that  the shell
@@ -1355,8 +1355,8 @@ stopped processing the script as soon as it failed to expand the glob.
 But weirdly, this command is still able to print 'afterwards':
 
     printf "shopt -s failglob \n echo *.foo \n echo afterwards" | bash
-    bash: line 2: no match: *.foo~
-      afterwards~
+    bash: line 2: no match: *.foo˜
+      afterwards˜
 
 Same thing if you replace the first newline with a semicolon (but not the second one).
 
@@ -1366,12 +1366,12 @@ A failed filename generation doesn't raise an  error, and the glob is treated as
 a single element:
 
     % unsetopt nomatch; echo *.foo; echo 'afterwards'
-    *.foo~
-      afterwards~
+    *.foo˜
+      afterwards˜
 
     $ shopt -u failglob; echo *.foo; echo 'afterwards'
-    *.foo~
-      afterwards~
+    *.foo˜
+      afterwards˜
 
 ---
 
@@ -1380,10 +1380,10 @@ have an effect on the shell's behavior when a glob can't be expanded.
 In particular, if the `nullglob` option is set, the glob is ignored:
 
     % setopt null_glob; unsetopt nomatch; echo *.foo; echo 'afterwards'
-    afterwards (no error)~
+    afterwards (no error)˜
 
     $ shopt -s nullglob; shopt -u failglob; echo *.foo; echo 'afterwards'
-    afterwards (no error)~
+    afterwards (no error)˜
 
 ##
 # Editing output
@@ -1501,7 +1501,7 @@ commands into words:
     EOF
 
     $ args my buggy command
-    3 args: <my> <buggy> <command>~
+    3 args: <my> <buggy> <command>˜
 
 ## I'm trying to run a command whose arguments are generated by the output of another command.  Sometimes it fails!
 
@@ -1517,7 +1517,7 @@ command names or argument): <https://mywiki.wooledge.org/BashFAQ/050>
     ✘
     $ tmux set @foo 'if -F 1 "display test"' ; \
       tmux $(tmux show -v @foo)
-      syntax error~
+      syntax error˜
 
 This is because:
 
@@ -1535,10 +1535,10 @@ This is because:
 You can check how the command is split using our `args` script:
 
     $ args $(tmux show -v @foo)
-    5 args: <if> <-F> <1> <"display> <test">~
+    5 args: <if> <-F> <1> <"display> <test">˜
 
     $ args if -F 1 "display test"
-    4 args: <if> <-F> <1> <display test>~
+    4 args: <if> <-F> <1> <display test>˜
 
 ---
 
@@ -1582,7 +1582,7 @@ Use `return`.
 
     $ arr[123]=test ; \
       echo ${arr[123]}
-    test~
+    test˜
 
 ### How to convert a string of space-separated words into an array?
 
@@ -1593,9 +1593,9 @@ Use `return`.
     $ str='foo bar baz' ; \
       arr=($str)        ; \
       printf -- '%s\n' "${arr[@]}"
-      foo~
-      bar~
-      baz~
+      foo˜
+      bar˜
+      baz˜
 
 ##
 ## conventions / bonnes habitudes
@@ -1866,7 +1866,7 @@ Use `return`.
     declare -i var=123
     var='hello'
     echo $var
-    0~
+    0˜
 
             La chaîne 'hello' a été convertie en le nombre 0, car `var` porte l'attribut `-i`,
             ce qui signifie qu'elle ne peut contenir qu'un nombre.
@@ -1956,9 +1956,9 @@ Use `return`.
 
 
     test ; echo $?
-    1~
+    1˜
     [ ]  ; echo $?
-    1~
+    1˜
 
             L'omission d'une expression dans un test équivaut à une expression fausse.
             Peut-être car le shell estime qu'il a échoué à évaluer une expression.
@@ -3208,7 +3208,7 @@ Le 2e `echo` affiche `a`, `b`, `é` et `à`.
                     % cd /tmp
                     % Downloads
                     % pwd
-                    ~/Downloads/~
+                    ~/Downloads/˜
 
 
     print -l $path

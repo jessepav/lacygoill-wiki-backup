@@ -87,7 +87,7 @@ It's made pending:
     ...
     finally
         echom empty(v:exception)
-        1~
+        1˜
 
 It is resumed at the `:endtry`, so that the following commands are not executed.
 
@@ -882,9 +882,9 @@ Example:
     finally
         echom 'outer finally'
     endtry
-    inner finally~
-    outer catch-all caught 'Vim(catch):E54: Unmatched \('~
-    outer finally~
+    inner finally˜
+    outer catch-all caught 'Vim(catch):E54: Unmatched \('˜
+    outer finally˜
 
 The original exception is discarded and an error exception is raised, instead.
 
@@ -1450,7 +1450,7 @@ part between the matching `:try` and the ':finally' is left by:
     catch
         echom 'caught '.v:exception
     endtry
-    'caught oops'~
+    'caught oops'˜
 
 Illustre l'utilisation de `v:exception`.
 The value of the exception most recently caught and not finished.
@@ -1461,7 +1461,7 @@ The value of the exception most recently caught and not finished.
     catch
         echom 'Exception from '.v:throwpoint
     endtry
-    'Exception from {script}, line XXX'~
+    'Exception from {script}, line XXX'˜
 
 The point where the exception most recently caught and not finished was thrown.
 Not set when commands are typed.
@@ -1516,8 +1516,8 @@ It seems it can cause unexpected results:
         endtry
     EOF
     )
-    ...~
-    E117: Unknown function: Unknown~
+    ...˜
+    E117: Unknown function: Unknown˜
     " result:   'E117' is raised
     " expected: 'E117' is caught
 
@@ -1664,7 +1664,7 @@ MWE:
     " press:  o Esc cd
     " result: no message is visible (except for the hit-enter prompt itself)
     " run:  :mess
-    Vim(qall):E37: No write since last change~
+    Vim(qall):E37: No write since last change˜
 
 Update: Actually, if you press `Enter` instead of `Esc` at the hit-enter prompt,
 you can see the error.

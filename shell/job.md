@@ -211,9 +211,9 @@ Or a substring after `%?`:
       while true; do echo 'bar'; sleep 1000; done  &
 
     $ jobs
-    [1]    running    while true; do; echo 'foo'; sleep 1000; done~
-    [2]  - running    sleep 1000~
-    [3]  + running    while true; do; echo 'bar'; sleep 1000; done~
+    [1]    running    while true; do; echo 'foo'; sleep 1000; done˜
+    [2]  - running    sleep 1000˜
+    [3]  + running    while true; do; echo 'bar'; sleep 1000; done˜
 
     $ kill %sl
     $ kill %?foo
@@ -292,7 +292,7 @@ Use the `wait` builtin:
             fi
 
     $ /tmp/sh.sh
-    command executed AFTER the job has terminated~
+    command executed AFTER the job has terminated˜
 
 For more info, see:
 

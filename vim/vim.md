@@ -7,7 +7,7 @@ Example:
 
     $ vimdiff ~/.bashrc ~/.zshrc
     :echo v:progname
-    vimdiff~
+    vimdiff˜
 
 ## How to get the name of the binary which was executed to start the current Vim process?
 

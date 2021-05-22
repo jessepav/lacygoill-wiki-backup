@@ -23,14 +23,14 @@ It sets the name of  the shell, which is used in warning and error messages.
 Add it after the `command_string`:
 
     $ bash -c 'echo "$0"' my_shell
-    my_shell~
+    my_shell˜
 
 ### How to assign values to its positional parameters?
 
 Add it after the name of the shell:
 
     $ bash -c 'echo "$0 $1 $2 $3"' my_shell param1 param2 param3
-    my_shell param1 param2 param3~
+    my_shell param1 param2 param3˜
 
 ##
 ## What do these options do?

@@ -9,7 +9,7 @@ Use:
             exe 'au SafeState * ++once echo ' .. string(var)
          endfu
          call Func()
-         defined in outer scope~
+         defined in outer scope˜
 
    - a lambda
 
@@ -19,7 +19,7 @@ Use:
             au SafeState * ++once echo s:lambda()
          endfu
          call Func()
-         defined in outer scope~
+         defined in outer scope˜
 
    - a closure
 
@@ -31,7 +31,7 @@ Use:
             au SafeState * ++once call Closure()
          endfu
          call Func()
-         defined in outer scope~
+         defined in outer scope˜
 
    - a partial
 
@@ -44,7 +44,7 @@ Use:
             echo a:var
          endfu
          call Func()
-         defined in outer scope~
+         defined in outer scope˜
 
 ---
 
@@ -61,7 +61,7 @@ The solution using a lambda can sometimes seem awkward:
        au SafeState * ++once call s:lambda()
     endfu
     call Func()
-    defined in outer scope~
+    defined in outer scope˜
 
 Here, the  `execute()` used  to get  an expression to  pass in  the body  of the
 lambda is ugly.
@@ -74,7 +74,7 @@ Although, it seems to work, even if the variable contains quotes:
        au SafeState * ++once call s:lambda()
     endfu
     call Func()
-    a'b"c~
+    a'b"c˜
 
 Note that you could  avoid `string()` in the lambda, by  moving `var` inside the
 lambda scope.  But you would still need `string()` to pass `var` to the lambda:
@@ -85,7 +85,7 @@ lambda scope.  But you would still need `string()` to pass `var` to the lambda:
        exe 'au SafeState * ++once call s:lambda(' .. string(var) .. ')'
     endfu
     call Func()
-    defined in outer scope~
+    defined in outer scope˜
 
 ---
 
@@ -111,14 +111,14 @@ Example:
        au SafeState * ++once call Closure()
     endfu
     call Func()
-    6~
+    6˜
 
     fu Func()
        let [s:a, s:b, s:c] = [1, 2, 3]
        au SafeState * ++once echo s:a + s:b + s:c
     endfu
     call Func()
-    6~
+    6˜
 
 In the second case,  you have to create 3 script-local variables  to get the sum
 of the variables.
@@ -191,10 +191,10 @@ No:
     :au CursorHoldI * ++once "
     2@:
     :au CursorHoldI
-    CursorHoldI~
-        *         "~
-                  "~
-                  "~
+    CursorHoldI˜
+        *         "˜
+                  "˜
+                  "˜
 
 ##
 ## Why shouldn't I wrap a one-shot autocmd inside an augroup all the time?
@@ -663,7 +663,7 @@ There is no guarantee that the current buffer is a terminal buffer:
     :call popup_create(term_start(&shell, #{hidden: 1}), {})
     " press C-\ C-n
     :mess
-    buftype is: regular~
+    buftype is: regular˜
                 ^-----^
                 it's not 'terminal' as you may have expected initially
 
@@ -696,9 +696,9 @@ That's the case for `bufname()`:
 
     $ vim /tmp/file{1..99}
     :echo bufname(3)
-    /tmp/file3~
+    /tmp/file3˜
     :echo bufname('3')
-    ''~
+    ''˜
 
 The second output is probably not what you would expect (i.e. `/tmp/file3`).
 That's because:
@@ -995,7 +995,7 @@ Exemples d'évènements :
             … car `<amatch>` ne contient pas juste le nom de la commande, mais aussi le chemin vers le cwd.
 
                     :echo expand('<amatch>')
-                    /home/user/.vim/MyUndefinedCommand~
+                    /home/user/.vim/MyUndefinedCommand˜
 
 
     CursorHold

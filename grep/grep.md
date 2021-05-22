@@ -29,10 +29,10 @@ Instead, you should run:
 # ?
 
     $ \rg -LS foobar /etc
-    error: The argument '--follow' was provided more than once, but cannot be used multiple times~
+    error: The argument '--follow' was provided more than once, but cannot be used multiple times˜
 
     $ \rg -SL foobar /etc
-    error: The argument '--smart-case' was provided more than once, but cannot be used multiple times~
+    error: The argument '--smart-case' was provided more than once, but cannot be used multiple times˜
 
 Is it a bug?  If so, report it.
 
@@ -70,8 +70,8 @@ not only in a *grep* pattern, but also in a shell *file* pattern:
     $ touch file{1..5}
     $ echo 'pat' | tee file{2..4}
     $ grep pat file[24]
-    file2:pat~
-    file4:pat~
+    file2:pat˜
+    file4:pat˜
 
 ---
 

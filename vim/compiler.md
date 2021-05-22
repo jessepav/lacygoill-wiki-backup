@@ -191,16 +191,16 @@ Yes:
 
     :sp +put\ ='hello\ world!' /tmp/some\ strange\|name.md
     :set mp=pandoc\ -o\ %:p:r.pdf\ %:p | 4verb make
-    Calling shell to execute: "pandoc -o /tmp/some strange|name.pdf /tmp/some strange|name.md  2>&1| tee /tmp/vBQggd1/5"~
+    Calling shell to execute: "pandoc -o /tmp/some strange|name.pdf /tmp/some strange|name.md  2>&1| tee /tmp/vBQggd1/5"˜
     ✘
-    zsh:1: command not found: name.pdf~
-    pandoc: strange: openBinaryFile: does not exist (No such file or directory)~
-    zsh:1: command not found: name.md~
+    zsh:1: command not found: name.pdf˜
+    pandoc: strange: openBinaryFile: does not exist (No such file or directory)˜
+    zsh:1: command not found: name.md˜
 
 
                              vv         vv
     :set mp=pandoc\ -o\ %:p:r:S.pdf\ %:p:S | 4verb make
-    Calling shell to execute: "pandoc -o '/tmp/some strange|name'.pdf '/tmp/some strange|name.md'  2>&1| tee /tmp/vBQggd1/9"~
+    Calling shell to execute: "pandoc -o '/tmp/some strange|name'.pdf '/tmp/some strange|name.md'  2>&1| tee /tmp/vBQggd1/9"˜
     ✔
 
 ##

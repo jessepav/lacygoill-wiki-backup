@@ -168,7 +168,7 @@ from the template unit:
 This can be confirmed by looking at the output of:
 
     $ systemctl status getty@tty1.service
-    Loaded: loaded (/lib/systemd/system/getty@.service ...~
+    Loaded: loaded (/lib/systemd/system/getty@.service ...˜
 
 This service starts `agetty` to let you login from a virtual console:
 

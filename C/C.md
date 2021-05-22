@@ -3,6 +3,7 @@
 The term floating point refers to the fact that a number's binary point (decimal
 point for a computer)  can “float”; that is, it can  be placed anywhere relative
 to the significant digits of the number.
+
 This position is indicated as the exponent component.
 
 <https://en.wikipedia.org/wiki/Floating-point_arithmetic>
@@ -177,7 +178,7 @@ It also determines whether or not digits are allowed after the decimal point.
     2^31 − 1
 
 MWE:
-
+```c
     #include <stdio.h>
     #include <math.h>
 
@@ -185,12 +186,13 @@ MWE:
         int var = pow(2, 31);
         printf("%d\n", var);
     }
-
-    c.c: In function ‘main’:~
-    c.c:9:11: warning: overflow in implicit constant conversion [-Woverflow]~
-         var = pow(2, 31);~
-               ^~
-    2147483647~
+```
+    c.c: In function ‘main’:
+    c.c:5:15: warning: overflow in conversion from ‘double’ to ‘int’ changes value
+    ↪                  from ‘2.147483648e+9’ to ‘2147483647’ [-Woverflow]
+    5 |     int var = pow(2, 31);
+      |               ^~~˜
+    2147483647
 
 Rationale:
 

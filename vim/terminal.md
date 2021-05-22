@@ -41,7 +41,7 @@ But it's more verbose, and it doesn't work in the GUI:
 
     $ vim -g
     :call writefile([''], '/dev/tty', 'b')
-    E482: Can't create file /dev/tty~
+    E482: Can't create file /dev/tty˜
 
 ---
 
@@ -86,8 +86,8 @@ Write an OSC 51 sequence on the tty:
     " in Vim's terminal
     $ printf -- "\033]51;[\"call\", \"Tapi_func\", [\"arg1\", \"arg2\"]]\007"
     :mess
-    arbitrary command run from buffer 2~
-    the function received the arguments arg1 arg2~
+    arbitrary command run from buffer 2˜
+    the function received the arguments arg1 arg2˜
 
 See `:h terminal-api` for more info.
 
@@ -118,7 +118,7 @@ Make sure you've wrapped all the arguments inside double quotes, and not single 
     $ vim -Nu NONE +term
     " in Vim's terminal
     $ printf -- "\033]51;[\"drop\", 'file']\007"
-    E474: Invalid argument          ^    ^~
+    E474: Invalid argument          ^    ^˜
                                     ✘    ✘
 
     $ printf -- "\033]51;[\"drop\", \"file\"]\007"
@@ -139,7 +139,7 @@ concatenation:
                                                             ✘
                                                             v----v
     :call writefile([printf('%s]51;["drop", %s]%s', "\033", string(file), "\007")], '/dev/tty', 'b')
-    E474: Invalid argument~
+    E474: Invalid argument˜
 
 Use `json_encode()` instead:
 

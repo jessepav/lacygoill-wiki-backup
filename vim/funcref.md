@@ -42,7 +42,7 @@ Source: [Function overloading][1]
 user-defined function:
 
     :echo funcref('strlen')
-    E700: Unknown function: strlen~
+    E700: Unknown function: strlen˜
 
 ##
 # Which condition must a variable name satisfy to store a funcref?
@@ -53,13 +53,13 @@ It must begin with an uppercase character, if it's global:
           v
     let g:length = function(exists('*strcharlen') ? 'strcharlen' : 'strlen')
     echo g:length('hello')
-    E704: Funcref variable name must start with a capital: g:length~
+    E704: Funcref variable name must start with a capital: g:length˜
 
           ✔
           v
     let g:Length = function(exists('*strcharlen') ? 'strcharlen' : 'strlen')
     echo g:Length('hello')
-    5~
+    5˜
 
 or if it's local to a function:
 
@@ -71,7 +71,7 @@ or if it's local to a function:
         return l:length(a:string)
     endfu
     echo Length('hello')
-    E704: Funcref variable name must start with a capital: l:length~
+    E704: Funcref variable name must start with a capital: l:length˜
 
     unlet! g:Length
     fu Length(string) abort
@@ -81,7 +81,7 @@ or if it's local to a function:
         return l:Length(a:string)
     endfu
     echo Length('hello')
-    5~
+    5˜
 
 ---
 
@@ -89,7 +89,7 @@ There's no such requirement if the variable is local to sth else than a function
 
     let t:length = function(exists('*strcharlen') ? 'strcharlen' : 'strlen')
     echo t:length('hello')
-    5~
+    5˜
 
 ## Why?
 
@@ -113,7 +113,7 @@ there could be a conflict with a builtin function.
 The first definition (funcref) seems to win:
 
     echo Length('hello')
-    HELLO~
+    HELLO˜
 
 ---
 
@@ -121,10 +121,10 @@ But the definition of the function is weird:
 
     fu Length
                 v-------------v
-       function toupper(string) abort~
-    1          let l:Length = function(exists('*strcharlen') ? 'strcharlen' : 'strlen')~
-    2          return l:Length(a:string)~
-       endfunction~
+       function toupper(string) abort˜
+    1          let l:Length = function(exists('*strcharlen') ? 'strcharlen' : 'strlen')˜
+    2          return l:Length(a:string)˜
+       endfunction˜
 
 ## What would happen if I reversed the order of the funcref definition and the function definition?
 
@@ -136,7 +136,7 @@ It would raise `E705`.
         return l:Length(a:string)
     endfu
     let g:Length = function('toupper')
-    E705: Variable name conflicts with existing function: g:Length~
+    E705: Variable name conflicts with existing function: g:Length˜
 
 It seems that `:let` is careful about avoiding conflicts, but not `:fu`.
 
@@ -150,7 +150,7 @@ Any expression whose value is a funcref.
     endfu
     let list = [function('Func')]
     echo list[0](1, 2)
-    3~
+    3˜
 
 Here, `list[0]` is an expression whose value is a funcref of `Func()`.
 So, when calling `Func()`, we can replace the name `Func` with `list[0]`
@@ -177,11 +177,11 @@ The resulting funcref binds the function to the dictionary.
 
     " the dictionary was not modified
     echo adict
-    {'name': 'toto'}~
+    {'name': 'toto'}˜
 
     " `Func()` is able to access the dictionary
     echo Fn()
-    my name is: toto~
+    my name is: toto˜
 
 ### modifying the dictionary, and giving a proper name to the function?
 
@@ -196,7 +196,7 @@ Example:
     endfu
     let adict = {'data': [0, 1, 2], 'size': function('s:size')}
     echo adict.size()
-    3~
+    3˜
 
 ---
 
@@ -218,7 +218,7 @@ Example:
         return len(self.data)
     endfu
     echo adict.size()
-    3~
+    3˜
 
 This time, you didn't have to:
 
@@ -244,7 +244,7 @@ You can't call a function defined with `dict` directly:
         return 1
     endfu
     echo Func()
-    E725: Calling dict function without Dictionary: Func~
+    E725: Calling dict function without Dictionary: Func˜
 
 ### Is it always necessary?
 
@@ -262,14 +262,14 @@ currently defined function, as a value.
     endfu
     echo adict.size
 
-     ┌ `adict.size` is a funcref~
-     │        ┌ its name is `13`~
-     │        │    ┌ it's bound to this dictionary~
-     │        ├┐   ├─────────────────────────────────────────┐~
-    function('13', {'data': [0, 1, 2], 'size': function('13')})~
-                                       ├────────────────────┘~
-                                       └ a funcref has been added to the dictionary~
-                                         to implement the binding~
+     ┌ `adict.size` is a funcref˜
+     │        ┌ its name is `13`˜
+     │        │    ┌ it's bound to this dictionary˜
+     │        ├┐   ├─────────────────────────────────────────┐˜
+    function('13', {'data': [0, 1, 2], 'size': function('13')})˜
+                                       ├────────────────────┘˜
+                                       └ a funcref has been added to the dictionary˜
+                                         to implement the binding˜
 
 ---
 
@@ -279,7 +279,7 @@ If `adict` already contains a `size` key, the definition of the function fails:
     fu adict.size()
         return len(self.data)
     endfu
-    E718: Funcref required~
+    E718: Funcref required˜
 
 ### What kind of special function is it?
 
@@ -311,17 +311,17 @@ codebase, by looking at its definition, you may not even be able to do that:
         return len(self.data)
     endfu
     echo adict.size
-    function('13', {'data': [0, 1, 2], 'size': function('13')})~
+    function('13', {'data': [0, 1, 2], 'size': function('13')})˜
               ^^
 
     fu {13}
-       function 13() dict~
-    1          return len(self.data)~
-       endfunction~
+       function 13() dict˜
+    1          return len(self.data)˜
+       endfunction˜
 
     unlet adict
     fu {13}
-    E123: Undefined function: 13~
+    E123: Undefined function: 13˜
 
 For more info, see: <https://github.com/LucHermitte/lh-vim-lib/blob/master/doc/OO.md>
 
@@ -337,8 +337,8 @@ Also, document that you can *read* `function('123')` in some command output, but
 you can't *write* it in an executed command:
 
     let a = function('123')
-    E129: Function name required~
-    E475: Invalid argument: 123~
+    E129: Function name required˜
+    E475: Invalid argument: 123˜
 
 ##
 # Expression lambda / closure
@@ -356,7 +356,7 @@ MWE:
         return l:Test()
     endfu
     echo Func()
-    E121~
+    E121˜
 
     fu Func()
         let foo  = 1
@@ -365,7 +365,7 @@ MWE:
         return l:Test()
     endfu
     echo Func()
-    1~
+    1˜
 
 Explanation: <https://github.com/vim/vim/issues/2643#issuecomment-366954582>
 
@@ -416,7 +416,7 @@ Elle diffère d'une fonction régulière de 2 façons:
 
     let F = {arg1, arg2 -> arg1 + arg2}
     echo F(1,2)
-    3~
+    3˜
 
 ---
 
@@ -428,7 +428,7 @@ Elle diffère d'une fonction régulière de 2 façons:
         return A()
     endfu
     echo B()
-    E705: Variable name conflicts with existing function: A~
+    E705: Variable name conflicts with existing function: A˜
 
     fu A()
         return 'i am A'
@@ -438,7 +438,7 @@ Elle diffère d'une fonction régulière de 2 façons:
         return l:A()
     endfu
     echo B()
-    42~
+    42˜
 
 Qd  on  se trouve  à  l'intérieur  d'une fonction,  et  qu'on  doit stocker  une
 expression  lambda, ou  une funcref,  dans une  variable, il  faut toujours  lui
@@ -450,7 +450,7 @@ conflit entre avec une fonction publique de même nom.
 
     let F = { -> 'hello' .. 42 }
     echo F()
-    hello42~
+    hello42˜
 
 Une expression lambda peut ne pas avoir d'arguments.
 
@@ -467,22 +467,22 @@ En cas d'erreur au sein de cette dernière, on pourra donc exécuter:
 
     :let F = {-> 'hello' .. [42]}
     :echo F()
-    Error detected while processing function <lambda>123:~
-    line    1:~
-    E730: using List as a String~
+    Error detected while processing function <lambda>123:˜
+    line    1:˜
+    E730: using List as a String˜
 
     :fu <lambda>123
-        function <lambda>123(...)~
-     1  return 'hello' .. [42]~
-        endfunction~
+        function <lambda>123(...)˜
+     1  return 'hello' .. [42]˜
+        endfunction˜
 
 ---
 
     echo map([1, 2, 3], {_, v -> v + 1})
-    [2, 3, 4]~
+    [2, 3, 4]˜
 
     echo sort([3,7,2,1,4], {a,b -> a - b})
-    [1, 2, 3, 4, 7]~
+    [1, 2, 3, 4, 7]˜
 
 On peut,  entre autres,  utiliser des  expressions lambda  comme 2e  argument de
 `filter()`, `map()` et `sort()`.
@@ -490,9 +490,9 @@ On peut,  entre autres,  utiliser des  expressions lambda  comme 2e  argument de
 ---
 
     let timer = timer_start(500, {-> execute("echo 'Handler called'", '')}, {'repeat': 3})
-    Handler called~
-    Handler called~
-    Handler called~
+    Handler called˜
+    Handler called˜
+    Handler called˜
 
 Les expressions lambda sont aussi utiles pour des timers, canaux, jobs.
 
@@ -575,16 +575,16 @@ Cette différence découle du fait que l'opérateur `+` a priorité sur `&&`.
 Confirmation via:
 
     echo 0 && 1 + 1
-    0~
+    0˜
 
     echo (0 && 1) + 1
-    1~
+    1˜
 
 ---
 
     echo range(65, 90)->map({x -> nr2char(x)})
-    [ 'A', 'B', ... ]          attendu~
-    [ '', '^A', '^B', ... ]    obtenu~
+    [ 'A', 'B', ... ]          attendu˜
+    [ '', '^A', '^B', ... ]    obtenu˜
 
 Pk n'obtient-on pas la liste des lettres majuscules ?
 Car  qd  le 2e  argument  de  `map()` est  une  funcref,  `map()` lui  envoit  2
@@ -637,7 +637,7 @@ Ici, `map()` n'en envoit pas 1 (`x`), mais 2 (`_`, `v`).
     endfu
     let Bar = Foo(4)
     echo Bar(6)
-    5~
+    5˜
 
 L'expression lambda utilise dans son calcul les variables `i` et `a:arg`.
 
@@ -645,8 +645,8 @@ L'expression lambda utilise dans son calcul les variables `i` et `a:arg`.
 celle des arguments de `Foo()`.
 L'expression lambda ne se plaint pas que les variables ne sont pas définies :
 
-    E121: Undefined variable: i~
-    E121: Undefined variable: a:arg~
+    E121: Undefined variable: i˜
+    E121: Undefined variable: a:arg˜
 
 ... car elle  a la particularité de  pouvoir accéder aux variables  de la portée
 extérieur; on parle de “closure“ (clôture).
@@ -663,15 +663,15 @@ extérieur; on parle de “closure“ (clôture).
 
     let F = Foo()
     echo F()
-    1~
+    1˜
     echo F()
-    2~
+    2˜
     echo F()
-    3~
+    3˜
 
 L'incrémentation  de `x` au sein de `Bar()` ne soulève pas d'erreur:
 
-    E121: Undefined variable: x~
+    E121: Undefined variable: x˜
 
 ...  car  `Bar()`  porte  l'attribut  `closure` qui  lui  permet  d'accéder  aux
 variables de la portée extérieure (`Foo()`).
@@ -791,13 +791,13 @@ Although, it doesn't seem to be really needed in the answer (nor `call()`, nor `
 Document that you don't need to assign a lambda to a variable in order to echo its output:
 
     :echo {-> 'test'}()
-    test~
+    test˜
 
 But you do need to assign it in order to call it:
 
     :call {-> 'test'}()
-    E15: Invalid expression: > 'test'~
-    E475: Invalid argument: {-> 'test'}()~
+    E15: Invalid expression: > 'test'˜
+    E475: Invalid argument: {-> 'test'}()˜
 
 ---
 
@@ -810,16 +810,16 @@ can't access its outer scope:
         au SafeState * ++once echo s:lambda()
     endfu
     call Func()
-    test~
+    test˜
 
     fu Func()
         let msg = 'test'
         au SafeState * ++once echo {-> msg}()
     endfu
     call Func()
-    Error detected while processing function <lambda>1234:~
-    line    1:~
-    E121: Undefined variable: msg~
+    Error detected while processing function <lambda>1234:˜
+    line    1:˜
+    E121: Undefined variable: msg˜
 
 It seems the issue is specific to an autocmd.
 Without an autocmd, the code works as expected:
@@ -829,7 +829,7 @@ Without an autocmd, the code works as expected:
         echo {-> msg}()
     endfu
     call Func()
-    test~
+    test˜
 
 I think that when  you refer to a lambda directly, it's as  if it was defined on
 the spot.
@@ -901,7 +901,7 @@ Here "self" will be "myDict", because it was bound explicitly.
     endfu
     let bdict = {'data': [0, 1], 'size': function(adict.size)}
     echo bdict.size()
-    2~
+    2˜
 
 On  peut se  référer à  la fonction  `adict.size()` (qui  techniquement est  une
 fonction numérotée) via une funcref, comme pour n'importe quelle fonction.
@@ -936,14 +936,14 @@ Comme pour  toute fonction dictionnaire,  Vim ajoute  une funcref se  référant
 elle dans le dico:
 
     echo bdict
-    {~
-                                        ┌ fonction “7”~
-                                        │~
-      'data': [0, 1], 'size': function('7',~
-      \                                {'data': [0, 1, 2], 'size': function('7')})~
-                                        ├────────────────────────────────────────┘~
-                                        └ associée à ce dictionnaire~
-    }~
+    {˜
+                                        ┌ fonction “7”˜
+                                        │˜
+      'data': [0, 1], 'size': function('7',˜
+      \                                {'data': [0, 1, 2], 'size': function('7')})˜
+                                        ├────────────────────────────────────────┘˜
+                                        └ associée à ce dictionnaire˜
+    }˜
 
 On remarque que `function()` accepte un dictionnaire comme argument optionnel.
 Qd elle en reçoit un, elle l'associe à la fonction.
@@ -960,11 +960,11 @@ Qd elle en reçoit un, elle l'associe à la fonction.
 
     let Fn = function('Hello')
     call Fn()
-    hello~
+    hello˜
 
     let Fn = function('World')
     call Fn()
-    world~
+    world˜
 
 On peut  invoquer une  fonction en remplaçant  son nom par  une funcref,  ou une
 expression dont l'évaluation est une funcref.
@@ -981,7 +981,7 @@ l'évaluation est une funcref:
     let Fn = function('Func')
     let list = [3, 4]
     echo call(Fn, list)
-    7~
+    7˜
 
 `call()` permet de passer une liste d'arguments à une funcref.
 Équivaut à :
@@ -994,7 +994,7 @@ la liste, pas si on les laisse dedans:
     echo call(Fn, list)
     ✔
     echo Fn(list)
-    ✘ E119: Not enough arguments for function: Func~
+    ✘ E119: Not enough arguments for function: Func˜
 
 ---
 
@@ -1010,9 +1010,9 @@ directement à une fonction:
     endfu
 
     echo call('Func', [1, 2])
-    3~
+    3˜
     echo call('Func', [1, 2, 3])
-    6~
+    6˜
 
 Utile pour  passer à une fonction  un ensemble d'arguments dont  la taille n'est
 pas connue à l'avance.
@@ -1031,7 +1031,7 @@ pas connue à l'avance.
                                 ┊
     echo Fn()                   ┊ "
                                 ┊
-    bar                         ┊ foo~
+    bar                         ┊ foo˜
 
 
 Si on crée une funcref, et qu'on  change la définition de la fonction à laquelle
@@ -1052,7 +1052,7 @@ IOW, la funcref produite par:
 ---
 
     :echo function('system')->type() == v:t_string
-    0~
+    0˜
 
 Confirme que  la sortie  de `function()`  qui s'affiche à  l'écran est  bien une
 référence et non une chaîne.
@@ -1069,7 +1069,7 @@ Pour  obtenir le  nom  d'une funcref  sous  forme de  chaîne,  il faut  utilise
         return 42
     endfu
     let Func = function('Func')
-    E705: Variable name conflicts with existing function: Func~
+    E705: Variable name conflicts with existing function: Func˜
 
 On  ne peut  pas ré-utiliser  le  nom d'une  fonction pour  nommer une  variable
 contenant une funcref se référant à elle.
@@ -1084,7 +1084,7 @@ dico dont la valeur est une funcref se référant à elle:
     endfu
     let mydict = {'data': [0, 1], 'Func': function('Func')}
     echo mydict.Func()
-    42~
+    42˜
 
 # ?
 
@@ -1093,7 +1093,7 @@ dico dont la valeur est une funcref se référant à elle:
     endfu
     let Description = function('Describe', [1, 2])
     call Description('piggies')
-    3 piggies~
+    3 piggies˜
 
 `function()` peut lier une liste d'arguments à une fonction.
 On dit que le résultat est un “partiel“.
@@ -1108,7 +1108,7 @@ Sans partiel, les 2 dernières lignes du code se ré-écriraient comme ceci:
 Un partiel est une funcref particulière:
 
     echo type(Description) == v:t_func
-    1~
+    1˜
 
 ---
 
@@ -1149,7 +1149,7 @@ en ne fournissant à une autre fonction qu'une partie de ses arguments.
     let object = {'name': 'fruits'}
     let Description = function('Describe', object)
     call Description()
-    here are some fruits~
+    here are some fruits˜
 
 `function()` peut aussi lier un dico à une fonction.
 Ici, on lie le dico `object` à la fonction `Describe()`.
@@ -1166,7 +1166,7 @@ Elle peut alors se référer au dico via sa variable locale `self`.
     let object = {'name': 'piggies'}
     let Description = function('Describe', [3], object)
     call Description('little')
-    3 little piggies~
+    3 little piggies˜
 
 Illustre qu'on peut  lier à une fonction  à la fois une liste  d'arguments et un
 dico.
@@ -1193,7 +1193,7 @@ San partiel, l'exemple précédent se ré-écrirait de la façon suivante:
                            └ partial
 
     call NewDesc('piggies')
-    3 piggies~
+    3 piggies˜
 
 Montre que le nom du 1er argument donné à `function()` n'est pas forcément celui
 d'une fonction.
@@ -1231,7 +1231,7 @@ La dernière commande équivaut à :
     let mydict.myfunc = Fn
 
     call mydict.myfunc()
-    foo~
+    foo˜
 
 Un partiel n'est pas le seul moyen de lier une fonction à un dico.
 On peut aussi le faire en affectant sa funcref à une clé du dico.
@@ -1250,7 +1250,7 @@ Ici, `Func()` reçoit `mydict` via `self` qd on accède à la clé `myfunc`.
     let other_dict.myfunc = mydict.myfunc
 
     call other_dict.myfunc()
-    bar~
+    bar˜
 
 Si on duplique la fonction `mydict.myfunc` en `other_dict.myfunc`:
 
@@ -1277,7 +1277,7 @@ lieu de `foo`.
     let other_dict.myfunc = mydict.myfunc
 
     call other_dict.myfunc()
-    foo~
+    foo˜
 
 En revanche, si on la duplique en l'ayant au préalable définie comme un partiel,
 qu'on utilise pour EXPLICITEMENT lier la fonction au dico:

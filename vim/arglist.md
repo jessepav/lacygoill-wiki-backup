@@ -29,7 +29,7 @@ It's a set of filepaths.
     :sp
     :bw
     :args
-    [/tmp/file]~
+    [/tmp/file]˜
 
 In this experiment,  even after wiping the buffer `/tmp/file`,  which was stored
 in the arglist, it still persists in the arglist.
@@ -123,10 +123,10 @@ It may not work and raise the error:
 MWE:
 
     $ find /etc -name 'debconf.conf' 2>/dev/null
-    /etc/debconf.conf    ✔~
+    /etc/debconf.conf    ✔˜
 
     :args `find /etc -name 'debconf.conf' 2>/dev/null`
-    E79    ✘~
+    E79    ✘˜
 
 
 Besides, if the shell command contains a  pipe, a quote, or some other character
@@ -388,22 +388,22 @@ global one.
                     " empty.  In effect, it would remove the local arglist we've
                     " just populated.
                     :args
-                    some filepaths~
+                    some filepaths˜
                     :echo arglistid()
-                    7 or some other non-zero number,~
-                    and according to `:h arglistid()`:~
+                    7 or some other non-zero number,˜
+                    and according to `:h arglistid()`:˜
 
-                            “Zero is used for the global argument list.”~
+                            “Zero is used for the global argument list.”˜
 
-                    So, it means we're currently using the local arglist.~
+                    So, it means we're currently using the local arglist.˜
 
 
                     :argg " use the global arglist
                     :args /etc/*.conf
                     :args
-                    no filepaths~
+                    no filepaths˜
                     :echo arglistid()
-                    0~
+                    0˜
 
 
     argidx()

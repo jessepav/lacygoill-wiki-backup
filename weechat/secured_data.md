@@ -30,11 +30,11 @@ In:
 Use the `/secure` command:
 
     /secure
-    Hash algo: sha256  Cipher: aes256  Salt: on~
+    Hash algo: sha256  Cipher: aes256  Salt: on˜
 
-    Passphrase is not set~
+    Passphrase is not set˜
 
-    No secured data set~
+    No secured data set˜
 
 ##
 # Using secured data

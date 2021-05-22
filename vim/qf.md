@@ -96,21 +96,21 @@ Examples:
 
     $ grep -RHIins pat /etc | vim -q /dev/stdin
     :echo &ef
-    /dev/stdin~
+    /dev/stdin˜
 
     $ grep -RHIins pat /etc >/tmp/my_error_file ; vim -q /tmp/my_error_file
     :echo &ef
-    /tmp/my_error_file~
+    /tmp/my_error_file˜
 
     $ vim -q <(shell cmd)
     :echo &ef
-    /proc/self/fd/123~
+    /proc/self/fd/123˜
 
     $ vim
     :cd /tmp
     :cfile my_error_file
     :echo &ef
-    my_error_file~
+    my_error_file˜
 
 ##
 # Properties of a qf entry
@@ -142,8 +142,8 @@ You can set it:
 But not get it:
 
     :echo getqflist()[0]->keys()
-    ['lnum', 'bufnr', 'col', 'pattern', 'valid', 'vcol', 'nr', 'type', 'module', 'text']~
-      no 'filename' key~
+    ['lnum', 'bufnr', 'col', 'pattern', 'valid', 'vcol', 'nr', 'type', 'module', 'text']˜
+      no 'filename' key˜
 
 ##
 ## What's the 'module'  property of a qf entry?
@@ -314,7 +314,7 @@ Assign the value `'$'` to its `'nr'` property.
                                     there's no qfl whose id and position in the stack are 1 and 3:
 
                                         :echo getqflist({'nr': 3, 'id': 1}).id
-                                        {'nr': 0, 'id': 0} ✘~
+                                        {'nr': 0, 'id': 0} ✘˜
 
 ## How to get the position in the stack of the qfl whose identifier is `3`?
 
@@ -1265,7 +1265,7 @@ If you wipe the buffer before restoring the qfl, it will raise an error.
     :bw /tmp/file
 
     :call setqflist(qfl)
-    E92: Buffer 123 not found~
+    E92: Buffer 123 not found˜
 
 ## How to reliably save then later restore the qfl?
 
@@ -1508,19 +1508,19 @@ buffer, it uses the buffer-local value of `'isk'`.
     :sp /tmp/file
     :call append('.', ['foo', 'bar', 'foo#bar'])
     :vim /\<bar/gj %
-    /tmp/file  |3 col 1  | bar~
-    /tmp/file  |4 col 5  | foo#bar~
+    /tmp/file  |3 col 1  | bar˜
+    /tmp/file  |4 col 5  | foo#bar˜
 
     :setl isk+=#
     :vim /\<bar/gj %
-    /tmp/file  |3 col 1  | bar~
+    /tmp/file  |3 col 1  | bar˜
 
 The previous command shows that `:vim` is influenced by the local value of `'isk'`.
 
     :bd
     :vim /\<bar/gj /tmp/file
-    /tmp/file  |3 col 1  | bar~
-    /tmp/file  |4 col 5  | foo#bar~
+    /tmp/file  |3 col 1  | bar˜
+    /tmp/file  |4 col 5  | foo#bar˜
 
 But *not* if the buffer where the search is performed is unloaded.
 
@@ -1598,13 +1598,13 @@ Maybe have a look at this for inspiration:
     " press `gwj` to format the line `b` with the line `c`
     " press `u` to undo
     :cnext
-    (2 of 2) (line deleted): c~
+    (2 of 2) (line deleted): c˜
 
 After `:cnext`, the cursor is positioned on line `d`; I would expect line `c`.
 Besides, the qfl has been altered:
 
     :echo getqflist()[1]
-    {'lnum': 4, 'bufnr': 1, 'col': 1, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': 0, 'type': '', 'module': '', 'text': 'c'}~
+    {'lnum': 4, 'bufnr': 1, 'col': 1, 'pattern': '', 'valid': 1, 'vcol': 0, 'nr': 0, 'type': '', 'module': '', 'text': 'c'}˜
 
 The value of the key `lnum` has changed from `3` to `4`.
 
@@ -1654,8 +1654,8 @@ OTOH, the winid is incremented every time you open a new qf window:
 
     $ vim -Nu NONE +'sil helpg foo' +'echom win_getid() | close' +'sil helpg bar' +'echom win_getid()'
 
-    1001~
-    1002~
+    1001˜
+    1002˜
 
 But you can't use that info like this:
 
@@ -1694,7 +1694,7 @@ parses the whole file pattern in a regex-like way.
 And in a regex, environment variables are not expanded.
 
     :vim /$TERM/ /tmp/file
-    E480: No match: $TERM~
+    E480: No match: $TERM˜
                     ^---^
                     $TERM was not expanded
 
@@ -1763,11 +1763,11 @@ Start Vim like this:
 
     :q
     " press:  'cd'
-    E120: Using <SID> not in a script context: s:func~
+    E120: Using <SID> not in a script context: s:func˜
 
     :q
     " press:  'ci'
-    E117: Unknown function: s:func~
+    E117: Unknown function: s:func˜
 
 I think  that the  code which handles  the `'quickfixtextfunc'`  property shares
 some  code with  the  one  code which  handles  the `'quickfixtextfunc'`  global
@@ -1940,7 +1940,7 @@ Simplify this MWE, so that it doesn't refer to any custom configuration.
 
     $ vim -Nu NONE --cmd 'filetype plugin on' +'let &gp="rg -LS --vimgrep 2>/dev/null"' +'sil grep foobar /etc' +cw
     :echo w:quickfix_title
-    :rg -LS --vimgrep 2>/dev/null foobar /etc~
+    :rg -LS --vimgrep 2>/dev/null foobar /etc˜
 
 I think that Vim assumes `:grep` always executes `$ grep`.
 Under this assumption, the leading `:` kinda makes sense.
@@ -1954,7 +1954,7 @@ Vim does not add this leading `:` in the following command:
     $ vim -Nu NONE --cmd 'filetype plugin on' -q =(grep -Rn foobar /etc) +cw
     :wincmd w
     :echo w:quickfix_title
-    cfile /tmp/zshCNH7Qk~
+    cfile /tmp/zshCNH7Qk˜
     ^
     no leading colon
 

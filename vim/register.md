@@ -44,7 +44,7 @@ Usage example:
                                                  vv
     $ vim -Nu NONE -i NONE +"pu!='text'" +'norm! "ryy'
     :echo getreginfo('"').points_to
-    r~
+    r˜
 
 ##
 # setting the contents of a register
@@ -69,14 +69,14 @@ Example:
     :pu
     " 'zzz' is put
     :echo getreginfo('"').points_to
-    z~
+    z˜
 
     :call setreg('a', {'isunnamed': v:true})
 
     :pu
     " 'aaa' is put
     :echo getreginfo('"').points_to
-    a~
+    a˜
 
 ## How to change the type of a register?
 
@@ -99,11 +99,11 @@ be automatically reconnected to `"0`.
 
     $ vim -Nu NONE -i NONE +"pu!='text'" +'norm! "ryy'
     :echo getreginfo('"').points_to
-    r~
+    r˜
 
     :call setreg('"', [''], 'av')
     :echo getreginfo('"').points_to
-    0~
+    0˜
 
 Second,  if you  – accidentally  –  reset a  linewise register  into a  linewise
 register  (yeah, I  know,  it's  useless; hence  the  *accidentally*), Vim  will
@@ -112,7 +112,7 @@ happily append an undesirable extra newline:
     $ vim -Nu NONE -i NONE +"pu!='text'" +'norm! yy'
     :call setreg('"', [''], 'aV')
     :reg "
-    l  ""   text^J^J~
+    l  ""   text^J^J˜
                   ^^
                   ✘
 
@@ -125,21 +125,21 @@ It would be automatically reconnected to `"0` right before the text is written.
 
     $ vim -Nu NONE -i NONE +"pu!='text'" +'norm! "ryy'
     :echo getreginfo('"').points_to
-    r~
+    r˜
 
     :call setreg('"', [''], '')
     :echo getreginfo('"').points_to
-    0~
+    0˜
 
 Same thing if you use `:let` instead of `setreg()`:
 
     :norm! "ryy
     :echo getreginfo('"').points_to
-    r~
+    r˜
 
     :let @" = ''
     :echo getreginfo('"').points_to
-    0~
+    0˜
 
 ### What should I use instead?
 
@@ -169,11 +169,11 @@ It doesn't preserve the original type of the register `r`.
 
     norm! "ryy
     echo getregtype('r')
-    V~
+    V˜
 
     let @r ..= 'appended'
     echo getregtype('r')
-    v~
+    v˜
 
 ### How to fix it?
 
@@ -188,11 +188,11 @@ Example:
 
     norm! "ryy
     echo getregtype('r')
-    V~
+    V˜
 
     call setreg('r', ['appended'], 'a' .. getregtype('r'))
     echo getregtype('r')
-    V~
+    V˜
 
 ##
 ## What's the default type of a register when I set it with `setreg()`, without a 3rd argument, and
@@ -202,7 +202,7 @@ Characterwise.
 
     call setreg('r', 'linewise')
     echo getregtype('r')
-    v~
+    v˜
 
 ### the 2nd argument is a list of strings?
 
@@ -210,7 +210,7 @@ Linewise.
 
     call setreg('r', ['foo', 'bar', 'baz'])
     echo getregtype('r')
-    V~
+    V˜
 
 ## Consider these assignments:
 
@@ -222,7 +222,7 @@ Linewise.
 It points to `"0`:
 
     echo getreginfo('"').points_to
-    0~
+    0˜
 
 Which is  consistent with a  `setreg()` invocation where  the 2nd argument  is a
 string or a list.
@@ -300,8 +300,8 @@ See `:h function-search-undo`.
     endfu
     call Func()
     echom @/
-    inside func call~
-    outside func call~
+    inside func call˜
+    outside func call˜
 
 Warning: Do *not*  use our custom  `+s` operator to  source this code;  it would
 interfere with the results.  And do *not* run the code via `:@*` after selecting
@@ -320,7 +320,7 @@ When you set it manually via `:let` or `setreg()`.
     endfu
     call Func()
     echo @/
-    inside func call~
+    inside func call˜
 
 ### What about the dot register?  Is it restored?
 
@@ -335,9 +335,9 @@ No:
     endfu
     call Func()
     echom @.
-    " outside~
-    " inside~
-    " inside~
+    " outside˜
+    " inside˜
+    " inside˜
       ^----^
       after the function call, the dot register has not been restored
 
@@ -351,10 +351,10 @@ The dot command is not affected; it keeps its original behavior:
     endfu
     call Func()
     norm! .
-    " outside~
-    " inside~
-    " inside~
-    " outside~
+    " outside˜
+    " inside˜
+    " inside˜
+    " outside˜
       ^-----^
       after the function call, the dot command still repeats the last command performed *before* the function call
 
@@ -368,7 +368,7 @@ In fact, as soon as you use it, the `.` register is restored:
     call Func()
     norm! .
     echom @.
-    " outside~
+    " outside˜
 
 ##
 ## What's stored in the search register `"/`?
@@ -398,8 +398,8 @@ is affected:
     /pat
     :let @/ = 'reset'
     :echo histget('/')
-    pat~
-    ^-^
+    pat˜
+    ^^^
     different than 'reset'
 
 ###
@@ -470,14 +470,14 @@ In the numbered register `0`:
     $ vim -Nu NONE -i NONE +"pu='if anything remember this'"
     :norm! wwy$
     :echo @0
-    remember this~
+    remember this˜
 
 Unless you specified another explicit register:
 
     $ vim -Nu NONE -i NONE +"pu='if anything remember this'"
     :norm! ww"ry$
     :reg 0r
-    c  "r   remember this~
+    c  "r   remember this˜
 
 ### the last changed or deleted text smaller than one line?
 
@@ -486,7 +486,7 @@ In the small delete register `-`:
     $ vim -Nu NONE -i NONE +"pu='once upon DELETEME a time'"
     :norm! wwde
     :echo @-
-    DELETEME~
+    DELETEME˜
 
 See `:h quote_-`.
 
@@ -497,8 +497,8 @@ In the numbered register `1`:
     $ vim -Nu NONE -i NONE +"pu=['once', 'upon', 'DELETE', 'ME', 'a', 'time']"
     :3,4d
     :echo @1
-    DELETE~
-    ME~
+    DELETE˜
+    ME˜
 
 See: `:h quote_number`.
 
@@ -531,14 +531,14 @@ In that case, Vim always uses the `"1` register (in addition to `"-`).
     $ vim -Nu NONE -i NONE +"pu='once upon (DELETE ME) a time'"
     :norm! wwd%
     :reg 1-
-    c  "1   (DELETE ME)~
-    c  "-   (DELETE ME)~
+    c  "1   (DELETE ME)˜
+    c  "-   (DELETE ME)˜
 
     $ vim -Nu NONE -i NONE +"pu='once upon (CHANGE ME) a time'"
     :norm! wwc%replacement
     :reg 1-
-    c  "1   (CHANGE ME)~
-    c  "-   (CHANGE ME)~
+    c  "1   (CHANGE ME)˜
+    c  "-   (CHANGE ME)˜
 
 Rationale: These motions can jump to another  line; when used after an operator,
 they can span multiple lines, and the resulting text can be considered as "big".
@@ -560,12 +560,12 @@ Examples:
     $ vim -Nu NONE -i NONE +"pu='if anything remember this'"
     :norm! ww"ay$
     :echo @0
-    ''~
+    ''˜
 
     $ vim -Nu NONE -i NONE +"pu='once upon DELETEME a time'"
     :norm! ww"bde
     :echo @-
-    ''~
+    ''˜
 
 ---
 
@@ -574,7 +574,7 @@ This exception does not affect a big change/deletion:
     $ vim -Nu NONE -i NONE +"pu=['once', 'upon', 'DELETE', 'ME', 'a', 'time']"
     :3,4d c
     :reg 1
-    l  "1   DELETE^JME^J~
+    l  "1   DELETE^JME^J˜
 
 Which seems to contradict the documentation at `:h quote_number`:
 
@@ -592,8 +592,8 @@ For example, `"3dd` writes the current line in the registers 1 and 4.
     $ vim -Nu NONE -i NONE +"pu='some text'"
     "3dd
     :reg 123456789
-    l  "1   some text^J~
-    l  "4   some text^J~
+    l  "1   some text^J˜
+    l  "4   some text^J˜
 
 ---
 
@@ -602,7 +602,7 @@ In all other cases, the text is only written in the register you specified.
     $ vim -Nu NONE -i NONE +"pu='some text'"
     "3diw
     :reg 123456789
-    c  "3   some~
+    c  "3   some˜
 
 The  old contents  from  the numbered  register is  *not*  shifted into  another
 numbered register; it's lost.
@@ -613,7 +613,7 @@ numbered register; it's lost.
     2G
     "3yy
     :reg 123456789
-    c  "3   some other text^J~
+    c  "3   some other text^J˜
 
 ##
 # Macro
@@ -963,7 +963,7 @@ No, unless you pass the `t` flag to `feedkeys()`:
              C-a
              q
     :reg q
-    c  "q   ^A~
+    c  "q   ^A˜
 
                                                             v
     $ vim -Nu NONE +'nno <c-a> <cmd>call feedkeys("<c-b>", "t")<cr>'
@@ -972,7 +972,7 @@ No, unless you pass the `t` flag to `feedkeys()`:
              C-a
              q
     :reg q
-    c  "q   ^A^B~
+    c  "q   ^A^B˜
               ^^
 
 With the  `t` flag, the key  is not processed  as if it  came from the rhs  of a
@@ -1006,15 +1006,15 @@ In command-line mode, use `:put`.
     $ vim -Nu NONE +"pu=['a', 'b']"
     :exe "norm! ggy\<c-v>j"
     :norm! p
-    aa~
-    bb~
+    aa˜
+    bb˜
 
     :undo
     :pu
-    a~
-    a~
-    b~
-    b~
+    a˜
+    a˜
+    b˜
+    b˜
 
 In a script, use `setreg()` to reset the type of the register:
 
@@ -1158,7 +1158,7 @@ Note that the new alternate file must match an existing buffer.
 
     sil! exe 'bw! ' .. $MYVIMRC
     let @# = $MYVIMRC
-    E94: No matching buffer for ...~
+    E94: No matching buffer for ...˜
 
 Make sure it exists:
 
@@ -1274,16 +1274,16 @@ For the first issue, use `setreg()` and pass the value as a list, not as a strin
                                                   ✘
                                                   v------v
     $ vim -es -Nu NONE -i NONE +'call setreg("q", "a\x0ab", "c")' +'pu=execute(\"reg q\") | %p | qa!'
-    Type Name Content~
-      c  "q   a^Jb~
+    Type Name Content˜
+      c  "q   a^Jb˜
                ^^
                NUL has been translated into NL
 
                                                   ✔
                                                   v--------v
     $ vim -es -Nu NONE -i NONE +'call setreg("q", ["a\x0ab"], "c")' +'pu=execute(\"reg q\") | %p | qa!'
-    Type Name Content~
-      c  "q   a^@b~
+    Type Name Content˜
+      c  "q   a^@b˜
                ^^
                NUL has been preserved
 
@@ -1293,8 +1293,8 @@ For the second issue, use `setreg()` and pass it the third argument `c`:
 
                                                                 v
     $  vim -es -Nu NONE -i NONE +'call setreg("q", [":\<cr>"], "c")' +'pu=execute(\"reg q\") | %p | qa!'
-    Type Name Content~
-      c  "q   :^M~
+    Type Name Content˜
+      c  "q   :^M˜
 
 The `c`  flag prevents  Vim from processing  the contents of  the register  as a
 *line* of text, which would cause a trailing `^J` to be added.
@@ -1321,8 +1321,8 @@ NL and one which results from the translation of a NUL.
     EOF
     )
 
-    original:  a^@b^@c~
-    restored:  a^Jb^Jc~
+    original:  a^@b^@c˜
+    restored:  a^Jb^Jc˜
                 ^^ ^^
                 ✘  ✘
 
@@ -1353,8 +1353,8 @@ translate it as a NL:
     EOF
     )
 
-    ['a~
-    b']~
+    ['a˜
+    b']˜
 
 *But* when you'll restore it, Vim will know that it's not a real NL because it's
 inside  a single  list item;  and a  list item  describes *one*  text line,  not
@@ -1373,8 +1373,8 @@ translate it back into a NUL.
     EOF
     )
 
-    original:  a^@b^@c~
-    restored:  a^@b^@c~
+    original:  a^@b^@c˜
+    restored:  a^@b^@c˜
 
 ---
 
@@ -1540,7 +1540,7 @@ Examples:
     )
 
     :mess
-    x mapping is used~
+    x mapping is used˜
 
     $ vim -es -Nu NONE -S <(cat <<'EOF'
         ono foo bar
@@ -1552,7 +1552,7 @@ Examples:
     EOF
     )
 
-    bard~
+    bard˜
     ^^^
     should be foo
 
@@ -1572,7 +1572,7 @@ processed in the mode you expect:
     )
 
     :mess
-    ''~
+    ''˜
 
 If the mode you expect is not normal, use a no-op instead of `Esc`:
 
@@ -1587,7 +1587,7 @@ If the mode you expect is not normal, use a no-op instead of `Esc`:
     EOF
     )
 
-    food~
+    food˜
 
 See also:
 

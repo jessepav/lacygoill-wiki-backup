@@ -29,8 +29,8 @@ They are taken from the terminfo description of the outer terminal.
                                                                                             ^-^
     $ tmux -Lx -f/dev/null
     $ tmux info | grep smxx
-    203: smxx: (string) \033[123m~
-                             ^-^
+    203: smxx: (string) \033[123m˜
+                             ^^^
 
 ##
 ## How to customize the output of `$ tmux info`?
@@ -67,7 +67,7 @@ Example:
     $ tmux detach
     $ tmux -Lx attach
     $ tmux info | grep smxx
-    [missing]~
+    [missing]˜
 
     # restore 'smxx'
                                        replace with the index of '*:smxx@' in the array
@@ -76,7 +76,7 @@ Example:
     $ tmux detach
     $ tmux -Lx attach
     $ tmux info | grep smxx
-    203: smxx: (string) \033[9m~
+    203: smxx: (string) \033[9m˜
 
 ##
 ## When does tmux discard a CSI / OSC sequence which I try to send to the outer terminal?
@@ -112,8 +112,8 @@ This experiment shows that it's wrong though:
     $ tmux detach
     $ tmux -Lx attach
     $ tmux info | grep 'smxx\|smul'
-    202: smul: (string) \\e[9m~
-    203: smxx: [missing]~
+    202: smul: (string) \\e[9m˜
+    203: smxx: [missing]˜
 
     $ printf '\e[9m  strikethrough  \e[0m\n'
 
@@ -157,7 +157,7 @@ tmux doesn't relay a sequence associated to a canceled capability.
     $ tmux detach
     $ tmux -Lx attach
     $ tmux info | grep smxx
-    203: smxx: [missing]~
+    203: smxx: [missing]˜
 
     $ printf '\e[9m  strikethrough  \e[0m\n'
 
@@ -170,9 +170,9 @@ The description of the inner terminal is irrelevant.
 
     $ tmux -Lx -f/dev/null
     $ infocmp | grep smxx
-    ''~
+    ''˜
     $ tmux info | grep smxx
-    203: smxx: (string) \033[9m~
+    203: smxx: (string) \033[9m˜
 
     $ printf '\e[9m  strikethrough  \e[0m\n'
 
@@ -256,11 +256,11 @@ An unofficial extended capability not found in standard terminfo.
 ### How can I list all terminfo extensions supported by tmux?
 
     $ infocmp -1x xterm+tmux | sed '1,2d'
-    Cr=\E]112\007,~
-    Cs=\E]12;%p1%s\007,~
-    Ms=\E]52;%p1%s;%p2%s\007,~
-    Se=\E[2 q,~
-    Ss=\E[%p1%d q,~
+    Cr=\E]112\007,˜
+    Cs=\E]12;%p1%s\007,˜
+    Ms=\E]52;%p1%s;%p2%s\007,˜
+    Se=\E[2 q,˜
+    Ss=\E[%p1%d q,˜
 
 ##
 ## Which sequence can I send to the terminal to set the title of

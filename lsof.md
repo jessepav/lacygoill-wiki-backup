@@ -64,8 +64,8 @@ For example, bash needs this setting:
               └ to prevent zsh from interpreting the brackets as a collection:
 
                   % echo [1]
-                   zsh: no matches found: [1]~
-                   (zsh tried to find a file named 1)~
+                   zsh: no matches found: [1]˜
+                   (zsh tried to find a file named 1)˜
 
 ### sockets using the tcp protocol?  the udp protocol?
 

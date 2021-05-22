@@ -50,15 +50,15 @@ Check the authenticity of the installer's tarball:
 You should read a message containing the text “Good signature from ...”:
 
     $ gpg --verify Python-3.9.4.tgz.asc
-    gpg: assuming signed data in `Python-3.9.4.tgz'~
-    gpg: Signature made Sun 04 Apr 2021 08:25:54 PM CEST using RSA key ID 10250568~
-    gpg: Good signature from "Łukasz Langa (GPG langa.pl) <lukasz@langa.pl>"~
-    gpg:                 aka "Łukasz Langa (Work e-mail account) <ambv@fb.com>"~
-    gpg:                 aka "[jpeg image of size 24479]"~
-    gpg:                 aka "Łukasz Langa <lukasz@python.org>"~
-    gpg: WARNING: This key is not certified with a trusted signature!~
-    gpg:          There is no indication that the signature belongs to the owner.~
-    Primary key fingerprint: E3FF 2839 C048 B25C 084D  EBE9 B269 95E3 1025 0568~
+    gpg: assuming signed data in `Python-3.9.4.tgz'˜
+    gpg: Signature made Sun 04 Apr 2021 08:25:54 PM CEST using RSA key ID 10250568˜
+    gpg: Good signature from "Łukasz Langa (GPG langa.pl) <lukasz@langa.pl>"˜
+    gpg:                 aka "Łukasz Langa (Work e-mail account) <ambv@fb.com>"˜
+    gpg:                 aka "[jpeg image of size 24479]"˜
+    gpg:                 aka "Łukasz Langa <lukasz@python.org>"˜
+    gpg: WARNING: This key is not certified with a trusted signature!˜
+    gpg:          There is no indication that the signature belongs to the owner.˜
+    Primary key fingerprint: E3FF 2839 C048 B25C 084D  EBE9 B269 95E3 1025 0568˜
 
 To get rid of the warning:
 
@@ -67,28 +67,28 @@ To get rid of the warning:
                      v------v
     $ gpg --edit-key 10250568
     gpg> trust
-        1 = I don't know or won't say~
-        2 = I do NOT trust~
-        3 = I trust marginally~
-        4 = I trust fully~
-        5 = I trust ultimately~
-        m = back to the main menu~
+        1 = I don't know or won't say˜
+        2 = I do NOT trust˜
+        3 = I trust marginally˜
+        4 = I trust fully˜
+        5 = I trust ultimately˜
+        m = back to the main menu˜
     Your decision? 5
 
 Now, if you re-run the `--verify` command, there should be no warning anymore:
 
     $ gpg --verify Python-3.9.4.tgz.asc
-    gpg: assuming signed data in `Python-3.9.4.tgz'~
-    gpg: Signature made Sun 04 Apr 2021 08:25:54 PM CEST using RSA key ID 10250568~
-    gpg: checking the trustdb~
-    gpg: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model~
-    gpg: depth: 0  valid:   8  signed:   4  trust: 0-, 0q, 0n, 0m, 0f, 8u~
-    gpg: depth: 1  valid:   4  signed:   3  trust: 4-, 0q, 0n, 0m, 0f, 0u~
-    gpg: next trustdb check due at 2023-09-25~
-    gpg: Good signature from "Łukasz Langa (GPG langa.pl) <lukasz@langa.pl>"~
-    gpg:                 aka "Łukasz Langa (Work e-mail account) <ambv@fb.com>"~
-    gpg:                 aka "[jpeg image of size 24479]"~
-    gpg:                 aka "Łukasz Langa <lukasz@python.org>"~
+    gpg: assuming signed data in `Python-3.9.4.tgz'˜
+    gpg: Signature made Sun 04 Apr 2021 08:25:54 PM CEST using RSA key ID 10250568˜
+    gpg: checking the trustdb˜
+    gpg: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model˜
+    gpg: depth: 0  valid:   8  signed:   4  trust: 0-, 0q, 0n, 0m, 0f, 8u˜
+    gpg: depth: 1  valid:   4  signed:   3  trust: 4-, 0q, 0n, 0m, 0f, 0u˜
+    gpg: next trustdb check due at 2023-09-25˜
+    gpg: Good signature from "Łukasz Langa (GPG langa.pl) <lukasz@langa.pl>"˜
+    gpg:                 aka "Łukasz Langa (Work e-mail account) <ambv@fb.com>"˜
+    gpg:                 aka "[jpeg image of size 24479]"˜
+    gpg:                 aka "Łukasz Langa <lukasz@python.org>"˜
 
 See:
 
@@ -122,21 +122,21 @@ Without `libssl-dev`,  later, you might  not be able  to install a  package with
 `pip`:
 
     $ python3 -m pip install --user requests
-    pip is configured  with locations that require  TLS/SSL, however the~
-    ssl module in Python is not available.~
+    pip is configured  with locations that require  TLS/SSL, however the˜
+    ssl module in Python is not available.˜
 
-    ...~
+    ...˜
 
-    Could not find a version that satisfies the requirement requests (from versions: )~
-    No matching distribution found for requests~
+    Could not find a version that satisfies the requirement requests (from versions: )˜
+    No matching distribution found for requests˜
 
-    Could not  fetch URL https://pypi.python.org/simple/requests/:~
+    Could not  fetch URL https://pypi.python.org/simple/requests/:˜
 
-    There was a problem confirming the ssl certificate:~
-    HTTPSConnectionPool(host='pypi.python.org', port=443):~
-    Max  retries   exceeded  with  url:  /simple/requests/   (Caused  by~
-    SSLError("Can't connect to  HTTPS URL because the SSL  module is not~
-    available.",)) - skipping.~
+    There was a problem confirming the ssl certificate:˜
+    HTTPSConnectionPool(host='pypi.python.org', port=443):˜
+    Max  retries   exceeded  with  url:  /simple/requests/   (Caused  by˜
+    SSLError("Can't connect to  HTTPS URL because the SSL  module is not˜
+    available.",)) - skipping.˜
 
 See also: <https://stackoverflow.com/a/41601137/9780968>
 
@@ -229,9 +229,9 @@ You can now use the most recent python interpreter with commands like:
 ## How to see the list of all the interpreters installed on my machine?
 
     $ type -a python3
-    python3 is /usr/local/bin/python3~
-    python3 is /usr/bin/python3~
-    python3 is /bin/python3~
+    python3 is /usr/local/bin/python3˜
+    python3 is /usr/bin/python3˜
+    python3 is /bin/python3˜
 
 ### In the previous output, what's the absolute path of the interpreter which will be run when I invoke `python3`?
 
@@ -428,8 +428,8 @@ Then install the package like this:
 
 The installation may fail because of a missing dependency, `msgpack`.
 
-    Could not find a version that satisfies the requirement msgpack>=0.5.0 (from pynvim==0.3.1) (from versions: )~
-    No matching distribution found for msgpack>=0.5.0 (from pynvim==0.3.1)~
+    Could not find a version that satisfies the requirement msgpack>=0.5.0 (from pynvim==0.3.1) (from versions: )˜
+    No matching distribution found for msgpack>=0.5.0 (from pynvim==0.3.1)˜
 
 In that case repeat the process:
 

@@ -46,9 +46,9 @@ Install the dependencies necessary to compile the lua interface:
 Later, you can check the lua interface has been compiled by running:
 
     :echo has('lua')
-    1~
+    1˜
     :echo &luadll
-    libluajit-5.1.so.2~
+    libluajit-5.1.so.2˜
 
 ## get the source code / update
 

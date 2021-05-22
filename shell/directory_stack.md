@@ -102,12 +102,12 @@ They  advance further  in the  stack by  N;  N being  the number  you passed  as
 argument to `pushd`.  If necessary, they wrap around the end bottom the stack.
 
     % dirs
-    1 2 3 4 5~
+    1 2 3 4 5˜
 
     % pushd +2
 
     % dirs
-    3 4 5 1 2~
+    3 4 5 1 2˜
 
 ## What happens if I try to execute `pushd dir`, `dir` being a directory which is already in the stack?
 
@@ -126,17 +126,17 @@ Example:
     % pushd ../one
 
     % dirs
-    one~
-    two~
-    three~
-    four~
+    one˜
+    two˜
+    three˜
+    four˜
 
     % pushd ../three
     % dirs
-    three~
-    one~
-    two~
-    four~
+    three˜
+    one˜
+    two˜
+    four˜
 
 ## I want `pushd +n` to just lift the directory `n`, not rotating the whole stack!  How to do it?
 

@@ -59,18 +59,18 @@ See these links for more info:
 
 The last patch raises this error:
 
-    patching file rxvt.1.pod~
-    patching file rxvt.7.pod~
-    can't find file to patch at input line 42~
-    Perhaps you should have used the -p or --strip option?~
-    The text leading up to this was:~
-    --------------------------~
-    |Index: pkg-urxvt/src/perl/selection-popup~
-    |===================================================================~
-    |--- pkg-urxvt.orig/src/perl/selection-popup    2013-02-12 12:12:29.227728891 -0500~
-    |+++ pkg-urxvt/src/perl/selection-popup 2013-03-20 17:34:07.049845487 -0400~
-    --------------------------~
-    File to patch:~
+    patching file rxvt.1.pod˜
+    patching file rxvt.7.pod˜
+    can't find file to patch at input line 42˜
+    Perhaps you should have used the -p or --strip option?˜
+    The text leading up to this was:˜
+    --------------------------˜
+    |Index: pkg-urxvt/src/perl/selection-popup˜
+    |===================================================================˜
+    |--- pkg-urxvt.orig/src/perl/selection-popup    2013-02-12 12:12:29.227728891 -0500˜
+    |+++ pkg-urxvt/src/perl/selection-popup 2013-03-20 17:34:07.049845487 -0400˜
+    --------------------------˜
+    File to patch:˜
 
 Enter this:
 

@@ -570,8 +570,8 @@ by a default filetype plugin, they need to be sourced after.
 Vim doesn't use it when we do `:set syn=foo`:
 
     :2Verb set syn=foo
-    Searching for "syntax/foo.vim syntax/foo/*.vim" in ...~
-    not found in 'runtimepath': "syntax/foobar.vim syntax/foobar/*.vim"~
+    Searching for "syntax/foo.vim syntax/foo/*.vim" in ...˜
+    not found in 'runtimepath': "syntax/foobar.vim syntax/foobar/*.vim"˜
 
 #### indent plugin?
 
@@ -801,12 +801,12 @@ First, the settings applied by the filetype plugins A won't be undone.
 But in addition to that, the filetype plugins B won't be sourced:
 
     $ vim -es -Nu NONE --cmd 'filetype plugin on' +'set ft=python vbs=1 | nno <buffer>' +'qa!' /tmp/abap.abap
-    No mapping found~
+    No mapping found˜
 
     $ vim -es -Nu NONE --cmd 'filetype plugin on' +'let b:undo_ftplugin ="" | set ft=python vbs=1 | nno <buffer>' +'qa!' /tmp/abap.abap
-    n  [M          *@:call <SNR>5_Python_jump('n', '\v\S\n*(^(\s*\n*)*(class|def|async def)|^\S)', 'Wb', v:count1, 0)<CR>~
-            Last set from /usr/local/share/vim/vim82/ftplugin/python.vim line 65~
-    ...~
+    n  [M          *@:call <SNR>5_Python_jump('n', '\v\S\n*(^(\s*\n*)*(class|def|async def)|^\S)', 'Wb', v:count1, 0)<CR>˜
+            Last set from /usr/local/share/vim/vim82/ftplugin/python.vim line 65˜
+    ...˜
 
 In the  first command, the  mappings from the  python filetype plugins  have not
 been  installed because  `b:undo_ftplugin` was  not  set when  the filetype  was
@@ -842,9 +842,9 @@ variable, try something like this:
 Example:
 
     :h html*indent C-d
-    html-indent~
-    html-indenting~
-    ft-html-indent~
+    html-indent˜
+    html-indenting˜
+    ft-html-indent˜
 
 ## Why can't I write an indentation setting in a filetype plugin?
 

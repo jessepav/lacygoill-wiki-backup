@@ -141,11 +141,11 @@ En fonction de la relation entre leurs réponses, quelle information L. N. Corne
         On a 3 types de paires d'habitants possibles, et donc 3 paires de réponses possibles:
 
                 chevalier  - chevalier
-                oui + oui~
+                oui + oui˜
                 domestique - domestique
-                oui + oui~
+                oui + oui˜
                 chevalier  - domestique
-                non + non~
+                non + non˜
 
         On s'aperçoit que:
 

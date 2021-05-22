@@ -639,12 +639,12 @@ The shell will open  a new file descriptor that is guaranteed to  be at least 10
 and set the parameter named by the identifier to the file descriptor opened.
 For example:
 
-               ┌ no whitespace is allowed between the closing brace
-               │ and the redirection operator
-               │
-        : {myfd}>&1
-        echo $myfd
-        11~
+           ┌ no whitespace is allowed between the closing brace
+           │ and the redirection operator
+           │
+    : {myfd}>&1
+    echo $myfd
+    11˜
 
 This opens a  new file descriptor that  is a duplicate of file  descriptor 1 and
 sets the parameter myfd  to the number of the file descriptor,  which will be at
@@ -861,13 +861,13 @@ Yes.
     $ touch file{1..3}
 
     $ ls
-    file1 file2 file3~
+    file1 file2 file3˜
 
     $ ls >file && cat file
-    file~
-      file1~
-      file2~
-      file3~
+    file˜
+      file1˜
+      file2˜
+      file3˜
 
 The first `ls` wrote the files on a line, but the second did it on a column.
 This is  because `ls` saw that  its stdin was  connected to the terminal  in the
@@ -876,12 +876,12 @@ first case, but to a file in the second one.
 ##
 # How to get the set of file descriptors opened for a process?
 
-        $ ls /proc/PID/fd
+    $ ls /proc/PID/fd
 
 Example:
 
-        $ ls /proc/$$/fd
-        list of the fds opened for the current shell~
+    $ ls /proc/$$/fd
+    list of the fds opened for the current shell˜
 
 ##
 # How to redirect in a file all the messages and errors of the processes started from the current script?
@@ -1100,12 +1100,12 @@ current shell.
 
 MWE:
 
-        $ cd /tmp | true
-        the cwd is NOT changed~
+    $ cd /tmp | true
+    the cwd is NOT changed˜
 
-        $ var=hello | true
-        $ echo $var
-        ∅~
+    $ var=hello | true
+    $ echo $var
+    ∅˜
 
 ---
 
@@ -1114,12 +1114,12 @@ current shell.
 
 MWE:
 
-        % true | cd /tmp
-        the cwd IS changed~
+    % true | cd /tmp
+    the cwd IS changed˜
 
-        % true | var=hello
-        % echo $var
-        hello~
+    % true | var=hello
+    % echo $var
+    hello˜
 
 ##
 # process substitution
@@ -1133,7 +1133,7 @@ MWE:
 Example:
 
     $ echo 'hello' > >(wc -m)
-    6~
+    6˜
 
 This example was equivalent to:
 
@@ -1221,34 +1221,34 @@ link because it creates a new file `file2` with a new inode number.
 In the following examples, `file2` is a hard link.
 Watch what happens to it in the three following commands:
 
-        $ echo 'hello' >file1  && \
-          echo 'bye'   >file3  && \
-          ln file3 file2       && \
-          mv file1 file2       && \
-          cat file2 file3
-          hello~
-          bye~
+    $ echo 'hello' >file1  && \
+      echo 'bye'   >file3  && \
+      ln file3 file2       && \
+      mv file1 file2       && \
+      cat file2 file3
+      hello˜
+      bye˜
 
-        # `file2` and `file3` do NOT have the same inode number anymore
+    # `file2` and `file3` do NOT have the same inode number anymore
 
 
-        $ echo 'hello' >file1  && \
-          echo 'bye'   >file3  && \
-          rm file2             && \
-          ln file3 file2       && \
-          cp file1 file2       && \
-          cat file2 file3
-          hello~
-          hello~
+    $ echo 'hello' >file1  && \
+      echo 'bye'   >file3  && \
+      rm file2             && \
+      ln file3 file2       && \
+      cp file1 file2       && \
+      cat file2 file3
+      hello˜
+      hello˜
 
-        $ echo 'hello' >file1           && \
-          echo 'bye'   >file3           && \
-          rm file2                      && \
-          ln file3 file2                && \
-          cat file1 >file2 && rm file1  && \
-          cat file2 file3
-          hello~
-          hello~
+    $ echo 'hello' >file1           && \
+      echo 'bye'   >file3           && \
+      rm file2                      && \
+      ln file3 file2                && \
+      cat file1 >file2 && rm file1  && \
+      cat file2 file3
+      hello˜
+      hello˜
 
 In the last two commands, `file2` and `file3` STILL have the same inode number.
 

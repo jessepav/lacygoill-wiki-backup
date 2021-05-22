@@ -48,13 +48,13 @@ family of system calls informally called “exec()”.
 
 You can do manually replace the code of the current shell using the `exec` command:
 
-        % echo $SHELL
-        zsh~
+    % echo $SHELL
+    zsh˜
 
-        % exec bash
+    % exec bash
 
-        $ echo $SHELL
-        bash~
+    $ echo $SHELL
+    bash˜
 
 Here, `exec bash` has not started a subshell.
 You're still in the  same process, which is confirmed by the  fact that when you

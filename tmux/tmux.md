@@ -4,9 +4,9 @@
 It's an alias for `show-messages -JT`.
 
     $ tmux show-options -s command-alias
-    ...~
-    command-alias[3] "info=show-messages -JT"~
-    ...~
+    ...˜
+    command-alias[3] "info=show-messages -JT"˜
+    ...˜
 
 ##
 ## How does tmux parse a semicolon?
@@ -96,15 +96,15 @@ but not inside a single-quoted string.
 
     set -g @foo a\u00e9b
     $ tmux show -gv @foo
-    aéb~
+    aéb˜
 
     set -g @foo "a\u00e9b"
     $ tmux show -gv @foo
-    aéb~
+    aéb˜
 
     set -g @foo 'a\u00e9b'
     $ tmux show -gv @foo
-    a\u00e9b~
+    a\u00e9b˜
 
 ##
 # Quoting
@@ -174,12 +174,12 @@ one; and then it concatenates them.
     set @foo 'x''y'
     EOF
     ) \; show -v @foo
-    xy~
+    xy˜
 
 It behaves just like the shell:
 
     $ echo 'x''y'
-    xy~
+    xy˜
 
 ### Then how to include a single quote inside a single-quoted string?
 
@@ -195,7 +195,7 @@ Use `'\''`.
     set @foo 'x'\''y'
     EOF
     ) \; show -v @foo
-    x'y~
+    x'y˜
 
 Alternatively, you could use `'"'"'`.
 
@@ -227,18 +227,18 @@ In a  double-quoted string, tmux removes  any backslash which is  not escaped by
 another backslash, just like Vim.
 
     :display 'a \z b'
-    a \z b~
+    a \z b˜
 
     :display "a \z b"
-    a z b~
+    a z b˜
 
     :display "a \\z b"
-    a \z b~
+    a \z b˜
 
 If the next character has a special meaning, the latter is removed:
 
     :display "a\"b"
-    a"b~
+    a"b˜
 
 #### Outside strings?
 
@@ -246,10 +246,10 @@ It  is removed,  and if  the next  character is  special, it  loses its  special
 meaning:
 
     :display foo\ bar
-    foo bar~
+    foo bar˜
 
     :display foo\\\ bar
-    foo\ bar~
+    foo\ bar˜
        │
        └ originally, this was the second backslash;
          it has been preserved because the previous backslash removed its special meaning;
@@ -264,10 +264,10 @@ That's also what lets you make a key binding run several commands:
 ### Why is there a difference in the output of `$ tmux display -p "\z"` vs `:display -p "\z"`?
 
     $ tmux display -p "\z"
-    \z~
+    \z˜
 
     :display -p "\z"
-    z~
+    z˜
 
 The shell parses the first command before tmux.
 It  doesn't remove  the backslash,  because in  a double-quoted  string, `\`  is
@@ -643,10 +643,10 @@ For a real example:
 Make sure the terminal has 80 columns, and 24 lines.
 
     $ echo $COLUMNS
-    80~
+    80˜
 
     $ echo $LINES
-    24~
+    24˜
 
 The goal is to reproduce with a “standard” geometry.
 
@@ -712,7 +712,7 @@ And read the error message written in the file to get more information.
 Make sure you don't have a running tmux server listening to the socket `x`:
 
     $ ps aux | grep tmux | grep x
-    user 6771 ... tmux -Lx -f/dev/null~
+    user 6771 ... tmux -Lx -f/dev/null˜
                            ├─────────┘
                            └ your custom config can't be read because of this
 
@@ -734,7 +734,7 @@ MWE:
     $ tmux -Lx -f/dev/null
     Alt-F4
     $ ps aux | grep tmux | grep test
-    user ... tmux -Lx -f/dev/null~
+    user ... tmux -Lx -f/dev/null˜
 
 Alt-F4 kills the client, but not the server.
 The server keeps running in the background.

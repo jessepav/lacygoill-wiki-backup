@@ -231,7 +231,7 @@ And why do we need `;` in the first working key binding?
 Note that we can't use `;` in the second key binding, because tmux would complain:
 
     $ tmux bind-key -T copy-mode-vi y send -X copy-pipe-and-cancel 'xsel -i --clipboard' \\\; run ';'
-    usage: run-shell [-b] [-t target-pane] shell-command~
+    usage: run-shell [-b] [-t target-pane] shell-command˜
 
 But `:` should have the same effect; i.e. none.
 From `man bash /SHELL BUILTIN COMMANDS`:

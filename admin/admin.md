@@ -78,10 +78,10 @@ not have the same view of the filesystem.
 Example:
 
     $ sysctl -a -r 'max_dgram_qlen'
-    net.unix.max_dgram_qlen = 512~
+    net.unix.max_dgram_qlen = 512˜
 
     $ cat /proc/sys/net/unix/max_dgram_qlen
-    512~
+    512˜
 
 # Where are the kernel parameters configured?
 
@@ -391,7 +391,7 @@ the issue currently discussed (double password).
 When you run `$ aptitude [safe-]upgrade` and you can see on the last line of the
 output that some packages were not upgraded:
 
-    0 upgraded, 0 newly installed, 0 to remove and 4 not upgraded.~
+    0 upgraded, 0 newly installed, 0 to remove and 4 not upgraded.˜
 
 `$ aptitude dist-upgrade` should upgrade them.
 
@@ -1164,7 +1164,7 @@ contenant plusieurs fichiers.
             Atm, sur Ubuntu 16.04, il ne semble pas y avoir de paquet `node`:
 
                     % apt-cache policy node
-                    ∅~
+                    ∅˜
 
             En revanche, il y a bien un paquet `npm`, mais sa version (3.5.2) ne semble pas suffisante
             pour utiliser/installer correctement `mapscii`:
@@ -1261,7 +1261,7 @@ contenant plusieurs fichiers.
     $ make doc
     $ man doc/node.1 (test)
     $ ./node -e "console.log('Hello from Node.js ' + process.version)"
-    Hello from Node.js v6.11.0   (test)~
+    Hello from Node.js v6.11.0   (test)˜
     $ sudo make install
 
             Procédure d'installation.
@@ -1368,14 +1368,14 @@ contenant plusieurs fichiers.
             qd on fait une màj:
 
                     $ sudo aptitude upgrade
-                    Unable to resolve dependencies for the upgrade: no solution found.~
-                    Unable to safely resolve dependencies, try running with --full-resolver.~
+                    Unable to resolve dependencies for the upgrade: no solution found.˜
+                    Unable to safely resolve dependencies, try running with --full-resolver.˜
 
                     $ sudo apt-get upgrade
-                    You might want to run 'apt-get -f install' to correct these.~
-                    The following packages have unmet dependencies:~
-                    parallel: Conflicts: moreutils but 0.57-1 is installed~
-                    E: Unmet dependencies.  Try using -f.~
+                    You might want to run 'apt-get -f install' to correct these.˜
+                    The following packages have unmet dependencies:˜
+                    parallel: Conflicts: moreutils but 0.57-1 is installed˜
+                    E: Unmet dependencies.  Try using -f.˜
 
 
             Il semble que bientôt (?) la procédure ne sera plus utile, car tout ceci sera fait automatiquement
@@ -1386,9 +1386,9 @@ contenant plusieurs fichiers.
 ### printf
 
     printf '%s\n' 'foo' 'bar' 'baz'
-    foo~
-    bar~
-    baz~
+    foo˜
+    bar˜
+    baz˜
 
 Contrairement à `VimL` et  `awk`, il semble qu'on ne soit  pas obligé de fournir
 autant d'items qu'il n'y d'expressions à formater.
@@ -1859,9 +1859,9 @@ et 'baz'.
 
 
     $ sudo    bash -c 'echo $HOME'
-    /home/user~
+    /home/user˜
     $ sudo -H bash -c 'echo $HOME'
-    /root~
+    /root˜
 
             L'option `-H = --set-home` demande à `sudo` de donner pour valeur à `$HOME` le home
             de l'utilisateur cible.
@@ -1872,9 +1872,9 @@ et 'baz'.
             Si on avait simplement exécuté:
 
                     $ sudo    echo $HOME
-                    /home/user~
+                    /home/user˜
                     $ sudo -H echo $HOME
-                    /home/user~
+                    /home/user˜
 
             ... on aurait constaté aucune différence, car `$HOME` aurait été développé avant d'exécuter
             la commande.
@@ -1889,9 +1889,9 @@ et 'baz'.
             d'y créer un fichier:
 
                     ls -ld /home
-                    drwxr-xr-x 3 root root 4096 Jan 18 18:04 /home~
-                            │~
-                            └─ pas le droit de modification~
+                    drwxr-xr-x 3 root root 4096 Jan 18 18:04 /home˜
+                            │˜
+                            └ pas le droit de modification˜
 
             Il faut donc élever nos privilèges via `sudo`.
 
@@ -1919,9 +1919,9 @@ et 'baz'.
 
 
     export FOO=bar; sudo    bash -c 'echo $FOO'
-    ∅~
+    ∅˜
     export FOO=bar; sudo -E bash -c 'echo $FOO'
-    bar~
+    bar˜
 
             Par défaut, `sudo` ne préserve pas les variables d'environnement.
             Si on veut les conserver, il faut utiliser l'option `-E`.
@@ -1944,9 +1944,9 @@ et 'baz'.
 
 
     $ sudo -E         bash -c 'echo $PATH'
-    root's path~
+    root's path˜
     $ sudo PATH=$PATH bash -c 'echo $PATH'
-    current user path~
+    current user path˜
 
             Ni `-E`, ni `env_keep` ne préservent pas `PATH`, il faut donc la passer manuellement.
 
@@ -2524,7 +2524,7 @@ builtin/alias/function.
 ---
 
     $ rlwrap read var
-    rlwrap: error: Cannot execute read: No such file or directory~
+    rlwrap: error: Cannot execute read: No such file or directory˜
 
 You could try to run the builtin in a subshell:
 
@@ -2539,11 +2539,11 @@ You can use the `-e` flag, but it seems only available in bash (not in zsh).
 
     $ alias foo=checkinstall
     $ rlwrap foo
-    rlwrap: error: Cannot execute foo: No such file or directory~
+    rlwrap: error: Cannot execute foo: No such file or directory˜
     # fails probably because an alias is only expanded when it's the first word.
 
     $ func() { checkinstall ;}
-    rlwrap: error: Cannot execute func: No such file or directory~
+    rlwrap: error: Cannot execute func: No such file or directory˜
 
 You could run the alias/function from a subshell:
 
