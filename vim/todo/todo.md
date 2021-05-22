@@ -97,6 +97,7 @@ var funcnames =<< trim END
     extendnew
     get
     index
+    isdirectory
     match
     matchend
     remove

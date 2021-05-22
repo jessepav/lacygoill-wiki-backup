@@ -1,13 +1,19 @@
-# What's VB?
+# Terminology
+## What's VB?
 
-An abbreviation which I use in place of 'virtualbox'.
+An abbreviation which I use in place of "virtualbox".
 
-# What's VM?
+## What's VM?
 
-An abbreviation which I use in place of 'virtual machine'.
+An abbreviation which I use in place of "virtual machine".
 
 ##
-# Where is the manual for VB?
+# Documentation
+## Where is the VB installation procedure described?
+
+<https://www.virtualbox.org/wiki/Linux_Downloads>
+
+## Where is the manual for VB?
 
 <https://www.virtualbox.org/manual/>
 
@@ -17,11 +23,6 @@ In particular, the chapter 8 describes the command-line interface:
 
 ##
 # Host configuration
-## Where is the VB installation procedure described?
-
-<https://www.virtualbox.org/wiki/Linux_Downloads>
-
-##
 ## How to add a repository to get a more up-to-date VB package?
 
     $ sudo bash -c 'cat <<EOF >/etc/apt/sources.list.d/virtualbox.list
@@ -29,44 +30,37 @@ In particular, the chapter 8 describes the command-line interface:
     deb http://download.virtualbox.org/virtualbox/debian $(lsb_release -sc) contrib
     EOF'
 
-## How to check the authenticity of this new repository?
+### How to check the authenticity of this new repository?
 
     $ curl -Ls https://www.virtualbox.org/download/oracle_vbox_2016.asc >key.asc
 
-    $ key_check key.asc '...'
+    $ gpg_key_check key.asc '...'
       │
       └ custom function in `~/.zshrc`
 
 The first command downloads the key of the repository.
 The second command makes sure that it belongs to the owner of the repository.
 
----
-
 Note that you must replace '...' with the fingerprint found on the download page:
-
 <https://www.virtualbox.org/wiki/Linux_Downloads>
+But remove any space inside.
 
 Here's an example of fingerprint:
 
     B9F8 D658 297A F3EF C18D  5CDF A2F6 83C5 2980 AECF
 
-## How to add the key of the repository to my list of trusted keys?
+#### How to add the key of the repository to my list of trusted keys?
 
     $ sudo apt-key add key.asc
 
+##
 ## How to install the most recent VB package?
 
+    $ sudo aptitude update
     $ aptitude search virtualbox | grep -E '[0-9]\.[0-9]'
-    $ aptitude update && aptitude install virtualbox-x.y
-                                                     ^-^
-    replace with the values found in the previous command
-
----
-
-During the installation, you'll read some interesting messages:
-
-   > ureadahead will be reprofiled on next reboot
-   > Adding group `vboxusers' (GID 131) ...
+    $ sudo aptitude install virtualbox-x.y
+                                       ^^^
+    # replace with the value found in the previous command
 
 ## Why should I install `dkms`?
 
@@ -92,42 +86,39 @@ An optional pack of extensions which adds some features to VB:
    - USB 2.0 and USB 3.0 Host Controller
    - VirtualBox RDP (Remote Desktop Protocol)
 
-## Where can I download it?
+### Where can I download it?
 
 <http://download.virtualbox.org/virtualbox/>
 
-To enter the right directory, execute:
+To get the name of the directory to enter, execute:
 
-    $ aptitude show virtualbox-x.y
-    x.y.ab-cdefgh~
-        ^^
-    # Enter the directory `x.y.ab`
+                               replace with the version you installed previously
+                               vvv
+    $ aptitude show virtualbox-x.y | grep Version
+    Version: x.y.ab-cdefgh...~
+             ^^^^^^
 
-Then,  download the  file whose  extension  is `.vbox-extpack`,  and whose  name
-includes `cdefgh`.
+Enter  the directory  `x.y.ab/`;  then,  download the  file  whose extension  is
+`.vbox-extpack`, and whose name includes `cdefgh`.
 
-## How to install it?
+#### How to install it?
 
-                                 ┌ directory where firefox has downloaded the pack
-                                 ├─────────────────┐
-    $ vboxmanage extpack install /tmp/mozilla_user0/Oracle_VM_VirtualBox_Extension_Pack-5.1.22-115126.vbox-extpack
-                                                    │
-                                                    └ name of the downloaded file
+    $ vboxmanage extpack install /path/to/Oracle_VM_VirtualBox_Extension_Pack-*.vbox-extpack
+                                                        │
+                                                        └ name of the downloaded file
 
-## How to uninstall it?
+#### How to uninstall it?
 
     $ vboxmanage extpack uninstall 'Oracle VM VirtualBox Extension Pack'
                                     │
                                     └ name of the extension pack as it was installed
                                       and as reported by `VBoxManage list extpacks`
 
-## How to list the extension packs currently installed?
+### How to list the extension packs currently installed?
 
     $ vboxmanage list extpacks
 
-Lister les packs d'extensions actuellement installés.
-
-## Where can I find more info on how to manage my extension pack from the command-line?
+### Where can I find more info on how to manage my extension pack from the command-line?
 
 <https://www.virtualbox.org/manual/ch08.html#vboxmanage-extpack>
 
@@ -138,9 +129,6 @@ Lister les packs d'extensions actuellement installés.
 
 ## What to do if only 32 bits OS are supported?
 
-Si seuls  des OS  32 bits sont  listés, se  rendre dans le  BIOS, et  chercher à
-activer une technologie de virtualisation du cpu:
-
 Go into your BIOS settings, and enable CPU virtualization:
 
    - Intel Virtualization Technology (VT-x)
@@ -150,13 +138,16 @@ Go into your BIOS settings, and enable CPU virtualization:
 
     ~/VirtualBox VMs
 
-## How to change this location to `~/VB/`?
+### How to change this location to `~/VB/`?
 
     $ vboxmanage setproperty machinefolder ~/VB
 
 ##
 # Creation of a VM
 ## How to create a virtual machine named 'ubuntu'?
+
+    # we want VB to create VMs `~/VB`; not the default `~/VirtualBox VMs` (which is too verbose)
+    $ vboxmanage setproperty machinefolder ~/VB
 
     $ vboxmanage createvm --name ubuntu --ostype Ubuntu_64 --register
 
@@ -171,11 +162,11 @@ nic), which are well-suited.
 
 ### What are the 3 files/directories created/modified after the previous command?
 
-   - ~/VB/ubuntu/ is created (VM directory)
+   - `~/VB/ubuntu/` is created (VM directory)
 
-   - ~/VB/ubuntu/ubuntu.vbox is created (VM config)
+   - `~/VB/ubuntu/ubuntu.vbox` is created (VM config)
 
-   - ~/.config/VirtualBox/VirtualBox.xml is modified (VB config)
+   - `~/.config/VirtualBox/VirtualBox.xml` is modified (VB config)
       an entry is added for the new VM
 
 ### What's the effect of the `--register` option of the `createvm` subcommand?
@@ -187,7 +178,7 @@ Without `--register`, the VM is not available in the GUI, and it's not listed by
 
     registervm
 
-### How could I have used it to create the VM?
+#### How could I have used it to create the VM?
 
     $ vboxmanage createvm --name ubuntu
     $ vboxmanage registervm ~/VB/ubuntu/ubuntu.vbox
@@ -285,8 +276,8 @@ The latter could be a dvd disk, or a hard drive disk.
 
     $ vboxmanage createmedium --filename ~/VB/ubuntu/ubuntu.vdi --size 10000
                                          │
-                                         └ path to the file used by VB
-                                           to emulate the hard drive
+                                         └ path to the file which will be created
+                                           and used by VB to emulate the hard drive
 
     $ vboxmanage storagectl ubuntu --name 'SATA controller' --add sata
 
@@ -414,21 +405,31 @@ You should eject the disk right after installing the OS of the VM.
 It may prevent the Guest Additions ISO file from being mounted.
 
 ###
-### How to install the Guest Additions from the guest OS Ubuntu?
+### What are the Guest Additions?
+
+Device drivers and system applications which  can be installed inside a guest OS
+to improve its performance, and  provide a better integration/communication with
+the host OS.
+
+For more info, see:
+<https://www.virtualbox.org/manual/ch04.html#guestadditions>
+
+#### How to install them from the guest OS
+##### Ubuntu?
 
 From the guest OS:
 
-    $ sudo aptitude update && sudo aptitude safe-upgrade
-    $ sudo aptitude install dkms
+    $ sudo apt-get update
+    $ sudo apt-get install dkms
     $ sudo systemctl reboot
 
     # mount the Guest Additions ISO file inside the VM:
     #
     #       select “Devices” in the virtual machine's menu bar
-    #     > select the menu item “Install Guest Additions...”
+    #     > select the menu item “Insert Guest Additions CD image...”
 
     $ sudo -i
-    $ cd /media/$(whoami)/VBox_GAs_5.2.22
+    $ cd /media/$(whoami)/VBox_GAs*
     $ sh ./VBoxLinuxAdditions.run
     $ exit
 
@@ -439,28 +440,28 @@ From the guest OS:
                  --port 0 --device 0 \
                  --medium 'emptydrive'
 
-#### How to install the Guest Additions from the guest OS Debian?
+##### Debian?
 
 From the guest OS:
 
-    $ sudo aptitude update && aptitude safe-upgrade
+    $ sudo apt-get update
 
     # I'm not sure about those steps.
     # See here for more info:
     #         https://www.virtualbox.org/manual/ch02.html#externalkernelmodules
-    $ sudo aptitude install make gcc linux-headers-2.6-686 dkms
-    $ sudo aptitude purge virtualbox-ose-guest-dkms virtualbox-ose-guest-utils virtualbox-ose-guest-x11
-    $ sudo aptitude keep-all
+    $ sudo apt-get install make gcc linux-headers-2.6-686 dkms
+    $ sudo apt-get purge virtualbox-ose-guest-dkms virtualbox-ose-guest-utils virtualbox-ose-guest-x11
+    $ sudo apt-get keep-all
 
     $ sudo shutdown -r now
 
     # mount the Guest Additions ISO file inside the VM:
     #
     #       select “Devices” in the virtual machine's menu bar
-    #     > select the menu item “Install Guest Additions...”
+    #     > select the menu item “Insert Guest Additions CD image...”
 
     $ sudo -i
-    $ cd /media/$(whoami)/VBox_GAs_5.2.22
+    $ cd /media/$(whoami)/VBox_GAs_*
     $ sh ./VBoxLinuxAdditions.run
     $ exit
 
@@ -471,26 +472,16 @@ From the guest OS:
                  --port 0 --device 0 \
                  --medium 'emptydrive'
 
-#### How to UNinstall the Guest Additions from the guest OS?
+#### How to UNinstall them from the guest OS?
 
     # Devices
     #       > Install Guest Additions...
     $ sudo -i
-    $ cd /media/$(whoami)/VBox_GAs_5.2.22
+    $ cd /media/$(whoami)/VBox_GAs_*
     $ sh ./VBoxLinuxAdditions.run uninstall
     $ exit
 
-#### What are the Guest Additions?
-
-Device drivers and system applications which  can be installed inside a guest OS
-to improve its performance, and  provide a better integration/communication with
-the host OS.
-
-For more info, see:
-
-<https://www.virtualbox.org/manual/ch04.html#guestadditions>
-
-#### Where is the documentation for the Guest Additions?
+#### Where are they documented?
 
 <https://www.virtualbox.org/manual/ch04.html>
 
@@ -513,11 +504,11 @@ Alternatively, in GUI:
 
 Assuming you've successfully installed the Guest Additions, from the host OS:
 
+    $ mkdir -p ~/VB/ubuntu/share
+
     $ VBoxManage sharedfolder add ubuntu \
       --name ubuntu_share \
       --hostpath ~/VB/ubuntu/share
-
-    $ mkdir -p ~/VB/ubuntu/share
 
 Then, from the guest OS:
 
@@ -598,8 +589,7 @@ For more info, see:
 
 If you give to your VM the access to a usb device, as soon as you start your VM,
 the usb  device will be  ejected from the host  OS without having  been properly
-unmounted.
-Because of this, you may lose data.
+unmounted.  Because of this, you might lose data.
 
 Be sure that no usb device is connected  to your machine when you start a VM, or
 that the VM can't access the usb device.
@@ -653,7 +643,7 @@ By default, the Host key is Right-Ctrl.
 
 The actual key is visible in the right bottom of the VM window.
 
-## How to change the Host key?
+### How to change it?
 
       select “Input” in the virtual machine's menu bar
     > Keyboard
@@ -664,6 +654,7 @@ The actual key is visible in the right bottom of the VM window.
     > press some key(s) which won't conflict with existing key bindings
       Example: shift + left windows
 
+##
 ## Where can I find the default Host chords to manipulate the VM?
 
 <https://www.virtualbox.org/manual/ch09.html#idm9215>
@@ -794,29 +785,6 @@ Alternatively, you can press Host + t.
         --description 'new description'
 
 ##
-# To read
-
-    ┌───────────────────────────────┬────────────────────────────────────────────────────────────────┐
-    │ 7. Remote virtual machines    │ https://www.virtualbox.org/manual/ch07.html                    │
-    ├───────────────────────────────┼────────────────────────────────────────────────────────────────┤
-    │ 8.9. VBoxManage clonevm       │ https://www.virtualbox.org/manual/ch08.html#vboxmanage-clonevm │
-    ├───────────────────────────────┼────────────────────────────────────────────────────────────────┤
-    │ 8.10. VBoxManage import       │ https://www.virtualbox.org/manual/ch08.html#vboxmanage-import  │
-    ├───────────────────────────────┼────────────────────────────────────────────────────────────────┤
-    │ 8.11. VBoxManage export       │ https://www.virtualbox.org/manual/ch08.html#vboxmanage-export  │
-    └───────────────────────────────┴────────────────────────────────────────────────────────────────┘
-
-<https://hackernoon.com/virtualbox-are-you-getting-your-moneys-worth-4d7f98f3d7d2>
-
----
-
-Chapter 7 is interesting to learn how to run a VM on a remote server.
-This would be useful to avoid consuming resources on our local machine.
-
-The chapter also explains how to secure the communication between the client and
-the server.
-
-##
 # Issues
 ## VB crashed!
 
@@ -922,4 +890,27 @@ for a network setting.
 2. Start VB by executing:
 
          $ virtualbox &!
+
+##
+# To read
+
+    ┌───────────────────────────────┬────────────────────────────────────────────────────────────────┐
+    │ 7. Remote virtual machines    │ https://www.virtualbox.org/manual/ch07.html                    │
+    ├───────────────────────────────┼────────────────────────────────────────────────────────────────┤
+    │ 8.9. VBoxManage clonevm       │ https://www.virtualbox.org/manual/ch08.html#vboxmanage-clonevm │
+    ├───────────────────────────────┼────────────────────────────────────────────────────────────────┤
+    │ 8.10. VBoxManage import       │ https://www.virtualbox.org/manual/ch08.html#vboxmanage-import  │
+    ├───────────────────────────────┼────────────────────────────────────────────────────────────────┤
+    │ 8.11. VBoxManage export       │ https://www.virtualbox.org/manual/ch08.html#vboxmanage-export  │
+    └───────────────────────────────┴────────────────────────────────────────────────────────────────┘
+
+<https://hackernoon.com/virtualbox-are-you-getting-your-moneys-worth-4d7f98f3d7d2>
+
+---
+
+Chapter 7 is interesting to learn how to run a VM on a remote server.
+This would be useful to avoid consuming resources on our local machine.
+
+The chapter also explains how to secure the communication between the client and
+the server.
 

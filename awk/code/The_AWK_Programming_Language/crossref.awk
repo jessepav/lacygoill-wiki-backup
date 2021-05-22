@@ -5,9 +5,8 @@
 #
 # ctags and cscope are cross-referencing tools.
 #
-# But, the `nm` command can probably also be used as a cross-referencing tool.
-# Usage:
-#     nm /boot/grub/i386-pc/*
+# But, the `nm(1)` command can probably also be used as a cross-referencing tool.
+# Usage: `$ nm /boot/grub/i386-pc/*`
 #
 # This should scan all the files inside `/boot/grub/i386-pc/`.
 # The output should like:

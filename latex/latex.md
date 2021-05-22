@@ -7,24 +7,24 @@ The most popular LaTeX distribution on linux atm.
 
 Try this:
 
-        $ rm -rf ~/texlive/
+    $ rm -rf ~/texlive/
 
 TODO: Is it really enough?
 
-        https://tex.stackexchange.com/a/95502/169646
+<https://tex.stackexchange.com/a/95502/169646>
 
 ##
 ## How to install it?
 ### manually
 
-        $ mkdir ~/texlive/
-        $ cd /tmp && mkdir texlive && cd texlive
+    $ mkdir ~/texlive/
+    $ cd /tmp && mkdir texlive && cd texlive
 
-        $ wget http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
-        $ xt install-tl-unx.tar.gz
-        $ TEXLIVE_INSTALL_PREFIX=~/texlive/ ./install-tl
-        # press i to install
-        # wait ≈ an hour for the installation to complete
+    $ wget http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+    $ xt install-tl-unx.tar.gz
+    $ TEXLIVE_INSTALL_PREFIX=~/texlive/ ./install-tl
+    # press i to install
+    # wait ≈ an hour for the installation to complete
 
 Why setting `$TEXLIVE_INSTALL_PREFIX` to `~/texlive/` ?
 
@@ -34,35 +34,32 @@ But it's better to install it in your  home, because it will allow you to manage
 your packages  via `tlmgr` without `sudo`,  and without having to  configure the
 `$PATH` of the root user.
 
-        # `$PATH`, `$MANPATH`, `$INFOPATH`
-        # should contain the path to your texlive distribution
-        $ cat <<'EOF' >>~/.zshenv
+    # `$PATH`, `$MANPATH`, `$INFOPATH`
+    # should contain the path to your texlive distribution
+    $ cat <<'EOF' >>~/.zshenv
 
-        export PATH=$HOME/texlive/2018/bin/i386-linux:$PATH
-        export MANPATH=$HOME/texlive/2018/texmf-dist/doc/man:$MANPATH
-        export INFOPATH=$HOME/texlive/2018/texmf-dist/doc/info:$INFOPATH
-        EOF
+    export PATH=$HOME/texlive/2018/bin/i386-linux:$PATH
+    export MANPATH=$HOME/texlive/2018/texmf-dist/doc/man:$MANPATH
+    export INFOPATH=$HOME/texlive/2018/texmf-dist/doc/info:$INFOPATH
+    EOF
 
-        $ sudo aptitude install perl-tk
+    $ sudo aptitude install perl-tk
 
 `perl-tk` is necessary to start `tlmgr` in GUI via `$ tlmgr --gui`.
 
-Source: https://tug.org/texlive/distro.html#perltk
+Source: <https://tug.org/texlive/distro.html#perltk>
 
 ---
 
 For more info, see:
-
-    https://www.tug.org/texlive/doc/texlive-en/texlive-en.html
-    OR
-    ~/texlive/2017/texmf-dist/doc/texlive/texlive-en/texlive-en.pdf
-
-    https://www.tug.org/texlive/acquire-netinstall.html
-    http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+- <https://www.tug.org/texlive/doc/texlive-en/texlive-en.html>
+- `~/texlive/*/texmf-dist/doc/texlive/texlive-en/texlive-en.pdf`
+- <https://www.tug.org/texlive/acquire-netinstall.html>
+- <http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz>
 
 ### via aptitude
 
-        $ sudo aptitude install texlive-full
+    $ sudo aptitude install texlive-full
 
 Can take a lot of space (3-5 gigs) and some time (twenty minutes).
 
@@ -78,16 +75,15 @@ In particular, it includes the package `tikz-3dplot`, which, atm, is not present
 when you install texlive via `aptitude`.
 
 You can find a use case for `tikz-3dplot` in this plot:
-
-        http://www.texample.net/tikz/examples/spherical-polar-pots-with-3dplot/
+<http://www.texample.net/tikz/examples/spherical-polar-pots-with-3dplot/>
 
 Just replace this line:
 
-        \usepackage{3dplot}
+    \usepackage{3dplot}
 
-                →
+            →
 
-        \usepackage{tikz-3dplot}
+    \usepackage{tikz-3dplot}
 
 ###
 ## What's latexmk?
@@ -104,21 +100,19 @@ gives an up-to-date view of the document.
 
 It should be included in your TeX Live distribution.
 However, if you want to download it manually, do it from here:
-
-        http://personal.psu.edu/jcc8//software/latexmk-jcc/
+<http://personal.psu.edu/jcc8//software/latexmk-jcc/>
 
 Then, move it in `~/bin`.
 
 To be notified when a new version is released, you could subscribe to this rss feed:
-
-        https://www.ctan.org/ctan-ann/atom/latexmk.xml
+<https://www.ctan.org/ctan-ann/atom/latexmk.xml>
 
 ## How to configure it?
 
 Use one of these files:
 
-        $HOME/.latexmkrc
-        $XDG_CONFIG_HOME/latexmk/latexmkrc
+    $HOME/.latexmkrc
+    $XDG_CONFIG_HOME/latexmk/latexmkrc
 
 ##
 # Commands
@@ -137,27 +131,27 @@ Some of them contain upper case alphabetic characters (ex: \LaTeX).
 
 ## What's the syntax to use a command?
 
-        \command[optional argument]{mandatory argument}
+    \command[optional argument]{mandatory argument}
 
 ## What's the simplest syntax to define a new command?
 
-        \newcommand{\mymacro}{my text}
+    \newcommand{\mymacro}{my text}
 
 ## What's the syntax to define a new command accepting three arguments?
 
-                                 ┌ the code here could be arbitrarily complex
-                                 │
-                                 │ for example, you could format the second argument
-                                 │ in bold with `\textbf{#2}`
-                                 │
-                                 │ or you could add “hello” between the first
-                                 │ and second arguments
-                                 │
-                                 ├──────┐
-        \newcommand{\mymacro}[3]{#1 #2 #3}
-                             ├─┘
-                             └ this second argument passed to `\newcommand` is OPTIONAL,
-                               hence the square brackets instead of the curly brackets
+                             ┌ the code here could be arbitrarily complex
+                             │
+                             │ for example, you could format the second argument
+                             │ in bold with `\textbf{#2}`
+                             │
+                             │ or you could add “hello” between the first
+                             │ and second arguments
+                             │
+                             ├──────┐
+    \newcommand{\mymacro}[3]{#1 #2 #3}
+                         ├─┘
+                         └ this second argument passed to `\newcommand` is OPTIONAL,
+                           hence the square brackets instead of the curly brackets
 
                                it stands for the number of mandatory arguments
                                your new command expects
@@ -171,15 +165,15 @@ Some of them contain upper case alphabetic characters (ex: \LaTeX).
 `#1`, `#2`, `#3` will be replaced by the first, second, third arguments you pass
 to `\mymacro`:
 
-        \mymacro{foo}{bar}{baz}
+    \mymacro{foo}{bar}{baz}
 
 ## What's the general syntax to define a new command?
 
-        \newcommand{\name}[n][default]{definition}
+    \newcommand{\name}[n][default]{definition}
 
 ---
 
-        name
+    name
 
 The name of the new command, using:
 
@@ -191,7 +185,7 @@ with `end`.
 
 ---
 
-        n
+    n
 
 An integer from 1 to 9.
 It's the number of arguments of the new command.
@@ -200,7 +194,7 @@ If omitted, the command will have no arguments.
 
 ---
 
-        default
+    default
 
 If this is  present, then the first  argument would be optional,  and by default
 its value would be `default`.
@@ -209,14 +203,14 @@ Otherwise all arguments are mandatory.
 
 ---
 
-        definition
+    definition
 
 Every occurrence  of the  command will  be replaced  by `definition`,  and then,
 every occurrence of the form `#n` will be replaced by the nth argument.
 
 ## How to load a package?
 
-        \usepackage{mypackage}
+    \usepackage{mypackage}
 
 This will load the package `mypackage`, and read in all of its definitions.
 From now on, we may use all commands contained in that package.
@@ -229,9 +223,9 @@ and the following text.
 
 To solve this issue, escape the space:
 
-        \latex  is great    ✘
-        \latex\ is great    ✔
-              ^
+    \latex  is great    ✘
+    \latex\ is great    ✔
+          ^
 
 ## How to prevent a space after a macro to be “consumed”?
 
@@ -240,12 +234,12 @@ Load  the `xspace`  package  in the  preamble via  `\usepackage`,  then use  the
 
 Example:
 
-                    ┌ package
-                    │
-        \usepackage{xspace}
-        \newcommand{\mymacro}{my text\xspace}
-                                      │
-                                      └ command
+                ┌ package
+                │
+    \usepackage{xspace}
+    \newcommand{\mymacro}{my text\xspace}
+                                  │
+                                  └ command
 
 `\xspace` inserts a space depending on the following character:
 
@@ -269,28 +263,28 @@ The scope of a declaration begins from where it's placed until:
 
 Example:
 
-        \tiny hello \Huge world
-                    │
-                    └ the scope of \tiny ends here
+    \tiny hello \Huge world
+                │
+                └ the scope of \tiny ends here
 
 ## How to convert a declaration into an environment?
 
-        \declaration
+    \declaration
 
-                ⇔
+            ⇔
 
-        \begin{declaration}
-        \end{declaration}
+    \begin{declaration}
+    \end{declaration}
 
 ## How to limit the scope of a declaration?
 
 Place it inside a group, by surrounding it with curly braces:
 
-        foo {\sffamily bar} baz
+    foo {\sffamily bar} baz
 
 Or, convert it into an environment:
 
-        foo \begin{sffamily} bar \end{sffamily} baz
+    foo \begin{sffamily} bar \end{sffamily} baz
 
 ## Should I prefer groups or environments?
 
@@ -301,7 +295,7 @@ understandable.
 
 Yes:
 
-        Normal text, {\sffamily sans-serif text {\bfseries and bold}}.
+    Normal text, {\sffamily sans-serif text {\bfseries and bold}}.
 
 ##
 # Fonts
@@ -425,7 +419,7 @@ So, don't use the term “roman”.  Instead write:
 # Formatting
 ## How to choose a class for the document?
 
-        \documentclass{my class}
+    \documentclass{my class}
 
 To be used in the preamble.
 
@@ -454,7 +448,7 @@ To be used in the preamble.
 
 Yes, you can always nest two commands to apply two styles to some text:
 
-        This text is \textit{\textbf{bold-faced and in italics}}.
+    This text is \textit{\textbf{bold-faced and in italics}}.
 
 Also, two styles mean emphasizing twice which might be a questionable choice.
 Change the font shape wisely, and consistently.
@@ -495,12 +489,12 @@ Use the `\bigskip` command.
 
 ## How to print a TeX or LaTeX logo?
 
-        \LaTeX
-        \TeX
+    \LaTeX
+    \TeX
 
 ## How to print the title, author and date of the document in a formatted manner?
 
-        \maketitle
+    \maketitle
 
 These information must have been defined before via the commands:
 
@@ -512,7 +506,7 @@ To be used in the preamble.
 
 ## How to print a heading?
 
-        \section{some heading}
+    \section{some heading}
 
 A heading is bigger than normal text and bold-faced.
 
@@ -536,22 +530,22 @@ single purpose is to print a character.
 
 The backslash is a special case, you must use this command:
 
-        \textbackslash
+    \textbackslash
 
 ## Changing the font size at the end of a paragraph should be done right after or before the break?
 
 After:
 
-        \begin{document}                    \begin{document}
-        \begin{huge}                        \begin{huge}
+    \begin{document}                    \begin{document}
+    \begin{huge}                        \begin{huge}
 
-        ...                                 ...
-        ...                                 ...
-        last line of paragraph   ┐          last line of paragraph   ┐
-                                 │ ✔        \end{huge}               │ ✘
-        \end{huge}               ┘                                   ┘
-        another paragraph                   another paragraph
-        \end{document}                      \end{document}
+    ...                                 ...
+    ...                                 ...
+    last line of paragraph   ┐          last line of paragraph   ┐
+                             │ ✔        \end{huge}               │ ✘
+    \end{huge}               ┘                                   ┘
+    another paragraph                   another paragraph
+    \end{document}                      \end{document}
 
 
 LaTeX uses the current  font size at the very end of a  paragraph to compute the
@@ -572,11 +566,11 @@ By default, LaTeX typesets the text in italic shape.
 
 Two emphasizing cancel out:
 
-        \emph{some \emph{important} word}
+    \emph{some \emph{important} word}
 
-                        ⇔
+                    ⇔
 
-        \emph{some} important \emph{word}
+    \emph{some} important \emph{word}
 
 The  rationale being  that  if  you typeset  an  important  theorem entirely  in
 italics, you should still have the opportunity to highlight a word inside.
@@ -586,19 +580,19 @@ You can do so by re-emphasizing it.
 
 Usually nothing:
 
-        \textbf{\textbf{some text}}
+    \textbf{\textbf{some text}}
 
-                        ⇔
+                    ⇔
 
-                \textbf{some text}
+            \textbf{some text}
 
 ### apply two opposite styles to the same text?
 
 The most local one wins:
 
-        \textbf{text in bold \textmd{text in medium}}
+    \textbf{text in bold \textmd{text in medium}}
 
-        \textmd{text in medium \textbf{text in bold}}
+    \textmd{text in medium \textbf{text in bold}}
 
 ##
 ## Is `\emph` semantic markup or visual markup?
@@ -650,58 +644,57 @@ may end up in an irrelevant buffer.
 
 MWE:
 
-        $ cat /tmp/vimrc
+    $ cat /tmp/vimrc
 
-                set rtp^=~/.vim/plugged/vimtex/
-                set rtp+=~/.vim/plugged/vimtex/after
+            set rtp^=~/.vim/plugged/vimtex/
+            set rtp+=~/.vim/plugged/vimtex/after
 
-                filetype plugin indent on
-                syntax enable
+            filetype plugin indent on
+            syntax enable
 
-                let g:vimtex_matchparen_enabled = 0
+            let g:vimtex_matchparen_enabled = 0
 
-                augroup open_qf_window
-                    au!
-                    au QuickFixCmdPost * nested copen
-                augroup END
+            augroup open_qf_window
+                au!
+                au QuickFixCmdPost * nested copen
+            augroup END
 
-                let g:vimtex_compiler_latexmk = {
-                    \ 'backend' : 'jobs',
-                    \ 'background' : 1,
-                    \ 'build_dir' : '',
-                    \ 'callback' : 1,
-                    \ 'continuous' : 1,
-                    \ 'executable' : 'latexmk.pl',
-                    \ 'options' : [
-                    \      '-pdf',
-                    \      '-verbose',
-                    \      '-file-line-error',
-                    \      '-synctex=1',
-                    \      '-interaction=nonstopmode',
-                    \ ],
-                    \}
+            let g:vimtex_compiler_latexmk = {
+                \ 'backend' : 'jobs',
+                \ 'background' : 1,
+                \ 'build_dir' : '',
+                \ 'callback' : 1,
+                \ 'continuous' : 1,
+                \ 'executable' : 'latexmk.pl',
+                \ 'options' : [
+                \      '-pdf',
+                \      '-verbose',
+                \      '-file-line-error',
+                \      '-synctex=1',
+                \      '-interaction=nonstopmode',
+                \ ],
+                \}
 
                 let g:tex_flavor = 'latex'
 
 
-        $ cat ~/Downloads/file.tex
+    $ cat ~/Downloads/file.tex
 
-                \documentclass{article}
-                \begin{document}
-                Such commands can be \texit{\textbf{nested}}.
-                                        ^ missing `t` (purposeful error)
-                \end{document}
+            \documentclass{article}
+            \begin{document}
+            Such commands can be \texit{\textbf{nested}}.
+                                    ^ missing `t` (purposeful error)
+            \end{document}
 
 
-        $ vim -Nu /tmp/vimrc
-        :e ~/Downloads/file.tex
-        :VimtexCompileSS
-        :copen
+    $ vim -Nu /tmp/vimrc
+    :e ~/Downloads/file.tex
+    :VimtexCompileSS
+    :copen
 
 
 It should have been fixed:
-
-        https://github.com/lervag/vimtex/issues/963
+<https://github.com/lervag/vimtex/issues/963>
 
 But I  can still  reproduce the  issue if I  install an  autocmd opening  the qf
 window.  I can fix the issue if I delay the opening though.
@@ -709,7 +702,7 @@ window.  I can fix the issue if I delay the opening though.
 Try to submit a bug report.
 If it's fixed one day, remove the delay we've introduced in:
 
-        ~/.vim/plugged/vim-qf/autoload/qf.vim:639
+    ~/.vim/plugged/vim-qf/autoload/qf.vim:639
 
 
 
@@ -720,13 +713,11 @@ Try to configure `latexmk` (or `pdftex`) so that it displays absolute paths.
 
 Or try to use `pplatex` to parse the logfile.
 `pplatex` is  a command-line  utility used  to pretify the  output of  the LaTeX
-compiler:
-
-        https://github.com/stefanhepp/pplatex
+compiler: <https://github.com/stefanhepp/pplatex>
 
 To use it:
 
-        let g:vimtex_quickfix_method = 'pplatex'
+    let g:vimtex_quickfix_method = 'pplatex'
 
 You  may  need  to  tweak  `g:vimtex_compiler_latexmk`  and  remove  the  option
 `-file-line-error` from  the dictionary.   Maybe `vimtex` does  it automatically
@@ -743,51 +734,49 @@ directory of the current file before compiling.
 #
 # Todo
 
-https://castel.dev/post/lecture-notes-1/
-https://castel.dev/post/lecture-notes-2/
-https://castel.dev/post/lecture-notes-3/
+- <https://castel.dev/post/lecture-notes-1/>
+- <https://castel.dev/post/lecture-notes-2/>
+- <https://castel.dev/post/lecture-notes-3/>
 
 [texlive-en.pdf](~/texlive/2018/texmf-dist/doc/texlive/texlive-en/texlive-en.pdf)
 
-https://github.com/lervag/vimtex/issues
-https://github.com/honza/vim-snippets/blob/master/UltiSnips/tex.snippets
-https://github.com/honza/vim-snippets/blob/master/UltiSnips/texmath.snippets
+- <https://github.com/lervag/vimtex/issues>
+- <https://github.com/honza/vim-snippets/blob/master/UltiSnips/tex.snippets>
+- <https://github.com/honza/vim-snippets/blob/master/UltiSnips/texmath.snippets>
 
-http://dante.ctan.org/tex-archive/info/luatex/lualatex-doc/lualatex-doc.pdf (short guide to luatex)
+- <http://dante.ctan.org/tex-archive/info/luatex/lualatex-doc/lualatex-doc.pdf> (short guide to luatex)
 
-http://cremeronline.com/LaTeX/minimaltikz.pdf (Minimal introduction to TikZ)
+- <http://cremeronline.com/LaTeX/minimaltikz.pdf> (Minimal introduction to TikZ)
 
-http://detexify.kirelabs.org/classify.html  (draw a symbol in the browser and get the corresponding macro)
-http://www.texample.net/tikz/examples/      (examples of graphs)
-https://www.latextemplates.com/             (examples of templates)
+- <http://detexify.kirelabs.org/classify.html> (draw a symbol in the browser and get the corresponding macro)
+- <http://www.texample.net/tikz/examples/> (examples of graphs)
+- <https://www.latextemplates.com/> (examples of templates)
 
-https://www.overleaf.com/blog/571-an-introduction-to-luatex-part-1-what-is-it-and-what-makes-it-so-different#.WrF8AHXwYrg
+- <https://www.overleaf.com/blog/571-an-introduction-to-luatex-part-1-what-is-it-and-what-makes-it-so-different#.WrF8AHXwYrg>
 
 ---
 
-Interresting LaTeX package:
-
-    https://ctan.org/pkg/pythontex
-    Run Python from within a document, typesetting the results
+Interesting LaTeX package:
+- <https://ctan.org/pkg/pythontex> Run Python from within a document, typesetting the results
 
 ---
 
 Document these commands:
 
-        x_|c    compile selection
-        n_|c    single shot compilation
-        n_|C    continuous compilation
+    x_|c    compile selection
+    n_|c    single shot compilation
+    n_|C    continuous compilation
 
-        n_|ec   edit latexmkrc
+    n_|ec   edit latexmkrc
 
-        n_|n    clean some auxiliary files
-        n_|N    clean all auxiliary files
+    n_|n    clean some auxiliary files
+    n_|N    clean all auxiliary files
 
-        n_|s    stop continuous compilation of current file
-        n_|S    stop continuous compilation of all files
+    n_|s    stop continuous compilation of current file
+    n_|S    stop continuous compilation of all files
 
-        n_|v    view compiled file
-        n_|V    view compiled selection
+    n_|v    view compiled file
+    n_|V    view compiled selection
 
 
 Also, document the  fact that when you  compile a visual selection,  it must NOT
@@ -797,13 +786,13 @@ vimtex adds the preamble at the beginning of the file automatically.
 Also, according to  `:h VimtexCompileSelected`, you could add  a custom operator
 to compile a text-object:
 
-        When  used  as  a normal  mode  mapping,  the  mapping  will act  as  an
-        |operator| on the following motion or text object.  Finally, when used as
-        a visual mode mapping, it will act on the selected lines.
+    When  used  as  a normal  mode  mapping,  the  mapping  will act  as  an
+    |operator| on the following motion or text object.  Finally, when used as
+    a visual mode mapping, it will act on the selected lines.
 
 Try sth like this:
 
-        nmap  |?  <plug>(vimtex-compile-selected)
-               ^
-               replace with whatever key you want
+    nmap  |?  <plug>(vimtex-compile-selected)
+           ^
+           replace with whatever key you want
 

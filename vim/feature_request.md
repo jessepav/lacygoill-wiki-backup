@@ -3,6 +3,23 @@
 
 Would it be enough?
 
+## get the list of file patterns matching a given filetype (and the reverse)
+
+Examples:
+
+          new function
+          v-------------v
+    :echo getfilepatterns('python')
+    ['*.py', '*.pyw', '.pythonstartup', '.pythonrc', '*.ptl', '*.pyi', 'SConstruct']~
+
+
+          another new function
+          v---------v
+    :echo getfiletype('*.py')
+    python~
+
+Although, this new `getfiletype()` might be confused with the existing `getftype()`.
+
 ##
 # New argument to
 ## function

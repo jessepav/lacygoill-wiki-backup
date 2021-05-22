@@ -4275,3 +4275,15 @@ We would also need to prefix any command which uses an imported item with `silen
 That's  too much.   Also, when  your  code contains  a bug,  `silent!` can  make
 debugging harder, because it can hide the real cause of an issue.
 
+## Turn all utility functions into importable functions.
+
+Look for the pattern `#util#` everywhere in our config/plugins.
+
+This would make the code more readable:
+
+    window#util#isPopup()
+    →
+    IsPopup()
+
+There might be other functions to refactor in a similar way.
+For example, maybe `fold#adhoc#main()`.

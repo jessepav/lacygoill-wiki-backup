@@ -29,7 +29,7 @@ temperatures to one decimal point, for example).
 `long double` provides even more precision, but is rarely used.
 
 The C standard doesn't state how much precision the `float`, `double`, and `long double`
-types provide,  since different  computers may  store floating-point  numbers in
+types provide,  since different  computers might  store floating-point  numbers in
 different ways.
 
 Most modern computers follow the specifications in IEEE Standard 754.
@@ -56,7 +56,7 @@ the number to be stored in memory in the same format as a `double` variable.
 This  rule generally  causes no  problems, since  `double` values  are converted
 automatically to `float` when necessary.
 
-On occasion,  it may  be necessary  to force  the compiler  to store  a floating
+On occasion,  it might be  necessary to force the  compiler to store  a floating
 constant in `float` or `long double` format.
 To indicate that only single precision is  desired, put the letter `F` or `f` at
 the end of the constant; for example, `57.0F`.
@@ -73,14 +73,15 @@ letter `L` or `l` at the end (`57.0L`).
 # Compiling
 ## When do I need to make my code conform to the `c89` standard instead of the `c99` one?
 
-Whenever there's  no compiler,  on the  machine where  you'll compile,  which is
-c99-compliant.
-It's particularly relevant on old  hardware, embedded systems, and IoT (Internet
-of Things), where the only compiler available may be old and/or closed source.
+Whenever there's no compiler which is c99-compliant, on the machine where you'll
+compile.  It's particularly relevant on  old hardware, embedded systems, and IoT
+(Internet of  Things), where  the only  compiler available  might be  old and/or
+closed source.
 
 This shows that the compiler is to C what the python interpreter is to Python.
-In the  same way  your python3 code  may not work  if you  pass it to  a python2
-interpreter, your C99 code may not work if you compile it with an old compiler.
+In the  same way your python3  code might not work  if you pass it  to a python2
+interpreter,  your C99  code  might not  work  if  you compile  it  with an  old
+compiler.
 
 ##
 ## What are C extensions?
@@ -201,11 +202,11 @@ But `0` is one of those numbers, so you can go only up to `2^31 − 1`.
 
 For better performance and accuracy.
 
-Arithmetic on `float` numbers may be slower than arithmetic on `int` numbers.
+Arithmetic on `float` numbers might be slower than arithmetic on `int` numbers.
 
 Also, the  value of  a `float` variable  is often just  an approximation  of the
 number that was stored in it.
-If you store `0.1`  in a `float` variable, you may later  find that the variable
+If you store `0.1` in a `float` variable, you might later find that the variable
 has a value such as `0.09999999999999987`, because of rounding error.
 
 ##
@@ -303,36 +304,11 @@ While this will work in C89, *and* in C99:
 - <https://github.com/williamgherman/c-solutions>
 
 ##
-# TODO
+# Todo
+## Would this Vim syntax plugin give us better C syntax highlighting?
 
-Better C syntax highlighting?
 <https://github.com/justinmk/vim-syntax-extra>
 
----
+## Build Your Own Text Editor
 
 <http://viewsourcecode.org/snaptoken/kilo/>
-
-Welcome!
-This is an instruction booklet that shows you how to build a text editor in C.
-
-The text editor is antirez’s kilo, with some changes.
-It’s  about 1000  lines of  C in  a  single file  with no  dependencies, and  it
-implements all  the basic features  you expect in a  minimal editor, as  well as
-syntax highlighting and a search feature.
-
-This booklet walks you through building the editor in 184 steps.
-Each step, you’ll add, change, or remove a few lines of code.
-Most steps,  you’ll be  able to observe  the changes you  made by  compiling and
-running the program immediately afterwards.
-
-I explain each step along the way, sometimes in a lot of detail.
-Feel free to skim or  skip the prose, as the main point of  this is that you are
-going to build a text editor from scratch!
-Anything you learn along the way is bonus, and there’s plenty to learn just from
-typing in the changes to the code and observing the results.
-
-See the appendices  for more information on the tutorial  itself (including what
-to do if you get stuck, and where to get help).
-
-If you’re ready to begin, then go to chapter 1!
-

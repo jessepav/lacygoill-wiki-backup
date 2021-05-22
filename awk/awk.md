@@ -4426,7 +4426,7 @@ subsubsection per subchapter.
 
 Besides, each exercise should be confined in its own directory:
 
-    ~/wiki/<subject>/examples/<book_title>/ch12/ex34/<script_name>
+    ~/wiki/<subject>/code/<book_title>/ch12/ex34/<script_name>
 
 Inside, it should be accompanied by 2 other files: `input` and `output`.
 `input` should contain an example of input on which the example script operates.

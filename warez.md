@@ -94,6 +94,25 @@ Google custom search using this list of predefined urls: <http://pastebin.com/62
    - <https://www.reddit.com/r/Piracy/comments/3i9y7n/guide_for_finding_textbooks/>
    - <https://www.reddit.com/r/trackers/comments/hrgmv/tracker_with_pdfsebooks_of_college_textbooks/c1xrq44>
 
+## Audiobooks
+
+Search for the audiobook that you want here:
+
+   - <https://audiobookx.com>
+   - <https://audiobookcup.com>
+
+Click your desired audiobook (if it is available) then copy the URL shown on the
+address bar.  After that, paste it on this site: <https://9xbuddy.org>
+
+Finally, download.
+
+Here's a short [video][1] about it if you're interested.
+
+##
+## How to get recommendations?
+
+<https://app.thestorygraph.com/recommendations>
+
 ##
 # Animes
 
@@ -255,9 +274,15 @@ of the webpage; copy the link and paste it in transmission.
 
 ## Review the quality of the sites given here:
 
-<https://github.com/Igglybuff/awesome-piracy#courses-and-tutorials>
+- <https://github.com/Igglybuff/awesome-piracy#courses-and-tutorials>
+- <https://www.reddit.com/r/FREEMEDIAHECKYEAH/wiki/index>
 
 ## Watch and document these videos:
 
 - torsocks - Access The Tor Network - Linux CLI: <https://www.youtube.com/watch?v=0uXFffq-UPU>
 - W3M Magnet Links Handler - Linux CLI: <https://www.youtube.com/watch?v=euk_LMdXNOU>
+
+##
+# Reference
+
+[1]: https://www.youtube.com/watch?v=QktLDTaCgAo

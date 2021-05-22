@@ -717,6 +717,18 @@ Or does it continue on the next line?
 
 Also, we can't provide a flag to some commands like `:g`...
 
+#### Introduce syntax to make functions self-documenting
+
+Should we borrow this Python syntax?
+
+    def Func():
+        """
+        some
+        multiline
+        docstring
+        """
+        some code
+
 ##
 ## Indentation related issues
 ### ?
@@ -857,6 +869,26 @@ Although, if possible, it should not break sth like this:
     Derive(...)
 
 That is, `Derive()` should be still local to the script, not to the `if` block.
+
+Update: I don't think it would be a good idea.
+For example, this wouldn't work anymore:
+
+    if has('textprop')
+
+      def RemoveHighlight()
+        silent! prop_remove({type: 'matchparen', all: true}, line('w0'), line('w$'))
+      enddef
+
+    else
+
+      def RemoveHighlight()
+        if get(w:, 'matchparen') != 0
+          silent! matchdelete(w:matchparen)
+          w:matchparen = 0
+        endif
+      enddef
+
+    endif
 
 ### ?
 
@@ -2161,6 +2193,27 @@ FuncWithForwardCall()
     ^---------^
         bug?
 
+## ?
+```vim
+vim9script
+def Func()
+    eval 1
+    eval 2
+    eval 3
+enddef
+def Func()
+    eval 1
+    eval 2
+    eval 3
+enddef
+```
+    Error detected while processing command line..script /proc/55113/fd/17:
+    line   11:
+    E1073: Name already defined: <SNR>1_Func
+
+The error should be raised from line 7, not line 11; i.e. from the header rather
+than from the footer.
+
 ##
 ## ?
 ```vim
@@ -2310,6 +2363,28 @@ def Func()
 enddef
 defcompile
 ```
+### Is it the same issue?
+```vim
+vim9script
+def Func()
+    var n: number = 0
+    var s: string = n != 0 ? n : ''
+enddef
+Func()
+```
+    no error
+```vim
+vim9script
+def Func()
+    var n: number = 1
+    var s: string = n != 0 ? n : ''
+enddef
+Func()
+```
+    E1012: Type mismatch; expected string but got number
+
+I think an error should be raised in the first snippet at compile time.
+
 ## unexpected error when omitting type in variable declaration (probably not a bug)
 ```vim
 vim9script
@@ -3876,8 +3951,34 @@ At compile time, should Vim expand a custom command and compile the result?
        2 RETURN 0
 
 ## ?
+```vim
+vim9script
+def Func(): number
+    try
+        return 1
+    catch
+        return 2
+    endtry
+enddef
+defcompile
+```
+    E1027: Missing return statement
 
-<https://github.com/vim/vim/issues/8214#issuecomment-841828387>
+Why?
+
+Compare:
+```vim
+vim9script
+def Func(): number
+    if true
+        return 1
+    else
+        return 2
+    endif
+enddef
+defcompile
+```
+    no error
 
 ## unexpected E1095 when unclosed string below :return
 ```vim
@@ -4939,6 +5040,15 @@ A similar issue applies to `call`:
                      VimFuncName
 
 ##
+## ?
+
+From `:h matchlist()`:
+
+   > Can also be used as a |method|: >
+   >         GetList()->matchlist('word')
+
+`GetList()` should be replaced with `GetText()`.
+
 ## ?
 
     $ cd /tmp && MANPAGER='vim -Nu NONE +"set wic" -' man man
