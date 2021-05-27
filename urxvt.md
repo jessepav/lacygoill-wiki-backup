@@ -283,7 +283,7 @@ You can still install the binary with `checkinstall(8)`, and it will work fine.
 
     Gentoo:   https://wiki.gentoo.org/wiki/Rxvt-unicode
     ArchWiki: https://wiki.archlinux.org/index.php/rxvt-unicode
-    IRC:      irc.freenode.net #rxvt-unicode
+    IRC:      irc.libera.chat #rxvt-unicode
     Tuto:     http://artisan.karma-lab.net/installer-et-parametrer-urxvt
 
 ##

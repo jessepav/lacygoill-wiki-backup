@@ -167,6 +167,16 @@ Or (if you compiled the plugin):
 
 ##
 # Todo
+## zathura-pdf-mupdf doesn't always work at the moment
+
+Sometimes, zathura gives this error:
+
+    warning: jbig2dec error: incompatible jbig2dec header (0.17) and library (0.18) versions (segment -1)
+    error: cannot allocate jbig2 context
+    warning: Ignoring error during interpretation
+
+Find a fix.
+
 ## ?
 
 These are some notes about our experience in compiling zathura.

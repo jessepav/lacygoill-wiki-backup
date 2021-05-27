@@ -1003,37 +1003,216 @@ defcompile
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
-        set pp=/tmp/.vim rtp=/tmp/.vim
-        delete('/tmp/.vim', 'rf')
-        mkdir('/tmp/.vim/pack/unicode/opt/unicode.vim', 'p')
-        system('git clone https://github.com/chrisbra/unicode.vim /tmp/.vim/pack/unicode/opt/unicode.vim')
-        packadd unicode.vim
-        Digraphs!
+        def FindWrongCmdAbbrevTags()
+            delete(LOG)
+            var help_lines: list<string> = glob($VIMRUNTIME .. '/doc/*.txt', true, true)
+                ->mapnew((_, v: string): list<string> => v->readfile())
+                ->flattennew()
+            for cmd in getcompletion('', 'command')
+                ->filter((_, v: string): bool => v =~ '^[a-z]')
+                var len: number
+                for l in range(1, strcharlen(cmd))->reverse()
+                    if cmd->slice(0, l)->fullcommand() != cmd
+                        len = l
+                        break
+                    endif
+                endfor
+                if len == cmd->strcharlen() - 1
+                    continue
+                endif
+                var abbrev: string = cmd->slice(0, len + 1)
+                var abbrev_tagline: string = help_lines
+                    ->copy()
+                    ->filter((_, v: string): bool => v =~ '\V*:' .. abbrev .. '*')
+                    ->get(0, '')
+                if abbrev_tagline == ''
+                    var msg: string = printf('cannot find tag for the abbreviation %s', abbrev)
+                    writefile([msg], LOG, 'a')
+                    continue
+                endif
+                for tag in abbrev_tagline
+                  ->split('*')
+                  ->filter((_, v: string): bool => v =~ '^:[a-z]\w\+$')
+                  ->map((_, v: string): string => v->trim(':'))
+                    if stridx(cmd, tag) == -1
+                        var msg: string = printf(FMT, abbrev, tag, cmd)
+                        writefile([msg], LOG, 'a')
+                    endif
+                endfor
+            endfor
+        enddef
+        const FMT: string = '%s is given as abbreviation of %s; but it''s the abbreviation of %s'
+        const LOG: string = '/tmp/log'
+        FindWrongCmdAbbrevTags()
     EOF
     )
 
-Press Enter to download the missing file.
-Press G to jump at the end of the pager.
-Finally, run:
+Too many false positives.
+`:pt`/`:ptag` is missing.
 
-    :echo 'TEST'
-
-`TEST` is highlighted with the `Title` HG.
-It should not.
-```diff
-diff --git a/autoload/unicode.vim b/autoload/unicode.vim
-index 9516464..dd22ee2 100644
---- a/autoload/unicode.vim
-+++ b/autoload/unicode.vim
-@@ -1024,6 +1024,7 @@ fu! <sid>ScreenOutput(...) abort "{{{2
-         endif
-         let i+=1
-     endfor
-+    echohl Normal
- endfu
- fu! <sid>WarningMsg(msg) abort "{{{2
-     echohl WarningMsg
+## ?
+```vim
+vim9script
+args `=glob($VIMRUNTIME .. '/doc/*.txt', true, true)`
 ```
+    no error
+```vim
+vim9script
+def Func()
+    args `=glob($VIMRUNTIME .. '/doc/*.txt', true, true)`
+enddef
+Func()
+```
+    E1105: Cannot convert list to string
+
+Inconsistent.
+
+---
+
+In compiled code, the solution is to turn the list into a string with `join()`:
+```vim
+vim9script
+def Func()
+    args `=glob($VIMRUNTIME .. '/doc/*.txt', true, true)->join()`
+    echo argc()
+enddef
+Func()
+```
+    143
+
+But watch what happens when we do the same thing at the script level:
+```vim
+vim9script
+args `=glob($VIMRUNTIME .. '/doc/*.txt', true, true)->join()`
+echo argc()
+```
+    1
+
+Again, inconsistent.
+
+Also, watch what happens when we rewrite the first snippet in legacy:
+```vim
+fu Func()
+    args `=glob($VIMRUNTIME .. '/doc/*.txt', v:true, v:true)->join()`
+    echo argc()
+endfu
+call Func()
+```
+    1
+
+Again, inconsistent...
+
+## ?
+```vim
+vim9script
+echo 'no error x'->substitute('x', (_) => 1.23, '')
+```
+    E806: using Float as a String
+    no error
+
+Expected, but why is `no error` echo'ed?
+```vim
+vim9script
+echo 'no error x'->substitute('x', (_) => true, '')
+```
+    no error true
+
+Is it working as intended?
+Is it working for the same reason as here:
+```vim
+vim9script
+echo 'no error ' .. true
+```
+That is, because `true` is a simple type.
+But if  that's the case,  then why an  error is raised when  a float is  used in
+`substitute()`?
+A float  is also  a simple  type, and  no error is  raised for  the latter  in a
+concatenation:
+```vim
+vim9script
+echo 'no error ' .. 1.23
+```
+---
+
+What about `:s`?
+```vim
+vim9script
+'no error X'->setline(1)
+s/X/\=true/
+```
+    no error true
+```vim
+vim9script
+def Func()
+    'no error X'->setline(1)
+    s/X/\=true/
+enddef
+Func()
+```
+    no error true
+```vim
+vim9script
+'no error X'->setline(1)
+s/X/\=1.23/
+```
+    no error 1.23
+```vim
+vim9script
+def Func()
+    'no error X'->setline(1)
+    s/X/\=1.23/
+enddef
+Func()
+```
+    E806: using Float as a String
+
+Inconsistent.  Why an error in the last case, but not in the others?
+
+Make more tests with more data types.
+
+## ?
+
+Test how all the builtin functions react when they're passed a null value.
+```vim
+vim9script
+def Write()
+    delete('/tmp/test', 'rf')
+    mkdir('/tmp/test', 'p')
+    var builtin_funcs: list<string> = getcompletion('', 'function')
+        ->filter((_, v: string): bool => v =~ '^[a-z]' && v !~ '#')
+        ->map((_, v) => v->substitute('()\=$', '', ''))
+    for builtin in builtin_funcs
+        var dir: string = '/tmp/test/' .. builtin[0] .. '/'
+        if !dir->isdirectory()
+            mkdir(dir, 'p')
+        endif
+        for null_func in getcompletion('test_null', 'function')
+            writefile([printf('eval %s(%s)', builtin, null_func)], printf('%s%s.vim', dir, builtin), 'a')
+        endfor
+    endfor
+enddef
+Write()
+```
+
+## ?
+
+We cannot import from `$MYVIMRC`:
+
+    import Func from $MYVIMRC
+
+We need to write this instead:
+
+    exe 'import Func from ' .. $MYVIMRC->string()
+
+Which looks awkward.
+
+Could `:import` evaluate environment variables?
+
+---
+
+And could it evaluate expressions?  Like this one:
+
+    import Func from $HOME .. '/some/path'
 
 ## ?
 
@@ -4654,11 +4833,33 @@ OTOH, the first argument of `?:` is indeed used as a condition.
 
 ### ?
 
-We cannot use `:legacy` in front of `:return`:
-<https://github.com/vim/vim/issues/8213>
+The `++` and `--` syntaxes are not documented:
+```vim
+vim9script
+def Func()
+    var name = 0
+    ++name
+    echo name
+enddef
+Func()
+```
+The only thing I can find is this:
 
-I don't think it can work (it would make type checking more complex).  It's not important anyway.
-But it should be documented.
+   > In legacy script "++var" and "--var" would be silently accepted and have no
+   > effect.  This is an error in Vim9 script.
+
+Which looks wrong.  Unless it's talking about this:
+```vim
+vim9script
+var name = 0
+echo ++name
+```
+    E15: Invalid expression: "++name"
+
+Relevant commits:
+
+[8.2.2305](https://github.com/vim/vim/releases/tag/v8.2.2305)  Vim9: "++var" and "--var" are silently accepted
+[8.2.2806](https://github.com/vim/vim/releases/tag/v8.2.2806)  Vim9: using "++nr" as a command might not work
 
 ###
 ### concept of block-local function
@@ -5074,6 +5275,48 @@ A similar issue applies to `call`:
                     ^--^
                      ✘
                      VimFuncName
+
+### ?
+
+In `$VIMRUNTIME/syntax/vim.vim`:
+
+    " Insertions And Appends: insert append {{{2
+    " =======================
+    syn region vimInsert	matchgroup=vimCommand start="^[: \t]*\(\d\+\(,\d\+\)\=\)\=a\%[ppend]$"		matchgroup=vimCommand end="^\.$""
+    syn region vimInsert	matchgroup=vimCommand start="^[: \t]*\(\d\+\(,\d\+\)\=\)\=c\%[hange]$"		matchgroup=vimCommand end="^\.$""
+    syn region vimInsert	matchgroup=vimCommand start="^[: \t]*\(\d\+\(,\d\+\)\=\)\=i\%[nsert]$"		matchgroup=vimCommand end="^\.$""
+    syn region vimInsert	matchgroup=vimCommand start="^[: \t]*\(\d\+\(,\d\+\)\=\)\=starti\%[nsert]$"	matchgroup=vimCommand end="^\.$""
+
+The first 3 rules should not be applied in Vim9, because `:a`, `:c`, `:i` don't work there.
+And I *think* the last rule is wrong.  It should not be applied at all.  For example:
+
+    echom 'abc'
+    startinsert
+    echom 'def'
+    ^---------^
+
+The  last `echom`  is highlighted  as a  string, but  Vim executes  it as  an Ex
+command; so, it's  not a string.  Besides, this highlighting  is specific to the
+script level (not in a function, which is inconsistent).
+
+---
+
+Also, this other rule seems useless:
+
+    syn keyword vimStdPlugin contained      Arguments Break Cfilter Clear Continue DiffOrig Evaluate Finish Gdb Lfilter Man N[ext] Over P[rint] Program Run S Source Step Stop Termdebug TermdebugCommand TOhtml Winbar XMLent XMLns
+
+These commands are highlighted by `vimUsrCmd`.
+
+---
+
+Also, I think these option names are missing from `vimOption`:
+
+    asd
+    autoshelldir
+    noasd
+    noautoshelldir
+    t_fd
+    t_fe
 
 ##
 ## ?
@@ -5749,7 +5992,7 @@ Don't forget to update the date of last change in the files.
         ...
     endif
 
-https://github.com/vim/vim/pull/2409
+<https://github.com/vim/vim/pull/2409>
 
 Default filetype plugins installing mappings and NOT respecting `g:no...map`:
 

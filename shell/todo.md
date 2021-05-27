@@ -42,11 +42,11 @@ See: <https://unix.stackexchange.com/a/68748/289772>
 
 ##
 # Miscellaneous
-## learn factoids from greybot (bot on irc channel `#bash` on freenode)
+## learn factoids from greybot (bot on irc channel `#bash` on libera)
 
             │ !greybot
     greybot │ I'm a bot. I'm written in perl. My source, factoids, and stats are at http://wooledge.org/~greybot/
-            │  See !help for a list of my commands. git mirror https://github.com/im14/greybot
+            │ See !help for a list of my commands. git mirror https://github.com/im14/greybot
 
 You can find all the factoids here: <http://wooledge.org/~greybot/meta/>
 In each factoid, you'll often find the commands `learn` and `forget`.

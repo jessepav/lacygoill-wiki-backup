@@ -25,7 +25,7 @@ Read this: <https://github.com/jonas/tig/blob/master/INSTALL.adoc>
 ---
 
 Read this glossary: <https://gitirc.eu/gitglossary.html>
-This comes from a site associated to the `#git` irc channel on freenode.
+This comes from a site associated to the `#git` irc channel on libera.
 Check out the site for other possible interesting links.
 
 Also, atm, the channel has a public logfile for each day:

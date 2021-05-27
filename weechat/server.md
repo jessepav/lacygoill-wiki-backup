@@ -4,13 +4,13 @@
 
 # How to set a boolean option, such as 'ssl', local to a server?   (2)
 
-    /set irc.server.freenode.ssl
-    /server add chat.freenode.net -ssl
+    /set irc.server.libera.ssl
+    /server add irc.libera.chat -ssl
 
 # How to set a non-boolean option (i.e. 'autojoin') local to a server?   (2)
 
-    /set irc.server.freenode.autojoin "#foo,#bar,#baz"
-    /server add chat.freenode.net -autojoin=#foo,#bar,#baz
+    /set irc.server.libera.autojoin "#foo,#bar,#baz"
+    /server add irc.libera.chat -autojoin=#foo,#bar,#baz
 
 # How to connect to the network bound to the keyword 'foo' on port 1234?
 
@@ -28,13 +28,13 @@
 
     /server del foo
 
-# How to duplicate the network 'freenode' as 'freenode-test'?
+# How to duplicate the network 'libera' as 'libera-test'?
 
-    /server copy freenode freenode-test
+    /server copy libera libera-test
 
-# How to rename the network 'freenode-test' into 'freenode2'?
+# How to rename the network 'libera-test' into 'libera2'?
 
-    /server rename freenode-test freenode2
+    /server rename libera-test libera2
 
 ##
 # What happens when I add the network 'abjects' to the list of known networks?
@@ -110,22 +110,22 @@ They're made empty, but they still exist.
 
     /server [list]
 
-# Assuming the list is “criten,abjects,freenode”, how to reorder it into “freenode,abjects,criten”?
+# Assuming the list is “criten,abjects,libera”, how to reorder it into “libera,abjects,criten”?
 
 Use the `reorder` subcommand:
 
-    /server reorder freenode,abjects,criten
+    /server reorder libera,abjects,criten
             ^-----^
 
-# How to print all the values of the options local to the freenode network, in the core buffer?
+# How to print all the values of the options local to the libera network, in the core buffer?
 
-    /server listfull freenode
+    /server listfull libera
 
 ---
 
 You could also execute:
 
-    /set irc.server.freenode.*
+    /set irc.server.libera.*
 
 But it would open a new `fset` buffer.
 
@@ -142,7 +142,7 @@ Con: more verbose
 
     /lusers
 
-# Why is it better to use the canonical name of an IRC server (i.e. `chat.freenode.net`), rather than its IP address?
+# Why is it better to use the canonical name of an IRC server (i.e. `irc.libera.chat`), rather than its IP address?
 
 IP addresses can change without notice:
 
@@ -215,19 +215,19 @@ The cause may be:
 Install  the  package  `inetutils-traceroute`,  then  use  the  `traceroute6(8)`
 command to diagnose the connection between your machine and the server:
 
-    $ traceroute6 chat.freenode.net
+    $ traceroute6 irc.libera.chat
 
 ## The connection fails with the message “timeout”!
 
 Try to connect using only telnet.
 
-    $ telnet chat.freenode.net 6667
+    $ telnet irc.libera.chat 6667
 
 You should see something like:
 
-    :leguin.freenode.net NOTICE * :*** Looking up your hostname...˜
-    :leguin.freenode.net NOTICE * :*** Checking Ident˜
-    :leguin.freenode.net NOTICE * :*** Couldn't look up your hostname˜
+    :iridium.libera.chat NOTICE * :*** Checking Ident
+    :iridium.libera.chat NOTICE * :*** Looking up your hostname...
+    :iridium.libera.chat NOTICE * :*** Couldn't look up your hostname
 
 If that's not the case, weechat is not the issue.
 The irc server is unavailable.

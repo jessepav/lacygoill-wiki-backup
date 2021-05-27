@@ -33,13 +33,13 @@ Press `F11` or `F12`.
 
     /ignore add toto
 
-## How to ignore the host 'toto@domain.com' on the network freenode?
+## How to ignore the host 'toto@domain.com' on the network libera?
 
-    /ignore add toto@domain.com freenode
+    /ignore add toto@domain.com libera
 
-## How to ignore the host 'toto@domain.com' on the channel #weechat on the network freenode?
+## How to ignore the host 'toto@domain.com' on the channel #weechat on the network libera?
 
-    /ignore add toto*@*.domain.com freenode #weechat
+    /ignore add toto*@*.domain.com libera #weechat
 
 ## How to ignore all nicks beginning with 'toto'?   (with and without a regex)
 

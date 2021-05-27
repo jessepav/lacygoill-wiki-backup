@@ -12,8 +12,8 @@ The info will be printed in the buffer of `#chan`:
 
 It probably depends on the network hosting the channel.
 
-For the freenode network, you can get more information from here:
-<https://freenode.net/kb/answer/channelmodes>
+For the libera network, you can get more information from here:
+<https://libera.chat/guides/channelmodes>
 
 ##
 # Joining a channel

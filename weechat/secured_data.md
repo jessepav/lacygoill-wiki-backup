@@ -70,7 +70,7 @@ Use the `/secure set` command:
 
 Example:
 
-    /secure set freenodepass mypassword_on_freenode
+    /secure set liberapass mypassword_on_libera
 
 The key  can be an  arbitrary name, which  you'll have to  use to refer  to your
 value later.
@@ -89,7 +89,7 @@ Use the expression `${sec.data.<key>}`.
 
 Example:
 
-    /set irc.server.freenode.sasl_password "${sec.data.freenode}"
+    /set irc.server.libera.sasl_password "${sec.data.libera}"
 
 ##
 ## How to remove secured data?
@@ -102,11 +102,11 @@ Example:
 
 ###
 # Using a secured password
-## How to authenticate on freenode automatically on startup, using SASL, and a secured password?
+## How to authenticate on libera automatically on startup, using SASL, and a secured password?
 
 Set your passphrase:
 
-    $ echo 'this is my passphrase' >~/.weechat-passphrase
+    $ sed "/'s$/d" /usr/share/dict/words | shuf -n 10 - | tr '\n' ' ' | sed 's/ $//' >~/.weechat-passphrase
     $ chmod 600 ~/.weechat-passphrase
     /secure passphrase this is my passphrase
     /set sec.crypt.passphrase_command 'cat ~/.weechat-passphrase'
@@ -116,27 +116,27 @@ written by any user except you.
 
 Secure your password (make WeeChat encrypt it):
 
-    /secure set freenodepass mypassword_on_freenode
+    /secure set liberapass mypassword_on_libera
                 │
                 └ you can name your secured data however you like
 
 Press  `M-v`  in the  `secured_data`  buffer  (`/secure`),  to check  that  your
 password can be correctly decrypted.
 
-Make WeeChat use your secured password to connect to freenode, using the [SASL][1] framework:
+Make WeeChat use your secured password to connect to libera, using the [SASL][1] framework:
 
-    /set irc.server.freenode.sasl_username "myusername"
-    /set irc.server.freenode.sasl_password "${sec.data.freenodepass}"
+    /set irc.server.libera.sasl_username "myusername"
+    /set irc.server.libera.sasl_password "${sec.data.liberapass}"
 
 If you don't use SASL, you can replace these lines with the single line:
 
-    /set irc.server.freenode.password "${sec.data.freenodepass}"
+    /set irc.server.libera.password "${sec.data.liberapass}"
 
 ### It doesn't work!
 
 Make sure your sasl options are set correctly:
 
-    /set *freenode*sasl*
+    /set *libera*sasl*
 
 Make sure the options `sec.crypt.*` are set correctly:
 
@@ -163,7 +163,7 @@ Also, read this:
    - <https://gist.github.com/pascalpoitras/8406501>
 
 The last gist contains the configuration of a user which uses a secured password
-and SASL to get identified on freenode.
+and SASL to get identified on libera.
 
 #### This doesn't help!
 
@@ -171,16 +171,16 @@ Then try to find a MWE:
 
     $ echo 'this is my passphrase' >/tmp/passphrase
     $ weechat -d /tmp/.weechat
-    /server add freenode chat.freenode.net -nicks=mynick
-                                                  ^----^
+    /server add libera irc.libera.chat -nicks=mynick
+                                              ^----^
     /secure passphrase this is my passphrase
     /set sec.crypt.passphrase_command 'cat /tmp/passphrase'
-    /secure set freenodepass mypassword_on_freenode
-                             ^--------------------^
-    /set irc.server.freenode.password "${sec.data.freenodepass}"
+    /secure set liberapass mypassword_on_libera
+                           ^------------------^
+    /set irc.server.libera.password "${sec.data.liberapass}"
 
 Also,  run `/fset  autoconnect` to  disable all  networks to  which you  connect
-automatically on startup, except freenode.
+automatically on startup, except libera.
 And  run `/fset  autojoin` to  disable all  channels you  join automatically  on
 connection.
 

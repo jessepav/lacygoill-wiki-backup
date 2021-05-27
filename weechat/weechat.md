@@ -11,11 +11,11 @@ See here for more info:
 ---
 
 Note that some attributes (which ones?) may not work if the channel has the `+c`
-mode on freenode.
+mode on libera.
 
    > Strip colour and formatting codes from channel messages.
 
-Source: <https://freenode.net/kb/answer/channelmodes>
+Source: <https://libera.chat/guides/channelmodes#available-channel-modes>
 
 Most channels we visit atm have the `+c` mode, except `#ranger` and `#regex`.
 
@@ -36,9 +36,9 @@ Configurer un pseudo par défaut.
     /set irc.server_default.nicks        comma,separated,list,of,nicks
     /set irc.server.[SERVER_NAME].nicks  "
 
-S'identifier automatiquement sur freenode:
+S'identifier automatiquement sur libera:
 
-    /set irc.server.freenode.command = "/msg NickServ identify {mdp}"
+    /set irc.server.libera.command = "/msg NickServ identify {mdp}"
 
 C-s C-u         Set unread marker on all windows
 M-a             Next buffer with activity
@@ -61,7 +61,7 @@ les messages des différents buffers s'affichent sur la même fenêtre.
 Le buffer ayant le focus influe sur la prochaine commande tapée.
 
 Pex: on ne  peut pas rejoindre le chan  #ubuntu si on est pas dans  le buffer du
-serveur ou d'un canal freenode.
+serveur ou d'un canal libera.
 
 ##
 ##
@@ -293,16 +293,16 @@ NickServ permet d'enregistrer un pseudo dans une bdd afin d'empêcher les autres
         utilise le filtrage intelligent sur tous les buffers sauf (!) ceux qui contiennent #weechat dans leur nom
 
 
-    /filter add toto irc.freenode.#weechat nick_toto *
+    /filter add toto irc.libera.#weechat nick_toto *
 
         crée le filtre toto qui masque les messages de l'utilisateur toto sur le channel #weechat
-        du réseau freenode
+        du réseau libera
 
 
-    /filter add sucks irc.freenode.#weechat * weechat sucks
+    /filter add sucks irc.libera.#weechat * weechat sucks
 
         crée le filtre sucks qui masque les messages contenant 'weechat sucks' sur le channel #weechat
-        du réseau freenode
+        du réseau libera
 
 
     /filter del myfilter
@@ -408,7 +408,6 @@ Pro:
 
 Network-specific rules:
 
-- <https://freenode.net/kb/all>
 - <https://www.abjects.net/page.php?10>
 
 ## learn how to paste multiline message

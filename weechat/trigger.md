@@ -89,9 +89,9 @@ The arguments depend on the hook used. They are separated by semicolons.
     modifier    2. modifier name (priority allowed)                5000|input_text_display;5000|       hook_modifier
                 3. …                                              history_add
 
-                1. buffer name                                     irc.freenode.*
-    print       2. tags                                            irc.freenode.#weechat               hook_print
-                3. message                                         irc.freenode.#weechat;irc_notice
+                1. buffer name                                     irc.libera.*
+    print       2. tags                                            irc.libera.#weechat               hook_print
+                3. message                                         irc.libera.#weechat;irc_notice
                 4. strip colors (0/1)                              *;;;1
 
                 1. command name (priority allowed) (required)
@@ -229,7 +229,7 @@ irc_server           pointer Pointer to IRC server (variables in hdata of type "
 irc_channel          pointer Pointer to IRC channel (variables in hdata of type "irc_channel" can be used, like $
                              {irc_channel.name}).
 
-server               string  Name of server (example: "freenode").
+server               string  Name of server (example: "libera").
 
 tags                 string  Tags in message (rarely used).
 

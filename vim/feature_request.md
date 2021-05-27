@@ -1,8 +1,4 @@
 # New functions to
-## detect the pager is active, and customize the mappings which interacts with the pager
-
-Would it be enough?
-
 ## get the list of file patterns matching a given filetype (and the reverse)
 
 Examples:
@@ -19,6 +15,10 @@ Examples:
     python˜
 
 Although, this new `getfiletype()` might be confused with the existing `getftype()`.
+
+## detect the pager is active, and customize the mappings which interacts with the pager
+
+Would it be enough?
 
 ##
 # New argument to

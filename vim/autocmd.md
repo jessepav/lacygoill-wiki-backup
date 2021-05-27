@@ -500,7 +500,7 @@ which still gives you a chance to change the character.
 
 ---
 
-    $ vim -Nu NONE +'au InsertCharPre * if v:char is# "x" | call feedkeys(" ICP ", "in") | endif'
+    $ vim -Nu NONE +'au InsertCharPre * if v:char ==# "x" | call feedkeys(" ICP ", "in") | endif'
     " insert: x
     " you get: x ICP
 
@@ -620,11 +620,11 @@ fired).
 ##
 # How to install a buffer-local `User` autocmd?
 
-Omit  the name  of your  custom event,  pass the  special pattern  `<buffer>` to
-`:au`, and  test the name  of the custom event  inside the executed  command via
+Don't use the name of your custom event as a pattern; instead, use `<buffer>`.
+Then,  test  the name  of  the  custom event  inside  the  executed command  via
 `expand('<afile>')`:
 
-    au User <buffer> if expand("<afile>") is# "Test" | echom "User Test was fired" | endif
+    au User <buffer> if expand('<afile>') ==# 'Test' | echom 'User Test was fired' | endif
             ^------^    ^---------------^
 
 ---
@@ -632,7 +632,7 @@ Omit  the name  of your  custom event,  pass the  special pattern  `<buffer>` to
 Example:
 
     $ vim -Nu NONE -o /tmp/file{1..2} -S <(cat <<'EOF'
-        au User <buffer> if expand("<afile>") is# "Test" | echom "User Test was fired" | endif
+        au User <buffer> if expand('<afile>') ==# "Test" | echom 'User Test was fired' | endif
         bufdo do User Test
     EOF
     )
@@ -643,7 +643,7 @@ Had you removed `<buffer>`, the message  would have been printed twice (once for
 each buffer):
 
     $ vim -Nu NONE -o /tmp/file{1..2} -S <(cat <<'EOF'
-        au User Test echom "User Test was fired"
+        au User Test echom 'User Test was fired'
         bufdo do User Test
     EOF
     )
@@ -651,6 +651,25 @@ each buffer):
 ---
 
 For a real example, see `$VIMRUNTIME/ftplugin/rust.vim`.
+
+## How to fire it?
+
+    if exists('#User#<buffer>')
+        do <nomodeline> User Test
+    endif
+
+---
+
+Do *not* write this guard:
+
+                      ✘
+                     v--v
+    if exists('#User#Test')
+        ...
+
+The test would always be false, and the event would never be fired.
+That's because the installed autocmd is  local; therefore, the `Test` inside the
+string argument passed to `exists()` would be matched against `<buffer>`.
 
 ##
 # Pitfalls

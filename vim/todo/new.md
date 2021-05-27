@@ -131,8 +131,6 @@ Could be useful for our `vim-selection-ring` plugin...
 
 ##
 # Miscellaneous
-## `:h literal-Dict`
-
 ## `:h method` and `:h :eval`
 
 You can't write that:

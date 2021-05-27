@@ -393,7 +393,7 @@ For more info, see:
 Also, document how to install and use this library:
 <https://github.com/e36freak/awk-libs>
 
-I found it in the topic of the #awk channel on freenode.
+I found it in the topic of the #awk channel on libera.
 Btw, have  a look  at the other  links of  the topic; some  of them  may contain
 useful information.
 

@@ -90,6 +90,7 @@ Weird...
 ```vim
 vim9script
 var funcnames =<< trim END
+    add
     charidx
     complete
     escape
@@ -117,10 +118,6 @@ into `mapnew()` as possible.
 Did we make some mistake(s)?
 
 Remember that `mapnew()` only makes a shallow copy...
-
-## remove unnecessary quotes around keys in Vim9 dictionaries
-
-    ^\C\s*\%(export\s\+\)\=\%(def\)\%(\%(enddef\)\@!\_.\)*{\zs\_s*['"]
 
 ##
 ## When should we
@@ -280,7 +277,7 @@ Instead:
 
 ---
 
-There may be other locations where we could have used a heredoc:
+There might be other locations where we could have used a heredoc:
 
     :vim /[a-z](\[/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
           ^------^

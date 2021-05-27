@@ -191,7 +191,7 @@ MWE:
     c.c:5:15: warning: overflow in conversion from ‘double’ to ‘int’ changes value
     ↪                  from ‘2.147483648e+9’ to ‘2147483647’ [-Woverflow]
     5 |     int var = pow(2, 31);
-      |               ^~~˜
+      |               ^~~
     2147483647
 
 Rationale:

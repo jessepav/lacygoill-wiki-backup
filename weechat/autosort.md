@@ -130,9 +130,9 @@ Example:
     autosort: irc.server.abjects:     ['1', '1', 'irc', '1', 'abjects',  '0', 'server.abjects',    'irc.server.abjects']
     autosort: irc.abjects.#mg-chat:   ['1', '1', 'irc', '1', 'abjects',  '2', 'abjects.mg-chat',   'irc.abjects.#mg-chat']
     autosort: irc.abjects.#moviegods: ['1', '1', 'irc', '1', 'abjects',  '2', 'abjects.moviegods', 'irc.abjects.#moviegods']
-    autosort: irc.server.freenode:    ['1', '1', 'irc', '1', 'freenode', '0', 'server.freenode',   'irc.server.freenode']
-    autosort: irc.freenode.#ircv3:    ['1', '1', 'irc', '1', 'freenode', '2', 'freenode.ircv3',    'irc.freenode.#ircv3']
-    autosort: irc.freenode.#ranger:   ['1', '1', 'irc', '1', 'freenode', '2', 'freenode.ranger',   'irc.freenode.#ranger']
+    autosort: irc.server.libera:      ['1', '1', 'irc', '1', 'libera',   '0', 'server.libera',     'irc.server.libera']
+    autosort: irc.libera.#ircv3:      ['1', '1', 'irc', '1', 'libera',   '2', 'libera.ircv3',      'irc.libera.#ircv3']
+    autosort: irc.libera.#ranger:     ['1', '1', 'irc', '1', 'libera',   '2', 'libera.ranger',     'irc.libera.#ranger']
 
 ##
 # Signals

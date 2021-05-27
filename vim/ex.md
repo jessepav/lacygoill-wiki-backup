@@ -168,7 +168,7 @@ Otherwise, plugins are not skipped:
    > ex -sc '%s/a/b/|wq' file
 
 Source: <http://wooledge.org/~greybot/meta/sed-i>
-Also, connect to the irc server freenode, then run this command:
+Also, connect to the irc server libera, then run this command:
 
     /msg greybot sed-i
 
