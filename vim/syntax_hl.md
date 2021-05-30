@@ -1185,7 +1185,7 @@ As a result,  it can't be used to  match inside itself a second  time **in the**
 
 #### `syn match xVim /\<vim\>/ contained transparent contains=NONE`?
 
-        xVim xString
+    xVim xString
 
 Highlighted as a string because of `transparent`.
 

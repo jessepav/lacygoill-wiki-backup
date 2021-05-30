@@ -93,8 +93,8 @@ Don't give any priority, or `-1` if you need the optional `dict` argument.
 
 Call `matchdelete()`:
 
-        :let id = matchadd('DiffAdd', 'pat')
-        :call matchdelete(id)
+    :let id = matchadd('DiffAdd', 'pat')
+    :call matchdelete(id)
 
 ### all the matches?
 
@@ -261,9 +261,9 @@ For more info, see `:h popupmenu-keys`.
 
 `QuickFixLine`:
 
-        hi! link QuickFixLine Search
-        " │
-        " └ :h E414
+    hi! link QuickFixLine Search
+    " │
+    " └ :h E414
 
 #### the more prompt (used when Vim's pager has a full page)?
 
@@ -410,9 +410,9 @@ you'll need both commands:
 
 Give it the value `NONE`.
 
-        :hi MyGroup ctermfg=blue ctermbg=yellow
-        :hi MyGroup ctermfg=NONE
-        :hi MyGroup
+    :hi MyGroup ctermfg=blue ctermbg=yellow
+    :hi MyGroup ctermfg=NONE
+    :hi MyGroup
 
 Here, the first statement set the attribute `ctermfg` with the color `blue`, but
 the second one reset it.
@@ -753,8 +753,7 @@ The color scheme may adjust to the new value of `'bg'`.
 Or it may reset `'bg'`.
 First delete `g:colors_name` when needed (for what?  to make Vim behave as if no
 color scheme was loaded, i.e. only resets the builtin HGs?).
-
-    https://vi.stackexchange.com/a/13089/17449
+<https://vi.stackexchange.com/a/13089/17449>
 
 When `'bg'` is set, the default attributes for the HGs will change.
 To use other attributes, place `:hi` commands *after* setting `'bg'`.
@@ -821,19 +820,34 @@ In particular, if you can't find a meaningful name for your color scheme, write:
 
 ## how to write a reliable / correct color scheme
 
-        https://github.com/lifepillar/vim-colortemplate
+<https://github.com/lifepillar/vim-colortemplate>
 
 ## how to test whether my color scheme contains some common mistakes
 
 Load the file implementing your color scheme:
 
-        :e my_colorscheme.vim
+    :e my_colorscheme.vim
 
 and run:
 
-        :so $VIMRUNTIME/colors/tools/check_colors.vim
+    :so $VIMRUNTIME/colors/tools/check_colors.vim
 
 `check_colors.vim` should output possible errors.
+
+## document that a highlight group is automatically defined whenever you define a syntax group
+
+    :hi foobar
+    E411: highlight group not found: foobar˜
+
+    :syn match foobar /foobar/
+    :hi foobar
+    foobar         xxx cleared˜
+
+But notice that it doesn't have any attribute defined yet.
+That's for you to define later:
+
+    :hi foobar ...
+               ^^^
 
 ##
 ## hlID() and synID()
@@ -853,14 +867,14 @@ L'ID d'un élément syntaxique est identique à celui du HG qui le colorise.
 On peut le vérifier en positionnant le curseur sur du texte dans un bloc de code
 markdown et en tapant:
 
-        :echo synID('.', col('.'), 1)
-        120 ˜
+    :echo synID('.', col('.'), 1)
+    120 ˜
 
-        :echo synID('.', col('.'), 1)->synIDattr('name')
-        markdownCodeBlock ˜
+    :echo synID('.', col('.'), 1)->synIDattr('name')
+    markdownCodeBlock ˜
 
-        :echo hlID('markdownCodeBlock')
-        120 ˜
+    :echo hlID('markdownCodeBlock')
+    120 ˜
 
 ---
 
@@ -870,7 +884,7 @@ Utile pour connaître les attributs du HG qui le met en couleurs.
 
 ## synIDtrans()
 
-        :echo synIDtrans(42)
+    :echo synIDtrans(42)
 
 Retourne l'id du HG `42`, en suivant d'éventuels liens.
 Si le HG  d'identifiant `42` est lié à  un autre HG, c'est l'id de  cet autre HG
@@ -903,14 +917,13 @@ Document it.
 
 ## :syn sync
 
-        :syntax sync fromstart
+    :syntax sync fromstart
 
 Réparer la coloration syntaxique qui peut  avoir été perdue lorsque les règles à
 appliquer sont complexes.
 
 En  fonction de  la taille  du buffer,  et de  la complexité  des règles,  cette
 commande peut être plus ou moins longue et coûteuse en cpu.
-
 
 ##
 # Reference

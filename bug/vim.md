@@ -838,6 +838,33 @@ Actual:
     enddef
     7 lines indented
 
+### ?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var lines =<< trim END
+            vim9script
+            #     {
+        END
+        lines->setline(1)
+        filetype plugin indent on
+        set ft=vim
+        feedkeys("Go\e")
+    EOF
+    )
+
+Expected:
+
+    vim9script
+    #     {
+    #
+
+Actual:
+
+    vim9script
+    #     {
+            #
+
 ##
 ## Issues specific to the script level
 ### ?
@@ -1000,55 +1027,23 @@ defcompile
 
 ##
 ## ?
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def FindWrongCmdAbbrevTags()
-            delete(LOG)
-            var help_lines: list<string> = glob($VIMRUNTIME .. '/doc/*.txt', true, true)
-                ->mapnew((_, v: string): list<string> => v->readfile())
-                ->flattennew()
-            for cmd in getcompletion('', 'command')
-                ->filter((_, v: string): bool => v =~ '^[a-z]')
-                var len: number
-                for l in range(1, strcharlen(cmd))->reverse()
-                    if cmd->slice(0, l)->fullcommand() != cmd
-                        len = l
-                        break
-                    endif
-                endfor
-                if len == cmd->strcharlen() - 1
-                    continue
-                endif
-                var abbrev: string = cmd->slice(0, len + 1)
-                var abbrev_tagline: string = help_lines
-                    ->copy()
-                    ->filter((_, v: string): bool => v =~ '\V*:' .. abbrev .. '*')
-                    ->get(0, '')
-                if abbrev_tagline == ''
-                    var msg: string = printf('cannot find tag for the abbreviation %s', abbrev)
-                    writefile([msg], LOG, 'a')
-                    continue
-                endif
-                for tag in abbrev_tagline
-                  ->split('*')
-                  ->filter((_, v: string): bool => v =~ '^:[a-z]\w\+$')
-                  ->map((_, v: string): string => v->trim(':'))
-                    if stridx(cmd, tag) == -1
-                        var msg: string = printf(FMT, abbrev, tag, cmd)
-                        writefile([msg], LOG, 'a')
-                    endif
-                endfor
-            endfor
-        enddef
-        const FMT: string = '%s is given as abbreviation of %s; but it''s the abbreviation of %s'
-        const LOG: string = '/tmp/log'
-        FindWrongCmdAbbrevTags()
-    EOF
-    )
-
-Too many false positives.
-`:pt`/`:ptag` is missing.
+```vim
+vim9script
+legacy if fullcommand('keep') == 'k'
+    echo printf('the full command name of "%s" is "%s"', 'keep', 'k')
+endif
+```
+    the full command name of "keep" is "k"
+```vim
+vim9script
+def Func()
+    legacy if fullcommand('keep') == 'k'
+        echo printf('the full command name of "%s" is "%s"', 'keep', 'k')
+    endif
+enddef
+defcompile
+```
+    E580: :endif without :if
 
 ## ?
 ```vim
@@ -5046,42 +5041,6 @@ Is it documented or is it a bug?
 ##
 # Misc.
 ## highlighting
-### `->`, `(`, `)` in `:echo` command
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        let lines =<< trim END
-            fu Func()
-                echo substitute('aaa', 'b', 'c', '')->OtherFunc()
-            endfu
-        END
-        call setline(1, lines)
-        syn on
-        set ft=vim
-    EOF
-    )
-
-Wrong highlighting:
-
-    echo substitute('aaa', 'b', 'c', '')->OtherFunc()
-                                        ^^
-                                        ✘
-
-Can be fixed by allowing `vimOper` to be contained in the `vimEcho` region:
-
-    syn region	vimEcho	... contains=vimFunc,vimFuncVar,vimString,vimVar,vimOper
-                                                                         ^-----^
-
-Other wrong highlighting:
-
-    echo substitute('aaa', 'b', 'c', '')->OtherFunc()
-                   ^                   ^
-                   ✘                   ✘
-
-Can be fixed by allowing `vimOperParen` to be contained in the `vimEcho` region:
-
-    syn region	vimEcho	... contains=vimFunc,vimFuncVar,vimString,vimVar,vimOperParen
-                                                                         ^----------^
-
 ### ?
 
     $ vim -Nu NONE -S <(cat <<'EOF'
@@ -5107,29 +5066,6 @@ Inside the inline function, the commands `:if`, `:exe` and `:endif` are not high
 
 ### ?
 
-In Vim9, we can use quotes to make a long number more readable:
-```vim
-vim9script
-echo 1'234'577
-```
-But the syntax highlighting gets confused,  and wrongly highlights a part of the
-number as a string.  This can even completely  break the syntax up to the end of
-the file.
-
-One way to fix the issue is to tweak this rule at `$VIMRUNTIME/syntax/vim.vim`:
-
-    syn region	vimString	oneline keepend	start=+[^a-zA-Z>!\\@]'+lc=1 end=+'+
-
-And disallow a digit in front of the opening quote:
-
-    syn region	vimString	oneline keepend	start=+[^a-zA-Z0-9>!\\@]'+lc=1 end=+'+
-                                                               ^^^
-
-I don't know whether it has undesirable side-effects.
-Make tests.
-
-### ?
-
 In a command definition, the command name is not highlighted correctly.
 It should be  highlighted with `vimUsrCmd`, just  like when the name  is used to
 execute the command.
@@ -5141,6 +5077,13 @@ execute the command.
     Cmd 123
     ^^^
      ✔
+
+---
+
+Also, here, `eval` is wrongly highlighted as a function:
+
+    com -nargs=1 Cmd eval 0
+                     ^--^
 
 ### ?
 
@@ -5175,35 +5118,6 @@ Some highlighting is wrong inside a block.
     do <nomodeline> QuickFixCmdPost copen
                     ^-------------^
                     not highlighted
-
-### ?
-
-    let x: list<dict<any>>
-           ^-------------^
-           not correctly highlighted
-
-### ?
-
-    vim9script
-    var winid = 1
-        ? getloclist(0, {'winid': 0}).winid
-        : getqflist({'winid': 0}).winid
-
-`getqflist()` is not highlighted as a function.
-Dirty fix:
-
-    syn clear vimCmdSep
-
-Update: Actually, it's  correctly highlighted when  inside the body of  a custom
-function.  How does  that happen?  If you  understand how, it could  help us fix
-the next issue.
-
----
-
-The whole `getloclist()` line is wrongly highlighted.
-Dirty fix:
-
-    syn clear vimSearch
 
 ### ?
 
@@ -5243,6 +5157,20 @@ Here `<nomodeline>` is highlighted with `vimOption`.
 
 Starting from `match`, everything is wrongly highlighted up to the end of the file.
 
+Update: I'm not sure how to reproduce this issue.
+However, I remember a similar issue with an unclosed paren:
+
+    fu Func()
+        try
+        catch /wont match ( anything/
+        endtry
+        " this is wrongly highlighted
+    endfu
+
+This is part of a more general issue.
+I think any pattern should be highlighted as a string.
+This includes the pattern passed to `:catch`, `:vimgrep`, `syn region start=/.../`, ...
+
 ### ?
 
     augroup some_group
@@ -5276,47 +5204,33 @@ A similar issue applies to `call`:
                      ✘
                      VimFuncName
 
-### ?
-
-In `$VIMRUNTIME/syntax/vim.vim`:
-
-    " Insertions And Appends: insert append {{{2
-    " =======================
-    syn region vimInsert	matchgroup=vimCommand start="^[: \t]*\(\d\+\(,\d\+\)\=\)\=a\%[ppend]$"		matchgroup=vimCommand end="^\.$""
-    syn region vimInsert	matchgroup=vimCommand start="^[: \t]*\(\d\+\(,\d\+\)\=\)\=c\%[hange]$"		matchgroup=vimCommand end="^\.$""
-    syn region vimInsert	matchgroup=vimCommand start="^[: \t]*\(\d\+\(,\d\+\)\=\)\=i\%[nsert]$"		matchgroup=vimCommand end="^\.$""
-    syn region vimInsert	matchgroup=vimCommand start="^[: \t]*\(\d\+\(,\d\+\)\=\)\=starti\%[nsert]$"	matchgroup=vimCommand end="^\.$""
-
-The first 3 rules should not be applied in Vim9, because `:a`, `:c`, `:i` don't work there.
-And I *think* the last rule is wrong.  It should not be applied at all.  For example:
-
-    echom 'abc'
-    startinsert
-    echom 'def'
-    ^---------^
-
-The  last `echom`  is highlighted  as a  string, but  Vim executes  it as  an Ex
-command; so, it's  not a string.  Besides, this highlighting  is specific to the
-script level (not in a function, which is inconsistent).
-
 ---
 
-Also, this other rule seems useless:
+Update: The workaround doesn't work anymore.
+Right now,  if you prefix `def`  with a colon,  the latter is highlighted  as an
+operator, and `def` is highlighted as `vimSetEqual`.
 
-    syn keyword vimStdPlugin contained      Arguments Break Cfilter Clear Continue DiffOrig Evaluate Finish Gdb Lfilter Man N[ext] Over P[rint] Program Run S Source Step Stop Termdebug TermdebugCommand TOhtml Winbar XMLent XMLns
+There are other issues with augroups.
+For example, a heredoc is completely broken:
 
-These commands are highlighted by `vimUsrCmd`.
+    augroup DelaySlowCall | au!
+        var delay_slow_call_events: list<string> =<< trim END
+            CursorHold
+            InsertEnter
+            WinEnter
+            CmdWinEnter
+            BufWritePost
+            QuickFixCmdPost
+            TextYankPost
+            TextChanged
+        END
+        exe 'au ' .. delay_slow_call_events->join(',') .. ' * DelaySlowCall()'
+        au CmdlineEnter :,/,\?,@ DelaySlowCall()
+    augroup END
 
----
-
-Also, I think these option names are missing from `vimOption`:
-
-    asd
-    autoshelldir
-    noasd
-    noautoshelldir
-    t_fd
-    t_fe
+Is it worth fixing those issues?
+Shouldn't we define functions and set variables outside an augroup?
+If so, maybe we should highlight them as errors...
 
 ##
 ## ?

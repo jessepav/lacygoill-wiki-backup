@@ -271,7 +271,6 @@ of the webpage; copy the link and paste it in transmission.
 
 ##
 # Todo
-
 ## Review the quality of the sites given here:
 
 - <https://github.com/Igglybuff/awesome-piracy#courses-and-tutorials>
