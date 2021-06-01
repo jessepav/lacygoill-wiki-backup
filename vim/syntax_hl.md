@@ -2434,7 +2434,7 @@ Read this: <https://vi.stackexchange.com/a/25171/17449>
 
 ## ?
 
-Document the fact that `contained=` and `containedin=` accept patterns.
+Document the fact that `contains=` and `containedin=` accept patterns.
 
 From `:h :syn-contains /pattern`:
 
@@ -2454,107 +2454,65 @@ with a pattern you don't know exactly what will be matched in the future...
 
 ## ?
 
-Fix syntax highlighting inside Vim fenced code blocks in markdown files.
-
-Example:
+Document  that `contained`  does  not necessarily  mean that  the  item must  be
+contained.  It is  also allowed for the  item to be "next  to" another specified
+group.
 ```vim
 vim9script
-let var1: number
-let var2: number
-def Foo(): list<number>
-    return [1, 2]
-enddef
-def Bar()
-    [var1,
-        var2] =
-        Foo()
-    echo var1
-    echo var2
-enddef
-Bar()
+'foo bar'->setline(1)
+syn match xFoo 'foo' nextgroup=xBar skipwhite
+syn match xBar 'bar' contained
+hi link xFoo DiffAdd
+hi link xBar DiffDelete
+search('bar')
+echo synstack('.', col('.'))->mapnew((_, v) => v->synIDattr('name'))
 ```
-Notice how `<number>` is highlighted by:
+    ['xBar']
 
-    vimCommand vimIsCommand markdownHighlightvim
+Here, `bar` is not contained in `xFoo`; it's just in `xBar`.
+And yet, `xBar` is defined with `contained`.
+It  still  works  because  the  `contained`  requirement  is  satisfied  by  the
+`nextgroup=xBar` of the `xFoo` rule.
 
-It should be:
-
-    vimSynType vimFuncBody  markdownHighlightvim
-
-It's not the right fix, but you can get the desired syntax by clearing `vimCommand` and `vimIsCommand`:
-
-    syn clear vimCommand vimIsCommand
-
-Once you find a fix, check whether there are other similar issues.
-
-Btw, the issue  is not specific to  our markdown syntax plugin;  I can reproduce
-with the default one too:
-
-    $ cat <<'EOF' >/tmp/md.md
-    ```vim
-    vim9script
-    let var1: number
-    let var2: number
-    def Foo(): list<number>
-        return [1, 2]
-    enddef
-    def Bar()
-        [var1,
-            var2] =
-            Foo()
-        echo var1
-        echo var2
-    enddef
-    Bar()
-    ```
-    EOF
-
-    $ cat <<'EOF' >/tmp/vim.vim
-
-    vim9script
-    let var1: number
-    let var2: number
-    def Foo(): list<number>
-        return [1, 2]
-    enddef
-    def Bar()
-        [var1,
-            var2] =
-            Foo()
-        echo var1
-        echo var2
-    enddef
-    Bar()
-    EOF
-
-    $ vim --clean -O /tmp/md.md /tmp/vim.vim --cmd 'let g:markdown_fenced_languages = ["vim"]'
-
----
-
-And here:
-```vim
-MyCmd
-```
-Notice how `MyCmd` is highlighted with `vimVar`; it should be highlighted with `vimUsrCmd`.
-
----
-
-And here:
-```vim
-Func()
-```
-Notice how `Func` is highlighted with `vimCommand`; it should be highlighted with `vimUserFunc`.
-
----
+Update:  But then, why does it not work in the next snippet?
 ```vim
 vim9script
-eval !copy([1, 2, 3])->reduce({a, v -> a + v})
+'foo bar'->setline(1)
+syn match xFoo  'foo' contains=xFoo_
+syn match xFoo_ 'foo' contained nextgroup=xBar skipwhite
+syn match xBar  'bar' contained
+hi link xFoo DiffAdd
+hi link xBar DiffDelete
+search('bar')
+echo synstack('.', col('.'))->mapnew((_, v) => v->synIDattr('name'))
 ```
-Notice how the  function names are highlighted with `vimFilter`;  they should be
-highlighted with `vimFuncName`.
+    []
 
-The issue disappears if `:eval` is replaced by `:echo`.
+## ?
 
+Document that `skipwhite` causes Vim to consume whitespace, *even if* no item in
+the `nextgroup=` argument matches afterward.
+```vim
+vim9script
+'foo bar'->setline(1)
+syn match xFoo 'foo \@=' nextgroup=xNext skipwhite
+syn match xBar ' \zsbar'
+hi link xFoo DiffAdd
+hi link xBar DiffDelete
+```
+Here, notice how `bar` is not highlighted.
+That's because the space has been consumed, even though `xNext` didn't match.
+
+Solution:  Never write sth like `\s\zs` at the start of a pattern.
+Use `\@<=` instead:
+```vim
+vim9script
+'foo bar'->setline(1)
+syn match xFoo 'foo \@=' nextgroup=xNext skipwhite
+syn match xBar ' \@1<=bar'
+hi link xFoo DiffAdd
+hi link xBar DiffDelete
+```
 ##
 # Reference
 

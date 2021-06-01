@@ -865,6 +865,57 @@ Actual:
     #     {
             #
 
+### ?
+
+Consider this script:
+
+    vim9script
+
+    var a = ''
+        ->len()
+
+    var b = ''
+
+Press `O` from the `->len()` line: the cursor is on the first column.
+Press `O` from the `var b` line: the cursor is on the `&sw`-th column.
+
+It *seems* inconsistent.
+
+### ?
+
+    $ vim -Nu <(cat <<'EOF'
+        vim9script
+        set lines=24
+        set nostartofline
+        set rtp-=~/.vim rtp-=~/.vim/after
+        nnoremap % :<c-u>call cursor(57, 1)<cr>
+        filetype plugin indent on
+        var lines = ['# {{{']
+            + repeat(['#'], &lines)
+            + ['def Func() #{{{']
+            + ['    eval {0']
+            + ['        0']
+            + ['        0}']
+            + ['    return 0']
+            + repeat(['#'], &lines)
+            + ['enddef']
+        setline(1, lines)
+        au VimEnter * OnVimEnter()
+        def OnVimEnter()
+            set ft=vim
+            search('0}')
+            norm! zz
+        enddef
+    EOF
+    )
+
+Press `a` to enter insert mode, then `Enter` to insert a linebreak before `}`.
+The view is completely changed (topline increases).
+
+<https://github.com/andymass/vim-matchup/issues/132#issuecomment-782770233>
+
+Is it a Vim bug?
+
 ##
 ## Issues specific to the script level
 ### ?
@@ -1026,6 +1077,30 @@ defcompile
     E1143: Empty expression: "# some comment"
 
 ##
+## ?
+
+Why does `getcompletion('', 'command')` suggest `--` and `++`?
+Those are not commands, but operators...
+
+---
+
+Also, should we add help tags for the Vim9 "commands" `:{` and `:}`?
+
+## ?
+```vim
+vim9script
+var d = {
+    a-b: 123
+}
+echo d.a-b
+```
+    E716: Key not present in Dictionary: "a-b"
+
+The `a-b` key *is* in the dictionary.
+A less misleading error message would be:
+
+    E1234: .key notation can only include digits, letters and underscores
+
 ## ?
 ```vim
 vim9script
@@ -1219,6 +1294,11 @@ Update the doc.
 ---
 
 Rename `old_commands` into `compatible`.
+
+---
+
+Bail out early when moving across closed folds?
+Rationale: Sometimes, Vim lags when moving across closed folds.
 
 ## ?
 ```vim
@@ -4190,6 +4270,22 @@ defcompile
 ```
     no error
 
+## ?
+```vim
+vim9script
+g:.foo = 0
+```
+    E1010: Type not recognized: .foo = 0
+```vim
+vim9script
+g:['foo'] = 0
+```
+    E1010: Type not recognized: ['foo'] = 0
+
+Weird error message...
+
+I think it would be better to just say sth like "invalid variable name".
+
 ## unexpected E1095 when unclosed string below :return
 ```vim
 vim9script
@@ -5043,112 +5139,6 @@ Is it documented or is it a bug?
 ## highlighting
 ### ?
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var lines =<< trim END
-            def Func()
-                DIR->readdir()
-                   ->map((_, v: string): string => DIR .. '/' .. v)
-                   ->mapnew((_, v: string) => {
-                       if bufexists(v)
-                           exe 'bwipe! ' .. v
-                       endif
-                    })
-            enddef
-        END
-        setline(1, lines)
-        syn on
-        set ft=vim
-    EOF
-    )
-
-Inside the inline function, the commands `:if`, `:exe` and `:endif` are not highlighted.
-
-### ?
-
-In a command definition, the command name is not highlighted correctly.
-It should be  highlighted with `vimUsrCmd`, just  like when the name  is used to
-execute the command.
-
-    com -nargs=1 Cmd eval 0
-                 ^^^
-                  ✘
-
-    Cmd 123
-    ^^^
-     ✔
-
----
-
-Also, here, `eval` is wrongly highlighted as a function:
-
-    com -nargs=1 Cmd eval 0
-                     ^--^
-
-### ?
-
-In the "rhs" of a custom command, and of an autocmd, `call` is highlighted as a function
-even when used as an Ex command.
-
-### ?
-
-In this snippet:
-
-    def A()
-        B(s)
-    enddef
-
-`(s` is wrongly highlighted with `vimSubst`.
-
-    B(s)
-     ^^
-     ✘
-
-### ?
-
-Some highlighting is wrong inside a block.
-
-    vim9script
-    {
-        var x = 123
-    }
-
-### ?
-
-    do <nomodeline> QuickFixCmdPost copen
-                    ^-------------^
-                    not highlighted
-
-### ?
-
-    do <nomodeline> ...
-       ^----------^
-            ✘
-
-Also, look at this snippet:
-
-    au VimEnter * if exists('#User#MyFlags')
-        \ |     do <nomodeline> User MyFlags
-        \ |     call s:build_flags()
-        \ | endif
-
-Here `<nomodeline>` is highlighted with `vimOption`.
-
-### ?
-
-    hi def link manCFuncDefinition Function
-       ^^^
-        ✔
-       vimCommand vimHiLink
-
-    hi def manUnderline cterm=underline gui=underline
-       ^^^
-        ✘
-       expected:  vimCommand vimHiLink
-       actual:    vimHiGroup vimHiKeyList
-
-### ?
-
     fu Func()
         try
         catch /wont match anything/
@@ -5169,7 +5159,12 @@ However, I remember a similar issue with an unclosed paren:
 
 This is part of a more general issue.
 I think any pattern should be highlighted as a string.
-This includes the pattern passed to `:catch`, `:vimgrep`, `syn region start=/.../`, ...
+This includes the pattern passed to `:catch`, `:vimgrep`, ...
+
+Update: We've fixed the issue for `:catch`, but not for `:vimgrep`.
+Look for  `{pattern}` everywhere in  the help files  to find all  commands which
+would need such a highlighting.
+Also, try to mimic the rules for `vimGlobal`.
 
 ### ?
 
@@ -5194,22 +5189,6 @@ I think  that's because  the keyword  `def` is in  the `vimOption`  syntax group
     syn keyword vimOption contained ... def ...
                                         ^^^
 
-As  a temporary  workaround,  you can  prefix  `def`  with a  colon  to fix  the
-highlighting.
-
-A similar issue applies to `call`:
-
-    au CursorHold * call Func()
-                    ^--^
-                     ✘
-                     VimFuncName
-
----
-
-Update: The workaround doesn't work anymore.
-Right now,  if you prefix `def`  with a colon,  the latter is highlighted  as an
-operator, and `def` is highlighted as `vimSetEqual`.
-
 There are other issues with augroups.
 For example, a heredoc is completely broken:
 
@@ -5231,6 +5210,67 @@ For example, a heredoc is completely broken:
 Is it worth fixing those issues?
 Shouldn't we define functions and set variables outside an augroup?
 If so, maybe we should highlight them as errors...
+
+### ?
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var lines =<< trim END
+            def Func()
+                DIR->readdir()
+                   ->map((_, v: string): string => DIR .. '/' .. v)
+                   ->mapnew((_, v: string) => {
+                       if bufexists(v)
+                           exe 'bwipe! ' .. v
+                       endif
+                    })
+            enddef
+        END
+        setline(1, lines)
+        syn on
+        set ft=vim
+    EOF
+    )
+
+Inside the inline function, `v` is highlighted as a command, instead of a variable.
+I think we need to find a way to allow `vimExecute` to start inside `vimBlock`.
+
+---
+
+Also, `DIR` and `v` are not always highlighted as variables everywhere.
+
+### ?
+
+In a command definition, the command name is not highlighted correctly.
+It should be  highlighted with `vimUserCommandName`, just like when  the name is
+used to execute the command.
+
+    com -nargs=1 Cmd eval 0
+                 ^^^
+                  ✘
+
+    Cmd 123
+    ^^^
+     ✔
+
+---
+
+Same issue with any command expecting another command as argument:
+
+     g/pat/Cmd
+     au CursorHold * Cmd
+     windo Cmd
+
+---
+
+I think the issue is too complex for a simple regex.
+Instead, try to highlight anything as a command by default; and inside a command
+match/region, define a nested match/region which checks whether the command name
+starts with an uppercase; if it does, highlight it as a custom command.
+
+I think this implies that we should better highlight variable names.
+It should  be easier than  commands, because  variables should be  surrounded by
+some known operator(s) which we can use as heuristics inside lookarounds.
 
 ##
 ## ?
@@ -5288,41 +5328,6 @@ set linebreak breakat+=]
 norm! 6e
 matchaddpos('ErrorMsg', [[1, 126]], 10, 3)
 ```
-## ?
-
-    $ vim -Nu <(cat <<'EOF'
-        vim9script
-        set lines=24
-        set nostartofline
-        set rtp-=~/.vim rtp-=~/.vim/after
-        nnoremap % :<c-u>call cursor(57, 1)<cr>
-        filetype plugin indent on
-        var lines = ['# {{{']
-            + repeat(['#'], &lines)
-            + ['def Func() #{{{']
-            + ['    eval {0']
-            + ['        0']
-            + ['        0}']
-            + ['    return 0']
-            + repeat(['#'], &lines)
-            + ['enddef']
-        setline(1, lines)
-        au VimEnter * OnVimEnter()
-        def OnVimEnter()
-            set ft=vim
-            search('0}')
-            norm! zz
-        enddef
-    EOF
-    )
-
-Press `a` to enter insert mode, then `Enter` to insert a linebreak before `}`.
-The view is completely changed (topline increases).
-
-<https://github.com/andymass/vim-matchup/issues/132#issuecomment-782770233>
-
-Is it a Vim bug?
-
 ## ?
 ```vim
 vim9script

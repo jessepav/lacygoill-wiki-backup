@@ -102,7 +102,7 @@ In fact, it doesn't even matter to which command you pipe the tmux selection.  Y
 I checked this with the following key binding:
 
     $ tmux bind -T copy-mode-vi y send -X copy-pipe-and-cancel 'not_a_command'
-                                                                ^^^^^^^^^^^^^
+                                                                ^-----------^
 
 I have no idea what tmux is piping the selection to, though.
 

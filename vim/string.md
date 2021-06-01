@@ -75,7 +75,7 @@ Here,  the  output is  10  while  you might  expect  4,  because the  "b"'s  are
 concealed, and only 4 cells are visible:
 
     a  c
-    ^^^^
+    ^--^
 
 ### Which options can unexpectedly alter its value?
 
