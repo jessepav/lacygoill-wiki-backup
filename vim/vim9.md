@@ -3272,54 +3272,15 @@ Which is obviously wrong.
 
 ### How to work around the issue?
 
-Temporarily include the `C` flag in `'cpo'` to suppress the concatenation:
+Temporarily include an empty line:
 ```vim
 vim9script
-set cpo+=C
 var l =<< trim END
+
     |xxx
 END
-set cpo-=C
+l->remove(0)
 echo l
-```
-    ['|xxx']
-
-See `:h :let-heredoc /cpo` and `:h cpo-C`.
-
-#### It doesn't work inside a function!
-```vim
-vim9script
-def Func()
-    set cpo+=C
-    var l =<< trim END
-        |xxx
-    END
-    set cpo-=C
-enddef
-defcompile
-```
-    E488: Trailing characters:  |xxx
-
-##### Why?
-
-The  concatenation step  (when the  line continuation  symbols are  used) occurs
-*before* the compilation step.
-
-##### How to work around the issue?
-
-You need to include the flag *before* the function is compiled; i.e. `:set` must
-be moved outside the function:
-```vim
-vim9script
-set cpo+=C
-def Func()
-    var l =<< trim END
-        |xxx
-    END
-    echo l
-enddef
-set cpo-=C
-Func()
 ```
     ['|xxx']
 
@@ -3434,6 +3395,28 @@ But not if it contains several, separated by semicolons (or commas?):
     for line_spec in pat->split('/[,;]/')
         search(line_spec, 'c')
     endfor
+
+---
+
+Same remark for a backtick expansion prefixed with `=`.
+The latter is just syntactic sugar for `:exe`.
+
+Update: Actually, they're not exactly equivalent:
+```vim
+vim9script
+mkdir('/tmp/test', 'p')
+cd /tmp/test
+writefile([], 'file1')
+writefile([], 'file2')
+sil args `=glob('*', true, true)->join()`
+args
+exe 'sil args ' .. glob('*', true, true)->join()
+args
+```
+    [file1 file2]
+    [file1] file2
+
+With backtick expansion, the word splitting occurs on line breaks; not on spaces.
 
 ###
 ### ?
@@ -3573,6 +3556,33 @@ Note that we *might* omit the quotes in the future:
 With quotes, the function would not be loaded until it's actually called.
 Without quotes, the function would be loaded right away, at compile time
 (which would defeat the purpose of autoloading, so don't use it).
+
+### ?
+
+<https://github.com/vim/vim/issues/7401#issuecomment-854864374>
+
+### ?
+
+Prefer `getcharstr()` over `getchar()->nr2char()`.
+The former is more readable and more reliable.
+
+Indeed, the evaluation of `getchar()` is not necessarily a number.
+It can also be  a string.  For example, this is the  case when Vim automatically
+presses the pseudo-key `<CursorHold>`.
+
+From `:h getchar()`:
+
+   > If it is a single character, the result is a number.  [...]
+   > **Otherwise a String is returned** with the encoded character.
+
+In Vim9, this can cause a type mismatch error:
+```vim
+vim9script
+feedkeys("\<up>")
+var char: string = getchar()->nr2char()
+echo 'you pressed ' .. char
+```
+    E1030: Using a String as a Number: "<80>ku"
 
 ###
 ### ?
@@ -4078,7 +4088,7 @@ commands:
 That is, when the command encounters an issue, an error is given, yes, but there
 is no multiline stacktrace.
 
-But it looks like a hack, and cause the aforementioned issue.
+But it looks like a hack, and causes the aforementioned issue.
 It's better to use an `Error()`  utility function which `:echom` the message, if
 you don't want a stacktrace; or `:echoerr` if you do want one.
 
@@ -4091,6 +4101,12 @@ Update: Actually, there is a way to keep using this trick without the issue:
 
 Note that,  if an error is  raised and the  function returns 0, the  cursor will
 jump on the first line.
+
+Update: In the future, Vim might return `void` instead of 0.
+
+   > - function returning nothing should return void instead of zero
+
+If so, the aforementioned trick won't work anymore.
 
 ### workarounds to unlet a script-local variable
 

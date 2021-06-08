@@ -95,7 +95,7 @@ Probably to prevent a guard from stopping the sourcing in step 3.
 2. define the `:CompilerSet` user command, which will set options with:
 
     - :setlocal  if  :compiler   was NOT followed by a bang
-    - :set       if  :compiler   WAS     "
+    - :set       if  :compiler   WAS     followed by a bang
 
 3. execute:
 

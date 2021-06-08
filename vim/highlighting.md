@@ -216,8 +216,7 @@ That's because a color scheme executes `:hi clear` at its beginning, to reset al
 HGs to their default attributes.
 Doing so, it removes all HGs including the ones set in syntax plugins.
 But it  doesn't reinstall  the latter  because it  has no  way of  knowing their
-existence.
-It can only know about the HGs documented at:
+existence.  It can only know about the HGs documented at:
 
    - `:h group-name`
    - `:h highlight-groups`
@@ -230,7 +229,7 @@ The latter highlights leading spaces on a line in a snippet definition.
 Currently, we fix this issue by reloading  any syntax plugin used by a displayed
 buffer, with an autocmd in our vimrc:
 
-    au ColorScheme * call s:reinstall_cleared_hg()
+    au ColorScheme * ReinstallClearedHg()
 
 ##
 ## Builtin HGs
@@ -420,9 +419,34 @@ Notice how it doesn't touch the other attribute `ctermbg`.
 
 ### What's the effect of `:hi clear`?
 
-It  resets the  attributes of  the  HGs documented  at `:h  group-name` and  `:h
-highlight-groups` (the reset is affected by the value of `'bg'`).
-And it removes the HGs added by the user.
+It resets all highlighting to the defaults.
+
+For the  HGs documented at `:h  group-name` and `:h highlight-groups`,  it means
+that the attributes are reset to their default values (which depend on the value
+of `'bg'`).
+
+For the  user-defined HGs,  it simply  means that  their attributes  are removed
+(because  they  have  no  default   value;  by  definition,  they  didn't  exist
+originally):
+
+    $ vim --cmd 'hi WillItSurvive ctermbg=green | hi clear | hi WillItSurvive |cq'
+    WillItSurvive  xxx cleared˜
+
+as well as their links:
+
+    $ vim --cmd 'hi link WillItSurvive ErrorMsg | hi clear | hi WillItSurvive |cq'
+    WillItSurvive  xxx cleared˜
+
+---
+
+There is one exception though.  Default links survive:
+
+                    v------v
+    $ vim --cmd 'hi def link WillItSurvive ErrorMsg | hi clear | hi WillItSurvive |cq'
+    WillItSurvive  xxx links to ErrorMsg˜
+
+Which is why you should probably always use the `default` argument when defining
+a linked HG.
 
 ##
 ### What's the purpose of `'hl'`?
@@ -529,14 +553,25 @@ palette, which will be ugly/flashy.
 # Todo
 ## ?
 
-In `vim-exchange`, we really need the `def` argument in the `:hi` command.
-Without, the  highlighting which is applied  when we use the  `cx` operator does
-not persist across changes of the color scheme.
+Document that the optional `default` argument of the `:hi` command has 2 effects.
 
-See: <https://github.com/tommcdo/vim-exchange/commit/e797a2118ad116ca59d3858159e211b2cb635e41>
+First, it prevents a link from overwriting an existing one:
 
-Why is it necessary?
-Did we miss it in other highlight groups definitions?
+    $ vim /tmp/c.c +'hi link cComment Question | hi cComment'
+    cComment       xxx links to Question˜
+
+                        vvv
+    $ vim /tmp/c.c +'hi def link cComment Question | hi cComment'
+    cComment       xxx links to Comment˜
+
+Second, it  causes Vim to  restore a link after  `:hi clear` (which  is executed
+whenever you change/reload the color scheme):
+
+                    vvv
+    $ vim --cmd 'hi def link WillItSurvive ErrorMsg | hi clear | hi WillItSurvive |cq'
+    WillItSurvive  xxx links to ErrorMsg˜
+
+See `:h :hi-default`.
 
 ## ?
 
@@ -585,8 +620,8 @@ Starting from [`7.4.682`][2], their attributes are combined with `CursorLine`.
 
 ## ?
 
-Some people say that `:syntax on` and `:syntax enable` are *in practice* equivalent.
-They say that, because most colorscheme authors write this:
+Some  people say  that  `:syntax  on` and  `:syntax  enable`  are *in  practice*
+equivalent.  They say that, because most color scheme authors write this:
 
     if exists("syntax_on")
       syntax reset

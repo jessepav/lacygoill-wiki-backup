@@ -390,7 +390,7 @@ If it's case-INsensitive, like `Pascal`, use:
 
 ##
 # :syn match
-## What are the four arguments which can't be passed to `:syn match`?
+## What are the four arguments which can NOT be passed to `:syn match`?
 
    - `concealends`
 
@@ -530,17 +530,14 @@ Use the `concealends` and `matchgroup` arguments.
 highlighted by a `matchgroup=SomeSyntaxGroup`.
 
 Example:
-
-    " syntax plugin
-    syn region xRegion matchgroup=xMatchGroup start=/A/ matchgroup=NONE end=/B/ concealends
-    hi link xRegion DiffAdd
-    hi link xMatchGroup DiffChange
-
-    " text
-     A foo B bar
-     │     │
-     │     └ not concealed, because the first `matchgroup=` has been reset
-     └ concealed
+```vim
+vim9script
+'A foo B bar'->setline(1)
+syn region Region matchgroup=MatchGroup start=/A/ matchgroup=NONE end=/B/ concealends
+setl cole=1 cocu=n
+```
+Notice  that  `A`   is  concealed,  but  not  `B`;  that's   because  the  first
+`matchgroup=` has been reset.
 
 For more info, see: `:h :syn-concealends`.
 
@@ -554,51 +551,47 @@ body of a region.
 ### What's its side effect?
 
 If the region contains items, they  can't be contained in the start/end patterns
-highlighted with a `matchgroup=xMatchgroup`.
+highlighted with a `matchgroup=Matchgroup`.
 
 MWE:
+```vim
+vim9script
+'Foo xxx Bar'->setline(1)
 
-    " text
-    Foo xxx Bar
+syn match Word /\<...\>/ contained
+syn region Region matchgroup=Matchgroup start=/Foo/ end=/Bar/ contains=Word
 
-    " syntax plugin
-    syn match xWord /\<...\>/ contained
-    syn region xRegion matchgroup=xMatchgroup start=/Foo/ end=/Bar/ contains=xWord
+search('Foo')
+echo synstack('.', col('.'))->mapnew((_, v) => v->synIDattr('name'))->reverse()
+```
+    ['Matchgroup', 'Region']
 
-    hi link xRegion      DiffAdd
-    hi link xMatchgroup  DiffChange
-    hi link xWord        DiffDelete
+Without `matchgroup`, the stack of syntax items would have been:
 
-Notice that when the cursor is on `Foo`, the stack of syntax items is:
-
-    xMatchgroup xRegion˜
-
-But without `matchgroup`, it would be:
-
-          xWord xRegion˜
+    ['Word', 'Region']
 
 ---
 
 There's *no* way around this.
 
-Adding `containedin=xMatchgroup` to another item  won't allow it to be contained
+Adding `containedin=Matchgroup` to  another item won't allow it  to be contained
 in the start/end patterns.
 
-**Nothing can be contained in `xMatchgroup`**.
+**Nothing can be contained in `Matchgroup`**.
 So, in the previous example, if you had written:
 
-    syn match xWord /\<...\>/ contained containedin=xMatchgroup
+    syn match Word /\<...\>/ contained containedin=Matchgroup
 
 And your cursor was on `Foo`, the stack of syntax items would still have been:
 
-          xMatchgroup xRegion˜
+    ['Matchgroup', 'Region']
 
 And not:
 
-    xWord xMatchgroup xRegion˜
-    ^---^
+    ['Word', 'Matchgroup', 'Region']
+      ^--^
 
-### What happens to the text matched by `end` if it's affected by a `matchgroup=xMatchgroup`?
+### What happens to the text matched by `end` if it's affected by a `matchgroup=Matchgroup`?
 
 It's excluded from the region.
 
@@ -2465,7 +2458,7 @@ syn match xBar 'bar' contained
 hi link xFoo DiffAdd
 hi link xBar DiffDelete
 search('bar')
-echo synstack('.', col('.'))->mapnew((_, v) => v->synIDattr('name'))
+echo synstack('.', col('.'))->mapnew((_, v) => v->synIDattr('name'))->reverse()
 ```
     ['xBar']
 
@@ -2484,7 +2477,7 @@ syn match xBar  'bar' contained
 hi link xFoo DiffAdd
 hi link xBar DiffDelete
 search('bar')
-echo synstack('.', col('.'))->mapnew((_, v) => v->synIDattr('name'))
+echo synstack('.', col('.'))->mapnew((_, v) => v->synIDattr('name'))->reverse()
 ```
     []
 

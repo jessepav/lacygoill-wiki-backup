@@ -14,6 +14,7 @@ Maybe wait 30 seconds after joining to send to the channel.
 Run `@search your_book_title` to get a list of results in a zip archive.
 Unzip the archive, and search a line containing the book you're looking for.
 Finally, copy the bang command, and run it in the channel.
+
 Example:
 
     !temerut Nick Cutter - The Troop (epub).rar

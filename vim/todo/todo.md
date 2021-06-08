@@ -44,14 +44,6 @@ Usually (always?), when we read the value  of an option, we're interested in the
 value which takes  effect.  In the case  of a global-local option,  if the local
 value is an empty string, the global value takes effect.
 
-## `setl foo` → `&l:foo = true`,  `setl nofoo` → `&l:foo = false`
-
-Would it be more readable like this?
-
-Relevant pattern to look for:
-
-    \C\<set\%[local]\s\+no
-
 ## use `&` syntax instead of `:set` whenever possible
 
 The only times where it won't be possible or too difficult is for `-=`, `+=`, `^=`.
@@ -84,6 +76,8 @@ This works as expected:
     &packpath = '~/.vim'
 
 Weird...
+
+Update: I think we've done it.  However, study/document this tilde expansion issue.
 
 ##
 ## use more functions as methods:
@@ -206,25 +200,9 @@ Try to  use `<c-\><c-n>`  in front of  `<cmd>` (in a  visual mapping)  only when
 really  necessary.   You  don't  always  need it;  remember  that  you  can  use
 `line('v')` and `line('.')` instead of `line("'<")` and `line("'>")`.
 
-## replace 0 and 1 with v:false, v:true whenever possible
+## Try  to use `:h optional-function-argument`  to reduce noise.
 
-Pattern to look for:
-
-    [(,]\s*[01]\s*[,)]`\@!
-
-Or:
-
-    \%(\%(^\s*["#]\|{{{\|}}}\).*\)\@<!\<[01]\>
-
-Don't forget:
-
-    :Cfilter! -other_plugins
-    :Cfilter! -tmp
-
----
-
-Also, try  to use `:h optional-function-argument`  to reduce noise; i.e.  it can
-help you omit a boolean at various call sites.
+I.e. it can help you omit a boolean at various call sites.
 
 ##
 # Plugins
