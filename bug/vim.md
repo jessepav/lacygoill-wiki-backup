@@ -1,6 +1,21 @@
 <https://github.com/vim/vim/blob/master/runtime/doc/vim9.txt>
 <https://github.com/vim/vim/blob/master/runtime/doc/todo.txt>
 
+> Main problem that with nnoremap <nowait> <Esc> <Esc>, when i press <Esc> it outputs (with echom key in filter)
+
+Mapping `<Esc>` is known to cause many issues.
+
+> Side question: How to make in a filter function recognize kyes with Ctrl like \<c-y>, for now i need to use ^Y and for Esc ^[ is it terminal emulator related? I use kitty.
+
+    def MyPopupFilter(id: number, key: string): bool
+        ...
+        if key == "\<c-y>"
+                  ^------^
+            ...
+        endif
+        ...
+    enddef
+
 # vim-fuzzy
 
 I suspect that invoking `map()` to turn source lines into dictionaries is costly.
@@ -1297,15 +1312,6 @@ Refactor `:MatchparenOn`, `:MatchparenOff`, `:MatchparenToggle`
 into `:Matchparen -on`, `:Matchparen -off`, `:Matchparen -toggle`.
 
 Update the doc.
-
----
-
-Rename `old_commands` into `compatible`.
-
----
-
-Bail out early when moving across closed folds?
-Rationale: Sometimes, Vim lags when moving across closed folds.
 
 ## ?
 ```vim
@@ -4888,27 +4894,6 @@ But they seem irrelevant...
 
 ##
 # Popups
-## [NULL] in E937 is confusing
-```vim
-vim9script
-var what: list<string> = ['foo', 'bar', 'baz']
-var opts: dict<any> = {
-    line: 5,
-    col: 10,
-    minwidth: 20,
-    maxwidth: 20,
-    minheight: 15,
-    maxheight: 15,
-    highlight: 'Visual',
-    }
-popup_create(what, opts)
-:%bd
-```
-    E937: Attempt to delete a buffer that is in use: [NULL]
-
-The  error  message would  be  less  confusing  if  `[NULL]` was  replaced  with
-`[Popup]`, which is the name given to popup buffers in the output of `:ls`.
-
 ## cannot hide popup attached to text property
 ```vim
 vim9script
@@ -5028,34 +5013,6 @@ Update: We've fixed the issue for `:catch`, but not for `:vimgrep`.
 Look for  `{pattern}` everywhere in  the help files  to find all  commands which
 would need such a highlighting.
 Also, try to mimic the rules for `vimGlobal`.
-
-### ?
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var lines =<< trim END
-            def Func()
-                DIR->readdir()
-                   ->map((_, v: string): string => DIR .. '/' .. v)
-                   ->mapnew((_, v: string) => {
-                       if bufexists(v)
-                           exe 'bwipe! ' .. v
-                       endif
-                    })
-            enddef
-        END
-        setline(1, lines)
-        syn on
-        set ft=vim
-    EOF
-    )
-
-Inside the inline function, `v` is highlighted as a command, instead of a variable.
-I think we need to find a way to allow `vimExecute` to start inside `vimBlock`.
-
----
-
-Also, `DIR` and `v` are not always highlighted as variables everywhere.
 
 ### ?
 

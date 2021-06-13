@@ -1907,32 +1907,6 @@ But it's only possible  if you can know the length of  the lookaround in advance
 
 ## ?
 
-Document how to quickly debug some syntax highlighting code:
-
-    $ cat <<'EOF' >/tmp/file
-    some text
-    EOF
-
-    $ cat <<'EOF' >/tmp/vimrc
-    syn clear
-
-    syn ...
-    ...
-
-    hi ...
-    ...
-
-    augroup debug_syntax
-      au!
-      au CursorMoved <buffer> echo synstack('.', col('.'))->map({_, v -> synIDattr(v, 'name')})->reverse()->join()
-      au BufEnter <buffer> so /tmp/vimrc
-    augroup END
-    EOF
-
-    $ vim /tmp/file
-
-## ?
-
 Conceal and highlight links in comments (all filetypes).
 
 Example:
@@ -2073,12 +2047,6 @@ performance of the regexes.
 
 ## ?
 
-Review `vim-comment`.
-Do we need `gC` and `iC`?
-Adapt their code when necessary.
-
-## ?
-
 Check all styles work as expected in all desired filetypes:
 
     # Note: text
@@ -2105,68 +2073,6 @@ Check all styles work as expected in all desired filetypes:
     > ** strong **
 
 Replace `#` with the right comment leader for each tested filetype.
-
-## ?
-
-Have a look at our vimrc, look for `PA` and `PQ` (near our 16th `TO_DO`).
-Note that the diagram is misaligned.
-Maybe  you  should   create  a  mapping  which  would   add  characters  (exotic
-whitespace?) which  would be concealed, so  that the diagram stays  aligned with
-what it's supposed to refer to when we press `coc`.
-
-## ?
-
-    $ cat <<'EOF' >/tmp/vimrc
-
-    syn clear
-
-    syn region xFor      matchgroup=xFor   start='for\s*('   end=')' contains=xCondNest
-    syn region xWhile    matchgroup=xWhile start='while\s*(' end=')' contains=xCondNest
-    syn region xCondNest                   start='('         end=')' contained transparent
-
-    hi link xFor      DiffAdd
-    hi link xWhile    DiffChange
-    hi link xCondNest DiffDelete
-    EOF
-
-    $ cat <<'EOF' >/tmp/file
-
-    for (i=0; i <= (a+b); i++) {
-       statement(s);
-    }
-
-    while (i <= (a+b)) {
-       statement(s);
-    }
-    EOF
-
-    $ vim /tmp/file
-    :so /tmp/vimrc
-
-Press `!s` on `for` or `while`.
-The stack contains 2 identical items (`xFor`, or `xWhile`).
-Document why.
-
-Hint:
-The contained item describes the `start` match.
-The containing item describes the match due to the whole region.
-
-## ?
-
-    $ echo 'one two three' >/tmp/file
-
-    $ cat <<'EOF' >/tmp/vimrc
-    syn region xRegion matchgroup=xMatchgroup start='one' end='three'
-    hi link xRegion DiffAdd
-    hi link xMatchgroup DiffChange
-    EOF
-
-    $ vim /tmp/file
-
-Press `!s`  on `three`,  and you'll see  that the stack  of items  only contains
-`xMatchgroup`.
-It doesn't contain `xRegion` which  seems to indicate that `matchgroup=` removes
-the `end` match from a region.
 
 ## ?
 
@@ -2453,33 +2359,67 @@ group.
 ```vim
 vim9script
 'foo bar'->setline(1)
-syn match xFoo 'foo' nextgroup=xBar skipwhite
-syn match xBar 'bar' contained
-hi link xFoo DiffAdd
-hi link xBar DiffDelete
+
+syn match Foo 'foo' nextgroup=Bar skipwhite
+syn match Bar 'bar' contained
+
+hi link Foo DiffAdd
+hi link Bar DiffDelete
 search('bar')
 echo synstack('.', col('.'))->mapnew((_, v) => v->synIDattr('name'))->reverse()
 ```
-    ['xBar']
+    ['Bar']
 
-Here, `bar` is not contained in `xFoo`; it's just in `xBar`.
-And yet, `xBar` is defined with `contained`.
+Here, `bar` is not contained in `Foo`; it's just in `Bar`.
+And yet, `Bar` is defined with `contained`.
 It  still  works  because  the  `contained`  requirement  is  satisfied  by  the
-`nextgroup=xBar` of the `xFoo` rule.
+`nextgroup=Bar` of the `Foo` rule.
 
 Update:  But then, why does it not work in the next snippet?
 ```vim
 vim9script
 'foo bar'->setline(1)
-syn match xFoo  'foo' contains=xFoo_
-syn match xFoo_ 'foo' contained nextgroup=xBar skipwhite
-syn match xBar  'bar' contained
-hi link xFoo DiffAdd
-hi link xBar DiffDelete
+
+syn match Foo  'foo' contains=Foo_
+syn match Foo_ 'foo' contained nextgroup=Bar skipwhite
+syn match Bar  'bar' contained
+
+hi link Foo DiffAdd
+hi link Bar DiffDelete
 search('bar')
 echo synstack('.', col('.'))->mapnew((_, v) => v->synIDattr('name'))->reverse()
 ```
     []
+
+Update: I think  there is some requirement  regarding the syntax group  in which
+you use `nextgroup`.  If it's contained,  it must not consume the last character
+of its outer group.
+
+---
+
+Gives desired result:
+
+    # text
+    bbb ccc
+
+    # code
+    syn clear
+    syn match A /^\S*\s*/ contains=B
+    syn match B /^bbb/ contained nextgroup=C
+    syn match C /\s*\S*/ contained
+
+Does not give desired result:
+
+    # text
+    Event pat
+
+    # code
+    syn clear
+    syn match A /^\S*\s*/ contains=B
+    syn match B /bbb/ contained nextgroup=C skipwhite
+    syn match C /\S*/ contained
+
+Understand why.
 
 ## ?
 
@@ -2506,6 +2446,96 @@ syn match xBar ' \@1<=bar'
 hi link xFoo DiffAdd
 hi link xBar DiffDelete
 ```
+##
+## ?
+
+    $ cat <<'EOF' >/tmp/vimrc
+
+    syn clear
+
+    syn region xFor      matchgroup=xFor   start='for\s*('   end=')' contains=xCondNest
+    syn region xWhile    matchgroup=xWhile start='while\s*(' end=')' contains=xCondNest
+    syn region xCondNest                   start='('         end=')' contained transparent
+
+    hi link xFor      DiffAdd
+    hi link xWhile    DiffChange
+    hi link xCondNest DiffDelete
+    EOF
+
+    $ cat <<'EOF' >/tmp/file
+
+    for (i=0; i <= (a+b); i++) {
+       statement(s);
+    }
+
+    while (i <= (a+b)) {
+       statement(s);
+    }
+    EOF
+
+    $ vim -S /tmp/vimrc /tmp/file
+
+Press `!s` on `for` or `while`.
+The stack contains 2 identical items (`xFor`, or `xWhile`).
+Document why.
+
+Hint:
+The contained item describes the `start` match.
+The containing item describes the match due to the whole region.
+
+## ?
+
+    $ echo 'one two three' >/tmp/file
+
+    $ cat <<'EOF' >/tmp/vimrc
+    syn region xRegion matchgroup=xMatchgroup start='one' end='three'
+    hi link xRegion DiffAdd
+    hi link xMatchgroup DiffChange
+    EOF
+
+    $ vim -S /tmp/vimrc /tmp/file
+
+Press `!s`  on `three`,  and you'll see  that the stack  of items  only contains
+`xMatchgroup`.
+It doesn't contain `xRegion` which  seems to indicate that `matchgroup=` removes
+the `end` match from a region.
+
+## ?
+
+Document that a contained match *can* break the auto-nesting of a region.
+
+Here, the auto-nesting works:
+
+    $ vim -S <(cat <<'EOF'
+        syn region Region start='abc(' end=')' contains=Region,Match
+        syn match Match /bc/ contained
+        hi link Region DiffAdd
+        pu ='abc(abc(abc(xxx)))'
+    EOF
+    )
+
+Notice how all the closing parens are all included in regions.
+Also, when  pressing `!s`,  notice that on  the third `a`,  the stack  of syntax
+groups contains 3 nested regions.
+
+But here, it does not work:
+
+    $ vim -S <(cat <<'EOF'
+        syn region Region start='abc(' end=')' contains=Region,Match
+        syn match Match /ab/ contained
+        hi link Region DiffAdd
+        pu ='abc(abc(abc(xxx)))'
+    EOF
+    )
+
+Notice that the last 2 closing parens are not included in regions.
+Also, when pressing `!s`,  notice that no character is being  applied a stack of
+several regions.
+
+The difference comes from the fact that – in the second case – the contained
+match consumes the first character of the start of the region.  If you want your
+region to be able to contain itself, leave this first character alone.
+
 ##
 # Reference
 

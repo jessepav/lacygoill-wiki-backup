@@ -1816,18 +1816,6 @@ Vim conflates the `Esc`  produced by the terminal when `Up`  is pressed, with an
 
 This can lead to unexpected behaviors such as the one reported [here][2].
 
-From `LeoNerd` on the `#vim` irc channel.
-
-   > Yeah.. that's because vim's keyboard input system is stupid
-   > In vim- raw bytes arrive from the terminal, go into the map engine (which just looks to see if the
-   > headofqueue bytes match any of its mappings, and replace them if so), then bytes come out directly into
-   > the command system
-   > Whereas in nvim, raw bytes go into the termkey instance, which turns them into *keys*, and those *keys*
-   > are what goes into the map engine
-   > So the map engine is never confused by the individual component bytes that formed those keypresses
-   > Just like it isn't confused by the individual bytes that came across the X11 unix socket when in gvim
-   > mode, or.. any other stupid crazy things that wouldn't be possible if it was actually sensible
-
 ### What if `<Esc>` is used in the rhs of a mapping?
 
 If the mapping is non-recursive, it should be ok.
