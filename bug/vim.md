@@ -1,21 +1,6 @@
 <https://github.com/vim/vim/blob/master/runtime/doc/vim9.txt>
 <https://github.com/vim/vim/blob/master/runtime/doc/todo.txt>
 
-> Main problem that with nnoremap <nowait> <Esc> <Esc>, when i press <Esc> it outputs (with echom key in filter)
-
-Mapping `<Esc>` is known to cause many issues.
-
-> Side question: How to make in a filter function recognize kyes with Ctrl like \<c-y>, for now i need to use ^Y and for Esc ^[ is it terminal emulator related? I use kitty.
-
-    def MyPopupFilter(id: number, key: string): bool
-        ...
-        if key == "\<c-y>"
-                  ^------^
-            ...
-        endif
-        ...
-    enddef
-
 # vim-fuzzy
 
 I suspect that invoking `map()` to turn source lines into dictionaries is costly.
@@ -5681,7 +5666,7 @@ Run this shell command:
     $ vim -Nu NONE -S <(cat <<'EOF'
         set bs=start
         inorea ab cd
-        pu!='yyyy'
+        put! ='yyyy'
         norm! 3|
         call feedkeys("i\<c-u>xxab ", 't')
     EOF

@@ -3584,6 +3584,33 @@ echo 'you pressed ' .. char
 ```
     E1030: Using a String as a Number: "<80>ku"
 
+### ?
+
+When a  mapping is  executed from a  Vim9 script with  `feedkeys()` and  the `x`
+flag, the Vim9 syntax is used:
+```vim
+vim9script
+nno <F3> <cmd>1yank<cr>
+feedkeys("\<F3>", 'x')
+```
+    E1050: Colon required before a range: 1yank
+
+Which is unexpected, because – usually – a mapping is used with the legacy syntax:
+```vim
+vim9script
+nno <F3> <cmd>1yank<cr>
+feedkeys("\<F3>", '')
+```
+    no error
+```vim
+vim9script
+nno <F3> <cmd>1yank<cr>
+exe "norm \<F3>"
+```
+    no error
+
+Is it a bug?
+
 ###
 ### ?
 ```vim

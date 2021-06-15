@@ -1,3 +1,5 @@
+# ?
+
 Let's write a shell and Vim script to  test how a given Vim function handles all
 possible types of values.
 
@@ -50,45 +52,57 @@ Source this script to generate snippets for the `abs()` function:
           'function(''len'')',
           'job_start('':'')',
           'job_start('':'')->job_getchannel()',
-          ]
+          'test_null_blob()',
+          'test_null_channel()',
+          'test_null_dict()',
+          'test_null_function()',
+          'test_null_job()',
+          'test_null_list()',
+          'test_null_partial()',
+          'test_null_string()',
+          'test_unknown()',
+          'test_void()',
+        ]
             lines = [
                 'vim9script',
-                printf('echom "%s"', 'in def function'),
+                "echom 'in def function'",
                 printf('echom "%s(%s) = "', funcname, value),
-                'echom " "'
+                "echom ' '"
                 'def Func()',
                 printf('    echom %s(%s)', funcname, value),
                 'enddef',
                 'Func()'
-                ]
+            ]
             var scriptname: string
-            if value->typename() == 'string' && value != '"string"'
+            if value->typename() == 'string' && value =~ '^test_'
+                scriptname = value->matchstr('test_\zs[^()]\+')
+            elseif value->typename() == 'string' && value != '"string"'
                 scriptname = value =~ '_getchannel()$'
                     ?     'channel'
                     : value =~ '^job'
                     ?     'job'
                     : value =~ '^function('
                     ?     'function'
-                    :     typename(value)
+                    :     value->typename()
             else
                 scriptname = value->typename()
             endif
             writefile(lines, printf(TESTDIR .. '/def/%s/%s.vim',
                 funcname,
                 scriptname,
-                ))
+            ))
             lines = [
                 'vim9script',
-                printf('echom "%s"', 'at script level'),
-                printf('echom "%s(%s) = "', funcname, value),
-                'echom " "'
+                "echom 'at script level'",
+                printf("echom '%s(%s) = '", funcname, value),
+                "echom ' '"
                 printf('echom %s(%s)', funcname, value),
-                ]
+            ]
             mkdir(TESTDIR .. '/script/' .. funcname, 'p')
             writefile(lines, printf(TESTDIR .. '/script/%s/%s.vim',
                 funcname,
                 scriptname,
-                ))
+            ))
         endfor
     enddef
     GenerateSnippets('abs')
@@ -97,3 +111,9 @@ Source this script to generate snippets for the `abs()` function:
 Run this shell command to test each snippet:
 
     $ for f in /tmp/test/**/*.vim; do vim -Nu NONE -S "$f"; done
+
+## ?
+
+    $ vim -Nu NONE +'eval test_unknown()->abs()'
+    E685: Internal error: tv_get_number(UNKNOWN)
+

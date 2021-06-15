@@ -2358,42 +2358,61 @@ contained.  It is  also allowed for the  item to be "next  to" another specified
 group.
 ```vim
 vim9script
-'foo bar'->setline(1)
+'bbb ccc'->setline(1)
 
-syn match Foo 'foo' nextgroup=Bar skipwhite
-syn match Bar 'bar' contained
+syn match B 'bbb' nextgroup=C skipwhite
+syn match C 'ccc' contained
 
-hi link Foo DiffAdd
-hi link Bar DiffDelete
-search('bar')
+hi link B DiffAdd
+hi link C DiffDelete
+search('ccc')
 echo synstack('.', col('.'))->mapnew((_, v) => v->synIDattr('name'))->reverse()
 ```
-    ['Bar']
+    ['C']
 
-Here, `bar` is not contained in `Foo`; it's just in `Bar`.
-And yet, `Bar` is defined with `contained`.
+Here, `ccc` is not contained in `B`; it's just in `C`.
+And yet, `C` is defined with `contained`.
 It  still  works  because  the  `contained`  requirement  is  satisfied  by  the
-`nextgroup=Bar` of the `Foo` rule.
+`nextgroup=C` of the `B` rule.
 
 Update:  But then, why does it not work in the next snippet?
 ```vim
 vim9script
-'foo bar'->setline(1)
+'bbb ccc'->setline(1)
 
-syn match Foo  'foo' contains=Foo_
-syn match Foo_ 'foo' contained nextgroup=Bar skipwhite
-syn match Bar  'bar' contained
+syn match A 'bbb' contains=B
+syn match B 'bbb\@=' contained nextgroup=C skipwhite
+syn match C 'b ccc' contained
 
-hi link Foo DiffAdd
-hi link Bar DiffDelete
-search('bar')
+hi link B DiffAdd
+hi link C DiffDelete
+search('ccc')
 echo synstack('.', col('.'))->mapnew((_, v) => v->synIDattr('name'))->reverse()
 ```
     []
 
 Update: I think  there is some requirement  regarding the syntax group  in which
-you use `nextgroup`.  If it's contained,  it must not consume the last character
-of its outer group.
+you  use `nextgroup`.   If it's  contained (not  contained in  the sense  "right
+after", but "inside"), the  last character of the outer item  must not have been
+matched/consumed by a nested item.
+
+It seems that:
+
+    B ⊂ A
+    C ⊂ B
+
+    ⇒
+
+    C ⊂ A
+
+IOW,  `C` must  extend `A`.   And you  cannot extend  `A` if  an inner  item has
+consumed its last character.
+
+It was not an  issue before, because `A` was the toplevel,  so there was nothing
+to extend.
+
+To avoid this pitfall, try to be in a situation where `B` is not inside `A`, but
+right afterward.
 
 ---
 
@@ -2446,6 +2465,19 @@ syn match xBar ' \@1<=bar'
 hi link xFoo DiffAdd
 hi link xBar DiffDelete
 ```
+## ?
+
+Document all the effects of `:syn iskeyword`.
+Hint:
+
+   - the words in `:syn iskeyword` rules
+   - the `\k`, `\<`, `\>` atoms in `:syn match`/`:syn region` regexes
+
+## ?
+
+Document that – I think – `extend` breaks `oneline` (when the latter is used
+in the same item, and possibly in an outer one too).
+
 ##
 ## ?
 
