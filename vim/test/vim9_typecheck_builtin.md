@@ -20,10 +20,10 @@ We need to test these functions:
 Let's start with the first ten ones:
 
     abs( ✔
-    acos( ?
-    add( ?
-    and( ?
-    append( ?
+    acos( ✔
+    add( ✔
+    and( ✔
+    append( ✔
     appendbufline( ?
     argc( ?
     arglistid( ?
@@ -35,48 +35,48 @@ Let's start with the first ten ones:
 Source this script to generate snippets for the `abs()` function:
 
     vim9script
+
+    # Config {{{1
+
     const TESTDIR: string = '/tmp/test'
-    delete(TESTDIR, 'rf')
-    def GenerateSnippets(funcname: string)
-        mkdir(TESTDIR .. '/def/' .. funcname, 'p')
+    const LOGFILE: string = '/tmp/log'
+
+    const VALUES = [
+      123,
+      1.23,
+      0z1234,
+      '''string''',
+      true,
+      v:none,
+      [0],
+      {key: 'val'},
+      'function(''len'')',
+      'job_start('':'')',
+      'job_start('':'')->job_getchannel()',
+      'test_null_blob()',
+      'test_null_channel()',
+      'test_null_dict()',
+      'test_null_function()',
+      'test_null_job()',
+      'test_null_list()',
+      'test_null_partial()',
+      'test_null_string()',
+      'test_void()',
+    ]
+
+    def GenerateSnippets(funcname: string) #{{{1
+        mkdir(TESTDIR .. '/1_script/' .. funcname, 'p')
+        mkdir(TESTDIR .. '/2_def/' .. funcname, 'p')
+
+        var fname: string
         var lines: list<string>
-        for value in [
-          123,
-          1.23,
-          0z1234,
-          '''string''',
-          true,
-          v:none,
-          [0],
-          {key: 'val'},
-          'function(''len'')',
-          'job_start('':'')',
-          'job_start('':'')->job_getchannel()',
-          'test_null_blob()',
-          'test_null_channel()',
-          'test_null_dict()',
-          'test_null_function()',
-          'test_null_job()',
-          'test_null_list()',
-          'test_null_partial()',
-          'test_null_string()',
-          'test_unknown()',
-          'test_void()',
-        ]
-            lines = [
-                'vim9script',
-                "echom 'in def function'",
-                printf('echom "%s(%s) = "', funcname, value),
-                "echom ' '"
-                'def Func()',
-                printf('    echom %s(%s)', funcname, value),
-                'enddef',
-                'Func()'
-            ]
-            var scriptname: string
+        var scriptname: string
+
+        for value in VALUES
             if value->typename() == 'string' && value =~ '^test_'
                 scriptname = value->matchstr('test_\zs[^()]\+')
-            elseif value->typename() == 'string' && value != '"string"'
+
+            elseif value->typename() == 'string' && value != '''string'''
                 scriptname = value =~ '_getchannel()$'
                     ?     'channel'
                     : value =~ '^job'
@@ -84,29 +84,65 @@ Source this script to generate snippets for the `abs()` function:
                     : value =~ '^function('
                     ?     'function'
                     :     value->typename()
+
             else
                 scriptname = value->typename()
             endif
-            writefile(lines, printf(TESTDIR .. '/def/%s/%s.vim',
-                funcname,
-                scriptname,
-            ))
-            lines = [
-                'vim9script',
-                "echom 'at script level'",
-                printf("echom '%s(%s) = '", funcname, value),
-                "echom ' '"
-                printf('echom %s(%s)', funcname, value),
-            ]
-            mkdir(TESTDIR .. '/script/' .. funcname, 'p')
-            writefile(lines, printf(TESTDIR .. '/script/%s/%s.vim',
-                funcname,
-                scriptname,
-            ))
+
+            def ExpandPercentItems(lines: list<string>): list<string>
+              var newlines: list<string>
+              for line in lines
+                var expand_b = [v:t_blob, v:t_list, v:t_dict]->index(type(value)) >= 0
+                  ? value->string()
+                  : value
+                var expanded: string = line
+                  ->substitute('%a', funcname, 'g')
+                  ->substitute('%b', expand_b, 'g')
+                  ->substitute('%c', LOGFILE, 'g')
+                newlines->add(expanded)
+              endfor
+              return newlines
+            enddef
+
+            fname = printf(TESTDIR .. '/1_script/%s/%s.vim', funcname, scriptname)
+            lines =<< trim END
+                vim9script
+                nno ZZ ZQ
+                ['---------------', 'at script level', "%a(%b) ="]
+                  ->writefile('%c', 'a')
+                try
+                  [%a(%b)->string()]
+                    ->writefile('%c', 'a')
+                catch
+                  writefile([v:exception], '%c', 'a')
+                endtry
+            END
+            ExpandPercentItems(lines)->writefile(fname)
+
+            fname = printf(TESTDIR .. '/2_def/%s/%s.vim', funcname, scriptname)
+            lines =<< trim END
+              vim9script
+              nno ZZ ZQ
+              ['---------------', 'in def function', "%a(%b) ="]
+                ->writefile('%c', 'a')
+              def Func()
+                  [%a(%b)->string()]
+                    ->writefile('%c', 'a')
+              enddef
+              try
+                Func()
+              catch
+                writefile([v:exception], '%c', 'a')
+              endtry
+            END
+            ExpandPercentItems(lines)->writefile(fname)
         endfor
     enddef
+    #}}}1
+
+    delete(LOGFILE)
+    delete(TESTDIR, 'rf')
     GenerateSnippets('abs')
-    qa!
 
 Run this shell command to test each snippet:
 

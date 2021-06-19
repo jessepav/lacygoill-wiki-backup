@@ -1244,6 +1244,56 @@ defcompile
 
 ##
 ## ?
+```vim
+vim9script
+append('0', 'text')
+```
+    no error
+    nothing appended
+
+A  type  mismatch error  should  have  been raised.   Only  a  number should  be
+accepted;  as well  as the  few string  expressions documented  at `:h  line()`.
+`'0'` is not one of them.  Same issue in compiled code.
+
+##
+## ?
+
+According to `:h pattern-delimiter`, we can't use a double quote as a delimiter around a pattern passed as an argument to a command such as `:substitute` or `:global`:
+
+   > *pattern-delimiter* *E146*
+   > Instead of the '/' which surrounds the pattern and replacement string, you
+   > can use any other single-byte character, but not an alphanumeric character,
+   > '\', '"' or '|'.  This is useful if you want to include a '/' in the search
+   > pattern or replacement string.
+
+In Vim9, that's still true:
+```vim
+vim9script
+['aba bab']->repeat(3)->setline(1)
+sil! s/nowhere//
+:% s"b"B"g
+```
+    E486: Pattern not found: nowhere
+
+Should it?  `"` is no longer a comment leader in Vim9.
+
+Also, since `#` is the comment leader in Vim9, should it be disallowed in Vim9?
+Right now, it works:
+```vim
+vim9script
+['aba bab']->repeat(3)->setline(1)
+sil! s/nowhere//
+:% s#b#B#g
+:% p
+```
+    aBa BaB
+    aBa BaB
+    aBa BaB
+
+This makes `#` somewhat ambiguous (delimiter vs comment leader).
+Update:  Does it?  What about `@#`, autoload function names, ... ?
+
+## ?
 
 Test how all the builtin functions react when they're passed a null value.
 ```vim
