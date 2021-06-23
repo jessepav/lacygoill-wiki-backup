@@ -71,6 +71,7 @@ temporarily converting the dates into simple integers.
    - `:h readdir()` and `:h readdirex()` support a new optional `{dict}` argument
    - `:h search()` supports a new `{skip}` argument
    - `:h winnr()` supports a new argument `{N}[hjkl]` since 8.1.1140
+   - `:h getqflist()` supports the new arguments `end_col` and `end_lnum` since 8.2.3019
 
 ## output of functions
 

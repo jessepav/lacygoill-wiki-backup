@@ -244,7 +244,7 @@ Use `filter()`:
 ##
 ##
 ##
-# TODO
+# Todo
 ## `ch_readblob()`
 
 Document that a blob can be read from a channel with the `ch_readblob()` function.

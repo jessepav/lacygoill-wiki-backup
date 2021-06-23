@@ -619,17 +619,6 @@ feedkeys('q', 'in')[-1]
 ```
     E1062: Cannot index a Number
 
----
-
-Update:  How about `->slice(0, 0)`?
-```vim
-vim9script
-nno <expr> <F3> execute('g:message = "no error"')->slice(0, 0)
-feedkeys("\<F3>", 'x')
-echo g:message
-```
-    no error
-
 #### Allow `'.'` as a shorthand for `col('.')` whenever a function argument expects a column number.
 
 Allow `'.'` as a shorthand for  `line('.')` and `col('.')` regardless of whether
@@ -1244,27 +1233,170 @@ defcompile
 
 ##
 ## ?
+
+Should not cause any issue:
+
+    ;
+    ,
+    `
+    _
+
+
+Might cause an issue because they can start a comment:
+
+    "
+    #
+
+Might cause an issue because they are used in regex atoms:
+
+    $
+    .
+    =
+    ?
+    @
+    \
+    ^
+
+Might cause an issue because they are used as binary operators:
+
+    +
+    -
+    *
+    /
+    %
+
+Don't know:
+
+    !
+    &
+    '
+    |
+    ~
+
+    <
+    >
+    (
+    )
+    [
+    ]
+    {
+    }
+
+---
+
+yl"_dd?patb"_xPE"_xP||/```\_s*\zs
+yl"_dd?patB"_xPEE"_xP||/```\_s*\zs
+
+```vim
+s \pat\ rep
+```
+
+    ^
+    +
+    -
+    *
+    /
+    %
+    !
+    &
+    '
+    |
+    ~
+    <
+    >
+    (
+    )
+    [
+    ]
+    {
+    }
+
+---
+
+In Vim9:
+
+    E476: Invalid command: filter |pat| ls
+    E476: Invalid command: filter | pat | ls
+
+    E476: Invalid command: filter #pat# ls
+    E476: Invalid command: filter # pat # ls
+
+    E492: Not an editor command: filter _ pat _ ls
+
+    E476: Invalid command: filter .pat. ls
+    E476: Invalid command: filter . pat . ls
+
+    E476: Invalid command: filter =pat= ls
+    E476: Invalid command: filter = pat = ls
+
+In legacy:
+
+    E476: Invalid command: filter |pat| ls
+    E476: Invalid command: filter | pat | ls
+
+    E476: Invalid command: filter "pat" ls
+    E476: Invalid command: filter " pat " ls
+
+    E492: Not an editor command: filter _ pat _ ls
+
+---
+
+`!` is a special case.
+In Vim9, it works in this case:
 ```vim
 vim9script
-append('0', 'text')
+filter ! pat! ls
 ```
-    no error
-    nothing appended
+    ✔
 
-A  type  mismatch error  should  have  been raised.   Only  a  number should  be
-accepted;  as well  as the  few string  expressions documented  at `:h  line()`.
-`'0'` is not one of them.  Same issue in compiled code.
+If there is no space after the first `!`, the command is invalid:
+```vim
+vim9script
+filter !pat! ls
+```
+    E476: Invalid command: filter !pat! ls
+```vim
+vim9script
+filter !pat ! ls
+```
+    E476: Invalid command: filter !pat ! ls
 
-##
-## ?
+If there is a space after the first `!`, and also before the second `!`, what follows is executed as a shell command:
+```vim
+vim9script
+filter ! pat ! echo 'shell command'
+```
+    shell command
+
+In legacy, it works iff the second bang is not preceded by a space:
+```vim
+filter !pat! ls
+```
+    ✔
+```vim
+filter ! pat! ls
+```
+    ✔
+
+If it is, again, what follows the second bang is executed as a shell command:
+```vim
+filter !pat ! echo 'shell command'
+```
+    shell command
+```vim
+filter ! pat ! echo 'shell command'
+```
+    shell command
+
+---
 
 According to `:h pattern-delimiter`, we can't use a double quote as a delimiter around a pattern passed as an argument to a command such as `:substitute` or `:global`:
 
-   > *pattern-delimiter* *E146*
-   > Instead of the '/' which surrounds the pattern and replacement string, you
-   > can use any other single-byte character, but not an alphanumeric character,
-   > '\', '"' or '|'.  This is useful if you want to include a '/' in the search
-   > pattern or replacement string.
+> *pattern-delimiter* *E146*
+> Instead of the '/' which surrounds the pattern and replacement string, you
+> can use any other single-byte character, but not an alphanumeric character,
+> '\', '"' or '|'.  This is useful if you want to include a '/' in the search
+> pattern or replacement string.
 
 In Vim9, that's still true:
 ```vim
@@ -1290,9 +1422,19 @@ sil! s/nowhere//
     aBa BaB
     aBa BaB
 
-This makes `#` somewhat ambiguous (delimiter vs comment leader).
-Update:  Does it?  What about `@#`, autoload function names, ... ?
+## ?
+```vim
+vim9script
+append('0', 'text')
+```
+    no error
+    nothing appended
 
+A  type  mismatch error  should  have  been raised.   Only  a  number should  be
+accepted;  as well  as the  few string  expressions documented  at `:h  line()`.
+`'0'` is not one of them.  Same issue in compiled code.
+
+##
 ## ?
 
 Test how all the builtin functions react when they're passed a null value.
@@ -4140,7 +4282,7 @@ Compare:
 ```vim
 vim9script
 def Func(): number
-    if true
+    if rand() % 2
         return 1
     else
         return 2
@@ -5392,43 +5534,6 @@ long line.  *Any* long line (even before or after) can make Vim lag.
 ---
 
 <https://github.com/vim/vim/pull/4446#issuecomment-702825238>
-
-## global command can use alphabetic delimiter
-
-**Describe the bug**
-
-**To Reproduce**
-
-Run this shell command:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        call setline(1, ['aaa', 'bbb']->repeat(3))
-        g x^bxd_
-    EOF
-    )
-
-The `bbb` lines have been deleted.
-
-**Expected behavior**
-
-No line is deleted, and the global command fails because a space is an alphanumeric character, which should be disallowed as a delimiter.  It is for substitution commands (as documented at `:h pattern-delimiter`); it would make sense to be also disallowed for global commands.
-
-**Environment**
-
- - Vim version: 8.2 Included patches: 1-1962
- - OS: Ubuntu 16.04.7 LTS
- - Terminal: xterm(361)
-
-**Additional context**
-
-If we try to use a space as a delimiter in a substitution command, `E146` is raised:
-```vim
-call setline(1, ['aaa', 'bbb']->repeat(3))
-%s x^bxrepx
-```
-    E146: Regular expressions can't be delimited by letters
-
-Maybe the same error should be raised with a global command.
 
 ## mapping regression
 

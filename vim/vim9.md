@@ -2656,28 +2656,24 @@ To see the effects of your update, simply restart Vim:
 You've probably used a colon to surround the pattern of your global command:
 
     ✘
-    g:pat:do sth
-     ^   ^
-
-And you  probably did that  because your pattern contained  one or a  few colons
-which you didn't want to escape.
+    g:pattern:command
+     ^       ^
 
 Solutions:
 
-Prefix the global command with a colon:
+Use a different delimiter:
 
-    ✔
-    :g:pat:do sth
+    g/pattern/command
+     ^       ^
+
+Or prefix the global command with a colon:
+
+    :g:pattern:command
     ^
-
-Or add a space in between `g` and `:`:
-
-    g :pat:do sth
-     ^
 
 Or use the full name of the command:
 
-    global:pat:do sth
+    global:pattern:command
     ^----^
 
 ---

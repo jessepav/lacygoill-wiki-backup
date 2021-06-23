@@ -364,12 +364,12 @@ As a workaround, you can move the neighbor line(s).
 To move the range of lines, from the  current one down to the next `p` ones, `q`
 lines downward, execute this Ex command:
 
-    +p+1,+p+qm-|+
+    :.+p+1,.+p+q move .-1 | +
 
 To move the range of lines, from the  current one down to the next `p` ones, `q`
 lines upward, execute this Ex command:
 
-    -q,-m.+p|-q
+    :.-q,.-1 move .+p | -q
 
 As an example, consider this text file in `/tmp/file`:
 
@@ -399,12 +399,12 @@ Now, start Vim like this:
 To move the 3 lines containing numbers 4 lines downward, execute this Ex command
 while on the first line of the range of number lines:
 
-    +2+1,+2+4m-|+
+    :.+2+1,.+2+4 move .-1 | +
 
 And to move it again 3 lines upward,  execute this Ex command while on the first
 line of the range of number lines:
 
-    -3,-m.+2|-3
+    :.-3,.-1 move .+2 | -3
 
 See: <https://github.com/vim/vim/issues/5648#issuecomment-587041255>
 
