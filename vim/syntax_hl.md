@@ -2171,55 +2171,6 @@ Besides, it seems that `:syn match` is  rarely used to match a multiline text in
 
 ## ?
 
-This  is an  old comment  we  wrote in  `lg#styled_comment#syntax()`, which  has
-become irrelevant after a refactoring.
-Nonetheless,  I  keep  it here,  so  that  you  read  it and  see  whether  some
-information should be turned in question/answer.
-
----
-
-Warning: Do *not* use `\zs` instead of `\%(...\)\@<=`!
-
-It would sometimes break `xCommentCodeBlock`.
-
-MWE:
-
-    $ echo ' #    codeblock' >/tmp/awk.awk
-            ^
-            ✘ indentation breaks syntax
-
-    $ vim /tmp/awk.awk
-
-The text `#    codeblock` is not properly highlighted.
-
-Why?
-The beginning of a nested item must be inside the containing item.
-From `:h syn-contains`:
-
-   > These groups will be allowed to begin **inside** the item...
-
-In particular,  a nested item can  *not* begin before the  containing item
-has begun.
-
-If you use `\zs`, `xCommentCodeBlock`  will start right from the beginning
-of the line, because the regex starts with the anchor `^`.
-Yes, `\zs` doesn't change the start of the item.
-
-But `xCommentCodeBlock` is supposed to be contained in `xComment`.
-OTOH, `xComment` may sometimes begin *after* the beginning of the line.
-
-Example:
-
-    syn match awkComment "#.*" contains=@Spell,awkTodo
-
-Here, `awkComment` doesn't start at the  beginning of the line, but at the
-comment leader.
-As  a  result, if  your  comment  is indented  (i.e.  there's  at least  1
-space between  the beginning  of the  line and  the comment  leader), then
-`xCommentCodeBlock` will start *before* `xComment`.
-
-## ?
-
 some **bold** text
 some [url *text*](http://www.google.com)
 some **bold *foo* bar** text
@@ -2477,6 +2428,55 @@ Hint:
 
 Document that – I think – `extend` breaks `oneline` (when the latter is used
 in the same item, and possibly in an outer one too).
+
+## ?
+
+Document  that `nextgroup`  doesn't  work  for a  region  whose  start is  empty
+(i.e. it doesn't match any character, just a position):
+```vim
+vim9script
+'aaaAAAbbb'->setline(1)
+syn on
+syn region A
+    \ start=/a/
+    \ end=/AAA\zebbb/
+    \ nextgroup=B
+syn match B /bbb/ contained
+hi link A DiffAdd
+hi link B DiffDelete
+```
+A and B are correctly highlighted because the start of A is not empty:
+
+    \ start=/a/
+             ^
+             ✔
+```vim
+vim9script
+'aaaAAAbbb'->setline(1)
+syn on
+syn region A
+    \ start=/\zea/
+    \ end=/AAA\zebbb/
+    \ nextgroup=B
+syn match B /bbb/ contained
+hi link A DiffAdd
+hi link B DiffDelete
+```
+A and B are not highlighted because the start of A is empty:
+
+    \ start=/\zea/
+             ^--^
+              ✘
+```vim
+vim9script
+'aaaAAAbbb'->setline(1)
+syn on
+syn region A
+    \ start=/\zea/
+    \ end=/AAA\zebbb/
+hi link A DiffAdd
+```
+A is correctly highlighted, even though its start is empty because there's no `nextgroup`.
 
 ##
 ## ?

@@ -495,9 +495,9 @@ operator.
 #### What's the output of the last command in these snippets?
 ##### 1:
 
-    fu Increment(list, i)
+    function Increment(list, i)
         let a:list[a:i] += 1
-    endfu
+    endfunction
     let list = [0, 0, 0]
     call Increment(list, 2)
     echo list
@@ -506,13 +506,13 @@ operator.
 
 ##### 2:
 
-    fu Increment(list, i)
+    function Increment(list, i)
         let a:list[a:i] += 1
-    endfu
+    endfunction
     let counts = [0, 0, 0]
     let patterns = ['a_word', 'b_word', 'c_word']
     for i in range(3)
-        exe '%s/' .. patterns[i] .. '/\=Increment(counts,' .. i .. ')/gn'
+        execute ':% substitute/' .. patterns[i] .. '/\=Increment(counts,' .. i .. ')/gn'
     endfor
     echo counts
 
@@ -525,16 +525,16 @@ But it doesn't matter: `counts` has still mutated.
 
 ##### 3:
 
-    fu Func()
+    function Func()
         let list = [1, 2, 3]
         let n = 42
         call FuncA(n)
         echo n
-    endfu
-    fu FuncA(n)
+    endfunction
+    function FuncA(n)
         let l:n = a:n
         let l:n += 1
-    endfu
+    endfunction
     call Func()
 
 ↣ 42 ↢
@@ -624,27 +624,27 @@ but references.
 
 `a:000` can't mutate:
 
-    fu Func(...) abort
+    function Func(...) abort
         return map(a:000, 'v:val+1')
-    endfu
+    endfunction
     echo Func(1, 2, 3)
     E742: Cannot change value of map() argument˜
 
 #### I can't append a new item to a list argument with `+=`!
 
-    fu Func(list) abort
+    function Func(list) abort
         let a:list += [2]
         echo a:list
-    endfu
+    endfunction
     call Func([1])
     E46: Cannot change read-only variable "a:list"˜
 
 Use `add()` instead of `+=`:
 
-    fu Func(list) abort
+    function Func(list) abort
         call add(a:list, 2)
         echo a:list
-    endfu
+    endfunction
     call Func([1])
     [1, 2]˜
 
@@ -818,27 +818,27 @@ in the rhs of the assignment.
 
 Don't use `count()`; it would be less effecient:
 
-    fu Func()
+    function Func()
         let words = []
-        %s/\<\k\+\>/\=add(words, submatch(0))/gn
+        :% substitute/\<\k\+\>/\=add(words, submatch(0))/gn
         let freq = {}
         for word in copy(words)->sort()->uniq()
             let freq[word] = count(words, word)
         endfor
         echo freq
-    endfu
+    endfunction
     10Time sil call Func()
 
-    fu Func()
+    function Func()
         let words = []
-        %s/\<\k\+\>/\=add(words, submatch(0))/gn
+        :% substitute/\<\k\+\>/\=add(words, submatch(0))/gn
         let freq = {}
         for word in words
             let freq[word] = get(freq, word, 0) + 1
         endfor
         echo freq
-    endfu
-    10Time sil call Func()
+    endfunction
+    :10 Time silent call Func()
 
 Indeed, assuming your list contains 10  unique words, you would invoke `count()`
 10 times.

@@ -2180,6 +2180,10 @@ Otherwise, you might use a hack (`/bin/sh -c 'cmd >redir'`):
 
     $ systemd-delta
 
+## study tool to convert crontab into equivalent .timer and .service units
+
+<https://github.com/systemd-cron/systemd-cron>
+
 ## Talk about the `--no-hostname` option:
 
     $ journalctl -b --no-hostname

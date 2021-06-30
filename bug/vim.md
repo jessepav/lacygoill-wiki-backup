@@ -865,6 +865,100 @@ Actual:
     #     {
             #
 
+---
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var lines =<< trim END
+            vim9script
+            #     var d = {
+            #     }
+        END
+        lines->setline(1)
+        filetype plugin indent on
+        set ft=vim
+        feedkeys("GO\e")
+    EOF
+    )
+
+Expected:
+
+    vim9script
+    #     var d = {
+    #
+    #     }
+
+Actual:
+
+    vim9script
+    #     var d = {
+            #
+    #     }
+
+---
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var lines =<< trim END
+            vim9script
+            #     var d = {
+            #         k: '
+            #     }
+        END
+        lines->setline(1)
+        filetype plugin indent on
+        set ft=vim
+        feedkeys("3GAend\e")
+    EOF
+    )
+
+Expected:
+
+    vim9script
+    #     var d = {
+    #         k: 'end
+    #     }
+
+Actual:
+
+    vim9script
+    #     var d = {
+            #         k: 'end
+    #     }
+
+---
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        var lines =<< trim END
+            vim9script
+            #     var d = {
+            #         k: [],
+            #     }
+        END
+        lines->setline(1)
+        filetype plugin indent on
+        set ft=vim
+        feedkeys("3Gf[a\r\e")
+    EOF
+    )
+
+Expected:
+
+    vim9script
+    #     var d = {
+    #         k: [
+    #         ],
+    #     }
+
+Actual:
+
+    vim9script
+    #     var d = {
+    #         k: [
+            #         ],
+    #     }
+
 ### ?
 
 Consider this script:
@@ -1231,8 +1325,572 @@ defcompile
     line    1:
     E1012: Type mismatch; expected string but got number
 
+### ?
+```vim
+vim9script
+def Func()
+    var x: any
+    x.key = 1
+          + 2
+          + 3
+          + 4
+          + 5
+enddef
+Func()
+```
+    line    6:
+    E1148: Cannot index a number
+
+I would expect line 2, because that's where we index the variable.
+
+---
+```vim
+vim9script
+var x: any
+x['key'] = 1
+         + 2
+         + 3
+         + 4
+         + 5
+```
+    line    3:
+    E689: Can only index a List, Dictionary or Blob
+
+Again, I would expect line 2.
+
+##
+## [help] clarification needed for type checking of lists/dicts of funcrefs
+### triple dot notation
+```vim
+vim9script
+def Foo(x: bool)
+enddef
+def Bar(x: bool, y: bool)
+enddef
+var l = [Foo, Bar]
+echo l->typename()
+```
+    list<func(...)>
+              ^^^
+
+Notice the triple  dot.  It means that the 2  signatures don't have the  same number of arguments.  I can't find this explained in the help.  Maybe it should.
+
+### ambiguous meaning of generated "any"
+```vim
+vim9script
+def ReturnNumber(): number
+    return 0
+enddef
+def ReturnString(): string
+    return ''
+enddef
+var l = [ReturnNumber, ReturnString]
+echo l->typename()
+```
+    list<func(): any>
+
+`any` might be ambiguous here.  It can be read as:
+"Not all functions return the same type of value."
+
+Or it can be read as:
+"All functions in the list return a value of type `any`."
+
+In practice, it's the first interpretation which is correct.  Maybe this should be documented.
+
+---
+```vim
+vim9script
+def ExpectNumber(x: number)
+enddef
+def ExpectString(x: string)
+enddef
+var l = [ExpectNumber, ExpectString]
+echo l->typename()
+```
+    list<func(any)>
+
+Again, `any` might be ambiguous; it can be read as:
+"Not all functions expect the same type of value."
+
+Or it can be read as:
+"All functions in the list expect a value of type `any`."
+
+And again, in practice, it's the first interpretation which is correct.  Maybe this should be documented.
+
+### inconsistent usage of generated "any"
+
+As seen above, when Vim receives a list/dict of funcrefs with different return types, it generates the return type `any`.  Same thing for a list/dict of funcrefs with one argument of different types.  But an `any` generated for the return type is not used like an `any` generated for an argument:
+```vim
+vim9script
+def ExpectNumber(x: number)
+enddef
+def ExpectString(x: string)
+enddef
+var l: list<func(bool)> = [ExpectNumber, ExpectString]
+```
+    no error
+```vim
+vim9script
+def ReturnNumber(): number
+    return 123
+enddef
+def ReturnString(): string
+    return 'string'
+enddef
+var l: list<func(): bool> = [ReturnNumber, ReturnString]
+```
+    E1012: Type mismatch; expected list<func(): bool> but got list<func(): any>
+
+Notice that in the first snippet, no error was given even though the specified argument type `bool` does not match the actual argument type of any funcref (`number`, `string`).  It means that the generated `any` matches any type, including the `: bool` that we wrote.
+
+But in the second snippet, an error *is* given even though Vim has – again – generated an `any` type; the one written at the very end of the message:
+
+    E1012: Type mismatch; expected list<func(): bool> but got list<func(): any>
+                                                                           ^^^
+
+This `any` does *not* match any type.  It only matches itself; i.e. a specified `any` type.  IOW, the only way to fix this error is to write `any` for the return type:
+
+                         ✘
+                        v--v
+    var l: list<func(): bool> = [ReturnNumber, ReturnString]
+
+    →
+
+    var l: list<func(): any> = [ReturnNumber, ReturnString]
+                        ^^^
+                         ✔
+
+The fact that a generated `any` is used differently for an argument vs the return value seems inconsistent.  Is this working as intended?  If so, maybe it should be documented.
+
+IMO, the behavior in the second snippet is good, because it gives us the most guarantees about the validity of our code.  For example, if we write this:
+
+    var l: list<func(): number> = [A, B, C]
+
+And Vim doesn't complain, then we have the guarantee that all 3 functions `A`, `B`, `C` do return numbers.
+The only exception to this guarantee is the `any` return type:
+
+    var l: list<func(): any> = [A, B, C]
+
+This time, if Vim doesn't complain, it doesn't mean that each of the 3 functions can return any type of values.  It means that – *as a whole* – the set of the 3 return types could contain any type.  IOW, it doesn't mean anything useful.  It's a bit like saying "I have no idea what any of these functions return".
+
+OTOH, maybe the behavior in the first snippet should be changed because:
+
+   - it would be more consistent with the second one
+   - it would give us more guarantees about the validity of the argument types that we write
+
+So maybe this snippet:
+```vim
+vim9script
+def ExpectNumber(x: number)
+enddef
+def ExpectString(x: string)
+enddef
+var l: list<func(bool)> = [ExpectNumber, ExpectString]
+```
+Should give an error, such as:
+
+    E1012: Type mismatch; expected list<func(bool)> but got list<func(any)>
+
+And to fix this, we should have to rewrite our declaration like this:
+
+                      ✘
+                     v--v
+    var l: list<func(bool)> = [ExpectNumber, ExpectString]
+
+    →
+
+    var l: list<func(any)> = [ExpectNumber, ExpectString]
+                     ^^^
+                      ✔
+
+### no error for mismatch of number of arguments
+```vim
+vim9script
+def OneArg(x: bool)
+enddef
+def TwoArgs(x: bool, y: bool)
+enddef
+var l: list<func(bool, bool, bool)> = [OneArg, TwoArgs]
+```
+    no error
+
+IMO, Vim should complain as soon as it sees that one of the funcref has more or less arguments than what is declared:
+
+    E1012: Type mismatch; expected list<func(bool, bool, bool)> but got list<func(...)>
+
+And to fix this error, we should have to write `func` (without parens):
+
+    var l: list<func> = [OneArg, TwoArgs]
+                ^--^
+
+Because there is currently no specification which can match funcrefs with different numbers of arguments.
+IOW, the only acceptable solution is to not specify anything.  Besides, in its current state, the previous code is misleading:
+
+    var l: list<func(bool, bool, bool)> = [OneArg, TwoArgs]
+                ^-------------------^
+
+When we read it, we might wrongly think that all the funcrefs respect the specification.  We currently have no such guarantee, because Vim doesn't give any error when the
+funcrefs have different numbers of arguments.
+
+In the future, if this syntax gets implemented:
+
+   > These types can be used in declarations, but no value will have this type:
+   >         {type}|{type}  {not implemented yet}
+
+Then, we could also write:
+
+    var l: list<func(job)|func(job, job)> = [OneArg, TwoArgs]
+
+Although, it could quickly get too cumbersome to read/write.
+
+In any case, if this is working as intended, maybe it should be documented.
+
+---
+
+Note that currently, during a simple funcref assignment, Vim does check that the number of arguments matches:
+```vim
+vim9script
+def Func(b: bool, _)
+enddef
+var Ref: func(bool) = Func
+```
+    E1012: Type mismatch; expected func(bool) but got func(bool, unknown)
+```vim
+vim9script
+var Ref: func(bool): number = (_, _) => 0
+```
+    E1012: Type mismatch; expected func(bool): number but got func(any, any): number
+
+In both cases, Vim complains because the funcref expects 2 arguments, while we declared only one (in the variable type).
+
+IMO, this is good, but it's also inconsistent with what happens in a list/dict of funcrefs assignment.
+
+##
+## Vim9: wrong example for closures sharing same context
+
+The help at `:h vim9 /Limitations` says this:
+
+> Closures defined in a loop will share the same context.  For example: >
+> 	var flist: list<func>
+> 	for i in range(10)
+> 	  var inloop = i
+> 	  flist[i] = () => inloop
+> 	endfor
+
+> The "inloop" variable will exist only once, all closures put in the list refer
+> to the same instance, which in the end will have the value 9.  This is
+> efficient.  If you do want a separate context for each closure call a function
+> to define it: >
+> 	def GetFunc(i: number): func
+> 	  var inloop = i
+> 	  return () => inloop
+> 	enddef
+
+> 	var flist: list<func>
+> 	for i in range(10)
+> 	  flist[i] = GetFunc(i)
+> 	endfor
+
+The example does not work:
+```vim
+vim9script
+var flist: list<func>
+for i in range(10)
+    var inloop = i
+    flist[i] = () => inloop
+endfor
+```
+    E1001: Variable not found: inloop
+
+Actually, it doesn't even work in legacy:
+```vim
+let flist = []
+for i in range(10)
+    let inloop = i
+    let flist[i] = {-> inloop}
+endfor
+echo flist
+```
+    E684: list index out of range: 0
+
+We need to `add()` the lambdas on the stack:
+```vim
+let s:flist = []
+for i in range(10)
+    let inloop = i
+    eval s:flist->add({-> inloop})
+endfor
+```
+    ✔
+
+Although, the obtained lambdas are useless:
+```vim
+let s:flist = []
+for i in range(10)
+    let inloop = i
+    eval s:flist->add({-> inloop})
+endfor
+echo range(10)->map({i, _ -> s:flist[i]()})
+```
+    E121: Undefined variable: inloop
+
+The code needs to be run from a function:
+```vim
+fu Func()
+    let flist = []
+    for i in range(10)
+        let inloop = i
+        eval flist->add({-> inloop})
+    endfor
+    echo range(10)->map({i, _ -> flist[i]()})
+endfu
+call Func()
+```
+    [9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
+
+Same thing in Vim9:
+```vim
+vim9script
+var flist: list<func>
+for i in range(10)
+    var inloop = i
+    flist->add(() => inloop)
+endfor
+echo range(10)->map((i, _) => flist[i]())
+```
+    E1001: Variable not found: inloop
+```vim
+vim9script
+def Func()
+    var flist: list<func>
+    for i in range(10)
+        var inloop = i
+        flist->add(() => inloop)
+    endfor
+    echo range(10)->map((i, _) => flist[i]())
+enddef
+Func()
+```
+    [9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
+
+And the fixed code is:
+```vim
+vim9script
+def GetFunc(i: number): func
+  var inloop = i
+  return () => inloop
+enddef
+def Func()
+    var flist: list<func>
+    for i in range(10)
+        var inloop = i
+        flist->add(GetFunc(i))
+    endfor
+    echo range(10)->map((i, _) => flist[i]())
+enddef
+Func()
+```
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+---
+
+Let's find a simpler example:
+```vim
+vim9script
+def Func()
+    var Lambda: func
+    for i in range(10)
+        var inloop = i
+        if inloop == 5
+            Lambda = () => inloop
+        endif
+    endfor
+    echo Lambda()
+enddef
+Func()
+```
+    9
+```vim
+vim9script
+def GetLambda(i: number): func
+    var inloop = i
+    return () => inloop
+enddef
+def Func()
+    var Lambda: func
+    for i in range(10)
+        var inloop = i
+        if inloop == 5
+            Lambda = GetLambda(i)
+        endif
+    endfor
+    echo Lambda()
+enddef
+Func()
+```
+    5
+
+Suggested patch:
+```diff
+diff --git a/runtime/doc/vim9.txt b/runtime/doc/vim9.txt
+index 6ca1d74a9..bbd1b9696 100644
+--- a/runtime/doc/vim9.txt
++++ b/runtime/doc/vim9.txt
+@@ -1029,26 +1029,42 @@ For these the backtick expansion can be used.  Example: >
+ 	  g/pattern/s/^/`=newText`/
+ 	enddef
+ 
+-Closures defined in a loop will share the same context.  For example: >
+-	var flist: list<func>
+-	for i in range(10)
+-	  var inloop = i
+-	  flist[i] = () => inloop
+-	endfor
++A closure defined in a loop will get the context as it was in the last
++iteration.  For example: >
++	def Func()
++	  var Lambda: func
++	  for i in range(10)
++	    var inloop = i
++	    if inloop == 5
++	      Lambda = () => inloop
++	    endif
++	  endfor
++	  echo Lambda()
++	enddef
++	Func()
++<	9~
+ 
+-The "inloop" variable will exist only once, all closures put in the list refer
+-to the same instance, which in the end will have the value 9.  This is
+-efficient.  If you do want a separate context for each closure call a function
+-to define it: >
+-	def GetFunc(i: number): func
++The "inloop" variable will exist only once, thus, the value given by the lambda
++is 9.  Even though, at the time the lambda was assigned, "inloop" was 5.
++If you want the lambda to return the value of "inloop" at the time it was
++assigned, you need to create a separate context; for example by defining it
++from another function: >
++	def GetLambda(i: number): func
+ 	  var inloop = i
+ 	  return () => inloop
+ 	enddef
+-
+-	var flist: list<func>
+-	for i in range(10)
+-	  flist[i] = GetFunc(i)
+-	endfor
++	def Func()
++	  var Lambda: func
++	  for i in range(10)
++	    var inloop = i
++	    if inloop == 5
++	      Lambda = GetLambda(i)
++	    endif
++	  endfor
++	  echo Lambda()
++	enddef
++	Func()
++<	5~
+ 
+ ==============================================================================
+ 
+```
+Update: We probably no longer need `add()` since 8.2.3064.
+BTW, document that this works now in Vim9:
+```vim
+vim9script
+var l = []
+l[0] = 0
+l[1] = 1
+l[2] = 2
+ # ...
+echo l
+```
+    [0, 1, 2]
+
+Compare with legacy:
+```vim
+let l = []
+let l[0] = 0
+let l[1] = 1
+let l[2] = 2
+ " ...
+echo l
+```
+    E684: list index out of range: 0
+    E684: list index out of range: 1
+    E684: list index out of range: 2
+    []
+
 ##
 ## ?
+
+<https://github.com/vim/vim/issues/8456>
+
+We cannot pass `@{register}` to a function via a method:
+```vim
+vim9script
+@a = 'text'
+@a->setline(1)
+```
+    E492: Not an editor command: text
+
+Vim parses the token `@a` like the Ex command `:@a` instead of the string expression `@a`.
+
+This *seems* inconsistent with other Ex commands, which can be shadowed by a variable expression:
+```vim
+vim9script
+var quit = 'stay'
+quit
+```
+    Vim doesn't quit
+
+Anyway, as usual, when we want to be sure that Vim parses the first token as an expression, we can surround it with parens:
+```vim
+vim9script
+@a = 'text'
+(@a)->setline(1)
+```
+    text
+
+If this is working as intended, maybe it should be documented.
+As a suggestion, here is a patch:
+```diff
+diff --git a/runtime/doc/eval.txt b/runtime/doc/eval.txt
+index 1f52d9f05..98361b93f 100644
+--- a/runtime/doc/eval.txt
++++ b/runtime/doc/eval.txt
+@@ -1485,6 +1485,9 @@ The result is the contents of the named register, as a single string.
+ Newlines are inserted where required.  To get the contents of the unnamed
+ register use @" or @@.  See |registers| for an explanation of the available
+ registers.
++NOTE: In Vim9 script, if you want to pass the contents of a register to a
++function via a method call, using this notation, you need to surround it with
++parentheses, to prevent @r from being executed as an Ex command.
+ 
+ When using the '=' register you get the expression itself, not what it
+ evaluates to.  Use |eval()| to evaluate it.
+```
+Update: I don't think there is an issue with how `@a` is parsed without parens.
+The same is true with a number:
+```vim
+vim9script
+123->len()
+```
+    E1050: Colon required before a range: 123->len()
+```vim
+vim9script
+(123)->len()
+```
+    no error
+
+Although, maybe Vim should look for `->` before deciding whether the first token
+is an expression or a command?
+
+## ?
+
+About pattern delimiters.
 
 Should not cause any issue:
 
@@ -1433,6 +2091,36 @@ append('0', 'text')
 A  type  mismatch error  should  have  been raised.   Only  a  number should  be
 accepted;  as well  as the  few string  expressions documented  at `:h  line()`.
 `'0'` is not one of them.  Same issue in compiled code.
+
+## ?
+```vim
+vim9script
+def Func()
+    eval [][0]
+enddef
+Func()
+```
+    Error detected while processing ... <SNR>1_Func:
+                                        ^-----^
+
+For a beginner, this looks weird.
+Maybe it should be:
+
+    Error detected while processing ... function Func:
+                                                 ^
+
+This would create an ambiguity with the global function `Func()`, which could be fixed like so:
+```vim
+vim9script
+def g:Func()
+    eval [][0]
+enddef
+g:Func()
+```
+    Error detected while processing ... function g:Func:
+                                                 ^^
+
+Or maybe the current way is good.  It gives us the script ID which might be useful to know...
 
 ##
 ## ?
@@ -3122,40 +3810,6 @@ executes a command in the legacy  context, regardless of whether it was prefixed
 with `:vim9`?
 
 ## ?
-
-<https://github.com/vim/vim/issues/7629>
-
-I'm not sure it's a bug.  I suspect no error is raised because specifying the arguments of a lambda is optional, and was only introduced fairly recently ([8.2.1956](https://github.com/vim/vim/releases/tag/v8.2.1956)).  Obviously, Vim can't raise an error at compile time since the lambda assignment doesn't specify any type.  Still, shouldn't `Ref(false)` raise an error at runtime?
-
----
-
-If this is working as intended, then it means that – at the script level – it is useless to specify the types of the arguments and the return value of a variable which we intend to use to save a lambda.  It's only in the lambda's definition that types matter.
-
-So, if we fix the previous example to make it work:
-```vim
-vim9script
-var Ref: func(bool): bool
-Ref = (b: bool): bool => !b
-echo Ref(false)
-```
-    true
-
-The types on the second line are useless:
-
-    var Ref: func(bool): bool
-                 ^----------^
-
----
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        var Ref: func(any, job): bool
-        Ref = (_, v) => true
-        [{n: 0}]->filter(Ref)
-    EOF
-    )
-
-## ?
 ```vim
 vim9script
 var s = 3
@@ -4310,12 +4964,7 @@ I think it would be better to just say sth like "invalid variable name".
 
 ## ?
 
-Why does `getcompletion('', 'command')` suggest `--` and `++`?
-Those are not commands, but operators...
-
----
-
-Also, should we add help tags for the Vim9 "commands" `:{` and `:}`?
+Should we add help tags for the Vim9 "commands" `:{` and `:}`?
 
 ## ?
 ```vim
@@ -4370,7 +5019,7 @@ I guess not.  Worth asking?
 ##
 ##
 ## documentation
-### 61
+### 77
 
 You can't use `.` for concatenation.
 
@@ -4403,7 +5052,7 @@ I would write this instead:
    >         'hello ' .. 123  == 'hello 123'
    >         'hello ' .. v:true  == 'hello true'
 
-### 103
+### 180
 
    > The argument types and return type need to be specified.  The "any" type can
    > be used; type checking will then be done at runtime, like with legacy
@@ -4421,106 +5070,7 @@ too?
 If `any` can have a negative impact  on the function's performance, it should be
 mentioned, so that users don't abuse the `any` type.
 
-### 136
-
-   > - Local to **the current scope and outer scopes** up to the function scope.
-
-Not clear.
-I would rather read "the current code block and outer code blocks".
-
-Rationale: Coming from  legacy Vim script,  there is  no smaller scope  than the
-function one.  The current sentence implies that there is one – which is true in
-Vim9 script – without  specifying what it is.  It's explained  a little later at
-`:h vim9-declaration`, but imo `:h vim9-scopes` should be understandable on its own.
-
-### 156
-
-   > Variables can be local to a script, function or code block:
-
-What about the other scopes?  buffer-local, window-local, ...
-```vim
-vim9script
-b:var = 123
-```
-### 208
-
-We cannot declare a register inside a `:def` function.
-
-Suggested patch:
-```diff
-diff --git a/runtime/doc/vim9.txt b/runtime/doc/vim9.txt
-index 2c4d1dbc1..05456870d 100644
---- a/runtime/doc/vim9.txt
-+++ b/runtime/doc/vim9.txt
-@@ -206,6 +206,12 @@ at the script level. >
- Since "&opt = value" is now assigning a value to option "opt", ":&" cannot be
- used to repeat a `:substitute` command.
-
-+							*E1066*
-+It is not allowed to assign a value to a register with `:var`. >
-+	var @a = 'my register'		# Error!
-+	@a = 'my register'		# OK
-+	setreg('a', 'my register')	# OK
-+
- 							*E1092*
- Declaring more than one variable at a time, using the unpack notation, is
- currently not supported: >
-```
-### 242
-
-From `:h vim9-declaration /cyclic`
-
-   > Note that while variables need to be defined before they can be used,
-   > **functions can be called before being defined**.  This is required to be able
-   > have cyclic dependencies between functions.  It is slightly less efficient,
-   > since the function has to be looked up by name.  And a typo in the function
-   > name will only be found when the call is executed.
-
-I can't find a working example.
-```vim
-vim9script
-A()
-def A()
-enddef
-```
-    E117: Unknown function: A
-```vim
-vim9script
-def A()
-    B()
-enddef
-A()
-def B()
-    echo 'test'
-enddef
-```
-    E117: Unknown function: B
-
-### 249
-
-We can pass a function name to  functions which accept a funcref as an argument,
-*without* quotes.
-
-It's not documented.  There is this:
-
-   > Omitting function() ~
-
-   > A user defined function can be used as a function reference in an expression
-   > without `function()`. The argument types and return type will then be checked.
-   > The function must already have been defined. >
-
-   >         var Funcref = MyFunction
-
-   > When using `function()` the resulting type is "func", a function with any
-   > number of arguments and any return type.  The function can be defined later.
-
-But  it's about  the fact  that `function()`  *can* be  dropped, it  doesn't say
-anything about the fact that the quotes *can* or *must* be dropped.  This should
-be documented at `:h vim9-differences`.
-
-<https://github.com/vim/vim/issues/6788>
-
-### 326
+### 345
 
    > Global functions must be prefixed with "g:" when defining them, but can be
    > called without "g:".
@@ -4554,7 +5104,152 @@ Anyway, I think the recommendation should be written in the previous excerpt too
    > **However, it is recommended to always use "g:" to refer to a global function**
    > **for clarity.**
 
-### 362
+### 363
+
+We cannot declare a register inside a `:def` function.
+
+Suggested patch:
+```diff
+diff --git a/runtime/doc/vim9.txt b/runtime/doc/vim9.txt
+index 2c4d1dbc1..05456870d 100644
+--- a/runtime/doc/vim9.txt
++++ b/runtime/doc/vim9.txt
+@@ -206,6 +206,12 @@ at the script level. >
+ Since "&opt = value" is now assigning a value to option "opt", ":&" cannot be
+ used to repeat a `:substitute` command.
+
++							*E1066*
++It is not allowed to assign a value to a register with `:var`. >
++	var @a = 'my register'		# Error!
++	@a = 'my register'		# OK
++	setreg('a', 'my register')	# OK
++
+ 							*E1092*
+ Declaring more than one variable at a time, using the unpack notation, is
+ currently not supported: >
+```
+### 411
+
+> A method call without `eval` is possible, so long as the start is an
+> identifier or can't be an Ex command.  **For a function either "(" or "->" must**
+> **be following, without a line break.**  Examples: >
+
+Not sure to understand.
+Does it mean that a function name must be followed by a paren?
+Or that alternatively, it must be followed by `->`?
+(but in this case, it's not a function name; it's a funcref)
+```
+### 420
+
+I would rewrite this whole paragraph:
+
+> The boolean operators "||" and "&&" expect the values to be boolean, zero or
+> one: >
+>       1 || false   == true
+>       0 || 1       == true
+>       0 || false   == false
+>       1 && true    == true
+>       0 && 1       == false
+>       8 || 0       Error!
+>       'yes' && 0   Error!
+>       [] || 99     Error!
+
+into this:
+
+> The boolean operators "||" and "&&" expect the values to be boolean, zero or
+> one: >
+>       1 || false   evaluates to true
+>       0 || 1       evaluates to true
+>       0 || false   evaluates to false
+>       1 && true    evaluates to true
+>       0 && 1       evaluates to false
+>       8 || 0       Error!
+>       'yes' && 0   Error!
+>       [] || 99     Error!
+
+Or into this:
+
+> The boolean operators "||" and "&&" expect the values to be boolean, zero or
+> one: >
+>       (1 || false)   == true
+>       (0 || 1)       == true
+>       (0 || false)   == false
+>       (1 && true)    == true
+>       (0 && 1)       == false
+>       8 || 0       Error!
+>       'yes' && 0   Error!
+>       [] || 99     Error!
+
+It's less confusing.  Otherwise, you're tempted  to run the command as is, which
+can give unexpected results.
+
+For example:
+```vim
+vim9script
+echo 0 || 1 == true
+```
+    E1072: Cannot compare number with bool
+```vim
+vim9script
+echo (0 || 1) == true
+```
+    ✔
+
+### 431
+
+From `:h vim9-declaration /cyclic`
+
+   > Note that while variables need to be defined before they can be used,
+   > **functions can be called before being defined**.  This is required to be able
+   > have cyclic dependencies between functions.  It is slightly less efficient,
+   > since the function has to be looked up by name.  And a typo in the function
+   > name will only be found when the call is executed.
+
+I can't find a working example.
+```vim
+vim9script
+A()
+def A()
+enddef
+```
+    E117: Unknown function: A
+```vim
+vim9script
+def A()
+    B()
+enddef
+A()
+def B()
+    echo 'test'
+enddef
+```
+    E117: Unknown function: B
+
+### 436
+
+We can pass a function name to  functions which accept a funcref as an argument,
+*without* quotes.
+
+It's not documented.  There is this:
+
+   > Omitting function() ~
+
+   > A user defined function can be used as a function reference in an expression
+   > without `function()`. The argument types and return type will then be checked.
+   > The function must already have been defined. >
+
+   >         var Funcref = MyFunction
+
+   > When using `function()` the resulting type is "func", a function with any
+   > number of arguments and any return type.  The function can be defined later.
+
+But  it's about  the fact  that `function()`  *can* be  dropped, it  doesn't say
+anything about the fact that the quotes *can* or *must* be dropped.  This should
+be documented at `:h vim9-differences`.
+
+<https://github.com/vim/vim/issues/6788>
+
+### 731
 
    > Comparators ~
    >
@@ -4566,78 +5261,7 @@ with `#` nor `?`.
 
 Answer: it matches the case.
 
-### 367
-
-Something should be said about the new rule which disallows white space:
-
-   - before a comma separating 2 items in a list or dictionary
-   - before a colon separating 2 items in a dictionary
-
-And about the new rule which enforces white space after a colon separating a key
-from its value in a dictionary.
-
-### 420
-
-I would rewrite this whole paragraph:
-
-   > The boolean operators "||" and "&&" do not change the value: >
-   >         8 || 2   == 8
-   >         0 || 2   == 2
-   >         0 || ''  == ''
-   >         8 && 2   == 2
-   >         0 && 2   == 0
-   >         2 && 0   == 0
-   >         [] && 2  == []
-
-into this:
-
-   > The boolean operators "||" and "&&" do not change the value: >
-   >         8 || 2   evaluates to  8
-   >         0 || 2   evaluates to  2
-   >         0 || ''  evaluates to  ''
-   >         8 && 2   evaluates to  2
-   >         0 && 2   evaluates to  0
-   >         2 && 0   evaluates to  0
-   >         [] && 2  evaluates to  []
-
-Or into this:
-
-   > The boolean operators "||" and "&&" do not change the value: >
-   >         ( 8 || 2 )  == 8
-   >         ( 0 || 2 )  == 2
-   >         ( 0 || '' ) == ''
-   >         ( 8 && 2 )  == 2
-   >         ( 0 && 2 )  == 0
-   >         ( 2 && 0 )  == 0
-   >         ( [] && 2 ) == []
-
-It's less confusing.  Otherwise, you're tempted  to run the command as is, which
-can give unexpected results.
-
-For example:
-```vim
-vim9script
-echo [] && 2 == []
-```
-    []
-
-While I would expect  `v:true`.  You can get the latter  if you explicitly group
-the first 2 operands:
-```vim
-vim9script
-echo ([] && 2) == []
-```
-    v:true
-
----
-
-Also, at `:h expr2`, I would briefly explain how `expr1 && expr2` and
-`expr1 || expr2` are evaluated:
-
-    expr1 && expr2  ==  expr2  (except if expr1 is 0, 0.0, '', [], {}, v:none)
-    expr1 || expr2  ==  expr1  (except if expr2 is 0, 0.0, '', [], {}, v:none)
-
-### 438
+### 850
 
 At `:h  vim9-gotchas`, I would add  a gotcha about  the fact that you  can *not*
 omit `s:` when calling a script-local or imported function from a `:fu` function.
@@ -4744,7 +5368,7 @@ Maybe we should do the same for `!`.  If you really want the Ex command, prepend
 Some data point: out of the 1473 `:def` functions in my config, only 8 contain a
 line starting with a bang.  Out of those 8 lines, only 1 is the Ex command `:!`.
 
-### 463
+### 881
 
    > Vim9 functions are compiled as a whole: >
    >         def Maybe()
@@ -4795,7 +5419,144 @@ defcompile
 ```
 This doesn't raise any error, even though my Vim doesn't support the ruby interface.
 
-### 518
+### 985
+
+   > If the script the function is defined in is Vim9 script, then script-local
+   > variables can be accessed without the "s:" prefix.  They must be defined
+   > before the function is compiled.  If the script the function is defined in is
+   > legacy script, then script-local variables must be accessed with the "s:"
+   > prefix.
+
+I would re-write this paragraph like so:
+
+   > If the function is defined in a Vim9 script, then script-local variables can
+   > be accessed without the "s:" prefix.  They must be defined before the function
+   > is compiled.  If the function is defined in a legacy script, then script-local
+   > variables must be accessed with the "s:" prefix.
+
+Easier to understand.
+
+### 1239
+
+From `:h :vim9 /vim9-namespace/;/common`:
+
+   > In Vim9 script the global "g:" namespace can still be used as before.  And the
+   > "w:", "b:" and "t:" namespaces.  These have in common that variables are not
+   > declared and they can be deleted.
+
+Maybe environment variables should be mentioned as well.
+
+And maybe registers (like `@r`).
+Indeed, you can't use `:var` with them; but you can't you use `:unlet` either.
+
+Also, I would rewrite the whole paragraph like this:
+
+   > In Vim9 script the global "g:" namespace can still be used as before.  And the
+   > "w:", "b:", "t:", and "$" namespaces.  These have in common that their
+   > variables cannot be declared but can be deleted.
+   > For variables which are local to a script, function or code block, the opposite
+   > is true.  They can be declared but cannot be deleted.
+
+### 1306
+
+   > {not implemented yet: using "This as That"}
+
+This line should be removed because `This as That` is available since 8.2.2556.
+
+### 1328
+
+   > The `import` commands are executed when encountered.
+   > If that script  (directly or indirectly) imports the current  script, then items
+   > defined after the `import` won't be processed yet.
+   > Therefore, cyclic imports can exist, but may result in undefined items.
+
+What is "that script"?  The current script, or the script from which we import items?
+
+I *think* it's the script from which we import items.
+
+What are "items defined after the `import`"?
+Items defined after the `import` in  the current script?  Or items defined after
+the `import` in the script from which we import items?
+
+I *think* it's the items defined after the import in the current script.
+
+The paragraph would really benefit from an example.
+Does the following commands do a good job illustrating the pitfall?
+
+    $ cat <<'EOF' >/tmp/bar.vim
+        vim9script
+        export const FOO = 123
+        import BAR from './foo.vim'
+    EOF
+
+    $ cat <<'EOF' >/tmp/foo.vim
+        vim9script
+        import FOO from './bar.vim'
+        export const BAR = 456
+    EOF
+
+    $ vim -Nu NONE -S /tmp/foo.vim
+
+    E1048: Item not found in script: BAR˜
+
+### 1456
+
+   > The error can be given at compile time, no error handling is needed at runtime.
+
+If  the function  contains a  type error,  it's still  installed (like  a legacy
+function), but its body is empty.
+
+This is neat, and maybe it should be documented.
+If a  legacy function  contains syntax/type errors,  and was  invoked frequently
+(e.g. `InsertCharPre` autocmd),  the same  errors were raised  repeatedly.  This
+shoud not happen with a `:def` function.
+
+But note that this is limited to an error which is found at compile time; not at
+execution time.
+
+### 1601
+
+   > In Vim9 type checking is stricter to avoid mistakes.  Where a condition is
+   > used, e.g. with the `:if` command **and the `||` operator**, only boolean-like
+   > values are accepted:
+
+I think it should be:
+
+   > and the `?:` operator
+
+`||` doesn't expect a condition; it expects expressions:
+
+    echo 0 > 9 || 1
+         ├───┘    │
+         │        └ that's not a condition either
+         └ that's not a condition
+
+OTOH, the first argument of `?:` is indeed used as a condition.
+
+### 1646
+
+   > When sourcing a Vim9 script from a legacy script, only the items defined
+   > globally can be used; not the exported items.
+
+Actually, I think you can also use any item defined in the `b:`, `t:`, and `w:` namespace;
+but not one defined in the `s:` namespace.
+
+### ?
+
+`++var` and `--var` should be replaced with `++name` and `--name`.
+To avoid confusion with `:var`.
+
+### ?
+
+Something should be said about the new rule which disallows white space:
+
+   - before a comma separating 2 items in a list or dictionary
+   - before a colon separating 2 items in a dictionary
+
+And about the new rule which enforces white space after a colon separating a key
+from its value in a dictionary.
+
+### ?
 
 We can nest `:def` inside `:fu`, but not the reverse.
 ```vim
@@ -4846,159 +5607,6 @@ index 2c4d1dbc1..d11cf72a7 100644
 Trick to  memorize the  rules: we can  progress (legacy →  Vim9), but  we cannot
 regress (Vim9 → legacy).
 
-### 524
-
-   > If the script the function is defined in is Vim9 script, then script-local
-   > variables can be accessed without the "s:" prefix.  They must be defined
-   > before the function is compiled.  If the script the function is defined in is
-   > legacy script, then script-local variables must be accessed with the "s:"
-   > prefix.
-
-I would re-write this paragraph like so:
-
-   > If the function is defined in a Vim9 script, then script-local variables can
-   > be accessed without the "s:" prefix.  They must be defined before the function
-   > is compiled.  If the function is defined in a legacy script, then script-local
-   > variables must be accessed with the "s:" prefix.
-
-Easier to understand.
-
-### 671
-
-From `:h :vim9 /vim9-namespace/;/common`:
-
-   > In Vim9 script the global "g:" namespace can still be used as before.  And the
-   > "w:", "b:" and "t:" namespaces.  These have in common that variables are not
-   > declared and they can be deleted.
-
-Maybe environment variables should be mentioned as well.
-
-And maybe registers (like `@r`).
-Indeed, you can't use `:var` with them; but you can't you use `:unlet` either.
-
-Also, I would rewrite the whole paragraph like this:
-
-   > In Vim9 script the global "g:" namespace can still be used as before.  And the
-   > "w:", "b:", "t:", and "$" namespaces.  These have in common that their
-   > variables cannot be declared but can be deleted.
-   > For variables which are local to a script, function or code block, the opposite
-   > is true.  They can be declared but cannot be deleted.
-
-### 730
-
-   > The `import` commands are executed when encountered.
-   > If that script  (directly or indirectly) imports the current  script, then items
-   > defined after the `import` won't be processed yet.
-   > Therefore, cyclic imports can exist, but may result in undefined items.
-
-What is "that script"?  The current script, or the script from which we import items?
-
-I *think* it's the script from which we import items.
-
-What are "items defined after the `import`"?
-Items defined after the `import` in  the current script?  Or items defined after
-the `import` in the script from which we import items?
-
-I *think* it's the items defined after the import in the current script.
-
-The paragraph would really benefit from an example.
-Does the following commands do a good job illustrating the pitfall?
-
-    $ cat <<'EOF' >/tmp/bar.vim
-        vim9script
-        export const FOO = 123
-        import BAR from './foo.vim'
-    EOF
-
-    $ cat <<'EOF' >/tmp/foo.vim
-        vim9script
-        import FOO from './bar.vim'
-        export const BAR = 456
-    EOF
-
-    $ vim -Nu NONE -S /tmp/foo.vim
-
-    E1048: Item not found in script: BAR˜
-
-### 805
-
-   > The error can be given at compile time, no error handling is needed at runtime.
-
-If  the function  contains a  type error,  it's still  installed (like  a legacy
-function), but its body is empty.
-
-This is neat, and maybe it should be documented.
-If a  legacy function  contains syntax/type errors,  and was  invoked frequently
-(e.g. `InsertCharPre` autocmd),  the same  errors were raised  repeatedly.  This
-shoud not happen with a `:def` function.
-
-But note that this is limited to an error which is found at compile time; not at
-execution time.
-
-### 892
-
-   > When sourcing a Vim9 script from a legacy script, only the items defined
-   > globally can be used; not the exported items.
-
-Actually, I think you can also use any item defined in the `b:`, `t:`, and `w:` namespace;
-but not one defined in the `s:` namespace.
-
-### 1244
-
-   > {not implemented yet: using "This as That"}
-
-This line should be removed because `This as That` is available since 8.2.2556.
-
-### 1519
-
-   > In Vim9 type checking is stricter to avoid mistakes.  Where a condition is
-   > used, e.g. with the `:if` command **and the `||` operator**, only boolean-like
-   > values are accepted:
-
-I think it should be:
-
-   > and the `?:` operator
-
-`||` doesn't expect a condition; it expects expressions:
-
-    echo 0 > 9 || 1
-         ├───┘    │
-         │        └ that's not a condition either
-         └ that's not a condition
-
-OTOH, the first argument of `?:` is indeed used as a condition.
-
-### ?
-
-The `++` and `--` syntaxes are not documented:
-```vim
-vim9script
-def Func()
-    var name = 0
-    ++name
-    echo name
-enddef
-Func()
-```
-The only thing I can find is this:
-
-   > In legacy script "++var" and "--var" would be silently accepted and have no
-   > effect.  This is an error in Vim9 script.
-
-Which looks wrong.  Unless it's talking about this:
-```vim
-vim9script
-var name = 0
-echo ++name
-```
-    E15: Invalid expression: "++name"
-
-Relevant commits:
-
-[8.2.2305](https://github.com/vim/vim/releases/tag/v8.2.2305)  Vim9: "++var" and "--var" are silently accepted
-[8.2.2806](https://github.com/vim/vim/releases/tag/v8.2.2806)  Vim9: using "++nr" as a command might not work
-
-###
 ### concept of block-local function
 
 There is this at `:h vim9-declaration`:

@@ -1,16 +1,16 @@
 # What are the 3 types of abbreviations?
 
-    ┌─────────┬─────────────────────────────────────────┬────────────────┐
-    │ type    │ description                             │ examples       │
-    ├─────────┼─────────────────────────────────────────┼────────────────┤
-    │ full-id │ all the characters must be in 'isk'     │ foo   g3   -1  │
-    ├─────────┼─────────────────────────────────────────┼────────────────┤
-    │ end-id  │ the last character must be in 'isk',    │ #i   ..f   $/7 │
-    │         │ the other ones must NOT                 │                │
-    ├─────────┼─────────────────────────────────────────┼────────────────┤
-    │ non-id  │ the last character must NOT be in 'isk' │ def#   4/7$    │
-    │         │ the others can be in 'isk' or not       │                │
-    └─────────┴─────────────────────────────────────────┴────────────────┘
+    ┌─────────┬───────────────────────────────────────────────┬────────────────┐
+    │ type    │ description                                   │ examples       │
+    ├─────────┼───────────────────────────────────────────────┼────────────────┤
+    │ full-id │ all the characters must be in 'iskeyword'     │ foo   g3   -1  │
+    ├─────────┼───────────────────────────────────────────────┼────────────────┤
+    │ end-id  │ the last character must be in 'iskeyword',    │ #i   ..f   $/7 │
+    │         │ the other ones must NOT                       │                │
+    ├─────────┼───────────────────────────────────────────────┼────────────────┤
+    │ non-id  │ the last character must NOT be in 'iskeyword' │ def#   4/7$    │
+    │         │ the others can be in 'isk' or not             │                │
+    └─────────┴───────────────────────────────────────────────┴────────────────┘
 
 #
 # Which condition must the character BEFORE an abbreviation satisfy, for the abbreviation to be expanded?
@@ -36,14 +36,14 @@ Insert the trigger literally:
 
 # How to clear all buffer-local abbreviations in command-line mode?
 
-    :cabc[lear] <buffer>
+    :cabclear <buffer>
 
 ##
 # When is the triggering space executed?  Before or after the abbreviation has been expanded?
 
 After.
 
-    $ vim -Nu NONE +'inorea <expr> a "b" .. feedkeys("c", "n")[-1]'
+    $ vim -Nu NONE +'inoreabbrev <expr> a "b" .. feedkeys("c", "n")[-1]'
     " press:  i a SPC
     " result: 'b c'
 
@@ -52,7 +52,7 @@ abbreviation was expanded.  Otherwise, the result would have been `bc `.
 
 The same is true for a CR which expands a command-line abbreviation:
 
-    $ vim -Nu NONE +'cnorea ab split'
+    $ vim -Nu NONE +'cnoreabbrev ab split'
     :ab Enter
     " Vim correctly splits the window
 
@@ -86,11 +86,11 @@ In the rhs of the abbreviation, consume the space with `getchar()`.
 
 Example:
 
-    fu s:eat_space()
+    function s:eat_space()
        let c = getchar(0)->nr2char()
        return c =~# '\s' ? '' : c
-    endfu
-    inorea <silent> if if ()<left><c-r>=<sid>eat_space()<cr>
+    endfunction
+    inoreabbrev <silent> if if ()<left><c-r>=<sid>eat_space()<cr>
 
 Here's what happens:
 
@@ -169,7 +169,7 @@ triggering space in the typeahead.
 
 But this is ruled out by this experiment:
 
-    $ vim -Nu NONE +'inorea <expr> a "b" .. feedkeys("c", "in")[-1]'
+    $ vim -Nu NONE +'inoreabbrev <expr> a "b" .. feedkeys("c", "in")[-1]'
     " press: i a SPC
     " result: 'bc '
 

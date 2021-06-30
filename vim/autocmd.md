@@ -4,45 +4,45 @@ Use:
 
    - an `:exe`
 
-         fu Func()
+         function Func()
             let var = 'defined in outer scope'
-            exe 'au SafeState * ++once echo ' .. string(var)
-         endfu
+            execute 'autocmd SafeState * ++once echo ' .. string(var)
+         endfunction
          call Func()
          defined in outer scope˜
 
    - a lambda
 
-         fu Func()
+         function Func()
             let var = 'defined in outer scope'
             let s:lambda = {-> var}
-            au SafeState * ++once echo s:lambda()
-         endfu
+            autocmd SafeState * ++once echo s:lambda()
+         endfunction
          call Func()
          defined in outer scope˜
 
    - a closure
 
-         fu Func()
+         function Func()
             let var = 'defined in outer scope'
-            fu! Closure() closure
+            function! Closure() closure
                 echo var
-            endfu
-            au SafeState * ++once call Closure()
-         endfu
+            endfunction
+            autocmd SafeState * ++once call Closure()
+         endfunction
          call Func()
          defined in outer scope˜
 
    - a partial
 
-         fu Func()
+         function Func()
             let var = 'defined in outer scope'
             let s:partial = function('s:echo', [var])
-            au SafeState * ++once call s:partial()
-         endfu
-         fu s:echo(var)
+            autocmd SafeState * ++once call s:partial()
+         endfunction
+         function s:echo(var)
             echo a:var
-         endfu
+         endfunction
          call Func()
          defined in outer scope˜
 
@@ -55,11 +55,11 @@ function inside another function.
 
 The solution using a lambda can sometimes seem awkward:
 
-    fu Func()
+    function Func()
        let var = 'defined in outer scope'
        let s:lambda = {-> execute('echo ' .. string(var), '')}
-       au SafeState * ++once call s:lambda()
-    endfu
+       autocmd SafeState * ++once call s:lambda()
+    endfunction
     call Func()
     defined in outer scope˜
 
@@ -68,22 +68,22 @@ lambda is ugly.
 Besides, the `string()` invocation seems brittle.
 Although, it seems to work, even if the variable contains quotes:
 
-    fu Func()
+    function Func()
        let var = "a'b\"c"
        let s:lambda = {-> execute('echo ' .. string(var), '')}
-       au SafeState * ++once call s:lambda()
-    endfu
+       autocmd SafeState * ++once call s:lambda()
+    endfunction
     call Func()
     a'b"c˜
 
 Note that you could  avoid `string()` in the lambda, by  moving `var` inside the
 lambda scope.  But you would still need `string()` to pass `var` to the lambda:
 
-    fu Func()
+    function Func()
        let var = 'defined in outer scope'
        let s:lambda = {var -> execute('echo var', '')}
-       exe 'au SafeState * ++once call s:lambda(' .. string(var) .. ')'
-    endfu
+       execute 'autocmd SafeState * ++once call s:lambda(' .. string(var) .. ')'
+    endfunction
     call Func()
     defined in outer scope˜
 
@@ -103,20 +103,20 @@ They scale better when you need to access several variables.
 
 Example:
 
-    fu Func()
+    function Func()
        let [a, b, c] = [1, 2, 3]
-       fu! Closure() closure
+       function! Closure() closure
            echo a + b + c
-       endfu
-       au SafeState * ++once call Closure()
-    endfu
+       endfunction
+       autocmd SafeState * ++once call Closure()
+    endfunction
     call Func()
     6˜
 
-    fu Func()
+    function Func()
        let [s:a, s:b, s:c] = [1, 2, 3]
-       au SafeState * ++once echo s:a + s:b + s:c
-    endfu
+       autocmd SafeState * ++once echo s:a + s:b + s:c
+    endfunction
     call Func()
     6˜
 
@@ -148,13 +148,13 @@ the old one which is currently used in the previously installed autocmds.
 
 MWE:
 
-    fu Func()
+    function Func()
        let msg = bufname('%')
-       fu! Closure() closure
-           echom msg
-       endfu
-       au WinEnter <buffer> call Closure()
-    endfu
+       function! Closure() closure
+           echomsg msg
+       endfunction
+       autocmd WinEnter <buffer> call Closure()
+    endfunction
 
 Call this function in two windows displaying buffers with different names.
 Then, alternate the focus between the two windows:
@@ -164,10 +164,10 @@ where you called `Func()`.
 You probably expected Vim to display the names of the two buffers alternatively.
 If that's an issue, use an `:exe` instead of a lambda/closure/partial:
 
-    fu Func()
+    function Func()
        let msg = bufname('%')
-       exe 'au WinEnter <buffer> echom ' .. string(msg)
-    endfu
+       execute 'autocmd WinEnter <buffer> echomsg ' .. string(msg)
+    endfunction
 
 ##
 # How to write the quantifier “0 or 1” in the pattern of an autocmd?
@@ -181,16 +181,16 @@ This should match `foobar` or just `bar`.
 
 Use the `++once` flag.
 
-    au {event} {pat} ++once {cmd}
-                     ^----^
+    autocmd {event} {pat} ++once {cmd}
+                          ^----^
 
 ## Does `++once` prevent the duplication of an autocmd if its code is sourced multiple times?
 
 No:
 
-    :au CursorHoldI * ++once "
+    :autocmd CursorHoldI * ++once "
     2@:
-    :au CursorHoldI
+    :autocmd CursorHoldI
     CursorHoldI˜
         *         "˜
                   "˜
@@ -226,9 +226,9 @@ Third, even though `++once` does not prevent a duplication, it limits its effect
 
 To illustrate, in this example:
 
-    :au CursorHoldI * ++once "
-    :au CursorHoldI * ++once "
-    :au CursorHoldI * ++once "
+    :autocmd CursorHoldI * ++once "
+    :autocmd CursorHoldI * ++once "
+    :autocmd CursorHoldI * ++once "
 
 the  next time  `CursorHoldI` will  be  fired, all  the autocmds  will be  fired
 and  removed; without  `++once`,  they would  keep being  run  again every  time
@@ -239,12 +239,12 @@ and  removed; without  `++once`,  they would  keep being  run  again every  time
 When you *need* to be able to remove it before the event it's listening to:
 
     augroup some_group
-        au!
-        au {event} {pat} ++once {cmd}
+        autocmd!
+        autocmd {event} {pat} ++once {cmd}
     augroup END
 
     if some condition
-        au! some_group
+        autocmd! some_group
     endif
 
 See the `search#nohls()` function in `vim-search` for an example.
@@ -258,22 +258,22 @@ For  example,  suppose  you  want  to  call  `Func()`  only  once,  as  soon  as
 `CursorHold` is fired or you enter the Ex command-line; you could write:
 
     augroup some_group
-        au!
-        au CursorHold * call Func()
-        au CmdlineEnter : call Func()
+        autocmd!
+        autocmd CursorHold * call Func()
+        autocmd CmdlineEnter : call Func()
     augroup END
-    fu Func()
-        au! some_group
+    function Func()
+        autocmd! some_group
         " do sth
-    endfu
+    endfunction
 
 But you couldn't re-write it like this:
 
-    au CursorHold * ++once call Func()
-    au CmdlineEnter : ++once call Func()
-    fu Func()
+    autocmd CursorHold * ++once call Func()
+    autocmd CmdlineEnter : ++once call Func()
+    function Func()
         " do sth
-    endfu
+    endfunction
 
 Because `Func()` would be called twice, not once.
 Once for each event.
@@ -296,14 +296,14 @@ Wrap the  autocmd in an augroup,  and make it  clear itself the first  time it's
 fired:
 
     augroup my_augroup
-        au!
-        au MyEvent * exe 'au! my_augroup' | do sth once
+        autocmd!
+        autocmd MyEvent * execute 'autocmd! my_augroup' | do sth once
     augroup END
 
 Make sure to clean the augroup right from the start.
 Never write sth like this:
 
-    au MyEvent * do sth once | au! my_augroup
+    autocmd MyEvent * do sth once | autocmd! my_augroup
 
 If `do sth once` fails, the following `au!` won't be processed.
 To avoid  this issue, you  could also prefix  *each* command before  `:au!` with
@@ -315,7 +315,7 @@ cumbersome and error-prone (you can easily forget to do it).
 You could be tempted to use a guard:
 
     unlet! s:did_shoot
-    au Event1,Event2,... * ++once
+    autocmd Event1,Event2,... * ++once
         \ if !get(s:, 'did_shoot', 0)
         \ |     let s:did_shoot = 1
         \ |     " do sth just once
@@ -341,17 +341,17 @@ load a new buffer.
 
 If you want to be sure, write this in `/tmp/vim.vim`:
 
-     " vi:sw=3
+     " vi:shiftwidth=3
 
 Then, execute this command:
 
-     :setl ml mls=1 | au SomeEvent * setl sw=5
-                         ^-------^
-                         replace with the name of the event you want to really test
+     :setlocal modeline modelines=1 | autocmd SomeEvent * setlocal shiftwidth=5
+                                              ^-------^
+                                              replace with the name of the event you want to really test
 
 Finally, reload the buffer (`:e`), and ask Vim what is the local value of `'sw'`:
 
-     :echo &l:sw
+     :echo &l:shiftwidth
 
 If the output is `5`, it means the modelines are processed *before* `SomeEvent`.
 If the output is `3`, it means the modelines are processed *after* `SomeEvent`.
@@ -399,7 +399,7 @@ You must consider 5 autocmds:
     ┌────────────────────────────────────┬──────────────┬──────────────────────────────┐
     │ installed by                       │ listening to │ action                       │
     ├────────────────────────────────────┼──────────────┼──────────────────────────────┤
-    │ (1) $VIMRUNTIME/filetype.vim       │ BufReadPost  │ set up 'ft'                  │
+    │ (1) $VIMRUNTIME/filetype.vim       │ BufReadPost  │ set up 'filetype'            │
     ├────────────────────────────────────┼──────────────┼──────────────────────────────┤
     │ (2) $VIMRUNTIME/syntax/syntax.vim  │ FileType     │ set up 'syntax'              │
     ├────────────────────────────────────┼──────────────┼──────────────────────────────┤
@@ -414,7 +414,7 @@ When you load a file:
 
    1. `BufReadPost` is fired
    2. the autocmds listening to `BufReadPost` are run, (1) being the first of them
-   3. 'ft' is set up
+   3. 'filetype' is set up
    4. `FileType` is fired
 
    5. Vim stops processing the autocmds listening to `BufReadPost` because
@@ -480,12 +480,12 @@ So the match could stay in a window, while it should be removed.
 
 MWE:
 
-    :sp ~/.vim/filetype.vim
+    :split ~/.vim/filetype.vim
     :put ='set error'
         'set ' is highlighted ✔
 
-    :sp
-    :e /tmp/file
+    :split
+    :edit /tmp/file
     :put ='set error'
         'set ' is highlighted ✘
 
@@ -500,7 +500,7 @@ which still gives you a chance to change the character.
 
 ---
 
-    $ vim -Nu NONE +'au InsertCharPre * if v:char ==# "x" | call feedkeys(" ICP ", "in") | endif'
+    $ vim -Nu NONE +'autocmd InsertCharPre * if v:char ==# "x" | call feedkeys(" ICP ", "in") | endif'
     " insert: x
     " you get: x ICP
 
@@ -512,8 +512,8 @@ This is  only possible if  `v:char` has already  left the typeahead  buffer when
 
 ## When I start Vim with the next minimal vimrc, and press `ab` in insert mode, I get `efCD` instead of `CDef`:
 
-    ino ab ef
-    au InsertCharPre * ++once call feedkeys('CD', 'n')
+    inoremap ab ef
+    autocmd InsertCharPre * ++once call feedkeys('CD', 'n')
 
 ### How to get `CDef`?
 
@@ -523,9 +523,9 @@ This is  only possible if  `v:char` has already  left the typeahead  buffer when
 
 New code:
 
-    ino ab ef
-    au InsertCharPre * ++once call feedkeys("\<bs>CD" .. v:char, 'in')
-                                             ^---^       ^----^   ^
+    inoremap ab ef
+    autocmd InsertCharPre * ++once call feedkeys("\<bs>CD" .. v:char, 'in')
+                                                  ^---^       ^----^   ^
 
 ---
 
@@ -586,7 +586,7 @@ Summary:
 ##
 ## When I start Vim with the next command, and insert the register `a`, I get `reg X`:
 
-    $ vim -Nu NONE +'let @a = "reg" | au InsertCharPre * ++once call feedkeys(" X ", "in")'
+    $ vim -Nu NONE +'let @a = "reg" | autocmd InsertCharPre * ++once call feedkeys(" X ", "in")'
     " press: i C-r a
     " 'reg X' is inserted
 
@@ -624,16 +624,16 @@ Don't use the name of your custom event as a pattern; instead, use `<buffer>`.
 Then,  test  the name  of  the  custom event  inside  the  executed command  via
 `expand('<afile>')`:
 
-    au User <buffer> if expand('<afile>') ==# 'Test' | echom 'User Test was fired' | endif
-            ^------^    ^---------------^
+    autocmd User <buffer> if expand('<afile>') ==# 'Test' | echomsg 'User Test was fired' | endif
+                 ^------^    ^---------------^
 
 ---
 
 Example:
 
     $ vim -Nu NONE -o /tmp/file{1..2} -S <(cat <<'EOF'
-        au User <buffer> if expand('<afile>') ==# "Test" | echom 'User Test was fired' | endif
-        bufdo do User Test
+        autocmd User <buffer> if expand('<afile>') ==# "Test" | echomsg 'User Test was fired' | endif
+        bufdo doautocmd User Test
     EOF
     )
 
@@ -643,8 +643,8 @@ Had you removed `<buffer>`, the message  would have been printed twice (once for
 each buffer):
 
     $ vim -Nu NONE -o /tmp/file{1..2} -S <(cat <<'EOF'
-        au User Test echom 'User Test was fired'
-        bufdo do User Test
+        autocmd User Test echomsg 'User Test was fired'
+        bufdo doautocmd User Test
     EOF
     )
 
@@ -655,7 +655,7 @@ For a real example, see `$VIMRUNTIME/ftplugin/rust.vim`.
 ## How to fire it?
 
     if exists('#User#<buffer>')
-        do <nomodeline> User Test
+        doautocmd <nomodeline> User Test
     endif
 
 ---
@@ -678,10 +678,10 @@ string argument passed to `exists()` would be matched against `<buffer>`.
 
 There is no guarantee that the current buffer is a terminal buffer:
 
-    $ vim -Nu NONE +"au TerminalOpen * echom 'buftype is: ' .. (&bt == '' ? 'regular' : &bt)"
+    $ vim -Nu NONE +"autocmd TerminalOpen * echomsg 'buftype is: ' .. (&buftype == '' ? 'regular' : &buftype)"
     :call popup_create(term_start(&shell, #{hidden: 1}), {})
     " press C-\ C-n
-    :mess
+    :messages
     buftype is: regular˜
                 ^-----^
                 it's not 'terminal' as you may have expected initially
@@ -738,7 +738,7 @@ But this:
 
 Alternatively, cast the string into a number like this:
 
-    0+expand('<abuf>')
+    0 + expand('<abuf>')
 
 Or shorter:
 
@@ -752,7 +752,7 @@ It may not evaluate to what you expect.
 
 For example, when you write this:
 
-    au BufHidden * echom expand('%:p')
+    autocmd BufHidden * echomsg expand('%:p')
 
 You probably expect Vim to echo the path to the file whose buffer gets hidden.
 That's not always the case; from `:h BufHidden`:
@@ -801,8 +801,8 @@ It may not be necessary, but it's more consistent with what we wrote here.
 
 Example:
 
-                                    v--v
-    $ vim -Nu NONE +"au CmdWinEnter /,\? nno <buffer> cd <cmd>echom 'only for a search command-line'<cr>"
+                                         v--v
+    $ vim -Nu NONE +"autocmd CmdWinEnter /,\? nnoremap <buffer> cd <cmd>echomsg 'only for a search command-line'<cr>"
 
     " press:  q:
     "         cd
@@ -839,14 +839,14 @@ command-line to be affected including a regular one (`:`).  See `:h cmdwin-char`
 
 Maybe it's temporarily cleared by another autocmd installed earlier.
 ```vim
-au CursorHold * call InstallAutocmd()
-fu InstallAutocmd()
-    augroup group | au!
-        au CursorHold * unsilent echom 'fired'
+autocmd CursorHold * call InstallAutocmd()
+function InstallAutocmd()
+    augroup group | autocmd!
+        autocmd CursorHold * unsilent echomsg 'fired'
     augroup END
-endfu
+endfunction
 call InstallAutocmd()
-do CursorHold
+doautocmd CursorHold
 ```
 Here, notice how `fired` is not echo'ed.
 That's because the very first `CursorHold` autocmd clears the second one.
@@ -869,7 +869,7 @@ Note that for the issue to be triggered, 3 conditions need to be met:
 Tip: When you suspect  that you're affected by  this issue, ask Vim  to list the
 other autocmds listening to the same event:
 
-    au CursorHold
+    autocmd CursorHold
 
 In  the output,  the autocmds  are listed  in the  order in  which they've  been
 installed.  Your buggy autocmd should be somewhere  in there; find it and try to
@@ -880,8 +880,8 @@ temporarily disable all the other autocmds above.
 ##
 # Syntaxe
 
-    :verb au         {event}
-    :verb au {group} {event}
+    :verbose autocmd         {event}
+    :verbose autocmd {group} {event}
 
             Affiche toutes les autocmd déclenchées qd {event} / {event} au sein de {group} se produit,
             et pour chacune le fichier qui l'a installée.
@@ -913,24 +913,24 @@ temporarily disable all the other autocmds above.
 Les conditions et l'ordre dans lequel les évènements se produisent est complexe.
 Pour s'aider on peut utiliser notre commande custom:
 
-        :LogEvents {events}
+    :LogEvents {events}
 
 
 Voici qques exemples de suites d'évènements qui se produisent qd on réalise une action donnée:
 
-        donner le focus à une autre fenêtre        WinEnter > BufEnter
+    donner le focus à une autre fenêtre        WinEnter > BufEnter
 
-        charger un buffer                          BufRead > BufEnter > BufWinEnter
+    charger un buffer                          BufRead > BufEnter > BufWinEnter
 
-        lancer Vim sans argument                   BufWinEnter > BufEnter
+    lancer Vim sans argument                   BufWinEnter > BufEnter
 
-        afficher son vimrc                         WinEnter      > BufRead > BufEnter
-        SPC ec                                     > BufWinEnter > BufRead > BufEnter
-                                                   > BufWinEnter
+    afficher son vimrc                         WinEnter      > BufRead > BufEnter
+    SPC ec                                     > BufWinEnter > BufRead > BufEnter
+                                               > BufWinEnter
 
-        ouvrir un nouvel onglet                    WinEnter > BufEnter > BufWinEnter
+    ouvrir un nouvel onglet                    WinEnter > BufEnter > BufWinEnter
 
-        fermer un onglet                           WinEnter > BufEnter
+    fermer un onglet                           WinEnter > BufEnter
 
 
 Exemples d'évènements :
@@ -942,8 +942,8 @@ Exemples d'évènements :
             On peut quitter le buffer courant en:
 
                 - passant le focus à une autre fenêtre ne l'affichant pas,
-                - affichant un autre buffer dans la fenêtre (:e another_buffer),
-                - le déchargeant via :bd (ce qui a pour effet de fermer toutes les fenêtres l'affichant)
+                - affichant un autre buffer dans la fenêtre (:edit another_buffer),
+                - le déchargeant via :bdelete (ce qui a pour effet de fermer toutes les fenêtres l'affichant)
 
             L'évènement n'est pas déclenché si le buffer est le dernier affiché et qu'on quitte Vim.
             Utiliser probablement VimLeave(Pre) dans ce cas.
@@ -995,8 +995,8 @@ Exemples d'évènements :
             Ex:
 
                     augroup test_cmd_undefined
-                        au!
-                        au CmdUndefined * let g:myvar = expand('<afile>')
+                        autocmd!
+                        autocmd CmdUndefined * let g:myvar = expand('<afile>')
                     augroup END
 
                     :MyUndefinedCommand
@@ -1011,7 +1011,7 @@ Exemples d'évènements :
 
                     au CmdUndefined * let g:myvar = expand('<amatch>')->fnamemodify(':t')
 
-            … car `<amatch>` ne contient pas juste le nom de la commande, mais aussi le chemin vers le cwd.
+            ... car `<amatch>` ne contient pas juste le nom de la commande, mais aussi le chemin vers le cwd.
 
                     :echo expand('<amatch>')
                     /home/user/.vim/MyUndefinedCommand˜
@@ -1035,16 +1035,18 @@ Exemples d'évènements :
             Dès que le type de fichier du buffer courant est détecté comme étant python.
 
             Se produit qd on charge un buffer pour la 1e fois.
-            Raison pour laquelle il se reproduit si on fait :bd puis :b# (reload)
+            Raison pour laquelle il se reproduit si on fait :bdelete puis :buffer %% (reload)
 
 
     QuitPre
 
-            Se produit qd `:q`, `:wq` ou `:qa` est exécutée, avant de décider s'il faut fermer la fenêtre
-            courante ou quitter la session Vim.
+            Se produit qd `:quit`, `:wquit`  ou `:qall` est exécutée, avant de
+            décider s'il faut fermer la fenêtre courante ou quitter la session
+            Vim.
 
-            Peut être utile pour fermer automatiquement d'autres fenêtre non-essentielles si la fenêtre
-            courante est la dernière importante.
+            Peut  être  utile  pour fermer  automatiquement  d'autres  fenêtre
+            non-essentielles   si  la   fenêtre  courante   est  la   dernière
+            importante.
 
 
     SourceCmd
@@ -1056,8 +1058,8 @@ Exemples d'évènements :
             si certaines conditions ne sont pas remplies.
 
             Plus généralement, tous les évènements dont le nom suit le pattern `*Cmd`
-            ont en commun le fait de laisser la responsabilité de l'écriture/lecture/sourcage
-            d'un fichier à l'utilisateur.
+            ont   en  commun   le  fait   de  laisser   la  responsabilité   de
+            l'écriture/lecture/sourcage d'un fichier à l'utilisateur.
 
 
 Pour une liste exhaustive: :h autocmd-events
@@ -1066,40 +1068,40 @@ Pour une liste exhaustive: :h autocmd-events
 
 Exemples de pattern (qd il match un fichier):
 
-            *                 n'importe quel fichier
+    *                 n'importe quel fichier
 
-            *.txt             n'importe quel fichier texte
+    *.txt             n'importe quel fichier texte
 
-            [^l]*             n'importe quel fichier dont le nom ne commence pas par `l`
+    [^l]*             n'importe quel fichier dont le nom ne commence pas par `l`
 
-                              [^l] matche n'importe quel caractère différent d'un `l`.
-                              * matche n'importe quelle séquence de caractères.
-                              * n'est pas un quantificateur, il est utilisé pour faire du globbing,
-                              comme dans le shell qd on tape `$ ls foo*`.
+                      [^l] matche n'importe quel caractère différent d'un `l`.
+                      * matche n'importe quelle séquence de caractères.
+                      * n'est pas un quantificateur, il est utilisé pour faire du globbing,
+                      comme dans le shell qd on tape `$ ls foo*`.
 
-            *.{c,cpp,h,py}    type de fichier c, cpp, h, et py
+    *.{c,cpp,h,py}    type de fichier c, cpp, h, et py
 
-            {.,}tmux.conf     `tmux.conf` ou `.tmux.conf`
+    {.,}tmux.conf     `tmux.conf` ou `.tmux.conf`
 
-                              ce qui est intéressant ici, est la syntaxe:
+                      ce qui est intéressant ici, est la syntaxe:
 
-                                    {x,}
-                                    " le caractère `x` 0 ou une fois
+                            {x,}
+                            " le caractère `x` 0 ou une fois
 
-                              Elle permet d'émuler le quantificateur `?` dans une regex.
+                      Elle permet d'émuler le quantificateur `?` dans une regex.
 
-            /etc/*.conf       n'importe quel fichier de configuration sous le dossier /etc
-                                Le fichier peut se situer n'importe où sous /etc,
-                                pas forcément à la racine.
+    /etc/*.conf       n'importe quel fichier de configuration sous le dossier /etc
+                        Le fichier peut se situer n'importe où sous /etc,
+                        pas forcément à la racine.
 
-            <buffer>          le buffer courant
-                                Il s'agit d'un pattern spécial permettant de limiter la portée
-                                d'une autocmd au buffer courant (:h autocmd-buflocal).
+    <buffer>          le buffer courant
+                        Il s'agit d'un pattern spécial permettant de limiter la portée
+                        d'une autocmd au buffer courant (:h autocmd-buflocal).
 
-                                               NOTE:
+                                        NOTE:
 
-            Un pattern n'est pas toujours comparé à un nom de fichier.
-            Pour savoir à quoi il est comparé, se référer à l'aide de l'évènement.
+    Un pattern n'est pas toujours comparé à un nom de fichier.
+    Pour savoir à quoi il est comparé, se référer à l'aide de l'évènement.
 
 # Caractères spéciaux
 
@@ -1121,9 +1123,9 @@ Ex:
         autocmd BufEnter * call MyFunc()
     augroup END
 
-    fu MyFunc() abort
+    function MyFunc() abort
         let g:last_entered_file = expand('<amatch>')
-    endfu
+    endfunction
 
 # Imbrication
 
@@ -1155,23 +1157,27 @@ A.  Exemple:
 
             `:copen`, `:edit` et `:write` sont des commandes qui déclenchent souvent des
             évènements surveillés par des autocmd (BufRead, BufWrite).
-            Qd une autocmd exécute `:e` ou `:w`, il est probablement judicieux de lui donner le flag nested.
+            Qd une  autocmd exécute  `:edit` ou  `:write`, il  est probablement
+            judicieux de lui donner le flag nested.
 
                                                NOTE:
 
-            Leçon à retenir: si une autocmd ne fonctionne pas alors qu'elle devrait, regarder si l'évènement
-            qu'elle surveille est parfois déclenché par une autre autocmd.
+            Leçon à  retenir: si une  autocmd ne fonctionne pas  alors qu'elle
+            devrait,  regarder si  l'évènement qu'elle  surveille est  parfois
+            déclenché par une autre autocmd.
             Si c'est le cas, ajouter le flag nested à cette dernière.
 
 # Pratique
 
-    fu ToStartOfChange()
+    function ToStartOfChange()
         augroup ToStartOfChange
-            au!
-            au InsertLeave * exe 'norm! g`[' | exe 'au! ToStartOfChange' | aug! ToStartOfChange
+            autocmd!
+            autocmd InsertLeave * execute 'normal! g`['
+                \ | execute 'autocmd! ToStartOfChange'
+                \ | augroup! ToStartOfChange
         augroup END
         return 'cw'
-    endfu
+    endfunction
     nnoremap <expr> c,w ToStartOfChange()
 
             Mapping custom `c,w` qui change un mot et replace le curseur au début du texte changé
@@ -1181,7 +1187,7 @@ A.  Exemple:
                                                NOTE:
 
             Ce bout de code illustre comment on peut utiliser une autocmd à usage unique.
-            En effet, `| exe 'au! …' | aug! …` supprime l'autocmd dès qu'elle s'est déclenchée.
+            En effet, `| exe 'autocmd! ...' | augroup! ...` supprime l'autocmd dès qu'elle s'est déclenchée.
             Ainsi, elle ne s'exécutera pas pour chaque évènement InsertLeave mais pour chaque évènement
             InsertLeave se produisant juste après que le mapping `c,w` a été tapé.
 
@@ -1194,15 +1200,15 @@ A.  Exemple:
             commande:
 
                     augroup Dummy
-                        au!
-                        au InsertLeave * cmd1 | au! Dummy | cmd2          ✘
-                        au InsertLeave * cmd1 | cmd2 | au! Dummy          ✔
-                        au InsertLeave * cmd1 | exe 'au! Dummy' | cmd2    ✔
+                        autocmd!
+                        autocmd InsertLeave * cmd1 | autocmd! Dummy | cmd2              ✘
+                        autocmd InsertLeave * cmd1 | cmd2 | autocmd! Dummy              ✔
+                        autocmd InsertLeave * cmd1 | execute 'autocmd! Dummy' | cmd2    ✔
                     augroup END
 
 
 
-    au BufNewFile,BufRead /path/to/dir/* setl filetype=markdown
+    autocmd BufNewFile,BufRead /path/to/dir/* setlocal filetype=markdown
 
             Imposer markdown comme type de fichier pour n'importe quel fichier créé dans /path/to/dir.
 
@@ -1210,7 +1216,7 @@ A.  Exemple:
             pour surveiller le chargement d'un buffer qu'il soit associé à un fichier ou non.
 
 
-    au BufWritePre *.{c,cpp,h,py} command
+    autocmd BufWritePre *.{c,cpp,h,py} command
 
             autocmd se déclenchant pour des fichiers portant des extensions différentes.
             La syntaxe utilisée ici illustre comment ne pas répéter le *. (:h file-pattern pour + d'infos).
@@ -1228,8 +1234,8 @@ A.  Exemple:
 
 
     augroup my_group
-        au!
-        au FileType c,shell au! my_group BufEnter,BufWritePre <buffer=abuf> call Func()
+        autocmd!
+        autocmd FileType c,shell autocmd! my_group BufEnter,BufWritePre <buffer=abuf> call Func()
     augroup END
 
             Cette autocmd appelle automatiquement Func() pour un  buffer dont le type de fichier est
@@ -1243,86 +1249,91 @@ A.  Exemple:
             Le pattern spécial <buffer=abuf> passé à la 2e autocmd est nécessaire pour que sa portée
             soit limitée au  buffer courant.  Sans lui, à  partir du moment où un  fichier de type
             C/shell aurait été  détecté pendant la session, Func() serait  appelée ensuite pour
-            n'importe quel type de buffer (python, markdown …).
+            n'importe quel type de buffer (python, markdown ...).
 
             La 1e  instruction au! empêche la  duplication de l'autocmd lorsqu'on  source plusieurs
             fois le fichier où  est défini l'autocmd.  Mais elle ne protège  pas de la duplication
             de la 2e autocmd, à chaque fois  que l'évènement `FileType c,shell` se reproduit pour
-            un même buffer.  Ceci se produit, par  exemple, après un :bd suivi  d'un :b# (reload).
-            Pour cette raison, il faut vider my_group une 2e fois (au! my_group).
+            un même buffer.  Ceci se produit, par  exemple, après un :bd suivi  d'un `:buffer %%`
+            (reload).  Pour cette raison, il faut vider my_group une 2e fois (autocmd! my_group).
 
 
     augroup my_group
-        au!
-        au BufEnter,BufWritePre * if index(['c', 'shell'], &ft) >= 0 | call MyFunc() | endif
+        autocmd!
+        autocmd BufEnter,BufWritePre * if index(['c', 'shell'], &filetype) >= 0 | call MyFunc() | endif
     augroup END
 
             Cette autocmd fait la même chose que la précédente, mais la syntaxe est beaucoup plus simple
             à comprendre.  À préférer.
 
 
-                               ┌─ le pipe est écrit avant la prochaine commande Ex`:aug`
-                               │
-    augroup mine | au! BufRead | augroup END               ✔
-    augroup mine | au BufRead * set tw=70 | augroup END    ✘
-                                          │
-                                          └─ le pipe est écrit après la prochaine commande Ex `:set`
+                                    ┌ le pipe est écrit avant la prochaine commande Ex`:augroup`
+                                    │
+    augroup mine | autocmd! BufRead | augroup END                      ✔
+    augroup mine | autocmd BufRead * set textwidth=70 | augroup END    ✘
+                                                      │
+                                                      └ le pipe est écrit après la prochaine commande Ex `:set`
 
-            L'instruction `:au` ne peut être suivie d'une autre commande Ex qu'à condition que celle-ci
-            soit précédée d'un pipe.
+            La commande `:automcd` ne peut  être suivie d'une autre commande Ex
+            qu'à condition que celle-ci soit précédée d'un pipe.
 
-            IOW, `:au` interprète un pipe différemment selon qu'elle a vue avant lui une commande Ex ou non:
+            IOW, `:autocmd`  interprète un  pipe différemment selon  qu'elle a
+            vue avant lui une commande Ex ou non:
 
-                    ┌────────────────────┬───────────────────────────┐
-                    │ au … | cmd1        │ terminaison de commande   │
-                    ├────────────────────┼───────────────────────────┤
-                    │ au …   cmd1 | cmd2 │ fait partie de l'argument │
-                    └────────────────────┴───────────────────────────┘
+                    ┌───────────────────────────┬───────────────────────────┐
+                    │ autocmd ... | cmd1        │ terminaison de commande   │
+                    ├───────────────────────────┼───────────────────────────┤
+                    │ autocmd ...   cmd1 | cmd2 │ fait partie de l'argument │
+                    └───────────────────────────┴───────────────────────────┘
 
 
                                                FIXME:
 
-            J'ai copié cette info de `:h :au`.  Mais si c'est vrai, alors la dernière commande,
-            dans le code qui suit, devrait fonctionner:
+            J'ai copié cette info de `:h  :autocmd`.  Mais si c'est vrai, alors
+            la dernière commande, dans le code qui suit, devrait fonctionner:
 
                     augroup mine
-                        au!
-                        au BufEnter * let g:myvar = 1
+                        autocmd!
+                        autocmd BufEnter * let g:myvar = 1
                     augroup END
 
-                    au! mine | aug! mine
-                               │
-                               └─ fonctionne pas: le groupe n'est pas supprimé
-                                  on peut le vérifier en exécutant `:au mine`
-                                  au lieu de produire une erreur, Vim affiche un augroup vide
+                    autocmd! mine | augroup! mine
+                                    │
+                                    └ fonctionne pas: le groupe n'est pas supprimé
+                                      on peut le vérifier en exécutant `:au mine`
+                                      au lieu de produire une erreur, Vim affiche un augroup vide
 
             En revanche, cette commande fonctionne:
 
-                    exe 'au! mine' | aug! mine
+                    execute 'autocmd! mine' | augroup! mine
 
 
                                                NOTE:
 
-            Comme pour plein d'autres commandes, on peut empêcher `:au` d'interpréter un pipe comme
-            faisant partie de son argument via `:exe`:
+            Comme pour  plein d'autres  commandes, on peut  empêcher `:autocmd`
+            d'interpréter  un pipe  comme faisant  partie de  son argument  via
+            `:execute`:
 
-                    augroup mine | exe 'au BufRead * set tw=70' | augroup END    ✔
+                    augroup mine | execute 'autocmd BufRead * set textwidth=70' | augroup END    ✔
 
 
     augroup mine
-        au!
-                   ┌─ ✘
-                   │
-        au Event * nested some_cmd | exe 'au! mine' | aug! mine
+        autocmd!
+                        ┌─ ✘
+                        │
+        autocmd Event * nested some_cmd | execute 'autocmd! mine' | augroup! mine
     augroup END
 
             Il est déconseillé d'utiliser le flag `nested` dans une autocmd à usage unique.
             En effet, si `some_cmd` réémet `Event`, juste avant que l'autocmd ne soit supprimée,
             alors l'autocmd sera exécutée une 2e fois.
 
-            Mais cette fois-là, la supression de l'autocmd provoquera une erreur car elle n'existe plus.
-            On pourrait sans doute utiliser `:sil!`, mais je pense que ce pb met en évidence qch de + profond.
-            Une autocmd, dont on n'a besoin que ponctuellement, ne devrait être pas être réappelée.
+            Mais  cette  fois-là, la  supression  de  l'autocmd provoquera  une
+            erreur car elle n'existe plus.
+            On pourrait sans doute utiliser `:silent!`,  mais je pense que ce pb
+            met en évidence qch de + profond.
+            Une autocmd, dont on n'a besoin que ponctuellement, ne devrait être
+            pas être réappelée.
 
             Pour un exemple concret chercher la fonction `qf_open_maybe()` dans notre vimrc.
 
@@ -1366,15 +1377,15 @@ Find a MWE to illustrate the pitfall.
 Document  that `<buffer>`  is *probably*  wrong when  installing a  buffer-local
 autocmd from another autocmd:
 
-    au EventA * au EventB <buffer> ++once # do sth
-                          ^------^
-                             ✘
+    autocmd EventA * autocmd EventB <buffer> ++once # do sth
+                                    ^------^
+                                       ✘
 
 You probably need `<buffer=abuf>` instead:
 
-    au EventA * au EventB <buffer=abuf> ++once # do sth
-                          ^-----------^
-                                ✔
+    autocmd EventA * autocmd EventB <buffer=abuf> ++once # do sth
+                                    ^-----------^
+                                          ✔
 
 ## ?
 
@@ -1389,7 +1400,7 @@ From `:h file-pattern`:
 
 See: <https://vi.stackexchange.com/a/19385/17449>
 
-    au BufNewFile  *\(_spec\)\@<!.rb  0r ~/vim/skeleton.rb
+    autocmd BufNewFile  *\(_spec\)\@<!.rb  :0 read ~/vim/skeleton.rb
 
 ---
 

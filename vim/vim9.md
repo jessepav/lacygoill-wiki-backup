@@ -36,62 +36,31 @@ defcompile
     E1017: Variable already declared: x
 
 ##
-## If a `:def` function contains a syntax error, when does Vim raise an error?
-
-At compile time, *and* at runtime:
-```vim
-vim9script
-def Func()
-     invalid
-enddef
-defcompile
-Func()
-```
-    E476: Invalid command: invalid
-    E1091: Function is not compiled: <SNR>1_Func
-
-`E476` is raised at compile time; `E1091` at runtime.
-
-## What's the Vim9 equivalent of `let x = get(a:, 1, 3)`?
-
-It's:
-
-    def Func(x = 3)
-             ^---^
-
-Remember that an argument can be specified in 3 ways:
-
-    {name}: {type}
-    {name} = {value}
-    {name}: {type} = {value}
-
-The first one is for mandatory arguments; the last two for optional ones.
-
-##
 ## Where does Vim look for a function whose name is not prefixed with `s:` nor `g:`?
 
-   - the current block, if there is one
-   - the outer block, if there is one; the process repeats itself as long as there is an outer block
-   - the outer function, if there is one
-   - the script
-   - the imported functions
+   1. the current block, if there is one
+   2. the outer block, if there is one; the process repeats itself as long as there is an outer block
+   3. the outer function, if there is one
+   4. the script
+   5. the imported functions
 
 For more info, see `:h vim9-scopes`.
 
 ---
 ```vim
 vim9script
-def Outer()
-    if 1
-        def Inner()
-            echo 'inner'
+def Func()
+    # starts a block
+    if true
+        def Block()
+            echo 'defined in function block'
         enddef
-        Inner()
+        Block()
     endif
 enddef
-Outer()
+Func()
 ```
-    inner
+    defined in function block
 
 This shows that Vim  looks for a function invoked from a  function block, in the
 block namespace.
@@ -99,35 +68,37 @@ block namespace.
 ---
 ```vim
 vim9script
-def Outer()
-    if 1
-        def Inner()
-            echo 'inner'
+def Func()
+    # starts a block
+    if true
+        def OuterBlock()
+            echo 'defined in outer block'
         enddef
-        if 1
-            Inner()
+        # starts a nested block
+        if true
+            OuterBlock()
         endif
     endif
 enddef
-Outer()
+Func()
 ```
-    inner
+    defined in outer block
 
 This shows  that Vim can  look for a function  invoked from a  *nested* function
-block, in the outer block namespace.
+block, in the immediate outer block namespace.
 
 ---
 ```vim
 vim9script
 def Outer()
     def Inner()
-        echo 'inner'
+        echo 'defined in function'
     enddef
     Inner()
 enddef
 Outer()
 ```
-    inner
+    defined in function
 
 This shows that Vim  looks for a function invoked from  another function, in the
 immediate outer function namespace.
@@ -137,7 +108,7 @@ immediate outer function namespace.
 vim9script
 def Func()
 enddef
-fu Func
+def Func
 ```
         v-----v
     def <SNR>1_Func()
@@ -153,15 +124,15 @@ mkdir('/tmp/import', 'p')
 var lines =<< trim END
     vim9script
     export def Func()
-        echo 'imported'
+        echo 'defined in exported function'
     enddef
 END
-writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
-import Func from 'foo.vim'
+lines->writefile('/tmp/import/script.vim')
+set runtimepath+=/tmp
+import Func from 'script.vim'
 Func()
 ```
-    imported
+    defined in exported function
 
 This shows that Vim can look for a function invoked from the script level in the
 imported namespace.
@@ -192,7 +163,7 @@ For all other scopes, a function can't be redefined, even after appending a bang
 vim9script
  # block-local
 def Outer()
-    if 1
+    if true
         def Inner()
             echo 'first'
         enddef
@@ -252,26 +223,25 @@ lines =<< trim END
 END
 writefile(lines, '/tmp/import/b.vim')
 
-set rtp+=/tmp
+set runtimepath+=/tmp
 import Func from 'a.vim'
 import Func from 'b.vim'
 ```
     E477: No ! allowed
-    E1044: Export with invalid argument
 
 ### delete a `:def` function?
 
 When it's global or local to a legacy script:
 ```vim
-def s:Func()
-enddef
-delfu s:Func
-```
-    ✔
-```vim
 def g:Func()
 enddef
 delfu g:Func
+```
+    ✔
+```vim
+def s:Func()
+enddef
+delfu s:Func
 ```
     ✔
 ```vim
@@ -306,7 +276,7 @@ Outer()
 ```vim
 vim9script
 def Outer()
-    if 1
+    if true
         def Inner()
             echo 'Inner'
         enddef
@@ -362,7 +332,7 @@ Outer()
 ```vim
 vim9script
 fu Outer()
-    if 1
+    if true
         fu Inner()
             echo 'Inner'
         endfu
@@ -374,40 +344,58 @@ Outer()
     ✔
 
 ##
-## The following snippet raises `E477` and `E193`:
+## What's the Vim9 equivalent of `let x = get(a:, 1, 3)`?
+
+It's:
+
+    def Func(x = 3)
+             ^---^
+
+This  is documented  at `:h  :def`, which  specifies the  3 ways  with which  an
+argument can be declared:
+
+    {name}: {type}
+    {name} = {value}
+    {name}: {type} = {value}
+
+The first one is for mandatory arguments; the last two for optional ones.
+
+##
+## For a script-local function, why should I always choose a name starting with an *uppercase* character?
+
+If you choose a  name starting with a lowercase character,  you'll need to write
+the `s:` prefix in the header:
 ```vim
 vim9script
-def Func()
-    echom 'one'
+ # fail to define lower() without s: prefix
+def lower()
 enddef
-def! Func()
-    echom 'two'
-enddef
-Func()
 ```
-    E477: No ! allowed
-    two
-    E193: :enddef not inside a function
-    one
+    E128: Function name must start with a capital or "s:": lower()
 
-### Why?
+*And* at any call site:
+```vim
+vim9script
+def s:lower()
+enddef
+ # fail to run lower() at script-level without s: prefix
+lower()
+```
+    E117: Unknown function: lower
+```vim
+vim9script
+def s:lower()
+enddef
+def Func()
+    # fail to run lower() in compiled code without s: prefix
+    lower()
+enddef
+defcompile
+```
+    E117: Unknown function: lower
 
-You can't replace a script-local function.
-From `:h vim9-scopes /replaced`:
-
-   > In Vim9 script, script-local functions are defined once when the script is sourced
-   > and cannot be deleted or replaced.
-
-This explains why `E477` is raised.
-As  a  result, `:def!`  does  not  start a  function  definition,  and the  next
-`:enddef` does not match any `:def`; this explains `E193`.
-
-### OK.  But why are the bodies of the 2 function definitions executed in reverse order?
-
-The second  `echom` is *not*  parsed inside  a function (because  `:def!` raised
-`E477`); it's parsed at the script level, and executed immediately.
-
-Later, `Func()` is run.
+But `s:` is a weird syntax which  has no equivalent in other popular programming
+languages; it also makes the code a bit more verbose.
 
 ##
 ## The following snippet raises E1075:
@@ -435,6 +423,242 @@ As a result, you cannot declare a script-local function inside another function;
 only directly at the script level.
 
 ##
+## I have an error raised from some <lambda>123 function.  I never defined one!
+
+Maybe you have defined a function inside another function:
+```vim
+vim9script
+def Outer()
+    def Inner()
+        [][0]
+    enddef
+    Inner()
+enddef
+Outer()
+```
+    Error detected while processing command line
+    ..script ...
+    ..function <SNR>1_Func[4]
+    ..<lambda>1:
+      ^-------^
+
+Internally, Vim implements such a function as a lambda.
+You can retrieve its body with `:def`, and its definition location with `:verbose`:
+
+    :verbose function <lambda>1
+
+Our [vim-stacktrace](https://github.com/lacygoill/vim-stacktrace) plugin
+correctly handles such  an error.  That is, it populates  the quickfix list with
+an entry to let us jump interactively to the source of the error.
+
+##
+## What is a closed expression?
+
+An expression in which all the symbols are defined:
+```vim
+vim9script
+def Closed(x: number): number
+    return x + 1
+enddef
+echo Closed(2)
+```
+    3
+
+Here, the  `Closed()` function is  an example of  a closed expression.   All the
+symbols it contains are defined; including  `x`, which is defined as an argument
+that the function expects.  That's why we  can evaluate it, and get the number 3
+as its output, when we pass it the number 2 as its input.
+
+### In contrast, what is an open expression?
+
+An expression containing at least 1 undefined symbol.
+
+Example:
+```vim
+vim9script
+def Open(x: number): number
+    return x * y + 1
+enddef
+defcompile
+```
+    E1001: Variable not found: y
+
+Here, `Open()` is open because it contains an undefined symbol: `y`.
+There is no information about what it is, nor from where it should be read.
+That's why Vim gives an error when we ask it to compile the function.
+
+#### What is a free variable?
+
+An undefined variable in an open expression.
+In the previous example, it would be `y`.
+
+For an open expression  to be valid, its free variable(s)  must still be defined
+somewhere, outside.
+
+#### What is the environment of an open expression?
+
+The set of symbols defined outside.
+
+It's also called "surrounding context".
+
+##### What is the closure of an open expression?
+
+The part  of its  environment which lets  us evaluate it,  by defining  its free
+variables.
+
+For example, to evaluate `Open()`, we need the definition of `y`.
+The latter could be defined at the script level:
+```vim
+vim9script
+var y = 1
+def Open(x: number): number
+  return x * y + 2
+enddef
+defcompile
+```
+    no error
+
+Or it could be defined in an outer function which wraps it:
+```vim
+vim9script
+var a = 0
+def Wrapper(y: number): func
+    var z = 1
+    def Open(x: number): number
+      return x * y + 2
+    enddef
+    return Open
+enddef
+echo Wrapper(3)(4)
+```
+    14
+
+In the previous example, the environment of the open expression `Open()` is this
+set of variables (which can be represented as a dictionary):
+
+    {
+        a: 0,
+        y: whatever number is passed to Wrapper() at runtime,
+        z: 1,
+    }
+
+Notice that  `x` is  not there, because  it's defined in  `Open()` (as  a number
+argument).
+
+The closure is the part of this environment which lets us evaluate `Open()`:
+
+    {
+        y: whatever number is passed to Wrapper() at runtime
+    }
+
+Notice that  neither `a`  nor `z`  are there, because  they aren't  necessary to
+evaluate `Open()`.
+
+###### Why is it called a "closure"?
+
+Because, by letting us  evaluate an open expression, it turns  the latter into a
+closed one.  IOW, it closes an open expression.
+
+#####
+##### What do people usually mean when they say "closure"?
+
+They probably refer to ...
+
+    It's worth to  note that in the example above,  the wrapper function returns
+    its  inner  function as  a  value. The  moment  we  call this  function  can
+    be  remote  in time  from  the  moment the  function  has  been defined  (or
+    created). In particular, its wrapping function is no longer running, and its
+    parameters which  has been  on the call  stack are no  longer there  :P This
+    makes a problem, because  the inner function needs y to be  there when it is
+    called! In  other words,  it  requires  the variables  from  its closure  to
+    somehow outlive  the wrapper function  and be there  when needed. Therefore,
+    the inner function has to make a  snapshot of these variables which make its
+    closure and store them somewhere  safe for later use. (Somewhere outside the
+    call stack.)
+
+    And this  is why people  often confuse the term  closure to be  that special
+    type of function which can do  such snapshots of the external variables they
+    use, or  the data structure used  to store these variables  for later. But I
+    hope you  understand now that  they are not  the closure itself  – they're
+    just  ways to  implement closures  in  a programming  language, or  language
+    mechanisms  which allows  the variables  from the  function's closure  to be
+    there when  needed. There's a  lot of  misconceptions around  closures which
+    (unnecessarily) make this  subject much more confusing  and complicated than
+    it actually is.
+
+## ?
+
+   > Closures defined in a loop will share the same context.  For example: >
+   > 	var flist: list<func>
+   > 	for i in range(10)
+   > 	  var inloop = i
+   > 	  flist[i] = () => inloop
+   > 	endfor
+   >
+   > The "inloop" variable will exist only once, all closures put in the list refer
+   > to the same instance, which in the end will have the value 9.  This is
+   > efficient.  If you do want a separate context for each closure call a function
+   > to define it: >
+   > 	def GetFunc(i: number): func
+   > 	  var inloop = i
+   > 	  return () => inloop
+   > 	enddef
+   >
+   > 	var flist: list<func>
+   > 	for i in range(10)
+   > 	  flist[i] = GetFunc(i)
+   > 	endfor
+
+I think it works because every call to `GetFunc()` is run in a different context.
+Yes, each time, the same code is run:
+
+    var inloop = i
+    return () => inloop
+
+But it's run by different invocations, thus different contexts.
+
+In contrast,  the code in the  loop is run by  the same invocation, thus  in the
+same context:
+
+    for i in range(10)
+      var inloop = i
+      flist[i] = () => inloop
+    endfor
+
+##
+## How do I write rewrite a legacy dictionary function into Vim9?
+
+In the future, dictionary functions are meant to be replaced with classes.
+This is a more modern mechanism used in popular languages like Java, and will be
+faster.  See `:h vim9-classes`.
+
+But for now, only a temporary mechanism is provided.
+
+In legacy, you could write:
+```vim
+let s:person = {'name': 'john', 'profession': 'teacher'}
+fu s:person.info() dict
+    return printf('%s is a %s', self.name, self.profession)
+endfu
+echo s:person.info()
+```
+    john is a teacher
+
+In Vim9, the same code can be rewritten like this:
+```vim
+vim9script
+var person: dict<any> = {name: 'john', profession: 'teacher'}
+def DictPersonInfo(self: dict<any>): string
+    return printf('%s is a %s', self.name, self.profession)
+enddef
+person = person->extendnew({info: DictPersonInfo})
+echo person.info(person)
+```
+    john is a teacher
+
+See `:h vim9-differences /dict function`.
+
+##
 # type checking
 ## What is it?
 
@@ -451,7 +675,7 @@ defcompile
 ```
     E1077: Missing argument type for x
 
-   - you've specified the return type of the function if it returns sth
+   - you've specified the return type of the function if it returns something
 
 ```vim
 vim9script
@@ -640,13 +864,13 @@ When you declare a variable by assigning it an empty list or dictionary.
 
 #### Why?
 
-When you write sth like:
+When you write something like:
 
     var x = []
 
 You don't really want to assign an empty list to `x`.
 What you really want is to declare the existence of the variable.
-So, what you really want is sth like:
+So, what you really want is something like:
 
     var x: list<string>
 
@@ -689,8 +913,8 @@ echo typename(d)
     dict<unknown>
 
 Here, `dict<unknown>` is echo'ed even though `d` was declared with `dict<any>`.
-That's because  `typename()` doesn't  care about  `d`; it  only cares  about its
-value which here is an empty dictionary.
+That's because `typename()` doesn't care about the *variable* `d`; it only cares
+about its value, which here is an empty dictionary.
 
 ---
 
@@ -889,6 +1113,17 @@ That's because `function()` is not considered a constant:
 
 Not sure what that means...
 
+But the error will still correctly be raised later, at runtime:
+```vim
+vim9script
+def Func()
+    var l: list<number>
+    l = ['', function('len')]
+enddef
+Func()
+```
+    E1012: Type mismatch; expected list<number> but got list<any>
+
 ### Which issue can it cause?
 
 An error might be shadowed:
@@ -928,6 +1163,94 @@ def Func()
 enddef
 defcompile
 ```
+##
+## Why should I always type check lambda's arguments?
+
+It gives better error messages.
+
+Suppose you want a funcref to keep only odd numbers in a list of numbers:
+```vim
+vim9script
+var l = [12, 345, 678, 901]
+def Func()
+    var OnlyOdd: func(any, number): bool
+    OnlyOdd = (_, v: number) => v % 2 == 1
+    echo l->filter(OnlyOdd)
+enddef
+Func()
+```
+    [345, 901]
+
+This works now,  but suppose that at  some point `l` is  unexpectedly assigned a
+list containing some strings:
+```vim
+vim9script
+var l = [12, 'aaa', 678, 'bbb']
+def Func()
+    var OnlyOdd: func(any, number): bool
+    OnlyOdd = (_, v: number) => v % 2 == 1
+    echo l->filter(OnlyOdd)
+enddef
+Func()
+```
+    Error detected while processing ... function <SNR>1_Func:
+    line    3:
+    E1013: Argument 2: type mismatch, expected number but got string
+
+Here, it's easy to find where the problem is; it's on the third line of `Func()`:
+
+                                        v------------------v
+    Error detected while processing ... function <SNR>1_Func:
+    line    3:
+            ^
+
+And it's  easy to understand the  nature of the problem;  a function/funcref has
+received a value with an unexpected type:
+
+    E1013: Argument 2: type mismatch, expected number but got string
+                                      ^----------------------------^
+
+We even know in which position this unexpected value was passed to the function/funcref:
+
+    E1013: Argument 2: type mismatch, expected number but got string
+           ^--------^
+
+Now, compare the same code *without* the second `number` type specification:
+```vim
+vim9script
+var l = [12, 'aaa', 678, 'bbb']
+def Func()
+    var OnlyOdd: func(any, number): bool
+    OnlyOdd = (_, v) => v % 2 == 1
+    echo l->filter(OnlyOdd)
+enddef
+Func()
+```
+    Error detected while processing ... <lambda>1:
+    line    1:
+    E1030: Using a String as a Number: "aaa"
+
+This is harder to understand and fix.
+
+## The following snippet includes 2 `number` type specifications:
+
+    var Ref: func(number): bool
+    #             ^----^
+
+    Ref = (v: number) => true
+    #         ^----^
+
+### They are not redundant.  What's the purpose of each one?
+
+The first one is useful to make sure the *variable* will be *assigned* a correct value.
+
+The second one is useful to make sure the *funcref* will be *passed* a correct value.
+
+---
+
+The reason  why this repetition  is specific to a  funcref, is because  it's the
+only kind of value which can include a variable.
+
 ##
 # Declaration
 ## What's the difference between "declaring" a variable and "creating" one?
@@ -1066,6 +1389,7 @@ Either move the declarations earlier, or delay the compilation.
 `#`
 
     var count = 0  # number of occurences
+                   ^
 
 ### Why not the traditional `"`?
 
@@ -1089,10 +1413,10 @@ latter starts with `:vim9script`.
 vim9script
 def Func()
     var mylist = [
-            'one',
-            # some comment
-            'two',
-            ]
+        'one',
+        # some comment
+        'two',
+    ]
     echo mylist
 enddef
 Func()
@@ -1101,10 +1425,10 @@ Func()
 ```vim
 def Func()
     var mylist = [
-            'one',
-            # some comment
-            'two',
-            ]
+        'one',
+        # some comment
+        'two',
+    ]
     echo mylist
 enddef
 call Func()
@@ -1113,10 +1437,10 @@ call Func()
 ```vim
 vim9script
 var mylist = [
-        'one',
-        # some comment
-        'two',
-        ]
+    'one',
+    # some comment
+    'two',
+]
 echo mylist
 ```
     ['one', 'two']
@@ -1357,7 +1681,7 @@ Example:
 
     $ cat <<'EOF' >/tmp/bar.vim
         vim9script
-        set rtp^=/tmp
+        set runtimepath^=/tmp
         import MYCONST from 'foo.vim'
         echo MYCONST
     EOF
@@ -1383,7 +1707,7 @@ Example:
 
     $ cat <<'EOF' >/tmp/qux.vim
         vim9script
-        set rtp^=/tmp
+        set runtimepath^=/tmp
         import MYCONST from 'foo/bar/baz.vim'
         echo MYCONST
     EOF
@@ -1635,7 +1959,7 @@ Or a function name contains a `#`:
         enddef
     EOF
 
-    $ vim -Nu NORC --cmd 'set rtp^=/tmp/some'
+    $ vim -Nu NORC --cmd 'set runtimepath^=/tmp/some'
     :call some#func()
     :def some#func
     def some#func˜
@@ -1687,7 +2011,7 @@ script-local) *can* be declared, but can't be deleted.
 ```vim
 vim9script
 def Func()
-    if 1
+    if true
         var name = 'block-local'
         unlet name
     endif
@@ -1945,7 +2269,7 @@ def Outer()
     def Func()
         echo 'function-local'
     enddef
-    if 1
+    if true
         def Func()
             echo 'block-local'
         enddef
@@ -1982,7 +2306,7 @@ var lines =<< trim END
     enddef
 END
 writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
+set runtimepath+=/tmp
 def Func()
     echo 'script level'
 enddef
@@ -2179,8 +2503,6 @@ vim9script
 var dict = {'a': 1, 'b': 2}
 ```
     ✔
-
-Some (all?) of these rules were introduced in 8.2.1326.
 
 ## Vim unexpectedly populates the arglist when I call a function where I omit to declare an `n` variable!
 
@@ -2422,7 +2744,7 @@ the type of transformation you perform...
 ```vim
 vim9script
 def Func()
-    if 1
+    if true
        var n = 123
     endif
     echo n
@@ -2438,7 +2760,7 @@ Solution:  Declare it *before* the block where it's assigned a value.
 vim9script
 def Func()
     var n: number
-    if 1
+    if true
        n = 123
     endif
     echo n
@@ -2450,9 +2772,9 @@ nested blocks).  Not in outer blocks:
 ```vim
 vim9script
 def Func()
-    if 1
+    if true
         var n: number
-        if 1
+        if true
            n = 123
         endif
     endif
@@ -3281,42 +3603,26 @@ echo l
     ['|xxx']
 
 ##
-# Style (subjective)
-## For a script-local function, why should I always choose a name starting with an *uppercase* character?
-
-If you choose a name starting with a *lowercase* character, you'll need to write
-the `s:` prefix in the header:
+## I can't pass a register to a function with a method!
 ```vim
 vim9script
- # fail to define lower() without s: prefix
-def lower()
-enddef
+@a = 'text'
+@a->setline(1)
 ```
-    E128: Function name must start with a capital or "s:": lower()
+    E492: Not an editor command: text
 
-*And* at any call site:
+So, you want to refer to the contents of the "a" register by writing `@a`.
+This works without any requirement in an expression, but if it's at the start of
+a line, it can be mistaken with  the Ex command `:@a` which executes whatever is
+written in the "a" register as an Ex command.
+
+To prevent this, surround `@a` with parentheses:
 ```vim
 vim9script
-def s:lower()
-enddef
- # fail to run lower() at script-level without s: prefix
-lower()
+@a = 'text'
+(@a)->setline(1)
 ```
-    E117: Unknown function: lower
-```vim
-vim9script
-def s:lower()
-enddef
-def Func()
-    # fail to run lower() in compiled code without s: prefix
-    lower()
-enddef
-defcompile
-```
-    E117: Unknown function: lower
-
-But `s:` is a weird syntax which  has no equivalent in other popular programming
-languages; it also makes the code a bit more verbose.
+    no error
 
 ##
 # Todo
@@ -3495,63 +3801,13 @@ And that we did so correctly.
 
 ### ?
 
-   > Closures defined in a loop will share the same context.  For example: >
-   > 	var flist: list<func>
-   > 	for i in range(10)
-   > 	  var inloop = i
-   > 	  flist[i] = () => inloop
-   > 	endfor
-   >
-   > The "inloop" variable will exist only once, all closures put in the list refer
-   > to the same instance, which in the end will have the value 9.  This is
-   > efficient.  If you do want a separate context for each closure call a function
-   > to define it: >
-   > 	def GetFunc(i: number): func
-   > 	  var inloop = i
-   > 	  return () => inloop
-   > 	enddef
-   >
-   > 	var flist: list<func>
-   > 	for i in range(10)
-   > 	  flist[i] = GetFunc(i)
-   > 	endfor
+When passing the name  of an autoload function as a  funcref argument to another
+function, whether you quote it or not matters.
 
-I think it works because every call to `GetFunc()` is run in a different context.
-Yes, each time, the same code is run:
-
-    var inloop = i
-    return () => inloop
-
-But it's run by different invocations, thus different contexts.
-
-In contrast,  the code in the  loop is run by  the same invocation, thus  in the
-same context:
-
-    for i in range(10)
-      var inloop = i
-      flist[i] = () => inloop
-    endfor
-
-### ?
-
-We cannot omit quotes around the name of an autoload function when passing it as
-a funcref argument to another function.
-
-This kinda makes sense, because the help  says that `function()` (as well as the
-quotes implicitly, I guess) can be omitted only if the function has already been
-defined.  You have no such guarantee with an autoload function.
-Although, the fact that we can still  not omit the quotes even when the autoload
-function  has been  called looks  like a  bug; but  that's a  corner case  which
-doesn't look important.
-
----
-
-Note that we *might* omit the quotes in the future:
-<https://github.com/vim/vim/issues/8124#issuecomment-822568891>
-
-With quotes, the function would not be loaded until it's actually called.
-Without quotes, the function would be loaded right away, at compile time
-(which would defeat the purpose of autoloading, so don't use it).
+With quotes, the function is not loaded until it's actually called.
+Without  quotes, the  function  is loaded  right away,  at  compile time;  which
+defeats the purpose of  autoloading, so use this only if  while testing to check
+that your autoload function passes the compile step.
 
 ### ?
 
@@ -3607,6 +3863,84 @@ exe "norm \<F3>"
 
 Is it a bug?
 
+### ?
+
+When a  type mismatch error is  raised from a  function called as a  method, you
+might want to mentally subtract 1 from the given argument index:
+```vim
+vim9script
+def Func(a: string, b: number, c: bool)
+enddef
+'string'->Func(1.23, true)
+```
+    E1013: Argument 2: type mismatch, expected number but got float
+                    ^
+
+Here, you might think that 2 refers to the value `true`, because it's the second
+one inside the parens:
+
+    'string'->Func(1.23, true)
+                         ^--^
+
+But that's not  the problematic value.  The problematic one  is `1.23`; i.e. the
+first one.  That's because the method call is just syntactic sugar for this:
+
+    Func('string', 1.23, true)
+                   ^--^
+
+Notice that this time, the 2nd argument is `1.23`; it's no longer `true`.
+
+### ?
+
+Document the difference between the `func` and `func()` types.
+
+`func` means no type checking for the arguments, nor for the return type.
+```vim
+vim9script
+
+var Ref: func
+
+def OneArg(x: any)
+enddef
+def TwoArgs(x: any, y: any)
+enddef
+def RetSomething(): any
+    return 0
+enddef
+def RetNothing(): void
+enddef
+
+Ref = OneArg
+Ref = TwoArgs
+Ref = RetSomething
+Ref = RetNothing
+```
+    no error
+
+`func()` means no arguments, and the void return type.
+```vim
+vim9script
+var Ref: func()
+def OneArg(x: any)
+enddef
+Ref = OneArg
+```
+    E1012: Type mismatch; expected func() but got func(any)
+```vim
+vim9script
+var Ref: func()
+def NoArg(): any
+    return 0
+enddef
+Ref = NoArg
+```
+    E1012: Type mismatch; expected func() but got func(): any
+
+IOW, `func` and `func()` are opposite to each other.
+`func` = args and return type can be anything they want.
+`func()` = args and return type can NOT even exist.
+
+##
 ###
 ### ?
 ```vim
@@ -3893,7 +4227,7 @@ In both cases, Vim raise an error when checking the types.
 ### the first things to do after pasting a legacy function into a Vim9 script
 
 Whenever `.` is used as a concatenation operator, replace it with `..`; and make
-sure it's surrounded by whitespace.
+sure it's surrounded with whitespace.
 
 Whenever `:function` is followed by a bang, remove it.
 
@@ -3946,71 +4280,6 @@ echo Ref('optional')
 ```
     no error
 
-### a block-local function is inherited by all nested blocks
-```vim
-vim9script
-def Outer()
-    if 1
-        def Inner()
-            echo 'inner'
-        enddef
-        if 1
-            Inner()
-        endif
-    endif
-enddef
-Outer()
-```
-    inner
-
-Just like a variable:
-```vim
-vim9script
-def Func()
-    if 1
-        var n = 123
-        if 1
-            echo n
-        endif
-    endif
-enddef
-Func()
-```
-    123
-
-### a function-local function is implemented as a lambda function
-
-At least,  that's what  it seems  when reading  an error  message raised  from a
-function-local function:
-```vim
-vim9script
-def Func()
-    def Nested()
-        [][0]
-    enddef
-    Nested()
-enddef
-Func()
-```
-
-    Error detected while processing command line
-    ..script /proc/17649/fd/11[8]
-    ..function <SNR>1_Func[4]
-    ..<lambda>1:
-      ^-------^
-
-It's not a bug and it can't be fixed.
-The concept of function local to another function didn't exist in Vim script legacy.
-A function-local function can't have a public name like "Nested".
-It would mean that you can invoke it from anywhere, like the command-line.
-That's not possible.
-
-Fortunately, that's not an issue for `vim-stacktrace`.
-That's because we can still retrieve the definition site of such a function:
-
-    " still works
-    :verb function <lambda>123
-
 ### to write an octal number, you need the prefix `0o`
 ```vim
 vim9script
@@ -4062,7 +4331,7 @@ sil! Func()
 Sometimes, it cannot:
 ```vim
 vim9script
-au TerminalWinOpen * sil! Func()
+autocmd TerminalWinOpen * silent! Func()
 def Func()
     throw 'error'
 enddef
@@ -4149,7 +4418,7 @@ It seems to be working as intended:
 
 <https://github.com/vim/vim/issues/8136#issuecomment-826337780>
 
-### in every script, move all declarations in a dedicated section
+### (style) in every script, move all declarations in a dedicated section
 
     ✘
     def Func()
@@ -4184,7 +4453,7 @@ var lines =<< trim END
     export const s:MYCONST = 123
 END
 writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
+set runtimepath+=/tmp
 import MYCONST from 'foo.vim'
 echo s:MYCONST
 ```
@@ -4201,7 +4470,7 @@ var lines =<< trim END
     export var s:name = 123
 END
 writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
+set runtimepath+=/tmp
 import name from 'foo.vim'
 echo s:name
 ```
@@ -4220,7 +4489,7 @@ var lines =<< trim END
     enddef
 END
 writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
+set runtimepath+=/tmp
 import Imported from 'foo.vim'
 fu Imported
 ```
@@ -4239,7 +4508,7 @@ var lines =<< trim END
 END
 mkdir('/tmp/import', 'p')
 writefile(lines, '/tmp/import/foo.vim')
-set rtp+=/tmp
+set runtimepath+=/tmp
 import Imported from 'foo.vim'
 fu Imported
 echo expand('<SID>')

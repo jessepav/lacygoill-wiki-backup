@@ -1,11 +1,11 @@
 When you need to do some tests while editing this file, use this code:
 
-    nno cd <cmd>call <sid>study_arglist()<cr>
-    fu s:study_arglist() abort
-        sp
+    nnoremap cd <cmd>call <sid>study_arglist()<cr>
+    function s:study_arglist() abort
+        split
         args /etc/*.conf
-        let  g:my_stl_list_position = 2
-    endfu
+        let g:my_stl_list_position = 2
+    endfunction
 
 ---
 
@@ -26,8 +26,8 @@ No and no.
 It's a set of filepaths.
 
     $ vim -Nu NONE /tmp/file
-    :sp
-    :bw
+    :split
+    :bwipeout
     :args
     [/tmp/file]˜
 
@@ -103,7 +103,7 @@ Maybe it will change in the future:
 `fname` may contain some characters which are special on Vim's command-line.
 To prevent their interpretations, use `fnameescape()`:
 
-    :exe 'args '.fnameescape(fname)
+    :execute 'args ' .. fnameescape(fname)
 
 ## Why does ``:args `=systemlist('ls ~/.vim/after/ftplugin')` `` fail?
 
@@ -163,13 +163,13 @@ global one.
             dossier de travail ou l'un de ses sous-dossiers.
 
 
-    :n /usr/inc**/*.h
+    :next /usr/inc**/*.h
 
             Peupler l'arglist avec  tous les fichiers portant  l'extension .h et
             dont le chemin commence par /usr/inc.
 
 
-    :wn[ext]
+    :wnext
 
             Écrire le buffer courant de l'arglist et afficher le suivant.
 
@@ -201,22 +201,22 @@ global one.
 
     Afficher/charger:
 
-    ┌───────────────────────┬──────────────────────────────────────────────────────────────────────┐
-    │ :args                 │ les chemins stockés dans l'arglist                                   │
-    ├───────────────────────┼──────────────────────────────────────────────────────────────────────┤
-    │ :argument             │ l'argument courant de l'arglist                                      │
-    │                       │                                                                      │
-    │                       │ utile pour y revenir rapidement après avoir sauté de tag en tag pour │
-    │                       │ se renseigner sur un de ses passages                                 │
-    ├───────────────────────┼──────────────────────────────────────────────────────────────────────┤
-    │ :3argu                │ l'argument 3 de l'arglist                                            │
-    ├───────────────────────┼──────────────────────────────────────────────────────────────────────┤
-    │ :n[ext]    prev[ious] │ le buffer suivant / précédent de l'arglist                           │
-    │ [a         ]a         │                                                                      │
-    ├───────────────────────┼──────────────────────────────────────────────────────────────────────┤
-    │ :fir[st]    :la[st]   │ le 1er / dernier buffer de l'arglist                                 │
-    │ [A          ]A        │                                                                      │
-    └───────────────────────┴──────────────────────────────────────────────────────────────────────┘
+    ┌─────────────────────┬──────────────────────────────────────────────────────────────────────┐
+    │ :args               │ les chemins stockés dans l'arglist                                   │
+    ├─────────────────────┼──────────────────────────────────────────────────────────────────────┤
+    │ :argument           │ l'argument courant de l'arglist                                      │
+    │                     │                                                                      │
+    │                     │ utile pour y revenir rapidement après avoir sauté de tag en tag pour │
+    │                     │ se renseigner sur un de ses passages                                 │
+    ├─────────────────────┼──────────────────────────────────────────────────────────────────────┤
+    │ :3argument          │ l'argument 3 de l'arglist                                            │
+    ├─────────────────────┼──────────────────────────────────────────────────────────────────────┤
+    │ :next      previous │ le buffer suivant / précédent de l'arglist                           │
+    │ [a         ]a       │                                                                      │
+    ├─────────────────────┼──────────────────────────────────────────────────────────────────────┤
+    │ :first    :last     │ le 1er / dernier buffer de l'arglist                                 │
+    │ [A        ]A        │                                                                      │
+    └─────────────────────┴──────────────────────────────────────────────────────────────────────┘
 
 
     :argadd %
@@ -256,7 +256,7 @@ global one.
             Ajouter le  fichier foo dans  l'arglist après l'argument  courant et
             l'éditer.
 
-            Équivaut à:    :argadd foo | e foo
+            Équivaut à:    :argadd foo | edit foo
 
 
     :42argadd foo
@@ -270,8 +270,8 @@ global one.
             et de ses sous-dossiers.
 
 
-    :argl dir/{foo,bar,baz}.conf
-    :argdo w
+    :arglocal dir/{foo,bar,baz}.conf
+    :argdo write
 
             Crée 3 fichiers au sein d'un même dossier, avec la même extension.
 
@@ -279,13 +279,13 @@ global one.
             fichiers typique dans un nouveau projet.
 
 
-    :%argdelete
+    :% argdelete
     :argdelete *
 
             Supprimer tous les chemins de l'arglist.
 
 
-    :.argdelete
+    :. argdelete
 
             Supprimer l'argument courant de l'arglist.
 
@@ -296,10 +296,10 @@ global one.
             Ajouter / supprimer les fichiers foo et bar de l'arglist.
 
 
-    :%argd             → supprime l'arglist
+    :% argd            → supprime l'arglist
     :bufdo argadd %    → ajoute tous les chemins des buffers dans l'arglist
-    :1,999bd           → décharge tous les buffers
-    :argdo e           → recharge les fichiers dont les chemins ont été sauvegardés dans l'arglist
+    :1,999 bdelete     → décharge tous les buffers
+    :argdo edit        → recharge les fichiers dont les chemins ont été sauvegardés dans l'arglist
 
             Renuméroter  tous  les buffers,  de  sorte  que d'éventuels  “trous“
             disparaissent.
@@ -308,13 +308,13 @@ global one.
             ensemble de chemins.
 
             Si  l'arglist  était un  ensemble  de  buffers,  alors quand  on  en
-            supprimerait un (`:bd`), il disparaîtrait aussi de l'arglist, ce qui
-            n'est pas le cas.
+            supprimerait un (`:bdelete`), il disparaîtrait aussi de l'arglist, ce
+            qui n'est pas le cas.
 
 
-    :argdo e!
+    :argdo edit!
     :argdo update
-    :argdo bd
+    :argdo bdelete
 
             Annuler toutes  les modification apportées aux  buffers de l'arglist
             depuis leur dernière sauvegarde.
@@ -325,13 +325,13 @@ global one.
             Décharger tous les buffers de l'arglist.
 
 
-    :argdo %s/foo/bar/ge | update
+    :argdo :% substitute/foo/bar/ge | update
 
             Remplacer  toutes les  occurrences  de  foo par  bar  dans tous  les
             buffers de l'arglist  en sauvegardant à chaque fois si  une modif' a
             eu lieue.
 
-            Équivaut à :first | %s/foo/bar/ge | next | %s/... | next ...
+            Équivaut à :first | :% substitute/foo/bar/ge | next | :% substitute/... | next ...
 
             On ajoute le flag e à la commande de substitution pour éviter qu'une
             erreur n'interrompt le processus.
@@ -339,7 +339,7 @@ global one.
             Qd on fait un refactoring sur un gd  nb de fichiers, qu'il y a un gd
             nb de buffers dans l'arglist, et  que bcp finissent par être modifié
             après  un :argdo,  il  vaut mieux  intégrer un  :update  au sein  de
-            l'argdo plutôt que de finir par un :wa ou :xa (:wqa).
+            l'argdo plutôt que de finir par un :wall ou :xall (:wqall).
 
             En effet, l'update  est plus rapide car Vim n'a  pas besoin d'écrire
             des buffers non modifiés.
@@ -379,11 +379,11 @@ global one.
             On peut  vérifier que `:args`  peuple la locale, ssi  cette dernière
             est celle actuellement utilisée, comme ceci:
 
-                    :sp
-                    :argl
+                    :split
+                    :arglocal
                     :args /etc/*.conf
 
-                    " Don't execute `:argl` to ask  to use the arglist, it would
+                    " Don't execute `:arglocal` to ask  to use the arglist, it would
                     " make a  local copy of  the global argument list,  which is
                     " empty.  In effect, it would remove the local arglist we've
                     " just populated.
@@ -398,7 +398,7 @@ global one.
                     So, it means we're currently using the local arglist.˜
 
 
-                    :argg " use the global arglist
+                    :argglobal " use the global arglist
                     :args /etc/*.conf
                     :args
                     no filepaths˜
@@ -423,7 +423,7 @@ one).
 
 Integrate here anything related to the arglist (`:all`, dirvish `x_x`, ...):
 
-    noa vim /arglist/gj ## | cw
+    noautocmd vimgrep /arglist/gj ## | cwindow
 
 Btw, `:sall` and `:vert sall` are  really nice when your arglist doesn't contain
 too many files.
@@ -439,7 +439,7 @@ Play with:
 
    - `getcompletion('*', 'arglist')`
      +
-     `com -complete=arglist ...`
+     `command -complete=arglist ...`
 
 
 ---

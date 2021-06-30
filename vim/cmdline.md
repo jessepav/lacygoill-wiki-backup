@@ -17,7 +17,7 @@ It deletes the text until the third previous line above the next line containing
 ##
 # ?
 
-    :w !python
+    :write !python
 
 Make python execute the code in the current buffer.
 The advantage of this  command, compared to `:w | !python %`,  is that you don't
@@ -26,7 +26,7 @@ one.
 
 ---
 
-    :w !python - foo bar baz
+    :write !python - foo bar baz
 
 Make python execute the code in the current buffer and pass it the arguments `foo`, `bar`, `baz`.
 Found here: <https://www.reddit.com/r/vim/comments/b2h068/til_p_gives_the_current_files_path/eisy9s1/>
@@ -81,13 +81,13 @@ the optional `+cmd` argument.
 Example:
 
     ✘
-    :e +foo
+    :edit +foo
 
     ✔
-    :e \+foo
+    :edit \+foo
 
     ✔
-    :e foo+bar
+    :edit foo+bar
 
 # ?
 
@@ -115,19 +115,19 @@ Et  un autre:  au sein  de  la valeur  de certaines  options ('path',  'cdpath',
 
 L'usage de `**` dans ces 2 contextes est décrit dans:
 
-        :h starstar-wildcard
-        :h starstar
+    :h starstar-wildcard
+    :h starstar
 
 Qd `**` est  suivi d'un nombre, ce dernier est  interprété littéralement dans le
 1er contexte, et comme un limiteur de “profondeur“ dans le 2e:
 
-        set path=/etc/**2
+    set path=/etc/**2
 
 Tous les sous-dossiers  de `/etc` dont la  profondeur est <=2 sont  ajoutés à la
 valeur de 'path'.
 
 
-        vim /pat/ /etc/**2
+    vimgrep /pat/ /etc/**2
 
 `:vim` cherche `pat` dans tous les fichiers de `/etc` tq la fin du 1er composant
 dans leur chemin est le caractère `2`.
@@ -355,12 +355,12 @@ findfile({name} [, {path} [, {count}]])
 
 
 
-                      ┌ hit C-l
-                      │
-    e ~/.vim/**/sne   →   e ~/.vim/p
-    e ~/.vim/**/sne   →   e ~/.vim/pack/minpac/opt/vim-sneak/autoload/sneak/ ...
-                      │
-                      └ hit C-x C-a
+                         ┌ hit C-l
+                         │
+    edit ~/.vim/**/sne   →   edit ~/.vim/p
+    edit ~/.vim/**/sne   →   edit ~/.vim/pack/minpac/opt/vim-sneak/autoload/sneak/ ...
+                         │
+                         └ hit C-x C-a
 
             Contrairement à `C-x C-a` qui développe un glob en le remplaçant par
             tous  les  matchs possibles,  C-l  ne  développe  un glob  qu'en  le
