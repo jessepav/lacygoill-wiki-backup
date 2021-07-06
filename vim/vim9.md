@@ -3940,6 +3940,10 @@ IOW, `func` and `func()` are opposite to each other.
 `func` = args and return type can be anything they want.
 `func()` = args and return type can NOT even exist.
 
+### ?
+
+<https://github.com/vim/vim/issues/8491#issuecomment-873639597>
+
 ##
 ###
 ### ?
@@ -4103,54 +4107,46 @@ var Ref = function('s:Func')
    > When using `function()` **the resulting type is "func", a function with any**
    > **number of arguments and any return type.**  The function can be defined later.
 
-The first bold sentence is correct:
+Examples to illustrate the first bold sentence:
 ```vim
 vim9script
-def MyFunction(n: number, s: string): number
-    return repeat(s, n)
+def Func(b: bool)
 enddef
-var Funcref = MyFunction
+def Compiled()
+    var Ref: func(number) = Func
+enddef
+defcompile
 ```
-    E1012: Type mismatch; expected number but got string
-
-But the second bold sentence seems wrong:
+    E1012: Type mismatch; expected func(number) but got func(bool)
+    # Func() is OK but it does not match Ref's type
 ```vim
 vim9script
-def MyFunction(n: number, s: string): string
-    return repeat(s, n)
+def Func(): bool
+    return 123
 enddef
-var Funcref = function('MyFunction')
-echo typename(Funcref)
+def Compiled()
+    var Ref: func(): bool = Func
+enddef
+defcompile
 ```
-    func(number, string): string
+    E1012: Type mismatch; expected bool but got number
+    # Func() matches Ref's type, but it's not OK; its return type does not match the return value
 
-According to the help, it should have gotten the return type `any` (because of `function()`).
-Although, even if the  return type was correct, I guess an  error would still be
-raised; the message should just be different:
-
-    E1012: Type mismatch; expected func(number, string): list<number> but got func(number, string): any
-                                                                                                    ^^^
-Also:
+Example to illustrate the second bold sentence:
 ```vim
 vim9script
-def MyFunction(n: number, s: string): string
+def Func(n: number, s: string): string
     return repeat(s, n)
 enddef
-var Funcref = function('MyFunction')
-echo typename(Funcref)
+def Compiled()
+    var Ref = function(Func)
+enddef
+defcompile
 ```
-    func(number, string): string
+    no error
 
-According to the help, it should be:
-
-    func(...list<any>): any
-
----
-
-Also, the help is slightly incomplete; I think it should be:
-
-   > When using `function()` the resulting type is "func", a function with any
-   > number of arguments**, with any types,** and any return type.
+See: Read this:
+<https://github.com/vim/vim/issues/8492#issuecomment-873621456>
 
 #### ?
 
@@ -4163,65 +4159,31 @@ Also, the help is slightly incomplete; I think it should be:
    > When using `function()` the resulting type is "func", a function with any
    > number of arguments and any return type.  **The function can be defined later.**
 
-What does it mean?
-
 This doesn't work:
 ```vim
 vim9script
-var Funcref = function('MyFunction')
-def MyFunction()
+def Compiled()
+    var Ref = function(Func)
+enddef
+defcompile
+def Func()
 enddef
 ```
-    E700: Unknown function: MyFunction
+    E1001: Variable not found: Func
 
-This works while the help *seems* (not sure) to say that it shouldn't:
+We need quotes:
 ```vim
 vim9script
-
-def FuncWithForwardRef()
-    var Funcref = DefinedLater
-    echo Funcref()
+def Compiled()
+    var Ref = function('Func')
 enddef
-
-def DefinedLater(): string
-    return 'yes'
+defcompile
+def Func()
 enddef
-
-FuncWithForwardRef()
 ```
-    yes
+    no error
 
----
-
-Maybe this difference can only be observed at compile time, not at runtime?
-
----
-
-This paragraph was added in this commit:
-
-<https://github.com/vim/vim/commit/d1caa941d876181aae0ebebc6ea954045bf0da24#diff-85b42c1fb69f74ec09315a12804fc50e>
-
-#### ?
-
-   > A user defined function can be used as a function reference in an expression
-   > without `function()`. **The argument types and return type will then be checked.**
-   > The function must already have been defined. >
-
-   >         var Funcref = MyFunction
-
-   > When using `function()` the resulting type is "func", a function with any
-   > number of arguments and any return type.  The function can be defined later.
-
-If I use a  function name as a funcref for the  `{skip}` argument of `search()`,
-the argument types and return type of the function will be checked against what?
-
-Answer:  I think  it just means that  the function is compiled  to check whether
-there is an easy-to-detect type mismatch error in your function.
-For example, you could declare in the  function's header that it should return a
-string, while actually you return a number.
-Or you could  declare that the function  expects a dictionary, then  use it with
-the `+` operator (which doesn't accept a dictionary as an operand).
-In both cases, Vim raise an error when checking the types.
+Is it working as intended?  If so, maybe the quotes requirement should be documented.
 
 ####
 ### the first things to do after pasting a legacy function into a Vim9 script

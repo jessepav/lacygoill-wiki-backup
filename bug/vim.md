@@ -1128,21 +1128,6 @@ Func()
 Again, could Vim be more accurate regarding where the error is coming from?
 
 ### ?
-
-<https://github.com/vim/vim/issues/7759#issuecomment-770317126>
-
-The last 2 issues have been fixed in 8.2.2243, but not the first issue:
-```vim
-vim9script
-echo str2float(123)
-```
-    123.0
-
-A type mismatch error should be given; maybe this one:
-
-    E1013: Argument 1: type mismatch, expected string but got number
-
-### ?
 ```vim
 vim9script
 
@@ -1196,7 +1181,7 @@ than from the footer.
 ### ?
 ```vim
 vim9script
-timer_start(1'000, () => 0)
+timer_start(1'000, (_) => 0)
 exe 'verb ' .. timer_info()[0].callback
     ->string()
     ->substitute("('\\|')", ' ', 'g')
@@ -1210,19 +1195,20 @@ The line number of the definition is off by 1.
 The lambda was not defined on line 1, but on line 2.
 The issue is not specific to Vim9:
 ```vim
+vim9script
 eval 1
 eval 2
 eval 3
-let Ref = {-> 0}
+legacy let Ref = {-> 0}
 verb function <lambda>1
 ```
         function <lambda>1(...)
-             Last set from /proc/26909/fd/11 line 3
+             Last set from /proc/26909/fd/11 line 4
      1  return 0
         endfunction
 
-Here, `:verb` tells us that the lambda was defined on line 3, which is wrong; it
-was defined on line 4.
+Here, `:verb` tells us that the lambda was defined on line 4, which is wrong; it
+was defined on line 5.
 
 ### ?
 ```vim
@@ -1324,246 +1310,6 @@ defcompile
     Error detected while compiling command line..script /proc/17876/fd/11[9]..function <SNR>1_Func[4]..<lambda>1:
     line    1:
     E1012: Type mismatch; expected string but got number
-
-### ?
-```vim
-vim9script
-def Func()
-    var x: any
-    x.key = 1
-          + 2
-          + 3
-          + 4
-          + 5
-enddef
-Func()
-```
-    line    6:
-    E1148: Cannot index a number
-
-I would expect line 2, because that's where we index the variable.
-
----
-```vim
-vim9script
-var x: any
-x['key'] = 1
-         + 2
-         + 3
-         + 4
-         + 5
-```
-    line    3:
-    E689: Can only index a List, Dictionary or Blob
-
-Again, I would expect line 2.
-
-##
-## [help] clarification needed for type checking of lists/dicts of funcrefs
-### triple dot notation
-```vim
-vim9script
-def Foo(x: bool)
-enddef
-def Bar(x: bool, y: bool)
-enddef
-var l = [Foo, Bar]
-echo l->typename()
-```
-    list<func(...)>
-              ^^^
-
-Notice the triple  dot.  It means that the 2  signatures don't have the  same number of arguments.  I can't find this explained in the help.  Maybe it should.
-
-### ambiguous meaning of generated "any"
-```vim
-vim9script
-def ReturnNumber(): number
-    return 0
-enddef
-def ReturnString(): string
-    return ''
-enddef
-var l = [ReturnNumber, ReturnString]
-echo l->typename()
-```
-    list<func(): any>
-
-`any` might be ambiguous here.  It can be read as:
-"Not all functions return the same type of value."
-
-Or it can be read as:
-"All functions in the list return a value of type `any`."
-
-In practice, it's the first interpretation which is correct.  Maybe this should be documented.
-
----
-```vim
-vim9script
-def ExpectNumber(x: number)
-enddef
-def ExpectString(x: string)
-enddef
-var l = [ExpectNumber, ExpectString]
-echo l->typename()
-```
-    list<func(any)>
-
-Again, `any` might be ambiguous; it can be read as:
-"Not all functions expect the same type of value."
-
-Or it can be read as:
-"All functions in the list expect a value of type `any`."
-
-And again, in practice, it's the first interpretation which is correct.  Maybe this should be documented.
-
-### inconsistent usage of generated "any"
-
-As seen above, when Vim receives a list/dict of funcrefs with different return types, it generates the return type `any`.  Same thing for a list/dict of funcrefs with one argument of different types.  But an `any` generated for the return type is not used like an `any` generated for an argument:
-```vim
-vim9script
-def ExpectNumber(x: number)
-enddef
-def ExpectString(x: string)
-enddef
-var l: list<func(bool)> = [ExpectNumber, ExpectString]
-```
-    no error
-```vim
-vim9script
-def ReturnNumber(): number
-    return 123
-enddef
-def ReturnString(): string
-    return 'string'
-enddef
-var l: list<func(): bool> = [ReturnNumber, ReturnString]
-```
-    E1012: Type mismatch; expected list<func(): bool> but got list<func(): any>
-
-Notice that in the first snippet, no error was given even though the specified argument type `bool` does not match the actual argument type of any funcref (`number`, `string`).  It means that the generated `any` matches any type, including the `: bool` that we wrote.
-
-But in the second snippet, an error *is* given even though Vim has – again – generated an `any` type; the one written at the very end of the message:
-
-    E1012: Type mismatch; expected list<func(): bool> but got list<func(): any>
-                                                                           ^^^
-
-This `any` does *not* match any type.  It only matches itself; i.e. a specified `any` type.  IOW, the only way to fix this error is to write `any` for the return type:
-
-                         ✘
-                        v--v
-    var l: list<func(): bool> = [ReturnNumber, ReturnString]
-
-    →
-
-    var l: list<func(): any> = [ReturnNumber, ReturnString]
-                        ^^^
-                         ✔
-
-The fact that a generated `any` is used differently for an argument vs the return value seems inconsistent.  Is this working as intended?  If so, maybe it should be documented.
-
-IMO, the behavior in the second snippet is good, because it gives us the most guarantees about the validity of our code.  For example, if we write this:
-
-    var l: list<func(): number> = [A, B, C]
-
-And Vim doesn't complain, then we have the guarantee that all 3 functions `A`, `B`, `C` do return numbers.
-The only exception to this guarantee is the `any` return type:
-
-    var l: list<func(): any> = [A, B, C]
-
-This time, if Vim doesn't complain, it doesn't mean that each of the 3 functions can return any type of values.  It means that – *as a whole* – the set of the 3 return types could contain any type.  IOW, it doesn't mean anything useful.  It's a bit like saying "I have no idea what any of these functions return".
-
-OTOH, maybe the behavior in the first snippet should be changed because:
-
-   - it would be more consistent with the second one
-   - it would give us more guarantees about the validity of the argument types that we write
-
-So maybe this snippet:
-```vim
-vim9script
-def ExpectNumber(x: number)
-enddef
-def ExpectString(x: string)
-enddef
-var l: list<func(bool)> = [ExpectNumber, ExpectString]
-```
-Should give an error, such as:
-
-    E1012: Type mismatch; expected list<func(bool)> but got list<func(any)>
-
-And to fix this, we should have to rewrite our declaration like this:
-
-                      ✘
-                     v--v
-    var l: list<func(bool)> = [ExpectNumber, ExpectString]
-
-    →
-
-    var l: list<func(any)> = [ExpectNumber, ExpectString]
-                     ^^^
-                      ✔
-
-### no error for mismatch of number of arguments
-```vim
-vim9script
-def OneArg(x: bool)
-enddef
-def TwoArgs(x: bool, y: bool)
-enddef
-var l: list<func(bool, bool, bool)> = [OneArg, TwoArgs]
-```
-    no error
-
-IMO, Vim should complain as soon as it sees that one of the funcref has more or less arguments than what is declared:
-
-    E1012: Type mismatch; expected list<func(bool, bool, bool)> but got list<func(...)>
-
-And to fix this error, we should have to write `func` (without parens):
-
-    var l: list<func> = [OneArg, TwoArgs]
-                ^--^
-
-Because there is currently no specification which can match funcrefs with different numbers of arguments.
-IOW, the only acceptable solution is to not specify anything.  Besides, in its current state, the previous code is misleading:
-
-    var l: list<func(bool, bool, bool)> = [OneArg, TwoArgs]
-                ^-------------------^
-
-When we read it, we might wrongly think that all the funcrefs respect the specification.  We currently have no such guarantee, because Vim doesn't give any error when the
-funcrefs have different numbers of arguments.
-
-In the future, if this syntax gets implemented:
-
-   > These types can be used in declarations, but no value will have this type:
-   >         {type}|{type}  {not implemented yet}
-
-Then, we could also write:
-
-    var l: list<func(job)|func(job, job)> = [OneArg, TwoArgs]
-
-Although, it could quickly get too cumbersome to read/write.
-
-In any case, if this is working as intended, maybe it should be documented.
-
----
-
-Note that currently, during a simple funcref assignment, Vim does check that the number of arguments matches:
-```vim
-vim9script
-def Func(b: bool, _)
-enddef
-var Ref: func(bool) = Func
-```
-    E1012: Type mismatch; expected func(bool) but got func(bool, unknown)
-```vim
-vim9script
-var Ref: func(bool): number = (_, _) => 0
-```
-    E1012: Type mismatch; expected func(bool): number but got func(any, any): number
-
-In both cases, Vim complains because the funcref expects 2 arguments, while we declared only one (in the variable type).
-
-IMO, this is good, but it's also inconsistent with what happens in a list/dict of funcrefs assignment.
 
 ##
 ## Vim9: wrong example for closures sharing same context
@@ -1824,6 +1570,20 @@ echo l
     []
 
 ##
+## ?
+
+<https://github.com/vim/vim/issues/8492#issuecomment-873672112>
+
+## ?
+
+<https://github.com/vim/vim/issues/8096#issuecomment-874129060>
+
+## ?
+
+Look for filter() everywhere.
+Add `: bool` back.
+Leave a comment about the issue.
+
 ## ?
 
 <https://github.com/vim/vim/issues/8456>
@@ -2159,7 +1919,7 @@ We cannot import from `$MYVIMRC`:
 
 We need to write this instead:
 
-    exe 'import Func from ' .. $MYVIMRC->string()
+    execute 'import Func from ' .. $MYVIMRC->string()
 
 Which looks awkward.
 
@@ -2259,8 +2019,8 @@ Mini vimrc:
     END
     writefile(lines, $HOME .. '/vim-bug/ultisnips/pythonx/UltiSnips/snippet_manager.py')
 
-    sil e /tmp/file
-    sp
+    silent edit /tmp/file
+    split
 
 Start Vim like this:
 
@@ -3401,10 +3161,6 @@ Shouldn't Vim raise an error at compile time in the first two snippets?
 <https://github.com/vim/vim/commit/a3589a0d6cdb314e70421c0f2e5a2d1abf68e597>
 
 Try to add types in our for loops; at least when it makes sense.
-
----
-
-Also, consider removing our guards in autoload scripts; they should not be needed anymore.
 
 ## ?
 
@@ -4703,7 +4459,7 @@ string or a funcref; not a number.
 
 ---
 
-Is it related to this todo item:
+Is it related to this todo item?
 
    > - Check many more builtin function arguments at compile time.
 
@@ -4871,6 +4627,21 @@ See `vim-man`:
 This looks a bit awkward (the fact that `char` is written twice...).
 Also, this locking doesn't exist in lua.
 Does it exist in typescript?
+
+---
+
+Note that if  you iterate over a  list of dictionaries, you can  still make them
+mutate:
+```vim
+vim9script
+var l = [{key: 0}]
+for d in l
+    ++d.key
+endfor
+echo l
+```
+    [{'key': 1}]
+             ^
 
 ## ?
 ```vim

@@ -93,6 +93,9 @@ var funcnames =<< trim END
     get
     index
     isdirectory
+    items
+    join
+    keys
     match
     matchend
     remove
@@ -100,6 +103,7 @@ var funcnames =<< trim END
     stridx
     string
     tolower
+    values
 END
 @+ = '\C\%(->\)\@2<!\<\%(' .. funcnames->join('\|') ..  '\)('
 echo @+
