@@ -1213,6 +1213,27 @@ was defined on line 5.
 ### ?
 ```vim
 vim9script
+def Func()
+    eval 1 + 0
+    eval 2 + 0
+    eval 3 + 0
+    timer_start(0, (_) => {
+        echo 'message'
+    )
+enddef
+Func()
+```
+    Error detected while processing command line..script /proc/42151/fd/17:
+    line    2:
+    E1171: Missing } after inline function
+
+Maybe the error should be raised from the function, rather than from the script.
+Unless the error prevents Vim from finding `:enddef`...
+But even then, it would help if the line address was closer to the issue (6 or 8).
+
+### ?
+```vim
+vim9script
 writefile(['compiler shellcheck'], '/tmp/t.vim')
 silent edit /tmp/t.vim
 source %
@@ -1571,18 +1592,107 @@ echo l
 
 ##
 ## ?
+```vim
+vim9script
+def Func()
+    if 3 || true
+        echo 'true'
+    endif
+enddef
+defcompile
+```
+    no error
+```vim
+vim9script
+def Func()
+    if 3 && true
+        echo 'true'
+    endif
+enddef
+defcompile
+```
+    no error
+```vim
+vim9script
+def Func()
+    if 3
+        echo 'true'
+    endif
+enddef
+defcompile
+```
+    E1023: Using a Number as a Bool: 3
 
-<https://github.com/vim/vim/issues/8492#issuecomment-873672112>
+Shouldn't Vim raise an error at compile time in the first two snippets?
+
+## ?
+```vim
+vim9script
+def Func()
+   echo ((a) => a)('bb', 'cc')
+enddef
+Func()
+```
+    E118: Too many arguments for function: ((a) => a)('bb', 'cc')
+```vim
+vim9script
+def Func()
+   echo 'bb'->((a) => a)('cc')
+enddef
+Func()
+```
+    E118: Too many arguments for function: [expression]
+
+`[expression]` is useless and inconsistent.
+
+A similar issue was fixed in 8.2.1915.
+
+---
+```vim
+vim9script
+echo ((a) => a)('bb', 'cc')
+```
+    E118: Too many arguments for function: <lambda>1
+```vim
+vim9script
+echo 'bb'->((a) => a)('cc')
+```
+    E118: Too many arguments for function: <lambda>1
+
+This is inconsistent with what happens in compiled code.
+
+##
+## ?
+```vim
+vim9script
+def Func(l: any)
+    eval l[0] > 1 ? 2 : l[1]
+enddef
+Func(['', ''])
+```
+    E1030: Using a String as a Number: ""
+
+Expected error, but the message could be better.
+There are several operations going on here:
+
+    eval l[0] > 1 ? 2 : l[1]
+          ^^^ ^   ^   ^  ^^^
+
+It might not be obvious which one expects a number instead of a string.
+```vim
+vim9script
+def Func()
+    eval '' > 1
+enddef
+Func()
+```
+    E1072: Cannot compare string with number
+
+This message is better, because we immediately know that the issue comes from `>`.
 
 ## ?
 
-<https://github.com/vim/vim/issues/8096#issuecomment-874129060>
-
-## ?
-
-Look for filter() everywhere.
-Add `: bool` back.
-Leave a comment about the issue.
+Check whether `typename()` returns a good signature for all builtin functions.
 
 ## ?
 
@@ -1843,18 +1953,6 @@ sil! s/nowhere//
 ## ?
 ```vim
 vim9script
-append('0', 'text')
-```
-    no error
-    nothing appended
-
-A  type  mismatch error  should  have  been raised.   Only  a  number should  be
-accepted;  as well  as the  few string  expressions documented  at `:h  line()`.
-`'0'` is not one of them.  Same issue in compiled code.
-
-## ?
-```vim
-vim9script
 def Func()
     eval [][0]
 enddef
@@ -1912,33 +2010,6 @@ Write()
     $ ls | grep core
 
 ## ?
-
-We cannot import from `$MYVIMRC`:
-
-    import Func from $MYVIMRC
-
-We need to write this instead:
-
-    execute 'import Func from ' .. $MYVIMRC->string()
-
-Which looks awkward.
-
-Could `:import` evaluate environment variables?
-
----
-
-And could it evaluate expressions?  Like this one:
-
-    import Func from $HOME .. '/some/path'
-
-## ?
-
-Refactor `:MatchparenOn`, `:MatchparenOff`, `:MatchparenToggle`
-into `:Matchparen -on`, `:Matchparen -off`, `:Matchparen -toggle`.
-
-Update the doc.
-
-## ?
 ```vim
 vim9script
 def Func()
@@ -1976,57 +2047,6 @@ searchpairpos('(', '', ')', 'nW', '[0]->map(''synIDattr(v:val, "name")'')->filte
 The issue is caused by `map()` which must be replaced with `mapnew()`.
 But it's not easy to understand where the error is coming from.
 Could we get more context?
-
-## ?
-
-Mini vimrc:
-
-    vim9script
-
-    set rtp^=~/vim-bug/ultisnips/
-    mkdir($HOME .. '/vim-bug/ultisnips/plugin', 'p')
-    mkdir($HOME .. '/vim-bug/ultisnips/autoload', 'p')
-    mkdir($HOME .. '/vim-bug/ultisnips/pythonx/UltiSnips', 'p')
-
-    var lines =<< trim END
-        au TextChangedI * call UltiSnips#TrackChange()
-    END
-    writefile(lines, $HOME .. '/vim-bug/ultisnips/plugin/UltiSnips.vim')
-
-    lines =<< trim END
-        py3 from UltiSnips import UltiSnips_Manager
-        fu UltiSnips#TrackChange()
-            py3 UltiSnips_Manager._track_change()
-        endfu
-    END
-    writefile(lines, $HOME .. '/vim-bug/ultisnips/autoload/UltiSnips.vim')
-
-    lines =<< trim END
-        #!/usr/bin/env python3
-        from UltiSnips.snippet_manager import UltiSnips_Manager
-    END
-    writefile(lines, $HOME .. '/vim-bug/ultisnips/pythonx/UltiSnips/__init__.py')
-
-    lines =<< trim END
-        #!/usr/bin/env python3
-
-        class SnippetManager:
-            def __init__(self):
-                pass
-            def _track_change(self):
-                pass
-        UltiSnips_Manager = SnippetManager()
-    END
-    writefile(lines, $HOME .. '/vim-bug/ultisnips/pythonx/UltiSnips/snippet_manager.py')
-
-    silent edit /tmp/file
-    split
-
-Start Vim like this:
-
-    vim -Nu /tmp/t.vim
-
-Modify the file, then press `ZZ` twice: asan reports memory leaks.
 
 ## ?
 
@@ -3123,46 +3143,6 @@ FuncWithForwardCall()
 
 ##
 ## ?
-```vim
-vim9script
-def Func()
-    if 3 || true
-        echo 'true'
-    endif
-enddef
-defcompile
-```
-    no error
-```vim
-vim9script
-def Func()
-    if 3 && true
-        echo 'true'
-    endif
-enddef
-defcompile
-```
-    no error
-```vim
-vim9script
-def Func()
-    if 3
-        echo 'true'
-    endif
-enddef
-defcompile
-```
-    E1023: Using a Number as a Bool: 3
-
-Shouldn't Vim raise an error at compile time in the first two snippets?
-
-## ?
-
-<https://github.com/vim/vim/commit/a3589a0d6cdb314e70421c0f2e5a2d1abf68e597>
-
-Try to add types in our for loops; at least when it makes sense.
-
-## ?
 
 To document.
 ```vim
@@ -3896,45 +3876,6 @@ dictionary whose key names are dynamic.
 ##
 ## ?
 ```vim
-nno <expr> <c-b> Map()
-
-def Map()
-    A()
-    return ''
-enddef
-
-def A()
-    invalid
-enddef
-
-call feedkeys("\<C-b>")
-```
-    E476: Invalid command: invalid
-
-`E476` is correctly raised at compile time.
-But why doesn't Vim raise any error for the missing return type in `Map()`'s header?
-
-    E1096: Returning a value in a function without a return type
-
----
-```vim
-def Map()
-    A()
-    return ''
-enddef
-
-def A()
-    invalid
-enddef
-defcompile
-```
-    E476: Invalid command: invalid
-    E1096: Returning a value in a function without a return type
-
-This time, both errors are correctly raised.
-But why doesn't Vim raise `E1096` in the first snippet?
-It's not because of the `<expr>` argument:
-```vim
 vim9script
 
 def Map()
@@ -3949,77 +3890,7 @@ enddef
 defcompile
 ```
     E476: Invalid command: invalid
-    E1096: Returning a value in a function without a return type
-
-Update:  You assume that `E1096` should be raised.
-What if it's the other way around?  Maybe, it should *not* be raised.
-Maybe Vim should stop the compilation as soon as an error is raised.
-```vim
-vim9script
-
-def Func()
-    invalid
-    return ''
-enddef
-
-defcompile
-```
-    E476: Invalid command: invalid
-
-In this simpler example, only `E476` is raised.
-
-If that's the case, then you must find out why `E1096` is raised here:
-```vim
-def Map()
-    A()
-    return ''
-enddef
-
-def A()
-    invalid
-enddef
-defcompile
-```
-    E476: Invalid command: invalid
-    E1096: Returning a value in a function without a return type
-
-Update:  Maybe you have 2 errors, because you have 2 functions.
-If you refactor the code to get only 1 function, then you only get 1 error.
-But if  that's the case, then  why do we get  only 1 error here,  even though we
-have 2 functions:
-```vim
-vim9script
-
-def Map()
-    A()
-    return ''
-enddef
-
-def A()
-    invalid
-enddef
-
-Map()
-```
-    E476: Invalid command: invalid
-
-## ?
-```vim
-vim9script
-
-def Map()
-    A()
-    return ''
-enddef
-
-def A()
-    invalid
-enddef
-
-defcompile
-```
-    E476: Invalid command: invalid
-    E1096: Returning a value in a function without a return type
+    E1191: Call to function that failed to compile: <SNR>1_A
 ```vim
 vim9script
 
@@ -4036,62 +3907,9 @@ defcompile
 ```
     E476: Invalid command: invalid
 
-Why isn't `E1096` raised in the second snippet?
+Why isn't `E1191` raised in the second snippet?
 The code is identical; the only difference is that `A()` has been renamed into `B()`.
 Same results if you rename `Map()` into `Func()`.
-
-## ?
-```vim
-vim9script
-
-def Map()
-    A()
-    return ''
-enddef
-
-def A()
-    invalid
-enddef
-
-defcompile
-```
-    E476: Invalid command: invalid
-    E1096: Returning a value in a function without a return type
-```vim
-vim9script
-
-def Map()
-    invalid
-    return ''
-enddef
-
-defcompile
-```
-    E476: Invalid command: invalid
-
-Why is `E1096` raised in the first snippet, but not in the second one?
-
-## ?
-```vim
-nno <expr> <c-b> Map()
-
-def Map()
-    A()
-    B()
-    return ''
-enddef
-
-def A()
-    invalid
-enddef
-
-def B()
-    echom 'still running'
-enddef
-
-call feedkeys("\<C-b>")
-```
-Why doesn't Vim print `still running` after we press Enter?
 
 ##
 ## ?
@@ -4411,31 +4229,6 @@ Make sure to also generate snippets to test builtin functions at the script leve
 ## ?
 ```vim
 vim9script
-echo (s) => strlen(s)('string')
-```
-    E1085: Not a callable type: strlen(s)('string')
-```vim
-vim9script
-echo 'string'->(s) => strlen(s)()
-```
-    E121: Undefined variable: s
-```vim
-vim9script
-echo ((s) => strlen(s))('string')
-```
-    6
-```vim
-vim9script
-echo 'string'->((s) => strlen(s))()
-```
-    6
-
-Notice how  we need  extra parens around  the lambda's body  when using  the new
-syntax.  It seems obvious, but I don't think it's documented.
-
-## ?
-```vim
-vim9script
 var l = [1, 2, 3]
 l->map(4)
 echo l
@@ -4523,42 +4316,6 @@ This would be more readable:
 This would also be more consistent with other error messages.
 I think `E1004` is the only one which uses quotes to separate the context from the error.
 I think all the other ones use a colon.
-
-## ?
-```vim
-vim9script
-def Func()
-   echo ((a) => a)('bb', 'cc')
-enddef
-Func()
-```
-    E118: Too many arguments for function: ((a) => a)('bb', 'cc')
-```vim
-vim9script
-def Func()
-   echo 'bb'->((a) => a)('cc')
-enddef
-Func()
-```
-    E118: Too many arguments for function: [expression]
-
-`[expression]` is useless and inconsistent.
-
-A similar issue was fixed in 8.2.1915.
-
----
-```vim
-vim9script
-echo ((a) => a)('bb', 'cc')
-```
-    E118: Too many arguments for function: <lambda>1
-```vim
-vim9script
-echo 'bb'->((a) => a)('cc')
-```
-    E118: Too many arguments for function: <lambda>1
-
-This is inconsistent with what happens in compiled code.
 
 ## ?
 
@@ -4740,6 +4497,23 @@ Should we add help tags for the Vim9 "commands" `:{` and `:}`?
 ## ?
 ```vim
 vim9script
+{
+    a: 1,
+    b: 2
+}->setline(1)
+```
+    E121: Undefined variable: a:
+
+Confusing.  Could  Vim check whether  there is  a method call  afterward, before
+parsing `{}` as a block?
+
+Yes, it would be  an extra rule to implement, but the block  syntax is already a
+corner case in itself (rarely useful); adding a rule on top of that would not be
+a big deal, right?
+
+## ?
+```vim
+vim9script
 var d = {
     a-b: 123
 }
@@ -4909,7 +4683,7 @@ Not sure to understand.
 Does it mean that a function name must be followed by a paren?
 Or that alternatively, it must be followed by `->`?
 (but in this case, it's not a function name; it's a funcref)
-```
+
 ### 420
 
 I would rewrite this whole paragraph:
@@ -5096,48 +4870,6 @@ documented at `:h vim9-gotchas`.
 Btw, the leading `<` is missing because it was parsed as the `:<` Ex command; as
 a result, the rest of the line is parsed as an argument, but `:<` doesn't accept
 this kind of argument (only a number).
-
----
-
-Also, I would add something about `!`.
-```vim
-vim9script
-def Func()
-    # do sth
-    return 123
-enddef
-!Func()
-```
-    zsh: parse error near `()'
-
-    shell returned 1
-
-I think it's a good decision that Vim still parses `!` as in legacy, because:
-
-   - it's consistent and less unexpected for someone coming from legacy
-   - you'll probably want to use `!` as the Ex command `:!` more often than as the `!` arithmetic operator
-
-However, maybe it should be documented:
-
-    !Func() # Error!
-    eval !Func() # OK
-
-Update: Not sure it's a good idea that `!` is parsed as `:!`.
-I mean, `!` is now ambiguous.  And ambiguity is bad.
-
-Here's what the help says about ambiguity:
-
-   > In the rare case there is ambiguity between a function name and an Ex command,
-   > prepend ":" to make clear you want to use the Ex command.  For example, there
-   > is both the `:substitute` command and the `substitute()` function.  When the
-   > line starts with `substitute(` this will use the function. Prepend a colon to
-   > use the command instead: >
-   >         :substitute(pattern (replacement (
-
-Maybe we should do the same for `!`.  If you really want the Ex command, prepend a colon.
-
-Some data point: out of the 1473 `:def` functions in my config, only 8 contain a
-line starting with a bang.  Out of those 8 lines, only 1 is the Ex command `:!`.
 
 ### 881
 
@@ -5540,70 +5272,14 @@ Is it documented or is it a bug?
 
 ##
 # Misc.
-## highlighting
-### ?
+## ?
+```vim
+legacy let name = [] + + []
+```
+    E745: Using a List as a Number
 
-    fu Func()
-        try
-        catch /wont match anything/
-        endtry
-    endfu
+Confusing message.
 
-Starting from `match`, everything is wrongly highlighted up to the end of the file.
-
-Update: I'm not sure how to reproduce this issue.
-However, I remember a similar issue with an unclosed paren:
-
-    fu Func()
-        try
-        catch /wont match ( anything/
-        endtry
-        " this is wrongly highlighted
-    endfu
-
-This is part of a more general issue.
-I think any pattern should be highlighted as a string.
-This includes the pattern passed to `:catch`, `:vimgrep`, ...
-
-Update: We've fixed the issue for `:catch`, but not for `:vimgrep`.
-Look for  `{pattern}` everywhere in  the help files  to find all  commands which
-would need such a highlighting.
-Also, try to mimic the rules for `vimGlobal`.
-
-### ?
-
-In a command definition, the command name is not highlighted correctly.
-It should be  highlighted with `vimUserCommandName`, just like when  the name is
-used to execute the command.
-
-    com -nargs=1 Cmd eval 0
-                 ^^^
-                  ✘
-
-    Cmd 123
-    ^^^
-     ✔
-
----
-
-Same issue with any command expecting another command as argument:
-
-     g/pat/Cmd
-     au CursorHold * Cmd
-     windo Cmd
-
----
-
-I think the issue is too complex for a simple regex.
-Instead, try to highlight anything as a command by default; and inside a command
-match/region, define a nested match/region which checks whether the command name
-starts with an uppercase; if it does, highlight it as a custom command.
-
-I think this implies that we should better highlight variable names.
-It should  be easier than  commands, because  variables should be  surrounded by
-some known operator(s) which we can use as heuristics inside lookarounds.
-
-##
 ## ?
 
 Stale todo item:
@@ -5628,7 +5304,7 @@ From `:h matchlist()`:
 
 ## ?
 
-    $ cd /tmp && MANPAGER='vim -Nu NONE +"set wic" -' man man
+    $ cd /tmp && MANPAGER='vim -Nu NONE +"set wildignorecase" -' man man
     :find *
     # press Tab
 
@@ -5728,96 +5404,6 @@ See here:
 
 But it hasn't been merged in Vim yet.
 When it's done, leave a comment on #6777.
-
-## ?
-
-Since this commit, the matchparen plugin  has a `WinLeave` autocmd which removes
-matches when leaving a window:
-<https://github.com/vim/vim/commit/73fef33014dbf21fc59e7e47fb091117868d82fb>
-
-So, does it still make sense for the plugin to execute `:windo`?
-If it does:
-
-   - shouldn't we also use `:tabdo`?
-   - we should replace `:windo` (+ `:tabdo`) with `win_execute()` for fewer
-     side-effects (especially to avoid unminimizing squased windows):
-
-         :call getwininfo()->map({_, v -> win_execute(v.winid, 'silent! call matchdelete(3)')})
-
----
-```diff
-diff --git a/runtime/plugin/matchparen.vim b/runtime/plugin/matchparen.vim
-index 162430ecd..e48c5a318 100644
---- a/runtime/plugin/matchparen.vim
-+++ b/runtime/plugin/matchparen.vim
-@@ -202,22 +202,18 @@ endfunc
-
-
- " Define commands that will disable and enable the plugin.
--command DoMatchParen call s:DoMatchParen()
--command NoMatchParen call s:NoMatchParen()
-+command -bar DoMatchParen call s:DoMatchParen()
-+command -bar NoMatchParen call s:NoMatchParen()
-
- func s:NoMatchParen()
--  let w = winnr()
--  noau windo silent! call matchdelete(3)
-+  call getwininfo()->map({_, v -> win_execute(v.winid, 'silent! call matchdelete(3)')})
-   unlet! g:loaded_matchparen
--  exe "noau ". w . "wincmd w"
-   au! matchparen
- endfunc
-
- func s:DoMatchParen()
-   runtime plugin/matchparen.vim
--  let w = winnr()
--  silent windo doau CursorMoved
--  exe "noau ". w . "wincmd w"
-+  call getwininfo()->map({_, v -> win_execute(v.winid, 'doau CursorMoved')})
- endfunc
-
- let &cpo = s:cpo_save
-```
-Or:
-```diff
-diff --git a/runtime/plugin/matchparen.vim b/runtime/plugin/matchparen.vim
-index 162430ecd..b33fbd600 100644
---- a/runtime/plugin/matchparen.vim
-+++ b/runtime/plugin/matchparen.vim
-@@ -202,22 +202,18 @@ endfunc
-
-
- " Define commands that will disable and enable the plugin.
--command DoMatchParen call s:DoMatchParen()
--command NoMatchParen call s:NoMatchParen()
-+command -bar DoMatchParen call s:DoMatchParen()
-+command -bar NoMatchParen call s:NoMatchParen()
-
- func s:NoMatchParen()
--  let w = winnr()
--  noau windo silent! call matchdelete(3)
-+  silent! call matchdelete(3)
-   unlet! g:loaded_matchparen
--  exe "noau ". w . "wincmd w"
-   au! matchparen
- endfunc
-
- func s:DoMatchParen()
-   runtime plugin/matchparen.vim
--  let w = winnr()
--  silent windo doau CursorMoved
--  exe "noau ". w . "wincmd w"
-+  doau CursorMoved
- endfunc
-
- let &cpo = s:cpo_save
-```
-
----
-
-Btw, why `:silent` before `:windo doau CursorMoved`?
-It comes from this commit:
-<https://github.com/vim/vim/commit/01164a6546b4c635daf96a1f17d1cb2d07f32a66>
 
 ## searchcount() can make Vim lag when the buffer contains a very long line
 
@@ -5954,14 +5540,14 @@ As a workaround, you can use a custom filter:
         \ firstline: 1,
         \ })
 
-    fu MyMenuFilter(id, key)
+    function MyMenuFilter(id, key)
         if a:key == 'j'
             call win_execute(a:id, 'norm! j')
             call popup_setoptions(a:id, #{firstline: 0})
             return 1
         endif
         return popup_filter_menu(a:id, a:key)
-    endfu
+    endfunction
 
 It looks  like a bug.   If a custom  filter can make  Vim scroll a  popup window
 whose height  is `&lines`,  the builtin filter  should be able  to do  the same.

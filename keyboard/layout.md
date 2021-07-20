@@ -1068,7 +1068,111 @@ See: <https://github.com/oblitum/caps2esc/issues/1>
 
     $ systemctl status udevmon
 
-Update: We've written a first version of `enter2ctrl`.
+Update: We've written a first version of `enter2ctrl`:
+
+    #include <stdio.h>
+    #include <stdlib.h>
+
+    #include <unistd.h>
+    #include <linux/input.h>
+
+    const struct input_event
+    enter_up     = {.type = EV_KEY, .code = KEY_ENTER,     .value = 0},
+    ctrl_up      = {.type = EV_KEY, .code = KEY_RIGHTCTRL, .value = 0},
+    enter_down   = {.type = EV_KEY, .code = KEY_ENTER,     .value = 1},
+    ctrl_down    = {.type = EV_KEY, .code = KEY_RIGHTCTRL, .value = 1},
+    enter_repeat = {.type = EV_KEY, .code = KEY_ENTER,     .value = 2},
+    ctrl_repeat  = {.type = EV_KEY, .code = KEY_RIGHTCTRL, .value = 2},
+    syn          = {.type = EV_SYN, .code = SYN_REPORT,    .value = 0};
+
+    int equal(const struct input_event *first, const struct input_event *second) {
+        return first->type == second->type && first->code == second->code &&
+               first->value == second->value;
+    }
+
+    int read_event(struct input_event *event) {
+        return fread(event, sizeof(struct input_event), 1, stdin) == 1;
+    }
+
+    void write_event(const struct input_event *event) {
+        if (fwrite(event, sizeof(struct input_event), 1, stdout) != 1)
+            exit(EXIT_FAILURE);
+    }
+
+    int main(void) {
+        int enter_is_ctrl = 0;
+        struct input_event input, key_down, key_up, key_repeat;
+        enum { START, ENTER_HELD, KEY_HELD } state = START;
+
+        setbuf(stdin, NULL), setbuf(stdout, NULL);
+
+        while (read_event(&input)) {
+            if (input.type == EV_MSC && input.code == MSC_SCAN)
+                continue;
+
+            if (input.type != EV_KEY) {
+                write_event(&input);
+                continue;
+            }
+
+            switch (state) {
+                case START:
+                    if (enter_is_ctrl) {
+                        if (input.code == KEY_ENTER) {
+                            input.code = KEY_RIGHTCTRL;
+                            if (input.value == 0)
+                                enter_is_ctrl = 0;
+                        }
+                        write_event(&input);
+                    } else {
+                        if (equal(&input, &enter_down) ||
+                            equal(&input, &enter_repeat)) {
+                            state = ENTER_HELD;
+                        } else {
+                            write_event(&input);
+                        }
+                    }
+                    break;
+                case ENTER_HELD:
+                    if (equal(&input, &enter_down) || equal(&input, &enter_repeat))
+                        break;
+                    if (input.value != 1) {
+                        write_event(&enter_down);
+                        write_event(&syn);
+                        usleep(20000);
+                        write_event(&input);
+                        state = START;
+                    } else {
+                        key_down = key_up = key_repeat = input;
+
+                        key_up.value     = 0;
+                        key_repeat.value = 2;
+                        state            = KEY_HELD;
+                    }
+                    break;
+                case KEY_HELD:
+                    if (equal(&input, &enter_down) || equal(&input, &enter_repeat))
+                        break;
+                    if (equal(&input, &key_down) || equal(&input, &key_repeat))
+                        break;
+                    if (!equal(&input, &enter_up)) {
+                        write_event(&ctrl_down);
+                        enter_is_ctrl = 1;
+                    } else {
+                        write_event(&enter_down);
+                    }
+                    write_event(&syn);
+                    usleep(20000);
+                    write_event(&key_down);
+                    write_event(&syn);
+                    usleep(20000);
+                    write_event(&input);
+                    state = START;
+                    break;
+            }
+        }
+    }
+
 But there are 2 issues.
 
 First, when  pressing `C-x`, `Ctrl`  and `x` must be  pressed in a  too specific

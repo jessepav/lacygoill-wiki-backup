@@ -689,28 +689,6 @@ non-existant) palette.
 
 ## ?
 
-If we do:
-
-:colo elflord
-:colo seoul256
-
-The `Identifier` HG becomes bold.
-As a result, variable names in VimL are bold.
-It has nothing to do with our color scheme customizations.
-It has nothing to do with seoul256.
-
-I think it has to do with `$VIMRUNTIME/syntax/syncolor.vim:37`.
-
-We can get back a normal `Identifier` HG, by reloading seoul256:
-
-:colo elflord
-:colo seoul256
-:colo seoul256
-
-Understand what happens.
-
-## ?
-
 Document that it  seems that the special  color value `bg` is  only available if
 the Normal HG has its `ctermbg` attribute set.
 It's probably  the same thing  for `fg`: the Normal  HG must have  its `ctermfg`
@@ -757,6 +735,13 @@ the other ones.
     SpecialKey     xxx term=bold ctermfg=145 guifg=#121212˜
                        ^-------------------^
                        did not change
+
+That's because Vim doesn't clear existing attributes.
+It merges them.
+From `:help :highlight-verbose` (right above):
+
+   > Note that all settings that are not included remain the same, only the
+   > specified field is used, and **settings are merged with previous ones**.
 
 ## 'bg'
 
@@ -813,7 +798,7 @@ template to create own color scheme:
     endif
 
     set background=dark
-    hi clear
+    highlight clear
 
     if exists('syntax_on')
       syntax reset
@@ -823,11 +808,11 @@ template to create own color scheme:
 
 
     {{ rules }}
-    hi HG ctermfg=...
+    highlight HG ctermfg=...
     ...
 
     {{ links }}
-    hi! link HG1 HG2
+    highlight! link HG1 HG2
     ...
 
 
@@ -837,7 +822,7 @@ To customize an existing one:
     $ cat <<'EOF' >~/.vim/colors/test.vim
     runtime colors/evening.vim
     let g:colors_name = 'mine'
-    hi ...
+    highlight ...
     ...
     EOF
 

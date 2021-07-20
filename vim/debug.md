@@ -1363,7 +1363,7 @@ there are various things that may clobber the results:
 If  your Vim  is  slow, but  you  don't know  exactly  which function/plugin  is
 responsible, you can still use `:prof` to find it out:
 
-    :prof start profile.log
+    :prof start /tmp/profile.log
     :prof func *
     :prof file *
     " At this point do slow actions

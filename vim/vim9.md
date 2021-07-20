@@ -647,17 +647,41 @@ echo s:person.info()
 In Vim9, the same code can be rewritten like this:
 ```vim
 vim9script
-var person: dict<any> = {name: 'john', profession: 'teacher'}
 def DictPersonInfo(self: dict<any>): string
     return printf('%s is a %s', self.name, self.profession)
 enddef
-person = person->extendnew({info: DictPersonInfo})
+var person: dict<any> = {
+    name: 'john',
+    profession: 'teacher',
+    info: DictPersonInfo
+}
 echo person.info(person)
 ```
     john is a teacher
 
 See `:h vim9-differences /dict function`.
 
+---
+
+To avoid having to manually pass the dictionary in every call, which might look awkward:
+
+    echo person.info(person)
+         ^----^      ^----^
+         the "person" object is written twice
+
+You can bind it to the function via a partial:
+```vim
+vim9script
+def DictPersonInfo(self: dict<any>): string
+    return printf('%s is a %s', self.name, self.profession)
+enddef
+var person: dict<any> = {
+    name: 'john',
+    profession: 'teacher'
+}
+person.info = function(DictPersonInfo, [person])
+echo person.info()
+```
 ##
 # type checking
 ## What is it?
