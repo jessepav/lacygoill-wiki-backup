@@ -1,3 +1,13 @@
+// Purpose: showing how to write a simple program
+// Input: none
+// Output:
+// To C, or not to C: that is the question.
+// Brevity is the soul of wit.
+// --Shakespeare
+// Usage: `pun`
+// Reproduction: `$ gcc pun.c -o build/pun -Wall && ./build/pun`
+// Reference: page 9
+
 // directive to include C's standard I/O library.
 #include <stdio.h>
 //       ├───────┘

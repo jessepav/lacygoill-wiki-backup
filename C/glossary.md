@@ -103,8 +103,8 @@ It makes the code more readable:
     if (password_size > 7)
         ...
 
-                            ┌ constant
-                            │
+            constant
+        v---------------v
     int MAX_PASSWORD_SIZE = 7;
     if (password_size > MAX_PASSWORD_SIZE)
         ...

@@ -1,69 +1,3 @@
-# ?
-
-The term floating point refers to the fact that a number's binary point (decimal
-point for a computer)  can “float”; that is, it can  be placed anywhere relative
-to the significant digits of the number.
-
-This position is indicated as the exponent component.
-
-<https://en.wikipedia.org/wiki/Floating-point_arithmetic>
-
----
-
-The integer types aren't suitable for all applications.
-Sometimes we'll  need variables  that can  store numbers  with digits  after the
-decimal point, or numbers that are exceedingly large or small.
-Numbers like  these are stored in  floating-point format.
-C provides three floating types, corresponding to different floating-point formats:
-
-    ┌─────────────┬───────────────────────────────────┐
-    │ float       │ Single-precision floating-point   │
-    ├─────────────┼───────────────────────────────────┤
-    │ double      │ Double-precision floating-point   │
-    ├─────────────┼───────────────────────────────────┤
-    │ long double │ Extended-precision floating-point │
-    └─────────────┴───────────────────────────────────┘
-
-`float` is  suitable when  the amount of  precision isn't  critical (calculating
-temperatures to one decimal point, for example).
-`double` provides greater precision – enough for most programs.
-`long double` provides even more precision, but is rarely used.
-
-The C standard doesn't state how much precision the `float`, `double`, and `long double`
-types provide,  since different  computers might  store floating-point  numbers in
-different ways.
-
-Most modern computers follow the specifications in IEEE Standard 754.
-It provides two primary formats  for floating-point numbers:
-single precision (32 bits) and double precision (64 bits).
-Numbers are  stored in a  form of scientific  notation, with each  number having
-three parts: a **sign**, an **exponent**, and a **fraction**.
-The number  of bits reserved  for the exponent  determines how large  (or small)
-numbers  can  be, while  the  number  of bits  in  the  fraction determines  the
-precision.
-In single-precision  format, the  exponent is  8 bits  long, while  the fraction
-occupies 23 bits.
-As a  result, a  single-precision number  has a  maximum value  of approximately
-`3.40 x 10^38`, with a precision of about 6 decimal digits.
-
-The standard doesn't specify the number of bits in these formats, although it requires
-that the single extended type occupy at least 43 bits
-
----
-
-By default, floating constants are stored as double-precision numbers.
-IOW, when a C  compiler finds the constant `57.0` in a  program, it arranges for
-the number to be stored in memory in the same format as a `double` variable.
-This  rule generally  causes no  problems, since  `double` values  are converted
-automatically to `float` when necessary.
-
-On occasion,  it might be  necessary to force the  compiler to store  a floating
-constant in `float` or `long double` format.
-To indicate that only single precision is  desired, put the letter `F` or `f` at
-the end of the constant; for example, `57.0F`.
-To indicate that  a constant should be  stored in `long double`  format, put the
-letter `L` or `l` at the end (`57.0L`).
-
 # What are the three steps which must be done before a source code file can be run?
 
    1. preprocessing
@@ -134,6 +68,21 @@ into errors:
 
 ##
 # Syntax
+## How to declare a variable?
+
+Specify its type then its name:
+
+    int height;
+    float profit;
+
+## How to declare several variables of the same type?
+
+Combine their declarations on a single line, and separate their names with commas:
+
+    int height, length, width, volume;
+    float profit, loss;
+
+##
 ## Why does C require that a statement end with a semicolon?
 
 Since statements can continue over several  lines, it's not always obvious where
@@ -151,21 +100,6 @@ It tells the preprocessor to include information about C's standard I/O library.
 ### What's the name of `<stdio.h>`?
 
 A header.
-
-##
-## How to declare a variable?
-
-Specify its type then its name:
-
-    int height;
-    float profit;
-
-## How to declare several variables of the same type?
-
-Combine their declarations on a single line, and separate their names with commas:
-
-    int height, length, width, volume;
-    float profit, loss;
 
 ##
 ## Which influence does the type of a numeric variable have?
@@ -212,33 +146,33 @@ If you store `0.1` in a `float` variable, you might later find that the variable
 has a value such as `0.09999999999999987`, because of rounding error.
 
 ##
-## When must I separate statements from declarations?
+## When must I write declarations before statements?
 
 In (and only in) C89.
 
-So this will work in C99, but not in C89:
+So, this will work in C99, *and* in C89:
 ```c
     #include <stdio.h>
 
     int main(void) {
         int var1 = 123;
-        printf("%d\n", var1);
-
         int var2 = 456;
+
+        printf("%d\n", var1);
         printf("%d\n", var2);
 
         return 0;
     }
 ```
-While this will work in C89, *and* in C99:
+But this will work only in C99 (not in C89):
 ```c
     #include <stdio.h>
 
     int main(void) {
         int var1 = 123;
-        int var2 = 456;
-
         printf("%d\n", var1);
+
+        int var2 = 456;
         printf("%d\n", var2);
 
         return 0;
@@ -246,12 +180,13 @@ While this will work in C89, *and* in C99:
 ```
 ---
 
-This is true for functions *and* for blocks:
+This is true for in a function's body *and* in a block's body:
 ```c
     #include <stdio.h>
 
     int main(void) {
         if (1) {
+            // declarations mixed with other statements: only works in C99
             int var1 = 123;
             printf("%d\n", var1);
 
@@ -266,6 +201,7 @@ This is true for functions *and* for blocks:
 
     int main(void) {
         if (1) {
+            // declarations before other statements: works in C99 *and* in C89
             int var1 = 123;
             int var2 = 456;
 
@@ -288,7 +224,7 @@ So this will work in C99, but not in C89:
     }
 ```
 
-While this will work in C89, *and* in C99:
+While this will work in C99, *and* in C89:
 ```c
     #include <stdio.h>
 
@@ -297,6 +233,85 @@ While this will work in C89, *and* in C99:
         return 0;
     }
 ```
+##
+# Data Types
+## When is the integer type not suitable for a numeric variable?  (2)
+
+When you need a  variable that can store a number with  digits after the decimal
+point, or a number that is exceedingly large or small.
+
+##
+## floats
+### What are the 3 types of floats that C provides?
+
+    ┌─────────────┬───────────────────────────────────┐
+    │ float       │ Single-precision floating-point   │
+    ├─────────────┼───────────────────────────────────┤
+    │ double      │ Double-precision floating-point   │
+    ├─────────────┼───────────────────────────────────┤
+    │ long double │ Extended-precision floating-point │
+    └─────────────┴───────────────────────────────────┘
+
+Each of these corresponds to a different floating-point format.
+
+#### When is each of these suitable?
+
+`float` is  suitable when  the amount of  precision isn't  critical (calculating
+temperatures to one decimal point, for example).
+
+`double` provides greater precision – enough for most programs.
+
+`long double` provides even more precision, but is rarely used.
+
+#### How much precision do they provide?
+
+This is not specified by the C standard.
+That's  because  different  computers  might  store  floating-point  numbers  in
+different ways.
+
+Although, most modern computers follow the specifications in IEEE Standard 754.
+The latter provides two primary formats for floating-point numbers:
+single precision (32 bits) and double precision (64 bits).
+
+A number is stored in a form of scientific notation, with three parts:
+
+   - a sign
+   - an exponent
+   - a fraction
+
+The number  of bits reserved  for the exponent  determines how large  (or small)
+numbers  can  be, while  the  number  of bits  in  the  fraction determines  the
+precision.
+In single-precision  format, the  exponent is  8 bits  long, while  the fraction
+occupies 23 bits.
+As a  result, a  single-precision number  has a  maximum value  of approximately
+`3.40 x 10^38`, with a precision of about 6 decimal digits.
+
+####
+### If a C compiler finds the floating constant `12.34`, how is it stored in memory?
+
+Like a double-precision float.
+
+This  doesn't  cause   any  problem  because  a  `double`   value  is  converted
+automatically to `float` when necessary.
+
+#### How to force the compiler to use a different floating-point format?
+
+For single precision, put the letter `F` or  `f` at the end of the constant; for
+example, `12.34F`.
+
+For extended-precision, put the letter `L` or `l` at the end (`12.34L`).
+
+###
+### Where does the term "float" come from?
+
+A number's binary point (decimal point for  a computer) can "float"; that is, it
+can be placed anywhere relative to the significant digits of the number.
+
+This position is indicated as the exponent component.
+
+<https://en.wikipedia.org/wiki/Floating-point_arithmetic>
+
 ##
 # Resources
 ## Programs and answers

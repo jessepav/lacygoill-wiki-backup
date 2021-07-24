@@ -14,7 +14,7 @@ first 128 of these bitstrings.
 Any bitstring  whose length  is 3 (because  `2^3 = 8`),  that is  the bitstrings
 `000` through `111`.
 
-### the hexadecimal symbols 0 through F abbreviate?
+### the hexadecimal symbols 0 through F?
 
 Any bitstring  whose length is  4 (because `2^3 =  16`), that is  the bitstrings
 `0000` through `1111`.
@@ -23,16 +23,20 @@ Any bitstring  whose length is  4 (because `2^3 =  16`), that is  the bitstrings
 ## Which property is shared by
 ### all rational numbers?
 
-Their representation is always either finite or repeating.
+Their representation is always either finite:
 
-    1/7 = (0.142857142857)₁₀
+    1/2 = (0.5)₁₀
+
+or repeating:
+
+    1/7 = (0.142857142857...)₁₀
              ├────┘├────┘
              │     └ period 2
              └ period 1
 
 ### all irrational numbers?
 
-Their representation is neither finite nor repeating.
+Their representation is neither finite nor repeating:
 
     √2 = (1.414213...)₁₀
     π  = (3.141592...)₁₀
@@ -52,7 +56,7 @@ In binary, there's an infinite number of bits after the binary point:
 
 ##
 # Numeral Systems
-## On what does the Roman numeral system rely to work?  (3)
+## What does the Roman numeral system rely on to work?  (3)
 
 It uses a different **symbol for each power of 10**:
 
@@ -86,7 +90,7 @@ Calculation with pencil and paper:
     ---------
     = ???????
 
-Representation of large numbers.
+Also, representation of large numbers.
 
 ###
 ## Why is our current numeral system called positional?
@@ -159,8 +163,8 @@ You don't know how to get that, but you know how to get sth close: 32 1s.
 To get the latter, you simply need to add the number whose representation is the
 one of `x` after flipping all the bits.
 
-Now, to get from 32 1s to a one and 32 0s, all you need is to add 1.
-Similarly, to get from 999 to 1000, all you need is to add 1.
+Now, to get from 32 1s to a one and 32 0s, all you need to do is add 1.
+Similarly, to get from 999 to 1000, all you need to do is add 1.
 
 ---
 
@@ -243,43 +247,39 @@ which may then range from 0 to `2^31 − 1`.
 
 #### Why don't they use it?  (3)
 
-The 2's complement method provides three benefits:
+The 2's complement method provides three benefits.
 
-   - the addition of a negative number represented by the sign-and-modulus
-     method is more complicated, because you have to process the first bit
-     specially
+First, the  addition of  a negative number  represented by  the sign-and-modulus
+method is more complicated, because you have to process the first bit specially.
 
-   - with the sign-and-modulus method, there are two zeros (+0 and -0)
+Second, with the sign-and-modulus method, there are two zeros (+0 and -0).
+Every  application will  need to  take extra  steps to  make sure  that non-zero
+values are also not negative zero.
 
-     Every application will need to take  extra steps to make sure that non-zero
-     values are also not negative zero.
+Third, extending  the width of the  register where the negative  number is being
+stored is easier.  Compare:
 
-   - extending the width of the register where the negative number is being
-     stored is easier
+        1110 (negative two, in four bits, using the 2's complement method)
+    11111110 (negative two, in eight bits, using the 2's complement method)
 
-     Compare:
+To go from `1110`  to `11111110`, all the computer has to do  is repeat the most
+significant bit: that requires 4 operations.
 
-             1110 (negative two, in four bits, using the 2's complement method)
-         11111110 (negative two, in eight bits, using the 2's complement method)
+        1010 (negative two, in four bits, using the sign-and-modulus method)
+    10000010 (negative two, in eight bits, using the sign-and-modulus method)
 
-     To go from `1110`  to `11111110`, all the computer has to  do is repeat the
-     most significant bit: that requires 4 operations.
+This time, to  go from `1010` to  `10000010`, the computer *first*  has to clear
+the most significant bit:
 
-             1010 (negative two, in four bits, using the sign-and-modulus method)
-         10000010 (negative two, in eight bits, using the sign-and-modulus method)
+    1010
+    ↓
+    0010
 
-     This time,  to go from  `1010` to `10000010`,  the computer *first*  has to
-     clear the most  significant bit:
+Then it can  repeat 0, until the last bit  where it puts a 1 for  the sign: that
+requires 5 operations.
 
-            1010
-            ↓
-            0010
-
-     Then it can  repeat 0, until the last  bit where it puts a 1  for the sign:
-     that requires 5 operations.
-
-     The clearing of  the most significant bit is an  extra operation, for which
-     there's no equivalent in the 2's complement method.
+The  clearing of  the most  significant  bit is  an extra  operation, for  which
+there's no equivalent in the 2's complement method.
 
 <https://stackoverflow.com/a/1125317/9780968>
 
@@ -549,7 +549,7 @@ Notice that:
                                        │
       (1.11111111111111111111111)₂ × 2^127
 
-    =  (2^-23 + 2^-22 + ... + 2^0) × 2^127
+    =  (2^0 + 2^(-1) + ... + 2^(-22) + 2^(-23)) × 2^127
 
     =  2^(0+1) − 2^-23  × 2^127
        ───────────────

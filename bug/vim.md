@@ -1333,271 +1333,83 @@ defcompile
     E1012: Type mismatch; expected string but got number
 
 ##
-## Vim9: wrong example for closures sharing same context
+## Vim9: "?:" operator can suppress error at compile time
 
-The help at `:h vim9 /Limitations` says this:
+**Describe the bug**
 
-> Closures defined in a loop will share the same context.  For example: >
-> 	var flist: list<func>
-> 	for i in range(10)
-> 	  var inloop = i
-> 	  flist[i] = () => inloop
-> 	endfor
+In Vim9 script, the `?:` operator can suppress an error at compile time.
 
-> The "inloop" variable will exist only once, all closures put in the list refer
-> to the same instance, which in the end will have the value 9.  This is
-> efficient.  If you do want a separate context for each closure call a function
-> to define it: >
-> 	def GetFunc(i: number): func
-> 	  var inloop = i
-> 	  return () => inloop
-> 	enddef
+**To Reproduce**
 
-> 	var flist: list<func>
-> 	for i in range(10)
-> 	  flist[i] = GetFunc(i)
-> 	endfor
+Run this shell command:
 
-The example does not work:
-```vim
-vim9script
-var flist: list<func>
-for i in range(10)
-    var inloop = i
-    flist[i] = () => inloop
-endfor
-```
-    E1001: Variable not found: inloop
+    $ vim -Nu NONE -S <(cat <<'EOF'
+        vim9script
+        def Func()
+            [{k: 1}, {k: 2}]
+                ->sort((a: dict<float>, b: dict<float>): number => a.k > b.k ? a.k - b.k : 0)
+        enddef
+        defcompile
+    EOF
+    )
 
-Actually, it doesn't even work in legacy:
-```vim
-let flist = []
-for i in range(10)
-    let inloop = i
-    let flist[i] = {-> inloop}
-endfor
-echo flist
-```
-    E684: list index out of range: 0
+No error is raised.
 
-We need to `add()` the lambdas on the stack:
-```vim
-let s:flist = []
-for i in range(10)
-    let inloop = i
-    eval s:flist->add({-> inloop})
-endfor
-```
-    ✔
+**Expected behavior**
 
-Although, the obtained lambdas are useless:
-```vim
-let s:flist = []
-for i in range(10)
-    let inloop = i
-    eval s:flist->add({-> inloop})
-endfor
-echo range(10)->map({i, _ -> s:flist[i]()})
-```
-    E121: Undefined variable: inloop
+`E1013` is raised:
 
-The code needs to be run from a function:
-```vim
-fu Func()
-    let flist = []
-    for i in range(10)
-        let inloop = i
-        eval flist->add({-> inloop})
-    endfor
-    echo range(10)->map({i, _ -> flist[i]()})
-endfu
-call Func()
-```
-    [9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
+    E1013: Argument 1: type mismatch, expected dict<float> but got dict<number>
 
-Same thing in Vim9:
-```vim
-vim9script
-var flist: list<func>
-for i in range(10)
-    var inloop = i
-    flist->add(() => inloop)
-endfor
-echo range(10)->map((i, _) => flist[i]())
-```
-    E1001: Variable not found: inloop
+**Environment**
+
+ - Vim version: 8.2 Included patches: 1-3189
+ - OS: Ubuntu 20.04.2 LTS
+ - Terminal: XTerm(353)
+
+**Additional context**
+
+If `?:` is removed, an error is correctly raised at compile time:
 ```vim
 vim9script
 def Func()
-    var flist: list<func>
-    for i in range(10)
-        var inloop = i
-        flist->add(() => inloop)
-    endfor
-    echo range(10)->map((i, _) => flist[i]())
+    [{k: 1}, {k: 2}]
+        ->sort((a: dict<float>, b: dict<float>): number => a.k - b.k)
 enddef
-Func()
+defcompile
 ```
-    [9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
+    E1012: Type mismatch; expected number but got float
 
-And the fixed code is:
-```vim
-vim9script
-def GetFunc(i: number): func
-  var inloop = i
-  return () => inloop
-enddef
-def Func()
-    var flist: list<func>
-    for i in range(10)
-        var inloop = i
-        flist->add(GetFunc(i))
-    endfor
-    echo range(10)->map((i, _) => flist[i]())
-enddef
-Func()
-```
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+Although, this error is about the return type, not the arguments type.
 
 ---
 
-Let's find a simpler example:
+I think the issue comes from the fact that the first expression passed to the `?:` operator can't be tested at compile time.  That is, Vim doesn't know whether `a.k` is bigger than `b.k` at compile time.  And if it's false, then the expression evaluates to 0 which is a number whose type is valid.  Therefore, there is a *possibility* that the type is correct.
+
+Still, shouldn't Vim be more strict by inspecting the type of *both* values at compile time, to make sure that all of them respect the return type specified for the lambda?
+
+    a.k > b.k ? a.k - b.k : 0
+                ^-------^   ^
+                value 1     value 2
+
+---
+
+The issue disappears when we get rid of `sort()`:
 ```vim
 vim9script
 def Func()
-    var Lambda: func
-    for i in range(10)
-        var inloop = i
-        if inloop == 5
-            Lambda = () => inloop
-        endif
-    endfor
-    echo Lambda()
+    ((a: dict<float>, b: dict<float>): number => a.k > b.k ? a.k - b.k : 0)({k: 1}, {k: 2})
 enddef
-Func()
+defcompile
 ```
-    9
-```vim
-vim9script
-def GetLambda(i: number): func
-    var inloop = i
-    return () => inloop
-enddef
-def Func()
-    var Lambda: func
-    for i in range(10)
-        var inloop = i
-        if inloop == 5
-            Lambda = GetLambda(i)
-        endif
-    endfor
-    echo Lambda()
-enddef
-Func()
-```
-    5
+    E1013: Argument 1: type mismatch, expected dict<float> but got dict<number>
 
-Suggested patch:
-```diff
-diff --git a/runtime/doc/vim9.txt b/runtime/doc/vim9.txt
-index 6ca1d74a9..bbd1b9696 100644
---- a/runtime/doc/vim9.txt
-+++ b/runtime/doc/vim9.txt
-@@ -1029,26 +1029,42 @@ For these the backtick expansion can be used.  Example: >
- 	  g/pattern/s/^/`=newText`/
- 	enddef
- 
--Closures defined in a loop will share the same context.  For example: >
--	var flist: list<func>
--	for i in range(10)
--	  var inloop = i
--	  flist[i] = () => inloop
--	endfor
-+A closure defined in a loop will get the context as it was in the last
-+iteration.  For example: >
-+	def Func()
-+	  var Lambda: func
-+	  for i in range(10)
-+	    var inloop = i
-+	    if inloop == 5
-+	      Lambda = () => inloop
-+	    endif
-+	  endfor
-+	  echo Lambda()
-+	enddef
-+	Func()
-+<	9~
- 
--The "inloop" variable will exist only once, all closures put in the list refer
--to the same instance, which in the end will have the value 9.  This is
--efficient.  If you do want a separate context for each closure call a function
--to define it: >
--	def GetFunc(i: number): func
-+The "inloop" variable will exist only once, thus, the value given by the lambda
-+is 9.  Even though, at the time the lambda was assigned, "inloop" was 5.
-+If you want the lambda to return the value of "inloop" at the time it was
-+assigned, you need to create a separate context; for example by defining it
-+from another function: >
-+	def GetLambda(i: number): func
- 	  var inloop = i
- 	  return () => inloop
- 	enddef
--
--	var flist: list<func>
--	for i in range(10)
--	  flist[i] = GetFunc(i)
--	endfor
-+	def Func()
-+	  var Lambda: func
-+	  for i in range(10)
-+	    var inloop = i
-+	    if inloop == 5
-+	      Lambda = GetLambda(i)
-+	    endif
-+	  endfor
-+	  echo Lambda()
-+	enddef
-+	Func()
-+<	5~
- 
- ==============================================================================
- 
-```
-Update: We probably no longer need `add()` since 8.2.3064.
-BTW, document that this works now in Vim9:
-```vim
-vim9script
-var l = []
-l[0] = 0
-l[1] = 1
-l[2] = 2
- # ...
-echo l
-```
-    [0, 1, 2]
-
-Compare with legacy:
-```vim
-let l = []
-let l[0] = 0
-let l[1] = 1
-let l[2] = 2
- " ...
-echo l
-```
-    E684: list index out of range: 0
-    E684: list index out of range: 1
-    E684: list index out of range: 2
-    []
-
-##
-## ?
+Also, while the  argument type is sometimes checked at  compile time, the return
+type never seems to be:
 ```vim
 vim9script
 def Func()
-    if 3 || true
-        echo 'true'
-    endif
+    ((d): dict<float> => d)({k: 1})
 enddef
 defcompile
 ```
@@ -1605,63 +1417,63 @@ defcompile
 ```vim
 vim9script
 def Func()
-    if 3 && true
-        echo 'true'
-    endif
+    ((d: dict<float>) => d)({k: 1})
 enddef
 defcompile
+```
+    E1013: Argument 1: type mismatch, expected dict<float> but got dict<number>
+
+### Is it the same issue?
+```vim
+vim9script
+def Func()
+    var n: number = 0
+    var s: string = n != 0 ? n : ''
+enddef
+Func()
 ```
     no error
 ```vim
 vim9script
 def Func()
-    if 3
-        echo 'true'
-    endif
-enddef
-defcompile
-```
-    E1023: Using a Number as a Bool: 3
-
-Shouldn't Vim raise an error at compile time in the first two snippets?
-
-## ?
-```vim
-vim9script
-def Func()
-   echo ((a) => a)('bb', 'cc')
+    var n: number = 1
+    var s: string = n != 0 ? n : ''
 enddef
 Func()
 ```
-    E118: Too many arguments for function: ((a) => a)('bb', 'cc')
-```vim
-vim9script
-def Func()
-   echo 'bb'->((a) => a)('cc')
-enddef
-Func()
-```
-    E118: Too many arguments for function: [expression]
+    E1012: Type mismatch; expected string but got number
 
-`[expression]` is useless and inconsistent.
-
-A similar issue was fixed in 8.2.1915.
-
----
-```vim
-vim9script
-echo ((a) => a)('bb', 'cc')
-```
-    E118: Too many arguments for function: <lambda>1
-```vim
-vim9script
-echo 'bb'->((a) => a)('cc')
-```
-    E118: Too many arguments for function: <lambda>1
-
-This is inconsistent with what happens in compiled code.
+I think an error should be raised in the first snippet at compile time.
 
 ##
+## ?
+
+<https://github.com/vim/vim/issues/8620>
+
+If  the  issue  is  fixed  by  providing  a  block  syntax  for  the  rhs  of  a
+user  command/autocmd, ask  whether  the  block could  be  compiled (for  better
+performance, and type checking via `:defcompile`).
+
+## ?
+
+Write `:defcompile` at the end of any file matching this pattern:
+
+    ^vim9script\_.*\n\s*enddef$
+
+Then manually source these files with `:source %`.
+Fix whatever errors you find in your code.
+Report any bug you find in Vim.
+
+## ?
+
+<https://github.com/vim/vim/issues/8608#issuecomment-885593913>
+
+## ?
+
+<https://github.com/vim/vim/issues/8614>
+
+The help still can be improved.  Send a new updated patch.
+
 ## ?
 ```vim
 vim9script
@@ -2036,18 +1848,6 @@ defcompile
     no error
 
 ##
-## ?
-```vim
-vim9script
-setline(1, '()')
-searchpairpos('(', '', ')', 'nW', '[0]->map(''synIDattr(v:val, "name")'')->filter(''v:val =~? "string\\|character\\|singlequote\\|escape\\|symbol\\|comment"'')->empty()')
-```
-    E1012: Type mismatch; expected number but got string
-
-The issue is caused by `map()` which must be replaced with `mapnew()`.
-But it's not easy to understand where the error is coming from.
-Could we get more context?
-
 ## ?
 
 "`=expr`" is not expanded in enough contexts
@@ -3171,104 +2971,6 @@ Func()
 
 This might explain the rationale behind the different results:
 <https://stackoverflow.com/a/7838212>
-
-## Vim9: "?:" operator can suppress error at compile time
-
-**Describe the bug**
-
-In Vim9 script, the `?:` operator can suppress an error at compile time.
-
-**To Reproduce**
-
-Run this shell command:
-
-    $ vim -Nu NONE -S <(cat <<'EOF'
-        vim9script
-        def Func()
-            [{k: 1}, {k: 2}]
-                ->sort((a: dict<float>, b: dict<float>): number => a.k > b.k ? a.k - b.k : 0)
-        enddef
-        defcompile
-    EOF
-    )
-
-No error is raised.
-
-**Expected behavior**
-
-`E1012` is raised:
-
-    E1012: Type mismatch; expected number but got float
-
-Update:  Wait.  Shouldn't the error rather be:
-
-    E1013: Argument 1: type mismatch, expected dict<float> but got dict<number>
-
-**Environment**
-
- - Vim version: 8.2 Included patches: 1-2739
- - OS: Ubuntu 16.04.7 LTS
- - Terminal: xterm(366)
-
-**Additional context**
-
-If `?:` is removed, an error is correctly raised at compile time:
-```vim
-vim9script
-def Func()
-    [{k: 1}, {k: 2}]
-        ->sort((a: dict<float>, b: dict<float>): number => a.k - b.k)
-enddef
-defcompile
-```
-    E1012: Type mismatch; expected number but got float
-
----
-
-I think the issue comes from the fact that the first expression passed to the `?:` operator can't be tested at compile time.  That is, Vim doesn't know whether `a.k` is bigger than `b.k` at compile time.  And if it's false, then the expression evaluates to 0 which is a number whose type is valid.  Therefore, there is a *possibility* that the type is correct.
-
-Still, shouldn't Vim be more strict by inspecting the type of *both* values at compile time, to make sure that all of them respect the return type specified for the lambda?
-
-    a.k > b.k ? a.k - b.k : 0
-                ^-------^   ^
-                value 1     value 2
-
----
-
-Try to simplify the MWE; get rid of `sort()`.
-Just keep the lambda.
-
-Update:  It seems the issue disappears when we get rid of `sort()`:
-```vim
-vim9script
-def Func()
-    ((a: dict<float>, b: dict<float>): number => a.k > b.k ? a.k - b.k : 0)({k: 1}, {k: 2})
-enddef
-defcompile
-```
-    E1013: Argument 1: type mismatch, expected dict<float> but got dict<number>
-
-### Is it the same issue?
-```vim
-vim9script
-def Func()
-    var n: number = 0
-    var s: string = n != 0 ? n : ''
-enddef
-Func()
-```
-    no error
-```vim
-vim9script
-def Func()
-    var n: number = 1
-    var s: string = n != 0 ? n : ''
-enddef
-Func()
-```
-    E1012: Type mismatch; expected string but got number
-
-I think an error should be raised in the first snippet at compile time.
 
 ## unexpected error when omitting type in variable declaration (probably not a bug)
 ```vim
