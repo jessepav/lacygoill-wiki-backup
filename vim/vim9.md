@@ -616,7 +616,7 @@ evaluate `Open()`.
 ##### Why is it called a "closure"?
 
 Because, by letting us  evaluate an open expression, it turns  the latter into a
-closed one.  IOW, it closes an open expression.
+closed one.  IOW, it *closes* an open expression.
 
 ####
 ## What do programmers usually mean when they say "closure"?
@@ -664,17 +664,14 @@ functions the name "closures".
 ```vim
 vim9script
 var closures: list<func>
-def DefineClosuresInLoop()
-    for i in range(10)
-        var inloop = i
-        closures[i] = () => inloop
-    endfor
-    echo closures
-        ->len()
-        ->range()
-        ->map((i, _) => closures[i]())
-enddef
-DefineClosuresInLoop()
+for i in range(10)
+    var inloop = i
+    closures[i] = () => inloop
+endfor
+echo closures
+    ->len()
+    ->range()
+    ->map((i, _) => closures[i]())
 ```
     [9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
 
@@ -699,17 +696,14 @@ def GetClosure(i: number): func
     return () => inloop
 enddef
 
-def DefineClosuresInLoop()
-    var closures: list<func>
-    for i in range(10)
-        closures[i] = GetClosure(i)
-    endfor
-    echo closures
-        ->len()
-        ->range()
-        ->map((i, _) => closures[i]())
-enddef
-DefineClosuresInLoop()
+var closures: list<func>
+for i in range(10)
+    closures[i] = GetClosure(i)
+endfor
+echo closures
+    ->len()
+    ->range()
+    ->map((i, _) => closures[i]())
 ```
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
@@ -986,30 +980,46 @@ Example:
 ```vim
 vim9script
 def Func()
-    var lines = getline(1, '$')
-        ->map((i, v) => ({text: v}))
-    map(lines, (i, v) => lines[i].text =~ '')
+    var l = getline(1, '$')
+        ->map((_, v) => ({a: v}))
+    l->map((i, v) => ({b: l[i].a}))
 enddef
 defcompile
 ```
     E715: Dictionary required
 
-This error looks weird, and is hard to understand.
+This error is hard to understand.
 ```vim
 vim9script
 def Func()
-    var lines: list<dict<string>> = getline(1, '$')
-        ->map((i, v) => ({text: v}))
-    map(lines, (i, v) => lines[i].text =~ '')
+    var l: list<dict<string>> = getline(1, '$')
+        ->map((_, v) => ({a: v}))
+    l->map((i, v) => ({b: l[i].a}))
 enddef
 defcompile
 ```
     E1012: Type mismatch; expected list<dict<string>> but got list<string>
 
-This error is easier to understand, thanks to the explicit type:
+This error is easier to understand, thanks to the explicit type in the `l` assignment:
 
-    var lines: list<dict<string>> = getline(1, '$')
-               ^----------------^
+    var l: list<dict<string>> = getline(1, '$')
+           ^----------------^
+
+Now we  know that the  real error  comes from the  first `map()` which  fails to
+mutate the  list of  strings into  a list of  dictionaries.  Which  is expected,
+because  `map()` cannot  change the  type of  the items  in a  list (only  their
+values).  But `mapnew()` can:
+```vim
+vim9script
+def Func()
+    var l: list<dict<string>> = getline(1, '$')
+        ->mapnew((_, v) => ({a: v}))
+    l->map((i, v) => ({b: l[i].a}))
+    echo 'no error'
+enddef
+Func()
+```
+    no error
 
 ---
 

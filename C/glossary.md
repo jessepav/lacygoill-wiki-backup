@@ -89,6 +89,7 @@ A value  which is assigned  to a  variable which will  keep it during  the whole
 execution of the program:
 
     height = 8;
+             ^
 
 ### What's a magic number?
 
@@ -98,21 +99,20 @@ A value whose meaning is hard to understand from the context.
 
 It makes the code more readable:
 
-                        ┌ magic number
-                        │
+                        magic number
+                        v
     if (password_size > 7)
         ...
 
-            constant
-        v---------------v
+                            constant
+                            v
     int MAX_PASSWORD_SIZE = 7;
     if (password_size > MAX_PASSWORD_SIZE)
         ...
 
 It also helps if the value is used  in several locations, and you want to change
-it in the future.
-Without a constant,  you would have to  find and replace all  occurrences of the
-value, and avoid:
+it in the  future.  Without a constant,  you would have to find  and replace all
+occurrences of the value, and avoid:
 
    - forgetting one of the occurrences
    - replacing an occurrence which was used for a different purpose
@@ -124,6 +124,28 @@ value, and avoid:
 ## directive
 
 Statement beginning with `#`, which will be obeyed by the preprocessor.
+
+##
+# f
+## float
+
+A datatype whose name comes from "floating-point"; the latter is a technique for
+storing numbers  in which the  binary point (decimal  point for a  computer) can
+"float"; that is, it can be placed anywhere relative to the significant digits.
+This position is given by the exponent component.
+
+<https://en.wikipedia.org/wiki/Floating-point_arithmetic>
+
+---
+
+A  float value  is  stored in  2  parts:  the fraction  (aka  mantissa) and  the
+exponent.  For example, 12.0 might be stored as:
+
+           exponent
+           v
+    1.5 x 2³
+    ^^^
+    fraction
 
 ##
 # h
@@ -142,12 +164,108 @@ from various national standards organizations.
 
 It promotes worldwide proprietary, industrial and commercial standards.
 
+## identifier
+
+Name chosen for a variable, function, macro or another similar entity.
+
+An identifier may contain letters, digits, and underscores.
+But it cannot start with a digit.
+
+An identifier must not match a keyword.
+
+Since C is case-sensitive, the case of the chosen name matters.
+For example, each of these names identify a different variable:
+
+    job
+    JOB
+    jOb
+    ...
+
+---
+
+Here are some examples of **legal** identifiers:
+
+    times10
+    get_next_char
+    _done
+
+Here are some examples of **illegal** identifiers:
+
+    get-next-char
+       ^    ^
+       not a letter, nor a digit, nor an underscore
+
+    10times
+    ^
+    a digit is allowed, but not at the start
+
+---
+
+In case you wonder whether it was a good or bad choice for C to be case
+sensitive, read this: <https://softwareengineering.stackexchange.com/a/10010>
+
+## initializer
+
+First value assigned to a declared variable.
+
+    int height = 8;
+                 ^
+                 initializer of the variable `height`
+
 ##
 # k
 ## K&R C
 
 Original version  of C  standardized by  the book  “The C  Programming Language”
 written by Brian Kernighan and Dennis Ritchie.
+
+## keyword
+
+A token which has a special meaning in  the C language (and thus, cannot be used
+as an identifier).  C only recognizes 32 keywords:
+
+    auto
+    break
+    case
+    char
+    const
+    continue
+    default
+    do
+    double
+    else
+    enum
+    extern
+    float
+    for
+    goto
+    if
+    int
+    long
+    register
+    return
+    short
+    signed
+    sizeof
+    static
+    struct
+    switch
+    typedef
+    union
+    unsigned
+    void
+    volatile
+    while
+
+---
+
+The C99 standard adds 5 new keywords to this list:
+
+    inline
+    restrict
+    _Bool
+    _Complex
+    _Imaginary
 
 ##
 # l
@@ -162,8 +280,31 @@ complete executable program.
 This additional code includes library functions (like `printf`) that are used in
 the program.
 
+## literal
+
+Synonym of constant.
+
 ##
 # m
+## macro
+
+A fragment of code  which has been given a name with a `#define` directive.
+Whenever the name is used, the preprocessor replaces it with its contents.
+
+There  are two  kinds of  macros.  They  differ mostly  in what  they look  like
+when  they  are used.   Object-like  macros  resemble  data objects  when  used,
+function-like macros resemble function calls.
+
+Source: <https://gcc.gnu.org/onlinedocs/cpp/Macros.html>
+
+---
+
+Warning: Try to use macros sparingly.
+They  are hard  to  debug,  can have  unexpected  side-effects,  and don't  have
+namespaces.
+
+Source: <https://stackoverflow.com/a/14041847>
+
 ## memory leak
 
 Blocks of memory that are dynamically allocated but never deallocated.
@@ -181,4 +322,42 @@ Machine instructions obtained after the compiler has translated your source code
 The preprocessor obeys the directives found in a source code file.
 It's  a bit  like an  editor; it  can add  things to  the source  code and  make
 modifications.
+
+##
+# t
+## token
+
+A group of characters that can't be split up without changing their meaning.
+
+Tokens can be:
+
+   - identifiers
+   - keywords
+   - operators
+   - punctuation marks (like commas and semicolons)
+   - string literals
+
+As an example, this statement:
+
+    printf("Height: %d\n", height);
+
+can be split into these 7 tokens:
+
+   1. `printf`
+   2. `(`
+   3. `"Height: %d\n"`
+   4. `,`
+   5. `height`
+   6. `)`
+   7. `;`
+
+`1.` and `5.` are identifiers.
+`2.`, `4.`, `6.` and `7.` are punctuation marks.
+`3.` is a string literal.
+
+##
+# u
+## uninitialized
+
+This is said of a variable which has been declared, but not assigned any value.  yet.
 

@@ -42,47 +42,7 @@ From “C Programming A Modern Approach”, page 7:
    > unless they're absolutely necessary.
 
 ##
-## How to compile `pun.c` into `pun`?
-
-    $ gcc -o pun pun.c
-
-### How to specify `c89` as the standard to which the code should conform?
-
-Use the `-std=c89` option:
-
-    $ gcc -std=c89 -o pun pun.c
-          ^------^
-
-### How to issue all the mandatory diagnostics listed in the C standard?
-
-Use the `-pedantic` option:
-
-    $ gcc -std=c89 -pedantic -o pun pun.c
-                   ^-------^
-
-Or the `-pedantic-errors` option, if you  want to turn the mandatory diagnostics
-into errors:
-
-    $ gcc -std=c89 -pedantic-errors -o pun pun.c
-                   ^--------------^
-
-##
 # Syntax
-## How to declare a variable?
-
-Specify its type then its name:
-
-    int height;
-    float profit;
-
-## How to declare several variables of the same type?
-
-Combine their declarations on a single line, and separate their names with commas:
-
-    int height, length, width, volume;
-    float profit, loss;
-
-##
 ## Why does C require that a statement end with a semicolon?
 
 Since statements can continue over several  lines, it's not always obvious where
@@ -91,15 +51,6 @@ they end.
 ### When does C make an exception to this rule?
 
 For compound statements, and directives.
-
-##
-## What does `#include <stdio.h>` do?
-
-It tells the preprocessor to include information about C's standard I/O library.
-
-### What's the name of `<stdio.h>`?
-
-A header.
 
 ##
 ## Which influence does the type of a numeric variable have?
@@ -277,7 +228,7 @@ A number is stored in a form of scientific notation, with three parts:
 
    - a sign
    - an exponent
-   - a fraction
+   - a fraction (aka mantissa)
 
 The number  of bits reserved  for the exponent  determines how large  (or small)
 numbers  can  be, while  the  number  of bits  in  the  fraction determines  the
@@ -292,9 +243,6 @@ As a  result, a  single-precision number  has a  maximum value  of approximately
 
 Like a double-precision float.
 
-This  doesn't  cause   any  problem  because  a  `double`   value  is  converted
-automatically to `float` when necessary.
-
 #### How to force the compiler to use a different floating-point format?
 
 For single precision, put the letter `F` or  `f` at the end of the constant; for
@@ -303,22 +251,93 @@ example, `12.34F`.
 For extended-precision, put the letter `L` or `l` at the end (`12.34L`).
 
 ###
-### Where does the term "float" come from?
+### This snippet doesn't give any error:
+```c
+    #include <stdio.h>
 
-A number's binary point (decimal point for  a computer) can "float"; that is, it
-can be placed anywhere relative to the significant digits of the number.
+    int main(void) {
+        float x = 12.34;
+        printf("%f\n", x);
+    }
+```
+    12.340000
 
-This position is indicated as the exponent component.
+#### But there is a type mismatch in the assignment.  Why no error?
 
-<https://en.wikipedia.org/wiki/Floating-point_arithmetic>
+Indeed, `x` is declared as a `float`, while it's assigned a double:
+
+    float x = 12.34;
+    ^---^     ^---^
+    float  != double
+
+But no  error is given  because a  `double` constant is  automatically converted
+into a `float` when necessary (by discarding some bits).
+
+---
+
+Reciprocally, a `float` constant is automatically converted into a `double` when
+necessary:
+```c
+    #include <stdio.h>
+
+    int main(void) {
+        double x = 12.34;
+        printf("%f\n", x);
+    }
+```
+    12.340000
+
+#### And yet, omitting `f` after a `float` constant is bad.  Why?
+
+It might cause an automatic coercion which is not wanted.
+
+For example:
+```c
+    #include <assert.h>
+
+    int main(void) {
+        // OK: 12.34 is converted from double to float;
+        // to match the float type in the declaration
+        float x = 12.34;
+        // not OK: f is converted from float to double;
+        // to match the double type of 12.34
+        assert(x == 12.34);
+    }
+```
+    c.c:7: main: Assertion `x == 12.34' failed.
+
+The  second coercion  is problematic,  because the  `float` constant  in `x`  is
+simply padded  with 0's.   But this  padding doesn't match  the bits  which were
+discarded  in the  previous coercion.   So, both  the assertion  and compilation
+fail.
+
+OTOH, everything works if you specify that the second `12.34` is a `float`:
+
+    assert(x == 12.34f);
+                     ^
+
+Because it prevents the coercion of the value in `x` from `float` to `double`.
+No padding of 0's is added, and both operands around `==` match.
+
+##
+# Library functions
+## In `scanf()` and `printf()`, what does the "f" stand for?
+
+**F**ormatted.
+
+Indeed, both `scanf()` and `printf()` require  the use of a **format string** to
+specify the appearance of the input or output data.
+
+`scanf()` needs to know  what form the input data will  take, just as `printf()`
+needs to know how to display output data.
 
 ##
 # Resources
 ## Programs and answers
 
+- <https://github.com/williamgherman/c-solutions>
 - <http://knking.com/books/c2/programs/index.html>
 - <http://knking.com/books/c2/answers/index.html>
-- <https://github.com/williamgherman/c-solutions>
 
 ##
 # Todo

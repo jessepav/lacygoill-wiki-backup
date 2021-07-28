@@ -1448,31 +1448,23 @@ I think an error should be raised in the first snippet at compile time.
 ##
 ## ?
 
+Sometimes, we have an error such as:
+
+    E1013: Argument N: type mismatch, expected ... but got ...
+
+Not enough context.  For which function call exactly?
+This matters a lot if we have a  chain of method calls on a single line (because
+then, the line number of the error cannot help).
+
+Find an example.  Report the issue.
+
+## ?
+
 <https://github.com/vim/vim/issues/8620>
 
 If  the  issue  is  fixed  by  providing  a  block  syntax  for  the  rhs  of  a
 user  command/autocmd, ask  whether  the  block could  be  compiled (for  better
 performance, and type checking via `:defcompile`).
-
-## ?
-
-Write `:defcompile` at the end of any file matching this pattern:
-
-    ^vim9script\_.*\n\s*enddef$
-
-Then manually source these files with `:source %`.
-Fix whatever errors you find in your code.
-Report any bug you find in Vim.
-
-## ?
-
-<https://github.com/vim/vim/issues/8608#issuecomment-885593913>
-
-## ?
-
-<https://github.com/vim/vim/issues/8614>
-
-The help still can be improved.  Send a new updated patch.
 
 ## ?
 ```vim
@@ -1501,6 +1493,10 @@ Func()
     E1072: Cannot compare string with number
 
 This message is better, because we immediately know that the issue comes from `>`.
+
+Update: Actually, I suspect that we – in the general case – we really need more context:
+
+    E1234: Cannot compare string with number in: '' > 1
 
 ## ?
 
@@ -1791,6 +1787,20 @@ g:Func()
                                                  ^^
 
 Or maybe the current way is good.  It gives us the script ID which might be useful to know...
+
+## ?
+
+Write `:defcompile` at the end of any file matching this pattern:
+
+    ^vim9script\_.*\n\s*enddef$
+
+Then manually source these files with `:source %`.
+Fix whatever errors you find in your code.
+Report any bug you find in Vim.
+
+Update: Wait until the recent patches  which implement type checking for builtin
+functions stop.  There is no point  in making time-consuming tests now, if their
+results change in a few days/weeks.
 
 ##
 ## ?

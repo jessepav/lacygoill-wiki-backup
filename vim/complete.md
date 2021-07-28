@@ -415,6 +415,10 @@ The actual messages depend on whether `'showmode'` is set and whether `'shm'` co
 # Todo
 ## ?
 
+Document `:help ft-syntax-omni`.
+
+## ?
+
 Document that you can specify as many  arbitrary files as you want as completion
 sources.
 
