@@ -1778,7 +1778,7 @@ We've already looked for the pattern `&l:`, and fixed everything we found.
 Now, look for `save_` or `_save`:
 
     :vim /save_\%(sel\|cb\|reg\|ve\|winnr\|tabnr\|cursor\|cpo\)\@!\|\%(sel\|cb\|reg\|ve\|winnr\|tabnr\|cursor\|cpo\)\@<!_save/gj ~/.vim/**/*.{snippets,vim} ~/.vim/template/** ~/.vim/vimrc
-    :Cfilter! -other_plugins
+    :Cfilter! -vendor
 
 We've already started  fixing things after running this command,  but we stopped
 at the `vim-completion` plugin.

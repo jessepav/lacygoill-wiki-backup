@@ -1,4 +1,4 @@
-// Purpose: Write a program that computes the volume of a sphere with a 10-meter radius.{{{
+// Purpose: compute the volume of a sphere with a 10-meter radius{{{
 //
 // Use this formula:
 //
@@ -79,13 +79,11 @@
 int main(void)
 {
     float volume;
-    // We can't declare `radius` as an integer.{{{
+    // We don't declare `radius` as an integer to suppress a warning.{{{
     //
-    // It would give an error:
+    // Which would be given by `-Wconversion` when computing `volume`:
     //
     //     error: conversion from ‘int’ to ‘float’ may change value [-Werror=conversion]
-    //
-    // One solution would be to TODO: finish
     //}}}
     float radius = 10.0f;
 

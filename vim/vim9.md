@@ -2,9 +2,66 @@
 ## Why is a `:def` function compiled?
 
 So that its execution is faster.
-In practice, it's often 10 to 100 times faster.
+In practice, it can be 10 to 100 times faster.
 
 You can't get that kind of performance with a `:function` function.
+
+---
+
+More importantly, the compilation tests *all* code paths in your code.
+
+Suppose you write this broken function:
+```vim
+function Func(arg)
+    if a:arg == 1
+        let divider = 3
+        echo 1 / divider
+    elseif a:arg == 2
+        let divider = 'string'
+        echo 1 / divider
+    endif
+endfunction
+```
+It's broken because of  the second `elseif` clause in the  `if` block, where the
+code tries to divide a number with a string.
+
+In legacy, no error is given when the function is defined.
+Worse, even after being called, you might still not get any error:
+```vim
+function Func(arg)
+    if a:arg == 1
+        let divider = 3
+        echo 1 / divider
+    elseif a:arg == 2
+        let divider = []
+        echo 1 / divider
+    endif
+endfunction
+call Func(1)
+```
+    0
+
+That's  because,  at runtime,  the  execution  followed  a  path which  did  not
+encounter the problematic line.
+
+In contrast, in Vim9, at compile time,  *all* code paths are tested against type
+mismatch errors, which is why you get an error here:
+```vim
+def Func(arg: number)
+    if arg == 1
+        var divider = 3
+        echo 1 / divider
+    elseif arg == 2
+        var divider = []
+        echo 1 / divider
+    endif
+enddef
+defcompile
+```
+    E1036: / requires number or float arguments
+
+Notice that  `Func()` was not called  with any argument; we  didn't choose which
+path the execution should follow.  We simply asked Vim to compile the function.
 
 ### When is it compiled?
 
@@ -3807,7 +3864,147 @@ args
 
 With backtick expansion, the word splitting occurs on line breaks; not on spaces.
 
+### ?
+
+<https://github.com/vim/vim/issues/8732#issuecomment-894837013>
+
+### ?
+
+`:h vim9-function-defined-later`
+
+### ?
+```vim
+vim9script
+def Bar(_): func
+  return () => 0
+enddef
+var Ref: func
+Bar(Ref)
+```
+    E1235: Function reference is not set
+```vim
+vim9script
+def Bar(_): func
+  return () => 0
+enddef
+var Ref: func
+def Foo()
+    Bar(Ref)
+enddef
+Foo()
+```
+    no error
+
+<https://github.com/vim/vim/issues/8773#issuecomment-902951677>
+
 ###
+### ?
+
+We can use a block to split a long autocmd on multiple lines:
+```vim
+vim9script
+autocmd CursorHold * {
+    echomsg 'one'
+    echomsg 'two'
+}
+doautocmd CursorHold
+```
+    one
+    two
+
+But the block must be at the very beginning; that is, you can't nest the autocmd:
+```vim
+vim9script
+autocmd CursorHold * autocmd SafeState * ++once {
+    echomsg 'one'
+    echomsg 'two'
+}
+```
+    E1128: } without {: }
+
+---
+
+Inside the block, you can only break before a command.
+So, this doesn't work:
+```vim
+vim9script
+autocmd CursorHold * {
+    if true
+    && true
+        echomsg 'true'
+    endif
+}
+doautocmd CursorHold
+```
+    E488: Trailing characters: true^@        echomsg 'true'^@    endif^@}
+
+But this does work:
+```vim
+vim9script
+autocmd CursorHold * {
+    if true && true
+        echomsg 'true'
+    endif
+}
+doautocmd CursorHold
+```
+    true
+
+### ?
+
+If:
+
+   - a function refers to a script-local variable
+   - its script can be resourced (e.g. filetype plugin, indent plugin, ...)
+
+Then you can't bail out from the script before defining the function, unless you
+pass `noclear` to `:vim9script`.
+```vim
+vim9script
+var lines =<< trim END
+    vim9script
+    var name: any
+    if exists('g:Func')
+      finish
+    endif
+    def g:Func()
+      eval name + 0
+    enddef
+    defcompile
+END
+lines->writefile('/tmp/s.vim')
+source /tmp/s.vim
+source /tmp/s.vim
+filter /deleted/ disassemble Func
+```
+    0 LOADSCRIPT [deleted] from /tmp/s.vim
+
+Notice that  the function  still considers  `name` as  deleted, even  though the
+latter is (re)defined *before* the anti-reinclusion guard.
+
+That's because – when the script was sourced a 2nd time – the variable could
+have been declared on a different line; then, it has a different index.
+But the compiled function relies on this index to access the variable faster.
+IOW, it can't  trust the old index, and  it doesn't know the new  one unless you
+redefine the function too, which the guard prevents.
+
+Solution: Use `noclear`, or import/autoload the function.
+
+For more info:
+
+   > When reloading the script the order of declarations might be different.
+   > The sequence number is used in the compiled function, to make access
+   > fast.  Therefore a function compiled with an older version of the script
+   > might have the wrong index.  In other words: everything from the last
+   > time the script was sourced is gone.
+
+   > The whole "bailing out halfway" isn't really a good thing for Vim9
+   > scripts.  You should use "vim9script noclear" if you need to.  Or
+   > better: use imports or the autoload mechanism.  Then Vim takes care of
+   > loading things only once.
+
+Source: <https://github.com/vim/vim/issues/8683#issuecomment-890578479>
+
 ### ?
 
 Since 8.2.2527, an error is raised when a lambda is used at the script level and

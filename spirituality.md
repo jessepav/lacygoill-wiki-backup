@@ -54,7 +54,7 @@ origins of the universe, they do  confirm some well-established truths about the
 human mind:
 
    - our conventional sense of self is an illusion
-   - positive emotions,  such as compassion and patience, are teachable  skills
+   - positive emotions, such as compassion and patience, are teachable skills
    - the way we think directly influences our experience of the world
 
 

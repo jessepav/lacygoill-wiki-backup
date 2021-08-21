@@ -1103,7 +1103,7 @@ Warning: This can create big files.
 ## How to log the system calls of each process in a dedicated file?
 
     $ strace -o log -ff firefox
-                    ^-^
+                    ^^^
                     each process's trace is written to `log.<pid>`
                     where pid is the pid of the process
 

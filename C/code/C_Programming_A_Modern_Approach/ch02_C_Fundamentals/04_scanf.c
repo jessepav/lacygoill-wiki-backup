@@ -1,24 +1,6 @@
 // Purpose: read input from the user
 // Reference: page 22 (paper) / 47 (ebook)
 
-// I have an error at compile time!{{{
-//
-//     ignoring return value of ‘scanf’, declared with attribute warn_unused_result
-//
-// Problem: The compiler complains that you don't check whether `scanf()` succeeded.
-// Solution: Return earlier if `scanf()` is not 1:
-//
-//     ✘
-//     scanf("%d", &i);
-//
-//     ✔
-//     if (scanf("%d", &i) != 1) {
-//         return 1;
-//     }
-//
-// See: https://stackoverflow.com/a/7271983
-//}}}
-
 #include <stdio.h>
 
 int main(void)
@@ -26,6 +8,13 @@ int main(void)
     int i;
     float x;
 
+    // Notice that we *need* an extra `printf()`.{{{
+    //
+    // We can't merge it with `scanf()`.
+    // IOW, `scanf()` can only  do 1 thing: ask for the user  input and write it
+    // in a variable.  It can NOT also  print a prompt.  That's a big difference
+    // with `input()` in VimL.
+    //}}}
     printf("choose an integer: ");
     // "%d" tells `scanf()` to read input that represents an integer.
     // `&i` tells `scanf()` to write it in the variable `i`.

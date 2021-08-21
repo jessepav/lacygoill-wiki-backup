@@ -120,6 +120,43 @@ occurrences of the value, and avoid:
 <https://stackoverflow.com/questions/47882/what-is-a-magic-number-and-why-is-it-bad#comment3030262_47902>
 
 ##
+## conversion specification
+
+`%x` token which can be included inside a format string passed to
+`printf()`/`scanf()`, and is meant to be replaced with some value.
+
+Once replaced, the result is written:
+
+   - on the program stdout in the case of `printf()`
+   - in a variable in the case of `scanf()`
+
+---
+
+The information that follows `%` *specifies* how the value is *converted*:
+
+   - from its internal form (binary) to printed from (characters) in the case of `printf()`
+   - from its inputted form (characters) to internal form (binary) in the case of `scanf()`
+
+That's where the term "conversion specification" comes from.
+
+For example, the  conversion specification `%d` specifies that  `printf()` is to
+convert an `int` value to a string of decimal digits.
+
+---
+
+In `%x`,  `x` is  called conversion  specifier.  It determines  the type  of the
+value which is meant to replace `%x`.
+
+---
+
+In the case of `printf()`, the expression can be formatted according to optional
+information located between `%` and `x`:
+
+    printf("%10.3f", x);
+             ^--^
+             controls how to print the float
+
+##
 # d
 ## directive
 
@@ -146,6 +183,13 @@ exponent.  For example, 12.0 might be stored as:
     1.5 x 2³
     ^^^
     fraction
+
+## format string
+
+First string argument passed to `printf()` or `scanf()`.
+
+It  controls  how `printf()`  formats  printed  text,  and how  `scanf()`  reads
+formatted text.
 
 ##
 # h

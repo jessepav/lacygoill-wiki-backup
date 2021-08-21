@@ -731,49 +731,63 @@ Should we borrow this Python syntax?
 
 ##
 ## Indentation related issues
-### ?
+### Vim9: "=" wrongly re-indents a dictionary returned from a function
 
-The default Vim indent plugin indents the closing brace/bracket/parenthesis on a
-multiline construct under the first non-whitespace character of the last line.
+**Describe the bug**
 
-    vim -Nu NONE -S <(cat <<'EOF'
+In Vim script, using `=` to re-indent a function returning a dictionary wrongly increases the indentation of its footer (i.e. `:enddef`).
+
+**To Reproduce**
+
+Run this shell command:
+
+    $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
         var lines =<< END
-        return {
-            expandtab: 0,
-            shiftwidth: &tabstop
-        }
+        def Func(): dict<any>
+            return {
+                a: 1,
+                b: 2,
+            }
+        enddef
     END
-    setline(1, lines)
-    filetype indent on
-    set ft=vim
-    norm! gg=G
+        setline(1, lines)
+        syntax on
+        filetype indent on
+        set ft=vim
+        norm! gg=G
     EOF
     )
 
-Resulting buffer:
+The buffer contains these lines:
 
-    return {
-            expandtab: 0,
-            shiftwidth: &tabstop
+    def Func(): dict<any>
+            return {
+                    a: 1,
+                    b: 2,
+                    }
+            enddef
+
+Notice that `:enddef` has a bigger indentation level than `:def`.
+
+**Expected behavior**
+
+`:enddef` has the same indentation level as `:def`.  Something like:
+
+    def Func(): dict<any>
+            return {
+                    a: 1,
+                    b: 2,
             }
+    enddef
 
-It's not wrong, but I think it would be better for the buffer to be this instead:
+**Environment**
 
-    return {
-            expandtab: 0,
-            shiftwidth: &tabstop
-    }
+ - Vim version: 8.2 Included patches: 1-3270
+ - OS: Ubuntu 20.04.2 LTS
+ - Terminal: XTerm(353)
 
-That is,  the closing brace  on a multiline construct  should line up  under the
-first character of the line that starts the multiline construct.
-
-Rationale:
-
- - Both styles are recommended in PEP 8: <https://www.python.org/dev/peps/pep-0008/#indentation>
- - our latter style seems more popular in javascript, Java, C++: <https://stackoverflow.com/a/51016662>
-
-Implementation:
+**Additional context**
 
 Not sure it's correct, but in `$VIMRUNTIME/indent/vim.vim`, there is this block:
 
@@ -788,15 +802,30 @@ Inside, include this `elseif`:
     elseif getline(v:lnum) =~ '^\s*[\]})]\+\s*$'
       let ind -= shiftwidth()
 
----
+Update:  This breaks the fix for <https://github.com/vim/vim/issues/7798>
 
-There are other issues with the default Vim indent plugin.
-For example, it relies on the user `%` mapping, which is wrong.
-There is a todo, which recommends to use `searchpair()` instead.
+    $ vim -Nu <(cat <<'EOF'
+        vim9script
+        var lines =<< trim END
+            vim9script
+            def Func()
+                for x in [
+                    {key: 'value'},
+                ]
+                    eval 0
+                endfor
+            enddef
+            Func()
+        END
+        lines->setline(1)
+        set expandtab shiftwidth=4
+        filetype plugin indent on
+        set ft=vim
+        silent normal! =G
+    EOF
+    )
 
-Also, try to rewrite the whole thing in Vim9.
-
----
+### ?
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
@@ -838,6 +867,7 @@ Actual:
     enddef
     7 lines indented
 
+###
 ### ?
 
     $ vim -Nu NONE -S <(cat <<'EOF'
@@ -847,6 +877,7 @@ Actual:
             #     {
         END
         lines->setline(1)
+        syntax on
         filetype plugin indent on
         set ft=vim
         feedkeys("Go\e")
@@ -875,8 +906,10 @@ Actual:
             #     }
         END
         lines->setline(1)
+        syntax on
         filetype plugin indent on
         set ft=vim
+        syntax match xxxCommentxxx /#.*/
         feedkeys("GO\e")
     EOF
     )
@@ -906,8 +939,10 @@ Actual:
             #     }
         END
         lines->setline(1)
+        syntax on
         filetype plugin indent on
         set ft=vim
+        syntax match xxxCommentxxx /#.*/
         feedkeys("3GAend\e")
     EOF
     )
@@ -937,8 +972,10 @@ Actual:
             #     }
         END
         lines->setline(1)
+        syntax on
         filetype plugin indent on
         set ft=vim
+        syntax match xxxCommentxxx /#.*/
         feedkeys("3Gf[a\r\e")
     EOF
     )
@@ -958,6 +995,22 @@ Actual:
     #         k: [
             #         ],
     #     }
+
+---
+
+Update:  I think most of these issues come from here:
+
+    let ends_in_comment = has('syntax_items')
+          \ && synIDattr(synID(lnum, len(getline(lnum)), 1), "name") =~ '\(Comment\|String\)$'
+                                                                                            ^
+
+Inside  comments,  we  might  have  custom nested  groups  whose  names  contain
+`Comment`, but not at the end.  For example, `vim9CommentCodeBlock`.
+
+A possible fix would be to simply remove the anchor `$`.
+Also, we might want to include `\c` in  the pattern to make it more resilient in
+case the syntax plugin changes the case of the comment group name.
+Also, we might want `synIDtrans()` (or not...).
 
 ### ?
 
@@ -982,7 +1035,7 @@ It *seems* inconsistent.
         set lines=24
         set nostartofline
         set rtp-=~/.vim rtp-=~/.vim/after
-        nnoremap % :<c-u>call cursor(57, 1)<cr>
+        nnoremap % <Cmd>call cursor(57, 1)<cr>
         filetype plugin indent on
         var lines = ['# {{{']
             + repeat(['#'], &lines)
@@ -993,12 +1046,12 @@ It *seems* inconsistent.
             + ['    return 0']
             + repeat(['#'], &lines)
             + ['enddef']
-        setline(1, lines)
-        au VimEnter * OnVimEnter()
+        lines->setline(1)
+        autocmd VimEnter * OnVimEnter()
         def OnVimEnter()
-            set ft=vim
+            set filetype=vim
             search('0}')
-            norm! zz
+            normal! zz
         enddef
     EOF
     )
@@ -1448,6 +1501,76 @@ I think an error should be raised in the first snippet at compile time.
 ##
 ## ?
 
+<https://github.com/vim/vim/issues/8719#issuecomment-894173355>
+
+## ?
+
+`term_getjob()` can return a job or a special.
+But we cannot compare a job with a special.
+
+This make some refactoring difficult.
+For example, in `$VIMRUNTIME/pack/dist/opt/termdebug/plugin/termdebug.vim`:
+
+    if gdbproc == v:null || job_status(gdbproc) !=# 'run'
+
+In Vim9, we need to write:
+
+    if gdbproc->typename() == 'special' && gdbproc == v:null
+      || job_status(gdbproc) != 'run'
+
+Should we allow the comparison between a job and a special?
+
+Update: A better solution would be a comparison operator which ignores the type,
+and only cares about the value.
+
+## ?
+```vim
+vim9script
+def Func()
+    var s: list<string>
+    s = [0]->map((_, v) => '')
+enddef
+defcompile
+```
+    E1012: Type mismatch; expected list<string> but got list<number>
+
+The issue is in the `s` assignment; not in `map()`.
+But it's not obvious.
+Could we get more info?
+
+    E1012: Type mismatch; expected string but got number in "s" assignment
+
+## ?
+```vim
+vim9script
+try
+    var name = 123
+finally
+    echo name
+endtry
+```
+    123
+```vim
+vim9script
+def Func()
+    try
+        var name = 123
+    finally
+        echo name
+    endtry
+enddef
+defcompile
+```
+    E1001: Variable not found: name
+
+Inconsistent?
+
+Update: Not really.  There is no real block scope at the script level.
+It's emulated with a  script-local variable, which is deleted at  the end of the
+block.  So, no inconsistency, right?
+
+## ?
+
 Sometimes, we have an error such as:
 
     E1013: Argument N: type mismatch, expected ... but got ...
@@ -1457,14 +1580,6 @@ This matters a lot if we have a  chain of method calls on a single line (because
 then, the line number of the error cannot help).
 
 Find an example.  Report the issue.
-
-## ?
-
-<https://github.com/vim/vim/issues/8620>
-
-If  the  issue  is  fixed  by  providing  a  block  syntax  for  the  rhs  of  a
-user  command/autocmd, ask  whether  the  block could  be  compiled (for  better
-performance, and type checking via `:defcompile`).
 
 ## ?
 ```vim
@@ -1759,48 +1874,27 @@ sil! s/nowhere//
     aBa BaB
 
 ## ?
-```vim
-vim9script
-def Func()
-    eval [][0]
-enddef
-Func()
-```
-    Error detected while processing ... <SNR>1_Func:
-                                        ^-----^
-
-For a beginner, this looks weird.
-Maybe it should be:
-
-    Error detected while processing ... function Func:
-                                                 ^
-
-This would create an ambiguity with the global function `Func()`, which could be fixed like so:
-```vim
-vim9script
-def g:Func()
-    eval [][0]
-enddef
-g:Func()
-```
-    Error detected while processing ... function g:Func:
-                                                 ^^
-
-Or maybe the current way is good.  It gives us the script ID which might be useful to know...
-
-## ?
 
 Write `:defcompile` at the end of any file matching this pattern:
 
     ^vim9script\_.*\n\s*enddef$
 
-Then manually source these files with `:source %`.
+Then: for every match, run:
+
+    :call append('$', 'defcompile') | update | exe 'norm! Gzv' | so%
+
 Fix whatever errors you find in your code.
 Report any bug you find in Vim.
 
 Update: Wait until the recent patches  which implement type checking for builtin
 functions stop.  There is no point  in making time-consuming tests now, if their
 results change in a few days/weeks.
+
+Update: If you get this kind of error:
+
+    E1073: Name already defined: SomeFunc
+
+Try to remove `noclear` after `:vim9script`.
 
 ##
 ## ?
@@ -1844,7 +1938,7 @@ Func()
     a
     Error detected while processing command line..script /proc/37313/fd/17[7]..function <SNR>1_Func:
     line    3:
-    E1012: Type mismatch; expected string but got void
+    E1012: Type mismatch; expected string but got void in map()
 
 Why is `a` echo'ed?
 Why is the error raised at runtime, and not earlier at compile time?
@@ -3116,28 +3210,6 @@ defcompile
 ```
     no error
 
-## ?
-```vim
-vim9script
-def Func(): bool
-    var d: dict<number> = {key: 0}
-    return d.key
-enddef
-defcompile
-```
-    E1012: Type mismatch; expected bool but got number
-```vim
-vim9script
-def Func(): bool
-    var d: dict<number> = {key: 0}
-    return get(d, 'key', 0)
-enddef
-defcompile
-```
-    no error
-
-Should an error be raised in the second snippet?
-
 ##
 ## ?
 ```vim
@@ -3163,19 +3235,6 @@ Shouldn't an error be raised?  Like one of these:
     E1174: Positive number required for argument 1
     E1174: Positive number or String required for argument 1
 
-Also:
-```vim
-vim9script
-append({}, 'text')
-```
-    E728: Using a Dictionary as a Number
-    E1174: String required for argument 1
-
-The 2 error messages seem contradictory:
-
-   - the first one implies that we should have used a number
-   - the second one says that we should have used a string
-
 ---
 ```vim
 vim9script
@@ -3186,7 +3245,7 @@ append('.aa', 'text')
 vim9script
 append('a.a', 'text')
 ```
-    "text" is NOT appended
+    E1209: Invalid value for a line number: "a.a"
 
 Same issue with `setline()`.
 Only valid strings should be accepted.
@@ -3232,8 +3291,23 @@ vim9script
 var f: float
 var n = 123
 f = n + 0.0
+echo f
 ```
-    no error
+    123.0
+
+Or:
+```vim
+vim9script
+var f: float
+var n = 123
+f = n->string()->str2float()
+echo f
+```
+    123.0
+
+---
+
+Python has `float()`: <https://www.w3schools.com/python/ref_func_float.asp>
 
 ##
 ## ?
@@ -3568,7 +3642,7 @@ echo get(s:, 'var', 456)
 ## ?
 
 The help says that curly braces names cannot be used in Vim9.
-But what's the equivalent if we're refactoring a legacy script,
+But what's the equivalent if we're refactoring a legacy script?
 The closest thing I can  think of, is to use a dictionary:
 ```vim
 vim9script
@@ -3970,13 +4044,13 @@ Is it related to this todo item?
 
 ## ?
 ```vim
-let s:name = 0
-lockvar s:name
-let s:name = 0
+var name = 0
+lockvar name
+name = 0
 ```
     E741: Value is locked: s:name
 ```vim
-let v:count = 0
+v:count = 0
 ```
     E46: Cannot change read-only variable "v:count"
 
@@ -3991,13 +4065,11 @@ Are there other inconsistent error messages regarding the usage of quotes?
 
 ---
 ```vim
-vim9script
 const NAME = 123
 NAME = 1234
 ```
     E46: Cannot change read-only variable "NAME"
 ```vim
-vim9script
 var NAME = 123
 lockvar NAME
 NAME = 1234
@@ -4016,7 +4088,6 @@ It might not  be obvious here, but  there are some error messages  in Vim9 which
 use the second format, and you wonder whether the quotes are part of the context
 (i.e. semantic) or just surrounding characters (i.e. syntaxic).
 ```vim
-vim9script
 echo 'a'..'b'
 ```
     E1004: White space required before and after '..' at "..'b'"

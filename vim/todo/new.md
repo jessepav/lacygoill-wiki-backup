@@ -9,6 +9,7 @@
    - `:h fullcommand()`
    - `:h gettagstack()` + `:h settagstack()`
    - `:h interrupt()`
+   - `:h prop_add_list()`
    - `:h pum_getpos()`
    - `:h setcellwidths()`
    - `:h str2list()` + `:h list2str()`

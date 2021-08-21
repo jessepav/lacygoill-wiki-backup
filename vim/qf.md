@@ -1536,7 +1536,7 @@ You've used it too much in the past to access the value of a qfl property.
 
 Search for `\C\<get(` in this file and in all our notes/plugins/...
 
-You  may find  a lot  of matches,  but don't  worry (`:Cfilter!  -other_plugins`)
+You  may find  a lot  of matches,  but don't  worry (`:Cfilter!  -vendor`)
 removes a lot of them.
 
 ## ?
@@ -1575,7 +1575,7 @@ all those kind of details, and would  set the qfl without altering the stack too
 much.
 
     :Vim :[cl]\%(add\|get\)\=\%(expr\|file\|buffer\)\|l\=make\|l\=vim\%[grep]\%(add\)\=\>.*/[^/]*/[gj]\{1,2}:gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
-    :Cfilter! -tmp -commented -other_plugins
+    :Cfilter! -tmp -commented -vendor
 
 ## ?
 
