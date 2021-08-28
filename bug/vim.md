@@ -1498,7 +1498,10 @@ Func()
 
 I think an error should be raised in the first snippet at compile time.
 
-##
+## ?
+
+<https://github.com/vim/vim/issues/8776#issuecomment-906800314>
+
 ## ?
 
 <https://github.com/vim/vim/issues/8719#issuecomment-894173355>
@@ -1515,7 +1518,7 @@ For example, in `$VIMRUNTIME/pack/dist/opt/termdebug/plugin/termdebug.vim`:
 
 In Vim9, we need to write:
 
-    if gdbproc->typename() == 'special' && gdbproc == v:null
+    if gdbproc->typename() == 'special' && gdbproc == null
       || job_status(gdbproc) != 'run'
 
 Should we allow the comparison between a job and a special?
@@ -1609,77 +1612,13 @@ Func()
 
 This message is better, because we immediately know that the issue comes from `>`.
 
-Update: Actually, I suspect that we – in the general case – we really need more context:
+Update: Actually, I suspect that we – in the general case – really need more context:
 
     E1234: Cannot compare string with number in: '' > 1
 
 ## ?
 
 Check whether `typename()` returns a good signature for all builtin functions.
-
-## ?
-
-<https://github.com/vim/vim/issues/8456>
-
-We cannot pass `@{register}` to a function via a method:
-```vim
-vim9script
-@a = 'text'
-@a->setline(1)
-```
-    E492: Not an editor command: text
-
-Vim parses the token `@a` like the Ex command `:@a` instead of the string expression `@a`.
-
-This *seems* inconsistent with other Ex commands, which can be shadowed by a variable expression:
-```vim
-vim9script
-var quit = 'stay'
-quit
-```
-    Vim doesn't quit
-
-Anyway, as usual, when we want to be sure that Vim parses the first token as an expression, we can surround it with parens:
-```vim
-vim9script
-@a = 'text'
-(@a)->setline(1)
-```
-    text
-
-If this is working as intended, maybe it should be documented.
-As a suggestion, here is a patch:
-```diff
-diff --git a/runtime/doc/eval.txt b/runtime/doc/eval.txt
-index 1f52d9f05..98361b93f 100644
---- a/runtime/doc/eval.txt
-+++ b/runtime/doc/eval.txt
-@@ -1485,6 +1485,9 @@ The result is the contents of the named register, as a single string.
- Newlines are inserted where required.  To get the contents of the unnamed
- register use @" or @@.  See |registers| for an explanation of the available
- registers.
-+NOTE: In Vim9 script, if you want to pass the contents of a register to a
-+function via a method call, using this notation, you need to surround it with
-+parentheses, to prevent @r from being executed as an Ex command.
- 
- When using the '=' register you get the expression itself, not what it
- evaluates to.  Use |eval()| to evaluate it.
-```
-Update: I don't think there is an issue with how `@a` is parsed without parens.
-The same is true with a number:
-```vim
-vim9script
-123->len()
-```
-    E1050: Colon required before a range: 123->len()
-```vim
-vim9script
-(123)->len()
-```
-    no error
-
-Although, maybe Vim should look for `->` before deciding whether the first token
-is an expression or a command?
 
 ## ?
 
@@ -1897,34 +1836,6 @@ Update: If you get this kind of error:
 Try to remove `noclear` after `:vim9script`.
 
 ##
-## ?
-
-Test how all the builtin functions react when they're passed a null value.
-```vim
-vim9script
-def Write()
-    delete('/tmp/test', 'rf')
-    mkdir('/tmp/test', 'p')
-    var builtin_funcs: list<string> = getcompletion('', 'function')
-        ->filter((_, v: string): bool => v =~ '^[a-z]' && v !~ '#')
-        ->map((_, v) => v->substitute('()\=$', '', ''))
-    for builtin in builtin_funcs
-        var dir: string = '/tmp/test/' .. builtin[0] .. '/'
-        if !dir->isdirectory()
-            mkdir(dir, 'p')
-        endif
-        writefile([printf('echom "%s"', builtin)], printf('%s%s.vim', dir, builtin))
-        for null_func in getcompletion('test_null', 'function')
-            writefile([printf('sil! eval %s(%s)', builtin, null_func)], printf('%s%s.vim', dir, builtin), 'a')
-        endfor
-    endfor
-enddef
-Write()
-```
-    $ cd /tmp/test/a
-    $ for f in *.vim; do vim -Nu NONE -S "$f";done
-    $ ls | grep core
-
 ## ?
 ```vim
 vim9script
@@ -5056,6 +4967,198 @@ Is it documented or is it a bug?
 ##
 # Misc.
 ## ?
+
+<https://github.com/vim/vim/issues/1246>
+
+> I'm willing to try to diagnose it further, just need some general guidance
+
+Install the netrw plugin as an optional package.  For example, under `~/.vim/pack/mine/opt/netrw/`.
+
+The file hierarchy should look like this:
+
+    .
+    ├── autoload
+    │   ├── netrwFileHandlers.vim
+    │   ├── netrw_gitignore.vim
+    │   ├── netrwSettings.vim
+    │   └── netrw.vim
+    ├── doc
+    │   └── pi_netrw.txt
+    ├── plugin
+    │   └── netrwPlugin.vim
+    ├── syntax
+    │   └── netrw.vim
+    └── tags
+
+    4 directories, 8 files
+
+Now, you need a minimal vimrc which reproduces the issue.  As an incomplete start:
+```vim
+vim9script
+g:netrw_altfile = 1
+packadd netrw
+Explore
+```
+Start Vim like with this shell command:
+
+    vim -Nu /tmp/vimrc
+            ^--------^
+            path to your minimal vimrc
+
+There is a hit-enter prompt.  Use `:silent` to get rid of it:
+```vim
+vim9script
+g:netrw_altfile = 1
+packadd netrw
+silent Explore
+```
+Now, automate the `file1` search:
+```vim
+vim9script
+g:netrw_altfile = 1
+packadd netrw
+silent Explore
+search('file1')
+```
+It fails.  You probably need to delay the search via a one-shot autocmd:
+```vim
+vim9script
+g:netrw_altfile = 1
+packadd netrw
+silent Explore
+autocmd VimEnter * ++once Delay()
+def Delay()
+    search('file1')
+enddef
+```
+It works.  Now, use `feedkeys()` to automate the `Enter` keypress:
+```vim
+vim9script
+g:netrw_altfile = 1
+packadd netrw
+silent Explore
+autocmd VimEnter * ++once Delay()
+def Delay()
+    search('file1')
+    feedkeys("\<Enter>", 't')
+enddef
+```
+Now, automate the second `:Explore`:
+```vim
+vim9script
+g:netrw_altfile = 1
+packadd netrw
+silent Explore
+autocmd VimEnter * ++once Delay()
+def Delay()
+    search('file1')
+    feedkeys("\<Enter>", 't')
+    Explore
+enddef
+```
+It fails.  Again, you probably need to delay the command via a one-shot autocmd:
+```vim
+vim9script
+g:netrw_altfile = 1
+packadd netrw
+silent Explore
+autocmd VimEnter * ++once Delay()
+def Delay()
+    search('file1')
+    feedkeys("\<Enter>", 't')
+    autocmd BufWinEnter * ++once Explore
+enddef
+```
+For your first issue, you don't need to automate more than that.  Because if you execute `:ls!` right after the second `:Explore`, you should already notice an issue in the scenario 1:
+
+    1u%a-  "~"                          line 123
+    2      "file1"                      line 123
+
+Notice that `file1` is not prefixed with the `%` nor with the `#` indicator.  IOW, there is no way to get it back with `C-^`.
+
+Now, you need to add a breakpoint right before the second `:Explore` with `:breakadd`.  The latter only accepts function names, not command names.  So, you need the name of a function.  Ask Vim what is the name of the function which is called by `:Explore`:
+
+    :command Explore
+    !|  Explore           *    0c ?    dir         call netrw#Explore(<count>,0,0+<bang>0,<q-args>)
+                                                        ^-----------^
+
+The answer is `netrw#Explore()`.  You can add a breakpoint at its start like this:
+
+    breakadd func 1 netrw#Explore
+
+Your minimal vimrc should look like this:
+```vim
+vim9script
+g:netrw_altfile = 1
+packadd netrw
+silent Explore
+autocmd VimEnter * ++once Delay()
+def Delay()
+    search('file1')
+    feedkeys("\<Enter>", 't')
+    breakadd func 1 netrw#Explore
+    autocmd BufWinEnter * ++once Explore
+enddef
+```
+When you start Vim, the execution should stop right before executing the first command in the `netrw#Explore()` function:
+
+    Breakpoint in "netrw#Explore" line 1
+    Entering Debug mode.  Type "cont" to continue.
+    function <SNR>3_NetrwBrowseChgDir[193]..BufWinEnter Autocommands for "*"..function netrw#Explore
+    line 3: if !exists("b:netrw_curdir")
+
+Run `ls!`; you should see something like this:
+
+    1u h-  "~"                            line 107
+    2 %a   "~/file1"                      line 1
+
+`file1` has the `%` indicator, which is good; it means that Vim still remembers it, and that we should be able to retrieve later with `C-^`.
+
+Now, execute the first line of the function, by typing `next` then press `Enter` (`next` can be shortened into `n`).
+Ask again for a listing with `ls!`:
+
+    1u h-  "~"                            line 107
+    2 %a   "~/file1"                      line 1
+
+`file1` still has the `%` indicator.  So far, so good.
+
+Continue to execute `next`.  Don't bother running `ls!` after every `next`; only if the function has executed a command which might change the current file.  So, forget about control flow statements like `:if`, and forget about `:let` assignments.  Don't bother typing `next` or `n` every time; if your last command was `next`/`n` (and not `ls!`), then you can simply press `Enter`.
+
+Eventually, you should see that the current file changes after a call to the `netrw#LocalBrowseCheck()` function:
+
+    >
+    function <SNR>3_NetrwBrowseChgDir[193]..BufWinEnter Autocommands for "*"..function netrw#Explore
+    line 221: call netrw#LocalBrowseCheck(dirname)
+    >ls!
+      1u h-  "~"                            line 107
+      2 %a   "~/file1"                      line 1
+
+After the function has been called, it's too late to step into it:
+
+   - quit Vim by executing `qa!`
+   - edit your minimal vimrc to update the breakpoint:
+
+         # before
+         breakadd func 1 netrw#Explore
+         # after
+         breakadd func 1 netrw#LocalBrowseCheck
+
+   - restart Vim
+
+You should get this message at the start:
+
+    Breakpoint in "netrw#LocalBrowseCheck" line 1
+    Entering Debug mode.  Type "cont" to continue.
+    function <SNR>3_NetrwBrowseChgDir[193]..BufWinEnter Autocommands for "*"..function netrw#Explore[221]..netrw#LocalBrows
+    eCheck
+    line 19: let ykeep= @@
+    >ls!
+      1u h-  "~"                            line 107
+      2 %a   "~/file1"                      line 1
+
+Update: `:breakadd expr` would make the process much simpler.
+
+## ?
 ```vim
 legacy let name = [] + + []
 ```
@@ -5282,26 +5385,6 @@ long line.  *Any* long line (even before or after) can make Vim lag.
 ---
 
 <https://github.com/vim/vim/pull/4446#issuecomment-702825238>
-
-## mapping regression
-
-Test this code:
-
-    $ vim -u NONE -U NONE -N -g -S <(cat <<'EOF'
-        set guioptions=
-        inoremap <c-e> export
-        inoremap <c-e><c-s> extends
-        startinsert
-    EOF
-    )
-
-Press `C-e` then `l`.
-We should get `exportl`.
-In the GUI and in xterm, we get `l`.
-
-I think it's a regression caused by 8.2.0851.
-Here are issues where this patch is mentioned:
-<https://github.com/vim/vim/issues?q=is%3Aissue+is%3Aopen+8.2.0851>
 
 ## cannot scroll to bottom of popup window using builtin popup filter menu when height equal to terminal window
 

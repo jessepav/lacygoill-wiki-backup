@@ -1209,7 +1209,7 @@ customizer directement au niveau du firmware.
 ---
 
 - <http://efod.se/writings/linuxbook/html/caps-lock-to-ctrl.html>
-- <http://www.economyofeffort.com/2014/08/11/beyond-ctrl-remap-make-that-caps-lock-key-useful/>
+- <https://web.archive.org/web/20200203181113/http://www.economyofeffort.com/2014/08/11/beyond-ctrl-remap-make-that-caps-lock-key-useful/>
 
 Procédure pour remap CapsLock à Control avec:
 

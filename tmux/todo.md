@@ -353,6 +353,36 @@ Use the `-a` argument passed to `:next-window`.
    >         Move to the next window in the session.  If -a is used, move to
    >         the next window with an alert.
 
+# ?
+
+   > Configuration file parsing has changed slightly: the contents of the new {} syntax introduced in 3.1 must now be valid tmux command syntax; and to allow formats to be annotated, strings given with quotes may now contain newlines (**leading spaces** and comments **are stripped**).
+
+[Source](https://github.com/tmux/tmux/issues/2737).
+
+Are they?
+
+Consider this key binding:
+
+    bind u capture-pane -b urlscan \; \
+           split-window -l 10 "
+                  tmux showb -b urlscan | \
+                  urlscan --no-browser | \
+                  head -c -1 | \
+                  ifne urlscan --compact \
+                          --dedupe \
+                          --nohelp \
+                          --regex \"(http|ftp)s?://[^ '\\\">)}\\]]+\" \
+                ; tmux deleteb -b urlscan
+            "
+
+Ask tmux how it is defined:
+
+    $ tmux lsk | grep 'prefix\s\+u\s'
+
+    ... capture-pane -b urlscan \; split-window -l 10 "\ntmux showb -b urlscan |               urlscan ...
+                                                                                ^-------------^
+                                                             shouldn't this have been stripped?
+
 #
 # find a way to
 ## configure the indicator `(x/y results)` after a search in copy-mode

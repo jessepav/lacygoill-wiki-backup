@@ -584,7 +584,7 @@ A process has not written any new output since the time given to the
 `'monitor-silence'` option:
 
     $ tmux set -w monitor-silence 123
-                                  ^-^
+                                  ^^^
 
 ##
 ## When the bell rings in a window,
