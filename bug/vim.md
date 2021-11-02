@@ -1287,7 +1287,7 @@ But even then, it would help if the line address was closer to the issue (6 or 8
 ### ?
 ```vim
 vim9script
-writefile(['compiler shellcheck'], '/tmp/t.vim')
+['compiler shellcheck']->writefile('/tmp/t.vim')
 silent edit /tmp/t.vim
 source %
 verbose set makeprg?
@@ -1386,6 +1386,140 @@ defcompile
     E1012: Type mismatch; expected string but got number
 
 ##
+## ?
+```vim
+vim9script
+{
+    var d = {
+        k: 0,
+    }
+    echo d
+}
+```
+    {'k': 0}
+```vim
+vim9script
+var Ref = () => {
+    var d = {
+        k: 0,
+    }
+}
+```
+    E723: Missing end of Dictionary '}': [end of lines]
+```vim
+vim9script
+var Ref = () => {
+    var d = {
+        k: 0, }
+}
+```
+    no error
+
+In the second snippet, could Vim be smarter?
+
+## ?
+
+Not a bug:
+<https://github.com/vim/vim/issues/8926>
+
+But maybe poor design?
+Why do we have to write `list<string>`? `list` is already implied by `...`.
+
+    ✘
+             vvv         v--v
+    def Func(...varargs: list<string>)
+
+    ✔
+             vvv         v----v
+    def Func(...varargs: string)
+
+## ?
+
+   > I also think that requiring full command names is a step back from
+   > legacy Vim script.
+
+We might still recommend full command names in the help; for 2 reasons:
+
+   - consistency
+   - easier refactoring
+
+With regards to the second bullet point, suppose you want to apply a modifier like `:keepjumps` or `:keeppatterns` for every substitution in your (possibly huge) config/plugins.  Good luck finding all of them if you've used the short form `:s` with arbitrary pattern delimiters.  OTOH, looking for `substitute` is easy and will mostly give relevant results.
+
+This kind of recommendation could be included in a new `:help vim9script-styleguide` help tag.
+
+   > And the idea mentioned earlier
+   > that shortening :global to "g" should require not being followed by
+   > white space.
+
+For consistency, the requirement should not be limited to the short form `:g`, but to all forms of the command, including `:global`.  Any pitfall affecting `g` also affects `global`; and considering that the latter will be more rarely used as a variable name is subjective.
+
+Also, people might ask for more relaxed rules regarding whitespace (see here for a [real request](https://github.com/vim/vim/issues/7338)).  If that happens, then we might be able to write this kind of assignment:
+
+    g+=a+b
+
+At that point, the ambiguity with a global command would arise again.
+
+## ?
+
+    #!/bin/bash
+
+    files=$(find . -type d -path './tmp' -prune -o -type f -name '*.vim' \
+      | xargs grep -l '^vim9script' \
+      | xargs grep -l '^\s*def\s')
+
+    for file in $files; do
+      vim -Nu NONE $file -S <(cat <<'EOF'
+        set rtp^=~/.vim rtp^=~/.vim/pack/mine/opt/lg-lib/ rtp^=~/.vim/pack/mine/opt/submode/
+        call append('$', 'defcompile')
+        silent! global/^\s*finish$/delete _
+        update
+        source %
+    EOF
+    )
+    done
+
+## ?
+
+<https://github.com/vim/vim/issues/8803>
+
+I  think `:breakadd  expr` needs  a little  more documentation  and should  give
+answers to these questions:
+
+   - in `:breakadd expr {expression}`, is `{expression}` limited to a variable name?
+   - are boolean numbers and booleans considered to be different values (i.e. is 0 the same as `v:false`)?
+   - if `:breakadd expr {expression}` is written in a Vim9 script, is `{expression}` evaluated in the Vim9 context?
+
+---
+```vim
+breakadd expr execute('ls!') =~ 'bar'
+function Func()
+    edit bar
+    eval 1 + 0
+endfunction
+edit foo
+call Func()
+```
+Why doesn't Vim stop when `Func()` edits `bar` causing the output of `ls!` to match `bar`?  Is it because the expression can only be a variable name?
+
+---
+```vim
+vim9script
+breakadd expr execute('ls') =~ 'file'
+packadd netrw
+Explore
+```
+The execution stops and Vim prints this:
+
+    Oldval = "v:false"
+    Newval = "0"
+
+One might expect that `v:false` and `0` are handled like the same value.  Should/could they?  Or are we meant to turn booleans into numbers with `? 1 : 0`:
+
+    breakadd expr execute('ls') =~ 'file' ? 1 : 0
+                                         ^------^
+
+And the `v:` prefix in front of `v:false` suggests that the expression is evaluated in the legacy context (in Vim9, it would have been dropped, just like in `:vim9 echo v:false`).  But `:breakadd expr` is written in a Vim9 script. Shouldn't the expression be evaluated in the Vim9 context?
+
 ## Vim9: "?:" operator can suppress error at compile time
 
 **Describe the bug**
@@ -1406,11 +1540,11 @@ Run this shell command:
     EOF
     )
 
-No error is raised.
+No error is given.
 
 **Expected behavior**
 
-`E1013` is raised:
+`E1013` is given:
 
     E1013: Argument 1: type mismatch, expected dict<float> but got dict<number>
 
@@ -1500,10 +1634,6 @@ I think an error should be raised in the first snippet at compile time.
 
 ## ?
 
-<https://github.com/vim/vim/issues/8776#issuecomment-906800314>
-
-## ?
-
 <https://github.com/vim/vim/issues/8719#issuecomment-894173355>
 
 ## ?
@@ -1523,8 +1653,19 @@ In Vim9, we need to write:
 
 Should we allow the comparison between a job and a special?
 
-Update: A better solution would be a comparison operator which ignores the type,
-and only cares about the value.
+Update: Or maybe a better solution would  be a comparison operator which ignores
+the type, and only cares about the value.
+
+Update: In killersheep, the variable `s:music_job` is `:unlet`.
+We cannot unlet a script-local variable in Vim9.
+What's the alternative?
+If `s:music_job` was a number, we could reset it to 0; but which value should we
+use to reset a job variable? `v:none`?  It doesn't work:
+```vim
+vim9script
+var name: job = v:none
+```
+    E1012: Type mismatch; expected job but got special
 
 ## ?
 ```vim
@@ -1619,6 +1760,15 @@ Update: Actually, I suspect that we – in the general case – really need more
 ## ?
 
 Check whether `typename()` returns a good signature for all builtin functions.
+
+---
+```vim
+vim9script
+echo 'len'->function()->typename()
+```
+    func([unknown]): number
+         ^-------^
+         wouldn't `any` be better?
 
 ## ?
 
@@ -3088,16 +3238,16 @@ Those declarations are contradictory.  And yet Vim does not complain.  Why?
 vim9script
 def Func()
     var tags: list<dict<any>> = [{kind: 'a'}, {key: 123}, {kind: 'm'}]
-    echo tags->filter((_, v: job) => v->has_key('kind') ? v.kind != 'm' : true)
+    tags->filter((_, v: job) => v->has_key('kind') ? v.kind != 'm' : true)
 enddef
 defcompile
 ```
-    E715: Dictionary required
+    E1013: Argument 1: type mismatch, expected dict<any> but got job
 ```vim
 vim9script
 def Func()
     var tags: list<dict<any>> = [{kind: 'a'}, {key: 123}, {kind: 'm'}]
-    echo tags->filter((_, v: dict<job>) => v->has_key('kind') ? v.kind != 'm' : true)
+    tags->filter((_, v: dict<job>) => v->has_key('kind') ? v.kind != 'm' : true)
 enddef
 defcompile
 ```
@@ -3115,7 +3265,7 @@ But this hypothesis is wrong:
 vim9script
 def Func()
     var tags: list<dict<any>> = [{kind: 'a'}, {key: 123}, {kind: 'm'}]
-    echo tags->filter((_, v: job) => !v)
+    tags->filter((_, v: job) => !v)
 enddef
 defcompile
 ```
@@ -3628,11 +3778,8 @@ Maybe it could be based on the one provided by Google.
 
 ## ?
 
-How to get proper syntax highlighting for Vim9 code on github?
-
-   1. <https://stackoverflow.com/a/8886392/9780968>
-   2. <https://github.com/github/linguist/issues/1874#issuecomment-66876794>
-   3. <https://github.com/SalGnt/Sublime-VimL>
+Github needs to support proper syntax highlighting for Vim9 script:
+<https://github.com/Alhadis/language-viml>
 
 ## ?
 
@@ -5187,15 +5334,6 @@ From `:h matchlist()`:
    >         GetList()->matchlist('word')
 
 `GetList()` should be replaced with `GetText()`.
-
-## ?
-
-    $ cd /tmp && MANPAGER='vim -Nu NONE +"set wildignorecase" -' man man
-    :find *
-    # press Tab
-
-    expected: * is replaced with some text (the first directory in `/usr/include`)
-    actual:   * is not replaced
 
 ## ?
 

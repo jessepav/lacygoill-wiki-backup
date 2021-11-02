@@ -25,8 +25,6 @@ Would it be enough?
 ## function
 ### `getfsize()` to get a human readable result
 
-### `exists()` to test the existence of a highlight group
-
 ##
 ## command
 ### `:prof` (`dump` and `stop`)

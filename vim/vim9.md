@@ -3844,6 +3844,16 @@ But not if it contains several, separated by semicolons (or commas?):
 
 ---
 
+Look for this pattern everywhere:
+
+    \C\%(^\s*#\=\s*\||\s*\)\<execute\>
+
+For every match, look at the next command (the one `:execute` runs).
+Ask yourself whether the same effect could be achieved with a builtin function.
+If the answer is yes, use it.
+
+---
+
 Same remark for a backtick expansion prefixed with `=`.
 The latter is just syntactic sugar for `:execute`.
 
@@ -3896,6 +3906,10 @@ Foo()
     no error
 
 <https://github.com/vim/vim/issues/8773#issuecomment-902951677>
+
+### ?
+
+<https://github.com/vim/vim/issues/8847#issuecomment-915547547>
 
 ###
 ### ?

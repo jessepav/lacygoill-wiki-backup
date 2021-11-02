@@ -19,16 +19,16 @@ We need to test these functions:
 
 Let's start with the first ten ones:
 
-    abs( ✔
-    acos( ✔
-    add( ✔
-    and( ✔
-    append( ✔
-    appendbufline( ?
-    argc( ?
-    arglistid( ?
-    argv( ?
-    asin( ?
+    abs(              done
+    acos(             done
+    add(              tricky because 2 arguments, not 1 (test each one separately?)
+    and(
+    append(
+    appendbufline(
+    argc(
+    arglistid(
+    argv(
+    asin(
 
 ---
 
@@ -153,3 +153,61 @@ Run this shell command to test each snippet:
     $ vim -Nu NONE +'eval test_unknown()->abs()'
     E685: Internal error: tv_get_number(UNKNOWN)
 
+## ?
+```vim
+vim9script
+def Func()
+    function('len')->abs()
+enddef
+defcompile
+```
+    E1013: Argument 1: type mismatch, expected number but got func(...): any
+                                                                   ^^^
+                                                                   ???
+
+Why a triple dot?  That can't be this:
+
+   > The common type of function references, if they do not all have the same
+   > number of arguments, uses "(...)" to indicate the number of arguments is not
+   > specified.  For example: >
+   >         def Foo(x: bool)
+   >         enddef
+   >         def Bar(x: bool, y: bool)
+   >         enddef
+   >         var funclist = [Foo, Bar]
+   >         echo funclist->typename()
+   > Results in:
+   >         list<func(...)>
+
+That's for a list/dict of funcrefs.  There is no list/dict here.
+So, what is this `...`?
+
+Shouldn't it rather be:
+
+    E1013: Argument 1: type mismatch, expected number but got func([unknown]): any
+                                                                   ^-------^
+
+Or maybe:
+
+    E1013: Argument 1: type mismatch, expected number but got func(any): any
+                                                                   ^^^
+
+---
+
+Similar issue here:
+```vim
+vim9script
+def Func()
+    test_null_function()->abs()
+enddef
+defcompile
+```
+    E1013: Argument 1: type mismatch, expected number but got func(...): any
+
+Although, here, `...` might make sense.
+We don't know anything about the signature of a null function.
+Therefore, `[unknown]`  and `any` would be  wrong; because they assume  that the
+function expect  1 argument;  we don't  know that; the  function could  expect 0
+arguments, or more than 2.
+
+But if we don't know anything about the function, shouldn't Vim simply report `func`?

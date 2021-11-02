@@ -104,6 +104,7 @@ temporarily converting the dates into simple integers.
    - `:h DirChanged`
    - `:h ExitPre`
    - `:h InsertLeavePre`
+   - `:h ModeChanged`
    - `:h SigUSR1`
    - `:h SourcePost`
    - `:h TextChangedP`
