@@ -88,9 +88,9 @@ In this report, mention the fact that this issue is absent from the todo list:
 
 And maybe that it would be nice for `:def` to have a completion.
 Useful when you  want to get the  definition of a function  while debugging some
-issue; like: what does that function where an error was raised?
-Sure, you can use `:fu` instead; but it's inconsistent to define a function with
-`:def` then ask for its definition with `:fu`.
+issue; like: what does that function where an error was given?
+Sure, you can use `:function` instead; but it's inconsistent to define a function with
+`:def` then ask for its definition with `:function`.
 Although, I'm reluctant to mention this because  we already did it in #6525, and
 closed the issue.
 But look at it this way:  `:def` is the *most important* command in Vim9 script.
@@ -103,11 +103,11 @@ Temporary workaround:
 
     cnorea <expr> def getcmdtype() is# ':' && getcmdpos() == 4 ? 'Def' : 'def'
     com! -bar -complete=customlist,s:def_complete -nargs=? Def exe s:def(<q-args>)
-    fu s:def_complete(argLead, _l, _p) abort
+    function s:def_complete(argLead, _l, _p) abort
         let argLead = substitute(a:argLead, '^\Cs:', '<SNR>[0-9]\\\\\\{1,}_', '')
         return getcompletion(argLead, 'function')->map('substitute(v:val, "($\\|()$", "", "")')
-    endfu
-    fu s:def(name) abort
+    endfunction
+    function s:def(name) abort
         let name = trim(a:name, '()')
         try
             exe 'def ' .. name
@@ -115,7 +115,7 @@ Temporary workaround:
             return 'echoerr ' .. string(v:exception)
         endtry
         return ''
-    endfu
+    endfunction
 
 ##
 ## can delete a function-local or block-local function nested in a legacy function
@@ -124,18 +124,18 @@ MWE for a function-local function:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
         vim9script
-        fu Outer()
+        function Outer()
             def Inner()
                 echo 'inner'
             enddef
             delfu Inner
-        endfu
+        endfunction
         Outer()
     EOF
     )
 
-Actual: No error is raised
-Expected: E130 or E1084 is raised (preferably the latter):
+Actual: No error is given
+Expected: E130 or E1084 is given (preferably the latter):
 
     E130: Unknown function: Inner
     E1084: Cannot delete Vim9 script function Inner
@@ -143,8 +143,8 @@ Expected: E130 or E1084 is raised (preferably the latter):
 Rationale: to be consistent with script-local functions which can't be deleted.
 ```vim
 vim9script
-fu s:Func()
-endfu
+function s:Func()
+endfunction
 delfu s:Func
 ```
     E1084: Cannot delete Vim9 script function s:Func
@@ -161,14 +161,14 @@ delfu s:Func
 MWE for a block-local function:
 ```vim
 vim9script
-fu Outer()
+function Outer()
     if 1
         def Inner()
             echo 'inner'
         enddef
         delfu Inner
     endif
-endfu
+endfunction
 Outer()
 ```
     no error
@@ -213,8 +213,8 @@ Shouldn't the error rather be:
 After all, the function should be known to Vim:
 it should look for the function in the function scope according to `:h vim9-scopes`.
 
-Note: the error is only raised for a `:def` inside a `:def`.
-If the outer function is a `:fu`, no  error is raised; no matter the type of the
+Note: the error is only given for a `:def` inside a `:def`.
+If the outer function  is a `:function`, no error is given; no  matter the type of the
 inner function.
 
 ---
@@ -239,8 +239,8 @@ Shouldn't the error rather be:
 After all, the function should be known to Vim:
 it should look for the function in the block scope according to `:h vim9-scopes`.
 
-Note: the error is only raised for a `:def` inside a `:def`.
-If the outer function is a `:fu`, no  error is raised; no matter the type of the
+Note: the error is only given for a `:def` inside a `:def`.
+If the outer function  is a `:function`, no error is given; no  matter the type of the
 inner function.
 
 ---
@@ -1063,6 +1063,14 @@ The view is completely changed (topline increases).
 
 Is it a Vim bug?
 
+Update: It's probably caused by the default Vim indent plugin which uses the `%`
+mapped by the matchparen plugin:
+
+    silent! normal %
+                  ^
+                  ✘
+                  no bang
+
 ##
 ## Issues specific to the script level
 ### ?
@@ -1079,7 +1087,7 @@ Func()
 ```
     test
 
-No error is raised, but `E117` should be raised if the function was local to the
+No error is given,  but `E117` should be given if the function  was local to the
 block.
 
 Related issue: <https://github.com/vim/vim/issues/6498>
@@ -1188,7 +1196,7 @@ eval # some comment
 ```
     E121: Undefined variable: #
 
-I think a different error should be raised.  Maybe `E1143`?
+I think a different error should be given.  Maybe `E1143`?
 ```vim
 vim9script
 
@@ -1214,59 +1222,6 @@ defcompile
 ```vim
 vim9script
 def Func()
-    eval 1
-    eval 2
-    eval 3
-enddef
-def Func()
-    eval 1
-    eval 2
-    eval 3
-enddef
-```
-    Error detected while processing command line..script /proc/55113/fd/17:
-    line   11:
-    E1073: Name already defined: <SNR>1_Func
-
-The error should be raised from line 7, not line 11; i.e. from the header rather
-than from the footer.
-
-### ?
-```vim
-vim9script
-timer_start(1'000, (_) => 0)
-exe 'verb ' .. timer_info()[0].callback
-    ->string()
-    ->substitute("('\\|')", ' ', 'g')
-```
-    function <lambda>1(...)
-         Last set from /proc/26385/fd/11 line 1
-    1  return 0
-    endfunction
-
-The line number of the definition is off by 1.
-The lambda was not defined on line 1, but on line 2.
-The issue is not specific to Vim9:
-```vim
-vim9script
-eval 1
-eval 2
-eval 3
-legacy let Ref = {-> 0}
-verb function <lambda>1
-```
-        function <lambda>1(...)
-             Last set from /proc/26909/fd/11 line 4
-     1  return 0
-        endfunction
-
-Here, `:verb` tells us that the lambda was defined on line 4, which is wrong; it
-was defined on line 5.
-
-### ?
-```vim
-vim9script
-def Func()
     eval 1 + 0
     eval 2 + 0
     eval 3 + 0
@@ -1280,30 +1235,9 @@ Func()
     line    2:
     E1171: Missing } after inline function
 
-Maybe the error should be raised from the function, rather than from the script.
+Maybe the error should be given from the function, rather than from the script.
 Unless the error prevents Vim from finding `:enddef`...
 But even then, it would help if the line address was closer to the issue (6 or 8).
-
-### ?
-```vim
-vim9script
-['compiler shellcheck']->writefile('/tmp/t.vim')
-silent edit /tmp/t.vim
-source %
-verbose set makeprg?
-```
-    makeprg=shellcheck -f gcc
-          Last set from /tmp/t.vim line 18
-
-It should print:
-
-    makeprg=shellcheck -f gcc
-          Last set from /usr/local/share/vim/vim82/compiler/shellcheck.vim line 18
-
-Or:
-
-    makeprg=shellcheck -f gcc
-          Last set from /tmp/t.vim line 1
 
 ### ?
 ```vim
@@ -1362,13 +1296,13 @@ It would be more useful if the reported line number was 3, rather than 1.
 I'm not sure that can be done though; it seems Vim concatenates all the lines in
 the lambda's definition:
 
-    :fu <lambda>1
+    :function <lambda>1
         def <lambda>1(m: any, ...): string˜
      1  return m[0]->str2nr() > 99                         ? ''                         : m[0]->str2nr()˜
         enddef˜
 
-If it can't be  improved when the error is raised at runtime,  could it still be
-improved when the error is raised at compile time?
+If it can't  be improved when the error  is given at runtime, could  it still be
+improved when the error is given at compile time?
 ```vim
 vim9script
 def Func()
@@ -1384,6 +1318,390 @@ defcompile
     Error detected while compiling command line..script /proc/17876/fd/11[9]..function <SNR>1_Func[4]..<lambda>1:
     line    1:
     E1012: Type mismatch; expected string but got number
+
+##
+## :help modifyOtherKeys
+
+The tip to disable the feature, using a `:!` command is a bit hacky.
+Using `echoraw()` is seems more reliable and easier to understand.
+
+---
+
+Doesn't work well with tmux.
+
+---
+
+The handling of `<C-A>` vs `<M-A>` is inconsistent when modifyOtherKeys is enabled.
+
+In `~/.vim/pack/mine/opt/lg-lib/import/lg/map.vim`:
+
+    # For some reason, in GUI and when modifyOtherKeys is enabled, Vim conflates `<M-X>` with `<M-S-X>`.
+    #
+    # In conjunction with `<unique>`, this can lead to unexpected errors:
+    #
+    #     $ vim -Nu NONE -g +'nnoremap <unique> <M-G> <cmd>echo "M-G"<CR>' \
+    #                       +'nnoremap <unique> <M-S-G> <cmd>echo "M-S-G"<cr>'
+    #     E227: mapping already exists for Ç˜
+    #
+    # To avoid this, let's make sure that in `<M-x>`, the `x` is lowercase.
+
+Is this a known bug?
+
+I think this pitfall was mentioned here <https://github.com/vim/vim/issues/6457>.
+It might not be a bug, but at least it should be documented.
+
+Update: I think it's a bug, because it's handled inconsistently between the CTRL
+and the META modifiers:
+
+    $ vim -Nu NONE +'nnoremap <C-A> <Cmd>echo "C-A"<CR>'
+    # press CTRL-A
+    # Expected: "C-A" is printed on the command-line
+    # Actual: "C-A" is printed on the command-line
+    ✔
+
+    $ vim -Nu NONE +'nnoremap <M-A> <Cmd>echo "M-A"<CR>'
+    # press ALT-A
+    # Expected: "M-A" is printed on the command-line
+    # Actual: nothing is printed on the command-line
+    ✘
+
+IOW, in  the GUI  and when modifyOtherKeys  is enabled, in  a mapping  whose lhs
+contains a modifier combined with a letter,  the case of the latter matters with
+META (then, it  implies `S-`), but it  does not matter with CTRL  (`S-` is never
+implied).
+
+## <F1..4> don't work with modifiers in xterm
+
+Same issue with `<Del>`.
+
+<https://github.com/vim/vim/issues/9131#issuecomment-967774895>
+
+## 'ttymouse' needs to be set with a specific value for `<F1..4>` to work with modifiers
+
+<https://github.com/vim/vim/issues/9131#issuecomment-967775117>
+
+## â modifyOtherKeys
+
+<https://github.com/vim/vim/issues/5951>
+
+The issue is badly presented.  Close it and open a new one.
+Indeed, the title is wrong.  Here is a better one:
+
+   > cannot use dead key to insert accented character before using modifier
+
+Provide a  log obtained with `ch_logfile()`,  showing that the issue  is in Vim;
+not in the OS/system input/terminal/...  That is, whether you insert `â` before
+or after having pressed a modifier combined  with another key, in both cases Vim
+receives the same raw input sequence: `â`.
+
+Also, we might have found some hacky workaround:
+
+    ✔
+    vim -Nu NONE --cmd 'inoremap <Esc>[27;5;59~ <Nop>' +'inoremap <M-b> xxx' +'startinsert' +'call feedkeys("\<Esc>[27;5;59~")'
+
+    ✘
+    vim -Nu NONE -S <(cat <<'EOF'
+        inoremap <Esc>[27;5;59~ <Nop>
+        inoremap <M-b> xxx
+        autocmd InsertEnter * ++once call feedkeys("\<Esc>[27;5;59~")
+    EOF
+    )
+
+    ✔
+    vim -Nu NONE -S <(cat <<'EOF'
+        inoremap <Esc>[27;5;59~ <Nop>
+        inoremap <M-b> xxx
+        startinsert
+        call feedkeys("\<Esc>[27;5;59~")
+    EOF
+    )
+
+    ✔
+    vim -Nu NONE -S <(cat <<'EOF'
+        inoremap <M-b> xxx
+        call feedkeys("\<Esc>[27;5;0~")
+    EOF
+    )
+
+    ✘
+    vim -Nu NONE -S <(cat <<'EOF'
+        inoremap <M-b> xxx
+        call echoraw("\<Esc>[27;5;0~")
+    EOF
+    )
+
+## vim-stacktrace
+
+   > is there a way to get vim to report absolute line file numbers rather than lines in a function for errors
+   > within a function? I'm getting tired trying to work it out.
+
+Could it be done for the next Vim9 release?
+Alternatively, we should probably at least provide a default optional package to
+populate the quickfix list with Vimscript errors (`:packadd ...`).
+
+Find another similar quote from a reddit thread where people criticize Vimscript.
+
+## ?
+```vim
+vim9script
+var name: number
+def Func()
+  if rand() % 2
+      name = ''
+  else
+  endif
+enddef
+defcompile
+```
+    E1012: Type mismatch; expected number but got string
+    ✔
+```vim
+vim9script
+var name: number
+def Func()
+  if rand() % 2
+  else
+      name = ''
+  endif
+enddef
+defcompile
+```
+    E1012: Type mismatch; expected number but got string
+    ✔
+```vim
+vim9script
+var name: number
+def Func()
+  if has('sound')
+      name = ''
+  else
+  endif
+enddef
+defcompile
+```
+    E1012: Type mismatch; expected number but got string
+    ✔
+```vim
+vim9script
+var name: number
+def Func()
+  if has('sound')
+  else
+      name = ''
+  endif
+enddef
+defcompile
+```
+    no error
+    ✘
+
+Is that really a bug?
+See `:help vim9 /vim9-gotchas/;/has(`.
+
+Update: It seems the last snippet is equivalent to:
+```vim
+vim9script
+var name: number
+def Func()
+  if false
+      name = ''
+  endif
+enddef
+defcompile
+```
+    no error
+    ✘
+
+So, IIUC,  at compile time, if  Vim finds some  code which it knows  for certain
+that it won't run at runtime, then it doesn't compile it:
+```vim
+vim9script
+if false
+    invalid
+endif
+echo 'no error'
+```
+    no error
+```vim
+vim9script
+def Func()
+    if false
+        invalid
+    endif
+enddef
+Func()
+echo 'no error'
+```
+    no error
+
+Doesn't this contradict:
+
+   > Vim9 functions are compiled as a whole: >
+
+Is it documented?  Should it?
+
+I guess it can be inferred from this:
+
+   > Or put the unsupported code inside an `if` with a constant expression that
+   > evaluates to false: >
+   >         def Maybe()
+   >           if has('feature')
+   >             use-feature
+   >           endif
+   >         enddef
+
+---
+
+Review the remaining TODOs/FIXMEs in killersheep.
+Finish refactoring?
+
+##
+## ?
+
+Also, it is not clear whether this syntax is intended to be expanded for *any* command, including ones which expect an expression as an argument (like `:echo`), or only for commands which expect a filename (like `:edit`).
+
+The help suggests that it's intended for more than just commands expecting a filename:
+
+   > The same is true for commands that are not compiled, such as `:global`.
+   > For these the backtick expansion can be used.  Example: >
+   >         def Replace()
+   >           var newText = 'blah'
+   >           g/pattern/s/^/`=newText`/
+   >         enddef
+
+But this seems to contradict this comment:
+
+   > I don't think `=expr` is evaluated for an :echo command.
+
+[source](https://github.com/vim/vim/issues/7621#issuecomment-754800855)
+
+And this other comment:
+
+    // TODO: should only expand when appropriate for the command
+
+[source](https://github.com/vim/vim/blob/7824fc80f675b8098e6483ce082e287aad14b6da/src/vim9compile.c#L9200)
+
+---
+
+I think it should be limited to commands which expect a filename as argument, because:
+
+   1. it's consistent with legacy Vim script, where "`=expr`" only works for commands expecting a filename
+
+   2. it's not reliable anyway
+
+With regards to `2.`, this syntax only works with simple types; not with lists, dictionaries, functions:
+```vim
+vim9script
+def Func()
+    var d: dict<number>
+    global/^/echo `=d`
+enddef
+defcompile
+```
+    E1105: Cannot convert dict to string
+
+The best way to deal with an issue where a command needs to access a function-local variable, is to move the latter in the script-local namespace.
+
+Instead, maybe the help should explain that when an Ex command is executed by another command/function:
+
+   - it's never compiled, therefore it can't access items in compiled code, like function-local variables
+
+   - it's always run in the script context, therefore it *can* access any item in that namespace
+
+   - if it needs to refer to an item, the latter should be in a namespace accessible by any script (like `g:`, `b:`, `w:`, ...), or in the script namespace
+
+See also: <https://github.com/vim/vim/issues/7621#issuecomment-755085800>
+
+## Vim9: cannot use a lambda for 'operatorfunc'
+
+<https://github.com/vim/vim/releases/tag/v8.2.3619>
+
+Check which of the new syntaxes provided by this patch work in Vim9.
+I suspect none.
+No todo item was added at `:help todo`  in the last update of the runtime files,
+and I couldn't find any relevant one in the source code either.
+
+## ?
+```vim
+vim9script
+append(-1, 'text')
+```
+    no error
+
+Shouldn't an error be given?  Like one of these:
+
+    E1174: Positive number required for argument 1
+    E1174: Positive number or String required for argument 1
+
+---
+```vim
+vim9script
+append('.aa', 'text')
+```
+    "text" is appended
+```vim
+vim9script
+append('a.a', 'text')
+```
+    E1209: Invalid value for a line number: "a.a"
+
+Same issue with `setline()`.
+Only valid strings should be accepted.
+Test all builtin functions which accept a string with a special meaning as argument.
+
+Also, check how builtin functions handle invalid numbers.
+For example, a negative number is invalid for `append()`.
+
+## ?
+
+Write this in a Vim file:
+
+    vim9script
+    echo len(0)
+
+Then, execute:
+
+    set filetype=forth
+    syntax clear
+    set filetype=vim
+
+Notice how the `len` keyword is wrongly highlighted as an error.
+That's because `'iskeyword'` has been wrongly altered by the forth syntax plugin.
+There are many other syntax plugins making the same mistake.
+Instead, they should write:
+
+    if (v:version == 704 && has('patch-7.4.1142')) || v:version > 704
+        syntax iskeyword new_value
+    else
+        setlocal iskeyword=new_value
+    endif
+
+But there might be a deeper cause in `$VIMRUNTIME/ftplugin/vim.vim`:
+
+    setlocal isk+=#
+                ^^
+
+Why appending to the current value without resetting first?
+
+    # first, we reset
+    setlocal isk&vim
+    # now, we can append
+    setlocal isk+=#
+
+There  are  many  other  filetype  plugins  which  add/remove  an  item  from  a
+comma-separated list  of values  in an option.   Should Vim  automatically reset
+all/some local options when changing the filetype of a file?
+At  least  the most  commonly  set  ones, and  the  most  problematic ones  like
+`'iskeyword'`?
+
+Update: I think that's to support dot separated filetypes, like this one:
+
+    set filetype=c.doxygen
+
+## ?
+
+Look for the pattern `compatib` in Vim's help files.
+For the relevant matches, ask yourself whether Vim9 would benefit from dropping an old syntax.
 
 ##
 ## ?
@@ -1419,19 +1737,7 @@ In the second snippet, could Vim be smarter?
 
 ## ?
 
-Not a bug:
-<https://github.com/vim/vim/issues/8926>
-
-But maybe poor design?
-Why do we have to write `list<string>`? `list` is already implied by `...`.
-
-    ✘
-             vvv         v--v
-    def Func(...varargs: list<string>)
-
-    ✔
-             vvv         v----v
-    def Func(...varargs: string)
+<https://github.com/vim/vim/issues/8926#issuecomment-980473929>
 
 ## ?
 
@@ -1469,7 +1775,9 @@ At that point, the ambiguity with a global command would arise again.
 
     for file in $files; do
       vim -Nu NONE $file -S <(cat <<'EOF'
-        set rtp^=~/.vim rtp^=~/.vim/pack/mine/opt/lg-lib/ rtp^=~/.vim/pack/mine/opt/submode/
+        set runtimepath^=~/.vim
+        set runtimepath^=~/.vim/pack/mine/opt/lg-lib/
+        set runtimepath^=~/.vim/pack/mine/opt/submode/
         call append('$', 'defcompile')
         silent! global/^\s*finish$/delete _
         update
@@ -1516,7 +1824,7 @@ The execution stops and Vim prints this:
 One might expect that `v:false` and `0` are handled like the same value.  Should/could they?  Or are we meant to turn booleans into numbers with `? 1 : 0`:
 
     breakadd expr execute('ls') =~ 'file' ? 1 : 0
-                                         ^------^
+                                          ^-----^
 
 And the `v:` prefix in front of `v:false` suggests that the expression is evaluated in the legacy context (in Vim9, it would have been dropped, just like in `:vim9 echo v:false`).  But `:breakadd expr` is written in a Vim9 script. Shouldn't the expression be evaluated in the Vim9 context?
 
@@ -1556,7 +1864,7 @@ No error is given.
 
 **Additional context**
 
-If `?:` is removed, an error is correctly raised at compile time:
+If `?:` is removed, an error is correctly given at compile time:
 ```vim
 vim9script
 def Func()
@@ -1630,11 +1938,7 @@ Func()
 ```
     E1012: Type mismatch; expected string but got number
 
-I think an error should be raised in the first snippet at compile time.
-
-## ?
-
-<https://github.com/vim/vim/issues/8719#issuecomment-894173355>
+I think an error should be given in the first snippet at compile time.
 
 ## ?
 
@@ -1655,6 +1959,9 @@ Should we allow the comparison between a job and a special?
 
 Update: Or maybe a better solution would  be a comparison operator which ignores
 the type, and only cares about the value.
+
+Update: Remember that we already did sth similar with `getcharstr()`.
+<https://github.com/vim/vim/issues/8343#issuecomment-856009496>
 
 Update: In killersheep, the variable `s:music_job` is `:unlet`.
 We cannot unlet a script-local variable in Vim9.
@@ -1858,7 +2165,6 @@ In Vim9:
     E476: Invalid command: filter |pat| ls
     E476: Invalid command: filter | pat | ls
 
-    E476: Invalid command: filter #pat# ls
     E476: Invalid command: filter # pat # ls
 
     E492: Not an editor command: filter _ pat _ ls
@@ -2002,7 +2308,7 @@ Func()
     E1012: Type mismatch; expected string but got void in map()
 
 Why is `a` echo'ed?
-Why is the error raised at runtime, and not earlier at compile time?
+Why is the error given at runtime, and not earlier at compile time?
 ```vim
 vim9script
 def Func()
@@ -2015,256 +2321,39 @@ defcompile
 ##
 ## ?
 
-"`=expr`" is not expanded in enough contexts
-```vim
-vim9script
-def Func()
-    var name = '/tmp/file'
-    windo e `=name`
-enddef
-Func()
-```
-    E121: Undefined variable: name
-
----
-
-In a global command, a backtick expansion works:
-```vim
-vim9script
-def Func()
-    var name = '/tmp/file'
-    g/^/e `=name`
-enddef
-Func()
-```
-    no error
-
-Same thing in a `:v` command:
-```vim
-vim9script
-def Func()
-    var name = '/tmp/file'
-    v/not found/e `=name`
-enddef
-Func()
-```
-    no error
-
-And in a `:folddoopen` command:
-```vim
-vim9script
-def Func()
-    var name = '/tmp/file'
-    folddoopen e `=name`
-enddef
-Func()
-```
-    no error
-
-And in a `:folddoclosed` command:
-```vim
-vim9script
-def Func()
-    var name = '/tmp/file'
-    folddoclosed e `=name`
-enddef
-Func()
-```
-    no error
-
-This seems inconsistent.  I think a backtick expansion should work in – at least
-– all the frequently used commands/functions which execute other Ex commands.
-
-That is `:bufdo`:
-```vim
-vim9script
-def Func()
-    var name = '/tmp/file'
-    bufdo e `=name`
-enddef
-Func()
-```
-    E121: Undefined variable: name
-
-`:argdo`:
-```vim
-vim9script
-def Func()
-    var name = '/tmp/file'
-    args /tmp/file
-    argdo e `=name`
-enddef
-Func()
-```
-    E121: Undefined variable: name
-
-`:cdo`:
-```vim
-vim9script
-def Func()
-    var name = '/tmp/file'
-    sil helpg grail
-    cdo e `=name`
-enddef
-Func()
-```
-    E121: Undefined variable: name
-
-`:cfdo`:
-```vim
-vim9script
-def Func()
-    var name = '/tmp/file'
-    sil helpg grail
-    cfdo e `=name`
-enddef
-Func()
-```
-    E121: Undefined variable: name
-
-`:ldo`:
-```vim
-vim9script
-def Func()
-    var name = '/tmp/file'
-    sil lh grail
-    ldo e `=name`
-enddef
-Func()
-```
-    E121: Undefined variable: name
-
-`:lfdo`:
-```vim
-vim9script
-def Func()
-    var name = '/tmp/file'
-    sil lh grail
-    lfdo e `=name`
-enddef
-Func()
-```
-    E121: Undefined variable: name
-
-`execute()`:
-```vim
-vim9script
-def Func()
-    var name = '/tmp/file'
-    execute('e `=name`')
-enddef
-Func()
-```
-    E121: Undefined variable: name
-
-`win_execute()`:
-```vim
-vim9script
-def Func()
-    var name = '/tmp/file'
-    win_execute(win_getid(), 'e `=name`')
-enddef
-Func()
-```
-    E121: Undefined variable: name
-
----
-
-Also, it  is not clear  whether "`=expr`" is intended  to be expanded  for *any*
-command,  including  ones  which  expect  an expression  as  an  argument  (like
-`:echo`), or only for commands which expect a filename (like `:edit`).
-
-The help suggests that it's intended for more than just commands expecting a filename:
-
-   > The same is true for commands that are not compiled, such as `:global`.
-   > For these the backtick expansion can be used.  Example: >
-   >         def Replace()
-   >           var newText = 'blah'
-   >           g/pattern/s/^/`=newText`/
-   >         enddef
-
-But this seems to contradict this comment:
-
-   > I don't think `=expr` is evaluated for an :echo command.
-
-Source: <https://github.com/vim/vim/issues/7621#issuecomment-754800855>
-
-And this other comment:
-
-    // TODO: should only expand when appropriate for the command
-
-Source: <https://github.com/vim/vim/blob/9ce47ec0b65f81358febacbd9b808ac8ef7af85c/src/vim9compile.c#L8434>
-
-I think it  should be limited to  commands which expect a  filename as argument,
-because:
-
-   - it's consistent with legacy Vim script, where "`=expr`" only works for
-     commands expecting a filename
-
-   - it only seems to work with simple types; not with lists, dictionaries, functions:
-
-```vim
-vim9script
-def Func()
-    var d: dict<number>
-    g/^/echo `=d`
-enddef
-defcompile
-```
-    E1105: Cannot convert dict to string
-
-   - I think people will find it's a weird syntax anyway
-
-Instead, maybe the  help should explain that  when an Ex command  is executed by
-another command/function:
-
-   - it's never compiled, therefore it can't access items in compiled code, like
-     function-local variables
-
-   - it's always run in the script context, therefore it *can* access any item
-     in that namespace
-
-   - if it needs to refer to an item, the latter should be in a "public"
-     namespace (public = accessible by any script, like `g:`, `b:`, `w:`, ...),
-     or in the script namespace
-
-See also: <https://github.com/vim/vim/issues/7621#issuecomment-755085800>
-
-## ?
-
 According to the help, these functions accept a funcref as an argument:
 
-  - `:h call()`
-  - `:h eval()`
-  - `:h filter()`
-  - `:h function()`
-  - `:h map()`
-  - `:h search()`
-  - `:h searchpair()`
-  - `:h setqflist()`
-  - `:h sort()`
-  - `:h substitute()`
-  - `:h timer_start()`
+  - `:help call()`
+  - `:help eval()`
+  - `:help filter()`
+  - `:help function()`
+  - `:help map()`
+  - `:help search()`
+  - `:help searchpair()`
+  - `:help setqflist()`
+  - `:help sort()`
+  - `:help substitute()`
+  - `:help timer_start()`
 
 Do they also accept a function name?
 ```vim
-fu Func()
+function Func()
     echo 'working'
-endfu
+endfunction
 call call('Func', [])
 ```
     working
 ```vim
-fu Func()
+function Func()
     return 'working'
-endfu
+endfunction
 echo 'Func'->string()->eval()()
 ```
     E15: Invalid expression: )
 ```vim
-fu MyFilter(i, v)
+function MyFilter(i, v)
     return a:v =~ 'keep'
-endfu
+endfunction
 echo ['removeme', 'keepme', 'deleteme']->filter('MyFilter')
 ```
     E121: Undefined variable: MyFilter
@@ -2273,65 +2362,65 @@ echo function('strlen')('working')
 ```
     7
 ```vim
-fu MyMap(i, v)
+function MyMap(i, v)
     return a:v * 100
-endfu
+endfunction
 echo [1, 2, 3]->map('MyMap')
 ```
     E121: Undefined variable: MyMap
 ```vim
 call setline(1, ['if', '" endif', 'endif'])
-syn on
-set ft=vim
-fu MySkip()
+syntax on
+set filetype=vim
+function MySkip()
     return synstack('.', col('.'))
         \ ->map({_, v -> synIDattr(v, 'name')})
         \ ->match('\ccomment') != -1
-endfu
+endfunction
 echo search('\<endif\>', '', 0, 0, 'MySkip')
 ```
     E121: Undefined variable: MySkip
 ```vim
 call setline(1, ['if', '" endif', 'endif'])
-syn on
-set ft=vim
-fu MySkip()
+syntax on
+set filetype=vim
+function MySkip()
     return synstack('.', col('.'))
         \ ->map({_, v -> synIDattr(v, 'name')})
         \ ->match('\ccomment') != -1
-endfu
+endfunction
 echo searchpair('\<if\>', '', '\<endif\>', '', 'MySkip')
 ```
     E121: Undefined variable: MySkip
 ```vim
-fu Func(info)
+function Func(info)
     return repeat(['test'], 100)
-endfu
+endfunction
 call setqflist([], 'r', {'lines': v:oldfiles, 'efm': '%f', 'quickfixtextfunc': 'Func'})
-cw
+cwindow
 ```
     no error
 ```vim
-fu Func()
+function Func()
     echo ['bbb', 'aaa']->sort('MySort')
-endfu
-fu MySort(line1, line2)
+endfunction
+function MySort(line1, line2)
     return a:line1 > a:line2 ? 1 : -1
-endfu
+endfunction
 call Func()
 ```
     ['aaa', 'bbb']
 ```vim
-fu MyRep()
+function MyRep()
     return 1
-endfu
+endfunction
 echo substitute('aaa', '.', MyRep, 'g')
 ```
     E121: Undefined variable: MyRep
 ```vim
-fu MyCb(_)
+function MyCb(_)
     echom 'my callback'
-endfu
+endfunction
 call timer_start(0, 'MyCb')
 ```
     my callback
@@ -2413,7 +2502,7 @@ def MyQftf(info: any): any
 enddef
 def Func()
     setqflist([], 'r', {'lines': v:oldfiles, 'efm': '%f', 'quickfixtextfunc': 'MyQftf'})
-    cw
+    cwindow
 enddef
 Func()
 ```
@@ -2425,7 +2514,7 @@ def MyQftf(info: any): any
 enddef
 def Func()
     setqflist([], 'r', {'lines': v:oldfiles, 'efm': '%f', 'quickfixtextfunc': MyQftf})
-    cw
+    cwindow
 enddef
 Func()
 ```
@@ -2516,7 +2605,7 @@ def MyQftf(info: any): any
     return repeat(['test'], 100)
 enddef
 setqflist([], 'r', {'lines': v:oldfiles, 'efm': '%f', 'quickfixtextfunc': 'MyQftf'})
-cw
+cwindow
 ```
     no error
 ```vim
@@ -2525,7 +2614,7 @@ def MyQftf(info: any): any
     return repeat(['test'], 100)
 enddef
 setqflist([], 'r', {'lines': v:oldfiles, 'efm': '%f', 'quickfixtextfunc': MyQftf})
-cw
+cwindow
 ```
     no error
 ```vim
@@ -3172,8 +3261,8 @@ The  error occurred  earlier:  `map()`  changes the  type  of `range(...)`  from
 `list<number>` to `list<string>`.
 
 Update: I don't think it can be fixed.
-I think  these issues are  raised at compile time,  while the `map()`  error can
-only be raised later, at runtime.
+I think these issues are given at compile time, while the `map()` error can only
+be given later, at runtime.
 
 ---
 
@@ -3270,50 +3359,6 @@ enddef
 defcompile
 ```
     no error
-
-##
-## ?
-```vim
-vim9script
-def Func()
-    lockvar unknown
-enddef
-Func()
-```
-    no error
-
-Should we give an error?
-
-## ?
-```vim
-vim9script
-append(-1, 'text')
-```
-    no error
-
-Shouldn't an error be raised?  Like one of these:
-
-    E1174: Positive number required for argument 1
-    E1174: Positive number or String required for argument 1
-
----
-```vim
-vim9script
-append('.aa', 'text')
-```
-    "text" is appended
-```vim
-vim9script
-append('a.a', 'text')
-```
-    E1209: Invalid value for a line number: "a.a"
-
-Same issue with `setline()`.
-Only valid strings should be accepted.
-Test all builtin functions which accept a string with a special meaning as argument.
-
-Also, check how builtin functions handle invalid numbers.
-For example, a negative number is invalid for `append()`.
 
 ##
 ## ?
@@ -3450,7 +3495,7 @@ Func()
     E1075: Namespace not supported: v: count]
 
 This error message will probably look confusing to a new Vim user.
-More generally, I suspect that `E1075` should never be raised for a sublist.
+More generally, I suspect that `E1075` should never be given for a sublist.
 
 ## ?
 
@@ -3568,7 +3613,7 @@ Run this shell command:
     EOF
     )
 
-`E1075` is raised:
+`E1075` is given:
 
     E1075: Namespace not supported: s:
 
@@ -3595,7 +3640,7 @@ echo s:
 
 ---
 
-`E1075` is not documented in the help, but it is also raised when we try to nest a script-local function inside another one:
+`E1075` is not documented in the help, but it is also given when we try to nest a script-local function inside another one:
 ```vim
 vim9script
 def Outer()
@@ -3630,9 +3675,9 @@ If it can't be made to work, maybe this limitation should be documented (`:h vim
 Update:  I found a workaround which relies on the null coalescing operator.
 ```vim
 " old code using get(s:, ...)
-fu Func()
+function Func()
     echo get(s:, 'name', 123)
-endfu
+endfunction
 ```
 ```vim
 " new code using ??
@@ -3754,7 +3799,7 @@ defcompile
 ```
     E476: Invalid command: invalid
 
-Why isn't `E1191` raised in the second snippet?
+Why isn't `E1191` given in the second snippet?
 The code is identical; the only difference is that `A()` has been renamed into `B()`.
 Same results if you rename `Map()` into `Func()`.
 
@@ -4011,7 +4056,7 @@ value, but needs to be converted to a string to be concatenated with `''`.
 But that's impossible, hence the error.
 
 So, this error is correct; but it's still confusing.
-For the programmer,  it would be easier  to fix the issue if  `E1096` was raised
+For the  programmer, it would be  easier to fix  the issue if `E1096`  was given
 instead; just like here:
 ```vim
 vim9script
@@ -4079,8 +4124,8 @@ echo l
 ```
     [4, 4, 4]
 
-An error  should be  raised because  the second  argument of  `map()` must  be a
-string or a funcref; not a number.
+An error should be given because the second argument of `map()` must be a string
+or a funcref; not a number.
 
 ---
 ```vim
@@ -4091,7 +4136,7 @@ echo l
 ```
     [1, 2, 3]
 
-An error should  be raised because the  second argument of `filter()`  must be a
+An error  should be given  because the second argument  of `filter()` must  be a
 string or a funcref; not a number.
 
 ---
@@ -4352,21 +4397,6 @@ Yes, it would be  an extra rule to implement, but the block  syntax is already a
 corner case in itself (rarely useful); adding a rule on top of that would not be
 a big deal, right?
 
-## ?
-```vim
-vim9script
-var d = {
-    a-b: 123
-}
-echo d.a-b
-```
-    E716: Key not present in Dictionary: "a-b"
-
-The `a-b` key *is* in the dictionary.
-A less misleading error message would be:
-
-    E1234: .key notation can only include digits, letters and underscores
-
 ## unexpected E1095 when unclosed string below :return
 ```vim
 vim9script
@@ -4393,7 +4423,7 @@ defcompile
 ```
     E1095: Unreachable code after :return
 
-It would be easier to fix the issue if `E114` was raised in the second snippet.
+It would be easier to fix the issue if `E114` was given in the second snippet.
 It's  not really  a  bug; `"  wrong  ...`  is parsed  as  unclosed string  which
 technically  is code  (remember that  a  string is  an expression,  and you  can
 evaluate an expression without `:eval`).
@@ -4650,14 +4680,14 @@ Answer: it matches the case.
 ### 850
 
 At `:h  vim9-gotchas`, I would add  a gotcha about  the fact that you  can *not*
-omit `s:` when calling a script-local or imported function from a `:fu` function.
+omit `s:` when calling a script-local or imported function from a `:function` function.
 It sounds obvious, but  in practice, I bet you might  sometimes forget and don't
 understand why your code doesn't work.
 ```vim
 vim9script
-fu Foo()
+function Foo()
     call Bar()
-endfu
+endfunction
 def Bar()
     echo 'bar'
 enddef
@@ -4669,7 +4699,7 @@ The reason why you might forget, is because  in Vim9 script you can omit `s:` in
 front of a function name most of the time; that is when:
 
    - defining a `:def` function
-   - defining a `:fu` function
+   - defining a `:function` function
    - calling a script-local function from a `:def` function
 
 ---
@@ -4722,7 +4752,24 @@ this kind of argument (only a number).
    >           use-feature  " May give compilation error
    >         enddef
 
-I can't reproduce this pitfall:
+I can reproduce this pitfall:
+```vim
+vim9script
+def Func()
+    if !has('sound')
+        return
+    endif
+    sound_playfile('/usr/share/sounds/alsa/Rear_Right.wav')
+enddef
+defcompile
+```
+    E117: Unknown function: sound_playfile
+    # this assumes that you compiled Vim without sound support
+
+        ./configure --disable-canberra
+                    ^----------------^
+
+But why no error here?
 ```vim
 vim9script
 def Maybe()
@@ -4733,6 +4780,24 @@ def Maybe()
 enddef
 Maybe()
 ```
+In addition  to checking  whether a  function is  available, shouldn't  Vim also
+check whether an Ex command is available?
+
+Even simpler:
+```vim
+vim9script
+def Func()
+    ruby print('Hello')
+enddef
+defcompile
+```
+    no error
+
+This doesn't raise any error, even though my Vim doesn't support the ruby interface.
+If this is  working as intended, maybe  we should better document  which kind of
+syntax is checked for existence/availability  at compile time (e.g. functions vs
+Ex commands).
+
 ---
 
    > For a workaround, split it in two functions: >
@@ -4747,21 +4812,24 @@ Maybe()
    >           enddef
    >         endif
 
----
+The repetition of `has('feature')` looks awkward and is inefficient.
+This is better:
 
-I don't understand how the workaround works.
-If  Vim  doesn't  support  `feature`,  then  why  isn't  there  any  error  when
-`MaybeInner()` is compiled?   One explanation would be  that `if has('feature')`
-is evaluated at compile time, and if it fails, `MaybeInner()` is not compiled.
-But watch this:
-```vim
-vim9script
-def Func()
-    ruby print('Hello')
-enddef
-defcompile
-```
-This doesn't raise any error, even though my Vim doesn't support the ruby interface.
+    func Maybe()
+      call MaybeInner()
+    endfunc
+    if has('feature')
+      def MaybeInner()
+        use-feature
+      enddef
+    else
+      def MaybeInner()
+      enddef
+    endif
+
+No more repetition,  and when you have `feature`, `Maybe()`  is not checking for
+the existence  of `feature`  on every single  invocation, which  is inefficient;
+especially if `Maybe()` is invoked frequently (e.g. `CursorMoved`).
 
 ### 985
 
@@ -4852,7 +4920,7 @@ function), but its body is empty.
 
 This is neat, and maybe it should be documented.
 If a  legacy function  contains syntax/type errors,  and was  invoked frequently
-(e.g. `InsertCharPre` autocmd),  the same  errors were raised  repeatedly.  This
+(e.g. `InsertCharPre`  autocmd), the  same errors  were given  repeatedly.  This
 shoud not happen with a `:def` function.
 
 But note that this is limited to an error which is found at compile time; not at
@@ -4902,12 +4970,12 @@ from its value in a dictionary.
 
 ### ?
 
-We can nest `:def` inside `:fu`, but not the reverse.
+We can nest `:def` inside `:function`, but not the reverse.
 ```vim
 vim9script
 def Vim9()
-    fu Legacy()
-    endfu
+    function Legacy()
+    endfunction
 enddef
 Vim9()
 ```
@@ -5037,6 +5105,39 @@ var id = popup_create('attached to "text"', {
 popup_hide(id)
 ```
 
+## cannot scroll to bottom of popup window using builtin popup filter menu when height equal to terminal window
+
+<https://vi.stackexchange.com/questions/27320/scrolling-down-in-popup-window-not-working-as-intended>
+
+As a workaround, you can use a custom filter:
+
+    call range(50)
+        \ ->map({_, i -> string(i)})
+        \ ->popup_create(#{
+        \ line: 1,
+        \ col: 1,
+        \ minwidth: 1,
+        \ minheight: 1,
+        \ cursorline: 1,
+        \ wrap: 0,
+        \ mapping: 0,
+        \ filter: 'MyMenuFilter',
+        \ firstline: 1,
+        \ })
+
+    function MyMenuFilter(id, key)
+        if a:key == 'j'
+            call win_execute(a:id, 'norm! j')
+            call popup_setoptions(a:id, #{firstline: 0})
+            return 1
+        endif
+        return popup_filter_menu(a:id, a:key)
+    endfunction
+
+It looks  like a bug.   If a custom  filter can make  Vim scroll a  popup window
+whose height  is `&lines`,  the builtin filter  should be able  to do  the same.
+Unless it's a design choice?  Is it documented?
+
 ## Improve `:h popup-examples /TODO`
 
    > TODO: more interesting examples
@@ -5113,6 +5214,114 @@ Is it documented or is it a bug?
 
 ##
 # Misc.
+## 'verbose' message not printed until scroll back and forth
+
+**Steps to reproduce**
+
+Run this shell command:
+
+    vim -Nu NONE -i NONE +'4verbose echo system("seq " .. 2*&lines)'
+
+The output of `seq(1)` is printed in Vim's pager: this is expected.
+The first line of Vim's pager is empty: this is NOT expected.
+
+**Expected behavior**
+
+The first line of Vim's pager prints the exact shell command which Vim has run to get the output of `system()`.  Something like:
+
+    Calling shell to execute: "(seq 123)>/tmp/vsZS9Kf/0 2>&1"
+
+**Operating system**
+
+Ubuntu 20.04.3 LTS
+
+**Version of Vim**
+
+8.2 Included patches: 1-3656
+
+**Screenshot**
+
+![gif](https://user-images.githubusercontent.com/8505073/143058325-9e982a48-2d00-4beb-8f28-91fa45360202.gif)
+
+In the previous screenshot, we can see that the first line is initially empty.  Then, after scrolling back and forth by pressing `j` then `k`, the "Calling shell to execute: ..." message is finally printed.  It would be less confusing if it was printed immediately, without us having to scroll.
+
+---
+
+There are other issues.  Sometimes, some lines in the output of `system()` are blank.
+It depends on the number of lines:
+
+    vim -Nu NONE -i NONE +'4verbose echo system("seq " .. 2*&lines)'
+                                                          ^------^
+                                                          make more tests, and play with that number
+
+## Possibly stale items at `:help todo /Vim script language`:
+
+    8   Make the filename and line number available to script functions, so that
+        they can give useful debugging info.  The whole call stack would be ideal.
+        At least use this for error messages.
+
+`:echo expand('<stack>')`
+
+---
+
+    7   Pre-parse or compile Vim scripts into a bytecode.
+        1. Put the bytecode with the original script, with an ":if
+           has('bytecode')" around it, so that it's only used with a Vim that
+           supports it.  Update the code with a command, can be used in an
+           autocommand.
+        2. Use a ".vic" file (like Python use .pyc).  Create it when writing a
+           .vim file.  Problem: distribution.
+        3. Use a cache directory for each user.  How to recognize which cached
+           file belongs to a sourced script?
+
+`:def`
+
+---
+
+    7   Add argument to winwidth() to subtract the space taken by 'foldcolumn',
+        signs and/or 'number'.
+
+`:echo win_getid()->getwininfo()[0].textoff`
+
+---
+
+    6   Add ++ and -- operators?  They only work on variables (lvals), how to
+        implement this?
+
+Vim9
+
+---
+
+    8   argc() returns 0 when using "vim -t tag".  How to detect that no file was
+        specified in any way?  To be able to jump to the last edited file.
+
+`v:argv`???
+
+---
+
+    8   Pass the command line arguments to Vim scripts in some way.  As v:args
+        List?  Or extra parameter to argv()?
+
+`v:argv`
+
+---
+
+   -   Replace ccomplete.vim by cppcomplete.vim from www.vim.org?  script 1520 by
+       Vissale Neang.  (Martin Stubenschrott) Asked Vissale to make the scripts
+       more friendly for the Vim distribution.
+       New version received 2008 Jan 6.
+       No maintenance in two years...
+
+The "new" version should be 13 years old now.
+No update on vim.org.
+
+## ?
+
+Study these plugins (rather short and interesting/useful):
+
+- <https://github.com/bfrg/vim-fzy>
+- <https://github.com/bfrg/vim-qf-diagnostics>
+
 ## ?
 
 <https://github.com/vim/vim/issues/1246>
@@ -5315,36 +5524,16 @@ Confusing message.
 
 ## ?
 
-Stale todo item:
-
-   > -   Replace ccomplete.vim by cppcomplete.vim from www.vim.org?  script 1520 by
-   >     Vissale Neang.  (Martin Stubenschrott) Asked Vissale to make the scripts
-   >     more friendly for the Vim distribution.
-   >     New version received 2008 Jan 6.
-   >     No maintenance in two years...
-
-The "new" version should be 13 years old now.
-No update on vim.org.
-
-## ?
-
-From `:h matchlist()`:
-
-   > Can also be used as a |method|: >
-   >         GetList()->matchlist('word')
-
-`GetList()` should be replaced with `GetText()`.
-
-## ?
-
 Matchparen issue:
 
     $ vim -Nu NORC -S <(cat <<'EOF'
         vim9script
-        set breakindent
-        set linebreak breakat+=]
-        (repeat('x', 70) .. ']' .. repeat('x', 50) .. '[xxx]' .. repeat('x', 70))->setline(1)
-        norm! 4e
+        &l:breakindent = true
+        &l:linebreak = true
+        set breakat+=]
+        printf('%s]%s[xxx]%s', repeat('x', 70), repeat('x', 50), repeat('x', 70))
+            ->setline(1)
+        normal! 4e
     EOF
     )
 
@@ -5356,20 +5545,24 @@ The default matchparen plugin has the same issue.
 MWE which does not depend on matchparen, and relies on a text property:
 ```vim
 vim9script
-set breakindent
-set linebreak breakat+=]
-(repeat('x', 70) .. ']' .. repeat('x', 50) .. '[xxx]' .. repeat('x', 70))->setline(1)
-norm! 6e
+&l:breakindent = true
+&l:linebreak = true
+set breakat+=]
+printf('%s]%s[xxx]%s', repeat('x', 70), repeat('x', 50), repeat('x', 70))
+    ->setline(1)
+normal! 6e
 prop_type_add('test', {highlight: 'ErrorMsg'})
 prop_add(1, 126, {length: 1, type: 'test'})
 ```
 MWE which does not depend on matchparen, and relies on a match:
 ```vim
 vim9script
-set breakindent
-set linebreak breakat+=]
-(repeat('x', 70) .. ']' .. repeat('x', 50) .. '[xxx]' .. repeat('x', 70))->setline(1)
-norm! 6e
+&l:breakindent = true
+&l:linebreak = true
+set breakat+=]
+printf('%s]%s[xxx]%s', repeat('x', 70), repeat('x', 50), repeat('x', 70))
+    ->setline(1)
+normal! 6e
 matchaddpos('ErrorMsg', [[1, 126]], 10, 3)
 ```
 ## ?
@@ -5524,39 +5717,6 @@ long line.  *Any* long line (even before or after) can make Vim lag.
 
 <https://github.com/vim/vim/pull/4446#issuecomment-702825238>
 
-## cannot scroll to bottom of popup window using builtin popup filter menu when height equal to terminal window
-
-<https://vi.stackexchange.com/questions/27320/scrolling-down-in-popup-window-not-working-as-intended>
-
-As a workaround, you can use a custom filter:
-
-    call range(50)
-        \ ->map({_, i -> string(i)})
-        \ ->popup_create(#{
-        \ line: 1,
-        \ col: 1,
-        \ minwidth: 1,
-        \ minheight: 1,
-        \ cursorline: 1,
-        \ wrap: 0,
-        \ mapping: 0,
-        \ filter: 'MyMenuFilter',
-        \ firstline: 1,
-        \ })
-
-    function MyMenuFilter(id, key)
-        if a:key == 'j'
-            call win_execute(a:id, 'norm! j')
-            call popup_setoptions(a:id, #{firstline: 0})
-            return 1
-        endif
-        return popup_filter_menu(a:id, a:key)
-    endfunction
-
-It looks  like a bug.   If a custom  filter can make  Vim scroll a  popup window
-whose height  is `&lines`,  the builtin filter  should be able  to do  the same.
-Unless it's a design choice?  Is it documented?
-
 ## cannot use dictionary function as a method
 
     $ vim -Nu NONE -S <(cat <<'EOF'
@@ -5581,138 +5741,7 @@ Bug?  Feature request?
 Update: It might be working as intended:
 <https://github.com/vim/vim/issues/4768#issuecomment-518006514>
 
-## channel-demo
-
-According to `:h channel-demo`:
-
-   > Instead of giving a callback with every send call, it can also be specified
-   > when opening the channel: >
-   >         call ch_close(channel)
-   >         let channel = ch_open('localhost:8765', {'callback': "MyHandler"})
-   >         call ch_sendexpr(channel, 'hello!')
-
-It doesn't work with the python demo server.
-
----
-
-I've found a way to "fix" it.
-First, import it in `/tmp/demo.py`:
-
-    :sp /tmp/demo.py
-    :r $VIMRUNTIME/tools/demoserver.py
-
-Then apply this patch (`$ cd /tmp; patch </tmp/patch.txt`):
-```diff
-diff --git a/usr/local/share/vim/vim82/tools/demoserver.py b/tmp/demo.py
-index a9eed5e..00fe8bf 100755
---- a/usr/local/share/vim/vim82/tools/demoserver.py
-+++ b/tmp/demo.py
-@@ -64,7 +64,7 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
-                     response = "got it"
-                 else:
-                     response = "what?"
--                encoded = json.dumps([decoded[0], response])
-+                encoded = json.dumps([0, response])
-                 print("sending {0}".format(encoded))
-                 self.request.sendall(encoded.encode('utf-8'))
-         thesocket = None
-```
-To test the fix, start the updated demo server:
-
-    $ /tmp/demo.py
-
-Now source this from the current Vim instance:
-
-    mess clear
-
-    fu! MyHandler(channel, msg)
-        echom 'from the handler: ' .. a:msg
-    endfu
-    let channel = ch_open('localhost:8765', #{callback: 'MyHandler'})
-    call ch_sendexpr(channel, 'hello!')
-
-You should see this message in `:mess`:
-
-    from the handler: got it
-
-Which means the callback was correctly invoked.
-
-What was wrong in the original demo server?
-
-Apparently, `json.dumps()` converts this:
-
-    ✔
-    [0,"got it"]
-
-into this:
-
-    ✘
-    [1, "got it"]
-
-I think the  issue comes from the  first number which has  been incremented (not
-from the extra space).
-
-   > If your server sends  back multiple responses you need to  send them with ID
-   > zero, they will be passed to the channel callback.
-
-   ...
-
-   > When the process wants to send a message to Vim without first receiving a
-   > message, it must use the number zero:
-   >     [0,{response}]
-
----
-
-And if you want to terminate the server, just run:
-
-    call ch_close(channel)
-
-Then type `quit` or press `C-c` while in the demo server.
-
-As a last resort, run:
-
-    $ kill $(pidof python)
-
-But bear  in mind that you  won't be able to  restart the server for  one or two
-minutes:
-
-    socket.error: [Errno 98] Address already in use
-
----
-
-According to Bram:
-
-   > Read :help channel-use, it will explain about using ch_sendexpr().
-   > The callback is for NL or raw messages, you are using JSON here.
-
-But the demo server encodes its reply in json.
-
-Make tests to better understand *when* we can use a callback.
-Here are the parameters to consider:
-
-   - the channel can be in raw, nl, json or js mode
-   - the callback can be passed to `ch_sendexpr()`, specified when opening the channel, or both
-   - the server can send its reply without encoding, or it can encode it with nl, json or js
-
-Where  is it  documented that  a  channel callback  can only  handle a  response
-received after calling `ch_sendexpr()` if it's *not* encoded in json (raw or nl)?
-
 ##
-## The descriptions of the local plugins are not aligned in the main help file:
-
-    vim -Nu NORC -S <(cat <<'EOF'
-        set rtp-=~/.vim
-        set rtp-=~/.vim/after
-        set rtp^=~/.vim/pack/mine/opt/abolish
-        set rtp^=~/.vim/pack/mine/opt/asyncmake
-        set rtp^=~/.vim
-        set rtp+=~/.vim/after
-    EOF
-    )
-
-    :h
-    :norm! G
-
 ## duplicate runtime bugs
 
 Those reports all have in common a  wrong syntax highlighting in a bash file due
@@ -5788,10 +5817,10 @@ An abbreviation is sometimes unexpectedly expanded in the middle of a word.
 Run this shell command:
 
     $ vim -Nu NONE -S <(cat <<'EOF'
-        set bs=start
-        inorea ab cd
+        set backspace=start
+        inoreabbrev ab cd
         put! ='yyyy'
-        norm! 3|
+        normal! 3|
         call feedkeys("i\<c-u>xxab ", 't')
     EOF
     )
@@ -5828,19 +5857,20 @@ But I find it unexpected to persist even after you've deleted some text before t
 
 Assuming it can be considered as a bug, I don't know whether it can be fixed.  For the moment, I'm experimenting this code:
 
-    augroup restrict_abbreviations | au!
-        au InsertEnter * let s:start_insertion = #{lnum: line('.'), col: col('.')}
-        au InsertCharPre * call s:Restrict_abbreviations()
+    augroup RestrictAbbreviations | autocmd!
+        autocmd InsertEnter * start_insertion = {lnum: line('.'), col: col('.')}
+        autocmd InsertCharPre * RestrictAbbreviations()
     augroup END
-    def s:Restrict_abbreviations()
-        var curlnum = line('.')
+    var start_insertion: dict<number>
+    def RestrictAbbreviations()
+        var curlnum: number = line('.')
         if v:char =~ '\k'
-            || s:start_insertion.col - 1 <= searchpos('[^[:keyword:]]', 'bn', curlnum)[1]
-            || curlnum != s:start_insertion.lnum
+            || start_insertion.col - 1 <= searchpos('[^[:keyword:]]', 'bn', curlnum)[1]
+            || curlnum != start_insertion.lnum
             || state() =~ 'm'
             return
         endif
-        feedkeys("\<c-v>" .. v:char)
+        feedkeys("\<C-V>" .. v:char)
         v:char = ''
     enddef
 

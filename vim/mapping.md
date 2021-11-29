@@ -863,8 +863,8 @@ operator.
 
 Yes.
 
-    nno <expr> <c-b> Op()
-    fu Op(...)
+    nno <expr> <c-b> g:Op()
+    fu g:Op(...)
         if !a:0
             set opfunc=Op
             return 'g@'
@@ -1271,7 +1271,7 @@ want to write sth like this instead:
 
 ##
 # Miscellaneous
-## What are 4 benefits of the pseudo-key `<cmd>`?
+## What are 5 benefits of the pseudo-key `<cmd>`?
 
 It preserves the current mode.
 For example, if your mapping is in insert mode, your command will be executed in
@@ -1288,8 +1288,8 @@ with its own pitfalls.
 
 ---
 
-You don't need `<c-u>` at the start of a command-line anymore (`:h N:`).
-That's because  `<cmd>` prevents Vim  from automatically inserting a  range when
+You don't need `<C-u>` at the start of a command-line anymore (`:h N:`).
+That's because  `<Cmd>` prevents Vim  from automatically inserting a  range when
 entering  the  command-line; usually,  that  happens  when the  command-line  is
 entered from visual  mode (`:'<,'>`), or a count was  pressed (`:.,.+123`) right
 before.
@@ -1304,6 +1304,22 @@ visual range explicitly:
     xno <F3> <cmd>*s/pat/rep/<cr>
     "             ^
     "             necessary
+
+---
+
+It ignores mappings and abbreviations, which makes the result more reliable.
+```vim
+nmap <F3> :echomsg 'no issue'<CR>
+cnoreabbrev echomsg invalid
+feedkeys("\<F3>")
+```
+    E492: Not an editor command: invalid 'no issue'
+```vim
+nmap <F3> <Cmd>echomsg 'no issue'<CR>
+cnoreabbrev echomsg invalid
+feedkeys("\<F3>")
+```
+    no issue
 
 ## Between `<cmd>` and the next mandatory `<cr>`, which keycodes
 ### lose their special meaning?
@@ -1923,6 +1939,30 @@ combination of `:exe` and another command:
     " after
     nno <buffer><nowait> q <cmd>wincmd p <bar> exe winnr('#') .. 'wincmd c'<cr>
                                                ^^^                ^----^
+
+
+##
+## When should I avoid writing a too long rhs?
+
+When the mapping is in command-line mode, and it evaluates an expression via
+`<C-R>=` or `<C-\>e`.
+
+### Why?
+
+It can cause an unexpected new line to be created:
+```vim
+&columns = 80
+execute printf('cnoremap <C-D> <C-R>="%s"->slice(0, 0)<CR>',
+        repeat('x', &columns - strlen('=' .. '->slice(0, 0)')))
+feedkeys(":\<C-D>")
+```
+That happens when your mapping presses enough keys to go beyond the end of the line.
+
+---
+
+For  an  `<expr>`  mapping,  the  length of  the  rhs  doesn't  matter,  because
+the  expression  is  evaluated  silently  (i.e. it's  not  being  typed  on  the
+command-line).
 
 ###
 ## When should I avoid `<c-r>=` in a command-line mode mapping?
@@ -3796,29 +3836,29 @@ prevent it.
 # Arguments
 ## Which mappings should *never* be defined with `<silent>`?
 
-Any mapping in command-line mode.
+Any mapping  in command-line  mode, because  it prevents  the latter  from being
+redrawn, which can give a confusing experience.
 
-First, it doesn't make sense.
-`<silent>` is  useful to prevent  Vim from printing an  Ex command which  is run
-after entering the command-line from the rhs of the mapping:
-
-        v------v
-    nno <silent> cd :call Func()<cr>
-    fu Func()
-        " ...
-    endfu
-
-This is  useless for a  command-line mode mapping,  because you can't  enter the
-command-line from it; you're *already* on the command-line.
-
-Second, it prevents the command-line from being redrawn:
-
-    $ vim -Nu NONE +'cno <silent> <c-z> <c-b>'
+    $ vim -Nu NONE +'cnoremap <silent> <C-Z> <C-B>'
     " enter the command-line
     " insert some text
-    " press `C-z` to jump to the start of the command-line: the cursor seems to have stayed where it was
-    " press `Right`: the cursor is now on the second character of the line
-      (which means that it was previously – and correctly – at the start)
+
+    " press `C-z` to jump to the start of the command-line:
+    " Expected: the cursor jumps to the start of the line
+    " Actual: the cursor does not jump
+
+The issue is not the cursor coordinates, but its graphical representation.
+This is confirmed by the fact that if you press `Right`, the cursor jumps to the
+second  character of  the  line, which  means  that it  was  previously –  and
+correctly – at the start.
+
+---
+
+The only case where `<silent>` might be useful for a command-line mapping, is if
+it presses `<C-R>=` or `<C-\>e`; the latter might cause some flickering (it does
+on my machine at the moment, but only in the GUI).
+However, because  of the previous issue,  the mapping should not  be expected to
+move the cursor.
 
 ## Should I use `<silent>` with `<expr>`?
 

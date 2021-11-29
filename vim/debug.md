@@ -553,7 +553,7 @@ size to avoid trying at all positions in the current and previous lines:
 # Testing
 ## Where can I learn how to write tests for Vim?
 
-   - `:h testing`
+   - `:help testing`
    - `~/Vcs/vim/src/testdir/README.txt`
    - `~/Vcs/vim/src/testdir/runtest.vim`
    - `~/Vcs/vim/src/testdir/test_assert.vim`
@@ -932,11 +932,37 @@ dummy one like `/bin/true`:
     STRIP = /bin/true
 
 ####
-#### Vim doesn't dump a core!
+#### How to get a backtrace without a core?
+
+    $ gdb -q --args ~/Vcs/vim/src/vim -Nu NONE -S /tmp/crash.vim
+    (gdb) set logging on
+    # start Vim so that it crashes
+    (gdb) run
+    # Print the backtrace.
+    # If it's too long, it will be printed in a pager.
+    # If so, press Enter repeatedly to scroll until you reach the bottom of the pager.
+    (gdb) bt full
+    (gdb) quit
+    # the backtrace should be in gdb.txt
+
+#### I want a core, but Vim doesn't dump any!
 
 Make sure you didn't set any limit on the size of core files which the OS can write:
 
-    ulimit -c unlimited
+    $ ulimit -c unlimited
+
+Also, make sure that the `apport` service is at least temporarily stopped:
+
+    $ sudo systemctl stop apport.service
+
+You can start the service again later with:
+
+    $ sudo systemctl start apport.service
+                     ^---^
+
+If the apport service is running while Vim crashes, the core might be
+intercepted and written at `/var/lib/apport/coredump/`.
+Interestingly enough, it seems that `apport` doesn't care about `ulimit(3)`.
 
 ---
 
@@ -959,7 +985,7 @@ variable:
     CFLAGS = -g -O0
                 ^^^
 
-#### When extracting a backtrace, I get a warning message!
+#### When extracting the backtrace, I get a warning message!
 
     warning: exec file is newer than core file.
 
@@ -980,23 +1006,7 @@ Run this:
 After reproducing the issue, the log should be written in `./valgrind.log`.
 
 Source: <https://github.com/vim/vim/issues/5410#issuecomment-569516803>
-See also `:h debug-leaks`.
-
----
-
-Valgrind doesn't work atm on Ubuntu 16.04, but it works on Ubuntu 18.04 in a VM.
-
-You can also try to compile it from source:
-
-    $ git clone git://sourceware.org/git/valgrind.git
-    $ cd valgrind
-    $ ./autogen.sh
-    $ ./configure
-    $ make
-    $ sudo make install
-
-But for  some reason, with  a compiled  valgrind, the logfile  contains spurious
-errors.  Also, there are a lot of `???` (missing debugging symbols?).
+See also `:help debug-leaks`.
 
 #### I need an asan log!
 

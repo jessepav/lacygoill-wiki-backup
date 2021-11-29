@@ -389,7 +389,7 @@ Outer()
 ```vim
 vim9script
 function Outer()
-    if true
+    if v:true
         function Inner()
             echo 'Inner'
         endfunction
@@ -408,7 +408,7 @@ It's:
     def Func(x = 3)
              ^---^
 
-This  is documented  at `:h  :def`, which  specifies the  3 ways  with which  an
+This is  documented at `:help  :def`, which specifies the  3 ways with  which an
 argument can be declared:
 
     {name}: {type}
@@ -3767,6 +3767,68 @@ vim9script
 (@a)->setline(1)
 ```
     no error
+
+## My folding expression doesn't work.  I don't get folds!
+
+Set `'debug'` to `throw`, and check whether Vim gives errors.
+
+It  might  be  that the  folding  expression  uses  a  legacy syntax,  which  is
+invalid/not allowed in the Vim9 context where it's evaluated.
+```vim
+vim9script
+&debug = 'throw'
+
+edit /tmp/file
+
+&l:foldminlines = 0
+&l:foldmethod = 'manual'
+&l:foldexpr = "getline(v:lnum)=~'^#'?'>1':'='"
+
+['x']->repeat(5)->setline(1)
+:1
+feedkeys('i#', 'nxt')
+
+&l:foldmethod = 'expr'
+foldlevel(1)
+&l:foldmethod = 'manual'
+```
+    E1004: White space required before and after '=~' at "=~'^#'?'>1':'='"
+
+Here, the error comes from missing whitespace around the binary operators:
+
+    &l:foldexpr = "getline(v:lnum)=~'^#'?'>1':'='"
+                                  ^^    ^    ^
+                                  ✘     ✘    ✘
+
+Solution 1: Fix the folding expression by adding the missing whitespace:
+
+    &l:foldexpr = "getline(v:lnum) =~ '^#' ? '>1' : '='"
+                                  ^  ^    ^ ^    ^ ^
+
+Solution 2: Make sure you're in the legacy context whenever a folding expression is evaluated.
+
+Either use the `:legacy` modifier:
+
+    legacy foldlevel(1)
+    ^----^
+
+Or a legacy function:
+
+    function Legacy()
+        eval foldlevel(1)
+    endfunction
+
+The last solution is more reliable when your code evaluates a folding expression
+over which it has no control (i.e. it could have been set in a different script,
+written in legacy).
+
+---
+
+In the future, it might no longer be an issue.
+From `:help todo`:
+
+   > Use the location where the option was set for deciding whether it's to be
+   > evaluated in Vim9 script context.
 
 ##
 # Todo

@@ -24,6 +24,33 @@ first character in their canonical name.
 
 For example, the description for `tmux` is inside the subdirectory `t/`.
 
+### What does `*` and `+` mean in the output of the previous command?
+
+When a terminal type is marked with:
+
+   - `*`, it means a *conflicting* entry is present in another db
+   - `+`, it means an *equivalent* entry is present in another db
+
+To find the db which `*`/`+` refers to, get its position on the line, subtract 1
+and divide by 2.  The result `n` matches  the `n`-th db listed at the top of the
+output.
+
+Example:
+
+    --> /home/lgc/.terminfo
+    ----> /etc/terminfo
+    ------> /lib/terminfo
+    --------> /usr/share/terminfo
+    *-----+-:	9term     	Plan9 terminal emulator for X
+    *---*---:	Eterm     	Eterm with xterm-style color support (X Window System)
+        ^
+
+The second `*` on the `Eterm` line refers to the 2nd db at the top:
+
+    ----> /etc/terminfo
+
+Because it's the 5th character on the line, and:  `(5 - 1) / 2 = 2`.
+
 ## How to find the db from which our terminal description comes from?
 
     $ infocmp -x

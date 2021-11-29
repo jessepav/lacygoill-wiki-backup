@@ -191,3 +191,15 @@ Here is what really happens:
       c SPC    ('c' is inserted by 'feedkeys()' during the evaluation of the rhs)
     b c SPC    (the rhs is inserted)
 
+##
+# Why should I avoid installing an abbreviation whose lhs matches a builtin Ex command?
+
+It might be unexpectedly expanded if you  use a recursive mapping which tries to
+execute a builtin Ex command.
+```vim
+nmap <F3> :echomsg 'no issue'<CR>
+cnoreabbrev echomsg invalid
+feedkeys("\<F3>")
+```
+    Expected: 'no issue'
+    Actual: E492: Not an editor command: invalid 'no issue'

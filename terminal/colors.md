@@ -83,8 +83,7 @@ yellow dots of ink.
 
 Mixing all primary colors of this system gives the color black.
 
-
-                                     NOTE:
+---
 
 It seems  that mixing  colors in  an additive OR  subtractive system  produces a
 color somewhere in the middle.
@@ -269,7 +268,7 @@ but not the remaining 240 ones.
 urxvt and  xterm are exceptions;  they allow you to  redefine all colors  of the
 palette via `~/.Xresources`.
 
-### How to do it at run time?
+### How to do it at runtime?
 
 In some terminals, you can use this sequence:
 

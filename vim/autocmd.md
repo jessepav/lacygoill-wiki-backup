@@ -598,7 +598,7 @@ typeahead buffer; they are executed immediately.
 It makes sense; the typeahead buffer is used by Vim to accumulate enough keys to
 get a complete command.  When you insert  a register, each key inside the latter
 is already a complete command because mappings and abbreviations are ignored.
-From `:h i^r`:
+From `:help i^r`:
 
    > The text is inserted as if you typed it, but mappings and
    > abbreviations are not used.
@@ -690,14 +690,14 @@ This  is because,  in Vim,  it's possible  to create  a terminal  buffer without
 opening any window;  and when you do that, `TerminalOpen`  is fired, even though
 the current window does not display a buffer terminal.
 
-From `:h TerminalOpen`:
+From `:help TerminalOpen`:
 
    > This event is triggered even if the buffer is created without a window, with the
    > ++hidden option.
 
 Solution: Listen to `TerminalWinOpen`.
 
-From `:h TerminalWinOpen`:
+From `:help TerminalWinOpen`:
 
    > This event is triggered only if the buffer is created with a window.
 
@@ -755,7 +755,7 @@ For example, when you write this:
     autocmd BufHidden * echomsg expand('%:p')
 
 You probably expect Vim to echo the path to the file whose buffer gets hidden.
-That's not always the case; from `:h BufHidden`:
+That's not always the case; from `:help BufHidden`:
 
    > NOTE: When this autocommand is executed, the
    > current buffer "%" may be different from the
@@ -776,7 +776,7 @@ pitfall:
    - `FileType`
 
 But there could be more.
-For example,  at `:h gzip-example`, `<afile>`  is used in autocmds  listening to
+For example, at `:help gzip-example`, `<afile>` is used in autocmds listening to
 these events:
 
    - `BufWritePost`
@@ -826,13 +826,13 @@ But it doesn't work on Windows:
 ### Why do I need the backslash?
 
 To suppress the special meaning of `?` in the pattern field of an autocmd.
-From `:h file-pattern`:
+From `:help file-pattern`:
 
    > ?     matches any single character
 
 You want the literal meaning, to only match a backward search command-line.
 You  don't want  `?` to  match  any character,  which  would cause  any type  of
-command-line to be affected including a regular one (`:`).  See `:h cmdwin-char`.
+command-line to be affected including a regular one (`:`).  See `:help cmdwin-char`.
 
 ##
 ## My autocmd is 100% correct.  And yet, it's not triggered!
@@ -996,25 +996,12 @@ Exemples d'évènements :
 
                     augroup test_cmd_undefined
                         autocmd!
-                        autocmd CmdUndefined * let g:myvar = expand('<afile>')
+                        autocmd CmdUndefined * let g:myvar = expand('<amatch>')
                     augroup END
 
                     :MyUndefinedCommand
 
             Cette autocmd capture le nom de la commande que l'utilisateur a tenté d'exécuter dans `g:myvar`.
-
-
-                                               NOTE:
-
-            Si on avait utilisé `<amatch>` au lieu de `<afile>`, il aurait fallu également utiliser
-            `fnamemodify()`:
-
-                    au CmdUndefined * let g:myvar = expand('<amatch>')->fnamemodify(':t')
-
-            ... car `<amatch>` ne contient pas juste le nom de la commande, mais aussi le chemin vers le cwd.
-
-                    :echo expand('<amatch>')
-                    /home/user/.vim/MyUndefinedCommand˜
 
 
     CursorHold
@@ -1062,7 +1049,7 @@ Exemples d'évènements :
             l'écriture/lecture/sourcage d'un fichier à l'utilisateur.
 
 
-Pour une liste exhaustive: :h autocmd-events
+Pour une liste exhaustive: `:help autocmd-events`
 
 # Patterns
 
@@ -1096,7 +1083,7 @@ Exemples de pattern (qd il match un fichier):
 
     <buffer>          le buffer courant
                         Il s'agit d'un pattern spécial permettant de limiter la portée
-                        d'une autocmd au buffer courant (:h autocmd-buflocal).
+                        d'une autocmd au buffer courant (:help autocmd-buflocal).
 
                                         NOTE:
 
@@ -1219,7 +1206,8 @@ A.  Exemple:
     autocmd BufWritePre *.{c,cpp,h,py} command
 
             autocmd se déclenchant pour des fichiers portant des extensions différentes.
-            La syntaxe utilisée ici illustre comment ne pas répéter le *. (:h file-pattern pour + d'infos).
+            La syntaxe utilisée ici illustre comment ne pas répéter le *.
+            (`:help file-pattern` pour + d'infos).
 
             Dans un pattern d'autocmd, il y a certaines similitudes entre les tokens `{}` / `,`
             et `()` / `|` d'une regex en mode très magique:
@@ -1265,56 +1253,6 @@ A.  Exemple:
 
             Cette autocmd fait la même chose que la précédente, mais la syntaxe est beaucoup plus simple
             à comprendre.  À préférer.
-
-
-                                    ┌ le pipe est écrit avant la prochaine commande Ex`:augroup`
-                                    │
-    augroup mine | autocmd! BufRead | augroup END                      ✔
-    augroup mine | autocmd BufRead * set textwidth=70 | augroup END    ✘
-                                                      │
-                                                      └ le pipe est écrit après la prochaine commande Ex `:set`
-
-            La commande `:automcd` ne peut  être suivie d'une autre commande Ex
-            qu'à condition que celle-ci soit précédée d'un pipe.
-
-            IOW, `:autocmd`  interprète un  pipe différemment selon  qu'elle a
-            vue avant lui une commande Ex ou non:
-
-                    ┌───────────────────────────┬───────────────────────────┐
-                    │ autocmd ... | cmd1        │ terminaison de commande   │
-                    ├───────────────────────────┼───────────────────────────┤
-                    │ autocmd ...   cmd1 | cmd2 │ fait partie de l'argument │
-                    └───────────────────────────┴───────────────────────────┘
-
-
-                                               FIXME:
-
-            J'ai copié cette info de `:h  :autocmd`.  Mais si c'est vrai, alors
-            la dernière commande, dans le code qui suit, devrait fonctionner:
-
-                    augroup mine
-                        autocmd!
-                        autocmd BufEnter * let g:myvar = 1
-                    augroup END
-
-                    autocmd! mine | augroup! mine
-                                    │
-                                    └ fonctionne pas: le groupe n'est pas supprimé
-                                      on peut le vérifier en exécutant `:au mine`
-                                      au lieu de produire une erreur, Vim affiche un augroup vide
-
-            En revanche, cette commande fonctionne:
-
-                    execute 'autocmd! mine' | augroup! mine
-
-
-                                               NOTE:
-
-            Comme pour  plein d'autres  commandes, on peut  empêcher `:autocmd`
-            d'interpréter  un pipe  comme faisant  partie de  son argument  via
-            `:execute`:
-
-                    augroup mine | execute 'autocmd BufRead * set textwidth=70' | augroup END    ✔
 
 
     augroup mine
@@ -1393,7 +1331,7 @@ Document that you can use a regular pattern, and not just a file pattern, as the
 pattern of an autocmd.
 This lets you use lookarounds:
 
-From `:h file-pattern`:
+From `:help file-pattern`:
 
    > It is possible to use |pattern| items, but they may not work as expected,
    > because of the translation done for the above.

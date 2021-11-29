@@ -1,31 +1,31 @@
 # functions
 
-   - `:h appendbufline()` + `:h deletebufline()`
-   - `:h charclass()`
-   - `:h chdir()`
-   - `:h complete_info()` + 'user_data' entry in completion item
-   - `:h environ()` + `:h getenv()` + `:h setenv()`
-   - `:h expandcmd()`
-   - `:h fullcommand()`
-   - `:h gettagstack()` + `:h settagstack()`
-   - `:h interrupt()`
-   - `:h prop_add_list()`
-   - `:h pum_getpos()`
-   - `:h setcellwidths()`
-   - `:h str2list()` + `:h list2str()`
-   - `:h strptime()` (*str*ing *p*arse *time* ?)
-   - `:h term_setansicolors()` + `:h term_getansicolors()`
-   - `:h term_setsize()`
-   - `:h terminalprops()`
+   - `:help appendbufline()` + `:help deletebufline()`
+   - `:help charclass()`
+   - `:help chdir()`
+   - `:help complete_info()` + 'user_data' entry in completion item
+   - `:help environ()` + `:help getenv()` + `:help setenv()`
+   - `:help expandcmd()`
+   - `:help fullcommand()`
+   - `:help gettagstack()` + `:help settagstack()`
+   - `:help interrupt()`
+   - `:help prop_add_list()`
+   - `:help pum_getpos()`
+   - `:help setcellwidths()`
+   - `:help str2list()` + `:help list2str()`
+   - `:help strptime()` (*str*ing *p*arse *time* ?)
+   - `:help term_setansicolors()` + `:help term_getansicolors()`
+   - `:help term_setsize()`
+   - `:help terminalprops()`
 
-   - `:h getcharpos()` (alternative to `getpos()` based on characters instead of bytes)
-   - `:h setcharpos()` (alternative to `setpos()` based on characters instead of bytes)
-   - `:h getcursorcharpos()` (alternative to `getcurpos()` based on characters instead of bytes)
-   - `:h setcursorcharpos()`
+   - `:help getcharpos()` (alternative to `getpos()` based on characters instead of bytes)
+   - `:help setcharpos()` (alternative to `setpos()` based on characters instead of bytes)
+   - `:help getcursorcharpos()` (alternative to `getcurpos()` based on characters instead of bytes)
+   - `:help setcursorcharpos()`
 
 ---
 
-`:h  bufadd()` and  `:h  bufload()` are  useful  to  edit a  file  which is  not
+`:help  bufadd()` and  `:help  bufload()` are  useful  to  edit a  file  which is  not
 currently  loaded, with  `deletebufline()`,  `setbufline()`,  ... and  *without*
 side effects (e.g. no window opened/closed which could alter the layout).
 
@@ -57,70 +57,77 @@ temporarily converting the dates into simple integers.
 
 ## arguments of functions
 
-   - `:h expand()` supports a new `<stack>` argument `{N}[hjkl]` since 8.2.1297
-   - `:h getbufinfo()` includes a `linecount` key in the output dictionary since 8.2.0019
-   - `:h getcompletion()` supports the `cmdline` argument since 8.2.0925
-   - `:h getcurpos()` supports a new argument `winid` since 8.2.1727
-   - `:h getloclist()` supports a `filewinid` key in the optional dictionary argument since 8.1.0345
-   - `:h line()` supports an optional `{winid}` argument since 8.1.1967
+   - `:help expand()` supports a new `<stack>` argument `{N}[hjkl]` since 8.2.1297
+   - `:help getbufinfo()` includes a `linecount` key in the output dictionary since 8.2.0019
+   - `:help getcompletion()` supports the `cmdline` argument since 8.2.0925
+   - `:help getcurpos()` supports a new argument `winid` since 8.2.1727
+   - `:help getloclist()` supports a `filewinid` key in the optional dictionary argument since 8.1.0345
+   - `:help line()` supports an optional `{winid}` argument since 8.1.1967
 
-   - `:h matchadd()` supports a new `window` key in the optional dictionary argument;
-     see also `:h matchdelete()`, `:h clearmatches()`, `:h getmatches()` and `:h setmatches()`,
+   - `:help matchadd()` supports a new `window` key in the optional dictionary argument;
+     see also `:help matchdelete()`, `:help clearmatches()`, `:help getmatches()` and `:help setmatches()`,
      they all accept a new optional window ID argument
 
-   - `:h mode()` can output `n_ov`, `n_oV`, `n_oC-v` since 8.1.0648
-   - `:h readdir()` and `:h readdirex()` support a new optional `{dict}` argument
-   - `:h search()` supports a new `{skip}` argument
-   - `:h winnr()` supports a new argument `{N}[hjkl]` since 8.1.1140
-   - `:h getqflist()` supports the new arguments `end_col` and `end_lnum` since 8.2.3019
+   - `:help mode()` can output `n_ov`, `n_oV`, `n_oC-v` since 8.1.0648
+   - `:help readdir()` and `:help readdirex()` support a new optional `{dict}` argument
+   - `:help search()` supports a new `{skip}` argument
+   - `:help winnr()` supports a new argument `{N}[hjkl]` since 8.1.1140
+   - `:help getqflist()` supports the new arguments `end_col` and `end_lnum` since 8.2.3019
+   - `:help prop_list()` supports new keys in the optional argument `{props}`:
+     `end_lnum`, `types`, `ids`
 
 ## output of functions
 
-   - `:h win_gettype()` can now output `preview` and `autocmd`
+   - `:help win_gettype()` can now output `preview` and `autocmd`
 
 ##
 # commands
 
-   - `:h :balt`
-   - `:h :echoconsole`
-   - `:h :scriptversion`
-   - `:h :swapname`
+   - `:help :balt`
+   - `:help :echoconsole`
+   - `:help :scriptversion`
+   - `:help :swapname`
 
 ## arguments of commands
 
-   - `:h ctermul` (argument of `:hi`) + terminal options: `:h t_AU`, `:h t_8u`, `:h t_Cs`, `:h t_Ce`
+   - `:help ctermul` (argument of `:help :highlight`)
+     + terminal options: `:help t_AU`, `:help t_8u`, `:help t_Cs`, `:help t_Ce`
 
-   - `:h :cq` (`:{N}cq[uit][!]`, Quit Vim with error code {N}.)
+   - `:help :cq` (`:{N}cq[uit][!]`, Quit Vim with error code {N}.)
 
-   - `:h :unlet-$`
+   - `:help :unlet-$`
+
+   - `:help :vimgrep` (`f` flag for fuzzy search)
 
 ##
 # events
 
-   - `:h CmdlineChanged`
-   - `:h CompleteChanged`
-   - `:h CompleteDonePre`
-   - `:h DiffUpdated`
-   - `:h DirChanged`
-   - `:h ExitPre`
-   - `:h InsertLeavePre`
-   - `:h ModeChanged`
-   - `:h SigUSR1`
-   - `:h SourcePost`
-   - `:h TextChangedP`
+   - `:help CmdlineChanged`
+   - `:help CompleteChanged`
+   - `:help CompleteDonePre`
+   - `:help DiffUpdated`
+   - `:help DirChanged`
+   - `:help ExitPre`
+   - `:help InsertLeavePre`
+   - `:help ModeChanged`
+   - `:help SigUSR1`
+   - `:help SourcePost`
+   - `:help TextChangedP`
+   - `:help TextChangedP`
+   - `:help WinClosed`
 
 Note: `InsertLeave` is fired right *after* leaving insert mode.
 `InsertLeavePre` is fired right *before* leaving insert mode.
 
 # options
 
-   - `:h 'autoshelldir'`
+   - `:help 'autoshelldir'`
 
-   - `:h 'quickfixtextfunc'`
+   - `:help 'quickfixtextfunc'`
 
-   - `:h 'varsofttabstop'` + `:h 'vartabstop'`
+   - `:help 'varsofttabstop'` + `:help 'vartabstop'`
 
-   - `:h 'wincolor'`; could be used to dim the unfocused windows
+   - `:help 'wincolor'`; could be used to dim the unfocused windows
 
 # `v:` variables
 
@@ -134,7 +141,7 @@ Could be useful for our `vim-selection-ring` plugin...
 
 ##
 # Miscellaneous
-## `:h method` and `:h :eval`
+## `:help method` and `:help :eval`
 
 You can't write that:
 
@@ -167,11 +174,11 @@ Should we remove it everywhere?
 I think `:call` has 2 benefits over `:eval`:
 
    - it can be followed by a bar (`:eval` consumes it)
-   - it supports a range (`:h E132`)
+   - it supports a range (`:help E132`)
 
-## `:h prompt-buffer`
+## `:help prompt-buffer`
 
-## `:h falsy-operator`
+## `:help falsy-operator`
 
 Also known as "null coalescing operator".
 

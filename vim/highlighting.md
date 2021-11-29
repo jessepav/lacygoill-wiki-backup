@@ -1,7 +1,7 @@
 # What are the three mechanisms highlighting text in Vim?
 
 The matches defined by `matchadd()`.
-The builtin HGs documented at `:h highlight-groups`.
+The builtin HGs documented at `:help highlight-groups`.
 The syntax highlighting.
 
 ## In case of conflict, which one wins?
@@ -133,26 +133,25 @@ It stops highlighting new matches/text after `'redrawtime'` ms, to avoid hanging
 # Highlight Groups
 ## What are the three main types of highlight groups?
 
-   1. The builtin ones documented at `:h highlight-groups`, which are used to
-   highlight various UI elements.
+   1. The builtin ones documented at `:help highlight-groups`, which are used to
+      highlight various UI elements.
 
-   2. The ones used for all syntax languages, documented at `:h group-name`,
-   like for example `Function` or `Identifier`.
+   2. The ones used for all syntax languages, documented at `:help group-name`,
+      like for example `Function` or `Identifier`.
 
-   3. The ones used for specific languages.
-   Their names start with the name of the language.
-   Many don't have  any attributes, but are  linked to a group  of the second
-   type.
+   3. The ones used for specific languages.  Their  names start  with  the name
+      of  the language.   Many  don't have  any attributes, but are linked to
+      a group of the second type.
 
 ---
 
-`:h highlight-groups` mentions:
+`:help highlight-groups` mentions:
 
     CursorIM
     Terminal
 
-But they're not present in the output of `:hi` when you start Vim with no config
-(`$ vim -Nu NONE`), nor when you load seoul256.
+But they're not present in the output of `:highlight` when you start Vim with no
+config (`$ vim -Nu NONE`), nor when you load seoul256.
 
 `CursorIM` is not there because it requires Vim to be in a certain mode...
 Maybe `Terminal` is not there because it has no default definition, and needs to
@@ -160,18 +159,18 @@ be defined manually...
 
 ---
 
-When you start Vim with `$ vim -Nu NONE`, `:hi` includes these HGs:
+When you start Vim with `$ vim -Nu NONE`, `:highlight` includes these HGs:
 
     ToolbarButton
     ToolbarLine
     lCursor
 
-But they're not documented at `:h highlight-groups`.
+But they're not documented at `:help highlight-groups`.
 I think the help forgot them.
 
 ## What are the two types of highlight groups among the ones used for all syntax languages?
 
-   - the preferred groups (prefixed by a `*` at `:h group-name`)
+   - the preferred groups (prefixed by a `*` at `:help group-name`)
 
    - the minor groups
 
@@ -193,8 +192,8 @@ However, seoul256 defines them separately.
 
 Yes:
 
-    :hi MyGroup ctermbg=green guibg=green
-    :hi mygroup
+    :highlight MyGroup ctermbg=green guibg=green
+    :highlight mygroup
     MyGroup        xxx ctermbg=10 guibg=green˜
 
 ##
@@ -212,14 +211,14 @@ Yes:
 
 When you change the color scheme, you may lose the highlighting of some text.
 
-That's because a color scheme executes `:hi clear` at its beginning, to reset all
-HGs to their default attributes.
+That's because a  color scheme executes `:highlight clear` at  its beginning, to
+reset all HGs to their default attributes.
 Doing so, it removes all HGs including the ones set in syntax plugins.
 But it  doesn't reinstall  the latter  because it  has no  way of  knowing their
 existence.  It can only know about the HGs documented at:
 
-   - `:h group-name`
-   - `:h highlight-groups`
+   - `:help group-name`
+   - `:help highlight-groups`
 
 ---
 
@@ -235,7 +234,7 @@ buffer, with an autocmd in our vimrc:
 ## Builtin HGs
 ### How to get the list of all builtin HGs in Vim's pager?
 
-    :h hl- C-d
+    :help hl- C-d
 
 ### Which HGs control the appearance of
 #### html links?
@@ -254,15 +253,15 @@ buffer, with an autocmd in our vimrc:
     │ PmenuThumb │ thumb of the scrollbar │
     └────────────┴────────────────────────┘
 
-For more info, see `:h popupmenu-keys`.
+For more info, see `:help popupmenu-keys`.
 
 #### the line matching the current qf entry in the qf window?
 
 `QuickFixLine`:
 
-    hi! link QuickFixLine Search
-    " │
-    " └ :h E414
+    highlight! link QuickFixLine Search
+    "        │
+    "        └ :help E414
 
 #### the more prompt (used when Vim's pager has a full page)?
 
@@ -293,11 +292,11 @@ This controls the appearance of the characters in `'showbreak'` (among others).
 ## Setting a HG
 ### Are `cterm` and `ctermfg` some attributes of a HG?
 
-No, they're arguments passed to `:hi` to set some attributes of a HG.
+No, they're arguments passed to `:highlight` to set some attributes of a HG.
 
 The values that you pass to those arguments *are* the attributes.
 
-### What are the 8 arguments which can be passed to `:hi`?
+### What are the 8 arguments which can be passed to `:highlight`?
 
     ┌──────────┬──────────────────────────────┐
     │ term     │ style in normal terminal     │
@@ -321,7 +320,7 @@ Yes, on the condition that:
    - the terminal supports true colors
 
    - Vim and tmux are properly configured to support true colors:
-   see `:h xterm-true-color`, and `man tmux /Tc`
+   see `:help xterm-true-color`, and `man tmux /Tc`
 
 ### What are the 6 most common attributes which can be given to a HG via `[c]term` and `gui`?
 
@@ -341,28 +340,28 @@ The values of the arguments `fg` and `bg` are exchanged, in a color terminal.
 
 ### How to hide the characters highlighted by the HG `NonText`?
 
-    :hi NonText ctermfg=bg
+    :highlight NonText ctermfg=bg
 
 `bg` is a  special value, which is  evaluated into the value which  was given to
 `ctermfg=` or `guifg` from the HG `Normal`.
 
 ###
-### When do I need to add a bang after `:hi`?
+### When do I need to add a bang after `:highlight`?
 
 When you try to create a link between  2 HGs, and the first one has been defined
 with its own attributes:
 
-    :hi MyGroup ctermbg=green guibg=green
-    :hi link MyGroup Search
+    :highlight MyGroup ctermbg=green guibg=green
+    :highlight link MyGroup Search
     E414˜
 
     " ✔
-    :hi! link MyGroup Search
-       ^
+    :highlight! link MyGroup Search
+              ^
 
 ---
 
-If you execute `:hi MyGroup`, you'll see that the old attributes are still there.
+If you execute `:highlight MyGroup`, you'll see that the old attributes are still there.
 But the highlighting applied to `xxx` is given by the link.
 This shows that a link has priority over attributes.
 
@@ -370,79 +369,108 @@ This shows that a link has priority over attributes.
 
 You could also have cleared `MyGroup`:
 
-    :hi MyGroup ctermbg=green guibg=green
-    :hi clear MyGroup
-    :hi link MyGroup Search
+    :highlight MyGroup ctermbg=green guibg=green
+    :highlight clear MyGroup
+    :highlight link MyGroup Search
 
 ### My HG has its own attributes and is linked to another HG.  Which attributes is it using?
 
 The link wins:
 
-    :hi MyGroup ctermbg=green guibg=green
-    :hi! link MyGroup Search
-    :hi MyGroup
+    :highlight MyGroup ctermbg=green guibg=green
+    :highlight! link MyGroup Search
+    :highlight MyGroup
 
 ###
 ### How to clear a HG?
 
-If it has its own attributes (no link):
+If it has its own attributes (and no link), pass the `clear` argument to `:highlight`:
+```vim
+ # definition
+highlight MyGroup ctermbg=green guibg=green
 
-    :hi clear MyGroup
+ # clearing
+highlight clear MyGroup
 
-Otherwise:
+ # check
+highlight MyGroup
+```
+    MyGroup        xxx cleared
 
-    :hi link MyGroup NONE
+If it's linked, then you need to reset the link to `NONE` (`*`):
+```vim
+ # definition
+highlight default link MyGroup ErrorMsg
+
+ # clearing
+highlight link MyGroup NONE
+
+ # check
+highlight MyGroup
+```
+    MyGroup        xxx cleared
+
+If it  has its own attributes  *and* is linked to  another HG at the  same time,
+then you need to `clear` it, *then* reset the link to `NONE` (`*`):
+```vim
+ # definition
+highlight MyGroup ctermbg=green guibg=green
+highlight! default link MyGroup ErrorMsg
+
+ # clearing
+highlight clear MyGroup
+highlight link MyGroup NONE
+
+ # check
+highlight MyGroup
+```
+    MyGroup        xxx cleared
 
 ---
 
-If it has its own attributes *and* is linked to another HG at the same time:
-
-    :hi MyGroup ctermbg=green guibg=green
-    :hi! link MyGroup Search
-
-you'll need both commands:
-
-    :hi clear MyGroup
-    :hi link MyGroup NONE
+(`*`) In reality, you don't always *need* to reset the link to `NONE`.
+`:highlight clear`  might work  too; but only  if the link  was set  without the
+`default` argument.  OTOH,  resetting the link to  `NONE` works unconditionally;
+it's more reliable.
 
 ### How to reset (clear) some attribute of a HG?
 
 Give it the value `NONE`.
 
-    :hi MyGroup ctermfg=blue ctermbg=yellow
-    :hi MyGroup ctermfg=NONE
-    :hi MyGroup
+    :highlight MyGroup ctermfg=blue ctermbg=yellow
+    :highlight MyGroup ctermfg=NONE
+    :highlight MyGroup
 
 Here, the first statement set the attribute `ctermfg` with the color `blue`, but
 the second one reset it.
 Notice how it doesn't touch the other attribute `ctermbg`.
 
-### What's the effect of `:hi clear`?
+### What's the effect of `:highlight clear`?
 
 It resets all highlighting to the defaults.
 
-For the  HGs documented at `:h  group-name` and `:h highlight-groups`,  it means
-that the attributes are reset to their default values (which depend on the value
-of `'bg'`).
+For the  HGs documented at  `:help group-name` and `:help  highlight-groups`, it
+means that the attributes are reset to their default values (which depend on the
+value of `'bg'`).
 
 For the  user-defined HGs,  it simply  means that  their attributes  are removed
 (because  they  have  no  default   value;  by  definition,  they  didn't  exist
 originally):
 
-    $ vim --cmd 'hi WillItSurvive ctermbg=green | hi clear | hi WillItSurvive |cq'
+    $ vim --cmd 'highlight WillItSurvive ctermbg=green | highlight clear | highlight WillItSurvive | cquit'
     WillItSurvive  xxx cleared˜
 
 as well as their links:
 
-    $ vim --cmd 'hi link WillItSurvive ErrorMsg | hi clear | hi WillItSurvive |cq'
+    $ vim --cmd 'highlight link WillItSurvive ErrorMsg | highlight clear | highlight WillItSurvive | cquit'
     WillItSurvive  xxx cleared˜
 
 ---
 
 There is one exception though.  Default links survive:
 
-                    v------v
-    $ vim --cmd 'hi def link WillItSurvive ErrorMsg | hi clear | hi WillItSurvive |cq'
+                           v----------v
+    $ vim --cmd 'highlight default link WillItSurvive ErrorMsg | highlight clear | highlight WillItSurvive | cquit'
     WillItSurvive  xxx links to ErrorMsg˜
 
 Which is why you should probably always use the `default` argument when defining
@@ -487,8 +515,8 @@ But you could also use a mode:
 
 #### Why should you *not* use it?
 
-`:hi link`  gives you  the same  control, and  is more  consistent with  how you
-configure non-builtin HGs.
+`:highlight link`  gives you the same  control, and is more  consistent with how
+you configure non-builtin HGs.
 
 ###
 # Color Scheme
@@ -538,8 +566,8 @@ terminal whose `$TERM` is not `xterm` nor `xterm-256color`, and `'tgc'` is set.
 Otherwise,  Vim should  correctly  use  the 16  ANSI  colors  of the  underlying
 terminal.
 
-Also, you can use a color name as suggested at `:h gui-colors`, instead of a hex
-color  code, but  it would  make Vim  choose the  color in  its builtin/fallback
+Also, you can use a color name  as suggested at `:help gui-colors`, instead of a
+hex color code, but  it would make Vim choose the  color in its builtin/fallback
 palette, which will be ugly/flashy.
 
 ##
@@ -553,33 +581,101 @@ palette, which will be ugly/flashy.
 # Todo
 ## ?
 
-Document that the optional `default` argument of the `:hi` command has 2 effects.
+Document how to change the cursor color.
+
+In the GUI, Vim  is able to change the color of the  cursor, via the `Cursor` HG
+whose default attributes are  fine.  In the TUI, Vim cannot  change the color of
+the cursor; the latter is set by the terminal.
+
+Source: <https://unix.stackexchange.com/a/72800>
+
+So, in  the TUI,  you have to  do it at  the terminal  level, using an  `OSC 12`
+sequence:
+
+    # open xterm
+    $ printf '\033]12;#ff0000\007'
+
+See: `OSC Ps ; Pt BEL/;/Ps = 1 2`
+
+To send this sequence to the terminal, you can use `echoraw()` or append it to `'t_ti'`.
+In tmux, you can also set the tmux pane option `cursor-color`:
+```vim
+ # can also be an hexadecimal code
+var color: string = 'green'
+if $TMUX != ''
+    # No need to quote the value of `color`.  The command is not passed to a shell.
+    var cmd: string = 'tmux set-option -p cursor-color ' .. color
+    job_start(cmd)
+else
+    # `OSC Ps ; Pt ST/;/Ps = 1 2  -> Change text cursor color to Pt.`
+    var seq: string = "\033]12;" .. color .. "\007"
+    echoraw(seq)
+endif
+```
+See `man tmux /cursor-colour`.
+
+You probably also need to set the  terminfo extensions `Cr`, `Cs`, which you can
+do with the server option `terminal-features`:
+
+    set-option -as terminal-features '*:ccolour'
+
+Like all server options, if you don't  set it automatically in your tmux config,
+but manually  later, you need  to detach then re-attach  the client for  the new
+value to take effect.
+
+---
+
+In the GUI, the cursor color is the foreground color of `Normal`:
+
+    :highlight Cursor
+    Cursor         xxx guifg=bg guibg=fg
+                                ^------^
+
+You can get its value programmatically, like this:
+
+    :echo hlget('Normal')->get(0)->get('guifg', '')
+
+---
+
+To reset the cursor color, you need OSC 112; see `OSC Ps ; Pt ST/;/Ps = 1 1 2`.
+To send this sequence to the terminal, you can use `echoraw()` or append it to `'t_te'`.
+In tmux, you can also set the tmux pane option `cursor-color`:
+```vim
+if $TMUX != ''
+    job_start('tmux set-option -p cursor-color default')
+else
+    echoraw("\033]12;112\007")
+endif
+```
+## ?
+
+Document that the optional `default` argument of the `:highlight` command has 2 effects.
 
 First, it prevents a link from overwriting an existing one:
 
-    $ vim /tmp/c.c +'hi link cComment Question | hi cComment'
+    $ vim /tmp/c.c +'highlight link cComment Question | highlight cComment'
     cComment       xxx links to Question˜
 
-                        vvv
-    $ vim /tmp/c.c +'hi def link cComment Question | hi cComment'
+                               v-----v
+    $ vim /tmp/c.c +'highlight default link cComment Question | highlight cComment'
     cComment       xxx links to Comment˜
 
-Second, it  causes Vim to  restore a link after  `:hi clear` (which  is executed
-whenever you change/reload the color scheme):
+Second,  it causes  Vim to  restore a  link after  `:highlight clear`  (which is
+executed whenever you change/reload the color scheme):
 
-                    vvv
-    $ vim --cmd 'hi def link WillItSurvive ErrorMsg | hi clear | hi WillItSurvive |cq'
+                           v-----v
+    $ vim --cmd 'highlight default link WillItSurvive ErrorMsg | highlight clear | highlight WillItSurvive | cquit'
     WillItSurvive  xxx links to ErrorMsg˜
 
-See `:h :hi-default`.
+See `:help :highlight-default`.
 
 ## ?
 
 Document that  for `CursorLine`  not to  completely override  `Diff*`, `Search`,
 `IncSearch`, you should define the latter with the `reverse` attribute.
 
-    hi clear CursorLine | hi CursorLine ctermbg=white
-    hi DiffChange ctermfg=235 ctermbg=108
+    highlight clear CursorLine | highlight CursorLine ctermbg=white
+    highlight DiffChange ctermfg=235 ctermbg=108
     nos e /tmp/file1 | pu='some text'
     nos vs /tmp/file2 | pu='some other text'
     windo set cul | diffthis
@@ -587,8 +683,8 @@ Document that  for `CursorLine`  not to  completely override  `Diff*`, `Search`,
 When you select the changed line, `CursorLine` overrides `DiffChange`.
 Now, try this:
 
-    hi clear CursorLine | hi CursorLine ctermbg=white
-    hi DiffChange cterm=reverse ctermfg=108 ctermbg=235
+    highlight clear CursorLine | highlight CursorLine ctermbg=white
+    highlight DiffChange cterm=reverse ctermfg=108 ctermbg=235
     nos e /tmp/file1 | pu='some text'
     nos vs /tmp/file2 | pu='some other text'
     windo set cul | diffthis
@@ -604,16 +700,16 @@ of  `CursorLine`,  which is  why  the  `reverse`  attribute of  `Diff*`  affects
 defined `ctermbg`:
 
     " on a line without diff highlighting
-    hi CursorLine ctermbg=white
+    highlight CursorLine ctermbg=white
     ⇔
-    hi CursorLine ctermbg=white ctermfg=NONE
+    highlight CursorLine ctermbg=white ctermfg=NONE
 
     " on a line *with* diff highlighting, 'reverse' is applied
-    hi CursorLine cterm=reverse ctermbg=white ctermfg=NONE
+    highlight CursorLine cterm=reverse ctermbg=white ctermfg=NONE
     ⇔
-    hi CursorLine ctermbg=NONE ctermfg=white
+    highlight CursorLine ctermbg=NONE ctermfg=white
     ⇔
-    hi CursorLine ctermfg=white
+    highlight CursorLine ctermfg=white
 
 Same thing for the search and match highlighting (`Search` and `IncSearch`?).
 Starting from [`7.4.682`][2], their attributes are combined with `CursorLine`.
@@ -631,21 +727,28 @@ To document. (also document the `reset` subcommand)
 
 <https://www.reddit.com/r/vim/comments/choowl/vimpolyglot_syntax_on_or_syntax_enable/euvzia0/>
 
+Update: This whole snippet seems useless:
+<https://github.com/vim/colorschemes/issues/34>
+
+Also, `:syntax reset` is confusing because it has nothing to do with the syntax:
+
+   > It is a bit of a wrong name, since it does not reset any syntax items, it only
+   > affects the highlighting.
+
 ## ?
 
-Why did Vim choose to apply the `cterm` attribute when `'tgc'` is set?
+Why did Vim choose to apply the `cterm` attribute when `'termguicolors'` is set?
 
-Answer: it's probably an issue that Vim should fix:
-<https://github.com/vim/vim/issues/1740>
+Answer: <https://github.com/vim/vim/issues/1740#issuecomment-667682280>
 
 ## ?
 
-Document the fact that `execute('hi ...')` can contain newlines, if the width of
-the current window is too small.
+Document the fact  that `execute('highlight ...')` can contain  newlines, if the
+width of the current window is too small.
 
 You need to make sure they're removed.
 
-It seems the issue is specific to `:hi`:
+It seems the issue is specific to `:highlight`:
 
 <https://www.reddit.com/r/vim/comments/aikx7g/utility_function_to_extendoverride_highlight/eep49gk/>
 
@@ -662,7 +765,9 @@ When you know what to do, review what we did in:
 
     ~/.vim/autoload/colorscheme.vim
     /colorscheme#customize(
-    /hi Underlined
+    /highlight Underlined
+
+Update:  Now that we have `hlget()`, all this section needs to be reviewed.
 
 ## ?
 
@@ -672,20 +777,19 @@ Document the fact that for a HG, the only relevant attributes are:
 - `cterm`, `guifg` and `guibg` (in a truecolor terminal)
 - `term`, `cterm`, `ctermfg` and `ctermbg` (in a terminal)
 
-Btw, the style `term` is used in console:
+BTW, the style `term` is only used in a terminal with less than 2 colors (i.e. `&t_Co == 0`):
 
-    hi MyGroup term=standout cterm=italic gui=bold ctermfg=4 ctermbg=6
-    call matchadd('MyGroup', '\d\+')
+   > Typographic attributes are defined with **term= for &t_Co == 0** and cterm= for &t_Co >= 2.
 
-It means that  Vim considers the console  as a normal terminal (as  opposed to a
-color terminal).
-So, it should *not* use `ctermfg` nor `ctermbg`.
-But it does!
-Why?
+Source: <https://github.com/vim/colorschemes/wiki/On-terminal-emulators-and-colors#typography>
 
-You can't use color codes beyond `8` in a console.
-So  maybe Vim  defines  a normal  terminal  as  a terminal  with  a limited  (!=
-non-existant) palette.
+In which case, `cterm`, `ctermfg` and `ctermbg` are ignored:
+
+   > cterm, ctermbg, and ctermfg are ignored.
+
+Source: <https://github.com/vim/colorschemes/wiki/On-terminal-emulators-and-colors#t_co--0>
+
+Note that a virtual console in linux supports 8 colors, so `term` doesn't apply there.
 
 ## ?
 
@@ -698,8 +802,8 @@ Make sure it's true.
 
 MWE:
 
-    :colo elflord
-    :hi EndOfBuffer ctermfg=bg
+    :colorscheme elflord
+    :highlight EndOfBuffer ctermfg=bg
     E420: BG color unknown˜
 
 It doesn't matter whether you start Vim or gVim.
@@ -713,7 +817,7 @@ Experiment the new termcap codes `t_AU` and `t_8u`:
 They should  allow you to  specify a color for  underline/undercurl, independent
 from the foreground color.
 
-See also `:h undercurl`:
+See also `:help undercurl`:
 
    > "undercurl" is a curly underline.  When "undercurl" is not possible
    > then "underline" is used.  In general "undercurl" and "strikethrough"
@@ -725,13 +829,13 @@ See also `:h undercurl`:
 
 ## ?
 
-Document that running a  `:hi` command to (re)set an attribute  has no effect on
-the other ones.
+Document that  running a  `:highlight` command  to (re)set  an attribute  has no
+effect on the other ones.
 
-    :hi SpecialKey
+    :highlight SpecialKey
     SpecialKey     xxx term=bold ctermfg=145 guifg=#afafaf˜
-    :hi SpecialKey guifg=#121212
-    :hi SpecialKey
+    :highlight SpecialKey guifg=#121212
+    :highlight SpecialKey
     SpecialKey     xxx term=bold ctermfg=145 guifg=#121212˜
                        ^-------------------^
                        did not change
@@ -757,10 +861,10 @@ Update:
 
 That's not what seems to happen.
 
-    :hi ErrorMsg ctermbg=blue
+    :highlight ErrorMsg ctermbg=blue
     :unlet! g:colors_name
     :set bg=light
-    :hi ErrorMsg
+    :highlight ErrorMsg
 
 `ErrorMsg` wasn't reset.
 Also, it seems that `syncolor.vim` is automatically resourced...
@@ -776,7 +880,7 @@ color scheme was loaded, i.e. only resets the builtin HGs?).
 <https://vi.stackexchange.com/a/13089/17449>
 
 When `'bg'` is set, the default attributes for the HGs will change.
-To use other attributes, place `:hi` commands *after* setting `'bg'`.
+To use other attributes, place `:highlight` commands *after* setting `'bg'`.
 
 ## how to write my own color scheme
 
@@ -799,10 +903,6 @@ template to create own color scheme:
 
     set background=dark
     highlight clear
-
-    if exists('syntax_on')
-      syntax reset
-    endif
 
     let g:colors_name = 'iceberg'
 
@@ -856,18 +956,18 @@ and run:
 
 ## document that a highlight group is automatically defined whenever you define a syntax group
 
-    :hi foobar
+    :highlight foobar
     E411: highlight group not found: foobar˜
 
     :syn match foobar /foobar/
-    :hi foobar
+    :highlight foobar
     foobar         xxx cleared˜
 
 But notice that it doesn't have any attribute defined yet.
 That's for you to define later:
 
-    :hi foobar ...
-               ^^^
+    :highlight foobar ...
+                      ^^^
 
 ##
 ## hlID() and synID()

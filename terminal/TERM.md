@@ -37,13 +37,6 @@ set.
 In addition  to those,  you can  also set `$TERM`  to any  alias present  in the
 description of a given terminal.
 
-## What does `*` and `+` mean in the output of the previous command?
-
-When a terminal type is marked with:
-
-   - `*`, it means a *conflicting* entry is present in another db
-   - `+`, it means an *equivalent* entry is present in another db
-
 ##
 # How to get the long name of
 ## the current terminal?

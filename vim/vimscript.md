@@ -1164,24 +1164,7 @@ slash as a (empty) path component.
 
 ## How to get the width of all the *currently visible* fold/number/sign columns?
 
-    :echo wincol() - virtcol('.')
-
-This assumes that  the text before the  cursor is shorter than the  width of the
-window.  It doesn't  matter whether the line  is wrapped or not;  in both cases,
-`virtcol('.')` will be too big.
-
-If you need a workaround, try to evaluate the expression from the first column:
-
-    :norm! 0
-    :echo wincol() - virtcol('.')
-
-If you're inside an `<expr>` mapping, you can't execute `:norm!`; it would raise `E523`:
-
-    E523: Not allowed here
-
-Use `cursor()` instead:
-
-    cursor(0, 1)
+    :echo win_getid()->getwininfo()[0].textoff
 
 ##
 ## How to get the name of the current script, from the script itself?

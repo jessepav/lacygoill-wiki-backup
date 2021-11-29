@@ -54,23 +54,17 @@ The effect of this command doesn't persist beyond the life of the shell where it
 ##
 ## apport
 
-<https://stackoverflow.com/q/2065912/8243465>
-
-Question intéressante: “core dumped - but core file is not in current directory?”
-
----
-
     /proc/sys/kernel/core_pattern
 
 Par défaut, un  fichier “core dump“ est  nommé 'core', mais ce  peut être changé
 via un template défini dans `/proc/sys/kernel/core_pattern`.
 Atm, le mien contient:
 
-    |/usr/share/apport/apport %p %s %c %P
+    |/usr/share/apport/apport %p %s %c %d %P %E
 
 Ici, le 1er caractère est un pipe.
-Ça indique  au kernel qu'il ne  doit pas écrire  le “core dump“ dans  un fichier
-mais sur l'entrée standard du programme `apport`.
+Ça indique  au kernel  qu'il ne  doit pas  écrire le  “core dump“  dans un
+fichier mais sur l'entrée standard du script `apport`.
 
 On peut aussi accéder à ce paramètre via `$ sysctl kernel.core_pattern`.
 Et on peut aussi – sans doute – le modifier en passant `-w` à `sysctl(8)`.
@@ -78,58 +72,26 @@ Et on peut aussi – sans doute – le modifier en passant `-w` à `sysctl(8)`.
 ---
 
 Les items  `%` sont des  spécificateurs automatiquement remplacés  par certaines
-valeurs.
-Pour plus d'infos lire `man core`.
+valeurs.  Pour plus d'infos lire `man core`.
 
 ---
 
-`apport` vérifie que le  binaire fait partie d'un paquet, et si  c'est le cas il
-génère un rapport qu'il envoit à un bug tracker.
+If you need to make tests, run this:
 
-Si le binaire  ne fait pas partie  d'un paquet (pex compilé  en local), `apport`
-simule  ce que  le kernel  aurait fait,  à savoir  écrire le  core dump  dans un
-fichier du CWD du processus.
+    $ sleep 30
 
-Si un utilisateur  a besoin du fichier  core pour générer un  backtrace, il faut
-distinguer 3 cas de figure:
+Then, press `CTRL-\`.  It should cause `sleep(1)` to crash.
+If it doesn't, you might need to run:
 
-   - le binaire fait partie d'un paquet:
-
-    `apport` a généré un rapport dans `/var/crash`
-
-   - le binaire ne fait pas partie d'un paquet, et la taille max d'un fichier
-     core est limitée à 0 blocks (limite par défaut; vérifiable via
-     `ulimit -a | grep core`):
-
-     il n'y a pas de fichier core
-
-   - le binaire ne fait pas partie d'un paquet, et la taille max d'un fichier
-     core n'est pas limitée (ou a une limite suffisamment élevée;
-     `ulimit -c unlimited`):
-
-     `apport` a  écrit le core dump  dans un fichier  du CWD du processus  qui a
-     crashé
-
-En cas  de crash  d'un binaire  faisant partie d'un  paquet, `apport`  génère un
-rapport dans un fichier de ce dossier.
-Pex, s'il s'agit de Vim, il l'écrira dans:
-
-    /var/crash/_usr_bin_vim.gtk.1000.crash
-                                │
-                                └ User ID de l'utilisateur au nom duquel tourne le processus?
-
-Ce rapport contient différentes informations, entre autres un backtrace.
-Ce dernier n'est sans doute pas très utile  si le binaire qui a crashé ne génère
-pas d'infos de déboguage.
+    $ stty quit '^\'
 
 ---
 
-    /var/log/apport.log.1
+For more info, see `~/wiki/vim/debug.md`, and look for the fold "Vim doesn't dump a core!".
 
-Fichier dans lequel le système logue l'activité de `apport`.
-
-Utile qd  on ne  trouve pas où  `apport` a  écrit le core  dump d'un  binaire ne
-faisant pas partie d'un paquet.
+TODO: Merge this `apport` fold, and the next one (`gdb`) in `~/wiki/vim/debug.md`.
+Rationale: All this information is only useful to debug crashes, and we mostly work with Vim.
+If we have an issue with a crash, we'll probably look in `~/wiki/vim/debug.md` first.
 
 ## gdb
 
