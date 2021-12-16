@@ -1229,7 +1229,6 @@ def Func()
         echo 'message'
     )
 enddef
-Func()
 ```
     Error detected while processing command line..script /proc/42151/fd/17:
     line    2:
@@ -1320,6 +1319,316 @@ defcompile
     E1012: Type mismatch; expected string but got number
 
 ##
+## to document: closures work with `function()`, but not with lambdas
+### `function()`
+#### argument scope
+```vim
+vim9script
+def Setup(name: string)
+    &operatorfunc = function(Opfunc, [name])
+enddef
+
+def Opfunc(name: string, _)
+    echomsg name
+enddef
+
+Setup('no error')
+normal! g@l
+```
+    no error
+
+#### function scope
+```vim
+vim9script
+def Setup()
+    var name: string = 'no error'
+    &operatorfunc = function(Opfunc, [name])
+enddef
+
+def Opfunc(name: string, _)
+    echomsg name
+enddef
+
+Setup()
+normal! g@l
+```
+    no error
+
+###
+### lambda
+#### argument scope
+```vim
+vim9script
+def Setup(name: string)
+    &operatorfunc = (_) => Opfunc(name)
+enddef
+
+def Opfunc(name: string)
+    echomsg name
+enddef
+
+Setup('error')
+normal! g@l
+```
+    E1248: Closure called from invalid context
+
+#### function scope
+```vim
+vim9script
+def Setup()
+    var name: string = 'error'
+    &operatorfunc = (_) => Opfunc(name)
+enddef
+
+def Opfunc(name: string)
+    echomsg name
+enddef
+
+Setup()
+normal! g@l
+```
+    E1248: Closure called from invalid context
+
+##
+## ?
+
+We can set an opfunc in Vim9 or in legacy (2).
+We can set an opfunc with `:set` or with `&`/`:let` (2).
+We can set an opfunc at the script level or in a function (2).
+We can set an opfunc with a name, a funcref, a lambda (closure or not), or a partial (closure or not) (6).
+
+2 x 2 x 2 x 6 = 48 tests.
+
+Also, the  funcref/partial can  be to  a function local  to the  script, global,
+autoloaded.
+
+48 x 3 = 144 tests.
+
+---
+
+If `CountSpaces()` is local to the script, this doesn't work in a Vim9 script:
+
+    set operatorfunc=CountSpaces
+
+Neither at the script-level, nor in a function.
+That's because `CountSpaces` is only looked for in the global namespace.
+Solution:
+
+    &operatorfunc = CountSpaces
+
+---
+
+A lambda closure doesn't work in Vim9:
+
+    def ...
+        var n = 123
+        &operatorfunc = (t) => CountSpaces(n, t)
+                                           ^
+                                           ✘
+        ...
+
+---
+```vim
+vim9script
+def CountSpaces(type = ''): string
+    if type == ''
+        return 'g@'
+    endif
+    normal! '[V']y
+    echomsg getreg('"')->count(' ')
+    return ''
+enddef
+set operatorfunc=CountSpaces
+nnoremap <expr> <F4> <SID>CountSpaces()
+['a b c d e']->setline(1)
+feedkeys("\<F4>_")
+```
+    E117: Unknown function: CountSpaces
+```vim
+vim9script
+def CountSpaces(type = ''): string
+    if type == ''
+        return 'g@'
+    endif
+    normal! '[V']y
+    echomsg getreg('"')->count(' ')
+    return ''
+enddef
+&operatorfunc = CountSpaces
+nnoremap <expr> <F4> <SID>CountSpaces()
+['a b c d e']->setline(1)
+feedkeys("\<F4>_")
+```
+    4
+```vim
+vim9script
+def CountSpaces(type = ''): string
+    if type == ''
+        return 'g@'
+    endif
+    normal! '[V']y
+    echomsg getreg('"')->count(' ')
+    return ''
+enddef
+&operatorfunc = (t) => CountSpaces(t)
+nnoremap <expr> <F4> <SID>CountSpaces()
+['a b c d e']->setline(1)
+feedkeys("\<F4>_")
+```
+    4
+```vim
+vim9script
+def CountSpaces(free = 0, type = ''): string
+    if type == ''
+        return 'g@'
+    endif
+    normal! '[V']y
+    echomsg f
+    echomsg getreg('"')->count(' ')
+    return ''
+enddef
+var f = 123
+&operatorfunc = (t) => CountSpaces(f, t)
+nnoremap <expr> <F4> <SID>CountSpaces()
+['a b c d e']->setline(1)
+feedkeys("\<F4>_")
+```
+    123
+    4
+```vim
+vim9script
+def CountSpaces(type = ''): string
+    if type == ''
+        return 'g@'
+    endif
+    normal! '[V']y
+    echomsg getreg('"')->count(' ')
+    return ''
+enddef
+&operatorfunc = function(CountSpaces)
+nnoremap <expr> <F4> <SID>CountSpaces()
+['a b c d e']->setline(1)
+feedkeys("\<F4>_")
+```
+    4
+```vim
+vim9script
+def CountSpaces(free = 0, type = ''): string
+    if type == ''
+        return 'g@'
+    endif
+    echomsg f
+    normal! '[V']y
+    echomsg getreg('"')->count(' ')
+    return ''
+enddef
+var f = 123
+&operatorfunc = function(CountSpaces, [f])
+nnoremap <expr> <F4> <SID>CountSpaces()
+['a b c d e']->setline(1)
+feedkeys("\<F4>_")
+```
+    123
+    4
+
+## ?
+
+I don't think `string()` is necessary:
+```diff
+diff --git a/runtime/doc/options.txt b/runtime/doc/options.txt
+index a5ff937..d5f6079 100644
+--- a/runtime/doc/options.txt
++++ b/runtime/doc/options.txt
+@@ -385,7 +385,7 @@ lambda it will be converted to the name, e.g. "<lambda>123".  Examples:
+ 	set opfunc={a\ ->\ MyOpFunc(a)}
+ 	" set using a funcref variable
+ 	let Fn = function('MyTagFunc')
+-	let &tagfunc = string(Fn)
++	let &tagfunc = Fn
+ 	" set using a lambda expression
+ 	let &tagfunc = {t -> MyTagFunc(t)}
+ 	" set using a variable with lambda expression
+```
+## unquoted autoloaded functions are sourced as soon as encountered
+
+This needs to be documented:
+<https://github.com/vim/vim/issues/8124#issuecomment-823951731>
+
+Also, if you set a `*func` option to  a funcref for an autoload function (at the
+script  level,  or in  a  `:def`  function  if  `:defcompile` is  run),  without
+surrounding the funcname with quotes, its autoload script is sourced immediately
+(which is bad for startup time).  Again, this should be documented.
+
+BTW, does this remain true if we use a lambda instead?
+What about a partial?
+
+---
+
+This excerpt from the help looks wrong:
+
+   > When compiling a `:def` function and a function in an autoload script is
+   > encountered, the script is not loaded until the `:def` function is called.
+
+That's true only if the name of the autoload function is quoted.
+Also, "a function in an autoload script" might be misunderstood:
+
+   - a function which is defined in an autoload script?
+   - a function which is encountered while reading an autoload script?
+
+"an autoloaded function" is better.
+
+## ?
+
+Could `'*expr'` options accept funcrefs/lambdas/partials/... in the future?
+It would be consistent with `'*func'` options.
+And it would let us eliminate `expand('<SID>')` *almost* everywhere.
+
+---
+
+Note that the  name of the `'foldtext'`  option does not end with  `expr`, but I
+think it should be considered as an `*expr` option here.
+
+---
+
+BTW, what about `input()`?
+```vim
+vim9script
+var lines: list<string> =<< trim END
+    the quick brown fox
+    jumps over the lazy dog
+END
+lines->setline(1)
+def CompleteWords(_a: any, _l: any, _p: any): string
+    return getline(1, '$')
+        ->join(' ')
+        ->split('\s\+')
+        ->filter((_, v) => v =~ '^\a\k\+$')
+        ->sort()
+        ->uniq()
+        ->join("\n")
+enddef
+var word: string = input('word: ', '', 'custom,' .. expand('<SID>') .. 'CompleteWords')
+```
+We need  `expand('<SID>')`.  In Vim9,  could Vim  look in the  global namespace,
+*then*  in  the  script-local  one   when  we  specify  `CompleteWords`  without
+`expand('<SID>')`.
+
+## ?
+
+Read (and test?) test tests:
+
+   - [8.2.3619](https://github.com/vim/vim/releases/tag/v8.2.3619)  cannot use a lambda for 'operatorfunc'
+   - [8.2.3665](https://github.com/vim/vim/releases/tag/v8.2.3665)  cannot use a lambda for 'tagfunc'
+   - [8.2.3712](https://github.com/vim/vim/releases/tag/v8.2.3712)  cannot use Vim9 lambda for 'tagfunc'
+   - [8.2.3725](https://github.com/vim/vim/releases/tag/v8.2.3725)  cannot use a lambda for 'completefunc' and 'omnifunc'
+   - [8.2.3735](https://github.com/vim/vim/releases/tag/v8.2.3735)  cannot use a lambda for 'imactivatefunc'
+   - [8.2.3751](https://github.com/vim/vim/releases/tag/v8.2.3751)  cannot assign a lambda to an option that takes a function
+   - [8.2.3756](https://github.com/vim/vim/releases/tag/v8.2.3756)  might crash when callback is not valid
+   - [8.2.3758](https://github.com/vim/vim/releases/tag/v8.2.3758)  options that take a function insufficiently tested
+   - [8.2.3788](https://github.com/vim/vim/releases/tag/v8.2.3788)  lambda for option that is a function may be freed
+   - [8.2.3792](https://github.com/vim/vim/releases/tag/v8.2.3792)  setting *func options insufficiently tested
+
+##
 ## :help modifyOtherKeys
 
 The tip to disable the feature, using a `:!` command is a bit hacky.
@@ -1370,15 +1679,82 @@ contains a modifier combined with a letter,  the case of the latter matters with
 META (then, it  implies `S-`), but it  does not matter with CTRL  (`S-` is never
 implied).
 
+## :help :script
+```diff
+diff --git a/runtime/doc/repeat.txt b/runtime/doc/repeat.txt
+index 049fabb30..0889b7d98 100644
+--- a/runtime/doc/repeat.txt
++++ b/runtime/doc/repeat.txt
+@@ -383,8 +383,8 @@ For writing a Vim script, see chapter 41 of the user manual |usr_41.txt|.
+ 			feature}
+ 
+ :scr[iptnames][!] {scriptId}			*:script*
+-			Edit script {scriptId}.  Although ":scriptnames name"
+-			works, using ":script name" is recommended.
++			Edit script {scriptId}.  Although ":scriptnames ID"
++			works, using ":script ID" is recommended.
+ 			When the current buffer can't be |abandon|ed and the !
+ 			is not present, the command fails.
+ 
+```
+## :help g@
+
+   > Although "block" would rarely appear, since it can
+   > only result from Visual mode where "g@" is not useful.
+
+That's wrong for 2 reasons.
+
+First, `block` is not limited to Visual mode:
+```vim
+vim9script
+nnoremap <expr> <F4> CountSpaces()
+def g:CountSpaces(type = ''): string
+  if type == ''
+    set opfunc=CountSpaces
+    echomsg 'the current mode is: ' .. mode(1)
+    return 'g@'
+  endif
+  echomsg 'the current mode is: ' .. mode(1)
+  echomsg 'the type of the text-object is: ' .. type
+  return ''
+enddef
+['xxx', 'xxx']->setline(1)
+feedkeys("\<F4>\<C-V>j", 'x')
+messages
+```
+    the current mode is: n
+    the current mode is: n
+    the type of the text-object is: block
+
+Second, `g@` is useful, *even* in Visual mode:
+```vim
+vim9script
+xnoremap <expr> <F4> UpperCaseSelection()
+def g:UpperCaseSelection(type = ''): string
+  if type == ''
+    set opfunc=UpperCaseSelection
+    return 'g@'
+  endif
+  getline("'<", "'>")
+      ->map((_, v) => v->toupper())
+      ->setline('.')
+  return ''
+enddef
+var lines =<< trim END
+    xxx
+    uppercase these lines
+    from visual mode
+    xxx
+END
+lines->setline(1)
+feedkeys("2GVj\<F4>", 'x')
+```
+
 ## <F1..4> don't work with modifiers in xterm
 
 Same issue with `<Del>`.
 
 <https://github.com/vim/vim/issues/9131#issuecomment-967774895>
-
-## 'ttymouse' needs to be set with a specific value for `<F1..4>` to work with modifiers
-
-<https://github.com/vim/vim/issues/9131#issuecomment-967775117>
 
 ## â modifyOtherKeys
 
@@ -1558,68 +1934,146 @@ Finish refactoring?
 ##
 ## ?
 
-Also, it is not clear whether this syntax is intended to be expanded for *any* command, including ones which expect an expression as an argument (like `:echo`), or only for commands which expect a filename (like `:edit`).
+Make more tests to be sure that it would be OK to automatically set `<FocusGained>` and `<FocusLost>` in all popular terminals as well as `ttymouse=xterm`:
 
-The help suggests that it's intended for more than just commands expecting a filename:
+   <https://github.com/vim/vim/issues/9296#issuecomment-989144666>
+   > A side effect is that 'ttymouse' will default to "xterm". Is that OK?
 
-   > The same is true for commands that are not compiled, such as `:global`.
-   > For these the backtick expansion can be used.  Example: >
-   >         def Replace()
-   >           var newText = 'blah'
-   >           g/pattern/s/^/`=newText`/
-   >         enddef
+Post your findings on this thread:
+<https://github.com/vim/vim/issues/9296#issuecomment-989156732>
 
-But this seems to contradict this comment:
+Close it once a decision has been made and the help has been updated:
 
-   > I don't think `=expr` is evaluated for an :echo command.
+   <https://github.com/vim/vim/issues/9296#issuecomment-989144666>
+   > We should update the help to mention setting <FocusGained> and <FocusLost>.
 
-[source](https://github.com/vim/vim/issues/7621#issuecomment-754800855)
+## ?
 
-And this other comment:
+   <https://github.com/vim/vim/issues/9309#issuecomment-989802176>
+   > At some point, we might want to document how to generate log files for the regex engine:
 
-    // TODO: should only expand when appropriate for the command
+## ?
 
-[source](https://github.com/vim/vim/blob/7824fc80f675b8098e6483ce082e287aad14b6da/src/vim9compile.c#L9200)
+                                                                          v---v
+    $ cd /tmp && vim -Nu NONE +'autocmd User MyUserEvent echomsg expand("<afile>")' +'doautocmd User MyUserEvent'
+    MyUserEvent
+    ^---------^
+        ✔
+
+                                                                          v----v
+    $ cd /tmp && vim -Nu NONE +'autocmd User MyUserEvent echomsg expand("<amatch>")' +'doautocmd User MyUserEvent'
+    /tmp/MyUserEvent
+    ^---^
+     ✘
+
+## ?
+
+Vim9 now supports list declaration in :def functions.
+Look for this pattern everywhere:
+
+    \[.*\s=\s\[
+
+Use the syntax whenever it's appropriate.
+
+## ?
+
+Usually, when we write this:
+
+    &option
+
+And the option is local, we want to only set the local value.  Not the global one.
+But Vim sets both.
+```vim
+&colorcolumn = '123'
+echo [&l:colorcolumn, &g:colorcolumn]
+```
+    ['123', '123']
+
+Could Vim set only the local value?
+Otherwise, we always have to write `l:`:
+
+    &l:colorcolumn = '123'
+     ^^
+
+Which looks weird/awkward.
+
+## Vim9: sourcing Vim9 script before vimrc keeps 'cpoptions' to Vi default value
+
+**Steps to reproduce**
+
+Run this shell command:
+
+    echo 'vim9script' >/tmp/t.vim && \
+        VIMINIT='source /dev/null' vim --cmd 'source /tmp/t.vim' +'echomsg &cpoptions'
+
+This is echo'ed:
+
+    aAbBcCdDeEfFgHiIjJkKlLmMnoOpPqrRsStuvwWxXyZ$!%*-+<>;
+
+That is the Vi default value of `'cpoptions'`.
+
+**Expected behavior**
+
+This is echo'ed:
+
+    aABceFs
+
+That is the Vim (!= Vi) default value of `'cpoptions'`, because:
+
+   1. a vimrc is found (`/dev/null`)
+   2. therefore, `'compatible'` is reset
+   3. therefore, `'cpoptions'` is set to the Vim default value
+
+**Operating system**
+
+Ubuntu 20.04.3 LTS
+
+**Version of Vim**
+
+8.2 Included patches: 1-3731
+
+**Additional Context**
+
+The usage of `VIMINIT` might seem contrived but there is a reason for this.
+While I'm trying to find a MWE for an issue, I'm often running something like this shell command:
+
+    vim --cmd 'filetype on'
+
+The result is a huge amount of errors (mainly `E10`) which are caused by `'cpoptions'` whose value has been reset to the Vi default value.  These errors are *very* confusing (especially while debugging another issue).
 
 ---
 
-I think it should be limited to commands which expect a filename as argument, because:
+The issue cannot be reproduced with `-u`, nor with `-Nu`, because they set or reset `'compatible'` which in turn set `'cpoptions'`.
 
-   1. it's consistent with legacy Vim script, where "`=expr`" only works for commands expecting a filename
+---
 
-   2. it's not reliable anyway
+The issue disappears if the script which is sourced before the vimrc is a legacy script:
 
-With regards to `2.`, this syntax only works with simple types; not with lists, dictionaries, functions:
-```vim
-vim9script
-def Func()
-    var d: dict<number>
-    global/^/echo `=d`
-enddef
-defcompile
-```
-    E1105: Cannot convert dict to string
+    echo '" this is a legacy script' >/tmp/t.vim && \
+        VIMINIT='source /dev/null' vim --cmd 'source /tmp/t.vim' +'echomsg &cpoptions'
 
-The best way to deal with an issue where a command needs to access a function-local variable, is to move the latter in the script-local namespace.
+    aABceFs
 
-Instead, maybe the help should explain that when an Ex command is executed by another command/function:
+---
 
-   - it's never compiled, therefore it can't access items in compiled code, like function-local variables
+Why does sourcing any Vim9 script *before* the vimrc prevents `'cpoptions'` from being set to its Vim default value?
+And why doesn't it happen also when sourcing a legacy script?  This seems inconsistent.
 
-   - it's always run in the script context, therefore it *can* access any item in that namespace
+---
 
-   - if it needs to refer to an item, the latter should be in a namespace accessible by any script (like `g:`, `b:`, `w:`, ...), or in the script namespace
+Update:
 
-See also: <https://github.com/vim/vim/issues/7621#issuecomment-755085800>
+    # temporarily empty the vimrc
+    $ vim --cmd 'set rtp-=~/.vim' +'echo &cpoptions'
+    aABceFs
+    ✔
 
-## Vim9: cannot use a lambda for 'operatorfunc'
+    $ vim --cmd 'set rtp-=~/.vim | filetype on' +'echo &cpoptions'
+    aAbBcCdDeEfFgHiIjJkKlLmMnoOpPqrRsStuvwWxXyZ$!%*-+<>;
+    ✘
 
-<https://github.com/vim/vim/releases/tag/v8.2.3619>
-
-Check which of the new syntaxes provided by this patch work in Vim9.
-I suspect none.
-No todo item was added at `:help todo`  in the last update of the runtime files,
-and I couldn't find any relevant one in the source code either.
+There is no Vim9 script involved in the last command.
+What's going on here?
 
 ## ?
 ```vim
@@ -5138,7 +5592,7 @@ It looks  like a bug.   If a custom  filter can make  Vim scroll a  popup window
 whose height  is `&lines`,  the builtin filter  should be able  to do  the same.
 Unless it's a design choice?  Is it documented?
 
-## Improve `:h popup-examples /TODO`
+## Improve `:help popup-examples /TODO`
 
    > TODO: more interesting examples
 
@@ -5148,7 +5602,7 @@ It could illustrate how to replicate the virtual text feature in Vim.
 The example should  automatically create an editable copy of  a user manual page
 (similar to vimtutor):
 
-    new | r $VIMRUNTIME/doc/usr_01.txt
+    :new | read $VIMRUNTIME/doc/usr_01.txt
 
 If the  code gets too complex,  maybe we could  write a small package  (like for
 `:Cfilter`) and submit a PR.
@@ -5159,7 +5613,7 @@ An annotation might be too long for an end of line.
 I have another idea: a command which adds virtual text based on the qf list.
 
     vim9script
-    helpg foobar
+    helpgrep foobar
     def Func()
         var qfl = getqflist()
         var i = 1
@@ -5214,6 +5668,162 @@ Is it documented or is it a bug?
 
 ##
 # Misc.
+## ?
+```vim
+vim9script
+timer_start(0, len())
+```
+    E119: Not enough arguments for function: len
+    Expected
+```vim
+vim9script
+timer_start(0, reltime())
+```
+    E921: Invalid callback argument
+    Expected
+```vim
+vim9script
+timer_start(0, writefile([], '/tmp/file'))
+echo 'no error'
+```
+    no error
+    NOT expected
+
+## ?
+
+   - <https://github.com/vim/vim/issues/9240#issuecomment-981605560>
+   - <https://github.com/vim/vim/issues/9240#issuecomment-981626034>
+
+---
+```vim
+vim9script
+def Func()
+    eval 01 + 0
+    eval 02 + 0
+    eval 03 + 0
+    eval 04 + 0
+    eval 05 + 0
+    eval 06 + 0
+    eval 07 + 0
+    eval 08 + 0
+    eval 09 + 0
+    eval 10 + 0
+    eval 11 + 0
+    eval 12 + 0
+enddef
+for i in range(1, 12)
+    execute 'breakadd func ' .. i .. ' Func'
+endfor
+breakdel 1'2
+filter /line 12/ breaklist
+```
+    12  func Func  line 12
+    ✘
+    everything was ignored after the quote
+    same issue with :center, :copy (and :t), :digraphs
+
+---
+```vim
+vim9script
+for i in range(1, 12)
+    execute 'edit file' .. i
+endfor
+buffer 1'2
+```
+    E94: No matching buffer for 1'2
+    same result with :bunload, :bwipeout, :diffget, :diffput
+
+Update: Now I think it's documented at `:help :buffer`:
+
+   > The notation with single quotes does not work here,
+   > `:buf 12'345'` uses 12'345 as a buffer name.
+
+---
+```vim
+vim9script
+for i in range(1, 12)
+    execute 'edit file' .. i
+endfor
+caddbuffer 1'2
+```
+    E474: Invalid argument
+    same result with :cbuffer, :cgetbuffer
+
+---
+```vim
+vim9script
+silent helpgrep foobar
+clist 1'2, 34
+```
+    E488: Trailing characters: '2, 34
+
+---
+```vim
+vim9script
+&define = '#define'
+'#define FOO'->setline(1)
+'FOO'->setline(2)
+:2
+djump 0'1 /FOO/
+```
+    E388: Couldn't find definition
+
+---
+
+    :help :djump
+    :help :dsearch
+    :help :dsplit
+    :help :earlier
+    :help :goto
+    :help :ijump
+    :help :isearch
+    :help :isplit
+    :help :laddbuffer
+    :help :later
+    :help :lbuffer
+    :help :left
+    :help :lfirst
+    :help :lgetbuffer
+    :help :list
+    :help :ll
+    :help :llast
+    :help :llist
+    :help :lnewer
+    :help :loadview
+    :help :lolder
+    :help :lopen
+    :help :lrewind
+    :help :lwindow
+    :help :move
+    :help :number
+    :help :previous
+    :help :psearch
+    :help :resize
+    :help :retab
+    :help :right
+    :help :sNext
+    :help :sall
+    :help :sargument
+    :help :sbNext
+    :help :sball
+    :help :sbmodified
+    :help :sbnext
+    :help :sbprevious
+    :help :sbuffer
+    :help :sleep
+    :help :sprevious
+    :help :substitute
+    :help :sunhide
+    :help :tabmove
+    :help :tabnext
+    :help :tabonly
+    :help :tabprevious
+    :help :undo
+    :help :unhide
+    :help :winpos
+    :help :winsize
+    :help :z
+
 ## 'verbose' message not printed until scroll back and forth
 
 **Steps to reproduce**
@@ -5522,49 +6132,6 @@ legacy let name = [] + + []
 
 Confusing message.
 
-## ?
-
-Matchparen issue:
-
-    $ vim -Nu NORC -S <(cat <<'EOF'
-        vim9script
-        &l:breakindent = true
-        &l:linebreak = true
-        set breakat+=]
-        printf('%s]%s[xxx]%s', repeat('x', 70), repeat('x', 50), repeat('x', 70))
-            ->setline(1)
-        normal! 4e
-    EOF
-    )
-
-Notice that the empty cells at the end of the second line are all highlighted.
-The default matchparen plugin has the same issue.
-
----
-
-MWE which does not depend on matchparen, and relies on a text property:
-```vim
-vim9script
-&l:breakindent = true
-&l:linebreak = true
-set breakat+=]
-printf('%s]%s[xxx]%s', repeat('x', 70), repeat('x', 50), repeat('x', 70))
-    ->setline(1)
-normal! 6e
-prop_type_add('test', {highlight: 'ErrorMsg'})
-prop_add(1, 126, {length: 1, type: 'test'})
-```
-MWE which does not depend on matchparen, and relies on a match:
-```vim
-vim9script
-&l:breakindent = true
-&l:linebreak = true
-set breakat+=]
-printf('%s]%s[xxx]%s', repeat('x', 70), repeat('x', 50), repeat('x', 70))
-    ->setline(1)
-normal! 6e
-matchaddpos('ErrorMsg', [[1, 126]], 10, 3)
-```
 ## ?
 
 When we set `'debug'` to `throw`, no error is thrown if the expression evaluated

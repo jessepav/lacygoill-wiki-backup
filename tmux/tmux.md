@@ -985,7 +985,7 @@ For example, this works fine:
 reptyr est un pgm permettant d'attacher à une session tmux, un processus lancé
 depuis un shell hors de la session.
 
-    sudo aptitude install reptyr
+    sudo apt install reptyr
 
             installation
 

@@ -43,7 +43,7 @@ your packages  via `tlmgr` without `sudo`,  and without having to  configure the
     export INFOPATH=$HOME/texlive/2018/texmf-dist/doc/info:$INFOPATH
     EOF
 
-    $ sudo aptitude install perl-tk
+    $ sudo apt install perl-tk
 
 `perl-tk` is necessary to start `tlmgr` in GUI via `$ tlmgr --gui`.
 
@@ -57,9 +57,9 @@ For more info, see:
 - <https://www.tug.org/texlive/acquire-netinstall.html>
 - <http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz>
 
-### via aptitude
+### via apt
 
-    $ sudo aptitude install texlive-full
+    $ sudo apt install texlive-full
 
 Can take a lot of space (3-5 gigs) and some time (twenty minutes).
 
@@ -72,7 +72,7 @@ up-to-date.
 ---
 
 In particular, it includes the package `tikz-3dplot`, which, atm, is not present
-when you install texlive via `aptitude`.
+when you install texlive via `apt`.
 
 You can find a use case for `tikz-3dplot` in this plot:
 <http://www.texample.net/tikz/examples/spherical-polar-pots-with-3dplot/>

@@ -4083,7 +4083,7 @@ Source: <https://github.com/vim/vim/issues/8683#issuecomment-890578479>
 
 ### ?
 
-Since 8.2.2527, an error is raised when a lambda is used at the script level and
+Since 8.2.2527, an error is given when a  lambda is used at the script level and
 it refers to a function which is defined later:
 ```vim
 vim9script
@@ -4319,7 +4319,7 @@ Func()
 ```
     E117: Unknown function: Callback
 
-Here, an error is raised, because:
+Here, an error is given, because:
 
    - the funcref returned by `function('Callback')` can only work in the Vim9 context
    - when the callback is processed, and the funcref is used, we are no longer in the Vim9 context
@@ -4335,7 +4335,8 @@ feedkeys('aaa', 'nt')
 ```
     E117: Unknown function: Listener
 
-Solution: Don't use `function()` at all.
+Solution: Drop  the quotes  around  the function  name  (drop `function()`  too,
+unless you need a partial).
 ```vim
 vim9script
 def Callback(_j: job, _e: number)
@@ -4372,8 +4373,9 @@ is not.
 But watch this:
 ```vim
 vim9script
-def Filter(...l: list<any>)
+def Filter(...l: list<any>): bool
     echomsg 'filter'
+    return true
 enddef
 popup_create('', {filter: function('Filter')})
 feedkeys('j')
@@ -4385,10 +4387,8 @@ Maybe the difference is somehow explained by  the fact that a filter function is
 not processed  in the same  context as a callback.   It's processed in  the same
 context as a mapping; i.e. outside any script.
 
-Bottom line: It is not always obvious whether  `s:` can be omitted in front of a
-function name.  You'll have to learn by trial and error.
-However, you should be able to avoid  these issues if you omit the quotes around
-the function name (you can also omit `function()`, unless you need a partial).
+Anyway, you can *always* avoid the issue  by dropping the quotes around the name
+of the function.  For a partial, you will still need `function()`.
 
 ---
 

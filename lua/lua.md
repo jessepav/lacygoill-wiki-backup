@@ -236,7 +236,7 @@ Run `os.exit()`.
 
                     hg clone https://bitbucket.org/rude/love
 
-                    sudo aptitude install build-essential \
+                    sudo apt install build-essential \
                                         autotools-dev \
                                         automake \
                                         libtool \

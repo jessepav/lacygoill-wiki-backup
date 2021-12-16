@@ -148,10 +148,10 @@ invoked, but that's not the case here.
 ##
 ##
 # Package management
-## How to mark a package so that `aptitude` doesn't update it?  How to undo it?
+## How to mark a package so that `apt` doesn't update it?  How to undo it?
 
-    $ aptitude hold package
-    $ aptitude unhold package
+    $ apt-mark hold hold package
+    $ apt-mark unhold package
 
 ## How to get the limit date beyond which my packages won't be supported anymore?
 
@@ -176,9 +176,9 @@ Otherwise:
 
 Or:
 
-                ┌ --download-only (just download it, don't install it)
-                │
-    $ aptitude -d install package
+                   ┌ --download-only (just download it, don't install it)
+                   │
+    $ apt install -d package
     $ cd /var/cache/apt/archives/
     $ dpkg -c package.deb
 
@@ -203,14 +203,14 @@ See `~/.icons/README.md`.
     $ sudo dpkg -i paper*.deb
 
     # optional; may be necessary to install missing dependencies
-    sudo apt-get install -f
+    sudo apt install -f
 
 ## How to have a pretty theme?
 
 Install `arc-theme`:
 
     $ git clone https://github.com/horst3180/arc-theme
-    $ sudo aptitude install autoconf automake pkg-config libgtk-3-dev gnome-themes-standard gtk2-engines-murrine
+    $ sudo apt install autoconf automake pkg-config libgtk-3-dev gnome-themes-standard gtk2-engines-murrine
     $ ./autogen.sh --prefix=/usr
     $ sudo make install
 
@@ -386,18 +386,6 @@ We can configure light-locker to do so, but I don't want to rely on this package
 because it's tied to  an existing DE (xfce/lxde), and because  it seems to cause
 the issue currently discussed (double password).
 
-## Document when `$ aptitude dist-upgrade` is useful.
-
-When you run `$ aptitude [safe-]upgrade` and you can see on the last line of the
-output that some packages were not upgraded:
-
-    0 upgraded, 0 newly installed, 0 to remove and 4 not upgraded.˜
-
-`$ aptitude dist-upgrade` should upgrade them.
-
-See here for an explanation:
-<https://debian-administration.org/article/69/Some_upgrades_show_packages_being_kept_back>
-
 ## Document why `xsel(1x)` is better than `xclip(1)`.
 
 `xclip(1)` doesn't close its stdout.
@@ -529,7 +517,7 @@ Comment savoir quel serveur de clés utiliser ?
 
             See also `ccze(1)`:
 
-                $ aptitude install ccze
+                $ apt install ccze
                 $ cat /var/log/boot.log | ccze -A
 
 
@@ -1163,13 +1151,13 @@ contenant plusieurs fichiers.
 
             Atm, sur Ubuntu 16.04, il ne semble pas y avoir de paquet `node`:
 
-                    % apt-cache policy node
+                    % apt policy node
                     ∅˜
 
             En revanche, il y a bien un paquet `npm`, mais sa version (3.5.2) ne semble pas suffisante
             pour utiliser/installer correctement `mapscii`:
 
-                    % apt-cache policy npm
+                    % apt policy npm
 
                     npm:
                     Installed: (none)
@@ -1242,12 +1230,12 @@ contenant plusieurs fichiers.
 
                                                NOTE:
 
-            Il semble qu'on puisse aussi installer le programme via `apt-get`:
+            Il semble qu'on puisse aussi installer le programme via `apt`:
 
                     https://nodejs.org/en/download/package-manager/
 
                     curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-                    sudo apt-get install -y nodejs
+                    sudo apt install -y nodejs
 
             À utiliser éventuellement, si la compilation échoue ou prend trop de temps.
 
@@ -1318,9 +1306,9 @@ contenant plusieurs fichiers.
 
 
     cd /var/cache/apt/archives/
-    sudo aptitude download parallel
-                  │
-                  └ dl le `.deb` dans le répertoire courant
+    sudo apt download parallel
+             │
+             └ dl le `.deb` dans le répertoire courant
 
     sudo dpkg --force-conflicts --install parallel Tab (*)
                 │
@@ -1745,13 +1733,13 @@ et 'baz'.
      │     ┌─ Où ?
      │     │    ┌─ En tant que qui ?
      │     │    │
-    %admin ALL=(ALL)NOPASSWD:/usr/bin/aptitude update
+    %admin ALL=(ALL)NOPASSWD:/usr/bin/apt update
                     │        │
                     │        └─ Quoi ?
                     └─ Comment ?
 
             Tous les utilisateurs du groupe admin, sur n'importe quelle machine peuvent lancer
-            la commande `aptitude update` en tant que n'importe quel autre utilisateur sans donner de mdp.
+            la commande `apt update` en tant que n'importe quel autre utilisateur sans donner de mdp.
 
 
                                                NOTE:
@@ -1759,23 +1747,23 @@ et 'baz'.
             Au sein de la commande, tout caractère `:`, `\`, `=` doit être échappé.
 
 
-    %admin ubuntu=(ALL)NOPASSWD:/usr/bin/aptitude
-    %admin ubuntu=(root)NOPASSWD:/usr/bin/aptitude
+    %admin ubuntu=(ALL)NOPASSWD:/usr/bin/apt
+    %admin ubuntu=(root)NOPASSWD:/usr/bin/apt
 
             Idem mais uniquement sur la machine dont le nom d'hôte est `ubuntu` (`hostname`).
             Idem mais uniquement en tant que root.
 
 
-                                                         ┌─ pas d'espace après la virgule
-                                                         │
-    %admin ubuntu=(root)NOPASSWD:/usr/bin/aptitude update,/usr/bin/aptitude safe-upgrade
+                                                    ┌─ pas d'espace après la virgule
+                                                    │
+    %admin ubuntu=(root)NOPASSWD:/usr/bin/apt update,/usr/bin/apt upgrade
 
-            Idem mais uniquement pour les commandes `aptitude update` et `aptitude safe-upgrade`.
+            Idem mais uniquement pour les commandes `apt update` et `apt upgrade`.
 
 
-    %admin ubuntu=(root)NOPASSWD:/usr/bin/aptitude install *
+    %admin ubuntu=(root)NOPASSWD:/usr/bin/apt install *
 
-            Idem mais pour toutes les commandes suivant le pattern `aptitude install <paquet>`.
+            Idem mais pour toutes les commandes suivant le pattern `apt install <paquet>`.
 
 
     %admin ubuntu=(root)NOPASSWD:/*/sbin/*
@@ -1790,7 +1778,7 @@ et 'baz'.
             qu'à éditer du texte.
 
             Attention `NOEXEC` peut empêcher le bon fonctionnement de certaines commandes.
-            Pex, `aptitude` peut avoir besoin de lancer un shell pour y exécuter `dpkg`.
+            Pex, `apt` peut avoir besoin de lancer un shell pour y exécuter `dpkg`.
 
 
     user ALL=(ALL) ALL
@@ -2025,7 +2013,7 @@ et 'baz'.
 View gifs in your terminal.
 
     $ git clone https://github.com/hpjansson/chafa.git
-    $ sudo aptitude install libmagickwand-dev
+    $ sudo apt install libmagickwand-dev
     $ ./autogen.sh
     $ make
     $ sudo make install
@@ -2396,7 +2384,7 @@ Log file navigator http://lnav.org
 
         OU
 
-                sudo aptitude install lnav
+                sudo apt install lnav
 
 
                                      FIXME:
@@ -2671,7 +2659,7 @@ quality.
 
     https://askubuntu.com/questions/191125/is-there-an-offline-command-line-dictionary
 
-    sudo aptitude install sdcv
+    sudo apt install sdcv
 
 #### socat
 

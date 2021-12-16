@@ -116,7 +116,7 @@ Il paraît que `x2go` est meilleur, plus rapide, et moins gourmand en ressource:
 
 
 
-    sudo aptitude install tightvncserver openssh-server
+    sudo apt install tightvncserver openssh-server
 
             Installer un serveur VNC et ssh sur la machine distante.
 

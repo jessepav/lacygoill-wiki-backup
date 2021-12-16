@@ -39,8 +39,8 @@ I think the real number depends on the terminal window width and/or the font siz
 
 Here's a MWE which I've tested against Ubuntu 16.04, as well as Ubuntu 18.04 (in a virtual machine).
 
-    $ sudo apt-get update
-    $ sudo apt-get install curl git libx11-dev libxft-dev pkg-config xsel
+    $ sudo apt update
+    $ sudo apt install curl git libx11-dev libxft-dev pkg-config xsel
     $ git clone https://git.suckless.org/st
     $ cd st
     $ make
@@ -55,9 +55,9 @@ Here's a MWE which I've tested against Ubuntu 16.04, as well as Ubuntu 18.04 (in
     $ git clone https://github.com/tmux/tmux
     $ cd tmux
 
-# would this command have worked instead? `$ sudo aptitude build-dep tmux`
+# would this command have worked instead? `$ sudo apt build-dep tmux`
 
-    $ sudo apt-get install automake libevent-dev libncurses5-dev
+    $ sudo apt install automake libevent-dev libncurses5-dev
     $ sh autogen.sh
     $ ./configure
     $ make

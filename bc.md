@@ -787,7 +787,7 @@ Beware,  when  you tab-complete,  the  shell  suggests you  `--without-readline`
 
 It requires the flex package on ubuntu:
 
-    $ sudo aptitude install flex
+    $ sudo apt install flex
 
 This allows the user to do editing of lines before sending them to bc.
 

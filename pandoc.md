@@ -9,7 +9,7 @@ Install it:
 
 Install any missing dependency:
 
-    $ aptitude install /usr/bin/rsvg-convert
+    $ apt install /usr/bin/rsvg-convert
 
 ##
 # Usage

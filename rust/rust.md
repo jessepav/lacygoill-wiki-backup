@@ -1,7 +1,7 @@
 # Installation
 ## Make sure you don't have a conflicting installation of Rust.
 
-    $ aptitude purge cargo rustc
+    $ apt purge cargo rustc
 
 ---
 
@@ -17,7 +17,7 @@ If you have an existing rust installation, in the next step, you'll get this war
 
 ## Make sure a C compiler is installed.
 
-    $ aptitude install gcc
+    $ apt install gcc
 
 Indeed, the rust compiler needs a C linker, which `gcc(1)` can provide.
 Also, some common Rust packages depend on C code and will need a C compiler.

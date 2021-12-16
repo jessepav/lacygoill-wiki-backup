@@ -12,10 +12,10 @@ Outside, it becomes a regular character.
 It makes  the bar  (and what follows)  included in the  argument of  the current
 command:
 
-    :e abcd|efgh
+    :edit abcd|efgh
     E492: Not an editor command: efgh˜
 
-    :e abcd\|efgh
+    :edit abcd\|efgh
     " edits the file 'abcd|efgh'
 
 ##
@@ -23,34 +23,34 @@ command:
 ## What are they?
 
 Sequence of characters which Vim expands automatically when executing some commands.
-For example, `%` or `<cword>`.  See `:h cmdline-special`.
+For example, `%` or `<cword>`.  See `:help cmdline-special`.
 
 ## Do quotes prevent their expansion?
 
 No.
 
-    :sp '<cword>'
+    :split '<cword>'
 
 Assuming your cursor  is on the word  `foo`, the previous command  will edit the
 file `'foo'`.  It will not edit the file `'<cword>'`.
 
-## Are they expanded by the command itself or by Vim?
+## Are they expanded by the command itself when it's executed, or before?
 
-I think they are expanded by Vim.
+Before.
 
 Write this on the command-line:
 
-    :e %
+    :edit %
 
 Then press `Tab`.
 
 The percent character is  replaced by the path of the  current file, relative to
-the cwd.  And yet, `:e` has not been executed.
+the cwd.  And yet, `:edit` has not been executed.
 
 ##
 ## The following command fails:
 
-    :setl gp&vim | exe 'grep ' .. shellescape('<cWORD>') .. ' %'
+    :setlocal grepprg&vim | execute 'grep ' .. shellescape('<cWORD>') .. ' %'
 
 When it's run while the cursor is on this text:
 
@@ -59,7 +59,7 @@ When it's run while the cursor is on this text:
 ### Why?
 
 Vim does not  expand special characters automatically for  *all* commands.  Only
-for *some*  of them, for which  it's useful to do  so; and `:exe` is  not one of
+for *some* of them, for which it's useful to do so; and `:execute` is not one of
 them.  So,  `shellescape()` does  not have  any effect:  it receives  the string
 `'<cWORD>'`, and outputs the same string.
 
@@ -70,8 +70,8 @@ it's too late for `shellescape()` to properly escape the quote in the text.
 
 To check this yourself, increase the verbosity to 4:
 
-    :setl gp&vim | 4verb exe 'grep ' .. shellescape('<cWORD>') .. ' %'
-                   ^---^
+    :setlocal grepprg&vim | 4verbose execute 'grep ' .. shellescape('<cWORD>') .. ' %'
+                            ^------^
 
 It fails because the shell runs `grep -n 'a'b' ...`:
 
@@ -83,14 +83,14 @@ It fails because the shell runs `grep -n 'a'b' ...`:
 ---
 
 The issue is *not* that `shellescape()` did  not receive a valid string; if that
-was the case, then it would have raised E116 (try `:echo shellescape('a'b')`).
+was the case, then it would have given E116 (try `:echo shellescape('a'b')`).
 
 ### How to fix it?
 
 Use `expand()`:
 
-                                        v----v
-    :setl gp&vim | 4verb exe 'grep ' .. expand('<cWORD>')->shellescape() .. ' %'
+                                                        v----v
+    :setlocal grepprg&vim | 4verbose execute 'grep ' .. expand('<cWORD>')->shellescape() .. ' %'
     Calling shell to execute: "grep -n 'a'\''b' ...˜
                                        ^------^
 
@@ -98,7 +98,7 @@ Note  that  the quotes  around  `<cWORD>`  are only  necessary  to  get a  valid
 expression to pass to `expand()`.
 
 ##
-## Why should I never use special characters in the pattern field of a `:vim` command without delimiters?
+## Why should I never use special characters in the pattern field of a `:vimgrep` command without delimiters?
 
 It's hard to predict how it will be parsed.
 
@@ -110,16 +110,16 @@ Consider this text:
 
 And run this command while on it:
 
-    :vim <cWORD> %
+    :vimgrep <cWORD> %
 
 Vim looks for `x` in the file `bar` and in the current file.
 While you probably expected for Vim to look for `!x!bar` in the current file.
 
 That's because Vim ran this:
 
-    :vim !x!bar %
-         ^ ^
-         parsed as delimiters, not as pattern
+    :vimgrep !x!bar %
+             ^ ^
+             parsed as delimiters, not as pattern
 
 More generally, any character in the expansion may be parsed as anything:
 delimiter, pattern, flag, filename...
@@ -132,25 +132,25 @@ A similar issue can affect `<cword>`.
         ^
         cursor here
 
-`:vim <cword> !` raises `E682` because `!` is parsed as a delimiter instead of a
-pattern.
+`:vimgrep <cword> !`  gives `E682` because `!` is parsed  as a delimiter instead
+of a pattern.
 
 ### What's the effect of the delimiters on the expansion of special characters?
 
 The latter is suppressed by the delimiters.
-To expand them, you need `expand()` and `:exe`.
+To expand them, you need `expand()` and `:execute`.
 
 ##
 ## Why does Vim expand `<cword>` for `:grep` but not for `:echo`?
 
 `:echo` expects an expression, and `<cword>` is not one.
 
-OTOH, from `:h :grep`:
+OTOH, from `:help :grep`:
 
    > **Just like ":make"**, but use 'grepprg' instead of
    > 'makeprg' and 'grepformat' instead of 'errorformat'.
 
-Then, from `:h :make`:
+Then, from `:help :make`:
 
    > Characters '%' and '#' are expanded as usual on a command-line.
 
@@ -169,16 +169,16 @@ Or:
 
 ##
 # Custom command
-## What's the name of everything written after `Test` in `com Test call Func()`?
+## What's the name of everything written after `Test` in `command Test call Func()`?
 
 It's called the "replacement text":
 
-    com Test call Func()
-             ^---------^
+    command Test call Func()
+                 ^---------^
 
 ## How to list the help tags useful to create a custom command?
 
-    :h :command- C-d
+    :help :command- C-d
 
 ##
 ## In an unquoted argument of a custom Ex command
@@ -233,11 +233,11 @@ loses its special meaning.
 
 Never.
 
-    "                          v------v
-    com -nargs=* Cmd call Func(<q-args>)
-    fu Func(...)
+    "                              v------v
+    command -nargs=* Cmd call Func(<q-args>)
+    function Func(...)
         echo a:000
-    endfu
+    endfunction
 
     # not removed in front of random character
     Cmd a\b
@@ -259,11 +259,11 @@ Never.
 
 Only when directly in front of a backslash.
 
-    "   v--v                        v------v
-    com -bar -nargs=* Cmd call Func(<q-args>)
-    fu Func(...)
+    "       v--v                        v------v
+    command -bar -nargs=* Cmd call Func(<q-args>)
+    function Func(...)
         echo a:000
-    endfu
+    endfunction
 
     Cmd a\|b
     ['a|b']˜
@@ -282,11 +282,11 @@ backslashes into a single backslash.
 
 the command is defined without `-bar` and the argument is processed with `<f-args>`?
 
-    "                          v------v
-    com -nargs=* Cmd call Func(<f-args>)
-    fu Func(...)
+    "                              v------v
+    command -nargs=* Cmd call Func(<f-args>)
+    function Func(...)
         echo a:000
-    endfu
+    endfunction
 
     Cmd a\b
     ['a\b']˜
@@ -319,11 +319,11 @@ the command is defined without `-bar` and the argument is processed with `<f-arg
 
 the command is defined with `-bar` and the argument is processed with `<f-args>`?
 
-    "   v--v                        v------v
-    com -bar -nargs=* Cmd call Func(<f-args>)
-    fu Func(...)
+    "       v--v                        v------v
+    command -bar -nargs=* Cmd call Func(<f-args>)
+    function Func(...)
         echo a:000
-    endfu
+    endfunction
 
     Cmd a|b
     ['a']˜
@@ -363,11 +363,11 @@ the command is defined with `-bar` and the argument is processed with `<f-args>`
 It's allowed, but  the count is not preserved; it's  subtracted from the current
 line address:
 
-    com -count  Test  echo <count>
+    command -count  Test  echo <count>
     :-1 Test
     101˜
 
-    com -range  Test  echo <count>
+    command -range  Test  echo <count>
     :-1 Test
     105˜
 
@@ -375,11 +375,11 @@ line address:
 
 If raises `E488`:
 
-    com -range Test echo <count>
+    command -range Test echo <count>
     :Test -123
     E488: Trailing characters˜
 
-    com -count Test echo <count>
+    command -count Test echo <count>
     :Test -123
     E488: Trailing characters˜
 
@@ -388,7 +388,7 @@ If raises `E488`:
 
 Use `-range=-N`:
 
-    com -range=-123 Test echo <count>
+    command -range=-123 Test echo <count>
     :Test
     -123˜
 
@@ -405,19 +405,19 @@ command, `<count>` will be replaced with `-1`.
 
 MWE:
 
-    com -nargs=* -range=0 Test call Func(<count>)
-    fu Func(count)
+    command -nargs=* -range=0 Test call Func(<count>)
+    function Func(count)
         if !a:count
             echo 'the command was executed WITHOUT count'
         else
             echo 'the command was executed WITH the count '.a:count
         endif
-    endfu
+    endfunction
 
     :Test hello
     the command was executed WITHOUT count˜
 
-    :123Test
+    :123 Test
     the command was executed WITH the count 123˜
 
 ### Why should I avoid `-count=N` and prefer `-range=N` instead?
@@ -428,8 +428,8 @@ command-line and the first non-digit of the first argument.
 So, if the first argument can be a number or can begin with a number, the latter
 will be consumed to replace `<count>`:
 
-    com -count -nargs=+ Test echo printf("count: %s\n<lt>q-args>: %s", <count>, <q-args>)
-    :12Test 34abc
+    command -count -nargs=+ Test echo printf("count: %s\n<lt>q-args>: %s", <count>, <q-args>)
+    :12 Test 34abc
     count: 34˜
     <q-args>: abc˜
 
@@ -877,16 +877,6 @@ is called,  and remove  it at the  end of  the function once  the view  has been
 restored.
 Too cumbersome.
 
-### What's the value of `a:firstline` and `a:lastline` inside a function called without any range?
-
-The address of the current line.
-
-    fu Func()
-        echo a:firstline == line('.') && a:lastline == line('.')
-    endfu
-    call Func()
-    1˜
-
 ### My command includes `<q-args>`.  Which built-in functions should I use to extract its arguments?
 
 The command and the function will look like this:
@@ -1148,15 +1138,6 @@ Update: Actually, I think indexing from 0 is more common than indexing from 1.
 IOW, `col()` (and `\%c`), `virtcol()` (and `\%v`), `getcmdpos()` are the exception.
 
 ##
-# ?
-
-Document that, in practice, you don't need to combine `:update` and `:argdo`:
-
-    :argdo SomeCommand | update
-                       ^------^
-
-Our `vim-save` plugin automatically updates a buffer on BufLeave.
-
 # ?
 
 Document  that if  you  install a  custom  command which  relies  on the  syntax

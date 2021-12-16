@@ -4,8 +4,8 @@
 
 ## Installation
 
-    $ sudo aptitude install libfftw3-dev libasound2-dev libncursesw5-dev libpulse-dev libtool
-    $ sudo aptitude install m4 autoconf automake
+    $ sudo apt install libfftw3-dev libasound2-dev libncursesw5-dev libpulse-dev libtool
+    $ sudo apt install m4 autoconf automake
     $ git clone https://github.com/karlstav/cava
     $ cd cava
     $ ./autogen.sh

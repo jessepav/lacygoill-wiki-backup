@@ -16,7 +16,7 @@ Then, for the change to take effect immediately, execute:
 
 Otherwise, restart the OS.
 
-Source: https://unix.stackexchange.com/a/49823/232487
+Source: <https://unix.stackexchange.com/a/49823/232487>
 
 ---
 
@@ -299,7 +299,7 @@ For more info:
 
 ### an image?
 
-    $ sudo aptitude install fbi
+    $ sudo apt install fbi
     $ sudo adduser user video
 
     $ fbi my_pic.jpg

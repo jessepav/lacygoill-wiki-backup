@@ -7,7 +7,7 @@
 
 Run:
 
-    $ aptitude build-dep PGM
+    $ apt build-dep PGM
 
 ---
 
@@ -22,17 +22,17 @@ Note that you need to replace `xenial` with the actual codename of your Ubuntu O
 And you need  to replace `main restricted` with the  section of the repositories
 from which the program can be installed; you can get it by running:
 
-      $ apt-cache policy PGM
+      $ apt policy PGM
 
 Example:
 
-      $ apt-cache policy weechat
+      $ apt policy weechat
       ...˜
            1.4-2 500˜
               500 http://fr.archive.ubuntu.com/ubuntu xenial/universe amd64 Packages˜
                                                       ^-------------^
 
-Then, run `$ sudo aptitude update`.
+Then, run `$ sudo apt update`.
 
 ##
 # How to make sure `make install` installs all the files under `/usr/local`?
@@ -98,11 +98,11 @@ If you need to remove a non-numerical prefix, like `v`, use a parameter expansio
 
 See `man bash /Parameter Expansion/;/${parameter#word}`.
 
-## How to prevent the package from being replaced by another version during an `aptitude safe-upgrade`?
+## How to prevent the package from being replaced by another version during an `apt upgrade`?
 
 You need to assign a recent version  number to your package, otherwise it may be
-replaced in  the future during  an `$ aptitude  safe-upgrade`, by a  more recent
-package from the official repositories.
+replaced in the future during an `$  apt upgrade`, by a more recent package from
+the official repositories.
 
 Besides, you may need to prefix the version number with a big enough epoch.
 
@@ -140,17 +140,17 @@ bigger.
 
 Find in which section the file is located:
 
-    $ aptitude show <package> | grep Section
+    $ apt show <package> | grep Section
 
 Uncomment the matching `deb-src` line in `/etc/apt/sources.list`.
 
 Update:
 
-    $ sudo aptitude update
+    $ sudo apt update
 
 Download the source package:
 
-    $ apt-get source <package_name>
+    $ apt source <package_name>
 
 This will download the source code in a directory, as well as a few other files:
 
@@ -159,10 +159,10 @@ This will download the source code in a directory, as well as a few other files:
     vim_7.4.1689-3ubuntu1.dsc˜
     vim_7.4.1689.orig.tar.gz˜
 
-If  `$  apt-cache policy`  reports  several  versions,  you  can target  one  in
-particular with:
+If `$  apt policy` reports  several versions, you  can target one  in particular
+with:
 
-    $ apt-get source <package_name>=<version>
+    $ apt source <package_name>=<version>
 
 ### How to recompile it?
 
@@ -179,9 +179,9 @@ More specifically the subchapter 15.1.3. “Starting the Rebuild”.
 
 #### Should I apply the debian patches first?
 
-No, they've been automatically applied by `$ apt-get source`:
+No, they've been automatically applied by `$ apt source`:
 
-    $ apt-get source vim
+    $ apt source vim
     ...˜
     dpkg-source: info: applying 0001-Detect-the-rst-filetype-using-the-contents-of-the-fi.patch˜
     dpkg-source: info: applying 0002-Support-sourcing-a-vimrc.tiny-when-Vim-is-invoked-as.patch˜
@@ -268,11 +268,11 @@ Finally, on the button “buildlog”:
 <https://launchpadlibrarian.net/418666830/buildlog_ubuntu-disco-amd64.zsh_5.5.1-1ubuntu3_BUILDING.txt.gz>
 
 ##
-## What happens if I pass the name of a binary package to `$ apt-get source`?
+## What happens if I pass the name of a binary package to `$ apt source`?
 
 It will be replaced by the source package from which it can be compiled.
 
-    $ apt-get source vim-gtk
+    $ apt source vim-gtk
     ...˜
     Reading package lists... Done˜
     Picking 'vim' as source package instead of 'vim-gtk'˜
@@ -287,7 +287,7 @@ different binaries.
 
 For example, from the Vim source code, you can compile `vim-gtk` or `vim-tiny`.
 
-    $ apt-get source vim
+    $ apt source vim
     $ vim -es vim-*/debian/control +'g/^Package/p' +'qa!'
     Package: vim-common˜
     Package: vim-gui-common˜
@@ -462,10 +462,10 @@ Use rlwrap:
 At the very least, you'll need to give a name and a version to the package.
 
 The name is important because it's the one you'll have to use later whenever you
-want to manipulate the package via `dpkg(1)` or `aptitude(8)`.
+want to manipulate the package via `dpkg(1)` or `apt(8)`.
 
 The version is  important because if it's not recent  enough, your local package
-may be replaced later during an `aptitude safe-upgrade`.
+may be replaced later during an `apt upgrade`.
 
 ### How to provide them
 #### interactively?

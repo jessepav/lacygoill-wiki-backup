@@ -15,8 +15,8 @@ For more info about the options you can pass to the installer:
 
 Try to install a more recent version of the highlight package:
 
-    $ sudo aptitude purge highlight highlight-common
-    $ sudo aptitude install libboost1.58-dev liblua5.3-dev
+    $ sudo apt purge highlight highlight-common
+    $ sudo apt install libboost1.58-dev liblua5.3-dev
     $ git clone https://gitlab.com/saalen/highlight.git highlight
     $ cd highlight
     $ make
@@ -885,7 +885,7 @@ Read these links for more info:
 
 Wait for a kernel upgrade, or try this command:
 
-    $ sudo apt-get install --install-recommends linux-generic-hwe-16.04
+    $ sudo apt install --install-recommends linux-generic-hwe-16.04
 
 The code needs to be adapted to your current Ubuntu version.
 

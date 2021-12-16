@@ -22,9 +22,9 @@ command which is going to be executed.
 
 Install these plugins:
 
-    $ sudo aptitude install zathura-djvu
-    $ sudo aptitude install zathura-cb
-    $ sudo aptitude install zathura-ps
+    $ sudo apt install zathura-djvu
+    $ sudo apt install zathura-cb
+    $ sudo apt install zathura-ps
 
 ## How to see the paths to all the plugins used by zathura?
 
@@ -65,8 +65,8 @@ novel into a pdf before being able to read it.
 Use a PPA:
 
     $ sudo add-apt-repository ppa:spvkgn/zathura-mupdf
-    $ sudo aptitude update
-    $ sudo aptitude install zathura-pdf-mupdf
+    $ sudo apt update
+    $ sudo apt install zathura-pdf-mupdf
 
 See: <https://launchpad.net/~spvkgn/+archive/ubuntu/zathura-mupdf>
 
@@ -100,8 +100,8 @@ First, you need to compile a recent version of `libmupdf-dev`:
     $ cd mupdf
     $ git checkout 1.11-rc1
     $ git submodule update --init
-    $ sudo aptitude update
-    $ sudo aptitude install libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev mesa-common-dev pkg-config
+    $ sudo apt update
+    $ sudo apt install libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev mesa-common-dev pkg-config
 
     $ CFLAGS=-fPIC make HAVE_X11=no HAVE_GLUT=no prefix=/usr/local
       ├──────────┘
@@ -120,7 +120,7 @@ Now, you can finally compile the plugin:
     $ git clone https://git.pwmt.org/pwmt/zathura-pdf-mupdf.git
     $ cd zathura-pdf-mupdf
     $ git checkout 0.3.1
-    $ sudo aptitude install libjbig2dec0-dev libjpeg-dev libopenjp2-7-dev libssl-dev zathura-dev
+    $ sudo apt install libjbig2dec0-dev libjpeg-dev libopenjp2-7-dev libssl-dev zathura-dev
     $ sudo make install
 
     $ sudo CFLAGS=-fPIC make install
@@ -149,7 +149,7 @@ If you later decide to remove the plugin with:
 It will remove the `/usr/lib/zathura/pdf.so` library from zathura-pdf-poppler.
 So reinstall the latter:
 
-    $ sudo aptitude reinstall zathura-pdf-poppler
+    $ sudo apt reinstall zathura-pdf-poppler
 
 ###
 ### It can't read an epub!
@@ -159,7 +159,7 @@ If you have  installed zathura *after* the plugin, you  may have overwritten the
 
 Reinstall the plugin:
 
-    $ sudo aptitude reinstall zathura-pdf-mupdf
+    $ sudo apt reinstall zathura-pdf-mupdf
 
 Or (if you compiled the plugin):
 
@@ -224,12 +224,12 @@ meson's ninja backend:
 
 ---
 
-    $ sudo aptitude install libffi-dev
+    $ sudo apt install libffi-dev
 
     $ ./configure
     configure: error: *** Could not find libmount˜
 
-    $ sudo aptitude install libmount-dev
+    $ sudo apt install libmount-dev
     $ ./configure
     $ make
     $ sudo checkinstall --pkgname myglib
@@ -249,7 +249,7 @@ Get back to girara/:
     configure: error: Package requirements (glib-2.0 >= 2.49.4    atk >= 2.15.1    pango >= 1.37.3    cairo >= 1.14.0    cairo-gobject >= 1.14.0    gdk-pixbuf-2.0 >= 2.30.0) were not met:˜
     No package 'pango' found˜
 
-    $ sudo aptitude install libpango1.0-dev
+    $ sudo apt install libpango1.0-dev
     $ ./configure --prefix=/usr/local
     $ make
     $ sudo checkinstall --pkgname mygtk3
@@ -264,7 +264,7 @@ Get back to girara/:
         Dependency check found: NO˜
 
     $ rm -rf build
-    $ sudo aptitude install doxygen libnotify-dev check
+    $ sudo apt install doxygen libnotify-dev check
     $ meson --prefix=/usr build
     $ cd build
     $ ninja
@@ -284,7 +284,7 @@ Get back to zathura/:
     doc/meson.build:1:0: ERROR: Program(s) ['sphinx-build'] not found or not executable˜
 
     $ rm -rf build
-    $ sudo aptitude install libsynctex-dev libmagic-dev libseccomp-dev appstream-util python3-sphinx
+    $ sudo apt install libsynctex-dev libmagic-dev libseccomp-dev appstream-util python3-sphinx
     $ cd build
     $ ninja
     $ sudo ninja install
@@ -307,7 +307,7 @@ We need to install this:
     $ meson build
     meson.build:21:0: ERROR: Native dependency 'poppler-glib' not found˜
 
-    $ sudo aptitude install libpoppler-glib-dev
+    $ sudo apt install libpoppler-glib-dev
     $ rm -rf build && mkdir build
     $ meson build
 

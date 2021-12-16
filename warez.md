@@ -27,60 +27,6 @@ For more info, see:
     /server irc.undernet.org
     /j #bookz
 
-## google
-
-<https://cse.google.com/cse/publicurl?cx=011394183039475424659:5bfyqg89ers>
-
-Google custom search using this list of predefined urls: <http://pastebin.com/62tKNmm1>
-
-   - <http://gen.lib.rus.ec/>
-   - <http://en.bookfi.org/>
-   - <http://bookzz.org/>
-   - <http://forum.mobilism.org/>
-   - <http://tuebl.ca/books/>
-   - <http://avxhome.se/ebooks/>
-   - <http://www.4shared.com/>
-   - <http://mediafire.com/>
-   - <http://ipmart-forum.com/>
-   - <http://ebook3000.com/>
-   - <http://freebookspot.es/>
-   - <http://demonoid.ph/>
-   - <http://ebookee.org/>
-   - <http://kat.cr/>
-   - <http://www.downeu.org/ebook/>
-   - <https://onebigtorrent.org/torrents/>
-   - <http://manybooks.net/titles/>
-   - <http://freshwrap.ws/>
-   - <http://www.plentyofebooks.net/>
-   - <http://book.pdfchm.net/>
-   - <http://www.freebookspot.es/>
-   - <http://www.feedurbrain.com/forum/>
-   - <http://ebookbrowsee.net/>
-   - <http://2020ok.com/books/>
-   - <http://librs.net/>
-   - <http://thepiratebay.la/torrent/>
-   - <http://bitsnoop.com/>
-   - <http://www.giuciao.com/books/>
-   - <http://books.tr200.org/>
-   - <http://booksc.org/>
-   - <http://club.topsage.com/>
-   - <http://ebookjunkie.com/>
-   - <http://nips.djvuzone.org/>
-   - <http://pdf-giant.com/>
-   - <http://manybooks.net/>
-   - <https://www.scribd.com/>
-   - <http://freecomputerbooks.com/>
-   - <http://www.freetechbooks.com/>
-   - <http://www.onlinefreeebooks.net/>
-   - <http://www.onlineprogrammingbooks.com/>
-   - <http://www.ebooklobby.com/>
-   - <http://bookboon.com/>
-   - <https://www.reddit.com/r/eebooks/>
-   - <https://www.reddit.com/r/mathbooks/>
-   - <https://www.reddit.com/r/csbooks/>
-   - <https://www.reddit.com/r/physicsbooks/>
-   - <https://www.reddit.com/r/econbooks/>
-
 ## See also
 
    - <http://learnbyreading.herokuapp.com/?hack=true>
@@ -108,6 +54,8 @@ address bar.  After that, paste it on this site: <https://9xbuddy.org>
 Finally, download.
 
 Here's a short [video][1] about it if you're interested.
+
+TODO: The links no longer work.  Find other links.
 
 ##
 ## How to get recommendations?
@@ -247,11 +195,11 @@ Example:
 
 This example could name a file like so:
 
-        42 - My Wonderful Video.mp4
-        │    │                  │
-        │    │                  └ %(ext)s
-        │    └ %(title)s
-        └ %(autonumber)02d
+    42 - My Wonderful Video.mp4
+    │    │                  │
+    │    │                  └ %(ext)s
+    │    └ %(title)s
+    └ %(autonumber)02d
 
 The item `%(autonumber)0Nd` lets you number the downloaded files, when there are
 several (e.g. playlist); 2 specifies the number of digits to use.

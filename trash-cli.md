@@ -2,7 +2,7 @@
 
 ## How to install `trash-cli`?
 
-        sudo aptitude install trash-cli
+    sudo apt install trash-cli
 
 ## How to put some files in the trash can?
 

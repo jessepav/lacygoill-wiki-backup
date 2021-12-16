@@ -1933,6 +1933,23 @@ The service must have written why it failed.
 
 ##
 # Todo
+## Output of `systemctl(1)` is sometimes hard to read.
+
+Because  some of  its lines  can be  highlighted with  color 185  (some kind  of
+yellow), which is hard to read on a light background.
+
+Short-term solution:
+
+    # disable colorized output
+    export SYSTEMD_COLORS=0
+
+Long-term solution:
+
+    # limit palette to the first 16 ANSI colors
+    # requires recent systemd version with this commit:
+    # https://github.com/systemd/systemd/commit/e4dde4e87d8dafda44f207a3f7c56fd679c11c7d
+    export SYSTEMD_COLORS=16
+
 ## Sometimes, when we shut down the system, it takes a long time (forever?).
 
 Read:

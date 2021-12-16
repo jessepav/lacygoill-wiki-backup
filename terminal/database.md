@@ -76,7 +76,7 @@ Here's the info, atm on my machine, for the unknown terminal:
 
 ## How to install/build a terminfo db?
 
-    $ sudo aptitude install ncurses-base ncurses-term
+    $ sudo apt install ncurses-base ncurses-term
 
 Installs terminfo descriptions for terminals.
 

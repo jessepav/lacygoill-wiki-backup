@@ -4,7 +4,7 @@
 
 Install some dependencies:
 
-    $ sudo aptitude install librsvg2-dev \
+    $ sudo apt install librsvg2-dev \
         libstartup-notification0-dev \
         libxcb-ewmh-dev \
         libxcb-icccm4-dev \
@@ -21,7 +21,7 @@ Compile the `xcb-util` dependency (can't be installed from the repo of Ubuntu 16
     $ git submodule update --init
 
     # install dependency of `xutils-dev`
-    $ sudo aptitude install xutils-dev
+    $ sudo apt install xutils-dev
 
     $ ./autogen.sh
     $ sudo make install
@@ -168,7 +168,7 @@ Markup support can be enabled, see CONFIGURATION options.
 # Dmenu
 ## Cli
 
-    $ sudo aptitude install suckless-tools
+    $ sudo apt install suckless-tools
 
 Installe le paquet “suckless-tools“ contenant entre autres le pgm `dmenu`.
 

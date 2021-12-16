@@ -468,7 +468,7 @@ Read: <http://openbox.org/wiki/Help:Getting_started>
 - <https://www.opendesktop.org/browse/cat/140/ord/top/>
 - <https://www.deviantart.com/customization/skins/linuxutil/winmanagers/openbox/newest/>
 
-Also, have a look at the output of `$ aptitude show openbox`:
+Also, have a look at the output of `$ apt show openbox`:
 
     Recommends: obconf, python-xdg | obsession, scrot
     Suggests: menu, fonts-dejavu, python, libxml2-dev, tint2, openbox-menu, openbox-gnome-session (= 3.6.1-1ubuntu2.1), openbox-kde-session (= 3.6.1-1ubuntu2.1)
@@ -528,7 +528,7 @@ It's a very lightweight package, so it could be useful when we need to make some
 tests on a new machine or in a VM.
 Btw, when you do some tests, install xterm in addition to twm:
 
-    $ aptitude install twm xterm
+    $ apt install twm xterm
 
 Now, after running `startx(1)`, you can make Xorg display sth (xterm).
 This is all mentioned here: <https://wiki.gentoo.org/wiki/Xorg/Guide#Using_startx>

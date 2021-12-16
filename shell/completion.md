@@ -850,8 +850,8 @@ Example:
     % echo C-d
     suggests filenames˜
 
-    % aptitude C-d
-    suggests subcommands for `aptitude`˜
+    % apt C-d
+    suggests subcommands for `apt`˜
 
 ## What's the equivalent in bash?
 

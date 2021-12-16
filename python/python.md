@@ -116,7 +116,7 @@ Check how much space you have on the partition where you extract with `\df -h` o
 
 ## Dependencies
 
-    $ aptitude install libssl-dev libffi-dev
+    $ apt install libssl-dev libffi-dev
 
 Without `libssl-dev`,  later, you might  not be able  to install a  package with
 `pip`:
@@ -331,7 +331,7 @@ Use commands such as:
 
    - `pip install`
    - `apt-file search`
-   - `aptitude install`
+   - `apt install`
 
 ##
 ## What's the effect of `python[3] -m` before a `pip` command?

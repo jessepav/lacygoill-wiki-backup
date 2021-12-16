@@ -1,7 +1,7 @@
 # Numlock
 ## How to turn on the Numlock key in a X session, as soon as lightdm starts?
 
-    $ sudo aptitude install numlockx
+    $ sudo apt install numlockx
     $ echo 'greeter-setup-script=/usr/bin/numlockx on' | sudo tee -a /etc/lightdm/lightdm.conf
 
 Source:

@@ -29,8 +29,6 @@ Besides it requires the package `debconf-utils` to be installed.
 ##
 # How to install a package and make APT ask us all possible questions to configure it?
 
-    $ sudo DEBIAN_PRIORITY=low apt-get install <package>
+    $ sudo DEBIAN_PRIORITY=low apt install <package>
            ^-----------------^
-
-Note that you need `apt-get` or `apt`; it doesn't work with `aptitude`.
 

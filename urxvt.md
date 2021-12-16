@@ -2,9 +2,9 @@
 ## From PPA
 
     $ sudo add-apt-repository ppa:pi-rho/dev
-    $ sudo aptitude update
+    $ sudo apt update
 
-    $ sudo aptitude install rxvt-unicode-256color
+    $ sudo apt install rxvt-unicode-256color
 
 ##
 ## By Compiling
@@ -14,7 +14,7 @@
 
 You could also have run:
 
-    $ sudo aptitude install cvs
+    $ sudo apt install cvs
     $ cvs -z3 -d :pserver:anonymous@cvs.schmorp.de/schmorpforge co rxvt-unicode
 
 See: <http://software.schmorp.de/pkg/rxvt-unicode.html>.
@@ -156,7 +156,7 @@ This last link was tricky to find.
 
 Or you can download the source code:
 
-    $ apt-get source rxvt-unicode=<optional version>
+    $ apt source rxvt-unicode=<optional version>
 
 Then, read `rxvt-unicode-*/debian/rules`.
 And look for the `conf-unicode-256color` recipe.

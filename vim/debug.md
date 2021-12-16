@@ -1012,7 +1012,8 @@ See also `:help debug-leaks`.
 
     $ git stash -a; git stash clear
     $ make clean; make distclean
-    $ sed -i '/fsanitize=address/s/^#//' src/Makefile
+    $ sed -i '/^#\s*SANITIZER_CFLAGS.*\\$/,/^$/ s/^#//' src/Makefile
+    $ sed -i '/^#LEAK_CFLAGS = -DEXITFREE$/ s/^#//' src/Makefile
     $ ./configure
     $ make; tput bel
 
@@ -1020,7 +1021,51 @@ See also `:help debug-leaks`.
 
 After reproducing the issue, the log should be written in `./asan.log`.
 
-Source: <https://github.com/vim/vim/issues/5410#issuecomment-569516803>
+---
+
+The purpose of the  first `sed(1)` command is to uncomment  an assignment to the
+`SANITIZER_CFLAGS` option.  It assumes that the latter is:
+
+   - written on multiple lines
+   - its first line ends with a backslash (which makes the next newline treated as a line continuation)
+   - its last line is followed by an empty line
+
+Those assumptions are true at the time I'm writing this.
+They  might be  wrong in  the future;  in which  case, you'll  have to  edit the
+`sed(1)` command.
+
+The purpose of the second `sed(1)` command  is to uncomment an assignment to the
+`LEAK_CFLAGS` option, to avoid false reports.  From `src/Makefile`:
+
+   > # You should also use -DEXITFREE to avoid false reports.
+
+---
+
+Note that in addition to compile Vim  with asan enabled, you can also compile it
+with ubsan enabled:
+
+   - option to enable asan (address sanitizer): `-fsanitize=address`
+   - option to enable ubsan (undefined behavior sanitizer): `-fsanitize=undefined`
+
+The previous `sed(1)` command should enable both:
+
+    SANITIZER_CFLAGS = -g -O0 -fsanitize-recover=all \
+                       -fsanitize=address -fsanitize=undefined \
+                       -fno-omit-frame-pointer
+
+An asan log looks like this:
+
+    =================================================================
+    ==126361==ERROR: AddressSanitizer: heap-use-after-free on address ...
+    READ of size 1 at 0x603000006e86 thread T0
+        #0 0x563acc3c9973 in free_type /home/lgc/Vcs/vim/src/vim9type.c:93
+        #1 0x563acbc96ab7 in list_free_list /home/lgc/Vcs/vim/src/list.c:273
+        #2 0x563acbc96d00 in list_free /home/lgc/Vcs/vim/src/list.c:302
+        ...
+
+An ubsan log looks like this:
+
+    ex_docmd.c:2683:10: runtime error: load of null pointer of type 'char_u'
 
 ##
 ### an internal error

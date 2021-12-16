@@ -119,7 +119,7 @@ Official User Guide : https://github.com/hut/ranger/wiki/Official-user-guide
     ranger --copy-config=all                                    crée une config par défaut
 
 
-    sudo aptitude install atool
+    sudo apt install atool
 
             Recommends: bash-completion, binutils, bzip2, file, lbzip2 | pbzip2, unzip, zip
             Suggests: arc, arj, cpio, lzip, lzma, lzop, nomarch, p7zip, rar, rpm, unace,

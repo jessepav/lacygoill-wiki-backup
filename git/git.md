@@ -77,8 +77,8 @@ Now, you can get the latest updates with your compiled `git`:
 ## How to get a more recent version of Git on Ubuntu, without compiling?
 
     $ sudo add-apt-repository ppa:git-core/ppa
-    $ sudo aptitude update
-    $ sudo aptitude safe-upgrade
+    $ sudo apt update
+    $ sudo apt upgrade
 
 Source: <https://launchpad.net/~git-core/+archive/ubuntu/ppa>
 
@@ -1974,7 +1974,7 @@ To undo the removal of the big file, run:
 ## Utilities
 ### quilt(1)
 
-From `$ aptitude show quilt`:
+From `$ apt show quilt`:
 
    > Quilt manages a  series of patches by  keeping track of the  changes each of
    > them makes. They  are logically  organized as  a stack,  and you  can apply,

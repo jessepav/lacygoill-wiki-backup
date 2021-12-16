@@ -102,8 +102,8 @@ tagstack est utilisé.
 
 # How to install `universal-ctags`?
 
-    $ sudo aptitude purge exuberant-ctags
-    $ sudo aptitude install python-docutils
+    $ sudo apt purge exuberant-ctags
+    $ sudo apt install python-docutils
     $ git clone https://github.com/universal-ctags/ctags/
     $ cd ctags
     $ ./autogen.sh

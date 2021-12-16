@@ -3,7 +3,7 @@
 
 Find the section of the repo from where the default Vim binary can be installed:
 
-    $ apt-cache policy vim
+    $ apt policy vim
 
 For example, on Ubuntu 16.04, the default Vim binary can be installed from `xenial/main`:
 
@@ -31,17 +31,17 @@ You should end up with a line such as:
 
 Download the source code of the default Vim binary:
 
-    $ sudo aptitude update
+    $ sudo apt update
 
 Install the default Vim's binary dependencies:
 
-    $ sudo aptitude build-dep vim
+    $ sudo apt build-dep vim
 
 ---
 
 Install the dependencies necessary to compile the lua interface:
 
-    $ sudo aptitude install luajit libluajit-5.1-dev
+    $ sudo apt install luajit libluajit-5.1-dev
 
 Later, you can check the lua interface has been compiled by running:
 

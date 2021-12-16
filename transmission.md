@@ -1,7 +1,7 @@
 
 # Installation
 
-`aptitude install transmission-daemon`
+`apt install transmission-daemon`
 
 # WebUI
 

@@ -1,3 +1,41 @@
+# possible bug: `RGB` is absent from `tmux info`
+
+    $ tmux info | grep 'Tc\|RGB'
+    197: RGB: [missing]
+    222: Tc: [missing]
+
+We do have true colors inside tmux.
+This can be tested with our `truecolor` zsh function.
+The gradient in the bar is smooth.
+
+Also, we have this in `~/.config/tmux/terminal-overrides.conf`:
+
+    if '[ "$COLORTERM" != "xfce4-terminal" ]' 'set -as terminal-features "*-256color:RGB"'
+
+MWE:
+
+    $ echo 'set-option terminal-features "*:RGB"' >/tmp/tmux.conf
+    $ tmux -Lx -f/tmp/tmux.conf
+    $ tmux -Lx info | grep 'Tc\|RGB'
+    197: RGB: [missing]
+    222: Tc: [missing]
+
+Note that `info` is a default custom alias for `show-messages -JT`:
+
+    $ tmux info
+    ⇔
+    $ tmux show-messages -JT
+                           ^
+                           this flag gives us the terminal capabilities
+
+Update: If you set `RGB` via `terminal-features` or `terminal-overrides`:
+
+    set-option terminal-overrides '*:Tc'
+
+`$ tmux  info` reports that the  `setrgbb` and `setrgbf` capabilities are set.
+But `$  tmux info` reports  that `Tc` is  set if and only  if `RGB` was  set via
+`terminal-overrides`.  This seems inconsistent.
+
 # pipe-pane
 
 Document this:
@@ -40,7 +78,7 @@ Press `pfx :` and run `pipe-pane 'ansifilter >/tmp/log'`.
 *Is it really necessary? It doesn't seem so...*
 *Maybe it's useful to prevent overwriting an existing file. *
 
-Now, run some shell commands, like `$ ls`, `$ echo 'hello'`, `$ sudo aptitude update`, ...
+Now, run some shell commands, like `$ ls`, `$ echo 'hello'`, `$ sudo apt update`, ...
 The output of `$ echo 'hello'` is *not* logged.  Why?
 Update: it *is* logged, but there are 120 characters in front of it (a `%` then 119 spaces).
 So, you don't see it, unless you set Vim's 'wrap' option.

@@ -2446,7 +2446,7 @@ un dossier `autoload/` du rtp.
 
 
     let password = inputsecret('Enter sudo password:') .. "\n"
-    echo system('sudo -S aptitude install package', password)
+    echo system('sudo -S apt install package', password)
 
             inputsecret() est similaire à input() à ceci près que les caractères tapés sont affichés
             sous la forme d'astérisques, et que la saisie n'est pas sauvegardée dans l'historique:

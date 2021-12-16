@@ -56,15 +56,15 @@ Here's an example of fingerprint:
 ##
 ## How to install the most recent VB package?
 
-    $ sudo aptitude update
-    $ aptitude search virtualbox | grep -E '[0-9]\.[0-9]'
-    $ sudo aptitude install virtualbox-x.y
-                                       ^^^
+    $ sudo apt update
+    $ apt search virtualbox | grep -E '[0-9]\.[0-9]'
+    $ sudo apt install virtualbox-x.y
+                                  ^^^
     # replace with the value found in the previous command
 
 ## Why should I install `dkms`?
 
-    $ sudo aptitude install dkms
+    $ sudo apt install dkms
 
 Because VB relies on some (host) kernel modules:
 
@@ -92,9 +92,9 @@ An optional pack of extensions which adds some features to VB:
 
 To get the name of the directory to enter, execute:
 
-                               replace with the version you installed previously
-                               vvv
-    $ aptitude show virtualbox-x.y | grep Version
+                          replace with the version you installed previously
+                          vvv
+    $ apt show virtualbox-x.y | grep Version
     Version: x.y.ab-cdefgh...˜
              ^----^
 
@@ -419,8 +419,8 @@ For more info, see:
 
 From the guest OS:
 
-    $ sudo apt-get update
-    $ sudo apt-get install dkms
+    $ sudo apt update
+    $ sudo apt install dkms
     $ sudo systemctl reboot
 
     # mount the Guest Additions ISO file inside the VM:
@@ -444,14 +444,13 @@ From the guest OS:
 
 From the guest OS:
 
-    $ sudo apt-get update
+    $ sudo apt update
 
     # I'm not sure about those steps.
     # See here for more info:
-    #         https://www.virtualbox.org/manual/ch02.html#externalkernelmodules
-    $ sudo apt-get install make gcc linux-headers-2.6-686 dkms
-    $ sudo apt-get purge virtualbox-ose-guest-dkms virtualbox-ose-guest-utils virtualbox-ose-guest-x11
-    $ sudo apt-get keep-all
+    #     https://www.virtualbox.org/manual/ch02.html#externalkernelmodules
+    $ sudo apt install make gcc linux-headers-2.6-686 dkms
+    $ sudo apt purge virtualbox-ose-guest-dkms virtualbox-ose-guest-utils virtualbox-ose-guest-x11
 
     $ sudo shutdown -r now
 
@@ -862,8 +861,8 @@ If you really must quote the path, then expand the tilde yourself.
     $ sudo -i
     $ rm /var/lib/apt/lists/*
     $ rm /var/lib/apt/lists/partial/*
-    $ apt-get clean
-    $ apt-get update
+    $ apt clean
+    $ apt update
 
 ## The guest refuses to boot:  “This kernel requires the following features not present on the cpu: pae”
 

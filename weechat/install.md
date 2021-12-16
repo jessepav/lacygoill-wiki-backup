@@ -3,7 +3,7 @@
 
 Check from what section of the repositories can the `weechat` package be installed:
 
-    $ aptitude show weechat
+    $ apt show weechat
 
 You'll probably find this line:
 
@@ -18,17 +18,17 @@ You'll probably find this line:
             deb-src http://fr.archive.ubuntu.com/ubuntu/ xenial universe
             deb-src http://fr.archive.ubuntu.com/ubuntu/ xenial-updates universe
 
-    $ sudo aptitude update
+    $ sudo apt update
 
 ## install them
 
-    $ sudo aptitude build-dep weechat
+    $ sudo apt build-dep weechat
 
 ## install optional ones
 
 Install some optional dependencies:
 
-    $ sudo aptitude install asciidoctor libcpputest-dev
+    $ sudo apt install asciidoctor libcpputest-dev
 
 There may be more.  See:
 <https://weechat.org/files/doc/devel/weechat_user.en.html#dependencies>

@@ -574,7 +574,7 @@ operator-pending).
 
             This shows that you can fix the count of the last edition when you repeat it.
 
-    :echo "\U0045\U0308\U0301\U033D\U0359\U0359\U032C\u0044\u0357\u0303\u0352\u0305\u0310\u0326\u0049\u036f\u0300\u036b\u0351\u0367\u031e\u0054\u031e\u004f\u0306\u0306\u030e\u030d\u034d\u032d\u0052\u0313\u0346\u033a\u031f\u033c\u0348"
+    :echo "\u0045\u0308\u0301\u033D\u0359\u0359\u032C\u0044\u0357\u0303\u0352\u0305\u0310\u0326\u0049\u036f\u0300\u036b\u0351\u0367\u031e\u0054\u031e\u004f\u0306\u0306\u030e\u030d\u034d\u032d\u0052\u0313\u0346\u033a\u031f\u033c\u0348"
 
             Outputs `Ë͙͙̬̹͈͔̜́̽D̦̩̱͕͗̃͒̅̐I̞̟̣̫ͯ̀ͫ͑ͧT̞Ŏ͍̭̭̞͙̆̎̍R̺̟̼͈̟̓͆`.
             Illustrates how you can generate composing (or combining?) characters.
