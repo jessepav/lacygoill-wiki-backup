@@ -1067,6 +1067,30 @@ An ubsan log looks like this:
 
     ex_docmd.c:2683:10: runtime error: load of null pointer of type 'char_u'
 
+####
+#### The devs can't reproduce my crash!
+
+Try to reproduce in a docker container, so as to eliminate any interference from
+your current environment (which can't be exactly the same the one of the devs):
+
+    # install docker
+    $ sudo apt install docker.io
+
+    # start Ubuntu 21.10 in a docker container
+    $ sudo docker run --interactive=true --tty=true --rm=true ubuntu:21.10
+
+    # install dependencies
+    $ apt update
+    $ apt --yes install git make gcc libncurses-dev
+
+    # compile Vim
+    $ git clone --depth=1 https://github.com/vim/vim
+    $ cd vim
+    $ make
+
+    # reproduce the crash
+    $ VIMRUNTIME=runtime ./src/vim -Nu NONE -U NONE -i NONE -S /tmp/crash.vim
+
 ##
 ### an internal error
 #### How to get a backtrace?

@@ -78,9 +78,9 @@ def Func()
     var x: number
 enddef
 ```
-The previous code doesn't raise any error, even though we try to change the type
+The previous code doesn't give any error,  even though we try to change the type
 of a variable which is not allowed.  This means that `Func()` was not compiled.
-Had you  moved `:defcompile` *after* `Func()`,  an error would have  been raised
+Had you  moved `:defcompile` *after*  `Func()`, an  error would have  been given
 during type checking which itself occurs during the compilation:
 ```vim
 vim9script
@@ -455,7 +455,7 @@ But `s:` is a weird syntax which  has no equivalent in other popular programming
 languages; it also makes the code a bit more verbose.
 
 ##
-## The following snippet raises E1075:
+## The following snippet gives E1075:
 ```vim
 vim9script
 def Outer()
@@ -480,7 +480,7 @@ As a result, you cannot declare a script-local function inside another function;
 only directly at the script level.
 
 ##
-## I have an error raised from some <lambda>123 function.  I never defined one!
+## I have an error given from some <lambda>123 function.  I never defined one!
 
 Maybe you have defined a function inside another function:
 ```vim
@@ -913,7 +913,7 @@ defcompile
 
 When you assign it a value, because in that case Vim can infer the type from the latter.
 
-Here, `E1077` is raised because `x` is not assigned a value:
+Here, `E1077` is given because `x` is not assigned a value:
 ```vim
 vim9script
 def Func(x)
@@ -933,14 +933,14 @@ defcompile
 
 ---
 
-Here, no error is raised, because `x` is assigned a default value:
+Here, no error is given, because `x` is assigned a default value:
 ```vim
 vim9script
 def Func(x = 3)
 enddef
 defcompile
 ```
-And here again, no error is raised, because `x` is assigned a value:
+And here again, no error is given, because `x` is assigned a value:
 ```vim
 vim9script
 def Func()
@@ -1085,7 +1085,7 @@ Besides, type inferrence might give a problematic type:
     var l = Func()
 
 Suppose `Func()`  returns an  expression of type  `list<number>`, but  later you
-need to invoke `extend()`  to include strings inside `l`.  It  will raise a type
+need to invoke  `extend()` to include strings  inside `l`.  It will  give a type
 mismatch error.
 
 So, instead, you need to write an explicit type:
@@ -1155,12 +1155,12 @@ that the error messages are different.
 
 Second, `+` has 2 meanings: it can  be used as an arithmetic operator to perform
 an addition,  or as a  list concatenation operator.   So, again, it  makes sense
-that Vim raises a different error for `+` than for `-`.
+that Vim gives a different error for `+` than for `-`.
 
 See: <https://github.com/vim/vim/issues/7167#issuecomment-714620921>
 
 ##
-## This snippet raises a type mismatch error:
+## This snippet gives a type mismatch error:
 ```vim
 vim9script
 var d: dict<any> = {a: 0}
@@ -1170,7 +1170,7 @@ extend(d, {b: 0, c: ''})
 
 ### I thought that declaring the dictionary with the type `dict<any>` would avoid this issue.  It doesn't.  Why?
 
-The error is not raised at compile time, but at runtime.
+The error is not given at compile time, but at runtime.
 And at runtime, no  function which operates in-place can change  the type of the
 items of a composite type value.
 This breaks functions such as `extend()`, `flatten()` and `map()`.
@@ -1235,7 +1235,7 @@ That's because `function()` is not considered a constant:
 
 Not sure what that means...
 
-But the error will still correctly be raised later, at runtime:
+But the error will still correctly be given later, at runtime:
 ```vim
 vim9script
 def Func()
@@ -1424,7 +1424,7 @@ call Func()
 ```
     I was a number, but now I'm a string
 
-No error is raised, because there is  no type checking, which means there was no
+No error is given,  because there is no type checking, which  means there was no
 declaration either.
 
 Don't be confused by the fact that  you're in a `:def` function.  Yes, you're in
@@ -2253,7 +2253,7 @@ Working example:
 Notice how we had to prefix `MYCONST` with `s:` in `import.vim`.
 Without, when executing  `:echo MYCONST` afterward, Vim would  have searched for
 the constant in the global namespace; and after failing to find it, `E121` would
-have been raised.
+have been given.
 
 ##
 # Differences with legacy
@@ -2576,7 +2576,7 @@ let s:name = 0
 I think allowing `s:` to be omitted would lead to too many issues.
 
 For example, if  you made a typo when  writing the name of a  variable, no error
-would be raised at compile time, and  it would be automatically assumed as local
+would be given at  compile time, and it would be  automatically assumed as local
 to the script.
 
 BTW, in a legacy script, script-local variables cannot be declared.
@@ -2685,7 +2685,7 @@ Func()
 ## My function prints an unexpected error message!  (an error is missing, the order of the errors looks wrong, ...)
 
 Your error message is probably correct.
-You have to remember that an error can  be raised at compile time or at runtime,
+You have to remember  that an error can be given at compile  time or at runtime,
 and that the latter step occurs after the former.
 
 Check whether the error message contains the keyword "processing" or "compiling":
@@ -2717,7 +2717,7 @@ You might think the error message is wrong, and instead expect this one:
     E1012: type mismatch, expected float but got list<number>
                           ^---------------------------------^
 
-But the error message is fine.  It's raised at compile time, not at runtime.
+But the error message is fine.  It's given at compile time, not at runtime.
 You can check this by writing `:defcompile` at the end:
 ```vim
 vim9script
@@ -2751,7 +2751,7 @@ Func()
 ```
     E476: Invalid command: invalid
 
-If so, it's not a bug.  The error is raised at compile time, not at runtime.
+If so, it's not a bug.  The error is given at compile time, not at runtime.
 You can check this by replacing `Func()` with `:defcompile`:
 ```vim
 vim9script
@@ -2766,14 +2766,14 @@ defcompile
 ```
     E476: Invalid command: invalid
 
-Notice how the error is raised again, even though `Func()` was not executed.
+Notice how the error is given again, even though `Func()` was not executed.
 
 Explanation:
 At compile time, Vim  doesn't care about the logic of  your code; *all* commands
 are  parsed and  compiled.  And  if  Vim finds  a  command which  it can  easily
 determine as invalid (unknown, wrong syntax, wrong argument type, ...), an error
-must be raised.  You  can only catch such an error  from *outside* the function;
-so that the function's compilation  (explicit via `:defcompile`, or implicit via
+must be given.  You can only catch such an error from *outside* the function; so
+that the  function's compilation  (explicit via  `:defcompile`, or  implicit via
 `Func()`) is inside the `try` conditional.
 ```vim
 vim9script
@@ -2798,12 +2798,12 @@ def Func()
 enddef
 defcompile
 ```
-Even though the `:echo` command is wrong – i.e. it will always raise an error at
-runtime – no error is raised by the previous snippet.
-Vim will only raise an error at runtime.
+Even though the `:echo`  command is wrong – i.e. it will  always give an error
+at runtime – no error is given by the previous snippet.
+Vim will only give an error at runtime.
 
 ##
-## When I try to assign a value to a list or a dictionary, an error is raised unexpectedly!
+## When I try to assign a value to a list or a dictionary, an error is given unexpectedly!
 ```vim
 vim9script
 var l = [1 , 2 , 3]
@@ -3024,14 +3024,14 @@ the type of transformation you perform...
 
 It's not wrong.
 
-You need to pay attention to the context in which the error is raised:
+You need to pay attention to the context in which the error is given:
 
     Error detected while processing ...:
                                     ^^^
                                     context
 
-Is it raised while processing a file?
-Or is it raised while processing a function?
+Is it given while processing a file?
+Or is it given while processing a function?
 
 Here is an example where you might find the line number of the error unexpected:
 ```vim
@@ -3064,7 +3064,7 @@ match the expected string type, hence the error.
 
 Now, Vim doesn't  call the function until  it has to display  the quickfix list;
 that is, until `:copen` is executed.  So, from Vim's point of view, the error is
-raised from `:copen`, which is on line 8 *in the script*.
+given from `:copen`, which is on line 8 *in the script*.
 
 Notice how the  first line in the  error messages refers to the  script, not the
 function:
@@ -3209,7 +3209,7 @@ Or use the full name of the command:
 It's a known issue which won't be fixed: <https://github.com/vim/vim/issues/6593>
 
 ##
-## The following snippet raises an error:
+## The following snippet gives an error:
 ```vim
 vim9script
 def Func()
@@ -3351,7 +3351,7 @@ a bool.
 ---
 
 If you  explicitly specify the  type `number`, type  inferrence is not  used, no
-special flag is set on the type of `n`, and an error is raised as usual:
+special flag is set on the type of `n`, and an error is given as usual:
 ```vim
 vim9script
 def Func()
@@ -3682,7 +3682,7 @@ Func()
 
 Explanation: When compiling a  function, Vim only knows the  commands which were
 defined before.  When it checks the validity  of `:Cmd 123`, it doesn't know yet
-about `:Cmd`, therefore an error is raised.
+about `:Cmd`, therefore an error is given.
 
 Using `:execute` suppresses the check at compile time; because at that time, Vim
 only checks  the validity of the  `:execute` command itself; that  is, it checks
@@ -3747,27 +3747,6 @@ The assignment with a value isn't used there.
 For more info, see: <https://github.com/vim/vim/issues/7931#issuecomment-791989913>
 
 ###
-## I can't pass a register to a function with a method!
-```vim
-vim9script
-@a = 'text'
-@a->setline(1)
-```
-    E492: Not an editor command: text
-
-So, you want to refer to the contents of the "a" register by writing `@a`.
-This works without any requirement in an expression, but if it's at the start of
-a line, it can be mistaken with  the Ex command `:@a` which executes whatever is
-written in the "a" register as an Ex command.
-
-To prevent this, surround `@a` with parentheses:
-```vim
-vim9script
-@a = 'text'
-(@a)->setline(1)
-```
-    no error
-
 ## My folding expression doesn't work.  I don't get folds!
 
 Set `'debug'` to `throw`, and check whether Vim gives errors.
@@ -3833,6 +3812,254 @@ From `:help todo`:
 ##
 # Todo
 ## To document:
+### the difference between using or omitting `function()` when saving a funcref in a variable
+
+   > A user defined function can be used as a function reference in an expression
+   > without `function()`. **The argument types and return type will then be checked.**
+
+Example to illustrate:
+```vim
+vim9script
+def Func(b: bool)
+enddef
+def Compiled()
+    var Ref: func(number) = Func
+enddef
+defcompile
+```
+    E1012: Type mismatch; expected func(number) but got func(bool)
+    # Func() is OK but it does not match Ref's type
+
+With `function()`, no error would be given at compile time:
+```vim
+vim9script
+def Func(b: bool)
+enddef
+def Compiled()
+    var Ref: func(number) = function(Func)
+enddef
+defcompile
+```
+    no error
+
+---
+
+   > The function must already have been defined.
+
+Example to illustrate:
+```vim
+vim9script
+def Compiled()
+    var Ref: func(bool) = Func
+enddef
+defcompile
+def Func(b: bool)
+enddef
+```
+    E1001: Variable not found: Func
+    # everything is OK, but Func is defined too late
+    # (i.e. after the function where it's referred to is compiled)
+
+---
+
+   > When using `function()` **the resulting type is "func", a function with any**
+   > **number of arguments and any return type.**  The function can be defined later.
+
+Example to illustrate:
+```vim
+vim9script
+def Func(n: number, s: string): bool
+    return true
+enddef
+def Compiled()
+    var Ref = function(Func)
+enddef
+defcompile
+```
+    no error
+
+---
+
+   > A user defined function can be used as a function reference in an expression
+   > without `function()`. The argument types and return type will then be checked.
+   > The function must already have been defined. >
+
+   >         var Funcref = MyFunction
+
+   > When using `function()` the resulting type is "func", a function with any
+   > number of arguments and any return type.  **The function can be defined later.**
+
+This doesn't work:
+```vim
+vim9script
+def Compiled()
+    var Ref = function(Func)
+enddef
+defcompile
+def Func()
+enddef
+```
+    E1001: Variable not found: Func
+
+We need quotes:
+```vim
+vim9script
+def Compiled()
+    var Ref = function('Func')
+enddef
+defcompile
+def Func()
+enddef
+```
+    no error
+
+I think  it's working  as intended.   But maybe  the help  should be  updated to
+explicitly mention the quotes requirement.
+
+---
+
+Read this: <https://github.com/vim/vim/issues/8492#issuecomment-873621456>
+Is everything correct over there?
+Are there bugs to report?  Notes to update?
+
+### whether the Vim9 syntax is used when a mapping executes an Ex command and is typed from a script
+
+When a mapping is  typed from a Vim9 script with `feedkeys()`  and the `x` flag,
+the Vim9 syntax is used:
+```vim
+vim9script
+nnoremap <F3> <Cmd>let g:name = 0<cr>
+feedkeys("\<F3>", 'x')
+```
+    E1126: Cannot use :let in Vim9 script
+
+Which is unexpected, because – usually – a mapping is used with the legacy syntax:
+```vim
+vim9script
+nnoremap <F3> <Cmd>let g:name = 0<cr>
+feedkeys("\<F3>", '')
+```
+    no error
+
+Is it a bug?
+
+Also, `:legacy` doesn't work:
+```vim
+vim9script
+nnoremap <F3> <Cmd>let g:name = 0<cr>
+legacy call feedkeys("\<F3>", 'x')
+```
+    E1126: Cannot use :let in Vim9 script
+
+But a legacy function does work:
+```vim
+vim9script
+nnoremap <F3> <Cmd>let g:name = 0<cr>
+function Legacy()
+    call feedkeys("\<F3>", 'x')
+endfunction
+Legacy()
+```
+    no error
+
+All of that is confusing.  Should it be simplified?  Better documented?
+
+---
+```vim
+vim9script
+nnoremap <F3> <Cmd>let g:name = 0<cr>
+execute "normal \<F3>"
+```
+    no error
+
+And here, why no error?
+Isn't `:normal` equivalent to `feedkeys()` + `x` flag?
+
+I *think* it comes from this:
+
+   > Still, you expect the ":normal" argument to be executed as in legacy Vim
+   > script.  Otherwise you would have to double the colon to put a colon in
+   > front of the range.  And even that wouldn't work, it goes after the
+   > range.
+
+   > The ":normal" argument is supposed to be execute as typed, thus I would
+   > think that's not as in Vim9 script.
+
+Source: <https://github.com/vim/vim/issues/7401#issuecomment-736760312>
+
+---
+
+See also: <https://github.com/vim/vim/issues/7401#issuecomment-854864374>
+
+## ?
+
+I have an unexpected error involving a `g:`/`b:`/`w:`/`g:` variable!
+```vim
+vim9script
+g:variable = 'string'
+def Func(arg: string = g:variable)
+enddef
+defcompile
+```
+    E1013: Argument 1: type mismatch, expected string but got any
+
+Use a type cast:
+
+    ✘
+    def Func(arg: string = g:variable)
+
+    ✔
+    def Func(arg: string = <string>g:variable)
+                           ^------^
+```vim
+vim9script
+g:variable = 'string'
+def Func(arg: string = <string>g:variable)
+enddef
+defcompile
+```
+    no error
+
+See `:help type-casting`.
+
+Update: Wait for a response to this comment:
+<https://github.com/vim/vim/issues/9376#issuecomment-998221754>
+
+Then, check whether the examples used here are still correct.
+
+Also, the help says that type casting is  useful when the type is expected to be
+always the same:
+
+   > This can be a problem when the "any" type is undesired and **the actual type is**
+   > **expected to always be the same**.
+
+But if the  type is always the same,  it seems awkward to ask the  user to write
+`<string>`  every single  time they  refer to  a global  variable in  a compiled
+assignment:
+```vim
+vim9script
+g:variable = 'string'
+def Func1(arg1: string = <string>g:variable)
+enddef
+def Func2(arg2: string = <string>g:variable)
+enddef
+def Func3(arg3: string = <string>g:variable)
+enddef
+defcompile
+```
+It would be much simpler to ask the user to write `<string>` only when assigning the global variable itself:
+```vim
+vim9script
+<string>g:variable = 'string'
+def Func1(arg1: string = g:variable)
+enddef
+def Func2(arg2: string = g:variable)
+enddef
+def Func3(arg3: string = g:variable)
+enddef
+defcompile
+```
+####
 ### ?
 
 `:execute` is bad because it suppresses  the compilation step; so it gives worse
@@ -3942,7 +4169,7 @@ With backtick expansion, the word splitting occurs on line breaks; not on spaces
 
 ### ?
 
-`:h vim9-function-defined-later`
+`:help vim9-function-defined-later`
 
 ### ?
 ```vim
@@ -3988,7 +4215,8 @@ doautocmd CursorHold
     one
     two
 
-But the block must be at the very beginning; that is, you can't nest the autocmd:
+But the block must be at the very beginning of the `{cmd}` argument.
+That is, we can't nest the autocmd:
 ```vim
 vim9script
 autocmd CursorHold * autocmd SafeState * ++once {
@@ -4094,7 +4322,7 @@ defcompile
 ```
     E117: Unknown function: Bar
 
-The same code doesn't raise any error if the lambda is refactored into a `:def` function:
+The same code doesn't give any error if the lambda is refactored into a `:def` function:
 ```vim
 vim9script
 def Foo()
@@ -4124,8 +4352,8 @@ compilation.
 
 ### ?
 
-   - `:h vim9-lambda-arguments`
-   - `:h vim9-ignored-argument`
+   - `:help vim9-lambda-arguments`
+   - `:help vim9-ignored-argument`
 
 Also:
 
@@ -4166,12 +4394,8 @@ function, whether you quote it or not matters.
 
 With quotes, the function is not loaded until it's actually called.
 Without  quotes, the  function  is loaded  right away,  at  compile time;  which
-defeats the purpose of  autoloading, so use this only if  while testing to check
-that your autoload function passes the compile step.
-
-### ?
-
-<https://github.com/vim/vim/issues/7401#issuecomment-854864374>
+defeats the purpose of autoloading, so use this only while testing to check that
+your autoload function passes the compile step.
 
 ### ?
 
@@ -4198,34 +4422,7 @@ echo 'you pressed ' .. char
 
 ### ?
 
-When a  mapping is  executed from a  Vim9 script with  `feedkeys()` and  the `x`
-flag, the Vim9 syntax is used:
-```vim
-vim9script
-nno <F3> <cmd>1yank<cr>
-feedkeys("\<F3>", 'x')
-```
-    E1050: Colon required before a range: 1yank
-
-Which is unexpected, because – usually – a mapping is used with the legacy syntax:
-```vim
-vim9script
-nno <F3> <cmd>1yank<cr>
-feedkeys("\<F3>", '')
-```
-    no error
-```vim
-vim9script
-nno <F3> <cmd>1yank<cr>
-execute "norm \<F3>"
-```
-    no error
-
-Is it a bug?
-
-### ?
-
-When a  type mismatch error is  raised from a  function called as a  method, you
+When a  type mismatch error  is given  from a function  called as a  method, you
 might want to mentally subtract 1 from the given argument index:
 ```vim
 vim9script
@@ -4305,247 +4502,6 @@ IOW, `func` and `func()` are opposite to each other.
 <https://github.com/vim/vim/issues/8491#issuecomment-873639597>
 
 ##
-###
-### ?
-```vim
-vim9script
-def Callback(_j: job, _e: number)
-    echomsg 'callback'
-enddef
-def Func()
-    job_start(['/bin/bash', '-c', ':'], {exit_cb: function('Callback')})
-enddef
-Func()
-```
-    E117: Unknown function: Callback
-
-Here, an error is given, because:
-
-   - the funcref returned by `function('Callback')` can only work in the Vim9 context
-   - when the callback is processed, and the funcref is used, we are no longer in the Vim9 context
-
-Similar pitfall with `listener_add()`:
-```vim
-vim9script
-def Listener(bufnr: number, start: number, end: number, added: number, changes: list<dict<number>>)
-    echomsg 'lines ' .. start .. ' until ' .. end .. ' changed'
-enddef
-listener_add(function('Listener'), '%')
-feedkeys('aaa', 'nt')
-```
-    E117: Unknown function: Listener
-
-Solution: Drop  the quotes  around  the function  name  (drop `function()`  too,
-unless you need a partial).
-```vim
-vim9script
-def Callback(_j: job, _e: number)
-    echomsg 'callback'
-enddef
-def Func()
-    job_start(['/bin/bash', '-c', ':'], {exit_cb: Callback})
-enddef
-Func()
-```
-    callback
-```vim
-vim9script
-def Listener(bufnr: number, start: number, end: number, added: number, changes: list<dict<number>>)
-    echomsg 'lines ' .. start .. ' until ' .. end .. ' changed'
-enddef
-listener_add(Listener, '%')
-feedkeys('aaa', 'nt')
-```
-#### ?
-
-But why does this work?
-```vim
-vim9script
-def Callback(...l: list<any>)
-    echomsg 'callback'
-enddef
-popup_create('', {callback: function('Callback')})
-```
-Maybe  the  difference is  somehow  explained  by  the  fact that  the  previous
-functions (`job_start()` and `listener_add()`) are async, while `popup_create()`
-is not.
-
-But watch this:
-```vim
-vim9script
-def Filter(...l: list<any>): bool
-    echomsg 'filter'
-    return true
-enddef
-popup_create('', {filter: function('Filter')})
-feedkeys('j')
-```
-    E117: Unknown function: Filter
-
-If the previous explanation was true, shouldn't this snippet work?
-Maybe the difference is somehow explained by  the fact that a filter function is
-not processed  in the same  context as a callback.   It's processed in  the same
-context as a mapping; i.e. outside any script.
-
-Anyway, you can *always* avoid the issue  by dropping the quotes around the name
-of the function.  For a partial, you will still need `function()`.
-
----
-
-Update: Now that I think about it a little more, I think it's a bug.
-Vim9 should be smart enough to assume `s:` when it's missing.
-
-Besides, if you press `C-c`, then the callback function won't be found either:
-```vim
-vim9script
-def Popup()
-    var id = popup_menu(['aaa', 'bbb', 'ccc'], {
-        filter: Filter,
-        callback: function('Callback'),
-    })
-enddef
-def Filter(winid: number, key: string): bool
-    return popup_filter_menu(winid, key)
-enddef
-def Callback(winid: number, choice: number)
-enddef
-Popup()
-feedkeys("\<c-c>")
-```
-    E117: Unknown function: Callback
-
-Same issue if the filter function cannot be found:
-```vim
-vim9script
-def Popup()
-    var id = popup_menu(['aaa', 'bbb', 'ccc'], {
-        filter: function('Filter'),
-        callback: function('Callback'),
-    })
-enddef
-def Filter(winid: number, key: string): bool
-    return popup_filter_menu(winid, key)
-enddef
-def Callback(winid: number, choice: number)
-enddef
-Popup()
-feedkeys('j')
-```
-    E117: Unknown function: Filter
-    E117: Unknown function: Callback
-
-Notice how  – this time  – an  error is also  raised for the  callback function.
-It's because of the previous error  caused by the filter function which couldn't
-be found.
-
----
-
-BTW, try to be consistent when using the `s:` prefix.
-That is, if for some reason, you have to use it in front of the name of an item,
-you might need to do it for all the occurrences of this item.
-Otherwise, pressing  `C-]` on a  reference of this item  might fail to  make Vim
-jump to its definition/declaration.
-```vim
-vim9script
-def Func()
-enddef
-var Ref = function('s:Func')
- #                    ^--^
- #                  if you press `C-]`:
- #                  Vim(tag):E426: tag not found: s:Func
- #                  that's because `Func()` is defined without `s:` in its header
-```
-###
-### the difference between using or omitting `function()` when saving a funcref in a variable
-
-   > A user defined function can be used as a function reference in an expression
-   > without `function()`. **The argument types and return type will then be checked.**
-   > The function must already have been defined. >
-
-   >         var Funcref = MyFunction
-
-   > When using `function()` **the resulting type is "func", a function with any**
-   > **number of arguments and any return type.**  The function can be defined later.
-
-Examples to illustrate the first bold sentence:
-```vim
-vim9script
-def Func(b: bool)
-enddef
-def Compiled()
-    var Ref: func(number) = Func
-enddef
-defcompile
-```
-    E1012: Type mismatch; expected func(number) but got func(bool)
-    # Func() is OK but it does not match Ref's type
-```vim
-vim9script
-def Func(): bool
-    return 123
-enddef
-def Compiled()
-    var Ref: func(): bool = Func
-enddef
-defcompile
-```
-    E1012: Type mismatch; expected bool but got number
-    # Func() matches Ref's type, but it's not OK; its return type does not match the return value
-
-Example to illustrate the second bold sentence:
-```vim
-vim9script
-def Func(n: number, s: string): string
-    return repeat(s, n)
-enddef
-def Compiled()
-    var Ref = function(Func)
-enddef
-defcompile
-```
-    no error
-
-See: Read this:
-<https://github.com/vim/vim/issues/8492#issuecomment-873621456>
-
-#### ?
-
-   > A user defined function can be used as a function reference in an expression
-   > without `function()`. The argument types and return type will then be checked.
-   > The function must already have been defined. >
-
-   >         var Funcref = MyFunction
-
-   > When using `function()` the resulting type is "func", a function with any
-   > number of arguments and any return type.  **The function can be defined later.**
-
-This doesn't work:
-```vim
-vim9script
-def Compiled()
-    var Ref = function(Func)
-enddef
-defcompile
-def Func()
-enddef
-```
-    E1001: Variable not found: Func
-
-We need quotes:
-```vim
-vim9script
-def Compiled()
-    var Ref = function('Func')
-enddef
-defcompile
-def Func()
-enddef
-```
-    no error
-
-Is it working as intended?  If so, maybe the quotes requirement should be documented.
-
-####
 ### the first things to do after pasting a legacy function into a Vim9 script
 
 Whenever `.` is used as a concatenation operator, replace it with `..`; and make
@@ -4619,7 +4575,7 @@ echo 0o200
     127
     128
 
-See `:h octal` and `:h scriptversion-4`.
+See `:help octal` and `:help scriptversion-4`.
 
 This matters for the third argument of `mkdir()`, which is parsed as an octal number.
 
@@ -4669,59 +4625,6 @@ See:
 - <https://github.com/vim/vim/issues/7672>
 - <https://github.com/vim/vim/issues/7682#issuecomment-761183658>
 
-### don't write this:  "command Cmd execute Func()"
-```vim
-vim9script
-def Func(): string
-    [][123]
-    return ''
-enddef
-command Cmd execute Func()
-Cmd
-```
-    E684: list index out of range: 123
-    E1050: Colon required before a range: 0
-
-The extra error is noise/confusing.
-
----
-
-This technique is used  by tpope to make his commands  behave like Vim's builtin
-commands:
-
-    command Cmd execute Func()
-    def Func(): string
-        ...
-        if issue
-            return 'echoerr ' .. string(v:exception)
-        endif
-        ...
-        return ''
-    enddef
-
-That is, when the command encounters an issue, an error is given, yes, but there
-is no multiline stacktrace.
-
-But it looks like a hack, and causes the aforementioned issue.
-It's better to  use an `Error()` utility function which  `:echomsg` the message,
-if you don't want a stacktrace; or `:echoerr` if you do want one.
-
----
-
-Update: Actually, there is a way to keep using this trick without the issue:
-
-    command Cmd execute ':' .. Func()
-                        ^----^
-
-Note that,  if an error is  raised and the  function returns 0, the  cursor will
-jump on the first line.
-
-Update: In the future, Vim might return `void` instead of 0.
-
-   > - function returning nothing should return void instead of zero
-
-If so, the aforementioned trick won't work anymore.
-
 ### workarounds to unlet a script-local variable
 
 If you  use a script-local  variable as some sort  of cache, and  you're worried
@@ -4759,7 +4662,7 @@ It seems to be working as intended:
 
 ### imported items are local to the script
 
-This is suggested at `:h vim9-scopes /result`:
+This is suggested at `:help vim9-scopes /result`:
 
    > The result is that functions and variables without a namespace can always be
    > found in the script, either defined there or imported.

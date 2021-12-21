@@ -166,10 +166,10 @@ with:
 
 ### How to recompile it?
 
-    $ dpkg-buildpackage -us -uc
-                         │   │
-                         │   └ do not sign the .changes file
-                         └ do not sign the source package
+    $ dpkg-buildpackage --unsigned-source --unsigned-changes
+                          │                 │
+                          │                 └ do not sign the .changes file
+                          └ do not sign the source package
 
 You must  be in the source  code tree when you  run the command, and  the deb is
 written in the parent directory (where the .dsc file lives), not the current one.

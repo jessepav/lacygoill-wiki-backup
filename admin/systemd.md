@@ -1931,6 +1931,23 @@ For every executable you invoke, write a *full* path.
 If that doesn't help, have a look at `$ journalctl -b`.
 The service must have written why it failed.
 
+## The journal is spammed with `rtkit-daemon` messages!
+
+    Dec 20 01:00:42 ubuntu rtkit-daemon[1019]: Supervising 7 threads of 6 processes of 1 users.
+    Dec 20 01:00:42 ubuntu rtkit-daemon[1019]: Supervising 7 threads of 6 processes of 1 users.
+    Dec 20 01:01:08 ubuntu rtkit-daemon[1019]: Supervising 7 threads of 6 processes of 1 users.
+    ...
+
+It's a known bug:
+
+   - <https://github.com/heftig/rtkit/issues/22>
+   - <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=939615>
+   - <https://bugs.launchpad.net/ubuntu/+source/rtkit/+bug/1547589>
+
+Consider removing the `rtkit` package:
+
+    $ sudo apt purge rtkit
+
 ##
 # Todo
 ## Output of `systemctl(1)` is sometimes hard to read.

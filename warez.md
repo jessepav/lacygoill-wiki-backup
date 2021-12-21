@@ -220,6 +220,155 @@ of the webpage; copy the link and paste it in transmission.
 
 ##
 # Todo
+## Document a way to search and download torrents from the command-line
+
+For the search part:
+
+    # `we-get` installation
+    $ git clone https://github.com/rachmadaniHaryono/we-get
+    $ cd we-get
+    $ python3 -m pip install .
+
+    # `we-get` usage
+    $ we-get --search 'counterpart s01e01' --results=10 --target 1337x,eztv,jackett_rss,the_pirate_bay,yts
+
+Now, on the `we-get` prompt, type `show` and `Space`.
+A completion menu should automatically be opened.
+Choose the torrent you want, and press `Enter`.
+The output should contain a magnet link:
+
+    we-get > show Counterpart.S01E01.WEB.H264-STRiFE[eztv]
+    Counterpart.S01E01.WEB.H264-STRiFE[eztv] {
+      "leeches": "13",
+      "link": "magnet:...",
+      "seeds": "192",
+      "target": "1337x"
+    }
+
+---
+
+For the download part:
+
+    $ transmission-daemon
+
+    # start downloading file via magnet
+    $ transmission-remote --add 'magnet:...'
+
+    # monitor download in TUI
+    $ watch -n 3 transmission-remote --list
+    # monitor download in GUI
+    $ xdg-open 'http://localhost:9091/transmission/web/'
+                                                      ^
+                                                      this slash is important to avoid an error:
+                                                      https://askubuntu.com/a/44696
+
+    # to remove the torrent and the files
+    $ transmission-remote -t123 --remove-and-delete
+                            ^^^
+                            torrent ID as reported by `transmission-remote --list`
+
+    # pause the torrent
+    $ transmission-remote -t123 --stop
+
+    # delete the torrent (but keep the downloaded files)
+    $ transmission-remote -t123 --remove
+
+### we should not need to pass `--target` to `we-get`
+
+But if we omit it, `rargb` is included, which gives an error:
+
+    ...
+    File "/usr/lib/python3.8/json/decoder.py", line 355, in raw_decode
+      raise JSONDecodeError("Expecting value", s, err.value) from None
+    json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+Relevant issue report: <https://github.com/rachmadaniHaryono/we-get/issues/24>
+I tried the `dev` branch, but it doesn't help.
+
+Find a fix, or post a comment on the previous report (give as much info as possible).
+
+---
+
+BTW, here is how to get the list of sites on which `we-get` can search:
+
+    $ we-get --get-list
+    jackett_rss
+    1337x
+    yts
+    eztv
+    the_pirate_bay
+    rargb
+
+---
+
+Also, there is a typo in `rargb`; it should be `rargb`:
+```diff
+diff --git a/we_get/modules/rargb.py b/we_get/modules/rargb.py
+index 093698f..587534d 100644
+--- a/we_get/modules/rargb.py
++++ b/we_get/modules/rargb.py
+@@ -11,8 +11,8 @@ SEARCH_LOC = "/api/v2/list_movies.json?query_term=%s&quality%s&genre=%s"
+ LIST_LOC = "/api/v2/list_movies.json?quality=%s&genre=%s"
+ 
+ 
+-class rargb(object):
+-    """ rargb module using the JSON API.
++class rarbg(object):
++    """ rarbg module using the JSON API.
+     """
+ 
+     def __init__(self, pargs):
+@@ -79,7 +79,7 @@ class rargb(object):
+ 
+ 
+ def main(pargs):
+-    run = rargb(pargs)
++    run = rarbg(pargs)
+     if run.action == "list":
+         return run.list()
+     elif run.action == "search":
+```
+Then:
+
+    $ mv we_get/modules/{rargb,rarbg}.py
+
+### review torrentflix as an alternative to we-get
+
+<https://github.com/ItzBlitz98/torrentflix/>
+
+Pros:
+
+   - can download subtitles automatically
+   - can stream
+   - Trakt.tv integration
+
+Trakt.tv seems  to be some  kind of  social website dedicated  to movies/series,
+which could be useful to discover things to watch.
+How good is it though?
+How does it compare to these alternatives?:
+
+   - https://followmy.tv/
+   - https://simkl.com/
+
+Are there better alternatives?
+
+Cons:
+
+   - require nodejs
+   - require peerflix
+   - pull many dependencies
+   - does too much?  too complex?
+   - only streaming?  no persistent download?
+
+###
+### watch and document this playlist:
+
+<https://www.youtube.com/watch?v=ee4XzWuapsE&list=PLqv94xWU9zZ05Dbc551z14Eerj2xPWyVt>
+
+We  need  a bunch  of  shell  aliases/functions  to  make the  interaction  with
+transmission easier.  The first video has some good info for that.
+
+##
 ## Review the quality of the sites given here:
 
 - <https://github.com/Igglybuff/awesome-piracy#courses-and-tutorials>

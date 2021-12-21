@@ -1390,6 +1390,209 @@ normal! g@l
     E1248: Closure called from invalid context
 
 ##
+## inconsistent rules wrt to s: dropping
+### `job_start()` exit callback
+#### works
+```vim
+vim9script
+def Callback(..._)
+    echomsg 'callback'
+enddef
+def Func()
+    job_start(['/bin/bash', '-c', ':'], {exit_cb: Callback})
+enddef
+Func()
+```
+    callback
+```vim
+vim9script
+def Callback(..._)
+    echomsg 'callback'
+enddef
+def Func()
+    job_start(['/bin/bash', '-c', ':'], {exit_cb: s:Callback})
+enddef
+Func()
+```
+    callback
+```vim
+vim9script
+def Callback(..._)
+    echomsg 'callback'
+enddef
+def Func()
+    job_start(['/bin/bash', '-c', ':'], {exit_cb: function(Callback)})
+enddef
+Func()
+```
+    callback
+```vim
+vim9script
+def Callback(..._)
+    echomsg 'callback'
+enddef
+def Func()
+    job_start(['/bin/bash', '-c', ':'], {exit_cb: function(s:Callback)})
+enddef
+Func()
+```
+    callback
+```vim
+vim9script
+def Callback(..._)
+    echomsg 'callback'
+enddef
+def Func()
+    job_start(['/bin/bash', '-c', ':'], {exit_cb: function('s:Callback')})
+enddef
+Func()
+```
+    callback
+
+#### E117: Unknown function: Callback
+```vim
+vim9script
+def Callback(..._)
+    echomsg 'callback'
+enddef
+def Func()
+    job_start(['/bin/bash', '-c', ':'], {exit_cb: 'Callback'})
+enddef
+Func()
+```
+    E117: Unknown function: Callback
+```vim
+vim9script
+def Callback(..._)
+    echomsg 'callback'
+enddef
+def Func()
+    job_start(['/bin/bash', '-c', ':'], {exit_cb: function('Callback')})
+enddef
+Func()
+```
+    E117: Unknown function: Callback
+
+#### E120: Using <SID> not in a script context: s:Callback
+```vim
+vim9script
+def Callback(..._)
+    echomsg 'callback'
+enddef
+def Func()
+    job_start(['/bin/bash', '-c', ':'], {exit_cb: 's:Callback'})
+enddef
+Func()
+```
+    E120: Using <SID> not in a script context: s:Callback
+
+### Rules:
+
+`s:` can be dropped iff the name of the function is not quoted.
+That's because the callback is processed in  the global context, so Vim can only
+look  for the  function in  the global  namespace; not  in the  script-local one
+(giving `E117`).
+
+If the name is quoted and `s:` is not dropped, then `function()` is mandatory.
+Otherwise, Vim does not know in which script the function is defined (giving `E120`).
+
+###
+### popup callback
+```vim
+vim9script
+def Callback(...l: list<any>)
+    echomsg 'callback'
+enddef
+var id = popup_create('', {callback: 'Callback'})
+popup_close(id)
+```
+    callback
+
+---
+```vim
+vim9script
+def Callback(...l: list<any>)
+    echomsg 'callback'
+enddef
+var id = popup_create('', {callback: 'Callback'})
+printf(":call popup_close(%d)\<CR>", id)->feedkeys()
+```
+    E117: Unknown function: Callback
+
+---
+```vim
+vim9script
+def Callback(...l: list<any>)
+    echomsg 'callback'
+enddef
+g:id = popup_create('', {callback: 'Callback'})
+legacy call popup_close(g:id)
+```
+    E117: Unknown function: Callback
+
+---
+```vim
+vim9script
+def Popup()
+    var id = popup_menu(['aaa', 'bbb', 'ccc'], {
+        filter: Filter,
+        callback: 'Callback',
+    })
+enddef
+def Filter(winid: number, key: string): bool
+    return popup_filter_menu(winid, key)
+enddef
+def Callback(winid: number, choice: number)
+enddef
+Popup()
+feedkeys("\<C-C>")
+```
+    E117: Unknown function: Callback
+
+---
+```vim
+vim9script
+def Popup()
+    var id = popup_menu(['aaa', 'bbb', 'ccc'], {
+        filter: 'Filter',
+        callback: 'Callback',
+    })
+enddef
+def Filter(winid: number, key: string): bool
+    return popup_filter_menu(winid, key)
+enddef
+def Callback(winid: number, choice: number)
+enddef
+Popup()
+feedkeys('j')
+```
+    E117: Unknown function: Filter
+    E117: Unknown function: Callback
+
+Here, an  error is  given for  the callback  function, but  only because  of the
+previous error caused by the filter function which couldn't be found.
+
+Also, whenever  you get  an error  using `feedkeys()`, passing  it the  `x` flag
+fixes the issue.
+
+### ?
+
+Try to be consistent when using the `s:` prefix.
+That is, if for some reason, you have to use it in front of the name of an item,
+you might need to do it for all the occurrences of this item.
+Otherwise, pressing  `C-]` on a  reference of this item  might fail to  make Vim
+jump to its definition/declaration.
+```vim
+vim9script
+def Func()
+enddef
+var Ref = function('s:Func')
+ #                    ^--^
+ #                  if you press `C-]`:
+ #                  Vim(tag):E426: tag not found: s:Func
+ #                  that's because `Func()` is defined without `s:` in its header
+```
+##
 ## ?
 
 We can set an opfunc in Vim9 or in legacy (2).
@@ -1531,24 +1734,6 @@ feedkeys("\<F4>_")
     123
     4
 
-## ?
-
-I don't think `string()` is necessary:
-```diff
-diff --git a/runtime/doc/options.txt b/runtime/doc/options.txt
-index a5ff937..d5f6079 100644
---- a/runtime/doc/options.txt
-+++ b/runtime/doc/options.txt
-@@ -385,7 +385,7 @@ lambda it will be converted to the name, e.g. "<lambda>123".  Examples:
- 	set opfunc={a\ ->\ MyOpFunc(a)}
- 	" set using a funcref variable
- 	let Fn = function('MyTagFunc')
--	let &tagfunc = string(Fn)
-+	let &tagfunc = Fn
- 	" set using a lambda expression
- 	let &tagfunc = {t -> MyTagFunc(t)}
- 	" set using a variable with lambda expression
-```
 ## unquoted autoloaded functions are sourced as soon as encountered
 
 This needs to be documented:
@@ -1697,59 +1882,6 @@ index 049fabb30..0889b7d98 100644
  			is not present, the command fails.
  
 ```
-## :help g@
-
-   > Although "block" would rarely appear, since it can
-   > only result from Visual mode where "g@" is not useful.
-
-That's wrong for 2 reasons.
-
-First, `block` is not limited to Visual mode:
-```vim
-vim9script
-nnoremap <expr> <F4> CountSpaces()
-def g:CountSpaces(type = ''): string
-  if type == ''
-    set opfunc=CountSpaces
-    echomsg 'the current mode is: ' .. mode(1)
-    return 'g@'
-  endif
-  echomsg 'the current mode is: ' .. mode(1)
-  echomsg 'the type of the text-object is: ' .. type
-  return ''
-enddef
-['xxx', 'xxx']->setline(1)
-feedkeys("\<F4>\<C-V>j", 'x')
-messages
-```
-    the current mode is: n
-    the current mode is: n
-    the type of the text-object is: block
-
-Second, `g@` is useful, *even* in Visual mode:
-```vim
-vim9script
-xnoremap <expr> <F4> UpperCaseSelection()
-def g:UpperCaseSelection(type = ''): string
-  if type == ''
-    set opfunc=UpperCaseSelection
-    return 'g@'
-  endif
-  getline("'<", "'>")
-      ->map((_, v) => v->toupper())
-      ->setline('.')
-  return ''
-enddef
-var lines =<< trim END
-    xxx
-    uppercase these lines
-    from visual mode
-    xxx
-END
-lines->setline(1)
-feedkeys("2GVj\<F4>", 'x')
-```
-
 ## <F1..4> don't work with modifiers in xterm
 
 Same issue with `<Del>`.
@@ -2043,7 +2175,7 @@ The result is a huge amount of errors (mainly `E10`) which are caused by `'cpopt
 
 ---
 
-The issue cannot be reproduced with `-u`, nor with `-Nu`, because they set or reset `'compatible'` which in turn set `'cpoptions'`.
+The issue cannot be reproduced with `-u`, nor with `-Nu`, because those flags explicitly set or reset `'compatible'`, which in turn set `'cpoptions'`.
 
 ---
 
@@ -2158,37 +2290,6 @@ Look for the pattern `compatib` in Vim's help files.
 For the relevant matches, ask yourself whether Vim9 would benefit from dropping an old syntax.
 
 ##
-## ?
-```vim
-vim9script
-{
-    var d = {
-        k: 0,
-    }
-    echo d
-}
-```
-    {'k': 0}
-```vim
-vim9script
-var Ref = () => {
-    var d = {
-        k: 0,
-    }
-}
-```
-    E723: Missing end of Dictionary '}': [end of lines]
-```vim
-vim9script
-var Ref = () => {
-    var d = {
-        k: 0, }
-}
-```
-    no error
-
-In the second snippet, could Vim be smarter?
-
 ## ?
 
 <https://github.com/vim/vim/issues/8926#issuecomment-980473929>
@@ -6190,19 +6291,20 @@ But it hasn't been merged in Vim yet.
 When it's done, leave a comment on #6777.
 
 ## searchcount() can make Vim lag when the buffer contains a very long line
-
-    vim9script
-    @/ = 'x'
-    repeat(['x'], 1000)
-        ->map((_, v) => v .. repeat('_', 99))
-        ->reduce((a, v) => a .. v)
-        ->setline(1)
-    nno <expr> n Func()
-    def g:Func(): string
-        searchcount({maxcount: 1000, timeout: 500})
-        return 'n'
-    enddef
-
+```vim
+vim9script
+@/ = 'x'
+['x']
+    ->repeat(1'000)
+    ->map((_, v: string) => v .. repeat('_', 99))
+    ->reduce((a: string, v: string) => a .. v)
+    ->setline(1)
+nno <expr> n Func()
+def g:Func(): string
+    searchcount({maxcount: 1'000, timeout: 500})
+    return 'n'
+enddef
+```
 Keep pressing n for a few seconds, then stop: Vim still needs several seconds to
 process the keypresses.
 
@@ -6210,71 +6312,71 @@ process the keypresses.
 
 Note that the issue is not merely caused by the size of the buffer or the number
 of matches.  Here is the exact same text, but splitted on 1000 lines:
-
-    vim9script
-    @/ = 'x'
-    repeat(['x'], 1000)
-        ->map((_, v) => v .. repeat('_', 99))
-        ->setline(1)
-    nno <expr> n Func()
-    def g:Func(): string
-        searchcount({maxcount: 1000, timeout: 500})
-        return 'n'
-    enddef
-    set nu
-
+```vim
+vim9script
+@/ = 'x'
+repeat(['x'], 1000)
+    ->map((_, v) => v .. repeat('_', 99))
+    ->setline(1)
+nno <expr> n Func()
+def g:Func(): string
+    searchcount({maxcount: 1000, timeout: 500})
+    return 'n'
+enddef
+set nu
+```
 Notice how this time, keeping `n` pressed doesn't cause Vim to lag.
 
 Why does it matter for `searchcount()` whether a line is long or not?
-Splitting short lines  into a single long one doesn't  change change the overall
-text, nor the statistics about the search pattern...
+Splitting short  lines into a single  long one doesn't change  the overall text,
+nor the statistics about the search pattern...
 
 ---
 
 Also note that the  number of matches must be high enough.   For example, in the
 previous snippet, if we reduce the number  of matches from 1000 down to 500, Vim
 lags a little less:
-
-    vim9script
-    @/ = 'x'
-    repeat(['x'], 500)
-        ->map((_, v) => v .. repeat('_', 199))
-        ->reduce((a, v) => a .. v)
-        ->setline(1)
-    nno <expr> n Func()
-    def g:Func(): string
-        searchcount({maxcount: 1000, timeout: 500})
-        return 'n'
-    enddef
-
+```vim
+vim9script
+@/ = 'x'
+repeat(['x'], 500)
+    ->map((_, v) => v .. repeat('_', 199))
+    ->reduce((a, v) => a .. v)
+    ->setline(1)
+nno <expr> n Func()
+def g:Func(): string
+    searchcount({maxcount: 1000, timeout: 500})
+    return 'n'
+enddef
+```
 Reduced further from 500 down to 250, it lags even less:
-
-    vim9script
-    @/ = 'x'
-    repeat(['x'], 250)
-        ->map((_, v) => v .. repeat('_', 399))
-        ->reduce((a, v) => a .. v)
-        ->setline(1)
-    nno <expr> n Func()
-    def g:Func(): string
-        searchcount({maxcount: 1000, timeout: 500})
-        return 'n'
-    enddef
-
+```vim
+vim9script
+@/ = 'x'
+repeat(['x'], 250)
+    ->map((_, v) => v .. repeat('_', 399))
+    ->reduce((a, v) => a .. v)
+    ->setline(1)
+nno <expr> n Func()
+def g:Func(): string
+    searchcount({maxcount: 1000, timeout: 500})
+    return 'n'
+enddef
+```
 And from 250 down to 125, the lag can no longer be perceived:
-
-    vim9script
-    @/ = 'x'
-    repeat(['x'], 125)
-        ->map((_, v) => v .. repeat('_', 799))
-        ->reduce((a, v) => a .. v)
-        ->setline(1)
-    nno <expr> n Func()
-    def g:Func(): string
-        searchcount({maxcount: 1000, timeout: 500})
-        return 'n'
-    enddef
-
+```vim
+vim9script
+@/ = 'x'
+repeat(['x'], 125)
+    ->map((_, v) => v .. repeat('_', 799))
+    ->reduce((a, v) => a .. v)
+    ->setline(1)
+nno <expr> n Func()
+def g:Func(): string
+    searchcount({maxcount: 1000, timeout: 500})
+    return 'n'
+enddef
+```
 ---
 
 You can't just refactor  `search#index()` so that it bails out  when you're on a
@@ -6336,7 +6438,7 @@ to a curly brace:
 
 Hello,
 
-According to `:h no_mail_maps` and `:h no_plugin_maps`, the user should be able to prevent the definition of filetype specific mappings by setting the variable `no_{filetype}_maps` (for a given filetype) or `no_plugin_maps` (for all filetypes).
+According to `:help no_mail_maps` and `:h no_plugin_maps`, the user should be able to prevent the definition of filetype specific mappings by setting the variable `no_{filetype}_maps` (for a given filetype) or `no_plugin_maps` (for all filetypes).
 
 So, I wrote this PR to prevent the installation of the mappings in case the user set one of the variables `g:no_plugin_maps` or `g:no_python_maps`.
 

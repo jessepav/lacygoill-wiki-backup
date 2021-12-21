@@ -1143,7 +1143,7 @@ contenant plusieurs fichiers.
             Utiliser la version du programme en ligne.
 
 
-    sudo npm install -g mapscii
+    npm install --global mapscii
 
             Installer le programme en local.
 
