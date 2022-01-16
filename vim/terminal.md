@@ -8,7 +8,7 @@ Use `echoraw()`:
 Example:
 
     # open an xterm terminal *outside* tmux
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         let seq = "\033]52;c;" .. system('printf -- "%s" "test" | base64 | tr -d "\n"') .. "\007"
         call echoraw(seq)
         qa!
@@ -74,7 +74,7 @@ See `:h t_CTRL-W_quote`.
 
 Write an OSC 51 sequence on the tty:
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         term
         fu Tapi_func(buf, arglist)
             echom 'arbitrary command run from buffer ' .. a:buf
@@ -151,7 +151,7 @@ Use `json_encode()` instead:
 
 Make sure your sequence is not too long.
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         term
         fu Tapi_drop(_, files)
             exe 'tabnew | drop ' .. join(a:files)
@@ -172,7 +172,7 @@ paths), write most of it inside a temporary file, and let the outer Vim read it.
 This lets  you shorten the sequence;  you just have  to include the name  of the
 temporary file.
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         term
         fu Tapi_drop(_, filelist)
             exe 'tabnew | drop ' .. readfile(a:filelist)->join()

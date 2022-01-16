@@ -342,7 +342,7 @@ cursor shape is not set back to a block.
 
 Solution: Do *not* use a DCS sequence.
 
-    $ cat <<'EOF' >>~/.vim/vimrc
+    $ tee -a <<'EOF' ~/.vim/vimrc
     let &t_SI = "\e[6 q"
     let &t_EI = "\e[2 q"
     EOF

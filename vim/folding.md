@@ -159,7 +159,7 @@ It depends on `'foldlevel'`.
 If  the  new  fold has  a  greater  level  than  `'foldlevel'`, it  gets  closed
 automatically; otherwise, it stays open.
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         setl fdl=1 fml=0 fdm=manual fde=getline(v:lnum)=~#'^#'?'>' .. getline(v:lnum)->matchstr('^#*')->len():'='
         au BufWritePost * setl fdm=expr | eval foldlevel(1) | setl fdm=manual
         %d|sil pu=repeat(['x'], 5)|1
@@ -259,7 +259,7 @@ Technically, these commands set/reset/toggle `'foldenable'`.
 
 The view may be altered.
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         setl fml=0 fdm=expr fde=getline(v:lnum)=~#'^#'?'>1':'='
         %d|sil pu=repeat(['#'], &lines)+['#']+repeat([''], &lines)+['#', '']
         norm! zo
@@ -281,7 +281,7 @@ If that's an issue, save and restore the view:
 
 In a script, it seems the issue is not always triggered:
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         setl fml=0 fdm=expr fde=getline(v:lnum)=~#'^#'?'>1':'='
         %d|sil pu=repeat(['#'], &lines)+['#']+repeat([''], &lines)+['#', '']
         norm! zo
@@ -410,7 +410,7 @@ Don't conflate `:folddoopen` with `:foldopen`.
 
 Execute `:call foldlevel(1)`.
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         setl fml=0 fdm=expr fde=getline(v:lnum)=~#'^#'?'>1':'='
         %d|for i in range(2) | sil pu=['#', '']+repeat(['x'], 5)+[''] | endfor
         setl fdm=manual

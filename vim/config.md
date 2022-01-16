@@ -1490,7 +1490,7 @@ In case `4.`, it's initialized with the value it has in the window where it was 
 
 There can be some weird exceptions:
 
-    $ vim -Nu NONE -O /tmp/file1 /tmp/file2 -S <(cat <<'EOF'
+    $ vim -Nu NONE -O /tmp/file1 /tmp/file2 -S <(tee <<'EOF'
         set spr
         1wincmd w | vs
         1wincmd w | setl cc=10 | setg cc=1
@@ -1508,7 +1508,7 @@ and when asking to display a file which is already displayed in the first window
 (or any window split  from the latter).  It does not affect  a file displayed in
 subsequent windows:
 
-    $ vim -Nu NONE -O /tmp/file1 /tmp/file2 -S <(cat <<'EOF'
+    $ vim -Nu NONE -O /tmp/file1 /tmp/file2 -S <(tee <<'EOF'
         set spr
         1wincmd w | vs
         1wincmd w | setl cc=10 | setg cc=1

@@ -75,6 +75,7 @@ temporarily converting the dates into simple integers.
    - `:help getqflist()` supports the new arguments `end_col` and `end_lnum` since 8.2.3019
    - `:help prop_list()` supports new keys in the optional argument `{props}`:
      `end_lnum`, `types`, `ids`
+   - `:help win_move_separator()` and `:help win_move_statusline()`
 
 ## output of functions
 
@@ -83,6 +84,7 @@ temporarily converting the dates into simple integers.
 ##
 # commands
 
+   - `:help :argdedupe`
    - `:help :balt`
    - `:help :echoconsole`
    - `:help :scriptversion`
@@ -133,6 +135,7 @@ Note: `InsertLeave` is fired right *after* leaving insert mode.
 
    - `v:collate`
    - `v:exiting`
+   - `v:maxcol`
 
 ---
 

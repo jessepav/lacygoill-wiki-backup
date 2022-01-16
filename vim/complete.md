@@ -66,7 +66,7 @@ Document what's the disadvantag of pressing `c-x c-p`, or `c-p`, instead of `c-x
 
 `:h 'cot /ctrl-l` doesn't work with `C-x C-p` and `C-p`:
 
-    $ vim -Nu NONE +'set cot=menu,longest|startinsert!' =(cat <<'EOF'
+    $ vim -Nu NONE +'set cot=menu,longest|startinsert!' =(tee <<'EOF'
     xx
     xxabc
     xxab
@@ -451,7 +451,7 @@ It's because we include `longest` in `'cot'`, in `vim-completion`.
 
 MWE:
 
-    $ cat <<'EOF' >/tmp/dict
+    $ tee <<'EOF' /tmp/dict
         fooxxa
         fooxxb
         fooxxc

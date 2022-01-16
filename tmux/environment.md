@@ -106,7 +106,7 @@ Example:
 
 Or use `var=val` in a file sourced by tmux:
 
-     $ tmux -Lx -f =(cat <<'EOF'
+     $ tmux -Lx -f =(tee <<'EOF'
      var=hello
      EOF
      )
@@ -385,7 +385,7 @@ Yes for `run-shell`:
 
 Yes for `if-shell`:
 
-    $ tmux source =(cat <<'EOF'
+    $ tmux source =(tee <<'EOF'
     if "pstree -lsp $$ >/tmp/.out" ""
     EOF
     ) ; cat /tmp/.out
@@ -410,7 +410,7 @@ Yes for `run-shell`:
 Yes for `if-shell`:
 
     $ tmux setenv var_session 123 \; setenv -g var_global 456
-    $ tmux source =(cat <<'EOF'
+    $ tmux source =(tee <<'EOF'
     if "env | grep 'var_\\(session\\|global\\)' >/tmp/.out" ""
     EOF
     ) ; cat /tmp/.out

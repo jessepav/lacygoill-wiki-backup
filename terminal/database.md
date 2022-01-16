@@ -161,7 +161,7 @@ According the the type of their value:
 
 ## How to deal with a server whose terminfo db is incomplete?
 
-                          ┌ FIXME:
+                          ┌ TODO:
                           │
                           │ What's `-t`?
                           │
@@ -173,7 +173,7 @@ According the the type of their value:
                           │        has no local tty.
                           │
         infocmp -x | ssh -t root@remote-host '
-        cat > "$TERM.info" && tic -sx "$TERM.info"'
+        tee "$TERM.info" && tic -sx "$TERM.info"'
 
     OR
 

@@ -253,7 +253,7 @@ For more info, see:
 
 You can make tests with:
 
-    $ vim -g -f -Nu NONE -i NONE -S <(cat <<'EOF'
+    $ vim -g -f -Nu NONE -i NONE -S <(tee <<'EOF'
         vim9script
         set go-=!
         cd $VIMRUNTIME
@@ -755,14 +755,13 @@ courante.
             Pour empêcher cela, il faut retirer les flags a (:r) et/ou A (:w) à l'option 'cpo'.
 
             Pour l'empêcher ponctuellement le temps d'une seule commande, on peut passer par un hack
-            utilisant /bin/cat:
+            utilisant /bin/cat et /bin/tee:
 
-                        :r !/bin/cat fname      insérer le contenu de fname
-                        :w !/bin/cat > fname    écrire le buffer courant dans fname
+                        :r !/bin/cat fname    insérer le contenu de fname
+                        :w !/bin/tee fname    écrire le buffer courant dans fname
 
             Comme on ne passe pas de nom de fichier en argument à :r/:w, l'alternate file n'est pas modifié.
-            Dans le 2e cas, on écrit sur l'entrée standard de cat et on utilise une redirection > pour
-            écrire dans fname.
+            Dans le 2e cas, on écrit sur l'entrée standard de tee.
 
 
     :r !sed -n 10,23p fname

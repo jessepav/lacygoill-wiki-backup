@@ -117,9 +117,9 @@ Make some tests with any of these key bindings:
     $ tmux bind -T copy-mode-vi Z send -X copy-pipe-and-cancel 'tee /tmp/file' \\\; run 'xsel -i --clipboard </tmp/file'
 
 I think the  issue is in an interaction  between `copy-pipe[-and-cancel]` and st.
-Indeed, I can't reproduce with `cat(1)` :
+Indeed, I can't reproduce with `tee(1)` :
 
-    bind -T copy-mode-vi Z send -X copy-pipe 'cat >/tmp/test'
+    bind -T copy-mode-vi Z send -X copy-pipe 'tee /tmp/test'
 
 ### ?
 
@@ -392,7 +392,7 @@ Document all of this in `~/.config/st/patches/README.md`.
 
 To reproduce, run these shell commands:
 
-    $ cat <<'EOF' >/tmp/tmux.conf
+    $ tee <<'EOF' /tmp/tmux.conf
     bind -T copy-mode-vi x send -X copy-pipe-and-cancel "xargs -I {} tmux run 'xdg-open \"{}\"'"
     EOF
     $ tmux -Lx -f/tmp/tmux.conf

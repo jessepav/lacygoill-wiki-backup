@@ -332,7 +332,7 @@ it may be because of `2.`.
 
 As an example, you don't want to bind anything to the sequence `ESC O A`.
 
-    $ cat <<'EOF' >/tmp/tmux.conf
+    $ tee <<'EOF' /tmp/tmux.conf
     set -s user-keys[0] "\eOA"
     bind -n User0 display hello
     EOF
@@ -764,7 +764,7 @@ And you can restore the layout with:
 Usage example (toggle  between moving the pane to the  far right, maximizing it,
 or restoring original layout):
 
-    $ cat <<'EOF' >/tmp/tmux.conf
+    $ tee <<'EOF' /tmp/tmux.conf
     if -F '#{@layout}' \
         {run 'tmux select-layout "#{@layout}" \; set -uw @layout'} \
         {set -Fw @layout "#{window_layout}" ; splitw -fh  ; swapp -t ! ; killp -t !}
@@ -1140,7 +1140,7 @@ But not when you reach it with `j` or `Down`.
 
 You can make some tests with this minimal tmux.conf:
 
-    $ tmux -Lx -f =(cat <<'EOF'
+    $ tmux -Lx -f =(tee <<'EOF'
     set -g mouse on
     bind -n a copy-mode -e
     EOF
@@ -1185,7 +1185,7 @@ it doesn't exist, without having to test the output of some command like `$ tmux
 
 ## that when you run `$ tmux source`, `#{pane_current_command}` is 'tmux'
 
-    $ cat <<'EOF' >/tmp/.tmux.conf
+    $ tee <<'EOF' /tmp/.tmux.conf
     is_shell='#{m:*sh,#{pane_current_command}}'
     if -F "$is_shell" {display 'you are in a shell'} {display 'you are NOT in a shell'}
     EOF
@@ -1196,7 +1196,7 @@ it doesn't exist, without having to test the output of some command like `$ tmux
 This may seem unexpected, because if the same command is run from a key binding,
 then the current command is the shell (and not 'bind'):
 
-    $ cat <<'EOF' >/tmp/.tmux.conf
+    $ tee <<'EOF' /tmp/.tmux.conf
     is_shell='#{m:*sh,#{pane_current_command}}'
     bind x if -F "$is_shell" {display 'you are in a shell'} {display 'you are NOT in a shell'}
     EOF
@@ -1365,7 +1365,7 @@ This would be more clear:
 
 If you  need to  test the option:
 
-    $ tmux -Lx -f =(cat <<'EOF'
+    $ tmux -Lx -f =(tee <<'EOF'
         set -g status-keys vi
         set -g message-command-style fg=white,bg=colour31
     EOF

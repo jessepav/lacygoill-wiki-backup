@@ -686,7 +686,7 @@ For more info, see our notes about colors in the terminal wiki.
 
 MWE:
 
-    $ tmux -Lx -f =(cat <<'EOF'
+    $ tmux -Lx -f =(tee <<'EOF'
     set -gw window-status-format '#[fg=black,bold]#W'
     EOF
     )
@@ -717,7 +717,7 @@ Alternatively, you could use:
 
 MWE:
 
-     $ tmux -Lx -f =(cat <<'EOF'
+     $ tmux -Lx -f =(tee <<'EOF'
      set -as terminal-overrides ',*-256color:Tc'
      set -gw window-style         'bg=#000000'
      set -gw window-active-style  'bg=#ffffff'

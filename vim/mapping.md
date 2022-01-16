@@ -152,7 +152,7 @@ Inside the opfunc, call this other  function by prefixing `:call` with the range
 
 Example:
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         nno <expr> <c-b>      OpSetup()
         nno <expr> <c-b><c-b> OpSetup() .. '_'
 
@@ -480,7 +480,7 @@ But the `i` flag was undesirable when the typeahead was not empty:
 
 It always inserts keys:
 
-    $ vim -Nu NONE <(cat <<'EOF'
+    $ vim -Nu NONE <(tee <<'EOF'
         " a
         " b
         " c
@@ -1036,7 +1036,7 @@ hit-enter prompt is visible:
     " the status line contains 'n' while you're typing the command (not 'c')
     " the status line still contains 'n' after you've run the command and the pager is open
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         set ls=2 stl=%{Stl()}
         fu Stl()
             let mode = mode(1)
@@ -1406,7 +1406,7 @@ This is confirmed by the output of `set termcap`:
 
 But it does *not* change the way Vim encodes `<M-d>` internally:
 
-    $ vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(tee <<'EOF'
         exe "set <m-d>=\ed"
         nno <esc>d dd
         0pu=['a', 'b', 'c']
@@ -1459,7 +1459,7 @@ When processing mappings; right before trying to expand the keys.
 It doesn't matter whether the keys *will be* remapped; what matters is that they
 *can* be remapped.
 
-    $ vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(tee <<'EOF'
         exe "set <m-d>=\ed"
         call feedkeys("i\<esc>d", 'x')
         %p
@@ -1480,7 +1480,7 @@ There was no mapping  in the mappings table, and yet  Vim did translate `<esc>d`
 into `<m-d>`.  This is because `<esc>d` was fed without the `n` flag, so Vim had
 to try to expand the keys; but before doing so, it had to try to translate them.
 
-    $ vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(tee <<'EOF'
         exe "set <m-d>=\ed"
         ino <m-d> <esc>dd
         0pu=['a', 'b', 'c']
@@ -1502,7 +1502,7 @@ explained  if the  terminal  keys  (here `<esc>d`)  were  translated (here  into
 This  is confirmed  by  yet 2  other  experiments where  `<esc>d`  is not  typed
 directly but expanded from a `<c-b>` mapping:
 
-    $ vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(tee <<'EOF'
         exe "set <m-d>=\ed"
         imap <c-b> <esc>dd
         0pu='x'
@@ -1513,7 +1513,7 @@ directly but expanded from a `<c-b>` mapping:
     )
     ädx˜
 
-    $ vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(tee <<'EOF'
         exe "set <m-d>=\ed"
         ino <c-b> <esc>dd
         0pu='x'
@@ -1586,7 +1586,7 @@ by always incremented by 2.
 
 On `BufNew`, it is initialized to 1:
 
-    $ touch /tmp/file{1..2}; vim -Nu NONE -S <(cat <<'EOF'
+    $ touch /tmp/file{1..2}; vim -Nu NONE -S <(tee <<'EOF'
         let g:abuf = 'expand("<abuf>")'
         call getcompletion('buf*', 'event')
             \->filter({_, v -> v !~# 'Cmd$'})
@@ -1619,7 +1619,7 @@ Note that things  are a little different  if the current buffer, or  the one you
 load, is unnamed.
 
     # special case where current buffer is unnamed
-    $ touch /tmp/file; vim -Nu NONE -S <(cat <<'EOF'
+    $ touch /tmp/file; vim -Nu NONE -S <(tee <<'EOF'
         let g:abuf = 'expand("<abuf>")'
         call getcompletion('buf*', 'event')
             \->filter({_, v -> v !~# 'Cmd$'})
@@ -1642,7 +1642,7 @@ load, is unnamed.
     BufWinEnter in buf 1: tick is˜
 
     # special case where new buffer is unnamed
-    $ touch /tmp/file; vim -Nu NONE -S <(cat <<'EOF'
+    $ touch /tmp/file; vim -Nu NONE -S <(tee <<'EOF'
         let g:abuf = 'expand("<abuf>")'
         call getcompletion('buf*', 'event')
             \->filter({_, v -> v !~# 'Cmd$'})
@@ -1668,7 +1668,7 @@ about `b:changedtick` for a special buffer.
 
    - on `BufReadPre` when you reload a buffer
 
-         $ touch /tmp/file{1..2}; vim -Nu NONE -S <(cat <<'EOF'
+         $ touch /tmp/file{1..2}; vim -Nu NONE -S <(tee <<'EOF'
              let g:abuf = 'expand("<abuf>")'
              call getcompletion('buf*', 'event')
                  \->filter({_, v -> v !~# 'Cmd$'})
@@ -1690,7 +1690,7 @@ about `b:changedtick` for a special buffer.
 
    - on the *first* `BufEnter` (the one fired right after `BufReadPre`)
 
-         $ touch /tmp/file{1..2}; vim -Nu NONE -S <(cat <<'EOF'
+         $ touch /tmp/file{1..2}; vim -Nu NONE -S <(tee <<'EOF'
              let g:abuf = 'expand("<abuf>")'
              call getcompletion('buf*', 'event')
                  \->filter({_, v -> v !~# 'Cmd$'})
@@ -1708,7 +1708,7 @@ about `b:changedtick` for a special buffer.
 
    - on `BufWritePost` provided that the buffer is modified
 
-         $ touch /tmp/file && vim -Nu NONE -S <(cat <<'EOF'
+         $ touch /tmp/file && vim -Nu NONE -S <(tee <<'EOF'
              au BufWritePre * echom 'BufWritePre: ' .. b:changedtick
              au BufWritePost * echom 'BufWritePost: ' .. b:changedtick
          EOF
@@ -1810,7 +1810,7 @@ The terminal uses `Esc` to encode some special keys (e.g. arrow keys, function k
 
 Now suppose you have these mappings:
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         nno <c-b><esc> <cmd>echo 'C-b Esc'<cr>
         nno <c-b><up>  <cmd>echo 'C-b Up'<cr>
     EOF
@@ -1845,7 +1845,7 @@ could be refactored into a recursive one in the future).
 
 Example to illustrate the pitfall:
 
-    $ vim -es -Nu NONE -S <(cat <<'EOF'
+    $ vim -es -Nu NONE -S <(tee <<'EOF'
         exe "set <F31>=\ed"
         imap <c-b> <esc>ddi
         0pu=['a', 'b', 'c']
@@ -2565,7 +2565,7 @@ Try to install your mapping later.
 
 The installation order of your mappings matters:
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         set showcmd timeoutlen=3000
         nno <nowait> <c-b>  <cmd>echo "c-b was pressed"<cr>
         nno          <c-b>x <nop>
@@ -2573,7 +2573,7 @@ The installation order of your mappings matters:
     )
     " press C-b: you need to wait 3s for the message to be printed
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         set showcmd timeoutlen=3000
         nno          <c-b>x <nop>
         nno <nowait> <c-b>  <cmd>echo "c-b was pressed"<cr>
@@ -2611,7 +2611,7 @@ the server option `terminal-features`:
 
 Usage example:
 
-    $ tmux -Lx -f <(cat <<'EOF'
+    $ tmux -Lx -f <(tee <<'EOF'
         set -s extended-keys on
         set -as terminal-features 'xterm*:extkeys'
     EOF
@@ -3783,7 +3783,7 @@ Maybe we should have used `:redraw` more often before an `:echo`.
 
 ### ?
 
-    $ vim -Nu <(cat <<'EOF'
+    $ vim -Nu <(tee <<'EOF'
         set lz
         nmap n <plug>(a)<plug>(b)
         nno <plug>(a) n
@@ -3799,7 +3799,7 @@ It think that's because when `'lz'` is  set, Vim doesn't redraw in the middle of
 a mapping.  Indeed, if you reverse the order of the `<plug>` mappings, the issue
 disappears:
 
-    $ vim -Nu <(cat <<'EOF'
+    $ vim -Nu <(tee <<'EOF'
         set lz
         nmap n <plug>(a)<plug>(b)
         nno <plug>(a) <nop>

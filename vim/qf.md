@@ -1450,7 +1450,7 @@ See this MWE:
     $ vim -Nu NONE --cmd 'set directory=$HOME/.vim/tmp/swap//' /tmp/file
 
     # in another terminal
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         vim9script
         set directory=$HOME/.vim/tmp/swap//
         au SwapExists * v:swapchoice = 'o'

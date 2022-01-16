@@ -631,7 +631,7 @@ Then,  test  the name  of  the  custom event  inside  the  executed command  via
 
 Example:
 
-    $ vim -Nu NONE -o /tmp/file{1..2} -S <(cat <<'EOF'
+    $ vim -Nu NONE -o /tmp/file{1..2} -S <(tee <<'EOF'
         autocmd User <buffer> if expand('<afile>') ==# "Test" | echomsg 'User Test was fired' | endif
         bufdo doautocmd User Test
     EOF
@@ -642,7 +642,7 @@ This shows that the autocmd is really local to the buffer where it was installed
 Had you removed `<buffer>`, the message  would have been printed twice (once for
 each buffer):
 
-    $ vim -Nu NONE -o /tmp/file{1..2} -S <(cat <<'EOF'
+    $ vim -Nu NONE -o /tmp/file{1..2} -S <(tee <<'EOF'
         autocmd User Test echomsg 'User Test was fired'
         bufdo doautocmd User Test
     EOF

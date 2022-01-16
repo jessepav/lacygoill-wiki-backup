@@ -161,7 +161,7 @@ Instead of providing an extension to `-i`, you can provide a path.
 Inside, you must use the special character `*` as a placeholder to represent the
 input file exactly as provided on the command-line.
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     a
     b
     c
@@ -417,7 +417,7 @@ Outside the braces, write the outer range.
 
 In the following example, we use this syntax to remove *some* empty lines:
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     Here, there can be
 
     empty lines.
@@ -1271,7 +1271,7 @@ regular file thanks to the `<` operator:
 
 Use the `w` command to write any line matching `BUG`:
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     1. this line is ok
     2. this line has a BUG
     3. this line is also ok
@@ -1288,7 +1288,7 @@ Use the `w` command to write any line matching `BUG`:
 
 Use a substitution command before `w` to remove all the noise.
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     Adams,     Henrietta  Northeast
     Banks,     Freda      South
     Dennis,    Jim        Midwest

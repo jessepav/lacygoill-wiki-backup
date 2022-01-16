@@ -370,8 +370,8 @@ This is recommended at `:h 43.2`:
 
 Use an `after/` directory:
 
-                           v---v
-    $ cat <<'EOF' >>~/.vim/after/filetype.vim
+                            v---v
+    $ tee -a <<'EOF' ~/.vim/after/filetype.vim
 
     augroup filetypedetect
         au! BufNewFile,BufRead /path/to/dir/* setf sh
@@ -381,7 +381,7 @@ Use an `after/` directory:
 Now, if  your directory contains files  with some extensions, you  can set their
 filetypes in a `filetype.vim` sourced earlier:
 
-    $ cat <<'EOF' >>~/.vim/filetype.vim
+    $ tee -a <<'EOF' ~/.vim/filetype.vim
 
     augroup filetypedetect
         au! BufNewFile,BufRead /path/to/dir/*.md setf markdown

@@ -36,7 +36,7 @@ your packages  via `tlmgr` without `sudo`,  and without having to  configure the
 
     # `$PATH`, `$MANPATH`, `$INFOPATH`
     # should contain the path to your texlive distribution
-    $ cat <<'EOF' >>~/.zshenv
+    $ tee -a <<'EOF' ~/.zshenv
 
     export PATH=$HOME/texlive/2018/bin/i386-linux:$PATH
     export MANPATH=$HOME/texlive/2018/texmf-dist/doc/man:$MANPATH

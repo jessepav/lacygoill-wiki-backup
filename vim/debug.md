@@ -25,7 +25,7 @@ Then read the log.
 
 # How to write a shell command starting Vim with a minimal vimrc, whose contents is not written in a file?
 
-    $ vim -Nu <(cat <<'EOF'
+    $ vim -Nu <(tee <<'EOF'
     cmd1
     cmd2
     ...
@@ -35,7 +35,7 @@ Then read the log.
 This lets you avoid writing the vimrc in a file, which you would do by running 2
 commands:
 
-    $ cat <<'EOF' >/tmp/vimrc
+    $ tee <<'EOF' /tmp/vimrc
     cmd1
     cmd2
     ...
@@ -1071,7 +1071,7 @@ An ubsan log looks like this:
 #### The devs can't reproduce my crash!
 
 Try to reproduce in a docker container, so as to eliminate any interference from
-your current environment (which can't be exactly the same the one of the devs):
+your current environment (which can't be exactly the same as the one of the devs):
 
     # install docker
     $ sudo apt install docker.io

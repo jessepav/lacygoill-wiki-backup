@@ -518,7 +518,7 @@ Comment savoir quel serveur de clés utiliser ?
             See also `ccze(1)`:
 
                 $ apt install ccze
-                $ cat /var/log/boot.log | ccze -A
+                $ ccze -A </var/log/boot.log
 
 
     https://beyondgrep.com/feature-comparison/
@@ -777,7 +777,7 @@ contenant plusieurs fichiers.
 
 ### grep
 
-    $ cat <<'EOF' >file
+    $ tee <<'EOF' file
     this line has !bangs!
     this one has -dashes-
     this one has .dots.
@@ -810,12 +810,9 @@ contenant plusieurs fichiers.
                         ┌─ reconnecte l'entrée standard de `cat` vers le fd de `file`
                         │
                     cat file
-                    cat <<'EOF'
+                    tee <<'EOF'
                         │
-                        └─ connecte l'entrée standard de `cat` vers le fd du terminal
-
-            La principale en différence entre `cat` et `cat <<'EOF'` est le support d'une saisie
-            multi-lignes.
+                        └─ connecte l'entrée standard de `tee` vers le fd du terminal
 
 
     ┌────────────────────┬─────────────────────────────────────────────────────────┐
@@ -844,7 +841,7 @@ contenant plusieurs fichiers.
                     -F  ⇔  \V
 
 
-    $ cat <<-'EOF' >file
+    $ tee <<-'EOF' file
 	toto
 	root
 	video

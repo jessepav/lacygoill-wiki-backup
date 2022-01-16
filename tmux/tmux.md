@@ -170,7 +170,7 @@ the default plugin.
 tmux interprets `''` as  the end of a string followed by the  beginning of a new
 one; and then it concatenates them.
 
-    $ tmux source =(cat <<'EOF'
+    $ tmux source =(tee <<'EOF'
     set @foo 'x''y'
     EOF
     ) \; show -v @foo
@@ -191,7 +191,7 @@ Use `'\''`.
                │└ insert a single quote
                └ end the string
 
-    $ tmux source =(cat <<'EOF'
+    $ tmux source =(tee <<'EOF'
     set @foo 'x'\''y'
     EOF
     ) \; show -v @foo
@@ -971,7 +971,7 @@ immediately a `set -g @plugin ...` statement.
 To be clear, I don't think it's a tmux issue, it's a tpm issue.
 For example, this works fine:
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     display -p 'hello'
     EOF
     set -g @option 'value'; source '/tmp/file'

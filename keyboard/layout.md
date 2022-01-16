@@ -284,7 +284,7 @@ pressed to validate the command (Enter vs C-m).
 ##
 # How to customize the console keyboard layout?
 
-    $ cat <<'EOF' | sudo tee -a /etc/systemd/system/getty@.service.d/keyboard-layout.conf
+    $ sudo tee -a /etc/systemd/system/getty@.service.d/keyboard-layout.conf <<'EOF'
     [Service]
     ExecStartPre=/usr/bin/loadkeys /home/user/.config/keyboard/vc.conf
     EOF

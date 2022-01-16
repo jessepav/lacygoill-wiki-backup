@@ -4,7 +4,7 @@ Enregistrer dans foo.txt les commandes tapées dans un shell pour les afficher p
     script foo.txt		débuter l'enregistrement
     exit		    	finir l'enregistrement
 
-    cat foo.txt         Afficher les commandes enregistrées dans foo.txt.
+    less foo.txt         lire les commandes enregistrées dans foo.txt.
 
     script -t foo.txt 2>foo.txt.timing
 

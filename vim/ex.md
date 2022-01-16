@@ -73,12 +73,12 @@ Which is equivalent to:
 
 Example:
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     heXXY
     wYrXd
     EOF
 
-    $ cat <<'EOF' >/tmp/filter
+    $ tee <<'EOF' /tmp/filter
     %s/X/l/g
     %s/Y/o/g
     x

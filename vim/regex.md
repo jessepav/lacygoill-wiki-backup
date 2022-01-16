@@ -275,7 +275,7 @@ From `:h /\@<=`:
 
 Example:
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     foo
     bar
     baz

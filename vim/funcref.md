@@ -688,7 +688,7 @@ Document that expression strings are faster than lambdas.
 
 Test lambdas:
 
-    $ for i in {1..10}; do vim -es -i NONE -Nu <(cat <<'EOF'
+    $ for i in {1..10}; do vim -es -i NONE -Nu <(tee <<'EOF'
       let time = reltime()
       call range(999999)->map({_, v-> v+1})
       pu=reltime(time)->reltimestr()->matchstr('\v.*\..{,3}') .. ' seconds to run the command'
@@ -733,7 +733,7 @@ Results in seconds:
 
 Test expression strings:
 
-    $ for i in {1..10}; do vim -es -i NONE -Nu <(cat <<'EOF'
+    $ for i in {1..10}; do vim -es -i NONE -Nu <(tee <<'EOF'
       let time = reltime()
       call range(999999)->map('v:val+1')
       pu=reltime(time)->reltimestr()->matchstr('\v.*\..{,3}') .. ' seconds to run the command'

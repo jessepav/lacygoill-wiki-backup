@@ -50,7 +50,7 @@ don't make it begin with:
 This guard  would prevent your plugin  from being sourced, because  the variable
 will have been set by the default plugin in `$VIMRUNTIME/compiler/`.
 
-See the end of `:h CompilerSet`:
+See the end of `:help CompilerSet`:
 
    > When you  write a compiler  plugin to overrule  settings from a  default plugin,
    > don't check "current_compiler".
@@ -129,7 +129,7 @@ No.
 It's true that the primary purpose of `:make` is to handle a compiler, hence the
 name of the `:compiler` command, and the `compiler/` directory.
 This is also why  compilers are often mentioned in this document,  as well as in
-`:h quickfix`.
+`:help quickfix`.
 
 However,   more    generally,   `:make`   can    be   used   to    execute   any
 [build automation][1] tool and parse the output of the latter to populate a qfl.
@@ -323,7 +323,7 @@ output of C₁ (thus more restrictive), move F₁ after F₂.
 IOW, the more  compilers' output your format  matches, the more to  the right of
 `'efm'` it should be.
 
-That's my interpretation of this recommendation in `:h efm-entries`:
+That's my interpretation of this recommendation in `:help efm-entries`:
 
    > If there is a pattern that  may match output from several compilers (but
    > not in a right way), put it after one that is more restrictive.
@@ -594,12 +594,12 @@ command termination by `:set` or `:CompilerSet`.
 
 Usage example:
 
-    $ cat <<'EOF' >/tmp/log
+    $ tee <<'EOF' /tmp/log
     /tmp/log:here iz an error
     ---------------^
     EOF
 
-    $ cat <<'EOF' >/tmp/efm.vim
+    $ tee <<'EOF' /tmp/efm.vim
         set mp=cat\ /tmp/log
         set efm=%E%f:%m,%-Z%p^
         sil make! | redraw!
@@ -609,7 +609,7 @@ Usage example:
     $ vim -S /tmp/efm.vim
     " Press Enter on the qfl entry, and the cursor will jump onto the `z` of `iz`.
 
-See `:h errorformat-javac` for another useful example.
+See `:help errorformat-javac` for another useful example.
 
 ### `%s`?
 
@@ -630,14 +630,14 @@ Which gives:
 
 Usage example:
 
-    $ cat <<'EOF' >/tmp/log
+    $ tee <<'EOF' /tmp/log
     some text
     look for me
     /tmp/log:look for me:here iz an error
     some text
     EOF
 
-    $ cat <<'EOF' >/tmp/efm.vim
+    $ tee <<'EOF' /tmp/efm.vim
         set mp=cat\ /tmp/log
         set efm=%f:%s:%m,%-G%.%#
         sil make! | redraw!
@@ -694,12 +694,12 @@ If nothing follows `%f`, the rest of the line is included in the conversion.
 Otherwise, `%f`  will consume as much  text as necessary to  reach what follows,
 regardless of whether the consumed characters are in `'isf'`.
 
-    $ cat <<'EOF' >/tmp/log
+    $ tee <<'EOF' /tmp/log
     foo:bar:12:baz
     qux:34:norf
     EOF
 
-    $ cat <<'EOF' >/tmp/efm.vim
+    $ tee <<'EOF' /tmp/efm.vim
         set mp=cat\ /tmp/log
         set efm=%f:%l:%m
         sil make! | redraw!
@@ -819,7 +819,7 @@ desired atom to the regex engine.
 Without `%`, the latter would receive a simple character.
 
 Indeed, when  Vim parses a  `:set efm` command  to determine which  option(s) to
-set, and how, it removes one level of backslash (see `:h option-backslash`).
+set, and how, it removes one level of backslash (see `:help option-backslash`).
 Then, when Vim parses the `'efm'` value to determine which format(s)/item(s) are
 written, it removes one level of percent sign and one level of backslash.
 But if it  encounters `%\`, it doesn't remove both  characters; only the percent
@@ -862,14 +862,14 @@ the entry.  The `pattern` field has priority over the `lnum` one.
 
 MWE:
 
-    $ cat <<'EOF' >/tmp/log
+    $ tee <<'EOF' /tmp/log
     some text
     look for me
     /tmp/log:3:look for me:here iz an error
     some text
     EOF
 
-    $ cat <<'EOF' >/tmp/efm.vim
+    $ tee <<'EOF' /tmp/efm.vim
         set mp=cat\ /tmp/log
         set efm=%f:%l:%s:%m,%-G%.%#
         sil make! | redraw!
@@ -895,7 +895,7 @@ MWE:
     cgetexpr ['/tmp/efm.vim: 123 text']
     copen
 
-However in `:h quickfix-valid`:
+However in `:help quickfix-valid`:
 
    > Some examples for C compilers that produce single-line error outputs:
    >
@@ -903,8 +903,7 @@ However in `:h quickfix-valid`:
    >                                     **(scanf() doesn't understand [0-9])**
 
 It seems to indicate that, in order to  parse the output of a compiler, Vim uses
-the  `scanf()` function  of  the latter,  which  seems to  be  confirmed by  `:h
-error-file-format`:
+the `scanf()` function of the latter, which seems to be confirmed by `:help error-file-format`:
 
    > Each entry in 'errorformat' is a scanf-like string that describes the format.
    > First, you need to know how scanf works.
@@ -1128,11 +1127,11 @@ entry with the values `error`, `info`, `note`, `warning`.
 
 However, if you also use `%t`, the latter will have the priority:
 
-    $ cat <<'EOF' >/tmp/log
+    $ tee <<'EOF' /tmp/log
     /tmp/file:12:info:some message
     EOF
 
-    $ cat <<'EOF' >/tmp/efm.vim
+    $ tee <<'EOF' /tmp/efm.vim
         set mp=cat\ /tmp/log
         set efm=%E%f:%l:%t%*[^:]:%m
         sil make! | redraw!
@@ -1342,7 +1341,7 @@ But not in these orders:
 
 MWE:
 
-    $ cat <<'EOF' >/tmp/log
+    $ tee <<'EOF' /tmp/log
     /tmp/foo:12
      hello
             ^
@@ -1352,7 +1351,7 @@ MWE:
                 ^
     EOF
 
-    $ cat <<'EOF' >/tmp/efm.vim
+    $ tee <<'EOF' /tmp/efm.vim
         set mp=cat\ /tmp/log
         set efm=%A%f:%l,%C\ %m,%Z%p^
     EOF
@@ -1470,7 +1469,7 @@ If the qfl doesn't display what you expect, make sure to re-source your script a
 few times before trying to fix it.
 
 
-    $ cat <<'EOF' >/tmp/efm.vim
+    $ tee <<'EOF' /tmp/efm.vim
 
     set efm=%f:%s:%m
     call setqflist([], 'f')
@@ -1582,7 +1581,7 @@ times in the default compilers:
 
     :vim /\C%-[CZ]/gj $VIMRUNTIME/compiler/*.vim
 
-And they're mentioned 6 times in `:h quickfix`.
+And they're mentioned 6 times in `:help quickfix`.
 
 ## How to deal with an output which is too difficult to parse?
 
@@ -1658,7 +1657,7 @@ multiline message.
 
 To test any of the following examples, execute:
 
-    $ cat <<'EOF' >/tmp/efm.vim
+    $ tee <<'EOF' /tmp/efm.vim
         set mp=cat\ /tmp/log
 
         set efm=%f:%l:\ %m,
@@ -1681,7 +1680,7 @@ Example:
     $ mkdir -p /tmp/test/dir1/dir2
     $ touch    /tmp/test/dir1/dir2/file
 
-    $ cat <<'EOF' >/tmp/log
+    $ tee <<'EOF' /tmp/log
     make: Entering directory `/tmp/test/dir1'
     make: Entering directory `dir2'
     file:123: some error
@@ -1701,7 +1700,7 @@ Example:
     $ mkdir -p /tmp/test/dir{1,2}/
     $ touch    /tmp/test/dir2/file
 
-    $ cat <<'EOF' >/tmp/log
+    $ tee <<'EOF' /tmp/log
     make: Entering directory `/tmp/test/'
     make: Entering directory `/tmp/test/dir1'
     make: Entering directory `dir2'
@@ -1720,7 +1719,7 @@ Example:
     $ mkdir -p /tmp/test/dir
     $ touch    /tmp/test/dir/file
 
-    $ cat <<'EOF' >/tmp/log
+    $ tee <<'EOF' /tmp/log
     make: Entering directory `dir'
     file:123: some error
     EOF

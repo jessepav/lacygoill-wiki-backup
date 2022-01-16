@@ -238,6 +238,26 @@ appended to the buffer, which displays this buffer.
 
 <https://github.com/chrisbra/vim-autoread> 145 sloc
 
+---
+
+Alternative relying on `inotifywait(1)` (provided by `inotify-tools` package):
+```vim
+vim9script
+&autoread = true
+command -bar AutoRead AutoRead()
+def AutoRead()
+  if !executable('inotifywait')
+    echomsg 'missing dependency: inotifywait(1); https://man7.org/linux/man-pages/man1/inotifywait.1.html'
+    return
+  endif
+  var cmd: string = 'inotifywait --monitor --event modify ' .. expand('%:p')
+  job_start(cmd, {out_cb: function(AutoreadOutCb, [bufnr('%')])})
+enddef
+def AutoreadOutCb(buf: number, ..._)
+  execute 'checktime ' .. buf
+  win_execute(bufwinid(buf), 'normal! G')
+enddef
+```
 ## braceless
 
 Text objects, folding, and more for Python and other indented languages.
@@ -1126,6 +1146,12 @@ has been added in Vim:
 
 The neovim plugin uses `msgpackparse()` and `msgpackdump()` which don't exist in Vim.
 Maybe try `json_encode()` and `json_decode()`, or `js_encode()` and `js_decode()`.
+
+## minisnip
+
+Snippets plugin based on snipmate.vim.
+
+<https://github.com/habamax/vim-minisnip/> 631 sloc
 
 ## neoformat
 

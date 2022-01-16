@@ -365,34 +365,40 @@ line address:
 
     command -count  Test  echo <count>
     :-1 Test
-    101˜
+    365
 
     command -range  Test  echo <count>
     :-1 Test
-    105˜
+    369
 
 #### As a suffix?
 
-If raises `E488`:
+If gives `E488`:
 
     command -range Test echo <count>
     :Test -123
-    E488: Trailing characters˜
+    E488: Trailing characters
 
     command -count Test echo <count>
     :Test -123
-    E488: Trailing characters˜
+    E488: Trailing characters
 
 ###
-### How to pass a DEFAULT negative count to a command?
+### How to pass a *default* negative count to a command?
 
 Use `-range=-N`:
 
     command -range=-123 Test echo <count>
     :Test
-    -123˜
+    -123
 
-Note that `-count` can't pass a default negative count.
+---
+
+`-count` can't pass a default negative count:
+
+    command -count=-123 Test echo <count>
+    :Test
+    0
 
 ###
 ### How to detect whether the user has provided a count when they executed their command?
@@ -402,25 +408,28 @@ In practice, the user would probably never use -1 or 0 as a count.
 
 Note that  if you just  use `-range`,  and you don't  provide any count  to your
 command, `<count>` will be replaced with `-1`.
+```vim
+vim9script
+command -nargs=* -range=-1 -addr=other Test call Func(<count>)
+def Func(count: number)
+    if count == -1
+        echo 'the command was executed WITHOUT count'
+    else
+        echo 'the command was executed WITH the count ' .. count
+    endif
+enddef
 
-MWE:
+Test hello
+ # the command was executed WITHOUT count
 
-    command -nargs=* -range=0 Test call Func(<count>)
-    function Func(count)
-        if !a:count
-            echo 'the command was executed WITHOUT count'
-        else
-            echo 'the command was executed WITH the count '.a:count
-        endif
-    endfunction
+:123 Test
+ # the command was executed WITH the count 123
+```
+Note that  without `-addr=other`,  the code  would give an  error if  there were
+fewer than 123  lines in the buffer.  That's because,  by default, a range/count
+is matched against line addresses.
 
-    :Test hello
-    the command was executed WITHOUT count˜
-
-    :123 Test
-    the command was executed WITH the count 123˜
-
-### Why should I avoid `-count=N` and prefer `-range=N` instead?
+### Why should I use `-range=N` instead of `-count=N`?
 
 `<count>`  is  replaced with  the  last  number  between  the beginning  of  the
 command-line and the first non-digit of the first argument.
@@ -430,8 +439,9 @@ will be consumed to replace `<count>`:
 
     command -count -nargs=+ Test echo printf("count: %s\n<lt>q-args>: %s", <count>, <q-args>)
     :12 Test 34abc
-    count: 34˜
-    <q-args>: abc˜
+
+    count: 34
+    <q-args>: abc
 
 OTOH, `-range` doesn't allow you to pass  a count after the command name, and so
 is immune to this issue.
@@ -708,7 +718,7 @@ a little longer.
 When your arguments may contain whitespace.
 You can then embed a whitespace inside an argument by escaping it.
 
-From `:h <f-args>`:
+From `:help <f-args>`:
 
    > To embed whitespace into an argument of <f-args>, prepend a backslash.
    > <f-args> replaces every pair of backslashes (\\) with one backslash.
@@ -770,7 +780,7 @@ With `0`:
 
     com -count -nargs=*  Test  echo <count>
     :Test
-    0˜
+    0
 
 #### Same question if I use `-range`?
 
@@ -778,7 +788,7 @@ With `-1`:
 
     com -range -nargs=*  Test  echo <count>
     :Test
-    -1˜
+    -1
 
 ###
 ### How are `<line1>` and `<line2>` replaced if I use `-range` without any value, and don't pass any range?
@@ -795,10 +805,10 @@ The last line specifier is used, here `34`:
 
     com -count -nargs=*  Test  echo <count>
     :12Test 34
-    34˜
+    34
 
     :12,34Test 56
-    56˜
+    56
 
 ##
 ### How to get the number of line specifiers used in the range of the command?
@@ -918,7 +928,7 @@ Prefix it with a count; it will be sent to the program stored in `'kp'`:
     " press 3K on the word 'hello'
     3 hello˜
 
-## When I run `:bufdo cmd`, why is `cmd` executed in *every* buffer even if `cmd` raises an error in one of them?
+## When I run `:bufdo cmd`, why is `cmd` executed in *every* buffer even if `cmd` gives an error in one of them?
 
     $ vim -Nu NONE +"bufdo echo x" /tmp/file{1..3}
 
@@ -929,12 +939,12 @@ Prefix it with a count; it will be sent to the program stored in `'kp'`:
     E121: Undefined variable: x˜
 
 You could  think that Vim would  stop iterating over  the buffers as soon  as an
-error is raised in one of them, because according to `:h :bufdo`:
+error is given in one of them, because according to `:help :bufdo`:
 
    > When an error is detected on one buffer, further
    > buffers will not be visited.
 
-But in reality, an error stops `:bufdo` only when it's raised while visiting the
+But in reality, an error stops `:bufdo`  only when it's given while visiting the
 next buffer, not when executing `cmd`:
 
     $ vim -Nu NONE +"bn|pu='text'|set hidden|bp|set nohidden|bufdo echo 'msg'" /tmp/file{1..3}
@@ -1080,10 +1090,10 @@ So, if you tried to use the  previous alternative to emulate `:windo`, you would
 not what `:windo` does.
 
 ##
-## An error is raised for a command which is not even executed!
+## An error is given for a command which is not even executed!
 
 When Vim parses  a *known* command with  a *wrong* syntax in  a *skipped* block,
-the command is not run, *but* an error is raised:
+the command is not run, *but* an error is given:
 
     $ vim -Nu NONE +'if 0 | clear foo | endif'
     Error detected while processing command line:˜
@@ -1104,11 +1114,11 @@ See also: <https://github.com/neovim/neovim/issues/11136#issuecomment-537253732>
 This is inconsistent with `col()`, `virtcol()`, `getcmdpos()`, `\%c`, `\%v` (and
 possibly other functions and atoms).  All of them index from 1, not 0.
 
-From `:h col()`:
+From `:help col()`:
 
    > The first column is 1.  0 is returned for an error.
 
-From `:h \%c`:
+From `:help \%c`:
 
    > ...  The first column is 1.
 
@@ -1203,7 +1213,7 @@ use `-addr=other`.
 
 To read:
 
-`:h sign-support`
+`:help sign-support`
 - <https://vi.stackexchange.com/questions/15846/is-there-a-way-to-quickly-jump-to-signs>
 - <https://gist.github.com/BoltsJ/5942ecac7f0b0e9811749ef6e19d2176>
 - <https://github.com/tpope/vim-scriptease/pull/23>
@@ -1389,13 +1399,13 @@ Voici qques exemples de spécificateurs de lignes:
             que si 'wrapscan' est activée.
 
 
-                         TODO: read `:h search-offset`
+                         TODO: read `:help search-offset`
 
 # Aide
 
 Tout en haut  de chaque page d'aide  du manuel de référence se  trouve(nt) un ou
 plusieurs liens vers la/les page(s) pertinente(s) du manuel utilisateur.
-Pex, en haut de `:h pattern.txt`, se trouvent `:h 03.9` et `:h usr_27` .
+Pex, en haut de `:help pattern.txt`, se trouvent `:help 03.9` et `:help usr_27` .
 
 Des tags ayant un thème commun commencent par un même préfixe:
 
@@ -1430,10 +1440,10 @@ Des tags ayant un thème commun commencent par un même préfixe:
             Pour les commandes de fenêtre, il semble qu'on puisse même se passer
             de l'underscore:
 
-                    :h ^wp ✔
+                    :help ^wp ✔
 
 
-    :h :syn-* C-d
+    :help :syn-* C-d
 
             On peut lister tous les tags commençant par un même préfixe via `C-d`.
 
@@ -1443,7 +1453,7 @@ Des tags ayant un thème commun commencent par un même préfixe:
             (Re)Génère le fichier de tags du plugin foo.
 
             Sans  ce fichier  tags, on  ne peut  pas consulter  la documentation
-            directement depuis Vim via la commande :help (:h foo).
+            directement depuis Vim via la commande :help (:help foo).
 
             Si on  crée son  propre plugin  et qu'on veut  pouvoir accéder  à sa
             documentation depuis Vim,  il faudra de la même  manière utiliser la
@@ -1460,7 +1470,7 @@ Des tags ayant un thème commun commencent par un même préfixe:
                                      NOTE:
 
             Pour bénéficier de la coloration  syntaxique, il faut que le fichier
-            ait été chargé via `:h {tag}`.
+            ait été chargé via `:help {tag}`.
             Pas directement via `:edit`.
 
 # Syntaxe
@@ -1478,9 +1488,9 @@ Petit rappel de vocabulaire:
 
    - on *développe*    un {lhs} de mapping/abréviation,
                         une séquence d'échappement de commande (<bang>, <line1>, ...),
-                        des caractères spéciaux sur la ligne de commande    :h cmdline-special,
+                        des caractères spéciaux sur la ligne de commande    :help cmdline-special,
                         une variables d'environnement,
-                        une commandes shell                                 :h backtick-expansion,
+                        une commandes shell                                 :help backtick-expansion,
                         un glob
 
    - on *traduit*      un caractère ou un groupe de caractères en un autre
@@ -1544,7 +1554,7 @@ wildmenu.
     ├──────────────────┼───────────────────────────────────────────┤
     │ ##               │ noms des fichiers présents dans l'arglist │
     │                  │                                           │
-    │                  │ :h :_##                                   │
+    │                  │ :help :_##                                │
     ├──────────────────┼───────────────────────────────────────────┤
     │ *                │ glob                                      │
     │ **               │                                           │
@@ -1560,14 +1570,14 @@ wildmenu.
     ├──────────────────┼───────────────────────────────────────────┤
     │ `find . -type f` │ interpolation                             │
     │                  │                                           │
-    │                  │ :h backtick-expansion                     │
+    │                  │ :help backtick-expansion                  │
     ├──────────────────┼───────────────────────────────────────────┤
     │ `=tempname()`    │ fichier temporaire généré par la          │
     │                  │ fonction Vim tempname()                   │
     │                  │                                           │
     │                  │ généralisable à toute expression Vim      │
     │                  │                                           │
-    │                  │ :h `=                                     │
+    │                  │ :help `=                                  │
     │                  │                                           │
     │                  │ il existe 2 alternatives à cette syntaxe: │
     │                  │                                           │
@@ -1608,7 +1618,7 @@ On peut modifier le développement de ces caractères spéciaux via des filename
 
 Le développement inclut un backslash devant chaque éventuel espace présent dans le nom d'un fichier.
 
-:h cmdline-special et :h filename-modifiers pour + d'infos.
+:help cmdline-special et :help filename-modifiers pour + d'infos.
 
 
 
@@ -1925,7 +1935,7 @@ même façon que la chaîne de caractère précédant le curseur (custom).
 
             Lister les autocmd associées à {event}.
             Pour voir quels fichiers les ont installées :verb au {event}.
-            On peut filtrer plus finement, voir :h autocmd-list.
+            On peut filtrer plus finement, voir :help autocmd-list.
 
 
     :cquit
@@ -2016,7 +2026,7 @@ même façon que la chaîne de caractère précédant le curseur (custom).
 
             Lorsqu'elle  est  exécutée  au  sein  d'une  fonction,  le  registre
             recherche est automatiquement  restauré à la fin  de cette dernière,
-            cf `:h function-search-undo`.
+            cf `:help function-search-undo`.
             En revanche, l'historique est pollué.
             `:keepp` est donc utile même dans une fonction.
 
@@ -2332,7 +2342,7 @@ même façon que la chaîne de caractère précédant le curseur (custom).
             bar et baz),  qu'elle filtre en comparant le début  de chaque item à
             ce qu'on a commencé à taper après :MyCom (a:arglead).
 
-            Pour  + d'infos  sur  la  complétion custom  de  commandes, lire  :h
+            Pour  + d'infos  sur  la  complétion custom  de  commandes, lire  :help
             :command-completion-customlist
 
 

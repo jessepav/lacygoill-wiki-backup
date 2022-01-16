@@ -1141,10 +1141,10 @@ For the same reason, don't omit the `-p` option passed to `ps(1)`:
 ##
 ## How to start and stop a stopwatch to measure how much time has elapsed between 2 events?
 
-    $ time cat
+    $ time tee
     # focus a different terminal/tmux pane
     # do your things
-    # focus back the terminal running `$ time cat`
+    # focus back the terminal running `$ time tee`
     C-d
 
 ##
@@ -1493,7 +1493,7 @@ to the shellcheck wiki where the issue will be described in detail.
 Also,  consider using  our  `args` script  to  check how  the  shell splits  the
 commands into words:
 
-    $ cat <<'EOF' >~/bin/args
+    $ tee <<'EOF' ~/bin/args
     #!/bin/bash
     printf -- '%d args:' $#
     printf -- ' <%s>' "$@"

@@ -34,7 +34,7 @@ Interface for Rapidly Tagging Many Small Files
 
     $ mkdir -p $HOME/go/src/hello/
 
-    $ cat <<'EOF' >$HOME/go/src/hello/hello.go
+    $ tee <<'EOF' $HOME/go/src/hello/hello.go
     package main
     import "fmt"
     func main() {

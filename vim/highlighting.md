@@ -919,7 +919,7 @@ template to create own color scheme:
 To customize an existing one:
 
     $ mkdir ~/.vim/colors/
-    $ cat <<'EOF' >~/.vim/colors/test.vim
+    $ tee <<'EOF' ~/.vim/colors/test.vim
     runtime colors/evening.vim
     let g:colors_name = 'mine'
     highlight ...

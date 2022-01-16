@@ -103,7 +103,7 @@ contain more than about 2000 entries.
 However, for some  reason, the database seems  to be able to contain  a few more
 entries:
 
-    $ cat <<'EOF' >>~/.fasdrc
+    $ tee -a <<'EOF' ~/.fasdrc
     _FASD_DATA=/tmp/.fasd
     _FASD_MAX=1
     EOF
@@ -645,7 +645,7 @@ Without a numerical prefix, you would get file paths mixed with directory paths.
 
 This requires the creation of a custom command:
 
-    $ cat <<'EOF' >>~/.config/ranger/commands.py
+    $ tee -a <<'EOF' ~/.config/ranger/commands.py
     class fzf_fasd(Command):
         """
         :fzf_fasd
@@ -672,7 +672,7 @@ This requires the creation of a custom command:
 
 And mapping it to a key:
 
-    $ cat <<'EOF' >>~/.config/ranger/rc.conf
+    $ tee -a <<'EOF' ~/.config/ranger/rc.conf
     map zz fzf_fasd
     EOF
 
@@ -680,7 +680,7 @@ Inspiration: <https://github.com/ranger/ranger/wiki/Custom-Commands#visit-freque
 
 ## How to make ranger log all the opened files, for fasd?
 
-    $ cat <<'EOF' >~/.config/ranger/plugins/plugin_fasd_log.py
+    $ tee <<'EOF' ~/.config/ranger/plugins/plugin_fasd_log.py
     import ranger.api
     try: from shlex import quote
     except ImportError: from pipes import quote
@@ -751,4 +751,3 @@ If we try to redirect the output, only the last line is passed to the second com
     $ fasd -f a | wc -l
 
 What happens to the other ones?
-

@@ -1503,7 +1503,7 @@ Is it wrong to run `:throw` without a `:catch`?
 
 It seems it can cause unexpected results:
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         fu Throw()
             try
                 throw 'some error'
@@ -1571,7 +1571,7 @@ In a terminal, run this:
 
 In a second terminal, run this:
 
-    $ vim -Nu NONE -S <(cat <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         vim9script
         set directory=$HOME/.vim/tmp/swap//
         au SwapExists * v:swapchoice = 'o'
@@ -1649,7 +1649,7 @@ message (as if Vim was trying to display all the error messages).
 
 MWE:
 
-    $ touch /tmp/file && vim -Nu NONE -S <(cat <<'EOF'
+    $ touch /tmp/file && vim -Nu NONE -S <(tee <<'EOF'
     nno cd <cmd>exe Func()<cr>
     fu Func() abort
         try

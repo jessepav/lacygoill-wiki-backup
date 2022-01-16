@@ -792,11 +792,11 @@ caught.
 
 ### How to know which signals a given process block/ignore/catch?
 
-    $ cat /proc/PID/status | grep -E '^Sig(Blk|Ign|Cgt):'
-                                           │   │   │
-                                           │   │   └ caught signals
-                                           │   └ ignored signals
-                                           └ blocked signals
+    $ grep -E '^Sig(Blk|Ign|Cgt):' /proc/PID/status
+                    │   │   │
+                    │   │   └ caught signals
+                    │   └ ignored signals
+                    └ blocked signals
 
 The numbers on the right are bitmasks written in hexadecimal.
 To understand their meaning, you must convert them in binary:
@@ -1652,7 +1652,7 @@ PID is the pid of the zombie, and PPID is the pid of its parent.
 
 You can test this solution like so:
 
-    $ cat <<'EOF' >/tmp/zombie.c
+    $ tee <<'EOF' /tmp/zombie.c
     // https://vitux.com/how-to-create-a-dummy-zombie-process-in-ubuntu/
     #include <stdlib.h>
     #include <sys/types.h>

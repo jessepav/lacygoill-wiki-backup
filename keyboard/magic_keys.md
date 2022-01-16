@@ -14,7 +14,7 @@ Source:
 
 If your desktop environment is LXQt:
 
-    $ cat <<'EOF' >>~/.config/lxqt/session.conf
+    $ tee -a <<'EOF' ~/.config/lxqt/session.conf
 
     [Keyboard]
     numlock=true

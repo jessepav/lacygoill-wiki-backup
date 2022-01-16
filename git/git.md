@@ -1048,7 +1048,7 @@ l'index si on exécute `git add` sur lui.
 
 ---
 
-    $ cat <<'EOF' >.cvsignore
+    $ tee <<'EOF' .cvsignore
     *.[oa]          # pas de fichier portant l'extension `.o` ou `.a`
     !lib.a          # n'ignore pas les fichiers `lib.a`, malgré la précédente règle
 

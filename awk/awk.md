@@ -958,7 +958,7 @@ Use the `-f` (fetch) option:
 
 Use a shell script:
 
-    $ cat <<'EOF' >~/bin/sh.sh
+    $ tee <<'EOF' ~/bin/sh.sh
     #!/bin/bash
     awk '
     ...
@@ -971,7 +971,7 @@ Use a shell script:
 
 Use an awk script:
 
-    $ cat <<'EOF' >~/bin/awk.awk
+    $ tee <<'EOF' ~/bin/awk.awk
     #!/usr/bin/awk -f
     ...
     EOF
@@ -990,7 +990,7 @@ The  shebang  tells  the  shell  how  to  run  the  script,  so  when  it  reads
 In the shell script, you need to quote  `$@` to prevent the shell from using the
 split+glob operator after the expansion (`$@` → `$1 $2 ...`):
 
-    $ cat <<'EOF' >/tmp/sh.sh
+    $ tee <<'EOF' /tmp/sh.sh
     #!/bin/bash
     awk '
     BEGIN {
@@ -1155,7 +1155,7 @@ This will output the file as is.
 
 No, it's a syntax error.
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     { printf '%d', 1 }
     #        ^  ^
     #        ✘  ✘
@@ -1169,7 +1169,7 @@ No, it's a syntax error.
 
 ---
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     { printf "%s", 'word' }
     #              ^    ^
     #              ✘    ✘
@@ -1183,7 +1183,7 @@ No, it's a syntax error.
 
 ---
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     { printf "%s ", "word" }
     EOF
 
@@ -1194,13 +1194,13 @@ No, it's a syntax error.
 
 Yes, as many as you want.
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     foo
     bar
     baz
     EOF
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     { printf "%s   ", "a'''b" }
     #                   ^-^
     EOF
@@ -1291,7 +1291,7 @@ into `0`.
 
 Awk automatically adds the necessary key in the array and associates it to the value `""`.
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     { print a[2] }
     EOF
 
@@ -1310,7 +1310,7 @@ declare the array with the right size if it's a list:
 
 Use the `$` operator in `$var`.
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     THE quick brown
     fox JUMPS over
     the lazy DOG
@@ -1567,7 +1567,7 @@ This shows that you can combine regexes with logical operators.
 
 Use the pattern `$0 > "e"`.
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     gh
     ef
     cd
@@ -1597,7 +1597,7 @@ Resp. as a literal dot and as a metacharacter.
 ##
 ## What's the output of the next command?
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     foo
     A
     bar
@@ -1626,7 +1626,7 @@ the first occurrence; it goes on until the end of the input.
 
 The range includes all the records from `R1` until the end of the input.
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     one
     two
     three
@@ -1717,7 +1717,7 @@ You  need to  surround  the  expression with  parentheses,  otherwise `$`  would
 consider  that  `NF` is  its  operand,  instead of  `NF-1`  (`$`  has a  greater
 precedence than `-`).
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     11 22 33
     44 55 66
     77 88 99
@@ -1751,12 +1751,12 @@ contents.
 Awk automatically splits  the record into fields to access  the field to modify,
 then replaces every `FS` with `OFS` to create the output record.
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     This_old_house_is_a_great_show.
     I_like_old_things.
     EOF
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     BEGIN { FS = "_"; OFS = "|" }
     { $(NF + 1) = ""; print }
     EOF
@@ -1774,12 +1774,12 @@ Awk will create as many empty fields as necessary to allow this new field to exi
 
 Ex:
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     This_old_house_is_a_great_show.
     I_like_old_things.
     EOF
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     BEGIN { FS = "_"; OFS = "|" }
     { $(NF + 3) = ""; print }
     EOF
@@ -1792,13 +1792,13 @@ Ex:
 
 ## How to print the input records, reversing the order of their fields?
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     3 2 1
     6 5 4
     9 8 7
     EOF
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     {
         for (i = NF; i > 0; i--)
             printf "%s ", $i
@@ -1835,7 +1835,7 @@ newline.
 ##
 ## I have the following file:
 
-    $ cat <<'EOF' >/tmp/emp.data
+    $ tee <<'EOF' /tmp/emp.data
     Beth    4.00   0
     Dan     3.75   0
     Kathy   4.00   10
@@ -1861,7 +1861,7 @@ gawk preserves the value of `$0` from the last record for use in an END rule.
 Some other implementations of awk do not.
 Alternatively, you could write:
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
         { last = $0 }
     END { print last }
     EOF
@@ -1973,7 +1973,7 @@ Use `NR` to uniquely index them in an array.
 
 ---
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
         { a[NR] = $0 }
     END { print a[2] }
     EOF
@@ -1984,7 +1984,7 @@ Use `NR` to uniquely index them in an array.
 ##
 ## I have the following file, and the following code:
 
-    $ cat <<'EOF' >/tmp/countries
+    $ tee <<'EOF' /tmp/countries
     USSR	8649	275	Asia
     Canada	3852	25	North America
     China	3705	1032	Asia
@@ -1998,7 +1998,7 @@ Use `NR` to uniquely index them in an array.
     England	94	56	Europe
     EOF
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     BEGIN {
         FS = "\t"
         printf("%10s %6s %5s   %s\n\n", "COUNTRY", "AREA", "POP", "CONTINENT")
@@ -2089,7 +2089,7 @@ Again, the index of the last record.
 
 The missing parameters are initialized with `""`.
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     END { myfunc() }
     function myfunc(a) {
         print a
@@ -2104,7 +2104,7 @@ The missing parameters are initialized with `""`.
 
 Global.
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     { myfunc(); print var }
     function myfunc() {
         var = "hello"
@@ -2120,7 +2120,7 @@ If the `var` assignment was local to `myfunc()`, `print var` would print a null 
 
 Include it inside the parameters of the function signature.
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     BEGIN {
         a[1] = "one"
         a[2] = "two"
@@ -2166,7 +2166,7 @@ Separate the two groups with several spaces.
 ##
 ## What are the outputs of the next snippets?
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     END {
         a = "foo"
         myfunc(a)
@@ -2184,7 +2184,7 @@ Separate the two groups with several spaces.
 `myfunc()` has not modified the global variable `a`.
 ↢
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     END {
         b[1] = "foo"
         myfunc(b)
@@ -2394,7 +2394,7 @@ Avec la  2e commande  précédente, awk  ne supprimera  que les  tabs (car  `FS`
 Update: Playing with `FS` and `OFS` doesn't  seem reliable enough if you've used
 several tabs to align some fields.
 
-        $ cat <<'EOF' >/tmp/emp.data
+        $ tee <<'EOF' /tmp/emp.data
         Beth			4.00	0
         Dan			3.75	0
         KathySomeVeryLongName	4.00	10
@@ -3278,7 +3278,7 @@ fichiers / pipes pouvant être ouverts à un instant T.
 
 ---
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     BEGIN {
         "date" | getline var1
         print var1
@@ -3412,13 +3412,13 @@ When doesn't `getline` update any built-in variable?
 When you  read a record  from outside the input  (shell command, file),  and you
 save it in a variable.
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
     a
     b c
     d e f
     EOF
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
     /a/ { "whoami" | getline var ; print $0, NF, NR }
     EOF
 
@@ -4175,13 +4175,13 @@ Can I change the index of a record?
 
 Yes, `NR` is writable.
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
         a
         b
         c
     EOF
 
-    $ cat <<'EOF' >/tmp/awk.awk
+    $ tee <<'EOF' /tmp/awk.awk
         /a/ { NR += 2 }
             { print $0, NR }
     EOF

@@ -112,7 +112,7 @@ You may need to also tweak them so that the text they print is readable.
 
     $ sudo mkdir -p /etc/systemd/system/getty@.service.d
 
-    $ cat <<'EOF' | sudo tee -a /etc/systemd/system/getty@.service.d/white-background.conf
+    $ sudo tee -a /etc/systemd/system/getty@.service.d/white-background.conf <<'EOF'
     [Service]
     ExecStartPre=/bin/sh -c '/usr/bin/setterm -background white -foreground black -store >/dev/%I'
     ExecStartPre=/bin/sh -c '/usr/bin/clear >/dev/%I'
@@ -128,7 +128,7 @@ Alternatively,  if your  systemd  version  is recent  enough,  and supports  the
 
     $ sudo mkdir -p /etc/systemd/system/getty@.service.d
 
-    $ sudo cat <<'EOF' > /etc/systemd/system/getty@.service.d/white-background.conf
+    $ sudo tee <<'EOF' /etc/systemd/system/getty@.service.d/white-background.conf
     [Service]
     StandardOutput=file:/dev/%I
     ExecStartPre=/usr/bin/setterm -background white -foreground black -store
@@ -151,7 +151,7 @@ Otherwise, I think you would need to recompile the kernel to set some option:
 ### turn on the Numlock key by default?
 
     $ sudo mkdir -p /etc/systemd/system/getty@.service.d
-    $ cat <<'EOF' | sudo tee -a /etc/systemd/system/getty@.service.d/activate-numlock.conf
+    $ sudo tee -a /etc/systemd/system/getty@.service.d/activate-numlock.conf <<'EOF'
     [Service]
     ExecStartPre=/bin/sh -c 'setleds -D +num < /dev/%I'
     EOF

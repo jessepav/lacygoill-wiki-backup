@@ -1258,7 +1258,7 @@ variable reference won't raise any error.
 
     $ mkdir -p /tmp/some/autoload/foo
 
-    $ cat <<'EOF' >/tmp/some/autoload/foo/bar.vim
+    $ tee <<'EOF' /tmp/some/autoload/foo/bar.vim
         let foo#bar#var = 123
         echom 'all the script is sourced'
     EOF
@@ -1278,7 +1278,7 @@ In particular, no autoload script is sourced.
 
     $ mkdir -p /tmp/some/autoload/foo
 
-    $ cat <<'EOF' >/tmp/some/autoload/foo/bar.vim
+    $ tee <<'EOF' /tmp/some/autoload/foo/bar.vim
         unsilent echom 'all the script is sourced'
     EOF
 

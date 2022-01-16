@@ -1114,7 +1114,7 @@ It highlights words in strings, but makes an exception for the word `vim`:
 
     $ echo "'foo vim bar'" >/tmp/file
 
-    $ cat <<'EOF' >/tmp/vimrc
+    $ tee <<'EOF' /tmp/vimrc
     syn match xString /'[^']*'/    contains=xWord,xVim
     syn match xWord   /\<[a-z]*\>/ contained
     syn match xVim    /\<vim\>/    contained contains=NONE transparent
@@ -1856,7 +1856,7 @@ MWE:
 
     $ echo 'syn clear zshBrackets' >>~/.vim/after/syntax/zsh.vim
 
-    $ cat <<'EOF' >/tmp/md.md
+    $ tee <<'EOF' /tmp/md.md
     ```zsh
     func() {
       local var="123"
@@ -2481,7 +2481,7 @@ A is correctly highlighted, even though its start is empty because there's no `n
 ##
 ## ?
 
-    $ cat <<'EOF' >/tmp/vimrc
+    $ tee <<'EOF' /tmp/vimrc
 
     syn clear
 
@@ -2494,7 +2494,7 @@ A is correctly highlighted, even though its start is empty because there's no `n
     hi link xCondNest DiffDelete
     EOF
 
-    $ cat <<'EOF' >/tmp/file
+    $ tee <<'EOF' /tmp/file
 
     for (i=0; i <= (a+b); i++) {
        statement(s);
@@ -2519,7 +2519,7 @@ The containing item describes the match due to the whole region.
 
     $ echo 'one two three' >/tmp/file
 
-    $ cat <<'EOF' >/tmp/vimrc
+    $ tee <<'EOF' /tmp/vimrc
     syn region xRegion matchgroup=xMatchgroup start='one' end='three'
     hi link xRegion DiffAdd
     hi link xMatchgroup DiffChange
@@ -2538,7 +2538,7 @@ Document that a contained match *can* break the auto-nesting of a region.
 
 Here, the auto-nesting works:
 
-    $ vim -S <(cat <<'EOF'
+    $ vim -S <(tee <<'EOF'
         syn region Region start='abc(' end=')' contains=Region,Match
         syn match Match /bc/ contained
         hi link Region DiffAdd
@@ -2552,7 +2552,7 @@ groups contains 3 nested regions.
 
 But here, it does not work:
 
-    $ vim -S <(cat <<'EOF'
+    $ vim -S <(tee <<'EOF'
         syn region Region start='abc(' end=')' contains=Region,Match
         syn match Match /ab/ contained
         hi link Region DiffAdd

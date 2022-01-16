@@ -546,7 +546,7 @@ Source:
 
 ---
 
-    $ cat <<'EOF' | sudo tee -a /etc/systemd/system/my_service.service
+    $ sudo tee -a /etc/systemd/system/my_service.service <<'EOF'
     [Unit]
     Description=My Application
 
@@ -561,7 +561,7 @@ Source:
                          ^--^
                          pid˜
 
-    $ cat <<'EOF' | sudo tee -a /etc/systemd/system/my_service.path
+    $ sudo tee -a /etc/systemd/system/my_service.path <<'EOF'
     [Unit]
     Description=Check for files
 
@@ -2105,13 +2105,13 @@ This link is also interesting: <https://superuser.com/a/1128905/913143>
 It explains how to install an xbindkeys service.
 Basically, it gives sth like:
 
-    $ cat <<EOF >~/.config/systemd/user/xsession.target
+    $ tee <<EOF ~/.config/systemd/user/xsession.target
     [Unit]
     Description=Xsession running
     BindsTo=graphical-session.target
     EOF
 
-    $ cat <<EOF >~/.config/systemd/user/xbindkeys.service
+    $ tee <<EOF ~/.config/systemd/user/xbindkeys.service
     [Unit]
     Description=xbindkeys
     PartOf=graphical-session.target
@@ -2124,7 +2124,7 @@ Basically, it gives sth like:
     WantedBy=xsession.target
     EOF
 
-    $ cat <<EOF >>~/bin/keyboard.sh
+    $ tee -a <<EOF ~/bin/keyboard.sh
     systemctl --user import-environment PATH DBUS_SESSION_BUS_ADDRESS
     systemctl --no-block --user start xsession.target
     EOF
@@ -2235,7 +2235,7 @@ more room for the messages.
     tor --defaults-torrc /usr/share/tor/tor-service-defaults-torrc -f /etc/tor/torrc --RunAsDaemon 0
 
 It can help  to torify a shell command  such as `$ pip install`,  when a package
-can't be installed because of a network issue (AS blacklisted).
+can't be installed because of a network issue (e.g. AS blacklisted).
 
     $ . torsocks on
     $ python3 -m pip install --user requests
@@ -2253,4 +2253,3 @@ torsocks - Access The Tor Network - Linux CLI: <https://www.youtube.com/watch?v=
 ## Read these pages from: UNIX and Linux System Administration Handbook
 
     30, 31, 43-57, 61, 93, 113, 117, 295, 298-302, 319, 971, 1169
-

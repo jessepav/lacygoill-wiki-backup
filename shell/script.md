@@ -207,7 +207,7 @@ From `man bash` (`ALIASES`):
 
 MWE:
 
-    % cat <<EOF >> ~/.zshrc
+    % tee -a <<EOF ~/.zshrc
     alias what_am_i='echo "I am an alias"'
     func() {
         what_am_i
@@ -335,7 +335,7 @@ Why doesn't `setopt no_aliases` work?
     check_we_are_root() {
       # 0 is the EUID of the root user.
       if [[ "${EUID}" -ne 0 ]]; then
-        cat <<EOF >&2
+        tee <<EOF >&2
     Please run as root:
         sudo "$0"
     EOF

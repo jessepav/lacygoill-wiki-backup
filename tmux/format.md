@@ -43,7 +43,7 @@ It depends on the command, and even on the argument of the command.
 
 `pipe-pane` too:
 
-    $ tmux pipe-pane -o 'cat >>~/output.#I-#P'
+    $ tmux pipe-pane -o 'tee -a ~/output.#I-#P'
 
 But not `detach-client`:
 
@@ -74,7 +74,7 @@ At execution time, except for `%if` (cf. nicm).
 
 No.
 
-    $ tmux source =(cat <<'EOF'
+    $ tmux source =(tee <<'EOF'
     window_id='#{window_id}'
     bind C-g display "$window_id"
     EOF
