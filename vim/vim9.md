@@ -4008,7 +4008,8 @@ See also: <https://github.com/vim/vim/issues/7401#issuecomment-854864374>
 
 Update: Forget about all of this.
 Just use `<ScriptCmd>` instead of `<Cmd>`.
-It should fix all of these issues
+It should fix all of these issues.
+Also, have a look at the new `c` flag of `feedkeys()`.
 
 ####
 ### ?

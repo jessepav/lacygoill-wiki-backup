@@ -1526,9 +1526,6 @@ Update: Actually, the best solution would be for `E464` to be given, but *with* 
     E464: Ambiguous use of user-defined command: UltiSnips
                                                  ^-------^
 
-It would
-<https://github.com/vim/vim/wiki/Debugging-Vim-Bugs>
-
 ### Vim9: confusing error when calling autoload function with range
 
 **Steps to reproduce**
@@ -1554,94 +1551,15 @@ Shell: zsh 5.8
 
 **Additional context**
 
+##
 ## ?
 
-Try to yank a fold with `y]z`:
+In  `~/.vim/pack/mine/opt/logevents/autoload/logevents.vim`,   everything  works
+even if we don't pass the `autoload` argument to `:vim9script`.
 
-    E1144: Command "<" is not followed by white space: <SNR>165_Jump(']z', 'no', 1)
+Why?
+Shouldn't an error be given when we use `:export`?
 
-The issue disappears if you add `:call` here:
-
-    # ~/.vim/pack/mine/opt/fold/autoload/fold/motion.vim line 85
-    return printf("%s%s\<ScriptCmd>call %s(%s, %s, %d)\<CR>",
-                                   ^--^
-
-That doesn't make sense:
-
-   - `<ScriptCmd>` sets the context to the script.
-   - the script is in Vim9
-   - in Vim9, `:call` is useless
-
-MWE:
-```vim
-vim9script
-onoremap <expr> <F3> Foo()
-def Foo(): string
-    return printf("\<ScriptCmd>%s()\<CR>", Bar)
-enddef
-def Bar()
-    echomsg 'from Bar()'
-enddef
-feedkeys("y\<F3>")
-```
-    E1144: Command "<" is not followed by white space: <SNR>1_Bar()
-```vim
-vim9script
-onoremap <expr> <F3> Foo()
-def Foo(): string
-    return "\<ScriptCmd>Bar()\<CR>"
-enddef
-def Bar()
-    echomsg 'from Bar()'
-enddef
-feedkeys("y\<F3>")
-```
-    E492: Not an editor command: Bar()
-
-For some reason, the issue is specific to operator-pending mode.
-No issue in normal mode for example:
-```vim
-vim9script
-nnoremap <expr> <F3> Foo()
-def Foo(): string
-    return printf("\<ScriptCmd>%s()\<CR>", Bar)
-enddef
-def Bar()
-    echomsg 'from Bar()'
-enddef
-feedkeys("\<F3>")
-```
-    from Bar()
-```vim
-vim9script
-nnoremap <expr> <F3> Foo()
-def Foo(): string
-    return "\<ScriptCmd>Bar()\<CR>"
-enddef
-def Bar()
-    echomsg 'from Bar()'
-enddef
-feedkeys("\<F3>")
-```
-    from Bar()
-
-*If* the  issue is  fixed, look for  `return.*scriptcmd` everywhere,  and remove
-`call` whenever possible.
-
----
-
-Even simpler MWE:
-```vim
-vim9script
-onoremap <expr> <F3> '<ScriptCmd>Func()<CR>'
-def Func()
-    echomsg 'from Func()'
-enddef
-feedkeys("y\<F3>")
-```
-    E492: Not an editor command: Func()
-
-##
 ## ?
 
 We've started to use the new autoload mechanism.
@@ -1671,7 +1589,7 @@ To find all the files which needs a refactoring:
     :vim /\C\%^vim9script\>\%(.*\<autoload\>\)\@!/ ~/.vim/**/autoload/**/*.vim
     :Cfilter! -vendor
 
-Also, look for the pattern `\w\+#\w*(`
+Also, look for the pattern `\<[a-zA-Z_]\+#[a-zA-Z_0-9#]\+(`
 
 ## ?
 ```vim
@@ -1721,17 +1639,6 @@ Even `function()` doesn't help:
     # the script should not be sourced
     const Ref = function('script.func')
 
-This begs the question: how to handle  the case of an autoloaded function called
-in a  mapping?  It seems we  can't use `script.func`.   We have to use  the true
-name `script#func()`.
-IMO, this is yet  another hint that – in a mapping –  an Ex command executed
-between `<Cmd>` and `<CR>` should be run  in the context of the script where the
-mapping is installed.
-This way, we  would no longer need  `Ref`, and we could  use `script.func`, just
-like in a Vim9 script:
-
-    nnoremap <F3> <Cmd>script.func()<CR>
-
 ---
 
 `:scriptnames` reports that  the autoload script has been sourced  as soon as we
@@ -1740,19 +1647,12 @@ Could we add a flag in the output  of `:scriptnames` to tell us whether a script
 has been really sourced or not?
 
 ## ?
-```vim
-vim9script
-def Msg()
-enddef
-def Test()
-    return Msg()
-enddef
-Test()
-```
-    no error
 
-An error should be given.
-<https://github.com/vim/vim/issues/9497#issuecomment-1008345264>
+<https://github.com/vim/vim/issues/9536#issuecomment-1014822331>
+
+   > We can add the "scriptversion" to the functions.
+
+Would it be enough for the restored mapping to find script-local items?
 
 ## ?
 
@@ -6618,6 +6518,9 @@ Bug?  Feature request?
 
 Update: It might be working as intended:
 <https://github.com/vim/vim/issues/4768#issuecomment-518006514>
+
+Update: Nope.  I think it should work:
+<https://github.com/vim/vim/issues/9496#issuecomment-1013903011>
 
 ##
 ## duplicate runtime bugs
