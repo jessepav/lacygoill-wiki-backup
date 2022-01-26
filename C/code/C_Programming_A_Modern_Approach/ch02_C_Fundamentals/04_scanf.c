@@ -16,14 +16,14 @@ int main(void)
     // with `input()` in VimL.
     //}}}
     printf("choose an integer: ");
-    // "%d" tells `scanf()` to read input that represents an integer.
+    // `"%d"` tells `scanf()` to read input that represents an integer.
     // `&i` tells `scanf()` to write it in the variable `i`.
     scanf("%d", &i);
 
     // No need to start with a newline, because after pressing Enter to validate
     // the previous input, the cursor has automatically moved to the next line.
     printf("choose a float: ");
-    // "%f" tells `scanf()` to look for an input value in `float` format.
+    // `"%f"` tells `scanf()` to look for an input value in `float` format.
     scanf("%f", &x);
 
     printf("you chose the integer %d and the float %f\n", i, x);

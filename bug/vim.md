@@ -1466,7 +1466,105 @@ previous error caused by the filter function which couldn't be found.
 Also, whenever  you get  an error  using `feedkeys()`, passing  it the  `x` flag
 fixes the issue.
 
-### ?
+##
+## ctags
+
+`ctags(1)` does not generate any tag for variables declared with `:var`.
+
+Send a patch which refactors this line:
+
+    // $HOME/Vcs/ctags/parsers/vim.c
+    else if (wordMatchLen (line, "let", 3))
+
+Into this line:
+
+    else if (wordMatchLen (line, "let", 3) || wordMatchLen (line, "var", 3))
+
+But only for variables declared at the script-level.
+To be  consistent with how  legacy scripts are parsed  (function-local variables
+are ignored).
+
+---
+
+Do the same for `:final`.
+
+---
+
+Do the same for *exported* `:def` functions.
+
+---
+
+Also, the tags which are currently generated for `:const` are not always correct.
+For example, the tag generated for this line:
+
+    const MYCONST: number = 123
+
+looks like this:
+
+    MYCONST:	path/to/file	/^const MYCONST: number = 123$/;"	C
+           ^
+           ✘
+
+The colon should not be there.  Because of this, when we press on a reference to
+a constant name with `C-]`, Vim fails to jump to its declaration.
+
+The same issue will affect the tags generated for variables declared with `:var`
+(and `:final`).  I think you need to refactor this function:
+
+    // $HOME/Vcs/ctags/parsers/vim.c
+    parseVariableOrConstant()
+
+In particular, this line:
+
+    } while (isalnum ((int) *cp) || *cp == '_' || *cp == '#' || *cp == ':' || *cp == '$');
+                                                                ^--------^
+
+Find a way to make this condition stricter.
+We should not accept a colon if there is nothing after (or a space).
+I think the next character can be referred to with `*np`.
+But none of these work:
+
+    *cp == ':'
+    →
+    (*cp == ':' && *np == ' ')
+
+    *cp == ':'
+    →
+    (*cp == ':' && *np == '$')
+
+To debug:
+
+    $ cd ~/Vcs/ctags/
+    $ make clean; make distclean; ./autogen.sh; ./configure; sed -i 's/^CFLAGS =.*/CFLAGS = -g -O0/; s/^CFLAGS_FOR_BUILD =.*/CFLAGS_FOR_BUILD = -g -O0/' Makefile; make
+    $ cd /tmp/vim_plugin/
+    $ gdb -q --args ~/Vcs/ctags/ctags --options=NONE -R .
+    (gdb) break parsers/vim.c:parseVariableOrConstant
+    (gdb) run
+
+Update: This patch seems to work:
+```diff
+diff --git a/parsers/vim.c b/parsers/vim.c
+index da4188d4..66d673f2 100644
+--- a/parsers/vim.c
++++ b/parsers/vim.c
+@@ -546,7 +546,7 @@ static void parseVariableOrConstant (const unsigned char *line, int infunction,
+ 
+ 			vStringPut (name, (int) *cp);
+ 			++cp;
+-		} while (isalnum ((int) *cp) || *cp == '_' || *cp == '#' || *cp == ':' || *cp == '$');
++		} while (isalnum ((int) *cp) || *cp == '_' || *cp == '#' || (*cp == ':' && *cp++ != ':') || *cp == '$');
+ 		makeSimpleTag (name, kindIndex);
+ 		vStringClear (name);
+ 	}
+```
+But is it really correct?
+Update: I think it's wrong because `*cp++` has a side effect.
+Maybe we need to make a copy of `cp` in the loop:
+
+    np = cp;
+    ++np;
+
+---
 
 Try to be consistent when using the `s:` prefix.
 That is, if for some reason, you have to use it in front of the name of an item,
@@ -1483,96 +1581,99 @@ var Ref = function('s:Func')
  #                  Vim(tag):E426: tag not found: s:Func
  #                  that's because `Func()` is defined without `s:` in its header
 ```
-##
-## ?
+---
 
-Try this:
+Watch the derek banas playlist on C  to have just enough knowledge to understand
+the code and refactor it.
 
-    :vim9 :* UltiSnips#SaveLastVisualSelection()
+To test:
 
-It gives this error:
+    $ rm -rf /tmp/vim_plugin/
+    $ mkdir -p /tmp/vim_plugin
+    $ cd /tmp/vim_plugin
 
-    E464: Ambiguous use of user-defined command
-
-Because of the `:*` range, what follows is  not parsed as a function call, but a
-command name.  And a  command name cannot include `#`. So,  the latter is parsed
-as the start of an inline comment, which makes everything afterward ignored.
-As a result, Vim tries to execute this:
-
-    :vim9 :* UltiSnips
-
-But we have several commands starting with `UltiSnips`.
-
-    :com UltiSnips
-        Name              Args Address Complete    Definition
-        UltiSnipsAddFiletypes 1                    :call UltiSnips#AddFiletypes(<q-args>)
-    !   UltiSnipsEdit     ?            customlist  :call UltiSnips#Edit(<q-bang>, <q-args>)
-
-Hence the `E464` error.
-
-I guess everything works as expected.
-Still, the message is confusing.
-Could Vim give `E492` instead?
-
-    :vim9 :* UltiSnips
-    E492: Not an editor command: :* UltiSnips#SaveLastVisualSelection()
-
-Update: Actually, the best solution would be for `E464` to be given, but *with* the name of the ambiguous command.
-
-    ✘
-    E464: Ambiguous use of user-defined command
-
-    ✔
-    E464: Ambiguous use of user-defined command: UltiSnips
-                                                 ^-------^
-
-### Vim9: confusing error when calling autoload function with range
-
-**Steps to reproduce**
-
-Run this shell command:
-
-    $ vim -Nu NONE -S <(tee <<'EOF'
+    $ tee <<'EOF' >foo.vim
+        vim9script
+        const NAME_A: number = 123
+        export const NAME_B: number = 456
+        def FuncA()
+        enddef
+        export def FuncB()
+        enddef
     EOF
-    )
 
-**Expected behavior**
+    $ cd ~/Vcs/ctags/
+    $ ./autogen.sh
+    $ ./configure
+    $ make
+    $ cd /tmp/vim_plugin/
+    $ ~/Vcs/ctags/ctags --options=NONE -R .
+    $ vim tags
 
-**Version of Vim**
+---
 
-8.2 Included patches: 1-4103
+In this function:
 
-**Environment**
+    static bool isMap (const unsigned char *line)
 
-Operating system: Ubuntu 20.04.3 LTS
-Terminal: xterm
-Value of $TERM: xterm-256color
-Shell: zsh 5.8
+`tnoremap` and `tmap` are missing.
 
-**Additional context**
+## unexpected error when changing type of undeclared value with `extend()`, `map()`, `flatten()`
 
-##
+<https://github.com/vim/vim/commit/ad8f2485856eadb931ebd1f633ca366a40e415b8#commitcomment-62844898>
+<https://github.com/vim/vim/issues/9461#issuecomment-1004248683>
+<https://github.com/vim/vim/issues/9461#issuecomment-1004273798>
+
+---
+
+*If* this issue is fixed: <https://github.com/vim/vim/issues/9626>
+Then check it's also fixed in compiled code:
+```vim
+vim9script
+def GetList(): list<number>
+    var l: list<number> = [0]
+    return l
+enddef
+def Func()
+    echo GetList()->extend(['a'])
+enddef
+defcompile
+```
+    E1013: Argument 2: type mismatch, expected list<number> but got list<string>
+```vim
+vim9script
+def GetList(): list<number>
+    var l: list<number> = [0]
+    return l
+enddef
+def Func()
+    echo GetList()->extend(['a'])
+enddef
+Func()
+```
+    E1013: Argument 2: type mismatch, expected list<number> but got list<string>
+
 ## ?
 
-In  `~/.vim/pack/mine/opt/logevents/autoload/logevents.vim`,   everything  works
-even if we don't pass the `autoload` argument to `:vim9script`.
+We can't use the dot notation to call an imported autoloaded function from:
 
-Why?
-Shouldn't an error be given when we use `:export`?
+   - `:help undo_ftplugin` (14), `:help undo_indent`
+   - `:help i_CTRL-R_=` (11)
+   - `:help c_CTRL-\_e` (9)
+   - `:help stl-%{` (6)
+   - `:help 'statusline'` (1) and `:help 'tabline'` (`%!Func()`)
+   - `:help input()` (3rd `{completion}` argument)
 
-## ?
-
-We've started to use the new autoload mechanism.
-There are already a few issues.
-
-We  can't   use  the  dot   notation  to   call  an  autoloaded   function  from
-`b:undo_ftplugin`, nor from a `%{}` item in the statusline.
 Should it be made to work?
 Should we document these limitations somewhere in the help?
 
 The issue is that those syntaxes are evaluated in the global context.
-I suspect that there other syntaxes where  the global context is used, which can
-cause unexpected issues if they contain Vim9 expressions.
+
+Are there  other syntaxes where the  global context is used,  causing unexpected
+issues if they contain Vim9 expressions?
+What about setting a `*func` option?  Can we use `script.func` over there?
+Note that it works for `*expr` options.
+
 I think that –  if it's possible – Vim should save  somewhere the context in
 which the expression was set.  It would make sense, avoid unexpected errors, and
 be consistent with what will happen in the future for options:
@@ -1584,97 +1685,29 @@ Source: `:help todo`.
 
 ---
 
-To find all the files which needs a refactoring:
+To  refactor  the   remaining  autoload  function  names   from  `foo#Bar()`  to
+`foo.Bar()`, source this script:
 
-    :vim /\C\%^vim9script\>\%(.*\<autoload\>\)\@!/ ~/.vim/**/autoload/**/*.vim
-    :Cfilter! -vendor
-
-Also, look for the pattern `\<[a-zA-Z_]\+#[a-zA-Z_0-9#]\+(`
-
-## ?
-```vim
-vim9script
-var dir = '/tmp/some'
-&runtimepath = dir
-dir ..= '/autoload'
-dir->mkdir('p')
-var lines =<< trim END
-    vim9script autoload
-    export def Func()
-        echomsg 'TEST'
+    vim9script
+    var pat: string = '\C\%(\<g:\S*\)\@<![/.#]\@1<!\<[a-zA-Z_]\+#[a-zA-Z_0-9#]\+[('', \n]'
+    execute printf('Cvim ;%s;gj $MYVIMRC ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/**', pat)
+    autocmd QuickFixCmdPost * ++once OnQuickFixCmdPost()
+    def OnQuickFixCmdPost()
+        execute 'silent Cfilter! -vendor'
+        execute 'silent Cfilter! -tmp'
+        execute 'silent Cfilter! netrwPlugin\.vim'
+        execute 'silent Cfilter! netrw\.vim'
+        execute 'silent Cfilter! tmuxify\.vim'
+        execute 'silent Cfilter! netrwFileHandlers\.vim'
+        execute 'silent Cfilter! netrwSettings\.vim'
+        execute 'silent Cfilter! netrw_gitignore\.vim'
     enddef
-END
-lines->writefile(dir .. '/script.vim')
-import autoload 'script.vim'
-command Cmd script.Func()
-Cmd
-```
-    TEST
-```vim
-vim9script
-var dir = '/tmp/some'
-&runtimepath = dir
-dir ..= '/autoload'
-dir->mkdir('p')
-var lines =<< trim END
-    vim9script autoload
-    export def Func()
-        echomsg 'TEST'
-    enddef
-END
-lines->writefile(dir .. '/script.vim')
-import autoload 'script.vim'
-const Ref = script.Func
-nnoremap <F3> <Cmd>call <SID>Ref()<CR>
-feedkeys("\<F3>")
-```
-    TEST
-
-When we execute `const Ref =  script.Func`, Vim loads the autoload script, which
-defeats the purpose of autoloading the function.
-You can check this by adding a `:sleep` at the end of the autoload script.
-Even `function()` doesn't help:
-
-    # looks like a bug; to be consistent, as long as we use quotes,
-    # the script should not be sourced
-    const Ref = function('script.func')
 
 ---
 
-`:scriptnames` reports that  the autoload script has been sourced  as soon as we
-execute `:import autoload`.  That's misleading.
-Could we add a flag in the output  of `:scriptnames` to tell us whether a script
-has been really sourced or not?
+    :s/def \<[a-zA-Z_]\+#[a-zA-Z_0-9#]\+\ze(/\='export def ' .. submatch(0)->matchstr('#[^#]\+$')->substitute('#\(.\)', {-> submatch(1)->toupper()}, '')/
 
-## ?
-
-<https://github.com/vim/vim/issues/9536#issuecomment-1014822331>
-
-   > We can add the "scriptversion" to the functions.
-
-Would it be enough for the restored mapping to find script-local items?
-
-## ?
-
-From `:help :import`:
-
-   > Then you can use "that.EXPORTED_CONST", "that.someValue", etc.  You are free
-   > to choose the name "that".  Use something that will be recognized as referring
-   > to the imported script.  Avoid command names and builtin function names,
-   > because the name will shadow them.
-
-Why can an imported script shadow a builtin command/function?  There is no ambiguity.
-
-When using the name of an imported script, it must be followed by a dot.  But the name of a command cannot be followed by a dot.  It's either used alone on a line, or followed by a whitespace.
-
-Same thing for a function: it must be followed by an open parenthesis.
-Update: What about a funcref.  Could it be followed by a dot? (concat maybe...)
-
-## ?
-
-<https://github.com/vim/vim/commit/ad8f2485856eadb931ebd1f633ca366a40e415b8#commitcomment-62844898>
-<https://github.com/vim/vim/issues/9461#issuecomment-1004248683>
-<https://github.com/vim/vim/issues/9461#issuecomment-1004273798>
+    :s/\<[a-zA-Z_]\+#[a-zA-Z_0-9#]\+\ze[(', \n]/\=submatch(0)->matchstr('[^#]\+#[^#]\+$')->substitute('#\(.\)', {-> '.' .. submatch(1)->toupper()}, '')/
 
 ## ?
 
@@ -1730,6 +1763,75 @@ Test all builtin functions which accept a string with a special meaning as argum
 Test `col()` and friends.
 
 ##
+## ?
+
+From `:help exists()`:
+
+    *funcname       built-in function (see |functions|)
+                    or user defined function (see
+                    |user-functions|) that is implemented.
+                    Also works for a variable that is a
+                    Funcref.
+
+Doesn't work in a Vim9 script for a script-local function:
+```vim
+vim9script
+def Func()
+enddef
+echomsg exists('*Func')
+```
+    0
+
+The asterisk needs to be removed:
+```vim
+vim9script
+def Func()
+enddef
+echomsg exists('Func')
+```
+    1
+
+---
+
+From `:help vim9-reload`:
+
+    You want to use this in scripts that use a `finish` command to bail out at
+    some point when loaded again.  E.g. when a buffer local option is set: >
+            vim9script noclear
+            setlocal completefunc=SomeFunc
+            if exists('*g:SomeFunc') | finish | endif
+            def g:SomeFunc()
+            ....
+
+No need to use a global function:
+
+    vim9script noclear
+    setlocal completefunc=s:SomeFunc
+    if exists('SomeFunc') | finish | endif
+    def SomeFunc()
+    ...
+
+BTW, could  we allow  `'*func'` options  to be  set with  script-local functions
+without the `s:` prefix?
+
+    setlocal completefunc=SomeFunc
+
+Rationale: We don't need `s:` anywhere else:
+
+   - not in `exists()`
+   - not in `:def`
+   - not in `'*expr'` options
+   - not with `&` (e.g. `&l:completefunc = SomeFunc`; require to be run after `SomeFunc()` has been defined)
+
+## ?
+
+<https://github.com/vim/vim/issues/9590#issuecomment-1019080740>
+
+The issue was fixed, but the inconsistency reported in this comment still persists.
+Open an issue to discuss how we could improve the help about autoload functions.
+i.e. We need to make it clearer how quotes are important.
+In this issue, discuss whether the previously mentioned inconsistency is intended.
+
 ## ?
 
 Do we need a "neutral" value for funcrefs, jobs and channels?
@@ -1959,7 +2061,48 @@ Func()
 This might explain the rationale behind the different results:
 <https://stackoverflow.com/a/7838212>
 
+## ?
+
+<https://github.com/vim/vim/issues/9564#issuecomment-1017726136>
+
 ##
+## ?
+```vim
+vim9script
+var lines =<< trim END
+    vim9script
+    nnoremap <F3> <ScriptCmd>Func()<CR>
+    if !exists('Func')
+        def Func()
+            source /tmp/t.vim
+        enddef
+    endif
+END
+lines->writefile('/tmp/t.vim')
+source /tmp/t.vim
+feedkeys("\<F3>")
+```
+    E127: Cannot redefine function <SNR>2_Func: It is in use
+
+Why does the `if !exists('Func')` guard fail to suppress the error?
+The issue disappears if we use `noclear`:
+```vim
+vim9script
+var lines =<< trim END
+    vim9script noclear
+    nnoremap <F3> <ScriptCmd>Func()<CR>
+    if !exists('Func')
+        def Func()
+            source /tmp/t.vim
+        enddef
+    endif
+END
+lines->writefile('/tmp/t.vim')
+source /tmp/t.vim
+feedkeys("\<F3>")
+```
+     no error
+
 ## ?
 
 We can set an opfunc in Vim9 or in legacy (2).
@@ -2009,7 +2152,7 @@ def CountSpaces(type = ''): string
     return ''
 enddef
 set operatorfunc=CountSpaces
-nnoremap <expr> <F4> <SID>CountSpaces()
+nnoremap <expr> <F4> CountSpaces()
 ['a b c d e']->setline(1)
 feedkeys("\<F4>_")
 ```
@@ -2025,7 +2168,7 @@ def CountSpaces(type = ''): string
     return ''
 enddef
 &operatorfunc = CountSpaces
-nnoremap <expr> <F4> <SID>CountSpaces()
+nnoremap <expr> <F4> CountSpaces()
 ['a b c d e']->setline(1)
 feedkeys("\<F4>_")
 ```
@@ -2041,7 +2184,7 @@ def CountSpaces(type = ''): string
     return ''
 enddef
 &operatorfunc = (t) => CountSpaces(t)
-nnoremap <expr> <F4> <SID>CountSpaces()
+nnoremap <expr> <F4> CountSpaces()
 ['a b c d e']->setline(1)
 feedkeys("\<F4>_")
 ```
@@ -2059,7 +2202,7 @@ def CountSpaces(free = 0, type = ''): string
 enddef
 var f = 123
 &operatorfunc = (t) => CountSpaces(f, t)
-nnoremap <expr> <F4> <SID>CountSpaces()
+nnoremap <expr> <F4> CountSpaces()
 ['a b c d e']->setline(1)
 feedkeys("\<F4>_")
 ```
@@ -2076,7 +2219,7 @@ def CountSpaces(type = ''): string
     return ''
 enddef
 &operatorfunc = function(CountSpaces)
-nnoremap <expr> <F4> <SID>CountSpaces()
+nnoremap <expr> <F4> CountSpaces()
 ['a b c d e']->setline(1)
 feedkeys("\<F4>_")
 ```
@@ -2094,7 +2237,7 @@ def CountSpaces(free = 0, type = ''): string
 enddef
 var f = 123
 &operatorfunc = function(CountSpaces, [f])
-nnoremap <expr> <F4> <SID>CountSpaces()
+nnoremap <expr> <F4> CountSpaces()
 ['a b c d e']->setline(1)
 feedkeys("\<F4>_")
 ```
@@ -2132,6 +2275,14 @@ Also, "a function in an autoload script" might be misunderstood:
 ## ?
 
 Could `'*expr'` options accept lambdas and partials in the future?
+```vim
+vim9script
+&foldexpr = () => getline(v:lnum) =~ '^#' ? '>1' : '1'
+&foldmethod = 'expr'
+&debug = 'throw'
+```
+    E729: Using a Funcref as a String
+    E928: String required
 
 Relevant PR: <https://github.com/vim/vim/pull/9401>
 
@@ -2162,7 +2313,8 @@ We need  `expand('<SID>')`.  In Vim9,  could Vim  look in the  global namespace,
 
 ---
 
-Feature request: In Vim9, could we omit `s:` when setting a `*func`/`*expr` option?
+Feature request: In Vim9, could we omit `s:` when setting a `*func` option?
+Just like we can for an `*expr` option...
 
 ## ?
 
@@ -4841,46 +4993,6 @@ This would be more readable:
 This would also be more consistent with other error messages.
 I think `E1004` is the only one which uses quotes to separate the context from the error.
 I think all the other ones use a colon.
-
-## ?
-
-`ctags(1)` does not generate any tag for variables declared with `:var`.
-
-Send a patch which refactors this line:
-
-    // $HOME/Vcs/ctags/parsers/vim.c
-    else if (wordMatchLen (line, "let", 3))
-
-Into this line:
-
-    else if (wordMatchLen (line, "let", 3) || wordMatchLen (line, "var", 3))
-
-Do the same for `:final`?
-
----
-
-Also, the tags which are currently generated for `:const` are not always correct.
-For example, the tag generated for this line:
-
-    const MYCONST: number = 123
-
-looks like this:
-
-    MYCONST:	path/to/file	/^const MYCONST: number = 123$/;"	C
-           ^
-           ✘
-
-The colon should not be there.  Because of this, when we press on a reference to
-a constant name with `C-]`, Vim fails to jump to its declaration.
-
-The same issue will affect the tags generated for variables declared with `:var`
-(and `:final`).  I think you need to refactor this function:
-
-    // $HOME/Vcs/ctags/parsers/vim.c
-    parseVariableOrConstant()
-
-Watch the derek banas playlist on C  to have just enough knowledge to understand
-the code and refactor it.
 
 ## ?
 

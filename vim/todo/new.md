@@ -83,6 +83,7 @@ temporarily converting the dates into simple integers.
 
 ##
 # commands
+## Ex
 
    - `:help :argdedupe`
    - `:help :balt`
@@ -90,7 +91,7 @@ temporarily converting the dates into simple integers.
    - `:help :scriptversion`
    - `:help :swapname`
 
-## arguments of commands
+### arguments
 
    - `:help ctermul` (argument of `:help :highlight`)
      + terminal options: `:help t_AU`, `:help t_8u`, `:help t_Cs`, `:help t_Ce`
@@ -100,6 +101,11 @@ temporarily converting the dates into simple integers.
    - `:help :unlet-$`
 
    - `:help :vimgrep` (`f` flag for fuzzy search)
+
+##
+## select mode
+
+   - `:help v_CTRL-R`
 
 ##
 # events

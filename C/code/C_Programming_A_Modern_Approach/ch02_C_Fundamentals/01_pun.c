@@ -13,8 +13,8 @@ int main(void)
 {
 // Where you put the brace which starts a function's body is a matter of style.{{{
 //
-// However, there are reasons to put it on a line of its own rather than joining
-// it with the function's header.  Compare:
+// However, it's better  to put it on a  line of its own rather  than joining it
+// with the function's header.  Compare:
 //
 //     int main(
 //         int parameterOne,
@@ -44,4 +44,3 @@ int main(void)
     // returns 0 as a status code
     return 0;
 }
-

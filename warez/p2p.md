@@ -114,6 +114,11 @@ Then run this shell command:
     $ transmission-remote --torrent 123 --stop
                                         ^----^
 
+## start a torrent?
+
+    $ transmission-remote --torrent 123 --start
+                                        ^-----^
+
 ## list the files in a torrent?
 
     $ transmission-remote --torrent 123 --info-files

@@ -4014,6 +4014,23 @@ Also, have a look at the new `c` flag of `feedkeys()`.
 ####
 ### ?
 
+In `:scriptnames`, the `A` flag means that the matching script:
+
+   - was passed as an argument to `:import autoload`,
+   - was recognized as existing
+   - was assigned an ID
+   - a matching autoload prefix was created
+   - was not sourced yet
+
+<https://github.com/vim/vim/issues/9552#issuecomment-1015434121>
+
+When such a script is finally sourced, the `A` flag is removed, but the order of
+the scripts remain the same.  IOW, you  have the guarantee that the script `123`
+was sourced right  after the script `122`  iff none of them  is autoloaded (i.e.
+`/autoload/` is absent from their absolute paths).
+
+### ?
+
 A mapping is usually executed in the global context, which means that – in the
 rhs of a mapping – you need to use the legacy syntax, even in a Vim9 script.
 If you  want to use  the Vim9  syntax, you can  use the `<expr>`  argument since

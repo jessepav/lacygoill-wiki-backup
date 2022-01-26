@@ -1547,11 +1547,15 @@ We've  made  a   fundamental  mistake  in  the  past,  every   time  we've  used
 MWE:
 
     :CFreeStack
-    :exe 'helpg vim' | exe 'helpg fast' | exe 'helpg unix' | exe 'helpg text' | exe 'helpg editor'
-    :col 3
-    :chi
+    :helpgrep vim
+    :helpgrep fast
+    :helpgrep unix
+    :helpgrep text
+    :helpgrep editor
+    :colder 3
+    :chistory
     :call setqflist([], ' ')
-    :chi
+    :chistory
 
 When you invoke `setqflist()`, all the qfl after the current one are removed.
 That's why `vim-asyncmake` sets the `nr` property to `$`:
@@ -1568,14 +1572,14 @@ of the stack:
 
     :let stack_size = getqflist({'nr': '$'}).nr
     :let current_qfl = getqflist({'nr': 0}).nr
-    :exe (stack_size - current_qfl).'cnewer'
+    :execute (stack_size - current_qfl) .. 'cnewer'
 
 Maybe you should  use a library function (`lg#...()`), which  would take care of
 all those kind of details, and would  set the qfl without altering the stack too
 much.
 
     :Vim :[cl]\%(add\|get\)\=\%(expr\|file\|buffer\)\|l\=make\|l\=vim\%[grep]\%(add\)\=\>.*/[^/]*/[gj]\{1,2}:gj ~/.vim/**/*.vim ~/.vim/**/*.snippets ~/.vim/template/** ~/.vim/vimrc
-    :Cfilter! -tmp -commented -vendor
+    :Cfilter! -tmp -vendor
 
 ## ?
 
