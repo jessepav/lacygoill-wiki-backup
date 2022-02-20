@@ -115,7 +115,7 @@ you  manually  include the  `${HOME}/.cargo/bin`  directory  in your  `PATH`  in
 
 ## To update the rustup tool:
 
-    $ rustup udate
+    $ rustup update
 
 ## To uninstall rust entirely:
 

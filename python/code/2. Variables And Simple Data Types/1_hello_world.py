@@ -11,4 +11,3 @@ print(message)
 # They can't start with a number.
 1_message = "invalid variable name"
 print(message)
-

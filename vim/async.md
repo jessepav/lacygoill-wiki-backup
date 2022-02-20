@@ -1,3 +1,56 @@
+# I want to start a process as a Vim job.  The process doesn't do anything!
+
+A job object is automatically deleted as soon as there are no references to it.
+In turn, this causes the process I/O to be closed, which may cause the job to fail.
+
+Make sure to either:
+
+   - close the I/O before the job is started
+   - save the job in a variable
+
+If  you want  to close  the I/O,  set the  `in_io`, `out_io`,  `err_io` keys  to
+`'null'` in the job's options:
+
+    job_start('...', {
+        in_io: 'null',
+        out_io: 'null',
+        err_io: 'null'
+    })
+
+If you want to save the job in a variable, don't use a function-local one.
+It would be deleted as soon as the function ends which might be too soon.
+Save it in a "public" variable, or in a script-local one.
+Anything which can persist some time.
+
+See `:help job_start()`:
+
+   > Note that the job object will be deleted if there are no
+   > references to it.  This closes the stdin and stderr, which may
+   > cause the job to fail with an error.  To avoid this keep a
+   > reference to the job.  Thus instead of:
+   >     call job_start('my-command')
+   > use:
+   >     let myjob = job_start('my-command')
+   > and unlet "myjob" once the job is not needed or is past the
+   > point where it would fail (e.g. when it prints a message on
+   > startup).  Keep in mind that variables local to a function
+   > will cease to exist if the function returns.  Use a
+   > script-local variable if needed:
+   >     let s:myjob = job_start('my-command')
+
+# I want to start a second Vim process as a Vim job.  It doesn't quit even if I make it run `:quitall!`!
+
+It might be that  this second Vim has encountered an error,  causing it to abort
+the execution of your Ex commands, before it can reach `:quitall!`.
+
+Solution: Make sure to close its I/O:
+
+    job_start('vim ...', {in_io: 'null', out_io: 'null', err_io: 'null'})
+                          ^-----------^  ^------------^  ^------------^
+
+If its I/O is closed, Vim will quit.
+
+##
 # How to send `a b` as an argument to an external process started from Vim?  (2)
 
 Use `system()` and quote `a b`:
@@ -199,17 +252,6 @@ MakeJob implements  asynchronous versions of  the builtin commands in  just over
 
 ##
 # Todo
-## document that Vim deletes a job object once it's no longer referenced
-
-That might cause unexpected issues if the only reference is local to a function,
-and the latter has finished its execution:
-<https://vi.stackexchange.com/questions/22596/job-start-command-only-works-with-seemingly-random-job-options>
-
-Solution: save the job object into a script-local variable.
-
-Update:  Read  the original  post.  There are  still some  inconsistencies which
-might be reported as bugs.
-
 ## document how to get more info about the job which has started the process of ID 1234
 
     vim9 echo job_info()

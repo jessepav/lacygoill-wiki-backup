@@ -1,8 +1,8 @@
 # Configuration
 ## Which options control the shell program started by `:grep` and `:make`?
 
-    'grepprg' / 'gp'
-    'makeprg' / 'mp'
+    'grepprg'
+    'makeprg'
 
 ## Inside the values of these options, how to refer to the arguments passed to `:grep` and `:make` at run time?
 
@@ -13,16 +13,16 @@ You can use several `$*` if needed.
 ##
 ## On which options do `:grep`, `:make`, `:cgetexpr` (& friends) rely to parse what they read?
 
-`:grep` relies on `'gfm'`.
+`:grep` relies on `'grepformat'`.
 
-All the other commands rely on `'efm'`.
+All the other commands rely on `'errorformat'`.
 
 ##
 ## An option can be set to change how Vim redirects the output of a shell command.
 ### What's this option for a shell command executed by
 #### `system()` or `:!`?
 
-    'shellredir' / 'srr'
+    'shellredir'
 
 #### `:make` or `:grep`?
 
@@ -31,7 +31,7 @@ All the other commands rely on `'efm'`.
 ##
 ### How to refer to the temporary file in the value assigned to these options?
 
-Use the `%s` token.
+Use the `%s` item.
 
 If you don't use `%s`, it's appended automatically at the end.
 
@@ -56,16 +56,16 @@ The second path component of `'shell'`:
     └───────────────────────────────┴───────────────────────┘
 
 Notice that if  you use bash or zsh,  the errors will also be  redirected in the
-temporary file thanks to the presence of `2>&1` in `'sp'`.
+temporary file thanks to the presence of `2>&1` in `'shellpipe'`.
 
 ###
-### How to prevent 'sp' from redirecting anything?
+### How to prevent 'shellpipe' from redirecting anything?
 
-Set `'sp'` to an empty string.
+Set `'shellpipe'` to an empty string.
 
 #### When is it useful to do that?
 
-When  you want  `:make` to  write to  the tempfile  itself, and  you set  `'mp'`
+When you want `:make`  to write to the tempfile itself,  and you set `'makeprg'`
 accordingly.
 
 ##
@@ -137,7 +137,7 @@ Examples:
 You can set it:
 
     :call setqflist([{'filename': $VIMRUNTIME.'/filetype.vim', 'valid': 1}])
-    :cw
+    :cwindow
 
 But not get it:
 
@@ -174,7 +174,7 @@ It's used to locate the position of the entry in the buffer.
 
 It's a character standing for the type of the error (warning, information, ...).
 
-For more info, read:    `:h errorformat-multi-line`
+For more info: `:help errorformat-multi-line`
 
 ##
 # Properties of a qfl
@@ -450,14 +450,14 @@ If it's:
 
 3. Vim creates a temporary error file
 
-4. Vim passes to the shell  `'shell'` the program `'mp'` + the optional
+4. Vim passes to the shell  `'shell'` the program `'makeprg'` + the optional
 arguments passed to `:make`.
 
-The output of `'mp'` is redirected into the error file via `'shellpipe'`.
+The output of `'makeprg'` is redirected into the error file via `'shellpipe'`.
 
 5. Vim parses the error file via 'efm' to populate the qfl.
 
-       :h error-file-format
+       :help error-file-format
 
 6. Vim executes the autocmds listening to `QuickFixCmdPost`
 
@@ -471,13 +471,13 @@ The output of `'mp'` is redirected into the error file via `'shellpipe'`.
 ## How to look for `pat` in the buffer 1-10?
 
     :cexpr []
-    :sil! noa 1,10bufdo [l]vimgrepadd /pat/gj %
-        │ │
-        │ └ see # Issues
-        │
-        └ if the pattern is absent from a buffer, it will raise an error,
-          which could prevent `:bufdo` from finishing visiting the next buffers
-          inside the range
+    :silent! noautocmd 1,10bufdo [l]vimgrepadd /pat/gj %
+           │ │
+           │ └ see # Issues
+           │
+           └ if the pattern is absent from a buffer, it will raise an error,
+             which could prevent `:bufdo` from finishing visiting the next buffers
+             inside the range
 
 
 To search in all the buffers, remove the range in front of `:bufdo`.
@@ -488,43 +488,43 @@ complete way.
 
 ## How to look for `pat` in ALL (any depth) `.c` and `.h` files of `:pwd`?
 
-    :[l]vim /pat/gj **/*.[ch]
-                 ││
-                 │└ don't jump to the first entry
-                 │
-                 └ if there're several occurrences on the same line, get all of them
+    :[l]vimgrep /pat/gj **/*.[ch]
+                     ││
+                     │└ don't jump to the first entry
+                     │
+                     └ if there're several occurrences on the same line, get all of them
 
 ## How to look for `pat` in the subdirectories ending with `.d/` inside `/etc/apt`?
 
-                           ┌ no need to escape the dot;
-                           │ in a FILE pattern:
-                           │
-                           │     - dot is not interpreted as a meta character
-                           │     - `?` matches any single character
-                           │
-    :[l]vim /pat/gj /etc/**.d
+                               ┌ no need to escape the dot;
+                               │ in a FILE pattern:
+                               │
+                               │     - dot is not interpreted as a meta character
+                               │     - `?` matches any single character
+                               │
+    :[l]vimgrep /pat/gj /etc/**.d
 
 
-`:[l]vim` expects file names, not directory names.
+`:[l]vimgrep` expects file names, not directory names.
 And yet, here, `/etc/**.d` matches directories, not files.
 This probably  shows that, when necessary,  Vim automatically appends `/*`  to a
 pattern:
 
-    :[l]vim /pat/gj /etc/**.d
+    :[l]vimgrep /pat/gj /etc/**.d
 
                 ⇔
 
-    :[l]vim /pat/gj /etc/**.d/*
-                             ^^
+    :[l]vimgrep /pat/gj /etc/**.d/*
+                                 ^^
 
 ## How to look for `pat` in all the files of `:pwd`, changed in the last hour?
 
-                    ┌ backtick expansion:
-                    │ expanded into the output of `$ find ...`
-                    ├────────────────────────┐
-    :[l]vim /pat/gj `find . -type f -cmin -60`
-                          │
-                          └ matches the output of `:pwd`, NOT `$PWD`
+                        ┌ backtick expansion:
+                        │ expanded into the output of `$ find ...`
+                        ├────────────────────────┐
+    :[l]vimgrep /pat/gj `find . -type f -cmin -60`
+                              │
+                              └ matches the output of `:pwd`, NOT `$PWD`
 
 Whenever you  want to look  for a pattern  in a set of  files which can  only be
 defined by a shell command, use a backtick expansion.
@@ -562,7 +562,7 @@ When an option ends with the suffix:
 
      ┌ see # Issues
      │
-    :noa g/pat/.caddbuffer
+    :noautocmd global/pat/ :. caddbuffer
 
 
 It should work if the lines can be parsed by at least one format in `'efm'`.
@@ -574,7 +574,7 @@ For example, assuming your lines look like this:
 
 And you want them to be parsable by the format `'%f:%l:%m'`, you could try:
 
-    :noa g/pat/caddexpr getline('.')->substitute('@', ':', 'g')
+    :noautocmd g/pat/caddexpr getline('.')->substitute('@', ':', 'g')
 
 ## How to parse the output of a shell command and get a qfl, without modifying the qf stack?
 
@@ -604,22 +604,22 @@ Without the `'efm'` key, Vim will use the `'efm'` option.
 
     :cgetexpr system('grep-like cmd')
 
-## How to populate a valid qfl with `$ find /etc -name '*.conf'` without altering the 'efm' option?
+## How to populate a valid qfl with `$ find /etc -name '*.conf'` without altering the 'errorformat' option?
 
     let qfl = getqflist({'lines': systemlist('find /etc/ -name "*.conf"'), 'efm': '%f'})
     call get(qfl, 'items', [])->setqflist()
-    cw
+    cwindow
 
 ---
 
 TODO: Document that there exists a simpler command to get the same results:
 
-    :vim /\%^/ /etc/**/*.conf
+    :vimgrep /\%^/ /etc/**/*.conf
 
-Although, you may not get exactly the same results:
+Although, you might not get exactly the same results:
 
-   - some entries may be duplicate (probably because of symlinks)
-   - some entries may be missing (probably because Vim can't read a file owned by another user, like root)
+   - some entries might be duplicate (probably because of symlinks)
+   - some entries might be missing (probably because Vim can't read a file owned by another user, like root)
 
 ## How to populate a qfl with a location which has never been visited (i.e. absent from all buffers)?
 
@@ -627,7 +627,7 @@ Use the `'filename'` property:
 
     :call system('touch /tmp/new_file')
     :call setqflist([{'filename': '/tmp/new_file', 'valid': 1}])
-    :cw
+    :cwindow
 
     :call system('trash-put /tmp/new_file')
 
@@ -641,8 +641,8 @@ Use the `'filename'` property:
 Populate the arglist with the set of files (`:args`).
 Then, use the special characters `##` to refer to it:
 
-    :vim /pat1/gj ##
-    :vim /pat2/gj ##
+    :vimgrep /pat1/gj ##
+    :vimgrep /pat2/gj ##
     ...
 
 `##`  lets  you abstract  a  complex  set  of  files, and  focus  on  what
@@ -657,7 +657,7 @@ For example, suppose you want to refactor `FuncA()`.
 You  begin by  populating the  qfl  with all  the locations  where `FuncA()`  is
 defined/called:
 
-    :vim /FuncA/gj *.c
+    :vimgrep /FuncA/gj *.c
 
 But before changing the implementation, you want to rename `FuncA()`:
 
@@ -667,7 +667,7 @@ In the process,  you've noticed that `FuncA()` called `FuncB()`,  whose name was
 derived from `FuncA`.
 It has become irrelevant, so now you also need to rename `FuncB()`:
 
-    :vim /FuncB/gj *.c
+    :vimgrep /FuncB/gj *.c
     :cdo s/FuncB/NewNameB/e | update
 
 The process repeats itself.
@@ -734,7 +734,7 @@ Don't use this:
 
     $ !! | vim --not-a-term -q /dev/stdin
 
-It works, but it may leave the terminal in an unexpected state:
+It works, but it might leave the terminal in an unexpected state:
 on my machine, after using this command,  I can't close the terminal with `C-d`;
 I need to execute `exit`.
 
@@ -790,21 +790,21 @@ pattern, without looking for all the matches:
     :copen 15
     :cwindow 15
 
-## Does `:[l]vim` open the qf window?
+## Does `:[l]vimgrep` open the qf window?
 
 No.
 
 But, it emits `QuickFixCmdPost`.
 So,  you can  install  an autocmd  listening  to  this event,  and  Vim will  to
-automatically open the qf window after a `:vim` command.
+automatically open the qf window after a `:vimgrep` command.
 
 ## What commands are DIRECTLY responsible for the opening of the qf window?
 
     :copen
     :cwindow
 
-If the qf  window is opened on  your system after a `:vim`  or `:helpg` command,
-it's only because of an autocmd/plugin.
+If the  qf window  is opened on  your system after  a `:vimgrep`  or `:helpgrep`
+command, it's only because of an autocmd/plugin.
 
 ## In which state (open/closed) is the qf window after `:copen`?   After `:cwindow`?
 
@@ -848,15 +848,15 @@ However, assuming  you have  a custom  autocmd which handles  how the  qf window
 should be opened, you can rely on the latter via `:doautocmd`:
 
     " autocmd opening the qf window
-    au QuickFixCmdPost  *  ...
-                           │
-                           └ custom command/function invoking:
+    autocmd QuickFixCmdPost  *  ...
+                                │
+                                └ custom command/function invoking:
 
-                                     :c{window|open} [height]
+                                          :c{window|open} [height]
 
-                             it can get the name of the command populating the qfl via:
+                                  it can get the name of the command populating the qfl via:
 
-                                     expand('<amatch>')
+                                          expand('<amatch>')
 
 
     " populate the qfl by invoking `setqflist()`
@@ -866,12 +866,12 @@ should be opened, you can rely on the latter via `:doautocmd`:
 
 
     " rely on the previous autocmd to handle how the qf window should be opened
-    do <nomodeline> QuickFixCmdPost grep
-                                    │
-                                    └ if your autocmd reacts differently
-                                      depending on whether the qf window displays a location list,
-                                      or depending on the name of the command which populated the qfl,
-                                      choose the name wisely
+    doautocmd <nomodeline> QuickFixCmdPost grep
+                                           │
+                                           └ if your autocmd reacts differently
+                                             depending on whether the qf window displays a location list,
+                                             or depending on the name of the command which populated the qfl,
+                                             choose the name wisely
 
 ## How to automate the execution of a command after a command populating the qfl (!= loclist) has been executed?
 
@@ -978,8 +978,8 @@ If the command is `:[l]vimgrep[add]`, use the `j` flag.
 
 Example:
 
-    :vim /pat/gj files
-               ^
+    :vimgrep /pat/gj files
+                   ^
 
 ----------
 
@@ -1044,7 +1044,7 @@ They are limited to the current buffer.
 You can't ONLY edit the qf buffer and be done with it.
 
 There would be a discrepancy between the qf buffer and the qfl.
-As a result, clicking on an entry may have an unexpected result.
+As a result, clicking on an entry might have an unexpected result.
 
 You  need to  also execute  `:cgetbuffer`, AND  have a  properly set  `'efm'` by
 adding something like this in `~/.vim/after/ftplugin/qf.vim`:
@@ -1064,7 +1064,7 @@ From there, here's the procedure you need to follow:
 
 Relevant help section:
 
-    :h ^w_<cr>
+    :help ^w_<cr>
 
 ## How to replace all occurrences of a pattern in all the files of the qfl?
 
@@ -1098,46 +1098,46 @@ of each file in the qfl.
 If you execute a command which modifies the buffer, update it afterwards:
 
     " ✘
-    :sil! noa cdo d_
+    :silent! noautocmd cdo delete _
 
     " ✔
-    :sil! noa cdo d_ | update
-                     ^------^
+    :silent! noautocmd cdo delete _ | update
+                                    ^------^
 
 ---
 
 If you execute a substitution command, use the `e` flag:
 
     " ✘
-    :noa cdo s/pat/rep/ | update
+    :noautocmd cdo s/pat/rep/ | update
 
     " ✔
-    :noa cdo s/pat/rep/e | update
-                       ^
+    :noautocmd cdo s/pat/rep/e | update
+                             ^
 
 ---
 
-If you  execute a command  which MAY change the  focused window, prefix  it with
+If you execute a  command which *can* change the focused  window, prefix it with
 `:noautocmd`:
 
     " ✘
-    :sil!     bufdo vimgrepadd /pat/gj %
+    :silent!           bufdo vimgrepadd /pat/gj %
 
     " ✔
-    :sil! noa bufdo vimgrepadd /pat/gj %
-          ^^^
+    :silent! noautocmd bufdo vimgrepadd /pat/gj %
+             ^-------^
 
 ---
 
 If you  execute `:{arg|buf|c|cf|l|lf|tab|win}do`, and you  suspect the following
-command may raise an error, prefix the whole command with `silent!`:
+command might raise an error, prefix the whole command with `silent!`:
 
     " ✘
-    :     noa argdo %caddbuffer
+    :        noautocmd argdo :% caddbuffer
 
     " ✔
-    :sil! noa argdo %caddbuffer
-     ^--^
+    :silent! noautocmd argdo :% caddbuffer
+     ^-----^
 
 ## How does `:cdo` interpret a range?   What about `:cfdo`?   `:cgetbuffer`?  `:bufdo`?
 
@@ -1204,14 +1204,14 @@ Because of the default value given to `'shellpipe'` on linux:
 
 This also affects `:grep`.
 
-## When I use `:lh` or `:helpg`, is the search  case-sensitive or -insensitive?
+## When I use `:lhelpgrep` or `:helpgrep`, is the search  case-sensitive or -insensitive?
 
 Sensitive, no matter how `'ignorecase'` is set.
 
 If you want it to be insensitive, add the atom `\c`:
 
-    :lh \cfoo.\{,12}bar
-        ^^
+    :lhelpgrep \cfoo.\{,12}bar
+               ^^
 
 In this example, we search for `foo` + 0 up to 12 characters + `bar` in the help
 files.
@@ -1260,7 +1260,7 @@ If you wipe the buffer before restoring the qfl, it will raise an error.
 
     $ echo 'pat' >/tmp/file
 
-    :vim /pat/j /tmp/file
+    :vimgrep /pat/j /tmp/file
     :let qfl = getqflist()
     :bw /tmp/file
 
@@ -1292,8 +1292,8 @@ This includes the location list.
 Maybe with sth like:
 
     augroup prevent_location_list_inheritance
-        au!
-        au WinNew * sil! call setloclist(0, [], 'f')
+        autocmd!
+        autocmd WinNew * silent! call setloclist(0, [], 'f')
     augroup END
 
 ---
@@ -1302,7 +1302,7 @@ Btw, this wouldn't empty the loclist of the location window.
 
 Theory:
 
-From `:h setloclist()`:
+From `:help setloclist()`:
 
     For a location list window, the *displayed* location list is modified.
           ├──────────────────┘
@@ -1314,7 +1314,7 @@ So, the autocmd fails to mutate the location list.
 Confirmed by the fact that if we slightly delay the autocmd, it *does* empty the
 loclist:
 
-    au WinNew * call timer_start(0, {-> setloclist(0, [], 'r')})
+    autocmd WinNew * call timer_start(0, {-> setloclist(0, [], 'r')})
 
 #### Why is it a bad idea?
 
@@ -1335,9 +1335,9 @@ This will raise the error:
 
 ##
 # Issues
-## Why does  `:helpg \~$`  fail?
+## Why does  `:helpgrep \~$`  fail?
 
-From `:h :helpg`:
+From `:help :helpgrep`:
 
    > The pattern does not support line breaks, it must match within one line.
 
@@ -1346,42 +1346,42 @@ From `:h :helpg`:
 Although, for some reason, replacing `$` with `\n` fixes the issue:
 
     " ✔
-    :helpg \~\n
+    :helpgrep \~\n
 
 But the pattern breaks the command again if you add something after the newline:
 
     " ✘
-    :helpg \~\n\_.
+    :helpgrep \~\n\_.
 
 ## Why does  `$ vim -q $(cmd)`  fail?
 
 `-q` expects a file name containing valid errors.
 Not directly the errors themselves.
 
-## Why does  `:vim /pat/gj /etc/apt/**/`  fail?
+## Why does  `:vimgrep /pat/gj /etc/apt/**/`  fail?
 
 Usually, Vim would complete such a file pattern by adding `/*` at the end:
 
-    :vim /pat/gj /etc/apt/**
+    :vimgrep /pat/gj /etc/apt/**
 
                 ⇔
 
-    :vim /pat/gj /etc/apt/**/*
+    :vimgrep /pat/gj /etc/apt/**/*
 
 Not here, because of the ending slash.
 
 Maybe  an  ending slash  indicates  to  Vim that  you're  really  looking for  a
 directory, not files.
 
-## Why does  `:vim /pat/gj /etc/*.conf | cdo s//rep/e`  fail?
+## Why does  `:vimgrep /pat/gj /etc/*.conf | cdo s//rep/e`  fail?
 
 The pattern  used in  a `:[l]vimgrep[add]`  command is NOT  saved in  the search
 register.
 
 So, you need to write the pattern explicitly in the substitution:
 
-    :vim /pat/gj /etc/*.conf | cdo s/pat/rep/e | update
-                                     ^-^
+    :vimgrep /pat/gj /etc/*.conf | cdo s/pat/rep/e | update
+                                         ^^^
 
 ## Why does  `:bufdo grepadd pat %`  sometimes fail?
 
@@ -1407,12 +1407,12 @@ Example 1:
     " ✘
     " This will open a new split for every buffer.
 
-    :sil!     bufdo vimgrepadd /pat/gj %
+    :silent!           bufdo vimgrepadd /pat/gj %
 
     " ✔
 
-    :sil! noa bufdo vimgrepadd /pat/gj %
-          ^^^
+    :silent! noautocmd bufdo vimgrepadd /pat/gj %
+             ^-------^
 
 
 Example 2:
@@ -1421,28 +1421,28 @@ Example 2:
     " This will probably capture only the first line where `pat` matches,
     " because when the qf window is opened, the focus is changed.
 
-    :    g/pat/caddexpr getline('.')->substitute('@', ':', 'g')
+    :          global/pat/caddexpr getline('.')->substitute('@', ':', 'g')
 
     " ✔
 
-    :noa g/pat/caddexpr getline('.')->substitute('@', ':', 'g')
-     ^^^
+    :noautocmd global/pat/caddexpr getline('.')->substitute('@', ':', 'g')
+     ^-------^
 
 ### ?
 
-You've just recommended to use `:noa`.
-However, `:noa` is problematic for other reasons.
+You've just recommended to use `:noautocmd`.
+However, `:noautocmd` is problematic for other reasons.
 
-First, it suppresses `Syntax`, which in turn prevents the files in which `:lvim`
-looks for from being highlighted:
+First,  it suppresses  `Syntax`,  which  in turn  prevents  the  files in  which
+`:lvimgrep` looks for from being highlighted:
 
-    $ vim -Nu NONE --cmd 'syn on' +'noa lvim /autocmd/ $VIMRUNTIME/filetype.vim'
+    $ vim -Nu NONE --cmd 'syntax on' +'noautocmd lvimgrep /autocmd/ $VIMRUNTIME/filetype.vim'
 
 Second, it might prevent `E325` from  being visible, which is confusing, because
 it looks like Vim is blocked.
-The issue is actually triggered by a combination of `:sil` and `try/catch`.
+The issue is actually triggered by a combination of `:silent` and `try/catch`.
 But you can work  around it with an autocmd listening  to `SwapExists`, which we
-currently have in our vimrc.  Unfortunately, `:noa` suppresses it.
+currently have in our vimrc.  Unfortunately, `:noautocmd` suppresses it.
 
 See this MWE:
 
@@ -1453,14 +1453,14 @@ See this MWE:
     $ vim -Nu NONE -S <(tee <<'EOF'
         vim9script
         set directory=$HOME/.vim/tmp/swap//
-        au SwapExists * v:swapchoice = 'o'
+        autocmd SwapExists * v:swapchoice = 'o'
         def Func()
             try
-                 sil noa lvim /x/ /tmp/file
-                 #   ^^^
-                 #    ✘
+                 silent noautocmd lvimgrep /x/ /tmp/file
+                 #      ^-------^
+                 #       ✘
             catch /E325/
-                echom 'E325 was caught'
+                echomsg 'E325 was caught'
             endtry
         enddef
         Func()
@@ -1470,8 +1470,8 @@ See this MWE:
 For more info, see `exception.md /unblock`.
 
 So, what should we do in the general case?
-We could keep using `:noa`, but avoid `:silent`; however that would only fix the
-second issue; not the one with the lost syntax highlighting.
+We could keep  using `:noautocmd`, but avoid `:silent`; however  that would only
+fix the second issue; not the one with the lost syntax highlighting.
 
 I   think   the   best   solution  is   temporarily   set   `'eventignore'`   to
 `QuickFixCmdPost`, or maybe `QuickFixCmdPre,QuickFixCmdPost`.   But that's a bit
@@ -1507,18 +1507,18 @@ buffer, it uses the buffer-local value of `'isk'`.
 
     :sp /tmp/file
     :call append('.', ['foo', 'bar', 'foo#bar'])
-    :vim /\<bar/gj %
+    :vimgrep /\<bar/gj %
     /tmp/file  |3 col 1  | bar˜
     /tmp/file  |4 col 5  | foo#bar˜
 
     :setl isk+=#
-    :vim /\<bar/gj %
+    :vimgrep /\<bar/gj %
     /tmp/file  |3 col 1  | bar˜
 
-The previous command shows that `:vim` is influenced by the local value of `'isk'`.
+The previous command shows that `:vimgrep` is influenced by the local value of `'isk'`.
 
     :bd
-    :vim /\<bar/gj /tmp/file
+    :vimgrep /\<bar/gj /tmp/file
     /tmp/file  |3 col 1  | bar˜
     /tmp/file  |4 col 5  | foo#bar˜
 
@@ -1536,8 +1536,8 @@ You've used it too much in the past to access the value of a qfl property.
 
 Search for `\C\<get(` in this file and in all our notes/plugins/...
 
-You  may find  a lot  of matches,  but don't  worry (`:Cfilter!  -vendor`)
-removes a lot of them.
+You might find a lot of matches, but don't worry (`:Cfilter! -vendor`) removes a
+lot of them.
 
 ## ?
 
@@ -1621,7 +1621,7 @@ used to populate the qfl.
 ## To document:
 ### Vim always re-uses the *same* quickfix buffer since 8.1.0877
 
-    $ vim -Nu NONE +'sil helpg foo' +'echom bufnr() | close' +'sil helpg bar' +'echom bufnr()'
+    $ vim -Nu NONE +'silent helpgrep foo' +'echomsg bufnr() | close' +'silent helpgrep bar' +'echomsg bufnr()'
     2
     2
 
@@ -1640,14 +1640,14 @@ window.
 All of this matters if you try to  limit the scope of an autocmd to a particular
 qf list.  As a result, this doesn't work anymore:
 
-    au BufWinEnter <buffer> " do sth
+    autocmd BufWinEnter <buffer> " do sth
 
 Solution:  Inspect the quickfix id:
 
     let s:qfid = get(s:, 'qfid', []) + [getqflist({'id': 0})]
-    au BufWinEnter <buffer> if index(s:qfid, getqflist({'id': 0})) >= 0 | call s:conceal_noise() | endif
-                            ^-----------------------------------------^
-                                                 ✔
+    autocmd BufWinEnter <buffer> if index(s:qfid, getqflist({'id': 0})) >= 0 | call s:conceal_noise() | endif
+                                 ^-----------------------------------------^
+                                                      ✔
 
 See what we  did in `autoload/cookbook.vim` to  conceal a double bar,  only in a
 `:Cookbook` qf window.
@@ -1656,7 +1656,7 @@ See what we  did in `autoload/cookbook.vim` to  conceal a double bar,  only in a
 
 OTOH, the winid is incremented every time you open a new qf window:
 
-    $ vim -Nu NONE +'sil helpg foo' +'echom win_getid() | close' +'sil helpg bar' +'echom win_getid()'
+    $ vim -Nu NONE +'silent helpgrep foo' +'echomsg win_getid() | close' +'silent helpgrep bar' +'echomsg win_getid()'
 
     1001˜
     1002˜
@@ -1664,32 +1664,32 @@ OTOH, the winid is incremented every time you open a new qf window:
 But you can't use that info like this:
 
     let t:_my_qf_window = win_getid()
-    au BufWinEnter <buffer> if win_getid() == t:_my_qf_window | do sth | endif
-                            ^-------------------------------^
-                                            ✘
+    autocmd BufWinEnter <buffer> if win_getid() == t:_my_qf_window | do sth | endif
+                                 ^-------------------------------^
+                                                 ✘
 
 If you do, the autocmd won't be executed  when you display a new qfl (✔), but it
 won't be  executed either  when you  re-display the same  qfl after  closing and
 re-opening its window (✘).
 
-### curly brackets in the file pattern of a `:vim` command break the expansion of environment variables.
+### curly brackets in the file pattern of a `:vimgrep` command break the expansion of environment variables.
 
     " grep for 'pattern' in all conf or sh files under /etc
-    :vim /pat/ /etc/**/*.{conf,sh}
-                         ^       ^
+    :vimgrep /pat/ /etc/**/*.{conf,sh}
+                             ^       ^
 
     " same thing, but fails to look into vimrc:
     "     Cannot open file "$MYVIMRC"
-    :vim /pat/ /etc/**/*.{conf,sh} $MYVIMRC
+    :vimgrep /pat/ /etc/**/*.{conf,sh} $MYVIMRC
 
     " still fails
-    :vim /pat/ /etc/**/*.{conf,sh} `=getenv('MYVIMRC')`
+    :vimgrep /pat/ /etc/**/*.{conf,sh} `=getenv('MYVIMRC')`
 
     " works
-    :vim /pat/ /etc/**/*.conf /etc/**/*.sh $MYVIMRC
+    :vimgrep /pat/ /etc/**/*.conf /etc/**/*.sh $MYVIMRC
 
     " also works
-    :vim /pat/ /etc/**/*.{conf,sh} | vimgrepadd /pat/gj $MYVIMRC
+    :vimgrep /pat/ /etc/**/*.{conf,sh} | vimgrepadd /pat/gj $MYVIMRC
 
 It makes sense.
 
@@ -1697,7 +1697,7 @@ Once you start using regex-like metacharacters  (like `{` and `}`), Vim probably
 parses the whole file pattern in a regex-like way.
 And in a regex, environment variables are not expanded.
 
-    :vim /$TERM/ /tmp/file
+    :vimgrep /$TERM/ /tmp/file
     E480: No match: $TERM˜
                     ^---^
                     $TERM was not expanded
@@ -1706,21 +1706,21 @@ IOW, in "regex-like mode", Vim has no way  to know in advance which parts of the
 file-pattern should  be parsed in  a regex-like way,  and which parts  should be
 parsed as environment variables:
 
-    :vim /pat/ $HOME/*{.sh,.txt}
-               ├───┘  ├────────┘
-               │      └ ... because this is parsed in a regex-like way, so everything is parsed similarly
-               └ can't be parsed as an environment variable...
+    :vimgrep /pat/ $HOME/*{.sh,.txt}
+                   ├───┘  ├────────┘
+                   │      └ ... because this is parsed in a regex-like way, so everything is parsed similarly
+                   └ can't be parsed as an environment variable...
 
 ### `:cdo` can be used to repeat a macro on an arbitrary set of locations
 
     /my pattern
     q .... q
-    :vim //gj {files}
+    :vimgrep //gj {files}
     :call getqflist()->reverse()->setqflist()
-    :cno norm! @q
+    :cnoremap norm! @q
 
-You need to reverse the qfl because each  run of the `q` macro may transform the
-buffer in  such a  way that the  next locations  are no more  valid (need  to be
+You need to  reverse the qfl because  each run of the `q`  macro might transform
+the buffer in such  a way that the next locations are no  more valid (need to be
 updated).
 
 <https://vi.stackexchange.com/a/21579/17449>
@@ -1750,7 +1750,7 @@ To illustrate the pitfall, write this in `/tmp/a.vim`:
     fu s:func(_)
         return []
     endfu
-    cw
+    cwindow
     so /tmp/b.vim
 
 Write this in `/tmp/b.vim`:
@@ -1765,11 +1765,11 @@ Start Vim like this:
 
     $ vim -Nu NONE -S /tmp/a.vim
 
-    :q
+    :quit
     " press:  'cd'
     E120: Using <SID> not in a script context: s:func˜
 
-    :q
+    :quit
     " press:  'ci'
     E117: Unknown function: s:func˜
 
@@ -1777,8 +1777,8 @@ I think  that the  code which handles  the `'quickfixtextfunc'`  property shares
 some  code with  the  one  code which  handles  the `'quickfixtextfunc'`  global
 option.  And you can't write `s:` in an option value.
 
-The initial `:cw` from `/tmp/a.vim`  doesn't raise any error, because `s:func()`
-is defined in the same script as the `setqflist()` call.
+The  initial  `:cwindow` from  `/tmp/a.vim`  doesn't  raise any  error,  because
+`s:func()` is defined in the same script as the `setqflist()` call.
 OTOH, `cd` and `ci` are installed in  another script, so when they run `:copen`,
 Vim fails to find `s:func()`.
 
@@ -1796,7 +1796,7 @@ This requires that `s:func` is defined *before* you call `function()` and `setqf
 ##
 ## Talk about the 'filewinid' property of a location window.
 
-See `:h getloclist()`.
+See `:help getloclist()`.
 
 ## If I remove `tee`  from 'sp', the output of the shell  command is still echoed...
 to the screen, when I execute `:grep! pat /etc`.  Why?
@@ -1808,7 +1808,7 @@ Because we haven't redirected the errors to the temp file:
 
 However, we still have the hit-enter prompt.
 You can't avoid  its printing.  But you  can avoid to have to  press Enter, with
-`:sil`.
+`:silent`.
 
 ## How to remove errors from `:grep`?
 
@@ -1854,14 +1854,14 @@ Try this:
     set sp=>
     grep! foobar /etc 2>/dev/null
 
-## Why does `sil grep! pat . | redraw!` make the screen flicker (even if we remove `tee` from 'sp')?
+## Why does `silent grep! pat . | redraw!` make the screen flicker (even if we remove `tee` from 'sp')?
 
 ## How to open the qf window from a script, using an autocmd installed elsewhere?
 
-    do <nomodeline> QuickFixCmdPost copen
-    do <nomodeline> QuickFixCmdPost lopen
-    do <nomodeline> QuickFixCmdPost cwindow
-    do <nomodeline> QuickFixCmdPost lwindow
+    doautocmd <nomodeline> QuickFixCmdPost copen
+    doautocmd <nomodeline> QuickFixCmdPost lopen
+    doautocmd <nomodeline> QuickFixCmdPost cwindow
+    doautocmd <nomodeline> QuickFixCmdPost lwindow
 
 The last command is wrong; `:copen` is not a valid command to populate a qfl.
 However, it doesn't matter.
@@ -1872,15 +1872,15 @@ We can use it to communicate some info to the autocmd opening the qf window:
 
    - do we want to open the qf window or the location window?
 
-Document somewhere  the fact that  the pattern used  in a `:do`  command doesn't
-have to be valid.  It can be (ab)used to pass arbitrary info.
+Document somewhere  the fact  that the  pattern used  in a  `:doautocmd` command
+doesn't have to be valid.  It can be (ab)used to pass arbitrary info.
 
 ---
 
 Also, we've used copen/cwindow/lopen/lwindow, inconsistently in our code.
 Clean this mess:
 
-    noa vim /do\%[autocmd]\s*\%(<nomodeline>\)\=\s*QuickFixCmdPost/gj ~/.vim/**/*.vim ~/.vim/**/vim.snippets ~/.vim/vimrc | cw
+    noautocmd vimgrep /do\%[autocmd]\s*\%(<nomodeline>\)\=\s*QuickFixCmdPost/gj ~/.vim/**/*.vim ~/.vim/**/vim.snippets ~/.vim/vimrc | cwindow
 
 Note that if you use `[c|l]window`, sometimes you'll need to add this after:
 
@@ -1903,7 +1903,7 @@ MWE:
     $ cd /tmp/test
     $ vim -Nu NONE foo/file1
 
-    :vim /^/gj ./** | cw
+    :vimgrep /^/gj ./** | cwindow
 
         foo/file1    |1 col 1  |
         ./foo/file2  |1 col 1  |
@@ -1926,7 +1926,7 @@ MWE:
 
     " disable `vim-cwd`
     :cd ~/.vim/pack/mine/opt/completion/
-    :sil CFreeStack | noa vim /timer_start/gj ~/.vim/**/*.vim | cw
+    :silent CFreeStack | noautocmd vimgrep /timer_start/gj ~/.vim/**/*.vim | cwindow
     SPC R
     :cd ~/wiki/
     z(
@@ -1942,7 +1942,10 @@ Simplify this MWE, so that it doesn't refer to any custom configuration.
 
 ## Why does Vim sometimes add `:` at the start of `w:quickfix_title`?
 
-    $ vim -Nu NONE --cmd 'filetype plugin on' +'let &gp="rg -LS --vimgrep 2>/dev/null"' +'sil grep foobar /etc' +cw
+    $ vim -Nu NONE --cmd 'filetype plugin on' \
+        +'let &grepprg="rg -LS --vimgrep 2>/dev/null"' \
+        +'silent grep foobar /etc' \
+        +cwindow
     :echo w:quickfix_title
     :rg -LS --vimgrep 2>/dev/null foobar /etc˜
 
@@ -1955,7 +1958,7 @@ expect a leading `$ `.
 
 Vim does not add this leading `:` in the following command:
 
-    $ vim -Nu NONE --cmd 'filetype plugin on' -q =(grep -Rn foobar /etc) +cw
+    $ vim -Nu NONE --cmd 'filetype plugin on' -q =(grep -Rn foobar /etc) +cwindow
     :wincmd w
     :echo w:quickfix_title
     cfile /tmp/zshCNH7Qk˜
@@ -1986,7 +1989,7 @@ Update:
 It's probably  one of those circumstances  where the display becomes  messed up.
 See this:
 
-    :lh \<mess\%[ed]\>
+    :lhelpgrep \<mess\%[ed]\>
 
 Make a summary of those circumstances, and document it.
 
@@ -1994,14 +1997,14 @@ Update:
 
 To reproduce the issue, you need to do that:
 
-    $ vim -Nu NONE +'set laststatus=2' +'helpg vim'
-    :q
-    :4verb cexpr system('')
+    $ vim -Nu NONE +'set laststatus=2' +'helpgrep vim'
+    :quit
+    :4 verbose cexpr system('')
     " insert some text, and watch the status line
 
 ## What's the purpose of 'items'?
 
-It seems we could without it (`:h setqflist-examples`):
+It seems we could without it (`:help setqflist-examples`):
 
     :echo getqflist({'id' : qfid, 'items' : 0}).items
     ⇔

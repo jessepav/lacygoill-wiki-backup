@@ -207,7 +207,7 @@ enddef
 def! g:Func()
     echo 'second'
 enddef
-Func()
+g:Func()
 ```
     second
 
@@ -352,7 +352,7 @@ Always, except when the function is local to a Vim9 script:
 vim9script
 function Func()
 endfunction
-delfu Func
+delfunction Func
 ```
     E1084: Cannot delete Vim9 script function Func
 
@@ -360,20 +360,20 @@ delfu Func
 ```vim
 function s:Func()
 endfunction
-delfu s:Func
+delfunction s:Func
 ```
     ✔
 ```vim
 function g:Func()
 endfunction
-delfu g:Func
+delfunction g:Func
 ```
     ✔
 ```vim
 vim9script
 function g:Func()
 endfunction
-delfu g:Func
+delfunction g:Func
 ```
     ✔
 ```vim
@@ -382,7 +382,7 @@ function Outer()
     function Inner()
         echo 'Inner'
     endfunction
-    delfu Inner
+    delfunction Inner
 endfunction
 Outer()
 ```
@@ -394,7 +394,7 @@ function Outer()
         function Inner()
             echo 'Inner'
         endfunction
-        delfu Inner
+        delfunction Inner
     endif
 endfunction
 Outer()
@@ -1447,26 +1447,7 @@ Outer()
 ```
     E1073: name already defined: Func()
 
-Here, the function-local `Func()` shadows the script-local `Func()`.
-```vim
-vim9script
-mkdir('/tmp/import', 'p')
-var lines =<< trim END
-    vim9script
-    export def Func()
-        echo 'imported'
-    enddef
-END
-lines->writefile('/tmp/import/foo.vim')
-set runtimepath+=/tmp
-def Func()
-    echo 'script level'
-enddef
-import Func from 'foo.vim'
-```
-    E1073: name already defined: Func
-
-And here, the script-local `Func()` shadows the imported `Func()`.
+And here, the function-local `Func()` shadows the script-local `Func()`.
 
 ### I can use the name of a global item for an item in another namespace:
 ```vim
@@ -1907,8 +1888,7 @@ the ones defined in the `s:` namespace, nor the exported items.
     EOF
 
     $ vim -Nu NONE -S /tmp/legacy.vim
-
-    E121: Undefined variable: MYCONST˜
+    E121: Undefined variable: MYCONST
 
 Here, the legacy script fails to refer  to `MYCONST`, even after sourcing a Vim9
 script which  exports the latter  variable; that's because  it was local  to the
@@ -1925,8 +1905,7 @@ Vim9 script.
     EOF
 
     $ vim -Nu NONE -S /tmp/legacy.vim
-
-    456˜
+    456
 
 Here,  the legacy  script  *can*  refer to  `g:global`,  because  it's a  global
 variable; not a variable local to the Vim9 script.
@@ -1949,7 +1928,6 @@ vim9script
 export var g:name = 123
 ```
     E1016: Cannot declare a global variable: g:name
-    E1044: export with invalid argument
 
 Btw, when I said "public constant or variable", I meant any constant or variable
 that is  not in a  namespace restricted to one  single script (i.e.  `b:`, `g:`,
@@ -4034,7 +4012,7 @@ was sourced right  after the script `122`  iff none of them  is autoloaded (i.e.
 A mapping is usually executed in the global context, which means that – in the
 rhs of a mapping – you need to use the legacy syntax, even in a Vim9 script.
 If you  want to use  the Vim9  syntax, you can  use the `<expr>`  argument since
-8.2.4059, or you can use `<ScriptCmd>` (not implemented yet).
+8.2.4059, or you can use `<ScriptCmd>`.
 
 <https://github.com/vim/vim/issues/9499#issuecomment-1010085860>
 
@@ -4601,6 +4579,53 @@ Legacy(1, 3)
 
 But `Legacy()` might be provided by a third-party plugin over which you have no control.
 In that case, `:call` is really necessary.
+
+### ?
+```vim
+vim9script
+def GetList(): list<number>
+    var l = [1, 2, 3]
+    return l
+enddef
+echo GetList()->extend(['x'])
+```
+    [1, 2, 3, 'x']
+```vim
+vim9script
+def GetList(): list<number>
+    var l: list<number> = [1, 2, 3]
+    return l
+enddef
+echo GetList()->extend(['x'])
+```
+    E1013: Argument 2: type mismatch, expected list<number> but got list<string> in extend()
+
+<https://github.com/vim/vim/issues/9626#issuecomment-1022617514>
+
+### ?
+
+Document the  fact that  we should  pass `noclear`  to `:vim9script`  whenever a
+script has a `:finish` statement.
+
+In particular, this is  necessary in a filetype plugin which  imports items in a
+script, which you later refer to in mappings/commands.
+Without,  if for  some reason  the script  is sourced  a second  time (e.g.  via
+`:runtime`), an  error will be  given, because  the `script` variable  which you
+have to use to prefix the names of your imported items no longer exists.
+
+### ?
+
+Even though you can drop `*` in `exists('*Func')`, it's still a good idea to keep it.
+Without, if Vim returns `1`, you don't know whether it found a function or a variable.
+
+   > What happens is that exists() looks for a function reference.  And since
+   > the name of the function can also be used as a function reference in
+   > Vim9 script it is found.
+   >
+   > Note that you then don't know if you found a function or any variable.
+   > Thus using the "*" is still a good idea.
+
+Source: <https://github.com/vim/vim/issues/9796#issuecomment-1044743140>
 
 ##
 ### the first things to do after pasting a legacy function into a Vim9 script

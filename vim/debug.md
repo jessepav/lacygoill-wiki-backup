@@ -1128,6 +1128,59 @@ Then try this:
 Source: <https://github.com/vim/vim/issues/5674#issuecomment-838653020>
 
 ###
+## I can't compile Vim.  The configure script gives an error!
+
+Read `./src/auto/config.log`.
+Look for the error message in there; it might look like this:
+
+    configure:12143: error: NOT FOUND!
+          You need to install a terminal library; for example ncurses.
+          On Linux that would be the libncurses-dev package.
+          Or specify the name of the library with --with-tlib.
+
+Once found, look for the previous error message (the first one to cause the issue).
+
+For example here:
+
+    configure:12139: gcc -o conftest -g -O2  -Wl,--enable-new-dtags -Wl,-z,relro ...
+    /usr/bin/ld: /tmp/ccP59uKl.o: relocation R_X86_64_32 against `.rodata.str1.1' can not be used when making a PIE object; recompile with -fPIC
+    /usr/bin/ld: final link failed: Nonrepresentable section on output
+    collect2: error: ld returned 1 exit status
+    configure:12139: $? = 1
+    configure: failed program was:
+    | /* confdefs.h */
+    | #define PACKAGE_NAME ""
+    | #define PACKAGE_TARNAME ""
+    | #define PACKAGE_VERSION ""
+    | ...
+    | /* end confdefs.h.  */
+    | int tgetent(char *, const char *);
+    | int
+    | main ()
+    | {
+    | char s[10000]; int res = tgetent(s, "thisterminaldoesnotexist");
+    |   ;
+    |   return 0;
+    | }
+    configure:12143: error: NOT FOUND!
+          You need to install a terminal library; for example ncurses.
+          On Linux that would be the libncurses-dev package.
+          Or specify the name of the library with --with-tlib.
+
+The previous error is given by `ld.bfd(1)`:
+
+    /usr/bin/ld: /tmp/ccP59uKl.o: relocation R_X86_64_32 against `.rodata.str1.1' can not be used when making a PIE object; recompile with -fPIC
+
+Notice the suggestion at the end:
+
+    ...; recompile with -fPIC
+         ^------------------^
+
+So, try to recompile with these flags:
+
+    CFLAGS=-fPIC ./configure ...
+    ^----------^
+
 ## Some global variable is created, but I don't know which script did it!
 
     $ vim -V15/tmp/log

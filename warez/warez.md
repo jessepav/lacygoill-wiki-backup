@@ -96,7 +96,7 @@ For more info, `man ftp`, or:
 ##
 ## Where can I find audio books?
 
-The best site seems to be BTDigg.
+The best site seems to be BTDigg: <https://btdig.com/>
 
 ---
 
@@ -271,3 +271,12 @@ Also, try to access it using the TOR browser:
     $ ./start-tor-browser.desktop --register-app
     # now you can start the TOR browser from your application launcher (e.g. whisker menu)
 
+##
+# TODO
+## ani-cli
+
+<https://github.com/pystardust/ani-cli>
+
+## ytfzf
+
+<https://github.com/pystardust/ytfzf#Alternative-Thumbnail-Viewers>

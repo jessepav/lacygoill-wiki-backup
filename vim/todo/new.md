@@ -57,7 +57,6 @@ temporarily converting the dates into simple integers.
 
 ## arguments of functions
 
-   - `:help expand()` supports a new `<stack>` argument `{N}[hjkl]` since 8.2.1297
    - `:help getbufinfo()` includes a `linecount` key in the output dictionary since 8.2.0019
    - `:help getcompletion()` supports the `cmdline` argument since 8.2.0925
    - `:help getcurpos()` supports a new argument `winid` since 8.2.1727
@@ -103,6 +102,12 @@ temporarily converting the dates into simple integers.
    - `:help :vimgrep` (`f` flag for fuzzy search)
 
 ##
+## visual mode
+
+   - `:help v_P`
+     `P` does not change the unnamed register.
+     But it still changes the small/big deletion register (aka `"-` and `"1`).
+
 ## select mode
 
    - `:help v_CTRL-R`
@@ -114,6 +119,7 @@ temporarily converting the dates into simple integers.
    - `:help CompleteChanged`
    - `:help CompleteDonePre`
    - `:help DiffUpdated`
+   - `:help DirChangedPre`
    - `:help DirChanged`
    - `:help ExitPre`
    - `:help InsertLeavePre`
@@ -150,41 +156,6 @@ Could be useful for our `vim-selection-ring` plugin...
 
 ##
 # Miscellaneous
-## `:help method` and `:help :eval`
-
-You can't write that:
-
-    :call expr->func()
-
-Where `expr` is not a function (custom or builtin; doesn't matter).
-
-Example:
-
-    :call 'some string'->strlen()
-    E129: Function name required˜
-
-You *could* write that:
-
-    :sil echo expr->func()
-
-But that's awkward; that's where `:eval` comes in:
-
-    :eval expr->func()
-
-Obviously, that's only useful if `func()` has a side-effect.
-
----
-
-Maybe we should refactor all `:call func(expr)` into `:eval expr->func()`.
-In fact, `:call func()` can be replaced by `:eval func()`.
-Does that mean that `:call` is useless now?
-Should we remove it everywhere?
-
-I think `:call` has 2 benefits over `:eval`:
-
-   - it can be followed by a bar (`:eval` consumes it)
-   - it supports a range (`:help E132`)
-
 ## `:help prompt-buffer`
 
 ## `:help falsy-operator`

@@ -2049,7 +2049,8 @@ For more info about the difference between `GRUB_CMDLINE_LINUX` and
 ##
 ## ?
 
-<https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/chap-managing_services_with_systemd>
+- <https://systemd-by-example.com/>
+- <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/chap-managing_services_with_systemd>
 
 ## Watch these videos
 
