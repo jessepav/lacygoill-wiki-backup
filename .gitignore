@@ -6,6 +6,8 @@
 *.pdf
 *.pyc
 
+warez/
+
 # For C files: {{{1
 # Source: https://github.com/github/gitignore/blob/master/C.gitignore
 
@@ -65,4 +67,3 @@ dkms.conf
 # I use this directory name to gather all binaries that I compiled from the code
 # source I write when doing exercises in C
 binaries/
-

@@ -56,45 +56,6 @@ For which ones would we need a `trailing` key and/or a `location` one?
 
 ##
 # ?
-```vim
-vim9script
-var ls: list<string>
-for cmd in ['confirm', 'xxxxxxx']
-    for _ in [1, 2]
-        try
-            if cmd->slice(0, 3)->fullcommand() != 'confirm'
-            endif
-        catch
-            break
-        endtry
-    endfor
-    ls += [cmd]
-endfor
-```
-    no error
-```vim
-vim9script
-def Func()
-    var ls: list<string>
-    for cmd in ['confirm', 'xxxxxxx']
-        for _ in [1, 2]
-            try
-                if cmd->slice(0, 3)->fullcommand() != 'confirm'
-                endif
-            catch
-                break
-            endtry
-        endfor
-        ls += [cmd]
-    endfor
-enddef
-Func()
-```
-    E1012: Type mismatch; expected string but got number
-
-Same code, different results.  Inconsistent.
-
-# ?
 
 When we set `'debug'` to `throw`, no error is thrown if the expression evaluated
 by `'foldtext'` is buggy.  It would help if it did.
