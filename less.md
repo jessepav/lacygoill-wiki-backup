@@ -6,28 +6,27 @@ And download the archive and the signature.
 
 Check the signature:
 
-    $ gpg --verify less-550.sig less-550.tar.gz
-    gpg: Signature made Sat 16 Feb 2019 11:24:15 PM CET using DSA key ID 33235259˜
-    gpg: Can't check signature: public key not found˜
+    $ gpg --verify less-590.sig less-590.tar.gz
+    gpg: Signature made Thu 03 Jun 2021 07:45:49 PM CEST˜
+    gpg:                using DSA key F153A7C833235259˜
+    gpg: Can't check signature: No public key˜
 
-    $ gpg --keyserver x-hkp://pool.sks-keyservers.net --recv-keys 33235259
-    gpg: requesting key 33235259 from hkp server pool.sks-keyservers.net˜
-    gpg: key 33235259: public key "Mark Nudelman <markn@greenwoodsoftware.com>" imported˜
+    $ gpg --keyserver hkps://pgp.mit.edu/ --recv-keys F153A7C833235259
+    gpg: key F153A7C833235259: public key "Mark Nudelman <markn@greenwoodsoftware.com>" imported˜
     gpg: Total number processed: 1˜
     gpg:               imported: 1˜
 
-    $ gpg --edit-key 33235259
-    > trust
+    $ gpg --edit-key F153A7C833235259
+    gpg> trust
         5 = I trust ultimately
 
-    $ gpg --verify less-550.sig less-550.tar.gz
-    gpg: Signature made Sat 16 Feb 2019 11:24:15 PM CET using DSA key ID 33235259˜
+    $ gpg --verify less-590.sig less-590.tar.gz
+    gpg: Signature made Thu 03 Jun 2021 07:45:49 PM CEST˜
+    gpg:                using DSA key F153A7C833235259˜
     gpg: checking the trustdb˜
-    gpg: 3 marginal(s) needed, 1 complete(s) needed, PGP trust model˜
-    gpg: depth: 0  valid:   4  signed:   3  trust: 0-, 0q, 0n, 0m, 0f, 4u˜
-    gpg: depth: 1  valid:   3  signed:   2  trust: 3-, 0q, 0n, 0m, 0f, 0u˜
-    gpg: next trustdb check due at 2023-09-25˜
-    gpg: Good signature from "Mark Nudelman <markn@greenwoodsoftware.com>"˜
+    gpg: marginals needed: 3  completes needed: 1  trust model: pgp˜
+    gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u˜
+    gpg: Good signature from "Mark Nudelman <markn@greenwoodsoftware.com>" [ultimate]˜
 
 Configure, compile and install:
 

@@ -459,7 +459,11 @@ Comment savoir quel serveur de clés utiliser ?
 
    - keys.gnupg.net
    - keyserver.ubuntu.com
+   - https://en.wikipedia.org/wiki/Key_server_(cryptographic)#Keyserver_examples
    - ... (autres possible ?)
+
+It seems that `pgp.mit.edu` is historically the default one:
+<https://old.reddit.com/r/GnuPG/comments/pjf3tm/what_is_the_default_keyserver_for_gnupg/hbw31hd/>
 
 ---
 

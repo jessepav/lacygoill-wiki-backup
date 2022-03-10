@@ -93,7 +93,7 @@ defcompile
     E1017: Variable already declared: x
 
 ##
-## Where does Vim look for a function whose name is not prefixed with `s:` nor `g:`?
+## Where does Vim look for a function whose name is not prefixed with `g:`?
 
    1. the current block, if there is one
    2. the outer block, if there is one; the process repeats itself as long as there is an outer block
@@ -186,8 +186,8 @@ var lines =<< trim END
 END
 lines->writefile('/tmp/import/script.vim')
 set runtimepath+=/tmp
-import Func from 'script.vim'
-Func()
+import 'script.vim'
+script.Func()
 ```
     defined in exported function
 
@@ -285,7 +285,6 @@ import 'a.vim'
 import 'b.vim'
 ```
     E477: No ! allowed
-    E1044: Export with invalid argument
 
 ### delete a `:def` function?
 
@@ -295,20 +294,20 @@ def g:Func()
 enddef
 delfunction g:Func
 ```
-    ✔
+    no error
 ```vim
 def s:Func()
 enddef
 delfunction s:Func
 ```
-    ✔
+    no error
 ```vim
 vim9script
 def g:Func()
 enddef
 delfunction g:Func
 ```
-    ✔
+    no error
 
 But not if it's local to a Vim9 script:
 ```vim
@@ -362,20 +361,20 @@ function s:Func()
 endfunction
 delfunction s:Func
 ```
-    ✔
+    no error
 ```vim
 function g:Func()
 endfunction
 delfunction g:Func
 ```
-    ✔
+    no error
 ```vim
 vim9script
 function g:Func()
 endfunction
 delfunction g:Func
 ```
-    ✔
+    no error
 ```vim
 vim9script
 function Outer()
@@ -386,7 +385,7 @@ function Outer()
 endfunction
 Outer()
 ```
-    ✔
+    no error
 ```vim
 vim9script
 function Outer()
@@ -399,7 +398,7 @@ function Outer()
 endfunction
 Outer()
 ```
-    ✔
+    no error
 
 ##
 ## What's the Vim9 equivalent of `let x = get(a:, 1, 3)`?
@@ -419,68 +418,6 @@ argument can be declared:
 The first one is for mandatory arguments; the last two for optional ones.
 
 ##
-## For a script-local function, why should I always choose a name starting with an *uppercase* character?
-
-If you choose a  name starting with a lowercase character,  you'll need to write
-the `s:` prefix in the header:
-```vim
-vim9script
- # fail to define lower() without s: prefix
-def lower()
-enddef
-```
-    E128: Function name must start with a capital or "s:": lower()
-
-*And* at any call site:
-```vim
-vim9script
-def s:lower()
-enddef
- # fail to run lower() at script-level without s: prefix
-lower()
-```
-    E117: Unknown function: lower
-```vim
-vim9script
-def s:lower()
-enddef
-def Func()
-    # fail to run lower() in compiled code without s: prefix
-    lower()
-enddef
-defcompile
-```
-    E117: Unknown function: lower
-
-But `s:` is a weird syntax which  has no equivalent in other popular programming
-languages; it also makes the code a bit more verbose.
-
-##
-## The following snippet gives E1075:
-```vim
-vim9script
-def Outer()
-    def s:Inner()
-    enddef
-enddef
-defcompile
-```
-    E1075: Namespace not supported: s:Inner()
-
-### Why?
-
-That's a consequence of a rule which states that an item must be declared in the
-right context.  That is:
-
-   - a script-local variable/function in a script
-   - a function-local variable/function in a function
-   - a block-local variable/function in a block
-   - a function argument in its header
-
-As a result, you cannot declare a script-local function inside another function;
-only directly at the script level.
-
-##
 ## I have an error given from some <lambda>123 function.  I never defined one!
 
 Maybe you have defined a function inside another function:
@@ -488,7 +425,7 @@ Maybe you have defined a function inside another function:
 vim9script
 def Outer()
     def Inner()
-        [][0]
+        [][1]
     enddef
     Inner()
 enddef
@@ -505,12 +442,12 @@ You can retrieve its body with `:def`, and its definition location with `:verbos
 
     :verbose function <lambda>1
 
-Our [vim-stacktrace](https://github.com/lacygoill/vim-stacktrace) plugin
-correctly handles such  an error.  That is, it populates  the quickfix list with
-an entry to let us jump interactively to the source of the error.
+Our [vim-stacktrace][2]  plugin correctly  handles such an  error.  That  is, it
+populates the quickfix  list with an entry  to let us jump  interactively to the
+source of the error.
 
 ##
-## How do I write rewrite a legacy dictionary function into Vim9?
+## How do I re-write a legacy dictionary function into a Vim9 one?
 
 In the future, dictionary functions are meant to be replaced with classes.
 This is a more modern mechanism used in popular languages like Java, and will be
@@ -566,6 +503,8 @@ var person: dict<any> = {
 person.info = function(DictPersonInfo, [person])
 echo person.info()
 ```
+    john is a teacher
+
 ##
 # Closures
 ## What is a closed expression?
@@ -1540,7 +1479,6 @@ def Func()
     echo n
 enddef
 defcompile
-echo 'no error'
 ```
     no error
 
@@ -2014,8 +1952,8 @@ Example:
 ###
 ### Suppose I write this:
 
-    import MYCONST from 'foo.vim'
-                         ^-----^
+    import 'foo.vim'
+            ^-----^
 
 #### Where will Vim look for `foo.vim`?
 
@@ -2255,7 +2193,7 @@ That's because in Vim9 script, a string  index refers to a character; thus `[1]`
 refers to the 2nd *character* in the string `bàr`.
 
 ##
-# Misc
+# Miscellaneous
 ## Where can I write Vim9 script code?  (2)
 
 In a function defined with the `:def` command (instead of `:function`).
@@ -2704,7 +2642,7 @@ if it refers to a non-existing member from a list:
 ```vim
 vim9script
 def Func()
-    eval [][0]
+    eval [][3]
 enddef
 defcompile
 ```
@@ -4981,3 +4919,10 @@ This would make the code more readable:
 
 There might be other functions to refactor in a similar way.
 For example, maybe `fold#adhoc#main()`.
+
+##
+# Reference
+
+[1]: 
+[2]: https://github.com/lacygoill/vim-stacktrace
+[3]: 

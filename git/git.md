@@ -32,12 +32,10 @@ If the signature can't be verified, note the ID of the public key which was used
 to sign the tarball (here it's `96AFE6CB`).
 Use the ID to import the public key:
 
-    $ gpg --keyserver hkp://keys.gnupg.net --recv-keys 96AFE6CB
-    gpg: requesting key 96AFE6CB from hkp server keys.gnupg.net˜
-    gpg: key 713660A7: public key "Junio C Hamano <gitster@pobox.com>" imported˜
-    gpg: no ultimately trusted keys found˜
+    $ gpg --keyserver hkps://pgp.mit.edu/ --recv-keys 96AFE6CB
+    gpg: key 20D04E5A713660A7: public key "Junio C Hamano <gitster@pobox.com>" imported˜
     gpg: Total number processed: 1˜
-    gpg:               imported: 1  (RSA: 1)˜
+    gpg:               imported: 1˜
 
 Try again to verify the signature:
 

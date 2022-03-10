@@ -6,7 +6,7 @@ Atm, you can use this url: <https://ftp.gnu.org/gnu/sed/>
 
 Download the archive and its signature, and check it:
 
-    $ gpg --keyserver x-hkp://pool.sks-keyservers.net --recv-keys 000BEEEE
+    $ gpg --keyserver hkps://pgp.mit.edu/ --recv-keys 000BEEEE
     $ gpg --verify sed-4.7.tar.xz.sig sed-4.7.tar.xz
 
 Finally, configure, compile and install:

@@ -25,7 +25,7 @@ function `tor`; visit the url, right-click, `Save Page As...`.
 
 Or grab the individual keys directly from the keyserver network:
 
-    $ gpg --keyserver x-hkp://pool.sks-keyservers.net \
+    $ gpg --keyserver hkps://pgp.mit.edu/ \
           --recv-keys 6A45C816 \
                       36580288 \
                       7D9DC8D2 \

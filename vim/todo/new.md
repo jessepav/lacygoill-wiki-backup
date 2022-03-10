@@ -141,6 +141,8 @@ Note: `InsertLeave` is fired right *after* leaving insert mode.
 
    - `:help 'varsofttabstop'` + `:help 'vartabstop'`
 
+   - `:help 'wildoptions'` (`fuzzy` item)
+
    - `:help 'wincolor'`; could be used to dim the unfocused windows
 
 # `v:` variables

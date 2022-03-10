@@ -214,7 +214,7 @@ Or:
 
 ##
 # Backends
-## How to punctually make fasd consider
+## How to occasionally make fasd consider
 ### an additional backend?
 
 Use the `-B` option:

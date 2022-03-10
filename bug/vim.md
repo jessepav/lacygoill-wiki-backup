@@ -55,7 +55,49 @@ In the future, we might also have other sources:
 For which ones would we need a `trailing` key and/or a `location` one?
 
 ##
+# ?
+
+When we set `'debug'` to `throw`, no error is thrown if the expression evaluated
+by `'foldtext'` is buggy.  It would help if it did.
+
+##
 # Vim9
+## ?
+```vim
+vim9script
+
+def Map()
+    A()
+enddef
+
+def A()
+    invalid
+enddef
+
+defcompile
+```
+    E476: Invalid command: invalid
+    E1191: Call to function that failed to compile: <SNR>1_A
+```vim
+vim9script
+
+def Map()
+    B()
+enddef
+
+def B()
+    invalid
+enddef
+
+defcompile
+```
+    E476: Invalid command: invalid
+
+Why isn't `E1191` given in the second snippet?
+The code is identical; the only difference is that `A()` has been renamed into `B()`.
+The issue disappearss if you rename `Map()` into `Func()`.
+
+##
 ## type checking
 ### ?
 ```vim
@@ -81,6 +123,7 @@ defcompile
     no error
 
 <https://github.com/vim/vim/issues/9415#issuecomment-1001535428>
+<https://github.com/vim/vim/issues/9802#issuecomment-1046244520>
 
 The issue disappears when we get rid of `map()`:
 ```vim
@@ -129,64 +172,8 @@ enddef
 defcompile
 ```
     no error
-```vim
-vim9script
-def Func()
-    var x: any
-    var y: string = x
-enddef
-defcompile
-```
-    no error
 
-### ?
-```vim
-vim9script
-def Func()
-    var l = [1, 2, 3]
-    l->map((_, v: job) => 0)
-enddef
-defcompile
-```
-    no error
-
-Why?
-
-Update: It seems that  – at compile time  – Vim only checks the  type of the
-return value of the lambda:
-```vim
-vim9script
-def Func()
-    var l = [1, 2, 3]
-    l->map((_, v: job) => '')
-enddef
-defcompile
-```
-    E1013: Argument 2: type mismatch, expected func(...): number but got func(any, job): string
-
-It doesn't check the type of the arguments of the lambda.
-I think it should.
-Also, I think it should stop checking the type of the return value.
-
-   > At the same time, if map() or extend() change the members of the list,
-   > the type can change.  Since there is no declared type for [1, 2], that is
-   > permitted.  But if the list was declared as list<number> then it should
-   > be an error.
-
-Source: <https://github.com/vim/vim/issues/9461#issuecomment-1004294749>
-
----
-
-Same issue when `map()` operates on a simpler type, like a string:
-```vim
-vim9script
-def Func()
-    var s = 'abc'
-    s->map((_, v: job) => '')
-enddef
-defcompile
-```
-    no error
+<https://github.com/vim/vim/issues/9842#issuecomment-1049996566>
 
 ### ?
 ```vim
@@ -365,16 +352,6 @@ echo 'len'->function()->typename()
     func([unknown]): number
          ^-------^
          wouldn't `any` be better?
-
-### ?
-
-    :vim9 var x: job = [123, 'abc', true]
-    no error
-
-No error is  given – even though the  type is wrong – because `x`  is set in
-the global namespace.
-
-This is confusing.  An error should be given when we use `:var` in the global context.
 
 ##
 ## Plan
@@ -1600,258 +1577,22 @@ normal! g@l
     E1248: Closure called from invalid context
 
 ##
-## inconsistent rules wrt to s: dropping
-### `job_start()` exit callback
-#### works
-```vim
-vim9script
-def Callback(..._)
-    echomsg 'callback'
-enddef
-def Func()
-    job_start(['/bin/bash', '-c', ':'], {exit_cb: Callback})
-enddef
-Func()
-```
-    callback
-```vim
-vim9script
-def Callback(..._)
-    echomsg 'callback'
-enddef
-def Func()
-    job_start(['/bin/bash', '-c', ':'], {exit_cb: s:Callback})
-enddef
-Func()
-```
-    callback
-```vim
-vim9script
-def Callback(..._)
-    echomsg 'callback'
-enddef
-def Func()
-    job_start(['/bin/bash', '-c', ':'], {exit_cb: function(Callback)})
-enddef
-Func()
-```
-    callback
-```vim
-vim9script
-def Callback(..._)
-    echomsg 'callback'
-enddef
-def Func()
-    job_start(['/bin/bash', '-c', ':'], {exit_cb: function(s:Callback)})
-enddef
-Func()
-```
-    callback
-```vim
-vim9script
-def Callback(..._)
-    echomsg 'callback'
-enddef
-def Func()
-    job_start(['/bin/bash', '-c', ':'], {exit_cb: function('s:Callback')})
-enddef
-Func()
-```
-    callback
-```vim
-vim9script
-def Callback(..._)
-    echomsg 'callback'
-enddef
-def Func()
-    job_start(['/bin/bash', '-c', ':'], {exit_cb: 's:Callback'})
-enddef
-Func()
-```
-    callback
-
-#### E117: Unknown function: Callback
-```vim
-vim9script
-def Callback(..._)
-    echomsg 'callback'
-enddef
-def Func()
-    job_start(['/bin/bash', '-c', ':'], {exit_cb: 'Callback'})
-enddef
-Func()
-```
-    E117: Unknown function: Callback
-```vim
-vim9script
-def Callback(..._)
-    echomsg 'callback'
-enddef
-def Func()
-    job_start(['/bin/bash', '-c', ':'], {exit_cb: function('Callback')})
-enddef
-Func()
-```
-    E117: Unknown function: Callback
-
-### Rule:
-
-`s:` can be omitted iff the name of the function is not quoted.
-
-###
-### popup callback
-```vim
-vim9script
-def Callback(...l: list<any>)
-    echomsg 'callback'
-enddef
-var id = popup_create('', {callback: 'Callback'})
-popup_close(id)
-```
-    callback
-
----
-```vim
-vim9script
-def Callback(...l: list<any>)
-    echomsg 'callback'
-enddef
-var id = popup_create('', {callback: 'Callback'})
-printf(":call popup_close(%d)\<CR>", id)->feedkeys()
-```
-    E117: Unknown function: Callback
-
----
-```vim
-vim9script
-def Callback(...l: list<any>)
-    echomsg 'callback'
-enddef
-g:id = popup_create('', {callback: 'Callback'})
-legacy call popup_close(g:id)
-```
-    E117: Unknown function: Callback
-
----
-```vim
-vim9script
-def Popup()
-    var id = popup_menu(['aaa', 'bbb', 'ccc'], {
-        filter: Filter,
-        callback: 'Callback',
-    })
-enddef
-def Filter(winid: number, key: string): bool
-    return popup_filter_menu(winid, key)
-enddef
-def Callback(winid: number, choice: number)
-enddef
-Popup()
-feedkeys("\<C-C>")
-```
-    E117: Unknown function: Callback
-
----
-```vim
-vim9script
-def Popup()
-    var id = popup_menu(['aaa', 'bbb', 'ccc'], {
-        filter: 'Filter',
-        callback: 'Callback',
-    })
-enddef
-def Filter(winid: number, key: string): bool
-    return popup_filter_menu(winid, key)
-enddef
-def Callback(winid: number, choice: number)
-enddef
-Popup()
-feedkeys('j')
-```
-    E117: Unknown function: Filter
-    E117: Unknown function: Callback
-
-Here, an  error is  given for  the callback  function, but  only because  of the
-previous error caused by the filter function which couldn't be found.
-
-Also, whenever  you get  an error  using `feedkeys()`, passing  it the  `x` flag
-fixes the issue.
-
-##
 ## ?
-```vim
-vim9script
-def Outer()
-    def g:Inner()
-        echomsg 'from g:Inner()'
-    enddef
-    g:Inner()
-enddef
-Outer()
-```
-    from g:Inner()
-```vim
-vim9script
-def Outer()
-    def g:Inner()
-        echomsg 'from g:Inner()'
-    enddef
-    call(g:Inner, [])
-enddef
-Outer()
-```
-    E121: Undefined variable: g:Inner
 
-Why can Vim find `g:Inner` when we call it directly, but not via `call()`?
+<https://github.com/vim/vim/issues/9802#issuecomment-1047828858>
 
----
-```vim
-vim9script
-def Func()
-    function g:ObjMethod()
-    endfunction
-enddef
-defcompile
-```
-    no error
-```vim
-vim9script
-g:Obj = {}
-def Func()
-    function g:Obj.Method()
-    endfunction
-enddef
-defcompile
-```
-    E476: Invalid command: function g:Obj.Method()
+The issue is fixed for `map()`, `filter()`, and `sort()`.
+But it probably persists for `setqflist()`, `matchfuzzy()`, and `matchfuzzypos()`.
+And what about those:
 
-`:help vim9-no-dict-function` says that we cannot define a Vim9 dict function.
-But here, we're trying to define a *legacy* dict function inside a Vim9 one.
-
----
-```vim
-vim9script
-def Outer()
-    def Inner()
-    enddef
-    echomsg function(Inner)
-enddef
-Outer()
-```
-    function('<lambda>1')
-```vim
-vim9script
-def Outer()
-    def Inner()
-    enddef
-    echomsg function('Inner')
-enddef
-Outer()
-```
-    E700: Unknown function: Inner
-
-Expected?
-Should `function()` try to evaluate `Inner` as a lambda function?
+  - `:help call()`
+  - `:help eval()`
+  - `:help function()`
+  - `:help search()`
+  - `:help searchpair()`
+  - `:help searchpairpos()`
+  - `:help substitute()`
+  - `:help timer_start()`
 
 ## ?
 
@@ -2297,16 +2038,6 @@ defcompile
     the code compiles immediately
 
 ##
-##
-## ?
-
-Do we need a "neutral" value for funcrefs, jobs and channels?
-This would be useful when assigning a default value in a function's header.
-See the comment above the `msg_suffix` assignment in `submode.vim`:
-
-    ~/.vim/pack/mine/opt/submode/autoload/submode.vim
-    /var msg_suffix: dict<any>
-
 ## ?
 
 <https://github.com/vim/vim/issues/8092#issuecomment-1001077485>
@@ -2998,11 +2729,6 @@ Update: I think that's to support dot separated filetypes, like this one:
 
 ## ?
 
-Look for the pattern `compatib` in Vim's help files.
-For the relevant matches, ask yourself whether Vim9 would benefit from dropping an old syntax.
-
-## ?
-
    > I also think that requiring full command names is a step back from
    > legacy Vim script.
 
@@ -3048,6 +2774,29 @@ At that point, the ambiguity with a global command would arise again.
     )
     done
 
+---
+
+Write `:defcompile` at the end of any file matching this pattern:
+
+    ^vim9script\_.*\n\s*enddef$
+
+Then: for every match, run:
+
+    :call append('$', 'defcompile') | update | exe 'norm! Gzv' | so%
+
+Fix whatever errors you find in your code.
+Report any bug you find in Vim.
+
+Update: Wait until the recent patches  which implement type checking for builtin
+functions stop.  There is no point  in making time-consuming tests now, if their
+results change in a few days/weeks.
+
+Update: If you get this kind of error:
+
+    E1073: Name already defined: SomeFunc
+
+Try to remove `noclear` after `:vim9script`.
+
 ## ?
 
 <https://github.com/vim/vim/issues/8803>
@@ -3089,69 +2838,6 @@ One might expect that `v:false` and `0` are handled like the same value.  Should
                                           ^-----^
 
 And the `v:` prefix in front of `v:false` suggests that the expression is evaluated in the legacy context (in Vim9, it would have been dropped, just like in `:vim9 echo v:false`).  But `:breakadd expr` is written in a Vim9 script. Shouldn't the expression be evaluated in the Vim9 context?
-
-## ?
-
-`term_getjob()` can return a job or a special.
-But we cannot compare a job with a special.
-
-This make some refactoring difficult.
-For example, in `$VIMRUNTIME/pack/dist/opt/termdebug/plugin/termdebug.vim`:
-
-    if gdbproc == v:null || job_status(gdbproc) !=# 'run'
-
-In Vim9, we need to write:
-
-    if gdbproc->typename() == 'special' && gdbproc == null
-      || job_status(gdbproc) != 'run'
-
-Should we allow the comparison between a job and a special?
-
-Update: Or maybe a better solution would  be a comparison operator which ignores
-the type, and only cares about the value.
-
-Update: Remember that we already did sth similar with `getcharstr()`.
-<https://github.com/vim/vim/issues/8343#issuecomment-856009496>
-
-Update: In killersheep, the variable `s:music_job` is `:unlet`.
-We cannot unlet a script-local variable in Vim9.
-What's the alternative?
-If `s:music_job` was a number, we could reset it to 0; but which value should we
-use to reset a job variable? `v:none`?  It doesn't work:
-```vim
-vim9script
-var name: job = v:none
-```
-    E1012: Type mismatch; expected job but got special
-
-## ?
-```vim
-vim9script
-try
-    var name = 123
-finally
-    echo name
-endtry
-```
-    123
-```vim
-vim9script
-def Func()
-    try
-        var name = 123
-    finally
-        echo name
-    endtry
-enddef
-defcompile
-```
-    E1001: Variable not found: name
-
-Inconsistent?
-
-Update: Not really.  There is no real block scope at the script level.
-It's emulated with a  script-local variable, which is deleted at  the end of the
-block.  So, no inconsistency, right?
 
 ## ?
 
@@ -3355,29 +3041,6 @@ sil! s/nowhere//
     aBa BaB
     aBa BaB
     aBa BaB
-
-## ?
-
-Write `:defcompile` at the end of any file matching this pattern:
-
-    ^vim9script\_.*\n\s*enddef$
-
-Then: for every match, run:
-
-    :call append('$', 'defcompile') | update | exe 'norm! Gzv' | so%
-
-Fix whatever errors you find in your code.
-Report any bug you find in Vim.
-
-Update: Wait until the recent patches  which implement type checking for builtin
-functions stop.  There is no point  in making time-consuming tests now, if their
-results change in a few days/weeks.
-
-Update: If you get this kind of error:
-
-    E1073: Name already defined: SomeFunc
-
-Try to remove `noclear` after `:vim9script`.
 
 ## ?
 
@@ -4237,7 +3900,7 @@ enddef
 
 FuncWithForwardCall()
 ```
-    DefinedLater
+    <SNR>1_DefinedLater
 ```vim
 vim9script
 
@@ -4365,14 +4028,20 @@ I think all the other ones use a colon.
 ## ?
 ```vim
 vim9script
+var x = 3
+var line = 'abcdef'
+echo line[x:]
+```
+    E1004: White space required before and after ':' at ":]"
+    ✔
+```vim
+vim9script
 var s = 3
 var line = 'abcdef'
 echo line[s:]
 ```
     E731: using Dictionary as a String
-
-Why "String"?
-It should be:  "E123: using Dictionary as a Number".
+    ✘
 
 Same thing when `s` is replaced with `b`, `g`, `t`, `v`, `w`.
 
@@ -4659,44 +4328,7 @@ Func()
 Here, our  value is not  stored in a  variable whose name  is dynamic, but  in a
 dictionary whose key names are dynamic.
 
-## ?
-```vim
-vim9script
-
-def Map()
-    A()
-    return ''
-enddef
-
-def A()
-    invalid
-enddef
-
-defcompile
-```
-    E476: Invalid command: invalid
-    E1191: Call to function that failed to compile: <SNR>1_A
-```vim
-vim9script
-
-def Map()
-    B()
-    return ''
-enddef
-
-def B()
-    invalid
-enddef
-
-defcompile
-```
-    E476: Invalid command: invalid
-
-Why isn't `E1191` given in the second snippet?
-The code is identical; the only difference is that `A()` has been renamed into `B()`.
-Same results if you rename `Map()` into `Func()`, but not if you rename it into `Foo()`.
-
-## Vim9: should Vim's help include its own Vim9 script style guide similar to `:h coding-style`?
+## Vim9: should Vim's help include its own Vim9 script style guide similar to `:help coding-style`?
 
 Maybe it could be based on the one provided by Google.
 
@@ -5004,40 +4636,6 @@ What about:
    - `'isident'`
    - `'langremap'`
    - `'virtualedit'`
-
-## ?
-
-    $ vim -Nu NONE -S <(tee <<'EOF'
-        vim9script
-        def Func(n: number)
-            return Func(n) .. ''
-        enddef
-        defcompile
-    EOF
-    )
-
-    E1105: Cannot convert void to string
-
-This error message comes  from the fact that `Func()` is has  no return type, in
-which case Vim assumes the special  type "void".  So, `Func(n)` returns a "void"
-value, but needs to be converted to a string to be concatenated with `''`.
-But that's impossible, hence the error.
-
-So, this error is correct; but it's still confusing.
-For the  programmer, it would be  easier to fix  the issue if `E1096`  was given
-instead; just like here:
-```vim
-vim9script
-def Func(n: number)
-    return ''
-enddef
-defcompile
-```
-    E1096: Returning a value in a function without a return type
-
-I guess it would require that Vim re-orders the checks.
-First, it should check whether the  function returns some value while the header
-does not specify any return type.  Then, it should check the rest.
 
 ## ?
 
@@ -5970,43 +5568,6 @@ Is it documented or is it a bug?
 # Misc.
 ## ?
 
-Could we allow  `'*func'` options to be set with  script-local functions without
-the `s:` prefix?
-
-    setlocal completefunc=SomeFunc
-
-Rationale: We don't need `s:` anywhere else:
-
-   - not in `exists()`
-   - not in `:def`
-   - not in `'*expr'` options
-   - not with `&` (e.g. `&l:completefunc = SomeFunc`; require to be run after `SomeFunc()` has been defined)
-
-## ?
-```vim
-vim9script
-&signcolumn = 'yes'
-&showbreak = '+ '
-var leftcol: number = win_getid()->getwininfo()->get(0, {})->get('textoff')
-repeat('x', &columns - leftcol - 1)->setline(1)
-'abcd'->setline(2)
-feedkeys('AA')
-```
-The cursor is in a weird position:
-
-    xxxxxxxx...
-    ab|cd
-      ^
-      ✘
-
-I would expect it to be here:
-
-    xxxxxxxx...
-    + |
-    abcd
-
-## ?
-
     # open an xterm terminal
     vim -Nu NONE -S <(tee <<'EOF'
         vim9script
@@ -6192,7 +5753,7 @@ djump 0'1 /FOO/
 
 Run this shell command:
 
-    vim -Nu NONE -i NONE +'4verbose echo system("seq " .. 2*&lines)'
+    $ vim -Nu NONE -i NONE +'4verbose echo system("seq " .. 2*&lines)'
 
 The output of `seq(1)` is printed in Vim's pager: this is expected.
 The first line of Vim's pager is empty: this is NOT expected.
@@ -6293,6 +5854,7 @@ Study these plugins (rather short and interesting/useful):
 
 - <https://github.com/bfrg/vim-fzy>
 - <https://github.com/bfrg/vim-qf-diagnostics>
+- <https://github.com/habamax/vim-minisnip>
 
 ## ?
 
@@ -6493,11 +6055,6 @@ legacy let name = [] + + []
     E745: Using a List as a Number
 
 Confusing message.
-
-## ?
-
-When we set `'debug'` to `throw`, no error is thrown if the expression evaluated
-by `'foldtext'` is buggy.  It would help if it did.
 
 ## ?
 

@@ -903,16 +903,16 @@ Note the ID of the public key which was used to sign the archive:
 
 Then, import it:
 
-    $ gpg --keyserver hkp://keys.gnupg.net --recv-keys 937EC0D2
+    $ gpg --keyserver hkps://pgp.mit.edu/ --recv-keys 937EC0D2
 
 If the command fails, try another keyserver:
 
-    $ gpg --keyserver x-hkp://pool.sks-keyservers.net --recv-keys 937EC0D2
+    $ gpg --keyserver hkps://pgp.mit.edu/ --recv-keys 937EC0D2
 
 In the end, the output should look like this:
 
-    $ gpg --keyserver x-hkp://pool.sks-keyservers.net --recv-keys 937EC0D2
-    gpg: requesting key 937EC0D2 from hkp server pool.sks-keyservers.net
+    $ gpg --keyserver hkps://pgp.mit.edu/ --recv-keys 937EC0D2
+    gpg: requesting key 937EC0D2 from hkp server pgp.mit.edu
     gpg: key 937EC0D2: public key "Arnold Robbins <arnold@skeeve.com>" imported
     gpg: Total number processed: 1
     gpg:               imported: 1  (RSA: 1)

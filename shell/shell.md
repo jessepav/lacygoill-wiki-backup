@@ -3130,7 +3130,7 @@ that  sometimes  you  will  start  a  login  shell  which  doesn't  source  your
 
 ---
 
-Study an document `expand(1)` and `unexpand(1)`.
+Study and document `expand(1)` and `unexpand(1)`.
 
 ---
 
@@ -3294,10 +3294,6 @@ Inspiration:
         }
 
         alias g=go
-
-## Review `~/.inputrc`, and find zsh equivalent to all readline key bindings defined there.
-
-Also, review their lhs so that they're as consistent as possible across bash and zsh.
 
 ## To read
 
