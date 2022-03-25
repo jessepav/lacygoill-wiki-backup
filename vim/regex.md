@@ -1091,7 +1091,7 @@ Do the same for `'isf'`, `'isi'` and `'isp'` if your regex includes `\f`, `\i`, 
 
 ---
 
-MWE:
+MRE:
 
     com Test call Func()
     fu Func() abort

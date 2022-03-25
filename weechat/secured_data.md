@@ -167,7 +167,7 @@ and SASL to get identified on libera.
 
 #### This doesn't help!
 
-Then try to find a MWE:
+Then try to find a MRE:
 
     $ echo 'this is my passphrase' >/tmp/passphrase
     $ weechat -d /tmp/.weechat

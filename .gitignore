@@ -7,6 +7,7 @@
 *.pyc
 
 warez/
+passphrase
 
 # For C files: {{{1
 # Source: https://github.com/github/gitignore/blob/master/C.gitignore

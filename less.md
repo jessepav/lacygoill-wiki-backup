@@ -51,7 +51,7 @@ Useful to view the contents of compressed files or archives.
     $ git clone https://github.com/wofr06/lesspipe
     $ cd lesspipe
 
-    # TODO: maybe you should set `LESS_ADVANCED_PREPROCESSOR` in `~/.zshenv`
+    # TODO: maybe you should set `LESS_ADVANCED_PREPROCESSOR` in `~/.config/fish/conf.d/environment.fish`
     $ make clean
     $ ./configure
     Activate syntax highlighting code [y/N] ? y˜
@@ -117,7 +117,8 @@ Press `C-r` after `&`; for example, to look for all the lines containing a star:
 
 Copy the contents of the manpages for less, lesskey and lesspipe and edit them.
 
-Note that we've started configuring less in `~/.config/lesskey`, and in `~/.zshenv`.
+Note that we've started configuring less in `~/.config/less/keys`, and in
+`~/.config/fish/conf.d/environment.fish`.
 
 ---
 

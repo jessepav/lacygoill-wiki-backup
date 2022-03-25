@@ -1098,7 +1098,7 @@ No, they are all executed in a subshell.
 As a result, variables  you add or reset in a pipeline won't  take effect in the
 current shell.
 
-MWE:
+MRE:
 
     $ cd /tmp | true
     the cwd is NOT changed˜
@@ -1112,7 +1112,7 @@ MWE:
 Exception: in  zsh, the  last simple command  of a pipeline  is executed  in the
 current shell.
 
-MWE:
+MRE:
 
     % true | cd /tmp
     the cwd IS changed˜

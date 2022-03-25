@@ -1,34 +1,12 @@
-# Where can I find groff's
-## complete documentation?
-
-    $ info groff
-
-## short but complete reference?
-
-    man 7 groff
-
-There's another manpage for groff in section 1; don't conflate the two.
-
-## list of the escape sequences for all special glyphs?
-
-    man 7 groff_char
-
-##
-# How to make Vim apply the `nroff` filetype to my `pgm.1` file?
-
-Write a dot at the start of one of the first 5 lines, then reload the buffer.
-`dist#ft#FTnroff()` in `$VIMRUNTIME/autoload/dist/ft.vim:318` will do the rest.
-
-##
 # Readability
 ## Why should I write a newline after every text sentence?
 
 This  tells  groff  to  use  inter-sentence  spacing,  which  is  important  for
 [proportionally-spaced][1] output formats.
 
-I think you can notice a difference when you convert the document to pdf:
+You can notice a difference when you convert the document to pdf:
 
-    $ groff -man mypgm.1 | zathura -
+    $ groff -m man mypgm.1 | zathura -
 
 The spacing  between two sentences  is slightly bigger  in the pdf  when they're
 separated by a newline in the groff document.
@@ -50,9 +28,9 @@ spaces produce (approximately) two output spaces.
 
 Use an undefined request (lone dot).
 
-    ... long sentence ends.
+    … a long sentence ends.
     .
-    long sentence begins...
+    another long sentence begins…
 
 ## How can I write a comment in groff?
 
@@ -64,20 +42,16 @@ request:
 
     .\" some comment
     │
-    └ ignore the line terminator in the output
+    └ suppress line terminator in the output
 
 ## How to make it easier to spot a section heading?
 
-Use a comment line of equals sign:
+Use a commented line of equals sign:
 
     .\" ========================================================
 
 ##
 # Escape Sequences
-## Where can an escape occur?
-
-Anywhere in the input to groff.
-
 ## What are the first two characters of an escape, usually?
 
 A  backslash,  then a  single  character  which  indicates  the function  to  be
@@ -108,69 +82,9 @@ Then, the enclosed text is processed according to what that escape expects.
 Example:
 
     \w'\fBpathfind\fP 'u
-      ├───────────────┘
-      └ argument to the escape `\w` (see `$ info -n 'Page Motions' groff`)
-        u stands for the basic unit (see `$ info -n Measurements groff`)
-
-##
-## How to write
-### a hyphen?
-
-    \-
-
-#### Why shouldn't I simply write `-`?
-
-It looks better typeset than the shorter ordinary hyphen does.
-Especially when the code is converted into a pdf.
-
-###
-### two consecutive hyphens?
-
-    \-\^\-
-
-#### What's the thing in the middle?
-
-An escape sequence standing for a 1/12th em space.
-
-It's ignored for TTY output devices (rounded to zero).
-
-##### How is it useful?
-
-It prevents the hyphens from running together in Troff output.
-In Nroff output, the space will disappear.
-
-When the  groff code is  converted into  a pdf, you  can see that  `\^` slightly
-increases the gap between the previous and the next character.
-
-###
-### a literal backslash?
-
-Use the  escape sequence  defined for  this purpose:
-
-    \(rs
-
-Mnemonic: Reverse Slash.
-
-### a literal dot at the start of a line?
-
-Use the escape sequence `\&` representing  a zero-width space, to get the period
-away from the beginning of the line (which is the only place where it is treated
-specially):
-
-    \&.
-
-###
-### an em-dash?
-
-Use the macro `\(em`, which is documented at `man 7 man-pages`.
-
-#### How is it rendered on an ASCII terminal?
-
-As two hyphens.
-
-##### In other typographical contexts?
-
-As a long dash.
+      ^---------------^
+      argument to the escape `\w` (see `info --node='Page Motions' groff`)
+      u stands for the basic unit (see `info --node=Measurements groff`)
 
 ##
 # Requests
@@ -274,14 +188,12 @@ Or `\f[B]` and `\f[P]`.
 
 ##
 # Misc.
-## Where does the name “roff” come from?
+## How to make Vim apply the `nroff` filetype to my `pgm.1` file?
 
-[From the expression “to run off a copy”][2].
+Write a dot at the start of one of the first 5 lines, then reload the buffer.
+`FTnroff()` in `$VIMRUNTIME/autoload/dist/ft.vim:318` will do the rest.
 
-[Which means “to quickly print a copy of something”][3].
-
-[“off” is used because the copy comes off the machine][4].
-
+##
 ##
 ##
 ##
@@ -289,23 +201,10 @@ Or `\f[B]` and `\f[P]`.
 
 # Document how to look for a keyword respecting the case.
 
-    $ man -I -Kw PAGER
-          ^^
+    $ man --global-apropos --match-case --where PAGER
+                           ^----------^
 
-# Document how to open a man page in a webbrowser.
-
-    $ man --html man
-          ^----^
-
-`man(1)` uses `$BROWSER` to determine which webbrowser to start.
-Atm, we've set the latter with the value `firefox`.
-
-Issue: the previous command fails.
-However, it works as soon as you run it a second time.
-It seems that  it can only work if there  is one tab in firefox with  a man page
-which has been failed to be read.
-Indeed, if  you close  the tab where  the man  page could not  be read,  and you
-re-run your `$ man --html` command again, then it fail again...
+# turn some of the questions/answers from this file into nroff Vim snippets and/or nroff templates
 
 # ?
 
@@ -345,7 +244,7 @@ Document that you  when find a word/expression which you  don't understand in an
 info page, you most  probably can find it in the index of  one of the appendices
 at the bottom.
 
-For example, in `$ info groff`, one can read this after searching for `\.ti`:
+For example, in `info groff`, one can read this after searching for `\.ti`:
 
    > This request causes a break; its value is associated with the
    > current environment (*note Environments::).  The default scaling
@@ -357,7 +256,7 @@ Jump to the bottom of the page, and search backward for `scaling indicator`:
 
    > * scaling indicator:                     Measurements.        (line   6)
 
-Now, you know that the info is at `$ info -n Measurements groff`.
+Now, you know that the info is at `info --node=Measurements groff`.
 
 # ?
 
@@ -394,8 +293,8 @@ Character sequences beginning with a backslash are escape sequences.
 These often consist of a left parenthesis followed by two characters.
 
     Copyright \(co 2005 Quux \fIItalics\fP Inc.
-              ├──┘
-              └ escape sequence
+              ^--^
+              escape sequence
 
 # ?
 
@@ -444,14 +343,13 @@ single line, but they are rarely used in option lists.
 
 Study how to write manpages
 
-It's explained in the Appendix A of the "Classic Shell Scripting" book.
+It's explained in the Appendix A of the “Classic Shell Scripting” book.
 To check the formatting of a manual page, run either of these:
 
-    $ groff -man -Tascii program.man | less
-    $ groff -man [-Tpdf] program.man | zathura -
-             │
-             └ shorthand for `-m man`
-               include the macro package `man`
+    $ groff -m man -T ascii program.man | less
+    $ groff -m man [-T pdf] program.man | zathura -
+            ^----^
+            include the macro package `man`
 
 To install a manpage, move your `program.man` file in `~/share/man/man1/`.
 Name it following this scheme: `<program>.<section>`:
@@ -464,14 +362,17 @@ After the first invocation of `$ man <program>`, the file
 Maybe you should invoke  `$ sudo mandb` before the first  invocation of `man(1)`,
 but I'm not sure it's necessary.
 
+Alternatively, learn how to convert a markdown file into a manpage:
+<https://www.pragmaticlinux.com/2021/01/create-a-man-page-for-your-own-program-or-script-with-pandoc/>
+
 ---
 
 Why does `man(1)` look into `~/share/man` even though it's not in `$MANPATH`?
 
-    https://askubuntu.com/a/244810/867754
-    https://askubuntu.com/a/633924/867754
-    man 1 manpath
-    man 5 manpath
+   - <https://askubuntu.com/a/244810/867754>
+   - <https://askubuntu.com/a/633924/867754>
+   - `man 1 manpath`
+   - `man 5 manpath`
 
 Update: you can see `~/share/man` in the output of the `manpath(1)` command.
 `~/share/man` is not used because of some config in `/etc/manpath.config`,
@@ -488,6 +389,3 @@ For pictures and equations, see also `man pic` and `man eqn`.
 # Reference
 
 [1]: https://en.wikipedia.org/wiki/Typeface#Proportion
-[2]: https://www.definitions.net/definition/troff
-[3]: https://www.macmillandictionary.com/dictionary/british/run-off
-[4]: https://forum.wordreference.com/threads/make-a-copy-of-and-run-off-a-copy-of.1604451/#post-8065490

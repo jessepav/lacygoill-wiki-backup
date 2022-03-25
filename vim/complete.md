@@ -389,7 +389,7 @@ It could be fixed in the future.
 
 ---
 
-MWE:
+MRE:
 
     $ vim -Nu NONE +'set dict=/usr/share/dict/words shm+=filmnrwxaoOstTWAIcqFS' +startinsert +'call feedkeys("simul")'
     " press C-x C-k
@@ -449,7 +449,7 @@ by the original text `ruby`.
 
 It's because we include `longest` in `'cot'`, in `vim-completion`.
 
-MWE:
+MRE:
 
     $ tee <<'EOF' /tmp/dict
         fooxxa

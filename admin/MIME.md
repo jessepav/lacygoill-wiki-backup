@@ -86,4 +86,3 @@ You can use your own `gvim.desktop` in your home:
 If you do so, it has priority over the system one.
 
 Edit the `Exec` directive to pass the desired options.
-

@@ -208,7 +208,7 @@ at least in the current buffer.
 
 keyword
 
-MWE1:
+MRE1:
 
     syn keyword xKeyword hello
     syn match xMatch /h...o/
@@ -216,7 +216,7 @@ MWE1:
     hi link xKeyword DiffAdd
     hi link xMatch   DiffChange
 
-MWE2:
+MRE2:
 
     syn keyword xKeyword hello
     syn region xRegion start=/h/ end=/o/
@@ -408,7 +408,7 @@ The others refer to concepts which are specific to a region.
 
 The containing match is extended until the end of the contained item.
 
-MWE:
+MRE:
 
     " text
     A c B d xxx
@@ -492,7 +492,7 @@ So, all your matches end on the same `}`.
 
 Everything from the beginning of the region until the end of the buffer.
 
-MWE:
+MRE:
 
     syn region xString start=/"/ end=/"/
     hi link xString DiffAdd
@@ -553,7 +553,7 @@ body of a region.
 If the region contains items, they  can't be contained in the start/end patterns
 highlighted with a `matchgroup=Matchgroup`.
 
-MWE:
+MRE:
 ```vim
 vim9script
 'Foo xxx Bar'->setline(1)
@@ -665,7 +665,7 @@ Only the existence of a cycle matters.
 When it  contains an  item which  consumes the text  matching the  `end` pattern
 (even partially).
 
-MWE:
+MRE:
 
     " syntax plugin
     syn region xContained start=/C/ end=/D/ contained
@@ -735,7 +735,7 @@ which is unexpected.
 The process will repeat itself, until Vim  finds a text matching the end pattern
 of the contained region or until the end of the buffer.
 
-MWE:
+MRE:
 
     " syntax plugin
     syn region xContained start=/C/ end=/Z/ contained
@@ -812,7 +812,7 @@ Yes.
 
 Think of `$` as the character `<EOL>`.
 
-MWE:
+MRE:
 
     " text
     do something # some comment
@@ -955,7 +955,7 @@ In both cases, the contained item is *fully* inside the containing one.
 
 Not necessarily.
 
-MWE:
+MRE:
 
     " text
     start CCC end ccc
@@ -1199,7 +1199,7 @@ Not all of them.
 The ones  which are preceded  by a `matchgroup=xMatchgroup` will  be highlighted
 according to `xMatchgroup`.
 
-MWE:
+MRE:
 
     syn match xLine /.*/ contains=xRegion
     syn region xRegion matchgroup=xMatchgroup start=/Foo/ end=/Bar/ transparent
@@ -1852,7 +1852,7 @@ Update: This might have been fixed in 8.2.2761.
 Document that you can't clear a syntax group in `~/.vim/after/syntax/x.vim` when
 the syntax plugin is sourced by `:syn include`.
 
-MWE:
+MRE:
 
     $ echo 'syn clear zshBrackets' >>~/.vim/after/syntax/zsh.vim
 

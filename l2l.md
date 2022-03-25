@@ -253,9 +253,9 @@ Si ce  nombre est  grand, on a  tout intérêt  à réduire la  durée d'un  cyc
 maximum.
 Autrement le déboguage sera long et décourageant.
 
-Il s'agit de trouver un MWE.
-Toutefois, un MWE ne signifie pas nécessairement un minimium de texte.
-En effet, si un MWE ne permet pas  de mieux comprendre le problème, il peut être
+Il s'agit de trouver un MRE.
+Toutefois, un MRE ne signifie pas nécessairement un minimium de texte.
+En effet, si un MRE ne permet pas  de mieux comprendre le problème, il peut être
 judicieux de rajouter un peu de texte, afin d'expliciter l'implicite.
 Pour rappel, il  nous est arrivé de  perdre du temps à comprendre  une regex qui
 nous donnait  l'impression que le  moteur de Vim  n'utilisait pas la  1e branche

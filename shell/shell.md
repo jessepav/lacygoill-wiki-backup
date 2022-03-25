@@ -603,7 +603,7 @@ which SOMETIMES doesn't fork, is:
    - the subshell knows exactly the entire set of commands it will have to
      execute during its lifetime
 
-MWE:
+MRE:
 
     $ find / -name '*' | wc -l
     $ pstree -lsp $(pidof find)
@@ -955,7 +955,7 @@ OTOH, if you use a format, the string won't be altered by `printf`:
 
 The format is reused as many times as necessary to consume all the arguments.
 
-From `$ info printf`:
+From `info printf`:
 
    > • The FORMAT argument is reused as necessary to convert all the given
    >   ARGUMENTs.  For example, the command ‘printf %s a b’ outputs ‘ab’.
@@ -1335,7 +1335,7 @@ In bash, `failglob` is NOT set.
 A failed filename generation makes the shell raise an error, and stop processing
 the script.
 
-MWE:
+MRE:
 
     printf "shopt -s failglob ; echo *.foo ; echo afterwards"  | bash
     bash: line 2: no match: *.foo˜

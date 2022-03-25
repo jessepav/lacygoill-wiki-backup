@@ -1,3 +1,36 @@
+# How to get a more recent version of Docker?
+
+    # uninstall old versions
+    $ sudo apt remove docker docker-engine docker.io containerd runc
+
+    # update the apt package index,
+    # and install packages to allow apt to use a repository over HTTPS
+    $ sudo apt update &&
+      sudo apt install &&
+               ca-certificates \
+               curl \
+               gnupg \
+               lsb-release
+
+    # add Docker's official GPG key
+    $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+        sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+     # set up the stable repository
+     $ echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    # update the apt package index,
+    # and install the latest version of Docker Engine and containerd
+    $ sudo apt update && sudo apt install docker-ce docker-ce-cli containerd.io
+
+    # verify that Docker Engine is installed correctly by running the hello-world image
+    $ sudo docker run hello-world
+
+For more info: <https://docs.docker.com/engine/install/ubuntu/>
+
+##
 # How to test the Alpine Linux OS in a docker container?
 
     # install docker
@@ -40,37 +73,34 @@ For more info, `man docker-run`.
 `--all` removes *all* unused images, not just dangling ones.
 
 For more info, `man docker-system-prune`.
-
 ##
-# How to get a more recent version of Docker?
+# Pitfalls
+## I get a permission denied whenever I try to run a docker command without sudo!
 
-    # uninstall old versions
-    $ sudo apt remove docker docker-engine docker.io containerd runc
+    $ docker image ls
+    Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock:˜
+    Get http://%2Fvar%2Frun%2Fdocker.sock/v1.24/images/json:˜
+    dial unix /var/run/docker.sock: connect: permission denied˜
 
-    # update the apt package index,
-    # and install packages to allow apt to use a repository over HTTPS
-    $ sudo apt update &&
-      sudo apt install &&
-               ca-certificates \
-               curl \
-               gnupg \
-               lsb-release
+That's because you  don't have enough rights  to write to the  socket file which
+the docker daemon listens to:
 
-    # add Docker's official GPG key
-    $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
-        sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    $ ls -l /var/run/docker.sock
+    srw-rw---- 1 root docker 0 Mar 11 13:32 /var/run/docker.sock
+            ^
+            ✘
 
-     # set up the stable repository
-     $ echo \
-      "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+Solution: Add your user to the docker group:
 
-    # update the apt package index,
-    # and install the latest version of Docker Engine and containerd
-    $ sudo apt update && sudo apt install docker-ce docker-ce-cli containerd.io
+    $ getent group docker
+    docker:x:136:
+                 ^
+                 ✘
 
-    # verify that Docker Engine is installed correctly by running the hello-world image
-    $ sudo docker run hello-world
+    $ sudo usermod --append --groups=docker lgc
+    $ getent group docker
+    docker:x:136:lgc
+                 ^^^
+                  ✔
 
-For more info: <https://docs.docker.com/engine/install/ubuntu/>
-
+Then, reboot for the change to take effect (or maybe logout and log back).

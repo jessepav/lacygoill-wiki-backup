@@ -3969,7 +3969,7 @@ Should be refactored into this:
     deletebufline('%', range_first_block)
     getreg('"')->append(end_first_block)
 
-Find some nice MWEs showing that the second kind of snippets is much faster, and
+Find some nice MREs showing that the second kind of snippets is much faster, and
 can detect some errors before runtime.
 
 Other similar refactorings:

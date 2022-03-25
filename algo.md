@@ -448,7 +448,7 @@ Seuls les détails doivent être documentés.
 
 When you have an issue hard to debug:
 
-   1. create a MWE
+   1. create a MRE
 
    2. write explicitly and succinctly the nature of the issue
 
@@ -459,7 +459,7 @@ When you have an issue hard to debug:
 
       Example: it's because the text is multi-line
 
-   4. test each hypothesis by modifying the MWE
+   4. test each hypothesis by modifying the MRE
 
       Example: join all the lines, and see whether the issue disappears
 
@@ -480,7 +480,7 @@ Everything is possible:
    - A and B may have nothing in common
 
 Writing the hypotheses is important because it  helps you focus on one idea at a
-time, and find  good experiments (modifications of the MWE)  which will make you
+time, and find  good experiments (modifications of the MRE)  which will make you
 gain some insight.
 OTOH, having multiple ideas in mind  at the same time, and experimenting blindly
 will make you lose time.
@@ -747,21 +747,21 @@ entre eux.
 ---
 
 Il faut aussi chercher à échouer le plus vite possible.
-Pour ce faire, on peut créer un MWE sous la forme d'un petit script/programme.
+Pour ce faire, on peut créer un MRE sous la forme d'un petit script/programme.
 Attention:
-créer un MWE ne consiste pas simplement à supprimer un max de lignes;
+créer un MRE ne consiste pas simplement à supprimer un max de lignes;
 parfois, qd le problème est réellement  très compliqué, il faut supprimer un max
 de lignes ET un max de caractères sur celles qui restent.
 
 
 Si ce dernier a besoin d'une input, on pensera à en créer une pour l'occasion.
 Ainsi, on n'aura pas besoin d'en regénérer  une à chaque fois qu'on modifiera le
-MWE.
+MRE.
 Se rappeler de nos  notes à propos des compilers plugins  dans Vim (méthode pour
 trouver une valeur à 'efm').
 
 Si pendant la résolution du  problème, d'autres problèmes émergent, les résoudre
-en priorité  (via un  MWE à nouveau);  il se peut  que leur  résolution facilite
+en priorité  (via un  MRE à nouveau);  il se peut  que leur  résolution facilite
 celle du problème d'origine.
 
 ---

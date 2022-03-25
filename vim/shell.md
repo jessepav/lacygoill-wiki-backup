@@ -138,7 +138,7 @@ From `~/.vim/autoload/myfuncs.vim:848`:
     "                                       `:!` is the only command to remove the backslashes
     "                                       added by the 2nd non-nul argument
     "
-    "                             MWE:
+    "                             MRE:
     "                             :sp /tmp/foo\%bar
     "                             :sil call system('echo ' .. expand('%')->shellescape() .. ' >>/tmp/log')
     "                             :sil call system('echo ' .. expand('%')->shellescape(1) .. ' >>/tmp/log')

@@ -1612,7 +1612,7 @@ long time (e.g. `C-x C-k`, `C-x C-t`, ...), two issues arise:
    - if you press `C-c` to interrupt the pum's population, `= expr` is dumped in
      the buffer
 
-MWE:
+MRE:
 
     $ vim -Nu NONE +"ino <c-z> <c-x><c-k><c-r>=''<cr>" +'set dict=/usr/share/dict/words' +startinsert
     C-z

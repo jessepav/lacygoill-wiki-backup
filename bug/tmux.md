@@ -37,7 +37,7 @@ Its purpose is to copy the tmux selection into the X clipboard selection.
 Now, I'm using st, and I've noticed that the text in the clipboard is truncated after approximately 375 characters.
 I think the real number depends on the terminal window width and/or the font size, but I could be wrong.
 
-Here's a MWE which I've tested against Ubuntu 16.04, as well as Ubuntu 18.04 (in a virtual machine).
+Here's a MRE which I've tested against Ubuntu 16.04, as well as Ubuntu 18.04 (in a virtual machine).
 
     $ sudo apt update
     $ sudo apt install curl git libx11-dev libxft-dev pkg-config xsel
@@ -123,7 +123,7 @@ Indeed, I can't reproduce with `tee(1)` :
 
 ### ?
 
-Find a MWE.
+Find a MRE.
 
 It seems the limit is 376 characters.
 Run this:
@@ -154,7 +154,7 @@ If it does, you've found a workaround (still, maybe you should report the issue)
 If it doesn't, try to install a  key binding which would just call `xsel(1x)` or
 `xclip(1)` with a long text.
 Does it succeed in populating the clipboard selection?
-If it doesn't you've found a simpler MWE.
+If it doesn't you've found a simpler MRE.
 If it does, this is weird... keep investing.
 
     ✘
@@ -162,7 +162,7 @@ If it does, this is weird... keep investing.
     ✔
     $ tmux bind Z run 'xsel -i --clipboard </tmp/file'
 
-MWE:
+MRE:
 
     $ curl -LO http://invisible-island.net/datafiles/current/terminfo.src.gz
     $ gunzip terminfo.src.gz
@@ -188,7 +188,7 @@ the value of the `mode-keys` option.
 Also, the motions to select the text depend  on the font size and the width of
 the terminal window (and don't press `v` to start the selection, but `V`).
 Finally, `tee(1)`  is provided  by the  coreutils package, which  seems to  be a
-fundamental package.  So, it should be ok to use it in a MWE.
+fundamental package.  So, it should be ok to use it in a MRE.
 
 ### ?
 
@@ -199,7 +199,7 @@ Interestingly enough, the next key binding works:
 Which seems to  indicate that the issue  is *not* linked to copy  mode, but to
 *some* commands in copy mode.
 
-Try to update the previous MWE, to reduce the difference between these commands
+Try to update the previous MRE, to reduce the difference between these commands
 (the first one must work, but not the second):
 
     $ tmux bind -T copy-mode-vi Z send -X cancel \\\; run 'xsel -i --clipboard </home/user/Vcs/tmux/COPYING'

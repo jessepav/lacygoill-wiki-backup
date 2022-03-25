@@ -1037,7 +1037,7 @@ It's less useful with big processes such as Vim or zsh, but you can still try...
 FIXME: For some  reason, `less(1)`  doesn't update the  log file  as `strace(1)`
 writes into it.
 
-MWE:
+MRE:
 
     $ echo test >>/tmp/log
 
@@ -1394,7 +1394,7 @@ Instead, it `fork()`, then `execve()`.
 Once the job has been started in the sub-sub-shell, the sub-shell dies (why?).
 So, the job becomes orphan and is re-parented to the session leader.
 
-MWE:
+MRE:
 
     $ (sleep 100 &)
     $ pstree -lsp $(pidof sleep)

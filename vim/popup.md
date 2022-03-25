@@ -80,7 +80,7 @@ And even when you move by only 1 line, you need to make sure that you don't make
 results when  you try to  scroll backward; which means  you need to  compute the
 last line of the buffer via `line('$', winid)`.
 
-See the MWE in this bug report for an example:
+See the MRE in this bug report for an example:
 <https://github.com/vim/vim/issues/5170#issue-516875178>
 
 In any case, Bram agrees that `win_execute()` + `norm!` *might* be ok:

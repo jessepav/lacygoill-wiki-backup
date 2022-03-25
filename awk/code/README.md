@@ -1,19 +1,20 @@
-# What are those 2 directories?
+# What is this `sed_and_awk/` directory?
 
-They contain the code and input data examples used in the book “sed & awk”.
+It contains the code and input data examples used in the book “sed & awk”.
 
-`sedawk2progs_old/` contains the original examples.
-`sedawk2progs/` contains the corrected ones.
+## Where did you find its contents?
 
-# Where did you find those files?
+Visit this link:
+<https://www.oreilly.com/library/view/sed-awk/1565922255/>
 
+Click on “Download Example Code” to visit this link:
 <http://shop.oreilly.com/product/9781565922259.do>
 
-Click on “Download Example Code” → <https://resources.oreilly.com/public>
+Clone the repo:
 
-Enter “sed & awk” in the “Filter by name...” input field.
+    $ git clone https://resources.oreilly.com/examples/9781565922259/ sed_and_awk
+    $ cd sed_and_awk
 
-Click on the “examples / sed awk 2nd Edition” button.
-Click on the “Download” button.
-Click on the “Download zip” button.
+Extract the archive:
 
+    $ tar --extract --file=progs.tar.gz --directory=/path/to/dest/

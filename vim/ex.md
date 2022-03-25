@@ -567,7 +567,7 @@ So, Vim gives this warning:
 It  could be  due to  the existence  of a  swapfile which  was not  removed when
 quitting a Vim session (maybe it crashed).
 
-MWE:
+MRE:
 
     $ touch /tmp/.file.swp && \
       echo 1t1 | vim -es /tmp/file

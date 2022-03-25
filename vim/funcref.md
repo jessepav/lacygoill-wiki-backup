@@ -347,7 +347,7 @@ Document that  when you define  a lambda which refers  to some variables  in the
 rhs, absent  from the  lhs, they should  all be assigned  before the  lambda (at
 least one).
 
-MWE:
+MRE:
 
     fu Func()
         let l:Test = { -> foo + bar == 3 }

@@ -362,7 +362,7 @@ différentes, et donc d'avoir un bloc dont le bord droit est irrégulier.
 Be sure to reset `'wrap'`.
 Otherwise, the text may not always be added at the end of the lines.
 
-MWE:
+MRE:
 
     $ vim +'put =repeat(\"a\", winwidth(0)-5).\"-aaa\nb\"' +'setl wrap' +'exe "norm! 1GV+\<c-v>0o$AXXX"'
 

@@ -728,7 +728,7 @@ It probably targets the current server by inspecting `$TMUX`.
 This issue can happen, even with no  terminal running a tmux client connected to
 this `x` socket.
 
-MWE:
+MRE:
 
     $ xterm
     $ tmux -Lx -f/dev/null

@@ -16,7 +16,7 @@ Use our `M-c` key binding, which writes the whole scrollback buffer in a Vim buf
 
 ## Sometimes it fails!
 
-MWE: Press `pfx ?`, then `pfx f`.
+MRE: Press `pfx ?`, then `pfx f`.
 
 I don't know how to fix this atm.
 

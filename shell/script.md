@@ -205,7 +205,7 @@ From `man bash` (`ALIASES`):
    > expand_aliases shell option is set using  shopt (see the description of shopt
    > under SHELL BUILTIN COMMANDS below).
 
-MWE:
+MRE:
 
     % tee -a <<EOF ~/.zshrc
     alias what_am_i='echo "I am an alias"'
@@ -300,7 +300,7 @@ For more info, see:
 
 In zsh, because of the possible interference of a suffix alias.
 
-MWE:
+MRE:
 
     $ alias -s md=vim
     $ if command -v md.md >/dev/null 2>&1; then echo 'md.md is a valid command!'; fi
@@ -485,7 +485,7 @@ See: <https://github.com/koalaman/shellcheck/wiki/SC2070>
 
 ## After executing my script, the prompt is not redrawn!
 
-MWE:
+MRE:
 
     #!/bin/bash
     echo '' | tee /tmp/file &
@@ -498,7 +498,7 @@ Invoke the wait command to discover the termination status of the job.
 
 ---
 
-Another MWE:
+Another MRE:
 
     % tty
     /dev/pts/10˜

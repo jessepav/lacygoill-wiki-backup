@@ -860,7 +860,7 @@ explosions.
 If the search  is successful, the line  number will not be used  when jumping to
 the entry.  The `pattern` field has priority over the `lnum` one.
 
-MWE:
+MRE:
 
     $ tee <<'EOF' /tmp/log
     some text
@@ -889,7 +889,7 @@ It doesn't jump on the 3rd line, even though the `lnum` field of the qfl entry i
 
 Yes.
 
-MWE:
+MRE:
 
     let &efm = '%f: %*[0-9] %m'
     cgetexpr ['/tmp/efm.vim: 123 text']
@@ -930,7 +930,7 @@ Yes, but you must NOT escape it with a percent.
 Otherwise, it  will be  expanded into  the replacement string  used in  the last
 successful substitution command.
 
-MWE:
+MRE:
 
     let &efm = '%f:%l:%~:%c:%m'
     s/pat/rep/ne
@@ -1339,7 +1339,7 @@ But not in these orders:
     CZA    "
 
 
-MWE:
+MRE:
 
     $ tee <<'EOF' /tmp/log
     /tmp/foo:12

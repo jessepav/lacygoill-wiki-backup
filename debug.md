@@ -20,7 +20,7 @@ original state of the file.
 
 Now, try to reproduce with a minimal config file containing only the PL.
 
-If you can reproduce, you have a MWE.
+If you can reproduce, you have a MRE.
 But it doesn't mean that no other line triggers the issue.
 You need  to remove the  PL from  your real config  file, and check  whether the
 issue is fixed; if it is, you're finished.
@@ -39,7 +39,7 @@ Repeat until you've found out the whole set of problematic lines.
 
 Bottom line: once you've found a PL, you still need to check two things:
 
-   - the PL can be used as a MWE
+   - the PL can be used as a MRE
    - removing the PL from the config file fixes the issue
 
 You have to, because an issue can be triggered by several lines.
@@ -48,20 +48,20 @@ whole set (PL1 && PL2 && ...).
 
 ##
 # Hard-to-reproduce issue
-## How to find a MWE?
+## How to find a MRE?
 
 First, find an easy way to reset your environment so that the issue disappears.
 Then, use it as often as you can.
 
 This serves two purposes.
 First, it will help you manually and quickly fix the issue when needed.
-Second, it will help you find a reliable MWE.
+Second, it will help you find a reliable MRE.
 Indeed, to do so, you need to remember what you've done recently.
 Don't let the bug last too long.
 The longer  it lasts, the less  chance you have  to retrieve in your  memory the
 action which triggered it (“is it because I did X?”, “or Y?”, “or Z?”, ...).
 
-We used  this trick  to find  a MWE to  reproduce an  issue where  sometimes Vim
+We used  this trick  to find  a MRE to  reproduce an  issue where  sometimes Vim
 caused the command-line/screen to be redrawn prematurely while we were trying to
 copy some text in tmux copy mode.
 We noticed  that we could temporarily  and manually fix the  issue by restarting

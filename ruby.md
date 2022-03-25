@@ -41,7 +41,7 @@ You can get the path to the ruby gems installed in your home via:
     $ ruby -e 'puts Gem.user_dir'
 
 You need to add the output of this command to your `PATH`.
-We do it in in our `~/.zshenv`.
+We do it in in our `~/.config/fish/conf.d/environment.fish`.
 
 However, since a shell command takes time to be executed, we cache the output in
 a file, to avoid slowing down the shell startup time.

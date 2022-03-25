@@ -800,7 +800,7 @@ attribute set.
 
 Make sure it's true.
 
-MWE:
+MRE:
 
     :colorscheme elflord
     :highlight EndOfBuffer ctermfg=bg

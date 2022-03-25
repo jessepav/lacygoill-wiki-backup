@@ -24,32 +24,9 @@ Without `--without-included-regex`, sed doesn't support equivalence classes:
     $ /usr/bin/sed 's/[[=e=]]/X/g' <<<'a é b e c è'
     a é b X c è˜
 
----
-
-If you want the very latest version:
-
-    $ git clone git://git.sv.gnu.org/sed && cd sed
-    $ ./bootstrap
-
-    # To use the  most-recent gnulib (as opposed to the  gnulib version that the
-    # package last synchronized to):
-    $ git submodule foreach git pull origin master
-    $ git commit -m 'build: update gnulib submodule to latest' gnulib
-
-    $ ./configure --quiet --enable-gcc-warnings
-    $ make
-    $ make check
-
-    # At this point, there should be  no difference between your local copy, and
-    # the GIT master copy; this command should output no difference.
-    $ git diff
-
-However, at the moment, this procedure fails at the `make` step.
-Not because of a dependency issue, but because of an error in the source code.
-
 ##
 # Command-line
-## In sed, how is the first positional argument interpreted without the `-e`/`-f` options?
+## In a sed command, how is the first positional argument interpreted without the `-e`/`-f` options?
 
 As the script *code* to execute on the input:
 
@@ -73,7 +50,7 @@ argument, which seems to be awkward.
 
 As an input file:
 
-    $ sed [options] -e <pgm file> <input file>
+    $ sed [options] -e <pgm code> <input file>
     $ sed [options] -f <pgm file> <input file>
                     ├───────────┘ ├──────────┘
                     │             └ positional argument
@@ -82,8 +59,10 @@ As an input file:
 ###
 ## What does `-n` suppress?
 
-The auto-print  of the pattern  space when reaching the  end of the  script, and
-before replacing it with the next input line (`n` command).
+The auto-print of the pattern space which occurs:
+
+   - when the `n` command replaces the pattern space the next input line
+   - when reaching the end of the script
 
 ## What can't `-n` suppress?
 
@@ -129,10 +108,8 @@ Their concatenation will be the resulting script.
 ##
 ## Which option is implied by `-i`?
 
-`-s`.
-
-`-s`  means that  when you  ask  sed to  edit files  in-place, it  automatically
-considers them as separate.
+`--separate`:  it  means that  when  you  ask sed  to  edit  files in-place,  it
+automatically considers them as separate.
 
 ---
 
@@ -1425,8 +1402,8 @@ Use the `n` command and `d` commands:
 # Misc
 ## Why does sed iterate over the input lines before iterating over the script statements?
 
-There may be other reasons, but if it  did the reverse, when used in a pipeline,
-the sed command would block all the following commands.
+There  might be  other  reasons, but  if  it did  the reverse,  when  used in  a
+pipeline, the sed command would block all the following commands.
 Indeed,  sed would  have to  wait for  the previous  command to  send *all*  its
 output, before being able to process the second statement of the script.
 
@@ -1570,8 +1547,6 @@ between `#` and `n`, or capitalize `n` ...
 Anything which prevents `#n` from being the very first 2 characters of the script.
 
 ##
-##
-##
 # Todo
 ## youtube playlist
 
@@ -1580,9 +1555,18 @@ Anything which prevents `#n` from being the very first 2 characters of the scrip
 ## learn how to debug a sed script using the desed utility
 
 Debugger for  Sed: demystify and  debug your sed  scripts, from comfort  of your
-terminal. https://soptik.tech/articles/building…
+terminal.
 
 <https://github.com/SoptikHa2/desed>
+
+---
+
+Also, read this:
+<https://soptik.tech/articles/building-desed-the-sed-debugger.html>
+
+## study how sed can be used to solve graph problem
+
+<https://tildes.net/~comp/b2k/programming_challenge_find_path_from_city_a_to_city_b_with_least_traffic_controls_inbetween#comment-2run>
 
 ## ?
 
@@ -1656,4 +1640,3 @@ This can be expanded into either of these:
 
     $ seq 3 | sed ''
     $ printf '%s\n' a b c  | sed ''
-

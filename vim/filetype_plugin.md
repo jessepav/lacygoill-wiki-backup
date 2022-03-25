@@ -92,7 +92,7 @@ But it does *not* look in the rtp.
 With `:set`, no.
 With `:let`, yes.
 
-MWE:
+MRE:
 
     $ vim -Nu NONE
     :set rtp+=/tmp

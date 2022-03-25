@@ -1476,7 +1476,7 @@ This allows the terminal to implement some rudimentary line-editing functions.
 But when the  terminal is in cooked  mode, some stray characters may  be left on
 the screen, forcing you to `:redraw`.
 
-MWE:
+MRE:
 
     :call system('sleep 3')
     " smash the 'l' key
@@ -1641,7 +1641,7 @@ If you really want the errors too, then group the commands:
 
 Sometimes it doesn't work as expected:
 
-MWE:
+MRE:
 
     $ mkdir -p /tmp/foo; cd /tmp/foo; \
       vim -es -Nu NONE +"pu=expand(\\\"`pidof vim | awk '{print $1}'`\\\")" +'%p|qa!'

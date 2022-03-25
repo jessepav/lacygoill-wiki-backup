@@ -120,7 +120,7 @@ It may not work and raise the error:
     E79: Cannot expand wildcards
 
 
-MWE:
+MRE:
 
     $ find /etc -name 'debconf.conf' 2>/dev/null
     /etc/debconf.conf    ✔˜

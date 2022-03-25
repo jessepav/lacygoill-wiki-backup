@@ -1444,7 +1444,7 @@ The issue is actually triggered by a combination of `:silent` and `try/catch`.
 But you can work  around it with an autocmd listening  to `SwapExists`, which we
 currently have in our vimrc.  Unfortunately, `:noautocmd` suppresses it.
 
-See this MWE:
+See this MRE:
 
     # in a terminal
     $ vim -Nu NONE --cmd 'set directory=$HOME/.vim/tmp/swap//' /tmp/file
@@ -1544,7 +1544,7 @@ lot of them.
 We've  made  a   fundamental  mistake  in  the  past,  every   time  we've  used
 `setqflist()` or `setloclist()`.
 
-MWE:
+MRE:
 
     :CFreeStack
     :helpgrep vim
@@ -1893,7 +1893,7 @@ To avoid, for example, adding conceal outside a qf buffer.
 ##
 ## Why does Vim sometimes mix absolute and relative filepaths for files in the same directory?
 
-MWE:
+MRE:
 
     /tmp/test/foo
     ├── /tmp/test/foo/file1
@@ -1922,7 +1922,7 @@ For more info:
 
 ## Why does Vim sometimes jump to a wrong location when I press Enter on an entry in the qf window?
 
-MWE:
+MRE:
 
     " disable `vim-cwd`
     :cd ~/.vim/pack/mine/opt/completion/
@@ -1938,7 +1938,7 @@ MWE:
     ""
     " You'll end up in a buffer not associated with any file.
 
-Simplify this MWE, so that it doesn't refer to any custom configuration.
+Simplify this MRE, so that it doesn't refer to any custom configuration.
 
 ## Why does Vim sometimes add `:` at the start of `w:quickfix_title`?
 

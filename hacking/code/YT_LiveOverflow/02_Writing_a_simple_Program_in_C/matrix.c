@@ -1,7 +1,7 @@
 // Purpose: Print "Knock, knock, NAME", where `NAME` is a runtime supplied argument.
+// Test: `$ gcc matrix.c -o build/matrix ${=MYGCCFLAGS} && ./build/matrix NAME`
 // Input: `NAME` (an arbitrary name string).
 // Output: "Knock, knock, NAME"
-// Reproduction: `$ gcc matrix.c -o build/matrix ${=MYGCCFLAGS} && ./build/matrix NAME`
 // Reference: https://www.youtube.com/watch?v=JGoUaCmMNpE
 
 

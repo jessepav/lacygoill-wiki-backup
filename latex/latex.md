@@ -642,7 +642,7 @@ source code.
 Because of this,  when we press Enter in  the qf window to jump to  an error, we
 may end up in an irrelevant buffer.
 
-MWE:
+MRE:
 
     $ cat /tmp/vimrc
 

@@ -279,7 +279,7 @@ simply when you change the focused window.
 As an example, if you don't use `'wfw'`  in vim-freekeys, when you get back to a
 regular window, the width of the freekeys window slightly increases by one cell.
 
-MWE:
+MRE:
 
     $ vim +vs
     :FreeKeys

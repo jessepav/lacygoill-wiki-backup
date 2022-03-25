@@ -62,7 +62,7 @@ It also determines whether or not digits are allowed after the decimal point.
 
     2^31 − 1
 
-MWE:
+MRE:
 ```c
     #include <stdio.h>
     #include <math.h>

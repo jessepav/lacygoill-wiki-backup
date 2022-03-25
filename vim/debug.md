@@ -1123,7 +1123,7 @@ Then try this:
    - in Vim, reproduce the internal error; it should reach the breakpoint in gdb
    - in gdb, when the breakpoint is reached, look at the stack using the `bt` command
 
-         (gdb) bt
+         (gdb) bt full
 
 Source: <https://github.com/vim/vim/issues/5674#issuecomment-838653020>
 
@@ -1268,7 +1268,7 @@ Press `j` then `k`.
 The message has been emitted, but not drawn.
 Force a redraw by moving the cursor.
 
-MWE:
+MRE:
 
     $ mkdir /tmp/test && cd /tmp/test
     $ echo 'pat' >>file{1..5}

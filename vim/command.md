@@ -182,7 +182,7 @@ It's called the "replacement text":
 
 ##
 ## In an unquoted argument of a custom Ex command
-### what are the 3 characters which lose their special meaning when preceded with a backslash?
+### what are the 3 characters which lose their special meaning when preceded by a backslash?
 
 A whitespace, a bar, and a backslash.
 
@@ -222,10 +222,10 @@ In a custom command argument, when does Vim automatically remove a backslash out
 
 ### when is a bar parsed as a command termination?
 
-When  the  command  is defined  with  `-bar`  *and*  it's  not preceded  with  a
-backslash.  Note that – if a command is defined with `-bar` and is preceded with
-backslashes –  it doesn't  matter how many  of them there  are.  The  bar always
-loses its special meaning.
+When the command is defined with `-bar`  *and* it's not preceded by a backslash.
+Note that – if a command is defined with `-bar` and is preceded by backslashes
+– it  doesn't matter how  many of  them there are.   The bar always  loses its
+special meaning.
 
 ###
 ### when does Vim automatically remove a backslash if
@@ -751,7 +751,7 @@ But not with:
     -nargs=1
     -nargs=?
 
-MWE:
+MRE:
 
     fu Func(...)
         echo a:000

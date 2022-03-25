@@ -721,7 +721,7 @@ To:
 
     /usr/lib/systemd/system/whoopsie.service
 
-MWE:
+MRE:
 
                      vv
     $ sudo systemctl reenable whoopsie.service

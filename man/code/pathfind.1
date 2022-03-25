@@ -22,17 +22,17 @@
 .\" Despite the previous  line breaks, everything so far will  fit on one single
 .\" typeset line.
 .\"
-.\" From `$ info -n 'Implicit Line Breaks' groff`.
+.\" From `info --node='Implicit Line Breaks' groff`.
 .\"
-.\" > An important concept in 'gtroff' is the "break".  When a break occurs,
-.\" > 'gtroff' outputs the partially filled line (unjustified), and resumes
-.\" > collecting and filling text on the next output line.
+.\"    > An important concept in 'gtroff' is the "break".  When a break occurs,
+.\"    > 'gtroff' outputs the partially filled line (unjustified), and resumes
+.\"    > collecting and filling text on the next output line.
 .\"
 .\" But, by experiment, we can find that the nroff ASCII output has a line break
 .\" after  the `--version`  option,  and the  next line  continues  at the  left
 .\" margin.
 .\"
-.\" That is  undesirable: conventionally, a text line should  always start after
+.\" That is undesirable:  conventionally, a text line should  always start after
 .\" some indentation.
 .\" So we  put in  a conditional statement  that applies only  to nroff,  and is
 .\" ignored by troff.
@@ -53,14 +53,14 @@
 .\" Evaluate EXPR,  and execute  ANYTHING (the  remainder of  the line)  if EXPR
 .\" evaluates to a value greater than zero (true).
 .\"
-.\" For more info, see `$ info -n if groff`.
+.\" For more info, see `info --node=if groff`.
 .\"}}}
 .\"     the following `n`?{{{
 .\"
 .\" An expression that  evaluates to True if the document  is being processed in
 .\" nroff mode (i.e., the `.nroff` command has been issued).
 .\"
-.\" For more info, see `$ info -n 'Operators in Conditionals' groff`.
+.\" For more info, see `info --node='Operators in Conditionals' groff`.
 .\"}}}
 .\"     `.ti`?{{{
 .\"
@@ -83,7 +83,7 @@
 .\" And 'm' is equal to the current font size in points, which is
 .\" *approximately* the width of the letter 'm' in the current font.
 .\"
-.\" For more info, see `$ info -n Measurements groff`.
+.\" For more info, see `info --node=Measurements groff`.
 .\"}}}
 .\"        but why 9?{{{
 .\"
@@ -120,7 +120,7 @@
 .\"}}}
 .\"     `\w'...'u`?{{{
 .\"
-.\" It's an escape sequence, documented at `$ info -n 'Page Motions' groff`.
+.\" It's an escape sequence, documented at `info --node='Page Motions' groff`.
 .\" It evaluates to  the width of the  text `pathfind `, the text  being in bold
 .\" except the trailing space.
 .\"
@@ -153,4 +153,3 @@
 .\" fixed-width font dating back to the days of manual type writers.
 .\"}}}
 .\"     .if t .ti +\w'\fBpathfind\fP 'u
-

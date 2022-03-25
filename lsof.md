@@ -56,16 +56,10 @@ For example, bash needs this setting:
 
 ### sockets connected to the ipv4 1.2.3.4?  to the ipv6 2001:41d0:...?
 
-              ┌ host specification leader
-              │
+              host specification leader
+              v
     $ lsof -i @1.2.3.4
     $ lsof -i '@[2001:41d0:...]'
-              │
-              └ to prevent zsh from interpreting the brackets as a collection:
-
-                  % echo [1]
-                   zsh: no matches found: [1]˜
-                   (zsh tried to find a file named 1)˜
 
 ### sockets using the tcp protocol?  the udp protocol?
 

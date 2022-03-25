@@ -146,7 +146,7 @@ Suppose that:
 In that case, every time `Func()`  is invoked, the new definition will overwrite
 the old one which is currently used in the previously installed autocmds.
 
-MWE:
+MRE:
 
     function Func()
        let msg = bufname('%')
@@ -478,7 +478,7 @@ If  the  buffer  is  displayed  in  another  window  (no  matter  the  tabpage),
 `BufWinLeave` won't be fired.
 So the match could stay in a window, while it should be removed.
 
-MWE:
+MRE:
 
     :split ~/.vim/filetype.vim
     :put ='set error'
@@ -1308,7 +1308,7 @@ Because for each of them, the help mentions something like:
    > current buffer "%" may be different from the
    > buffer being created "<afile>".
 
-Find a MWE to illustrate the pitfall.
+Find a MRE to illustrate the pitfall.
 
 ## ?
 

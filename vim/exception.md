@@ -1647,7 +1647,7 @@ However, for some reason, I can't display its message.
 All  I have  is  the hit-enter  prompt, which  usually  accompanies a  multiline
 message (as if Vim was trying to display all the error messages).
 
-MWE:
+MRE:
 
     $ touch /tmp/file && vim -Nu NONE -S <(tee <<'EOF'
     nno cd <cmd>exe Func()<cr>

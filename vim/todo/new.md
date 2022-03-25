@@ -88,6 +88,7 @@ temporarily converting the dates into simple integers.
    - `:help :balt`
    - `:help :echoconsole`
    - `:help :scriptversion`
+   - `:help :source` (now, it can source buffer lines)
    - `:help :swapname`
 
 ### arguments

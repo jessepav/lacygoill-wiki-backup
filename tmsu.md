@@ -21,9 +21,9 @@ Interface for Rapidly Tagging Many Small Files
                     https://golang.org/doc/install
 
 
-    $ vim ~/.zshenv
-      export PATH=$PATH:/usr/local/go/bin
-      export GOPATH=$HOME/go
+    $ vim ~/.config/fish/conf.d/environment.fish
+      set --export PATH $PATH:/usr/local/go/bin
+      set --export GOPATH $HOME/go
 
             Indiquer:
 

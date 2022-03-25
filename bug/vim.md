@@ -162,7 +162,7 @@ defcompile
     no error
 
 Should Vim complain that the type of `d` (`any`) is not compatible with the return type?
-Simplified MWE:
+Simplified MRE:
 ```vim
 vim9script
 def Func(): string
@@ -415,7 +415,7 @@ Temporary workaround:
 ##
 ## can delete a function-local or block-local function nested in a legacy function
 
-MWE for a function-local function:
+MRE for a function-local function:
 
     $ vim -Nu NONE -S <(tee <<'EOF'
         vim9script
@@ -453,7 +453,7 @@ delfunction Func
 
 ---
 
-MWE for a block-local function:
+MRE for a block-local function:
 ```vim
 vim9script
 function Outer()
@@ -2037,6 +2037,13 @@ defcompile
 ```
     the code compiles immediately
 
+Update: Working as intended:
+<https://github.com/vim/vim/issues/9966#issuecomment-1072464669>
+
+Conclusion: Avoid `script#Func`.  Prefer `script.Func`.
+And at the script  level, make sure to quote `script.Func`;  in compiled code do
+whatever you want (quote or not).
+
 ##
 ## ?
 
@@ -2620,7 +2627,7 @@ Ubuntu 20.04.3 LTS
 **Additional Context**
 
 The usage of `VIMINIT` might seem contrived but there is a reason for this.
-While I'm trying to find a MWE for an issue, I'm often running something like this shell command:
+While I'm trying to find a MRE for an issue, I'm often running something like this shell command:
 
     vim --cmd 'filetype on'
 
@@ -4526,6 +4533,20 @@ Test()
 
 The byte sequence `<80><fd>R` in the last error message looks weird.
 
+## ?
+```vim
+vim9script
+def Func()
+enddef
+echo Func
+```
+    <80><fd>R1_Func
+    ^-------^
+
+This would be less weird:
+
+    <SNR>1_Func
+
 ## Vim9: should 'clipboard' and 'selection' be considered to be set with their default values
 
 **Describe the bug**
@@ -4540,7 +4561,7 @@ This would avoid issues which arise when we implement operators.
 
 Run this shell command:
 
-    vim -Nu NONE -S <(tee <<'EOF'
+    $ vim -Nu NONE -S <(tee <<'EOF'
         vim9script
         # suppose this is set in the user's vimrc
         set cb=unnamedplus selection=exclusive
@@ -4752,15 +4773,20 @@ vim9script
 g:.foo = 0
 ```
     E1069: White space required after ':': :.foo = 0
-```vim
-vim9script
-g:['foo'] = 0
-```
-    E1069: White space required after ':': :['foo'] = 0
 
 Weird error message...
 
 I think it would be better to just say sth like "invalid variable name".
+
+---
+
+Note that this works since 8.2.4589:
+```vim
+vim9script
+g:['foo'] = 0
+echo g:foo
+```
+    0
 
 ## ?
 
@@ -5443,6 +5469,22 @@ But they seem irrelevant...
 
 ##
 # Popups
+## ?
+
+    $ vim -Nu NONE -S <(tee <<'EOF'
+        vim9script
+        var lines = ['aaa', 'bbb', 'ccc']
+        popup_create(lines, {firstline: -1})
+    EOF
+    )
+
+Expected: The popup displays `aaa` once.
+Actual: The popup displays `aaa` twice.
+
+Regression introduced in [8.1.1949](https://github.com/vim/vim/releases/tag/v8.1.1949).
+I think  the issue  can be reproduced  only if the  popup buffer  contains fewer
+lines than what the popup window can display.
+
 ## cannot hide popup attached to text property
 ```vim
 vim9script
@@ -5566,6 +5608,64 @@ Is it documented or is it a bug?
 
 ##
 # Misc.
+## confusing error when running `:packadd` while `'debug'` set to `throw`.
+
+    $ vim -Nu NONE -S <(tee <<'EOF'
+        vim9script
+        &runtimepath = ''
+        &debug = 'throw'
+        &packpath = '/tmp/issue'
+        (&packpath .. '/pack/mine/opt/foobar')->mkdir('p')
+        packadd foobar
+    EOF
+    )
+
+    E121: Undefined variable: g:did_load_filetypes
+
+I think the error is given because of this line:
+
+    // file: src/scriptfile.c, line 778
+    char_u *cmd = vim_strsave((char_u *)"g:did_load_filetypes");
+
+Because it persists  even if you remove all  occurrences of `did_load_filetypes`
+from the runtime files.
+
+---
+
+The issue is not specific to Vim9.
+
+---
+
+It might not be a bug.  But maybe document this somewhere.
+
+## ?
+
+    :echo getcompletion('debug ', 'cmdline')
+
+Actual:
+
+    []
+
+Expected:
+
+    [list of Ex command names]
+
+---
+
+    :echo getcompletion('debug call ', 'cmdline')
+
+Actual:
+
+    []
+
+Expected:
+
+    [list of function names]
+
+---
+
+Same issue if we replace `:debug` with any other modifier.
+
 ## ?
 
     # open an xterm terminal
@@ -5595,22 +5695,6 @@ Didn't we already report this issue in the past?
 If  it's working  as intended  (i.e.  the showcmd  area  is meant  to print  the
 internal byte representation of the keys, not the keys themselves), it should be
 documented.  Is it?
-
-## ?
-
-    $ vim -Nu NONE -S <(tee <<'EOF'
-        vim9script
-        var lines = ['aaa', 'bbb', 'ccc']
-        popup_create(lines, {firstline: -1})
-    EOF
-    )
-
-Expected: The popup displays `aaa` once.
-Actual: The popup displays `aaa` twice.
-
-Regression introduced in [8.1.1949](https://github.com/vim/vim/releases/tag/v8.1.1949).
-I think  the issue  can be reproduced  only if the  popup buffer  contains fewer
-lines than what the popup window can display.
 
 ## ?
 
@@ -6055,6 +6139,12 @@ legacy let name = [] + + []
     E745: Using a List as a Number
 
 Confusing message.
+
+Update: It probably comes from this:
+```vim
+legacy let name = + []
+```
+    E745: Using a List as a Number
 
 ## ?
 

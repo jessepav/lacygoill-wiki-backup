@@ -684,7 +684,7 @@ When receiving such sequences, the terminal interprets `1` as bright, not bold:
 
 For more info, see our notes about colors in the terminal wiki.
 
-MWE:
+MRE:
 
     $ tmux -Lx -f =(tee <<'EOF'
     set -gw window-status-format '#[fg=black,bold]#W'
@@ -715,7 +715,7 @@ Alternatively, you could use:
 
 ---
 
-MWE:
+MRE:
 
      $ tmux -Lx -f =(tee <<'EOF'
      set -as terminal-overrides ',*-256color:Tc'

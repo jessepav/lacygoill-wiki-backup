@@ -1526,7 +1526,7 @@ expression.
 You can't omit the associated action.
 You can't combine them with another pattern inside a range:
 
-MWE:
+MRE:
 
     $ awk '/Susie/,END' <<<''
     awk: cmd. line:1: /Susie/,END˜

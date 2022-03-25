@@ -1,8 +1,7 @@
 // Purpose: Print "Hello, world!"
+// Test: `$ rustc --out-dir build/ main.rs && ./build/main`
 // Input: None
 // Output: "Hello, world!"
-// Usage: `$ main`
-// Reproduction: `$ rustc --out-dir build/ main.rs && ./build/main`
 // Reference: https://doc.rust-lang.org/book/ch01-02-hello-world.html
 
 

@@ -943,7 +943,7 @@ Like `FZF_COMPLETION_TRIGGER`.
 
 ## I have an issue with the fzf popup/floating window when invoking fzf from Vim!
 
-You need to find a MWE.
+You need to find a MRE.
 Unfortunately, the  fzf and fzf.vim plugins  are very long, and  bisecting their
 code can take a long time.
 
@@ -989,10 +989,10 @@ previously, so  that it's as  reliable as possible  for all fzf-related  bugs we
 find in the future.
 
 Also, try to bisect `s:execute_term()`, and  see whether we could remove it from
-our generic MWE, so that we don't have to bisect it again and again after each bug.
+our generic MRE, so that we don't have to bisect it again and again after each bug.
 
-In the  end, it would  be nice if  we had some generic  MWE from which  we could
-quickly find another MWE for a Vim bug related to the popup/floating window, and
+In the  end, it would  be nice if  we had some generic  MRE from which  we could
+quickly find another MRE for a Vim bug related to the popup/floating window, and
 triggered by an fzf command.
 
 ---

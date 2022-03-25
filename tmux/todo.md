@@ -12,7 +12,7 @@ Also, we have this in `~/.config/tmux/terminal-overrides.conf`:
 
     if '[ "$COLORTERM" != "xfce4-terminal" ]' 'set -as terminal-features "*-256color:RGB"'
 
-MWE:
+MRE:
 
     $ echo 'set-option terminal-features "*:RGB"' >/tmp/tmux.conf
     $ tmux -Lx -f/tmp/tmux.conf

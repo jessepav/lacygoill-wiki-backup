@@ -300,7 +300,7 @@ When a recording is being performed.
 Indeed, during a recording,  the `t` flag causes the fed  key(s) to be recorded,
 which you probably don't want.
 
-MWE:
+MRE:
 
     ✘
     $ vim -Nu NONE +'nno <expr> <c-b> feedkeys("ix<esc>", "int")[-1]'
@@ -322,7 +322,7 @@ you also use the `x` flag).
 
 Indeed, `feedkeys()` + `t` flag has no effect when invoked from `:norm`.
 
-MWE:
+MRE:
 
     $ vim -Nu NONE +'nno cd <cmd>exe "norm! :call feedkeys(\"aaa\",\"t\")\r"<cr>'
     " press 'cd': nothing is inserted in the buffer
@@ -1771,7 +1771,7 @@ call feedkeys("3\<c-b>io")
 `:norm` has been  fully executed; which means  that the count it has  set is now
 assigned to `v:prevcount`.
 
-MWE:
+MRE:
 ```vim
 call feedkeys("12d:norm! 34\"\r", 'n')
 call feedkeys(":echom v:prevcount\r", 'n')
@@ -3819,7 +3819,7 @@ See this question in `config.md`:
     ### Why not
     #### saving and restoring the option with 2 `C-r = Func()`?
 
-MWE:
+MRE:
 
     $ vim -Nu NONE +"ino <c-z> <c-x><c-k><c-r>=''<cr>" +'set dict=/usr/share/dict/words' +startinsert
     C-z

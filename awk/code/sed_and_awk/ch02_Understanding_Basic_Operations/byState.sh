@@ -1,24 +1,9 @@
 #!/bin/bash
 
-# Purpose: print  each state  once on a  line, then each  person living  in that
-# state on another tab-indented line.
-# Usage:{{{
-#
-#     $ ./nameState.sed list | ./byState.sh
-#     California~
-#             Amy Wilde~
-#     Massachusetts~
-#             Eric Adams~
-#             John Daggett~
-#             Sal Carpenter~
-#     Oklahoma~
-#             Orville Thomas~
-#     Pennsylvania~
-#             Terry Kalkas~
-#     Virginia~
-#             Alice Ford~
-#             Hubert Sims~
-#}}}
+# Purpose: format database of addresses; group people by state
+# Test: `$ ./nameState.sed ./input/addresses | ./byState.sh`
+# Reference: page 16 (paper) / 40 (ebook)
+
 
 # Note the ingenious use of the first  awk program to make `sort` sort the lines
 # according to an  arbitrary field (by temporarily duplicating  the fourth field
