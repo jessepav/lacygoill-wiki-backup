@@ -6,7 +6,7 @@
 *.pdf
 *.pyc
 
-warez/
+private/
 passphrase
 
 # For C files: {{{1
