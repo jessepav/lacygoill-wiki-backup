@@ -53,6 +53,10 @@ In each factoid, you'll often find the commands `learn` and `forget`.
 I think that `learn` make the bot register a factoid, while `forget` unregister it.
 Anyway, always read the last `learn` command, because all the previous ones are outdated.
 
+## document the meaning of "options", "option-arguments", and "operands"
+
+<https://pubs.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap12.html#tag_12_01>
+
 ##
 # scripts
 ## ideas to improve our scripts:
@@ -218,8 +222,6 @@ associated with the command).
 When you select a command, make fzf write  it in the clipboard, so that we can
 paste it immediately on the shell's command-line.
 
-## Add a preview window for our zsh snippets.  Like what we did with `:Rg`.
-
 ## Think about how we could better leverage our zsh history.
 
 For  example,   whenever  you  press   `C-r`  several  times  to   retrieve  the
@@ -239,30 +241,6 @@ sure they work.
 Otherwise, you may end up with broken commands in your history.
 Those are not interesting, and may be even dangerous.
 
-## sometimes the distance between tab-completed candidates is too unconsistent
-
-Type `$ vim Tab` (press Tab right after `vim`, don't insert a space).
-Look at the distance between the suggestions in the `shell function` section.
-It's too big.
-The result feels jarring compared to the other sections.
-I think it's  because zsh tries to use  a certain width for the  whole menu, and
-divides it by `n` (`n` being the number of suggestions on a given line).
-If `n` is small  (atm we only have 3 shell functions  beginning with `vim`), the
-width of each suggestion on a line is needlessly big.
-
-It seems that  the completion menu splits the suggestions  on several lines once
-there're 10 of them (at least if their size is similar to `vim_cfg`).
-
-How to control the geometry of the zsh completion menu?
-Width of the suggestions, max number of entries on a single line ... It would be
-useful to tell zsh that if we have  less than, say, 10 suggestions, we want them
-each on a separate line.
-Or better yet, how to ask zsh to fill columns, before filling lines?
-
-The  `list_rows_first` option  doesn't seem  to help... The  latter changes  the
-position of  entries in a  completion menu: For example, the  2nd one is  on the
-right of the 1st one, instead of below.
-
 ## automatically highlight in red special characters on the command line
 
 Use this regex to find all non ascii characters:
@@ -277,11 +255,6 @@ Read `man zshzle`, section `special widgets`:
 
 Also read this:
 <https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/docs/highlighters/regexp.md>
-
-## outrageously-useful-tips-to-master-your-z-shell
-
-Read this tuto:
-<http://reasoniamhere.com/2014/01/11/outrageously-useful-tips-to-master-your-z-shell/>
 
 ## implement the key binding `M-Del` to delete from the cursor back to the previous whitespace.
 
@@ -298,15 +271,6 @@ No need to select a region.
 
 Read and understand this:
 <https://unix.stackexchange.com/questions/366549/how-to-deal-with-filenames-containing-a-single-quote-inside-a-zsh-completion-fun>
-
-## assimilate pure.zsh plugin (zsh prompt)
-
-<https://github.com/sindresorhus/pure>
-(≈ 550 sloc, 2 fichiers: pure.zsh, async.zsh)
-
-## read this (about glob qualifiers)
-
-<https://unix.stackexchange.com/a/471081/289772>
 
 ## Install a key binding to kill ffmpeg.
 
@@ -330,4 +294,3 @@ Wait for this other issue to be fixed, then add the alias.
 ## deploy-message
 
 <https://gist.github.com/lacygoill/8019977145e6411ebb0fea516f7033e0>
-

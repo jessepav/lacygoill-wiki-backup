@@ -159,8 +159,6 @@ Could be useful for our `vim-selection-ring` plugin...
 
 ##
 # Miscellaneous
-## `:help prompt-buffer`
-
 ## `:help falsy-operator`
 
 Also known as "null coalescing operator".
@@ -201,6 +199,10 @@ Note that it doesn't work with an undefined variable:
     E121: Undefined variable: var˜
 
 Should we ask for this to work as a feature request?
+
+## `:help language-server-protocol`
+
+## `:help prompt-buffer`
 
 ##
 # Review `https://arp242.net/vimlog/`

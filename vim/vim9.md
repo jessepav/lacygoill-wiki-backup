@@ -4565,6 +4565,32 @@ Without, if Vim returns `1`, you don't know whether it found a function or a var
 
 Source: <https://github.com/vim/vim/issues/9796#issuecomment-1044743140>
 
+### ?
+
+Every time you write an `import autoload`  command in a script under a `plugin/`
+directory, use a relative path.
+
+Bad:
+
+    import autoload 'path/to/script.vim'
+                     ^----------------^
+                             ✘
+
+Good:
+
+    #                      this will not be exactly the same path as before:
+    #                      the previous path was relative to autoload/,
+    #                      while this one is relative to the current script
+    #                      v----------------v
+    import autoload '../../path/to/script.vim'
+    #                ^---^
+    #                this could be a single dot,
+    #                if "script.vim" is under the directory of the current script
+
+The former increases Vim's startup time, because  Vim has to look for the script
+under every `autoload/`  of the runtimepath.  And the more  entries Vim needs to
+try before finding the script, the more time-consuming the command is.
+
 ##
 ### the first things to do after pasting a legacy function into a Vim9 script
 

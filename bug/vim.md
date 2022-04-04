@@ -3460,7 +3460,7 @@ def Func()
 enddef
 Func()
 ```
-    [function('<80><fd>R1_MyMap'), function('<80><fd>R1_MyMap'), function('<80><fd>R1_MyMap')]
+    [function('<SNR>1_MyMap'), function('<SNR>1_MyMap'), function('<SNR>1_MyMap')]
 ```vim
 vim9script
 def MyMap(i: number, v: number): number
@@ -3603,7 +3603,7 @@ def MyMap(i: number, v: number): number
 enddef
 echo [1, 2, 3]->map('MyMap')
 ```
-    [function('<80><fd>R1_MyMap'), function('<80><fd>R1_MyMap'), function('<80><fd>R1_MyMap')]
+    [function('<SNR>1_MyMap'), function('<SNR>1_MyMap'), function('<SNR>1_MyMap')]
 ```vim
 vim9script
 def MyMap(i: number, v: number): number
@@ -3892,38 +3892,6 @@ echo substitute('aaa', '.', reltime, 'g')
 ---
 
 Conclusion:  Nothing works.
-
-## ?
-```vim
-vim9script
-
-def FuncWithForwardCall()
-    var Funcref = function('DefinedLater')
-    echo Funcref
-enddef
-
-def DefinedLater()
-enddef
-
-FuncWithForwardCall()
-```
-    <SNR>1_DefinedLater
-```vim
-vim9script
-
-def FuncWithForwardCall()
-    var Funcref = DefinedLater
-    echo Funcref
-enddef
-
-def DefinedLater()
-enddef
-
-FuncWithForwardCall()
-```
-    <80><fd>R1_DefinedLater
-    ^---------^
-        bug?
 
 ## Do we need `nr2float()`?
 ```vim
@@ -4519,33 +4487,6 @@ Test()
 
 To be consistent, shouldn't the error message print `<SNR>1_Func` rather than `d.func(0)`?
 Besides, `(0)` should not even be printed; it's not part of the function name...
-```vim
-vim9script
-def Func()
-enddef
-def Test()
-    var d: dict<func> = {func: Func}
-    d.func(0)
-enddef
-Test()
-```
-    E118: Too many arguments for function: <80><fd>R1_Func
-
-The byte sequence `<80><fd>R` in the last error message looks weird.
-
-## ?
-```vim
-vim9script
-def Func()
-enddef
-echo Func
-```
-    <80><fd>R1_Func
-    ^-------^
-
-This would be less weird:
-
-    <SNR>1_Func
 
 ## Vim9: should 'clipboard' and 'selection' be considered to be set with their default values
 

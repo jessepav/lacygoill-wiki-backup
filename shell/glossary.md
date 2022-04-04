@@ -31,9 +31,8 @@ that each possible key appears at most once in the collection.
 A  hash table  is  a concrete  (!=  abstract) data  structure,  i.e. a  possible
 implementation of an associative array.
 
-For more info:
-        # Relation and difference between associative array and hashing table?
-        https://cs.stackexchange.com/a/6687
+For more info: <https://cs.stackexchange.com/a/6687>
+*Relation and difference between associative array and hashing table?*
 
 ##
 # f
@@ -61,9 +60,7 @@ You're still in the  same process, which is confirmed by the  fact that when you
 press `C-d`, the  terminal window closes (instead of getting  back to the prompt
 of the parent shell).
 
-For more info:
-
-    man 3 exec
+For more info: `man 3 exec`.
 
 ##
 # j
@@ -75,31 +72,6 @@ A background process doesn't read its input from the terminal anymore.
 Also, it doesn't receive keyboard-generated signals.
 
 This gives back to the user the control of the shell.
-
-##
-# k
-## keymap (zsh)
-
-It's a set of bindings between sequences of keys and ZLE commands.
-
-You can add a new binding inside a keymap with the `bindkey` command.
-
-Initially, there are only 3 keymaps:
-
-        ┌─────────┬─────────────────────────────────┐
-        │ emacs   │ EMACS emulation                 │
-        ├─────────┼─────────────────────────────────┤
-        │ viins   │ vi emulation - insert mode      │
-        │ vicmd   │ vi emulation - normal mode      │
-        │ viopp   │ vi emulation - operator pending │
-        │ visual  │ vi emulation - selection active │
-        ├─────────┼─────────────────────────────────┤
-        │ isearch │ incremental search mode         │
-        ├─────────┼─────────────────────────────────┤
-        │ command │ read a command name             │
-        ├─────────┼─────────────────────────────────┤
-        │ .safe   │ fallback keymap                 │
-        └─────────┴─────────────────────────────────┘
 
 ##
 # o
@@ -127,22 +99,22 @@ If you  need to  pass a  parameter that looks  like an  option but  shouldn't be
 interpreted as such, you can separate it from the options with a double hyphen.
 
 For more:
-        https://stackoverflow.com/a/36495940/9780968
-        https://stackoverflow.com/a/40654885/9780968
+   - <https://stackoverflow.com/a/36495940/9780968>
+   - <https://stackoverflow.com/a/40654885/9780968>
 
 ## special parameter
 
 A parameter whose meaning is entirely defined by the shell:
 
-        $*
-        $@
-        $#
-        $?
-        $-
-        $$
-        $!
-        $0
-        $_
+    $*
+    $@
+    $#
+    $?
+    $-
+    $$
+    $!
+    $0
+    $_
 
 ## positional parameter
 
@@ -192,25 +164,4 @@ Parameter stored in the current shell's environment.
 
 It will be automatically passed to any child process of the shell.
 It allows inter-process communication.
-
-##
-# w
-## widget (zsh)
-
-It's an interactive editing command.
-E.g. `up-line-or-history`.
-
-"Widget" refers to something the (zle) editor does when you hit a key.
-
-"Widget" is used instead of "command"  or "function", because those words can be
-confusing, and be interpreted as a normal shell command/function.
-
-A widget is usually bound to a sequence of keys inside a ZLE keymap, and calls a
-builtin or custom function:
-
-    keyseq → widget → function
-
-## widget function (zsh)
-
-A shell function that is used to add a new widget which extends the line editor.
 
