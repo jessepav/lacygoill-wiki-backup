@@ -213,11 +213,11 @@ ALL the autocmds  in the `filetype.vim` files are sourced  BEFORE ANY autocmd in
 ### How to get the list of filetype detection scripts located in a
 #### `ftdetect/` directory?
 
-    :Find ~/.vim -path '*/ftdetect/*'
+    :Cfind ~/.vim -path '*/ftdetect/*'
 
 #### `filetype.vim` file?
 
-    :Find ~/.vim -name 'filetype.vim'
+    :Cfind ~/.vim -name 'filetype.vim'
 
 ###
 ## Acting

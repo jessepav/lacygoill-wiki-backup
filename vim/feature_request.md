@@ -26,12 +26,6 @@ Would it be enough?
 ### `getfsize()` to get a human readable result
 
 ##
-## command
-### `:prof` (`dump` and `stop`)
-
-<https://github.com/neovim/neovim/pull/2427>
-
-##
 # New highlight group for
 ## the background of the wildmenu
 

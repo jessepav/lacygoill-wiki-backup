@@ -57,24 +57,27 @@ temporarily converting the dates into simple integers.
 
 ## arguments of functions
 
-   - `:help getbufinfo()` includes a `linecount` key in the output dictionary since 8.2.0019
-   - `:help getcompletion()` supports the `cmdline` argument since 8.2.0925
-   - `:help getcurpos()` supports a new argument `winid` since 8.2.1727
-   - `:help getloclist()` supports a `filewinid` key in the optional dictionary argument since 8.1.0345
-   - `:help line()` supports an optional `{winid}` argument since 8.1.1967
+   - `:help getbufinfo()` includes a `linecount` key in the output dictionary
+   - `:help getcompletion()` supports the `cmdline` argument
+   - `:help getcurpos()` supports the `winid` argument
+   - `:help getloclist()` supports a `filewinid` key in the optional dictionary argument
+   - `:help line()` supports an optional `{winid}` argument
 
    - `:help matchadd()` supports a new `window` key in the optional dictionary argument;
      see also `:help matchdelete()`, `:help clearmatches()`, `:help getmatches()` and `:help setmatches()`,
      they all accept a new optional window ID argument
 
-   - `:help mode()` can output `n_ov`, `n_oV`, `n_oC-v` since 8.1.0648
+   - `:help mode()` can output `n_ov`, `n_oV`, `n_oC-v`
    - `:help readdir()` and `:help readdirex()` support a new optional `{dict}` argument
    - `:help search()` supports a new `{skip}` argument
-   - `:help winnr()` supports a new argument `{N}[hjkl]` since 8.1.1140
-   - `:help getqflist()` supports the new arguments `end_col` and `end_lnum` since 8.2.3019
+   - `:help winnr()` supports a new argument `{N}[hjkl]`
+   - `:help getqflist()` supports the new arguments `end_col` and `end_lnum`
    - `:help prop_list()` supports new keys in the optional argument `{props}`:
      `end_lnum`, `types`, `ids`
    - `:help win_move_separator()` and `:help win_move_statusline()`
+
+   - `:help expand()` accepts the `<script>` argument
+   - `:help matchfuzzy()` and `:help matchfuzzypos()` accept a `limit` key in the `{dict}` argument
 
 ## output of functions
 
@@ -98,9 +101,13 @@ temporarily converting the dates into simple integers.
 
    - `:help :cq` (`:{N}cq[uit][!]`, Quit Vim with error code {N}.)
 
+   - `:help :profile` (`dump` and `stop` subcommands)
+
    - `:help :unlet-$`
 
    - `:help :vimgrep` (`f` flag for fuzzy search)
+
+   - `:help =<<` (`eval` argument)
 
 ##
 ## visual mode
@@ -203,6 +210,8 @@ Should we ask for this to work as a feature request?
 ## `:help language-server-protocol`
 
 ## `:help prompt-buffer`
+
+## `:help --log`
 
 ##
 # Review `https://arp242.net/vimlog/`

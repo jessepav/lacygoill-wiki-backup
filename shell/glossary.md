@@ -98,7 +98,7 @@ usually not, so the user is free to use whatever string suits their needs.
 If you  need to  pass a  parameter that looks  like an  option but  shouldn't be
 interpreted as such, you can separate it from the options with a double hyphen.
 
-For more:
+See:
    - <https://stackoverflow.com/a/36495940/9780968>
    - <https://stackoverflow.com/a/40654885/9780968>
 

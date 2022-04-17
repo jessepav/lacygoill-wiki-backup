@@ -1577,6 +1577,179 @@ normal! g@l
     E1248: Closure called from invalid context
 
 ##
+## Vim9: cannot use Vim9 syntax to undo settings from filetype/indent plugins
+
+**Is your feature request about something that is currently impossible or hard to do? Please describe the problem.**
+
+We cannot use the Vim9 syntax when we need to undo settings from filetype/indent plugins.
+
+That's because the contents of `b:undo_ftplugin` is run in the legacy context:
+
+    legacy exe b:undo_ftplugin
+    ^----^
+
+[source](https://github.com/vim/vim/blob/31e5c60a682840959cae6273ccadd9aae48c928d/runtime/ftplugin.vim#L25)
+
+Same thing with `b:undo_indent`:
+
+    legacy exe b:undo_indent
+    ^----^
+
+[source](https://github.com/vim/vim/blob/31e5c60a682840959cae6273ccadd9aae48c928d/runtime/indent.vim#L17)
+
+Besides, setting those variables correctly is too tricky.  See [this issue](https://github.com/vim/vim/issues/9645) for more info.  The root cause comes from the data type of the `b:undo_*` variables: a list would be better than a string.
+
+**Describe the solution you'd like**
+
+Introduce 2 new variables: `b:undo_ftplugin_list` and `b:undo_indent_list`.
+Those variables would be meant to be assigned a list of funcrefs/lambdas/strings.
+
+A list is better suited than a string because the code which undoes local settings is not necessarily read from a single script.  It can be read from several.  For example, we can have these 2 scripts:
+
+   - `$VIMRUNTIME/ftplugin/c.vim`
+   - `$HOME/.vim/after/ftplugin/c.vim`.
+
+Each of them can set options, and undo settings for the C filetype.  And it's easier to append to a list than to a string (again, see #9645).
+
+The benefit of a funcref/lambda is that it's processed in the context of the script where it is defined.  We can leverage this feature to allow the Vim9 syntax when undoing settings.
+
+**Describe alternatives you've considered**
+
+N/A
+
+**Additional context**
+
+As a suggestion, here is a patch:
+```diff
+diff --git a/runtime/doc/usr_41.txt b/runtime/doc/usr_41.txt
+index eb269e16c..21fe47a83 100644
+--- a/runtime/doc/usr_41.txt
++++ b/runtime/doc/usr_41.txt
+@@ -2514,6 +2514,17 @@ be set accordingly.
+ 
+ Both these variables use legacy script syntax, not |Vim9| syntax.
+ 
++				*undo_indent_list* *undo_ftplugin_list*
++
++Alternatively, you can set the b:undo_ftplugin_list variable with a list of
++strings and funcrefs or lambdas.  Example: >
++
++	# in a Vim9 script
++	b:undo_ftplugin_list += ['setlocal commentstring<', () => MyUndoFunc()]
++
++Note that the string items are executed with the legacy syntax.  But the
++funcrefs/lambdas are executed in the context of the script where they are
++defined; this is useful if one of your commands needs to use the Vim9 syntax.
+ 
+ FILE NAME
+ 
+diff --git a/runtime/ftplugin.vim b/runtime/ftplugin.vim
+index 2500a7f27..908fae5df 100644
+--- a/runtime/ftplugin.vim
++++ b/runtime/ftplugin.vim
+@@ -26,6 +26,23 @@ def LoadFTPlugin()
+     unlet! b:undo_ftplugin b:did_ftplugin
+   endif
+ 
++  if !exists('b:undo_ftplugin_list')
++    if &filetype != ''
++      b:undo_ftplugin_list = []
++    endif
++  else
++    if type(b:undo_ftplugin_list) == v:t_list
++      for Item in b:undo_ftplugin_list
++        if type(Item) == v:t_string
++          legacy execute Item
++        elseif type(Item) == v:t_func
++          call(Item, [])
++        endif
++      endfor
++    endif
++    unlet! b:undo_ftplugin_list
++  endif
++
+   var s = expand("<amatch>")
+   if s != ""
+     if &cpo =~# "S" && exists("b:did_ftplugin")
+diff --git a/runtime/indent.vim b/runtime/indent.vim
+index a3249956a..3709f7870 100644
+--- a/runtime/indent.vim
++++ b/runtime/indent.vim
+@@ -17,6 +17,24 @@ def s:LoadIndent()
+     legacy exe b:undo_indent
+     unlet! b:undo_indent b:did_indent
+   endif
++
++  if !exists('b:undo_indent_list')
++    if &filetype != ''
++      b:undo_indent_list = []
++    endif
++  else
++    if type(b:undo_indent_list) == v:t_list
++      for Item in b:undo_indent_list
++        if type(Item) == v:t_string
++          legacy execute Item
++        elseif type(Item) == v:t_func
++          call(Item, [])
++        endif
++      endfor
++    endif
++    unlet! b:undo_indent_list
++  endif
++
+   var s = expand("<amatch>")
+   if s != ""
+     if exists("b:did_indent")
+```
+---
+
+As extra benefits, these variables would let us write a code which is:
+
+   - more reliable (see issue #9645)
+   - easier to write (because nesting a mix of quotes inside a string is tricky)
+   - easier to read (because with a funcref/lambda we don't lose syntax highlighting, contrary to a string)
+
+As an example, compare this (copied from `$VIMRUNTIME/ftplugin/c.vim`):
+```vim
+let b:undo_ftplugin = "setl fo< com< ofu< cms< def< inc< | if has('vms') | setl isk< | endif"
+```
+To this:
+```vim
+vim9script
+b:undo_ftplugin_list = [() => {
+   setlocal formatoptions<
+   setlocal comments<
+   setlocal omnifunc<
+   setlocal commentstring<
+   setlocal define<
+   setlocal include<
+   if has('vms')
+     setlocal iskeyword<
+   endif
+}]
+```
+It's subjective, but I prefer reading the 2nd one.
+
+The current closest alternative is this:
+```vim
+let b:undo_ftplugin_list = 'call MyUndoFunc()'
+def g:MyUndoFunc()
+   setlocal formatoptions<
+   setlocal comments<
+   setlocal omnifunc<
+   setlocal commentstring<
+   setlocal define<
+   setlocal include<
+   if has('vms')
+     setlocal iskeyword<
+   endif
+enddef
+```
+But:
+
+   - this requires polluting the global namespace with a new function (where the risk of a conflict is always present)
+   - this still forces us to use some legacy syntax (namely the `:call` command)
+
 ## ?
 
 <https://github.com/vim/vim/issues/9802#issuecomment-1047828858>
@@ -1597,105 +1770,6 @@ And what about those:
 ## ?
 
 Try to replace as many `mapnew()` with `map()`.
-
-## The patch suggested in #9645 works but:
-
-   - it's cumbersome to write
-   - it's not easy to understand
-   - it's not easy to read because we lose syntax highlighting
-   - it's not easy to include a mix of single and double quotes inside the value
-   - it does not support the Vim9 syntax
-
-How about introducing a new `b:undo_ftplugin_list` variable which would be meant
-to be assigned a list of funcrefs/lambdas/strings?
-When a funcref/lambda is called with  `call()`, it's processed in the context of
-the script where it is defined:
-```diff
-diff --git a/runtime/doc/usr_41.txt b/runtime/doc/usr_41.txt
-index 66b267f93..54c89ab72 100644
---- a/runtime/doc/usr_41.txt
-+++ b/runtime/doc/usr_41.txt
-@@ -2504,8 +2504,8 @@ When the user does ":setfiletype xyz" the effect of the previous filetype
- should be undone.  Set the b:undo_ftplugin variable to the commands that will
- undo the settings in your filetype plugin.  Example: >
- 
--	b:undo_ftplugin = "setlocal fo< com< tw< commentstring<"
--		\ .. "| unlet b:match_ignorecase b:match_words b:match_skip"
-+	let b:undo_ftplugin = (get(b:, 'undo_ftplugin') ?? 'execute')
-+		\ .. "| setlocal fo< com< tw< commentstring<"
- 
- Using ":setlocal" with "<" after the option name resets the option to its
- global value.  That is mostly the best way to reset the option value.
-@@ -2516,6 +2516,20 @@ continuation, as mentioned above |use-cpo-save|.
- For undoing the effect of an indent script, the b:undo_indent variable should
- be set accordingly.
- 
-+Note that b:undo_ftplugin is executed with the legacy syntax.
-+
-+				*undo_indent_list* *undo_ftplugin_list*
-+
-+Alternatively, you can set the b:undo_ftplugin_list variable with a list of
-+strings and funcrefs or lambdas.  Example: >
-+
-+	# in a Vim9 script
-+	b:undo_ftplugin_list += ['setlocal commentstring<', () => MyUndoFunc()]
-+
-+Note that the string items are executed with the legacy syntax.  But the
-+funcrefs/lambdas are executed in the context of the script where they are
-+defined; this is useful if one of your commands needs to use the Vim9 syntax.
-+
- 
- FILE NAME
- 
-diff --git a/runtime/ftplugin.vim b/runtime/ftplugin.vim
-index a434b9372..12c840539 100644
---- a/runtime/ftplugin.vim
-+++ b/runtime/ftplugin.vim
-@@ -16,6 +16,18 @@ augroup filetypeplugin
-       exe b:undo_ftplugin
-       unlet! b:undo_ftplugin b:did_ftplugin
-     endif
-+    if !exists('b:undo_ftplugin_list') && &filetype != ''
-+      let b:undo_ftplugin_list = []
-+    elseif exists('b:undo_ftplugin_list') && type(b:undo_ftplugin_list) == v:t_list
-+      for Item in b:undo_ftplugin_list
-+        if type(Item) == v:t_string
-+          execute Item
-+        elseif type(Item) == v:t_func
-+          call call(Item, [])
-+        endif
-+      endfor
-+      unlet! b:undo_ftplugin_list b:did_ftplugin
-+    endif
- 
-     let s = expand("<amatch>")
-     if s != ""
-diff --git a/runtime/indent.vim b/runtime/indent.vim
-index 12f03648c..bd9e532a2 100644
---- a/runtime/indent.vim
-+++ b/runtime/indent.vim
-@@ -15,6 +15,18 @@ augroup filetypeindent
-       exe b:undo_indent
-       unlet! b:undo_indent b:did_indent
-     endif
-+    if !exists('b:undo_indent_list') && &filetype != ''
-+      let b:undo_indent_list = []
-+    elseif exists('b:undo_indent_list') && type(b:undo_indent_list) == v:t_list
-+      for item in b:undo_indent_list
-+	if type(item) == v:t_string
-+	  execute item
-+	elseif type(item) == v:t_func
-+	  call call(item, [])
-+	endif
-+      endfor
-+      unlet! b:undo_indent_list b:did_indent
-+    endif
-     let s = expand("<amatch>")
-     if s != ""
-       if exists("b:did_indent")
-```
-How does this patch handle the deletion of `b:undo_ftplugin_list`?
-Is it consistent with how `b:undo_ftplugin` is handled?
 
 ## Look for commands which should be passed an argument but don't give any error when they aren't
 

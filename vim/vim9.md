@@ -4591,6 +4591,102 @@ The former increases Vim's startup time, because  Vim has to look for the script
 under every `autoload/`  of the runtimepath.  And the more  entries Vim needs to
 try before finding the script, the more time-consuming the command is.
 
+### ?
+
+There  are a  few contexts  where `string()`  is necessary  to call  an imported
+function:
+
+   - `:help stl-%{`
+   - `:help 'statusline'` and `:help 'tabline'` (`%!Func()`)
+   - `:help input()` (3rd {completion} argument)
+
+Examples:
+```vim
+vim9script
+var dir = '/tmp/.vim'
+dir->delete('rf')
+&runtimepath = dir
+dir ..= '/import'
+dir->mkdir('p')
+var lines =<< trim END
+    vim9script
+    export def StatusLineItem(): string
+        return 'my status line item'
+    enddef
+END
+lines->writefile(dir .. '/script.vim')
+import 'script.vim'
+&laststatus = 2
+&statusline = '%{' .. script.StatusLineItem->string() .. '()}'
+```
+```vim
+vim9script
+var dir = '/tmp/.vim'
+dir->delete('rf')
+&runtimepath = dir
+dir ..= '/import'
+dir->mkdir('p')
+var lines =<< trim END
+    vim9script
+    export def WholeStatusLine(): string
+        return 'my whole status line'
+    enddef
+END
+lines->writefile(dir .. '/script.vim')
+import 'script.vim'
+&laststatus = 2
+&statusline = '%!' .. script.WholeStatusLine->string() .. '()'
+```
+```vim
+vim9script
+var dir = '/tmp/.vim'
+dir->delete('rf')
+&runtimepath = dir
+dir ..= '/import'
+dir->mkdir('p')
+var lines =<< trim END
+    vim9script
+    export def TabLine(): string
+        return 'my tab line'
+    enddef
+END
+lines->writefile(dir .. '/script.vim')
+import 'script.vim'
+&showtabline = 2
+&tabline = '%!' .. script.TabLine->string() .. '()'
+```
+```vim
+vim9script
+var dir = '/tmp/.vim'
+dir->delete('rf')
+&runtimepath = dir
+dir ..= '/import'
+dir->mkdir('p')
+var lines =<< trim END
+    vim9script
+    export def CompleteWords(..._): string
+        return getline(1, '$')
+            ->join(' ')
+            ->split('\s\+')
+            ->filter((_, v) => v =~ '^\a\k\+$')
+            ->sort()
+            ->uniq()
+            ->join("\n")
+    enddef
+END
+lines->writefile(dir .. '/script.vim')
+import 'script.vim'
+'the quick brown fox jumps over the lazy dog'->setline(1)
+var word: string = input('word: ', '', 'custom,' .. script.CompleteWords->string())
+```
+However, in the future, `string()` might no longer be necessary:
+
+   > The problem we need to solve is referring to the function with a string.
+   > So somehow convert "script.CompleteWords()" to a string that can be used
+   > outside of the script to call the function.
+
+[source](https://github.com/vim/vim/issues/10197#issuecomment-1100431974)
+
 ##
 ### the first things to do after pasting a legacy function into a Vim9 script
 

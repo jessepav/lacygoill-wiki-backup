@@ -1,20 +1,20 @@
 # getting the contents of a register
 ## How to display the contents and types of the registers `a`, `b`, and `c`?
 
-    :reg abc
+    :registers abc
 
 ## How to get the contents of a register as a list of lines?  (2)
 
 Use `getreginfo()`:
 
-    echo getreginfo('r').regcontents
+    :echo getreginfo('r').regcontents
 
 ---
 
-Or pass the third optional boolean argument `1` to `getreg()`:
+Or pass the third optional boolean argument `v:true` to `getreg()`:
 
-    echo getreg('r', 1, 1)
-                        ^
+    :echo getreg('r', v:true, v:true)
+                              ^----^
 
 Note that the second argument is ignored here, so you could write any expression
 in its place.
@@ -27,10 +27,10 @@ Use `getreginfo()`:
 
 ---
 
-Or pass the second optional boolean argument `1` to `getreg()`:
+Or pass the second optional boolean argument `v:true` to `getreg()`:
 
-    getreg('=', 1)
-                ^
+    echo getreg('=', v:true)
+                     ^----^
 
 Without  this  argument,  or  if  it was  false,  `getreg()`  would  return  the
 evaluation of the last expression instead of the expression itself.
@@ -41,8 +41,8 @@ evaluation of the last expression instead of the expression itself.
 
 Usage example:
 
-                                                 vv
-    $ vim -Nu NONE -i NONE +"pu!='text'" +'norm! "ryy'
+                                                     vv
+    $ vim -Nu NONE -i NONE +"put! ='text'" +'normal! "ryy'
     :echo getreginfo('"').points_to
     r˜
 
@@ -52,11 +52,11 @@ Usage example:
 
 Use `getreginfo()` and `setreg()`:
 
-    " save
-    let r_save = getreginfo('r')
+    # save
+    :let r_save = getreginfo('r')
 
-    " restore
-    call setreg('r', r_save)
+    # restore
+    :call setreg('r', r_save)
 
 ## How to change the register which the unnamed register points to?
 
@@ -64,16 +64,16 @@ Use `getreginfo()` and `setreg()`:
 
 Example:
 
-    $ vim -Nu NONE -i NONE +'call setline(1, ["aaa", "zzz"])' +'norm! "ayyj"zyy'
+    $ vim -Nu NONE -i NONE +'call setline(1, ["aaa", "zzz"])' +'normal! "ayyj"zyy'
 
-    :pu
+    :put
     " 'zzz' is put
     :echo getreginfo('"').points_to
     z˜
 
     :call setreg('a', {'isunnamed': v:true})
 
-    :pu
+    :put
     " 'aaa' is put
     :echo getreginfo('"').points_to
     a˜
@@ -82,22 +82,22 @@ Example:
 
 Use a combination of `setreg()`, `getreginfo()` and `extend()`:
 
-    call getreginfo('r')->extend({'regtype': 'V'})->setreg('r')
-                                              ^
-                                              new desired type
+    :call getreginfo('r')->extend({'regtype': 'V'})->setreg('r')
+                                               ^
+                                               new desired type
 
 ### Why not relying on the 3rd argument of `setreg()` and appending an empty string?  (2)
 
 So, you're thinking about sth like this:
 
-    call setreg('r', [''], 'aV')
+    :call setreg('r', [''], 'aV')
 
 There are two pitfalls.
 
 First, if you try  to alter the type of the unnamed register  like that, it will
-be automatically reconnected to `"0`.
+be automatically reconnected to `"0`:
 
-    $ vim -Nu NONE -i NONE +"pu!='text'" +'norm! "ryy'
+    $ vim -Nu NONE -i NONE +"put! ='text'" +'normal! "ryy'
     :echo getreginfo('"').points_to
     r˜
 
@@ -109,9 +109,9 @@ Second,  if you  – accidentally  –  reset a  linewise register  into a  line
 register  (yeah, I  know,  it's  useless; hence  the  *accidentally*), Vim  will
 happily append an undesirable extra newline:
 
-    $ vim -Nu NONE -i NONE +"pu!='text'" +'norm! yy'
+    $ vim -Nu NONE -i NONE +"put! ='text'" +'normal! yy'
     :call setreg('"', [''], 'aV')
-    :reg "
+    :registers "
     l  ""   text^J^J˜
                   ^^
                   ✘
@@ -123,7 +123,7 @@ See: <https://github.com/vim/vim/issues/323>
 
 It would be automatically reconnected to `"0` right before the text is written.
 
-    $ vim -Nu NONE -i NONE +"pu!='text'" +'norm! "ryy'
+    $ vim -Nu NONE -i NONE +"put! ='text'" +'normal! "ryy'
     :echo getreginfo('"').points_to
     r˜
 
@@ -133,7 +133,7 @@ It would be automatically reconnected to `"0` right before the text is written.
 
 Same thing if you use `:let` instead of `setreg()`:
 
-    :norm! "ryy
+    :normal! "ryy
     :echo getreginfo('"').points_to
     r˜
 
@@ -167,7 +167,7 @@ long time.  IOW, you won't find it unexpected that it mutates automatically.
 
 It doesn't preserve the original type of the register `r`.
 
-    norm! "ryy
+    normal! "ryy
     echo getregtype('r')
     V˜
 
@@ -186,7 +186,7 @@ Use the third argument of `setreg()` to preserve the type:
 
 Example:
 
-    norm! "ryy
+    normal! "ryy
     echo getregtype('r')
     V˜
 
@@ -230,7 +230,7 @@ string or a list.
 ###
 ## How to use `:redir` to redirect the output of an Ex command into a register?
 
-    :redir @r | sil! cmd | redir END
+    :redir @r | silent! cmd | redir END
 
 This redirects the output of `cmd` inside the register `r`.
 
@@ -246,14 +246,14 @@ all the lines which were never displayed; `:silent` avoids this pitfall.
 
 Uppercase the register name:
 
-    :redir @R | sil! cmd | redir END
+    :redir @R | silent! cmd | redir END
             ^
 
 #### That's not possible for the clipboard!
 
 You can also append `>>` to the register name:
 
-    :redir @+>> | sil! cmd | redir END
+    :redir @+>> | silent! cmd | redir END
              ^^
 
 ##
@@ -288,20 +288,22 @@ You can choose a different default register via the `'clipboard'` option.
 
 The search register.
 
-See `:h function-search-undo`.
+See `:help function-search-undo`.
 
    > The last used search pattern and the redo command "."
    > will not be changed by the function.
-
-    s/outside func call//ne
-    fu! Func()
-        s/inside func call//ne
-        echom @/
-    endfu
-    call Func()
-    echom @/
-    inside func call˜
-    outside func call˜
+```vim
+vim9script
+substitute/outside func call//ne
+def Func()
+    substitute/inside func call//ne
+    echomsg @/
+enddef
+Func()
+echomsg @/
+```
+    inside func call
+    outside func call
 
 Warning: Do *not*  use our custom  `+s` operator to  source this code;  it would
 interfere with the results.  And do *not* run the code via `:@*` after selecting
@@ -311,64 +313,75 @@ Instead, write the code in a file, and source it with `:so%`.
 
 ### When is it not restored?
 
-When you set it manually via `:let` or `setreg()`.
-
-    s/outside func call//ne
-    fu! Func()
-        let @/ = 'inside func call'
-      " ^-^
-    endfu
-    call Func()
-    echo @/
-    inside func call˜
+When you set it manually via an assignment or `setreg()`.
+```vim
+vim9script
+substitute/outside func call//ne
+def Func()
+    @/ = 'inside func call'
+  # ^--^
+enddef
+Func()
+echo @/
+```
+    inside func call
 
 ### What about the dot register?  Is it restored?
 
 No:
-
-    norm! o" outside
-    echom @.
-    fu! Func()
-        norm! o" inside
-        echom @.
-        norm! .
-    endfu
-    call Func()
-    echom @.
-    " outside˜
-    " inside˜
-    " inside˜
+```vim
+vim9script
+normal! o# outside
+echomsg @.
+def Func()
+    normal! o# inside
+    echomsg @.
+    normal! .
+enddef
+Func()
+echomsg @.
+```
+    # outside
+    # inside
+    # inside
       ^----^
       after the function call, the dot register has not been restored
 
 But it doesn't matter.
 The dot command is not affected; it keeps its original behavior:
-
-    norm! o" outside
-    fu! Func()
-        norm! o" inside
-        norm! .
-    endfu
-    call Func()
-    norm! .
-    " outside˜
-    " inside˜
-    " inside˜
-    " outside˜
+```vim
+vim9script
+normal! o# outside
+def Func()
+    normal! o# inside
+    normal! .
+enddef
+Func()
+normal! .
+```
+    # outside
+    # inside
+    # inside
+    # outside
       ^-----^
       after the function call, the dot command still repeats the last command performed *before* the function call
 
 In fact, as soon as you use it, the `.` register is restored:
-
-    norm! o" outside
-    fu! Func()
-        norm! o" inside
-        norm! .
-    endfu
-    call Func()
-    norm! .
-    echom @.
-    " outside˜
+```vim
+vim9script
+normal! o# outside
+def Func()
+    normal! o# inside
+    normal! .
+enddef
+Func()
+normal! .
+echomsg @.
+```
+    # outside
+    # inside
+    # inside
+    # outside
 
 ##
 ## What's stored in the search register `"/`?
@@ -411,7 +424,7 @@ Vim resets  the search register  with the pattern used  in the last  `:s`, `:g`,
     :s/sub//en
     /slash
     :let @/ = ''
-    norm! n
+    normal! n
     " 'n' jumps to the next occurrence of 'sub'
 
 #### What if I also remove the search register from the history (`:call histdel('/', @/)`) before pressing `n`?
@@ -422,7 +435,7 @@ Vim adds the search register back into the history.
     /slash
     :call histdel('/', @/)
     :let @/ = ''
-    norm! n
+    normal! n
     " 'n' still jumps to the next occurrence of 'sub'
 
 ###
@@ -467,40 +480,40 @@ The evaluation of the last expression is used:
 
 In the numbered register `0`:
 
-    $ vim -Nu NONE -i NONE +"pu='if anything remember this'"
-    :norm! wwy$
+    $ vim -Nu NONE -i NONE +"put ='if anything remember this'"
+    :normal! wwy$
     :echo @0
     remember this˜
 
 Unless you specified another explicit register:
 
-    $ vim -Nu NONE -i NONE +"pu='if anything remember this'"
-    :norm! ww"ry$
-    :reg 0r
+    $ vim -Nu NONE -i NONE +"put ='if anything remember this'"
+    :normal! ww"ry$
+    :registers 0r
     c  "r   remember this˜
 
 ### the last changed or deleted text smaller than one line?
 
 In the small delete register `-`:
 
-    $ vim -Nu NONE -i NONE +"pu='once upon DELETEME a time'"
-    :norm! wwde
+    $ vim -Nu NONE -i NONE +"put ='once upon DELETEME a time'"
+    :normal! wwde
     :echo @-
     DELETEME˜
 
-See `:h quote_-`.
+See `:help quote_-`.
 
 ### the last changed or deleted text bigger than one line?
 
 In the numbered register `1`:
 
-    $ vim -Nu NONE -i NONE +"pu=['once', 'upon', 'DELETE', 'ME', 'a', 'time']"
+    $ vim -Nu NONE -i NONE +"put =['once', 'upon', 'DELETE', 'ME', 'a', 'time']"
     :3,4d
     :echo @1
     DELETE˜
     ME˜
 
-See: `:h quote_number`.
+See: `:help quote_number`.
 
 #### What's the side-effect of such a change/deletion?
 
@@ -528,15 +541,15 @@ When you combine the change or delete operator with one of these motions:
 
 In that case, Vim always uses the `"1` register (in addition to `"-`).
 
-    $ vim -Nu NONE -i NONE +"pu='once upon (DELETE ME) a time'"
-    :norm! wwd%
-    :reg 1-
+    $ vim -Nu NONE -i NONE +"put ='once upon (DELETE ME) a time'"
+    :normal! wwd%
+    :registers 1-
     c  "1   (DELETE ME)˜
     c  "-   (DELETE ME)˜
 
-    $ vim -Nu NONE -i NONE +"pu='once upon (CHANGE ME) a time'"
-    :norm! wwc%replacement
-    :reg 1-
+    $ vim -Nu NONE -i NONE +"put ='once upon (CHANGE ME) a time'"
+    :normal! wwc%replacement
+    :registers 1-
     c  "1   (CHANGE ME)˜
     c  "-   (CHANGE ME)˜
 
@@ -557,13 +570,13 @@ Then the text is only saved into that register.
 
 Examples:
 
-    $ vim -Nu NONE -i NONE +"pu='if anything remember this'"
-    :norm! ww"ay$
+    $ vim -Nu NONE -i NONE +"put ='if anything remember this'"
+    :normal! ww"ay$
     :echo @0
     ''˜
 
-    $ vim -Nu NONE -i NONE +"pu='once upon DELETEME a time'"
-    :norm! ww"bde
+    $ vim -Nu NONE -i NONE +"put ='once upon DELETEME a time'"
+    :normal! ww"bde
     :echo @-
     ''˜
 
@@ -571,12 +584,12 @@ Examples:
 
 This exception does not affect a big change/deletion:
 
-    $ vim -Nu NONE -i NONE +"pu=['once', 'upon', 'DELETE', 'ME', 'a', 'time']"
-    :3,4d c
-    :reg 1
+    $ vim -Nu NONE -i NONE +"put =['once', 'upon', 'DELETE', 'ME', 'a', 'time']"
+    :3,4 delete c
+    :registers 1
     l  "1   DELETE^JME^J˜
 
-Which seems to contradict the documentation at `:h quote_number`:
+Which seems to contradict the documentation at `:help quote_number`:
 
    > Numbered register 1 contains the text deleted by the most recent delete or
    > change command, **unless the command specified another register**
@@ -589,9 +602,9 @@ If your text is  bigger than 1 line and you use a  deletion, then Vim writes the
 text in the register 1 *and* in the register you specified +1.
 For example, `"3dd` writes the current line in the registers 1 and 4.
 
-    $ vim -Nu NONE -i NONE +"pu='some text'"
+    $ vim -Nu NONE -i NONE +"put ='some text'"
     "3dd
-    :reg 123456789
+    :registers 123456789
     l  "1   some text^J˜
     l  "4   some text^J˜
 
@@ -599,20 +612,20 @@ For example, `"3dd` writes the current line in the registers 1 and 4.
 
 In all other cases, the text is only written in the register you specified.
 
-    $ vim -Nu NONE -i NONE +"pu='some text'"
+    $ vim -Nu NONE -i NONE +"put ='some text'"
     "3diw
-    :reg 123456789
+    :registers 123456789
     c  "3   some˜
 
 The  old contents  from  the numbered  register is  *not*  shifted into  another
 numbered register; it's lost.
 
-    $ vim -Nu NONE -i NONE +"pu='some text'" +"pu='some other text'"
+    $ vim -Nu NONE -i NONE +"put ='some text'" +"put ='some other text'"
     1G
     "3yy
     2G
     "3yy
-    :reg 123456789
+    :registers 123456789
     c  "3   some other text^J˜
 
 ##
@@ -641,11 +654,11 @@ This  works  because   when  Vim  puts  the  duplicated  line,   the  cursor  is
 automatically positioned on the first non-whitespace character.
 
     $ vim -Nu NONE -i NONE -S <(tee <<'EOF'
-        set list showcmd ai
+        set list showcmd autoindent
         let lines = range(1,8)->map({_, v -> repeat(' ', v) .. repeat("\t", v < 5 ? 1 : 2) .. 'some line'})
         call setline(1, lines)
-        g/^\s/pu_
-        norm! 1G1|
+        global /^\s/ put _
+        normal! 1G1|
     EOF
     )
 
@@ -690,9 +703,9 @@ If the assertion fails, `E486` will be raised and the macro will stop.
 ##
 ## How to execute a macro on several consecutive lines?
 
-Execute the macro via `:norm!`:
+Execute the macro via `:normal!`:
 
-    :12,34norm! @q
+    :12,34normal! @q
      ^---^
      range of lines on which the macro will be executed
 
@@ -701,24 +714,24 @@ Execute the macro via `:norm!`:
 Remember that  we have a  mapping to execute  a macro on  each line in  a visual
 selection:
 
-    :xno @ <c-\><c-n><cmd>exe '*norm @' .. getchar()->nr2char()<cr>
+    :xnoremap @ <C-\><C-n><Cmd>execute ':* normal @' .. getchar()->nr2char()<cr>
 
 Use it to repeat a macro on an arbitrary range of lines.
 
 ## My macro needs to move the cursor at the start of the line.  I forgot to record this motion!
 
-Exexute the macro via `:norm!` *with* a range.
+Exexute the macro via `:normal!` *with* a range.
 
     ✘
-    :norm! @q
+    :normal! @q
 
     ✔
-    :.norm! @q
+    :.normal! @q
      ^
 
-With a range,  `:norm` will automatically move  the cursor at the  start of each
-line inside the latter.  Without a range, `:norm` would just press the keys from
-the current cursor position.
+With a range, `:normal` will automatically move  the cursor at the start of each
+line inside  the latter.  Without a  range, `:normal` would just  press the keys
+from the current cursor position.
 
 ##
 ## I need a macro for a complex edition.  How to simplify the process a little?
@@ -773,9 +786,9 @@ default.  If it does not, you'll need to press CR manually.
     :set cpo-=e
     :let @q = 'echo "test"'
     :@q
-    " press CR
+    # press CR
 
-From `:h cpo-e`:
+From `:help cpo-e`:
 
    > *cpo-e*
    > ...
@@ -815,12 +828,12 @@ before executing  a recursive  macro –  you want `'whichwrap'`  to be  empty a
 
 ### How to make it stop at an arbitrary position?
 
-Before starting recording, press `ms` to  set the mark `s` (mnemonic: *s*top) on
-the desired position.  Then, as soon as you start recording, run this:
+Before  starting recording,  press  `mm` to  set  the mark  `m`  on the  desired
+position.  Then, as soon as you start recording, run this:
 
-    /\%#\%<'s
+    /\%#\%<'m
 
-This last command should assert that your cursor is before the mark `s`.
+This last command should assert that your cursor is before the mark `m`.
 When this  assertion fails, `E486` should  be raised, which in  turn should stop
 the macro.
 
@@ -832,19 +845,19 @@ and thus  sure that  `E486` will  be raised,  then you  shouldn't need  to reset
 
 If you want to practice, run this:
 
-    $ vim -Nu NONE +'pu=range(1,100)|%j|s/0 \zs/\r/g'
-    " set the mark 's' on the first digit of the first number you do *not* want to increment
-    " press: qqq
+    $ vim -Nu NONE +'put =range(1,100) | :% join | substitute/0 \zs/\r/g'
+    # set the mark 'm' on the first digit of the first number you do *not* want to increment
+    # press: 1go
+             qqq
              qq
-             /\%#\%<'s
+             /\%#\%<'m
              C-a
              w
              @q
              q
-             gg
              @q
 
-All the numbers should be incremented until the mark `s`.
+All the numbers should be incremented until the mark `m`.
 
 ### How to turn an existing non-recursive macro into a recursive one?  (2)
 
@@ -859,7 +872,7 @@ Or press:
 ##
 ## I have a macro which needs to execute another recursive macro, then some commands:
 
-    let @a = "@bvip:v/x/d_\r\e"
+    let @a = "@bvip:vglobal /x/ delete_ \<CR>\<Esc>"
     let @b = '^lllyyp$2hd^k$x@b'
 
 The purpose  is to  get a  list of all  three-characters subsequences  from some
@@ -920,18 +933,18 @@ On the other hand, you need to prevent any error so that `@a` is processed entir
 
 ### How to fix it?
 
-Don't run `@b` directly; run it from `:norm`.
-No error is raised by `:norm`, even if you ask it to run an invalid command:
+Don't run `@b` directly; run it from `:normal`.
+No error is raised by `:normal`, even if you ask it to run an invalid command:
 
     " ✔
-    :norm! :not a cmd^M
-                     ^^
-                     literal carriage return
+    :normal! :not a cmd^M
+                       ^^
+                       literal carriage return
 
 Applied to our issue, it gives:
 
-    let @a = ":norm!@b\rvip:v/x/d_\r\e"
-              ^----^
+    let @a = ":normal!@b\<CR>vip:vglobal /x/ delete _\<CR>\<Esc>"
+              ^------^
 
 This time, `@a` should get you:
 
@@ -946,9 +959,9 @@ This time, `@a` should get you:
 
 Do *not* use `silent!`, it would make Vim *ignore* any error while pressing the keys:
 
-    let @a = ":sil! norm!@b\rvip:v/x/d_\r\e"
-               ^--^
-               ✘
+    let @a = ":silent! normal!@b\<CR>vip:vglobal /x/ delete _\<CR>\<Esc>"
+               ^-----^
+                  ✘
 
 You need the error *not* to be ignored for `@b` to stop.
 
@@ -957,21 +970,21 @@ You need the error *not* to be ignored for `@b` to stop.
 
 No, unless you pass the `t` flag to `feedkeys()`:
 
-    $ vim -Nu NONE +'nno <c-a> <cmd>call feedkeys("<c-b>")<cr>'
+    $ vim -Nu NONE +'nnoremap <C-a> <Cmd>call feedkeys("<C-b>")<cr>'
     " press:
              qq
              C-a
              q
-    :reg q
+    :registers q
     c  "q   ^A˜
 
-                                                            v
-    $ vim -Nu NONE +'nno <c-a> <cmd>call feedkeys("<c-b>", "t")<cr>'
+                                                                 v
+    $ vim -Nu NONE +'nnoremap <c-a> <Cmd>call feedkeys("<C-b>", "t")<cr>'
     " press:
              qq
              C-a
              q
-    :reg q
+    :registers q
     c  "q   ^A^B˜
               ^^
 
@@ -983,11 +996,13 @@ mapping, and Vim records it.
 For this reason, use the `t` flag only when it's really necessary.
 Otherwise, the replay of a macro may give an unexpected result:
 
-    $ vim -Nu NONE +'set wcm=9 | cno <s-tab> <cmd>call feedkeys("\<lt>s-tab>", "int")<cr>' +"pu='some text'"
-    " press:
-    "        qq : Tab Tab Tab S-Tab CR
-    "        q
-    "        @q
+    $ vim -Nu NONE \
+        +'set wildcharm=9 | cnoremap <S-Tab> <Cmd>call feedkeys("\<lt>S-Tab>", "int")<CR>' \
+        +"put ='some text'"
+    # press:
+    #        qq : Tab Tab Tab S-Tab CR
+    #        q
+    #        @q
 
 The macro should  replay `:#` which should print the  current line; instead, Vim
 runs `:!`.
@@ -1003,14 +1018,14 @@ one.  One for  the `S-Tab` you've pressed interactively, and  another one fed by
 
 In command-line mode, use `:put`.
 
-    $ vim -Nu NONE +"pu=['a', 'b']"
-    :exe "norm! ggy\<c-v>j"
-    :norm! p
+    $ vim -Nu NONE +"put =['a', 'b']"
+    :execute "normal! ggy\<C-v>j"
+    :normal! p
     aa˜
     bb˜
 
     :undo
-    :pu
+    :put
     a˜
     a˜
     b˜
@@ -1039,7 +1054,7 @@ When you provide a  numbered register to a command or  operator, the dot command
 does not  repeat the exact  same command;  it increments the  numbered register;
 when 9 is reached, it keeps using the register 9 (it doesn't get back to 1).
 
-This is documented at `:h redo-register`.
+This is documented at `:help redo-register`.
 
 ## How to move 3 non-consecutive big texts (>= 1 line) to non-consecutive new locations?
 
@@ -1156,7 +1171,7 @@ This will affect the behavior of `:b#` and `C-^`.
 
 Note that the new alternate file must match an existing buffer.
 
-    sil! exe 'bw! ' .. $MYVIMRC
+    silent! execute 'bwipeout! ' .. $MYVIMRC
     let @# = $MYVIMRC
     E94: No matching buffer for ...˜
 
@@ -1210,8 +1225,8 @@ If you want to practice, run this:
     $ vim -Nu NONE -S <(tee <<'EOF'
         %d_
         " populate listing A
-        pu!='/path/to/file1'
-        exe 'norm! yy' .. (winheight(0)-1) .. "p2GVGg\<c-a>gg"
+        put! ='/path/to/file1'
+        execute 'normal! yy' .. (winheight(0)-1) .. "p2GVGg\<c-a>gg"
         update
         " focus file B
         wincmd w
@@ -1221,7 +1236,7 @@ If you want to practice, run this:
         " remove random existing line whose address is above or equal to 5
         let seed = srand()
         let random = 5 + rand(seed) % (winheight(0)-4)
-        exe random .. 'd_'
+        execute random .. 'd_'
         wincmd w
     EOF
     ) -O /tmp/listingA /tmp/fileB
@@ -1232,14 +1247,14 @@ If you want to practice, run this:
 
 When the value you assign contains a NUL, because Vim will translate it into a NL.
 
-This issue is explained at `:h NL-used-for-NUL`.
+This issue is explained at `:help NL-used-for-NUL`.
 
 ---
 
 Also when it ends with a CR, because Vim will append a literal `C-j`:
 
-    let @q = ":\r"
-    reg q
+    let @q = ":\<CR>"
+    registers q
     "q   :^M^J
             ^^
 
@@ -1248,17 +1263,17 @@ If you've mapped something to `C-j`, it will have unexpected effects.
 
 Example when CR is pressed in command-line mode:
 
-    $ vim -Nu NONE +'let @q = ":\<cr>"' +'nno <c-j> <cmd>echom "this should NOT be executed"<cr>'
+    $ vim -Nu NONE +'let @q = ":\<CR>"' +'nnoremap <C-j> <Cmd>echomsg "this should NOT be executed"<CR>'
     " press @q: the C-j mapping is executed (the message is logged)
 
 Example when CR is pressed in normal mode:
 
-    $ vim -Nu NONE +"pu_" +'let @q = "\<cr>"' +'nno <c-j> <cmd>echom "this should NOT be executed"<cr>'
-                    ^---^
+    $ vim -Nu NONE +"put _" +'let @q = "\<cr>"' +'nnoremap <C-j> <Cmd>echomsg "this should NOT be executed"<CR>'
+                    ^-----^
                     there needs to be a line after the one from which we press `@q`,
                     otherwise, `^M` would fail and Vim would stop executing the macro
 
-This issue is explained at `:h :let-@`:
+This issue is explained at `:help :let-@`:
 
    > If the result of {expr1} ends in a <CR> or <NL>, the
    > register will be linewise, otherwise it will be set to
@@ -1273,7 +1288,7 @@ For the first issue, use `setreg()` and pass the value as a list, not as a strin
 
                                                   ✘
                                                   v------v
-    $ vim -es -Nu NONE -i NONE +'call setreg("q", "a\x0ab", "c")' +'pu=execute(\"reg q\") | %p | qa!'
+    $ vim -es -Nu NONE -i NONE +'call setreg("q", "a\x0ab", "c")' +'put =execute(\"registers q\") | :% print | quitall!'
     Type Name Content˜
       c  "q   a^Jb˜
                ^^
@@ -1281,7 +1296,7 @@ For the first issue, use `setreg()` and pass the value as a list, not as a strin
 
                                                   ✔
                                                   v--------v
-    $ vim -es -Nu NONE -i NONE +'call setreg("q", ["a\x0ab"], "c")' +'pu=execute(\"reg q\") | %p | qa!'
+    $ vim -es -Nu NONE -i NONE +'call setreg("q", ["a\x0ab"], "c")' +'put =execute(\"registers q\") | :% print | quitall!'
     Type Name Content˜
       c  "q   a^@b˜
                ^^
@@ -1292,7 +1307,7 @@ For the first issue, use `setreg()` and pass the value as a list, not as a strin
 For the second issue, use `setreg()` and pass it the third argument `c`:
 
                                                                 v
-    $  vim -es -Nu NONE -i NONE +'call setreg("q", [":\<cr>"], "c")' +'pu=execute(\"reg q\") | %p | qa!'
+    $  vim -es -Nu NONE -i NONE +'call setreg("q", [":\<cr>"], "c")' +'put =execute(\"registers q\") | :% print | quitall!'
     Type Name Content˜
       c  "q   :^M˜
 
@@ -1311,13 +1326,13 @@ NL and one which results from the translation of a NUL.
 
     $ vim -es -Nu NONE -i NONE -S <(tee <<'EOF'
         call setline(1, "original:  a\x0ab\x0ac")
-        norm! ^fa"ry$
+        normal! ^fa"ry$
         let save = [getreg('r'), getregtype('r')]
         "           ^---------^
         call setreg('r', save[0], save[1])
-        pu='restored:  ' .. execute('reg r')->split('\n')[1]->matchstr(':\s*\zs.*')
-        %p
-        qa!
+        put ='restored:  ' .. execute('registers r')->split('\n')[1]->matchstr(':\s*\zs.*')
+        :% print
+        quitall!
     EOF
     )
 
@@ -1326,7 +1341,7 @@ NL and one which results from the translation of a NUL.
                 ^^ ^^
                 ✘  ✘
 
-See `:h getreg() /NL`:
+See `:help getreg() /NL`:
 
    > If {list} is present and |TRUE|, the result type is changed
    > to |List|. Each list item is one text line. Use it if you care
@@ -1346,10 +1361,10 @@ translate it as a NL:
 
     $ vim -es -Nu NONE -i NONE -S <(tee <<'EOF'
         call setline(1, "a\x0ab")
-        norm! ^"ry$
-        set vbs=1 | echo getreg('r', 1, 1)
-        "                               ^
-        qa!
+        normal! ^"ry$
+        set verbose=1 | echo getreg('r', v:true, v:true)
+        "                                        ^----^
+        quitall!
     EOF
     )
 
@@ -1363,13 +1378,13 @@ translate it back into a NUL.
 
     $ vim -es -Nu NONE -i NONE -S <(tee <<'EOF'
         call setline(1, "original:  a\x0ab\x0ac")
-        norm! ^fa"ry$
+        normal! ^fa"ry$
         let save = [getreg('r', 1, 1), getregtype('r')]
         "                          ^
         call setreg('r', save[0], save[1])
-        pu='restored:  ' .. execute('reg r')->split('\n')[1]->matchstr(':\s*\zs.*')
-        %p
-        qa!
+        put ='restored:  ' .. execute('registers r')->split('\n')[1]->matchstr(':\s*\zs.*')
+        :% print
+        quitall!
     EOF
     )
 
@@ -1406,7 +1421,7 @@ This is  similar to  Vim inserting  a NUL on  the command-line  when you  try to
 insert a NL by pressing `C-v C-j`.
 
 Exceptions:  The  search and  expression registers can't  contain more  than one
-item.  See `:h E883`.  So, it's ok to write `@/` or `@=` inside a pattern.
+item.  See `:help E883`.  So, it's ok to write `@/` or `@=` inside a pattern.
 
 ##
 ## `@@` does not replay my last macro as expected!
@@ -1415,9 +1430,9 @@ The last macro is not necessarily the one you've executed interactively.
 Indeed, the latter could have executed another (nested) macro.  If so, then this
 other macro *is* the last one.
 
-    $ vim -Nu NONE +'let @a = "a@a\e@b" | let @b = "a @b \e"'
-    " press @a: '@a @b ' is inserted
-    " press @@: ' @b'    is inserted
+    $ vim -Nu NONE +'let @a = "a@a\<Esc>@b" | let @b = "a @b \<Esc>"'
+    # press @a: '@a @b ' is inserted
+    # press @@: ' @b'    is inserted
 
 Here, notice how  `@@` repeats `@b`, even though the  last macro you've executed
 interactively was `@a`.
@@ -1433,23 +1448,26 @@ macro to be  reset to `@=`.  Which  means that – subsequently –  `@@` will r
 
 You could  install wrapper mappings around  `@` and `@@` to  save/re-execute the
 last register which was executed *interactively*.
+```vim
+vim9script
+@a = "a@a\<Esc>@b"
+@b = "a @b \<Esc>"
 
-    let @a = "a@a\e@b" | let @b = "a @b \e"
+var last_register_executed_interactively: string
+nmap <expr> @ FixMacroExecution()
+def FixMacroExecution(): string
+    var char = getchar()->nr2char(1)
+    if reg_executing()->empty()
+        last_register_executed_interactively = char
+    endif
+    return '@' .. char
+enddef
 
-    nmap <expr> @ <sid>fix_macro_execution()
-    fu s:fix_macro_execution() abort
-        let char = getchar()->nr2char(1)
-        if reg_executing()->empty()
-            let s:last_register_executed_interactively = char
-        endif
-        return '@' .. char
-    endfu
-
-    nmap <expr> @@ <sid>atat()
-    fu s:atat() abort
-        return '@' .. get(s:, 'last_register_executed_interactively', '@')
-    endfu
-
+nmap <expr> @@ AtAt()
+def AtAt(): string
+    return '@' .. (last_register_executed_interactively ?? '@')
+enddef
+```
 ##
 ## During a recording, after `o` or `O`, do *not* press `C-u` to remove all the indentation of the current line.
 
@@ -1470,22 +1488,22 @@ there's no indentation, `C-u` may remove the previous newline.
     " because C-u has immediately removed the newline added by the 'o' command
 
 ##
-## My macro doesn't work as expected, unless I disable `exe "set <m-x>=\ex"`?
+## My macro doesn't work as expected, unless I disable `execute "set <m-x>=\<Esc>x"`?
 
 Cause:
 
-When you  execute the register, Vim  wrongly translates the sequence  `\ex` into
-the terminal key `<M-x>`:
+When you  execute the  register, Vim wrongly  translates the  sequence `\<Esc>x`
+into the terminal key `<M-x>`:
 
     $ vim -es -Nu NONE -S <(tee <<'EOF'
-        set ttm=10
-        exe "set <m-f>=\ef"
-        0pu=['b.', 'b.']
+        set ttimeoutlen=10
+        execute "set <M-f>=\<Esc>f"
+        :0 put =['b.', 'b.']
         1
-        let @q = "ia.\ef.ac\e"
-        1,2norm! @q
-        %p
-        qa!
+        let @q = "ia.\<Esc>f.ac\<Esc>"
+        :1,2 normal! @q
+        :% print
+        quitall!
     EOF
     )
 
@@ -1509,11 +1527,11 @@ Replace any  escape character which is  not part of a  terminal escape sequence,
 with a `<c-\><c-n>` sequence:
 
     ✘
-    let @q = "ia.\ef.ac\e"
-                 ^^^
+    let @q = "ia.\<Esc>f.ac\<Esc>"
+                 ^-----^
 
     ✔
-    let @q = "ia.\<c-\>\<c-n>f.ac\e"
+    let @q = "ia.\<C-\>\<C-n>f.ac\<Esc>"
                  ^----------^
 
 Don't use `<c-c>`; it would prevent `InsertLeave` from being fired.
@@ -1529,30 +1547,31 @@ though, maybe because you don't type as fast as Vim...  It looks like a bug.
 Examples:
 
     $ vim -Nu NONE -S <(tee <<'EOF'
-        let @q = 'Vr-x'
-        xno x <cmd>call Func()<cr>
-        fu Func()
-            echom 'x mapping is used'
-        endfu
-        pu!='some text'
-        au VimEnter * call feedkeys('@q')
+        vim9script
+        @q = 'Vr-x'
+        xnoremap x <ScriptCmd>Func()<cr>
+        def Func()
+            echomsg 'x mapping is used'
+        enddef
+        put! ='some text'
+        autocmd VimEnter * feedkeys('@q')
     EOF
     )
 
-    :mess
-    x mapping is used˜
+    x mapping is used
 
     $ vim -es -Nu NONE -S <(tee <<'EOF'
-        ono foo bar
-        let @q = "ctdfoo\<esc>"
-        pu!='abcd'
-        call feedkeys('@q', 'x')
-        %p
-        qa!
+        vim9script
+        onoremap foo bar
+        @q = "ctdfoo\<Esc>"
+        put! ='abcd'
+        feedkeys('@q', 'x')
+        :% print
+        quitall!
     EOF
     )
 
-    bard˜
+    bard
     ^^^
     should be foo
 
@@ -1560,34 +1579,35 @@ As a workaround, try to press `Esc` to be sure that the rest of the commands are
 processed in the mode you expect:
 
     $ vim -Nu NONE -S <(tee <<'EOF'
-        let @q = "Vr-\ex"
-        "            ^^
-        xno x <cmd>call Func()<cr>
-        fu Func()
-            echom 'x mapping is used'
-        endfu
-        pu!='some text'
-        au VimEnter * call feedkeys('@q')
+        vim9script
+        @q = "Vr-\<Esc>x"
+        #        ^----^
+        xnoremap x <ScriptCmd>Func()<cr>
+        def Func()
+            echomsg 'x mapping is used'
+        enddef
+        put! ='some text'
+        autocmd VimEnter * feedkeys('@q')
     EOF
     )
 
-    :mess
-    ''˜
+    # no output
 
 If the mode you expect is not normal, use a no-op instead of `Esc`:
 
     $ vim -es -Nu NONE -S <(tee <<'EOF'
-        ono foo bar
-        let @q = "ctd\<c-r>=''\<cr>foo\<esc>"
-        "            ^------------^
-        pu!='abcd'
-        call feedkeys('@q', 'x')
-        %p
-        qa!
+        vim9script
+        onoremap foo bar
+        @q = "ctd\<C-r>=''\<CR>foo\<Esc>"
+        #        ^------------^
+        put! ='abcd'
+        feedkeys('@q', 'x')
+        :% print
+        quitall!
     EOF
     )
 
-    food˜
+    food
 
 See also:
 
