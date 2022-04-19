@@ -1,4 +1,4 @@
-# :def
+# Functions
 ## Why is a `:def` function compiled?
 
 So that its execution is faster.
@@ -17,13 +17,13 @@ function Func(arg)
         let divider = 3
         echo 1 / divider
     elseif a:arg == 2
-        let divider = 'string'
+        let divider = []
         echo 1 / divider
     endif
 endfunction
 ```
 It's broken because of  the second `elseif` clause in the  `if` block, where the
-code tries to divide a number with a string.
+code tries to divide a number with a list.
 
 In legacy, no error is given when the function is defined.
 Worse, even after being called, you might still not get any error:
@@ -67,7 +67,7 @@ path the execution should follow.  We simply asked Vim to compile the function.
 
    - when the function is first called
    - when `:defcompile` is executed in the script where the function is defined (*)
-   - when it's disassembled by `:disassemble`
+   - when it's `:disassemble`d
 
 (*) Note that this is true only if the function was defined earlier:
 ```vim
@@ -93,7 +93,7 @@ defcompile
     E1017: Variable already declared: x
 
 ##
-## Where does Vim look for a function whose name is not prefixed with `g:`?
+## Where does Vim look for a function's definition whose name is not prefixed with `g:`?
 
    1. the current block, if there is one
    2. the outer block, if there is one; the process repeats itself as long as there is an outer block
@@ -177,15 +177,15 @@ script namespace.
 ---
 ```vim
 vim9script
-mkdir('/tmp/import', 'p')
+mkdir('/tmp/test/import', 'p')
 var lines =<< trim END
     vim9script
     export def Func()
         echo 'defined in exported function'
     enddef
 END
-lines->writefile('/tmp/import/script.vim')
-set runtimepath+=/tmp
+lines->writefile('/tmp/test/import/script.vim')
+set runtimepath+=/tmp/test
 import 'script.vim'
 script.Func()
 ```
@@ -211,7 +211,10 @@ g:Func()
 ```
     second
 
-Note that you need to append a bang to the second `:def`.
+Note that you need to append a bang to the second `:def`:
+
+    def! g:Func()
+       ^
 
 ---
 
@@ -262,7 +265,7 @@ enddef
 ```vim
 vim9script
  # imported
-mkdir('/tmp/import', 'p')
+mkdir('/tmp/test/import', 'p')
 
 var lines =<< trim END
     vim9script
@@ -270,7 +273,7 @@ var lines =<< trim END
         echo 'first'
     enddef
 END
-lines->writefile('/tmp/import/a.vim')
+lines->writefile('/tmp/test/import/a.vim')
 
 lines =<< trim END
     vim9script
@@ -278,9 +281,9 @@ lines =<< trim END
         echo 'second'
     enddef
 END
-lines->writefile('/tmp/import/b.vim')
+lines->writefile('/tmp/test/import/b.vim')
 
-set runtimepath+=/tmp
+set runtimepath+=/tmp/test
 import 'a.vim'
 import 'b.vim'
 ```
@@ -403,8 +406,6 @@ Outer()
 ##
 ## What's the Vim9 equivalent of `let x = get(a:, 1, 3)`?
 
-It's:
-
     def Func(x = 3)
              ^---^
 
@@ -417,7 +418,6 @@ argument can be declared:
 
 The first one is for mandatory arguments; the last two for optional ones.
 
-##
 ## I have an error given from some <lambda>123 function.  I never defined one!
 
 Maybe you have defined a function inside another function:
@@ -425,7 +425,7 @@ Maybe you have defined a function inside another function:
 vim9script
 def Outer()
     def Inner()
-        [][1]
+        [][0]
     enddef
     Inner()
 enddef
@@ -433,7 +433,7 @@ Outer()
 ```
     Error detected while processing command line
     ..script ...
-    ..function <SNR>1_Func[4]
+    ..function <SNR>1_Outer[4]
     ..<lambda>1:
       ^-------^
 
@@ -446,8 +446,7 @@ Our [vim-stacktrace][2]  plugin correctly  handles such an  error.  That  is, it
 populates the quickfix  list with an entry  to let us jump  interactively to the
 source of the error.
 
-##
-## How do I re-write a legacy dictionary function into a Vim9 one?
+## How to re-write a legacy dictionary function into a Vim9 one?
 
 In the future, dictionary functions are meant to be replaced with classes.
 This is a more modern mechanism used in popular languages like Java, and will be
@@ -943,7 +942,7 @@ A boolean *number*:
 
 A *boolean*:
 
-    :vim9 echo getwinvar(winnr(), '&pvw')
+    :vim9cmd echo getwinvar(winnr(), '&pvw')
     false˜
 
 ##
@@ -1258,7 +1257,7 @@ execution is in the context in which it's defined.
 ##
 ## Where can I declare a variable?
 
-Only in the Vim9 context.
+Only in Vim9 context.
 
 And for:
 
@@ -1299,10 +1298,10 @@ No error is given,  because there is no type checking, which  means there was no
 declaration either.
 
 Don't be confused by the fact that  you're in a `:def` function.  Yes, you're in
-the Vim9  context, but that doesn't  matter for a *script*-local  variable.  For
-such a variable, what  matters is the script.  Here, the  script is legacy where
-there  is  no  concept  of declaration/type  checking.   So,  your  script-local
-variable is also legacy, and cannot be declared.
+Vim9 context, but that doesn't matter for a *script*-local variable.  For such a
+variable, what matters is the script.  Here, the script is legacy where there is
+no concept of declaration/type checking.  So, your script-local variable is also
+legacy, and cannot be declared.
 
 ### I've found another counterexample!
 ```vim
@@ -1795,59 +1794,21 @@ None.
 In particular, you can import items even while you're in a legacy Vim script.
 IOW, your script doesn't need to start with `:vim9script`.
 
-    $ tee <<'EOF' /tmp/.a.vim
+    $ tee <<'EOF' /tmp/my_export.vim
       vim9script
       export const MYCONST = 123
     EOF
 
-    $ tee <<'EOF' /tmp/.b.vim
-        import MYCONST from '/tmp/.a.vim'
-        echo s:MYCONST
+    $ tee <<'EOF' /tmp/my_import.vim
+        import '/tmp/my_export.vim'
+        echo s:my_export.MYCONST
     EOF
 
-    $ vim -Nu NONE -S /tmp/.a.vim -S /tmp/.b.vim
+    $ vim -Nu NONE -S /tmp/my_import.vim
 
     123˜
 
 ##
-## After sourcing a Vim9 script from a legacy script, which items can I refer to?
-
-Only the items defined in the `b:`, `g:`, `t:`, `w:` namespaces can be used; not
-the ones defined in the `s:` namespace, nor the exported items.
-
-    $ tee <<'EOF' /tmp/exported.vim
-        vim9script
-        export const MYCONST = 123
-    EOF
-
-    $ tee <<'EOF' /tmp/legacy.vim
-        source /tmp/exported.vim
-        echo MYCONST
-    EOF
-
-    $ vim -Nu NONE -S /tmp/legacy.vim
-    E121: Undefined variable: MYCONST
-
-Here, the legacy script fails to refer  to `MYCONST`, even after sourcing a Vim9
-script which  exports the latter  variable; that's because  it was local  to the
-Vim9 script.
-
-    $ tee <<'EOF' /tmp/exported.vim
-        vim9script
-        g:global = 456
-    EOF
-
-    $ tee <<'EOF' /tmp/legacy.vim
-        source /tmp/exported.vim
-        echo global
-    EOF
-
-    $ vim -Nu NONE -S /tmp/legacy.vim
-    456
-
-Here,  the legacy  script  *can*  refer to  `g:global`,  because  it's a  global
-variable; not a variable local to the Vim9 script.
-
 ## Which items can be exported without being script-local?
 
 Only functions and classes.
@@ -1877,77 +1838,72 @@ constant/variable, it won't be overwritten by another script.
 ## How to import one item from a file which is
 ### in the same directory as the current script?
 
-           name of the item you want to import
-           v-----v
-    import MYCONST from './foo.vim'
-                        ^---------^
-                        location of the script where the item is defined,
-                        relative to the directory of the current script
+    import './script.vim'
+            ^----------^
+           location of the script where the item is defined,
+           relative to the directory of the current script
 
 Example:
 
-    $ tee <<'EOF' /tmp/foo.vim
+    $ tee <<'EOF' /tmp/my_export.vim
         vim9script
         export const MYCONST = 'from a script in current directory'
     EOF
 
-    $ tee <<'EOF' /tmp/bar.vim
+    $ tee <<'EOF' /tmp/my_import.vim
         vim9script
-        import MYCONST from './foo.vim'
-        echo MYCONST
+        import './my_export.vim'
+        echo my_export.MYCONST
     EOF
 
-    $ vim -Nu NONE -S /tmp/foo.vim -S /tmp/bar.vim
-
-    from a script in current directory˜
+    $ vim -Nu NONE -S /tmp/my_import.vim
+    from a script in current directory
 
 ### in the *parent* directory of the current script?
 
-    import MYCONST from '../foo.vim'
-                         ^^
+    import '../script.vim'
+            ^^
 
 Example:
 
     $ mkdir -p /tmp/dir
 
-    $ tee <<'EOF' /tmp/foo.vim
+    $ tee <<'EOF' /tmp/my_export.vim
         vim9script
         export const MYCONST = 'from a script in parent directory'
     EOF
 
-    $ tee <<'EOF' /tmp/dir/bar.vim
+    $ tee <<'EOF' /tmp/dir/my_import.vim
         vim9script
-        import MYCONST from '../foo.vim'
-        echo MYCONST
+        import '../my_export.vim'
+        echo my_export.MYCONST
     EOF
 
-    $ vim -Nu NONE -S /tmp/foo.vim -S /tmp/dir/bar.vim
-
-    from a script in parent directory˜
+    $ vim -Nu NONE -S /tmp/dir/my_import.vim
+    from a script in parent directory
 
 ### at an arbitrary location?
 
 Use a full file path:
 
-    import MYCONST from '/path/to/script.vim'
-                         ^-----------------^
+    import '/path/to/script.vim'
+            ^-----------------^
 
 Example:
 
-    $ tee <<'EOF' /tmp/foo.vim
+    $ tee <<'EOF' /tmp/my_export.vim
         vim9script
-        export const MYCONST = 'from /tmp/foo.vim'
+        export const MYCONST = 'from /tmp/my_export.vim'
     EOF
 
-    $ tee <<'EOF' /tmp/bar.vim
+    $ tee <<'EOF' /tmp/my_import.vim
         vim9script
-        import MYCONST from '/tmp/foo.vim'
-        echo MYCONST
+        import '/tmp/my_export.vim'
+        echo my_export.MYCONST
     EOF
 
-    $ vim -Nu NONE -S /tmp/foo.vim -S /tmp/bar.vim
-
-    from /tmp/foo.vim˜
+    $ vim -Nu NONE -S /tmp/my_import.vim
+    from /tmp/my_export.vim
 
 ###
 ### Suppose I write this:
@@ -1961,23 +1917,22 @@ In an import subdirectory of the runtimepath.
 
 Example:
 
-    $ mkdir -p /tmp/import
+    $ mkdir -p /tmp/test/import
 
-    $ tee <<'EOF' /tmp/import/foo.vim
+    $ tee <<'EOF' /tmp/test/import/foo.vim
         vim9script
         export const MYCONST = 'from foo.vim in import/ subdir'
     EOF
 
     $ tee <<'EOF' /tmp/bar.vim
         vim9script
-        set runtimepath^=/tmp
-        import MYCONST from 'foo.vim'
-        echo MYCONST
+        set runtimepath^=/tmp/test
+        import 'foo.vim'
+        echo foo.MYCONST
     EOF
 
     $ vim -Nu NONE -S /tmp/bar.vim
-
-    from foo.vim in import/ subdir˜
+    from foo.vim in import/ subdir
 
 ---
 
@@ -1987,23 +1942,22 @@ subdirectories.
 
 Example:
 
-    $ mkdir -p /tmp/import/foo/bar
+    $ mkdir -p /tmp/test/import/foo/bar
 
-    $ tee <<'EOF' /tmp/import/foo/bar/baz.vim
+    $ tee <<'EOF' /tmp/test/import/foo/bar/baz.vim
         vim9script
         export const MYCONST = 'from foo/bar/baz.vim in import/ subdir'
     EOF
 
     $ tee <<'EOF' /tmp/qux.vim
         vim9script
-        set runtimepath^=/tmp
-        import MYCONST from 'foo/bar/baz.vim'
-        echo MYCONST
+        set runtimepath^=/tmp/test
+        import 'foo/bar/baz.vim'
+        echo baz.MYCONST
     EOF
 
     $ vim -Nu NONE -S /tmp/qux.vim
-
-    from foo/bar/baz.vim in import/ subdir˜
+    from foo/bar/baz.vim in import/ subdir
 
 #### Which pitfall should I be aware of when choosing a name for `foo.vim`?
 
@@ -2026,43 +1980,113 @@ When you want the items to be available from different plugins.
 This is useful to implement library functions.
 
 ###
-## How to import multiple items at the same time?
+## How to import items under an arbitrary namespace?
 
-Wrap their names inside curly brackets:
+Use the keyword `as` followed by the desired name:
 
-    import {MYCONST, var, Func} from 'foo.vim'
-           ^------------------^
-
-## How to import an item under a new arbitrary name?
-
-Use the keyword `as` followed by the desired new name:
-
-    import MYCONST as NEWCONST from 'foo.vim'
-                   ^---------^
+    import 'foo.vim' as bar
 
 This is  useful when  the original  name can  collide with  the name  of another
 existing item.
 
+## How to refer to an imported function when setting my statusline/tabline?
+
+As usual, with `script.Func`.  However, you need to convert it into a string:
+
+    script.Func->string()
+               ^--------^
+
+Examples:
+```vim
+vim9script
+ # `:help stl-%{`
+var dir = '/tmp/test'
+&runtimepath = dir
+dir ..= '/import'
+dir->mkdir('p')
+var lines =<< trim END
+    vim9script
+    export def StatusLineItem(): string
+        return 'my status line item'
+    enddef
+END
+lines->writefile(dir .. '/script.vim')
+import 'script.vim'
+&laststatus = 2
+&statusline = '%{' .. script.StatusLineItem->string() .. '()}'
+```
+```vim
+vim9script
+ # `:help 'statusline'` (look for `%!`)
+var dir = '/tmp/test'
+&runtimepath = dir
+dir ..= '/import'
+dir->mkdir('p')
+var lines =<< trim END
+    vim9script
+    export def WholeStatusLine(): string
+        return 'my whole status line'
+    enddef
+END
+lines->writefile(dir .. '/script.vim')
+import 'script.vim'
+&laststatus = 2
+&statusline = '%!' .. script.WholeStatusLine->string() .. '()'
+```
+```vim
+vim9script
+ # `:help 'tabline'`
+var dir = '/tmp/test'
+&runtimepath = dir
+dir ..= '/import'
+dir->mkdir('p')
+var lines =<< trim END
+    vim9script
+    export def TabLine(): string
+        return 'my tab line'
+    enddef
+END
+lines->writefile(dir .. '/script.vim')
+import 'script.vim'
+&showtabline = 2
+&tabline = '%!' .. script.TabLine->string() .. '()'
+```
+This  also works  for when  specifying a  completion.  For  example, in  the 3rd
+argument of `input()`:
+```vim
+vim9script
+var dir = '/tmp/test'
+&runtimepath = dir
+dir ..= '/import'
+dir->mkdir('p')
+var lines =<< trim END
+    vim9script
+    export def CompleteWords(..._): string
+        return getline(1, '$')
+            ->join(' ')
+            ->split('\s\+')
+            ->filter((_, v) => v =~ '^\a\k\+$')
+            ->sort()
+            ->uniq()
+            ->join("\n")
+    enddef
+END
+lines->writefile(dir .. '/script.vim')
+import 'script.vim'
+'the quick brown fox jumps over the lazy dog'->setline(1)
+var word: string = input('word: ', '', 'custom,' .. script.CompleteWords->string())
+```
+    # press Tab to trigger a successful completion
+
 ---
 
-Note that it keeps working even inside curly brackets:
+Note that in the future, `string()` might no longer be necessary:
 
-    import {MYCONST, var, Func as NewFunc} from 'foo.vim'
-                               ^--------^
+   > The problem we need to solve is referring to the function with a string.
+   > So somehow convert "script.CompleteWords()" to a string that can be used
+   > outside of the script to call the function.
 
-## How to import all exported items under a specific identifier?
-
-Use the `*` wildcard and the `as` keyword:
-
-    import * as foo from 'foo.vim'
-           ^------^
-
-Then,  you  can  refer  to  the imported  items  via  `foo.MYCONST`,  `foo.var`,
-`foo.Func`, etc.
-
-You are free to import the exported items under any arbitrary identifier, but it
-is highly recommended  to use the name  of the script from which  the items were
-imported, to avoid confusion.
+[source](https://github.com/vim/vim/issues/10197#issuecomment-1100431974)
 
 ##
 ## What happens if I use `:import` in a legacy Vim script?
@@ -2071,37 +2095,68 @@ It will be automatically put inside the script-local `s:` namespace.
 
 So, to refer to it later, you'll need to specify `s:`:
 
-    import MYCONST from './exported.vim'
-    echo MYCONST
-         ^-----^
-            ✘
+    echo my_export.MYCONST
+         ^
+         ✘
 
-    import MYCONST from './exported.vim'
-    echo s:MYCONST
-         ^-------^
-             ✔
+    echo s:my_export.MYCONST
+         ^^
+         ✔
 
 Working example:
 
-    $ tee <<'EOF' /tmp/exported.vim
+    $ tee <<'EOF' /tmp/my_export.vim
         vim9script
         export const MYCONST = 123
     EOF
 
-    $ tee <<'EOF' /tmp/import.vim
-        import MYCONST from './exported.vim'
-        echo s:MYCONST
+    $ tee <<'EOF' /tmp/my_import.vim
+        import './my_export.vim'
+        echo s:my_export.MYCONST
         "    ^^
     EOF
 
-    $ vim -Nu NONE -S /tmp/import.vim
+    $ vim -Nu NONE -S /tmp/my_import.vim
+    123
 
-    123˜
+Notice how we had to prefix `my_export` with `s:` in `my_import.vim`.
+Without,  when executing  `:echo` afterward,  Vim  would have  searched for  the
+`my_export` symbol in the global namespace; and after failing to find it, `E121`
+would have been given.
 
-Notice how we had to prefix `MYCONST` with `s:` in `import.vim`.
-Without, when executing  `:echo MYCONST` afterward, Vim would  have searched for
-the constant in the global namespace; and after failing to find it, `E121` would
-have been given.
+##
+## After importing items from a script, I've updated the latter and re-imported the items.
+
+    $ tee <<'EOF' /tmp/my_export.vim
+        vim9script
+        export const MYCONST = 123
+    EOF
+
+    $ tee <<'EOF' /tmp/my_import.vim
+        vim9script
+        import './my_export.vim'
+        echo my_export.MYCONST
+    EOF
+
+    $ tee <<'EOF' /tmp/update.vim
+        silent edit /tmp/my_export.vim
+        :% substitute/123/456/
+        silent write
+    EOF
+
+    $ vim -Nu NONE -S /tmp/my_import.vim -S /tmp/update.vim -S /tmp/my_import.vim
+    123
+    123
+
+### Their definitions has not changed!  Why?
+
+Once a  Vim9 script file has  been imported, the  result is cached and  used the
+next time the same script is imported.  It will not be read again.
+
+To see the effects of your update, simply restart Vim:
+
+    $ vim -Nu NONE -S /tmp/my_import.vim
+    456
 
 ##
 # Differences with legacy
@@ -2193,6 +2248,64 @@ That's because in Vim9 script, a string  index refers to a character; thus `[1]`
 refers to the 2nd *character* in the string `bàr`.
 
 ##
+# Mappings
+## How can I use the Vim9 syntax in a mapping?
+
+In a Vim9 script, try to use the `<ScriptCmd>` pseudo-key:
+```vim
+vim9script
+nnoremap <F3> <ScriptCmd>echo (() => 'this is a Vim9 lambda')()<CR>
+feedkeys("\<F3>")
+```
+    this is a Vim9 lambda
+
+You can also the Vim9 syntax on the rhs of an `<expr>` mapping:
+```vim
+vim9script
+nnoremap <expr> <F3> (() => ':echo "this is a Vim9 lambda"<CR>')()
+feedkeys("\<F3>")
+```
+    this is a Vim9 lambda
+
+---
+
+In a legacy script, you can try the `:vim9cmd` modifier.
+```vim
+nnoremap <F3> <Cmd>vim9cmd echo (() => 'this is a Vim9 lambda')()<CR>
+call feedkeys("\<F3>")
+```
+    this is a Vim9 lambda
+
+### I don't simply need to run a function.  I need its return value too!
+
+Use `<SID>`:
+```vim
+vim9script
+def Func(): string
+    return 'from Func()'
+enddef
+nnoremap <F3> <ScriptCmd>echo <SID>Func()<CR>
+feedkeys("\<F3>")
+```
+    from Func()
+
+This also works for imported functions:
+```vim
+vim9script
+var lines =<< trim END
+    vim9script
+    export def Func(): string
+        return 'from Func()'
+    enddef
+END
+lines->writefile('/tmp/script.vim')
+import '/tmp/script.vim'
+nnoremap <F3> <ScriptCmd>echo <SID>script.Func()<CR>
+feedkeys("\<F3>")
+```
+    from Func()
+
+###
 # Miscellaneous
 ## Where can I write Vim9 script code?  (2)
 
@@ -2353,7 +2466,7 @@ defcompile
 
 In front of:
 
-   - a variable name in the Vim9 context
+   - a variable name in Vim9 context
      (script level in Vim9 script, or `:def` function in any type of script)
 
    - a function name iff its immediate *surrounding* context is Vim9
@@ -2981,7 +3094,7 @@ Foo()
 ```
     bar
 
-Explanation: you can omit `s:` only in the Vim9 context; that is:
+Explanation: you can omit `s:` only in Vim9 context; that is:
 
    - on the header of a `:def` function in a Vim9 script
    - on the header of a `:function` function in a Vim9 script
@@ -2989,42 +3102,6 @@ Explanation: you can omit `s:` only in the Vim9 context; that is:
 
 But you can *not* omit `s:` when  inside a legacy function; even if it's defined
 in a Vim9 script.
-
-##
-## After importing items from a script, I've updated the latter and re-imported the items.
-
-    $ tee <<'EOF' /tmp/exported.vim
-        vim9script
-        export const MYCONST = 123
-    EOF
-
-    $ tee <<'EOF' /tmp/import.vim
-        vim9script
-        import MYCONST from './exported.vim'
-        echo MYCONST
-    EOF
-
-    $ tee <<'EOF' /tmp/update.vim
-        silent edit /tmp/exported.vim
-        :% substitute/123/456/
-        silent write
-    EOF
-
-    $ vim -Nu NONE -S /tmp/import.vim -S /tmp/update.vim -S /tmp/import.vim
-
-    123˜
-    123˜
-
-### Their definitions has not changed!  Why?
-
-Once a  Vim9 script file has  been imported, the  result is cached and  used the
-next time the same script is imported.  It will not be read again.
-
-To see the effects of your update, simply restart Vim:
-
-    $ vim -Nu NONE -S /tmp/import.vim
-
-    456˜
 
 ##
 ## My global command is wrongly parsed as the `g:` global namespace!
@@ -3083,7 +3160,7 @@ Func()
     true
 
 ##
-## I can't use the Vim9 syntax in a custom (auto)command which is run in the Vim9 context!
+## I can't use the Vim9 syntax in a custom (auto)command which is run in Vim9 context!
 
 It doesn't matter in which context you're when you run a (auto)command.
 What matters is the context where it's defined.
@@ -3107,8 +3184,8 @@ syntax (i.e. a  dictionary whose key names  are not quoted); the  latter is only
 valid in Vim9 script.  In legacy Vim script, a literal dictionary requires `#{}`
 instead of `{}`.
 
-But `:Cmd` was defined  in a legacy context, so you can't  use `{}`, even though
-you're in the Vim9 context when you call `:Cmd`.
+But `:Cmd`  was defined in  legacy context, so you  can't use `{}`,  even though
+you're in Vim9 context when you call `:Cmd`.
 
 ---
 
@@ -3681,7 +3758,7 @@ For more info, see: <https://github.com/vim/vim/issues/7931#issuecomment-7919899
 Set `'debug'` to `throw`, and check whether Vim gives errors.
 
 It  might  be  that the  folding  expression  uses  a  legacy syntax,  which  is
-invalid/not allowed in the Vim9 context where it's evaluated.
+invalid/not allowed in Vim9 context where it's evaluated.
 ```vim
 vim9script
 &debug = 'throw'
@@ -3713,7 +3790,7 @@ Solution 1: Fix the folding expression by adding the missing whitespace:
     &l:foldexpr = "getline(v:lnum) =~ '^#' ? '>1' : '='"
                                   ^  ^    ^ ^    ^ ^
 
-Solution 2: Make sure you're in the legacy context whenever a folding expression is evaluated.
+Solution 2: Make sure you're in legacy context whenever a folding expression is evaluated.
 
 Either use the `:legacy` modifier:
 
@@ -3851,82 +3928,6 @@ Read this: <https://github.com/vim/vim/issues/8492#issuecomment-873621456>
 Is everything correct over there?
 Are there bugs to report?  Notes to update?
 
-### whether the Vim9 syntax is used when a mapping executes an Ex command and is typed from a script
-
-When a mapping is  typed from a Vim9 script with `feedkeys()`  and the `x` flag,
-the Vim9 syntax is used:
-```vim
-vim9script
-nnoremap <F3> <Cmd>let g:name = 0<cr>
-feedkeys("\<F3>", 'x')
-```
-    E1126: Cannot use :let in Vim9 script
-
-Which is unexpected, because – usually – a mapping is used with the legacy syntax:
-```vim
-vim9script
-nnoremap <F3> <Cmd>let g:name = 0<cr>
-feedkeys("\<F3>", '')
-```
-    no error
-
-Is it a bug?
-
-Also, `:legacy` doesn't work:
-```vim
-vim9script
-nnoremap <F3> <Cmd>let g:name = 0<cr>
-legacy call feedkeys("\<F3>", 'x')
-```
-    E1126: Cannot use :let in Vim9 script
-
-But a legacy function does work:
-```vim
-vim9script
-nnoremap <F3> <Cmd>let g:name = 0<cr>
-function Legacy()
-    call feedkeys("\<F3>", 'x')
-endfunction
-Legacy()
-```
-    no error
-
-All of that is confusing.  Should it be simplified?  Better documented?
-
----
-```vim
-vim9script
-nnoremap <F3> <Cmd>let g:name = 0<cr>
-execute "normal \<F3>"
-```
-    no error
-
-And here, why no error?
-Isn't `:normal` equivalent to `feedkeys()` + `x` flag?
-
-I *think* it comes from this:
-
-   > Still, you expect the ":normal" argument to be executed as in legacy Vim
-   > script.  Otherwise you would have to double the colon to put a colon in
-   > front of the range.  And even that wouldn't work, it goes after the
-   > range.
-
-   > The ":normal" argument is supposed to be execute as typed, thus I would
-   > think that's not as in Vim9 script.
-
-Source: <https://github.com/vim/vim/issues/7401#issuecomment-736760312>
-
----
-
-See also: <https://github.com/vim/vim/issues/7401#issuecomment-854864374>
-
----
-
-Update: Forget about all of this.
-Just use `<ScriptCmd>` instead of `<Cmd>`.
-It should fix all of these issues.
-Also, have a look at the new `c` flag of `feedkeys()`.
-
 ####
 ### ?
 
@@ -3944,15 +3945,6 @@ When such a script is finally sourced, the `A` flag is removed, but the order of
 the scripts remain the same.  IOW, you  have the guarantee that the script `123`
 was sourced right  after the script `122`  iff none of them  is autoloaded (i.e.
 `/autoload/` is absent from their absolute paths).
-
-### ?
-
-A mapping is usually executed in the global context, which means that – in the
-rhs of a mapping – you need to use the legacy syntax, even in a Vim9 script.
-If you  want to use  the Vim9  syntax, you can  use the `<expr>`  argument since
-8.2.4059, or you can use `<ScriptCmd>`.
-
-<https://github.com/vim/vim/issues/9499#issuecomment-1010085860>
 
 ### ?
 
@@ -4397,44 +4389,6 @@ IOW, `func` and `func()` are opposite to each other.
 
 ### ?
 
-8.2.4019  changed how  the  import mechanism  works.   If you  want  to call  an
-imported function from a mapping, you need `<ScriptCmd>` (and omit `:call`):
-```vim
-vim9script
-var lines =<< trim END
-    vim9script
-    export def Func()
-        echomsg 'From Func()'
-    enddef
-END
-lines->writefile('/tmp/script.vim')
-import '/tmp/script.vim'
-nnoremap <F3> <ScriptCmd>script.Func()<CR>
-feedkeys("\<F3>")
-```
-    from Func()
-
----
-
-A much uglier alternative is to use `<Cmd>` + `<SID>` + a funcref:
-```vim
-vim9script
-var lines =<< trim END
-    vim9script
-    export def Func()
-        echomsg 'From Func()'
-    enddef
-END
-lines->writefile('/tmp/script.vim')
-import '/tmp/script.vim'
-const Ref: func = script.Func
-nnoremap <F3> <Cmd>call <SID>Ref()<CR>
-feedkeys("\<F3>")
-```
-    from Func()
-
-### ?
-
 Document that comments can make debugging harder.
 When stepping through code,  and Vim prints the next command  to be executed, if
 the latter is written on multiple lines, and one of them is a comment, Vim might
@@ -4591,102 +4545,6 @@ The former increases Vim's startup time, because  Vim has to look for the script
 under every `autoload/`  of the runtimepath.  And the more  entries Vim needs to
 try before finding the script, the more time-consuming the command is.
 
-### ?
-
-There  are a  few contexts  where `string()`  is necessary  to call  an imported
-function:
-
-   - `:help stl-%{`
-   - `:help 'statusline'` and `:help 'tabline'` (`%!Func()`)
-   - `:help input()` (3rd {completion} argument)
-
-Examples:
-```vim
-vim9script
-var dir = '/tmp/.vim'
-dir->delete('rf')
-&runtimepath = dir
-dir ..= '/import'
-dir->mkdir('p')
-var lines =<< trim END
-    vim9script
-    export def StatusLineItem(): string
-        return 'my status line item'
-    enddef
-END
-lines->writefile(dir .. '/script.vim')
-import 'script.vim'
-&laststatus = 2
-&statusline = '%{' .. script.StatusLineItem->string() .. '()}'
-```
-```vim
-vim9script
-var dir = '/tmp/.vim'
-dir->delete('rf')
-&runtimepath = dir
-dir ..= '/import'
-dir->mkdir('p')
-var lines =<< trim END
-    vim9script
-    export def WholeStatusLine(): string
-        return 'my whole status line'
-    enddef
-END
-lines->writefile(dir .. '/script.vim')
-import 'script.vim'
-&laststatus = 2
-&statusline = '%!' .. script.WholeStatusLine->string() .. '()'
-```
-```vim
-vim9script
-var dir = '/tmp/.vim'
-dir->delete('rf')
-&runtimepath = dir
-dir ..= '/import'
-dir->mkdir('p')
-var lines =<< trim END
-    vim9script
-    export def TabLine(): string
-        return 'my tab line'
-    enddef
-END
-lines->writefile(dir .. '/script.vim')
-import 'script.vim'
-&showtabline = 2
-&tabline = '%!' .. script.TabLine->string() .. '()'
-```
-```vim
-vim9script
-var dir = '/tmp/.vim'
-dir->delete('rf')
-&runtimepath = dir
-dir ..= '/import'
-dir->mkdir('p')
-var lines =<< trim END
-    vim9script
-    export def CompleteWords(..._): string
-        return getline(1, '$')
-            ->join(' ')
-            ->split('\s\+')
-            ->filter((_, v) => v =~ '^\a\k\+$')
-            ->sort()
-            ->uniq()
-            ->join("\n")
-    enddef
-END
-lines->writefile(dir .. '/script.vim')
-import 'script.vim'
-'the quick brown fox jumps over the lazy dog'->setline(1)
-var word: string = input('word: ', '', 'custom,' .. script.CompleteWords->string())
-```
-However, in the future, `string()` might no longer be necessary:
-
-   > The problem we need to solve is referring to the function with a string.
-   > So somehow convert "script.CompleteWords()" to a string that can be used
-   > outside of the script to call the function.
-
-[source](https://github.com/vim/vim/issues/10197#issuecomment-1100431974)
-
 ##
 ### the first things to do after pasting a legacy function into a Vim9 script
 
@@ -4814,8 +4672,8 @@ See:
 ### workarounds to unlet a script-local variable
 
 If you  use a script-local  variable as some sort  of cache, and  you're worried
-that it  might consume too  much memory,  you can simply  reset the cache  to an
-empty value (list, dictionary, blob...).
+that it might consume too much memory, you  can simply reset the cache to a null
+value.  See `:help null`.
 
 Otherwise,  if you  really want  the reference  not to  exist anymore,  the only
 workaround I  can think  of is to  turn your variable  into a  dictionary's key.
@@ -4895,15 +4753,15 @@ This is suggested at `:help vim9-scopes /result`:
     imported constant
 ```vim
 vim9script
-mkdir('/tmp/import', 'p')
+mkdir('/tmp/test/import', 'p')
 var lines =<< trim END
     vim9script
-    export const s:MYCONST = 123
+    export const MYCONST = 123
 END
-lines->writefile('/tmp/import/foo.vim')
-set runtimepath+=/tmp
-import MYCONST from 'foo.vim'
-echo s:MYCONST
+lines->writefile('/tmp/test/import/foo.vim')
+set runtimepath+=/tmp/test
+import 'foo.vim'
+echo foo.MYCONST
 ```
     123
 
@@ -4912,15 +4770,15 @@ echo s:MYCONST
     imported variable
 ```vim
 vim9script
-mkdir('/tmp/import', 'p')
+mkdir('/tmp/test/import', 'p')
 var lines =<< trim END
     vim9script
-    export var s:name = 123
+    export var name = 123
 END
-lines->writefile('/tmp/import/foo.vim')
-set runtimepath+=/tmp
-import name from 'foo.vim'
-echo s:name
+lines->writefile('/tmp/test/import/foo.vim')
+set runtimepath+=/tmp/test
+import 'foo.vim'
+echo foo.name
 ```
     123
 
@@ -4929,17 +4787,17 @@ echo s:name
     imported function
 ```vim
 vim9script
-mkdir('/tmp/import', 'p')
+mkdir('/tmp/test/import', 'p')
 var lines =<< trim END
     vim9script
     export def Imported()
         echo 'imported'
     enddef
 END
-lines->writefile('/tmp/import/foo.vim')
-set runtimepath+=/tmp
-import Imported from 'foo.vim'
-function Imported
+lines->writefile('/tmp/test/import/foo.vim')
+set runtimepath+=/tmp/test
+import 'foo.vim'
+function foo.Imported
 ```
        def <SNR>2_Imported()
     1      echo 'imported'
@@ -4954,11 +4812,11 @@ var lines =<< trim END
         echo 'imported'
     enddef
 END
-mkdir('/tmp/import', 'p')
-lines->writefile('/tmp/import/foo.vim')
-set runtimepath+=/tmp
-import Imported from 'foo.vim'
-function Imported
+mkdir('/tmp/test/import', 'p')
+lines->writefile('/tmp/test/import/foo.vim')
+set runtimepath+=/tmp/test
+import 'foo.vim'
+function foo.Imported
 echo expand('<SID>')
 ```
            v----v
@@ -4967,15 +4825,6 @@ echo expand('<SID>')
        enddef
     <SNR>1_
     ^-----^
-
-You're used to  `s:` being expanded into  a unique script ID.   That's no longer
-true in Vim9 script; now, `s:` can  be expanded into one of multiple script IDs;
-the  one of  the current  script, or  the one  of any  script from  which you've
-imported a function.
-
-You can see the Vim9 `s:` namespace  as a superset of the legacy `s:` namespace.
-It contains  the items local  to the current  script, *and* items  imported from
-other scripts.
 
 BTW, `expand('<SID>')` will always give you the ID of the current script.
 If you need the ID of a script fom which you've imported a function, use this:
@@ -4994,10 +4843,10 @@ sourcing a script.
 For example:
 
     try
-        import Func from 'script.vim'
+        import 'script.vim'
     catch /^Vim\%((\a\+)\)\=:E\%(1048\|1053\):/
         echohl ErrorMsg
-        unsilent echomsg 'Could not import "Func()" from "script.vim"'
+        unsilent echomsg 'Could not import "script.vim"'
         echohl NONE
         finish
     endtry

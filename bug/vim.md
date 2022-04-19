@@ -1,3 +1,55 @@
+# inconsistent handling of `test` and `[` when testing output of command
+#### For bugs
+
+   - Rule Id: SC2243
+   - My shellcheck version: 0.8.0
+   - [x] The rule's wiki page does not already cover this
+   - [x] I tried on https://www.shellcheck.net/ and verified that this is still a problem on the latest commit
+
+#### Here's a snippet or screenshot that shows the problem:
+```sh
+#!/bin/bash
+if test "$(mycommand --myflags)"
+then
+  echo "True"
+fi
+```
+#### Here's what shellcheck currently says:
+
+No error is given.
+
+#### Here's what I wanted or expected to see:
+
+This error is given:
+
+    In /tmp/sh.sh line 4:
+    if test "$(mycommand --myflags)"
+            ^----------------------^ SC2243 (style): Prefer explicit -n to check for output (or run command without [/[[ to check for success).
+
+Rationale: If we replace `test` with `[`, an error is given:
+```sh
+#!/bin/bash
+if [ "$(mycommand --myflags)" ]
+then
+  echo "True"
+fi
+```
+And in bash, according to `$ help [`, `[` is a synonym for `test`.  If that's the case, I would expect `SC2243` to be given for both `test` and `[`; not just for `[`.
+
+Update: Actually, on the online version of shellcheck, no error is given even if we use `[`.
+Yet another regression?
+
+---
+
+Also, we found this issue with the following snippet:
+
+    # an error is given ✔
+    [ ! "$(pidof process)" ]
+
+    # no error is given ✘
+    test ! "$(pidof process)"
+
+##
 # vim-fuzzy
 
 I suspect that invoking `map()` to turn source lines into dictionaries is costly.

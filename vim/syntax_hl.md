@@ -1,83 +1,22 @@
-# ?
-
-    :syn-keepend
-
-By default,  a contained match can  consume a match  for the end pattern  of the
-outer region.
-This forces the  outer region to look  further for a match for  its end pattern,
-which extends the text it highlights.
-
-This is useful for nesting.
-For example, a block that starts with `{` and ends with `}`, can contain another
-similar block.
-An encountered `}` will then end the contained block, but not the outer block.
-
-If you don't want this, the `keepend`  argument will make the matching of an end
-pattern of the outer region also end any contained item.
-This makes it impossible to nest the same region, but allows for contained items
-to highlight parts  of the end pattern,  without causing that to  skip the match
-with the end pattern.
-
-Example:
-
-    :syn match  vimComment /"[^"]\+$/
-    :syn region vimCommand start=/set/ end=/$/ contains=vimComment keepend
-
-The `keepend`  makes the `vimCommand`  always end at the  end of the  line, even
-though the contained `vimComment` includes a match with the `<EOL>`.
-
-When `keepend` is  not used, a match  with an end pattern is  retried after each
-contained match.
-When `keepend` is  included, the first encountered match with  an end pattern is
-used, truncating any contained matches.
-
-##
-##
-##
-# How to rank the 3 subcommands `keyword`, `match`, `region`, performance-wise?
-
-From the most performant to the least one:
-
-   1. keyword
-   2. match
-   3. region
-
-This order seems to be suggested in [this comment][1].
-
-`match` is slower because Vim must  search for a regex.
-
-`region` is probably slower because Vim must search for 2 regexes.
-Besides, a region is more complex (`skip`, `keepend`, ...).
-
-##
 # Syntax groups/clusters
-## What can a syntax group contain?
-
-Other syntax groups.
-
-## What can a syntax cluster contain?
-
-Syntax groups and other clusters.
-
-###
 ## Are syntax groups local to a buffer?
 
 Yes.
 
-    :sp /tmp/lua1.lua
-    :e /tmp/lua2.lua
-    :syn list luaOperator
+    :split /tmp/lua1.lua
+    :edit /tmp/lua2.lua
+    :syntax list luaOperator
         luaOperator    xxx and or not˜
                            links to Operator˜
 
-    :syn match luaOperator /abc/
-    :syn list luaOperator
+    :syntax match luaOperator /abc/
+    :syntax list luaOperator
         luaOperator    xxx and or not˜
                            match /abc/˜
                            links to Operator˜
 
-    :e#
-    :syn list luaOperator
+    :edit #
+    :syntax list luaOperator
         luaOperator    xxx contained not and or˜
                            links to Operator˜
 
@@ -89,11 +28,11 @@ This is because a syntax group is local to the buffer where it was defined.
 Yes.
 
     " in a markdown buffer
-    :syn list @Spell
+    :syntax list @Spell
     Spell          cluster=NONE˜
 
     " in a help buffer
-    :syn list @Spell
+    :syntax list @Spell
     E392: No such syntax cluster: @Spell˜
 
 ##
@@ -101,20 +40,15 @@ Yes.
 
 No.
 
-    :sil! syn clear xfoo xFOO
-    :syn match xfoo /lowercase/
-    :syn match xFOO /uppercase/
-    :syn list xfoo
+    :silent! syntax clear xfoo xFOO
+    :syntax match xfoo /lowercase/
+    :syntax match xFOO /uppercase/
+    :syntax list xfoo
     xfoo           xxx match /lowercase/ ˜
                        match /uppercase/ ˜
 
 If Vim considered `xfoo` as a different  group than `xFOO`, it would not contain
 the second match.
-
-###
-## How to clear all syntax groups in the current buffer?
-
-    :syn clear
 
 ###
 ## Why are there lua, python, ruby, ... syntax groups in a Vim buffer?
@@ -123,13 +57,13 @@ The default  Vim syntax plugin  includes many other  syntax plugins in  case the
 user embeds another scripting language in its Vimscript.
 Indeed, you can script Vim with lua, python, ruby, ...
 
-## I've just installed a syntax item by executing a `:syn` command.  After reloading the buffer, it's lost!  Why?
+## I've just installed a syntax item by executing a `:syntax` command.  After reloading the buffer, it's lost!  Why?
 
 When you reload a buffer, Vim sources:
 
     $VIMRUNTIME/syntax/nosyntax.vim
 
-which removes all syntax items.
+which removes all syntax items in the current buffer (via `:syntax clear`).
 
 After that, it re-sources the syntax plugins.
 If your custom item is not defined in one of them, it won't be re-installed.
@@ -144,23 +78,23 @@ If your custom item is not defined in one of them, it won't be re-installed.
 
 It's unreliable.
 
-`&syntax` copies the value of `&ft` when `FileType` is fired.
+`&syntax` copies the value of `&filetype` when `FileType` is fired.
 But after that, the syntax groups may be removed, and other syntax groups may be
 sourced.
 
 ###
 ## How to get all the syntax items defined in the current buffer?
 
-    :sy
+    :syntax list
 
 ## How to get the list of all items inside `xGroup`?  Inside `@xCluster`?
 
-    :syn list xGroup
+    :syntax list xGroup
 
-    :syn list @xCluster
+    :syntax list @xCluster
 
 ###
-## `:syn list xFoo` outputs `xFoo xxx links to Bar`.  There's no item!  What does it mean?
+## `:syntax list xFoo` outputs `xFoo xxx links to Bar`.  There's no item!  What does it mean?
 
 Vim  has added  the HG  `Bar` from  a syntax  plugin sourced  for a  buffer (not
 necessarily the current one).
@@ -168,29 +102,29 @@ And this HG exists no matter the buffer we are in.
 
 Try to execute this command:
 
-    :hi link xFoo Bar
+    :highlight link xFoo Bar
 
 Then, in another buffer:
 
-    :syn list xFoo
+    :syntax list xFoo
         xFoo           xxx links to Bar˜
 
-Here, `:syn list` tells us that the  syntax group `xFoo` is empty in the current
-buffer (because  no item  is reported), but  that if there  were, they  would be
-highlighted by the HG `Bar`.
+Here, `:syntax  list` tells  us that  the syntax  group `xFoo`  is empty  in the
+current buffer (because no item is reported), but that if there were, they would
+be highlighted by the HG `Bar`.
 
 ---
 
 Real Example:
 
     $ vim /tmp/lua.lua
-    :e /tmp/py.py
-    :syn list luaOperator
+    :edit /tmp/py.py
+    :syntax list luaOperator
         luaOperator    xxx links to Operator˜
 
 When Vim has loaded the lua buffer, it has added the HG `luaOperator`.
 
-## `:syn list xFoo` outputs `--- Syntax items ---`.  There's nothing!  What does it mean?
+## `:syntax list xFoo` outputs `--- Syntax items ---`.  There's nothing!  What does it mean?
 
 `xFoo` contains no item in the current buffer, and is not associated to a HG.
 
@@ -210,28 +144,28 @@ keyword
 
 MRE1:
 
-    syn keyword xKeyword hello
-    syn match xMatch /h...o/
+    syntax keyword xKeyword hello
+    syntax match xMatch /h...o/
 
-    hi link xKeyword DiffAdd
-    hi link xMatch   DiffChange
+    highlight link xKeyword DiffAdd
+    highlight link xMatch   DiffChange
 
 MRE2:
 
-    syn keyword xKeyword hello
-    syn region xRegion start=/h/ end=/o/
+    syntax keyword xKeyword hello
+    syntax region xRegion start=/h/ end=/o/
 
-    hi link xKeyword DiffAdd
-    hi link xMatch   DiffChange
+    highlight link xKeyword DiffAdd
+    highlight link xMatch   DiffChange
 
-In  those 2  examples, even  though `syn  match` and  `syn region`  are executed
-*after* `syn keyword`, they are not applied.
+In those 2 examples, even though `syntax match` and `syntax region` are executed
+*after* `syntax keyword`, they are not applied.
 
 ### one uses the subcommand `match`, the other `region`.  Which one wins?
 
 The last one.
 
-From `:h syn-priority`:
+From `:help :syn-priority`:
 
    > 1. When multiple  Match or Region items  start in the same  position, the item
    > defined last has priority.
@@ -240,25 +174,25 @@ From `:h syn-priority`:
 
 In this example, the region is the last one, and so is the one applied to `hello`:
 
-    syn match xMatch /h...o/
-    syn region xRegion start=/h/ end=/o/
+    syntax match xMatch /h...o/
+    syntax region xRegion start=/h/ end=/o/
 
-    hi link xMatch DiffAdd
-    hi link xRegion  DiffChange
+    highlight link xMatch DiffAdd
+    highlight link xRegion  DiffChange
 
-If you  reverse the order of  `syn match` and  `syn region`, the match  would be
-applied instead.
+If you reverse the order of `syntax  match` and `syntax region`, the match would
+be applied instead.
 
 ###
 ## Which of these snippets highlights the operators `-` and `-=`?
 
     " snippet 1
-    syn match xOperator /-=/
-    syn match xOperator /-/
+    syntax match xOperator /-=/
+    syntax match xOperator /-/
 
     " snippet 2
-    syn match xOperator /-/
-    syn match xOperator /-=/
+    syntax match xOperator /-/
+    syntax match xOperator /-=/
 
     " text
     let foo -= 1
@@ -273,7 +207,7 @@ You must use the second snippet.
 Suppose you use the first snippet instead.
 Both statements match some text in the same position, where the `-` is.
 
-The last statement wins (`:h syn-priority`), and so the syntax plugin highlights `-`.
+The last statement wins (`:help syn-priority`), and so the syntax plugin highlights `-`.
 Now, the remaining text begins with `=`.
 But `=` doesn't match any regex used in the 2 statements of the snippet, so it's
 left out and not syntax highlighted.
@@ -281,10 +215,10 @@ left out and not syntax highlighted.
 ## Which of these statements highlights the integers and floats?
 
     " statement 1
-    syn match xNumber /\d\+\.\d\+\|\d\+/
+    syntax match xNumber /\d\+\.\d\+\|\d\+/
 
     " statement 2
-    syn match xNumber /\d\+\|\d\+\.\d\+/
+    syntax match xNumber /\d\+\|\d\+\.\d\+/
 
     " text
     let foo = 123
@@ -325,44 +259,44 @@ The *last* statement wins.
 The *first* branch wins.
 
 ##
-# :syn keyword
-## 'isk'
-### How to print the value of 'isk' local to the syntax plugin?
+# `:help :syn-keyword`
+## 'iskeyword'
+### How to print the value of 'iskeyword' local to the syntax plugin?
 
-    syn iskeyword
+    syntax iskeyword
 
 #### How to reset it?
 
-    syn iskeyword clear
+    syntax iskeyword clear
 
 #### If I change its value, what will be affected?
 
-It will affect  whether the keyword passed  to `syn keyword` is  valid, and what
-the atom `\k` matches inside a regex passed to `syn match` or `syn region`.
+It will affect  whether the keyword passed  to `syntax keyword` is  valid, and what
+the atom `\k` matches inside a regex passed to `syntax match` or `syntax region`.
 
 ####
 ### How to add `foo-bar` as a keyword item inside the `xStatement` syntax group?
 
-                  ┌ add the hyphen to the list of recognized keyword characters
-                  │
-    syn iskeyword -,@,48-57,192-255,$,_
+                     ┌ add the hyphen to the list of recognized keyword characters
+                     │
+    syntax iskeyword -,@,48-57,192-255,$,_
 
-    syn keyword xStatement foo-bar
+    syntax keyword xStatement foo-bar
 
 ##
-## I wrote `syn keyword xType int`.
+## I wrote `syntax keyword xType int`.
 ### How to tell Vim to ignore the case and treat `Int` and `INT` as if they were `int`?
 
-    syn case ignore
+    syntax case ignore
 
 ### How to tell Vim to respect the case and treat `Int` and `INT` as if they were NOT `int`?
 
-    syn case match
+    syntax case match
 
 #### Do these commands affect all statements in a syntax plugin?
 
 No, only the ones afterwards.
-And  if another  `syn  case` statement  is  executed later,  the  effect of  the
+And if  another `syntax  case` statement  is executed later,  the effect  of the
 previous one stops.
 
 #### Which of these commands should I use in my syntax plugin?
@@ -371,26 +305,26 @@ It depends on the language you're working on.
 
 If it's case-sensitive, like `C`, use:
 
-    syn case match
+    syntax case match
 
 If it's case-INsensitive, like `Pascal`, use:
 
-    syn case ignore
+    syntax case ignore
 
 ##
 ## How to add the keywords `n`, `ne`, `nex` and `next` inside the `xStatement` syntax group?  (2)
 
-    syn keyword xStatement n ne nex next
+    syntax keyword xStatement n ne nex next
 
-    syn keyword xStatement n[ext]
+    syntax keyword xStatement n[ext]
 
 `n[ext]` is a special keyword which is equivalent to the regex:
 
     \<n\%[ext]\>
 
 ##
-# :syn match
-## What are the four arguments which can NOT be passed to `:syn match`?
+# `:help :syn-match`
+## What are the four arguments which can NOT be passed to `:syntax match`?
 
    - `concealends`
 
@@ -414,11 +348,11 @@ MRE:
     A c B d xxx
 
     " syntax plugin
-    syn match xContaining /A.\{-}B/
-    syn match xContained  /c.\{-}d/ containedin=xContaining
+    syntax match xContaining /A.\{-}B/
+    syntax match xContained  /c.\{-}d/ containedin=xContaining
 
-    hi link xContaining DiffAdd
-    hi link xContained  DiffChange
+    highlight link xContaining DiffAdd
+    highlight link xContained  DiffChange
 
 The text will be highlighted as follows:
 
@@ -450,29 +384,29 @@ And the latter is not extended anymore.
 ---
 
 You could think  that `keepend` is specific to a  region, because the definition
-given at `:h :syn-keepend` mentions the end pattern of a region.
-Besides,  there's   only  one  occurrence   of  `:syn  match`  +   `keepend`  in
+given at `:help :syn-keepend` mentions the end pattern of a region.
+Besides,  there's  only  one  occurrence  of  `:syntax  match`  +  `keepend`  in
 `$VIMRUNTIME`, and it's commented out:
 
     :vim /\C\<syn\%[tax]\>.\{-}\<match\>.\{-}\s\zs\<keepend\>\S\@!/gj $VIMRUNTIME/**/*.vim | cw
 
-Nevertheless, `:syn match` *does* accept `keepend`.
+Nevertheless, `:syntax match` *does* accept `keepend`.
 
 Think of it this way, a match also has an end: the anchor `$`.
 A contained item can consume it by  not stopping before or at the last character
 of the containing match.
 
 ##
-## Why can't I reliably use `:syn match` to highlight a structure which can contain itself recursively?
+## Why can't I reliably use `:syntax match` to highlight a structure which can contain itself recursively?
 
-Once Vim has found a text matching  the regex passed to `:syn match`, it doesn't
-“update” the end of the match.
+Once Vim  has found  a text  matching the  regex passed  to `:syntax  match`, it
+doesn't “update” the end of the match.
 
 Consider this:
 
     " syntax plugin
-    syn match xBlock /{.\{-}}/ contains=xBlock
-    hi link xBlock DiffAdd
+    syntax match xBlock /{.\{-}}/ contains=xBlock
+    highlight link xBlock DiffAdd
 
     " text
     foo { bar { baz } qux } norf }
@@ -483,19 +417,20 @@ Consider this:
 
 The outer match stops as soon as it finds a closing `}`.
 But when the  syntax plugin finds an  inner block, it doesn't update  the end of
-the outer match to the second `}`.
-So, all your matches end on the same `}`.
+the outer match to the second `}`. So, all your matches end on the same `}`.
+
+Note that the `extend` argument doesn't help here.
 
 ##
-# :syn region
+# `:help :syn-region`
 ## My buffer contains some text matching the beginning of a syntax region, but not its end.  What will be highlighted?
 
 Everything from the beginning of the region until the end of the buffer.
 
 MRE:
 
-    syn region xString start=/"/ end=/"/
-    hi link xString DiffAdd
+    syntax region xString start=/"/ end=/"/
+    highlight link xString DiffAdd
 
 If you source the previous syntax statements while your buffer contains:
 
@@ -503,13 +438,13 @@ If you source the previous syntax statements while your buffer contains:
     text outside string
 
 `text outside string` will be wrongly highlighted.
-That's because once  `:syn region` has found its start,  it doesn't care whether
-it can also find its ending.
+That's  because once  `:syntax  region` has  found its  start,  it doesn't  care
+whether it can also find its ending.
 
 ## How to highlight strings surrounded by `"` withouth considering `\"` as the end of a string?
 
-    syn region xString start=/"/ skip=/\\"/ end=/"/
-    hi link xString String
+    syntax region xString start=/"/ skip=/\\"/ end=/"/
+    highlight link xString String
 
 Here's what would be highlighted for the following text:
 
@@ -533,13 +468,13 @@ Example:
 ```vim
 vim9script
 'A foo B bar'->setline(1)
-syn region Region matchgroup=MatchGroup start=/A/ matchgroup=NONE end=/B/ concealends
+syntax region Region matchgroup=MatchGroup start=/A/ matchgroup=NONE end=/B/ concealends
 setl cole=1 cocu=n
 ```
 Notice  that  `A`   is  concealed,  but  not  `B`;  that's   because  the  first
 `matchgroup=` has been reset.
 
-For more info, see: `:h :syn-concealends`.
+For more info, see: `:help :syn-concealends`.
 
 ##
 ## matchgroup
@@ -558,8 +493,8 @@ MRE:
 vim9script
 'Foo xxx Bar'->setline(1)
 
-syn match Word /\<...\>/ contained
-syn region Region matchgroup=Matchgroup start=/Foo/ end=/Bar/ contains=Word
+syntax match Word /\<...\>/ contained
+syntax region Region matchgroup=Matchgroup start=/Foo/ end=/Bar/ contains=Word
 
 search('Foo')
 echo synstack('.', col('.'))->mapnew((_, v) => v->synIDattr('name'))->reverse()
@@ -580,7 +515,7 @@ in the start/end patterns.
 **Nothing can be contained in `Matchgroup`**.
 So, in the previous example, if you had written:
 
-    syn match Word /\<...\>/ contained containedin=Matchgroup
+    syntax match Word /\<...\>/ contained containedin=Matchgroup
 
 And your cursor was on `Foo`, the stack of syntax items would still have been:
 
@@ -611,22 +546,22 @@ Instead of:
 Use an additional `matchgroup=NONE` to reset  to not using a different group for
 the end pattern:
 
-                                                          v-------------v
-    syn region xRegion matchgroup=xMatchgroup start=/Foo/ matchgroup=NONE end=/Bar/
+                                                             v-------------v
+    syntax region xRegion matchgroup=xMatchgroup start=/Foo/ matchgroup=NONE end=/Bar/
 
-    hi link xRegion DiffAdd
-    hi link xMatchgroup DiffChange
+    highlight link xRegion DiffAdd
+    highlight link xMatchgroup DiffChange
 
 ##
 ## Which snippet could highlight arbitrarily nested parentheses (with 3 different colors)?
 
-    syn region xPar1 matchgroup=par1 start=/(/ end=/)/ contains=xPar2
-    syn region xPar2 matchgroup=par2 start=/(/ end=/)/ contains=xPar3 contained
-    syn region xPar3 matchgroup=par3 start=/(/ end=/)/ contains=xPar1 contained
+    syntax region xPar1 matchgroup=par1 start=/(/ end=/)/ contains=xPar2
+    syntax region xPar2 matchgroup=par2 start=/(/ end=/)/ contains=xPar3 contained
+    syntax region xPar3 matchgroup=par3 start=/(/ end=/)/ contains=xPar1 contained
 
-    hi link par1 DiffAdd
-    hi link par2 DiffChange
-    hi link par3 DiffDelete
+    highlight link par1 DiffAdd
+    highlight link par2 DiffChange
+    highlight link par3 DiffDelete
 
 You can try it on this text:
 
@@ -668,11 +603,11 @@ When it  contains an  item which  consumes the text  matching the  `end` pattern
 MRE:
 
     " syntax plugin
-    syn region xContained start=/C/ end=/D/ contained
-    syn region xRegion start=/ABC/ end=/DEF/ contains=xContained
+    syntax region xContained start=/C/ end=/D/ contained
+    syntax region xRegion start=/ABC/ end=/DEF/ contains=xContained
 
-    hi link xContained DiffAdd
-    hi link xRegion    DiffChange
+    highlight link xContained DiffAdd
+    highlight link xRegion    DiffChange
 
     " text
     foo ABC bar DEF baz
@@ -688,8 +623,8 @@ For example, thanks to this, Vim is able  to correctly find the end of a block
 (text surrounded by curly braces), even if it contains another block:
 
     " syntax plugin
-    syn region xBlock start=/{/ end=/}/ contains=xBlock
-    hi link xBlock DiffAdd
+    syntax region xBlock start=/{/ end=/}/ contains=xBlock
+    highlight link xBlock DiffAdd
 
     " text
     while i < b {
@@ -722,8 +657,8 @@ No.
 
 You have to explicitly define it with `contains=xRegion`:
 
-    syn region xBlock start=/{/ end=/}/ contains=xBlock
-                                        ^-------------^
+    syntax region xBlock start=/{/ end=/}/ contains=xBlock
+                                           ^-------------^
 
 ###
 ### Which issue is created by a region contained inside another region, and with no text matching its end pattern?
@@ -738,11 +673,11 @@ of the contained region or until the end of the buffer.
 MRE:
 
     " syntax plugin
-    syn region xContained start=/C/ end=/Z/ contained
-    syn region xRegion start=/ABC/ end=/DEF/ contains=xContained
+    syntax region xContained start=/C/ end=/Z/ contained
+    syntax region xRegion start=/ABC/ end=/DEF/ contains=xContained
 
-    hi link xContained DiffAdd
-    hi link xRegion    DiffChange
+    highlight link xContained DiffAdd
+    highlight link xRegion    DiffChange
 
     " text
     foo ABC bar DEF baz
@@ -779,10 +714,10 @@ When a contained region has no end inside the containing region:
 #### Consider the following syntax plugin, and the following text:
 
     " syntax plugin
-    syn region xAb start=/a/ end=/b/ contains=xBc
-    syn region xBc start=/b/ end=/c/ contained
-    hi link xAb DiffAdd
-    hi link xBc DiffChange
+    syntax region xAb start=/a/ end=/b/ contains=xBc
+    syntax region xBc start=/b/ end=/c/ contained
+    highlight link xAb DiffAdd
+    highlight link xBc DiffChange
 
     " text
      aaa bbb czz
@@ -820,10 +755,10 @@ MRE:
     another command
 
     " syntax plugin
-    syn match  xComment /#[^#]\+$/
-    syn region xCommand start=/do/ end=/$/ contains=xComment
-    hi link xComment DiffAdd
-    hi link xCommand DiffChange
+    syntax match  xComment /#[^#]\+$/
+    syntax region xCommand start=/do/ end=/$/ contains=xComment
+    highlight link xComment DiffAdd
+    highlight link xCommand DiffChange
 
 The `xCommand` region should stop at the end of the first line of the text.
 But  it  doesn't,  because  of  the  comment  it  contains  which  consumes  the
@@ -843,11 +778,11 @@ Out of the 24 regions he defines, 22 have `keepend`.
 And among the  2 which don't have  it, one doesn't contain any  item, so doesn't
 need it:
 
-    syn region markdownCodeBlock start="    \|\t" end="$" contained
+    syntax region markdownCodeBlock start="    \|\t" end="$" contained
 
 The other one is probably an error:
 
-    syn region markdownLinkText matchgroup=markdownLinkTextDelimiter start="!\=\[\%(\_[^]]*]\%( \=[[(]\)\)\@=" end="\]\%( \=[[(]\)\@=" nextgroup=markdownLink,markdownId skipwhite contains=@markdownInline,markdownLineStart
+    syntax region markdownLinkText matchgroup=markdownLinkTextDelimiter start="!\=\[\%(\_[^]]*]\%( \=[[(]\)\)\@=" end="\]\%( \=[[(]\)\@=" nextgroup=markdownLink,markdownId skipwhite contains=@markdownInline,markdownLineStart
 
 Here, I think he should have added `keepend`, like everywhere else, otherwise in
 the following text:
@@ -899,11 +834,11 @@ It only has to *begin* in the containing item.
     start CCC end ccc
 
     " syntax plugin
-    syn match xContained /C.\{-}c/ contained
-    syn region xContaining start=/start/ end=/end/ contains=xContained
+    syntax match xContained /C.\{-}c/ contained
+    syntax region xContaining start=/start/ end=/end/ contains=xContained
 
-    hi link xContained   DiffAdd
-    hi link xContaining  DiffChange
+    highlight link xContained   DiffAdd
+    highlight link xContaining  DiffChange
 
 In this example, part of the text is matched by a region.
 The region contains an item, but the latter does *not* end in the region:
@@ -923,11 +858,11 @@ Here's another example, where the containing item is a match instead of a region
     start CCC end ccc
 
     " syntax plugin
-    syn match xContained /C.\{-}c/ contained
-    syn match xContaining /start.\{-}end/ contains=xContained
+    syntax match xContained /C.\{-}c/ contained
+    syntax match xContaining /start.\{-}end/ contains=xContained
 
-    hi link xContained  DiffAdd
-    hi link xContaining DiffChange
+    highlight link xContained  DiffAdd
+    highlight link xContaining DiffChange
 
 Again, the contained item ends after the containing one:
 
@@ -961,11 +896,11 @@ MRE:
     start CCC end ccc
 
     " syntax plugin
-    syn match xContained /C.\{-}c/ contained
-    syn match xContaining /start.\{-}end/ contains=xContained
+    syntax match xContained /C.\{-}c/ contained
+    syntax match xContaining /start.\{-}end/ contains=xContained
 
-    hi link xContained  DiffAdd
-    hi link xContaining DiffChange
+    highlight link xContained  DiffAdd
+    highlight link xContaining DiffChange
 
 The text is matched by the syntax items like so:
 
@@ -1029,11 +964,11 @@ Vim will first try to match the text at the toplevel.
 
 In this example, `xDot` can be nested inside `xFooBar`, or exist at the toplevel:
 
-    syn match xFooBar /Foo Bar/ contains=xDot
-    syn match xDot    /F../
+    syntax match xFooBar /Foo Bar/ contains=xDot
+    syntax match xDot    /F../
 
-    hi link xFooBar DiffAdd
-    hi link xDot    DiffChange
+    highlight link xFooBar DiffAdd
+    highlight link xDot    DiffChange
 
 It can be matched at the toplevel because it is not defined with `contained`.
 
@@ -1046,7 +981,7 @@ It won't be highlighted at all.
 
 This is because:
 
-   1. the last statement wins, so `Foo` is highlighted by `syn match xDot`
+   1. the last statement wins, so `Foo` is highlighted by `syntax match xDot`
 
    2. Vim tries to match `Foo` at the top level first
    (before trying to match it inside `xFooBar`)
@@ -1104,8 +1039,8 @@ with the `contains=NONE` argument.
 
 Example:
 
-    syn match xVim /\<vim\>/ transparent contained contains=NONE
-                                                   ^-----------^
+    syntax match xVim /\<vim\>/ transparent contained contains=NONE
+                                                      ^-----------^
 
 ###
 ### Here is a usage example of `transparent`:
@@ -1115,12 +1050,12 @@ It highlights words in strings, but makes an exception for the word `vim`:
     $ echo "'foo vim bar'" >/tmp/file
 
     $ tee <<'EOF' /tmp/vimrc
-    syn match xString /'[^']*'/    contains=xWord,xVim
-    syn match xWord   /\<[a-z]*\>/ contained
-    syn match xVim    /\<vim\>/    contained contains=NONE transparent
+    syntax match xString /'[^']*'/    contains=xWord,xVim
+    syntax match xWord   /\<[a-z]*\>/ contained
+    syntax match xVim    /\<vim\>/    contained contains=NONE transparent
 
-    hi link xString String
-    hi link xWord   Comment
+    highlight link xString String
+    highlight link xWord   Comment
 
     syntax on
     EOF
@@ -1147,13 +1082,13 @@ As a result, the match (`vim`) would  have been highlighted as a comment instead
 of a string.
 
 ### In this example, what would have been the stack of items on the `vim` word, if I had executed:
-#### `syn match xVim /\<vim\>/ contained`?
+#### `syntax match xVim /\<vim\>/ contained`?
 
     xVim xString
 
 Not highlighted, because no HG is linked to `xVim`.
 
-#### `syn match xVim /\<vim\>/ contained transparent`?
+#### `syntax match xVim /\<vim\>/ contained transparent`?
 
     xWord xVim xString
 
@@ -1167,7 +1102,7 @@ Why doesn't the command produce this stack:
     ^--^
 
 Well,  I  don't  think  it's  possible  because  `xWord`  is  not  defined  with
-`contains=xVim`, but even if it was, according to `:h syn-transparent`:
+`contains=xVim`, but even if it was, according to `:help syn-transparent`:
 
    > ... a contained  match doesn't match inside itself in  the same position, thus
    > the "xVim" match doesn't overrule the "xWord" match here.
@@ -1176,7 +1111,7 @@ The first match due to `xVim` is contained in a syntax item (`xString`).
 As a result,  it can't be used to  match inside itself a second  time **in the**
 **same position**.
 
-#### `syn match xVim /\<vim\>/ contained transparent contains=NONE`?
+#### `syntax match xVim /\<vim\>/ contained transparent contains=NONE`?
 
     xVim xString
 
@@ -1187,7 +1122,7 @@ It doesn't make `xVim` disappear.
 But it would make “disappear” its HG if it was linked to any.
 IOW, if you had used this statement in the previous example:
 
-    hi link xVim Title
+    highlight link xVim Title
 
 `vim` would still have been highlighted as a comment, not a title.
 
@@ -1201,12 +1136,12 @@ according to `xMatchgroup`.
 
 MRE:
 
-    syn match xLine /.*/ contains=xRegion
-    syn region xRegion matchgroup=xMatchgroup start=/Foo/ end=/Bar/ transparent
+    syntax match xLine /.*/ contains=xRegion
+    syntax region xRegion matchgroup=xMatchgroup start=/Foo/ end=/Bar/ transparent
 
-    hi link xLine        DiffAdd
-    hi link xRegion      DiffChange
-    hi link xMatchgroup  DiffDelete
+    highlight link xLine        DiffAdd
+    highlight link xRegion      DiffChange
+    highlight link xMatchgroup  DiffDelete
 
 Here, even though the region should be transparent, only its body will be.
 `Foo` and `Bar` will be highlighted according to `xMatchgroup`, not `xLine`.
@@ -1217,7 +1152,7 @@ Here, even though the region should be transparent, only its body will be.
 
 No, Vim does it automatically.
 
-    :syn match xFoo /pat/
+    :syntax match xFoo /pat/
 
 This command creates the syntax group `xFoo` *and* the HG `xFoo`.
 
@@ -1228,7 +1163,7 @@ Re-link its HG to another HG.
 For example, if  you don't like the  color of fold titles in  a markdown buffer,
 you could execute:
 
-    :hi! link markdownH2 DiffAdd
+    :highlight! link markdownH2 DiffAdd
 
 ## How to prevent a syntax item from being highlighted by its HG?
 
@@ -1236,19 +1171,19 @@ Clear its HG.
 
 If the HG is linked to another, write this in `~/.vim/after/sytax/x.vim`:
 
-    :hi link xFoo NONE
+    :highlight link xFoo NONE
 
 If the HG is *not* linked to another, write this instead:
 
-    :hi clear xFoo
-              │
-              └ name of the HG to which the item is linked
+    :highlight clear xFoo
+                     │
+                     └ name of the HG to which the item is linked
 
 ---
 
 But don't do that:
 
-    :syn clear xFoo
+    :syntax clear xFoo
 
 The text could still be highlighted by another item which contains it.
 And the  removal of  `xFoo` could  break other  syntax items  which rely  on its
@@ -1256,7 +1191,7 @@ existence (via a `containedin=xFoo` argument for example).
 
 For more info, see: <https://vi.stackexchange.com/a/17445/17449>
 
-## What does `def` mean in `hi def link cComment Comment`?
+## What does `default` mean in `highlight default link cComment Comment`?
 
 `def[ault]` means  that the  HG is only  to be used  as a  fallback/default when
 `cComment` has not already been linked to a HG.
@@ -1266,32 +1201,33 @@ HG.
 This allows the user to choose another HG.
 For example, if they write in their vimrc:
 
-    :hi link cComment Question
+    :highlight link cComment Question
 
 A comment in a  `C` file would be highlighted with the  `Question` HG instead of
 the `Comment` one.
 
 For more info, see:
 
-    :h hi-default
+    :help hi-default
 
 ##
 # Issues
 ## My statements are correct.  But sometimes, they fail to highlight a line!
 
-Temporarily increase the value of `'smc'`.
+Temporarily increase the value of `'synmaxcol'`.
 If the line is immediately highlighted  correctly, the issue comes from the line
-being too long.
-Try to reduce its length.
+being too long.  Try to reduce its length.
 
-We assign the value `250` to `'smc'` which should be more than enough for any line.
+We assign the value `250` to `'synmaxcol'`  which should be more than enough for
+any line.
 
 ---
 
 An example of this issue occurs when you draw a wide table.
 
-If you use multibyte characters to draw a table, an edge line will have a big weight.
-It may exceed `&smc`, and make the line highlighted as a comment instead of a table.
+If you use  multibyte characters to draw a  table, an edge line will  have a big
+weight.  It may exceed `&synmaxcol`, and  make the line highlighted as a comment
+instead of a table.
 
 ## My syntax item has a negative impact on Vim's performance!
 
@@ -1328,7 +1264,7 @@ This had a big impact on the performance of `xCommentOutput`.
 You can use the contains argument to specify that everything can be contained.
 For example:
 
-    syn region xList start=/\[/ end=/\]/ contains=ALL
+    syntax region xList start=/\[/ end=/\]/ contains=ALL
 
 All syntax items will be contained in this one.
 It also  contains itself,  but not  at the  same position  (that would  cause an
@@ -1336,7 +1272,7 @@ endless loop).
 You can specify that some groups are not contained.
 Thus contain all groups but the ones that are listed:
 
-    syn region xList start=/\[/ end=/\]/ contains=ALLBUT,xString
+    syntax region xList start=/\[/ end=/\]/ contains=ALLBUT,xString
 
 With the  "TOP" item  you can include  all items that  don't have  a "contained"
 argument.
@@ -1355,9 +1291,9 @@ But "(condition)" and  "then" might also appear in other  places, where they get
 different highlighting.
 This is how you can do this:
 
-    syn match xIf           /if/       nextgroup=xIfCondition     skipwhite
-    syn match xIfCondition  /([^)]*)/  contained nextgroup=xThen  skipwhite
-    syn match xThen         /then/     contained
+    syntax match xIf           /if/       nextgroup=xIfCondition     skipwhite
+    syntax match xIfCondition  /([^)]*)/  contained nextgroup=xThen  skipwhite
+    syntax match xThen         /then/     contained
 
 The "nextgroup" argument specifies which item can come next.
 This is not required.
@@ -1386,7 +1322,7 @@ group name specified.
 To highlight  the text enclosed  in parentheses ()  with the group  xInside, for
 example, use the following command:
 
-    syn region xInside start=/(/ end=/)/
+    syntax region xInside start=/(/ end=/)/
 
 Suppose, that you want to highlight the parentheses differently.
 You can do this  with a lot of convoluted region statements, or  you can use the
@@ -1394,13 +1330,13 @@ You can do this  with a lot of convoluted region statements, or  you can use the
 This tells  Vim to  highlight the  start and end  of a  region with  a different
 highlight group (in this case, the xParen group):
 
-    syn region xInside matchgroup=xParen start=/(/ end=/)/
+    syntax region xInside matchgroup=xParen start=/(/ end=/)/
 
 The "matchgroup" argument applies to the start or end match that comes after it.
 In the previous example both start and end are highlighted with xParen.
 To highlight the end with xParenEnd:
 
-    syn region xInside matchgroup=xParen start=/(/
+    syntax region xInside matchgroup=xParen start=/(/
         \ matchgroup=xParenEnd end=/)/
 
 A side effect  of using "matchgroup" is  that contained items will  not match in
@@ -1416,11 +1352,11 @@ the same way.
 You must make sure the () highlighting stops at the matching ).
 This is one way to do this:
 
-    syn region cWhile matchgroup=cWhile start=/while\s*(/ end=/)/
+    syntax region cWhile matchgroup=cWhile start=/while\s*(/ end=/)/
         \ contains=cCondNest
-    syn region cFor matchgroup=cFor start=/for\s*(/ end=/)/
+    syntax region cFor matchgroup=cFor start=/for\s*(/ end=/)/
         \ contains=cCondNest
-    syn region cCondNest start=/(/ end=/)/ contained transparent
+    syntax region cCondNest start=/(/ end=/)/ contained transparent
 
 Now you can give cWhile and cFor different highlighting.
 The cCondNest item can appear in either  of them, but take over the highlighting
@@ -1444,7 +1380,7 @@ But you don't want to include the "if" or the ( and ).
 You can do this by specifying offsets for the patterns.
 Example:
 
-    syn region xCond start=/if\s*(/ms=e+1 end=/)/me=s-1
+    syntax region xCond start=/if\s*(/ms=e+1 end=/)/me=s-1
 
 The offset for the start pattern is "ms=e+1".
 "ms" stands for Match Start.
@@ -1468,7 +1404,7 @@ More about offsets here: |:syn-pattern-offset|.
 The "oneline" argument indicates that the region does not cross a line boundary.
 For example:
 
-    syn region xIfThen start=/if/ end=/then/ oneline
+    syntax region xIfThen start=/if/ end=/then/ oneline
 
 This defines a region that starts at "if" and ends at "then".
 But if there is no "then" after the "if", the region doesn't match.
@@ -1485,7 +1421,7 @@ file.
 
 When should I use `oneline`?
 
-Read `:h :syn-oneline`.
+Read `:help :syn-oneline`.
 
 ### Continuation Lines And Avoiding Them
 
@@ -1497,8 +1433,8 @@ A line that ends with `\` makes the next line a continuation line.
 The way you  handle this is to  allow the syntax item to  contain a continuation
 pattern:
 
-    syn region xPreProc      start=/^#/ end=/$/ contains=xLineContinue
-    syn match  xLineContinue "\\$"              contained
+    syntax region xPreProc      start=/^#/ end=/$/ contains=xLineContinue
+    syntax match  xLineContinue "\\$"              contained
 
 In this  case, although  `xPreProc` normally  matches a  single line,  the group
 contained in it (namely `xLineContinue`) lets it go on for more than one line.
@@ -1515,10 +1451,10 @@ the line.
 To avoid making  the `xPreProc` continue on the next  line, like `xLineContinue`
 does, use `excludenl` like this:
 
-    syn region xPreProc start=/^#/ end=/$/
+    syntax region xPreProc start=/^#/ end=/$/
         \ contains=xLineContinue,xPreProcEnd
-    syn match xPreProcEnd excludenl  /end$/  contained
-    syn match xLineContinue          "\\$"   contained
+    syntax match xPreProcEnd excludenl  /end$/  contained
+    syntax match xLineContinue          "\\$"   contained
 
 `excludenl` must be placed before the pattern.
 Since  `xLineContinue` doesn't  have `excludenl`,  a match  with it  will extend
@@ -1535,9 +1471,9 @@ and functions.
 Each of them contains the same syntax elements: numbers and identifiers.
 You define them like this:
 
-    syn match xFor    /^for.*/    contains=xNumber,xIdent
-    syn match xIf     /^if.*/     contains=xNumber,xIdent
-    syn match xWhile  /^while.*/  contains=xNumber,xIdent
+    syntax match xFor    /^for.*/    contains=xNumber,xIdent
+    syntax match xIf     /^if.*/     contains=xNumber,xIdent
+    syntax match xWhile  /^while.*/  contains=xNumber,xIdent
 
 You have to repeat the same `contains=` every time.
 If you want to add another contained item, you have to add it three times.
@@ -1546,23 +1482,23 @@ stand for several syntax groups.
 To define  a cluster for the  two items that  the three groups contain,  use the
 following command:
 
-    syn cluster xState contains=xNumber,xIdent
+    syntax cluster xState contains=xNumber,xIdent
 
 Clusters are used inside other syntax items just like any syntax group.
 Their names start with `@`.
 Thus, you can define the three groups like this:
 
-    syn match xFor    /^for.*/    contains=@xState
-    syn match xIf     /^if.*/     contains=@xState
-    syn match xWhile  /^while.*/  contains=@xState
+    syntax match xFor    /^for.*/    contains=@xState
+    syntax match xIf     /^if.*/     contains=@xState
+    syntax match xWhile  /^while.*/  contains=@xState
 
 You can add new group names to this cluster with the `add` argument:
 
-    syn cluster xState add=xString
+    syntax cluster xState add=xString
 
 You can remove syntax groups from this list as well:
 
-    syn cluster xState remove=xNumber
+    syntax cluster xState remove=xNumber
 
 ## 9 Including another syntax file
 
@@ -1579,7 +1515,7 @@ these will be loaded as well.
 After loading the C syntax items the specific C++ items can be defined.
 For example, add keywords that are not used in C:
 
-    syn keyword cppStatement    new delete this friend using
+    syntax keyword cppStatement    new delete this friend using
 
 This works just like in any other syntax file.
 
@@ -1593,8 +1529,8 @@ The `:syntax include` command reads in a  syntax file and stores the elements it
 defined in a syntax cluster.
 For Perl, the statements are as follows:
 
-    syn include @Pod <sfile>:p:h/pod.vim
-    syn region perlPOD start=/^=head/ end=/^=cut/ contains=@Pod
+    syntax include @Pod <sfile>:p:h/pod.vim
+    syntax region perlPOD start=/^=head/ end=/^=cut/ contains=@Pod
 
 When `=head` is found in a Perl file, the perlPOD region starts.
 In this region the `@Pod` cluster is contained.
@@ -1623,7 +1559,7 @@ This tells Vim how to figure out where it is.
 For example, the following command tells  Vim to scan backward for the beginning
 or end of a C-style comment and begin syntax coloring from there:
 
-    syn sync ccomment
+    syntax sync ccomment
 
 You can tune this processing with some arguments.
 The `minlines` argument tells Vim the  minimum number of lines to look backward,
@@ -1631,7 +1567,7 @@ and `maxlines` tells the editor the maximum number of lines to scan.
 For example, the  following command tells Vim  to look at least  10 lines before
 the top of the screen:
 
-    syn sync ccomment minlines=10 maxlines=500
+    syntax sync ccomment minlines=10 maxlines=500
 
 If it cannot figure out where it is in that space, it starts looking farther and
 farther back until it figures out what to do.
@@ -1647,7 +1583,7 @@ syntax group.
 If you  want to  color things another  way, you can  specify a  different syntax
 group:
 
-    syn sync ccomment xAltComment
+    syntax sync ccomment xAltComment
 
 If your programming language  does not have C-style comments in  it, you can try
 another method of synchronization.
@@ -1656,13 +1592,13 @@ figure out things from there.
 The following  command tells  Vim to go  back 150 lines  and start  parsing from
 there:
 
-    syn sync minlines=150
+    syntax sync minlines=150
 
 A  large  `minlines`  value  can  make Vim  slower,  especially  when  scrolling
 backwards in the file.
 Finally, you can specify a syntax group to look for by using this command:
 
-    syn sync match {sync-group-name}
+    syntax sync match {sync-group-name}
         \ grouphere {group-name} {pattern}
 
 This  tells  Vim   that  when  it  sees  `{pattern}`  the   syntax  group  named
@@ -1679,12 +1615,12 @@ it with `fi`:
 To  define a  `grouphere`  directive  for this  syntax,  you  use the  following
 command:
 
-    syn sync match shIfSync grouphere shIf "\<if\>"
+    syntax sync match shIfSync grouphere shIf "\<if\>"
 
 The `groupthere` argument tells Vim that the pattern ends a group.
 For example, the end of the `if`/`fi` group is as follows:
 
-    syn sync match shIfSync groupthere NONE "\<fi\>"
+    syntax sync match shIfSync groupthere NONE "\<fi\>"
 
 In this  example, the `NONE` tells  Vim that you  are not in any  special syntax
 region.
@@ -1696,7 +1632,7 @@ These groups are for syntax groups skipped during synchronization.
 For example,  the following skips  over anything inside  `{}`, even if  it would
 normally match another synchronization method:
 
-    syn sync match xSpecial /{.*}/
+    syntax sync match xSpecial /{.*}/
 
 More about synchronizing in the reference manual: |:syn-sync|.
 
@@ -1713,7 +1649,7 @@ Write syntax commands in your file, possibly using group names from the existing
 syntax.
 For example, to add new variable types to the C syntax file:
 
-    syn keyword cType off_t uint
+    syntax keyword cType off_t uint
 
 Write the file with the same name as the original syntax file.
 In this case `c.vim`.
@@ -1777,13 +1713,13 @@ If you select specific colors it will look bad with some color schemes.
 And don't forget that some people use a different background color, or have only
 eight colors available.
 
-For  the linking  use `:hi  def link`,  so that  the user  can select  different
-highlighting before your syntax file is loaded.
+For  the linking  use `:highlight  default link`,  so that  the user  can select
+different highlighting before your syntax file is loaded.
 Example:
 
-      hi def link nameString    String
-      hi def link nameNumber    Number
-      hi def link nameCommand   Statement
+      highlight default link nameString    String
+      highlight default link nameNumber    Number
+      highlight default link nameCommand   Statement
       ... etc ...
 
 Add the `display` argument to items that  are not used when syncing, to speed up
@@ -1803,11 +1739,11 @@ Put the following file into `~/.vim/after/syntax/sh/awkembed.vim`:
     if exists("b:current_syntax")
       unlet b:current_syntax
     endif
-    syn include @AWKScript syntax/awk.vim
-    syn region AWKScriptCode matchgroup=AWKCommand start=+[=\\]\@<!'+ skip=+\\'+ end=+'+ contains=@AWKScript contained
-    syn region AWKScriptEmbedded matchgroup=AWKCommand start=+\<awk\>+ skip=+\\$+ end=+[=\\]\@<!'+me=e-1 contains=@shIdList,@shExprList2 nextgroup=AWKScriptCode
-    syn cluster shCommandSubList add=AWKScriptEmbedded
-    hi def link AWKCommand Type
+    syntax include @AWKScript syntax/awk.vim
+    syntax region AWKScriptCode matchgroup=AWKCommand start=+[=\\]\@<!'+ skip=+\\'+ end=+'+ contains=@AWKScript contained
+    syntax region AWKScriptEmbedded matchgroup=AWKCommand start=+\<awk\>+ skip=+\\$+ end=+[=\\]\@<!'+me=e-1 contains=@shIdList,@shExprList2 nextgroup=AWKScriptCode
+    syntax cluster shCommandSubList add=AWKScriptEmbedded
+    highlight default link AWKCommand Type
 
 This code will then let the awk code in the single quotes:
 
@@ -1822,7 +1758,7 @@ Clearly this may be extended to other languages.
 # Todo
 ## ?
 
-Document `:h spell-syntax` and `:h :syn-spell`.
+Document `:help spell-syntax` and `:help :syn-spell`.
 
 ## ?
 
@@ -1850,11 +1786,11 @@ Update: This might have been fixed in 8.2.2761.
 ---
 
 Document that you can't clear a syntax group in `~/.vim/after/syntax/x.vim` when
-the syntax plugin is sourced by `:syn include`.
+the syntax plugin is sourced by `:syntax include`.
 
 MRE:
 
-    $ echo 'syn clear zshBrackets' >>~/.vim/after/syntax/zsh.vim
+    $ echo 'syntax clear zshBrackets' >>~/.vim/after/syntax/zsh.vim
 
     $ tee <<'EOF' /tmp/md.md
     ```zsh
@@ -1871,14 +1807,14 @@ MRE:
       +'breakadd file */syntax/zsh.vim' \
       +'breakadd file */syntax/zsh/*.vim' \
       /tmp/md.md
-    :e
+    :edit
     >f
     >n
-    >syn list zshBrackets
+    >syntax list zshBrackets
 
 The output of the last command should be empty, but it's not.
 
-From `:h 44.9`:
+From `:help 44.9`:
 
    > The `:syntax  include` command is  clever enough  to ignore a  `:syntax clear`
    > command in the included file.
@@ -1886,16 +1822,17 @@ From `:h 44.9`:
 Solution:
 Clear (then customize if you want) the syntax group from an autocmd listening to `Syntax`.
 
-    augroup markdown_fix_fenced_code_block | au!
-        au Syntax markdown call s:markdown_fix_fenced_code_block()
+    augroup markdown_fix_fenced_code_block
+        autocmd!
+        autocmd Syntax markdown call s:markdown_fix_fenced_code_block()
     augroup END
 
-    fu s:markdown_fix_fenced_code_block() abort
-        if execute('syn list @markdownHighlightzsh', 'silent!') !~# 'markdownHighlightzsh'
+    function s:markdown_fix_fenced_code_block() abort
+        if execute('syntax list @markdownHighlightzsh', 'silent!') !~# 'markdownHighlightzsh'
             return
         endif
-        syn clear zshBrackets
-    endfu
+        syntax clear zshBrackets
+    endfunction
 
 ## ?
 
@@ -2042,7 +1979,7 @@ Also, document that you can test the performance of your regex with:
 
 Maybe move the section `syntax plugin` from ./debug.md.
 
-Also,  document the  tips given  at the  end of  `:h syntime`,  to increase  the
+Also, document  the tips given  at the end of  `:help syntime`, to  increase the
 performance of the regexes.
 
 ## ?
@@ -2088,13 +2025,13 @@ Document the arguments:
 We wrote that we should always use `keepend` when defining a region.
 
 What about a match?
-In `$VIMRUNTIME`, no one use `keepend` with `:syn match`.
+In `$VIMRUNTIME`, no one use `keepend` with `:syntax match`.
 And yet, I found one example where it's needed to prevent a bug:
 
-    syn match markdownListItem ... keepend
+    syntax match markdownListItem ... keepend
 
-Btw, the description given at `:h :syn-match` is copied from the one
-at `:h :syn-region`, and doesn't make sense in the context of a match:
+Btw,  the description  given at  `:help :syn-match`  is copied  from the  one at
+`:help :syn-region`, and doesn't make sense in the context of a match:
 
    > keepend
    >
@@ -2102,15 +2039,15 @@ at `:h :syn-region`, and doesn't make sense in the context of a match:
 
 ## ?
 
-Document `:h :syn-sync`.
+Document `:help :syn-sync`.
 
 ## ?
 
-Document `:h :syn-pattern-offset`.
+Document `:help :syn-pattern-offset`.
 
 ## ?
 
-Document the special group `ALL` (`:h syn-contains`).
+Document the special group `ALL` (`:help syn-contains`).
 Explain why you should avoid it.
 
 Also document `ALLBUT`.
@@ -2130,13 +2067,13 @@ See also:
 
 ## ?
 
-Document `:h synconcealed()`.
+Document `:help synconcealed()`.
 
 ## ?
 
     " syntax plugin
-    syn match xBlock /{\_.\{-}}/ contains=xBlock
-    hi link xBlock DiffAdd
+    syntax match xBlock /{\_.\{-}}/ contains=xBlock
+    highlight link xBlock DiffAdd
 
     " text
     foo { bar { baz { qux } } }
@@ -2146,7 +2083,7 @@ When I'm trying the previous statement, and make some modification:
    - reload the buffer
    - add/remove an argument
    - focus another buffer and get back
-   - temporarily switch to a region with `:syn region` then get back to `:syn match`
+   - temporarily switch to a region with `:syntax region` then get back to `:syntax match`
 
 the highlighting is broken in some locations.
 And `synstack()` doesn't report anything in some other locations even though the
@@ -2155,13 +2092,13 @@ text is highlighted under the cursor.
 These issues only occur with the first multiline text, not with single line one.
 
 `=d` seems to fix them.
-It may be a  problem of synchronizing... Or we should never  use `:syn match` to
-highlight a multiline text, and prefer `:syn region`.
+It may be  a problem of synchronizing... Or we should  never use `:syntax match`
+to highlight a multiline text, and prefer `:syntax region`.
 
-Besides, it seems that `:syn match` is  rarely used to match a multiline text in
-`$VIMRUNTIME`:
+Besides, it seems that `:syntax match` is  rarely used to match a multiline text
+in `$VIMRUNTIME`:
 
-    :noa vim /\C\<syn\%[tax]\>\s\+match\>.*\%(\\n\|\\_\.\)/gj $VIMRUNTIME/**/*.vim | cw
+    :Cvim /\C\<syn\%[tax]\>\s\+match\>.*\%(\\n\|\\_\.\)/gj $VIMRUNTIME/**/*.vim
 
     " not interested in the literal 2 characters `\` and `n`
     :Cfilter! \\\@<!\\\\n
@@ -2171,78 +2108,11 @@ Besides, it seems that `:syn match` is  rarely used to match a multiline text in
 
 ## ?
 
-some **bold** text
-some [url *text*](http://www.google.com)
-some **bold *foo* bar** text
+Document that `:syntax include` sets `b:current_syntax`.
 
----
-
-Which combination of styles should our comments and markdown notes support?
-
-First, which styles do we currently support?
-
-   - blockquote
-   - list
-   - table
-   - url
-
-   - bold
-   - italic
-   - bold+italic
-   - option
-   - pointer
-   - key
-   - output
-   - codespan
-   - codeblock
-
-The first group of styles can contain other styles.
-The second group can't (sure?).
-
-There won't be any style in:
-
-   - table      (the conceal would break its alignment)
-   - codespan   (no style in code)
-   - codeblock  (")
-   - output     (")
-   - pointer    (doesn't make sense to style a pointer)
-   - option     (")
-
-Which gives the following combinations:
-
-   - bold + url
-   - italic + url
-   - bold+italic + url
-
-   - blockquote + bold + url
-   - blockquote + italic + url
-   - blockquote + bold+italic + url
-
-   - list + bold + url
-   - list + italic + url
-   - list + bold+italic + url
-
-In the future we could add `strings` and `tags`.
-
-Update:
-
-We should support the `output` style inside a list item, inside comments.
-
-Update:
-
-Forget about *all* possible combinations.
-There are probably too many, and only a few are really useful.
-Focus on refactoring your  code to make it as readable as  possible, and as easy
-to expand as possible.
-Then, whenever you feel like a combination is missing, add support for it.
-
-## ?
-
-Document that `:syn include` sets `b:current_syntax`.
-
-Document that you need to remove `b:current_syntax` after `:syn include`.
+Document that you need to remove `b:current_syntax` after `:syntax include`.
 Otherwise, if your file contains more  than one embedded language, the next time
-you'll  run `:syn  include`,  the contained  groups won't  be  defined, and  the
+you'll run  `:syntax include`, the  contained groups  won't be defined,  and the
 cluster will contain nothing.
 
 See `~/.vim/pack/mine/opt/markdown/autoload/markdown.vim` for an example.
@@ -2286,7 +2156,7 @@ Read this: <https://vi.stackexchange.com/a/25171/17449>
 
 Document the fact that `contains=` and `containedin=` accept patterns.
 
-From `:h :syn-contains /pattern`:
+From `:help :syn-contains /pattern`:
 
    > The {group-name} in the "contains" list can be a pattern.  All group names
    > that match the pattern will be included (or excluded, if "ALLBUT" is used).
@@ -2311,11 +2181,11 @@ group.
 vim9script
 'bbb ccc'->setline(1)
 
-syn match B 'bbb' nextgroup=C skipwhite
-syn match C 'ccc' contained
+syntax match B 'bbb' nextgroup=C skipwhite
+syntax match C 'ccc' contained
 
-hi link B DiffAdd
-hi link C DiffDelete
+highlight link B DiffAdd
+highlight link C DiffDelete
 search('ccc')
 echo synstack('.', col('.'))->mapnew((_, v) => v->synIDattr('name'))->reverse()
 ```
@@ -2331,12 +2201,12 @@ Update:  But then, why does it not work in the next snippet?
 vim9script
 'bbb ccc'->setline(1)
 
-syn match A 'bbb' contains=B
-syn match B 'bbb\@=' contained nextgroup=C skipwhite
-syn match C 'b ccc' contained
+syntax match A 'bbb' contains=B
+syntax match B 'bbb\@=' contained nextgroup=C skipwhite
+syntax match C 'b ccc' contained
 
-hi link B DiffAdd
-hi link C DiffDelete
+highlight link B DiffAdd
+highlight link C DiffDelete
 search('ccc')
 echo synstack('.', col('.'))->mapnew((_, v) => v->synIDattr('name'))->reverse()
 ```
@@ -2373,10 +2243,10 @@ Gives desired result:
     bbb ccc
 
     # code
-    syn clear
-    syn match A /^\S*\s*/ contains=B
-    syn match B /^bbb/ contained nextgroup=C
-    syn match C /\s*\S*/ contained
+    syntax clear
+    syntax match A /^\S*\s*/ contains=B
+    syntax match B /^bbb/ contained nextgroup=C
+    syntax match C /\s*\S*/ contained
 
 Does not give desired result:
 
@@ -2384,10 +2254,10 @@ Does not give desired result:
     Event pat
 
     # code
-    syn clear
-    syn match A /^\S*\s*/ contains=B
-    syn match B /bbb/ contained nextgroup=C skipwhite
-    syn match C /\S*/ contained
+    syntax clear
+    syntax match A /^\S*\s*/ contains=B
+    syntax match B /bbb/ contained nextgroup=C skipwhite
+    syntax match C /\S*/ contained
 
 Understand why.
 
@@ -2398,10 +2268,10 @@ the `nextgroup=` argument matches afterward.
 ```vim
 vim9script
 'foo bar'->setline(1)
-syn match xFoo 'foo \@=' nextgroup=xNext skipwhite
-syn match xBar ' \zsbar'
-hi link xFoo DiffAdd
-hi link xBar DiffDelete
+syntax match xFoo 'foo \@=' nextgroup=xNext skipwhite
+syntax match xBar ' \zsbar'
+highlight link xFoo DiffAdd
+highlight link xBar DiffDelete
 ```
 Here, notice how `bar` is not highlighted.
 That's because the space has been consumed, even though `xNext` didn't match.
@@ -2411,18 +2281,18 @@ Use `\@<=` instead:
 ```vim
 vim9script
 'foo bar'->setline(1)
-syn match xFoo 'foo \@=' nextgroup=xNext skipwhite
-syn match xBar ' \@1<=bar'
-hi link xFoo DiffAdd
-hi link xBar DiffDelete
+syntax match xFoo 'foo \@=' nextgroup=xNext skipwhite
+syntax match xBar ' \@1<=bar'
+highlight link xFoo DiffAdd
+highlight link xBar DiffDelete
 ```
 ## ?
 
-Document all the effects of `:syn iskeyword`.
+Document all the effects of `:syntax iskeyword`.
 Hint:
 
-   - the words in `:syn iskeyword` rules
-   - the `\k`, `\<`, `\>` atoms in `:syn match`/`:syn region` regexes
+   - the words in `:syntax iskeyword` rules
+   - the `\k`, `\<`, `\>` atoms in `:syntax match`/`:syntax region` regexes
 
 ## ?
 
@@ -2436,14 +2306,14 @@ Document  that `nextgroup`  doesn't  work  for a  region  whose  start is  empty
 ```vim
 vim9script
 'aaaAAAbbb'->setline(1)
-syn on
-syn region A
+syntax on
+syntax region A
     \ start=/a/
     \ end=/AAA\zebbb/
     \ nextgroup=B
-syn match B /bbb/ contained
-hi link A DiffAdd
-hi link B DiffDelete
+syntax match B /bbb/ contained
+highlight link A DiffAdd
+highlight link B DiffDelete
 ```
 A and B are correctly highlighted because the start of A is not empty:
 
@@ -2453,14 +2323,14 @@ A and B are correctly highlighted because the start of A is not empty:
 ```vim
 vim9script
 'aaaAAAbbb'->setline(1)
-syn on
-syn region A
+syntax on
+syntax region A
     \ start=/\zea/
     \ end=/AAA\zebbb/
     \ nextgroup=B
-syn match B /bbb/ contained
-hi link A DiffAdd
-hi link B DiffDelete
+syntax match B /bbb/ contained
+highlight link A DiffAdd
+highlight link B DiffDelete
 ```
 A and B are not highlighted because the start of A is empty:
 
@@ -2470,11 +2340,11 @@ A and B are not highlighted because the start of A is empty:
 ```vim
 vim9script
 'aaaAAAbbb'->setline(1)
-syn on
-syn region A
+syntax on
+syntax region A
     \ start=/\zea/
     \ end=/AAA\zebbb/
-hi link A DiffAdd
+highlight link A DiffAdd
 ```
 A is correctly highlighted, even though its start is empty because there's no `nextgroup`.
 
@@ -2483,15 +2353,15 @@ A is correctly highlighted, even though its start is empty because there's no `n
 
     $ tee <<'EOF' /tmp/vimrc
 
-    syn clear
+    syntax clear
 
-    syn region xFor      matchgroup=xFor   start='for\s*('   end=')' contains=xCondNest
-    syn region xWhile    matchgroup=xWhile start='while\s*(' end=')' contains=xCondNest
-    syn region xCondNest                   start='('         end=')' contained transparent
+    syntax region xFor      matchgroup=xFor   start='for\s*('   end=')' contains=xCondNest
+    syntax region xWhile    matchgroup=xWhile start='while\s*(' end=')' contains=xCondNest
+    syntax region xCondNest                   start='('         end=')' contained transparent
 
-    hi link xFor      DiffAdd
-    hi link xWhile    DiffChange
-    hi link xCondNest DiffDelete
+    highlight link xFor      DiffAdd
+    highlight link xWhile    DiffChange
+    highlight link xCondNest DiffDelete
     EOF
 
     $ tee <<'EOF' /tmp/file
@@ -2520,9 +2390,9 @@ The containing item describes the match due to the whole region.
     $ echo 'one two three' >/tmp/file
 
     $ tee <<'EOF' /tmp/vimrc
-    syn region xRegion matchgroup=xMatchgroup start='one' end='three'
-    hi link xRegion DiffAdd
-    hi link xMatchgroup DiffChange
+    syntax region xRegion matchgroup=xMatchgroup start='one' end='three'
+    highlight link xRegion DiffAdd
+    highlight link xMatchgroup DiffChange
     EOF
 
     $ vim -S /tmp/vimrc /tmp/file
@@ -2539,10 +2409,10 @@ Document that a contained match *can* break the auto-nesting of a region.
 Here, the auto-nesting works:
 
     $ vim -S <(tee <<'EOF'
-        syn region Region start='abc(' end=')' contains=Region,Match
-        syn match Match /bc/ contained
-        hi link Region DiffAdd
-        pu ='abc(abc(abc(xxx)))'
+        syntax region Region start='abc(' end=')' contains=Region,Match
+        syntax match Match /bc/ contained
+        highlight link Region DiffAdd
+        put ='abc(abc(abc(xxx)))'
     EOF
     )
 
@@ -2553,10 +2423,10 @@ groups contains 3 nested regions.
 But here, it does not work:
 
     $ vim -S <(tee <<'EOF'
-        syn region Region start='abc(' end=')' contains=Region,Match
-        syn match Match /ab/ contained
-        hi link Region DiffAdd
-        pu ='abc(abc(abc(xxx)))'
+        syntax region Region start='abc(' end=')' contains=Region,Match
+        syntax match Match /ab/ contained
+        highlight link Region DiffAdd
+        put ='abc(abc(abc(xxx)))'
     EOF
     )
 
