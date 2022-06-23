@@ -377,7 +377,7 @@ and  its basename  matches  the  name of  the  program (e.g.  `ansifilter.spec`,
 options; IOW, a `.spec` file has priority over `--pkg...`.
 
 Besides, sometimes, the values in the `.spec` file are not literal.
-For example, in `~/Vcs/weechat/weechat.spec:31`, one can read:
+For example, in `~/VCS/weechat/weechat.spec:31`, one can read:
 
     Version:   %{version}
     Release:   %{release}
@@ -498,7 +498,7 @@ a different version.
 checkinstall may fail to install your  local package, because it can't overwrite
 some file(s) belonging to the `zsh` package:
 
-    dpkg: error processing archive /home/user/Vcs/zsh/zsh_9999.9999-1_amd64.deb (--install):˜
+    dpkg: error processing archive /home/user/VCS/zsh/zsh_9999.9999-1_amd64.deb (--install):˜
      trying to overwrite '/usr/share/man/man1/zshmodules.1.gz', which is also in package myzsh 999-1˜
     dpkg-deb: error: subprocess paste was killed by signal (Broken pipe)˜
 

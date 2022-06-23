@@ -1114,7 +1114,7 @@ Usage example:
     :echo $_
     /usr/bin/vipe˜
 
-    $ cd ~/Vcs/vim
+    $ cd ~/VCS/vim
     $ git commit --amend
     :echo $_
     /usr/bin/git˜

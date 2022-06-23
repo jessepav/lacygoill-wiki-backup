@@ -34,14 +34,6 @@ Comment found on reddit:
 
 Source: <https://www.reddit.com/r/Fantasy/comments/nqhzru/looking_for_a_fantasy_that_does_the_traditional/>
 
-   > I just finished Mike Shel's *Aching God* and think it might fit the bill. The
-   > main character is an adventurer dealing with the trauma of an adventure gone
-   > bad, but he's called back into duty to save his daughter. Great, sinister vibe,
-   > like Darkest Dungeon or some of the better Lovecraftian stuff, but not grimdark.
-   > Not much on romance, but that doesn't detract. Highly recommended.
-
-Source: <https://www.reddit.com/r/Fantasy/comments/nqhzru/looking_for_a_fantasy_that_does_the_traditional/h0apsyd/>
-
    > I think **Orconomics** may have part of what you're after. It's a satire take on
    > fantasy tropes from both games, books and films, but it has a solid story about
    > a bunch of misfits has-beens brought together to do a quest, and as they travel,

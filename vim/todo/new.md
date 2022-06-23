@@ -1,5 +1,9 @@
 # functions
 
+   - `:help autocmd_add()`
+   - `:help autocmd_delete()`
+   - `:help autocmd_get()`
+
    - `:help appendbufline()` + `:help deletebufline()`
    - `:help charclass()`
    - `:help chdir()`
@@ -9,6 +13,7 @@
    - `:help fullcommand()`
    - `:help gettagstack()` + `:help settagstack()`
    - `:help interrupt()`
+   - `:help maplist()`
    - `:help prop_add_list()`
    - `:help pum_getpos()`
    - `:help setcellwidths()`
@@ -17,6 +22,7 @@
    - `:help term_setansicolors()` + `:help term_getansicolors()`
    - `:help term_setsize()`
    - `:help terminalprops()`
+   - `:help virtcol2col()`
 
    - `:help getcharpos()` (alternative to `getpos()` based on characters instead of bytes)
    - `:help setcharpos()` (alternative to `setpos()` based on characters instead of bytes)
@@ -217,4 +223,3 @@ Should we ask for this to work as a feature request?
 # Review `https://arp242.net/vimlog/`
 
 Check whether we've missed some interesting new feature in the recent past.
-

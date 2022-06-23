@@ -506,7 +506,7 @@ Je me confronte aux autres.
 ---
 
 Notes can be confusing because of its terminology.
-A good example is the manpage for `update-alternatives`.
+A good example is the man page for `update-alternatives`.
 It refers to 3 related concepts with different words:
 
    - generic name, alternative link

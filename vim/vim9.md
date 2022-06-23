@@ -467,13 +467,13 @@ echo s:person.info()
 In Vim9, the same code can be rewritten like this:
 ```vim
 vim9script
-def DictPersonInfo(self: dict<any>): string
+def PersonInfo(self: dict<any>): string
     return printf('%s is a %s', self.name, self.profession)
 enddef
 var person: dict<any> = {
     name: 'john',
     profession: 'teacher',
-    info: DictPersonInfo
+    info: PersonInfo
 }
 echo person.info(person)
 ```
@@ -492,14 +492,14 @@ To avoid having to manually pass the dictionary in every call, which might look 
 You can bind it to the function via a partial:
 ```vim
 vim9script
-def DictPersonInfo(self: dict<any>): string
+def PersonInfo(self: dict<any>): string
     return printf('%s is a %s', self.name, self.profession)
 enddef
 var person: dict<any> = {
     name: 'john',
     profession: 'teacher'
 }
-person.info = function(DictPersonInfo, [person])
+person.info = function(PersonInfo, [person])
 echo person.info()
 ```
     john is a teacher
@@ -2010,7 +2010,7 @@ var lines =<< trim END
         return 'my status line item'
     enddef
 END
-lines->writefile(dir .. '/script.vim')
+lines->writefile($'{dir}/script.vim')
 import 'script.vim'
 &laststatus = 2
 &statusline = '%{' .. script.StatusLineItem->string() .. '()}'
@@ -2028,7 +2028,7 @@ var lines =<< trim END
         return 'my whole status line'
     enddef
 END
-lines->writefile(dir .. '/script.vim')
+lines->writefile($'{dir}/script.vim')
 import 'script.vim'
 &laststatus = 2
 &statusline = '%!' .. script.WholeStatusLine->string() .. '()'
@@ -2046,7 +2046,7 @@ var lines =<< trim END
         return 'my tab line'
     enddef
 END
-lines->writefile(dir .. '/script.vim')
+lines->writefile($'{dir}/script.vim')
 import 'script.vim'
 &showtabline = 2
 &tabline = '%!' .. script.TabLine->string() .. '()'
@@ -2071,7 +2071,7 @@ var lines =<< trim END
             ->join("\n")
     enddef
 END
-lines->writefile(dir .. '/script.vim')
+lines->writefile($'{dir}/script.vim')
 import 'script.vim'
 'the quick brown fox jumps over the lazy dog'->setline(1)
 var word: string = input('word: ', '', 'custom,' .. script.CompleteWords->string())
@@ -2607,7 +2607,7 @@ def TestList(): string
 enddef
 echo TestList()
 l += [0]
-echo 'and now ' ..  TestList()
+echo $'and now {TestList()}'
 ```
     the list is empty
     and now the list is NOT empty
@@ -3392,13 +3392,13 @@ Usage example:
 ```vim
 vim9script
 def ReverseEveryNLines(n: number, line1: number, line2: number)
-    var range = ':' .. line1 .. ',' .. line2
+    var range = $':{line1},{line2}'
     #   vv
     def g:Offset(): number
         var offset = (line('.') - line1 + 1) % n
         return offset != 0 ? offset : n
     enddef
-    execute range .. 'global/^/execute "move .-" .. Offset()'
+    execute $'{range} global/^/execute $"move .-{g:Offset()}"'
 enddef
 repeat(['aaa', 'bbb', 'ccc'], 3)->setline(1)
 ReverseEveryNLines(3, 1, 9)
@@ -3423,13 +3423,13 @@ Real example:
 ```vim
 vim9script
 def ReverseEveryNLines(n: number, line1: number, line2: number)
-    var range = ':' .. line1 .. ',' .. line2
+    var range = $':{line1},{line2}'
     def Offset(): number
         var offset = (line('.') - line1 + 1) % n
         return offset != 0 ? offset : n
     enddef
     Ref = Offset
-    execute range .. 'global/^/execute "move .-" .. Ref()'
+    execute $'{range} global/^/execute $"move .-{Ref()}"'
 enddef
 var Ref: func
 repeat(['aaa', 'bbb', 'ccc'], 3)->setline(1)
@@ -3444,9 +3444,9 @@ def Retab(
     line1: number,
     line2: number,
 )
-    var range: string = ':' .. line1 .. ',' .. line2
+    var range: string = $':{line1},{line2}'
     var Rep: func = (): string => repeat(' ', &ts * submatch(0)->strcharlen())
-    execute range .. 's/^\t\+/\=Rep()/'
+    execute $'{range} substitute/^\t\+/\=Rep()/'
 enddef
 
 ["\txxx", "\there, the tab should be expanded into spaces", "\txxx"]->setline(1)
@@ -3482,9 +3482,9 @@ def Retab(
     line1: number,
     line2: number,
 )
-    var range: string = ':' .. line1 .. ',' .. line2
+    var range: string = $':{line1},{line2}'
     Rep = (): string => repeat(' ', &ts * submatch(0)->strcharlen())
-    execute range .. 's/^\t\+/\=Rep()/'
+    execute $'{range} substitute/^\t\+/\=Rep()/'
 enddef
 
 var Rep: func
@@ -3953,8 +3953,8 @@ performance, and no early type checking.
 
 Something like this:
 
-    silent execute ':' .. range_first_block .. 'd'
-    silent execute ':' .. end_first_block .. 'put'
+    silent execute $':{range_first_block} delete'
+    silent execute $':{end_first_block} put'
 
 Should be refactored into this:
 
@@ -3967,24 +3967,24 @@ can detect some errors before runtime.
 Other similar refactorings:
 
     var n = 123
-    keepj execute ':' .. n
+    keepj execute $':{n}'
     →
     var n = 123
     cursor(n, 1)
 
 
-    execute ':' .. n .. 'wincmd w'
+    execute $':{n} wincmd w'
     →
     win_getid(n)->win_gotoid()
 
 
-    execute ':' .. winnr('#') .. 'windo diffthis'
+    execute $':{winnr('#')} windo diffthis'
     →
     winnr('#')->win_getid()->win_gotoid()
     diffthis
 
 
-    execute ':' .. line("'<") .. ',' .. line("'>") .. 'cgetbuffer'
+    execute $':{line("'<")},{line("'>")} cgetbuffer'
     cw
     →
     # what should the title be?
@@ -3993,7 +3993,7 @@ Other similar refactorings:
 
 
     var fname = '/tmp/file'
-    execute ':0r ' .. fname
+    execute $':0 read {fname}'
     →
     var fname = '/tmp/file'
     readfile(fname)->append(0)
@@ -4005,13 +4005,13 @@ Warning: `search(pat)` is *not* always equivalent to `/pat`.
 
 It is, if `pat` only contains 1 line specifier:
 
-    execute ':/' .. pat
+    execute $':/{pat}'
     →
     search(pat)
 
 But not if it contains several, separated by semicolons (or commas?):
 
-    execute ':/' .. pat
+    execute $':/{pat}'
     →
     for line_spec in pat->split('/[,;]/')
         search(line_spec, 'c')
@@ -4041,7 +4041,7 @@ writefile([], 'file1')
 writefile([], 'file2')
 silent args `=glob('*', true, true)->join()`
 args
-execute 'silent args ' .. glob('*', true, true)->join()
+execute $'silent args {glob('*', true, true)->join()}'
 args
 ```
     [file1 file2]
@@ -4111,34 +4111,6 @@ autocmd CursorHold * autocmd SafeState * ++once {
 }
 ```
     E1128: } without {: }
-
----
-
-Inside the block, you can only break before a command.
-So, this doesn't work:
-```vim
-vim9script
-autocmd CursorHold * {
-    if true
-    && true
-        echomsg 'true'
-    endif
-}
-doautocmd CursorHold
-```
-    E488: Trailing characters: true^@        echomsg 'true'^@    endif^@}
-
-But this does work:
-```vim
-vim9script
-autocmd CursorHold * {
-    if true && true
-        echomsg 'true'
-    endif
-}
-doautocmd CursorHold
-```
-    true
 
 ### ?
 
@@ -4244,7 +4216,7 @@ compilation.
 Also:
 
     /Test_ignored_argument()
-    ~/Vcs/vim/src/testdir/test_vim9_func.vim
+    ~/VCS/vim/src/testdir/test_vim9_func.vim
 
 ---
 
@@ -4302,9 +4274,9 @@ In Vim9, this can cause a type mismatch error:
 vim9script
 feedkeys("\<up>")
 var char: string = getchar()->nr2char()
-echo 'you pressed ' .. char
+echo $'you pressed {char}'
 ```
-    E1030: Using a String as a Number: "<80>ku"
+    E1210: Number required for argument 1
 
 ### ?
 
@@ -4439,8 +4411,8 @@ lines, and which expects the latter to be passed via `a:firstline`/`a:lastline`.
 vim9script
 ['']->repeat(3)->setline(1)
 function Legacy() range
-    echo 'start of range: ' .. a:firstline
-    echo 'end of range: ' .. a:lastline
+    echo $'start of range: {a:firstline}'
+    echo $'end of range: {a:lastline}'
 endfunction
 :1,3 call Legacy()
 ```
@@ -4461,8 +4433,8 @@ explicitly, without `range`/`a:firstline`/`a:lastline`:
 vim9script
 ['']->repeat(3)->setline(1)
 function Legacy(lnum1, lnum2)
-    echo 'start of range: ' .. a:lnum1
-    echo 'end of range: ' .. a:lnum2
+    echo $'start of range: {a:lnum1}'
+    echo $'end of range: {a:lnum2}'
 endfunction
 Legacy(1, 3)
 ```
@@ -4544,6 +4516,60 @@ Good:
 The former increases Vim's startup time, because  Vim has to look for the script
 under every `autoload/`  of the runtimepath.  And the more  entries Vim needs to
 try before finding the script, the more time-consuming the command is.
+
+### ?
+
+Document that we can't use a partial in a completion spec:
+```vim
+vim9script
+&wildmenu = true
+&wildoptions = 'pum'
+def Complete(..._): string
+    return ['a', 'b', 'c']->join("\n")
+enddef
+var Ref: func = function(Complete, [0])
+input('', '', 'custom,' .. Ref->string())
+```
+    # press Tab
+    E117: Unknown function: function('<80><fd>R1_Complete', [0])
+
+   > The problem with the partial is that it can't be reduced to just a
+   > function name.
+
+Source: <https://github.com/vim/vim/issues/10370#issuecomment-1120239274>
+
+Workaround:
+
+If you need to pass an argument to your completion function, use an intermediate
+lambda:
+```vim
+vim9script
+&wildmenu = true
+&wildoptions = 'pum'
+def Complete(..._): string
+    return ['a', 'b', 'c']->join("\n")
+enddef
+var Ref: func = (..._) => Complete(0)
+input('', '', 'custom,' .. Ref->string())
+```
+    # press Tab
+    no error
+
+Or use a wrapper function:
+```vim
+vim9script
+&wildmenu = true
+&wildoptions = 'pum'
+def Complete(..._): string
+    return ['a', 'b', 'c']->join("\n")
+enddef
+def Wrapper(..._): string
+    return Complete(0)
+enddef
+input('', '', 'custom,' .. Wrapper->string())
+```
+    # press Tab
+    no error
 
 ##
 ### the first things to do after pasting a legacy function into a Vim9 script

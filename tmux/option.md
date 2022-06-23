@@ -302,7 +302,7 @@ An option whose final value is an array of items.
 
 Hooks are also stored as array options.
 
-### How can I find them quickly in the manpage?
+### How can I find them quickly in the man page?
 
 Search for the pattern `[]`.
 

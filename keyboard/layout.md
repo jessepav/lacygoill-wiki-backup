@@ -69,8 +69,8 @@ Although, we could also read the examples in `man systemd.unit`.
 
 # ?
 
-Document why using `xkbcomp` is better than `xmodmap`.
-With xmodmap:
+Document why using `xkbcomp(1)` is better than `xmodmap(1)`.
+With `xmodmap(1)`:
 
    - we lose the custom layout whenever we enter then leave a console
 
@@ -344,7 +344,7 @@ See `man 5 keymaps /spare`.
 
 Convert the code in hexadecimal:
 
-    $ dec2hex <keycode>
+    $ convert-base --from=dec --to=hex <keycode>
 
 Then, run `xkeycaps`:
 
@@ -1028,7 +1028,7 @@ when the Enter key is briefly pressed, then write this:
                                  ^-------^
 
 `enter2ctrl` should be a custom binary inspired by `caps2esc`.
-The readme of interception gives this starting point:
+The README of interception gives this starting point:
 
     #include <stdio.h>
     #include <stdlib.h>
@@ -1059,8 +1059,8 @@ As for the names of the key that you should write in your code
 
 In  the future,  when  you  turn your  `keyboard/setup`  script  into a  systemd
 service, make sure it's started *after* caps2esc and similar plugins.
-Otherwise, you could  face issues such as your custom  key repeat settings could
-be reset:
+Otherwise, you could  face issues such as your custom  key repeat settings being
+reset:
 
     sleep 1; xset r rate 175 40
 
@@ -1262,7 +1262,7 @@ Afin  de choisir  un bon  keycode  pour la  touche inexistante,  lire la  keymap
 # Issues
 ## AltGr + space generates a space, instead of an underscore!
 
-If you use xmodmap:
+If you use `xmodmap(1)`:
 
    > You can  use xmodmap to redefine  existing mappings as long  as those mappings
    > actually exist in your original keyboard layout.
@@ -1283,12 +1283,14 @@ As a workaround, choose this layout:
 
     French (legacy, alternative)
 
-In xfce, this assumes that you deselect `Use system defaults` (sure?).
+In XFCE, this assumes that you deselect "Use system defaults" (sure?).
 
 ##
 ## `$ localectl list-keymaps` doesn't work!
 
     Couldn't find any console keymaps.
+
+    Failed to read list of keymaps: No such file or directory
 
 It comes  from the fact that  the package `console-data` installs  some archives
 with the extension `.kmap.gz`, while `localectl(1)` expects `.map.gz`.
@@ -1298,25 +1300,26 @@ This is a debian bug:
 
 You could temporarily fix the issue by executing:
 
-    # temporarily fix the extensions
-        $ sudo updatedb
-        $ locate kmap.gz | vim -
-        :sav /tmp/sh.sh
-        :%s/^/mv /
-        :%s/kmap\.gz$/{kmap.gz,map.gz}/
-        :0put ='#!/bin/bash'
-        :x
-        $ chmod +x /tmp/sh.sh
-        $ sudo /tmp/sh.sh
+    $ sudo apt install console-data
+    $ sudo updatedb
+    $ locate kmap.gz | vim -
+    :saveas /tmp/sh.sh
+    :% substitute/^/mv /
+    :% substitute/kmap\.gz$/{kmap.gz,map.gz}/
+    :0 put ='#!/bin/bash'
+    :exit
+    $ chmod +x /tmp/sh.sh
+    $ sudo /tmp/sh.sh
 
     # the command should now work
-        $ localectl list-keymaps
+    $ localectl list-keymaps
 
-    # restore the extensions
-        $ vim /tmp/sh.sh
-        :%s/{kmap.gz,map.gz}/{map.gz,kmap.gz}/
-        :x
-        $ sudo /tmp/sh.sh
+To undo the fix:
+
+    $ vim /tmp/sh.sh
+    :% substitute/{kmap.gz,map.gz}/{map.gz,kmap.gz}/
+    :exit
+    $ sudo /tmp/sh.sh
 
 ## I've executed `$ localectl set-x11-keymap us`, but the console keyboard layout has not been changed!
 
@@ -1336,4 +1339,34 @@ journal, to see which issue the latter has encountered:
 Alternatively, trace the `localectl` process:
 
     $ strace -o /tmp/log localectl <subcommand> <args>
+
+##
+# Todo
+## document this pitfall about `xcape(1)`
+
+If `xcape(1)` is running on the host  system, in a virtualbox VM, when you press
+Enter once, the guest receives it twice.
+
+If you kill the `xcape(1)` process, the issue disappears:
+
+    $ killall xcape
+
+Note that pressing C-m doesn't cause the issue, only (right) Enter.
+
+The issue has already been reported on xcape's bug tracker:
+<https://github.com/alols/xcape/issues/99>
+
+---
+
+This can have unexpected consequences.  For example:
+
+    $ sudo dpkg-reconfigure keyboard-configuration
+
+This command asks you some question.
+If you press (right) Enter while in the guest OS to validate an answer, you will
+automatically validate the next answer without being able to review it.
+
+---
+
+This is yet another reason why we no longer want to use `xcape(1)`.
 

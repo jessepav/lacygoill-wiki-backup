@@ -278,7 +278,7 @@ Note somewhere that we should remove these lines:
     tic -sx st.info
     @echo Please see the README file regarding the terminfo entry of st.
 
-... from `~/Vcs/st/Makefile`.
+... from `~/VCS/st/Makefile`.
 
 This should be done automatically (with `sed(1)`), so we need to use a script.
 Maybe use `upp`.

@@ -108,11 +108,7 @@ Edit its configuration file:
 
     /etc/default/grub
 
-Then, execute `update-grub(8)`.
-
-## Where can I find the documentation to configure grub?
-
-    :tab new | .!info -f grub -n 'Simple configuration'
+Then, on a debian-based system, execute `update-grub(8)`.
 
 ## How to make grub remember the entry I've selected the last time I was in its menu?
 
@@ -1006,7 +1002,7 @@ contenant plusieurs fichiers.
 
 
     $ sudo cpan Term::ExtendedColor
-    $ git clone git://github.com/trapd00r/ls--.git
+    $ git clone https://github.com/trapd00r/ls--.git
     $ cd ls--
     $ perl Makefile.PL
     $ make
@@ -1144,7 +1140,7 @@ contenant plusieurs fichiers.
             Utiliser la version du programme en ligne.
 
 
-    npm install --global mapscii
+    npm install --location=global mapscii
 
             Installer le programme en local.
 
@@ -1260,8 +1256,8 @@ contenant plusieurs fichiers.
 
             `node` est un très gros projet:
 
-                    % du -sh ~/Vcs/node
-                    751M    /home/user/Vcs/node
+                    % du -sh ~/VCS/node
+                    751M    /home/user/VCS/node
 
             La compilation peut prendre beaucoup de temps, et consommer pas mal de ressources (mémoire et cpu).
 

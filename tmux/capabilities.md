@@ -14,7 +14,7 @@
 
 They are taken from a predefined list.
 
-You can  read it in  `~/Vcs/tmux/tty-term.c` (search for `TTYC_BEL`);  make sure
+You can  read it in  `~/VCS/tmux/tty-term.c` (search for `TTYC_BEL`);  make sure
 you're on master to get the latest list.
 
 ### sequences?

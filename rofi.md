@@ -80,9 +80,9 @@ Document:
    - `-mesg '...'` command-line option
    - `-i` and `-p '...'` command-line options
 
-# Corrected examples from the manpage (they didn't work originally):
+# Corrected examples from the man page (they didn't work originally):
 
-                           ┌ for some reason, our manpage has wrong quotes
+                           ┌ for some reason, our man page has wrong quotes
                            │
     $ rofi -e "<span color='red'><b>This is still the end</b></span>" -markup
 
@@ -105,7 +105,7 @@ The second time, it will receive the  entry on which we've pressed Enter (`[[ -n
 "$@" ]]`), and  will have to act upon  it as desired (e.g. open  the bookmark in
 the browser).
 
-# manpage
+# man page
 
 What is rofi?
 

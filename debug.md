@@ -141,7 +141,7 @@ Then, we could have inspected the output of `$ xsel -p`, `$ xsel -s`, `$ xsel -b
 We would have found that xterm wrote the text in the primary selection.
 We then  would have looked at  `man xterm` to  check whether it was  possible to
 configure xterm and make it write to the clipboard.
-There are only 25 matches for the pattern `clipboard` in the manpage atm.
+There are only 25 matches for the pattern `clipboard` in the man page atm.
 So, we would have quickly found  the option `selectToClipboard`, tried to change
 its default value from false to true, and fixed the issue.
 

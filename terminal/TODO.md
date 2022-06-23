@@ -1,25 +1,3 @@
-# ?
-
-##
-# Find a way to make `coC` more reliable.
-
-I think it sometimes fails (in some terminals or with some colorscheme...); I'm not sure...
-
----
-
-In vim-toggle-settings, you've written things like:
-
-    let color = escape(a:color, '#')
-    let seq = "\033]12;".color."\007"
-    exe 'sil !printf '.string(seq)
-                              ^-^
-
-This would probably be better:
-
-    let color = escape(a:color, '#')
-    exe 'sil !tput '..string(color)
-              ^--^           ^---^
-
 # Document how we can get the number of colors supported by the terminal.
 
 `$ tput colors` is not reliable, because it relies on `$TERM` which could lie.
@@ -68,12 +46,14 @@ When possible, try to use `tput` instead.
 Why?
 Easier to grep.  Fewer matches when we have an issue with a terminal capability.
 
-# Study: `:lh \cterm\%(info\|cap\)`
+# Study: `:lhelpgrep \cterm\%(info\|cap\)`
 
 # To read:
 
    - <https://gist.github.com/egmontkob/eb114294efbcd5adb1944c9f3cb5feda>
    - <https://misc.flogisoft.com/bash/tip_colors_and_formatting>
+
+# Finish reading: <https://spin0r.wordpress.com/2012/12/15/terminally-confused-part-0/>
 
 # Finish reading: <https://www.linusakesson.net/programming/tty/>
 

@@ -747,7 +747,7 @@ all be named with the pattern `buf_123`.
 
 The format variables `#{window_layout}` and `#{window_visible_layout}` may help,
 as well as `select-layout`.
-More generally, read everything in the manpage which contains 'layout'.
+More generally, read everything in the man page which contains 'layout'.
 
 ---
 
@@ -970,7 +970,7 @@ Not sure this would really help; just consider it.
 The default value of 'status-format' as given by `$ tmux -Lx -f/dev/null start \; show -g status-format` is: https://0x0.st/zOUx.txt
 It contains this snippet: `#{T;=/#{status-left-length}:status-left}`.
 I know the `T` format modifier, but I don't understand the meaning of the semicolon which follows immediately.
-And I can't find a single example of a format modifier followed by a semicolon in the manpage.
+And I can't find a single example of a format modifier followed by a semicolon in the man page.
 
 The latter is also weird; it follows the syntax `#{=/number:...}` which doesn't seem to match any documented syntax.
 Like `#{=5:...}`, `#{=-5:...}`, `#{=/5/prefix:...}`, `#{=/-5/suffix:...}`.
@@ -1310,7 +1310,7 @@ From nicm on #tmux:
    > │ /proc/cmdline in that case, tmux does not have the arguments for running commands
 
 ##
-# typos in manpage
+# typos in man page
 
 From `man tmux /OPTIONS`:
 

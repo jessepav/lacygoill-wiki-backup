@@ -46,7 +46,7 @@ For a complete reference, read:
 
     man pcre2pattern
 
-Don't read these manpages as tutorials.
+Don't read these man pages as tutorials.
 They're references.
 If you  need a better  understanding of PCRE, learn  Perl regexes with  the book
 “Mastering Regular Expressions”.

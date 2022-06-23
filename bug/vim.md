@@ -107,10 +107,21 @@ In the future, we might also have other sources:
 For which ones would we need a `trailing` key and/or a `location` one?
 
 ##
-# ?
+# PRs
+## ?
 
-When we set `'debug'` to `throw`, no error is thrown if the expression evaluated
-by `'foldtext'` is buggy.  It would help if it did.
+The patch [8.2.4891](https://github.com/vim/vim/releases/tag/v8.2.4891) colorizes more highlight group at `:help highlight-groups`.
+
+We keep using our own version of the script, because it seems better:
+
+    ~/.vim/pack/mine/opt/help/autoload/help.vim
+    /export def HighlightGroups()
+
+Open a PR to share your version.
+
+## ?
+
+Open a PR to document colored underlines.
 
 ##
 # Vim9
@@ -147,10 +158,173 @@ defcompile
 
 Why isn't `E1191` given in the second snippet?
 The code is identical; the only difference is that `A()` has been renamed into `B()`.
-The issue disappearss if you rename `Map()` into `Func()`.
+The issue disappears if you rename `Map()` into `Func()`.
 
 ##
 ## type checking
+### Vim9: unexpected type error
+
+**Steps to reproduce**
+
+Run this shell command:
+
+    vim -Nu NONE -S <(tee <<'EOF'
+        vim9script
+        var lla: list<list<any>> = [[{k: true}], []]
+        var lda: list<dict<any>> = lla[0]
+        echo lla[0]->map((_, d: dict<any>) => d.k)
+    EOF
+    )
+
+`E1012` is given:
+
+    E1012: Type mismatch; expected dict<any> but got bool in map()
+
+**Expected behavior**
+
+No error is given, because `lla[0]` is `[{k: true}]` whose type is `list<dict<bool>>`.  Which means that its items have the type `dict<bool>`.  Which means that `map()` operates on data of type `dict<bool>`, and not on data of type `bool` contrary to what the error message says:
+
+    E1012: Type mismatch; expected dict<any> but got bool in map()
+                                                 ^------^
+
+And `dict<bool>` satisfies the `dict<any>` requirement from the type specification in the lambda's arguments:
+
+    echo lla[0]->map((_, d: dict<any>) => d.k)
+                            ^-------^
+
+Because `dict<bool>` is just a special case of `dict<any>`.
+
+**Version of Vim**
+
+8.2 Included patches: 1-4953
+
+**Environment**
+
+Operating system: Ubuntu 20.04.4 LTS
+Terminal: xterm
+Value of $TERM: xterm-256color
+Shell: GNU bash, version 5.0.17
+
+**Additional context**
+
+The issue disappears if we remove the intermediate `lda` assignment:
+```vim
+vim9script
+var lla: list<list<any>> = [[{k: true}], []]
+echo lla[0]->map((_, d: dict<any>) => d.k)
+```
+    [true]
+
+But why does this assignment matter?
+
+---
+
+As a workaround, we can make a `copy()`:
+```vim
+vim9script
+var lla: list<list<any>> = [[{k: true}], []]
+var lda: list<dict<any>> = lla[0]->copy()
+echo lla[0]->map((_, d: dict<any>) => d.k)
+```
+    [true]
+
+---
+
+In the `lda` assignment, if we replace the subtype `any` with `bool`, a slightly different error is given:
+```vim
+vim9script
+var lla: list<list<any>> = [[{k: true}], []]
+var lda: list<dict<bool>> = lla[0]
+echo lla[0]->map((_, d: dict<any>) => d.k)
+```
+    E1012: Type mismatch; expected dict<bool> but got bool in map()
+
+Why does Vim expect `dict<bool>` in `map()`?  Shouldn't it expect `dict<any>`?
+
+---
+
+Simplied MRE:
+```vim
+vim9script
+var l: list<any> = [{k: true}]
+var x: list<dict<bool>> = l
+echo l->map((_, d: dict<any>) => d.k)
+```
+    E1012: Type mismatch; expected dict<bool> but got bool in map()
+
+Update: I think that's because assigning `l` to a variable causes Vim to update its type.  It goes from `list<any>` to `list<dict<bool>>`.  If that's the case, then the previous snippet is equivalent to:
+```vim
+vim9script
+var l: list<dict<bool>> = [{k: true}]
+echo l->map((_, d: dict<any>) => d.k)
+```
+    E1012: Type mismatch; expected dict<bool> but got bool in map()
+
+### ?
+```vim
+vim9script
+def Func()
+    [0]->map((..._) => {
+    })
+enddef
+Func()
+```
+    E1013: Argument 2: type mismatch, expected func(...): any but got func(...list<any>)
+
+What's the issue here?  The types of  the lambda's arguments, or the missing one
+for its return value?
+
+And if the code is really wrong, why no error here:
+```vim
+vim9script
+def Func()
+    [0]->map((..._) => ({}))
+enddef
+Func()
+```
+    no error
+
+Also, watch this:
+```vim
+vim9script
+def Func()
+    [0]->map((..._): any => {
+        return 0
+    })
+enddef
+Func()
+```
+    no error
+
+This suggests that the issue was the missing return type.
+But now, watch this:
+```vim
+vim9script
+def Func()
+    [0]->mapnew((..._) => {
+    })
+enddef
+Func()
+```
+    no error
+
+This time, no return type; and yet no error.
+Why does `mapnew()` fixes the issue here?   It should only make a difference for
+a variable with a declared type.  `[0]` is not a declared variable.
+
+And here:
+```vim
+vim9script
+def Func()
+    [0]->map((_, _) => {
+    })
+enddef
+Func()
+```
+    E1013: Argument 2: type mismatch, expected func(?number, ?any): any but got func(any, any)
+                                                    ^        ^
+Why are the expected arguments optional?
+
 ### ?
 ```vim
 vim9script
@@ -226,44 +400,6 @@ defcompile
     no error
 
 <https://github.com/vim/vim/issues/9842#issuecomment-1049996566>
-
-### ?
-```vim
-vim9script
-def Func()
-    var tags: list<dict<any>> = [{kind: 'a'}, {key: 123}, {kind: 'm'}]
-    tags->filter((_, v: job) => v->has_key('kind') ? v.kind != 'm' : true)
-enddef
-defcompile
-```
-    E1013: Argument 1: type mismatch, expected dict<any> but got job
-```vim
-vim9script
-def Func()
-    var tags: list<dict<any>> = [{kind: 'a'}, {key: 123}, {kind: 'm'}]
-    tags->filter((_, v: dict<job>) => v->has_key('kind') ? v.kind != 'm' : true)
-enddef
-defcompile
-```
-    E1072: Cannot compare job with string
-
-Why doesn't type checking warn us about the wrong type in the second argument of
-the lambda?
-
-Hypothesis:  Vim first  checks that the declared type of  the lambda's arguments
-is compatible  with the expression  on the right of  `=>`. Later, it  will check
-whether those types are compatible with what the filtered expression.
-
-But this hypothesis is wrong:
-```vim
-vim9script
-def Func()
-    var tags: list<dict<any>> = [{kind: 'a'}, {key: 123}, {kind: 'm'}]
-    tags->filter((_, v: job) => !v)
-enddef
-defcompile
-```
-    no error
 
 ### ?
 ```vim
@@ -359,6 +495,26 @@ defcompile
     E1012: Type mismatch; expected number but got string
 
 Is the error message easy enough to understand?
+
+---
+
+How about these ones?
+```vim
+vim9script
+var d: dict<any> = {a: 0, b: ''}
+    ->filter((_, v: string) => []->index('') >= 0)
+```
+    E1013: Argument 2: type mismatch, expected string but got number
+```vim
+vim9script
+var d: dict<any> = {a: 0, b: ''}
+    ->map((_, v: string) => []->index(''))
+```
+    E1013: Argument 2: type mismatch, expected string but got number
+
+In both of them, the issue is in the 2nd argument of `filter()`/`map()`.
+Not the 2nd argument of `index()`.
+Not obvious.
 
 ### ?
 ```vim
@@ -673,7 +829,7 @@ Some of them are in other pages; execute this to find the links:
 
     :g/functions.*documented/#
 
-### Add more functions to reduce the need to ":exe" commands with dynamic arguments
+### Add more functions to reduce the need to ":execute" commands with dynamic arguments
 
    > Eval'ed   strings   run   in   unexpected  contexts   and   don't   go   through
    > parsing/expansion when you think it would.
@@ -1531,13 +1687,18 @@ Func()
     E1012: Type mismatch; expected string but got number
 
 It would be more useful if the reported line number was 3, rather than 1.
-I'm not sure that can be done though; it seems Vim concatenates all the lines in
-the lambda's definition:
+Not sure  that can  be done  though; it  seems Vim  joins all  the lines  in the
+lambda's definition:
 
     :function <lambda>1
         def <lambda>1(m: any, ...): string˜
      1  return m[0]->str2nr() > 99                         ? ''                         : m[0]->str2nr()˜
         enddef˜
+
+   > This is quite complicated.  It is also less efficient.  I'm not going to
+   > do this now.
+
+Source: <https://github.com/vim/vim/issues/10364#issuecomment-1119701864>
 
 If it can't  be improved when the error  is given at runtime, could  it still be
 improved when the error is given at compile time?
@@ -1556,6 +1717,31 @@ defcompile
     Error detected while compiling command line..script /proc/17876/fd/11[9]..function <SNR>1_Func[4]..<lambda>1:
     line    1:
     E1012: Type mismatch; expected string but got number
+
+### ?
+```vim
+vim9script
+echo [[]]->map((_, v) =>
+    []
+    +
+    [][0]
+    +
+    []
+)
+```
+    Error detected while processing command line..script /tmp/.tmux.run.vim[8]..function <lambda>1:
+    line    1:
+    E684: List index out of range: 0
+
+The error is given on line 8, which is the *last* line of the lambda:
+
+    Error detected while processing command line..script /tmp/.tmux.run.vim[8]..function <lambda>1:
+                                                                            ^
+
+Wouldn't it be better to give the error on the *first* line?
+
+    Error detected while processing command line..script /tmp/.tmux.run.vim[2]..function <lambda>1:
+                                                                            ^
 
 ##
 ## to document: closures work with `function()`, but not with lambdas
@@ -1884,14 +2070,14 @@ To  refactor  the   remaining  autoload  function  names   from  `foo#Bar()`  to
 
 Send a patch which refactors this line:
 
-    // $HOME/Vcs/ctags/parsers/vim.c
+    // $HOME/VCS/ctags/parsers/vim.c
     else if (wordMatchLen (line, "let", 3))
 
 Into this line:
 
     else if (wordMatchLen (line, "let", 3) || wordMatchLen (line, "var", 3))
 
-But only for variables declared at the script-level.
+But only for variables declared at the script level.
 To be  consistent with how  legacy scripts are parsed  (function-local variables
 are ignored).
 
@@ -1922,7 +2108,7 @@ a constant name with `C-]`, Vim fails to jump to its declaration.
 The same issue will affect the tags generated for variables declared with `:var`
 (and `:final`).  I think you need to refactor this function:
 
-    // $HOME/Vcs/ctags/parsers/vim.c
+    // $HOME/VCS/ctags/parsers/vim.c
     parseVariableOrConstant()
 
 In particular, this line:
@@ -1945,10 +2131,10 @@ But none of these work:
 
 To debug:
 
-    $ cd ~/Vcs/ctags/
+    $ cd ~/VCS/ctags/
     $ make clean; make distclean; ./autogen.sh; ./configure; sed -i 's/^CFLAGS =.*/CFLAGS = -g -O0/; s/^CFLAGS_FOR_BUILD =.*/CFLAGS_FOR_BUILD = -g -O0/' Makefile; make
     $ cd /tmp/vim_plugin/
-    $ gdb -q --args ~/Vcs/ctags/ctags --options=NONE -R .
+    $ gdb -q --args ~/VCS/ctags/ctags --options=NONE -R .
     (gdb) break parsers/vim.c:parseVariableOrConstant
     (gdb) run
 
@@ -2013,12 +2199,12 @@ To test:
         enddef
     EOF
 
-    $ cd ~/Vcs/ctags/
+    $ cd ~/VCS/ctags/
     $ ./autogen.sh
     $ ./configure
     $ make
     $ cd /tmp/vim_plugin/
-    $ ~/Vcs/ctags/ctags --options=NONE -R .
+    $ ~/VCS/ctags/ctags --options=NONE -R .
     $ vim tags
 
 ---
@@ -2240,7 +2426,7 @@ If `CountSpaces()` is local to the script, this doesn't work in a Vim9 script:
 
     set operatorfunc=CountSpaces
 
-Neither at the script-level, nor in a function.
+Neither at the script level, nor in a function.
 That's because `CountSpaces` is only looked for in the global namespace.
 Solution:
 
@@ -4738,7 +4924,7 @@ builtin functions have a too generic return type.
 See here for how this issue was fixed for `winsaveview()`:
 <https://github.com/vim/vim/commit/43b69b39acb85a2aab2310cba5a2dbac338a4eb9>
 
-Have a look at `~/Vcs/vim/src/evalfunc.c` and look for this pattern:
+Have a look at `~/VCS/vim/src/evalfunc.c` and look for this pattern:
 
     /ret_\S\+any
 
@@ -5537,34 +5723,23 @@ But they seem irrelevant...
 ##
 # Popups
 ## ?
-
-    $ vim -Nu NONE -S <(tee <<'EOF'
-        vim9script
-        var lines = ['aaa', 'bbb', 'ccc']
-        popup_create(lines, {firstline: -1})
-    EOF
-    )
-
-Expected: The popup displays `aaa` once.
-Actual: The popup displays `aaa` twice.
-
-Regression introduced in [8.1.1949](https://github.com/vim/vim/releases/tag/v8.1.1949).
-I think  the issue  can be reproduced  only if the  popup buffer  contains fewer
-lines than what the popup window can display.
-
-## cannot hide popup attached to text property
 ```vim
 vim9script
-setline(1, 'some text')
+&winminheight = 0
+autocmd WinEnter * wincmd _
 prop_type_add('textprop', {})
-prop_add(1, 9, {type: 'textprop', length: 5})
-var id = popup_create('attached to "text"', {
-    textprop: 'textprop',
-    highlight: 'ErrorMsg',
-    line: -1,
-    })
-popup_hide(id)
+def Popup(text: string)
+    text->setline(1)
+    prop_add(1, 1, {type: 'textprop', bufnr: bufnr('%')})
+    var col = text->strlen()
+    popup_create(text, {textprop: 'textprop', col: col, border: []})
+enddef
+Popup('foo')
+new
+Popup('bar')
 ```
+Expected: the `foo` popup is hidden.
+Actual: it's weirdly squashed vertically on the left.
 
 ## cannot scroll to bottom of popup window using builtin popup filter menu when height equal to terminal window
 
@@ -5704,6 +5879,36 @@ The issue is not specific to Vim9.
 ---
 
 It might not be a bug.  But maybe document this somewhere.
+
+## ?
+
+Ask for  `autocmd_add()` to support a  lambda/funcref (and a `{}`  block?) to be
+supported when specifying the value of the `cmd` key.
+
+<https://github.com/vim/vim/pull/10291#issuecomment-1109905203>
+
+## ?
+
+    You have two options for customizing a color scheme.  For changing the
+    appearance of specific colors, you can redefine a color name before loading
+    the scheme.  The desert scheme uses the khaki color for the cursor.  To use a
+    darker variation of the same color: >
+
+            let v:colornames['khaki'] = '#bdb76b'
+            colorscheme desert
+
+Doesn't work.
+
+    $ vim --clean
+    :colorscheme desert
+    :put =execute('highlight Cursor')
+    Cursor         xxx guifg=#333333 guibg=#f0e68c
+
+    $ vim --clean
+    :let v:colornames['khaki'] = '#bdb76b'
+    :colorscheme desert
+    :put =execute('highlight Cursor')
+    Cursor         xxx guifg=#333333 guibg=#f0e68c
 
 ## ?
 

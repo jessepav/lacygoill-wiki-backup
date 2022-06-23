@@ -326,9 +326,9 @@ Why doesn't `setopt no_aliases` work?
 ##
 ### I'm in a console?
 
-        [[ -z "${DISPLAY}" ]]
-        [[ "$(tty)" == *pts* ]]
-        [[ "${TERM}" == linux ]]
+    [[ -z "${DISPLAY}" ]]
+    [[ "$(tty)" == *pts* ]]
+    [[ "$TERM" == linux ]]
 
 ### a running script has root privileges?
 
@@ -555,6 +555,36 @@ temporarily toggle `set -e`:
     set +e
     problematic_command
     set -e
+
+## ?
+
+In a  `[[` test containing  an `==`  or `!=` operator,  you probably want  to at
+least quote  the right-hand  side operand, to  prevent it from  being used  as a
+pattern:
+```bash
+str1='abc'
+str2='a?c'
+if [[ $str1 == $str2 ]]; then
+  echo 'match'
+else
+  echo 'NO match'
+fi
+```
+    match
+```bash
+str1='abc'
+str2='a?c'
+if [[ $str1 == "$str2" ]]; then
+  echo 'match'
+else
+  echo 'NO match'
+fi
+```
+    NO match
+
+From `man bash /SHELL GRAMMAR/;/Compound Commands/;/^\s*[[`:
+
+   > Any part of the pattern may be quoted to force the quoted portion to be matched as a string.
 
 ## ?
 

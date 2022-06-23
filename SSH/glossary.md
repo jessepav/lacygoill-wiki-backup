@@ -11,6 +11,7 @@ The  OpenSSH Portability  Team  takes  the OpenBSD  version  and  adds the  glue
 necessary to  make OpenSSH  work on other  operating systems,  creating Portable
 OpenSSH.   Indeed,   different  operating   systems  use   different  compilers,
 libraries, authentication systems, ...
+
 ##
 # S
 ## SSH
@@ -24,4 +25,3 @@ people cannot eavesdrop on it.
 It was designed  to replace insecure protocols such as  telnet, RSH, and rlogin.
 Many software packages rely on it for encrypted and well-authenticated transport
 of data across private, public, and hostile networks.
-

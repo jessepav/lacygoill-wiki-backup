@@ -57,7 +57,7 @@ So Vim discards `C-k` because it can't be used in a valid command.
 # Scrolling
 ## How to scroll in a popup?
 
-The easiest solution is to use `win_execute()` + `:norm!`.
+The easiest solution is to use `win_execute()` + `:normal!`.
 
 ---
 

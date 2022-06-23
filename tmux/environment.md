@@ -239,10 +239,10 @@ It doesn't matter how you create a new session, its environment is always update
 
 ---
 
-In  the   manpage,  the   documentation  about   `'update-environment'`  doesn't
+In  the  man  page,   the  documentation  about  `'update-environment'`  doesn't
 explicitly mention switching to a session  as a case where a session environment
-is automatically updated – unless you consider switching to another session as a
-special  (?)  case of  attaching  to  a  session –  but  it  is implied  in  the
+is automatically updated – unless you consider switching to another session as
+a special  (?) case  of attaching  to a  session –  but it  is implied  in the
 documentation about `switch-client`:
 
    > If -E is used, update-environment option will not be applied.

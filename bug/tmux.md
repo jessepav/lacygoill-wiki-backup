@@ -194,7 +194,7 @@ fundamental package.  So, it should be ok to use it in a MRE.
 
 Interestingly enough, the next key binding works:
 
-    $ tmux bind -T copy-mode-vi Z send -X cancel \\\; run 'xsel -i --clipboard </home/user/Vcs/tmux/COPYING'
+    $ tmux bind -T copy-mode-vi Z send -X cancel \\\; run 'xsel -i --clipboard </home/user/VCS/tmux/COPYING'
 
 Which seems to  indicate that the issue  is *not* linked to copy  mode, but to
 *some* commands in copy mode.
@@ -202,7 +202,7 @@ Which seems to  indicate that the issue  is *not* linked to copy  mode, but to
 Try to update the previous MRE, to reduce the difference between these commands
 (the first one must work, but not the second):
 
-    $ tmux bind -T copy-mode-vi Z send -X cancel \\\; run 'xsel -i --clipboard </home/user/Vcs/tmux/COPYING'
+    $ tmux bind -T copy-mode-vi Z send -X cancel \\\; run 'xsel -i --clipboard </home/user/VCS/tmux/COPYING'
     $ tmux bind -T copy-mode-vi Z send -X copy-pipe-and-cancel 'tee /tmp/file' \\\; run 'xsel -i --clipboard </tmp/file'
 
     ⇒

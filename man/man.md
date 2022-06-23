@@ -93,7 +93,7 @@ Example:
 Use double-quotes to surround it.
 
 ###
-## What's the name of the request which starts every manpage?
+## What's the name of the request which starts every man page?
 
     .TH
 
@@ -137,7 +137,7 @@ manual-page conventions:
     .SH NAME
 
 ###
-## How is the body of the NAME section of a manpage used by some utilities?
+## How is the body of the NAME section of a man page used by some utilities?
 
 It provides fodder for `apropos(1)` – or  equivalently `$ man -k`.
 
@@ -341,7 +341,7 @@ single line, but they are rarely used in option lists.
 
 # ?
 
-Study how to write manpages
+Study how to write man pages
 
 It's explained in the Appendix A of the “Classic Shell Scripting” book.
 To check the formatting of a manual page, run either of these:
@@ -351,7 +351,7 @@ To check the formatting of a manual page, run either of these:
             ^----^
             include the macro package `man`
 
-To install a manpage, move your `program.man` file in `~/share/man/man1/`.
+To install a man page, move your `program.man` file in `~/share/man/man1/`.
 Name it following this scheme: `<program>.<section>`:
 
     $ cp program.man ~/share/man/man1/program.1
@@ -362,7 +362,7 @@ After the first invocation of `$ man <program>`, the file
 Maybe you should invoke  `$ sudo mandb` before the first  invocation of `man(1)`,
 but I'm not sure it's necessary.
 
-Alternatively, learn how to convert a markdown file into a manpage:
+Alternatively, learn how to convert a markdown file into a man page:
 <https://www.pragmaticlinux.com/2021/01/create-a-man-page-for-your-own-program-or-script-with-pandoc/>
 
 ---
@@ -381,7 +381,7 @@ because even after removing all the contents of this file and running `$ sudo ma
 
 Anyway, version control `~/share/man`.
 
-Also, if you want to draw table in a manpage, you probably need to read `man tbl`.
+Also, if you want to draw table in a man page, you probably need to read `man tbl`.
 For pictures and equations, see also `man pic` and `man eqn`.
 `tbl`, `pic` and `eqn` are preprocessors.
 

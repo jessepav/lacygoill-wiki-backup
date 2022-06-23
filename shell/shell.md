@@ -1136,7 +1136,7 @@ For the same reason, don't omit the `-p` option passed to `ps(1)`:
 
 ### the name of the current (pseudo) terminal?
 
-        $ tty
+    $ tty
 
 ##
 ## How to start and stop a stopwatch to measure how much time has elapsed between 2 events?

@@ -69,7 +69,7 @@ This time, you should read “Good signature from ...”.
 
 Now, you can get the latest updates with your compiled `git`:
 
-    $ git clone git://git.kernel.org/pub/scm/git/git.git
+    $ git clone https://git.kernel.org/pub/scm/git/git.git
 
 ##
 ## How to get a more recent version of Git on Ubuntu, without compiling?
@@ -111,7 +111,7 @@ into `~/.cvsignore`.
 
 The one in the lowest level file (i.e. the closest one from the path).
 
-`~/.cvsignore` is processed as if it was at the toplevel of the project.
+`~/.cvsignore` is processed as if it were at the toplevel of the project.
 
 ### When several patterns, from the same source, match for a path, which one wins?
 
@@ -123,7 +123,7 @@ The last one.
 
 No, it's relative to the location of the `.gitignore` file.
 
-`~/.cvsignore` is processed as if it was at the toplevel of the project.
+`~/.cvsignore` is processed as if it were at the toplevel of the project.
 
 ##
 ### How to exclude all the files under `abc/`?
@@ -145,7 +145,7 @@ For more info, see:
 
     man 3 fnmatch
 
-Also, in the same manpage have a look at the flag `FNM_PATHNAME`.
+Also, in the same man page have a look at the flag `FNM_PATHNAME`.
 
 ### How to make a pattern match only at the beginning of the pathname?
 
@@ -457,7 +457,7 @@ From the root of the project.
 This matters for example, if you write `/pattern`.
 The slash stands for “only in the current directory”.
 The notion of current directory is affected by where the gitignore file lives.
-A global gitignore lives  outside the project, but is processed as  if it was at
+A global gitignore lives outside the project,  but is processed as if it were at
 its root.
 
 ## I wrote `tags` in a gitignore file.  In which directory of the project will a `tags` entry be ignored?
@@ -635,7 +635,7 @@ A file which is safely stored in `.git/`.
     $ git help -g
 
 ##
-## How to get the manpage of a subcommand?  (2)
+## How to get the man page of a subcommand?  (2)
 
     $ man git-subcommand
 
@@ -1609,7 +1609,7 @@ dossiers sont untracked, ou staged mais pas committed.
 
     $ git clone git@github.com:YOUR-USERNAME/YOUR-FORKED-REPO.git
     $ cd into/cloned/fork-repo
-    $ git remote add upstream git://github.com/ORIGINAL-DEV-USERNAME/REPO-YOU-FORKED-FROM.git
+    $ git remote add upstream https://github.com/ORIGINAL-DEV-USERNAME/REPO-YOU-FORKED-FROM.git
     $ git fetch upstream
     $ git pull upstream master
     $ git push
@@ -1688,7 +1688,7 @@ Fix the error in your editor, then:
 For Vim:
 
     # may fail if you did it already; in that case, ignore the error and go on
-    $ git remote add upstream git://github.com/vim/vim.git
+    $ git remote add upstream https://github.com/vim/vim.git
 
     # when looking for the PR branch, ignore the name of the user before the colon, and ignore the colon as well
     $ git fetch upstream pull/<PR-id>/head:<PR-branch>

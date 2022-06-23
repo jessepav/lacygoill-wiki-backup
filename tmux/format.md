@@ -316,7 +316,7 @@ relevant flag.
 
 For example, if you need the `FNM_EXTMATCH`, you will run:
 
-    $ sed -i '/fnmatch(/s/0/FNM_EXTMATCH/' ~/Vcs/tmux/format.c
+    $ sed -i '/fnmatch(/s/0/FNM_EXTMATCH/' ~/VCS/tmux/format.c
 
 ### a regex to a string?
 

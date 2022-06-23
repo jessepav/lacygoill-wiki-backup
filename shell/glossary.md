@@ -74,6 +74,38 @@ Also, it doesn't receive keyboard-generated signals.
 This gives back to the user the control of the shell.
 
 ##
+# n
+## nameref
+
+In bash, a  nameref is a variable  whose value is the name  of another variable.
+Any reference  or assignment to  a nameref is  actually performed on  that other
+variable.
+
+To create a nameref, `declare -n` can be used:
+```bash
+declare -n a
+a='b'
+b='c'
+echo "$a"
+```
+    c
+```bash
+declare a
+a='b'
+b='c'
+echo "$a"
+```
+    b
+
+To unset a nameref:
+
+    unset -n ref
+          ^^
+
+Note that without  `-n`, `unset` would unset whatever variable  is referenced by
+`ref`; not `ref` itself.
+
+##
 # o
 ## option
 

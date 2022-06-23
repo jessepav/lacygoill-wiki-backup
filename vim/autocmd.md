@@ -1285,6 +1285,42 @@ A.  Exemple:
 # Todo
 ## ?
 
+Document that `<buffer>` is always against a buffer number.
+Even if the help says that the pattern is matched against sth else.
+
+For example, `:help Syntax` says this:
+
+                                                            *Syntax*
+    Syntax                          When the 'syntax' option has been set.  The
+                                    pattern is matched against the syntax name.
+
+So, in this autocmd,  one could think that `<buffer>` will  be matched against a
+syntax name:
+
+    autocmd Syntax <buffer> echomsg $'autocmd executed in buffer {bufnr()}'
+                   ^------^
+
+Not at all:
+```vim
+vim9script
+autocmd Syntax <buffer> echomsg $'autocmd executed in buffer {bufnr()}'
+set syntax=test
+new
+set syntax=test
+```
+    autocmd executed in buffer 1
+
+Notice that:
+
+   - the autocmd *has* been fired,
+     even though the expansion of `<buffer>` cannot match `test`;
+     this confirms that `<buffer>` is not matched against a syntax name
+
+   - the autocmd has *not* been fired in the buffer 2;
+     this confirms that `<buffer>` made the autocmd local to the current buffer (here, buffer 1)
+
+## ?
+
 Document that for certain events, you should  not use `%`, `&`, `b:` to refer to
 a property of the buffer for which the event is being fired.
 Instead, you should use `expand('<abuf>')` and `getbufvar()` or `setbufvar()`.

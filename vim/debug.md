@@ -554,27 +554,27 @@ size to avoid trying at all positions in the current and previous lines:
 ## Where can I learn how to write tests for Vim?
 
    - `:help testing`
-   - `~/Vcs/vim/src/testdir/README.txt`
-   - `~/Vcs/vim/src/testdir/runtest.vim`
-   - `~/Vcs/vim/src/testdir/test_assert.vim`
+   - `~/VCS/vim/src/testdir/README.txt`
+   - `~/VCS/vim/src/testdir/runtest.vim`
+   - `~/VCS/vim/src/testdir/test_assert.vim`
 
 ## How can I run a specific test?
 
 If you want to run all the tests in a particular file, use `make(1)`:
 
-    $ cd ~/Vcs/vim/src/testdir; make test_vim9_func
+    $ cd ~/VCS/vim/src/testdir; make test_vim9_func
                                      │
                                      └ name of the script testing the feature you're interested in
 
 If you want to run a particular test in a particular file, use `vim(1)`:
 
-    $ cd ~/Vcs/vim/src/testdir
+    $ cd ~/VCS/vim/src/testdir
     $ vim -u NONE -S runtest.vim test_vim9_func.vim bufname
                                                     │
                                                     └ name of the testing function without the "Test_" prefix
                                                       (e.g. "Test_bufname()")
 
-Or set the `$TEST_FILTER` environment variable.  See `~/Vcs/vim/src/Makefile`:
+Or set the `$TEST_FILTER` environment variable.  See `~/VCS/vim/src/Makefile`:
 
    > # Set $TEST_FILTER to select what test function to invoke, e.g.:
    > #	export TEST_FILTER=Test_terminal_wipe_buffer
@@ -583,8 +583,8 @@ Or set the `$TEST_FILTER` environment variable.  See `~/Vcs/vim/src/Makefile`:
 
 ### Where can I read the results?
 
-    ~/Vcs/vim/src/testdir/test.log
-    ~/Vcs/vim/src/testdir/messages
+    ~/VCS/vim/src/testdir/test.log
+    ~/VCS/vim/src/testdir/messages
 
 #
 # Pitfalls
@@ -934,7 +934,7 @@ dummy one like `/bin/true`:
 ####
 #### How to get a backtrace without a core?
 
-    $ gdb -q --args ~/Vcs/vim/src/vim -Nu NONE -S /tmp/crash.vim
+    $ gdb -q --args ~/VCS/vim/src/vim -Nu NONE -S /tmp/crash.vim
     (gdb) set logging on
     # start Vim so that it crashes
     (gdb) run
@@ -1058,9 +1058,9 @@ An asan log looks like this:
     =================================================================
     ==126361==ERROR: AddressSanitizer: heap-use-after-free on address ...
     READ of size 1 at 0x603000006e86 thread T0
-        #0 0x563acc3c9973 in free_type /home/lgc/Vcs/vim/src/vim9type.c:93
-        #1 0x563acbc96ab7 in list_free_list /home/lgc/Vcs/vim/src/list.c:273
-        #2 0x563acbc96d00 in list_free /home/lgc/Vcs/vim/src/list.c:302
+        #0 0x563acc3c9973 in free_type /home/lgc/VCS/vim/src/vim9type.c:93
+        #1 0x563acbc96ab7 in list_free_list /home/lgc/VCS/vim/src/list.c:273
+        #2 0x563acbc96d00 in list_free /home/lgc/VCS/vim/src/list.c:302
         ...
 
 An ubsan log looks like this:

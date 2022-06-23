@@ -71,13 +71,13 @@ Press `+gr`.
 
     :help → m                                  dans ranger
 
-    :Man /home/user/Vcs/ranger/doc/ranger.1    dans Vim
-    :Man /home/user/Vcs/ranger/doc/rifle.1
+    :Man /home/user/VCS/ranger/doc/ranger.1    dans Vim
+    :Man /home/user/VCS/ranger/doc/rifle.1
 
 # Configuration
 
 Pour ajouter le support des VCS (glyphes git), dans `~/.config/ranger/rc.conf` remplacer `set vcs_aware false` par:
-`setlocal path=~/home/user/Vcs/ vcs_aware true`
+`setlocal path=~/home/user/VCS/ vcs_aware true`
 
 Source: https://github.com/hut/ranger/wiki/VCS-integratio://github.com/hut/ranger/wiki/VCS-integration
 
@@ -99,7 +99,7 @@ Pour qu'il puisse correctement afficher la preview des images en ascii, il faut 
 # Installation
 
 Try to install ranger as a debian package.
-This way, you'll have the manpages (ranger(1), rifle(1)).
+This way, you'll have the man pages (ranger(1), rifle(1)).
 
 ---
 
@@ -112,11 +112,11 @@ Instructions d'installation : http://ranger.nongnu.org/download.html
 
 Official User Guide : https://github.com/hut/ranger/wiki/Official-user-guide
 
-    cd && git clone git://git.savannah.nongnu.org/ranger.git    cloner ranger
+    cd && git clone https://github.com/ranger/ranger.git    cloner ranger
     cd ranger
-    git checkout stable                                         utiliser la version stable
-    git pull                                                    mettre à jour ranger
-    ranger --copy-config=all                                    crée une config par défaut
+    git checkout stable                                     utiliser la version stable
+    git pull                                                mettre à jour ranger
+    ranger --copy-config=all                                crée une config par défaut
 
 
     sudo apt install atool
@@ -1246,8 +1246,8 @@ Find a way to automatically mount a flash disk or hard drive.
 From outside ranger, you could try udiskie: <https://github.com/coldfix/udiskie>
 From ranger:
 
-    ~/Vcs/ranger/examples/plugin_pmount.py
-    ~/Vcs/ranger/examples/plugin_pmount_dynamic.py
+    ~/VCS/ranger/examples/plugin_pmount.py
+    ~/VCS/ranger/examples/plugin_pmount_dynamic.py
 
 Although, these scripts depend on pmount which doesn't seem to be actively developed.
 Have a look at bashmount too: <https://github.com/jamielinux/bashmount>

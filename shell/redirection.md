@@ -1190,7 +1190,7 @@ Instead, you should use a temporary file:
         $ cat temp_file >some_file
         $ rm temp_file
 
-Or, try to find an option in the manpage of `cmd` to operate in-place.
+Or, try to find an option in the man page of `cmd` to operate in-place.
 Example:
 
         # ✘

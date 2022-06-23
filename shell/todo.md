@@ -59,6 +59,15 @@ Anyway, always read the last `learn` command, because all the previous ones are 
 
 ##
 # scripts
+## refactor all our scripts so that they leverage systemd to log their activity
+
+Either make them use `systemd-cat(1)`:
+
+    $ systemd-cat --identifier=myscript --priority=info echo 'some message'
+
+Or try sth more involved:
+<https://serverfault.com/a/1040601>
+
 ## ideas to improve our scripts:
 
 When a script  bugs several times, immediately consider adding  a DEBUG variable
@@ -129,23 +138,12 @@ It's not an obligation to use this page, just a useful convention.
 
 ---
 
-Write a manpage for the script.
+Write a man page for the script.
 
 ---
 
 Split a long command using an array whose elements are arguments of the latter:
 <https://unix.stackexchange.com/a/473257/289772>
-
----
-
-Use lowercase characters for variables/parameters, and uppercase for environment
-variables It's just a convention suggested on page 74 of “from bash to z shell”.
-It's not really followed in this zshrc:
-<http://git.grml.org/f/grml-etc-core/etc/zsh/zshrc>
-
-It doesn't seem there's any convention in this file.
-Except that most  of the time, the  local variables in a  function use lowercase
-characters.
 
 ---
 

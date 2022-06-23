@@ -290,7 +290,7 @@ For more info, see page 433 of the gawk user's guide, and:
 Install gawk shared library:
 
     $ git clone git://git.code.sf.net/p/gawkextlib/code gawkextlib
-    $ cd ~/Vcs/gawkextlib/lib
+    $ cd ~/VCS/gawkextlib/lib
     $ autoreconf -i && ./configure && make && make check
 
     $ sudo make install
@@ -303,7 +303,7 @@ for the  summary.  The  version is  given in `configure.ac`  (look for  the line
 
 Build `tre` which is a dependency of the `aregex` library extension:
 
-    $ cd ~/Vcs/
+    $ cd ~/VCS/
     $ git clone https://github.com/laurikari/tre/
     $ cd tre
     $ ./utils/autogen.sh
@@ -333,7 +333,7 @@ Debian  wants  the  name of  a  package,  not  a  path: give  the  package  name
 
 Build the `aregex` library extension.
 
-    $ cd ~/Vcs/gawkextlib/aregex
+    $ cd ~/VCS/gawkextlib/aregex
     $ autoreconf -i && ./configure && make && make check
     $ sudo make install
 
@@ -363,7 +363,7 @@ Similarly install other library extensions in `gawkextlib/`.
     gd
 
     # need the `libhpdf-dev` package
-    # there's no documentation, except for `~/Vcs/gawkextlib/haru/test/pdftest.awk`
+    # there's no documentation, except for `~/VCS/gawkextlib/haru/test/pdftest.awk`
     haru
 
     json
@@ -812,7 +812,7 @@ An awk utility is a binary you run from the command-line (like `/usr/local/bin/g
 ## How to install the latest version of gawk?
 ### Clone the repo
 
-    $ git clone git://git.savannah.gnu.org/gawk.git
+    $ git clone https://git.savannah.gnu.org/git/gawk.git
 
 ### Clean a possible previous compilation
 
@@ -877,7 +877,7 @@ If that happens, you'll have to play with `update-alternatives`:
       --slave /usr/share/man/man1/awk.1.gz awk.1.gz /usr/local/share/man/man1/gawk.1.gz
     $ sudo update-alternatives --set awk /usr/local/bin/gawk
 
-The `--slave` is there so that `man awk` opens the `gawk` manpage.
+The `--slave` is there so that `man awk` opens the `gawk` man page.
 
 ##
 ## How to install the latest stable release of gawk?
@@ -4512,7 +4512,7 @@ It's a new feature (gawk 5.0) which I've seen mentioned here:
 <https://lists.gnu.org/archive/html/info-gnu/2019-04/msg00002.html>
 
 I can't find it in the gawk user guide (pdf).
-But it's documented in the manpage.
+But it's documented in the man page.
 
 ## assimilate awk-warn.nvim plugin
 

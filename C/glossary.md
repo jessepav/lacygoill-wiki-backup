@@ -67,8 +67,8 @@ Version of the C language described in the standard ISO/IEC 9899:2018, in 2018.
 
 <https://en.wikipedia.org/wiki/C18_(C_standard_revision)>
 
-The  wikipedia page  uses the  term `C18`,  but on  the web,  and on  the latest
-manpage for GCC, `C17` is used more often.
+The wikipedia page  uses the term `C18`, but  on the web, and on  the latest man
+page for GCC, `C17` is used more often.
 
 ## GNU C
 

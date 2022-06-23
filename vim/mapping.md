@@ -2135,7 +2135,7 @@ Make sure your command is not executed via `:norm`:
 flag, `getchar()`,  ... as  *in*complete (the  user's input  is missing).   As a
 result, it presses Escape which prevents you from providing any input.
 
-From `:h norm`:
+From `:help norm`:
 
    > {commands} should be a complete command.  If
    > {commands} does not finish a command, the last one
@@ -3515,8 +3515,8 @@ But the one which is fed is never recorded, because it ends the recording.
 Find usage examples for the `!` and `L` flags of `feedkeys()`.
 
                                  v
-    rg 'feedkeys.*[''"][mntLix!]*L[mntLix!]*[''"]' ~/Vcs/vim/src/testdir/
-    rg 'feedkeys.*[''"][mntLix!]*![mntLix!]*[''"]' ~/Vcs/vim/src/testdir/
+    rg 'feedkeys.*[''"][mntLix!]*L[mntLix!]*[''"]' ~/VCS/vim/src/testdir/
+    rg 'feedkeys.*[''"][mntLix!]*![mntLix!]*[''"]' ~/VCS/vim/src/testdir/
                                  ^
 
 ### ?

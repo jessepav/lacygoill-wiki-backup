@@ -115,7 +115,7 @@ Press `C-r` after `&`; for example, to look for all the lines containing a star:
 # Todo
 ## ?
 
-Copy the contents of the manpages for less, lesskey and lesspipe and edit them.
+Copy the contents of the man pages for less, lesskey and lesspipe and edit them.
 
 Note that we've started configuring less in `~/.config/less/keys`, and in
 `~/.config/fish/conf.d/environment.fish`.

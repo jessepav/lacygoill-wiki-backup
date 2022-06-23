@@ -498,7 +498,7 @@ Configuration settings are saved in `~/.config/pudb`.
 Here is an  example of command that you  can run to debug epy  without having to
 modify the script:
 
-    $ python -m pudb $(which epy) /home/lgc/Vcs/kitty/docs/_build/epub/kitty.epub
+    $ python -m pudb $(which epy) /home/lgc/VCS/kitty/docs/_build/epub/kitty.epub
 
 ---
 
