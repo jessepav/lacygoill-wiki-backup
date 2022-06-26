@@ -253,7 +253,7 @@ It doesn't alter `/etc/default/keyboard`.
 ##
 ## What's the main difference between `setxkbmap(1)` and `localectl set[-x11]-keymap`?
 
-`setxkbmap` sets the *current* layout.
+`setxkbmap(1)` sets the *current* layout.
 Its effect doesn't persist after a reboot of the OS.
 
 `localectl set[-x11]-keymap` sets the *default* layout.
@@ -779,12 +779,12 @@ virtual console layout will be correctly set after the first reboot of the OS.
 
 ## `$ localectl <subcommand> <args>` doesn't work!
 
-`localectl(1)`  invokes the  service `systemd-localed`,  so have  a look  at the
+`localectl(1)` invokes the  service `systemd-localed(8)`, so have a  look at the
 journal, to see which issue the latter has encountered:
 
     $ journalctl --no-hostname --since '5m ago' -u systemd-localed
 
-Alternatively, trace the `localectl` process:
+Alternatively, trace the `localectl(1)` process:
 
     $ strace -o /tmp/log localectl <subcommand> <args>
 
