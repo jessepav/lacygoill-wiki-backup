@@ -48,6 +48,7 @@ The binding for the k-th key will be taken from the l-th layer, where `(k, l)` i
     (3, 1)
     (4, 3)
     (5, 2)
+
 ##
 # Pitfalls
 ## I've messed up the config.  Now the machine is unusable!
@@ -61,13 +62,13 @@ It will force `keyd(1)` to terminate.
 ##
 # Todo
 ## document
-### the benefits of `keyd(1)` over our suite of tools
+### the benefits of `keyd(1)` over our old suite of tools
 
 <https://github.com/rvaiya/keyd>
 
 The old suite was too complex:
 
-   - to change layout: `xmodmap(1)` or  `xkbcomp(1)`, and `loadkeys(1)` (for the console)
+   - to change layout: `xmodmap(1)` or  `xkbcomp(1)`, and `loadkeys(1)` (for the virtual console)
    - overload Capslock with Escape+Ctrl: `xcape(1)` or `caps2esc` (interception plugin)
    - overload right Enter with Enter+Control: `enter2ctrl` (our interception plugin)
 
@@ -88,10 +89,10 @@ With those, in Firefox, `Ctrl+mousewheel` does  not change the zoom level of the
 current webpage.  It does with `keyd(1)`
 
 Besides, our  `enter2ctrl` plugin needed  more work to make  it work as  well as
-`caps2esc`.  It did not  work in a console at all.  And even  in the GUI, it did
-not work properly.  When pressing `C-a`, control  and `a` had to be pressed in a
-too specific manner: it  was not enough for `a` to be pressed,  it *also* had to
-be released (and it had to be released while control was held).
+`caps2esc`.  It did not work in a virtual  console at all.  And even in the GUI,
+it  did not  work properly.   When pressing  `C-a`, control  and `a`  had to  be
+pressed in a  too specific manner: it was  not enough for `a` to  be pressed, it
+*also* had to be released (and it had to be released while control was held).
 
 ---
 
@@ -99,7 +100,7 @@ Note that  `keyd(1)` cannot change the  keyboard repeat rate; that's  the job of
 the display server.  You can use:
 
    - `xset(1)` on X11
-   - `kbdrate(8)` in the console
+   - `kbdrate(8)` in the virtual console
    - some GUI/tool provided by the desktop environment on Wayland
 
 <https://github.com/rvaiya/keyd/issues/97#issuecomment-1012404919>
@@ -181,3 +182,29 @@ Similarly, if  you press the  key `y`, while  the layer `[bar:A]`  is activated,
 then `keyd(1)` will send `alt+y`.
 
 Make sure our understanding is correct.
+##
+## find a way to make the system execute `~/.config/keyboard/setup` automatically whenever `keyd(1)` is (re)started
+
+The latter should mainly contain this command:
+
+    $ xset r rate 175 40
+
+And possibly another `kbdrate(8)` command for the virtual console.
+
+Anyway, make sure whatever commands it contains are run *after* `keyd(1)`.
+
+Otherwise, your custom key repeat rate and delay will be lost.
+
+BTW, I *think* this is an issue for all similar tools.
+For example, `caps2esc` has the same issue:
+<https://github.com/oblitum/caps2esc/issues/1>
+
+---
+
+Also, remove this line:
+
+    "$HOME/.config/keyboard/setup" &
+
+From this script:
+
+    ~/bin/autostartrc

@@ -1,12 +1,12 @@
-miscellaneous chords {{{1
+Misc {{{1
 
 make VM fullscreen                 «Host» F
 pause/resume VM                    «Host» P
 take snapshot of VM                «Host» T
 change VM settings from GUI        «Host» S
 enter console 3 (tty3) in guest    «Host» F3
-terminate X server in guest        «Host» BS
-# assumes that you have enabled M-C-BS, with:
-# $ sudo dpkg-reconfigure keyboard-configuration
-# last question
 
+terminate X server in guest        «Host» BS
+# assumes that you have enabled C-A-BS, with:
+#     $ sudo dpkg-reconfigure keyboard-configuration
+# last question

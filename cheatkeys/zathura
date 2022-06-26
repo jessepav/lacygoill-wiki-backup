@@ -1,0 +1,17 @@
+Move around  {{{1
+Backward in jumplist               «C-o»         N
+Forward in jumplist                «C-i»         N
+Index {{{1
+Open the index                     Tab           N
+collapse all entries               H             I
+expand all entries                 L             I
+
+Annex {{{1
+Labels used in modes {{{2
+
+#    ┌───┬───────────────────────────┐
+#    │ N │ Normal or Fullscreen mode │
+#    ├───┼───────────────────────────┤
+#    │ I │ Index mode                │
+#    └───┴───────────────────────────┘
+

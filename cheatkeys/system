@@ -1,0 +1,62 @@
+Misc {{{1
+
+reboot OS from anywhere            «A-SysRq» reisub
+# useful when the system no longer seems to respond
+# Mnemonic: Reboot Even If System Utterly Broken
+
+reboot OS from virtual console     C-A-Del
+# press 7 times in less than 2s
+# for more info: `man systemd /SIGINT`
+
+power off machine                  «A-SysRq» reisuo
+
+cycle current/previous console     «A-SysRq»
+# Does not expect any command key; just tap it.
+# When the OS shuts down, this cycles between a virtual
+# console, and a buffer used to print the different
+# steps performed to shut down the OS, as well as the
+# effect of any invoked SysRq function.
+
+Annex {{{1
+«SysRq» {{{2
+
+# It should be the same key as the one printing the screen.
+# But on some keyboards, it might be elsewhere:
+# https://askubuntu.com/a/240691/867754
+
+# Some keyboards cannot handle  so many keys being pressed at  the same time, so
+# you might have better luck with:
+#
+#    - press `Alt`
+#    - press `SysRq`
+#    - release `SysRq`
+#    - press <command key>
+#    - release everything
+
+# `SysRq` stands for "System Request".
+
+# For more info:
+# https://en.wikipedia.org/wiki/System_request
+# https://www.kernel.org/doc/html/latest/admin-guide/sysrq.html
+
+«A-SysRq» {{{2
+
+# Chord prefix to press to invoke a kernel function.
+
+# This makes you enter  a special mode, in which you  can send commands directly
+# to  the Linux  kernel, by  pressing a  command key.   The kernel  will respond
+# immediately, unless it's completely locked.
+
+# Several functions can be invoked successively  to restore the system to a safe
+# state, or to obtain a clean reboot when nothing else works.
+
+Command key {{{2
+
+# Key suffix which needs to be pressed after «A-SysRq».
+
+# For some command keys, you might need to press `AltGr` instead of `Alt`.
+
+# When pressing the command key, the layout is set to `us`.
+# So, on an azerty  keyboard, to execute the `m` command  key, you must actually
+# press the `,` key.
+

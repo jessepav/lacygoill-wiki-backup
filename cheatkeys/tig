@@ -1,4 +1,4 @@
-generic bindings {{{1
+Generic {{{1
 View switching {{{2
 
 Show main view                     m
@@ -80,7 +80,7 @@ Option toggling {{{2
 :toggle commit-title-overflow      $
 :toggle file-filter                %
 
-search bindings {{{1
+Search {{{1
 View manipulation {{{2
 
 Close the current view             «C-c»
@@ -90,7 +90,7 @@ Searching {{{2
 Find next search match             «Down» «C-n» «C-j»
 Find previous search match         «Up»   «C-p» «C-k»
 
-main bindings {{{1
+Main {{{1
 Option toggling {{{2
 
 :toggle commit-title-graph         G
@@ -104,7 +104,7 @@ External commands {{{2
 
 ?git cherry-pick %(commit)         C
 
-diff bindings {{{1
+Diff {{{1
 Option toggling {{{2
 
 :toggle diff-context -1            [
@@ -114,7 +114,7 @@ Internal commands {{{2
 
 :/^@@                              @
 
-reflog bindings {{{1
+Reflog {{{1
 Option toggling {{{2
 
 :toggle commit-title-refs          F
@@ -124,13 +124,13 @@ External commands {{{2
 ?git checkout %(branch)            C
 ?git reset --hard %(commit)        !
 
-refs bindings {{{1
+Refs {{{1
 External commands {{{2
 
 ?git checkout %(branch)            C
 ?git branch -D %(branch)           !
 
-status bindings {{{1
+Status {{{1
 View-specific actions {{{2
 
 Stage/unstage chunk/file changes   u
@@ -141,7 +141,7 @@ External commands {{{2
 
 !git commit                        C
 
-stage bindings {{{1
+Stage {{{1
 View-specific actions {{{2
 
 Stage/unstage chunk/file changes   u
@@ -158,7 +158,7 @@ Internal commands {{{2
 
 :/^@@                              @
 
-stash bindings {{{1
+Stash {{{1
 External commands {{{2
 
 ?git stash apply %(stash)          A

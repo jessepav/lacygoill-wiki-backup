@@ -1,24 +1,4 @@
-
-We should progressively switch to a simpler DE.
-There would be several benefits:
-
-   - fewer bugs
-   - less memory/cpu consumption
-   - more responsive applications
-   - better latency in the terminal (?)
-   - easier to fix bugs; easier to understand how the OS/shell/systemd/... works (because fewer processes)
-
-# How to get the list of
-## sessions that can be started (like xfce4, openbox, ...)?
-
-    $ update-alternatives --display x-session-manager
-
-## window managers that can be started (like xfwm4, openbox, ...)?
-
-    $ update-alternatives --display x-window-manager
-
-##
-# ?
+# xinit
 
     xinit - X Window System initializer
 
@@ -177,7 +157,7 @@ default server script
 
 server to run if .xserverrc does not exist
 
-# ?
+# startx
 
     startx - initialize an X session
 
@@ -271,33 +251,29 @@ Client to run if the user has no .xinitrc file.
 Server to run if the user has no .xserverrc file.
 
 ##
-# ?
+# Todo
+## progressively switch to a simpler desktop environment
 
-First, you need to get rid of lightdm.
-It's not that lightweight.
+There would be several benefits:
 
-Ok, but replace it with what?
-Nothing.  We don't need a display manager.
+   - fewer bugs
+   - less memory/cpu consumption
+   - more responsive applications
+   - better latency in the terminal (?)
+   - easier to understand how the system works (because fewer processes), making issues easier to fix
 
-Read this:
-<https://wiki.gentoo.org/wiki/X_without_Display_Manager>
+### small system base
 
-We should be able to:
+When downloading a Linux ISO, no need for any DE.
+For example, for Ubuntu, download the Server Edition:
+<https://releases.ubuntu.com/22.04/ubuntu-22.04-live-server-amd64.iso>
 
-   - start our custom DE from a console
-   - autologin
-   - “attach” different DEs to different consoles
-     (e.g. `exec startx` from console1 → custom DE;
-     from console2 → lxde;
-     from console3 → xfce)
+### no display manager (aka login manager)
 
-To begin with, we should learn how to disable lightdm.
-It may  not be useful later,  if we re-install a  linux distro with a  custom DE
-right from  the start; but  who knows, it  may still be  useful if we  install a
-common DE as a fallback in case of an issue.
-And anyway, right now, we definitely need to disable lightdm before building our DE.
+We don't need one:
 
-See:
+- <https://github.com/swaywm/sway/wiki#login-managers>
+- <https://wiki.gentoo.org/wiki/X_without_Display_Manager>
 - <https://askubuntu.com/questions/882422/how-can-i-disable-all-display-managers>
 - <https://askubuntu.com/questions/16371/how-do-i-disable-x-at-boot-time-so-that-the-system-boots-in-text-mode/79682#79682>
 - <https://superuser.com/questions/974797/how-to-boot-a-linux-system-without-graphical-server>
@@ -306,44 +282,36 @@ See:
 
 Which file(s) should we use?
 
-According  to the  gentoo  wiki,  we can  use  `~/.xinitrc`  and `~/.zlogin`  to
-autostart a WM depending on the VC.
+According to  the gentoo wiki,  we can  use `~/.xinitrc` and  `~/.bash_login` to
+autostart a window manager depending on the virtual console.
 
-        # ~/.xinitrc
-        case $(tty | cut -b9-) in
-          1) exec startxfce4      ;;
-          2) exec openbox-session ;;
-        esac
+    # ~/.xinitrc
+    case $(tty | cut -b9-) in
+      1) exec startxfce4      ;;
+      2) exec openbox-session ;;
+    esac
 
-       # ~/.bash_login
-       # Auto startx depending on the VC
-       if [[ -z "$DISPLAY" && $(id -u) -ge 1000 ]] ; then
-           TTY=$(tty)
-           [[ "${TTY/tty}" != "$TTY" && "${TTY:8:1}" = "3" ]] &&
-               startx 1>~/.log/xsession-errors 2>&1 &
-           unset TTY
-       fi
-
-       # ~/.zlogin
-       # Auto startx depending on the tty
-       if [[ -z $DISPLAY ]] && (( $EUID != 0 )) {
-           [[ ${TTY/tty} != $TTY ]] && (( ${TTY:8:1} <= 3 )) &&
-               startx 1>~/.log/xsession-errors 2>&1 &
-       }
+    # ~/.bash_login
+    # Auto startx depending on the virtual console
+    if [[ -z "$DISPLAY" && $(id -u) -ge 1000 ]] ; then
+        TTY=$(tty)
+        [[ "${TTY/tty}" != "$TTY" && "${TTY:8:1}" = "3" ]] &&
+            startx 1>~/.log/xsession-errors 2>&1 &
+        unset TTY
+    fi
 
 What's the difference between the two snippets?
-Is there a difference between the tty and the VC?
-Why is there no `fi` in the zsh snippet? Where is this syntax documented?
+Is there a difference between the tty and the virtual console?
+What are the pros and cons of using the `exec(1)` command?
 
-In the previous snippets, what are the pros and cons of using the `exec` command?
-
-If you use it, the login shell will immediately be replaced by an X session, and
-when you'll quit the latter, you won't get back to the shell.
+If you use them,  the login shell will immediately be replaced  by an X session,
+and when you'll quit the latter, you won't get back to the shell.
 Con: IOW, you'll have to log in again.
 Pro: This should simplify  the output of `pstree(1)` (and maybe  reduce the risk
 of issues, because one less process?).
-Update: I made some tests in a VM.  I can't much of a difference betwen `exec` and no `exec`.
-If you use `exec`, here's the tree of process as reported by `$ pstree -lsp $$`:
+Update: I made  some tests in  a VM.   I can't see  much of a  difference betwen
+`exec(1)` and no `exec(1)`.  If you use `exec(1)`, here's the tree of process as
+reported by `$ pstree -lsp $$`:
 
     systemd
     login
@@ -356,8 +324,8 @@ If you use `exec`, here's the tree of process as reported by `$ pstree -lsp $$`:
 
 If you look at  `$ pstree -lsp $(pidof xinit)`, you'll see  that, in addition to
 openbox, xinit also starts the Xorg server.
-Also, if you  don't use `exec`, then there's an  additional `sh(1)` process just
-after xinit:
+Also, if  you don't use  `exec(1)`, then  there's an additional  `sh(1)` process
+just after xinit:
 
     systemd
     login
@@ -369,9 +337,10 @@ after xinit:
     xfce4-terminal
     bash
 
-I think that `exec` replaces `sh(1)` with the window manager.
-Without `exec`, `sh(1)` stays there.
+I think that `exec(1)` replaces `sh(1)` with the window manager.
+Without `exec(1)`, `sh(1)` stays there.
 
+---
 
 Then, we should use `/etc/systemd/system/x11.service` to implement the autologin:
 
@@ -394,95 +363,75 @@ However, I'm concerned about this file `/etc/systemd/system/display-manager.serv
 Read `~/wiki/keyboard/magic_keys.md` and search for `display-manager`.
 Also, run this:
 
-    $ vim -q <(rg 'display[-. \n]*manager' ~/wiki) +cw
+    $ vim -q <(rg 'display[-. \n]*manager' ~/wiki) +cwindow
 
 Are there configurations which we performed on lightdm, and that we should adapt
-to openbox?
-Anyway, adapt your notes whenever possible.
+to our whatever  new window manager we  end up using?  Anyway,  adapt your notes
+whenever possible.
+
+### window manager
+
+Try to find a window manager working on Wayland.
+Possibly sway which has the benefit of being a *tiling* window manager:
+<https://github.com/swaywm/sway>
 
 ---
 
-If you want a different wallpaper per desktop, see this:
-<https://forums.bunsenlabs.org/viewtopic.php?id=657>
+Don't use awesome WM.
+Its documentation is way too bad for a beginner, and doesn't support Wayland.
 
-I'm not sure this is a good idea though.
-Openbox doesn't seem to support this by default, so you have to hack a script.
-And the latter may have memory leaks... Besides, it adds useless complexity.
-Maybe we should  just settle on a  simpler script which would let  us change the
-wallpaper on-demand +  an indicator in conky  or in a panel about  the number of
-the current desktop.
+### status bar
 
-# ?
+Find sth equivalent to polybar for Wayland:
+<https://github.com/polybar/polybar>
 
-According to this:
-<https://wiki.gentoo.org/wiki/Openbox/Guide>
+Waybar maybe:
+<https://github.com/Alexays/Waybar>
+Or Swaybar:
+<https://github.com/swaywm/sway/wiki#swaybar-configuration>
 
-   > If problems are  experienced with automounting, or if dbus  and ConsoleKit are
-   > being used, exec ck-launch-session dbus-launch --sh-syntax --exit-with-session
-   > openbox-session should be  placed in each user's .xinitrc file  instead of the
-   > simple exec openbox-session command mentioned above.
+### turn on the Numlock key when the session starts
 
-But according to this:
-<http://blog.falconindy.com/articles/back-to-basics-with-x-and-systemd.html>
+If using sway:
+<https://wiki.archlinux.org/title/Sway#Initially_enable_CapsLock/NumLock>
 
-   > There's no “ck-session-launch” equivalent, sure, but it isn't needed.
+---
 
-And then the page proceeds to explain a shell script.
+If using X11, I think we need to install the numlockx package, then run this:
 
-What should we do?
+    $ numlockx on &
+               │  │
+               │  └ probably useless, because the process quits immediately (once its job is done)
+               └ probably useless, because that's the default action, but it's more explicit that way
 
-# ?
+This requires the numlockx package.
 
-Next, we need  to find a replacement for  every basic component of a  DE, like a
-screen locker, an app to access system settings, a panel bar, ...
-Have a look at the output of  `top(1)`, and see what seems interesting in what's
+Where to write the command?  In `~/.profile`?
+
+### find a replacement for the most useful programs installed by a full-blown desktop environment
+
+Like a screen locker, an app to access  system settings, a panel bar, ... Have a
+look  at the  output  of `top(1)`,  and  see what  seems  interesting in  what's
 running.
 
-# ?
+Assuming you use sway, you'll probably need a replacement for redshift:
+<https://github.com/swaywm/sway/wiki#redshift-equivalent>
 
-Finally, we need to find a better window manager (WM).
-Right now, we use xfwm4 (which is the default for xfce4).
-But this is a *compositing* window manager; that kind of WM increases the latency.
-We should prefer a *stacking* WM.
+For an image viewer like `feh(1)`:
+<https://github.com/swaywm/sway/wiki#wallpapers>
 
-Note that stacking vs compositing has nothing to do with floating vs tiling.
-Those are orthogonal concepts.
+To take screenshots:
+<https://github.com/swaywm/sway/wiki#taking-screenshots>
 
-My ideal WM would be the awesome  WM; it's powerful, supports compositing but is
-probably stacking by default, and is scriptable with lua.
-Check this for a start:
-<https://awesomewm.org/apidoc/documentation/07-my-first-awesome.md.html#>
-There are other interesting pages in the left sidebar.
+For a program launcher:
+- <https://github.com/swaywm/sway/wiki#program-launchers>
+- <https://github.com/Cloudef/bemenu>
 
-But awesome would probably be a timesink right now.
-There's an easier WM: **openbox**.
-So, for the time being, try to install and configure openbox.
+For `$ xset r rate ...`:
+<https://github.com/swaywm/sway/wiki#keyboard-repeat-delay-and-rate>
 
-Read: <http://openbox.org/wiki/Help:Getting_started>
-
-- <http://openbox.org/wiki/Help:Autostart>
-- <http://openbox.org/wiki/Help:Openbox-session>
-- <http://openbox.org/wiki/Help:Contents#Cool_programs_to_run_with_Openbox>
-
-- <http://openbox.org/wiki/Help:Themes>
-- <https://www.opendesktop.org/browse/cat/140/ord/top/>
-- <https://www.deviantart.com/customization/skins/linuxutil/winmanagers/openbox/newest/>
-
-Also, have a look at the output of `$ apt show openbox`:
-
-    Recommends: obconf, python-xdg | obsession, scrot
-    Suggests: menu, fonts-dejavu, python, libxml2-dev, tint2, openbox-menu, openbox-gnome-session (= 3.6.1-1ubuntu2.1), openbox-kde-session (= 3.6.1-1ubuntu2.1)
-
-Maybe you should install some packages to enhance the environment.
-Btw, what's this bar:
-
-    Recommends: obconf, python-xdg | obsession, scrot
-                                   ^
-                                   ?
-
-# ?
-
-We should also learn how to reduce latency, and how to better judge a terminal.
+##
+## learn how to reduce latency, and how to better judge terminal
 
 - <https://anarc.at/blog/2018-05-04-terminal-emulators-2/#latency> (read the first part too)
 - <https://lwn.net/Articles/751763/> (read the first part too)
@@ -490,33 +439,29 @@ We should also learn how to reduce latency, and how to better judge a terminal.
 - <https://pavelfatin.com/typometer/>
 - <https://github.com/pavelfatin/typometer/issues/2>
 
-We recently have switched from urxvt to st.
-I think it was a wise decision for different reasons.
-In particular, it has divided the latency by two.
-We could gain a few more ms by switching to openbox.
-But maybe we could also improve the latency by tweaking `config.h`:
-
-    static unsigned int xfps = 250;
-    static unsigned int actionfps = 90;
-
-Try those values, and test the compiled st with typometer.
-Does it reduce the latency?
-Increase/Reduce them as you see fit.
-
-Try also this:
-
-    static unsigned int dodraw = 1;
-
-Source: <https://lwn.net/Articles/751763/>
-
-Does it help?
-
 Also, maybe we should disable UltiSnips' autotrigger even in Vim.
-It may not increase the latency, but it may increase the jitter.
+It might not increase the latency, but it might increase the jitter.
 
-# ?
+---
 
-Test this WM:
+Note that you can use export the  results of typometer as a file, then re-import
+it later.
+
+<https://github.com/pavelfatin/typometer/issues/2#issuecomment-232727288>
+
+   > the  option to  open  a file  is  intended only  for  importing of  previously
+   > exported results
+
+---
+
+Does switching to Wayland increase input latency?
+If so, do we need some configurations to mitigate the issue?
+
+<https://zamundaaa.github.io/wayland/2021/12/14/about-gaming-on-wayland.html>
+
+## test the twm window manager
+
+From `$ apt show twm`:
 
    > twm is a window manager for the X Window System.
    > It  provides title  bars,  shaped  windows, several  forms  of icon  management,
@@ -526,7 +471,7 @@ Test this WM:
 Log out and log back to choose it.
 It's a very lightweight package, so it could be useful when we need to make some
 tests on a new machine or in a VM.
-Btw, when you do some tests, install xterm in addition to twm:
+BTW, when you do some tests, install xterm in addition to twm:
 
     $ apt install twm xterm
 
@@ -538,74 +483,13 @@ A menu will appear.
 Each entry which contains a square icon on its right is the title of a submenu.
 You can enter it by moving your mouse over the icon.
 
-# ?
+##
+# How to get the list of
+## sessions that can be started (like xfce4, openbox, ...)?
 
-Note that you can use export the  results of typometer as a file, then re-import
-it later.
+    $ update-alternatives --display x-session-manager
 
-<https://github.com/pavelfatin/typometer/issues/2#issuecomment-232727288>
+## window managers that can be started (like xfwm4, openbox, ...)?
 
-   > the  option to  open  a file  is  intended only  for  importing of  previously
-   > exported results
-
-# ?
-
-To turn on the Numlock key in a X session, as soon as openbox starts, run:
-
-    $ echo 'numlockx on &' >>~/.config/openbox/autostart
-                     │  │
-                     │  └ probably useless, because the process quits immediately (once its job is done)
-                     └ probably useless, because that's the default action, but it's more explicit that way
-
-This requires the numlockx package.
-
-Also, read `~/bin/restore-env` and search for ‘lightdm’ and ‘numlockx’.
-There are some commands which we should probably run for openbox.
-
-# ?
-
-I've always wondered why I had locale environment variables with french values:
-
-    $ env | grep LC | grep FR
-    LC_ADDRESS=fr_FR.UTF-8
-    LC_IDENTIFICATION=fr_FR.UTF-8
-    LC_MEASUREMENT=fr_FR.UTF-8
-    LC_MONETARY=fr_FR.UTF-8
-    LC_NAME=fr_FR.UTF-8
-    LC_NUMERIC=fr_FR.UTF-8
-    LC_PAPER=fr_FR.UTF-8
-    LC_TELEPHONE=fr_FR.UTF-8
-
-Once you've switched to openbox, try to understand.
-Use `$ pstree -lsp $$`, and watch `/proc/PID/environ` as well as `/proc/PID/cmdline`.
-
-Update: They seem to be inherited from the upstart process:
-
-    systemd(1)---lightdm(1070)---lightdm(1246)---upstart(1255)---xterm(6169)---zsh(6170)-+-pstree(7772)
-                                                 ^-----------^
-
-It's the oldest process which has these variables in its environment:
-
-    $ tr '\0' '\n' </proc/1255/environ | grep FR
-    LC_PAPER=fr_FR.UTF-8˜
-    LC_ADDRESS=fr_FR.UTF-8˜
-    LC_MONETARY=fr_FR.UTF-8˜
-    LC_NUMERIC=fr_FR.UTF-8˜
-    LC_TELEPHONE=fr_FR.UTF-8˜
-    LC_IDENTIFICATION=fr_FR.UTF-8˜
-    LC_MEASUREMENT=fr_FR.UTF-8˜
-    LC_TIME=fr_FR.UTF-8˜
-    LC_NAME=fr_FR.UTF-8˜
-
-I suspect upstart gets these from this config file:
-
-    /etc/default/locale
-
-Which can be set with the update-locale program:
-
-    $ update-locale LANG=en_US.UTF-8
-
-This last command should remove these  variables from the environment of all our
-processes.  But do we  really want that?  Maybe it would be  better to keep some
-of them; and/or some of them should be set with US values.
+    $ update-alternatives --display x-window-manager
 

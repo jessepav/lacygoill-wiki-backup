@@ -1,288 +1,27 @@
 # ?
 
-Some key combinations may produce a no-break space, or some variant of the latter.
-To get a list of those, run `:UnicodeTable`,  then search for 'no-break':
+How to print all known keymaps for the virtual console?  for X11?
 
-    U+00A0  NO-BREAK SPACE
-    U+202F  NARROW NO-BREAK SPACE
-    U+FEFF  ZERO WIDTH NO-BREAK SPACE
+    # for the virtual console
+    $ localectl list-keymaps
+    # WARNING: doesn't work on debian-based systems because of a known bug:
+    # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=790955
 
-Those characters are rarely useful, and they may cause issues which are hard to debug.
-It's better to disable them.
-To do so, you can run:
+    # for X11
+    $ localectl list-x11-keymaps
 
-    setxkbmap -option 'nbsp:none'
-
-Or, if you use xmodmap, you can edit `~/.Xmodmap`.
-In that case,  you need to look  for the string 'no-break' (or  just 'break', or
-'space') as well as the codes `00a0`, `202f`, `feff`.
-Then, replace these keysyms with other less problematic/more useful.
-
-Finally, if you create your own layout  with xkbcomp, just make sure that no key
-combination generate one of those exotic spaces.
-
-# ?
-
-Document  that when  you install  xbindkeys, the  latter installs  some kind  of
-autostart script.
-
-It fails to  start if you don't  create a file in `~/.xbindkeysrc`  (we don't so
-we're ok), but still it's probably better to disable it:
-
-    Settings
-    > Session and Startup
-    > Application Autostart
-    > untick “xbindkeys (Start xbindkeys)”
-
-Otherwise, I  think your systemd  journal will  be polluted with  error messages
-about xbindkeys which doesn't find its config file.
-
-# ?
-
-- <https://wiki.archlinux.org/index.php/Color_output_in_console>
-- <https://wiki.archlinux.org/index.php/Keyboard_input>
-- <https://wiki.archlinux.org/index.php/Keyboard_shortcuts>
-- <https://wiki.archlinux.org/index.php/Linux_console>
-- <https://wiki.archlinux.org/index.php/Linux_console/Keyboard_configuration>
-- <https://wiki.archlinux.org/index.php/Screen_capture#Virtual_console>
-- <https://wiki.archlinux.fr/Keyboard>
+Wait: There is no `list-x11-keymaps` subcommand.  Why?
+What's the systemd alternative?
+What's the difference between a keymap and a layout?
 
 ---
 
-/usr/share/keymaps/i386/azerty/fr-pc.kmap.gz
-/usr/share/keymaps/i386/include/azerty-layout.inc.gz
-/usr/share/keymaps/i386/include/linux-with-alt-and-altgr.inc.gz
-/usr/share/keymaps/i386/include/linux-keys-bare.inc.gz
+Alternative:
 
----
-
-- <https://superuser.com/questions/290115/how-to-change-console-keymap-in-linux>
-
-- <https://wiki.archlinux.org/index.php/Linux_console/Keyboard_configuration>
-- <https://wiki.archlinux.org/index.php/Keyboard_Configuration_in_Xorg>
-- <https://wiki.archlinux.org/index.php/locale#LC_COLLATE:_collation>
-- <https://wiki.archlinux.org/index.php/Keyboard_Configuration_in_Xorg#Using_X_configuration_files>
-
-The last link is interesting for the systemd unit file at the end.
-We could use it as a template for our own services.
-Although, we could also read the examples in `man systemd.unit`.
-
-# ?
-
-Document why using `xkbcomp(1)` is better than `xmodmap(1)`.
-With `xmodmap(1)`:
-
-   - we lose the custom layout whenever we enter then leave a console
-
-   - we lose the custom layout when we suspend-resume a session / terminate the
-     X server (M-C-del)
-
-   - Xorg consumes a lot of cpu after we leave a console
-
-   - the  result seems  to  be  affected by  whether  we  tick “Use  system
-     defaults” in GUI, and which variant we choose (which is important when we
-     want to make AltGr + SPC generate an underscore) (note that we should rely
-     on the cli only, not on the GUI, nor on a DE)
-
-   - we need to delay the invocation of xmodmap by an arbitrary amount of time
-     (a few seconds) which feels brittle/unreliable
-
-     Indeed, a few seconds after the OS has started (in a VM between 7s and 8s),
-     the modifier map is reset:
-
-       * `Alt_R (0x6c)` is removed from `mod1`.
-       * `Control_R (0x24)` is removed from `control`.
-       * `Control_L (0x42)` is moved from `control` to `lock`.
-
-      Btw, I don't know what this `Alt_R` keysym is.
-      But it's there by default.
-      You can capture it in a script started at launch.
-      Something removes shortly after.
-      By  the time  you open  a terminal,  it's too  late, it  already has  been
-      removed.
-
-      *I think xcape also needs to be delayed... because of xmodmap?*
-
----
-
-Document why `caps2esc` and `enter2ctrl` are better than `xcape(1)`.
-
-- <https://gitlab.com/interception/linux/tools>
-- <https://gitlab.com/interception/linux/plugins/caps2esc>
-
-First, they should work with Wayland too, while `xcape(1)` can only work with Xorg.
-
-Second,  on  our machine,  when  we  use `xcape(1)`  and  we  briefly press  the
-`Capslock` key  to generate  an `Escape` keysym,  the X.Org  process temporarily
-consumes more cpu than usual (from 1/2% to 5/6% or even more).  This causes some
-lag in Vim, which is very distracting.
-
-# ?
-
-Il semble que le moment où les commandes `xmodmap` et `xcape` sont exécutées, et
-leur ordre, a de l'importance.
-
-En  effet,  atm,  je  n'ai  pas   trouvé  de  moyen  fiable  de  faire  exécuter
-automatiquement certaines commandes à `xmodmap`.
-
-Je suis obligé de le faire manuellement.
-J'ai le même pb avec `xcape`.
-
-Pex, imaginons le script suivant:
-
-    xmodmap -e 'keycode 66 = Control_L'
-    xmodmap -e 'clear lock'
-    xmodmap -e 'add control = Control_L'
-    echo 'the script was executed' > ~/Desktop/test_script.log
-
-Ce script devrait transformer la touche capslock en control.
-
-Si  on  rend  ce  script  exécutable  (chmod  +x)  et  qu'on  le  fait  exécuter
-automatiquement  par  le  système  au  démarrage,  soit  via  un  outil  en  GUI
-(`Session and Startup`), soit via  `/etc/rc.local`, la touche capslock garde son
-comportement d'origine.
-
-Pk ?
-
-On sait  que le  pb ne  vient pas  du script  qui n'aurait  pas exécuté,  car le
-fichier `~/Desktop/test_script.log` a bien été créé.
-
-J'ai le même pb avec `xcape`:
-
-    xcape -e 'Alt_L=Alt_L|Q'
-
-Cette commande traduit  un `Alt_L`, tapé seul,  en `M-q`.  Je n'arrive  pas à la
-faire exécuter automatiquement.
-
-Update:
-J'ai corrigé  le pb en retardant  l'exécution des commandes via  un `sleep 1s`
-dans `~/bin/autostartrc`.
-
-# ?
-
-Pour  que 2  touches distinctes  génèrent un  même modificateur  (M0) qd  on les
-maintient enfoncées, tout  en générant leur keysym d'origine (K1,  K2) qd on les
-presse seules,  on est obligé  de leur  faire générer des  keysyms modificateurs
-différents (M1, M2).
-
-Autrement, si on utilisait un même modificateur (M3), on aurait aucun moyen pour
-expliquer à `xcape` s'il doit le traduire en K1 ou en K2.
-
-De ce fait, il faut choisir comme valeur pour M2 un 2e modificateur.
-
-Si M2 a le même comportement que  M1 (ex: `Control_R` a le même comportement que
-`Control_L`), alors il suffit simplement de s'assurer que la modifier map est au
-courant qu'un nouveau keycode est capable de générer M0, via la commande `add`.
-
-En  revanche, si  M2  a un  comportement  différent, il  faut  alors changer  sa
-signification via 2 commandes (`remove` et `add`).  Ex:
-
-    xmodmap -e 'remove mod4 = Hyper_L'
-    xmodmap -e 'add control = Hyper_L'
-
-Dans cet  exemple, on  change le  sens de `Hyper_L`  pour qu'il  soit interprété
-comme un control.
-
-Le  choix  de  M2  est  important  car il  peut  avoir  des  effets  secondaires
-indésirables.
-
-Pex, j'ai essayé d'utiliser `Super_R` comme modificateur intermédiaire, pour que
-la touche BackSpace puisse jouer le rôle d'un alt.
-
-Pb: qd  je tapais  `M-j` ou  `M-l`, il  semble que  le gestionnaire  de fenêtres
-interceptait `C-M-j` et `C-M-l` et nous faisait déplacer de bureau virtuel.
-
-Il vaut donc mieux choisir un modificateur qui a peu d'influence comme:
-
-    Shift_R
-    Control_R
-    Hyper_R
-
-Se méfier de `Super_R`, et peut-être aussi de `Caps_Lock`, `Num_Lock`.
-
-# ?
-
-    $ xmodmap -e 'keycode  65 = space space space space space space'
-
-    X11 variants
-
-            French (alt.) | oss
-            French (alt., Latin9-only) | oss_latin9
-            French (alt., no dead keys) | oss_nodeadkeys
-            French (alt., with Sun dead keys) | oss_sundeadkeys
-            French (AZERTY) | azerty
-            French (Bepo, ergonomic, Dvorak way) | bepo
-            French (Bepo, ergonomic, Dvorak way, Latin9-only) | bepo_latin9
-            French (Breton) | bre
-            French (Dvorak) | dvorak
-            French (legacy, alt.) | latin9
-            French (legacy, alt., no dead keys) | latin9_nodeadkeys
-            French (legacy, alt., with Sun dead keys) | latin9_sundeadkeys
-            French (Macintosh) | mac
-            French (no dead keys) | nodeadkeys
-            French (with Sun dead keys) | sundeadkeys
-
-    X11 options
-
-            lv3:ralt_switch
-
-You can choose two variants:
-
-    ┌────────────────────────────┬────────────┐
-    │ French (alt., Latin9-only) │ oss_latin9 │
-    ├────────────────────────────┼────────────┤
-    │ French (legacy, alt.)      │ latin9     │
-    └────────────────────────────┴────────────┘
-
-Don't choose:
-
-    ┌─────────────────┬────────┐
-    │ French (AZERTY) │ azerty │
-    └─────────────────┴────────┘
-
-It's too poor (i.e. there's not enough keysyms on some keys).
-
-Don't choose:
-
-    ┌───────────────┬─────┐
-    │ French (alt.) │ oss │
-    └───────────────┴─────┘
-
-It's shitty (i.e. too many weird/useless keysyms).
-
-If  you don't  choose any  variant, you  won't  be able  to make  AltGr +  Space
-generate an underscore (a little too poor).
-
----
-
-If you use the GUI to untick “Use system defaults”:
-
-    Settings
-    Keyboard
-    Layout
-
-You have to choose this variant:
-
-    French (legacy, alternative) (⇔ latin9)
-
-Otherwise, no underscore.
-Also,  whatever you  choose with  `dpkg-reconfigure keyboard-configuration`,  it
-seems to be ignored.
-Also, you can change the layout without restarting the OS.
-
-If you don't untick “Use system defaults”, you can use `oss_latin9` as well, but
-you need to  re-execute `~/bin/keyboard.sh` a few seconds after  the session has
-started.
-And, if you change the layout, I think  you need to restart the OS (at least the
-X server, and maybe the OS for the underscore).
-
-Also, when you execute `xmodmap -pm`, the  output seems to depend on the key you
-pressed to validate the command (Enter vs C-m).
+    $ sed -n '/^! layout/,/^$/p' /usr/share/X11/xkb/rules/evdev.lst
 
 ##
-##
-##
-# How to customize the console keyboard layout?
+# How to customize the virtual console keyboard layout?
 
     $ sudo tee -a /etc/systemd/system/getty@.service.d/keyboard-layout.conf <<'EOF'
     [Service]
@@ -301,12 +40,12 @@ pressed to validate the command (Enter vs C-m).
     keycode 58 = Control
     ...
 
-Use `dumpkeys` to read the current layout and `showkey` to get the code of a key.
-Read `man 5 keymaps` for the syntax of the file.
+Use `dumpkeys(1)` to read the current layout and `showkey(1)` to get the code of
+a key.  Read `man 5 keymaps` for the syntax of the file.
 
 ---
 
-If you tweak  `vc.conf`, you can apply the changes  immediately, by pressing C-d
+If you tweak `vc.conf`, you can apply the changes immediately, by pressing `C-d`
 then re-logging.
 
 ---
@@ -321,12 +60,7 @@ For example, to make `S-Tab` emit `Esc [ Z`:
 See `man 5 keymaps /spare`.
 
 ##
-# Where can I find a list of all the possible options that I can pass to `setxkbmap`?
-
-    man 7 xkeyboard-config
-
-##
-# What interesting utility does `kbd` provide?
+# What interesting utility does the `kbd` package provide?
 
     /bin/dumpkeys
     /bin/loadkeys
@@ -340,33 +74,16 @@ See `man 5 keymaps /spare`.
     /usr/bin/showkey
 
 ##
-# I have the decimal keycode of a key.  How to find all the keysyms it can generate (w/ or w/o modifier)?
-
-Convert the code in hexadecimal:
-
-    $ convert-base --from=dec --to=hex <keycode>
-
-Then, run `xkeycaps`:
-
-    $ xkeycaps -keyboard pc105fr
-                         │
-                         └ found in the output of `$ xkeycaps -h` (/french)
-
-1. On the picture, find the key whose lower-right corner contains your hex keycode.
-2. Hover the cursor over this key.
-3. At the top of the window, on the second line, read the keysyms following `KeySym:`.
-
-##
-# What's the difference between the DEFAULT keyboard layout and the CURRENT layout?
+# What's the difference between the *default* keyboard layout and the *current* layout?
 
 The default layout is the one automatically set up when you start the OS.
 It persists after a reboot of the OS.
 
 The current layout is the one currently active.
-It may or may NOT persist after a reboot of the OS.
+It might or might *not* persist after a reboot of the OS.
 
-The two may be different if you  have executed a command such as `setxkbmap`, or
-if you've changed the default layout without rebooting.
+The  two   might  be  different  if   you  have  executed  a   command  such  as
+`setxkbmap(1)`, or if you've changed the default layout without rebooting.
 
 ##
 # default layout
@@ -374,11 +91,11 @@ if you've changed the default layout without rebooting.
 
     $ setxkbmap -query
 
-## How to print it for the console and for X11?
+## How to print it for the virtual console and for X11?
 
     $ localectl status
 
-The console layout will be printed on the line containing `VC Keymap`:
+The virtual console layout will be printed on the line containing `VC Keymap`:
 
     VC Keymap: fr
 
@@ -395,7 +112,7 @@ If you've used  the GUI to untick  “Use system defaults” (Settings  > Keyboa
 Layout), `$ setxkbmap -query` shows all the layouts you've added.
 `$ localectl status` only shows you the current layout.
 
-## How to set it for the console and for X11, choosing the 'fr' layout?
+## How to set it for the virtual console and for X11, choosing the 'fr' layout?
 
     $ localectl set-keymap fr
 
@@ -415,14 +132,14 @@ Or:
 ---
 
 Yes,  `set-keymap` affects  the  X11 layout,  and  `set-x11-keymap` affects  the
-console layout.
+virtual console layout.
 
 ---
 
 Bug:
 
 If you  use `set-x11-keymap`,  you'll need  to reboot the  OS twice  (instead of
-once) before the console layout is set up.
+once) before the virtual console layout is set up.
 
 ## How to set it for X11 only?
 
@@ -431,18 +148,18 @@ once) before the console layout is set up.
 
 Bug:
 
-The console layout is (wrongly) affected by this command after the second reboot
-of the OS.
+The  virtual console  layout is  (wrongly) affected  by this  command after  the
+second reboot of the OS.
 
 Don't rely on the  output of `$ localectl status` to get  the new default layout
-for the console.
+for the virtual console.
 It will still report the old one.
 
 ---
 
 Alternative: try to manually update the file `/etc/default/keyboard`.
 
-## How to set it for the console only?
+## How to set it for the virtual console only?
 
     $ localectl --no-convert set-keymap fr
                 ^----------^
@@ -450,15 +167,15 @@ Alternative: try to manually update the file `/etc/default/keyboard`.
 Bug:
 
 No  layout  is affected  by  this  command,  even  though `$  localectl  status`
-correctly reports that the console layout has changed to 'fr'.
+correctly reports that the virtual console layout has changed to 'fr'.
 
-It may be a bug, caused by the lack of a `systemd-vconsole-setup` service on debian:
+It might be a  bug, caused by the lack of  a `systemd-vconsole-setup` service on
+debian:
 
-    $ journalctl -u systemd-localed --since '5m ago' --no-hostname
-
-        systemd-localed[1234]: Changed virtual console keymap to 'fr' toggle ''˜
-        systemd-localed[1234]: Failed to issue method call: Unit systemd-vconsole-setup.service not found.˜
-        systemd-localed[1234]: Failed to request keymap reload: No such file or directory˜
+    $ journalctl --unit=systemd-localed --since '5m ago' --no-hostname
+    systemd-localed[1234]: Changed virtual console keymap to 'fr' toggle ''
+    systemd-localed[1234]: Failed to issue method call: Unit systemd-vconsole-setup.service not found.
+    systemd-localed[1234]: Failed to request keymap reload: No such file or directory
 
 For more info, see:
 
@@ -485,20 +202,19 @@ Example:
 ## Why do these commands have different syntaxes?
 
 Probably because the  main purpose of `set-keymap`  is to set the  layout of the
-console.
-And  the latter  doesn't support  a keyboard  model, a  layout variant,  nor xkb
-options.
+virtual console.   And the  latter doesn't  support a  keyboard model,  a layout
+variant, nor xkb options.
 
 #
 ## Which files are altered after executing these commands?
 
     /etc/default/keyboard (X11)
-    /etc/vconsole.conf (console)
+    /etc/vconsole.conf (virtual console)
 
 ##
 ## What does `$ dpkg-reconfigure console-setup` allow me to set up?
 
-Essentially, the fontface and the fontsize used in a console.
+Essentially, the fontface and the fontsize used in a virtual console.
 
 ## What does `$ dpkg-reconfigure console-data` allow me to set up?
 
@@ -506,102 +222,46 @@ Nothing.
 
 Yes, it lets you choose a keymap, but it doesn't seem to have any effect.
 
-It's only useful to get additional keymaps and fonts for the console.
+It's only useful to get additional keymaps and fonts for the virtual console.
 
 ## Which file(s) do these commands change?
 
-`dpkg-reconfigure console-setup` alters `/etc/default/console-setup`.
+`$ dpkg-reconfigure console-setup` alters `/etc/default/console-setup`.
 
-`dpkg-reconfigure console-data` doesn't seem to alter any file.
+`$ dpkg-reconfigure console-data` doesn't seem to alter any file.
 
 ##
 ## Why does `$ localectl status` ignore any change performed by `setxkbmap(1)`?
 
-`setxkbmap(1)` alters the CURRENT layout.
+`setxkbmap(1)` alters the *current* layout.
 
-`$  localectl  status` shows  information  about  the DEFAULT  keyboard  layouts
-for  X11 and  the console,  using  the contents  of `/etc/default/keyboard`  and
+`$ localectl status` shows information  about the *default* keyboard layouts for
+X11 and the  virtual console, using the contents  of `/etc/default/keyboard` and
 `/etc/vconsole.conf`.
 
 The default layout is not the same thing as the current layout.
 
 ##
 # current layout
-## How to set it, choosing the 'pc105' model, 'fr' layout, 'latin9' variant, and enabling M-C-del?
+## How to set it, choosing the `pc105` model, `fr` layout, `latin9` variant, and enabling M-C-del?
 
     $ setxkbmap -model pc105 -layout fr -variant latin9 -option terminate:ctrl_alt_bksp
 
-Note that this command doesn't survive a reboot of the OS, nor a reboot of Xorg.
+Note that this command doesn't survive a reboot of the OS, nor a restart of Xorg.
 It doesn't alter `/etc/default/keyboard`.
 
 ##
-## What's the main difference between `setxkbmap` and `localectl set[-x11]-keymap`?
+## What's the main difference between `setxkbmap(1)` and `localectl set[-x11]-keymap`?
 
-`setxkbmap` sets the CURRENT layout.
+`setxkbmap` sets the *current* layout.
 Its effect doesn't persist after a reboot of the OS.
 
-`localectl set[-x11]-keymap` sets the DEFAULT layout.
-Its effect DOES persist after a reboot of the OS.
-
-##
-##
-##
-# keymap
-## Where is the keymap for the layout “fr”?
-
-    /usr/share/X11/xkb/symbols/fr
-
-## How to get the names of the keys (such as AE01) used in a keymap?
-
-    $ zathura <(xkbprint -label name $DISPLAY - | ps2pdf -)
-                │         ├────────┘ │        │
-                │         │          │        └ output
-                │         │          └ source
-                │         │
-                │         └ label to be printed on keys
-                │           (legal types are: none, name, code, symbols)
-                │
-                └ print an XKB keyboard description
-
-## How to get the symbols of the keys?
-
-    $ zathura <(xkbprint -label symbols $DISPLAY - | ps2pdf -)
-
-##
-# How to print all known
-## keymaps for the console?  for X11?
-
-    # for the console
-    $ localectl list-keymaps
-
-    # for X11
-    $ localectl list-x11-keymaps
-
-Alternative:
-
-    $ sed -n '/^! layout/,/^$/p' /usr/share/X11/xkb/rules/evdev.lst
-
-## keyboard models?  (2)
-
-    $ localectl list-x11-keymap-models
-
-    $ sed -n '/^! model/,/^$/p' /usr/share/X11/xkb/rules/evdev.lst
-
-## layout variants?  (2)
-
-    $ localectl list-x11-keymap-variants
-
-    $ sed -n '/^! variant/,/^$/p' /usr/share/X11/xkb/rules/evdev.lst
-
-## XKB options?  (2)
-
-    $ localectl list-x11-keymap-options
-
-    $ sed -n '/^! option/,/^$/p' /usr/share/X11/xkb/rules/evdev.lst
+`localectl set[-x11]-keymap` sets the *default* layout.
+Its effect *does* persist after a reboot of the OS.
 
 ##
 # setxkbmap
-## How to make `setxkbmap` print a keyboard description?
+## How to make `setxkbmap(1)` print a keyboard description?
 
 Use the `-print` option:
 
@@ -622,8 +282,8 @@ The output will look like this:
 
 ---
 
-Note that each parameter passed to `setxkbmap` has been turned into a directive,
-inside the `xkb_keymap` stanza:
+Note  that each  parameter  passed  to `setxkbmap(1)`  has  been  turned into  a
+directive, inside the `xkb_keymap` stanza:
 
     -model pc105                     →  xkb_geometry { include "pc(pc105)" };
     -layout fr -variant latin9       →  xkb_symbols  { include "...+fr(latin9)+... };
@@ -633,15 +293,14 @@ inside the `xkb_keymap` stanza:
 
 An XKB source file.
 
-## How does `setxkbmap` know how to translate the parameters it receives into an `xkb_keymap` stanza?
+## How does `setxkbmap(1)` know how to translate the parameters it receives into an `xkb_keymap` stanza?
 
 The translation is governed by a rule file:
 
     /usr/share/X11/xkb/rules/evdev
 
-Using the rule file, `setxkbmap` translates  each of its parameters to create an
-XKB source file.
-For example, the parameter:
+Using the rule file, `setxkbmap(1)` translates  each of its parameters to create
+an XKB source file.  For example, the parameter:
 
     -option terminate:ctrl_alt_bksp
 
@@ -655,13 +314,13 @@ is translated into:
 Probably placeholders  which will be replaced  by resp. the keyboard  model, the
 language and the variant.
 
-## How are the include directives, contained in the output of `setxkbmap`, resolved?
+## How are the include directives, contained in the output of `setxkbmap(1)`, resolved?
 
-`setxkbmap` generates an  XKB source file, which it passes to `xkbcomp`.
+`setxkbmap(1)` generates an  XKB source file, which it passes to `xkbcomp(1)`.
 The latter resolves the include directives, by importing the appropriate stanzas.
 
 For  example,  if  you  used the  `-option  terminate:ctrl_alt_bksp`  parameter,
-`xkbcomp` imports the `ctrl_alt_bksp` stanza from:
+`xkbcomp(1)` imports the `ctrl_alt_bksp` stanza from:
 
     /usr/share/X11/xkb/symbols/terminate
 
@@ -725,31 +384,51 @@ This will generate a source keymap inside:
              └ source
 
 ##
+# Various links
+
+Get ideas on where to put some characters in new keyboard layout:
+<http://bepo.fr/wiki/Utilisateur:Kaze/B%C3%A9po-intl#Variante_.C2.AB.C2.A0d.C3.A9veloppeur.C2.A0.C2.BB>
+
+---
+
+X11 specific:
+
+   - <http://www.xfree86.org/current/XKB-Config.html>
+   - <http://pascal.tsu.ru/en/xkb/>
+   - <https://www.charvolant.org/doug/xkb/>
+   - <https://wiki.archlinux.org/index.php/Keyboard_input>
+   - <https://wiki.archlinux.org/index.php/Keyboard_shortcuts>
+   - <https://wiki.archlinux.fr/Keyboard>
+   - <https://help.ubuntu.com/community/Custom%20keyboard%20layout%20definitions>
+   - <https://wiki.archlinux.org/index.php/Keyboard_Configuration_in_Xorg>
+   - <https://wiki.archlinux.org/index.php/locale#LC_COLLATE:_collation>
+   - <https://wiki.archlinux.org/index.php/Keyboard_Configuration_in_Xorg#Using_X_configuration_files>
+   - <http://rlog.rgtti.com/2014/05/01/how-to-modify-a-keyboard-layout-in-linux/>
+   - <https://a3nm.net/blog/xkbcomp.html>
+   - <https://web.archive.org/web/20170825051821/http://madduck.net:80/docs/extending-xkb/>
+
+The last link is interesting for the systemd unit file at the end.
+We could use it as a template for our own services.
+Although, we could also read the examples in `man systemd.unit`.
+
+---
+
+Virtual Console specific:
+
+   - `man 5 keyboard`
+   - <https://wiki.archlinux.org/index.php/Color_output_in_console>
+   - <https://wiki.archlinux.org/index.php/Linux_console>
+   - <https://wiki.archlinux.org/index.php/Linux_console/Keyboard_configuration>
+   - <https://wiki.archlinux.org/index.php/Screen_capture#Virtual_console>
+   - <https://superuser.com/questions/290115/how-to-change-console-keymap-in-linux>
+   - <https://wiki.archlinux.org/index.php/Linux_console/Keyboard_configuration>
+
 ##
-##
-# How to customize the keyboard layout?
+# How do keyboard input and text output work?
 
-- <https://askubuntu.com/questions/422650/map-altgr-a-z-and-shift-altgr-a-z-to-greek-letter>
-- <http://rlog.rgtti.com/2014/05/01/how-to-modify-a-keyboard-layout-in-linux/>
-- <https://a3nm.net/blog/xkbcomp.html>
-- <https://web.archive.org/web/20170825051821/http://madduck.net:80/docs/extending-xkb/>
-- <https://wiki.debian.org/XStrikeForce/InputHotplugGuide>
-- <http://pascal.tsu.ru/en/xkb/>
-- <https://web.archive.org/web/20160623193905/http://git.madduck.net/v/etc/xsession.git?a=blob;f=.xmodmap;h=bfc01f988893adedec7a70eecef46a0900b5772b>
+<https://unix.stackexchange.com/questions/116629/how-do-keyboard-input-and-text-output-work/116630#116630>
 
-# keyboard shortcuts
-
-- <https://wiki.archlinux.org/index.php/Keyboard_shortcuts>
-- <https://unix.stackexchange.com/questions/116629/how-do-keyboard-input-and-text-output-work/116630#116630>
-
-# How does xmodmap work?
-
-- <https://wiki.archlinux.org/index.php/Xmodmap>
-- <https://wiki.archlinux.org/index.php/Keyboard_input>
-- <https://wiki.archlinux.org/index.php/Xbindkeys>
-- <https://wiki.archlinux.org/index.php/Xorg>
-
-# How to capture the output of all past commands in a virtual terminal?
+# How to capture the output of all past commands in a virtual console?
 
 <https://wiki.archlinux.org/index.php/Screen_capture#Virtual_console>
 
@@ -768,31 +447,27 @@ In this case, if  the terminal type is "con" or "linux"  the string that invokes
 the specified capabilities on the PC Minix virtual console driver is output.
 Options that are not implemented by the terminal are ignored.
 
-       --dump [console_number]
+    --dump [console_number]
 
 Writes a  snapshot of  the virtual  console with  the given  number to  the file
-specified  with the  --file option,  overwriting  its contents;  the default  is
-screen.dump.
+specified with  the `--file`  option, overwriting its  contents; the  default is
+`screen.dump`.
 Without an argument, it dumps the current virtual console.
-This overrides --append.
+This overrides `--append`.
 
-       --file filename
+    --file filename
 
-Sets the  snapshot file  name for  any --dump  or --append  options on  the same
+Sets the snapshot file  name for any `--dump` or `--append`  options on the same
 command-line.
 If  this option  is  not present,  the  default is  screen.dump  in the  current
 directory.
-A path name that exceeds the system maximum will be truncated, see PATH_MAX from
-linux/limits.h for the value.
+A path  name that exceeds the  system maximum will be  truncated, see `PATH_MAX`
+from linux/limits.h for the value.
 
-       --append [console_number]
+    --append [console_number]
 
-Like --dump, but appends to the snapshot file instead of overwriting it.
-Only works if no --dump options are given.
-
-# How to change the keyboard layout in LXDE?
-
-<https://wiki.lxde.org/en/Change_keyboard_layouts>
+Like `--dump`, but appends to the snapshot file instead of overwriting it.
+Only works if no `--dump` options are given.
 
 # How to customize the keyboard layout with Wayland?
 
@@ -801,27 +476,7 @@ Only works if no --dump options are given.
 - <https://unix.stackexchange.com/questions/292868/how-to-customise-keyboard-mappings-with-wayland>
 - <https://realh.co.uk/wp/linux-keymap-hacking/>
 
-##
-##
-##
-##
-# xmodmap
-## How to install it?
-
-There's no need to.
-
-It's included in the `x11-xserver-utils` which is installed by default.
-
-## How to read the currently used keymap?   And the modifier map?
-
-               ┌ Print Keyboard Expressions (feedable to `xmodmap`)?
-               │
-    $ xmodmap -pke
-    $ xmodmap -pm
-               │
-               └ Print Modifier map?
-
-## Where is the currently used keymap?
+# Where is the currently used keymap?
 
 All the keymaps are in:
 
@@ -834,168 +489,55 @@ For example, the keymap for French are in:
 
     /usr/share/X11/xkb/symbols/fr
 
-## Can I quickly switch from a keymap to another?   How?
-
-Yes.
-
-On xubuntu, run:
-
-    $ xfce4-keyboard-settings
-
-## Can I edit a keymap simply by editing a file?
-
-No.
-
-The keymaps are compiled, for the X server to get a quicker access.
-The compiled files are stored in the files matching this pattern:
-
-    /var/lib/xkb/*.xkm
-
-So, after editing a keymap, you'll also need to remove existing compiled keymaps:
-
-    rm /var/lib/xkb/*.xkm
-
-Then, restart the X server, so that it compiles and use your new keymap.
-
-Note that this  method is brittle, because your keymap  will probably be removed
-after an OS update which upgrades the X server.
-
-## How to use `xmodmap` to make the capslock key generate a `Control_L` keysym?
-
-    xmodmap -e 'keycode 66 = Control_L'
-    xmodmap -e 'clear lock'
-    xmodmap -e 'add control = Control_L'
-
-    xcape   -e 'Control_L=Escape'
-
-Il n'y  a plus de  keycode générant le keysym  `Caps_Lock`, mais on  s'en fiche.
-`Caps_Lock` est inutile.
-
-Ceci dit, on pourrait le restaurer comme ceci:
-
-    xmodmap -e 'keycode 2XX = Caps_Lock'
-
-Ça nous  permettrait de l'utiliser comme  modificateur intermédiaire/jetable, de
-la même façon qu'on peut utiliser `Hyper_L` pour que Enter génère `Return`.
-
-## How to use `setxkbmap` to make the capslock key generate a `Control_L` keysym?
-
-    /usr/share/X11/xkb/rules/base.lst
-
-Fichier contenant la liste des options qu'on peut passer à `setxkbmap`.
-Y chercher le pattern `! option`.
-
-
-    setxkbmap -option 'caps:ctrl_modifier'
-
-            Remap CapsLock à Control à l'aide de `setxkbmap`.
-
-
-    xcape -e 'Caps_Lock=Escape'
-
-            Fait générer le keysym `Escape` à la touche `CapsLock`.
-
-
-                                     NOTE:
-
-            Il semble  que la précédente  commande avec `setxkbmap`  ne remplace
-            pas le keysym suffisamment tôt pour que `xcape` s'en aperçoive.
-
-            Autrement, on devrait exécuter:
-
-                    xcape -e 'Control_L=Escape'
-
-
-            `setxkbmap`  remplace  le  keysym  qq part  après  que  `xcape`  ait
-            intercepté notre frappe, tandis que `xmodmap` le remplace avant.
-
-            En effet, avec `xmodmap`, on devrait exécuter:
-
-                    xcape -e 'Control_L=Escape'
-
-## How to make `xmodmap` source `~/file`?
-
-    $ xmodmap ~/file
-
-## How to make `xmodmap` execute `cmd`?
-
-    $ xmodmap -e 'cmd'
-
-## How to make the key whose keycode is `56` generate the keysym whose code point in Unicode is `1234`?
-
-    $ xmodmap -e 'keycode 56 = U1234'
-                               ^---^
-
-Illustrate that you can describe a keysym via its code point in Unicode
-
 ##
-# Console
+##
+##
+# alternative tools
+## `qmk_keyboard`
 
-    man 5 keyboard
+- <https://docs.qmk.fm/>
+- <https://github.com/qmk/qmk_firmware>
 
-- <http://www.xfree86.org/current/XKB-Config.html>
-- <http://pascal.tsu.ru/en/xkb/>
-- <https://www.charvolant.org/doug/xkb/>
-
-Sources d'information pour apprendre à configurer  le clavier qd on travaille en
-console.
-
-# Links
-
-- <https://help.ubuntu.com/community/Custom%20keyboard%20layout%20definitions>
+Tool to develop custom keyboard firmware.
 
 ---
+
+Pro:
+
+   - more reliable and powerful than all the other software,
+     because it operates at the lowest possible level (other possible levels are
+     the Linux kernel, and the display server)
+
+Cons:
+
+   - probably more difficult to use
+   - the code you write is tied to 1 physical keyboard;
+     if you need to work on a different keyboard, you probably need to write new code
+
+##
+## Interception Tools
 
 - <https://gitlab.com/interception/linux/tools>
 - <https://gitlab.com/interception/linux/plugins/caps2esc>
 
-Transforme la touche capslock en escape et modificateur control.
+This can overload  the `Capslock` key to  make it behave like  `Ctrl` when held,
+and like `Escape` when tapped.
 
-Un des avantages de ce programme par  rapport à `xcape` et `xmodmap` et qu'il ne
-dépend pas de Xorg.
+---
 
-Il fonctionne donc en console.
-
-De plus, il a moins de chances d'être désactivé (comme après une déconnexion).
-
-Update:  We really need to learn how to use these interception tools.
-We can no longer use xcape on Ubuntu 20.04:
-
-    # old code from `~/.config/keyboard/setup`:
-    killall xcape
-    xcape -e 'Control_L=Escape'
-    xcape -e 'Control_R=Return'
-
-The  latter has  an undesirable  interaction with  the new  Xorg driver  used by
-default (`modesetting`).   When we tap  the capslock  key to generate  an escape
-keysym, the Xorg process temporarily consumes  more cpu than usual (from 1/2% to
-5/6% or even more).  This causes some lag in Vim.
-
-These interceptions tools use yaml for their config files.
-To learn more about YAML, see:
-
-   - <https://blog.codemagic.io/what-you-can-do-with-yaml/>
-   - <https://learnxinyminutes.com/docs/yaml/>
-
-YAML is a superset of JSON.
-As such, learning about the latter might help.
-For more info about JSON, see:
-
-   - <https://learnxinyminutes.com/docs/json/>
-   - <https://www.youtube.com/watch?v=wI1CWzNtE-M>
-   - <https://www.json.org/json-en.html>
-
-We've installed the `caps2esc` plugin like this:
+To install the `caps2esc` plugin:
 
     $ sudo add-apt-repository ppa:deafmute/interception
     $ sudo apt install interception-caps2esc
 
-During the installation, we were asked this question:
+During the installation, you might be asked this question:
 
     Would you like to update the recomended config for your interception plugins
     (at /etc/interception/udevmon.d/deafmute-ppa-*.yaml)? [y/n]:
 
-We've answered yes.
+Answer "yes".
+
+### I changed the layout to make the `Enter` key behave like `Ctrl` when held.  How to make it behave like `Enter` when tapped?
 
 `udevmon(1)` is automatically started as a systemd service thanks to this file:
 
@@ -1005,50 +547,50 @@ Which is a symlink to:
 
     /usr/lib/systemd/system/udevmon.service
 
-It seems that `udevmon(1)` only sources 1 config file.
-At the moment, it's this one:
+`udevmon(1)` only sources this config file:
 
     /etc/interception/udevmon.d/deafmute-ppa-caps2esc.yaml
 
 Whose contents is:
-
-    - JOB: intercept -g $DEVNODE | caps2esc -m 1 | uinput -d $DEVNODE
-      DEVICE:
-        EVENTS:
-          EV_KEY: [KEY_CAPSLOCK]
-
-If you want  to perform other transformations, like generating  the Enter keysym
-when the Enter key is briefly pressed, then write this:
-
-                                                 v----------v
-    - JOB: intercept -g $DEVNODE | caps2esc -m 1 | enter2ctrl | uinput -d $DEVNODE
-      DEVICE:
-        EVENTS:
-          EV_KEY: [KEY_CAPSLOCK, KEY_ENTER]
-                                 ^-------^
-
+```yaml
+- JOB: intercept -g $DEVNODE | caps2esc -m 1 | uinput -d $DEVNODE
+  DEVICE:
+    EVENTS:
+      EV_KEY: [KEY_CAPSLOCK]
+```
+Change it like this:
+```yaml
+ #                                           v----------v
+- JOB: intercept -g $DEVNODE | caps2esc -m 1 | enter2ctrl | uinput -d $DEVNODE
+  DEVICE:
+    EVENTS:
+      EV_KEY: [KEY_CAPSLOCK, KEY_ENTER]
+ #                           ^-------^
+```
 `enter2ctrl` should be a custom binary inspired by `caps2esc`.
-The README of interception gives this starting point:
+The README of `interception` gives this starting point:
+```c
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <linux/input.h>
 
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <linux/input.h>
+int main(void) {
+    setbuf(stdin, NULL), setbuf(stdout, NULL);
 
-    int main(void) {
-        setbuf(stdin, NULL), setbuf(stdout, NULL);
+    struct input_event event;
+    while (fread(&event, sizeof(event), 1, stdin) == 1) {
+        if (event.type == EV_KEY && event.code == KEY_X)
+            event.code = KEY_Y;
 
-        struct input_event event;
-        while (fread(&event, sizeof(event), 1, stdin) == 1) {
-            if (event.type == EV_KEY && event.code == KEY_X)
-                event.code = KEY_Y;
-
-            fwrite(&event, sizeof(event), 1, stdout);
-        }
+        fwrite(&event, sizeof(event), 1, stdout);
     }
+}
+```
+#### It doesn't behave exactly like I want!
 
-It works, but it's not what we want.
-We don't want to  replace a key *unconditionally*; we want to  replace it on the
-condition it was briefly pressed.  That's what `caps2esc` does.  Read its code.
+The previous code makes `enter2ctrl` replace the `Enter` keysym *unconditionally*.
+If you want  to replace it on  the condition it was tapped  (because that's what
+`caps2esc` does), then read the code of `caps2esc`.
 Or read this one:
 <https://gitlab.com/interception/linux/plugins/space2meta/-/blob/master/space2meta.c>
 
@@ -1057,122 +599,113 @@ As for the names of the key that you should write in your code
 
     /usr/include/linux/input-event-codes.h
 
-In  the future,  when  you  turn your  `keyboard/setup`  script  into a  systemd
-service, make sure it's started *after* caps2esc and similar plugins.
-Otherwise, you could  face issues such as your custom  key repeat settings being
-reset:
+---
 
-    sleep 1; xset r rate 175 40
+Here is yet another starting point:
+```c
+ #include <stdio.h>
+ #include <stdlib.h>
 
-See: <https://github.com/oblitum/caps2esc/issues/1>
+ #include <unistd.h>
+ #include <linux/input.h>
 
-    $ systemctl status udevmon
+const struct input_event
+enter_up     = {.type = EV_KEY, .code = KEY_ENTER,     .value = 0},
+ctrl_up      = {.type = EV_KEY, .code = KEY_RIGHTCTRL, .value = 0},
+enter_down   = {.type = EV_KEY, .code = KEY_ENTER,     .value = 1},
+ctrl_down    = {.type = EV_KEY, .code = KEY_RIGHTCTRL, .value = 1},
+enter_repeat = {.type = EV_KEY, .code = KEY_ENTER,     .value = 2},
+ctrl_repeat  = {.type = EV_KEY, .code = KEY_RIGHTCTRL, .value = 2},
+syn          = {.type = EV_SYN, .code = SYN_REPORT,    .value = 0};
 
-Update: We've written a first version of `enter2ctrl`:
+int equal(const struct input_event *first, const struct input_event *second) {
+    return first->type == second->type && first->code == second->code &&
+           first->value == second->value;
+}
 
-    #include <stdio.h>
-    #include <stdlib.h>
+int read_event(struct input_event *event) {
+    return fread(event, sizeof(struct input_event), 1, stdin) == 1;
+}
 
-    #include <unistd.h>
-    #include <linux/input.h>
+void write_event(const struct input_event *event) {
+    if (fwrite(event, sizeof(struct input_event), 1, stdout) != 1)
+        exit(EXIT_FAILURE);
+}
 
-    const struct input_event
-    enter_up     = {.type = EV_KEY, .code = KEY_ENTER,     .value = 0},
-    ctrl_up      = {.type = EV_KEY, .code = KEY_RIGHTCTRL, .value = 0},
-    enter_down   = {.type = EV_KEY, .code = KEY_ENTER,     .value = 1},
-    ctrl_down    = {.type = EV_KEY, .code = KEY_RIGHTCTRL, .value = 1},
-    enter_repeat = {.type = EV_KEY, .code = KEY_ENTER,     .value = 2},
-    ctrl_repeat  = {.type = EV_KEY, .code = KEY_RIGHTCTRL, .value = 2},
-    syn          = {.type = EV_SYN, .code = SYN_REPORT,    .value = 0};
+int main(void) {
+    int enter_is_ctrl = 0;
+    struct input_event input, key_down, key_up, key_repeat;
+    enum { START, ENTER_HELD, KEY_HELD } state = START;
 
-    int equal(const struct input_event *first, const struct input_event *second) {
-        return first->type == second->type && first->code == second->code &&
-               first->value == second->value;
-    }
+    setbuf(stdin, NULL), setbuf(stdout, NULL);
 
-    int read_event(struct input_event *event) {
-        return fread(event, sizeof(struct input_event), 1, stdin) == 1;
-    }
+    while (read_event(&input)) {
+        if (input.type == EV_MSC && input.code == MSC_SCAN)
+            continue;
 
-    void write_event(const struct input_event *event) {
-        if (fwrite(event, sizeof(struct input_event), 1, stdout) != 1)
-            exit(EXIT_FAILURE);
-    }
+        if (input.type != EV_KEY) {
+            write_event(&input);
+            continue;
+        }
 
-    int main(void) {
-        int enter_is_ctrl = 0;
-        struct input_event input, key_down, key_up, key_repeat;
-        enum { START, ENTER_HELD, KEY_HELD } state = START;
-
-        setbuf(stdin, NULL), setbuf(stdout, NULL);
-
-        while (read_event(&input)) {
-            if (input.type == EV_MSC && input.code == MSC_SCAN)
-                continue;
-
-            if (input.type != EV_KEY) {
-                write_event(&input);
-                continue;
-            }
-
-            switch (state) {
-                case START:
-                    if (enter_is_ctrl) {
-                        if (input.code == KEY_ENTER) {
-                            input.code = KEY_RIGHTCTRL;
-                            if (input.value == 0)
-                                enter_is_ctrl = 0;
-                        }
+        switch (state) {
+            case START:
+                if (enter_is_ctrl) {
+                    if (input.code == KEY_ENTER) {
+                        input.code = KEY_RIGHTCTRL;
+                        if (input.value == 0)
+                            enter_is_ctrl = 0;
+                    }
+                    write_event(&input);
+                } else {
+                    if (equal(&input, &enter_down) ||
+                        equal(&input, &enter_repeat)) {
+                        state = ENTER_HELD;
+                    } else {
                         write_event(&input);
-                    } else {
-                        if (equal(&input, &enter_down) ||
-                            equal(&input, &enter_repeat)) {
-                            state = ENTER_HELD;
-                        } else {
-                            write_event(&input);
-                        }
                     }
+                }
+                break;
+            case ENTER_HELD:
+                if (equal(&input, &enter_down) || equal(&input, &enter_repeat))
                     break;
-                case ENTER_HELD:
-                    if (equal(&input, &enter_down) || equal(&input, &enter_repeat))
-                        break;
-                    if (input.value != 1) {
-                        write_event(&enter_down);
-                        write_event(&syn);
-                        usleep(20000);
-                        write_event(&input);
-                        state = START;
-                    } else {
-                        key_down = key_up = key_repeat = input;
-
-                        key_up.value     = 0;
-                        key_repeat.value = 2;
-                        state            = KEY_HELD;
-                    }
-                    break;
-                case KEY_HELD:
-                    if (equal(&input, &enter_down) || equal(&input, &enter_repeat))
-                        break;
-                    if (equal(&input, &key_down) || equal(&input, &key_repeat))
-                        break;
-                    if (!equal(&input, &enter_up)) {
-                        write_event(&ctrl_down);
-                        enter_is_ctrl = 1;
-                    } else {
-                        write_event(&enter_down);
-                    }
-                    write_event(&syn);
-                    usleep(20000);
-                    write_event(&key_down);
+                if (input.value != 1) {
+                    write_event(&enter_down);
                     write_event(&syn);
                     usleep(20000);
                     write_event(&input);
                     state = START;
+                } else {
+                    key_down = key_up = key_repeat = input;
+
+                    key_up.value     = 0;
+                    key_repeat.value = 2;
+                    state            = KEY_HELD;
+                }
+                break;
+            case KEY_HELD:
+                if (equal(&input, &enter_down) || equal(&input, &enter_repeat))
                     break;
-            }
+                if (equal(&input, &key_down) || equal(&input, &key_repeat))
+                    break;
+                if (!equal(&input, &enter_up)) {
+                    write_event(&ctrl_down);
+                    enter_is_ctrl = 1;
+                } else {
+                    write_event(&enter_down);
+                }
+                write_event(&syn);
+                usleep(20000);
+                write_event(&key_down);
+                write_event(&syn);
+                usleep(20000);
+                write_event(&input);
+                state = START;
+                break;
         }
     }
-
+}
+```
 But there are 2 issues.
 
 First, when  pressing `C-x`, `Ctrl`  and `x` must be  pressed in a  too specific
@@ -1180,112 +713,27 @@ manner; for  example, it is not  enough for `x` to  be pressed, it must  also be
 released (and it must be released while  `Ctrl` is held). `caps2esc` is not that
 restrictive.
 
-Second, it doesn't work in the console.  `caps2esc` does work in the console, so
-it should be possible for `enter2ctrl` to work too.
-
-Also, there is an issue with `caps2esc` *and* `enter2ctrl`:
-in firefox, `Ctrl+mousewheel` does not change the zoom level of the current webpage.
-
----
-
-- <http://bepo.fr/wiki/Utilisateur:Kaze/B%C3%A9po-intl#Variante_.C2.AB.C2.A0d.C3.A9veloppeur.C2.A0.C2.BB>
-- <https://wayback.archive.org/web/20160322103150/http://bepo.fr/wiki/Utilisateur:Kaze/B%C3%A9po-intl#Variante_.C2.AB.C2.A0d.C3.A9veloppeur.C2.A0.C2.BB>
-
-Ces liens mènent à une page affichant un layout de clavier bépo intéressant.
-
-On peut s'en inspirer pour trouver  des emplacements judicieux pour des symboles
-de programmation.
-
----
-
-- <https://github.com/tmk/tmk_keyboard>
-
-Lien menant à un projet github développant des firmwares custom pour clavier.
-
-Si un  jour la customization du  clavier devenait trop complexe  ou insuffisante
-via les outils traditionnels (xmodmap, xcape, autokey), on pourrait tenter de le
-customizer directement au niveau du firmware.
-
----
-
-- <http://efod.se/writings/linuxbook/html/caps-lock-to-ctrl.html>
-- <https://web.archive.org/web/20200203181113/http://www.economyofeffort.com/2014/08/11/beyond-ctrl-remap-make-that-caps-lock-key-useful/>
-
-Procédure pour remap CapsLock à Control avec:
-
-   - xmodmap
-   - setxkbmap
+Second, it  doesn't work  in the  virtual console. `caps2esc`  does work  in the
+console, so it should be possible for `enter2ctrl` to work too.
 
 ##
-# Utilities
-## xcape
+## `xmodmap(1)` + `xcape(1)`
+### How to use them to make the `Capslock` key behave as `Control` in a chord, and as `Escape` when tapped?
 
-    xcape -e 'Control_L=Escape'
+    $ xmodmap -e 'keycode 66 = Control_L'
+    $ xmodmap -e 'clear lock'
+    $ xmodmap -e 'add control = Control_L'
 
-Qd xcape intercepte un `Control_L` seul, il le remplace par `Escape`.
+    $ xcape -e 'Control_L=Escape'
 
-Illustre que `xcape` peut remplacer un keysym par un autre.
+### Same question with `setxkbmap(1)` instead of `xmodmap(1)`.
 
-Pas d'espaces autour du symbole d'affectation:
+    $ setxkbmap -option 'caps:ctrl_modifier'
 
-    xcape -e '<keysym1> = <keysym2>'    ✘
-
----
-
-    xcape -e 'Alt_L=Alt_L|Q'
-
-Qd xcape intercepte un `Alt_L` seul, il le remplace par `M-q`.
-
-Illustre que `xcape` peut remplacer un keysym par un chord.
-
----
-
-    xmodmap -e 'keycode 36 = Control_R'
-    xmodmap -e 'add control = Control_R'
-    >   xmodmap -e 'keycode 255 = Return'
-    xcape -e 'Control_R=Return'
-
-La 3e  commande demande  à ce  qu'une touche inexistante  de keycode  255 génère
-`Return`.
-
-Nécessaire pour  que `xcape` puisse  ensuite remplacer un unique  `Control_R` en
-`Return`.
-
-À retenir:
-`xcape` ne  peut pas  traduire un  keysym k1 en  un autre  k2, si  aucune touche
-(keycode) ne génère k2.
-
-Afin  de choisir  un bon  keycode  pour la  touche inexistante,  lire la  keymap
-(`xmodmap -pke`) d'origine (non modifiée), et y chercher un keycode inutilisé.
+    $ xcape -e 'Caps_Lock=Escape'
 
 ##
 # Issues
-## AltGr + space generates a space, instead of an underscore!
-
-If you use `xmodmap(1)`:
-
-   > You can  use xmodmap to redefine  existing mappings as long  as those mappings
-   > actually exist in your original keyboard layout.
-   > In the case described in the question  you cannot extend behavior of any keys to
-   > use AltGr.
-   > You can only change the AltGr keysyms for keycodes that are already using AltGr.
-
-Source:
-
-<https://unix.stackexchange.com/a/313711/289772>
-
-IOW, in the keyboard layout that you  have chosen in your OS settings, the space
-key must already be generating some keysym when pressed with AltGr.
-If it doesn't generate anything by default, you can't make it generate anything,
-and AltGr will be ignored.
-
-As a workaround, choose this layout:
-
-    French (legacy, alternative)
-
-In XFCE, this assumes that you deselect "Use system defaults" (sure?).
-
-##
 ## `$ localectl list-keymaps` doesn't work!
 
     Couldn't find any console keymaps.
@@ -1321,13 +769,13 @@ To undo the fix:
     :exit
     $ sudo /tmp/sh.sh
 
-## I've executed `$ localectl set-x11-keymap us`, but the console keyboard layout has not been changed!
+## I've executed `$ localectl set-x11-keymap us`, but the virtual console keyboard layout has not been changed!
 
 Restart the OS a second time.
 
 If you  have installed the package  `console-data`, and if you  have renamed the
 archives `.kmap.gz` installed by the  latter, using the `.map.gz` extension, the
-console layout will be correctly set after the first reboot of the OS.
+virtual console layout will be correctly set after the first reboot of the OS.
 
 ## `$ localectl <subcommand> <args>` doesn't work!
 
@@ -1341,32 +789,203 @@ Alternatively, trace the `localectl` process:
     $ strace -o /tmp/log localectl <subcommand> <args>
 
 ##
-# Todo
-## document this pitfall about `xcape(1)`
+## Which issues can I encounter if I use
+### `xmodmap(1)`
+#### compatibility
 
-If `xcape(1)` is running on the host  system, in a virtualbox VM, when you press
-Enter once, the guest receives it twice.
+`xmodmap(1)` can  only work with the  X11 display server, not  with Wayland, nor
+with the virtual console.
 
-If you kill the `xcape(1)` process, the issue disappears:
+#### delay on startup
+
+After  the X  session starts,  if you  start `xmodmap(1)`  automatically from  a
+script, you  might need to delay  it.  At least, I  did need a delay  when I was
+using it.
+
+Sleeping   for   an   arbitrary   amount   of  time   (a   few   seconds)   felt
+brittle/unreliable.
+
+#### high CPU consumption
+
+The X.org might consume a lot of CPU after you leave a virtual console.
+At least,  it did for  me in the  past (sth like 25%  for for several  dozens of
+seconds, IIRC).
+
+#### lost customizations
+
+You lose the custom layout whenever you:
+
+   - enter then leave a virtual console
+   - suspend then resume a session
+   - log out of a session, then log in back
+   - terminate the X server (by pressing `M-C-Del`)
+
+#### config/results depend on current layout/variant
+
+For  example, when  we  used it  on  XFCE, the  config we  needed  to write  was
+different depending  on whether we had  ticked “Use system defaults”  in the
+GUI settings, and which variant we had chosen.
+
+#### cannot use any variant
+
+`xmodmap(1)` cannot  make a chord  generate a keysym if  the latter does  not by
+default.  It can only *change* a keysym which is generated by default by a chord.
+
+   > You can  use xmodmap to redefine  existing mappings as long  as those mappings
+   > actually exist in your original keyboard layout.
+   > In the case described in the question  you cannot extend behavior of any keys to
+   > use AltGr.
+   > You can only change the AltGr keysyms for keycodes that are already using AltGr.
+
+Source: <https://unix.stackexchange.com/a/313711/289772>
+
+IIRC, if you still try, `xmodmap(1)` will fail silently.
+
+---
+
+This means that you might be limited to some variants only for your chosen layout.
+For example, if your  layout is `fr`, and you want  `AltGr+space` to generate an
+underscore, you  can't choose  some variants  (IIRC including  `azerty`) because
+they don't make `AltGr+space` generate any keysym by default.
+
+It seems the best variants for `fr` are `latin9` or `oss_latin9`.
+
+`azerty` is too poor (i.e. there's not enough keysyms on some keys).
+`oss` is too weird (i.e. too many weird/useless keysyms).
+
+Note that if  you don't choose any `fr` variant,  `AltGr+space` doesn't generate
+any keysym.  IOW, you  have to choose a variant for  `AltGr+space` to produce an
+underscore.
+
+#### tricky to overload 2 keys using `xcape(1)` to make them behave as same logical modifier
+
+Suppose you want to use:
+
+   - `xmodmap(1)` to make 2 keys to behave as the `control` logical modifier
+     when used in a chord
+
+   - `xcape(1)` to overload them so that the generate the `a` and `b` keysyms
+     when tapped
+
+You can't use `Control_L` for the 2 `xmodmap(1)` expressions.
+You have to use different keysyms, like `Control_L` and `Control_R`
+
+Otherwise, if  you used `Control_L`  for both, there  would be an  ambiguity for
+`xcape(1)`, which would be unable to know  whether to translate that into `a` or
+`b` when the keys are tapped.
+
+And you need to make sure that the modifier map knows that a new keycode is able
+to generate the `control` logical modifier, via the command `add`:
+
+    $ xmodmap -e 'add control = Control_L'
+
+#### corner case: different modifier map when validating command with `C-m` or `Enter`
+
+IIRC, in our setup, we had a case where the output of this command was different
+depending on the key we pressed to run it:
+
+    $ xmodmap -pm
+
+The latter is meant to print the current modifier map.
+I  *guess* that  was due  to an  interaction with  `xcape(1)` which  temporarily
+changed the modifier map when replacing a keysym.
+
+###
+### `xcape(1)`
+#### compatibility
+
+`xcape(1)` can only work with the X11 display server, not with Wayland, nor with
+the virtual console.
+
+#### delay on startup
+
+After the X session starts, if you start `xcape(1)` automatically from a script,
+you might need to delay it.  At least, I think I needed a delay when I was using
+it, just like for `xmodmap(1)`.  Possibly because of the latter...
+
+#### high CPU consumption
+
+`xcape(1)` might cause the X.Org process to temporarily consume more CPU than usual.
+Last time I used it on an Ubuntu 20.04 machine:
+
+    $ xcape -e 'Control_L=Escape'
+    $ xcape -e 'Control_R=Return'
+
+whenever I  tapped the `Capslock`  key to generate  an `Escape` keysym,  the CPU
+went from  1/2% to 5/6% or  even more.  This caused  some lag in Vim,  which was
+very distracting.
+
+I *think* `xcape(1)` had an undesirable interaction with the Xorg driver used by
+default (`modesetting`).
+
+#### cannot generate a keysym which is not already generated by at least 1 keycode
+
+`xcape(1)` can't  replace a keysym  S1 into another S2,  if there is  no keycode
+generating S2.
+
+For example, suppose you want the `Enter`  key to behave as the control modifier
+when held:
+
+    $ xmodmap -e 'keycode 36 = Control_R'
+    $ xmodmap -e 'add control = Control_R'
+
+This has removed the only keycode which was generating `Return` from the table.
+But for `xcape(1)`  to be able to replace `Control_R`  into `Return`, there must
+be at  least 1  keycode generating `Return`,  which is why  you need  this extra
+command:
+
+    $ xmodmap -e 'keycode 255 = Return'
+
+Now, `xcape(1)` can work:
+
+    $ xcape -e 'Control_R=Return'
+
+---
+
+To  choose  a good  keycode,  look  for one  which  is  unused in  the  original
+non-modified keymap (`$ xmodmap -pke`).  `255` seems like a good fit:
+
+   - it doesn't seem to match a physical key on our keyboard
+     (no risk of unexpectedly changing the meaning of a key we sometimes press)
+
+   - it does generate a keysym by default (which is necessary for `xmodmap(1)` to work)
+
+#### corner case: spurious `Enter` keypress in VM
+
+Suppose you want to overload the `Enter` key so that:
+
+   1. it behaves like `Ctrl` when held
+   2. it behaves like `Enter` when tapped
+
+To achieve  `1.`, you use a  tool working at  the display server level,  such as
+`xmodmap(1)` or `xkbcomp(1)`.  And to achieve `2.`, you use `xcape(1)`.
+
+Everything seems to work fine, until you use a VM.
+In a VM, when you press `Enter` once, the guest receives it twice.
+
+The issue  comes from `xcape(1)`, because  the issue disappears if  you kill its
+process:
 
     $ killall xcape
 
-Note that pressing C-m doesn't cause the issue, only (right) Enter.
-
-The issue has already been reported on xcape's bug tracker:
+The issue has already been reported on `xcape(1)`'s bug tracker:
 <https://github.com/alols/xcape/issues/99>
-
----
 
 This can have unexpected consequences.  For example:
 
     $ sudo dpkg-reconfigure keyboard-configuration
 
 This command asks you some question.
-If you press (right) Enter while in the guest OS to validate an answer, you will
+If you press `Enter`  while in the guest system to validate  an answer, you will
 automatically validate the next answer without being able to review it.
 
----
+As a workaround, you can press `C-m`.
 
-This is yet another reason why we no longer want to use `xcape(1)`.
+###
+### Interception Tools
+#### `Ctrl+mousewheel` does not work in Firefox
+
+It should change the zoom level of  the current webpage; but it fails when using
+pressing the `Capslock`  key (instead of `Ctrl`) while the  `caps2esc` plugin is
+running.
 

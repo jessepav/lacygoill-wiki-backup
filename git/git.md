@@ -1136,21 +1136,15 @@ See: <https://docs.github.com/en/github/using-git/changing-a-remotes-url>
 
 ---
 
-TODO: Learn how to have multiple working directories.
-This would allow us to version control files in `/etc`:
-
-<https://stackoverflow.com/questions/6270193/multiple-working-directories-with-git>
-
-In the meantime, you can create a hard  link inside your home pointing to a file
-in `/etc`, and version control this hard link.
-Git will back up the contents of the file.
-With a soft link, git would just back up its path.
-
----
-
 Also, document this:
 
 <https://news.ycombinator.com/item?id=11071976>
+
+## How to restore the config on a new machine?
+
+    $ echo '.cfg' >> .gitignore
+    $ git clone --bare https://github.com/lacygoill/config.git "$HOME/.cfg"
+    $ git --git-dir=$HOME/.cfg/ --work-tree=$HOME checkout
 
 ##
 # Commands

@@ -147,6 +147,25 @@ Also, find some guides.  At the moment, the first page of google gives these:
 Update: Is it worth learning this?  It doesn't seem very popular.
 Shouldn't we focus on docker/podman instead?
 
+# understand "No protocol specified" error
+
+At some point, we had this error:
+
+    $ sudo systemctl edit --full display-manager.service
+    # quit editor
+    No protocol specified
+
+We fixed the error like this:
+
+    $ su - $USER -c "unset XAUTHORITY; xauth add $(xauth list)"
+
+Found here:
+<https://unix.stackexchange.com/a/209750>
+
+What did our command do exactly?
+What was the cause of the issue?
+Why can't we reproduce it anymore?
+
 # ?
 
 Here are a few interesting links/commands:
