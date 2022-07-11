@@ -1,0 +1,6 @@
+switch to third console            C-A-F3
+# If you're already in a console, you can drop `Ctrl`.
+# The equivalent in a script is:  `$ chvt 3`.
+
+switch to next console             A-→
+switch to previous console         A-←

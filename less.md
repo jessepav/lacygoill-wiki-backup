@@ -64,7 +64,7 @@ Useful to view the contents of compressed files or archives.
 
 ---
 
-`lesspipe`  is included  by  default in  the `less`  package  on a  debian-based
+`lesspipe`  is included  by  default in  the `less`  package  on a  Debian-based
 distro, but the script seems extremely old compared to github.
 
 ##

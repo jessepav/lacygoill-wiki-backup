@@ -56,18 +56,36 @@ int main(void)
     //
     // An omission might cause a problematic coercion.
     //
-    //
-    //     not recommended, but OK: bits are discarded to convert 12.34 from double to float
+    //                   not recommended, but OK
     //                   v
     //     float x = 12.34;
     //     assert(x == 12.34);
     //                     ^
     //                     ✘
     //
-    // In the assertion, the value in `x`  is converted from float to double (to
-    // match the double  on the rhs of  `==`), by adding a padding  of 0's.  The
-    // latter  does not  match the  bits which  were discarded  in the  previous
+    // In the first  assignment, `12.34` is converted from  `double` to `float`,
+    // to match the type specification on the lhs.
+    // Then, in the assertion, the evaluation  of `x` is converted from float to
+    // double (to match the `double` on the rhs of `==`), by adding a padding of
+    // 0's.
+    // This padding will not match the bits which were discarded in the previous
     // coercion.  So, both the assertion and compilation fail.
+    //
+    // This would be better:
+    //
+    //                    v
+    //     float x = 12.34f;
+    //     assert(x == 12.34f);
+    //                      ^
+    //
+    // ---
+    //
+    // gcc will complain if you pass it `-Wfloat-equal`:
+    //
+    //     comparing floating point with == or != is unsafe [-Werror=float-equal]
+    //
+    // But that's a different issue.
+    // The point is: don't forget the `f` suffix to a float constant.
     //}}}
     // Once a variable has been assigned a value, it can be used to help compute the value of another variable:{{{
     //

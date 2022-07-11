@@ -160,7 +160,7 @@ Il paraît que `x2go` est meilleur, plus rapide, et moins gourmand en ressource:
             Il s'agit d'un fichier dans lequel l'utilisateur peut modifier certains paramètres du DE.
 
 
-    sudo chmod +x ~/.vnc/xstartup
+    sudo chmod u+x ~/.vnc/xstartup
 
             Rendre le fichier de conf du serveur VNC exécutable.
 

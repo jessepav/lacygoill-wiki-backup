@@ -1,11 +1,3 @@
-# ?
-
-    $ HOME=/dev/null vim --clean $(locate --regex '\.inc(\.gz)?$') +'silent argdo unsilent echomsg &filetype'
-
-    $ locate --regex '\.lst$' | wc --lines
-
-Should I open a new issue?
-
 # inconsistent handling of `test` and `[` when testing output of command
 #### For bugs
 

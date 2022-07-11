@@ -1,35 +1,3 @@
-# How to get the version of the distro I'm using?
-
-    $ cat /etc/issue
-
-# How to get its codename?
-
-    $ lsb_release -sc
-
-##
-# How to rename the machine?
-
-    $ sudoedit /etc/hosts /etc/hostname
-
-    :argdo %s/old_name/new_name/gc | update
-
-    $ sudo systemctl reboot
-
-For more info, see: <https://askubuntu.com/questions/9540/how-do-i-change-the-computer-name/9614>
-
-# How to reboot the machine?  How to turn it off?
-
-    $ shutdown -r
-    $ shutdown {-H|-P}
-
-##
-# How to list the groups installed on the system?
-
-    $ getent group
-      │
-      └ get entries from databases supported by the Name Service Switch libraries
-
-##
 # How to prepare a chroot environment?
 
     $ sudo -i
@@ -54,22 +22,22 @@ For more info, see: <https://superuser.com/a/111215/913143>
 ---
 
 When you're finished, and you need to unmount the partitions, do it from outside
-the chroot environment, for example directly from /.
+the chroot environment, for example directly from `/`.
 
 ---
 
-In a chroot environment, systemctl commands will refuse to perform any action.
+In a chroot environment, `systemctl(1)` commands will refuse to perform any action.
 That's because the systemd process and the  user that used the chroot command do
 not have the same view of the filesystem.
 
 ##
 # How to get all the names of the kernel parameters?
 
-    $ sysctl -a
+    $ sysctl --all
 
 # How to get the names of the kernel parameters matching a regex?
 
-    $ sysctl -a -r 'regex'
+    $ sysctl --all --pattern='regex'
 
 # How to get the path to a file in `/proc` where the value of the parameter `foo.bar.baz` is stored?
 
@@ -77,11 +45,11 @@ not have the same view of the filesystem.
 
 Example:
 
-    $ sysctl -a -r 'max_dgram_qlen'
-    net.unix.max_dgram_qlen = 512˜
+    $ sysctl --all --pattern='max_dgram_qlen'
+    net.unix.max_dgram_qlen = 512
 
     $ cat /proc/sys/net/unix/max_dgram_qlen
-    512˜
+    512
 
 # Where are the kernel parameters configured?
 
@@ -93,53 +61,16 @@ Note that `/etc/sysctl.d/99-sysctl.conf` is a symlink to `/etc/sysctl.conf`.
 # How to change a kernel parameter
 ## at run time?  (2)
 
-    $ sudo sysctl -w <parameter>=<value>
+    $ sudo sysctl --write <parameter>=<value>
     $ echo 'value' | sudo tee /proc/sys/path/to/parameter
 
 ## at boot time?
 
-    $ echo 'parameter=value' | sudo tee -a /etc/sysctl.conf
+    $ echo 'parameter=value' | sudo tee -a /etc/sysctl.d/20-my-parameters.conf
 
-##
-# Grub
-## How to configure grub?
+To apply the new parameters immediately:
 
-Edit its configuration file:
-
-    /etc/default/grub
-
-Then, on a debian-based system, execute `update-grub(8)`.
-
-## How to make grub remember the entry I've selected the last time I was in its menu?
-
-Make sure these options are enabled in grub's config file:
-
-    # The default menu entry will be the one saved by 'GRUB_SAVEDEFAULT'.
-    GRUB_DEFAULT=saved
-
-    # When an entry is  selected, save it as a new default  entry for use by
-    # future runs of GRUB.
-    GRUB_SAVEDEFAULT=true
-
-## How to make grub's menu wait 2 seconds before automatically selecting an entry?
-
-    GRUB_TIMEOUT=2
-
-## How to remove the splash screen so that I can see the kernel messages when the system boots?
-
-    $ sudoedit /etc/default/grub
-
-    :%s/GRUB_CMDLINE_LINUX_DEFAULT="\zsquiet splash\ze"//c
-
-    $ sudo update-grub
-
-Don't use `update-grub2`, it's just a symlink to `update-grub`.
-
-Actually,  the fact  that  it's  a symlink  doesn't  necessarily  mean that  the
-commands are equivalent, because the executable program could look at how it was
-invoked, but that's not the case here.
-
-<https://askubuntu.com/a/167768/867754>
+    $ sudo sysctl --load=/etc/sysctl.d/20-my-parameters.conf
 
 ##
 ##
@@ -2020,7 +1951,7 @@ View gifs in your terminal.
 
 #### cylon-deb
 
-    TUI menu driven bash shell script to maintain a Debian based Linux distro.
+    TUI menu driven bash shell script to maintain a Debian-based Linux distro.
 
     https://github.com/gavinlyonsrepo/cylon-deb
 

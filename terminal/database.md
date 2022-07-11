@@ -256,17 +256,8 @@ With the name of a capability (2-5 char).
     # tab                                                  don't forget this last comma!
 
 #
-# Vim's builtin terminfo db
-## How to view it?
-
-In Vim:
-
-    :put =execute('set termcap')
-
-##
 # Pitfalls
 ## `infocmp(1)` doesn't display the capabilities set via the tmux option 'terminal-overrides'!
 
 Those are part of a db internal to tmux.
 To view them, run `$ tmux info`.
-

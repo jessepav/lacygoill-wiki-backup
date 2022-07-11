@@ -1902,7 +1902,7 @@ même façon que la chaîne de caractère précédant le curseur (custom).
             dans le nom d'un fichier qu'on  veut passer au shell, il faut passer
             par `shellescape()`:
 
-                    :exe '!chmod +x -- ' .. expand('%')->shellescape(1)
+                    :exe '!chmod u+x -- ' .. expand('%')->shellescape(1)
 
             `expand()` force  le développement de '%'  avant que `shellescape()`
             ne soit appelée, autrement cette dernière recevrait la chaîne '%' au

@@ -83,318 +83,10 @@ For example, you  could run a web  application under development in  the VM, and
 the database server on the loopback interface on the host.
 
 ##
-# Do I need to install DKMS?
+# How to install a VM?
 
-No.
-
-In the past, VirtualBox did need DKMS (Dynamic Kernel Module Support) to rebuild
-its kernel modules whenever the kernel was upgraded:
-
-   > Technical note: VirtualBox does not use dkms, but installing it also
-   > installs the software needed to build the drivers.
-
-Source: <https://www.virtualbox.org/wiki/LinuxAdditionsDebug>
-
-   > DKMS is a framework designed to allow individual kernel modules to be upgraded
-   > without changing the whole kernel. It is also very easy to rebuild modules as
-   > you upgrade kernels.
-
-Source: `$ apt show dkms | grep --after-context=3 Description`
-
-But it was not reliable enough:
-<https://www.virtualbox.org/ticket/7536>
-
-Since VirtualBox 5.1.0, DKMS is no longer necessary:
-
-   > Linux installers: no longer rely on DKMS for module rebuilding
-
-Source: <https://www.virtualbox.org/wiki/Changelog-5.1>
-
-It's not even mentioned once in the current user manual for VirtualBox 6.1.34.
-
----
-
-I think that's only true if you install VirtualBox from upstream (e.g. via PPA).
-If  you   install  it   from  your  Linux   distribution  default   repos  (e.g.
-via  `apt(8)`),  then  you  might  need  some  DKMS-related  packages,  such  as
-`virtualbox-dkms` on the host, and `virtualbox-guest-dkms` on the guest:
-
-   > On Ubuntu hosts, the Ubuntu-provided virtualbox package
-   > needs the virtualbox-dkms package to build the VirtualBox
-   > host-side kernel modules. In Ubuntu guests, the Ubuntu-provided
-   > virtualbox-guest-additions-iso package needs the virtualbox-guest-dkms
-   > package to build the VirtualBox guest-side kernel modules.
-
-Source: <https://forums.virtualbox.org/viewtopic.php?f=7&t=104808&p=511194&hilit=dkms#p511194>
-
-But VirtualBox is too important (and too  complex already) for us to deal with a
-modified version.  Let's stick to upstream.
-
----
-
-You might still need DKMS if you have a DKMS module installed.
-You can check this with:
-
-    $ dkms status
-
-Or:
-
-    $ ls /var/lib/dkms
-
-See: <https://askubuntu.com/a/653632>
-
-##
-# Configuration of a VM
-## ?
-
-Document  that to  be able  to increase  the size  of the  VM window,  the Guest
-Additions need to be installed on the guest.
-More generally, document what are all the features enabled by the Guest Additions.
-
-## ?
-
-How to change the default boot entry in the GRUB 2 menu?
-
-For debian-like distros, see this:
-
-    ~/wiki/admin/admin.md
-
-For redhat-like distros, see this:
-<https://docs.fedoraproject.org/en-US/fedora/latest/system-administrators-guide/kernel-module-driver-configuration/Working_with_the_GRUB_2_Boot_Loader/#sec-Changing_the_Default_Boot_Entry>
-
-## ?
-
-How to install Guest Additions on fedora?
-
-    $ sudo dnf remove "$(rpm --query --all 'virtualbox-guest-additions*')"
-    $ sudo dnf upgrade --refresh
-    $ systemctl reboot
-    # in the grub menu, make sure to choose a kernel which is supported by VirtualBox
-    # one of the last chapters of the user manual is "Change Log"; look for "kernel" in there
-
-    $ vboxmanage storageattach fedora \
-        --type=dvddrive \
-        --medium='additions' \
-        --storagectl='my SATA controller' \
-        --port=0
-
-    # jump to the directory where the Guest Additions ISO has been mounted
-    $ cd "$(mount | grep -i vbox | awk '{ print $3 }')"
-
-    # install the kernel headers
-    $ sudo dnf install "kernel-devel-uname-r == $(uname -r)"
-    # the script will try to build kernel modules suitable for the current running kernel
-
-    $ sudo sh ./VBoxLinuxAdditions.run
-    $ systemctl poweroff
-    $ vboxmanage storageattach fedora \
-              --storagectl='my SATA controller' \
-              --port=0 \
-              --medium='emptydrive'
-
----
-
-For Ubuntu:
-
-    $ sudo apt update
-    $ sudo apt upgrade
-    $ systemctl reboot
-
-    $ vboxmanage storageattach ubuntu \
-        --type=dvddrive \
-        --medium='additions' \
-        --storagectl='my SATA controller' \
-        --port=0
-
-    $ cd "$(mount | grep -i vbox | awk '{ print $3 }')"
-
-    $ sudo apt install gcc make
-    $ sudo sh ./VBoxLinuxAdditions.run
-    $ systemctl poweroff
-    $ vboxmanage storageattach ubuntu \
-              --storagectl='my SATA controller' \
-              --port=0 \
-              --medium='emptydrive'
-
----
-
-TODO: review/update this old answer for Debian:
-
-    $ sudo apt update
-    $ sudo apt upgrade
-    $ systemctl reboot
-
-    $ vboxmanage storageattach debian \
-        --type=dvddrive \
-        --medium='additions' \
-        --storagectl='my SATA controller' \
-        --port=0
-
-    $ cd "$(mount | grep -i vbox | awk '{ print $3 }')"
-
-    # I'm not sure about those steps.
-    # See here for more info:
-    # https://www.virtualbox.org/manual/ch02.html#externalkernelmodules
-    $ sudo apt install make gcc linux-headers-2.6-686
-    $ sudo apt purge virtualbox-ose-guest-utils virtualbox-ose-guest-x11
-
-    $ sudo sh ./VBoxLinuxAdditions.run
-    $ systemctl poweroff
-    $ vboxmanage storageattach debian \
-              --storagectl='my SATA controller' \
-              --port=0 \
-              --medium='emptydrive'
-
-## ?
-
-VirtualBox installs  a driver module called  `vboxdrv` into the host  kernel, to
-integrate  with the  host  system.   Without this  module,  a  VM cannot  start.
-VirtualBox also  installs network drivers called  `vboxnetflt` and `vboxnetadp`.
-They enable VMs to make more use of your computer's network capabilities and are
-needed for any VM networking beyond the basic NAT mode.
-
-You can check that the modules are currently loaded with:
-
-    $ lsmod | grep vbox
-
-The  VirtualBox install  process builds  the  modules suitable  for the  current
-running  kernel.  For  the build  to  succeed, you  might need  to install  some
-dependencies, such as `gcc(1)`, `make(1)` and kernel header files.
-
-Also ensure that all system updates have  been installed and that your system is
-running the most up-to-date kernel for the distribution.
-
-If you  suspect that something  has gone  wrong with module  installation, check
-that your system is set up as described above, then run:
-
-    # https://www.virtualbox.org/manual/ch02.html
-    $ sudo rcvboxdrv setup
-           ^-------^
-           /usr/sbin/rcvboxdrv
-
-This (re)builds the modules on the host:
-
-    vboxdrv.sh: Stopping VirtualBox services.
-    vboxdrv.sh: Starting VirtualBox services.
-    vboxdrv.sh: Building VirtualBox kernel modules.
-    ^--------^
-    /usr/lib/virtualbox/vboxdrv.sh
-
-BTW, the  first 2  messages are  misleading.  For example,  the script  does not
-really stop any service; it removes modules with `rmmod(1)`.
-
-Here is a similar command for the guest system:
-
-    /sbin/rcvboxadd setup
-
-## ?
-
-How to exchange files between the guest and the host?
-
-Assuming that:
-
-   - you've successfully installed the Guest Additions
-   - you've installed your VM in `~/VMs/<vmname>`
-   - the VM has been shut down
-
-Run this from the host:
-
-    $ mkdir -p ~/VMs/<vmname>/share
-
-    $ vboxmanage sharedfolder add <vmname> \
-          --automount \
-          --name=vmname_share \
-          --hostpath=/home/user/VMs/<vmname>/share
-                     ^-------^
-                     Don't write `~`.
-                     VirtualBox would not expand it.
-                     Instead, it would prepend the current working directory:
-                     ~/VMs/<vmname>/share
-                     /current/working/dir/~/VMs/<vmname>/share
-                     ^---------------------^
-                                ✘
-
-Then this from the guest:
-
-    $ sudo usermod --append --groups=vboxsf <user>
-    $ systemctl reboot
-    # Why do we need to reboot? https://askubuntu.com/a/69259
-    # Update: Actually, you might only need to re-login...
-
-Now, you can use `~/VMs/<vmname>/share/` to exchange files.
-
----
-
-Document `--auto-mount-point`?
-Document `sharedfolder remove` (useful if we want to use `--automount` after the fact)?
-
----
-
-I'm not sure, but after reading this:
-
-   > --name <name> Specifies the name of the share.
-   > Each share has a UNIQUE name within the namespace of the host operating system. Mandatory.
-
-From here:
-<https://www.virtualbox.org/manual/ch08.html#vboxmanage-sharedfolder>
-
-It seems that the name given to the shared directory must be unique.
-Hence why  I gave  the value  `vmname_share` to `--name`  in the  first command,
-instead of just `share`.
-
-## How to allow the VM to access a USB device on my host machine?
-
-This is a two-step process.
-
-First, you must ask VirtualBox to present a virtual USB controller to the guest.
-Next, you must tell VirtualBox which USB device the VM can access.
-
-Step 1:
-
-    right-click on the VM (it must be shut down)
-    > Settings
-    > USB
-
-Make sure that the following boxes are ticked:
-
-   - Enable USB Controller
-   - Enable USB 2.0 (EHCI) Controller
-
-Step 2:
-
-To add a  new filter, click on the  first icon (USB plug with blue  disk) on the
-right, or press INSER.  Then, edit the fields of the filter:
-
-   1. Name   =   arbitrary name given to the filter
-   2. Vendor ID
-   3. Product ID
-   4. Revision
-   5. Manufacturer (similar to Vendor ID)
-   6. Product (similar to Product ID)
-   7. Serial No
-   8. Port
-
-Alternatively, you can  display a menu with all the  devices currently connected
-to the host by  clicking on the second icon (USB plug with  green plus sign), or
-by pressing alt + INSER.
-Then, select the device(s) to which you want the VM to have access.
-
-Finally, press OK.
-
-For more info, see:
-
-- <https://www.virtualbox.org/manual/ch03.html#usb-support>
-- <https://www.virtualbox.org/manual/ch08.html#vboxmanage-usbcardreader>
-- <https://www.virtualbox.org/manual/ch08.html#vboxmanage-usbfilter>
-
-### Why is it dangerous to let a VM access a USB device?
-
-If you give to your VM the access to a USB device, as soon as you start your VM,
-the  USB device  will be  ejected  from the  host without  having been  properly
-unmounted.  Because of this, you might lose data.
-
-Be sure that no USB device is connected  to your machine when you start a VM, or
-that the VM can't access the USB device.
+Use our `vm-install` script:
+<https://github.com/lacygoill/config/blob/master/bin/vm-install>
 
 ##
 # VM Usage
@@ -415,14 +107,6 @@ It's defined in `~/.config/fish/functions/doc.fish`.
 Read:
 
     ~/wiki/cheat40/virtualbox
-
-Or run this shell command:
-
-    $ cs virtualbox
-
-Or run this Vim Ex command:
-
-    :Cs virtualbox
 
 ### some useful shell commands to interact with a VM?
 
@@ -561,35 +245,6 @@ For a real example where you can find these 3 types of ISOs, visit:
 <http://mirror.crexio.com/almalinux/9.0/isos/x86_64/>
 
 ##
-## When I press "a" in the VM, "q" is inserted!
-
-The keyboard layout of the host and guest systems probably differ.
-If you want to use an azerty layout, run one of these in the guest:
-
-    $ setxkbmap fr
-    $ localectl set-keymap fr
-
-Unfortunately, they only seem to work on Xorg; not on Wayland.
-From `man localectl /^\s*set-keymap`:
-
-   > Set the system keyboard mapping **for the console and X11**.
-
-On Wayland,  you'll probably  have to  use the GUI  of your  desktop environment
-(e.g. GNOME, KDE, ...) to find the relevant setting.
-
----
-
-Typing the previous command might be difficult while the layouts still don't match.
-If the host and guest are using resp. an azerty and qwerty keyboard layout:
-
-   - press `a` instead of `q`
-   - press `q` instead of `a`
-
-   - press `w` instead of `z`
-   - press `z` instead of `w`
-
-   - press `,` instead of `m`
-
 ## I can't move the mouse outside the VM window!
 
 That's because it has been captured by the guest.
@@ -672,6 +327,11 @@ And the shell can't expand it if:
                                      the shell does not see the path as a whole word;
                                      it's in the middle of a bigger word
 
+## I get a black screen after logging in!
+
+Reboot the system, and in the GRUB menu, choose an entry with the word "rescue".
+From there, try to fix whatever is broken.
+
 ##
 ## When I update my system, I have an error msg: “The following signatures were invalid: BADSIG ...”!
 
@@ -704,12 +364,73 @@ It  has probably  written  a logfile  in  your home  directory,  or in  whatever
 directory you were when you started it.  Find it and read it.
 
 ##
+## Do I need to install DKMS?
+
+No.
+
+In the past, VirtualBox did need DKMS (Dynamic Kernel Module Support) to rebuild
+its kernel modules whenever the kernel was upgraded:
+
+   > Technical note: VirtualBox does not use dkms, but installing it also
+   > installs the software needed to build the drivers.
+
+Source: <https://www.virtualbox.org/wiki/LinuxAdditionsDebug>
+
+   > DKMS is a framework designed to allow individual kernel modules to be upgraded
+   > without changing the whole kernel. It is also very easy to rebuild modules as
+   > you upgrade kernels.
+
+Source: `$ apt show dkms | grep --after-context=3 Description`
+
+But it was not reliable enough:
+<https://www.virtualbox.org/ticket/7536>
+
+Since VirtualBox 5.1.0, DKMS is no longer necessary:
+
+   > Linux installers: no longer rely on DKMS for module rebuilding
+
+Source: <https://www.virtualbox.org/wiki/Changelog-5.1>
+
+It's not even mentioned once in the current user manual for VirtualBox 6.1.34.
+
+---
+
+I think that's only true if you install VirtualBox from upstream (e.g. via PPA).
+If  you   install  it   from  your  Linux   distribution  default   repos  (e.g.
+via  `apt(8)`),  then  you  might  need  some  DKMS-related  packages,  such  as
+`virtualbox-dkms` on the host, and `virtualbox-guest-dkms` on the guest:
+
+   > On Ubuntu hosts, the Ubuntu-provided virtualbox package
+   > needs the virtualbox-dkms package to build the VirtualBox
+   > host-side kernel modules. In Ubuntu guests, the Ubuntu-provided
+   > virtualbox-guest-additions-iso package needs the virtualbox-guest-dkms
+   > package to build the VirtualBox guest-side kernel modules.
+
+Source: <https://forums.virtualbox.org/viewtopic.php?f=7&t=104808&p=511194&hilit=dkms#p511194>
+
+But VirtualBox is too important (and too  complex already) for us to deal with a
+modified version.  Let's stick to upstream.
+
+---
+
+You might still need DKMS if you have a DKMS module installed.
+You can check this with:
+
+    $ dkms status
+
+Or:
+
+    $ ls /var/lib/dkms
+
+See: <https://askubuntu.com/a/653632>
+
+##
 # Todo
 ## Why does `guestcontrol <vmname> run --exe='/path/to/cmd'` fail?
 
     $ vboxmanage guestcontrol fedora run \
         --username=toto \
-        --password=beebeebee \
+        --password=beebee \
         --verbose \
         --putenv PWD=/run/media/toto/VBox_GAs_6.1.34 \
         --exe='/bin/sudo' \
@@ -737,7 +458,7 @@ Even a simple `/bin/ls` fails:
 
     $ vboxmanage guestcontrol fedora run \
         --username=toto \
-        --password=beebeebee \
+        --password=beebee \
         --exe='/bin/ls'
 
 And yet, according to this link, it should work:
@@ -751,6 +472,65 @@ What gives?
 This would be useful to avoid consuming resources on our local machine.
 The chapter also explains how to secure the communication between the client and
 the server.
+
+## Document how to allow the VM to access a USB device from the host
+
+First, you must ask VirtualBox to present a virtual USB controller to the guest.
+Next, you must tell VirtualBox which USB device the VM can access.
+
+Document a way to do that in CLI.
+Use that info to update our `vm-install` script.
+
+---
+
+In GUI, this is a two-step process.
+
+Step 1:
+
+    right-click on the VM (it must be shut down)
+    > Settings
+    > USB
+
+Make sure that the following boxes are ticked:
+
+   - Enable USB Controller
+   - Enable USB 2.0 (EHCI) Controller
+
+Step 2:
+
+To add a  new filter, click on the  first icon (USB plug with blue  disk) on the
+right, or press INSER.  Then, edit the fields of the filter:
+
+   1. Name   =   arbitrary name given to the filter
+   2. Vendor ID
+   3. Product ID
+   4. Revision
+   5. Manufacturer (similar to Vendor ID)
+   6. Product (similar to Product ID)
+   7. Serial No
+   8. Port
+
+Alternatively, you can  display a menu with all the  devices currently connected
+to the host by  clicking on the second icon (USB plug with  green plus sign), or
+by pressing alt + INSER.
+Then, select the device(s) to which you want the VM to have access.
+
+Finally, press OK.
+
+For more info, see:
+
+- <https://www.virtualbox.org/manual/ch03.html#usb-support>
+- <https://www.virtualbox.org/manual/ch08.html#vboxmanage-usbcardreader>
+- <https://www.virtualbox.org/manual/ch08.html#vboxmanage-usbfilter>
+
+---
+
+Also, document that if  you give to your VM the access to  a USB device, as soon
+as you  start your  VM, the  USB device will  be ejected  from the  host without
+having been properly unmounted.  Because of this, you might lose data.
+
+Be sure that no USB device is connected  to your machine when you start a VM, or
+that the VM can't access the USB device.
 
 ##
 # Reference

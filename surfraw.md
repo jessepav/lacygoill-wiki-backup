@@ -51,7 +51,7 @@ chercher un mot-clé.
 
     $ cd ~/.config/surfraw/elvi/
     $ cp /usr/lib/surfraw/youtube my_custom_site
-    $ chmod +x my_custom_site
+    $ chmod u+x my_custom_site
     $ vim my_custom_site
 
 Par défaut,  surfraw permet de chercher  un mot-clé sur une  liste prédéfinie de

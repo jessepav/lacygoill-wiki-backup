@@ -166,12 +166,21 @@ What did our command do exactly?
 What was the cause of the issue?
 Why can't we reproduce it anymore?
 
+Update: Now that I've reboot the machine, I can reproduce again.
+Although, the message has changed:
+
+    Invalid MIT-MAGIC-COOKIE-1 key
+
+And this time the previous command no longer helps.
+
+Update: I've logged out and logged back in.  No issue anymore.
+
 # ?
 
 Here are a few interesting links/commands:
 
     # Why do I need `--user-unit`? https://unix.stackexchange.com/a/439616/289772
-    $ journalctl --user-unit xbindkeys
+    $ journalctl --user-unit sxhkd
 
 To understand issue “Start request repeated too quickly”:
 <https://serverfault.com/a/845473>
@@ -229,28 +238,39 @@ Remember that in Linux, a process creates a child with 2 system calls:
 
 ## texts
 
-- <https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files>
 - <https://systemd-by-example.com/>
-- <https://www.linux.com/training-tutorials/end-road-systemds-socket-units/>
-- <https://www.linux.com/topic/desktop/systemd-services-monitoring-files-and-directories/>
 - <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/chap-managing_services_with_systemd>
 - <https://www.freedesktop.org/wiki/Software/systemd/>
-- <https://www.howtogeek.com/216454/how-to-manage-systemd-services-on-a-linux-system/>
-
-- <https://askubuntu.com/questions/676007/how-do-i-make-my-systemd-service-run-via-specific-user-and-start-on-boot>
-- <https://superuser.com/questions/476379/how-do-i-setup-a-systemd-service-to-be-started-by-a-non-root-user-as-a-user-daem>
-- <https://superuser.com/questions/853717/systemd-user-and-system>
-- <https://unix.stackexchange.com/questions/517240/systemd-socket-listendatagram-vs-listenstream>
-
 - <https://wiki.archlinux.org/index.php/Systemd>
 - <https://wiki.archlinux.org/index.php/Systemd/User>
 - <https://wiki.archlinux.org/index.php/Systemd_FAQ>
-- <https://wiki.archlinux.org/index.php/Environment_variables#Using_pam_env>
 - <https://wiki.archlinux.org/index.php/Systemd/Timers>
 
-Plus these pages from "UNIX and Linux System Administration Handbook":
+---
 
-    30, 31, 43-57, 61, 93, 113, 117, 295, 298-302, 319, 971, 1169
+systemd units and unit files:
+<https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files>
+
+systemd socket units:
+<https://www.linux.com/training-tutorials/end-road-systemds-socket-units/>
+
+The difference between `ListenStream=` and `ListenDatagram`:
+<https://unix.stackexchange.com/questions/517240/systemd-socket-listendatagram-vs-listenstream>
+
+Monitoring paths and directories:
+<https://www.linux.com/topic/desktop/systemd-services-monitoring-files-and-directories/>
+
+How to manage systemd services:
+<https://www.howtogeek.com/216454/how-to-manage-systemd-services-on-a-linux-system/>
+
+How to create systemd service files:
+<https://linuxconfig.org/how-to-create-systemd-service-unit-in-linux>
+
+Securing and sandboxing applications and services:
+<https://www.redhat.com/sysadmin/mastering-systemd>
+
+Managing containers in podman with systemd unit files:
+<https://www.youtube.com/watch?v=AGkM2jGT61Y>
 
 ##
 # Documentation to write
@@ -309,47 +329,16 @@ Alternatively, try `$USER` and `$HOME`.
 
 ##
 # High priority
-## turn `~/.config/keyboard/setup` into systemd services
+## turn `~/.config/keyboard/setup` into a systemd service
 
-One for `xkbcomp(1)`, one for `xbindkeys(1)` and one for `xset(1)`.
+To run this:
 
-Should we group all those services under a custom target (`keyboard.target`)?
+    $ xset r rate 175 40
 
----
+Make sure the service is automatically started after the one which runs `keyd(1)`.
 
-This link is interesting: <https://superuser.com/a/1128905/913143>
-It might explain how to install an xbindkeys service.
-Basically, it gives sth like:
-
-    $ tee <<EOF ~/.config/systemd/user/xsession.target
-    [Unit]
-    Description=Xsession running
-    BindsTo=graphical-session.target
-    EOF
-
-    $ tee <<EOF ~/.config/systemd/user/xbindkeys.service
-    [Unit]
-    Description=xbindkeys
-    PartOf=graphical-session.target
-
-    [Service]
-    ExecStart=/usr/bin/xbindkeys --nodaemon --file %h/.config/keyboard/xbindkeys.conf
-    Restart=always
-
-    [Install]
-    WantedBy=xsession.target
-    EOF
-
-    $ tee -a <<EOF ~/bin/keyboard.sh
-    systemctl --user import-environment PATH DBUS_SESSION_BUS_ADDRESS
-    systemctl --no-block --user start xsession.target
-    EOF
-
-    systemctl --user enable xbindkeys
-
-I'm not sure the added complexity is really useful though.
-And why inventing this `graphical-session.target`?
-Did the author mean `graphical.target`?
+Also, if you install other units related to the keyboard, consider grouping them
+under a custom target (`keyboard.target`), if that makes sense...
 
 ## do sth similar for `~/bin/autostartrc`
 
@@ -513,7 +502,7 @@ And update systemd.
 
 ---
 
-Atm, here's the output of `$ systemctl list-jobs`:
+ATM, here's the output of `$ systemctl list-jobs`:
 
     JOB UNIT                                                          TYPE  STATE
     1529 dev-sda5.swap                                                 stop  running

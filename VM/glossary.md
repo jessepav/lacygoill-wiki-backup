@@ -86,6 +86,20 @@ Device drivers and system applications which  can be installed inside a guest OS
 to improve its performance, and  provide a better integration/communication with
 the host OS.
 
+Among other features, they provide:
+
+   - mouse pointer integration: pressing the  Host key is  no longer required to
+     free the mouse  from being captured by the  guest OS
+
+   - shared folder: provide an easy way to exchange files between the host and
+     the guest, by making a  given host directory  available to the  guest as
+     a network share (regardless of whether the guest actually has a network)
+
+   - better video support: among other things, let you resize the virtual
+     machine's window
+
+   - shared clipboard: the clipboard can be shared between the guest and the host
+
 ##
 # h
 ## host key

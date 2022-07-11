@@ -34,7 +34,7 @@ Run `os.exit()`.
             A glossary of some essential Lua terms
 
 
-    https://en.wikipedia.org/wiki/Category:Lua-scriptable_software
+    https://en.wikipedia.org/wiki/Category:Lua_(programming_language)-scriptable_software
 
             Liste des programmes scriptables via Lua.  Entre autres:
 
@@ -212,58 +212,3 @@ Run `os.exit()`.
     http://lua-users.org/wiki/OptimisationTips
 
             Conseils pour optimiser son code Lua.
-
-
-    https://github.com/tpope/vim-haystack/blob/master/autoload/haystack.vim
-
-            justinmk dit que convertir ce plugin VimL en Lua aurait de la valeur:
-            https://www.reddit.com/r/neovim/comments/6bfn33/any_documentation_on_how_to_use_native_lua/dhmifjl/
-
-            Lire `:h lua`.
-
-# LOVE
-
-    https://www.reddit.com/r/gamedev/comments/67frk2/tutorial_on_making_a_complete_game_with_lua_and/
-    https://love2d.org/
-    https://github.com/SSYGEA/blog/issues/11
-    https://github.com/SSYGEA/blog/issues/12
-    https://github.com/SSYGEA/blog/issues/13
-    https://github.com/SSYGEA/blog/issues/14
-
-            Série de tutos pour apprendre à coder un jeu en Lua.
-
-            Procédure d'installation du framework LÖVE:
-
-                    hg clone https://bitbucket.org/rude/love
-
-                    sudo apt install build-essential \
-                                        autotools-dev \
-                                        automake \
-                                        libtool \
-                                        pkg-config \
-                                        libdevil-dev \
-                                        libfreetype6-dev \
-                                        libluajit-5.1-dev \
-                                        libphysfs-dev \
-                                        libsdl2-dev \
-                                        libopenal-dev \
-                                        libogg-dev \
-                                        libvorbis-dev \
-                                        libflac-dev \
-                                        libflac++-dev \
-                                        libmodplug-dev \
-                                        libmpg123-dev \
-                                        libmng-dev \
-                                        libturbojpeg \
-                                        libtheora-dev
-
-                    ./platform/unix/automagic
-                    ./configure
-                    make
-
-            En cas de problème, lire:
-            https://love2d.org/wiki/Building_L%C3%96VE
-
-            Pour apprendre à utiliser le framework:
-            https://love2d.org/wiki/Getting_Started
-

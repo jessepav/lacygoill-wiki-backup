@@ -1286,13 +1286,13 @@ Example:
       │           ┌ necessary for zsh
       │           │
     $ printf -- "#\!/bin/bash\necho 'from ~/.local/bin'" >~/.local/bin/sh.sh && \
-      chmod +x ~/.local/bin/sh.sh
+      chmod u+x ~/.local/bin/sh.sh
 
     $ sh.sh
     from ~/.local/bin    ✔˜
 
     $ printf -- "#\!/bin/bash\necho 'from ~/bin'" >~/bin/sh.sh && \
-      chmod +x ~/bin/sh.sh
+      chmod u+x ~/bin/sh.sh
 
     $ sh.sh
     from ~/.local/bin    ✘˜

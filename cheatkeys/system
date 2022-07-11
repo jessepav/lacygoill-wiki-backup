@@ -8,6 +8,30 @@ reboot OS from virtual console     C-A-Del
 # press 7 times in less than 2s
 # for more info: `man systemd /SIGINT`
 
+terminate the X server             C-A-BS
+# Useful when the session is messed up.{{{
+#
+# But you don't want to reboot the machine to preserve
+# some temporary file.
+#}}}
+# If it doesn't work:{{{
+#
+#     $ sudo dpkg-reconfigure keyboard-configuration
+#
+# It will ask you some questions.
+# The relevant one is:
+#    > Use Control+Alt+Backspace to terminate the X server?
+#
+# Then, restart the OS.
+#
+# Alternative:
+#     $ sed -i '/^XKBOPTIONS=/s/"\(.*\)"/"\1,terminate:ctrl_alt_bksp"/' /etc/default/keyboard
+# Or:
+#     # only works for the current session
+#     $ setxkbmap -layout <layout> -option terminate:ctrl_alt_bksp
+
+#}}}
+
 power off machine                  «A-SysRq» reisuo
 
 cycle current/previous console     «A-SysRq»

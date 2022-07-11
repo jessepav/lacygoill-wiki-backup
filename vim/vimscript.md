@@ -2851,11 +2851,11 @@ un dossier `autoload/` du rtp.
             Au lieu de chercher "foo;rm -rf", le shell exécuterait `$ grep foo`, PUIS `rm -rf`.
 
 
-    system('chmod +x -- ' .. expand('%')->shellescape())
+    system('chmod u+x -- ' .. expand('%')->shellescape())
 
             retourne la sortie de la commande shell:
 
-                    $ chmod +x -- 'foo bar'
+                    $ chmod u+x -- 'foo bar'
 
             'foo bar' étant le nom du buffer courant
 

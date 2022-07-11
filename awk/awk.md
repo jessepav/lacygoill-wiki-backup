@@ -965,7 +965,7 @@ Use a shell script:
     ' "$@"
     EOF
 
-    $ chmod +x ~/bin/sh.sh
+    $ chmod u+x ~/bin/sh.sh
 
     $ sh.sh input_files ...
 
@@ -976,7 +976,7 @@ Use an awk script:
     ...
     EOF
 
-    $ chmod +x ~/bin/awk.awk
+    $ chmod u+x ~/bin/awk.awk
 
     $ awk.awk input_files ...
 
@@ -1000,7 +1000,7 @@ split+glob operator after the expansion (`$@` → `$1 $2 ...`):
     ' $@
     EOF
 
-    $ chmod +x /tmp/sh.sh
+    $ chmod u+x /tmp/sh.sh
 
     $ /tmp/sh.sh file1 'file 2'
     awk˜
@@ -1010,7 +1010,7 @@ split+glob operator after the expansion (`$@` → `$1 $2 ...`):
 
 ### What's the benefit of `awk -f progfile` compared to the other ways?
 
-`progfile` doesn't need to be executable (no `$ chmod +x` required).
+`progfile` doesn't need to be executable (no `$ chmod u+x` required).
 
 ### Which version should I choose?
 

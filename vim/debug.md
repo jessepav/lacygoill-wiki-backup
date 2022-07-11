@@ -1,49 +1,3 @@
-    " ✘
-    prof start /tmp/log | prof! file /tmp/vim.vim | so /tmp/vim.vim
-    profd file /tmp/vim.vim
-
-    " ✘
-    prof start /tmp/log | prof! file */search.vim | ru! */search.vim
-    profd file */search.vim
-
-    " ✘
-    prof start /tmp/log | prof! file ~/.vim/pack/mine/opt/search/autoload/search.vim | so ~/.vim/pack/mine/opt/search/autoload/search.vim
-    profd file ~/.vim/pack/mine/opt/search/autoload/search.vim
-
-    " ✔
-    prof start /tmp/log | prof! func search#wrap_n | so ~/.vim/pack/mine/opt/search/autoload/search.vim
-    profd func search#wrap_n
-
-    " ✔
-    prof start /tmp/log | prof! func Func | so /tmp/vim.vim
-    profd func Func
-
-# How to debug an autocmd which is fired when Vim quits?  (i.e. I don't have the time to read the error message)
-
-Start Vim with `-V15/tmp/log`.
-Then read the log.
-
-# How to write a shell command starting Vim with a minimal vimrc, whose contents is not written in a file?
-
-    $ vim -Nu <(tee <<'EOF'
-    cmd1
-    cmd2
-    ...
-    EOF
-    )
-
-This lets you avoid writing the vimrc in a file, which you would do by running 2
-commands:
-
-    $ tee <<'EOF' /tmp/vimrc
-    cmd1
-    cmd2
-    ...
-    EOF
-
-    $ vim -Nu /tmp/vimrc
-
-##
 # Startup
 ## What are the locations from which Vim sources files when I start it with `$ vim -Nu NORC`?
 
@@ -73,7 +27,7 @@ During the sourcing of the vimrc, and before `~/.vim/plugin/`, Vim sources:
    2. `$VIMRUNTIME/indent.vim`
    3. `$VIMRUNTIME/syntax/{syntax,synload,syncolor}.vim`
 
-#### write `colo default` at the end of the vimrc?
+#### write `colorscheme default` at the end of the vimrc?
 
 During the sourcing of the  vimrc, after the filetype/indent/syntax plugins, and
 before `~/.vim/plugin/`, Vim sources:
@@ -242,24 +196,24 @@ Use the `-V` argument:
 
 Technically, this command sets two options:
 
-   - &vbs = 2
-   - &vfile = /tmp/log
+   - &verbose = 2
+   - &verbosefile = /tmp/log
 
 ### the execution of a single Ex command?
 
-    :2verb Cmd
+    :2 verbose Cmd
 
 ### the execution of several commands separated by bars?
 
-`:verb` only applies to the command up to the next bar, so this doesn't work:
+`:verbose` only applies to the command up to the next bar, so this doesn't work:
 
-    :2verb set vbs | set vbs
+    :2 verbose set verbose | set verbose
     verbose=2  ✔˜
     verbose=0  ✘˜
 
-You muse also use `:exe`:
+You muse also use `:execute`:
 
-    :2verb exe 'set vbs | set vbs'
+    :2 verbose execute 'set verbose | set verbose'
     verbose=2  ✔˜
     verbose=2  ✔˜
 
@@ -276,40 +230,40 @@ anything, without being constantly interrupted by a message.
 
 Redirect them in a file:
 
-    :set vfile=/tmp/messages
+    :set verbosefile=/tmp/messages
 
         THEN
 
-    :set vbs={lvl}
+    :set verbose={lvl}
     :cmd1
     :cmd2
     :cmd3
     ...
-    :set vbs=0
+    :set verbose=0
 
         OR
 
-    :{lvl}verb cmd
+    :{lvl}verbose cmd
 
         FINALLY
 
-    :set vfile=
+    :set verbosefile=
 
 ## What are the six things for which I can ask the last file to have changed their definition?   How to ask?
 
-    ┌─────────────────┬──────────────────┐
-    │ augroup         │ verb au foo      │
-    ├─────────────────┼──────────────────┤
-    │ command         │ verb com Cmd     │
-    ├─────────────────┼──────────────────┤
-    │ function        │ verb fu Func     │
-    ├─────────────────┼──────────────────┤
-    │ highlight group │ verb hi HG       │
-    ├─────────────────┼──────────────────┤
-    │ mapping         │ verb map lhs     │
-    ├─────────────────┼──────────────────┤
-    │ option          │ verb set option? │
-    └─────────────────┴──────────────────┘
+    ┌─────────────────┬───────────────────────┐
+    │ augroup         │ verbose autocmd foo   │
+    ├─────────────────┼───────────────────────┤
+    │ command         │ verbose command Cmd   │
+    ├─────────────────┼───────────────────────┤
+    │ function        │ verbose function Func │
+    ├─────────────────┼───────────────────────┤
+    │ highlight group │ verbose highlight HG  │
+    ├─────────────────┼───────────────────────┤
+    │ mapping         │ verbose map lhs       │
+    ├─────────────────┼───────────────────────┤
+    │ option          │ verbose set option?   │
+    └─────────────────┴───────────────────────┘
 
 ##
 ## Above which verbosity level does Vim display a message when:
@@ -366,34 +320,35 @@ Redirect them in a file:
     │ Warning │ echo v:warningmsg        │ let v:warningmsg = 'foo' │
     └─────────┴──────────────────────────┴──────────────────────────┘
 
-## What type of message does `:verb cmd` give?
+## What type of message does `:verbose cmd` give?
 
 Status.
 
-## Does `:sil verb cmd` prevent Vim from giving and displaying messages?
+## Does `:silent verbose cmd` prevent Vim from giving and displaying messages?
 
 Yes:
 
-    :sil verb ru foobar.vim
+    :silent verbose runtime foobar.vim
     no message displayed˜
     no message added in `:mess`˜
 
-## How to react to a message given by `:verb cmd` without displaying any message?
+## How to react to a message given by `:verbose cmd` without displaying any message?
 
     let v:statusmsg = ''
 
-    sil verb cmd
+    silent verbose cmd
 
     if v:statusmsg is# '...'
         " do sth
     endif
 
-It works because `:sil verb` doesn't prevent Vim from populating `v:statusmsg`.
+It works because `:silent verbose` doesn't prevent Vim from populating `v:statusmsg`.
 
-## How to debug 'fde', 'fex' or 'inde'?
+## How to debug 'foldexpr', 'formatexpr' or 'indentexpr'?
 
-By  default, Vim  doesn't give  any  error message  when an  error occurs  while
-evaluating an expression used to set `'fde'`, `'fex'` or `'inde'`.
+By  default,  Vim   doesn't  give  any  error  message  when   an  error  occurs
+while  evaluating an  expression  used to  set  `'foldexpr'`, `'formatexpr'`  or
+`'indentexpr'`.
 
 To change that, set `'debug'` and give it the value `msg` or `throw`:
 
@@ -424,21 +379,21 @@ Use sparingly, i.e. only when really needed.
 ---
 
 Yes, you need to source the scripts/functions unless they haven't been sourced yet.
-I.e. you can skip step 3 iff the scripts/functions haven't been sourced before `:prof`.
+I.e. you can skip step 3 iff the scripts/functions haven't been sourced before `:profile`.
 
 ### How to set the location of the profile?
 
-    :prof start /tmp/profile.log
+    :profile start /tmp/profile.log
 
 Here, the profile will be written in `/tmp/profile.log` once we leave Vim.
 If `/tmp/profile.log` already exists, it will be overwritten.
 
 ### How to set the scripts/functions to profile?
 
-    :prof! file {pat}
-    :prof  func {pat}
+    :profile! file {pat}
+    :profile  func {pat}
 
-### Does `:prof file */foo.vim` profile ALL commands in the matching files?
+### Does `:profile file */foo.vim` profile ALL commands in the matching files?
 
 No.
 
@@ -446,8 +401,8 @@ Only the ones outside functions.
 
 If you want to include the commands inside functions, you must use a bang:
 
-    :prof! file */foo.vim
-         ^
+    :profile! file */foo.vim
+            ^
 
 TODO: To get as much info as possible, you might also need to temporarily remove
 an anti-reinclusion guard.  Make further tests and better document this pitfall.
@@ -456,34 +411,34 @@ Do we need `:Runtime` from `vim-scriptease`?
 ###
 ### From Vim, which commands should I execute to profile a script named `search.vim` in the rtp?
 
-    :prof  start /tmp/profile.log
-    :prof! file */search.vim
-    :ru! autoload/search.vim
+    :profile  start /tmp/profile.log
+    :profile! file */search.vim
+    :runtime! autoload/search.vim
 
     " use the plugin, and reproduce the slowdown for which you want to know the cause
     " restart Vim
 
 #### Same question, but from the shell?
 
-    $ vim --cmd 'prof  start /tmp/profile.log' \
-          --cmd 'prof! file  */autoload/search.vim' \
-          -c    'e +/\\v%>12v%<34v. file' \
-          -c    'norm n' \
-          -cq
+    $ vim --cmd 'profile  start /tmp/profile.log' \
+          --cmd 'profile! file  */autoload/search.vim' \
+          -c    'edit +/\\v%>12v%<34v. file' \
+          -c    'normal n' \
+          -cquit
 
 ###
-### When I profile a script from the shell, should I execute `:prof` via `--cmd` or `-c`?
+### When I profile a script from the shell, should I execute `:profile` via `--cmd` or `-c`?
 
 `--cmd`.
 
-Because after  `:prof` has been executed,  you must still source  the script you
+Because after `:profile` has been executed, you must still source the script you
 want to profile.
-Using  `--cmd`, you  have the  guarantee that  `:prof` will  have been  executed
+Using `--cmd`,  you have the guarantee  that `:profile` will have  been executed
 before the script is sourced, which is required.
 
 Note that `--cmd` is  not necessary if the script is  autoloaded, and not loaded
 until you invoke some mapping/command.
-But still, be consistent; always use `--cmd` to execute `:prof` from the shell.
+But still, be consistent; always use `--cmd` to execute `:profile` from the shell.
 
 ### How to detect that a profiling is currently being performed?
 
@@ -493,9 +448,9 @@ During a profiling, `v:profiling` is set to 1.
 
 Temporarily pause the profiling:
 
-    :prof pause
+    :profile pause
     " execute your irrelevant command
-    :prof continue
+    :profile continue
 
 ##
 ## syntax plugin
@@ -539,15 +494,6 @@ The lines are sorted by total time.
 ### How to reset the counters to zero (to restart a measuring for the current buffer)?
 
     :syntime clear
-
-### What should I avoid when using `\@<=` or `\@<!` in a regex?
-
-If you apply  these atoms to a sub-expression containing  a quantifier which can
-match a  variable number of characters  (such as `*`), add  a reasonable maximum
-size to avoid trying at all positions in the current and previous lines:
-
-    \%(foo.*\)\@<=bar       ✘ too slow
-    \%(foo.*\)\@123<=bar    ✔
 
 ##
 # Testing
@@ -601,13 +547,13 @@ Indeed, if:
 Then,  the errors  are printed  separately.  That  is, *each*  error message  is
 followed by a its own hit-enter prompt.
 
-    nno <expr> <c-b> Func()
-    fu Func()
+    nnoremap <expr> <c-b> Func()
+    function Func()
         invalid1
         invalid2
         invalid3
         return ''
-    endfu
+    endfunction
     call feedkeys("\<C-b>")
 
     Error detected while processing function Func:˜
@@ -642,8 +588,8 @@ Starting from 16, Vim  will give you the number of the line  in the script which
 throws an error.   Be careful: with this level of  verbosity, Vim gets difficult
 to use.  So, make sure to set `'verbosefile'` too:
 
-                       v------------------v
-    $ vim +'set vbs=16 vfile=/tmp/debug.log' -S /tmp/error_repro.vim +'qa!'
+                           v------------------------v
+    $ vim +'set verbose=16 verbosefile=/tmp/debug.log' -S /tmp/error_repro.vim +'quitall!'
     $ vim /tmp/debug.log
     " /^Exception thrown
 
@@ -707,7 +653,7 @@ In this example, here is what could have happened:
    - `s:open()` executes `:try | copen | catch | call s:Catch() | endtry`
    - `:copen` triggers `FileType qf`
    - an autocmd listening to `FileType qf` calls `qf#preview#mappings()`
-   - to find the latter function Vim executes `:ru autoload/qf/preview.vim`
+   - to find the latter function Vim executes `:runtime autoload/qf/preview.vim`
 
 Finally,  `autoload/qf/preview.vim`  is sourced,  but  contains  an error  which
 throws an exception.
@@ -720,8 +666,8 @@ Tip: Whenever you find a message like:
 
 You can find out from where the autocmd has been installed with:
 
-    :new|0pu=execute('verb au FileType qf')
-    :new|0pu=execute('verb au QuickFixCmdPost *')
+    :new|0pu=execute('verbose autocmd FileType qf')
+    :new|0pu=execute('verbose autocmd QuickFixCmdPost *')
     ...
 
 ##
@@ -739,7 +685,7 @@ You can find out from where the autocmd has been installed with:
 
 After.
 
-From `:h startup`:
+From `:help startup`:
 
    > 12. Execute startup commands
    > ...
@@ -749,7 +695,7 @@ From `:h startup`:
 
 Try this:
 
-    $ vim -es -Nu NONE +'pu=v:vim_did_enter|%p' +'qa!'
+    $ vim -es -Nu NONE +'put =v:vim_did_enter | :% print' +'quitall!'
     0˜
 
 When the  `+` command was  processed, `v:vim_did_enter`  was not set  yet; which
@@ -814,7 +760,7 @@ Where dir1, dir2, are in the rtp.
 
 Yes, all of them.
 
-You can use the metacharacters listed in `:h file-pattern`.
+You can use the metacharacters listed in `:help file-pattern`.
 
 ##
 ## What does `*` match in the pattern passed as an argument to
@@ -826,62 +772,61 @@ Any string of characters (including a dot).
 
 In the last component of the path, a part of the filename:
 
-    :ru! *foo.vim
+    :runtime! *foo.vim
 
 Before the last component of the path, ONE directory:
 
-    :ru! */foo.vim
+    :runtime! */foo.vim
     could source `plugin/foo.vim`˜
 
-    :ru! */*/foo.vim
+    :runtime! */*/foo.vim
     could source `plugin/bar/foo.vim`˜
 
 ##
 ## How do ‘bpr’ interpret `*foo.vim`?   What about `*/foo.vim`?
 
-    ┌────────────────────────────────┬─────────────────────────────────────────────────┐
-    │ :{breakadd|prof} file *foo.vim │ any file anywhere BELOW a directory of the rtp, │
-    │                                │ and whose name ENDS with `foo.vim`              │
-    │                                │                                                 │
-    │                                │ Examples:                                       │
-    │                                │         .../plugin/foo.vim                      │
-    │                                │         .../autoload/xfoo.vim                   │
-    ├────────────────────────────────┼─────────────────────────────────────────────────┤
-    │ :runtime! *foo.vim             │ any file INSIDE a directory of the rtp,         │
-    │                                │ and whose name ENDS with `foo.vim`              │
-    ├────────────────────────────────┼─────────────────────────────────────────────────┤
-    │ :runtime! */*foo.vim           │ any file BELOW a directory of the rtp,          │
-    │                                │ and whose name ENDS with `foo.vim`              │
-    └────────────────────────────────┴─────────────────────────────────────────────────┘
+    ┌───────────────────────────────────┬─────────────────────────────────────────────────┐
+    │ :{breakadd|profile} file *foo.vim │ any file anywhere BELOW a directory of the rtp, │
+    │                                   │ and whose name ENDS with `foo.vim`              │
+    │                                   │                                                 │
+    │                                   │ Examples:                                       │
+    │                                   │         .../plugin/foo.vim                      │
+    │                                   │         .../autoload/xfoo.vim                   │
+    ├───────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ :runtime! *foo.vim                │ any file INSIDE a directory of the rtp,         │
+    │                                   │ and whose name ENDS with `foo.vim`              │
+    ├───────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ :runtime! */*foo.vim              │ any file BELOW a directory of the rtp,          │
+    │                                   │ and whose name ENDS with `foo.vim`              │
+    └───────────────────────────────────┴─────────────────────────────────────────────────┘
 
-    ┌─────────────────────────────────┬─────────────────────────────────────────────────┐
-    │ :{breakadd|prof} file */foo.vim │ any file anywhere BELOW a directory of the rtp, │
-    │                                 │ and whose name IS `foo.vim`                     │
-    │                                 │                                                 │
-    │                                 │ Examples:                                       │
-    │                                 │         .../plugin/foo.vim                      │
-    │                                 │         .../autoload/foo.vim                    │
-    ├─────────────────────────────────┼─────────────────────────────────────────────────┤
-    │ :runtime! */foo.vim             │ any file anywhere BELOW a directory of the rtp, │
-    │                                 │ and whose name IS `foo.vim`                     │
-    └─────────────────────────────────┴─────────────────────────────────────────────────┘
+    ┌────────────────────────────────────┬─────────────────────────────────────────────────┐
+    │ :{breakadd|profile} file */foo.vim │ any file anywhere BELOW a directory of the rtp, │
+    │                                    │ and whose name IS `foo.vim`                     │
+    │                                    │                                                 │
+    │                                    │ Examples:                                       │
+    │                                    │         .../plugin/foo.vim                      │
+    │                                    │         .../autoload/foo.vim                    │
+    ├────────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ :runtime! */foo.vim                │ any file anywhere BELOW a directory of the rtp, │
+    │                                    │ and whose name IS `foo.vim`                     │
+    └────────────────────────────────────┴─────────────────────────────────────────────────┘
 
 ## Are the two wildcards necessary in
-### `:{breakadd|prof} file */*foo.vim`?
+### `:{breakadd|profile} file */*foo.vim`?
 
 No.  One is enough:
 
-                          ┌ useless, because a single star can match two things at the same time:
-                          │
-                          │     - the path to a directory
-                          │     - a part of a filename
-                          │
-                          ├┐
-    :{breakadd|prof} file */*foo.vim
+                             useless, because a single star can match two things at the same time:
+
+                                 - the path to a directory
+                                 - a part of a filename
+                             vv
+    :{breakadd|profile} file */*foo.vim
 
                     ⇔
 
-    :{breakadd|prof} file *foo.vim
+    :{breakadd|profile} file *foo.vim
 
 ### `:runtime! */*foo.vim`?
 
@@ -891,223 +836,15 @@ And if  it can be located  anywhere below a directory  of the rtp, you  need the
 first wildcard.
 
     :runtime! */*foo.vim
-              ├┘
-              └ NOT useless,  because with `:ru`, a star can  NOT match the
-                path to a directory and a part of a filename at the same time
-
-##
-## In a script, why doesn't this work:  `breakadd func s:Func`?
-
-You need to translate `s:` manually:
-
-    :exe 'breakadd func ' .. expand('<SID>') .. 'Func'
+              ^^
+              *not* useless,  because with `:runtime`, a star can  NOT match the
+              path to a directory and a part of a filename at the same time
 
 #
 # Issues
-## I'm writing a bug report for
-### a crash
-#### I need the Vim binary to include debugging symbols!
+## I can't get a backtrace for an internal error!
 
-When you configure – before compiling – edit the file `src/Makefile`, to include
-the `-g` flag in the `CFLAGS` variable, so that it's sent to the compiler.
-
-    CFLAGS = -g
-             ^^
-
-See:
-
-   - `:h debug-gcc`
-   - <https://stackoverflow.com/a/1937428/9780968>
-
----
-
-You don't  have to  do that manually;  we have  a zsh snippet  to compile  a Vim
-binary with debugging symbols; use it.
-
-##### It doesn't work!
-
-Make sure  the `STRIP` variable is  not set to  the `strip(1)` binary, but  to a
-dummy one like `/bin/true`:
-
-    STRIP = /bin/true
-
-####
-#### How to get a backtrace without a core?
-
-    $ gdb -q --args ~/VCS/vim/src/vim -Nu NONE -S /tmp/crash.vim
-    (gdb) set logging on
-    # start Vim so that it crashes
-    (gdb) run
-    # Print the backtrace.
-    # If it's too long, it will be printed in a pager.
-    # If so, press Enter repeatedly to scroll until you reach the bottom of the pager.
-    (gdb) bt full
-    (gdb) quit
-    # the backtrace should be in gdb.txt
-
-#### I want a core, but Vim doesn't dump any!
-
-Make sure you didn't set any limit on the size of core files which the OS can write:
-
-    $ ulimit -c unlimited
-
-Also, make sure that the `apport` service is at least temporarily stopped:
-
-    $ sudo systemctl stop apport.service
-
-You can start the service again later with:
-
-    $ sudo systemctl start apport.service
-                     ^---^
-
-If the apport service is running while Vim crashes, the core might be
-intercepted and written at `/var/lib/apport/coredump/`.
-Interestingly enough, it seems that `apport` doesn't care about `ulimit(3)`.
-
----
-
-Also, make  sure there  is no mismatch  between the version  of the  Vim process
-which crashes, and the one of the installed binary.
-
-That is,  when you  have such an  issue, restart your  Vim process  whenever you
-update the Vim binary.  Otherwise, your OS  might not write a core file.  In the
-system log  files, e.g.  in `/var/log/apport.log`, you  might find  some message
-like this one:
-
-    ERROR: apport (pid 1234) <some date>: executable was modified after program start, ignoring
-                                          ^---------------------------------------------------^
-
-#### I want my backtrace to contain as much info as possible (no <optimized out>)!
-
-Edit `src/Makefile`  to pass  the `-O0`  flag to the  compiler via  the `CFLAGS`
-variable:
-
-    CFLAGS = -g -O0
-                ^^^
-
-#### When extracting the backtrace, I get a warning message!
-
-    warning: exec file is newer than core file.
-
-The last  time you've reproduced the  crash, there was probably  an existing old
-core file in your working directory which prevented Vim from dumping a new one:
-
-   1. remove the old core
-   2. reproduce the crash again, to get a new core
-   3. extract a backtrace from the latter
-
-####
-#### I need a valgrind log!
-
-Run this:
-
-    valgrind --leak-check=yes --num-callers=50 --track-origins=yes --log-file=valgrind.log ./src/vim -Nu NONE
-
-After reproducing the issue, the log should be written in `./valgrind.log`.
-
-Source: <https://github.com/vim/vim/issues/5410#issuecomment-569516803>
-See also `:help debug-leaks`.
-
-#### I need an asan log!
-
-    $ git stash -a; git stash clear
-    $ make clean; make distclean
-    $ sed -i '/^#\s*SANITIZER_CFLAGS.*\\$/,/^$/ s/^#//' src/Makefile
-    $ sed -i '/^#LEAK_CFLAGS = -DEXITFREE$/ s/^#//' src/Makefile
-    $ ./configure
-    $ make; tput bel
-
-    $ ./src/vim -Nu NONE 2>asan.log
-
-After reproducing the issue, the log should be written in `./asan.log`.
-
----
-
-The purpose of the  first `sed(1)` command is to uncomment  an assignment to the
-`SANITIZER_CFLAGS` option.  It assumes that the latter is:
-
-   - written on multiple lines
-   - its first line ends with a backslash (which makes the next newline treated as a line continuation)
-   - its last line is followed by an empty line
-
-Those assumptions are true at the time I'm writing this.
-They  might be  wrong in  the future;  in which  case, you'll  have to  edit the
-`sed(1)` command.
-
-The purpose of the second `sed(1)` command  is to uncomment an assignment to the
-`LEAK_CFLAGS` option, to avoid false reports.  From `src/Makefile`:
-
-   > # You should also use -DEXITFREE to avoid false reports.
-
----
-
-Note that in addition to compile Vim  with asan enabled, you can also compile it
-with ubsan enabled:
-
-   - option to enable asan (address sanitizer): `-fsanitize=address`
-   - option to enable ubsan (undefined behavior sanitizer): `-fsanitize=undefined`
-
-The previous `sed(1)` command should enable both:
-
-    SANITIZER_CFLAGS = -g -O0 -fsanitize-recover=all \
-                       -fsanitize=address -fsanitize=undefined \
-                       -fno-omit-frame-pointer
-
-An asan log looks like this:
-
-    =================================================================
-    ==126361==ERROR: AddressSanitizer: heap-use-after-free on address ...
-    READ of size 1 at 0x603000006e86 thread T0
-        #0 0x563acc3c9973 in free_type /home/lgc/VCS/vim/src/vim9type.c:93
-        #1 0x563acbc96ab7 in list_free_list /home/lgc/VCS/vim/src/list.c:273
-        #2 0x563acbc96d00 in list_free /home/lgc/VCS/vim/src/list.c:302
-        ...
-
-An ubsan log looks like this:
-
-    ex_docmd.c:2683:10: runtime error: load of null pointer of type 'char_u'
-
-####
-#### The devs can't reproduce my crash!
-
-Try to reproduce in a docker container, so as to eliminate any interference from
-your current environment (which can't be exactly the same as the one of the devs):
-
-    # install docker
-    $ sudo apt install docker.io
-
-    # start Ubuntu 21.10 in a docker container
-    $ sudo docker run --interactive=true --tty=true --rm=true ubuntu:21.10
-
-    # install dependencies
-    $ apt update
-    $ apt --yes install git make gcc libncurses-dev
-
-    # compile Vim
-    $ git clone --depth=1 https://github.com/vim/vim
-    $ cd vim
-    $ make
-
-    # reproduce the crash
-    $ VIMRUNTIME=runtime ./src/vim -Nu NONE -U NONE -i NONE -S /tmp/crash.vim
-
-##
-### an internal error
-#### How to get a backtrace?
-
-You can try to make Vim crash.
-
-In `src/Makefile`, uncomment this line:
-
-    ABORT_CFLAGS = -DABORT_ON_INTERNAL_ERROR
-
-I found `ABORT_CFLAGS` here: <https://github.com/vim/vim/issues/3177#issue-339241917>
-
-You don't have to do that manually; use our zsh snippet to compile Vim.
-
-##### It doesn't work!
-
-Then try this:
+Try this:
 
    - start Vim in a terminal
    - in another terminal start gdb
@@ -1127,7 +864,6 @@ Then try this:
 
 Source: <https://github.com/vim/vim/issues/5674#issuecomment-838653020>
 
-###
 ## I can't compile Vim.  The configure script gives an error!
 
 Read `./src/auto/config.log`.
@@ -1184,7 +920,7 @@ So, try to recompile with these flags:
 ## Some global variable is created, but I don't know which script did it!
 
     $ vim -V15/tmp/log
-    :q
+    :quit
 
     $ vim /tmp/log
     /g:your_variable
@@ -1192,7 +928,7 @@ So, try to recompile with these flags:
 ## I install an Ex command in a plugin, but when I start Vim, it's not there!
 
     $ vim -V16/tmp/log
-    :q
+    :quit
     $ vim /tmp/log
     /YourCommand
 
@@ -1208,60 +944,59 @@ Vim did, and why.
 
 Alternatively, you can try to `:vimgrep` your config files.
 
-##
 ## I'm trying to profile a script, but nothing is written in the profile file.  Why?
 
-The script must be sourced *after* `:prof`.
-So, pay attention to the relative order  in which you execute `:prof` and source
-your script.
+The script must be sourced *after* `:profile`.
+So, pay  attention to  the relative  order in which  you execute  `:profile` and
+source your script.
 
     " ✘
-    :ru! autoload/search.vim
-    :prof  start /tmp/profile.log
-    :prof! file */autoload/search.vim
+    :runtime! autoload/search.vim
+    :profile  start /tmp/profile.log
+    :profile! file */autoload/search.vim
 
     " ✔
-    :prof  start /tmp/profile.log
-    :prof! file */autoload/search.vim
-    :ru! autoload/search.vim
+    :profile  start /tmp/profile.log
+    :profile! file */autoload/search.vim
+    :runtime! autoload/search.vim
 
 ---
 
     # ✘
-    $ vim -c 'prof  start /tmp/profile.log' \
-          -c 'prof! file  */statusline.vim' \
-          -cq
+    $ vim -c 'profile  start /tmp/profile.log' \
+          -c 'profile! file  */statusline.vim' \
+          -cquit
 
     # ✔
-    $ vim --cmd 'prof  start /tmp/profile.log' \
-          --cmd 'prof! file  */statusline.vim' \
-          -cq
+    $ vim --cmd 'profile  start /tmp/profile.log' \
+          --cmd 'profile! file  */statusline.vim' \
+          -cquit
 
-If you use `-c` to execute `:prof`, it will be executed *after* the interface of
-your plugins has been sourced, and thus the profiling won't work.
+If you use `-c` to execute `:profile`, it will be executed *after* the interface
+of your plugins has been sourced, and thus the profiling won't work.
 
-## Why is `:prof start {fname}` dangerous?
+## Why is `:profile start {fname}` dangerous?
 
 If `{fname}` already exists, it will be silently overwritten.
 Make sure  to not  mix the name  of the file  where you  want the output  of the
 profiling to be written, with the name of the script you want to profile:
 
     ✘
-    :prof start script.vim
-    :prof file foo
+    :profile start script.vim
+    :profile file foo
 
     ✔
-    :prof start foo
-    :prof file script.vim
+    :profile start foo
+    :profile file script.vim
 
-## I've executed `:4verb grep! pat .`, but I can't see the exact shell command which was invoked by Vim!
+## I've executed `:4 verbose grep! pat .`, but I can't see the exact shell command which was invoked by Vim!
 
 In this case,  the output of the  shell command is temporarily  displayed in the
 terminal, not in a Vim buffer.
 And if it's long, you may need to scroll back (tmux copy-mode), to see the exact
 shell command which was executed at the beginning.
 
-## I've executed `:4verb cexpr system('grep -RHIins pat *')`, and I have the same issue!
+## I've executed `:4 verbose cexpr system('grep -RHIins pat *')`, and I have the same issue!
 
 Press `j` then `k`.
 
@@ -1275,13 +1010,13 @@ MRE:
 
     $ cat /tmp/vimrc
         augroup myquickfix
-            au!
-            au QuickFixCmdPost * cw
+            autocmd!
+            autocmd QuickFixCmdPost * cwindow
         augroup END
         filetype plugin indent on
 
     $ vim -Nu /tmp/vimrc
-    :4verb cexpr system('grep -RHIins pat *')
+    :4 verbose cexpr system('grep -RHIins pat *')
 
 #
 #
@@ -1295,7 +1030,7 @@ See `:breakdel` for the arguments.
 
 ---
 
-You must always start with a `:prof start fname` command.
+You must always start with a `:profile start fname` command.
 The resulting file is written when Vim exits.
 Here  is  an  example  of  the  output, with  line  numbers  prepended  for  the
 explanation:
@@ -1372,31 +1107,31 @@ there are various things that may clobber the results:
                                                NOTE:
 
             Il semble  qu'il faille réutiliser  le même pattern qu'on  a utilisé
-            dans `:prof file pat`.
+            dans `:profile file pat`.
             On ne peut donc pas exécuter:
 
                     ✘
-                    prof!   file pack/mine/opt/search/autoload/search.vim
+                    profile!   file pack/mine/opt/search/autoload/search.vim
                     profdel file */search.vim
 
-            Car `:prof!  file` a reçu en  argument un chemin absolu,  tandis que
-            `:profdel file` a reçu un glob.
+            Car `:profile!  file` a reçu  en argument un chemin  absolu, tandis
+            que `:profdel file` a reçu un glob.
             En revanche, on peut exécuter:
 
                     ✔
-                    prof!   file pack/mine/opt/search/autoload/search.vim
+                    profile!   file pack/mine/opt/search/autoload/search.vim
                     profdel file pack/mine/opt/search/autoload/search.vim
 
                     ✔
-                    prof!   file */search.vim
+                    profile!   file */search.vim
                     profdel file */search.vim
 
 
-    vim --cmd 'prof  start /tmp/script.profile' \
-        --cmd 'prof! file  */search.vim' \
-        -c    'e +/\\v%>43v%<46v. ~/Dropbox/conf/cheat/vim' \
-        -c    'norm n' \
-        -cq
+    vim --cmd 'profile  start /tmp/script.profile' \
+        --cmd 'profile! file  */search.vim' \
+        -c    'edit +/\\v%>43v%<46v. ~/Dropbox/conf/cheat/vim' \
+        -c    'normal n' \
+        -cquit
 
             Illustre comment on peut tester un  script et générer un rapport, en
             une seule commande shell, en combinant les arguments:
@@ -1493,14 +1228,14 @@ there are various things that may clobber the results:
 # Todo
 
 If  your Vim  is  slow, but  you  don't know  exactly  which function/plugin  is
-responsible, you can still use `:prof` to find it out:
+responsible, you can still use `:profile` to find it out:
 
-    :prof start /tmp/profile.log
-    :prof func *
-    :prof file *
+    :profile start /tmp/profile.log
+    :profile func *
+    :profile file *
     " At this point do slow actions
-    :prof pause
-    :noa qall!
+    :profile pause
+    :noautocmd quitall!
 
 Source: <https://stackoverflow.com/a/12216578/9780968>
 
@@ -1508,7 +1243,7 @@ To document.
 
 ---
 
-After a profiling, maybe we should always run `:prof pause` then `:noa qa!`.
+After a profiling, maybe we should always run `:profile pause` then `:noautocmd quitall!`.
 <https://vi.stackexchange.com/a/20276/17449>
 
 ---
@@ -1555,7 +1290,7 @@ What kind of info does the verbose level 16 give access to?
                                            │
                         echo 'q^Mq' | vim -e -s -c debuggreedy -c 'breakadd file script.vim' -S script.vim
                                               │
-                                              └ :h -s-ex :
+                                              └ :help -s-ex :
 
                                                      Switches off most prompts, informative messages,
                                                      warnings and error messages.
@@ -1680,23 +1415,23 @@ command:
 
 ... are different.
 
-Because of  this, if you source  a file you want  to debug with `:ru`,  you must
-pass an absolute path to `:breakadd`:
+Because of  this, if you source  a file you  want to debug with  `:runtime`, you
+must pass an absolute path to `:breakadd`:
 
     " ✘
     :breakadd plugin/search.vim
-    :ru plugin/search.vim
+    :runtime plugin/search.vim
 
     " ✘
     :breakadd */plugin/search.vim
-    :ru plugin/search.vim
+    :runtime plugin/search.vim
 
     " ✔
     :breakadd ~/.vim/pack/mine/opt/search/plugin/search.vim
-    :ru plugin/search.vim
+    :runtime plugin/search.vim
 
-Probably because `:ru`  expands the argument it receives into  an absolute path,
-once it finds a matching file in the rtp.
+Probably because  `:runtime` expands the  argument it receives into  an absolute
+path, once it finds a matching file in the rtp.
 
 # :debug-name
 ## automatic anchors
@@ -1704,10 +1439,10 @@ once it finds a matching file in the rtp.
 Vim will automatically adds the anchor `^` and `$` around the pattern.
 So, there must be a full match.
 
-## 'ic' is not used
+## 'ignorecase' is not used
 
 `'ignorecase'` is not used, but `\c` can be used in the pattern to ignore case.
-Don't include the () for the function name!
+Don't include the `()` for the function name!
 
 ## match against full file name
 
@@ -1749,300 +1484,19 @@ For local functions this means that something like `'<SNR>99_'` is prepended.
 
 ## How to profile the scripts whose path match `*/autoload/search.vim`, including all functions?
 
-    :prof! file */autoload/search.vim
-         │
-         └ include all functions
+    :profile! file */autoload/search.vim
+            │
+            └ include all functions
 
 ## How to profile the functions whose name begin with `Func`?
 
-    :prof func Func*
+    :profile func Func*
 
 ## How to profile the functions whose name begin with `Func` and finish with any character different than `a` or `b`?
 
-    :prof func Func[^ab]
+    :profile func Func[^ab]
 
 ## How to profile the functions whose name begin with `Func` and finish with 2 to 5 characters?
 
-    :prof func Func?\\\{2,5\}
-
-# DEBUG MODE
-
-Once in debugging mode, the usual Ex commands can be used.
-For example, to inspect the value of a variable:
-
-    echo idx
-
-When inside  a user function,  this will print the  value of the  local variable
-`idx`.
-Prepend `g:` to get the value of a global variable:
-
-    echo g:idx
-
-All commands are executed in the context of the current function or script.
-You can also  set options, for example setting or  resetting 'verbose' will show
-what happens, but you  might want to set it just before  executing the lines you
-are interested in:
-
-    :set verbose=20
-
-Commands  that require  updating the  screen  should be  avoided, because  their
-effect won't be noticed until after leaving debug mode.
-For example:
-
-    :help
-
-won't be very helpful.
-
-There is a separate command-line history for debug mode.
-
-The line number for a function line is relative to the start of the function.
-If you have trouble  figuring out where you are, edit the  file that defines the
-function in another Vim, search for the start of the function and do `99j`.
-Replace `99` with the line number.
-
-Additionally, these commands can be used:
-
-    cont            Continue execution until the next breakpoint is hit.
-
-    quit            Abort execution.
-                    This is  like using CTRL-C,  some things might  still be
-                    executed, doesn't abort everything.
-                    Still stops at the next breakpoint.
-
-    next            Execute the  command and  come back  to debug  mode when
-                    it's finished.
-                    This steps over user function calls and sourced files.
-
-    step            Execute the command and come  back to debug mode for the
-                    next command.
-                    This steps into called user functions and sourced files.
-
-    interrupt       This is like using CTRL-C, but unlike `>quit` comes back
-                    to debug mode for the next command that is executed.
-                    Useful for testing `:finally`  and `:catch` on interrupt
-                    exceptions.
-
-    finish          Finish the current script or user function and come back
-                    to debug mode for the command after the one that sourced
-                    or called it.
-
-    backtrace       Show the call stacktrace for current debugging session.
-    bt
-    where
-
-    frame N         Goes to N backtrace level. + and - signs make movement
-                    relative.  E.g., `:frame +3` goes three frames up.
-
-    up              Goes one level up from call stacktrace.
-
-    down            Goes one level down from call stacktrace.
-
-About the additional commands in debug mode:
-
-- There is no command-line completion for them, you get the completion for the
-  normal Ex commands only.
-
-- You can shorten them, up to a single character, unless more than one command
-  starts with the same letter.
-  `f` stands for `finish`, use `fr` for `frame`.
-
-- Hitting <CR> will repeat the previous one.
-  When doing  another command, this  is reset (because  it's not clear  what you
-  want to repeat).
-
-- When you want to use the Ex command with the same name, prepend a colon:
-  `:cont`, `:next`, `:finish` (or shorter).
-
-The backtrace shows the hierarchy of function calls, e.g.:
-
-    >bt
-      3 function One[3]
-      2 Two[3]
-    ->1 Three[3]
-      0 Four
-    line 1: let four = 4
-
-The `->` points to the current frame.
-Use `up`, `down` and `frame N` to select another frame.
-
-In the current frame you can evaluate the local function variables.
-There is no way to see the command at the current line yet.
-
-# debug mode
-
-    :debug so my_script
-    :debug call Func()
-
-            Source un script / Exécute une fonction en mode déboguage.
-
-
-                                               NOTE:
-
-            Il  peut  être  judicieux  de maximiser  la  verbosité  juste  avant
-            l'exécution d'une étape problématique.
-            Puis de ramener la verbosité à un niveau raisonnable.
-
-
-                                               NOTE:
-
-            L'expression anglaise  “to step through a  function/script“ vient du
-            fait que le mode déboguage permet d'avancer étape (step) par étape.
-
-
-                                               NOTE:
-
-            Le mode  de déboguage permet  d'arrêter l'exécution du code  au sein
-            d'un  script ou  d'une  fonction,  à chaque  point  d'arrêt créé  au
-            préalable via `:breakadd`.
-
-            Dès lors,  on peut inspecter l'environnement  du script/fonction via
-            les commandes Ex habituelles:
-
-                    :echo   myvar
-                    valeur de la variable `myvar` locale à la fonction˜
-
-                    :echo g:myvar
-                    valeur de la variable globale `myvar`˜
-
-            Les commandes  sont exécutées dans le  contexte de la fonction  / du
-            script.
-
-
-                                               NOTE:
-
-            L'écran n'est plus redessiné.
-            Il  ne sert  donc à  rien d'exécuter  des commandes  nécessitant que
-            l'écran soit mis à jour:
-
-                    :help
-
-            ... car  on ne verra  pas leur effet tant  qu'on n'aura pas  quitté le
-            mode déboguage.
-
-
-                                               NOTE:
-
-            `:debug` nous fait passer en  mode déboguage le temps d'exécuter une
-            commande.
-            Ça implique  que nos  mappings custom en  ligne de  commande peuvent
-            interférer: ceux dont le rhs appelle une fonction custom.
-
-                    nno cd <cmd>call Func()<cr>
-                    fu Func()
-                    endfu
-
-                    debug call Func()    ✘ possibilité d'interférence avec mappings custom
-                    Debug call Func()    ✔ `:Debug` tente de désactiver temporairement nos mappings custom
-
-
-                    nno cd <cmd>call Func()<cr>
-                    fu Func()
-                        let var1 = 'foo'
-                        Breakadd here
-                    endfu
-
-                    norm! cd
-                    norm! cd               ✔ qd on entre en mode déboguage via un breakpoint placé
-                                           dans une fonction, seule cette dernière est déboguée;
-                                           pas les fonctions utilisées dans nos mappings custom
-
-
-                                               NOTE:
-
-                    line 3: so /tmp/vim.vim
-
-            Il s'agit d'un message typique dans une session de déboguage.
-            Il indique que Vim vient
-
-            The line number for a function line  is relative to the start of the
-            function.
-            If you have  trouble figuring out where you are,  edit the file that
-            defines the  function in another  Vim, search  for the start  of the
-            function and do `99j`.
-            Replace `99` with the line number.
-
-
-    $ vim -D file
-    : next
-      C-m
-
-            Lance Vim  en le faisant entrer  en mode déboguage dès  qu'il source
-            son 1er fichier de conf.
-            Permet de  déboguer un pb  se produisant pendant le  démarrage d'une
-            session Vim.
-
-            En mode déboguage, on peut exécuter n'importe quelle commande Ex.
-            On a également accès à qques commandes additionnelles:
-
-                    ┌───────────┬───────────────────────────────────────────────────────┐
-                    │ cont      │ Continue execution until the next breakpoint is hit.  │
-                    ├───────────┼───────────────────────────────────────────────────────┤
-                    │ quit      │ Abort execution.  This is like using CTRL-C, some     │
-                    │           │ things might still be executed, doesn't abort         │
-                    │           │ everything.  Still stops at the next breakpoint.      │
-                    ├───────────┼───────────────────────────────────────────────────────┤
-                    │ next      │ Execute the command and come back to debug mode when  │
-                    │           │ it's finished.  This steps OVER user function calls   │
-                    │           │ and sourced files.                                    │
-                    ├───────────┼───────────────────────────────────────────────────────┤
-                    │ step      │ Execute the command and come back to debug mode for   │
-                    │           │ the next command.  This steps INTO called user        │
-                    │           │ functions and sourced files.                          │
-                    ├───────────┼───────────────────────────────────────────────────────┤
-                    │ interrupt │ This is like using CTRL-C, but unlike `>quit` comes   │
-                    │           │ back to debug mode for the next command that is       │
-                    │           │ executed.  Useful for testing `:finally` and `:catch` │
-                    │           │ on interrupt exceptions.                              │
-                    ├───────────┼───────────────────────────────────────────────────────┤
-                    │ finish    │ Finish the current script or user function and come   │
-                    │           │ back to debug mode for the command after the one that │
-                    │           │ sourced or called it.                                 │
-                    └───────────┴───────────────────────────────────────────────────────┘
-
-                    ┌───────────┬─────────────────────────────────────────────────────────┐
-                    │ bt        │ Show the call stacktrace for current debugging session. │
-                    │ backtrace │                                                         │
-                    │ where     │                                                         │
-                    ├───────────┼─────────────────────────────────────────────────────────┤
-                    │ frame N   │ Goes to N backtrace level. + and - signs make movement  │
-                    │           │ relative.  E.g., `:frame +3` goes three frames up.      │
-                    ├───────────┼─────────────────────────────────────────────────────────┤
-                    │ up        │ Goes one level up from call stacktrace.                 │
-                    ├───────────┼─────────────────────────────────────────────────────────┤
-                    │ down      │ Goes one level down from call stacktrace.               │
-                    └───────────┴─────────────────────────────────────────────────────────┘
-
-            Dans l'aide  de Vim, ces commandes  sont préfixées par `>`  pour les
-            distinguer  des  commandes  Ex,  qui  elles  sont  accessibles  même
-            en-dehors du mode déboguage.
-
-
-        About the additional commands in debug mode:
-
-                - There is no command-line completion for them, you get the completion for the
-                  normal Ex commands only.
-
-                - You can shorten them, up to a single character, unless more than one command
-                  starts with the same letter.  `f` stands for `finish`, use `fr` for `frame`.
-
-                - Hitting <CR> will repeat the previous one.  When doing another command, this
-                  is reset (because it's not clear what you want to repeat).
-
-                - When you want to use the Ex command with the same name, prepend a colon:
-                  `:cont`, `:next`, `:finish` (or shorter).
-
-        The backtrace shows the hierarchy of function calls, e.g.:
-
-                >bt
-                  3 function One[3]
-                  2 Two[3]
-                ->1 Three[3]
-                  0 Four
-                line 1: let four = 4
-
-        The `->` points to the current frame.
-        Use `up`, `down` and `frame N` to select another frame.
-
-        In the current frame you can evaluate the local function variables.
-        There is no way to see the command at the current line yet.
+    :profile func Func?\\\{2,5\}
 

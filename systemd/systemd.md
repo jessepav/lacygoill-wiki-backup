@@ -31,15 +31,9 @@ This shows that `systemctl` converts automatically a path to a mount unit name.
 
 ###
 # Unit file configuration
-## How can I extend the configuration of a service unit file without modifying it directly?
+## When is the `[Install]` section of a unit file used?
 
-Write your additional directives in:
-
-                               if you were to extend another type of unit,
-                               you would need to change this accordingly
-                               v-----v
-    /etc/systemd/system/<name>.service.d/my_extra_directives.conf
-                                      ^^                    ^---^
+Whenever you enable or disable that unit.
 
 ## ?
 
@@ -93,47 +87,6 @@ generating instantiated units.
 
 ---
 
-From `man systemd.unit`:
-
-Along with a unit file foo.service, the directory foo.service.wants/ may exist.
-All  unit  files  symlinked  from  such a  directory  are  implicitly  added  as
-dependencies of type Wants= to the unit.
-This is useful to hook units into the start-up of other units, without having to
-modify their unit files.
-The preferred way to create symlinks in  the .wants/ directory of a unit file is
-with the  enable command of the  systemctl(1) tool which reads  information from
-the [Install] section of unit files.
-A  similar functionality  exists for  Requires= type  dependencies as  well, the
-directory suffix is .requires/ in this case.
-
-Along with  a unit  file foo.service, a  "drop-in" directory  foo.service.d/ may
-exist.
-All files with the  suffix ".conf" from this directory will  be parsed after the
-file itself is parsed.
-This is useful to alter or add configuration settings for a unit, without having
-to modify unit files.
-Each drop-in file must have appropriate section headers.
-
-Note that  for instantiated units, this  logic will first look  for the instance
-".d/" subdirectory  and read its ".conf"  files, followed by the  template ".d/"
-subdirectory and the ".conf" files there.
-Also note that settings from the "[Install]" section are not honoured in drop-in
-unit files, and have no effect.
-
-...
-
-[INSTALL] SECTION OPTIONS
-
-Unit  files  may include  an  "[Install]"  section, which  carries  installation
-information for the unit.
-This section is not interpreted by systemd(1)  during runtime; it is used by the
-enable and  disable commands of the  systemctl(1) tool during installation  of a
-unit.
-Note that settings in the "[Install]" section may not appear in `.d/*.conf` unit
-file drop-ins (see above).
-
----
-
     WantedBy=
     RequiredBy=
 
@@ -157,49 +110,6 @@ execute:
 
 systemd will  create a  symlink from  `getty.target.wants/getty@tty2.service` to
 `getty@.service`.
-
----
-
-    Alias=
-
-A space-separated list of additional names this unit shall be installed under.
-The names  listed here must have  the same suffix  (i.e. type) as the  unit file
-name.
-This option may be specified more than  once, in which case all listed names are
-used.
-At installation time, `$ systemctl enable` will create symlinks from these names
-to the unit filename.
-
----
-
-How do I know whether a drop-in file exists for a given service?
-
-    $ systemctl status <name>
-
-In the output, look for a line beginning with `Drop-In:`.
-
-    Drop-In: /usr/lib/systemd/system/ssh.service.d
-             └─bar.conf, foo.conf
-
-In this example, we can see that  the ssh service has 2 drop-in files `foo.conf`
-and `bar.conf`, inside `/usr/lib/systemd/system/ssh.service.d/`.
-
----
-
-Which extension must I use when writing a drop-in configuration file for a service?
-
-    .conf
-
-It's not `.service`!  How can systemd know which type of unit I'm configuring?
-
-`.service` is present  in the path of the configuration  file, more specifically
-in the parent directory name.
-
----
-
-Which command must I execute after creating/modifying a drop-in configuration file?
-
-    $ systemctl daemon-reload
 
 ---
 
@@ -577,6 +487,156 @@ More generally, `--host=user@machine` lets you execute an arbitrary
     $ sudo systemctl --host=user@machine <subcommand> <arguments>
 
 ##
+## How to make `podman(1)` generate a service unit file for a container?
+
+First, install a Fedora-based system in a VM.
+
+On the guest:
+
+    # install podman
+    $ sudo dnf install podman-docker
+
+    # create a container named "wordpress" running WordPress
+    $ sudo podman run --detach --publish=8080:80 --name=wordpress docker://docker.io/library/wordpress:latest
+
+    # verify the container is running
+    $ sudo podman ps
+
+    # let us access WordPress from the host
+    $ sudo firewall-cmd --permanent --add-port=8080/tcp
+    $ sudo firewall-cmd --reload
+
+    # generate a service file
+    $ sudo podman generate systemd wordpress \
+        | sudo tee /etc/systemd/system/wordpress-container.service
+
+    # enable it so that the wordpress container is automatically started on boot
+    $ sudo systemctl daemon-reload
+    $ sudo systemctl enable wordpress-container
+
+---
+
+As soon as  the container is running,  to access WordPress from  the host, visit
+this url:
+
+    http://192.168.1.93:8080/
+           ^----------^
+           replace with the actual IP of the guest
+
+If the host can't connect to the guest, try to reboot the latter.
+If you  try again to run  `$ sudo podman run`,  you'll get an error  because the
+container name "wordpress" is already in use.  Replace the `run` subcommand with
+`start`:
+
+    $ sudo podman start --detach --publish=8080:80 --name=wordpress wordpress
+                  ^---^
+
+Or remove the existing container before re-creating a new one:
+
+    $ sudo podman rm wordpress
+                  ^^
+### ?
+
+How to create a container service that is run from my own user account without root privileges?
+
+      from our normal user          different port, so that it doesn't conflict with the previous container
+      v                             v
+    $ podman run --detach --publish=9080:80 --name=wordpress-noroot docker://docker.io/library/wordpress:latest
+                                                            ^-----^
+                                                            different container name
+
+    # stop the running container
+    $ podman container stop wordpress-noroot
+
+    # generate a service file
+    $ mkdir -p ~/.config/systemd/user/
+    $ podman generate systemd wordpress-noroot >~/.config/systemd/user/wordpress-noroot.service
+
+    # enable it so that the wordpress container is automatically started on login
+    $ systemctl --user daemon-reload
+    $ systemctl --user enable --now wordpress-noroot.service
+
+    # let us access WordPress from the host
+    $ sudo firewall-cmd --permanent --add-port=9080/tcp
+    $ sudo firewall-cmd --reload
+
+Now, the rootless WordPress service will automatically start when you log in.
+But, it will also stop when you log out.
+To make it persist after a logout, run:
+
+    $ loginctl enable-linger toto
+                             ^--^
+                             your login name on the VM
+
+Update: The book says that the service stops when we log out.
+That's not the case on Rocky Linux.
+I think that's because the default target is reached when we log back in.
+Is it specific to Rocky Linux, or on some recent version of systemd?
+What happens in an Ubuntu VM?
+
+###
+### `podman-run(1)`
+
+Run a command in a new container.
+
+#### `--detach`
+
+Run the container in the background and print the new container ID.
+
+#### `--publish=hostPort:containerPort`
+
+Publish a container's port to the host.
+
+#### `--name=<name>`
+
+Assign a name to the container.
+The name is useful any place you need to identify a container.
+
+###
+### `podman-ps(1)`
+
+List the running containers on the system.
+
+### `podman-start(1)`
+
+Start one or more containers.
+
+### `podman-rm(1)`
+
+Remove one or more containers from the host.
+
+### `podman-generate-systemd(1)`
+
+Generate systemd unit file(s) for a container or pod.
+
+###
+### `firewall-cmd(1)`
+
+Command line  client of  the firewalld  daemon, which  provides an  interface to
+manage the runtime and permanent configurations.
+
+#### `--permanent`
+
+Set options  permanently.  Without, a  change will only  be part of  the runtime
+configuration.
+
+If you  want to make  a change in runtime  and permanent configuration,  use the
+same call with and without the `--permanent` option.
+
+A  permanent   change  is   not  effective   immediately;  only   after  service
+restart/reload or system reboot.
+
+#### `--add-port=portid/protocol`
+
+Add the port.
+
+#### `--reload`
+
+Reload   firewall  rules   and  keep   state  information.    Current  permanent
+configuration  will become  new  runtime configuration,  i.e.  all runtime  only
+changes done  until reload are lost  with reload if  they have not been  also in
+permanent configuration.
+##
 # Target
 ## What's the purpose of a target unit?
 
@@ -833,6 +893,150 @@ Use the `--no-wall` option:
 ##
 # ?
 
+Document how to handle a `--user` unit after a logout/login.
+For `xbindkeys(1)` and `sxhkd(1)`, the programs don't survive.
+But for `transmission-daemon(1)`, the program does survive.
+Why the difference?
+
+I *guess* that the  systemd user instance itself is terminated  when we log out,
+which terminates all the user units.  Right?
+
+   > As  per  default  configuration in  /etc/pam.d/system-login,  the  pam_systemd
+   > module automatically launches a systemd --user  instance when the user logs in
+   > for the first time. This process will survive as long as there is some session
+   > for that user, and will be killed as  soon as the last session for the user is
+   > closed.
+
+Source: <https://wiki.archlinux.org/title/Systemd/User>
+
+And   then,    the   service   is    only   pulled   in    by   `default.target`
+(`WantedBy=default.target`), and that target is  not reached a second time, when
+we log back; look at the journal:
+
+        $ journalctl --user --boot=-0 --no-hostname | rg 'systemd\[\d+\]:'
+
+But why isn't the transmission service affected by this issue?
+
+---
+
+This command should fix the issue:
+
+    $ loginctl enable-linger $USER
+
+But  in practice,  it  breaks the  `sxhkd(1)`  service which  can  no longer  be
+started.  Why?  Should  we run this `loginctl(1)` command or  not?  What are the
+pro(s) and con(s)?  Does it survive a system reboot?
+
+Note that if you want to see the `Linger` property of the user, you can run:
+
+    $ loginctl show-user $USER | grep -i linger
+    Linger=no
+           ^^
+           could be 'yes' too
+
+Also, this behavior (killing the processes on logout) can be configured in this file:
+
+    /etc/systemd/logind.conf
+
+Via one of these directives (in descending order of priority):
+
+    KillExcludeUsers=
+    KillOnlyUsers=
+    KillUserProcesses=
+
+The last directive is a simple global option.
+The other two are  more granular; they let you enable the  killing only for some
+given users.  Their values are used as resp. a blacklist and a whitelist.
+
+---
+
+We  had  issues in  the  past  manually starting  the  `xbindkeys(1)`/`sxhkd(1)`
+service after  a logout/login.  For `sxhkd(1)`,  the solution was to  reload the
+systemd user manager:
+
+    $ systemctl --user daemon-reload
+
+Did it work for `xbindkeys(1)` too?
+Note that the issue persisted even if we did not change the unit files.  So, why
+did we need to reload the systemd user manager?  Is it a common pitfall?
+
+Also, reading the journal was confusing:
+
+    systemd[926]: sxhkd.service: Start request repeated too quickly.
+
+Next time  you make a  test, temporarily  comment out `Restart=always`,  or play
+with `RestartSec`.
+
+# ?
+
+Document that  when writing a unit  file in your home  directory, this directive
+doesn't pass `DISPLAY` to the process's environment:
+
+    PassEnvironment=DISPLAY
+
+I think that's because `DISPLAY` is not yet in the service manager's environment
+when the unit is started.  You can  check this by writing an ad-hoc service with
+this `[Service]` section:
+
+    ExecStart=env
+    StandardOutput=file:/tmp/env
+                        ^------^
+                        DISPLAY is absent in there
+
+This works:
+
+    Environment="DISPLAY=:0.0"
+
+But hard-coding the `:0.0` value looks brittle.
+
+Possibly helpful commands:
+
+    $ systemctl --user show-environment
+    $ systemctl --user import-environment DISPLAY
+
+And a link:
+<https://github.com/swaywm/sway/wiki/Systemd-integration#managing-user-applications-with-systemd>
+Which gives this command:
+
+    exec "systemctl --user import-environment {,WAYLAND_}DISPLAY SWAYSOCK; systemctl --user start sway-session.target"
+                    ^-----------------------^            ^-----^
+
+# ?
+
+Document the difference between this:
+
+    $ systemctl [--user] stop ...
+
+And this:
+
+    $ kill --signal=STOP <PID>
+
+When you send `STOP` manually, the process is stopped, but not killed.
+This is confirmed by the `T` state code in the `ps(1)` output.
+See: `man ps /PROCESS STATE CODES/;/T`
+
+However, when  you run `$  systemctl [--user] stop  ...`, after the  process has
+been stopped, systemd then kills it:
+
+   > After the commands configured in this option are run, it is implied that
+   > the service is stopped, and any processes remaining for it are terminated
+   > according to the KillMode= setting.
+
+See: `man systemd.service /OPTIONS/;/ExecStop=$`
+
+# ?
+
+What is a daemon exactly?
+I thought it was a process running in  the background, but this might not be the
+right definition:
+
+   > It has nothing to do with  whether a program forks or not; and everything to
+   > do with whether the process is associated with a user login session.
+
+Source: <https://unix.stackexchange.com/a/615230>
+
+# ?
+
 When you log in for the first time, systemd automatically launches a
 `$ systemd --user` instance:
 
@@ -1065,7 +1269,7 @@ without a popup window.
 
 For every executable you invoke, write a *full* path.
 
-If that doesn't help, have a look at `$ journalctl --boot`.
+If that doesn't help, have a look at `$ journalctl --boot=-0`.
 The service must have written why it failed.
 
 ## The journal is spammed with `rtkit-daemon` messages!

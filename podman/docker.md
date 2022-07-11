@@ -73,34 +73,3 @@ For more info, `man docker-run`.
 `--all` removes *all* unused images, not just dangling ones.
 
 For more info, `man docker-system-prune`.
-##
-# Pitfalls
-## I get a permission denied whenever I try to run a docker command without sudo!
-
-    $ docker image ls
-    Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock:˜
-    Get http://%2Fvar%2Frun%2Fdocker.sock/v1.24/images/json:˜
-    dial unix /var/run/docker.sock: connect: permission denied˜
-
-That's because you  don't have enough rights  to write to the  socket file which
-the docker daemon listens to:
-
-    $ ls -l /var/run/docker.sock
-    srw-rw---- 1 root docker 0 Mar 11 13:32 /var/run/docker.sock
-            ^
-            ✘
-
-Solution: Add your user to the docker group:
-
-    $ getent group docker
-    docker:x:136:
-                 ^
-                 ✘
-
-    $ sudo usermod --append --groups=docker lgc
-    $ getent group docker
-    docker:x:136:lgc
-                 ^^^
-                  ✔
-
-Then, reboot for the change to take effect (or maybe logout and log back).
