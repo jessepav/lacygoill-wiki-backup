@@ -1,0 +1,41 @@
+Stepping through {{{1
+add breakpoint on main function    break *main
+
+add breakpoint on given address    break *0x<address>
+# only works as expected if executed after run (not before)
+# Alternative:{{{
+#
+#     break *main+123
+#                ^--^
+# byte offset from start of main function, which you can find
+# in output of `disassemble main`
+#}}}
+
+delete all breakpoints             delete breakpoints
+run program                        run
+run program with argument          run some-arg
+step over next instruction         ni
+step inti next instruction         si
+skip code until next breakpoint    continue
+
+Instrospection {{{1
+
+print help about given command     help <cmd>
+inspect values held by registers   info registers
+
+inspect value of given register    x/s $rax
+# `/s` is a format which prints the value as a string
+
+print disassembly of main function disassemble main
+
+Miscellaneous {{{1
+enable tui                         tui enable
+# useful to follow relevant C source code during debugging session
+# Requirement: {{{
+# The binary must have been compiled with debugging information:
+#
+#     $ gcc -g ...
+#           ^^
+#}}}
+
+empty register rax                 set $rax = 0
