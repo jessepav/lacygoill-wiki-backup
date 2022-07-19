@@ -818,7 +818,7 @@ entry whose `'valid'` key has the value 1.
 After a command (!= function) populating the qfl or loclist is executed.
 Whether it finds something doesn't matter.
 
-`FileType qf` is fired afterwards.
+`FileType qf` is fired afterward.
 
 ## Do `setqflist()` and `setloclist()` fire `QuickFixCmdPost`?   Why?
 
@@ -1095,7 +1095,7 @@ of each file in the qfl.
 
 ## I want to repeat a command for each entry in the qfl.  How to make it more reliable?
 
-If you execute a command which modifies the buffer, update it afterwards:
+If you execute a command which modifies the buffer, update it afterward:
 
     " ✘
     :silent! noautocmd cdo delete _

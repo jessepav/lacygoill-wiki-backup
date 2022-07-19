@@ -123,7 +123,7 @@ In the last column.
     1 = stdout
     2 = stderr
 
-### the letter right afterwards?
+### the letter right afterward?
 
 It's the mode in which the file is opened.
 

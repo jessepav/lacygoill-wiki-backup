@@ -2,14 +2,15 @@
 // Input: any set of 3 integers; e.g. 8, 12, 10
 // Output: 2 messages; one giving the actual volume, the other the dimensional weight:{{{
 //
-//     Volume (cubic inches): 960˜
-//     Dimensional weight (pounds): 6˜
+//     Volume (cubic inches): 960
+//     Dimensional weight (pounds): 6
 //}}}
 // Reference: page 23 (paper) / 48 (ebook)
 
 #include <stdio.h>
 
-int main(void)
+    int
+main(void)
 {
     int height, length, width, volume, weight;
 
@@ -25,8 +26,6 @@ int main(void)
     volume = height * length * width;
     weight = (volume + (166 - 1)) / 166;
 
-    printf("Volume (cubic inches): %d\n", volume);
+    printf("\nVolume (cubic inches): %d\n", volume);
     printf("Dimensional weight (pounds): %d\n", weight);
-
-    return 0;
 }

@@ -6,9 +6,9 @@
 
 ##
 # Compiling
-## When do I need to make my code conform to the `c89` standard instead of the `c99` one?
+## When do I need to make my code conform to the `C89` standard instead of the `C99` one?
 
-Whenever there's no compiler which is c99-compliant, on the machine where you'll
+Whenever there's no compiler which is C99-compliant, on the machine where you'll
 compile.  It's particularly relevant on  old hardware, embedded systems, and IoT
 (Internet of  Things), where  the only  compiler available  might be  old and/or
 closed source.
@@ -43,7 +43,16 @@ From “C Programming A Modern Approach”, page 7:
 
 ##
 # Syntax
-## Why does C require that a statement end with a semicolon?
+## What are the 5 categories of C statements?
+
+   - the expression statement (just an expression followed by a semicolon)
+   - the compound statement (`{ statement1; statement2; ...}`)
+   - the selection statements (`if`, `switch`)
+   - the iteration statements (`for`, `while`, `do`)
+   - the jump statements (`return`, `break`, `continue`, `goto`)
+
+##
+## Why does C require a statement to end with a semicolon?
 
 Since statements can continue over several  lines, it's not always obvious where
 they end.
@@ -67,7 +76,9 @@ MRE:
     #include <stdio.h>
     #include <math.h>
 
-    int main(void) {
+        int
+    main(void)
+    {
         int var = pow(2, 31);
         printf("%d\n", var);
     }
@@ -94,10 +105,10 @@ Arithmetic on `float` numbers might be slower than arithmetic on `int` numbers.
 Also, the  value of  a `float` variable  is often just  an approximation  of the
 number that was stored in it.
 If you store `0.1` in a `float` variable, you might later find that the variable
-has a value such as `0.09999999999999987`, because of rounding error.
+has a value such as `0.09999999999999987`, because of a rounding error.
 
 ##
-## When must I write declarations before statements?
+## When must I write declarations before other statements?
 
 In (and only in) C89.
 
@@ -105,7 +116,9 @@ So, this will work in C99, *and* in C89:
 ```c
     #include <stdio.h>
 
-    int main(void) {
+        int
+    main(void)
+    {
         int var1 = 123;
         int var2 = 456;
 
@@ -119,7 +132,9 @@ But this will work only in C99 (not in C89):
 ```c
     #include <stdio.h>
 
-    int main(void) {
+        int
+    main(void)
+    {
         int var1 = 123;
         printf("%d\n", var1);
 
@@ -131,12 +146,15 @@ But this will work only in C99 (not in C89):
 ```
 ---
 
-This is true for in a function's body *and* in a block's body:
+This is true in a function's body *and* in a block's body:
 ```c
     #include <stdio.h>
 
-    int main(void) {
-        if (1) {
+        int
+    main(void)
+    {
+        if (1)
+        {
             // declarations mixed with other statements: only works in C99
             int var1 = 123;
             printf("%d\n", var1);
@@ -150,8 +168,11 @@ This is true for in a function's body *and* in a block's body:
 ```c
     #include <stdio.h>
 
-    int main(void) {
-        if (1) {
+        int
+    main(void)
+    {
+        if (1)
+        {
             // declarations before other statements: works in C99 *and* in C89
             int var1 = 123;
             int var2 = 456;
@@ -170,16 +191,19 @@ So this will work in C99, but not in C89:
 ```c
     #include <stdio.h>
 
-    int main(void) {
+        int
+    main(void)
+    {
         printf("Hello world!");
     }
 ```
-
 While this will work in C99, *and* in C89:
 ```c
     #include <stdio.h>
 
-    int main(void) {
+        int
+    main(void)
+    {
         printf("Hello world!");
         return 0;
     }
@@ -255,7 +279,9 @@ For extended-precision, put the letter `L` or `l` at the end (`12.34L`).
 ```c
     #include <stdio.h>
 
-    int main(void) {
+        int
+    main(void)
+    {
         float x = 12.34;
         printf("%f\n", x);
     }
@@ -264,7 +290,7 @@ For extended-precision, put the letter `L` or `l` at the end (`12.34L`).
 
 #### But there is a type mismatch in the assignment.  Why no error?
 
-Indeed, `x` is declared as a `float`, while it's assigned a double:
+Indeed, `x` is declared as a `float`, while it's assigned a `double`:
 
     float x = 12.34;
     ^---^     ^---^
@@ -272,20 +298,6 @@ Indeed, `x` is declared as a `float`, while it's assigned a double:
 
 But no  error is given  because a  `double` constant is  automatically converted
 into a `float` when necessary (by discarding some bits).
-
----
-
-Reciprocally, a `float` constant is automatically converted into a `double` when
-necessary:
-```c
-    #include <stdio.h>
-
-    int main(void) {
-        double x = 12.34;
-        printf("%f\n", x);
-    }
-```
-    12.340000
 
 #### And yet, omitting `f` after a `float` constant is bad.  Why?
 
@@ -295,12 +307,14 @@ For example:
 ```c
     #include <assert.h>
 
-    int main(void) {
-        // OK: 12.34 is converted from double to float;
-        // to match the float type in the declaration
+        int
+    main(void)
+    {
+        // OK: 12.34 is converted from `double` to `float`;
+        // to match the `float` type in the declaration
         float x = 12.34;
-        // not OK: f is converted from float to double;
-        // to match the double type of 12.34
+        // *not* OK: x is converted from `float` to `double`;
+        // to match the `double` type of 12.34
         assert(x == 12.34);
     }
 ```
@@ -320,7 +334,7 @@ Because it prevents the coercion of the value in `x` from `float` to `double`.
 No padding of 0's is added, and both operands around `==` match.
 
 ##
-# Library functions
+# Standard Library functions
 ## In `scanf()` and `printf()`, what does the "f" stand for?
 
 **F**ormatted.
@@ -339,12 +353,3 @@ needs to know how to display output data.
 - <http://knking.com/books/c2/programs/index.html>
 - <http://knking.com/books/c2/answers/index.html>
 
-##
-# Todo
-## Would this Vim syntax plugin give us better C syntax highlighting?
-
-<https://github.com/justinmk/vim-syntax-extra>
-
-## Build Your Own Text Editor
-
-<http://viewsourcecode.org/snaptoken/kilo/>

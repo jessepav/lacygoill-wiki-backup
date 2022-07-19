@@ -360,11 +360,11 @@ In the latter  case, you should not  pass `<nomodeline>` to `:do`,  so that your
 event –  triggered manually – has  the same effect  as if it had  been triggered
 automatically.
 
-Otherwise, you should pass `<nomdeline>` to `:do`.
+Otherwise, you should pass `<nomodeline>` to `:do`.
 
 ---
 
-In practice, I think you should use `<nomdeline>` for most events except these ones:
+In practice, I think you should use `<nomodeline>` for most events except these ones:
 
     BufDelete
     BufWipeout

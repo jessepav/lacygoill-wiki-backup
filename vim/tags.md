@@ -562,7 +562,7 @@ command-line completion and `:help`).
     'path' 'pa'     string  default on Unix: '.,/usr/include,,'
                 global or local to buffer |global-local|
 
-Search upwards and downwards in a directory tree using `*`, `**` and `;`.
+Search upward and downward in a directory tree using `*`, `**` and `;`.
 See `file-searching` for info and syntax.
 
 The maximum length is limited.

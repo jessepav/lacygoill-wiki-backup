@@ -1337,26 +1337,26 @@ the script.
 
 MRE:
 
-    printf "shopt -s failglob ; echo *.foo ; echo afterwards"  | bash
+    printf "shopt -s failglob ; echo *.foo ; echo afterward"  | bash
     bash: line 2: no match: *.foo˜
 
-    bash -c 'shopt -s failglob; echo *.foo; echo afterwards'
+    bash -c 'shopt -s failglob; echo *.foo; echo afterward'
     bash: no match: *.foo˜
 
-    printf "setopt nomatch; echo *.foo \n echo afterwards" | zsh
+    printf "setopt nomatch; echo *.foo \n echo afterward" | zsh
     zsh: no matches found: *.foo˜
 
 
-None  of these  commands print  'afterwards', which  illustrates that  the shell
+None  of these  commands print  'afterward',  which illustrates  that the  shell
 stopped processing the script as soon as it failed to expand the glob.
 
 ---
 
-But weirdly, this command is still able to print 'afterwards':
+But weirdly, this command is still able to print 'afterward':
 
-    printf "shopt -s failglob \n echo *.foo \n echo afterwards" | bash
+    printf "shopt -s failglob \n echo *.foo \n echo afterward" | bash
     bash: line 2: no match: *.foo˜
-      afterwards˜
+      afterward˜
 
 Same thing if you replace the first newline with a semicolon (but not the second one).
 
@@ -1365,13 +1365,13 @@ Same thing if you replace the first newline with a semicolon (but not the second
 A failed filename generation doesn't raise an  error, and the glob is treated as
 a single element:
 
-    % unsetopt nomatch; echo *.foo; echo 'afterwards'
+    % unsetopt nomatch; echo *.foo; echo 'afterward'
     *.foo˜
-      afterwards˜
+      afterward˜
 
-    $ shopt -u failglob; echo *.foo; echo 'afterwards'
+    $ shopt -u failglob; echo *.foo; echo 'afterward'
     *.foo˜
-      afterwards˜
+      afterward˜
 
 ---
 
@@ -1379,11 +1379,11 @@ In reality, it's  a bit more complex, because several  other options exist which
 have an effect on the shell's behavior when a glob can't be expanded.
 In particular, if the `nullglob` option is set, the glob is ignored:
 
-    % setopt null_glob; unsetopt nomatch; echo *.foo; echo 'afterwards'
-    afterwards (no error)˜
+    % setopt null_glob; unsetopt nomatch; echo *.foo; echo 'afterward'
+    afterward (no error)˜
 
-    $ shopt -s nullglob; shopt -u failglob; echo *.foo; echo 'afterwards'
-    afterwards (no error)˜
+    $ shopt -s nullglob; shopt -u failglob; echo *.foo; echo 'afterward'
+    afterward (no error)˜
 
 ##
 # Editing output

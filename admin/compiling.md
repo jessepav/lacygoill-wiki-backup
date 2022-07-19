@@ -509,7 +509,7 @@ some file(s) belonging to the `zsh` package:
 
 ### How to pass it an arbitrary `make(1)` command?
 
-Just write it right afterwards:
+Just write it right afterward:
 
     $ sudo checkinstall make foo
 
@@ -561,7 +561,7 @@ But you need to update its database.
 
 And that takes a long time (≈ 25 min).
 I don't know how often you have to update.
-If you interrupt  an update with `C-c`, the utility  seems broken afterwards; it
+If you  interrupt an update with  `C-c`, the utility seems  broken afterward; it
 doesn't find anything anymore, and you have to restart a complete update.
 
 autodeb is an  experimental script that should perform the  job of both auto-apt

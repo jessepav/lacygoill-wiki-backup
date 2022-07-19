@@ -48,7 +48,7 @@ Use the `/secure passphrase` command:
 
     /secure passphrase this is my passphrase
 
-#### What will happen afterwards, every time WeeChat is started?
+#### What will happen afterward, every time WeeChat is started?
 
 It is asked by WeeChat on startup.
 

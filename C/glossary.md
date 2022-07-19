@@ -37,7 +37,7 @@ Example:
 ```
 ## bounds-checker
 
-C doesn't require  that array subscripts be checked; a  bounds-checker adds this
+C doesn't  require array subscripts  to be  checked; a bounds-checker  adds this
 capability.
 
 ##
@@ -67,7 +67,7 @@ Version of the C language described in the standard ISO/IEC 9899:2018, in 2018.
 
 <https://en.wikipedia.org/wiki/C18_(C_standard_revision)>
 
-The wikipedia page  uses the term `C18`, but  on the web, and on  the latest man
+The Wikipedia page  uses the term `C18`, but  on the web, and on  the latest man
 page for GCC, `C17` is used more often.
 
 ## GNU C
@@ -77,10 +77,48 @@ Version of the C language used by GCC by default.
 GNU C provides several language features not found in ISO standard C.
 
 ##
+## compound assignment operator
+
+Assignment operator  of the  form `X=`,  where `X` is  a binary  operator, which
+first  performs the  operation of  `X` on  both operands,  before assigning  the
+result to the left operand.
+
+For example:
+
+    i += 3
+      ^^
+
+Here, before assigning  anything to `i`, the code performs  the `+` operation on
+both operands:
+
+    the operands around +=
+    v   v
+    i + 3
+      ^
+      the operator at the start of +=
+
+Then, the result is assigned to `i`.
+
+---
+
+Other examples of compound assignment operators include:
+
+    -=
+    *=
+    /=
+    %=
+
+---
+
+Compound and simple assignment operators are similar.
+They are both right-associative.
+They both yield the lvalue as it is after the assignment.
+
 ## compound statement
 
-A group of statements inside curly braces.
-They're common in `if` statements and loops.
+Groups  several statements  into a  single statement  (by surrounding  them with
+curly  braces).   The compound  statement  is  commonly  used in  selection  and
+iteration statements.
 
 ##
 ## constant
@@ -163,7 +201,44 @@ information located between `%` and `x`:
 Statement beginning with `#`, which will be obeyed by the preprocessor.
 
 ##
+# e
+## expression statement
+
+Any expression turned into a statement with an appended semicolon.
+
+The value of such an expression is discarded.
+Thus, it's only useful if it has a side effect.
+
+Examples:
+
+    i++;
+       ^
+
+    i = 1;
+         ^
+
+Here, `i++` and `i = 1` are both expressions, which evaluate to the new value of `i`.
+They remain useful even when turned  into statements, because they have the side
+effect of changing the value of `i`.
+
+OTOH, this expression statement is useless:
+
+    i * j - 1;
+             ^
+
+Because it has no side effect.
+
+##
 # f
+## fetch
+
+Retrieving the value of a variable from memory to perform some computation which
+refers to it.
+
+A variable typically  lives in RAM, while  a fetched value is copied  into a CPU
+register.  The two values are independent.  In particular, changing the value of
+a variable has no effect on a prior copy living in a CPU register.
+
 ## float
 
 A datatype whose name comes from "floating-point"; the latter is a technique for
@@ -171,7 +246,7 @@ storing numbers  in which the  binary point (decimal  point for a  computer) can
 "float"; that is, it can be placed anywhere relative to the significant digits.
 This position is given by the exponent component.
 
-<https://en.wikipedia.org/wiki/Floating-point_arithmetic>
+For more info: <https://en.wikipedia.org/wiki/Floating-point_arithmetic>
 
 ---
 
@@ -188,8 +263,8 @@ exponent.  For example, 12.0 might be stored as:
 
 First string argument passed to `printf()` or `scanf()`.
 
-It  controls  how `printf()`  formats  printed  text,  and how  `scanf()`  reads
-formatted text.
+It controls how  `printf()` formats printed text, and how  `scanf()` reads input
+text.
 
 ##
 # h
@@ -208,6 +283,7 @@ from various national standards organizations.
 
 It promotes worldwide proprietary, industrial and commercial standards.
 
+##
 ## identifier
 
 Name chosen for a variable, function, macro or another similar entity.
@@ -248,6 +324,29 @@ Here are some examples of **illegal** identifiers:
 In case you wonder whether it was a good or bad choice for C to be case
 sensitive, read this: <https://softwareengineering.stackexchange.com/a/10010>
 
+## implementation
+
+The  software needed  to compile,  link, and  execute programs  on a  particular
+platform.
+
+## implementation-defined behavior
+
+The C standard  deliberately leaves parts of the language  unspecified, with the
+understanding that an implementation will fill in the details.
+
+For example, the behavior of the `/`  and `%` operators for negative operands in
+C89 is implementation-defined.
+
+---
+
+The C standard requires any implementation-defined behavior to be documented.
+
+---
+
+To  make  your code  portable  across  platforms,  you  should avoid  making  it
+dependent on an  implementation-defined behavior.  If you can't,  then read your
+implementation's manual to be sure to understand how your code will work.
+
 ## initializer
 
 First value assigned to a declared variable.
@@ -263,6 +362,7 @@ First value assigned to a declared variable.
 Original version  of C  standardized by  the book  “The C  Programming Language”
 written by Brian Kernighan and Dennis Ritchie.
 
+##
 ## keyword
 
 A token which has a special meaning in  the C language (and thus, cannot be used
@@ -321,12 +421,27 @@ A leak-finder helps locate memory leaks.
 
 The linker combines the  object code with any additional code  needed to yield a
 complete executable program.
-This additional code includes library functions (like `printf`) that are used in
-the program.
+This additional code includes library  functions (like `printf()`) that are used
+in the program.
 
 ## literal
 
 Synonym of constant.
+
+## logical expression
+
+Expression which can be tested by an `if` statement or a conditional operator.
+
+It's built from relational, equality, and logical operators.
+
+## lvalue
+
+Object stored in memory.
+
+A variable name and an array subscript are lvalues.
+Constants such as `123`, and expressions such as `i * 2` are not.
+
+BTW, it's pronounced "L-value".
 
 ##
 # m
@@ -336,7 +451,7 @@ A fragment of code  which has been given a name with a `#define` directive.
 Whenever the name is used, the preprocessor replaces it with its contents.
 
 There  are two  kinds of  macros.  They  differ mostly  in what  they look  like
-when  they  are used.   Object-like  macros  resemble  data objects  when  used,
+when  they  are used.   Object-like  macros  resemble  data objects  when  used;
 function-like macros resemble function calls.
 
 Source: <https://gcc.gnu.org/onlinedocs/cpp/Macros.html>
@@ -354,10 +469,162 @@ Source: <https://stackoverflow.com/a/14041847>
 Blocks of memory that are dynamically allocated but never deallocated.
 
 ##
+# n
+## null statement
+
+Special case of an expression statement, where there is no expression.
+
+Example:
+
+    2 assignments
+    v----v   v----v
+    i = 0; ; j = 1;
+           ^
+           1 null statement
+
+Another (less contrived) example:
+
+    // look for the smallest divisor d of n
+    for (d = 2; d < n && n % d != 0; d++)
+      ;
+      ^
+
+##
 # o
 ## object code
 
 Machine instructions obtained after the compiler has translated your source code file.
+
+##
+## operator associativity
+
+Property  of an  operator  which determines  how operations  are  grouped in  an
+expression containing  several operators  of equal  precedence, adjacent  to the
+same operand, and without parentheses.
+
+An operator can be:
+
+   - associative: the operations can be grouped arbitrarily
+
+   - left-associative: the operations must be grouped from left to right
+   - right-associative: the operations must be grouped from right to left
+
+   - non-associative: the operations cannot be chained;
+     often because the output type is incompatible with the output types
+
+Grouping from left  to right means that  we first group the  operands around the
+leftmost  operator.  Here  is an  abstract example  where `Op`  stands for  some
+operator, and `a`, `b`, `c` are operands:
+
+    a Op b Op c
+
+If `Op` is left-associative, the operations are grouped like this:
+
+    (a Op b) Op c
+
+Because the leftmost operation is the first one.
+
+If `Op` is right-associative, the operations are grouped like this:
+
+    a Op (b Op c)
+
+Because the rightmost operation is the last one.
+
+---
+
+Real  examples of  left-associative operators  are: `*`,  `/`, `%`,  `+` (binary
+version), `-` (binary version).  As a result:
+
+      i - j - k
+    ⇔
+      (i - j) - k
+
+      i * j / k
+    ⇔
+      (i * j) / k
+
+Examples of  right-associative operators  are: `+`  (unary version),  `-` (unary
+version).  As a result:
+
+      - + i
+    ⇔
+      -(+i)
+
+## operator precedence
+
+Property  of an  operator  which determines  how operations  are  grouped in  an
+expression containing several operators, and without parentheses.
+
+For example, in this expression:
+
+    i + j * k
+
+The operations are grouped like this:
+
+    i + (j * k)
+        ^     ^
+
+Not like this:
+
+    (i + j) * k
+    ^     ^
+
+Because the `*` operator has a higher precedence than `+`.
+
+---
+
+Here is the list of some operators in descending order of precedence:
+
+    ┌───────────┬────────────────────────┬─────────────────────────┐
+    │ Symbol(s) │ Name                   │ Associativity           │
+    ├───────────┼────────────────────────┼─────────────────────────┤
+    │ ++        │ Increment postfix      │ Left                    │
+    │ --        │ Decrement postfix      │ Left                    │
+    ├───────────┼────────────────────────┼─────────────────────────┤
+    │ ++        │ Increment prefix       │ Right                   │
+    │ --        │ Decrement prefix       │ Right                   │
+    │ +         │ Unary plus             │ Right                   │
+    │ -         │ Unary minus            │ Right                   │
+    ├───────────┼────────────────────────┼─────────────────────────┤
+    │ * / %     │ Multiplicative         │ Left                    │
+    ├───────────┼────────────────────────┼─────────────────────────┤
+    │ + -       │ Additive               │ Left                    │
+    ├───────────┼────────────────────────┼─────────────────────────┤
+    │ < > <= >= │ Relational             │ Left                    │
+    ├───────────┼────────────────────────┼─────────────────────────┤
+    │ == !=     │ Equality               │ Left                    │
+    ├───────────┼────────────────────────┼─────────────────────────┤
+    │ &&        │ Logical and            │ Left                    │
+    ├───────────┼────────────────────────┼─────────────────────────┤
+    │ ||        │ Logical or             │ Left                    │
+    ├───────────┼────────────────────────┼─────────────────────────┤
+    │ ?:        │ Conditional            │ Left                    │
+    ├───────────┼────────────────────────┼─────────────────────────┤
+    │ =  *= /=  │ Assignment             │ Right                   │
+    │ %= += -=  │                        │                         │
+    └───────────┴────────────────────────┴─────────────────────────┘
+
+Operators in the same cell have the same precedence.
+If you have several operators of  equal precedence adjacent to the same operand,
+you need to know  another one of their property to  determine how the operations
+will be grouped: their associativity.
+
+## operators families
+### conditional
+
+`?:`
+
+### equality
+
+`==` and `!=`
+
+### logical
+
+`&&` and `||`
+
+### relational
+
+`<`, `<=`, `>`, and `>=`
 
 ##
 # p
@@ -366,6 +633,103 @@ Machine instructions obtained after the compiler has translated your source code
 The preprocessor obeys the directives found in a source code file.
 It's  a bit  like an  editor; it  can add  things to  the source  code and  make
 modifications.
+
+##
+# r
+## remainder
+
+Result of a `%` operation.
+
+For example, `3` is the remainder of `7 % 4`.
+
+## round toward 0
+
+For an inexact division whose result is positive: round down (`floor()`).
+For an inexact division whose result is negative: round up (`ceil()`).
+
+## round toward -∞
+
+Round down.
+
+##
+## rvalue
+
+An  expression which  can appear  on the  RHS  of an  assignment.  It  can be  a
+variable, a constant, or a more complex expression.
+
+##
+# s
+## selection statement
+
+A statement which selects a code path out of several possibilities, like `if` or
+`switch`.
+
+## sequence point
+
+Some location in the code where it is guaranteed that at runtime:
+
+   - all side effects of some previous evaluations will have been performed
+   - no side effects from some subsequent evaluations will have yet been performed
+
+---
+
+Adding more sequence  points is sometimes necessary to make  an expression valid
+and  predictable  (by enforcing  a  single  valid  order  of evaluation  of  its
+subexpressions).
+
+The absence  of any  sequence point  between 2  subexpressions which  share some
+state (i.e. whose values both depend on the same object), and whose execution of
+evaluations can overlap, might cause a UB.
+
+For example:
+
+    (a = 123) + (b = a)
+
+Here, there is no sequence point  between `(a = 123)` and `(b = a)`, which means
+it's possible for `(b = a)`  to be evaluated in the middle  of the evaluation of
+`(a = 123)`.  That is, in the middle of the process writing the bits of `123` in `a`:
+
+    123 in binary
+    v-----v
+    1111011
+       ^--^
+
+Only the last  4 bits `1011` might  have been assigned to `a`  when `(b = a)` is
+evaluated.   If that  happens, `b`  will be  assigned `00001011`  (decimal `11`)
+instead  of `11111011`  (decimal `123`).   In effect,  `b` might  be assigned  a
+meaningless value.
+
+---
+
+There are various kinds of sequence points.
+
+The `;` terminating an expression statement  is one of them.  Before a statement
+can be executed, the previous one must have been fully executed.  In particular,
+all its increments and decrements must have been performed.
+
+The logical `&&`/`||`, the ternary conditional `?:`, and the comma operator also
+impose a sequence point.
+
+So do function calls:  a function's body is not entered  until all the arguments
+in the call have been fully evaluated.
+Although,  there is  no requirement  on  the order  in which  the arguments  are
+evaluated.  For example, in `f(a, b)`, `b`  might be evaluated before, after, or
+at the same time as `a`.
+Similarly, there is no requirement between several function calls.
+For example:
+
+    f(i++) + g(j++)
+
+We have the guarantee that:
+
+   - `i` is incremented before `f()`'s body is entered
+   - `j` is incremented before `g()`'s body is entered
+
+But there is *no* guarantee that:
+
+   - `i` is incremented before `j`
+   - `i` is incremented before `g()`'s body is entered
+   - `f()` returns before `g()`'s body is entered
 
 ##
 # t
@@ -401,7 +765,41 @@ can be split into these 7 tokens:
 
 ##
 # u
+## undefined behavior (aka UB)
+
+According to the C standard, some statements such as:
+
+    a = b / 0;
+    c = (b = a + 2) - (a = 1);
+    j = i * i++
+
+cause  **undefined  behavior**.  If  the  code  of  a  program contains  such  a
+statement, all bets are off; the program might:
+
+   - not compile at all
+   - compile, but not run
+   - compile, run, but crash or behave unexpectedly
+
+And for a particular  UB, there is not even any  guarantee of consistency across
+compilers.  For example, a statement causing UB might:
+
+   - not compile with a compiler A
+   - compile, but not run with a compiler B
+   - compile, run, but crash or behave unexpectedly with a compiler C
+
+That's why you should avoid writing a statement causing UB.
+
+---
+
+UB is not the same thing as implementation-defined behavior.
+
+With UB, anything can happen.
+With an implementation-defined behavior, the implementation has to document what
+should happen.  Obviously it should also  respect its own documentation; i.e. if
+it  *says* "A"  should  happen,  then, *in  practice*,  "A"  should happen;  not
+something else.
+
 ## uninitialized
 
-This is said of a variable which has been declared, but not assigned any value.  yet.
+This is said of a variable which has been declared, but not yet assigned any value.
 

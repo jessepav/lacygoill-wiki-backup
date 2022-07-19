@@ -126,6 +126,12 @@ Open a PR to document colored underlines.
 ##
 # Vim9
 ## ?
+
+   > The error is given at runtime. It would help if it was given earlier; i.e. at compile time.
+
+<https://github.com/vim/vim/issues/10735>
+
+## ?
 ```vim
 vim9script
 

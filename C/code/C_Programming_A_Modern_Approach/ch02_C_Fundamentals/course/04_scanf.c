@@ -3,7 +3,8 @@
 
 #include <stdio.h>
 
-int main(void)
+    int
+main(void)
 {
     int i;
     float x;
@@ -12,21 +13,19 @@ int main(void)
     //
     // We can't merge it with `scanf()`.
     // IOW, `scanf()` can only  do 1 thing: ask for the user  input and write it
-    // in a variable.  It can NOT also  print a prompt.  That's a big difference
-    // with `input()` in VimL.
+    // in  a  variable.   It can  *not*  also  print  a  prompt.  That's  a  big
+    // difference with `input()` in VimL.
     //}}}
     printf("choose an integer: ");
     // `"%d"` tells `scanf()` to read input that represents an integer.
-    // `&i` tells `scanf()` to write it in the variable `i`.
+    // `&i` tells `scanf()` to write that integer input in the variable `i`.
     scanf("%d", &i);
 
     // No need to start with a newline, because after pressing Enter to validate
     // the previous input, the cursor has automatically moved to the next line.
     printf("choose a float: ");
-    // `"%f"` tells `scanf()` to look for an input value in `float` format.
+    // `"%f"` tells `scanf()` to look for a floating-point number input.
     scanf("%f", &x);
 
     printf("you chose the integer %d and the float %f\n", i, x);
-
-    return 0;
 }

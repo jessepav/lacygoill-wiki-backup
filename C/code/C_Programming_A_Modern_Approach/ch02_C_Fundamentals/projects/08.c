@@ -9,8 +9,8 @@
 // ---
 //
 // Each month, the balance is first increased by the balance times the *monthly*
-// interest rate, then decreased by the amount of the payment.
-// The monthlhy rate is given by:
+// interest rate, then decreased by the amount of the payment.  The monthly rate
+// is given by:
 //
 //     monthly_rate = yearly_rate / 12
 //
@@ -22,7 +22,8 @@
 
 #include <stdio.h>
 
-int main(void)
+    int
+main(void)
 {
     float loan, rate, payment;
 
@@ -37,15 +38,31 @@ int main(void)
 
     // convert the yearly rate into a monthly one
     rate = rate / 12 / 100;
-    // increment now so that we don't have to do it in each of the next computations
+    // We need to add 1 to the rate, because the interest is added to the current balance. {{{
+    //
+    // Suppose the current balance is 200, and the rate is 3%.
+    //
+    // After adding the interest, the new balance is:
+    //
+    //       200 + 3/100 * 200
+    //     = 200 * (1 + 3 / 100)
+    //              ^
+    //
+    // Notice that we add 1 to the rate.
+    //
+    // ---
+    //
+    // We  add 1  now  so that  we don't  have  to do  it  in each  of the  next
+    // computations.
+    //}}}
     ++rate;
 
     loan = loan * rate - payment;
-        printf("Balance remaining after first payment: $%.2f\n", loan);
-    loan = loan * rate - payment;
-        printf("Balance remaining after second payment: $%.2f\n", loan);
-    loan = loan * rate - payment;
-        printf("Balance remaining after third payment: $%.2f\n", loan);
+    printf("Balance remaining after first payment: $%.2f\n", loan);
 
-    return 0;
+    loan = loan * rate - payment;
+    printf("Balance remaining after second payment: $%.2f\n", loan);
+
+    loan = loan * rate - payment;
+    printf("Balance remaining after third payment: $%.2f\n", loan);
 }

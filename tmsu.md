@@ -774,7 +774,7 @@ To save specifying it each time, you can alias `tmsu`:
 ## Default Database
 
 Earlier versions  of TMSU  would create a  database automatically  if none could  be found.  TMSU no
-longer creates such a database, but for backwards  compatibility it will still pick up a database at
+longer creates such a database, but for backward compatibility it will still pick up a database at
 `$HOME/.tmsu/default.db` if no other can be found.
 
 # TODO

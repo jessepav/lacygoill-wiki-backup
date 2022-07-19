@@ -295,7 +295,7 @@ the atom `\k` matches inside a regex passed to `syntax match` or `syntax region`
 
 #### Do these commands affect all statements in a syntax plugin?
 
-No, only the ones afterwards.
+No, only the ones afterward.
 And if  another `syntax  case` statement  is executed later,  the effect  of the
 previous one stops.
 
@@ -734,7 +734,7 @@ found.
 When `c` is found, `xBc` ends, but not `xAb`.
 The latter still needs a `b`, which is why `zz` is highlighted by `xAb`.
 
-##### Why is it impossible for the region `xAb` to end, no matter what you write afterwards?
+##### Why is it impossible for the region `xAb` to end, no matter what you write afterward?
 
 The only way to end `xAb` is to write `b`.
 But if you  do, the process will  repeat itself: a new `xBc`  region will start,
@@ -1594,9 +1594,9 @@ there:
 
     syntax sync minlines=150
 
-A  large  `minlines`  value  can  make Vim  slower,  especially  when  scrolling
-backwards in the file.
-Finally, you can specify a syntax group to look for by using this command:
+A large `minlines` value can make Vim slower, especially when scrolling backward
+in the file.  Finally, you can specify a  syntax group to look for by using this
+command:
 
     syntax sync match {sync-group-name}
         \ grouphere {group-name} {pattern}
@@ -1723,7 +1723,7 @@ Example:
       ... etc ...
 
 Add the `display` argument to items that  are not used when syncing, to speed up
-scrolling backwards and `C-l`.
+scrolling backward and `C-l`.
 
 ##
 # Sh: Embedding Languages

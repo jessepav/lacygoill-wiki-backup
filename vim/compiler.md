@@ -1174,7 +1174,7 @@ errors follow that refer to this file name.
 `%Q` pops the file name at the top of the stack.
 
 `%r` prevents the matched text (rest of the line) from being consumed.
-It will be parsed afterwards in another pass.
+It will be parsed afterward in another pass.
 
 ---
 

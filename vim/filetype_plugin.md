@@ -523,7 +523,7 @@ No.
 
 As soon  as an autocmd sets  up `'ft'`, Vim stops  processing `BufReadPost`, and
 begins processing the autocmds listening to `FileType`.
-It will finish processing `BufReadPost` afterwards.
+It will finish processing `BufReadPost` afterward.
 
 ### Is it possible to inspect the filetype of a buffer from an autocmd listening to `BufReadPost`?
 
@@ -652,7 +652,7 @@ If you wanted to  be completely safe, you would need to find  a way to unlet the
 guard after every file that `:runtime` finds.
 That is, you would have to execute `:runtime` verbosely to find these files.
 Or use `globpath()` (`globpath(&rtp, 'pat')`).
-Then source each file with `:source`, and unlet afterwards.
+Then source each file with `:source`, and unlet afterward.
 Too cumbersome to do.
 
 ---

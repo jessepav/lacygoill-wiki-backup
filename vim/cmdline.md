@@ -138,7 +138,7 @@ finddir({name} [, {path} [, {count}]])
 
                 Find directory {name} in {path}.
 
-                Supports   both  downwards   and  upwards   recursive  directory
+                Supports   both  downward   and  upward   recursive  directory
                 searches.
 
                 See |file-searching| for the syntax of {path}.
@@ -169,7 +169,7 @@ findfile({name} [, {path} [, {count}]])
 
 			:echo findfile('tags.vim', '.;')
 
-                Searches from the directory of the current file upwards until it
+                Searches from the directory of the current file upward until it
                 finds the file 'tags.vim'.
 
 # ?

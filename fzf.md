@@ -102,7 +102,7 @@ Comma-separated list of sort criteria to apply when the scores are tied.
    - index is only allowed at the end of the list
    - index is implicitly appended to the list when not specified
    - Default is length (or equivalently length,index)
-   - If end is found in the list, fzf will scan each line backwards
+   - If end is found in the list, fzf will scan each line backward
 
 ##
 ## Interface

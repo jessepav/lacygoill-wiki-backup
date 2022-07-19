@@ -146,7 +146,7 @@ Or:
 
 To get the name of a resource, see `man getrlimit`.
 Look for constant names prefixed by `RLIMIT_`.
-Take the name afterwards, and use it in its lowercase form.
+Take the name afterward, and use it in its lowercase form.
 
 Example:
 

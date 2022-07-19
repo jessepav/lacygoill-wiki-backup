@@ -1207,7 +1207,7 @@ If ranger now works for you, it means you need to update your configuration.  It
 
 # Image previews stopped working after updating ranger-git
 
-In September 2015, there was a backwards-incompatible change of scope.sh which broke image previewing.  To fix this, rename/delete your old `~/.config/ranger/scope.sh`, run `ranger --copy-config=scope` and, if necessary, merge your changes to scope.sh into the new version.
+In September 2015, there was a backward-incompatible change of scope.sh which broke image previewing.  To fix this, rename/delete your old `~/.config/ranger/scope.sh`, run `ranger --copy-config=scope` and, if necessary, merge your changes to scope.sh into the new version.
 # VCS-integration.md
 To enable the intergration with version control systems like git, mercurial or bazaar, run the following command:
 

@@ -143,7 +143,7 @@ This time it works.
 
 Similarly, you can double left-click on a Vim tab page title to select it.
 It works because there's no `DoubleClick1Pane` key binding.
-But if there was one, you would need  to make sure tmux forwards the mouse event
+But if there was  one, you would need to make sure tmux  forward the mouse event
 to Vim:
 
     # we disable `MouseDown1Pane` so that only a double click can select a Vim tab page (not a single click)

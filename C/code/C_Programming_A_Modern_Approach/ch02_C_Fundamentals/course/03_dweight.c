@@ -24,7 +24,8 @@
 
 #include <stdio.h>
 
-int main(void)
+    int
+main(void)
 {
     int length, width, height, volume, weight;
 
@@ -32,14 +33,12 @@ int main(void)
     width = 10;
     height = 8;
     volume = length * width * height;
-    // We add  165 to  be sure that  we round  *up* (and not  down) in  case the
-    // volume is not a multiple of 166.   Rounding down would make lose money to
-    // the company.
+    // The result of a division is rounded down.
+    // To avoid making the company lose money, we want to round up.
+    // That's why we add 165.
     weight = (volume + (166 - 1)) / 166;
 
     printf("Dimensions: %dx%dx%d\n", length, width, height);
     printf("Volume (cubic inches): %d\n", volume);
     printf("Dimensional weight (pounds): %d\n", weight);
-
-    return 0;
 }

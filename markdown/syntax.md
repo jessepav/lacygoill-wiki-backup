@@ -6,7 +6,7 @@ I want to know whether I'm missing sth useful.
 Besides, we should improve our knowledge of the markdown syntax.
 
 In the  end, if you  decide to enable html  ftplugins in markdown  files, you'll
-have to fix some options afterwards, like 'sw'.
+have to fix some options afterward, like 'sw'.
 
 ##
 # Overview

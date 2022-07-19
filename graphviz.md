@@ -141,7 +141,7 @@ Here are some common attributes:
             Set the label of:
 
                     - the node `node_a` to 'stuff'
-                    - the edge from `node_a` towards `node_b`, to 'action'
+                    - the edge from `node_a` toward `node_b`, to 'action'
 
             With the 1st line, we'll refer to the node with the id `node_a`.
             But in the graph, it will be named `bar`.

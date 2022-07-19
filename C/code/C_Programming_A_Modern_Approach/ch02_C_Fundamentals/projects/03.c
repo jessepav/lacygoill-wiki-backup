@@ -5,7 +5,8 @@
 
 #define PI 3.14159f
 
-int main(void)
+    int
+main(void)
 {
     float volume, radius;
 
@@ -14,6 +15,4 @@ int main(void)
 
     volume = (4.0f / 3.0f) * (PI * radius * radius * radius);
     printf("the volume of the sphere is %.1f cubic meters\n", volume);
-
-    return 0;
 }

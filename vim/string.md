@@ -1665,7 +1665,7 @@ Why only 9? Why `-4` and `-3`?
 
 #### `str2nr()` can also convert numbers from one base to another.  How is it different?  (2)
 
-   - `str2nr()` can only do 3 conversions, all towards decimal:
+   - `str2nr()` can only do 3 conversions, all toward decimal:
 
          " bin → dec
          echo str2nr('101010', 2)

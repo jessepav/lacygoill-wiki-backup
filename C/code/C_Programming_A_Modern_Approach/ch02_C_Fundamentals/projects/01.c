@@ -1,4 +1,4 @@
-// Purpose: use `printf()` to display the following picture on the screen:{{{
+// Purpose: use `printf()` to display the following diagram in the terminal: {{{
 //
 //            *
 //           *
@@ -11,7 +11,8 @@
 
 #include <stdio.h>
 
-int main(void)
+    int
+main(void)
 {
     printf("       *\n");
     printf("      *\n");
@@ -19,6 +20,4 @@ int main(void)
     printf("*   *\n");
     printf(" * *\n");
     printf("  *\n");
-
-    return 0;
 }

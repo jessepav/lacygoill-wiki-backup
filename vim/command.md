@@ -1123,7 +1123,7 @@ From `:help \%c`:
    > ...  The first column is 1.
 
 I don't  know whether  it's a  bug.  If  it is, I  doubt it  would be  fixed now
-because of backwards compatibility.
+because of backward compatibility.
 
 It's important you take this inconsistency into account.
 For example, if you want to capture the text before the cursor, usually, you would write:

@@ -11,7 +11,7 @@ Programs can backspace around the left edge.
 And a cub1 (move cursor 1 position to  the left) from the left edge will move to
 the right edge of the previous row.
 
-Mnemonic: BackWards
+Mnemonic: BackWard
 
 ### `ul`?
 

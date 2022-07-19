@@ -15,9 +15,9 @@ In this  message, he will tell  server A the message's  final destination (Jill)
 and its contents.
 Server A is aware  of the existence of Jill, although she's  not connected to it
 directly, and it knows that she's connected to server B.
-It therefore forwards — or RELAYS — the  message to server B, which in turn sees
-that the recipient is one of its own  clients and sends the message to Jill, who
-can then read it.
+It therefore forward  — or RELAYS —  the message to server B,  which in turn
+sees that the recipient is one of its own clients and sends the message to Jill,
+who can then read it.
 Server A also adds the identity of  the client sending it (Jack) before relaying
 it, so the recipient knows who it's from.
 

@@ -1574,7 +1574,7 @@ experiment that constantly works in the background, sorting molecules.
 Unix systems inherited this terminology.
 Maxwell's Demon is consistent with  Greek mythology's interpretation of a daemon
 as  a supernatural  being working  in the  background, with  no particular  bias
-towards good or evil.
+towars good or evil.
 
 After  the  term  was  adopted  for  computer use,  it  was  rationalized  as  a
 "backronym" for Disk And Execution MONitor.

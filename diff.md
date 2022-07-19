@@ -567,9 +567,8 @@ string to mark end of insert region
 
 ## Compatibility
 
-Some  options that  used  to  provide some  unique  functionality are  no
-longer  recommended,  but still  recognized  for  the sake  of  backwards
-compatibility.
+Some  options that  used  to provide  some unique  functionality  are no  longer
+recommended, but still recognized for the sake of backward compatibility.
 
         -K, --no-init-term
 
