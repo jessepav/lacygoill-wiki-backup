@@ -1,4 +1,4 @@
-// Purpose: computes the dimensional weight of a 12" x 10" x 8" box
+// Purpose: compute the dimensional weight of a 12" x 10" x 8" box
 // Reference: page 20 (paper) / 45 (ebook)
 
 // Definition: dimensional weight.{{{

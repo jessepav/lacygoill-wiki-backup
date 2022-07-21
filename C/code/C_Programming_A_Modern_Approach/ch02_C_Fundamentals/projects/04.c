@@ -1,4 +1,4 @@
-// Purpose: asks the user to enter a dollars-and-cents amount, then displays the
+// Purpose: ask the user to enter  a dollars-and-cents amount, then displays the
 // amount with 5% tax added
 // Reference: page 34 (paper) / 59 (ebook)
 

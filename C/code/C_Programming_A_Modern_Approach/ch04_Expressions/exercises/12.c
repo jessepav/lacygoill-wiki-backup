@@ -1,4 +1,4 @@
-// Purpose: evaluate various arithmetic expressions
+// Purpose: compute various arithmetic expressions
 // Reference: page 70 (paper) / 95 (ebook)
 
 #include <stdio.h>

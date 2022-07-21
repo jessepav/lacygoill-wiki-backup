@@ -26,7 +26,7 @@ Without `-lm`, `ld(1)` would complain:
 
     undefined reference to `fmod'
 
-That's because, `ld(1)`  doesn't know any implementation of  `fmod()`.
+That's because `ld(1)` doesn't know any implementation of `fmod()`.
 But you  can help it find  one with `-lm`, which  asks it to search  the library
 named `m` in the following way:
 

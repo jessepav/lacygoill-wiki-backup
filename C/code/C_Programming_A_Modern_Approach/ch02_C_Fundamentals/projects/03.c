@@ -10,6 +10,7 @@ main(void)
 {
     float volume, radius;
 
+    printf("radius of the sphere: ");
     // use `scanf()` to let the user input the radius interactively
     scanf("%f", &radius);
 

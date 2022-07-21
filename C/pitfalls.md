@@ -40,6 +40,18 @@ The point is: don't forget the `f` suffix to a `float` constant.
 If  you  don't,   it  will  be  assigned  a  random   value,  making  your  code
 unpredictable.
 
+## Which names should I avoid?
+
+Names which are reserved.
+
+This includes  any name starting  with an underscore  and followed by  either an
+uppercase letter, or another underscore.
+
+   > -- All identifiers that begin with an underscore and either an uppercase letter or another
+   >      underscore are always reserved for any use.
+
+For example, C99 provides the `_Bool` type.  Don't use this name in your code.
+
 #
 # Implementation-Defined Behavior
 ## `%` operator
@@ -56,8 +68,6 @@ part discarded.
    > When integers  are divided, the result  of the / operator  is the algebraic
    > quotient with any fractional part discarded.
 
-Source: <http://port70.net/~nsz/c/c99/n1256.txt>
-
 For example, the algebraic quotient of `9 / 4` is `2.25`.
 In `2.25`, the fractional part is `.25`; if we remove it, we get `2`.
 So, in C99, `I(9/4)` is `2`.
@@ -71,8 +81,6 @@ less than the algebraic quotient:
    > When integers are divided and the division is inexact, if both operands are
    > positive the result of the / operator  is the largest integer less than the
    > algebraic quotient
-
-Source: <http://port70.net/~nsz/c/c89/c89-draft.txt>
 
 The  wording  is  different,  but  the result  is  the  same: C89  discards  the
 fractional part.
@@ -500,7 +508,7 @@ wants  a *non*-whitespace.   To terminate  the call,  input some  non-whitespace
 
 ## Why `%i` should be avoided to read an integer in a `scanf()` format?
 
-    scanf("%i\n", &i);
+    scanf("%i", &i);
            ^^
 
 It  can give  unexpected results,  because it  can match  an integer  written in

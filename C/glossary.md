@@ -23,18 +23,8 @@ Can mean C89, C99, C11 or C17.
 # b
 ## block
 
-A special case of a compound statement, which contains a mix of declarations and
-regular statements.
+Synonym for compound statement.
 
-Example:
-```c
-    if (i > j) {
-        // swap values of i and j
-        int temp = i ;
-        i = j;
-        j = temp;
-    }
-```
 ## bounds-checker
 
 C doesn't  require array subscripts  to be  checked; a bounds-checker  adds this
@@ -118,8 +108,19 @@ They both yield the lvalue as it is after the assignment.
 
 Groups  several statements  into a  single statement  (by surrounding  them with
 curly  braces).   The compound  statement  is  commonly  used in  selection  and
-iteration statements.
+iteration statements, where the syntax only allows for 1 statement, but where we
+might need more.
 
+Example:
+```c
+    if (i > j)
+    {
+        // swap values of i and j
+        int temp = i ;
+        i = j;
+        j = temp;
+    }
+```
 ##
 ## constant
 
@@ -196,6 +197,53 @@ information located between `%` and `x`:
 
 ##
 # d
+## dangling else
+
+A nested `else` preceded by a simple (!= compound) statement.
+
+It's ambiguous because you might think that  such an `else` belongs to the outer
+`if`,  while  in  reality it  belongs  to  the  nested  one (especially  if  its
+indentation is wrong).
+
+The compiler can warn you against this pitfall:
+```c
+    #include <stdio.h>
+
+        int
+    main(void)
+    {
+        int i = 1, j = 2;
+        if (j != 0)
+            if (i != 0)
+                j = i / j;
+        else
+            printf("Error: j is equal to 0\n");
+    }
+```
+    error: suggest explicit braces to avoid ambiguous ‘else’ [-Werror=dangling-else]
+                                                                      ^-----------^
+
+Putting braces around the nested `if` might be necessary:
+```c
+    #include <stdio.h>
+
+        int
+    main(void)
+    {
+        int i = 1, j = 2;
+        if (j != 0)
+        {
+            if (i != 0)
+                j = i / j;
+        }
+     // ^
+     // terminate the nested `if` early so that the subsequent `else` belongs to the
+     // outer `if`
+        else
+            printf("Error: j is equal to 0\n");
+    }
+```
+
 ## directive
 
 Statement beginning with `#`, which will be obeyed by the preprocessor.
@@ -573,7 +621,7 @@ Because the `*` operator has a higher precedence than `+`.
 
 ---
 
-Here is the list of some operators in descending order of precedence:
+Here is a list of some operators in descending order of precedence:
 
     ┌───────────┬────────────────────────┬─────────────────────────┐
     │ Symbol(s) │ Name                   │ Associativity           │
@@ -585,6 +633,7 @@ Here is the list of some operators in descending order of precedence:
     │ --        │ Decrement prefix       │ Right                   │
     │ +         │ Unary plus             │ Right                   │
     │ -         │ Unary minus            │ Right                   │
+    │ !         │ Logical negation       │ Right                   │
     ├───────────┼────────────────────────┼─────────────────────────┤
     │ * / %     │ Multiplicative         │ Left                    │
     ├───────────┼────────────────────────┼─────────────────────────┤
@@ -620,7 +669,7 @@ will be grouped: their associativity.
 
 ### logical
 
-`&&` and `||`
+`!`, `&&`, and `||`
 
 ### relational
 

@@ -16,11 +16,12 @@ main(void)
     // incrementation is  performed *after*  the expression  is read  (hence why
     // `++` is written after the variable name).
 
+    int i;
     i = 123;
     printf("%d\n", i += 1);
     //     124
 
-    int i = 123;
+    i = 123;
     printf("%d\n", ++i);
     //     124
 

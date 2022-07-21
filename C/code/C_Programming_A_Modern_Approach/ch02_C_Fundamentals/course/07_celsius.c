@@ -1,4 +1,4 @@
-// Purpose: converts a Fahrenheit temperature into Celsius
+// Purpose: convert a Fahrenheit temperature into Celsius
 // Reference: page 24 (paper) / 49 (ebook)
 
 #include <stdio.h>

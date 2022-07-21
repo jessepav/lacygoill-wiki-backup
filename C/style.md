@@ -22,7 +22,8 @@ Don't put it on the same line as the function name:
 ```c
 int main(void)
 ```
-## the brace which starts a function's body?
+## the brace which starts
+### a function's body?
 
 On a line alone.
 
@@ -52,3 +53,7 @@ See: <https://softwareengineering.stackexchange.com/a/2786>
 
 This style is also followed by the Linux kernel:
 <https://www.kernel.org/doc/html/latest/process/coding-style.html?highlight=style#placing-braces-and-spaces>
+
+### a compound statement?
+
+On a line alone, to be consistent with a function's body.

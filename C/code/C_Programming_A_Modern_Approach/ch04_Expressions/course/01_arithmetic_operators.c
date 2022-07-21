@@ -1,5 +1,5 @@
 // Purpose: study arithmetic operators
-// GCC Options: -Wno-conversion{{{
+// GCC Options: -Wno-conversion {{{
 //
 // This is necessary to suppress an error on this line:
 //

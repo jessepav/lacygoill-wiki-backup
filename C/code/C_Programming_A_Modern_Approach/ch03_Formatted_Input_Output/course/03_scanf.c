@@ -7,7 +7,6 @@
 main(void)
 {
     int a, b;
-
     int i, j;
     float x, y;
 

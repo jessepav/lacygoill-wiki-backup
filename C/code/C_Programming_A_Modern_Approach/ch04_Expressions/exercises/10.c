@@ -1,4 +1,4 @@
-// Purpose: evaluate various arithmetic expressions
+// Purpose: compute various arithmetic expressions
 // GCC Options: -Wno-float-conversion -Wno-sequence-point
 // Reference: page 70 (paper) / 95 (ebook)
 

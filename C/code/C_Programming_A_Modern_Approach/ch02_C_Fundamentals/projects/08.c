@@ -1,4 +1,4 @@
-// Purpose: calculate the remaining balance on a loan after the 1st, 2nd, and 3rd monthly payments{{{
+// Purpose: compute the remaining balance on a loan after the 1st, 2nd, and 3rd monthly payments{{{
 //
 // Let the user input the:
 //

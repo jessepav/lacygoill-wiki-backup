@@ -1,4 +1,4 @@
-// Purpose: computes the dimensional weight of a box from input provided by the user
+// Purpose: compute the dimensional weight of a box from input provided by the user
 // Input: any set of 3 integers; e.g. 8, 12, 10
 // Output: 2 messages; one giving the actual volume, the other the dimensional weight:{{{
 //

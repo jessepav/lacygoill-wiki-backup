@@ -110,7 +110,7 @@ the display server.  You can use:
 A benefit of `keyd(1)` over `xkbcomp(1)` is that it works even in a VM.
 No need to transfer your custom keyboard layout from the guest to the host.
 That's because `xkbcomp(1)` only works at the display server level.
-Each  time  your keyboard  talk  to  a different  display  server,  you need  to
+Each  time your  keyboard  talks to  a  different display  server,  you need  to
 customize the latter; which is brittle and tiresome.
 
 `keyd(1)` is a lower-level tool; you only need to configure it once.
@@ -646,7 +646,9 @@ And this:
 
 ---
 
-IMO, writing an abbreviation or acronym in lowercase is confusing.  For example, `IDs` looks better than `ids`.  As a benefit, this makes it easier to understand that the trailing `s` is not part of the abbreviation, but just a plural suffix.
+IMO, writing an abbreviation or acronym in lowercase is confusing.  For example,
+`IDs` looks better than `ids`.  As a benefit, this makes it easier to understand
+that the trailing `s` is not part of the abbreviation, but just a plural suffix.
 
 ## doesn't work on the GRUB command-line in a VM
 

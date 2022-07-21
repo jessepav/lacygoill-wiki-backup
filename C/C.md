@@ -64,10 +64,10 @@ For compound statements, and directives.
 ##
 ## Which influence does the type of a numeric variable have?
 
-It determines the largest and smallest numbers that the variable can store.
+It determines the largest and smallest numbers that the variable can hold.
 It also determines whether or not digits are allowed after the decimal point.
 
-## What's the typical largest value that a variable of type `int` can store?
+## What's the typical largest value that a variable of type `int` can hold?
 
     2^31 − 1
 
@@ -212,7 +212,7 @@ While this will work in C99, *and* in C89:
 # Data Types
 ## When is the integer type not suitable for a numeric variable?  (2)
 
-When you need a  variable that can store a number with  digits after the decimal
+When you need  a variable that can  hold a number with digits  after the decimal
 point, or a number that is exceedingly large or small.
 
 ##
