@@ -1,61 +1,7 @@
-# Data Types
-## Why should I always append "f" to a constant with a decimal point if it's assigned to a `float` variable?
-
-An omission might cause a problematic coercion.
-
-                  not recommended, but OK
-                  v
-    float x = 12.34;
-    assert(x == 12.34);
-                    ^
-                    ✘
-
-In  the first  assignment, `12.34`  is converted  from an  implicit `double`  to
-`float`, to  match the type specification  on the LHS.  Then,  in the assertion,
-the  evaluation of  `x` is  converted  from `float`  to `double`  (to match  the
-`double` on the RHS of `==`), by adding a padding of 0's.  This padding will not
-match the  bits which  were discarded  in the previous  coercion.  So,  both the
-assertion and compilation fail.
-
-This would be better:
-
-                   v
-    float x = 12.34f;
-    assert(x == 12.34f);
-                     ^
-
----
-
-GCC will complain if you compile with `-Wfloat-equal`:
-
-    comparing floating point with == or != is unsafe [-Werror=float-equal]
-
-But that's a different issue.
-The point is: don't forget the `f` suffix to a `float` constant.
-
-##
-# Declarations
-## Why should I always initialize a variable?
-
-If  you  don't,   it  will  be  assigned  a  random   value,  making  your  code
-unpredictable.
-
-## Which names should I avoid?
-
-Names which are reserved.
-
-This includes  any name starting  with an underscore  and followed by  either an
-uppercase letter, or another underscore.
-
-   > -- All identifiers that begin with an underscore and either an uppercase letter or another
-   >      underscore are always reserved for any use.
-
-For example, C99 provides the `_Bool` type.  Don't use this name in your code.
-
-#
-# Implementation-Defined Behavior
-## `%` operator
-### How does it work?
+# Behavior
+## Implementation-Defined Behavior
+### `%` operator
+#### How does it work?
 
 `a % b` satisfies this equality:
 
@@ -94,8 +40,8 @@ OTOH, if at least one of `a` or `b` is negative, then C89 defines `I(a/b)` like 
 This means  that the implementation can  decide whether it rounds  the algebraic
 quotient up or down.
 
-### What's the name of this `%` operator
-#### in C?
+#### What's the name of this `%` operator
+##### in C?
 
 It's not named explicitly in the standard.
 
@@ -103,11 +49,11 @@ Although, the result of `a % b` has a name: the remainder.
 
    > the result of the % operator is the remainder
 
-#### in Python?
+##### in Python?
 
 It's the modulo operator.
 
-#### in other programming languages?
+##### in other programming languages?
 
 It depends on the language:
 <https://en.wikipedia.org/wiki/Modulo_operation#In_programming_languages>
@@ -117,8 +63,8 @@ It seems the 2 most popular algorithms are:
    - truncation (aka rounding toward 0)
    - rounding down
 
-###
-### I'm working on a different language than C.  How does `%` work over there?
+####
+#### I'm working on a different language than C.  How does `%` work over there?
 
 `a % b` probably satisfies the same equality as in C.  The issue is to determine
 how `a / b` is handled.  Different languages might use different definitions:
@@ -128,7 +74,7 @@ Make some test with  a negative operand.  If the result of  `a % b` has the same
 sign as  `a`, the fractional part  of `a / b` was probably  discarded during the
 computation; if it has the same sign as `b`, `a / b` was probably rounded down.
 
-### How should I test whether a number is odd?
+#### How should I test whether a number is odd?
 
 Like this:
 
@@ -142,9 +88,9 @@ The second  form is  only reliable  if you  have the  guarantee that  `a / b` is
 rounded down.  If  it's rounded toward 0, and `num`  is negative, then `num % 2`
 is -1, not 1.  The first form should work no matter what.
 
-##
-## What is the result of
-### `-8 /  5`
+###
+### What is the result of
+#### `-8 /  5`
 
 `-8 / 5` could evaluate to either `-1` (rounding up) or `-2` (rounding down).
 
@@ -156,11 +102,11 @@ that.
 
 OTOH, in C99, `-8 / 5` always evaluates to `-1` (fractional part discarded).
 
-###  `8 / -5`
+####  `8 / -5`
 
 It also contains a negative operand; so the result is the same as `-8 / 5`.
 
-### `-8 / -5`
+#### `-8 / -5`
 
 It contains 2 negative signs, which cancel out.
 Thus, the result is positive.
@@ -171,8 +117,8 @@ fractional part.
 
 So, in C89, the result can be `1` or `2`, while in C99 it's always `1`.
 
-###
-### `-8 %  5`
+####
+#### `-8 %  5`
 
 The C89 standard does not state what `a % b` is directly.
 However, whatever standard you're using, it  always gives you the guarantee that
@@ -211,7 +157,7 @@ So, `-8 % 5` is `-3` or `2`.
 OTOH, if your program follows C99 or above, `-8 % 5` is always `-3`.
 Remember C99 states that `a % b` always has the same sign as `a`.
 
-### ` 8 % -5`
+#### ` 8 % -5`
 
 If your program follows C89, then `-8 / 5` is `-1` or `-2`.
 If it's `-1`:
@@ -232,7 +178,7 @@ So, `8 % -5` is `3` or `-2`.
 
 OTOH, if your program follows C99 or above, `8 % -5` is always `3`.
 
-### `-8 % -5`
+#### `-8 % -5`
 
 If your program follows C89, then `-8 / -5` is `1` or `2`.
 If it's `1`:
@@ -253,17 +199,17 @@ So, `-8 % -5` is `-3` or `2`.
 
 OTOH, if your program follows C99 or above, `-8 % -5` is always `-3`.
 
-##
-# Undefined Behavior
-## In `(a + b) * (c - d)`, which subexpression is evaluated first:  `(a + b)` or `(c - d)`?
+###
+## Undefined Behavior
+### In `(a + b) * (c - d)`, which subexpression is evaluated first:  `(a + b)` or `(c - d)`?
 
 There is no way to know in the general case, because C doesn't define the order.
 
 The rules of  operator precedence and associativity only tell  us how operations
 are **grouped** in a C expression; they don't tell us how they are **ordered**.
 
-##
-## Why should I avoid writing an embedded assignment expression inside a larger expression?
+###
+### Why should I avoid writing an embedded assignment expression inside a larger expression?
 
 It might cause a UB.
 
@@ -327,7 +273,7 @@ The issue comes from the `b` assignment which causes a similar UB.
 It's possible that the execution of the two embedded assignments overlap at some
 point in time, which would explain the meaningless `b`.
 
-### What should I make sure of before using `++`/`--` inside a larger expression?
+#### What should I make sure of before using `++`/`--` inside a larger expression?
 
 The larger expression should not depend on a particular order of evaluation.  In
 particular, if you increment/decrement a variable  `i`, don't refer to that same
@@ -360,8 +306,8 @@ to and reads from the same variable.   The first `i` subexpression reads a value
 from the  `i` variable, while the  second `i++` subexpression writes  a value to
 that same `i` variable.
 
-##
-## When should I prefer a compound assignment operator over the simple `=`?
+###
+### When should I prefer a compound assignment operator over the simple `=`?
 
 When evaluating your lvalue has a side effect.
 
@@ -382,6 +328,61 @@ evaluated once:
     a[i++] += 2;
 
 ##
+# Data Types
+## Why should I always append "f" to a constant with a decimal point if it's assigned to a `float` variable?
+
+An omission might cause a problematic coercion.
+
+                  not recommended, but OK
+                  v
+    float x = 12.34;
+    assert(x == 12.34);
+                    ^
+                    ✘
+
+In  the first  assignment, `12.34`  is converted  from an  implicit `double`  to
+`float`, to  match the type specification  on the LHS.  Then,  in the assertion,
+the  evaluation of  `x` is  converted  from `float`  to `double`  (to match  the
+`double` on the RHS of `==`), by adding a padding of 0's.  This padding will not
+match the  bits which  were discarded  in the previous  coercion.  So,  both the
+assertion and compilation fail.
+
+This would be better:
+
+                   v
+    float x = 12.34f;
+    assert(x == 12.34f);
+                     ^
+
+---
+
+GCC will complain if you compile with `-Wfloat-equal`:
+
+    comparing floating point with == or != is unsafe [-Werror=float-equal]
+
+But that's a different issue.
+The point is: don't forget the `f` suffix to a `float` constant.
+
+##
+# Declarations
+## Why should I always initialize a variable?
+
+If  you  don't,   it  will  be  assigned  a  random   value,  making  your  code
+unpredictable.
+
+## Which names should I avoid?
+
+Names which are reserved.
+
+This includes  any name starting  with an underscore  and followed by  either an
+uppercase letter, or another underscore.
+
+   > -- All identifiers that begin with an underscore and either an uppercase letter or another
+   >      underscore are always reserved for any use.
+
+For example, C99 provides the `_Bool` type.  Don't use this name in your code.
+
+#
 # Expressions
 ## I want to test whether `j` is between `i` and `k`.  Why shouldn't I write `i < j < k`?
 
@@ -428,6 +429,71 @@ Instead, write this:
     i < j && j < k
 
 ##
+# Functions
+## `printf()`
+### Which subtle difference exists between `printf("%05d", n)` and `printf("%.5d", n)`?
+
+They don't print a negative integer in the same way:
+```c
+    #include <stdio.h>
+        int
+    main(void)
+    {
+        int n = -123;
+        printf("%%05d:  %05d\n", n);
+        printf("%%.5d: %.5d\n", n);
+    }
+```
+    %05d:  -0123
+    %.5d: -00123
+
+That's because, `%05d` says:
+
+   > I want 5 **characters**; if you don't have enough, pad the number with 0s
+
+While, `%.5d` says:
+
+   > I want 5 **digits**; if you don't have enough, pad the number with 0s
+
+And the negative sign *is* a character, but not a digit.
+
+###
+## `scanf()`
+### I'm calling `scanf()`.  It doesn't return after I press Enter!
+
+Make sure you didn't write a trailing whitespace at the end of the format:
+
+    scanf("%d\n", &i);
+             ^^
+             ✘
+
+    scanf("%d\t", &i);
+             ^^
+             ✘
+
+    scanf("%d ", &i);
+             ^
+             ✘
+
+Such a trailing whitespace causes `scanf()` to look for a non-whitespace.
+When you press Enter, you produce a newline which is a whitespace; but `scanf()`
+wants  a *non*-whitespace.   To terminate  the call,  input some  non-whitespace
+(e.g. `x`).  Then, fix your format.
+
+### Why `%i` should be avoided to read an integer in a `scanf()` format?
+
+    scanf("%i", &i);
+           ^^
+
+It  can give  unexpected results,  because it  can match  an integer  written in
+decimal, hexadecimal, or octal, depending on how the input number starts.
+
+For example, the input `0123` reads the decimal number `83`.
+And the input `0x123` reads the decimal number `291`.
+
+Prefer `%d`.
+
+##
 # Macros
 ## If an expression used to define a macro contains an operator, why should I wrap it inside parentheses?
 
@@ -456,66 +522,46 @@ That's not what you wanted.  You wanted this:
     conversion_factor = 360 / (2 * 3.14159)
 
 ##
-# `printf()`
-## Which subtle difference exists between `printf("%05d", n)` and `printf("%.5d", n)`?
+# Statements
+## What's the difference between `for (;;)` and `while (1)`?
 
-They don't print a negative integer in the same way:
-```c
-    #include <stdio.h>
-        int
-    main(void)
-    {
-        int n = -123;
-        printf("%%05d:  %05d\n", n);
-        printf("%%.5d: %.5d\n", n);
-    }
-```
-    %05d:  -0123
-    %.5d: -00123
+There should be no  difference: they both start an infinite  loop (whose body is
+responsible for breaking out of via a `break` or `return` statement).
 
-That's because, `%05d` says:
-
-   > I want 5 **characters**; if you don't have enough, pad the number with 0s
-
-While, `%.5d` says:
-
-   > I want 5 **digits**; if you don't have enough, pad the number with 0s
-
-And the negative sign *is* a character, but not a digit.
+Some programmers prefer `for (;;)` because it  might be more efficient with some
+(very?)  old compilers,  which needlessly  test  the `1`  condition before  each
+iteration.
 
 ##
-# `scanf()`
-## I'm calling `scanf()`.  It doesn't return after I press Enter!
+## Why should I use the `goto` statement sparingly?
 
-Make sure you didn't write a trailing whitespace at the end of the format:
+It can make the code harder to understand and modify.
 
-    scanf("%d\n", &i);
-             ^^
-             ✘
+It gets harder to read because `goto`  can jump in either direction: backward or
+forward (in contrast,  `break` and `continue` can only jump  forward).  This can
+force the  reader to jump back  and forth when  reading the code, which  is less
+natural than always reading forward.
 
-    scanf("%d\t", &i);
-             ^^
-             ✘
+It gets harder to  modify because it makes it possible for a  section of code to
+be reached in different ways: by  "falling through" from the previous statement,
+or by executing some `goto`(s) which  could be written anywhere in the function.
+Before changing the  code below a label  (which a `goto` jumps  to), you'll have
+to:
 
-    scanf("%d ", &i);
-             ^
-             ✘
+   - look for all the other `goto`s which can jump to it
+   - make sure that the change is OK for all these `goto`s
+   - make sure that the change is OK with the code above (for when control
+     simply "falls through" the previous statement)
 
-Such a trailing whitespace causes `scanf()` to look for a non-whitespace.
-When you press Enter, you produce a newline which is a whitespace; but `scanf()`
-wants  a *non*-whitespace.   To terminate  the call,  input some  non-whitespace
-(e.g. `x`).  Then, fix your format.
+---
 
-## Why `%i` should be avoided to read an integer in a `scanf()` format?
+A code which  gets too difficult to read/maintain because  of an excessive usage
+of `goto`s  is often called  "spaghetti code", because  its control flow  can be
+compared with a bowl of spaghetti: twisted and tangled.
 
-    scanf("%i", &i);
-           ^^
+### When is it OK to use `goto`?
 
-It  can give  unexpected results,  because it  can match  an integer  written in
-decimal, hexadecimal, or octal, depending on how the input number starts.
-
-For example, the input `0123` reads the decimal number `83`.
-And the input `0x123` reads the decimal number `291`.
-
-Prefer `%d`.
+To break  out of  a nested construct  (e.g. a  nested loop, or  a loop  inside a
+`switch`).  In that  case, `break` is not  enough; it can only break  out of the
+innermost construct.
 

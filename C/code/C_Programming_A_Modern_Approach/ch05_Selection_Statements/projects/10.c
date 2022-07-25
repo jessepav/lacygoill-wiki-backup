@@ -55,4 +55,6 @@ main(void)
             printf("Letter grade: F\n");
             break;
     }
+
+    return 0;
 }

@@ -1,5 +1,6 @@
 // Purpose: ask the user to enter a value for `x`, then display the value of:
 //     3x⁵ + 2x⁴ - 5x³ - x² + 7x - 6
+
 // Reference: page 34 (paper) / 59 (ebook)
 
 #include <stdio.h>
@@ -19,4 +20,6 @@ main(void)
            + 7 * x
            - 6;
     printf("3x⁵ + 2x⁴ - 5x³ - x² + 7x - 6 = %.2f\n", result);
+
+    return 0;
 }

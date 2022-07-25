@@ -6,6 +6,26 @@
     int
 main(void)
 {
+// Syntax of a `switch` statement:{{{
+//
+//     switch (controlling-expression)
+//     {
+//         case label-constant-expression:
+//             statement;
+//             statement;
+//             ...
+//         case label-constant-expression:
+//             statement;
+//             statement;
+//             ...
+//         ...
+//         default:
+//             statement;
+//             statement;
+//             ...
+//     }
+//}}}
+
     int grade = 4;
 
     // To compare an expression against a  series of values, and act differently
@@ -27,28 +47,8 @@ main(void)
     //}}}
 
     // But  a `switch`  statement is  easier to  read, and  more efficient  (its
-    // controlling expression is evaluated only once).
-    // Its syntax is:{{{
-    //
-    //     switch (controlling-expression)
-    //     {
-    //         case label-constant-expression:
-    //             statement;
-    //             statement;
-    //             ...
-    //         case label-constant-expression:
-    //             statement;
-    //             statement;
-    //             ...
-    //         ...
-    //         default:
-    //             statement;
-    //             statement;
-    //             ...
-    //     }
-    //}}}
-    // If one of the case labels matches `grade`, control will jump to that case
-    // label.
+    // controlling  expression is  evaluated only  once).   If one  of the  case
+    // labels matches `grade`, control will jump to that case label.
     switch (grade)
     {
         case 4:
@@ -74,7 +74,7 @@ main(void)
             //    - jump to the location of the first label for which a match
             //      is found
             //
-            // As a result, the case  labels are matched against the controlling
+            // Consequently, the case labels are matched against the controlling
             // expression only once.  Afterward, they  are ignored.  So, even if
             // `grade` did not match `3`, its statements would be still executed
             // if we forgot to put a `break` before.
@@ -193,4 +193,6 @@ main(void)
     //     }
     //     error: case label does not reduce to an integer constant˜
     //}}}
+
+    return 0;
 }

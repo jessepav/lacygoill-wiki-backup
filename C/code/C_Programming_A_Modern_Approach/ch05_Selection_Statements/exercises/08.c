@@ -34,4 +34,6 @@ main(void)
     teenager = age >= 13 && age <= 19;
     printf("%d\n", teenager);
     //     1
+
+    return 0;
 }

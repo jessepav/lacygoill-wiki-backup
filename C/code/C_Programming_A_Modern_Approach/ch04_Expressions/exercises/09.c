@@ -34,4 +34,6 @@ main(void)
     i *= j *= k;
     printf("%d %d %d\n", i, j, k);
     //     0 0 0
+
+    return 0;
 }

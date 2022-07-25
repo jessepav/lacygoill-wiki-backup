@@ -16,17 +16,21 @@
     int
 main(void)
 {
-    int num, digits_count;
+    int n, digits_count;
+
     printf("Enter a number: ");
-    scanf("%4d", &num);
-    if (num < 10)
+    scanf("%4d", &n);
+
+    if (n < 10)
         digits_count = 1;
-    else if (num < 100)
+    else if (n < 100)
         digits_count = 2;
-    else if (num < 1000)
+    else if (n < 1000)
         digits_count = 3;
     else
         digits_count = 4;
 
-    printf("The number %d has %d digits\n", num, digits_count);
+    printf("The number %d has %d digits\n", n, digits_count);
+
+    return 0;
 }

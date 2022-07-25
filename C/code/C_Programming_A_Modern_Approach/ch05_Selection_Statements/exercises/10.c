@@ -21,4 +21,6 @@ main(void)
     // "one".  But  there is  no `break` statement  right afterward,  so control
     // falls through to the first statement of the next case which prints "two".
     //}}}
+
+    return 0;
 }

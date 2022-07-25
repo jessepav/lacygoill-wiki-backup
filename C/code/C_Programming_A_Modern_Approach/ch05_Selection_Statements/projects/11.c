@@ -32,6 +32,30 @@ main(void)
               {
                   case 0:
                       printf("ten\n");
+                      // We could also use `break`.{{{
+                      //
+                      // But then we would need to wrap the next `switch` inside
+                      // an `if` statement which asserts that the first digit is
+                      // not 1.  Otherwise, `12` would cause this to be printed:
+                      //
+                      //     You entered the number twelve
+                      //     -two
+                      //     ^--^
+                      //     not expected
+                      //
+                      // We could also move the `if` just before the next `switch`:
+                      //
+                      //     if (digit1 == 1)
+                      //         return 0;
+                      //
+                      // But that would no longer work  if we needed to add more
+                      // code at the end of the  function, and that code is also
+                      // meant to be executed when the first digit is 1.
+                      //
+                      // In any case, using `return`  instead of `break` here is
+                      // useful to remind  us that `break` is not  the only jump
+                      // statement we can use.
+                      //}}}
                       return 0;
                   case 1:
                       printf("eleven\n");
@@ -126,4 +150,6 @@ main(void)
         default:
             break;
     }
+
+    return 0;
 }

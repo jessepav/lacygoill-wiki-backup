@@ -84,4 +84,6 @@ main(void)
     //
     //    - for `0 51500 24128`, the check digit should be 8
     //    - for `0 31200 01005`, the check digit should be 6
+
+    return 0;
 }

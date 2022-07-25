@@ -32,4 +32,6 @@ main(void)
 
     // A: Yes, they are equivalent.
     // They print the same grade no matter the score.
+
+    return 0;
 }

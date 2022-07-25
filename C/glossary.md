@@ -159,6 +159,14 @@ occurrences of the value, and avoid:
 <https://stackoverflow.com/questions/47882/what-is-a-magic-number-and-why-is-it-bad#comment3030262_47902>
 
 ##
+## controlling expression
+
+Expression evaluated by a control flow statement.
+
+For example, it  can be an expression  tested by a `switch`  statement to decide
+where control  should jump.  Or an  expression evaluated by a  `for`, `while` or
+`do` loop, to decide whether it should run its next iteration.
+
 ## conversion specification
 
 `%x` token which can be included inside a format string passed to
@@ -314,6 +322,10 @@ First string argument passed to `printf()` or `scanf()`.
 It controls how  `printf()` formats printed text, and how  `scanf()` reads input
 text.
 
+## function prototype
+
+Declaration of a function that declares the types of its parameters.
+
 ##
 # h
 ## header
@@ -461,6 +473,24 @@ The C99 standard adds 5 new keywords to this list:
 
 ##
 # l
+## label
+
+Identifier placed at the beginning of a statement:
+
+    identifier: statement;
+    ^--------^
+
+A statement might have more than 1 label:
+
+    foo: bar: statement;
+    ^^^^ ^^^^
+
+You can use a label name in a  `goto` statement to jump right below the location
+of that label:
+
+    goto foo;
+         ^^^
+
 ## leak-finder
 
 A leak-finder helps locate memory leaks.
@@ -581,7 +611,7 @@ Because the rightmost operation is the last one.
 ---
 
 Real  examples of  left-associative operators  are: `*`,  `/`, `%`,  `+` (binary
-version), `-` (binary version).  As a result:
+version), `-` (binary version).  Consequently:
 
       i - j - k
     ⇔
@@ -592,7 +622,7 @@ version), `-` (binary version).  As a result:
       (i * j) / k
 
 Examples of  right-associative operators  are: `+`  (unary version),  `-` (unary
-version).  As a result:
+version).  Consequently:
 
       - + i
     ⇔
@@ -651,6 +681,8 @@ Here is a list of some operators in descending order of precedence:
     ├───────────┼────────────────────────┼─────────────────────────┤
     │ =  *= /=  │ Assignment             │ Right                   │
     │ %= += -=  │                        │                         │
+    ├───────────┼────────────────────────┼─────────────────────────┤
+    │ ,         │ Comma                  │ Left                    │
     └───────────┴────────────────────────┴─────────────────────────┘
 
 Operators in the same cell have the same precedence.
@@ -708,6 +740,25 @@ variable, a constant, or a more complex expression.
 
 ##
 # s
+## scope
+
+Region of program text within which an identifier is visible (i.e. can be used).
+
+There are four kinds of scopes:
+
+   - block
+   - function
+   - function prototype
+   - file
+
+For  the same  identifier to  designate different  entities, it  must either  be
+written  in different  scopes (e.g.  block vs  function), or  in different  name
+spaces (e.g. 2 different files).
+
+The scope of an identifier is determined by the placement of its declaration.
+Except  a label  name, which  always has  function scope,  no matter  where it's
+declared.
+
 ## selection statement
 
 A statement which selects a code path out of several possibilities, like `if` or

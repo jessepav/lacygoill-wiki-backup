@@ -80,4 +80,6 @@ main(void)
     //
     //     error: lvalue required as left operand of assignment
     //}}}
+
+    return 0;
 }

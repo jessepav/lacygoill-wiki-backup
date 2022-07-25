@@ -29,4 +29,6 @@ main(void)
     // evaluates to the  third operand, which is `-i`, which  is `-(-17)`, which
     // is 17.
     //}}}
+
+    return 0;
 }

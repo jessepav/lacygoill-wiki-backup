@@ -51,4 +51,6 @@ main(void)
 
     check_digit = 9 - (even_indexed_sum * 3 + odd_indexed_sum - 1) % 10;
     printf("Check digit: %d\n", check_digit);
+
+    return 0;
 }

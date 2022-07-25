@@ -102,4 +102,6 @@ main(void)
     //     printf("%d\n", height * length * width);
     //                    ^---------------------^
     //}}}
+
+    return 0;
 }

@@ -41,12 +41,12 @@
     int
 main(void)
 {
-    int hours, minutes, time_in_minutes,
+    int hours, minutes, t,
         t1, t2, t3, t4, t5, t6, t7, t8;
 
     printf("Enter a 24-hour time: ");
-    scanf("%d:%d", &hours, &minutes);
-    time_in_minutes = hours * 60 + minutes;
+    scanf("%d :%d", &hours, &minutes);
+    t = hours * 60 + minutes;
 
     t1 = 8 * 60;
     t2 = 9 * 60 + 43;
@@ -57,20 +57,77 @@ main(void)
     t7 = 19 * 60;
     t8 = 21 * 60 + 45;
 
-    if (time_in_minutes < t1 + (t2 - t1) / 2)
-        printf("Closest departure time is 8:00 a.m., arriving at 10:16 a.m.\n");
-    else if (time_in_minutes < t2 + (t3 - t2) / 2)
-        printf("Closest departure time is 9:43 a.m., arriving at 11:52 a.m.\n");
-    else if (time_in_minutes < t3 + (t4 - t3) / 2)
-        printf("Closest departure time is 11:19 a.m., arriving at 1:31 p.m.\n");
-    else if (time_in_minutes < t4 + (t5 - t4) / 2)
-        printf("Closest departure time is 12:47 p.m., arriving at 3:00 p.m.\n");
-    else if (time_in_minutes < t5 + (t6 - t5) / 2)
-        printf("Closest departure time is 2:00 p.m., arriving at 4:08 p.m.\n");
-    else if (time_in_minutes < t6 + (t7 - t6) / 2)
-        printf("Closest departure time is 3:45 p.m., arriving at 5:55 p.m.\n");
-    else if (time_in_minutes < t7 + (t8 - t7) / 2)
-        printf("Closest departure time is 7:00 p.m., arriving at 9:20 p.m.\n");
-    else
-        printf("Closest departure time is 9:45 p.m., arriving at 11:58 p.m.\n");
+    if (t1 <= t && t < t2)
+    {
+        if (t - t1 < t2 - t)
+            printf("Closest departure time is 8:00 a.m., arriving at 10:16 a.m.\n");
+        else
+            printf("Closest departure time is 9:43 a.m., arriving at 11:52 a.m.\n");
+    }
+
+    else if (t2 <= t && t < t3)
+    {
+        if (t - t2 < t3 - t)
+            printf("Closest departure time is 9:43 a.m., arriving at 11:52 a.m.\n");
+        else
+            printf("Closest departure time is 11:19 a.m., arriving at 1:31 p.m.\n");
+    }
+
+    else if (t3 <= t && t < t4)
+    {
+        if (t - t3 < t4 - t)
+            printf("Closest departure time is 11:19 a.m., arriving at 1:31 p.m.\n");
+        else
+            printf("Closest departure time is 12:47 p.m., arriving at 3:00 p.m.\n");
+    }
+
+    else if (t4 <= t && t < t5)
+    {
+        if (t - t4 < t5 - t)
+            printf("Closest departure time is 12:47 p.m., arriving at 3:00 p.m.\n");
+        else
+            printf("Closest departure time is 2:00 p.m., arriving at 4:08 p.m.\n");
+    }
+
+    else if (t5 <= t && t < t6)
+    {
+        if (t - t5 < t6 - t)
+            printf("Closest departure time is 2:00 p.m., arriving at 4:08 p.m.\n");
+        else
+            printf("Closest departure time is 3:45 p.m., arriving at 5:55 p.m.\n");
+    }
+
+    else if (t6 <= t && t < t7)
+    {
+        if (t - t6 < t7 - t)
+            printf("Closest departure time is 3:45 p.m., arriving at 5:55 p.m.\n");
+        else
+            printf("Closest departure time is 7:00 p.m., arriving at 9:20 p.m.\n");
+    }
+
+    else if (t7 <= t && t < t8)
+    {
+        if (t - t7 < t8 - t)
+            printf("Closest departure time is 7:00 p.m., arriving at 9:20 p.m.\n");
+        else
+            printf("Closest departure time is 9:45 p.m., arriving at 11:58 p.m.\n");
+    }
+
+    else if (t8 <= t)
+    {
+        if (t - t8 < t1 + (24 * 60 - t))
+            printf("Closest departure time is 9:45 p.m., arriving at 11:58 p.m.\n");
+        else
+            printf("Closest departure time is 8:00 a.m., arriving at 10:16 a.m.\n");
+    }
+
+    else if (t < t1)
+    {
+        if (t + (24 * 60 - t8) < t1 - t)
+            printf("Closest departure time is 9:45 p.m., arriving at 11:58 p.m.\n");
+        else
+            printf("Closest departure time is 8:00 a.m., arriving at 10:16 a.m.\n");
+    }
+
+    return 0;
 }

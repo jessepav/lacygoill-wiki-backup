@@ -28,4 +28,6 @@ main(void)
 
     printf("\nVolume (cubic inches): %d\n", volume);
     printf("Dimensional weight (pounds): %d\n", weight);
+
+    return 0;
 }

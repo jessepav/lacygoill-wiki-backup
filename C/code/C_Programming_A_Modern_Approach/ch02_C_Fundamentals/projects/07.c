@@ -1,5 +1,6 @@
 // Purpose: show how to pay a  user-inputted amount using the smallest number of
 // $20, $10, $5, and $1 bills
+
 // Reference: page 34 (paper) / 59 (ebook)
 
 #include <stdio.h>
@@ -53,4 +54,6 @@ main(void)
     printf("$10 bills: %d\n", ten_bills);
     printf(" $5 bills: %d\n", five_bills);
     printf(" $1 bills: %d\n", one_bills);
+
+    return 0;
 }

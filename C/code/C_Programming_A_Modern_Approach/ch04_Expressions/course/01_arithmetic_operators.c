@@ -58,4 +58,6 @@ main(void)
     //             v     v
     printf("%d\n", (i + j) * k);
     //     9
+
+    return 0;
 }

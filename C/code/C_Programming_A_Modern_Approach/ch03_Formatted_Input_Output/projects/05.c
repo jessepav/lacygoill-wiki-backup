@@ -62,4 +62,6 @@ main(void)
     // The magic  square in the current  example appears in a  1514 engraving by
     // artist and mathematician  Albrecht Dürer.  Notice that  the date appears
     // in the middle of the last row.
+
+    return 0;
 }

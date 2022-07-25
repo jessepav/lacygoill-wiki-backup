@@ -55,4 +55,6 @@ main(void)
         max = max2;
 
     printf("Largest: %d\nSmallest: %d\n", max, min);
+
+    return 0;
 }

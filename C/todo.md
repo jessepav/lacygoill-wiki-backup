@@ -44,7 +44,7 @@ specified precisely by name.  For more info:
 
 ## `pow()`
 
-There is no exponentiation operator.   Use `pow()` instead:
+There is no exponentiation operator.  Use `pow()` instead:
 ```c
     #include <stdio.h>
     #include <math.h>

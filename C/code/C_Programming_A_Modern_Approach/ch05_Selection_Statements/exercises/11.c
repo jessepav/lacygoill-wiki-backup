@@ -60,4 +60,6 @@ main(void)
             printf("Area code not recognized\n");
     }
     //     Atlanta
+
+    return 0;
 }

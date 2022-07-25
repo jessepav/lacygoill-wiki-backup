@@ -1,10 +1,12 @@
 // Purpose: compute the remaining balance on a loan after the 1st, 2nd, and 3rd monthly payments{{{
 //
-// Let the user input the:
+//     Enter amount of loan: <20000.00>
+//     Enter interest rate: <6.0>
+//     Enter monthly payment: <386.66>
 //
-//    - amount of the loan
-//    - yearly interest rate
-//    - monthly payment
+//     Balance remaining after first payment: $<19713.34>
+//     Balance remaining after second payment: $<19425.25>
+//     Balance remaining after third payment: $<19135.71>
 //
 // ---
 //
@@ -18,7 +20,7 @@
 //
 // Display each balance with 2 digits after the decimal point.
 //}}}
-// Reference: page 34 (paper) / 59 (ebook)
+// Reference: page 35 (paper) / 60 (ebook)
 
 #include <stdio.h>
 
@@ -65,4 +67,6 @@ main(void)
 
     loan = loan * rate - payment;
     printf("Balance remaining after third payment: $%.2f\n", loan);
+
+    return 0;
 }

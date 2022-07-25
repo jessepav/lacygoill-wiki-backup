@@ -6,14 +6,16 @@
     int
 main(void)
 {
-    int num, digit1, digit2, digit3;
+    int n, digit1, digit2, digit3;
 
     printf("Enter a three-digit number: ");
-    scanf("%d", &num);
-    digit3 = num % 10;
-    num /= 10;
-    digit2 = num % 10;
-    num /= 10;
-    digit1 = num % 10;
+    scanf("%d", &n);
+    digit3 = n % 10;
+    n /= 10;
+    digit2 = n % 10;
+    n /= 10;
+    digit1 = n % 10;
     printf("The reversal is: %d%d%d\n", digit3, digit2, digit1);
+
+    return 0;
 }

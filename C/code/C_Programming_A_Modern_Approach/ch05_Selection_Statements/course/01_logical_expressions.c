@@ -125,4 +125,6 @@ main(void)
     // `float`, the result is a `float`.
     printf("%f\n", i > 0 ? i : f);
     //     1.000000
+
+    return 0;
 }

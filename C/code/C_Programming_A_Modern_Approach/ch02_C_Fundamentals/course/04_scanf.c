@@ -28,4 +28,6 @@ main(void)
     scanf("%f", &x);
 
     printf("you chose the integer %d and the float %f\n", i, x);
+
+    return 0;
 }

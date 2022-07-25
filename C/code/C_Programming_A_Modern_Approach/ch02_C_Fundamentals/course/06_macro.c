@@ -35,4 +35,6 @@
 main(void)
 {
     printf("%f", RECIPROCAL_OF_PI);
+
+    return 0;
 }

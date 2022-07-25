@@ -73,4 +73,6 @@ main(void)
     printf(", 20%02d.\n", year);
     //           ^^
     //           make sure to correctly display a single-digit year
+
+    return 0;
 }

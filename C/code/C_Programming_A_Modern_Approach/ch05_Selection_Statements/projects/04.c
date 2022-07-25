@@ -1,5 +1,7 @@
-// Purpose: Here's a simplified version of the Beaufort scale, which is used to estimate wind force:
-// Table:{{{
+// Purpose: Ask the user to enter a wind speed (in knots), then display the corresponding description.{{{
+//
+// Use this simplified version of the  Beaufort scale, which is used to estimate
+// wind force:
 //
 //     ┌───────────────┬─────────────┐
 //     │ Speed (knots) │ Description │
@@ -17,9 +19,6 @@
 //     │ Above 63      │ Hurricane   │
 //     └───────────────┴─────────────┘
 //}}}
-// Write a  program that asks the  user to enter  a wind speed (in  knots), then
-// displays the corresponding description.
-
 // Reference: page 96 (paper) / 121 (ebook)
 
 #include <stdio.h>
@@ -28,8 +27,10 @@
 main(void)
 {
     int speed;
+
     printf("Enter a wind speed (in knots): ");
     scanf("%d", &speed);
+
     if (speed < 1)
         printf("Calm\n");
     else if (speed <= 3)
@@ -42,4 +43,6 @@ main(void)
         printf("Storm\n");
     else
         printf("Hurricane\n");
+
+    return 0;
 }

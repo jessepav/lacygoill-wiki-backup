@@ -259,7 +259,7 @@ numbers  can  be, while  the  number  of bits  in  the  fraction determines  the
 precision.
 In single-precision  format, the  exponent is  8 bits  long, while  the fraction
 occupies 23 bits.
-As a  result, a  single-precision number  has a  maximum value  of approximately
+Consequently, a  single-precision number  has a  maximum value  of approximately
 `3.40 x 10^38`, with a precision of about 6 decimal digits.
 
 ####

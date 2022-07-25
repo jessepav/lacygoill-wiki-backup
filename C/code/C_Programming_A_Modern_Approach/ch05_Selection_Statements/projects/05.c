@@ -1,5 +1,7 @@
-// Purpose: In one state, single residents are subject to the following income tax:
-// Table:{{{
+// Purpose: Ask the user to enter the amount of taxable income, then display the tax due.{{{
+//
+// Use this table as reference:
+//
 //     ┌───────────────┬────────────────────────────────────┐
 //     │ Income        │ Amount of tax                      │
 //     ├───────────────┼────────────────────────────────────┤
@@ -16,8 +18,6 @@
 //     │ Over $7,000   │ $230.00 + 6% of amount over $7,000 │
 //     └───────────────┴────────────────────────────────────┘
 //}}}
-// Write a  program that asks  the user to enter  the amount of  taxable income,
-// then displays the tax due.
 // Reference: page 96 (paper) / 121 (ebook)
 
 #include <stdio.h>
@@ -44,4 +44,6 @@ main(void)
         tax = 230.00f + 0.06f * (income - 7000.00f);
 
     printf("Tax due: %.2f\n", tax);
+
+    return 0;
 }

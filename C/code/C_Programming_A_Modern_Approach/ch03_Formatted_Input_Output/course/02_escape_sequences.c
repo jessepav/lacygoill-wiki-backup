@@ -22,4 +22,6 @@ main(void)
     // an embedded percent must be doubled
     printf("a%%b\n");
     //     a%b
+
+    return 0;
 }

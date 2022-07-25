@@ -1,3 +1,8 @@
+Configuration {{{1
+log output in given file           set logging on
+disable built-in pager             set pagination on
+# useful to avoid hit-enter prompt
+
 Stepping through {{{1
 add breakpoint on main function    break *main
 
@@ -27,6 +32,10 @@ inspect value of given register    x/s $rax
 # `/s` is a format which prints the value as a string
 
 print disassembly of main function disassemble main
+
+apply given command to all threads thread apply all
+print full backtrace               bt full
+# can be prefixed with `thread apply all`
 
 Miscellaneous {{{1
 enable tui                         tui enable

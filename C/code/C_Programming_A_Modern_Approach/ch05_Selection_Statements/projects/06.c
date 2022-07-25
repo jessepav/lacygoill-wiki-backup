@@ -1,5 +1,6 @@
 // Purpose: Modify the `UPC.c` program so that it checks whether a UPC is valid.
 // After the user enters a UPC, the program should display either VALID or NOT VALID.
+
 // Reference: page 96 (paper) / 121 (ebook)
 
 #include <stdio.h>
@@ -30,4 +31,6 @@ main(void)
         printf("VALID\n");
     else
         printf("NOT VALID\n");
+
+    return 0;
 }

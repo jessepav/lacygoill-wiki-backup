@@ -84,4 +84,6 @@ main(void)
     // The expression  is now fully parenthesized,  and we know exactly  how all
     // operations are grouped.
     //}}}
+
+    return 0;
 }

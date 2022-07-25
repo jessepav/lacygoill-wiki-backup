@@ -18,11 +18,13 @@
     int
 main(void)
 {
-    int num, digit1, digit2;
+    int n, digit1, digit2;
 
     printf("Enter a two-digit number: ");
-    scanf("%d", &num);
-    digit1 = num / 10;
-    digit2 = num % 10;
+    scanf("%d", &n);
+    digit1 = n / 10;
+    digit2 = n % 10;
     printf("The reversal is: %d%d\n", digit2, digit1);
+
+    return 0;
 }

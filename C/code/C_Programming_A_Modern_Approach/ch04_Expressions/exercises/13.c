@@ -1,5 +1,6 @@
 // Purpose: Only one of the expressions `++i` and `i++` is exactly the same as `(i += 1);`.
 // Which is it?  Justify your answer.
+
 // Reference: page 70 (paper) / 95 (ebook)
 
 #include <stdio.h>
@@ -28,4 +29,6 @@ main(void)
     i = 123;
     printf("%d\n", i++);
     //     123
+
+    return 0;
 }

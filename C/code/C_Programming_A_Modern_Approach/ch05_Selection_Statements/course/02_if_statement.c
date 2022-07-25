@@ -6,19 +6,19 @@
     int
 main(void)
 {
+// Syntax of an `if` statement:{{{
+//
+//                        not part of `statement`, but needed to indicate where `if` ends
+//                        v
+//     if (expr) statement;
+//        ^    ^
+//        part of the if statement (not part of `expr`)
+//}}}
+
     int i, j, k, n, max;
 
     i = 1;
     n = 2;
-
-    // Simplest syntax of an `if` statement:{{{
-    //
-    //                        not part of "statement", but needed to indicate where `if` ends
-    //                        v
-    //     if (expr) statement;
-    //        ^    ^
-    //        part of the if statement (not part of "expr")
-    //}}}
 
     // If we want an `if` statement to  control 2 statements or more, we need to
     // group them via  a compound statement, which the compiler  will treat as a
@@ -112,4 +112,6 @@ main(void)
     else
         printf("n is greater than 0\n");
     //     n is greater than 0
+
+    return 0;
 }

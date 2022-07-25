@@ -33,4 +33,6 @@ main(void)
     printf("Celsius equivalent: %.1f\n", celsius);
     //                           ^^
     //                           we only want 1 digit after the decimal point
+
+    return 0;
 }

@@ -120,7 +120,7 @@ main(void)
     //      back by the previous `scanf()`),  but it doesn't match  the start
     //      of  the `%d%d%f%f` format,  which is `%d`
     //}}}
-    scanf("%d/%d", &a, &b);
+    scanf("%d /%d", &a, &b);
     printf("a = %d, b = %d\n", a, b);
 
 
@@ -160,4 +160,6 @@ main(void)
     //     1-20.3-4.0e3
     //           ^
     //}}}
+
+    return 0;
 }

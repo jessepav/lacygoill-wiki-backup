@@ -10,7 +10,7 @@
 // Subtract the remainder from 10.
 //
 // Q: Why doesn't this work?
-//
+
 // Reference: page 69 (paper) / 94 (ebook)
 
 

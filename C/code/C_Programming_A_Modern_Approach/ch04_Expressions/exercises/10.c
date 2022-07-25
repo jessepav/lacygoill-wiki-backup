@@ -45,4 +45,6 @@ main(void)
     // Before assigning an expression to a variable, it's fully computed, right?
     // And why didn't `j = i += i` gave a similar warning earlier?
     //}}}
+
+    return 0;
 }

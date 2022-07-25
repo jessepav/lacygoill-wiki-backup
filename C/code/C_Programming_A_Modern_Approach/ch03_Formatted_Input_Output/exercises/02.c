@@ -27,4 +27,6 @@ main(void)
     // right-justified in a field of size 6;
     // no digits after the decimal point
     printf("|%6.0f|\n", x);
+
+    return 0;
 }
