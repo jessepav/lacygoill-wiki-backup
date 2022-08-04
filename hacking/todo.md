@@ -1,4 +1,4 @@
-# Read these books:
+# Read these books
 
 There aren't many good books.
 

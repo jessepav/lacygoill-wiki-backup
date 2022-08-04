@@ -2047,9 +2047,9 @@ Vim filetype plugins, C syntax plugins, lua indent plugins, keymap files, ...
 ##
 ##
 ##
-# Nombres
+# Numbers
 
-How to represent an hexadecimal number?
+How to represent a hexadecimal number?
 
 Use the `0x` prefix:
 

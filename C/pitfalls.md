@@ -384,6 +384,30 @@ For example, C99 provides the `_Bool` type.  Don't use this name in your code.
 
 #
 # Expressions
+## How to avoid my code being hard to read because of a magic number?
+
+Assign it to a well-named constant:
+
+                        magic number
+                        v
+    if (password_size > 7)
+        ...
+
+        well-named constant
+        v---------------v
+    int MAX_PASSWORD_SIZE = 7;
+    if (password_size > MAX_PASSWORD_SIZE)
+        ...
+
+It also helps if the value is used  in several locations, and you want to change
+it in the  future.  Without a constant,  you would have to find  and replace all
+occurrences of the value, and avoid:
+
+   - forgetting one of the occurrences
+   - replacing an occurrence which was used for a different purpose
+
+<https://stackoverflow.com/questions/47882/what-is-a-magic-number-and-why-is-it-bad#comment3030262_47902>
+
 ## I want to test whether `j` is between `i` and `k`.  Why shouldn't I write `i < j < k`?
 
 It does not yield 1 if `i < j` and `j < k`.

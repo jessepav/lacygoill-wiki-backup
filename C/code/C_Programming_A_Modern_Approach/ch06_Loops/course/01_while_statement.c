@@ -21,8 +21,8 @@ main(void)
     //     16
 
     i = 10;
-    // Just like  with `if`, we can  use the compound statement  to include more
-    // than 1 statement inside a `while`.
+    // just like  with `if`, we can  use the compound statement  to include more
+    // than 1 statement inside a `while`
     while (i > 0)
     {
         printf("T minus %d and counting\n", i);

@@ -1,4 +1,4 @@
-Possible playlists to watch:
+# possible playlists to watch
 
    - [Binary Exploitation / Memory Corruption][1]
    - [CTF video write-ups][2]
@@ -21,7 +21,7 @@ Possible playlists to watch:
 [5]: https://www.youtube.com/playlist?list=PLhixgUqwRTjxHFDl0OykeqZ-VvnClfDpT
 [6]: https://www.youtube.com/playlist?list=PLhixgUqwRTjyLgF4x-ZLVFL-CRTCrUo03
 [7]: https://www.youtube.com/playlist?list=PLhixgUqwRTjwufDsT1ntgOY9yjZgg5H_t
-[8]: https://www.youtube.com/playlist?list=PLhixgUqwRTjwufDsT1ntgOY9yjZgg5H_t
+[8]: https://www.youtube.com/playlist?list=PLhixgUqwRTjxtDt2ABuejRxrIFSroqyEY
 [9]: https://www.youtube.com/playlist?list=PLhixgUqwRTjy0gMuT4C3bmjeZjuNQyqdx
 [10]: https://www.youtube.com/playlist?list=PLhixgUqwRTjz6VwU3uDK_Pk6F5Tl0KuoC
 [11]: https://www.youtube.com/playlist?list=PLhixgUqwRTjxKYsPTegCyL5adZaq5eILt

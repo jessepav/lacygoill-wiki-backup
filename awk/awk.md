@@ -23,7 +23,7 @@ May be related to the attribute:
     $ awk '{ print typeof($1) }' <<<'011'
     strnum˜
 
-Why does awk consider `0x11` as a string even though it looks like an hex number,
+Why does awk consider `0x11` as a string even though it looks like a hex number,
 and thus should be considered a numeric string with the strnum attribute?
 
 Look here: <http://pubs.opengroup.org/onlinepubs/9699919799/utilities/awk.html>
@@ -451,7 +451,7 @@ What's the output of the next commands:
     $ awk '{ var = $1; print typeof(var) }' <<<'0123'
 
 An octal number can't contain digits beyond `7`, and so `0128` is evaluated as `0`.
-An hexadecimal number can't contain digits beyond `f`, and so `0128` is evaluated as `0`.
+A hexadecimal number can't contain digits beyond `f`, and so `0128` is evaluated as `0`.
 
 ---
 

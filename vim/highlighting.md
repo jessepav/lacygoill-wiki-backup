@@ -600,7 +600,7 @@ See: `OSC Ps ; Pt BEL/;/Ps = 1 2`
 To send this sequence to the terminal, you can use `echoraw()` or append it to `'t_ti'`.
 In tmux, you can also set the tmux pane option `cursor-color`:
 ```vim
- # can also be an hexadecimal code
+ # can also be a hexadecimal code
 var color: string = 'green'
 if $TMUX != ''
     # No need to quote the value of `color`.  The command is not passed to a shell.

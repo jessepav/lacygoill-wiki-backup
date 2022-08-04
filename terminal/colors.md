@@ -116,7 +116,7 @@ Try to reproduce those with tikz:
 
 Wiki of the gpick program.
 
-In the upper-left corner  of the color picker tab, there are  6 cells forming an
+In the upper-left  corner of the color  picker tab, there are 6  cells forming a
 hexagon, and a 7th in the center.
 They allow you to store and compare up to 6 colors.
 To store  a color in a  cell, right click in  the one in the  middle (7th), then

@@ -46,5 +46,10 @@ enable tui                         tui enable
 #     $ gcc -g ...
 #           ^^
 #}}}
+# Alternative: {{{
+#
+#     $ gdb -tui ...
+#           ^--^
+#}}}
 
 empty register rax                 set $rax = 0

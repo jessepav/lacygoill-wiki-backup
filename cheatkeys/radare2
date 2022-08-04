@@ -1,0 +1,89 @@
+Analysis {{{1
+
+analyze all referenced code        aaa
+
+list all functions                 afl
+# require to first analyze the code with `aaa`
+
+Location {{{1
+
+seek to start of main()            s main
+
+Instrospection {{{1
+
+list all commands                  ?
+print help about given command     <cmd>?
+print help about given subcommand  <cmd><subcmd>?
+# the process can repeat itself; e.g. `afl?` works
+
+list config vars with description  e??
+list all eval spaces               es
+print config var in verbose format ev <var>
+print all config vars in space     ev <space>
+dump config vars in r2 commands    e*
+set value of config var            e <var>=<val>
+# `var` has the syntax of a dictionary key
+# (`a.b`, `a.b.c`, `a.b.c.d`)
+
+list color themes                  eco
+
+Graph Mode {{{1
+
+enter graph mode                   VV
+quit graph mode                    qq            G
+
+print help                         ?             G
+select next block                  Tab           G
+select previous block              S-Tab         G
+scroll view                        hjkl          G
+
+next graph mode                    p             G
+previous graph mode                P             G
+
+run given command                  :cmd          G
+# to quit the command-line, just press Enter
+
+step into next instruction         s             G
+step over next instruction         S             G
+# inside the boxes/nodes, look for this line:  ;-- rip:
+# it shows where the instruction pointer currently
+# points to (i.e. where execution is)
+
+toggle graph cursor mode           c             C
+move selected block                hjkl          C
+
+Debugging {{{1
+
+add breakpoint at given address    db 0x1234
+list breakpoints                   db
+remove all breakpoints             db-*
+continue until next breakpoint     dc
+
+print value held by given register dr <register>
+print values held by GPR registers dr
+# GPR = General Purpose Register
+
+reopen in debug mode               ood [args]
+# useful to start a new debugging session without
+# quitting radare2; note that the breakpoints
+# are preserved
+
+quit the program entirely          q!
+
+Miscellaneous {{{1
+
+disassemble current function       pdf
+evaluate math expression           ? <expr>
+execute shell command              !<cmd>
+
+make radare2 crash                 «C-\»
+# useful if the program is stuck
+
+Annex {{{1
+Labels used in modes {{{2
+
+#    ┌───┬─────────────────────┐
+#    │ G │ Type in Graph mode  │
+#    ├───┼─────────────────────┤
+#    │ C │ Type in Cursor mode │
+#    └───┴─────────────────────┘

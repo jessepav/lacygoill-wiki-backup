@@ -63,7 +63,7 @@ You can ignore the keysyms beyond the 4th one; they probably don't mean anything
 ## level of key
 
 On a physical keycap of some keys, several characters are displayed.
-For  example, on  the  3rd key  of  the 2nd  row, the  keycap  displays these  3
+For example, on the 3rd key of the  2nd row, suppose the keycap displays these 3
 characters:
 
     2

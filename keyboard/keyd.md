@@ -388,6 +388,19 @@ index 50c4332..c1ed29b 100644
  	# A list of sequences can be found in /usr/share/X11/locale/en_US.UTF-8/Compose
  	# on most systems.
 ```
+### aliases
+
+It was added in a recent commit:
+<https://github.com/rvaiya/keyd/commit/1135ec29c222dc6827ea352cf5c94d195a2c2a35>
+
+Didn't have the time to read the doc yet.
+
+### `macro_sequence_timeout` (global option)
+
+It's not documented in the man page yet.
+
+<https://github.com/rvaiya/keyd/issues/255#issuecomment-1203549054>
+
 ##
 ## Briefly mention alternative programs
 

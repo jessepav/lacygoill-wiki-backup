@@ -124,41 +124,11 @@ Example:
 ##
 ## constant
 
-A value  which is assigned  to a  variable which will  keep it during  the whole
-execution of the program:
+Number that appear in the text of a program; not read, written, or computed.
 
     height = 8;
              ^
 
-### What's a magic number?
-
-A value whose meaning is hard to understand from the context.
-
-### How is a constant useful compared to a magic number?
-
-It makes the code more readable:
-
-                        magic number
-                        v
-    if (password_size > 7)
-        ...
-
-                            constant
-                            v
-    int MAX_PASSWORD_SIZE = 7;
-    if (password_size > MAX_PASSWORD_SIZE)
-        ...
-
-It also helps if the value is used  in several locations, and you want to change
-it in the  future.  Without a constant,  you would have to find  and replace all
-occurrences of the value, and avoid:
-
-   - forgetting one of the occurrences
-   - replacing an occurrence which was used for a different purpose
-
-<https://stackoverflow.com/questions/47882/what-is-a-magic-number-and-why-is-it-bad#comment3030262_47902>
-
-##
 ## controlling expression
 
 Expression evaluated by a control flow statement.
@@ -327,6 +297,12 @@ text.
 Declaration of a function that declares the types of its parameters.
 
 ##
+# g
+## GPR
+
+General Purpose Register
+
+##
 # h
 ## header
 
@@ -416,6 +392,18 @@ First value assigned to a declared variable.
                  initializer of the variable `height`
 
 ##
+## integer
+### signed
+
+Integer whose  leftmost bit encodes  a sign: 0 if the  number is positive,  1 if
+it's strictly negative.
+
+### unsigned
+
+Integer with no sign  bit (its leftmost bit is considered  part of the integer's
+magnitude).
+
+##
 # k
 ## K&R C
 
@@ -502,9 +490,12 @@ complete executable program.
 This additional code includes library  functions (like `printf()`) that are used
 in the program.
 
-## literal
+## (string) literal
 
-Synonym of constant.
+Sequence of zero  or more multibyte characters enclosed in  double-quotes, as in
+"xyz".
+
+Also known as "character string literal".
 
 ## logical expression
 
@@ -541,6 +532,10 @@ They  are hard  to  debug,  can have  unexpected  side-effects,  and don't  have
 namespaces.
 
 Source: <https://stackoverflow.com/a/14041847>
+
+## magic number
+
+Number whose meaning is hard to understand from the context.
 
 ## memory leak
 
@@ -648,47 +643,6 @@ Not like this:
     ^     ^
 
 Because the `*` operator has a higher precedence than `+`.
-
----
-
-Here is a list of some operators in descending order of precedence:
-
-    ┌───────────┬────────────────────────┬─────────────────────────┐
-    │ Symbol(s) │ Name                   │ Associativity           │
-    ├───────────┼────────────────────────┼─────────────────────────┤
-    │ ++        │ Increment postfix      │ Left                    │
-    │ --        │ Decrement postfix      │ Left                    │
-    ├───────────┼────────────────────────┼─────────────────────────┤
-    │ ++        │ Increment prefix       │ Right                   │
-    │ --        │ Decrement prefix       │ Right                   │
-    │ +         │ Unary plus             │ Right                   │
-    │ -         │ Unary minus            │ Right                   │
-    │ !         │ Logical negation       │ Right                   │
-    ├───────────┼────────────────────────┼─────────────────────────┤
-    │ * / %     │ Multiplicative         │ Left                    │
-    ├───────────┼────────────────────────┼─────────────────────────┤
-    │ + -       │ Additive               │ Left                    │
-    ├───────────┼────────────────────────┼─────────────────────────┤
-    │ < > <= >= │ Relational             │ Left                    │
-    ├───────────┼────────────────────────┼─────────────────────────┤
-    │ == !=     │ Equality               │ Left                    │
-    ├───────────┼────────────────────────┼─────────────────────────┤
-    │ &&        │ Logical and            │ Left                    │
-    ├───────────┼────────────────────────┼─────────────────────────┤
-    │ ||        │ Logical or             │ Left                    │
-    ├───────────┼────────────────────────┼─────────────────────────┤
-    │ ?:        │ Conditional            │ Left                    │
-    ├───────────┼────────────────────────┼─────────────────────────┤
-    │ =  *= /=  │ Assignment             │ Right                   │
-    │ %= += -=  │                        │                         │
-    ├───────────┼────────────────────────┼─────────────────────────┤
-    │ ,         │ Comma                  │ Left                    │
-    └───────────┴────────────────────────┴─────────────────────────┘
-
-Operators in the same cell have the same precedence.
-If you have several operators of  equal precedence adjacent to the same operand,
-you need to know  another one of their property to  determine how the operations
-will be grouped: their associativity.
 
 ## operators families
 ### conditional
