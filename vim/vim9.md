@@ -3398,7 +3398,7 @@ def ReverseEveryNLines(n: number, line1: number, line2: number)
         var offset = (line('.') - line1 + 1) % n
         return offset != 0 ? offset : n
     enddef
-    execute $'{range} global/^/execute $"move .-{g:Offset()}"'
+    execute $'{range} global/^/$"move .-{{g:Offset()}}"->execute()'
 enddef
 repeat(['aaa', 'bbb', 'ccc'], 3)->setline(1)
 ReverseEveryNLines(3, 1, 9)
@@ -3429,7 +3429,7 @@ def ReverseEveryNLines(n: number, line1: number, line2: number)
         return offset != 0 ? offset : n
     enddef
     Ref = Offset
-    execute $'{range} global/^/execute $"move .-{Ref()}"'
+    execute $'{range} global/^/$"move .-{{Ref()}}"->execute()'
 enddef
 var Ref: func
 repeat(['aaa', 'bbb', 'ccc'], 3)->setline(1)

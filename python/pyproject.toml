@@ -1,0 +1,22 @@
+# About this file location:{{{
+#
+#    > [...] it is  possible to use a configuration file  to specify the default
+#    > values. [...] Pylint  searches for a configuration file  in the following
+#    > order [...]:
+#    > [...]
+#    > 3. `pyproject.toml` in the current working directory, providing it has at
+#    > least  one `tool.pylint`.  section.   The  `pyproject.toml` must  prepend
+#    > section  names with  `tool.pylint.`, for  example:
+#    > `[tool.pylint.'MESSAGES > CONTROL']`.
+#
+# Source: https://pylint.pycqa.org/en/latest/user_guide/usage/run.html?highlight=pylintrc#command-line-options
+#}}}
+
+# For more options: `$ pylint --generate-toml-config`
+
+[tool.pylint.'MESSAGES CONTROL']
+
+disable = [
+    'invalid-name',
+    'missing-module-docstring',
+]

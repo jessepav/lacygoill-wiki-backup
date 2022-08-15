@@ -401,6 +401,23 @@ It's not documented in the man page yet.
 
 <https://github.com/rvaiya/keyd/issues/255#issuecomment-1203549054>
 
+### `toggle2()`
+
+Introduced in this commit:
+<https://github.com/rvaiya/keyd/commit/fd6840ddf4fe6f1e4bc27fba268ded475d975a68>
+
+### the new layout type, simply named `layout`
+
+<https://github.com/rvaiya/keyd/commit/f4efe1f3648948fa7dbc18be90c56e56ac4d710c>
+
+### `setlayout()`
+
+<https://github.com/rvaiya/keyd/commit/2ec886b6687f0f9ca927ff08215eb9112e58acca>
+
+### `clear()`
+
+<https://github.com/rvaiya/keyd/commit/f6f8793c4292a36525293e578f470d28f1221338>
+
 ##
 ## Briefly mention alternative programs
 
@@ -628,18 +645,6 @@ Next, tap the shift key.
 Finally, tap the `2` key again.
 Expected: the `<` character is emitted again.
 Actual: another is emitted (probably `2` on a qwerty keyboard, `é` on an azerty one).
-
-## heisenbug
-
-<https://github.com/rvaiya/keyd/issues/230>
-
-Same issue happened to me after running these (in st+tmux):
-
-    $ systemctl --user disable --now xbindkeys
-    $ sudo systemctl disable --now keyd
-    $ sudo systemctl start --now keyd
-
-But I can't reproduce reliably.
 
 ##
 ## interface improvements

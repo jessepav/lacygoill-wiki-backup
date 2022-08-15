@@ -297,12 +297,6 @@ text.
 Declaration of a function that declares the types of its parameters.
 
 ##
-# g
-## GPR
-
-General Purpose Register
-
-##
 # h
 ## header
 

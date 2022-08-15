@@ -5,9 +5,7 @@ analyze all referenced code        aaa
 list all functions                 afl
 # require to first analyze the code with `aaa`
 
-Location {{{1
-
-seek to start of main()            s main
+rename argument/variable           afvn new old
 
 Instrospection {{{1
 
@@ -36,6 +34,21 @@ print help                         ?             G
 select next block                  Tab           G
 select previous block              S-Tab         G
 scroll view                        hjkl          G
+scroll view fast                   HJKL          G
+center around selected node        .             G
+zoom in                            +             G
+zoom out                           -             G
+toggle comments                    '             G
+scroll to next highlight location  \             G
+highlight given text               /pat«CR»      G
+
+undo seek                          u             G
+# Useful, for example, if you press `n` by accident.{{{
+#
+# Instead of `\` to scroll to the next occurrence of a pattern.
+# Because in that case, radare2 might seek to a different function,
+# and change the graph completely.
+#}}}
 
 next graph mode                    p             G
 previous graph mode                P             G
@@ -71,6 +84,8 @@ reopen in debug mode               ood [args]
 quit the program entirely          q!
 
 Miscellaneous {{{1
+
+seek to start of main()            s main
 
 disassemble current function       pdf
 evaluate math expression           ? <expr>

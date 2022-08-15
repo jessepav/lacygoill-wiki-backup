@@ -38,6 +38,8 @@ main(void)
     for (i = 10; i > 0; i--)
         printf("T minus %d and counting\n", i);
 
+    printf("---\n");
+
 
     // `expr1` can be omitted (by moving the assignment before)
     i = 10;
@@ -47,7 +49,7 @@ main(void)
     // wrongly parsed as `expr1`
         printf("T minus %d and counting\n", i);
 
-    printf("\n");
+    printf("---\n");
 
 
     // `expr3` can be omitted too.
@@ -58,7 +60,7 @@ main(void)
         //                                   ^^
         // To compensate for omitting `expr3`, we decrement `i` in the loop body.
 
-    printf("\n");
+    printf("---\n");
 
 
     // Even `expr2` can be omitted.
@@ -75,7 +77,7 @@ main(void)
             break;
     }
 
-    printf("\n");
+    printf("---\n");
 
 
     // In C99, `expr1` can be replaced by a declaration.
@@ -93,7 +95,7 @@ main(void)
     // The value  of the  function-local `i`  did not  change, because  the loop
     // decremented the block-local `i`.
 
-    printf("\n");
+    printf("---\n");
 
 
     // You can *assign* several variables, using the comma operator, which has these properties:{{{
@@ -125,7 +127,7 @@ main(void)
     printf("%d\n", sum);
     //     15
 
-    printf("\n");
+    printf("---\n");
 
 
     // You can also  *declare* several variables in place  of `expr1`.  Provided

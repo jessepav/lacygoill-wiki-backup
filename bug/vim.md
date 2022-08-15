@@ -6596,47 +6596,6 @@ to a curly brace:
         echo "The rest of this file is shDerefPPSleft inside double quotes"
         echo and shDoubleQuote _outside_ double quotes
 
-## `no_mail_maps`
-
-Hello,
-
-According to `:help no_mail_maps` and `:h no_plugin_maps`, the user should be able to prevent the definition of filetype specific mappings by setting the variable `no_{filetype}_maps` (for a given filetype) or `no_plugin_maps` (for all filetypes).
-
-So, I wrote this PR to prevent the installation of the mappings in case the user set one of the variables `g:no_plugin_maps` or `g:no_python_maps`.
-
-Thank you very much for your plugin.
-
----
-
-Don't forget to update the date of last change in the files.
-
----
-
-    if !exists("no_plugin_maps") && !exists("no_vim_maps")
-        ...
-    endif
-
-<https://github.com/vim/vim/pull/2409>
-
-Default filetype plugins installing mappings and NOT respecting `g:no...map`:
-
-    $VIMRUNTIME/ftplugin/abaqus.vim
-    $VIMRUNTIME/ftplugin/ada.vim
-    $VIMRUNTIME/ftplugin/context.vim
-    $VIMRUNTIME/ftplugin/fortran.vim
-    $VIMRUNTIME/ftplugin/gitcommit.vim
-    $VIMRUNTIME/ftplugin/hamster.vim
-    $VIMRUNTIME/ftplugin/hog.vim
-    $VIMRUNTIME/ftplugin/j.vim
-    $VIMRUNTIME/ftplugin/mf.vim
-    $VIMRUNTIME/ftplugin/mp.vim
-    $VIMRUNTIME/ftplugin/vb.vim
-    $VIMRUNTIME/ftplugin/vhdl.vim
-
-    $VIMRUNTIME/ftplugin/rust.vim
-    $VIMRUNTIME/ftplugin/changelog.vim
-    $VIMRUNTIME/ftplugin/php.vim
-
 ## abbreviation sometimes unexpectedly expanded inside a word
 
 **Describe the bug**

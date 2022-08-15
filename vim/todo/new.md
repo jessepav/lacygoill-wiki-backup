@@ -10,8 +10,8 @@
    - `:help complete_info()` + 'user_data' entry in completion item
    - `:help environ()` + `:help getenv()` + `:help setenv()`
    - `:help expandcmd()`
-   - `:help fullcommand()`
    - `:help gettagstack()` + `:help settagstack()`
+   - `:help indexof()`
    - `:help interrupt()`
    - `:help maplist()`
    - `:help prop_add_list()`
@@ -148,10 +148,6 @@ Note: `InsertLeave` is fired right *after* leaving insert mode.
 `InsertLeavePre` is fired right *before* leaving insert mode.
 
 # options
-
-   - `:help 'autoshelldir'`
-
-   - `:help 'quickfixtextfunc'`
 
    - `:help 'varsofttabstop'` + `:help 'vartabstop'`
 
