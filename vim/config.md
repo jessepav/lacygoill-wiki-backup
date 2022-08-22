@@ -552,7 +552,7 @@ Pour Vim:
    - chemin absolu     chemin commençant par /    ./    ../
    - chemin relatif    tous les autres
 
-                       aka, tout ce qui n'a pas de racine explicite:    /
+                       i.e., tout ce qui n'a pas de racine explicite:    /
                                                        OU implicite:    ./    ../
 
 Pour bash:

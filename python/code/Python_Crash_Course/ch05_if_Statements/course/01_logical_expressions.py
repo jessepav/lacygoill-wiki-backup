@@ -12,15 +12,15 @@ print(car == 'bmw')
 #     True
 
 # Here,  the  expression  `car == 'bwm'`   evaluates  to  `True`  because  `car`
-# evaluates to `'bmw'`  (assigned in the previous statement),  which matches the
+# evaluates to  'bmw' (assigned  in the previous  statement), which  matches the
 # string on the RHS of the `==` operator.
 
 car = 'audi'
 print(car == 'bwm')
 #     False
 #
-# This time, it evaluates to `False`  because `car` evaluates to `'audi'`, which
-# no longer matches the string on the RHS of the `==` operator.
+# This time, it evaluates to `False` because `car` evaluates to 'audi', which no
+# longer matches the string on the RHS of the `==` operator.
 
 #   To ignore the case in a string comparison, use the `lower()` method. {{{1
 
@@ -40,9 +40,9 @@ requested_topping = 'mushrooms'
 print(requested_topping != 'anchovies')
 #     True
 #
-# The LHS of `!=` is `requested_topping` which evaluates to `'mushrooms'`.
-# It's  different  than  the  RHS `'anchovies'`;  thus  the  overall  expression
-# evaluates to `True`.
+# The LHS of `!=` is `requested_topping` which evaluates to 'mushrooms'.
+# It's different than the RHS 'anchovies'; thus the overall expression evaluates
+# to `True`.
 
 # `==` and `!=` can be used to compare integers too.{{{1
 

@@ -7,7 +7,7 @@ How to write an algorithm composed of 1 main case, and several special cases?
    - inside the code, write special cases *before* main case
 
    - describe *exactly* the state of the environment when a special case occurs;
-     –  aka necessary  and sufficient  conditions –  ... and  let all  the other
+     –  i.e. necessary  and sufficient  conditions –  ... and  let all  the other
      states be handled by the main case
 
 ---

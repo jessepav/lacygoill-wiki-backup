@@ -334,7 +334,7 @@ There are 5 differences between the 2 db:
    - the syntax for encoding some capabilities is different
 
 ###
-## terminal device (aka tty)
+## terminal device (aka TTY)
 
 Device file living in `/dev`, that  provides a software abstraction to a virtual
 terminal, in the same way that  (for example) `/dev/sda1` might represent a hard

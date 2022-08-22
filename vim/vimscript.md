@@ -229,8 +229,8 @@ Func({b: 4})
 ```
     {'a': 1, 'b': 4, 'c': 3}
 
-Notice how in  the function's body, the dictionary `opts`  includes the keys `a`
-and `c` with the  values `1` and `3`, even though we didn't  specify them in the
+Notice how in the function body, the dictionary `opts` includes the keys `a` and
+`c` with  the values  `1` and  `3`, even though  we didn't  specify them  in the
 function call.  This shows that, in effect, any argument is optional.
 
 Technically, we extend the dictionary argument with options from another one.

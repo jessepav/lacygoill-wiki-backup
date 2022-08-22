@@ -1,6 +1,8 @@
 # Purpose: work with a tuple
 # Reference: page 65 (paper) / 103 (ebook)
 
+dimensions = (200, 50)
+
 # syntax {{{1
 
 # The main difference between a list  and a tuple expression are the surrounding
@@ -22,8 +24,8 @@ print(type((3,)))
 
 # A tuple is immutable, which means you can't add/remove/change any of its items. {{{1
 
-#     dimensions[0] = 250
-#     TypeError: 'tuple' object does not support item assignment˜
+dimensions[0] = 250
+#     TypeError: 'tuple' object does not support item assignment
 
 # You can iterate over a tuple, just like a list. {{{1
 

@@ -758,8 +758,8 @@ all its increments and decrements must have been performed.
 The logical `&&`/`||`, the ternary conditional `?:`, and the comma operator also
 impose a sequence point.
 
-So do function calls:  a function's body is not entered  until all the arguments
-in the call have been fully evaluated.
+So do function calls: a function body  is not entered until all the arguments in
+the call have been fully evaluated.
 Although,  there is  no requirement  on  the order  in which  the arguments  are
 evaluated.  For example, in `f(a, b)`, `b`  might be evaluated before, after, or
 at the same time as `a`.

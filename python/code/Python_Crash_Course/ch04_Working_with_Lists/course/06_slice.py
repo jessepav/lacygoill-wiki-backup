@@ -1,6 +1,8 @@
 # Purpose: work on slice of a list
 # Reference: page 61 (paper) / 99 (ebook)
 
+players = ['charles', 'martina', 'michael', 'florence', 'eli']
+
 # A slice is a contiguous subset of items from a given list. {{{1
 
 # The general syntax is:{{{
@@ -15,7 +17,6 @@
 # The first colon is mandatory.
 #}}}
 
-players = ['charles', 'martina', 'michael', 'florence', 'eli']
 # That's a slice of  the `players` list which starts from  the first item (index
 # 0), and ends right before the fourth item (index 3).
 #            v---v

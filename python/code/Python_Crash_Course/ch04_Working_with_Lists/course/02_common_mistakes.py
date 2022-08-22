@@ -1,8 +1,9 @@
 # Purpose: avoid common mistakes when writing a loop
 # Reference: page 53 (paper) / 91 (ebook)
 
-# The body of a loop must contain at least 1 statement. {{{1
 magicians = ['alice', 'david', 'carolina']
+
+# The body of a loop must contain at least 1 statement. {{{1
 for magician in magicians:
 # This line is wrong.  It should be indented.
 # Without indentation, it's not part of the loop's body; it's run afterward.

@@ -20,6 +20,6 @@ class Barrel {
     +size: int
     +apples: List[Apple]
 }
-Orange 0..* --> 1 Basket: go in
-Apple 0..* --> 1 Barrel: go in
+Orange "0..*" --> "1" Basket: go in
+Apple "0..*" --> "1" Barrel: go in
 ```

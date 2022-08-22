@@ -170,7 +170,7 @@ fichiers via leurs tags.  Les tags sont stockés dans une bdd sqlite.
             Crée le tag `jazz`.
             Renomme le tag `epic` en `inspiration`.
             Retire le tag `epic` du fichier `file.mp3`.
-            Supprime le tag `unused` (ne fonctionne que si le dossier est vide, aka le tag n'est plus
+            Supprime le tag `unused` (ne fonctionne que si le dossier est vide, i.e. le tag n'est plus
             associé à aucun fichier).
 
             Illustre comment manipuler les tags depuis le dossier `tags/`.

@@ -3400,7 +3400,7 @@ Why though?  I mean `:norm vio` also enters visual mode...
 ### ?
 
 For some text-objects, we expect to operate on a linewise selection.
-For example, our custom `o_if` is meant to let us operate on a function's body.
+For example, our custom `o_if` is meant to let us operate on a function body.
 For any of those objects, make sure that we always select a linewise area:
 
     ono if <cmd>norm vif<cr>
@@ -3413,7 +3413,7 @@ For any of those objects, make sure that we always select a linewise area:
 
 And if  your `:ono`  mapping relies on  a visual mapping,  make sure  the latter
 selects a linewise area, even if we use it from a characterwise selection.
-For example, if we press `vif`, we want a *linewise* selection of the function's
+For example, if we  press `vif`, we want a *linewise*  selection of the function
 body, not a characterwise selection:
 
     xno if <cmd>call <sid>Func()<cr>

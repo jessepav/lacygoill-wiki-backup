@@ -1,6 +1,8 @@
 # Purpose: set a list
 # Reference: page 33 (paper) / 71 (ebook)
 
+bicycles = ['trek', 'cannondale', 'redline', 'specialized']
+
 # A list is an ordered collection of arbitrary items. {{{1
 
 # It's defined inside square brackets, and its items are separated with commas.

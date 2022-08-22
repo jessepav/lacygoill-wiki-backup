@@ -95,7 +95,7 @@ print(0.2 + 0.1)
 #           ^--------------^
 #}}}
 
-# It is allowed to mix a float  and an integer in an arithmetic computation. {{{1
+# It is allowed to mix a float and an integer in an arithmetic computation. {{{1
 # The result is then always a float.
 
 print(1 + 2.0)

@@ -146,7 +146,7 @@ But this will work only in C99 (not in C89):
 ```
 ---
 
-This is true in a function's body *and* in a block's body:
+This is true in a function body *and* in a block body:
 ```c
     #include <stdio.h>
 

@@ -93,7 +93,7 @@ defcompile
     E1017: Variable already declared: x
 
 ##
-## Where does Vim look for a function's definition whose name is not prefixed with `g:`?
+## Where does Vim look for a function definition whose name is not prefixed with `g:`?
 
    1. the current block, if there is one
    2. the outer block, if there is one; the process repeats itself as long as there is an outer block
@@ -1000,7 +1000,7 @@ In a guard, because it's useless (you'll never refactor a guard):
 
     var loaded = true
 
-Also in an optional argument in a  function's header, if the default value is an
+Also in an  optional argument in a  function header, if the default  value is an
 "irreducible" scalar:
 
     def Func(name = 123)
@@ -2470,7 +2470,7 @@ In front of:
      (script level in Vim9 script, or `:def` function in any type of script)
 
    - a function name iff its immediate *surrounding* context is Vim9
-     (the surrounding context of a function's header is not the header itself)
+     (the surrounding context of a function header is not the header itself)
 
 ---
 

@@ -23,7 +23,7 @@ Don't put it on the same line as the function name:
 int main(void)
 ```
 ## the brace which starts
-### a function's body?
+### a function body?
 
 On a line alone.
 
@@ -56,4 +56,4 @@ This style is also followed by the Linux kernel:
 
 ### a compound statement?
 
-On a line alone, to be consistent with a function's body.
+On a line alone, to be consistent with a function body.

@@ -1,5 +1,18 @@
+# Read these generic documents about Python
+
+- <https://docs.python.org/3/tutorial/>
+- <https://docs.python.org/3/faq/programming.html>
+- <https://docs.python.org/3/glossary.html>
+
+##
 # Learn these tools, and integrate them in our workflow
 ## black
+
+Installation:
+
+    $ python -m pip install --user --upgrade black
+
+---
 
 <https://github.com/psf/black>
 <https://black.readthedocs.io/en/stable/usage_and_configuration/index.html>
