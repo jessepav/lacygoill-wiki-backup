@@ -1,8 +1,13 @@
 # a
 ## attribute
 
-Value which helps uniquely identify an instance of a class, out of all the other
+Value  which helps  identify  an instance  of  a  class, out  of  all the  other
 instances of that class.
+
+Although,  attributes  are not  necessarily  enough  to *uniquely*  identify  an
+object.  Indeed, 2 objects instantiated from the same class could have the exact
+same attributes (just like  you could have 2 distinct objects  in the real world
+with identical physical characteristics).
 
 ## association
 
@@ -34,11 +39,19 @@ behaviors.
 
 Synonym for attribute in Python.
 
+## instantiate
+
+Act of creating a new instance based on a given class.
+
 ##
 # m
 ## method
 
-Lets you specify any behavioral feature of a class.
+Function that is part of a class.
+
+The main difference between a method and a function is that the method is called
+using the dot notation `object.method()`.  Also, it has access to the attributes
+of any object instantiated from its class.
 
 ## member
 
@@ -129,8 +142,8 @@ be enough to achieve the task.  Here, for example, those features could be:
 In the  previous set, each item  binds an action  (in italics) to an  object (in
 bold).
 
-An analysis turns what the client say they  want, into the tools they need to do
-what they want.
+An analysis turns what the client say they want, into an informal description of
+the tools they need to do what they want.
 
 ## OOD
 
@@ -140,8 +153,8 @@ which are called an "implementation specification".  The "D" is for Design.
 This implies  that the designer must  name the objects, define  their behaviors,
 and specify which objects can activate specific behaviors on other objects.
 
-A design turns the tools that the client  need to do what they want, into formal
-specifications for those tools.
+A design turns an  informal description of the tools that the  client need to do
+what they want, into formal specifications for those tools.
 
 ## OOP
 
@@ -155,6 +168,7 @@ collection of interacting objects via their data and behavior.
 ## object
 
 A collection of data with associated behaviors.
+
 ##
 # p
 ## private

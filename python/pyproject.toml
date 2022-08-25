@@ -18,6 +18,7 @@
 
 disable = [
     'invalid-name',
+    'missing-class-docstring',
     'missing-function-docstring',
     'missing-module-docstring',
 ]
