@@ -68,3 +68,5 @@ dkms.conf
 # I use this directory name to gather all binaries that I compiled from the code
 # source I write when doing exercises in C
 binaries/
+
+.venv/
