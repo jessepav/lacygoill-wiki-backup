@@ -69,4 +69,5 @@ dkms.conf
 # source I write when doing exercises in C
 binaries/
 
+# Python virtual environments
 .venv/

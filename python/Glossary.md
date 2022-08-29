@@ -134,11 +134,109 @@ Example:
 In C, that's called a *compound* assignment.
 
 ##
+# b
+## byte array
+
+Mutable version of a bytes objects.
+
+A byte array supports most methods which  work on strings and most methods which
+work on  lists.  The former  produce a copy  because strings are  immutable; the
+latter operate in-place because lists *are* mutable.
+
+## bytes object
+
+Immutable sequence  of bytes.   Each item  in a  bytes object  is an  integer in
+`[0, 256)`.
+
+In case you wonder  where 256 comes from, remember that a  byte contains 8 bits,
+and that each bit can have 2 values; that's 2⁸ = 256 values for a byte.
+
+##
 # c
 ## CapWords
 
 Synonym for CamelCase.  Used by PEP8 when recommending to name a class using the
 CapWords notation.
+
+## constructor
+
+Function which can build some iterable by exhausting an iterator.
+
+Examples of built-in constructors:
+
+   - `list()`
+   - `dict()`
+   - `set()`
+   - `frozenset()`
+   - `bytearray()`
+
+---
+
+TODO: I think that's only one possible meaning.
+It seems that `int()` is also a constructor.
+From "Python Object-Oriented Programming" page 273:
+
+   > In this example, the frequencies object uses the function int() to create default
+   > values. This is the **constructor** for an integer object.
+
+That doesn't fit our current definition.
+
+## container
+
+Object that holds other objects, like a list, tuple, dictionary or set.
+More container types are available in the `collections` module.
+
+Technically,  a container  is an  object which  implements the  `__contains__()`
+method, while an iterable is an object which implements the `__iter__()` method.
+So, in  theory, both  concepts are  orthogonal, and you  could create  an object
+which is  a container but not  an iterable.  However, in  practice, all built-in
+containers are  also iterables  (same thing for  most containers  implemented by
+libraries).
+
+---
+
+A string is an  iterable, because you can iterate over  its characters, but it's
+not a container.  To be a container,  it would need to hold objects, which means
+that its characters would need to be  objects; but they are not.  In particular,
+there is no `char` type, and a character doesn't have attributes nor methods.
+
+##
+# h
+## hashability
+
+Characteristic of an object which allows it to  be used as a dictionary key or a
+set member.  Dictionaries and sets use the hash value internally.
+
+## hashable
+
+Said of an object  whose hash value (as given by  its `__hash__()` method) never
+changes during its lifetime, and which can be compared to other objects (it also
+needs an `__eq__()` method).
+
+The hash  value of a given  object remains the same  only for the duration  of a
+Python process.   If you start another  Python process, an object  with the same
+type and value can have a different hash (and ID):
+
+    $ python -c 'print(hash("hello"))'
+    -5997811172218844908
+
+    $ python -c 'print(hash("hello"))'
+    7399159032506071523
+
+---
+
+Hashable objects which compare equal must have the same hash value.
+
+---
+
+Mutable containers are not hashable.
+
+Most immutable objects are hashable; but an immutable container (such as a tuple
+and a frozenset) is only hashable if its items are hashable.
+
+Objects which  are instances  of user-defined classes  are hashable  by default.
+They  all compare  unequal (except  with themselves),  and their  hash value  is
+derived from their `id()`.
 
 ##
 # i
@@ -236,6 +334,17 @@ print(ll)
     [1]
     [1]
 
+## iterable
+
+An object capable of returning its members one at a time.
+Technically, this means that the object implements the `__iter__()` method.
+
+Examples of  iterables include all  sequence types  (such as `list`,  `str`, and
+`tuple`), and some non-sequence types like `set` and `dict`.
+
+Iterables can be  used in a `for` loop  and in other places where  a sequence is
+needed (`zip()`, `map()`, ...).
+
 ##
 # l
 ## library
@@ -269,6 +378,19 @@ It's always considered true or false.
 
 ##
 # m
+## mapping
+
+A  container object  that  supports  arbitrary key  lookups  and implements  the
+methods specified in the `Mapping` or `MutableMapping` abstract base classes.
+
+Examples include:
+
+   - `dict`
+   - `collections.Counter`
+   - `collections.OrderedDict`
+   - `collections.defaultdict`
+
+##
 ## method
 ### magic
 
@@ -413,6 +535,23 @@ in a dictionary from which the key is absent.
 Any data with state (attributesor or value) and defined behavior (methods).
 
 It is instantiated from a class, and has an ID, a type, as well as a value.
+
+##
+## overloading
+### operator overloading
+
+Some operators can represent different operations depending on the type of their
+operands.  We say that those operators are overloaded.
+
+For example, if `+` is surrounded by numbers, it performs an arithmetic addition:
+
+    >>> 1 + 2
+    3
+
+But if it's surrounded by sequences, it performs a concatenation:
+
+    >>> [1] + [2]
+    [1, 2]
 
 ##
 # p
@@ -609,9 +748,23 @@ order whenever Python needs to find a name:
 
 Mnemonic: LEGB for "local", "enclosing", "global", "built-in".
 
+## sequence
+
+An iterable which supports efficient  element access using *integer* indices via
+the  `__getitem__()`  special method,  and  defines  a `__len__()`  method  that
+returns its length.
+
+Some built-in sequence types are `list`, `str`, `tuple`, and `bytes`.
+A set is not a sequence.
+
+Note  that  `dict`  also  supports   `__getitem__()`  and  `__len__()`,  but  is
+considered a  mapping rather than a  sequence because the lookups  use arbitrary
+immutable keys rather than integers.
+
+##
 ## set
 
-Collection in which each item must be unique.
+Unordered collection of immutable and unique objects.
 
 Contrary to a list or a tuple  which are surrounded by resp. square brackets and
 parentheses, a set is surrounded by curly brackets.
@@ -621,8 +774,7 @@ parentheses, a set is surrounded by curly brackets.
     >>> print(set)
     {1, 2, 3}
 
-Don't conflate a set with a dictionary:
-
+Don't conflate a set with a dictionary.
 In a set, there is no colon separating a key from its value:
 
                    v
@@ -634,6 +786,32 @@ Also, contrary to a dictionary (and a list), a set is not ordered.
     >>> s = {'a', 'b', 'c'}
     >>> print(s)
     {'c', 'a', 'b'}
+
+### difference
+
+The difference between 2 sets A and B is the set of all items which are included
+in A *but not* in B.
+
+$$A - B = \{x: x \in A \land x \notin B\}$$
+
+### intersection
+
+The intersection  between 2  sets A  and B  is the  set of  all items  which are
+included in A *and* in B.
+
+$$A \cap B = \{x: x \in A \land x \in B\}$$
+
+### union
+
+The union between 2 sets A and B is the set of all items which are included in A
+*or* in B.
+
+$$A \cup B = \{x: x \in A \lor x \in B\}$$
+
+##
+## string
+
+Immutable sequence of Unicode code points.
 
 ##
 # t
@@ -668,6 +846,20 @@ Immutable list.
 
 It's useful when  you want to store a  set of values that should  not be changed
 throughout the life of a program.
+
+A tuple usually contains a heterogeneous  sequence of items, and is accessed via
+unpacking  or indexing.   In contrast,  a  list usually  contains a  homogeneous
+sequence of items and is iterated over.
+
+A tuple  can be used  in various contexts,  but is well-suited  for mathematical
+vectors.
+
+##
+# u
+## UTF-8
+
+Variable-length  character encoding,  capable of  encoding all  possible Unicode
+code points.
 
 ##
 # v

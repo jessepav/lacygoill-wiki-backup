@@ -1,7 +1,9 @@
 # Purpose: show how classes can create objects
 # Reference: page 62
 
-# a class definition starts with a `class` statement
+# Definition {{{1
+
+# A class definition starts with a `class` statement:
 class Bike:
     # Now we're inside the body of the class.
 
@@ -21,12 +23,21 @@ class Bike:
         # that's the line of the class definition
         print('Braking!')
 
-# instantiate a `red_bike` object
+# Instantiation {{{1
+
+# Instantiate a `red_bike` object and a `blue_bike` object:
 red_bike = Bike('Red', 'Carbon fiber')
-# instantiate a `blue_bike` object
 blue_bike = Bike('Blue', 'Steel')
 
-# print some characteristics of those objects
+# Instances of a given class are objects whose type is that class:
+print(type(red_bike))
+print(type(blue_bike))
+#     <class '__main__.Bike'>
+#     <class '__main__.Bike'>
+
+# Printing attributes {{{1
+
+# Print some characteristics of those objects:
 print(red_bike.color)
 print(red_bike.frame_material)
 print(blue_bike.color)
@@ -36,12 +47,8 @@ print(blue_bike.frame_material)
 #     Blue
 #     Steel
 
-# make the `red_bike` do something
+# Calling methods {{{1
+
+# Make the `red_bike` do something:
 red_bike.brake()
 #     Braking!
-
-# instances of a given class are objects whose type is that class
-print(type(red_bike))
-print(type(blue_bike))
-#     <class '__main__.Bike'>
-#     <class '__main__.Bike'>

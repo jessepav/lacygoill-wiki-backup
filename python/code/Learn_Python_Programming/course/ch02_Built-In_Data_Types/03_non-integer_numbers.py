@@ -6,7 +6,8 @@ from fractions import Fraction as F
 from decimal import Decimal as D
 import decimal
 
-# real numbers {{{1
+# Real numbers {{{1
+# Creation {{{2
 
 pi = 3.1415926536
 radius = 4.5
@@ -14,6 +15,8 @@ radius = 4.5
 area = pi * (radius ** 2)
 print(area)
 #     63.617251235400005
+
+# Approximation {{{2
 
 # There is  an infinite number  of real numbers, but  Python works on  a machine
 # with limited amount  of resources (memory/CPU/time/...).  As a  result, only a
@@ -51,8 +54,9 @@ print(0.3 - 0.1 * 3)
 # Obviously,  Python  can't save  an  infinite  number  of  digits, so  in  some
 # computations, it  might have  to approximate  a real  number, which  gives the
 # previous unexpected result.
-
-# complex numbers {{{1
+# }}}1
+# Complex numbers {{{1
+# Creation {{{2
 
 # In math, the imaginary unit is noted `i`, but engineers use `j` instead.
 # Python uses `j` too:
@@ -65,53 +69,52 @@ print(type(c))
 #     <class 'complex'>
 #             ^-----^
 
-# a complex number can also be expressed with the `complex()` function
+# A complex number can also be expressed with the `complex()` function:
 c = complex(3.14, 2.73)
 print(c)
 #     (3.14+2.73j)
 
-# you can retrieve the real and imaginary parts of a complex number object using
-# its `real` and `imag` attributes
+# Real and imaginary parts {{{2
+
+# The  `real` and  `imag`  attributes of  a  complex number  give  its real  and
+# imaginary parts:
 print(c.real)
 print(c.imag)
 #     3.14
 #     2.73
 
-# you can get the conjugate of a complex number via the `conjugate()` method
+# Conjugate {{{2
+
+# The `conjugate()` method gives the conjugate of a complex number:
 print(c.conjugate())
 #     (3.14-2.73j)
 
-# complex numbers support usual arithmetic operations such as multiplication and
-# exponentiation
+# Arithmetic {{{2
+
+# Complex numbers support usual arithmetic operations such as multiplication and
+# exponentiation:
 print(c * 2)
 print(c ** 2)
 #     (6.28+5.46j)
 #     (2.4067000000000007+17.1444j)
 
-# as well as addition and subtraction
+# As well as addition and subtraction:
 d = 1 + 1j
 print(c + d)
 print(c - d)
 #     (4.140000000000001+3.73j)
 #     (2.14+1.73j)
+# }}}1
+# Fractions {{{1
+# Creation {{{2
 
-# fractions {{{1
-
-# You can get more accurate results  than with floats for computations involving
-# rational numbers, using the `Fraction()` function from the `fractions` module:
+# For computations  involving rational  numbers, the `Fraction()`  function from
+# the `fractions` module gives more accurate results than with floats:
 print(F(10, 6))
 #     5/3
 
 print(F(1, 3) + F(2, 3))
 #     1
-
-# You  can also  access the  numerator  and denominators  separately, using  the
-# `numerator` and `denominator` attributes of the `fractions.Fraction` object:
-f = F(10, 6)
-print(f.numerator)
-print(f.denominator)
-#     5
-#     3
 
 # `Fraction()` expects integers or fractions:
 #
@@ -120,7 +123,7 @@ print(f.denominator)
 print(F(F(6, 5), 3))
 #     2/5
 
-# But not floats (even  if they can be expressed as a fraction;  a float is notj
+# But not floats  (even if they can be  expressed as a fraction; a  float is not
 # internally stored like a Rational):
 #
 #        ✘
@@ -128,14 +131,25 @@ print(F(F(6, 5), 3))
 print(F(1.2, 3))
 #     TypeError: both arguments should be Rational instances
 
-# decimal numbers {{{1
+# Numerator / denominator {{{2
+
+# The `numerator` and `denominator`  attributes of a `fractions.Fraction` object
+# give its numerator and denominator:
+f = F(10, 6)
+print(f.numerator)
+print(f.denominator)
+#     5
+#     3
+# }}}1
+# Decimal numbers {{{1
+# Creation {{{2
 
 # If you're working  with decimal numbers instead of fractions,  you can use the
 # `Decimal()` function from  the `decimal` module.  But it costs  more space and
 # more CPU time.
 
 # Don't  pass   a  number  to  `Decimal()`.    The  latter  would  work   on  an
-# approximation, which is not what you want.
+# approximation, which is not what you want:
 #
 #        ✘
 #       v--v
@@ -157,16 +171,17 @@ print(D('3.14'))
 print(D('0.1') * 3 - D('0.3'))
 #     0.0
 
-# You can get the numerator and denominator of the irreducible fraction which is
-# equal to your decimal number, invoking the `as_integer_ratio()` method on your
-# `decimal.Decimal` object:
-#
-#              v----------------v
+# As fractions {{{2
+
+# The  `as_integer_ratio()`  method  of  a `decimal.Decimal`  object  gives  the
+# numerator and  denominator of the irreducible  fraction which is equal  to the
+# decimal number:
 print(D('1.4').as_integer_ratio())
 #     (7, 5)
 
-# You can change  the precision of decimal numbers using  the `getcontext()` and
-# `setcontext()` methods:
+# Precision {{{2
+
+# The `getcontext()` and `setcontext()` methods change the precision of decimal numbers:
 #
 #           v----------v
 c = decimal.getcontext()

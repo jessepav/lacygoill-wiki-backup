@@ -16,6 +16,7 @@
    - `:help maplist()`
    - `:help prop_add_list()`
    - `:help pum_getpos()`
+   - `:help setcmdline()`
    - `:help setcellwidths()`
    - `:help str2list()` + `:help list2str()`
    - `:help strptime()` (*str*ing *p*arse *time* ?)

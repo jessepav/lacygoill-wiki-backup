@@ -219,33 +219,8 @@ You can now use the most recent python interpreter with commands like:
     $ sudo make clean && sudo make distclean
 
 ##
-# How does Python compute an integer division, where one of the operands is negative?
-
-The result is rounded down:
-```python
-print(-7 // 4)
-```
-    -2
-
-If you prefer the result to be rounded up (i.e. the fractional to be discarded),
-use the `int()` function:
-```python
-print(int(-7 / 4))
-```
-    -1
-
-Notice that this time, we used the `/` operator, instead of `//`.
-The former  returns the *algebraic* quotient  of its operands, while  the latter
-returns the *floored* quotient of its operands.
-
-# How is a floating point number stored internally?
-
-It's  represented according  to the  IEEE 754  double-precision binary  floating
-point  format, which  is stored  in 64  bits of  information divided  into three
-sections: sign, exponent, and mantissa.
-
-##
-# In which order should the various kinds of parameters be declared in a function header?
+# Functions
+## In which order should the various kinds of parameters be declared in a function header?
 
    1. mandatory (aka non-default) parameters (`param`)
    2. optional (aka default) parameters (`param='value'`)
@@ -293,7 +268,7 @@ def func(**kwargs, *args):
 ```
     SyntaxError: invalid syntax
 
-## Which exception to this order is allowed?
+### Which exception to this order is allowed?
 
 You  can  put  the  parameter   for  variadic  arguments  before  the  mandatory
 parameters:
@@ -327,8 +302,8 @@ IOW,  you  can  only  move  the parameter  for  variadic  arguments  before  the
 keyword-only parameters;  not before the positional-only  parameters, nor before
 the positional-or-keyword parameters.
 
-##
-# How does Python assigns the arguments from a function call to the parameters in the function header?
+###
+## How does Python assigns the arguments from a function call to the parameters in the function header?
 
 First, it  assigns the positional  arguments (i.e. which  are not prefixed  by a
 keyword, and which can be assigned to a non-variadic parameter).
@@ -341,8 +316,8 @@ parameter for variadic arguments (via a single tuple).
 Similarly, all  remaining keyword arguments –  if any – are  assigned to the
 parameter for variadic keyword arguments (via a single dictionary).
 
-##
-# When is a keyword argument necessary?
+###
+## When is a keyword argument necessary?
 
 Obviously, you have to use a keyword argument to assign a keyword-only parameter
 (i.e. a  parameter which is declared  after the special parameter  `*`, or after
@@ -373,13 +348,43 @@ def my_function(opt1=12, opt2=34):
 my_function(12, 56)
  #          ^^
 ```
-## When should I use one (even if not stricly required)?
+### When should I use one (even if not stricly required)?
 
 Whenever its meaning is not easy to understand from the context.
 The context being the name of the function, and the position of the argument.
 
 ##
-# What's the difference between a script and a module?  (2)
+# Miscellaneous
+## How does Python compute an integer division, where one of the operands is negative?
+
+The result is rounded down:
+```python
+print(-7 // 4)
+```
+    -2
+
+If you prefer the result to be rounded up (i.e. the fractional to be discarded),
+use the `int()` function:
+```python
+print(int(-7 / 4))
+```
+    -1
+
+Notice that this time, we used the `/` operator, instead of `//`.
+The former  returns the *algebraic* quotient  of its operands, while  the latter
+returns the *floored* quotient of its operands.
+
+## How is a floating point number stored internally?
+
+It's  represented according  to the  IEEE 754  double-precision binary  floating
+point  format, which  is stored  in 64  bits of  information divided  into three
+sections: sign, exponent, and mantissa.
+
+## When should I encode a string object into a bytes object?
+
+When you want to store textual data, or send it on the network.
+
+## What's the difference between a script and a module?  (2)
 
 When a file is executed as a script, `__name__` has the value `'__main__'`.
 When it's imported as a module, it's `'script'`.
@@ -388,6 +393,44 @@ BTW, `__name__` is a global variable.
 ---
 
 A module is compiled under `__pycache__/`, not a script.
+
+##
+## What's the difference between the ranges `[a, b]`, `(a, b)`, `[a, b)`, `(a, b]`?
+
+First, this assumes that  an order is defined on the set  of elements "from" `a`
+"to" `b`, whatever `a` and `b` are.
+
+When `a` or `b` is next to a square bracket, it's included inside the range.
+When `a` or `b` is next to an open bracket, it's excluded from the range.
+
+With these rules, we can interpret the previous ranges like so:
+
+    ┌──────────┬───────────────────────────────────────────┐
+    │ notation │                  meaning                  │
+    ├──────────┼───────────────────────────────────────────┤
+    │ [a, b]   │ from a to b, a and b are included         │
+    ├──────────┼───────────────────────────────────────────┤
+    │ (a, b)   │ from a to b, a and b are excluded         │
+    ├──────────┼───────────────────────────────────────────┤
+    │ [a, b)   │ from a to b, a is included, b is excluded │
+    ├──────────┼───────────────────────────────────────────┤
+    │ (a, b]   │ from a to b, a is excluded, b is included │
+    └──────────┴───────────────────────────────────────────┘
+
+### Why is `[a, b)` particularly useful?
+
+It lets you split a range into multiple sub-ranges.
+Conversely, it lets you concatenate multiple sub-ranges into a single range.
+
+For example, `[a, b)` can be split into 4 sub-ranges like this:
+
+    [a, b) = [a, k₁) + [k₁, k₂) + [k₂, k₃) + [k₃, b)
+
+Since  the  items  where  we  split  the  range  (`k₁`,  `k₂`,  `k₃`)  are
+alternatively excluded and  included when used resp.  as the end and  start of a
+sub-range, they're  included exactly once in  the final result.  If  we used `]`
+instead of  `)`, they  would be  included twice.   But inside  `[a, b)`, they're
+present only once; so we need them once, not twice.
 
 ##
 # Issues

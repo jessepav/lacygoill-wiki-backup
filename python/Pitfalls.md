@@ -51,10 +51,10 @@ necessary:
     (1+2j).conjugate()
     ^    ^
 
-# Why are some object printed differently depending on whether I use `print()` or not in an interactive Python?
+# Why are some objects printed differently depending on whether I use `print()` or not in an interactive Python shell?
 
-Because by  default, Python  prints the canonical  representation of  the object
-(see `pydoc repr`).
+Because by default, Python prints the canonical representation of an object (see
+`pydoc repr`).
 
     >>> from fractions import Fraction as F
 

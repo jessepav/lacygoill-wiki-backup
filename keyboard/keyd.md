@@ -202,22 +202,6 @@ index 4c2518b..89b120c 100644
 ---
 ```diff
 diff --git a/docs/keyd.scdoc b/docs/keyd.scdoc
-index 50c4332..e1eac91 100644
---- a/docs/keyd.scdoc
-+++ b/docs/keyd.scdoc
-@@ -185,7 +185,7 @@ By default, each key is bound to itself within the main layer. The exception to
- are the modifier keys, which are instead bound to eponymously named layers with the
- corresponding modifiers.
- 
--For example, _meta_ is acutally bound to _layer(meta)_, where _meta_ is
-+For example, _meta_ is actually bound to _layer(meta)_, where _meta_ is
- internally defined as _meta:M_.
- 
- A consequence of this is that overriding modifier keys is a simple matter of
-```
----
-```diff
-diff --git a/docs/keyd.scdoc b/docs/keyd.scdoc
 index 50c4332..ed81246 100644
 --- a/docs/keyd.scdoc
 +++ b/docs/keyd.scdoc
@@ -417,6 +401,15 @@ Introduced in this commit:
 ### `clear()`
 
 <https://github.com/rvaiya/keyd/commit/f6f8793c4292a36525293e578f470d28f1221338>
+
+### `listen` command
+
+<https://github.com/rvaiya/keyd/commit/8b16e02de55ab2ebe1be91dbd2dbb5d186587a2c>
+
+### `reload` command
+
+- <https://github.com/rvaiya/keyd/commit/53f0a85781c706dae44bec40b420aa8598081d16>
+- <https://github.com/rvaiya/keyd/commit/2280d509dfdb7bda91acf75e1bd285ad06b0c00d>
 
 ##
 ## Briefly mention alternative programs
