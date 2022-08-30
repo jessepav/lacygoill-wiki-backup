@@ -97,6 +97,7 @@ temporarily converting the dates into simple integers.
    - `:help :argdedupe`
    - `:help :balt`
    - `:help :echoconsole`
+   - `:help :echowindow`
    - `:help :scriptversion`
    - `:help :source` (now, it can source buffer lines)
    - `:help :swapname`

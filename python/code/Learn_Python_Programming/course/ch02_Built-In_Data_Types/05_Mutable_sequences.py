@@ -52,6 +52,31 @@ print(list('hello'))
 #     [1, 3, 5, 7, 9]
 #     ['h', 'e', 'l', 'l', 'o']
 
+# `list(zip(...))` {{{3
+
+# We zip together the string "hello" and 2 ranges of numbers.{{{
+#
+# `zip()` expects variadic iterables:
+#
+#     zip(*iterables)
+#
+# It  returns an  iterator which  yields tuples  until one  of the  iterables is
+# exhausted.   The  i-th  tuple  is  constructed with  the  i-th  items  of  the
+# iterables.
+#}}}
+z = zip('hello', range(6), range(7))
+
+# The  iterator returned  by `zip()`  can  be passed  to a  constructor such  as
+# `list()` to build a list:
+print(list(z))
+#     [('h', 0, 0), ('e', 1, 1), ('l', 2, 2), ('l', 3, 3), ('o', 4, 4)]
+#      ^---------^  ^---------^  ^---------^  ^---------^  ^---------^
+#       1st yield    2nd yield    3th yield    4th yield    5th yield
+#       1st items    2nd items    3rd items    4rd items    5th items
+#
+# The shortest iterable was "hello" which is why the list only contains 5 items.
+# "hello" was exhausted before `range(6)` and `range(7)`.
+
 # List comprehension {{{3
 
 # A  list comprehension  is  a  powerful functional  feature  which can  produce

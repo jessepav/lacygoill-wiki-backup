@@ -201,6 +201,19 @@ that its characters would need to be  objects; but they are not.  In particular,
 there is no `char` type, and a character doesn't have attributes nor methods.
 
 ##
+# d
+## dictionary view
+
+Iterable returned from `dict.keys()`, `dict.values()`, or `dict.items()`.
+
+It's not a simple  list.  A list could not be updated  dynamically when an entry
+in the dictionary is added, removed, or changed.  A view is updated.
+To force the dictionary view to become a full list use `list(dictview)`.
+
+A  dictionary  view  can be  iterated  over  to  yield  its data,  and  supports
+membership tests.
+
+##
 # h
 ## hashability
 
@@ -527,6 +540,21 @@ Keyword used to define a null value, or no value at all.
 
 The `get()` method returns `None` when you ask for the value associated to a key
 in a dictionary from which the key is absent.
+
+A user-defined function returns `None`,  unless it contains a `return` statement
+which returns another value.
+
+---
+
+In a boolean context, you probably want to avoid `None`.
+
+If you don't, it will evaluate to `False`, but it doesn't mean the same thing:
+
+   - `None` means that we don't have any information ("I don't know")
+   - `False` means that we *do* have an information: it's false (whatever "it" is)
+
+If you need to  test an expression which can evaluate to  `None`, you might want
+to handle the latter as a special case before.
 
 ##
 # o

@@ -18,43 +18,41 @@ b = dict(A=1, Z=-1)
 #        2 keyword arguments
 
 # `dict(iterable)` {{{2
-# `zip()` {{{3
+# `dict(zip(...))` {{{3
 
-# `zip()` expects variadic iterables:{{{
+# `dict()` is a constructor which builds dictionaries.{{{
 #
-#     zip(*iterables)
-#
-# It  returns an  iterator which  yields tuples  until one  of the  iterables is
-# exhausted.   The  i-th  tuple  is  constructed with  the  i-th  items  of  the
-# iterables.
-#}}}
-z = zip('abcdefg', range(3), range(4))
-
-# The  iterator returned  by `zip()`  can  be passed  to a  constructor such  as
-# `list()` to build a list:
-print(list(z))
-#     [('a', 0, 0), ('b', 1, 1), ('c', 2, 2)]
-#      ^---------^  ^---------^  ^---------^
-#       1st yield    2nd yield     3 yield
-#       1st items    2nd items     3rd items
-#
-# The shortest  iterable was `range(3)`  which is why  the list only  contains 3
-# items. `range(3)` was exhausted before `range(4)` and "abcdefg".
-
-# `dict(zip())` {{{3
-
-# `dict()` is another constructor which builds dictionaries.
 # Like other constructors (e.g. `list()`,  `set()`, ...), it accepts an iterable
 # as argument.  It  accepts `zip()` because the latter gives  an iterator, which
-# is a special kind of iterable  (it implements `__next__()`).  When it receives
-# one, it builds a dictionary like this (and returns it):
+# is a special kind of iterable  (it implements `__next__()`).
+# `dict()` exhausts `zip()`  into a sequence of tuples, builds  a dictionary out
+# of them (by binding their items as key-value pairs), and returns it:
 #
 #     d = {}
 #     for k, v in iterable:
 #         d[k] = v
 #
-# This assumes that the items of the iterable are containers holding 2 items.
+# This assumes  that the items  of the iterable  are containers holding  2 items
+# (otherwise, the built dictionary would be empty).
+#}}}
 c = dict(zip(['A', 'Z'], [1, -1]))
+
+print(dict(zip('hello', range(5))))
+#     {'h': 0, 'e': 1, 'l': 3, 'o': 4}
+#
+# The order in which the items were added into the dictionary has been preserved.{{{
+#
+# The  fact that  we  can read  "helo"  by iterating  over the  keys  is not  an
+# accident:  Dictionary order  is guaranteed to be insertion  order since Python
+# 3.7.
+#}}}
+# "l" is bound to 3, not 2.{{{
+#
+# That's because "hello" contains 2 "l" characters.
+# The first "l" was bound to 2, and the second "l" to 3.
+# But a  key can only be  bound to a single  value, which implies that  the last
+# tuple with an "l" wins (its value overwrites the value currently bound).
+#}}}
 
 # `dict([('key', value), ...])` {{{3
 
@@ -72,17 +70,17 @@ print(a == b == c == d == e)
 # }}}1
 # Key-pair adding {{{1
 
-D = {}
+d = {}
 
 # The syntax to add a key-pair into a dictionary is `dict['key'] = value`:
-D['a'] = 1
-D['b'] = 2
-print(D)
+d['a'] = 1
+d['b'] = 2
+print(d)
 #     {'a': 1, 'b': 2}
 
 # `dict['key']`  is  not limited  to  an  lvalue; it  can  also  be used  as  an
 # expression to retrieve the value bound to a key:
-print(D['a'])
+print(d['a'])
 #     1
 
 # Key-pair removal {{{1
@@ -111,7 +109,25 @@ print('e' not in D)
 print(3 in D)
 #     False
 
-# length {{{1
+# dictionary views {{{1
+
+d = {'a': 1, 'b': 2, 'c': 3}
+
+# Key view:
+print(d.keys())
+#     dict_keys(['a', 'b', 'c'])
+
+# Items view:
+print(d.items())
+#     dict_items([('a', 1), ('b', 2), ('c', 3)])
+
+# A dictionary view supports membership tests:
+print(3 in d.values())
+print(('b', 2) in d.items())
+#     True
+#     True
+
+# `len()` {{{1
 
 # `len()` gives the number of key-pairs inside a dictionary:
 print(len(D))
@@ -119,3 +135,71 @@ print(len(D))
 #
 # It also works with strings and lists, and more generally with most objects.
 
+# `reversed()` {{{1
+
+# Since Python 3.8, dictionaries are reversible:
+print(list(reversed(D)))
+#     ['c', 'b', 'a']
+
+# `pop()`, `popitem()` {{{1
+
+# `pop()` removes a key, and returns its value:
+print(D.pop('b'))
+#     2
+
+# If the key does not exist, `KeyError` is raised:
+#
+#     E.pop('not-a-key')
+#     KeyError: 'not-a-key'˜
+
+# Unless, you pass a second optional argument, which is then used as a default value:
+print(D.pop('not-a-key', 'default-value'))
+#     default-value
+
+# `popitem()` removes and returns a (key, value) pair as a 2-tuple:
+print(D.popitem())
+print(D)
+#     ('c', 3)
+#     {'a': 1}
+#
+# Pairs are returned in LIFO order (last-in, first-out).
+
+# `update()` {{{1
+
+# `update()` adds key-pairs into a dictionary.
+# They  can be  be  specified with  a single  dictionary  argument, and/or  with
+# variadic keyword arguments:
+D.update({'another': 'value'})
+D.update(a=13)
+print(D)
+#     {'a': 13, 'b': 2, 'c': 3, 'another': 'value'}
+#      ^-----^                  ^----------------^
+#      updated item                 added item
+
+# `get()` {{{1
+
+# `get()` returns the  value for a key,  without giving an error if  it does not
+# exist.  In that case,  it defaults to its 2nd argument,  which is optional and
+# defaults to `None`:
+print(D.get('a'))
+print(D.get('a', 177))
+print(D.get('x', 177))
+print(D.get('x'))
+#     1
+#     1
+#     177
+#     None
+
+# `setdefault()` {{{1
+
+d = {}
+
+print(d.setdefault('a', 1))
+print(d)
+#     1
+#     {'a': 1}
+
+print(d.setdefault('a', 5))
+print(d)
+#     1
+#     {'a': 1}

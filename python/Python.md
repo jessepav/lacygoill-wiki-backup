@@ -384,6 +384,14 @@ sections: sign, exponent, and mantissa.
 
 When you want to store textual data, or send it on the network.
 
+## What's the order of the items in a dictionary??
+
+Dictionary order is guaranteed to be insertion order since Python 3.7.
+That  is, the  order  in which  the  items  were added  into  the dictionary  is
+preserved.
+
+Before 3.7, it's random.
+
 ## What's the difference between a script and a module?  (2)
 
 When a file is executed as a script, `__name__` has the value `'__main__'`.
