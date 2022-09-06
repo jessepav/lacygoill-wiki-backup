@@ -46,12 +46,13 @@ print(dict(zip('hello', range(5))))
 # accident:  Dictionary order  is guaranteed to be insertion  order since Python
 # 3.7.
 #}}}
-# "l" is bound to 3, not 2.{{{
+# "l" is associated to 3, not 2.{{{
 #
 # That's because "hello" contains 2 "l" characters.
-# The first "l" was bound to 2, and the second "l" to 3.
-# But a  key can only be  bound to a single  value, which implies that  the last
-# tuple with an "l" wins (its value overwrites the value currently bound).
+# The first "l" was associated to 2, and the second "l" to 3.
+# But a  key can only be  associated to a  single value, which implies  that the
+# last  tuple  with an  "l"  wins  (its  value  overwrites the  value  currently
+# associated).
 #}}}
 
 # `dict([('key', value), ...])` {{{3
@@ -68,25 +69,25 @@ e = dict({'Z': -1, 'A': 1})
 print(a == b == c == d == e)
 #     True
 # }}}1
-# Key-pair adding {{{1
+# Key-value pair adding {{{1
 
 d = {}
 
-# The syntax to add a key-pair into a dictionary is `dict['key'] = value`:
+# The syntax to add a key-value pair into a dictionary is `dict['key'] = value`:
 d['a'] = 1
 d['b'] = 2
 print(d)
 #     {'a': 1, 'b': 2}
 
 # `dict['key']`  is  not limited  to  an  lvalue; it  can  also  be used  as  an
-# expression to retrieve the value bound to a key:
+# expression to retrieve the value associated to a key:
 print(d['a'])
 #     1
 
-# Key-pair removal {{{1
+# Key-value pair removal {{{1
 
-# The `del` statement deletes a key-pair from a dictionary (just like it deletes
-# an item from a list):
+# The `del` statement  deletes a key-value pair from a  dictionary (just like it
+# deletes an item from a list):
 del D['a']
 print(D)
 #     {'b': 2, 'c': 3}
@@ -129,7 +130,7 @@ print(('b', 2) in d.items())
 
 # `len()` {{{1
 
-# `len()` gives the number of key-pairs inside a dictionary:
+# `len()` gives the number of key-value pairs inside a dictionary:
 print(len(D))
 #     3
 #
@@ -166,7 +167,7 @@ print(D)
 
 # `update()` {{{1
 
-# `update()` adds key-pairs into a dictionary.
+# `update()` adds key-value pairs into a dictionary.
 # They  can be  be  specified with  a single  dictionary  argument, and/or  with
 # variadic keyword arguments:
 D.update({'another': 'value'})
@@ -194,12 +195,78 @@ print(D.get('x'))
 
 d = {}
 
+# `setdefault()` is similar to `get()`.
+# It retrieves  the value  associated to a  given key, and  defaults to  its 2nd
+# optional argument if the  key doesn't exist (or to `None`  if that argument is
+# missing).
+# However, if the key doesn't exist, `setdefault()` also adds the key-value pair
+# value inside the dictionary (`get()` doesn't do that).
 print(d.setdefault('a', 1))
 print(d)
 #     1
 #     {'a': 1}
+#
+# The dictionary has changed: it now contains the key-value pair `(a, 1)`.
 
 print(d.setdefault('a', 5))
 print(d)
 #     1
 #     {'a': 1}
+#
+# The dictionary has  *not* changed, because the `a` key  already existed at the
+# time `setdefault()` was invoked a 2nd time.
+
+
+# Calls to `setdefault()` can be chained (like all methods):
+d = {}
+d.setdefault('a', {}).setdefault('b', []).append(1)
+print(d)
+#     {'a': {'b': [1]}}
+#
+# Explanation:{{{
+#
+# The first call to `setdefault()` adds the key-value pair `(a, {})`:
+#
+#     d = {'a': {}}
+#          ^-----^
+#
+# And it returns the added value `{}`.
+# The second  call to `setdefault()`  adds the  key-value pair `(b, [])`  to the
+# previously returned value `{}`:
+#
+#     d = {'a': {'b': []}}
+#                ^-----^
+#
+# Finally, the call to `append()` adds 1 to the previously returned value `[]`:
+#
+#     d = {'a': {'b': [1]}}
+#                      ^
+#}}}
+# union {{{1
+
+d = {'a': 'A', 'b': 'B'}
+e = {'b': 8, 'c': 'C'}
+
+# The `|` operator computes the union of 2 dictionaries (require Python 3.9):
+print(d | e)
+print(e | d)
+#     {'a': 'A', 'b': 8, 'c': 'C'}
+#     {'b': 'B', 'c': 'C', 'a': 'A'}
+#
+# The results are different, even though the operands are the same.
+# That's because the union operation is not commutative for dictionaries (but it
+# is  for sets).  If the  dictionaries have a  key in common but  with different
+# values, the value in the last operand overrides the other.
+
+# Unpacking a  dictionary inside curly  brackets is  another way to  compute the
+# union of 2 dictionaries:
+print({**d, **e})
+print({**e, **d})
+#     {'a': 'A', 'b': 8, 'c': 'C'}
+#     {'b': 'B', 'c': 'C', 'a': 'A'}
+
+# The augmented  assignment operator `|=`  computes the union of  2 dictionaries
+# and assigns it to the operand in its LHS:
+d |= e
+print(d)
+#     {'a': 'A', 'b': 8, 'c': 'C'}

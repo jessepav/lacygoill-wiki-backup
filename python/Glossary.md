@@ -884,6 +884,13 @@ vectors.
 
 ##
 # u
+## UTC / GMT
+
+Coordinated  Universal Time  is the  primary time  standard by  which the  world
+regulates clocks and time.
+
+There is no time difference between Greenwich Mean Time and Coordinated Universal Time.
+
 ## UTF-8
 
 Variable-length  character encoding,  capable of  encoding all  possible Unicode

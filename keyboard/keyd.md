@@ -411,6 +411,18 @@ Introduced in this commit:
 - <https://github.com/rvaiya/keyd/commit/53f0a85781c706dae44bec40b420aa8598081d16>
 - <https://github.com/rvaiya/keyd/commit/2280d509dfdb7bda91acf75e1bd285ad06b0c00d>
 
+### input command
+
+<https://github.com/rvaiya/keyd/commit/959996080447e8c4930526627229179a0572cac3>
+
+### do command
+
+<https://github.com/rvaiya/keyd/commit/abb056ba2c0a2062c67f5937207ccda3d11cd088>
+
+### `-t` flag
+
+<https://github.com/rvaiya/keyd/commit/5fc6cde3de65d53de240601d70a7a23830031711>
+
 ##
 ## Briefly mention alternative programs
 

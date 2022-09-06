@@ -136,7 +136,7 @@ always have been the same:
 
 But that's not  what happened.  During the first call,  `opt` has correctly been
 assigned `[]`,  hence why  the function  prints `[0]` after  the item  `"x"` was
-added.  But during the subsequent calls, `opt` has *not* been assigned `[]`
+added.  But during the subsequent calls, `opt` has *not* been assigned `[]`.
 
 ---
 

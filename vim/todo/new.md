@@ -82,6 +82,8 @@ temporarily converting the dates into simple integers.
    - `:help prop_list()` supports new keys in the optional argument `{props}`:
      `end_lnum`, `types`, `ids`
    - `:help win_move_separator()` and `:help win_move_statusline()`
+   - `:help writefile()` accepts a new 'D' flag (it deletes the written file
+     after the current function has returned)
 
    - `:help expand()` accepts the `<script>` argument
    - `:help matchfuzzy()` and `:help matchfuzzypos()` accept a `limit` key in the `{dict}` argument
@@ -96,11 +98,16 @@ temporarily converting the dates into simple integers.
 
    - `:help :argdedupe`
    - `:help :balt`
+   - `:help :defer`
    - `:help :echoconsole`
    - `:help :echowindow`
+   - `:help :horizontal`
    - `:help :scriptversion`
    - `:help :source` (now, it can source buffer lines)
    - `:help :swapname`
+
+`:horizontal` and `:vertical`  can be used in front of  `:wincmd =` to limit the
+equalization to one direction.
 
 ### arguments
 

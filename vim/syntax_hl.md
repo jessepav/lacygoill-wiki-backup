@@ -2106,6 +2106,12 @@ in `$VIMRUNTIME`:
     " not interested in a negated collection containing `\n`
     :Cfilter! \[\^[^\]]*\\n[^\]]*\]
 
+
+---
+
+Yet another issue involving a multiline match:
+<https://github.com/vim/vim/issues/11007>
+
 ## ?
 
 Document that `:syntax include` sets `b:current_syntax`.

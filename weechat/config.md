@@ -257,16 +257,16 @@ And it doesn't work if you use `meta-ctrl-[A-Z]`
 # Aliases
 ## How to list all currently installed aliases?
 
-      /alias list
+    /alias list
 
 ## How to remove an alias?
 
-      /alias del <alias>
+    /alias del <alias>
 
 ## How to install an alias, running two commands?
 
-      /alias add <alias> cmd1 ; cmd2
-                              ^
+    /alias add <alias> cmd1 ; cmd2
+                            ^
 
 ##
 # Todo

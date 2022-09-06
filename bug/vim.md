@@ -1874,9 +1874,9 @@ index eb269e16c..21fe47a83 100644
 --- a/runtime/doc/usr_41.txt
 +++ b/runtime/doc/usr_41.txt
 @@ -2514,6 +2514,17 @@ be set accordingly.
- 
+
  Both these variables use legacy script syntax, not |Vim9| syntax.
- 
+
 +				*undo_indent_list* *undo_ftplugin_list*
 +
 +Alternatively, you can set the b:undo_ftplugin_list variable with a list of
@@ -1888,9 +1888,9 @@ index eb269e16c..21fe47a83 100644
 +Note that the string items are executed with the legacy syntax.  But the
 +funcrefs/lambdas are executed in the context of the script where they are
 +defined; this is useful if one of your commands needs to use the Vim9 syntax.
- 
+
  FILE NAME
- 
+
 diff --git a/runtime/ftplugin.vim b/runtime/ftplugin.vim
 index 2500a7f27..908fae5df 100644
 --- a/runtime/ftplugin.vim
@@ -1898,7 +1898,7 @@ index 2500a7f27..908fae5df 100644
 @@ -26,6 +26,23 @@ def LoadFTPlugin()
      unlet! b:undo_ftplugin b:did_ftplugin
    endif
- 
+
 +  if !exists('b:undo_ftplugin_list')
 +    if &filetype != ''
 +      b:undo_ftplugin_list = []
@@ -2155,7 +2155,7 @@ index da4188d4..66d673f2 100644
 --- a/parsers/vim.c
 +++ b/parsers/vim.c
 @@ -546,7 +546,7 @@ static void parseVariableOrConstant (const unsigned char *line, int infunction,
- 
+
  			vStringPut (name, (int) *cp);
  			++cp;
 -		} while (isalnum ((int) *cp) || *cp == '_' || *cp == '#' || *cp == ':' || *cp == '$');
@@ -2669,7 +2669,7 @@ index 049fabb30..0889b7d98 100644
 +++ b/runtime/doc/repeat.txt
 @@ -383,8 +383,8 @@ For writing a Vim script, see chapter 41 of the user manual |usr_41.txt|.
  			feature}
- 
+
  :scr[iptnames][!] {scriptId}			*:script*
 -			Edit script {scriptId}.  Although ":scriptnames name"
 -			works, using ":script name" is recommended.
@@ -2677,7 +2677,7 @@ index 049fabb30..0889b7d98 100644
 +			works, using ":script ID" is recommended.
  			When the current buffer can't be |abandon|ed and the !
  			is not present, the command fails.
- 
+
 ```
 ## <F1..4> don't work with modifiers in xterm
 
