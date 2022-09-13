@@ -1,3 +1,13 @@
+# ?
+
+Document these links:
+
+- <http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/usr.bin/tmux/>
+- <https://github.com/openbsd/src/tree/master/usr.bin/tmux>
+
+Useful when an issue has been fixed upstream  but the GitHub tmux repo is not in
+sync yet.
+
 # possible bug: `RGB` is absent from `tmux info`
 
     $ tmux info | grep 'Tc\|RGB'

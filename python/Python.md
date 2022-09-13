@@ -7,11 +7,11 @@ If you can't access the URL, use our custom shell function `tor`:
 <https://github.com/lacygoill/config/blob/master/.config/fish/functions/tor.fish>
 
 The latest release should be suggested by a large button.
-ATM it's `3.10.6`.
+ATM it's `3.10.7`.
 Don't click on the main button, instead use `aria2c(1)`:
 
-    $ aria2c https://www.python.org/ftp/python/3.10.6/Python-3.10.6.tar.xz
-    $ aria2c https://www.python.org/ftp/python/3.10.6/Python-3.10.6.tar.xz.asc
+    $ aria2c https://www.python.org/ftp/python/3.10.7/Python-3.10.7.tar.xz
+    $ aria2c https://www.python.org/ftp/python/3.10.7/Python-3.10.7.tar.xz.asc
 
 The commands download 2 archives: one  containing the installer, the other a PGP
 ASCII Armored File.
@@ -42,11 +42,11 @@ a `gpg(1)` command such as:
 
 Now, check the authenticity of the installer's archive:
 
-    $ gpg --verify Python-3.10.6.tar.xz.asc
+    $ gpg --verify Python-3.10.7.tar.xz.asc
 
 You should read a message containing the text “Good signature from ...”:
 
-    gpg: assuming signed data in 'Python-3.10.6.tar.xz'
+    gpg: assuming signed data in 'Python-3.10.7.tar.xz'
     gpg: Signature made Mon 01 Aug 2022 10:39:02 PM CEST
     gpg:                using RSA key CFDCA245B1043CF2A5F97865FFE87404168BD847
     gpg: Good signature from "Pablo Galindo Salgado <pablogsal@gmail.com>" [unknown]
@@ -74,8 +74,8 @@ To get rid of the warning:
 
 Now, if you re-run the `--verify` command, there should be no warning anymore:
 
-    $ gpg --verify Python-3.10.6.tar.xz.asc
-    gpg: assuming signed data in 'Python-3.10.6.tar.xz'
+    $ gpg --verify Python-3.10.7.tar.xz.asc
+    gpg: assuming signed data in 'Python-3.10.7.tar.xz'
     gpg: Signature made Mon 01 Aug 2022 10:39:02 PM CEST
     gpg:                using RSA key CFDCA245B1043CF2A5F97865FFE87404168BD847
     gpg: Good signature from "Pablo Galindo Salgado <pablogsal@gmail.com>" [ultimate]
@@ -87,9 +87,9 @@ See:
 
 ## Extract the contents of the archive
 
-    $ tar xf Python-3.10.6.tar.xz
-    $ rm Python-3.10.6.tar.xz
-    $ cd Python-3.10.6
+    $ tar xf Python-3.10.7.tar.xz
+    $ rm Python-3.10.7.tar.xz
+    $ cd Python-3.10.7
 
 Don't extract the archive under `/run`; otherwise, the compilation will probably
 fail because of a lack of space.
@@ -139,7 +139,7 @@ See also: <https://stackoverflow.com/a/48045929>
 
 ## Configure
 
-    $ ./configure --with-ensurepip=install --with-readline
+    $ ./configure --with-ensurepip=install --with-readline=editline
 
 `--with-ensurepip` installs pip module, which you'll need to run commands such as:
 

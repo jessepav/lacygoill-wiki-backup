@@ -48,8 +48,8 @@ print((today.day, today.month, today.year))
 
 # numerical values {{{2
 
-# The  `timetuple()` method  of the  `today` object  gives a  `time.struct_time`
-# object containing numerical values about the current date:
+# The `timetuple()`  method of the  `today` object gives a  `struct_time` object
+# containing numerical values about the current date:
 print(today.timetuple())
 #     time.struct_time(
 #         tm_year=2022,
@@ -122,8 +122,8 @@ print(time.gmtime(0))
 
 # local time {{{2
 
-# The `localtime()`  function of  the `time`  module gives  a `time.struct_time`
-# object containing numerical values about the current date *and time*:
+# The `localtime()` function  of the `time` module gives  a `struct_time` object
+# containing numerical values about the current date *and time*:
 print(time.localtime())
 #     time.struct_time(
 #         tm_year=2022,

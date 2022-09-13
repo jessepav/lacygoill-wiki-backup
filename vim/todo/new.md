@@ -13,6 +13,7 @@
    - `:help gettagstack()` + `:help settagstack()`
    - `:help indexof()`
    - `:help interrupt()`
+   - `:help keytrans()`
    - `:help maplist()`
    - `:help prop_add_list()`
    - `:help pum_getpos()`
@@ -87,6 +88,9 @@ temporarily converting the dates into simple integers.
 
    - `:help expand()` accepts the `<script>` argument
    - `:help matchfuzzy()` and `:help matchfuzzypos()` accept a `limit` key in the `{dict}` argument
+   - `:help mkdir()` supports the `D` and `R` flags (they defer the automatic
+     deletion of the created directory at the end of the current function; `D`
+     is for an empty directory; `R` works recursively)
 
 ## output of functions
 

@@ -74,7 +74,7 @@ main(void)
     // enough  to deduce  the  value of  the whole  expression,  then the  right
     // operand is *not* evaluated.
     //}}}
-    // This feature is useful to refactor a simple `if` statement into a logical expression:{{{
+    // This feature is useful to refactor a simple `if` block into a logical expression:{{{
     //
     //       if (expr1)
     //           expr2;

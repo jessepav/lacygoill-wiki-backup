@@ -423,6 +423,11 @@ Introduced in this commit:
 
 <https://github.com/rvaiya/keyd/commit/5fc6cde3de65d53de240601d70a7a23830031711>
 
+### `overload2` and `overload3` actions
+
+- <https://github.com/rvaiya/keyd/commit/b1fdaa4d0156c24e626cc3612814c8964bf8afa0>
+- <https://github.com/rvaiya/keyd/commit/ae4909ac53b15355e9af152da467abddb08e0616>
+
 ##
 ## Briefly mention alternative programs
 

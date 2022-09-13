@@ -1,3 +1,134 @@
+# ?
+```vim
+vim9script
+var squares: list<func(): number> = []
+for x in range(5)
+    squares->add(() => x * x)
+endfor
+for F in squares
+    echo F()
+endfor
+```
+    E1302: Script variable was deleted
+```vim
+vim9script
+def Test()
+    var squares: list<func(): number> = []
+    for x in range(5)
+        squares->add(() => x * x)
+    endfor
+    for F in squares
+        echo F()
+    endfor
+enddef
+Test()
+```
+    16
+    16
+    16
+    16
+    16
+
+Inconsistent results.
+
+---
+```vim
+vim9script
+var squares: list<func> = []
+for n in range(5)
+    {
+        const nr = n
+        squares[nr] = () => nr * nr
+    }
+endfor
+for F in squares
+    echo F()
+endfor
+```
+    0
+    1
+    4
+    9
+    16
+```vim
+vim9script
+def Test()
+    var squares: list<func> = []
+    for n in range(5)
+        {
+            const nr = n
+            squares[nr] = () => nr * nr
+        }
+    endfor
+    for F in squares
+        echo F()
+    endfor
+enddef
+Test()
+```
+    16
+    16
+    16
+    16
+    16
+
+Inconsistent results.
+
+---
+
+- <https://github.com/vim/vim/issues/11094#issuecomment-1242819204>
+- <https://github.com/vim/vim/issues/11094#issuecomment-1242948880>
+
+# ?
+
+    :vim9cmd echo fullcommand('en')
+    E1065: Command cannot be shortened: en
+
+Working as intended?
+I understand the error, but it's not obvious.
+Vim doesn't  want to  give `:endif`,  because if it  did, it  would *implicitly*
+acknowledge  the  fact that  `:endif`  can  be  shortened  into `:en`  which  is
+disallowed  in  Vim9 context.   But  that's  an  *implicit* reason.   We're  not
+explicitly asking to shorten `:endif` into `:en`.  So, the message might be hard
+to understand for some users.
+
+Anyway, I think it would be convenient if no error was given.
+Otherwise,  we  might   need  a  legacy  function  just  to   be  able  to  call
+`fullcommand()`; that's what we do in the Vim indent plugin.
+
+---
+
+Support docstrings in Vim9 script, so that functions can self-document.
+Rationale: I often do something like this:
+
+    def Func()
+    # this comment is about the overall function
+
+        # this comment is about the next statement
+        statement
+    enddef
+
+But with an indent plugin, the lines are indented like this:
+
+    def Func()
+        # this comment is about the overall function
+
+        # this comment is about the next statement
+        statement
+    enddef
+
+Now, it looks like the first comment is about the statement, which is wrong.
+With a docstring, no issue:
+
+    def Func()
+        """
+        this comment is about the overall function
+        """
+
+        # this comment is about the next statement
+        statement
+    enddef
+
 # matchit
 
 <https://github.com/chrisbra/matchit/issues/19#issuecomment-1221467387>
@@ -2735,17 +2866,6 @@ Also, we might have found some hacky workaround:
     EOF
     )
 
-## vim-stacktrace
-
-   > is there a way to get vim to report absolute line file numbers rather than lines in a function for errors
-   > within a function? I'm getting tired trying to work it out.
-
-Could it be done for the next Vim9 release?
-Alternatively, we should probably at least provide a default optional package to
-populate the quickfix list with Vimscript errors (`:packadd ...`).
-
-Find another similar quote from a reddit thread where people criticize Vimscript.
-
 ## ?
 ```vim
 vim9script
@@ -3066,7 +3186,7 @@ We might still recommend full command names in the help; for 2 reasons:
    - consistency
    - easier refactoring
 
-With regards to the second bullet point, suppose you want to apply a modifier like `:keepjumps` or `:keeppatterns` for every substitution in your (possibly huge) config/plugins.  Good luck finding all of them if you've used the short form `:s` with arbitrary pattern delimiters.  OTOH, looking for `substitute` is easy and will mostly give relevant results.
+Regarding the second bullet point, suppose you want to apply a modifier like `:keepjumps` or `:keeppatterns` for every substitution in your (possibly huge) config/plugins.  Good luck finding all of them if you've used the short form `:s` with arbitrary pattern delimiters.  OTOH, looking for `substitute` is easy and will mostly give relevant results.
 
 This kind of recommendation could be included in a new `:help vim9script-styleguide` help tag.
 

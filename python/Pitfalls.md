@@ -144,14 +144,32 @@ This is an issue for lists and dictionaries; not for tuples which are immutable.
 
 ### But why does that happen?  Why is the default value sometimes ignored?
 
-Because default  parameter values are  evaluated when the function  is *defined*
-(i.e. when the `def` statement is executed); not when the function is *called*.
+Because it's not assigned on each function call.
+It's just used to initialize an attribute of the function object when the latter
+is created:
+```python
+def func(a=[], b={}):
+    a += [len(a)]
+    b[len(a)] = len(a)
+    pass
 
-This means that a default value is  only assigned once, no matter how many times
-you call the function.
+print(func.__defaults__)
+func()
+print(func.__defaults__)
+func()
+print(func.__defaults__)
+func()
+print(func.__defaults__)
+```
+    ([], {})
+    ([0], {1: 1})
+    ([0, 1], {1: 1, 2: 2})
+    ([0, 1, 2], {1: 1, 2: 2, 3: 3})
 
-In turn, this  implies that the default  value is bound to  the function object;
-otherwise, the value would not be preserved across function calls.
+Notice  how  the  default values  are  bound  to  the  function object  via  its
+`__defaults__` attribute which holds all of them inside a single tuple.
+Also, notice how after each function  call, the items inside `__defaults__` have
+mutated.
 
 ### OK.  And how do I work around that?
 

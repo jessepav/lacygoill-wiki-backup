@@ -77,7 +77,7 @@ presumably made with the intent of following a simple rule.
 
 It would also have been possible to allow for optional parameters to be declared
 anywhere.   First,  the  mandatory  parameters would  be  assigned  reading  the
-arguments from left to  right.  Then, whatever is left would  be assigned to the
+arguments from left  to right.  Then, whatever remains would  be assigned to the
 optional parameters reading the arguments from right to left:
 <https://stackoverflow.com/a/2900474>
 
@@ -206,7 +206,7 @@ there is no `char` type, and a character doesn't have attributes nor methods.
 
 Iterable returned from `dict.keys()`, `dict.values()`, or `dict.items()`.
 
-It's not a simple  list.  A list could not be updated  dynamically when an entry
+It's not a simple  list.  A list would not be updated  dynamically when an entry
 in the dictionary is added, removed, or changed.  A view is updated.
 To force the dictionary view to become a full list use `list(dictview)`.
 
@@ -560,7 +560,7 @@ to handle the latter as a special case before.
 # o
 ## object
 
-Any data with state (attributesor or value) and defined behavior (methods).
+Any data with state (attributes or value) and defined behavior (methods).
 
 It is instantiated from a class, and has an ID, a type, as well as a value.
 
@@ -686,8 +686,8 @@ A document that describes a newly propose feature.
 
 ## PEP 8
 
-This PEP  specifies some coding conventions  with regards to how  Python code in
-the standard library should be formatted/styled.
+This PEP  specifies some  coding conventions  regarding how  Python code  in the
+standard library should be formatted/styled.
 
 When working on a particular project, you should respect its style.
 When  working on  your own  project, you  can do  whatever you  want, but  being

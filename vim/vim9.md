@@ -647,7 +647,7 @@ is invoked, the execution of `GetClosure()` has ended, therefore its environment
 no longer exists, nor `x`.
 
 For this  to work,  `x` needs to  be somehow saved  somewhere with  its original
-value `0`, and be bound to the definition of `ClosureVar`.
+value `0`, and be bound to the name `ClosureVar`.
 IOW, `ClosureVar` is  a special type of function; its  definition is not limited
 to its body; it also needs some special environment where its free variables can
 be saved with their original values (and possibly mutate later).
@@ -684,7 +684,22 @@ iteration of the loop.
 
 Solution:
 
-To force Vim to use a separate context, call a function to define each closure:
+To force Vim to use a separate context, create each closure from a nested block:
+```vim
+vim9script
+var closures: list<func>
+for i in range(10)
+    {
+        var inloop = i
+        closures[i] = () => inloop
+    }
+endfor
+echo closures
+    ->len()
+    ->range()
+    ->map((i, _) => closures[i]())
+```
+Or from a function:
 ```vim
 vim9script
 def GetClosure(i: number): func
