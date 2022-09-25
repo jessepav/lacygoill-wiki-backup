@@ -421,12 +421,22 @@ Introduced in this commit:
 
 ### `-t` flag
 
-<https://github.com/rvaiya/keyd/commit/5fc6cde3de65d53de240601d70a7a23830031711>
+- <https://github.com/rvaiya/keyd/commit/5fc6cde3de65d53de240601d70a7a23830031711>
+- <https://github.com/rvaiya/keyd/commit/55c4477b8917924d6d8cd4f3da6ef92bbd00afa9>
 
 ### `overload2` and `overload3` actions
 
 - <https://github.com/rvaiya/keyd/commit/b1fdaa4d0156c24e626cc3612814c8964bf8afa0>
 - <https://github.com/rvaiya/keyd/commit/ae4909ac53b15355e9af152da467abddb08e0616>
+
+### `toggle2`, `swap2`, `overload2`, `overload3` have been renamed (old names will be deprecated)
+
+    toggle2 -> togglem
+    swap2 -> swapm
+    overload2 -> overloadt
+    overload3 -> overloadt2
+
+<https://github.com/rvaiya/keyd/commit/190bd68242a21abb490947537d828590f0a75be3>
 
 ##
 ## Briefly mention alternative programs

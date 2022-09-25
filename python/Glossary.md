@@ -5,9 +5,10 @@
 In a function  call, name-value pairs which  can be used to pass  arguments to a
 function.
 
-Pro: Contrary to  positional arguments, this  syntax is  immune to the  order in
-which the arguments are specified, because  the semantics of a given argument is
-no longer derived from its position but from its associated name.
+Pro: Contrary to positional arguments, with this  syntax, you don't need to care
+about the order in which the arguments are specified, because the semantics of a
+given argument  is no longer derived  from its position but  from its associated
+name.
 
 Con: You need  to know  the names of  the parameters as  they're written  in the
 function header.
@@ -72,24 +73,6 @@ Optional parameters must be declared *after* mandatory parameters:
 
     SyntaxError: non-default argument follows default argument˜
 
-There  is  no  fundamental  reason  for this;  it's  just  an  arbitrary  choice
-presumably made with the intent of following a simple rule.
-
-It would also have been possible to allow for optional parameters to be declared
-anywhere.   First,  the  mandatory  parameters would  be  assigned  reading  the
-arguments from left  to right.  Then, whatever remains would  be assigned to the
-optional parameters reading the arguments from right to left:
-<https://stackoverflow.com/a/2900474>
-
-We would  need to read  the arguments  from different well-known  positions (far
-left and far right), to get simple rules for how 2 different types of parameters
-should be assigned.
-
-In contrast,  it's easier to  just state that  the optional arguments  should be
-specified after  the mandatory ones; that's  just 1 rule, and  the arguments are
-all read  in the same  direction, from left to  right (that matches  the natural
-direction in which we read/write code).
-
 ### positional arguments
 
 Arguments in a  function call which need to  be passed in the same  order as the
@@ -109,15 +92,15 @@ that's the order in which these parameters are specified in the function header.
 ##
 ## assignment
 
-Statement which binds a name to an object by placing it inside a namespace.
+Statement which binds a name to an object inside a namespace.
 
 ---
 
-An assignment to a name always goes into the innermost scope (unless `global` or
-`nonlocal` has been used earlier).
+An assignment always use the innermost  scope (unless `global` or `nonlocal` has
+been used earlier).
 
 The same is true  for a deletion: the statement `del  x`  removes the binding of
-`x` from the namespace referenced by the local scope.
+`x` from the namespace tied to the local scope.
 
 More generally, all operations that introduce  new names use the local scope: in
 particular,  import  statements and  function  definitions  bind the  module  or
@@ -137,19 +120,27 @@ In C, that's called a *compound* assignment.
 # b
 ## byte array
 
-Mutable version of a bytes objects.
+Mutable version of a bytes object, created by `bytearray()`.
 
 A byte array supports most methods which  work on strings and most methods which
 work on  lists.  The former  produce a copy  because strings are  immutable; the
 latter operate in-place because lists *are* mutable.
 
+Example:
+
+    bytearray(b'A bytes object')
+
 ## bytes object
 
-Immutable sequence  of bytes.   Each item  in a  bytes object  is an  integer in
-`[0, 256)`.
+Immutable sequence of bytes.
+Each item in a bytes object is an integer in `[0, 256)`.
 
 In case you wonder  where 256 comes from, remember that a  byte contains 8 bits,
 and that each bit can have 2 values; that's 2⁸ = 256 values for a byte.
+
+Example:
+
+    b'A bytes object'
 
 ##
 # c
@@ -204,14 +195,17 @@ there is no `char` type, and a character doesn't have attributes nor methods.
 # d
 ## dictionary view
 
-Iterable returned from `dict.keys()`, `dict.values()`, or `dict.items()`.
+Iterable returned  from `dict.keys()`, `dict.values()`, or  `dict.items()` where
+`dict` is a given dictionary.
 
-It's not a simple  list.  A list would not be updated  dynamically when an entry
-in the dictionary is added, removed, or changed.  A view is updated.
+It's not  a simple  list.  A  list would  not be  updated when  an entry  in the
+dictionary is  added, removed, or  changed.  A view  reflects any change  in the
+dictionary.
+
 To force the dictionary view to become a full list use `list(dictview)`.
 
-A  dictionary  view  can be  iterated  over  to  yield  its data,  and  supports
-membership tests.
+Like a  list, a  dictionary view  can be iterated  over to  yield its  data, and
+supports membership tests.
 
 ##
 # h
@@ -255,7 +249,7 @@ derived from their `id()`.
 # i
 ## idiom
 
-A syntax which is particular to a language.
+A syntax which is specific to a language.
 
 Usually, using an idiom makes the code less verbose.
 Often, it makes it also easier to read and understand.
@@ -332,8 +326,9 @@ print(ll)
     [1, 2]
 
 Here, the  `ll += [2]` augmented assignment  did not rebind  the name `ll`  to a
-newly created object `[1, 2]`; all the bindings have remained the same.  It just
-modified the old object `[1]` which both `l` and `ll` were bound to.
+newly created object  `[1, 2]`; that would not explain why  `l` has changed too.
+All the bindings have remained the same.   But the assignment did modify the old
+object `[1]` which both `l` and `ll` were bound to.
 
 Here is  another similar  example which relies  on a method  call instead  of an
 augmented assignment:
@@ -415,7 +410,8 @@ Said  of a  method that  is called  implicitly by  Python to  execute a  certain
 operation on a  type, such as addition.   Such a method has a  name starting and
 ending with dunderscores.
 
-In a class definition, `__init__()` is an example of special method.
+An example  of special method  is `__init__()` which should  be part of  a class
+definition.
 
 See: <https://docs.python.org/3/reference/datamodel.html#specialnames>
 
@@ -471,18 +467,50 @@ Module where the built-in names live (e.g. `abs()`).
 
 ### `__main__`
 
-Module containing  the statements  executed by the  top-level invocation  of the
-interpreter.  Those could be:
+Name  of  the  module  containing  the  statements  executed  by  the  top-level
+invocation of the interpreter.  Those could be:
 
    - in a script, if Python was started to run a script
    - typed interactively, if Python was started as a REPL
 
 ##
 # n
+## naive (time object)
+
+A time object  is naive if it  contains a time quantity, but  doesn't tell which
+time zone the time quantity belongs to.
+
+The opposite of "naive" is "aware".  That is,  a time object is aware if it does
+tell which time zone the time quantity belongs to.
+
+##
 ## name
 
 In Python,  a name  is the closest  abstraction to what  other languages  call a
 variable.  A name is bound to an object.
+
+## namedtuple
+
+A tuple-like object which has fields accessible by attribute lookup.
+Since it's a subclass  of `tuple`, i's also indexable and  iterable, just like a
+regular tuple.
+
+Example:
+```python
+from collections import namedtuple
+ # name used to instantiate our namedtuples (it's a subclass of `tuple`)
+ # vvv
+Vision = namedtuple('Vision', ['left', 'right'])
+                   # ^----^
+                   # internal typename
+john_vision = Vision(9.5, 8.8)
+print(john_vision)
+```
+                fields
+                vvv        vvv
+    Vision(left=9.5, right=8.8)
+           ^--^      ^---^
+           attributes
 
 ## namespace
 
@@ -510,9 +538,9 @@ WRT the last bullet  point, imagine you have 2 bikes objects,  each with its own
     red_bike.color
     blue_bike.color
 
-Even though  the attributes  are named  the same, there  would be  no confusion,
-because each of them is in a separate namespace (`red_bike` vs `blue_bike`).
-And we use the dot operator to walk into each namespace.
+Even though the attributes are named  the same, they could be assigned different
+values,  because each  of them  lives in  an isolated  namespace (`red_bike`  vs
+`blue_bike`).  And we use the dot operator to walk into each namespace.
 
 ---
 
@@ -642,11 +670,11 @@ the parameter `param`.
 ### properties which determine whether it requires an argument
 #### mandatory parameter
 
-Parameter which must be assigned an argument.
+Parameter for which an argument must be specified in a function call.
 
 #### optional parameter
 
-Parameter for which the argument can be omitted.
+Parameter for which the argument can be omitted in a function call.
 
 ###
 ### properties which determine how it should be assigned an argument
@@ -664,12 +692,13 @@ Parameter for which the argument can be omitted.
 #### keyword-only parameter
 
 Parameter which  can only be assigned  with an argument passed  by keyword (e.g.
-`arg='value'`).  It must be declared *after* the special parameter `*`.
+`arg='value'`).   A  parameter  declared  after the  special  parameter  `*`  is
+keyword-only.
 
 #### positional-only parameter
 
 Parameter which can only be assigned with an argument passed by position.
-It must be declared *before* the special parameter `/`.
+A parameter declared before the special parameter `/` is positional-only.
 
 #### positional-or-keyword parameter
 
@@ -689,7 +718,7 @@ A document that describes a newly propose feature.
 This PEP  specifies some  coding conventions  regarding how  Python code  in the
 standard library should be formatted/styled.
 
-When working on a particular project, you should respect its style.
+When working on a particular project, you should respect its style, whatever it is.
 When  working on  your own  project, you  can do  whatever you  want, but  being
 consistent helps, hence why you should follow *some* conventions.
 
@@ -701,7 +730,8 @@ See: <https://peps.python.org/pep-0008/>
 ##
 ## PyPI
 
-Where  the  Python  international  community maintains  a  body  of  third-party
+The Python  Package Index  is the official  third-party software  repository for
+Python, where the Python international community maintains a body of third-party
 libraries, tailored to specific needs.
 
 ## Pythonic
@@ -792,7 +822,7 @@ immutable keys rather than integers.
 ##
 ## set
 
-Unordered collection of immutable and unique objects.
+Unordered collection of unique objects.
 
 Contrary to a list or a tuple  which are surrounded by resp. square brackets and
 parentheses, a set is surrounded by curly brackets.
@@ -851,7 +881,7 @@ used as a logical expression in a test.  All expressions are truthy, except:
    - `None`
    - `False`
    - the number 0 (no matter how it's represented: `0`, `0.0`, ...)
-   - an empty sequence or collection (e.g. `''`, `[]`, ...)
+   - an empty sequence or mapping/collection (e.g. `''`, `[]`, ...)
 
    - objects for which the `__bool__()` method returns `False`, or the
      `__len__()` method returns 0 (assuming  `__bool__` is undefined)

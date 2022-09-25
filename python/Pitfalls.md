@@ -4,7 +4,7 @@ Without, you would need to install libraries directly at the system level, which
 could compromise  the integrity  of your  OS.  The latter  relies on  the system
 installation of Python for various tasks.  Don't fiddle with it; leave it alone.
 
-# Why should I never surround a function/method name with dunderscores?
+# Why should I never surround the name of one of my functions/methods with dunderscores?
 
 Python uses this convention to name magic methods.
 
@@ -154,10 +154,13 @@ def func(a=[], b={}):
     pass
 
 print(func.__defaults__)
+
 func()
 print(func.__defaults__)
+
 func()
 print(func.__defaults__)
+
 func()
 print(func.__defaults__)
 ```
@@ -168,8 +171,10 @@ print(func.__defaults__)
 
 Notice  how  the  default values  are  bound  to  the  function object  via  its
 `__defaults__` attribute which holds all of them inside a single tuple.
-Also, notice how after each function  call, the items inside `__defaults__` have
-mutated.
+Also,  notice how  after each  function  call, the  items inside  `__defaults__`
+mutate.
+
+IOW, the default value is only used at definition time; not at call time.
 
 ### OK.  And how do I work around that?
 

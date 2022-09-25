@@ -382,7 +382,7 @@ sections: sign, exponent, and mantissa.
 
 ## When should I encode a string object into a bytes object?
 
-When you want to store textual data, or send it on the network.
+When you want to store textual data in a file, or send it on the network.
 
 ## What's the order of the items in a dictionary??
 
@@ -392,14 +392,9 @@ preserved.
 
 Before 3.7, it's random.
 
-## What's the difference between a script and a module?  (2)
+## What's the difference between a script and a module?
 
-When a file is executed as a script, `__name__` has the value `'__main__'`.
-When it's imported as a module, it's `'script'`.
-BTW, `__name__` is a global variable.
-
----
-
+A module is meant to be imported.  A script is meant to be executed.
 A module is compiled under `__pycache__/`, not a script.
 
 ##
