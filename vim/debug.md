@@ -903,7 +903,7 @@ For example here:
           On Linux that would be the libncurses-dev package.
           Or specify the name of the library with --with-tlib.
 
-The previous error is given by `ld.bfd(1)`:
+The previous error is given by `ld(1)`:
 
     /usr/bin/ld: /tmp/ccP59uKl.o: relocation R_X86_64_32 against `.rodata.str1.1' can not be used when making a PIE object; recompile with -fPIC
 

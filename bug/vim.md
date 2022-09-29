@@ -1,5 +1,11 @@
 # ?
 
+<https://github.com/vim/vim/issues/11023>
+
+Can be closed now?
+
+# ?
+
 Support docstrings in Vim9 script, so that functions can self-document.
 Rationale: I often do something like this:
 
@@ -5781,46 +5787,6 @@ djump 0'1 /FOO/
     :help :winpos
     :help :winsize
     :help :z
-
-## 'verbose' message not printed until scroll back and forth
-
-**Steps to reproduce**
-
-Run this shell command:
-
-    $ vim -Nu NONE -i NONE +'4verbose echo system("seq " .. 2*&lines)'
-
-The output of `seq(1)` is printed in Vim's pager: this is expected.
-The first line of Vim's pager is empty: this is NOT expected.
-
-**Expected behavior**
-
-The first line of Vim's pager prints the exact shell command which Vim has run to get the output of `system()`.  Something like:
-
-    Calling shell to execute: "(seq 123)>/tmp/vsZS9Kf/0 2>&1"
-
-**Operating system**
-
-Ubuntu 20.04.3 LTS
-
-**Version of Vim**
-
-8.2 Included patches: 1-3656
-
-**Screenshot**
-
-![gif](https://user-images.githubusercontent.com/8505073/143058325-9e982a48-2d00-4beb-8f28-91fa45360202.gif)
-
-In the previous screenshot, we can see that the first line is initially empty.  Then, after scrolling back and forth by pressing `j` then `k`, the "Calling shell to execute: ..." message is finally printed.  It would be less confusing if it was printed immediately, without us having to scroll.
-
----
-
-There are other issues.  Sometimes, some lines in the output of `system()` are blank.
-It depends on the number of lines:
-
-    vim -Nu NONE -i NONE +'4verbose echo system("seq " .. 2*&lines)'
-                                                          ^------^
-                                                          make more tests, and play with that number
 
 ## Possibly stale items at `:help todo /Vim script language`:
 
