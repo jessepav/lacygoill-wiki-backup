@@ -4,8 +4,8 @@
 # namedtuple {{{1
 
 # If we need to work on the vision  of patients in a hospital, it makes sense to
-# store data in tuples  with 2 numbers; one for the left eye,  the other for the
-# right one:
+# store measurements in tuples  with 2 numbers; one for the  left eye, the other
+# for the right one:
 vision = (9.5, 8.8)
 print(vision)
 print(vision[0])
@@ -16,10 +16,10 @@ print(vision[1])
 
 # Now, suppose we later  want to enhance this data by  including some number for
 # the combined vision in  the middle of the tuple.  As  a result, `vision[1]` no
-# longer pertains  to the left  eye, and we  need to refactor  every `vision[1]`
+# longer pertains  to the right eye,  and we need to  refactor every `vision[1]`
 # into `vision[2]`, which can be painful.
 # We  could  have avoided  this  pitfall  if we  had  implemented  our data  via
-# namedtuples  instead of  regular tuples.   Because in  that case,  the numbers
+# namedtuples instead of regular tuples.  Because in that case, the measurements
 # could be referred to with names like `vision.left` and `vision.right`, instead
 # of positions:
 from collections import namedtuple

@@ -493,9 +493,9 @@ Also known as "character string literal".
 
 ## logical expression
 
-Expression which can be tested by an `if` statement or a conditional operator.
-
-It's built from relational, equality, and logical operators.
+Expression which  is tested by  an `if` or  `while` statement, or  a conditional
+operator.  It  can be  built from relational,  equality, and  logical operators.
+It's always considered true or false.
 
 ## lvalue
 

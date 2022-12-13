@@ -61,6 +61,13 @@ It will force `keyd(1)` to terminate.
 
 ##
 # Todo
+## Briefly mention alternative programs
+
+- <https://github.com/samvel1024/kbct>
+- <https://github.com/kmonad/kmonad>
+- <https://github.com/snyball/Hawck>
+
+##
 ## document
 ### the benefits of `keyd(1)` over our old suite of tools
 
@@ -438,11 +445,23 @@ Introduced in this commit:
 
 <https://github.com/rvaiya/keyd/commit/190bd68242a21abb490947537d828590f0a75be3>
 
-##
-## Briefly mention alternative programs
+### chording
 
-- <https://github.com/kmonad/kmonad>
-- <https://github.com/samvel1024/kbct>
+<https://github.com/rvaiya/keyd/commit/afd6fb73a5f07a0a004743a8b743a37205868f11>
+
+    man keyd /CONFIGURATION/;/Chording
+
+### `oneshot_timeout` option
+
+<https://github.com/rvaiya/keyd/commit/7f2dc665fb230a4c16e712f2941c8b392593b2d1>
+
+### `diable_modifier_guard` option
+
+<https://github.com/rvaiya/keyd/commit/115cdece6f2f9b4b9032851d346e7e2869681bc2>
+
+### `overload_tap_timeout` option
+
+<https://github.com/rvaiya/keyd/commit/0ccb1bf900e172a29d9c6d002b837ac25dd9f476>
 
 ##
 ## What do these sentences from man page mean?

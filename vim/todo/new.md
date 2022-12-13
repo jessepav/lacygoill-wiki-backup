@@ -10,11 +10,14 @@
    - `:help complete_info()` + 'user_data' entry in completion item
    - `:help environ()` + `:help getenv()` + `:help setenv()`
    - `:help expandcmd()`
+   - `:help getbufoneline()`
+   - `:help getmouseshape()`
    - `:help gettagstack()` + `:help settagstack()`
    - `:help indexof()`
    - `:help interrupt()`
    - `:help keytrans()`
    - `:help maplist()`
+   - `:help popup_findecho()`
    - `:help prop_add_list()`
    - `:help pum_getpos()`
    - `:help setcmdline()`
@@ -65,11 +68,12 @@ temporarily converting the dates into simple integers.
 
 ## arguments of functions
 
+   - `:help col()` and `:help charcol()` accept optional `winid` argument
    - `:help getbufinfo()` includes a `linecount` key in the output dictionary
    - `:help getcompletion()` supports the `cmdline` argument
    - `:help getcurpos()` supports the `winid` argument
    - `:help getloclist()` supports a `filewinid` key in the optional dictionary argument
-   - `:help line()` supports an optional `{winid}` argument
+   - `:help line()` supports an optional `winid` argument
 
    - `:help matchadd()` supports a new `window` key in the optional dictionary argument;
      see also `:help matchdelete()`, `:help clearmatches()`, `:help getmatches()` and `:help setmatches()`,
@@ -120,6 +124,8 @@ equalization to one direction.
 
    - `:help :cq` (`:{N}cq[uit][!]`, Quit Vim with error code {N}.)
 
+   - `:help :echowindow` (`N` count)
+
    - `:help :profile` (`dump` and `stop` subcommands)
 
    - `:help :unlet-$`
@@ -154,7 +160,7 @@ equalization to one direction.
    - `:help SigUSR1`
    - `:help SourcePost`
    - `:help TextChangedP`
-   - `:help TextChangedP`
+   - `:help TextChangedT`
    - `:help WinClosed`
 
 Note: `InsertLeave` is fired right *after* leaving insert mode.

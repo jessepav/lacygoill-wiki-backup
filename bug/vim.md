@@ -1,8 +1,10 @@
 # ?
 
-<https://github.com/vim/vim/issues/11023>
+The second argument of `map()` is a funcref which 
 
-Can be closed now?
+    If {expr2} is a |Funcref| it is called with two arguments:
+            1. The key or the index of the current item.
+            2. the value of the current item.
 
 # ?
 
@@ -155,6 +157,8 @@ For which ones would we need a `trailing` key and/or a `location` one?
 
 Open a PR to document colored underlines.
 
+<https://github.com/vim/vim/issues/10239#issuecomment-1107182341>
+
 ##
 # Vim9
 ## ?
@@ -197,6 +201,12 @@ defcompile
 Why isn't `E1191` given in the second snippet?
 The code is identical; the only difference is that `A()` has been renamed into `B()`.
 The issue disappears if you rename `Map()` into `Func()`.
+
+## ?
+
+> Although, it would be nice to give an error earlier, as soon as the option is set, and not wait until it's evaluated to compute the fold level of a line.
+
+<https://github.com/vim/vim/issues/7625>
 
 ##
 ## type checking
